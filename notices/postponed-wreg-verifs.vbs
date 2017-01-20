@@ -39,6 +39,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 '--- DIALOGS-----------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dlg, 0, 0, 196, 85, "Postponed WREG WCOM"
   EditBox 70, 15, 60, 15, MAXIS_case_number
@@ -112,7 +124,7 @@ EMReadScreen Middle_initial, 1, 6, 79
 client_name = replace(First_name, "_", "") & " " & replace(Middle_initial, "_", "") & " " & replace(Last_name, "_", "")
 mid_month = left(app_date, 2) & "/15/" & right(app_date, 2)  'determining if the application date is before or after the 15th this affects when case must close by.
 mid_month_check = datediff("D", mid_month, app_date)		'subtracting the day part of the app_date against the 15th
-IF mid_month_check <= 0 THEN 
+IF mid_month_check <= 0 THEN
 	closure_date = dateadd("D", -1, (dateadd("M", 1, left(app_date, 2) & "/01/" & right(app_date, 2)))) ' 0 and below are before the 15th and close last day of the 1st month after application
 	closure_date = cstr(closure_date)
 	closure_month = right("00" & DatePart("M",closure_date), 2)				'defining the month to have 2 digits
@@ -120,7 +132,7 @@ IF mid_month_check <= 0 THEN
 	call ten_day_cutoff_check(closure_month, closure_year, ten_day_cutoff)
 	ten_day_cutoff = cstr(ten_day_cutoff)
 END IF
-IF mid_month_check > 0 THEN 
+IF mid_month_check > 0 THEN
 	closure_date = dateadd("D", -1, (dateadd("M", 2, left(app_date, 2) & "/01/" & right(app_date, 2))))	' anything above 0 is after the 15th and closes the last day of the 2nd month after application
 	closure_date = cstr(closure_date)
 	closure_month = right("00" & DatePart("M",closure_date), 2)				'defining the month to have 2 digits

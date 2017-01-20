@@ -103,7 +103,7 @@ call maxis_case_number_finder(MAXIS_case_number)
 MAXIS_footer_month = CM_plus_1_mo		'default date for CM plus one
 MAXIS_footer_year = CM_plus_1_yr
 
-Do
+Do 
 	DO
 		err_msg = ""
 		dialog case_number_dialog
@@ -147,11 +147,11 @@ Call navigate_to_maxis_screen("STAT", "REVW")
 EMReadscreen REVW_date, 8, 9, 57
 If REVW_date = "__ 01 __" then script_end_procedure("A SNAP review date is required. Please update STAT/REVW, then run the script again.")
 
-'The section will establish which household member(s) are non-parents and check for any other inhibiting errors.
+'The section will establish which household member(s) are non-parents and check for any other inhibiting errors. 
 call navigate_to_maxis_screen("STAT", "SUMM")
-ABAWD_members = "0"			'establishing number of ABAWD members and which
+ABAWD_members = "0"			'establishing number of ABAWD members and which 
 MAXIS_row = 5				'MAXIS row to start reading STAT/SUMM info
-Do
+Do 
 	EMReadscreen SUMM_info, 60, MAXIS_row, 15
 	If InStr(SUMM_info, "ABAWD STATUS SHOWS CARETAKER OF MINOR CHILD") then
 		EMReadscreen ABAWD_memb_number, 2, MAXIS_row, 8
@@ -160,7 +160,7 @@ Do
 		IF ABAWD_member_array(0) <> "" then ReDim Preserve ABAWD_member_array(UBound(ABAWD_member_array)+1)
 		ABAWD_member_array(UBound(ABAWD_member_array)) = ABAWD_memb_number
 	Else
-		MAXIS_row = MAXIS_row + 1
+		MAXIS_row = MAXIS_row + 1	
 	END IF
 LOOP until MAXIS_row = 19 or InStr(SUMM_info, "BKFS FS HAS BEEN INHIBITED")
 
@@ -168,7 +168,7 @@ If ABAWD_member_array(0) = "" THEN script_end_procedure("No members have appear 
 
 err_msg = ""		'establishing blank variables
 
-'Checking the WREG panel for these individuals to ensure that ABAWD/FSET coding is 21/04
+'Checking the WREG panel for these individuals to ensure that ABAWD/FSET coding is 21/04	
 For each ABAWD_memb_number in ABAWD_member_array 'This loop will check that WREG is coded correctly
 	call navigate_to_maxis_screen("STAT", "WREG")
 	EMWritescreen ABAWD_memb_number, 20, 76
@@ -206,7 +206,7 @@ For i = 0 to ubound(footer_month_array)
 
 	Call navigate_to_MAXIS_screen("STAT", "HEST")		'<<<<< Navigates to STAT/HEST
 	EMReadScreen HEST_heat, 6, 13, 75 					'<<<<< Pulls information from the prospective side of HEAT/AC standard allowance
-
+	
 	IF HEST_heat <> "      " then						'<<<<< If there is an amount on the hest line then the electric and phone allowances are not used
 		HEST_elect = ""
 		HEST_phone = ""				'<<<<< Ignores the electric and phone standards if HEAT/AC is used
@@ -422,7 +422,7 @@ For i = 0 to ubound(footer_month_array)
 				IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN
 					EMReadScreen jobs_type, 1, 5, 34
 					EMReadScreen jobs_subsidy, 2, 5, 74
-					EMReadScreen jobs_verified, 1, 6, 34
+					EMReadScreen jobs_verified, 1, 6, 34				
 				ELSE
 					EMReadScreen jobs_type, 1, 5, 38
 					EMReadScreen jobs_subsidy, 2, 5, 71
@@ -608,7 +608,7 @@ For i = 0 to ubound(footer_month_array)
 	EMWritescreen "03", 4, 34 'entering the FIAT reason
 	EMWritescreen "x", 14, 22
 	transmit 'This should take us to FFSL
-
+	
 	'The following loop will enter person tests screen and pass for each member on grant
 	For each member in hh_member_array
 		row = 6
@@ -627,19 +627,19 @@ For i = 0 to ubound(footer_month_array)
 		EMWritescreen "x", 16, 5
 		EMWritescreen "x", 17, 5
 		Transmit
-
+		
 		'Passing all case tests
 		EMWritescreen "PASSED", 13, 7
 		EMWritescreen "PASSED", 14, 7
 		PF3
 		'checkking for case is catergorically eligible error
 		EMReadScreen cat_elig_check, 7, 24, 2
-		If cat_elig_check = "CASE IS" then
+		If cat_elig_check = "CASE IS" then 
 			'EMWritescreen "N/A___", 13, 7
 			EMWritescreen "N/A___", 14, 7
 			PF3
 		END IF
-
+		
 		'Now the BUDGET (FFB1) NO
 		'First, blank out existing values to avoid an error from existing info
 		EMWriteScreen "         ", 5, 32
@@ -663,7 +663,7 @@ For i = 0 to ubound(footer_month_array)
 		EMWritescreen ABAWD_months_array(i).gross_other, 16, 32
 		EMWritescreen ABAWD_months_array(i).deduction_FMED, 12, 72
 		EMWritescreen ABAWD_months_array(i).deduction_COEX, 14, 72
-
+	
 		transmit
 		EMReadScreen warning_check, 4, 18, 9 'We need to check here for a warning on potential expedited cases..
 		IF warning_check = "FIAT" Then 'and enter two extra transmits to bypass.
@@ -703,7 +703,7 @@ For i = 0 to ubound(footer_month_array)
 		'Now on SUMM screen, which shouldn't matter
 		PF3 'back to FFSL
 		PF3 'This should bring up the "do you want to retain" popup
-
+	
 		EMReadScreen income_cap_check, 11, 24, 2
 		If income_cap_check = "PROSP GROSS" then script_end_procedure("Prospective gross income is over the income standard. THE FIAT cannot be saved. Please review case and budget for potential errors.")
 		EMWritescreen "Y", 13, 41

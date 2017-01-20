@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 BeginDialog EDRS_dialog, 0, 0, 156, 80, "EDRS dialog"
   EditBox 60, 10, 80, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
@@ -72,9 +84,9 @@ call HH_member_custom_dialog(HH_member_array)
 'Error proof functions
 Call check_for_MAXIS(False)
 
-'changing footer dates to current month to avoid invalid months. 
+'changing footer dates to current month to avoid invalid months.
 MAXIS_footer_month = datepart("M", date)
-	IF Len(MAXIS_footer_month) <> 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_month 
+	IF Len(MAXIS_footer_month) <> 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
 MAXIS_footer_year = right(datepart("YYYY", date), 2)
 
 Dim Member_Info_Array()
@@ -89,34 +101,34 @@ For i = 0 to Ubound(HH_member_array)
 	'Navigating to selected memb panel
 	EMwritescreen HH_member_array(i), 20, 76
 	transmit
-	
+
 	EMReadScreen no_MEMB, 13, 8, 22 'If this member does not exist, this will stop the script from continuing.
 	IF no_MEMB = "Arrival Date:" THEN script_end_procedure("This HH member does not exist.")
-	
-	
+
+
 	'Reading info and removing spaces
 	EMReadscreen First_name, 12, 6, 63
 	First_name = replace(First_name, "_", "")
 	Member_Info_Array(i, 1) = First_name
-	
+
 	'Reading Last name and removing spaces
 	EMReadscreen Last_name, 25, 6, 30
 	Last_name = replace(Last_name, "_", "")
 	Member_Info_Array(i, 2) = Last_name
-	
-	'Reading Middle initial and replacing _ with a blank if empty. 
+
+	'Reading Middle initial and replacing _ with a blank if empty.
 	EMReadscreen Middle_initial, 1, 6, 79
 	Middle_initial = replace(Middle_initial, "_", "")
 	Member_Info_Array(i, 3) = Middle_initial
 
-	'Reads SSN 
-	Emreadscreen SSN_number, 11, 7, 42  
+	'Reads SSN
+	Emreadscreen SSN_number, 11, 7, 42
 	SSN_number = replace(SSN_number, " ", "")
 	Member_Info_Array(i, 4) = SSN_number
-	
+
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
-	
-Next 
+
+Next
 
 
 
@@ -125,12 +137,12 @@ Back_to_self
 CALL navigate_to_MAXIS_screen("INFC", "EDRS")
 
 For i = 0 to UBound(HH_member_array)
-	
+
 	'Write in SSN number into EDRS
 	EMwritescreen Member_Info_Array(i, 4), 2, 7
 	transmit
 	Emreadscreen SSN_output, 7, 24, 2
-	
+
 	'Check to see what results you get from entering the SSN. If you get NO DISQ then check the person's name
 	IF SSN_output = "NO DISQ" THEN
 		EMWritescreen Member_Info_Array(i, 2), 2, 24
@@ -138,7 +150,7 @@ For i = 0 to UBound(HH_member_array)
 		EMWritescreen Member_Info_Array(i, 3), 2, 76
 		transmit
 		EMreadscreen NAME_output, 7, 24, 2
-		IF NAME_output = "NO DISQ" THEN        'If after entering a name you still get NO DISQ then let worker know otherwise let them know you found a name. 
+		IF NAME_output = "NO DISQ" THEN        'If after entering a name you still get NO DISQ then let worker know otherwise let them know you found a name.
 			Hits = Hits & "No disqualifications found for Member #: " & Member_Info_Array(i, 0) & " " & Member_Info_Array(i, 1) & " " & Member_Info_Array(i, 2) & vbcr
 		ELSE
 			Hits = Hits & "Member #: " & Member_Info_Array(i, 0) & " " & Member_Info_Array(i, 1) & " " & Member_Info_Array(i, 2) & " has a potential name match. " & vbCr
@@ -146,8 +158,8 @@ For i = 0 to UBound(HH_member_array)
 	ELSE
 		Hits = Hits & "Member #: " & Member_Info_Array(i, 0) & " " & Member_Info_Array(i, 1) & " " & Member_Info_Array(i, 2) & " has SSN Match. " & vbCr     'If after searching a SSN number you don't get the NO DISQ message then let worker know you found the SSN
 	END IF
-Next 
+Next
 Msgbox Hits
-	
+
 STATS_counter = STATS_counter - 1			'Removing one instance of the STATS Counter
 script_end_procedure("")

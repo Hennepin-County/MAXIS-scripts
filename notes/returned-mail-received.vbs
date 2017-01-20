@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 BeginDialog case_number_dlg, 0, 0, 150, 80, "CASE NUMBER DIALOG"
   EditBox 75, 10, 70, 15, MAXIS_case_number
   EditBox 75, 30, 40, 15, worker_signature
@@ -115,24 +127,24 @@ END IF
 ' >>>>> GATHERING & CONFIRMING THE MAXIS CASE NUMBER <<<<<
 
 DO
-	err_msg = ""	
+	err_msg = ""
 	DIALOG case_number_dlg
 		IF ButtonPressed = 0 THEN stopscript
 		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
 		'checks that the case note was signed
-		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your case note!" 
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."		
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your case note!"
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 LOOP UNTIL err_msg = ""
 
 CALL check_for_MAXIS(False)
-	
+
 'starts the EVF received case note dialog
 DO
 	err_msg = ""
 	'starts the Returned Mail dialog
 	Dialog RETURNED_MAIL
 	'asks if you want to cancel and if "yes" is selected sends StopScript
-	cancel_confirmation 
+	cancel_confirmation
 	'checks that there is a date in the date received box
 	IF IsDate (date_received) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a date in mm/dd/yy for date received."
 	'checks if the ADDR rec'd from is filled in
@@ -157,11 +169,11 @@ DO
 	IF forwarding_ADDR = "Yes" and new_COUNTY = "" THEN err_msg = err_msg & vbCr & "You must input the County of the new ADDR."
 	'checks if client is active on MNsure question has been answered
 	IF MNsure_active = "Select" THEN err_msg = err_msg & vbCr & "You must select if the client has a MNsure case or not."
-	'checks if MNsure case number has been entered on a MNsure active case	
+	'checks if MNsure case number has been entered on a MNsure active case
 	IF MNsure_active = "Yes" and MNsure_number = "" THEN err_msg = err_msg & vbCr & "You must enter the MNsure case number."
 	'checks if MNsure ADDR updated
 	IF MNsure_active = "Yes" and MNsure_ADDR = "N/A" THEN err_msg = err_msg & vbCr & "You must select if the MNsure ADDR is correct."
-	'checks if notes/actions taken were entered				
+	'checks if notes/actions taken were entered
 	IF misc_notes = "" THEN err_msg = err_msg & vbCr & "You must enter action taken/misc notes."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 LOOP UNTIL err_msg = ""
@@ -189,7 +201,7 @@ call check_for_MAXIS (false)
 'starts a blank case note
 call start_a_blank_case_note
 
-'this enters the actual case note info 
+'this enters the actual case note info
 call write_variable_in_CASE_NOTE("***Returned Mail received " & date_received & " with " & ADDR_status & "*** " & MNsure)
 call write_bullet_and_variable_in_CASE_NOTE("From ADDR", from_ADDR)
 call write_variable_in_CASE_NOTE("             " & from_CITY & ", " & from_STATE & " " & from_ZIP)
@@ -210,11 +222,11 @@ call write_variable_in_CASE_NOTE(worker_signature)
 'Checks if this is a MNsure case and pops up a message box with instructions if the ADDR is incorrect.
 IF MNsure_active = "Yes" and MNsure_ADDR = "No" THEN MsgBox "Please update the MNsure ADDR if you are able to. If unable, please forward the new ADDR information to the correct area (i.e. HPU Case Manitenance - Action Needed Log)"
 
-'creates a message box reminding the worker to review their case note prior to Auto-TIKLing. 
+'creates a message box reminding the worker to review their case note prior to Auto-TIKLing.
 IF verifA_sent_checkbox = 1 THEN MsgBox "Please review your case note for accuracy. When you click OK or press enter the script will enter an Auto-TIKL for you."
 
 'Checks if a DHS2919A mailed and sets a TIKL for the return of the info.
-IF verifA_sent_checkbox = 1 THEN 
+IF verifA_sent_checkbox = 1 THEN
 	call navigate_to_MAXIS_screen("dail", "writ")
 
 	'The following will generate a TIKL formatted date for 10 days from now.

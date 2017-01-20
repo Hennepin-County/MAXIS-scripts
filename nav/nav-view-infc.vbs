@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'CONNECTS TO MAXIS, SEEKS CASE NUMBER
 EMConnect ""
 
@@ -72,15 +84,15 @@ EMReadScreen MAI_check, 3, 1, 33
 If MAI_check <> "MAI" then EMWaitReady 0, 0
 EMReadScreen production_check, 7, 6, 15
 EMReadScreen inquiry_check, 7, 7, 15
-If inquiry_check = "RUNNING" and results_screen = "inquiry" then 
-  EMWriteScreen "s", 7, 2    
+If inquiry_check = "RUNNING" and results_screen = "inquiry" then
+  EMWriteScreen "s", 7, 2
   transmit
 End if
-If production_check = "RUNNING" and results_screen = "production" then 
-  EMWriteScreen "s", 6, 2   
+If production_check = "RUNNING" and results_screen = "production" then
+  EMWriteScreen "s", 6, 2
   transmit
 End if
-If inquiry_check <> "RUNNING" and results_screen = "inquiry" then 
+If inquiry_check <> "RUNNING" and results_screen = "inquiry" then
   attn
   EMConnect "B"
   attn
@@ -89,11 +101,11 @@ If inquiry_check <> "RUNNING" and results_screen = "inquiry" then
   EMReadScreen inquiry_B_check, 7, 7, 15
   If inquiry_B_check <> "RUNNING" then script_end_procedure("Inquiry could not be found. If inquiry is on, try running the script again. If the problem keeps happening, contact the script administrator.")
   If inquiry_B_check = "RUNNING" then
-    EMWriteScreen "s", 7, 2    
+    EMWriteScreen "s", 7, 2
     transmit
   End if
 End if
-If production_check <> "RUNNING" and results_screen = "production" then 
+If production_check <> "RUNNING" and results_screen = "production" then
   attn
   EMConnect "B"
   attn
@@ -103,7 +115,7 @@ If production_check <> "RUNNING" and results_screen = "production" then
     stopscript
   End if
   If production_B_check = "RUNNING" then
-    EMWriteScreen "s", 6, 2  
+    EMWriteScreen "s", 6, 2
     transmit
   End if
 End if
@@ -127,7 +139,7 @@ transmit
 EMReadScreen still_self, 27, 2, 28 'This checks to make sure we've moved passed SELF.
 If still_self = "ror Prone Edit Summary (ERR" then transmit
 EMReadScreen no_MEMB, 13, 8, 22 'If this member does not exist, this will stop the script from continuing.
-If no_MEMB = "Arrival Date:" then 
+If no_MEMB = "Arrival Date:" then
   MsgBox "This HH member does not exist."
   StopScript
 End if

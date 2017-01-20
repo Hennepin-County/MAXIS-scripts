@@ -114,19 +114,19 @@ HC_check = 0
 'Autofills case number
 call MAXIS_case_number_finder(MAXIS_case_number)
 
-'Dialog starts: includes nav button for SPEC/WCOM, validates the date of closure, confirms that date of closure is last day of a month, checks that a program was selected for closure, and navigates to CASE/NOTE
+'Dialog starts: includes nav button for SPEC/WCOM, validates the date of closure, confirms that date of closure is last day of a month, checks that a program was selected for closure, and navigates to CASE/NOTE 
 DO
 	DO
 		err_msg = ""		'establishing value of varaible, this is necessary for the Do...LOOP
-		DO
-			Do
+		DO	
+			Do 
 				Dialog closed_dialog
 				cancel_confirmation
 				If ButtonPressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")
 				If ButtonPressed = HC_EPM_Button then CreateObject("WScript.Shell").Run("http://hcopub.dhs.state.mn.us/epm/#t=index_1.htm")
-			Loop until ButtonPressed = -1
-			If isdate(closure_date) = False THEN msgbox "* Enter a valid date of closure (MM/DD/YYYY)."	'This condition is here instead of in the next do loop
-		Loop until isdate(closure_date) = True
+			Loop until ButtonPressed = -1 							
+			If isdate(closure_date) = False THEN msgbox "* Enter a valid date of closure (MM/DD/YYYY)."	'This condition is here instead of in the next do loop 
+		Loop until isdate(closure_date) = True 
 		If datepart("d", dateadd("d", 1, closure_date)) <> 1 THEN err_msg = err_msg & vbNewline & "* Enter the last date of eligibility, which for an open case, should be the last day of the month. If this is a denial, use the denial script."
 		IF (death_check = 1 AND isdate(hc_close_for_death_date) = FALSE) THEN err_msg = err_msg & vbNewline & "* Enter the client's date of death."
 		IF (death_check <> 1 AND hc_close_for_death_date <> "") THEN err_msg = err_msg & vbNewline & "* Check the box for client death, remove the client's date of death."
@@ -145,7 +145,7 @@ Call check_for_MAXIS(False)
 'WCOM informing users that they may be subject to probate claims for their HC case
 IF worker_county_code = "x127" THEN
 	IF (HC_check = 1 AND death_check = 1) THEN
-
+		
         CALL navigate_to_MAXIS_screen("SPEC", "WCOM")
         Emwritescreen "Y", 3, 74  'sorts by HC notices
         Transmit
@@ -161,7 +161,7 @@ IF worker_county_code = "x127" THEN
 					'transmitting and putting wcom into edit mode
 					Transmit
 					PF9
-
+					
 					'Worker Comment Input
 					Call write_variable_in_spec_memo("************************************************************")
 					call write_variable_in_spec_memo("Medical Assistance eligibility ends on: " & hc_close_for_death_date & ".")
@@ -173,7 +173,7 @@ IF worker_county_code = "x127" THEN
 					Hennepin_probate_notes = "* Added Hennepin County probate information to the client's notice."
         			exit Do
         		End If
-        	End If
+        	End If 
         	If wcom_row = 17 then
         		PF8
         		Emreadscreen spec_edit_check, 6, 24, 2
@@ -181,18 +181,18 @@ IF worker_county_code = "x127" THEN
         	end if
         	If spec_edit_check = "NOTICE" THEN no_hc_waiting = true
         Loop until spec_edit_check = "NOTICE"
-
+        
         ' If no notice was found then we give the option to write the message in a SPEC MEMO instead
         If no_hc_waiting = true then
             swap_to_memo = msgbox ("No waiting HC results were found for the requested month. Would you like to send MEMO in place of WCOM?", vbYesNo)  'fancy message box with yes/no
-        End if
-
+        End if 
+		
         'based on output of fancy message box we either end the script or write the WCOM
-        IF swap_to_memo = vbNo THEN
+        IF swap_to_memo = vbNo THEN 
 			Hennepin_probate_notes = "* Hennepin County probate information was not added to the client's notice."
 			msgbox "Information about Hennepin County's probate information has not been sent to the client/family."
-		END IF
-
+		END IF 
+		
         IF swap_to_memo = vbYes THEN
         	CALL navigate_to_MAXIS_screen("SPEC","MEMO")
         	PF5
@@ -230,9 +230,9 @@ IF worker_county_code = "x127" THEN
 	  	  	Call write_variable_in_spec_memo("************************************************************")
             PF4
 			Hennepin_probate_notes = "* Added Hennepin County probate information to a SPEC/MEMO."
-        End if
-	End if
-End if
+        End if 
+	End if 
+End if 
 '******END OF HENNEPIN COUNTY SPECIFIC INFORMATION*********
 
 'LOGIC and calculations----------------------------------------------------------------------------------------------------

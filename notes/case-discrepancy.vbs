@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'Dialogs----------------------------------------------------------------------------------------------------
 BeginDialog case_discrepancy_dialog, 0, 0, 336, 245, "Case discrepancy"
   EditBox 90, 10, 70, 15, MAXIS_case_number
@@ -82,26 +94,26 @@ EndDialog
 'Connecing to MAXIS, establishing the county code, and grabbing the case number
 EMConnect ""
 call MAXIS_case_number_finder(MAXIS_case_number)
- 										
-DO										
-	DO									
-		err_msg = ""								'establishing value of varaible, this is necessary for the Do...LOOP	
-		dialog case_discrepancy_dialog				'initial dialog			
-		If buttonpressed = 0 THEN stopscript		'script ends if cancel is selected							
-		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbNewline & "* Enter a valid case number."	'mandatory field		
+
+DO
+	DO
+		err_msg = ""								'establishing value of varaible, this is necessary for the Do...LOOP
+		dialog case_discrepancy_dialog				'initial dialog
+		If buttonpressed = 0 THEN stopscript		'script ends if cancel is selected
+		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbNewline & "* Enter a valid case number."	'mandatory field
 		If discrepancy_status = "Select one..." then err_msg = err_msg & vbnewline & "* Select a discrepancy status."
-		If (MNsure_checkbox <> 1 and DWP_checkbox <> 1 and EMER_checkbox <> 1 and GA_checkbox <> 1 and GRH_checkbox <> 1 and MA_checkbox <> 1 and MFIP_checkbox <> 1 and MSA_checkbox <> 1 and MSP_checkbox <> 1 and RCA_checkbox <> 1 and SNAP_checkbox <> 1) then err_msg = err_msg & vbnewline & "* You must enter at least one program."	
+		If (MNsure_checkbox <> 1 and DWP_checkbox <> 1 and EMER_checkbox <> 1 and GA_checkbox <> 1 and GRH_checkbox <> 1 and MA_checkbox <> 1 and MFIP_checkbox <> 1 and MSA_checkbox <> 1 and MSP_checkbox <> 1 and RCA_checkbox <> 1 and SNAP_checkbox <> 1) then err_msg = err_msg & vbnewline & "* You must enter at least one program."
 		If MNsure_case_number = "" and MNsure_checkbox = 1 then err_msg = err_msg & vbnewline & "* Enter the MNsure case number."
         If MEMB_PMI = "" then err_msg = err_msg & vbnewline & "* Enter the HH member and/or PMI #'s the discrepancy effects."
 		If describe_discrepancy = "" then err_msg = err_msg & vbnewline & "* Describe the discrepancy."
-		If actions_taken = "" then err_msg = err_msg & vbnewline & "* Enter the resolution/actions taken."	
+		If actions_taken = "" then err_msg = err_msg & vbnewline & "* Enter the resolution/actions taken."
 		If worker_signature = "" then err_msg = err_msg & vbnewline & "* Sign your case note."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect						
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-'Creating an incremantal variable based on the programs selected 
+'Creating an incremantal variable based on the programs selected
 If MA_checkbox = 1 then progs_effect = progs_effect & " MA,"
 If MSP_checkbox = 1 then progs_effect = progs_effect & " Medicare savings program (MSP),"
 If MNsure_checkbox = 1 then progs_effect = progs_effect & " MNsure,"
@@ -111,22 +123,22 @@ If MFIP_checkbox = 1 then progs_effect = progs_effect & " MFIP,"
 IF MSA_checkbox = 1 then progs_effect = progs_effect & " MSA,"
 If GA_checkbox = 1 then progs_effect = progs_effect & " GA,"
 IF GRH_checkbox = 1 then progs_effect = progs_effect & " GRH,"
-If RCA_checkbox = 1 then progs_effect = progs_effect & " RCA," 
+If RCA_checkbox = 1 then progs_effect = progs_effect & " RCA,"
 If EMER_checkbox = 1 then progs_effect = progs_effect & " Emergency,"
- 
+
 'trims excess spaces of progs_effect
 progs_effect = trim(progs_effect)
 'takes the last comma off of progs_effect variable
-If right(progs_effect, 1) = "," THEN progs_effect = left(progs_effect, len(progs_effect) - 1) 
+If right(progs_effect, 1) = "," THEN progs_effect = left(progs_effect, len(progs_effect) - 1)
 
 'TIKL coding
-if TIKL_checkbox = 1 then 
+if TIKL_checkbox = 1 then
 	call navigate_to_MAXIS_screen("dail", "writ")
-	call create_MAXIS_friendly_date(date, 10, 5, 18) 
+	call create_MAXIS_friendly_date(date, 10, 5, 18)
 	Call write_variable_in_TIKL("The following verifications were requested 10 days ago for a case discrepancy: " & verifs_needed)
-	transmit	
+	transmit
 	PF3
-End if 
+End if
 
 'The case notes----------------------------------------------------------------------------------------------------
 start_a_blank_case_note

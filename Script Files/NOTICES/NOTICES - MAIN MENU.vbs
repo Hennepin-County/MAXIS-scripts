@@ -5,13 +5,16 @@ ELSE
 	IF use_master_branch = TRUE THEN
 		script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/"									'Resets to release settings
 	ELSE
-		script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/RELEASE/"
+		script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/RELEASE/Script Files/"
 	END IF
 End If 
 
 'LOADING SCRIPT
-script_URL = script_repository & "notices/main-menu.vbs"
-
+IF use_master_branch = TRUE THEN
+	script_URL = script_repository & "notices/main-menu.vbs"
+ELSE
+	script_URL = script_repository & "NOTICES/NOTICES - MAIN MENU.vbs"
+END IF
 IF run_locally = False THEN
 	SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a script_URL
 	req.open "GET", script_URL, FALSE									'Attempts to open the script_URL

@@ -44,9 +44,9 @@ Function Generate_Client_List(list_for_dropdown)
 	memb_row = 5
 
 	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
-	Do
+	Do 
 		EMReadScreen ref_numb, 2, memb_row, 3
-		If ref_numb = "  " Then Exit Do
+		If ref_numb = "  " Then Exit Do 
 		EMWriteScreen ref_numb, 20, 76
 		transmit
 		EMReadScreen first_name, 12, 6, 63
@@ -54,7 +54,7 @@ Function Generate_Client_List(list_for_dropdown)
 		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")
 		memb_row = memb_row + 1
 	Loop until memb_row = 20
-
+		
 	client_info = right(client_info, len(client_info) - 1)
 	client_list_array = split(client_info, "~")
 
@@ -116,7 +116,7 @@ EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------------------------------
 'Connects to BlueZone & grabbing case number & month/year
-EMConnect ""
+EMConnect "" 
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
@@ -128,9 +128,9 @@ Family_case = FALSE
 Adult_case = FALSE
 
 'If the script was able to get the case number, it is going to attempt to find the active programs to predetermine the actions needed
-If MAXIS_case_number <> "" Then
+If MAXIS_case_number <> "" Then 
 	navigate_to_MAXIS_screen "CASE", "CURR"
-
+	
 	Dim search_fields_array (5)			'Creates an array of different progeam options to loop through
 	search_fields_array(0) = "Case:"
 	search_fields_array(1) = "MFIP:"
@@ -146,27 +146,27 @@ If MAXIS_case_number <> "" Then
 		EMSearch search, row, col
 		If row <> 0 Then 						'If the search finds that program type on case curr - it will read the status associated with it
 			EMReadScreen prog_status, 9, row, 9
-		End If
+		End If 
 		prog_status = trim(prog_status)			'Now it set the case types based on the programs and status
 		If program = "Case:" AND prog_status = "INACTIVE" Then Case_inactive = TRUE
-		If program = "MFIP:" OR program = "DWP:" Then
+		If program = "MFIP:" OR program = "DWP:" Then 
 		 	If prog_status = "ACTIVE" Then Family_case = TRUE
 		End If
-		If program = "GA:" OR program = "MSA:" Then
+		If program = "GA:" OR program = "MSA:" Then 
 			If prog_status = "ACTIVE" Then Adult_case = TRUE
 		End If
 		If program = "FS:" AND prog_status = "ACTIVE" Then SNAP_Active = TRUE
-	Next
-
+	Next 
+		
 	'Next the script will use the case type booleans to preselect the case status dropdown for the initial dialog.
-	If Case_inactive = TRUE Then
+	If Case_inactive = TRUE Then 
 		case_status_dropdown = "Closed"
-	Else
+	Else 
 		If Family_case = FALSE AND Adult_case = FALSE Then case_status_dropdown = "Active but NO Cash"
 	End If
 	If Family_case = TRUE Then case_status_dropdown = "Active Family Cash"
 	If Adult_case = TRUE Then case_status_dropdown = "Active Adult Cash"
-End If
+End If 
 
 'Running the initial dialog to confirm what type of DFLN note is needed and the specifics about the case
 Do
@@ -219,37 +219,37 @@ Case "Initial Information Received"
 		IF case_status_dropdown = "Active Adult Cash" Then
 			If docs_dropdown <> "Assesed as not needing drug treatment." AND docs_dropdown <> "Currently in drug treatment." AND docs_dropdown <> "Successful completion of drug treatment." Then
 				err_msg = err_msg & vbNewLine & "For adult cash the only acceptable responses are the three preselected in the list, if the client has not provided one of these, they have not completed the requirement."
-			End If
-		End If
+			End If 
+		End If 
 		If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-	Loop until err_msg = ""
-
+	Loop until err_msg = "" 
+		
 	clt_ref_num = left(clt_to_update, 2)	'Settin the reference number
-
+	
 	'Family cash cases with DFLN are subject to vendoring. This Updates PACT for vendoring
-	If case_status_dropdown = "Active Family Cash" Then
+	If case_status_dropdown = "Active Family Cash" Then 
 		navigate_to_MAXIS_screen "STAT", "PROG"
 		EMReadScreen cash1, 4, 6, 74
 		EMReadScreen cash2, 4, 7, 74
-		IF cash1 = "ACTV" OR cash2 = "ACTV" Then
+		IF cash1 = "ACTV" OR cash2 = "ACTV" Then 
 			PACT_Updated = TRUE
 			navigate_to_MAXIS_screen "STAT", "PACT"
 			EMReadScreen pact_version, 1, 2, 73
 			If pact_version = "1" Then
 				PF9
-			Else
+			Else 
 				EMWriteScreen "NN", 20, 79
 				transmit
-			End If
+			End If 
 			IF cash1 = "ACTV" Then EMWriteScreen "7", 6, 74
 			If cash2 = "ACTV" Then EMWriteScreen "7", 8, 74
 			transmit
-		End If
-	End If
-
+		End If 
+	End If 
+	
 	'case noting
 	start_a_blank_CASE_NOTE
-
+	
 	CALL write_variable_in_case_note("***Drug Felon***")
 	CALL write_variable_in_case_note("* MEMB " & clt_ref_num & " has cooperated with Drug Felon Notice.")
 	Call write_bullet_and_variable_in_case_note ("Client has reported/supplied verification", docs_dropdown)
@@ -276,7 +276,7 @@ Case "Initial Information Not Received"
 	  Text 5, 50, 55, 10, "Additional Notes:"
 	  Text 5, 70, 60, 10, "Worker Signature:"
 	EndDialog
-
+	
 	'Running the dialog
 	Do
 		err_msg = ""
@@ -284,34 +284,34 @@ Case "Initial Information Not Received"
 		cancel_confirmation
 		If clt_to_update = "Select One..." Then err_msg = err_msg & vbNewLine & "Please pick the client you are processing DFLN information for."
 		If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-	Loop until err_msg = ""
-
+	Loop until err_msg = "" 
+	
 	clt_ref_num = left(clt_to_update, 2)	'Setting the reference number
-
+	
 	'Checks MAXIS for password prompt
 	Call check_for_MAXIS(FALSE)
 
 	'Writes the case note
 	start_a_blank_CASE_NOTE
-
+	
 	CALL write_variable_in_case_note("***Drug Felon***")
 	CALL write_variable_in_case_note("* MEMB " & clt_ref_num & " has NOT cooperated with Drug Felon Notice.")
 	Call write_bullet_and_variable_in_case_note ("Action Taken", action_taken)
 	CALL write_bullet_and_variable_in_case_note ("Notes", more_notes)
 	CALL write_variable_in_case_note ("---")
 	CALL write_variable_in_case_note (worker_signature)
-
+	
 
 Case "Testing Follow Up"
 
 	'Autofilling the conviction date if script can find it
 	navigate_to_MAXIS_screen "STAT", "DFLN"
 	EMReadScreen convc_dt, 8, 6, 27
-	If convc_dt <> "__ __ __" Then
+	If convc_dt <> "__ __ __" Then 
 		convc_dt = replace(convc_dt, " ", "/")
 		conviction_date = convc_dt
 	End If
-
+	
 	DO
 		err_msg = ""
 		Dialog dfln_testing_dialog
@@ -339,7 +339,7 @@ Case "Testing Follow Up"
 	CALL write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 	CALL write_variable_in_case_note("---")
 	CALL write_variable_in_case_note(worker_signature)
-
+	
 End Select
 
 script_end_procedure("")

@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOGS---------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
   EditBox 80, 5, 60, 15, MAXIS_case_number
@@ -151,12 +163,12 @@ date_calculated = date & ""    'setting the date_calculated defaulting to curren
 
 'If a BUSI panel exists this will display information about the Self Employment policy to guide workers
 call navigate_to_MAXIS_screen ("STAT", "BUSI")
-IF self_employment_income <> "" Then 
+IF self_employment_income <> "" Then
 	MsgBox("Your case has self employment income on it." & vbNewLine & vbNewLine & "Please be aware of the following:" & vbNewLine & "* Self Employment income can be budgeted using 2 different methods:" & vbNewLine & "     (01) 50% of Gross Income" & vbNewLine & "     (02) Taxable Income - per taxes less than 12 months old" & _
 	  vbNewLine & "     Refer to CM 17.15.33.03 for detail" & vbNewLine & vbNewLine &"** SNAP cases with rental income do NOT use these methods" & vbNewLine & "     Refer to CM 17.15.33.30 for correct budgeting for these cases" & vbNewLine & "** Cases with farming income may also use a different budgeting method" & _
 	  vbNewLine & "     Refer to CM 17.15.33.24 for more information" & vbNewLine & vbNewLine & "* There are specific rules in regards to clients switching budgeting methods." & vbNewLine & "     If you are documenting a switch, be sure to explain in detail." & vbNewLine & "     Refer to CM 17.15.33.03 for details on changing method")
 	Self_employment_message_shown = TRUE
-End IF 
+End IF
 
 'Runs the main dialog to detail all the information about income.
 DO
@@ -167,9 +179,9 @@ DO
 				Dialog explanation_of_income_budgeted_dialog
 				cancel_confirmation
 				MAXIS_dialog_navigation
-				If ButtonPressed = income_button Then 
+				If ButtonPressed = income_button Then
 				  	Dialog income_notes_dialog
-					If ButtonPressed = add_to_notes_button Then 
+					If ButtonPressed = add_to_notes_button Then
 						If jobs_anticipated_checkbox = checked Then explanation_of_income = explanation_of_income & "; Client expects all income from jobs to continue at this amount."
 						If new_jobs_checkbox = checked Then explanation_of_income = explanation_of_income & "; This is a new job and actual check stubs have not been received, advised client to provide proof once pay is received if the income received differs significantly."
 						If busi_anticipated_checkbox = checked Then explanation_of_income = explanation_of_income & "; Client expects all income from self employment to continue at this amount."
@@ -180,7 +192,7 @@ DO
 						If tikl_for_ui = checked Then explanation_of_income = explanation_of_income & " TIKL set to request an update on Unemployment Income."
 						If no_income_checkbox = checked Then explanation_of_income = explanation_of_income & "; Client has reported they have no income and do not expect any changes to this at this time."
 						If left(explanation_of_income, 1) = ";" Then explanation_of_income = right(explanation_of_income, len(explanation_of_income) - 1)
-					End If 
+					End If
 				End If
 			Loop until ButtonPressed = -1     'Looping until OK button is pressed
 			If IsNumeric(MAXIS_case_number) = FALSE or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
@@ -195,7 +207,7 @@ DO
 		IF self_employment_income <> "" AND Self_employment_message_shown <> TRUE Then  'If self employment information is added to the dialog but was not autofilled from the BUSI panel, the information about Self Employment Policy
 			Self_Emp_Info = MsgBox ("Your case has self employment income on it." & vbNewLine & vbNewLine & "Please be aware of the following:" & vbNewLine & "* Self Employment income can be budgeted using 2 different methods:" & vbNewLine & "     (01) 50% of Gross Income" & vbNewLine & "     (02) Taxable Income - per taxes less than 12 months old" & _
 			  vbNewLine & "     Refer to CM 17.15.33.03 for detail" & vbNewLine & vbNewLine &"** SNAP cases with rental income do NOT use these methods" & vbNewLine & "     Refer to CM 17.15.33.30 for correct budgeting for these cases" & vbNewLine & "** Cases with farming income may also use a different budgeting method" & _
-			  vbNewLine & "     Refer to CM 17.15.33.24 for more information" & vbNewLine & vbNewLine & "* There are specific rules in regards to clients switching budgeting methods." & vbNewLine & "     If you are documenting a switch, be sure to explain in detail." & _ 
+			  vbNewLine & "     Refer to CM 17.15.33.24 for more information" & vbNewLine & vbNewLine & "* There are specific rules in regards to clients switching budgeting methods." & vbNewLine & "     If you are documenting a switch, be sure to explain in detail." & _
 			  vbNewLine & "     Refer to CM 17.15.33.03 for details on changing method" & vbNewLine & vbNewLine & "Ready to case note?" & vbNewLine & "(Click 'No' to return to previous screen to enter more informaiton)", 4, "")
 			IF Self_Emp_Info = vbYes Then Exit Do 'If worker selects 'No' on MsgBox, the dialog will loop for worker to add more detail
 		End IF
@@ -203,12 +215,12 @@ DO
 	Call check_for_password(are_we_passworded_out) 'Handling for Maxis v6
 LOOP UNTIL are_we_passworded_out = false
 
-IF tikl_for_ui THEN 
+IF tikl_for_ui THEN
 	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
 	two_weeks_from_now = DateAdd("d", 14, date)
 	call create_MAXIS_friendly_date(two_weeks_from_now, 10, 5, 18)
 	call write_variable_in_TIKL ("Review client's application for Unemployment and request an update if needed.")
-	PF3 
+	PF3
 END IF
 
 'cleaning up the variables for the case note

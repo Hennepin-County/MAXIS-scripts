@@ -274,20 +274,20 @@ Else
 			client_delay_check = 0
 		End if
 	End if
-
+	
 	'date variables for the TIKL
 	day30_date = dateadd("d", 31, application_date)
 
 	'Sets TIKL
 	call navigate_to_MAXIS_screen("DAIL", "WRIT")
-	IF date < day30_date then											'if current date is less than the application date
+	IF date < day30_date then											'if current date is less than the application date 
 		days_pending = "30 days"										'value of variable for case note & TIKL to "30 days"
 		call create_MAXIS_friendly_date(application_date, 31, 5, 18)	'sets a 30 day pending TIKL if the date if at least 10 days exists between the NOMI sent and pending day 30
-	ELSE
+	ELSE 
 		days_pending = "10 additional days"								'value of variable for case note & TIKL to "10 additional days"
-		call create_MAXIS_friendly_date(date, 10, 5, 18)				'sets a 10 day TIKL if the current date is equal to over over the application date
+		call create_MAXIS_friendly_date(date, 10, 5, 18)				'sets a 10 day TIKL if the current date is equal to over over the application date 
 	END IF
-
+	
 	Call write_variable_in_TIKL("A NOMI was sent & case has been pending for " & days_pending & ". Check case notes to see if interview has been completed. Deny the case if the client has not completed the interview.")
 	transmit
 	PF3

@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOGS--------------------------------------------------------------------------------------------------------------------
 
 BeginDialog Case_Number_Dialog, 0, 0, 171, 85, "Case Information"
@@ -68,7 +80,7 @@ BeginDialog timeliness_dialog, 0, 0, 196, 120, "Expedited Timeliness"
 EndDialog
 
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------------
-'connecting to MAXIS & searches for the case number 
+'connecting to MAXIS & searches for the case number
 EMConnect ""
 call MAXIS_case_number_finder(MAXIS_case_number)
 
@@ -82,84 +94,84 @@ Do
 		IF MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "Please enter the case number"
 		IF err_msg <> "" THEN MsgBox err_msg & vbCr & vbCr & "Please resolve this to continue"
 	Loop until err_msg = ""
-CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false				'loops until user passwords back in	
+CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false				'loops until user passwords back in
 
 'Script is going to find information that was writen in an Expedited Screening case note using scripts
 navigate_to_MAXIS_screen "CASE", "NOTE"
 
 row = 1
 col = 1
-EMSearch "Received", row, col 
-IF row <> 0 THEN 
-	XFS_Screening_CNote = TRUE 
+EMSearch "Received", row, col
+IF row <> 0 THEN
+	XFS_Screening_CNote = TRUE
 	For look_for_right_note = 57 to 72
-		EMReadScreen xfs_screen_note, 8, row, look_for_right_note 
-		IF xfs_screen_note = "expedite" THEN 
+		EMReadScreen xfs_screen_note, 8, row, look_for_right_note
+		IF xfs_screen_note = "expedite" THEN
 			XFS_Screening_CNote = TRUE	'IF the script found a case note with the NOTES - Expedited Screening format - it can find the information used
-			IF look_for_right_note = 57 or look_for_right_note = 65 THEN 
+			IF look_for_right_note = 57 or look_for_right_note = 65 THEN
 				EMReadScreen xfs_screening, 32, row, 42
-			ElseIf look_for_right_note = 64 OR look_for_right_note = 72 THEN 
+			ElseIf look_for_right_note = 64 OR look_for_right_note = 72 THEN
 				EMReadScreen xfs_screening, 31, row, 49
-			End If 
+			End If
 			EMWriteScreen "x", row, 3
 			transmit
 			Exit For
 		END If
-	Next 
-ELSEIF row = 0 THEN 
+	Next
+ELSEIF row = 0 THEN
 	XFS_Screening_CNote = FALSE
-END IF 
+END IF
 
 'Script is gathering the income/asset/expense information from the XFS Screening note
 IF XFS_Screening_CNote = TRUE THEN
 	xfs_screening = UCase(xfs_screening)
 	xfs_screening_display = xfs_screening & ""
-	
+
 	row = 1
-	col = 1 
-	EMSearch "CAF 1 income", row, col 
+	col = 1
+	EMSearch "CAF 1 income", row, col
 	EMReadScreen caf_one_income, 8, row, 42
 	IF IsNumeric(caf_one_income) = True Then 	'If a worker alters this note, we need to default to a number so that the script does not break
 		caf_one_income = abs(caf_one_income)
-	Else 
+	Else
 		caf_one_income = 0
-	End If 
-	
+	End If
+
 	row = 1
-	col = 1 
-	EMSearch "CAF 1 liquid assets", row, col 
+	col = 1
+	EMSearch "CAF 1 liquid assets", row, col
 	EMReadScreen caf_one_assets, 8, row, 42
 	If IsNumeric(caf_one_assets)= True Then 	'If a worker alters this note, we need to default to a number so that the script does not break
-		caf_one_assets = caf_one_assets * 1 
-	Else 
+		caf_one_assets = caf_one_assets * 1
+	Else
 		caf_one_assets = 0
-	End If 
-	
+	End If
+
 	caf_one_resources = caf_one_income + caf_one_assets	'Totaling the amounts for the case note
-	
+
 	row = 1
-	col = 1 
-	EMSearch "CAF 1 rent", row, col 
+	col = 1
+	EMSearch "CAF 1 rent", row, col
 	EMReadScreen caf_one_rent, 8, row, 42
 	IF IsNumeric(caf_one_rent) = True Then 		'If a worker alters this note, we need to default to a number so that the script does not break
 		caf_one_rent = abs(caf_one_rent)
-	Else 
+	Else
 		caf_one_rent = 0
-	End If 
-	
+	End If
+
 	row = 1
-	col = 1 
-	EMSearch "Utilities (amt", row, col 
+	col = 1
+	EMSearch "Utilities (amt", row, col
 	EMReadScreen caf_one_utilities, 8, row, 42
 	If IsNumeric(caf_one_utilities) = True Then 	'If a worker alters this note, we need to default to a number so that the script does not break
 		caf_one_utilities = abs(caf_one_utilities)
-	Else 
+	Else
 		caf_one_utilities = 0
-	End If 
-	
+	End If
+
 	caf_one_expenses = caf_one_rent + caf_one_utilities		'Totaling the amounts for a case note
-	
+
 	'The script not adjusts the format so it looks nice
 	caf_one_income = FormatCurrency(caf_one_income)
 	caf_one_assets = FormatCurrency(caf_one_assets)
@@ -167,41 +179,41 @@ IF XFS_Screening_CNote = TRUE THEN
 	caf_one_utilities = FormatCurrency(caf_one_utilities)
 	caf_one_resources = FormatCurrency(caf_one_resources)
 	caf_one_expenses = FormatCurrency(caf_one_expenses)
-	PF3 
-End IF 
+	PF3
+End IF
 
 'Script now goes to ELIG to find what the income/expesnse that are being used are to autofill the dialog
-navigate_to_MAXIS_screen "ELIG", "FS" 
+navigate_to_MAXIS_screen "ELIG", "FS"
 EMReadScreen elig_screen_check, 4, 3, 48
-IF elig_screen_check = "FSPR" Then 
-	transmit 
-	EMReadScreen is_elig_xfs, 17, 4, 3 
+IF elig_screen_check = "FSPR" Then
+	transmit
+	EMReadScreen is_elig_xfs, 17, 4, 3
 	IF is_elig_xfs = "EXPEDITED SERVICE" THEN 	'Determines if MAXIS thinks the case is Expedited
-		is_elig_xfs = TRUE 
-	ELSE 
+		is_elig_xfs = TRUE
+	ELSE
 		is_elig_xfs = FALSE
-	END IF 
+	END IF
 	is_elig_XFS = is_elig_XFS & ""
 	'MsgBox is_elig_XFS
 
 	transmit		'Finding Income and formating it
-	EMReadScreen elig_gross_income, 9, 7, 72 
+	EMReadScreen elig_gross_income, 9, 7, 72
 	elig_gross_income = trim(elig_gross_income)
 	elig_gross_income = abs(elig_gross_income)
-	transmit 
-	
+	transmit
+
 	'Finding the shelter and utility expenses and combining them and formating them
 	EMReadScreen elig_heat, 3, 9, 31
-	IF elig_heat = "   " THEN elig_heat = 0 
+	IF elig_heat = "   " THEN elig_heat = 0
 	elig_heat = trim(elig_heat)
 	elig_heat = abs(elig_heat)
 
 	EMReadScreen elig_electric, 3, 8, 31
-	IF elig_electric = "   " THEN elig_electric = 0 
+	IF elig_electric = "   " THEN elig_electric = 0
 	elig_electric = trim(elig_electric)
 	elig_electric = abs(elig_electric)
 
-	EMReadScreen elig_phone, 2, 11, 32 
+	EMReadScreen elig_phone, 2, 11, 32
 	IF elig_phone = "  " THEN elig_phone = 0
 	elig_phone = trim(elig_phone)
 	elig_phone = abs(elig_phone)
@@ -212,7 +224,7 @@ IF elig_screen_check = "FSPR" Then
 	elig_rent = abs(elig_rent)
 
 	EMReadScreen elig_tax, 5, 6, 29
-	IF elig_tax = "     " THEN elig_tax = 0 
+	IF elig_tax = "     " THEN elig_tax = 0
 	elig_tax = trim(elig_tax)
 	elig_tax = abs(elig_tax)
 
@@ -221,40 +233,40 @@ IF elig_screen_check = "FSPR" Then
 	elig_ins = trim(elig_ins)
 	elig_ins = abs(elig_ins)
 
-	EMReadScreen elig_other_exp, 5, 12, 29 
-	IF elig_other_exp = "     " THEN elig_other_exp = 0 
+	EMReadScreen elig_other_exp, 5, 12, 29
+	IF elig_other_exp = "     " THEN elig_other_exp = 0
 	elig_other_exp = trim(elig_other_exp)
 	elig_other_exp = abs(elig_other_exp)
-	 
-	IF elig_heat <> 0 THEN 
+
+	IF elig_heat <> 0 THEN
 		elig_util = elig_heat
-	ELSE 
+	ELSE
 		elig_util = elig_electric + elig_phone
-	END IF 
+	END IF
 
 	elig_shel = elig_rent + elig_tax + elig_ins + elig_other_exp
 Else 		'Warning for the worker that sutofill will not work
 	MsgBox ("No verision of SNAP Elig could be found for the specified month" & vbCr & "The script will not be able to gather information for you." & vbCr & vbCr & "You will need to manually enter the information for case noting")
 End If
 
-'Going to STAT for asset information 
+'Going to STAT for asset information
 navigate_to_MAXIS_screen "STAT", "PNLR"
-For pnlr_row = 3 to 19 
+For pnlr_row = 3 to 19
 	EMReadScreen asset_panel_type, 4, pnlr_row, 5
-	IF asset_panel_type = "CASH" THEN 
+	IF asset_panel_type = "CASH" THEN
 		EMReadScreen asset_listed, 6, pnlr_row, 26
-	ELSEIF asset_panel_type = "ACCT" THEN 
-		EMReadScreen asset_listed, 6, pnlr_row, 31 
-	Else 
+	ELSEIF asset_panel_type = "ACCT" THEN
+		EMReadScreen asset_listed, 6, pnlr_row, 31
+	Else
 		asset_listed = 0
-	End If	
+	End If
 	asset_amount = asset_amount + abs(trim(asset_listed))
-Next 
+Next
 
 'Notifying the worker as to if the script found the XFS screening information
-If XFS_Screening_CNote = FALSE Then 
+If XFS_Screening_CNote = FALSE Then
 	MsgBox "The script could not find the Expedited Screening information in Case Notes so this information will not be included"
-ElseIf XFS_Screening_CNote = True Then 
+ElseIf XFS_Screening_CNote = True Then
 	MsgBox "The script gathered infromation about the Expedited Screening, if your determination differs be sure to explain the disparity."
 End If
 
@@ -332,14 +344,14 @@ determined_resources = FormatCurrency(determined_resources)
 determined_shel = FormatCurrency(determined_shel)
 determined_utilities = FormatCurrency(determined_utilities)
 
-'Converting String entries to Boolean 
-IF is_elig_XFS = "TRUE" Then is_elig_XFS = TRUE 
-IF is_elig_XFS = "FALSE" Then is_elig_XFS = FALSE 
+'Converting String entries to Boolean
+IF is_elig_XFS = "TRUE" Then is_elig_XFS = TRUE
+IF is_elig_XFS = "FALSE" Then is_elig_XFS = FALSE
 
 'Dialog about timeliness will run if case is determined to be expedited
 IF is_elig_XFS = TRUE Then
 	Do
-		Do 
+		Do
 			Do
 				Dialog timeliness_dialog
 				cancel_confirmation
@@ -353,22 +365,22 @@ IF is_elig_XFS = TRUE Then
 			IF days_delayed > 7 AND delay_explanation = "" Then err_msg = err_msg & vbCr & "Your approval is more than 7 days from the date of application." & vbCr & "Please provide an explanation for the delay."
 			If err_msg <> "" Then MsgBox err_msg
 		Loop until err_msg = ""
-		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-	Loop until are_we_passworded_out = false					'loops until user passwords back in	
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
 End If
 
 'creating a custom header: this is read by BULK - EXP SNAP REVIEW script so don't mess this please :)
-IF is_elig_XFS = true then 
+IF is_elig_XFS = true then
 	case_note_header_text = "Expedited Determination: SNAP appears expedited"
-ELSEIF is_elig_XFS = False then 
+ELSEIF is_elig_XFS = False then
 	case_note_header_text = "Expedited Determination: SNAP does not appear expedited"
-END IF 
+END IF
 
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------
 navigate_to_MAXIS_screen "CASE", "NOTE"
 Call start_a_blank_case_note
 Call write_variable_in_case_note (case_note_header_text)
-IF XFS_Screening_CNote = TRUE Then 
+IF XFS_Screening_CNote = TRUE Then
 	Call write_bullet_and_variable_in_case_note ("Expedited Screening found", xfs_screening)
 	Call write_variable_in_case_note ("*   Based on: Income: " & caf_one_income & ",   Assets: " & caf_one_assets & ",  Totaling: " & caf_one_resources)
 	Call write_variable_in_case_note ("*             Shelter: " & caf_one_rent & ", Utilities: " & caf_one_utilities & ", Totaling: " & caf_one_expenses)
@@ -387,17 +399,17 @@ End If
 If previous_xfs_explanation <> "" Then
 	Call write_variable_in_case_note ("* Expedited SNAP was the last approval and delayed verifs were not received")
 	Call write_variable_in_case_note ("*    " & previous_xfs_explanation)
-End If 
+End If
 Call write_bullet_and_variable_in_case_note("ABAWD info/explanation", abawd_explanation)
 Call write_bullet_and_variable_in_case_note ("Other Notes", other_explanation)
 Call write_variable_in_case_note ("---")
-IF is_elig_XFS = TRUE Then 
+IF is_elig_XFS = TRUE Then
 	Call write_bullet_and_variable_in_case_note ("Date of Application", date_of_application)
 	Call write_bullet_and_variable_in_case_note ("Date of Interview", interview_date)
 	Call write_bullet_and_variable_in_case_note ("Date of Approval", approval_date)
 	Call write_bullet_and_variable_in_case_note ("Reason for Delay", delay_explanation)
 	Call write_variable_in_case_note ("---")
-End If 
+End If
 Call write_variable_in_case_note(worker_signature)
 
 script_end_procedure ("Success! The script is complete. Case note has been entered detailing your Expedited Determination.")
