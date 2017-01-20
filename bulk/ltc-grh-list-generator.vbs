@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/20/2017", "Added SWKR column. Updated BULK script to allow users to select what information is added (in addition to worker #, case #, client and FACI name).", "Ilse Ferris, Hennepin County")
 call changelog_update("01/03/2017", "Added FACI type column. Reordered GRH DOC amt, waiver type and AREP columns.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -57,28 +58,39 @@ EMConnect ""
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'DIALOG TO DETERMINE WHERE TO GO IN MAXIS TO GET THE INFO
-BeginDialog LTC_GRH_list_generator_dialog, 0, 0, 156, 115, "LTC-GRH list generator dialog"
-  DropListBox 65, 5, 85, 15, "REPT/ACTV"+chr(9)+"REPT/REVS"+chr(9)+"REPT/REVW", REPT_panel
-  EditBox 55, 25, 20, 15, MAXIS_footer_month
-  EditBox 130, 25, 20, 15, MAXIS_footer_year
-  EditBox 75, 45, 75, 15, worker_number
+BeginDialog LTC_GRH_list_generator_dialog, 0, 0, 266, 130, "LTC-GRH list generator dialog"
+  DropListBox 70, 10, 60, 15, "REPT/ACTV"+chr(9)+"REPT/REVS"+chr(9)+"REPT/REVW", REPT_panel
+  EditBox 215, 10, 20, 15, MAXIS_footer_month
+  EditBox 240, 10, 20, 15, MAXIS_footer_year
+  EditBox 70, 35, 190, 15, worker_number
+  CheckBox 10, 90, 45, 10, "FACI type", FACI_type_checkbox
+  CheckBox 60, 90, 60, 10, "GRH DOC amt", DOC_checkbox
+  CheckBox 125, 90, 50, 10, "Waiver type", waiver_checkbox
+  CheckBox 180, 90, 30, 10, "AREP", AREP_checkbox
+  CheckBox 220, 90, 35, 10, "SWKR", SWKR_checkbox
   ButtonGroup ButtonPressed
-    OkButton 20, 95, 50, 15
-    CancelButton 85, 95, 50, 15
-  Text 5, 10, 55, 10, "Create list from:"
-  Text 5, 30, 45, 10, "Footer month:"
-  Text 85, 30, 40, 10, "Footer year:"
-  Text 5, 50, 65, 10, "Worker number(s):"
-  Text 5, 65, 145, 25, "Enter 7 digits of each, (ex: x######). If entering multiple workers, separate each with a comma."
+    OkButton 155, 110, 50, 15
+    CancelButton 210, 110, 50, 15
+  Text 5, 55, 250, 10, "Enter7 digits of each worker number, (ex: x######), seperated by a comma."
+  GroupBox 5, 75, 255, 30, "Select info to add (in addition to worker #, case #, client and FACI name):"
+  Text 150, 15, 65, 10, "Footer month/year:"
+  Text 5, 40, 60, 10, "Worker number(s):"
+  Text 15, 15, 55, 10, "Create list from:"
 EndDialog
 
 'DISPLAYS DIALOG
-Dialog LTC_GRH_list_generator_dialog
-If buttonpressed = cancel then stopscript
-
-'CHECKS FOR PASSWORD PROMPT/MAXIS STATUS
-transmit
-call check_for_MAXIS(True)
+Do 
+	Do 	
+		err_msg = ""
+		Dialog LTC_GRH_list_generator_dialog
+		If buttonpressed = cancel then stopscript
+		If worker_number = "" then err_msg = err_msg & vbnewline & "* Enter at least one worker number."
+		If isnumeric(MAXIS_footer_month) = false then err_msg = err_msg & vbnewline & "* Enter the footer month."
+		If isnumeric(MAXIS_footer_year) = false then err_msg = err_msg & vbnewline & "* Enter the footer year."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine		
+	Loop until err_msg = ""	
+Call check_for_password(are_we_passworded_out)
+LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
 'NAVIGATES BACK TO SELF TO FORCE THE FOOTER MONTH, THEN NAVIGATES TO THE SELECTED SCREEN
 back_to_self
@@ -103,26 +115,53 @@ End if
 EMReadScreen SELF_check, 4, 2, 50
 If SELF_check = "SELF" then script_end_procedure("Can't get past SELF menu. Check error message and try again!")
 
-'DEFINES THE EXCEL_ROW VARIABLE FOR WORKING WITH THE SPREADSHEET
-excel_row = 2
-
-'OPENS A NEW EXCEL SPREADSHEET
+''Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
 Set objWorkbook = objExcel.Workbooks.Add()
+objExcel.DisplayAlerts = True
 
-'FORMATS THE EXCEL SPREADSHEET WITH THE HEADERS, AND SETS THE COLUMN WIDTH
-ObjExcel.Cells(1, 1).Value = "WORKER"
-ObjExcel.Cells(1, 2).Value = "MAXIS case #"
-ObjExcel.Cells(1, 3).Value = "Name"
-ObjExcel.Cells(1, 4).Value = "FACI name"
-ObjExcel.Cells(1, 5).Value = "FACI type"
-ObjExcel.Cells(1, 6).Value = "GRH DOC Amt"
-ObjExcel.Cells(1, 7).Value = "Waiver type on first DISA panel found"
-ObjExcel.Cells(1, 8).Value = "AREP name"
+excel_row = 2 
+'Setting the first 4 col as worker, case number, name, and APPL date
+ObjExcel.Cells(1, 1).Value = "Worker"
+ObjExcel.Cells(1, 2).Value = "MAXIS Case #"
+ObjExcel.Cells(1, 3).Value = "Client name"
+ObjExcel.Cells(1, 4).Value = "Facility name"
+
+col_to_use = 5 'Starting with 5 because cols 1-4 are already used
+
+If FACI_type_checkbox = 1 then
+	ObjExcel.Cells(1, col_to_use).Value = "FACI Type"
+	faci_type_col = col_to_use
+	col_to_use = col_to_use + 1
+End if
+
+If DOC_checkbox = 1 then
+	ObjExcel.Cells(1, col_to_use).Value = "GRH DOC Amt"
+	DOC_col = col_to_use
+	col_to_use = col_to_use + 1
+End if
+
+If waiver_checkbox = 1 then
+	ObjExcel.Cells(1, col_to_use).Value = "Waiver type on first DISA panel found"
+	waiver_col = col_to_use
+	col_to_use = col_to_use + 1
+End if
+
+If AREP_checkbox = 1 then
+	ObjExcel.Cells(1, col_to_use).Value = "AREP"
+	AREP_col = col_to_use
+	col_to_use = col_to_use + 1
+End if
+
+If SWKR_checkbox = 1 then
+	ObjExcel.Cells(1, col_to_use).Value = "SWKR"
+	SWKR_col = col_to_use
+	col_to_use = col_to_use + 1
+End if
 
 'formatting the cells
-FOR i = 1 to 8
+FOR i = 1 to col_to_use
 	objExcel.Cells(1, i).Font.Bold = True		'bold font
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
@@ -171,6 +210,7 @@ For each worker in worker_number_array
 			ObjExcel.Cells(excel_row, 3).Value = trim(client_name)
 			excel_row = excel_row + 1
 			row = row + 1
+			STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 		Loop until row = 19 or trim(MAXIS_case_number) = ""
 
 		PF8 'going to the next screen
@@ -182,13 +222,19 @@ next
 excel_row = 2 'Resetting the case row to investigate.
 
 do until ObjExcel.Cells(excel_row, 1).Value = "" 'shuts down when there's no more case numbers
-	FACI_name = "" 'Resetting this variable in case a FACI cannot be found.
+	FACI_name = "" 'Resetting these variables
+	FACI_type = ""
+	GRH_DOC = ""
+	AREP_name = ""
+	DISA_waiver_type = ""
+	SWKR_name = ""
+	
 	MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
 	If MAXIS_case_number = "" then exit do
 
 	'This Do...loop gets back to SELF
 	back_to_self
-
+	
 	'NAVIGATES TO STAT/FACI for the correct footer month
 	EMWriteScreen MAXIS_footer_month, 20, 43
 	EMWriteScreen MAXIS_footer_year, 20, 46
@@ -251,30 +297,41 @@ do until ObjExcel.Cells(excel_row, 1).Value = "" 'shuts down when there's no mor
 		
 		EMReadScreen GRH_DOC, 8, 13, 45
 		ObjExcel.Cells(excel_row, 4).Value = trim(replace(FACI_name, "_", ""))
-		ObjExcel.Cells(excel_row, 5).Value = trim(replace(FACI_type, "_", ""))
-		ObjExcel.Cells(excel_row, 6).Value = trim(replace(GRH_DOC, "_", ""))
+		If FACI_type_checkbox = 1  	then ObjExcel.Cells(excel_row, faci_type_col).Value = trim(replace(FACI_type, "_", ""))
+		If DOC_checkbox = 1 		then ObjExcel.Cells(excel_row, DOC_col).Value = trim(replace(GRH_DOC, "_", ""))
 	End if
 
-	'NAVIGATES TO AREP, READS THE NAME, AND ADDS TO SPREADSHEET
-	EMWriteScreen "AREP", 20, 71
-	transmit
-	EMReadScreen AREP_name, 37, 4, 32
-	AREP_name = replace(AREP_name, "_", "")
-	ObjExcel.Cells(excel_row, 8).Value = AREP_name
-
-	'Navigates to DISA and checks the waiver type
-	EMWriteScreen "DISA", 20, 71
-	transmit
-	EMReadScreen DISA_waiver_type, 1, 14, 59
-	If DISA_waiver_type = "_" then DISA_waiver_type = ""
-	ObjExcel.Cells(excel_row, 7).Value = DISA_waiver_type
-
+	IF AREP_checkbox = 1 then 
+		'NAVIGATES TO AREP, READS THE NAME, AND ADDS TO SPREADSHEET
+		EMWriteScreen "AREP", 20, 71
+		transmit
+		EMReadScreen AREP_name, 37, 4, 32
+		AREP_name = replace(AREP_name, "_", "")
+		ObjExcel.Cells(excel_row, AREP_col).Value = AREP_name
+	END IF 
+	
+	If waiver_checkbox = 1 then 
+		'Navigates to DISA and checks the waiver type
+		EMWriteScreen "DISA", 20, 71
+		transmit
+		EMReadScreen DISA_waiver_type, 1, 14, 59
+		If DISA_waiver_type = "_" then DISA_waiver_type = ""
+		ObjExcel.Cells(excel_row, waiver_col).Value = DISA_waiver_type
+	END IF 
+	
+	IF SWKR_checkbox = 1 then 
+		'NAVIGATES TO STAT/SWKR and reads the SWKR name 
+		EMWritescreen "SWKR", 20, 71
+		transmit
+		EMReadScreen SWKR_name, 34, 6, 32
+		swkr_name = replace(swkr_name, "_", "")
+		ObjExcel.Cells(excel_row, SWKR_col).Value = swkr_name
+	END IF 
 	excel_row = excel_row + 1 'setting up the script to check the next row.
-	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 loop
 
 'formatting the cells
-FOR i = 1 to 8
+FOR i = 1 to col_to_use
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
 
