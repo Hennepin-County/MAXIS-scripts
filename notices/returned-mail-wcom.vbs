@@ -121,7 +121,7 @@ Do
 				'This will write if the notice is for SNAP only
 				CALL write_variable_in_SPEC_MEMO("******************************************************")
 				CALL write_variable_in_SPEC_MEMO("")
-				CALL write_variable_in_SPEC_MEMO("Your mail as been returned to our agency. On " & contact_request_date & " you were sent a request for you to contact this agency because of this returned mail. You did not contact the agency by " & contact_due_date & " so your SNAP case has been closed.")
+				CALL write_variable_in_SPEC_MEMO("Your mail has been returned to our agency. On " & contact_request_date & " you were sent a request for you to contact this agency because of this returned mail. You did not contact the agency by " & contact_due_date & " so your SNAP case has been closed.")
 				CALL write_variable_in_SPEC_MEMO("")
 				CALL write_variable_in_SPEC_MEMO("******************************************************")
 				PF4
