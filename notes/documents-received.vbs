@@ -55,7 +55,7 @@ changelog_display
 BeginDialog documents_rec_dialog, 0, 0, 366, 395, "Documents received"
   EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 225, 5, 60, 15, doc_date_stamp
-  If worker_county_code = "x127" then CheckBox 295, 10, 55, 10, "HSR scanner", HSR_scanner_checkbox
+  If worker_county_code = "x127" then CheckBox 295, 10, 60, 10, "OTS scanning", HSR_scanner_checkbox
   EditBox 80, 25, 265, 15, docs_rec
   EditBox 35, 70, 315, 15, ADDR
   EditBox 75, 90, 275, 15, SCHL
@@ -101,7 +101,7 @@ EndDialog
 BeginDialog documents_received_LTC, 0, 0, 361, 425, "Documents received LTC"
   EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 230, 5, 60, 15, doc_date_stamp
-  If worker_county_code = "x127" then CheckBox 300, 10, 55, 10, "HSR scanner", HSR_scanner_checkbox
+  If worker_county_code = "x127" then CheckBox 300, 10, 60, 10, "OTS scanning", HSR_scanner_checkbox
   EditBox 80, 25, 270, 15, docs_rec
   EditBox 35, 65, 315, 15, FACI
   EditBox 35, 85, 135, 15, JOBS

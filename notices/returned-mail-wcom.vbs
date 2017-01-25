@@ -121,7 +121,7 @@ Do
 				'This will write if the notice is for SNAP only
 				CALL write_variable_in_SPEC_MEMO("******************************************************")
 				CALL write_variable_in_SPEC_MEMO("")
-				CALL write_variable_in_SPEC_MEMO("Your mail as been returned to our agency. On " & contact_request_date & " you were sent a request for you to contact this agency because of this returned mail. You did not contact the agency by " & contact_due_date & " so your SNAP case has been closed.")
+				CALL write_variable_in_SPEC_MEMO("Your mail has been returned to our agency. On " & contact_request_date & " you were sent a request for you to contact this agency because of this returned mail. You did not contact the agency by " & contact_due_date & " so your SNAP case has been closed.")
 				CALL write_variable_in_SPEC_MEMO("")
 				CALL write_variable_in_SPEC_MEMO("******************************************************")
 				PF4
@@ -138,6 +138,6 @@ Do
 	If spec_edit_check = "NOTICE" THEN no_fs_waiting = true
 Loop until spec_edit_check = "NOTICE"
 
-If no_fs_waiting = true AND no_mf_waiting = true then script_end_procedure("No waiting FS notice was found for the requested month")
+If no_fs_waiting = true then script_end_procedure("No waiting FS notice was found for the requested month")
 
 script_end_procedure("WCOM has been added to the first found waiting SNAP notice for the month and case selected. Please review the notice.")
