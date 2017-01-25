@@ -35,7 +35,7 @@ _[(back to top)](#bluezone-scripts--dhs-maxis-scripts)_
 ---
 State Administrators
 ---
-As of Jan 27th 2016, there is only no state administrator and one backup for the MAXIS BlueZone Scripts project: 
+As of Jan 27th 2016, there is no state administrator and one backup for the MAXIS BlueZone Scripts project: 
 * **[Veronica Cary](mailto:Veronica.Cary@state.mn.us)**: Technical Consultant (backup)
 
 In addition to our state administrators, numerous county/tribal agency personnel are involved in much of the writing and testing of BlueZone Scripts. Their contribution is appreciated!
