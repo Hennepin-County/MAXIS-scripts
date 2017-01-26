@@ -321,7 +321,7 @@ ELSEIF interview_confirm = vbNo then 		'interview was not completed
     	End if
 
         'date variables for the TIKL
-        day30_date = dateadd("d", 31, application_date)
+        day30_date = dateadd("d", 30, application_date)
 
     	'Sets TIKL
         call navigate_to_MAXIS_screen("DAIL", "WRIT")
