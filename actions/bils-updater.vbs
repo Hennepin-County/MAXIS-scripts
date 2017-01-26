@@ -308,7 +308,6 @@ IF BILS_panel_check <> "0" THEN	'if panel exists then puts panel into edit mode
 		PF19
 		EMReadScreen first_page_check, 4, 24, 20
 	Loop until first_page_check = "PAGE"
-	Transmit 'this transmit will leave edit mode but it will allow the future pf9s to get back to a place the script can edit
 ELSEIF BILS_panel_check = "0" THEN	'if panel does not exist, creates new panel
 	EMWriteScreen "NN", 20, 79
 	Transmit
