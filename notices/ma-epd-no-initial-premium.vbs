@@ -46,6 +46,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/04/2017", "Added handling for multiple recipient changes to SPEC/WCOM", "David Courtright, St Louis County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -87,6 +88,11 @@ check_for_maxis(true)
 CALL HH_member_custom_dialog(HH_member_array)
 
 check_for_maxis(true)
+'This section will check for whether forms go to AREP and SWKR
+call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
+EMReadscreen forms_to_arep, 1, 10, 45
+call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+EMReadscreen forms_to_swkr, 1, 15, 63
 
 call navigate_to_MAXIS_screen("spec", "wcom")
 
@@ -112,6 +118,19 @@ FOR each HH_member in HH_member_array
 			EMSendKey "x"
 			Transmit
 			pf9
+			'The script is now on the recipient selection screen.  Mark all recipients that need NOTICES
+			row = 4                             'Defining row and col for the search feature.
+			col = 1
+			EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+			IF row > 4 THEN  arep_row = row  'locating ALTREP location if it exists'
+			row = 4                             'reset row and col for the next search
+			col = 1
+			EMSearch "SOCWKR", row, col
+			IF row > 4 THEN  swkr_row = row     'Logs the row it found the SOCWKR string as swkr_row
+			EMWriteScreen "x", 5, 10                                        'We always send notice to client
+			IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+			IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+			transmit                                                        'Transmits to start the memo writing process'
 		    EMSetCursor 03, 15
       		EMWriteScreen "You are denied eligibility under Medical Assistance for", 3, 15
 	      	EMWriteScreen "Employed Persons with Disabilities (MA-EPD) program because", 4, 15

@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/04/2017", "Added handling for multiple recipient changes to SPEC/WCOM", "David Courtright, St Louis County")
 call changelog_update("01/17/2017", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -65,7 +66,7 @@ EndDialog
 
 'The script-------------------------------------
 EMConnect ""
-
+call MAXIS_case_number_finder(MAXIS_case_number)
 'warning box
 Msgbox "Warning: If you have multiple waiting SNAP results this script may be unable to find the most recent one. Please process manually in those instances."
 
@@ -88,12 +89,18 @@ If len(MAXIS_footer_year) > 2 THEN MAXIS_footer_year = right(MAXIS_footer_year, 
 
 'Navigating to the spec wcom screen
 CALL Check_for_MAXIS(false)
-									
+
 back_to_self
 
 Emwritescreen MAXIS_case_number, 18, 43
 Emwritescreen MAXIS_footer_month, 20, 43
 Emwritescreen MAXIS_footer_year, 20, 46
+
+'This section will check for whether forms go to AREP and SWKR
+call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
+EMReadscreen forms_to_arep, 1, 10, 45
+call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+EMReadscreen forms_to_swkr, 1, 15, 63
 
 CALL navigate_to_MAXIS_screen("SPEC", "WCOM")
 
@@ -108,6 +115,19 @@ Do
 			Emwritescreen "x", wcom_row, 13
 			Transmit
 			PF9
+			'The script is now on the recipient selection screen.  Mark all recipients that need NOTICES
+			row = 4                             'Defining row and col for the search feature.
+			col = 1
+			EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+			IF row > 4 THEN  arep_row = row  'locating ALTREP location if it exists'
+			row = 4                             'reset row and col for the next search
+			col = 1
+			EMSearch "SOCWKR", row, col
+			IF row > 4 THEN  swkr_row = row     'Logs the row it found the SOCWKR string as swkr_row
+			EMWriteScreen "x", 5, 10                                        'We always send notice to client
+			IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+			IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+			transmit                                                        'Transmits to start the memo writing process'
 			Emreadscreen fs_wcom_exists, 3, 3, 15
 			If fs_wcom_exists <> "   " then script_end_procedure ("It appears you already have a WCOM added to this notice. The script will now end.")
 			If program_type = "FS" AND print_status = "Waiting" then

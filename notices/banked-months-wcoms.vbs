@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/04/2017", "Added handling for multiple recipient changes to SPEC/WCOM", "David Courtright, St Louis County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -109,6 +110,13 @@ CALL check_for_MAXIS(false)
 DIALOG banked_months_menu_dialog
 	cancel_confirmation
 
+	'This section will check for whether forms go to AREP and SWKR
+	call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
+	EMReadscreen forms_to_arep, 1, 10, 45
+	call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+	EMReadscreen forms_to_swkr, 1, 15, 63
+
+
 	'This is the WCOM for when the client has used all their banked months.
 	IF ButtonPressed = banked_months_used_button THEN
 		call navigate_to_MAXIS_screen("spec", "wcom")
@@ -132,6 +140,19 @@ DIALOG banked_months_menu_dialog
 				EMSendKey "x"
 				Transmit
 				pf9
+				'The script is now on the recipient selection screen.  Mark all recipients that need NOTICES
+				row = 4                             'Defining row and col for the search feature.
+				col = 1
+				EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+				IF row > 4 THEN  arep_row = row  'locating ALTREP location if it exists'
+				row = 4                             'reset row and col for the next search
+				col = 1
+				EMSearch "SOCWKR", row, col
+				IF row > 4 THEN  swkr_row = row     'Logs the row it found the SOCWKR string as swkr_row
+				EMWriteScreen "x", 5, 10                                        'We always send notice to client
+				IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+				IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+				transmit                                                        'Transmits to start the memo writing process'
 				EMSetCursor 03, 15
 				CALL write_variable_in_SPEC_MEMO("You have been receiving SNAP banked months. Your SNAP is closing for using all available banked months. If you meet one of the exemptions listed above AND all other eligibility factors you may still be eligible for SNAP. Please contact your financial worker if you have questions.")
 				PF4
@@ -172,6 +193,19 @@ DIALOG banked_months_menu_dialog
 				EMSendKey "x"
 				Transmit
 				pf9
+				'The script is now on the recipient selection screen.  Mark all recipients that need NOTICES
+				row = 4                             'Defining row and col for the search feature.
+				col = 1
+				EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+				IF row > 4 THEN  arep_row = row  'locating ALTREP location if it exists'
+				row = 4                             'reset row and col for the next search
+				col = 1
+				EMSearch "SOCWKR", row, col
+				IF row > 4 THEN  swkr_row = row     'Logs the row it found the SOCWKR string as swkr_row
+				EMWriteScreen "x", 5, 10                                        'We always send notice to client
+				IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+				IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+				transmit                                                        'Transmits to start the memo writing process'
 				EMSetCursor 03, 15
 				CALL write_variable_in_SPEC_MEMO("You have used all of your available ABAWD months. You may be eligible for SNAP banked months if you are cooperating with Employment Services. Please contact your financial worker if you have questions.")
 				PF4
@@ -219,6 +253,19 @@ DIALOG banked_months_menu_dialog
 				EMSendKey "x"
 				Transmit
 				pf9
+				'The script is now on the recipient selection screen.  Mark all recipients that need NOTICES
+				row = 4                             'Defining row and col for the search feature.
+				col = 1
+				EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+				IF row > 4 THEN  arep_row = row  'locating ALTREP location if it exists'
+				row = 4                             'reset row and col for the next search
+				col = 1
+				EMSearch "SOCWKR", row, col
+				IF row > 4 THEN  swkr_row = row     'Logs the row it found the SOCWKR string as swkr_row
+				EMWriteScreen "x", 5, 10                                        'We always send notice to client
+				IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+				IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+				transmit                                                        'Transmits to start the memo writing process'
 				EMSetCursor 03, 15
 				CALL write_variable_in_SPEC_MEMO("You have been receiving SNAP banked months. Your SNAP case is closing because " & hh_member & " did not meet the requirements of working with Employment and Training. If you feel you have Good Cause for not cooperating with this requirement please contact your financial worker before your SNAP closes. If your SNAP closes for not cooperating with Employment and Training you will not be eligible for future banked months. If you meet an exemption listed above AND all other eligibility factors you may be eligible for SNAP. If you have questions please contact your financial worker.")
 				PF4
