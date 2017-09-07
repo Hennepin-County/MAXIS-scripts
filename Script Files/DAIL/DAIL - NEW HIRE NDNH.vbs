@@ -114,7 +114,8 @@ EMReadScreen employer, 25, row, col + 10
 row = 1 						'Now it's searching for the SSN
 col = 1
 EMSearch "SSN #", row, col
-EMReadScreen new_HIRE_SSN, 11, row, col + 5
+EMReadScreen new_HIRE_SSN, 9, 9, 5
+
 PF3
 
 'CHECKING CASE CURR. MFIP AND SNAP HAVE DIFFERENT RULES. 
@@ -145,7 +146,7 @@ Do
 	EMReadScreen MEMB_current, 1, 2, 73
 	EMReadScreen MEMB_total, 1, 2, 78
 	EMReadScreen MEMB_SSN, 11, 7, 42
-	If new_HIRE_SSN = replace(MEMB_SSN, " ", "-") then
+	If new_HIRE_SSN = replace(MEMB_SSN, " ", "") then
 		EMReadScreen HH_memb, 2, 4, 33
 		EMReadScreen memb_age, 2, 8, 76
 		If cint(memb_age) < 19 then MsgBox "This client is under 19, so make sure to check that school verification is on file."
