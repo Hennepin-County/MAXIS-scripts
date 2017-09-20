@@ -54,7 +54,7 @@ Function declare_BULK_menu_dialog(script_array)
 		 	PushButton 015, 35, 60, 15, "BULK ACTIONS", 		BULK_main_button
 		 	PushButton 075, 35, 50, 15, "BULK LISTS",			BULK_lists_button
 			PushButton 125, 35, 80, 15, "ENHANCED LISTS", 		BULK_enhanced_lists_button
-		 	PushButton 445, 10, 65, 10, "SIR instructions", 	SIR_instructions_button
+		 	PushButton 445, 10, 65, 10, "Instructions", 	Instructions_button
 
 		'This starts here, but it shouldn't end here :)
 		vert_button_position = 70
@@ -81,7 +81,7 @@ End function
 
 'Declaring the variable names to cut down on the number of arguments that need to be passed through the function.
 DIM ButtonPressed
-DIM SIR_instructions_button
+DIM Instructions_button
 dim BULK_dialog
 
 script_array_BULK_main = array()
@@ -405,9 +405,9 @@ Do
 	dialog BULK_dialog
 
 	If ButtonPressed = 0 then stopscript
-    'Opening the SIR Instructions
-	IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Bulk%20scripts.aspx")
-Loop until 	ButtonPressed <> SIR_instructions_button and _
+    'Opening the Instructions
+	IF buttonpressed = Instructions_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/Forms/AllItems.aspx?RootFolder=%2Fhsphd%2Fsa%2Fews%2FBlueZone%5FScript%5FInstructions%2FBULK&FolderCTID=0x012000A05B86818A1703428050D2E34B3E8EA1&View=%7BFFD55BF9%2D6CDF%2D4B5C%2DB47B%2D3701445A9B34%7D")
+Loop until 	ButtonPressed <> Instructions_button and _
 			ButtonPressed <> BULK_main_button and _
 			ButtonPressed <> BULK_enhanced_lists_button and _
 			ButtonPressed <> BULK_lists_button
