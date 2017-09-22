@@ -57,20 +57,19 @@ MAXIS_footer_year = "" & datepart("yyyy", date) - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
-  EditBox 80, 5, 70, 15, MAXIS_case_number
-  EditBox 65, 25, 30, 15, MAXIS_footer_month
-  EditBox 140, 25, 30, 15, MAXIS_footer_year
+  EditBox 80, 5, 60, 15, MAXIS_case_number
+  EditBox 95, 25, 20, 15, MAXIS_footer_month
+  EditBox 120, 25, 20, 15, MAXIS_footer_year
   CheckBox 10, 60, 30, 10, "cash", cash_checkbox
   CheckBox 50, 60, 30, 10, "HC", HC_checkbox
   CheckBox 90, 60, 35, 10, "SNAP", SNAP_checkbox
   CheckBox 135, 60, 35, 10, "EMER", EMER_checkbox
   DropListBox 70, 80, 75, 15, "Select One..."+chr(9)+"Intake"+chr(9)+"Reapplication"+chr(9)+"Recertification"+chr(9)+"Add program"+chr(9)+"Addendum", CAF_type
   ButtonGroup ButtonPressed
-	OkButton 35, 100, 50, 15
-	CancelButton 95, 100, 50, 15
-  Text 25, 10, 50, 10, "Case number:"
-  Text 10, 30, 50, 10, "Footer month:"
-  Text 110, 30, 25, 10, "Year:"
+    OkButton 35, 100, 50, 15
+    CancelButton 95, 100, 50, 15
+  Text 35, 10, 45, 10, "Case number:"
+  Text 30, 30, 65, 10, "Footer month/year:"
   GroupBox 5, 45, 170, 30, "Programs applied for"
   Text 30, 85, 35, 10, "CAF type:"
 EndDialog
@@ -109,7 +108,6 @@ BeginDialog interview_dialog, 0, 0, 451, 265, "Interview Dialog"
   Text 5, 225, 50, 10, "Verifs Needed:"
 EndDialog
 
-
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5 'This helps the navigation buttons work!
 Dim row
@@ -119,50 +117,57 @@ application_signed_checkbox = checked 'The script should default to having the a
 
 'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
+call maxis_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-call find_variable("Case Nbr: ", MAXIS_case_number, 8)
-MAXIS_case_number = trim(MAXIS_case_number)
-MAXIS_case_number = replace(MAXIS_case_number, "_", "")
-If IsNumeric(MAXIS_case_number) = False then MAXIS_case_number = ""
-
-call find_variable("Month: ", MAXIS_footer_month, 2)
-If row <> 0 then
-  MAXIS_footer_month = MAXIS_footer_month
-  call find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
-  If row <> 0 then MAXIS_footer_year = MAXIS_footer_year
-End if
-
-MAXIS_case_number = trim(MAXIS_case_number)
-MAXIS_case_number = replace(MAXIS_case_number, "_", "")
-If IsNumeric(MAXIS_case_number) = False then MAXIS_case_number = ""
-
-Do
-  Dialog case_number_dialog 'Runs the first dialog that gathers program information and case number
-  cancel_confirmation
-  If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
-  If CAF_type = "Select One..." then MsgBox "You must select the type of CAF you interviewed"
-Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8 and CAF_type <> "Select One..."
-transmit
-call check_for_MAXIS(True)
-
+do 
+	Do
+		err_msg = ""
+  		Dialog case_number_dialog 'Runs the first dialog that gathers program information and case number
+  		cancel_confirmation
+  		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine &  "* You need to type a valid case number."
+		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
+  		If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
+		If cash_checkbox = 0 AND HC_checkbox = 0 AND SNAP_checkbox = 0 AND EMER_checkbox = 0 then err_msg = err_msg & vbNewLine & "* Select at least one program."
+  		If CAF_type = "Select One..." then err_msg = err_msg & vbNewLine &  "* You must select the type of CAF you interviewed"
+		If err_msg <> "" THEN Msgbox err_msg
+	Loop until err_msg = ""	
+	Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false							'Loops until we affirm that we're ready to case note.
 
 'GRABBING THE DATE RECEIVED AND THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 call navigate_to_MAXIS_screen("stat", "hcre")
 EMReadScreen STAT_check, 4, 20, 21
 If STAT_check <> "STAT" then script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact an alpha user for your agency.")
 
+'Because some cases don't have HCRE dates listed, so when you try to go past PROG the script gets caught up. Do...loop handles this instance.
+PF3		'exits PROG to prompt HCRE if HCRE isn't complete
+Do
+	EMReadscreen HCRE_panel_check, 4, 2, 50
+	If HCRE_panel_check = "HCRE" then
+		PF10	'exists edit mode in cases where HCRE isn't complete for a member
+		PF3
+	END IF
+Loop until HCRE_panel_check <> "HCRE"		'repeats until case is not in the HCRE panel
 
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
 
 'GRABBING THE INFO FOR THE CASE NOTE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-If CAF_type = "Recertification" then                                                          'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
-	call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
+'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
+If CAF_type = "Recertification" then
+    Call navigate_to_MAXIS_screen("STAT", "REVW")
+	EMReadScreen recd_date, 8, 13, 37
+	If recd_date = "__ __ __" then 
+	    CAF_datestamp = ""
+	Else                                                    		
+		call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
+	End if 
 Else
 	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_datestamp)
+	IF DateDiff ("d", CAF_datestamp, date) > 60 THEN CAF_datestamp = ""							'This will disregard Application Dates that are older than 60 days. IF and old dste is pulled, the next dialog will require the worker to enter the correct date
 End if
-IF DateDiff ("d", CAF_datestamp, date) > 60 THEN CAF_datestamp = ""							'This will disregard Application Dates that are older than 60 days. IF and old dste is pulled, the next dialog will require the worker to enter the correct date
+
 If HC_checkbox = checked and CAF_type <> "Recertification" then call autofill_editbox_from_MAXIS(HH_member_array, "HCRE-retro", retro_request)     'Grabbing retro info for HC cases that aren't recertifying
 call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)                                                                        'Grabbing HH comp info from MEMB.
 If SNAP_checkbox = checked then call autofill_editbox_from_MAXIS(HH_member_array, "EATS", HH_comp)                                                 'Grabbing EATS info for SNAP cases, puts on HH_comp variable
@@ -186,7 +191,7 @@ DO
 			err_msg = ""
 			Dialog interview_dialog			'Displays the Interview Dialog
 			cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
-			If CAF_datestamp = "" or len(CAF_datestamp) > 10 THEN err_msg = "Please enter a valid application datestamp."
+			If CAF_datestamp = "" or isDate(CAF_datestamp) = False THEN err_msg = "Please enter a valid application datestamp."
 			IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a Worker Signature"
 			IF (SNAP_checkbox = checked) AND (why_xfs = "") THEN err_msg = err_msg & vbCr & "SNAP is pending, you must explain your Expedited Determination"
 			If err_msg <> "" THEN Msgbox err_msg
@@ -195,8 +200,6 @@ DO
 	Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false							'Loops until we affirm that we're ready to case note.
-
-check_for_maxis(FALSE)  'allows for looping to check for maxis after worker has complete dialog box so as not to lose a giant CAF case note if they get timed out while writing.
 
 'Navigates to case note, and checks to make sure we aren't in inquiry.
 start_a_blank_CASE_NOTE
