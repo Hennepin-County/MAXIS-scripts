@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/22/2017", "Added identifier that reflects true if case is set to close, false if it is not for the following month.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Added safety functionality for if MAXIS is passworded out.", "Casey Love, Ramsey County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -67,10 +68,8 @@ EMConnect ""
 
 Call check_for_MAXIS(True)
 
-benefit_month = datepart("M", dateadd("M", 1, date))
-IF len(benefit_month) <> 2 THEN benefit_month = "0" & benefit_month
-benefit_year = datepart("YYYY", dateadd("M", 1, date))
-benefit_year = right(benefit_year, 2)
+benefit_month = CM_plus_1_mo
+benefit_year = CM_plus_1_yr
 
 back_to_SELF
 EMWriteScreen benefit_month, 20, 43
@@ -122,9 +121,12 @@ ObjExcel.Cells(1, 5).Value = "GA Discrepancy?"
 objExcel.Cells(1, 6).Value = "GA in SNAP Budget"
 objExcel.Cells(1, 7).Value = "GA Monthly Grant"
 objExcel.Cells(1, 8).Value = "GA Issuance Amt"
+objExcel.Cells(1, 9).Value = "Set to close for " & benefit_month & "/" & benefit_year
 
-FOR i = 1 TO 8
-	objExcel.Cells(1, i).Font.Bold = TRUE
+FOR i = 1 TO 9
+	objExcel.Cells(1, i).Font.Bold = TRUE		'formatting text as bold
+	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
 excel_row = 2
@@ -193,13 +195,25 @@ FOR EACH MAXIS_case_number IN case_array
 	pa_amount = trim(pa_amount)
 	IF pa_amount = "" THEN pa_amount = "0.00"
 	CALL navigate_to_MAXIS_screen("CASE", "CURR")
+	
 	CALL find_variable("GA: ", ga_status, 6)
-	IF ga_status = "ACTIVE" OR ga_status = "APP CL" THEN
+	IF ga_status = "ACTIVE" then 
+	 	cash_prog = "GA"
+		case_closing = False 
+	Elseif ga_status = "APP CL" THEN
 		cash_prog = "GA"
-	ELSE
-		CALL find_variable("RCA: ", rca_status, 6)
-		IF rca_status = "ACTIVE" OR rca_status = "APP CL" THEN cash_prog = "RCA"
-	END IF
+		case_closing = True 
+	End if 
+	
+	CALL find_variable("RCA: ", rca_status, 6)
+	IF rca_status = "ACTIVE" THEN 
+		cash_prog = "RCA"
+		case_closing = False
+	elseif rca_status = "APP CL" THEN 
+		cash_prog = "RCA"
+		case_closing = True
+	End if 
+	
 	IF cash_prog = "GA" THEN
 		CALL navigate_to_MAXIS_screen("ELIG", "GA")
 		EMReadScreen approved, 8, 3, 3
@@ -272,12 +286,13 @@ FOR EACH MAXIS_case_number IN case_array
 	ELSEIF cash_prog = "SET TO CLOSE" THEN
 		objExcel.Cells(excel_row, 4).Value = ("CASH set to close")
 	END IF
-
+	
+	objExcel.Cells(excel_row, 9).Value = case_closing
 	excel_row = excel_row + 1
 
 NEXT
 
-FOR i = 1 to 8
+FOR i = 1 to 9
 	objExcel.Columns(i).AutoFit()
 NEXT
 
