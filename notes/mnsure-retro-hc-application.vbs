@@ -2,7 +2,7 @@
 name_of_script = "NOTES - MNSURE RETRO HC APPLICATION.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 180          'manual run time in seconds
+STATS_manualtime = 230          'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
@@ -38,65 +38,44 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'CHANGELOG BLOCK ===========================================================================================================
-'Starts by defining a changelog array
-changelog = array()
-
-'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
-'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("01/12/2017", "Changed verbiage from Curam to METS.", "Ilse Ferris, Hennepin County")
-call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
-
-'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
-changelog_display
-'END CHANGELOG BLOCK =======================================================================================================
-
-'THE Dialog--------------------------------------------------------------------------------------------------------------------
-BeginDialog MNSure_HC_Appl_dialog, 0, 0, 326, 265, "MNSure Retro HC Application"
-  EditBox 85, 25, 55, 15, MAXIS_case_number
-EditBox 240, 25, 75, 15, METS_case_number
-  EditBox 120, 50, 60, 15, HC_Appl_date_Recvd
-  EditBox 235, 50, 75, 15, time_gap_between
-  DropListBox 135, 70, 60, 15, "Select One..."+chr(9)+"1 Month"+chr(9)+"2 Months"+chr(9)+"3 Months", retro_coverage_months
-  EditBox 165, 90, 65, 15, hc_closed_120days
-  EditBox 125, 110, 185, 15, HH_members_requesting
-  DropListBox 90, 130, 60, 15, "Select One..."+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Pending", HC_Appl_status
-  EditBox 85, 150, 230, 15, missing_documents
-  EditBox 95, 170, 220, 15, other_notes
-  EditBox 60, 190, 255, 15, action_done_taken
-  CheckBox 10, 215, 125, 10, "Navigate to TIKL for 10 Day Return", tikl_checkbox
-  CheckBox 165, 215, 75, 10, "Updated in MMIS", mmis_checkbox
-  EditBox 85, 240, 100, 15, worker_signature
+'--------------------------------------------------------------------------------------------------------------------Dialog
+BeginDialog MNSure_HC_Appl_dialog, 0, 0, 326, 230, "MNsure Retro HC App, Retro Elig Determination Requested"
+  EditBox 85, 5, 75, 15, curam_case_number
+  EditBox 85, 25, 75, 15, MAXIS_case_number
+  EditBox 85, 45, 75, 15, HH_members_requesting
+  DropListBox 260, 5, 60, 15, "Select One..."+chr(9)+"1 Month"+chr(9)+"2 Months"+chr(9)+"3 Months", retro_coverage_months
+  DropListBox 260, 25, 60, 15, "Select One..."+chr(9)+"A"+chr(9)+"B"+chr(9)+"C"+chr(9)+"D"+chr(9)+"E", retro_scenario_dropbox
+  DropListBox 260, 45, 60, 15, "Select One..."+chr(9)+"YES"+chr(9)+"NO", task_created_dropbox
+  EditBox 85, 65, 235, 15, verfs_needed
+  EditBox 85, 85, 235, 15, forms_needed
+  EditBox 85, 105, 235, 15, other_notes
+  EditBox 85, 125, 235, 15, action_taken
+  CheckBox 10, 150, 165, 10, "Case Correction and Transfer Use Form Sent (A)", forms_sent_checkbox
+  CheckBox 10, 170, 140, 10, "Email sent to HSPH.EWS.Team.603 (B)", EMAIL_603_B_checkbox
+  CheckBox 10, 190, 145, 10, "Email sent to HSPH.EWS.Team.601 (E/C)", EMAIL_601_EC_checkbox
+  CheckBox 190, 150, 90, 10, "STAT Panels Requested", STAT_added_checkbox
+  CheckBox 190, 170, 70, 10, "Updated in MMIS", mmis_checkbox
+  EditBox 75, 210, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 210, 240, 50, 15
-    CancelButton 265, 240, 50, 15
-Text 165, 30, 70, 10, "METS Case Number:"
-  Text 10, 55, 105, 10, "MNSure Application Rec'd Date:"
-  Text 10, 115, 115, 10, "Retro HC Coverage Requested for:"
-  Text 10, 135, 75, 10, "HC Application Status:"
+    OkButton 215, 210, 50, 15
+    CancelButton 270, 210, 50, 15
+  Text 170, 10, 85, 10, "Retro Months Requested:"
+  Text 10, 130, 45, 10, "Action Taken:"
+  Text 10, 110, 60, 10, "Comments/Notes:"
+  Text 10, 215, 60, 10, "Worker Signature:"
+  Text 205, 50, 45, 10, "Task Created:"
+  Text 200, 30, 50, 10, "Retro Scenario:"
+  Text 10, 90, 50, 10, "Forms Needed:"
+  Text 10, 10, 70, 10, "METS Case Number:"
   Text 10, 30, 70, 10, "Maxis Case Number:"
-  Text 10, 95, 150, 10, " If HC closed within 120 days, date of closure:"
-  Text 195, 55, 40, 10, "Gap Month:"
-  Text 10, 155, 70, 10, "Verifications Needed:"
-  Text 10, 75, 120, 10, "Number of Retro Months Requested:"
-  Text 10, 195, 50, 10, "Action Taken:"
-  Text 10, 175, 80, 10, "Other Comments/Notes:"
-Text 10, 10, 220, 10, "MA application in METS, Retro eligibility determination requested "
-  Text 10, 245, 75, 10, "Sign Your Case Note:"
+  Text 10, 50, 70, 10, "Retro Requested for:"
+  Text 10, 70, 70, 10, "Verifications Needed:"
 EndDialog
 
-'THE Script-----------------------------------------------------------------------------------------------------------------------------
-
-'Connects to Bluzone
+'-------------------------------------------------------------------------------------------------------script
 EMConnect ""
-
-'Brings Bluezone to the front
 EMFocus
-
-'Grabs the MAXIS Case Number
 CALL MAXIS_case_number_finder(MAXIS_case_number)
-
-'Shows Dialog
 
 DO
 	DO
@@ -104,43 +83,53 @@ DO
 			DO
 				Dialog MNSure_HC_Appl_dialog
 				cancel_confirmation
-				IF worker_signature = "" THEN MsgBox "You must sign your case note!"
-				IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number!"
-				IF retro_coverage_months = "Select One..." THEN MsgBox "Please select how many retro months are requested!"
-				IF len(METS_case_number)<> 8 THEN MsgBox "Please enter an 8 digit METS case number!"
-			Loop until len(METS_case_number) = 8
+				IF worker_signature = "" THEN MsgBox "Please sign your case note."
+				IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number." 
+				IF retro_coverage_months = "Select One..." THEN MsgBox "Please select how many retro months are requested"
+				IF len(curam_case_number)<> 8 THEN MsgBox "Please enter an 8 digit Curam case number"
+			Loop until len(curam_case_number) = 8
 		Loop until retro_coverage_months <> "Select One..."
 		IF HH_members_requesting = "" THEN MsgBox "Enter HH members requesting retro HC coverage!"
 	Loop until HH_members_requesting <> ""
-	IF HC_Appl_status = "Select One..." THEN MsgBox "Select a status for this application!"
-Loop until HC_Appl_status <> "Select One..."
+	IF retro_scenario_dropbox = "Select One..." THEN MsgBox "Select a scenario for this application"
+Loop until retro_scenario_dropbox <> "Select One..."
 
+date_due = dateadd("d", +10, date)
 
-'Opens a New Case Note
+'------------------------------------------------------------------------------------Case Note					
 call start_a_blank_CASE_NOTE
-
-'Writes the Case Note
-CALL write_variable_in_CASE_NOTE("---MNSure Retro HC Application---")
-Call write_bullet_and_variable_in_CASE_NOTE("METS Case Number", METS_case_number)
-Call write_bullet_and_variable_in_CASE_NOTE("MNSure Application Rec'd", HC_Appl_date_Recvd)
-Call write_bullet_and_variable_in_CASE_NOTE("Gap Month", time_gap_between)
+CALL write_variable_in_CASE_NOTE("---MNsure Retro HC Application, Retro Eligibility Determination Requested---")
+Call write_bullet_and_variable_in_CASE_NOTE("METS Case Number", curam_case_number)
+Call write_bullet_and_variable_in_CASE_NOTE("MAXIS Case Number", MAXIS_case_number)
 Call write_bullet_and_variable_in_CASE_NOTE("Number of Retro Months Requested", retro_coverage_months)
-Call write_bullet_and_variable_in_CASE_NOTE("HC Closed within 120 Days On", hc_closed_120days)
 Call write_bullet_and_variable_in_CASE_NOTE("Retro HC Coverage Requested For", HH_members_requesting)
-Call write_bullet_and_variable_in_CASE_NOTE("Retro HC Application Status", HC_Appl_status)
-Call write_bullet_and_variable_in_CASE_NOTE("Verifications Needed", missing_documents)
-CALL write_bullet_and_variable_in_case_note("Other Comments/Notes", other_notes)
-Call write_bullet_and_variable_in_CASE_NOTE("Actions taken", action_done_taken)
-IF mmis_checkbox = checked THEN CALL write_variable_in_case_note("* Updated in MMIS")
-IF tikl_checkbox = checked THEN CALL write_variable_in_case_note("* TIKL'd for a 10 day return")
-CALL write_variable_in_case_note("---")
-Call write_variable_in_CASE_NOTE(worker_signature)
+Call write_bullet_and_variable_in_CASE_NOTE("Retro Scenario", retro_scenario_dropbox)
+Call write_bullet_and_variable_in_CASE_NOTE("Verifications Requested", verfs_needed)
+Call write_bullet_and_variable_in_CASE_NOTE("Forms Needed:", forms_needed)
+Call write_bullet_and_variable_in_CASE_NOTE("Due Date:", date_due)
+Call write_bullet_and_variable_in_CASE_NOTE("Task Created:", task_created_dropbox)
+Call write_bullet_and_variable_in_CASE_NOTE("Action Taken", action_done_taken)
+CALL write_bullet_and_variable_in_case_note("Comments/Notes", other_notes)
+IF mmis_checkbox = checked THEN CALL write_variable_in_case_note("* Updated MMIS")
+IF STAT_added_checkbox = checked THEN CALL write_variable_in_case_note("* STAT Panel(s) To Be Added Sent")
+IF forms_sent_checkbox = checked THEN CALL write_variable_in_case_note("* Case Correction and Transfer Use Form Sent")                   
+IF EMAIL_603_B_checkbox = checked THEN CALL write_variable_in_case_note("* Other Actions: Email sent to Team 603")   
+IF (EMAIL_601_EC_checkbox = checked and retro_scenario_dropbox = "E") THEN CALL write_variable_in_case_note("* Other Actions: Case requires REIN, Email sent to Team 601 for processing")
+IF (EMAIL_601_EC_checkbox = checked and retro_scenario_dropbox = "C" or retro_scenario_dropbox ="D") THEN CALL write_variable_in_case_note("* Other Actions: Items listed have been received, Email sent to Team 601 for follow up") 
 
-'The TIKL
+CALL write_variable_in_case_note("---")
+CALL write_variable_in_CASE_NOTE(worker_signature)
+
+'--------------------------------------------------------------------------------------------EMAIL
+IF EMAIL_603_B_checkbox = checked THEN CALL create_outlook_email("HSPH.EWS.Team.603", "", "* STAT panel(s) needed, please follow up", "MAXIS case #" & MAXIS_case_number & vbcr & "Case name: " & HH_members_requesting, "", TRUE)
+IF (EMAIL_601_EC_checkbox = checked and retro_scenario_dropbox = "E") THEN CALL create_outlook_email("HSPH.EWS.Team.601", "", "* Case requires REIN, please follow up.", "MAXIS case #" & MAXIS_case_number & vbcr & "Case name: " & HH_members_requesting, "", TRUE)
+IF (EMAIL_601_EC_checkbox = checked and retro_scenario_dropbox = "C") THEN CALL create_outlook_email("HSPH.EWS.Team.601", "", "* Items listed have been received, please follow up.", "MAXIS case #" & MAXIS_case_number & vbcr & "Case name: " & HH_members_requesting, "", TRUE)
+
+'--------------------------------------------------------------------------------------------TIKL
 IF tikl_checkbox = 1 THEN
 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 	CALL create_maxis_friendly_date(date, 10, 5, 18)
 	EMSetCursor 9, 3
-END IF
+END IF	
 
 script_end_procedure ("")
