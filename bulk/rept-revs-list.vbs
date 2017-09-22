@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2017", "Added handling for all months. Previously script only allowed user to select from current month or current month plus 2.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -81,13 +82,9 @@ If current_month_plus_2 = vbCancel then stopscript
 If current_month_plus_2 = vbYes then current_month_plus_2 = True
 If current_month_plus_2 = vbNo then current_month_plus_2 = False
 
-'Determining what current month + 2 is
-future_footer_month = datepart("m", dateadd("m", 2, date))
-If len(future_footer_month) = 1 then future_footer_month = "0" & future_footer_month
-future_footer_year = right(datepart("yyyy", dateadd("m", 2, date)), 2)
-
 'Connects to BlueZone
 EMConnect ""
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)		'inputs the MAXIS footer/month and year that is on the current MAXIS screen
 
 Do
 	Do
@@ -206,12 +203,8 @@ excel_row = 2
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-	MAXIS_footer_month = "" 'clearing variable to prevent breaking when in Cm+2
-	MAXIS_footer_year = ""
-	temp_footer_month = "0" & datepart("m", date)
-	temp_footer_year = datepart("yyyy", date)
-	EMWriteScreen right(temp_footer_month, 2), 20, 43 'needs to add date that isn't CM+2 other wise script cannot navigate back to REVS when running on multiple cases.
-	EMWriteScreen right(temp_footer_year, 2), 20, 46
+	EMWriteScreen MAXIS_footer_month, 20, 43 'needs to add date that isn't CM+2 other wise script cannot navigate back to REVS when running on multiple cases.
+	EMWriteScreen MAXIS_footer_year, 20, 46
 	transmit
 
 	Call navigate_to_MAXIS_screen("rept", "revs")
@@ -220,8 +213,8 @@ For each worker in worker_array
 
 	'If current_month_plus_2 is selected, it pops that month into the footer month area.
 	If current_month_plus_2 = True then
-		EMWriteScreen future_footer_month, 20, 55
-		EMWriteScreen future_footer_year, 20, 58
+		EMWriteScreen CM_plus_2_mo, 20, 55
+		EMWriteScreen CM_plus_2_yr, 20, 58
 		transmit
 	End if
 	EMReadScreen MAXIS_footer_month, 2, 20, 55
