@@ -83,16 +83,30 @@ EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------------
 
-'Connecting to BlueZone
+'CONNECTS TO DEFAULT SCREEN
 EMConnect ""
 
+'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
+EMReadscreen dail_check, 4, 2, 48
+If dail_check <> "DAIL" then script_end_procedure("You are not in your dail. This script will stop.")
+
+'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
+EMSendKey "t"
+transmit
+
+'The following reads the message in full for the end part (which tells the worker which message was selected)
+EMReadScreen full_message, 58, 6, 20
+
+'New HIRE messages, client started a new job (loads NEW HIRE)
+EMReadScreen HIRE_check, 11, 6, 37
+If HIRE_check <> "JOB DETAILS" then script_end_procedure("You are not on a supported DAIL message. The script will now stop. " & vbNewLine & vbNewLine & "The message reads: " & full_message)
+
 'The script needs to determine what the day is in a MAXIS friendly format. The following does that.
-current_month = datepart("m", date)
+current_month = CM_mo
 If len(current_month) = 1 then current_month = "0" & current_month
 current_day = datepart("d", date)
 If len(current_day) = 1 then current_day = "0" & current_day
-current_year = datepart("yyyy", date)
-current_year = current_year - 2000
+current_year = CM_yr
 
 'SELECTS THE DAIL MESSAGE AND READS THE RESPONSE
 EMSendKey "x"
@@ -102,9 +116,9 @@ col = 1
 EMSearch "JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
 If row = 0 then script_end_procedure("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
 EMReadScreen new_hire_first_line, 61, row, col - 7 'Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
-EMReadScreen new_hire_second_line, 61, row + 1, col - 4
-EMReadScreen new_hire_third_line, 61, row + 2, col - 4
-EMReadScreen new_hire_fourth_line, 61, row + 3, col - 4
+EMReadScreen new_hire_second_line, 61, row + 1, col 
+EMReadScreen new_hire_third_line, 61, row + 2, col 
+EMReadScreen new_hire_fourth_line, 61, row + 3, col 
 IF right(new_hire_third_line, 46) <> right(new_hire_fourth_line, 46) then 				'script was being run on cases where the names did not match but SSN did. This will allow users to review.
 	warning_box = MsgBox("The names found on the NEW HIRE message do not match exactly." & vbcr & new_hire_third_line & vbcr & new_hire_fourth_line & vbcr & "Please review and click OK if you wish to continue and CANCEL if the name is incorrect.", vbOKCancel)
 	If warning_box = vbCancel then script_end_procedure("The script has ended. Please review the new hire as you indicated that the name read from the NEW HIRE and the MAXIS name did not match.")
@@ -123,10 +137,10 @@ year_hired = Datepart("yyyy", date_hired)
 year_hired = year_hired - 2000
 EMSearch "EMPLOYER:", row, col
 EMReadScreen employer, 25, row, col + 10
+employer = Trim(employer)
 row = 1 						'Now it's searching for the SSN
 col = 1
-EMSearch "SSN #", row, col
-EMReadScreen new_HIRE_SSN, 11, row, col + 5
+EMReadScreen new_HIRE_SSN, 9, 9, 5
 PF3
 
 'CHECKING CASE CURR. MFIP AND SNAP HAVE DIFFERENT RULES.
@@ -157,13 +171,13 @@ Do
 	EMReadScreen MEMB_current, 1, 2, 73
 	EMReadScreen MEMB_total, 1, 2, 78
 	EMReadScreen MEMB_SSN, 11, 7, 42
-	If new_HIRE_SSN = replace(MEMB_SSN, " ", "-") then
+	If new_HIRE_SSN = replace(MEMB_SSN, " ", "") then
 		EMReadScreen HH_memb, 2, 4, 33
 		EMReadScreen memb_age, 2, 8, 76
 		If cint(memb_age) < 19 then MsgBox "This client is under 19, so make sure to check that school verification is on file."
 	End if
 	transmit
-Loop until (MEMB_current = MEMB_total) or (new_HIRE_SSN = replace(MEMB_SSN, " ", "-"))
+Loop until (MEMB_current = MEMB_total) or (new_HIRE_SSN = replace(MEMB_SSN, " ", ""))
 
 'GOING TO JOBS
 EMWriteScreen "jobs", 20, 71
@@ -293,7 +307,7 @@ call create_MAXIS_friendly_date(date, 10, 5, 18)
 EMSetCursor 9, 3
 
 'Sending TIKL text.
-call write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script).")
+call write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action." & vbcr & "For all federal matches INFC/WORK must be cleared please see HSR manual.")
 
 'Submits TIKL
 transmit
