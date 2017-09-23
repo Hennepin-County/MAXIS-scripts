@@ -48,6 +48,8 @@ changelog_display
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_DEU_menu_dialog(script_array)
+	BeginDialog DEU_dialog, 0, 0, 516, 200, "DEU Scripts"
+	 	Text 5, 5, 435, 10, "DEU scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 		 	'PushButton 015, 35, 40, 15, "CA", 				DEU_main_button
 		 	'PushButton 445, 10, 65, 10, "SIR instructions", 	SIR_instructions_button
@@ -67,6 +69,7 @@ Function declare_DEU_menu_dialog(script_array)
 			button_placeholder = button_placeholder + 1
 		next
 
+		CancelButton 455, 170, 50, 15
 		'GroupBox 5, 20, 205, 35, "DEU Sub-Menus"
 	EndDialog
 End function
