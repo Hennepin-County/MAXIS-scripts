@@ -69,7 +69,7 @@ Function declare_CA_menu_dialog(script_array)
 			button_placeholder = button_placeholder + 1
 		next
 
-		CancelButton 460, 320, 50, 15
+		CancelButton 460, 100, 50, 15
 		'GroupBox 5, 20, 205, 35, "CA Sub-Menus"
 	EndDialog
 End function
