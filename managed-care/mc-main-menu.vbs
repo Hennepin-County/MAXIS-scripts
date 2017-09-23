@@ -146,11 +146,11 @@ Loop until 	ButtonPressed <> MC_main_button
 
 'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
 For i = 0 to ubound(script_array_MC_main)
-	If ButtonPressed = script_array_MC_main(i).button then call run_from_GitHub(script_repository & "iv-e/" & script_array_MC_main(i).file_name)
+	If ButtonPressed = script_array_MC_main(i).button then call run_from_GitHub(script_repository & "managed-care/" & script_array_MC_main(i).file_name)
 Next
 
 For i = 0 to ubound(script_array_MC_list)
-	If ButtonPressed = script_array_MC_list(i).button then call run_from_GitHub(script_repository & "iv-e/" & script_array_MC_list(i).file_name)
+	If ButtonPressed = script_array_MC_list(i).button then call run_from_GitHub(script_repository & "managed-care/" & script_array_MC_list(i).file_name)
 Next
 
 stopscript
