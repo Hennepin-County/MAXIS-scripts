@@ -40,7 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("09/23/2017", "Initial version..", "Ilse Ferris, Hennepin County")
+call changelog_update("09/23/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -79,7 +79,7 @@ End function
 
 'Declaring the variable names to cut down on the number of arguments that need to be passed through the function.
 DIM ButtonPressed
-DIM SIR_instructions_button
+'DIM SIR_instructions_button
 dim NOTES_dialog
 
 script_array_a_to_n = array()
@@ -328,10 +328,10 @@ Do
 	ElseIf ButtonPressed = p_to_z_button then
 		declare_NOTES_menu_dialog(script_array_p_to_z)
 	End if
-
+	
 	dialog NOTES_dialog
-
 	If ButtonPressed = 0 then stopscript
+	
     'Opening the SIR Instructions
 	'IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notes%20scripts.aspx")
 Loop until 	ButtonPressed <> a_to_n_button and _
