@@ -210,90 +210,105 @@ ReDim Preserve script_array_p_to_z(script_num)
 Set script_array_p_to_z(script_num) = new script
 script_array_p_to_z(script_num).script_name 			= "Partner Calls"																			'Script name
 script_array_p_to_z(script_num).file_name				= "shelter-partner-calls.vbs"																'Script URL
+script_array_p_to_z(script_num).description 			= "Case note template for documenting partner calls."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
 Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_p_to_z(script_num).script_name 			= "Perm Housing Found"																		'Script name
 script_array_p_to_z(script_num).file_name				= "shelter-permanent-housing-found.vbs"														'Script URL
+script_array_p_to_z(script_num).description 			= "Case note template for documenting details of permanent housing found."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
 Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_p_to_z(script_num).script_name 			= "Personal Needs"																			'Script name
 script_array_p_to_z(script_num).file_name				= "shelter-personal-needs.vbs"																'Script URL
+script_array_p_to_z(script_num).description 			= "Case note template for documenting personal needs information."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
 Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_p_to_z(script_num).script_name 			= "P-Note"																					'Script name
 script_array_p_to_z(script_num).file_name				= "shelter-p-note.vbs"																		'Script URL
+script_array_p_to_z(script_num).description 			= "Template for adding person notes in MAXIS."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
 Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_p_to_z(script_num).script_name 			= "Reim Shelter Account"																	'Script name
 script_array_p_to_z(script_num).file_name				= "shelter-reimb-shelter-acct.vbs"															'Script URL
+script_array_p_to_z(script_num).description 			= "Case note template for documenting details for reimbursement to the Shelter account."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
 Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_p_to_z(script_num).script_name 			= "Revoucher"																				'Script name
 script_array_p_to_z(script_num).file_name				= "shelter-revoucher.vbs"																	'Script URL
+script_array_p_to_z(script_num).description 			= "Case note template for documenting details for the revoucher process."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
 Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_p_to_z(script_num).script_name 			= "RRH Screening Appt."																		'Script name
 script_array_p_to_z(script_num).file_name				= "shelter-rrh-screening-appt.vbs"															'Script URL
+script_array_p_to_z(script_num).description 			= "Case note template for documenting details for the RRH screening appointment."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
 Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_p_to_z(script_num).script_name 			= "Self Pay"																				'Script name
 script_array_p_to_z(script_num).file_name				= "shelter-selfpay.vbs"																		'Script URL
+script_array_p_to_z(script_num).description 			= "Case note template for documenting details for shelter self pay ."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
 Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_p_to_z(script_num).script_name 			= "Shelter Alternative"																		'Script name
 script_array_p_to_z(script_num).file_name				= "shelter-shelter-alternative.vbs"															'Script URL
+script_array_p_to_z(script_num).description 			= "Case note template for documenting information regarding shelter alternative."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
 Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_p_to_z(script_num).script_name 			= "Shelter Interview"																		'Script name
 script_array_p_to_z(script_num).file_name				= "shelter-shelter-interview.vbs"															'Script URL
+script_array_p_to_z(script_num).description 			= "Case note template for documenting details of the shelter interview."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
 Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_p_to_z(script_num).script_name 			= "Sheriff Foreclosure"																		'Script name
 script_array_p_to_z(script_num).file_name				= "shelter-sheriff-foreclosure.vbs"															'Script URL
+script_array_p_to_z(script_num).description 			= "Case note template for documenting sheriff foreclosure information."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
 Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_p_to_z(script_num).script_name 			= "Single Client Interview"																	'Script name
 script_array_p_to_z(script_num).file_name				= "shelter-single-client-interview.vbs"														'Script URL
+script_array_p_to_z(script_num).description 			= "Case note template for documenting details about the single client interview."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
 Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_p_to_z(script_num).script_name 			= "Special EA"																				'Script name
 script_array_p_to_z(script_num).file_name				= "shelter-special-ea.vbs"																	'Script URL
+script_array_p_to_z(script_num).description 			= "Case note template for documenting details for special EA."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
 Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_p_to_z(script_num).script_name 			= "Utility Info"																			'Script name
 script_array_p_to_z(script_num).file_name				= "shelter-utility-information.vbs"															'Script URL
+script_array_p_to_z(script_num).description 			= "Case note template for documenting details of utility information."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
 Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_p_to_z(script_num).script_name 			= "Voucher Extended"																		'Script name
 script_array_p_to_z(script_num).file_name				= "shelter-voucher-extended.vbs"															'Script URL
+script_array_p_to_z(script_num).description 			= "Case note template for documenting details about the voucher extended process."
 
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
