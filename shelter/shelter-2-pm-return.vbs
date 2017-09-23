@@ -70,7 +70,7 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 DO
 	Do
-		Dialog Cash_Cut_Off_dlg
+		Dialog pm_Return_dlg
 		cancel_confirmation
 		If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then MsgBox "You must enter either a valid MAXIS case number."
 	Loop until (isnumeric(MAXIS_case_number) = True) or (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) = 8)
