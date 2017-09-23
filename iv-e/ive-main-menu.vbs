@@ -69,7 +69,7 @@ Function declare_IVE_menu_dialog(script_array)
 			button_placeholder = button_placeholder + 1
 		next
 
-		CancelButton 460, 320, 50, 15
+		CancelButton 455, 95, 50, 15
 		'GroupBox 5, 20, 205, 35, "IVE Sub-Menus"
 	EndDialog
 End function
