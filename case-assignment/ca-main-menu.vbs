@@ -83,7 +83,7 @@ DIM ButtonPressed
 dim CA_dialog
 
 script_array_CA_main = array()
-script_array_CA_list = array()
+'script_array_CA_list = array()
 
 
 'END VARIABLES TO DECLARE===================================================================================================
@@ -105,23 +105,23 @@ script_array_CA_main(script_num).description 			= "Case notes an application, sc
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_CA_main(script_num)			'Resets the array to add one more element to it
 Set script_array_CA_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_CA_main(script_num).script_name 			= "Case Correction"																'Script name
-script_array_CA_main(script_num).file_name 				= "ca-case-correction.vbs"															'Script URL
+script_array_CA_main(script_num).script_name 			= "Case Correction"																		'Script name
+script_array_CA_main(script_num).file_name 				= "ca-case-correction.vbs"																'Script URL
 script_array_CA_main(script_num).description 			= "Case notes an application, screens for expedited SNAP, sends the appointment letter and transfers case (if applicable) for a missed app."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_CA_main(script_num)			'Resets the array to add one more element to it
 Set script_array_CA_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_CA_main(script_num).script_name 			= "MIPPA"																		'Script name
-script_array_CA_main(script_num).file_name 				= "ca-mippa.vbs"															'Script URL
+script_array_CA_main(script_num).script_name 			= "MIPPA"																				'Script name
+script_array_CA_main(script_num).file_name 				= "ca-mippa.vbs"																		'Script URL
 script_array_CA_main(script_num).description 			= "Processes MIPPA applications per instructions found in POLI/TEMP TE02.07.459."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_CA_main(script_num)			'Resets the array to add one more element to it
 Set script_array_CA_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_CA_main(script_num).script_name			= "Out of County Transfer"													'needs spaces to generate button width properly.
-script_array_CA_main(script_num).file_name				= "ca-out-of-county-transfer.vbs"
-script_array_CA_main(script_num).description			= "Transfers cases out of county specific to Case Assingment's procedure."
+script_array_CA_main(script_num).script_name			= "Out of County Transfer"				'needs spaces to generate button width properly.'Script name									
+script_array_CA_main(script_num).file_name				= "ca-out-of-county-transfer.vbs"														'Script URL
+script_array_CA_main(script_num).description			= "Transfers cases out of county specific to Case Assingment's procedure."	
 
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
@@ -137,15 +137,10 @@ button_placeholder 	= 24601
 
 'Displays the dialog
 Do
-	If ButtonPressed = "" or ButtonPressed = CA_main_button then
-		declare_CA_menu_dialog(script_array_CA_main)
-	ElseIf ButtonPressed = SNAP_WCOMS_button then
-		declare_CA_menu_dialog(script_array_CA_list)
-	End if
-
+	If ButtonPressed = "" or ButtonPressed = CA_main_button then declare_CA_menu_dialog(script_array_CA_main)
 	dialog CA_dialog
-
 	If ButtonPressed = 0 then stopscript
+	
     'Opening the SIR Instructions
 	'IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notices%20scripts.aspx")
 Loop until 	ButtonPressed <> CA_main_button 
@@ -153,11 +148,11 @@ Loop until 	ButtonPressed <> CA_main_button
 
 'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
 For i = 0 to ubound(script_array_CA_main)
-	If ButtonPressed = script_array_CA_main(i).button then call run_from_GitHub(script_repository & "case-asssignment/" & script_array_CA_main(i).file_name)
+	If ButtonPressed = script_array_CA_main(i).button then call run_from_GitHub(script_repository & "case-assignment/" & script_array_CA_main(i).file_name)
 Next
 
-For i = 0 to ubound(script_array_CA_list)
-	If ButtonPressed = script_array_CA_list(i).button then call run_from_GitHub(script_repository & "case-asssignment/" & script_array_CA_list(i).file_name)
-Next
+'For i = 0 to ubound(script_array_CA_list)
+'	If ButtonPressed = script_array_CA_list(i).button then call run_from_GitHub(script_repository & "case-assignment/" & script_array_CA_list(i).file_name)
+'Next
 
 stopscript
