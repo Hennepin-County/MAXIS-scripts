@@ -83,7 +83,7 @@ DIM ButtonPressed
 dim IVE_dialog
 
 script_array_IVE_main = array()
-script_array_IVE_list = array()
+'script_array_IVE_list = array()
 
 
 'END VARIABLES TO DECLARE===================================================================================================
@@ -144,15 +144,10 @@ button_placeholder 	= 24601
 
 'Displays the dialog
 Do
-	If ButtonPressed = "" or ButtonPressed = IVE_main_button then
-		declare_IVE_menu_dialog(script_array_IVE_main)
-	ElseIf ButtonPressed = SNAP_WCOMS_button then
-		declare_IVE_menu_dialog(script_array_IVE_list)
-	End if
-
+	If ButtonPressed = "" or ButtonPressed = IVE_main_button then declare_IVE_menu_dialog(script_array_IVE_main)
 	dialog IVE_dialog
-
 	If ButtonPressed = 0 then stopscript
+	
     'Opening the SIR Instructions
 	'IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notices%20scripts.aspx")
 Loop until 	ButtonPressed <> IVE_main_button 
@@ -163,8 +158,8 @@ For i = 0 to ubound(script_array_IVE_main)
 	If ButtonPressed = script_array_IVE_main(i).button then call run_from_GitHub(script_repository & "iv-e/" & script_array_IVE_main(i).file_name)
 Next
 
-For i = 0 to ubound(script_array_IVE_list)
-	If ButtonPressed = script_array_IVE_list(i).button then call run_from_GitHub(script_repository & "iv-e/" & script_array_IVE_list(i).file_name)
-Next
+'For i = 0 to ubound(script_array_IVE_list)
+'	If ButtonPressed = script_array_IVE_list(i).button then call run_from_GitHub(script_repository & "iv-e/" & script_array_IVE_list(i).file_name)
+'Next
 
 stopscript
