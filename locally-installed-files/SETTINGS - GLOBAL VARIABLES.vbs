@@ -107,13 +107,11 @@ is_county_collecting_stats = collecting_statistics	'IT DOES THIS BECAUSE THE SET
 If worker_county_code <> "MULTICOUNTY" then two_digit_county_code = right(worker_county_code, 2)
 
 'This is the URL of our script repository, and should only change if the agency is a scriptwriting agency. Scriptwriters can elect to use the master branch, allowing them to test new tools, etc.
-'IF use_master_branch = TRUE THEN		'scriptwriters typically use the master branch
-'	script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/Script Files/"
-'ELSE							'Everyone else (who isn't a scriptwriter) typically uses the release branch
-'	script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/RELEASE/Script Files/"
-'END IF
-
-script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master"
+IF use_master_branch = TRUE THEN		'scriptwriters typically use the master branch
+	script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/"
+ELSE							'Everyone else (who isn't a scriptwriter) typically uses the release branch
+	script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/"
+END IF
 
 'If run locally is set to "True", the scripts will totally bypass GitHub and run locally.
 IF run_locally = TRUE THEN script_repository = "C:\MAXIS-Scripts\"
