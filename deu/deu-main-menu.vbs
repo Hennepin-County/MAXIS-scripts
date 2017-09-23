@@ -83,7 +83,7 @@ DIM ButtonPressed
 dim DEU_dialog
 
 script_array_DEU_main = array()
-script_array_DEU_list = array()
+'script_array_DEU_list = array()
 
 
 'END VARIABLES TO DECLARE===================================================================================================
@@ -173,15 +173,10 @@ button_placeholder 	= 24601
 
 'Displays the dialog
 Do
-	If ButtonPressed = "" or ButtonPressed = DEU_main_button then
-		declare_DEU_menu_dialog(script_array_DEU_main)
-	ElseIf ButtonPressed = SNAP_WCOMS_button then
-		declare_DEU_menu_dialog(script_array_DEU_list)
-	End if
-
+	If ButtonPressed = "" or ButtonPressed = DEU_main_button then declare_DEU_menu_dialog(script_array_DEU_main)
 	dialog DEU_dialog
-
 	If ButtonPressed = 0 then stopscript
+	
     'Opening the SIR Instructions
 	'IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notices%20scripts.aspx")
 Loop until 	ButtonPressed <> DEU_main_button 
@@ -192,8 +187,8 @@ For i = 0 to ubound(script_array_DEU_main)
 	If ButtonPressed = script_array_DEU_main(i).button then call run_from_GitHub(script_repository & "deu/" & script_array_DEU_main(i).file_name)
 Next
 
-For i = 0 to ubound(script_array_DEU_list)
-	If ButtonPressed = script_array_DEU_list(i).button then call run_from_GitHub(script_repository & "deu/" & script_array_DEU_list(i).file_name)
-Next
+'For i = 0 to ubound(script_array_DEU_list)
+'	If ButtonPressed = script_array_DEU_list(i).button then call run_from_GitHub(script_repository & "deu/" & script_array_DEU_list(i).file_name)
+'Next
 
 stopscript
