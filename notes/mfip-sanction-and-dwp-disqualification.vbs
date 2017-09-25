@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/25/2017", "Repaired functionality to add SPEC/WCOM. Also updated text to send notice for sending a SPEC/LETR.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/28/2016", "Corrected DWP disqualification options and noting for policy compliance.", "David Courtright, Saint Louis County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -279,30 +280,65 @@ If action_type = "Apply sanction/disq."	then
 	CALL write_variable_in_case_note(worker_signature)
 
 	If notating_spec_wcom = checked THEN
-		Call navigate_to_MAXIS_screen ("SPEC", "WCOM")
-		EMReadscreen CASH_check, 2, 7, 26  'checking to make sure that notice is for MFIP or DWP
-		EMReadScreen Print_status_check, 7, 7, 71 'checking to see if notice is in 'waiting status'
-		'checking program type and if it's a notice that is in waiting status (waiting status will make it editable)
-		If(CASH_check = "MF" AND Print_status_check = "Waiting") OR (CASH_check = "DW" AND Print_status_check = "Waiting") THEN
-			EMSetcursor read_row, 13
-			EMSendKey "x"
-			Transmit
-			PF9
-			EMSetCursor 03, 15
-			'WCOM required by workers to informed client what who they need to contact, the contact info, and by when they need to resolve the sanction.
-			Call write_variable_in_SPEC_MEMO("")
-			Call write_variable_in_SPEC_MEMO("Please contact your " & sanction_type_droplist & " worker: " & ES_counselor_name & " at " & ES_counselor_phone & ", on how to cure this sanction.")
-			Call write_variable_in_SPEC_MEMO("")
-			Call write_variable_in_SPEC_MEMO("You need to be in compliance on/by " & Resolution_date & ".")
-			Call write_variable_in_SPEC_MEMO("")
-			PF4
-			PF3
-		ELSE
-			Msgbox "There is not a pending notice for this cash case. The script was unable to update your SPEC/WCOM notation."
-		END if
-		STATS_counter = STATS_counter + 1			'adding one count to the stats counter since the manual time for this option is 180 seconds, 90 seconds for the sanction cured option
-	END If
+		back_to_self
+		Emwritescreen MAXIS_case_number, 18, 43
+		Emwritescreen MAXIS_footer_month, 20, 43
+		Emwritescreen MAXIS_footer_year, 20, 46
 
+		'This section will check for whether forms go to AREP and SWKR
+		call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
+		EMReadscreen forms_to_arep, 1, 10, 45
+		call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+		EMReadscreen forms_to_swkr, 1, 15, 63
+
+		CALL navigate_to_MAXIS_screen("SPEC", "WCOM")
+		
+		'Searching for waiting SNAP notice
+		wcom_row = 6
+		Do
+			wcom_row = wcom_row + 1
+			Emreadscreen program_type, 2, wcom_row, 26
+			Emreadscreen print_status, 7, wcom_row, 71
+			If(program_type = "MF" AND Print_status = "Waiting") OR (program_type = "DW" AND Print_status_check = "Waiting") THEN
+				Emwritescreen "x", wcom_row, 13
+				Transmit
+				PF9
+				
+				'The script is now on the recipient selection screen.  Mark all recipients that need NOTICES
+				row = 4                             'Defining row and col for the search feature.
+				col = 1
+				EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+				IF row > 4 THEN  arep_row = row  'locating ALTREP location if it exists'
+				row = 4                             'reset row and col for the next search
+				col = 1
+				EMSearch "SOCWKR", row, col
+				IF row > 4 THEN  swkr_row = row     'Logs the row it found the SOCWKR string as swkr_row
+				
+				EMWriteScreen "x", 5, 10                                        'We always send notice to client
+				IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+				IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+				transmit                                                        'Transmits to start the memo writing process'
+				
+				'WCOM required by workers to informed client what who they need to contact, the contact info, and by when they need to resolve the sanction.
+				Call write_variable_in_SPEC_MEMO("")
+				Call write_variable_in_SPEC_MEMO("Please contact your " & sanction_type_droplist & " worker: " & ES_counselor_name & " at " & ES_counselor_phone & ", on how to cure this sanction.")
+				Call write_variable_in_SPEC_MEMO("")
+				Call write_variable_in_SPEC_MEMO("You need to be in compliance on/by " & Resolution_date & ".")
+				Call write_variable_in_SPEC_MEMO("")
+				PF4
+				PF3
+				wcom_written = true
+				exit do 
+			End If
+			If wcom_row = 17 then
+				PF8
+				Emreadscreen spec_edit_check, 6, 24, 2
+				wcom_row = 6
+			end if
+			If spec_edit_check = "NOTICE" THEN no_prog_waiting = true
+		Loop until spec_edit_check = "NOTICE"
+	End if 	
+	
 	'Updating database if applicable
 	IF collecting_ES_statistics = true THEN
 		IF Sanction_Percentage_droplist = "100%" THEN ESActive = "No" 'updating ESActive when case is sanctioned out
@@ -392,4 +428,6 @@ If action_type = "Cure santion/disq." then
 	CALL write_variable_in_case_note ("---")
 	CALL write_variable_in_CASE_NOTE(worker_signature)                                                         'Writes worker signature in note
 End if
+
+If no_prog_waiting = true then script_end_procedure("No waiting MFIP or DWP notices were found for the requested month.")
 script_end_procedure ("")
