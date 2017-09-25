@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("09/25/2017", "Updated income standards for 130% FPG effective 10/17.", "Ilse Ferris, Hennepin County")
+call changelog_update("09/25/2017", "Updated income standards for 130% FPG effective 10/17. Also updated error message handling on the back end.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -84,21 +84,18 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 'Dialog is presented. Requires all sections other than spousal sponsor income to be filled out.
 Do
 	Do
-		Do
-			Do
-				DO
-					Dialog sponsor_income_calculation_dialog
-					If ButtonPressed = 0 then stopscript
-					If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You must enter a valid case number."
-				Loop until isnumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
-				If isnumeric(primary_sponsor_earned_income) = False and isnumeric(spousal_sponsor_earned_income) = False and isnumeric(primary_sponsor_unearned_income) = False and isnumeric(spousal_sponsor_unearned_income) = False then MsgBox "You must enter some income. You can enter a ''0'' if that is accurate."
-			Loop until isnumeric(primary_sponsor_earned_income) = True or isnumeric(spousal_sponsor_earned_income) = True or isnumeric(primary_sponsor_unearned_income) = True or isnumeric(spousal_sponsor_unearned_income) = True
-			If isnumeric(sponsor_HH_size) = False then MsgBox "You must enter a sponsor HH size."
-		Loop until isnumeric(sponsor_HH_size) = True
-		If isnumeric(number_of_sponsored_immigrants) = False then MsgBox "You must enter the number of sponsored immigrants."
-    Loop until isnumeric(number_of_sponsored_immigrants) = True
-	If worker_signature = "" then MsgBox "You must sign your case note!"
-Loop until worker_signature <> ""
+		err_msg = ""
+		Dialog sponsor_income_calculation_dialog
+		If ButtonPressed = 0 then stopscript
+		If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 THEN err_msg = err_msg & vbCr & "* You must enter a valid case number."
+		If isnumeric(primary_sponsor_earned_income) = False and isnumeric(spousal_sponsor_earned_income) = False and isnumeric(primary_sponsor_unearned_income) = False and isnumeric(spousal_sponsor_unearned_income) = False THEN err_msg = err_msg & vbCr & "* You must enter some income. You can enter a ''0'' if that is accurate."
+		If isnumeric(sponsor_HH_size) = False THEN err_msg = err_msg & vbCr & "* You must enter a sponsor HH size."
+		If isnumeric(number_of_sponsored_immigrants) = False THEN err_msg = err_msg & vbCr & "* You must enter the number of sponsored immigrants."
+		If worker_signature = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	LOOP UNTIL err_msg = ""
+call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 'Determines the income limits
 ' >> Income limits from CM 19.06 - MAXIS Gross Income 130% FPG (Updated effective 10/01/17)
