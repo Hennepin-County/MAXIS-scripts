@@ -2070,31 +2070,31 @@ script_array(script_num).release_date           = #10/01/2000#
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "LEP - EMA"
+script_array(script_num).script_name 			= "IMIG - EMA"
 script_array(script_num).description			= "Template for EMA applications."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("LEP")
+script_array(script_num).subcategory            = array("IMIG")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "LEP - SAVE"
+script_array(script_num).script_name 			= "IMIG - SAVE"
 script_array(script_num).description			= "Template for the SAVE system for verifying immigration status."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("LEP")
+script_array(script_num).subcategory            = array("IMIG")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "LEP - Sponsor Income"
+script_array(script_num).script_name 			= "IMIG - Sponsor Income"
 script_array(script_num).description			= "Template for the sponsor income deeming calculation (it will also help calculate it for you)."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("LEP")
+script_array(script_num).subcategory            = array("IMIG")
 script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
