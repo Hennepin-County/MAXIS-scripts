@@ -334,7 +334,7 @@ EndDialog
   EMWriteScreen MAXIS_case_number, 18, 43
 
   Call start_a_blank_CASE_NOTE
-  Call write_variable_in_CASE_NOTE("Approved COLA updates " MAXIS_footer_month & "/" & MAXIS_footer_year & ": " & elig_type & "-" & budget_type & " " & recipient_amt)
+  Call write_variable_in_CASE_NOTE("Approved COLA updates " & MAXIS_footer_month & "/" & MAXIS_footer_year & ": " & elig_type & "-" & budget_type & " " & recipient_amt)
   If budget_type = "L" then EMSendKey " LTC SD**"
   If budget_type = "S" then EMSendKey " SISEW waiver obl**"
   If budget_type = "B" then EMSendKey " Recip amt.**"
@@ -596,7 +596,7 @@ function income_summary
 	Call check_for_MAXIS(False)
 
 	call start_a_blank_CASE_NOTE
-	Call write_variable_in_CASE_NOTE ("===COLA INCOME SUMMARY for "& MAXIS_footer_month & "/" & MAXIS_footer_year"===")
+	Call write_variable_in_CASE_NOTE ("===COLA INCOME SUMMARY for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "===")
 	call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
 	call write_bullet_and_variable_in_case_note("Earned income", earned_income)
 	call write_bullet_and_variable_in_case_note("Medicare Part B premium", medicare_part_B)
