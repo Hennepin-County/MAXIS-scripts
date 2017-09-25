@@ -40,7 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("09/25/2017", "Added the following NOTES scripts: ABAWD Tracking record, Application Check, QI Renewal Accuracy, and Vendor.", "Ilse Ferris, Hennepin County")
+call changelog_update("09/25/2017", "Added the following NOTES scripts: ABAWD Tracking record, Application Check, QI Renewal Accuracy, and Vendor. Changed LEP titled scripts (EMA, Sponsor Income and SAVE) to IMIG titled scripts.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/19/2017", "Added ASSET REDUCTION case note script.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/19/2017", "Added SMRT case note script.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -427,6 +427,27 @@ script_array_G_to_L(script_num).description				= "Template to case note when a I
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
 Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_G_to_L(script_num).script_name 			= "IMIG - EMA"
+script_array_G_to_L(script_num).file_name				= "imig-ema.vbs"
+script_array_G_to_L(script_num).description				= "Template for EMA applications."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
+Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_G_to_L(script_num).script_name 			= "IMIG - SAVE"
+script_array_G_to_L(script_num).file_name				= "imig-save.vbs"
+script_array_G_to_L(script_num).description				= "Template for the SAVE system for verifying immigration status."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
+Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_G_to_L(script_num).script_name 			= "IMIG - Sponsor income"
+script_array_G_to_L(script_num).file_name				= "imig-sponsor-income.vbs"
+script_array_G_to_L(script_num).description				= "Template for the sponsor income deeming calculation (it will also help calculate it for you)."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
+Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_G_to_L(script_num).script_name 			= "Incarceration "
 script_array_G_to_L(script_num).file_name				= "incarceration.vbs"
 script_array_G_to_L(script_num).description				= "Template to note details of an incarceration, and also updates STAT/FACI if necessary."
@@ -444,28 +465,6 @@ Set script_array_G_to_L(script_num) = new script		'Set this array element to be 
 script_array_G_to_L(script_num).script_name 			= "Interview No Show"
 script_array_G_to_L(script_num).file_name				= "interview-no-show.vbs"
 script_array_G_to_L(script_num).description				= "Template for case noting a client's no-showing their in-office or phone appointment."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
-Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_G_to_L(script_num).script_name 			= "LEP - EMA"
-script_array_G_to_L(script_num).file_name				= "lep-ema.vbs"
-script_array_G_to_L(script_num).description				= "Template for EMA applications."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
-Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_G_to_L(script_num).script_name 			= "LEP - SAVE"
-script_array_G_to_L(script_num).file_name				= "lep-save.vbs"
-script_array_G_to_L(script_num).description				= "Template for the SAVE system for verifying immigration status."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
-Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_G_to_L(script_num).script_name 			= "LEP - Sponsor income"
-script_array_G_to_L(script_num).file_name				= "lep-sponsor-income.vbs"
-script_array_G_to_L(script_num).description				= "Template for the sponsor income deeming calculation (it will also help calculate it for you)."
-
 
 
 
