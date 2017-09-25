@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/25/2017", "Added the following NOTES scripts: ABAWD Tracking record, Application Check, QI Renewal Accuracy, and Vendor.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/19/2017", "Added ASSET REDUCTION case note script.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/19/2017", "Added SMRT case note script.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -103,25 +104,40 @@ script_array_LTC    = array()
 'INSTRUCTIONS: simply add your new script below. Scripts are listed in alphabetical order. Copy a block of code from above and paste your script info in. The function does the rest.
 
 '-------------------------------------------------------------------------------------------------------------------------0 through C
+
 'Resetting the variable
-script_num = 0
-ReDim Preserve script_array_0_to_C(script_num)
-Set script_array_0_to_C(script_num) = new script
+script_num = 0											'establishing count as 0
+ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
+Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_0_to_C(script_num).script_name 			= "ABAWD Tracking Record"																		'Script name
+script_array_0_to_C(script_num).file_name 				= "abawd-tracking-record.vbs"																	'Script URL
+script_array_0_to_C(script_num).description 			= "Template for documenting details about the ABAWD actvity for the case."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
+Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_0_to_C(script_num).script_name 			= "Appeals"																		'Script name
 script_array_0_to_C(script_num).file_name 				= "appeals.vbs"																	'Script URL
 script_array_0_to_C(script_num).description 			= "Template for documenting details about an appeal, and the appeal process."
 
 script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_0_to_C(script_num)
-Set script_array_0_to_C(script_num) = new script
-script_array_0_to_C(script_num).script_name 			= "Application Received"																		'Script name
+ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
+Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_0_to_C(script_num).script_name 			= "Application Check"																'Script name
+script_array_0_to_C(script_num).file_name 				= "application-check.vbs"															'Script URL
+script_array_0_to_C(script_num).description 			= "Template for documenting details and tracking pending cases."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
+Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_0_to_C(script_num).script_name 			= "Application Received"																'Script name
 script_array_0_to_C(script_num).file_name 				= "application-received.vbs"															'Script URL
 script_array_0_to_C(script_num).description 			= "Template for documenting details about an application recevied."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
 Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_0_to_C(script_num).script_name 			= "Approved programs"																		'Script name
+script_array_0_to_C(script_num).script_name 			= "Approved programs"																'Script name
 script_array_0_to_C(script_num).file_name 				= "approved-programs.vbs"															'Script URL
 script_array_0_to_C(script_num).description 			= "Template for when you approve a client's programs."
 
@@ -235,9 +251,9 @@ script_array_0_to_C(script_num).description				= "Template for the Combined Six-
 
 '-------------------------------------------------------------------------------------------------------------------------D through F
 'Resetting the variable
-script_num = 0
-ReDim Preserve script_array_D_to_F(script_num)
-Set script_array_D_to_F(script_num) = new script
+script_num = 0											'establishing count as 0
+ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
+Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_D_to_F(script_num).script_name 			= "Deceased Client Summary"																		'Script name
 script_array_D_to_F(script_num).file_name				= "deceased-client-summary.vbs"
 script_array_D_to_F(script_num).description 			= "Template that adds details about a deceased client to a CASE/NOTE."
@@ -352,9 +368,9 @@ script_array_D_to_F(script_num).description 			= "Template for noting fraud info
 
 '-------------------------------------------------------------------------------------------------------------------------G through L
 'Resetting the variable
-script_num = 0
-ReDim Preserve script_array_G_to_L(script_num)
-Set script_array_G_to_L(script_num) = new script
+script_num = 0											'establishing count as 0
+ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
+Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_G_to_L(script_num).script_name 			= "Good Cause Claimed"
 script_array_G_to_L(script_num).file_name				= "good-cause-claimed.vbs"
 script_array_G_to_L(script_num).description				= "Template for requests of good cause to not receive child support."
@@ -455,9 +471,9 @@ script_array_G_to_L(script_num).description				= "Template for the sponsor incom
 
 '-------------------------------------------------------------------------------------------------------------------------M through Q
 'Resetting the variable
-script_num = 0
-ReDim Preserve script_array_M_to_Q(script_num)
-Set script_array_M_to_Q(script_num) = new script
+script_num = 0											'establishing count as 0
+ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
+Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_M_to_Q(script_num).script_name 			= "Medical Opinion Form Received"
 script_array_M_to_Q(script_num).file_name				= "medical-opinion-form-received.vbs"
 script_array_M_to_Q(script_num).description				= "Template for case noting information about a Medical Opinion Form."
@@ -539,14 +555,20 @@ script_array_M_to_Q(script_num).script_name 			= "Proof of relationship"
 script_array_M_to_Q(script_num).file_name				= "proof-of-relationship.vbs"
 script_array_M_to_Q(script_num).description				= "Template for documenting proof of relationship between a member 01 and someone else in the household."
 
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
+Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_M_to_Q(script_num).script_name 			= "QI Renewal Accuracy"
+script_array_M_to_Q(script_num).file_name				= "qi-renewal-accuracy.vbs"
+script_array_M_to_Q(script_num).description				= "Template for documenting specific renewal inforamtion that has been reviewed by policy experts."
 
 
 
 '-------------------------------------------------------------------------------------------------------------------------R through Z
 'Resetting the variable
-script_num = 0
-ReDim Preserve script_array_R_to_Z(script_num)
-Set script_array_R_to_Z(script_num) = new script
+script_num = 0											'establishing count as 0
+ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one more element to it
+Set script_array_R_to_Z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_R_to_Z(script_num).script_name 			= "REIN Progs"
 script_array_R_to_Z(script_num).file_name				= "rein-progs.vbs"
 script_array_R_to_Z(script_num).description				= "Template for noting program reinstatement information."
@@ -575,6 +597,13 @@ script_array_R_to_Z(script_num).description				= "Template for case noting the S
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one more element to it
 Set script_array_R_to_Z(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_R_to_Z(script_num).script_name 			= "Vendor"
+script_array_R_to_Z(script_num).file_name				= "vendor.vbs"
+script_array_R_to_Z(script_num).description				= "Template for documenting vendor inforamtion.."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one more element to it
+Set script_array_R_to_Z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_R_to_Z(script_num).script_name 			= "Verifications needed"
 script_array_R_to_Z(script_num).file_name				= "verifications-needed.vbs"
 script_array_R_to_Z(script_num).description				= "Template for when verifications are needed (enters each verification clearly)."
@@ -584,9 +613,9 @@ script_array_R_to_Z(script_num).description				= "Template for when verification
 
 '-------------------------------------------------------------------------------------------------------------------------LTC
 'Resetting the variable
-script_num = 0
-ReDim Preserve script_array_LTC(script_num)
-Set script_array_LTC(script_num) = new script
+script_num = 0											'establishing count as 0
+ReDim Preserve script_array_LTC(script_num)				'Resets the array to add one more element to it
+Set script_array_LTC(script_num) = new script			'Set this array element to be a new script. Script details below...
 script_array_LTC(script_num).script_name 				= "LTC - 1503"
 script_array_LTC(script_num).file_name					= "ltc-1503.vbs"
 script_array_LTC(script_num).description				= "Template for processing DHS-1503."
