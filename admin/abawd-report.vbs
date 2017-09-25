@@ -230,74 +230,80 @@ Do
 	'msgbox MAXIS_case_number
     	
     call navigate_to_MAXIS_screen("STAT", "EATS")
-    EMReadScreen all_eat_together, 1, 4, 72
+	EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
+	If PRIV_check = "PRIV" then
+		objExcel.Cells(excel_row, 5).Value = "PRIV case"
+	Else 
 	
-	'Handling for single HH member
-    IF all_eat_together = "_" THEN		
-		call navigate_to_MAXIS_screen("STAT", "WREG")
-		EMReadScreen FSET_code, 2, 8, 50
-		EMReadScreen ABAWD_status_code, 2, 13, 50
-		ABAWD_info = FSET_code & "/" & ABAWD_status_code
-		ABAWD_status = "01: " & ABAWD_info 
-		
-		ObjExcel.Cells(excel_row, 5).Value = ABAWD_status
-		STATS_counter = STATS_counter + 1
-		'more than one HH member
-    ELSEIF all_eat_together = "Y" THEN 
-    	eats_row = 5
-    	DO
-    		EMReadScreen eats_person, 2, eats_row, 3
-    		eats_person = trim(eats_person)
-    		IF eats_person <> "" THEN 
-    			eats_group_members = eats_group_members & eats_person & " "
-    			eats_row = eats_row + 1
-    		END IF
-    	LOOP UNTIL eats_person = "" or eats_row = 18
-    ELSEIF all_eat_together = "N" THEN
-    	eats_row = 13
-    	DO
-    		EMReadScreen eats_group, 38, eats_row, 39
-    		find_memb01 = InStr(eats_group, "01")
-    		IF find_memb01 = 0 THEN 
-				eats_row = eats_row + 1
-			else 
-				exit do 
-			End if 
-    	LOOP UNTIL find_memb01 <> 0 OR eats_row = 18
-    	IF eats_row <> 18 THEN 
-    		eats_col = 39
-    		DO
-    			EMReadScreen eats_group, 2, eats_row, eats_col
-    			IF eats_group <> "__" THEN 
-    				eats_group_members = eats_group_members & eats_group & " "
-    				eats_col = eats_col + 4
-    			END IF
-    		LOOP UNTIL eats_group = "__"
-		END IF 
-	End if 
-			
-	IF eats_row <> 18 then 
-		eats_group_members = trim(eats_group_members)
-		eats_group_members = split(eats_group_members)
+        EMReadScreen all_eat_together, 1, 4, 72
+	    
+	    'Handling for single HH member
+        IF all_eat_together = "_" THEN		
+	    	call navigate_to_MAXIS_screen("STAT", "WREG")
+	    	EMReadScreen FSET_code, 2, 8, 50
+	    	EMReadScreen ABAWD_status_code, 2, 13, 50
+	    	ABAWD_info = FSET_code & "/" & ABAWD_status_code
+	    	ABAWD_status = "01: " & ABAWD_info 
+	    	
+	    	ObjExcel.Cells(excel_row, 5).Value = ABAWD_status
+	    	STATS_counter = STATS_counter + 1
+	    	'more than one HH member
+        ELSEIF all_eat_together = "Y" THEN 
+        	eats_row = 5
+        	DO
+        		EMReadScreen eats_person, 2, eats_row, 3
+        		eats_person = trim(eats_person)
+        		IF eats_person <> "" THEN 
+        			eats_group_members = eats_group_members & eats_person & " "
+        			eats_row = eats_row + 1
+        		END IF
+        	LOOP UNTIL eats_person = "" or eats_row = 18
+        ELSEIF all_eat_together = "N" THEN
+        	eats_row = 13
+        	DO
+        		EMReadScreen eats_group, 38, eats_row, 39
+        		find_memb01 = InStr(eats_group, "01")
+        		IF find_memb01 = 0 THEN 
+	    			eats_row = eats_row + 1
+	    		else 
+	    			exit do 
+	    		End if 
+        	LOOP UNTIL find_memb01 <> 0 OR eats_row = 18
+        	IF eats_row <> 18 THEN 
+        		eats_col = 39
+        		DO
+        			EMReadScreen eats_group, 2, eats_row, eats_col
+        			IF eats_group <> "__" THEN 
+        				eats_group_members = eats_group_members & eats_group & " "
+        				eats_col = eats_col + 4
+        			END IF
+        		LOOP UNTIL eats_group = "__"
+	    	END IF 
+	    End if 
+	    		
+	    IF eats_row <> 18 then 
+	    	eats_group_members = trim(eats_group_members)
+	    	eats_group_members = split(eats_group_members)
 
-		call navigate_to_MAXIS_screen("STAT", "WREG")
+	    	call navigate_to_MAXIS_screen("STAT", "WREG")
 
-		FOR EACH person IN eats_group_members
-			STATS_counter = STATS_counter + 1
-			EMWriteScreen person, 20, 76
-			transmit
-			
-			EMReadScreen FSET_code, 2, 8, 50
-			EMReadScreen ABAWD_status_code, 2, 13, 50
-			ABAWD_info = FSET_code & "/" & ABAWD_status_code
-			If ABAWD_info <> "__/__" then ABAWD_status = ABAWD_status & person & ": " & ABAWD_info & ","
-		NEXT
+	    	FOR EACH person IN eats_group_members
+	    		STATS_counter = STATS_counter + 1
+	    		EMWriteScreen person, 20, 76
+	    		transmit
+	    		
+	    		EMReadScreen FSET_code, 2, 8, 50
+	    		EMReadScreen ABAWD_status_code, 2, 13, 50
+	    		ABAWD_info = FSET_code & "/" & ABAWD_status_code
+	    		If ABAWD_info <> "__/__" then ABAWD_status = ABAWD_status & person & ": " & ABAWD_info & ","
+	    	NEXT
 
-		ObjExcel.Cells(excel_row, 5).Value = ABAWD_status	
-    ELSE 
-    	objExcel.Cells(excel_row, 5).Value = "CHECK MANUALLY"
-		STATS_counter = STATS_counter + 1
-    END IF
+	    	ObjExcel.Cells(excel_row, 5).Value = ABAWD_status	
+        ELSE 
+        	objExcel.Cells(excel_row, 5).Value = "CHECK MANUALLY"
+	    	STATS_counter = STATS_counter + 1
+        END IF
+	End if
 	excel_row = excel_row + 1
 Loop until ObjExcel.Cells(excel_row, 2).Value = ""
 
