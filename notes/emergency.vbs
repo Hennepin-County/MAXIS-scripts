@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/25/2017", "Fixed header for case notes that have an EGA screening, header information was duplicating.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -284,6 +285,7 @@ If EGA_screening_check = 1 then
     	EMER_available_date = "Currently available"
     END IF
 
+	crisis = ""
     'Logic to enter what the "crisis" variable is from the check boxes indicated
     If eviction_check = 1 then crisis = crisis & "eviction, "
     If utility_disconnect_check = 1 then crisis = crisis & "utility disconnect, "
@@ -431,6 +433,7 @@ DO
 	 call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
  LOOP UNTIL are_we_passworded_out = false
 
+crisis = ""
 'Logic to enter what the "crisis" variable is from the checkboxes indicated
 If eviction_check = 1 then crisis = crisis & "eviction, "
 If utility_disconnect_check = 1 then crisis = crisis & "utility disconnect, "
