@@ -185,7 +185,7 @@ End if
 If HCMI_update_check = 1 THEN
 	call navigate_to_MAXIS_screen("stat", "hcmi")
 	EMReadScreen HCMI_panel_check, 1, 2, 78
-	IF HCMI_panel_check <> 0 Then
+	IF HCMI_panel_check <> "0" Then
 		PF9
 	ELSE
 		EMWriteScreen "nn", 20, 79
