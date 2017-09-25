@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/25/2017", "Updated income standards for 130% FPG effective 10/17.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -100,16 +101,16 @@ Do
 Loop until worker_signature <> ""
 
 'Determines the income limits
-' >> Income limits from CM 19.06
-If sponsor_HH_size = 1 then income_limit = 1276
-If sponsor_HH_size = 2 then income_limit = 1726
-If sponsor_HH_size = 3 then income_limit = 2177
-If sponsor_HH_size = 4 then income_limit = 2628
-If sponsor_HH_size = 5 then income_limit = 3078
-If sponsor_HH_size = 6 then income_limit = 3529
-If sponsor_HH_size = 7 then income_limit = 3980
-If sponsor_HH_size = 8 then income_limit = 4430
-If sponsor_HH_size > 8 then income_limit = 4430 + (451 * (sponsor_HH_size - 8))
+' >> Income limits from CM 19.06 - MAXIS Gross Income 130% FPG (Updated effective 10/01/17)
+If sponsor_HH_size = 1 then income_limit = 1307
+If sponsor_HH_size = 2 then income_limit = 1760
+If sponsor_HH_size = 3 then income_limit = 2213
+If sponsor_HH_size = 4 then income_limit = 2665
+If sponsor_HH_size = 5 then income_limit = 3118
+If sponsor_HH_size = 6 then income_limit = 3571
+If sponsor_HH_size = 7 then income_limit = 4024
+If sponsor_HH_size = 8 then income_limit = 4477
+If sponsor_HH_size > 8 then income_limit = 4477 + (453 * (sponsor_HH_size - 8))
 
 'If any income variables are not numeric, the script will convert them to a "0" for calculating
 If IsNumeric(primary_sponsor_earned_income) = False then primary_sponsor_earned_income = 0
