@@ -86,7 +86,7 @@ BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 351, 350, "MFIP Sanction - DWP 
   CheckBox 10, 260, 130, 10, "Update sent to Child Care Assistance", Update_Sent_CCA_Checkbox
   CheckBox 10, 280, 85, 10, "Case has been FIAT'd", Fiat_check
   CheckBox 10, 295, 140, 10, "Mandatory vendor form mailed to client", mandatory_vendor_check
-  CheckBox 150, 245, 190, 10, "Sent MFIP sanction for future closed month SPEC/LETR", Sent_SPEC_WCOM
+  CheckBox 150, 245, 190, 10, "Sent MFIP sanction for future closed month SPEC/LETR", Sent_Spec_LETR
   CheckBox 150, 270, 130, 10, "TIKL to change sanction status ", TIKL_next_month
   CheckBox 150, 295, 145, 10, "If you want script to write to SPEC/WCOM", notating_spec_wcom
   EditBox 130, 325, 95, 15, worker_signature
@@ -274,7 +274,7 @@ If action_type = "Apply sanction/disq."	then
 	IF TIKL_next_month = 1 THEN Call write_variable_in_case_note("* A TIKL was set to update the case from pending to imposed for the 1st of the next month.") 'There was a huge space, I closed up the space
 	IF FIAT_check = 1 THEN CALL write_variable_in_case_note("* Case has been FIATed.")
 	IF mandatory_vendor_check = 1 THEN CALL write_variable_in_case_note("* A mandatory vendor form has been mailed to the sanctioned individual.") 'There was a huge space, I closed up the space
-	IF Sent_SPEC_WCOM = 1 THEN CALL write_variable_in_case_note ("* Sent MFIP sanction for future closed month SPEC/WCOM to the sanctioned individual.")'Changed the SPEC/MEMO to SPEC/WCOM
+	IF Sent_Spec_LETR = 1 THEN CALL write_variable_in_case_note ("* Sent MFIP sanction for future closed month SPEC/LETR to the sanctioned individual.")
 	CALL write_variable_in_case_note("---")
 	CALL write_variable_in_case_note(worker_signature)
 
