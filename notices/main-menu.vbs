@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/25/2017", "Added new script: SNAP WCOM - Failure to Comply WCOM.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -52,8 +53,8 @@ Function declare_NOTICES_menu_dialog(script_array)
 	 	Text 5, 5, 435, 10, "Notices scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 40, 15, "NOTICES", 				NOTICES_main_button
-		 	PushButton 055, 35, 60, 15, "SNAP WCOMS", 				SNAP_WCOMS_button
-		 	PushButton 445, 10, 65, 10, "SIR instructions", 	SIR_instructions_button
+		 	PushButton 055, 35, 60, 15, "SNAP WCOMS", 			SNAP_WCOMS_button
+		 	PushButton 445, 10, 65, 10, "Instructions", 		Instructions_button
 
 		'This starts here, but it shouldn't end here :)
 		vert_button_position = 70
@@ -80,7 +81,7 @@ End function
 
 'Declaring the variable names to cut down on the number of arguments that need to be passed through the function.
 DIM ButtonPressed
-DIM SIR_instructions_button
+DIM Instructions_button
 dim NOTICES_dialog
 
 script_array_NOTICES_main = array()
@@ -96,105 +97,105 @@ script_array_NOTICES_list = array()
 '-------------------------------------------------------------------------------------------------------------------------NOTICES MAIN MENU
 
 'Resetting the variable
-script_num = 0
-ReDim Preserve script_array_NOTICES_main(script_num)
-Set script_array_NOTICES_main(script_num) = new script
-script_array_NOTICES_main(script_num).script_name 			= "12 Month Contact"																		'Script name
+script_num = 0												'establishes value of scripts at 0
+ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
+Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_NOTICES_main(script_num).script_name 			= "12 Month Contact"																'Script name
 script_array_NOTICES_main(script_num).file_name 			= "12-month-contact.vbs"															'Script URL
 script_array_NOTICES_main(script_num).description 			= "Sends a MEMO to the client of their reporting responsibilities (required for SNAP 2-yr certifications, per POLI/TEMP TE02.08.165)."
 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name 			= "Appointment Letter"																		'Script name
+script_array_NOTICES_main(script_num).script_name 			= "Appointment Letter"																'Script name
 script_array_NOTICES_main(script_num).file_name 			= "appointment-letter.vbs"															'Script URL
 script_array_NOTICES_main(script_num).description 			= "Sends a MEMO containing the appointment letter (with text from POLI/TEMP TE02.05.15)."
 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name 			= "Eligibility Notifier"																		'Script name
-script_array_NOTICES_main(script_num).file_name 			= "eligibility-notifier.vbs"															'Script URL
+script_array_NOTICES_main(script_num).script_name 			= "Eligibility Notifier"															'Script name
+script_array_NOTICES_main(script_num).file_name 			= "eligibility-notifier.vbs"														'Script URL
 script_array_NOTICES_main(script_num).description 			= "Sends a MEMO informing client of possible program eligibility for SNAP, MA, MSP, MNsure or CASH."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= " GRH Overpayment"													'needs spaces to generate button width properly.
 script_array_NOTICES_main(script_num).file_name				= "grh-op-cl-left-faci.vbs"
 script_array_NOTICES_main(script_num).description			= "Sends a MEMO to a facility indicating that an overpayment is due because a client left."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= "LTC Asset Transfer"
 script_array_NOTICES_main(script_num).file_name				= "ltc-asset-transfer.vbs"
 script_array_NOTICES_main(script_num).description			= "Sends a MEMO to a LTC client regarding asset transfers. "
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= "MA Inmate Application WCOM"
 script_array_NOTICES_main(script_num).file_name				= "ma-inmate-application-wcom.vbs"
 script_array_NOTICES_main(script_num).description			= "Sends a WCOM on a MA notice for Inmate Applications"
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= "MA-EPD No Initial Premium Paid"
 script_array_NOTICES_main(script_num).file_name				= "ma-epd-no-initial-premium.vbs"
 script_array_NOTICES_main(script_num).description			= "Sends a WCOM on a denial for no initial MA-EPD premium."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= " Method B WCOM "													'needs spaces to generate button width properly.
 script_array_NOTICES_main(script_num).file_name				= "method-b-wcom.vbs"
 script_array_NOTICES_main(script_num).description			= "Makes detailed WCOM regarding spenddown vs. recipient amount for method B HC cases."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= "MFIP Orientation"
 script_array_NOTICES_main(script_num).file_name				= "mfip-orientation.vbs"
 script_array_NOTICES_main(script_num).description			= "Sends a MEMO to a client regarding MFIP orientation."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= " MNsure Memo"													'needs spaces to generate button width properly.
 script_array_NOTICES_main(script_num).file_name				= "mnsure-memo.vbs"
 script_array_NOTICES_main(script_num).description			= "Sends a MEMO to a client regarding MNsure."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= "NOMI"
 script_array_NOTICES_main(script_num).file_name				= "nomi.vbs"
 script_array_NOTICES_main(script_num).description			= "Sends the SNAP notice of missed interview (NOMI) letter, following rules set out in POLI/TEMP TE02.05.15."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= "Overdue Baby"
 script_array_NOTICES_main(script_num).file_name				= "overdue-baby.vbs"
 script_array_NOTICES_main(script_num).description			= "Sends a MEMO informing client that they need to report information regarding the status of pregnancy, within 10 days or their case may close."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= "Out Of State"
 script_array_NOTICES_main(script_num).file_name				= "out-of-state.vbs"
 script_array_NOTICES_main(script_num).description			= "Generates out of state inquiry-Microsoft word document notice that can be use to fax."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= "SNAP E and T Letter"
 script_array_NOTICES_main(script_num).file_name				= "snap-e-and-t-letter.vbs"
 script_array_NOTICES_main(script_num).description			= "Sends a SPEC/LETR informing client that they have an Employment and Training appointment."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= "Verifications Still Needed"
@@ -205,47 +206,53 @@ script_array_NOTICES_main(script_num).description			= "Creates a Word document i
 
 '-------------------------------------------------------------------------------------------------------------------------SNAP WCOMS LISTS
 'Resetting the variable
-script_num = 0
-ReDim Preserve script_array_NOTICES_list(script_num)
-Set script_array_NOTICES_list(script_num) = new script
+script_num = 0												'establishes value of scripts at 0
+ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
+Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_list(script_num).script_name 			= " ABAWD with Child in HH WCOM "'needs spaces to generate button width properly.																'Script name
-script_array_NOTICES_list(script_num).file_name			= "abawd-with-child-in-hh-wcom.vbs"
+script_array_NOTICES_list(script_num).file_name				= "abawd-with-child-in-hh-wcom.vbs"
 script_array_NOTICES_list(script_num).description 			= "Adds a WCOM to a notice for an ABAWD adult receiving child under 18 exemption."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_list(script_num).script_name 			= "  Banked Month WCOMS "
-script_array_NOTICES_list(script_num).file_name			= "banked-months-wcoms.vbs"
+script_array_NOTICES_list(script_num).file_name				= "banked-months-wcoms.vbs"
 script_array_NOTICES_list(script_num).description 			= "Adds various WCOMS to a notice for regarding banked month approvals/closure."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_list(script_num).script_name 			= "  Client Death WCOM "
-script_array_NOTICES_list(script_num).file_name			= "client-death-wcom.vbs"
+script_array_NOTICES_list(script_num).file_name				= "client-death-wcom.vbs"
 script_array_NOTICES_list(script_num).description 			= "Adds a WCOM to a notice regarding SNAP closure due to death of last HH member."
 
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
+Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_NOTICES_list(script_num).script_name 			= " Failure to Comply WCOM "
+script_array_NOTICES_list(script_num).file_name				= "failure-to-comply-wcom.vbs"
+script_array_NOTICES_list(script_num).description 			= "Adds a WCOM to a SNAP notice regarding good cause to be used when approving a FSET sanction."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_list(script_num).script_name 			= "Duplicate assistance WCOM"
-script_array_NOTICES_list(script_num).file_name			= "duplicate-assistance-wcom.vbs"
+script_array_NOTICES_list(script_num).file_name				= "duplicate-assistance-wcom.vbs"
 script_array_NOTICES_list(script_num).description 			= "Adds a WCOM to a notice for duplicate assistance explaining why the client was ineligible."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_list(script_num).script_name 			= " Postponed WREG Verif "
-script_array_NOTICES_list(script_num).file_name			= "postponed-wreg-verifs.vbs"
+script_array_NOTICES_list(script_num).file_name				= "postponed-wreg-verifs.vbs"
 script_array_NOTICES_list(script_num).description 			= "Sends a WCOM informing the client of postponed verifications that MAXIS won't add to notice correctly by itself."
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_list(script_num).script_name 			= " Returned Mail WCOM "
-script_array_NOTICES_list(script_num).file_name			= "returned-mail-wcom.vbs"
+script_array_NOTICES_list(script_num).file_name				= "returned-mail-wcom.vbs"
 script_array_NOTICES_list(script_num).description 			= "Adds a WCOM to a notice for SNAP returned mail closure."
 
 
@@ -272,9 +279,9 @@ Do
 	dialog NOTICES_dialog
 
 	If ButtonPressed = 0 then stopscript
-    'Opening the SIR Instructions
-	IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notices%20scripts.aspx")
-Loop until 	ButtonPressed <> SIR_instructions_button and _
+    'Opening the Instructions
+	IF buttonpressed = Instructions_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/Forms/AllItems.aspx?RootFolder=%2Fhsphd%2Fsa%2Fews%2FBlueZone%5FScript%5FInstructions%2FNOTICES&FolderCTID=0x012000A05B86818A1703428050D2E34B3E8EA1&View=%7BFFD55BF9%2D6CDF%2D4B5C%2DB47B%2D3701445A9B34%7D")
+Loop until 	ButtonPressed <> Instructions_button and _
 			ButtonPressed <> NOTICES_main_button and _
 			ButtonPressed <> SNAP_WCOMS_button
 
