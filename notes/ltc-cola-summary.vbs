@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/25/2017", "Added header to be specific to the MAXIS footer month/year approved.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/29/2016", "Added header update for 2017 in case notes, and made this a variable year vs. hard coding this information into the script, and needing yearly updates.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -333,7 +334,6 @@ EndDialog
   EMWriteScreen MAXIS_case_number, 18, 43
 
   Call start_a_blank_CASE_NOTE
-  EMSendKey "**Approved COLA updates 01/" & MAXIS_footer_year & ": " & elig_type & "-" & budget_type & " " & recipient_amt
   If budget_type = "L" then EMSendKey " LTC SD**"
   If budget_type = "S" then EMSendKey " SISEW waiver obl**"
   If budget_type = "B" then EMSendKey " Recip amt.**"
@@ -595,7 +595,7 @@ function income_summary
 	Call check_for_MAXIS(False)
 
 	call start_a_blank_CASE_NOTE
-	Call write_variable_in_CASE_NOTE ("===COLA 20" & MAXIS_footer_year & " INCOME SUMMARY===")
+	Call write_variable_in_CASE_NOTE ("===COLA INCOME SUMMARY for "& MAXIS_footer_month & "/" & MAXIS_footer_year"===")
 	call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
 	call write_bullet_and_variable_in_case_note("Earned income", earned_income)
 	call write_bullet_and_variable_in_case_note("Medicare Part B premium", medicare_part_B)
