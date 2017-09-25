@@ -38,6 +38,19 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/25/2017", "Enhancements requested by MNSURE team include: Updated navigation and standarization, removed setting a TIKL, and added functionality that sends an email to the specified team with applicable case information.", "MiKayla Handley, Hennepin County")
+call changelog_update("08/08/17", "Initial version.", "Ilse Ferris, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 '--------------------------------------------------------------------------------------------------------------------Dialog
 BeginDialog MNSure_HC_Appl_dialog, 0, 0, 326, 230, "MNsure Retro HC App, Retro Elig Determination Requested"
   EditBox 85, 5, 75, 15, curam_case_number
