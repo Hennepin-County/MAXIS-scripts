@@ -109,7 +109,7 @@ script_array_LTC    = array()
 script_num = 0											'establishing count as 0
 ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
 Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_0_to_C(script_num).script_name 			= "ABAWD Tracking Record"																		'Script name
+script_array_0_to_C(script_num).script_name 			= " ABAWD Tracking Record "																		'Script name
 script_array_0_to_C(script_num).file_name 				= "abawd-tracking-record.vbs"																	'Script URL
 script_array_0_to_C(script_num).description 			= "Template for documenting details about the ABAWD actvity for the case."
 
