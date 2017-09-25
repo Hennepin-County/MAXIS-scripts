@@ -203,6 +203,8 @@ excel_row = 2
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
+	MAXIS_footer_month = "" 'clearing variable to prevent breaking when in Cm+2
+	MAXIS_footer_year = ""
 	EMWriteScreen MAXIS_footer_month, 20, 43 'needs to add date that isn't CM+2 other wise script cannot navigate back to REVS when running on multiple cases.
 	EMWriteScreen MAXIS_footer_year, 20, 46
 	transmit
