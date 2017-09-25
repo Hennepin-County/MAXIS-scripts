@@ -32,8 +32,6 @@
 'END IF
 ''END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
-
 class script_bowie
 
     'Stuff the user indicates
@@ -57,14 +55,14 @@ class script_bowie
 			script_repository = "C:\DHS-MAXIS-Scripts\"
 			script_URL = script_repository & lcase(category) & "\" & lcase(replace(script_name, " ", "-") & ".vbs")
 		Else
-        	If script_repository = "" then script_repository = "https://raw.githubusercontent.com/MN-Script-Team/DHS-MAXIS-Scripts/master/"    'Assumes we're scriptwriters
+        	If script_repository = "" then script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/"    'Assumes we're scriptwriters
         	script_URL = script_repository & lcase(category) & "/" & replace(lcase(script_name) & ".vbs", " ", "-")
 		End if
     end property
 
-    public property get SIR_instructions_URL 'The instructions URL in SIR
-        SIR_instructions_URL = "https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/" & replace(ucase(script_name) & ".aspx", " ", "%20")
-    end property
+    'public property get SIR_instructions_URL 'The instructions URL in SIR
+    '    SIR_instructions_URL = "https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/" & replace(ucase(script_name) & ".aspx", " ", "%20")
+    'end property
 
 end class
 
@@ -75,15 +73,25 @@ end class
 
 'ACTIONS SCRIPTS=====================================================================================================================================
 
+'script_num = 0
+'ReDim Preserve script_array(script_num)
+'Set script_array(script_num) = new script_bowie
+'script_array(script_num).script_name 			= "ABAWD Banked Months FIATer"																		'Script name
+'script_array(script_num).description 			= "FIATS SNAP eligibility, income, and deductions for HH members using banked months."
+'script_array(script_num).category               = "ACTIONS"
+'script_array(script_num).workflows              = ""
+'script_array(script_num).subcategory            = array("ABAWD")
+'script_array(script_num).release_date           = #10/01/2000#
+
 script_num = 0
 ReDim Preserve script_array(script_num)
 Set script_array(script_num) = new script_bowie
-script_array(script_num).script_name 			= "ABAWD Banked Months FIATer"																		'Script name
-script_array(script_num).description 			= "FIATS SNAP eligibility, income, and deductions for HH members using banked months."
+script_array(script_num).script_name 			= "ABAWD Exemption"																		'Script name
+script_array(script_num).description 			= "Updates FSET/ABAWD coding on STAT/WREG and case notes ABAWD exemptions."
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("ABAWD")
-script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).release_date           = #09/25/2017#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)
@@ -159,12 +167,32 @@ script_array(script_num).release_date           = #10/01/2000#
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Claim Referral Tracking"
+script_array(script_num).description			= "Assists in tracking overpayments/potential overpayments on STAT/MISC and case note."
+script_array(script_num).category               = "ACTIONS"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #09/25/2017#
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "EMPS Updater"
 script_array(script_num).description			= "Updates the EMPS panel, and case notes when for Child Under 12 Months Exemptions."
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #11/03/2016#
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "FIAT GA-RCA Into SNAP Budget"
+script_array(script_num).description			= "FIATs GA or RCA income into SNAP budget for each month through cuurent month plus one."
+script_array(script_num).category               = "ACTIONS"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #09/25/2017#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -186,30 +214,30 @@ script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #11/03/2016#
 
+'script_num = script_num + 1					'Increment by one
+'ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+'Set script_array(script_num) = new script_bowie'Set this array element to be a new script_bowie. Script details below...
+'script_array(script_num).script_name 			= "HG expansion MONY-CHCK"																		'Script name
+'script_array(script_num).description 			= "Issues a housing grant in MONY/CHCK for cases that meet HG expansion criteria."
+'script_array(script_num).category               = "ACTIONS"
+'script_array(script_num).workflows              = ""
+'script_array(script_num).subcategory            = array("")
+'script_array(script_num).release_date           = #12/01/2016#
+'
+'script_num = script_num + 1					'Increment by one
+'ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+'Set script_array(script_num) = new script_bowie'Set this array element to be a new script_bowie. Script details below...
+'script_array(script_num).script_name			= "HG Supplement"
+'script_array(script_num).description			= "Issues a housing grant in MONY/CHCK for cases that should have been issued in prior months."
+'script_array(script_num).category               = "ACTIONS"
+'script_array(script_num).workflows              = ""
+'script_array(script_num).subcategory            = array("")
+'script_array(script_num).release_date           = #04/25/2016#
+
+
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "HG expansion MONY-CHCK"																		'Script name
-script_array(script_num).description 			= "Issues a housing grant in MONY/CHCK for cases that meet HG expansion criteria."
-script_array(script_num).category               = "ACTIONS"
-script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("")
-script_array(script_num).release_date           = #12/01/2016#
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name			= "HG Supplement"
-script_array(script_num).description			= "Issues a housing grant in MONY/CHCK for cases that should have been issued in prior months."
-script_array(script_num).category               = "ACTIONS"
-script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("")
-script_array(script_num).release_date           = #04/25/2016#
-
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "LTC Spousal Allocation FIATer"
 script_array(script_num).description			= "FIATs a spousal allocation across a budget period."
 script_array(script_num).category               = "ACTIONS"
@@ -217,9 +245,9 @@ script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("LTC")
 script_array(script_num).release_date           = #10/01/2000#
 
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "LTC ICF-DD Deduction FIATer"																			'Script name
 script_array(script_num).description 			= "FIATs earned income and deductions across a budget period."
 script_array(script_num).category               = "ACTIONS"
@@ -227,9 +255,9 @@ script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("LTC")
 script_array(script_num).release_date           = #05/23/2016#
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "MA-EPD EI FIAT"
 script_array(script_num).description			= "FIATs MA-EPD earned income (JOBS income) to be even across an entire budget period."
 script_array(script_num).category               = "ACTIONS"
@@ -237,9 +265,9 @@ script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "New Job Reported"
 script_array(script_num).description			= "Creates a JOBS panel, CASE/NOTE and TIKL when a new job is reported. Use the DAIL scrubber for new hire DAILs."
 script_array(script_num).category               = "ACTIONS"
@@ -247,9 +275,9 @@ script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "PA Verif Request"
 script_array(script_num).description			= "Creates a Word document with PA benefit totals for other agencies to determine client benefits."
 script_array(script_num).category               = "ACTIONS"
@@ -257,9 +285,9 @@ script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "Paystubs Received"
 script_array(script_num).description			= "Enter in pay stubs, and puts it on JOBS (both retro & pro if applicable), as well as the PIC and HC pop-up, and case note."
 script_array(script_num).category               = "ACTIONS"
@@ -277,9 +305,9 @@ script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "Send SVES"
 script_array(script_num).description			= "Sends a SVES/QURY."
 script_array(script_num).category               = "ACTIONS"
@@ -287,9 +315,9 @@ script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "Transfer Case"
 script_array(script_num).description			= "SPEC/XFERs a case, and can send a client memo. For in-agency as well as out-of-county XFERs."
 script_array(script_num).category               = "ACTIONS"
@@ -297,9 +325,9 @@ script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "TYMA TIKLer"
 script_array(script_num).description			= "TIKLS for TYMA report forms to be sent."
 script_array(script_num).category               = "ACTIONS"
@@ -329,15 +357,15 @@ script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
 script_array(script_num).release_date           = #10/01/2000#
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array(script_num)
-Set script_array(script_num) = new script_bowie
-script_array(script_num).script_name 			= "Banked Months Report"																		'Script name
-script_array(script_num).description 			= "Creates a month specific report of banked months used, also checks these cases to confirm banked month use and creates a rejected report."
-script_array(script_num).category               = "BULK"
-script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("")
-script_array(script_num).release_date           = #04/25/2016#
+'script_num = script_num + 1								'Increment by one
+'ReDim Preserve script_array(script_num)
+'Set script_array(script_num) = new script_bowie
+'script_array(script_num).script_name 			= "Banked Months Report"																		'Script name
+'script_array(script_num).description 			= "Creates a month specific report of banked months used, also checks these cases to confirm banked month use and creates a rejected report."
+'script_array(script_num).category               = "BULK"
+'script_array(script_num).workflows              = ""
+'script_array(script_num).subcategory            = array("")
+'script_array(script_num).release_date           = #04/25/2016#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -359,11 +387,11 @@ script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 
-script_num = script_num + 1								'Increment by one
+script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name				= "CEI Premium Noter"
-script_array(script_num).description				= "Case notes recurring CEI premiums on multiple cases simultaneously."
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "CEI Premium Noter"
+script_array(script_num).description			= "Case notes recurring CEI premiums on multiple cases simultaneously."
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
