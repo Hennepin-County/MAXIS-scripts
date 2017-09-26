@@ -319,15 +319,19 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
     	EndDialog
 		
     	'------------------------------------------------------------------------------------------DATE BASED LOGIC FOR UTILITY AMOUNTS
-    	IF date >= cdate("10/01/2016") THEN			'these variables need to change every October
-    		heat_AC_amt = 532
-    		electric_amt = 141
-    		phone_amt = 38
-    	ELSE
-    		heat_AC_amt = 454
-    		electric_amt = 141
-    		phone_amt = 38
-    	END IF
+		If date >= cdate("10/01/2017") then			'these variables need to change every October
+			heat_AC_amt = 536
+			electric_amt = 172
+			phone_amt = 41
+		ElseIf date >= cdate("10/01/2016") then			'these variables need to change every October
+			heat_AC_amt = 532
+			electric_amt = 141
+			phone_amt = 38
+		Else
+			heat_AC_amt = 454
+			electric_amt = 141
+			phone_amt = 38
+		End if
     	
     	'----------------------------------------------------------------------------------------------------THE SCRIPT
     	CALL MAXIS_case_number_finder(MAXIS_case_number)
