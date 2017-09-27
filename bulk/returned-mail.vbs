@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/27/2017", "Removed initial warning message box, and removed input box for worker signature.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -55,74 +56,73 @@ changelog_display
 BeginDialog many_case_numbers_dialog, 0, 0, 366, 250, "Enter Many Case Numbers Dialog"
   Text 5, 5, 220, 10, "Enter each MAXIS case number, then press ''Next...'' when finished."
   EditBox 5, 20, 55, 15, case_number_01
-  DropListBox 65, 20, 55, 20, "No Forwarding "+chr(9)+"Forwarding ", MailType_01
+  DropListBox 65, 20, 55, 20, "No Forwarding"+chr(9)+"Forwarding ", MailType_01
   EditBox 125, 20, 55, 15, case_number_02
-  DropListBox 185, 20, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_02
+  DropListBox 185, 20, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_02
   EditBox 245, 20, 55, 15, case_number_03
-  DropListBox 305, 20, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_03
+  DropListBox 305, 20, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_03
   EditBox 5, 40, 55, 15, case_number_04
-  DropListBox 65, 40, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_04
+  DropListBox 65, 40, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_04
   EditBox 125, 40, 55, 15, case_number_05
-  DropListBox 185, 40, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_05
+  DropListBox 185, 40, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_05
   EditBox 245, 40, 55, 15, case_number_06
-  DropListBox 305, 40, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_06
+  DropListBox 305, 40, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_06
   EditBox 5, 60, 55, 15, case_number_07
-  DropListBox 65, 60, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_07
+  DropListBox 65, 60, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_07
   EditBox 125, 60, 55, 15, case_number_08
-  DropListBox 185, 60, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_08
+  DropListBox 185, 60, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_08
   EditBox 245, 60, 55, 15, case_number_09
-  DropListBox 305, 60, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_09
+  DropListBox 305, 60, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_09
   EditBox 5, 80, 55, 15, case_number_10
-  DropListBox 65, 80, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_10
+  DropListBox 65, 80, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_10
   EditBox 125, 80, 55, 15, case_number_11
-  DropListBox 185, 80, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_11
+  DropListBox 185, 80, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_11
   EditBox 245, 80, 55, 15, case_number_12
-  DropListBox 305, 80, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_12
+  DropListBox 305, 80, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_12
   EditBox 5, 100, 55, 15, case_number_13
-  DropListBox 65, 100, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_13
+  DropListBox 65, 100, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_13
   EditBox 125, 100, 55, 15, case_number_14
-  DropListBox 185, 100, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_14
+  DropListBox 185, 100, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_14
   EditBox 245, 100, 55, 15, case_number_15
-  DropListBox 305, 100, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_15
+  DropListBox 305, 100, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_15
   EditBox 5, 120, 55, 15, case_number_16
-  DropListBox 65, 120, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_16
+  DropListBox 65, 120, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_16
   EditBox 125, 120, 55, 15, case_number_17
-  DropListBox 185, 120, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_17
+  DropListBox 185, 120, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_17
   EditBox 245, 120, 55, 15, case_number_18
-  DropListBox 305, 120, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_18
+  DropListBox 305, 120, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_18
   EditBox 5, 140, 55, 15, case_number_19
-  DropListBox 65, 140, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_19
+  DropListBox 65, 140, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_19
   EditBox 125, 140, 55, 15, case_number_20
-  DropListBox 185, 140, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_20
+  DropListBox 185, 140, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_20
   EditBox 245, 140, 55, 15, case_number_21
-  DropListBox 305, 140, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_21
+  DropListBox 305, 140, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_21
   EditBox 5, 160, 55, 15, case_number_22
-  DropListBox 65, 160, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_22
+  DropListBox 65, 160, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_22
   EditBox 125, 160, 55, 15, case_number_23
-  DropListBox 185, 160, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_23
+  DropListBox 185, 160, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_23
   EditBox 245, 160, 55, 15, case_number_24
-  DropListBox 305, 160, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_24
+  DropListBox 305, 160, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_24
   EditBox 5, 180, 55, 15, case_number_25
-  DropListBox 65, 180, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_25
+  DropListBox 65, 180, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_25
   EditBox 125, 180, 55, 15, case_number_26
-  DropListBox 185, 180, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_26
+  DropListBox 185, 180, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_26
   EditBox 245, 180, 55, 15, case_number_27
-  DropListBox 305, 180, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_27
+  DropListBox 305, 180, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_27
   EditBox 5, 200, 55, 15, case_number_28
-  DropListBox 65, 200, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_28
+  DropListBox 65, 200, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_28
   EditBox 125, 200, 55, 15, case_number_29
-  DropListBox 185, 200, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_29
+  DropListBox 185, 200, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_29
   EditBox 245, 200, 55, 15, case_number_30
-  DropListBox 305, 200, 55, 15, "No Forwarding "+chr(9)+"Forwarding ", MailType_30
+  DropListBox 305, 200, 55, 15, "No Forwarding"+chr(9)+"Forwarding ", MailType_30
+  EditBox 185, 230, 115, 15, worker_signature
   ButtonGroup ButtonPressed
     PushButton 305, 230, 50, 15, "Next...", next_button
+  Text 120, 235, 60, 10, "Worker signature:"
 EndDialog
 
+
 'THE SCRIPT----------------------------------------------------------------
-'Opening message box with info about script and warning to make sure worker is in production in Maxis, not inquiry
-warning_box = MsgBox("PLEASE READ!!" & chr(10) & chr(10) & "NEW!!! Script can now handle casees with an allowed forwarding address.  It will case note and TIKL for up-to 30 cases worth of returned mail.  Consult a supervisor if you have questions about returned mail policy." & _
-		vbNewline & vbNewline & "NOTE: Make sure you are in production before continuing as Maxis cannot case note or TIKL in inquiry.", vbOKCancel)
-If warning_box = vbCancel then stopscript
 
 'Connect to BlueZone
 EMConnect ""
@@ -163,10 +163,6 @@ Loop until (isnumeric(case_number_01) = True or case_number_01 = "") and (isnume
   (isnumeric(case_number_25) = True or case_number_25 = "") and (isnumeric(case_number_26) = True or case_number_26 = "") and _
   (isnumeric(case_number_27) = True or case_number_27 = "") and (isnumeric(case_number_28) = True or case_number_28 = "") and _
   (isnumeric(case_number_29) = True or case_number_29 = "") and (isnumeric(case_number_30) = True or case_number_30 = "")
-
-'Worker signature
-worker_signature = InputBox("Sign your case note:", vbOKCancel)
-If worker_signature = vbCancel then stopscript
 
 'Splits the MAXIS_case_number(s) into a case_number_array
 case_number_array = array(case_number_01, case_number_02, case_number_03, case_number_04, case_number_05, _
