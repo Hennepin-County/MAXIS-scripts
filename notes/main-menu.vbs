@@ -204,12 +204,12 @@ script_array_0_to_C(script_num).script_name				= "Client contact"
 script_array_0_to_C(script_num).file_name				= "client-contact.vbs"
 script_array_0_to_C(script_num).description				= "Template for documenting client contact, either from or to a client."
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
-Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_0_to_C(script_num).script_name				= "Client Transportation Costs"
-script_array_0_to_C(script_num).file_name				= "client-transportation-costs.vbs"
-script_array_0_to_C(script_num).description				= "Template for documenting client transportation costs."
+'script_num = script_num + 1								'Increment by one
+'ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
+'Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
+'script_array_0_to_C(script_num).script_name				= "Client Transportation Costs"
+'script_array_0_to_C(script_num).file_name				= "client-transportation-costs.vbs"
+'script_array_0_to_C(script_num).description				= "Template for documenting client transportation costs."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
