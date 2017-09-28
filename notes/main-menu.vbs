@@ -51,7 +51,7 @@ changelog_display
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_NOTES_menu_dialog(script_array)
-	BeginDialog NOTES_dialog, 0, 0, 516, 370, "NOTES Scripts"
+	BeginDialog NOTES_dialog, 0, 0, 516, 325, "NOTES Scripts"
 	 	Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
 	  	ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 30, 15, "# - C", 				a_to_c_button
@@ -77,7 +77,7 @@ Function declare_NOTES_menu_dialog(script_array)
 			button_placeholder = button_placeholder + 1
 		next
 
-		CancelButton 460, 350, 50, 15
+		CancelButton 460, 305, 50, 15
 		GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
 	EndDialog
 End function
@@ -225,19 +225,19 @@ script_array_0_to_C(script_num).script_name				= "Combined AR"
 script_array_0_to_C(script_num).file_name				= "combined-ar.vbs"
 script_array_0_to_C(script_num).description				= "Template for the Combined Annual Renewal.*"
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
-Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_0_to_C(script_num).script_name				= "County Burial Application"
-script_array_0_to_C(script_num).file_name				= "county-burial-application.vbs"
-script_array_0_to_C(script_num).description				= "Template for the County Burial Application.*"
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
-Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_0_to_C(script_num).script_name				= "County Burial Determination"
-script_array_0_to_C(script_num).file_name				= "county-burial-determination.vbs"
-script_array_0_to_C(script_num).description				= "Template for case noting a determination made on a request for county burial funds.*"
+'script_num = script_num + 1								'Increment by one
+'ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
+'Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
+'script_array_0_to_C(script_num).script_name				= "County Burial Application"
+'script_array_0_to_C(script_num).file_name				= "county-burial-application.vbs"
+'script_array_0_to_C(script_num).description				= "Template for the County Burial Application.*"
+'
+'script_num = script_num + 1								'Increment by one
+'ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
+'Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
+'script_array_0_to_C(script_num).script_name				= "County Burial Determination"
+'script_array_0_to_C(script_num).file_name				= "county-burial-determination.vbs"
+'script_array_0_to_C(script_num).description				= "Template for case noting a determination made on a request for county burial funds.*"
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
