@@ -48,7 +48,7 @@ changelog_display
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_NOTES_menu_dialog(script_array)
-	BeginDialog NOTES_dialog, 0, 0, 516, 300, "Shelter Team Scripts"
+	BeginDialog NOTES_dialog, 0, 0, 516, 310, "Shelter Team Scripts"
 	 	Text 5, 5, 435, 10, "Shelter scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 30, 15, "# - N", 				a_to_n_button
@@ -69,7 +69,7 @@ Function declare_NOTES_menu_dialog(script_array)
 			button_placeholder = button_placeholder + 1
 		next
 
-		CancelButton 460, 280, 50, 15
+		CancelButton 460, 290, 50, 15
 		GroupBox 5, 20, 85, 35, "Shelter Sub-Menus"
 	EndDialog
 End function
@@ -139,6 +139,13 @@ script_array_a_to_n(script_num).description 			= "Case note template for documen
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
 Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_a_to_n(script_num).script_name 			= "CES Screening Appt."																			'Script name
+script_array_a_to_n(script_num).file_name 				= "shelter-ces-screening-appt.vbs"																'Script URL
+script_array_a_to_n(script_num).description 			= "Case note template for documenting details for the CES screening appointment."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
+Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_a_to_n(script_num).script_name 			= "Client Sheltered by Win A"																'Script name
 script_array_a_to_n(script_num).file_name 				= "shelter-client-sheltered-by-win-a.vbs"													'Script URL
 script_array_a_to_n(script_num).description 			= "Case note template for documenting details of contact with client at Window A."
@@ -201,8 +208,6 @@ script_array_a_to_n(script_num).script_name 			= " NSPOW Checked "														
 script_array_a_to_n(script_num).file_name 				= "shelter-nspow-checked.vbs"																'Script URL
 script_array_a_to_n(script_num).description 			= "Case note template for details for NSPOW information."
 
-
-
 '-------------------------------------------------------------------------------------------------------------------------N through Z
 'Resetting the variable
 script_num = 0
@@ -246,13 +251,6 @@ Set script_array_p_to_z(script_num) = new script		'Set this array element to be 
 script_array_p_to_z(script_num).script_name 			= "Revoucher"																				'Script name
 script_array_p_to_z(script_num).file_name				= "shelter-revoucher.vbs"																	'Script URL
 script_array_p_to_z(script_num).description 			= "Case note template for documenting details for the revoucher process."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
-Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= "RRH Screening Appt."																		'Script name
-script_array_p_to_z(script_num).file_name				= "shelter-rrh-screening-appt.vbs"															'Script URL
-script_array_p_to_z(script_num).description 			= "Case note template for documenting details for the RRH screening appointment."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
