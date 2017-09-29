@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/29/2017", "Updated script to default to Current Month plus one as Cash cut-off date.", "Ilse Ferris")
 call changelog_update("06/20/2017", "Initial version.", "MiKayla Handley")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -51,20 +52,19 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 '-------------------------------------------------------------------------------------------------DIALOG
-BeginDialog Cash_Cut_Off_dlg, 0, 0, 186, 95, " Cash Cut-Off "
-  EditBox 60, 5, 65, 15, maxis_case_number
-  DropListBox 130, 30, 50, 15, "Select One..."+chr(9)+"YES"+chr(9)+"NO", VNDS_dropbox
+BeginDialog Cash_Cut_Off_dlg, 0, 0, 186, 95, "Cash Cut-Off"
+  EditBox 55, 5, 65, 15, maxis_case_number
+  DropListBox 120, 30, 60, 15, "Select one..."+chr(9)+"YES"+chr(9)+"NO", VNDS_dropbox
   EditBox 45, 55, 135, 15, Comments_notes
   ButtonGroup ButtonPressed
     OkButton 75, 75, 50, 15
     CancelButton 130, 75, 50, 15
   Text 5, 60, 40, 10, "Comments:"
   Text 5, 10, 50, 10, "Case Number:"
-  Text 5, 35, 120, 10, "All cash vendored to shelter account:"
+  Text 10, 35, 110, 10, "All cash vendored to shelter acct:"
 EndDialog
 
 '--------------------------------------------------------------------------------------------------THE SCRIPT
-
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
@@ -72,18 +72,18 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 when_contact_was_made = date 
 DO
 	Do
+		err_msg = ""
 		Dialog Cash_Cut_Off_dlg
-		cancel_confirmation
-		If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then MsgBox "You must enter either a valid MAXIS case number."
-	Loop until (isnumeric(MAXIS_case_number) = True) or (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) = 8)
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
+		If ButtonPressed = 0 then stopscript 
+		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+		if VNDS_dropbox = "Select one..." then err_msg = err_msg & vbNewLine & "* All cash vendored to shelter account?."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP UNTIL err_msg = ""
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the worker is not passworeded out
+Loop until are_we_passworded_out = false					'loops until user passwords back in	
+
 back_to_SELF
-EMWriteScreen "________", 18, 43
-EMWriteScreen case_number, 18, 43
-EMWriteScreen CM_mo, 20, 43	 '------------------------------------------------------------------------------''entering current footer month/year
-EMWriteScreen CM_yr, 20, 46
-date_header = CM_mo & "/" & CM_yr
+date_header = CM_plus_1_mo & "/" & CM_plus_1_yr
 
 '----------------------------------------------------------------------------------------------------CASENOTE
 start_a_blank_case_note
