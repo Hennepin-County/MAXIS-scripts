@@ -1,4 +1,4 @@
-ame_of_script = "CA-Case Correction.vbs"
+name_of_script = "CA-Case Correction.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 120
