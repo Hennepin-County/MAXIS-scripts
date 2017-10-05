@@ -40,7 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("09/25/2017", "Added the following BULK scripts: 7th Sanction Identifier, EMPS, FSS Info, GA Advanced Age Identifier, GRH Professional Need, Homesless Discrepancy, and MFIP Sanction.", "Ilse Ferris, Hennepin County")
+call changelog_update("09/25/2017", "Added the following BULK scripts: 7th Sanction Identifier, EMPS, FSS Info, GA Advanced Age Identifier, GRH Professional Need, Homesless Discrepancy, and MFIP Sanction. Removed REPT GRMR, this is no longer a report option in MAXIS.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -325,13 +325,6 @@ Set script_array_BULK_stat_list(script_num) = new script	'Set this array element
 script_array_BULK_stat_list(script_num).script_name 		= " EOMC "													'needs spaces to generate button width properly.
 script_array_BULK_stat_list(script_num).file_name			= "rept-eomc-list.vbs"
 script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/EOMC into an Excel spreadsheet."
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_BULK_stat_list(script_num).script_name 		= " GRMR "
-script_array_BULK_stat_list(script_num).file_name			= "rept-grmr-list.vbs"
-script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/GRMR into an Excel spreadsheet."
 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
