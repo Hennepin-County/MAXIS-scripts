@@ -316,7 +316,7 @@ script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_BULK_stat_list(script_num).script_name 		= "EMPS"
-script_array_BULK_stat_list(script_num).file_name			= "emps-info.vbs"
+script_array_BULK_stat_list(script_num).file_name			= "emps.vbs"
 script_array_BULK_stat_list(script_num).description 		= "Pulls a list of STAT/EMPS information into an Excel spreadsheet."
 
 script_num = script_num + 1									'Increment by one
