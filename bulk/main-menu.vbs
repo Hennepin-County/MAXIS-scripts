@@ -203,7 +203,7 @@ ReDim Preserve script_array_BULK_enhanced_list(script_num)	'Resets the array to 
 Set script_array_BULK_enhanced_list(script_num) = new script'Set this array element to be a new script. Script details below...
 script_array_BULK_enhanced_list(script_num).script_name 	= "7th Sanction Identifier"																'Script name
 script_array_BULK_enhanced_list(script_num).file_name		= "7th-sanction-identifier.vbs"															'Script URL
-script_array_BULK_enhanced_list(script_num).description 	= "Creates a month specific report of banked months used, also checks these cases to confirm banked month use and creates a rejected report."
+script_array_BULK_enhanced_list(script_num).description 	= "Creates a list of active MFIP cases that may meet 7th sanction criteria into an Excel spreadsheet"
 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_BULK_enhanced_list(script_num)	'Resets the array to add one more element to t
