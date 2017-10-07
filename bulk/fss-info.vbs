@@ -224,6 +224,7 @@ Do
     ObjExcel.Cells(excel_row, 5).Value = memb_number		'adds client member number to Excel list
 	ObjExcel.Cells(excel_row, 6).Value = disa_dates			'adds disa dates to Excel list
     excel_row = excel_row + 1
+	STATS_counter = STATS_counter + 1
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'Loops until there are no more cases in the Excel list
 
 'Creating the list of privileged cases and adding to the spreadsheet
