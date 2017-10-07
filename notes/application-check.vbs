@@ -2,7 +2,7 @@
 name_of_script = "NOTES - APPLICATION CHECK.vbs"
 start_time = timer
 STATS_counter = 1
-STATS_manualtime = 120
+STATS_manualtime = 150
 STATS_denominatinon = "C"
 'END OF STATS BLOCK===========================================================================================
 

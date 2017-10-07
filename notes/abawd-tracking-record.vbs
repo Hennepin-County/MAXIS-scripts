@@ -2,8 +2,8 @@
 name_of_script = "NOTES - ABAWD TRACKING RECORD.vbs"
 start_time = timer
 STATS_counter = 1
-STATS_manualtime = 0
-STATS_denominatinon = "M"
+STATS_manualtime = 240
+STATS_denominatinon = "C"
 'END OF STATS BLOCK===========================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
