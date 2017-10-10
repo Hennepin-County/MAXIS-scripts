@@ -2367,7 +2367,7 @@ script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Banked Month WCOMS"
-script_array(script_num).description 			= "Adds various WCOMS to a notice for regarding banked month approvals/closure."
+script_array(script_num).description 			= "Adds various WCOMS to a notice regarding banked month approvals/closure."
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("SNAP WCOMS")
