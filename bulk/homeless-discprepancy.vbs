@@ -2,7 +2,7 @@
 name_of_script = "BULK - HOMELESS DISCREPANCY.vbs"
 start_time = timer
 STATS_counter = 1         'sets the stats counter at one
-STATS_manualtime = 0      'manual run time in seconds
+STATS_manualtime = 90      'manual run time in seconds
 STATS_denomination = "C"  'i is for each Item
 'END OF stats block==============================================================================================
 
