@@ -417,12 +417,12 @@ script_array_G_to_L(script_num).script_name 			= "HRF"
 script_array_G_to_L(script_num).file_name				= "hrf.vbs"
 script_array_G_to_L(script_num).description				= "Template for HRFs (for GRH, use the ''GRH - HRF'' script).*"
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
-Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_G_to_L(script_num).script_name 			= "IEVS Match Received"
-script_array_G_to_L(script_num).file_name				= "ievs-match-received.vbs"
-script_array_G_to_L(script_num).description				= "Template to case note when a IEVS notice is returned."
+'script_num = script_num + 1								'Increment by one
+'ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
+'Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
+'script_array_G_to_L(script_num).script_name 			= "IEVS Match Received"
+'script_array_G_to_L(script_num).file_name				= "ievs-match-received.vbs"
+'script_array_G_to_L(script_num).description				= "Template to case note when a IEVS notice is returned."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
@@ -533,12 +533,12 @@ script_array_M_to_Q(script_num).script_name 			= "Overpayment"
 script_array_M_to_Q(script_num).file_name				= "overpayment.vbs"
 script_array_M_to_Q(script_num).description				= "Template for noting basic information about overpayments."
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
-Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_M_to_Q(script_num).script_name 			= "PARIS Match"																		'Script name
-script_array_M_to_Q(script_num).file_name 				= "paris-match.vbs"															'Script URL
-script_array_M_to_Q(script_num).description 			= "Template for case noting a PARIS Match action."
+'script_num = script_num + 1								'Increment by one
+'ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
+'Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
+'script_array_M_to_Q(script_num).script_name 			= "PARIS Match"																		'Script name
+'script_array_M_to_Q(script_num).file_name 				= "paris-match.vbs"															'Script URL
+'script_array_M_to_Q(script_num).description 			= "Template for case noting a PARIS Match action."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
