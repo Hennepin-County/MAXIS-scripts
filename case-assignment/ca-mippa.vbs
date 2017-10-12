@@ -118,9 +118,10 @@ END IF
 '-------------------------------------------------------------------checking for an active case
 MAXIS_row = 10 
 EMReadScreen MAXIS_case_number, 8, MAXIS_row, 06 
+MAXIS_case_number = trim(MAXIS_case_number)
 EMReadscreen current_case, 7, MAXIS_row, 35 
 EMReadScreen pending_case, 4, MAXIS_row, 53
-IF trim(MAXIS_case_number) = "" THEN 
+IF MAXIS_case_number = "" THEN 
 	EMwritescreen "AP", 07, 22
 	transmit
 	EMReadScreen MAXIS_case_number, 8, MAXIS_row, 06 
@@ -198,16 +199,16 @@ END IF
 IF transfer_case = TRUE THEN 
     DO
     	DO
-    		err_msg = ""
+    	   err_msg = ""
     		DO
     			dialog transfer_dialog
     			cancel_confirmation
     			IF buttonpressed = Geo_coder_button THEN CreateObject("WScript.Shell").Run("https://hcgis.hennepin.us/agsinteractivegeocoder/default.aspx")
-    			IF spec_xfer_worker = "" then err_msg = err_msg & vbCr & "You must have a caseload # (SPEC/XFER) to continue."
-    			IF len(spec_xfer_worker) <> 3 then err_msg = err_msg & vbCr & "You only need to include last 3 digit of X127#"
-				IF team_number = "" then err_msg = err_msg & vbCr & "You must have a 3 digit team # (email) to continue."
-    			IF err_msg <> "" THEN Msgbox err_msg
     		LOOP UNTIL buttonpressed = -1	
+            IF spec_xfer_worker = "" then err_msg = err_msg & vbCr & "You must have a caseload # (SPEC/XFER) to continue."
+            IF len(spec_xfer_worker) <> 3 then err_msg = err_msg & vbCr & "You only need to include last 3 digit of X127#"
+            IF team_number = "" then err_msg = err_msg & vbCr & "You must have a 3 digit team # (email) to continue."
+            IF err_msg <> "" THEN Msgbox err_msg
     	LOOP UNTIL err_msg = ""
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	LOOP UNTIL are_we_passworded_out = false
@@ -261,6 +262,7 @@ IF select_answer = "YES - Update MLAD" or select_answer = "NO - ADD A PROGRAM" T
 	transmit
 	PF3
 	PF3
+    EMWriteScreen MAXIS_case_number, 18, 43
 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 	CALL create_MAXIS_friendly_date(date, 0, 5, 18)
 	CALL write_variable_in_TIKL("~ A MIPPA record was recieved please check case information for consistency and follow-up with any inconsistent information, as appropriate.")
@@ -271,6 +273,7 @@ ELSE
 	transmit
 	PF3
 	PF3
+    EMWriteScreen MAXIS_case_number, 18, 43
 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 	CALL create_MAXIS_friendly_date(date, 0, 5, 18)
 	CALL write_variable_in_TIKL("~ Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate.")
@@ -306,14 +309,14 @@ ELSE CALL write_variable_in_CASE_NOTE ("~ HC PENDED - MIPAA received via REPT/ML
     IF select_answer = "NO - APPL (Known to MAXIS)" THEN 
     	CALL write_variable_in_CASE_NOTE("** APPL'd case using the MIPPA record and case information applicant is   known to MAXIS by SSN or name search.")
     	CALL write_variable_in_CASE_NOTE ("* Pended on: " & date)
-		CALL write_variable_in_CASE_NOTE ("* Application mailed: " & date)
+		CALL write_variable_in_CASE_NOTE ("* Application mailed using automated system per DHS: " & date)
     ELSEIF select_answer = "NO - APPL (Not known to MAXIS)" THEN 
     	CALL write_variable_in_CASE_NOTE("** APPL'd case using the MIPPA record and case information applicant is not     known to MAXIS by SSN or name search.")
     	CALL write_variable_in_CASE_NOTE ("* Pended on: " & date)
-		CALL write_variable_in_CASE_NOTE ("* Application mailed: " & date)
+		CALL write_variable_in_CASE_NOTE ("* Application mailed using automated system per DHS: " & date)
     ELSEIF select_answer = "NO - ADD A PROGRAM" THEN 
     	CALL write_variable_in_CASE_NOTE("** APPL'd case using the MIPPA record and case information applicant is      known to MAXIS and may be active on other programs.")
-		CALL write_variable_in_CASE_NOTE ("* Application mailed: " & date)
+		CALL write_variable_in_CASE_NOTE ("* Application mailed using automated system per DHS: " & date)
     	CALL write_variable_in_CASE_NOTE ("* HC Ended on: " & end_date)
 	END IF
 END IF	
