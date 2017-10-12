@@ -42,6 +42,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/10/2017", "Updates to correct action when case noting and updating REPT/MLAR", "MiKayla Handley, Hennepin County")
+call changelog_update("09/29/2017", "Updates to correct action if HC is already pending", "MiKayla Handley, Hennepin County")
 call changelog_update("08/21/2017", "Initial version.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -51,25 +53,31 @@ changelog_display
 '---------------------------------------------------------------script
 'option explicit ask Ilse 
 EMConnect ""
-CALL check_for_MAXIS(FALSE)
 
 'Navigates to MIPPA Lis Application-Medicare Improvement for Patients and Providers (MIPPA) 
 CALL navigate_to_MAXIS_screen("REPT", "MLAR")
 
 MAXIS_row = 11 'this part should be a for next?' can we jsut do a cursor read for now?
 EMReadscreen msg_check, 1, MAXIS_row, 03
-If msg_check <> "_" then script_end_procedure("You are not on a MIPPA message. This script will stop.")
+IF msg_check <> "_" THEN script_end_procedure("You are not on a MIPPA message. This script will stop.")
+EMReadScreen maxis_name, 22, row, 5
+maxis_name = TRIM(maxis_name)
 
 EMwritescreen "X", MAXIS_row, 03 'this will take us to REPT/MLAD'
 transmit
 	'navigates to MLAD
-EMReadScreen maxis_name, 25, 6, 20
+EMReadScreen MLAD_maxis_name, 22, 6, 20
+MLAD_maxis_name = TRIM(MLAD_maxis_name)
+
+IF maxis_name <> MLAD_maxis_name THEN MLAR_case = MsgBox("Is this name a match?", vbYesNoCancel)
+ IF MLAR_case = vbCancel then stopscript
+ 
 EMReadScreen SSN_first, 3, 7, 20
 EMReadScreen SSN_mid, 2, 7, 24
 EMReadScreen SSN_last, 4, 7, 27
 EMReadScreen appl_date, 8, 11, 20
-
-'used for the dialog to appl
+	appl_date = replace(appl_date, " ", "/")
+'----------------------------------------------------------------------used for the dialog to appl
 EMReadScreen birth_date, 8, 8, 20
 EMReadScreen medi_number, 10, 10, 20 
 EMReadScreen rcvd_date, 8, 12, 20
@@ -82,11 +90,8 @@ EMReadScreen addr_zip, 5, 13, 65
 EMReadScreen addr_county, 22, 14, 56
 EMReadScreen addr_phone, 12, 15, 56
 EMReadScreen appl_status, 2, 4, 20
-
-appl_date = replace(appl_date, " ", "/")
-PF2 'navigates to PERS'
-
-
+'--------------------------------------------------------------------navigates to PERS'
+PF2 
 EMwritescreen SSN_first, 14, 36
 EMwritescreen SSN_mid, 14, 40
 EMwritescreen SSN_last, 14, 43 
@@ -110,55 +115,62 @@ IF error_msg = "NO RECORDS EXIST FOR HC" THEN
 	EMwritescreen "MA", 07, 22
 	transmit
 END IF 
-
-MAXIS_row = 10 'checking for an active case
+'-------------------------------------------------------------------checking for an active case
+MAXIS_row = 10 
 EMReadScreen MAXIS_case_number, 8, MAXIS_row, 06 
-EMReadscreen current_case, 7, MAXIS_row, 35 'need a or read for pend here
+EMReadscreen current_case, 7, MAXIS_row, 35 
 EMReadScreen pending_case, 4, MAXIS_row, 53
 IF trim(MAXIS_case_number) = "" THEN 
 	EMwritescreen "AP", 07, 22
 	transmit
 	EMReadScreen MAXIS_case_number, 8, MAXIS_row, 06 
-	EMReadscreen current_case, 7, MAXIS_row, 35 'need a or read for pend here
+	EMReadscreen current_case, 7, MAXIS_row, 35 
 	EMReadScreen pending_case, 4, MAXIS_row, 53
 END IF 
-'checking for an active case
 
-'script_end_procedure ("Please search by person name and if no case can be found - APPL case - then run script again and select NO-APPL(not known)")
-
-IF current_case = "Current" THEN EMReadScreen appl_date, 8, MAXIS_row, 25
-IF pending_case = "PEND" THEN EMReadScreen pend_date, 5, MAXIS_row, 47
-IF pending_case = "CAF " THEN 
+IF current_case = "Current" THEN 
+	EMReadScreen appl_date, 8, MAXIS_row, 25
+	transfer_case = FALSE
+ELSEIF pending_case = "PEND" THEN 
+	EMReadScreen pend_date, 5, MAXIS_row, 47
+ELSEIF pending_case = "CAF " THEN 
 	MsgBox "Please ensure case is in a PEND II status" 	
 	EMReadScreen end_date, 5, MAXIS_row, 53
 END IF	
 
-'------------------------------------------------------------------------------------------------dialog'
-BeginDialog MIPPA_active_dialog, 0, 0, 186, 65, "MIPAA"
-  EditBox 85, 5, 55, 15, MAXIS_case_number
-  DropListBox 85, 25, 95, 15, "Select One..."+chr(9)+"YES - Update MLAD"+chr(9)+"NO - APPL (Known)"+chr(9)+"NO - APPL (Not known)"+chr(9)+"NO - ADD A PROGRAM", select_answer
+'------------------------------------------------------------------------------------------------dialogs'
+BeginDialog MIPPA_active_dialog, 0, 0, 206, 70, "MIPAA"
+  EditBox 55, 5, 55, 15, MAXIS_case_number
+  CheckBox 115, 10, 85, 10, "Check to transfer case", transfer_case_checkbox
+  DropListBox 85, 30, 115, 15, "Select One..."+chr(9)+"YES - Update MLAD"+chr(9)+"NO - APPL (Known to MAXIS)"+chr(9)+"NO - ADD A PROGRAM"+chr(9)+"NO - APPL (Not known to MAXIS)", select_answer
   ButtonGroup ButtonPressed
-    OkButton 75, 45, 50, 15
-    CancelButton 130, 45, 50, 15
-  Text 5, 30, 75, 10, "Active on Health Care?"
-  Text 35, 10, 50, 10, "Case Number: "
+    OkButton 105, 50, 45, 15
+    CancelButton 155, 50, 45, 15
+  Text 5, 10, 50, 10, "Case Number: "
+  Text 5, 35, 75, 10, "Active on Health Care?"
 EndDialog
 
-BeginDialog transfer_dialog, 0, 0, 111, 155, "MIPAA Transfer"
-  	ButtonGroup ButtonPressed
-	   PushButton 5, 5, 100, 15, "Geocoder", Geo_coder_button
-  	EditBox 55, 25, 50, 15, team_region
-  	EditBox 55, 45, 50, 15, population_team
-  	EditBox 55, 65, 50, 15, worker_to_transfer_to
-  	EditBox 55, 85, 50, 15, worker_team_number
-  	ButtonGroup ButtonPressed
-	   OkButton 10, 135, 45, 15
-       CancelButton 60, 135, 45, 15
-  	Text 15, 110, 100, 20, "* Script will transfer case to                assigned worker *"
-  	Text 15, 50, 40, 10, "Population:"
-  	Text 25, 30, 25, 10, "Region:"
-  	Text 5, 90, 50, 10, "Team Number:"
-  	Text 10, 70, 40, 10, "Assigned to:"
+'----------------------------------------------------------------------------------------TRANSFER DIALOG'
+BeginDialog transfer_dialog, 0, 0, 141, 85, "MIPAA Transfer"
+  ButtonGroup ButtonPressed
+    PushButton 20, 5, 100, 15, "Geocoder", Geo_coder_button
+  EditBox 105, 25, 30, 15, spec_xfer_worker
+  EditBox 105, 45, 30, 15, team_number
+  ButtonGroup ButtonPressed
+    OkButton 50, 65, 40, 15
+    CancelButton 95, 65, 40, 15
+  Text 5, 30, 100, 10, "Transfer to (last 3 digit of X#):"
+  Text 5, 50, 90, 10, "Assigned to (3 digit team #):"
+EndDialog
+
+'----------------------------------------------------------------------------------------Case number DIALOG'
+BeginDialog case_number_dialog, 0, 0, 116, 75, "MIPPA case note"
+  EditBox 55, 5, 55, 15, MAXIS_case_number
+  ButtonGroup ButtonPressed
+    OkButton 15, 55, 45, 15
+    CancelButton 65, 55, 45, 15
+  Text 5, 10, 50, 10, "Case Number: "
+  Text 5, 25, 110, 25, "To ensure accuracy please confirm that case # is correct for recent APPL or updates to MLAR"
 EndDialog
 
 '--------------------------------------------------------------------------------------------------script	
@@ -166,108 +178,150 @@ Do
 	Do
 		err_msg = ""
 		dialog MIPPA_active_dialog
-		cancel_confirmation
 		IF select_answer = "Select One..." THEN err_msg = err_msg & vbnewline & "* Select at least one option."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)  
 LOOP UNTIL are_we_passworded_out = false
 
-IF select_answer = "NO - APPL (Known)" or select_answer = "NO - APPL (Not known)" THEN APPL_box = MsgBox("This information is read from REPT/MLAR:" & vbcr & appl_date & vbcr & maxis_name & vbcr & SSN_first & SSN_mid & SSN_last & vbcr & birth_date & vbcr & gender_ask & vbcr & addr_street & apt_addr & addr_city & addr_state & "" & addr_zip & vbcr & addr_phone & vbcr & "APPL case and click OK if you wish to continue running the script and CANCEL if you want to exit.",  vbOKCancel)
-	If APPL_box = vbCancel then script_end_procedure("The script has ended. Please review the REPT/MLAR as you indicated that you wish to exit the script")
+IF select_answer <> "YES - Update MLAD" THEN APPL_box = MsgBox("This information is read from REPT/MLAR:" & vbcr & MLAD_maxis_name & vbcr & appl_date & vbcr & maxis_name & vbcr & SSN_first & SSN_mid & SSN_last & vbcr & birth_date & vbcr & gender_ask & vbcr & addr_street & apt_addr & addr_city & addr_state & "" & addr_zip & vbcr & addr_phone & vbcr & "APPL case and click OK if you wish to continue running the script and CANCEL if you want to exit." & vbcr & "HCRE must be updated when adding HC", vbOKCancel)
+	IF APPL_box = vbCancel then script_end_procedure("The script has ended. Please review the REPT/MLAR as you indicated that you wish to exit the script")
 
-DO
-	DO
-		err_msg = ""
-		DO
-			dialog transfer_dialog
-			cancel_confirmation
-			IF buttonpressed = Geo_coder_button THEN CreateObject("WScript.Shell").Run("https://hcgis.hennepin.us/agsinteractivegeocoder/default.aspx")
-			IF team_region = "" then err_msg = err_msg & vbCr & "Please provide team region (CNE, SS, NW) to continue."
-			IF population_team = "" then err_msg = err_msg & vbCr & "Please provide population (ADAD, FAD) to continue."
-			IF worker_team_number = "" then err_msg = err_msg & vbCr & "You must have a 3 digit team email to continue."
-			IF len(worker_to_transfer_to) <> 3 then err_msg = err_msg & vbCr & "You only need to include last 3 digit of X127#"
-			IF err_msg <> "" THEN Msgbox err_msg
-		LOOP UNTIL buttonpressed = -1	
-	LOOP UNTIL err_msg = ""	
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-LOOP UNTIL are_we_passworded_out = false	
-
-	'-------------------------------------------------------------------------------------Transfers the case to the assigned worker if this was selected in the second dialog box
- 
- IF select_answer = "NO - ADD A PROGRAM" THEN 
-	MsgBox "The script will help you add this program to current maxis case."
-	transfer_case = False 
-Elseif select_answer = "YES - Update MLAD" THEN 
-	MsgBox "Please update the appropriate status on REPT/MLAR."
-	transfer_case = False
-else 
-	transfer_case = True
-End if 
-
-If transfer_case = true then 	
-	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
-	EMWriteScreen "x", 7, 16
-	transmit
-	PF9
-	EMWriteScreen "X127" & worker_to_transfer_to, 18, 61
-	transmit
-	EMReadScreen worker_check, 9, 24, 2
-				
-	IF worker_check = "SERVICING" THEN
-		MsgBox "The correct worker number was not entered, this X-Number is not a valid worker in MAXIS. You will need to transfer the case manually"
-		PF10
-	END IF
-End if 	
-
-'FOR each case we have to come back
-CALL navigate_to_MAXIS_screen("REPT", "MLAR")
-'For each case_new in MLAR_case
-
-MAXIS_row = 11
- 'this part should be a for next?' can we jsut do a cursor read for now?
-EMwritescreen "X", MAXIS_row, 03 'this will take us to REPT/MLAD'
-transmit
-PF9	
-
-IF select_answer = "YES - Update MLAD" THEN 
-	EMwritescreen "AP", 4, 20
-	transmit
-	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-	CALL create_MAXIS_friendly_date(date, 0, 5, 18)
-	CALL write_variable_in_TIKL("~** Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate.")
-	transmit
-	PF3
-Else
-	EMwritescreen "PN", 4, 20
+'-------------------------------------------------------------------------------------Transfers the case to the assigned worker if this was selected in the second dialog box
+'Determining if a case will be transferred or not. All cases will be transferred except addendum app types. THIS IS NOT CORRECT AND NEEDS TO BE DISCUSSED WITH QI
+IF transfer_case_checkbox = UNCHECKED THEN 		
+	transfer_case = FALSE
+ELSE 
+	transfer_case = TRUE
 END IF 
 
-'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-
-CALL create_outlook_email("", "mikayla.handley@hennepin.us;", maxis_name & maxis_case_number & " MIPPA case need Application sent EOM.", "", "", FALSE)	
+IF transfer_case = TRUE THEN 
+    DO
+    	DO
+    		err_msg = ""
+    		DO
+    			dialog transfer_dialog
+    			cancel_confirmation
+    			IF buttonpressed = Geo_coder_button THEN CreateObject("WScript.Shell").Run("https://hcgis.hennepin.us/agsinteractivegeocoder/default.aspx")
+    			IF spec_xfer_worker = "" then err_msg = err_msg & vbCr & "You must have a caseload # (SPEC/XFER) to continue."
+    			IF len(spec_xfer_worker) <> 3 then err_msg = err_msg & vbCr & "You only need to include last 3 digit of X127#"
+				IF team_number = "" then err_msg = err_msg & vbCr & "You must have a 3 digit team # (email) to continue."
+    			IF err_msg <> "" THEN Msgbox err_msg
+    		LOOP UNTIL buttonpressed = -1	
+    	LOOP UNTIL err_msg = ""
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	LOOP UNTIL are_we_passworded_out = false
 	
-'---------------------------------------------------------------------------------------------------------------------------------case note
-start_a_blank_CASE_NOTE 'appl_date needs to be fixed to read 08/08/08 instead of 08 08 08'
-CALL write_variable_in_CASE_NOTE ("~ HC PENDED - MIPAA received via REPT/MLAR on " & appl_date & " ~")
-IF select_answer = "NO - APPL (Known)" THEN 
-	CALL write_variable_in_CASE_NOTE("** APPL'd case using the MIPPA record and case information applicant is   known to MAXIS by SSN or name search.")
-	CALL write_variable_in_CASE_NOTE ("* Pended on: " & date)
-ELSEIF select_answer = "NO - APPL (Not known)" THEN 
-	CALL write_variable_in_CASE_NOTE("** APPL'd case using the MIPPA record and case information applicant is not     known to MAXIS by SSN or name search.")
-	CALL write_variable_in_CASE_NOTE ("* Pended on: " & date)
-ELSEIF select_answer = "NO-ADD A PROGRAM" THEN 
-	CALL write_variable_in_CASE_NOTE("** APPL'd case using the MIPPA record and case information applicant is      known to MAXIS and may be active on other programs.")
-	CALL write_variable_in_CASE_NOTE ("* HC Ended on: " & end_date)
+    	
+    CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
+    EMWriteScreen "x", 7, 16
+    transmit
+    PF9
+    EMWriteScreen "X127" & spec_xfer_worker, 18, 61
+    transmit
+    EMReadScreen worker_check, 9, 24, 2
+    IF worker_check = "SERVICING" THEN
+    	MsgBox "The correct worker number was not entered, this X-Number is not a valid worker in MAXIS. You will need to transfer the case manually"
+		PF10
+    	transfer_case = unchecked
+    END IF
+END IF
+	
+CALL check_for_password(are_we_passworded_out)
+'--------------------------------------------------------------------------FOR each case we have to come back to clear/update the MLAD screen
+
+MAXIS_background_check
+
+'------------------------------------------------------------------------Naviagetes to REPT/MLAR'
+
+CALL navigate_to_MAXIS_screen("REPT", "MLAR")
+
+MAXIS_row = 11
+	DO
+		EMReadScreen MLAD_maxis_name, 25, row, 5
+		MLAD_maxis_name = trim(MLAD_maxis_name)
+		IF MLAD_maxis_name = maxis_name THEN 
+			EXIT DO
+		ELSE
+			row = row + 1
+			IF row = 17 THEN 
+				PF8
+				ROW = 11
+			END IF 
+		END IF
+	LOOP UNTIL case_number = ""
+	
+
+EMwritescreen "X", MAXIS_row, 03
+transmit
+PF9	
+ 
+IF select_answer = "YES - Update MLAD" or select_answer = "NO - ADD A PROGRAM" THEN 
+	EMwritescreen "AP", 4, 20
+	transmit
+	PF3
+	PF3
+	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
+	CALL create_MAXIS_friendly_date(date, 0, 5, 18)
+	CALL write_variable_in_TIKL("~ A MIPPA record was recieved please check case information for consistency and follow-up with any inconsistent information, as appropriate.")
+	transmit
+	PF3
+ELSE 
+	EMwritescreen "PN", 4, 20	
+	transmit
+	PF3
+	PF3
+	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
+	CALL create_MAXIS_friendly_date(date, 0, 5, 18)
+	CALL write_variable_in_TIKL("~ Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate.")
+	transmit
+	PF3			
+END IF 
+ 
+
+'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+'CALL create_outlook_email("mikayla.handley@hennepin.us;", "", maxis_name & maxis_case_number & " MIPPA case need Application sent EOM.", "", "", TRUE)	
+'-----------------------------------------------------------------------initial case number dialog
+Do 
+	DO 
+		err_msg = ""
+	    dialog case_number_dialog
+        if ButtonPressed = 0 Then StopScript
+        if IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine		
+	Loop until err_msg = ""	
+CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+back_to_self
+
+EMWriteScreen MAXIS_case_number, 18, 43
+'----------------------------------------------------------------------------------case note
+
+start_a_blank_CASE_NOTE 
+IF select_answer = "YES - Update MLAD" THEN 
+	CALL write_variable_in_CASE_NOTE("~ MIPAA received via REPT/MLAR on " & rcvd_date & " ~")
+	CALL write_variable_in_CASE_NOTE("** Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate.")
+ELSE CALL write_variable_in_CASE_NOTE ("~ HC PENDED - MIPAA received via REPT/MLAR on " & appl_date & " ~")
+    IF select_answer = "NO - APPL (Known to MAXIS)" THEN 
+    	CALL write_variable_in_CASE_NOTE("** APPL'd case using the MIPPA record and case information applicant is   known to MAXIS by SSN or name search.")
+    	CALL write_variable_in_CASE_NOTE ("* Pended on: " & date)
+		CALL write_variable_in_CASE_NOTE ("* Application mailed: " & date)
+    ELSEIF select_answer = "NO - APPL (Not known to MAXIS)" THEN 
+    	CALL write_variable_in_CASE_NOTE("** APPL'd case using the MIPPA record and case information applicant is not     known to MAXIS by SSN or name search.")
+    	CALL write_variable_in_CASE_NOTE ("* Pended on: " & date)
+		CALL write_variable_in_CASE_NOTE ("* Application mailed: " & date)
+    ELSEIF select_answer = "NO - ADD A PROGRAM" THEN 
+    	CALL write_variable_in_CASE_NOTE("** APPL'd case using the MIPPA record and case information applicant is      known to MAXIS and may be active on other programs.")
+		CALL write_variable_in_CASE_NOTE ("* Application mailed: " & date)
+    	CALL write_variable_in_CASE_NOTE ("* HC Ended on: " & end_date)
+	END IF
 END IF	
-
-IF select_answer = "YES - Update MLAD" THEN CALL write_variable_in_CASE_NOTE("** Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate.")
-
 CALL write_variable_in_case_NOTE ("* Requesting: HC")
 CALL write_variable_in_CASE_NOTE ("* REPT/MLAR APPL Date: " & appl_date)
-CALL write_variable_in_CASE_NOTE ("* Application mailed: " & date) 'this we do not want if team is mailing HCAPP enahance to send email possibly'
-If transfer_case = true THEN CALL write_variable_in_CASE_NOTE ("* Case transferred to Team " & worker_to_transfer_to & " in MAXIS. ("  & worker_team_number & " " & team_region & " " & population_team & ")")
+IF transfer_case = TRUE THEN CALL write_variable_in_CASE_NOTE ("* Case transferred to Team " & team_number & " in MAXIS(" & spec_xfer_worker & ").")
 CALL write_variable_in_CASE_NOTE ("* MIPPA rcvd and acted on per: TE 02.07.459")
 CALL write_variable_in_CASE_NOTE ("---")
 CALL write_variable_in_CASE_NOTE (worker_signature)
 
-script_end_procedure("MIPPA CASE NOTE HAS BEEN UPDATED. PLEASE ENSURE THE CASE IS CLEARED on REPT/MLAR." & vbcr & "MAXIS case number: " & MAXIS_case_number)
+script_end_procedure("MIPPA CASE NOTE HAS BEEN UPDATED. PLEASE ENSURE THE CASE IS CLEARED on REPT/MLAR.")
