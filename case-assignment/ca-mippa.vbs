@@ -309,14 +309,14 @@ ELSE CALL write_variable_in_CASE_NOTE ("~ HC PENDED - MIPAA received via REPT/ML
     IF select_answer = "NO - APPL (Known to MAXIS)" THEN 
     	CALL write_variable_in_CASE_NOTE("** APPL'd case using the MIPPA record and case information applicant is   known to MAXIS by SSN or name search.")
     	CALL write_variable_in_CASE_NOTE ("* Pended on: " & date)
-		CALL write_variable_in_CASE_NOTE ("* Application mailed using automated system per DHS: " & date)
+		CALL write_variable_in_CASE_NOTE ("* Application mailed using automated system per DHS: " & rcvd_date)
     ELSEIF select_answer = "NO - APPL (Not known to MAXIS)" THEN 
     	CALL write_variable_in_CASE_NOTE("** APPL'd case using the MIPPA record and case information applicant is not     known to MAXIS by SSN or name search.")
     	CALL write_variable_in_CASE_NOTE ("* Pended on: " & date)
-		CALL write_variable_in_CASE_NOTE ("* Application mailed using automated system per DHS: " & date)
+		CALL write_variable_in_CASE_NOTE ("* Application mailed using automated system per DHS: " & rcvd_date)
     ELSEIF select_answer = "NO - ADD A PROGRAM" THEN 
     	CALL write_variable_in_CASE_NOTE("** APPL'd case using the MIPPA record and case information applicant is      known to MAXIS and may be active on other programs.")
-		CALL write_variable_in_CASE_NOTE ("* Application mailed using automated system per DHS: " & date)
+		CALL write_variable_in_CASE_NOTE ("* Application mailed using automated system per DHS: " & rcvd_date)
     	CALL write_variable_in_CASE_NOTE ("* HC Ended on: " & end_date)
 	END IF
 END IF	
