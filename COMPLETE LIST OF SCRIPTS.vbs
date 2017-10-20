@@ -1799,6 +1799,16 @@ script_array(script_num).release_date           = #10/01/2000#
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "GA Basis of Eligibility"
+script_array(script_num).description			= "Template to document the basis of eligibility and verification of the basis for GA recipients."
+script_array(script_num).category               = "NOTES"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #10/20/2017#
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Good Cause Claimed"
 script_array(script_num).description			= "Template for requests of good cause to not receive child support."
 script_array(script_num).category               = "NOTES"
