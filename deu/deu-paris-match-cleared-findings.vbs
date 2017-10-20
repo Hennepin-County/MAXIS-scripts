@@ -104,7 +104,7 @@ CALL write_value_and_transmit("X", row, 3) 'navigating to insm'
 'Ensuring that the client has not already had a difference notice sent
 EMReadScreen notice_sent, 1, 8, 73
 EMReadScreen sent_date, 8, 9, 73
-sent_date = replace(sent_date, " ", "/")
+If trim(sent_date) <> "" then sent_date= replace(sent_date, " ", "/")
 '--------------------------------------------------------------------Client name
 'Reading client name and splitting out the 1st name
 EMReadScreen Client_Name, 26, 5, 27
@@ -225,8 +225,8 @@ IF notice_sent = "N" THEN
     		err_msg = ""
     		Dialog notice_action_dialog
     		IF ButtonPressed = 0 THEN StopScript
-    		IF send_notice_checkbox + clear_action_checkbox = UNCHECKED THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue. "
-    		IF send_notice_checkbox + clear_action_checkbox = CHECKED THEN err_msg = err_msg & vbNewLine & "* Please select only one answer to continue. "
+    		IF (send_notice_checkbox = Unchecked AND clear_action_checkbox = UNCHECKED) THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
+    		IF (send_notice_checkbox = checked AND clear_action_checkbox = CHECKED) THEN err_msg = err_msg & vbNewLine & "* Please select only one answer to continue."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
 			CALL check_for_password(are_we_passworded_out)
