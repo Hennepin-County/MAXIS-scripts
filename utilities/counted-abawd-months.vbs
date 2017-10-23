@@ -216,6 +216,7 @@ DO
 	    Do    
 	    	EMReadScreen issuance_month, 2, row, 73
 	    	EMReadScreen issuance_year, 2, row, 79
+			EMReadScreen issuance_day, 2, row, 65
 	    	INQX_issuance = issuance_month & "/" & issuance_year
 	    	If trim(INQX_issuance) = "" then exit do 
 	    	
@@ -224,6 +225,7 @@ DO
 	    		prog_type = trim(prog_type)
 	    		'msgbox "Hey it's a match!" & vbcr & row
 	    		EMReadScreen amt_issued, 7, row, 40
+				If issuance_day <> "01" then amt_issued = amt_issued & "*"
 	    		If prog_type = "FS" 	then fs_issued = fs_issued + amt_issued
 	    		If prog_type = "GA" 	then ga_issued = ga_issued + amt_issued
 	    		If prog_type = "MF-MF" 	then mfip_issued = mfip_issued + amt_issued
