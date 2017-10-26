@@ -44,6 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("10/12/2017", "Email functionality will create email, and send it for all CASH and FS application.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("10/12/2017", "Email functionality will create email, but not send it. Staff will need to send email after reviewing email.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("08/07/2017", "Initial version.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -170,7 +172,7 @@ END IF
 'Defaults the date pended to today
 pended_date = date & ""
 
-IF fs_pend = CHECKED OR cash_pend = CHECKED THEN send_appt_ltr = TRUE
+IF fs_pend = CHECKED OR cash_pend = CHECKED OR grh_pend = CHECKED THEN send_appt_ltr = TRUE
 '----------------------------------------------------------------------------------------------------dialogs
 
 BeginDialog appl_detail_dialog, 0, 0, 296, 145, "APPLICATION RECEIVED"
@@ -419,7 +421,7 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
 IF Active_checkbox = CHECKED THEN 		
 	transfer_case = FALSE
 ELSE 
-	transfer_case = true
+	transfer_case = TRUE
 END IF 
 
 IF transfer_case = TRUE THEN 
@@ -439,17 +441,17 @@ IF transfer_case = TRUE THEN
 	END IF
 END IF
 	
-	IF Send_email = TRUE THEN
-		'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-		CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team " & worker_number & "  EOM.", "", "", TRUE)		
-		'CALL create_outlook_email("Ilse.Ferris@hennepin.us;", "mikayla.handley@hennepin.us;", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team " & worker_number & "EOM.", "", "", TRUE)	
-	End if 
+	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+	IF expedited_status = "Client Appears Expedited" THEN
+	 	CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)		
 	
-	If (Active_checkbox = 1 and send_email <> true) then 
-		'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-		CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", maxis_case_number, "Client submitted an add-a-program application.", "", TRUE)		
-		'CALL create_outlook_email("Ilse.Ferris@hennepin.us;", "mikayla.handley@hennepin.us;", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team " & worker_number & "EOM.", "", "", TRUE)	
-	End if 
+	ELSEIF app_type = "Addendum" THEN 
+		CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Client submitted an add-a-program application. " & worker_number & "  EOM.", "", "", TRUE)		
+	
+	ELSEIF fs_pend = CHECKED OR cash_pend = CHECKED OR grh_pend = CHECKED THEN
+	 	'CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)		
+		CALL create_outlook_email("mikayla.handley@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Case to be assigned, transferred to team. " & worker_number & "EOM.", "", "", TRUE)	
+	END IF
 	
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 IF send_appt_ltr = TRUE THEN
@@ -588,5 +590,5 @@ IF send_appt_ltr = TRUE THEN
     CALL write_variable_in_CASE_NOTE("---")
     CALL write_variable_in_CASE_NOTE(worker_signature)
 END IF
-
+PF3
 script_end_procedure ("Case has been updated please review to ensure it was processed correctly.")
