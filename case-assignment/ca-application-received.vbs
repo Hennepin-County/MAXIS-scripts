@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("10/12/2017", "Email functionality will create email, and send it for all CASH and FS application.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("10/25/2017", "Email functionality - will create email, and send for all CASH and FS applications.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/12/2017", "Email functionality will create email, but not send it. Staff will need to send email after reviewing email.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("08/07/2017", "Initial version.", "MiKayla Handley, Hennepin County")
 
@@ -449,8 +449,8 @@ END IF
 		CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Client submitted an add-a-program application. " & worker_number & "  EOM.", "", "", TRUE)		
 	
 	ELSEIF fs_pend = CHECKED OR cash_pend = CHECKED OR grh_pend = CHECKED THEN
-	 	'CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)		
-		CALL create_outlook_email("mikayla.handley@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Case to be assigned, transferred to team. " & worker_number & "EOM.", "", "", TRUE)	
+	 	CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)		
+		'CALL create_outlook_email("mikayla.handley@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Case to be assigned, transferred to team. " & worker_number & "EOM.", "", "", TRUE)	
 	END IF
 	
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
