@@ -278,16 +278,6 @@ script_array(script_num).release_date           = #10/01/2000#
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name			= "PA Verif Request"
-script_array(script_num).description			= "Creates a Word document with PA benefit totals for other agencies to determine client benefits."
-script_array(script_num).category               = "ACTIONS"
-script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("")
-script_array(script_num).release_date           = #10/01/2000#
-
-script_num = script_num + 1						'Increment by one
-ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "Paystubs Received"
 script_array(script_num).description			= "Enter in pay stubs, and puts it on JOBS (both retro & pro if applicable), as well as the PIC and HC pop-up, and case note."
 script_array(script_num).category               = "ACTIONS"
@@ -2334,6 +2324,16 @@ ReDim Preserve script_array(script_num)			'Resets the array to add one more elem
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "Overdue Baby"
 script_array(script_num).description			= "Sends a MEMO informing client that they need to report information regarding the status of pregnancy, within 10 days or their case may close."
+script_array(script_num).category               = "NOTICES"
+script_array(script_num).workflows              = ""
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #10/01/2000#
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "PA Verif Request"
+script_array(script_num).description			= "Creates a Word document with PA benefit totals for other agencies to determine client benefits."
 script_array(script_num).category               = "NOTICES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
