@@ -171,7 +171,7 @@ END IF
 'Defaults the date pended to today
 pended_date = date & ""
 
-IF fs_pend = CHECKED OR cash_pend = CHECKED THEN send_appt_ltr = TRUE
+IF fs_pend = CHECKED OR cash_pend = CHECKED OR grh_pend = CHECKED THEN send_appt_ltr = TRUE
 '----------------------------------------------------------------------------------------------------dialog
 BeginDialog appl_detail_dialog, 0, 0, 296, 145, "CASE CORRECTION"
   EditBox 60, 5, 85, 15, requested_person
@@ -388,17 +388,18 @@ IF transfer_case = TRUE THEN
 	END IF
 END IF
 	
-	IF Send_email = TRUE THEN
-		'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-		CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team " & worker_number & "  EOM.", "", "", FALSE)		
-		'CALL create_outlook_email("Ilse.Ferris@hennepin.us;", "mikayla.handley@hennepin.us;", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team " & worker_number & "EOM.", "", "", TRUE)	
-	End if 
-	
-	If (Active_checkbox = 1 and send_email <> true) then 
-		'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-		CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", maxis_case_number, "Client submitted an add-a-program application.", "", FALSE)		
-		'CALL create_outlook_email("Ilse.Ferris@hennepin.us;", "mikayla.handley@hennepin.us;", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team " & worker_number & "EOM.", "", "", TRUE)	
-	End if 
+'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+IF expedited_status = "Client Appears Expedited" THEN
+    CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)		
+
+ELSEIF app_type = "Addendum" THEN 
+    CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Client submitted an add-a-program application. " & worker_number & "  EOM.", "", "", TRUE)		
+
+ELSEIF fs_pend = CHECKED OR cash_pend = CHECKED OR grh_pend = CHECKED THEN
+    CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)		
+    'CALL create_outlook_email("mikayla.handley@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Case to be assigned, transferred to team. " & worker_number & "EOM.", "", "", TRUE)	
+END IF
+
 	
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 IF send_appt_ltr = TRUE THEN
