@@ -187,9 +187,20 @@ EMWritescreen "01", 6, 38
 EMWritescreen INQX_yr, 6, 41
 EMWritescreen CM_mo, 6, 53
 EMwritescreen CM_yr, 6, 56
+EMWritescreen "X", 9, 5		'Snap
+EMWritescreen "X", 10, 5	'MFIP
+EMWritescreen "X", 11, 5 	'GA	
+EMWritescreen "X", 15, 5	'RCA
+EMWritescreen "X", 13, 50	'MSA
+EMWritescreen "X", 17, 50 	'DWP
 transmit
 
 'checking to see if HG has been issued for the month selected: MONY/INQX----------------------------------------------------------------------------------------------------
+
+EMReadScreen no_issuance, 11, 24, 2 
+If no_issuance = "NO ISSUANCE" then script_end_procedure(HH_memb & " does not have any issuance during this period. The script will now end.")
+EMReadScreen single_page, 8, 17, 73
+If trim(single_page) = "" then one_page = True
 
 'Checks for cases with more then 9 pages of issuances
 Do 
@@ -205,12 +216,10 @@ Do
 LOOP until first_page_check = "THIS IS THE 1ST PAGE"	'keeps hitting PF7 until user is back at the 1st page
 
 Excel_row = 2
-
 DO
 	row = 6				'establishing the row to start searching for issuance
 	tracking_month = objExcel.cells(excel_row, 1).Value	're-establishing the case number to use for the case 
 	If trim(tracking_month) = "" then exit do 
-	'msgbox "tracking month: " & tracking_month & vbcr & row
 	
 	Do 
 	    Do    
@@ -223,7 +232,6 @@ DO
 	    	If tracking_month = INQX_issuance then 	
 	    		EMReadScreen prog_type, 5, row, 16		
 	    		prog_type = trim(prog_type)
-	    		'msgbox "Hey it's a match!" & vbcr & row
 	    		EMReadScreen amt_issued, 7, row, 40
 				If issuance_day <> "01" then amt_issued = amt_issued & "*"
 	    		If prog_type = "FS" 	then fs_issued = fs_issued + amt_issued
@@ -236,6 +244,7 @@ DO
 	    	End if 
 	    	row = row + 1
 	    Loop until row = 18
+		If one_page = True then exit do 
 		PF8
 		EMReadScreen last_page_check, 21, 24, 2
 		If last_page_check <> "THIS IS THE LAST PAGE" then row = 6		're-establishes row for the new page
@@ -258,11 +267,13 @@ DO
 	rc_issued = ""
 	ms_issued = ""
 	
-	'this do...loop gets the user back to the 1st page on the INQD screen to check the next issuance_month
-	Do
-		PF7
-		EMReadScreen first_page_check, 20, 24, 2
-	LOOP until first_page_check = "THIS IS THE 1ST PAGE"	'keeps hitting PF7 until user is back at the 1st page
+	If one_page <> True then 
+	    'this do...loop gets the user back to the 1st page on the INQD screen to check the next issuance_month
+	    Do
+	    	PF7
+	    	EMReadScreen first_page_check, 20, 24, 2
+	    LOOP until first_page_check = "THIS IS THE 1ST PAGE"	'keeps hitting PF7 until user is back at the 1st page
+	End if 
 	
 	excel_row = excel_row + 1
 Loop
