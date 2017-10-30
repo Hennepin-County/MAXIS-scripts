@@ -41,58 +41,58 @@ END IF
 'script gathers information from user regarding vendor payment(s)
 'writes case notes in maxis
 
-BeginDialog vendor_dialog, 0, 0, 431, 240, "Vendor Dialog"
-  EditBox 70, 5, 45, 15, case_number
-  DropListBox 62, 55, 65, 15, "Vendor Type"+chr(9)+"Mandatory Utility/Shelter"+chr(9)+"Voluntary Utility/Shelter", vendor_type_1
-  EditBox 140, 55, 50, 15, vendor_number_1
-  EditBox 205, 55, 60, 15, vendor_name_1
-  EditBox 280, 55, 50, 15, phone_number_1
-  EditBox 345, 55, 60, 15, vendor_amount_1
-  DropListBox 60, 85, 65, 15, "Vendor Type"+chr(9)+"Mandatory Utility/Shelter"+chr(9)+"Voluntary Utility/Shelter", vendor_type_2
-  EditBox 140, 85, 50, 15, vendor_number_2
-  EditBox 205, 85, 60, 15, vendor_name_2
-  EditBox 280, 85, 50, 15, phone_number_2
-  EditBox 345, 85, 60, 15, vendor_amount_2
-  DropListBox 60, 115, 65, 15, "Vendor Type"+chr(9)+"Mandatory Utility/Shelter"+chr(9)+"Voluntary Utility/Shelter", vendor_type_3
-  EditBox 205, 115, 60, 15, vendor_name_3
-  EditBox 140, 115, 50, 15, vendor_number_3
-  EditBox 280, 115, 50, 15, phone_number_3
-  EditBox 345, 115, 60, 15, vendor_amount_3
-  DropListBox 60, 145, 65, 15, "Vendor Type"+chr(9)+"Mandatory Utility/Shelter"+chr(9)+"Voluntary Utility/Shelter", vendor_type_4
-  EditBox 205, 145, 60, 15, vendor_name_4
-  EditBox 140, 145, 50, 15, vendor_number_4
-  EditBox 280, 145, 50, 15, phone_number_4
-  EditBox 345, 145, 60, 15, vendor_amount_4
-  EditBox 140, 170, 265, 15, other_information
-  EditBox 140, 205, 50, 15, worker_signature
+BeginDialog vendor_dialog, 0, 0, 396, 190, "Vendor Dialog"
+  EditBox 60, 5, 55, 15, MAXIS_case_number
+  DropListBox 60, 45, 65, 15, "Vendor Type"+chr(9)+"Mandatory Utility/Shelter"+chr(9)+"Voluntary Utility/Shelter", vendor_type_1
+  EditBox 140, 45, 50, 15, vendor_number_1
+  EditBox 205, 45, 60, 15, vendor_name_1
+  EditBox 280, 45, 50, 15, phone_number_1
+  EditBox 345, 45, 45, 15, vendor_amount_1
+  DropListBox 60, 70, 65, 15, "Vendor Type"+chr(9)+"Mandatory Utility/Shelter"+chr(9)+"Voluntary Utility/Shelter", vendor_type_2
+  EditBox 140, 70, 50, 15, vendor_number_2
+  EditBox 205, 70, 60, 15, vendor_name_2
+  EditBox 280, 70, 50, 15, phone_number_2
+  EditBox 345, 70, 45, 15, vendor_amount_2
+  DropListBox 60, 95, 65, 15, "Vendor Type"+chr(9)+"Mandatory Utility/Shelter"+chr(9)+"Voluntary Utility/Shelter", vendor_type_3
+  EditBox 205, 95, 60, 15, vendor_name_3
+  EditBox 140, 95, 50, 15, vendor_number_3
+  EditBox 280, 95, 50, 15, phone_number_3
+  EditBox 345, 95, 45, 15, vendor_amount_3
+  DropListBox 60, 120, 65, 15, "Vendor Type"+chr(9)+"Mandatory Utility/Shelter"+chr(9)+"Voluntary Utility/Shelter", vendor_type_4
+  EditBox 205, 120, 60, 15, vendor_name_4
+  EditBox 140, 120, 50, 15, vendor_number_4
+  EditBox 280, 120, 50, 15, phone_number_4
+  EditBox 345, 120, 45, 15, vendor_amount_4
+  EditBox 75, 145, 315, 15, other_information
+  EditBox 75, 165, 125, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 295, 205, 50, 15
-    CancelButton 355, 205, 50, 15
-  Text 150, 35, 45, 10, "Vendor #"
-  Text 15, 10, 50, 10, "Case Number"
-  Text 75, 35, 45, 15, "Vendor Type"
-  Text 290, 35, 45, 15, "Phone #"
-  Text 215, 35, 45, 15, "Vendor Name"
-  Text 60, 175, 60, 15, "Other Information"
-  Text 80, 210, 45, 10, "Signature"
-  Text 350, 35, 55, 10, "Vendor Amount"
-  Text 15, 55, 40, 15, "Vendor #1"
-  Text 15, 85, 40, 15, "Vendor #2"
-  Text 15, 115, 40, 15, "Vendor #3"
-  Text 15, 145, 40, 15, "Vendor #4"
+    OkButton 285, 165, 50, 15
+    CancelButton 340, 165, 50, 15
+  Text 145, 30, 45, 10, "Vendor #"
+  Text 5, 10, 50, 10, "Case Number:"
+  Text 70, 30, 45, 10, "Vendor Type"
+  Text 290, 30, 45, 10, "Phone #"
+  Text 215, 30, 45, 10, "Vendor Name"
+  Text 10, 150, 60, 10, "Other Information:"
+  Text 10, 170, 60, 10, "Worker signature:"
+  Text 345, 30, 55, 10, "Vendor Amt $"
+  Text 15, 50, 40, 10, "Vendor #1:"
+  Text 15, 75, 40, 10, "Vendor #2:"
+  Text 15, 100, 40, 10, "Vendor #3:"
+  Text 15, 125, 40, 10, "Vendor #4:"
 EndDialog
 
 'The script ----------------------------------------------------------------------------------------------------
 EMConnect ""
 
-Call MAXIS_case_number_finder(case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 DO
 	DO
 		err_msg = ""
 		dialog vendor_dialog
 		cancel_confirmation
-		IF len(case_number) > 8 or IsNumeric(case_number) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF (vendor_type_1 = "Vendor Type" AND vendor_type_2 = "Vendor Type" AND vendor_type_3 = "Vendor Type" AND vendor_type_4 = "Vendor Type") THEN err_msg = err_msg & vbCr & "*At least one vendor type is needed."
 		IF (vendor_type_1 <> "Vendor Type" AND (vendor_number_1 = "" OR vendor_name_1 = "" OR phone_number_1 = "" OR vendor_amount_1 = "")) THEN err_msg = err_msg & vbCr & "*All vendor information must be completed for Vendor Number One."
 		IF (vendor_type_2 <> "Vendor Type" AND (vendor_number_2 = "" OR vendor_name_2 = "" OR phone_number_2 = "" OR vendor_amount_2 = "")) THEN err_msg = err_msg & vbCr & "*All vendor information must be completed for Vendor Number Two."
@@ -104,10 +104,6 @@ DO
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
  
-back_to_SELF
-EMWriteScreen "________", 18, 43
-EMWriteScreen case_number, 18, 43
-
 'The case note---------------------------------------------------------------------------------------
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 Call write_variable_in_CASE_NOTE("---Vendor information---")
