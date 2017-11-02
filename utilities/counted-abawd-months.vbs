@@ -85,8 +85,6 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-'Creating a custom dialog for determining who the HH members are
-'call HH_member_custom_dialog(HH_member_array)
 
 'Will check ATR in current month/year
 back_to_self
@@ -161,7 +159,6 @@ DO
     	
 	EMReadScreen counted_date_year, 2, bene_yr_row, 14								'reading counted year date
 	abawd_counted_months_string = counted_date_month & "/" & counted_date_year		'creating new date variable
-	'abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
 	
 	ObjExcel.Cells(excel_row, 1).Value = abawd_counted_months_string
 	
@@ -179,7 +176,7 @@ LOOP until bene_yr_row = 6
 	
 PF3 	'to exit the ABAWD tracking record
 	
-'----------------------------------------------------------------------------------------------------INQX
+'--------------------------------------------------------------------------------------------------------------------------------------------------INQX
 INQX_yr = right(DatePart("yyyy", DateAdd("yyyy", -3, date)), 2)
 
 Call navigate_to_MAXIS_screen("MONY", "INQX")
@@ -195,12 +192,18 @@ EMWritescreen "X", 13, 50	'MSA
 EMWritescreen "X", 17, 50 	'DWP
 transmit
 
-'checking to see if HG has been issued for the month selected: MONY/INQX----------------------------------------------------------------------------------------------------
-
+'Checik
 EMReadScreen no_issuance, 11, 24, 2 
 If no_issuance = "NO ISSUANCE" then script_end_procedure(HH_memb & " does not have any issuance during this period. The script will now end.")
 EMReadScreen single_page, 8, 17, 73
-If trim(single_page) = "" then one_page = True
+If trim(single_page) = "" then 
+	one_page = True
+Else 
+	PF8
+	EMReadScreen single_page_again, 8, 17, 73
+	If trim(single_page) = trim(single_page_again) then one_page = True
+End if 
+	
 
 'Checks for cases with more then 9 pages of issuances
 Do 
