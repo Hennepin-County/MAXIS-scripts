@@ -90,14 +90,12 @@ EMwritescreen memb_number, 20, 76
 transmit
 
 EMReadscreen memb_name, 12, 6, 63
-memb_name = replace(memb_name, " ", "") 
+memb_name = replace(memb_name, "_", "") 
 
 EMReadScreen edit_error, 2, 24, 2
 edit_error = trim(edit_error)
 IF edit_error <> "" THEN script_end_procedure("No Memb # matches and/ or could not access MEMB.")
 
-
-		
 IF ADH_option = "ADH waiver signed" then
 	BeginDialog , 0, 0, 291, 140, "ADH waiver signed"
   		EditBox 110, 5, 50, 15, date_waiver_signed
