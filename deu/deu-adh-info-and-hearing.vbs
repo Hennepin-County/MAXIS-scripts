@@ -1,10 +1,3 @@
-'LOADING GLOBAL VARIABLES
-Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("\\hcgg.fr.co.hennepin.mn.us\lobroot\HSPH\Team\Eligibility Support\Scripts\Script Files\SETTINGS - GLOBAL VARIABLES.vbs")
-text_from_the_other_script = fso_command.ReadAll
-fso_command.Close
-Execute text_from_the_other_script
-
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "DEU-ADH INFO & HEARING.vbs" 'BULK script that creates a list of cases that require an interview, and the contact phone numbers'
 start_time = timer
@@ -43,7 +36,22 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib IF it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
+
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("11/08/2017", "Updated to add first name of memb to casenote.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("7/07/2017", "Initial version.", "MiKayla Handley, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 
 '----------------------------------------------------------------------------------------------------The script
 EMCONNECT ""
@@ -75,6 +83,20 @@ Do
     Loop until err_msg = ""	
  	CALL check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
+
+'------------------------------------------------------------------------------------getting the case name
+CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+EMwritescreen memb_number, 20, 76
+transmit
+
+EMReadscreen memb_name, 12, 6, 63
+memb_name = replace(memb_name, " ", "") 
+
+EMReadScreen edit_error, 2, 24, 2
+edit_error = trim(edit_error)
+IF edit_error <> "" THEN script_end_procedure("No Memb # matches and/ or could not access MEMB.")
+
+
 		
 IF ADH_option = "ADH waiver signed" then
 	BeginDialog , 0, 0, 291, 140, "ADH waiver signed"
@@ -133,13 +155,13 @@ IF Fraud_investigator = "Scott Benedict" 		then fraud_email = "Scott.Benedict@he
 	
 'The 1st case note-------------------------------------------------------------------------------------------------
  	start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode		 
-	 CALL write_variable_in_CASE_NOTE("-----1st Fraud DISQ/Claims--ADH Waiver Signed-----")
+	 CALL write_variable_in_CASE_NOTE("-----1st Fraud DISQ/Claims " & memb_name & " ADH Waiver Signed-----")
 	 CALL write_variable_in_CASE_NOTE("Client signed ADH waiver on: " & date_waiver_signed & " waiving his/her right to an Administrative Disqualification Hearing for wrongfully obtaining public assistance.") 
 	 CALL write_variable_in_CASE_NOTE("This disqualification is not for any other household member and does not affect MA eligibility.")
 	 CALL write_variable_in_CASE_NOTE(" *Programs: " & program_droplist)
 	 CALL write_variable_in_CASE_NOTE(" *Period of Offense: " & start_date & " - " & end_date)
 	 CALL write_variable_in_CASE_NOTE(" *Client is subject to a " & months_disq & " month DISQ from " & DISQ_begin_date & "-" & DISQ_end_date & ".")
-	 IF program_droplist <> "SNAP"  then CALL write_variable_in_CASE_NOTE(" *Other Notes: Because member " & memb_number & " is DQ'd from MFIP, client is also barred from FS for that same period of time.")
+	 IF program_droplist <> "SNAP"  THEN CALL write_variable_in_CASE_NOTE(" *Other Notes: Because member " & memb_number & " is DQ'd from MFIP, client is also barred from FS for that same period of time.")
 	 IF fraud_case_number <> "" THEN 
 		 CALL write_variable_in_CASE_NOTE("----- ----- -----")
 		 CALL write_bullet_and_variable_in_CASE_NOTE(" *Fraud claim number", fraud_case_number) 
@@ -214,7 +236,7 @@ IF ADH_option = "Hearing Held" then
 	
 'The 2nd case note-------------------------------------------------------------------------------------------------
 	start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode		 
-	 CALL write_variable_in_CASE_NOTE("-----1st Fraud DISQ/Claims--ADH Hearing Held-----")
+	 CALL write_variable_in_CASE_NOTE("-----1st Fraud DISQ/Claim " & memb_name & "  ADH Hearing Held-----")
 	 CALL write_variable_in_CASE_NOTE("Administrative Disqualification Hearing for Wrongfully Obtaining Public Assistance was held on: " & hearing_date & " " & "Order was signed: " & date_order_signed)
 	 CALL write_variable_in_CASE_NOTE("This disqualification is not for any other household member and does not affect MA eligibility.")
 	 CALL write_variable_in_CASE_NOTE(" *Programs: " & program_droplist)
