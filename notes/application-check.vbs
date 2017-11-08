@@ -105,7 +105,6 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 'information gathering to auto-populate the application date
 'pending programs information
 back_to_self
-MAXIS_background_check
 EMWriteScreen MAXIS_case_number, 18, 43
 Call navigate_to_MAXIS_screen("REPT", "PND2")
 
@@ -116,35 +115,14 @@ EMReadScreen app_month, 2, MAXIS_row, 38
 EMReadScreen app_day, 2, MAXIS_row, 41
 EMReadScreen app_year, 2, MAXIS_row, 44
 EMReadScreen days_pending, 3, MAXIS_row, 50
-EMReadScreen PEND_CASH_check, 1, MAXIS_row, 54
-EMReadScreen PEND_SNAP_check, 1, MAXIS_row, 62
-EMReadScreen PEND_HC_check, 1, MAXIS_row, 65
-EMReadScreen PEND_EMER_check, 1, MAXIS_row, 68
-EMReadScreen PEND_GRH_check, 1, MAXIS_row, 72
 EMReadScreen additional_application_check, 14, MAXIS_row + 1, 17
 EMReadScreen add_app_month, 2, MAXIS_row + 1, 38
 EMReadScreen add_app_day, 2, MAXIS_row + 1, 41
 EMReadScreen add_app_year, 2, MAXIS_row + 1, 44
-EMReadScreen add_PEND_CASH_check, 1, MAXIS_row + 1, 54
-EMReadScreen add_PEND_SNAP_check, 1, MAXIS_row + 1, 62
-EMReadScreen add_PEND_HC_check, 1, MAXIS_row  + 1, 65
-EMReadScreen add_PEND_EMER_check, 1, MAXIS_row + 1, 68
-EMReadScreen add_PEND_GRH_check, 1, MAXIS_row + 1, 72
 
-'application date formatting
+'Creating new variable for application check date and additional application date.
 application_check_date = app_month & "/" & app_day & "/" & app_year
-
-'this information auto-fills programs pending into main dialog if one app date is found
-pending_progs = ""
-IF PEND_CASH_check = "A" or PEND_CASH_check = "P" THEN pending_progs = pending_progs & "CASH" & ", "
-IF PEND_SNAP_check = "A" or PEND_SNAP_check = "P" THEN pending_progs = pending_progs & "SNAP" & ", "
-IF PEND_HC_check = "A" or PEND_HC_check = "P" THEN pending_progs = pending_progs & "HC" & ", "
-IF PEND_EMER_check = "A" or PEND_EMER_check = "P" THEN pending_progs = pending_progs & "EMER" & ", "
-IF PEND_GRH_check = "A" or PEND_GRH_check = "P" THEN pending_progs = pending_progs & "GRH" & ", "
-'trims excess spaces of pending_progs
-pending_progs = trim(pending_progs)
-'takes the last comma off of pending_progs when autofilled into dialog if more more than one app date is found and additional app is selected
-If right(pending_progs, 1) = "," THEN pending_progs = left(pending_progs, len(pending_progs) - 1) 
+additional_application_date = add_app_month & "/" & add_app_day & "/" & add_app_year
 
 'checking the case to make sure there is a pending case.  If not script will end & inform the user no pending case exists.
 If not_pending_check = "CASE " THEN 
@@ -158,44 +136,39 @@ If not_pending_check = "CASE " THEN
 	END IF
 END IF 
 
-'additional application date formatting
-additional_application_date = add_app_month & "/" & add_app_day & "/" & add_app_year
-
 'checking for multiple application dates.  Creates message boxes giving the user an option of which app date to choose
-If additional_application_check = "ADDITIONAL APP" THEN 
-	multiple_apps = MsgBox("Do you want this application date:  " & application_date, VbYesNoCancel)
-	If multiple_apps = 2 then stopscript
-	If multiple_apps = 6 then 
-		date_found = TRUE
-	END IF 
-	IF multiple_apps = 7 then 
-		date_found = False
-		additional_apps = Msgbox("Do you want this application date:  " & additional_application_date, VbYesNoCancel)
-		If additional_apps = 2 then stopscript
-		If additional_apps = 6 then 
-			additional_date_found = TRUE 
-		END IF
-	END If
-END if 
+If additional_application_check = "ADDITIONAL APP" THEN multiple_apps = MsgBox("Do you want this application date: " & application_check_date, VbYesNoCancel)
+If multiple_apps = vbCancel then stopscript
+If multiple_apps = vbYes then additional_date_found = False
+IF multiple_apps = vbNo then 
+	additional_apps = Msgbox("Do you want this application date: " & additional_application_date, VbYesNoCancel)
+	If additional_apps = vbCancel then stopscript
+	If additional_apps = vbNo then script_end_procedure("No more application dates exist. Please review the case, and start the script again if applicable.")
+	If additional_apps = vbYes then 
+		additional_date_found = TRUE
+		application_check_date = additional_application_date
+		MAXIS_row = MAXIS_row + 1
+	END IF
+End if 
 
-'formatting the application date for the main dialog if the additional application date is the date selected.
-If date_found = TRUE THEN 
-	application_check_date = application_date
-END IF 
+EMReadScreen PEND_CASH_check,	1, MAXIS_row, 54
+EMReadScreen PEND_SNAP_check, 	1, MAXIS_row, 62
+EMReadScreen PEND_HC_check, 	1, MAXIS_row, 65
+EMReadScreen PEND_EMER_check, 	1, MAXIS_row, 68
+EMReadScreen PEND_GRH_check, 	1, MAXIS_row, 72
 
-'this information auto-fills programs pending into main dialog
-If additional_date_found = TRUE THEN
-	application_check_date = additional_application_date
-	IF add_PEND_CASH_check = "A" or add_PEND_CASH_check = "P" THEN pending_progs = pending_progs & "CASH" & ", "
-	IF add_PEND_SNAP_check = "A" or add_PEND_SNAP_check = "P" THEN pending_progs = pending_progs & "SNAP" & ", "
-	IF add_PEND_HC_check = "A" or add_PEND_HC_check = "P" THEN pending_progs = pending_progs & "HC" & ", "
-	IF add_PEND_EMER_check = "A" or add_PEND_EMER_check = "P" THEN pending_progs = pending_progs & "EMER" & ", "
-	IF add_PEND_GRH_check = "A" or add_PEND_GRH_check = "P" THEN pending_progs = pending_progs & "GRH" & ", "
-	'trims excess spaces of pending_progs
-	pending_progs = trim(pending_progs)
-	'takes the last comma off of pending_progs when autofilled into dialog
-	If right(pending_progs, 1) = "," THEN pending_progs = left(pending_progs, len(pending_progs) - 1) 
-END IF 
+'this information auto-fills programs pending into main dialog if one app date is found
+pending_progs = ""
+IF PEND_CASH_check 	= "A" or PEND_CASH_check = "P" THEN pending_progs = pending_progs & "CASH" & ", "
+IF PEND_SNAP_check 	= "A" or PEND_SNAP_check = "P" THEN pending_progs = pending_progs & "SNAP" & ", "
+IF PEND_HC_check 	= "P" THEN pending_progs = pending_progs & "HC" & ", "
+IF PEND_EMER_check 	= "A" or PEND_EMER_check = "P" THEN pending_progs = pending_progs & "EMER" & ", "
+IF PEND_GRH_check 	= "A" or PEND_GRH_check  = "P" THEN pending_progs = pending_progs & "GRH"
+
+'trims excess spaces of pending_progs
+pending_progs = trim(pending_progs)
+'takes the last comma off of pending_progs when autofilled into dialog if more more than one app date is found and additional app is selected
+If right(pending_progs, 1) = "," THEN pending_progs = left(pending_progs, len(pending_progs) - 1) 
 
 'Determines which application check the user is at----------------------------------------------------------------------------------------------------
 If DateDiff("d", application_check_date, date) = 0 then 
@@ -265,14 +238,6 @@ BeginDialog application_check_dialog, 0, 0, 341, 165, "Application check: " & ap
   GroupBox 190, 90, 145, 45, "MAXIS navigation"
 EndDialog
 
-BeginDialog mutiple_app_dates_dialog, 0, 0, 186, 80, "Multiple application dates exist"
-  EditBox 60, 35, 60, 15, application_check_date
-  ButtonGroup ButtonPressed
-    OkButton 40, 60, 50, 15
-    CancelButton 95, 60, 50, 15
-  Text 10, 10, 170, 20, "Multiple application dates/pending programs exist.  Please select the application date to review."
-EndDialog
-
 'main dialog 
 Do
 	Do
@@ -290,9 +255,6 @@ Do
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 Loop until are_we_passworded_out = false					'loops until user passwords back in		
-
-'checking for an active MAXIS session
-Call check_for_MAXIS(False)
 
 If application_status_droplist <> "Case is ready to approve or deny" THEN 
 	'Outlook appointment is created in prior to the case note being created
