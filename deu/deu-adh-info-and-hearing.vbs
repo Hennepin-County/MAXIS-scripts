@@ -2,7 +2,7 @@
 name_of_script = "DEU-ADH INFO & HEARING.vbs" 'BULK script that creates a list of cases that require an interview, and the contact phone numbers'
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one 
-STATS_manualtime = 0            'manual run time in seconds 
+STATS_manualtime = 120           'manual run time in seconds 
 STATS_denomination = "C"        'C is for each case 
  'END OF stats block========================================================================================================= 
 
@@ -96,6 +96,8 @@ EMReadScreen edit_error, 2, 24, 2
 edit_error = trim(edit_error)
 IF edit_error <> "" THEN script_end_procedure("No Memb # matches and/ or could not access MEMB.")
 
+
+		
 IF ADH_option = "ADH waiver signed" then
 	BeginDialog , 0, 0, 291, 140, "ADH waiver signed"
   		EditBox 110, 5, 50, 15, date_waiver_signed
@@ -140,7 +142,6 @@ LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
 DISQ_end_date = DateAdd("M", months_disq, DISQ_begin_date)
 IF Fraud_investigator = "Select one..."  THEN Fraud_investigator = ""
-
 IF Fraud_investigator = "" 						then fraud_email = ""
 IF Fraud_investigator = "Judy Grandel" 			then fraud_email = "Judith.Grandel@hennepin.us"
 IF Fraud_investigator = "Chris Gormley"		 	then fraud_email = "Chris.Gormley@hennepin.us"
@@ -153,25 +154,23 @@ IF Fraud_investigator = "Scott Benedict" 		then fraud_email = "Scott.Benedict@he
 	
 'The 1st case note-------------------------------------------------------------------------------------------------
  	start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode		 
-	 CALL write_variable_in_CASE_NOTE("-----1st Fraud DISQ/Claims " & memb_name & " ADH Waiver Signed-----")
-	 CALL write_variable_in_CASE_NOTE("Client signed ADH waiver on: " & date_waiver_signed & " waiving his/her right to an Administrative Disqualification Hearing for wrongfully obtaining public assistance.") 
-	 CALL write_variable_in_CASE_NOTE("This disqualification is not for any other household member and does not affect MA eligibility.")
-	 CALL write_variable_in_CASE_NOTE(" *Programs: " & program_droplist)
-	 CALL write_variable_in_CASE_NOTE(" *Period of Offense: " & start_date & " - " & end_date)
-	 CALL write_variable_in_CASE_NOTE(" *Client is subject to a " & months_disq & " month DISQ from " & DISQ_begin_date & "-" & DISQ_end_date & ".")
-	 IF program_droplist <> "SNAP"  THEN CALL write_variable_in_CASE_NOTE(" *Other Notes: Because member " & memb_number & " is DQ'd from MFIP, client is also barred from FS for that same period of time.")
+	 CALL write_variable_in_CASE_NOTE("-----1st Fraud DISQ/Claims (" & memb_name & ") ADH Waiver Signed-----")
+	 CALL write_variable_in_CASE_NOTE("Client signed ADH waiver on: " & date_waiver_signed & " waiving his/her right to an Administrative Disqualification Hearing for wrongfully obtaining public assistance. This disqualification is not for any other household member and does not affect MA eligibility.")
+	 CALL write_variable_in_CASE_NOTE("* Programs: " & program_droplist)
+	 CALL write_variable_in_CASE_NOTE("* Period of Offense: " & start_date & " - " & end_date)
+	 CALL write_variable_in_CASE_NOTE("* Client is subject to a " & months_disq & " month DISQ from " & DISQ_begin_date & "-" & DISQ_end_date & ".")
+	 IF program_droplist <> "SNAP"  THEN CALL write_variable_in_CASE_NOTE("* Other Notes: Because member " & memb_number & " is DQ'd from MFIP, client is also barred from FS for that same period of time.")
 	 IF fraud_case_number <> "" THEN 
 		 CALL write_variable_in_CASE_NOTE("----- ----- -----")
-		 CALL write_bullet_and_variable_in_CASE_NOTE(" *Fraud claim number", fraud_case_number) 
-		 CALL write_bullet_and_variable_in_CASE_NOTE(" *Fraud Investigator", Fraud_investigator)
+		 CALL write_bullet_and_variable_in_CASE_NOTE("Fraud claim number", fraud_case_number) 
+		 CALL write_bullet_and_variable_in_CASE_NOTE("Fraud Investigator", Fraud_investigator)
 	 END IF
-	 CALL write_variable_in_CASE_NOTE("----- ----- -----")
-	 CALL write_variable_in_CASE_NOTE(" *Email sent to team, Lea Bloomquist, HSPH.ES.TEAM.TTL and HSPH.FSSDataTeam")
-	 CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+	 CALL write_variable_in_CASE_NOTE("* Email sent to team: L. Bloomquist, TTL, and FSS")
+	 CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
  	 CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1") 
 	 'Drafting an email. Does not send the email!!!!
 	 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-	 CALL create_outlook_email("", "Lea.Bloomquist@hennepin.us;" & "HSPH.ES.TEAM.TTL@hennepin.us;" & "HSPH.FSSDataTeam@hennepin.us;" & fraud_email, "1st Fraud DISQ/Claims--ADH Waiver Signed for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Client signed ADH waiver on: " & date_waiver_signed & " waiving his/her right to an Administrative Disqualification Hearing for wrongfully obtaining public assistance." & vbcr & "Programs: " & program_droplist & vbcr & "Period of Offense: " & start_date & " - " & end_date & vbcr & "See case notes for further details.", "", False)
+	 CALL create_outlook_email("Lea.Bloomquist@hennepin.us", "HSPH.ES.TEAM.TTL@hennepin.us;" & "HSPH.FSSDataTeam@hennepin.us;" & fraud_email, "1st Fraud DISQ/Claims--ADH Waiver Signed for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Client signed ADH waiver on: " & date_waiver_signed & " waiving his/her right to an Administrative Disqualification Hearing for wrongfully obtaining public assistance." & vbcr & "Programs: " & program_droplist & vbcr & "Period of Offense: " & start_date & " - " & end_date & vbcr & "See case notes for further details.", "", False)
 END IF 		
 
 IF ADH_option = "Hearing Held" then	
@@ -220,8 +219,7 @@ IF ADH_option = "Hearing Held" then
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
 	
 	DISQ_end_date = DateAdd("M", months_disq, DISQ_begin_date)
-	IF Fraud_investigator = "Unknown" THEN Fraud_investigator = ""
-	
+	IF Fraud_investigator = "Unknown" THEN Fraud_investigator = ""	
 	IF Fraud_investigator = "" 						then fraud_email = ""
 	IF Fraud_investigator = "Judy Grandel" 			then fraud_email = "Judith.Grandel@hennepin.us"
 	IF Fraud_investigator = "Chris Gormley"		 	then fraud_email = "Chris.Gormley@hennepin.us"
@@ -234,25 +232,23 @@ IF ADH_option = "Hearing Held" then
 	
 'The 2nd case note-------------------------------------------------------------------------------------------------
 	start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode		 
-	 CALL write_variable_in_CASE_NOTE("-----1st Fraud DISQ/Claim " & memb_name & "  ADH Hearing Held-----")
-	 CALL write_variable_in_CASE_NOTE("Administrative Disqualification Hearing for Wrongfully Obtaining Public Assistance was held on: " & hearing_date & " " & "Order was signed: " & date_order_signed)
-	 CALL write_variable_in_CASE_NOTE("This disqualification is not for any other household member and does not affect MA eligibility.")
-	 CALL write_variable_in_CASE_NOTE(" *Programs: " & program_droplist)
-	 CALL write_variable_in_CASE_NOTE(" *Period of Offense: " & start_date & " - " & end_date)
-	 CALL write_variable_in_CASE_NOTE(" *Client is subject to a " & months_disq & " month DISQ from " & DISQ_begin_date & "-" & DISQ_end_date)
-	 IF program_droplist <> "SNAP"  then CALL write_variable_in_CASE_NOTE(" *Other Notes: Because member " & memb_number & " is DQ'd from MFIP, client is also barred from FS for that same period of time.")
+	 CALL write_variable_in_CASE_NOTE("-----1st Fraud DISQ/Claim (" & memb_name & ")  ADH Hearing Held-----")
+	 CALL write_variable_in_CASE_NOTE("Administrative Disqualification Hearing for Wrongfully Obtaining Public Assistance was held on: " & hearing_date & " " & "Order was signed: " & date_order_signed & "This disqualification is not for any other household member and does not affect MA eligibility.")
+	 CALL write_variable_in_CASE_NOTE("----- ----- -----")
+	 CALL write_variable_in_CASE_NOTE("* Programs: " & program_droplist)
+	 CALL write_variable_in_CASE_NOTE("* Period of Offense: " & start_date & " - " & end_date)
+	 CALL write_variable_in_CASE_NOTE("* Client is subject to a " & months_disq & " month DISQ from " & DISQ_begin_date & "-" & DISQ_end_date)
+	 IF program_droplist <> "SNAP"  then CALL write_variable_in_CASE_NOTE("* Other Notes: Because member " & memb_number & " is DQ'd from MFIP, client is also barred from FS for that same period of time.")
 	 IF fraud_case_number <> "" THEN 
 		 CALL write_variable_in_CASE_NOTE("----- ----- -----")
-		 CALL write_bullet_and_variable_in_CASE_NOTE(" *Fraud claim number", fraud_case_number) 
-		 CALL write_bullet_and_variable_in_CASE_NOTE(" *Fraud Investigator", Fraud_investigator)
+		 CALL write_bullet_and_variable_in_CASE_NOTE("Fraud claim number", fraud_case_number) 
+		 CALL write_bullet_and_variable_in_CASE_NOTE("Fraud Investigator", Fraud_investigator)
 	 END IF
-	 CALL write_variable_in_CASE_NOTE("----- ----- -----")
-	 CALL write_variable_in_CASE_NOTE(" *Email sent to team, Lea Bloomquist, HSPH.ES.TEAM.TTL and HSPH.FSSDataTeam")
-	 CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+	 CALL write_variable_in_CASE_NOTE("* Email sent to team: L. Bloomquist, TTL, and FSS")
+	 CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 	 CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1") 
 	 'Drafting an email. Does not send the email!!!!
 	 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-	 CALL create_outlook_email("", "Lea.Bloomquist@hennepin.us;" & "HSPH.ES.TEAM.TTL@hennepin.us;" & "HSPH.FSSDataTeam@hennepin.us;" & fraud_email, "1st Fraud DISQ/Claims--ADH Hearing Held for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Administrative Disqualification Hearing for Wrongfully Obtaining Public Assistance was held on: " & hearing_date & vbcr & "Order was signed: " & date_order_signed & vbcr & "Programs: " & program_droplist & vbcr & "Period of Offense: " & start_date & " - " & end_date & vbcr & "See case notes for further details.", "", False)
+	 CALL create_outlook_email("Lea.Bloomquist@hennepin.us", "HSPH.ES.TEAM.TTL@hennepin.us;" & "HSPH.FSSDataTeam@hennepin.us;" & fraud_email, "1st Fraud DISQ/Claims--ADH Hearing Held for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Administrative Disqualification Hearing for Wrongfully Obtaining Public Assistance was held on: " & hearing_date & vbcr & "Order was signed: " & date_order_signed & vbcr & "Programs: " & program_droplist & vbcr & "Period of Offense: " & start_date & " - " & end_date & vbcr & "See case notes for further details.", "", False)
 END IF 		
-
 script_end_procedure("Please select the applicable team in the drafted email, any additional notes required and send the email regarding ADH information.") 
