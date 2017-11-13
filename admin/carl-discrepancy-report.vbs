@@ -156,22 +156,31 @@ For item = 0 to UBound(CARL_array, 2)
 				EMReadScreen case_note_header, 55, row, 25
 				case_note_header = trim(case_note_header)
 				IF instr(case_note_header, "***Intake") then
-					CAF_note_found = True
+					app_note_found = True
 					exit do
 				Elseif instr(case_note_header, "***Reapplication") then
-					CAF_note_found = True
+					app_note_found = True
 					exit do
 				Elseif instr(case_note_header, "***Add program") then
-					CAF_note_found = True
+					app_note_found = True
 					exit do
 				Elseif instr(case_note_header, "***Addendum") then
-					CAF_note_found = True
+					app_note_found = True
 					exit do	
 				Elseif instr(case_note_header, "***Emergency app") then
-					CAF_note_found = True
-					exit do	
+					app_note_found = True
+					exit do
+				Elseif instr(case_note_header, "***LTC intake") then
+					app_note_found = True
+					exit do
+				Elseif instr(case_note_header, "***HCAPP received") then
+					app_note_found = True
+					exit do
+				Elseif instr(case_note_header, "---MNsure Retro HC Application") then
+					app_note_found = True
+					exit do		
 				else 	
-					CAF_note_found = False
+					app_note_found = False
 				END IF
 			END IF
 			row = row + 1
@@ -180,7 +189,7 @@ For item = 0 to UBound(CARL_array, 2)
 				row = 5
 			End if
 		LOOP until case_note_date < appl_date                        'repeats until the case note date is less than the application date
-		If CAF_note_found = True then 
+		If app_note_found = True then 
 			Stats_counter = Stats_counter + 1
 			EMReadScreen worker_ID, 7, row, 16
 			CARL_array (worker_numb, item) = worker_ID
