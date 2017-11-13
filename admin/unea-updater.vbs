@@ -177,6 +177,9 @@ For i = 0 to Ubound(UNEA_array, 2)
 	unea_amount 		= UNEA_array (unea_amt, i) 
 	cola_amount 		= UNEA_array (cola_amt, i)
 	
+	forms_to_arep = ""
+	forms_to_swkr = ""
+	
 	If unea_amount = "" or IsNumeric(unea_amount) = False then 
 		UNEA_array(act_status, i) = "Error"
 		UNEA_array(act_notes, i) = "VA income amount is blank or is not numeric."
@@ -192,7 +195,7 @@ For i = 0 to Ubound(UNEA_array, 2)
 	    	UNEA_array(act_notes, i) = "Case is privileged."
 	    	income_panel_found = false 
 	    	send_memo = false
-	    	'msgbox "priv case"
+	   
 	    	'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
 	    	Do
 	    		back_to_self
@@ -208,7 +211,6 @@ For i = 0 to Ubound(UNEA_array, 2)
 	        	UNEA_array(act_notes, i) = "Not Hennepin County case, county code is: " & county_code	'Explanation for the rejected report'
 	    		income_panel_found = false 
 	    		Send_memo = false
-	    		'msgbox "out of county case"
 	        Else 
 	    		'Reads to see if the client is on SNAP 
 	        	EMReadscreen SNAP_active, 4, 10, 74
@@ -225,8 +227,6 @@ For i = 0 to Ubound(UNEA_array, 2)
 	    		Else 
 	    			update_HC = false
 	    		End if 
-	    		
-	    		'msgbox "SNAP active: " & update_SNAP & vbcr & "HC active: " & update_HC
 	    		
 	    		'handling for cases that do not have a completed HCRE panel
 	    		PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
@@ -250,14 +250,12 @@ For i = 0 to Ubound(UNEA_array, 2)
 	        		END IF
 	        		EMReadScreen MEMB_error, 5, 24, 2
 	        	Loop until client_PMI = UNEA_array (clt_SSN, i) or MEMB_error = "ENTER"
-	    		'msgbox "Show me the member number: " & member_number
 	    		
 	        	IF client_PMI <> UNEA_array(clt_PMI, i) then 
 	        		UNEA_array(act_status, i) = "Error"
 	        		UNEA_array(act_notes, i) = "Unable to find person's member number."	'Explanation for the rejected report'
 	    			income_panel_found = false 
 	    			send_memo = false
-	    			'msgbox "unable to find member"
 	        	Else 
 	        		'STAT UNEA PORTION
 	        		Call navigate_to_MAXIS_screen("STAT", "UNEA")
@@ -271,7 +269,6 @@ For i = 0 to Ubound(UNEA_array, 2)
 	    				UNEA_array(act_notes, i) = "UNEA panel not known. Review case, and update manually if applicable."	'Explanation for the rejected report'
 	    				income_panel_found = false 
 	    				send_memo = false
-	    				'msgbox "no unea panels exist"
 	    			Else 	
 	    				Do
 	    					EMReadScreen current_panel_number, 1, 2, 73
@@ -296,7 +293,6 @@ For i = 0 to Ubound(UNEA_array, 2)
 	    							
 	    							EMWriteScreen "________", 8, 66
 	    							EMWriteScreen UNEA_array(unea_amt, i), 8, 66
-	    							'msgbox "Show me the PIC"
 	    							Do 
 	    								transmit
 	    								EMReadscreen UNEA_panel, 4, 2, 48
@@ -309,7 +305,6 @@ For i = 0 to Ubound(UNEA_array, 2)
 	    							EMWriteScreen "________", 9, 65
 	    							EMWriteScreen UNEA_array(unea_amt, i), 9, 65
 	    							EMWriteScreen "1", 10, 63							'code for pay frequency
-	    							'msgbox "Show me the HC pop up"
 	    							Do 
 	    								transmit
 	    								EMReadscreen HC_popup, 9, 7, 41
@@ -375,7 +370,6 @@ For i = 0 to Ubound(UNEA_array, 2)
 	    					UNEA_array(act_status, i) = "Error"
 	    					UNEA_array(act_notes, i) = "Unable to find person's member number."	'Explanation for the rejected report'
 	    					send_memo = false
-	    					'msgbox "income panel not found"
 	    				End if 
 	    		
 	    				back_to_self		'to clear WRAP panel
@@ -385,7 +379,13 @@ For i = 0 to Ubound(UNEA_array, 2)
 	    End if 
 	End if 
 	
-	IF income_panel_found = true then 
+	IF income_panel_found = true then
+		call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
+		EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
+	 	
+		call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+		EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
+		
 	    'Case note PORTION
 	    start_a_blank_CASE_NOTE
 	    '----------------------------------------------------------------------------------------------------THE CASE NOTE
@@ -400,7 +400,6 @@ For i = 0 to Ubound(UNEA_array, 2)
 	
 		call write_variable_in_case_note("---")
 		call write_variable_in_case_note("Actions performed by BZ script, run by I. Ferris, QI team")
-		'msgbox "Show me the case note"
 		
 		'ensuring that the case note saved. If not, adding it to the notes for the user to review. 
 		PF3
@@ -416,41 +415,28 @@ For i = 0 to Ubound(UNEA_array, 2)
 	    If send_memo = True then 
 		    '----------------------------------------------------------------------------------------------------THE SPEC/MEMO
 		    call navigate_to_MAXIS_screen("SPEC", "MEMO")		'Navigating to SPEC/MEMO
-			forms_to_arep = ""
-			forms_to_swkr = ""
+			
 		    'Creates a new MEMO. If it's unable the script will stop.
 		    PF5
 		    EMReadScreen memo_display_check, 12, 2, 33
 		    If memo_display_check = "Memo Display" then 
 				UNEA_array(act_status, i) = "Error"
-				UNEA_array(act_notes, i) = "Does not appear that memo sent."	'Explanation for the rejected report'
-				'msgbox "did not send memo. Case will PF10"
+				UNEA_array(act_notes, i) = "Could not create SPEC/MEMO."	'Explanation for the rejected report'
 				PF10
 			Else 
 		        'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
 		        row = 6                             'Defining row and col for the search feature.
 		        col = 1
 		        EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
-		        IF row > 6 THEN                     'If it isn't 4, that means it was found.
-		        	arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
-		        	call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
-		        	EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
-		        	call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
-		        	PF5                                                     'PF5s again to initiate the new memo process
-		        END IF
-	        
+		        IF row > 6 THEN arep_row = row                      'If it isn't 4, that means it was found. Logs the row it found the ALTREP string as arep_row
+		      
 		        'Checking for SWKR
 		        row = 6                             'Defining row and col for the search feature.
 		        col = 1
 		        EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
-		        IF row > 6 THEN                     'If it isn't 4, that means it was found.
-		        	swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
-		        	call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
-		        	EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
-		        	call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
-		        	PF5                                           'PF5s again to initiate the new memo process
-		        END IF
-		        EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
+		        IF row > 6 THEN swkr_row = row      'If it isn't 4, that means it was found. Logs the row it found the SOCWKR string as swkr_row
+		        	                                  
+		        EMWriteScreen "x", 5, 10                                        'Selects the client as the 1st recipient
 		        IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 		        IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 		        transmit
@@ -463,14 +449,13 @@ For i = 0 to Ubound(UNEA_array, 2)
 	            Call write_variable_in_SPEC_MEMO("If you are interested in speaking with someone regarding Veterans benefits, or if you have questions about this notice, please call the Hennepin County Veterans Service Office at 612-348-3300. Thank you.")	
 	            PF4			'Exits the MEMO
 		        EMReadScreen memo_sent, 8, 24, 2
-			    'msgbox "Confirm memo sent"
+				
 		        If memo_sent = "NEW MEMO" then 
 		        	UNEA_array(act_status, i) = "Case updated"
 		        	UNEA_array(act_notes, i) = ""	'Explanation for the rejected report'
 		        Else
 		        	UNEA_array(act_status, i) = "Error"
 		        	UNEA_array(act_notes, i) = "Does not appear that memo sent."	'Explanation for the rejected report'
-			    	'msgbox "did not send memo. Case will PF10"
 			    	PF10
 		        END IF 
 			End if 
