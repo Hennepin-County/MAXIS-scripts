@@ -1,6 +1,10 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "BULK - UPDATE BM CASE REVIEW LIST.vbs" 'BULK script that creates a list of cases that require an interview, and the contact phone numbers'
 start_time = timer
+STATS_counter = 1
+STATS_manualtime = 20
+STATS_denominatinon = "C"
+'END OF STATS BLOCK===========================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -18,7 +22,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message
 			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
-                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine & _
                                             "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
                                             vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
             StopScript
@@ -33,6 +37,149 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+Function earned_income_exemption
+	exempt_status = False
+    prosp_inc = 0
+    prosp_hrs = 0
+    prospective_hours = 0
+	
+    CALL navigate_to_MAXIS_screen("STAT", "JOBS")
+    EMWritescreen "01", 20, 79				'ensures that we start at 1st job
+    transmit
+    EMReadScreen num_of_JOBS, 1, 2, 78
+    IF num_of_JOBS <> "0" THEN
+        DO
+            EMReadScreen jobs_end_dt, 8, 9, 49
+            EMReadScreen cont_end_dt, 8, 9, 73
+            IF jobs_end_dt = "__ __ __" THEN
+            	CALL write_value_and_transmit("X", 19, 38)
+            	EMReadScreen prosp_monthly, 8, 18, 56
+            	prosp_monthly = trim(prosp_monthly)
+            	IF prosp_monthly = "" THEN prosp_monthly = 0
+            	prosp_inc = prosp_inc + prosp_monthly
+            	EMReadScreen prosp_hrs, 8, 16, 50
+            	IF prosp_hrs = "        " THEN prosp_hrs = 0
+            	prosp_hrs = prosp_hrs * 1						'Added to ensure that prosp_hrs is a numeric
+            	EMReadScreen pay_freq, 1, 5, 64
+            	IF pay_freq = "1" THEN
+            		prosp_hrs = prosp_hrs
+            	ELSEIF pay_freq = "2" THEN
+            		prosp_hrs = (2 * prosp_hrs)
+            	ELSEIF pay_freq = "3" THEN
+            		prosp_hrs = (2.15 * prosp_hrs)
+            	ELSEIF pay_freq = "4" THEN
+            		prosp_hrs = (4.3 * prosp_hrs)
+            	END IF
+            	prospective_hours = prospective_hours + prosp_hrs
+            ELSE
+            	jobs_end_dt = replace(jobs_end_dt, " ", "/")
+            	IF DateDiff("D", date, jobs_end_dt) > 0 THEN
+            		'Going into the PIC for a job with an end date in the future
+            		CALL write_value_and_transmit("X", 19, 38)
+            		EMReadScreen prosp_monthly, 8, 18, 56
+            		prosp_monthly = trim(prosp_monthly)
+            		IF prosp_monthly = "" THEN prosp_monthly = 0
+            		prosp_inc = prosp_inc + prosp_monthly
+            		EMReadScreen prosp_hrs, 8, 16, 50
+            		IF prosp_hrs = "        " THEN prosp_hrs = 0
+            		prosp_hrs = prosp_hrs * 1						'Added to ensure that prosp_hrs is a numeric
+            		EMReadScreen pay_freq, 1, 5, 64
+            		IF pay_freq = "1" THEN
+            			prosp_hrs = prosp_hrs
+            		ELSEIF pay_freq = "2" THEN
+            			prosp_hrs = (2 * prosp_hrs)
+            		ELSEIF pay_freq = "3" THEN
+            			prosp_hrs = (2.15 * prosp_hrs)
+            		ELSEIF pay_freq = "4" THEN
+            			prosp_hrs = (4.3 * prosp_hrs)
+            		END IF
+            		'added seperate incremental variable to account for multiple jobs
+            		prospective_hours = prospective_hours + prosp_hrs
+            	END IF
+            END IF
+            transmit		'to exit PIC
+            EMReadScreen JOBS_panel_current, 1, 2, 73
+            'looping until all the jobs panels are calculated
+            If cint(JOBS_panel_current) < cint(num_of_JOBS) then transmit
+        Loop until cint(JOBS_panel_current) = cint(num_of_JOBS)
+    END IF
+    
+	EMWriteScreen "BUSI", 20, 71
+    CALL write_value_and_transmit(person, 20, 76)
+    EMReadScreen num_of_BUSI, 1, 2, 78
+    IF num_of_BUSI <> "0" THEN
+        DO
+            EMReadScreen busi_end_dt, 8, 5, 72
+            busi_end_dt = replace(busi_end_dt, " ", "/")
+            IF IsDate(busi_end_dt) = True THEN
+            	IF DateDiff("D", date, busi_end_dt) > 0 THEN
+            		EMReadScreen busi_inc, 8, 10, 69
+            		busi_inc = trim(busi_inc)
+            		EMReadScreen busi_hrs, 3, 13, 74
+            		busi_hrs = trim(busi_hrs)
+            		IF InStr(busi_hrs, "?") <> 0 THEN busi_hrs = 0
+            		prosp_inc = prosp_inc + busi_inc
+            		prosp_hrs = prosp_hrs + busi_hrs
+            		prospective_hours = prospective_hours + busi_hrs
+            	END IF
+            ELSE
+            	IF busi_end_dt = "__/__/__" THEN
+            		EMReadScreen busi_inc, 8, 10, 69
+            		busi_inc = trim(busi_inc)
+            		EMReadScreen busi_hrs, 3, 13, 74
+            		busi_hrs = trim(busi_hrs)
+            		IF InStr(busi_hrs, "?") <> 0 THEN busi_hrs = 0
+            		prosp_inc = prosp_inc + busi_inc
+            		prosp_hrs = prosp_hrs + busi_hrs
+            		prospective_hours = prospective_hours + busi_hrs
+            	END IF
+            END IF
+            transmit
+            EMReadScreen enter_a_valid, 13, 24, 2
+        LOOP UNTIL enter_a_valid = "ENTER A VALID"
+    END IF
+	
+	EMWriteScreen "RBIC", 20, 71
+	CALL write_value_and_transmit(person, 20, 76)
+	EMReadScreen num_of_RBIC, 1, 2, 78
+	
+	IF num_of_RBIC <> "0" THEN exempt_status = False 
+	IF prosp_inc >= 935.25 OR prospective_hours >= 129 THEN exempt_status = True 
+	IF prospective_hours >= 80 AND prospective_hours < 129 THEN exempt_status = True 
+End FUNCTION
+
+Function disabled_exemption
+    CALL navigate_to_MAXIS_screen("STAT", "DISA")
+    disa_status = ""
+    EMReadScreen num_of_DISA, 1, 2, 78
+    IF num_of_DISA <> "0" THEN
+    	EMReadScreen disa_end_dt, 10, 6, 69
+    	disa_end_dt = replace(disa_end_dt, " ", "/")
+    	EMReadScreen cert_end_dt, 10, 7, 69
+    	cert_end_dt = replace(cert_end_dt, " ", "/")
+    	IF IsDate(disa_end_dt) = True THEN
+    		'msgbox isdate(disa_end_dt)
+    		IF DateDiff("D", date, disa_end_dt) > 0 THEN disa_status = True
+    		IF disa_end_dt = "99/99/9999" THEN disa_status = TRUE
+    	elseif disa_end_dt = "__/__/____" then 
+    		EMReadScreen disa_begin_dt, 8, 6, 47
+    		IF disa_begin_dt <> "__ __ __" THEN 
+    			disa_status = True
+    			'msgbox disa_end_dt & vbcr & disa_status
+    		End if 
+    	End if 
+    	'msgbox "before cert date: " & disa_status
+    	
+    	IF IsDate(cert_end_dt) = True AND disa_status = False THEN
+    		IF DateDiff("D", date, cert_end_dt) > 0 THEN disa_status = true
+    		IF cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999" THEN 
+    			EMReadScreen cert_begin_dt, 8, 7, 47
+    			IF cert_begin_dt <> "__ __ __" THEN disa_status = True
+    		End if
+    	END IF
+    End if 
+End Function
 
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""		'Connects to BlueZone
@@ -201,7 +348,43 @@ DO
 			Else
 				ObjExcel.Cells(excel_row, excel_col).Value = ""
 			End if 
-		END IF  
+		END IF 	
+		If ObjExcel.Cells(excel_row, excel_col).Value = "" then
+		
+			Call navigate_to_MAXIS_screen("STAT", "MEMB")
+			row = 5
+			HH_count = 0
+			Do 
+				EMReadScreen member_number, 2, row, 3
+				HH_count = HH_count + 1
+				transmit
+				EMReadScreen MEMB_error, 5, 24, 2
+			Loop until MEMB_error = "ENTER"
+			If HH_count <> 1 then
+				ObjExcel.Cells(excel_row, excel_col).Value = ""
+			 Else 	
+				Call navigate_to_MAXIS_screen("STAT", "WREG")
+				EMReadScreen fset_code, 2, 8, 50
+				If fset_code = "09" then  
+					msgbox "coded 09"
+					Call earned_income_exemption
+					msgbox "EI exemption: " & exempt_status
+					If exempt_status = true then 
+						ObjExcel.Cells(excel_row, excel_col).Value = "Exempt"
+						ObjExcel.Cells(excel_row, 4).Value = "09/01 exemption"
+				elseif fset_code = "03" then
+					'msgbox "coded 03"
+				   	Call disabled_exemption
+				    'msgbox "DISA status: " & disa_status
+					If disa_status = true then 
+						ObjExcel.Cells(excel_row, excel_col).Value = "Exempt"
+						ObjExcel.Cells(excel_row, 4).Value = "03/01 exemption"
+					End if 
+				Else 
+					ObjExcel.Cells(excel_row, excel_col).Value = ""
+				End if 
+			End if 
+		End if 	
 	END IF
 
     MAXIS_case_number = ""
@@ -210,4 +393,4 @@ DO
 LOOP UNTIL objExcel.Cells(excel_row, 3).value = ""	'looping until the list of cases to check for recert is complete
 
 STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning (because counting :p)
-script_end_procedure("Success! The Excel file now has been update for all inactive SNAP cases.")
+script_end_procedure("Success! The Excel file now has been updated. Please review the blank case statuses that remain.")
