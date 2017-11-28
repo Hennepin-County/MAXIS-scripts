@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2017", "Fixed bug for EA and ACF dates not pulling into pnotes", "MiKayla Handley, Hennepin County")
 call changelog_update("11/17/2017", "Updated dialog as requested by Shelter Team", "MiKayla Handley, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -102,8 +103,9 @@ End function
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog pnote_dialog, 0, 0, 311, 180, "P-NOTE"
-  EditBox 60, 5, 60, 15, MAXIS_case_number
-  EditBox 230, 5, 75, 15, shelter_stay_dates
+  EditBox 55, 5, 45, 15, MAXIS_case_number
+  EditBox 185, 5, 50, 15, shelter_stay_from
+  EditBox 255, 5, 50, 15, shelter_stay_to
   EditBox 100, 30, 75, 15, EA_date
   EditBox 100, 50, 75, 15, ACF_date
   EditBox 285, 25, 20, 15, number_nights
@@ -112,9 +114,13 @@ BeginDialog pnote_dialog, 0, 0, 311, 180, "P-NOTE"
   EditBox 105, 85, 200, 15, reason_for_homelessness
   EditBox 105, 110, 200, 15, resolution_reason
   EditBox 105, 135, 200, 15, other_notes
-  Text 10, 10, 45, 10, "Case number:"
-  Text 155, 10, 70, 10, "Dates of shelter stay:"
-  Text 10, 35, 80, 10, " EA Dates (if applicable):"
+  ButtonGroup ButtonPressed
+    OkButton 200, 160, 50, 15
+    CancelButton 255, 160, 50, 15
+  Text 5, 10, 45, 10, "Case number:"
+  Text 110, 10, 70, 10, "Dates of shelter stay:"
+  Text 240, 10, 10, 10, "to:"
+  Text 15, 35, 80, 10, " EA Dates (if applicable):"
   Text 10, 55, 85, 10, " ACF Dates (if applicable):"
   Text 225, 30, 60, 10, "Number of nights:"
   Text 205, 50, 80, 10, "Number of bus token(s):"
@@ -122,10 +128,8 @@ BeginDialog pnote_dialog, 0, 0, 311, 180, "P-NOTE"
   Text 10, 85, 85, 15, "Funds issued when client became homeless due to:"
   Text 60, 115, 40, 10, "Resolution:"
   Text 60, 140, 40, 10, "Other notes:"
-  ButtonGroup ButtonPressed
-    OkButton 200, 160, 50, 15
-    CancelButton 255, 160, 50, 15
 EndDialog
+
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
@@ -140,9 +144,10 @@ DO
 		cancel_confirmation
 		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF number_nights = "" then err_msg = err_msg & vbNewLine & "* Enter the number of nights of shelter"
-		IF shelter_stay_dates = "" then err_msg = err_msg & vbNewLine & "* Please enter the dates of shelter"
+		IF shelter_stay_from = "" then err_msg = err_msg & vbNewLine & "* Please enter the dates of shelter"
+		IF shelter_stay_to = "" then err_msg = err_msg & vbNewLine & "* Please enter the dates of shelter"
 		IF reason_for_homelessness = "" then err_msg = err_msg & vbNewLine & "* Enter the reason for homelessness."
-		IF resolution = "" then err_msg = err_msg & vbNewLine & "* Enter the resolution."		
+		IF resolution_reason = "" then err_msg = err_msg & vbNewLine & "* Enter the resolution."		
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & "(enter NA in all fields that do not apply)" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
@@ -159,6 +164,8 @@ Call navigate_to_MAXIS_screen("STAT", "MEMB")
 'Getting the person note ready 
 PF5			'navigates to Person note from WREG PANEL
 'adds case to the rejected list if cannot person note
+shelter_dates =  (shelter_stay_from & " to " & shelter_stay_to)
+
 EMReadScreen person_note_confirmation, 12, 2, 31
 If person_note_confirmation <> "Person Notes" then 
     script_end_procedure ("Person notes cannot be accessed. Please check the case number and servicing county.")
@@ -168,18 +175,18 @@ ELSE
         
     'writes the information into the person note
     Call write_new_line_in_person_note("### P-note at End of EA and ACF Shelter Stay ###")
-    Call write_editbox_in_person_note("Dates of Shelter Stay", shelter_stay_dates)
+	Call write_editbox_in_person_note("Dates of Shelter Stay", shelter_dates)
     Call write_editbox_in_person_note("Number of Nights in Shelter", number_nights)
     Call write_editbox_in_person_note("Number of bus cards", number_buscards)
-    Call write_editbox_in_person_note("Number of Tokens", number_tokens)
-    Call write_editbox_in_person_note("ACF Dates (if applicable)", ACF_dates)
-    Call write_editbox_in_person_note("EA Dates (if applicable)", EA_dates)
+    Call write_editbox_in_person_note("Number of tokens", number_tokens)
+    Call write_editbox_in_person_note("ACF Dates (if applicable)", ACF_date)
+    Call write_editbox_in_person_note("EA Dates (if applicable)", EA_date)
     Call write_editbox_in_person_note("Funds issued when client became homeless due to", reason_for_homelessness)
     Call write_editbox_in_person_note("Resolution", resolution_reason)
     Call write_editbox_in_person_note("Other notes", other_notes)
-	Call write_editbox_in_person_note("---")
-	Call write_editbox_in_person_note(worker_signature)
-	Call write_editbox_in_person_note("Hennepin County Shelter Team")
+	Call write_new_line_in_person_note("---")
+	Call write_new_line_in_person_note(worker_signature)
+	Call write_new_line_in_person_note("Hennepin County Shelter Team")
 END IF
 
 script_end_procedure("")
