@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/14/2017", "Program information will not be input into the Excel spreadsheet. This will not need to be added manually by staff completing the cases.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/05/2017", "Added handling for minor children in school (excluded income) & multiple people per case.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/20/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -95,13 +96,11 @@ excel_row = 2			'establishing row to start
 DO
 	MAXIS_case_number 	= objExcel.cells(excel_row, 1).value	'establishes MAXIS case number
 	Client_SSN 			= objExcel.cells(excel_row, 3).value	'establishes client SSN
-	Progs_open 			= objExcel.cells(excel_row, 4).value	'establishes programs open during the match
 	Employer_name		= objExcel.cells(excel_row, 6).value	'establishes employer name
 	Cleared_status	    = objExcel.cells(excel_row, 8).value	'establishes cleared status for the match
 	'cleaned up
 	MAXIS_case_number 	= trim(MAXIS_case_number) 'remove extra spaces'
 	Client_SSN 			= trim(Client_SSN)
-	Progs_open 			= trim(Progs_open)
 	Employer_name 	   	= trim(Employer_name)
 	Cleared_status 	  	= trim(Cleared_status)
 
@@ -252,6 +251,7 @@ DO
 					
 					EMReadScreen Active_Programs, 13, 6, 68
 					Active_Programs =trim(Active_Programs)
+					objExcel.cells(excel_row, 4).value = Active_Programs	
 					
 					programs = ""
 					IF instr(Active_Programs, "D") then programs = programs & "DWP, "
@@ -292,7 +292,7 @@ DO
                     If Cleared_status = "BE" then CALL write_value_and_transmit("No change.", 8, 6)   'BE
 				    If Cleared_status = "BN" then CALL write_value_and_transmit("Already known - No savings.", 8, 6)   'BN
 				    If Cleared_status = "CC" then CALL write_value_and_transmit("Claim entered.", 8, 6)   'CC
-                    objExcel.cells(excel_row, 9).value = "IEVS match cleared"
+					objExcel.cells(excel_row, 9).value = "IEVS match cleared"
                     case_note_actions = True
 				End if
 			End if
@@ -319,7 +319,7 @@ DO
         If IEVS_type = "WAGE" then Call write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE INCOME" & cleared_header_info & "-----")
 		If IEVS_type = "BEER" then Call write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON WAGE INCOME(B)" & cleared_header_info & "-----")
 		Call write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
-		Call write_bullet_and_variable_in_CASE_NOTE("Programs open", Progs_open)
+		Call write_bullet_and_variable_in_CASE_NOTE("Programs open", programs)
         Call write_bullet_and_variable_in_CASE_NOTE("Employer name", Employer_name)
         call write_variable_in_CASE_NOTE("------ ----- -----")
         If Cleared_status = "BN" or Cleared_status = "BE" then Call write_variable_in_CASE_NOTE("CLIENT REPORTED EARNINGS. INCOME IS IN STAT/JOBS AND BUDGETED.")
