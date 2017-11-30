@@ -43,6 +43,9 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("11/20/2017", "Email functionality for METS retro cases. Changed team email to blank so user inputs the applicable team.", "Ilse Ferris, Hennepin County")
+CALL changelog_update("11/14/2017", "Email functionality for METS retro cases. Changed team email to team 603.", "Ilse Ferris, Hennepin County")
+CALL changelog_update("11/03/2017", "Email functionality - only expedited emails will be sent to Triagers or METS cases.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/25/2017", "Email functionality - will create email, and send for all CASH and FS applications.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/12/2017", "Email functionality will create email, but not send it. Staff will need to send email after reviewing email.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/01/2017", "Initial version.", "MiKayla Handley, Hennepin County")
@@ -50,7 +53,6 @@ CALL changelog_update("10/01/2017", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
 
 '---------------------------------------------------------------------------------------The script
 'Grabs the case number
@@ -332,15 +334,13 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
     	'
     	'Reads MONY/DISB to see if EBT account is open
     	IF expedited_status = "Client Appears Expedited" THEN
-       	CALL navigate_to_MAXIS_screen("MONY", "DISB")
-       	EMReadScreen EBT_account_status, 1, 14, 27
-	   	MsgBox "This Client Appears EXPEDITED. A same day interview needs to be offered."
-	   	Send_email = true
+       		CALL navigate_to_MAXIS_screen("MONY", "DISB")
+       		EMReadScreen EBT_account_status, 1, 14, 27
+	   		MsgBox "This Client Appears EXPEDITED. A same day interview needs to be offered."
+	   		Send_email = true
     	END IF
 		
-		IF expedited_status = "Client does not appear expedited" THEN
-			MsgBox "This client does NOT appear expedited. A same day interview does not need to be offered."
-		END IF		
+		IF expedited_status = "Client does not appear expedited" THEN MsgBox "This client does NOT appear expedited. A same day interview does not need to be offered."
 			
     	'-----------------------------------------------------------------------------------------------EXPCASENOTE
     	start_a_blank_CASE_NOTE
@@ -387,17 +387,7 @@ IF transfer_case = TRUE THEN
 END IF
 	
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-IF expedited_status = "Client Appears Expedited" THEN
-    CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)		
-
-ELSEIF app_type = "Addendum" THEN 
-    CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Client submitted an add-a-program application. " & worker_number & "  EOM.", "", "", TRUE)		
-
-ELSEIF fs_pend = CHECKED OR cash_pend = CHECKED OR grh_pend = CHECKED THEN
-    CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)		
-    'CALL create_outlook_email("mikayla.handley@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Case to be assigned, transferred to team. " & worker_number & "EOM.", "", "", TRUE)	
-END IF
-
+IF send_email = True then CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)		
 	
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 IF send_appt_ltr = TRUE THEN
@@ -418,11 +408,11 @@ IF send_appt_ltr = TRUE THEN
 	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", date_of_app)
 	date_of_app = date_of_app & ""
 
-	
 	'creates interview date for 7 calendar days from the CAF date
 	interview_date = dateadd("d", 7, date_of_app)
 	If interview_date <= date then interview_date = dateadd("d", 7, date)
 	interview_date = interview_date & ""		'turns interview date into string for variable
+	
  'need to handle for if we dont need an appt letter, which would be...'
 	Do
 		Do
@@ -537,10 +527,7 @@ IF send_appt_ltr = TRUE THEN
     CALL write_variable_in_CASE_NOTE(worker_signature)
 END IF
 
-
-IF mnsure_retro_checkbox = CHECKED THEN 
-	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-	CALL create_outlook_email("", "", MAXIS_case_name & maxis_case_number & " Retro Request Complete EOM.", "", "", FALSE)	
-END IF
+'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+IF mnsure_retro_checkbox = CHECKED THEN CALL create_outlook_email("", "", MAXIS_case_name & maxis_case_number & " Retro Request Complete EOM.", "", "", FALSE)	
 
 script_end_procedure ("Case has been updated please ensure it was processed correctly.")
