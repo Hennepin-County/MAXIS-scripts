@@ -48,7 +48,7 @@ changelog_display
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_admin_menu_dialog(script_array)
-	BeginDialog admin_dialog, 0, 0, 516, 120, "Admin Scripts"
+	BeginDialog admin_dialog, 0, 0, 516, 180, "Admin Scripts"
 	 	Text 5, 5, 435, 10, "Admin scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 		 	'PushButton 015, 35, 40, 15, "CA", 				admin_main_button
@@ -69,7 +69,7 @@ Function declare_admin_menu_dialog(script_array)
 			button_placeholder = button_placeholder + 1
 		next
 
-		CancelButton 455, 95, 50, 15
+		CancelButton 455, 155, 50, 15
 		'GroupBox 5, 20, 205, 35, "admin Sub-Menus"
 	EndDialog
 End function
