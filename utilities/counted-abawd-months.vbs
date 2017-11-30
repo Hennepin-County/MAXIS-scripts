@@ -68,10 +68,6 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 HH_memb = "01"
 
-'establishing what MAXIS_footer_month and year are for WREG panel/ATR months determination
-MAXIS_footer_month 	= CM_mo
-MAXIS_footer_year 	= CM_yr
-
 'Main dialog: user will input case number and initial month/year will default to current month - 1 and member 01 as member number
 DO
 	DO
@@ -85,11 +81,12 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+MAXIS_background_check
 
 'Will check ATR in current month/year
 back_to_self
-EMWriteScreen CM_mo, 20, 43				'
-EMWriteScreen CM_yr, 20, 46
+'EMWriteScreen CM_mo, 20, 43				'
+'EMWriteScreen CM_yr, 20, 46
 
 'For each HH_memb in HH_member_array
 Call navigate_to_MAXIS_screen("STAT", "WREG")
@@ -108,6 +105,9 @@ Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
 Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
+
+'Changes name of Excel sheet to the case number
+ObjExcel.ActiveSheet.Name = "#" & MAXIS_case_number
 
 'adding column header information to the Excel list
 ObjExcel.Cells(1, 1).Value = "Month"
@@ -129,6 +129,10 @@ FOR i = 1 to 9
 NEXT
 	
 excel_row = 2
+
+'establishing what MAXIS_footer_month and year are for WREG panel/ATR months determination
+MAXIS_footer_month 	= CM_mo
+MAXIS_footer_year 	= CM_yr
 
 EmWriteScreen "x", 13, 57		'Pulls up the WREG tracker'
 transmit
@@ -192,9 +196,9 @@ EMWritescreen "X", 13, 50	'MSA
 EMWritescreen "X", 17, 50 	'DWP
 transmit
 
-'Checik
 EMReadScreen no_issuance, 11, 24, 2 
 If no_issuance = "NO ISSUANCE" then script_end_procedure(HH_memb & " does not have any issuance during this period. The script will now end.")
+
 EMReadScreen single_page, 8, 17, 73
 If trim(single_page) = "" then 
 	one_page = True
@@ -203,14 +207,6 @@ Else
 	EMReadScreen single_page_again, 8, 17, 73
 	If trim(single_page) = trim(single_page_again) then one_page = True
 End if 
-	
-
-'Checks for cases with more then 9 pages of issuances
-Do 
-	PF8
-	EMReadScreen page_check, 21, 24, 2 
-	If page_check = "CAN NOT PAGE THROUGH " then script_end_procedure("Case has more than 9 pages of issuance. Please process/review manually.")
-Loop until page_check = "THIS IS THE LAST PAGE"
 
 'this do...loop gets the user back to the 1st page on the INQD screen to check the next issuance_month
 Do
@@ -247,11 +243,20 @@ DO
 	    	End if 
 	    	row = row + 1
 	    Loop until row = 18
+		
 		If one_page = True then exit do 
 		PF8
 		EMReadScreen last_page_check, 21, 24, 2
-		If last_page_check <> "THIS IS THE LAST PAGE" then row = 6		're-establishes row for the new page
-	LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
+		If last_page_check = "CAN NOT PAGE THROUGH " then
+		 	review_required = True	
+			last_page = True
+		elseIf last_page_check = "THIS IS THE LAST PAGE" then 
+			last_page = True
+		Else 	
+			last_page = False
+			row = 6		're-establishes row for the new page	
+		End if
+	Loop until last_page = True
 	
 	ObjExcel.Cells(excel_row, 3).Value = fs_issued
 	ObjExcel.Cells(excel_row, 4).Value = ga_issued
@@ -285,5 +290,8 @@ FOR i = 1 to 9
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
 
-script_end_procedure("Success, please review the ABAWD's information.")
-	
+If review_required = True then 
+	script_end_procedure("Case has more than 9 pages of issuance. The information on this spreadsheet may be incomplete. Please review later issuances on this case manually.")
+Else 
+	script_end_procedure("Success, please review the ABAWD's information.")
+End if 
