@@ -46,6 +46,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/30/2017", "Updated NDNH new hire DAIL scrubber with INFC case action handling added.", "MiKayla Handley, Hennepin County")
 call changelog_update("09/11/2017", "Initial version.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -53,8 +54,6 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------
-
-
 BeginDialog NDNH_only_dialog, 0, 0, 236, 70, "National Directory of New Hires"
   DropListBox 150, 5, 80, 15, "Select One: "+chr(9)+"NO - run NEW HIRE"+chr(9)+"YES - INFC clear match", match_answer_droplist
   ButtonGroup ButtonPressed
@@ -74,12 +73,6 @@ If dail_check <> "DAIL" then script_end_procedure("You are not in your DAIL. Thi
 'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
 EMSendKey "t"
 transmit
-
-'The following reads the message in full for the end part (which tells the worker which message was selected)
-EMReadScreen full_message, 58, 6, 20
-
-EMReadScreen HIRE_check, 3, 6, 30
-IF HIRE_check <> "NEW" then script_end_procedure("You are not on a supported NDNH NEW HIRE message. The script will now stop. " & vbNewLine & vbNewLine & "The message reads: " & full_message)
 
 DO
 	DO
@@ -134,21 +127,21 @@ LOOP UNTIL are_we_passworded_out = false
 	col = 1
 	EMSearch "JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
 	If row = 0 then script_end_procedure("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
+	
 	EMReadScreen new_hire_first_line, 61, row, col - 7 'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
-		new_hire_first_line = replace(new_hire_first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
-		new_hire_first_line =trim(new_hire_first_line)
+	new_hire_first_line = replace(new_hire_first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
+	new_hire_first_line =trim(new_hire_first_line)
+	
 	EMReadScreen new_hire_second_line, 61, row + 1, col - 15
-		new_hire_second_line =trim(new_hire_second_line)
+	new_hire_second_line =trim(new_hire_second_line)
+	
 	EMReadScreen new_hire_third_line, 61, row + 2, col -15 'maxis name'
-		new_hire_third_line =trim(new_hire_third_line)
+	new_hire_third_line =trim(new_hire_third_line)
+	
 	EMReadScreen new_hire_fourth_line, 61, row + 3, col -15'new hire name'
-		new_hire_fourth_line =trim(new_hire_fourth_line)
-		new_hire_fourth_line = replace(new_hire_fourth_line, ",", ", ")
-		'EMReadScreen new_hire_second_line, 61, row + 1, col - 15 'Date hired and employer -16 to make case note clear & because of the offset where the search finds it'
-	'IF right(new_hire_third_line, 46) <> right(new_hire_fourth_line, 46) then 				'script was being run on cases where the names did not match but SSN did. This will allow users to review.
-		'warning_box = MsgBox("The names found on the NEW HIRE message do not match exactly." & vbcr & new_hire_third_line & vbcr & new_hire_fourth_line & vbcr & "Please review and click OK if you wish to continue and CANCEL if the name is incorrect.", vbOKCancel)
-		'If warning_box = vbCancel then script_end_procedure("The script has ended. Please review the new hire as you indicated that the name read from the NEW HIRE and the MAXIS name did not match.")
-	'END IF
+	new_hire_fourth_line =trim(new_hire_fourth_line)
+	new_hire_fourth_line = replace(new_hire_fourth_line, ",", ", ")
+	
 	row = 1 						'Now it's searching for info on the hire date as well as employer
 	col = 1
 	EMSearch "DATE HIRED   :", row, col
@@ -161,8 +154,8 @@ LOOP UNTIL are_we_passworded_out = false
 	If len(day_hired) = 1 then day_hired = "0" & day_hired
 	year_hired = Datepart("yyyy", date_hired)
 	year_hired = year_hired - 2000
+	
 	EMSearch "EMPLOYER:", row, col
-
 	EMReadScreen employer, 25, row, col + 10
 	employer = TRIM(employer)
 	EMReadScreen new_HIRE_SSN, 9, 9, 5
@@ -340,7 +333,6 @@ IF match_answer_droplist = "NO - run NEW HIRE" THEN
 END IF
 
 IF match_answer_droplist = "YES - INFC clear match" THEN
-
     'This is a dialog asking if the job is known to the agency.
    	BeginDialog Match_Info_dialog, 0, 0, 281, 190, "NDNH Match Resolution Information"
      CheckBox 10, 20, 260, 10, "Check here to verify that ECF has been reviewed and acted upon appropriately", ECF_checkbox
@@ -359,8 +351,6 @@ IF match_answer_droplist = "YES - INFC clear match" THEN
      Text 10, 90, 155, 10, "First month cost savings (enter only numbers):"
      Text 10, 110, 40, 10, "Other notes:"
    EndDialog
-
-
 
 	EMSendKey "I"
 	transmit
@@ -403,7 +393,6 @@ IF match_answer_droplist = "YES - INFC clear match" THEN
     		PF8
     		ROW = 9
     	END IF
-
 	LOOP UNTIL Employer_match = ""
 
 	IF hire_match <> TRUE THEN script_end_procedure("No pending HIRE match found. Please review NEW HIRE.")
@@ -444,15 +433,7 @@ IF match_answer_droplist = "YES - INFC clear match" THEN
 	'please review ecf to ensure verification has been sent'
 	PF3
 	PF3
-	'need to go back to case note here'
-	'MsgBox "Remember to complete Claim Referral Tracking if needed."
-	' will not have dail to work from '
-	'Navigates to case note
-	'Unable to clsoe for 10/17 due to 10 day, set TIKL to close'
 
-    'Writes new hire message but removes the SSN.
-    'EMSendKey replace(new_hire_first_line, new_HIRE_SSN, "XXX-XX-XXXX") & "<newline>" & new_hire_second_line & "<newline>" & new_hire_third_line + "<newline>" & new_hire_fourth_line & "<newline>" & "---" & "<newline>"
-	'call MAXIS_case_number_finder(MAXIS_case_number)
 	new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
 	start_a_blank_CASE_NOTE
 		IF Emp_known_droplist = "YES - No Further Action" THEN
