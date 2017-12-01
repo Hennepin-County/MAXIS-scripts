@@ -146,7 +146,7 @@ Function earned_income_exemption
 	
 	IF num_of_RBIC <> "0" THEN exempt_status = False 
 	IF prosp_inc >= 935.25 OR prospective_hours >= 129 THEN exempt_status = True 
-	IF prospective_hours >= 80 AND prospective_hours < 129 THEN exempt_status = True 
+	'IF prospective_hours >= 80 AND prospective_hours < 129 THEN exempt_status = True 
 End FUNCTION
 
 Function disabled_exemption
@@ -163,15 +163,12 @@ Function disabled_exemption
     		IF DateDiff("D", date, disa_end_dt) > 0 THEN disa_status = True
     		IF disa_end_dt = "99/99/9999" THEN disa_status = TRUE
     	elseif disa_end_dt = "__/__/____" then 
-    		EMReadScreen disa_begin_dt, 8, 6, 47
-    		IF disa_begin_dt <> "__ __ __" THEN 
+    		EMReadScreen disa_begin_dt, 10, 6, 47
+    		IF disa_begin_dt <> "__ __ ____" THEN 
     			disa_status = True
     			'msgbox disa_end_dt & vbcr & disa_status
     		End if 
-    	End if 
-    	'msgbox "before cert date: " & disa_status
-    	
-    	IF IsDate(cert_end_dt) = True AND disa_status = False THEN
+    	elseIF IsDate(cert_end_dt) = True AND disa_status = False THEN
     		IF DateDiff("D", date, cert_end_dt) > 0 THEN disa_status = true
     		IF cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999" THEN 
     			EMReadScreen cert_begin_dt, 8, 7, 47
@@ -247,32 +244,32 @@ transmit
 Select Case month_selection
 Case "January"
 	MAXIS_footer_month = "01"
-	MAXIS_footer_year = "17"
-	excel_col = 17
+	MAXIS_footer_year = "18"
+	excel_col = 29
 Case "February"
 	MAXIS_footer_month = "02"
-	MAXIS_footer_year = "17"
-	excel_col = 18
+	MAXIS_footer_year = "18"
+	excel_col = 30
 Case "March"
 	MAXIS_footer_month = "03"
-	MAXIS_footer_year = "17"
-	excel_col = 19
+	MAXIS_footer_year = "18"
+	excel_col = 31
 Case "April"
 	MAXIS_footer_month = "04"
-	MAXIS_footer_year = "17"
-	excel_col = 20
+	MAXIS_footer_year = "18"
+	excel_col = 32
 Case "May"
 	MAXIS_footer_month = "05"
-	MAXIS_footer_year = "17"
-	excel_col = 21
+	MAXIS_footer_year = "18"
+	excel_col = 33
 Case "June"
 	MAXIS_footer_month = "06"
-	MAXIS_footer_year = "17"
-	excel_col = 22
+	MAXIS_footer_year = "18"
+	excel_col = 34
 Case "July"
 	MAXIS_footer_month = "07"
-	MAXIS_footer_year = "17"
-	excel_col = 23
+	MAXIS_footer_year = "18"
+	excel_col = 35
 Case "August"
 	MAXIS_footer_month = "08"
 	MAXIS_footer_year = "17"
@@ -349,8 +346,8 @@ DO
 				ObjExcel.Cells(excel_row, excel_col).Value = ""
 			End if 
 		END IF 	
-		If ObjExcel.Cells(excel_row, excel_col).Value = "" then
 		
+		If ObjExcel.Cells(excel_row, excel_col).Value = "" then
 			Call navigate_to_MAXIS_screen("STAT", "MEMB")
 			row = 5
 			HH_count = 0
@@ -366,12 +363,13 @@ DO
 				Call navigate_to_MAXIS_screen("STAT", "WREG")
 				EMReadScreen fset_code, 2, 8, 50
 				If fset_code = "09" then  
-					msgbox "coded 09"
+					'msgbox "coded 09"
 					Call earned_income_exemption
-					msgbox "EI exemption: " & exempt_status
+					'msgbox "EI exemption: " & exempt_status
 					If exempt_status = true then 
 						ObjExcel.Cells(excel_row, excel_col).Value = "Exempt"
 						ObjExcel.Cells(excel_row, 4).Value = "09/01 exemption"
+					End if 
 				elseif fset_code = "03" then
 					'msgbox "coded 03"
 				   	Call disabled_exemption
