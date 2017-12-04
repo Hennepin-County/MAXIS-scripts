@@ -97,7 +97,7 @@ transmit
 
 EMReadScreen error_msg, 18, 24, 2
 error_msg = trim(error_msg)
-IF error_msg = "SSN DOES NOT EXIST" THEN script_end_procedure ("Unable to find person in SSN search." & vbNewLine & "  Please do a PERS search using the client's name"  & vbNewLine & "     Case may need to be APPLd.")
+IF error_msg = "SSN DOES NOT EXIST" THEN script_end_procedure ("Unable to find person in SSN search." & vbNewLine & "Please do a PERS search using the client's name." & vbNewLine & "Case may need to be APPLd.")
 
 EMReadscreen PAGE_confirmation, 4, 2, 51 
 IF PAGE_confirmation = "PERS" THEN script_end_procedure ("Please search by person name and run script again.")
