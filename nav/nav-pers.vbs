@@ -52,7 +52,7 @@ changelog_display
 
 'CONNECTING TO MAXIS, STOPPING THE CASE NUMBER FROM CARRYING THROUGH
 EMConnect ""
-MAXIS_case_number = "________"
+MAXIS_case_number = ""
 
 'NAVIGATING TO THE SCREEN---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'checking for active MAXIS session
