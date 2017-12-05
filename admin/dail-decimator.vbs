@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/05/2017", "Added ELIG DAIL messages as DAILs to decimate!", "Ilse Ferris, Hennepin County")
 call changelog_update("10/28/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -51,7 +52,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 BeginDialog dail_dialog, 0, 0, 266, 110, "Dail Decimator dialog"
-  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"INFO"+chr(9)+"SVES", dail_to_decimate
+  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"ELIG"+chr(9)+"INFO"+chr(9)+"SVES", dail_to_decimate
   EditBox 80, 70, 180, 15, worker_number
   CheckBox 15, 95, 135, 10, "Check here to process for all workers.", all_workers_check
   ButtonGroup ButtonPressed
@@ -140,7 +141,7 @@ For each worker in worker_array
 	'If dail_to_decimate = "" then EMWriteScreen "x", 8, 39
 	'If dail_to_decimate = "" then EMWriteScreen "x", 9, 39
 	'If dail_to_decimate = "" then EMWriteScreen "x", 10, 39
-	'If dail_to_decimate = "" then EMWriteScreen "x", 11, 39
+	If dail_to_decimate = "ELIG" then EMWriteScreen "x", 11, 39
 	'If dail_to_decimate = "" then EMWriteScreen "x", 12, 39
 	If dail_to_decimate = "INFO" then EMWriteScreen "x", 13, 39
 	If dail_to_decimate = "SVES" then EMWriteScreen "x", 13, 39
@@ -176,77 +177,82 @@ For each worker in worker_array
 			End if 
 			
 			EMReadScreen dail_type, 4, dail_row, 6
-			
-			IF dail_type = dail_to_decimate then 
-				stats_counter = stats_counter + 1
-				EMReadScreen dail_msg, 61, dail_row, 20
-				dail_msg = trim(dail_msg)
+			EMReadScreen dail_msg, 61, dail_row, 20
+			dail_msg = trim(dail_msg)
+			stats_counter = stats_counter + 1
+		
+			If instr(dail_msg, "TPQY RESPONSE") then 
+			 	add_to_excel = True				'added this in for clearing the SVES messages
+			elseIf instr(dail_msg, "APPLCT ID CHNGD") then 
+			 	add_to_excel = True 
+			ElseIf instr(dail_msg, "CASE AUTOMATICALLY DENIED") then 
+			 	add_to_excel = True 
+			ElseIf instr(dail_msg, "CASE FILE INFORMATION WAS SENT ON") then 
+				 add_to_excel = True
+			ElseIf instr(dail_msg, "CASE NOTE ENTERED BY") then 
+			 	add_to_excel = True 
+			ElseIf instr(dail_msg, "CASE NOTE TRANSFER FROM") then 
+			 	add_to_excel = True 		
+			ElseIf instr(dail_msg, "CASE VOLUNTARY WITHDRAWN") then 
+			 	add_to_excel = True
+			ElseIf instr(dail_msg, "CASE XFER") then 
+			 	add_to_excel = True 		 		 	
+			ElseIf instr(dail_msg, "DIRECT DEPOSIT STATUS") then 
+			 	add_to_excel = True 
+			ElseIf instr(dail_msg, "MEMB:NEEDS INTERPRETER HAS BEEN CHANGED") then 
+			 	add_to_excel = True
+			ElseIf instr(dail_msg, "MEMB:SPOKEN LANGUAGE HAS BEEN CHANGED") then 
+				 add_to_excel = True
+			ElseIf instr(dail_msg, "MEMB:RACE CODE HAS BEEN CHANGED FROM UNABLE") then 
+			 	add_to_excel = True	 
+			ElseIf instr(dail_msg, "MEMB:SSN HAS BEEN CHANGED FROM") then 
+			 	add_to_excel = True 
+			ElseIf instr(dail_msg, "MEMB:SSN VER HAS BEEN CHANGED FROM") then 
+			 	add_to_excel = True 		
+			ElseIf instr(dail_msg, "MEMB:WRITTEN LANGUAGE HAS BEEN CHANGED FROM") then 
+			 	add_to_excel = True
+			ElseIf instr(dail_msg, "PMI MERGED AND AUTO CASE NOTE ENTERED") then 
+			 	add_to_excel = True 
+			ElseIf instr(dail_msg, "MEMI: HAS BEEN DELETED BY THE PMI MERGE PROCESS") then 
+			 	add_to_excel = True 			 		 	
+			ElseIf instr(dail_msg, "THIS APPLICATION WILL BE AUTOMATICALLY DENIED") then 
+			 	add_to_excel = True 
+			ElseIf instr(dail_msg, "THIS CASE IS ERROR PRONE") then 
+			 	add_to_excel = True 
+			ElseIf instr(dail_msg, "NEW DENIAL ELIG RESULTS EXIST") then 
+				add_to_excel = True			 		 	
+			ElseIf instr(dail_msg, "NEW ELIG RESULTS EXIST") then 
+				add_to_excel = True 
+			ElseIf instr(dail_msg, "CASE IS CATEGORICALLY ELIGIBLE") then 
+				add_to_excel = True
+			ElseIf instr(dail_msg, "WARNING MESSAGES EXIST") then 
+				add_to_excel = True
+			ElseIf instr(dail_msg, "POTENTIALLY CATEGORICALLY ELIGIBLE") then 
+				add_to_excel = True
+			Else	
+			    add_to_excel = False 
+			End if 
+						
+			IF add_to_excel = True then 
+				EMReadScreen maxis_case_number, 8, dail_row - 1, 73
+				EMReadScreen dail_month, 8, dail_row, 11
+				'--------------------------------------------------------------------...and put that in Excel.
+				objExcel.Cells(excel_row, 1).Value = worker
+				objExcel.Cells(excel_row, 2).Value = trim(maxis_case_number)
+				objExcel.Cells(excel_row, 3).Value = trim(dail_type)
+				objExcel.Cells(excel_row, 4).Value = trim(dail_month)
+				objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
+				excel_row = excel_row + 1
 				
-				If instr(dail_msg, "TPQY RESPONSE") then 
-			     	add_to_excel = True				'added this in for clearing the SVES messages
-			    elseIf instr(dail_msg, "APPLCT ID CHNGD") then 
-			     	add_to_excel = True 
-			    ElseIf instr(dail_msg, "CASE AUTOMATICALLY DENIED") then 
-			     	add_to_excel = True 
-			    ElseIf instr(dail_msg, "CASE FILE INFORMATION WAS SENT ON") then 
-			    	 add_to_excel = True
-			    ElseIf instr(dail_msg, "CASE NOTE ENTERED BY") then 
-			     	add_to_excel = True 
-			    ElseIf instr(dail_msg, "CASE NOTE TRANSFER FROM") then 
-			     	add_to_excel = True 		
-			    ElseIf instr(dail_msg, "CASE VOLUNTARY WITHDRAWN") then 
-			     	add_to_excel = True
-			    ElseIf instr(dail_msg, "CASE XFER") then 
-			     	add_to_excel = True 		 		 	
-			    ElseIf instr(dail_msg, "DIRECT DEPOSIT STATUS") then 
-			     	add_to_excel = True 
-			    ElseIf instr(dail_msg, "MEMB:NEEDS INTERPRETER HAS BEEN CHANGED") then 
-			     	add_to_excel = True
-			    ElseIf instr(dail_msg, "MEMB:SPOKEN LANGUAGE HAS BEEN CHANGED") then 
-			    	 add_to_excel = True
-			    ElseIf instr(dail_msg, "MEMB:RACE CODE HAS BEEN CHANGED FROM UNABLE") then 
-			     	add_to_excel = True	 
-			    ElseIf instr(dail_msg, "MEMB:SSN HAS BEEN CHANGED FROM") then 
-			     	add_to_excel = True 
-			    ElseIf instr(dail_msg, "MEMB:SSN VER HAS BEEN CHANGED FROM") then 
-			     	add_to_excel = True 		
-			    ElseIf instr(dail_msg, "MEMB:WRITTEN LANGUAGE HAS BEEN CHANGED FROM") then 
-			     	add_to_excel = True
-			    ElseIf instr(dail_msg, "PMI MERGED AND AUTO CASE NOTE ENTERED") then 
-			     	add_to_excel = True 
-			    ElseIf instr(dail_msg, "MEMI: HAS BEEN DELETED BY THE PMI MERGE PROCESS") then 
-			     	add_to_excel = True 			 		 	
-			    ElseIf instr(dail_msg, "THIS APPLICATION WILL BE AUTOMATICALLY DENIED") then 
-			     	add_to_excel = True 
-			    ElseIf instr(dail_msg, "THIS CASE IS ERROR PRONE") then 
-			     	add_to_excel = True 
-			    Else	
-			    	add_to_excel = False 
-			    End if 
-					
-			    IF add_to_excel = True then 
-			    	EMReadScreen maxis_case_number, 8, dail_row - 1, 73
-			    	EMReadScreen dail_month, 8, dail_row, 11
-			    	'--------------------------------------------------------------------...and put that in Excel.
-			    	objExcel.Cells(excel_row, 1).Value = worker
-			    	objExcel.Cells(excel_row, 2).Value = trim(maxis_case_number)
-			    	objExcel.Cells(excel_row, 3).Value = dail_type
-			    	objExcel.Cells(excel_row, 4).Value = trim(dail_month)
-			    	objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
-			    	excel_row = excel_row + 1
-			    	
-			    	Call write_value_and_transmit("D", dail_row, 3)	
-			    	EMReadScreen other_worker_error, 13, 24, 2
-			    	If other_worker_error = "** WARNING **" then transmit
-			    	deleted_dails = deleted_dails + 1
-			    else
-					add_to_excel = False
-					dail_row = dail_row + 1
-				End if
+				Call write_value_and_transmit("D", dail_row, 3)	
+				EMReadScreen other_worker_error, 13, 24, 2
+				If other_worker_error = "** WARNING **" then transmit
+				deleted_dails = deleted_dails + 1
 			else
+				add_to_excel = False
 				dail_row = dail_row + 1
 			End if
-		    
+	    
 			'Checking next row to ensure that there is a DAIL message. If blank, it will exit the do.
 			EMReadScreen next_dail_check, 4, dail_row, 4
 			If trim(next_dail_check) = "" then 
@@ -265,7 +271,7 @@ objExcel.Cells(3, 7).Value = "Average time to find/select/copy/paste one line (i
 objExcel.Cells(4, 7).Value = "Estimated manual processing time (lines x average):"
 objExcel.Cells(5, 7).Value = "Script run time (in seconds):"
 objExcel.Cells(6, 7).Value = "Estimated time savings by using script (in minutes):"
-objExcel.Cells(7, 7).Value = "Number of INFO messages reviewed"
+objExcel.Cells(7, 7).Value = "Number of " & dail_to_decimate & " messages reviewed"
 objExcel.Columns(7).Font.Bold = true
 objExcel.Cells(2, 8).Value = deleted_dails
 objExcel.Cells(3, 8).Value = STATS_manualtime
