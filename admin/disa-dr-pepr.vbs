@@ -104,6 +104,7 @@ For i = 1 to 16
 	ObjExcel.columns(i).NumberFormat = "@" 	'formatting as text
 Next 
 
+'defaulting the footer month/year to current month plus one
 back_to_self
 EMWriteScreen CM_plus_1_mo, 20, 43
 EMWriteScreen CM_plus_1_yr, 20, 46
