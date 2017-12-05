@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/05/2017", "Defaulting footer month/year to current month plus one. Changed disa dates to their own columns.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/09/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -71,7 +72,7 @@ EMConnect ""
 Do
 	Do
 			'The dialog is defined in the loop as it can change as buttons are pressed 
-			BeginDialog CBO_referral_dialog, 0, 0, 266, 110, "CBO referral"
+			BeginDialog file_selection_dialog, 0, 0, 266, 110, "DISA Dr. PEPR"
   				ButtonGroup ButtonPressed
     			PushButton 200, 45, 50, 15, "Browse...", select_a_file_button
     			OkButton 145, 90, 50, 15
@@ -82,7 +83,7 @@ Do
   				Text 15, 65, 230, 15, "Select the Excel file that contains the PEPR information by selecting the 'Browse' button, and finding the file."
 			EndDialog
 			err_msg = ""
-			Dialog CBO_referral_dialog
+			Dialog file_selection_dialog
 			cancel_confirmation
 			If ButtonPressed = select_a_file_button then
 				If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
@@ -99,11 +100,13 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-'objExcel.worksheets("DISA").Activate			'Activates the selected worksheet'
-
-For i = 1 to 15
+For i = 1 to 16
 	ObjExcel.columns(i).NumberFormat = "@" 	'formatting as text
 Next 
+
+back_to_self
+EMWriteScreen CM_plus_1_mo, 20, 43
+EMWriteScreen CM_plus_1_yr, 20, 46
 
 excel_row = 2
 
@@ -155,24 +158,32 @@ DO
 	    EMReadScreen disa_start_date, 10, 6, 47			'reading DISA dates
 	    EMReadScreen disa_end_date, 10, 6, 69
 	    disa_start_date = Replace(disa_start_date," ","/")		'cleans up DISA dates
-	    disa_end_date = Replace(disa_end_date," ","/")
-	    disa_dates = trim(disa_start_date) & " - " & trim(disa_end_date)
-	    If disa_dates = "__/__/____ - __/__/____" then disa_dates = "NO DISA INFO"
-	    ObjExcel.Cells(excel_row, 12).Value = disa_dates
+	   	disa_end_date = Replace(disa_end_date," ","/")
+		If disa_end_date = "__/__/____" then disa_end_date = ""
+	   
+	    ObjExcel.Cells(excel_row, 12).Value = disa_start_date
+		ObjExcel.Cells(excel_row, 13).Value = disa_end_date
 	    	
 	    'Gathering the WREG Information
 	    Call navigate_to_MAXIS_screen("STAT", "WREG")
 	    EMReadScreen FSET_code, 2, 8, 50
+		If FSET_code = "__" then FSET_code = ""
 	    EMReadScreen ABAWD_code, 2, 13, 50		
-	    WREG_code = FSET_code & "-" & ABAWD_code
-	    ObjExcel.Cells(excel_row, 13).Value = WREG_code
+		If ABAWD_code = "__" then ABAWD_code = ""
+		
+		If FSET_code = "" and ABAWD_code = "" then 
+			WREG_code = ""
+	    Else 
+			WREG_code = FSET_code & "-" & ABAWD_code
+		End if 
+	    ObjExcel.Cells(excel_row, 14).Value = WREG_code
 		
 		Call navigate_to_MAXIS_screen("STAT", "TIME")
 		EMReadScreen total_TANF_mo, 2, 17, 69
 		EMReadScreen ext_60_mo, 2, 19, 31
-		If ext_60_mo = "_" then ext_60_mo = ""
-		ObjExcel.Cells(excel_row, 14).Value = trim(total_TANF_mo)
-		ObjExcel.Cells(excel_row, 15).Value = trim(ext_60_mo)
+		If ext_60_mo = "__" then ext_60_mo = ""
+		ObjExcel.Cells(excel_row, 15).Value = trim(total_TANF_mo)
+		ObjExcel.Cells(excel_row, 16).Value = ext_60_mo
 	End if 
 	
     MAXIS_case_number = ""
@@ -180,7 +191,7 @@ DO
 	STATS_counter = STATS_counter + 1
 LOOP UNTIL objExcel.Cells(excel_row, 2).value = ""	'looping until the list of cases to check for recert is complete
 
-FOR i = 1 to 15		'formatting the cells'
+FOR i = 1 to 16		'formatting the cells'
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
