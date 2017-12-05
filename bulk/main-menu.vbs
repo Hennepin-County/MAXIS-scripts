@@ -40,7 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("09/25/2017", "Added the following BULK scripts: 7th Sanction Identifier, EMPS, FSS Info, GA Advanced Age Identifier, GRH Professional Need, Homesless Discrepancy, and MFIP Sanction. Removed REPT GRMR, this is no longer a report option in MAXIS.", "Ilse Ferris, Hennepin County")
+call changelog_update("09/25/2017", "Added the following BULK scripts: 7th Sanction Identifier, EMPS, FSS Info, GA Advanced Age Identifier, GRH Professional Need, Homesless Discrepancy, MFIP Sanction and Paperless IR. Removed REPT GRMR, this is no longer a report option in MAXIS.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -159,6 +159,13 @@ Set script_array_BULK_main(script_num) = new script		'Set this array element to 
 script_array_BULK_main(script_num).script_name			= "Returned Mail"
 script_array_BULK_main(script_num).file_name			= "returned-mail.vbs"
 script_array_BULK_main(script_num).description			= "Case notes that returned mail (without a forwarding address) was received for up to 60 cases, TIKLs for 10-day return."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BULK_main(script_num)		'Resets the array to add one more element to it
+Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_BULK_main(script_num).script_name			= "Paperless IR"
+script_array_BULK_main(script_num).file_name			= "paperless-ir.vbs"
+script_array_BULK_main(script_num).description			= "Updates cases on a caseload(s) that require paperless IR processing. Does not approve cases."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_main(script_num)		'Resets the array to add one more element to it
