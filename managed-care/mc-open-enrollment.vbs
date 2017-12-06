@@ -35,6 +35,19 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/06/2017", "Updated to support 2018 enrollments.", "Ilse Ferris, Hennepin County")
+call changelog_update("12/01/2016", "Initial version.", "Ilse Ferris, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOG----------------------------------------------------------------------------------------------------
 BeginDialog case_dlg, 0, 0, 161, 150, "Enrollment Information"
   EditBox 90, 25, 60, 15, MMIS_case_number
@@ -45,9 +58,8 @@ BeginDialog case_dlg, 0, 0, 161, 150, "Enrollment Information"
   GroupBox 5, 10, 150, 55, "Leading zeros not needed"
   Text 10, 30, 50, 10, "Case Number:"
   Text 10, 50, 60, 10, "New Health Plan:"
-  Text 10, 70, 140, 50, "This script is for Open Enrollment Form processing ONLY. As such it will disenroll the client(s) from one plan on 12/31/16 and reenroll them to the new plan on 01/01/17. The disenrollment AND enrollment reason will be OE."
+  Text 10, 70, 140, 50, "This script is for Open Enrollment Form processing ONLY. As such it will disenroll the client(s) from one plan on 12/31/16 and reenroll them to the new plan on 01/01/18. The disenrollment AND enrollment reason will be OE."
 EndDialog
-
 
 BeginDialog RPPH_error_dialog, 0, 0, 236, 110, "RPPH error detected"
   DropListBox 70, 50, 160, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", change_reason
@@ -129,8 +141,8 @@ If len(MMIS_case_number) = 8 AND left(MMIS_case_number, 1) <> 0 THEN MNSURE_Case
 MMIS_case_number = right("00000000" & MMIS_case_number, 8)
 
 enrollment_month = "01"
-enrollment_year = "17"
-enrollment_date = "01/01/17"
+enrollment_year = "18"
+enrollment_date = "01/01/18"
 'enrollment_date = enrollment_month & "/01/" & enrollment_year
 
 'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
@@ -826,7 +838,7 @@ IF Need_CNOTE = TRUE Then
 	pf4
 	pf11		'Starts a new case note'
 
-	EMWriteScreen "***HMO Note*** Open Enrollment Processed for 2017", 5, 8
+	EMWriteScreen "***HMO Note*** Open Enrollment Processed for 2018", 5, 8
 	row = 6
 	For member = 0 to Ubound(MMIS_clients_array, 2)
 		If MMIS_clients_array(enrol_sucs, member) = TRUE Then
