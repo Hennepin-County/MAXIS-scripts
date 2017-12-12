@@ -142,9 +142,6 @@ LOOP UNTIL are_we_passworded_out = false
 	new_hire_fourth_line =trim(new_hire_fourth_line)
 	new_hire_fourth_line = replace(new_hire_fourth_line, ",", ", ")
 	
-	row = 1 						'Now it's searching for info on the hire date as well as employer
-	col = 1
-	EMSearch "DATE HIRED   :", row, col
 	EMReadScreen date_hired, 10, 10, 22
 	If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then date_hired = current_month & "-" & current_day & "-" & current_year
 	date_hired = trim(date_hired)
@@ -155,11 +152,14 @@ LOOP UNTIL are_we_passworded_out = false
 	year_hired = Datepart("yyyy", date_hired)
 	year_hired = year_hired - 2000
 	
+	row = 1 						'Now it's searching for info on the hire date as well as employer
+	col = 1
 	EMSearch "EMPLOYER:", row, col
 	EMReadScreen employer, 25, row, col + 10
 	employer = TRIM(employer)
 	EMReadScreen new_HIRE_SSN, 9, 9, 5
 	PF3
+
 
 IF match_answer_droplist = "NO - run NEW HIRE" THEN
     'CHECKING CASE CURR. MFIP AND SNAP HAVE DIFFERENT RULES.
