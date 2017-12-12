@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/11/2017", "Added Quality Improvement Team as authorized users of DAIL Decimator script.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/05/2017", "Added ELIG DAIL messages as DAILs to decimate!", "Ilse Ferris, Hennepin County")
 call changelog_update("10/28/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -52,7 +53,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 BeginDialog dail_dialog, 0, 0, 266, 110, "Dail Decimator dialog"
-  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"ELIG"+chr(9)+"INFO"+chr(9)+"SVES", dail_to_decimate
+  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"ELIG"+chr(9)+"INFO", dail_to_decimate
   EditBox 80, 70, 180, 15, worker_number
   CheckBox 15, 95, 135, 10, "Check here to process for all workers.", all_workers_check
   ButtonGroup ButtonPressed
@@ -67,19 +68,40 @@ EndDialog
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 
-'The main dialog
-Do
-	Do
-		err_msg = ""
-		dialog dail_dialog
-		If ButtonPressed = 0 then StopScript
-		If dail_to_decimate = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the type of DAIL message to decimate!"	
-		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."	
-		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."							
-	  IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine										
-	LOOP until err_msg = ""		
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
+'Grabbing user ID to validate user of script. Only some users are allowed to use this script.
+Set objNet = CreateObject("WScript.NetWork") 
+user_ID_for_validation = ucase(objNet.UserName)
+
+'Validating user ID
+If user_ID_for_validation = "ILFE001" OR _		
+	user_ID_for_validation = "WF7638" OR _		
+	user_ID_for_validation = "WF1875" OR _ 		
+	user_ID_for_validation = "WFQ898" OR _ 		
+	user_ID_for_validation = "WFP803" OR _		
+	user_ID_for_validation = "WFP106" OR _		
+	user_ID_for_validation = "WFK093" OR _ 		
+	user_ID_for_validation = "WF1373" OR _ 		
+	user_ID_for_validation = "WFU161" OR _ 		
+	user_ID_for_validation = "WFS395" OR _ 		
+	user_ID_for_validation = "WFU851" OR _ 		
+	user_ID_for_validation = "WFX901" OR _ 		
+	user_ID_for_validation = "WFI021" then 		
+    'the dialog
+    Do
+    	Do
+      		err_msg = ""
+      		dialog dail_dialog
+      		If ButtonPressed = 0 then StopScript
+      		If dail_to_decimate = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the type of DAIL message to decimate!"	
+      		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."	
+      		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."							
+      	  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine										
+      	LOOP until err_msg = ""		
+      	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+      Loop until are_we_passworded_out = false					'loops until user passwords back in		
+Else 
+	script_end_procedure("This script is for Quality Improvement staff only. You do not have access to use this script.")
+End if 
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -144,7 +166,7 @@ For each worker in worker_array
 	If dail_to_decimate = "ELIG" then EMWriteScreen "x", 11, 39
 	'If dail_to_decimate = "" then EMWriteScreen "x", 12, 39
 	If dail_to_decimate = "INFO" then EMWriteScreen "x", 13, 39
-	If dail_to_decimate = "SVES" then EMWriteScreen "x", 13, 39
+	'If dail_to_decimate = "SVES" then EMWriteScreen "x", 13, 39
 	'If dail_to_decimate = "" then EMWriteScreen "x", 14, 39
 	'If dail_to_decimate = "" then EMWriteScreen "x", 15, 39
  	'If dail_to_decimate = "" then EMWriteScreen "x", 16, 39
@@ -181,9 +203,9 @@ For each worker in worker_array
 			dail_msg = trim(dail_msg)
 			stats_counter = stats_counter + 1
 		
-			If instr(dail_msg, "TPQY RESPONSE") then 
-			 	add_to_excel = True				'added this in for clearing the SVES messages
-			elseIf instr(dail_msg, "APPLCT ID CHNGD") then 
+			'If instr(dail_msg, "TPQY RESPONSE") then 
+			' 	add_to_excel = True				'added this in for clearing the SVES messages
+			If instr(dail_msg, "APPLCT ID CHNGD") then 
 			 	add_to_excel = True 
 			ElseIf instr(dail_msg, "CASE AUTOMATICALLY DENIED") then 
 			 	add_to_excel = True 
