@@ -2,7 +2,7 @@
 name_of_script = "BULK - DAIL DECIMATOR.vbs"
 start_time = timer
 STATS_counter = 1                       'sets the stats counter at one
-STATS_manualtime = "20"                'manual run time in seconds
+'see below dialog selection
 STATS_denomination = "C"       			'C is for each CASE
 'END OF stats block==============================================================================================
 
@@ -53,7 +53,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 BeginDialog dail_dialog, 0, 0, 266, 110, "Dail Decimator dialog"
-  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"ELIG"+chr(9)+"INFO", dail_to_decimate
+  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"COLA"+chr(9)+"INFO"+chr(9)+"SVES", dail_to_decimate
   EditBox 80, 70, 180, 15, worker_number
   CheckBox 15, 95, 135, 10, "Check here to process for all workers.", all_workers_check
   ButtonGroup ButtonPressed
@@ -67,6 +67,7 @@ EndDialog
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+worker_signature = "I. Ferris/BZS and QI Teams"
 
 'Grabbing user ID to validate user of script. Only some users are allowed to use this script.
 Set objNet = CreateObject("WScript.NetWork") 
@@ -102,6 +103,10 @@ If user_ID_for_validation = "ILFE001" OR _
 Else 
 	script_end_procedure("This script is for Quality Improvement staff only. You do not have access to use this script.")
 End if 
+
+If dail_to_decimate = "COLA" then STATS_manualtime = "40"                'manual run time in seconds
+If dail_to_decimate = "INFO" then STATS_manualtime = "30"                'manual run time in seconds
+If dail_to_decimate = "ELIG" then STATS_manualtime = "25"                'manual run time in seconds
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -160,7 +165,7 @@ For each worker in worker_array
 	transmit
 	EMWriteScreen "_", 7, 39		'clears the all selection
 	'If dail_to_decimate = "" then EMWriteScreen "x", 7, 39
-	'If dail_to_decimate = "" then EMWriteScreen "x", 8, 39
+	If dail_to_decimate = "COLA" then EMWriteScreen "x", 8, 39
 	'If dail_to_decimate = "" then EMWriteScreen "x", 9, 39
 	'If dail_to_decimate = "" then EMWriteScreen "x", 10, 39
 	If dail_to_decimate = "ELIG" then EMWriteScreen "x", 11, 39
@@ -251,6 +256,28 @@ For each worker in worker_array
 				add_to_excel = True
 			ElseIf instr(dail_msg, "POTENTIALLY CATEGORICALLY ELIGIBLE") then 
 				add_to_excel = True
+			ElseIf instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") then 
+				add_to_excel = True
+			ElseIf instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO-APPROVED") then 
+				add_to_excel = True
+			ElseIf instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO-APPROVED") then 
+				add_to_excel = True
+			ElseIf instr(dail_msg, "MSA RECERT DUE - NOT AUTO-APPROVED") then 
+				add_to_excel = True	
+			ElseIf instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE - REVIEW FOR MEDI UPDATES") then 
+				add_to_excel = True		
+			ElseIf instr(dail_msg, "NEW MSA ELIG AUTO-APPROVED") then 
+				add_to_excel = True
+				case_note = True
+			ElseIf instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO-APPROVED") then 
+				add_to_excel = True
+				case_note = True
+			ElseIf instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") then 
+				add_to_excel = True
+				case_note = True
+			ElseIf instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") then 
+				add_to_excel = True
+				case_note = True
 			Else	
 			    add_to_excel = False 
 			End if 
@@ -265,6 +292,24 @@ For each worker in worker_array
 				objExcel.Cells(excel_row, 4).Value = trim(dail_month)
 				objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
 				excel_row = excel_row + 1
+				
+				If case_note = True then 
+			
+					Call write_value_and_transmit("N", dail_row, 3)	
+					EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
+					If PRIV_check = "PRIV" then
+						msgbox "PRIV case, clear case and navigate back to the message."
+					Else 
+					    PF9
+					    CALL write_variable_in_case_note(dail_msg)
+					    CALL write_variable_in_case_note("Case was auto approved due to COLA changes")
+					    CALL write_variable_in_case_note("---")
+					    CALL write_variable_in_case_note(worker_signature)
+					    'Navigating back to DAIL/DAIL by pf3 2 times
+					    PF3
+					    PF3
+					End If 
+				END IF
 				
 				Call write_value_and_transmit("D", dail_row, 3)	
 				EMReadScreen other_worker_error, 13, 24, 2
