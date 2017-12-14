@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("12/07/2017", "Removed condition to allow paystubs dated with the current date to be accepted. Updated code to write JOBS verification code in.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("01/11/2017", "The script has been updated to write to the GRH PIC and to case note that the GRH PIC has been updated.", "Robert Fewins-Kalb, Anoka County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -147,7 +148,7 @@ FUNCTION create_paystubs_received_dialog(worker_signature, number_of_paystubs, p
 					If isdate(paystubs_array(i, 0)) = False AND paystubs_array(i, 0) <> "" THEN err_msg = err_msg & vbCr & "* Your pay date must be ''MM/DD/YYYY'' format. Please try again."
 				NEXT
 				FOR i = 0 TO (number_of_paystubs - 1)
-					If isdate(paystubs_array(i, 0)) = True AND datediff("d", date, paystubs_array(i, 0)) >= 0 THEN err_msg = err_msg & vbCr & "* You cannot enter a paydate in the future. Please remove and try again."
+					If isdate(paystubs_array(i, 0)) = True AND datediff("d", date, paystubs_array(i, 0)) > 0 THEN err_msg = err_msg & vbCr & "* You cannot enter a paydate in the future. Please remove and try again."
 				NEXT
 				FOR i = 0 TO (number_of_paystubs - 1)
 					If isdate(paystubs_array(i, 0)) = True and (Isnumeric(paystubs_array(i, 1)) = False or Isnumeric(paystubs_array(i, 2)) = False) then err_msg = err_msg & vbCr & "* You must include a gross pay amount as well as an hours amount."
@@ -275,7 +276,16 @@ DO
 		'Making sure that the script returns to the JOBS panel it is supposed to.
 		'Addition of check_for_password appears to force through a transmit which causes the script to jump ahead 1 JOBS panel
 	CALL write_value_and_transmit("0" & current_panel_number, 20, 79)
-
+	'Do 
+	'    EMReadScreen selected_employer, 30, 7, 42
+	'    If trim(selected_employer) <> trim(employer_name) then 
+	'		correct_job = False
+	'		confirm_job = msgbox("The employer you selected to update was " & employer_name. " This JOBS panel does not match. Either add a panel now, or navigate to the correct job. Press OK when ready for script to continue.", vbOkCancel + vbExclamation, "JOBS panel names do not match.")
+	'    	If confirm_job = vbCancel then script_end_procedure("You have chosen to stop the script. Please review case for incomplete changes or inforamtion.") 
+	'		IF confirm_job = vbOK then correct_job = true
+	'	End if 
+	'Loop until correct_job = true
+		
 	err_msg = ""
 	'Checking dates to make sure all are on the same day of the week, in instances of weekly or biweekly income. This avoids a possible issue
 	'resulting from a paydate being "moved" due to a holiday, and affecting the rest of the calculation for income. If the dates are not all on the
@@ -584,13 +594,9 @@ Do
 	If pay_frequency = "Every Other Week" then EMWriteScreen cint((average_hours_per_paystub + .0000000000001) * total_prospective_dates), 18, 72
 	If pay_frequency = "Every Week" then EMWriteScreen cint((average_hours_per_paystub + .0000000000001) * total_prospective_dates), 18, 72
 
-	'Puts pay verification type in
-	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN
-		EMWriteScreen left(JOBS_verif_code, 1), 6, 34
-	ELSE
-		EMWriteScreen left(JOBS_verif_code, 1), 6, 38
-	END IF
-
+	'Puts pay verification type in. JOBS panel verification codes were updated in 10-16 to coordinates 6, 34 from coordinates 6, 38
+	EMWriteScreen left(JOBS_verif_code, 1), 6, 34
+	
 	'If the footer month is the current month + 1, the script needs to update the HC popup for HC cases.
 	If update_HC_popup_check = 1 and datediff("m", date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 1 then
 		EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
@@ -633,17 +639,10 @@ Do
 	PF9
 Loop until in_future_month = True
 
-'Determines if the case note should add additional info about which HH member had the paystubs
-If HH_member <> "01" then
-	HH_memb_for_case_note = " for memb " & HH_member
-Else
-	HH_memb_for_case_note = ""
-End if
-
 'Case noting section
 If update_PIC_check = 1 then
 	start_a_blank_CASE_NOTE
-	EMSendKey "~~~SNAP PIC" & HH_memb_for_case_note & ": " & date & "~~~" & "<newline>"
+	Call write_variable_in_CASE_NOTE("~~~SNAP PIC for MEMB " & HH_member & ": " & date & "~~~")
 	EMSendKey PIC_line_02 & "<newline>"
 	EMSendKey PIC_line_03 & "                 " & "<newline>"
 	EMSendKey PIC_line_04 & "                 " & "<newline>"
@@ -672,7 +671,7 @@ End if
 
 IF update_GRH_PIC_check = 1 THEN 
 	start_a_blank_CASE_NOTE
-	CALL write_variable_in_CASE_NOTE("~~~GRH PIC: " & date & "~~~")
+	Call write_variable_in_CASE_NOTE("~~~GRH PIC for MEMB " & HH_member & ": " & date & "~~~")
 	CALL write_variable_in_CASE_NOTE("Pay Date    Gross Amt")
 	FOR i = 0 TO (number_of_paystubs - 1)
 		CALL write_variable_in_CASE_NOTE(paystubs_array(i, 0) & "    " & FormatCurrency(paystubs_array(i, 1)))
@@ -690,7 +689,7 @@ END IF
 
 If add_case_note_check = 1 then
 	start_a_blank_CASE_NOTE
-	EMSendKey "Paystubs Received" & HH_memb_for_case_note & ": updated JOBS w/script" & "<newline>"
+	Call write_variable_in_CASE_NOTE("Paystubs received for MEMB " & HH_member & ": updated JOBS w/script")
 	call write_three_columns_in_case_note(14, "DATE", 29, "AMT", 39, "HOURS")
 	FOR i = 0 TO (number_of_paystubs - 1)
 		IF paystubs_array(i, 0) <> "01/01/2000" THEN CALL write_three_columns_in_case_note(12, paystubs_array(i, 0), 27, "$" & paystubs_array(i, 1), 39, paystubs_array(i, 2))
