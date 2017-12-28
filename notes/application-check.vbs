@@ -108,9 +108,21 @@ back_to_self
 EMWriteScreen MAXIS_case_number, 18, 43
 Call navigate_to_MAXIS_screen("REPT", "PND2")
 
+'Ensuring that the user is in REPT/PND2
+Do 
+	EMReadScreen PND2_check, 4, 2, 52
+	If PND2_check <> "PND2" then 
+		back_to_SELF
+		Call navigate_to_MAXIS_screen("REPT", "PND2")
+	End if 
+LOOP until PND2_check = "PND2"
+
+'checking the case to make sure there is a pending case.  If not script will end & inform the user no pending case exists in PND2
+EMReadScreen not_pending_check, 5, 24, 2
+If not_pending_check = "CASE " THEN script_end_procedure("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
+
 'grabs row and col number that the cursor is at 
 EMGetCursor MAXIS_row, MAXIS_col
-EMReadScreen not_pending_check, 5, 24, 2
 EMReadScreen app_month, 2, MAXIS_row, 38
 EMReadScreen app_day, 2, MAXIS_row, 41
 EMReadScreen app_year, 2, MAXIS_row, 44
@@ -123,18 +135,6 @@ EMReadScreen add_app_year, 2, MAXIS_row + 1, 44
 'Creating new variable for application check date and additional application date.
 application_check_date = app_month & "/" & app_day & "/" & app_year
 additional_application_date = add_app_month & "/" & add_app_day & "/" & add_app_year
-
-'checking the case to make sure there is a pending case.  If not script will end & inform the user no pending case exists.
-If not_pending_check = "CASE " THEN 
-	Call navigate_to_MAXIS_screen("REPT", "PND1")
-	EMReadScreen not_pending_check, 10, 24, 2
-	If not_pending_check <> "NO PENDING" THEN 
-		application_check_date = ""
-	END IF
-	If not_pending_check = "NO PENDING" THEN 
-		script_end_procedure("There is not a pending program on this case." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
-	END IF
-END IF 
 
 'checking for multiple application dates.  Creates message boxes giving the user an option of which app date to choose
 If additional_application_check = "ADDITIONAL APP" THEN multiple_apps = MsgBox("Do you want this application date: " & application_check_date, VbYesNoCancel)
