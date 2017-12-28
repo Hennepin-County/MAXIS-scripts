@@ -255,19 +255,20 @@ For item = 0 to UBound(CBO_array, 2)
 		    		CBO_array(error_reason, item) = "Process manually, more than one person in HH & SSN not provided."	'Explanation for the rejected report'
 		    	End if 
 		    Else 	
-	               Do 
-	               	EMReadscreen member_SSN, 11, 7, 42
-		           	member_SSN = replace(member_SSN, " ", "")
-	               	If member_SSN = CBO_array(clt_SSN, item) then
-	               		EMReadscreen member_number, 2, 4, 33
-	               		CBO_array(memb_number, item) = member_number
-	               		CBO_array(make_referral, item) = True
-	               		exit do
-	               	Else 
-	               		transmit
-		    			CBO_array(make_referral, item) = False
-		           	END IF
-	               Loop until member_SSN = CBO_array(clt_SSN, item) or MEMB_error = "ENTER"
+	            Do 
+	            	EMReadscreen member_SSN, 11, 7, 42
+		        	member_SSN = replace(member_SSN, " ", "")
+	            	If member_SSN = CBO_array(clt_SSN, item) then
+	            		EMReadscreen member_number, 2, 4, 33
+	            		CBO_array(memb_number, item) = member_number
+	            		CBO_array(make_referral, item) = True
+	            		exit do
+	            	Else 
+	            		transmit
+		  	    		CBO_array(make_referral, item) = False
+						EMReadScreen MEMB_error, 5, 24, 2
+		        	END IF
+	            Loop until member_SSN = CBO_array(clt_SSN, item) or MEMB_error = "ENTER"
 		    End if 
 	           	
 		    IF CBO_array(make_referral, item) = True then 
