@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/10/2017", "Updated TIKL functionality. A TIKL is created for Application Day 30 if NOMI is sent prior to Application Day 30. Otherwise a TIKL is created for an additional 10 days .", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Resolved merge conflict error.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Updated script to support TIKL created by the NOTES - APPOINTMENT LETTER script. Also removed Hennepin County specific NOMI process. ", "Ilse Ferris, Hennepin County")
@@ -206,9 +207,9 @@ ELSEIF interview_confirm = vbNo then 		'interview was not completed
     		call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
     		PF5                                           'PF5s again to initiate the new memo process
     	END IF
-    	EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
-    	IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-    	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+    	EMWriteScreen "x", 5, 12                                        'Initiates new memo to client
+    	IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+    	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
     	transmit
 
     	'Writes the info into the MEMO.
