@@ -304,19 +304,7 @@ If nomi_sent = 1 then 'Asks if this is a recert. A recert uses a SPEC/MEMO notic
 			Call check_for_password(are_we_passworded_out)
 		Loop until are_we_passworded_out = false
 
-		'Navigates into SPEC/MEMO
-		call navigate_to_MAXIS_screen("SPEC", "MEMO")
-
-		'Checks to make sure we're past the SELF menu
-		EMReadScreen still_self, 27, 2, 28
-		If still_self = "Select Function Menu (SELF)" then script_end_procedure("Script was not able to get past SELF menu. Is case in background?")
-
-		'Creates a new MEMO. If it's unable the script will stop.
-		PF5
-		EMReadScreen memo_display_check, 12, 2, 33
-		If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-		EMWriteScreen "x", 5, 12
-		transmit
+		Call start_a_new_spec_memo
 
 		'Writes the info into the MEMO.
 		EMSetCursor 3, 15

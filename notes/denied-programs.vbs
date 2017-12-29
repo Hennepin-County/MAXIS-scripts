@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/04/2017", "Added handling for multiple recipient changes to SPEC/WCOM", "David Courtright, St Louis County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -447,9 +448,9 @@ IF edit_notice_check = 1 THEN
 				col = 1
 				EMSearch "SOCWKR", row, col
 				IF row > 4 THEN  swkr_row = row     'Logs the row it found the SOCWKR string as swkr_row
-				EMWriteScreen "x", 5, 10                                        'We always send notice to client
-				IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-				IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+				EMWriteScreen "x", 5, 12                                        'We always send notice to client
+				IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+				IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 				transmit                                                        'Transmits to start the memo writing process'
 				'Writing the verifs needed into the notice
 				call write_variable_in_spec_memo("The following verifications were not provided: ")
