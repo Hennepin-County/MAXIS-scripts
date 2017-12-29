@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -163,39 +164,12 @@ IF copy_location = "SPEC MEMO" THEN
 	IF InStr(privileged_case, "PRIVILEGED") <> 0 THEN
 		privileged_array = privileged_array & MAXIS_case_number & "~~~"
 	ELSE
-		PF5
-		'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
-		row = 4                             'Defining row and col for the search feature.
-		col = 1
-		EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
-		IF row > 4 THEN                     'If it isn't 4, that means it was found.
-			arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
-			call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
-			EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
-			call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
-			PF5                                                     'PF5s again to initiate the new memo process
-		END IF
-		'Checking for SWKR
-		row = 4                             'Defining row and col for the search feature.
-		col = 1
-		EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
-		IF row > 4 THEN                     'If it isn't 4, that means it was found.
-			swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
-			call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
-			EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
-			call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
-			PF5                                           'PF5s again to initiate the new memo process
-		END IF
-		EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
-		IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-		IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-		transmit
+		Call start_a_new_spec_memo
 		FOR EACH case_note_line IN case_note_array						'writing each line into SPEC/MEMO
 			CALL write_variable_in_SPEC_MEMO(case_note_line)
 		NEXT
 	END IF
 END IF
-
 
 'commenting out for time being as in order to maintain the structure of the original CN we have to keep spaces. However this means that spaces are
 'used towards the length count. As such a single page of a case note is 1241 characters meaning we could never add a CN to a WCOM. We also cannot ignore blank lines
@@ -292,6 +266,4 @@ END IF
 'END IF
 
 STATS_manualtime = STATS_manualtime + 15 * page_count  'multiplying pages copied from a case note
-
-'Script end procedure
 script_end_procedure("")
