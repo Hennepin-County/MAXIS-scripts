@@ -44,69 +44,87 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'<<<<<GO THROUGH THE SCRIPT AND REMOVE REDUNDANT FUNCTIONS, THANKS TO CUSTOM FUNCTIONS THEY ARE NOT REQUIRED.
 
+
+function start_a_new_spec_memo()
+'--- This function navigates user to SPEC/MEMO and starts a new SPEC/MEMO, selecting client, AREP, and SWKR if appropriate
+'===== Keywords: MAXIS, notice, navigate, edit
+	call navigate_to_MAXIS_screen("SPEC", "MEMO")				'Navigating to SPEC/MEMO
+
+	PF5															'Creates a new MEMO. If it's unable the script will stop.
+	EMReadScreen memo_display_check, 12, 2, 33
+	If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
+
+	'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
+	row = 4                             'Defining row and col for the search feature.
+	col = 1
+	EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+	IF row > 4 THEN                     'If it isn't 4, that means it was found.
+	    arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
+	    call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
+	    EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
+	    call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
+	    PF5                                                     'PF5s again to initiate the new memo process
+	END IF
+	'Checking for SWKR
+	row = 4                             'Defining row and col for the search feature.
+	col = 1
+	EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
+	IF row > 4 THEN                     'If it isn't 4, that means it was found.
+	    swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
+	    call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+	    EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
+	    call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
+	    PF5                                           'PF5s again to initiate the new memo process
+	END IF
+	EMWriteScreen "x", 5, 12                                        'Initiates new memo to client
+	IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+	transmit                                                        'Transmits to start the memo writing process
+end function
+
+'<<<<<GO THROUGH THE SCRIPT AND REMOVE REDUNDANT FUNCTIONS, THANKS TO CUSTOM FUNCTIONS THEY ARE NOT REQUIRED.
 EMConnect ""
 
 BeginDialog worker_sig_dialog, 0, 0, 141, 46, "Worker signature"
-  EditBox 15, 25, 50, 15, worker_sig
+  EditBox 15, 25, 50, 15, worker_signature
   ButtonGroup ButtonPressed_worker_sig_dialog
     OkButton 85, 5, 50, 15
     CancelButton 85, 25, 50, 15
   Text 5, 10, 75, 10, "Sign your case note."
 EndDialog
 
-Dialog worker_sig_dialog
-If ButtonPressed_worker_sig_dialog = 0 then stopscript
+EMReadScreen MAXIS_case_number, 8, 5, 73
+MAXIS_case_number = trim(MAXIS_case_number)
 
-EMWriteScreen "p", 6, 3
-EMSendKey "<enter>"
-EMWaitReady 0, 0
+Do 
+	Dialog worker_sig_dialog
+	If ButtonPressed_worker_sig_dialog = 0 then stopscript
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
-EMWriteScreen "memo", 20, 70
-EMSendKey "<enter>"
-EMWaitReady 0, 0
+call start_a_new_spec_memo
 
-EMSendKey "<PF5>"
-EMWaitReady 0, 0
+'Writes the info into the MEMO.
+Call write_variable_in_SPEC_MEMO("************************************************************")
+Call write_variable_in_SPEC_MEMO("You are turning 60 next month, so you may be eligible for a new deduction for SNAP. Clients who are over 60 years old may receive increased SNAP benefits if they have recurring medical bills over $35 each month.")
 
-EMWriteScreen "x", 5, 10
-EMSendKey "<enter>"
-EMWaitReady 0, 0
+Call write_variable_in_SPEC_MEMO("If you have medical bills over $35 each month, please contact your worker to discuss adjusting your benefits. You will need to send in proof of the medical bills, such as pharmacy receipts, an explanation of benefits, or premium notices.")
+Call write_variable_in_SPEC_MEMO("Please call your worker with questions.")
+Call write_variable_in_SPEC_MEMO("************************************************************")
+PF4
 
-EMSendKey "You are turning 60 next month, so you may be eligible for a new deduction for SNAP." + "<newline>" + "<newline>"
-EMSendKey "Clients who are over 60 years old may receive increased SNAP benefits if they have recurring medical bills over $35 each month." + "<newline>" + "<newline>"
-EMSendKey "If you have medical bills over $35 each month, please contact your worker to discuss adjusting your benefits. You will need to send in proof of the medical bills, such as pharmacy receipts, an explanation of benefits, or premium notices." + "<newline>" + "<newline>"
-EMSendKey "Please call your worker with questions."
-EMSendKey "<PF4>"
-EMWaitReady 0, 0
+start_a_blank_CASE_NOTE
+Call write_variable_in_case_note("MEMBER HAS TURNED 60 - NOTIFY ABOUT POSSIBLE FMED DEDUCTION")
+Call write_variable_in_case_note("* Sent MEMO to client about FMED deductions.")
+Call write_variable_in_case_note("---")
+Call write_variable_in_case_note(worker_signature & ", using automated script.")
 
-EMWriteScreen "case", 19, 22
-EMWriteScreen "note", 19, 70
-EMSendKey "<enter>"
-EMWaitReady 0, 0
-
-EMSendKey "<PF9>"
-EMWaitReady 0, 0
-
-EMSendKey "MEMBER HAS TURNED 60 - NOTIFY ABOUT POSSIBLE FMED DEDUCTION" + "<newline>"
-EMSendKey "---" + "<newline>"
-EMSendKey "* Sent MEMO to client about FMED deductions." + "<newline>"
-EMSendKey "---" + "<newline>"
-EMSendKey worker_sig + ", using automated script."
-
-EMSendKey "<PF3>"
-EMWaitReady 0, 0
-
-EMSendKey "<PF3>"
-EMWaitReady 0, 0
-
-MsgBox "The script has sent a MEMO to the client about the possible FMED deduction, and case noted the action."
-
-script_end_procedure("")
+script_end_procedure("The script has sent a MEMO to the client about the possible FMED deduction, and has case noted the action.")
