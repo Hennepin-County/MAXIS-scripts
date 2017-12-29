@@ -50,10 +50,26 @@ call changelog_update("10/28/2017", "Initial version.", "Ilse Ferris, Hennepin C
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
+
+Function dail_selection
+	'selecting the type of DAIl message
+	EMWriteScreen "x", 4, 12		'transmits to the PICK screen
+	transmit
+	EMWriteScreen "_", 7, 39		'clears the all selection
+	
+	IF dail_to_decimate = "COLA" then selection_row = 8
+	IF dail_to_decimate = "ELIG" then selection_row = 11
+	IF dail_to_decimate = "INFO" then selection_row = 13
+	IF dail_to_decimate = "SVES" then selection_row = 13
+	
+	Call write_value_and_transmit("x", selection_row, 39)	
+End Function
+
+
 'END CHANGELOG BLOCK =======================================================================================================
 
 BeginDialog dail_dialog, 0, 0, 266, 110, "Dail Decimator dialog"
-  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"COLA"+chr(9)+"INFO"+chr(9)+"SVES", dail_to_decimate
+  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"COLA"+chr(9)+"ELIG"+chr(9)+"INFO"+chr(9)+"SVES", dail_to_decimate
   EditBox 80, 70, 180, 15, worker_number
   CheckBox 15, 95, 135, 10, "Check here to process for all workers.", all_workers_check
   ButtonGroup ButtonPressed
@@ -112,18 +128,18 @@ If dail_to_decimate = "ELIG" then STATS_manualtime = "25"                'manual
 If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
 Else
-	x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
+	x1s_from_dialog = split(worker_number, ", ")	'Splits the worker array based on commas
 
 	'Need to add the worker_county_code to each one
 	For each x1_number in x1s_from_dialog
 		If worker_array = "" then
 			worker_array = trim(ucase(x1_number))		'replaces worker_county_code if found in the typed x1 number
 		Else
-			worker_array = worker_array & ", " & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
+			worker_array = worker_array & "," & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
 		End if
 	Next
 	'Split worker_array
-	worker_array = split(worker_array, ", ")
+	worker_array = split(worker_array, ",")
 End if
 
 'Opening the Excel file
@@ -156,30 +172,17 @@ CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 
 'This for...next contains each worker indicated above
 For each worker in worker_array	
+	'msgbox worker
+	DO 
+		EMReadScreen dail_check, 4, 2, 48
+		If next_dail_check <> "DAIL" then CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
+	Loop until dail_check = "DAIL"
+	
 	EMWriteScreen worker, 21, 6
 	transmit
 	transmit 'transmit past 'not your dail message'
-
-	'selecting the type of DAIl message
-	EMWriteScreen "x", 4, 12		'transmits to the PICK screen
-	transmit
-	EMWriteScreen "_", 7, 39		'clears the all selection
-	'If dail_to_decimate = "" then EMWriteScreen "x", 7, 39
-	If dail_to_decimate = "COLA" then EMWriteScreen "x", 8, 39
-	'If dail_to_decimate = "" then EMWriteScreen "x", 9, 39
-	'If dail_to_decimate = "" then EMWriteScreen "x", 10, 39
-	If dail_to_decimate = "ELIG" then EMWriteScreen "x", 11, 39
-	'If dail_to_decimate = "" then EMWriteScreen "x", 12, 39
-	If dail_to_decimate = "INFO" then EMWriteScreen "x", 13, 39
-	'If dail_to_decimate = "SVES" then EMWriteScreen "x", 13, 39
-	'If dail_to_decimate = "" then EMWriteScreen "x", 14, 39
-	'If dail_to_decimate = "" then EMWriteScreen "x", 15, 39
- 	'If dail_to_decimate = "" then EMWriteScreen "x", 16, 39
-	'If dail_to_decimate = "" then EMWriteScreen "x", 17, 39
-	'If dail_to_decimate = "" then EMWriteScreen "x", 18, 39
-	'If dail_to_decimate = "" then EMWriteScreen "x", 19, 39
-	'If dail_to_decimate = "" then EMWriteScreen "x", 20, 39
-	transmit
+	
+	Call dail_selection
 	
 	EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
 	
@@ -258,24 +261,35 @@ For each worker in worker_array
 				add_to_excel = True
 			ElseIf instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") then 
 				add_to_excel = True
-			ElseIf instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO-APPROVED") then 
+				case_note = False	
+			ElseIf instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO") then 
 				add_to_excel = True
-			ElseIf instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO-APPROVED") then 
+				case_note = False	
+			ElseIf instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO") then 
 				add_to_excel = True
-			ElseIf instr(dail_msg, "MSA RECERT DUE - NOT AUTO-APPROVED") then 
-				add_to_excel = True	
+				case_note = False	
+			ElseIf instr(dail_msg, "MSA RECERT DUE - NOT AUTO") then 
+				add_to_excel = True
+				case_note = False
+			ElseIf instr(dail_msg, "MSA HRF DUE - NOT AUTO") then 
+				add_to_excel = True
+				case_note = False	
+			ElseIf instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO") then 
+				add_to_excel = True
+				case_note = False	
 			ElseIf instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE - REVIEW FOR MEDI UPDATES") then 
-				add_to_excel = True		
-			ElseIf instr(dail_msg, "NEW MSA ELIG AUTO-APPROVED") then 
+				add_to_excel = True
+				case_note = False			
+			ElseIf instr(dail_msg, "NEW MSA ELIG AUTO") then
 				add_to_excel = True
 				case_note = True
-			ElseIf instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO-APPROVED") then 
+			ElseIf instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO") then 
 				add_to_excel = True
 				case_note = True
-			ElseIf instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") then 
+			ElseIf instr(dail_msg, "SNAP: NEW VERSION AUTO") then 
 				add_to_excel = True
 				case_note = True
-			ElseIf instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") then 
+			ElseIf instr(dail_msg, "GRH: NEW VERSION AUTO") then       
 				add_to_excel = True
 				case_note = True
 			Else	
@@ -293,8 +307,7 @@ For each worker in worker_array
 				objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
 				excel_row = excel_row + 1
 				
-				If case_note = True then 
-			
+				If (DAIL_type = "COLA" and case_note = True) then 
 					Call write_value_and_transmit("N", dail_row, 3)	
 					EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
 					If PRIV_check = "PRIV" then
@@ -319,13 +332,36 @@ For each worker in worker_array
 				add_to_excel = False
 				dail_row = dail_row + 1
 			End if
-	    
-			'Checking next row to ensure that there is a DAIL message. If blank, it will exit the do.
+			
+			EMReadScreen message_error, 17, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
+			If message_error = "NO MESSAGES TYPES" then 
+				MsgBox message_error
+				CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
+				Call write_value_and_transmit(worker, 21, 6)
+				transmit   'transmit past 'not your dail message'
+				Call dail_selection	
+				MsgBox "where are we at?"
+				exit do
+			End if 
+	    	
+			'...going to the next page if necessary
 			EMReadScreen next_dail_check, 4, dail_row, 4
 			If trim(next_dail_check) = "" then 
-				all_done = true
-				exit do 
+				PF8
+				EMReadScreen last_page_check, 21, 24, 2
+				If last_page_check = "THIS IS THE LAST PAGE" then 
+					all_done = true
+					exit do 
+				Else 
+					dail_row = 6
+				End if 
 			End if
+			''Checking next row to ensure that there is a DAIL message. If blank, it will exit the do.
+			'EMReadScreen next_dail_check, 4, dail_row, 4
+			'If trim(next_dail_check) = "" then 
+			'	all_done = true
+			'	exit do 
+			'End if
 		LOOP
 		IF all_done = true THEN exit do
 	LOOP
