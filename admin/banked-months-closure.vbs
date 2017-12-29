@@ -65,25 +65,27 @@ BeginDialog case_number_dialog, 0, 0, 141, 95, "Enter the case number & footer m
   Text 35, 50, 40, 10, "Member #:"
 EndDialog
 
-BeginDialog banked_months_dialog, 0, 0, 241, 195, "Banked Months Closure Dialog"
-  DropListBox 120, 5, 100, 15, "Select one..."+chr(9)+"Non-Cooperation"+chr(9)+"All months used", closure_reason
-  EditBox 120, 25, 100, 15, counted_banked_months
-  CheckBox 15, 60, 165, 10, "SNAP approved to continue for the next month?", next_month_checkbox
-  CheckBox 15, 75, 155, 10, "Client does not meet an ABAWD exemption.", exemption_check
-  CheckBox 15, 90, 170, 10, "Client does not meet ABAWD 2nd set criteria.", second_set_check
-  CheckBox 15, 105, 120, 10, "Add applicable WCOM to notice?", add_WCOM_check
-  EditBox 130, 125, 45, 15, next_ABAWD_month
-  EditBox 65, 145, 170, 15, other_notes
-  EditBox 65, 165, 85, 15, worker_signature
+BeginDialog banked_months_dialog, 0, 0, 241, 205, "Banked Months Closure Dialog"
+  DropListBox 105, 5, 70, 15, "Select one..."+chr(9)+"Non-Cooperation"+chr(9)+"All months used"+chr(9)+"Other closure", closure_reason
+  EditBox 105, 25, 130, 15, closure_info
+  EditBox 105, 45, 70, 15, counted_banked_months
+  CheckBox 15, 80, 165, 10, "SNAP approved to continue for the next month?", next_month_checkbox
+  CheckBox 15, 95, 155, 10, "Client does not meet an ABAWD exemption.", exemption_check
+  CheckBox 15, 110, 170, 10, "Client does not meet ABAWD 2nd set criteria.", second_set_check
+  CheckBox 15, 125, 120, 10, "Add applicable WCOM to notice?", add_WCOM_check
+  EditBox 130, 145, 45, 15, next_ABAWD_month
+  EditBox 65, 165, 170, 15, other_notes
+  EditBox 65, 185, 80, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 155, 165, 40, 15
-    CancelButton 195, 165, 40, 15
-  Text 5, 30, 110, 10, "List counted banked months here:"
-  Text 5, 170, 60, 10, "Worker signature:"
-  GroupBox 5, 45, 215, 75, "Check all that apply to be added to the case note:"
-  Text 20, 10, 100, 10, "Banked months closure type:"
-  Text 20, 150, 40, 10, "Other notes:"
-  Text 10, 130, 120, 10, "When SNAP will be available again:"
+    OkButton 150, 185, 40, 15
+    CancelButton 195, 185, 40, 15
+  Text 5, 190, 60, 10, "Worker signature:"
+  GroupBox 5, 65, 230, 75, "Check all that apply to be added to the case note:"
+  Text 5, 10, 100, 10, "Banked months closure type:"
+  Text 20, 170, 40, 10, "Other notes:"
+  Text 10, 150, 120, 10, "When SNAP will be available again:"
+  Text 5, 50, 100, 10, "Counted Banked Months here:"
+  Text 5, 30, 100, 10, "If 'Other closure', explain here:"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -117,6 +119,7 @@ Do
   		Dialog banked_months_dialog
   		cancel_confirmation
 		If closure_reason = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a banked months closure type."
+		If closure_reason = "Other closure" and trim(closure_info) = "" then err_msg = err_msg & vbNewLine & "* Enter the other closure reason(s)."
 		If trim(counted_banked_months) = "" then err_msg = err_msg & vbNewLine & "* Enter all the banked months used."
 		If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
   		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -172,13 +175,14 @@ DO
 		col = 1
 		EMSearch "SOCWKR", row, col
 		IF row > 4 THEN  swkr_row = row     'Logs the row it found the SOCWKR string as swkr_row
-		EMWriteScreen "x", 5, 10                                        'We always send notice to client
-		IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-		IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+		EMWriteScreen "x", 5, 12                                        'We always send notice to client
+		IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+		IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 		transmit                                                        'Transmits to start the memo writing process'
 		EMSetCursor 03, 15
 		If closure_reason = "All months used" then CALL write_variable_in_SPEC_MEMO("You have been receiving SNAP banked months. Your SNAP is closing for using all available banked months. If you meet one of the exemptions listed above AND all other eligibility factors you may still be eligible for SNAP. Please call the EZ info line at 612-596-1300 if you have questions.")
 		If closure_reason = "Non-Cooperation" then CALL write_variable_in_SPEC_MEMO("You have been receiving SNAP banked months. Your SNAP case is closing because" & first_name & " did not meet the requirements of working with Employment and Training. If you feel you have Good Cause for not cooperating with this requirement please contact your employment and training contact before your SNAP closes. If your SNAP closes for not cooperating with Employment and Training you will not be eligible for future banked months. If you meet an exemption listed above, AND all other eligibility factors you may be eligible for SNAP. If you have questions please call the EZ info line at 612-596-1300.")
+		If closure_reason = "Other closure" then CALL write_variable_in_SPEC_MEMO("You have used all of your available ABAWD months. You may be eligible for SNAP banked months if you are cooperating with Employment Services. Please call the EZ info line at 612-596-1300 if you have questions.")
 		PF4
 		PF4
 		PF3
@@ -204,6 +208,12 @@ If closure_reason = "Non-Cooperation" then
 	header = "FORFEITED!"
 	closure_reason = "Non-cooperation with E & T. Client cannot use banked months any longer even if all months have not been used."
 	wcom_info = "banked months ending for SNAP E & T non-coop."
+End if 
+
+If closure_reason = "Other closure" then 
+	header = "Closed"
+	closure_reason = closure_info
+	wcom_info = "banked months may be available."
 End if 
 
 If next_month_checkbox = 1 then 
