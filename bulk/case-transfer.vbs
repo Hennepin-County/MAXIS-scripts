@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -1138,7 +1139,7 @@ If transfer_check = checked then
 				'Sending a memo if requested
 				navigate_to_MAXIS_screen "SPEC", "MEMO"
 				PF5
-				EMWriteScreen "x", 5, 10
+				EMWriteScreen "x", 5, 12
 				transmit
 				Call write_variable_in_SPEC_MEMO ("*** This is just an informational notice ***")
 				Call write_variable_in_SPEC_MEMO ("Your case has been transferred.")
