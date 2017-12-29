@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -143,14 +144,10 @@ If radiogroup1 = 0 then
 	END IF
 Else
 	'Navigating to SPEC/MEMO
-	call navigate_to_MAXIS_screen("SPEC", "MEMO")
-	'Creates a new MEMO. If it's unable the script will stop.
-	PF5
-	EMWriteScreen "x", 5, 10
-	transmit
+	call start_a_new_spec_memo
+	
 	'Sends the home key to get to the top of the memo.
 	EMSendKey "<home>"
-
 	'Enters different text for denials vs closures. This adds the different text to the first line
 	If how_case_ended = "denied" then EMSendKey "Your application was denied "
 	If how_case_ended = "closed" then EMSendKey "Your case was closed "
@@ -161,7 +158,6 @@ Else
 	PF3
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 End if
-
 
 'Enters case note
 start_a_blank_CASE_NOTE

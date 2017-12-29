@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/04/2017", "Added handling for multiple recipient changes to SPEC/WCOM", "David Courtright, St Louis County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -69,31 +70,28 @@ EndDialog
 '--------------------------------------------------------------------------------------------------------------------------------
 
 '--- The script -----------------------------------------------------------------------------------------------------------------
-
 EMConnect ""
 
 call MAXIS_case_number_finder(MAXIS_case_number)
 
 '1st Dialog ---------------------------------------------------------------------------------------------------------------------
-DO
-	err_msg = ""
-	dialog case_number_dlg
-	cancel_confirmation
-	IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number" & vbNewLine
-	IF len(approval_month) <> 2 THEN err_msg = err_msg & "Please enter your month in MM format." & vbNewLine
-	IF len(approval_year) <> 2 THEN err_msg = err_msg & "Please enter your year in YY format." & vbNewLine
-	IF worker_signature = "" THEN err_msg = err_msg & "Please enter your worker signature." & vbNewLine
-	IF err_msg <> "" THEN msgbox err_msg
-LOOP until err_msg = ""
-
-call check_for_maxis(false)
+Do 
+    DO
+    	err_msg = ""
+    	dialog case_number_dlg
+    	cancel_confirmation
+    	IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number" & vbNewLine
+    	IF len(approval_month) <> 2 THEN err_msg = err_msg & "Please enter your month in MM format." & vbNewLine
+    	IF len(approval_year) <> 2 THEN err_msg = err_msg & "Please enter your year in YY format." & vbNewLine
+    	IF worker_signature = "" THEN err_msg = err_msg & "Please enter your worker signature." & vbNewLine
+    	IF err_msg <> "" THEN msgbox err_msg
+    LOOP until err_msg = ""
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 'Creating HH member array-------------------------------------------------------------------------------------------------------------
 Msgbox "Select the SNAP ABAWD member(s) that is exempt due to a child under 18."
 CALL HH_member_custom_dialog(HH_member_array)
-
-
-call check_for_maxis(false)
 
 'Gathering/formatting variables---------------------------------------------------------------------------------------------------------------------
 back_to_self
@@ -147,9 +145,9 @@ DO
 		col = 1
 		EMSearch "SOCWKR", row, col
 		IF row > 4 THEN  swkr_row = row     'Logs the row it found the SOCWKR string as swkr_row
-		EMWriteScreen "x", 5, 10                                        'We always send notice to client
-		IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-		IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+		EMWriteScreen "x", 5, 12                                        'We always send notice to client
+		IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+		IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 		transmit                                                        'Transmits to start the memo writing process'
 	    EMSetCursor 03, 15
     	CALL write_variable_in_SPEC_MEMO(client_name & " is(are) exempt from Able Bodied Adult Without Dependents(ABAWD) work requirements due to a child(ren) under the age of 18 in the SNAP unit. ")
@@ -173,5 +171,3 @@ If WCOM_count = 0 THEN  'if no waiting FS notice is found
 ELSE 					'If a waiting FS notice is found
 	script_end_procedure("Success! The WCOM/CASE NOTE/TIKL have been added.")
 END IF
-
-script_end_procedure("")

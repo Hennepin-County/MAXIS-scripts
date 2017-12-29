@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/10/2017", "Updated TIKL functionality. A TIKL is created for Application Day 30 if NOMI is sent prior to Application Day 30. Otherwise a TIKL is created for an additional 10 days .", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Resolved merge conflict error.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/21/2016", "Removed Hennepin County specific NOMI process. Users will follow the process documented in POLI/TEMP TE02.05.15. Added TIKL to follow up on the application's progress. Added intial case number dialog to allow for the application date to be autofilled into the NOMI dialog. Removed message box to identify if case is a renewal. Replaced with a check box on the initial dialog.", "Ilse Ferris, Hennepin County")
@@ -136,39 +137,7 @@ If recert_checkbox = 1 then
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-	call navigate_to_MAXIS_screen("SPEC", "MEMO")		'Navigating to SPEC/MEMO
-	'Creates a new MEMO. If it's unable the script will stop.
-	PF5
-	EMReadScreen memo_display_check, 12, 2, 33
-	If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-
-	'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
-	row = 4                             'Defining row and col for the search feature.
-	col = 1
-	EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
-	IF row > 4 THEN                     'If it isn't 4, that means it was found.
-		arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
-		call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
-		EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
-		call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
-		PF5                                                     'PF5s again to initiate the new memo process
-	END IF
-
-	'Checking for SWKR
-	row = 4                             'Defining row and col for the search feature.
-	col = 1
-	EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
-	IF row > 4 THEN                     'If it isn't 4, that means it was found.
-		swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
-		call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
-		EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
-		call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
-		PF5                                           'PF5s again to initiate the new memo process
-	END IF
-	EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
-	IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-	transmit
+	call start_a_new_spec_memo
 
 	'Writes the info into the MEMO.
 	Call write_variable_in_SPEC_MEMO("************************************************************")

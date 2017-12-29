@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -823,31 +824,22 @@ Call check_for_MAXIS(False)
 
 'Creating an array from the member number list to get names for notice
 member_array = split(member_list, ",")
-	for each member in member_array
-		call navigate_to_MAXIS_screen("STAT", "MEMB")
-		member = replace(member, " ", "")
-		if len(member) = 1 then member = "0" & member
-		EMWriteScreen member, 20, 76
-		transmit
-		EMReadScreen name_long, 44, 6, 30
-		member_name = replace(name_long, "_", "")
-		member_name = replace(member_name, " First:", ",")
-		if members_to_attend <> "" then members_to_attend = members_to_attend & "; " & member_name
-		if members_to_attend = "" then members_to_attend = member_name
-	next
+for each member in member_array
+	call navigate_to_MAXIS_screen("STAT", "MEMB")
+	member = replace(member, " ", "")
+	if len(member) = 1 then member = "0" & member
+	EMWriteScreen member, 20, 76
+	transmit
+	EMReadScreen name_long, 44, 6, 30
+	member_name = replace(name_long, "_", "")
+	member_name = replace(member_name, " First:", ",")
+	if members_to_attend <> "" then members_to_attend = members_to_attend & "; " & member_name
+	if members_to_attend = "" then members_to_attend = member_name
+next
 
 'Navigating to SPEC/MEMO
-call navigate_to_MAXIS_screen("SPEC", "MEMO")
-
-'Creates a new MEMO. If it's unable the script will stop.
-PF5
-EMReadScreen memo_display_check, 12, 2, 33
-If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-EMWriteScreen "x", 5, 10
-transmit
-
-''Writes the MEMO.
-EMSetCursor 3, 15
+call start_a_new_spec_memo
+'Writes the MEMO.
 call write_variable_in_SPEC_MEMO("************************************************************")
 call write_variable_in_SPEC_MEMO("You are required to attend a Minnesota Family Investment Program financial orientation. The following members of your household need to attend this appointment: " & members_to_attend)
 call write_variable_in_SPEC_MEMO("Your orientation is scheduled on " & orientation_date & " at " & orientation_time & ".")
@@ -857,7 +849,6 @@ call write_variable_in_SPEC_MEMO("If you cannot attend this orientation, please 
 call write_variable_in_SPEC_MEMO("************************************************************")
 'Exits the MEMO
 PF4
-
 
 'Writes the case note----------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE

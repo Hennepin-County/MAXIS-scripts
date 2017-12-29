@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/6/2016", "Corrected bug which was leaving appointment time off of case notes for in office interviews.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Enabled access to Hennepin County users. Added TIKL, and added variables to allow DAIL scrubber support. Updated error message handling within dialog.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/20/2016", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -950,40 +951,7 @@ Do
 Loop until SELF_check <> "SELF"
 
 'Navigating to SPEC/MEMO
-call navigate_to_MAXIS_screen("SPEC", "MEMO")
-
-'Creates a new MEMO. If it's unable the script will stop.
-PF5
-EMReadScreen memo_display_check, 12, 2, 33
-If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-
-'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
-row = 4                             'Defining row and col for the search feature.
-col = 1
-EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
-IF row > 4 THEN                     'If it isn't 4, that means it was found.
-    arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
-    call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
-    EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
-    call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
-    PF5                                                     'PF5s again to initiate the new memo process
-END IF
-'Checking for SWKR
-row = 4                             'Defining row and col for the search feature.
-col = 1
-EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
-IF row > 4 THEN                     'If it isn't 4, that means it was found.
-    swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
-    call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
-    EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
-    call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
-    PF5                                           'PF5s again to initiate the new memo process
-END IF
-EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
-IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-transmit                                                        'Transmits to start the memo writing process
-
+Call start_a_new_spec_memo
 'Writes the MEMO.
 call write_variable_in_SPEC_MEMO("***********************************************************")
 IF app_type = "new application" then

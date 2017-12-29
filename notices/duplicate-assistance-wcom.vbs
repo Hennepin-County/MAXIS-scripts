@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/04/2017", "Added handling for multiple recipient changes to SPEC/WCOM", "David Courtright, St Louis County")
 call changelog_update("01/17/2017", "Added new option to write out of state duplicate assistance alternate text in SNAP WCOMS.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -67,7 +68,6 @@ BeginDialog dup_dlg, 0, 0, 156, 115, "Duplicate Assistance WCOM"
   Text 10, 45, 45, 20, "Footer Month (MM):"
   Text 85, 45, 40, 20, "Footer Year (YY):"
 EndDialog
-
 
 'The script-------------------------------------
 EMConnect ""
@@ -98,7 +98,6 @@ If len(MAXIS_footer_year) > 2 THEN MAXIS_footer_year = right(MAXIS_footer_year, 
 
 'Navigating to the spec wcom screen
 CALL Check_for_MAXIS(false)
-
 back_to_self
 
 Emwritescreen MAXIS_case_number, 18, 43
@@ -110,7 +109,6 @@ call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP 
 EMReadscreen forms_to_arep, 1, 10, 45
 call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
 EMReadscreen forms_to_swkr, 1, 15, 63
-
 
 CALL navigate_to_MAXIS_screen("SPEC", "WCOM")
 
@@ -134,9 +132,9 @@ Do
 			col = 1
 			EMSearch "SOCWKR", row, col
 			IF row > 4 THEN  swkr_row = row     'Logs the row it found the SOCWKR string as swkr_row
-			EMWriteScreen "x", 5, 10                                        'We always send notice to client
-			IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-			IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+			EMWriteScreen "x", 5, 12                                        'We always send notice to client
+			IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+			IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 			transmit                                                        'Transmits to start the memo writing process'
 			Emreadscreen fs_wcom_exists, 3, 3, 15
 			If fs_wcom_exists <> "   " then script_end_procedure ("It appears you already have a WCOM added to this notice. The script will now end.")
@@ -205,9 +203,9 @@ Do
 			col = 1
 			EMSearch "SOCWKR", row, col
 			IF row > 4 THEN  swkr_row = row     'Logs the row it found the SOCWKR string as swkr_row
-			EMWriteScreen "x", 5, 10                                        'We always send notice to client
-			IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-			IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+			EMWriteScreen "x", 5, 12                                        'We always send notice to client
+			IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+			IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 			transmit                                                        'Transmits to start the memo writing process'
 			Emreadscreen mf_wcom_exists, 3, 3, 15
 			If mf_wcom_exists <> "   " then script_end_procedure ("It appears you already have a WCOM added to this notice. The script will now end.")
@@ -239,6 +237,5 @@ Do
 	If spec_edit_check = "NOTICE" THEN no_mf_waiting = true
 Loop until spec_edit_check = "NOTICE"
 
-If no_fs_waiting = true AND no_mf_waiting = true then script_end_procedure("No waiting FS or MFIP notices were found for the requested month")
-
+If no_fs_waiting = true AND no_mf_waiting = true then script_end_procedure("No waiting FS or MFIP notices were found for the requested month.")
 script_end_procedure("WCOM has been added to the first found waiting SNAP and/or MFIP notice for the month and case selected. Please review the notice.")

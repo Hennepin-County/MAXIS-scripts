@@ -44,6 +44,7 @@
 
  'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
  'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+ CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
  call changelog_update("04/04/2017", "Added handling for multiple recipient changes to SPEC/WCOM", "David Courtright, St Louis County")
  call changelog_update("12/27/2016", "Script can now write to a MEMO is a waiting notice is not available/found.", "Charles Potter, DHS")
  call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -204,7 +205,6 @@ EMReadscreen forms_to_arep, 1, 10, 45
 call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
 EMReadscreen forms_to_swkr, 1, 15, 63
 
-
 'THE MEMO----------------------------------------------------------------------------------------------------------------
 CALL navigate_to_MAXIS_screen("SPEC", "WCOM")
 Emwritescreen "Y", 3, 74  'sorts by HC notices
@@ -235,67 +235,27 @@ If no_hc_waiting = true then
 END IF
 'based on output of fancy message box we either end the script or write the WCOM
 IF swap_to_memo = vbNo THEN script_end_procedure("No waiting HC results were found for the requested month")
-IF swap_to_memo = vbYes THEN
-  CALL navigate_to_MAXIS_screen("SPEC","MEMO")
-			PF5
-			'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
-			row = 4                             'Defining row and col for the search feature.
-			col = 1
-			EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
-			IF row > 4 THEN                     'If it isn't 4, that means it was found.
-				arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
-				call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
-				EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
-				call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
-				PF5                                                     'PF5s again to initiate the new memo process
-			END IF
-			'Checking for SWKR
-			row = 4                             'Defining row and col for the search feature.
-			col = 1
-			EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
-			IF row > 4 THEN                     'If it isn't 4, that means it was found.
-				swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
-				call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
-				EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
-				call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
-				PF5                                           'PF5s again to initiate the new memo process
-			END IF
-			EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
-			IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-			IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-			transmit
-      Write_variable_in_SPEC_MEMO("Although your spenddown is $" & spenddown & " your recipient amount (the amount you pay each month) is $" & recipient_amt & ". This is how the recipient amount is determined:")
-      Write_variable_in_SPEC_MEMO("Income: $" & income &" - MA Income Standard $" & income_standard & " = $" & spenddown)
-      Write_variable_in_SPEC_MEMO("Spenddown:            $" & spenddown)
-      If medi_part_a <> "" then Write_variable_in_SPEC_MEMO("Medicare Part A     - $" & medi_part_a)
-      If medi_part_b <> "" then Write_variable_in_SPEC_MEMO("Medicare Part B     - $" & medi_part_b)
-      If medi_part_d <> "" then Write_variable_in_SPEC_MEMO("Medicare Part D     - $" & medi_part_d)
-      If remedial_care <> "" then Write_variable_in_SPEC_MEMO("Remedial care       - $" & remedial_care)
-      If other_deductions <> "" then Write_variable_in_SPEC_MEMO("Other deductions    - $" & other_deductions)
-      If health_insa <> "" then Write_variable_in_SPEC_MEMO("Health insurance    - $" & health_insa)
-      Call Write_variable_in_SPEC_MEMO("Recipient amount:   = $" & recipient_amt)
-      If GRH_check = 1 Then Write_variable_in_SPEC_MEMO("This amount is in addition to your room and board.")
-      Write_variable_in_SPEC_MEMO("Please contact the agency with any questions. Thank you.")
-			PF4
-      script_end_procedure("Success! Your MEMO has been written. Please review it for accuracy, and PF4 to save.")
-END IF
+IF swap_to_memo = vbYes THEN 
+    CALL start_a_new_spec_memo
+Else       
+    'transmitting and putting wcom into edit mode
+    Transmit
+    PF9
+    'The script is now on the recipient selection screen.  Mark all recipients that need NOTICES
+    row = 4                             'Defining row and col for the search feature.
+    col = 1
+    EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+    IF row > 4 THEN  arep_row = row  'locating ALTREP location if it exists'
+    row = 4                             'reset row and col for the next search
+    col = 1
+    EMSearch "SOCWKR", row, col
+    IF row > 4 THEN  swkr_row = row     'Logs the row it found the SOCWKR string as swkr_row
+    EMWriteScreen "x", 5, 12                                        'We always send notice to client
+    IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+    IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+    transmit                                                        'Transmits to start the memo writing process'
+End if 
 
-'transmitting and putting wcom into edit mode
-Transmit
-PF9
-'The script is now on the recipient selection screen.  Mark all recipients that need NOTICES
-row = 4                             'Defining row and col for the search feature.
-col = 1
-EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
-IF row > 4 THEN  arep_row = row  'locating ALTREP location if it exists'
-row = 4                             'reset row and col for the next search
-col = 1
-EMSearch "SOCWKR", row, col
-IF row > 4 THEN  swkr_row = row     'Logs the row it found the SOCWKR string as swkr_row
-EMWriteScreen "x", 5, 10                                        'We always send notice to client
-IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-transmit                                                        'Transmits to start the memo writing process'
 'Worker Comment Input
 Write_variable_in_SPEC_MEMO("Although your spenddown is $" & spenddown & " your recipient amount (the amount you pay each month) is $" & recipient_amt & ". This is how the recipient amount is determined:")
 Write_variable_in_SPEC_MEMO("Income: $" & income &" - MA Income Standard $" & income_standard & " = $" & spenddown)
@@ -310,4 +270,4 @@ Call Write_variable_in_SPEC_MEMO("Recipient amount:   = $" & recipient_amt)
 If GRH_check = 1 Then Write_variable_in_SPEC_MEMO("This amount is in addition to your room and board.")
 Write_variable_in_SPEC_MEMO("Please contact the agency with any questions. Thank you.")
 
-script_end_procedure("Success! Your WCOM has been written. Please review it for accuracy, and PF4 to save.")
+script_end_procedure("Success! Your notice has been written. Please review it for accuracy, and PF4 to save.")

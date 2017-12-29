@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -62,8 +63,6 @@ BeginDialog NOTICES_overdue_baby_dialog, 0, 0, 141, 85, "NOTICES - OVERDUE BABY"
   Text 5, 25, 60, 15, "Worker Signature:"
 EndDialog
 
-EndDialog
-
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------
 'Connects to BlueZone default screen
 EMConnect ""
@@ -80,22 +79,9 @@ Loop until MAXIS_case_number <> "" and isnumeric(MAXIS_case_number) = true and w
 transmit
 call check_for_MAXIS(True)
 
-'Navigates into SPEC/MEMO
-	call navigate_to_MAXIS_screen("SPEC", "MEMO")
-
-'Checks to make sure we're past the SELF menu
-	EMReadScreen still_self, 27, 2, 28
-	If still_self = "Select Function Menu (SELF)" then script_end_procedure("Script was not able to get past SELF menu. Is case in background?")
-
-'Creates a new MEMO. If it's unable the script will stop.
-	PF5
-	EMReadScreen memo_display_check, 12, 2, 33
-	If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-	EMWriteScreen "x", 5, 10
-	transmit
+Call start_a_new_spec_memo
 
 'Writes the info into the MEMO
-EMSetCursor 3, 15
 call write_variable_in_SPEC_MEMO("Our records indicate your due date has passed and you did not report the birth of your child or the pregnancy end date. Please contact us within 10 days of this notice with the following information or your case may close:")
 call write_variable_in_SPEC_MEMO("")
 call write_variable_in_SPEC_MEMO("* Date of the birth or pregnancy end date.")
@@ -111,9 +97,7 @@ call write_variable_in_SPEC_MEMO("Thank you,")
 PF4
 
 'Navigates to blank case note
-call navigate_to_MAXIS_screen("CASE", "NOTE")
-PF9
-
+Call start_a_blank_CASE_NOTE
 'Writes the case note
 call write_variable_in_CASE_NOTE("***Overdue Baby***")
 call write_variable_in_CASE_NOTE("* SPEC/MEMO sent this date informing client that they need to report ")
