@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/30/2017", "Complete updates for INFO, SVES, COLA and ELIG messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/11/2017", "Added Quality Improvement Team as authorized users of DAIL Decimator script.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/05/2017", "Added ELIG DAIL messages as DAILs to decimate!", "Ilse Ferris, Hennepin County")
 call changelog_update("10/28/2017", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -307,22 +308,22 @@ For each worker in worker_array
 				objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
 				excel_row = excel_row + 1
 				
-				If (DAIL_type = "COLA" and case_note = True) then 
-					Call write_value_and_transmit("N", dail_row, 3)	
-					EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
-					If PRIV_check = "PRIV" then
-						msgbox "PRIV case, clear case and navigate back to the message."
-					Else 
-					    PF9
-					    CALL write_variable_in_case_note(dail_msg)
-					    CALL write_variable_in_case_note("Case was auto approved due to COLA changes")
-					    CALL write_variable_in_case_note("---")
-					    CALL write_variable_in_case_note(worker_signature)
-					    'Navigating back to DAIL/DAIL by pf3 2 times
-					    PF3
-					    PF3
-					End If 
-				END IF
+				'If (DAIL_type = "COLA" and case_note = True) then 
+				'	Call write_value_and_transmit("N", dail_row, 3)	
+				'	EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
+				'	If PRIV_check = "PRIV" then
+				'		msgbox "PRIV case, clear case and navigate back to the message."
+				'	Else 
+				'	    PF9
+				'	    CALL write_variable_in_case_note(dail_msg)
+				'	    CALL write_variable_in_case_note("Case was auto approved due to COLA changes")
+				'	    CALL write_variable_in_case_note("---")
+				'	    CALL write_variable_in_case_note(worker_signature)
+				'	    'Navigating back to DAIL/DAIL by pf3 2 times
+				'	    PF3
+				'	    PF3
+				'	End If 
+				'END IF
 				
 				Call write_value_and_transmit("D", dail_row, 3)	
 				EMReadScreen other_worker_error, 13, 24, 2
@@ -335,12 +336,10 @@ For each worker in worker_array
 			
 			EMReadScreen message_error, 17, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
 			If message_error = "NO MESSAGES TYPES" then 
-				MsgBox message_error
 				CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 				Call write_value_and_transmit(worker, 21, 6)
 				transmit   'transmit past 'not your dail message'
 				Call dail_selection	
-				MsgBox "where are we at?"
 				exit do
 			End if 
 	    	
@@ -356,12 +355,6 @@ For each worker in worker_array
 					dail_row = 6
 				End if 
 			End if
-			''Checking next row to ensure that there is a DAIL message. If blank, it will exit the do.
-			'EMReadScreen next_dail_check, 4, dail_row, 4
-			'If trim(next_dail_check) = "" then 
-			'	all_done = true
-			'	exit do 
-			'End if
 		LOOP
 		IF all_done = true THEN exit do
 	LOOP
