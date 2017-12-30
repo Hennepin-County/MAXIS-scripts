@@ -6,7 +6,7 @@
 
 'Default directory: used by the script to determine if we're scriptwriters or not (scriptwriters use a default directory traditionally).
 '	This is modified by the installer, which will determine if this is a scriptwriter or a production user.
-default_directory = "C:\MAXIS-Scripts\locally-installed-files"
+default_directory = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\"
 
 'Run locally: if this is set to "True", the scripts will run locally and bypass GitHub entirely. This is great for debugging or developing scripts.
 run_locally = false
@@ -95,7 +95,7 @@ use_master_branch = False
 'TRAINING CASE SCENARIO SETTINGS==========
 
 'This is a variable which decides the default location of training case scenario Excel sheets
-training_case_creator_excel_file_path = ""
+training_case_creator_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Instructions & Training Materials\Training materials\Training cases\TRAINING CASE SCENARIOS.xlsx"
 
 '========================================================================================================================================
 'ACTIONS TAKEN BASED ON COUNTY CUSTOM VARIABLES------------------------------------------------------------------------------
