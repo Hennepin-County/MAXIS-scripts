@@ -69,6 +69,7 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 
 Do 
 	dialog case_number_dialog
+	If ButtonPressed = 0 then StopScript
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
