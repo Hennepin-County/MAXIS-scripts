@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/29/2017", "Added all up-to-date DEU script to speciality power pad/DEU.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/22/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -99,65 +100,92 @@ script_num = 0
 ReDim Preserve script_array_DEU_main(script_num)
 Set script_array_DEU_main(script_num) = new script
 script_array_DEU_main(script_num).script_name 			= "ADH Info & Hearing"																'Script name
-script_array_DEU_main(script_num).file_name 			= "deu-adh-info-and-hearing.vbs"													'Script URL
+script_array_DEU_main(script_num).file_name 			= "adh-info-and-hearing.vbs"													'Script URL
 script_array_DEU_main(script_num).description 			= "Case note template the Administrative Disqualification Hearing process."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name 			= "Appeal Summary Comp"																'Script name
-script_array_DEU_main(script_num).file_name 			= "deu-appeal-summary-completed.vbs"												'Script URL
+script_array_DEU_main(script_num).script_name 			= " Appeal Summary Comp "																'Script name
+script_array_DEU_main(script_num).file_name 			= "appeal-summary-completed.vbs"												'Script URL
 script_array_DEU_main(script_num).description 			= "Case note template for documenting the appeal summary."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_DEU_main(script_num).script_name 			= "ATR Received"																'Script name
+script_array_DEU_main(script_num).file_name 			= "atr-received.vbs"												'Script URL
+script_array_DEU_main(script_num).description 			= "Case note template for documenting the ATR received. Also updates IULB."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
+Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_DEU_main(script_num).script_name 			= "BULK Cleared Match"																'Script name
-script_array_DEU_main(script_num).file_name 			= "deu-bulk-match-cleared.vbs"														'Script URL
+script_array_DEU_main(script_num).file_name 			= "bulk-match-cleared.vbs"														'Script URL
 script_array_DEU_main(script_num).description 			= "BULK script to clear multiple matches after being reviewed, and ready for INFC updates."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name			= "Client Non-Coop"													
-script_array_DEU_main(script_num).file_name				= "deu-non-cooperation.vbs"
-script_array_DEU_main(script_num).description			= "Case note template for documenting the non-cooperationg for a client."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
-Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name			= "Difference Notice"													
-script_array_DEU_main(script_num).file_name				= "deu-send-diff-match-notice.vbs"
-script_array_DEU_main(script_num).description			= "Action script that sends the differnce notice for an IEVS match."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
-Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name			= "DISQ deleted"													
-script_array_DEU_main(script_num).file_name				= "deu-disq-deleted.vbs"
-script_array_DEU_main(script_num).description			= "Case note template for case noting a disqualification that has been deleted."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
-Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_DEU_main(script_num).script_name			= "Match Cleared"													
-script_array_DEU_main(script_num).file_name				= "deu-match-cleared.vbs"
-script_array_DEU_main(script_num).description			= "Action script that assists in clearing IEVS matches."
+script_array_DEU_main(script_num).file_name				= "match-cleared.vbs"
+script_array_DEU_main(script_num).description			= "Action script that assists in clearing wage matches, including sending the Diff Notice."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name			= "PARIS Difference Notice"													
-script_array_DEU_main(script_num).file_name				= "deu-send-diff-paris-match.vbs"
-script_array_DEU_main(script_num).description			= "Action script that sends the difference notice for a PARIS match."
+script_array_DEU_main(script_num).script_name			= "Match Cleared NO DAIL"													
+script_array_DEU_main(script_num).file_name				= "match-cleared-no-dail.vbs"
+script_array_DEU_main(script_num).description			= "Action script that assists in clearing a WAGE match when no DAIL is available."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
+Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_DEU_main(script_num).script_name			= "Match Cleared-CC Claim Entered"													
+script_array_DEU_main(script_num).file_name				= "match-cleared-CC.vbs"
+script_array_DEU_main(script_num).description			= "Action script that assists in clearing a WAGE match when a claim has been entered."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
+Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_DEU_main(script_num).script_name			= "Match Cleared-CC Claim Entered NO DAIL"													
+script_array_DEU_main(script_num).file_name				= "match-cleared-CC-claim-entered-no-dail.vbs"
+script_array_DEU_main(script_num).description			= "Action script that assists in clearing a WAGE match when a claim has been entered and no DAIL is avail."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
+Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_DEU_main(script_num).script_name			= " Non-WAGE Match "													
+script_array_DEU_main(script_num).file_name				= "non-wage-match-cleared.vbs"
+script_array_DEU_main(script_num).description			= "Action script that assists in clearing UBEN and BEER matches."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
+Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_DEU_main(script_num).script_name			= "Overpayment Claim Entered"													
+script_array_DEU_main(script_num).file_name				= "overpayment-entered-by-deu.vbs"
+script_array_DEU_main(script_num).description			= "Notes script that assists in case noting overpayments."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_DEU_main(script_num).script_name			= "PARIS Match Cleared"													
-script_array_DEU_main(script_num).file_name				= "deu-paris-match-cleared-findings.vbs"
-script_array_DEU_main(script_num).description			= "Action script that assists in clearing PARIS matches.."
+script_array_DEU_main(script_num).file_name				= "paris-match-cleared.vbs"
+script_array_DEU_main(script_num).description			= "Action script that assists in clearing PARIS matches."
 
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
+Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_DEU_main(script_num).script_name			= "PARIS Match Claim Entered"													
+script_array_DEU_main(script_num).file_name				= "paris-match-claim-entered.vbs"
+script_array_DEU_main(script_num).description			= "Notes script that assists in entering a case note for claims entered on PARIS matches."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
+Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_DEU_main(script_num).script_name			= " UNVI Non-WAGE Match "													
+script_array_DEU_main(script_num).file_name				= "unvi-non-wage-match.vbs"
+script_array_DEU_main(script_num).description			= "Action script that assists in clearing UNVI matches."
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
 '	We're doing this because we want to assign a value to each button pressed, and we want
