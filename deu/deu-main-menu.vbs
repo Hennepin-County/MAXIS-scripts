@@ -99,7 +99,7 @@ script_array_DEU_main = array()
 script_num = 0
 ReDim Preserve script_array_DEU_main(script_num)
 Set script_array_DEU_main(script_num) = new script
-script_array_DEU_main(script_num).script_name 			= "ADH Info & Hearing"																'Script name
+script_array_DEU_main(script_num).script_name 			= "ADH Info and Hearing"																'Script name
 script_array_DEU_main(script_num).file_name 			= "adh-info-and-hearing.vbs"													'Script URL
 script_array_DEU_main(script_num).description 			= "Case note template the Administrative Disqualification Hearing process."
 
