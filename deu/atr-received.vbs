@@ -145,7 +145,7 @@ DO
 		EXIT DO
 	ELSE 
 		row = row + 1
-		'msgbox "row: " & row 
+		msgbox "row: " & row 
 		IF row = 17 THEN 
 			PF8
 			row = 7
