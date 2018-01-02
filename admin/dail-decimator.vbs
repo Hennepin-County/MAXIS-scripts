@@ -262,37 +262,26 @@ For each worker in worker_array
 				add_to_excel = True
 			ElseIf instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") then 
 				add_to_excel = True
-				case_note = False	
 			ElseIf instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO") then 
 				add_to_excel = True
-				case_note = False	
 			ElseIf instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO") then 
-				add_to_excel = True
-				case_note = False	
+				add_to_excel = True	
 			ElseIf instr(dail_msg, "MSA RECERT DUE - NOT AUTO") then 
 				add_to_excel = True
-				case_note = False
 			ElseIf instr(dail_msg, "MSA HRF DUE - NOT AUTO") then 
 				add_to_excel = True
-				case_note = False	
 			ElseIf instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO") then 
 				add_to_excel = True
-				case_note = False	
 			ElseIf instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE - REVIEW FOR MEDI UPDATES") then 
-				add_to_excel = True
-				case_note = False			
+				add_to_excel = True			
 			ElseIf instr(dail_msg, "NEW MSA ELIG AUTO") then
 				add_to_excel = True
-				case_note = True
 			ElseIf instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO") then 
 				add_to_excel = True
-				case_note = True
 			ElseIf instr(dail_msg, "SNAP: NEW VERSION AUTO") then 
 				add_to_excel = True
-				case_note = True
 			ElseIf instr(dail_msg, "GRH: NEW VERSION AUTO") then       
 				add_to_excel = True
-				case_note = True
 			Else	
 			    add_to_excel = False 
 			End if 
