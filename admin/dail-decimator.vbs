@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("01/02/2018", "Added Casey Love as autorized user of the script", "Ilse Ferris, Hennepin County")
+call changelog_update("01/02/2018", "Added Casey Love as autorized user of the script, and blanked out MAXIS case number for PRIV cases.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/30/2017", "Complete updates for INFO, SVES, COLA and ELIG messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/11/2017", "Added Quality Improvement Team as authorized users of DAIL Decimator script.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/05/2017", "Added ELIG DAIL messages as DAILs to decimate!", "Ilse Ferris, Hennepin County")
@@ -171,6 +171,7 @@ NEXT
 excel_row = 2
 deleted_dails = 0	'establishing the value of the count for deleted deleted_dails
 
+MAXIS_case_number = ""
 CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 
 'This for...next contains each worker indicated above
@@ -178,7 +179,10 @@ For each worker in worker_array
 	'msgbox worker
 	DO 
 		EMReadScreen dail_check, 4, 2, 48
-		If next_dail_check <> "DAIL" then CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
+		If next_dail_check <> "DAIL" then 
+			MAXIS_case_number = ""
+			CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
+		End if 
 	Loop until dail_check = "DAIL"
 	
 	EMWriteScreen worker, 21, 6
