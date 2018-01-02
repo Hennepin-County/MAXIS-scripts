@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("01/02/2018", "Added Casey Love as autorized user of the script, and blanked out MAXIS case number for PRIV cases.", "Ilse Ferris, Hennepin County")
+call changelog_update("01/02/2018", "Added Casey Love as autorized user of the script, blanked out MAXIS case number for PRIV cases, and merged SVES and INFO messages together into one option.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/30/2017", "Complete updates for INFO, SVES, COLA and ELIG messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/11/2017", "Added Quality Improvement Team as authorized users of DAIL Decimator script.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/05/2017", "Added ELIG DAIL messages as DAILs to decimate!", "Ilse Ferris, Hennepin County")
@@ -62,7 +62,6 @@ Function dail_selection
 	IF dail_to_decimate = "COLA" then selection_row = 8
 	IF dail_to_decimate = "ELIG" then selection_row = 11
 	IF dail_to_decimate = "INFO" then selection_row = 13
-	IF dail_to_decimate = "SVES" then selection_row = 13
 	
 	Call write_value_and_transmit("x", selection_row, 39)	
 End Function
@@ -71,7 +70,7 @@ End Function
 'END CHANGELOG BLOCK =======================================================================================================
 
 BeginDialog dail_dialog, 0, 0, 266, 110, "Dail Decimator dialog"
-  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"COLA"+chr(9)+"ELIG"+chr(9)+"INFO"+chr(9)+"SVES", dail_to_decimate
+  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"COLA"+chr(9)+"ELIG"+chr(9)+"INFO", dail_to_decimate
   EditBox 80, 70, 180, 15, worker_number
   CheckBox 15, 95, 135, 10, "Check here to process for all workers.", all_workers_check
   ButtonGroup ButtonPressed
@@ -85,7 +84,6 @@ EndDialog
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-worker_signature = "I. Ferris/BZS and QI Teams"
 
 'Grabbing user ID to validate user of script. Only some users are allowed to use this script.
 Set objNet = CreateObject("WScript.NetWork") 
@@ -218,8 +216,8 @@ For each worker in worker_array
 			dail_msg = trim(dail_msg)
 			stats_counter = stats_counter + 1
 		
-			'If instr(dail_msg, "TPQY RESPONSE") then 
-			' 	add_to_excel = True				'added this in for clearing the SVES messages
+			If instr(dail_msg, "TPQY RESPONSE") then 
+			 	add_to_excel = True				'added this in for clearing the SVES messages
 			If instr(dail_msg, "APPLCT ID CHNGD") then 
 			 	add_to_excel = True 
 			ElseIf instr(dail_msg, "CASE AUTOMATICALLY DENIED") then 
