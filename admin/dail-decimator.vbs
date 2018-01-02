@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/02/2018", "Added Casey Love as autorized user of the script", "Ilse Ferris, Hennepin County")
 call changelog_update("12/30/2017", "Complete updates for INFO, SVES, COLA and ELIG messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/11/2017", "Added Quality Improvement Team as authorized users of DAIL Decimator script.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/05/2017", "Added ELIG DAIL messages as DAILs to decimate!", "Ilse Ferris, Hennepin County")
@@ -102,7 +103,8 @@ If user_ID_for_validation = "ILFE001" OR _
 	user_ID_for_validation = "WFU161" OR _ 		
 	user_ID_for_validation = "WFS395" OR _ 		
 	user_ID_for_validation = "WFU851" OR _ 		
-	user_ID_for_validation = "WFX901" OR _ 		
+	user_ID_for_validation = "WFX901" OR _ 
+	user_ID_for_validation = "CALO001" OR _ 		
 	user_ID_for_validation = "WFI021" then 		
     'the dialog
     Do
