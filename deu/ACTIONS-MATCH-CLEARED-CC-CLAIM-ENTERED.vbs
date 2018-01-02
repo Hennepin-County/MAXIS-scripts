@@ -1,5 +1,5 @@
 'GATHERING STATS===========================================================================================
-name_of_script = "MATCH CLEARED CC CLAIM ENTERED UPDATE.vbs"
+name_of_script = "ACTIONS-MATCH-CLEARED-CC-CLAIM-ENTERED.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 180
@@ -44,11 +44,60 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("01/02/2018", "Corrected IEVS match error due to new year.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/14/2017", "Updated script to grab full income source for BEER messages.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("06/06/2017", "Initial version.", "MiKayla Handley, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+'Fun with dates! --Creating variables for the rolling 12 calendar months
+'current month -1
+CM_minus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", -1, date)            ), 2)
+CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
+'current month -2'
+CM_minus_2_mo =  right("0" &             DatePart("m",           DateAdd("m", -2, date)            ), 2)
+CM_minus_2_yr =  right(                  DatePart("yyyy",        DateAdd("m", -2, date)            ), 2)
+'current month -3'
+CM_minus_3_mo =  right("0" &             DatePart("m",           DateAdd("m", -3, date)            ), 2)
+CM_minus_3_yr =  right(                  DatePart("yyyy",        DateAdd("m", -3, date)            ), 2)
+'current month -4'
+CM_minus_4_mo =  right("0" &             DatePart("m",           DateAdd("m", -4, date)            ), 2)
+CM_minus_4_yr =  right(                  DatePart("yyyy",        DateAdd("m", -4, date)            ), 2)
+'current month -5'
+CM_minus_5_mo =  right("0" &             DatePart("m",           DateAdd("m", -5, date)            ), 2)
+CM_minus_5_yr =  right(                  DatePart("yyyy",        DateAdd("m", -5, date)            ), 2)
+'current month -6'
+CM_minus_6_mo =  right("0" &             DatePart("m",           DateAdd("m", -6, date)            ), 2)
+CM_minus_6_yr =  right(                  DatePart("yyyy",        DateAdd("m", -6, date)            ), 2)
+'current month -7'
+CM_minus_7_mo =  right("0" &             DatePart("m",           DateAdd("m", -7, date)            ), 2)
+CM_minus_7_yr =  right(                  DatePart("yyyy",        DateAdd("m", -7, date)            ), 2)
+'current month -8'
+CM_minus_8_mo =  right("0" &             DatePart("m",           DateAdd("m", -8, date)            ), 2)
+CM_minus_8_yr =  right(                  DatePart("yyyy",        DateAdd("m", -8, date)            ), 2)
+'current month -9'
+CM_minus_9_mo =  right("0" &             DatePart("m",           DateAdd("m", -9, date)            ), 2)
+CM_minus_9_yr =  right(                  DatePart("yyyy",        DateAdd("m", -9, date)            ), 2)
+'current month -10'
+CM_minus_10_mo =  right("0" &            DatePart("m",           DateAdd("m", -10, date)           ), 2)
+CM_minus_10_yr =  right(                 DatePart("yyyy",        DateAdd("m", -10, date)           ), 2)
+'current month -11'
+CM_minus_11_mo =  right("0" &            DatePart("m",           DateAdd("m", -11, date)           ), 2)
+CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -11, date)           ), 2)
+
+'Establishing value of variables for the rolling 12 months
+current_month = CM_mo & "/" & CM_yr
+current_month_minus_one = CM_minus_1_mo & "/" & CM_minus_1_yr
+current_month_minus_two = CM_minus_2_mo & "/" & CM_minus_2_yr
+current_month_minus_three = CM_minus_3_mo & "/" & CM_minus_3_yr
+current_month_minus_four = CM_minus_4_mo & "/" & CM_minus_4_yr
+current_month_minus_five = CM_minus_5_mo & "/" & CM_minus_5_yr
+current_month_minus_six = CM_minus_6_mo & "/" & CM_minus_6_yr
+current_month_minus_seven = CM_minus_7_mo & "/" & CM_minus_7_yr
+current_month_minus_eight = CM_minus_8_mo & "/" & CM_minus_8_yr
+current_month_minus_nine = CM_minus_9_mo & "/" & CM_minus_9_yr
+current_month_minus_ten = CM_minus_10_mo & "/" & CM_minus_10_yr
+current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
 
 function DEU_password_check(end_script)
 '--- This function checks to ensure the user is in a MAXIS panel
@@ -147,15 +196,16 @@ DO
 LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 CALL DEU_password_check(False)
 '----------------------------------------------------------------------------------------------------Creating the quarter
-CM_minus_6_yr =  right(DatePart("yyyy", DateAdd("m", -6, date)), 2)
 IF select_quarter = "1" THEN
-    IEVS_period = "01-" & CM_yr & "/03-" & CM_yr
+                IEVS_period = "01-" & CM_minus_1_yr & "/03-" & CM_minus_1_yr
 ELSEIF select_quarter = "2" THEN
-    IEVS_period = "04-" & CM_yr & "/06-" & CM_yr
+                IEVS_period = "04-" & CM_minus_1_yr & "/06-" & CM_minus_1_yr
 ELSEIF select_quarter = "3" THEN
-    IEVS_period = "07-" & CM_yr & "/09-" & CM_yr
+                IEVS_period = "07-" & CM_minus_1_yr  & "/09-" & CM_minus_1_yr
 ELSEIF select_quarter = "4" THEN
-    IEVS_period = "10-" & CM_minus_6_yr & "/12-" & CM_minus_6_yr
+                IEVS_period = "10-" & CM_minus_6_yr & "/12-" & CM_minus_6_yr
+ELSEIF select_quarter = "YEAR" THEN
+				IEVS_period = right(DatePart("yyyy",DateAdd("yyyy", -1, date)), 2) 
 END IF
 
 '----------------------------------------------------------------------------------------------------IEVS
@@ -258,7 +308,7 @@ length = len(source_income)		'establishing the length of the variable
 IF instr(source_income, " AMOUNT: $") THEN 						  
     position = InStr(source_income, " AMOUNT: $")    		      'sets the position at the deliminator  
     source_income = Left(source_income, position)  'establishes employer as being before the deliminator
-Elseif instr(source_income, " AMT:") THEN 					  'establishing the length of the variable
+Elseif instr(source_income, " AMT: $") THEN 					  'establishing the length of the variable
     position = InStr(source_income, " AMT: $")    		      'sets the position at the deliminator  
     source_income = Left(source_income, position)  'establishes employer as being before the deliminator
 Else

@@ -1,5 +1,5 @@
 ''GATHERING STATS===========================================================================================
-name_of_script = "WAGE MATCH CLEARED.vbs"
+name_of_script = "DAIL-WAGE-MATCH-CLEARED.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 300
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("01/02/2018", "Corrected IEVS match error due to new year.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/27/2017", "Updated to handle clearing the match when the date is over 45 days.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/27/2017", "Updated to handle clearing the match BE-OP entered.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/13/2017", "Updated correct handling for BEER matches.", "MiKayla Handley, Hennepin County")
@@ -56,6 +57,55 @@ CALL changelog_update("11/14/2017", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'Fun with dates! --Creating variables for the rolling 12 calendar months
+'current month -1
+CM_minus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", -1, date)            ), 2)
+CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
+'current month -2'
+CM_minus_2_mo =  right("0" &             DatePart("m",           DateAdd("m", -2, date)            ), 2)
+CM_minus_2_yr =  right(                  DatePart("yyyy",        DateAdd("m", -2, date)            ), 2)
+'current month -3'
+CM_minus_3_mo =  right("0" &             DatePart("m",           DateAdd("m", -3, date)            ), 2)
+CM_minus_3_yr =  right(                  DatePart("yyyy",        DateAdd("m", -3, date)            ), 2)
+'current month -4'
+CM_minus_4_mo =  right("0" &             DatePart("m",           DateAdd("m", -4, date)            ), 2)
+CM_minus_4_yr =  right(                  DatePart("yyyy",        DateAdd("m", -4, date)            ), 2)
+'current month -5'
+CM_minus_5_mo =  right("0" &             DatePart("m",           DateAdd("m", -5, date)            ), 2)
+CM_minus_5_yr =  right(                  DatePart("yyyy",        DateAdd("m", -5, date)            ), 2)
+'current month -6'
+CM_minus_6_mo =  right("0" &             DatePart("m",           DateAdd("m", -6, date)            ), 2)
+CM_minus_6_yr =  right(                  DatePart("yyyy",        DateAdd("m", -6, date)            ), 2)
+'current month -7'
+CM_minus_7_mo =  right("0" &             DatePart("m",           DateAdd("m", -7, date)            ), 2)
+CM_minus_7_yr =  right(                  DatePart("yyyy",        DateAdd("m", -7, date)            ), 2)
+'current month -8'
+CM_minus_8_mo =  right("0" &             DatePart("m",           DateAdd("m", -8, date)            ), 2)
+CM_minus_8_yr =  right(                  DatePart("yyyy",        DateAdd("m", -8, date)            ), 2)
+'current month -9'
+CM_minus_9_mo =  right("0" &             DatePart("m",           DateAdd("m", -9, date)            ), 2)
+CM_minus_9_yr =  right(                  DatePart("yyyy",        DateAdd("m", -9, date)            ), 2)
+'current month -10'
+CM_minus_10_mo =  right("0" &            DatePart("m",           DateAdd("m", -10, date)           ), 2)
+CM_minus_10_yr =  right(                 DatePart("yyyy",        DateAdd("m", -10, date)           ), 2)
+'current month -11'
+CM_minus_11_mo =  right("0" &            DatePart("m",           DateAdd("m", -11, date)           ), 2)
+CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -11, date)           ), 2)
+
+'Establishing value of variables for the rolling 12 months
+current_month = CM_mo & "/" & CM_yr
+current_month_minus_one = CM_minus_1_mo & "/" & CM_minus_1_yr
+current_month_minus_two = CM_minus_2_mo & "/" & CM_minus_2_yr
+current_month_minus_three = CM_minus_3_mo & "/" & CM_minus_3_yr
+current_month_minus_four = CM_minus_4_mo & "/" & CM_minus_4_yr
+current_month_minus_five = CM_minus_5_mo & "/" & CM_minus_5_yr
+current_month_minus_six = CM_minus_6_mo & "/" & CM_minus_6_yr
+current_month_minus_seven = CM_minus_7_mo & "/" & CM_minus_7_yr
+current_month_minus_eight = CM_minus_8_mo & "/" & CM_minus_8_yr
+current_month_minus_nine = CM_minus_9_mo & "/" & CM_minus_9_yr
+current_month_minus_ten = CM_minus_10_mo & "/" & CM_minus_10_yr
+current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
+                             
 
 function DEU_password_check(end_script)
 '--- This function checks to ensure the user is in a MAXIS panel
@@ -102,7 +152,7 @@ CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
 EMReadScreen error_msg, 7, 24, 2
 IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
 
-row = 7
+
 '-------------------------------------------------------------------Ensuring that match has not already been resolved.
 Row = 7
 DO 
@@ -110,6 +160,7 @@ DO
 	IF trim(IEVS_match) = "" THEN script_end_procedure("IEVS match for the selected period could not be found. The script will now end.")
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
 	"   " & IEVS_match, vbYesNoCancel, "Please confirm this match")
+	msgbox IEVS_match
 	IF ievp_info_confirmation = vbNo THEN 
 		row = row + 1
 		'msgbox "row: " & row 
@@ -130,34 +181,7 @@ IF multiple_match = IEVS_period THEN
 ELSE 
 	CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 END IF
-'Do
-'	EMReadScreen days_pending, 2, row, 74
-'	days_pending = trim(days_pending)
-'	IF IsNumeric(days_pending) = false THEN 
-'		script_end_procedure("No pending IEVS match found. Please review IEVP.")
-'	ELSE
-'		'Entering the IEVS match & reading the difference notice to ensure this has been sent
-'		EMReadScreen IEVS_period, 11, row, 47
-'		EMReadScreen start_month, 2, row, 47
-'		EMReadScreen end_month, 2, row, 53
-'		IF trim(start_month) = "" or trim(end_month) = "" THEN 
-'			Found_match = False
-'		ELSE
-'			month_difference = abs(end_month) - abs(start_month)
-'			IF (IEVS_type = "WAGE" and month_difference = 2) THEN 'ensuring if it is a wage the match is a quarter'
-'				found_match = true
-'				EXIT DO
-'			ELSEIF (IEVS_type = "BEER" and month_difference = 11) THEN  'ensuring that if it a beer that the match is a year'
-'				found_match = True
-'				EXIT DO
-'			END IF
-'		END IF
-'		row = row + 1
-'	END IF
-'LOOP UNTIL row = 17
-'IF found_match = False THEN script_end_procedure("No pending IEVS match found. Please review IEVP.")
-'---------------------------------------------------------------------IULA
-'CALL write_value_and_transmit("U", row, 3)  
+
 '---------------------------------------------------------------------Reading potential errors for out-of-county cases
 EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" THEN
@@ -214,7 +238,7 @@ length = len(source_income)		'establishing the length of the variable
 IF instr(source_income, " AMOUNT: $") THEN 						  
     position = InStr(source_income, " AMOUNT: $")    		      'sets the position at the deliminator  
     source_income = Left(source_income, position)  'establishes employer as being before the deliminator
-Elseif instr(source_income, " AMT:") THEN 					  'establishing the length of the variable
+Elseif instr(source_income, " AMT: $") THEN 					  'establishing the length of the variable
     position = InStr(source_income, " AMT: $")    		      'sets the position at the deliminator  
     source_income = Left(source_income, position)  'establishes employer as being before the deliminator
 Else

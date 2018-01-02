@@ -1,4 +1,4 @@
-name_of_script = "PARIS MATCH CLEARED.vbs"
+name_of_script = "ACTIONS-PARIS-MATCH-CLEARED.vbs"
 start_time = timer
 STATS_counter = 1              'sets the stats counter at one
 STATS_manualtime = 300         'manual run time in seconds

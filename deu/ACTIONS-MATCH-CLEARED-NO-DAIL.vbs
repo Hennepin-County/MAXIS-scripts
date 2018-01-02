@@ -1,5 +1,5 @@
 ''GATHERING STATS===========================================================================================
-name_of_script = "MATCH CLEARED NO DAIL.vbs"
+name_of_script = "ACTIONS-MATCH-CLEARED-NO-DAIL.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 300
@@ -44,10 +44,59 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("01/02/2018", "Corrected IEVS match error due to new year.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/11/2017", "Initial version.", "MiKayla Handley, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 '=======================================================================================================END CHANGELOG BLOCK
+'Fun with dates! --Creating variables for the rolling 12 calendar months
+'current month -1
+CM_minus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", -1, date)            ), 2)
+CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
+'current month -2'
+CM_minus_2_mo =  right("0" &             DatePart("m",           DateAdd("m", -2, date)            ), 2)
+CM_minus_2_yr =  right(                  DatePart("yyyy",        DateAdd("m", -2, date)            ), 2)
+'current month -3'
+CM_minus_3_mo =  right("0" &             DatePart("m",           DateAdd("m", -3, date)            ), 2)
+CM_minus_3_yr =  right(                  DatePart("yyyy",        DateAdd("m", -3, date)            ), 2)
+'current month -4'
+CM_minus_4_mo =  right("0" &             DatePart("m",           DateAdd("m", -4, date)            ), 2)
+CM_minus_4_yr =  right(                  DatePart("yyyy",        DateAdd("m", -4, date)            ), 2)
+'current month -5'
+CM_minus_5_mo =  right("0" &             DatePart("m",           DateAdd("m", -5, date)            ), 2)
+CM_minus_5_yr =  right(                  DatePart("yyyy",        DateAdd("m", -5, date)            ), 2)
+'current month -6'
+CM_minus_6_mo =  right("0" &             DatePart("m",           DateAdd("m", -6, date)            ), 2)
+CM_minus_6_yr =  right(                  DatePart("yyyy",        DateAdd("m", -6, date)            ), 2)
+'current month -7'
+CM_minus_7_mo =  right("0" &             DatePart("m",           DateAdd("m", -7, date)            ), 2)
+CM_minus_7_yr =  right(                  DatePart("yyyy",        DateAdd("m", -7, date)            ), 2)
+'current month -8'
+CM_minus_8_mo =  right("0" &             DatePart("m",           DateAdd("m", -8, date)            ), 2)
+CM_minus_8_yr =  right(                  DatePart("yyyy",        DateAdd("m", -8, date)            ), 2)
+'current month -9'
+CM_minus_9_mo =  right("0" &             DatePart("m",           DateAdd("m", -9, date)            ), 2)
+CM_minus_9_yr =  right(                  DatePart("yyyy",        DateAdd("m", -9, date)            ), 2)
+'current month -10'
+CM_minus_10_mo =  right("0" &            DatePart("m",           DateAdd("m", -10, date)           ), 2)
+CM_minus_10_yr =  right(                 DatePart("yyyy",        DateAdd("m", -10, date)           ), 2)
+'current month -11'
+CM_minus_11_mo =  right("0" &            DatePart("m",           DateAdd("m", -11, date)           ), 2)
+CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -11, date)           ), 2)
+
+'Establishing value of variables for the rolling 12 months
+current_month = CM_mo & "/" & CM_yr
+current_month_minus_one = CM_minus_1_mo & "/" & CM_minus_1_yr
+current_month_minus_two = CM_minus_2_mo & "/" & CM_minus_2_yr
+current_month_minus_three = CM_minus_3_mo & "/" & CM_minus_3_yr
+current_month_minus_four = CM_minus_4_mo & "/" & CM_minus_4_yr
+current_month_minus_five = CM_minus_5_mo & "/" & CM_minus_5_yr
+current_month_minus_six = CM_minus_6_mo & "/" & CM_minus_6_yr
+current_month_minus_seven = CM_minus_7_mo & "/" & CM_minus_7_yr
+current_month_minus_eight = CM_minus_8_mo & "/" & CM_minus_8_yr
+current_month_minus_nine = CM_minus_9_mo & "/" & CM_minus_9_yr
+current_month_minus_ten = CM_minus_10_mo & "/" & CM_minus_10_yr
+current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
 
 function DEU_password_check(end_script)
 '--- This function checks to ensure the user is in a MAXIS panel
@@ -77,7 +126,7 @@ BeginDialog update_action_dialog, 0, 0, 181, 155, "WAGE MATCH UPDATE"
   EditBox 55, 5, 55, 15, MAXIS_case_number
   EditBox 155, 5, 20, 15, MEMB_Number
   DropListBox 90, 25, 85, 15, "Select One:"+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BE - OP Entered"+chr(9)+"BE - NC Non-collectible"+chr(9)+"BO - Other"+chr(9)+"BP - Wrong Person"+chr(9)+"CC - Claim Entered"+chr(9)+"NC - Non Cooperation", resolution_status
-  DropListBox 90, 45, 60, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR", IEVS_quarter
+  DropListBox 90, 45, 60, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR", select_quarter
   DropListBox 90, 65, 60, 15, "Select One:"+chr(9)+"WAGE"+chr(9)+"NON-WAGE", IEVS_type
   DropListBox 90, 85, 85, 15, "Select One:"+chr(9)+"DELETED DISQ"+chr(9)+"PENDING VERF"+chr(9)+"N/A", DISQ_action
   EditBox 50, 105, 125, 15, other_notes
@@ -107,15 +156,15 @@ LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 CALL DEU_password_check(False)
 
 '-------------------------------------------------------------------------------------------Defaulting the quarters 
-IF IEVS_quarter = "1" THEN
-                IEVS_period = "01-" & CM_yr & "/03-" & CM_yr
-ELSEIF IEVS_quarter = "2" THEN
-                IEVS_period = "04-" & CM_yr & "/06-" & CM_yr
-ELSEIF IEVS_quarter = "3" THEN
-                IEVS_period = "07-" & CM_yr & "/09-" & CM_yr
-ELSEIF IEVS_quarter = "4" THEN
+IF select_quarter = "1" THEN
+                IEVS_period = "01-" & CM_minus_1_yr & "/03-" & CM_minus_1_yr
+ELSEIF select_quarter = "2" THEN
+                IEVS_period = "04-" & CM_minus_1_yr & "/06-" & CM_minus_1_yr
+ELSEIF select_quarter = "3" THEN
+                IEVS_period = "07-" & CM_minus_1_yr  & "/09-" & CM_minus_1_yr
+ELSEIF select_quarter = "4" THEN
                 IEVS_period = "10-" & CM_minus_6_yr & "/12-" & CM_minus_6_yr
-ELSEIF IEVS_quarter = "YEAR" THEN
+ELSEIF select_quarter = "YEAR" THEN
 				IEVS_period = right(DatePart("yyyy",DateAdd("yyyy", -1, date)), 2) 
 END IF
 
@@ -279,17 +328,17 @@ TRANSMIT 'this will take us back to IEVP main menu'
 ''------------------------------------------------------------------back on the IEVP menu, making sure that the match cleared
 IF IEVS_type = "WAGE" THEN
 	'Updated IEVS_period to write into case note
-	IF quarter = 1 THEN IEVS_quarter = "1ST"
-	IF quarter = 2 THEN IEVS_quarter = "2ND"
-	IF quarter = 3 THEN IEVS_quarter = "3RD"
-	IF quarter = 4 THEN IEVS_quarter = "4TH"
+	IF quarter = 1 THEN select_quarter = "1ST"
+	IF quarter = 2 THEN select_quarter = "2ND"
+	IF quarter = 3 THEN select_quarter = "3RD"
+	IF quarter = 4 THEN select_quarter = "4TH"
 END IF
 IEVS_period = replace(IEVS_period, "/", " to ")
 Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 PF3 'back to the DAIL'
   '----------------------------------------------------------------the case match CLEARED note
 start_a_blank_CASE_NOTE
-IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH " & "(" & first_name & ") CLEARED " & rez_status & "-----")
+IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & select_quarter & " QTR " & IEVS_year & " WAGE MATCH " & "(" & first_name & ") CLEARED " & rez_status & "-----")
 IF IEVS_type = "NON-WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
 CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
   	CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
