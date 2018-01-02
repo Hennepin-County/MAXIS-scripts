@@ -218,7 +218,7 @@ For each worker in worker_array
 		
 			If instr(dail_msg, "TPQY RESPONSE") then 
 			 	add_to_excel = True				'added this in for clearing the SVES messages
-			If instr(dail_msg, "APPLCT ID CHNGD") then 
+			ElseIf instr(dail_msg, "APPLCT ID CHNGD") then 
 			 	add_to_excel = True 
 			ElseIf instr(dail_msg, "CASE AUTOMATICALLY DENIED") then 
 			 	add_to_excel = True 
