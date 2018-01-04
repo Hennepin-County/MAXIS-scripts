@@ -1,13 +1,3 @@
-'This script is not complete. It was created to update a single FACI for the time being. 
-'This will need to be enhanced in the future to hold the address as a variables, and not hard coded. 
-
-'LOADING GLOBAL VARIABLES
-Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("T:\Eligibility Support\Scripts\Script Files\SETTINGS - GLOBAL VARIABLES.vbs")
-text_from_the_other_script = fso_command.ReadAll
-fso_command.Close
-Execute text_from_the_other_script
-
 'Required for statistical purposes===============================================================================
 name_of_script = "BULK - FACI ADDR CHANGE.vbs"
 start_time = timer

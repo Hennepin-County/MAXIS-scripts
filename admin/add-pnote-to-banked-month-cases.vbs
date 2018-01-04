@@ -1,10 +1,3 @@
-'LOADING GLOBAL VARIABLES
-Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("T:\Eligibility Support\Scripts\Script Files\SETTINGS - GLOBAL VARIABLES.vbs")
-text_from_the_other_script = fso_command.ReadAll
-fso_command.Close
-Execute text_from_the_other_script
-
 'Required for statistical purposes===============================================================================
 name_of_script = "BULK - ADD PNOTE TO BANKED MONTHS CASES.vbs"
 start_time = timer
