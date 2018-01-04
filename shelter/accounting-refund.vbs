@@ -1,5 +1,5 @@
 'GATHERING STATS===========================================================================================
-name_of_script = "ACCT-Accounting Refund.vbs"
+name_of_script = "ACCT - Accounting Refund.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 180

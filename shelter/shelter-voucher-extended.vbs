@@ -1,5 +1,5 @@
 '---------------------------------------------------------------------------------------------------STATS GATHERING-
-name_of_script = "SHELTER-VOUCHER EXTENDED.vbs"
+name_of_script = "NOTES - SHELTER-VOUCHER EXTENDED.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 0         	'manual run time in seconds

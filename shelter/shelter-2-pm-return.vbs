@@ -1,5 +1,5 @@
 'GATHERING STATS===========================================================================================
-name_of_script = "SHELTER-2 PM RETURN.vbs"
+name_of_script = "NOTES - SHELTER-2 PM RETURN.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 180
