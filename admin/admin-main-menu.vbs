@@ -48,7 +48,7 @@ changelog_display
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_admin_menu_dialog(script_array)
-	BeginDialog admin_dialog, 0, 0, 516, 180, "Admin Scripts"
+	BeginDialog admin_dialog, 0, 0, 516, 280, "Admin Scripts"
 	 	Text 5, 5, 435, 10, "Admin scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 		 	'PushButton 015, 35, 40, 15, "CA", 				admin_main_button
@@ -69,7 +69,7 @@ Function declare_admin_menu_dialog(script_array)
 			button_placeholder = button_placeholder + 1
 		next
 
-		CancelButton 455, 155, 50, 15
+		CancelButton 455, 260, 50, 15
 		'GroupBox 5, 20, 205, 35, "admin Sub-Menus"
 	EndDialog
 End function
@@ -96,6 +96,20 @@ script_array_admin_main = array()
 
 'Resetting the variable
 script_num = 0
+ReDim Preserve script_array_admin_main(script_num)
+Set script_array_admin_main(script_num) = new script
+script_array_admin_main(script_num).script_name 		= " ABAWD Report "											'Script name
+script_array_admin_main(script_num).file_name 			= "abawd-report.vbs"										'Script URL
+script_array_admin_main(script_num).description 		= "BULK script that gathers ABAWD/FSET codes for members on SNAP/MFIP active cases."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_admin_main(script_num)
+Set script_array_admin_main(script_num) = new script
+script_array_admin_main(script_num).script_name 		= "Auto-Dialer Case Status"											'Script name
+script_array_admin_main(script_num).file_name 			= "auto-dialer-case-status.vbs"										'Script URL
+script_array_admin_main(script_num).description 		= "BULK script that gathers case status for cases with recerts for SNAP/MFIP the previous month."
+
+script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)
 Set script_array_admin_main(script_num) = new script
 script_array_admin_main(script_num).script_name 		= "Banked Months Closure"											'Script name
@@ -133,6 +147,13 @@ script_array_admin_main(script_num).description			= "Adds additional information
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
 Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_admin_main(script_num).script_name			= "Interview Required"													'Script name
+script_array_admin_main(script_num).file_name			= "interview-required.vbs"												'Script URL
+script_array_admin_main(script_num).description			= "BULK script to collect case information for cases that require an interview for SNAP/MFIP."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
+Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_admin_main(script_num).script_name			= "Language Stats"													'Script name
 script_array_admin_main(script_num).file_name			= "language-stats.vbs"												'Script URL
 script_array_admin_main(script_num).description			= "Collects language statistics by language and region. Take approximately 10 hours to run."
@@ -154,9 +175,30 @@ script_array_admin_main(script_num).description			= "Creates a list of informati
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
 Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_admin_main(script_num).script_name			= "Sanction Member Info"										'Script name
+script_array_admin_main(script_num).file_name			= "sanction-member-info.vbs"									'Script URL
+script_array_admin_main(script_num).description			= "BULK script to gather information for for MFIP participants on REPT/MFCM."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
+Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_admin_main(script_num).script_name			= "Send CBO Manual Referrals"										'Script name
 script_array_admin_main(script_num).file_name			= "send-cbo-manual-referrals.vbs"									'Script URL
 script_array_admin_main(script_num).description			= "Sends manual referrals for a list of cases provided by Employment and Training."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
+Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_admin_main(script_num).script_name			= "UNEA Updater"										'Script name
+script_array_admin_main(script_num).file_name			= "unea-updater.vbs"									'Script URL
+script_array_admin_main(script_num).description			= "BULK script that updates UNEA information and sends SPEC/MEMO for VA cases at ER."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
+Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_admin_main(script_num).script_name			= "Update Banked Month Case Review List"										'Script name
+script_array_admin_main(script_num).file_name			= "update-BM-case-review-list.vbs"									'Script URL
+script_array_admin_main(script_num).description			= "BULK script that updates monthly banked month statuses on INAC and most EXEMPT cases."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
