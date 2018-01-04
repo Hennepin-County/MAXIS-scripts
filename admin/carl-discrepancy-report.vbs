@@ -1,4 +1,5 @@
 ''STATS GATHERING----------------------------------------------------------------------------------------------------
+name_of_script = "BULK - CARL DISCREPANCY REPORT.vbs"
 start_time = timer
 STATS_counter = 1                       'sets the stats counter at one
 STATS_denomination = "C"       			'C is for each CASE
