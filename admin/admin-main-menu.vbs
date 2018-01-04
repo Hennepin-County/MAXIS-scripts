@@ -105,9 +105,9 @@ script_array_admin_main(script_num).description 		= "Completes closure case note
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
 Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_admin_main(script_num).script_name			= "Carl Renewals"													'Script name
-script_array_admin_main(script_num).file_name			= "carl-renewals.vbs"												'Script URL
-script_array_admin_main(script_num).description			= "Creates a list of cases that are due for renewal and adds CARL specific information."
+script_array_admin_main(script_num).script_name			= "Carl Discrepancy Report"													'Script name
+script_array_admin_main(script_num).file_name			= "carl-discrepancy-report.vbs"												'Script URL
+script_array_admin_main(script_num).description			= "Processes a list of cases that are missing a CARL assignment."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
