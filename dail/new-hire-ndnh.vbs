@@ -46,6 +46,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/05/2018", "Updated coordinates in STAT/JOBS for income type and verification codes.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/30/2017", "Updated NDNH new hire DAIL scrubber with INFC case action handling added.", "MiKayla Handley, Hennepin County")
 call changelog_update("09/11/2017", "Initial version.", "MiKayla Handley, Hennepin County")
 
@@ -237,13 +238,10 @@ IF match_answer_droplist = "NO - run NEW HIRE" THEN
     	transmit
     	EMReadScreen MAXIS_footer_month, 2, 20, 55	'Reads footer month for updating the panel
     	EMReadScreen MAXIS_footer_year, 2, 20, 58		'Reads footer year
-    	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
-    		EMWriteScreen "w", 5, 34				'Wage income is the type
-    		EMWriteScreen "n", 6, 34				'No proof has been provided
-    	ELSE
-    		EMWriteScreen "w", 5, 38				'Wage income is the type
-    		EMWriteScreen "n", 6, 38				'No proof has been provided
-    	END IF
+    	
+    	EMWriteScreen "w", 5, 34				'Wage income is the type
+    	EMWriteScreen "n", 6, 34				'No proof has been provided
+    
     	EMWriteScreen employer, 7, 42			'Adds employer info
     	EMWriteScreen month_hired, 9, 35		'Adds month hired to start date (this is actually the day income was received)
     	EMWriteScreen day_hired, 9, 38			'Adds day hired
