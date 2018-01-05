@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/05/2018", "Updated coordinates in STAT/JOBS for income type and verification codes.", "Ilse Ferris, Hennepin County")
 call changelog_update("1/5/2017", "fixing bug with a message box.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -1584,8 +1585,8 @@ FOR EACH client IN client_array
 				IF jobs_end_date = "__ __ __" THEN EXIT DO
 				transmit
 			LOOP
-			EMReadScreen jobs1_type, 1, 5, 38
-			EMReadScreen jobs1_verif, 1, 6, 38
+			EMReadScreen jobs1_type, 1, 5, 34
+			EMReadScreen jobs1_verif, 1, 6, 34
 			EMReadScreen jobs1_employer, 30, 7, 42
 				jobs1_employer = trim(replace(jobs1_employer, "_", ""))
 			EMReadScreen jobs1_inc_start, 8, 9, 35
@@ -1646,8 +1647,8 @@ FOR EACH client IN client_array
 				IF jobs_end_date = "__ __ __" THEN EXIT DO
 				transmit
 			LOOP
-			EMReadScreen jobs2_type, 1, 5, 38
-			EMReadScreen jobs2_verif, 1, 6, 38
+			EMReadScreen jobs2_type, 1, 5, 34
+			EMReadScreen jobs2_verif, 1, 6, 34
 			EMReadScreen jobs2_employer, 30, 7, 42
 				jobs2_employer = trim(replace(jobs2_employer, "_", ""))
 			EMReadScreen jobs2_inc_start, 8, 9, 35
@@ -1683,8 +1684,8 @@ FOR EACH client IN client_array
 				IF jobs_end_date = "__ __ __" THEN EXIT DO
 				transmit
 			LOOP
-			EMReadScreen jobs3_type, 1, 5, 38
-			EMReadScreen jobs3_verif, 1, 6, 38
+			EMReadScreen jobs3_type, 1, 5, 34
+			EMReadScreen jobs3_verif, 1, 6, 34
 			EMReadScreen jobs3_employer, 30, 7, 42
 				jobs3_employer = trim(replace(jobs3_employer, "_", ""))
 			EMReadScreen jobs3_inc_start, 8, 9, 35
