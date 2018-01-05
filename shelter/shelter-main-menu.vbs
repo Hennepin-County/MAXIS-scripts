@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/05/2018", "Updates to CES-Screening Appt per shelter team request..", "MiKayla Handley")
 call changelog_update("09/23/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -139,7 +140,7 @@ script_array_a_to_n(script_num).description 			= "Case note template for documen
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
 Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_a_to_n(script_num).script_name 			= "CES Screening Appt."																			'Script name
+script_array_a_to_n(script_num).script_name 			= "CES Screening Referral"																			'Script name
 script_array_a_to_n(script_num).file_name 				= "shelter-ces-screening-appt.vbs"																'Script URL
 script_array_a_to_n(script_num).description 			= "Case note template for documenting details for the CES screening appointment."
 

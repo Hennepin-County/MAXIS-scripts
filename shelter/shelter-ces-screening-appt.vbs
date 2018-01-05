@@ -38,40 +38,48 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog CES_screening_appt, 0, 0, 271, 100, "CES Screening Appointment Scheduled"
-  EditBox 70, 10, 55, 15, MAXIS_case_number
-  EditBox 210, 10, 55, 15, memb_name
-  EditBox 70, 30, 55, 15, appt_date
-  EditBox 210, 30, 55, 15, appt_time
-  CheckBox 5, 50, 225, 10, "Informed client to bring 3 year rental/ADDR history, and meet with", informed_client
-  EditBox 45, 75, 110, 15, other_notes
-  ButtonGroup ButtonPressed
-    OkButton 160, 75, 50, 15
-    CancelButton 215, 75, 50, 15
-  Text 25, 60, 190, 10, "the Shelter Team for initial interview after CES screening."
-  Text 5, 80, 40, 10, "Comments:"
-  Text 5, 35, 60, 10, "Appointment date:"
-  Text 20, 15, 45, 10, "Case number:"
-  Text 145, 35, 60, 10, "Appointment time:"
-  Text 155, 15, 50, 10, "Member name:"
-EndDialog
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/05/2018", "Updates to CES-Screening Appt per shelter team request..", "MiKayla Handley")
+call changelog_update("09/23/2017", "Initial version.", "Ilse Ferris, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-'Running the initial dialog
+'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+BeginDialog CES_screening_appt, 0, 0, 341, 90, "CES Referral Sent"
+  EditBox 55, 10, 55, 15, MAXIS_case_number
+  EditBox 165, 10, 55, 15, appt_date
+  EditBox 280, 10, 55, 15, worker_name
+  EditBox 55, 50, 280, 15, other_notes
+  Text 5, 15, 45, 10, "Case number:"
+  Text 115, 15, 45, 10, "Referral date:"
+  Text 225, 15, 55, 10, "Worker's name:"
+  Text 25, 35, 300, 10, "Notified client that CES appointment is mandatory, and CES worker will be contacting them"
+  Text 5, 55, 40, 10, "Comments:"
+  ButtonGroup ButtonPressed
+    OkButton 230, 70, 50, 15
+    CancelButton 285, 70, 50, 15
+EndDialog
+
+
+
 DO
 	DO
 		err_msg = ""
 		Dialog CES_screening_appt
         cancel_confirmation
 		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		IF memb_name = "" then err_msg = err_msg & vbNewLine & "* Enter the referred member's name."
-		If Isdate(appt_date) = False then err_msg = err_msg & vbNewLine & "* Enter the CES appointment date."
-		If appt_time = "" then err_msg = err_msg & vbNewLine & "* Enter the CES appointment time."
+		IF worker_name = "" then err_msg = err_msg & vbNewLine & "* Enter the worker's name."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
  Call check_for_password(are_we_passworded_out)
@@ -81,9 +89,9 @@ back_to_SELF
 
 'The case note---------------------------------------------------------------------------------------
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-Call write_variable_in_CASE_NOTE("--CES Screening Appt. scheduled for " & memb_name & " on " & appt_date & " at " & appt_time & "--")
-If informed_client = 1 then Call write_variable_in_CASE_NOTE("* Informed client to bring 3 years of rental/ADDR history, and meet with the Shelter Team for an initial interview after the CES screening.")
-Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+Call write_variable_in_CASE_NOTE("--CES Screening Referral sent on "  & appt_date &  "--")
+Call write_bullet_and_variable_in_CASE_NOTE("Worker's name", worker_name)
+Call write_variable_in_CASE_NOTE("* Notified client that CES appointment is mandatory and CES worker will be contacting them")
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
