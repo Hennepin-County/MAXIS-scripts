@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/05/2018", "Updated coordinates in STAT/JOBS for income type and verification codes.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -229,11 +230,9 @@ If spousal_reference_number <> "" then
 'changes unearned income coding types as coding from JOBS panel and spousal allocation screen are not the same
   If current_panel_number = "1" then
 	earned_income_number = 1
-	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
-		EMReadScreen gross_spousal_earned_income_type_01, 1, 5, 34
-	ELSE
-		EMReadScreen gross_spousal_earned_income_type_01, 1, 5, 38
-	END IF
+
+	EMReadScreen gross_spousal_earned_income_type_01, 1, 5, 34		
+	
 	If gross_spousal_earned_income_type_01 = "J" THEN gross_spousal_earned_income_type_01 = "01"
 	If gross_spousal_earned_income_type_01 = "W" then gross_spousal_earned_income_type_01 = "02"
 	If gross_spousal_earned_income_type_01 = "E" THEN gross_spousal_earned_income_type_01 = "03"

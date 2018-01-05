@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/05/2018", "Updated coordinates in STAT/JOBS for income type and verification codes.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -186,16 +187,11 @@ If create_JOBS_checkbox = checked then
 	transmit
 	EMReadScreen edit_mode_check, 1, 20, 8
 	If edit_mode_check = "D" then script_end_procedure("Unable to create a new JOBS panel. Check which member number you provided. Otherwise you may be in inquiry mode. If so shut down inquiry and try again. Or try closing BlueZone.")
-	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
-		EMWriteScreen left(income_type_dropdown, 1), 5, 34
-		If subsidized_income_type_dropdown <> "not applicable" then EMWriteScreen left(subsidized_income_type_dropdown, 2), 5, 74
-		EMWriteScreen "n", 6, 34
-	ELSE
-		EMWriteScreen left(income_type_dropdown, 1), 5, 38
-		IF left(income_type_dropdown, 1) = "J" OR left(income_type_dropdown, 1) = "G" OR left(income_type_dropdown, 1) = "T" OR left(income_type_dropdown, 1) = "P" OR left(income_type_dropdown, 1) = "R" THEN EMWriteScreen "0", 6, 75 'Adding in a temporary hourly wage for special income types which require it.
-		If subsidized_income_type_dropdown <> "not applicable" then EMWriteScreen left(subsidized_income_type_dropdown, 2), 5, 71
-		EMWriteScreen "n", 6, 38
-	END IF
+
+	EMWriteScreen left(income_type_dropdown, 1), 5, 34
+	If subsidized_income_type_dropdown <> "not applicable" then EMWriteScreen left(subsidized_income_type_dropdown, 2), 5, 74
+	EMWriteScreen "n", 6, 34
+	
 	EMWriteScreen employer, 7, 42
 	If income_start_date <> "" then call create_MAXIS_friendly_date(income_start_date, 0, 9, 35)
 	If contract_through_date <> "" then call create_MAXIS_friendly_date(contract_through_date, 0, 9, 73)
