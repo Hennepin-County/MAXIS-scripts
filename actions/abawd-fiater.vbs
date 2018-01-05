@@ -52,6 +52,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/05/2018", "Updated coordinates in STAT/JOBS for income type and verification codes.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/17/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -500,15 +501,11 @@ For i = 0 to ubound(footer_month_array)
 			For m = 1 to number_of_jobs_panels					'<<<<<< Starting at 1 because this is a panel count and it makes sense to use this as a standard count
 				EMWriteScreen "0" & m, 20, 79
 				transmit
-				IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN
-					EMReadScreen jobs_type, 1, 5, 34
-					EMReadScreen jobs_subsidy, 2, 5, 74
-					EMReadScreen jobs_verified, 1, 6, 34				
-				ELSE
-					EMReadScreen jobs_type, 1, 5, 38
-					EMReadScreen jobs_subsidy, 2, 5, 71
-					EMReadScreen jobs_verified, 1, 6, 38
-				END IF
+				
+				EMReadScreen jobs_type, 1, 5, 34
+				EMReadScreen jobs_subsidy, 2, 5, 74
+				EMReadScreen jobs_verified, 1, 6, 34				
+			
 				EMReadScreen job_end_date, 8, 9, 49
 				call verif_confirm_message(jobs_verified, "job")
 				income_counted = vbYes 'defaults to counted, the next statement will confirm certain income types'
