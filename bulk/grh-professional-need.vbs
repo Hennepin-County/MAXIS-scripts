@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/08/2018", "Script updated to also gather waiver types from STAT/DISA.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/31/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -117,6 +118,7 @@ ObjExcel.Cells(1, 8).Value = "Approval cty"
 ObjExcel.Cells(1, 9).Value = "GRH DOC amount"
 ObjExcel.Cells(1,10).Value = "GRH rate"
 ObjExcel.Cells(1,11).Value = "GRH plan dates"
+ObjExcel.Cells(1,11).Value = "Waiver type"
 
 excel_row = 2 
  
@@ -275,19 +277,25 @@ Do
 	If trim(GRH_plan_date) = "-" then GRH_plan_date = ""
 	
  	ObjExcel.Cells(excel_row, 11).Value = GRH_plan_date
+	
+	'checks the waiver type
+	EMReadScreen DISA_waiver_type, 1, 14, 59
+	If DISA_waiver_type = "_" then DISA_waiver_type = ""
+	ObjExcel.Cells(excel_row, 11).Value = DISA_waiver_type
+	
 	excel_row = excel_row + 1 'setting up the script to check the next row.
 LOOP UNTIL objExcel.Cells(excel_row, 2).Value = ""	'Loops until there are no more cases in the Excel list
 
 'Query date/time/runtime info
-objExcel.Cells(1, 12).Font.Bold = TRUE
-objExcel.Cells(2, 12).Font.Bold = TRUE
-ObjExcel.Cells(1, 12).Value = "Query date and time:"	'Goes back one, as this is on the next row
-ObjExcel.Cells(2, 12).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
-ObjExcel.Cells(1, 13).Value = now
-ObjExcel.Cells(2, 13).Value = timer - query_start_time
+objExcel.Cells(1, 13).Font.Bold = TRUE
+objExcel.Cells(2, 13).Font.Bold = TRUE
+ObjExcel.Cells(1, 13).Value = "Query date and time:"	'Goes back one, as this is on the next row
+ObjExcel.Cells(2, 13).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
+ObjExcel.Cells(1, 14).Value = now
+ObjExcel.Cells(2, 14).Value = timer - query_start_time
 
 'formatting the cells
-FOR i = 1 to 13
+FOR i = 1 to 14
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
 
