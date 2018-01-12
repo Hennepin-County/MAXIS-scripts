@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/12/2018", "Script updated to also gather FACI in dates, next revw date. Also organized how data is presented on Excel spreadsheet.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/08/2018", "Script updated to also gather waiver types from STAT/DISA.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/31/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -109,25 +110,26 @@ objExcel.DisplayAlerts = True
 'Setting up the Excel spreadsheet
 ObjExcel.Cells(1, 1).Value = "Worker"
 ObjExcel.Cells(1, 2).Value = "MAXIS Case #"
-ObjExcel.Cells(1, 3).Value = "Facility name"
-ObjExcel.Cells(1, 4).Value = "Facility type"
-ObjExcel.Cells(1, 5).Value = "GRH plan required"
-ObjExcel.Cells(1, 6).Value = "Plan verified"
-ObjExcel.Cells(1, 7).Value = "Cty app placement"
-ObjExcel.Cells(1, 8).Value = "Approval cty"
-ObjExcel.Cells(1, 9).Value = "GRH DOC amount"
-ObjExcel.Cells(1,10).Value = "GRH rate"
-ObjExcel.Cells(1,11).Value = "GRH plan dates"
-ObjExcel.Cells(1,11).Value = "Waiver type"
+ObjExcel.Cells(1, 3).Value = "Next REVW Date"
+ObjExcel.Cells(1, 4).Value = "Facility Name"
+ObjExcel.Cells(1, 5).Value = "Facility Type"
+ObjExcel.Cells(1, 6).Value = "GRH Rate"
+ObjExcel.Cells(1, 7).Value = "In dates"
+ObjExcel.Cells(1, 8).Value = "GRH Plan Required"
+ObjExcel.Cells(1, 9).Value = "Plan Verified"
+ObjExcel.Cells(1,10).Value = "Cty App Placement"
+ObjExcel.Cells(1,11).Value = "Approval Cty"
+ObjExcel.Cells(1,12).Value = "GRH DOC Amount"
+ObjExcel.Cells(1,13).Value = "GRH Plan Dates"
+ObjExcel.Cells(1,14).Value = "Waiver Type"
+
+FOR i = 1 to 14		'formatting the cells'
+	objExcel.Cells(1, i).Font.Bold = True		'bold font'
+	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+	objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
 
 excel_row = 2 
- 
-
-'formatting the cells
-FOR i = 1 to 11
-	objExcel.Cells(1, i).Font.Bold = True		'bold font
-	objExcel.Columns(i).AutoFit()				'sizing the columns
-NEXT
 
 For each worker in worker_array
     back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
@@ -144,13 +146,15 @@ For each worker in worker_array
 			If GRH_prog = "A" then 
 				EMReadScreen MAXIS_case_number, 8, row, 12 'grabbing case number
 				If trim(MAXIS_case_number) = "" then exit do	'quits if we're out of cases
+				EMReadScreen next_revw_date, 8, row, 42
 				ObjExcel.Cells(excel_row, 1).Value = worker
 				ObjExcel.Cells(excel_row, 2).Value = trim(MAXIS_case_number)
+				ObjExcel.Cells(excel_row, 3).Value = replace(next_revw_date, " ", "/")
 				excel_row = excel_row + 1
 			End if 
 			row = row + 1
 			STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
-		Loop until row = 19 or trim(MAXIS_case_number) = ""
+		Loop until row = 19
 		PF8 'going to the next screen
 	Loop until last_page_check = "THIS IS THE LAST PAGE"
 next
@@ -167,14 +171,7 @@ Do
 	call navigate_to_MAXIS_screen("STAT", "FACI")
     EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
 	If PRIV_check = "PRIV" then
-		priv_case_list = priv_case_list & "|" & MAXIS_case_number
-		SET objRange = objExcel.Cells(excel_row, 1).EntireRow
-		objRange.Delete				'row gets deleted since it will get added to the priv case list at end of script 
-		IF excel_row = 3 then 
-			excel_row = excel_row
-		Else 
-			excel_row = excel_row - 1
-		End if
+		ObjExcel.Cells(excel_row, 4).Value = "PRIV cases"
 		'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
 		Do
 			back_to_self
@@ -183,119 +180,103 @@ Do
 		LOOP until SELF_screen_check = "SELF"
 		EMWriteScreen "________", 18, 43		'clears the case number
 		transmit
-    End if 
-    
-	'LOOKS FOR MULTIPLE STAT/FACI PANELS, GOES TO THE MOST RECENT ONE
-	Do
-		EMReadScreen FACI_current_panel, 1, 2, 73
-		EMReadScreen FACI_total_check, 1, 2, 78
-		EMReadScreen in_year_check_01, 4, 14, 53
-		EMReadScreen in_year_check_02, 4, 15, 53
-		EMReadScreen in_year_check_03, 4, 16, 53
-		EMReadScreen in_year_check_04, 4, 17, 53
-		EMReadScreen in_year_check_05, 4, 18, 53
-		EMReadScreen out_year_check_01, 4, 14, 77
-		EMReadScreen out_year_check_02, 4, 15, 77
-		EMReadScreen out_year_check_03, 4, 16, 77
-		EMReadScreen out_year_check_04, 4, 17, 77
-		EMReadScreen out_year_check_05, 4, 18, 77
-		If (in_year_check_01 <> "____" and out_year_check_01 = "____") or (in_year_check_02 <> "____" and out_year_check_02 = "____") or _
-		(in_year_check_03 <> "____" and out_year_check_03 = "____") or (in_year_check_04 <> "____" and out_year_check_04 = "____") or (in_year_check_05 <> "____" and out_year_check_05 = "____") then
-			currently_in_FACI = True
-			exit do
-		Elseif FACI_current_panel = FACI_total_check then
-			currently_in_FACI = False
-			exit do
-		Else
-			transmit
-		End if
-	Loop until FACI_current_panel = FACI_total_check
-
-	'GETS FACI NAME AND PUTS IT IN SPREADSHEET, IF CLIENT IS IN FACI.
-	If currently_in_FACI = True then
-		EMReadScreen FACI_name, 30, 6, 43
-		EMReadScreen FACI_type, 2, 7, 43
+    Else  
+	    EMReadScreen FACI_total_check, 1, 2, 78
+	    If FACI_total_check = "0" then 
+	    	current_faci = False 
+			ObjExcel.Cells(excel_row, 4).Value = "Case does not have a FACI panel."	
+	    	case_status = ""
+	    Else 
+	    	row = 14
+	    	Do 
+	    		EMReadScreen date_out, 10, row, 71
+	    		'msgbox "date out: " & date_out 
+	    		If date_out = "__ __ ____" then 
+	 				EMReadScreen date_in, 10, row, 47
+					If date_in <> "__ __ ____" then 
+						current_faci = TRUE
+	    				exit do
+	    			ELSE
+	    				current_faci = False 
+	    				row = row + 1
+	    			End if 
+	    		Else 
+	    			row = row + 1
+	    			'msgbox row
+	    			current_faci = False	
+	    		End if 	
+	    		If row = 19 then 
+	    			transmit
+	    			row = 14
+	    		End if 
+	    		EMReadScreen last_panel, 5, 24, 2
+	    	Loop until last_panel = "ENTER"	'This means that there are no other faci panels
+	    End if 
 		
-		'List of FACI types
-		IF FACI_type = "41" then FACI_type = "41: NF-I"
-		IF FACI_type = "42" then FACI_type = "42: NF-II"
-		IF FACI_type = "43" then FACI_type = "43: ICF-DD"
-		IF FACI_type = "44" then FACI_type = "44: Short stay in NF-I"
-		IF FACI_type = "45" then FACI_type = "45: Short stay in NF-II"
-		IF FACI_type = "46" then FACI_type = "46: Short stay in ICF-DD"
-		IF FACI_type = "47" then FACI_type = "47: RTC - Not IMD"
-		IF FACI_type = "48" then FACI_type = "48: Medical Hospital"
-		IF FACI_type = "49" then FACI_type = "49: MSOP"
-		IF FACI_type = "50" then FACI_type = "50: IMD/RTC"
-		IF FACI_type = "51" then FACI_type = "51: Rule 31 CD_IMD"
-		IF FACI_type = "52" then FACI_type = "52: Rule 36 MI-IMD"
-		IF FACI_type = "53" then FACI_type = "53: IMD Hospitals"
-		IF FACI_type = "55" then FACI_type = "55: Adult Foster Care/Rule 203"
-		IF FACI_type = "56" then FACI_type = "56: GRH (Not FC or Rule 36)"
-		IF FACI_type = "57" then FACI_type = "57: Rule 36 MI - Non-IMD"
-		IF FACI_type = "60" then FACI_type = "60: Non-GRH"
-		IF FACI_type = "61" then FACI_type = "61: Rule 31 CD - Non-IMD"
-		IF FACI_type = "67" then FACI_type = "67: Family Violence Shelter"
-		IF FACI_type = "68" then FACI_type = "68: County Correctional Facility"
-		IF FACI_type = "69" then FACI_type = "69: Non-Cty Adult Correctional"
-		
-		EMReadScreen GRH_plan_req, 1, 11, 52
-		EMReadScreen GRH_plan_verif, 1, 11, 71
-		EMReadScreen county_placement, 1, 12, 52
-		EMReadScreen approval_county, 2, 12, 71
-		EMReadScreen GRH_DOC_amt, 8, 13, 45
-		EMReadScreen GRH_rate, 1, 14, 34
-		
-		ObjExcel.Cells(excel_row, 3).Value = trim(replace(FACI_name, "_", ""))
-		ObjExcel.Cells(excel_row, 4).Value = trim(replace(FACI_type, "_", ""))
-		ObjExcel.Cells(excel_row, 5).Value = trim(replace(GRH_plan_req, "_", ""))
-		ObjExcel.Cells(excel_row, 6).Value = trim(replace(GRH_plan_verif, "_", ""))
-		ObjExcel.Cells(excel_row, 7).Value = trim(replace(county_placement, "_", ""))
-		ObjExcel.Cells(excel_row, 8).Value = trim(replace(approval_county, "_", ""))
-		ObjExcel.Cells(excel_row, 9).Value = trim(replace(GRH_DOC_amt, "_", ""))
-		ObjExcel.Cells(excel_row, 10).Value = trim(replace(GRH_rate, "_", ""))
-	End if
- 	
-	Call navigate_to_MAXIS_screen("STAT", "DISA")
-	EMReadScreen GRH_begin_date, 10, 9, 47
-	EMReadScreen GRH_end_date, 10, 9, 69
+		If date_in <> "__ __ ____" then date_in = replace(date_in, " ", "/")
 	
-	'begin dates on DISA for GRH plan
-	If GRH_begin_date = "__ __ ____" then 
-		GRH_begin_date = ""
-	Else 
-		GRH_begin_date = replace(GRH_begin_date, " ", "/")
+	    'GETS FACI NAME AND PUTS IT IN SPREADSHEET, IF CLIENT IS IN FACI.
+	    If current_faci = True then
+	    	EMReadScreen FACI_name, 30, 6, 43
+	    	EMReadScreen FACI_type, 2, 7, 43
+			EMReadScreen GRH_rate, 1, row, 34	
+	     	EMReadScreen GRH_plan_req, 1, 11, 52
+	    	EMReadScreen GRH_plan_verif, 1, 11, 71
+	    	EMReadScreen county_placement, 1, 12, 52
+	    	EMReadScreen approval_county, 2, 12, 71
+	    	EMReadScreen GRH_DOC_amt, 8, 13, 45
+	    	
+	    	ObjExcel.Cells(excel_row, 4).Value = trim(replace(FACI_name, "_", ""))
+	    	ObjExcel.Cells(excel_row, 5).Value = trim(replace(FACI_type, "_", ""))
+			ObjExcel.Cells(excel_row, 6).Value = trim(replace(GRH_rate, "_", ""))
+			ObjExcel.Cells(excel_row, 7).Value = trim(replace(date_out, "_", ""))
+	    	ObjExcel.Cells(excel_row, 8).Value = trim(replace(GRH_plan_req, "_", ""))
+	    	ObjExcel.Cells(excel_row, 9).Value = trim(replace(GRH_plan_verif, "_", ""))
+	    	ObjExcel.Cells(excel_row, 10).Value = trim(replace(county_placement, "_", ""))
+	    	ObjExcel.Cells(excel_row, 11).Value = trim(replace(approval_county, "_", ""))
+	    	ObjExcel.Cells(excel_row, 12).Value = trim(replace(GRH_DOC_amt, "_", ""))
+	    End if 
+		
+	    Call navigate_to_MAXIS_screen("STAT", "DISA")
+	    EMReadScreen GRH_begin_date, 10, 9, 47
+	    EMReadScreen GRH_end_date, 10, 9, 69
+	    
+	    'begin dates on DISA for GRH plan
+	    If GRH_begin_date = "__ __ ____" then 
+	    	GRH_begin_date = ""
+	    Else 
+	    	GRH_begin_date = replace(GRH_begin_date, " ", "/")
+	    End if 
+	    'end dates on DISA for GRH plan
+	    If GRH_end_date = "__ __ ____" then 
+	    	GRH_end_date = ""
+	    Else 
+	    	GRH_end_date = replace(GRH_end_date, " ", "/")
+	    End if
+	    
+ 	    GRH_plan_date = GRH_begin_date & " - " & GRH_end_date
+	    If trim(GRH_plan_date) = "-" then GRH_plan_date = ""
+ 	    ObjExcel.Cells(excel_row, 13).Value = GRH_plan_date
+	    
+	    'checks the waiver type
+	    EMReadScreen DISA_waiver_type, 1, 14, 59
+	    If DISA_waiver_type = "_" then DISA_waiver_type = ""
+	    ObjExcel.Cells(excel_row, 14).Value = DISA_waiver_type
 	End if 
-	'end dates on DISA for GRH plan
-	If GRH_end_date = "__ __ ____" then 
-		GRH_end_date = ""
-	Else 
-		GRH_end_date = replace(GRH_end_date, " ", "/")
-	End if
-	
- 	GRH_plan_date = GRH_begin_date & " - " & GRH_end_date
-	If trim(GRH_plan_date) = "-" then GRH_plan_date = ""
-	
- 	ObjExcel.Cells(excel_row, 11).Value = GRH_plan_date
-	
-	'checks the waiver type
-	EMReadScreen DISA_waiver_type, 1, 14, 59
-	If DISA_waiver_type = "_" then DISA_waiver_type = ""
-	ObjExcel.Cells(excel_row, 11).Value = DISA_waiver_type
 	
 	excel_row = excel_row + 1 'setting up the script to check the next row.
 LOOP UNTIL objExcel.Cells(excel_row, 2).Value = ""	'Loops until there are no more cases in the Excel list
 
 'Query date/time/runtime info
-objExcel.Cells(1, 13).Font.Bold = TRUE
-objExcel.Cells(2, 13).Font.Bold = TRUE
-ObjExcel.Cells(1, 13).Value = "Query date and time:"	'Goes back one, as this is on the next row
-ObjExcel.Cells(2, 13).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
-ObjExcel.Cells(1, 14).Value = now
-ObjExcel.Cells(2, 14).Value = timer - query_start_time
+objExcel.Cells(1, 16).Font.Bold = TRUE
+objExcel.Cells(2, 16).Font.Bold = TRUE
+ObjExcel.Cells(1, 16).Value = "Query date and time:"	'Goes back one, as this is on the next row
+ObjExcel.Cells(2, 16).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
+ObjExcel.Cells(1, 17).Value = now
+ObjExcel.Cells(2, 17).Value = timer - query_start_time
 
 'formatting the cells
-FOR i = 1 to 14
+FOR i = 1 to 17
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
 
