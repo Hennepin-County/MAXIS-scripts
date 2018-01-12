@@ -44,6 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("01/12/2018", "Cases with multiple applications pending will be indicated with an asterisks (*) by the client name in the spreadsheet.", "Casey Love, Hennepin County")
+CALL changelog_update("01/12/2018", "Entering a supervisor X-Number in the Workers to Check will pull all X-Numbers listed under that supervisor in MAXIS. Addiional bug fix where script was missing cases.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -113,6 +115,50 @@ FUNCTION EXP_case_note_determination(appears_exp, pending_array)
 	END If
 END FUNCTION
 
+'This function is used to grab all active X numbers according to the supervisor X number(s) inputted
+FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
+	'Getting to REPT/USER
+	CALL navigate_to_MAXIS_screen("REPT", "USER")
+
+
+	'Sorting by supervisor
+	PF5
+	PF5
+
+
+	'Reseting array_name
+	array_name = ""
+
+
+	'Splitting the list of inputted supervisors...
+	supervisor_array = replace(supervisor_array, " ", "")
+	supervisor_array = split(supervisor_array, ",")
+	FOR EACH unit_supervisor IN supervisor_array
+		IF unit_supervisor <> "" THEN
+			'Entering the supervisor number and sending a transmit
+			CALL write_value_and_transmit(unit_supervisor, 21, 12)
+
+
+			MAXIS_row = 7
+			DO
+				EMReadScreen worker_ID, 8, MAXIS_row, 5
+				worker_ID = trim(worker_ID)
+				IF worker_ID = "" THEN EXIT DO
+				array_name = trim(array_name & " " & worker_ID)
+				MAXIS_row = MAXIS_row + 1
+				IF MAXIS_row = 19 THEN
+					PF8
+					EMReadScreen end_check, 9, 24,14
+					If end_check = "LAST PAGE" Then Exit Do
+					MAXIS_row = 7
+				END IF
+			LOOP
+		END IF
+	NEXT
+	'Preparing array_name for use...
+	array_name = split(array_name)
+END FUNCTION
+
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------
 EMConnect ""
 
@@ -135,17 +181,39 @@ query_start_time = timer
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
-Else
+Else		'If worker numbers are litsted - this will create an array of workers to check
 	x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
 
-	'Need to add the worker_county_code to each one
+	'formatting array
 	For each x1_number in x1s_from_dialog
-		If worker_array = "" then
-			worker_array = trim(ucase(x1_number))		'replaces worker_county_code if found in the typed x1 number
+		x1_number = trim(ucase(x1_number))					'Formatting the x numbers so there are no errors
+		Call navigate_to_MAXIS_screen ("REPT", "USER")		'This part will check to see if the x number entered is a supervisor of anyone
+		PF5
+		PF5
+		EMWriteScreen x1_number, 21, 12
+		transmit
+		EMReadScreen sup_id_check, 7, 7, 5					'This is the spot where the first person is listed under this supervisor
+		IF sup_id_check <> "       " Then 					'If this frist one is not blank then this person is a supervisor
+			supervisor_array = trim(supervisor_array & " " & x1_number)		'The script will add this x number to a list of supervisors
 		Else
-			worker_array = worker_array & ", " & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
-		End if
+			If worker_array = "" then						'Otherwise this x number is added to a list of workers to run the script on
+				worker_array = trim(x1_number)
+			Else
+				worker_array = worker_array & ", " & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
+			End if
+		End If
+		PF3
 	Next
+
+	If supervisor_array <> "" Then 				'If there are any x numbers identified as a supervisor, the script will run the function above
+		Call create_array_of_all_active_x_numbers_by_supervisor (more_workers_array, supervisor_array)
+		workers_to_add = join(more_workers_array, ", ")
+		If worker_array = "" then				'Adding all x numbers listed under the supervisor to the worker array
+			worker_array = workers_to_add
+		Else
+			worker_array = worker_array & ", " & trim(ucase(workers_to_add))
+		End if
+	End If
 
 	'Split worker_array
 	worker_array = split(worker_array, ", ")
@@ -192,9 +260,11 @@ For each worker in worker_array
 				EMReadScreen nbr_days_pending, 4, MAXIS_row, 54		 'Reading nbr days pending
 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-				If MAXIS_case_number <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
-				If MAXIS_case_number = "" and client_name = "" then exit do			'Exits do if we reach the end
-				all_case_numbers_array = trim(all_case_numbers_array & " " & MAXIS_case_number)
+				MAXIS_case_number = trim(MAXIS_case_number)
+				If MAXIS_case_number <> "" and instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") <> 0 then exit do
+				all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*")
+
+				If MAXIS_case_number = "" Then Exit Do
 
 				'Adding client information to the array'
 				ReDim Preserve PND1_array(7, entry_record)	'This resizes the array to include the each case number on PND1 to the PND1_array
@@ -256,6 +326,7 @@ NEXT
 
 'Addded the potentially EXP SNAP cases to Excel starting at row 2
 excel_row = 2
+all_case_numbers_array = "*"
 
 For item = 0 to UBound(PND1_array, 2)
 	If PND1_array(appears_exp, item) = true then
@@ -327,14 +398,23 @@ For each worker in worker_array
 				EMReadScreen client_name, 22, MAXIS_row, 16			 'Reading client name
 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-				If MAXIS_case_number <> "" and (instr(all_case_numbers_array, MAXIS_case_number) <> 0 and client_name <> " ADDITIONAL APP       ") then exit do
-				all_case_numbers_array = trim(all_case_numbers_array & " " & MAXIS_case_number)
-				If MAXIS_case_number = "" then exit do			'Exits do if we reach the end
+				client_name = trim(client_name)
+				MAXIS_case_number = trim(MAXIS_case_number)
+				If client_name <> "ADDITIONAL APP" Then			'When there is an additional app on this rept, the script actually reads a case number even though one is not visible to the worker on the screen - so we are skipping this ghosting issue because it will ALWAYS find the previous case number.
+					If MAXIS_case_number <> "" and instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") <> 0 then exit do
+					all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*")
+				End If
+
+				If MAXIS_case_number = "" AND client_name = "" Then Exit Do			'Exits do if we reach the end
 
 				'If additional application is rec'd then the excel output is the client's name, not ADDITIONAL APP
-				if trim(client_name) = "ADDITIONAL APP" then
+				if client_name = "ADDITIONAL APP" then
 					EMReadScreen alt_client_name, 22, MAXIS_row - 1, 16
-					client_name = trim(alt_client_name)                    'replaces alt name as the client name
+					client_name = "* " & trim(alt_client_name)                    'replaces alt name as the client name
+				Else
+					EMReadScreen next_client, 22, MAXIS_row + 1, 16
+					next_client = trim(next_client)
+					If next_client = "ADDITIONAL APP" Then client_name = "* " & client_name
 				END IF
 
 				'Adding client information to the array'
@@ -462,6 +542,9 @@ ObjExcel.Cells(1, col_to_use - 1).Value = "Query date and time:"	'Goes back one,
 ObjExcel.Cells(1, col_to_use).Value = now
 ObjExcel.Cells(2, col_to_use - 1).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
 ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
+
+ObjExcel.Cells(4, col_to_use - 1).Value = "Asterisks (*) indicates an ADDITIONAL APP exists."	'Row header
+objExcel.Cells(4, col_to_use - 1).Font.Bold = TRUE						'Row header should be bold
 
 'Autofitting columns
 For col_to_autofit = 1 to col_to_use

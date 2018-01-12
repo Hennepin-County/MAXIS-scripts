@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("01/12/2018", "Entering a supervisor X-Number in the Workers to Check will pull all X-Numbers listed under that supervisor in MAXIS. Addiional bug fix where script was missing cases.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -232,6 +233,7 @@ ReDim spenddown_error_array (12, 0)
 
 'Setting the variable for what's to come
 excel_row = 2
+all_case_numbers_array = "*"
 hc_clt = 0
 
 'Getting all the cases with HC active for each worker
@@ -262,10 +264,11 @@ For each worker in worker_array
 				EMReadScreen HC_status, 1, MAXIS_row, 64			'Reading HC status
 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-				If trim(MAXIS_case_number) <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
-				all_case_numbers_array = trim(all_case_numbers_array & " " & MAXIS_case_number)
+				MAXIS_case_number = trim(MAXIS_case_number)
+				If MAXIS_case_number <> "" and instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") <> 0 then exit do
+				all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*")
 
-				If MAXIS_case_number = "        " then exit do			'Exits do if we reach the end
+				If MAXIS_case_number = "" Then Exit Do			'Exits do if we reach the end
 
 				'Using if...thens to decide if a case should be added (status isn't blank or inactive and respective box is checked)
 				If HC_status = "A" then
@@ -311,7 +314,12 @@ For hc_case = 0 to UBound(clts_with_spdwn_array, 2)
 		If prog = "MA" Then
 			EMWriteScreen "X", row, 26		'Goes into it
 			transmit
-			Exit Do
+			EMReadScreen panel_check, 4, 3, 57
+			If panel_check = "BSUM" Then
+				Exit Do
+			Else
+				Transmit
+			End If
 		End if
 		row = row + 1
 	Loop until row = 20

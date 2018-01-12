@@ -45,12 +45,57 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("01/12/2018", "Entering a supervisor X-Number in the Workers to Check will pull all X-Numbers listed under that supervisor in MAXIS. Addiional bug fix where script was missing cases.", "Casey Love, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
+'This function is used to grab all active X numbers according to the supervisor X number(s) inputted
+FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
+	'Getting to REPT/USER
+	CALL navigate_to_MAXIS_screen("REPT", "USER")
+
+
+	'Sorting by supervisor
+	PF5
+	PF5
+
+
+	'Reseting array_name
+	array_name = ""
+
+
+	'Splitting the list of inputted supervisors...
+	supervisor_array = replace(supervisor_array, " ", "")
+	supervisor_array = split(supervisor_array, ",")
+	FOR EACH unit_supervisor IN supervisor_array
+		IF unit_supervisor <> "" THEN
+			'Entering the supervisor number and sending a transmit
+			CALL write_value_and_transmit(unit_supervisor, 21, 12)
+
+
+			MAXIS_row = 7
+			DO
+				EMReadScreen worker_ID, 8, MAXIS_row, 5
+				worker_ID = trim(worker_ID)
+				IF worker_ID = "" THEN EXIT DO
+				array_name = trim(array_name & " " & worker_ID)
+				MAXIS_row = MAXIS_row + 1
+				IF MAXIS_row = 19 THEN
+					PF8
+					EMReadScreen end_check, 9, 24,14
+					If end_check = "LAST PAGE" Then Exit Do
+					MAXIS_row = 7
+				END IF
+			LOOP
+		END IF
+	NEXT
+	'Preparing array_name for use...
+	array_name = split(array_name)
+END FUNCTION
 
 'DIALOGS----------------------------------------------------------------------
 BeginDialog select_parameters_data_into_excel, 0, 0, 376, 390, "Select Parameters for Cases to Transfer"
@@ -369,8 +414,42 @@ IF query_all_check = unchecked THEN
 	new_worker_letter_col = convert_digit_to_excel_column(new_worker_col)
 End IF
 
+'If worker numbers are litsted - this will create an array of workers to check
+x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
+
+'formatting array
+For each x1_number in x1s_from_dialog
+	x1_number = trim(ucase(x1_number))					'Formatting the x numbers so there are no errors
+	Call navigate_to_MAXIS_screen ("REPT", "USER")		'This part will check to see if the x number entered is a supervisor of anyone
+	PF5
+	PF5
+	EMWriteScreen x1_number, 21, 12
+	transmit
+	EMReadScreen sup_id_check, 7, 7, 5					'This is the spot where the first person is listed under this supervisor
+	IF sup_id_check <> "       " Then 					'If this frist one is not blank then this person is a supervisor
+		supervisor_array = trim(supervisor_array & " " & x1_number)		'The script will add this x number to a list of supervisors
+	Else
+		If worker_array = "" then						'Otherwise this x number is added to a list of workers to run the script on
+			worker_array = trim(x1_number)
+		Else
+			worker_array = worker_array & ", " & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
+		End if
+	End If
+	PF3
+Next
+
+If supervisor_array <> "" Then 				'If there are any x numbers identified as a supervisor, the script will run the function above
+	Call create_array_of_all_active_x_numbers_by_supervisor (more_workers_array, supervisor_array)
+	workers_to_add = join(more_workers_array, ", ")
+	If worker_array = "" then				'Adding all x numbers listed under the supervisor to the worker array
+		worker_array = workers_to_add
+	Else
+		worker_array = worker_array & ", " & trim(ucase(workers_to_add))
+	End if
+End If
+
 'Split worker_array
-worker_array = split(worker_number, ", ")
+worker_array = split(worker_array, ", ")
 
 'Arrays that need delcaring and resizing
 Dim All_case_information_array ()
@@ -383,6 +462,7 @@ Dim SNAP_HH_Array ()
 
 'Setting the variable for what's to come
 excel_row = 2
+all_case_numbers_array = "*"
 m = 0
 
 'Script starts by collecting a list of all the cases and the programs as listed on REPT/ACTV
@@ -458,8 +538,9 @@ For each worker in worker_array
 				Redim Preserve Full_case_list_array (Ubound(Full_case_list_array,1), Ubound(Full_case_list_array,2)+1) 'Resize the array for the next case
 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-				If trim(MAXIS_case_number) <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
-				all_case_numbers_array = trim(all_case_numbers_array & " " & MAXIS_case_number)
+				MAXIS_case_number = trim(MAXIS_case_number)
+				If MAXIS_case_number <> "" and instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") <> 0 then exit do
+				all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*")
 
 				MAXIS_row = MAXIS_row + 1
 				MAXIS_case_number = ""			'Blanking out variable
@@ -1137,7 +1218,7 @@ If transfer_check = checked then
 			End If
 			IF memo_check = checked then
 				Call start_a_new_spec_memo
-				
+
 				Call write_variable_in_SPEC_MEMO ("*** This is just an informational notice ***")
 				Call write_variable_in_SPEC_MEMO ("Your case has been transferred.")
 				Call write_variable_in_SPEC_MEMO ("I will be your new case worker.")
