@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("01/16/2018", "Corrected casenote for pulling IEVS period.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("01/16/2018", "Corrected case note for pulling IEVS period.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/02/2018", "Corrected IEVS match error due to new year.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/27/2017", "Updated to handle clearing the match when the date is over 45 days.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/27/2017", "Updated to handle clearing the match BE-OP entered.", "MiKayla Handley, Hennepin County")
@@ -152,7 +152,7 @@ CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
 CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
 EMReadScreen error_msg, 7, 24, 2
 IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
-EMReadScreen IEVS_period, 11, row, 47
+
 
 '-------------------------------------------------------------------Ensuring that match has not already been resolved.
 Row = 7
@@ -175,7 +175,7 @@ DO
 LOOP UNTIL ievp_info_confirmation = vbYes
 
 EMReadScreen multiple_match, 11, row + 1, 47
-IF multiple_match = IEVS_period THEN
+IF multiple_match = IEVS_match THEN
 	msgbox("More than one match exists for this time period. Determine the match you'd like to clear, and put your cursor in front of that match." & vbcr & "Press OK once match is determined.")
 	EMSendKey "U"
 	transmit
@@ -332,57 +332,57 @@ IF send_notice_checkbox = CHECKED THEN
     pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more more than one app date is found and additional app is selected
     IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 	IF IEVS_type = "WAGE" THEN
-		'Updated IEVS_period to write into case note
+		'Updated IEVS_match to write into case note
 		IF quarter = 1 THEN IEVS_quarter = "1ST"
 		IF quarter = 2 THEN IEVS_quarter = "2ND"
 		IF quarter = 3 THEN IEVS_quarter = "3RD"
 		IF quarter = 4 THEN IEVS_quarter = "4TH"
 	END IF
-	IEVS_period = replace(IEVS_period, "/", " to ")
+	IEVS_match = replace(IEVS_match, "/", " to ")
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
 	'---------------------------------------------------------------------DIFF NOTC case note
     start_a_blank_CASE_NOTE
 	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH" & "(" & first_name & ") DIFF NOTICE SENT-----")
 	IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
-    CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
+  CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
+  CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
 	CALL write_variable_in_CASE_NOTE ("----- ----- -----")
-    CALL write_bullet_and_variable_in_CASE_NOTE("Verification Requested", pending_verifs)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Verification Due", Due_date)
+  CALL write_bullet_and_variable_in_CASE_NOTE("Verification Requested", pending_verifs)
+  CALL write_bullet_and_variable_in_CASE_NOTE("Verification Due", Due_date)
 	CALL write_variable_in_CASE_NOTE ("* Client must be provided 10 days to return requested verifications *")
-    CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-    CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
-    CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
-END IF
+  CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+  CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+  CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
+'END IF
 
 IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	    MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The script will now navigate to clear the Non-wage match.")
-        BeginDialog cleared_match_dialog, 0, 0, 311, 175, "WAGE MATCH CLEARED"
-          GroupBox 5, 5, 300, 55, "WAGE MATCH"
-          Text 10, 20, 110, 10, "Case number:" & MAXIS_case_number
-          Text 120, 20, 165, 10, "Client name:" & client_name
-          Text 10, 40, 105, 10, "Active Programs:" & programs
-          Text 120, 40, 175, 15, "Income source:" & source_income
-          DropListBox 75, 65, 110, 15, "Select One:"+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BE - OP Entered"+chr(9)+"BO - Other"+chr(9)+"BP - Wrong Person"+chr(9)+"CC - Claim Entered"+chr(9)+"NC - Non Cooperation", resolution_status
-          DropListBox 125, 85, 60, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", change_response
-          EditBox 150, 105, 35, 15, resolve_time
-          EditBox 55, 130, 250, 15, other_notes
-          CheckBox 210, 75, 70, 10, "Difference Notice", Diff_Notice_Checkbox
-          CheckBox 210, 85, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
-	      CheckBox 210, 105, 80, 10, "Other (please specify)", other_checkbox
-          CheckBox 210, 95, 90, 10, "Employment verification", EVF_checkbox
-	      Text 10, 70, 60, 10, "Resolution Status: "
-          Text 10, 90, 110, 10, "Responded to Difference Notice: "
-          Text 10, 110, 85, 10, "Resolve time (in minutes): "
-          Text 10, 135, 40, 10, "Other notes: "
-          GroupBox 195, 65, 110, 55, "Verification Used to Clear: "
-	      CheckBox 10, 155, 135, 10, "Check here if 10 day cutoff has passed", TIKL_checkbox
-          ButtonGroup ButtonPressed
-            OkButton 210, 155, 45, 15
-            CancelButton 260, 155, 45, 15
-        EndDialog
+			BeginDialog cleared_match_dialog, 0, 0, 311, 175, "WAGE MATCH CLEARED"
+      	Text 10, 20, 110, 10, "Case number: & MAXIS_case_number"
+      	Text 120, 20, 165, 10, "Client name: & client_name"
+      	Text 10, 40, 105, 10, "Active Programs: & programs"
+      	Text 120, 40, 175, 15, "Income source: & source_income"
+      	DropListBox 75, 65, 110, 15, "Select One:"+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BE - OP Entered"+chr(9)+"BO - Other"+chr(9)+"BP - Wrong Person"+chr(9)+"CC - Claim Entered"+chr(9)+"NC - Non Cooperation", resolution_status
+      	DropListBox 125, 85, 60, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", change_response
+      	EditBox 150, 105, 35, 15, resolve_time
+      	EditBox 55, 130, 250, 15, other_notes
+      	CheckBox 210, 75, 70, 10, "Difference Notice", Diff_Notice_Checkbox
+      	CheckBox 210, 85, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
+      	CheckBox 210, 95, 90, 10, "Employment verification", EVF_checkbox
+      	CheckBox 210, 105, 80, 10, "Other (please specify)", other_checkbox
+      	CheckBox 10, 155, 135, 10, "Check here if 10 day cutoff has passed", TIKL_checkbox
+      	ButtonGroup ButtonPressed
+      		OkButton 210, 155, 45, 15
+					CancelButton 260, 155, 45, 15
+				Text 10, 70, 60, 10, "Resolution Status: "
+				Text 10, 90, 110, 10, "Responded to Difference Notice: "
+				Text 10, 110, 85, 10, "Resolve time (in minutes): "
+				Text 10, 135, 40, 10, "Other notes: "
+				GroupBox 195, 65, 110, 55, "Verification Used to Clear: "
+			EndDialog
+
 
 	    DO
 	    	err_msg = ""
@@ -460,24 +460,24 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	    ELSE
 	    	match_cleared = TRUE
 	    END IF
-	    msgbox "Match cleared: " match_cleared
+	    'msgbox "Match cleared: " match_cleared
 	    'IF match_cleared = TRUE THEN
 	    IF IEVS_type = "WAGE" THEN
-      'Updated IEVS_period to write into case note
+      'Updated IEVS_match to write into case note
       	IF quarter = 1 THEN IEVS_quarter = "1ST"
       	IF quarter = 2 THEN IEVS_quarter = "2ND"
       	IF quarter = 3 THEN IEVS_quarter = "3RD"
       	IF quarter = 4 THEN IEVS_quarter = "4TH"
       END IF
 
-	    IEVS_period = replace(IEVS_period, "/", " to ")
+	    IEVS_match = replace(IEVS_match, "/", " to ")
 	    Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 	    PF3 'back to the DAIL'
 	       '----------------------------------------------------------------the case match CLEARED note
 	    start_a_blank_CASE_NOTE
 	    IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & "(" & first_name & ") CLEARED " & rez_status & "-----")
  	    IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
-	    CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
+	    CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_match)
 	    CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 	    CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
 	    CALL write_variable_in_CASE_NOTE ("----- ----- -----")

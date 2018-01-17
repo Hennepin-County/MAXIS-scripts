@@ -96,7 +96,7 @@ CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
 CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
 EMReadScreen error_msg, 7, 24, 2
 IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
-EMReadScreen IEVS_period, 11, row, 47
+EMReadScreen IEVS_match, 11, row, 47
 
 '-------------------------------------------------------------------Ensuring that match has not already been resolved.
 Row = 7
@@ -119,7 +119,7 @@ DO
 LOOP UNTIL ievp_info_confirmation = vbYes
 
 EMReadScreen multiple_match, 11, row + 1, 47
-IF multiple_match = IEVS_period THEN
+IF multiple_match = IEVS_match THEN
 	msgbox("More than one match exists for this time period. Determine the match you'd like to clear, and put your cursor in front of that match." & vbcr & "Press OK once match is determined.")
 	EMSendKey "U"
 	transmit
@@ -280,7 +280,7 @@ IF send_notice_checkbox = CHECKED THEN
     pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more more than one app date is found and additional app is selected
     IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 
-	IEVS_period = replace(IEVS_period, "/", " to ")
+	IEVS_match = replace(IEVS_match, "/", " to ")
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
 	'---------------------------------------------------------------------DIFF NOTC case note
@@ -404,16 +404,16 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		match_cleared = TRUE
 	END IF
 
-	msgbox "Match cleared: " match_cleared
+	'msgbox "Match cleared: " match_cleared
 	'IF match_cleared = TRUE THEN
-	  IEVS_period = replace(IEVS_period, "/", " to ")
+	  IEVS_match = replace(IEVS_match, "/", " to ")
 		Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 		PF3 'back to the DAIL'
 	   '----------------------------------------------------------------the case match CLEARED note
 		start_a_blank_CASE_NOTE
 		IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & "/" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
 	  IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
-	  CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
+	  CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_match)
 	  CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
 		CALL write_variable_in_CASE_NOTE ("----- ----- -----")
