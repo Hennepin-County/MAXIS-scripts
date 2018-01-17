@@ -152,7 +152,7 @@ CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
 CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
 EMReadScreen error_msg, 7, 24, 2
 IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
-
+EMReadScreen IEVS_period, 11, row, 47
 
 '-------------------------------------------------------------------Ensuring that match has not already been resolved.
 Row = 7
@@ -323,7 +323,7 @@ IF send_notice_checkbox = CHECKED THEN
 	transmit'exiting IULA, helps prevent errors when going to the case note
 	'--------------------------------------------------------------------The case note & case note related code
 	pending_verifs = ""
-    IF Diff_Notice_Checkbox = CHECKED THEN pending_verifs = pending_verifs & "Difference Notice, "
+  IF Diff_Notice_Checkbox = CHECKED THEN pending_verifs = pending_verifs & "Difference Notice, "
 	IF empl_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "EVF, "
 	IF ATR_Verf_CheckBox = CHECKED THEN pending_verifs = pending_verifs & "ATR, "
 	IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
@@ -460,7 +460,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	    ELSE
 	    	match_cleared = TRUE
 	    END IF
-	    msgbox "Match cleared: " match_cleared	
+	    msgbox "Match cleared: " match_cleared
 	    'IF match_cleared = TRUE THEN
 	    IF IEVS_type = "WAGE" THEN
       'Updated IEVS_period to write into case note
