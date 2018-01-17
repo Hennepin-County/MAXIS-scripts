@@ -96,7 +96,7 @@ CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
 CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
 EMReadScreen error_msg, 7, 24, 2
 IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
-
+EMReadScreen IEVS_period, 11, row, 47
 
 '-------------------------------------------------------------------Ensuring that match has not already been resolved.
 Row = 7
