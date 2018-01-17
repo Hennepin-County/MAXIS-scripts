@@ -34,20 +34,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'CHANGELOG BLOCK ===========================================================================================================
-'Starts by defining a changelog array
-changelog = array()
-
-'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
-'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("01/17/2017", "Added new ACTION script 'ABAWD FIATER'.", "Ilse Ferris, Hennepin County")
-call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
-
-'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
-changelog_display
-'END CHANGELOG BLOCK =======================================================================================================
-
-'LOADING LIST OF SCRIPTS FROM GITHUB REPOSITORY===========================================================================
+'----------------------------------------------------------------------------------------------------This is the list of scripts that are held locally
 IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
 	IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 		script_list_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/COMPLETE%20LIST%20OF%20SCRIPTS.vbs"
@@ -75,7 +62,7 @@ ELSE
 	text_from_the_other_script = fso_command.ReadAll
 	fso_command.Close
 	Execute text_from_the_other_script
-END IF
+End if 
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'CHANGELOG BLOCK ===========================================================================================================
@@ -84,8 +71,9 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("01/12/2018", "Retired ACTIONS - ABAWD MINOR CHILD EXEMPTION FIATER. MAXIS has been updated to support this process.", "Ilse Ferris, Hennepin County")
-call changelog_update("01/02/2018", "Initial version.", "Ilse Ferris, Hennepin County")
+call changelog_update("01/12/2018", "Retired ACTIONS - ABAWD MINOR CHILD EXEMPTION FIATER'. MAXIS has been updated to support this process.", "Ilse Ferris, Hennepin County")
+call changelog_update("01/17/2017", "Added new ACTION script 'ABAWD FIATER'.", "Ilse Ferris, Hennepin County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -134,8 +122,6 @@ Function declare_main_menu_dialog(script_category)
 
 		For i = 0 to ubound(subcategory_array)
 
-
-
 			'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
 			'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
 			PushButton 		subcat_button_position, 20, 					50, 		15, 			subcategory_array(i).subcat_name, 					subcat_button_placeholder
@@ -147,7 +133,6 @@ Function declare_main_menu_dialog(script_category)
 
 
 		'SCRIPT LIST HANDLING--------------------------------------------
-
 
 		'' 	PushButton 445, 10, 65, 10, "SIR instructions", 	SIR_instructions_button
 		'This starts here, but it shouldn't end here :)
