@@ -105,7 +105,7 @@ DO
 	IF trim(IEVS_match) = "" THEN script_end_procedure("IEVS match for the selected period could not be found. The script will now end.")
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
 	"   " & IEVS_match, vbYesNoCancel, "Please confirm this match")
-	msgbox IEVS_match
+	'msgbox IEVS_match
 	IF ievp_info_confirmation = vbNo THEN
 		row = row + 1
 		'msgbox "row: " & row
@@ -284,19 +284,19 @@ IF send_notice_checkbox = CHECKED THEN
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
 	'---------------------------------------------------------------------DIFF NOTC case note
-    start_a_blank_CASE_NOTE
+  start_a_blank_CASE_NOTE
 	IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & "/" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
 	IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
-    CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
+  CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
 	CALL write_variable_in_CASE_NOTE ("----- ----- -----")
-    CALL write_bullet_and_variable_in_CASE_NOTE("Verification Requested", pending_verifs)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Verification Due", Due_date)
+  CALL write_bullet_and_variable_in_CASE_NOTE("Verification Requested", pending_verifs)
+  CALL write_bullet_and_variable_in_CASE_NOTE("Verification Due", Due_date)
 	CALL write_variable_in_CASE_NOTE ("* Client must be provided 10 days to return requested verifications *")
-    CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-    CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
-    CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
+  CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+  CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+  CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 END IF
 
 IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
@@ -314,14 +314,14 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
       EditBox 55, 130, 250, 15, other_notes
       CheckBox 210, 75, 70, 10, "Difference Notice", Diff_Notice_Checkbox
       CheckBox 210, 85, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
-	  CheckBox 210, 105, 80, 10, "Other (please specify)", other_checkbox
+	  	CheckBox 210, 105, 80, 10, "Other (please specify)", other_checkbox
       CheckBox 210, 95, 90, 10, "Employment verification", EVF_checkbox
-	  Text 10, 70, 60, 10, "Resolution Status: "
+	  	Text 10, 70, 60, 10, "Resolution Status: "
       Text 10, 90, 110, 10, "Responded to Difference Notice: "
       Text 10, 110, 85, 10, "Resolve time (in minutes): "
       Text 10, 135, 40, 10, "Other notes: "
       GroupBox 195, 65, 110, 55, "Verification Used to Clear: "
-	  CheckBox 10, 155, 135, 10, "Check here if 10 day cutoff has passed", TIKL_checkbox
+	  	CheckBox 10, 155, 135, 10, "Check here if 10 day cutoff has passed", TIKL_checkbox
       ButtonGroup ButtonPressed
         OkButton 210, 155, 45, 15
         CancelButton 260, 155, 45, 15
@@ -381,7 +381,6 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	EMReadScreen error_msg, 11, 24, 2
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	If error_msg = "ACTION CODE" THEN script_end_procedure(err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
-
 	IF resolution_status = "BC - Case Closed" 	THEN EMWriteScreen "Case closed. " & other_notes, 8, 6   							'BC
 	IF resolution_status = "BE - No Change" THEN EMWriteScreen "No change. " & other_notes, 8, 6 									'BE
 	IF resolution_status = "BE - Child" THEN EMWriteScreen "No change, minor child income excluded. " & other_notes, 8, 6 			'BE - child
@@ -426,11 +425,11 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		IF resolution_status = "BP - Wrong Person" THEN CALL write_variable_in_CASE_NOTE("Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
 		IF resolution_status = "CC - Claim Entered" THEN CALL write_variable_in_CASE_NOTE("Client name and wage earner name are different.")
 		IF resolution_status = "NC - Non Cooperation" THEN
-        	CALL write_variable_in_CASE_NOTE("* CLIENT FAILED TO COOP WITH WAGE MATCH")
-        	CALL write_variable_in_case_note("* Entered STAT/DISQ panels for each program.")
-        	CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
-        	CALL write_variable_in_case_note("* Case approved to close")
-        	CALL write_variable_in_case_note("* Client needs to provide: ATR, Income Verification, Difference Notice")
+      CALL write_variable_in_CASE_NOTE("* CLIENT FAILED TO COOP WITH WAGE MATCH")
+      CALL write_variable_in_case_note("* Entered STAT/DISQ panels for each program.")
+      CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
+      CALL write_variable_in_case_note("* Case approved to close")
+      CALL write_variable_in_case_note("* Client needs to provide: ATR, Income Verification, Difference Notice")
     END IF
 	  CALL write_bullet_and_variable_in_CASE_NOTE("Responded to Difference Notice", change_response)
 	 	CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
@@ -438,16 +437,16 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	 	CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 
 		IF TIKL_checkbox = checked THEN
-	    	'Navigates to TIKL
-	    	EMSendKey "w"
-	    	transmit
-	    	'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-	    	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
-	    	CALL write_variable_in_TIKL("CLOSE FOR IEVS NON-COOP, CREATE DISQ(S) FOR " & first_name)
-	    	PF3		'Exits and saves TIKL
-	    	script_end_procedure("Success! Updated NON-WAGE match, and a TIKL created.")
-	    END IF
-	END IF
+	    'Navigates to TIKL
+	    EMSendKey "w"
+	    transmit
+	    'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
+	    CALL create_MAXIS_friendly_date(date, 10, 5, 18)
+	    CALL write_variable_in_TIKL("CLOSE FOR IEVS NON-COOP, CREATE DISQ(S) FOR " & first_name)
+	    PF3		'Exits and saves TIKL
+	    script_end_procedure("Success! Updated NON-WAGE match, and a TIKL created.")
+	  END IF
+	'END IF
 END IF
 
 script_end_procedure ("Match has been acted on. Please take any additional action needed for your case.")
