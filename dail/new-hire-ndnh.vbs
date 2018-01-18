@@ -144,7 +144,7 @@ LOOP UNTIL are_we_passworded_out = false
 		'warning_box = MsgBox("The names found on the NEW HIRE message do not match exactly." & vbcr & new_hire_third_line & vbcr & new_hire_fourth_line & vbcr & "Please review and click OK if you wish to continue and CANCEL if the name is incorrect.", vbOKCancel)
 		'If warning_box = vbCancel then script_end_procedure("The script has ended. Please review the new hire as you indicated that the name read from the NEW HIRE and the MAXIS name did not match.")
 	'END IF
-	
+
 	'EMSearch "DATE HIRED   :", row, col
 	EMReadScreen date_hired, 10, 10, 22
 	If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then date_hired = current_month & "-" & current_day & "-" & current_year
@@ -155,7 +155,7 @@ LOOP UNTIL are_we_passworded_out = false
 	If len(day_hired) = 1 then day_hired = "0" & day_hired
 	year_hired = Datepart("yyyy", date_hired)
 	year_hired = year_hired - 2000
-	
+
 	row = 1 						'Now it's searching for info on the hire date as well as employer
 	col = 1
 	EMSearch "EMPLOYER:", row, col
@@ -238,10 +238,10 @@ IF match_answer_droplist = "NO - run NEW HIRE" THEN
     	transmit
     	EMReadScreen MAXIS_footer_month, 2, 20, 55	'Reads footer month for updating the panel
     	EMReadScreen MAXIS_footer_year, 2, 20, 58		'Reads footer year
-    	
+
     	EMWriteScreen "w", 5, 34				'Wage income is the type
     	EMWriteScreen "n", 6, 34				'No proof has been provided
-    
+
     	EMWriteScreen employer, 7, 42			'Adds employer info
     	EMWriteScreen month_hired, 9, 35		'Adds month hired to start date (this is actually the day income was received)
     	EMWriteScreen day_hired, 9, 38			'Adds day hired
@@ -410,7 +410,7 @@ IF match_answer_droplist = "YES - INFC clear match" THEN
 			IF Emp_known_droplist = "Select One:" THEN err_msg = err_msg & vbCr & "* You must select yes or no for was this employment known to the agency?"
 			IF (Emp_known_droplist = "NO - See Next Question" AND Action_taken_droplist = "Select One:") THEN err_msg = err_msg & vbCr & "* You must select an action taken."
 			IF (Action_taken_droplist = "NA - No Action Taken" AND cost_savings <> "") THEN err_msg = err_msg & vbCr & "* Please remove Cost savings information or make another selection"
-			IF (Action_taken_droplist = "BR - Benefits Reduced" OR Action_taken_droplist = "CC - Case Closed" AND cost_savings = "") THEN err_msg = err_msg & vbCr & "* Enter the 1st month's cost savings for this case."
+			IF (Action_taken_droplist = "BR - Benefits Reduced" OR Action_taken_droplist = "CC - Case Closed") AND cost_savings = "" THEN err_msg = err_msg & vbCr & "* Enter the 1st month's cost savings for this case."
 					IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
