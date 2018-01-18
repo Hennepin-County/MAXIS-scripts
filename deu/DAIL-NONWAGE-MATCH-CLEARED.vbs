@@ -410,7 +410,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		PF3 'back to the DAIL'
 	   '----------------------------------------------------------------the case match CLEARED note
 		start_a_blank_CASE_NOTE
-		IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & "/" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
+		IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & "/" & IEVS_year & " NON-WAGE MATCH " & "(" & first_name & ") CLEARED " & rez_status & "-----")
 	  IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
 	  CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_match)
 	  CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
