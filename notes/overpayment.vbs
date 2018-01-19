@@ -135,9 +135,9 @@ BeginDialog EWS_OP_dialog, 0, 0, 396, 205, "Overpayment Claim Entered"
   Text 5, 145, 50, 10, "Income Source: "
   Text 150, 145, 85, 10, "Income verification used:"
   Text 5, 170, 50, 10, "Reason for OP: "
-  Text 125, 35, 15, 10, "(MM)"
+  Text 125, 35, 20, 10, "(MM)"
   Text 155, 35, 15, 10, "(YY)"
-  Text 195, 35, 15, 10, "(MM)"
+  Text 195, 35, 20, 10, "(MM)"
   Text 225, 35, 15, 10, "(YY)"
 EndDialog
 
