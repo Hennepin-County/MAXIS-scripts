@@ -170,7 +170,7 @@ IF First_Program = "Select:"THEN err_msg = err_msg & vbNewLine &  "* Please ente
 	IF collectible_dropdown = "YES"  & collectible_reason = "" THEN err_msg = err_msg & vbnewline & "* Please advise why overpayment is collectible."
 	IF fraud_referral = "Select:"  THEN err_msg = err_msg & vbnewline & "* Please advise if a fraud referral was made."
 	IF source_income = ""  THEN err_msg = err_msg & vbnewline & "* Please advise the source of income."
-	IF EVF_used = ""  THEN err_msg = err_msg & vbnewline & "* Please advise the verifcation used for income."
+	IF EVF_used = ""  THEN err_msg = err_msg & vbnewline & "* Please advise the verification used for income."
 	IF Reason_OP = ""  THEN err_msg = err_msg & vbnewline & "* Please advise the reason for overpayment."
 	IF Discovery_date = ""  THEN err_msg = err_msg & vbnewline & "* Please advise the date the overpayment was discovered (DD/MM/YY)."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
