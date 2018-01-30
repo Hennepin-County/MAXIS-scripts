@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/25/2018", "Script updated to gather DISA and Cert dates from STAT/DISA. Removed several fields from STAT/FACI. Also organized how data is presented on Excel spreadsheet.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/12/2018", "Script updated to also gather FACI in dates, next revw date. Also organized how data is presented on Excel spreadsheet.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/08/2018", "Script updated to also gather waiver types from STAT/DISA.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/31/2017", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -109,21 +110,16 @@ objExcel.DisplayAlerts = True
 
 'Setting up the Excel spreadsheet
 ObjExcel.Cells(1, 1).Value = "Worker"
-ObjExcel.Cells(1, 2).Value = "MAXIS Case #"
-ObjExcel.Cells(1, 3).Value = "Next REVW Date"
+ObjExcel.Cells(1, 2).Value = "Case #"
+ObjExcel.Cells(1, 3).Value = "Next REVW"
 ObjExcel.Cells(1, 4).Value = "Facility Name"
-ObjExcel.Cells(1, 5).Value = "Facility Type"
-ObjExcel.Cells(1, 6).Value = "GRH Rate"
-ObjExcel.Cells(1, 7).Value = "In dates"
-ObjExcel.Cells(1, 8).Value = "GRH Plan Required"
-ObjExcel.Cells(1, 9).Value = "Plan Verified"
-ObjExcel.Cells(1,10).Value = "Cty App Placement"
-ObjExcel.Cells(1,11).Value = "Approval Cty"
-ObjExcel.Cells(1,12).Value = "GRH DOC Amount"
-ObjExcel.Cells(1,13).Value = "GRH Plan Dates"
-ObjExcel.Cells(1,14).Value = "Waiver Type"
+ObjExcel.Cells(1, 5).Value = "GRH Rate"
+ObjExcel.Cells(1, 6).Value = "DISA Dates"
+ObjExcel.Cells(1, 7).Value = "Certification Dates"
+ObjExcel.Cells(1, 8).Value = "GRH Plan Dates"
+ObjExcel.Cells(1, 9).Value = "Waiver Type"
 
-FOR i = 1 to 14		'formatting the cells'
+FOR i = 1 to 9		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -180,7 +176,13 @@ Do
 		LOOP until SELF_screen_check = "SELF"
 		EMWriteScreen "________", 18, 43		'clears the case number
 		transmit
-    Else  
+    Else 
+	    EMReadScreen member_number, 2, 4, 33
+	    If member_number <> "01" then 
+	    	EmWriteScreen "01", 20, 76						'For member 01 - All GRH cases should be for member 01. 
+	    	Call write_value_and_transmit ("01", 20, 79)	'1st version of FACI 
+	    End if 
+	 
 	    EMReadScreen FACI_total_check, 1, 2, 78
 	    If FACI_total_check = "0" then 
 	    	current_faci = False 
@@ -213,70 +215,59 @@ Do
 	    	Loop until last_panel = "ENTER"	'This means that there are no other faci panels
 	    End if 
 		
-		If date_in <> "__ __ ____" then date_in = replace(date_in, " ", "/")
-	
 	    'GETS FACI NAME AND PUTS IT IN SPREADSHEET, IF CLIENT IS IN FACI.
 	    If current_faci = True then
 	    	EMReadScreen FACI_name, 30, 6, 43
-	    	EMReadScreen FACI_type, 2, 7, 43
 			EMReadScreen GRH_rate, 1, row, 34	
-	     	EMReadScreen GRH_plan_req, 1, 11, 52
-	    	EMReadScreen GRH_plan_verif, 1, 11, 71
-	    	EMReadScreen county_placement, 1, 12, 52
-	    	EMReadScreen approval_county, 2, 12, 71
-	    	EMReadScreen GRH_DOC_amt, 8, 13, 45
-	    	
 	    	ObjExcel.Cells(excel_row, 4).Value = trim(replace(FACI_name, "_", ""))
-	    	ObjExcel.Cells(excel_row, 5).Value = trim(replace(FACI_type, "_", ""))
-			ObjExcel.Cells(excel_row, 6).Value = trim(replace(GRH_rate, "_", ""))
-			ObjExcel.Cells(excel_row, 7).Value = trim(replace(date_out, "_", ""))
-	    	ObjExcel.Cells(excel_row, 8).Value = trim(replace(GRH_plan_req, "_", ""))
-	    	ObjExcel.Cells(excel_row, 9).Value = trim(replace(GRH_plan_verif, "_", ""))
-	    	ObjExcel.Cells(excel_row, 10).Value = trim(replace(county_placement, "_", ""))
-	    	ObjExcel.Cells(excel_row, 11).Value = trim(replace(approval_county, "_", ""))
-	    	ObjExcel.Cells(excel_row, 12).Value = trim(replace(GRH_DOC_amt, "_", ""))
+			ObjExcel.Cells(excel_row, 5).Value = trim(replace(GRH_rate, "_", ""))
 	    End if 
 		
 	    Call navigate_to_MAXIS_screen("STAT", "DISA")
-	    EMReadScreen GRH_begin_date, 10, 9, 47
-	    EMReadScreen GRH_end_date, 10, 9, 69
-	    
-	    'begin dates on DISA for GRH plan
-	    If GRH_begin_date = "__ __ ____" then 
-	    	GRH_begin_date = ""
-	    Else 
-	    	GRH_begin_date = replace(GRH_begin_date, " ", "/")
-	    End if 
-	    'end dates on DISA for GRH plan
-	    If GRH_end_date = "__ __ ____" then 
-	    	GRH_end_date = ""
-	    Else 
-	    	GRH_end_date = replace(GRH_end_date, " ", "/")
-	    End if
-	    
- 	    GRH_plan_date = GRH_begin_date & " - " & GRH_end_date
-	    If trim(GRH_plan_date) = "-" then GRH_plan_date = ""
- 	    ObjExcel.Cells(excel_row, 13).Value = GRH_plan_date
+		'Reading the disa dates
+		EMReadScreen disa_start_date, 10, 6, 47			'reading DISA dates
+		EMReadScreen disa_end_date, 10, 6, 69
+		disa_start_date = Replace(disa_start_date," ","/")		'cleans up DISA dates
+		disa_end_date = Replace(disa_end_date," ","/")
+		disa_dates = trim(disa_start_date) & " - " & trim(disa_end_date)
+		If disa_dates = "__/__/____ - __/__/____" then disa_dates = ""
+		ObjExcel.Cells(excel_row, 6).Value = disa_dates
+		
+		EMReadScreen cert_start_date, 10, 9, 47			'reading cert dates
+		EMReadScreen cert_end_date, 10, 9, 69
+		cert_start_date = Replace(cert_start_date," ","/")		'cleans up cert dates
+		cert_end_date = Replace(cert_end_date," ","/")
+		cert_dates = trim(cert_start_date) & " - " & trim(cert_end_date)
+		If cert_dates = "__/__/____ - __/__/____" then cert_dates = ""
+		ObjExcel.Cells(excel_row, 7).Value = cert_dates
+		
+		EMReadScreen GRH_start_date, 10, 9, 47			'reading GRH dates
+		EMReadScreen GRH_end_date, 10, 9, 69
+		GRH_start_date = Replace(GRH_start_date," ","/")		'cleans up GRH dates
+		GRH_end_date = Replace(GRH_end_date," ","/")
+		GRH_dates = trim(GRH_start_date) & " - " & trim(GRH_end_date)
+		If GRH_dates = "__/__/____ - __/__/____" then GRH_dates = ""
+		ObjExcel.Cells(excel_row, 8).Value = GRH_dates
 	    
 	    'checks the waiver type
 	    EMReadScreen DISA_waiver_type, 1, 14, 59
 	    If DISA_waiver_type = "_" then DISA_waiver_type = ""
-	    ObjExcel.Cells(excel_row, 14).Value = DISA_waiver_type
+	    ObjExcel.Cells(excel_row, 9).Value = DISA_waiver_type
 	End if 
 	
 	excel_row = excel_row + 1 'setting up the script to check the next row.
 LOOP UNTIL objExcel.Cells(excel_row, 2).Value = ""	'Loops until there are no more cases in the Excel list
 
 'Query date/time/runtime info
-objExcel.Cells(1, 16).Font.Bold = TRUE
-objExcel.Cells(2, 16).Font.Bold = TRUE
-ObjExcel.Cells(1, 16).Value = "Query date and time:"	'Goes back one, as this is on the next row
-ObjExcel.Cells(2, 16).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
-ObjExcel.Cells(1, 17).Value = now
-ObjExcel.Cells(2, 17).Value = timer - query_start_time
+objExcel.Cells(1, 10).Font.Bold = TRUE
+objExcel.Cells(2, 10).Font.Bold = TRUE
+ObjExcel.Cells(1, 10).Value = "Query date and time:"	'Goes back one, as this is on the next row
+ObjExcel.Cells(2, 10).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
+ObjExcel.Cells(1, 11).Value = now
+ObjExcel.Cells(2, 11).Value = timer - query_start_time
 
 'formatting the cells
-FOR i = 1 to 17
+FOR i = 1 to 11
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
 
