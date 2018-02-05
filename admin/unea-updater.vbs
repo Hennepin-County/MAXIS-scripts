@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("02/05/2018", "Added additional handling for SPEC/MEMO sending, data validation and comments.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/28/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -90,7 +91,7 @@ Do
 		EndDialog
 		err_msg = ""
 		Dialog file_select_dialog
-		cancel_confirmation
+		If buttonpressed = 0 then stopscript
 		If ButtonPressed = select_a_file_button then
 			If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
 				objExcel.Quit 'Closing the Excel file that was opened on the first push'
@@ -110,21 +111,22 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Sets up the array to store all the information for each client'
 Dim UNEA_array()
-ReDim UNEA_array (9, 0)
+ReDim UNEA_array (10, 0)
 
 'Sets constants for the array to make the script easier to read (and easier to code)'
 Const case_num    	= 1			'Each of the case numbers will be stored at this position'
 Const clt_pmi     	= 2
 Const inc_type		= 3
-Const act_claim		= 4
-Const claim_num   	= 5
+Const claim_num   	= 4
+Const act_claim		= 5
 Const unea_amt 	  	= 6
 Const cola_amt    	= 7
 Const act_status  	= 8
 Const act_notes   	= 9
+Const Send_memo     = 10
 
 'Now the script adds all the clients on the excel list into an array
-Excel_row = 2 're-establishing the row to start checking the members for
+excel_row = 2 're-establishing the row to start checking the members for
 entry_record = 0
 Do                                                            'Loops until there are no more cases in the Excel list
 	MAXIS_case_number = objExcel.cells(excel_row, 1).Value          're-establishing the case numbers for functions to use
@@ -137,29 +139,31 @@ Do                                                            'Loops until there
 		client_PMI = trim(client_PMI)
 		If left(client_PMI, 1) = "0" then client_PMI = right(client_PMI, len(client_PMI) - 1)
 	Loop until left(client_PMI, 1) <> "0"
-	
-	income_type  	= objExcel.cells(excel_row,  9).value	'establishes income type code 
-	actual_claim 	= objExcel.cells(excel_row, 11).value	'establishes 
-	claim_number 	= objExcel.cells(excel_row, 12).value	'establishes 
-	unea_amount	 	= objExcel.cells(excel_row, 13).value	'establishes cleared status for the match
-	cola_amount	 	= objExcel.cells(excel_row, 14).value	'establishes cleared status for the match
+    
+	income_type  	= objExcel.cells(excel_row,  9).value	'(col I) establishes income type code 
+	claim_number 	= objExcel.cells(excel_row, 11).value	'(col K) establishes claim number from MAXIS (created by the report) 
+    actual_claim 	= objExcel.cells(excel_row, 12).value	'(col L) establishes the acutal claim number (if another claim number was found by VA staff)
+	unea_amount	 	= objExcel.cells(excel_row, 13).value	'(col M) establishes grant amount for each case
+	cola_amount	 	= objExcel.cells(excel_row, 14).value	'(col N) establishes COLA amount for each case (if applicable)
 	'cleaning up the variables
 	income_type	 	= trim(income_type)
 	claim_number 	= trim(claim_number)
+    actual_claim    = trim(actual_claim)
 	unea_amount		= trim(unea_amount)
 	cola_amount 	= trim(cola_amount) 
 	
 	'Adding client information to the array'
-	ReDim Preserve UNEA_array(9, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+	ReDim Preserve UNEA_array(10, entry_record)	'This resizes the array based on the number of rows in the Excel File'
 	UNEA_array (case_num, 	entry_record) = MAXIS_case_number		'The client information is added to the array'
 	UNEA_array (clt_PMI,  	entry_record) = client_PMI 
 	UNEA_array (inc_type, 	entry_record) = income_type
+    UNEA_array (claim_num,	entry_record) = claim_number
 	UNEA_array (act_claim, 	entry_record) = actual_claim
-	UNEA_array (claim_num,	entry_record) = claim_number
 	UNEA_array (unea_amt,   entry_record) = unea_amount 
 	UNEA_array (cola_amt,   entry_record) = cola_amount
 	UNEA_array (act_status, entry_record) = ""
 	UNEA_array (act_notes,  entry_record) = ""
+    UNEA_array (send_memo,  entry_record) = False 
 	entry_record = entry_record + 1			'This increments to the next entry in the array'
 	Stats_counter = stats_counter + 1
 	excel_row = excel_row + 1
@@ -174,18 +178,15 @@ For i = 0 to Ubound(UNEA_array, 2)
 	MAXIS_case_number	= UNEA_array (case_num, i)
 	client_PMI			= UNEA_array (clt_PMI, i)
 	income_type 		= UNEA_array (inc_type, i)
-	claim_number 		= UNEA_array (claim_num, i)
+    actual_claim        = UNEA_array (act_claim, i)
 	unea_amount 		= UNEA_array (unea_amt, i) 
 	cola_amount 		= UNEA_array (cola_amt, i)
-	
-	forms_to_arep = ""
-	forms_to_swkr = ""
 	
 	If unea_amount = "" or IsNumeric(unea_amount) = False then 
 		UNEA_array(act_status, i) = "Error"
 		UNEA_array(act_notes, i) = "VA income amount is blank or is not numeric."
+        UNEA_array(send_memo, i) = False
 		income_panel_found = false 
-		send_memo = false
 	Else 
 	    MAXIS_background_check()
 	    'Checking the SNAP status 
@@ -194,8 +195,8 @@ For i = 0 to Ubound(UNEA_array, 2)
 	    If PRIV_check = "PRIV" then
 	    	UNEA_array(act_status, i) = "Error"
 	    	UNEA_array(act_notes, i) = "Case is privileged."
+            UNEA_array(send_memo, i) = False
 	    	income_panel_found = false 
-	    	send_memo = false
 	   
 	    	'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
 	    	Do
@@ -210,8 +211,8 @@ For i = 0 to Ubound(UNEA_array, 2)
 	        If county_code <> "27" then 
 	        	UNEA_array(act_status, i) = "Error"
 	        	UNEA_array(act_notes, i) = "Not Hennepin County case, county code is: " & county_code	'Explanation for the rejected report'
+                UNEA_array(send_memo, i) = False
 	    		income_panel_found = false 
-	    		Send_memo = false
 	        Else 
 	    		'Reads to see if the client is on SNAP 
 	        	EMReadscreen SNAP_active, 4, 10, 74
@@ -255,8 +256,8 @@ For i = 0 to Ubound(UNEA_array, 2)
 	        	IF client_PMI <> UNEA_array(clt_PMI, i) then 
 	        		UNEA_array(act_status, i) = "Error"
 	        		UNEA_array(act_notes, i) = "Unable to find person's member number."	'Explanation for the rejected report'
+                    UNEA_array(send_memo, i) = False
 	    			income_panel_found = false 
-	    			send_memo = false
 	        	Else 
 	        		'STAT UNEA PORTION
 	        		Call navigate_to_MAXIS_screen("STAT", "UNEA")
@@ -268,8 +269,8 @@ For i = 0 to Ubound(UNEA_array, 2)
 	    			If total_amt_of_panels = "0" then 
 	    				UNEA_array(act_status, i) = "Error"
 	    				UNEA_array(act_notes, i) = "UNEA panel not known. Review case, and update manually if applicable."	'Explanation for the rejected report'
+                        UNEA_array(send_memo, i) = False
 	    				income_panel_found = false 
-	    				send_memo = false
 	    			Else 	
 	    				Do
 	    					EMReadScreen current_panel_number, 1, 2, 73
@@ -370,9 +371,8 @@ For i = 0 to Ubound(UNEA_array, 2)
 	    				If income_panel_found <> true then 
 	    					UNEA_array(act_status, i) = "Error"
 	    					UNEA_array(act_notes, i) = "Unable to find person's member number."	'Explanation for the rejected report'
-	    					send_memo = false
+	    					UNEA_array(send_memo, i) = False 
 	    				End if 
-	    		
 	    				back_to_self		'to clear WRAP panel
 	        		End if 
 	        	End if 
@@ -380,14 +380,7 @@ For i = 0 to Ubound(UNEA_array, 2)
 	    End if 
 	End if 
 	
-	IF income_panel_found = true then
-		call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
-		EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
-	 	
-		call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
-		EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
-		
-	    'Case note PORTION
+	IF income_panel_found = true then		
 	    start_a_blank_CASE_NOTE
 	    '----------------------------------------------------------------------------------------------------THE CASE NOTE
 	    renewal_period = MAXIS_footer_month & "/" & MAXIS_footer_year		'establishing the renewal period for the header of the case note
@@ -400,7 +393,7 @@ For i = 0 to Ubound(UNEA_array, 2)
 		call write_variable_in_case_note("* SPEC/MEMO sent to client re: questions about Veteran's benefits.")
 	
 		call write_variable_in_case_note("---")
-		call write_variable_in_case_note("Actions performed by BZ script, run by I. Ferris, QI team")
+		call write_variable_in_case_note(worker_signature)
 		
 		'ensuring that the case note saved. If not, adding it to the notes for the user to review. 
 		PF3
@@ -408,69 +401,46 @@ For i = 0 to Ubound(UNEA_array, 2)
 		If note_date <> current_date then 
 			UNEA_array(act_status, i) = "Error"
 			UNEA_array(act_notes, i) = "Case note does not appear to have been saved."	'Explanation for the rejected report'
-			send_memo = false 
+			UNEA_array(send_memo, i) = False 
 	    Else 
-			send_memo = true
-		End if 
-		 
-	    If send_memo = True then 
-		    '----------------------------------------------------------------------------------------------------THE SPEC/MEMO
-		    call navigate_to_MAXIS_screen("SPEC", "MEMO")		'Navigating to SPEC/MEMO
-			
-		    'Creates a new MEMO. If it's unable the script will stop.
-		    PF5
-		    EMReadScreen memo_display_check, 12, 2, 33
-		    If memo_display_check = "Memo Display" then 
-				UNEA_array(act_status, i) = "Error"
-				UNEA_array(act_notes, i) = "Could not create SPEC/MEMO."	'Explanation for the rejected report'
-				PF10
-			Else 
-		        'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
-		        row = 6                             'Defining row and col for the search feature.
-		        col = 1
-		        EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
-		        IF row > 6 THEN arep_row = row                      'If it isn't 4, that means it was found. Logs the row it found the ALTREP string as arep_row
-		      
-		        'Checking for SWKR
-		        row = 6                             'Defining row and col for the search feature.
-		        col = 1
-		        EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
-		        IF row > 6 THEN swkr_row = row      'If it isn't 4, that means it was found. Logs the row it found the SOCWKR string as swkr_row
-		        	                                  
-		        EMWriteScreen "x", 5, 12                                        'Selects the client as the 1st recipient
-		        IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-		        IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-		        transmit
-		        
-	            'Writes the MEMO.
-	            call write_variable_in_SPEC_MEMO("If you have any questions about veterans benefits, please contact the Hennepin County Veterans Service Office at 612-348-3300. Veterans Services has staff at the Government Center, the South Minneapolis Human Service center, and Maple Grove. You may also make an appointment at a variety of regional locations.")
-	            Call write_variable_in_SPEC_MEMO("")
-	            Call write_variable_in_SPEC_MEMO("Even if you are already in receipt of compensation or pension, your benefit amount may be able to be increased.")
-	            Call write_variable_in_SPEC_MEMO("")
-	            Call write_variable_in_SPEC_MEMO("If you are interested in speaking with someone regarding Veterans benefits, or if you have questions about this notice, please call the Hennepin County Veterans Service Office at 612-348-3300. Thank you.")	
-	            PF4			'Exits the MEMO
-		        EMReadScreen memo_sent, 8, 24, 2
-				
-		        If memo_sent = "NEW MEMO" then 
-		        	UNEA_array(act_status, i) = "Case updated"
-		        	UNEA_array(act_notes, i) = ""	'Explanation for the rejected report'
-		        Else
-		        	UNEA_array(act_status, i) = "Error"
-		        	UNEA_array(act_notes, i) = "Does not appear that memo sent."	'Explanation for the rejected report'
-			    	PF10
-		        END IF 
-			End if 
+            UNEA_array(act_status, i) = "Case updated"
+            UNEA_array(act_notes, i) = ""	'Explanation for the rejected report'
+			UNEA_array(send_memo, i) = True 
 		End if 	
-	End if 
+	End if
 Next    
 
-'Export data to Excel 
-Excel_row = 2
 For i = 0 to Ubound(UNEA_array, 2)
-	ObjExcel.Cells(Excel_row, 15).Value = UNEA_array(act_status, i)
-	ObjExcel.Cells(Excel_row, 16).Value = UNEA_array(act_notes,  i)
+    If UNEA_array(send_memo, i) = True then 
+        MAXIS_case_number = UNEA_array(case_num, i)
+        Call MAXIS_background_check
+        '----------------------------------------------------------------------------------------------------THE SPEC/MEMO
+        Call start_a_new_spec_memo
+        call navigate_to_MAXIS_screen("SPEC", "MEMO")		'Navigating to SPEC/MEMO
+                
+        'Writes the MEMO.
+        call write_variable_in_SPEC_MEMO("If you have any questions about veterans benefits, please contact the Hennepin County Veterans Service Office at 612-348-3300. Veterans Services has staff at the Government Center, the South Minneapolis Human Service center, and Maple Grove. You may also make an appointment at a variety of regional locations.")
+        Call write_variable_in_SPEC_MEMO("")
+        Call write_variable_in_SPEC_MEMO("Even if you are already in receipt of compensation or pension, your benefit amount may be able to be increased.")
+        Call write_variable_in_SPEC_MEMO("")
+        Call write_variable_in_SPEC_MEMO("If you are interested in speaking with someone regarding Veterans benefits, or if you have questions about this notice, please call the Hennepin County Veterans Service Office at 612-348-3300. Thank you.")	
+        PF4			'Exits the MEMO
+        EMReadScreen memo_sent, 8, 24, 2
+        If memo_sent <> "NEW MEMO" then 
+            UNEA_array(act_status, i) = "Error"
+            UNEA_array(act_notes, i) = "Does not appear that memo sent."	'Explanation for the rejected report'
+            PF10
+        End if 
+    End if  
+Next 
+    
+'Export data to Excel 
+excel_row = 2
+For i = 0 to Ubound(UNEA_array, 2)
+	ObjExcel.Cells(Excel_row, 15).Value = UNEA_array(act_status, i) '(Col O)
+	ObjExcel.Cells(Excel_row, 16).Value = UNEA_array(act_notes,  i) '(Col P)
 	Excel_row = Excel_row + 1
 Next
 
 Stats_counter = stats_counter + 1
-script_end_procedure("Success! THe list is complete. Please review the cases that appear to be in error.")
+script_end_procedure("Success! The list is complete. Please review the cases that appear to be in error.")
