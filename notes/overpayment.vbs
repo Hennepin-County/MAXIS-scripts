@@ -44,7 +44,9 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("02/01/2018", "Updated script to write amount in case note in the correct area.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/04/2018", "Initial version.", "MiKayla Handley, Hennepin County")
+
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
@@ -187,9 +189,9 @@ start_a_blank_CASE_NOTE
 CALL write_variable_in_CASE_NOTE("----- " & First_from_IEVS_month & "/" &  First_from_IEVS_year & "(" & first_name &  ")" & "OVERPAYMENT CLAIM ENTERED -----")
 CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
 CALL write_variable_in_CASE_NOTE("----- ----- ----- ")
-Call write_variable_in_CASE_NOTE(First_Program & " Overpayment Claim # " & First_OP &  " " & First_from_IEVS_month & "/" &  First_from_IEVS_year & " through "  & First_to_IEVS_month & "/" &  First_to_IEVS_year & " Amount: " & First_amount)
-IF Second_OP <> "" THEN CALL write_variable_in_case_note(Second_Program &  "Overpayment Claim # " & Second_OP &  " " & Second_from_IEVS_month & "/" &  Second_from_IEVS_year & " through "  & Second_to_IEVS_month & "/" &  Second_to_IEVS_year & " Amount: " & Second_amount)
-IF Third_OP <> "" THEN CALL write_variable_in_case_note(Third_Program &  "Overpayment Claim # " & Third_OP &  " " & Third_from_IEVS_month & "/" &  Third_from_IEVS_year & " through "  & Third_to_IEVS_month & "/" &  Third_to_IEVS_year & " Amount: " & Third_amount)
+Call write_variable_in_CASE_NOTE(First_Program & " Overpayment Claim # " & First_OP  & " Amount: $" & First_AMT &  " From: " & First_from_IEVS_month & "/" &  First_from_IEVS_year & " through "  & First_to_IEVS_month & "/" &  First_to_IEVS_year)
+IF Second_OP <> "" THEN CALL write_variable_in_case_note(Second_Program &  " Overpayment Claim # " & Second_OP  & " Amount: $" & Second_AMT & " From: " & Second_from_IEVS_month & "/" &  Second_from_IEVS_year & " through "  & Second_to_IEVS_month & "/" &  Second_to_IEVS_year)
+IF Third_OP <> "" THEN CALL write_variable_in_case_note(Third_Program &  " Overpayment Claim # " & Third_OP & " Amount: $" & Third_AMT & " From: " & Third_from_IEVS_month & "/" &  Third_from_IEVS_year & " through "  & Third_to_IEVS_month & "/" &  Third_to_IEVS_year)
 IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
 IF fraud_referral = "YES" THEN CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
 CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
