@@ -2,7 +2,7 @@
 name_of_script = "BULK - DAIL DECIMATOR.vbs"
 start_time = timer
 STATS_counter = 1                       'sets the stats counter at one
-'see below dialog selection
+STATS_manualtime = 20
 STATS_denomination = "C"       			'C is for each CASE
 'END OF stats block==============================================================================================
 
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/02/2018", "Added supported PEPR and CSES messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/02/2018", "Added Casey Love as autorized user of the script, blanked out MAXIS case number for PRIV cases, and merged SVES and INFO messages together into one option.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/30/2017", "Complete updates for INFO, SVES, COLA and ELIG messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/11/2017", "Added Quality Improvement Team as authorized users of DAIL Decimator script.", "Ilse Ferris, Hennepin County")
@@ -59,18 +60,20 @@ Function dail_selection
 	transmit
 	EMWriteScreen "_", 7, 39		'clears the all selection
 	
+    IF dail_to_decimate = "ALL" then selection_row = 7
+    IF dail_to_decimate = "CSES" then selection_row = 10
 	IF dail_to_decimate = "COLA" then selection_row = 8
 	IF dail_to_decimate = "ELIG" then selection_row = 11
 	IF dail_to_decimate = "INFO" then selection_row = 13
-	
+    IF dail_to_decimate = "PEPR" then selection_row = 18
+    
 	Call write_value_and_transmit("x", selection_row, 39)	
 End Function
-
 
 'END CHANGELOG BLOCK =======================================================================================================
 
 BeginDialog dail_dialog, 0, 0, 266, 110, "Dail Decimator dialog"
-  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"COLA"+chr(9)+"ELIG"+chr(9)+"INFO", dail_to_decimate
+  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"ALL"+chr(9)+"CSES"+chr(9)+"ELIG"+chr(9)+"INFO"+chr(9)+"PEPR", dail_to_decimate
   EditBox 80, 70, 180, 15, worker_number
   CheckBox 15, 95, 135, 10, "Check here to process for all workers.", all_workers_check
   ButtonGroup ButtonPressed
@@ -120,10 +123,6 @@ If user_ID_for_validation = "ILFE001" OR _
 Else 
 	script_end_procedure("This script is for Quality Improvement staff only. You do not have access to use this script.")
 End if 
-
-If dail_to_decimate = "COLA" then STATS_manualtime = "40"                'manual run time in seconds
-If dail_to_decimate = "INFO" then STATS_manualtime = "30"                'manual run time in seconds
-If dail_to_decimate = "ELIG" then STATS_manualtime = "25"                'manual run time in seconds
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -215,11 +214,11 @@ For each worker in worker_array
 			EMReadScreen dail_msg, 61, dail_row, 20
 			dail_msg = trim(dail_msg)
 			stats_counter = stats_counter + 1
-		
+	
 			If instr(dail_msg, "TPQY RESPONSE") then 
 			 	add_to_excel = True				'added this in for clearing the SVES messages
 			ElseIf instr(dail_msg, "APPLCT ID CHNGD") then 
-			 	add_to_excel = True 
+			 	add_to_excel = True  '----------------------------------------------------------------------------------------------------INFO Messages              
 			ElseIf instr(dail_msg, "CASE AUTOMATICALLY DENIED") then 
 			 	add_to_excel = True 
 			ElseIf instr(dail_msg, "CASE FILE INFORMATION WAS SENT ON") then 
@@ -253,7 +252,7 @@ For each worker in worker_array
 			ElseIf instr(dail_msg, "THIS APPLICATION WILL BE AUTOMATICALLY DENIED") then 
 			 	add_to_excel = True 
 			ElseIf instr(dail_msg, "THIS CASE IS ERROR PRONE") then 
-			 	add_to_excel = True 
+			 	add_to_excel = True '----------------------------------------------------------------------------------------------------ELIG Messsages
 			ElseIf instr(dail_msg, "NEW DENIAL ELIG RESULTS EXIST") then 
 				add_to_excel = True			 		 	
 			ElseIf instr(dail_msg, "NEW ELIG RESULTS EXIST") then 
@@ -263,33 +262,85 @@ For each worker in worker_array
 			ElseIf instr(dail_msg, "WARNING MESSAGES EXIST") then 
 				add_to_excel = True
 			ElseIf instr(dail_msg, "POTENTIALLY CATEGORICALLY ELIGIBLE") then 
-				add_to_excel = True
-			ElseIf instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") then 
-				add_to_excel = True
-			ElseIf instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO") then 
-				add_to_excel = True
-			ElseIf instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO") then 
-				add_to_excel = True	
-			ElseIf instr(dail_msg, "MSA RECERT DUE - NOT AUTO") then 
-				add_to_excel = True
-			ElseIf instr(dail_msg, "MSA HRF DUE - NOT AUTO") then 
-				add_to_excel = True
-			ElseIf instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO") then 
-				add_to_excel = True
-			ElseIf instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE - REVIEW FOR MEDI UPDATES") then 
-				add_to_excel = True			
-			ElseIf instr(dail_msg, "NEW MSA ELIG AUTO") then
-				add_to_excel = True
-			ElseIf instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO") then 
-				add_to_excel = True
-			ElseIf instr(dail_msg, "SNAP: NEW VERSION AUTO") then 
-				add_to_excel = True
-			ElseIf instr(dail_msg, "GRH: NEW VERSION AUTO") then       
-				add_to_excel = True
+				add_to_excel = True '----------------------------------------------------------------------------------------------------CSES Messages
+            ElseIf instr(dail_msg, "AMT CHILD SUPP MOD/ORD") then 
+            	add_to_excel = True 
+            ElseIf instr(dail_msg, "AP OF CHILD REF NBR:") then 
+    			add_to_excel = True
+            ElseIf instr(dail_msg, "ADDRESS DIFFERS W/ CS RECORDS:") then 
+        		add_to_excel = True        
+            ElseIf instr(dail_msg, "REPORTED NAME CHG TO:") then 
+            	add_to_excel = True
+            ElseIf instr(dail_msg, "NAME DIFFERS W/ CS RECORDS:") then 
+            	add_to_excel = True
+            ElseIf instr(dail_msg, "CHILD SUPP PAYMT FREQUENCY IS MONTHLY FOR CHILD REF NBR") then 
+            	add_to_excel = True
+            ElseIf instr(dail_msg, "NAME DIFFERS W/ CS RECORDS:") then 
+            	add_to_excel = True
+            ElseIf instr(dail_msg, "CHILD SUPP PAYMT FREQUENCY IS MONTHLY FOR CHILD REF NBR") then 
+            	add_to_excel = True
+            ElseIf instr(dail_msg, "CHILD SUPP PAYMTS PD THRU THE COURT/AGENCY FOR CHILD") then 
+            	add_to_excel = True 
+            ElseIf instr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR") then 
+            	add_to_excel = True 
+            ElseIf instr(dail_msg, "IS LIVING W/CAREGIVER") then 
+            	add_to_excel = True    '----------------------------------------------------------------------------------------------------PEPR Messages    
+            ElseIf instr(dail_msg, "UPDATE MEMI:LAST GRADE COMPLETED IF NEEDED") then 
+            	add_to_excel = True 
+            ElseIf instr(dail_msg, "EMPL SERV REF DATE IS > 60 DAYS; CHECK ES PROVIDER RESPONSE") then 
+            	add_to_excel = True           
 			Else	
 			    add_to_excel = False 
 			End if 
-						
+		    
+            '----------------------------------------------------------------------------------------------------January COLA messages 
+            'If instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") then 
+            '	add_to_excel = True
+            'ElseIf instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO") then 
+            '	add_to_excel = True
+            'ElseIf instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO") then 
+            '	add_to_excel = True	
+            'ElseIf instr(dail_msg, "MSA RECERT DUE - NOT AUTO") then 
+            '	add_to_excel = True
+            'ElseIf instr(dail_msg, "MSA HRF DUE - NOT AUTO") then 
+            '	add_to_excel = True
+            'ElseIf instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO") then 
+            '	add_to_excel = True
+            'ElseIf instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE - REVIEW FOR MEDI UPDATES") then 
+            '	add_to_excel = True			
+            'ElseIf instr(dail_msg, "NEW MSA ELIG AUTO") then
+            '	add_to_excel = True
+            'ElseIf instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO") then 
+            '	add_to_excel = True
+            'ElseIf instr(dail_msg, "SNAP: NEW VERSION AUTO") then 
+            '	add_to_excel = True
+            'ElseIf instr(dail_msg, "GRH: NEW VERSION AUTO") then       
+            '	add_to_excel = True
+            ''----------------------------------------------------------------------------------------------------March COLA messages
+            'ElseIf instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") then       
+			'	add_to_excel = True
+            'Elseif instr(dail_msg, "SNAP: RECERTIFICATION DUE - NOT AUTO-APPROVED") then       
+			'	add_to_excel = True
+            'Elseif instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") then       
+    		'	add_to_excel = True
+            'Elseif instr(dail_msg, "SNAP: HRF DUE - NOT AUTO-APPROVED") then       
+    		'	add_to_excel = True
+            'Elseif instr(dail_msg, "SNAP: NEW ELIG AUTO-APPROVED") then       
+        	'	add_to_excel = True
+            'Elseif instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") then       
+            '	add_to_excel = True 
+            'Elseif instr(dail_msg, "NEW MFIP ELIG AUTO-APPROVED") then       
+    		'	add_to_excel = True
+            'Elseif instr(dail_msg, "MFIP RECERT DUE - NOT AUTO-APPROVED") then       
+        	'	add_to_excel = True
+            'Elseif instr(dail_msg, "MFIP HRF DUE - NOT AUTO-APPROVED") then       
+    		'	add_to_excel = True 
+            'Elseif instr(dail_msg, "APPROVED MFIP VERSION EXISTS - NOT AUTO-APPROVED") then       
+            '    add_to_excel = True  
+            'Else 
+            '    add_to_excel = False
+            'End if 
+
 			IF add_to_excel = True then 
 				EMReadScreen maxis_case_number, 8, dail_row - 1, 73
 				EMReadScreen dail_month, 8, dail_row, 11
@@ -305,11 +356,11 @@ For each worker in worker_array
 				'	Call write_value_and_transmit("N", dail_row, 3)	
 				'	EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
 				'	If PRIV_check = "PRIV" then
-				'		msgbox "PRIV case, clear case and navigate back to the message."
+				'		msgbox "PRIV case, clear case and navigate back to the message." & vbcr & MAXIS_case_number
 				'	Else 
 				'	    PF9
 				'	    CALL write_variable_in_case_note(dail_msg)
-				'	    CALL write_variable_in_case_note("Case was auto approved due to COLA changes")
+				'	    CALL write_variable_in_case_note("DAIL messages removed, no current action required.")
 				'	    CALL write_variable_in_case_note("---")
 				'	    CALL write_variable_in_case_note(worker_signature)
 				'	    'Navigating back to DAIL/DAIL by pf3 2 times
