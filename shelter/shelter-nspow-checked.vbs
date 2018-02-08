@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - SHELTER-NSPOW CHECKED.vbs"
+name_of_script = "NOTES - SHELTER-NSOPW CHECKED.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 0         	'manual run time in seconds
@@ -38,8 +38,20 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("02/08/2018", "Updated for corrected acronym and added a space as requested.", "MiKayla Handley, Hennepin County")
+call changelog_update("11/20/2017", "Initial version.", "Ilse Ferris, Hennepin County")
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog nspow_checked_dialog, 0, 0, 226, 90, "NSPOW CHECKED"
+BeginDialog NSOPW_checked_dialog, 0, 0, 226, 90, "NSOPW CHECKED"
   EditBox 60, 5, 60, 15, MAXIS_case_number
   EditBox 75, 30, 45, 15, date1
   EditBox 145, 30, 75, 15, client_name
@@ -47,7 +59,7 @@ BeginDialog nspow_checked_dialog, 0, 0, 226, 90, "NSPOW CHECKED"
   ButtonGroup ButtonPressed
     OkButton 115, 70, 50, 15
     CancelButton 170, 70, 50, 15
-  Text 10, 35, 65, 10, "NSPW checked on"
+  Text 10, 35, 65, 10, "NSOPW checked on"
   Text 10, 10, 45, 10, "Case number:"
   Text 125, 35, 15, 10, " for"
   Text 10, 55, 40, 10, "Other notes:"
@@ -63,17 +75,17 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 DO
 	DO
 		err_msg = ""
-		Dialog nspow_checked_dialog
+		Dialog NSOPW_checked_dialog
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		If date1 = "" then err_msg = err_msg & vbNewLine & "* Enter a date"
 		If client_name = "" then err_msg = err_msg & vbNewLine & "* Enter a client name"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & "(enter NA in all fields that do not apply)" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
-	
-'adding the case number 	
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'adding the case number
 back_to_self
 EMWriteScreen "________", 18, 43
 EMWriteScreen MAXIS_case_number, 18, 43
@@ -82,12 +94,12 @@ EMWriteScreen CM_yr, 20, 46
 
 'The case note'
 start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE("### NSPOW CHECKED ###")
-Call write_variable_in_CASE_NOTE("* NSPOW checked on" & date1 & " for " & client_name & " by " & worker_signature)
+Call write_variable_in_CASE_NOTE("### NSOPW CHECKED ###")
+Call write_variable_in_CASE_NOTE("* NSOPW checked on " & date1 & " for " & client_name & " by " & worker_signature)
 Call write_variable_in_CASE_NOTE("* NOT ON WEBSITE.")
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE ("---")
-Call write_variable_in_CASE_NOTE(worker_signature)
+'Call write_variable_in_CASE_NOTE(worker_signature)
 Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
 script_end_procedure("")
