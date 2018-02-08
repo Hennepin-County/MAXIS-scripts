@@ -378,8 +378,8 @@ For each worker in worker_array
 				dail_row = dail_row + 1
 			End if
 			
-			EMReadScreen message_error, 17, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
-			If message_error = "NO MESSAGES TYPES" then 
+			EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
+			If message_error = "NO MESSAGES" then
 				CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 				Call write_value_and_transmit(worker, 21, 6)
 				transmit   'transmit past 'not your dail message'
