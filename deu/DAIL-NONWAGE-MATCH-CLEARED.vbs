@@ -326,7 +326,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
     DropListBox 50, 160, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
     EditBox 155, 160, 145, 15, collectible_reason
     EditBox 65, 180, 60, 15, Discovery_date
-    EditBox 215, 180, 85, 15, OP_reason
+    EditBox 215, 180, 85, 15, reason_OP
     EditBox 55, 205, 245, 15, other_notes
     CheckBox 10, 225, 135, 10, "Check here if 10 day cutoff has passed", TIKL_checkbox
     ButtonGroup ButtonPressed
@@ -443,12 +443,12 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		PF3 'back to the DAIL'
 	   '----------------------------------------------------------------the case match CLEARED note
 		start_a_blank_CASE_NOTE
-		IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & "/" & IEVS_year & " NON-WAGE MATCH " & "(" & first_name & ") CLEARED " & rez_status & "-----")
+		IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & "/" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
 	  IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
 	  CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_match)
 	  CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
-		CALL write_variable_in_CASE_NOTE ("----- ----- -----")
+		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 		IF resolution_status = "BC - Case Closed" 	THEN CALL write_variable_in_CASE_NOTE("Case closed. ")
 		IF resolution_status = "BE - Child" THEN CALL write_variable_in_CASE_NOTE("INCOME IS EXCLUDED FOR MINOR CHILD IN SCHOOL.")
 		IF resolution_status = "BE - No Change" THEN CALL write_variable_in_CASE_NOTE("NO OVERPAYMENTS OR SAVINGS RELATED TO THIS.")
@@ -457,14 +457,13 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		IF resolution_status = "BO - Other" THEN CALL write_variable_in_CASE_NOTE("HC Claim entered. ")
 		IF resolution_status = "BP - Wrong Person" THEN CALL write_variable_in_CASE_NOTE("Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
 		IF resolution_status = "CC - Claim Entered" THEN
-		  CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 		  CALL write_variable_in_CASE_NOTE(claim_program & " Overpayment Claim # " & claim_number  & " Amount: $" & claim_AMT &  " From: " & from_month & "/" &  from_year & " through "  & to_month & "/" &  to_year)
 		  CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
 		  CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
 		  CALL write_bullet_and_variable_in_case_note("Verification used for overpayment", EVF_used)
 		  CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
 		  CALL write_bullet_and_variable_in_case_note("Discovery Date", Discovery_date)
-		  CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
+		  CALL write_bullet_and_variable_in_case_note("Reason for overpayment", reason_OP)
 		END IF
 		IF resolution_status = "NC - Non Cooperation" THEN
       CALL write_variable_in_CASE_NOTE("* CLIENT FAILED TO COOPERATE WITH WAGE MATCH")
