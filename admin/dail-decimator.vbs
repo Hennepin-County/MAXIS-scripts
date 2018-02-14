@@ -261,6 +261,8 @@ For each worker in worker_array
 				add_to_excel = True
 			ElseIf instr(dail_msg, "WARNING MESSAGES EXIST") then 
 				add_to_excel = True
+            ElseIf instr(dail_msg, "COMPLETE ELIG IN FIAT") then 
+    			add_to_excel = True
 			ElseIf instr(dail_msg, "POTENTIALLY CATEGORICALLY ELIGIBLE") then 
 				add_to_excel = True '----------------------------------------------------------------------------------------------------CSES Messages
             ElseIf instr(dail_msg, "AMT CHILD SUPP MOD/ORD") then 
