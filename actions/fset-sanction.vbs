@@ -154,7 +154,7 @@ IF WREG_MEMB_check = "REFERE" OR WREG_MEMB_check = "MEMBER" THEN script_end_proc
 If sanction_type_droplist = "Imposing sanction" THEN
     'Ensuring that cases are mandatory FSET (ABAWD code "30")
     EMReadScreen ABAWD_status, 2, 13, 50
-    If ABAWD_status <> "10" then script_end_procedure("Member " & member_number & " is not coded as a Mandatory FSET Participant. The script will now end. Banked Months recipients should be closed, not sanctioned.")
+    If ABAWD_status <> "10" or if ABAWD_status <> "06" then script_end_procedure("Member " & member_number & " is not coded as a Mandatory FSET Participant. The script will now end. Banked Months recipients should be closed, not sanctioned.")
 End if 	
 
 EMReadscreen PWE_check, 1, 6, 68 'who is the PWE?
