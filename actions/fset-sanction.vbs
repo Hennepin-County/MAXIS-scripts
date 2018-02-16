@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/09/2018", "Added handling to only allow sanction to occur on cases with ABAWD coding of '10' or '06'.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/09/2018", "Added handling to not allow banked months cases to be sanctioned, check box for FAILURE TO COMPLY notice and automatic PWE checking/case noting.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/30/2016", "Updated reason for sanction reasons for newly added 'reason for sanction' field on STAT/WREG. Also updated user dialogs to include sanction month/year instead of full sanction date.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/30/2016", "Updated reason for sanction reasons for newly added 'reason for sanction' field on STAT/WREG. Also updated user dialogs to include sanction month/year instead of full sanction date.", "Ilse Ferris, Hennepin County")
@@ -154,7 +155,9 @@ IF WREG_MEMB_check = "REFERE" OR WREG_MEMB_check = "MEMBER" THEN script_end_proc
 If sanction_type_droplist = "Imposing sanction" THEN
     'Ensuring that cases are mandatory FSET (ABAWD code "30")
     EMReadScreen ABAWD_status, 2, 13, 50
-    If ABAWD_status <> "10" then script_end_procedure("Member " & member_number & " is not coded as a Mandatory FSET Participant. The script will now end. Banked Months recipients should be closed, not sanctioned.")
+    If ABAWD_status <> "10" then 
+        IF ABAWD_status <> "06" then script_end_procedure("Member " & member_number & " is not coded as a Mandatory FSET Participant. The script will now end. Banked Months recipients should be closed, not sanctioned.")
+    End if 
 End if 	
 
 EMReadscreen PWE_check, 1, 6, 68 'who is the PWE?
