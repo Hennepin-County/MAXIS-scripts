@@ -8,10 +8,10 @@ Execute text_from_the_other_script
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "CLAIM REFERRAL TRACKING.vbs" 'BULK script that creates a list of cases that require an interview, and the contact phone numbers'
 start_time = timer
-STATS_counter = 1               'sets the stats counter at one 
-STATS_manualtime = 200            'manual run time in seconds 
-STATS_denomination = "C"        'C is for each case 
- 'END OF stats block========================================================================================================= 
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 200            'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+ 'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -86,12 +86,12 @@ Do
 	Do
 		err_msg = ""
 		dialog Claim_Referral_Tracking
-		IF buttonpressed = 0 then stopscript 
+		IF buttonpressed = 0 then stopscript
 		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
 		IF isdate(action_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid action date."
 		IF program_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select a program."
 		IF Action_Taken = "Select One:" then err_msg = err_msg & vbnewline & "* Select an action."
-		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature."		
+		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -99,17 +99,17 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Going to the MISC panel
 Call navigate_to_MAXIS_screen ("STAT", "MISC")
-Row = 6 
-EmReadScreen panel_number, 1, 02, 78 
+Row = 6
+EmReadScreen panel_number, 1, 02, 78
 If panel_number = "0" then
 	EMWriteScreen "NN", 20,79
-	TRANSMIT	
-ELSE 
-	Do 
+	TRANSMIT
+ELSE
+	Do
     	'Checking to see if the MISC panel is empty, if not it will find a new line'
     	EmReadScreen MISC_description, 25, row, 30
     	MISC_description = replace(MISC_description, "_", "")
-    	If trim(MISC_description) = "" then 
+    	If trim(MISC_description) = "" then
 			PF9
     		EXIT DO
     	Else
@@ -117,24 +117,24 @@ ELSE
     	End if
 	Loop Until row = 17
     If row = 17 then script_end_procedure("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-End if 	
+End if
 
 'writing in the action taken and date to the MISC panel
 EMWriteScreen Action_Taken, Row, 30
-EMWriteScreen Action_Date, Row, 66 
+EMWriteScreen Action_Date, Row, 66
 PF3
 
 'set TIKL------------------------------------------------------------------------------------------------------
-If Verif_Checkbox = checked then 
-	If Action_Taken = "Claim Determination" THEN 
+If Verif_Checkbox = checked then
+	If Action_Taken = "Claim Determination" THEN
 		Msgbox "You identified your case is ready to process for overpayment follow procedures for claim entry.  A TIKL will NOT be made."
-	ELSE 	
+	ELSE
 		Call navigate_to_MAXIS_screen("DAIL", "WRIT")
 		call create_MAXIS_friendly_date(Action_Date, 10, 5, 18)
-		Call write_variable_in_TIKL("Potential overpayment exists on case. Please review case for reciept of additional requested information.")
+		Call write_variable_in_TIKL("Potential overpayment exists on case. Please review case for receipt of additional requested information.")
 		PF3
 	END IF
-END IF	
+END IF
 'The case note-------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
 Call write_variable_in_case_note("***Claim Referral Tracking - " & Action_Taken & "***")
@@ -147,8 +147,8 @@ IF Overpayment_Checkbox = checked then write_variable_in_case_note("* Overpaymen
 Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)
 
-IF Overpayment_Checkbox = checked then 
+IF Overpayment_Checkbox = checked then
 	script_end_procedure("You have indicated that an overpayment exists. Please follow the agency's procedure(s) for claim entry.")
-Else 
+Else
 	script_end_procedure("")
-End if	
+End if
