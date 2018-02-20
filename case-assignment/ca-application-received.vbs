@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("02/20/2018", "Updated interview date functionality - date is 5 days from date the app is pended.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/03/2017", "Email functionality - only expedited emails will be sent to Triagers.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/25/2017", "Email functionality - will create email, and send for all CASH and FS applications.", "MiKayla Handley, Hennepin County")
@@ -72,9 +73,9 @@ EndDialog
 EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 
-'Runs the first dialog - which confirms the case number 
+'Runs the first dialog - which confirms the case number
 Do
-	Do 
+	Do
 		err_msg = ""
 		Dialog initial_dialog
 		IF buttonpressed = 0 THEN stopscript
@@ -83,10 +84,10 @@ Do
 		IF Active_checkbox = CHECKED and Not_Active_checkbox = CHECKED then err_msg = err_msg & vbNewLine & "* Please select only box if the client is active or not."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
-CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in	
+CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
-'-------------------------------------------------------------------DIALOG NO snap?'	
+'-------------------------------------------------------------------DIALOG NO snap?'
 'Gathers Date of application and creates MAXIS friendly dates to be sure to navigate to the correct time frame
 'This only functions if case is in PND2 status
 CALL navigate_to_MAXIS_screen("REPT","PND2")
@@ -231,7 +232,7 @@ EndDialog
 
 'possible to naviagte to the geocoder here...need handling for prv cases xfer must be the last step'
 '------------------------------------------------------------------------------------DIALOG APPL
-IF Not_Active_checkbox = CHECKED THEN 
+IF Not_Active_checkbox = CHECKED THEN
 'Runs the second dialog - which gathers information about the application
     Do
     	Do
@@ -246,12 +247,12 @@ IF Not_Active_checkbox = CHECKED THEN
     		IF app_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "If an ApplyMN was received, you must enter the confirmation number and time received"
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
-		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-	LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in		
-End if 
-'-------------------------------------------------------------------DIALOG Addendum'	
-IF Active_checkbox = CHECKED THEN 
-	Do 
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
+End if
+'-------------------------------------------------------------------DIALOG Addendum'
+IF Active_checkbox = CHECKED THEN
+	Do
     	Do
 			err_msg = ""
     		Dialog add_detail_dialog
@@ -261,8 +262,8 @@ IF Active_checkbox = CHECKED THEN
     		IF app_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "If an ApplyMN was received, you must enter the confirmation number and time received"
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
-		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-	Loop until are_we_passworded_out = false					'loops until user passwords back in	
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
 END IF
 
 'Creates a variable that lists all the programs pending.
@@ -273,19 +274,19 @@ IF grh_pend = CHECKED THEN programs_applied_for = programs_applied_for & "GRH, "
 IF fs_pend = CHECKED THEN programs_applied_for = programs_applied_for & "SNAP, "
 IF ive_pend = CHECKED THEN programs_applied_for = programs_applied_for & "IV-E, "
 IF hc_pend = CHECKED THEN programs_applied_for = programs_applied_for & "HC, "
-IF cca_pend = CHECKED THEN programs_applied_for = programs_applied_for & "CCA" 
+IF cca_pend = CHECKED THEN programs_applied_for = programs_applied_for & "CCA"
 
 
 'trims excess spaces of programs_applied_for
 programs_applied_for = trim(programs_applied_for)
 'takes the last comma off of programs_applied_for when autofilled into dialog if more more than one app date is found and additional app is selected
-If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1) 
+If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
 
 '--------------------------------------------------------------------------------inital case note
 start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") rec'vd via " & how_app_rcvd & " on " & date_of_app & " ~")
 IF Active_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE ("Client is currently active in MAXIS")
-IF Not_Active_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE ("Intake") 
+IF Not_Active_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE ("Intake")
 IF isnumeric(confirmation_number) = TRUE THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
 IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("Form Rcvd: MNsure Application for Health Coverage and Help Paying Costs (DHS-6696) ")
 IF app_type = "HCAPP" THEN write_variable_in_CASE_NOTE ("Form Rcvd: Health Care Application (HCApp) (DHS-3417) ")
@@ -321,7 +322,7 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
       	Text 50, 10, 50, 10, "Case number: "
       	GroupBox 0, 130, 175, 30, "**IMPORTANT**"
     	EndDialog
-		
+
 		'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
 		If date >= cdate("10/01/2017") then			'these variables need to change every October
 			heat_AC_amt = 556
@@ -332,10 +333,10 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
 			electric_amt = 141
 			phone_amt = 38
 		End if
-		
+
     	'----------------------------------------------------------------------------------------------------THE SCRIPT
     	CALL MAXIS_case_number_finder(MAXIS_case_number)
-    	Do 
+    	Do
         	Do
     			err_msg = ""
         		Dialog exp_screening_dialog
@@ -344,9 +345,9 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
     			If (income <> "" and isnumeric(income) = false) or (assets <> "" and isnumeric(assets) = false) or (rent <> "" and isnumeric(rent) = false) THEN err_msg = err_msg & vbnewline & "* The income/assets/rent fields must be numeric only. Do not put letters or symbols in these sections."
     			If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
         	LOOP UNTIL err_msg = ""
-    		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-    	Loop until are_we_passworded_out = false					'loops until user passwords back in	
-    	
+    		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    	Loop until are_we_passworded_out = false					'loops until user passwords back in
+
     	''----------------------------------------------------------------------------------------------------LOGIC AND CALCULATIONS
     	'Logic for figuring out utils. The highest priority for the if...THEN is heat/AC, followed by electric and phone, followed by phone and electric separately.
     	IF heat_AC_check = checked THEN
@@ -358,23 +359,23 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
     	ELSEIF electric_check = checked and phone_check = unchecked THEN
        	utilities = electric_amt
     	END IF
-    	
+
     	'in case no options are clicked, utilities are set to zero.
     	IF phone_check = unchecked and electric_check = unchecked and heat_AC_check = unchecked THEN utilities = 0
     	'If nothing is written for income/assets/rent info, we set to zero.
     	IF income = "" THEN income = 0
     	IF assets = "" THEN assets = 0
     	IF rent = "" THEN rent = 0
-    	
+
     	'Calculates expedited status based on above numbers
     	IF (int(income) < 150 and int(assets) <= 100) or ((int(income) + int(assets)) < (int(rent) + cint(utilities))) THEN expedited_status = "Client Appears Expedited"
     	IF (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >= 150 or int(assets) > 100) THEN expedited_status = "Client Does Not Appear Expedited"
     	'----------------------------------------------------------------------------------------------------checking DISQ
-    	
+
     	CALL navigate_to_MAXIS_screen("STAT", "DISQ")
     	'grabbing footer month and year
     	CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-    	
+
     	'Reads the DISQ info for the case note.
     	EMReadScreen DISQ_member_check, 34, 24, 2
     	IF DISQ_member_check = "DISQ DOES NOT EXIST FOR ANY MEMBER" THEN
@@ -390,9 +391,9 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
 	   	MsgBox "This Client Appears EXPEDITED. A same day interview needs to be offered."
 	   	Send_email = true
     	END IF
-		
+
 		IF expedited_status = "Client does not appear expedited" THEN MsgBox "This client does NOT appear expedited. A same day interview does not need to be offered."
-		
+
     	'-----------------------------------------------------------------------------------------------EXPCASENOTE
     	start_a_blank_CASE_NOTE
     	CALL write_variable_in_CASE_NOTE("~ Received Application for SNAP, " & expedited_status & " ~")
@@ -411,16 +412,16 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
     	IF expedited_status = "Client appears expedited" THEN CALL write_variable_in_CASE_NOTE("Client appears expedited. Application sent to ECF. Emailed Triagers.")
 		CALL write_variable_in_CASE_NOTE("---")
 		CALL write_variable_in_CASE_NOTE(worker_signature)
-	END IF 
+	END IF
 '-------------------------------------------------------------------------------------Transfers the case to the assigned worker if this was selected in the second dialog box
 'Determining if a case will be transferred or not. All cases will be transferred except addendum app types. THIS IS NOT CORRECT AND NEEDS TO BE DISCUSSED WITH QI
-IF Active_checkbox = CHECKED THEN 		
+IF Active_checkbox = CHECKED THEN
 	transfer_case = FALSE
-ELSE 
+ELSE
 	transfer_case = TRUE
-END IF 
+END IF
 
-IF transfer_case = TRUE THEN 
+IF transfer_case = TRUE THEN
 	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
 	EMWriteScreen "x", 7, 16
 	transmit
@@ -429,17 +430,17 @@ IF transfer_case = TRUE THEN
 	transmit
 	EMReadScreen worker_check, 9, 24, 2
 
-	
+
 	IF worker_check = "SERVICING" THEN
 		MsgBox "The correct worker number was not entered, this X-Number is not a valid worker in MAXIS. You will need to transfer the case manually"
 		PF10
 		transfer_case = unchecked
 	END IF
 END IF
-	
+
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)		
-		
+IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
+
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 IF send_appt_ltr = TRUE THEN
     BeginDialog Hennepin_appt_dialog, 0, 0, 296, 75, "APPOINTMENT LETTER"
@@ -459,9 +460,9 @@ IF send_appt_ltr = TRUE THEN
 	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", date_of_app)
 	date_of_app = date_of_app & ""
 
-	
+
 	'creates interview date for 7 calendar days from the CAF date
-	interview_date = dateadd("d", 7, date_of_app)
+	interview_date = dateadd("d", 7, pended_date)
 	If interview_date <= date then interview_date = dateadd("d", 7, date)
 	interview_date = interview_date & ""		'turns interview date into string for variable
  'need to handle for if we dont need an appt letter, which would be...'
@@ -476,7 +477,7 @@ IF send_appt_ltr = TRUE THEN
     	Loop until err_msg = ""
     	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
     LOOP UNTIL are_we_passworded_out = false
-    
+
 	'Figuring out the last contact day
 	If app_type = "Addendum" then
 	    next_month = datepart("m", dateadd("m", 1, interview_date))
@@ -486,7 +487,7 @@ IF send_appt_ltr = TRUE THEN
 	 	last_contact_day = CAF_date + 30
 		If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date
     END IF
-	
+
     'This checks to make sure the case is not in background and is in the correct footer month for PND1 cases.
     Do
     	call navigate_to_MAXIS_screen("STAT", "SUMM")
@@ -505,15 +506,15 @@ IF send_appt_ltr = TRUE THEN
     		Pause 2
     	End if
     Loop until SELF_check <> "SELF"
-    
+
     'Navigating to SPEC/MEMO
     call navigate_to_MAXIS_screen("SPEC", "MEMO")
-    
+
     'Creates a new MEMO. If it's unable the script will stop.
     PF5
     EMReadScreen memo_display_check, 12, 2, 33
     If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-    
+
     'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
     row = 4                             'Defining row and col for the search feature.
     col = 1
@@ -553,17 +554,17 @@ IF send_appt_ltr = TRUE THEN
     CALL write_variable_in_SPEC_MEMO("If we do not hear from you by " & last_contact_day & " we will deny your application.")
     CALL write_variable_in_SPEC_MEMO("***********************************************************")
     PF4		'Exits the MEMO
-    
+
     'Created new variable for TIKL
     interview_info = interview_date & " 9:00 AM - 1:00 PM."
-    
+
     'TIKLing to remind the worker to send NOMI if appointment is missed
     CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
     CALL create_MAXIS_friendly_date(interview_date, 0, 5, 18)
     CALL write_variable_in_TIKL("~*~*~CLIENT WAS SENT AN APPT LETTER FOR INTERVIEW ON " & interview_info & ". IF MISSED SEND NOMI.")
     transmit
     PF3
-    
+
     'Navigates to CASENOTE and starts a blank one
     start_a_blank_CASE_NOTE
     CALL write_variable_in_CASE_NOTE("~ Appointment letter sent in MEMO ~")
