@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("02/16/2018", "Added case transfer confirmation coding, and added active checkbox indicator.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/20/2017", "Email functionality for METS retro cases. Changed team email to blank so user inputs the applicable team.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/14/2017", "Email functionality for METS retro cases. Changed team email to team 603.", "Ilse Ferris, Hennepin County")
@@ -189,21 +190,22 @@ BeginDialog appl_detail_dialog, 0, 0, 296, 145, "CASE CORRECTION"
   CheckBox 255, 50, 30, 10, "SNAP", fs_pend
   EditBox 110, 65, 25, 15, worker_number
   EditBox 110, 85, 25, 15, team_number
+  CheckBox 145, 85, 115, 10, "Case is active (add a program).", Active_checkbox
   EditBox 75, 105, 215, 15, entered_notes
   CheckBox 20, 130, 125, 10, "Check if MNSURE Retro Request", mnsure_retro_checkbox
   ButtonGroup ButtonPressed
     OkButton 185, 125, 50, 15
     CancelButton 240, 125, 50, 15
-  Text 160, 30, 50, 10, "Confirmation #"
-  Text 160, 10, 65, 10, "Date of Application:"
+  EditBox 230, 5, 60, 15, date_of_app
   Text 5, 50, 70, 10, "Programs Applied for:"
   Text 5, 70, 100, 10, "Transfer to (last 3 digit of X#):"
   Text 5, 90, 90, 10, "Assigned to (3 digit team #):"
   Text 5, 110, 65, 10, "Reason for request:"
   Text 5, 10, 50, 10, "Requested By:"
-  Text 145, 80, 145, 10, "* Script will transfer case to assigned worker"
+  Text 145, 70, 145, 10, "* Script will transfer case to assigned worker"
   Text 5, 30, 65, 10, "Type of Application:"
-  EditBox 230, 5, 60, 15, date_of_app
+  Text 160, 30, 50, 10, "Confirmation #"
+  Text 160, 10, 65, 10, "Date of Application:"
 EndDialog
 
 Do
@@ -300,13 +302,13 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
     	''----------------------------------------------------------------------------------------------------LOGIC AND CALCULATIONS
     	'Logic for figuring out utils. The highest priority for the if...THEN is heat/AC, followed by electric and phone, followed by phone and electric separately.
     	IF heat_AC_check = checked THEN
-       	utilities = heat_AC_amt
+       	    utilities = heat_AC_amt
     	ELSEIF electric_check = checked and phone_check = checked THEN
-       	utilities = phone_amt + electric_amt					'Phone standard plus electric standard.
+       	    utilities = phone_amt + electric_amt					'Phone standard plus electric standard.
     	ELSEIF phone_check = checked and electric_check = unchecked THEN
-       	utilities = phone_amt
+       	    utilities = phone_amt
     	ELSEIF electric_check = checked and phone_check = unchecked THEN
-       	utilities = electric_amt
+       	    utilities = electric_amt
     	END IF
     	
     	'in case no options are clicked, utilities are set to zero.
@@ -328,9 +330,9 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
     	'Reads the DISQ info for the case note.
     	EMReadScreen DISQ_member_check, 34, 24, 2
     	IF DISQ_member_check = "DISQ DOES NOT EXIST FOR ANY MEMBER" THEN
-       	has_DISQ = False
+       	    has_DISQ = False
     	ELSE
-       	has_DISQ = True
+       	    has_DISQ = True
     	END IF
     	'
     	'Reads MONY/DISB to see if EBT account is open
@@ -362,15 +364,14 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
 		CALL write_variable_in_CASE_NOTE("---")
 		CALL write_variable_in_CASE_NOTE(worker_signature)
 	END IF 
+    
 '-------------------------------------------------------------------------------------Transfers the case to the assigned worker if this was selected in the second dialog box
 'Determining if a case will be transferred or not. All cases will be transferred except addendum app types. THIS IS NOT CORRECT AND NEEDS TO BE DISCUSSED WITH QI
 IF Active_checkbox = CHECKED THEN 		
-	transfer_case = FALSE
+	transfer_case = False 
+    action_completed = TRUE     'This is to decide if the case was sucessfully transferred or not
 ELSE 
-	transfer_case = true
-END IF 
-
-IF transfer_case = TRUE THEN 
+	transfer_case = True 
 	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
 	EMWriteScreen "x", 7, 16
 	transmit
@@ -379,14 +380,19 @@ IF transfer_case = TRUE THEN
 	transmit
 	EMReadScreen worker_check, 9, 24, 2
 
-	
 	IF worker_check = "SERVICING" THEN
-		MsgBox "The correct worker number was not entered, this X-Number is not a valid worker in MAXIS. You will need to transfer the case manually"
+        action_completed = False 
 		PF10
-		transfer_case = unchecked
 	END IF
+    
+    EMReadScreen transfer_confirmation, 16, 24, 2
+    if transfer_confirmation = "CASE XFER'D FROM" then 
+    	action_completed = True
+    Else 
+        action_completed = False 
+    End if 
 END IF
-	
+
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 IF send_email = True then CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)		
 	
@@ -457,39 +463,7 @@ IF send_appt_ltr = TRUE THEN
     Loop until SELF_check <> "SELF"
     
     'Navigating to SPEC/MEMO
-    call navigate_to_MAXIS_screen("SPEC", "MEMO")
-    
-    'Creates a new MEMO. If it's unable the script will stop.
-    PF5
-    EMReadScreen memo_display_check, 12, 2, 33
-    If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-    
-    'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
-    row = 4                             'Defining row and col for the search feature.
-    col = 1
-    EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
-    IF row > 4 THEN                     'If it isn't 4, that means it was found.
-        arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
-        call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
-        EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
-        call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
-        PF5                                                     'PF5s again to initiate the new memo process
-    END IF
-    'Checking for SWKR
-    row = 4                             'Defining row and col for the search feature.
-    col = 1
-    EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
-    IF row > 4 THEN                     'If it isn't 4, that means it was found.
-        swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
-        call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
-        EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
-        call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
-        PF5                                           'PF5s again to initiate the new memo process
-    END IF
-    EMWriteScreen "x", 5, 12                                       'Initiates new memo to client
-    IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-    IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-    transmit                                                        'Transmits to start the memo writing process
+    call start_a_new_spec_memo                                            
 
     'Writes the MEMO
     call write_variable_in_SPEC_MEMO("***********************************************************")
@@ -531,4 +505,8 @@ END IF
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 IF mnsure_retro_checkbox = CHECKED THEN CALL create_outlook_email("", "", MAXIS_case_name & maxis_case_number & " Retro Request Complete EOM.", "", "", FALSE)	
 
-script_end_procedure ("Case has been updated please ensure it was processed correctly.")
+IF case_transfered = False then 
+    script_end_procedure ("Warning! Case did not transfer. Transfer the case manually. Script was able to complete all other steps.")
+Else 
+    script_end_procedure ("Case has been updated please review to ensure it was processed correctly.")
+End if 
