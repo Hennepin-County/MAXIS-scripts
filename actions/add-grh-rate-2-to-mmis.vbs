@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/21/2018", "Added VND2 confirmation handling.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/12/2018", "Added out-of-county handling.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/08/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -554,6 +555,8 @@ If Update_MMIS = True then
 		Call Navigate_to_MAXIS_screen("MONY", "VNDS")
 		Call write_value_and_transmit(SSRT_vendor_number, 4, 59)
 		Call write_value_and_transmit("VND2", 20, 70)
+        EMReadScreen VND2_check, 4, 2, 54
+        If VND2_check <> "VND2" then script_end_procedure "Unable to find MONY/VND2 panel."
 		EMReadScreen service_rate, 8, 16, 68		'Reading the service rate to input into MMIS
         If IsNumeric(service_rate) = False then EMReadScreen service_rate, 8, 15, 72        'Handling for vendors with Rate 3 information 
 		service_rate = replace(service_rate, ".", "")	'removing the period for input into MMIS
