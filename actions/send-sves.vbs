@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/22/2018", "Added option to send QURY for covered quarters.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -61,23 +62,25 @@ EMConnect ""
 call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Shows and defines the initial dialog
-BeginDialog , 0, 0, 271, 85, "Send SVES Dialog"
+BeginDialog , 0, 0, 271, 105, "Send SVES Dialog"
   EditBox 90, 5, 60, 15, MAXIS_case_number
   EditBox 125, 25, 25, 15, member_number
   CheckBox 5, 50, 165, 10, "Check here to case note that a QURY was sent.", case_note_checkbox
-  EditBox 80, 65, 70, 15, worker_signature
+  CheckBox 5, 65, 190, 10, "Check here to submit a query for covered quarters only.", quarters_check
   OptionGroup RadioGroup1
     RadioButton 190, 15, 60, 15, "SSN? (default)", SSN_radiobutton
     RadioButton 190, 30, 75, 15, "Claim # on UNEA?", UNEA_radiobutton
     RadioButton 190, 45, 75, 15, "Claim # on BNDX?", BNDX_radiobutton
   ButtonGroup ButtonPressed
-    OkButton 160, 65, 50, 15
-    CancelButton 215, 65, 50, 15
-  Text 5, 10, 80, 10, "Enter your case number:"
+    OkButton 160, 80, 50, 15
+    CancelButton 215, 80, 50, 15
+  EditBox 80, 80, 70, 15, worker_signature
   Text 5, 30, 120, 10, "Enter your member number (ex: 01): "
-  Text 5, 70, 70, 10, "Sign your case note:"
+  Text 5, 85, 70, 10, "Sign your case note:"
   GroupBox 185, 5, 80, 55, "Number to use?"
+  Text 5, 10, 80, 10, "Enter your case number:"
 EndDialog
+
 Dialog  					'Calling a dialog without a assigned variable will call the most recently defined dialog
 If ButtonPressed = cancel then StopScript
 
@@ -251,11 +254,14 @@ ElseIf BNDX_radiobutton = 1 then
 End if
 
 EMWriteScreen MAXIS_case_number, 11, 38
-EMWriteScreen "y", 14, 38
+If quarters_check = checked then 
+    EMWriteScreen "y", 16, 38
+else 
+    EMWriteScreen "y", 14, 38
+End if
 
 'Shuts down here if the user does not want to case note
 If case_note_checkbox = unchecked then script_end_procedure("")
-
 'Now it sends the SVES.
 transmit
 
@@ -269,6 +275,7 @@ ElseIf UNEA_radiobutton = 1 then
 ElseIf BNDX_radiobutton = 1 then
 	call write_variable_in_case_note("* Used claim number on BNDX for QURY.")
 End If
+If quarters_check = checked then write_variable_in_case_note("* Query sent for covered quarters only.")
 call write_variable_in_case_note("* QURY sent using script.")
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
