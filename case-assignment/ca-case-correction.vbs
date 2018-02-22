@@ -505,7 +505,7 @@ END IF
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 IF mnsure_retro_checkbox = CHECKED THEN CALL create_outlook_email("", "", MAXIS_case_name & maxis_case_number & " Retro Request Complete EOM.", "", "", FALSE)	
 
-IF case_transfered = False then 
+IF action_completed = False then
     script_end_procedure ("Warning! Case did not transfer. Transfer the case manually. Script was able to complete all other steps.")
 Else 
     script_end_procedure ("Case has been updated please review to ensure it was processed correctly.")
