@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/23/2018", "Added closing message to reminder to workers to accept all work items upon processing HRF's.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/01/2016", "Added seperate functionality for LTC HRF cases.", "Casey Love, Ramsey County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -775,4 +776,4 @@ ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
 
 End If 
 
-script_end_procedure(end_msg)
+script_end_procedure(end_msg & vbcr & "Please make sure to accept the Work items in ECF associated with this HRF. Thank you!")
