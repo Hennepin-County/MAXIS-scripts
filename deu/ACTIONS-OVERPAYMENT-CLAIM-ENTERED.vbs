@@ -125,8 +125,8 @@ OP_Date = date & ""
 BeginDialog OP_Cleared_dialog, 0, 0, 361, 240, "Overpayment Claim Entered"
   EditBox 55, 5, 35, 15, MAXIS_case_number
 	EditBox 150, 5, 45, 15, discovery_date
-	DropListBox 300, 5, 55, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"LAST YEAR"+chr(9)+"OTHER", select_quarter
-  DropListBox 55, 25, 35, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
+	DropListBox 300, 5, 55, 15, "Select:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"LAST YEAR"+chr(9)+"OTHER", select_quarter
+  DropListBox 55, 25, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
 	DropListBox 150, 25, 50, 15, "Select:"+chr(9)+"WAGE"+chr(9)+"BEER", IEVS_type
   EditBox 245, 25, 20, 15, memb_number
   EditBox 335, 25, 20, 15, OT_resp_memb
@@ -135,17 +135,17 @@ BeginDialog OP_Cleared_dialog, 0, 0, 361, 240, "Overpayment Claim Entered"
   EditBox 180, 65, 30, 15, OP_1
   EditBox 245, 65, 35, 15, Claim_1
   EditBox 305, 65, 45, 15, AMT_1
-  DropListBox 50, 85, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Second_OP_program
+  DropListBox 50, 85, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Second_OP_program
   EditBox 130, 85, 30, 15, OP_2
   EditBox 180, 85, 30, 15, OP_to_2
   EditBox 245, 85, 35, 15, Claim_2
   EditBox 305, 85, 45, 15, Amt_2
-  DropListBox 50, 105, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Third_OP_program
+  DropListBox 50, 105, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Third_OP_program
   EditBox 130, 105, 30, 15, OP_3
   EditBox 180, 105, 30, 15, OP_to_3
   EditBox 245, 105, 35, 15, Claim_3
   EditBox 305, 105, 45, 15, AMT_3
-  DropListBox 50, 140, 35, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
+  DropListBox 50, 140, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
   EditBox 165, 140, 185, 15, collectible_reason
   EditBox 70, 160, 160, 15, EVF_used
   EditBox 305, 160, 45, 15, HC_resp_memb
