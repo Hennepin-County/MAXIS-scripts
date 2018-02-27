@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("02/27/2018", "Updated script to add HC handling and the income received date.", "MiKayla Handley, Hennepin County")Updated to
+CALL changelog_update("02/27/2018", "Updated script to add HC handling and the income received date.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/01/2018", "Updated script to write amount in case note in the correct area.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/04/2018", "Initial version.", "MiKayla Handley, Hennepin County")
 
@@ -89,14 +89,14 @@ OP_Date = date & ""
 	  EditBox 220, 45, 20, 15, First_to_IEVS_year
 	  EditBox 275, 45, 40, 15, First_OP
 	  EditBox 340, 45, 40, 15, First_AMT
-		DropListBox 45, 65, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)"HC"+chr(9)+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Second_Program
+		DropListBox 45, 65, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Second_Program
 		EditBox 125, 65, 20, 15, Second_from_IEVS_month
 		EditBox 155, 65, 20, 15, Second_from_IEVS_year
 		EditBox 195, 65, 20, 15, Second_to_IEVS_month
 		EditBox 220, 65, 20, 15, Second_to_IEVS_year
 		EditBox 275, 65, 40, 15, Second_OP
 		EditBox 340, 65, 40, 15, Second_AMT
-		DropListBox 45, 85, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Third_Program
+		DropListBox 45, 85, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Third_Program
 		EditBox 125, 85, 20, 15, Third_from_IEVS_month
 		EditBox 155, 85, 20, 15, Third_from_IEVS_year
 		EditBox 195, 85, 20, 15, Third_to_IEVS_month
