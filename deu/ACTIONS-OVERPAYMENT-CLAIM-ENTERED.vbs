@@ -130,7 +130,7 @@ BeginDialog OP_Cleared_dialog, 0, 0, 361, 240, "Overpayment Claim Entered"
 	DropListBox 150, 25, 50, 15, "Select:"+chr(9)+"WAGE"+chr(9)+"BEER", IEVS_type
   EditBox 245, 25, 20, 15, memb_number
   EditBox 335, 25, 20, 15, OT_resp_memb
-	DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", First_OP_program
+	DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", First_OP_program
   EditBox 130, 65, 30, 15, OP_to_1
   EditBox 180, 65, 30, 15, OP_1
   EditBox 245, 65, 35, 15, Claim_1
@@ -368,7 +368,7 @@ Call write_variable_in_CASE_NOTE(First_OP_program & " Overpayment " & OP_1 & " t
 IF OP_2 <> "" then Call write_variable_in_case_note(Second_Program & " Overpayment " & OP_2 & " through  " & OP_to_2 & " Claim # " & Claim_2 & "  Amt $" & AMT_2)
 IF OP_3 <> "" then Call write_variable_in_case_note(Third_Program & " Overpayment " & OP_3 & " through  " & OP_to_3 & " Claim # " & Claim_3 & "  Amt $" & AMT_3)
 IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
-IF instr(Active_Programs, "HC") then
+IF First_OP_program = "HC" THEN 
 	Call write_bullet_and_variable_in_CASE_NOTE("HC responsible members", HC_resp_memb)
 	Call write_bullet_and_variable_in_CASE_NOTE("Total federal Health Care amount", Fed_HC_AMT)
 	Call write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
