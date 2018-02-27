@@ -161,7 +161,7 @@ BeginDialog OP_Cleared_dialog, 0, 0, 361, 240, "Overpayment Claim Entered"
 	Text 95, 10, 55, 10, "Discovery Date: "
   Text 250, 10, 45, 10, "Match Period:"
   Text 5, 30, 50, 10, "Fraud referral:"
-  Text 110, 30, 35, 10, "IEVS Type:"
+  Text 110, 30, 40, 10, "IEVS Type:"
   Text 210, 30, 30, 10, "MEMB #:"
   Text 270, 30, 60, 10, "Other resp. memb:"
   GroupBox 10, 45, 345, 90, "Overpayment Information"
@@ -186,8 +186,7 @@ BeginDialog OP_Cleared_dialog, 0, 0, 361, 240, "Overpayment Claim Entered"
   Text 240, 165, 65, 10, "HC resp. members:"
   Text 240, 185, 65, 10, "Total FED HC AMT:"
 	Text 15, 205, 50, 10, "Reason for OP:"
-  Text 5, 185, 60, 10, "Date income rcvd:"
-  CheckBox 5, 185, 120, 10, "Earned Income disregard allowed", EI_checkbox
+  Text 5, 185, 60, 10, "Date income rcvd: "
 EndDialog
 
 
