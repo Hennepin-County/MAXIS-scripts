@@ -80,7 +80,8 @@ OP_Date = date & ""
 	  EditBox 55, 5, 35, 15, MAXIS_case_number
 	  EditBox 130, 5, 20, 15, memb_number
 	  EditBox 225, 5, 20, 15, OT_resp_memb
-	  EditBox 310, 5, 55, 15, Discovery_date
+	  EditBox 310, 5, 55, 15, discovery_date
+		EditBox 85, 160, 55, 15, date_verf_rcvd
 	  DropListBox 45, 45, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", First_Program
 	  EditBox 125, 45, 20, 15, First_from_IEVS_month
 	  EditBox 155, 45, 20, 15, First_from_IEVS_year
@@ -142,7 +143,6 @@ OP_Date = date & ""
 	  Text 155, 35, 15, 10, "(YY)"
 	  Text 195, 35, 20, 10, "(MM)"
 	  Text 225, 35, 15, 10, "(YY)"
-	  EditBox 85, 160, 55, 15, date_verf_rcvd
 	  Text 5, 165, 75, 10, "Date verification rcvd:"
 	EndDialog
 
