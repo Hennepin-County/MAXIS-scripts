@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("02/27/2018", "Added income received date.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/02/2018", "Corrected IEVS match error due to new year.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/11/2017", "Initial version.", "MiKayla Handley, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -123,12 +124,13 @@ OP_Date = date & ""
 
 BeginDialog OP_Cleared_dialog, 0, 0, 361, 240, "Overpayment Claim Entered"
   EditBox 55, 5, 35, 15, MAXIS_case_number
-  DropListBox 140, 5, 55, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"LAST YEAR"+chr(9)+"OTHER", select_quarter
-  EditBox 260, 5, 45, 15, discovery_date
+	EditBox 150, 5, 45, 15, discovery_date
+	DropListBox 300, 5, 55, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"LAST YEAR"+chr(9)+"OTHER", select_quarter
   DropListBox 55, 25, 35, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
-  DropListBox 140, 25, 55, 15, "Select One:"+chr(9)+"WAGE"+chr(9)+"BEER"+chr(9)+"UNVI", IEVS_type
-  EditBox 240, 25, 20, 15, memb_number
-  EditBox 330, 25, 20, 15, OT_resp_memb
+	DropListBox 150, 25, 50, 15, "Select:"+chr(9)+"WAGE"+chr(9)+"BEER", IEVS_type
+  EditBox 245, 25, 20, 15, memb_number
+  EditBox 335, 25, 20, 15, OT_resp_memb
+	EditBox 325, 25, 45, 15, income_rcvd_date
   DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", First_OP_program
   EditBox 130, 65, 30, 15, OP_to_1
   EditBox 180, 65, 30, 15, OP_1
@@ -146,20 +148,22 @@ BeginDialog OP_Cleared_dialog, 0, 0, 361, 240, "Overpayment Claim Entered"
   EditBox 305, 105, 45, 15, AMT_3
   DropListBox 50, 140, 35, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
   EditBox 165, 140, 185, 15, collectible_reason
-  EditBox 75, 160, 160, 15, EVF_used
+  EditBox 70, 160, 160, 15, EVF_used
   EditBox 305, 160, 45, 15, HC_resp_memb
+	EditBox 70, 180, 45, 15, income_rcvd_date
   EditBox 305, 180, 45, 15, Fed_HC_AMT
-  EditBox 60, 200, 290, 15, Reason_OP
+	EditBox 70, 200, 280, 15, Reason_OP
+	CheckBox 5, 220, 120, 10, "Earned Income disregard allowed", EI_checkbox
   ButtonGroup ButtonPressed
     OkButton 255, 220, 45, 15
     CancelButton 305, 220, 45, 15
   Text 5, 10, 50, 10, "Case Number: "
-  Text 95, 10, 45, 10, "Match Period:"
-  Text 205, 10, 55, 10, "Discovery Date:"
+	Text 95, 10, 55, 10, "Discovery Date: "
+  Text 250, 10, 45, 10, "Match Period:"
   Text 5, 30, 50, 10, "Fraud referral:"
-  Text 95, 30, 40, 10, "IEVS Type:"
-  Text 205, 30, 30, 10, "MEMB #:"
-  Text 265, 30, 60, 10, "Other resp. memb:"
+  Text 110, 30, 35, 10, "IEVS Type:"
+  Text 210, 30, 30, 10, "MEMB #:"
+  Text 270, 30, 60, 10, "Other resp. memb:"
   GroupBox 10, 45, 345, 90, "Overpayment Information"
   Text 15, 70, 30, 10, "Program:"
   Text 105, 70, 20, 10, "From:"
@@ -181,7 +185,8 @@ BeginDialog OP_Cleared_dialog, 0, 0, 361, 240, "Overpayment Claim Entered"
   Text 5, 165, 60, 10, "Income verif used:"
   Text 240, 165, 65, 10, "HC resp. members:"
   Text 240, 185, 65, 10, "Total FED HC AMT:"
-  Text 5, 205, 50, 10, "Reason for OP: "
+	Text 15, 205, 50, 10, "Reason for OP:"
+  Text 5, 185, 60, 10, "Date income rcvd:"
   CheckBox 5, 185, 120, 10, "Earned Income disregard allowed", EI_checkbox
 EndDialog
 
@@ -374,6 +379,7 @@ CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referra
 CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
 CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
 CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_used)
+CALL write_bullet_and_variable_in_case_note("Date income verification was received", income_rcvd_date)
 CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
 CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
 CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")

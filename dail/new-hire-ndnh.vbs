@@ -336,7 +336,7 @@ IF match_answer_droplist = "YES - INFC clear match" THEN
 
     'This is a dialog asking if the job is known to the agency.
    	BeginDialog Match_Info_dialog, 0, 0, 281, 190, "NDNH Match Resolution Information"
-     CheckBox 10, 20, 260, 10, "Check here to verify that ECF has been reviewed and acted upon appropriately", ECF_checkbox
+     CheckBox 10, 20, 265, 10, "Check here to verify that ECF has been reviewed and acted upon appropriately", ECF_checkbox
      DropListBox 170, 45, 95, 15, "Select One:"+chr(9)+"YES - No Further Action"+chr(9)+"NO - See Next Question", Emp_known_droplist
      DropListBox 170, 65, 95, 15, "Select One:"+chr(9)+"NA - No Action Taken"+chr(9)+"BR - Benefits Reduced"+chr(9)+"CC - Case Closed", Action_taken_droplist
      EditBox 170, 85, 95, 15, cost_savings
@@ -348,7 +348,7 @@ IF match_answer_droplist = "YES - INFC clear match" THEN
      GroupBox 5, 5, 270, 35, "ECF review"
      GroupBox 5, 130, 270, 35, "10 day cutoff for closure"
      Text 20, 50, 145, 10, "Was this employment known to the agency?"
-     Text 10, 70, 155, 10, " If unknown: what action was taken by agency?"
+     Text 10, 70, 155, 10, "If unknown: what action was taken by agency?"
      Text 10, 90, 155, 10, "First month cost savings (enter only numbers):"
      Text 10, 110, 40, 10, "Other notes:"
    EndDialog
@@ -365,7 +365,7 @@ IF match_answer_droplist = "YES - INFC clear match" THEN
 	Row = 9
  	'checking to see if match is know to the agency, therefore acted on'
     DO
-		DO
+			DO
     	    EMReadScreen case_number, 8, row, 5
 		    case_number = trim(case_number)
 		    IF case_number = MAXIS_case_number THEN
@@ -396,7 +396,6 @@ IF match_answer_droplist = "YES - INFC clear match" THEN
     		PF8
     		ROW = 9
     	END IF
-
 	LOOP UNTIL Employer_match = ""
 
 	IF hire_match <> TRUE THEN script_end_procedure("No pending HIRE match found. Please review NEW HIRE.")
