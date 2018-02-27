@@ -130,8 +130,7 @@ BeginDialog OP_Cleared_dialog, 0, 0, 361, 240, "Overpayment Claim Entered"
 	DropListBox 150, 25, 50, 15, "Select:"+chr(9)+"WAGE"+chr(9)+"BEER", IEVS_type
   EditBox 245, 25, 20, 15, memb_number
   EditBox 335, 25, 20, 15, OT_resp_memb
-	EditBox 325, 25, 45, 15, income_rcvd_date
-  DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", First_OP_program
+	DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", First_OP_program
   EditBox 130, 65, 30, 15, OP_to_1
   EditBox 180, 65, 30, 15, OP_1
   EditBox 245, 65, 35, 15, Claim_1
