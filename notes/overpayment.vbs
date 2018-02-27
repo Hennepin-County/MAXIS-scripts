@@ -76,73 +76,76 @@ CALL MAXIS_case_number_finder (MAXIS_case_number)
 memb_number = "01"
 OP_Date = date & ""
 
-BeginDialog EWS_OP_dialog, 0, 0, 396, 205, "Overpayment Claim Entered"
-  EditBox 55, 5, 35, 15, MAXIS_case_number
-  EditBox 130, 5, 20, 15, memb_number
-  EditBox 225, 5, 20, 15, OT_resp_memb
-  EditBox 310, 5, 70, 15, Discovery_date
-  DropListBox 45, 45, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", First_Program
-  EditBox 125, 45, 20, 15, First_from_IEVS_month
-  EditBox 155, 45, 20, 15, First_from_IEVS_year
-  EditBox 195, 45, 20, 15, First_to_IEVS_month
-  EditBox 220, 45, 20, 15, First_to_IEVS_year
-  EditBox 275, 45, 40, 15, First_OP
-  EditBox 340, 45, 40, 15, First_AMT
-  DropListBox 45, 65, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)"HC"+chr(9)+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Second_Program
-  EditBox 125, 65, 20, 15, Second_from_IEVS_month
-  EditBox 155, 65, 20, 15, Second_from_IEVS_year
-  EditBox 195, 65, 20, 15, Second_to_IEVS_month
-  EditBox 220, 65, 20, 15, Second_to_IEVS_year
-  EditBox 275, 65, 40, 15, Second_OP
-  EditBox 340, 65, 40, 15, Second_AMT
-  DropListBox 45, 85, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Third_Program
-  EditBox 125, 85, 20, 15, Third_from_IEVS_month
-  EditBox 155, 85, 20, 15, Third_from_IEVS_year
-  EditBox 195, 85, 20, 15, Third_to_IEVS_month
-  EditBox 220, 85, 20, 15, Third_from_IEVS_year
-  EditBox 275, 85, 40, 15, Third_OP
-  EditBox 340, 85, 40, 15, Third_AMT
-  DropListBox 50, 120, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
-  EditBox 165, 120, 120, 15, collectible_reason
-  DropListBox 340, 120, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
-  EditBox 60, 140, 80, 15, source_income
-  EditBox 235, 140, 145, 15, EVF_used
-  EditBox 60, 165, 320, 15, Reason_OP
-  CheckBox 60, 190, 120, 10, "Earned Income disregard allowed", EI_checkbox
-  ButtonGroup ButtonPressed
-    OkButton 285, 185, 45, 15
-    CancelButton 335, 185, 45, 15
-  Text 5, 10, 50, 10, "Case Number: "
-  Text 95, 10, 30, 10, "MEMB #:"
-  Text 160, 10, 60, 10, "Other resp. memb:"
-  Text 255, 10, 55, 10, "Discovery Date: "
-  GroupBox 5, 25, 385, 85, "Overpayment Information"
-  Text 10, 50, 30, 10, "Program:"
-  Text 100, 50, 20, 10, "From:"
-  Text 180, 50, 10, 10, "To:"
-  Text 245, 50, 25, 10, "Claim #"
-  Text 320, 50, 20, 10, "AMT:"
-  Text 10, 70, 30, 10, "Program:"
-  Text 100, 70, 20, 10, "From:"
-  Text 180, 70, 10, 10, "To:"
-  Text 245, 70, 25, 10, "Claim #"
-  Text 320, 70, 20, 10, "AMT:"
-  Text 10, 90, 30, 10, "Program:"
-  Text 100, 90, 20, 10, "From:"
-  Text 180, 90, 10, 10, "To:"
-  Text 245, 90, 25, 10, "Claim #"
-  Text 320, 90, 20, 10, "AMT:"
-  Text 5, 125, 40, 10, "Collectible?"
-  Text 95, 125, 65, 10, "Collectible Reason:"
-  Text 290, 125, 50, 10, "Fraud referral:"
-  Text 5, 145, 50, 10, "Income Source: "
-  Text 150, 145, 85, 10, "Income verification used:"
-  Text 5, 170, 50, 10, "Reason for OP: "
-  Text 125, 35, 20, 10, "(MM)"
-  Text 155, 35, 15, 10, "(YY)"
-  Text 195, 35, 20, 10, "(MM)"
-  Text 225, 35, 15, 10, "(YY)"
-EndDialog
+	BeginDialog EWS_OP_dialog, 0, 0, 391, 220, "Overpayment Claim Entered"
+	  EditBox 55, 5, 35, 15, MAXIS_case_number
+	  EditBox 130, 5, 20, 15, memb_number
+	  EditBox 225, 5, 20, 15, OT_resp_memb
+	  EditBox 310, 5, 55, 15, Discovery_date
+	  DropListBox 45, 45, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", First_Program
+	  EditBox 125, 45, 20, 15, First_from_IEVS_month
+	  EditBox 155, 45, 20, 15, First_from_IEVS_year
+	  EditBox 195, 45, 20, 15, First_to_IEVS_month
+	  EditBox 220, 45, 20, 15, First_to_IEVS_year
+	  EditBox 275, 45, 40, 15, First_OP
+	  EditBox 340, 45, 40, 15, First_AMT
+		DropListBox 45, 65, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)"HC"+chr(9)+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Second_Program
+		EditBox 125, 65, 20, 15, Second_from_IEVS_month
+		EditBox 155, 65, 20, 15, Second_from_IEVS_year
+		EditBox 195, 65, 20, 15, Second_to_IEVS_month
+		EditBox 220, 65, 20, 15, Second_to_IEVS_year
+		EditBox 275, 65, 40, 15, Second_OP
+		EditBox 340, 65, 40, 15, Second_AMT
+		DropListBox 45, 85, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Third_Program
+		EditBox 125, 85, 20, 15, Third_from_IEVS_month
+		EditBox 155, 85, 20, 15, Third_from_IEVS_year
+		EditBox 195, 85, 20, 15, Third_to_IEVS_month
+		EditBox 220, 85, 20, 15, Third_from_IEVS_year
+		EditBox 275, 85, 40, 15, Third_OP
+		EditBox 340, 85, 40, 15, Third_AMT
+	  DropListBox 50, 120, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
+	  EditBox 165, 120, 215, 15, collectible_reason
+	  DropListBox 340, 160, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
+	  EditBox 60, 140, 80, 15, source_income
+	  EditBox 235, 140, 145, 15, EVF_used
+	  EditBox 60, 180, 320, 15, Reason_OP
+	  CheckBox 5, 205, 120, 10, "Earned Income disregard allowed", EI_checkbox
+	  ButtonGroup ButtonPressed
+	    OkButton 285, 200, 45, 15
+	    CancelButton 335, 200, 45, 15
+	  Text 5, 10, 50, 10, "Case Number: "
+	  Text 95, 10, 30, 10, "MEMB #:"
+	  Text 160, 10, 60, 10, "Other resp. memb:"
+	  Text 255, 10, 55, 10, "Discovery Date: "
+	  GroupBox 5, 25, 380, 85, "Overpayment Information"
+	  Text 10, 50, 30, 10, "Program:"
+	  Text 100, 50, 20, 10, "From:"
+	  Text 180, 50, 10, 10, "To:"
+	  Text 245, 50, 25, 10, "Claim #"
+	  Text 320, 50, 20, 10, "AMT:"
+	  Text 10, 70, 30, 10, "Program:"
+	  Text 100, 70, 20, 10, "From:"
+	  Text 180, 70, 10, 10, "To:"
+	  Text 245, 70, 25, 10, "Claim #"
+	  Text 320, 70, 20, 10, "AMT:"
+	  Text 10, 90, 30, 10, "Program:"
+	  Text 100, 90, 20, 10, "From:"
+	  Text 180, 90, 10, 10, "To:"
+	  Text 245, 90, 25, 10, "Claim #"
+	  Text 320, 90, 20, 10, "AMT:"
+	  Text 5, 125, 40, 10, "Collectible?"
+	  Text 95, 125, 65, 10, "Collectible Reason:"
+	  Text 290, 165, 50, 10, "Fraud referral:"
+	  Text 5, 145, 50, 10, "Income Source: "
+	  Text 150, 145, 85, 10, "Income verification used:"
+	  Text 5, 185, 50, 10, "Reason for OP: "
+	  Text 125, 35, 20, 10, "(MM)"
+	  Text 155, 35, 15, 10, "(YY)"
+	  Text 195, 35, 20, 10, "(MM)"
+	  Text 225, 35, 15, 10, "(YY)"
+	  EditBox 85, 160, 55, 15, date_verf_rcvd
+	  Text 5, 165, 75, 10, "Date verification rcvd:"
+	EndDialog
+
 Do
 	err_msg = ""
 	dialog EWS_OP_dialog
@@ -207,9 +210,8 @@ CALL write_bullet_and_variable_in_case_note("Discovery Date", Discovery_date)
 CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
 CALL write_variable_in_CASE_NOTE("----- ----- -----")
 CALL write_variable_in_CASE_NOTE(worker_signature)
+PF3
 
-'PF3
-
-'IF First_OP_program = "HC" THEN CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us", "Claims entered for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Date Overpayment Created: " & OP_Date & vbcr & "Programs: " & program_droplist & vbcr & "See case notes for further details.", "", False)
+IF First_OP_program = "HC" THEN CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us", "Claims entered for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Date Overpayment Created: " & OP_Date & vbcr & "Programs: " & program_droplist & vbcr & "See case notes for further details.", "", False)
 
 script_end_procedure("Overpayment case note entered. Please remember to copy and paste your notes to CCOL/CLIC")
