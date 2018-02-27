@@ -148,7 +148,7 @@ Do
 	dialog EWS_OP_dialog
 	IF buttonpressed = 0 THEN stopscript
 	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 THEN err_msg = err_msg & vbnewline & "* Enter a valid case number."
-IF First_Program = "Select:"THEN err_msg = err_msg & vbNewLine &  "* Please enter the program for the overpayment FS Food Stamps, FG Family GA, GA Gen Assist, GR Group Residential Housing, MF MFIP, or DW Diversionary Work Program"
+	IF First_Program = "Select:"THEN err_msg = err_msg & vbNewLine &  "* Please enter the program for the overpayment FS Food Stamps, FG Family GA, GA Gen Assist, GR Group Residential Housing, MF MFIP, or DW Diversionary Work Program"
 	IF First_OP = "" THEN err_msg = err_msg & vbnewline & "* You must have an overpayment entry."
 	IF First_from_IEVS_month = "Select:" THEN err_msg = err_msg & vbNewLine &  "* Please enter the start month(MM) overpayment occured."
 	IF First_from_IEVS_year = "Select:" THEN err_msg = err_msg & vbNewLine &  "* Please enter the start year(YY) overpayment occured."
@@ -183,6 +183,7 @@ EMReadScreen first_name, 12, 6, 63
 first_name = replace(first_name, "_", "")
 first_name = trim(first_name)
 '-----------------------------------------------------------------------------------------CASENOTE
+
 start_a_blank_CASE_NOTE
 CALL write_variable_in_CASE_NOTE("----- " & First_from_IEVS_month & "/" &  First_from_IEVS_year & "(" & first_name &  ")" & "OVERPAYMENT CLAIM ENTERED -----")
 CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
@@ -191,7 +192,7 @@ Call write_variable_in_CASE_NOTE(First_Program & " Overpayment Claim # " & First
 IF Second_OP <> "" THEN CALL write_variable_in_case_note(Second_Program &  " Overpayment Claim # " & Second_OP  & " Amount: $" & Second_AMT & " From: " & Second_from_IEVS_month & "/" &  Second_from_IEVS_year & " through "  & Second_to_IEVS_month & "/" &  Second_to_IEVS_year)
 IF Third_OP <> "" THEN CALL write_variable_in_case_note(Third_Program &  " Overpayment Claim # " & Third_OP & " Amount: $" & Third_AMT & " From: " & Third_from_IEVS_month & "/" &  Third_from_IEVS_year & " through "  & Third_to_IEVS_month & "/" &  Third_to_IEVS_year)
 IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
-IF First_OP_program = "HC" THEN
+IF First_program = "HC" THEN
 	Call write_bullet_and_variable_in_CASE_NOTE("HC responsible members", HC_resp_memb)
 	Call write_bullet_and_variable_in_CASE_NOTE("Total federal Health Care amount", Fed_HC_AMT)
 	Call write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
@@ -206,8 +207,9 @@ CALL write_bullet_and_variable_in_case_note("Discovery Date", Discovery_date)
 CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
 CALL write_variable_in_CASE_NOTE("----- ----- -----")
 CALL write_variable_in_CASE_NOTE(worker_signature)
-PF3
-IF First_OP_program = "HC" THEN CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us", "Claims entered for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Date Overpayment Created: " & OP_Date & vbcr & "Programs: " & program_droplist & vbcr & "See case notes for further details.", "", False)
 
+PF3
+
+IF First_OP_program = "HC" THEN CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us", "Claims entered for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Date Overpayment Created: " & OP_Date & vbcr & "Programs: " & program_droplist & vbcr & "See case notes for further details.", "", False)
 
 script_end_procedure("Overpayment case note entered. Please remember to copy and paste your notes to CCOL/CLIC")
