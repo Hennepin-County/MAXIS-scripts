@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("02/27/2018", "Updated script to add HC handling and the income received date.", "MiKayla Handley, Hennepin County")Updated to
 CALL changelog_update("02/01/2018", "Updated script to write amount in case note in the correct area.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/04/2018", "Initial version.", "MiKayla Handley, Hennepin County")
 
@@ -75,26 +76,26 @@ CALL MAXIS_case_number_finder (MAXIS_case_number)
 memb_number = "01"
 OP_Date = date & ""
 
-BeginDialog EWS_OP_dialog, 0, 0, 396, 205, "Overpayment Claim Entered"
+BBeginDialog EWS_OP_dialog, 0, 0, 396, 205, "Overpayment Claim Entered"
   EditBox 55, 5, 35, 15, MAXIS_case_number
   EditBox 130, 5, 20, 15, memb_number
   EditBox 225, 5, 20, 15, OT_resp_memb
   EditBox 310, 5, 70, 15, Discovery_date
-  DropListBox 45, 45, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", First_Program
+  DropListBox 45, 45, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", First_Program
   EditBox 125, 45, 20, 15, First_from_IEVS_month
   EditBox 155, 45, 20, 15, First_from_IEVS_year
   EditBox 195, 45, 20, 15, First_to_IEVS_month
   EditBox 220, 45, 20, 15, First_to_IEVS_year
   EditBox 275, 45, 40, 15, First_OP
   EditBox 340, 45, 40, 15, First_AMT
-  DropListBox 45, 65, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Second_Program
+  DropListBox 45, 65, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)"HC"+chr(9)+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Second_Program
   EditBox 125, 65, 20, 15, Second_from_IEVS_month
   EditBox 155, 65, 20, 15, Second_from_IEVS_year
   EditBox 195, 65, 20, 15, Second_to_IEVS_month
   EditBox 220, 65, 20, 15, Second_to_IEVS_year
   EditBox 275, 65, 40, 15, Second_OP
   EditBox 340, 65, 40, 15, Second_AMT
-  DropListBox 45, 85, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Third_Program
+  DropListBox 45, 85, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Third_Program
   EditBox 125, 85, 20, 15, Third_from_IEVS_month
   EditBox 155, 85, 20, 15, Third_from_IEVS_year
   EditBox 195, 85, 20, 15, Third_to_IEVS_month
@@ -142,9 +143,6 @@ BeginDialog EWS_OP_dialog, 0, 0, 396, 205, "Overpayment Claim Entered"
   Text 195, 35, 20, 10, "(MM)"
   Text 225, 35, 15, 10, "(YY)"
 EndDialog
-
-
-
 Do
 	err_msg = ""
 	dialog EWS_OP_dialog
@@ -193,16 +191,23 @@ Call write_variable_in_CASE_NOTE(First_Program & " Overpayment Claim # " & First
 IF Second_OP <> "" THEN CALL write_variable_in_case_note(Second_Program &  " Overpayment Claim # " & Second_OP  & " Amount: $" & Second_AMT & " From: " & Second_from_IEVS_month & "/" &  Second_from_IEVS_year & " through "  & Second_to_IEVS_month & "/" &  Second_to_IEVS_year)
 IF Third_OP <> "" THEN CALL write_variable_in_case_note(Third_Program &  " Overpayment Claim # " & Third_OP & " Amount: $" & Third_AMT & " From: " & Third_from_IEVS_month & "/" &  Third_from_IEVS_year & " through "  & Third_to_IEVS_month & "/" &  Third_to_IEVS_year)
 IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
+IF First_OP_program = "HC" THEN
+	Call write_bullet_and_variable_in_CASE_NOTE("HC responsible members", HC_resp_memb)
+	Call write_bullet_and_variable_in_CASE_NOTE("Total federal Health Care amount", Fed_HC_AMT)
+	Call write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+END IF
 IF fraud_referral = "YES" THEN CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
 CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
 CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
 CALL write_bullet_and_variable_in_case_note("Verification used for overpayment", EVF_used)
+CALL write_bullet_and_variable_in_case_note("Date income verification was received", income_rcvd_date)
 CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
 CALL write_bullet_and_variable_in_case_note("Discovery Date", Discovery_date)
 CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
 CALL write_variable_in_CASE_NOTE("----- ----- -----")
 CALL write_variable_in_CASE_NOTE(worker_signature)
-
 PF3
+IF First_OP_program = "HC" THEN CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us", "Claims entered for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Date Overpayment Created: " & OP_Date & vbcr & "Programs: " & program_droplist & vbcr & "See case notes for further details.", "", False)
+
 
 script_end_procedure("Overpayment case note entered. Please remember to copy and paste your notes to CCOL/CLIC")
