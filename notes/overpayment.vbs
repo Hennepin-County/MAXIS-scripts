@@ -76,7 +76,7 @@ CALL MAXIS_case_number_finder (MAXIS_case_number)
 memb_number = "01"
 OP_Date = date & ""
 
-BBeginDialog EWS_OP_dialog, 0, 0, 396, 205, "Overpayment Claim Entered"
+BeginDialog EWS_OP_dialog, 0, 0, 396, 205, "Overpayment Claim Entered"
   EditBox 55, 5, 35, 15, MAXIS_case_number
   EditBox 130, 5, 20, 15, memb_number
   EditBox 225, 5, 20, 15, OT_resp_memb
