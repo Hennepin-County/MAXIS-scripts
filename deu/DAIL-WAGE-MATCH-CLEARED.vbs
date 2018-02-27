@@ -8,7 +8,7 @@ STATS_denominatinon = "C"
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_loCALLy = FALSE or run_loCALLy = "" THEN	   'If the scripts are set to run loCALLy, it skips this and uses an FSO below.
+	IF run_loCALLy = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		ELSE											'Everyone else should use the release branch.
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("02/26/2018", "Merged the claim referral tracking back into the script.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/16/2018", "Corrected case note for pulling IEVS period.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/02/2018", "Corrected IEVS match error due to new year.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/27/2017", "Updated to handle clearing the match when the date is over 45 days.", "MiKayla Handley, Hennepin County")
@@ -51,7 +52,7 @@ CALL changelog_update("12/27/2017", "Updated to handle clearing the match BE-OP 
 CALL changelog_update("12/13/2017", "Updated correct handling for BEER matches.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/08/2017", "Now includes handling for sending the difference notice and clearing the WAGE match including NC codes.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("11/27/2017", "Added BP - Wrong Person", "MiKayla Handley, Hennepin County")
-CALL changelog_update("11/22/2017", "Updated Noncoop option to the cleared match.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("11/22/2017", "Updated Non-coop option to the cleared match.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("11/21/2017", "Updated to clear match, and added handling for sending the difference notice.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("11/14/2017", "Initial version.", "MiKayla Handley, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -153,7 +154,6 @@ CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
 EMReadScreen error_msg, 7, 24, 2
 IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
 
-
 '-------------------------------------------------------------------Ensuring that match has not already been resolved.
 Row = 7
 DO
@@ -161,7 +161,7 @@ DO
 	IF trim(IEVS_match) = "" THEN script_end_procedure("IEVS match for the selected period could not be found. The script will now end.")
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
 	"   " & IEVS_match, vbYesNoCancel, "Please confirm this match")
-	msgbox IEVS_match
+	'msgbox IEVS_match
 	IF ievp_info_confirmation = vbNo THEN
 		row = row + 1
 		'msgbox "row: " & row
@@ -200,7 +200,7 @@ END IF
 '--------------------------------------------------------------------Client name
 EMReadScreen client_name, 35, 5, 24
 client_name = trim(client_name)                         'trimming the client name
-IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This seperates the two names
+IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This separates the two names
 	length = len(client_name)                           'establishing the length of the variable
 	position = InStr(client_name, ",")                  'sets the position at the deliminator (in this case the comma)
 	last_name = Left(client_name, position-1)           'establishes client last name as being before the deliminator
@@ -231,7 +231,7 @@ programs = trim(programs)
 'takes the last comma off of programs when autofilled into dialog
 IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 
-'----------------------------------------------------------------------------------------------------Employer info & dIFfernce notice info
+'----------------------------------------------------------------------------------------------------Employer info & difference notice info
 EMReadScreen source_income, 75, 8, 37
 source_income = trim(source_income)
 length = len(source_income)		'establishing the length of the variable
@@ -305,22 +305,52 @@ IF send_notice_checkbox = CHECKED THEN
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL DEU_password_check(False)
-
+	msgbox "ready to go?"
 	'--------------------------------------------------------------------sending the notice in IULA
 	EMwritescreen "005", 12, 46 'writing the resolve time to read for later
 	EMwritescreen "Y", 14, 37 'send Notice
-	msgbox "Difference Notice Sent"
+	'msgbox "Difference Notice Sent"
 	transmit 'goes into IULA
-	ROW = 8
-    EMReadScreen IULB_first_line, 1, row, 6
-    IF IULB_first_line = "" THEN
-    	EMwritescreen "Difference Notice Sent", row, 6
-    ELSE
-    	ROW = 9
-    	CALL clear_line_of_text(row, 6)
-    	EMwritescreen "Difference Notice Sent", row, 6
-    END IF
+	'removed the IULB informtion '
 	transmit'exiting IULA, helps prevent errors when going to the case note
+
+	   'Going to the MISC panel
+  Call navigate_to_MAXIS_screen ("STAT", "MISC")
+  Row = 6
+  EmReadScreen panel_number, 1, 02, 78
+  If panel_number = "0" then
+  	EMWriteScreen "NN", 20,79
+  	TRANSMIT
+  ELSE
+  	Do
+      	'Checking to see if the MISC panel is empty, if not it will find a new line'
+      	EmReadScreen MISC_description, 25, row, 30
+      	MISC_description = replace(MISC_description, "_", "")
+      	If trim(MISC_description) = "" then
+  			PF9
+      		EXIT DO
+      	Else
+              row = row + 1
+      	End if
+  	Loop Until row = 17
+      If row = 17 then script_end_procedure("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+  End if
+
+  'writing in the action taken and date to the MISC panel
+  EMWriteScreen "Initial Claim Referral", Row, 30
+  PF3
+	Call navigate_to_MAXIS_screen("DAIL", "WRIT")
+	call create_MAXIS_friendly_date(date, 10, 5, 18)
+	Call write_variable_in_TIKL("Potential overpayment exists on case. Please review case for receipt of additional requested information.")
+  PF3
+
+  start_a_blank_CASE_NOTE
+  Call write_variable_in_case_note("----- Claim Referral Tracking -----")
+  Call write_bullet_and_variable_in_case_note("Program(s)", program)
+  Call write_bullet_and_variable_in_case_note("Action Date", Action_Date)
+  Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
+  Call write_variable_in_case_note("---")
+  Call write_variable_in_case_note(worker_signature)
 	'--------------------------------------------------------------------The case note & case note related code
 	pending_verifs = ""
   IF Diff_Notice_Checkbox = CHECKED THEN pending_verifs = pending_verifs & "Difference Notice, "
@@ -329,7 +359,7 @@ IF send_notice_checkbox = CHECKED THEN
 	IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
 
     '-------------------------------------------------------------------trims excess spaces of pending_verifs
-    pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more more than one app date is found and additional app is selected
+    pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more than one app date is found and additional app is selected
     IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 	IF IEVS_type = "WAGE" THEN
 		'Updated IEVS_match to write into case note
@@ -436,7 +466,6 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	EMReadScreen error_msg, 11, 24, 2
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	If error_msg = "ACTION CODE" THEN script_end_procedure(err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
-
 	IF resolution_status = "BC - Case Closed" 	THEN EMWriteScreen "Case closed. " & other_notes, 8, 6   							'BC
 	IF resolution_status = "BE - No Change" THEN EMWriteScreen "No change. " & other_notes, 8, 6 									'BE
 	IF resolution_status = "BE - Child" THEN EMWriteScreen "No change, minor child income excluded. " & other_notes, 8, 6 			'BE - child
@@ -484,7 +513,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	IF resolution_status = "BN - Already known, No Savings" THEN CALL write_variable_in_CASE_NOTE("CLIENT REPORTED INCOME. CORRECT INCOME IS IN STAT PANELS AND BUDGETED.")
 	IF resolution_status = "BO - Other" THEN CALL write_variable_in_CASE_NOTE("HC Claim entered. ")
 	IF resolution_status = "BP - Wrong Person" THEN CALL write_variable_in_CASE_NOTE("Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
-	IF resolution_status = "CC - Claim Entered" THEN CALL write_variable_in_CASE_NOTE("Client name and wage earner name are different.")
+	IF resolution_status = "CC - Claim Entered" THEN CALL write_variable_in_CASE_NOTE("Claim entered.")
 	IF resolution_status = "NC - Non Cooperation" THEN
   	CALL write_variable_in_CASE_NOTE("* CLIENT FAILED TO COOP WITH WAGE MATCH")
     CALL write_variable_in_case_note("* Entered STAT/DISQ panels for each program.")
@@ -506,7 +535,5 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	 	PF3		'Exits and saves TIKL
 	 	script_end_procedure("Success! Updated WAGE match, and a TIKL created.")
 	END IF
-	'END IF
 END IF
-
 script_end_procedure ("Match has been acted on. Please take any additional action needed for your case.")
