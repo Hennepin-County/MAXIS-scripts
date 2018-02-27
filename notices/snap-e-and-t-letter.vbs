@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/27/2018", "Multiple updates include handling for multiple household members, background check, removed exempt counties coding, added other manual reason info into case note, upated TIKL msgbox, and added ABAWD to manual referral droplist. ", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -155,7 +156,7 @@ IF county_FSET_offices(0) <> "" THEN call convert_array_to_droplist_items (count
 ' This dialog is for counties that HAVE provided FSET office addresses
 BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 240, "SNAP E&T Appointment Letter"
   EditBox 70, 5, 55, 15, MAXIS_case_number
-  EditBox 215, 5, 20, 15, member_number
+  EditBox 240, 5, 60, 15, member_number
   EditBox 70, 25, 55, 15, appointment_date
   EditBox 195, 25, 20, 15, appointment_time_prefix_editbox
   EditBox 215, 25, 20, 15, appointment_time_post_editbox
@@ -163,13 +164,13 @@ BeginDialog SNAPET_automated_adress_dialog, 0, 0, 306, 240, "SNAP E&T Appointmen
   DropListBox 115, 50, 185, 15, FSET_list, interview_location
   EditBox 60, 70, 110, 15, SNAPET_contact
   EditBox 235, 70, 65, 15, SNAPET_phone
-  DropListBox 105, 95, 85, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Other manual referral"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
+  DropListBox 105, 95, 85, 15, "Select one..."+chr(9)+"ABAWD (3/36 mo.)"+chr(9)+"Banked months"+chr(9)+"Other manual referral"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
   EditBox 105, 115, 195, 15, other_referral_notes
   EditBox 105, 140, 85, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 195, 140, 50, 15
     CancelButton 250, 140, 50, 15
-  Text 130, 10, 70, 10, "HH Member Number:"
+  Text 160, 10, 80, 10, "HH Member Number(s):"
   Text 130, 30, 60, 10, "Appointment Time:"
   Text 5, 75, 50, 10, "Contact name: "
   Text 5, 30, 60, 10, "Appointment Date:"
@@ -188,7 +189,7 @@ EndDialog
 'This dialog is for counties that have not provided FSET office address(s)
 BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 275, "SNAP E&T Appointment Letter"
   EditBox 65, 5, 55, 15, MAXIS_case_number
-  EditBox 215, 5, 20, 15, member_number
+  EditBox 215, 5, 80, 15, member_number
   EditBox 65, 25, 55, 15, appointment_date
   EditBox 195, 25, 20, 15, appointment_time_prefix_editbox
   EditBox 215, 25, 20, 15, appointment_time_post_editbox
@@ -200,7 +201,7 @@ BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 275, "SNAP E&T Appointment 
   EditBox 210, 85, 45, 15, SNAPET_zip
   EditBox 65, 105, 65, 15, SNAPET_contact
   EditBox 185, 105, 70, 15, SNAPET_phone
-  DropListBox 110, 125, 80, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Other manual referral"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
+  DropListBox 110, 125, 80, 15, "Select one..."+chr(9)+"ABAWD (3/36 mo.)"+chr(9)+"Banked months"+chr(9)+"Other manual referral"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
   EditBox 110, 145, 185, 15, other_referral_notes
   EditBox 75, 170, 110, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -212,7 +213,7 @@ BeginDialog SNAPET_manual_address_dialog, 0, 0, 301, 275, "SNAP E&T Appointment 
   Text 10, 175, 60, 10, "Worker Signature:"
   Text 10, 10, 50, 10, "Case Number:"
   Text 10, 90, 55, 10, "City/State/Zip:"
-  Text 130, 10, 70, 10, "HH Member Number:"
+  Text 135, 10, 80, 10, "HH Member Number(s):"
   Text 5, 30, 60, 10, "Appointment Date:"
   GroupBox 5, 195, 290, 75, "When is a manual referral needed"
   Text 15, 210, 275, 20, "If an ABAWD is using banked months, or a student meets criteria under CM0011.18, or receiving E and T services through a Community Based Organization (CBO)."
@@ -227,9 +228,9 @@ EndDialog
 'This is a Hennepin specific dialog, should not be used for other counties!!!!!!!!
 BeginDialog SNAPET_Hennepin_dialog, 0, 0, 466, 205, "SNAP E&T Appointment Letter"
   EditBox 105, 10, 55, 15, MAXIS_case_number
-  EditBox 220, 10, 25, 15, member_number
+  EditBox 225, 10, 75, 15, member_number
   DropListBox 105, 35, 195, 15, "Select one..."+chr(9)+"Somali-language (Sabathani, next Tuesday @ 2:00 p.m.)"+chr(9)+"Central NE (HSB, next Wednesday @ 2:00 p.m.)"+chr(9)+"North (HSB, next Wednesday @ 10:00 a.m.)"+chr(9)+"Northwest(Brookdale, next Monday @ 2:00 p.m.)"+chr(9)+"South Mpls (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"South Suburban (Sabathani, next Tuesday @ 10:00 a.m.)"+chr(9)+"West (Sabathani, next Tuesday @ 10:00 a.m.)", interview_location
-  DropListBox 105, 60, 110, 15, "Select one..."+chr(9)+"Banked months"+chr(9)+"Other manual referral"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
+  DropListBox 105, 60, 110, 15, "Select one..."+chr(9)+"ABAWD (3/36 mo.)"+chr(9)+"Banked months"+chr(9)+"Other manual referral"+chr(9)+"Student"+chr(9)+"Working with CBO", manual_referral
   EditBox 105, 80, 195, 15, other_referral_notes
   EditBox 105, 105, 85, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -243,10 +244,10 @@ BeginDialog SNAPET_Hennepin_dialog, 0, 0, 466, 205, "SNAP E&T Appointment Letter
   Text 15, 170, 435, 20, "Select a recipient type in the 'Manual referral needed' field, and a manual referral will be created with the information entered into the edit boxes above, and a TIKL will be made for 30 days from the date of manual referral."
   Text 50, 15, 50, 10, "Case Number:"
   Text 5, 85, 100, 15, "Other manual referral reason:"
-  Text 170, 15, 45, 10, "HH Memb #:"
+  Text 170, 15, 55, 10, "HH Memb # (s):"
   Text 40, 110, 60, 10, "Worker Signature:"
   Text 320, 25, 130, 35, "If your client is requsting a Somali-language orientation, select this option in the 'client's region of residence' field."
-  Text 320, 65, 130, 55, "For all other languages, do not use this script. Contact Mark Scherer, and request language-specific SNAP E and T Orientation/intake. Provide client with Mark’s contact information, and instruct them to contact him to schedule orientation within one week."
+  Text 320, 65, 130, 55, "For all other languages, do not use this script. Contact E and T staff, and request language-specific SNAP E and T Orientation/intake. Provide client with the E and T contact information, and instruct them to contact them to schedule orientation within one week."
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -263,23 +264,7 @@ DO
 		'establishes  that the error message is equal to blank (necessary for the DO LOOP to work)
 		err_msg = ""
 		'these counties are exempt from participation per the FNS'
-		If  worker_county_code = "x101" OR _
-			worker_county_code = "x111" OR _
-			worker_county_code = "x115" OR _
-			worker_county_code = "x129" OR _
-			worker_county_code = "x131" OR _
-			worker_county_code = "x133" OR _
-			worker_county_code = "x136" OR _
-			worker_county_code = "x139" OR _
-			worker_county_code = "x144" OR _
-			worker_county_code = "x145" OR _
-			worker_county_code = "x148" OR _
-			worker_county_code = "x149" OR _
-			worker_county_code = "x154" OR _
-			worker_county_code = "x158" OR _
-			worker_county_code = "x180" THEN
-			script_end_procedure ("Your agency is exempt from ABAWD work requirements through 09/30/17." & vbNewLine & vbNewLine & " Please refer to TE02.05.69 for reference.")
-		ElseIF worker_county_code = "x127" THEN
+		IF worker_county_code = "x127" THEN
 			Dialog SNAPET_Hennepin_dialog
 			'Hennepin specific information===================================================================================================
 			If worker_county_code = "x127" THEN
@@ -399,10 +384,12 @@ DO
 		'asks if they really want to cancel script
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		If isdate(appointment_date) = FALSE then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+		If isdate(appointment_date) = FALSE then err_msg = err_msg & vbNewLine & "* Enter a valid orientation date."
 		'The DateValue condition does not apply to Hennepin County users which is why it is excluded in the line below
-		IF worker_county_code <> "x127" AND DateValue(appointment_date) < date then err_msg = err_msg & vbNewLine & "* Orientation date entered has already passed.  Select a new date."
-		IF len(member_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid member number."
+		IF worker_county_code <> "x127" then 
+            if DateValue(appointment_date) < date then err_msg = err_msg & vbNewLine & "* Orientation date entered has already passed.  Select a new date."
+        end if 
+		IF trim(member_number) = "" then err_msg = err_msg & vbNewLine & "* Enter a 2 digit member number, or more than one HH members separated by a comma."
 		IF SNAPET_name = "" then err_msg = err_msg & vbNewLine & "* Enter a E and T office location."
 		IF SNAPET_address_01 = "" then err_msg = err_msg & vbNewLine & "* Enter a street address."
 		IF appointment_time_prefix_editbox = "" then err_msg = err_msg & vbNewLine & "* Enter a valid appointment time."
@@ -432,6 +419,8 @@ If worker_county_code = "x127" THEN
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
 END IF
+
+MAXIS_background_check
 
 'County FSET address information which will autofill when option is chosen from county_office_list----------------------------------------------------------------------------------------------------
 'CO #01 AITKIN COUNTY address
@@ -1046,103 +1035,100 @@ IF interview_location  = "Yellow Medicine County Family Services" THEN
 END IF
 'END COUNTY ADDRESSES----------------------------------------------------------------------------------------------------
 
-'Pulls the member name.
-call navigate_to_MAXIS_screen("STAT", "MEMB")
-EMWriteScreen member_number, 20, 76
-transmit
-EMReadScreen memb_error_check, 7, 8, 22
-If memb_error_check = "Arrival" then	'checking for valid HH member
-	PF3
-	PF10
-	script_end_procedure("The HH member is invalid. Please review your case, and the HH member number before trying the script again.")
-END IF
-EMReadScreen last_name, 24, 6, 30
-EMReadScreen first_name, 11, 6, 63
-last_name = trim(replace(last_name, "_", ""))
-first_name = trim(replace(first_name, "_", ""))
+member_array = split(member_number, ",")
 
-'Updates the WREG panel with the appointment_date
-Call navigate_to_MAXIS_screen("STAT", "WREG")
-EMWriteScreen member_number, 20, 76
-transmit
-
-'Ensuring that students have a FSET status of "12" and all others are coded with "30"
-EMReadScreen FSET_status, 2, 8, 50
-If manual_referral = "Student" then
-    if FSET_status <> "12" then script_end_procedure ("Member " & member_number & " is not coded as a student. The script will now end.")
-Else
-    If FSET_status <> "30" then script_end_procedure("Member " & member_number & " is not coded as a Mandatory FSET Participant. The script will now end.")
-End if
-'Ensuring that the ABAWD_status is "13" for banked months manual referral recipients
-EMReadScreen ABAWD_status, 2, 13, 50
-If manual_referral = "Banked months" then
- 	if ABAWD_status <> "13" then script_end_procedure ("Member " & member_number & " is not coded as a banked months recipient. The script will now end.")
-End if
-
-'Ensuring the orientation date is coding in the with the referral date scheduled
-EMReadScreen orientation_date, 8, 9, 50
-orientation_date = replace(orientation_date, " ", "/")
-If appointment_date <> orientation_date then
-	PF9
-	Call create_MAXIS_friendly_date(appointment_date, 0, 9, 50)
-	PF3
-END if
-
-'The CASE/NOTE----------------------------------------------------------------------------------------------------
-'Navigates to a blank case note
-start_a_blank_CASE_NOTE
-CALL write_variable_in_case_note("***SNAP E&T Appointment Letter Sent for MEMB " & member_number & " ***")
-Call write_bullet_and_variable_in_case_note("Member referred to E&T", member_number & " " & first_name & " " & last_name)
-CALL write_bullet_and_variable_in_case_note("Appointment date", appointment_date)
-CALL write_bullet_and_variable_in_case_note("Appointment time", appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM)
-CALL write_bullet_and_variable_in_case_note("Appointment location", SNAPET_name)
-Call write_variable_in_case_note("* The WREG panel has been updated to reflect the E & T orientation date.")
-If manual_referral <> "Select one..." then Call write_variable_in_case_note("* Manual referral made for: " & manual_referral & " recipient.")
-If manual_referral <> "Select one..." then Call write_variable_in_case_note("* TIKL set for 30 days for proof of compliance with E & T.")
-CALL write_variable_in_case_note("---")
-CALL write_variable_in_case_note(worker_signature)
-
-'The SPEC/LETR----------------------------------------------------------------------------------------------------
-call navigate_to_MAXIS_screen("SPEC", "LETR")
-'Opens up the SNAP E&T Orientation LETR. If it's unable the script will stop.
-EMWriteScreen "x", 8, 12
-transmit
-EMReadScreen LETR_check, 4, 2, 49
-If LETR_check = "LETR" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-
-'Writes the info into the LETR.
-IF len(appointment_time_prefix_editbox) = 1 THEN appointment_time_prefix_editbox = "0" & appointment_time_prefix_editbox 'This prevents the letter from being cancelled due to single digit hour
-EMWriteScreen first_name & " " & last_name, 4, 28
-call create_MAXIS_friendly_date_three_spaces_between(appointment_date, 0, 6, 28)
-EMWriteScreen appointment_time_prefix_editbox, 7, 28
-EMWriteScreen appointment_time_post_editbox, 7, 33
-EMWriteScreen AM_PM, 7, 38
-EMWriteScreen SNAPET_name, 9, 28
-EMWriteScreen SNAPET_address_01, 10, 28
-EMWriteScreen SNAPET_city & ", " & SNAPET_ST & " " &  SNAPET_zip, 11, 28
-call create_MAXIS_friendly_phone_number(SNAPET_phone, 13, 28) 'takes out non-digits if listed in variable, and formats phone number for the field
-EMWriteScreen SNAPET_contact, 16, 28
-PF4		'saves and sends memo
-PF3
-PF3
-
-'Creates a 30 day TILK to check for compliance with E & T'
-If manual_referral <> "Select one..." then
-	call navigate_to_MAXIS_screen("dail", "writ")
-	call create_MAXIS_friendly_date(date, 30, 5, 18)
-	Call write_variable_in_TIKL("Manual referral was made for " & other_referral_notes & " recipient 30 days ago. Please review case to see if verification of E and T compliance was sent to recipient, and that they are complying.")
-	transmit
-	PF3
-End if
-
+For each member_number in member_array 
+    member_number = trim(member_number)
+    'Updates the WREG panel with the appointment_date
+    Call navigate_to_MAXIS_screen("STAT", "WREG")
+    Call write_value_and_transmit(member_number, 20, 76)
+    EMReadScreen memb_error_check, 20, 24, 15 
+    If memb_error_check = "NOT IN THE HOUSEHOLD" then script_end_procedure ("The HH member " & member_number & " is invalid. Please review your case if necessary. The script will not continue for this member.")
+    
+    EMReadScreen client_name, 44, 4, 37
+    client_name = trim(client_name)
+    Call change_client_name_to_FML(client_name)
+    client_name = trim(client_name) 'trims off additional space left after using name from FML 
+        
+    'Ensuring that students have a FSET status of "12" and all others are coded with "30"
+    EMReadScreen FSET_status, 2, 8, 50
+    If manual_referral = "Student" then
+        if FSET_status <> "12" then script_end_procedure("Member " & member_number & " is not coded as a student. The script will now end.")
+    Else
+        If FSET_status <> "30" then script_end_procedure("Member " & member_number & " is not coded as a Mandatory FSET Participant. The script will now end.")
+    End if
+    'Ensuring that the ABAWD_status is "13" for banked months manual referral recipients
+    EMReadScreen ABAWD_status, 2, 13, 50
+    If manual_referral = "Banked months" then
+     	if ABAWD_status <> "13" then script_end_procedure("Member " & member_number & " is not coded as a banked months recipient. The script will now end.")
+    End if
+    
+    'Ensuring the orientation date is coding in the with the referral date scheduled
+    EMReadScreen orientation_date, 8, 9, 50
+    orientation_date = replace(orientation_date, " ", "/")
+    If appointment_date <> orientation_date then
+    	PF9
+    	Call create_MAXIS_friendly_date(appointment_date, 0, 9, 50)
+    	PF3
+    END if
+Next 
+        
+For each member_number in member_array 
+    'The CASE/NOTE----------------------------------------------------------------------------------------------------
+    'Navigates to a blank case note
+    start_a_blank_CASE_NOTE
+    CALL write_variable_in_case_note("***SNAP E&T Appointment Letter Sent for MEMB " & member_number & " ***")
+    Call write_variable_in_case_note("* Member referred to E&T: #" &  member_number & ", " & client_name)
+    CALL write_bullet_and_variable_in_case_note("Appointment date", appointment_date)
+    CALL write_bullet_and_variable_in_case_note("Appointment time", appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM)
+    CALL write_bullet_and_variable_in_case_note("Appointment location", SNAPET_name)
+    Call write_variable_in_case_note("* The WREG panel has been updated to reflect the E & T orientation date.")
+    If manual_referral <> "Select one..." then Call write_variable_in_case_note("* Manual referral made for: " & manual_referral & " recipient.")
+    Call write_bullet_and_variable_in_case_note("Other referral notes", other_referral_notes)
+    If manual_referral <> "Select one..." then Call write_variable_in_case_note("* TIKL set for 30 days.")
+    CALL write_variable_in_case_note("---")
+    CALL write_variable_in_case_note(worker_signature)
+    
+    'The SPEC/LETR----------------------------------------------------------------------------------------------------
+    call navigate_to_MAXIS_screen("SPEC", "LETR")
+    'Opens up the SNAP E&T Orientation LETR. If it's unable the script will stop.
+    EMWriteScreen "x", 8, 12
+    transmit
+    EMReadScreen LETR_check, 4, 2, 49
+    If LETR_check = "LETR" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
+    
+    'Writes the info into the LETR.
+    IF len(appointment_time_prefix_editbox) = 1 THEN appointment_time_prefix_editbox = "0" & appointment_time_prefix_editbox 'This prevents the letter from being cancelled due to single digit hour
+    EMWriteScreen client_name, 4, 28
+    call create_MAXIS_friendly_date_three_spaces_between(appointment_date, 0, 6, 28)
+    EMWriteScreen appointment_time_prefix_editbox, 7, 28
+    EMWriteScreen appointment_time_post_editbox, 7, 33
+    EMWriteScreen AM_PM, 7, 38
+    EMWriteScreen SNAPET_name, 9, 28
+    EMWriteScreen SNAPET_address_01, 10, 28
+    EMWriteScreen SNAPET_city & ", " & SNAPET_ST & " " &  SNAPET_zip, 11, 28
+    call create_MAXIS_friendly_phone_number(SNAPET_phone, 13, 28) 'takes out non-digits if listed in variable, and formats phone number for the field
+    EMWriteScreen SNAPET_contact, 16, 28
+    PF4		'saves and sends memo
+    PF3
+    PF3
+    
+    'Creates a 30 day TILK to check for compliance with E & T'
+    If manual_referral <> "Select one..." then
+    	call navigate_to_MAXIS_screen("dail", "writ")
+    	call create_MAXIS_friendly_date(date, 30, 5, 18)
+    	Call write_variable_in_TIKL("A manual referral was made for memb#" & member_number & " for " & other_referral_notes & " recipient 30 days ago. Please review case/ABAWD status, and update case if applicable.")
+    	transmit
+    	PF3
+    End if
+Next 
+' 
 'Manual referral creation if banked months are used
 If manual_referral <> "Select one..." then 					'if banked months or student are noted, then a manual referral to E & T is needed
 	Call navigate_to_MAXIS_screen("INFC", "WF1M")			'navigates to WF1M to create the manual referral'
 	EMWriteScreen "01", 4, 47													'this is the manual referral code that DHS has approved
-	EMWriteScreen "FS", 8, 46													'this is a program for ABAWD's for SNAP is the only option for banked months
-	EMWriteScreen member_number, 8, 9									'enters member number
-	Call create_MAXIS_friendly_date(appointment_date, 0, 8, 65)			'enters the E & T referral date
-	If manual_referral = "Banked months" then
+													'this is a program for ABAWD's for SNAP is the only option for banked months
+    If manual_referral = "Banked months" then
 		EMWriteScreen "Banked ABAWD month referral, initial month", 17, 6	'DHS wants these referrals marked, this marks them
 	ELSEIF manual_referral = "Student" then
 		EMWriteScreen "Student", 17, 6
@@ -1150,21 +1136,41 @@ If manual_referral <> "Select one..." then 					'if banked months or student are
 		EMWriteScreen "Working with Community Based Organization", 17, 6
 	ELSEIF manual_referral = "Other manual referral" then
 		EMWriteScreen other_referral_notes, 17, 6
+    ELSEIF manual_referral = "ABAWD (3/36 mo.)" then
+    	EMWriteScreen "ABAWD (3/36 mo.)", 17, 6    
 	END IF
-	EMWriteScreen "x", 8, 53																				'selects the ES provider
-	transmit																												'navigates to the ES provider selection screen
-		If worker_county_code = "x127" then				'HENNEPIN CO specific info'
-			EMWriteScreen "x", 5, 9									'selects the 1st option'
-			transmit																'transmits back to the main WF1M
-			EMWriteScreen appointment_date & ", " & appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM & ", " & SNAPET_name, 18, 6		'enters the location, date and time for Hennepin Co ES providers (per request)'
-			PF3																			'saves referral
-			EMWriteScreen "Y", 11, 64								'Y to confirm save
-			transmit																'confirms saving the referral
-			script_end_procedure("Your orientation letter, manual referral, and a 30 day TIKL has been made. Navigate to SPEC/WCOM if you want to review the notice sent to the client." & _
-			vbNewLine & vbNewLine & "Make sure that you have sent the form ""ABAWD FS RULES"" to the client.")
-		Else
-			script_end_procedure("Please select your agency's ES provider, and PF3 to save your referral.")		'if agency is not Hennepin, then user is asked to select the ES provider and save'
-		END IF
+    
+    row = 8
+    For each member_number in member_array
+        member_number = trim(member_number)
+        EMWriteScreen member_number, row, 9		
+        EMWriteScreen "FS", row, 46								'enters member number
+	    Call create_MAXIS_friendly_date(appointment_date, 0, row, 65)			'enters the E & T referral date
+        row = row + 1
+    Next 
+    																																
+	If worker_county_code = "x127" then				'HENNEPIN CO specific info'
+		row = 8
+        For each member_number in member_array
+            EmWriteScreen "x", row, 53 'navigates to the ES provider selection screen
+            row = row + 1
+        Next
+        transmit
+        Do 
+            EMReadScreen ES_popup, 11, 2, 37
+            IF ES_popup = "ES Provider" then Call write_value_and_transmit("X", 5, 9)
+        Loop until ES_popup <> "ES Provider"
+            												
+		EMWriteScreen appointment_date & ", " & appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM & ", " & SNAPET_name, 18, 6		'enters the location, date and time for Hennepin Co ES providers (per request)'
+		PF3			
+        Call write_value_and_transmit("Y", 11, 64)		'Y to confirm save and saves referral
+		
+		script_end_procedure("Your orientation letter, manual referral, and 30-day TIKL has been made. Navigate to SPEC/WCOM if you want to review the notice sent to the client." & _
+		vbNewLine & vbNewLine & "Make sure that you have sent the form ""ABAWD FS RULES"" to the client.")
+	Else
+        Call write_value_and_transmit("x", 8, 53) ''navigates to the ES provider selection screen
+		script_end_procedure("Please select your agency's ES provider, and PF3 to save your referral.")		'if agency is not Hennepin, then user is asked to select the ES provider and save'
+	END IF
 END IF
 
 If worker_county_code = "x127" then			'specific closing message to Hennepin County message
