@@ -272,64 +272,65 @@ Case "July"
 	excel_col = 35
 Case "August"
 	MAXIS_footer_month = "08"
-	MAXIS_footer_year = "17"
+	MAXIS_footer_year = "18"
 	excel_col = 24
 Case "September"
 	MAXIS_footer_month = "09"
-	MAXIS_footer_year = "17"
+	MAXIS_footer_year = "18"
 	excel_col = 25
 Case "October"
 	MAXIS_footer_month = "10"
-	MAXIS_footer_year = "17"
+	MAXIS_footer_year = "18"
 	excel_col = 26
 Case "November"
 	MAXIS_footer_month = "11"
-	MAXIS_footer_year = "17"
+	MAXIS_footer_year = "18"
 	excel_col = 27
 Case "December"
 	MAXIS_footer_month = "12"
-	MAXIS_footer_year = "17"
+	MAXIS_footer_year = "18"
 	excel_col = 28
 End Select
 
+back_to_self
 excel_row = 2
 DO  
     'Grabs the case number
 	MAXIS_case_number = objExcel.cells(excel_row, 3).value
     If MAXIS_case_number = "" then exit do
-	back_to_self
-	EMWriteScreen "________", 18, 43
-	EMWriteScreen MAXIS_case_number, 18, 43
-	
+
     Call navigate_to_MAXIS_screen("CASE", "CURR")
-    EMReadScreen CURR_panel_check, 4, 2, 55
-	If CURR_panel_check <> "CURR" then msgbox MAXIS_case_number & " cannot access CASE/CURR."
-    
-    EMReadScreen case_status, 8, 8, 9
-    case_status = trim(case_status)
-    If case_status = "INACTIVE" then 
-        ObjExcel.Cells(excel_row, excel_col).Value = "Inactive"
-	Elseif case_status = "ACTIVE" then 
-        MAXIS_row = 9
-        Do 
-            EMReadScreen prog_name, 4, MAXIS_row, 3
-            prog_name = trim(prog_name)
-            if prog_name = "" then exit do
-            If prog_name = "FS" then 
-                EMReadScreen case_status, 8, MAXIS_row, 9
-                case_status = trim(case_status)
-	            if case_status = "ACTIVE" then 
-                    exit do
-                ELSE 
+    EMReadScreen priv_check, 6, 24, 14 			'If it can't get into the case needs to skip
+    IF priv_check = "PRIVIL" THEN
+        EMWriteScreen "________", 18, 43		'clears the case number
+        transmit
+        ObjExcel.Cells(excel_row, excel_col).Value = ""
+    Else     
+        EMReadScreen case_status, 8, 8, 9
+        case_status = trim(case_status)
+        If case_status = "INACTIVE" then 
+            ObjExcel.Cells(excel_row, excel_col).Value = "Inactive"
+	    Elseif case_status = "ACTIVE" then 
+            MAXIS_row = 9
+            Do 
+                EMReadScreen prog_name, 4, MAXIS_row, 3
+                prog_name = trim(prog_name)
+                if prog_name = "" then exit do
+                If prog_name = "FS" then 
+                    EMReadScreen case_status, 8, MAXIS_row, 9
+                    case_status = trim(case_status)
+	                if case_status = "ACTIVE" then 
+                        exit do
+                    ELSE 
+                        MAXIS_row = MAXIS_row + 1
+                    END IF 
+                Else
                     MAXIS_row = MAXIS_row + 1
                 END IF 
-            Else
-                MAXIS_row = MAXIS_row + 1
-            END IF 
-	    Loop until MAXIS_row = 17
-        If prog_name <> "FS" then ObjExcel.Cells(excel_row, excel_col).Value = "Inactive"
-    END If 
-	
+	        Loop until MAXIS_row = 17
+            If prog_name <> "FS" then ObjExcel.Cells(excel_row, excel_col).Value = "Inactive"
+        END If 
+	End if 
 	'inputs EXEMPT on cases that are active on GA/open on other programs
 	If case_status = "ACTIVE" then 
 		Call navigate_to_MAXIS_screen("STAT", "PROG")
