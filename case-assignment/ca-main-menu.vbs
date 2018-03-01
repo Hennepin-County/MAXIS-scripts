@@ -48,7 +48,7 @@ changelog_display
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_CA_menu_dialog(script_array)
-	BeginDialog CA_dialog, 0, 0, 516, 120, "Case Assginment Scripts"
+	BeginDialog CA_dialog, 0, 0, 516, 120, "Case Assignment Scripts"
 	 	Text 5, 5, 435, 10, "Case Assignment scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 		 	'PushButton 015, 35, 40, 15, "CA", 				CA_main_button
@@ -119,9 +119,9 @@ script_array_CA_main(script_num).description 			= "Processes MIPPA applications 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_CA_main(script_num)			'Resets the array to add one more element to it
 Set script_array_CA_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_CA_main(script_num).script_name			= "Out of County Transfer"				'needs spaces to generate button width properly.'Script name									
+script_array_CA_main(script_num).script_name			= "Out of County Transfer"				'needs spaces to generate button width properly.'Script name
 script_array_CA_main(script_num).file_name				= "ca-out-of-county-transfer.vbs"														'Script URL
-script_array_CA_main(script_num).description			= "Transfers cases out of county specific to Case Assingment's procedure."	
+script_array_CA_main(script_num).description			= "Transfers cases out of county specific to Case Assignment's procedure."	
 
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
@@ -140,10 +140,10 @@ Do
 	If ButtonPressed = "" or ButtonPressed = CA_main_button then declare_CA_menu_dialog(script_array_CA_main)
 	dialog CA_dialog
 	If ButtonPressed = 0 then stopscript
-	
+
     'Opening the SIR Instructions
 	'IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notices%20scripts.aspx")
-Loop until 	ButtonPressed <> CA_main_button 
+Loop until 	ButtonPressed <> CA_main_button
 'MsgBox buttonpressed = script_array_CA_main(0).button
 
 'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
