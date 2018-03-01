@@ -99,11 +99,11 @@ EMReadScreen MAXIS_case_name,  20, dateofapp_row, 16
 EMReadScreen MAXIS_footer_month, 2, dateofapp_row, 38
 EMReadScreen app_day, 2, dateofapp_row, 41
 EMReadScreen MAXIS_footer_year, 2, dateofapp_row, 44
-date_of_app = MAXIS_footer_month & "/" & app_day & "/" & MAXIS_footer_year
+application_date = MAXIS_footer_month & "/" & app_day & "/" & MAXIS_footer_year
 
 'If case is not in PND2 status this defaults the date information to current date to allow correct navigation
-IF date_of_app = "  /  /  " THEN
-	date_of_app = date
+IF application_date = "  /  /  " THEN
+	application_date = date
 	CALL convert_date_into_MAXIS_footer_month (date, MAXIS_footer_month, MAXIS_footer_year)
 END IF
 
@@ -197,7 +197,7 @@ BeginDialog appl_detail_dialog, 0, 0, 296, 145, "CASE CORRECTION"
   ButtonGroup ButtonPressed
     OkButton 185, 125, 50, 15
     CancelButton 240, 125, 50, 15
-  EditBox 230, 5, 60, 15, date_of_app
+  EditBox 230, 5, 60, 15, application_date
   Text 5, 50, 70, 10, "Programs Applied for:"
   Text 5, 70, 100, 10, "Transfer to (last 3 digit of X#):"
   Text 5, 90, 90, 10, "Assigned to (3 digit team #):"
@@ -216,7 +216,7 @@ Do
 		cancel_confirmation
 		IF requested_person = "" then err_msg = err_msg & vbNewLine & "* Please enter who requested the case correction."
 		IF app_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
-		IF isdate(date_of_app) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid application date."
+		IF isdate(application_date) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid application date."
 		IF worker_number = "" OR len(worker_number) <> 3 then err_msg = err_msg & vbNewLine & "* You must enter the worker number of the worker if you would like the case to be transfered by the script."
 		IF team_number = "" OR len(team_number) <> 3 then err_msg = err_msg & vbNewLine & "* You must enter the team number of the worker if you would like the case to be transfered by the script."
 		IF app_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "If an ApplyMN was received, you must enter the confirmation number and time received"
@@ -242,7 +242,7 @@ If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(program
 
 '--------------------------------------------------------------------------------inital case note
 start_a_blank_case_note
-CALL write_variable_in_CASE_NOTE("~ Case Correction recieved via " & app_type & " on " & date_of_app & " ~")
+CALL write_variable_in_CASE_NOTE("~ Case Correction recieved via " & app_type & " on " & application_date & " ~")
 CALL write_bullet_and_variable_in_CASE_NOTE ("Requested By ", requested_person)
 IF isnumeric(confirmation_number) = TRUE THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # for ApplyMN", confirmation_number)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Requesting", programs_applied_for)
@@ -405,7 +405,7 @@ IF send_appt_ltr = TRUE THEN
       ButtonGroup ButtonPressed
         OkButton 185, 50, 50, 15
         CancelButton 240, 50, 50, 15
-      EditBox 65, 25, 55, 15, date_of_app
+      EditBox 65, 25, 55, 15, application_date
       Text 5, 55, 60, 10, "Worker signature:"
       Text 140, 30, 60, 10, "Appointment date:"
       GroupBox 20, 10, 255, 35, "Enter a new appointment date only if it's a date county offices are not open."
@@ -413,11 +413,11 @@ IF send_appt_ltr = TRUE THEN
     EndDialog
 
 	'grabs CAF date, turns CAF date into string for variable
-	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", date_of_app)
-	date_of_app = date_of_app & ""
+	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", application_date)
+	application_date = application_date & ""
 
 	'creates interview date for 7 calendar days from the CAF date
-	interview_date = dateadd("d", 7, date_of_app)
+	interview_date = dateadd("d", 7, application_date)
 	If interview_date <= date then interview_date = dateadd("d", 7, date)
 	interview_date = interview_date & ""		'turns interview date into string for variable
 
@@ -427,7 +427,7 @@ IF send_appt_ltr = TRUE THEN
     		err_msg = ""
     		dialog Hennepin_appt_dialog
     		cancel_confirmation
-			If isdate(date_of_app) = False then err_msg = err_msg & vbnewline & "* Enter a valid application date."
+			If isdate(application_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid application date."
     		If isdate(interview_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid interview date."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
     	Loop until err_msg = ""
@@ -440,7 +440,7 @@ IF send_appt_ltr = TRUE THEN
 	    next_month_year = datepart("yyyy", dateadd("m", 1, interview_date))
 	    last_contact_day = dateadd("d", -1, next_month & "/01/" & next_month_year)
 	ELSE
-	 	last_contact_day = CAF_date + 30
+	 	last_contact_day = dateadd("d", 30, application_date)
 		If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date
     END IF
 
