@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("02/21/2018", "Added on demand waiver handling.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/16/2018", "Added case transfer confirmation coding, and added active checkbox indicator.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/20/2017", "Email functionality for METS retro cases. Changed team email to blank so user inputs the applicable team.", "Ilse Ferris, Hennepin County")
@@ -63,7 +64,7 @@ CALL MAXIS_case_number_finder (MAXIS_case_number)
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 131, 50, "Case number dialog"
-  EditBox 65, 5, 60, 15, MAXIS_case_number					
+  EditBox 65, 5, 60, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 20, 30, 50, 15
     CancelButton 75, 30, 50, 15
@@ -76,14 +77,14 @@ EMConnect ""
 call maxis_case_number_finder(MAXIS_case_number)
 
 'initial case number dialog
-Do 
-	DO 
+Do
+	DO
 		err_msg = ""
 	    dialog case_number_dialog
         if ButtonPressed = 0 Then StopScript
         if IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine		
-	Loop until err_msg = ""	
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+	Loop until err_msg = ""
 CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
@@ -221,8 +222,8 @@ Do
 		IF app_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "If an ApplyMN was received, you must enter the confirmation number and time received"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in		
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
 
 'Creates a variable that lists all the programs pending.
 programs_applied_for = ""
@@ -232,17 +233,17 @@ IF grh_pend = CHECKED THEN programs_applied_for = programs_applied_for & "GRH, "
 IF fs_pend = CHECKED THEN programs_applied_for = programs_applied_for & "SNAP, "
 IF ive_pend = CHECKED THEN programs_applied_for = programs_applied_for & "IV-E, "
 IF hc_pend = CHECKED THEN programs_applied_for = programs_applied_for & "HC, "
-IF cca_pend = CHECKED THEN programs_applied_for = programs_applied_for & "CCA" 
+IF cca_pend = CHECKED THEN programs_applied_for = programs_applied_for & "CCA"
 
 'trims excess spaces of programs_applied_for
 programs_applied_for = trim(programs_applied_for)
 'takes the last comma off of programs_applied_for when autofilled into dialog if more more than one app date is found and additional app is selected
-If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1) 
+If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
 
 '--------------------------------------------------------------------------------inital case note
 start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE("~ Case Correction recieved via " & app_type & " on " & date_of_app & " ~")
-CALL write_bullet_and_variable_in_CASE_NOTE ("Requested By ", requested_person) 
+CALL write_bullet_and_variable_in_CASE_NOTE ("Requested By ", requested_person)
 IF isnumeric(confirmation_number) = TRUE THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # for ApplyMN", confirmation_number)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Requesting", programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
@@ -273,7 +274,7 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
       	Text 50, 10, 50, 10, "Case number: "
       	GroupBox 0, 130, 175, 30, "**IMPORTANT**"
     	EndDialog
-		
+
 		'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
 		If date >= cdate("10/01/2017") then			'these variables need to change every October
 			heat_AC_amt = 556
@@ -284,10 +285,10 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
 			electric_amt = 141
 			phone_amt = 38
 		End if
-    
+
     	'----------------------------------------------------------------------------------------------------THE SCRIPT
     	CALL MAXIS_case_number_finder(MAXIS_case_number)
-    	Do 
+    	Do
         	Do
     			err_msg = ""
         		Dialog exp_screening_dialog
@@ -296,9 +297,9 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
     			If (income <> "" and isnumeric(income) = false) or (assets <> "" and isnumeric(assets) = false) or (rent <> "" and isnumeric(rent) = false) THEN err_msg = err_msg & vbnewline & "* The income/assets/rent fields must be numeric only. Do not put letters or symbols in these sections."
     			If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
         	LOOP UNTIL err_msg = ""
-    		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-    	Loop until are_we_passworded_out = false					'loops until user passwords back in	
-    	
+    		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    	Loop until are_we_passworded_out = false					'loops until user passwords back in
+
     	''----------------------------------------------------------------------------------------------------LOGIC AND CALCULATIONS
     	'Logic for figuring out utils. The highest priority for the if...THEN is heat/AC, followed by electric and phone, followed by phone and electric separately.
     	IF heat_AC_check = checked THEN
@@ -310,23 +311,23 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
     	ELSEIF electric_check = checked and phone_check = unchecked THEN
        	    utilities = electric_amt
     	END IF
-    	
+
     	'in case no options are clicked, utilities are set to zero.
     	IF phone_check = unchecked and electric_check = unchecked and heat_AC_check = unchecked THEN utilities = 0
     	'If nothing is written for income/assets/rent info, we set to zero.
     	IF income = "" THEN income = 0
     	IF assets = "" THEN assets = 0
     	IF rent = "" THEN rent = 0
-    	
+
     	'Calculates expedited status based on above numbers
     	IF (int(income) < 150 and int(assets) <= 100) or ((int(income) + int(assets)) < (int(rent) + cint(utilities))) THEN expedited_status = "Client Appears Expedited"
     	IF (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >= 150 or int(assets) > 100) THEN expedited_status = "Client Does Not Appear Expedited"
     	'----------------------------------------------------------------------------------------------------checking DISQ
-    	
+
     	CALL navigate_to_MAXIS_screen("STAT", "DISQ")
     	'grabbing footer month and year
     	CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-    	
+
     	'Reads the DISQ info for the case note.
     	EMReadScreen DISQ_member_check, 34, 24, 2
     	IF DISQ_member_check = "DISQ DOES NOT EXIST FOR ANY MEMBER" THEN
@@ -342,9 +343,9 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
 	   		MsgBox "This Client Appears EXPEDITED. A same day interview needs to be offered."
 	   		Send_email = true
     	END IF
-		
+
 		IF expedited_status = "Client does not appear expedited" THEN MsgBox "This client does NOT appear expedited. A same day interview does not need to be offered."
-			
+
     	'-----------------------------------------------------------------------------------------------EXPCASENOTE
     	start_a_blank_CASE_NOTE
     	CALL write_variable_in_CASE_NOTE("~ Received Application for SNAP, " & expedited_status & " ~")
@@ -363,15 +364,15 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
     	IF expedited_status = "Client appears expedited" THEN CALL write_variable_in_CASE_NOTE("Client appears expedited. Application sent to ECF. Emailed Triagers.")
 		CALL write_variable_in_CASE_NOTE("---")
 		CALL write_variable_in_CASE_NOTE(worker_signature)
-	END IF 
-    
+	END IF
+
 '-------------------------------------------------------------------------------------Transfers the case to the assigned worker if this was selected in the second dialog box
 'Determining if a case will be transferred or not. All cases will be transferred except addendum app types. THIS IS NOT CORRECT AND NEEDS TO BE DISCUSSED WITH QI
-IF Active_checkbox = CHECKED THEN 		
-	transfer_case = False 
+IF Active_checkbox = CHECKED THEN
+	transfer_case = False
     action_completed = TRUE     'This is to decide if the case was sucessfully transferred or not
-ELSE 
-	transfer_case = True 
+ELSE
+	transfer_case = True
 	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
 	EMWriteScreen "x", 7, 16
 	transmit
@@ -381,21 +382,21 @@ ELSE
 	EMReadScreen worker_check, 9, 24, 2
 
 	IF worker_check = "SERVICING" THEN
-        action_completed = False 
+        action_completed = False
 		PF10
 	END IF
-    
+
     EMReadScreen transfer_confirmation, 16, 24, 2
-    if transfer_confirmation = "CASE XFER'D FROM" then 
+    if transfer_confirmation = "CASE XFER'D FROM" then
     	action_completed = True
-    Else 
-        action_completed = False 
-    End if 
+    Else
+        action_completed = False
+    End if
 END IF
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-IF send_email = True then CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)		
-	
+IF send_email = True then CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
+
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 IF send_appt_ltr = TRUE THEN
     BeginDialog Hennepin_appt_dialog, 0, 0, 296, 75, "APPOINTMENT LETTER"
@@ -419,7 +420,7 @@ IF send_appt_ltr = TRUE THEN
 	interview_date = dateadd("d", 7, date_of_app)
 	If interview_date <= date then interview_date = dateadd("d", 7, date)
 	interview_date = interview_date & ""		'turns interview date into string for variable
-	
+
  'need to handle for if we dont need an appt letter, which would be...'
 	Do
 		Do
@@ -432,7 +433,7 @@ IF send_appt_ltr = TRUE THEN
     	Loop until err_msg = ""
     	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
     LOOP UNTIL are_we_passworded_out = false
-    
+
 	'Figuring out the last contact day
 	If app_type = "Addendum" then
 	    next_month = datepart("m", dateadd("m", 1, interview_date))
@@ -442,7 +443,7 @@ IF send_appt_ltr = TRUE THEN
 	 	last_contact_day = CAF_date + 30
 		If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date
     END IF
-	
+
     'This checks to make sure the case is not in background and is in the correct footer month for PND1 cases.
     Do
     	call navigate_to_MAXIS_screen("STAT", "SUMM")
@@ -461,52 +462,36 @@ IF send_appt_ltr = TRUE THEN
     		Pause 2
     	End if
     Loop until SELF_check <> "SELF"
-    
-    'Navigating to SPEC/MEMO
-    call start_a_new_spec_memo                                            
 
-    'Writes the MEMO
-    call write_variable_in_SPEC_MEMO("***********************************************************")
-    call write_variable_in_SPEC_MEMO("You recently applied for assistance in Hennepin County on " & date_of_app & ". An interview is required to process your application.")
-    CALL write_variable_in_SPEC_MEMO("")
-    Call write_variable_in_SPEC_MEMO("Your phone interview is scheduled for " & interview_date & " anytime between 9:00 AM - 1:00 PM.")
-    call write_variable_in_SPEC_MEMO("")
-    CALL write_variable_in_SPEC_MEMO("Please CALL the EZ Info Line at 612-596-1300 to complete your phone interview.")
-    CALL write_variable_in_SPEC_MEMO("If this date and/or time frame does not work, or you would prefer an interview in the office, please call the EZ Info Line. If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
-    CALL write_variable_in_SPEC_MEMO("")
-    CALL write_variable_in_SPEC_MEMO("If we do not hear from you by " & last_contact_day & " we will deny your application.")
-    CALL write_variable_in_SPEC_MEMO("***********************************************************")
-    PF4		'Exits the MEMO
-    
-    'Created new variable for TIKL
-    interview_info = interview_date & " 9:00 AM - 1:00 PM."
-    
-    'TIKLing to remind the worker to send NOMI if appointment is missed
-    CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-    CALL create_MAXIS_friendly_date(interview_date, 0, 5, 18)
-    CALL write_variable_in_TIKL("~*~*~CLIENT WAS SENT AN APPT LETTER FOR INTERVIEW ON " & interview_info & ". IF MISSED SEND NOMI.")
-    transmit
-    PF3
-    
-    'Navigates to CASENOTE and starts a blank one
-    start_a_blank_CASE_NOTE
-    CALL write_variable_in_CASE_NOTE("~ Appointment letter sent in MEMO ~")
-    CALL write_bullet_and_variable_in_CASE_NOTE("Appointment date", interview_date)
-    CALL write_variable_in_CASE_NOTE("* Appointment time frame: 9:00 AM - 1:00 PM.")
-    CALL write_variable_in_CASE_NOTE("* Client was instructed to call the EZ info line to complete interview. If applying for a cash program for FAD, may need a face-to-face interview")
-    CALL write_bullet_and_variable_in_CASE_NOTE("Client must complete interview by", last_contact_day)
-    CALL write_variable_in_CASE_NOTE("* TIKL created to call client on interview date. If applicant did not call in, then send NOMI if appropriate.")
-    If forms_to_arep = "Y" then CALL write_variable_in_CASE_NOTE("* Copy of notice sent to AREP.")              'Defined above
-    If forms_to_swkr = "Y" then CALL write_variable_in_CASE_NOTE("* Copy of notice sent to Social Worker.")     'Defined above
-    CALL write_variable_in_CASE_NOTE("---")
-    CALL write_variable_in_CASE_NOTE(worker_signature)
+		'Navigating to SPEC/MEMO
+    'Transmits to start the memo writing process
+
+		Call start_a_new_spec_memo		'Writes the appt letter into the MEMO.
+		  Call write_variable_in_SPEC_MEMO("************************************************************")
+		  Call write_variable_in_SPEC_MEMO("You recently applied for assistance in Hennepin County on " & application_date & ".")
+		  Call write_variable_in_SPEC_MEMO("You need to complete an interview as part of your application.")
+		  Call write_variable_in_SPEC_MEMO("The interview must be completed by " & interview_date & ".")
+		  Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at 612-596-1300 between 9:00am and 4:00pm Monday through Friday.")
+		  Call write_variable_in_SPEC_MEMO("If you do not complete the interview by " & last_contact_day & " your application will be denied.") 'add 30 days
+		  Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
+		  Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy.")
+		  Call write_variable_in_SPEC_MEMO("************************************************************")
+		  PF4
+    Call start_a_blank_CASE_NOTE
+      Call write_variable_in_CASE_NOTE("~ Appointment letter sent in MEMO ~")
+      Call write_variable_in_CASE_NOTE("* A notice has been sent via SPEC/MEMO informing the client of missed interview.")
+      Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
+      Call write_variable_in_CASE_NOTE("* Link to Domestic Violence Brochure sent to client in SPEC/MEMO as a part of interview notice.")
+      'Call write_variable_in_CASE_NOTE("* A notice has been sent to client with detail about how to call in for an interview.")
+      Call write_variable_in_CASE_NOTE("---")
+      Call write_variable_in_CASE_NOTE(worker_signature & " via on demand waiver script")
 END IF
-
+PF3
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-IF mnsure_retro_checkbox = CHECKED THEN CALL create_outlook_email("", "", MAXIS_case_name & maxis_case_number & " Retro Request Complete EOM.", "", "", FALSE)	
+IF mnsure_retro_checkbox = CHECKED THEN CALL create_outlook_email("", "", MAXIS_case_name & maxis_case_number & " Retro Request Complete EOM.", "", "", FALSE)
 
 IF action_completed = False then
     script_end_procedure ("Warning! Case did not transfer. Transfer the case manually. Script was able to complete all other steps.")
-Else 
+Else
     script_end_procedure ("Case has been updated please review to ensure it was processed correctly.")
-End if 
+End if
