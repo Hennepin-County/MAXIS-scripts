@@ -47,6 +47,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/05/2018", "Updated script to ensure TIKL was being created.", "MiKayla Handley, Hennepin County")
 call changelog_update("01/05/2018", "Updated coordinates in STAT/JOBS for income type and verification codes.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -203,7 +204,7 @@ If create_JOBS_checkbox = checked then
 	transmit	'Transmits
 	EMReadScreen MAXIS_footer_month, 2, 20, 55	'Reads footer month for updating the panel
 	EMReadScreen MAXIS_footer_year, 2, 20, 58		'Reads footer year
-	
+
 	EMWriteScreen "w", 5, 34				'Wage income is the type
 	EMWriteScreen "n", 6, 34				'No proof has been provided
 
@@ -281,7 +282,7 @@ call create_MAXIS_friendly_date(date, 10, 5, 18)
 EMSetCursor 9, 3
 
 'Sending TIKL text.
-call write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script).")
+If TIKL_checkbox = checked then call write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. (TIKL auto-generated from script).")
 
 'Submits TIKL
 transmit
