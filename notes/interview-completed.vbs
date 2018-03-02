@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/02/2018", "Interview header updated for on demand waiver handling.", "MiKayla Handley, Hennepin County")
 call changelog_update("09/25/2017", "Updated to allow for cases that do not have CAF date listed on STAT/REVW.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -121,18 +122,18 @@ EMConnect ""
 call maxis_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-do 
+Do 
 	Do
 		err_msg = ""
   		Dialog case_number_dialog 'Runs the first dialog that gathers program information and case number
   		cancel_confirmation
   		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine &  "* You need to type a valid case number."
-		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
+			If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
   		If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
-		If cash_checkbox = 0 AND HC_checkbox = 0 AND SNAP_checkbox = 0 AND EMER_checkbox = 0 then err_msg = err_msg & vbNewLine & "* Select at least one program."
+			If cash_checkbox = 0 AND HC_checkbox = 0 AND SNAP_checkbox = 0 AND EMER_checkbox = 0 then err_msg = err_msg & vbNewLine & "* Select at least one program."
   		If CAF_type = "Select One..." then err_msg = err_msg & vbNewLine &  "* You must select the type of CAF you interviewed"
 		If err_msg <> "" THEN Msgbox err_msg
-	Loop until err_msg = ""	
+	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false							'Loops until we affirm that we're ready to case note.
 
@@ -157,13 +158,13 @@ call HH_member_custom_dialog(HH_member_array)
 'GRABBING THE INFO FOR THE CASE NOTE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
 If CAF_type = "Recertification" then
-    Call navigate_to_MAXIS_screen("STAT", "REVW")
+  Call navigate_to_MAXIS_screen("STAT", "REVW")
 	EMReadScreen recd_date, 8, 13, 37
-	If recd_date = "__ __ __" then 
-	    CAF_datestamp = ""
-	Else                                                    		
+	If recd_date = "__ __ __" then
+	  CAF_datestamp = ""
+	Else
 		call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
-	End if 
+	End if
 Else
 	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_datestamp)
 	IF DateDiff ("d", CAF_datestamp, date) > 60 THEN CAF_datestamp = ""							'This will disregard Application Dates that are older than 60 days. IF and old dste is pulled, the next dialog will require the worker to enter the correct date
@@ -209,8 +210,9 @@ start_a_blank_CASE_NOTE
 If CAF_type = "Recertification" then CAF_type = MAXIS_footer_month & "/" & MAXIS_footer_year & " Recert"
 
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-CALL write_variable_in_CASE_NOTE("***" & CAF_type & " Interview Completed ***")
+CALL write_variable_in_CASE_NOTE("~ Interview Completed ~")
 CALL write_variable_in_CASE_NOTE ("** Case note for Interview only - full case note of CAF processing to follow.")
+CALL write_bullet_and_variable_in_CASE_NOTE("Application Type", CAF_type)
 IF move_verifs_needed = TRUE THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
 CALL write_bullet_and_variable_in_CASE_NOTE("CAF Datestamp", CAF_datestamp)
 CALL write_variable_in_CASE_NOTE("* Interview type: " & interview_type & " - Interview date: " & interview_date)
