@@ -204,7 +204,7 @@ IF fraud_referral = "YES" THEN CALL write_bullet_and_variable_in_case_note("Frau
 CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
 CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
 CALL write_bullet_and_variable_in_case_note("Verification used for overpayment", EVF_used)
-CALL write_bullet_and_variable_in_case_note("Date income verification was received", income_rcvd_date)
+CALL write_bullet_and_variable_in_case_note("Date income verification was received", date_verf_rcvd)
 CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
 CALL write_bullet_and_variable_in_case_note("Discovery Date", Discovery_date)
 CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
