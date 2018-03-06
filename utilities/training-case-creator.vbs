@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/06/2018", "Updated WF1M handling for MFIP cases that require a referral.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -2074,6 +2075,7 @@ FOR EACH MAXIS_case_number IN case_number_array
 				EMWriteScreen "APP", 20, 71
 				STATS_manualtime = STATS_manualtime + 60    'adding manualtime for approval processing
 				transmit
+                'msgbox "What's happening?"
 				DO
 					transmit
 					EMReadScreen not_allowed, 11, 24, 18
@@ -2087,12 +2089,18 @@ FOR EACH MAXIS_case_number IN case_number_array
 					row = 1					'This is looking for if there are more months listed that need to be scrolled through to review.
 					col = 1
 					EMSearch "More: +", row, col
-					If row <> 0 then PF8
-					EMReadScreen package_approved, 8, 4, 38
+					If row <> 0 then 
+                        PF8    
+					    EMReadScreen package_approved, 8, 4, 38
+                    Else 
+                        exit do
+                    End if 
 				LOOP Until package_approved = "approved"
+                'msgbox "how about now?"
 				transmit
 				'======= This handles the WF1 referral =========
-				EMReadScreen work_screen_check, 4, 2, 51
+				'msgbox "are we at the referral?"
+                EMReadScreen work_screen_check, 4, 2, 51
 				'msgbox work_screen_check
 					IF work_screen_check = "WORK" Then
 						work_row = 7
