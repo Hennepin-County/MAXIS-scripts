@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/28/2017", "Bug fixes - dialog length, date format issue, script suspending users", "Casey Love, Ramsey County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -374,7 +375,7 @@ If disa_exist <> "____" Then 									'Anything listed here would indicate DISA 
     EMReadScreen listed_end_year, 4, 6, 75
     If listed_end_year = "____" Then disa_info = "It appears there is an open ended DISA for this person." 	'If no end date
     listed_end_date = listed_end_month & "/" & listed_end_day & "/" & listed_end_year
-    listed_end_date = cDate(listed_end_date)
+    'listed_end_date = #listed_end_date#
     If listed_end_date > date Then disa_info = "It appears there is DISA with a future end date for this person."
     If listed_end_date <= date Then disa_info = "It appears there is a DISA for this person that has already ended."	'WIll ask the user if the script should overwrite the current listed DISA dates
     change_disa_message = MsgBox(disa_info & vbNewLine & "Do you want the script to replace the dates on the panel with these?" & vbNewLine & vbNewLine & "Disability & Certification Begin: " & start_month & "/" & start_day & "/" & start_year & vbNewLine & "Disability & Certification End: " & end_month & "/" & end_day & "/" & end_year, vbYesNo + vbQuestion, "Update DISA?")
@@ -443,6 +444,8 @@ END FUNCTION
 '===============================================================================================================================
 
 EMConnect ""
+
+Call check_for_maxis(True)
 
 IF worker_county_code = "x162" Then Ramsey_County_case = TRUE
 Call MAXIS_case_number_finder(MAXIS_case_number)		'Looks for a case number
@@ -555,7 +558,7 @@ End If
 
 'This is required to set the size of the next dialog based on the checkboxes on the previous dialog
 months_to_fill = "Enter the date of request and click 'Calculate' to fill this field."				'instructions in the edit box
-detail_dialog_length = 45
+detail_dialog_length = 55
 If ill_incap_checkbox = checked Then detail_dialog_length = detail_dialog_length + 40
 If care_of_ill_Incap_checkbox = checked Then detail_dialog_length = detail_dialog_length + 60
 If iq_test_checkbox = checked OR learning_disabled_checkbox = checked OR mentally_ill_checkbox = checked OR dev_delayed_checkbox = checked OR unemployable_checkbox = checked Then detail_dialog_length = detail_dialog_length + 40
