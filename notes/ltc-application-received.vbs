@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/12/2018", "Fixed bug that caused the script to fail if a TIKL was set on old cases.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -216,6 +217,7 @@ End if
 
 
 'THE TIKL's----------------------------------------------------------------------------------------------------
+If datediff("d", appl_date, date) > 45 then TIKL_45_day_check = 0
 If TIKL_45_day_check = 1 then
 	call navigate_to_MAXIS_screen("dail", "writ")
 	call create_MAXIS_friendly_date(appl_date, 45, 5, 18)
@@ -225,6 +227,7 @@ If TIKL_45_day_check = 1 then
 	PF3
 End if
 
+If datediff("d", appl_date, date) > 60 then TIKL_60_day_check = 0
 If TIKL_60_day_check = 1 then
 	call navigate_to_MAXIS_screen("dail", "writ")
 	call create_MAXIS_friendly_date(appl_date, 60, 5, 18)
