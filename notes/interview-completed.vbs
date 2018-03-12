@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/12/2018", "Added Outlook reminder for the 1st of the next month if case is unable to be updated for recerts due to renewal month being CM plus one.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/02/2018", "Interview header updated for on demand waiver handling.", "MiKayla Handley, Hennepin County")
 call changelog_update("09/25/2017", "Updated to allow for cases that do not have CAF date listed on STAT/REVW.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -51,11 +52,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-MAXIS_footer_month = datepart("m", date)
-If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
-MAXIS_footer_year = "" & datepart("yyyy", date) - 2000
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
@@ -76,7 +72,7 @@ BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   Text 30, 85, 35, 10, "CAF type:"
 EndDialog
 
-BeginDialog interview_dialog, 0, 0, 451, 265, "Interview Dialog"
+BeginDialog interview_dialog, 0, 0, 451, 280, "Interview Dialog"
   EditBox 65, 5, 75, 15, caf_datestamp
   EditBox 205, 5, 75, 15, interview_date
   ComboBox 345, 5, 100, 15, "Office"+chr(9)+"Phone", interview_type
@@ -90,11 +86,11 @@ BeginDialog interview_dialog, 0, 0, 451, 265, "Interview Dialog"
   EditBox 185, 175, 255, 15, reason_expedited_wasnt_processed
   EditBox 50, 200, 395, 15, other_notes
   EditBox 60, 220, 385, 15, verifs_needed
-  EditBox 65, 240, 190, 15, worker_signature
+  EditBox 230, 240, 105, 15, worker_signature
+  CheckBox 10, 260, 425, 10, "Check here to set an Outlook reminder to update STAT/REVW after 1st of the next month (if client completes the recert interview).", outlook_check
   ButtonGroup ButtonPressed
     OkButton 340, 240, 50, 15
     CancelButton 395, 240, 50, 15
-  Text 5, 10, 55, 10, "CAF Datestamp:"
   Text 150, 10, 50, 10, "Interview Date:"
   Text 290, 10, 50, 10, "Interview Type:"
   Text 5, 30, 35, 10, "HH Comp:"
@@ -106,8 +102,9 @@ BeginDialog interview_dialog, 0, 0, 451, 265, "Interview Dialog"
   Text 15, 160, 125, 10, "Explain why case is expedited or not:"
   Text 15, 180, 165, 10, "Reason expedited wasn't processed (if applicable) "
   Text 5, 205, 45, 10, "Other Notes:"
-  Text 5, 245, 60, 10, "Worker Signature"
+  Text 170, 245, 60, 10, "Worker Signature"
   Text 5, 225, 50, 10, "Verifs Needed:"
+  Text 5, 10, 55, 10, "CAF Datestamp:"
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -116,6 +113,10 @@ Dim row
 Dim col
 application_signed_checkbox = checked 'The script should default to having the application signed.
 
+'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
+MAXIS_footer_month = datepart("m", date)
+If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = "" & datepart("yyyy", date) - 2000
 
 'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
@@ -128,11 +129,11 @@ Do
   		Dialog case_number_dialog 'Runs the first dialog that gathers program information and case number
   		cancel_confirmation
   		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine &  "* You need to type a valid case number."
-			If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
+		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
   		If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
-			If cash_checkbox = 0 AND HC_checkbox = 0 AND SNAP_checkbox = 0 AND EMER_checkbox = 0 then err_msg = err_msg & vbNewLine & "* Select at least one program."
+		If cash_checkbox = 0 AND HC_checkbox = 0 AND SNAP_checkbox = 0 AND EMER_checkbox = 0 then err_msg = err_msg & vbNewLine & "* Select at least one program."
   		If CAF_type = "Select One..." then err_msg = err_msg & vbNewLine &  "* You must select the type of CAF you interviewed"
-		If err_msg <> "" THEN Msgbox err_msg
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false							'Loops until we affirm that we're ready to case note.
@@ -189,19 +190,24 @@ interview_date = date & ""		'Defaults the date of the interview to today's date.
 'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 DO
 	Do
-		Do
-			err_msg = ""
-			Dialog interview_dialog			'Displays the Interview Dialog
-			cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
-			If CAF_datestamp = "" or isDate(CAF_datestamp) = False THEN err_msg = "Please enter a valid application datestamp."
-			IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a Worker Signature"
-			IF (SNAP_checkbox = checked) AND (why_xfs = "") THEN err_msg = err_msg & vbCr & "SNAP is pending, you must explain your Expedited Determination"
-			If err_msg <> "" THEN Msgbox err_msg
-		Loop until err_msg = ""
-		CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
-	Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
+		err_msg = ""
+		Dialog interview_dialog			'Displays the Interview Dialog
+		cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
+		If CAF_datestamp = "" or isDate(CAF_datestamp) = False THEN err_msg = err_msg & vbcr & "* Enter a valid application datestamp."
+        If interview_date = "" or isDate(interview_date) = False THEN err_msg = err_msg & vbcr & "* Enter a valid interview date."
+		IF (SNAP_checkbox = checked) AND (why_xfs = "") THEN err_msg = err_msg & vbcr & "* SNAP is pending, you must explain your Expedited Determination"
+        IF worker_signature = "" THEN err_msg = err_msg & vbcr & "* Sign your case note."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	Loop until err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false							'Loops until we affirm that we're ready to case note.
+
+If outlook_check = 1 then 
+    reminder_date = CM_plus_1_mo & "/01/" & CM_plus_1_yr
+    'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
+    Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "Update received date and interview date on STAT/REVW for: " & MAXIS_case_number, "", "", TRUE, 5, "")
+    Outlook_remider = True
+End if 
 
 'Navigates to case note, and checks to make sure we aren't in inquiry.
 start_a_blank_CASE_NOTE
@@ -222,16 +228,13 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Earned Income", earned_income)
 CALL write_bullet_and_variable_in_CASE_NOTE("Unearned Income", unearned_income)
 CALL write_bullet_and_variable_in_CASE_NOTE("Expenses", expenses)
 CALL write_bullet_and_variable_in_CASE_NOTE("Assets", assets)
-'IF application_signed_checkbox = checked THEN 							'Removed this but did not delete in case this functionality is desired for this script
-'	CALL write_variable_in_CASE_NOTE("* Application was signed.")
-'Else
-'	CALL write_variable_in_CASE_NOTE("* Application was not signed.")
-'END IF
+
 IF expedited_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Expedited SNAP.")
 IF (expedited_checkbox = unchecked) AND (SNAP_checkbox = checked) THEN CALL write_variable_in_CASE_NOTE ("* NOT Expedited SNAP")
 CALL write_bullet_and_variable_in_CASE_NOTE ("Explanation of Expedited Determination", why_xfs)		'Worker can detail how they arrived at if client is expedited or not - particularly useful if different from screening
 CALL write_bullet_and_variable_in_CASE_NOTE("Reason expedited wasn't processed", reason_expedited_wasnt_processed)		'This is strategically placed next to expedited checkbox entry.
 CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+If Outlook_remider = True then call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
 IF move_verifs_needed = False THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
