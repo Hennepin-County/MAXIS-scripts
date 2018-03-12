@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/02/2018", "Resolved bug that was running through MAXIS panels when user selected to 'cancel' the script.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -476,8 +477,8 @@ Do
 	Do
 		Do
 			Dialog intake_approval_dialog
+            cancel_confirmation
 			MAXIS_dialog_navigation
-			cancel_confirmation
 			'ensures that baseline date is in full date format so that the 'lookback period' is calculated correctly
 			IF len(baseline_date) < 10 THEN MsgBox "You must enter the baseline date in format MM/DD/YYYY"
 		LOOP until len(baseline_date) >= 10
