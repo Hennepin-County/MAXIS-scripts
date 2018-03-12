@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/12/2018", "Removed DAIL report. BULK DAIL REPORT was updated in its place.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/30/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -129,13 +130,6 @@ Set script_array_admin_main(script_num) = new script	'Set this array element to 
 script_array_admin_main(script_num).script_name			= "DAIL Decimator"													'Script name
 script_array_admin_main(script_num).file_name			= "dail-decimator.vbs"												'Script URL
 script_array_admin_main(script_num).description			= "BULK script that deletes specific DAILS based on content, and collects them into an Excel spreadsheet."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
-Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_admin_main(script_num).script_name			= "DAIL report"														'Script name
-script_array_admin_main(script_num).file_name			= "dail-report.vbs"													'Script URL
-script_array_admin_main(script_num).description			= "Specialty BULK DAIL report for use by the Quality Improvement team."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
