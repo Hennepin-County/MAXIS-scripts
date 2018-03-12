@@ -44,55 +44,75 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/12/2018", "Fixed bug for cases with more than one page of DAILs for the same case. Added all agency handling.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-BeginDialog bulk_dail_report_dialog, 0, 0, 361, 150, "Bulk DAIL report dialog"
-  EditBox 10, 35, 345, 15, x_number_editbox
-  CheckBox 20, 85, 25, 10, "ALL", All_check
+BeginDialog bulk_dail_report_dialog, 0, 0, 361, 140, "Bulk DAIL report dialog"
+  CheckBox 40, 85, 25, 10, "ALL", All_check
+  CheckBox 80, 85, 30, 10, "COLA", cola_check
+  CheckBox 125, 85, 30, 10, "CLMS", clms_check
+  CheckBox 170, 85, 30, 10, "CSES", cses_check
+  CheckBox 215, 85, 30, 10, "ELIG", elig_check
+  CheckBox 260, 85, 30, 10, "IEVS", ievs_check
+  CheckBox 300, 85, 30, 10, "INFO", info_check
+  CheckBox 40, 100, 25, 10, "IV-E", iv3_check
+  CheckBox 80, 100, 25, 10, "MA", ma_check
+  CheckBox 125, 100, 30, 10, "MEC2", mec2_check
+  CheckBox 170, 100, 35, 10, "PARI", pari_chck
+  CheckBox 215, 100, 30, 10, "PEPR", pepr_check
+  CheckBox 260, 100, 30, 10, "TIKL", tikl_check
+  CheckBox 300, 100, 30, 10, "WF1", wf1_check
+  EditBox 10, 35, 345, 15, worker_number
+  CheckBox 20, 125, 135, 10, "Check here to process for all workers.", all_workers_check
   ButtonGroup ButtonPressed
-    OkButton 250, 125, 50, 15
-    CancelButton 305, 125, 50, 15
-  CheckBox 60, 85, 30, 10, "COLA", cola_check
-  CheckBox 105, 85, 30, 10, "CLMS", clms_check
-  CheckBox 150, 85, 30, 10, "CSES", cses_check
-  CheckBox 195, 85, 30, 10, "ELIG", elig_check
-  CheckBox 240, 85, 30, 10, "IEVS", ievs_check
-  CheckBox 280, 85, 30, 10, "INFO", info_check
-  CheckBox 20, 100, 25, 10, "IV-E", iv3_check
-  CheckBox 60, 100, 25, 10, "MA", ma_check
-  CheckBox 105, 100, 30, 10, "MEC2", mec2_check
-  CheckBox 150, 100, 35, 10, "PARI", pari_chck
-  CheckBox 195, 100, 30, 10, "PEPR", pepr_check
-  CheckBox 240, 100, 30, 10, "TIKL", tikl_check
-  CheckBox 280, 100, 30, 10, "WF1", wf1_check
-  Text 145, 5, 90, 10, "---BULK DAIL REPORT---"
+    OkButton 250, 120, 50, 15
+    CancelButton 305, 120, 50, 15
   Text 10, 20, 350, 10, "Please enter the x1 numbers of the caseloads you wish to check, separated by commas (if more than one):"
   Text 10, 55, 290, 10, "Note: please enter the entire 7-digit number x1 number. (Example: ''x100abc, x100abc'')"
-  GroupBox 5, 70, 305, 50, "Select the type(s) of DAIL message to add to the report:"
+  GroupBox 5, 70, 350, 45, "Select the type(s) of DAIL message to add to the report:"
+  Text 145, 5, 90, 10, "---BULK DAIL REPORT---"
 EndDialog
 
 'Connects to MAXIS
 EMConnect ""
 
 'Looks up an existing user for autofilling the next dialog
-CALL find_variable("User: ", x_number_editbox, 7)
+'CALL find_variable("User: ", worker_number, 7)
 
 'defaulting the script to check all DAILS on a DAIL list
 all_check = 1
+all_workers_check = 1
 
 'Shows the dialog. Doesn't need to loop since we already looked at MAXIS.
 DO
 	dialog bulk_dail_report_dialog
 	cancel_confirmation
+	If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."	
+	If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."	
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-'splits the results of the editbox into an array
-x_number_array = split(x_number_editbox, ",")
+'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
+If all_workers_check = checked then
+	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
+Else
+	x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
+
+	'Need to add the worker_county_code to each one
+	For each x1_number in x1s_from_dialog
+		If worker_array = "" then
+			worker_array = trim(ucase(x1_number))		'replaces worker_county_code if found in the typed x1 number
+		Else
+			worker_array = worker_array & ", " & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
+		End if
+	Next
+	'Split worker_array
+	worker_array = split(worker_array, ", ")
+End if
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
@@ -120,17 +140,13 @@ objExcel.Cells(1, 6).Font.Bold = True
 'Sets variable for all of the Excel stuff
 excel_row = 2
 
+CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
+
 'This for...next contains each worker indicated above
-For each x_number in x_number_array
-
-	'Trims the x_number so that we don't have glitches
-	x_number = trim(x_number)
-
-	back_to_SELF
-	MAXIS_case_number = ""			'Blanking this out for PRIV case handling.
-	CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
-	EMWriteScreen x_number, 21, 6
+For each worker in worker_array	
+	EMWriteScreen worker, 21, 6
 	transmit
+	transmit 'transmit past 'not your dail message'
 
 	'selecting the type of DAIl message
 	EMWriteScreen "x", 4, 12		'transmits to the PICK screen
@@ -154,7 +170,7 @@ For each x_number in x_number_array
 	EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
 	DO
 		If number_of_dails = " " Then 			'if this space is blank the rest of the DAIL reading is skipped
-			objExcel.Cells(excel_row, 1).Value = x_number
+			objExcel.Cells(excel_row, 1).Value = worker
 			objExcel.Cells(excel_row, 3).Value = "No DAILs for this worker."
 			excel_row = excel_row + 1
 			Exit Do
@@ -188,45 +204,54 @@ For each x_number in x_number_array
 			new_case = trim(new_case)
 			IF new_case <> "CASE NBR" THEN
 				'...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
-				EMReadScreen dail_type, 4, dail_row, 6
+				EMReadScreen dail_type,  4, dail_row, 6
 				EMReadScreen dail_month, 8, dail_row, 11
-				dail_month = trim(dail_month)
-				EMReadScreen dail_msg, 61, dail_row, 20
-				dail_msg = trim(dail_msg)
-				IF dail_msg <> "" AND dail_type <> "    " and dail_month <> "" THEN
+				EMReadScreen dail_msg, 	61, dail_row, 20
+				
+				IF trim(dail_msg) <> "" AND dail_type <> "    " and trim(dail_month) <> "" THEN
 					'...and put that in Excel.
-					objExcel.Cells(excel_row, 1).Value = x_number
+					objExcel.Cells(excel_row, 1).Value = worker
 					objExcel.Cells(excel_row, 2).Value = maxis_case_number
 					objExcel.Cells(excel_row, 3).Value = client_name
 					objExcel.Cells(excel_row, 4).Value = dail_type
-					objExcel.Cells(excel_row, 5).Value = dail_month
-					objExcel.Cells(excel_row, 6).Value = dail_msg
+					objExcel.Cells(excel_row, 5).Value = trim(dail_month)
+					objExcel.Cells(excel_row, 6).Value = trim(dail_msg)
+					excel_row = excel_row + 1			'only does this if there's data there (if no data has been entered, it means we're at the end of a DAIL list of some type somehow)
+					STATS_counter = STATS_counter + 1 	'adds one instance to the stats counter
 				END IF
 
 				'...going to the next ding dang row...
 				dail_row = dail_row + 1
-
-
+				
 				'...going to the next page if necessary
-				IF dail_row = 19 AND dail_msg <> "" THEN
+				EMReadScreen next_dail_check, 4, dail_row, 4
+				If trim(next_dail_check) = "" then 
 					PF8
-					dail_row = 6
-				ELSEIF dail_row = 19 AND dail_msg = "" THEN
-					EMReadScreen more_pages, 7, 19, 3
-					if more_pages = "More: -" OR more_pages = "       " then
+					EMReadScreen last_page_check, 21, 24, 2
+					If last_page_check = "THIS IS THE LAST PAGE" then 
 						all_done = true
-						'If the script determines that it is on the last page, it EXITS DO...
-						exit do
-					else
-						PF8
+						exit do 
+					Else 
 						dail_row = 6
-					end if
-				end if
+					End if 
+				End if
 
-				if objExcel.Cells(excel_row, 2).value <> "" then
-					excel_row = excel_row + 1			'only does this if there's data there (if no data has been entered, it means we're at the end of a DAIL list of some type somehow)
-					STATS_counter = STATS_counter + 1 	'adds one instance to the stats counter
-				end if
+				''...going to the next page if necessary
+				'IF dail_row = 19 AND dail_msg <> "" THEN
+				'	PF8
+				'	dail_row = 6
+				'ELSEIF dail_row = 19 AND dail_msg = "" THEN
+				'	EMReadScreen more_pages, 7, 19, 3
+				'	if more_pages = "More: -" OR more_pages = "       " then
+				'		all_done = true
+				'		'If the script determines that it is on the last page, it EXITS DO...
+				'		exit do
+				'	else
+				'		PF8
+				'		dail_row = 6
+				'	end if
+				'end if
+				
 			ELSEIF new_case = "CASE NBR" THEN
 				'...if the script does find that there is a new case number (indicated by the presence
 				'   of "CASE NBR", it will write a "T" in the next row and transmit, bringing that
@@ -234,11 +259,11 @@ For each x_number in x_number_array
 				EMWriteScreen "T", dail_row + 1, 3
 				transmit
 			END IF
-		LOOP UNTIL new_case = "CASE NBR" OR (dail_type = "    " AND dail_month = "     " AND dail_msg = "")
+		LOOP UNTIL new_case = "CASE NBR" OR (dail_type = "    " AND dail_month = "     " AND trim(dail_msg = ""))
 		IF all_done = true THEN exit do
 	LOOP
 
-	if x_number <> x_number_array(ubound(x_number_array)) then all_done = false
+	if worker <> worker_array(ubound(worker_array)) then all_done = false
 Next
 
 'Enters info about runtime for the benefit of folks using the script
@@ -378,8 +403,8 @@ END IF
 
 
 'Writes each worker from the worker_array in the Excel spreadsheet
-For x = 0 to ubound(x_number_array)
-	ObjExcel.Cells(x + 3, 1) = trim(x_number_array(x))
+For x = 0 to ubound(worker_array)
+	ObjExcel.Cells(x + 3, 1) = trim(worker_array(x))
 	ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & x + 3 & ")"
 
 	'Counts the number of DAILs for each worker based on type and enters it into the correct cell
