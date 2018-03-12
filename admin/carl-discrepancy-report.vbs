@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/12/2018", "Enhanced to remove multiple entries for a single case/app date and additional coding to more accurately collect the application case notes.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/18/2017", "Fully tested version with South MPLS & South Sub. regions added.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/12/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -114,22 +115,43 @@ excel_row = 2 're-establishing the row to start checking the members for
 entry_record = 0
 Do                                                              'Loops until there are no more cases in the Excel list
 	MAXIS_case_number = objExcel.cells(excel_row, 1).value		're-establishing the case numbers for functions to use
-	APPL_date = objExcel.cells(excel_row, 5).value
+    APPL_date = objExcel.cells(excel_row, 5).value
+    days_pending = objExcel.cells(excel_row, 6).value
 	
-    MAXIS_case_number = trim(MAXIS_case_number)    
-	If MAXIS_case_number = "" then exit do
-	
-	Call ONLY_create_MAXIS_friendly_date(APPL_date)			'reformatting the dates to be MM/DD/YY format to measure against the case numbers
+    MAXIS_case_number = trim(MAXIS_case_number)   
+    Call ONLY_create_MAXIS_friendly_date(APPL_date)			'reformatting the dates to be MM/DD/YY format
+    'msgbox APPL_date
+    If MAXIS_case_number = "" then exit do
+    
+    next_case_number = objExcel.cells(excel_row + 1, 1).value
+    next_case_number = Trim(next_case_number)
+    If next_case_number = MAXIS_case_number then
+        next_days_pending = objExcel.cells(excel_row + 1, 6).value
+        'msgbox days_pending & vbcr & next_days_pending
+        IF trim(days_pending) = trim(next_days_pending) then 
+            add_to_excel = false  
+        Else 
+            add_to_excel = true  
+        End if 
+    Else 
+        add_to_excel = true 
+    End if 
+    
+    'msgbox add_to_excel
 
-	'Adding client information to the array'
-	ReDim Preserve CARL_array(4, entry_record)	'This resizes the array based on the number of rows in the Excel File'
-	CARL_array (case_number,     entry_record) = MAXIS_case_number		'The client information is added to the array'
-	CARL_array (app_date, 		 entry_record) = APPL_date
-	CARL_array (worker_numb, 	 entry_record) = ""
-	CARL_array (workers_name, 	 entry_record) = ""
-	entry_record = entry_record + 1			'This increments to the next entry in the array'
-	excel_row = excel_row + 1
+    If add_to_excel = True then 
+	    'Adding client information to the array'
+	    ReDim Preserve CARL_array(4, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+	    CARL_array (case_number,     entry_record) = MAXIS_case_number		'The client information is added to the array'
+	    CARL_array (app_date, 		 entry_record) = APPL_date
+	    CARL_array (worker_numb, 	 entry_record) = ""
+	    CARL_array (workers_name, 	 entry_record) = ""
+	    entry_record = entry_record + 1			'This increments to the next entry in the array'
+    End if 
+    excel_row = excel_row + 1
 Loop
+
+'msgbox entry_record
 
 objExcel.Quit		'Once all of the clients have been added to the array, the excel document is closed because we are going to open another document and don't want the script to be confused
 back_to_self
@@ -149,12 +171,23 @@ For item = 0 to UBound(CARL_array, 2)
 		CARL_array(worker_numb, item) = ""
 		CARL_array(workers_name, item) = ""
 	ELse
+        do 
+            EMReadScreen last_date, 8, 18, 6
+            If trim(last_date) = "" then exit do
+            If datevalue(last_date) > datevalue(appl_date) then 
+                PF8
+            Else 
+                exit do
+            End if 
+        Loop
 		row = 5
 		Do
 			EMReadScreen case_note_date, 8, row, 6
 			If trim(case_note_date) = "" then exit do
-			If case_note_date => appl_date then          'if the case note date is equal to or greater than the application date then the case note header is read
-				EMReadScreen case_note_header, 55, row, 25
+			If datevalue(case_note_date) => datevalue(appl_date) then 
+            'case_note_date => appl_date then          'if the case note date is equal to or greater than the application date then the case note header is read
+				'msgbox appl_date & vbcr & row 
+                EMReadScreen case_note_header, 55, row, 25
 				case_note_header = trim(case_note_header)
 				IF instr(case_note_header, "***Intake") then
 					app_note_found = True
@@ -185,13 +218,15 @@ For item = 0 to UBound(CARL_array, 2)
 				END IF
 			END IF
 			row = row + 1
+            'msgbox datevalue(case_note_date) < datevalue(appl_date) & vbcr & row 
 			If row = 19 then 
 				PF8
 				row = 5
 			End if
-		LOOP until case_note_date < appl_date                        'repeats until the case note date is less than the application date
+        Loop until datevalue(case_note_date) < datevalue(appl_date)        'repeats until the case note date is less than the application date  
+        Stats_counter = Stats_counter + 1
+                           
 		If app_note_found = True then 
-			Stats_counter = Stats_counter + 1
 			EMReadScreen worker_ID, 7, row, 16
 			CARL_array (worker_numb, item) = worker_ID
 			
@@ -379,7 +414,7 @@ For item = 0 to UBound(CARL_array, 2)
 			If worker_ID = "X127B3R" then worker_name = "Gail Yarphel"
 			
 			'Northwest region
-			If worker_ID = "X127Z46" then worker_name = "		Afrah, Muna"
+			If worker_ID = "X127Z46" then worker_name = "Afrah, Muna"
 			If worker_ID = "X127FAY" then worker_name = "Ahmed, Lina"
 			If worker_ID = "X127X59" then worker_name = "Ali, Osman"
 			If worker_ID = "X127T86" then worker_name = "Anderson, Irina"
