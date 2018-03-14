@@ -678,13 +678,13 @@ If Update_MMIS = True then
 		EMWriteScreen service_rate, 9, 20			'Enters service rate from VND2 
 		EMWriteScreen total_units, 9, 60 			'Enters the difference between the start date and end date. TODO: update this coding to work with date_in and date_out after BULK conversion.
 		'msgbox "ASA3, is everything but the NPI entered?"
-		If NPI_number = "1801986773" then NPI_number = "A767410200"
-        If NPI_number = "A096405300" then NPI_number = "A904695300"
-        If NPI_number = "A346627201" then NPI_number = "A346627200"
-        If NPI_number = "A346627203" then NPI_number = "A346627200"
-        If NPI_number = "A346627204" then NPI_number = "A346627200"
-        If NPI_number = "A690048500" then NPI_number = "A590048500"
-        If NPI_number = "A952618400" then NPI_number = "A186688300"
+		'If NPI_number = "1801986773" then NPI_number = "A767410200"
+        'If NPI_number = "A096405300" then NPI_number = "A904695300"
+        'If NPI_number = "A346627201" then NPI_number = "A346627200"
+        'If NPI_number = "A346627203" then NPI_number = "A346627200"
+        'If NPI_number = "A346627204" then NPI_number = "A346627200"
+        'If NPI_number = "A690048500" then NPI_number = "A590048500"
+        'If NPI_number = "A952618400" then NPI_number = "A186688300"
         
         Call write_value_and_transmit(NPI_number, 10, 20)	'Enters the NPI number then transmits 
 		Emreadscreen NPI_issue, 26, 24, 1
