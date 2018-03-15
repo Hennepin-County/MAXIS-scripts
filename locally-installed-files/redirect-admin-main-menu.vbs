@@ -5,6 +5,20 @@ text_from_the_other_script = fso_command.ReadAll
 fso_command.Close
 Execute text_from_the_other_script
 
+'Beginning of script code for terminating ESSO
+MsgBox "Beginning of script, checking to see if ESSO is installed on your computer..."
+ESSO_path = "C:\Program Files (x86)\Passlogix\v-GO SSO\ssoShell.exe"
+SET fso = CreateObject("Scripting.FileSystemObject")
+IF (fso.FileExists(ESSO_path)) THEN
+  using_ESSO = TRUE
+  SET objShell = CreateObject("Wscript.Shell")
+  objShell.Run "taskkill /f /im ssoShell.exe", 0, TRUE       'http://www.vbsedit.com/html/6f28899c-d653-4555-8a59-49640b0e32ea.asp
+  MsgBox "ESSO was found on your computer, ESSO has terminated. It may take 10-20 seconds for the system tray icon to go away."
+ELSE
+  using_ESSO = FALSE
+  MsgBox "ESSO was not found on your computer, so no need to try to terminate it."
+END IF
+
 'LOADING SCRIPT
 script_url = script_repository & "/admin/admin-main-menu.vbs"
 IF run_locally = False THEN
