@@ -530,7 +530,7 @@ IF send_appt_ltr = TRUE THEN
 		  PF4
     Call start_a_blank_CASE_NOTE
       Call write_variable_in_CASE_NOTE("~ Appointment letter sent in MEMO ~")
-      Call write_variable_in_CASE_NOTE("* A notice has been sent via SPEC/MEMO informing the client of missed interview.")
+      Call write_variable_in_CASE_NOTE("* A notice has been sent via SPEC/MEMO informing the client of needed interview.")
       Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
       Call write_variable_in_CASE_NOTE("* Link to Domestic Violence Brochure sent to client in SPEC/MEMO as a part of interview notice.")
       'Call write_variable_in_CASE_NOTE("* A notice has been sent to client with detail about how to call in for an interview.")

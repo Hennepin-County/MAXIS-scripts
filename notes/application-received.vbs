@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("03/13/2018", "Added same day interview option.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/12/2018", "Added on demand waiver verbiage and an in office option.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/21/2018", "Added on demand waiver handling.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/16/2018", "Added case transfer confirmation coding.", "Ilse Ferris, Hennepin County")
@@ -58,17 +59,19 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 '-------------------------------------------------------------------------------------------------DIALOG
-BeginDialog initial_dialog, 0, 0, 186, 110, "Application Received"
+BeginDialog initial_dialog, 0, 0, 196, 115, "Application Received"
   EditBox 60, 5, 45, 15, MAXIS_case_number
   CheckBox 15, 40, 70, 10, "Not Active (APPL)", Not_Active_checkbox
-  CheckBox 15, 55, 85, 10, "Active (add a program)", Active_checkbox
-  CheckBox 15, 75, 125, 10, "Check if client is applying for SNAP", SNAP_checkbox
+  CheckBox 90, 40, 85, 10, "Active (add a program)", Active_checkbox
+  CheckBox 15, 60, 125, 10, "Check if client is applying for SNAP", SNAP_checkbox
+  CheckBox 15, 75, 175, 10, "Check if client has been offered same day interview", same_day_checkbox
   ButtonGroup ButtonPressed
-    OkButton 75, 90, 50, 15
-    CancelButton 130, 90, 50, 15
+    OkButton 85, 95, 50, 15
+    CancelButton 140, 95, 50, 15
   Text 10, 10, 50, 10, "Case Number:"
-  GroupBox 5, 25, 175, 45, "Was client active in MAXIS at time of application?"
+  GroupBox 5, 25, 175, 30, "Was client active in MAXIS at time of application?"
 EndDialog
+
 
 '---------------------------------------------------------------------------------------The script
 'Grabs the case number
@@ -175,61 +178,60 @@ END IF
 
 'Defaults the date pended to today
 pended_date = date & ""
+'IF same_day_checkbox = CHECKED THEN send_appt_ltr = False
 
 IF fs_pend = CHECKED OR cash_pend = CHECKED OR grh_pend = CHECKED THEN send_appt_ltr = TRUE
 '----------------------------------------------------------------------------------------------------dialogs
+    BeginDialog appl_detail_dialog, 0, 0, 296, 145, "APPLICATION RECEIVED"
+      DropListBox 80, 5, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
+      EditBox 230, 5, 60, 15, application_date
+      DropListBox 80, 25, 65, 15, "Select One:"+chr(9)+"Addendum"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
+      EditBox 230, 25, 60, 15, confirmation_number
+      CheckBox 80, 50, 30, 10, "Cash", cash_pend
+      CheckBox 110, 50, 25, 10, "CCA", cca_pend
+      CheckBox 140, 50, 50, 10, "Emergency", emer_pend
+      CheckBox 195, 50, 30, 10, "GRH", grh_pend
+      CheckBox 230, 50, 20, 10, "HC", hc_pend
+      If SNAP_checkbox = CHECKED THEN CheckBox 260, 50, 30, 10, "SNAP", fs_pend 'need this to equal checked'
+      EditBox 110, 65, 25, 15, worker_number
+      EditBox 110, 85, 25, 15, team_number
+      EditBox 50, 105, 240, 15, entered_notes
+      ButtonGroup ButtonPressed
+        OkButton 185, 125, 50, 15
+        CancelButton 240, 125, 50, 15
+      Text 5, 30, 65, 10, "Type of Application:"
+      Text 160, 30, 50, 10, "Confirmation #"
+      Text 160, 10, 65, 10, "Date of Application:"
+      Text 5, 50, 70, 10, "Programs Applied for:"
+      Text 5, 70, 100, 10, "Transfer to (last 3 digit of X#):"
+      Text 5, 90, 90, 10, "Assigned to (3 digit team #):"
+      Text 5, 110, 45, 10, "Other Notes:"
+      Text 5, 10, 70, 10, "Application Received:"
+      Text 145, 80, 145, 10, "* Script will transfer case to assigned worker"
+    EndDialog
 
-BeginDialog appl_detail_dialog, 0, 0, 296, 145, "APPLICATION RECEIVED"
-  DropListBox 80, 5, 65, 15, "Select One:"+chr(9)+"Online"+chr(9)+"Mail"+chr(9)+"Fax"+chr(9)+"Office", how_app_rcvd
-  EditBox 230, 5, 60, 15, application_date
-  DropListBox 80, 25, 65, 15, "Select One:"+chr(9)+"Addendum"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
-  EditBox 230, 25, 60, 15, confirmation_number
-  CheckBox 80, 50, 30, 10, "Cash", cash_pend
-  CheckBox 110, 50, 25, 10, "CCA", cca_pend
-  CheckBox 140, 50, 50, 10, "Emergency", emer_pend
-  CheckBox 195, 50, 30, 10, "GRH", grh_pend
-  CheckBox 230, 50, 20, 10, "HC", hc_pend
-  If SNAP_checkbox = CHECKED THEN CheckBox 260, 50, 30, 10, "SNAP", fs_pend 'need this to equal checked'
-  EditBox 110, 65, 25, 15, worker_number
-  EditBox 110, 85, 25, 15, team_number
-  EditBox 50, 105, 240, 15, entered_notes
-  ButtonGroup ButtonPressed
-    OkButton 185, 125, 50, 15
-    CancelButton 240, 125, 50, 15
-  Text 5, 30, 65, 10, "Type of Application:"
-  Text 160, 30, 50, 10, "Confirmation #"
-  Text 160, 10, 65, 10, "Date of Application:"
-  Text 5, 50, 70, 10, "Programs Applied for:"
-  Text 5, 70, 100, 10, "Transfer to (last 3 digit of X#):"
-  Text 5, 90, 90, 10, "Assigned to (3 digit team #):"
-  Text 5, 110, 45, 10, "Other Notes:"
-  Text 5, 10, 70, 10, "Application Received:"
-  Text 145, 80, 145, 10, "* Script will transfer case to assigned worker"
-EndDialog
-
-BeginDialog add_detail_dialog, 0, 0, 281, 110, "ADD A PROGRAM"
-  DropListBox 80, 5, 65, 15, "Select One:"+chr(9)+"Online"+chr(9)+"Mail"+chr(9)+"Fax"+chr(9)+"Office", how_app_rcvd
-  EditBox 215, 5, 60, 15, application_date
-  DropListBox 80, 25, 65, 15, "Select One:"+chr(9)+"Addendum"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
-  EditBox 215, 25, 60, 15, confirmation_number
-  CheckBox 50, 50, 30, 10, "Cash", cash_pend
-  CheckBox 85, 50, 25, 10, "CCA", cca_pend
-  CheckBox 120, 50, 50, 10, "Emergency", emer_pend
-  CheckBox 175, 50, 30, 10, "GRH", grh_pend
-  CheckBox 210, 50, 20, 10, "HC", hc_pend
-  CheckBox 245, 50, 30, 10, "SNAP", fs_pend
-  EditBox 50, 70, 225, 15, entered_notes
-  ButtonGroup ButtonPressed
-    OkButton 170, 90, 50, 15
-    CancelButton 225, 90, 50, 15
-  Text 5, 30, 65, 10, "Type of Application:"
-  Text 165, 30, 50, 10, "Confirmation #:"
-  Text 150, 10, 65, 10, "Date of Application:"
-  Text 5, 50, 40, 10, "Applied for:"
-  Text 5, 75, 45, 10, "Other Notes:"
-  Text 5, 10, 70, 10, "Application Received:"
-EndDialog
-
+  BeginDialog add_detail_dialog, 0, 0, 281, 110, "ADD A PROGRAM"
+    DropListBox 80, 5, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
+    EditBox 215, 5, 60, 15, application_date
+    DropListBox 80, 25, 65, 15, "Select One:"+chr(9)+"Addendum"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
+    EditBox 215, 25, 60, 15, confirmation_number
+    CheckBox 50, 50, 30, 10, "Cash", cash_pend
+    CheckBox 85, 50, 25, 10, "CCA", cca_pend
+    CheckBox 120, 50, 50, 10, "Emergency", emer_pend
+    CheckBox 175, 50, 30, 10, "GRH", grh_pend
+    CheckBox 210, 50, 20, 10, "HC", hc_pend
+    CheckBox 245, 50, 30, 10, "SNAP", fs_pend
+    EditBox 50, 70, 225, 15, entered_notes
+    ButtonGroup ButtonPressed
+      OkButton 170, 90, 50, 15
+      CancelButton 225, 90, 50, 15
+    Text 5, 30, 65, 10, "Type of Application:"
+    Text 165, 30, 50, 10, "Confirmation #:"
+    Text 150, 10, 65, 10, "Date of Application:"
+    Text 5, 50, 40, 10, "Applied for:"
+    Text 5, 75, 45, 10, "Other Notes:"
+    Text 5, 10, 70, 10, "Application Received:"
+  EndDialog
 
 'possible to navigate to the geocoder here...need handling for priv cases xfer must be the last step'
 '------------------------------------------------------------------------------------DIALOG APPL
@@ -285,44 +287,44 @@ If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(program
 
 '--------------------------------------------------------------------------------initial case note
 start_a_blank_case_note
-CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
-IF Active_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE ("Client is currently active in MAXIS")
-IF Not_Active_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE ("Intake")
-IF isnumeric(confirmation_number) = TRUE THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
-IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("Form Rcvd: MNsure Application for Health Coverage and Help Paying Costs (DHS-6696) ")
-IF app_type = "HCAPP" THEN write_variable_in_CASE_NOTE ("Form Rcvd: Health Care Application (HCAPP) (DHS-3417) ")
-IF app_type = "HC-Certain Pop" THEN write_variable_in_CASE_NOTE ("Form Rcvd: MHC Programs Application for Certain Populations (DHS-3876) ")
-IF app_type = "LTC" THEN write_variable_in_CASE_NOTE ("Form Rcvd: Application for Medical Assistance for Long Term Care Services (DHS-3531) ")
-IF app_type = "MHCP B/C Cancer" THEN write_variable_in_CASE_NOTE ("Form Rcvd: Minnesota Health Care Programs Application and Renewal Form Medical Assistance for Women with Breast or Cervical Cancer (DHS-3525) ")
-CALL write_bullet_and_variable_in_CASE_NOTE ("Requesting", programs_applied_for)
-CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
-CALL write_bullet_and_variable_in_CASE_NOTE ("Application assigned to", worker_number)
-IF transfer_case = TRUE THEN CALL write_variable_in_CASE_NOTE ("* Case transferred to team " & team_number & " in MAXIS")
-CALL write_bullet_and_variable_in_CASE_NOTE ("Notes", entered_notes)
-CALL write_variable_in_CASE_NOTE ("---")
-CALL write_variable_in_CASE_NOTE (worker_signature)
+	CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
+	IF Active_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE ("Client is currently active in MAXIS")
+	IF Not_Active_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE ("Intake")
+	IF isnumeric(confirmation_number) = TRUE THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
+	IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("Form Rcvd: MNsure Application for Health Coverage and Help Paying Costs (DHS-6696) ")
+	IF app_type = "HCAPP" THEN write_variable_in_CASE_NOTE ("Form Rcvd: Health Care Application (HCAPP) (DHS-3417) ")
+	IF app_type = "HC-Certain Pop" THEN write_variable_in_CASE_NOTE ("Form Rcvd: MHC Programs Application for Certain Populations (DHS-3876) ")
+	IF app_type = "LTC" THEN write_variable_in_CASE_NOTE ("Form Rcvd: Application for Medical Assistance for Long Term Care Services (DHS-3531) ")
+	IF app_type = "MHCP B/C Cancer" THEN write_variable_in_CASE_NOTE ("Form Rcvd: Minnesota Health Care Programs Application and Renewal Form Medical Assistance for Women with Breast or Cervical Cancer (DHS-3525) ")
+	CALL write_bullet_and_variable_in_CASE_NOTE ("Requesting", programs_applied_for)
+	CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
+	CALL write_bullet_and_variable_in_CASE_NOTE ("Application assigned to", worker_number)
+	IF transfer_case = TRUE THEN CALL write_variable_in_CASE_NOTE ("* Case transferred to team " & team_number & " in MAXIS")
+	CALL write_bullet_and_variable_in_CASE_NOTE ("Notes", entered_notes)
+	CALL write_variable_in_CASE_NOTE ("---")
+	CALL write_variable_in_CASE_NOTE (worker_signature)
 
 '----------------------------------------------------------------------------------------------------EXPEDITED SCREENING!
 	IF SNAP_checkbox = CHECKED THEN
-    	BeginDialog exp_screening_dialog, 0, 0, 181, 165, "Expedited Screening"
-      	EditBox 100, 5, 50, 15, MAXIS_case_number
-      	EditBox 100, 25, 50, 15, income
-      	EditBox 100, 45, 50, 15, assets
-      	EditBox 100, 65, 50, 15, rent
-      	CheckBox 15, 95, 55, 10, "Heat (or AC)", heat_AC_check
-      	CheckBox 75, 95, 45, 10, "Electricity", electric_check
-      	CheckBox 130, 95, 35, 10, "Phone", phone_check
-      	ButtonGroup ButtonPressed
-        	OkButton 70, 115, 50, 15
-        	CancelButton 125, 115, 50, 15
-      	Text 10, 140, 160, 15, "The income, assets and shelter costs fields will default to $0 if left blank. "
-      	Text 5, 30, 95, 10, "Income received this month:"
-      	Text 5, 50, 95, 10, "Cash, checking, or savings: "
-      	Text 5, 70, 90, 10, "AMT paid for rent/mortgage:"
-      	GroupBox 5, 85, 170, 25, "Utilities claimed (check below):"
-      	Text 50, 10, 50, 10, "Case number: "
-      	GroupBox 0, 130, 175, 30, "**IMPORTANT**"
-    	EndDialog
+    BeginDialog exp_screening_dialog, 0, 0, 181, 165, "Expedited Screening"
+    	EditBox 100, 5, 50, 15, MAXIS_case_number
+    	EditBox 100, 25, 50, 15, income
+    	EditBox 100, 45, 50, 15, assets
+    	EditBox 100, 65, 50, 15, rent
+    	CheckBox 15, 95, 55, 10, "Heat (or AC)", heat_AC_check
+    	CheckBox 75, 95, 45, 10, "Electricity", electric_check
+    	CheckBox 130, 95, 35, 10, "Phone", phone_check
+    	ButtonGroup ButtonPressed
+      	OkButton 70, 115, 50, 15
+      	CancelButton 125, 115, 50, 15
+    	Text 10, 140, 160, 15, "The income, assets and shelter costs fields will default to $0 if left blank. "
+    	Text 5, 30, 95, 10, "Income received this month:"
+    	Text 5, 50, 95, 10, "Cash, checking, or savings: "
+    	Text 5, 70, 90, 10, "AMT paid for rent/mortgage:"
+    	GroupBox 5, 85, 170, 25, "Utilities claimed (check below):"
+    	Text 50, 10, 50, 10, "Case number: "
+    	GroupBox 0, 130, 175, 30, "**IMPORTANT**"
+    EndDialog
 
 		'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
 		If date >= cdate("10/01/2017") then			'these variables need to change every October
@@ -389,12 +391,10 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
     	IF expedited_status = "Client Appears Expedited" THEN
        	CALL navigate_to_MAXIS_screen("MONY", "DISB")
        	EMReadScreen EBT_account_status, 1, 14, 27
-	   	MsgBox "This Client Appears EXPEDITED. A same day interview needs to be offered."
-	   	Send_email = true
+	   		MsgBox "This Client Appears EXPEDITED. A same day interview needs to be offered."
+	   		same_day_checkbox = CHECKED
     	END IF
-
 		IF expedited_status = "Client does not appear expedited" THEN MsgBox "This client does NOT appear expedited. A same day interview does not need to be offered."
-
     	'-----------------------------------------------------------------------------------------------EXPCASENOTE
     	start_a_blank_CASE_NOTE
     	CALL write_variable_in_CASE_NOTE("~ Received Application for SNAP, " & expedited_status & " ~")
@@ -418,7 +418,7 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
 'Determining if a case will be transferred or not. All cases will be transferred except addendum app types. THIS IS NOT CORRECT AND NEEDS TO BE DISCUSSED WITH QI
 IF Active_checkbox = CHECKED THEN
 	transfer_case = False
-    action_completed = TRUE     'This is to decide if the case was successfully transferred or not
+  action_completed = TRUE     'This is to decide if the case was successfully transferred or not
 ELSE
 	transfer_case = True
 	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
@@ -435,7 +435,7 @@ ELSE
 	END IF
 
     EMReadScreen transfer_confirmation, 16, 24, 2
-    if transfer_confirmation = "CASE XFER'D FROM" then
+    IF transfer_confirmation = "CASE XFER'D FROM" then
     	action_completed = True
     Else
         action_completed = False
@@ -447,19 +447,17 @@ END IF
 
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 IF send_appt_ltr = TRUE THEN
-    BeginDialog Hennepin_appt_dialog, 0, 0, 296, 75, "APPOINTMENT LETTER"
-      EditBox 205, 25, 55, 15, interview_date
-      EditBox 65, 50, 115, 15, worker_signature
-      ButtonGroup ButtonPressed
-        OkButton 185, 50, 50, 15
-        CancelButton 240, 50, 50, 15
-      EditBox 65, 25, 55, 15, application_date
-      Text 5, 55, 60, 10, "Worker signature:"
-      Text 140, 30, 60, 10, "Appointment date:"
-      GroupBox 20, 10, 255, 35, "Enter a new appointment date only if it's a date county offices are not open."
-      Text 30, 30, 35, 10, "CAF date:"
-    EndDialog
-
+	BeginDialog Hennepin_appt_dialog, 0, 0, 266, 80, "APPOINTMENT LETTER"
+    EditBox 185, 20, 55, 15, interview_date
+    ButtonGroup ButtonPressed
+    	OkButton 155, 60, 50, 15
+    	CancelButton 210, 60, 50, 15
+    EditBox 50, 20, 55, 15, application_date
+    Text 120, 25, 60, 10, "Appointment date:"
+    GroupBox 5, 5, 255, 35, "Enter a new appointment date only if it's a date county offices are not open."
+    Text 15, 25, 35, 10, "CAF date:"
+    Text 25, 45, 205, 10, "If same day interview is being offered please use today's date"
+	EndDialog
 	'grabs CAF date, turns CAF date into string for variable
 	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", application_date)
 	application_date = application_date & ""
@@ -513,15 +511,13 @@ IF send_appt_ltr = TRUE THEN
     		Pause 2
     	End if
     Loop until SELF_check <> "SELF"
-
 		'Navigating to SPEC/MEMO
-    'Transmits to start the memo writing process
-
 		Call start_a_new_spec_memo		'Writes the appt letter into the MEMO.
 		  Call write_variable_in_SPEC_MEMO("************************************************************")
 		  Call write_variable_in_SPEC_MEMO("You recently applied for assistance in Hennepin County on " & application_date & ".")
 		  Call write_variable_in_SPEC_MEMO("You need to complete an interview as part of your application.")
-		  Call write_variable_in_SPEC_MEMO("The interview must be completed by " & interview_date & ".")
+			If same_day_checkbox = CHECKED THEN Call write_variable_in_SPEC_MEMO("The interview was offered on " & interview_date & ".")
+			If same_day_checkbox = UNCHECKED THEN Call write_variable_in_SPEC_MEMO("The interview must be completed by " & interview_date & ".")
 		  Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at 612-596-1300 between 9:00am and 4:00pm Monday through Friday.")
 		  Call write_variable_in_SPEC_MEMO("If you do not complete the interview by " & last_contact_day & " your application will be denied.") 'add 30 days
 		  Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
@@ -536,6 +532,15 @@ IF send_appt_ltr = TRUE THEN
       'Call write_variable_in_CASE_NOTE("* A notice has been sent to client with detail about how to call in for an interview.")
       Call write_variable_in_CASE_NOTE("---")
       Call write_variable_in_CASE_NOTE(worker_signature & " via on demand waiver script")
+END IF
+IF same_day_checkbox = CHECKED and how_app_rcvd = "Office" THEN
+  Call start_a_blank_CASE_NOTE
+  Call write_variable_in_CASE_NOTE("~ Same day interview offered ~")
+  Call write_variable_in_CASE_NOTE("* Agency informed the client of needed interview.")
+  Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
+  Call write_variable_in_CASE_NOTE("* A Domestic Violence Brochure has been offered to client as part of application packet.")
+  Call write_variable_in_CASE_NOTE("---")
+  Call write_variable_in_CASE_NOTE(worker_signature & " via on demand waiver script")
 END IF
 PF3
 
