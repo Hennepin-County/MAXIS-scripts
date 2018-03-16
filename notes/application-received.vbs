@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("03/13/2018", "Removed team number.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/13/2018", "Added same day interview option.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/12/2018", "Added on demand waiver verbiage and an in office option.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/21/2018", "Added on demand waiver handling.", "MiKayla Handley, Hennepin County")
@@ -182,33 +183,32 @@ pended_date = date & ""
 
 IF fs_pend = CHECKED OR cash_pend = CHECKED OR grh_pend = CHECKED THEN send_appt_ltr = TRUE
 '----------------------------------------------------------------------------------------------------dialogs
-    BeginDialog appl_detail_dialog, 0, 0, 296, 145, "APPLICATION RECEIVED"
-      DropListBox 80, 5, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
-      EditBox 230, 5, 60, 15, application_date
-      DropListBox 80, 25, 65, 15, "Select One:"+chr(9)+"Addendum"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
-      EditBox 230, 25, 60, 15, confirmation_number
-      CheckBox 80, 50, 30, 10, "Cash", cash_pend
-      CheckBox 110, 50, 25, 10, "CCA", cca_pend
-      CheckBox 140, 50, 50, 10, "Emergency", emer_pend
-      CheckBox 195, 50, 30, 10, "GRH", grh_pend
-      CheckBox 230, 50, 20, 10, "HC", hc_pend
-      If SNAP_checkbox = CHECKED THEN CheckBox 260, 50, 30, 10, "SNAP", fs_pend 'need this to equal checked'
-      EditBox 110, 65, 25, 15, worker_number
-      EditBox 110, 85, 25, 15, team_number
-      EditBox 50, 105, 240, 15, entered_notes
-      ButtonGroup ButtonPressed
-        OkButton 185, 125, 50, 15
-        CancelButton 240, 125, 50, 15
-      Text 5, 30, 65, 10, "Type of Application:"
-      Text 160, 30, 50, 10, "Confirmation #"
-      Text 160, 10, 65, 10, "Date of Application:"
-      Text 5, 50, 70, 10, "Programs Applied for:"
-      Text 5, 70, 100, 10, "Transfer to (last 3 digit of X#):"
-      Text 5, 90, 90, 10, "Assigned to (3 digit team #):"
-      Text 5, 110, 45, 10, "Other Notes:"
-      Text 5, 10, 70, 10, "Application Received:"
-      Text 145, 80, 145, 10, "* Script will transfer case to assigned worker"
-    EndDialog
+	BeginDialog appl_detail_dialog, 0, 0, 296, 130, "APPLICATION RECEIVED"
+	  DropListBox 80, 5, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
+	  EditBox 230, 5, 60, 15, application_date
+	  DropListBox 80, 25, 65, 15, "Select One:"+chr(9)+"Addendum"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
+	  EditBox 230, 25, 60, 15, confirmation_number
+	  CheckBox 80, 50, 30, 10, "Cash", cash_pend
+	  CheckBox 110, 50, 25, 10, "CCA", cca_pend
+	  CheckBox 140, 50, 50, 10, "Emergency", emer_pend
+	  CheckBox 195, 50, 30, 10, "GRH", grh_pend
+	  CheckBox 230, 50, 20, 10, "HC", hc_pend
+	  If SNAP_checkbox = CHECKED THEN CheckBox 260, 50, 30, 10, "SNAP", fs_pend 'need this to equal checked'
+	  EditBox 110, 65, 25, 15, worker_number
+	  EditBox 50, 90, 240, 15, entered_notes
+	  ButtonGroup ButtonPressed
+	    OkButton 185, 110, 50, 15
+	    CancelButton 240, 110, 50, 15
+	  Text 5, 30, 65, 10, "Type of Application:"
+	  Text 160, 30, 50, 10, "Confirmation #"
+	  Text 160, 10, 65, 10, "Date of Application:"
+	  Text 5, 50, 70, 10, "Programs Applied for:"
+	  Text 5, 70, 100, 10, "Transfer to (last 3 digit of X#):"
+	  Text 5, 95, 45, 10, "Other Notes:"
+	  Text 5, 10, 70, 10, "Application Received:"
+	  Text 145, 70, 145, 10, "* Script will transfer case to assigned worker"
+	EndDialog
+
 
   BeginDialog add_detail_dialog, 0, 0, 281, 110, "ADD A PROGRAM"
     DropListBox 80, 5, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
@@ -246,7 +246,7 @@ IF Not_Active_checkbox = CHECKED THEN
 			IF app_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
     		IF isdate(application_date) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid application date."
 			IF worker_number = "" OR len(worker_number) <> 3 then err_msg = err_msg & vbNewLine & "* You must enter the worker number of the worker if you would like the case to be transfered by the script."
-    		IF team_number = "" OR len(team_number) <> 3 then err_msg = err_msg & vbNewLine & "* You must enter the team number of the worker if you would like the case to be transfered by the script."
+    		'IF team_number = "" OR len(team_number) <> 3 then err_msg = err_msg & vbNewLine & "* You must enter the team number of the worker if you would like the case to be transfered by the script."
     		IF app_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "If an ApplyMN was received, you must enter the confirmation number and time received"
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
@@ -299,7 +299,7 @@ start_a_blank_case_note
 	CALL write_bullet_and_variable_in_CASE_NOTE ("Requesting", programs_applied_for)
 	CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
 	CALL write_bullet_and_variable_in_CASE_NOTE ("Application assigned to", worker_number)
-	IF transfer_case = TRUE THEN CALL write_variable_in_CASE_NOTE ("* Case transferred to team " & team_number & " in MAXIS")
+	'IF transfer_case = TRUE THEN CALL write_variable_in_CASE_NOTE ("* Case transferred to team " & team_number & " in MAXIS")
 	CALL write_bullet_and_variable_in_CASE_NOTE ("Notes", entered_notes)
 	CALL write_variable_in_CASE_NOTE ("---")
 	CALL write_variable_in_CASE_NOTE (worker_signature)
