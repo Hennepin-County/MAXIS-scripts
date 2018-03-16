@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/16/2018", "Fixed handling for hh members that are not 01.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/09/2018", "Added handling to only allow sanction to occur on cases with ABAWD coding of '10' or '06'.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/09/2018", "Added handling to not allow banked months cases to be sanctioned, check box for FAILURE TO COMPLY notice and automatic PWE checking/case noting.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/30/2016", "Updated reason for sanction reasons for newly added 'reason for sanction' field on STAT/WREG. Also updated user dialogs to include sanction month/year instead of full sanction date.", "Ilse Ferris, Hennepin County")
@@ -250,6 +251,8 @@ GA_basis_droplist = Left(GA_basis_droplist, 2)
 
 '----------------------------------------------------------------------------------------------------Updating WREG panel
 Call navigate_to_MAXIS_screen("STAT", "WREG")
+EMWriteScreen HH_memb, 20, 76
+transmit
 PF9 'put into edit mode
 
 'Updates WREG if sanction is imposed
@@ -283,9 +286,7 @@ ELSEif sanction_type_droplist = "Resolving sanction" THEN
 		EMWriteScreen "__", 15, 50
 	END IF
 END IF
-
 PF3 'save
-PF3 'exit STAT/WRAP
 
 If sanction_type_droplist = "Imposing sanction" then 
     script_end_procedure("Success! Your case note been made, and WREG panel updated. Remember to review/approve your new results, and use the NOTICES - FAILURE TO COMPLY WCOM script, or send the client the Failure to Comply form in ECF.")
