@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("03/19/2018", "Updated text regarding client's name.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -77,7 +78,7 @@ Do
 LOOP UNTIL are_we_passworded_out = false
  
 Call start_a_new_spec_memo	'navigates to spec/memo and opens into edit mode 
-Call write_variable_in_SPEC_MEMO("The ownership of " & spouse & " to avoid having them counted in future eligibility determinations. You are encouraged to do this as soon as possible. This transfer of assets must be done before " & client & "'s first annual renewal for " & renewal_footer_month_year & ". Verification of the transfer can be provided at any time.")
-Call write_variable_in_SPEC_MEMO("At the first annual renewal in " & renewal_footer_month_year & " the value of all assets that list " & client & " as an owner or co-owner will be applied towards the Medical Assistance Asset limit of $3,000.00.  If the total value of all countable assets for " & client & " is more than $3,000.00, Medical Assistance may be closed for " & renewal_footer_month_year & ".")
+Call write_variable_in_SPEC_MEMO("The ownership of " & client & "'s assets must be transferred to " & spouse & " to avoid having them counted in future eligibility determinations. You are encouraged to do this as soon as possible. This transfer of assets must be done before " & client & "'s first annual renewal for " & renewal_footer_month_year & ". Verification of the transfer can be provided at any time.")
+Call write_variable_in_SPEC_MEMO("At the first annual renewal in " & renewal_footer_month_year & ", the value of all assets that list " & client & " as an owner or co-owner will be applied towards the Medical Assistance Asset limit of $3,000.00. If the total value of all countable assets for " & client & " is more than $3,000.00, Medical Assistance may be closed for " & renewal_footer_month_year & ".")
 
 script_end_procedure("Please review your notice before pressing PF4 to send.")
