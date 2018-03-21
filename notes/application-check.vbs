@@ -38,44 +38,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-FUNCTION updated_create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, reminder_in_minutes, appt_category)
-'--- This function creates a an outlook appointment
-'~~~~~ (appt_date): date of the appointment
-'~~~~~ (appt_start_time): start time of the appointment - format example: "08:00 AM"
-'~~~~~ (appt_end_time): end time of the appointment - format example: "08:00 AM"
-'~~~~~ (appt_subject): subject of the email in quotations or a variable
-'~~~~~ (appt_body): body of the email in quotations or a variable
-'~~~~~ (appt_location): name of location in quotations or a variable
-'~~~~~ (appt_reminder): reminder for appointment. Set to TRUE or FALSE 
-'~~~~~ (reminder_in_minutes): enter the number of minutes prior to the appointment to set the reminder. Set as 0 if at the time of the appoint. Set to "" if appt_reminder is set to FALSE
-'~~~~~ (appt_category): can be left "" or assgin to the set the name of the category in quotations
-'===== Keywords: MAXIS, PRISM, create, outlook, appointment
-
-	'Assigning needed numbers as variables for readability
-	olAppointmentItem = 1
-	olRecursDaily = 0
-
-	'Creating an Outlook object item
-	Set objOutlook = CreateObject("Outlook.Application")
-	Set objAppointment = objOutlook.CreateItem(olAppointmentItem)
-
-	'Assigning individual appointment options
-	objAppointment.Start = appt_date & " " & appt_start_time		'Start date and time are carried over from parameters
-	objAppointment.End = appt_date & " " & appt_end_time			'End date and time are carried over from parameters
-	objAppointment.AllDayEvent = False 								'Defaulting to false for this. Perhaps someday this can be true. Who knows.
-	objAppointment.Subject = appt_subject							'Defining the subject from parameters
-	objAppointment.Body = appt_body									'Defining the body from parameters
-	objAppointment.Location = appt_location							'Defining the location from parameters
-	If appt_reminder = FALSE then									'If the reminder parameter is false, it skips the reminder, otherwise it sets it to match the number here.
-		objAppointment.ReminderSet = False
-	Else
-		objAppointment.ReminderSet = True
-		objAppointment.ReminderMinutesBeforeStart = reminder_in_minutes
-	End if
-	objAppointment.Categories = appt_category						'Defines a category
-	objAppointment.Save												'Saves the appointment
-END FUNCTION
-
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 131, 50, "Case number dialog"
   EditBox 65, 5, 60, 15, MAXIS_case_number					
@@ -259,7 +221,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 If application_status_droplist <> "Case is ready to approve or deny" THEN 
 	'Outlook appointment is created in prior to the case note being created
 	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
-	Call updated_create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "Application check: " & reminder_text & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
+	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "Application check: " & reminder_text & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
 	Outlook_remider = True
 End if 
 
