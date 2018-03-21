@@ -111,7 +111,7 @@ ObjExcel.ActiveSheet.Name = "#" & MAXIS_case_number
 
 'adding column header information to the Excel list
 ObjExcel.Cells(1, 1).Value = "Month"
-ObjExcel.Cells(1, 2).Value = "MEMB 01"
+ObjExcel.Cells(1, 2).Value = "MEMB " & HH_memb
 ObjExcel.Cells(1, 3).Value = "SNAP"
 ObjExcel.Cells(1, 4).Value = "GA"
 ObjExcel.Cells(1, 5).Value = "MFIP"
