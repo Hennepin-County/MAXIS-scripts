@@ -1,4 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
+name_of_script = "ADMIN - VENDOR LIST.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 30         	'manual run time in seconds
