@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/28/2018", "Added handling to send the HRF, and updated REI handling for MFIP cases.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/06/2018", "Updated WF1M handling for MFIP cases that require a referral.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -2070,30 +2071,45 @@ FOR EACH MAXIS_case_number IN case_number_array
 			IF is_case_approved <> "UNAPPROVED" THEN
 				back_to_SELF
 			ELSE
-				EMWriteScreen "MFSM", 20, 71
-				transmit
-				EMWriteScreen "APP", 20, 71
+				Call write_value_and_transmit("MFSM", 20, 71)
+				Call write_value_and_transmit("APP", 20, 71)
 				STATS_manualtime = STATS_manualtime + 60    'adding manualtime for approval processing
-				transmit
+				
+                Do 
+                    EMReadscreen send_HRF, 3, 11, 50
+                    'msgbox "did HRF come up?"
+                    If send_HRF = "HRF" then Call write_value_and_transmit("Y", 12, 54)
+                Loop until send_HRF <> "HRF"
                 'msgbox "What's happening?"
+                row = 13
+                Do 
+                    EMReadscreen REI_issue, 1, row, 60
+                    If REI_issue = "_" then EmWriteScreen "Y", row, 60
+                    row = row + 1
+                Loop until REI_issue <> "_"
+                'transmit
+                
 				DO
 					transmit
 					EMReadScreen not_allowed, 11, 24, 18
 					EMReadScreen locked_by_background, 6, 24, 19
+                
 					MFIP_rei_screen = ""
 					CALL find_variable("(Y/", MFIP_rei_screen, 1)
+                    'msgbox MFIP_rei_screen
 					IF MFIP_rei_screen = "N" THEN
 						EMSendKey "Y"
 						transmit
 					END IF
+                    
 					row = 1					'This is looking for if there are more months listed that need to be scrolled through to review.
 					col = 1
 					EMSearch "More: +", row, col
 					If row <> 0 then 
                         PF8    
-					    EMReadScreen package_approved, 8, 4, 38
+					    EMReadScreen package_approved, 8, 4, 39
                     Else 
-                        exit do
+                        EMReadScreen package_approved, 8, 4, 39
                     End if 
 				LOOP Until package_approved = "approved"
                 'msgbox "how about now?"
