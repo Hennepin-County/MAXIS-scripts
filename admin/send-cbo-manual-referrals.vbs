@@ -310,7 +310,7 @@ For item = 0 to UBound(CBO_array, 2)
 	objExcel.cells(excel_row, 3).Value = CBO_array(case_number,		item)
 	objExcel.cells(excel_row, 6).Value = CBO_array(ref_status, 		item)
 	objExcel.cells(excel_row, 7).Value = CBO_array(ABAWD_status, 	item)
-	objExcel.cells(excel_row, 8).Value = CBO_array(error_reason, 	item)
+	objExcel.cells(excel_row, 7).Value = CBO_array(error_reason, 	item)
 Next 
 	
 STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning (because counting :p)
