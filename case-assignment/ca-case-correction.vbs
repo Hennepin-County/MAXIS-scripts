@@ -42,7 +42,8 @@ END IF
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
-'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+
+CALL changelog_update("03/28/2018", "Updated appt letter case note for bulk script process.", "MiKayla Handley, Hennepin County")'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
 CALL changelog_update("02/21/2018", "Added on demand waiver handling.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/16/2018", "Added case transfer confirmation coding, and added active checkbox indicator.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
@@ -464,24 +465,27 @@ IF send_appt_ltr = TRUE THEN
     Loop until SELF_check <> "SELF"
 
 		'Navigating to SPEC/MEMO
-    'Transmits to start the memo writing process
-
 		Call start_a_new_spec_memo		'Writes the appt letter into the MEMO.
-		  Call write_variable_in_SPEC_MEMO("************************************************************")
-		  Call write_variable_in_SPEC_MEMO("You recently applied for assistance in Hennepin County on " & application_date & ".")
-		  Call write_variable_in_SPEC_MEMO("You need to complete an interview as part of your application.")
-		  Call write_variable_in_SPEC_MEMO("The interview must be completed by " & interview_date & ".")
-		  Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at 612-596-1300 between 9:00am and 4:00pm Monday through Friday.")
-		  Call write_variable_in_SPEC_MEMO("If you do not complete the interview by " & last_contact_day & " your application will be denied.") 'add 30 days
-		  Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
-		  Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy.")
-		  Call write_variable_in_SPEC_MEMO("************************************************************")
-		  PF4
-    Call start_a_blank_CASE_NOTE
-      Call write_variable_in_CASE_NOTE("~ Appointment letter sent in MEMO ~")
+			Call write_variable_in_SPEC_MEMO("************************************************************")
+			Call write_variable_in_SPEC_MEMO("You recently applied for assistance in Hennepin County on " & application_date & ".")
+			Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
+			Call write_variable_in_SPEC_MEMO(" ")
+			Call write_variable_in_SPEC_MEMO("The interview must be completed by " & interview_date & ".")
+			Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+			Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday through Friday.")
+			Call write_variable_in_SPEC_MEMO(" ")
+			Call write_variable_in_SPEC_MEMO("If we do not hear from you by " & last_contact_day & " your application will be denied.") 'add 30 days
+			Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
+			Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
+			Call write_variable_in_SPEC_MEMO("You can also request a paper copy.")
+			Call write_variable_in_SPEC_MEMO("Auth: 7CFR 273.2(e)(3). ")
+			Call write_variable_in_SPEC_MEMO("************************************************************")
+			PF4
+		Call start_a_blank_CASE_NOTE
+	    Call write_variable_in_CASE_NOTE("~ Appointment letter sent in MEMO for " & interview_date & "~")
       Call write_variable_in_CASE_NOTE("* A notice has been sent via SPEC/MEMO informing the client of needed interview.")
       Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
-      Call write_variable_in_CASE_NOTE("* Link to Domestic Violence Brochure sent to client in SPEC/MEMO as a part of interview notice.")
+      Call write_variable_in_CASE_NOTE("* A link to the Domestic Violence Brochure sent to client in SPEC/MEMO as a part of interview notice.")
       'Call write_variable_in_CASE_NOTE("* A notice has been sent to client with detail about how to call in for an interview.")
       Call write_variable_in_CASE_NOTE("---")
       Call write_variable_in_CASE_NOTE(worker_signature & " via on demand waiver script")
