@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "UTILITIES - MEMO TO WORD.vbs"
+name_of_script = "NOTICES - MEMO TO WORD.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 100         'manual run time in seconds
@@ -40,64 +40,64 @@ END IF
 
 Function Create_List_Of_Notices
 	Erase notices_array
-	no_notices = FALSE 
-	If notice_panel = "WCOM" Then 
+	no_notices = FALSE
+	If notice_panel = "WCOM" Then
 		wcom_row = 7
 		array_counter = 0
-		Do 
+		Do
 			ReDim Preserve notices_array(3, array_counter)
 			EMReadScreen notice_date, 8,  wcom_row, 16
 			EMReadScreen notice_prog, 2,  wcom_row, 26
 			EMReadScreen notice_info, 31, wcom_row, 30
 			EMReadScreen notice_stat, 8,  wcom_row, 71
-			
+
 			notice_date = trim(notice_date)
 			notice_prog = trim(notice_prog)
 			notice_info = trim(notice_info)
 			notice_stat = trim(notice_stat)
-			
-			If array_counter = 0 AND notice_date = "" Then no_notices = TRUE 
-			
-			notices_array(selected,    array_counter) = unchecked 
+
+			If array_counter = 0 AND notice_date = "" Then no_notices = TRUE
+
+			notices_array(selected,    array_counter) = unchecked
 			notices_array(information, array_counter) = notice_info & " - " & notice_prog & " - " & notice_date & " - Status: " & notice_stat
 			notices_array(MAXIS_row,   array_counter) = wcom_row
-			
+
 			array_counter = array_counter + 1
 			wcom_row = wcom_row + 1
-			
+
 			EMReadScreen next_notice, 4, wcom_row, 30
 			next_notice = trim(next_notice)
-			
+
 		Loop until next_notice = ""
-	End If 
-	
-	If notice_panel = "MEMO" Then 
+	End If
+
+	If notice_panel = "MEMO" Then
 		memo_row = 7
 		array_counter = 0
-		Do 
+		Do
 			ReDim Preserve notices_array(3, array_counter)
 			EMReadScreen notice_date, 8,  memo_row, 19
 			EMReadScreen notice_info, 31, memo_row, 29
 			EMReadScreen notice_stat, 8,  memo_row, 67
-			
+
 			notice_date = trim(notice_date)
 			notice_info = trim(notice_info)
 			notice_stat = trim(notice_stat)
-			
-			If array_counter = 0 AND notice_date = "" Then no_notices = TRUE 
-			
-			notices_array(selected,    array_counter) = unchecked 
+
+			If array_counter = 0 AND notice_date = "" Then no_notices = TRUE
+
+			notices_array(selected,    array_counter) = unchecked
 			notices_array(information, array_counter) = notice_info & " - " & notice_date & " - Status: " & notice_stat
 			notices_array(MAXIS_row,   array_counter) = memo_row
-			
+
 			array_counter = array_counter + 1
 			memo_row = memo_row + 1
-			
+
 			EMReadScreen next_notice, 4, memo_row, 30
 			next_notice = trim(next_notice)
-			
+
 		Loop until next_notice = ""
-	End If 
+	End If
 End Function
 
 
@@ -115,36 +115,36 @@ Call check_for_MAXIS(False)
 'Finds MAXIS case number
 call MAXIS_case_number_finder(MAXIS_case_number)
 
-EMReadScreen which_panel, 4, 2, 47 
-If which_panel = "WCOM" then 
+EMReadScreen which_panel, 4, 2, 47
+If which_panel = "WCOM" then
 	notice_panel = "WCOM"
 	at_notices = True
 ElseIf which_panel = "MEMO" Then
 	notice_panel = "MEMO"
 	at_notices = True
-Else 
-	at_notices = false 
-End If 
+Else
+	at_notices = false
+End If
 
 If at_notices = True then
-	If notice_panel = "WCOM" Then 
+	If notice_panel = "WCOM" Then
 		EMReadScreen MAXIS_footer_month, 2, 3, 46
 		EMReadScreen MAXIS_footer_year,  2, 3, 51
-	ElseIf notice_panel = "MEMO" Then 
+	ElseIf notice_panel = "MEMO" Then
 		EMReadScreen MAXIS_footer_month, 2, 3, 48
 		EMReadScreen MAXIS_footer_year,  2, 3, 53
-	End If 
-	
-	Create_List_Of_Notices
-	
-End If 
+	End If
 
-Do 
+	Create_List_Of_Notices
+
+End If
+
+Do
 	err_msg = ""
-	
+
 	dlg_y_pos = 85
 	dlg_length = 145 + (UBound(notices_array, 2) * 20)
-	
+
 	BeginDialog find_notices_dialog, 0, 0, 205, dlg_length, "Notices to Print"
 	  Text 5, 10, 50, 10, "Case Number"
 	  EditBox 65, 5, 50, 15, MAXIS_case_number
@@ -155,15 +155,15 @@ Do
 	  EditBox 165, 45, 20, 15, MAXIS_footer_year
 	  ButtonGroup ButtonPressed
 	    PushButton 60, 70, 50, 10, "Find Notices", find_notices_button
-	  If no_notices = FALSE Then 
-		  For notices_listed = 0 to UBound(notices_array, 2) 
+	  If no_notices = FALSE Then
+		  For notices_listed = 0 to UBound(notices_array, 2)
 		  	CheckBox 10, dlg_y_pos, 185, 10, notices_array(information, notices_listed), notices_array(selected, notices_listed)
 			dlg_y_pos = dlg_y_pos + 15
 		  Next
-	  Else 
+	  Else
 	  	  Text 10, dlg_y_pos, 185, 10, "**No Notices could be found here.**"
 		  dlg_y_pos = dlg_y_pos + 15
-	  End If 
+	  End If
 	  dlg_y_pos = dlg_y_pos + 5
 	  EditBox 75, dlg_y_pos, 125, 15, worker_signature
 	  dlg_y_pos = dlg_y_pos + 5
@@ -175,51 +175,51 @@ Do
 	  dlg_y_pos = dlg_y_pos + 5
 	  CheckBox 5, dlg_y_pos, 90, 10, "Check here to case note.", case_note_check
 	EndDialog
-	
+
 	Dialog find_notices_dialog
 	cancel_confirmation
 
-	notice_selected = FALSE 
+	notice_selected = FALSE
 	For notice_to_print = 0 to UBound(notices_array, 2)
 		If notices_array(selected, notice_to_print) = checked Then notice_selected = TRUE
 	Next
-	
+
 	If MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "- Enter a Case Number."
 	If notice_panel = "Select One..." Then err_msg = err_msg & vbNewLine & "- Select where the notice to print is."
 	If MAXIS_footer_month = "" or MAXIS_footer_year = "" Then err_msg = err_msg & vbNewLine & "- Enter footer month and year."
 	If notice_selected = False Then err_msg = err_msg & vbNewLine & "- Select a notice to be copied to a Word Document."
-	
-	If ButtonPressed = find_notices_button then 
-		If notice_panel <> "Select One..." AND MAXIS_case_number <> "" AND MAXIS_footer_month <> "" AND MAXIS_footer_year <> "" Then 
+
+	If ButtonPressed = find_notices_button then
+		If notice_panel <> "Select One..." AND MAXIS_case_number <> "" AND MAXIS_footer_month <> "" AND MAXIS_footer_year <> "" Then
 			Call navigate_to_MAXIS_screen ("SPEC", notice_panel)
-			If notice_panel = "MEMO" then 
+			If notice_panel = "MEMO" then
 				EMWriteScreen MAXIS_footer_month, 3, 48
 				EMWriteScreen MAXIS_footer_year, 3, 53
 			ElseIf notice_panel = "WCOM" Then
 				EMWriteScreen MAXIS_footer_month, 3, 46
 				EMWriteScreen MAXIS_footer_year, 3, 51
-			End If 
+			End If
 			transmit
 			Create_List_Of_Notices
 			err_msg = "LOOP"
 		Else
 			err_msg = err_msg & vbNewLine & "!!! Cannot read a list of notices without a panel selected, a case number entered, and footer month & year entered !!!"
-		End If 
-	End If 
-	
-	If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg 
-	
+		End If
+	End If
+
+	If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg
+
 Loop Until err_msg = ""
 
 Call navigate_to_MAXIS_screen ("SPEC", notice_panel)
 
-If notice_panel = "MEMO" then 
+If notice_panel = "MEMO" then
 	EMWriteScreen MAXIS_footer_month, 3, 48
 	EMWriteScreen MAXIS_footer_year, 3, 53
 ElseIf notice_panel = "WCOM" Then
 	EMWriteScreen MAXIS_footer_month, 3, 46
 	EMWriteScreen MAXIS_footer_year, 3, 51
-End If 
+End If
 transmit
 
 'Creates the Word doc
@@ -228,12 +228,12 @@ objWord.Visible = True
 
 For notice_to_print = 0 to UBound(notices_array, 2)
 	client_notice = ""
-	If notices_array(selected, notice_to_print) = checked Then 
+	If notices_array(selected, notice_to_print) = checked Then
 		STATS_counter = STATS_counter + 1
 		If notice_panel = "WCOM" Then EMWriteScreen "X", notices_array(MAXIS_row, notice_to_print), 13
 		If notice_panel = "MEMO" Then EMWriteScreen "X", notices_array(MAXIS_row, notice_to_print), 16
 		transmit
-		
+
 		notice_length = 0
 		Do
 			For notice_row = 2 to 21
@@ -248,7 +248,7 @@ For notice_to_print = 0 to UBound(notices_array, 2)
 			PF8
 			notice_length = notice_length + 1
 		Loop until notice_length = 20
-				
+
 		Set objDoc = objWord.Documents.Add()
 		objWord.Caption = notices_array(information, notice_to_print)
 		Set objSelection = objWord.Selection
@@ -259,14 +259,14 @@ For notice_to_print = 0 to UBound(notices_array, 2)
 		objSelection.Font.Name = "Courier New"
 		objSelection.Font.Size = "10"
 		objSelection.ParagraphFormat.SpaceAfter = 0
-		
+
 		objSelection.TypeText client_notice
-		
+
 		pf3
-	End If 
+	End If
 Next
 
-If case_note_check = checked Then 
+If case_note_check = checked Then
 
 	start_a_blank_CASE_NOTE
 	Call Write_variable_in_case_note ("System Notice Reprinted in Office for Client")
@@ -277,7 +277,7 @@ If case_note_check = checked Then
 	Next
 	Call Write_variable_in_case_note ("---")
 	Call Write_variable_in_case_note (worker_signature)
-End If 
+End If
 
 STATS_counter = STATS_counter - 1
 
