@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/29/2018", "Added Homeless (Unfit for Employment) option.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/07/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -51,17 +52,17 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog ABAWD_dialog, 0, 0, 176, 90, "ABAWD exemption dialog"
-  EditBox 55, 10, 50, 15, MAXIS_case_number
-  EditBox 150, 10, 20, 15, member_number
-  EditBox 115, 30, 55, 15, effective_date
-  DropListBox 70, 50, 100, 15, "Select one..."+chr(9)+"Care of Child under 6"+chr(9)+"Care of Incapacitated Person"+chr(9)+"Other", ABAWD_selection
+BeginDialog ABAWD_dialog, 0, 0, 196, 90, "ABAWD exemption dialog"
+  EditBox 70, 10, 50, 15, MAXIS_case_number
+  EditBox 170, 10, 20, 15, member_number
+  EditBox 135, 30, 55, 15, effective_date
+  DropListBox 70, 50, 120, 15, "Select one..."+chr(9)+"Care of Child under 6"+chr(9)+"Care of Incapacitated Person"+chr(9)+"Homeless (Unfit for Employment)"+chr(9)+"Other", ABAWD_selection
   ButtonGroup ButtonPressed
-    OkButton 70, 70, 50, 15
-    CancelButton 120, 70, 50, 15
-  Text 20, 35, 90, 10, "Effective date of exemption:"
-  Text 5, 15, 45, 10, "Case number:"
-  Text 115, 15, 35, 10, "Member #:"
+    OkButton 90, 70, 50, 15
+    CancelButton 140, 70, 50, 15
+  Text 40, 35, 90, 10, "Effective date of exemption:"
+  Text 20, 15, 45, 10, "Case number:"
+  Text 130, 15, 35, 10, "Member #:"
   Text 5, 55, 65, 10, "ABAWD exemption:"
 EndDialog
 
@@ -86,7 +87,39 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 Loop until are_we_passworded_out = false					'loops until user passwords back in		
 
-If ABAWD_selection <> "Other" then 
+If ABAWD_selection = "Homeless (Unfit for Employment)" then 
+    BeginDialog unfit_dialog, 0, 0, 281, 170, "Unfit for Employment exemption for homeless members"
+    EditBox 215, 90, 60, 15, conversation_date
+    EditBox 75, 110, 200, 15, exemption_details
+    EditBox 75, 130, 200, 15, other_notes
+    EditBox 75, 150, 90, 15, worker_signature
+    ButtonGroup ButtonPressed
+    OkButton 170, 150, 50, 15
+    CancelButton 225, 150, 50, 15
+    Text 15, 155, 60, 10, "Worker signature:"
+    GroupBox 5, 10, 270, 75, "Clients will meet this exemption if BOTH criteria are met:"
+    Text 10, 25, 260, 25, "* The client is coded Y as homeless on STAT/ADDR with a living arrangement code of either (02) Family/Friends Due to Economic Hardship, (06) Hotel/Motel, (07) Emergency Shelter,or (08)Place Not Meant for Housing AND"
+    Text 10, 60, 260, 20, "* The client lacks access to work-related necessities. These necessities include, but are not limited to, access to a shower and/or laundry facilities."
+    Text 45, 95, 170, 10, "Conversation date with client about this exemption:"
+    Text 30, 135, 45, 10, "Other notes:"
+    Text 10, 115, 65, 10, "Exemption details:"
+    EndDialog
+    
+    'the Other exemption dialog
+    Do
+        Do
+            err_msg = ""
+            Dialog unfit_dialog
+            Cancel_confirmation
+            If isdate(conversation_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid conversation date."
+            If trim(exemption_details) = "" then err_msg = err_msg & vbNewLine & "* Enter the details of your conversation with the client with the specifics about why they met this exemption."
+            If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+            IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+        LOOP UNTIL err_msg = ""
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+    Loop until are_we_passworded_out = false					'loops until user passwords back in	
+    
+elseIf ABAWD_selection<> "Other" then 
 	BeginDialog Incap_child_dialog, 0, 0, 281, 190, "ABAWD exemption for " & ABAWD_selection
   	  EditBox 40, 25, 155, 15, person_name
   	  If ABAWD_selection = "Care of Child under 6" then EditBox 225, 25, 40, 15, person_DOB
@@ -135,9 +168,8 @@ If ABAWD_selection <> "Other" then
 		LOOP UNTIL err_msg = ""
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 	Loop until are_we_passworded_out = false					'loops until user passwords back in	
-
 Else 
-	BeginDialog Incap_child_dialog, 0, 0, 276, 140, "ABAWD exemption"
+	BeginDialog other_dialog, 0, 0, 276, 140, "ABAWD exemption"
 		'This droplist is too damn big to enter into the dialog editor. You WILL break the dialog editor if you paste this code into it. 
 		DropListBox 75, 10, 190, 15, "Select one..."+chr(9)+"03 Unfit for Employment"+chr(9)+"05 Age 60 or older"+chr(9)+"06 Under age 16"+chr(9)+"07 Age 16-17 living w/ parent/caregiver"+chr(9)+"09 Empl 30 hr/wk or earnings = to min wage x 30 hr/wk"+chr(9)+"10 Matching grant participant"+chr(9)+"11 Receiving or applied for unemployment"+chr(9)+"12 Enrolled in school, training program or higher education"+chr(9)+"13 Participating In CD Program"+chr(9)+"14 Receiving MFIP"+chr(9)+"20 Pending/Receiving DWP Or WB"+chr(9)+"15 Age 16-17 Not Lvg W/Pare/Crgvr"+chr(9)+"16 50-59 years old"+chr(9)+"21 Resp For Care Of Child < 18"+chr(9)+"17 Receiving RCA Or GA", Exemption_droplist
   		DropListBox 80, 50, 50, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", verifs_required
@@ -161,7 +193,7 @@ Else
 	Do
 		Do
 	  		err_msg = ""
-	  		Dialog Incap_child_dialog
+	  		Dialog other_dialog
 	  		Cancel_confirmation
 			If Exemption_droplist = "Select one..." then err_msg = err_msg & vbNewLine & "* Select an ABAWD exemption." 
 			If verifs_required = "Select one..." then err_msg = err_msg & vbNewLine & "* Were verifications required for this exemption?"
@@ -190,11 +222,19 @@ CALL write_value_and_transmit(member_number, 20, 76)
 EMReadScreen WREG_MEMB_check, 6, 24, 2
 IF WREG_MEMB_check = "REFERE" OR WREG_MEMB_check = "MEMBER" THEN script_end_procedure ("The member number that you entered is not valid.  Please check the member number, and start the script again.")
 
+EMReadscreen wreg_panel, 1, 2, 78
+If wreg_panel = "0" then Call write_value_and_transmit("NN", 20, 79)
+EMReadscreen PWE_indicator, 1, 6, 68
+If PWE_indicator = "_" then EMWriteScreen "Y", 6, 68
+   
 If ABAWD_selection = "Care of Child under 6" then 
 	FSET_exemption_code = "08"
 	ABAWD_input_code = "01"
 Elseif ABAWD_selection = "Care of Incapacitated Person" then 
 	FSET_exemption_code = "04"
+	ABAWD_input_code = "01"
+Elseif ABAWD_selection = "Homeless (Unfit for Employment)" then 
+	FSET_exemption_code = "03"
 	ABAWD_input_code = "01"
 Else 
 	'Logic to change the GA_basis_droplist into correct coding for the WREG panel
@@ -226,8 +266,8 @@ If FSET_code = FSET_exemption_code then
 	If ABAWD_code = ABAWD_input_code then update_WREG = False
 Else 
 	update_WREG = True 
-End if 	
-
+End if 
+	
 'script will update the WREG panel for the member if an update
 If update_WREG = true then 
 	PF9
@@ -247,11 +287,12 @@ End if
 start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("ABAWD Exemption for M" & member_number & ": " & header_info)
 Call write_bullet_and_variable_in_CASE_NOTE("Effective date", effective_date)
+Call write_bullet_and_variable_in_CASE_NOTE("Date of conversation with client", conversation_date)
+Call write_bullet_and_variable_in_CASE_NOTE("Why client meets Unfit to Employment expansion for homelessness", exemption_details)
 Call write_bullet_and_variable_in_CASE_NOTE("Person in care of ABAWD", person_name)
 Call write_bullet_and_variable_in_CASE_NOTE("DOB of person in care of ABAWD", person_DOB)
 Call write_bullet_and_variable_in_CASE_NOTE("Hours a week caring for person", hours_per_week)
 Call write_bullet_and_variable_in_CASE_NOTE("Days a week caring for person", days_per_week)
-Call write_variable_in_CASE_NOTE("---")
 Call write_bullet_and_variable_in_CASE_NOTE("Verifications required", verifs_required)
 If verifs_rec <> "Select one..." then Call write_bullet_and_variable_in_CASE_NOTE("Verification received", verifs_rec)
 Call write_bullet_and_variable_in_CASE_NOTE("Verification info", verif_info)
