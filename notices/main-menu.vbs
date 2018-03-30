@@ -150,6 +150,13 @@ script_array_NOTICES_main(script_num).description			= "Sends a WCOM on a denial 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_NOTICES_main(script_num).script_name 			= " MEMO to Word "
+script_array_NOTICES_main(script_num).file_name				= "memo-to-word.vbs"
+script_array_NOTICES_main(script_num).description 			= "Copies a MEMO or WCOM from MAXIS and formats it in a Word Document."
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
+Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= " Method B WCOM "													'needs spaces to generate button width properly.
 script_array_NOTICES_main(script_num).file_name				= "method-b-wcom.vbs"
 script_array_NOTICES_main(script_num).description			= "Makes detailed WCOM regarding spenddown vs. recipient amount for method B HC cases."
