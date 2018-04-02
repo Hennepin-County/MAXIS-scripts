@@ -187,7 +187,7 @@ For item = 0 to Ubound(state_array, 2)
     	IF Match_Prog <> "" THEN Match_Active_Programs = Match_Active_Programs & Match_Prog & ", "
 		row = row + 1
     LOOP UNTIL Match_Prog = "" or row = 19
-    
+
 	'-------------------------------------------------------------------trims excess spaces of Match_Active_Programs
 	Match_Active_Programs = trim(Match_Active_Programs)
 	'takes the last comma off of Match_Active_Programs when autofilled into dialog if more more than one app date is found and additional app is selected
@@ -198,17 +198,17 @@ For item = 0 to Ubound(state_array, 2)
 	Match_contact_info = ""
 	phone_number = ""
 	fax_number = ""
-	
+
 	'-------------------------------------------------------------------PARIS match contact information
 	EMReadScreen Phone_Number, 23, row, 22
 	Phone_Number = TRIM(Phone_Number)
-	If Phone_Number = "Phone: (     )" then 
+	If Phone_Number = "Phone: (     )" then
 		Phone_Number = ""
-	Else 
+	Else
 		EMReadScreen Phone_Number_ext, 8, row, 51
 		Phone_Number_ext = trim(Phone_Number_ext)
 		If Phone_Number_ext <> "" then Phone_Number = Phone_Number & " Ext: " & Phone_Number_ext
-	End if 
+	End if
 	'-------------------------------------------------------------------reading and cleaning up the fax number if it exists
 	EMReadScreen fax_check, 8, row + 1, 37
 	fax_check = trim(fax_check)
@@ -216,7 +216,7 @@ For item = 0 to Ubound(state_array, 2)
 		EMReadScreen fax_number, 21, row + 1, 24
 		fax_number = TRIM(fax_number)
 	End if
-	
+
 	If fax_number = "Fax: (     )" then fax_number = ""
 	Match_contact_info = phone_number & " " & fax_number
 	state_array(contact_info, item) = Match_contact_info
@@ -285,7 +285,7 @@ DO
 	err_msg = ""
 	Dialog PARIS_match_claim_dialog
 	IF ButtonPressed = 0 THEN StopScript
-	IF fraud_referral = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is this a fraud referral?"
+	IF fraud_referral = "Select One:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
 	IF collectible_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is this overpayment collectible?"
 	IF OP_1 = "" THEN err_msg = err_msg & vbnewline & "* You must have an overpayment entry."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -311,15 +311,15 @@ IF OP_2 <> "" then Call write_variable_in_case_note(other_programs & " Overpayme
 IF OP_3 <> "" then Call write_variable_in_case_note(other_programs & " Overpayment " & OP_3 & " through  " & OP_to_3 & " Claim # " & Claim_3 & "  Amt $" & AMT_3)
 IF OP_4 <> "" then Call write_variable_in_case_note(other_programs & " Overpayment " & OP_4 & " through  " & OP_to_4 & " Claim # " & Claim_4 & "  Amt $" & AMT_4)
 IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
-IF instr(Active_Programs, "HC") then 
+IF instr(Active_Programs, "HC") then
 	Call write_bullet_and_variable_in_CASE_NOTE("HC responsible members", HC_resp_memb)
 	Call write_bullet_and_variable_in_CASE_NOTE("Total federal Health Care amount", Fed_HC_AMT)
 	Call write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
 END IF
-CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral) 
-CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)   
+CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
+CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
 CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
-CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP) 
+CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
 CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 CALL write_bullet_and_variable_in_CASE_NOTE("Client accessing benefits in other state", bene_other_state)
 CALL write_bullet_and_variable_in_CASE_NOTE("Contacted other state", Contact_other_state)

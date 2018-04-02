@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("04/02/2018", "Updates to fraud referral for the case note.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/18/2017", "Updates created to add options for sending difference notice and handling for resolution status and multiple states", "MiKayla Handley, Hennepin County")
 CALL changelog_update("09/20/2017", "Updates made across the board, including action and case note", "MiKayla Handley, Hennepin County")
 CALL changelog_update("05/17/2017", "Initial version.", "MiKayla Handley, Hennepin County")
@@ -181,7 +182,7 @@ For item = 0 to Ubound(state_array, 2)
     	IF Match_Prog <> "" THEN Match_Active_Programs = Match_Active_Programs & Match_Prog & ", "
 		row = row + 1
     LOOP UNTIL Match_Prog = "" or row = 19
-    
+
 	'-------------------------------------------------------------------trims excess spaces of Match_Active_Programs
 	Match_Active_Programs = trim(Match_Active_Programs)
 	'takes the last comma off of Match_Active_Programs when autofilled into dialog if more more than one app date is found and additional app is selected
@@ -192,18 +193,18 @@ For item = 0 to Ubound(state_array, 2)
 	Match_contact_info = ""
 	phone_number = ""
 	fax_number = ""
-	
+
 	'-------------------------------------------------------------------PARIS match contact information
 	EMReadScreen Phone_Number, 23, row, 22
 	Phone_Number = TRIM(Phone_Number)
-	If Phone_Number = "Phone: (     )" then 
+	If Phone_Number = "Phone: (     )" then
 		Phone_Number = ""
-	Else 
+	Else
 		EMReadScreen Phone_Number_ext, 8, row, 51
 		Phone_Number_ext = trim(Phone_Number_ext)
 		If Phone_Number_ext <> "" then Phone_Number = Phone_Number & " Ext: " & Phone_Number_ext
-	End if 
-	
+	End if
+
 	'-------------------------------------------------------------------establishing variable for PARIS match state contact information (with phone number and fax if applicable)
 	'-------------------------------------------------------------------reading and cleaning up the fax number if it exists
 	EMReadScreen fax_check, 8, row + 1, 37
@@ -212,7 +213,7 @@ For item = 0 to Ubound(state_array, 2)
 		EMReadScreen fax_number, 21, row + 1, 24
 		fax_number = TRIM(fax_number)
 	End if
-	
+
 	If fax_number = "Fax: (     )" then fax_number = ""
 	Match_contact_info = phone_number & " " & fax_number
 	state_array(contact_info, item) = Match_contact_info
@@ -244,7 +245,7 @@ IF send_notice_checkbox = CHECKED THEN
     	Text 165, 15, 175, 10, "Client Name: "  & Client_Name
     	Text 10, 35, 110, 10, "Match month: "   & Match_Month
     	Text 165, 35, 175, 10, "MN active program(s): "   & MN_active_programs
-	GroupBox 5, 50, 360, 75, "PARIS MATCH INFORMATION:" 
+	GroupBox 5, 50, 360, 75, "PARIS MATCH INFORMATION:"
 		   For item = 0 to Ubound(state_array, 2)
 			   Text 10, 60, 75, 10, "Match State: "   & state_array(state_name, item)
 			   Text 10, 75, 135, 10, "Match State Case Number: "   & state_array(match_case_num, item)
@@ -262,7 +263,7 @@ IF send_notice_checkbox = CHECKED THEN
     	Text 10, 140, 110, 10, "Accessing benefits in other state:"
       	DropListBox 120, 135, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", bene_other_state
       	DropListBox 120, 155, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", Contact_other_state
-      	DropListBox 120, 175, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"Undetermined", fraud_Referral
+      	DropListBox 120, 175, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"Undetermined", fraud_referral
     GroupBox 205, 130, 160, 50, "Verification requested:"
       CheckBox 210, 145, 50, 10, "Diff Notice", Diff_Notice_Checkbox
       CheckBox 290, 145, 70, 10, "Shelter Verification", Shelter_Verf_CheckBox
@@ -283,6 +284,7 @@ IF send_notice_checkbox = CHECKED THEN
     			IF ButtonPressed = 0 THEN StopScript
     			IF bene_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is the client accessing benefits in other state?"
     			IF Contact_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Did you contact the other state?"
+					IF fraud_referral = "Select One:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
     			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 			LOOP UNTIL err_msg = ""
     		'--------------------------------------------------------------CHECKING FOR MAXIS WITHOUT TRANSMITTING SINCE THIS WILL NAVIGATE US AWAY FROM THE AREA WE ARE AT
@@ -348,7 +350,7 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
      Text 165, 15, 175, 10, "Client Name: "  & Client_Name
      Text 10, 35, 110, 10, "Match month: "   & Match_Month
      Text 165, 35, 175, 10, "MN active program(s): "   & MN_active_programs
-	 GroupBox 5, 50, 360, 75, "PARIS MATCH INFORMATION:" 
+	 GroupBox 5, 50, 360, 75, "PARIS MATCH INFORMATION:"
 	 	For item = 0 to Ubound(state_array, 2)
      		Text 10, 60, 75, 10, "Match State: "   & state_array(state_name, item)
 			Text 10, 75, 135, 10, "Match State Case Number: "   & state_array(match_case_num, item)
@@ -364,7 +366,7 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
   	Text 10, 140, 110, 10, "Accessing benefits in other state:"
     DropListBox 120, 135, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", bene_other_state
     DropListBox 120, 155, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", Contact_other_state
-    DropListBox 120, 175, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"Undetermined", fraud_Referral
+    DropListBox 120, 175, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"Undetermined", fraud_referral
   GroupBox 205, 130, 160, 50, "Verification used to clear: "
 	 	CheckBox 210, 145, 50, 10, "Diff Notice", Diff_Notice_Checkbox
     CheckBox 290, 145, 70, 10, "Shelter Verification", Shelter_Verf_CheckBox
@@ -417,7 +419,7 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 
     	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
     	'requested for HEADER of casenote'
-    	
+
     	IF resolution_status = "PR - Person Removed From Household" THEN rez_status = "PR"
     	IF resolution_status = "HM - Household Moved Out Of State" THEN rez_status = "HM"
     	IF resolution_status = "RV - Residency Verified, Person in MN" THEN rez_status = "RV"
@@ -453,7 +455,7 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
     	CALL write_bullet_and_variable_in_CASE_NOTE("Verification used to clear", pending_verifs)
     	CALL write_bullet_and_variable_in_CASE_NOTE("Resolution Status", resolution_status)
 			IF rez_status = "FR" THEN CALL write_variable_in_CASE_NOTE("Client has failed to cooperate with Paris Match - has not provided requested verifications showing they are living in MN. Client will need to provide this before the case is reopened ")
-			IF fraud_referral = "YES" THEN CALL write_variable_in_CASE_NOTE("Fraud Referral Made")
+			CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
     	CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
     	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
     	CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
