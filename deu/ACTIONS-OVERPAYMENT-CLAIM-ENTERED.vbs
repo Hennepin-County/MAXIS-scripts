@@ -132,8 +132,8 @@ BeginDialog OP_Cleared_dialog, 0, 0, 361, 240, "Overpayment Claim Entered"
   EditBox 245, 25, 20, 15, memb_number
   EditBox 335, 25, 20, 15, OT_resp_memb
 	DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", First_OP_program
-  EditBox 130, 65, 30, 15, OP_to_1
-  EditBox 180, 65, 30, 15, OP_1
+  EditBox 130, 65, 30, 15, OP_1
+  EditBox 180, 65, 30, 15, OP_to_1
   EditBox 245, 65, 35, 15, Claim_1
   EditBox 305, 65, 45, 15, AMT_1
   DropListBox 50, 85, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Second_OP_program
