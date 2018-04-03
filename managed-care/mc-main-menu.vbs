@@ -48,8 +48,8 @@ changelog_display
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_MC_menu_dialog(script_array)
-	BeginDialog MC_dialog, 0, 0, 516, 90, "IV-E Scripts"
-	 	Text 5, 5, 435, 10, "IV-E scripts main menu: select the script to run from the choices below."
+	BeginDialog MC_dialog, 0, 0, 516, 90, "MMIS Scripts"
+	 	Text 5, 5, 435, 10, "MMIS scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 		 	'PushButton 015, 35, 40, 15, "CA", 				MC_main_button
 		 	'PushButton 445, 10, 65, 10, "SIR instructions", 	SIR_instructions_button
