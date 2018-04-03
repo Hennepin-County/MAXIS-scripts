@@ -200,17 +200,18 @@ EndDialog
 DO
 	err_msg = ""
 	dialog CC_Cleared_dialog
-	IF buttonpressed = 0 then stopscript 
+	IF buttonpressed = 0 then stopscript
 	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
     If (Cleared_status = "CC - Claim Entered" AND instr(programs, "HC") or instr(programs, "Medical Assistance")) then err_msg = err_msg & vbNewLine & "* System does not allow HC or MA cases to be cleared with the code 'CC - Claim Entered'."
+		IF fraud_referral = "Select One:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
 	IF OP_1 = false then err_msg = err_msg & vbnewline & "* You must have an overpayment entry."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-	
+
 CALL DEU_password_check(False)
 '----------------------------------------------------------------------------------------------------IEVS
 'Navigating deeper into the match interface
-CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC 
+CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
 CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
 EMReadScreen error_msg, 7, 24, 2
 IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
@@ -224,33 +225,33 @@ ELSEIF select_quarter = "3" THEN
 ELSEIF select_quarter = "4" THEN
                 IEVS_period = "10-" & CM_minus_6_yr & "/12-" & CM_minus_6_yr
 ELSEIF select_quarter = "YEAR" THEN
-				IEVS_period = right(DatePart("yyyy",DateAdd("yyyy", -1, date)), 2) 
+				IEVS_period = right(DatePart("yyyy",DateAdd("yyyy", -1, date)), 2)
 END IF
 '-------------------------------------------------------------------Ensuring that match has not already been resolved.
 Row = 7
-DO 
-	EMReadScreen IEVS_match, 11, row, 47 
+DO
+	EMReadScreen IEVS_match, 11, row, 47
 	IF trim(IEVS_match) = "" THEN script_end_procedure("IEVS match for the selected period could not be found. The script will now end.")
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
 	"   " & IEVS_match, vbYesNoCancel, "Please confirm this match")
-	IF ievp_info_confirmation = vbNo THEN 
+	IF ievp_info_confirmation = vbNo THEN
 		row = row + 1
-		'msgbox "row: " & row 
-		IF row = 17 THEN 
+		'msgbox "row: " & row
+		IF row = 17 THEN
 			PF8
 			row = 7
 		END IF
 	END IF
 	IF ievp_info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
-	IF ievp_info_confirmation = vbYes THEN 	EXIT DO	
+	IF ievp_info_confirmation = vbYes THEN 	EXIT DO
 LOOP UNTIL ievp_info_confirmation = vbYes
 
-EMReadScreen multiple_match, 11, row + 1, 47 
-IF multiple_match = IEVS_period THEN 
+EMReadScreen multiple_match, 11, row + 1, 47
+IF multiple_match = IEVS_period THEN
 	msgbox("More than one match exists for this time period. Determine the match you'd like to clear, and put your cursor in front of that match." & vbcr & "Press OK once match is determined.")
 	EMSendKey "U"
 	transmit
-ELSE 
+ELSE
 	CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 END IF
 
@@ -266,7 +267,7 @@ ELSE
 		EMReadScreen IEVS_year, 2, 8, 15
 		IEVS_year = "20" & IEVS_year
 	END IF
-END IF 
+END IF
 
 
 IF IEVS_type = "BEER" THEN type_match = "B"
@@ -283,7 +284,7 @@ IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st
 ELSE                                'In cases where the last name takes up the entire space, THEN the client name becomes the last name
 	first_name = ""
 	last_name = client_name
-	
+
 END IF
 IF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
 	length = len(first_name)                        	'trimming the 1st name
@@ -301,31 +302,31 @@ IF instr(Active_Programs, "F") THEN programs = programs & "Food Support, "
 IF instr(Active_Programs, "H") THEN programs = programs & "Health Care, "
 IF instr(Active_Programs, "M") THEN programs = programs & "Medical Assistance, "
 IF instr(Active_Programs, "S") THEN programs = programs & "MFIP, "
-'trims excess spaces of programs 
+'trims excess spaces of programs
 programs = trim(programs)
 'takes the last comma off of programs when autofilled into dialog
-IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1) 
+IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 
 '----------------------------------------------------------------------------------------------------Employer info & difference notice info
 EMReadScreen source_income, 74, 8, 37
-source_income = trim(source_income)	
+source_income = trim(source_income)
 length = len(source_income)		'establishing the length of the variable
 
-IF instr(source_income, " AMOUNT: $") THEN 						  
-    position = InStr(source_income, " AMOUNT: $")    		      'sets the position at the deliminator  
+IF instr(source_income, " AMOUNT: $") THEN
+    position = InStr(source_income, " AMOUNT: $")    		      'sets the position at the deliminator
     source_income = Left(source_income, position)  'establishes employer as being before the deliminator
 Elseif instr(source_income, " AMT: $") THEN 					  'establishing the length of the variable
-    position = InStr(source_income, " AMT: $")    		      'sets the position at the deliminator  
+    position = InStr(source_income, " AMT: $")    		      'sets the position at the deliminator
     source_income = Left(source_income, position)  'establishes employer as being before the deliminator
 Else
-    source_income = source_income	'catch all variable 
-END IF 
+    source_income = source_income	'catch all variable
+END IF
 
 
-	
-	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH 		
+
+	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
 	EMWriteScreen "010", 12, 46
-	
+
 	programs_array = split(programs, ",")
 	For each program in programs_array
 		program = trim(program)
@@ -339,37 +340,37 @@ END IF
 		EMSearch cleared_header, row, col
 		EMWriteScreen "CC", row + 1, col + 1
         'EMwritescreen rez_status, 12, 58
-	Next 
-	
+	Next
+
 	IF change_response = "YES" THEN
 		EMwritescreen "Y", 15, 37
 	ELSE
 		EMwritescreen "N", 15, 37
 	END IF
-	transmit 'IULB	
+	transmit 'IULB
 	'----------------------------------------------------------------------------------------writing the note on IULB
 	EMReadScreen error_msg, 11, 24, 2
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	If error_msg = "ACTION CODE" THEN script_end_procedure(err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
-	
+
     EMWriteScreen "Claim entered. ", 8, 6
-	EMWriteScreen Claim_1, 17, 9 
-	'need to check about adding for mutli claims'				
-	
+	EMWriteScreen Claim_1, 17, 9
+	'need to check about adding for mutli claims'
+
 	'msgbox "did the notes input?"
 	TRANSMIT 'this will take us back to IEVP main menu'
 
 	'------------------------------------------------------------------back on the IEVP menu, making sure that the match cleared
 	EMReadScreen days_pending, 5, 7, 72
 	days_pending = trim(days_pending)
-	If IsNumeric(days_pending) = TRUE then 
-		match_cleared = FALSE 
+	If IsNumeric(days_pending) = TRUE then
+		match_cleared = FALSE
 		script_end_procedure("This match did not appear to clear. Please check case, and try again.")
-	Else 
+	Else
 		match_cleared = TRUE
-	End if 
-		
-	IF match_cleared = TRUE THEN 
+	End if
+
+	IF match_cleared = TRUE THEN
 	    IF IEVS_type = "WAGE" THEN
         	'Updated IEVS_period to write into case note
         	IF select_quarter = 1 THEN IEVS_quarter = "1ST"
@@ -393,7 +394,7 @@ END IF
         IF OP_3 <> "" then Call write_variable_in_case_note(programs & " Overpayment " & OP_3 & " through  " & OP_to_3 & "  Claim # " & Claim_3 & "  Amt $" & AMT_3)
         IF OP_4 <> "" then Call write_variable_in_case_note(programs & " Overpayment " & OP_4 & " through  " & OP_to_4 & "  Claim # " & Claim_4 & "  Amt $" & AMT_4)
         IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
-        IF instr(programs, "HC") then 
+        IF instr(programs, "HC") then
         	Call write_bullet_and_variable_in_CASE_NOTE("HC responsible members", HC_resp_memb)
         	Call write_bullet_and_variable_in_CASE_NOTE("Total federal Health Care amount", Fed_HC_AMT)
         	Call write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
@@ -401,10 +402,10 @@ END IF
         CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_date)
         CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
         CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
-        CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown) 
-        CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)   
-        CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP) 
+        CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
+        CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
+        CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
         CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
-        CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1") 
+        CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
         IF instr(programs, "HC") THEN CALL create_outlook_email("", "mikayla.handley@hennepin.us", "Claims entered for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Date Overpayment Created: " & OP_Date & vbcr & "Programs: " & programs & vbcr & "See case notes for further details.", "", False)
     END IF
