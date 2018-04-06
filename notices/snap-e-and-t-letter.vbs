@@ -210,8 +210,16 @@ For each member_number in member_array
     
     EMReadScreen client_name, 44, 4, 37
     client_name = trim(client_name)
-    Call change_client_name_to_FML(client_name)
-    client_name = trim(client_name) 'trims off additional space left after using name from FML 
+    
+    if instr(client_name, ", ") then    						'Most cases have both last name and 1st name. This seperates the two names
+    	length = len(client_name)                           'establishing the length of the variable
+    	position = InStr(client_name, ", ")                  'sets the position at the deliminator (in this case the comma)
+    	last_name = Left(client_name, position -1)           'establishes client last name as being before the deliminator
+        first_name = Right(client_name, length-position)    'establishes client first name as after before the deliminator
+        If instr(first_name, " ") then first_name = left(first_name, len(first_name) - 2)
+    END IF
+
+    Client_name = first_name & " " & last_name
         
     'Ensuring that students have a FSET status of "12" and all others are coded with "30"
     EMReadScreen FSET_status, 2, 8, 50
