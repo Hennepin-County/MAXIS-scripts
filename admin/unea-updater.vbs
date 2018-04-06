@@ -189,195 +189,206 @@ For i = 0 to Ubound(UNEA_array, 2)
 		income_panel_found = false 
 	Else 
 	    MAXIS_background_check()
-	    'Checking the SNAP status 
-	    Call navigate_to_MAXIS_screen("STAT", "PROG")
-	    EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
-	    If PRIV_check = "PRIV" then
-	    	UNEA_array(act_status, i) = "Error"
-	    	UNEA_array(act_notes, i) = "Case is privileged."
+        
+        Call navigate_to_MAXIS_screen("CASE", "CURR")
+        EMReadScreen active_case, 8, 8, 9
+        If active_case = "INACTIVE" then 
+            UNEA_array(act_status, i) = "Error"
+            UNEA_array(act_notes, i) = "Case is inactive."
             UNEA_array(send_memo, i) = False
-	    	income_panel_found = false 
-	   
-	    	'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
-	    	Do
-	    		back_to_self
-	    		EMReadScreen SELF_screen_check, 4, 2, 50	'DO LOOP makes sure that we're back in SELF menu
-	    		If SELF_screen_check <> "SELF" then PF3
-	    	LOOP until SELF_screen_check = "SELF"
-	    	EMWriteScreen "________", 18, 43		'clears the case number
-	    	transmit
-	    Else 		
-	        EMReadscreen county_code, 2, 21, 23
-	        If county_code <> "27" then 
+            income_panel_found = false 
+        Else 
+        
+	        'Checking the SNAP status 
+	        Call navigate_to_MAXIS_screen("STAT", "PROG")
+	        EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
+	        If PRIV_check = "PRIV" then
 	        	UNEA_array(act_status, i) = "Error"
-	        	UNEA_array(act_notes, i) = "Not Hennepin County case, county code is: " & county_code	'Explanation for the rejected report'
+	        	UNEA_array(act_notes, i) = "Case is privileged."
                 UNEA_array(send_memo, i) = False
-	    		income_panel_found = false 
-	        Else 
-	    		'Reads to see if the client is on SNAP 
-	        	EMReadscreen SNAP_active, 4, 10, 74
-	        	If SNAP_active = "ACTV" or SNAP_active = "REIN" then 
-	    			update_SNAP = True
-	    		Else 
-	    			update_SNAP = false
-	    		End if
-	    			
-	    		'Reads to see if the client is on HC
-	    		EMReadScreen HC_active, 4, 12, 74
-	    		If HC_active = "ACTV" or HC_active = "REIN" then 
-	    			update_HC = True
-	    		Else 
-	    			update_HC = false
-	    		End if 
-	    		
-	    		'handling for cases that do not have a completed HCRE panel
-	    		PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
-	    		Do
-	    			EMReadscreen HCRE_panel_check, 4, 2, 50
-	    			If HCRE_panel_check = "HCRE" then
-	    				PF10	'exists edit mode in cases where HCRE isn't complete for a member
-	    				PF3
-	    			END IF
-	    		Loop until HCRE_panel_check <> "HCRE"
-	    		
-	        	Call navigate_to_MAXIS_screen("STAT", "MEMB")
-	        	Do 
-	        		EMReadscreen client_PMI, 8, 4, 46
-	        		client_PMI = trim(client_PMI)
-	        		If client_PMI = UNEA_array(clt_PMI, i) then
-	        			EMReadscreen member_number, 2, 4, 33
-	    				exit do
-	        		Else 
-	        			transmit
-	        		END IF
-	        		EMReadScreen MEMB_error, 5, 24, 2
-	        	Loop until client_PMI = UNEA_array (clt_SSN, i) or MEMB_error = "ENTER"
-	    		
-	        	IF client_PMI <> UNEA_array(clt_PMI, i) then 
-	        		UNEA_array(act_status, i) = "Error"
-	        		UNEA_array(act_notes, i) = "Unable to find person's member number."	'Explanation for the rejected report'
+	        	income_panel_found = false 
+	       
+	        	'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
+	        	Do
+	        		back_to_self
+	        		EMReadScreen SELF_screen_check, 4, 2, 50	'DO LOOP makes sure that we're back in SELF menu
+	        		If SELF_screen_check <> "SELF" then PF3
+	        	LOOP until SELF_screen_check = "SELF"
+	        	EMWriteScreen "________", 18, 43		'clears the case number
+	        	transmit
+	        Else 		
+	            EMReadscreen county_code, 2, 21, 23
+	            If county_code <> "27" then 
+	            	UNEA_array(act_status, i) = "Error"
+	            	UNEA_array(act_notes, i) = "Not Hennepin County case, county code is: " & county_code	'Explanation for the rejected report'
                     UNEA_array(send_memo, i) = False
-	    			income_panel_found = false 
-	        	Else 
-	        		'STAT UNEA PORTION
-	        		Call navigate_to_MAXIS_screen("STAT", "UNEA")
-	    			EMWriteScreen member_number, 20, 76
-	    			EMWriteScreen "01", 20, 79				'to ensure we're on the 1st instance of UNEA panels for the appropriate member
-	    			transmit
-	    			
-	    			EMReadScreen total_amt_of_panels, 1, 2, 78	'Checks to make sure there are JOBS panels for this member. If none exists, one will be created
-	    			If total_amt_of_panels = "0" then 
-	    				UNEA_array(act_status, i) = "Error"
-	    				UNEA_array(act_notes, i) = "UNEA panel not known. Review case, and update manually if applicable."	'Explanation for the rejected report'
-                        UNEA_array(send_memo, i) = False
-	    				income_panel_found = false 
-	    			Else 	
-	    				Do
-	    					EMReadScreen current_panel_number, 1, 2, 73
-	    					EMReadScreen income_type, 2, 5, 37
-	    					If income_type = UNEA_array(inc_type, i) then
-	    						income_panel_found = true 
-	    						PF9
-	    						
-	    						'updates the SNAP PIC	
-	    						If update_SNAP = true then 							
-	    							Call write_value_and_transmit("x", 10, 26)
-	    							Call create_MAXIS_friendly_date(date, 0, 5, 34)
-	    							EMWriteScreen "1", 5, 64							'code for pay frequency
-	    							row = 9											'blanking out the income fields on the PIC (just in case their is income listed there)
-	    							Do 
-	    								EMWriteScreen "__", row, 13
-	    								EMWriteScreen "__", row, 16
-	    								EMWriteScreen "__", row, 19
-	    								EMWriteScreen "________", row, 25
-	    								row = row + 1
-	    							Loop until row = 14
-	    							
-	    							EMWriteScreen "________", 8, 66
-	    							EMWriteScreen UNEA_array(unea_amt, i), 8, 66
-	    							Do 
-	    								transmit
-	    								EMReadscreen UNEA_panel, 4, 2, 48
-	    							Loop until UNEA_panel = "UNEA"
-	    						End if 	
-	    								
-	    						'updates the HC pop up
-	    						IF update_HC = true then							
-	    							Call write_value_and_transmit("x", 6, 56)
-	    							EMWriteScreen "________", 9, 65
-	    							EMWriteScreen UNEA_array(unea_amt, i), 9, 65
-	    							EMWriteScreen "1", 10, 63							'code for pay frequency
-	    							Do 
-	    								transmit
-	    								EMReadscreen HC_popup, 9, 7, 41
-	    								If HC_popup = "HC Income" then transmit
-	    							Loop until HC_popup <> "HC Income"
-	    						End if 
-	    						'----------------------------------------------------------------------------------------------------UNEA panel updates
-	    						EMWriteScreen "6", 5, 65				'Verification code for 'worker initiated verification'
-	    						
-	    						If UNEA_array(act_claim, i) <> "" then 		'If the case's claim number has been identified as being incorrect, the correct claim will be entered.
-	    							EMWriteScreen "_______________", 6, 37
-	    							EMWriteScreen UNEA_array(act_claim, i), 6, 37
-	    						End if
-	    						
-	    						If UNEA_array(cola_amt, i) <> "" then 				'writes in the COLA amount if applicable
-	    							EMWriteScreen "________", 10, 67
-	    							EMWriteScreen UNEA_array(cola_amt, i), 10, 67
-	    						End if
-	    						
-	    						'----------------------------------------------------------------------------------------------------RETROSPECTIVE
-	    						EMReadscreen prospective_amt, 8, 13, 68
-	    						prospective_amt = replace(prospective_amt, "_", "")
-	    						
-	    						row = 13			'blanking out all retrospective UNEA fields
-	    						DO 	
-	    							EMWriteScreen "__", row, 25
-	    							EMWriteScreen "__", row, 28
-	    							EMWriteScreen "__", row, 31
-	    							EMWriteScreen "________", row, 39
-	    							row = row + 1
-	    						Loop until row = 18
-	    						
-	    						EMWriteScreen CM_minus_1_mo, 13, 25		'Entering the CM + 1 date 
-	    						EMWriteScreen "01", 13, 28
-	    						EMWriteScreen CM_minus_1_yr, 13, 31
-	    						EMWriteScreen prospective_amt, 13, 39
-	    						
-	    						'----------------------------------------------------------------------------------------------------PROSPECTIVE 
-	    						row = 13			'blanking out all prospective UNEA fields
-	    						DO 
-	    							EMWriteScreen "__", row, 54
-	    							EMWriteScreen "__", row, 57
-	    							EMWriteScreen "__", row, 60
-	    							EMWriteScreen "________", row, 68
-	    							row = row + 1
-	    						Loop until row = 18
-	    						
-	    						EMWriteScreen CM_plus_1_mo, 13, 54		'Entering the CM + 1 date 
-	    						EMWriteScreen "01", 13, 57
-	    						EMWriteScreen CM_plus_1_yr, 13, 60
-	    						
-	    						EMWriteScreen UNEA_array(unea_amt, i), 13, 68		'Entering the income on the UNEA panel	
-	    						transmit
-	    						PF3 		'to exit the UNEA panel
-	    						income_panel_found = True
-	    						exit do 
-	    					Else 
-	    						transmit	'looking for another UNEA panel
-	    					End if 
-	    				Loop until current_panel_number = total_amt_of_panels
-	    				
-	    				If income_panel_found <> true then 
-	    					UNEA_array(act_status, i) = "Error"
-	    					UNEA_array(act_notes, i) = "Unable to find person's member number."	'Explanation for the rejected report'
-	    					UNEA_array(send_memo, i) = False 
-	    				End if 
-	    				back_to_self		'to clear WRAP panel
+	        		income_panel_found = false 
+	            Else 
+	        		'Reads to see if the client is on SNAP 
+	            	EMReadscreen SNAP_active, 4, 10, 74
+	            	If SNAP_active = "ACTV" or SNAP_active = "REIN" then 
+	        			update_SNAP = True
+	        		Else 
+	        			update_SNAP = false
+	        		End if
+	        			
+	        		'Reads to see if the client is on HC
+	        		EMReadScreen HC_active, 4, 12, 74
+	        		If HC_active = "ACTV" or HC_active = "REIN" then 
+	        			update_HC = True
+	        		Else 
+	        			update_HC = false
 	        		End if 
-	        	End if 
+	        		
+	        		'handling for cases that do not have a completed HCRE panel
+	        		PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
+	        		Do
+	        			EMReadscreen HCRE_panel_check, 4, 2, 50
+	        			If HCRE_panel_check = "HCRE" then
+	        				PF10	'exists edit mode in cases where HCRE isn't complete for a member
+	        				PF3
+	        			END IF
+	        		Loop until HCRE_panel_check <> "HCRE"
+	        		
+	            	Call navigate_to_MAXIS_screen("STAT", "MEMB")
+	            	Do 
+	            		EMReadscreen client_PMI, 8, 4, 46
+	            		client_PMI = trim(client_PMI)
+	            		If client_PMI = UNEA_array(clt_PMI, i) then
+	            			EMReadscreen member_number, 2, 4, 33
+	        				exit do
+	            		Else 
+	            			transmit
+	            		END IF
+	            		EMReadScreen MEMB_error, 5, 24, 2
+	            	Loop until client_PMI = UNEA_array (clt_SSN, i) or MEMB_error = "ENTER"
+	        		
+	            	IF client_PMI <> UNEA_array(clt_PMI, i) then 
+	            		UNEA_array(act_status, i) = "Error"
+	            		UNEA_array(act_notes, i) = "Unable to find person's member number."	'Explanation for the rejected report'
+                        UNEA_array(send_memo, i) = False
+	        			income_panel_found = false 
+	            	Else 
+	            		'STAT UNEA PORTION
+	            		Call navigate_to_MAXIS_screen("STAT", "UNEA")
+	        			EMWriteScreen member_number, 20, 76
+	        			EMWriteScreen "01", 20, 79				'to ensure we're on the 1st instance of UNEA panels for the appropriate member
+	        			transmit
+	        			
+	        			EMReadScreen total_amt_of_panels, 1, 2, 78	'Checks to make sure there are JOBS panels for this member. If none exists, one will be created
+	        			If total_amt_of_panels = "0" then 
+	        				UNEA_array(act_status, i) = "Error"
+	        				UNEA_array(act_notes, i) = "UNEA panel not known. Review case, and update manually if applicable."	'Explanation for the rejected report'
+                            UNEA_array(send_memo, i) = False
+	        				income_panel_found = false 
+	        			Else 	
+	        				Do
+	        					EMReadScreen current_panel_number, 1, 2, 73
+	        					EMReadScreen income_type, 2, 5, 37
+	        					If income_type = UNEA_array(inc_type, i) then
+	        						income_panel_found = true 
+	        						PF9
+	        						
+	        						'updates the SNAP PIC	
+	        						If update_SNAP = true then 							
+	        							Call write_value_and_transmit("x", 10, 26)
+	        							Call create_MAXIS_friendly_date(date, 0, 5, 34)
+	        							EMWriteScreen "1", 5, 64							'code for pay frequency
+	        							row = 9											'blanking out the income fields on the PIC (just in case their is income listed there)
+	        							Do 
+	        								EMWriteScreen "__", row, 13
+	        								EMWriteScreen "__", row, 16
+	        								EMWriteScreen "__", row, 19
+	        								EMWriteScreen "________", row, 25
+	        								row = row + 1
+	        							Loop until row = 14
+	        							
+	        							EMWriteScreen "________", 8, 66
+	        							EMWriteScreen UNEA_array(unea_amt, i), 8, 66
+	        							Do 
+	        								transmit
+	        								EMReadscreen UNEA_panel, 4, 2, 48
+	        							Loop until UNEA_panel = "UNEA"
+	        						End if 	
+	        								
+	        						'updates the HC pop up
+	        						IF update_HC = true then							
+	        							Call write_value_and_transmit("x", 6, 56)
+	        							EMWriteScreen "________", 9, 65
+	        							EMWriteScreen UNEA_array(unea_amt, i), 9, 65
+	        							EMWriteScreen "1", 10, 63							'code for pay frequency
+	        							Do 
+	        								transmit
+	        								EMReadscreen HC_popup, 9, 7, 41
+	        								If HC_popup = "HC Income" then transmit
+	        							Loop until HC_popup <> "HC Income"
+	        						End if 
+	        						'----------------------------------------------------------------------------------------------------UNEA panel updates
+	        						EMWriteScreen "6", 5, 65				'Verification code for 'worker initiated verification'
+	        						
+	        						If UNEA_array(act_claim, i) <> "" then 		'If the case's claim number has been identified as being incorrect, the correct claim will be entered.
+	        							EMWriteScreen "_______________", 6, 37
+	        							EMWriteScreen UNEA_array(act_claim, i), 6, 37
+	        						End if
+	        						
+	        						If UNEA_array(cola_amt, i) <> "" then 				'writes in the COLA amount if applicable
+	        							EMWriteScreen "________", 10, 67
+	        							EMWriteScreen UNEA_array(cola_amt, i), 10, 67
+	        						End if
+	        						
+	        						'----------------------------------------------------------------------------------------------------RETROSPECTIVE
+	        						EMReadscreen prospective_amt, 8, 13, 68
+	        						prospective_amt = replace(prospective_amt, "_", "")
+	        						
+	        						row = 13			'blanking out all retrospective UNEA fields
+	        						DO 	
+	        							EMWriteScreen "__", row, 25
+	        							EMWriteScreen "__", row, 28
+	        							EMWriteScreen "__", row, 31
+	        							EMWriteScreen "________", row, 39
+	        							row = row + 1
+	        						Loop until row = 18
+	        						
+	        						EMWriteScreen CM_minus_1_mo, 13, 25		'Entering the CM + 1 date 
+	        						EMWriteScreen "01", 13, 28
+	        						EMWriteScreen CM_minus_1_yr, 13, 31
+	        						EMWriteScreen prospective_amt, 13, 39
+	        						
+	        						'----------------------------------------------------------------------------------------------------PROSPECTIVE 
+	        						row = 13			'blanking out all prospective UNEA fields
+	        						DO 
+	        							EMWriteScreen "__", row, 54
+	        							EMWriteScreen "__", row, 57
+	        							EMWriteScreen "__", row, 60
+	        							EMWriteScreen "________", row, 68
+	        							row = row + 1
+	        						Loop until row = 18
+	        						
+	        						EMWriteScreen CM_plus_1_mo, 13, 54		'Entering the CM + 1 date 
+	        						EMWriteScreen "01", 13, 57
+	        						EMWriteScreen CM_plus_1_yr, 13, 60
+	        						
+	        						EMWriteScreen UNEA_array(unea_amt, i), 13, 68		'Entering the income on the UNEA panel	
+	        						transmit
+	        						PF3 		'to exit the UNEA panel
+	        						income_panel_found = True
+	        						exit do 
+	        					Else 
+	        						transmit	'looking for another UNEA panel
+	        					End if 
+	        				Loop until current_panel_number = total_amt_of_panels
+	        				
+	        				If income_panel_found <> true then 
+	        					UNEA_array(act_status, i) = "Error"
+	        					UNEA_array(act_notes, i) = "Unable to find person's member number."	'Explanation for the rejected report'
+	        					UNEA_array(send_memo, i) = False 
+	        				End if 
+	        				back_to_self		'to clear WRAP panel
+	            		End if 
+	            	End if 
+	            End if 
 	        End if 
-	    End if 
+        End if 
 	End if 
 	
 	IF income_panel_found = true then		
