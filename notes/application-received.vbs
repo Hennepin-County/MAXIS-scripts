@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("04/10/2018", "Updated appt letter handling to ensure the appointment letter is sent correctly.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/28/2018", "Updated appt letter case note for bulk script process.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/13/2018", "Removed team number.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/13/2018", "Added same day interview option.", "MiKayla Handley, Hennepin County")
@@ -181,8 +182,6 @@ END IF
 'Defaults the date pended to today
 pended_date = date & ""
 
-IF fs_pend = CHECKED OR cash_pend = CHECKED OR grh_pend = CHECKED THEN send_appt_ltr = TRUE
-IF same_day_checkbox = CHECKED THEN send_appt_ltr = False
 '----------------------------------------------------------------------------------------------------dialogs
 	BeginDialog appl_detail_dialog, 0, 0, 296, 130, "APPLICATION RECEIVED"
 	  DropListBox 80, 5, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
@@ -270,6 +269,8 @@ IF Active_checkbox = CHECKED THEN
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
 END IF
 
+IF fs_pend = CHECKED OR cash_pend = CHECKED OR grh_pend = CHECKED THEN send_appt_ltr = TRUE
+IF same_day_checkbox = CHECKED THEN send_appt_ltr = False
 'Creates a variable that lists all the programs pending.
 programs_applied_for = ""
 IF cash_pend = CHECKED THEN programs_applied_for = programs_applied_for & "Cash, "
