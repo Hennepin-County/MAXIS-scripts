@@ -46,6 +46,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/10/2018", "Enhanced to check cases coded for homelessness for the 'Unfit for Employment' expansion. Also removed code that checked for SSI applying/appealing as this is no longer an exemption reason.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -407,14 +408,7 @@ FOR EACH person IN HH_member_array
 		IF num_of_PBEN <> "0" THEN
 			pben_row = 8
 			DO
-				EMReadScreen pben_type, 2, pben_row, 24
-				IF pben_type = "02" THEN
-					EMReadScreen pben_disp, 1, pben_row, 77
-					IF pben_disp = "A" OR pben_disp = "E" OR pben_disp = "P" THEN
-						closing_message = closing_message & vbCr & "* Household member " & person & " appears to have pending, appealing, or eligible SSI benefits. Please review for ABAWD and SNAP E&T exemption."
-						EXIT DO
-					END IF
-				ELSEIF pben_type = "12" THEN		'UI pending'
+			    IF pben_type = "12" THEN		'UI pending'
 					EMReadScreen pben_disp, 1, pben_row, 77
 					IF pben_disp = "A" OR pben_disp = "E" OR pben_disp = "P" THEN
 						closing_message = closing_message & vbCr & "* Household member " & person & " appears to have pending, appealing, or eligible Unemployment benefits. Please review for ABAWD and SNAP E&T exemption."
@@ -444,6 +438,12 @@ CALL navigate_to_MAXIS_screen("STAT", "PROG")
 EMReadScreen cash1_status, 4, 6, 74
 EMReadScreen cash2_status, 4, 7, 74
 IF cash1_status = "ACTV" OR cash2_status = "ACTV" THEN closing_message = closing_message & vbCr & "* Case is active on CASH programs. Please review for ABAWD and SNAP E&T exemption."
+
+'>>>>>>>>>>ADDR
+CALL navigate_to_MAXIS_screen("STAT", "ADDR")
+EMReadScreen homeless_code, 1, 10, 43
+
+IF homeless_code = "Y" THEN closing_message = closing_message & vbCr & "* Client is claiming homelessness. If client has barriers to employment, they could meet the 'Unfit for Employment' exemption."
 
 '>>>>>>>>>SCHL/STIN/STEC
 CALL navigate_to_MAXIS_screen("STAT", "SCHL")
@@ -536,7 +536,7 @@ FOR EACH person IN HH_member_array
 NEXT
 
 IF closing_message = "" THEN
-	closing_message = "*** NOTICE!!! ***" & vbCr & vbCr & "It appears there are no missed exemptions for ABAWD or SNAP E&T in MAXIS for this case. The script has checked EATS, MEMB, DISA, JOBS, BUSI, RBIC, UNEA, PREG, PROG, PBEN, SCHL, STIN, and STEC for member(s) " & household_persons & "." & vbCr & vbCr & "Please make sure you are carefully reviewing the client's case file for any exemption-supporting documents."
+	closing_message = "*** NOTICE!!! ***" & vbCr & vbCr & "It appears there are no missed exemptions for ABAWD or SNAP E&T in MAXIS for this case. The script has checked ADDR, EATS, MEMB, DISA, JOBS, BUSI, RBIC, UNEA, PREG, PROG, PBEN, SCHL, STIN, and STEC for member(s) " & household_persons & "." & vbCr & vbCr & "Please make sure you are carefully reviewing the client's case file for any exemption-supporting documents."
 ELSE
 	closing_message = "*** NOTICE!!! ***" & vbCr & vbCr & "The script has checked for ABAWD and SNAP E&T exemptions coded in MAXIS for member(s) " & household_persons & "." & vbCr & closing_message & vbCr & vbCr & "Please make sure you are carefully reviewing the client's case file for any exemption-supporting documents."
 END IF
