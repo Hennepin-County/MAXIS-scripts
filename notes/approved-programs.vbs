@@ -273,29 +273,50 @@ IF SNAP_banked_mo_check = checked THEN
 			BM_Clients_Array (0, clt_banked_mo_apprvd) = ALL_SNAP_CLIENTS_ARRAY(clt_ref_nbr, clt_dialog_response)	'Client Ref Numb
 			BM_Clients_Array (1, clt_banked_mo_apprvd) = ALL_SNAP_CLIENTS_ARRAY(client_name, clt_dialog_response)	'Client Name
 			BM_Clients_Array (3, clt_banked_mo_apprvd) = ALL_SNAP_CLIENTS_ARRAY(banked_months_approved, clt_dialog_response)	'Number of Banked Months Approved
-			For m = 0 to (ALL_SNAP_CLIENTS_ARRAY(banked_months_approved, clt_dialog_response) - 1)
-				IF ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response) + m = 13 THEN
-					IF BM_Clients_Array (2, clt_banked_mo_apprvd) = "" Then
-						BM_Clients_Array (2, clt_banked_mo_apprvd) = 01 & "/" & (ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response) + 1)
-					Else
-						BM_Clients_Array (2, clt_banked_mo_apprvd) = BM_Clients_Array (2, clt_banked_mo_apprvd) & " & " & 01 & "/" & (ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response) + 1)
-					End IF
-				ElseIf ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response) + m = 14 THEN
-					IF BM_Clients_Array (2, clt_banked_mo_apprvd) = "" Then
-						BM_Clients_Array (2, clt_banked_mo_apprvd) = 02 & "/" & (ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response) + 1)
-					Else
-						BM_Clients_Array (2, clt_banked_mo_apprvd) = BM_Clients_Array (2, clt_banked_mo_apprvd) & " & " & 02 & "/" & (ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response) + 1)
-					End IF
-				Else
-					IF BM_Clients_Array (2, clt_banked_mo_apprvd) = "" Then
-						BM_Clients_Array (2, clt_banked_mo_apprvd) = (ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response) + m) & "/" & ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response)
-					Else
-						BM_Clients_Array (2, clt_banked_mo_apprvd) = BM_Clients_Array (2, clt_banked_mo_apprvd) & " & " & (ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response) + m) & "/" & ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response)
-					End IF
-				End If
-			Next
 
-			Used_ABAWD_Months_Array = Split (BM_Clients_Array (2, clt_banked_mo_apprvd), "&")	'Creates an array of all BANKED MONTHS approved
+            'MsgBox "Banked Months Approved: " & ALL_SNAP_CLIENTS_ARRAY(banked_months_approved, clt_dialog_response)
+            initial_month_number = ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response) * 1
+            last_banked_month = initial_month_number + ALL_SNAP_CLIENTS_ARRAY(banked_months_approved, clt_dialog_response) - 1
+            'MsgBox "Last Banked Month: " & last_banked_month
+
+            If last_banked_month > 12 Then
+                last_banked_month = last_banked_month - 12
+                last_banked_year = ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response) + 1
+            Else
+                last_banked_year = ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response)
+            End If
+
+            ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response) = right("00" & ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response), 2)
+            ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response) = right("00" & ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response), 2)
+            last_banked_month = right("00" & last_banked_month, 2)
+            last_banked_year = right("00" & last_banked_year, 2)
+
+            BM_Clients_Array (2, clt_banked_mo_apprvd) = ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response) & "/" & ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response) & " to " &_
+                                                        last_banked_month & "/" & last_banked_year
+            'Taking this out because 1 - we don't need a list of all the months - a range is fine and 2 - it called march the 15th month... which is incorrect
+            ' For m = 0 to (ALL_SNAP_CLIENTS_ARRAY(banked_months_approved, clt_dialog_response) - 1)
+			' 	IF ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response) + m = 13 THEN
+			' 		IF BM_Clients_Array (2, clt_banked_mo_apprvd) = "" Then
+			' 			BM_Clients_Array (2, clt_banked_mo_apprvd) = 01 & "/" & (ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response) + 1)
+			' 		Else
+			' 			BM_Clients_Array (2, clt_banked_mo_apprvd) = BM_Clients_Array (2, clt_banked_mo_apprvd) & " & " & 01 & "/" & (ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response) + 1)
+			' 		End IF
+			' 	ElseIf ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response) + m = 14 THEN
+			' 		IF BM_Clients_Array (2, clt_banked_mo_apprvd) = "" Then
+			' 			BM_Clients_Array (2, clt_banked_mo_apprvd) = 02 & "/" & (ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response) + 1)
+			' 		Else
+			' 			BM_Clients_Array (2, clt_banked_mo_apprvd) = BM_Clients_Array (2, clt_banked_mo_apprvd) & " & " & 02 & "/" & (ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response) + 1)
+			' 		End IF
+			' 	Else
+			' 		IF BM_Clients_Array (2, clt_banked_mo_apprvd) = "" Then
+			' 			BM_Clients_Array (2, clt_banked_mo_apprvd) = (ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response) + m) & "/" & ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response)
+			' 		Else
+			' 			BM_Clients_Array (2, clt_banked_mo_apprvd) = BM_Clients_Array (2, clt_banked_mo_apprvd) & " & " & (ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response) + m) & "/" & ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response)
+			' 		End IF
+			' 	End If
+			' Next
+
+			'Used_ABAWD_Months_Array = Split (BM_Clients_Array (2, clt_banked_mo_apprvd), "&")	'Creates an array of all BANKED MONTHS approved
 
 'This for... loop will write a TIKL to review SNAP and update tracking for each banked month - TAKING THIS OUT BECAUSE WE MANUALLY TRACK
 			' For each month_to_tikl in Used_ABAWD_Months_Array
