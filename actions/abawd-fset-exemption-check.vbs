@@ -46,6 +46,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/16/2018", "Updated output of potential exemptions for readability.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/10/2018", "Enhanced to check cases coded for homelessness for the 'Unfit for Employment' expansion. Also removed code that checked for SSI applying/appealing as this is no longer an exemption reason.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -120,7 +121,7 @@ FOR EACH person IN HH_member_array
 		EMReadScreen cl_age, 2, 8, 76
 		IF cl_age = "  " THEN cl_age = 0
 		cl_age = cl_age * 1
-		IF cl_age < 18 OR cl_age >= 50 THEN closing_message = closing_message & vbCr & "* Household Member " & person & " appears to have exemption. Age = " & cl_age & "."
+		IF cl_age < 18 OR cl_age >= 50 THEN closing_message = closing_message & vbCr & "* M" & person & ": Appears to have exemption. Age = " & cl_age & "."
 	END IF
 NEXT
 
@@ -137,21 +138,21 @@ FOR EACH person IN HH_member_array
 			cert_end_dt = replace(cert_end_dt, " ", "/")
 			IF IsDate(disa_end_dt) = True THEN
 				IF DateDiff("D", date, disa_end_dt) > 0 THEN
-					closing_message = closing_message & vbCr & "* Household member " & person & " appears to have disability exemption. DISA end date = " & disa_end_dt & "."
+					closing_message = closing_message & vbCr & "* M" & person & ": Appears to have disability exemption. DISA end date = " & disa_end_dt & "."
 					disa_status = True
 				END IF
 			ELSE
 				IF disa_end_dt = "__/__/____" OR disa_end_dt = "99/99/9999" THEN
-					closing_message = closing_message & vbCr & "* Household member " & person & " appears to have disability exemption. DISA has no end date."
+					closing_message = closing_message & vbCr & "* M" & person & ": Appears to have disability exemption. DISA has no end date."
 					disa_status = True
 				END IF
 			END IF
 			IF IsDate(cert_end_dt) = True AND disa_status = False THEN
-				IF DateDiff("D", date, cert_end_dt) > 0 THEN closing_message = closing_message & vbCr & "* Household member " & person & " appears to have disability exemption. DISA Certification end date = " & cert_end_dt & "."
+				IF DateDiff("D", date, cert_end_dt) > 0 THEN closing_message = closing_message & vbCr & "* M" & person & ": Appears to have disability exemption. DISA Certification end date = " & cert_end_dt & "."
 			ELSE
 				IF cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999" THEN
 					EMReadScreen cert_begin_dt, 8, 7, 47
-					IF cert_begin_dt <> "__ __ __" THEN closing_message = closing_message & vbCr & "* Household member " & person & " appears to have disability exemption. DISA certification has no end date."
+					IF cert_begin_dt <> "__ __ __" THEN closing_message = closing_message & vbCr & "* M" & person & ": Appears to have disability exemption. DISA certification has no end date."
 				END IF
 			END IF
 		END IF
@@ -213,7 +214,7 @@ FOR EACH person IN HH_member_array
 					IF cl_age = "  " THEN cl_age = 0
 						cl_age = cl_age * 1
 						IF cl_age =< 17 THEN
-							closing_message = closing_message & vbCr & "* Household member " & person & " may have exemption for minor child caretaker. Household member " & eats_pers & " is minor. Please review for accuracy."
+							closing_message = closing_message & vbCr & "* M" & person & ": May have exemption for minor child caretaker. Household member " & eats_pers & " is minor. Please review for accuracy."
 						END IF
 				END IF
 			NEXT
@@ -232,21 +233,21 @@ FOR EACH person IN HH_member_array
 					cert_end_dt = replace(cert_end_dt, " ", "/")
 					IF IsDate(disa_end_dt) = True THEN
 						IF DateDiff("D", date, disa_end_dt) > 0 THEN
-							closing_message = closing_message & vbCr & "* Household member " & person & " appears to have exemption for disabled household member. Member " & disa_pers & " DISA end date = " & disa_end_dt & "."
+							closing_message = closing_message & vbCr & "* M" & person & ": MAY have an exemption for disabled household member. Member " & disa_pers & " DISA end date = " & disa_end_dt & "."
 							disa_status = TRUE
 						END IF
 					ELSEIF IsDate(disa_end_dt) = False THEN
 						IF disa_end_dt = "__/__/____" OR disa_end_dt = "99/99/9999" THEN
-							closing_message = closing_message & vbCr & "* Household member " & person & " appears to have exemption for disabled household member. Member " & disa_pers & " DISA end date = " & disa_end_dt & "."
+							closing_message = closing_message & vbCr & "* M" & person & " : MAY have exemption for disabled household member. Member " & disa_pers & " DISA end date = " & disa_end_dt & "."
 							disa_status = true
 						END IF
 					END IF
 					IF IsDate(cert_end_dt) = True AND disa_status = False THEN
-						IF DateDiff("D", date, cert_end_dt) > 0 THEN closing_message = closing_message & vbCr & "* Household member " & person & " appears to have exemption for disabled household member. Member " & disa_pers & " DISA certification end date = " & cert_end_dt & "."
+						IF DateDiff("D", date, cert_end_dt) > 0 THEN closing_message = closing_message & vbCr & "* M" & person & ": MAY have exemption for disabled household member. Member " & disa_pers & " DISA certification end date = " & cert_end_dt & "."
 					ELSE
 						IF (cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999") THEN
 							EMReadScreen cert_begin_dt, 8, 7, 47
-							IF cert_begin_dt <> "__ __ __" THEN closing_message = closing_message & vbCr & "* Household member " & person & " appears to have exemption for disabled household member. Member " & disa_pers & " DISA certification has no end date."
+							IF cert_begin_dt <> "__ __ __" THEN closing_message = closing_message & vbCr & "* M" & person & ": MAY have exemption for disabled household member. Member " & disa_pers & " DISA certification has no end date."
 						END IF
 					END IF
 				END IF
@@ -362,11 +363,11 @@ FOR EACH person IN HH_member_array
 		EMWriteScreen "RBIC", 20, 71
 		CALL write_value_and_transmit(person, 20, 76)
 		EMReadScreen num_of_RBIC, 1, 2, 78
-		IF num_of_RBIC <> "0" THEN closing_message = closing_message & vbCr & "* Household member " & person & " has RBIC panel. Please review for ABAWD and/or SNAP E&T exemption."
+		IF num_of_RBIC <> "0" THEN closing_message = closing_message & vbCr & "* M" & person & ": Has RBIC panel. Please review for ABAWD and/or SNAP E&T exemption."
 		IF prosp_inc >= 935.25 OR prospective_hours >= 129 THEN
-			closing_message = closing_message & vbCr & "* Household member " & person & " appears to be working 30 hours/wk (regardless of wage level) or earning equivalent of 30 hours/wk at federal minimum wage. Please review for ABAWD and SNAP E&T exemptions."
+			closing_message = closing_message & vbCr & "* M" & person & ": Appears to be working 30 hours/wk (regardless of wage level) or earning equivalent of 30 hours/wk at federal minimum wage. Please review for ABAWD and SNAP E&T exemptions."
 		ELSEIF prospective_hours >= 80 AND prospective_hours < 129 THEN
-			closing_message = closing_message & vbCr & "* Household member " & person & " appears to be working at least 80 hours in the benefit month. Please review for ABAWD exemption and SNAP E&T exemptions."
+			closing_message = closing_message & vbCr & "* M" & person & ": Appears to be working at least 80 hours in the benefit month. Please review for ABAWD exemption and SNAP E&T exemptions."
 		END IF
 	END IF
 NEXT
@@ -384,11 +385,11 @@ FOR EACH person IN HH_member_array
 				unea_end_dt = replace(unea_end_dt, " ", "/")
 				IF IsDate(unea_end_dt) = True THEN
 					IF DateDiff("D", date, unea_end_dt) > 0 THEN
-						IF unea_type = "14" THEN closing_message = closing_message & vbCr & "* Household member " & person & " appears to have active unemployment benefits. Please review for ABAWD and SNAP E&T exemptions."
+						IF unea_type = "14" THEN closing_message = closing_message & vbCr & "* M" & person & ": Appears to have active unemployment benefits. Please review for ABAWD and SNAP E&T exemptions."
 					END IF
 				ELSE
 					IF unea_end_dt = "__/__/__" THEN
-						IF unea_type = "14" THEN closing_message = closing_message & vbCr & "* Household member " & person & " appears to have active unemployment benefits. Please review for ABAWD and SNAP E&T exemptions."
+						IF unea_type = "14" THEN closing_message = closing_message & vbCr & "* M" & person & ": Appears to have active unemployment benefits. Please review for ABAWD and SNAP E&T exemptions."
 					END IF
 				END IF
 				transmit
@@ -411,7 +412,7 @@ FOR EACH person IN HH_member_array
 			    IF pben_type = "12" THEN		'UI pending'
 					EMReadScreen pben_disp, 1, pben_row, 77
 					IF pben_disp = "A" OR pben_disp = "E" OR pben_disp = "P" THEN
-						closing_message = closing_message & vbCr & "* Household member " & person & " appears to have pending, appealing, or eligible Unemployment benefits. Please review for ABAWD and SNAP E&T exemption."
+						closing_message = closing_message & vbCr & "* M" & person & ": Appears to have pending, appealing, or eligible Unemployment benefits. Please review for ABAWD and SNAP E&T exemption."
 						EXIT DO
 					END IF
 				ELSE
@@ -429,7 +430,7 @@ FOR EACH person IN HH_member_array
 		CALL write_value_and_transmit(person, 20, 76)
 		EMReadScreen num_of_PREG, 1, 2, 78
 		EMReadScreen preg_end_dt, 8, 12, 53
-		IF num_of_PREG <> "0" AND preg_end_dt <> "__ __ __" THEN closing_message = closing_message & vbCr & "* Household member " & person & " appears to have active pregnancy. Please review for ABAWD exemption."
+		IF num_of_PREG <> "0" AND preg_end_dt <> "__ __ __" THEN closing_message = closing_message & vbCr & "* M" & person & ": Appears to have active pregnancy. Please review for ABAWD exemption."
 	END IF
 NEXT
 
@@ -453,7 +454,7 @@ FOR EACH person IN HH_member_array
 		EMReadScreen num_of_SCHL, 1, 2, 78
 		IF num_of_SCHL = "1" THEN
 			EMReadScreen school_status, 1, 6, 40
-			IF school_status <> "N" THEN closing_message = closing_message & vbCr & "* Household member " & person & " appears to be enrolled in school. Please review for ABAWD and SNAP E&T exemptions."
+			IF school_status <> "N" THEN closing_message = closing_message & vbCr & "* M" & person & ": Appears to be enrolled in school. Please review for ABAWD and SNAP E&T exemptions."
 		ELSE
 			EMWriteScreen "STIN", 20, 71
 			CALL write_value_and_transmit(person, 20, 76)
@@ -467,7 +468,7 @@ FOR EACH person IN HH_member_array
 						cov_thru = DateAdd("M", 1, cov_thru)
 						cov_thru = DateAdd("D", -1, cov_thru)
 						IF DateDiff("D", date, cov_thru) > 0 THEN
-							closing_message = closing_message & vbCr & "* Household member " & person & " appears to have active student income. Please review student status to confirm SNAP eligibility as well as ABAWD and SNAP E&T exemptions."
+							closing_message = closing_message & vbCr & "* M" & person & ": Appears to have active student income. Please review student status to confirm SNAP eligibility as well as ABAWD and SNAP E&T exemptions."
 							EXIT DO
 						ELSE
 							STIN_row = STIN_row + 1
@@ -495,7 +496,7 @@ FOR EACH person IN HH_member_array
 							stec_thru = DateAdd("M", 1, stec_thru)
 							stec_thru = DateAdd("D", -1, stec_thru)
 							IF DateDiff("D", date, stec_thru) > 0 THEN
-								closing_message = closing_message & vbCr & "* Household member " & person & " appears to have active student expenses. Please review student status to confirm SNAP eligibility as well as ABAWD and SNAP E&T exemptions."
+								closing_message = closing_message & vbCr & "* M" & person & ": Appears to have active student expenses. Please review student status to confirm SNAP eligibility as well as ABAWD and SNAP E&T exemptions."
 								EXIT DO
 							ELSE
 								STEC_row = STEC_row + 1
