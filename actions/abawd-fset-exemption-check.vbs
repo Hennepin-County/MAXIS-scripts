@@ -443,8 +443,9 @@ IF cash1_status = "ACTV" OR cash2_status = "ACTV" THEN closing_message = closing
 '>>>>>>>>>>ADDR
 CALL navigate_to_MAXIS_screen("STAT", "ADDR")
 EMReadScreen homeless_code, 1, 10, 43
+EmReadscreen addr_line_01, 16, 6, 43
 
-IF homeless_code = "Y" THEN closing_message = closing_message & vbCr & "* Client is claiming homelessness. If client has barriers to employment, they could meet the 'Unfit for Employment' exemption."
+IF homeless_code = "Y" or addr_line_01 = "GENERAL DELIVERY" THEN closing_message = closing_message & vbCr & "* Client is claiming homelessness. If client has barriers to employment, they could meet the 'Unfit for Employment' exemption. Exemption began 05/2018."
 
 '>>>>>>>>>SCHL/STIN/STEC
 CALL navigate_to_MAXIS_screen("STAT", "SCHL")
@@ -537,7 +538,7 @@ FOR EACH person IN HH_member_array
 NEXT
 
 IF closing_message = "" THEN
-	closing_message = "*** NOTICE!!! ***" & vbCr & vbCr & "It appears there are no missed exemptions for ABAWD or SNAP E&T in MAXIS for this case. The script has checked ADDR, EATS, MEMB, DISA, JOBS, BUSI, RBIC, UNEA, PREG, PROG, PBEN, SCHL, STIN, and STEC for member(s) " & household_persons & "." & vbCr & vbCr & "Please make sure you are carefully reviewing the client's case file for any exemption-supporting documents."
+	closing_message = "*** NOTICE!!! ***" & vbCr & vbCr & "It appears there are NO missed exemptions for ABAWD or SNAP E&T in MAXIS for this case. The script has checked ADDR, EATS, MEMB, DISA, JOBS, BUSI, RBIC, UNEA, PREG, PROG, PBEN, SCHL, STIN, and STEC for member(s) " & household_persons & "." & vbCr & vbCr & "Please make sure you are carefully reviewing the client's case file for any exemption-supporting documents."
 ELSE
 	closing_message = "*** NOTICE!!! ***" & vbCr & vbCr & "The script has checked for ABAWD and SNAP E&T exemptions coded in MAXIS for member(s) " & household_persons & "." & vbCr & closing_message & vbCr & vbCr & "Please make sure you are carefully reviewing the client's case file for any exemption-supporting documents."
 END IF
