@@ -93,7 +93,7 @@ If ABAWD_selection = "Homeless (Unfit for Employment)" then
     EmReadscreen homeless_code, 1, 10, 43
     If homeless_code <> "Y" then script_end_procedure("This case does not have the ADDR panel coded as homeless. Please review the case, and run the script again as needed.")
     EmReadscreen living_situation, 2, 11, 43
-    If living_situation <> "02" or living_situation <> "06" or living_situation <> "06" or living_situation <> "07" or living_situation <> "08" then script_end_procedure("This case's living situation code on the ADDR panel does not meet this exemption criteria. Please review the case, and run the script again as needed.")
+    If living_situation <> "02" or living_situation <> "06" or living_situation <> "07" or living_situation <> "08" then script_end_procedure("This case's living situation code on the ADDR panel does not meet this exemption criteria. Please review the case, and run the script again as needed.")
     
     BeginDialog unfit_dialog, 0, 0, 281, 170, "Unfit for Employment exemption for homeless members"
     EditBox 215, 90, 60, 15, conversation_date
