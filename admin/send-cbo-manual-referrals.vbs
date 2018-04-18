@@ -256,6 +256,7 @@ For item = 0 to UBound(CBO_array, 2)
 	        	    		transmit
 							CBO_array(make_referral, item) = False
 		    	    	END IF
+                        EMReadScreen MEMB_error, 5, 24, 2
 	        	    Loop until member_SSN = CBO_array(clt_SSN, item) or MEMB_error = "ENTER"
 				End if 
 	        	
