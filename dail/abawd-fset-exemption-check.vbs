@@ -412,9 +412,17 @@ FOR EACH person IN HH_member_array
 	IF person <> "" THEN
 		CALL write_value_and_transmit(person, 20, 76)
 		EMReadScreen num_of_PREG, 1, 2, 78
+        EMReadScreen preg_due_dt, 8, 10, 53
+        preg_due_dt = replace(preg_due_dt, " ", "/")
 		EMReadScreen preg_end_dt, 8, 12, 53
-		IF num_of_PREG <> "0" AND preg_end_dt <> "__ __ __" THEN closing_message = closing_message & vbCr & "* M" & person & ": Appears to have active pregnancy. Please review for ABAWD exemption."
-	END IF
+
+		IF num_of_PREG <> "0" THen
+            If preg_due_dt <> "__/__/__" Then
+                If DateDiff("d", date, preg_due_dt) > 0 AND preg_end_dt = "__ __ __" THEN closing_message = closing_message & vbCr & "* M" & person & ": Appears to have active pregnancy. Please review for ABAWD exemption."
+                If DateDiff("d", date, preg_due_dt) < 0 Then closing_message = closing_message & vbCr & "* M" & person & ": Appears to have an overdue pregnancy, person may meet a minor child exemption. Contact client."
+            End If
+        End If
+    END IF
 NEXT
 
 '>>>>>>>>>>PROG
