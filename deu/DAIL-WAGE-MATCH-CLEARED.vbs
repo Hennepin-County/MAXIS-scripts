@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+date("04/23/2018", "Updated case note to reflect standard dialog and case note.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/26/2018", "Merged the claim referral tracking back into the script.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/16/2018", "Corrected case note for pulling IEVS period.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/02/2018", "Corrected IEVS match error due to new year.", "MiKayla Handley, Hennepin County")
@@ -185,17 +186,22 @@ END IF
 
 '---------------------------------------------------------------------Reading potential errors for out-of-county cases
 EMReadScreen OutOfCounty_error, 12, 24, 2
-IF OutOfCounty_error = "MATCH IS NOT" THEN
+IF OutOfCounty_error = "MATCH IS NOT" then
 	script_end_procedure("Out-of-county case. Cannot update.")
-ELSE
-	IF IEVS_type = "WAGE" THEN
-		EMReadScreen quarter, 1, 8, 14
-		EMReadScreen IEVS_year, 4, 8, 22
-	ELSEIF IEVS_type = "BEER" THEN
-		EMReadScreen IEVS_year, 2, 8, 15
-		IEVS_year = "20" & IEVS_year
-	END IF
+	Else
+		IF IEVS_type = "WAGE" then
+			EMReadScreen quarter, 1, 8, 14
+			EMReadScreen IEVS_year, 4, 8, 22
+			If quarter <> select_quarter then script_end_procedure("Match period does not match the selected match period. The script will now end.")
+		ELSEIF IEVS_type = "UBEN" THEN
+			EMReadScreen IEVS_month, 2, 5, 68
+			EMReadScreen IEVS_year, 2, 5, 71
+		ELSEIF IEVS_type = "BEER" THEN
+			EMReadScreen IEVS_year, 2, 8, 15
+			IEVS_year = "20" & IEVS_year
+		END IF
 END IF
+
 
 '--------------------------------------------------------------------Client name
 EMReadScreen client_name, 35, 5, 24
@@ -359,8 +365,8 @@ IF send_notice_checkbox = CHECKED THEN
 	IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
 
     '-------------------------------------------------------------------trims excess spaces of pending_verifs
-    pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more than one app date is found and additional app is selected
-    IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
+  pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more than one app date is found and additional app is selected
+  IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 	IF IEVS_type = "WAGE" THEN
 		'Updated IEVS_match to write into case note
 		IF quarter = 1 THEN IEVS_quarter = "1ST"
@@ -375,7 +381,8 @@ IF send_notice_checkbox = CHECKED THEN
   start_a_blank_CASE_NOTE
 	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH" & "(" & first_name & ") DIFF NOTICE SENT-----")
 	IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
-  CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
+	IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
+	CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
   CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
 	CALL write_variable_in_CASE_NOTE ("----- ----- -----")
