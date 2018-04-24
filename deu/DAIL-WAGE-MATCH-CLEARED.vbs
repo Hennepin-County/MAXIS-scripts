@@ -397,12 +397,12 @@ END IF
 IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The script will now navigate to clear the Non-wage match.")
 	BeginDialog cleared_match_dialog, 0, 0, 311, 175, "WAGE MATCH CLEARED"
-  	Text 10, 20, 110, 10, "Case number:" & MAXIS_case_number
-  	Text 120, 20, 165, 10, "Client name:" & client_name
-  	Text 10, 40, 105, 10, "Active Programs:" & programs
-		Text 120, 40, 175, 15, "Income source:" & source_income
-  	DropListBox 75, 65, 110, 15, "Select One:"+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BE - OP Entered"+chr(9)+"BO - Other"+chr(9)+"BP - Wrong Person"+chr(9)+"CC - Claim Entered"+chr(9)+"NC - Non Cooperation", resolution_status
-  	DropListBox 125, 85, 60, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", change_response
+  	Text 10, 20, 110, 10, "Case number: " & MAXIS_case_number
+  	Text 120, 20, 165, 10, "Client name: " & client_name
+  	Text 10, 40, 105, 10, "Active Programs: " & programs
+		Text 120, 40, 175, 15, "Income source: " & source_income
+  	DropListBox 75, 65, 110, 15, "Select One: "+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BE - OP Entered"+chr(9)+"BO - Other"+chr(9)+"BP - Wrong Person"+chr(9)+"CC - Claim Entered"+chr(9)+"NC - Non Cooperation", resolution_status
+  	DropListBox 125, 85, 60, 15, "Select One: "+chr(9)+"Yes"+chr(9)+"No", change_response
   	EditBox 150, 105, 35, 15, resolve_time
   	EditBox 55, 130, 250, 15, other_notes
   	CheckBox 210, 75, 70, 10, "Difference Notice", Diff_Notice_Checkbox
