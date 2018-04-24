@@ -51,7 +51,7 @@ changelog_display
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_NOTES_menu_dialog(script_array)
-	BeginDialog NOTES_dialog, 0, 0, 516, 325, "NOTES Scripts"
+	BeginDialog NOTES_dialog, 0, 0, 516, 340, "NOTES Scripts"
 	 	Text 5, 5, 435, 10, "Notes scripts main menu: select the script to run from the choices below. Notes with autofill functionality marked with an asterisk (*)."
 	  	ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 30, 15, "# - C", 				a_to_c_button
@@ -77,7 +77,7 @@ Function declare_NOTES_menu_dialog(script_array)
 			button_placeholder = button_placeholder + 1
 		next
 
-		CancelButton 460, 305, 50, 15
+		CancelButton 460, 320, 50, 15
 		GroupBox 5, 20, 205, 35, "NOTES Sub-Menus"
 	EndDialog
 End function
