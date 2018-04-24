@@ -137,7 +137,7 @@ EMSendKey "t"
 Call check_for_MAXIS(FALSE)
 EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
 'msgbox IEVS_type
-IF IEVS_type = "WAGE" or IEVS_type = "BEER" IEVS_type = "UBEN" THEN
+IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" THEN
 	match_found = TRUE
 ELSE
 	script_end_procedure("This is not a IEVS match. Please select a WAGE match DAIL, and run the script again.")
@@ -379,7 +379,7 @@ IF send_notice_checkbox = CHECKED THEN
 
 	'---------------------------------------------------------------------DIFF NOTC case note
   start_a_blank_CASE_NOTE
-	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH" & "(" & first_name & ") DIFF NOTICE SENT-----")
+	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") DIFF NOTICE SENT-----")
 	IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
 	IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
 	CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
