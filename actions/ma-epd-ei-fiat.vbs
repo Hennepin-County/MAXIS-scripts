@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/23/2018", "Added functionality to allow any month to be selected as the first month to be FIATed.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -178,29 +179,31 @@ If income_job_02 = "" then
   frequency_job_03 = ""
 End if
 
-BeginDialog MA_EPD_dialog, 0, 0, 186, 156, "MA-EPD dialog"
+BeginDialog MA_EPD_dialog, 0, 0, 186, 140, "MA-EPD dialog"
+  EditBox 30, 20, 40, 15, income_job_01
+  DropListBox 85, 20, 90, 15, "1: monthly"+chr(9)+"2: twice monthly"+chr(9)+"3: every 2 weeks"+chr(9)+"4. every week"+chr(9)+"5. other (use monthly avg)", frequency_job_01
+  EditBox 30, 40, 40, 15, income_job_02
+  DropListBox 85, 40, 90, 15, "1: monthly"+chr(9)+"2: twice monthly"+chr(9)+"3: every 2 weeks"+chr(9)+"4. every week"+chr(9)+"5. other (use monthly avg)", frequency_job_02
+  EditBox 30, 60, 40, 15, income_job_03
+  DropListBox 85, 60, 90, 15, "1: monthly"+chr(9)+"2: twice monthly"+chr(9)+"3: every 2 weeks"+chr(9)+"4. every week"+chr(9)+"5. other (use monthly avg)", frequency_job_03
+  EditBox 125, 80, 15, 15, start_mo_month
+  EditBox 145, 80, 15, 15, start_mo_year
+  ButtonGroup ButtonPressed
+    OkButton 40, 120, 50, 15
+    CancelButton 100, 120, 50, 15
   Text 35, 5, 40, 10, "Income amt"
   Text 115, 5, 30, 10, "Pay freq."
   Text 5, 25, 25, 10, "Job 1:"
-  EditBox 30, 20, 40, 15, income_job_01
-  DropListBox 85, 20, 90, 15, " "+chr(9)+"1: monthly"+chr(9)+"2: twice monthly"+chr(9)+"3: every 2 weeks"+chr(9)+"4. every week"+chr(9)+"5. other (use monthly avg)", frequency_job_01
   Text 5, 45, 25, 10, "Job 2:"
-  EditBox 30, 40, 40, 15, income_job_02
-  DropListBox 85, 40, 90, 15, " "+chr(9)+"1: monthly"+chr(9)+"2: twice monthly"+chr(9)+"3: every 2 weeks"+chr(9)+"4. every week"+chr(9)+"5. other (use monthly avg)", frequency_job_02
   Text 5, 65, 25, 10, "Job 3:"
-  EditBox 30, 60, 40, 15, income_job_03
-  DropListBox 85, 60, 90, 15, " "+chr(9)+"1: monthly"+chr(9)+"2: twice monthly"+chr(9)+"3: every 2 weeks"+chr(9)+"4. every week"+chr(9)+"5. other (use monthly avg)", frequency_job_03
-  GroupBox 20, 85, 140, 40, "Script should update:"
-  OptionGroup RadioGroup1
-    RadioButton 25, 95, 110, 10, "Current and future months", Radio1
-    RadioButton 25, 110, 100, 10, "Just future months", Radio2
-  ButtonGroup ButtonPressed
-    OkButton 40, 135, 50, 15
-    CancelButton 100, 135, 50, 15
+  Text 5, 85, 110, 10, "Script will FIAT starting in month:"
+  Text 10, 95, 115, 20, "The script will update this month and future months in ELIG."
 EndDialog
 
 Dialog MA_EPD_dialog
 cancel_confirmation
+
+start_month_and_year = start_mo_month & "/" & start_mo_year
 
 'SECTION 04: NOW IT GOES TO ELIG/HC TO FIAT THE AMOUNTS
 Call navigate_to_MAXIS_screen("ELIG", "HC__")
@@ -208,10 +211,7 @@ Call navigate_to_MAXIS_screen("ELIG", "HC__")
 row = 1
 col = 1
 EMSearch memb_number & " ", row, col 'finding the member number
-If row = 0 then
-  MsgBox "Member number not found. You may have entered an incorrect member number on the first screen. Try the script again."
-  StopScript
-End if
+If row = 0 then script_end_procedure("Member number not found. You may have entered an incorrect member number on the first screen. Try the script again.")
 
 EMWriteScreen "x", row, 26
 transmit
@@ -232,17 +232,24 @@ If FIAT_check <> "FIAT" then
   EMSendKey "05"
   transmit
 End if
-If radio1 = 1 then
-  row = 6
-  col = 1
-  EMSearch current_month_and_year, row, col
-End if
+' If radio1 = 1 then
+'   row = 6
+'   col = 1
+'   EMSearch current_month_and_year, row, col
+' End if
+'
+' If radio2 = 1 or row = 0 then
+'   row = 6
+'   col = 1
+'   EMSearch next_month_and_year, row, col
+' End if
 
-If radio2 = 1 or row = 0 then
-  row = 6
-  col = 1
-  EMSearch next_month_and_year, row, col
-End if
+row = 6
+col = 1
+EMSearch start_month_and_year, row, col
+
+end_msg = "The selected month " & start_month_and_year & " is not in the current version of HC, review the month selected and try the script again."
+If col = 0 Then script_end_procedure(end_msg)
 
 'Multiplier calculations
 If frequency_job_01 = "1: monthly" or frequency_job_01 = "5. other (use monthly avg)" then multiplier_01 = 1
