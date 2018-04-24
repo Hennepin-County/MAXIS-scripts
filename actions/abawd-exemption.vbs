@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/17/2018", "Added inhibiting coding for homeless (Unfit for Employement) if the ADDR panel is not coded correctly.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/29/2018", "Added Homeless (Unfit for Employment) option.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/07/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -88,6 +89,12 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in		
 
 If ABAWD_selection = "Homeless (Unfit for Employment)" then 
+    Call navigate_to_MAXIS_screen("STAT", "ADDR")
+    EmReadscreen homeless_code, 1, 10, 43
+    If homeless_code <> "Y" then script_end_procedure("This case does not have the ADDR panel coded as homeless. Please review the case, and run the script again as needed.")
+    EmReadscreen living_situation, 2, 11, 43
+    If living_situation <> "02" or living_situation <> "06" or living_situation <> "07" or living_situation <> "08" then script_end_procedure("This case's living situation code on the ADDR panel does not meet this exemption criteria. Please review the case, and run the script again as needed.")
+    
     BeginDialog unfit_dialog, 0, 0, 281, 170, "Unfit for Employment exemption for homeless members"
     EditBox 215, 90, 60, 15, conversation_date
     EditBox 75, 110, 200, 15, exemption_details
@@ -98,7 +105,7 @@ If ABAWD_selection = "Homeless (Unfit for Employment)" then
     CancelButton 225, 150, 50, 15
     Text 15, 155, 60, 10, "Worker signature:"
     GroupBox 5, 10, 270, 75, "Clients will meet this exemption if BOTH criteria are met:"
-    Text 10, 25, 260, 25, "* The client is coded Y as homeless on STAT/ADDR with a living arrangement code of either (02) Family/Friends Due to Economic Hardship, (06) Hotel/Motel, (07) Emergency Shelter,or (08)Place Not Meant for Housing AND"
+    Text 10, 25, 260, 25, "* The client is coded Y as homeless on STAT/ADDR with a living arrangement code of either (02) Family/Friends Due to Economic Hardship, (06) Hotel/Motel, (07) Emergency Shelter,or (08) Place Not Meant for Housing AND"
     Text 10, 60, 260, 20, "* The client lacks access to work-related necessities. These necessities include, but are not limited to, access to a shower and/or laundry facilities."
     Text 45, 95, 170, 10, "Conversation date with client about this exemption:"
     Text 30, 135, 45, 10, "Other notes:"
@@ -169,7 +176,7 @@ elseIf ABAWD_selection<> "Other" then
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 	Loop until are_we_passworded_out = false					'loops until user passwords back in	
 Else 
-	BeginDialog other_dialog, 0, 0, 276, 140, "ABAWD exemption"
+	BeginDialog other_dialog, 0, 0, 276, 140, "ABAWD exemption: Select first code available"
 		'This droplist is too damn big to enter into the dialog editor. You WILL break the dialog editor if you paste this code into it. 
 		DropListBox 75, 10, 190, 15, "Select one..."+chr(9)+"03 Unfit for Employment"+chr(9)+"05 Age 60 or older"+chr(9)+"06 Under age 16"+chr(9)+"07 Age 16-17 living w/ parent/caregiver"+chr(9)+"09 Empl 30 hr/wk or earnings = to min wage x 30 hr/wk"+chr(9)+"10 Matching grant participant"+chr(9)+"11 Receiving or applied for unemployment"+chr(9)+"12 Enrolled in school, training program or higher education"+chr(9)+"13 Participating In CD Program"+chr(9)+"14 Receiving MFIP"+chr(9)+"20 Pending/Receiving DWP Or WB"+chr(9)+"15 Age 16-17 Not Lvg W/Pare/Crgvr"+chr(9)+"16 50-59 years old"+chr(9)+"21 Resp For Care Of Child < 18"+chr(9)+"17 Receiving RCA Or GA", Exemption_droplist
   		DropListBox 80, 50, 50, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", verifs_required

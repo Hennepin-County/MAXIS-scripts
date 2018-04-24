@@ -449,6 +449,95 @@ Loop until are_we_passworded_out = false
 
 Call check_for_maxis(FALSE)  'allows for looping to check for maxis after worker has complete dialog box so as not to lose a giant CAF case note if they get timed out while writing.
 
+If CAF_type <> "Recertification" AND CAF_type <> "Addendum" Then
+    If SNAP_checkbox = checked OR cash_checkbox = checked Then
+        If SNAP_checkbox = checked Then prog_update_SNAP_checkbox = checked
+        If cash_checkbox = checked Then prog_update_cash_checkbox = checked
+
+        BeginDialog CAF_dialog_03, 0, 0, 231, 130, "Update PROG?"
+          OptionGroup RadioGroup1
+            RadioButton 10, 10, 155, 10, "YES! Update PROG with the Interview Date", confirm_update_prog
+            RadioButton 10, 60, 90, 10, "No, do not update PROG", do_not_update_prog
+          EditBox 165, 5, 50, 15, interview_date
+          CheckBox 25, 25, 30, 10, "SNAP", prog_update_SNAP_checkbox
+          CheckBox 25, 40, 30, 10, "CASH", prog_update_cash_checkbox
+          Text 20, 75, 200, 10, "Reason PROG should not be updated with the Interview Date:"
+          EditBox 20, 90, 195, 15, no_update_reason
+          ButtonGroup ButtonPressed
+            OkButton 175, 110, 50, 15
+        EndDialog
+
+        Do
+            err_msg = ""
+            Dialog CAF_dialog_03
+
+            If do_not_update_prog = 1 AND no_update_reason = "" Then err_msg = err_msg & vbNewLine & "* If PROG is not to be updated, please explain why PROG should not be updated."
+            IF confirm_update_prog = 1 AND prog_update_SNAP_checkbox = unchecked AND prog_update_cash_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* Select either CASH or SNAP to have updated on PROG."
+
+            If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+        Loop until err_msg = ""
+
+        If confirm_update_prog = 1 Then
+            CALL back_to_SELF
+
+            keep_footer_month = MAXIS_footer_month
+            keep_footer_year = MAXIS_footer_year
+
+            app_month = DatePart("m", CAF_datestamp)
+            app_year = DatePart("yyyy", CAF_datestamp)
+
+            MAXIS_footer_month = right("00" & app_month, 2)
+            MAXIS_footer_year = right(app_year, 2)
+
+            CALL navigate_to_MAXIS_screen ("STAT", "PROG")
+            PF9
+
+            intv_mo = DatePart("m", interview_date)
+            intv_day = DatePart("d", interview_date)
+            intv_yr = DatePart("yyyy", interview_date)
+
+            intv_mo = right("00"&intv_mo, 2)
+            intv_day = right("00"&intv_day, 2)
+            intv_yr = right(intv_yr, 2)
+
+            If prog_update_SNAP_checkbox = checked Then
+                programs_w_interview = "SNAP"
+
+                EMWriteScreen intv_mo, 10, 55
+                EMWriteScreen intv_day, 10, 58
+                EMWriteScreen intv_yr, 10, 61
+            End If
+
+            If prog_update_cash_checkbox = checked Then
+                If programs_w_interview = "" Then programs_w_interview = "CASH"
+                If programs_w_interview <> "" Then programs_w_interview = "SNAP and CASH"
+                EMReadScreen cash_one_app, 8, 6, 33
+                EMReadScreen cash_two_app, 8, 7, 33
+
+                cash_one_app = replace(cash_one_app, " ", "/")
+                cash_two_app = replace(cash_two_app, " ", "/")
+
+                If cash_one_app <> "__/__/__" Then
+                    if DateDiff("d", cash_one_app, CAF_datestamp) = 0 then prog_row = 6
+                End If
+                If cash_two_app <> "__/__/__" Then
+                    if DateDiff("d", cash_two_app, CAF_datestamp) = 0 then prog_row = 7
+                End If
+
+                EMWriteScreen intv_mo, prog_row, 55
+                EMWriteScreen intv_day, prog_row, 58
+                EMWriteScreen intv_yr, prog_row, 61
+            End If
+
+            transmit
+
+            MAXIS_footer_month = keep_footer_month
+            MAXIS_footer_year = keep_footer_year
+        ENd If
+    End If
+End If
+'MsgBox confirm_update_prog
+
 'Now, the client_delay_checkbox business. It'll update client delay if the box is checked and it isn't a recert.
 If client_delay_checkbox = checked and CAF_type <> "Recertification" then
 	call navigate_to_MAXIS_screen("rept", "pnd2")
@@ -562,6 +651,8 @@ Else
 	CALL write_bullet_and_variable_in_CASE_NOTE("Interview type", interview_type)
 End if
 CALL write_bullet_and_variable_in_CASE_NOTE("Interview date", interview_date)
+If confirm_update_prog = 1 Then CALL write_variable_in_CASE_NOTE("* Interview date entered on PROG for " & programs_w_interview)
+If do_not_update_prog = 1 Then CALL write_bullet_and_variable_in_CASE_NOTE("PROG WAS NOT UPDATED WITH INTERVIEW DATE, because", no_update_reason)
 CALL write_bullet_and_variable_in_CASE_NOTE("HC document received", HC_document_received)
 CALL write_bullet_and_variable_in_CASE_NOTE("HC datestamp", HC_datestamp)
 CALL write_bullet_and_variable_in_CASE_NOTE("Programs applied for", programs_applied_for)
@@ -630,4 +721,6 @@ IF SNAP_recert_is_likely_24_months = TRUE THEN					'if we determined on stat/rev
 	END IF
 END IF
 
-script_end_procedure("Success! CAF has been successfully noted. Please remember to run the Approved Programs, Closed Programs, or Denied Programs scripts if  results have been APP'd.")
+end_msg = "Success! CAF has been successfully noted. Please remember to run the Approved Programs, Closed Programs, or Denied Programs scripts if  results have been APP'd."
+If do_not_update_prog = 1 Then end_msg = end_msg & vbNewLine & vbNewLine & "It was selected that PROG would NOT be updated because " & no_update_reason
+script_end_procedure(end_msg)

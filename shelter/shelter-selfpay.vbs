@@ -39,29 +39,33 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog selfpay_dialog, 0, 0, 306, 105, "Self Pay"
+BeginDialog selfpay_dialog, 0, 0, 306, 130, "Self Pay"
   EditBox 60, 5, 60, 15, MAXIS_case_number
   EditBox 205, 5, 30, 15, dollar_amount1
   EditBox 255, 5, 45, 15, date1
-  EditBox 110, 30, 30, 15, dollar_amount2
-  DropListBox 155, 30, 80, 15, "Select one..."+chr(9)+"FMF"+chr(9)+"PSP"+chr(9)+"St. Anne's"+chr(9)+"The Drake", shelter_droplist
-  EditBox 255, 30, 20, 15, number_of_days
-  EditBox 195, 55, 45, 15, voucher_date_start
-  EditBox 260, 55, 40, 15, voucher_date_end
-  EditBox 55, 80, 135, 15, other_notes
+  DropListBox 65, 30, 60, 45, "Select One..."+chr(9)+"MFIP"+chr(9)+"DWP"+chr(9)+"SSI"+chr(9)+"RSDI"+chr(9)+"CS"+chr(9)+"JOB"+chr(9)+"OTHER", clt_income_source
+  EditBox 195, 30, 105, 15, other_source
+  EditBox 110, 55, 30, 15, dollar_amount2
+  DropListBox 155, 55, 80, 15, "Select One..."+chr(9)+"FMF"+chr(9)+"PSP"+chr(9)+"St. Anne's"+chr(9)+"The Drake", shelter_droplist
+  EditBox 255, 55, 20, 15, number_of_days
+  EditBox 195, 80, 45, 15, voucher_date_start
+  EditBox 260, 80, 40, 15, voucher_date_end
+  EditBox 55, 105, 135, 15, other_notes
   ButtonGroup ButtonPressed
-    OkButton 195, 80, 50, 15
-    CancelButton 250, 80, 50, 15
-  Text 145, 35, 10, 10, "at"
-  Text 140, 10, 65, 10, "Client will receive $"
-  Text 280, 35, 25, 10, "nights."
+    OkButton 195, 105, 50, 15
+    CancelButton 250, 105, 50, 15
   Text 10, 10, 45, 10, "Case number:"
+  Text 140, 10, 65, 10, "Client will receive $"
   Text 240, 10, 10, 10, "on"
-  Text 240, 35, 10, 10, "for"
-  Text 10, 60, 180, 10, "Once self pay is verfied, client can be vouchered from:"
-  Text 10, 35, 100, 10, "and has been told to self-pay $"
-  Text 245, 60, 10, 10, "to"
-  Text 10, 85, 40, 10, "Comments:"
+  Text 10, 35, 50, 10, "Income Source:"
+  Text 130, 35, 65, 10, "if  'OTHER', exlain:"
+  Text 10, 60, 100, 10, "and has been told to self-pay $"
+  Text 145, 60, 10, 10, "at"
+  Text 240, 60, 10, 10, "for"
+  Text 280, 60, 25, 10, "nights."
+  Text 10, 85, 180, 10, "Once self pay is verfied, client can be vouchered from:"
+  Text 245, 85, 10, 10, "to"
+  Text 10, 110, 40, 10, "Comments:"
 EndDialog
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -76,8 +80,10 @@ DO
 		Dialog selfpay_dialog
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		If isnumeric(dollar_amount1) = false then err_msg = err_msg & vbNewLine & "* Enter a numeric dollar amount."		
+		If isnumeric(dollar_amount1) = false then err_msg = err_msg & vbNewLine & "* Enter a numeric dollar amount."
 		If date1 = "" then err_msg = err_msg & vbNewLine & "* Enter a date."
+        If clt_income_source = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the source of the income."
+        If clt_income_source = "OTHER" AND other_source = "" Then err_msg = err_msg & vbNewLine & "* Since the income source is 'Other', explain the source of the income."
 		If isnumeric(dollar_amount2) = False then err_msg = err_msg & vbNewLine & "* Enter a numeric dollar amount."
 		If shelter_droplist = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the facility name"
 		If number_of_days = "" then err_msg = err_msg & vbNewLine & "* Enter the number of days of stay."
@@ -85,20 +91,21 @@ DO
 		If voucher_date_end = "" then err_msg = err_msg & vbNewLine & "* Enter a voucher end date or 'n/a'."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & "(enter NA in all fields that do not apply)" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
-		
-'adding the case number 	
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'adding the case number
 back_to_self
 EMWriteScreen "________", 18, 43
 EMWriteScreen MAXIS_case_number, 18, 43
 EMWriteScreen CM_mo, 20, 43	'entering current footer month/year
 EMWriteScreen CM_yr, 20, 46
+If clt_income_source = "OTHER" Then clt_income_source = other_source
 
 'The case note'
 start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("### Self Pay ###")
-Call write_variable_in_CASE_NOTE("* Client will receive $" & dollar_amount1 & " on " & date1 & ", and has been told to self-pay $" & dollar_amount2 & " at " & shelter_droplist & " Shelter for " & number_of_days & " nights.")
+Call write_variable_in_CASE_NOTE("* Client will receive $" & dollar_amount1 & " on " & date1 & " from " & clt_income_source & ", and has been told to self-pay $" & dollar_amount2 & " at " & shelter_droplist & " Shelter for " & number_of_days & " nights.")
 Call write_variable_in_CASE_NOTE("* Once self pay has been verfied, client can be vouchered from " & voucher_date_start & " to " & voucher_date_end)
 Call write_variable_in_CASE_NOTE("* Self-Pay calculation agreement form given to client.")
 Call write_variable_in_CASE_NOTE("* Shelter informed of need to self-pay")

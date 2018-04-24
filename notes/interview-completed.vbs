@@ -123,7 +123,7 @@ EMConnect ""
 call maxis_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-Do 
+Do
 	Do
 		err_msg = ""
   		Dialog case_number_dialog 'Runs the first dialog that gathers program information and case number
@@ -202,12 +202,101 @@ DO
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false							'Loops until we affirm that we're ready to case note.
 
-If outlook_check = 1 then 
+If CAF_type <> "Recertification" AND CAF_type <> "Addendum" Then
+    If SNAP_checkbox = checked OR cash_checkbox = checked Then
+        If SNAP_checkbox = checked Then prog_update_SNAP_checkbox = checked
+        If cash_checkbox = checked Then prog_update_cash_checkbox = checked
+
+        BeginDialog update_prog_dlg, 0, 0, 231, 130, "Update PROG?"
+          OptionGroup RadioGroup1
+            RadioButton 10, 10, 155, 10, "YES! Update PROG with the Interview Date", confirm_update_prog
+            RadioButton 10, 60, 90, 10, "No, do not update PROG", do_not_update_prog
+          EditBox 165, 5, 50, 15, interview_date
+          CheckBox 25, 25, 30, 10, "SNAP", prog_update_SNAP_checkbox
+          CheckBox 25, 40, 30, 10, "CASH", prog_update_cash_checkbox
+          Text 20, 75, 200, 10, "Reason PROG should not be updated with the Interview Date:"
+          EditBox 20, 90, 195, 15, no_update_reason
+          ButtonGroup ButtonPressed
+            OkButton 175, 110, 50, 15
+        EndDialog
+
+        Do
+            err_msg = ""
+            Dialog update_prog_dlg
+
+            If do_not_update_prog = 1 AND no_update_reason = "" Then err_msg = err_msg & vbNewLine & "* If PROG is not to be updated, please explain why PROG should not be updated."
+            IF confirm_update_prog = 1 AND prog_update_SNAP_checkbox = unchecked AND prog_update_cash_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* Select either CASH or SNAP to have updated on PROG."
+
+            If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+        Loop until err_msg = ""
+
+        If confirm_update_prog = 1 Then
+            CALL back_to_SELF
+
+            keep_footer_month = MAXIS_footer_month
+            keep_footer_year = MAXIS_footer_year
+
+            app_month = DatePart("m", CAF_datestamp)
+            app_year = DatePart("yyyy", CAF_datestamp)
+
+            MAXIS_footer_month = right("00" & app_month, 2)
+            MAXIS_footer_year = right(app_year, 2)
+
+            CALL navigate_to_MAXIS_screen ("STAT", "PROG")
+            PF9
+
+            intv_mo = DatePart("m", interview_date)
+            intv_day = DatePart("d", interview_date)
+            intv_yr = DatePart("yyyy", interview_date)
+
+            intv_mo = right("00"&intv_mo, 2)
+            intv_day = right("00"&intv_day, 2)
+            intv_yr = right(intv_yr, 2)
+
+            If prog_update_SNAP_checkbox = checked Then
+                programs_w_interview = "SNAP"
+
+                EMWriteScreen intv_mo, 10, 55
+                EMWriteScreen intv_day, 10, 58
+                EMWriteScreen intv_yr, 10, 61
+            End If
+
+            If prog_update_cash_checkbox = checked Then
+                If programs_w_interview = "" Then programs_w_interview = "CASH"
+                If programs_w_interview <> "" Then programs_w_interview = "SNAP and CASH"
+                EMReadScreen cash_one_app, 8, 6, 33
+                EMReadScreen cash_two_app, 8, 7, 33
+
+                cash_one_app = replace(cash_one_app, " ", "/")
+                cash_two_app = replace(cash_two_app, " ", "/")
+
+                If cash_one_app <> "__/__/__" Then
+                    if DateDiff("d", cash_one_app, CAF_datestamp) = 0 then prog_row = 6
+                End If
+                If cash_two_app <> "__/__/__" Then
+                    if DateDiff("d", cash_two_app, CAF_datestamp) = 0 then prog_row = 7
+                End If
+
+                EMWriteScreen intv_mo, prog_row, 55
+                EMWriteScreen intv_day, prog_row, 58
+                EMWriteScreen intv_yr, prog_row, 61
+            End If
+
+            transmit
+
+            MAXIS_footer_month = keep_footer_month
+            MAXIS_footer_year = keep_footer_year
+        ENd If
+    End If
+End If
+'MsgBox confirm_update_prog
+
+If outlook_check = 1 then
     reminder_date = CM_plus_1_mo & "/01/" & CM_plus_1_yr
     'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
     Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "Update received date and interview date on STAT/REVW for: " & MAXIS_case_number, "", "", TRUE, 5, "")
     Outlook_remider = True
-End if 
+End if
 
 'Navigates to case note, and checks to make sure we aren't in inquiry.
 start_a_blank_CASE_NOTE
@@ -222,6 +311,8 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Application Type", CAF_type)
 IF move_verifs_needed = TRUE THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
 CALL write_bullet_and_variable_in_CASE_NOTE("CAF Datestamp", CAF_datestamp)
 CALL write_variable_in_CASE_NOTE("* Interview type: " & interview_type & " - Interview date: " & interview_date)
+If confirm_update_prog = 1 Then CALL write_variable_in_CASE_NOTE("* Interview date entered on PROG for " & programs_w_interview)
+If do_not_update_prog = 1 Then CALL write_bullet_and_variable_in_CASE_NOTE("PROG WAS NOT UPDATED WITH INTERVIEW DATE, because", no_update_reason)
 CALL write_bullet_and_variable_in_CASE_NOTE("Programs applied for", programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE("HH comp/EATS", HH_comp)
 CALL write_bullet_and_variable_in_CASE_NOTE("Earned Income", earned_income)
@@ -239,4 +330,6 @@ IF move_verifs_needed = False THEN CALL write_bullet_and_variable_in_CASE_NOTE("
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure("Success! Interview has been successfully noted. Once processing is completed remember to run the CAF Script for detailed case note.")
+end_msg = "Success! Interview has been successfully noted. Once processing is completed remember to run the CAF Script for detailed case note."
+If do_not_update_prog = 1 Then end_msg = end_msg & vbNewLine & vbNewLine & "It was selected that PROG would NOT be updated because " & no_update_reason
+script_end_procedure(end_msg)
