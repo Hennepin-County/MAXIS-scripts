@@ -56,31 +56,30 @@ EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 '--------------------------------------------------------------------------------------------------DIALOG
-BeginDialog csr_contact_dialog, 0, 0, 366, 170, "CSR Reminder call"
-  EditBox 190, 5, 65, 15, phone_number
-  ComboBox 60, 30, 60, 15, "Select One:"+chr(9)+"Phone call"+chr(9)+"Voicemail"+chr(9)+"Unable to reach", contact_type
-  DropListBox 125, 30, 45, 15, "Select One:"+chr(9)+"to"+chr(9)+"from", contact_direction
-  ComboBox 175, 30, 85, 15, "Select One:"+chr(9)+"Client (M01)"+chr(9)+"Other Elig HH Member"+chr(9)+"AREP"+chr(9)+"SWKR", who_contacted
-  ComboBox 265, 30, 85, 15, "Select One:"+chr(9)+"Spoke to client"+chr(9)+"Left a voicemail"+chr(9)+"Unable to reach client", result_call
-  CheckBox 295, 45, 65, 10, "Used Interpreter", used_interpreter_checkbox
-  EditBox 65, 70, 285, 15, verifs_needed
-  EditBox 65, 90, 285, 15, other_notes
+BeginDialog csr_contact_dialog, 0, 0, 351, 170, "CSR Reminder call"
+  EditBox 275, 5, 65, 15, phone_number
+  ComboBox 100, 30, 75, 15, "Select one..."+chr(9)+"Client (M01)"+chr(9)+"Other HH Member"+chr(9)+"AREP"+chr(9)+"SWKR", who_contacted
+  ComboBox 255, 30, 85, 15, "Select one..."+chr(9)+"spoke to client"+chr(9)+"left a voicemail"+chr(9)+"unable to reach client", result_call
+  CheckBox 275, 45, 65, 10, "Used Interpreter", used_interpreter_checkbox
+  EditBox 65, 70, 275, 15, verifs_needed
+  EditBox 65, 90, 275, 15, other_notes
   CheckBox 10, 120, 255, 10, "Check here if the phone numbers on file need to be corrected. ", number_check
   CheckBox 10, 135, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
-  EditBox 75, 150, 170, 15, worker_signature
+  EditBox 75, 150, 155, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 250, 150, 50, 15
-    CancelButton 305, 150, 50, 15
-  EditBox 60, 5, 65, 15, MAXIS_case_number
-  EditBox 285, 5, 65, 15, when_contact_was_made
-  GroupBox 5, 55, 350, 60, "If client is reached"
+    OkButton 235, 150, 50, 15
+    CancelButton 290, 150, 50, 15
+  EditBox 55, 5, 55, 15, MAXIS_case_number
+  EditBox 145, 5, 65, 15, when_contact_was_made
+  GroupBox 5, 55, 340, 60, "Additional information:"
   Text 10, 75, 50, 10, "Verifs needed: "
   Text 15, 95, 45, 10, "Other notes:"
-  Text 265, 10, 20, 10, "Date:"
+  Text 120, 10, 20, 10, "Date:"
   Text 5, 10, 50, 10, "Case number: "
-  Text 5, 35, 45, 10, "Contact type:"
-  Text 135, 10, 50, 10, "Phone number: "
+  Text 25, 35, 70, 10, "Who was contacted?:"
+  Text 220, 10, 50, 10, "Phone number: "
   Text 10, 155, 60, 10, "Worker signature:"
+  Text 190, 35, 60, 10, "Result of the call:"
 EndDialog
 
 'updates the "when contact was made" variable to show the current date & time
@@ -94,7 +93,7 @@ Do
         If trim(MAXIS_case_number) = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
     	If trim(when_contact_was_made) = "" then err_msg = err_msg & vbNewLine & "* Enter the contact date and time."
         If trim(phone_number) = "" then err_msg = err_msg & vbNewLine & "* Enter the contact phone number."
-        If (contact_type = "Select One:" or contact_direction = "Select One:" or who_contacted = "Select One:" or result_call = "Select One:") then err_msg = err_msg & vbNewLine & "* Enter all contact type information."
+        If (who_contacted = "Select one..." or result_call = "Select one...") then err_msg = err_msg & vbNewLine & "* Enter all contact type information."
         If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     LOOP UNTIL err_msg = ""
@@ -106,14 +105,13 @@ Call check_for_MAXIS(False)
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 start_a_blank_case_note
-CALL write_variable_in_CASE_NOTE(contact_type & " " & contact_direction & " " & who_contacted & " re: CSR reminder call" )
+CALL write_variable_in_CASE_NOTE("CSR reminder call to " & who_contacted & ", " & result_call)
 If Used_interpreter_checkbox = checked THEN
 	CALL write_variable_in_CASE_NOTE("* Contact was made: " & when_contact_was_made & " w/ interpreter")
 Else
 	CALL write_bullet_and_variable_in_CASE_NOTE("Contact was made", when_contact_was_made)
 End if
 CALL write_bullet_and_variable_in_CASE_NOTE("Phone number", phone_number)
-CALL write_bullet_and_variable_in_CASE_NOTE("Result of call", result_call)
 CALL write_bullet_and_variable_in_CASE_NOTE("Verifs Needed", verifs_needed)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 IF number_check = checked THEN CALL write_variable_in_CASE_NOTE("* Follow-up is needed to get correct phone numbers.")
@@ -126,9 +124,4 @@ IF TIKL_check = checked THEN
 	CALL navigate_to_MAXIS_screen("dail", "writ")
 END IF
 
-'If case requires followup, it will create a MsgBox (via script_end_procedure) explaining that followup is needed. This MsgBox gets inserted into the statistics database for counties using that function. This will allow counties to "pull statistics" on follow-up, including case numbers, which can be used to track outcomes.
-If number_check = checked then
-	script_end_procedure("Success! Follow-up is needed for case number: " & MAXIS_case_number)
-Else
-	script_end_procedure("")
-End if
+script_end_procedure("Your CSR reminder call is complete. The result of the call is: " & result_call)
