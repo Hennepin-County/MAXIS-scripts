@@ -130,7 +130,6 @@ end function
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 
-'--------------------------------------------------------------------CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
 EMReadscreen dail_check, 4, 2, 48
 IF dail_check <> "DAIL" THEN script_end_procedure("You are not in your dail. This script will stop.")
 EMSendKey "t"
@@ -138,12 +137,14 @@ EMSendKey "t"
 Call check_for_MAXIS(FALSE)
 EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
 'msgbox IEVS_type
-IF IEVS_type = "WAGE" or IEVS_type = "BEER" THEN
+IF IEVS_type = "WAGE" or IEVS_type = "BEER" IEVS_type = "UBEN" THEN
 	match_found = TRUE
 ELSE
 	script_end_procedure("This is not a IEVS match. Please select a WAGE match DAIL, and run the script again.")
 END IF
 IF IEVS_type = "BEER" THEN type_match = "B"
+IF IEVS_type = "UBEN" THEN type_match = "U"
+IF IEVS_type = "WAGE" THEN type_match = "U"
 
 EMReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number= TRIM(MAXIS_case_number)
@@ -165,7 +166,7 @@ DO
 	'msgbox IEVS_match
 	IF ievp_info_confirmation = vbNo THEN
 		row = row + 1
-		'msgbox "row: " & row
+	'msgbox "row: " & row
 		IF row = 17 THEN
 			PF8
 			row = 7
@@ -192,10 +193,9 @@ IF OutOfCounty_error = "MATCH IS NOT" then
 		IF IEVS_type = "WAGE" then
 			EMReadScreen quarter, 1, 8, 14
 			EMReadScreen IEVS_year, 4, 8, 22
-			'If quarter <> select_quarter then script_end_procedure("Match period does not match the selected match period. The script will now end.")
 		ELSEIF IEVS_type = "UBEN" THEN
 			EMReadScreen IEVS_month, 2, 5, 68
-			EMReadScreen IEVS_year, 2, 5, 71
+			EMReadScreen IEVS_year, 4, 8, 71
 		ELSEIF IEVS_type = "BEER" THEN
 			EMReadScreen IEVS_year, 2, 8, 15
 			IEVS_year = "20" & IEVS_year
@@ -262,9 +262,9 @@ IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
 '----------------------------------------------------------------------------dialogs
 BeginDialog notice_action_dialog, 0, 0, 166, 90, "SEND DIFFERENCE NOTICE?"
 	CheckBox 25, 35, 105, 10, "YES - Send Difference Notice", send_notice_checkbox
-  	CheckBox 25, 50, 130, 10, "NO - Continue Match Action to Clear", clear_action_checkbox
-  	Text 10, 10, 145, 20, "A difference notice has not been sent, would you like to send the difference notice now?"
-  	ButtonGroup ButtonPressed
+  CheckBox 25, 50, 130, 10, "NO - Continue Match Action to Clear", clear_action_checkbox
+  Text 10, 10, 145, 20, "A difference notice has not been sent, would you like to send the difference notice now?"
+  ButtonGroup ButtonPressed
     OkButton 60, 70, 45, 15
     CancelButton 110, 70, 45, 15
 EndDialog
@@ -283,8 +283,8 @@ BeginDialog send_notice_dialog, 0, 0, 296, 160, "WAGE MATCH SEND DIFFERENCE NOTI
   Text 5, 125, 40, 10, "Other notes: "
   EditBox 50, 120, 240, 15, other_notes
   ButtonGroup ButtonPressed
-	OkButton 195, 140, 45, 15
-	CancelButton 245, 140, 45, 15
+		OkButton 195, 140, 45, 15
+		CancelButton 245, 140, 45, 15
 EndDialog
 
 IF notice_sent = "N" THEN
@@ -329,17 +329,17 @@ IF send_notice_checkbox = CHECKED THEN
   	TRANSMIT
   ELSE
   	Do
-      	'Checking to see if the MISC panel is empty, if not it will find a new line'
-      	EmReadScreen MISC_description, 25, row, 30
-      	MISC_description = replace(MISC_description, "_", "")
-      	If trim(MISC_description) = "" then
-  			PF9
-      		EXIT DO
-      	Else
-              row = row + 1
-      	End if
+      'Checking to see if the MISC panel is empty, if not it will find a new line'
+      EmReadScreen MISC_description, 25, row, 30
+      MISC_description = replace(MISC_description, "_", "")
+      If trim(MISC_description) = "" then
+  		PF9
+      	EXIT DO
+      Else
+            row = row + 1
+      End if
   	Loop Until row = 17
-      If row = 17 then script_end_procedure("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+    If row = 17 then script_end_procedure("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
   End if
 
   'writing in the action taken and date to the MISC panel
