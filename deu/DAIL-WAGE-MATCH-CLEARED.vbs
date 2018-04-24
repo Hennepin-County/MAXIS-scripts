@@ -192,7 +192,7 @@ IF OutOfCounty_error = "MATCH IS NOT" then
 		IF IEVS_type = "WAGE" then
 			EMReadScreen quarter, 1, 8, 14
 			EMReadScreen IEVS_year, 4, 8, 22
-			If quarter <> select_quarter then script_end_procedure("Match period does not match the selected match period. The script will now end.")
+			'If quarter <> select_quarter then script_end_procedure("Match period does not match the selected match period. The script will now end.")
 		ELSEIF IEVS_type = "UBEN" THEN
 			EMReadScreen IEVS_month, 2, 5, 68
 			EMReadScreen IEVS_year, 2, 5, 71
