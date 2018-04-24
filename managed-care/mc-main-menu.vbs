@@ -105,6 +105,13 @@ script_array_MC_main(script_num).description 			= "Case note template for client
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_MC_main(script_num)			'Resets the array to add one more element to it
 Set script_array_MC_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_MC_main(script_num).script_name 			= "NOTE Enrollment"																'Script name
+script_array_MC_main(script_num).file_name 				= "mc-enrollment-note.vbs"															'Script URL
+script_array_MC_main(script_num).description 			= "NOTES Script that will case note the Enrollment in MMIS."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_MC_main(script_num)			'Resets the array to add one more element to it
+Set script_array_MC_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_MC_main(script_num).script_name 			= "Enrollment"																'Script name
 script_array_MC_main(script_num).file_name 				= "mc-enrollment.vbs"															'Script URL
 script_array_MC_main(script_num).description 			= "Action script that will update Enrollment in MMIS."
@@ -133,10 +140,10 @@ Do
 	If ButtonPressed = "" or ButtonPressed = MC_main_button then declare_MC_menu_dialog(script_array_MC_main)
 	dialog MC_dialog
 	If ButtonPressed = 0 then stopscript
-	
+
     'Opening the SIR Instructions
 	'IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notices%20scripts.aspx")
-Loop until 	ButtonPressed <> MC_main_button 
+Loop until 	ButtonPressed <> MC_main_button
 'MsgBox buttonpressed = script_array_MC_main(0).button
 
 'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
