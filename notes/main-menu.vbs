@@ -250,7 +250,7 @@ script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
 Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_0_to_C(script_num).script_name				= "CSR Reminder"
-script_array_0_to_C(script_num).file_name				= "csr.vbs"
+script_array_0_to_C(script_num).file_name				= "csr-reminder.vbs"
 script_array_0_to_C(script_num).description				= "Template for contacting clients for CSR's as part of a CHURN project pilot.*"
 
 
