@@ -101,9 +101,9 @@ BeginDialog match_claim_dialog, 0, 0, 361, 245, "Overpayment Claim Entered"
   EditBox 70, 140, 160, 15, EVF_used
 	EditBox 305, 140, 50, 15, income_rcvd_date
 	EditBox 70, 160, 285, 15, Reason_OP
-	DropListBox 105, 180, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", EI_allowed_dropdown
-	DropListBox 200, 180, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
-  DropListBox 270, 180, 85, 15, "Select:"+chr(9)+"HH No Info"+chr(9)+"HH Incorrect Or Incompl"+chr(9)+"HH Not Timely Inform"+chr(9)+"Estimate Wrong Inadv"+chr(9)+"No HRF"+chr(9)+"Benefits Rcd Pend App"+chr(9)+"Replacement Bene Used" +chr(9)+"Prog Pol Prevents Chg" +chr(9)+"EBT- Representment" +chr(9)+"IEVS - BEER"+chr(9)+"IEVS - BENDEX" +chr(9)+"IEVS - UNVI"+chr(9)+"IEVS - SDX"+chr(9)+"IEVS - WAGE"+chr(9)+"IEVS - UBEN"+chr(9)+"PARIS Inter-state Match"+chr(9)+"Agency: Delay   Action"+chr(9)+"Agency: Issue Comp Error"+chr(9)+"Agency: Dup Issuance"+chr(9)+"Agency:$50 Pass-Thru"+chr(9)+"GRH Vndr: No Info"+chr(9)+"GRH Vndr: Incomplete"+chr(9)+"GRH Vndr: Not Timely"+chr(9)+"GRH Vndr: Client Left Faci"+chr(9)+"99 Other", collectible_reason_dropdown
+	DropListBox 105, 180, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", EI_allowed_dropdown
+	DropListBox 185, 180, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
+  DropListBox 255, 180, 100, 15, "Select:"+chr(9)+"HH No Info"+chr(9)+"HH Incorrect Or Incompl"+chr(9)+"HH Not Timely Inform"+chr(9)+"Estimate Wrong Inadv"+chr(9)+"No HRF"+chr(9)+"Benefits Rcd Pend App"+chr(9)+"Replacement Bene Used" +chr(9)+"Prog Pol Prevents Chg" +chr(9)+"EBT- Representment" +chr(9)+"IEVS - BEER"+chr(9)+"IEVS - BENDEX" +chr(9)+"IEVS - UNVI"+chr(9)+"IEVS - SDX"+chr(9)+"IEVS - WAGE"+chr(9)+"IEVS - UBEN"+chr(9)+"PARIS Inter-state Match"+chr(9)+"Agency: Delay   Action"+chr(9)+"Agency: Issue Comp Error"+chr(9)+"Agency: Dup Issuance"+chr(9)+"Agency:$50 Pass-Thru"+chr(9)+"GRH Vndr: No Info"+chr(9)+"GRH Vndr: Incomplete"+chr(9)+"GRH Vndr: Not Timely"+chr(9)+"GRH Vndr: Client Left Faci"+chr(9)+"99 Other", collectible_reason_dropdown
 	EditBox 70, 160, 285, 15, Reason_OP
 	EditBox 95, 200, 60, 15, HC_resp_memb
   EditBox 290, 200, 65, 15, Fed_HC_AMT
@@ -131,14 +131,15 @@ BeginDialog match_claim_dialog, 0, 0, 361, 245, "Overpayment Claim Entered"
   Text 165, 110, 10, 10, "To:"
   Text 215, 110, 25, 10, "Claim #"
   Text 285, 110, 20, 10, "AMT:"
-  Text 150, 185, 40, 10, "Collectible?"
-  Text 240, 185, 30, 10, "Reason:"
+	Text 5, 185, 100, 10, "E. Income disregard allowed?"
+  Text 145, 185, 40, 10, "Collectible?"
+  Text 225, 185, 30, 10, "Reason:"
   Text 5, 145, 60, 10, "Income verif used:"
   Text 05, 205, 90, 10, "HC responsible members:"
   Text 200, 205, 85, 10, "Total Federal HC amount:"
   Text 15, 165, 50, 10, "Reason for OP:"
   Text 240, 145, 60, 10, "Date income rcvd: "
-  Text 5, 185, 100, 10, "E. Income disregard allowed?"
+
 	Text 180, 55, 30, 10, "(MM/YY)"
   Text 130, 55, 30, 10, "(MM/YY)"
 EndDialog
@@ -167,14 +168,14 @@ first_name = trim(first_name)
 '-----------------------------------------------------------------------------------------CASENOTE
 '-----------------------------------------------------------------------------------------CASENOTE
 start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & " (" & first_name & ") " & OP_from & " through " & OP_to & "OVERPAYMENT-CLAIM ENTERED-----")
+Call write_variable_in_CASE_NOTE(OP_program & " Overpayment" & " (" & first_name & ") " & OP_from & " through " & OP_to & " OVERPAYMENT CLAIM ENTERED")
 CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", Active_Programs)
 CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
 Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-IF OP_program_II <> "" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-IF OP_program_III <> "" then Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-CALL write_variable_in_case_note("* Earned Income Disregard Allowed: ", EI_allowed_dropdown)
+IF OP_program_II <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+IF OP_program_III <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+CALL write_bullet_and_variable_in_CASE_NOTE("Earned Income Disregard Allowed", EI_allowed_dropdown)
 IF OP_program = "HC" THEN
 	Call write_bullet_and_variable_in_CASE_NOTE("HC responsible members", HC_resp_memb)
 	Call write_bullet_and_variable_in_CASE_NOTE("Total federal Health Care amount", Fed_HC_AMT)
