@@ -177,7 +177,7 @@ programs = trim(programs)
 IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 
 '----------------------------------------------------------------------------------------------------Employer info & dIFfernce notice info
-IF IEVS_type = "UBEN" THEN
+IF IEVS_type = "UBEN" or IEVS_type = "BEER" THEN
 	EMReadScreen source_income, 7, 8, 18
 	source_income = trim(source_income)
 ELSE
