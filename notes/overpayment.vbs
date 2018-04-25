@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("03/25/2018", "Updated script to add Fraud and Earned Income handling.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/27/2018", "Updated script to add HC handling and the income received date.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/01/2018", "Updated script to write amount in case note in the correct area.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/04/2018", "Initial version.", "MiKayla Handley, Hennepin County")
@@ -76,109 +77,87 @@ CALL MAXIS_case_number_finder (MAXIS_case_number)
 memb_number = "01"
 OP_Date = date & ""
 
-	BeginDialog EWS_OP_dialog, 0, 0, 391, 220, "Overpayment Claim Entered"
-	  EditBox 55, 5, 35, 15, MAXIS_case_number
-	  EditBox 130, 5, 20, 15, memb_number
-	  EditBox 225, 5, 20, 15, OT_resp_memb
-	  EditBox 310, 5, 55, 15, discovery_date
-		EditBox 85, 160, 55, 15, date_verf_rcvd
-	  DropListBox 45, 45, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", First_Program
-	  EditBox 125, 45, 20, 15, First_from_IEVS_month
-	  EditBox 155, 45, 20, 15, First_from_IEVS_year
-	  EditBox 195, 45, 20, 15, First_to_IEVS_month
-	  EditBox 220, 45, 20, 15, First_to_IEVS_year
-	  EditBox 275, 45, 40, 15, First_OP
-	  EditBox 340, 45, 40, 15, First_AMT
-		DropListBox 45, 65, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Second_Program
-		EditBox 125, 65, 20, 15, Second_from_IEVS_month
-		EditBox 155, 65, 20, 15, Second_from_IEVS_year
-		EditBox 195, 65, 20, 15, Second_to_IEVS_month
-		EditBox 220, 65, 20, 15, Second_to_IEVS_year
-		EditBox 275, 65, 40, 15, Second_OP
-		EditBox 340, 65, 40, 15, Second_AMT
-		DropListBox 45, 85, 50, 15, "Select:"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"DW", Third_Program
-		EditBox 125, 85, 20, 15, Third_from_IEVS_month
-		EditBox 155, 85, 20, 15, Third_from_IEVS_year
-		EditBox 195, 85, 20, 15, Third_to_IEVS_month
-		EditBox 220, 85, 20, 15, Third_from_IEVS_year
-		EditBox 275, 85, 40, 15, Third_OP
-		EditBox 340, 85, 40, 15, Third_AMT
-	  DropListBox 50, 120, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
-	  EditBox 165, 120, 215, 15, collectible_reason
-	  DropListBox 340, 160, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
-	  EditBox 60, 140, 80, 15, source_income
-	  EditBox 235, 140, 145, 15, EVF_used
-	  EditBox 60, 180, 320, 15, Reason_OP
-	  CheckBox 5, 205, 120, 10, "Earned Income disregard allowed", EI_checkbox
-	  ButtonGroup ButtonPressed
-	    OkButton 285, 200, 45, 15
-	    CancelButton 335, 200, 45, 15
-	  Text 5, 10, 50, 10, "Case Number: "
-	  Text 95, 10, 30, 10, "MEMB #:"
-	  Text 160, 10, 60, 10, "Other resp. memb:"
-	  Text 255, 10, 55, 10, "Discovery Date: "
-	  GroupBox 5, 25, 380, 85, "Overpayment Information"
-	  Text 10, 50, 30, 10, "Program:"
-	  Text 100, 50, 20, 10, "From:"
-	  Text 180, 50, 10, 10, "To:"
-	  Text 245, 50, 25, 10, "Claim #"
-	  Text 320, 50, 20, 10, "AMT:"
-	  Text 10, 70, 30, 10, "Program:"
-	  Text 100, 70, 20, 10, "From:"
-	  Text 180, 70, 10, 10, "To:"
-	  Text 245, 70, 25, 10, "Claim #"
-	  Text 320, 70, 20, 10, "AMT:"
-	  Text 10, 90, 30, 10, "Program:"
-	  Text 100, 90, 20, 10, "From:"
-	  Text 180, 90, 10, 10, "To:"
-	  Text 245, 90, 25, 10, "Claim #"
-	  Text 320, 90, 20, 10, "AMT:"
-	  Text 5, 125, 40, 10, "Collectible?"
-	  Text 95, 125, 65, 10, "Collectible Reason:"
-	  Text 290, 165, 50, 10, "Fraud referral:"
-	  Text 5, 145, 50, 10, "Income Source: "
-	  Text 150, 145, 85, 10, "Income verification used:"
-	  Text 5, 185, 50, 10, "Reason for OP: "
-	  Text 125, 35, 20, 10, "(MM)"
-	  Text 155, 35, 15, 10, "(YY)"
-	  Text 195, 35, 20, 10, "(MM)"
-	  Text 225, 35, 15, 10, "(YY)"
-	  Text 5, 165, 75, 10, "Date verification rcvd:"
-	EndDialog
+BeginDialog match_claim_dialog, 0, 0, 361, 245, "Overpayment Claim Entered"
+	EditBox 55, 5, 35, 15, MAXIS_case_number
+	EditBox 150, 5, 45, 15, discovery_date
+	EditBox 240, 5, 20, 15, memb_number
+  EditBox 330, 5, 20, 15, OT_resp_memb
+	DropListBox 55, 25, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
+	DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
+  EditBox 130, 65, 30, 15, OP_from
+  EditBox 180, 65, 30, 15, OP_to
+  EditBox 245, 65, 35, 15, Claim_number
+  EditBox 305, 65, 45, 15, Claim_amount
+  DropListBox 50, 85, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_II
+  EditBox 130, 85, 30, 15, OP_from_II
+  EditBox 180, 85, 30, 15, OP_to_II
+  EditBox 245, 85, 35, 15, Claim_number_II
+  EditBox 305, 85, 45, 15, Claim_amount_II
+  DropListBox 50, 105, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_III
+  EditBox 130, 105, 30, 15, OP_from_III
+  EditBox 180, 105, 30, 15, OP_to_III
+  EditBox 245, 105, 35, 15, Claim_number_III
+  EditBox 305, 105, 45, 15, Claim_amount_III
+  EditBox 70, 140, 160, 15, EVF_used
+	EditBox 305, 140, 50, 15, income_rcvd_date
+	EditBox 70, 160, 285, 15, Reason_OP
+	DropListBox 105, 180, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", EI_allowed_dropdown
+	DropListBox 200, 180, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
+  DropListBox 270, 180, 85, 15, "Select:"+chr(9)+"HH No Info"+chr(9)+"HH Incorrect Or Incompl"+chr(9)+"HH Not Timely Inform"+chr(9)+"Estimate Wrong Inadv"+chr(9)+"No HRF"+chr(9)+"Benefits Rcd Pend App"+chr(9)+"Replacement Bene Used" +chr(9)+"Prog Pol Prevents Chg" +chr(9)+"EBT- Representment" +chr(9)+"IEVS - BEER"+chr(9)+"IEVS - BENDEX" +chr(9)+"IEVS - UNVI"+chr(9)+"IEVS - SDX"+chr(9)+"IEVS - WAGE"+chr(9)+"IEVS - UBEN"+chr(9)+"PARIS Inter-state Match"+chr(9)+"Agency: Delay   Action"+chr(9)+"Agency: Issue Comp Error"+chr(9)+"Agency: Dup Issuance"+chr(9)+"Agency:$50 Pass-Thru"+chr(9)+"GRH Vndr: No Info"+chr(9)+"GRH Vndr: Incomplete"+chr(9)+"GRH Vndr: Not Timely"+chr(9)+"GRH Vndr: Client Left Faci"+chr(9)+"99 Other", collectible_reason_dropdown
+	EditBox 70, 160, 285, 15, Reason_OP
+	EditBox 95, 200, 60, 15, HC_resp_memb
+  EditBox 290, 200, 65, 15, Fed_HC_AMT
+  ButtonGroup ButtonPressed
+      OkButton 260, 225, 45, 15
+      CancelButton 310, 225, 45, 15
+  Text 5, 10, 50, 10, "Case Number: "
+  Text 95, 10, 55, 10, "Discovery Date: "
+  Text 5, 30, 50, 10, "Fraud referral:"
+  Text 205, 10, 30, 10, "MEMB #:"
+  Text 270, 10, 60, 10, "Other resp. memb:"
+  GroupBox 10, 45, 345, 90, "Overpayment Information"
+  Text 15, 70, 30, 10, "Program:"
+  Text 105, 70, 20, 10, "From:"
+  Text 165, 70, 10, 10, "To:"
+  Text 215, 70, 25, 10, "Claim #"
+  Text 285, 70, 20, 10, "AMT:"
+  Text 15, 90, 30, 10, "Program:"
+  Text 105, 90, 20, 10, "From:"
+  Text 165, 90, 10, 10, "To:"
+  Text 215, 90, 25, 10, "Claim #"
+  Text 285, 90, 20, 10, "AMT:"
+  Text 15, 110, 30, 10, "Program:"
+  Text 105, 110, 20, 10, "From:"
+  Text 165, 110, 10, 10, "To:"
+  Text 215, 110, 25, 10, "Claim #"
+  Text 285, 110, 20, 10, "AMT:"
+  Text 150, 185, 40, 10, "Collectible?"
+  Text 240, 185, 30, 10, "Reason:"
+  Text 5, 145, 60, 10, "Income verif used:"
+  Text 05, 205, 90, 10, "HC responsible members:"
+  Text 200, 205, 85, 10, "Total Federal HC amount:"
+  Text 15, 165, 50, 10, "Reason for OP:"
+  Text 240, 145, 60, 10, "Date income rcvd: "
+  Text 5, 185, 100, 10, "E. Income disregard allowed?"
+	Text 180, 55, 30, 10, "(MM/YY)"
+  Text 130, 55, 30, 10, "(MM/YY)"
+EndDialog
 
 Do
 	err_msg = ""
-	dialog EWS_OP_dialog
-	IF buttonpressed = 0 THEN stopscript
-	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 THEN err_msg = err_msg & vbnewline & "* Enter a valid case number."
-	IF First_Program = "Select:"THEN err_msg = err_msg & vbNewLine &  "* Please enter the program for the overpayment FS Food Stamps, FG Family GA, GA Gen Assist, GR Group Residential Housing, MF MFIP, or DW Diversionary Work Program"
-	IF First_OP = "" THEN err_msg = err_msg & vbnewline & "* You must have an overpayment entry."
-	IF First_from_IEVS_month = "Select:" THEN err_msg = err_msg & vbNewLine &  "* Please enter the start month(MM) overpayment occured."
-	IF First_from_IEVS_year = "Select:" THEN err_msg = err_msg & vbNewLine &  "* Please enter the start year(YY) overpayment occured."
-	IF First_to_IEVS_month = "Select:" THEN err_msg = err_msg & vbNewLine &  "* Please enter the end month(MM) overpayment occured."
-	IF First_to_IEVS_year = "Select:" THEN err_msg = err_msg & vbNewLine &  "* Please enter the end year(YY) overpayment occured."
-	IF Second_OP <> "" THEN
-		IF Second_from_IEVS_month = "Select:" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month(MM) 2nd overpayment occured."
-		IF Second_from_IEVS_year = "Select:" THEN err_msg = err_msg & vbNewLine &  "* Please enter the start year(YY) 2nd overpayment occured."
-		IF Second_to_IEVS_month = "Select:" THEN err_msg = err_msg & vbNewLine &  "* Please enter the end month(MM) 2nd overpayment occured."
-		IF Second_to_IEVS_year = "Select:" THEN err_msg = err_msg & vbNewLine &  "* Please enter the end year(YY) 2nd overpayment occured."
-	END IF
-	IF Third_OP <> "" THEN
-		IF Third_from_IEVS_month = "Select:" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month(MM) 3rd overpayment occured."
-		IF Third_from_IEVS_year = "Select:" THEN err_msg = err_msg & vbNewLine &  "* Please enter the start year(YY) 3rd overpayment occured."
-		IF Third_to_IEVS_month = "Select:" THEN err_msg = err_msg & vbNewLine &  "* Please enter the end month(MM) 3rd overpayment occured."
-		IF Third_to_IEVS_year = "Select:" THEN err_msg = err_msg & vbNewLine &  "* Please enter the end year(YY) 3rd overpayment occured."
-	END IF
-	IF collectible_dropdown = "Select:"  THEN err_msg = err_msg & vbnewline & "* Please advise if overpayment is collectible."
-	IF collectible_dropdown = "YES"  & collectible_reason = "" THEN err_msg = err_msg & vbnewline & "* Please advise why overpayment is collectible."
-	IF fraud_referral = "Select:"  THEN err_msg = err_msg & vbnewline & "* Please advise if a fraud referral was made."
-	IF source_income = ""  THEN err_msg = err_msg & vbnewline & "* Please advise the source of income."
-	IF EVF_used = ""  THEN err_msg = err_msg & vbnewline & "* Please advise the verification used for income."
-	IF Reason_OP = ""  THEN err_msg = err_msg & vbnewline & "* Please advise the reason for overpayment."
-	IF Discovery_date = ""  THEN err_msg = err_msg & vbnewline & "* Please advise the date the overpayment was discovered (DD/MM/YY)."
+	dialog match_claim_dialog
+	IF buttonpressed = 0 then stopscript
+	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
+	IF select_quarter = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match period entry."
+	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
+	IF IEVS_type = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match type entry."
+	IF EI_allowed_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if Earned Income disregard was allowed."
+	IF income_rcvd_date = "" THEN err_msg = err_msg & vbnewline & "* Please advise of date income was received."
+	IF OP_program = "Select:" THEN err_msg = err_msg & vbnewline & "* You must have an overpayment entry."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 LOOP UNTIL err_msg = ""
 CALL DEU_password_check(False)
+
 '----------------------------------------------------------------------------------------------------STAT
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 EMwritescreen memb_number, 20, 76
@@ -186,32 +165,31 @@ EMReadScreen first_name, 12, 6, 63
 first_name = replace(first_name, "_", "")
 first_name = trim(first_name)
 '-----------------------------------------------------------------------------------------CASENOTE
-
+'-----------------------------------------------------------------------------------------CASENOTE
 start_a_blank_CASE_NOTE
-CALL write_variable_in_CASE_NOTE("----- " & First_from_IEVS_month & "/" &  First_from_IEVS_year & "(" & first_name &  ")" & "OVERPAYMENT CLAIM ENTERED -----")
-CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
-CALL write_variable_in_CASE_NOTE("----- ----- ----- ")
-Call write_variable_in_CASE_NOTE(First_Program & " Overpayment Claim # " & First_OP  & " Amount: $" & First_AMT &  " From: " & First_from_IEVS_month & "/" &  First_from_IEVS_year & " through "  & First_to_IEVS_month & "/" &  First_to_IEVS_year)
-IF Second_OP <> "" THEN CALL write_variable_in_case_note(Second_Program &  " Overpayment Claim # " & Second_OP  & " Amount: $" & Second_AMT & " From: " & Second_from_IEVS_month & "/" &  Second_from_IEVS_year & " through "  & Second_to_IEVS_month & "/" &  Second_to_IEVS_year)
-IF Third_OP <> "" THEN CALL write_variable_in_case_note(Third_Program &  " Overpayment Claim # " & Third_OP & " Amount: $" & Third_AMT & " From: " & Third_from_IEVS_month & "/" &  Third_from_IEVS_year & " through "  & Third_to_IEVS_month & "/" &  Third_to_IEVS_year)
-IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
-IF First_program = "HC" THEN
+Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & " (" & first_name & ") " & OP_from & " through " & OP_to & "OVERPAYMENT-CLAIM ENTERED-----")
+CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", Active_Programs)
+CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
+Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+IF OP_program_II <> "" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+IF OP_program_III <> "" then Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+CALL write_variable_in_case_note("* Earned Income Disregard Allowed: ", EI_allowed_dropdown)
+IF OP_program = "HC" THEN
 	Call write_bullet_and_variable_in_CASE_NOTE("HC responsible members", HC_resp_memb)
 	Call write_bullet_and_variable_in_CASE_NOTE("Total federal Health Care amount", Fed_HC_AMT)
 	Call write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
 END IF
-IF fraud_referral = "YES" THEN CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
+CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
 CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
 CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
-CALL write_bullet_and_variable_in_case_note("Verification used for overpayment", EVF_used)
-CALL write_bullet_and_variable_in_case_note("Date income verification was received", date_verf_rcvd)
+CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_used)
+CALL write_bullet_and_variable_in_case_note("Date income verification was received", income_rcvd_date)
 CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
-CALL write_bullet_and_variable_in_case_note("Discovery Date", Discovery_date)
 CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
-CALL write_variable_in_CASE_NOTE("----- ----- -----")
+CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 PF3
-
-IF First_OP_program = "HC" THEN CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us", "Claims entered for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Date Overpayment Created: " & OP_Date & vbcr & "Programs: " & program_droplist & vbcr & "See case notes for further details.", "", False)
+IF OP_program = "HC" THEN CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us", "Claim entered for case #" &  MAXIS_case_number, "Member #: " & OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount & "See case notes for further details.", "", False)
 
 script_end_procedure("Overpayment case note entered. Please remember to copy and paste your notes to CCOL/CLIC")
