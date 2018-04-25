@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/25/2018", "Updated SCHL exemption coding.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/17/2018", "Enhanced to check cases coded for homelessness for the 'Unfit for Employment' expansion. Also removed code that checked for SSI applying/appealing as this is no longer an exemption reason.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -440,9 +441,9 @@ EmReadscreen addr_line_01, 16, 6, 43
 IF homeless_code = "Y" or addr_line_01 = "GENERAL DELIVERY" THEN closing_message = closing_message & vbCr & "* Client is claiming homelessness. If client has barriers to employment, they could meet the 'Unfit for Employment' exemption. Exemption began 05/2018."
 
 '>>>>>>>>>SCHL/STIN/STEC
-CALL navigate_to_MAXIS_screen("STAT", "SCHL")
 FOR EACH person IN HH_member_array
 	IF person <> "" THEN
+        CALL navigate_to_MAXIS_screen("STAT", "SCHL")
 		CALL write_value_and_transmit(person, 20, 76)
 		EMReadScreen num_of_SCHL, 1, 2, 78
 		IF num_of_SCHL = "1" THEN
