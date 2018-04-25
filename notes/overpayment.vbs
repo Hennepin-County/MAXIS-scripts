@@ -153,6 +153,10 @@ Do
 	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
 	IF IEVS_type = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match type entry."
 	IF EI_allowed_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if Earned Income disregard was allowed."
+  IF collectible_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if claim is collectible."
+	IF collectible_dropdown = "YES" THEN
+		IF collectible_reason_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise why claim is collectible."
+	END IF	
 	IF income_rcvd_date = "" THEN err_msg = err_msg & vbnewline & "* Please advise of date income was received."
 	IF OP_program = "Select:" THEN err_msg = err_msg & vbnewline & "* You must have an overpayment entry."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -168,8 +172,7 @@ first_name = trim(first_name)
 '-----------------------------------------------------------------------------------------CASENOTE
 '-----------------------------------------------------------------------------------------CASENOTE
 start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE(OP_program & " Overpayment" & " (" & first_name & ") " & OP_from & " through " & OP_to & " OVERPAYMENT CLAIM ENTERED")
-CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", Active_Programs)
+Call write_variable_in_CASE_NOTE("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
 CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
 Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
