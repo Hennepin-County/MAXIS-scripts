@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("04/23/2018", "Fixed bug in which the lines of the PIC were dupicated in the case note.", "Casey Love, Hennepin County")
 CALL changelog_update("12/07/2017", "Removed condition to allow paystubs dated with the current date to be accepted. Updated code to write JOBS verification code in.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("01/11/2017", "The script has been updated to write to the GRH PIC and to case note that the GRH PIC has been updated.", "Robert Fewins-Kalb, Anoka County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -276,16 +277,16 @@ DO
 		'Making sure that the script returns to the JOBS panel it is supposed to.
 		'Addition of check_for_password appears to force through a transmit which causes the script to jump ahead 1 JOBS panel
 	CALL write_value_and_transmit("0" & current_panel_number, 20, 79)
-	'Do 
+	'Do
 	'    EMReadScreen selected_employer, 30, 7, 42
-	'    If trim(selected_employer) <> trim(employer_name) then 
+	'    If trim(selected_employer) <> trim(employer_name) then
 	'		correct_job = False
 	'		confirm_job = msgbox("The employer you selected to update was " & employer_name. " This JOBS panel does not match. Either add a panel now, or navigate to the correct job. Press OK when ready for script to continue.", vbOkCancel + vbExclamation, "JOBS panel names do not match.")
-	'    	If confirm_job = vbCancel then script_end_procedure("You have chosen to stop the script. Please review case for incomplete changes or inforamtion.") 
+	'    	If confirm_job = vbCancel then script_end_procedure("You have chosen to stop the script. Please review case for incomplete changes or inforamtion.")
 	'		IF confirm_job = vbOK then correct_job = true
-	'	End if 
+	'	End if
 	'Loop until correct_job = true
-		
+
 	err_msg = ""
 	'Checking dates to make sure all are on the same day of the week, in instances of weekly or biweekly income. This avoids a possible issue
 	'resulting from a paydate being "moved" due to a holiday, and affecting the rest of the calculation for income. If the dates are not all on the
@@ -420,35 +421,42 @@ Do
 			EMReadScreen PIC_line_09, 50, 16, 22
 			EMReadScreen PIC_line_10, 50, 17, 22
 			EMReadScreen PIC_line_11, 50, 18, 22
-			PF20										'shift PF8 to the next PIC screen'
-			EMReadScreen PIC_page_2_check, 8, 20, 6
-			IF PIC_page_2_check <> "COMPLETE" THEN
-				EMReadScreen PIC2_line_01, 28, 9, 13		'reading the 2nd page of the PIC'
-				EMReadScreen PIC2_line_02, 28, 10, 13
-				EMReadScreen PIC2_line_03, 28, 11, 13
-				EMReadScreen PIC2_line_04, 28, 12, 13
-				EMReadScreen PIC2_line_05, 28, 13, 13
-				PIC2_line_01 = Replace(PIC2_line_01, "$", " ")
-				PIC2_line_01 = Replace(PIC2_line_01, "__ __ __    ________  ______", "")
-				PIC2_line_02 = Replace(PIC2_line_02, "__ __ __    ________  ______", "")
-				PIC2_line_03 = Replace(PIC2_line_03, "__ __ __    ________  ______", "")
-				PIC2_line_04 = Replace(PIC2_line_04, "__ __ __    ________  ______", "")
-				PIC2_line_05 = Replace(PIC2_line_05, "__ __ __    ________  ______", "")
-			END IF
+            If PIC_line_07 <> "__ __ __    ________  ______" Then
+    			PF20										'shift PF8 to the next PIC screen'
+    			EMReadScreen PIC_page_2_check, 8, 20, 6
+                MagBox PIC_page_2_check
+    			IF PIC_page_2_check <> "COMPLETE" THEN
+    				EMReadScreen PIC2_line_01, 28, 9, 13		'reading the 2nd page of the PIC'
+                    If PIC2_line_01 <> PIC_line_03 Then
+        				EMReadScreen PIC2_line_02, 28, 10, 13
+        				EMReadScreen PIC2_line_03, 28, 11, 13
+        				EMReadScreen PIC2_line_04, 28, 12, 13
+        				EMReadScreen PIC2_line_05, 28, 13, 13
+        				PIC2_line_01 = Replace(PIC2_line_01, "$", " ")
+        				PIC2_line_01 = Replace(PIC2_line_01, "__ __ __    ________  ______", "")
+        				PIC2_line_02 = Replace(PIC2_line_02, "__ __ __    ________  ______", "")
+        				PIC2_line_03 = Replace(PIC2_line_03, "__ __ __    ________  ______", "")
+        				PIC2_line_04 = Replace(PIC2_line_04, "__ __ __    ________  ______", "")
+        				PIC2_line_05 = Replace(PIC2_line_05, "__ __ __    ________  ______", "")
+                    Else
+                        PIC2_line_01 = ""
+                    End If
+    			END IF
+            End If
 			transmit
 		END IF
     End if
-	
+
 	'going into the GRH PIC to update...
-	IF update_GRH_PIC_check = 1 THEN 
+	IF update_GRH_PIC_check = 1 THEN
 		'checking to make sure that the user has the case in a benefit month that includes the GRH PIC... 07/16 is the first month...
 		EMReadScreen grh_pic, 7, 19, 73
-		IF grh_pic <> "GRH PIC" THEN 
+		IF grh_pic <> "GRH PIC" THEN
 			MsgBox "*** NOTICE!!! ***" & vbCr & vbCr & "You are attempting to update the GRH PIC in a budget month prior to the implementation of the GRH PIC on STAT/JOBS. The script will skip attempting to update the GRH PIC for this month.", vbExclamation
 		ELSE
 			'else, going in to the GRH PIC
 			CALL write_value_and_transmit("X", 19, 71)
-			
+
 			'erasing the information currently in the GRH PIC
 			EMWriteScreen "_", 3, 63		'pay frequency
 			EMWriteScreen "______", 6, 63		'hrs/wk
@@ -457,19 +465,19 @@ Do
 			FOR row = 7 to 16
 				EMWriteScreen "__", row, 9
 				EMWriteScreen "__", row, 12
-				EMWriteScreen "__", row, 15    
+				EMWriteScreen "__", row, 15
 				EMWriteScreen "________", row, 21
 			NEXT
-			
+
 			'writing today's date in the Date of Calculation field
 			CALL create_mainframe_friendly_date(date, 3, 30, "YY")
-			
+
 			'writing the pay frequency
 			If pay_frequency = "One Time Per Month" then 	EMWriteScreen "1", 3, 63
 			If pay_frequency = "Two Times Per Month" then 	EMWriteScreen "2", 3, 63
 			If pay_frequency = "Every Other Week" then 		EMWriteScreen "3", 3, 63
 			If pay_frequency = "Every Week" then 			EMWriteScreen "4", 3, 63
-			
+
 			'updating income lines
 			GRH_PIC_row = 7
 			'Uses function to add each PIC pay date, income, and hours. Doesn't add any if they show "01/01/2000" as those are dummy numbers
@@ -485,13 +493,13 @@ Do
 			EMReadScreen avg_grh_income, 39, 16, 38
 			EMReadScreen grh_prosp_monthly, 42, 17, 35
 			PF3
-		END IF	
+		END IF
 	END IF
 
 	'Clears JOBS data before updating the JOBS panel
 	EMSetCursor 12, 25
 	EMSendKey "___________________________________________________________________________________________________________________________________________________"
-	
+
 	'Updates for retrospective income by checking each pay date's month against the footer month using a function. If the footer month is two months ahead of the pay month it will add to JOBS and keep a tally of hours.
 	MAXIS_row = 12 'Needs this for the following functions
 	Dim retro_hours
@@ -596,7 +604,7 @@ Do
 
 	'Puts pay verification type in. JOBS panel verification codes were updated in 10-16 to coordinates 6, 34 from coordinates 6, 38
 	EMWriteScreen left(JOBS_verif_code, 1), 6, 34
-	
+
 	'If the footer month is the current month + 1, the script needs to update the HC popup for HC cases.
 	If update_HC_popup_check = 1 and datediff("m", date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 1 then
 		EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
@@ -669,7 +677,7 @@ If update_PIC_check = 1 then
 	call write_variable_in_CASE_NOTE(worker_signature)
 End if
 
-IF update_GRH_PIC_check = 1 THEN 
+IF update_GRH_PIC_check = 1 THEN
 	start_a_blank_CASE_NOTE
 	Call write_variable_in_CASE_NOTE("~~~GRH PIC for MEMB " & HH_member & ": " & date & "~~~")
 	CALL write_variable_in_CASE_NOTE("Pay Date    Gross Amt")
