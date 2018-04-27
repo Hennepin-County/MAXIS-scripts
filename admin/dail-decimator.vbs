@@ -290,8 +290,14 @@ For each worker in worker_array
             ElseIf instr(dail_msg, "UPDATE MEMI:LAST GRADE COMPLETED IF NEEDED") then 
             	add_to_excel = True 
             ElseIf instr(dail_msg, "EMPL SERV REF DATE IS > 60 DAYS; CHECK ES PROVIDER RESPONSE") then 
-            	add_to_excel = True           
-			Else	
+            	add_to_excel = True
+            ElseIf instr(dail_msg, "MANUAL REFERRAL WAS MADE") then 
+                add_to_excel = True'----------------------------------------------------------------------------------------------------TIKL messages non-actionable             
+            ElseIf instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") then 
+                add_to_excel = True  
+            ElseIf instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then 
+                add_to_excel = True 
+            Else	
 			    add_to_excel = False 
 			End if 
 		    
