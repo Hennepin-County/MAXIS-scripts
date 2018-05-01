@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("05/01/2018", "Updated script to ensure Reason for OP is entered as it is a mandatory field.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/25/2018", "Updated script to add Fraud and Earned Income handling.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/27/2018", "Updated script to add HC handling and the income received date.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/01/2018", "Updated script to write amount in case note in the correct area.", "MiKayla Handley, Hennepin County")
@@ -100,7 +101,6 @@ BeginDialog match_claim_dialog, 0, 0, 361, 245, "Overpayment Claim Entered"
   EditBox 305, 105, 45, 15, Claim_amount_III
   EditBox 70, 140, 160, 15, EVF_used
 	EditBox 305, 140, 50, 15, income_rcvd_date
-	EditBox 70, 160, 285, 15, Reason_OP
 	DropListBox 105, 180, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", EI_allowed_dropdown
 	DropListBox 185, 180, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
   DropListBox 255, 180, 100, 15, "Select:"+chr(9)+"HH No Info"+chr(9)+"HH Incorrect Or Incompl"+chr(9)+"HH Not Timely Inform"+chr(9)+"Estimate Wrong Inadv"+chr(9)+"No HRF"+chr(9)+"Benefits Rcd Pend App"+chr(9)+"Replacement Bene Used" +chr(9)+"Prog Pol Prevents Chg" +chr(9)+"EBT- Representment" +chr(9)+"IEVS - BEER"+chr(9)+"IEVS - BENDEX" +chr(9)+"IEVS - UNVI"+chr(9)+"IEVS - SDX"+chr(9)+"IEVS - WAGE"+chr(9)+"IEVS - UBEN"+chr(9)+"PARIS Inter-state Match"+chr(9)+"Agency: Delay   Action"+chr(9)+"Agency: Issue Comp Error"+chr(9)+"Agency: Dup Issuance"+chr(9)+"Agency:$50 Pass-Thru"+chr(9)+"GRH Vndr: No Info"+chr(9)+"GRH Vndr: Incomplete"+chr(9)+"GRH Vndr: Not Timely"+chr(9)+"GRH Vndr: Client Left Faci"+chr(9)+"99 Other", collectible_reason_dropdown
@@ -139,7 +139,6 @@ BeginDialog match_claim_dialog, 0, 0, 361, 245, "Overpayment Claim Entered"
   Text 200, 205, 85, 10, "Total Federal HC amount:"
   Text 15, 165, 50, 10, "Reason for OP:"
   Text 240, 145, 60, 10, "Date income rcvd: "
-
 	Text 180, 55, 30, 10, "(MM/YY)"
   Text 130, 55, 30, 10, "(MM/YY)"
 EndDialog
@@ -151,6 +150,7 @@ Do
 	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
 	IF select_quarter = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match period entry."
 	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
+	IF trim(Reason_OP) or len(Reason_OP) > 8 = "" THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 8)."
 	IF OP_program = "Select:"THEN err_msg = err_msg & vbNewLine &  "* Please enter the program for the overpayment."
 	IF OP_program_II <> "Select:" THEN
 		IF OP_from_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred."
@@ -200,7 +200,7 @@ CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or
 CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_used)
 CALL write_bullet_and_variable_in_case_note("Date income verification was received", income_rcvd_date)
 CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
-CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
+CALL write_bullet_and_variable_in_case_note("MANDATORY-Reason for overpayment", Reason_OP)
 CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 PF3
