@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/12/2018", "Added ODW Application.", "MiKayla Handley, Hennepin County")
 call changelog_update("03/12/2018", "Removed DAIL report. BULK DAIL REPORT was updated in its place.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/30/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -162,6 +163,13 @@ script_array_admin_main(script_num).description			= "FIATs MFIP sanction actions
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
 Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_admin_main(script_num).script_name		= "On Demand Waiver - Applications"													'Script name
+script_array_admin_main(script_num).file_name			= "bulk-applications.vbs"												'Script URL
+script_array_admin_main(script_num).description		= "BULK script to collect information for cases that require an interview for the On Demand Waiver."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
+Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_admin_main(script_num).script_name			= "Pull Cases Into Excel"											'Script name
 script_array_admin_main(script_num).file_name			= "pull-cases-into-excel.vbs"										'Script URL
 script_array_admin_main(script_num).description			= "Creates a list of information not available in other BULK scripts."
@@ -218,10 +226,10 @@ Do
 	If ButtonPressed = "" or ButtonPressed = admin_main_button then declare_admin_menu_dialog(script_array_admin_main)
 	dialog admin_dialog
 	If ButtonPressed = 0 then stopscript
-	
+
     'Opening the SIR Instructions
 	'IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notices%20scripts.aspx")
-Loop until 	ButtonPressed <> admin_main_button 
+Loop until 	ButtonPressed <> admin_main_button
 'MsgBox buttonpressed = script_array_admin_main(0).button
 
 'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
