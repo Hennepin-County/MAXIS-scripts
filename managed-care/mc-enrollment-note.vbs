@@ -269,33 +269,34 @@ enrollment_year = CM_plus_1_yr
 this_month = monthname(month(date))
 Select Case this_month
     Case "January"
-        cut_off_date = 01/22/18
+        cut_off_date = #01/22/18#
     Case "February"
-        cut_off_date = 2/16/18
+        cut_off_date = #2/16/18#
     Case "March"
-        cut_off_date = 3/21/18
+        cut_off_date = #3/21/18#
     Case "April"
-        cut_off_date = 4/19/18
+        cut_off_date = #4/19/18#
     Case "May"
-        cut_off_date = 5/21/18
+        cut_off_date = #5/21/18#
     Case "June"
-        cut_off_date = 6/20/18
+        cut_off_date = #6/20/18#
     Case "July"
-        cut_off_date = 7/20/18
+        cut_off_date = #7/20/18#
     Case "August"
-        cut_off_date = 8/22/18
+        cut_off_date = #8/22/18#
     Case "September"
-        cut_off_date = 9/19/18
+        cut_off_date = #9/19/18#
     Case "October"
-        cut_off_date = 10/22/18
+        cut_off_date = #10/22/18#
     Case "November"
-        cut_off_date = 11/19/18
+        cut_off_date = #11/19/18#
     Case "December"
-        cut_off_date = 12/19/18
+        cut_off_date = #12/19/18#
 End Select
-
+'MsgBox cut_off_date
 If cut_off_date <> "" Then
     If DateDiff("d", date, cut_off_date) < 0 Then
+        'MsgBox DateDiff("d", date, cut_off_date)
         enrollment_month = CM_plus_2_mo
         enrollment_year = CM_plus_2_yr
     End If
