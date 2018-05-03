@@ -118,7 +118,7 @@ Do
 	call navigate_to_MAXIS_screen("STAT", "WREG")
     EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
     If PRIV_check = "PRIV" then
-        ObjExcel.Cells(excel_row, 8).Value = replace("PRIV")
+        ObjExcel.Cells(excel_row, 8).Value = "PRIV"
     Else 
         Call write_value_and_transmit(member_number, 20, 76)
         
