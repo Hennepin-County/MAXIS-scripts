@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/04/2018", "Removed autofill functionality for the DIET panel temporarily until MAXIS help desk can resolve NAT errors.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/11/2017", "Adding functionality to offer a TIKL for 12 month contact on 24 month SNAP renewals.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -357,7 +358,7 @@ call autofill_editbox_from_MAXIS(HH_member_array, "CASH", CASH_ACCTs)
 call autofill_editbox_from_MAXIS(HH_member_array, "CARS", other_assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "COEX", COEX_DCEX)
 call autofill_editbox_from_MAXIS(HH_member_array, "DCEX", COEX_DCEX)
-call autofill_editbox_from_MAXIS(HH_member_array, "DIET", DIET)
+'call autofill_editbox_from_MAXIS(HH_member_array, "DIET", DIET)
 call autofill_editbox_from_MAXIS(HH_member_array, "DISA", DISA)
 call autofill_editbox_from_MAXIS(HH_member_array, "EMPS", EMPS)
 call autofill_editbox_from_MAXIS(HH_member_array, "FACI", FACI)
