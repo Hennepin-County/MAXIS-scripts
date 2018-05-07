@@ -411,11 +411,11 @@ For case_entry = 0 to Ubound(application_array, 2) 'grabbing additional informat
 				'other notes that may not have processed correctly' ***Add program: incomplete***
 				IF left(note_title, 15) = "***Add program:" then
 					application_array(interview_date, case_entry) = note_date
-					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", PROG not updated, add a program case note"
+					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", Interview indicated in case note - see interview date, add a program case note"
 				END IF
 				IF left(note_title, 33) = "***Intake Interview Completed ***" then
 					application_array(interview_date, case_entry) = note_date
-					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", PROG not updated, Interview completed"
+					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", Interview indicated in case note - see interview date, Interview completed"
 				END IF
 				IF left(note_title, 55) = "~ Client has not completed CASH application interview ~" then
 					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", CASH only interview needed"
@@ -425,27 +425,27 @@ For case_entry = 0 to Ubound(application_array, 2) 'grabbing additional informat
 				END IF
 				 IF left(note_title, 40) = "***Reapplication Interview Completed ***" then
  					application_array(interview_date, case_entry) = note_date
- 					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", PROG not updated, Interview completed"
+ 					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", Interview indicated in case note - see interview date, Interview completed"
  				END IF
 				IF left(note_title, 42) = "~ Interview Completed for SNAP ~" then
 					application_array(interview_date, case_entry) = note_date
-					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", PROG not updated, Interview completed"
+					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", Interview indicated in case note - see interview date, Interview completed"
 				END IF
 				IF left(note_title, 42) = "*client interviewed* onboarding processing" then
 					application_array(interview_date, case_entry) = note_date
-					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", PROG not updated, Interview completed"
+					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", Interview indicated in case note - see interview date, Interview completed"
 				END IF
 				IF left(note_title, 34) = "***Intake: pending mentor review**" then
 					application_array(interview_date, case_entry) = note_date
-					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", PROG not updated"
+					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", Interview indicated in case note - see interview date"
 				END IF
 				IF left(note_title, 23) = "~ Interview Completed ~" then
 					application_array(interview_date, case_entry) = note_date
-					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", PROG not updated, Interview completed"
+					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", Interview indicated in case note - see interview date, Interview completed"
 				END IF
 				IF left(note_title, 10) = "***Intake:" then
 					application_array(interview_date, case_entry) = note_date
-					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", PROG not updated"
+					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", Interview indicated in case note - see interview date"
 				END IF
 				IF left(note_title, 24) = "~ Application interview ~" then
 					application_array(interview_date, case_entry) = note_date
@@ -453,7 +453,7 @@ For case_entry = 0 to Ubound(application_array, 2) 'grabbing additional informat
 				END IF
 				IF left(note_title, 33) = "***Intake Interview Completed ***" then
 					application_array(interview_date, case_entry) = note_date
-					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", PROG not updated, Interview completed"
+					application_array(error_notes, case_entry) = application_array(error_notes, case_entry) & ", Interview indicated in case note - see interview date, Interview completed"
 				END IF
 				IF left(UCase(note_title), 51) = "Phone call from client re: Phone interview Complete" then
             application_array(interview_date, case_entry) = note_date
@@ -560,7 +560,7 @@ objExcel.cells(1, 8).value 	  = "Notice Sent"
 objExcel.cells(1, 9).value 		= "Nomi Sent"
 objExcel.cells(1, 10).value 	= "Confirmation"
 objExcel.cells(1, 11).value 	= "Denial"
-objExcel.Cells(1, 12).value 	= "Status"
+objExcel.Cells(1, 12).value 	= "Case information"
 objExcel.cells(1, 13).value 	= "Privileged"
 objExcel.cells(1, 14).value 	= "Out of County"
 'objExcel.Cells(1, 16).value 	= "other"
@@ -740,7 +740,7 @@ FOR case_entry = 0 to Ubound(application_array, 2)
   IF application_array(priv_case, case_entry) = TRUE THEN objExcel.Cells(row, 13).Value = "PRIV"
   objExcel.Cells(row, 14).Value = application_array(out_of_co, case_entry)
 	IF application_array(worker_ID, case_entry) = "X127EF8" or application_array(worker_ID, case_entry) = "X127EJ1" THEN objExcel.Rows(row).font.colorindex = 10
-	IF application_array(error_notes, case_entry) = "PROG not updated" THEN objExcel.Rows(row).font.colorindex = 21 'blue'
+	IF application_array(error_notes, case_entry) = "Interview indicated in case note - see interview date" THEN objExcel.Rows(row).font.colorindex = 21 'blue'
 	IF application_array(error_notes, case_entry) = "Review case" THEN objExcel.Rows(row).font.colorindex = 46 'orange'
 	IF application_array(deny_day30, case_entry) = TRUE THEN
 		objExcel.Rows(row).font.colorindex = 3 'red'
