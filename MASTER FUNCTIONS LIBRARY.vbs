@@ -4134,6 +4134,18 @@ function navigate_to_PRISM_screen(x)
   EMWaitReady 0, 0
 end function
 
+function ONLY_create_MAXIS_friendly_date(date_variable)
+'--- This function creates a MM DD YY date.
+'~~~~~ date_variable: the name of the variable to output 
+	var_month = datepart("m", date_variable)
+	If len(var_month) = 1 then var_month = "0" & var_month
+	var_day = datepart("d", date_variable)
+	If len(var_day) = 1 then var_day = "0" & var_day
+	var_year = datepart("yyyy", date_variable)
+	var_year = right(var_year, 2)
+	date_variable = var_month &"/" & var_day & "/" & var_year
+end function
+
 function open_URL_in_browser(URL_to_open)
 '--- This function is to be used to open a URL in user's default browser
 '~~~~~ URL_to_open: web address to open
