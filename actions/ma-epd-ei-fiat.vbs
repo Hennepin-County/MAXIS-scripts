@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/07/2018", "Updated the script to identify cases at application versus review, and provide different functionality for those options. Average income will now be determined from the budget on ELIG.", "Casey Love, Hennepin County")
 call changelog_update("04/23/2018", "Added functionality to allow any month to be selected as the first month to be FIATed.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -54,6 +55,11 @@ changelog_display
 'FUNCTIONS==================================================================================================================
 
 function get_average_pay(job_frequency, job_income)
+'This function was created for the initial process of determining average income'
+'It is not currently being used in the script.
+'Need to go to JOBS before calling this function - not going within the function to allow for correct navigation for the right person and instance
+
+    'Setting these to blanks for each use of the function'
     anticipated_total = ""
     divider = divider = ""
     anticipated_average = ""
@@ -61,6 +67,7 @@ function get_average_pay(job_frequency, job_income)
     use_hc_est_inc_radio = ""
     use_anticipated_inc_radio = ""
 
+    'Reading the pay frequency and then setting it to a string that is more readable
     EMReadScreen pay_freq, 1, 18, 35
     If pay_freq = "1" then job_frequency = "1: monthly"
     If pay_freq = "2" then job_frequency = "2: twice monthly"
@@ -68,19 +75,20 @@ function get_average_pay(job_frequency, job_income)
     If pay_freq = "4" then job_frequency = "4. every week"
     If pay_freq = "5" then job_frequency = "5. other (use monthly avg)"
 
+    'Reading the anticipated total of income and defining a blank
     EMReadScreen anticipated_total, 8, 17, 67
     anticipated_total = trim(anticipated_total)
     If anticipated_total = "" Then anticipated_total = 0
 
-    jobs_row = 12
-    divider = 0
+    jobs_row = 12       'This is where pay information starts
+    divider = 0         'This will count the number of pay dates listed in the prospective side to be used to calculate the average.
     Do
-        EMReadScreen pay_date, 8, jobs_row, 54
-        If pay_date <> "__ __ __" Then divider = divider + 1
-        jobs_row = jobs_row + 1
-    Loop until jobs_row = 17
+        EMReadScreen pay_date, 8, jobs_row, 54                  'Read the date of pay
+        If pay_date <> "__ __ __" Then divider = divider + 1    'If a date is here - add another to the count of the number of checks
+        jobs_row = jobs_row + 1                                 'Go to the next row in prospective pay
+    Loop until jobs_row = 17                                    'There are only 5 rows of paychecks. Once it reaches 17 - there are no more checks to read
 
-    anticipated_average = anticipated_total / divider
+    anticipated_average = anticipated_total / divider           'Finding the average income per check by dividing the total listed on prospective jobs side by the number of checks.
     anticipated_average = FormatNumber(anticipated_average, 2)
 
     EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
@@ -89,15 +97,16 @@ function get_average_pay(job_frequency, job_income)
     ELSE								'this is the new position
       EMWriteScreen "x", 19, 48
     END IF
-    transmit
-    EMReadScreen hc_inc_est, 8, 11, 63
-    hc_inc_est = trim(replace(hc_inc_est, "_", ""))
-    transmit
+    transmit                            'opening the HC Inc Estimate pop-up
+    EMReadScreen hc_inc_est, 8, 11, 63  'Reading the income on this field.'
+    hc_inc_est = trim(replace(hc_inc_est, "_", "")) 'Fomatting the number'
+    transmit                            'closing the HC Inc Est pop-up
 
-    if hc_inc_est = "" Then hc_inc_est = 0
+    if hc_inc_est = "" Then hc_inc_est = 0      'Making this a number
     hc_inc_est = FormatNumber(hc_inc_est, 2)
 
-    If hc_inc_est <> anticipated_average Then
+    If hc_inc_est <> anticipated_average Then       'These two should be equal - because HC Inc Estimate is based on the average of pay
+    'If they are not equal - script will ask the worker to clarify which is correct.
         BeginDialog income_mismatch_dlg, 0, 0, 221, 105, "Income Mismatch"
           OptionGroup RadioGroup1
             RadioButton 10, 30, 205, 10, "Use the amount from the HC Inc Est Pop-Up of $" & hc_inc_est, use_hc_est_inc_radio
@@ -109,13 +118,14 @@ function get_average_pay(job_frequency, job_income)
           Text 5, 65, 190, 10, "These amounts are both average per pay period amounts."
         EndDialog
 
-        Dialog income_mismatch_dlg
+        Dialog income_mismatch_dlg      'Running the dialog to ask for worker input on the correct income.
         Cancel_confirmation
 
+        'This will set the average income for the job based on what the worker indicates
         If use_anticipated_inc_radio = 1 Then job_income = anticipated_average
         If use_hc_est_inc_radio = 1 Then job_income = hc_inc_est
     Else
-        job_income = hc_inc_est
+        job_income = hc_inc_est     'If they are equal - this is just setting the income to the variable used later in the script
     End If
 
 end function
@@ -157,25 +167,28 @@ EndDialog
 
 EMConnect ""
 
+'Autofilling information
 call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 memb_number = "01" 'Setting a default
 
+'If we have found a case number, the script will attempt to determine if the case is pending or active
 If MAXIS_case_number <> "" Then
-    Call Navigate_to_MAXIS_screen("CASE", "CURR")
+    Call Navigate_to_MAXIS_screen("CASE", "CURR")   'go to CASe/CURR to read for HC
     row = 1
     col = 1
-    EMSearch "MA:", row, col
-    If row <> 0 Then
-        EMReadScreen ma_status, 7, row, col+4
+    EMSearch "MA:", row, col        'Searhing for the MA line because it moves
+    If row <> 0 Then                'If the script finds an MA line, it will read the status (pending or active)'
+        EMReadScreen ma_status, 7, row, col+4   'Reading the status'
         'MsgBox ma_status
-        ma_status = trim(ma_status)
-        If ma_status = "ACTIVE" Then case_status = "Recertification"
-        If ma_status = "PENDING" Then case_status = "Application"
+        ma_status = trim(ma_status)             'cutting blank
+        If ma_status = "ACTIVE" Then case_status = "Recertification"    'If a case is alread active, it is often at review'
+        If ma_status = "PENDING" Then case_status = "Application"       'If a case is pending then it is usually at application
     End If
 End If
 
+'Running a dialog to get case number, member number and if the case is at application or recertification.'
 Do
     err_msg = ""
 
@@ -220,6 +233,10 @@ If case_status = "Recertification" Then
     EMReadScreen hc_revw, 8, 9, 70
     hc_revw = replace(hc_revw, " ", "/")
 
+    If DateDiff("D", CM_plus_1_mo & "/01/" & CM_plus_1_yr, hc_revw) > 0 Then
+        EMReadScreen hc_revw, 8, 11, 70
+        hc_revw = replace(hc_revw, " ", "/")
+    End If
     MAXIS_footer_month = DatePart("m", hc_revw)
     MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
 
