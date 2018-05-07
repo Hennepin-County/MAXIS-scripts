@@ -204,6 +204,7 @@ Do
     If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
 Loop until err_msg = ""
 
+'Setting constants for the array of JOB information
 const instance          = 0
 const job_frequency     = 1
 const check_date_one    = 2
@@ -223,47 +224,52 @@ const average_monthly_inc   = 15
 const employer          = 16
 const verif_code        = 17
 
-Dim JOBS_ARRAY()
+Dim JOBS_ARRAY()                    'setting up the array
 ReDim JOBS_ARRAY(verif_code, 0)
 
+'Cases at recertification have a different information to look at
 If case_status = "Recertification" Then
 
-    Call Navigate_to_MAXIS_screen("STAT", "REVW")
+    Call Navigate_to_MAXIS_screen("STAT", "REVW")       'Going to find the REVW month as that this the relevant JOBS information
 
-    EMReadScreen hc_revw, 8, 9, 70
+    EMReadScreen hc_revw, 8, 9, 70                      'Reading the current REVW date
     hc_revw = replace(hc_revw, " ", "/")
 
-    If DateDiff("D", CM_plus_1_mo & "/01/" & CM_plus_1_yr, hc_revw) > 0 Then
-        EMReadScreen hc_revw, 8, 11, 70
+    If DateDiff("D", CM_plus_1_mo & "/01/" & CM_plus_1_yr, hc_revw) > 0 Then        'If the case has been U coded, the review date will switch to the next review... in six months
+        EMReadScreen hc_revw, 8, 11, 70                                             'So this will read the last review date that is listed below it.
         hc_revw = replace(hc_revw, " ", "/")
     End If
-    MAXIS_footer_month = DatePart("m", hc_revw)
+
+    MAXIS_footer_month = DatePart("m", hc_revw)                     'Setting the dates to month and year variables in a 2 digit format
     MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
 
     MAXIS_footer_year = DatePart("yyyy", hc_revw)
     MAXIS_footer_year = right(MAXIS_footer_year, 2)
 
-    Call back_to_SELF
+    Call back_to_SELF       'Getting out of STAT so that we can switch months if needed
 
-    Call Navigate_to_MAXIS_screen("STAT", "JOBS")
+    Call Navigate_to_MAXIS_screen("STAT", "JOBS")       'Going to look at jobs
     EmWriteScreen memb_number, 20, 76
     EmWriteScreen "01", 20, 79
     transmit
 
-    EMReadScreen number_of_jobs, 1, 2, 78
+    EMReadScreen number_of_jobs, 1, 2, 78           'Reading the number of JOBS panels for this client.
     number_of_jobs = number_of_jobs * 1
 
+    'If no jobs, there is no income to FIAT and script will end.
     end_msg = "Household Member " & member_number & " on this case does not have a JOBS panel entered. Please check the case, update JOBS if required and run the script again."
     If number_of_jobs = 0 Then script_end_procedure(end_msg)
 
-    For each_job = 1 to number_of_jobs
-        EMReadScreen job_verification, 1, 6, 34
+    For each_job = 1 to number_of_jobs              'This will loop through each of the jobs
+        EMReadScreen job_verification, 1, 6, 34     'reading information that should be updated for the reveiw to be processed
         EMReadScreen first_check_month, 2, 12, 54
 
+        'If these have not been updated then the script will end because STAT needs to be updated first
         If job_verification = "?" OR first_check_month <> MAXIS_footer_month Then script_end_procedure("It does not appear this JOBS panel has been updated with income information for the review.")
 
-        reDim Preserve JOBS_ARRAY(verif_code, each_job-1)
+        reDim Preserve JOBS_ARRAY(verif_code, each_job-1)   'Updating the array with JOB information
 
+        'Gathering data and adding it to the array
         EMReadScreen verification, 25, 6, 34
         EMReadScreen freq, 1, 18, 35
         EMReadScreen title, 30, 7, 42
@@ -273,17 +279,15 @@ If case_status = "Recertification" Then
         JOBS_ARRAY(instance, each_job-1) = right("00"&each_job, 2)
         JOBS_ARRAY(employer, each_job-1) = replace(title, "_", "")
 
-        JOBS_ARRAY(six_month_total, each_job-1) = 0
+        JOBS_ARRAY(six_month_total, each_job-1) = 0     'setting this as 0 because it will be added to later
         EMReadScreen pay_date, 8, 12, 54
 
         pay_date = replace(pay_date, " ", "/")
 
-        If JOBS_ARRAY(job_frequency, each_job-1) = "3" OR JOBS_ARRAY(job_frequency, each_job-1) = "4" Then
-            day_validation_needed = FALSE
-            JOBS_ARRAY(pay_weekday, each_job-1) = WeekDayName(WeekDay(pay_date))
+        'Setting the pay day
+        If JOBS_ARRAY(job_frequency, each_job-1) = "3" OR JOBS_ARRAY(job_frequency, each_job-1) = "4" Then JOBS_ARRAY(pay_weekday, each_job-1) = WeekDayName(WeekDay(pay_date))
 
-        End If
-
+        'Looking at the pop-up for income information
         EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
         IF HC_income_est_check = "Est" Then 'this is the old position
           EMWriteScreen "x", 19, 54
@@ -296,65 +300,66 @@ If case_status = "Recertification" Then
         transmit
 
         if hc_inc_est = "" Then hc_inc_est = 0
-        hc_inc_est = FormatNumber(hc_inc_est, 2)
+        hc_inc_est = FormatNumber(hc_inc_est, 2)        'This formats the number with 2 decimal places
 
-
-        transmit
+        transmit    'Going to the next JOBS panel
     Next
-
-
 End If
 
+'For applications, there are months with pay already put in it.
 If case_status = "Application" Then
 
-    Call Navigate_to_MAXIS_screen("STAT", "HCRE")
+    Call Navigate_to_MAXIS_screen("STAT", "HCRE")   'Going to HCRE to get information about when to start the FIATing
 
-    hcre_row = 10
+    hcre_row = 10       'Setting the row to find the correct member to read the application date and possible retro months
     Do
-        EMReadScreen hcre_ref_numb, 2, hcre_row, 24
-        If hcre_ref_numb = memb_number Then Exit Do
+        EMReadScreen hcre_ref_numb, 2, hcre_row, 24     'reading the reference number
+        If hcre_ref_numb = memb_number Then Exit Do     'Once the member number has been matched, this will exit to do because the row is set already and we will use the same row variable.
 
-        hcre_row = hcre_row + 1
-        If hcre_row = 18 Then
+        hcre_row = hcre_row + 1         'Incrementing the row
+        If hcre_row = 18 Then           'Scrolling through the list if needed
             PF20
             hcre_row = 10
         End If
-        EMReadScreen next_client, 2, hcre_row, 24
+        EMReadScreen next_client, 2, hcre_row, 24   'Finding the end of the list
     Loop until next_client = "  "
 
-    EMReadScreen application_date, 8, hcre_row, 51
-    EMReadScreen coverage_date, 5, hcre_row, 64
+    EMReadScreen application_date, 8, hcre_row, 51      'reading the application date using the row found previously
+    EMReadScreen coverage_date, 5, hcre_row, 64         'reading the coverage date to look for retro requests
 
-    application_date = replace(application_date, " ", "/")
+    application_date = replace(application_date, " ", "/")      'making this variable actually a date
 
-    MAXIS_footer_month = DatePart("m", application_date)
+    MAXIS_footer_month = DatePart("m", application_date)        'Setting the footer month and year as 2 digit variables
     MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
 
     MAXIS_footer_year = DatePart("yyyy", application_date)
     MAXIS_footer_year = right(MAXIS_footer_year, 2)
 
-    'MsgBox coverage_date
+    'if there is a retro request, a quick reminder that retro months have different budgeting processing.
     If left(coverage_date, 2) <> MAXIS_footer_month OR right(coverage_date, 2) <> MAXIS_footer_year Then
         coverage_date = replace(coverage_date, " ", "/")
         MsgBox "This case appears to have a retro request back to " & coverage_date & "." & vbNewLine & vbNewLine & "Retro months should not be FIATed to even the income out. The premium in these months are based on actual income and will be different."
     End If
 
-    Call back_to_SELF
+    Call back_to_SELF       'Going out of STAT to switch months
 
-    Call Navigate_to_MAXIS_screen("STAT", "JOBS")
+    Call Navigate_to_MAXIS_screen("STAT", "JOBS")   'going to JOBS for the correct member
     EmWriteScreen memb_number, 20, 76
     EmWriteScreen "01", 20, 79
     transmit
 
-    EMReadScreen number_of_jobs, 1, 2, 78
+    EMReadScreen number_of_jobs, 1, 2, 78       'reading the number of jobs for this client
     number_of_jobs = number_of_jobs * 1
 
+    'If there are no JOBS for this member, the script will end because there is no earned income to FIAT
     end_msg = "Household Member " & member_number & " on this case does not have a JOBS panel entered. Please check the case, update JOBS if required and run the script again."
     If number_of_jobs = 0 Then script_end_procedure(end_msg)
 
+    'reading each JOBS panel and adding the information to the array
     For each_job = 1 to number_of_jobs
-        reDim Preserve JOBS_ARRAY(verif_code, each_job-1)
+        reDim Preserve JOBS_ARRAY(verif_code, each_job-1)       'resizing the array
 
+        'reading information from the panel and adding it to the array
         EMReadScreen verification, 25, 6, 34
         EMReadScreen freq, 1, 18, 35
         EMReadScreen title, 30, 7, 42
@@ -364,68 +369,68 @@ If case_status = "Application" Then
         JOBS_ARRAY(instance, each_job-1) = right("00"&each_job, 2)
         JOBS_ARRAY(employer, each_job-1) = replace(title, "_", "")
 
-        jobs_row = 12
-        divider = 0
+        jobs_row = 12           'this is where the the prospective pay information starts
+        divider = 0             'this is going to count the number of paychecks
         Do
-            EMReadScreen pay_date, 8, jobs_row, 54
-            If pay_date <> "__ __ __" Then
-                divider = divider + 1
-                If JOBS_ARRAY(check_date_one, each_job-1) = "" Then
-                    JOBS_ARRAY(check_date_one, each_job-1) = replace(pay_date, " ", "/")
-                    EMReadScreen pay_amt, 8, jobs_row, 67
+            EMReadScreen pay_date, 8, jobs_row, 54      'reading the date
+            If pay_date <> "__ __ __" Then              'if the date is not blank then gathering all the information
+                                                        'this will read each already stored information in the array and will find the first empty position within the array
+                divider = divider + 1                                                       'increase the count of checks listed
+                If JOBS_ARRAY(check_date_one, each_job-1) = "" Then                         'this reads if this position in the array already has data
+                    JOBS_ARRAY(check_date_one, each_job-1) = replace(pay_date, " ", "/")    'formatting the date
+                    EMReadScreen pay_amt, 8, jobs_row, 67                                   'reading the pay amount and then formats it
                     JOBS_ARRAY(check_amt_one, each_job-1) = trim(pay_amt) * 1
 
-                ElseIf JOBS_ARRAY(check_date_two, each_job-1) = "" Then
-                    JOBS_ARRAY(check_date_two, each_job-1) = replace(pay_date, " ", "/")
-                    EMReadScreen pay_amt, 8, jobs_row, 67
+                ElseIf JOBS_ARRAY(check_date_two, each_job-1) = "" Then                         'this reads if this position in the array already has data
+                    JOBS_ARRAY(check_date_two, each_job-1) = replace(pay_date, " ", "/")        'formatting the date
+                    EMReadScreen pay_amt, 8, jobs_row, 67                                       'reading the pay amount and then formats it
                     JOBS_ARRAY(check_amt_two, each_job-1) = trim(pay_amt) * 1
 
-                ElseIf JOBS_ARRAY(check_date_three, each_job-1) = "" Then
-                    JOBS_ARRAY(check_date_three, each_job-1) = replace(pay_date, " ", "/")
-                    EMReadScreen pay_amt, 8, jobs_row, 67
+                ElseIf JOBS_ARRAY(check_date_three, each_job-1) = "" Then                       'this reads if this position in the array already has data
+                    JOBS_ARRAY(check_date_three, each_job-1) = replace(pay_date, " ", "/")      'formatting the date
+                    EMReadScreen pay_amt, 8, jobs_row, 67                                       'reading the pay amount and then formats it
                     JOBS_ARRAY(check_amt_three, each_job-1) = trim(pay_amt) * 1
 
-                ElseIf JOBS_ARRAY(check_date_four, each_job-1) = "" Then
-                    JOBS_ARRAY(check_date_four, each_job-1) = replace(pay_date, " ", "/")
-                    EMReadScreen pay_amt, 8, jobs_row, 67
+                ElseIf JOBS_ARRAY(check_date_four, each_job-1) = "" Then                        'this reads if this position in the array already has data
+                    JOBS_ARRAY(check_date_four, each_job-1) = replace(pay_date, " ", "/")       'formatting the date
+                    EMReadScreen pay_amt, 8, jobs_row, 67                                       'reading the pay amount and then formats it
                     JOBS_ARRAY(check_amt_four, each_job-1) = trim(pay_amt) * 1
 
-                ElseIf JOBS_ARRAY(check_date_five, each_job-1) = "" Then
-                    JOBS_ARRAY(check_date_five, each_job-1) = replace(pay_date, " ", "/")
-                    EMReadScreen pay_amt, 8, jobs_row, 67
+                ElseIf JOBS_ARRAY(check_date_five, each_job-1) = "" Then                        'this reads if this position in the array already has data
+                    JOBS_ARRAY(check_date_five, each_job-1) = replace(pay_date, " ", "/")       'formatting the date
+                    EMReadScreen pay_amt, 8, jobs_row, 67                                       'reading the pay amount and then formats it
                     JOBS_ARRAY(check_amt_five, each_job-1) = trim(pay_amt) * 1
-
                 End If
             End If
 
-            jobs_row = jobs_row + 1
+            jobs_row = jobs_row + 1         'going to the next row in the list of paychecks
         Loop until jobs_row = 17
 
-        EMReadScreen total_pay, 8, 17, 67
+        EMReadScreen total_pay, 8, 17, 67   'reading the total of the pay listed in the prospective side of the JOBS panel and formatting
         total_pay = trim(total_pay)
         total_pay = total_pay * 1
 
-        JOBS_ARRAY(pay_average, each_job-1) = total_pay / divider
-        JOBS_ARRAY(six_month_total, each_job-1) = 0
+        JOBS_ARRAY(pay_average, each_job-1) = total_pay / divider       'Finding the average of all of the paychecks listed
+        JOBS_ARRAY(six_month_total, each_job-1) = 0                     'setting this equal to 0 as we will be adding to it later
 
-        If JOBS_ARRAY(job_frequency, each_job-1) = "3" OR JOBS_ARRAY(job_frequency, each_job-1) = "4" Then
-            day_validation_needed = FALSE
-            JOBS_ARRAY(pay_weekday, each_job-1) = WeekDayName(WeekDay(JOBS_ARRAY(check_date_one, each_job-1)))
-            If JOBS_ARRAY(check_date_two, each_job-1) <> "" Then
+        If JOBS_ARRAY(job_frequency, each_job-1) = "3" OR JOBS_ARRAY(job_frequency, each_job-1) = "4" Then  'if this JOB is paid weekly or biweekly
+            day_validation_needed = FALSE       'default for this variable
+            JOBS_ARRAY(pay_weekday, each_job-1) = WeekDayName(WeekDay(JOBS_ARRAY(check_date_one, each_job-1)))  'finding the day of the week of the first paycheck
+            If JOBS_ARRAY(check_date_two, each_job-1) <> "" Then        'if this paycheck was found, it will find the day of the week paycheck and compare it to the first, if they do not match - validation is needed
                 If WeekDayName(WeekDay(JOBS_ARRAY(check_date_two, each_job-1))) <> JOBS_ARRAY(pay_weekday, each_job-1) Then day_validation_needed = TRUE
             End If
-            If JOBS_ARRAY(check_date_three, each_job-1) <> "" Then
+            If JOBS_ARRAY(check_date_three, each_job-1) <> "" Then        'if this paycheck was found, it will find the day of the week paycheck and compare it to the first, if they do not match - validation is needed
                 If WeekDayName(WeekDay(JOBS_ARRAY(check_date_three, each_job-1))) <> JOBS_ARRAY(pay_weekday, each_job-1) Then day_validation_needed = TRUE
             End If
-            If JOBS_ARRAY(check_date_four, each_job-1) <> "" Then
+            If JOBS_ARRAY(check_date_four, each_job-1) <> "" Then        'if this paycheck was found, it will find the day of the week paycheck and compare it to the first, if they do not match - validation is needed
                 If WeekDayName(WeekDay(JOBS_ARRAY(check_date_four, each_job-1))) <> JOBS_ARRAY(pay_weekday, each_job-1) Then day_validation_needed = TRUE
             End If
-            If JOBS_ARRAY(check_date_five, each_job-1) <> "" Then
+            If JOBS_ARRAY(check_date_five, each_job-1) <> "" Then        'if this paycheck was found, it will find the day of the week paycheck and compare it to the first, if they do not match - validation is needed
                 If WeekDayName(WeekDay(JOBS_ARRAY(check_date_five, each_job-1))) <> JOBS_ARRAY(pay_weekday, each_job-1) Then day_validation_needed = TRUE
             End If
         End If
 
-        If day_validation_needed = TRUE Then
+        If day_validation_needed = TRUE Then        'If any of the paychecks listed do not match the first, then worker needs to identify the correct pay day
             selected_weekday = JOBS_ARRAY(pay_weekday, each_job-1)
 
             BeginDialog weekday_dlg, 0, 0, 161, 80, "Weekday"
@@ -441,6 +446,7 @@ If case_status = "Application" Then
 
         End If
 
+        'This is commented out but can be used in testing to see all of the information gathered about each job
         ' BeginDialog JOBS_dlg, 0, 0, 200, 205, "JOBS"
         '   Text 10, 10, 190, 10, "JOBS for MEMB " & member_number & "- Instance " & JOBS_ARRAY(instance, each_job-1)
         '   Text 15, 30, 150, 10, "Checks - Verif " & JOBS_ARRAY(verif_code, each_job-1)
@@ -459,102 +465,100 @@ If case_status = "Application" Then
         '
         ' Dialog JOBS_dlg
 
-        transmit
+        transmit    'Giong to the next JOBS panel
     Next
 
-    app_month = MAXIS_footer_month
+    app_month = MAXIS_footer_month      'saving the footer month in a seperate variable because we need to navigate to other months
     app_year = MAXIS_footer_year
 
-    first_of_this_month = MAXIS_footer_month & "/1/" & MAXIS_footer_year
+    first_of_this_month = MAXIS_footer_month & "/1/" & MAXIS_footer_year    'setting to a date so we can use date functionality
     'MsgBox "FIRST - " &first_of_this_month
-    next_month = DateAdd("m", 1, first_of_this_month)
+    next_month = DateAdd("m", 1, first_of_this_month)       'going to the next month
 
     Do
-        next_month_mo = DatePart("m", next_month)
+        next_month_mo = DatePart("m", next_month)       'finding the next month and creating a 2 digit variable for the month and year
         next_month_mo = right("00"&next_month_mo, 2)
         next_month_yr = DatePart("yyyy", next_month)
         next_month_yr = right(next_month_yr, 2)
 
-        list_of_months = list_of_months & "~" & next_month_mo & "/" & next_month_yr
+        list_of_months = list_of_months & "~" & next_month_mo & "/" & next_month_yr     'creating a list of month/years that need to be looked at
         'MsgBox "List " & list_of_months
 
-        first_of_this_month = next_month_mo & "/1/" & next_month_yr
+        first_of_this_month = next_month_mo & "/1/" & next_month_yr     'and to the next month
         next_month = DateAdd("m", 1, first_of_this_month)
 
         'MsgBox "Start month and year - " & next_month & vbNewLine & "DIFF " & DateDiff("d", date, next_month)
-    Loop until DateDiff("d", date, next_month) > 0
+    Loop until DateDiff("d", date, next_month) > 0      'doing this until the next month variable is after the current date
 
     'MsgBox "Complete List " & list_of_months
-    list_of_months = right(list_of_months, len(list_of_months)-1)
+    list_of_months = right(list_of_months, len(list_of_months)-1)   'creating an array of all the months to check
     month_array = split(list_of_months, "~")
 
     ' For each thingy in month_array
     '     MsgBox thingy
     ' Next
-    paychecks_align_with_weekday = TRUE
-    For each footer in month_array
-        Call back_to_SELF
+    paychecks_align_with_weekday = TRUE             'setting the default of this variable
+    For each footer in month_array                  'we are going to each month
+        Call back_to_SELF                           'need to back out to SELF so we can change months
 
-        MAXIS_footer_month = left(footer, 2)
+        MAXIS_footer_month = left(footer, 2)        'setting the footer month and year to these global variables because those are used for the navigation functions
         MAXIS_footer_year = right(footer, 2)
 
-        Call Navigate_to_MAXIS_screen("STAT", "JOBS")
+        Call Navigate_to_MAXIS_screen("STAT", "JOBS")   'going to JOBS in that month for the member
         EmWriteScreen member_number, 20, 76
         transmit
 
-        For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
-            If JOBS_ARRAY(job_frequency, the_job) = "3" OR JOBS_ARRAY(job_frequency, the_job) = "4" Then
-                EmWriteScreen JOBS_ARRAY(instance, the_job), 20, 79
+        For the_job = 0 to UBOUND(JOBS_ARRAY, 2)        'Now this is going to each of the JOBS previously found
+            If JOBS_ARRAY(job_frequency, the_job) = "3" OR JOBS_ARRAY(job_frequency, the_job) = "4" Then    'If the pay is weekly or biweekly
+                EmWriteScreen JOBS_ARRAY(instance, the_job), 20, 79     'navigating to the right instance of the JOB
                 transmit
 
-                jobs_row = 12
-                divider = 0
+                jobs_row = 12       'Setting this to the beginning of the list of paychecks
                 Do
-                    EMReadScreen pay_date, 8, jobs_row, 54
+                    EMReadScreen pay_date, 8, jobs_row, 54          'read the pay date and make it a date if not blank
                     If pay_date <> "__ __ __" Then
                         pay_date = replace(pay_date, " ", "/")
-                        day_of_pay = WeekDayName(Weekday(pay_date))
+                        day_of_pay = WeekDayName(Weekday(pay_date))     'finding the weekday of this pay check
 
-                        If day_of_pay <> JOBS_ARRAY(pay_weekday, the_job) Then
+                        If day_of_pay <> JOBS_ARRAY(pay_weekday, the_job) Then      'the weekday paid should match the weekday already determined when reading the JOBS panel
 
+                            'This message will have the worker confirm that the JOBS panel has the correct pay dates.
+                            'In some instances there is a reason why a check date does not align with the rest of the pay dates, but if the check dates have not been properly updated in each month, the messagebox comes up for EVERY MONTH - encouraging correction
                             confirm_off_schedule_pay = MsgBox("The pay listed on theis JOBS panel does note match the day of the week pay was received in the initial month of applicaton." & vbNewLine & vbNewLine &_
                              "Pay date of " & pay_date & " listed is on a " & day_of_pay & "." & vbNewLine & "This job appears to have a regular pay date of " & JOBS_ARRAY(pay_weekday, this_job) & "." & vbNewLine & vbNewLine &_
                              "Health care budget requires any income entered on JOBS be the actual pay dates expected, even if the income is calculated by average pay. Review the case and make sure that check dates have been updated in every month." & vbNewLine & vbNewLine &_
                              "Has the budget been correctly determined, using actual pay dates for each month that can be updated?", vbYesNo + vbImportant, "Confirm paycheck budgeting")
-                            'TODO add dialog here to have the paycheck confirmed.'
 
-                            if confirm_off_schedule_pay = vbNo Then script_end_procedure("Update STAT/JOBS with all actual pay dates to get a correct HC budget.")
+                            if confirm_off_schedule_pay = vbNo Then script_end_procedure("Update STAT/JOBS with all actual pay dates to get a correct HC budget.")  'If the paychecks or not complete the script will end
                         End If
-
                     End If
-                    divider = divider + 1
-                    jobs_row = jobs_row + 1
+                    jobs_row = jobs_row + 1 'looking at the next check
                 Loop until jobs_row = 17
             End If
         Next
     Next
 
+    'Resetting the footer month and year to what it was saved at before looking at each month
     MAXIS_footer_month = app_month
     MAXIS_footer_year = app_year
-
-    Call Navigate_to_MAXIS_screen("ELIG", "HC__")
-
-
 End If
 
+'This variable will be used to find the first footer month
 start_month_and_year = MAXIS_footer_month & "/" & MAXIS_footer_year
 
-'SECTION 04: NOW IT GOES TO ELIG/HC TO FIAT THE AMOUNTS
-Call navigate_to_MAXIS_screen("ELIG", "HC__")
+Call navigate_to_MAXIS_screen("ELIG", "HC__")       'Going to ELIG/HC
 
+'Finding the member in the list of all members on ELIG/HC
 row = 1
 col = 1
 EMSearch memb_number & " ", row, col 'finding the member number
 If row = 0 then script_end_procedure("Member number not found. You may have entered an incorrect member number on the first screen. Try the script again.")
 
+'Opening the eligibility span of the client
 EMWriteScreen "x", row, 26
 transmit
 
+'Reading the elig type of all the months. They should be DP because that is MA-EPD
 EMReadScreen elig_type_check_first_month, 2, 12, 17
 EMReadScreen elig_type_check_second_month, 2, 12, 28
 EMReadScreen elig_type_check_third_month, 2, 12, 39
@@ -562,9 +566,10 @@ EMReadScreen elig_type_check_fourth_month, 2, 12, 50
 EMReadScreen elig_type_check_fifth_month, 2, 12, 61
 EMReadScreen elig_type_check_sixth_month, 2, 12, 72
 
-If elig_type_check_first_month <> "DP" and elig_type_check_second_month <> "DP" and elig_type_check_third_month <> "DP" and elig_type_check_fourth_month <> "DP" and elig_type_check_fifth_month <> "DP" and elig_type_check_sixth_month <> "DP" then MsgBox "Not all of the months of this case are MA-EPD. Process manually."
-If elig_type_check_first_month <> "DP" and elig_type_check_second_month <> "DP" and elig_type_check_third_month <> "DP" and elig_type_check_fourth_month <> "DP" and elig_type_check_fifth_month <> "DP" and elig_type_check_sixth_month <> "DP" then stopscript
+'Script will end if not DP
+If elig_type_check_first_month <> "DP" and elig_type_check_second_month <> "DP" and elig_type_check_third_month <> "DP" and elig_type_check_fourth_month <> "DP" and elig_type_check_fifth_month <> "DP" and elig_type_check_sixth_month <> "DP" then script_end_procedure("Not all of the months of this case are MA-EPD. Process manually.")
 
+'Looking for the first month to FIAT
 row = 6
 col = 1
 EMSearch start_month_and_year, row, col
@@ -572,28 +577,28 @@ EMSearch start_month_and_year, row, col
 end_msg = "The selected month " & start_month_and_year & " is not in the current version of HC, review the month selected and try the script again."
 If col = 0 Then script_end_procedure(end_msg)
 
-number_of_months = 0
-budg_pd_wages = 0
+'Now looking at each month in ELIG
+number_of_months = 0        'setting this at - it will count the number of months to be FIATed
 Do
-    EMWriteScreen "x", 9, col + 2
+    EMWriteScreen "x", 9, col + 2       'opening the Budget for the month
     transmit
-    EMWriteScreen "x", 13, 03
+    EMWriteScreen "x", 13, 03           'opening the earned income pop-up
     transmit
 
-    this_job = 0
+    this_job = 0                        'setting to loop through the rows and jobs
     budg_row = 8
     Do
-        EMReadScreen inc_type, 2, budg_row, 8
+        EMReadScreen inc_type, 2, budg_row, 8           'looking for wage information
         If inc_type = "02" Then
-            EMReadScreen month_total, 11, budg_row, 43
+            EMReadScreen month_total, 11, budg_row, 43      'finding the income in that row of wages and formatting the amount
             month_total = replace(month_total, "_", "")
             month_total = trim(month_total)
             'MsgBox month_total
             month_total = month_total * 1
-            JOBS_ARRAY(six_month_total, this_job) = JOBS_ARRAY(six_month_total, this_job) + month_total
-            this_job = this_job + 1
+            JOBS_ARRAY(six_month_total, this_job) = JOBS_ARRAY(six_month_total, this_job) + month_total     'adding this amount to the array - to create a sum of all the income listed for the job
+            this_job = this_job + 1     'going to the next job in the array
         End If
-        budg_row = budg_row + 1
+        budg_row = budg_row + 1     'looking at the next budget row
     Loop until inc_type = "__"
 
     number_of_months = number_of_months + 1
@@ -606,9 +611,10 @@ loop until col > 76
 '     MsgBox "The total income for 6 months for this job is $" & JOBS_ARRAY(six_month_total, the_job) & vbNewLine & "Number of months is " & number_of_months
 ' Next
 
+'Dynamic dialog to have the worker confirm the average income
 y_pos = 60
 BeginDialog average_income_dlg, 0, 0, 480, 105 + (UBOUND(JOBS_ARRAY, 2) *20), "Average Monthly JOBS Income"
-  Text 10, 10, 95, 10, "This case is at " & case_status
+  Text 10, 10, 95, 10, "This case is at " & case_status     'identify if at application or recertification
   If case_status = "Application" Then Text 10, 25, 210, 10, "The date of application is " & application_date & " and the first month to FIAT is"
   If case_status = "Recertification" Then Text 10, 25, 210, 10, "The recertificiation is for " & MAXIS_footer_month & "/" & MAXIS_footer_year & " and the first month to FIAT is"
   EditBox 225, 20, 15, 15, MAXIS_footer_month
@@ -620,6 +626,8 @@ BeginDialog average_income_dlg, 0, 0, 480, 105 + (UBOUND(JOBS_ARRAY, 2) *20), "A
       If JOBS_ARRAY(job_frequency, the_job) = "3" then JOBS_ARRAY(job_frequency, the_job) = "biweekly"
       If JOBS_ARRAY(job_frequency, the_job) = "4" then JOBS_ARRAY(job_frequency, the_job) = "weekly"
       If JOBS_ARRAY(job_frequency, the_job) = "5" then JOBS_ARRAY(job_frequency, the_job) = "other"
+    'setting the average monthly income by taking the total of the income listed in the budget on ELIG, then dividing it by the number of months
+    'then using format number to make this a number with 2 decimel points and then removing the commas from the number because ELIG/HC doesn't like commas
     JOBS_ARRAY(average_monthly_inc, the_job) = FormatNumber(JOBS_ARRAY(six_month_total, the_job)/number_of_months, 2,,,0) & ""
     Text 20, y_pos + 5, 395, 10, JOBS_ARRAY(employer, the_job) & " - paid " & JOBS_ARRAY(job_frequency, the_job) & " on " & JOBS_ARRAY(pay_weekday, the_job) & " - total income for six-month budget period - $" & JOBS_ARRAY(six_month_total, the_job) & " - Average monthly income $"
     EditBox 415, y_pos, 55, 15, JOBS_ARRAY(average_monthly_inc, the_job)
@@ -631,6 +639,7 @@ BeginDialog average_income_dlg, 0, 0, 480, 105 + (UBOUND(JOBS_ARRAY, 2) *20), "A
 EndDialog
 
 Do
+    'showing the dialog that workers will indicate the monthly income to be used.
     err_msg = ""
     Dialog average_income_dlg
     cancel_confirmation
@@ -648,11 +657,11 @@ Do
     If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
 Loop until err_msg = ""
 
-Call back_to_SELF
+Call back_to_SELF           'going back to SELF because footer month may had been changed
 
 start_month_and_year = MAXIS_footer_month & "/" & MAXIS_footer_year
 
-'SECTION 04: NOW IT GOES TO ELIG/HC TO FIAT THE AMOUNTS
+'NOW IT GOES TO ELIG/HC TO FIAT THE AMOUNTS
 Call navigate_to_MAXIS_screen("ELIG", "HC__")
 
 row = 1
@@ -665,11 +674,12 @@ transmit
 
 row = 6
 col = 1
-EMSearch start_month_and_year, row, col
+EMSearch start_month_and_year, row, col 'finding the right month to start with
 
 end_msg = "The selected month " & start_month_and_year & " is not in the current version of HC, review the month selected and try the script again."
 If col = 0 Then script_end_procedure(end_msg)
 
+'putting in the budget in edit mode to FIAT
 PF9
 EMReadScreen FIAT_check, 4, 24, 45
 If FIAT_check <> "FIAT" then
@@ -678,248 +688,23 @@ If FIAT_check <> "FIAT" then
 End if
 
 Do
-    EMWriteScreen "x", 9, col + 2
+    EMWriteScreen "x", 9, col + 2       'opening the budget
     transmit
-    EMWriteScreen "x", 13, 03
+    EMWriteScreen "x", 13, 03           'opening the Earned Income line
     transmit
 
-    budg_row = 8
+    budg_row = 8                        'reading each row to enter the information for each job
     For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
-        EmWriteScreen "___________", budg_row, 43
-        EmWriteScreen JOBS_ARRAY(average_monthly_inc, the_job), budg_row, 43
+        JOBS_ARRAY(average_monthly_inc, the_job) = FormatNumber(JOBS_ARRAY(average_monthly_inc, the_job), 2,,,0)    'making sure the number is formatted correctly, 2 decimal places and no commas
+        EmWriteScreen "___________", budg_row, 43       'blanking out the current income amount
+        EmWriteScreen JOBS_ARRAY(average_monthly_inc, the_job), budg_row, 43        'writing in the new averaged amount
         budg_row = budg_row + 1
     Next
     'MsgBox ("Budget updated.")
-    col = col + 11
-    transmit
-    transmit
-    transmit
-loop until col > 76
-
-
-
-script_end_procedure("Success! Please make sure to check eligibility for any Medicare savings programs such as QMB or SLMB.")
-script_end_procedure("Did the FIATing Happen?")
-
-
-MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
-MAXIS_footer_year  = right("00" & MAXIS_footer_year, 2)
-memb_number        = right("00" & memb_number, 2)
-
-call navigate_to_MAXIS_screen("STAT", "JOBS")
-EMReadScreen jobs_memb, 2, 4, 33  'checking if the current jobs panel is the memb, if not it will nav to member.
-IF jobs_memb <> memb_number THEN
-	EMWriteScreen memb_number, 20, 76
-	transmit
-END IF
-EMReadScreen jobs_total, 1, 2, 78
-EMReadScreen jobs_current, 1, 2, 73
-
-If jobs_total = "0" then MsgBox "No JOBS panel is known for this client. You will have to enter income amounts manually."
-
-If jobs_current = "1" then
-
-    CALL get_average_pay(frequency_job_01, income_job_01)
-  ' EMReadScreen pay_freq_01, 1, 18, 35
-  ' If pay_freq_01 = "1" then frequency_job_01 = "1: monthly"
-  ' If pay_freq_01 = "2" then frequency_job_01 = "2: twice monthly"
-  ' If pay_freq_01 = "3" then frequency_job_01 = "3: every 2 weeks"
-  ' If pay_freq_01 = "4" then frequency_job_01 = "4. every week"
-  ' If pay_freq_01 = "5" then frequency_job_01 = "5. other (use monthly avg)"
-  ' EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
-  ' IF HC_income_est_check = "Est" Then 'this is the old position
-	' EMWriteScreen "x", 19, 54
-  ' ELSE								'this is the new position
-	' EMWriteScreen "x", 19, 48
-  ' END IF
-  ' transmit
-  ' EMReadScreen income_job_01, 8, 11, 63
-  ' income_job_01 = trim(replace(income_job_01, "_", ""))
-  ' transmit
-  transmit
-  EMReadScreen jobs_current, 1, 2, 73
-End if
-
-If jobs_current = "2" then
-    CALL get_average_pay(frequency_job_02, income_job_02)
-  ' EMReadScreen pay_freq_02, 1, 18, 35
-  ' If pay_freq_02 = "1" then frequency_job_02 = "1: monthly"
-  ' If pay_freq_02 = "2" then frequency_job_02 = "2: twice monthly"
-  ' If pay_freq_02 = "3" then frequency_job_02 = "3: every 2 weeks"
-  ' If pay_freq_02 = "4" then frequency_job_02 = "4. every week"
-  ' If pay_freq_02 = "5" then frequency_job_02 = "5. other (use monthly avg)"
-  ' EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
-  ' IF HC_income_est_check = "Est" Then 'this is the old position
-	' EMWriteScreen "x", 19, 54
-  ' ELSE								'this is the new position
-	' EMWriteScreen "x", 19, 48
-  ' END IF
-  ' transmit
-  ' EMReadScreen income_job_02, 8, 11, 63
-  ' income_job_02 = trim(replace(income_job_02, "_", ""))
-  ' transmit
-  transmit
-  EMReadScreen jobs_current, 1, 2, 73
-End if
-
-If jobs_current = "3" then
-    CALL get_average_pay(frequency_job_03, income_job_03)
-  ' EMReadScreen pay_freq_03, 1, 18, 35
-  ' If pay_freq_03 = "1" then frequency_job_03 = "1: monthly"
-  ' If pay_freq_03 = "2" then frequency_job_03 = "2: twice monthly"
-  ' If pay_freq_03 = "3" then frequency_job_03 = "3: every 2 weeks"
-  ' If pay_freq_03 = "4" then frequency_job_03 = "4. every week"
-  ' If pay_freq_03 = "5" then frequency_job_03 = "5. other (use monthly avg)"
-  ' EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
-  ' IF HC_income_est_check = "Est" Then 'this is the old position
-	' EMWriteScreen "x", 19, 54
-  ' ELSE								'this is the new position
-	' EMWriteScreen "x", 19, 48
-  ' END IF
-  ' transmit
-  ' EMReadScreen income_job_03, 8, 11, 63
-  ' income_job_03 = trim(replace(income_job_03, "_", ""))
-  ' transmit
-  transmit
-  EMReadScreen jobs_current, 1, 2, 73
-End if
-
-If income_job_01 = "" then
-  income_job_01 = income_job_02
-  frequency_job_01 = frequency_job_02
-  income_job_02 = ""
-  frequency_job_02 = ""
-End if
-
-If income_job_02 = "" then
-  income_job_02 = income_job_03
-  frequency_job_02 = frequency_job_03
-  income_job_03 = ""
-  frequency_job_03 = ""
-End if
-
-start_mo_month = MAXIS_footer_month & ""
-start_mo_year = MAXIS_footer_year & ""
-
-BeginDialog MA_EPD_dialog, 0, 0, 186, 140, "MA-EPD dialog"
-  EditBox 30, 20, 40, 15, income_job_01
-  DropListBox 85, 20, 90, 15, "1: monthly"+chr(9)+"2: twice monthly"+chr(9)+"3: every 2 weeks"+chr(9)+"4. every week"+chr(9)+"5. other (use monthly avg)", frequency_job_01
-  EditBox 30, 40, 40, 15, income_job_02
-  DropListBox 85, 40, 90, 15, "1: monthly"+chr(9)+"2: twice monthly"+chr(9)+"3: every 2 weeks"+chr(9)+"4. every week"+chr(9)+"5. other (use monthly avg)", frequency_job_02
-  EditBox 30, 60, 40, 15, income_job_03
-  DropListBox 85, 60, 90, 15, "1: monthly"+chr(9)+"2: twice monthly"+chr(9)+"3: every 2 weeks"+chr(9)+"4. every week"+chr(9)+"5. other (use monthly avg)", frequency_job_03
-  EditBox 125, 80, 15, 15, start_mo_month
-  EditBox 145, 80, 15, 15, start_mo_year
-  ButtonGroup ButtonPressed
-    OkButton 40, 120, 50, 15
-    CancelButton 100, 120, 50, 15
-  Text 35, 5, 40, 10, "Income amt"
-  Text 115, 5, 30, 10, "Pay freq."
-  Text 5, 25, 25, 10, "Job 1:"
-  Text 5, 45, 25, 10, "Job 2:"
-  Text 5, 65, 25, 10, "Job 3:"
-  Text 5, 85, 110, 10, "Script will FIAT starting in month:"
-  Text 10, 95, 115, 20, "The script will update this month and future months in ELIG."
-EndDialog
-
-Do
-    err_msg = ""
-
-    Dialog MA_EPD_dialog
-    cancel_confirmation
-
-    If start_mo_month = "" or start_mo_year = "" Then err_msg = err_msg & vbNewLine & "* Enter footer month and year."
-
-    If err_msg <> "" Then MsgBox "Please resolve to cotinue:" & vbNewLine & err_msg
-Loop until err_msg = ""
-
-start_mo_month = right("00" & start_mo_month, 2)
-start_mo_year = right("00" & start_mo_year, 2)
-
-start_month_and_year = start_mo_month & "/" & start_mo_year
-
-'SECTION 04: NOW IT GOES TO ELIG/HC TO FIAT THE AMOUNTS
-Call navigate_to_MAXIS_screen("ELIG", "HC__")
-
-row = 1
-col = 1
-EMSearch memb_number & " ", row, col 'finding the member number
-If row = 0 then script_end_procedure("Member number not found. You may have entered an incorrect member number on the first screen. Try the script again.")
-
-EMWriteScreen "x", row, 26
-transmit
-
-EMReadScreen elig_type_check_first_month, 2, 12, 17
-EMReadScreen elig_type_check_second_month, 2, 12, 28
-EMReadScreen elig_type_check_third_month, 2, 12, 39
-EMReadScreen elig_type_check_fourth_month, 2, 12, 50
-EMReadScreen elig_type_check_fifth_month, 2, 12, 61
-EMReadScreen elig_type_check_sixth_month, 2, 12, 72
-
-If elig_type_check_first_month <> "DP" and elig_type_check_second_month <> "DP" and elig_type_check_third_month <> "DP" and elig_type_check_fourth_month <> "DP" and elig_type_check_fifth_month <> "DP" and elig_type_check_sixth_month <> "DP" then MsgBox "Not all of the months of this case are MA-EPD. Process manually."
-If elig_type_check_first_month <> "DP" and elig_type_check_second_month <> "DP" and elig_type_check_third_month <> "DP" and elig_type_check_fourth_month <> "DP" and elig_type_check_fifth_month <> "DP" and elig_type_check_sixth_month <> "DP" then stopscript
-
-PF9
-EMReadScreen FIAT_check, 4, 24, 45
-If FIAT_check <> "FIAT" then
-  EMSendKey "05"
-  transmit
-End if
-' If radio1 = 1 then
-'   row = 6
-'   col = 1
-'   EMSearch current_month_and_year, row, col
-' End if
-'
-' If radio2 = 1 or row = 0 then
-'   row = 6
-'   col = 1
-'   EMSearch next_month_and_year, row, col
-' End if
-
-row = 6
-col = 1
-EMSearch start_month_and_year, row, col
-
-end_msg = "The selected month " & start_month_and_year & " is not in the current version of HC, review the month selected and try the script again."
-If col = 0 Then script_end_procedure(end_msg)
-
-'Multiplier calculations
-If frequency_job_01 = "1: monthly" or frequency_job_01 = "5. other (use monthly avg)" then multiplier_01 = 1
-If frequency_job_02 = "1: monthly" or frequency_job_02 = "5. other (use monthly avg)" then multiplier_02 = 1
-If frequency_job_03 = "1: monthly" or frequency_job_03 = "5. other (use monthly avg)" then multiplier_03 = 1
-
-If frequency_job_01 = "2: twice monthly" then multiplier_01 = 2
-If frequency_job_02 = "2: twice monthly" then multiplier_02 = 2
-If frequency_job_03 = "2: twice monthly" then multiplier_03 = 2
-
-If frequency_job_01 = "3: every 2 weeks" then multiplier_01 = 2.16
-If frequency_job_02 = "3: every 2 weeks" then multiplier_02 = 2.16
-If frequency_job_03 = "3: every 2 weeks" then multiplier_03 = 2.16
-
-If frequency_job_01 = "4. every week" then multiplier_01 = 4.3
-If frequency_job_02 = "4. every week" then multiplier_02 = 4.3
-If frequency_job_03 = "4. every week" then multiplier_03 = 4.3
-
-Do
-  EMWriteScreen "x", 9, col + 2
-  transmit
-  EMWriteScreen "x", 13, 03
-  transmit
-  EMWriteScreen "___________", 8, 43
-  EMWriteScreen income_job_01 * multiplier_01, 8, 43
-  If income_job_02 <> "" then
-    EMWriteScreen "___________", 9, 43
-    EMWriteScreen income_job_02 * multiplier_02, 9, 43
-  End if
-  If income_job_03 <> "" then
-    EMWriteScreen "___________", 10, 43
-    EMWriteScreen income_job_03 * multiplier_03, 10, 43
-  End if
-  col = col + 11
-  transmit
-  transmit
-  transmit
+    col = col + 11      'going to next month
+    transmit            'saving the earned income amount
+    transmit            'closing the earned income pop-up
+    transmit            'closing the budget pop-up
 loop until col > 76
 
 script_end_procedure("Success! Please make sure to check eligibility for any Medicare savings programs such as QMB or SLMB.")
