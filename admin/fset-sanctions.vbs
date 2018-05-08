@@ -346,7 +346,11 @@ If sanction_option = "Review sanctions" then
                 Loop until no_notices = "NO NOTICES"
                         
                 If sanction_case = true then 
-                    If wreg_codes = "30/06" or wreg_codes = "30/08" or wreg_codes = "30/10" then ObjExcel.Cells(excel_row, 11).Value = "Yes"
+                    If wreg_codes = "30/06" or wreg_codes = "30/08" or wreg_codes = "30/10" then 
+                        ObjExcel.Cells(excel_row, 11).Value = "Yes"
+                    Else 
+                        ObjExcel.Cells(excel_row, 11).Value = "No"
+                    End if 
                 else 
                     ObjExcel.Cells(excel_row, 10).Value = "No"
                 End if 
