@@ -130,6 +130,8 @@ If sanction_option = "Review sanctions" then
         referral_date = ""
         abawd_counted_months = ""
         abawd_counted_months = ""
+        sanction_case = ""
+        found_member = ""
         
         PMI_number = ObjExcel.Cells(excel_row, 1).Value
         PMI_number = trim(PMI_number)
