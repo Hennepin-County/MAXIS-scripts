@@ -6,9 +6,9 @@ start_time = timer
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else											'Everyone else should use the release branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
 		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
@@ -50,7 +50,7 @@ changelog_display
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_admin_menu_dialog(script_array)
-	BeginDialog admin_dialog, 0, 0, 516, 280, "Admin Scripts"
+	BeginDialog admin_dialog, 0, 0, 516, 300, "Admin Scripts"
 	 	Text 5, 5, 435, 10, "Admin scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 		 	'PushButton 015, 35, 40, 15, "CA", 				admin_main_button
@@ -71,7 +71,7 @@ Function declare_admin_menu_dialog(script_array)
 			button_placeholder = button_placeholder + 1
 		next
 
-		CancelButton 455, 260, 50, 15
+		CancelButton 455, 280, 50, 15
 		'GroupBox 5, 20, 205, 35, "admin Sub-Menus"
 	EndDialog
 End function
@@ -138,6 +138,13 @@ Set script_array_admin_main(script_num) = new script	'Set this array element to 
 script_array_admin_main(script_num).script_name			= "DISA Dr. PEPR"													'Script name
 script_array_admin_main(script_num).file_name			= "disa-dr-pepr.vbs"												'Script URL
 script_array_admin_main(script_num).description			= "Adds additional information to an existing list of cases applicable to DAIL PEPR DAILS."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
+Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_admin_main(script_num).script_name			= "FSET Sanctions"													'Script name
+script_array_admin_main(script_num).file_name			= "fset-sanctions.vbs"												'Script URL
+script_array_admin_main(script_num).description			= "BULK script to assist in reviewing, applying, case noting and adding WCOM's for FSET sanction cases."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
