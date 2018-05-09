@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("05/07/2018", "Updated the characters to pull for the client's name.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/12/2018", "Entering a supervisor X-Number in the Workers to Check will pull all X-Numbers listed under that supervisor in MAXIS. Addiional bug fix where script was missing cases.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -234,7 +235,7 @@ For each worker in worker_array
 			MAXIS_row = 7
 			Do
 				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 6			'Reading case number
-				EMReadScreen client_name, 15, MAXIS_row, 16		'Reading client name
+				EMReadScreen client_name, 29, MAXIS_row, 16		'Reading client name
 				EMReadScreen cash_status, 2, MAXIS_row, 45		'Reading cash status
 				EMReadScreen SNAP_status, 1, MAXIS_row, 53		'Reading SNAP status
 				EMReadScreen revw_recd_date, 8, MAXIS_row, 72		'Reading review received date
