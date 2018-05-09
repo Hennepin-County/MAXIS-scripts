@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("05/08/2018", "Updated to pull employer name correctly.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/13/2018", "Updated for clearing UBEN CC.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/16/2018", "Corrected casenote for pulling IEVS period.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/27/2017", "Updated to handle clearing the match when the date is over 45 days.", "MiKayla Handley, Hennepin County")
@@ -95,7 +96,6 @@ MAXIS_case_number= TRIM(MAXIS_case_number)
 'Navigating deeper into the match interface
 CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
 CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
-EMReadScreen error_msg, 7, 24, 2
 IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
 EMReadScreen IEVS_match, 11, row, 47
 
@@ -134,11 +134,23 @@ IF OutOfCounty_error = "MATCH IS NOT" THEN
 	script_end_procedure("Out-of-county case. Cannot update.")
 ELSE
 	IF IEVS_type = "UBEN" THEN
-		EMReadScreen IEVS_month, 2, 5, 68
-		EMReadScreen IEVS_year, 2, 5, 71
+		EMReadScreen IEVS_quarter, 1, 8, 14
+		EMReadScreen IEVS_year, 8, 8, 21
+		EMReadScreen source_income, 29, 8, 37
+		source_income = trim(source_income)
+		IF instr(source_income, " AMT: $") THEN 					  'establishing the length of the variable
+		    position = InStr(source_income, " AMT: $")    		      'sets the position at the deliminator
+ 				source_income = Left(source_income, position)
+		END IF
 	ELSEIF IEVS_type = "BEER" THEN
 		EMReadScreen IEVS_year, 2, 8, 15
 		IEVS_year = "20" & IEVS_year
+		EMReadScreen source_income, 42, 8, 28
+		source_income = trim(source_income)
+		IF instr(source_income, " AMOUNT: $") THEN
+		    position = InStr(source_income, " AMOUNT: $")    		      'sets the position at the deliminator
+		    source_income = Left(source_income, position)
+		END IF
 	END IF
 END IF
 
@@ -175,25 +187,6 @@ IF instr(Active_Programs, "S") THEN programs = programs & "MFIP, "
 programs = trim(programs)
 'takes the last comma off of programs when autofilled into dialog
 IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
-
-'----------------------------------------------------------------------------------------------------Employer info & dIFfernce notice info
-IF IEVS_type = "UBEN" or IEVS_type = "BEER" THEN
-	EMReadScreen source_income, 7, 8, 18
-	source_income = trim(source_income)
-ELSE
-	EMReadScreen source_income, 74, 8, 37
-	source_income = trim(source_income)
-	length = len(source_income)		'establishing the length of the variable
-	IF instr(source_income, " AMOUNT: $") THEN
-	    position = InStr(source_income, " AMOUNT: $")    		      'sets the position at the deliminator
-	    source_income = Left(source_income, position)  'establishes employer as being before the deliminator
-	Elseif instr(source_income, " AMT: $") THEN 					  'establishing the length of the variable
-	    position = InStr(source_income, " AMT: $")    		      'sets the position at the deliminator
-	    source_income = Left(source_income, position)  'establishes employer as being before the deliminator
-	Else
-	    source_income = source_income	'catch all variable
-	END IF
-END IF
 
 '----------------------------------------------------------------------------------------------------Employer info & difference notice info
 EMReadScreen notice_sent, 1, 14, 37
