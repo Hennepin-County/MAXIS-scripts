@@ -128,11 +128,8 @@ Do
 				fs_wcom_writen = true
 				'This will write if the notice is for SNAP only
 				CALL write_variable_in_SPEC_MEMO("******************************************************")
-				CALL write_variable_in_SPEC_MEMO("Reasons for not meeting the rules:")
-				CALL write_variable_in_SPEC_MEMO("You can keep getting your SNAP benefits if you show you had a good reason for not meeting the SNAP E&T rules. If you had a good reason, tell us right away.")
-				CALL write_variable_in_SPEC_MEMO("")
 				CALL write_variable_in_SPEC_MEMO("What to do next:")
-				CALL write_variable_in_SPEC_MEMO("* You must meet the SNAP E&T rules by the end of the month. If you want to meet the rules, contact your county worker at 612-596-1300, or your SNAP E&T provider at 612-596-7411.")
+				CALL write_variable_in_SPEC_MEMO("* You must meet the SNAP E&T rules by the end of the month. If you want to meet the rules, contact your team at 612-596-1300, or your SNAP E&T provider at 612-596-7411.")
 				CALL write_variable_in_SPEC_MEMO("* You can tell us why you did not meet the rules. If you had a good reason for not meeting the SNAP E&T rules, contact your SNAP E&T provider right away.")
 				CALL write_variable_in_SPEC_MEMO("******************************************************")
 				PF4
