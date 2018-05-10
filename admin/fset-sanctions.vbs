@@ -156,11 +156,15 @@ If sanction_option = "Review sanctions" then
             sanction_notes = sanction_notes & " Out-of-county case."
             found_member = False
         Else 
-            found_member = True 
             EmReadscreen SNAP_actv, 4, 10, 74
             ObjExcel.Cells(excel_row, 5).Value = SNAP_actv
-            If SNAP_actv <> "ACTV" then sanction_notes = sanction_notes & "SNAP not active."
-        End if 
+            If SNAP_actv = "ACTV" then 
+                found_member = True
+            else 
+                sanction_notes = sanction_notes & "SNAP not active."
+                found_member = FALSE
+            End if
+        End if
             
         Call HCRE_panel_bypass  'function to ensure we get past HCRE panel 
         
@@ -441,39 +445,34 @@ If sanction_option = "Update WREG only" then
                 End if 
             End if 
     
-            If sanction_case = True  then 
-                EmReadscreen banked_months_check, 2, 13, 50
-                If banked_months_check = "13" then 
-                    sanction_case = False
-                    sanction_notes = sanction_notes & "Member is coded as Banked Months for " & CM_plus_1_mo & "/" & CM_plus_1_yr & ". "
-                Else 
-                    'msgbox MAXIS_CASE_NUMBER & " is going to be sanctioned."
-                    PF9
-                    EMReadscreen PWE_check, 1, 6, 68                    'who is the PWE?
-                    'updating WREG to reflect sanction 
-                    EMWriteScreen "02", 8, 50							'Enters sanction FSET code of "02"
-                    EMWriteScreen MAXIS_footer_month, 10, 50			'sanction begin month
-                    EMWriteScreen MAXIS_footer_year, 10, 56			    'sanction begin year
-                    EMWriteScreen "01", 11, 50	                        'sanction # 
-                    EMWriteScreen "01", 12, 50		                    'reason for sanction. This adds information to the notice. - If sanction is more than reason 01, then this will be processed indivdually.
-                    EMWriteScreen "_", 8, 80							'blanks out Defer FSET/No funds field 
-                    PF3
-                    'msgbox "did WREG get updated?"
-                    '----------------------------------------------------------------------------------------------------The Case note
-                    Call start_a_blank_CASE_NOTE
-                    Call write_variable_in_CASE_NOTE("--SNAP sanction imposed for MEMB " & member_number & " for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "--")
-                    If PWE_check = "Y" THEN Call write_variable_in_CASE_NOTE("* Sanctioned individual is the PWE. Entire household is sanctioned.")
-                    If PWE_check = "N" THEN Call write_variable_in_CASE_NOTE("* Sanctioned individual is NOT the PWE. Only the HH MEMB is sanctioned.")
-                    Call write_bullet_and_variable_in_CASE_NOTE("Date agency was notified of sanction", agency_informed_sanction)
-                    Call write_variable_in_CASE_NOTE("---")
-                    Call write_variable_in_CASE_NOTE("* Number/occurrence of sanction: 1st")
-                    Call write_variable_in_CASE_NOTE("* Reason for sanction: Failed to attend orientation.") 
-                    Call write_variable_in_CASE_NOTE("* Added Good Cause/failure to comply informaiton to the notice.")
-                    Call write_variable_in_CASE_NOTE("---")
-                    Call write_variable_in_CASE_NOTE(worker_signature)
-                    PF3
-                    sanction_notes = sanction_notes & "APP sanction."
-                End if 
+            If sanction_case = True then 
+                'msgbox MAXIS_CASE_NUMBER & " is going to be sanctioned."
+                PF9
+                EMReadscreen PWE_check, 1, 6, 68                    'who is the PWE?
+                'updating WREG to reflect sanction 
+                EMWriteScreen "02", 8, 50							'Enters sanction FSET code of "02"
+                EMWriteScreen MAXIS_footer_month, 10, 50			'sanction begin month
+                EMWriteScreen MAXIS_footer_year, 10, 56			    'sanction begin year
+                EMWriteScreen "01", 11, 50	                        'sanction # 
+                EMWriteScreen "01", 12, 50		                    'reason for sanction. This adds information to the notice. - If sanction is more than reason 01, then this will be processed indivdually.
+                EMWriteScreen "_", 8, 80							'blanks out Defer FSET/No funds field 
+                PF3
+                '8.21.55 check for update date (if confirmation doesn't stick, then set to false)
+                'msgbox "did WREG get updated?"
+                '----------------------------------------------------------------------------------------------------The Case note
+                Call start_a_blank_CASE_NOTE
+                Call write_variable_in_CASE_NOTE("--SNAP sanction imposed for MEMB " & member_number & " for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "--")
+                If PWE_check = "Y" THEN Call write_variable_in_CASE_NOTE("* Sanctioned individual is the PWE. Entire household is sanctioned.")
+                If PWE_check = "N" THEN Call write_variable_in_CASE_NOTE("* Sanctioned individual is NOT the PWE. Only the HH MEMB is sanctioned.")
+                Call write_bullet_and_variable_in_CASE_NOTE("Date agency was notified of sanction", agency_informed_sanction)
+                Call write_variable_in_CASE_NOTE("---")
+                Call write_variable_in_CASE_NOTE("* Number/occurrence of sanction: 1st")
+                Call write_variable_in_CASE_NOTE("* Reason for sanction: Failed to attend orientation.") 
+                Call write_variable_in_CASE_NOTE("* Added Good Cause/failure to comply informaiton to the notice.")
+                Call write_variable_in_CASE_NOTE("---")
+                Call write_variable_in_CASE_NOTE(worker_signature)
+                PF3
+                sanction_notes = sanction_notes & "APP sanction."
             End if 
             ObjExcel.Cells(Excel_row, 12).Value = sanction_notes
         End if     
