@@ -50,11 +50,25 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+BeginDialog info_dialog, 0, 0, 176, 85, "UTILITIES - POLI TEMP"
+  OkButton 65, 65, 50, 15
+  CancelButton 120, 65, 50, 15
+  ButtonGroup ButtonPressed
+  GroupBox 10, 5, 160, 55, "About this script:"
+  Text 15, 20, 150, 35, "This script gathers a list of all POLI TEMP topics, reference numbers and revised dates, and exprorts them to an Excel worksheet. This makes POLI TEMP easier to search."
+EndDialog
+
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""				'Connects to BlueZone
-back_to_self				'navigates back to the self screen since POLI/TEMP is super picky
-Call check_for_MAXIS(False)	'stops script if user is passworded out
+	
+'The main dialog
+Do
+	dialog info_dialog
+    If ButtonPressed = 0 then StopScript										
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in		
 
+back_to_self				'navigates back to the self screen since POLI/TEMP is super picky
 Call navigate_to_MAXIS_screen("POLI", "____")
 EMWriteScreen "TEMP", 5, 40
 EMWriteScreen "TABLE", 21, 71
