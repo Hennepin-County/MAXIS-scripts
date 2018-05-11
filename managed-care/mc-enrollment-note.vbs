@@ -1,21 +1,19 @@
 '**********THIS IS A HENNEPIN SPECIFIC SCRIPT.  IF YOU REVERSE ENGINEER THIS SCRIPT, JUST BE CAREFUL.************
-'Beginning of script code for terminating ESSO
-'MsgBox "Beginning of script, checking to see if ESSO is installed on your computer..."
-IF Ignore_ESSO = FALSE or Ignore_ESSO = "" THEN    'FOR WIN10'
-    ESSO_path = "C:\Program Files (x86)\Passlogix\v-GO SSO\ssoShell.exe"
-    SET fso = CreateObject("Scripting.FileSystemObject")
-    IF (fso.FileExists(ESSO_path)) THEN
-      using_ESSO = TRUE
-      SET objShell = CreateObject("Wscript.Shell")
-      'objShell.Run "taskkill /f /im ssoShell.exe", 0, TRUE       'http://www.vbsedit.com/html/6f28899c-d653-4555-8a59-49640b0e32ea.asp
-      objShell.Run "taskkill /s localhost /im ssoshell.exe /f", 0, TRUE 'THIS IS FOR WIN10'
-      'MsgBox "ESSO was found on your computer, ESSO has terminated. It may take 10-20 seconds for the system tray icon to go away."
-    ELSE
-      using_ESSO = FALSE
-      'MsgBox "ESSO was not found on your computer, so no need to try to terminate it."
-    END IF
-END IF'        'FOR WIN10'
-
+'ESSO is password manager software used by many Hennepin County employees
+'Scripts do not work properly if ESSO is running
+'If ESSO is installed on the user's computer, ESSO is stopped at the start of each script and is opened back up at the end of each script
+'If we want to load Global Variables and we don't want ESSO to be closed when we run a script, then Ignore_ESSO can be set to TRUE in that script before global variables are loaded, and ESSO won't be closed.
+IF Ignore_ESSO = FALSE or Ignore_ESSO = "" THEN
+  ESSO_path = "C:\Program Files (x86)\Passlogix\v-GO SSO\ssoShell.exe"
+  SET ObjFSO = CreateObject("Scripting.FileSystemObject")                   'Create a File System Object
+  IF (ObjFSO.FileExists(ESSO_path)) THEN                                    'If ESSO exists at the location stored in ESSO_path, ESSO is installed on the user's computer
+    Using_ESSO = TRUE                                                       'Set Using_ESSO to TRUE so that if/when we check later to see if ESSO should be stopped or restarted, we won't have to check to see if ESSO is installed again
+    SET ObjShell = CreateObject("Wscript.Shell")                            'Create an object that we can run to terminate the ESSO program (next line)
+    ObjShell.Run "taskkill /s localhost /im ssoshell.exe /f", 0, TRUE       'See https://technet.microsoft.com/en-us/library/bb491009.aspx for detail on taskkill. 0 hides the window, true forces the script to wait until the taskkill command is executed
+  ELSE
+    Using_ESSO = FALSE                                                      'Set to FALSE so that if/when we check later to see if ESSO should be restarted, we won't have to check to see if ESSO is installed again
+  END IF
+END IF
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - Managed Care Enrollment.vbs"
@@ -621,7 +619,8 @@ MAXIS_case_number = MMIS_case_number
 'End of script code for restarting ESSO
 IF using_ESSO = TRUE THEN
   'MsgBox "End of script reached. Because ESSO was previously found on your computer, attempting to start ESSO in the background..."
-  objShell.Run "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Oracle\ESSO-LM\ESSO-LM.lnk"""
+  SET ObjShell = CreateObject("Wscript.Shell")
+  ObjShell.Run """C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Oracle\ESSO-LM\ESSO-LM.lnk"""
   vgo_msg = "ESSO started, the ESSO icon should be added back to the system tray."
 ELSE
   vgo_msg = "End of script reached. Because ESSO was not previously found on your computer, there is no need to try to start ESSO."
