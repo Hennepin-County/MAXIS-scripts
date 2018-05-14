@@ -358,7 +358,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the client respond to Difference Notice?"
 		IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
 		IF (resolution_status = "BE - No Change" AND other_notes = "") THEN err_msg = err_msg & vbNewLine & "When clearing using BE other notes must be completed."
-		If trim(Reason_OP) = "" THEN err_msg = err_msg & vbnewline & "* You must enter the reason for the overpayment."
+		IF (resolution_status = "CC - Claim Entered" AND Reason_OP = "") THEN err_msg = err_msg & vbnewline & "* You must enter the reason for the overpayment."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL DEU_password_check(False)
