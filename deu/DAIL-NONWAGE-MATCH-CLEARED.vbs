@@ -138,11 +138,12 @@ ELSE
 		EMReadScreen UBEN_month, 2, 5, 68
 		EMReadScreen UBEN_year, 2, 5, 71
 		EMReadScreen source_income, 29, 8, 37
-		source_income = trim(source_income)
-		IF instr(source_income, " AMT: $") THEN 					  'establishing the length of the variable
-		    position = InStr(source_income, " AMT: $")    		      'sets the position at the deliminator
- 				source_income = Left(source_income, position)
-		END IF
+		source_income = replace(source_income, "Unemployment")
+		'source_income = trim(source_income)
+		'IF instr(source_income, " AMT: $") THEN 					  'establishing the length of the variable
+		    'position = InStr(source_income, " AMT: $")    		      'sets the position at the deliminator
+ 				'source_income = Left(source_income, position)
+		'END IF
 	ELSEIF IEVS_type = "BEER" THEN
 		EMReadScreen IEVS_year, 2, 8, 15
 		IEVS_year = "20" & IEVS_year
@@ -357,6 +358,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the client respond to Difference Notice?"
 		IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
 		IF (resolution_status = "BE - No Change" AND other_notes = "") THEN err_msg = err_msg & vbNewLine & "When clearing using BE other notes must be completed."
+		If trim(Reason_OP) = "" THEN err_msg = err_msg & vbnewline & "* You must enter the reason for the overpayment."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL DEU_password_check(False)
@@ -480,14 +482,14 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	  CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
 		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
-		IF resolution_status = "BC - Case Closed" 	THEN CALL write_variable_in_CASE_NOTE("Case closed. ")
-		IF resolution_status = "BE - Child" THEN CALL write_variable_in_CASE_NOTE("INCOME IS EXCLUDED FOR MINOR CHILD IN SCHOOL.")
-		IF resolution_status = "BE - No Change" THEN CALL write_variable_in_CASE_NOTE("NO OVERPAYMENTS OR SAVINGS RELATED TO THIS.")
-		IF resolution_status = "BE - OP Entered" THEN CALL write_variable_in_CASE_NOTE("OVERPAYMENTS OR SAVINGS WERE FOUND RELATED TO THIS.")
-		IF resolution_status = "BN - Already known, No Savings" THEN CALL write_variable_in_CASE_NOTE("CLIENT REPORTED INCOME. CORRECT INCOME IS IN STAT PANELS AND BUDGETED.")
-		IF resolution_status = "BO - Other" THEN CALL write_variable_in_CASE_NOTE("HC Claim entered. ")
-		IF resolution_status = "BP - Wrong Person" THEN CALL write_variable_in_CASE_NOTE("Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
-		IF resolution_status = "CF - Future Savings" THEN CALL write_variable_in_CASE_NOTE("Cost Savings - income can be budgeted timely for next month")
+		IF resolution_status = "BC - Case Closed" 	THEN CALL write_variable_in_CASE_NOTE("* Case closed. ")
+		IF resolution_status = "BE - Child" THEN CALL write_variable_in_CASE_NOTE("* Income is excluded for minor child in school.")
+		IF resolution_status = "BE - No Change" THEN CALL write_variable_in_CASE_NOTE("* No overpayment or savings related to this match.")
+		IF resolution_status = "BE - OP Entered" THEN CALL write_variable_in_CASE_NOTE("* Overpayment or savings were found related to this match.")
+		IF resolution_status = "BN - Already known, No Savings" THEN CALL write_variable_in_CASE_NOTE("* Client reported income, correct income in STAT and budgeted.")
+		IF resolution_status = "BO - Other" THEN CALL write_variable_in_CASE_NOTE("* HC Claim entered. ")
+		IF resolution_status = "BP - Wrong Person" THEN CALL write_variable_in_CASE_NOTE("* Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
+		IF resolution_status = "CF - Future Savings" THEN CALL write_variable_in_CASE_NOTE("* Cost Savings - income can be budgeted timely for next month")
 		IF resolution_status = "CC - Claim Entered" THEN
 		  CALL write_variable_in_CASE_NOTE(claim_program & " Overpayment Claim # " & claim_number  & " Amount: $" & claim_AMT &  " From: " & from_month & "/" &  from_year & " through "  & to_month & "/" &  to_year)
 		  CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
@@ -498,7 +500,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		  CALL write_bullet_and_variable_in_case_note("Reason for overpayment", reason_OP)
 		END IF
 		IF resolution_status = "NC - Non Cooperation" THEN
-      CALL write_variable_in_CASE_NOTE("* CLIENT FAILED TO COOPERATE WITH WAGE MATCH")
+      CALL write_variable_in_CASE_NOTE("* Client failed to cooperate with wage match.")
       CALL write_variable_in_case_note("* Entered STAT/DISQ panels for each program.")
       CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
       CALL write_variable_in_case_note("* Case approved to close")
