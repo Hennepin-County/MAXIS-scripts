@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("05/14/2018", "Updated to add CF drop down and handling for UBEN matches.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("05/08/2018", "Updated to pull employer name correctly.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/13/2018", "Updated for clearing UBEN CC.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/16/2018", "Corrected casenote for pulling IEVS period.", "MiKayla Handley, Hennepin County")
@@ -134,8 +135,8 @@ IF OutOfCounty_error = "MATCH IS NOT" THEN
 	script_end_procedure("Out-of-county case. Cannot update.")
 ELSE
 	IF IEVS_type = "UBEN" THEN
-		EMReadScreen IEVS_quarter, 1, 8, 14
-		EMReadScreen IEVS_year, 8, 8, 21
+		EMReadScreen UBEN_month, 2, 5, 68
+		EMReadScreen UBEN_year, 2, 5, 71
 		EMReadScreen source_income, 29, 8, 37
 		source_income = trim(source_income)
 		IF instr(source_income, " AMT: $") THEN 					  'establishing the length of the variable
@@ -280,7 +281,7 @@ IF send_notice_checkbox = CHECKED THEN
 
 	'---------------------------------------------------------------------DIFF NOTC case note
   start_a_blank_CASE_NOTE
-	IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & "/" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
+	IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & UBEN_month & "/" & UBEN_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
 	IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
 	CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
   CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
@@ -302,7 +303,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
     Text 120, 20, 165, 10, "Client name: " & client_name
     Text 10, 40, 105, 10, "Active Programs: " & programs
     Text 120, 40, 175, 15, "Income source: " & source_income
-    DropListBox 75, 65, 110, 15, "Select One:"+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BE - OP entered"+chr(9)+"BO - Other"+chr(9)+"BP - Wrong Person"+chr(9)+"CC - Claim Entered"+chr(9)+"NC - Non Cooperation", resolution_status
+    DropListBox 75, 65, 110, 15, "Select One:"+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BE - OP entered"+chr(9)+"BO - Other"+chr(9)+"BP - Wrong Person"+chr(9)+"CC - Claim Entered"+chr(9)+"CF - Future Savings"+chr(9)+"NC - Non Cooperation", resolution_status
     DropListBox 125, 85, 60, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", change_response
     EditBox 125, 105, 35, 15, resolve_time
     CheckBox 210, 75, 70, 10, "Difference Notice", Diff_Notice_Checkbox
@@ -375,6 +376,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	IF resolution_status = "BO - Other" THEN rez_status = "BO"
 	IF resolution_status = "BP - Wrong Person"  THEN rez_status = "BP"
 	IF resolution_status = "CC - Claim Entered" THEN rez_status = "CC"
+	IF resolution_status = "CF - Future Savings" THEN rez_status = "CF"
 	IF resolution_status = "NC - Non Cooperation" THEN rez_status = "NC"
 	'CC cannot be used - ACTION CODE FOR ACTH OR ACTM IS INVALID
 	programs_array = split(programs, ",")
@@ -398,7 +400,6 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		EMwritescreen "N", 15, 37
 	END IF
 	transmit 'IULB
-	'
 
 	''---------------------------------------------------------------------------writing the note on IULB
 	EMReadScreen error_msg, 11, 24, 2
@@ -412,6 +413,10 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	IF resolution_status = "BO - Other" THEN EMWriteScreen "HC Claim entered. " & other_notes, 8, 6 								'BO
 	IF resolution_status = "BP - Wrong Person" THEN EMWriteScreen "Client name and wage earner name are different. " & other_notes, 8, 6
 	IF resolution_status = "CC - Claim Entered" THEN
+		EMWriteScreen "Claim entered #" & claim_num & claim_AMT, 8, 6 						 	'CC
+		EMWriteScreen  claim_number, 17, 9
+	END IF
+	IF resolution_status = "CF - Future Savings" THEN
 		EMWriteScreen "Claim entered #" & claim_num & claim_AMT, 8, 6 						 	'CC
 		EMWriteScreen  claim_number, 17, 9
 	END IF
@@ -436,7 +441,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		PF3 'back to the DAIL'
 	   '----------------------------------------------------------------the case match CLEARED note
 		start_a_blank_CASE_NOTE
-		IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & "/" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
+		IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & UBEN_month & "/" & UBEN_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
 	  IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
 	  CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_match)
 	  CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
