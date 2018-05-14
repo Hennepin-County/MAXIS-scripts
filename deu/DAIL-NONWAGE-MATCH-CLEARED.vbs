@@ -137,8 +137,8 @@ ELSE
 	IF IEVS_type = "UBEN" THEN
 		EMReadScreen UBEN_month, 2, 5, 68
 		EMReadScreen UBEN_year, 2, 5, 71
-		EMReadScreen source_income, 29, 8, 37
-		source_income = replace(source_income, "Unemployment")
+		'EMReadScreen source_income, 29, 8, 37
+		source_income = "Unemployment"
 		'source_income = trim(source_income)
 		'IF instr(source_income, " AMT: $") THEN 					  'establishing the length of the variable
 		    'position = InStr(source_income, " AMT: $")    		      'sets the position at the deliminator
