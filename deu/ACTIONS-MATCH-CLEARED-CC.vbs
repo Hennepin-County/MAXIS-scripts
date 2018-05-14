@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("05/14/2018", "Fixed bug that prevented script from running.", "Ilse Ferris, Hennepin County")
+CALL changelog_update("05/14/2018", "Fixed bug that prevented script from running. Added End statement, and changed the dialog name.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/23/2018", "Updated case note to reflect standard dialog and case note.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/02/2018", "Corrected IEVS match error due to new year.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/14/2017", "Updated script to grab full income source for BEER messages.", "MiKayla Handley, Hennepin County")
@@ -124,7 +124,7 @@ MAXIS_case_number= TRIM(MAXIS_case_number)
 memb_number = "01"
 OP_Date = date & ""
 
-BeginDialog PARIS_match_claim_dialog, 0, 0, 361, 245, "Overpayment Claim Entered"
+BeginDialog OP_Cleared_dialog, 0, 0, 361, 245, "Overpayment Claim Entered"
 	EditBox 55, 5, 35, 15, MAXIS_case_number
 	EditBox 150, 5, 45, 15, discovery_date
 	EditBox 240, 5, 20, 15, memb_number
