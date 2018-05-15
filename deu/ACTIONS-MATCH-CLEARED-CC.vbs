@@ -44,6 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("05/14/2018", "Resolved bug preventing 'overpayment reason' from being entered into the case note. Also made this a mandatory field.", "Ilse Ferris, Hennepin County")
+CALL changelog_update("05/14/2018", "Fixed bug that prevented script from running. Added End statement, and changed the dialog name.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/23/2018", "Updated case note to reflect standard dialog and case note.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/02/2018", "Corrected IEVS match error due to new year.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/14/2017", "Updated script to grab full income source for BEER messages.", "MiKayla Handley, Hennepin County")
@@ -123,7 +125,7 @@ MAXIS_case_number= TRIM(MAXIS_case_number)
 memb_number = "01"
 OP_Date = date & ""
 
-BeginDialog PARIS_match_claim_dialog, 0, 0, 361, 245, "Overpayment Claim Entered"
+BeginDialog OP_Cleared_dialog, 0, 0, 361, 245, "Overpayment Claim Entered"
 	EditBox 55, 5, 35, 15, MAXIS_case_number
 	EditBox 150, 5, 45, 15, discovery_date
 	EditBox 240, 5, 20, 15, memb_number
@@ -150,9 +152,8 @@ BeginDialog PARIS_match_claim_dialog, 0, 0, 361, 245, "Overpayment Claim Entered
 	EditBox 305, 140, 50, 15, income_rcvd_date
 	EditBox 70, 160, 285, 15, Reason_OP
 	DropListBox 105, 180, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", EI_allowed_dropdown
-	DropListBox 200, 180, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
+	DropListBox 195, 180, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
   DropListBox 270, 180, 85, 15, "Select:"+chr(9)+"HH No Info"+chr(9)+"HH Incorrect Or Incompl"+chr(9)+"HH Not Timely Inform"+chr(9)+"Estimate Wrong Inadv"+chr(9)+"No HRF"+chr(9)+"Benefits Rcd Pend App"+chr(9)+"Replacement Bene Used" +chr(9)+"Prog Pol Prevents Chg" +chr(9)+"EBT- Representment" +chr(9)+"IEVS - BEER"+chr(9)+"IEVS - BENDEX" +chr(9)+"IEVS - UNVI"+chr(9)+"IEVS - SDX"+chr(9)+"IEVS - WAGE"+chr(9)+"IEVS - UBEN"+chr(9)+"PARIS Inter-state Match"+chr(9)+"Agency: Delay   Action"+chr(9)+"Agency: Issue Comp Error"+chr(9)+"Agency: Dup Issuance"+chr(9)+"Agency:$50 Pass-Thru"+chr(9)+"GRH Vndr: No Info"+chr(9)+"GRH Vndr: Incomplete"+chr(9)+"GRH Vndr: Not Timely"+chr(9)+"GRH Vndr: Client Left Faci"+chr(9)+"99 Other", collectible_reason_dropdown
-	EditBox 70, 160, 285, 15, Reason_OP
 	EditBox 95, 200, 60, 15, HC_resp_memb
   EditBox 290, 200, 65, 15, Fed_HC_AMT
   ButtonGroup ButtonPressed
@@ -195,7 +196,7 @@ EndDialog
 Do
 	err_msg = ""
 	dialog OP_Cleared_dialog
-	IF buttonpressed = 0 then stopscript
+	cancel_confirmation
 	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
 	IF select_quarter = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match period entry."
 	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
@@ -203,6 +204,7 @@ Do
 	IF EI_allowed_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if Earned Income disregard was allowed."
 	IF income_rcvd_date = "" THEN err_msg = err_msg & vbnewline & "* Please advise of date income was received."
 	IF OP_program = "Select:" THEN err_msg = err_msg & vbnewline & "* You must have an overpayment entry."
+  If trim(Reason_OP) = "" THEN err_msg = err_msg & vbnewline & "* You must enter the reason for the overpayment."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 LOOP UNTIL err_msg = ""
 CALL DEU_password_check(False)
@@ -394,8 +396,9 @@ IF IsNumeric(days_pending) = TRUE THEN
 ELSE
 	match_cleared = TRUE
 END IF
+
 IF match_cleared = TRUE THEN
-	   IF IEVS_type = "WAGE" THEN
+	IF IEVS_type = "WAGE" THEN
         'Updated IEVS_period to write into case note
         IF select_quarter = "1" THEN IEVS_quarter = "1ST"
         IF select_quarter = "2" THEN IEVS_quarter = "2ND"
@@ -405,36 +408,37 @@ IF match_cleared = TRUE THEN
 	IEVS_period = replace(IEVS_period, "/", " to ")
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 	PF3 'back to the DAIL'
-    '-----------------------------------------------------------------------------------------CASENOTE
-		'-----------------------------------------------------------------------------------------CASENOTE
-		start_a_blank_CASE_NOTE
-		IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH " & " (" & first_name &  ") " & "OVERPAYMENT-CLAIM ENTERED-----")
-		IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & "/" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") OVERPAYMENT-CLAIM ENTERED-----")
-		IF IEVS_type <> "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & " (" & first_name &  ") " & "OVERPAYMENT-CLAIM ENTERED-----")
-		CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", Active_Programs)
-		IF IEVS_type <> "UNVI" THEN CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
-		Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
-		Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-		IF OP_2 <> "" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-		IF OP_3 <> "" then Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-		CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
-		IF First_OP_program = "HC" THEN
-			Call write_bullet_and_variable_in_CASE_NOTE("HC responsible members", HC_resp_memb)
-			Call write_bullet_and_variable_in_CASE_NOTE("Total federal Health Care amount", Fed_HC_AMT)
-			Call write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-		END IF
-		CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
-		CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
-		CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
-		CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_used)
-		CALL write_bullet_and_variable_in_case_note("Date income verification was received", income_rcvd_date)
-		CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
-		CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
-		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
-		CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-		PF3
-		IF First_OP_program = "HC" THEN CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us", "Claim entered for case #" &  MAXIS_case_number, "Member #: " & OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount & "See case notes for further details.", "", False)
 
-		script_end_procedure("Overpayment case note entered. Please remember to copy and paste your notes to CCOL/CLIC")
+	'-----------------------------------------------------------------------------------------CASENOTE
+	start_a_blank_CASE_NOTE
+	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH " & " (" & first_name &  ") " & "OVERPAYMENT-CLAIM ENTERED-----")
+	IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & "/" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") OVERPAYMENT-CLAIM ENTERED-----")
+	IF IEVS_type <> "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & " (" & first_name &  ") " & "OVERPAYMENT-CLAIM ENTERED-----")
+	CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", Active_Programs)
+	IF IEVS_type <> "UNVI" THEN CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
+	Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+	Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+	IF OP_2 <> "" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+	IF OP_3 <> "" then Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+	CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
+	IF First_OP_program = "HC" THEN
+		Call write_bullet_and_variable_in_CASE_NOTE("HC responsible members", HC_resp_memb)
+		Call write_bullet_and_variable_in_CASE_NOTE("Total federal Health Care amount", Fed_HC_AMT)
+		Call write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+	END IF
+	CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
+	CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
+	CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
+	CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_used)
+	CALL write_bullet_and_variable_in_case_note("Date income verification was received", income_rcvd_date)
+	CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
+	CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
+	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+	CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+	PF3
+	IF First_OP_program = "HC" THEN CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us", "Claim entered for case #" &  MAXIS_case_number, "Member #: " & OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount & "See case notes for further details.", "", False)
+
+	script_end_procedure("Overpayment case note entered. Please remember to copy and paste your notes to CCOL/CLIC")
+End if

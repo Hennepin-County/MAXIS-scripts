@@ -47,6 +47,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/09/2018", "Updated prospective pay date to the income start date. This resolves an inhibiting error on several cases.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/05/2018", "Updated script to ensure TIKL was being created.", "MiKayla Handley, Hennepin County")
 call changelog_update("01/05/2018", "Updated coordinates in STAT/JOBS for income type and verification codes.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -212,9 +213,9 @@ If create_JOBS_checkbox = checked then
 	EMWriteScreen month_hired, 9, 35		'Adds month hired to start date (this is actually the day income was received)
 	EMWriteScreen day_hired, 9, 38			'Adds day hired
 	EMWriteScreen year_hired, 9, 41			'Adds year hired
-	EMWriteScreen MAXIS_footer_month, 12, 54		'Puts footer month in as the month on prospective side of panel
-	EMWriteScreen current_day, 12, 57		'Puts today in as the day on prospective side, because that's the day we edited the panel
-	EMWriteScreen MAXIS_footer_year, 12, 60		'Puts footer year in on prospective side
+	EMWriteScreen MAXIS_footer_month, 12, 54 'Puts footer month in as the month on prospective side of panel
+	EMWriteScreen day_hired, 12, 57		      'Puts today in as the day on prospective side, because that's the day we edited the panel - changed to day hired as to not cause inhibiting errors. 
+	EMWriteScreen MAXIS_footer_year, 12, 60	'Puts footer year in on prospective side
 	EMWriteScreen "0", 12, 67				'Puts $0 in as the received income amt
 	EMWriteScreen "0", 18, 72				'Puts 0 hours in as the worked hours
 	If FS_case = True then 					'If case is SNAP, it creates a PIC

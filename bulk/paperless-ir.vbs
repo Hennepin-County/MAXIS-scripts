@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/14/2018", "Updated the TIKL functionality to write TIKL for the current day of the month.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/05/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -196,10 +197,7 @@ End If
 
 For each MAXIS_case_number in cases_to_tikl_array
 	navigate_to_MAXIS_screen "DAIL", "WRIT"
-	EMWritescreen current_month, 5, 18
-	EMWritescreen current_day,   5, 21
-	EMWritescreen current_year,  5, 24
-	transmit
+    call create_MAXIS_friendly_date(date, 0, 5, 18)
 	EMWritescreen "%^% Sent through background using bulk script %^%", 9, 3
 	transmit
 	EMReadScreen tikl_success, 4, 24, 2

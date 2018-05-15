@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/10/2018", "Added password handling to main dialog.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -62,21 +63,21 @@ BeginDialog POLI_TEMP_dialog, 0, 0, 211, 75, "POLI/TEMP dialog"
   Text 95, 35, 115, 10, "INDEX - Search by a word or topic"
 EndDialog
 
-'THE SCRIPT
-
+'----------------------------------------------------------------------------------------------------THE SCRIPT
+EMConnect ""        'Connects to BlueZone
 'Displays dialog
-Dialog POLI_TEMP_dialog
-If buttonpressed = cancel then stopscript
-
+Do 
+    Dialog POLI_TEMP_dialog
+    If buttonpressed = cancel then stopscript
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in		
+    
 'Determines which POLI/TEMP section to go to, using the dropdown list outcome to decide
 If Temp_table_index = "TABLE" then
 	panel_title = "TABLE"
 ElseIf Temp_table_index = "INDEX" then
 	panel_title = "INDEX"
 End if
-
-'Connects to BlueZone
-EMConnect ""
 
 'call screen back to SELF screen to proceed onward with POLI
 'navigating back to SELF menu, since back_to_SELF does not work in POLI function
@@ -88,16 +89,10 @@ Loop until SELF_check = "SELF"
 'Checks to make sure we're in MAXIS
 call check_for_MAXIS(True)
 
-'Navigates to POLI (can't direct navigate to TEMP)
-call navigate_to_MAXIS_screen("POLI", "____")
-
-'Writes TEMP
-EMWriteScreen "TEMP", 5, 40
+call navigate_to_MAXIS_screen("POLI", "____")   'Navigates to POLI (can't direct navigate to TEMP)
+EMWriteScreen "TEMP", 5, 40     'Writes TEMP
 
 'Writes the panel_title selection
-EMWriteScreen panel_title, 21, 71
-
-'Transmits
-transmit
+Call write_value_and_transmit(panel_title, 21, 71)
 
 script_end_procedure("")
