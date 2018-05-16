@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/16/2018", "Added a place to input the footer month and year for the start of MA EPD.", "Casey Love, Hennepin County")
 call changelog_update("05/07/2018", "Updated the script to identify cases at application versus review, and provide different functionality for those options. Average income will now be determined from the budget on ELIG.", "Casey Love, Hennepin County")
 call changelog_update("04/23/2018", "Added functionality to allow any month to be selected as the first month to be FIATed.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -248,6 +249,25 @@ If case_status = "Recertification" Then
 
     Call back_to_SELF       'Getting out of STAT so that we can switch months if needed
 
+    BeginDialog month_dlg, 0, 0, 191, 50, "Dialog"
+      EditBox 140, 5, 15, 15, MAXIS_footer_month
+      EditBox 160, 5, 15, 15, MAXIS_footer_year
+      ButtonGroup ButtonPressed
+        OkButton 130, 30, 50, 15
+      Text 5, 15, 120, 10, "Beginning month of MA-EPD budget"
+    EndDialog
+
+    Do
+        err_msg = ""
+        Dialog month_dlg
+
+        If trim(MAXIS_footer_month) = "" or trim(MAXIS_footer_year) = "" Then err_msg = err_msg & vbNewLine & "* Enter the footer month and year."
+        If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+    Loop until err_msg = ""
+
+    MAXIS_footer_month = right("00"&MAXIS_footer_month, 2)
+    MAXIS_footer_year = right("00"&MAXIS_footer_year, 2)
+
     Call Navigate_to_MAXIS_screen("STAT", "JOBS")       'Going to look at jobs
     EmWriteScreen memb_number, 20, 76
     EmWriteScreen "01", 20, 79
@@ -342,6 +362,22 @@ If case_status = "Application" Then
     End If
 
     Call back_to_SELF       'Going out of STAT to switch months
+
+    BeginDialog month_dlg, 0, 0, 191, 50, "Dialog"
+      EditBox 140, 5, 15, 15, MAXIS_footer_month
+      EditBox 160, 5, 15, 15, MAXIS_footer_year
+      ButtonGroup ButtonPressed
+        OkButton 130, 30, 50, 15
+      Text 5, 15, 120, 10, "Beginning month of MA-EPD budget"
+    EndDialog
+
+    Do
+        err_msg = ""
+        Dialog month_dlg
+
+        If trim(MAXIS_footer_month) = "" or trim(MAXIS_footer_year) = "" Then err_msg = err_msg & vbNewLine & "* Enter the footer month and year."
+        If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+    Loop until err_msg = ""
 
     Call Navigate_to_MAXIS_screen("STAT", "JOBS")   'going to JOBS for the correct member
     EmWriteScreen memb_number, 20, 76
