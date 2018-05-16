@@ -620,7 +620,7 @@ MAXIS_case_number = MMIS_case_number
 IF using_ESSO = TRUE THEN
   'MsgBox "End of script reached. Because ESSO was previously found on your computer, attempting to start ESSO in the background..."
   SET ObjShell = CreateObject("Wscript.Shell")
-  ObjShell.Run """C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Oracle\ESSO-LM\ESSO-LM.lnk"""
+  'ObjShell.Run """C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Oracle\ESSO-LM\ESSO-LM.lnk"""
   vgo_msg = "ESSO started, the ESSO icon should be added back to the system tray."
 ELSE
   vgo_msg = "End of script reached. Because ESSO was not previously found on your computer, there is no need to try to start ESSO."
