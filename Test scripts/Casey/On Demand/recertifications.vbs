@@ -609,6 +609,7 @@ If notice_type = "NOMI" or notice_type = "Data Only" Then
 
     If notice_type = "NOMI" Then
         revw_code_col = notc_col + 1
+        nomi_letter_col = convert_digit_to_excel_column(notc_col)
     ElseIf notice_type = "Data Only" Then
         appt_lrt_col = notc_col
         nomi_col = notc_col + 1
@@ -1048,14 +1049,14 @@ if notice_type = "NOMI" then
 
     objExcel.Cells(entry_row, stats_header_col).Value       = "Cases with no Interview"     'number of cases that potentially need a NOMI'
     objExcel.Cells(entry_row, stats_header_col).Font.Bold 	= TRUE
-    objExcel.Cells(entry_row, stats_col).Value              = "COUNTBLANK(" & intvw_date_letter_col & "2:" & intvw_date_letter_col & total_cases + 1 & ")"
+    objExcel.Cells(entry_row, stats_col).Value              = "=COUNTBLANK(" & intvw_date_letter_col & "2:" & intvw_date_letter_col & last_excel_row & ")"
     no_intv_row = entry_row
     entry_row = entry_row + 1
 
     if successful_notices = "" then successful_notices = 0
     objExcel.Cells(entry_row, stats_header_col).Value       = "NOMIs Sent"              'Number of successful NOMIs sent'
     objExcel.Cells(entry_row, stats_header_col).Font.Bold 	= TRUE
-    objExcel.Cells(entry_row, stats_col).Value              = "COUNTIF(" & nomi_letter_col & ":" & nomi_letter_col & ", " & Chr(34) & "Y" & Chr(34) & ")"        'This is incremented in the For Next loop above'
+    objExcel.Cells(entry_row, stats_col).Value              = "=COUNTIF(" & nomi_letter_col & ":" & nomi_letter_col & ", " & Chr(34) & "Y" & Chr(34) & ")"        'This is incremented in the For Next loop above'
     nomi_row = entry_row
     entry_row = entry_row + 1
 
@@ -1067,7 +1068,7 @@ if notice_type = "NOMI" then
 
     objExcel.Cells(entry_row, stats_header_col).Value       = "Interviews Completed"   'Calculates the percentage of NOMIs siucessful (from attempted)'
     objExcel.Cells(entry_row, stats_header_col).Font.Bold 	= TRUE
-    objExcel.Cells(entry_row, stats_col).Value              = "COUNTIF(" & intvw_date_letter_col & "2:" & intvw_date_letter_col & total_cases + 1 & ", " & is_not_blank_excel_string & ")"
+    objExcel.Cells(entry_row, stats_col).Value              = "=COUNTIF(" & intvw_date_letter_col & "2:" & intvw_date_letter_col & total_cases + 1 & ", " & is_not_blank_excel_string & ")"
     entry_row = entry_row + 1
 
     objExcel.Cells(entry_row, stats_header_col).Value       = "Privleged Cases:"        'PRIV cases header'
