@@ -320,6 +320,8 @@ Do
     If err_msg <> "" Then MsgBOx "Please resolve to continue: " & vbNewLine & err_msg
 Loop until err_msg = ""
 
+MMIS_case_number - trim(MMIS_case_number)
+
 'checking for an active MMIS session
 Call check_for_MMIS(True)
 Call get_to_RKEY
