@@ -313,14 +313,14 @@ Do
 	Dialog case_dlg
 	cancel_confirmation
 
-	If MMIS_case_number = "" then err_msg = err_msg & vbNewLine & "* Enter the case number."
+	If trim(MMIS_case_number) = "" then err_msg = err_msg & vbNewLine & "* Enter the case number."
     If enrollment_month = "" OR enrollment_year = "" Then err_msg = err_msg & vbNewLine & "* Enter the month and year enrollment is effective."
     If enrollment_source = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate where the request for the enrollment came from (phone call or enrollment form)."
 
     If err_msg <> "" Then MsgBOx "Please resolve to continue: " & vbNewLine & err_msg
 Loop until err_msg = ""
 
-MMIS_case_number - trim(MMIS_case_number)
+MMIS_case_number = trim(MMIS_case_number)
 
 'checking for an active MMIS session
 Call check_for_MMIS(True)
