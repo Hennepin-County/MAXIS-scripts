@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/18/2018", "Updated for On Demand Waiver processing.", "MiKayla Handley, Hennepin County")
 call changelog_update("01/10/2017", "Updated TIKL functionality. A TIKL is created for Application Day 30 if NOMI is sent prior to Application Day 30. Otherwise a TIKL is created for an additional 10 days .", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Resolved merge conflict error.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/21/2016", "Removed Hennepin County specific NOMI process. Users will follow the process documented in POLI/TEMP TE02.05.15. Added TIKL to follow up on the application's progress. Added intial case number dialog to allow for the application date to be autofilled into the NOMI dialog. Removed message box to identify if case is a renewal. Replaced with a check box on the initial dialog.", "Ilse Ferris, Hennepin County")
@@ -61,11 +62,19 @@ last_day_for_recert = dateadd("d", -1, next_month) & "" 	'blank space added to m
 'Connects to BlueZone & grabs case number
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
+Call autofill_editbox_from_MAXIS(HH_member_array, "PROG", application_date)
+application_date = application_date & ""
+'creates interview date for 7 calendar days from the CAF date
+interview_date = dateadd("d", 7, application_date)
+If interview_date <= date then interview_date = dateadd("d", 7, date)
+interview_date = interview_date & ""		'turns interview date into string for variable
+'need to handle for if we dont need an appt letter, which would be...'
+
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog NOMI_dialog, 0, 0, 126, 95, "NOMI"
   EditBox 65, 5, 50, 15, MAXIS_case_number
-  EditBox 65, 25, 50, 15, interview_date
-  EditBox 65, 45, 50, 15, application_date
+  EditBox 65, 25, 50, 15, application_date
+  EditBox 65, 45, 50, 15, interview_date
   ButtonGroup ButtonPressed
     OkButton 10, 70, 50, 15
     CancelButton 65, 70, 50, 15
@@ -76,30 +85,16 @@ EndDialog
 Do
 	Do
 		err_msg = ""
-		dialog case_number_dialog
-		If ButtonPressed = 0 then stopscript
+		dialog NOMI_dialog
+		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	Loop until err_msg = ""
 call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
-	back_to_self
-	'sets interview time and creates string for variable for Hennepin County recipients
-		'grabs CAF date, turns CAF date into string for variable
-	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", application_date)
-	application_date = application_date & ""
-  'creates interview date for 7 calendar days from the CAF date
-  interview_date = dateadd("d", 7, application_date)
-  If interview_date <= date then interview_date = dateadd("d", 7, date)
-  interview_date = interview_date & ""		'turns interview date into string for variable
-  'need to handle for if we dont need an appt letter, which would be...'
 
-  last_contact_day = CAF_date + 30
-  If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date
-	'Shows dialog, checks for password prompt
-
-		'date variables for the TIKL
-	day30_date = dateadd("d", 30, application_date)
+	last_contact_day = dateadd("d", 30, application_date)
+	If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date
   CALL start_a_new_spec_memo
   	EMsendkey("************************************************************")
   	Call write_variable_in_SPEC_MEMO("You recently applied for assistance on " & application_date & ".")
