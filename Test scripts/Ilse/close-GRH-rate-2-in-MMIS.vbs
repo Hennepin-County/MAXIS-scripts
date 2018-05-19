@@ -279,9 +279,9 @@ MAXIS_footer_year = CM_yr
 'last_date = datePart("D", last_day_of_month)
 'end_date = CM_mo & last_date & CM_yr 
 'MsgBox last_day_of_month & vbcr & end_date
-end_date = "043018"
+end_date = "04/30/18"
 
-file_selection_path = ""
+file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\GRH\GRH EOMC 05-18.xlsx"
 excel_row_to_test = 2
 
 'dialog and dialog DO...Loop	
@@ -489,10 +489,16 @@ For item = 0 to UBound(Update_MMIS_array, 2)
                     EMReadScreen start_year , 2, 4, 68
                     start_date = start_month & "/" & start_day & "/" & start_year
                     total_units = datediff("d", start_date, close_date) + 1
-                    msgbox total_units
                     
-                    write_close_date = replace(close_date, "/", "")
-                    Call write_value_and_transmit(write_close_date, 4, 71)				'End date is static for the BULK conversion. TODO: change to date_out which will match the FACI dates.
+                    If total_units < "0" then 
+                        msgbox total_units
+                        PF6
+                        Update_MMIS_array(update_MMIS, item) = False 
+                        Update_MMIS_array(case_status, item) = "End date in SSRT is less than start date in MMIS. Check manually."
+                    Else 
+                        write_close_date = replace(close_date, "/", "")
+                        Call write_value_and_transmit(write_close_date, 4, 71)				'End date is static for the BULK conversion. TODO: change to date_out which will match the FACI dates.
+                    End if 
 		        ELSE
                     Transmit
                 End if 
@@ -509,7 +515,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
                     EmWriteScreen total_units, 9, 60
                     
 			        PF3 '	to save changes 
-                    Call MMIS_panel_check("AKEY")		'ensuring we are on the right MMIS screen
+                    'Call MMIS_panel_check("AKEY")		'ensuring we are on the right MMIS screen
     			             
     			    EMReadscreen approval_message, 16, 24, 2
     			    If approval_message = "ACTION COMPLETED" then 
