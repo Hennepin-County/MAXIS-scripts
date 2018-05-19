@@ -609,6 +609,7 @@ If notice_type = "NOMI" or notice_type = "Data Only" Then
 
     If notice_type = "NOMI" Then
         revw_code_col = notc_col + 1
+        nomi_letter_col = convert_digit_to_excel_column(notc_col)
     ElseIf notice_type = "Data Only" Then
         appt_lrt_col = notc_col
         nomi_col = notc_col + 1
@@ -986,6 +987,7 @@ is_not_blank_excel_string = chr(34) & "<>" & chr(34)
 Do
     stats_header_cell = objExcel.Cells(sheet_row, stats_header_col).Value   'Readding the cell where stats headers go
     stats_value_cell = objExcel.Cells(sheet_row, stats_col).Value           'Reading the cell where stats values go
+    stats_letter_col = convert_digit_to_excel_column(stats_col)
 
     stats_header_cell = trim(stats_header_cell)
     stats_value_cell = trim(stats_value_cell)
@@ -1047,19 +1049,26 @@ if notice_type = "NOMI" then
 
     objExcel.Cells(entry_row, stats_header_col).Value       = "Cases with no Interview"     'number of cases that potentially need a NOMI'
     objExcel.Cells(entry_row, stats_header_col).Font.Bold 	= TRUE
-    objExcel.Cells(entry_row, stats_col).Value              = incomplete_reviews
+    objExcel.Cells(entry_row, stats_col).Value              = "=COUNTBLANK(" & intvw_date_letter_col & "2:" & intvw_date_letter_col & last_excel_row & ")"
+    no_intv_row = entry_row
     entry_row = entry_row + 1
 
     if successful_notices = "" then successful_notices = 0
     objExcel.Cells(entry_row, stats_header_col).Value       = "NOMIs Sent"              'Number of successful NOMIs sent'
     objExcel.Cells(entry_row, stats_header_col).Font.Bold 	= TRUE
-    objExcel.Cells(entry_row, stats_col).Value              = successful_notices        'This is incremented in the For Next loop above'
+    objExcel.Cells(entry_row, stats_col).Value              = "=COUNTIF(" & nomi_letter_col & ":" & nomi_letter_col & ", " & Chr(34) & "Y" & Chr(34) & ")"        'This is incremented in the For Next loop above'
+    nomi_row = entry_row
     entry_row = entry_row + 1
 
     objExcel.Cells(entry_row, stats_header_col).Value       = "Percentage successful"   'Calculates the percentage of NOMIs siucessful (from attempted)'
     objExcel.Cells(entry_row, stats_header_col).Font.Bold 	= TRUE
-    objExcel.Cells(entry_row, stats_col).Value              = successful_notices / incomplete_reviews
+    objExcel.Cells(entry_row, stats_col).Value              = "=" & stats_letter_col & nomi_row & "/" & stats_letter_col & no_intv_row
     objExcel.Cells(entry_row, stats_col).NumberFormat       = "0.00%"		'Formula should be percent
+    entry_row = entry_row + 1
+
+    objExcel.Cells(entry_row, stats_header_col).Value       = "Interviews Completed"   'Calculates the percentage of NOMIs siucessful (from attempted)'
+    objExcel.Cells(entry_row, stats_header_col).Font.Bold 	= TRUE
+    objExcel.Cells(entry_row, stats_col).Value              = "=COUNTIF(" & intvw_date_letter_col & "2:" & intvw_date_letter_col & total_cases + 1 & ", " & is_not_blank_excel_string & ")"
     entry_row = entry_row + 1
 
     objExcel.Cells(entry_row, stats_header_col).Value       = "Privleged Cases:"        'PRIV cases header'

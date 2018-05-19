@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("05/18/2018", "Updated coordinates for writing stats in excel.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -51,7 +52,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOG=============================================================================
-BeginDialog bulk_ievs_report_dialog, 0, 0, 361, 105, "Bulk DAIL report dialog"
+BeginDialog bulk_ievs_report_dialog, 0, 0, 361, 105, "BULK IEVS"
   EditBox 10, 35, 345, 15, x_number_editbox
   CheckBox 10, 70, 150, 10, "Check here to run this query county-wide.", all_workers_check
   ButtonGroup ButtonPressed
@@ -59,8 +60,8 @@ BeginDialog bulk_ievs_report_dialog, 0, 0, 361, 105, "Bulk DAIL report dialog"
     CancelButton 305, 85, 50, 15
   Text 145, 5, 90, 10, "---BULK IEVS REPORT---"
   Text 10, 20, 350, 10, "Please enter the x1 numbers of the caseloads you wish to check, separated by commas (if more than one):"
-  Text 10, 55, 290, 10, "Note: please enter the entire 7-digit number x1 number. (Example: ''x100abc, x100abc'')"
-  Text 20, 85, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
+  Text 10, 55, 290, 10, "Please enter the entire 7-digit number x127 number. (Example: ''x100abc, x100abc'')"
+  Text 20, 85, 210, 20, "NOTE: running queries county-wide takes a significant amount of time, ensure you have a stable connection."
 EndDialog
 '=================================================================================
 'Connects to MAXIS
@@ -231,19 +232,19 @@ objExcel.Columns(8).HorizontalAlignment = -4108
 excel_is_not_blank = chr(34) & "<>" & chr(34)		'Setting up a variable for useable quote marks in Excel
 
 'Query date/time/runtime info
-objExcel.Cells(1, 11).Font.Bold = TRUE
 objExcel.Cells(2, 11).Font.Bold = TRUE
 objExcel.Cells(3, 11).Font.Bold = TRUE
 objExcel.Cells(4, 11).Font.Bold = TRUE
+objExcel.Cells(5, 11).Font.Bold = TRUE
 
-ObjExcel.Cells(1, 11).Value = "Query date and time:"	'Goes back one, as this is on the next row
-ObjExcel.Cells(1, 12).Value = now
-ObjExcel.Cells(2, 11).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
-ObjExcel.Cells(2, 12).Value = timer - query_start_time
-ObjExcel.Cells(3, 11).Value = "Number of IEVS with No DAYS remaining:"
-objExcel.Cells(3, 12).Value = "=COUNTIFS(G:G, " & Chr(34) & "<=0" & Chr(34) & ", H:H, " & excel_is_not_blank & ")"	'Excel formula
-ObjExcel.Cells(4, 11).Value = "Number of total UNRESOLVED IEVS:"
-objExcel.Cells(4, 12).Value = "=(COUNTIF(H:H, " & excel_is_not_blank & ")-1)"	'Excel formula
+ObjExcel.Cells(2, 11).Value = "Query date and time:"	'Goes back one, as this is on the next row
+ObjExcel.Cells(2, 12).Value = now
+ObjExcel.Cells(3, 11).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
+ObjExcel.Cells(3, 12).Value = timer - query_start_time
+ObjExcel.Cells(4, 11).Value = "Number of IEVS with No DAYS remaining:"
+objExcel.Cells(4, 12).Value = "=COUNTIFS(G:G, " & Chr(34) & "<=0" & Chr(34) & ", H:H, " & excel_is_not_blank & ")"	'Excel formula
+ObjExcel.Cells(5, 11).Value = "Number of total UNRESOLVED IEVS:"
+objExcel.Cells(5, 12).Value = "=(COUNTIF(H:H, " & excel_is_not_blank & ")-1)"	'Excel formula
 
 
 'Formatting the column width.
@@ -271,8 +272,8 @@ ObjExcel.Cells(2, 6).Value = "% OF UNRESOLVED IEVS OWNED BY THIS WORKER"
 objExcel.Cells(2, 6).Font.Bold = TRUE
 
 'This bit freezes the top 2 rows for scrolling ease of use
-ObjExcel.ActiveSheet.Range("A3").Select
-objExcel.ActiveWindow.FreezePanes = True
+'ObjExcel.ActiveSheet.Range("A3").Select
+'objExcel.ActiveWindow.FreezePanes = True
 
 worker_row = 3
 'Writes each worker from the worker_array in the Excel spreadsheet

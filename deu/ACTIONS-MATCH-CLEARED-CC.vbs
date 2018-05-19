@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("05/14/2018", "Updated header to read to read CC-Claim Entered into the case note.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("05/14/2018", "Resolved bug preventing 'overpayment reason' from being entered into the case note. Also made this a mandatory field.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("05/14/2018", "Fixed bug that prevented script from running. Added End statement, and changed the dialog name.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/23/2018", "Updated case note to reflect standard dialog and case note.", "MiKayla Handley, Hennepin County")
@@ -411,9 +412,9 @@ IF match_cleared = TRUE THEN
 
 	'-----------------------------------------------------------------------------------------CASENOTE
 	start_a_blank_CASE_NOTE
-	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH " & " (" & first_name &  ") " & "OVERPAYMENT-CLAIM ENTERED-----")
-	IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & "/" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") OVERPAYMENT-CLAIM ENTERED-----")
-	IF IEVS_type <> "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & " (" & first_name &  ") " & "OVERPAYMENT-CLAIM ENTERED-----")
+	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH " & " (" & first_name &  ") " & "CLEARED CC-CLAIM ENTERED-----")
+	IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & "/" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+	IF IEVS_type <> "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & " (" & first_name &  ") " & "CLEARED CC-CLAIM ENTERED-----")
 	CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", Active_Programs)

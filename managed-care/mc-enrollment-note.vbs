@@ -313,12 +313,14 @@ Do
 	Dialog case_dlg
 	cancel_confirmation
 
-	If MMIS_case_number = "" then err_msg = err_msg & vbNewLine & "* Enter the case number."
+	If trim(MMIS_case_number) = "" then err_msg = err_msg & vbNewLine & "* Enter the case number."
     If enrollment_month = "" OR enrollment_year = "" Then err_msg = err_msg & vbNewLine & "* Enter the month and year enrollment is effective."
     If enrollment_source = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate where the request for the enrollment came from (phone call or enrollment form)."
 
     If err_msg <> "" Then MsgBOx "Please resolve to continue: " & vbNewLine & err_msg
 Loop until err_msg = ""
+
+MMIS_case_number = trim(MMIS_case_number)
 
 'checking for an active MMIS session
 Call check_for_MMIS(True)
@@ -620,7 +622,7 @@ MAXIS_case_number = MMIS_case_number
 IF using_ESSO = TRUE THEN
   'MsgBox "End of script reached. Because ESSO was previously found on your computer, attempting to start ESSO in the background..."
   SET ObjShell = CreateObject("Wscript.Shell")
-  ObjShell.Run """C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Oracle\ESSO-LM\ESSO-LM.lnk"""
+  'ObjShell.Run """C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Oracle\ESSO-LM\ESSO-LM.lnk"""
   vgo_msg = "ESSO started, the ESSO icon should be added back to the system tray."
 ELSE
   vgo_msg = "End of script reached. Because ESSO was not previously found on your computer, there is no need to try to start ESSO."
