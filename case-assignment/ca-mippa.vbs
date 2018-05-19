@@ -1,5 +1,5 @@
 '===========================================================================================STATS
-name_of_script = "CA-MIPPA.vbs"
+name_of_script = "CA - MIPPA.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 200
