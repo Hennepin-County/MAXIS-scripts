@@ -114,6 +114,7 @@ Do                                                            'Loops until there
 	MAXIS_case_number = trim(MAXIS_case_number)
 	client_SSN  = objExcel.cells(excel_row, 4).Value		'Pulls the client's known information 
 	client_SSN = replace(client_SSN, "-", "")
+    client_SSN = replace(client_SSN, " ", "")
 	name_of_CBO = objExcel.cells(excel_row, 5).Value
 	name_of_CBO = trim(name_of_CBO)
 	If name_of_CBO = "" then exit do
@@ -171,14 +172,12 @@ For item = 0 to UBound(CBO_array, 2)
 		    EMWriteScreen mid_SSN, 14, 40
 		    EMWriteScreen right_SSN, 14, 43
 		    Transmit
-		    
 		    EMReadscreen DSPL_confirmation, 4, 2, 51
 		    If DSPL_confirmation <> "DSPL" then 
 		    	CBO_array(make_referral, item) = False
 		    	CBO_array(ref_status, item) = "Error"
 		    	CBO_array(error_reason, item) = "Unable to find person in SSN search."		'Explanation for the rejected report'
 		    Else 	
-		    	
 		    	EMWriteScreen "FS", 7, 22	'Selects FS as the program	
 		    	Transmit
 		    	'chekcing for an active case
@@ -259,29 +258,27 @@ For item = 0 to UBound(CBO_array, 2)
                         EMReadScreen MEMB_error, 5, 24, 2
 	        	    Loop until member_SSN = CBO_array(clt_SSN, item) or MEMB_error = "ENTER"
 				End if 
-	        	
-				IF CBO_array(make_referral, item) = True then 
-				    'STAT WREG PORTION
-				    Call navigate_to_MAXIS_screen("STAT", "WREG")
-				    EMWriteScreen member_number, 20, 76				'enters member number
-				    transmit
-				    EMReadScreen fset_code, 2, 8, 50
-				    EMReadScreen abawd_code, 2, 13, 50			
-				    WREG_codes = fset_code & "-" & abawd_code
-				    If WREG_codes = "30-11" then 
-				    	CBO_array(make_referral, item) = True
-				    	CBO_array(ABAWD_status, item) = "Volunatary"
-				    Elseif WREG_codes = "30-10" then 
-				    	CBO_array(make_referral, item) = True
-				    	CBO_array(ABAWD_status, item) = "Mandatory - ABAWD"
-				    Elseif WREG_codes = "30-13" then 	
-				    	CBO_array(make_referral, item) = True
-				    	CBO_array(ABAWD_status, item) = "Mandatory - Banked Months"
-				    Else 
-				    	CBO_array(make_referral, item) = True
-				    	CBO_array(ABAWD_status, item) = "Exempt"
-				    End if
-				End if 
+	        
+				'STAT WREG PORTION
+				Call navigate_to_MAXIS_screen("STAT", "WREG")
+				EMWriteScreen member_number, 20, 76				'enters member number
+				transmit
+				EMReadScreen fset_code, 2, 8, 50
+				EMReadScreen abawd_code, 2, 13, 50			
+				WREG_codes = fset_code & "-" & abawd_code
+				If WREG_codes = "30-11" then 
+					CBO_array(make_referral, item) = True
+					CBO_array(ABAWD_status, item) = "Volunatary"
+				Elseif WREG_codes = "30-10" then 
+					CBO_array(make_referral, item) = True
+					CBO_array(ABAWD_status, item) = "Mandatory - ABAWD"
+				Elseif WREG_codes = "30-13" then 	
+					CBO_array(make_referral, item) = True
+					CBO_array(ABAWD_status, item) = "Mandatory - Banked Months"
+				Else 
+					CBO_array(make_referral, item) = True
+					CBO_array(ABAWD_status, item) = "Exempt"
+				End if
 	        END IF
 		End if 
 		 
