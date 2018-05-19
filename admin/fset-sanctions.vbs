@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("05/19/2018", "Added searching for LETR dates when don't match the orientation date.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("05/10/2018", "Streamlined text in worker comments based on feedback provided by DHS.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/07/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -301,63 +302,59 @@ If sanction_option = "Review sanctions" then
         End if 
         
         If found_member = True then
-            if appt_date <> "" then 
-                Call navigate_to_MAXIS_screen("SPEC", "WCOM")
-                row = 7
-                DO
-                	EMReadscreen notice_type, 16, row, 30
-                    If trim(notice_type) = "" then 
-                        'msgbox "going to PF7"
-                        PF7
-                        row = 7
-                        sanction_case = false 
-                    elseIf notice_type = "SPEC/LETR Letter" then 
-                        EmReadscreen FS_notice, 2, row, 26
-                        If FS_notice = "FS" then 
-                            Call write_value_and_transmit ("x", row, 13)
-                            'msgbox "entered into notice?"
-                            EmReadscreen in_notice, 4, 1, 45
-                            If in_notice = "Copy" then 
-                                PF8
-                                PF8 'twice to get to the date of the orientation 
-                                EmReadscreen orient_date_LETR, 10, 2, 8
-                                If isDate(orient_date_LETR) = False then 
+            Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+            row = 7
+            DO
+            	EMReadscreen notice_type, 16, row, 30
+                If trim(notice_type) = "" then 
+                    'msgbox "going to PF7"
+                    PF7
+                    row = 7
+                    sanction_case = false 
+                elseIf notice_type = "SPEC/LETR Letter" then 
+                    EmReadscreen FS_notice, 2, row, 26
+                    If FS_notice = "FS" or FS_notice = "  " then 
+                        Call write_value_and_transmit ("x", row, 13)
+                        'msgbox "entered into notice?"
+                        EmReadscreen in_notice, 4, 1, 45
+                        If in_notice = "Copy" then 
+                            PF8
+                            PF8 'twice to get to the date of the orientation 
+                            EmReadscreen orient_date_LETR, 10, 2, 8
+                            If isDate(orient_date_LETR) = False then 
+                                sanction_case = FALSE
+                                PF3
+                            Else 
+                                Call ONLY_create_MAXIS_friendly_date(orient_date_LETR)
+                                If orient_date_LETR = appt_date then 
+                                    ObjExcel.Cells(excel_row, 10).Value = "Yes"
+                                    sanction_case = TRUE
+                                    'msgbox appt_date & vbcr & orient_date_LETR
+                                    exit do 
+                                ELSE
+                                    sanction_notes = sanction_notes & " Referral date does not match letter date. Letter date is: " & orient_date_LETR & ". "
                                     sanction_case = FALSE
                                     PF3
-                                Else 
-                                    Call ONLY_create_MAXIS_friendly_date(orient_date_LETR)
-                                    If orient_date_LETR = appt_date then 
-                                        ObjExcel.Cells(excel_row, 10).Value = "Yes"
-                                        sanction_case = TRUE
-                                        'msgbox appt_date & vbcr & orient_date_LETR
-                                        exit do 
-                                    ELSE
-                                        sanction_notes = sanction_notes & " Referral date does not match letter date."
-                                        sanction_case = FALSE
-                                        PF3
-                                    End if 
                                 End if 
-                                'msgbox sanction_case
                             End if 
-                        else 
-                            sanction_case = False 
+                            'msgbox sanction_case
                         End if 
                     else 
-                        sanction_case = false
-                        'msgbox row 
-                    End if 
-                    If sanction_case = False then row = row + 1
-                    EmReadscreen no_notices, 10, 24, 2 
-                Loop until no_notices = "NO NOTICES"
-                        
-                If sanction_case = true then 
-                    If wreg_codes = "30/06" or wreg_codes = "30/08" or wreg_codes = "30/10" then 
-                        ObjExcel.Cells(excel_row, 11).Value = "Yes"
-                    Else 
-                        ObjExcel.Cells(excel_row, 11).Value = "No"
+                        sanction_case = False 
                     End if 
                 else 
-                    ObjExcel.Cells(excel_row, 10).Value = "No"
+                    sanction_case = false
+                    'msgbox row 
+                End if 
+                If sanction_case = False then row = row + 1
+                EmReadscreen no_notices, 10, 24, 2 
+            Loop until no_notices = "NO NOTICES"
+                    
+            If sanction_case = true then 
+                If wreg_codes = "30/06" or wreg_codes = "30/08" or wreg_codes = "30/10" then 
+                    ObjExcel.Cells(excel_row, 11).Value = "Yes"
+                Else 
+                    ObjExcel.Cells(excel_row, 11).Value = "No"
                 End if 
             End if 
         End if     
