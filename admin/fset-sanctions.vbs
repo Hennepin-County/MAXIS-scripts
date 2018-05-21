@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("05/21/2018", "Added additional handling for when a WCOM exists in the add WCOM option.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("05/19/2018", "Added searching for LETR dates when don't match the orientation date.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("05/10/2018", "Streamlined text in worker comments based on feedback provided by DHS.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/07/2018", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -513,8 +514,12 @@ If sanction_option = "Add WCOM" then
              			Call write_value_and_transmit("x", wcom_row, 13)
              			PF9
              			Emreadscreen fs_wcom_exists, 3, 3, 15
-             			If fs_wcom_exists <> "   " then sanction_notes = sanction_notes & "WCOM already exists on the notice."
-             			If program_type = "FS" AND print_status = "Waiting" then
+             			If fs_wcom_exists <> "   " then 
+                            sanction_notes = sanction_notes & "WCOM already exists on the notice."
+                            PF3
+                            PF3
+                            fs_wcom_writen = true  
+                        Else
              		        fs_wcom_writen = true
              				'This will write if the notice is for SNAP only
              				CALL write_variable_in_SPEC_MEMO("******************************************************")
