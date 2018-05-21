@@ -466,15 +466,21 @@ If CAF_type <> "Recertification" AND CAF_type <> "Addendum" Then        'Intervi
         If cash_checkbox = checked THen                             'If the script is bring run for a Cash interview
             EMReadScreen cash_one_app, 8, 6, 33                     'First the script needs to identify if it is cash 1 or cash 2 that has the application information
             EMReadScreen cash_two_app, 8, 7, 33
-
+            EMReadScreen grh_cash_app, 8, 9, 33
+            
             cash_one_app = replace(cash_one_app, " ", "/")          'Turning this in to a date format
             cash_two_app = replace(cash_two_app, " ", "/")
-
+            grh_cash_app = replace(grh_cash_app, " ", "/")
+            
             If cash_one_app <> "__/__/__" Then      'Error handling - VB doesn't like date comparisons with non-dates
                 if DateDiff("d", cash_one_app, CAF_datestamp) = 0 then prog_row = 6     'If date of application on PROG matches script date of applicaton
             End If
             If cash_two_app <> "__/__/__" Then
                 if DateDiff("d", cash_two_app, CAF_datestamp) = 0 then prog_row = 7
+            End If
+            
+            If grh_cash_app <> "__/__/__" Then
+                if DateDiff("d", grh_cash_app, CAF_datestamp) = 0 then prog_row = 9
             End If
 
             EMReadScreen entered_intv_date, 8, prog_row, 55                     'Reading the right interview date with row defined above
@@ -547,15 +553,21 @@ If CAF_type <> "Recertification" AND CAF_type <> "Addendum" Then        'Intervi
                     If programs_w_interview <> "" Then programs_w_interview = "SNAP and CASH"
                     EMReadScreen cash_one_app, 8, 6, 33     'Reading app dates of both cash lines
                     EMReadScreen cash_two_app, 8, 7, 33
+                    EMReadScreen grh_cash_app, 8, 9, 33
 
                     cash_one_app = replace(cash_one_app, " ", "/")      'Formatting as dates
                     cash_two_app = replace(cash_two_app, " ", "/")
-
+                    grh_cash_app = replace(grh_cash_app, " ", "/")
+                    
                     If cash_one_app <> "__/__/__" Then              'Comparing them to the date of application to determine which row to use
                         if DateDiff("d", cash_one_app, CAF_datestamp) = 0 then prog_row = 6
                     End If
                     If cash_two_app <> "__/__/__" Then
                         if DateDiff("d", cash_two_app, CAF_datestamp) = 0 then prog_row = 7
+                    End If
+                    
+                    If grh_cash_app <> "__/__/__" Then
+                        if DateDiff("d", grh_cash_app, CAF_datestamp) = 0 then prog_row = 9
                     End If
 
                     EMWriteScreen intv_mo, prog_row, 55     'Writing the interview date in
