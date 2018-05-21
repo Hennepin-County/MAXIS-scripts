@@ -51,7 +51,7 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-BeginDialog same_day_dialog, 0, 0, 191, 278, "Enter No Show Information"
+BeginDialog same_day_dialog, 0, 0, 190, 255, "Enter No Show Information"
   EditBox 80, 20, 95, 15, MAXIS_case_number
   EditBox 70, 55, 90, 15, interview_date
   EditBox 70, 70, 90, 15, first_page
@@ -61,11 +61,11 @@ BeginDialog same_day_dialog, 0, 0, 191, 278, "Enter No Show Information"
   EditBox 75, 160, 95, 15, phone_number
   CheckBox 75, 175, 90, 15, "Left Message for Client", left_vm
   CheckBox 15, 195, 70, 15, "Potential XFS", potential_xfs
-  CheckBox 15, 215, 150, 15, "Check here to have the script send a NOMI", nomi_sent
-  EditBox 75, 235, 105, 15, worker_signature
+  'CheckBox 15, 215, 150, 15, "Check here to have the script send a NOMI", nomi_sent
+  EditBox 75, 215, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-    CancelButton 35, 255, 70, 15
-    OkButton 110, 255, 70, 15
+    CancelButton 35, 235, 70, 15
+    OkButton 110, 235, 70, 15
   Text 10, 5, 175, 10, "Client did not respond to page for sameday interview"
   Text 30, 20, 45, 10, "Case Number"
   GroupBox 0, 40, 180, 70, "Client was Paged in the Lobby"
@@ -75,10 +75,10 @@ BeginDialog same_day_dialog, 0, 0, 191, 278, "Enter No Show Information"
   GroupBox 0, 110, 180, 85, "Phone Call to Client"
   Text 35, 145, 35, 10, "Called at:"
   Text 15, 160, 50, 15, "Phone Number"
-  Text 10, 235, 60, 10, "Worker Signature"
+  Text 10, 215, 60, 10, "Worker Signature"
 EndDialog
 
-BeginDialog Scheduled_interview_dialog, 0, 0, 231, 280, "Scheduled_interview_dialog"
+BeginDialog Scheduled_interview_dialog, 0, 0, 231, 280, "Scheduled Interview Dialog"
   EditBox 65, 5, 60, 15, MAXIS_case_number
   EditBox 65, 25, 60, 15, application_date
   DropListBox 65, 45, 165, 15, "Select one..."+chr(9)+"Recertification"+chr(9)+"New Application"+chr(9)+"Recert and Add a program", Type_of_interview_droplist
@@ -94,7 +94,7 @@ BeginDialog Scheduled_interview_dialog, 0, 0, 231, 280, "Scheduled_interview_dia
   EditBox 75, 160, 75, 15, Phone_number_scheduled
   CheckBox 35, 180, 120, 10, "Two attempts made to call client", Two_attempts_checkbox
   CheckBox 35, 195, 70, 10, "Left VM for client", Left_VM_checkbox
-  CheckBox 5, 240, 55, 10, "Send NOMI ", nomi_sent
+  'CheckBox 5, 240, 55, 10, "Send NOMI ", nomi_sent
   EditBox 35, 215, 190, 15, Case_notes
   EditBox 140, 235, 85, 15, Worker_signature
   ButtonGroup ButtonPressed
