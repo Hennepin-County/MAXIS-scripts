@@ -466,7 +466,7 @@ If sanction_option = "Update WREG only" then
                 Call write_variable_in_CASE_NOTE("---")
                 Call write_variable_in_CASE_NOTE("* Number/occurrence of sanction: 1st")
                 Call write_variable_in_CASE_NOTE("* Reason for sanction: Failed to attend orientation.") 
-                Call write_variable_in_CASE_NOTE("* Added Good Cause/failure to comply informaiton to the notice.")
+                Call write_variable_in_CASE_NOTE("* Added Good Cause/failure to comply information to the notice.")
                 Call write_variable_in_CASE_NOTE("---")
                 Call write_variable_in_CASE_NOTE(worker_signature)
                 PF3
