@@ -70,7 +70,7 @@ BeginDialog change_exemption_dialog, 0, 0, 216, 100, "Good cause change/exemptio
   Text 10, 50, 95, 10, "What was updated in MAXIS:"
 EndDialog
 
-BeginDialog Good_cause_initial_dialog, 0, 0, 231, 210, "Good Cause"
+BeginDialog Good_cause_initial_dialog, 0, 0, 231, 235, "Good Cause"
   EditBox 60, 5, 45, 15, MAXIS_case_number
   EditBox 190, 5, 35, 15, claim_date
   EditBox 60, 25, 20, 15, MAXIS_footer_month
@@ -78,25 +78,30 @@ BeginDialog Good_cause_initial_dialog, 0, 0, 231, 210, "Good Cause"
   EditBox 190, 25, 20, 15, memb_number
   DropListBox 110, 45, 115, 15, "Select One:"+chr(9)+"Application Review - Complete"+chr(9)+"Application Review -  Incomplete"+chr(9)+"Change/exemption ending"+chr(9)+"Determination"+chr(9)+"Recertification", good_cause_droplist
   DropListBox 110, 65, 115, 15, "Select One:"+chr(9)+"Potential phys harm/Child"+chr(9)+"Potential Emotnl harm/Child"+chr(9)+"Potential phys harm/Caregiver"+chr(9)+"Potential Emotnl harm/Caregiver"+chr(9)+"Cncptn Incest/Forced Rape"+chr(9)+"Legal adoption Before Court"+chr(9)+"Parent Gets Preadoptn Svc", reason_droplist
-  EditBox 65, 90, 160, 15, verifs_req
-  EditBox 65, 110, 160, 15, mets_info
-  EditBox 65, 130, 160, 15, other_notes
-  CheckBox 10, 160, 155, 10, "Sent copy of good cause statement to client", GC_sent_checkbox
-  CheckBox 10, 150, 145, 10, "DHS-2338 is in ECF and completed in full", DHS_2338_complete
-  CheckBox 10, 170, 90, 10, "Sent DHS 3632 to client", sent_3632_incomplete
-  CheckBox 10, 180, 90, 10, "Sent DHS 3633 to client", sent_3633_incomplete
+  EditBox 65, 100, 80, 15, first_name
+  EditBox 150, 100, 75, 15, last_name
+  EditBox 65, 120, 160, 15, verifs_req
+  EditBox 65, 140, 160, 15, mets_info
+  EditBox 65, 160, 160, 15, other_notes
+  CheckBox 15, 185, 145, 10, "DHS-2338 is in ECF and completed in full", DHS_2338_complete
+  CheckBox 15, 195, 155, 10, "Sent copy of good cause statement to client", GC_sent_checkbox
+  CheckBox 15, 205, 90, 10, "Sent DHS 3632 to client", sent_3632_incomplete
+  CheckBox 15, 215, 90, 10, "Sent DHS 3633 to client", sent_3633_incomplete
   ButtonGroup ButtonPressed
-    OkButton 120, 190, 50, 15
-    CancelButton 175, 190, 50, 15
+    OkButton 120, 215, 50, 15
+    CancelButton 175, 215, 50, 15
   Text 10, 10, 45, 10, "Case number:"
   Text 110, 10, 80, 10, "Claim date MM/DD/YY:"
   Text 5, 30, 50, 10, "Footer MM/YY:"
-  Text 130, 30, 55, 10, "Child's MEMB #:"
+  Text 125, 30, 65, 10, "Child's MEMB #(s):"
   Text 80, 50, 25, 10, "Action:"
   Text 75, 70, 30, 10, "Reason:"
-  Text 5, 95, 55, 10, "Verifs requested:"
-  Text 5, 115, 60, 10, "Mets Information:"
-  Text 20, 135, 40, 10, "Other notes:"
+  Text 15, 105, 45, 10, "ABPS Name:"
+  Text 5, 125, 55, 10, "Verifs requested:"
+  Text 5, 145, 60, 10, "Mets Information:"
+  Text 20, 165, 40, 10, "Other notes:"
+  Text 65, 90, 20, 10, "First:"
+  Text 150, 90, 20, 10, "Last:"
 EndDialog
 
 
@@ -160,8 +165,14 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 		Loop until current_panel_number = panel_number
 	End if
 
-	'Updating the ABPS panel
+	'-------------------------------------------------------------------------Updating the ABPS panel
+	EMReadScreen last_name, 24, 10, 30	'making sure we can actually update this case.
+	last_name = trim(last_name)
+	EMReadScreen first_name, 12, 10, 63	'making sure we can actually update this case.
+	first_name = trim(first_name)
+
 	PF9
+
 	EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
 	error_check = trim(error_check)
 	If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
@@ -188,15 +199,21 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 		'-----------------------------------------------------------------------------------------------------Case note & email sending
 	start_a_blank_CASE_NOTE
-  IF GC_sent_checkbox = CHECKED Call write_bullet_and_variable_in_case_note("Sent copy of good cause statement to client")
-  Call write_bullet_and_variable_in_case_note("Send DHS 3632 to client")
-  Call write_bullet_and_variable_in_case_note("Child member #’s")
-  Call write_bullet_and_variable_in_case_note("ABPS name", )
-  Call write_bullet_and_variable_in_case_note("Good cause claim date", claim_date)
+	IF good_cause_droplist = "Application Review - Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
+	IF good_cause_droplist = "Application Review - Incomplete" THEN Call write_variable_in_case_note("Good Cause Application Review - Incomplete")
+	IF good_cause_droplist = "Change/exemption ending" THEN Call write_variable_in_case_note("Good Cause Change/exemption Ending")
+	IF good_cause_droplist = "Determination" THEN Call write_variable_in_case_note("Good Cause Determination")
+	IF good_cause_droplist = "Recertification" THEN Call write_variable_in_case_note("Good Cause Recertification")
+	Call write_bullet_and_variable_in_case_note("Send DHS 3632 to client")
+	Call write_bullet_and_variable_in_case_note("Child member #’s")
+	Call write_bullet_and_variable_in_case_note("ABPS name",
+	IF GC_sent_checkbox = CHECKED Call write_bullet_and_variable_in_case_note("Sent copy of good cause statement to client")
+
+
   Call write_bullet_and_variable_in_case_note("Which programs are active METS active? Mets information field.")
   Call write_bullet_and_variable_in_case_note("What is GC incomplete for?", mandatory field).
   Call write_bullet_and_variable_in_case_note("Other information field")
-  Call write_bullet_and_variable_in_case_note("Good cause claim date", claim_date)Email Tina to add to the next month’s agenda
+
 	IF good_cause_droplist = "Application Review" THEN Call write_variable_in_case_note("***Good Cause Application Review - Incomplete***")
 	Call write_variable_in_case_note("Good Cause Application Review - Complete")
 	Call write_bullet_and_variable_in_case_note("Good cause claim date", claim_date)
