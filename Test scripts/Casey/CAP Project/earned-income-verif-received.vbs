@@ -53,11 +53,13 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-
-
+'Find case number and footer month - set a variable with the initially found footer month for the default for every loop
+'The footer month may be different for EVERY income source. NEED to add handling to identify if there is a begin date for updating MAXIS (app date that activates the case)
+    'A client may apply in april and bring in checks from March but we cannot update MAXIS in March
 
 
 'DIALOG TO GET CASE NUMBER
+'Possibly add worker signature here and take it out of the following dialogs
 BeginDialog Dialog1, 0, 0, 191, 105, "Dialog"
   EditBox 110, 5, 70, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
@@ -113,12 +115,14 @@ BeginDialog Dialog1, 0, 0, 656, 135, "Enter ALL Paychecks Received"
 EndDialog
 
 'Script will determine pay frequency and potentially 1st check (if not listed on JOBS)
-'Script will determine the initial footer month to change
+'Script will determine the initial footer month to change by the pay dates listed.
 'Script will create a budget based on the program this income applies to
 'Dialog the budget and have the worker confirm - if they decline - pull the check list dialog back up and have them adjust it there.
 'Worker must confirm the frequency, first pay, and footer month
-'Worker will inicate if future months should be updated
+'Worker will inicate if future months should be updated - default this to 'yes' as script will update retro and prospective specific to each month
+'SNAP PIC, GRH PIC, HC EI EST will be checked to be updated IF any of these programs are open on the case.
 
+'NEED to add handling for future/current changes - start or stop work - get policy on this from SNAP refresher - talk to Melissa.
 
 'NAVIGATE to BUSI for each HH MEMBER and ask if Income Information was received for this Self Employment.
 'NAVIGATE to RBIC for each HH MEMBER and ask if Income Information was received for this RBIC
