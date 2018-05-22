@@ -101,12 +101,12 @@ Loop until ButtonPressed = OK and recertification_cases_excel_file_path <> "" an
 'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
 call excel_open(recertification_cases_excel_file_path, True, True, ObjExcel, objWorkbook)
 'Activates worksheet based on user selection
-objExcel.worksheets("All cases").Activate
+objExcel.worksheets("All").Activate
 
-MAXIS_footer_month = "05"
+MAXIS_footer_month = "06"
 MAXIS_footer_year = "18"
 
-last_day_of_recert = "05/31/2018"
+last_day_of_recert = "06/30/2018"
 interview_end_date = MAXIS_footer_month & "/15/" & MAXIS_footer_year
 
 excel_row = 2
@@ -125,14 +125,22 @@ today_yr = DatePart("yyyy", date)
 today_yr = right(today_yr, 2)
 
 today_date = today_mo & "/" & today_day & "/" & today_yr
-
+tester = 2
+and_some = 500
 Do
     MAXIS_case_number = objExcel.Cells(excel_row, case_number_col).Value
     MAXIS_case_number = trim(MAXIS_case_number)
     appt_notc_info = objExcel.Cells(excel_row, appt_notc_success_col).Value
     appt_notc_info = trim(appt_notc_info)
-
-
+    'MsgBox appt_notc_info
+    If excel_row = tester Then
+        MsgBox tester
+        If tester = 2 Then
+            tester = tester + and_some - 2
+        Else
+            tester = tester + and_some
+        End If 
+    End If
     If appt_notc_info = "PRIV" Then
 
         Call navigate_to_MAXIS_screen("STAT", "PROG")

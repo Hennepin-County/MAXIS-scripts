@@ -166,6 +166,25 @@ function convert_to_mainframe_date(date_var, yr_len)
     date_var = month_to_use & "/" & day_to_use & "/" & year_to_use
 end function
 
+function confirm_memo_waiting(confirmation_var)
+    memo_row = 7
+
+    today_date = date
+    Call convert_to_mainframe_date(today_date, 2)
+
+    Do
+        EMReadScreen create_date, 8, memo_row, 19                 'Reading the date of each memo and the status
+        EMReadScreen print_status, 7, memo_row, 67
+        'MsgBox print_status
+        If create_date = today_date AND print_status = "Waiting" Then   'MEMOs created today and still waiting is likely our MEMO.
+            confirmation_var = "Y"             'If we've found this then no reason to keep looking.
+            successful_notices = successful_notices + 1
+            'MsgBox ALL_PENDING_CASES_ARRAY(notc_confirm, case_entry)                 'For statistical purposes
+            Exit Do
+        End If
+        memo_row = memo_row + 1           'Looking at next row'
+    Loop Until create_date = "        "
+end function
 
 function go_to_top_of_notes()
     Do
@@ -198,13 +217,21 @@ Call ONLY_create_MAXIS_friendly_date(current_date)			'reformatting the dates to 
 Do
 	Do
 		'The dialog is defined in the loop as it can change as buttons are pressed
-		BeginDialog file_select_dialog, 0, 0, 221, 50, "Select the source file"
-  			ButtonGroup ButtonPressed
-    		PushButton 175, 10, 40, 15, "Browse...", select_a_file_button
-    		OkButton 110, 30, 50, 15
-    		CancelButton 165, 30, 50, 15
-  			EditBox 5, 10, 165, 15, file_selection_path
-		EndDialog
+        BeginDialog file_select_dialog, 0, 0, 316, 175, "Select the source file"
+          EditBox 5, 125, 260, 15, file_selection_path
+          ButtonGroup ButtonPressed
+            PushButton 270, 125, 40, 15, "Browse...", select_a_file_button
+            OkButton 205, 155, 50, 15
+            CancelButton 260, 155, 50, 15
+          Text 5, 5, 305, 25, "This script will send Appointment Notices and NOMIs or update for denials when no interview has been completed. Once an interview has taken place, this script no longer takes action on the case."
+          Text 5, 35, 255, 10, "Cases with an interview completed should have the interview listed on PROG."
+          Text 5, 50, 310, 10, "An Appointment Notice will be sent on any case without a case note of appointment notice sent."
+          Text 5, 65, 300, 10, "A NOMI will be sent once the appointment date indicated on Appointment Notice has passed."
+          Text 5, 80, 305, 20, "A denial will be indicated when a case reaches day 30 (unless the NOMI did not go out until day 30 or after)."
+          Text 10, 105, 295, 15, "Click the BROWSE button and select the BOBI report for today. Once selected, click 'OK'. There will be no additional input needed until the script run is complete."
+          Text 5, 150, 160, 20, "Reminder, do not use Excel during the time the script is running. The script needs to use Excel."
+        EndDialog
+
 		err_msg = ""
 		Dialog file_select_dialog
 		If ButtonPressed = cancel then stopscript
@@ -225,6 +252,9 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+If trim(worker_signature) = "" Then
+    worker_signature = InputBox("How would you like to sign you case notes:", "Worker Signature")
+End If
 'Activates worksheet based on user selection
 objExcel.worksheets("Report 1").Activate
 
@@ -276,10 +306,11 @@ const nomi_confirm_col      = 14        ''
 const need_deny_col         = 15        ''
 const deny_notc_confirm_col = 16        ''
 const next_action_col       = 17        ''
-const correct_need_col      = 18        ''
-const action_worker_col     = 19        ''
-const action_sup_col        = 20        ''
-const email_sent_col        = 21        ''
+const day_30_col            = 18
+const correct_need_col      = 19        ''
+const action_worker_col     = 20        ''
+const action_sup_col        = 21        ''
+const email_sent_col        = 22        ''
 
 Dim TODAYS_CASES_ARRAY()
 ReDim TODAYS_CASES_ARRAY(error_notes, 0)
@@ -462,6 +493,7 @@ Do
         CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = ObjWorkExcel.Cells(row, next_action_col)
         CASES_NO_LONGER_WORKING(questionable_intv, case_removed) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
 
+        CASES_NO_LONGER_WORKING(error_notes, case_removed) = ""
         'TODO figure out why case is not on the list any more add add to error notes
         'CASES_NO_LONGER_WORKING(error_notes, case_removed) = "Interview Completed on " & TODAYS_CASES_ARRAY(interview_date, case_entry)
         'MsgBox row
@@ -534,6 +566,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
         ALL_PENDING_CASES_ARRAY(out_of_co, case_entry) = "OUT OF COUNTY - " & county_check
     Else
         ALL_PENDING_CASES_ARRAY(priv_case, case_entry) = FALSE
+
+        IF ALL_PENDING_CASES_ARRAY(worker_ID, case_entry) = "X127EF8" or ALL_PENDING_CASES_ARRAY(worker_ID, case_entry) = "X127EJ1" THEN ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", IMD CASE"
         'MEMB for written language
 
         'TODO - move the code for determineing 'take_action_today' to up here so it ONLY looks if action is needed today.
@@ -624,6 +658,10 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
             ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REMOVE FROM LIST"
             ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = "Neither SNAP nor CASH is pending."
         Else
+            If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL" Then
+                ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "*** DENY ***"
+                ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = "Denial Failed"
+            End If
             If cash_pend = TRUE Then
                 If cash_interview_done = TRUE Then
                     If cash_intv_one <> "" Then ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = cash_intv_one
@@ -754,6 +792,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
     				IF left(note_title, 32) = "**Client missed CASH interview**" then ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = note_date
     				IF left(note_title, 37) = "**Client missed SNAP/CASH interview**" then ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = note_date
     				IF note_title = "~ Client has not completed application interview, NOMI" then ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = note_date
+                    IF note_title = "~ Client has not completed CASH APP interview, NOMI sen" then ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = note_date
 
                     IF note_date = "        " then Exit Do
                     note_row = note_row + 1
@@ -788,7 +827,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 
                 'creating a variable in the MM/DD/YY format to compare with date read from MAXIS
                 look_date = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
-                MsgBox MAXIS_case_number & " - Date 1"
+                'MsgBox MAXIS_case_number & " - Date 1"
                 CAll convert_to_mainframe_date(look_date, 2)
 
                 Do
@@ -843,9 +882,9 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                     array_of_dates = split(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry), "~")
                     If array_of_dates(0) <> "" Then
                         For each dates in array_of_dates
-                            MsgBox MAXIS_case_number & " - Date 2"
+                            'MsgBox MAXIS_case_number & " - Date 2"
                             Call convert_to_mainframe_date(dates, 2)
-                            MsgBox "Already known questionable date: " & dates
+                            'MsgBox "Already known questionable date: " & dates
                             if dates = note_date Then check_this_date = FALSE
                         Next
                     End If
@@ -930,47 +969,235 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 Next
 back_to_SELF
 
+Dim ACTION_TODAY_CASES_ARRAY()
+ReDim ACTION_TODAY_CASES_ARRAY(error_notes, 0)
+
+todays_cases = 0
+
 For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
     MAXIS_case_number	= ALL_PENDING_CASES_ARRAY(case_number, case_entry)
+
+    forms_to_swkr = ""
+    forms_to_arep = ""
+    memo_started = TRUE
+
     'MsgBox MAXIS_case_number & vbNewLine & "Take action: " & ALL_PENDING_CASES_ARRAY(take_action_today, case_entry) & vbNewLine & "Next action: " & ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry)
     If ALL_PENDING_CASES_ARRAY(take_action_today, case_entry) = TRUE Then
+        if ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) = "Pending" then           'setting the language for the notices - MFIP or SNAP
+            if ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) = "Pending" then
+                programs = "CASH/SNAP"
+            else
+                programs = "CASH"
+            end if
+        else
+            programs = "SNAP"
+        end if
+
         If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "SEND APPOINTMENT NOTICE" Then
             'Call Navigate_to_MAXIS_screen("CASE", "NOTE")
             'MsgBox "We're Sending an Appointment Notice."
 
-            ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) = date
-            ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry) = "Y"
-            need_intv_date = dateadd("d", 7, application_array(application_date, case_entry))    'NOTE - had to change this - it did not call the full array - dates were wrong.
+            'THIS IS FOR TESTING'
+            need_intv_date = dateadd("d", 7, ALL_PENDING_CASES_ARRAY(application_date, case_entry))    'NOTE - had to change this - it did not call the full array - dates were wrong.
             If need_intv_date <= date then need_intv_date = dateadd("d", 7, date)
 
             ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) = need_intv_date
-            need_intv_date = need_intv_date & ""		'turns interview date into string for variable
 
-            'GO TO MEEMO
-            'WRITE MEMO
-            'CONFIRM MEMO
-            'GO TO CASE NOTE AND WRITE IT
+            ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) = date
+            ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry) = "Y"
 
-            ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "ApptNotc Sent - SEND NOMI"
-            'Call back_to_SELF
+            ReDim Preserve ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)
+            ACTION_TODAY_CASES_ARRAY(case_number, todays_cases)         = ALL_PENDING_CASES_ARRAY(case_number, case_entry)
+            ACTION_TODAY_CASES_ARRAY(client_name, todays_cases)         = ALL_PENDING_CASES_ARRAY(client_name, case_entry)
+            ACTION_TODAY_CASES_ARRAY(worker_ID, todays_cases)           = ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)
+            ACTION_TODAY_CASES_ARRAY(SNAP_status, todays_cases)         = ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry)
+            ACTION_TODAY_CASES_ARRAY(CASH_status, todays_cases)         = ALL_PENDING_CASES_ARRAY(CASH_status, case_entry)
+            ACTION_TODAY_CASES_ARRAY(application_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(application_date, case_entry)
+            ACTION_TODAY_CASES_ARRAY(interview_date, todays_cases)      = ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
+            ACTION_TODAY_CASES_ARRAY(questionable_intv, todays_cases)   = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
+            ACTION_TODAY_CASES_ARRAY(need_face_to_face, todays_cases)   = ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry)
+            ACTION_TODAY_CASES_ARRAY(appt_notc_sent, todays_cases)      = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
+            ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry)
+            ACTION_TODAY_CASES_ARRAY(appointment_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
+            ACTION_TODAY_CASES_ARRAY(nomi_sent, todays_cases)           = ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
+            ACTION_TODAY_CASES_ARRAY(nomi_confirm, todays_cases)        = ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry)
+            ACTION_TODAY_CASES_ARRAY(deny_day30, todays_cases)          = ALL_PENDING_CASES_ARRAY(deny_day30, case_entry)
+            ACTION_TODAY_CASES_ARRAY(deny_memo_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry)
+            ACTION_TODAY_CASES_ARRAY(next_action_needed, todays_cases)  = ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry)
+            ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)         = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " - " & "Appointment Notice Sent today"
+            todays_cases = todays_cases + 1
+
+            ' 'THIS IS FOR REAL LIFE'
+            ' need_intv_date = dateadd("d", 7, ALL_PENDING_CASES_ARRAY(application_date, case_entry))    'NOTE - had to change this - it did not call the full array - dates were wrong.
+            ' If need_intv_date <= date then need_intv_date = dateadd("d", 7, date)
+            '
+            ' ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) = need_intv_date
+            ' need_intv_date = need_intv_date & ""		'turns interview date into string for variable
+            '
+            ' start_a_new_spec_memo_and_continue(memo_started)		'Writes the appt letter into the MEMO.
+			' IF memo_started = True THEN
+            '     EMsendkey("************************************************************")
+            '     Call write_variable_in_SPEC_MEMO("You recently applied for assistance in Hennepin County on " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ".")
+            '     Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
+            '     Call write_variable_in_SPEC_MEMO(" ")
+            '     Call write_variable_in_SPEC_MEMO("The interview must be completed by " & need_intv_date & ".")
+            '     Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+            '     Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday through Friday.")
+            '     Call write_variable_in_SPEC_MEMO(" ")
+            '     Call write_variable_in_SPEC_MEMO("If we do not hear from you by " & last_contact_day & " your application will be denied.") 'add 30 days
+            '     Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
+            '     Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
+            '     Call write_variable_in_SPEC_MEMO("You can also request a paper copy.")
+            '     Call write_variable_in_SPEC_MEMO("Auth: 7CFR 273.2(e)(3). ")
+            '     Call write_variable_in_SPEC_MEMO("************************************************************")
+            '     ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) = date
+            '     PF4
+			' ELSE
+			' 	ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry) = "N" 'Setting this as N if the MEMO failed
+			' END IF
+            '
+            ' If ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry) <> "N" Then
+            '     Call confirm_memo_waiting(ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry))
+            ' End If
+            '
+            ' If ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry) = "N" Then
+            '     ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual Appt Notice"
+            ' ElseIf ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry) = "Y"
+            '     ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "SEND NOMI"
+            '     Call start_a_blank_case_note
+            '
+            '     Call write_variable_in_CASE_NOTE("~ Appointment letter sent in MEMO for " & need_intv_date & "~")
+            '     Call write_variable_in_CASE_NOTE("* A notice has been sent via SPEC/MEMO informing the client of needed interview.")
+            '     Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
+            '     Call write_variable_in_CASE_NOTE("* A link to the domestic violence brochure sent to client in SPEC/MEMO as a part of interview notice.")
+            '     Call write_variable_in_CASE_NOTE("---")
+            '     Call write_variable_in_CASE_NOTE(worker_signature & " via bulk on demand waiver script")
+            '     'MsgBox "What casenote was sent?"
+            '     PF3
+            '
+            ' Else
+            '     ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "???"
+            ' End If
+            ' Call back_to_SELF
+
+            ' ReDim Preserve ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)
+            ' ACTION_TODAY_CASES_ARRAY(case_number, todays_cases)         = ALL_PENDING_CASES_ARRAY(case_number, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(client_name, todays_cases)         = ALL_PENDING_CASES_ARRAY(client_name, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(worker_ID, todays_cases)           = ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(SNAP_status, todays_cases)         = ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(CASH_status, todays_cases)         = ALL_PENDING_CASES_ARRAY(CASH_status, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(application_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(application_date, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(interview_date, todays_cases)      = ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(questionable_intv, todays_cases)   = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(need_face_to_face, todays_cases)   = ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(appt_notc_sent, todays_cases)      = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(appointment_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(nomi_sent, todays_cases)           = ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(nomi_confirm, todays_cases)        = ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(deny_day30, todays_cases)          = ALL_PENDING_CASES_ARRAY(deny_day30, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(deny_memo_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(next_action_needed, todays_cases)  = ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)         = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " - " & "Appointment Notice Sent today"
+            ' todays_cases = todays_cases + 1
+
         End If
 
         If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "SEND NOMI" Then
-            nomi_due = FALSE
-            If ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) <> "" Then
-                If DateDiff("d", ALL_PENDING_CASES_ARRAY(appointment_date, case_entry), date) >= 0 then nomi_due = TRUE
-            End If
+            'THIS IS FOR TESTING'
+            ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = date
+            ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) = "Y"
+            ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "DENY AT DAY 30"
+            ReDim Preserve ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)
+            ACTION_TODAY_CASES_ARRAY(case_number, todays_cases)         = ALL_PENDING_CASES_ARRAY(case_number, case_entry)
+            ACTION_TODAY_CASES_ARRAY(client_name, todays_cases)         = ALL_PENDING_CASES_ARRAY(client_name, case_entry)
+            ACTION_TODAY_CASES_ARRAY(worker_ID, todays_cases)           = ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)
+            ACTION_TODAY_CASES_ARRAY(SNAP_status, todays_cases)         = ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry)
+            ACTION_TODAY_CASES_ARRAY(CASH_status, todays_cases)         = ALL_PENDING_CASES_ARRAY(CASH_status, case_entry)
+            ACTION_TODAY_CASES_ARRAY(application_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(application_date, case_entry)
+            ACTION_TODAY_CASES_ARRAY(interview_date, todays_cases)      = ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
+            ACTION_TODAY_CASES_ARRAY(questionable_intv, todays_cases)   = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
+            ACTION_TODAY_CASES_ARRAY(need_face_to_face, todays_cases)   = ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry)
+            ACTION_TODAY_CASES_ARRAY(appt_notc_sent, todays_cases)      = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
+            ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry)
+            ACTION_TODAY_CASES_ARRAY(appointment_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
+            ACTION_TODAY_CASES_ARRAY(nomi_sent, todays_cases)           = ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
+            ACTION_TODAY_CASES_ARRAY(nomi_confirm, todays_cases)        = ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry)
+            ACTION_TODAY_CASES_ARRAY(deny_day30, todays_cases)          = ALL_PENDING_CASES_ARRAY(deny_day30, case_entry)
+            ACTION_TODAY_CASES_ARRAY(deny_memo_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry)
+            ACTION_TODAY_CASES_ARRAY(next_action_needed, todays_cases)  = ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry)
+            ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)         = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " - " & "NOMI Sent today"
+            todays_cases = todays_cases + 1
+            '
+            ' 'THIS IS FOR REAL LIFE'
+            ' nomi_last_contact_day = dateadd("d", 30, ALL_PENDING_CASES_ARRAY(application_date, case_entry))
+            ' 'ensuring that we have given the client an additional10days fromt he day nomi sent'
+            ' IF DateDiff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), nomi_last_contact_day) < 1 then nomi_last_contact_day = dateadd("d", 10, ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry))
+            '
+            ' start_a_new_spec_memo_and_continue(memo_started)		'Writes the NOMI into the MEMO.
+            ' IF memo_started = TRUE THEN
+            '     EMsendkey("************************************************************")
+            '     Call write_variable_in_SPEC_MEMO("You recently applied for assistance on " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ".")
+            '     Call write_variable_in_SPEC_MEMO("Your interview should have been completed by " & ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) & ".")
+            '     Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
+            '     Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at ")
+            '     Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday through Friday.")
+            '     Call write_variable_in_SPEC_MEMO(" ")
+            '     Call write_variable_in_SPEC_MEMO("If you do not complete the interview by " & nomi_last_contact_day & " your application will be denied.") 'add 30 days
+            '     Call write_variable_in_SPEC_MEMO(" ")
+            '     Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to- face interview.")
+            '     Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
+            '     Call write_variable_in_SPEC_MEMO("You can also request a paper copy.")
+            '     Call write_variable_in_SPEC_MEMO("Auth: 7CFR 273.2(e)(3). ")
+            '     Call write_variable_in_SPEC_MEMO("************************************************************")
+            '     ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = date
+            '     PF4
+            ' Else
+            '     ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) = "N"
+            ' End If
+            '
+            ' If ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) <> "N" Then
+            '     Call confirm_memo_waiting(ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry))
+            ' End If
+            '
+            ' If ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) = "N" Then
+            '     ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual NOMI"
+            ' ElseIf ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) = "Y"
+            '     ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "DENY AT DAY 30"
+            '     Call start_a_blank_case_note
+            '     Call write_variable_in_CASE_NOTE("~ Client has not completed application interview, NOMI sent via script ~ ")
+            '     Call write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about completing an interview. ")
+            '     Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
+            '     Call write_variable_in_CASE_NOTE("* A link to the domestic violence brochure sent to client in SPEC/MEMO as a part of interview notice.")
+            '     Call write_variable_in_CASE_NOTE("---")
+            '     Call write_variable_in_CASE_NOTE(worker_signature & " via bulk on demand waiver script")
+            '     'MsgBox "What casenote was sent?"
+            '     PF3
+            ' Else
+            '     ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "???"
+            ' End If
+            ' Call back_to_SELF
 
-            If nomi_due Then
-                'Call Navigate_to_MAXIS_screen("CASE", "NOTE")
-                'MsgBox "We're Sending a NOMI."
-
-                ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = date
-                ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) = "Y"
-
-                ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "NOMI sent - DENY AT DAY 30"
-                'Call back_to_SELF
-            ENd If
+            ' ReDim Preserve ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)
+            ' ACTION_TODAY_CASES_ARRAY(case_number, todays_cases)         = ALL_PENDING_CASES_ARRAY(case_number, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(client_name, todays_cases)         = ALL_PENDING_CASES_ARRAY(client_name, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(worker_ID, todays_cases)           = ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(SNAP_status, todays_cases)         = ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(CASH_status, todays_cases)         = ALL_PENDING_CASES_ARRAY(CASH_status, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(application_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(application_date, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(interview_date, todays_cases)      = ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(questionable_intv, todays_cases)   = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(need_face_to_face, todays_cases)   = ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(appt_notc_sent, todays_cases)      = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(appointment_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(nomi_sent, todays_cases)           = ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(nomi_confirm, todays_cases)        = ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(deny_day30, todays_cases)          = ALL_PENDING_CASES_ARRAY(deny_day30, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(deny_memo_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(next_action_needed, todays_cases)  = ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry)
+            ' ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)         = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " - " & "NOMI Sent today"
+            ' todays_cases = todays_cases + 1
         End If
         If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "DENY AT DAY 30" Then
             IF datediff("d", ALL_PENDING_CASES_ARRAY(application_date, case_entry), date) >= 30 and ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = "" THEN
@@ -993,6 +1220,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                         If ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) <> "Pending" and ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) = "Pending" Then
                             EMReadScreen cash_prog, 2, row, 56
                             If cash_prog = "MS" Then
+                                ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", MSA pending only."
                                 If datediff("d", ALL_PENDING_CASES_ARRAY(application_date, case_entry), date) >= 60 and ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = "" THEN
                                     ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE
                                 Else
@@ -1001,7 +1229,98 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                             End If
                         End If
                         back_to_SELF
-                        'msgbox nbr_days_pending
+
+                        'THIS IS FOR TESTING'
+                        If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE Then
+                            ReDim Preserve ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)
+                            ACTION_TODAY_CASES_ARRAY(case_number, todays_cases)         = ALL_PENDING_CASES_ARRAY(case_number, case_entry)
+                            ACTION_TODAY_CASES_ARRAY(client_name, todays_cases)         = ALL_PENDING_CASES_ARRAY(client_name, case_entry)
+                            ACTION_TODAY_CASES_ARRAY(worker_ID, todays_cases)           = ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)
+                            ACTION_TODAY_CASES_ARRAY(SNAP_status, todays_cases)         = ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry)
+                            ACTION_TODAY_CASES_ARRAY(CASH_status, todays_cases)         = ALL_PENDING_CASES_ARRAY(CASH_status, case_entry)
+                            ACTION_TODAY_CASES_ARRAY(application_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(application_date, case_entry)
+                            ACTION_TODAY_CASES_ARRAY(interview_date, todays_cases)      = ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
+                            ACTION_TODAY_CASES_ARRAY(questionable_intv, todays_cases)   = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
+                            ACTION_TODAY_CASES_ARRAY(need_face_to_face, todays_cases)   = ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry)
+                            ACTION_TODAY_CASES_ARRAY(appt_notc_sent, todays_cases)      = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
+                            ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry)
+                            ACTION_TODAY_CASES_ARRAY(appointment_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
+                            ACTION_TODAY_CASES_ARRAY(nomi_sent, todays_cases)           = ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
+                            ACTION_TODAY_CASES_ARRAY(nomi_confirm, todays_cases)        = ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry)
+                            ACTION_TODAY_CASES_ARRAY(deny_day30, todays_cases)          = ALL_PENDING_CASES_ARRAY(deny_day30, case_entry)
+                            ACTION_TODAY_CASES_ARRAY(deny_memo_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry)
+                            ACTION_TODAY_CASES_ARRAY(next_action_needed, todays_cases)  = ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry)
+                            ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)         = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " - " & "DENY today"
+                            todays_cases = todays_cases + 1
+                        End If
+
+                        'THIS IS FOR REAL'
+                        ' If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE Then
+                        '     nomi_last_contact_day = dateadd("d", 30, ALL_PENDING_CASES_ARRAY(application_date, case_entry))
+                        '     'ensuring that we have given the client an additional10days fromt he day nomi sent'
+                        '     IF DateDiff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), nomi_last_contact_day) < 1 then nomi_last_contact_day = dateadd("d", 10, ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry))
+                        '
+                        '     start_a_new_spec_memo_and_continue(memo_started)		'Writes the denial into the MEMO.
+                		' 	IF memo_started = True THEN
+                		' 		EMsendkey("************************************************************")
+                		' 		Call write_variable_in_SPEC_MEMO("We received your application on " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ".")
+                		' 		Call write_variable_in_SPEC_MEMO("Your interview was not completed by " & nomi_last_contact_day & ".")
+                		' 		call write_variable_in_spec_memo("Due to failing to complete the interview within 30 days of your application date your case has been denied.")
+                		' 		Call write_variable_in_SPEC_MEMO("************************************************************")
+                		' 		PF4
+                		' 	ELSE
+                		' 		ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry) = "N"         'Setting this as N if the MEMO failed
+                		' 		'MsgBox "What memo was sent?"
+                		' 	END IF
+                        '
+                        '     If ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry) <> "N" Then
+                        '         Call confirm_memo_waiting(ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry))
+                        '     End If
+                        '
+                        '     If ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry) = "N" Then
+                        '         ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send DENY MEMO Manually"
+                        '     ElseIf ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry) = "Y"
+                        '         ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL"
+                        '         Call start_a_blank_case_note
+                        '
+                        '         Call write_variable_in_case_note("~ Denied " & programs & " via script ~")
+                        '         Call write_bullet_and_variable_in_case_note("Application date", ALL_PENDING_CASES_ARRAY(application_date, case_entry))
+                        '         Call write_variable_in_case_note("* Reason for denial: interview was not completed timely.")
+                        '         Call write_variable_in_case_note("* Confirmed client was provided sufficient 10 day notice.")
+                        '         Call write_bullet_and_variable_in_case_note("NOMI sent to client on ", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry))
+                        '         Call write_variable_in_case_note("---")
+                        '         Call write_variable_in_CASE_NOTE(worker_signature & " via bulk on demand waiver script")
+                        '
+                        '         'MsgBox "What casenote was sent?"
+                        '         PF3
+                        '         END IF
+                        '     Else
+                        '         ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "???"
+                        '     End If
+                        '     'msgbox nbr_days_pending
+                        '     Call back_to_SELF
+
+                            ' ReDim Preserve ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)
+                            ' ACTION_TODAY_CASES_ARRAY(case_number, todays_cases)         = ALL_PENDING_CASES_ARRAY(case_number, case_entry)
+                            ' ACTION_TODAY_CASES_ARRAY(client_name, todays_cases)         = ALL_PENDING_CASES_ARRAY(client_name, case_entry)
+                            ' ACTION_TODAY_CASES_ARRAY(worker_ID, todays_cases)           = ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)
+                            ' ACTION_TODAY_CASES_ARRAY(SNAP_status, todays_cases)         = ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry)
+                            ' ACTION_TODAY_CASES_ARRAY(CASH_status, todays_cases)         = ALL_PENDING_CASES_ARRAY(CASH_status, case_entry)
+                            ' ACTION_TODAY_CASES_ARRAY(application_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(application_date, case_entry)
+                            ' ACTION_TODAY_CASES_ARRAY(interview_date, todays_cases)      = ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
+                            ' ACTION_TODAY_CASES_ARRAY(questionable_intv, todays_cases)   = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
+                            ' ACTION_TODAY_CASES_ARRAY(need_face_to_face, todays_cases)   = ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry)
+                            ' ACTION_TODAY_CASES_ARRAY(appt_notc_sent, todays_cases)      = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
+                            ' ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry)
+                            ' ACTION_TODAY_CASES_ARRAY(appointment_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
+                            ' ACTION_TODAY_CASES_ARRAY(nomi_sent, todays_cases)           = ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
+                            ' ACTION_TODAY_CASES_ARRAY(nomi_confirm, todays_cases)        = ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry)
+                            ' ACTION_TODAY_CASES_ARRAY(deny_day30, todays_cases)          = ALL_PENDING_CASES_ARRAY(deny_day30, case_entry)
+                            ' ACTION_TODAY_CASES_ARRAY(deny_memo_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry)
+                            ' ACTION_TODAY_CASES_ARRAY(next_action_needed, todays_cases)  = ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry)
+                            ' ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)         = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " - " & "NOMI Sent today"
+                            ' todays_cases = todays_cases + 1
+                        ' End If
                     END IF
                 END IF
             END IF
@@ -1017,9 +1336,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
             End If
         End If
 
-
-        'If
-
+        ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) & ""
     End If
     row = ALL_PENDING_CASES_ARRAY(excel_row, case_entry)
 
@@ -1040,6 +1357,10 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
     ObjWorkExcel.Cells(row, nomi_date_col) = ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
     ObjWorkExcel.Cells(row, nomi_confirm_col) = ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry)
     ObjWorkExcel.Cells(row, need_deny_col) = ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) & ""
+    If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE Then
+        ObjWorkExcel.Rows(row).Font.ColorIndex = 3  'Red'
+        ObjWorkExcel.Rows(row).Font.Bold = TRUE
+    End If
     ObjWorkExcel.Cells(row, deny_notc_confirm_col) = ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry)
     ObjWorkExcel.Cells(row, next_action_col) = ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry)
 
@@ -1412,31 +1733,206 @@ ObjExcel.Cells(1, correct_need_col)     = "Detail"
 
 ObjExcel.Rows(1).Font.Bold = TRUE
 
-row = 2
+removed_row = 2
 For case_removed = 0 to UBOUND(CASES_NO_LONGER_WORKING, 2)
+    If CASES_NO_LONGER_WORKING(error_notes, case_removed) = "" Then
+        'PROG to determine programs active
+        MAXIS_case_number = CASES_NO_LONGER_WORKING(case_number, case_removed)
+        CALL navigate_to_MAXIS_screen("CASE", "CURR")
+        'Checking for PRIV cases.
+        EMReadScreen priv_check, 6, 24, 14 'If it can't get into the case needs to skip
+        EMReadScreen county_check, 2, 21, 16    'Looking to see if case has Hennepin COunty worker
+        If priv_check = "PRIVIL" THEN
+            ALL_PENDING_CASES_ARRAY(error_notes, case_removed) = "PRIV"
+        ElseIf county_check <> "27" THEN
+            ALL_PENDING_CASES_ARRAY(error_notes, case_removed) = "Transferred out of county - " & county_check
+        Else
+            Call navigate_to_MAXIS_screen("STAT", "PROG")
+            fs_intv = ""
+            cash_intv_one = ""
+            cash_intv_two = ""
 
-    ObjExcel.Cells(row, worker_id_col).Value            = CASES_NO_LONGER_WORKING(worker_ID, case_removed)
-    ObjExcel.Cells(row, case_nbr_col).Value             = CASES_NO_LONGER_WORKING(case_number, case_removed)
-    'CASES_NO_LONGER_WORKING(excel_row, case_removed) = row
-    ObjExcel.Cells(row, case_name_col).Value            = CASES_NO_LONGER_WORKING(client_name, case_removed)
-    ObjExcel.Cells(row, app_date_col).Value             = CASES_NO_LONGER_WORKING(application_date, case_removed)
-    'CASES_NO_LONGER_WORKING(interview_date, case_removed) = ObjExcel.Cells(row, intvw_date_col)
-    ObjExcel.Cells(row, intvw_date_col).Value           = CASES_NO_LONGER_WORKING(interview_date, case_removed)
-    ObjExcel.Cells(row, cash_stat_col).Value            = CASES_NO_LONGER_WORKING(CASH_status, case_removed)
-    ObjExcel.Cells(row, snap_stat_col).Value            = CASES_NO_LONGER_WORKING(SNAP_status, case_removed)
+            EMReadScreen cash_prog_one, 2, 6, 67               'reading for active MFIP program - which has different requirements
+            EMReadScreen cash_stat_one, 4, 6, 74
 
-    ObjExcel.Cells(row, appt_notc_date_col).Value       = CASES_NO_LONGER_WORKING(appt_notc_sent, case_removed)
-    ObjExcel.Cells(row, appt_notc_confirm_col).Value    = CASES_NO_LONGER_WORKING(appt_notc_confirm, case_removed)
-    ObjExcel.Cells(row, appt_date_col).Value            = CASES_NO_LONGER_WORKING(appointment_date, case_removed)
-    ObjExcel.Cells(row, nomi_date_col).Value            = CASES_NO_LONGER_WORKING(nomi_sent, case_removed)
-    ObjExcel.Cells(row, nomi_confirm_col).Value         = CASES_NO_LONGER_WORKING(nomi_confirm, case_removed)
-    ObjExcel.Cells(row, next_action_col).Value          = CASES_NO_LONGER_WORKING(next_action_needed, case_removed)
-    ObjExcel.Cells(row, quest_intvw_date_col).Value     = CASES_NO_LONGER_WORKING(questionable_intv, case_removed)
-    ObjExcel.Cells(row, ftof_still_need_col).Value     = CASES_NO_LONGER_WORKING(need_face_to_face, case_removed)
+            EMReadScreen cash_prog_two, 2, 7, 67
+            EMReadScreen cash_stat_two, 4, 7, 74
 
-    ObjExcel.Cells(row, correct_need_col).Value         = CASES_NO_LONGER_WORKING(error_notes, case_removed)
+            EMReadScreen fs_pend, 4, 10, 74
 
-    row = row + 1
+            cash_pend = FALSE
+            cash_interview_done = FALSE
+            snap_interview_done = FALSE
+
+            If cash_stat_one = "PEND" Then
+                cash_pend = TRUE
+                EMReadScreen cash_intv_one, 8, 6, 55
+                If cash_intv_one <> "__ __ __" Then
+                    cash_intv_one = replace(cash_intv_one, " ", "/")
+                    cash_interview_done = TRUE
+                Else
+                    cash_intv_one = ""
+                End If
+            ElseIf cash_stat_one = "ACTV" Then
+                CASES_NO_LONGER_WORKING(CASH_status, case_removed) = "Active"
+            End If
+
+            If cash_stat_two = "PEND" Then
+                cash_pend = TRUE
+                EMReadScreen cash_intv_two, 8, 7, 55
+                If cash_intv_two <> "__ __ __" Then
+                    cash_intv_two = replace(cash_intv_two, " ", "/")
+                    cash_interview_done = TRUE
+                Else
+                    cash_intv_two = ""
+                End If
+            ElseIf cash_stat_one = "ACTV" Then
+                CASES_NO_LONGER_WORKING(CASH_status, case_removed) = "Active"
+            Else
+                CASES_NO_LONGER_WORKING(CASH_status, case_removed) = ""
+            End If
+
+            If cash_pend = TRUE then CASES_NO_LONGER_WORKING(CASH_status, case_removed) = "Pending"
+
+            If fs_pend = "PEND" Then
+                CASES_NO_LONGER_WORKING(SNAP_status, case_removed) = "Pending"
+                EMReadScreen fs_intv, 8, 10, 55
+                If fs_intv <> "__ __ __" Then
+                    fs_intv = replace(fs_intv, " ", "/")
+                    snap_interview_done = TRUE
+                Else
+                    fs_intv = ""
+                End If
+            ElseIf fs_pend = "ACTV" Then
+                CASES_NO_LONGER_WORKING(SNAP_status, case_removed) = "Active"
+            Else
+                CASES_NO_LONGER_WORKING(SNAP_status, case_removed) = ""
+            End If
+
+            If CASES_NO_LONGER_WORKING(SNAP_status, case_removed) <> "Pending" AND CASES_NO_LONGER_WORKING(CASH_status, case_removed) <> "Pending" Then
+                CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = "REMOVE FROM LIST"
+                CASES_NO_LONGER_WORKING(error_notes, case_removed) = "Neither SNAP nor CASH is pending."
+            Else
+                If cash_pend = TRUE Then
+                    If cash_interview_done = TRUE Then
+                        If cash_intv_one <> "" Then CASES_NO_LONGER_WORKING(interview_date, case_removed) = cash_intv_one
+                        If cash_intv_two <> "" Then CASES_NO_LONGER_WORKING(interview_date, case_removed) = cash_intv_two
+                        CASES_NO_LONGER_WORKING(need_face_to_face, case_removed) = ""
+                        CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = "NONE - Interview Completed"
+                    Else
+                        If fs_pend = "PEND" Then
+                            If fs_intv = "" THen
+                                CASES_NO_LONGER_WORKING(interview_date, case_removed) = ""
+                            Else
+                                CASES_NO_LONGER_WORKING(interview_date, case_removed) = fs_intv
+                                If CASES_NO_LONGER_WORKING(need_face_to_face, case_removed) = "" Then CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = "CHECK FOR F2F NEEDED"
+                                If CASES_NO_LONGER_WORKING(need_face_to_face, case_removed) = "N" Then CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = "NONE - Interview Completed"
+                                If CASES_NO_LONGER_WORKING(need_face_to_face, case_removed) = "Y" Then
+                                    CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = "DENY AT DAY 30"
+                                    If CASES_NO_LONGER_WORKING(nomi_sent, case_removed) = "" Then CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = "SEND NOMI"
+                                    IF CASES_NO_LONGER_WORKING(sppt_notc_sent, case_removed) = "" Then CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = "SEND APPOINTMENT NOTICE"
+                                End If
+                                CASES_NO_LONGER_WORKING(error_notes, case_removed) = ", Cash interview incomplete."
+                        'WHAT TO DO WITH F2F Cases'
+                            End If
+                        End If
+                    End If
+                ElseIf fs_pend = "PEND" Then
+                    If fs_intv <> "" Then
+                        CASES_NO_LONGER_WORKING(interview_date, case_removed) = fs_intv
+                        CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = "NONE - Interview Completed"
+                        CASES_NO_LONGER_WORKING(need_face_to_face, case_removed) = ""
+                    End If
+                End If
+            End If
+        End If
+    End If
+
+    ObjExcel.Worksheets("Cases Removed From Working LIST").Activate
+    'MsgBox "Row is " & removed_row & vbNewLine & "Worker ID " & CASES_NO_LONGER_WORKING(worker_ID, case_removed)
+    ObjExcel.Cells(removed_row, worker_id_col).Value            = CASES_NO_LONGER_WORKING(worker_ID, case_removed)
+    ObjExcel.Cells(removed_row, case_nbr_col).Value             = CASES_NO_LONGER_WORKING(case_number, case_removed)
+    'CASES_NO_LONGER_WORKING(excel_removed_row, case_removed) = removed_row
+    ObjExcel.Cells(removed_row, case_name_col).Value            = CASES_NO_LONGER_WORKING(client_name, case_removed)
+    ObjExcel.Cells(removed_row, app_date_col).Value             = CASES_NO_LONGER_WORKING(application_date, case_removed)
+    'CASES_NO_LONGER_WORKING(interview_date, case_removed) = ObjExcel.Cells(removed_row, intvw_date_col)
+    ObjExcel.Cells(removed_row, intvw_date_col).Value           = CASES_NO_LONGER_WORKING(interview_date, case_removed)
+    ObjExcel.Cells(removed_row, cash_stat_col).Value            = CASES_NO_LONGER_WORKING(CASH_status, case_removed)
+    ObjExcel.Cells(removed_row, snap_stat_col).Value            = CASES_NO_LONGER_WORKING(SNAP_status, case_removed)
+
+    ObjExcel.Cells(removed_row, appt_notc_date_col).Value       = CASES_NO_LONGER_WORKING(appt_notc_sent, case_removed)
+    ObjExcel.Cells(removed_row, appt_notc_confirm_col).Value    = CASES_NO_LONGER_WORKING(appt_notc_confirm, case_removed)
+    ObjExcel.Cells(removed_row, appt_date_col).Value            = CASES_NO_LONGER_WORKING(appointment_date, case_removed)
+    ObjExcel.Cells(removed_row, nomi_date_col).Value            = CASES_NO_LONGER_WORKING(nomi_sent, case_removed)
+    ObjExcel.Cells(removed_row, nomi_confirm_col).Value         = CASES_NO_LONGER_WORKING(nomi_confirm, case_removed)
+    ObjExcel.Cells(removed_row, next_action_col).Value          = CASES_NO_LONGER_WORKING(next_action_needed, case_removed)
+    ObjExcel.Cells(removed_row, quest_intvw_date_col).Value     = CASES_NO_LONGER_WORKING(questionable_intv, case_removed)
+    ObjExcel.Cells(removed_row, ftof_still_need_col).Value     = CASES_NO_LONGER_WORKING(need_face_to_face, case_removed)
+
+    ObjExcel.Cells(removed_row, correct_need_col).Value         = CASES_NO_LONGER_WORKING(error_notes, case_removed)
+
+    'MsgBox removed_row & " = " & removed_row & " + 1"
+    removed_row = removed_row + 1
+Next
+
+For col_to_autofit =1 to  correct_need_col
+    ObjExcel.Columns(col_to_autofit).AutoFit()
+Next
+
+
+ObjExcel.Worksheets.Add().Name = "Actions Today"
+
+ObjExcel.Cells(1, worker_id_col)        = "Worker ID"
+ObjExcel.Cells(1, case_nbr_col)         = "Case Number"
+ObjExcel.Cells(1, case_name_col)        = "Case Name"
+ObjExcel.Cells(1, snap_stat_col)        = "SNAP"
+ObjExcel.Cells(1, cash_stat_col)        = "CASH"
+ObjExcel.Cells(1, app_date_col)         = "Application Date"
+ObjExcel.Cells(1, intvw_date_col)       = "Interview Date"
+ObjExcel.Cells(1, quest_intvw_date_col) = "Questionable Interview Date"
+ObjExcel.Cells(1, ftof_still_need_col)  = "Face To Face Still Needed"
+ObjExcel.Cells(1, appt_notc_date_col)   = "Appt Notice Sent"
+ObjExcel.Cells(1, appt_date_col)        = "Appointment Date"
+ObjExcel.Cells(1, appt_notc_confirm_col)= "Confirm"
+ObjExcel.Cells(1, nomi_date_col)        = "NOMI Sent"
+ObjExcel.Cells(1, nomi_confirm_col)     = "Confirm"
+ObjExcel.Cells(1, need_deny_col)        = "Denial"
+ObjExcel.Cells(1, deny_notc_confirm_col)= "Confirm"
+ObjExcel.Cells(1, next_action_col)      = "Next Action"
+ObjExcel.Cells(1, correct_need_col)     = "Detail"
+' ObjExcel.Cells(1, action_worker_col)    =
+' ObjExcel.Cells(1, action_sup_col)       =
+' ObjExcel.Cells(1, email_sent_col)       =
+
+ObjExcel.Rows(1).Font.Bold = TRUE
+
+action_row = 2
+For action_case = 0 to UBOUND(ACTION_TODAY_CASES_ARRAY, 2)
+
+    ObjExcel.Cells(action_row, worker_id_col)        = ACTION_TODAY_CASES_ARRAY(worker_ID, action_case)
+    ObjExcel.Cells(action_row, case_nbr_col)         = ACTION_TODAY_CASES_ARRAY(case_number, action_case)
+    ObjExcel.Cells(action_row, case_name_col)        = ACTION_TODAY_CASES_ARRAY(client_name, action_case)
+    ObjExcel.Cells(action_row, snap_stat_col)        = ACTION_TODAY_CASES_ARRAY(SNAP_status, action_case)
+    ObjExcel.Cells(action_row, cash_stat_col)        = ACTION_TODAY_CASES_ARRAY(CASH_status, action_case)
+    ObjExcel.Cells(action_row, app_date_col)         = ACTION_TODAY_CASES_ARRAY(application_date, action_case)
+    ObjExcel.Cells(action_row, intvw_date_col)       = ACTION_TODAY_CASES_ARRAY(interview_date, action_case)
+    ObjExcel.Cells(action_row, quest_intvw_date_col) = ACTION_TODAY_CASES_ARRAY(questionable_intv, action_case)
+    ObjExcel.Cells(action_row, ftof_still_need_col)  = ACTION_TODAY_CASES_ARRAY(need_face_to_face, action_case)
+    ObjExcel.Cells(action_row, appt_notc_date_col)   = ACTION_TODAY_CASES_ARRAY(appt_notc_sent, action_case)
+    ObjExcel.Cells(action_row, appt_notc_confirm_col)= ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, action_case)
+    ObjExcel.Cells(action_row, appt_date_col)        = ACTION_TODAY_CASES_ARRAY(appointment_date, action_case)
+    ObjExcel.Cells(action_row, nomi_date_col)        = ACTION_TODAY_CASES_ARRAY(nomi_sent, action_case)
+    ObjExcel.Cells(action_row, nomi_confirm_col)     = ACTION_TODAY_CASES_ARRAY(nomi_confirm, action_case)
+    ObjExcel.Cells(action_row, need_deny_col)        = ACTION_TODAY_CASES_ARRAY(deny_day30, action_case)
+    ObjExcel.Cells(action_row, deny_notc_confirm_col)= ACTION_TODAY_CASES_ARRAY(deny_memo_confirm, action_case)
+    ObjExcel.Cells(action_row, next_action_col)      = ACTION_TODAY_CASES_ARRAY(next_action_needed, action_case)
+    ObjExcel.Cells(action_row, correct_need_col)     = ACTION_TODAY_CASES_ARRAY(error_notes, action_case)
+
+    action_row = action_row + 1
+Next
+
+For col_to_autofit =1 to  correct_need_col
+    ObjExcel.Columns(col_to_autofit).AutoFit()
 Next
 
 script_end_procedure("It worked!")

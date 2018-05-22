@@ -1017,17 +1017,19 @@ if notice_type = "Appointment Notice" then
     objExcel.Cells(entry_row, stats_header_col).Value       = "Total Cases assesed"             'All cases from the spreadsheet
     objExcel.Cells(entry_row, stats_header_col).Font.Bold 	= TRUE
     objExcel.Cells(entry_row, stats_col).Value              = total_cases
+    total_row = entry_row
     entry_row = entry_row + 1
 
     if successful_notices = "" then successful_notices = 0
     objExcel.Cells(entry_row, stats_header_col).Value       = "Appointment Notices Sent"        'number of notices that were successful
     objExcel.Cells(entry_row, stats_header_col).Font.Bold 	= TRUE
-    objExcel.Cells(entry_row, stats_col).Value              = successful_notices                'This was incremented on the For Next loop where the memos were written
+    objExcel.Cells(entry_row, stats_col).Value              = "=COUNTIF(" & notc_letter_col & ":" & notc_letter_col & ", " & Chr(34) & "Y" & Chr(34) & ")"                'This was incremented on the For Next loop where the memos were written
+    appt_row = entry_row
     entry_row = entry_row + 1
 
     objExcel.Cells(entry_row, stats_header_col).Value       = "Percentage successful"           'calculation of the percent of successful notices
     objExcel.Cells(entry_row, stats_header_col).Font.Bold 	= TRUE
-    objExcel.Cells(entry_row, stats_col).Value              = successful_notices / total_cases
+    objExcel.Cells(entry_row, stats_col).Value              = "=" & stats_letter_col & appt_row & "/" & stats_letter_col & total_row
     objExcel.Cells(entry_row, stats_col).NumberFormat       = "0.00%"		'Formula should be percent
     entry_row = entry_row + 1
 
