@@ -9,11 +9,11 @@ STATS_denomination = "C"        'C is for each case
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else											'Everyone else should use the release branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		End if
+	  IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+	  	FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+	  Else											'Everyone else should use the release branch.
+	  	FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+	  End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
 		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
 		req.send													'Sends request
@@ -57,34 +57,49 @@ EMConnect ""
 'Inserts Maxis Case number
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-BeginDialog Good_cause_initial_dialog, 0, 0, 186, 65, "Good cause initial dialog"
-  EditBox 75, 5, 50, 15, MAXIS_case_number
-  DropListBox 75, 25, 105, 15, "Select One:"+chr(9)+"Application review"+chr(9)+"Change/exemption ending"+chr(9)+"Determination"+chr(9)+"Recertification", good_cause_droplist
+BeginDialog change_exemption_dialog, 0, 0, 216, 100, "Good cause change/exemption "
+  EditBox 105, 5, 50, 15, change_reported_date
+  EditBox 105, 25, 105, 15, change_reported
+  EditBox 105, 45, 105, 15, maxis_updates
+  CheckBox 10, 70, 75, 10, " No longer claiming ", no_longer_claiming_checkbox
   ButtonGroup ButtonPressed
-    OkButton 75, 45, 50, 15
-    CancelButton 130, 45, 50, 15
-  Text 10, 10, 45, 10, "Case number:"
-  Text 10, 30, 65, 10, "Good Cause action:"
+    OkButton 105, 80, 50, 15
+    CancelButton 160, 80, 50, 15
+  Text 10, 10, 80, 10, "Date of change reported:"
+  Text 10, 30, 90, 10, "What change was reported:"
+  Text 10, 50, 95, 10, "What was updated in MAXIS:"
 EndDialog
 
-BeginDialog good_cause_requested_dialog, 0, 0, 271, 155, "Good cause requested"
-  EditBox 70, 10, 20, 15, MAXIS_footer_month
-  EditBox 95, 10, 20, 15, MAXIS_footer_year
-  CheckBox 125, 15, 145, 10, "DHS-2338 is in ECF and completed in full.", DHS_233_checkbox
-  EditBox 100, 50, 55, 15, claim_date
-  DropListBox 100, 70, 115, 15, "Select One:"+chr(9)+"Potential phys harm/Child"+chr(9)+"Potential Emotnl harm/Child"+chr(9)+"Potential phys harm/Caregiver"+chr(9)+"Potential Emotnl harm/Caregiver"+chr(9)+"Cncptn Incest/Forced Rape"+chr(9)+"Legal adoption Before Court"+chr(9)+"Parent Gets Preadoptn Svc", reason_droplist
-  EditBox 65, 95, 200, 15, verifs_req
-  EditBox 65, 115, 200, 15, other_notes
+BeginDialog Good_cause_initial_dialog, 0, 0, 231, 210, "Good Cause"
+  EditBox 60, 5, 45, 15, MAXIS_case_number
+  EditBox 190, 5, 35, 15, claim_date
+  EditBox 60, 25, 20, 15, MAXIS_footer_month
+  EditBox 85, 25, 20, 15, MAXIS_footer_year
+  EditBox 190, 25, 20, 15, memb_number
+  DropListBox 110, 45, 115, 15, "Select One:"+chr(9)+"Application Review - Complete"+chr(9)+"Application Review -  Incomplete"+chr(9)+"Change/exemption ending"+chr(9)+"Determination"+chr(9)+"Recertification", good_cause_droplist
+  DropListBox 110, 65, 115, 15, "Select One:"+chr(9)+"Potential phys harm/Child"+chr(9)+"Potential Emotnl harm/Child"+chr(9)+"Potential phys harm/Caregiver"+chr(9)+"Potential Emotnl harm/Caregiver"+chr(9)+"Cncptn Incest/Forced Rape"+chr(9)+"Legal adoption Before Court"+chr(9)+"Parent Gets Preadoptn Svc", reason_droplist
+  EditBox 65, 90, 160, 15, verifs_req
+  EditBox 65, 110, 160, 15, mets_info
+  EditBox 65, 130, 160, 15, other_notes
+  CheckBox 10, 160, 155, 10, "Sent copy of good cause statement to client", GC_sent_checkbox
+  CheckBox 10, 150, 145, 10, "DHS-2338 is in ECF and completed in full", DHS_2338_complete
+  CheckBox 10, 170, 90, 10, "Sent DHS 3632 to client", sent_3632_incomplete
+  CheckBox 10, 180, 90, 10, "Sent DHS 3633 to client", sent_3633_incomplete
   ButtonGroup ButtonPressed
-    OkButton 160, 135, 50, 15
-    CancelButton 215, 135, 50, 15
-  Text 5, 15, 65, 10, "Footer month/year:"
-  Text 15, 55, 80, 10, "Good cause claim date:"
-  Text 10, 75, 85, 10, "Good cause claim reason:"
-  Text 20, 120, 40, 10, "Other notes:"
-  GroupBox 5, 35, 260, 55, "The following fields will be updated on ABPS in the footer month/year selected"
-  Text 5, 100, 55, 10, "Verifs requested:"
+    OkButton 120, 190, 50, 15
+    CancelButton 175, 190, 50, 15
+  Text 10, 10, 45, 10, "Case number:"
+  Text 110, 10, 80, 10, "Claim date MM/DD/YY:"
+  Text 5, 30, 50, 10, "Footer MM/YY:"
+  Text 130, 30, 55, 10, "Child's MEMB #:"
+  Text 80, 50, 25, 10, "Action:"
+  Text 75, 70, 30, 10, "Reason:"
+  Text 5, 95, 55, 10, "Verifs requested:"
+  Text 5, 115, 60, 10, "Mets Information:"
+  Text 20, 135, 40, 10, "Other notes:"
 EndDialog
+
+
 
 'The script----------------------------------------------------------------------------------------------------
 'Connecting to MAXIS & grabbing case number
@@ -96,33 +111,20 @@ Do
 	Do
 		err_msg = ""
 		dialog Good_cause_initial_dialog
-		IF buttonpressed = 0 then stopscript
+		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
 		IF good_cause_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select a good cause option."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+		If isnumeric(MAXIS_footer_month) = false then err_msg = err_msg & vbnewline & "* You must enter the footer month to begin good cause."
+		If isnumeric(MAXIS_footer_year) = false then err_msg = err_msg & vbnewline & "* You must enter the footer year to begin good cause."
+		If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
+		If len(claim_date) <> 8 then err_msg = err_msg & vbnewline & "* You must enter the date in MM/DD/YY."
+		If reason_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the Good Cause reason."
+		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-If good_cause_droplist = "Application review" then
-	'Grabbing the footer month/year to input into the dialog
 	Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
-	Do
-		Do
-			err_msg = ""
-			dialog good_cause_requested_dialog
-			cancel_confirmation
-			If isnumeric(MAXIS_footer_month) = false then err_msg = err_msg & vbnewline & "* You must enter the footer month to begin good cause."
-			If isnumeric(MAXIS_footer_year) = false then err_msg = err_msg & vbnewline & "* You must enter the footer year to begin good cause."
-			If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
-			'If len(claim_date) <> 10 then err_msg = err_msg & vbnewline & "* You must enter the date in MM/DD/YYYY."
-			If reason_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the Good Cause reason."
-			If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-	Loop until are_we_passworded_out = false					'loops until user passwords back in
-
 	Call MAXIS_footer_month_confirmation			'function that confirms that the current footer month/year is the same as what was selected by the user. If not, it will navigate to correct footer month/year
 
     'grabbing the case name for the email
@@ -165,7 +167,7 @@ If good_cause_droplist = "Application review" then
 	If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
 
 	EMWriteScreen "Y", 4, 73			'Support Coop Y/N field
-	EMWriteScreen "P", 5, 47			'Good Cause status field
+	IF good_cause_droplist <> "Determination" THEN EMWriteScreen "P", 5, 47			'Good Cause status field
 	EMWriteScreen "N", 7, 47			'Sup evidence Y/N field (defaulted to N during this process)
 	Call create_MAXIS_friendly_date(claim_date, 0, 5, 73)
 
@@ -184,9 +186,19 @@ If good_cause_droplist = "Application review" then
 	msgbox ABPS_screen
 	If ABPS_screen = "ABPS" then script_end_procedure("An error occurred on the ABPS panel. Please update the panel before using the script again.")
 
-	'-----------------------------------------------------------------------------------------------------Case note & email sending
+		'-----------------------------------------------------------------------------------------------------Case note & email sending
 	start_a_blank_CASE_NOTE
-	Call write_variable_in_case_note("***Good Cause Requested***")
+  IF GC_sent_checkbox = CHECKED Call write_bullet_and_variable_in_case_note("Sent copy of good cause statement to client")
+  Call write_bullet_and_variable_in_case_note("Send DHS 3632 to client")
+  Call write_bullet_and_variable_in_case_note("Child member #’s")
+  Call write_bullet_and_variable_in_case_note("ABPS name", )
+  Call write_bullet_and_variable_in_case_note("Good cause claim date", claim_date)
+  Call write_bullet_and_variable_in_case_note("Which programs are active METS active? Mets information field.")
+  Call write_bullet_and_variable_in_case_note("What is GC incomplete for?", mandatory field).
+  Call write_bullet_and_variable_in_case_note("Other information field")
+  Call write_bullet_and_variable_in_case_note("Good cause claim date", claim_date)Email Tina to add to the next month’s agenda
+	IF good_cause_droplist = "Application Review" THEN Call write_variable_in_case_note("***Good Cause Application Review - Incomplete***")
+	Call write_variable_in_case_note("Good Cause Application Review - Complete")
 	Call write_bullet_and_variable_in_case_note("Good cause claim date", claim_date)
 	Call write_bullet_and_variable_in_case_note("Reason for claiming good cause", reason_droplist)
 	Call write_variable_in_case_note("*DHS-2338 is in ECF, and fully completed by parent/caregiver.")
