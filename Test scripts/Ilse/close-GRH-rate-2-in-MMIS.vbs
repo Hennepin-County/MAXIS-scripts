@@ -107,8 +107,18 @@ function navigate_to_MMIS_region(group_security_selection)
 		PF6
 		EMReadScreen password_prompt, 38, 2, 23
 		IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then 
-			Do 
-				CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+            BeginDialog Password_dialog, 0, 0, 156, 55, "Password Dialog"
+            ButtonGroup ButtonPressed
+            OkButton 45, 35, 50, 15
+            CancelButton 100, 35, 50, 15
+            Text 5, 5, 150, 25, "You have passworded out. Please enter your password, then press OK to continue. Press CANCEL to stop the script. "
+            EndDialog
+            Do 
+                Do 
+                    dialog Password_dialog
+                    cancel_confirmation
+                Loop until ButtonPressed = -1
+			    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	 		Loop until are_we_passworded_out = false					'loops until user passwords back in
 		End if 
 		EMReadScreen session_start, 18, 1, 7
@@ -272,17 +282,17 @@ get_county_code
 MAXIS_footer_month = CM_mo	'establishing footer month/year 
 MAXIS_footer_year = CM_yr 
 
-''Determing the last day of the month to use as the closure date in MMIS.
-'next_month = DateAdd("M", 1, date)
-'next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)
-'last_day_of_month = dateadd("d", -1, next_month) & "" 	'blank space added to make 'last_day_for_recert' a string
-'last_date = datePart("D", last_day_of_month)
-'end_date = CM_mo & last_date & CM_yr 
+'Determing the last day of the month to use as the closure date in MMIS.
+next_month = DateAdd("M", 1, date)
+next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)
+end_of_the_month = dateadd("d", -1, next_month) & "" 	'blank space added to make 'last_day_for_recert' a string
+last_date = datePart("D", end_of_the_month)
+end_date = CM_mo & last_date & CM_yr 
+last_day_of_month = CM_mo & "/" & last_date & "/" & CM_yr
 'MsgBox last_day_of_month & vbcr & end_date
-end_date = "04/30/18"
 
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\GRH\GRH EOMC 05-18.xlsx"
-excel_row_to_test = 2
+file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\GRH\GRH EOMC 06-18.xlsx"
+excel_row = 2
 
 'dialog and dialog DO...Loop	
 Do
@@ -318,10 +328,9 @@ const NPI_num       = 4
 const update_MMIS 	= 5
 const case_status 	= 6
 
-
 'Now the script adds all the clients on the excel list into an array
 'excel_row = 2 're-establishing the row to start checking the members for
-excel_row = excel_row_to_test
+excel_row = excel_row
 entry_record = 0
 Do   
     'Loops until there are no more cases in the Excel list
@@ -331,7 +340,7 @@ Do
     auto_closure = objExcel.cells(excel_row, 5).Value          're-establishing the case numbers for functions to use
     auto_closure = trim(auto_closure)
     
-    If auto_closure <> "GR A" then     
+    If auto_closure <> "" then     
     	'Adding client information to the array'
     	ReDim Preserve Update_MMIS_array(7, entry_record)	'This resizes the array based on the number of rows in the Excel File'
     	Update_MMIS_array(case_number,	entry_record) = MAXIS_case_number	'The client information is added to the array'
@@ -370,17 +379,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 		EMWriteScreen "________", 18, 43		'clears the MAXIS case number
 		transmit
     End if 
-    'Else 
-	'	EMReadScreen grh_status, 4, 9, 74		'Ensuring that the case is active on GRH. If not, case will not be updated in MMIS. 
-	'	If grh_status <> "ACTV" then 
-	'		'msgbox "GRH case status is " & grh_status
-	'		Update_MMIS_array(rate_two, item) = False 
-	'		Update_MMIS_array(case_status, item) = "GRH case status is " & grh_status 	  
-	'	Else 
-	'		Update_MMIS_array(rate_two, item) = True  	
-	'	End if
-	'End if 
-    
+
     EMReadscreen current_county, 4, 21, 21
     If lcase(current_county) <> worker_county_code then 
         Update_MMIS_array(rate_two, item) = False 
@@ -416,7 +415,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
                     EMReadScreen ssrt_out_date, 10, row, 71
                     'msgbox ssrt_out_date
                     If ssrt_out_date = "__ __ ____" then 
-                        Update_MMIS_array(closing_date, item) = end_date
+                        Update_MMIS_array(closing_date, item) = last_day_of_month
                     Else 
                         EMReadScreen ssrt_mo, 2, row, 71
                         EMReadScreen ssrt_day, 2, row, 74
@@ -536,7 +535,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 Next
 
 '----------------------------------------------------------------------------------------------------EXCEL export
-excel_row = excel_row_to_test
+excel_row = 2
 
 'Export informaiton to Excel re: case status
 For item = 0 to UBound(Update_MMIS_array, 2)
@@ -551,8 +550,21 @@ FOR i = 1 to 7
 NEXT
 
 ''----------------------------------------------------------------------------------------------------MAXIS 
+
+BeginDialog MAXIS_dialog, 0, 0, 156, 55, "Going to MAXIS"
+ButtonGroup ButtonPressed
+OkButton 45, 35, 50, 15
+CancelButton 100, 35, 50, 15
+Text 5, 5, 150, 25, "The script will now navigate back to MAXIS. Press OK to continue. Press CANCEL to stop the script."
+EndDialog
+
+Call navigate_to_MAXIS("")
+
 Do 
-	Call navigate_to_MAXIS("")
+    Do 
+        Dialog MAXIS_dialog
+        cancel_confirmation
+    Loop until ButtonPressed = -1
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 

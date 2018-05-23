@@ -4125,6 +4125,198 @@ function navigate_to_MMIS()
 	transmit
 end function
 
+function navigate_to_MMIS_region(group_security_selection)
+'--- This function is to be used when navigating to MMIS from another function in BlueZone (MAXIS, PRISM, INFOPAC, etc.)
+'~~~~~ group_security_selection: region of MMIS to access - programed options are "CTY ELIG STAFF/UPDATE", "GRH UPDATE", "GRH INQUIRY", "MMIS MCRE"
+'===== Keywords: MMIS, navigate
+	attn
+	Do
+		EMReadScreen MAI_check, 3, 1, 33
+		If MAI_check <> "MAI" then EMWaitReady 1, 1
+	Loop until MAI_check = "MAI"
+
+	EMReadScreen mmis_check, 7, 15, 15
+	IF mmis_check = "RUNNING" THEN
+		EMWriteScreen "10", 2, 15
+		transmit
+	ELSE
+		EMConnect"A"
+		attn
+		EMReadScreen mmis_check, 7, 15, 15
+		IF mmis_check = "RUNNING" THEN
+			EMWriteScreen "10", 2, 15
+			transmit
+		ELSE
+			EMConnect"B"
+			attn
+			EMReadScreen mmis_b_check, 7, 15, 15
+			IF mmis_b_check <> "RUNNING" THEN
+				script_end_procedure("You do not appear to have MMIS running. This script will now stop. Please make sure you have an active version of MMIS and re-run the script.")
+			ELSE
+				EMWriteScreen "10", 2, 15
+				transmit
+			END IF
+		END IF
+	END IF
+
+	DO
+		PF6
+		EMReadScreen password_prompt, 38, 2, 23
+		IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then 
+            BeginDialog Password_dialog, 0, 0, 156, 55, "Password Dialog"
+            ButtonGroup ButtonPressed
+            OkButton 45, 35, 50, 15
+            CancelButton 100, 35, 50, 15
+            Text 5, 5, 150, 25, "You have passworded out. Please enter your password, then press OK to continue. Press CANCEL to stop the script. "
+            EndDialog
+            Do 
+                Do 
+                    dialog Password_dialog
+                    cancel_confirmation
+                Loop until ButtonPressed = -1
+			    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	 		Loop until are_we_passworded_out = false					'loops until user passwords back in
+		End if 
+		EMReadScreen session_start, 18, 1, 7
+	LOOP UNTIL session_start = "SESSION TERMINATED"
+
+	'Getting back in to MMIS and trasmitting past the warning screen (workers should already have accepted the warning when they logged themselves into MMIS the first time, yo.
+	EMWriteScreen "MW00", 1, 2
+	transmit
+	transmit
+
+	group_security_selection = UCASE(group_security_selection)
+
+	EMReadScreen MMIS_menu, 24, 3, 30
+	If MMIS_menu <> "GROUP SECURITY SELECTION" Then
+		EMReadScreen mmis_group_selection, 4, 1, 65
+		EMReadScreen mmis_group_type, 4, 1, 57
+
+		correct_group = FALSE
+
+		Select Case group_security_selection
+
+		Case "CTY ELIG STAFF/UPDATE"
+			mmis_group_selection_part = left(mmis_group_selection, 2)
+
+			If mmis_group_selection_part = "C3" Then correct_group = TRUE
+			If mmis_group_selection_part = "C4" Then correct_group = TRUE
+
+			If correct_group = FALSE Then script_end_procedure("It does not appear you have access to the correct region of MMIS. This script requires access to the County Eligibility region. The script will now stop.")
+
+		Case "GRH UPDATE"
+			If mmis_group_selection  = "GRHU" Then correct_group = TRUE
+
+			If correct_group = FALSE Then script_end_procedure("It does not appear you have access to the correct region of MMIS. This script requires access to the GRH Update region. The script will now stop.")
+
+		Case "GRH INQUIRY"
+			If mmis_group_selection  = "GRHI" Then correct_group = TRUE
+
+			If correct_group = FALSE Then script_end_procedure("It does not appear you have access to the correct region of MMIS. This script requires access to the GRH Inquiry region. The script will now stop.")
+
+		Case "MMIS MCRE"
+			If mmis_group_selection  = "EK01" Then correct_group = TRUE
+			If mmis_group_selection  = "EKIQ" Then correct_group = TRUE
+
+			If correct_group = FALSE Then script_end_procedure("It does not appear you have access to the correct region of MMIS. This script requires access to the MCRE region. The script will now stop.")
+
+		End Select
+
+	Else
+		Select Case group_security_selection
+
+		Case "CTY ELIG STAFF/UPDATE"
+			row = 1
+			col = 1
+			EMSearch " C3", row, col
+			If row <> 0 Then
+				EMWriteScreen "x", row, 4
+				transmit
+			Else
+				row = 1
+				col = 1
+				EMSearch " C4", row, col
+				If row <> 0 Then
+					EMWriteScreen "x", row, 4
+					transmit
+				Else
+					script_end_procedure("You do not appear to have access to the County Eligibility area of MMIS, this script requires access to this region. The script will now stop.")
+				End If
+			End If
+
+			'Now it finds the recipient file application feature and selects it.
+			row = 1
+			col = 1
+			EMSearch "RECIPIENT FILE APPLICATION", row, col
+			EMWriteScreen "x", row, col - 3
+			transmit
+
+		Case "GRH UPDATE"
+			row = 1
+			col = 1
+			EMSearch "GRHU", row, col
+			If row <> 0 Then
+				EMWriteScreen "x", row, 4
+				transmit
+			Else
+				script_end_procedure("You do not appear to have access to the GRH area of MMIS, this script requires access to this region. The script will now stop.")
+			End If
+
+			'Now it finds the pror authorization application feature and selects it.
+			row = 1
+			col = 1
+			EMSearch "PRIOR AUTHORIZATION   ", row, col
+			EMWriteScreen "x", row, col - 3
+			transmit
+
+		Case "GRH INQUIRY"
+			row = 1
+			col = 1
+			EMSearch "GRHI", row, col
+			If row <> 0 Then
+				EMWriteScreen "x", row, 4
+				transmit
+			Else
+				script_end_procedure("You do not appear to have access to the GRH Inquiry area of MMIS, this script requires access to this region. The script will now stop.")
+			End If
+
+			'Now it finds the pror authorization application feature and selects it.
+			row = 1
+			col = 1
+			EMSearch "PRIOR AUTHORIZATION   ", row, col
+			EMWriteScreen "x", row, col - 3
+			transmit
+
+		Case "MMIS MCRE"
+			row = 1
+			col = 1
+			EMSearch "EK01", row, col
+			If row <> 0 Then
+				EMWriteScreen "x", row, 4
+				transmit
+			Else
+				row = 1
+				col = 1
+				EMSearch "EKIQ", row, col
+				If row <> 0 Then
+					EMWriteScreen "x", row, 4
+					transmit
+				Else
+					script_end_procedure("You do not appear to have access to the MCRE area of MMIS, this script requires access to this region. The script will now stop.")
+				End If
+			End If
+
+			'Now it finds the recipient file application feature and selects it.
+			row = 1
+			col = 1
+			EMSearch "RECIPIENT FILE APPLICATION", row, col
+			EMWriteScreen "x", row, col - 3
+			transmit
+
+		End Select
+	End If
+end function
+
 function navigate_to_PRISM_screen(x) 
 '--- This function is to be used to navigate to a specific PRISM screen
 '~~~~~ x: name of the PRISM screen
