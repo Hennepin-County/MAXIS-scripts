@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/23/2018", "Bug fix for living situation coding inhibiting users from using code 08.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/17/2018", "Added inhibiting coding for homeless (Unfit for Employement) if the ADDR panel is not coded correctly.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/29/2018", "Added Homeless (Unfit for Employment) option.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/07/2017", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -93,39 +94,46 @@ If ABAWD_selection = "Homeless (Unfit for Employment)" then
     EmReadscreen homeless_code, 1, 10, 43
     If homeless_code <> "Y" then script_end_procedure("This case does not have the ADDR panel coded as homeless. Please review the case, and run the script again as needed.")
     EmReadscreen living_situation, 2, 11, 43
-    If living_situation <> "02" or living_situation <> "06" or living_situation <> "07" or living_situation <> "08" then script_end_procedure("This case's living situation code on the ADDR panel does not meet this exemption criteria. Please review the case, and run the script again as needed.")
-    
-    BeginDialog unfit_dialog, 0, 0, 281, 170, "Unfit for Employment exemption for homeless members"
-    EditBox 215, 90, 60, 15, conversation_date
-    EditBox 75, 110, 200, 15, exemption_details
-    EditBox 75, 130, 200, 15, other_notes
-    EditBox 75, 150, 90, 15, worker_signature
-    ButtonGroup ButtonPressed
-    OkButton 170, 150, 50, 15
-    CancelButton 225, 150, 50, 15
-    Text 15, 155, 60, 10, "Worker signature:"
-    GroupBox 5, 10, 270, 75, "Clients will meet this exemption if BOTH criteria are met:"
-    Text 10, 25, 260, 25, "* The client is coded Y as homeless on STAT/ADDR with a living arrangement code of either (02) Family/Friends Due to Economic Hardship, (06) Hotel/Motel, (07) Emergency Shelter,or (08) Place Not Meant for Housing AND"
-    Text 10, 60, 260, 20, "* The client lacks access to work-related necessities. These necessities include, but are not limited to, access to a shower and/or laundry facilities."
-    Text 45, 95, 170, 10, "Conversation date with client about this exemption:"
-    Text 30, 135, 45, 10, "Other notes:"
-    Text 10, 115, 65, 10, "Exemption details:"
-    EndDialog
-    
-    'the Other exemption dialog
-    Do
+    If  living_situation = "01" or _
+        living_situation = "03" or _
+        living_situation = "04" or _
+        living_situation = "05" or _
+        living_situation = "09" or _ 
+        living_situation = "10" or _ 
+        living_situation = "__" then 
+        script_end_procedure("This case's living situation code on the ADDR panel does not meet this exemption criteria. Please review the case, and run the script again as needed.")
+    Else 
+        BeginDialog unfit_dialog, 0, 0, 281, 170, "Unfit for Employment exemption for homeless members"
+        EditBox 215, 90, 60, 15, conversation_date
+        EditBox 75, 110, 200, 15, exemption_details
+        EditBox 75, 130, 200, 15, other_notes
+        EditBox 75, 150, 90, 15, worker_signature
+        ButtonGroup ButtonPressed
+        OkButton 170, 150, 50, 15
+        CancelButton 225, 150, 50, 15
+        Text 15, 155, 60, 10, "Worker signature:"
+        GroupBox 5, 10, 270, 75, "Clients will meet this exemption if BOTH criteria are met:"
+        Text 10, 25, 260, 25, "* The client is coded Y as homeless on STAT/ADDR with a living arrangement code of either (02) Family/Friends Due to Economic Hardship, (06) Hotel/Motel, (07) Emergency Shelter,or (08) Place Not Meant for Housing AND"
+        Text 10, 60, 260, 20, "* The client lacks access to work-related necessities. These necessities include, but are not limited to, access to a shower and/or laundry facilities."
+        Text 45, 95, 170, 10, "Conversation date with client about this exemption:"
+        Text 30, 135, 45, 10, "Other notes:"
+        Text 10, 115, 65, 10, "Exemption details:"
+        EndDialog
+        
+        'the Other exemption dialog
         Do
-            err_msg = ""
-            Dialog unfit_dialog
-            Cancel_confirmation
-            If isdate(conversation_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid conversation date."
-            If trim(exemption_details) = "" then err_msg = err_msg & vbNewLine & "* Enter the details of your conversation with the client with the specifics about why they met this exemption."
-            If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
-            IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-        LOOP UNTIL err_msg = ""
-        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-    Loop until are_we_passworded_out = false					'loops until user passwords back in	
-    
+            Do
+                err_msg = ""
+                Dialog unfit_dialog
+                Cancel_confirmation
+                If isdate(conversation_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid conversation date."
+                If trim(exemption_details) = "" then err_msg = err_msg & vbNewLine & "* Enter the details of your conversation with the client with the specifics about why they met this exemption."
+                If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+                IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+            LOOP UNTIL err_msg = ""
+            CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+        Loop until are_we_passworded_out = false					'loops until user passwords back in	
+    End if 
 elseIf ABAWD_selection<> "Other" then 
 	BeginDialog Incap_child_dialog, 0, 0, 281, 190, "ABAWD exemption for " & ABAWD_selection
   	  EditBox 40, 25, 155, 15, person_name
