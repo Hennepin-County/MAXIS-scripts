@@ -869,8 +869,13 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
         If ALL_PENDING_CASES_ARRAY(take_action_today, case_entry) = TRUE and ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = "" Then
             Call navigate_to_MAXIS_screen("CASE", "NOTE")
             note_row = 5
+            start_dates = ""
             day_before_app = DateAdd("d", -1, ALL_PENDING_CASES_ARRAY(application_date, case_entry)) 'will set the date one day prior to app date'
-            start_dates = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
+            If InStr(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry), "~") <> 0 Then start_dates = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
+            If ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) <> "" Then
+                Call convert_to_mainframe_date(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry), 2)
+                start_dates = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
+            End If
             Do
                 EMReadScreen note_date, 8, note_row, 6
                 EMReadScreen note_title, 55, note_row, 25
@@ -884,13 +889,17 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                         For each dates in array_of_dates
                             'MsgBox MAXIS_case_number & " - Date 2"
                             Call convert_to_mainframe_date(dates, 2)
-                            'MsgBox "Already known questionable date: " & dates
-                            if dates = note_date Then check_this_date = FALSE
+                            'MsgBox "Already known questionable date: " & dates & vbNewLine & "Note Date: " & note_date
+                            if DateValue(dates) = DateValue(note_date) Then check_this_date = FALSE
                         Next
                     End If
                 Else
-                    If ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) <> "" Then Call convert_to_mainframe_date(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry), 2)
-                    if ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) = note_date Then check_this_date = FALSE
+                    'MsgBox "Already known questionable date: " & dates & vbNewLine & "Note Date: " & note_date
+                    If ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) <> "" Then
+                        Call convert_to_mainframe_date(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry), 2)
+                        'MsgBox "Already known questionable date: " & ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) & vbNewLine & "Note Date: " & note_date
+                        if DateValue(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)) = DateValue(note_date) Then check_this_date = FALSE
+                    End If
                 End If
 
                 If check_this_date = TRUE Then 'if a questionable interview date is left on the spreadsheet - that means it has been reviewed and is NOT an interview.
@@ -1005,6 +1014,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 
             ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) = date
             ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry) = "Y"
+            ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "SEND NOMI"
 
             ReDim Preserve ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)
             ACTION_TODAY_CASES_ARRAY(case_number, todays_cases)         = ALL_PENDING_CASES_ARRAY(case_number, case_entry)
@@ -1101,9 +1111,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
             ' ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)         = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " - " & "Appointment Notice Sent today"
             ' todays_cases = todays_cases + 1
 
-        End If
 
-        If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "SEND NOMI" Then
+        ElseIf ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "SEND NOMI" Then
             'THIS IS FOR TESTING'
             ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = date
             ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) = "Y"
@@ -1198,8 +1207,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
             ' ACTION_TODAY_CASES_ARRAY(next_action_needed, todays_cases)  = ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry)
             ' ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)         = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " - " & "NOMI Sent today"
             ' todays_cases = todays_cases + 1
-        End If
-        If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "DENY AT DAY 30" Then
+
+        ElseIf ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "DENY AT DAY 30" Then
             IF datediff("d", ALL_PENDING_CASES_ARRAY(application_date, case_entry), date) >= 30 and ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = "" THEN
                 'MsgBox "Both false notice"
                 'MsgBox ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
