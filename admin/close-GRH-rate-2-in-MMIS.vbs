@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/23/2018", "Enhancements include added handling for password prompting for BZ 7.1.5 and for SSR agreements closing prior to the end of the month.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/23/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -69,188 +70,6 @@ Function MMIS_panel_check(panel_name)
 	Loop until panel_check = panel_name
 End function
 
-function navigate_to_MMIS_region(group_security_selection)
-'--- This function is to be used when navigating to MMIS from another function in BlueZone (MAXIS, PRISM, INFOPAC, etc.)
-'~~~~~ group_security_selection: region of MMIS to access - programed options are "CTY ELIG STAFF/UPDATE", "GRH UPDATE", "GRH INQUIRY", "MMIS MCRE"
-'===== Keywords: MMIS, navigate
-	attn
-	Do
-		EMReadScreen MAI_check, 3, 1, 33
-		If MAI_check <> "MAI" then EMWaitReady 1, 1
-	Loop until MAI_check = "MAI"
-
-	EMReadScreen mmis_check, 7, 15, 15
-	IF mmis_check = "RUNNING" THEN
-		EMWriteScreen "10", 2, 15
-		transmit
-	ELSE
-		EMConnect"A"
-		attn
-		EMReadScreen mmis_check, 7, 15, 15
-		IF mmis_check = "RUNNING" THEN
-			EMWriteScreen "10", 2, 15
-			transmit
-		ELSE
-			EMConnect"B"
-			attn
-			EMReadScreen mmis_b_check, 7, 15, 15
-			IF mmis_b_check <> "RUNNING" THEN
-				script_end_procedure("You do not appear to have MMIS running. This script will now stop. Please make sure you have an active version of MMIS and re-run the script.")
-			ELSE
-				EMWriteScreen "10", 2, 15
-				transmit
-			END IF
-		END IF
-	END IF
-
-	DO
-		PF6
-		EMReadScreen password_prompt, 38, 2, 23
-		IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then 
-			Do 
-				CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-	 		Loop until are_we_passworded_out = false					'loops until user passwords back in
-		End if 
-		EMReadScreen session_start, 18, 1, 7
-	LOOP UNTIL session_start = "SESSION TERMINATED"
-
-	'Getting back in to MMIS and trasmitting past the warning screen (workers should already have accepted the warning when they logged themselves into MMIS the first time, yo.
-	EMWriteScreen "MW00", 1, 2
-	transmit
-	transmit
-
-	group_security_selection = UCASE(group_security_selection)
-
-	EMReadScreen MMIS_menu, 24, 3, 30
-	If MMIS_menu <> "GROUP SECURITY SELECTION" Then
-		EMReadScreen mmis_group_selection, 4, 1, 65
-		EMReadScreen mmis_group_type, 4, 1, 57
-
-		correct_group = FALSE
-
-		Select Case group_security_selection
-
-		Case "CTY ELIG STAFF/UPDATE"
-			mmis_group_selection_part = left(mmis_group_selection, 2)
-
-			If mmis_group_selection_part = "C3" Then correct_group = TRUE
-			If mmis_group_selection_part = "C4" Then correct_group = TRUE
-
-			If correct_group = FALSE Then script_end_procedure("It does not appear you have access to the correct region of MMIS. This script requires access to the County Eligibility region. The script will now stop.")
-
-		Case "GRH UPDATE"
-			If mmis_group_selection  = "GRHU" Then correct_group = TRUE
-
-			If correct_group = FALSE Then script_end_procedure("It does not appear you have access to the correct region of MMIS. This script requires access to the GRH Update region. The script will now stop.")
-
-		Case "GRH INQUIRY"
-			If mmis_group_selection  = "GRHI" Then correct_group = TRUE
-
-			If correct_group = FALSE Then script_end_procedure("It does not appear you have access to the correct region of MMIS. This script requires access to the GRH Inquiry region. The script will now stop.")
-
-		Case "MMIS MCRE"
-			If mmis_group_selection  = "EK01" Then correct_group = TRUE
-			If mmis_group_selection  = "EKIQ" Then correct_group = TRUE
-
-			If correct_group = FALSE Then script_end_procedure("It does not appear you have access to the correct region of MMIS. This script requires access to the MCRE region. The script will now stop.")
-
-		End Select
-
-	Else
-		Select Case group_security_selection
-
-		Case "CTY ELIG STAFF/UPDATE"
-			row = 1
-			col = 1
-			EMSearch " C3", row, col
-			If row <> 0 Then
-				EMWriteScreen "x", row, 4
-				transmit
-			Else
-				row = 1
-				col = 1
-				EMSearch " C4", row, col
-				If row <> 0 Then
-					EMWriteScreen "x", row, 4
-					transmit
-				Else
-					script_end_procedure("You do not appear to have access to the County Eligibility area of MMIS, this script requires access to this region. The script will now stop.")
-				End If
-			End If
-
-			'Now it finds the recipient file application feature and selects it.
-			row = 1
-			col = 1
-			EMSearch "RECIPIENT FILE APPLICATION", row, col
-			EMWriteScreen "x", row, col - 3
-			transmit
-
-		Case "GRH UPDATE"
-			row = 1
-			col = 1
-			EMSearch "GRHU", row, col
-			If row <> 0 Then
-				EMWriteScreen "x", row, 4
-				transmit
-			Else
-				script_end_procedure("You do not appear to have access to the GRH area of MMIS, this script requires access to this region. The script will now stop.")
-			End If
-
-			'Now it finds the pror authorization application feature and selects it.
-			row = 1
-			col = 1
-			EMSearch "PRIOR AUTHORIZATION   ", row, col
-			EMWriteScreen "x", row, col - 3
-			transmit
-
-		Case "GRH INQUIRY"
-			row = 1
-			col = 1
-			EMSearch "GRHI", row, col
-			If row <> 0 Then
-				EMWriteScreen "x", row, 4
-				transmit
-			Else
-				script_end_procedure("You do not appear to have access to the GRH Inquiry area of MMIS, this script requires access to this region. The script will now stop.")
-			End If
-
-			'Now it finds the pror authorization application feature and selects it.
-			row = 1
-			col = 1
-			EMSearch "PRIOR AUTHORIZATION   ", row, col
-			EMWriteScreen "x", row, col - 3
-			transmit
-
-		Case "MMIS MCRE"
-			row = 1
-			col = 1
-			EMSearch "EK01", row, col
-			If row <> 0 Then
-				EMWriteScreen "x", row, 4
-				transmit
-			Else
-				row = 1
-				col = 1
-				EMSearch "EKIQ", row, col
-				If row <> 0 Then
-					EMWriteScreen "x", row, 4
-					transmit
-				Else
-					script_end_procedure("You do not appear to have access to the MCRE area of MMIS, this script requires access to this region. The script will now stop.")
-				End If
-			End If
-
-			'Now it finds the recipient file application feature and selects it.
-			row = 1
-			col = 1
-			EMSearch "RECIPIENT FILE APPLICATION", row, col
-			EMWriteScreen "x", row, col - 3
-			transmit
-
-		End Select
-	End If
-end function
-
 '----------------------------------------------------------------------------------------------------DIALOG
 'The dialog is defined in the loop as it can change as buttons are pressed 
 BeginDialog info_dialog, 0, 0, 266, 115, "Close MMIS service agreements in MMIS"
@@ -275,13 +94,10 @@ MAXIS_footer_year = CM_yr
 'Determing the last day of the month to use as the closure date in MMIS.
 next_month = DateAdd("M", 1, date)
 next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)
-last_day_of_month = dateadd("d", -1, next_month) & "" 	'blank space added to make 'last_day_for_recert' a string
-last_date = datePart("D", last_day_of_month)
+end_of_the_month = dateadd("d", -1, next_month) & "" 	'blank space added to make 'last_day_for_recert' a string
+last_date = datePart("D", end_of_the_month)
 end_date = CM_mo & last_date & CM_yr 
-'MsgBox last_day_of_month & vbcr & end_date
-
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\GRH\GRH EOMC 03-18.xlsx"
-excel_row_to_test = 2
+last_day_of_month = CM_mo & "/" & last_date & "/" & CM_yr
 
 'dialog and dialog DO...Loop	
 Do
@@ -306,45 +122,54 @@ FOR i = 1 to 7		'formatting the cells'
 NEXT
  
 DIM Update_MMIS_array()
-ReDim Update_MMIS_array(5, 0)
+ReDim Update_MMIS_array(7, 0)
 
 'constants for array
 const case_number	= 0
 const clt_PMI 	    = 1
 const rate_two 	    = 2
-const update_MMIS 	= 3
-const case_status 	= 4
+const closing_date  = 3
+const NPI_num       = 4
+const update_MMIS 	= 5
+const case_status 	= 6
 
 'Now the script adds all the clients on the excel list into an array
-'excel_row = 2 're-establishing the row to start checking the members for
-excel_row = excel_row_to_test
+excel_row = 2 're-establishing the row to start checking the members for
 entry_record = 0
-Do                                                            'Loops until there are no more cases in the Excel list
-	MAXIS_case_number = objExcel.cells(excel_row, 2).Value          're-establishing the case numbers for functions to use
-	If MAXIS_case_number = "" then exit do
-	'Adding client information to the array'
-	ReDim Preserve Update_MMIS_array(5, entry_record)	'This resizes the array based on the number of rows in the Excel File'
-	Update_MMIS_array(case_number,	entry_record) = MAXIS_case_number	'The client information is added to the array'
-	Update_MMIS_array(clt_PMI, 	entry_record) = total_units				'STATIC for now. TODO: remove static coding for action script 
-	Update_MMIS_array(rate_two, 	entry_record) = False               'default to False 
-	Update_MMIS_array(update_MMIS, 	entry_record) = False				'This is the default, this may be changed as info is checked'
-	Update_MMIS_array(case_status, 	entry_record) = ""					'This is the default, this may be changed as info is checked'
-	
-	entry_record = entry_record + 1			'This increments to the next entry in the array'
-	stats_counter = stats_counter + 1
-	excel_row = excel_row + 1
+Do   
+    'Loops until there are no more cases in the Excel list
+    MAXIS_case_number = objExcel.cells(excel_row, 2).Value          're-establishing the case numbers for functions to use
+    MAXIS_case_number = trim(MAXIS_case_number)
+    If MAXIS_case_number = "" then exit do
+    auto_closure = objExcel.cells(excel_row, 5).Value          're-establishing the case numbers for functions to use
+    auto_closure = trim(auto_closure)
+    
+    If auto_closure <> "" then     
+    	'Adding client information to the array'
+    	ReDim Preserve Update_MMIS_array(7, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+    	Update_MMIS_array(case_number,	entry_record) = MAXIS_case_number	'The client information is added to the array'
+    	Update_MMIS_array(clt_PMI, 	    entry_record) = ""				'STATIC for now. TODO: remove static coding for action script 
+    	Update_MMIS_array(rate_two, 	entry_record) = False               'default to False 
+    	Update_MMIS_array(closing_date, entry_record) = ""                 'default to blank 
+        Update_MMIS_array(NPI_num,      entry_record) = ""                 'default to blank 
+        Update_MMIS_array(update_MMIS, 	entry_record) = False				'This is the default, this may be changed as info is checked'
+    	Update_MMIS_array(case_status, 	entry_record) = ""					'This is the default, this may be changed as info is checked'
+        
+    	entry_record = entry_record + 1			'This increments to the next entry in the array'
+    	stats_counter = stats_counter + 1
+    	excel_row = excel_row + 1
+    End if  
 Loop
-'msgbox entry_record
-'
+
 back_to_self
 call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
 
 For item = 0 to UBound(Update_MMIS_array, 2)
+    
 	MAXIS_case_number = Update_MMIS_array(case_number ,item)	'Case number is set for each loop as it is used in the FuncLib functions'
 	call navigate_to_MAXIS_screen("STAT", "PROG")
     EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
 	If PRIV_check = "PRIV" then
-		'msgbox "PRIV case, cannot access/update."
 		Update_MMIS_array(rate_two, item) = False  	
 		Update_MMIS_array(case_status, item) = "PRIV case, cannot access/update." 
 		'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
@@ -355,22 +180,15 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 		LOOP until SELF_screen_check = "SELF"
 		EMWriteScreen "________", 18, 43		'clears the MAXIS case number
 		transmit
-    Else 
-		EMReadScreen grh_status, 4, 9, 74		'Ensuring that the case is active on GRH. If not, case will not be updated in MMIS. 
-		If grh_status <> "ACTV" then 
-			'msgbox "GRH case status is " & grh_status
-			Update_MMIS_array(rate_two, item) = False 
-			Update_MMIS_array(case_status, item) = "GRH case status is " & grh_status 	  
-		Else 
-			Update_MMIS_array(rate_two, item) = True  	
-		End if
-	End if 
-    
+    End if 
+
     EMReadscreen current_county, 4, 21, 21
     If lcase(current_county) <> worker_county_code then 
         Update_MMIS_array(rate_two, item) = False 
         Update_MMIS_array(case_status, item) = "Out-of-county case."
-    End if  
+    Else 
+        Update_MMIS_array(rate_two, item) = True  
+    End if 
     
 	Call HCRE_panel_bypass			'Function to bypass a janky HCRE panel. If the HCRE panel has fields not completed/'reds up' this gets us out of there. 
 	
@@ -381,18 +199,41 @@ For item = 0 to UBound(Update_MMIS_array, 2)
         
         EMReadScreen SSRT_total_check, 1, 2, 78
         If SSRT_total_check = "0" then
-            'msgbox "SSRT panel needs to be created."
             Update_MMIS_array(rate_two, item) = False  
             Update_MMIS_array(case_status, item) = "Case is not Rate 2."
+        elseif SSRT_total_check <> "1" then 
+            Update_MMIS_array(rate_two, item) = False  
+            Update_MMIS_array(case_status, item) = "More than one SSRT panel exists. Process manually."
         Else
             Update_MMIS_array(rate_two, item) = True 
+            EMReadScreen NPI_number, 10, 7, 43
+            
+            row = 14
+            Do 
+                EMReadScreen ssrt_in_date, 10, row, 47
+                If ssrt_in_date <> "__ __ ____" then
+                    EMReadScreen ssrt_out_date, 10, row, 71
+                    If ssrt_out_date = "__ __ ____" then 
+                        Update_MMIS_array(closing_date, item) = last_day_of_month
+                    Else 
+                        EMReadScreen ssrt_mo, 2, row, 71
+                        EMReadScreen ssrt_day, 2, row, 74
+                        EMReadScreen ssrt_yr, 2, row, 79 
+                        closed_date = ssrt_mo & "/" & ssrt_day & "/" & ssrt_yr
+                        Update_MMIS_array(closing_date, item) = closed_date 
+                    End if
+                    exit do
+                else  
+                    row = row - 1
+                End if 	
+            Loop until row = 9
+            
             Call navigate_to_MAXIS_screen("STAT", "MEMB")
             EMReadScreen client_PMI, 8, 4, 46
             client_PMI = trim(client_PMI)
             client_PMI = right("00000000" & client_pmi, 8)
             Update_MMIS_array(clt_PMI, item) = client_pmi
-            'msgbox MAXIS_case_number & vbcr & client_PMI
-        End if 
+        End if 	
     End if 
     
     If Update_MMIS_array(rate_two, item) = True then
@@ -401,28 +242,25 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 		Call write_value_and_transmit ("01", 20, 76)	'For member 01 - All GRH cases should be for member 01. 
 		EMReadScreen waiver_type, 1, 14, 59
 		If waiver_type <> "_" then 
-			'msgbox "Client is active on a waiver. Should not be Rate 2."
 			Update_MMIS_array(case_status, item) = "Client is active on a waiver. Should not be Rate 2."
 			Update_MMIS_array(rate_two, item) = False 
 		End if
 	End if 	
 Next 	
 
-msgbox "Going into MMIS. Press OK to continue."
-
 '----------------------------------------------------------------------------------------------------MMIS portion of the script
 For item = 0 to UBound(Update_MMIS_array, 2)
 	MAXIS_case_number = Update_MMIS_array(case_number,	item) 
 	client_PMI = 		Update_MMIS_array(clt_PMI, 		item) 
-	'msgbox MAXIS_case_number
+    close_date = 		Update_MMIS_array(closing_date, item) 
+
 	If Update_MMIS_array(rate_two, item) = True then
-		'msgbox "True"
 		Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior autorization area
 		Call MMIS_panel_check("AKEY")				'ensuring we are on the right MMIS screen
 	    EmWriteScreen client_PMI, 10, 36
 	    Call write_value_and_transmit("C", 3, 22)	'Checking to make sure that more than one agreement is not listed by trying to change (C) the information for the PMI selected.
 		EMReadScreen active_agreement, 12, 24, 2
-		'msgbox active_agreement & vbcr & MAXIS_case_number
+	
 	    If active_agreement = "NO DOCUMENTS" then 
             Update_MMIS_array(update_MMIS, item) = False	
             Update_MMIS_array(case_status, item) = "Agreement for this PMI not found in MMIS."
@@ -437,8 +275,21 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 			    '----------------------------------------------------------------------------------------------------ASA1 screen
 			    Call MMIS_panel_check("ASA1")				'ensuring we are on the right MMIS screen
 		        EMReadScreen ASA1_end_date, 6, 4, 71
-                If ASA1_end_date <> end_date then
-                    Call write_value_and_transmit(end_date, 4, 71)				'End date is static for the BULK conversion. TODO: change to date_out which will match the FACI dates. 
+                If ASA1_end_date <> close_date then
+                    EMReadScreen start_month, 2, 4, 64
+                    EMReadScreen start_day , 2, 4, 66
+                    EMReadScreen start_year , 2, 4, 68
+                    start_date = start_month & "/" & start_day & "/" & start_year
+                    total_units = datediff("d", start_date, close_date) + 1
+                    
+                    If total_units < "0" then 
+                        PF6
+                        Update_MMIS_array(update_MMIS, item) = False 
+                        Update_MMIS_array(case_status, item) = "End date in SSRT is less than start date in MMIS. Check manually."
+                    Else 
+                        write_close_date = replace(close_date, "/", "")
+                        Call write_value_and_transmit(write_close_date, 4, 71)				'End date is static for the BULK conversion. TODO: change to date_out which will match the FACI dates.
+                    End if 
 		        ELSE
                     Transmit
                 End if 
@@ -448,24 +299,16 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 			    '----------------------------------------------------------------------------------------------------ASA3 screen
 			    Call MMIS_panel_check("ASA3")				'ensuring we are on the right MMIS screen	
                 EMReadScreen ASA3_end_date, 6, 8, 67
-                If ASA3_end_date <> end_date then 
-                    EMWriteScreen end_date, 8, 67
-                    EMReadScreen start_month, 2, 8, 60
-                    EMReadScreen start_day , 2, 8, 62
-                    EMReadScreen start_year , 2, 8, 64
-                    start_date = start_month & "/" & start_day & "/" & start_year
-                    total_units = datediff("d", start_date, last_day_of_month) + 1
-                    'msgbox total_units
+                If ASA3_end_date <> close_date then 
+                    EMWriteScreen write_close_date, 8, 67
                     
                     Call clear_line_of_text(9, 60)
                     EmWriteScreen total_units, 9, 60
-			        PF3 '	to save changes 
-                    Call MMIS_panel_check("AKEY")		'ensuring we are on the right MMIS screen
-    			             
+			        PF3 '	to save changes             
     			    EMReadscreen approval_message, 16, 24, 2
     			    If approval_message = "ACTION COMPLETED" then 
                         Update_MMIS_array(update_MMIS, item) = True 
-                        Update_MMIS_array(case_status, item) = "SSR end date in MMIS updated to " & last_day_of_month	
+                        Update_MMIS_array(case_status, item) = "SSR end date in MMIS updated to " & close_date	
                     Else
                         PF6
                         Update_MMIS_array(update_MMIS, item) = False 
@@ -481,7 +324,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 Next
 
 '----------------------------------------------------------------------------------------------------EXCEL export
-excel_row = excel_row_to_test
+excel_row = 2
 
 'Export informaiton to Excel re: case status
 For item = 0 to UBound(Update_MMIS_array, 2)
@@ -496,27 +339,38 @@ FOR i = 1 to 7
 NEXT
 
 ''----------------------------------------------------------------------------------------------------MAXIS 
+BeginDialog MAXIS_dialog, 0, 0, 156, 55, "Going to MAXIS"
+ButtonGroup ButtonPressed
+OkButton 45, 35, 50, 15
+CancelButton 100, 35, 50, 15
+Text 5, 5, 150, 25, "The script will now navigate back to MAXIS. Press OK to continue. Press CANCEL to stop the script."
+EndDialog
+
+Call navigate_to_MAXIS("")  'Function to navigate back to MAXIS
+
 Do 
-	Call navigate_to_MAXIS("")
+    Do 
+        Dialog MAXIS_dialog
+        cancel_confirmation
+    Loop until ButtonPressed = -1
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call navigate_to_MAXIS_screen("CASE", "NOTE")
-'msgbox "Are we in MAXIS again?"
 '----------------------------------------------------------------------------------------------------CASE NOTE
 'Make the script case note
 For item = 0 to UBound(Update_MMIS_array, 2)
 	If Update_MMIS_array(update_MMIS, 	item) = True then 
-		MAXIS_case_number = 	Update_MMIS_array(case_number, 	item)
+		MAXIS_case_number = Update_MMIS_array(case_number, 	item)
+        close_date = 		Update_MMIS_array(closing_date, item) 
 		Call start_a_blank_CASE_NOTE
-		Call write_variable_in_CASE_NOTE("GRH Rate 2 SSR closed in MMIS eff " & last_day_of_month)
+		Call write_variable_in_CASE_NOTE("GRH Rate 2 SSR closed in MMIS eff " & close_date)
 		Call write_variable_in_CASE_NOTE("* Case set to close on REPT/EOMC, but still active in MMIS.")
 		Call write_variable_in_CASE_NOTE("---")
 		Call write_variable_in_CASE_NOTE("Actions performed by BZ script, run by I. Ferris, QI team")
 		PF3
 	End if 
-	'msgbox "Did case note save for " & MAXIS_CASE_NUMBER
 Next
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("Success! Your list has been created.")
+script_end_procedure("Success! Your list has been created. Please review for cases that need to be processed manually.")
