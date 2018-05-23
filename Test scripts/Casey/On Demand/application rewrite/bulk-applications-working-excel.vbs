@@ -559,11 +559,14 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
     'Checking for PRIV cases.
     EMReadScreen priv_check, 6, 24, 14 'If it can't get into the case needs to skip
     EMReadScreen county_check, 2, 21, 16    'Looking to see if case has Hennepin COunty worker
+    EMReadScreen case_removed_in_MAXIS, 19, 24, 2
     If priv_check = "PRIVIL" THEN
         priv_case_list = priv_case_list & "|" & MAXIS_case_number
         ALL_PENDING_CASES_ARRAY(priv_case, case_entry) = TRUE
     ElseIf county_check <> "27" THEN
         ALL_PENDING_CASES_ARRAY(out_of_co, case_entry) = "OUT OF COUNTY - " & county_check
+    ElseIf case_removed_in_MAXIS = "INVALID CASE NUMBER"
+        ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "CASE HAS BEEN DELETED"
     Else
         ALL_PENDING_CASES_ARRAY(priv_case, case_entry) = FALSE
 
@@ -1744,7 +1747,7 @@ ObjExcel.Rows(1).Font.Bold = TRUE
 
 removed_row = 2
 For case_removed = 0 to UBOUND(CASES_NO_LONGER_WORKING, 2)
-    If CASES_NO_LONGER_WORKING(error_notes, case_removed) = "" Then
+    If CASES_NO_LONGER_WORKING(error_notes, case_removed) = "" OR CASES_NO_LONGER_WORKING(client_name, case_removed) = "XXXXX" Then
         'PROG to determine programs active
         MAXIS_case_number = CASES_NO_LONGER_WORKING(case_number, case_removed)
         CALL navigate_to_MAXIS_screen("CASE", "CURR")
@@ -1752,10 +1755,24 @@ For case_removed = 0 to UBOUND(CASES_NO_LONGER_WORKING, 2)
         EMReadScreen priv_check, 6, 24, 14 'If it can't get into the case needs to skip
         EMReadScreen county_check, 2, 21, 16    'Looking to see if case has Hennepin COunty worker
         If priv_check = "PRIVIL" THEN
-            ALL_PENDING_CASES_ARRAY(error_notes, case_removed) = "PRIV"
+            CASES_NO_LONGER_WORKING(error_notes, case_removed) = "PRIV"
         ElseIf county_check <> "27" THEN
-            ALL_PENDING_CASES_ARRAY(error_notes, case_removed) = "Transferred out of county - " & county_check
-        Else
+            CASES_NO_LONGER_WORKING(error_notes, case_removed) = "Transferred out of county - " & county_check
+        ElseIf CASES_NO_LONGER_WORKING(client_name, case_removed) = "XXXXX" Then
+            Call navigate_to_MAXIS_screen("STAT", "MEMB")
+            EMReadScreen last_name, 25, 6, 30
+            EMReadScreen first_name, 12, 6, 63
+            EMReadScreen middle_initial, 1, 6, 79
+
+            last_name = replace(last_name, "_", "")
+            first_name = replace(first_name, "_", "")
+            middle_initial = replace(middle_initial, "_", "")
+
+            CASES_NO_LONGER_WORKING(client_name, case_removed) = last_name & ", " & first_name & " " & middle_initial
+        End If
+
+        If CASES_NO_LONGER_WORKING(error_notes, case_removed) = "" Then
+
             Call navigate_to_MAXIS_screen("STAT", "PROG")
             fs_intv = ""
             cash_intv_one = ""
