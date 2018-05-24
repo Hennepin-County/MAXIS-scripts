@@ -1,19 +1,21 @@
 '**********THIS IS A HENNEPIN SPECIFIC SCRIPT.  IF YOU REVERSE ENGINEER THIS SCRIPT, JUST BE CAREFUL.************
-'ESSO is password manager software used by many Hennepin County employees
-'Scripts do not work properly if ESSO is running
-'If ESSO is installed on the user's computer, ESSO is stopped at the start of each script and is opened back up at the end of each script
-'If we want to load Global Variables and we don't want ESSO to be closed when we run a script, then Ignore_ESSO can be set to TRUE in that script before global variables are loaded, and ESSO won't be closed.
-IF Ignore_ESSO = FALSE or Ignore_ESSO = "" THEN
-  ESSO_path = "C:\Program Files (x86)\Passlogix\v-GO SSO\ssoShell.exe"
-  SET ObjFSO = CreateObject("Scripting.FileSystemObject")                   'Create a File System Object
-  IF (ObjFSO.FileExists(ESSO_path)) THEN                                    'If ESSO exists at the location stored in ESSO_path, ESSO is installed on the user's computer
-    Using_ESSO = TRUE                                                       'Set Using_ESSO to TRUE so that if/when we check later to see if ESSO should be stopped or restarted, we won't have to check to see if ESSO is installed again
-    SET ObjShell = CreateObject("Wscript.Shell")                            'Create an object that we can run to terminate the ESSO program (next line)
-    ObjShell.Run "taskkill /s localhost /im ssoshell.exe /f", 0, TRUE       'See https://technet.microsoft.com/en-us/library/bb491009.aspx for detail on taskkill. 0 hides the window, true forces the script to wait until the taskkill command is executed
-  ELSE
-    Using_ESSO = FALSE                                                      'Set to FALSE so that if/when we check later to see if ESSO should be restarted, we won't have to check to see if ESSO is installed again
-  END IF
-END IF
+
+' 'REMOVING ESSO CODE AS WE ARE UPGRADING BZ AND A BUCH OF STUFF _ WILL REVIEW LATER
+' 'ESSO is password manager software used by many Hennepin County employees
+' 'Scripts do not work properly if ESSO is running
+' 'If ESSO is installed on the user's computer, ESSO is stopped at the start of each script and is opened back up at the end of each script
+' 'If we want to load Global Variables and we don't want ESSO to be closed when we run a script, then Ignore_ESSO can be set to TRUE in that script before global variables are loaded, and ESSO won't be closed.
+' IF Ignore_ESSO = FALSE or Ignore_ESSO = "" THEN
+'   ESSO_path = "C:\Program Files (x86)\Passlogix\v-GO SSO\ssoShell.exe"
+'   SET ObjFSO = CreateObject("Scripting.FileSystemObject")                   'Create a File System Object
+'   IF (ObjFSO.FileExists(ESSO_path)) THEN                                    'If ESSO exists at the location stored in ESSO_path, ESSO is installed on the user's computer
+'     Using_ESSO = TRUE                                                       'Set Using_ESSO to TRUE so that if/when we check later to see if ESSO should be stopped or restarted, we won't have to check to see if ESSO is installed again
+'     SET ObjShell = CreateObject("Wscript.Shell")                            'Create an object that we can run to terminate the ESSO program (next line)
+'     ObjShell.Run "taskkill /s localhost /im ssoshell.exe /f", 0, TRUE       'See https://technet.microsoft.com/en-us/library/bb491009.aspx for detail on taskkill. 0 hides the window, true forces the script to wait until the taskkill command is executed
+'   ELSE
+'     Using_ESSO = FALSE                                                      'Set to FALSE so that if/when we check later to see if ESSO should be restarted, we won't have to check to see if ESSO is installed again
+'   END IF
+' END IF
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "NOTES - Managed Care Enrollment.vbs"
@@ -591,8 +593,6 @@ transmit
 pf4
 pf11		'Starts a new case note'
 
-CALL write_variable_in_MMIS_NOTE ("*************************************************************************")
-
 CALL write_variable_in_MMIS_NOTE ("Enrollment effective: " & enrollment_date & " requested by " & caller_rela & " via " & enrollment_source)
 row = 7
 If enrollment_source = "Phone" Then CALL write_variable_in_MMIS_NOTE("Call completed " & now & " with " & caller_name)
@@ -607,6 +607,8 @@ Next
 CALL write_bullet_and_variable_in_MMIS_NOTE ("Notes", other_notes)
 row = row + 1
 CALL write_variable_in_MMIS_NOTE ("Processed by " & worker_signature)
+CALL write_variable_in_MMIS_NOTE ("*************************************************************************")
+
 'MsgBox "Review"
 PF3 'Leaving edit mode
 PF4 'Going back to see case note
@@ -619,15 +621,18 @@ PF4 'Going back to see case note
 
 MAXIS_case_number = MMIS_case_number
 
-'End of script code for restarting ESSO
-IF using_ESSO = TRUE THEN
-  'MsgBox "End of script reached. Because ESSO was previously found on your computer, attempting to start ESSO in the background..."
-  SET ObjShell = CreateObject("Wscript.Shell")
-  ObjShell.Run """C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Oracle\ESSO-LM\ESSO-LM.lnk"""
-  vgo_msg = "ESSO started, the ESSO icon should be added back to the system tray."
-ELSE
-  vgo_msg = "End of script reached. Because ESSO was not previously found on your computer, there is no need to try to start ESSO."
-END IF
+' 'REMOVING ESSO CODE AS WE ARE UPGRADING BZ AND A BUCH OF STUFF _ WILL REVIEW LATER
+' 'End of script code for restarting ESSO
+' IF using_ESSO = TRUE THEN
+'   'MsgBox "End of script reached. Because ESSO was previously found on your computer, attempting to start ESSO in the background..."
+'   SET ObjShell = CreateObject("Wscript.Shell")
+'   ObjShell.Run """C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Oracle\ESSO-LM\ESSO-LM.lnk"""
+'   vgo_msg = "ESSO started, the ESSO icon should be added back to the system tray."
+' ELSE
+'   vgo_msg = "End of script reached. Because ESSO was not previously found on your computer, there is no need to try to start ESSO."
+' END IF
+'
+' end_msg = "Success! NOTE entered in to MMIS of enrollment processed." &vbNewLine & vbNewLine & vgo_msg
+' script_end_procedure(end_msg)
 
-end_msg = "Success! NOTE entered in to MMIS of enrollment processed." &vbNewLine & vbNewLine & vgo_msg
-script_end_procedure(end_msg)
+script_end_procedure("Success! NOTE entered in to MMIS of enrollment processed.")
