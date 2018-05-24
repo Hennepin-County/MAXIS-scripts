@@ -565,7 +565,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
         ALL_PENDING_CASES_ARRAY(priv_case, case_entry) = TRUE
     ElseIf county_check <> "27" THEN
         ALL_PENDING_CASES_ARRAY(out_of_co, case_entry) = "OUT OF COUNTY - " & county_check
-    ElseIf case_removed_in_MAXIS = "INVALID CASE NUMBER"
+    ElseIf case_removed_in_MAXIS = "INVALID CASE NUMBER" Then
         ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "CASE HAS BEEN DELETED"
     Else
         ALL_PENDING_CASES_ARRAY(priv_case, case_entry) = FALSE
@@ -1244,6 +1244,10 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 
                         'THIS IS FOR TESTING'
                         If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE Then
+
+                            ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry) = "Y"
+                            ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL"
+
                             ReDim Preserve ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)
                             ACTION_TODAY_CASES_ARRAY(case_number, todays_cases)         = ALL_PENDING_CASES_ARRAY(case_number, case_entry)
                             ACTION_TODAY_CASES_ARRAY(client_name, todays_cases)         = ALL_PENDING_CASES_ARRAY(client_name, case_entry)
@@ -1337,15 +1341,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                 END IF
             END IF
 
-            If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE Then
-                'Call Navigate_to_MAXIS_screen("CASE", "NOTE")
-                'MsgBox "DENIAL time."
-
-                ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry) = "Y"
-                ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL"
-
-                'Call back_to_SELF
-            End If
         End If
 
         ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) & ""
@@ -1369,7 +1364,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
     ObjWorkExcel.Cells(row, nomi_date_col) = ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
     ObjWorkExcel.Cells(row, nomi_confirm_col) = ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry)
     ObjWorkExcel.Cells(row, need_deny_col) = ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) & ""
-    If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE Then
+    If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = "TRUE" Then
         ObjWorkExcel.Rows(row).Font.ColorIndex = 3  'Red'
         ObjWorkExcel.Rows(row).Font.Bold = TRUE
     End If
