@@ -593,8 +593,6 @@ transmit
 pf4
 pf11		'Starts a new case note'
 
-CALL write_variable_in_MMIS_NOTE ("*************************************************************************")
-
 CALL write_variable_in_MMIS_NOTE ("Enrollment effective: " & enrollment_date & " requested by " & caller_rela & " via " & enrollment_source)
 row = 7
 If enrollment_source = "Phone" Then CALL write_variable_in_MMIS_NOTE("Call completed " & now & " with " & caller_name)
@@ -609,6 +607,8 @@ Next
 CALL write_bullet_and_variable_in_MMIS_NOTE ("Notes", other_notes)
 row = row + 1
 CALL write_variable_in_MMIS_NOTE ("Processed by " & worker_signature)
+CALL write_variable_in_MMIS_NOTE ("*************************************************************************")
+
 'MsgBox "Review"
 PF3 'Leaving edit mode
 PF4 'Going back to see case note
