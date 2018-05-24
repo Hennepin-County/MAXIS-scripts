@@ -80,9 +80,6 @@ EndDialog
 	interview_date = interview_date & ""		'turns interview date into string for variable
  'need to handle for if we dont need an appt letter, which would be...'
 
- last_contact_day = CAF_date + 30
- If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date
-
 	Do
 		Do
     		err_msg = ""
