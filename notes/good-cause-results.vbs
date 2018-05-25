@@ -127,13 +127,11 @@ CALL write_bullet_and_variable_in_case_note("Date DHS-3629 was sent", dhs3629_se
 CALL write_bullet_and_variable_in_case_note("Date DHS-3628 & DHS-0033 were sent", Date_DHS_docs_sent)
 CALL write_bullet_and_variable_in_case_note("Additional information", Other_Comments)
 
-
-
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
 'TIKL PROCESS for APPROVED claims only
-If approved_to_date<> "" then
+If approved_to_date <> "" then
 		back_to_self
 		call navigate_to_MAXIS_screen("DAIL", "WRIT")
 		call create_MAXIS_friendly_date(approved_to_date, 0, 5, 18)
