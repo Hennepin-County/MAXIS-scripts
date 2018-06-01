@@ -145,12 +145,12 @@ script_array_DEU_main(script_num).script_name			= "Match Cleared-CC Claim Entere
 script_array_DEU_main(script_num).file_name				= "match-cleared-CC-claim-entered.vbs"
 script_array_DEU_main(script_num).description			= "Action script that assists in clearing a WAGE match when a claim has been entered."
 
-'script_num = script_num + 1								'Increment by one
-'ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
-'Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-'script_array_DEU_main(script_num).script_name			= "Match Cleared-CC Claim Entered NO DAIL"
-'script_array_DEU_main(script_num).file_name				= "match-cleared-CC-claim-entered-no-dail.vbs"
-'script_array_DEU_main(script_num).description			= "Action script that assists in clearing a WAGE match when a claim has been entered and no DAIL is avail."
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
+Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_DEU_main(script_num).script_name			= "Match Cleared-CC Claim Entered NO DAIL"
+script_array_DEU_main(script_num).file_name				= "match-cleared-CC-claim-entered-no-dail.vbs"
+script_array_DEU_main(script_num).description			= "Action script that assists in clearing a WAGE match when a claim has been entered and no DAIL is avail."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it

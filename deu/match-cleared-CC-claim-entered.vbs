@@ -399,13 +399,13 @@ IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
 	End if
 
 	IF match_cleared = TRUE THEN
-	    IF IEVS_type = "WAGE" THEN
-        	'Updated IEVS_period to write into case note
-        	IF select_quarter = 1 THEN IEVS_quarter = "1ST"
-        	IF select_quarter = 2 THEN IEVS_quarter = "2ND"
-        	IF select_quarter = 3 THEN IEVS_quarter = "3RD"
-        	IF select_quarter = 4 THEN IEVS_quarter = "4TH"
-        END IF
+	  IF IEVS_type = "WAGE" THEN
+    	'Updated IEVS_period to write into case note
+    	IF select_quarter = 1 THEN IEVS_quarter = "1ST"
+    	IF select_quarter = 2 THEN IEVS_quarter = "2ND"
+    	IF select_quarter = 3 THEN IEVS_quarter = "3RD"
+    	IF select_quarter = 4 THEN IEVS_quarter = "4TH"
+    END IF
 		IEVS_period = replace(IEVS_period, "/", " to ")
 		Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 		PF3 'back to the DAIL'
