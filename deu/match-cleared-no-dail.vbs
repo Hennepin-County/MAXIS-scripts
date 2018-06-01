@@ -1,5 +1,5 @@
 ''GATHERING STATS===========================================================================================
-name_of_script = "ACTIONS-MATCH-CLEARED-NO-DAIL.vbs"
+name_of_script = "match-cleared-no-dail.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 300
@@ -122,7 +122,7 @@ memb_number = "01"
 date_recieved = date & ""
 
 '-----------------------------------------------------------------------------------------Initial dialog and do...loop
-BeginDialog update_action_dialog, 0, 0, 181, 155, "WAGE MATCH UPDATE"
+BeginDialog update_action_dialog, 0, 0, 181, 155, "MATCH CLEARED"
   EditBox 55, 5, 55, 15, MAXIS_case_number
   EditBox 155, 5, 20, 15, MEMB_Number
   DropListBox 90, 25, 85, 15, "Select One:"+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BE - OP Entered"+chr(9)+"BE - NC Non-collectible"+chr(9)+"BO - Other"+chr(9)+"BP - Wrong Person"+chr(9)+"CC - Claim Entered"+chr(9)+"NC - Non Cooperation", resolution_status
@@ -141,21 +141,45 @@ BeginDialog update_action_dialog, 0, 0, 181, 155, "WAGE MATCH UPDATE"
   Text 5, 90, 75, 10, "DISQ panel addressed"
   Text 5, 110, 45, 10, "Other Notes:"
 EndDialog
+'enhancment to add this to make the same as match cleared'
+'BeginDialog cleared_match_dialog, 0, 0, 311, 175, "MATCH CLEARED"
+'	Text 10, 20, 110, 10, "Case number: " & MAXIS_case_number
+'	Text 120, 20, 165, 10, "Client name: " & client_name
+'	Text 10, 40, 105, 10, "Active Programs: " & programs
+'	Text 120, 40, 175, 15, "Income source: " & source_income
+'	DropListBox 75, 65, 110, 15, "Select One: "+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BE - OP Entered"+chr(9)+"BO - Other"+chr(9)+"BP - Wrong Person"+chr(9)+"CC - Claim Entered"+chr(9)+"NC - Non Cooperation", resolution_status
+'	DropListBox 125, 85, 60, 15, "Select One: "+chr(9)+"Yes"+chr(9)+"No", change_response
+'	EditBox 150, 105, 35, 15, resolve_time
+'	EditBox 55, 130, 250, 15, other_notes
+'	CheckBox 210, 75, 70, 10, "Difference Notice", Diff_Notice_Checkbox
+'	CheckBox 210, 85, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
+'	CheckBox 210, 95, 90, 10, "Employment verification", EVF_checkbox
+'	CheckBox 210, 105, 80, 10, "Other (please specify)", other_checkbox
+'	CheckBox 10, 155, 135, 10, "Check here if 10 day cutoff has passed", TIKL_checkbox
+'	ButtonGroup ButtonPressed
+'		OkButton 210, 155, 45, 15
+'		CancelButton 260, 155, 45, 15
+'	Text 10, 70, 60, 10, "Resolution Status: "
+'	Text 10, 90, 110, 10, "Responded to Difference Notice: "
+'	Text 10, 110, 85, 10, "Resolve time (in minutes): "
+'	Text 10, 135, 40, 10, "Other notes: "
+'	GroupBox 195, 65, 110, 55, "Verification Used to Clear: "
+'EndDialog
 
 
 
 DO
 	err_msg = ""
 	dialog update_action_dialog
-	IF buttonpressed = 0 then stopscript 
+	IF buttonpressed = 0 then stopscript
 	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
     If (Cleared_status = "CC - Claim Entered" AND instr(programs, "HC") or instr(programs, "Medical Assistance")) then err_msg = err_msg & vbNewLine & "* System does not allow HC or MA cases to be cleared with the code 'CC - Claim Entered'."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-	
+
 CALL DEU_password_check(False)
 
-'-------------------------------------------------------------------------------------------Defaulting the quarters 
+'-------------------------------------------------------------------------------------------Defaulting the quarters
 IF select_quarter = "1" THEN
                 IEVS_period = "01-" & CM_minus_1_yr & "/03-" & CM_minus_1_yr
 ELSEIF select_quarter = "2" THEN
@@ -165,7 +189,7 @@ ELSEIF select_quarter = "3" THEN
 ELSEIF select_quarter = "4" THEN
                 IEVS_period = "10-" & CM_minus_6_yr & "/12-" & CM_minus_6_yr
 ELSEIF select_quarter = "YEAR" THEN
-				IEVS_period = right(DatePart("yyyy",DateAdd("yyyy", -1, date)), 2) 
+				IEVS_period = right(DatePart("yyyy",DateAdd("yyyy", -1, date)), 2)
 END IF
 
 'msgbox IEVS_period
@@ -177,33 +201,33 @@ EMwritescreen memb_number, 20, 76
 transmit
 
 EMReadscreen SSN_number_read, 11, 7, 42
-SSN_number_read = replace(SSN_number_read, " ", "") 
+SSN_number_read = replace(SSN_number_read, " ", "")
 
-CALL navigate_to_MAXIS_screen("INFC" , "____")  
-CALL write_value_and_transmit("IEVP", 20, 71) 
+CALL navigate_to_MAXIS_screen("INFC" , "____")
+CALL write_value_and_transmit("IEVP", 20, 71)
 CALL write_value_and_transmit(SSN_number_read, 3, 63) '
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 7
-DO 
+DO
 ''	DO
-		EMReadScreen IEVS_match, 11, row, 47 
+		EMReadScreen IEVS_match, 11, row, 47
 		IF trim(IEVS_match) = "" THEN script_end_procedure("IEVS match for the selected period could not be found. The script will now end.")
 		ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
 		"   " & IEVS_match, vbYesNoCancel, "Please confirm this match")
-		IF ievp_info_confirmation = vbNo THEN 
+		IF ievp_info_confirmation = vbNo THEN
 			row = row + 1
-			'msgbox "row: " & row 
-			IF row = 17 THEN 
+			'msgbox "row: " & row
+			IF row = 17 THEN
 				PF8
 				row = 7
 			END IF
 		END IF
 		IF ievp_info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
-		IF ievp_info_confirmation = vbYes THEN 	EXIT DO	
+		IF ievp_info_confirmation = vbYes THEN 	EXIT DO
 	'LOOP UNTIL IEVS_match = IEVS_period
 LOOP UNTIL ievp_info_confirmation = vbYes
 '---------------------------------------------------------------------IULA
-CALL write_value_and_transmit("U", row, 3)  
+CALL write_value_and_transmit("U", row, 3)
 '---------------------------------------------------------------------Reading potential errors for out-of-county cases
 EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" THEN
@@ -216,7 +240,7 @@ ELSE
 		EMReadScreen IEVS_year, 2, 8, 15
 		IEVS_year = "20" & IEVS_year
 	END IF
-END IF 
+END IF
 
 IF IEVS_type = "NON-WAGE" THEN type_match = "B"
 
@@ -231,7 +255,7 @@ IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st
 ELSE                                'In cases where the last name takes up the entire space, THEN the client name becomes the last name
 	first_name = ""
 	last_name = client_name
-	
+
 END IF
 IF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
 	length = len(first_name)                        	'trimming the 1st name
@@ -249,42 +273,42 @@ IF instr(Active_Programs, "F") THEN programs = programs & "Food Support, "
 IF instr(Active_Programs, "H") THEN programs = programs & "Health Care, "
 IF instr(Active_Programs, "M") THEN programs = programs & "Medical Assistance, "
 IF instr(Active_Programs, "S") THEN programs = programs & "MFIP, "
-'trims excess spaces of programs 
+'trims excess spaces of programs
 programs = trim(programs)
 'takes the last comma off of programs when autofilled into dialog
-IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1) 
+IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 
 '----------------------------------------------------------------------------------------------------Income info & differnce notice info
 EMReadScreen source_income, 44, 8, 37
-source_income = trim(source_income)	
+source_income = trim(source_income)
 length = len(source_income)		'establishing the length of the variable
 
-IF instr(source_income, " AMOUNT: $") THEN 						  
-    position = InStr(source_income, " AMOUNT: $")    		      'sets the position at the deliminator  
+IF instr(source_income, " AMOUNT: $") THEN
+    position = InStr(source_income, " AMOUNT: $")    		      'sets the position at the deliminator
     source_income = Left(source_income, position)  'establishes employer as being before the deliminator
 Elseif instr(source_income, " AMT:") THEN 					  'establishing the length of the variable
-    position = InStr(source_income, " AMT: $")    		      'sets the position at the deliminator  
+    position = InStr(source_income, " AMT: $")    		      'sets the position at the deliminator
     source_income = Left(source_income, position)  'establishes employer as being before the deliminator
 Else
-    source_income = source_income	'catch all variable 
-END IF 
+    source_income = source_income	'catch all variable
+END IF
 '----------------------------------------------------------------------------------------------------Employer info & difference notice info
 EMReadScreen notice_sent, 1, 14, 37
 EMReadScreen sent_date, 8, 14, 68
 sent_date = trim(sent_date)
 IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
-'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH 		
+'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
 EMWriteScreen "005", 12, 46 'write resolve time'
 
 'resolved notes depending on the resolution_status
-IF resolution_status = "BC - Case Closed" THEN rez_status = "BC"  						
+IF resolution_status = "BC - Case Closed" THEN rez_status = "BC"
 IF resolution_status = "BE - Child" THEN rez_status = "BE"
 IF resolution_status = "BE - No Change" THEN rez_status = "BE"
 IF resolution_status = "BE - OP Entered" THEN rez_status = "BE"
 IF resolution_status = "BE - NC Non-collectible" THEN rez_status = "BE"
 IF resolution_status = "BN - Already known, No Savings" THEN rez_status = "BN"
 IF resolution_status = "BO - Other" THEN rez_status = "BO"
-IF resolution_status = "BP - Wrong Person"  THEN rez_status = "BP" 
+IF resolution_status = "BP - Wrong Person"  THEN rez_status = "BP"
 IF resolution_status = "CC - Claim Entered" THEN rez_status = "CC"
 IF resolution_status = "NC - Non Cooperation" THEN rez_status = "NC"
 'CC cannot be used - ACTION CODE FOR ACTH OR ACTM IS INVALID
@@ -300,7 +324,7 @@ For each program in programs_array
 	col = 57
 	EMSearch cleared_header, row, col
 	EMWriteScreen resolution_status, row + 1, col + 1
-Next 
+Next
 
 EMwritescreen rez_status, 12, 58
 IF change_response = "YES" THEN
@@ -308,19 +332,19 @@ IF change_response = "YES" THEN
 ELSE
 	EMwritescreen "N", 15, 37
 END IF
-transmit 'IULB	
+transmit 'IULB
 '----------------------------------------------------------------------------------------writing the note on IULB
 EMReadScreen error_msg, 11, 24, 2
 IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 If error_msg = "ACTION CODE" THEN script_end_procedure(err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
 IF resolution_status = "BC - Case Closed" 	THEN EMWriteScreen "Case closed. " & other_notes, 8, 6   							'BC
 IF resolution_status = "BE - Child" THEN EMWriteScreen "No change, minor child income excluded. " & other_notes, 8, 6 			'BE - child
-IF resolution_status = "BE - OP Entered" THEN EMWriteScreen "OP entered other programs" & other_notes, 8, 6 
-IF resolution_status = "BE - No Change" THEN EMWriteScreen "No change. " & other_notes, 8, 6 	
-IF resolution_status = "BE - NC Non-collectible" THEN EMWriteScreen "Non-Coop remains, but claim is non-collectible ", 8, 6 		
+IF resolution_status = "BE - OP Entered" THEN EMWriteScreen "OP entered other programs" & other_notes, 8, 6
+IF resolution_status = "BE - No Change" THEN EMWriteScreen "No change. " & other_notes, 8, 6
+IF resolution_status = "BE - NC Non-collectible" THEN EMWriteScreen "Non-Coop remains, but claim is non-collectible ", 8, 6
 IF resolution_status = "BN - Already known, No Savings" THEN EMWriteScreen "Already known - No savings. " & other_notes, 8, 6 	'BN
 IF resolution_status = "BO - Other" THEN EMWriteScreen "HC Claim entered. " & other_notes, 8, 6 								'BO
-IF resolution_status = "BP - Wrong Person" THEN EMWriteScreen "Client name and wage earner name are different. ", 8, 6 	
+IF resolution_status = "BP - Wrong Person" THEN EMWriteScreen "Client name and wage earner name are different. ", 8, 6
 IF resolution_status = "CC - Claim Entered" THEN EMWriteScreen "Claim entered. " & other_notes, 8, 6 						 	'CC
 IF resolution_status = "NC - Non Cooperation" THEN EMWriteScreen "Non-coop, requested verification not in ECF, " & other_notes, 8, 6 	'NC
 'msgbox "did the notes input?"
@@ -353,12 +377,12 @@ IF resolution_status = "BN - Already known, No Savings" THEN CALL write_variable
 IF resolution_status = "BO - Other" THEN CALL write_variable_in_CASE_NOTE("HC Claim entered. ")
 IF resolution_status = "BP - Wrong Person" THEN CALL write_variable_in_CASE_NOTE("Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
 IF resolution_status = "CC - Claim Entered" THEN CALL write_variable_in_CASE_NOTE("Client name and wage earner name are different.")
-IF resolution_status = "NC - Non Cooperation" THEN 
-	CALL write_variable_in_CASE_NOTE("* CLIENT FAILED TO COOP WITH WAGE MATCH")   
+IF resolution_status = "NC - Non Cooperation" THEN
+	CALL write_variable_in_CASE_NOTE("* CLIENT FAILED TO COOP WITH WAGE MATCH")
 	CALL write_variable_in_case_note("* Entered STAT/DISQ panels for each program.")
 	CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
 	CALL write_variable_in_case_note("* Case approved to close")
-	CALL write_variable_in_case_note("* Client needs to provide: ATR, Income Verification, Difference Notice") 
+	CALL write_variable_in_case_note("* Client needs to provide: ATR, Income Verification, Difference Notice")
 END IF
   	CALL write_bullet_and_variable_in_CASE_NOTE("Responded to Difference Notice", change_response)
   	CALL write_bullet_and_variable_in_CASE_NOTE("Resolution Status", resolution_status)
@@ -367,4 +391,4 @@ CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 
 
-script_end_procedure ("Match has been updated. Please take any additional action needed for your case.")   
+script_end_procedure ("Match has been updated. Please take any additional action needed for your case.")

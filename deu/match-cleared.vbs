@@ -1,5 +1,5 @@
 ''GATHERING STATS===========================================================================================
-name_of_script = "DAIL-WAGE-MATCH-CLEARED.vbs"
+name_of_script = "match-cleared.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 300
@@ -396,7 +396,7 @@ END IF
 
 IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The script will now navigate to clear the Non-wage match.")
-	BeginDialog cleared_match_dialog, 0, 0, 311, 175, "WAGE MATCH CLEARED"
+	BeginDialog cleared_match_dialog, 0, 0, 311, 175, "MATCH CLEARED"
   	Text 10, 20, 110, 10, "Case number: " & MAXIS_case_number
   	Text 120, 20, 165, 10, "Client name: " & client_name
   	Text 10, 40, 105, 10, "Active Programs: " & programs

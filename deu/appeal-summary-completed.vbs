@@ -1,5 +1,5 @@
 'GATHERING STATS===========================================================================================
-name_of_script = "NOTES-APPEAL-SUMMARY-COMPLETED.vbs"
+name_of_script = "appeal-summary-completed.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 0
@@ -73,20 +73,20 @@ EndDialog
 
 Do
 	Do
-        err_msg = "" 
+        err_msg = ""
 		Dialog
 		IF ButtonPressed = 0 then StopScript
 		IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF Isdate(date_appeal_rcvd) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a date for the appeal."
 		IF IsNumeric(claim_number) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid claim number."
 		IF Isdate(effective_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the effective date."
-		IF action_client_is_appealing = "" THEN err_msg = err_msg & vbNewLine & "* Please enter action that client is appealing."	
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine	
-    Loop until err_msg = ""	
+		IF action_client_is_appealing = "" THEN err_msg = err_msg & vbNewLine & "* Please enter action that client is appealing."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    Loop until err_msg = ""
  	Call check_for_password(are_we_passworded_out)
-LOOP UNTIL check_for_password(are_we_passworded_out) = False	
+LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
-start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode		 
+start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 	Call write_variable_in_CASE_NOTE("-----APPEAL SUMMARY COMPLETED-----")
 	Call write_bullet_and_variable_in_CASE_NOTE("Claim number:", claim_number)
 	Call write_bullet_and_variable_in_CASE_NOTE("Date appeal request received:", date_appeal_rcvd)
@@ -94,6 +94,6 @@ start_a_blank_case_note      'navigates to case/note and puts case/note into edi
 	Call write_bullet_and_variable_in_CASE_NOTE("Action client is appealing:", action_client_is_appealing)
 	Call write_bullet_and_variable_in_CASE_NOTE("Emailed Appeals", send_email)
 	Call write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
-	Call write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1") 
+	Call write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 
 script_end_procedure("")

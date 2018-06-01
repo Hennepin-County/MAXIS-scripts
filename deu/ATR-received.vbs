@@ -1,5 +1,5 @@
 'GATHERING STATS===========================================================================================
-name_of_script = "ACTIONS-ATR-RECEIVED.vbs"
+name_of_script = "ATR-received.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 180
@@ -38,7 +38,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'================================================================================================CHANGELOG BLOCK 
+'================================================================================================CHANGELOG BLOCK
 'Starts by defining a changelog array
 changelog = array()
 
@@ -51,7 +51,7 @@ CALL changelog_update("11/07/2017", "Initial version.", "MiKayla Handley, Hennep
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
-'=================================================================================================END CHANGELOG BLOCK 
+'=================================================================================================END CHANGELOG BLOCK
 'Fun with dates! --Creating variables for the rolling 12 calendar months
 'current month -1
 CM_minus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", -1, date)            ), 2)
@@ -158,7 +158,7 @@ EndDialog
 
 
 DO
-    err_msg = "" 
+    err_msg = ""
 	Dialog ATR_action_dialog
 	IF ButtonPressed = 0 THEN StopScript
 	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
@@ -166,11 +166,11 @@ DO
 	IF match_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a match type"
 	IF ATR_sent = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select how ATR was sent"
 	IF DISQ_action = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please advise if DISQ panel was updated"
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine	
-LOOP UNTIL err_msg = ""				
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+LOOP UNTIL err_msg = ""
 CALL DEU_password_check(False)
 
-'-------------------------------------------------------------------------------------------Defaulting the quarters 
+'-------------------------------------------------------------------------------------------Defaulting the quarters
 IF select_quarter = "1" THEN
                 IEVS_period = "01-" & CM_minus_1_yr & "/03-" & CM_minus_1_yr
 ELSEIF select_quarter = "2" THEN
@@ -180,7 +180,7 @@ ELSEIF select_quarter = "3" THEN
 ELSEIF select_quarter = "4" THEN
                 IEVS_period = "10-" & CM_minus_6_yr & "/12-" & CM_minus_6_yr
 ELSEIF select_quarter = "YEAR" THEN
-				IEVS_period = right(DatePart("yyyy",DateAdd("yyyy", -1, date)), 2) 
+				IEVS_period = right(DatePart("yyyy",DateAdd("yyyy", -1, date)), 2)
 END IF
 
 msgbox IEVS_period
@@ -192,10 +192,10 @@ EMwritescreen memb_number, 20, 76
 transmit
 
 EMReadscreen SSN_number_read, 11, 7, 42
-SSN_number_read = replace(SSN_number_read, " ", "") 
+SSN_number_read = replace(SSN_number_read, " ", "")
 
-CALL navigate_to_MAXIS_screen("INFC" , "____")  
-CALL write_value_and_transmit("IEVP", 20, 71) 
+CALL navigate_to_MAXIS_screen("INFC" , "____")
+CALL write_value_and_transmit("IEVP", 20, 71)
 CALL write_value_and_transmit(SSN_number_read, 3, 63) '
 
 EMReadScreen edit_error, 2, 24, 2
@@ -204,28 +204,28 @@ IF edit_error <> "" THEN script_end_procedure("No IEVS matches and/or could not 
 
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 7
-DO 
-	EMReadScreen IEVS_match, 11, row, 47 
+DO
+	EMReadScreen IEVS_match, 11, row, 47
 	IF trim(IEVS_match) = "" THEN script_end_procedure("IEVS match for the selected period could not be found. The script will now end.")
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
 	"   " & IEVS_match, vbYesNoCancel, "Please confirm this match")
-	IF ievp_info_confirmation = vbNo THEN 
+	IF ievp_info_confirmation = vbNo THEN
 		row = row + 1
-		'msgbox "row: " & row 
-		IF row = 17 THEN 
+		'msgbox "row: " & row
+		IF row = 17 THEN
 			PF8
 			row = 7
 		END IF
 	END IF
 	IF ievp_info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
-	IF ievp_info_confirmation = vbYes THEN 	EXIT DO	
+	IF ievp_info_confirmation = vbYes THEN 	EXIT DO
 LOOP UNTIL ievp_info_confirmation = vbYes
 
 '----------------------------------------------------------------------------------------------------IULA
 'Entering the IEVS match & reading the difference notice to ensure this has been sent
 'Reading potential errors for out-of-county cases
 
-CALL write_value_and_transmit("U", row, 3)  
+CALL write_value_and_transmit("U", row, 3)
 
 EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" THEN
@@ -239,7 +239,7 @@ ELSE
 		EMReadScreen Nonwage_year , 2, 8, 15
 		Nonwage_year = "20" & Nonwage_year
 	END IF
-END IF 
+END IF
 
 '-----------------------------------------------------------------------------------------------Client name
 
@@ -253,7 +253,7 @@ IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st
 ELSE                                'In cases where the last name takes up the entire space, THEN the client name becomes the last name
 	first_name = ""
 	last_name = client_name
-	
+
 END IF
 IF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
 	length = len(first_name)                        	'trimming the 1st name
@@ -270,25 +270,25 @@ IF instr(Active_Programs, "F") THEN programs = programs & "Food Support, "
 IF instr(Active_Programs, "H") THEN programs = programs & "Health Care, "
 IF instr(Active_Programs, "M") THEN programs = programs & "Medical Assistance, "
 IF instr(Active_Programs, "S") THEN programs = programs & "MFIP, "
-'trims excess spaces of programs 
+'trims excess spaces of programs
 programs = trim(programs)
 'takes the last comma off of programs when autofilled into dialog
-IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1) 
+IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 
 '----------------------------------------------------------------------------------------------------Income info & differnce notice info
 EMReadScreen source_income, 44, 8, 37
-source_income = trim(source_income)	
+source_income = trim(source_income)
 length = len(source_income)		'establishing the length of the variable
 
-IF instr(source_income, " AMOUNT: $") THEN 						  
-    position = InStr(source_income, " AMOUNT: $")    		      'sets the position at the deliminator  
+IF instr(source_income, " AMOUNT: $") THEN
+    position = InStr(source_income, " AMOUNT: $")    		      'sets the position at the deliminator
     source_income = Left(source_income, position)  'establishes employer as being before the deliminator
 Elseif instr(source_income, " AMT: $") THEN 					  'establishing the length of the variable
-    position = InStr(source_income, " AMT: $")    		      'sets the position at the deliminator  
+    position = InStr(source_income, " AMT: $")    		      'sets the position at the deliminator
     source_income = Left(source_income, position)  'establishes employer as being before the deliminator
 Else
-    source_income = source_income	'catch all variable 
-END IF 
+    source_income = source_income	'catch all variable
+END IF
 
 EMReadScreen notice_sent, 1, 14, 37
 EMReadScreen sent_date, 8, 14, 68
@@ -302,13 +302,13 @@ EMwritescreen "Y", 15, 37 'send Notice
 transmit 'this will take us to IULB'\
 ROW = 8
 EMReadScreen IULB_first_line, 1, row, 6
-IF IULB_first_line = "" THEN 
+IF IULB_first_line = "" THEN
 	EMwritescreen "ATR RECEIVED " & date_received, row, 6
-ELSE 
+ELSE
 	ROW = 9
 	CALL clear_line_of_text(row, 6)
-	EMwritescreen "ATR RECEIVED " & date_received, row, 6	
-END IF 		
+	EMwritescreen "ATR RECEIVED " & date_received, row, 6
+END IF
 
 msgbox "Responded to difference notice has been updated"
 transmit 'exiting IULA, helps prevent errors when going to the case note
@@ -330,21 +330,21 @@ IF instr(Active_Programs, "F") THEN programs = programs & "Food Support, "
 IF instr(Active_Programs, "H") THEN programs = programs & "Health Care, "
 IF instr(Active_Programs, "M") THEN programs = programs & "Medical Assistance, "
 IF instr(Active_Programs, "S") THEN programs = programs & "MFIP, "
-'trims excess spaces of programs 
+'trims excess spaces of programs
 programs = trim(programs)
 'takes the last comma off of programs when autofilled into dialog
-IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1) 
- 
+IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
+
 Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 IEVS_period = replace(IEVS_period, "/", " to ")
 dIFf_date = replace(dIFf_date, " ", "/")
 
 start_a_blank_CASE_NOTE
-	IF IEVS_quarter <> "YEAR" THEN 
+	IF IEVS_quarter <> "YEAR" THEN
 		CALL write_variable_in_CASE_NOTE ("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH (" & first_name & ") ATR RECEIVED-----")
-	ELSE 
+	ELSE
 		CALL write_variable_in_CASE_NOTE ("-----" & IEVS_year & " WAGE MATCH (" & first_name & ") ATR received-----")
-	END IF	
+	END IF
 	CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 	CALL write_variable_in_CASE_NOTE("* Source information: " & source_income & income_source & "  " & source_address)
@@ -353,7 +353,7 @@ start_a_blank_CASE_NOTE
 	IF DISQ_action = "DELETED DISQ" THEN CALL write_variable_in_CASE_NOTE("* Updated DISQ panel")
 	IF DISQ_action = "PENDING VERF" THEN CALL write_variable_in_CASE_NOTE("* Pending verification of income or asset")
 	CALL write_variable_in_CASE_NOTE("* IEVP updated as responded to difference notice - YES ")
-	IF ATR_sent <> "RCVD VERIFICATION" THEN 
+	IF ATR_sent <> "RCVD VERIFICATION" THEN
 		CALL write_variable_in_CASE_NOTE("* Sent via: " & ATR_sent & " " & source_phone)
 		CALL write_bullet_and_variable_in_case_note("Due Date", Due_date)
 		CALL write_variable_in_CASE_NOTE("---DEU WILL PROCESS WHEN EMPLOYMENT VERIFICATION IS RETURNED. TEAM CAN REINSTATE CASE IF ALL NECESSARY PAPERWORK TO REINSTATE HAS BEEN RECEIVED---")
@@ -365,6 +365,3 @@ start_a_blank_CASE_NOTE
 	CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 
 script_end_procedure("ATR case note updated successfully." & vbNewLine & "Please remember to update/delete the DISQ panel")
-
-
- 

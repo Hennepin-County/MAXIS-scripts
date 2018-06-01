@@ -1,5 +1,5 @@
 ''GATHERING STATS===========================================================================================
-name_of_script = "ACTIONS-MATCH-CLEARED-CC.vbs"
+name_of_script = "match-cleared-CC-claim-entered-no-dail.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 300
@@ -44,7 +44,6 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("07/01/2018", "Updated script to correct version", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/02/2018", "Corrected IEVS match error due to new year.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/27/2017", "Updated to handle clearing the match when the date is over 45 days.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/14/2017", "Updated to fix claim entering and case note header.", "MiKayla Handley, Hennepin County")
@@ -382,31 +381,31 @@ END IF
 		IEVS_period = replace(IEVS_period, "/", " to ")
 		Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 		PF3 'back to the DAIL'
-    '-----------------------------------------------------------------------------------------CASENOTE
-    start_a_blank_CASE_NOTE
-    IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH " & "(" & first_name &  ")" & "CLEARED CC-CLAIM ENTERED-----")
-    IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name &  ")" &  "CLEARED CC-CLAIM ENTERED-----")
-    CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
-    Call write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
-    Call write_variable_in_CASE_NOTE(programs & " Overpayment " & OP_1 & " through " & OP_to_1 & "  Claim # " & Claim_1 & "  Amt $" & AMT_1)
-    IF OP_2 <> "" then Call write_variable_in_case_note(programs & " Overpayment " & OP_2 & " through  " & OP_to_2 & "  Claim # " & Claim_2 & "  Amt $" & AMT_2)
-    IF OP_3 <> "" then Call write_variable_in_case_note(programs & " Overpayment " & OP_3 & " through  " & OP_to_3 & "  Claim # " & Claim_3 & "  Amt $" & AMT_3)
-    IF OP_4 <> "" then Call write_variable_in_case_note(programs & " Overpayment " & OP_4 & " through  " & OP_to_4 & "  Claim # " & Claim_4 & "  Amt $" & AMT_4)
-    IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
-    IF instr(programs, "HC") then
-    	Call write_bullet_and_variable_in_CASE_NOTE("HC responsible members", HC_resp_memb)
-    	Call write_bullet_and_variable_in_CASE_NOTE("Total federal Health Care amount", Fed_HC_AMT)
-    	Call write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+        '-----------------------------------------------------------------------------------------CASENOTE
+        start_a_blank_CASE_NOTE
+        IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH " & "(" & first_name &  ")" & "CLEARED CC-CLAIM ENTERED-----")
+        IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name &  ")" &  "CLEARED CC-CLAIM ENTERED-----")
+        CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
+        CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
+        CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
+        Call write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+        Call write_variable_in_CASE_NOTE(programs & " Overpayment " & OP_1 & " through " & OP_to_1 & "  Claim # " & Claim_1 & "  Amt $" & AMT_1)
+        IF OP_2 <> "" then Call write_variable_in_case_note(programs & " Overpayment " & OP_2 & " through  " & OP_to_2 & "  Claim # " & Claim_2 & "  Amt $" & AMT_2)
+        IF OP_3 <> "" then Call write_variable_in_case_note(programs & " Overpayment " & OP_3 & " through  " & OP_to_3 & "  Claim # " & Claim_3 & "  Amt $" & AMT_3)
+        IF OP_4 <> "" then Call write_variable_in_case_note(programs & " Overpayment " & OP_4 & " through  " & OP_to_4 & "  Claim # " & Claim_4 & "  Amt $" & AMT_4)
+        IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
+        IF instr(programs, "HC") then
+        	Call write_bullet_and_variable_in_CASE_NOTE("HC responsible members", HC_resp_memb)
+        	Call write_bullet_and_variable_in_CASE_NOTE("Total federal Health Care amount", Fed_HC_AMT)
+        	Call write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+        END IF
+        CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_date)
+        CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
+        CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
+        CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
+        CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
+        CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
+        CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+        CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+        IF instr(programs, "HC") THEN CALL create_outlook_email("", "mikayla.handley@hennepin.us", "Claims entered for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Date Overpayment Created: " & OP_Date & vbcr & "Programs: " & programs & vbcr & "See case notes for further details.", "", False)
     END IF
-    CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_date)
-    CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
-    CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
-    CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
-    CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
-    CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
-    CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
-    CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-    IF instr(programs, "HC") THEN CALL create_outlook_email("", "mikayla.handley@hennepin.us", "Claims entered for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Date Overpayment Created: " & OP_Date & vbcr & "Programs: " & programs & vbcr & "See case notes for further details.", "", False)
-  END IF
