@@ -156,6 +156,17 @@ CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
 EMReadScreen error_msg, 7, 24, 2
 IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
 
+IF select_quarter = "1" THEN
+                IEVS_period = "01-" & CM_minus_1_yr & "/03-" & CM_minus_1_yr
+ELSEIF select_quarter = "2" THEN
+                IEVS_period = "04-" & CM_minus_1_yr & "/06-" & CM_minus_1_yr
+ELSEIF select_quarter = "3" THEN
+                IEVS_period = "07-" & CM_minus_1_yr  & "/09-" & CM_minus_1_yr
+ELSEIF select_quarter = "4" THEN
+                IEVS_period = "10-" & CM_minus_6_yr & "/12-" & CM_minus_6_yr
+ELSEIF select_quarter = "YEAR" THEN
+				IEVS_period = right(DatePart("yyyy",DateAdd("yyyy", -1, date)), 2)
+END IF
 '-------------------------------------------------------------------Ensuring that match has not already been resolved.
 Row = 7
 DO
@@ -202,7 +213,9 @@ IF OutOfCounty_error = "MATCH IS NOT" then
 		END IF
 END IF
 
-
+IF IEVS_type = "BEER" THEN type_match = "B"
+IF IEVS_type = "UBEN" THEN type_match = "U"
+IF IEVS_type = "WAGE" THEN type_match = "U"
 '--------------------------------------------------------------------Client name
 EMReadScreen client_name, 35, 5, 24
 client_name = trim(client_name)                         'trimming the client name

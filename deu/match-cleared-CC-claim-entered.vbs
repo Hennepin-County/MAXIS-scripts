@@ -138,7 +138,7 @@ End if
 
 EMReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number= TRIM(MAXIS_case_number)
-BBeginDialog OP_Cleared_dialog, 0, 0, 361, 240, "Match Cleared CC Claim Entered"
+BeginDialog OP_Cleared_dialog, 0, 0, 361, 240, "Match Cleared CC Claim Entered"
   EditBox 55, 5, 35, 15, MAXIS_case_number
 	EditBox 150, 5, 45, 15, discovery_date
 	DropListBox 300, 5, 55, 15, "Select:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"LAST YEAR"+chr(9)+"OTHER", select_quarter
@@ -203,7 +203,6 @@ BBeginDialog OP_Cleared_dialog, 0, 0, 361, 240, "Match Cleared CC Claim Entered"
 	Text 15, 205, 50, 10, "Reason for OP:"
   Text 5, 185, 60, 10, "Date income rcvd: "
 EndDialog
-
 
 Do
 	err_msg = ""
@@ -295,7 +294,8 @@ ELSE
 END IF
 
 IF IEVS_type = "BEER" THEN type_match = "B"
-
+IF IEVS_type = "UBEN" THEN type_match = "U"
+IF IEVS_type = "WAGE" THEN type_match = "U"
 
 '--------------------------------------------------------------------Client name
 EMReadScreen client_name, 35, 5, 24
@@ -332,7 +332,7 @@ programs = trim(programs)
 IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 
 '----------------------------------------------------------------------------------------------------Employer info & difference notice info
-EMReadScreen source_income, 74, 8, 37
+EMReadScreen source_income, 75, 8, 37
 source_income = trim(source_income)
 length = len(source_income)		'establishing the length of the variable
 
@@ -346,9 +346,14 @@ Else
     source_income = source_income	'catch all variable
 END IF
 
+'----------------------------------------------------------------------------------------------------Employer info & difference notice info
+EMReadScreen notice_sent, 1, 14, 37
+EMReadScreen sent_date, 8, 14, 68
+sent_date = trim(sent_date)
+IF sent_date = "" THEN sent_date = replace(sent_date, " ", "N/A")
+IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
 
-
-	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
+'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
 	EMWriteScreen "010", 12, 46
 
 	programs_array = split(programs, ",")
@@ -433,4 +438,4 @@ END IF
     CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
     IF OP_program = "HC" THEN CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us", "Claims entered for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Date Overpayment Created: " & OP_Date & vbcr & "Programs: " & programs & vbcr & "See case notes for further details.", "", False)
   END IF
-	script_end_procedure("Overpayment case note entered. Please remember to copy and paste your notes to CCOL/CLIC")
+script_end_procedure("Overpayment case note entered. Please remember to copy and paste your notes to CCOL/CLIC")
