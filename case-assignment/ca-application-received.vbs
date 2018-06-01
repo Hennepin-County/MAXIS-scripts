@@ -37,7 +37,43 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+function start_a_new_spec_memo_and_continue(success_var)
+'--- This function navigates user to SPEC/MEMO and starts a new SPEC/MEMO, selecting client, AREP, and SWKR if appropriate
+'===== Keywords: MAXIS, notice, navigate, edit
+  success_var = True
+	call navigate_to_MAXIS_screen("SPEC", "MEMO")				'Navigating to SPEC/MEMO
 
+	PF5															'Creates a new MEMO. If it's unable the script will stop.
+	EMReadScreen memo_display_check, 12, 2, 33
+	If memo_display_check = "Memo Display" then success_var = False
+
+	'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
+	row = 4                             'Defining row and col for the search feature.
+	col = 1
+	EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+	IF row > 4 THEN                     'If it isn't 4, that means it was found.
+	    arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
+	    call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
+	    EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
+	    call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
+	    PF5                                                     'PF5s again to initiate the new memo process
+	END IF
+	'Checking for SWKR
+	row = 4                             'Defining row and col for the search feature.
+	col = 1
+	EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
+	IF row > 4 THEN                     'If it isn't 4, that means it was found.
+	    swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
+	    call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
+	    EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
+	    call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
+	    PF5                                           'PF5s again to initiate the new memo process
+	END IF
+	EMWriteScreen "x", 5, 12                                        'Initiates new memo to client
+	IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+	transmit                                                        'Transmits to start the memo writing process
+end function
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
@@ -448,18 +484,18 @@ IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.
 
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 IF send_appt_ltr = TRUE THEN
-    BeginDialog Hennepin_appt_dialog, 0, 0, 296, 75, "APPOINTMENT LETTER"
-      EditBox 205, 25, 55, 15, interview_date
-      EditBox 65, 50, 115, 15, worker_signature
-      ButtonGroup ButtonPressed
-        OkButton 185, 50, 50, 15
-        CancelButton 240, 50, 50, 15
-      EditBox 65, 25, 55, 15, application_date
-      Text 5, 55, 60, 10, "Worker signature:"
-      Text 140, 30, 60, 10, "Appointment date:"
-      GroupBox 20, 10, 255, 35, "Enter a new appointment date only if it's a date county offices are not open."
-      Text 30, 30, 35, 10, "CAF date:"
-    EndDialog
+  BeginDialog Hennepin_appt_dialog, 0, 0, 296, 75, "APPOINTMENT LETTER"
+    EditBox 205, 25, 55, 15, interview_date
+    EditBox 65, 50, 115, 15, worker_signature
+    ButtonGroup ButtonPressed
+      OkButton 185, 50, 50, 15
+      CancelButton 240, 50, 50, 15
+    EditBox 65, 25, 55, 15, application_date
+    Text 5, 55, 60, 10, "Worker signature:"
+    Text 140, 30, 60, 10, "Appointment date:"
+    GroupBox 20, 10, 255, 35, "Enter a new appointment date only if it's a date county offices are not open."
+    Text 30, 30, 35, 10, "CAF date:"
+  EndDialog
 
 	'grabs CAF date, turns CAF date into string for variable
 	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", application_date)
@@ -471,8 +507,8 @@ IF send_appt_ltr = TRUE THEN
 	interview_date = interview_date & ""		'turns interview date into string for variable
  'need to handle for if we dont need an appt letter, which would be...'
 
- last_contact_day = dateadd("d", 30, application_date)
- If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date
+ 	last_contact_day = dateadd("d", 30, application_date)
+ 	If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date
 
 	Do
 		Do
@@ -532,6 +568,7 @@ IF send_appt_ltr = TRUE THEN
 			Call write_variable_in_SPEC_MEMO("Auth: 7CFR 273.2(e)(3). ")
 			Call write_variable_in_SPEC_MEMO("************************************************************")
 			PF4
+
 		Call start_a_blank_CASE_NOTE
 	    Call write_variable_in_CASE_NOTE("~ Appointment letter sent in MEMO for " & interview_date & " ~")
       Call write_variable_in_CASE_NOTE("* A notice has been sent via SPEC/MEMO informing the client of needed interview.")

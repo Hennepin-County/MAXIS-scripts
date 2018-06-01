@@ -57,12 +57,12 @@ EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 BeginDialog change_exemption_dialog, 0, 0, 216, 100, "Good cause change/exemption "
-  EditBox 105, 5, 50, 15, change_reported_date
-  EditBox 105, 25, 105, 15, change_reported
-  EditBox 105, 45, 105, 15, maxis_updates
+  EditBox 110, 5, 50, 15, change_reported_date
+  EditBox 110, 25, 100, 15, change_reported
+  EditBox 110, 45, 100, 15, maxis_updates
   CheckBox 10, 70, 75, 10, " No longer claiming ", no_longer_claiming_checkbox
   ButtonGroup ButtonPressed
-    OkButton 105, 80, 50, 15
+    OkButton 110, 80, 50, 15
     CancelButton 160, 80, 50, 15
   Text 10, 10, 80, 10, "Date of change reported:"
   Text 10, 30, 90, 10, "What change was reported:"
@@ -167,6 +167,16 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 		Loop until current_panel_number = panel_number
 	End if
 
+If good_cause_droplist = "Change/exemption ending" then
+  Do
+  	Do
+  		err_msg = ""
+  		dialog change_exemption_dialog
+  		cancel_confirmation
+  		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+  	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+  	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+  Loop until are_we_passworded_out = false					'loops until user passwords back in
 	'-------------------------------------------------------------------------Updating the ABPS panel
 	PF9
 	Call create_MAXIS_friendly_date_with_YYYY(approved_date, 0, 18, 38) 'creates and writes the date entered in dialog'
