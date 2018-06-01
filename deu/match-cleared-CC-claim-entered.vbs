@@ -206,7 +206,7 @@ EndDialog
 
 Do
 	err_msg = ""
-	dialog match_claim_dialog
+	dialog OP_Cleared_dialog
 	IF buttonpressed = 0 then stopscript
 	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
 	IF select_quarter = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match period entry."
