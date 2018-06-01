@@ -424,7 +424,7 @@ Do
             If PIC_line_07 <> "__ __ __    ________  ______" Then
     			PF20										'shift PF8 to the next PIC screen'
     			EMReadScreen PIC_page_2_check, 8, 20, 6
-                MagBox PIC_page_2_check
+                'MsgBox PIC_page_2_check
     			IF PIC_page_2_check <> "COMPLETE" THEN
     				EMReadScreen PIC2_line_01, 28, 9, 13		'reading the 2nd page of the PIC'
                     If PIC2_line_01 <> PIC_line_03 Then
