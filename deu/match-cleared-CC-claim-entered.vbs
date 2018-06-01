@@ -381,9 +381,8 @@ IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
 	EMReadScreen error_msg, 11, 24, 2
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	If error_msg = "ACTION CODE" THEN script_end_procedure(err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
-
-    EMWriteScreen "Claim entered. ", 8, 6
-	EMWriteScreen Claim_1, 17, 9
+  EMWriteScreen "Claim entered. ", 8, 6
+	EMWriteScreen Claim_number, 17, 9
 	'need to check about adding for mutli claims'
 
 	'msgbox "did the notes input?"
@@ -419,7 +418,7 @@ IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
     CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
     CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
 		Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
-		Call write_variable_in_CASE_NOTEOP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+		Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
 		IF OP_program_II <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
 		IF OP_program_III <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
 		IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
