@@ -120,23 +120,10 @@ end function
 
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+CALL MAXIS_case_number_finder (MAXIS_case_number)
 
 '--------------------------------------------------------------------CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
-EMReadscreen dail_check, 4, 2, 48
-IF dail_check <> "DAIL" THEN script_end_procedure("You are not in your dail. This script will stop.")
-EMSendKey "t"
-'checking for an active MAXIS session
-Call check_for_MAXIS(FALSE)
-EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
-'msgbox IEVS_type
-IF IEVS_type = "WAGE" or IEVS_type = "BEER" THEN
-	match_found = TRUE
-Else
-	script_end_procedure("This is not a IEVS match. Please select a WAGE match DAIL, and run the script again.")
-End if
 
-EMReadScreen MAXIS_case_number, 8, 5, 73
-MAXIS_case_number= TRIM(MAXIS_case_number)
 BeginDialog CC_Cleared_dialog, 0, 0, 281, 245, "Cleared CC-Claim Entered"
   EditBox 65, 5, 60, 15, MAXIS_case_number
   DropListBox 210, 5, 55, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR", select_quarter
