@@ -99,6 +99,32 @@ BeginDialog Dialog1, 0, 0, 191, 135, "Case Number"
     CancelButton 140, 115, 50, 15
 EndDialog
 
+Do
+    err_msg = ""
+    dialog Dialog1
+
+    If IsNumeric(MAXIS_case_number) = FALSE or Len(MAXIS_case_number) > 8 Then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+    If trim(worker_signature) = "" Then err_msg = err_msg & vbNewLine & "* Enter your worker signature for your case notes."
+
+    If err_msg <> "" Then MsgBox "-- Please resolve the following to continue --" & vbNewLine & err_msg
+Loop until err_msg = ""
+
+CASH_case = FALSE
+SNAP_case = FALSE
+HC_case = FALSE
+
+Call Navigate_to_MAXIS_screen("STAT", "PROG")
+
+EMReadScreen cash_one_status, 4, 6, 74
+EMReadScreen cash_two_status, 4, 7, 74
+EMReadScreen snap_status, 4, 10, 74
+EMReadScreen hc_status, 4, 12, 74
+
+If cash_one_status = "ACTV" OR cash_one_status = "PEND" Then CASH_case = TRUE
+If cash_two_status = "ACTV" OR cash_two_status = "PEND" Then CASH_case = TRUE
+If snap_status = "ACTV" OR snap_status = "PEND" Then SNAP_case = TRUE
+If hc_status = "ACTV" OR hc_status = "PEND" Then HC_case = TRUE
+
 'Add functionality ask if worker needs to add a new JOBS or BUSI panel.'
 
 const panel_type        = 0
@@ -126,9 +152,11 @@ const reptd_hours       = 21
 const apply_to_SNAP     = 22
 const apply_to_CASH     = 23
 const apply_to_HC       = 24
+const pay_weekday       = 25
+const income_received   = 26
 
-const spoke_to          = 25
-const convo_detail      = 26
+const spoke_to          = 27
+const convo_detail      = 28
 
 Dim EARNED_INCOME_PANELS_ARRAY()
 ReDim EARNED_INCOME_PANELS_ARRAY(convo_detail, 0)
@@ -158,6 +186,10 @@ For each member in HH_member_array
             EARNED_INCOME_PANELS_ARRAY(panel_type, the_panel) = "JOBS"
             EARNED_INCOME_PANELS_ARRAY(panel_member, the_panel) = member
             EARNED_INCOME_PANELS_ARRAY(panel_instance, the_panel) = "0" & panel
+            EARNED_INCOME_PANELS_ARRAY(income_received, the_panel) =  = FALSE
+            If CASH_case = TRUE Then EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, the_panel) = checked
+            If SNAP_case = TRUE Then EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, the_panel) = checked
+            If HC_case = TRUE Then EARNED_INCOME_PANELS_ARRAY(apply_to_HC, the_panel) = checked
 
             EMReadScreen type_of_job, 1, 5, 34
             EMReadScreen job_verif, 25, 6, 34
@@ -218,6 +250,10 @@ For each member in HH_member_array
             EARNED_INCOME_PANELS_ARRAY(panel_type, the_panel) = "BUSI"
             EARNED_INCOME_PANELS_ARRAY(panel_member, the_panel) = member
             EARNED_INCOME_PANELS_ARRAY(panel_instance, the_panel) = "0" & panel
+            EARNED_INCOME_PANELS_ARRAY(income_received, the_panel) =  = FALSE
+            If CASH_case = TRUE Then EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, the_panel) = checked
+            If SNAP_case = TRUE Then EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, the_panel) = checked
+            If HC_case = TRUE Then EARNED_INCOME_PANELS_ARRAY(apply_to_HC, the_panel) = checked
 
             EMReadScreen type_of_busi, 2, 5, 37
             EMReadScreen start_date, 8, 5, 55
@@ -321,6 +357,35 @@ ReDim LIST_OF_INCOME_ARRAY(reason_amt_excluded, 0)
 '     CancelButton 550, 140, 50, 15
 ' EndDialog
 
+' BeginDialog Dialog1, 0, 0, 421, 240, "Confirm JOBS Budget"
+'   Text 10, 10, 175, 10, "JOBS 01 01 - EMPLOYER"
+'   Text 245, 10, 50, 10, "Pay Frequency"
+'   DropListBox 305, 5, 95, 45, "1 - One Time Per Month"+chr(9)+"2 - Two Times Per Month"+chr(9)+"3 - Every Other Week"+chr(9)+"4 - Every Week"+chr(9)+"5 - Other", pay_frequency
+'   Text 240, 30, 60, 10, "Income Start Date:"
+'   EditBox 305, 25, 70, 15, income_start_date
+'   GroupBox 5, 40, 410, 105, "SNAP Budget"
+'   Text 10, 50, 100, 10, "Paychecks Inclued in Budget:"
+'   Text 20, 65, 90, 10, "01/01/2018 - $400 - 40 hrs"
+'   Text 20, 75, 90, 10, "01/15/2018- $400 - 40 hrs"
+'   Text 10, 95, 130, 10, "Paychecks not included: 12/24/2018"
+'   Text 185, 50, 90, 10, "Average hourly rate of pay:"
+'   Text 185, 65, 90, 10, "Average weekly hours:"
+'   Text 185, 80, 90, 10, "Average paycheck amount:"
+'   Text 185, 95, 90, 10, "Monthly Budgeted Income:"
+'   CheckBox 10, 110, 330, 10, "Check here if you confirm that this budget is correct and is the best estimate of anticipated income.", confirm_budget_checkbox
+'   Text 10, 130, 60, 10, "Conversation with:"
+'   ComboBox 75, 125, 60, 45, " "+chr(9)+"Client - not employee"+chr(9)+"Employee"+chr(9)+"Employer", converstion_with
+'   Text 140, 130, 25, 10, "clarifies"
+'   EditBox 170, 125, 235, 15, conversation_detail
+'   GroupBox 5, 150, 410, 60, "CASH Budget"
+'   Text 15, 165, 110, 10, "Actual Paychecks to add to JOBS:"
+'   Text 25, 180, 90, 10, "01/01/2018 - $400 - 40 hrs"
+'   Text 25, 190, 90, 10, "01/15/2018- $400 - 40 hrs"
+'   ButtonGroup ButtonPressed
+'     OkButton 315, 220, 50, 15
+'     CancelButton 370, 220, 50, 15
+' EndDialog
+
 pay_item = 0
 For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
@@ -335,6 +400,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
         employer_check = MsgBox("Do you have income verification for this job? Employer name: " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel), vbYesNo + vbQuestion, "Select Income Panel")
 
         If employer_check = vbYes Then
+            EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE
             Do
                 big_err_msg = ""
                 dlg_factor = 0
@@ -358,9 +424,9 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                       Text 310, 10, 50, 10, "Income Type:"
                       DropListBox 365, 10, 100, 45, "J - WIOA"+chr(9)+"W - Wages (Incl Tips)"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", income_type
                       GroupBox 475, 5, 125, 25, "Apply Income to Programs:"
-                      CheckBox 485, 15, 30, 10, "SNAP", apply_to_SNAP
-                      CheckBox 530, 15, 30, 10, "CASH", apply_to_CASH
-                      CheckBox 570, 15, 20, 10, "HC", apply_to_HC
+                      CheckBox 485, 15, 30, 10, "SNAP", EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel)
+                      CheckBox 530, 15, 30, 10, "CASH", EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel)
+                      CheckBox 570, 15, 20, 10, "HC", EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel)
                       Text 5, 40, 60, 10, "JOBS Verif Code:"
                       DropListBox 65, 35, 105, 45, "1 - Pay Stubs/Tip Report"+chr(9)+"2 - Empl Statement"+chr(9)+"3 - Coltrl Stmt"+chr(9)+"4 - Other Document"+chr(9)+"5 - Pend Out State Verification"+chr(9)+"N - No Ver Prvd", JOBS_verif_code
                       Text 175, 40, 155, 10, "additional detail of verification received:"
@@ -383,6 +449,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                               EditBox 90, (y_pos * 20) + 90, 45, 15, LIST_OF_INCOME_ARRAY(gross_amount, all_income) 'gross_amount'
                               EditBox 145, (y_pos * 20) + 90, 25, 15, LIST_OF_INCOME_ARRAY(hours, all_income) 'hours_on_check'
                               OptionGroup RadioGroup1
+                                LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = 1
                                 RadioButton 180, (y_pos * 20) + 90, 25, 10, "Yes", LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) 'budget_yes'
                                 RadioButton 210, (y_pos * 20) + 90, 25, 10, "No", LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) 'budget_no'
                               EditBox 235, (y_pos * 20) + 90, 115, 15, LIST_OF_INCOME_ARRAY(reason_to_exclude, all_income) 'reason_not_budgeted'
@@ -418,7 +485,11 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                     For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
                         If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
                             'ADD ERROR HANDLING HERE
+                            If IsDate(LIST_OF_INCOME_ARRAY(pay_date, all_income)) = FALSE Then sm_err_msg = sm_err_msg & vbNewLine & "* Enter a valid pay date for all checks."
+                            If IsNumeric(LIST_OF_INCOME_ARRAY(gross_amount, all_income)) = FALSE Then sm_err_msg = sm_err_msg & vbNewLine & "* Enter the Gross Amount of the check as a number."
                             If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = 1 AND trim(LIST_OF_INCOME_ARRAY(reason_to_exclude, all_income)) = "" Then err_msg = err_msg & vbNewLine & "* The check on " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & " is to be excluded, list a reason for excluding this check."
+                            If IsNumeric(LIST_OF_INCOME_ARRAY(hours, all_income)) = FALSE Then sm_err_msg = sm_err_msg & vbNewLine & "* Enter the number of hours for the paycheck on " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & " as a number."
+                            If IsNumeric(LIST_OF_INCOME_ARRAY(exclude_amount, all_income)) = FALSE AND trim(LIST_OF_INCOME_ARRAY(exclude_amount, all_income)) <> "" Then sm_err_msg = sm_err_msg & vbNewLine & "* Enter the amount excluded from the budget as a number."
                         End If
                     Next
 
@@ -443,6 +514,50 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
                 Loop until sm_err_msg = ""
 
+                total_of_counted_income = 0
+                total_of_hours = 0
+                number_of_checks_budgeted = 0
+                EARNED_INCOME_PANELS_ARRAY(pay_weekday, ei_panel) = ""
+                list_of_excluded_pay_dates = ""
+
+                For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
+                    If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
+                        EARNED_INCOME_PANELS_ARRAY(income_list_indct, ei_panel) = EARNED_INCOME_PANELS_ARRAY(income_list_indct, ei_panel) & "~" & all_income
+
+                        'determining the pay frequency.
+                        If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "" Then
+
+                        End If
+
+                        If LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = checked Then
+                            If LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = "" Then LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = 0
+                            LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = LIST_OF_INCOME_ARRAY(exclude_amount, all_income) * 1
+                            LIST_OF_INCOME_ARRAY(gross_amount, all_income) = LIST_OF_INCOME_ARRAY(gross_amount, all_income) * 1
+                            net_amount = LIST_OF_INCOME_ARRAY(gross_amount, all_income) - LIST_OF_INCOME_ARRAY(exclude_amount, all_income)
+                            total_of_counted_income = total_of_counted_income + net_amount
+                            number_of_checks_budgeted = number_of_checks_budgeted + 1
+
+                            LIST_OF_INCOME_ARRAY(hours, all_income) = LIST_OF_INCOME_ARRAY(hours, all_income) * 1
+                            total_of_hours = total_of_hours + LIST_OF_INCOME_ARRAY(hours, all_income)
+                        Else
+                            list_of_excluded_pay_dates = list_of_excluded_pay_dates & ", " & LIST_OF_INCOME_ARRAY(pay_date, all_income)
+                        End If
+                    End If
+                Next
+
+                'ONCE PAY FREQUENCY IS DETERMINED, write to assess if paystubs consititute 30 days and if not, force clarification of income.
+                EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel) = total_of_hours / number_of_checks_budgeted
+                EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel), 2,,0)
+
+                EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) = total_of_counted_income / number_of_checks_budgeted
+                EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel),2,,0)
+
+                EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) = total_of_counted_income / total_of_hours
+                EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel),2,,0)
+
+                If list_of_excluded_pay_dates <> "" Then list_of_excluded_pay_dates = right(list_of_excluded_pay_dates, len(list_of_excluded_pay_dates) - 2)
+
+                EARNED_INCOME_PANELS_ARRAY(income_list_indct, ei_panel) = right(EARNED_INCOME_PANELS_ARRAY(income_list_indct, ei_panel), len(EARNED_INCOME_PANELS_ARRAY(income_list_indct, ei_panel))-1)
                 'Script will determine pay frequency and potentially 1st check (if not listed on JOBS)
                 'Script will determine the initial footer month to change by the pay dates listed.
                 'Script will create a budget based on the program this income applies to
@@ -450,7 +565,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                 BeginDialog Dialog1, 0, 0, 421, 240, "Confirm JOBS Budget"
                   Text 10, 10, 175, 10, "JOBS 01 01 - EMPLOYER"
                   Text 245, 10, 50, 10, "Pay Frequency"
-                  DropListBox 305, 5, 95, 45, "1 - One Time Per Month"+chr(9)+"2 - Two Times Per Month"+chr(9)+"3 - Every Other Week"+chr(9)+"4 - Every Week"+chr(9)+"5 - Other", pay_frequency
+                  DropListBox 305, 5, 95, 45, "1 - One Time Per Month"+chr(9)+"2 - Two Times Per Month"+chr(9)+"3 - Every Other Week"+chr(9)+"4 - Every Week"+chr(9)+"5 - Other", EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
                   Text 240, 30, 60, 10, "Income Start Date:"
                   EditBox 305, 25, 70, 15, income_start_date
                   GroupBox 5, 40, 410, 105, "SNAP Budget"
@@ -458,22 +573,24 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                   y_pos = 0
                   For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
                       If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
+                        If LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = checked Then
                           Text 20, (y_pos * 10) + 65, 90, 10, LIST_OF_INCOME_ARRAY(pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs."
                           y_pos = y_pos + 1
                           'Text 20, 65, 90, 10, "01/01/2018 - $400 - 40 hrs"
                           'Text 20, 75, 90, 10, "01/15/2018- $400 - 40 hrs"
+                        End If
                       End If
                   Next
-                  Text 10, 95, 130, 10, "Paychecks not included: 12/24/2018"
-                  Text 185, 50, 90, 10, "Average hourly rate of pay:"
-                  Text 185, 65, 90, 10, "Average weekly hours:"
-                  Text 185, 80, 90, 10, "Average paycheck amount:"
-                  Text 185, 95, 90, 10, "Monthly Budgeted Income:"
+                  Text 10, 95, 130, 10, "Paychecks not included: " & list_of_excluded_pay_dates
+                  Text 185, 50, 200, 10, "Average hourly rate of pay: $" & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel)
+                  Text 185, 65, 200, 10, "Average weekly hours: " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)
+                  Text 185, 80, 200, 10, "Average paycheck amount: $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
+                  Text 185, 95, 200, 10, "Monthly Budgeted Income: $" & EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel)
                   CheckBox 10, 110, 330, 10, "Check here if you confirm that this budget is correct and is the best estimate of anticipated income.", confirm_budget_checkbox
                   Text 10, 130, 60, 10, "Conversation with:"
-                  ComboBox 75, 125, 60, 45, " "+chr(9)+"Client - not employee"+chr(9)+"Employee"+chr(9)+"Employer", converstion_with
+                  ComboBox 75, 125, 60, 45, " "+chr(9)+"Client - not employee"+chr(9)+"Employee"+chr(9)+"Employer",  EARNED_INCOME_PANELS_ARRAY(spoke_with, ei_panel)
                   Text 140, 130, 25, 10, "clarifies"
-                  EditBox 170, 125, 235, 15, conversation_detail
+                  EditBox 170, 125, 235, 15, EARNED_INCOME_PANELS_ARRAY(convo_detail, ei_panel)
                   GroupBox 5, 150, 410, 60, "CASH Budget"
                   Text 15, 165, 110, 10, "Actual Paychecks to add to JOBS:"
                   Text 25, 180, 90, 10, "01/01/2018 - $400 - 40 hrs"
@@ -482,10 +599,19 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                     OkButton 315, 220, 50, 15
                     CancelButton 370, 220, 50, 15
                 EndDialog
+
+
+                Dialog Dialog1
+                cancel_confirmation
+
+                If confirm_budget_checkbox = unchecked then big_err_msg = big_err_msg & vbNewLine & "*** Since the budget is not confirmed as correct, the ENTER PAY INFORMATION DIALOG will reappear and allow information to be corrected to generate an accurate budget. ***"
+
             Loop until big_err_msg = ""
 
-            Dialog Dialog1
+
             'Add handling to check WREG for correct coding based upon this income information (potentiall update)
+
+
 
             'Worker must confirm the frequency, first pay, and footer month
             'Worker will inicate if future months should be updated - default this to 'yes' as script will update retro and prospective specific to each month
@@ -544,4 +670,11 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
     'NAVIGATE to RBIC for each HH MEMBER and ask if Income Information was received for this RBIC
 
+Next
+
+For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
+    If EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE Then
+
+
+    End If
 Next
