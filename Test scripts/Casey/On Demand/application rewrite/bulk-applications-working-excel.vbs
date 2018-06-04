@@ -1411,9 +1411,9 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
     ObjWorkExcel.Cells(row, intvw_date_col).Value = ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
     ObjWorkExcel.Cells(row, quest_intvw_date_col).Value = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
     ObjWorkExcel.Cells(row, ftof_still_need_col).Value = ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry)
-    If ObjWorkExcel.Cells(row, appt_notc_date_col).Value <> "Y" Then ObjWorkExcel.Cells(row, appt_notc_date_col).Value = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)        'For some reason my Y codes were being deleted on subsequent days - trying to account for that here
+    ObjWorkExcel.Cells(row, appt_notc_date_col).Value = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
     ObjWorkExcel.Cells(row, appt_date_col).Value = ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
-    ObjWorkExcel.Cells(row, appt_notc_confirm_col).Value = ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry)
+    If ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry).Value <> "Y" Then  ObjWorkExcel.Cells(row, appt_notc_confirm_col).Value = ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry)       'For some reason my Y codes were being deleted on subsequent days - trying to account for that here
     ObjWorkExcel.Cells(row, nomi_date_col).Value = ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
     ObjWorkExcel.Cells(row, nomi_confirm_col).Value = ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry)
     If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE Then
@@ -1654,7 +1654,7 @@ action_row = 2      'setting the first row
 For action_case = 0 to UBOUND(ACTION_TODAY_CASES_ARRAY, 2)      'looping through the ARRAY created when we took actions on the cases on the Working Excel
 
     'removing leading seperators
-    IF ACTION_TODAY_CASES_ARRAY(error_notes, action_case) <> "" AND left(ACTION_TODAY_CASES_ARRAY(error_notes, action_case), 3) = " - ") THEN ACTION_TODAY_CASES_ARRAY(error_notes, action_case) = right(ACTION_TODAY_CASES_ARRAY(error_notes, action_case), len(ACTION_TODAY_CASES_ARRAY(error_notes, action_case))- 3)
+    IF ACTION_TODAY_CASES_ARRAY(error_notes, action_case) <> "" AND left(ACTION_TODAY_CASES_ARRAY(error_notes, action_case), 3) = " - " THEN ACTION_TODAY_CASES_ARRAY(error_notes, action_case) = right(ACTION_TODAY_CASES_ARRAY(error_notes, action_case), len(ACTION_TODAY_CASES_ARRAY(error_notes, action_case))- 3)
 
     'adding the information from the ARRAY to the spreadsheet
     ObjExcel.Cells(action_row, worker_id_col)        = ACTION_TODAY_CASES_ARRAY(worker_ID, action_case)

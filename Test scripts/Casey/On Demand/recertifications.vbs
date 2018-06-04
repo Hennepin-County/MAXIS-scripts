@@ -108,6 +108,18 @@ function start_a_new_spec_memo_and_continue(success_var)
 	transmit                                                        'Transmits to start the memo writing process
 end function
 
+Function HCRE_panel_bypass()
+	'handling for cases that do not have a completed HCRE panel
+	PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
+	Do
+		EMReadscreen HCRE_panel_check, 4, 2, 50
+		If HCRE_panel_check = "HCRE" then
+			PF10	'exists edit mode in cases where HCRE isn't complete for a member
+			PF3
+		END IF
+	Loop until HCRE_panel_check <> "HCRE"
+End Function
+
 'DIALOGS ===================================================================================================================
 
 'Initial Dialog which requests a file path for the excel file
@@ -467,6 +479,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
         If snap_status = "ACTV" then ALL_CASES_ARRAY(SNAP_case, case_entry) = TRUE
         If snap_status = "PEND" then ALL_CASES_ARRAY(SNAP_case, case_entry) = TRUE
 
+        Call HCRE_panel_bypass
 
         If notice_type = "NOMI" or notice_type = "Data Only" then
             'REVW to check the REVW code
