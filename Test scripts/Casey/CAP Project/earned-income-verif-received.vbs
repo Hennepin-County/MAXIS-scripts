@@ -186,7 +186,7 @@ For each member in HH_member_array
             EARNED_INCOME_PANELS_ARRAY(panel_type, the_panel) = "JOBS"
             EARNED_INCOME_PANELS_ARRAY(panel_member, the_panel) = member
             EARNED_INCOME_PANELS_ARRAY(panel_instance, the_panel) = "0" & panel
-            EARNED_INCOME_PANELS_ARRAY(income_received, the_panel) =  = FALSE
+            EARNED_INCOME_PANELS_ARRAY(income_received, the_panel) = FALSE
             If CASH_case = TRUE Then EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, the_panel) = checked
             If SNAP_case = TRUE Then EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, the_panel) = checked
             If HC_case = TRUE Then EARNED_INCOME_PANELS_ARRAY(apply_to_HC, the_panel) = checked
@@ -250,7 +250,7 @@ For each member in HH_member_array
             EARNED_INCOME_PANELS_ARRAY(panel_type, the_panel) = "BUSI"
             EARNED_INCOME_PANELS_ARRAY(panel_member, the_panel) = member
             EARNED_INCOME_PANELS_ARRAY(panel_instance, the_panel) = "0" & panel
-            EARNED_INCOME_PANELS_ARRAY(income_received, the_panel) =  = FALSE
+            EARNED_INCOME_PANELS_ARRAY(income_received, the_panel) = FALSE
             If CASH_case = TRUE Then EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, the_panel) = checked
             If SNAP_case = TRUE Then EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, the_panel) = checked
             If HC_case = TRUE Then EARNED_INCOME_PANELS_ARRAY(apply_to_HC, the_panel) = checked
