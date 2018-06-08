@@ -167,7 +167,7 @@ ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one mo
 Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_0_to_C(script_num).script_name				= "CAF"
 script_array_0_to_C(script_num).file_name				= "caf.vbs"
-script_array_0_to_C(script_num).description				= "Template for when you're processing a CAF. This is intended to be used once interview in complete.*"
+script_array_0_to_C(script_num).description				= "Template for when you're processing a CAF. This is intended to be used once interview is complete.*"
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
