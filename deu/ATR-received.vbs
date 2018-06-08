@@ -1,5 +1,5 @@
 'GATHERING STATS===========================================================================================
-name_of_script = "NOTES-ATR-RECEIVED.vbs"
+name_of_script = "NOTES-DEU-ATR-RECEIVED.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 180

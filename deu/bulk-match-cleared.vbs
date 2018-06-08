@@ -1,5 +1,5 @@
 'GATHERING STATS===========================================================================================
-name_of_script = "BULK-MATCH-CLEARED.vbs"
+name_of_script = "BULK-DEU-MATCH-CLEARED.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 180
@@ -123,20 +123,20 @@ DO
 		    EMReadScreen IEVS_message, 4, row, 6
 		    'msgbox IEVS_message & vbcr & IEVS_type
 		    If IEVS_message <> IEVS_type then
-				match_found = False 
+				match_found = False
 				row = row + 1
-		    	EMReadScreen new_case, 9, row, 63 
-		    	If new_case = "CASE NBR:" then 
+		    	EMReadScreen new_case, 9, row, 63
+		    	If new_case = "CASE NBR:" then
 		    		EMreadscreen case_number, 7, row, 73
-		    		If trim(case_number) = MAXIS_case_number then 
+		    		If trim(case_number) = MAXIS_case_number then
 		    			row = row + 1
-					Else 
-						exit do 
-					End if  
-				Else 
+					Else
+						exit do
+					End if
+				Else
 					'msgbox "1." & MAXIS_case_number & vbcr & "new_case" & new_case & vbcr & "row: " & row & vbcr & "match found: " & match_found
-				End if 
-				If row = 19 then 
+				End if
+				If row = 19 then
 					PF8
 					row = 6
 				End if
@@ -146,19 +146,19 @@ DO
 		    		match_found = False
 		    		row = row + 1
 					'msgbox "2." & MAXIS_case_number & vbcr & "row: " & row & vbcr & "match found: " & match_found
-		    	Else 
+		    	Else
 		    		match_found = true
 					'msgbox "3." & MAXIS_case_number & vbcr & "row: " & row & vbcr & "match found: " & match_found
 		    		exit do
 		    	End if
 		    End if
-		Loop until match_found = true 
-	End if 			
-		
-	If match_found = False then 
+		Loop until match_found = true
+	End if
+
+	If match_found = False then
 		case_note_actions = False 'no case note'
 		objExcel.cells(excel_row, 9).value = "A IEVS match wasn't found on DAIL/DAIL or SSN did not match."
-	End if 
+	End if
 	'----------------------------------------------------------------------------------------------------IEVS
 	If match_found = True then
 	    'Navigating deeper into the match interface
@@ -248,23 +248,23 @@ DO
 			        	diff_date = replace(diff_date, " ", "/") 'replace spaces with format to date'
                         objExcel.cells(excel_row, 7).value = diff_date
                     END IF
-					
+
 					EMReadScreen Active_Programs, 13, 6, 68
 					Active_Programs =trim(Active_Programs)
-					objExcel.cells(excel_row, 4).value = Active_Programs	
-					
+					objExcel.cells(excel_row, 4).value = Active_Programs
+
 					programs = ""
 					IF instr(Active_Programs, "D") then programs = programs & "DWP, "
 					IF instr(Active_Programs, "F") then programs = programs & "Food Support, "
 					IF instr(Active_Programs, "H") then programs = programs & "Health Care, "
 					IF instr(Active_Programs, "M") then programs = programs & "Medical Assistance, "
 					IF instr(Active_Programs, "S") then programs = programs & "MFIP, "
-					'trims excess spaces of programs 
+					'trims excess spaces of programs
 					programs = trim(programs)
 					'takes the last comma off of programs when autofilled into dialog
-					If right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1) 
-					
-					'clearing all programs on IULA 
+					If right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
+
+					'clearing all programs on IULA
 					programs_array = split(programs, ",")
 					For each program in programs_array
 						program = trim(program)
@@ -280,11 +280,11 @@ DO
 						If cleared_field <> "__" then
 							objExcel.cells(excel_row, 9).value = "Unable to update cleared status on IULA."
 							case_note_actions = False
-						Else 
+						Else
 							EMWriteScreen Cleared_status, row + 1, col + 1
-						End if 
-					Next 
-					
+						End if
+					Next
+
                     CALL write_value_and_transmit("10", 12, 46)   'navigates to IULB
 
 				    'resolved notes depending on the Cleared_status
@@ -327,7 +327,7 @@ DO
         call write_variable_in_CASE_NOTE("------ ----- ----- ----- -----")
         Call write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
     End if
-	
+
 	excel_row = excel_row + 1
 	MAXIS_case_number = ""
 	Client_SSN = ""
