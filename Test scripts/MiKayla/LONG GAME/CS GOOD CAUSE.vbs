@@ -88,7 +88,7 @@ BeginDialog Good_cause_dialog, 0, 0, 316, 280, "Good Cause"
   CheckBox 200, 85, 20, 15, "FS*", FS_CHECKBOX
   CheckBox 225, 85, 20, 15, "HC", HC_CHECKBOX
   CheckBox 250, 85, 30, 15, "METS", METS_CHECKBOX
-  CheckBox 285, 85, 25, 15, "MFIP", MFIP_CHECKBOX
+  CheckBox 285, 85, 25, 15, "MF", MFIP_CHECKBOX
   EditBox 70, 105, 240, 15, mets_info
   EditBox 70, 125, 240, 15, verifs_req
   EditBox 70, 155, 240, 15, other_notes
@@ -213,17 +213,20 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	client_name = first_name & " " & last_name
 	Call fix_case_for_name(client_name)
 
-	Transmit
-	PF3'to move past non-inhibiting warning messages on ABPS
+	Transmit'to add information
+
+	Transmit'to move past non-inhibiting warning messages on ABPS
+	PF3
 	EMReadScreen ABPS_screen, 4, 2, 50		'if inhibiting error exists, this will catch it and instruct the user to update ABPS
 	msgbox ABPS_screen
 	If ABPS_screen = "ABPS" then script_end_procedure("An error occurred on the ABPS panel. Please update the panel before using the script with the absent parent information.")
 	'seting variables for the programs included
+
 	IF CCAP_CHECKBOX = CHECKED THEN programs_included = programs_included & "CCAP, "
 	IF DWP_CHECKBOX = CHECKED THEN programs_included = programs_included & "DWP, "
 	IF MFIP_CHECKBOX = CHECKED THEN programs_included = programs_included & "MFIP, "
 	IF HC_CHECKBOX = CHECKED THEN programs_included = programs_included & "Healthcare, "
-	IF HC_CHECKBOX = CHECKED THEN programs_included = programs_included & "Food Support, "
+	IF FS_CHECKBOX = CHECKED THEN programs_included = programs_included & "Food Support, "
 	'-----------------------------------------------------------------------------------------------------Case note & email sending
 	start_a_blank_CASE_NOTE
 	IF good_cause_droplist = "Application Review-Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
@@ -243,7 +246,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	Call write_bullet_and_variable_in_case_note("Child(ren) member number(s)", memb_number)
 	Call write_bullet_and_variable_in_case_note("ABPS name", client_name)
 	CALL write_bullet_and_variable_in_case_note("Applicable programs", programs_included)
-  Call write_bullet_and_variable_in_case_note("What is GC incomplete for?", verifs_req)
+  Call write_bullet_and_variable_in_case_note("What is GC incomplete for", verifs_req)
   Call write_bullet_and_variable_in_case_note("Reason for claiming good cause", reason_droplist)
 	Call write_bullet_and_variable_in_case_note("METS information", mets_info )
 	Call write_bullet_and_variable_in_case_note("Verifs requested", verifs_req)
@@ -254,7 +257,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	IF DHS_3629_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Notice of Good Cause Approval (DHS-3629)")
 	IF DHS_3632_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Request for Additional Information (DHS 3632)")
 	IF DHS_3631_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause End Exemption (DHS-3631)")
-	IF DHS_3627_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Imp Information about Your Request Exemption (DHS-3627) ")
+	IF DHS_3627_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Imp Information about Your Request Exemption (DHS-3627) ")
 	IF Recert_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Yearly Determination Packet")
 	Call write_variable_in_case_note("---")
 	Call write_variable_in_case_note(worker_signature)
