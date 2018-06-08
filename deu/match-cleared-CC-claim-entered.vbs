@@ -1,5 +1,5 @@
 ''GATHERING STATS===========================================================================================
-name_of_script = "match-cleared-CC-claim-entered.vbs"
+name_of_script = "ACTION-MATCH-CLEARED-CC.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 300
@@ -138,6 +138,7 @@ End if
 
 EMReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number= TRIM(MAXIS_case_number)
+
 BeginDialog OP_Cleared_dialog, 0, 0, 361, 240, "Match Cleared CC Claim Entered"
   EditBox 55, 5, 35, 15, MAXIS_case_number
 	EditBox 150, 5, 45, 15, discovery_date

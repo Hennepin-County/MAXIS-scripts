@@ -1,5 +1,5 @@
 ''GATHERING STATS===========================================================================================
-name_of_script = "match-cleared.vbs"
+name_of_script = "ACTION-MATCH-CLEARED.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 300
@@ -234,7 +234,8 @@ IF instr(first_name, " ") THEN   						'If there is a middle initial in the firs
 	position = InStr(first_name, " ")               	'establishing the length of the variable
 	first_name = Left(first_name, position-1)       	'trims the middle initial off of the first name
 END IF
-'it is not putting a space in'
+'it is not putting a space in the dialog MsgBox
+'TODO change_name_to_FML
 '----------------------------------------------------------------------------------------------------ACTIVE PROGRAMS
 EMReadScreen Active_Programs, 13, 6, 68
 Active_Programs =trim(Active_Programs)
@@ -269,13 +270,13 @@ END IF
 EMReadScreen notice_sent, 1, 14, 37
 EMReadScreen sent_date, 8, 14, 68
 sent_date = trim(sent_date)
-IF sent_date = "" THEN sent_date = replace(sent_date, " ", "N/A")
-IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
+IF sent_date = "" THEN sent_date = replace(sent_date, "", "N/A")
+IF sent_date <> "" THEN sent_date = replace(sent_date, "", "/")
 
 '----------------------------------------------------------------------------dialogs
 BeginDialog notice_action_dialog, 0, 0, 166, 90, "SEND DIFFERENCE NOTICE?"
 	CheckBox 25, 35, 105, 10, "YES - Send Difference Notice", send_notice_checkbox
-  CheckBox 25, 50, 130, 10, "NO - Continue Match Action to Clear", clear_action_checkbox
+	CheckBox 25, 50, 130, 10, "NO - Continue Match Action to Clear", clear_action_checkbox
   Text 10, 10, 145, 20, "A difference notice has not been sent, would you like to send the difference notice now?"
   ButtonGroup ButtonPressed
     OkButton 60, 70, 45, 15
@@ -302,12 +303,12 @@ EndDialog
 
 IF notice_sent = "N" THEN
 	DO
-    	err_msg = ""
-    	Dialog notice_action_dialog
-    	IF ButtonPressed = 0 THEN StopScript
-    	IF (send_notice_checkbox = UNCHECKED AND clear_action_checkbox = UNCHECKED) THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
-    	IF (send_notice_checkbox = CHECKED AND clear_action_checkbox = CHECKED) THEN err_msg = err_msg & vbNewLine & "* Please select only one answer to continue."
-    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    err_msg = ""
+    Dialog notice_action_dialog
+    IF ButtonPressed = 0 THEN StopScript
+    IF (send_notice_checkbox = UNCHECKED AND clear_action_checkbox = UNCHECKED) THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
+    IF (send_notice_checkbox = CHECKED AND clear_action_checkbox = CHECKED) THEN err_msg = err_msg & vbNewLine & "* Please select only one answer to continue."
+    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 END IF
 CALL DEU_password_check(False)
@@ -318,10 +319,10 @@ IF send_notice_checkbox = CHECKED THEN
     ATR_Verf_CheckBox = CHECKED
     '---------------------------------------------------------------------send notice dialog and dialog DO...loop
 	DO
-    	err_msg = ""
-    	Dialog send_notice_dialog
-    	IF ButtonPressed = 0 THEN StopScript
-    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    err_msg = ""
+    Dialog send_notice_dialog
+    cancel_confirmation
+    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL DEU_password_check(False)
 	msgbox "ready to go?"
@@ -330,7 +331,7 @@ IF send_notice_checkbox = CHECKED THEN
 	EMwritescreen "Y", 14, 37 'send Notice
 	'msgbox "Difference Notice Sent"
 	transmit 'goes into IULA
-	'removed the IULB informtion '
+	'removed the IULB information '
 	transmit'exiting IULA, helps prevent errors when going to the case note
 
 	   'Going to the MISC panel
@@ -408,7 +409,8 @@ IF send_notice_checkbox = CHECKED THEN
 END IF
 
 IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
-	MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The script will now navigate to clear the Non-wage match.")
+	IF sent_date <> "" THEN MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The script will now navigate to clear the match.")
+
 	BeginDialog cleared_match_dialog, 0, 0, 311, 175, "MATCH CLEARED"
   	Text 10, 20, 110, 10, "Case number: " & MAXIS_case_number
   	Text 120, 20, 165, 10, "Client name: " & client_name
@@ -437,7 +439,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	DO
 		err_msg = ""
 		Dialog cleared_match_dialog
-		IF ButtonPressed = 0 THEN StopScript
+		cancel_confirmation
 		IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "* Enter a valid numeric resolved time."
 		IF resolve_time = "" THEN err_msg = err_msg & vbNewLine & "Please complete resolve time."
 		IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the client respond to Difference Notice?"
@@ -446,7 +448,6 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		If (resolution_status = "CC - Claim Entered" AND instr(programs, "HC") or instr(programs, "Medical Assistance")) THEN err_msg = err_msg & vbNewLine & "* System does not allow HC or MA cases to be cleared with the code 'CC - Claim Entered'."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
-
 	CALL DEU_password_check(False)
 
 	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
@@ -474,7 +475,6 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	  	EMSearch cleared_header, row, col
 	  	EMWriteScreen resolution_status, row + 1, col + 1
 	Next
-
 	EMwritescreen rez_status, 12, 58
 	IF change_response = "YES" THEN
 		EMwritescreen "Y", 15, 37
@@ -497,7 +497,6 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	IF resolution_status = "NC - Non Cooperation" THEN EMWriteScreen "Non-coop, requested verf not in ECF, " & other_notes, 8, 6 	'NC
 	'msgbox "did the notes input?"
 	TRANSMIT 'this will take us back to IEVP main menu'
-
 	'------------------------------------------------------------------back on the IEVP menu, making sure that the match cleared
 	EMReadScreen days_pending, 5, 7, 72
 	days_pending = trim(days_pending)
@@ -514,7 +513,6 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
   	IF quarter = 3 THEN IEVS_quarter = "3RD"
   	IF quarter = 4 THEN IEVS_quarter = "4TH"
   END IF
-
 	IEVS_match = replace(IEVS_match, "/", " to ")
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 	PF3 'back to the DAIL'

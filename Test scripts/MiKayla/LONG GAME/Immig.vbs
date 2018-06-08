@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES-IMMIG-SAVE.vbs"
+name_of_script = "ACTION-IMMIGRATION.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 90           'manual run time in seconds

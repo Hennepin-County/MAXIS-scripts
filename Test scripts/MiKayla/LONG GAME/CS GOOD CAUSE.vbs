@@ -80,7 +80,7 @@ BeginDialog Good_cause_dialog, 0, 0, 316, 280, "Good Cause"
   CheckBox 235, 15, 60, 10, "Sup Evidence", sup_evidence_check
   CheckBox 235, 30, 55, 10, "Investigation", investigation_check
   CheckBox 235, 45, 70, 10, "Med Sup Svc Only", med_sup_check
-  DropListBox 35, 65, 115, 15, "Select One:"+chr(9)+"Application Review - Complete"+chr(9)+"Application Review -  Incomplete"+chr(9)+"Change/exemption ending"+chr(9)+"Determination"+chr(9)+"Recertification", good_cause_droplist
+  DropListBox 35, 65, 115, 15, "Select One:"+chr(9)+"Application Review-Complete"+chr(9)+"Application Review-Incomplete"+chr(9)+"Change/exemption ending"+chr(9)+"Determination"+chr(9)+"Recertification", good_cause_droplist
   DropListBox 185, 65, 115, 15, "Select One:"+chr(9)+"Potential phys harm/Child"+chr(9)+"Potential Emotnl harm/Child"+chr(9)+"Potential phys harm/Caregiver"+chr(9)+"Potential Emotnl harm/Caregiver"+chr(9)+"Cncptn Incest/Forced Rape"+chr(9)+"Legal adoption Before Court"+chr(9)+"Parent Gets Preadoptn Svc", reason_droplist
   DropListBox 35, 85, 60, 15, "Select One:"+chr(9)+"Not Claimed"+chr(9)+"Pending"+chr(9)+"Granted"+chr(9)+"Denied ", gc_status
   CheckBox 140, 85, 25, 15, "CCA", CCA_CHECKBOX
@@ -167,16 +167,17 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 		Loop until current_panel_number = panel_number
 	End if
 
-If good_cause_droplist = "Change/exemption ending" then
-  Do
+	If good_cause_droplist = "Change/exemption ending" then
   	Do
-  		err_msg = ""
-  		dialog change_exemption_dialog
-  		cancel_confirmation
-  		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-  	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-  	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-  Loop until are_we_passworded_out = false					'loops until user passwords back in
+  		Do
+  			err_msg = ""
+  			dialog change_exemption_dialog
+  			cancel_confirmation
+  			If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+  		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+  		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+  	Loop until are_we_passworded_out = false					'loops until user passwords back in
+	END IF
 	'-------------------------------------------------------------------------Updating the ABPS panel
 	PF9
 	Call create_MAXIS_friendly_date_with_YYYY(approved_date, 0, 18, 38) 'creates and writes the date entered in dialog'
@@ -203,8 +204,6 @@ If good_cause_droplist = "Change/exemption ending" then
 	If reason_droplist = "Legal adoption Before Court" 		then claim_reason = "6"
 	If reason_droplist = "Parent Gets Preadoptn Svc" 		then claim_reason = "7"
 	EMWriteScreen claim_reason, 6, 47
-
-
 	EMReadScreen first_name, 12, 10, 63	'making sure we can actually update this case.
 	EMReadScreen last_name, 24, 10, 30	'making sure we can actually update this case.
 	first_name = trim(first_name)
@@ -220,16 +219,22 @@ If good_cause_droplist = "Change/exemption ending" then
 	msgbox ABPS_screen
 	If ABPS_screen = "ABPS" then script_end_procedure("An error occurred on the ABPS panel. Please update the panel before using the script with the absent parent information.")
 	'seting variables for the programs included
-	IF CCAP_CHECKBOX = 1 THEN programs_included = programs_included & "CCAP, "
-	IF DWP_CHECKBOX = 1 THEN programs_included = programs_included & "DWP, "
-	IF MFIP_CHECKBOX = 1 THEN programs_included = programs_included & "MFIP, "
-	IF HC_CHECKBOX = 1 THEN programs_included = programs_included & "Healthcare, "
-	IF HC_CHECKBOX = 1 THEN programs_included = programs_included & "Food Support, "
+	IF CCAP_CHECKBOX = CHECKED THEN programs_included = programs_included & "CCAP, "
+	IF DWP_CHECKBOX = CHECKED THEN programs_included = programs_included & "DWP, "
+	IF MFIP_CHECKBOX = CHECKED THEN programs_included = programs_included & "MFIP, "
+	IF HC_CHECKBOX = CHECKED THEN programs_included = programs_included & "Healthcare, "
+	IF HC_CHECKBOX = CHECKED THEN programs_included = programs_included & "Food Support, "
 	'-----------------------------------------------------------------------------------------------------Case note & email sending
 	start_a_blank_CASE_NOTE
-	IF good_cause_droplist = "Application Review - Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
-	IF good_cause_droplist = "Application Review - Incomplete" THEN Call write_variable_in_case_note("Good Cause Application Review - Incomplete")
-	IF good_cause_droplist = "Change/exemption ending" THEN Call write_variable_in_case_note("Good Cause Application Change/exemption ending")
+	IF good_cause_droplist = "Application Review-Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
+	IF good_cause_droplist = "Application Review-Incomplete" THEN Call write_variable_in_case_note("Good Cause Application Review - Incomplete")
+	IF good_cause_droplist = "Change/exemption ending" THEN
+		Call write_variable_in_case_note("Good Cause Application Change/exemption ending")
+		Call write_bullet_and_variable_in_case_note("Date of change reported:", change_reported_date)
+		Call write_bullet_and_variable_in_case_note("What change was reported:", change_reported)
+		Call write_bullet_and_variable_in_case_note("What was updated in MAXIS:", maxis_updates)
+		IF no_longer_claiming_checkbox = CHECKED THEN Call write_variable_in_case_note("* Client is no longer claiming good cause")
+	END IF
 	IF good_cause_droplist = "Determination" THEN Call write_variable_in_case_note("Good Cause Application - Determination")
 	IF good_cause_droplist = "Recertification" THEN Call write_variable_in_case_note("Good Cause Application Review - Recertification")
 	Call write_bullet_and_variable_in_case_note("Good cause status", gc_status)

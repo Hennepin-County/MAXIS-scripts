@@ -1,5 +1,5 @@
 ''GATHERING STATS===========================================================================================
-name_of_script = "match-cleared-CC-claim-entered-no-dail.vbs"
+name_of_script = "ACTION-MATCH-CLEARED-CC-NO-DAIL.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 300
