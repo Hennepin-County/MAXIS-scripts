@@ -12,11 +12,11 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else											'Everyone else should use the release branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		End if
+        IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+            FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+        Else											'Everyone else should use the release branch.
+            FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+        End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
 		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
 		req.send													'Sends request
@@ -24,15 +24,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message
-			FuncLib_URL = "Q:\Blue Zone Scripts\FUNCTIONS LIBRARY.vbs"
-			Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-			Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
-			text_from_the_other_script = fso_command.ReadAll
-			fso_command.Close
-			Execute text_from_the_other_script
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                           "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                           "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                           vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+           StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "Q:\Blue Zone Scripts\FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -41,7 +40,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
 
 'DIALOG----------------------------------------------------------------------------------------------------
 
@@ -97,7 +95,7 @@ EndDialog
 EMConnect "A" 'Forces worker to use S1 session fo the script
 
 attn
-EMReadScreen MMIS_A_check, 7, 15, 15 
+EMReadScreen MMIS_A_check, 7, 15, 15
 IF MMIS_A_check = "RUNNING" then
   EMSendKey "10" 'to 10
   transmit
@@ -106,7 +104,7 @@ Else
   EMConnect "B"
   attn
   EMReadScreen MMIS_B_check, 7, 15, 15
-  If MMIS_B_check <> "RUNNING" then 
+  If MMIS_B_check <> "RUNNING" then
     script_end_procedure("MMIS does not appear to be running. This script will now stop.")
   Else
     EMSendKey "10"
@@ -116,7 +114,7 @@ End if
 EMFocus 'Bringing window focus to the second screen if needed.
 
 'Sending MMIS back to the beginning screen and checking for a password prompt
-Do 
+Do
   PF6
   EMReadScreen password_prompt, 38, 2, 23
   IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then StopScript
@@ -132,7 +130,7 @@ transmit
 row = 1
 col = 1
 EMSearch "C302", row, col
-If row <> 0 then 
+If row <> 0 then
   If row <> 1 then 'It has to do this in case the worker only has one option (as many LTC and OSA workers don't have the option to decide between MAXIS and MCRE case access). The MMIS screen will show the text, but it's in the first row in these instances.
     EMWriteScreen "x", row, 4
     transmit
@@ -141,7 +139,7 @@ Else 'Some staff may only have EK01 (MMIS MCRE). The script will allow workers t
   row = 1
   col = 1
   EMSearch "EK01", row, col
-  If row <> 0 then 
+  If row <> 0 then
     If row <> 1 then
       EMWriteScreen "x", row, 4
       transmit
@@ -150,7 +148,7 @@ Else 'Some staff may only have EK01 (MMIS MCRE). The script will allow workers t
     row = 1
     col = 1
     EMSearch "C402", row, col
-    If row <> 0 then 
+    If row <> 0 then
       If row <> 1 then
         EMWriteScreen "x", row, 4
         transmit
@@ -159,7 +157,7 @@ Else 'Some staff may only have EK01 (MMIS MCRE). The script will allow workers t
       row = 1
       col = 1
       EMSearch "EKIQ", row, col
-      If row <> 0 then 
+      If row <> 0 then
         If row <> 1 then
           EMWriteScreen "x", row, 4
           transmit
@@ -206,7 +204,7 @@ If health_plan = "Blue Plus" then health_plan_code = "A065813800"
 Contract_code_part_one = left(contract_code, 2)
 Contract_code_part_two = right(contract_code, 2)
 
-If insurance_yes = 1 then 
+If insurance_yes = 1 then
 	insurance_yn = "y"
    else
 	insurance_yn = "n"
@@ -230,7 +228,7 @@ end if
 
 'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
 EMWriteScreen "c", 2, 19
-EMWriteScreen PMI_number, 4, 19 
+EMWriteScreen PMI_number, 4, 19
 transmit
 EMReadscreen RKEY_check, 4, 1, 52
 If RKEY_check = "RKEY" then script_end_procedure("The listed PMI number was not found. Check your PMI number and try again.")
@@ -246,7 +244,7 @@ transmit
 EMReadScreen RPOL_check, 4, 1, 52
 If RPOL_check <> "RPOL" then script_end_procedure("The script was unable to navigate to RPOL process manually if needed.")
 EMreadscreen policy_number, 1, 7, 8
-if policy_number <> " " then 
+if policy_number <> " " then
 	msgbox "This case has spans on RPOL. Please evaluate manually at this time."
 	pf6
 	stopscript
@@ -264,12 +262,12 @@ client_last_name  = replace(client_last_name, " ", "")
 'clears and enters info for relg
 Emreadscreen managed_care_span, 1, 13, 5
 'determine if change reason is instate or reinstate
-If managed_care_span <> " " then 
+If managed_care_span <> " " then
 	change_reason = "re"
 else
 	change_reason = "in"
 end if
-'resets to bottom of the span list. 
+'resets to bottom of the span list.
 pf11
 'Checks for exclusion code only deletes if YY or blank, if any other span entered it stops script.
 EMReadscreen XCL_code, 2, 6, 2
@@ -294,7 +292,7 @@ EMSendkey contract_code_part_two
 'enter change reason
 EMsetcursor 13, 71
 EMsendkey change_reason
-'Asks worker to make sure the script has entered into the right case and cancels out to RKEY if worker hits cancel to no save anything. 
+'Asks worker to make sure the script has entered into the right case and cancels out to RKEY if worker hits cancel to no save anything.
 Dialog correct_pmi_check
   IF buttonpressed = 0 then
 	pf6
@@ -337,7 +335,7 @@ EMsendkey Dental_clinic_code
 'foster care y/n
 EMsetcursor 21, 15
 EMsendkey foster_care_yn
-'Asks worker to make sure the script has entered the correct information and cancels out to RKEY if worker hits cancel to no save anything. 
+'Asks worker to make sure the script has entered the correct information and cancels out to RKEY if worker hits cancel to no save anything.
 Dialog correct_REFM_check
   IF buttonpressed = 0 then
 	pf6

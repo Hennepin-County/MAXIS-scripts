@@ -9,11 +9,11 @@ STATS_denomination = "C"       'C is for each CASE
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else											'Everyone else should use the release branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		End if
+        IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+            FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+        Else											'Everyone else should use the release branch.
+            FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+        End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
 		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
 		req.send													'Sends request
@@ -22,10 +22,10 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message
 			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
-                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
-                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
-                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
-            StopScript
+                                           "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                           "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                           vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+           StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -73,20 +73,20 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 approval_month = CM_plus_one_mo
 approval_year = CM_plus_one_yr
 
-Do 
+Do
     DO
     	err_msg = ""
     	dialog case_number_dlg
     	If ButtonPressed = 0 then StopScript
-    	IF MAXIS_case_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a case number" 
+    	IF MAXIS_case_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a case number"
     	IF len(approval_month) <> 2 then err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit footer month."
     	IF len(approval_year) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit footer year"
     	IF err_msg <> "" THEN msgbox err_msg
     LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
-    
-'Ensures that a period is at the end of 
+
+'Ensures that a period is at the end of
 MFIP_closure_reason = trim(MFIP_closure_reason)
 If right(MFIP_closure_reason, 1) <> "." then MFIP_closure_reason = MFIP_closure_reason & "."
 

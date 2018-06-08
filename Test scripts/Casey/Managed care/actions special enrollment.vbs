@@ -12,11 +12,11 @@ start_time = timer
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else											'Everyone else should use the release branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		End if
+        IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+            FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+        Else											'Everyone else should use the release branch.
+            FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+        End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
 		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
 		req.send													'Sends request
@@ -24,15 +24,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message
-			FuncLib_URL = "Q:\Blue Zone Scripts\FUNCTIONS LIBRARY.vbs"
-			Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-			Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
-			text_from_the_other_script = fso_command.ReadAll
-			fso_command.Close
-			Execute text_from_the_other_script
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                           "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                           "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                           vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+           StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "Q:\Blue Zone Scripts\FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -49,9 +48,9 @@ EMConnect "A" 'Forces worker to use S1 session fo the script
 contract_code = "MA 12"
 enrollment_date = "05/01/17"
 
-do	
+do
 	attn
-	EMReadScreen MMIS_A_check, 7, 15, 15 
+	EMReadScreen MMIS_A_check, 7, 15, 15
 	IF MMIS_A_check = "RUNNING" then
 	EMSendKey "10" 'to 10
 	transmit
@@ -60,7 +59,7 @@ do
 	EMConnect "B"
 	attn
 	EMReadScreen MMIS_B_check, 7, 15, 15
-	If MMIS_B_check <> "RUNNING" then 
+	If MMIS_B_check <> "RUNNING" then
 		script_end_procedure("MMIS does not appear to be running. This script will now stop.")
 	Else
 		EMSendKey "10"
@@ -68,25 +67,25 @@ do
 	End if
 	End if
 	EMFocus 'Bringing window focus to the second screen if needed.
-	
+
 	'Sending MMIS back to the beginning screen and checking for a password prompt
-	Do 
+	Do
 	PF6
 	EMReadScreen password_prompt, 38, 2, 23
 	IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then StopScript
 	EMReadScreen session_start, 18, 1, 7
 	Loop until session_start = "SESSION TERMINATED"
-	
+
 	'Getting back in to MMIS and transmitting past the warning screen (workers should already have accepted the warning screen when they logged themself into MMIS the first time!)
 	EMWriteScreen "mw00", 1, 2
 	transmit
 	transmit
-	
+
 	'The following will select the correct version of MMIS. First it looks for C302, then EK01, then C402.
 	row = 1
 	col = 1
 	EMSearch "C302", row, col
-	If row <> 0 then 
+	If row <> 0 then
 	If row <> 1 then 'It has to do this in case the worker only has one option (as many LTC and OSA workers don't have the option to decide between MAXIS and MCRE case access). The MMIS screen will show the text, but it's in the first row in these instances.
 		EMWriteScreen "x", row, 4
 		transmit
@@ -95,7 +94,7 @@ do
 	row = 1
 	col = 1
 	EMSearch "EK01", row, col
-	If row <> 0 then 
+	If row <> 0 then
 		If row <> 1 then
 		EMWriteScreen "x", row, 4
 		transmit
@@ -104,7 +103,7 @@ do
 		row = 1
 		col = 1
 		EMSearch "C402", row, col
-		If row <> 0 then 
+		If row <> 0 then
 		If row <> 1 then
 			EMWriteScreen "x", row, 4
 			transmit
@@ -113,7 +112,7 @@ do
 		row = 1
 		col = 1
 		EMSearch "EKIQ", row, col
-		If row <> 0 then 
+		If row <> 0 then
 			If row <> 1 then
 			EMWriteScreen "x", row, 4
 			transmit
@@ -124,7 +123,7 @@ do
 		End if
 	End if
 	End if
-	
+
 	'Now it finds the recipient file application feature and selects it.
 	row = 1
 	col = 1
@@ -133,9 +132,9 @@ do
 	transmit
 	PMI_number = ""
 	IF retain_provider_check <> 1 THEN health_plan = "Select one..."
-	
+
 	'do the dialog here
-	Do	
+	Do
 		err_msg = ""
 	    BeginDialog dialog1, 0, 0, 211, 95, "Enrollment Information"
 	      EditBox 55, 10, 80, 15, PMI_number
@@ -146,7 +145,7 @@ do
 	      Text 10, 15, 45, 10, "PMI Number:"
 	      Text 10, 35, 45, 10, "Health Plan:"
 	      CheckBox 10, 50, 195, 10, "Check here to retain this provider for the next script run.", retain_provider_check
-	    EndDialog		
+	    EndDialog
 		Dialog
 		cancel_confirmation
 		If Health_plan = "Select one..." THEN err_msg = err_msg & vbCr & "Please select Health care plan."
@@ -156,18 +155,18 @@ do
 	Do
 	If len(PMI_number) < 8 then PMI_number = "0" & PMI_number
 	Loop until len(PMI_number) = 8
-	
+
 	'health plans
 	If health_plan = "Health Partners" then health_plan_code = "A585713900"
 	If health_plan = "UCare" then health_plan_code = "A565813600"
 	If health_plan = "Blue Plus" then health_plan_code = "A065813800"
-	
+
 	Contract_code_part_one = left(contract_code, 2)
 	Contract_code_part_two = right(contract_code, 2)
-	
+
 	'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
 	EMWriteScreen "c", 2, 19
-	EMWriteScreen PMI_number, 4, 19 
+	EMWriteScreen PMI_number, 4, 19
 	transmit
 	EMReadscreen RSUM_check, 4, 1, 51   'changed this to RSUM
 	If RSUM_check <> "RSUM" then script_end_procedure("The listed PMI number was not found. Check your PMI number and try again.")
@@ -183,9 +182,9 @@ do
 	EMReadScreen RPOL_check, 4, 1, 52
 	If RPOL_check <> "RPOL" then script_end_procedure("The script was unable to navigate to RPOL process manually if needed.")
 	EMreadscreen policy_number, 1, 7, 8
-	if policy_number <> " " then 
+	if policy_number <> " " then
 		EMReadScreen rpol_policy_end_date, 8, 7, 65
-		IF rpol_policy_end_date = "99/99/99" THEN 
+		IF rpol_policy_end_date = "99/99/99" THEN
 			msgbox "This case has spans on RPOL. Please evaluate manually at this time."
 			pf6
 			stopscript
@@ -203,20 +202,20 @@ do
 	client_last_name  = replace(client_last_name, " ", "")
 	'hard coded for this situation, this ends current span
 	enrollment_span_end = DateAdd("D", -1, enrollment_date)
-	CALL write_date(enrollment_span_end, "MM/DD/YY", 13, 14) 
-	'writes disenrollment reason 
+	CALL write_date(enrollment_span_end, "MM/DD/YY", 13, 14)
+	'writes disenrollment reason
 	' for this script, the disenrollment code = "HP"
 	' for this script, the enrollment code = "HP" as well
-	
+
 	' we need to add additional code to enter an enrollment code
-	
+
 	change_reason = "HP"
 	EMWriteScreen change_reason, 13, 75
-	'resets to bottom of the span list. 
+	'resets to bottom of the span list.
 	pf11
 	'Checks for exclusion code, if not blank then it stops script.
 	EMReadscreen XCL_code, 2, 6, 2
-	If XCL_code <> "* " then 
+	If XCL_code <> "* " then
 		EMReadScreen XCL_code_end_date, 8, 6, 18
 		IF XCL_code_end_date = "99/99/99" THEN script_end_procedure("There is an active exclusion code. Please process manually.")
 		IF datediff("d", date, XCL_code_end_date) >= 0 THEN script_end_procedure("There is an exclusion code that hasn't ended as of today. Please process manually.")
@@ -235,17 +234,17 @@ do
 	'enter change reason
 	EMsetcursor 13, 71
 	EMsendkey change_reason
-	'Asks worker to make sure the script has entered into the right case and cancels out to RKEY if worker hits cancel to no save anything. 
-	
+	'Asks worker to make sure the script has entered into the right case and cancels out to RKEY if worker hits cancel to no save anything.
+
 	DO
 		PMI_correct = MsgBox ("Please verify that the PMI and client are correct and click OK. If the PMI was entered incorrectly hit cancel and start the script again.", vbOKCancel)
-	
-		IF PMI_correct = vbCancel THEN 
+
+		IF PMI_correct = vbCancel THEN
 			double_check_cancel = MsgBox ("Are you sure you want to cancel the script? Press YES to cancel. Press NO to return to the script.", vbYesNo)
 			IF double_check_cancel = vbNo THEN script_end_procedure("Script cancelled")
 		END IF
 	LOOP UNTIL PMI_correct = vbOK
-			
+
 	'Heading to REFM
 	EMWriteScreen "refm", 1, 8
 	transmit
@@ -260,7 +259,7 @@ do
 	'form rec'd
 	EMsetcursor 10, 16
 	EMSendkey "n"
-	
+
 	' Commenting out code...not needed for this process
 	''other insurance y/n
 	'EMsetcursor 11, 18
@@ -285,8 +284,8 @@ do
 	''foster care y/n
 	'EMsetcursor 21, 15
 	'EMsendkey foster_care_yn
-	'Asks worker to make sure the script has entered the correct information and cancels out to RKEY if worker hits cancel to no save anything. 
-	
+	'Asks worker to make sure the script has entered the correct information and cancels out to RKEY if worker hits cancel to no save anything.
+
 	'BeginDialog correct_REFM_check, 0, 0, 191, 105, "REFM check"
 	'  ButtonGroup ButtonPressed
 	'    OkButton 35, 75, 50, 15
@@ -300,9 +299,9 @@ do
 	'checks for edit after hitting transmit
 	Emreadscreen edit_check, 1, 24, 2
 	If edit_check <> " " then script_end_procedure("There is an edit on this action. Please review the edit and proceed manually.")
-	
-	
-	
+
+
+
 	'Save and casenote
 	pf3
 	EMWriteScreen "c", 2, 19
@@ -313,10 +312,10 @@ do
 
 	case_note_check = MsgBox("Please double check that the case note was created for " & client_first_name & " " & client_last_name & " and press OK to continue to Cancel to stop the script.", vbOKCancel)
 	IF case_note_check = vbCancel THEN stopscript
-	
+
 	pf3
 	pf3
-	
+
 	do_again = MsgBox ("The script has finished running for this client. Do you want to process another Special Enrollment form?", vbYesNo)
 	IF do_again = vbNo THEN EXIT DO
 LOOP

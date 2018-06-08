@@ -1,18 +1,18 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
 name_of_script = "ACTIONS - paperless"
 start_time = timer
-STATS_counter = 0              'sets the stats counter at 0 because each iteration of the loop which counts the dail messages adds 1 to the counter.  
+STATS_counter = 0              'sets the stats counter at 0 because each iteration of the loop which counts the dail messages adds 1 to the counter.
 STATS_manualtime = 60          'manual run time in seconds
-STATS_denomination = "C"       'I is for each dail message 
+STATS_denomination = "C"       'I is for each dail message
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else											'Everyone else should use the release branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		End if
+        IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+            FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+        Else											'Everyone else should use the release branch.
+            FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+        End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
 		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
 		req.send													'Sends request
@@ -21,10 +21,10 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message
 			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
-                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
-                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
-                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
-            StopScript
+                                           "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                           "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                           vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+           StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
@@ -41,9 +41,9 @@ END IF
 'DATE/TIME CALCULATIONS
 
 current_day = DatePart("d", date)
-If len(current_day) = 1 then current_day = "0" & current_day 
+If len(current_day) = 1 then current_day = "0" & current_day
 current_month = DatePart("m", date)
-If len(current_month) = 1 then current_month = "0" & current_month 
+If len(current_month) = 1 then current_month = "0" & current_month
 current_year = DatePart("yyyy", date)
 current_year = current_year - 2000
 
@@ -93,7 +93,7 @@ For each MAXIS_case_number in MAXIS_case_number_array
     If total_panels <> "0" & date_check = "__ __ __" then actually_paperless = False
     if current_panel <> total_panels then transmit
   Loop until current_panel = total_panels
-  
+
   call navigate_to_MAXIS_screen ("stat", "busi") 'Updated 08/26/15 - to match FuncLib - CLove
   EMWriteScreen "01", 20, 76
   transmit
@@ -154,10 +154,10 @@ For each MAXIS_case_number in MAXIS_case_number_array
   End if
 Next
 
-If cases_to_tikl <> "" Then 
+If cases_to_tikl <> "" Then
 	cases_to_tikl = right(cases_to_tikl, len(cases_to_tikl)-1)
 	cases_to_tikl_array = split(cases_to_tikl, "~")
-End If 
+End If
 
 For each MAXIS_case_number in cases_to_tikl_array
 	navigate_to_MAXIS_screen "DAIL", "WRIT"
