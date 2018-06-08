@@ -1,9 +1,9 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
 name_of_script = "DAIL - paperless IR.vbs"
 start_time = timer
-STATS_counter = 1              'sets the stats counter at 0 because each iteration of the loop which counts the dail messages adds 1 to the counter.  
+STATS_counter = 1              'sets the stats counter at 0 because each iteration of the loop which counts the dail messages adds 1 to the counter.
 STATS_manualtime = 75          'manual run time in seconds
-STATS_denomination = "C"       'I is for each dail message 
+STATS_denomination = "C"       'I is for each dail message
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -102,34 +102,34 @@ transmit
 If hc_elig_check <> "HHMM" Then script_end_procedure("No HC ELIG results exist, resolve edits and approve new version and run the script again.")
 
 row = 8                                          'Reads each line of Elig HC to find all the approved programs in a case
-Do 
+Do
     EMReadScreen clt_ref_num, 2, row, 3
     EMReadScreen clt_hc_prog, 4, row, 28
     If clt_ref_num = "  " AND clt_hc_prog <> "    " then        'If a client has more than 1 program - the ref number is only listed at the top one
         prev = 1
-        Do 
+        Do
             EMReadScreen clt_ref_num, 2, row - prev, 3
             prev = prev + 1
         Loop until clt_ref_num <> "  "
-    End If 
+    End If
     If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "    " Then     'Gets additional information for all clts with HC programs on this case
         Do
             EMReadScreen prog_status, 3, row, 68
-            If prog_status <> "APP" Then                        'Finding the approved version 
+            If prog_status <> "APP" Then                        'Finding the approved version
                 EMReadScreen total_versions, 2, row, 64
-                If total_versions = "01" Then 
+                If total_versions = "01" Then
                     error_processing_msg = error_processing_msg & vbNewLine & "Appears HC eligibility was not approved in " & approval_month & "/" & approval_year & " for " & clt_ref_num & ", please approve HC and rerunscript."
-                Else 
+                Else
                     EMReadScreen current_version, 2, row, 58
-                    If current_version = "01" Then 
+                    If current_version = "01" Then
                         error_processing_msg = error_processing_msg & vbNewLine & "Appears HC eligibility was not approved in " & approval_month & "/" & approval_year & " for " & clt_ref_num & ", please approve HC and rerunscript."
-                        Exit Do 
+                        Exit Do
                     End If
                     prev_version = right ("00" & abs(current_version) - 1, 2)
                     EMWriteScreen prev_version, row, 58
                     transmit
-                End If 
-            Else 
+                End If
+            Else
                 EMReadScreen elig_result, 8, row, 41        'Goes into the elig version to get the major program and elig type
                 EMWriteScreen "x", row, 26
                 transmit
@@ -137,32 +137,34 @@ Do
                 EMReadScreen method_check, 1, 13, 21
                 If method_check = "L" or method_check = "S" Then LTC_case = TRUE
                 If method_check = "B" AND waiver_check <> "_" Then LTC_case = TRUE
-                Do 
+                Do
                     transmit
                     EMReadScreen hc_screen_check, 8, 5, 3
                 Loop until hc_screen_check = "Program:"
-                If clt_hc_prog = "SLMB" OR clt_hc_prog = "QMB " Then 
+                If clt_hc_prog = "SLMB" OR clt_hc_prog = "QMB " Then
                     EMReadScreen elig_type, 2, 13, 78
                     EMReadScreen Majr_prog, 2, 14, 78
-                End If 
-                If clt_hc_prog = "MA  " Then 
+                End If
+                If clt_hc_prog = "MA  " Then
                     EMReadScreen elig_type, 2, 13, 76
                     EMReadScreen Majr_prog, 2, 14, 76
-                End If 
+                End If
                 transmit
-            End If 
+            End If
         Loop until current_version = "01" OR prog_status = "APP"
         'Adds everything to a varriable so an array can be created
         Elig_Info_array = Elig_Info_array & "~Memb " & clt_ref_num & " is approved as " & trim(elig_result) & " for " & trim(clt_hc_prog) & " : " & Majr_prog & "-" & elig_type
-    End If 
+    End If
     If LTC_case = TRUE Then                 'LTC/Waiver cases have their own MA Approval script that will run if worker says yes
         run_LTC_Approval = msgbox ("It appears this case is LTC MA or Waiver MA." & vbNewLine & "Would you like to run the NOTES - LTC MA Approval Script for more detailed case noting?", vbYesNo + vbQuestion, "Run LTC Specific Script?")
-        If run_LTC_Approval = vbYes Then    'Script will define some variables to carry to the next script for ease of use 
+        If run_LTC_Approval = vbYes Then    'Script will define some variables to carry to the next script for ease of use
             budget_type = method_check
             approved_check = checked
             Exit Do
-        End If 
-    End If 
+        Else 
+            LTC_case = FALSE
+        End If
+    End If
     row = row + 1
 Loop until clt_hc_prog = "    "
 
@@ -189,7 +191,7 @@ array_counter = 0
 
 For i = 0 to UBound(Elig_Info_array)
 	ReDim Preserve elig_checkbox_array(i)
-	elig_checkbox_array(i) = checked 
+	elig_checkbox_array(i) = checked
 Next
 
 'Dialog is defined here as it is dynamic
@@ -213,7 +215,7 @@ BeginDialog approval_dialog, 0, 0, 286, 115 + (15 * UBound(Elig_Info_array)), "A
   Text 5, 100 + (15 * UBound(Elig_Info_array)), 60, 10, "Worker signature:"
 EndDialog
 
-Do 
+Do
     err_msg = ""
     Dialog approval_dialog
     cancel_confirmation
@@ -225,9 +227,9 @@ EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
 transmit
 
 'Starts a blank case note
-PF9 
-EMReadScreen case_note_mode_check, 7, 20, 3 
-If case_note_mode_check <> "Mode: A" then MsgBox "You are not in a case note on edit mode. You might be in inquiry. Try the script again in production." 
+PF9
+EMReadScreen case_note_mode_check, 7, 20, 3
+If case_note_mode_check <> "Mode: A" then MsgBox "You are not in a case note on edit mode. You might be in inquiry. Try the script again in production."
 If case_note_mode_check <> "Mode: A" then stopscript
 
 'Adding information to case note
@@ -235,7 +237,7 @@ Call write_variable_in_CASE_NOTE ("---Approved HC - IR Waived---")
 Call write_variable_in_CASE_NOTE ("* Processed HC for 6 Mo Renewal for " & approval_month & "/" & approval_year)
 For array_item = 0 to UBound(Elig_Info_array)
     If elig_checkbox_array(array_item) = checked Then Call write_variable_in_CASE_NOTE ("* " & Elig_Info_array(array_item))
-Next 
+Next
 Call write_bullet_and_variable_in_CASE_NOTE ("Notes", other_notes)
 Call write_variable_in_CASE_NOTE ("* Case processing assisted by a script")
 
@@ -260,7 +262,7 @@ IF ButtonPressed = delete_button THEN
 			IF dail_read_row = 19 THEN PF8
 		LOOP UNTIL dail_read_row = 19
 		EMReadScreen others_dail, 13, 24, 2
-		If others_dail = "** WARNING **" Then transmit 
+		If others_dail = "** WARNING **" Then transmit
 	LOOP UNTIL double_check = Paperless_tikl_check
 END IF
 
