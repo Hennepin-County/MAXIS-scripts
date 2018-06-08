@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("06/08/2018", "Removed custom function. This is now in the HC Functions Library. Updated back end dialog functionality and updated ", "Ilse Ferris, Hennepin County")
 CALL changelog_update("02/05/2018", "Added additional handling for SPEC/MEMO sending, data validation and comments.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/28/2017", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -52,18 +53,14 @@ call changelog_update("07/28/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'----------------------------------------------------------------------------------------------------Custom function
-function ONLY_create_MAXIS_friendly_date(date_variable)
-'--- This function creates a MM DD YY date.
-'~~~~~ date_variable: the name of the variable to output 
-	var_month = datepart("m", date_variable)
-	If len(var_month) = 1 then var_month = "0" & var_month
-	var_day = datepart("d", date_variable)
-	If len(var_day) = 1 then var_day = "0" & var_day
-	var_year = datepart("yyyy", date_variable)
-	var_year = right(var_year, 2)
-	date_variable = var_month &"/" & var_day & "/" & var_year
-end function
+'The dialog is defined in the loop as it can change as buttons are pressed 
+BeginDialog file_select_dialog, 0, 0, 221, 50, "Select the UNEA income source file"
+    ButtonGroup ButtonPressed
+    PushButton 175, 10, 40, 15, "Browse...", select_a_file_button
+    OkButton 110, 30, 50, 15
+    CancelButton 165, 30, 50, 15
+    EditBox 5, 10, 165, 15, file_selection_path
+EndDialog
 
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""		'Connects to BlueZone
@@ -80,33 +77,18 @@ Call ONLY_create_MAXIS_friendly_date(current_date)			'reformatting the dates to 
 
 'dialog and dialog DO...Loop	
 Do
-	Do
-		'The dialog is defined in the loop as it can change as buttons are pressed 
-		BeginDialog file_select_dialog, 0, 0, 221, 50, "Select the UNEA income source file"
-  			ButtonGroup ButtonPressed
-    		PushButton 175, 10, 40, 15, "Browse...", select_a_file_button
-    		OkButton 110, 30, 50, 15
-    		CancelButton 165, 30, 50, 15
-  			EditBox 5, 10, 165, 15, file_selection_path
-		EndDialog
-		err_msg = ""
-		Dialog file_select_dialog
-		If buttonpressed = 0 then stopscript
-		If ButtonPressed = select_a_file_button then
-			If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
-				objExcel.Quit 'Closing the Excel file that was opened on the first push'
-				objExcel = "" 	'Blanks out the previous file path'
-			End If
-			call file_selection_system_dialog(file_selection_path, ".xlsx") 'allows the user to select the file'
-		End If
-		If file_selection_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
-		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
-  		If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
-		If err_msg <> "" Then MsgBox err_msg
-	Loop until err_msg = ""
-	If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-	If err_msg <> "" Then MsgBox err_msg
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
+    'Show initial dialog
+    Do
+        err_msg = ""
+    	Dialog file_select_dialog
+    	If ButtonPressed = cancel then stopscript
+    	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
+        If file_selection_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
+        If err_msg <> "" Then MsgBox err_msg
+    Loop until ButtonPressed = OK and file_selection_path <> ""
+    If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Sets up the array to store all the information for each client'
@@ -142,9 +124,9 @@ Do                                                            'Loops until there
     
 	income_type  	= objExcel.cells(excel_row,  9).value	'(col I) establishes income type code 
 	claim_number 	= objExcel.cells(excel_row, 11).value	'(col K) establishes claim number from MAXIS (created by the report) 
-    actual_claim 	= objExcel.cells(excel_row, 12).value	'(col L) establishes the acutal claim number (if another claim number was found by VA staff)
-	unea_amount	 	= objExcel.cells(excel_row, 13).value	'(col M) establishes grant amount for each case
-	cola_amount	 	= objExcel.cells(excel_row, 14).value	'(col N) establishes COLA amount for each case (if applicable)
+    actual_claim 	= objExcel.cells(excel_row, 13).value	'(col M) establishes the acutal claim number (if another claim number was found by VA staff)
+	unea_amount	 	= objExcel.cells(excel_row, 14).value	'(col N) establishes grant amount for each case
+	cola_amount	 	= objExcel.cells(excel_row, 15).value	'(col O) establishes COLA amount for each case (if applicable)
 	'cleaning up the variables
 	income_type	 	= trim(income_type)
 	claim_number 	= trim(claim_number)
@@ -448,8 +430,8 @@ Next
 'Export data to Excel 
 excel_row = 2
 For i = 0 to Ubound(UNEA_array, 2)
-	ObjExcel.Cells(Excel_row, 15).Value = UNEA_array(act_status, i) '(Col O)
-	ObjExcel.Cells(Excel_row, 16).Value = UNEA_array(act_notes,  i) '(Col P)
+	ObjExcel.Cells(Excel_row, 16).Value = UNEA_array(act_status, i) '(Col P)
+	ObjExcel.Cells(Excel_row, 17).Value = UNEA_array(act_notes,  i) '(Col Q)
 	Excel_row = Excel_row + 1
 Next
 
