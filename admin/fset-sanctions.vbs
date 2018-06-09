@@ -410,7 +410,7 @@ If sanction_option = "Update WREG only" then
         sanction_notes = ObjExcel.Cells(excel_row, notes_col).Value
         
         If MAXIS_case_number = "" then exit do
-        If trim(sanction_code) = "Yes" or trim(sanction_code) = "YES" then  
+        If trim(sanction_code) = "Yes" or trim(sanction_code) = "YES" or trim(sanction_code) = "yes" then  
             Call MAXIS_background_check
             MAXIS_footer_month = CM_mo	'establishing footer month/year as next month 
             MAXIS_footer_year = CM_yr 
