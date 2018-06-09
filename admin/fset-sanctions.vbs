@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("06/09/2018", "Made several updates to support using a single master sanction list while processing. Also added text to case note if the case has been identified as potentially homeless for unfit for employment expansion exemption.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("05/21/2018", "Added additional handling for when a WCOM exists in the add WCOM option.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("05/19/2018", "Added searching for LETR dates when don't match the orientation date.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("05/10/2018", "Streamlined text in worker comments based on feedback provided by DHS.", "Ilse Ferris, Hennepin County")
@@ -68,22 +69,28 @@ End Function
 
 '----------------------------------------------------------------------------------------------------DIALOG
 'The dialog is defined in the loop as it can change as buttons are pressed 
-BeginDialog info_dialog, 0, 0, 261, 145, "SNAP ABAWD (FSET) Sanction"
+BeginDialog info_dialog, 0, 0, 256, 125, "SNAP ABAWD (FSET) Sanction"
   ButtonGroup ButtonPressed
     PushButton 200, 40, 50, 15, "Browse...", select_a_file_button
   DropListBox 170, 85, 80, 15, "Select one..."+chr(9)+"Review sanctions"+chr(9)+"Update WREG only"+chr(9)+"Add WCOM", sanction_option
-  EditBox 170, 105, 80, 15, agency_informed_sanction
   ButtonGroup ButtonPressed
-    OkButton 150, 125, 50, 15
-    CancelButton 200, 125, 50, 15
+    OkButton 150, 105, 50, 15
+    CancelButton 200, 105, 50, 15
   EditBox 15, 40, 180, 15, file_selection_path
-  EditBox 65, 125, 80, 15, worker_signature
+  EditBox 65, 105, 80, 15, worker_signature
   Text 90, 90, 80, 10, "Select the script option:"
   Text 15, 60, 230, 15, "Select the Excel file that contains your information by selecting the 'Browse' button, and finding the file."
   Text 20, 20, 225, 15, "This script should be used members have been identified by SNAP E and T as ready for sanction."
-  Text 5, 130, 55, 10, "Worker sigature:"
+  Text 5, 110, 55, 10, "Worker sigature:"
   GroupBox 10, 5, 245, 75, "Using this script:"
-  Text 30, 110, 135, 10, "Date agency was informed of sanction(s):"
+EndDialog
+
+BeginDialog excel_row_dialog, 0, 0, 126, 50, "Select the excel row to start"
+  EditBox 75, 5, 40, 15, excel_row_to_start
+  ButtonGroup ButtonPressed
+    OkButton 10, 25, 50, 15
+    CancelButton 65, 25, 50, 15
+  Text 10, 10, 60, 10, "Excel row to start:"
 EndDialog
 
 '----------------------------------------------------------------------------------------------------The script
@@ -100,29 +107,44 @@ Do
     	If ButtonPressed = cancel then stopscript
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
         If sanction_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a sanction option."
-        If sanction_option = "Update WREG only" and isdate(agency_informed_sanction) = False then err_msg = err_msg & vbNewLine & "* Enter a valid date of the agency was informed of sanction."
         If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     Loop until err_msg = ""
     If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+    Do 
+        dialog excel_row_dialog
+        If ButtonPressed = cancel then stopscript
+        If IsNumeric(excel_row_to_start) = false then msgbox "Enter a numeric excel row to start the script."
+    Loop until IsNumeric(excel_row_to_start) = True
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 back_to_SELF
-excel_row = 2
+excel_row = excel_row_to_start
+
+'Creating variables for the excel columns as this project has not yet finished evolving. 
+date_col = 5
+status_col = 6
+wreg_col = 7
+months_col = 8
+referral_col = 9
+orient_col = 10
+notice_col = 11
+sanction_col = 12
+notes_col = 13
 
 '----------------------------------------------------------------------------------------------------Actually imposing the sanction
 If sanction_option = "Review sanctions" then 
-    objExcel.Cells(1, 5).Value = "SNAP Status"
-    objExcel.Cells(1, 6).Value = "ABAWD/FSET"
-    objExcel.Cells(1, 7).Value = "ABAWD Months Used"
-    objExcel.Cells(1, 8).Value = "Referral Date"
-    objExcel.Cells(1, 9).Value = "Orient Date"
-    objExcel.Cells(1, 10).Value = "Notice Sent?"
-    objExcel.Cells(1, 11).Value = "Sanction"
-    objExcel.Cells(1, 12).Value = "BULK Notes"
+    objExcel.Cells(1, 6).Value = "SNAP Status"
+    objExcel.Cells(1, 7).Value = "ABAWD/FSET"
+    objExcel.Cells(1, 8).Value = "ABAWD Months Used"
+    objExcel.Cells(1, 9).Value = "Referral Date"
+    objExcel.Cells(1, 10).Value = "Orient Date"
+    objExcel.Cells(1, 11).Value = "Notice Sent?"
+    objExcel.Cells(1, 12).Value = "Sanction"
+    objExcel.Cells(1, 13).Value = "BULK Notes"
     
-    FOR i = 1 to 12		'formatting the cells'
+    FOR i = 1 to 13 	'formatting the cells'
         objExcel.Cells(1, i).Font.Bold = True		'bold font'
         ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
         objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -151,16 +173,18 @@ If sanction_option = "Review sanctions" then
     	If PRIV_check = "PRIV" then
             sanction_notes = sanction_notes & "PRIV case."
             found_member = False 
-    	End if
+    	Else
+            EmReadscreen county_code, 4, 21, 21
+            IF county_code <> ucase(worker_county_code) then 
+                'msgbox county_code & vbcr & worker_county_code
+                sanction_notes = sanction_notes & " Out-of-county case."
+                found_member = False 
+            End if 
+        End if 
         
-        EmReadscreen county_code, 4, 21, 21
-        IF county_code <> ucase(worker_county_code) then 
-            'msgbox county_code & vbcr & worker_county_code
-            sanction_notes = sanction_notes & " Out-of-county case."
-            found_member = False
-        Else 
+        If found_member <> False then 
             EmReadscreen SNAP_actv, 4, 10, 74
-            ObjExcel.Cells(excel_row, 5).Value = SNAP_actv
+            ObjExcel.Cells(excel_row, status_col).Value = SNAP_actv
             If SNAP_actv = "ACTV" then 
                 found_member = True
             else 
@@ -206,7 +230,7 @@ If sanction_option = "Review sanctions" then
     	    EMReadScreen FSET_code, 2, 8, 50
     	    EMReadScreen ABAWD_code, 2, 13, 50
             wreg_codes = FSET_code & "/" & ABAWD_code
-    	    ObjExcel.Cells(excel_row, 6).Value = wreg_codes
+    	    ObjExcel.Cells(excel_row, wreg_col).Value = wreg_codes
             
             '----------------------------------------------------------------------------------------------------Reading the amount of counted months 
             EMReadScreen wreg_total, 1, 2, 78
@@ -266,7 +290,7 @@ If sanction_option = "Review sanctions" then
             		LOOP until month_count = 36
             	    PF3
             	End if
-    	       	ObjExcel.Cells(excel_row, 7).Value = abawd_counted_months
+    	       	ObjExcel.Cells(excel_row, months_col).Value = abawd_counted_months
     	       END If
         End if 
         
@@ -288,8 +312,8 @@ If sanction_option = "Review sanctions" then
                         Else 
                             appt_date = ""
                         End if 
-                        ObjExcel.Cells(excel_row, 8).Value = referral_date
-                        ObjExcel.Cells(excel_row, 9).Value = appt_date
+                        ObjExcel.Cells(excel_row, referral_col).Value = referral_date
+                        ObjExcel.Cells(excel_row, orient_col).Value = appt_date
                         found_member = True
                         exit do 
                     Else 
@@ -328,7 +352,7 @@ If sanction_option = "Review sanctions" then
                             Else 
                                 Call ONLY_create_MAXIS_friendly_date(orient_date_LETR)
                                 If orient_date_LETR = appt_date then 
-                                    ObjExcel.Cells(excel_row, 10).Value = "Yes"
+                                    ObjExcel.Cells(excel_row, notice_col).Value = "Yes"
                                     sanction_case = TRUE
                                     'msgbox appt_date & vbcr & orient_date_LETR
                                     exit do 
@@ -352,15 +376,15 @@ If sanction_option = "Review sanctions" then
             Loop until no_notices = "NO NOTICES"
                     
             If sanction_case = true then 
-                If wreg_codes = "30/06" or wreg_codes = "30/08" or wreg_codes = "30/10" then 
-                    ObjExcel.Cells(excel_row, 11).Value = "Yes"
+                If wreg_codes = "30/06" or wreg_codes = "30/08" or wreg_codes = "30/10" or wreg_codes = "30/11" then 
+                    ObjExcel.Cells(excel_row, sanction_col).Value = "Yes"
                 Else 
-                    ObjExcel.Cells(excel_row, 11).Value = "No"
+                    ObjExcel.Cells(excel_row, sanction_col).Value = "No"
                 End if 
             End if 
         End if     
         'msgbox MAXIS_case_number & vbcr & sanction_case & vbcr & appt_date & vbcr & orient_date_LETR
-        ObjExcel.Cells(excel_row, 12).Value = sanction_notes            
+        ObjExcel.Cells(excel_row, notes_col).Value = sanction_notes            
     	STATS_counter = STATS_counter + 1
         excel_row = excel_row + 1
     Loop until ObjExcel.Cells(excel_row, 2).Value = ""
@@ -368,7 +392,7 @@ End if
 
 '----------------------------------------------------------------------------------------------------UPDATE WREG ONLY option
 If sanction_option = "Update WREG only" then 
-    excel_row = 2
+    excel_row = excel_row_to_start
     
     Do 
         sanction_notes = ""
@@ -377,8 +401,14 @@ If sanction_option = "Update WREG only" then
         PMI_number = trim(PMI_number)
         MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
         MAXIS_case_number = trim(MAXIS_case_number)
-        sanction_code = objExcel.cells(excel_row, 11).Value
-    
+        
+        sanction_code = objExcel.cells(excel_row, sanction_col).Value
+        
+        agency_informed_sanction = ObjExcel.Cells(excel_row, date_col).Value
+        agency_informed_sanction = trim(agency_informed_sanction)
+        
+        sanction_notes = ObjExcel.Cells(excel_row, notes_col).Value
+        
         If MAXIS_case_number = "" then exit do
         If trim(sanction_code) = "Yes" or trim(sanction_code) = "YES" then  
             Call MAXIS_background_check
@@ -436,7 +466,7 @@ If sanction_option = "Update WREG only" then
             else  
                 'Ensuring that cases are mandatory FSET (ABAWD code "30")
                 EMReadScreen ABAWD_status, 2, 13, 50
-                If ABAWD_status = "10" or ABAWD_status = "08" or ABAWD_status = "06" then 
+                If ABAWD_status = "10" or ABAWD_status = "08" or ABAWD_status = "06" or ABAWD_status = "11" then 
                     sanction_case = True
                 Else 
                     sanction_case = False
@@ -461,9 +491,19 @@ If sanction_option = "Update WREG only" then
                 '----------------------------------------------------------------------------------------------------The Case note
                 Call start_a_blank_CASE_NOTE
                 Call write_variable_in_CASE_NOTE("--SNAP sanction imposed for MEMB " & member_number & " for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "--")
-                If PWE_check = "Y" THEN Call write_variable_in_CASE_NOTE("* Sanctioned individual is the PWE. Entire household is sanctioned.")
-                If PWE_check = "N" THEN Call write_variable_in_CASE_NOTE("* Sanctioned individual is NOT the PWE. Only the HH MEMB is sanctioned.")
+                If PWE_check = "Y" THEN Call write_variable_in_CASE_NOTE("* Entire household is sanctioned. Member is the PWE.")
+                If PWE_check = "N" THEN Call write_variable_in_CASE_NOTE("* Only the HH MEMB is sanctioned. Memeber is NOT the PWE.")
                 Call write_bullet_and_variable_in_CASE_NOTE("Date agency was notified of sanction", agency_informed_sanction)
+                Call write_variable_in_CASE_NOTE("* Client does not appear to meet Good Cause criteria.")
+                If instr(sanction_notes, "Possible homeless exemption") then 
+                    Call write_variable_in_CASE_NOTE("---")
+                    Call write_variable_in_CASE_NOTE("Client may meet an ABAWD exemption.")
+                    Call write_variable_in_CASE_NOTE("Per CM 11.24: A person is unfit for employment if he or she is currently homeless. Homeless specifically defined for this purpose as:")
+                    Call write_variable_in_CASE_NOTE("1. Lacking a fixed and regular nighttime residence, including temporary housing situations AND")
+                    Call write_variable_in_CASE_NOTE("2. Lacking access to work-related necessities (i.e. shower or laundry facilities, etc.).")
+                else 
+                    Call write_variable_in_CASE_NOTE("* Client does not appear to meet any ABAWD exemptions.")
+                End if 
                 Call write_variable_in_CASE_NOTE("---")
                 Call write_variable_in_CASE_NOTE("* Number/occurrence of sanction: 1st")
                 Call write_variable_in_CASE_NOTE("* Reason for sanction: Failed to attend orientation.") 
@@ -471,9 +511,9 @@ If sanction_option = "Update WREG only" then
                 Call write_variable_in_CASE_NOTE("---")
                 Call write_variable_in_CASE_NOTE(worker_signature)
                 PF3
-                sanction_notes = sanction_notes & "APP sanction."
+                sanction_notes = sanction_notes & " APP sanction."
             End if 
-            ObjExcel.Cells(Excel_row, 12).Value = sanction_notes
+            ObjExcel.Cells(Excel_row, notes_col).Value = sanction_notes
         End if     
         excel_row = excel_row + 1     
     Loop until ObjExcel.Cells(excel_row, 2).Value = ""  
@@ -481,13 +521,13 @@ End if
 
 '----------------------------------------------------------------------------------------------------ADD WCOM OPTION                
 If sanction_option = "Add WCOM" then
-    excel_row = 2
+    excel_row = excel_row_to_start
     Do 
         sanction_notes = ""
         
         MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
         MAXIS_case_number = trim(MAXIS_case_number)
-        sanction_code = objExcel.cells(excel_row, 11).Value
+        sanction_code = objExcel.cells(excel_row, sanction_col).Value
         If MAXIS_case_number = "" then exit do
         
         If trim(sanction_code) = "Yes" or trim(sanction_code) = "YES" then    
@@ -546,7 +586,7 @@ If sanction_option = "Add WCOM" then
             else 
                 sanction_notes = sanction_notes & "WCOM added. Sanction imposed and complete."
             End if 
-            ObjExcel.Cells(Excel_row, 12).Value = sanction_notes    
+            ObjExcel.Cells(Excel_row, notes_col).Value = sanction_notes    
         End if   
         excel_row = excel_row + 1 
     Loop until ObjExcel.Cells(excel_row, 2).Value = ""    
