@@ -466,7 +466,7 @@ If sanction_option = "Update WREG only" then
             else  
                 'Ensuring that cases are mandatory FSET (ABAWD code "30")
                 EMReadScreen ABAWD_status, 2, 13, 50
-                If ABAWD_status = "10" or ABAWD_status = "08" or ABAWD_status = "06" or ABAWD_status = "11" then 
+                If ABAWD_status = "10" or ABAWD_status = "08" or ABAWD_status = "06" or ABAWD_status = "11" or ABAWD_status "13" then 
                     sanction_case = True
                 Else 
                     sanction_case = False
