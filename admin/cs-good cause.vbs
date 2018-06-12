@@ -1,5 +1,5 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "NOTES - CS GOOD CAUSE.vbs"
+name_of_script = "NOTES-CS GOOD CAUSE.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 240          'manual run time in seconds
@@ -50,6 +50,7 @@ call changelog_update("03/27/2017", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
 
 'The DIALOGS----------------------------------------------------------------------------------------------------
 EMConnect ""
@@ -129,13 +130,12 @@ Do
 		If good_cause_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select a good cause option."
 		If isnumeric(MAXIS_footer_month) = false then err_msg = err_msg & vbnewline & "* You must enter the footer month to begin good cause."
 		If isnumeric(MAXIS_footer_year) = false then err_msg = err_msg & vbnewline & "* You must enter the footer year to begin good cause."
-		If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
-		'If len(claim_date) <> 8 then err_msg = err_msg & vbnewline & "* You must enter the date in MM/DD/YY format."
-		If isdate(review_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause review date."
-		'If len(review_date) <> 8 then err_msg = err_msg & vbnewline & "* You must enter the date in MM/DD/YY format."
-		If isdate(approved_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid approval date."
-		'If len(approved_date) <> 8 then err_msg = err_msg & vbnewline & "* You must enter the date in MM/DD/YY format."
-		If reason_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the Good Cause reason."
+		If gc_status <> "Not Claimed" THEN
+			If reason_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the Good Cause reason."
+			If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
+			If isdate(review_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause review date."
+			If isdate(approved_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid approval date."
+		END IF
 		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -167,6 +167,76 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 		Loop until current_panel_number = panel_number
 	End if
 
+	'-------------------------------------------------------------------------Updating the ABPS panel
+	PF9'edit mode
+	EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
+	error_check = trim(error_check)
+	If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
+
+	EMWriteScreen "Y", 4, 73			'Support Coop Y/N field
+	IF gc_status = "Pending" THEN
+		EMWriteScreen "P", 5, 47			'Good Cause status field
+		Call clear_line_of_text(6, 73)'next review date'
+		Call clear_line_of_text(6, 76)'next review date'
+		Call clear_line_of_text(6, 79)'next review date'
+	END IF
+	If gc_status = "Granted" THEN
+		EMWriteScreen "G", 5, 47
+		Call create_MAXIS_friendly_date(review_date, 0, 6, 73)
+	END IF
+	If gc_status = "Denied" THEN
+		EMWriteScreen "D", 5, 47
+		Call clear_line_of_text(6, 73)'next review date'
+		Call clear_line_of_text(6, 76)'next review date'
+		Call clear_line_of_text(6, 79)'next review date'
+	END IF
+	IF sup_evidence_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 47 ELSE EMWriteScreen "N", 7, 47
+	IF investigation_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 73 ELSE EMWriteScreen "N", 7, 73
+	IF med_sup_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 8, 48 ELSE EMWriteScreen "N", 8, 48
+
+	If gc_status = "Not Claimed" THEN
+		EMWriteScreen "N", 5, 47
+		Call clear_line_of_text(5, 73)'good cause claim date'
+		Call clear_line_of_text(5, 76)'good cause claim date'
+		Call clear_line_of_text(5, 79)'good cause claim date'
+		Call clear_line_of_text(6, 47)'reason good cause claimed'
+		Call clear_line_of_text(6, 73)'next review date'
+		Call clear_line_of_text(6, 76)'next review date'
+		Call clear_line_of_text(6, 79)'next review date'
+		Call clear_line_of_text(7, 47)
+		Call clear_line_of_text(7, 73)
+		Call clear_line_of_text(8, 48)
+	ELSE
+		Call create_MAXIS_friendly_date(claim_date, 0, 5, 73)
+	END IF
+
+
+	'converting the good cause reason from reason_droplist to the applicable MAXIS coding
+	If reason_droplist = "Potential phys harm/Child"		then claim_reason = "1"
+	If reason_droplist = "Potential Emotnl harm/Child"	 	then claim_reason = "2"
+	If reason_droplist = "Potential phys harm/Caregiver" 	then claim_reason = "3"
+	If reason_droplist = "Potential Emotnl harm/Caregiver" 	then claim_reason = "4"
+	If reason_droplist = "Cncptn Incest/Forced Rape" 		then claim_reason = "5"
+	If reason_droplist = "Legal adoption Before Court" 		then claim_reason = "6"
+	If reason_droplist = "Parent Gets Preadoptn Svc" 		then claim_reason = "7"
+	If gc_status <> "Not Claimed" THEN EMWriteScreen claim_reason, 6, 47
+	EMReadScreen first_name, 12, 10, 63	'making sure we can actually update this case.
+	EMReadScreen last_name, 24, 10, 30	'making sure we can actually update this case.
+	first_name = trim(first_name)
+	last_name = trim(last_name)
+	first_name = replace(first_name, "_", "")
+	last_name = replace(last_name, "_", "")
+	client_name = first_name & " " & last_name
+	Call fix_case_for_name(client_name)
+	Call create_MAXIS_friendly_date_with_YYYY(approved_date, 0, 18, 38) 'creates and writes the date entered in dialog'
+	Transmit'to add information
+	Transmit'to move past non-inhibiting warning messages on ABPS
+	PF3
+
+	EMReadScreen ABPS_screen, 4, 2, 50		'if inhibiting error exists, this will catch it and instruct the user to update ABPS
+	'msgbox ABPS_screen
+	If ABPS_screen = "ABPS" then script_end_procedure("An error occurred on the ABPS panel. Please update the panel before using the script with the absent parent information.")
+	'seting variables for the programs included
 	If good_cause_droplist = "Change/exemption ending" then
   	Do
   		Do
@@ -178,55 +248,17 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
   		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
   	Loop until are_we_passworded_out = false					'loops until user passwords back in
 	END IF
-	'-------------------------------------------------------------------------Updating the ABPS panel
-	PF9
-	Call create_MAXIS_friendly_date_with_YYYY(approved_date, 0, 18, 38) 'creates and writes the date entered in dialog'
-	EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
-	error_check = trim(error_check)
-	If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
-
-	EMWriteScreen "Y", 4, 73			'Support Coop Y/N field
-	IF gc_status = "Pending" THEN EMWriteScreen "P", 5, 47			'Good Cause status field
-	If gc_status = "Not Claimed" THEN EMWriteScreen "N", 5, 47			'Good Cause status field
-	If gc_status = "Pending" THEN EMWriteScreen "G", 5, 47			'Good Cause status field
-	If gc_status = "Pending" THEN EMWriteScreen "D", 5, 47			'Good Cause status field
-	Call create_MAXIS_friendly_date(claim_date, 0, 5, 73)
-	IF sup_evidence_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 47 ELSE EMWriteScreen "N", 7, 47
-	IF investigation_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 73
-	IF med_sup_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 8, 48
-
-	'converting the good cause reason from reason_droplist to the applicable MAXIS coding
-	If reason_droplist = "Potential phys harm/Child"		then claim_reason = "1"
-	If reason_droplist = "Potential Emotnl harm/Child"	 	then claim_reason = "2"
-	If reason_droplist = "Potential phys harm/Caregiver" 	then claim_reason = "3"
-	If reason_droplist = "Potential Emotnl harm/Caregiver" 	then claim_reason = "4"
-	If reason_droplist = "Cncptn Incest/Forced Rape" 		then claim_reason = "5"
-	If reason_droplist = "Legal adoption Before Court" 		then claim_reason = "6"
-	If reason_droplist = "Parent Gets Preadoptn Svc" 		then claim_reason = "7"
-	EMWriteScreen claim_reason, 6, 47
-	EMReadScreen first_name, 12, 10, 63	'making sure we can actually update this case.
-	EMReadScreen last_name, 24, 10, 30	'making sure we can actually update this case.
-	first_name = trim(first_name)
-	last_name = trim(last_name)
-	first_name = replace(first_name, "_", "")
-	last_name = replace(last_name, "_", "")
-	client_name = first_name & " " & last_name
-	Call fix_case_for_name(client_name)
-
-	Transmit'to add information
-
-	Transmit'to move past non-inhibiting warning messages on ABPS
-	PF3
-	EMReadScreen ABPS_screen, 4, 2, 50		'if inhibiting error exists, this will catch it and instruct the user to update ABPS
-	msgbox ABPS_screen
-	If ABPS_screen = "ABPS" then script_end_procedure("An error occurred on the ABPS panel. Please update the panel before using the script with the absent parent information.")
-	'seting variables for the programs included
 
 	IF CCAP_CHECKBOX = CHECKED THEN programs_included = programs_included & "CCAP, "
 	IF DWP_CHECKBOX = CHECKED THEN programs_included = programs_included & "DWP, "
 	IF MFIP_CHECKBOX = CHECKED THEN programs_included = programs_included & "MFIP, "
 	IF HC_CHECKBOX = CHECKED THEN programs_included = programs_included & "Healthcare, "
 	IF FS_CHECKBOX = CHECKED THEN programs_included = programs_included & "Food Support, "
+	'trims excess spaces of programs_applied_for
+	programs_included  = trim(programs_included )
+	'takes the last comma off of programs_applied_for when autofilled into dialog if more more than one app date is found and additional app is selected
+	If right(programs_included, 1) = "," THEN programs_included  = left(programs_included, len(programs_included) - 1)
+
 	'-----------------------------------------------------------------------------------------------------Case note & email sending
 	start_a_blank_CASE_NOTE
 	IF good_cause_droplist = "Application Review-Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
@@ -246,10 +278,9 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	Call write_bullet_and_variable_in_case_note("Child(ren) member number(s)", memb_number)
 	Call write_bullet_and_variable_in_case_note("ABPS name", client_name)
 	CALL write_bullet_and_variable_in_case_note("Applicable programs", programs_included)
-  Call write_bullet_and_variable_in_case_note("What is GC incomplete for", verifs_req)
   Call write_bullet_and_variable_in_case_note("Reason for claiming good cause", reason_droplist)
-	Call write_bullet_and_variable_in_case_note("METS information", mets_info )
-	Call write_bullet_and_variable_in_case_note("Verifs requested", verifs_req)
+	IF verifs_req <> "" THEN Call write_bullet_and_variable_in_case_note("What is GC incomplete for/Verifications requested", verifs_req)
+	IF mets_info <> "" THEN Call write_bullet_and_variable_in_case_note("METS information", mets_info )
 	Call write_bullet_and_variable_in_case_note("Additional information", other_notes)
 	IF DHS_2338_complete_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* DHS-2338 is in ECF, and fully completed by parent/caregiver.")
 	IF DHS_2338_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Client Statement (DHS-2338)")
@@ -262,5 +293,18 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	Call write_variable_in_case_note("---")
 	Call write_variable_in_case_note(worker_signature)
 
-
+	IF FS_CHECKBOX = CHECKED and CCAP_CHECKBOX = UNCHECKED and DWP_CHECKBOX = UNCHECKED and MFIP_CHECKBOX = UNCHECKED and HC_CHECKBOX = UNCHECKED THEN memo_started = TRUE
+	IF memo_started = TRUE THEN
+		Call start_a_new_spec_memo
+		EMsendkey("************************************************************")
+		Call write_variable_in_SPEC_MEMO("You recently applied for Food Support assistance and")
+		Call write_variable_in_SPEC_MEMO("requested Good Cause for Child Support.")
+		Call write_variable_in_SPEC_MEMO("You do not need to cooperate with Child Support for Food")
+		Call write_variable_in_SPEC_MEMO("Support applications, therefore you do not need to request")
+		Call write_variable_in_SPEC_MEMO("good cause at this time.")
+		Call write_variable_in_SPEC_MEMO("If you apply for Cash or Health Care programs in the future")
+		Call write_variable_in_SPEC_MEMO("you will need to resubmit the application for Good Cause.")
+		Call write_variable_in_SPEC_MEMO("************************************************************")
+		PF4
+	END IF
 script_end_procedure("Success! MAXIS has been updated, and the Good Cause results case noted.")

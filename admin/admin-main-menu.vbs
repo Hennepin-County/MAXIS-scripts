@@ -128,6 +128,13 @@ script_array_admin_main(script_num).description			= "Processes a list of cases t
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
 Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_admin_main(script_num).script_name			= "CS Good Cause"													'Script name
+script_array_admin_main(script_num).file_name			= "cs-good cause.vbs"												'Script URL
+script_array_admin_main(script_num).description			= "Completes updates to ABPS and case notes actions taken."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
+Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_admin_main(script_num).script_name			= "DAIL Decimator"													'Script name
 script_array_admin_main(script_num).file_name			= "dail-decimator.vbs"												'Script URL
 script_array_admin_main(script_num).description			= "BULK script that deletes specific DAILS based on content, and collects them into an Excel spreadsheet."
