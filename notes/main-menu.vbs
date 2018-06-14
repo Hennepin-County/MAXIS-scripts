@@ -671,6 +671,13 @@ script_array_LTC(script_num).description				= "Template for use when approving a
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_LTC(script_num)				'Resets the array to add one more element to it
 Set script_array_LTC(script_num) = new script			'Set this array element to be a new script. Script details below...
+script_array_LTC(script_num).script_name 				= "LTC - Hospice Form Received"
+script_array_LTC(script_num).file_name					= "ltc-hospice-form-received.vbs"
+script_array_LTC(script_num).description				= "Template for case noting entry or exit to Hospice.*"
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_LTC(script_num)				'Resets the array to add one more element to it
+Set script_array_LTC(script_num) = new script			'Set this array element to be a new script. Script details below...
 script_array_LTC(script_num).script_name 				= "LTC - MA approval"
 script_array_LTC(script_num).file_name					= "ltc-ma-approval.vbs"
 script_array_LTC(script_num).description				= "Template for approving LTC MA (can be used for changes, initial application, or recertification).*"
