@@ -259,14 +259,6 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
   	Loop until are_we_passworded_out = false					'loops until user passwords back in
 	END IF
 
-	IF ABPS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "ABPS name not written on the correct line,"
-	IF REASON_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "reason for requesting GC not selected,"
-	IF QUESTIONS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "all of the questions not answered,"
-	IF NOSIG_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "no signature and/or date,"
-	IF OTHER_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "other:,"
-	incomplete_form  = trim(incomplete_form)
-	If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
-
 	IF CCAP_CHECKBOX = CHECKED THEN programs_included = programs_included & "CCAP, "
 	IF DWP_CHECKBOX = CHECKED THEN programs_included = programs_included & "DWP, "
 	IF MFIP_CHECKBOX = CHECKED THEN programs_included = programs_included & "MFIP, "
@@ -277,6 +269,15 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	programs_included  = trim(programs_included )
 	'takes the last comma off of programs
 	If right(programs_included, 1) = "," THEN programs_included  = left(programs_included, len(programs_included) - 1)
+
+	IF ABPS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "ABPS name not written on the correct line,"
+	IF REASON_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "reason for requesting GC not selected,"
+	IF QUESTIONS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "all of the questions not answered,"
+	IF NOSIG_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "no signature and/or date,"
+	IF OTHER_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "other:,"
+	incomplete_form  = trim(incomplete_form)
+	If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
+
 	'-----------------------------------------------------------------------------------------------------Case note & email sending
 	start_a_blank_CASE_NOTE
 	IF good_cause_droplist = "Application Review-Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
