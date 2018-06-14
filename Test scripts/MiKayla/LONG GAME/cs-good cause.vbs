@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/13/2018", "Updated incomplete forms and dialog.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/14/2018", "Updated per GC Committee requests.", "MiKayla Handley, Hennepin County")
 call changelog_update("03/27/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -70,7 +71,7 @@ BeginDialog change_exemption_dialog, 0, 0, 216, 100, "Good cause change/exemptio
   Text 10, 50, 95, 10, "What was updated in MAXIS:"
 EndDialog
 
-BeginDialog Good_cause_dialog, 0, 0, 316, 280, "Good Cause"
+BeginDialog Good_cause_dialog, 0, 0, 386, 280, "Good Cause"
   EditBox 55, 5, 45, 15, MAXIS_case_number
   EditBox 170, 5, 40, 15, claim_date
   EditBox 55, 25, 20, 15, MAXIS_footer_month
@@ -78,46 +79,55 @@ BeginDialog Good_cause_dialog, 0, 0, 316, 280, "Good Cause"
   EditBox 170, 25, 40, 15, review_date
   EditBox 80, 45, 20, 15, memb_number
   EditBox 170, 45, 40, 15, approved_date
-  CheckBox 235, 15, 60, 10, "Sup Evidence", sup_evidence_check
-  CheckBox 235, 30, 55, 10, "Investigation", investigation_check
-  CheckBox 235, 45, 70, 10, "Med Sup Svc Only", med_sup_check
-  DropListBox 35, 65, 115, 15, "Select One:"+chr(9)+"Application Review-Complete"+chr(9)+"Application Review-Incomplete"+chr(9)+"Change/exemption ending"+chr(9)+"Determination"+chr(9)+"Recertification", good_cause_droplist
-  DropListBox 185, 65, 115, 15, "Select One:"+chr(9)+"Potential phys harm/Child"+chr(9)+"Potential Emotnl harm/Child"+chr(9)+"Potential phys harm/Caregiver"+chr(9)+"Potential Emotnl harm/Caregiver"+chr(9)+"Cncptn Incest/Forced Rape"+chr(9)+"Legal adoption Before Court"+chr(9)+"Parent Gets Preadoptn Svc", reason_droplist
-  DropListBox 35, 85, 60, 15, "Select One:"+chr(9)+"Not Claimed"+chr(9)+"Pending"+chr(9)+"Granted"+chr(9)+"Denied ", gc_status
-  CheckBox 140, 85, 25, 15, "CCA", CCA_CHECKBOX
-  CheckBox 170, 85, 30, 15, "DWP", DWP_CHECKBOX
-  CheckBox 200, 85, 20, 15, "FS*", FS_CHECKBOX
-  CheckBox 225, 85, 20, 15, "HC", HC_CHECKBOX
-  CheckBox 250, 85, 30, 15, "METS", METS_CHECKBOX
-  CheckBox 285, 85, 25, 15, "MF", MFIP_CHECKBOX
-  EditBox 70, 105, 240, 15, mets_info
-  EditBox 70, 125, 240, 15, verifs_req
-  EditBox 70, 155, 240, 15, other_notes
-  CheckBox 5, 180, 245, 10, "Good Cause Client Statement (DHS-2338) is in ECF and completed in full", DHS_2338_complete_CHECKBOX
-  CheckBox 5, 190, 160, 10, "Sent Good Cause Client Statement (DHS-2338)", DHS_2338_CHECKBOX
-  CheckBox 5, 200, 220, 10, "Sent Imp Information about Your Request Exemption (DHS-3627) ", DHS_3627_CHECKBOX
-  CheckBox 5, 210, 205, 10, "Sent Notice of Denial of Good Cause Exemption (DHS-3628) ", DHS_3628_CHECKBOX
-  CheckBox 5, 220, 165, 10, "Sent Notice of Good Cause Approval (DHS-3629) ", DHS_3629_CHECKBOX
-  CheckBox 5, 230, 195, 10, "Sent Request to End Good Cause Exemption  (DHS-3631 )", DHS_3631_CHECKBOX
-  CheckBox 5, 240, 180, 10, "Sent Request for Additional Information (DHS 3632)", DHS_3632_CHECKBOX
-  CheckBox 5, 250, 165, 10, "Sent Good Cause Yearly Determination Packet", Recert_CHECKBOX
+  CheckBox 225, 15, 25, 15, "CCA", CCA_CHECKBOX
+  CheckBox 225, 30, 30, 10, "DWP", DWP_CHECKBOX
+  CheckBox 225, 45, 30, 10, "METS", METS_CHECKBOX
+  CheckBox 260, 15, 20, 10, "HC", HC_CHECKBOX
+  CheckBox 260, 30, 20, 10, "FS", FS_CHECKBOX
+  CheckBox 260, 45, 25, 10, "MF", MFIP_CHECKBOX
+  CheckBox 305, 15, 60, 10, "Sup Evidence", sup_evidence_check
+  CheckBox 305, 30, 55, 10, "Investigation", investigation_check
+  CheckBox 305, 45, 70, 10, "Med Sup Svc Only", med_sup_check
+  DropListBox 30, 65, 60, 15, "Select One:"+chr(9)+"Not Claimed"+chr(9)+"Pending"+chr(9)+"Granted"+chr(9)+"Denied ", gc_status
+  DropListBox 125, 65, 105, 15, "Select One:"+chr(9)+"Application Review-Complete"+chr(9)+"Application Review-Incomplete"+chr(9)+"Change/exemption ending"+chr(9)+"Determination"+chr(9)+"Recertification", List4
+  DropListBox 265, 65, 115, 15, "Select One:"+chr(9)+"Potential phys harm/Child"+chr(9)+"Potential Emotnl harm/Child"+chr(9)+"Potential phys harm/Caregiver"+chr(9)+"Potential Emotnl harm/Caregiver"+chr(9)+"Cncptn Incest/Forced Rape"+chr(9)+"Legal adoption Before Court"+chr(9)+"Parent Gets Preadoptn Svc", reason_droplist
+  CheckBox 10, 95, 145, 10, "ABPS name not written on the correct line", ABPS_CHECKBOX
+  CheckBox 10, 105, 140, 10, "Reason for requesting GC not selected", REASON_CHECKBOX
+  CheckBox 165, 95, 120, 10, "All of the questions not answered", QUESTIONS_CHECKBOX
+  CheckBox 165, 105, 90, 10, "No signature and/or date ", NOSIG_CHECKBOX
+  CheckBox 290, 105, 80, 10, "Other (please specify)", OTHER_CHECKBOX
+  EditBox 65, 125, 85, 15, mets_info
+  EditBox 65, 145, 85, 15, verifs_req
+  EditBox 210, 125, 170, 15, denial_reason
+  EditBox 210, 145, 170, 15, other_notes
+  CheckBox 10, 180, 185, 10, "Sent Request for Proof to Support Good Cause Claim", SUP_CHECKBOX
+  CheckBox 10, 190, 160, 10, "Sent Good Cause Client Statement (DHS-2338)", DHS_2338_CHECKBOX
+  CheckBox 10, 200, 220, 10, "Sent Imp Information about Your Request Exemption (DHS-3627) ", DHS_3627_CHECKBOX
+  CheckBox 10, 210, 205, 10, "Sent Notice of Denial of Good Cause Exemption (DHS-3628) ", DHS_3628_CHECKBOX
+  CheckBox 10, 220, 165, 10, "Sent Notice of Good Cause Approval (DHS-3629) ", DHS_3629_CHECKBOX
+  CheckBox 10, 230, 195, 10, "Sent Request to End Good Cause Exemption  (DHS-3631 )", DHS_3631_CHECKBOX
+  CheckBox 10, 240, 180, 10, "Sent Request for Additional Information (DHS 3632)", DHS_3632_CHECKBOX
+  CheckBox 10, 250, 165, 10, "Sent Good Cause Yearly Determination Packet", Recert_CHECKBOX
+  CheckBox 10, 260, 245, 10, "Good Cause Client Statement (DHS-2338) is in ECF and completed in full", DHS_2338_complete_CHECKBOX
   ButtonGroup ButtonPressed
-    OkButton 205, 260, 50, 15
-    CancelButton 260, 260, 50, 15
-  Text 120, 30, 45, 10, "Next review:"
-  Text 5, 50, 65, 10, "Child's MEMB #(s):"
+    OkButton 275, 260, 50, 15
+    CancelButton 330, 260, 50, 15
   Text 115, 50, 55, 10, "Approved date:"
-  Text 5, 70, 25, 10, "Action:"
-  Text 155, 70, 30, 10, "Reason:"
-  Text 5, 90, 25, 10, "Status:"
-  Text 100, 90, 35, 10, "Programs:"
-  Text 5, 110, 60, 10, "Mets Information:"
-  Text 5, 130, 65, 10, "Verifs Requested:"
-  Text 5, 145, 220, 10, "If incomplete please use Other Notes to clearly indicate the reason"
-  Text 20, 160, 45, 10, "Other Notes:"
-  Text 125, 10, 40, 10, "Claim date:"
+  Text 100, 70, 25, 10, "Action:"
+  Text 235, 70, 30, 10, "Reason:"
+  Text 5, 70, 25, 10, "Status:"
+  Text 5, 130, 60, 10, "Mets Information:"
+  Text 5, 150, 60, 10, "Verifs Requested:"
+  Text 155, 130, 50, 10, "Denial Reason:"
+  Text 165, 150, 45, 10, "Other Notes:"
+  Text 120, 30, 45, 10, "Next review:"
+  GroupBox 220, 5, 65, 55, "Programs"
+  GroupBox 5, 85, 375, 35, "Incomplete Form:"
   Text 5, 10, 45, 10, "Case number:"
+  Text 125, 10, 40, 10, "Claim date:"
+  Text 5, 50, 65, 10, "Child's MEMB #(s):"
   Text 5, 30, 50, 10, "Footer MM/YY:"
+  GroupBox 5, 165, 250, 110, "Verifications"
 EndDialog
 
 'Initial dialog giving the user the option to select the type of good cause action
@@ -249,17 +259,24 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
   	Loop until are_we_passworded_out = false					'loops until user passwords back in
 	END IF
 
+	IF ABPS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "ABPS name not written on the correct line,"
+	IF REASON_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "reason for requesting GC not selected,"
+	IF QUESTIONS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "all of the questions not answered,"
+	IF NOSIG_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "no signature and/or date,"
+	IF OTHER_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "other:,"
+	incomplete_form  = trim(incomplete_form)
+	If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
+
 	IF CCAP_CHECKBOX = CHECKED THEN programs_included = programs_included & "CCAP, "
 	IF DWP_CHECKBOX = CHECKED THEN programs_included = programs_included & "DWP, "
 	IF MFIP_CHECKBOX = CHECKED THEN programs_included = programs_included & "MFIP, "
 	IF METS_CHECKBOX = CHECKED THEN programs_included = programs_included & "MNSURE, "
 	IF HC_CHECKBOX = CHECKED THEN programs_included = programs_included & "Healthcare, "
 	IF FS_CHECKBOX = CHECKED THEN programs_included = programs_included & "Food Support, "
-	'trims excess spaces of programs_applied_for
+	'trims excess spaces of programs
 	programs_included  = trim(programs_included )
-	'takes the last comma off of programs_applied_for when autofilled into dialog if more more than one app date is found and additional app is selected
+	'takes the last comma off of programs
 	If right(programs_included, 1) = "," THEN programs_included  = left(programs_included, len(programs_included) - 1)
-
 	'-----------------------------------------------------------------------------------------------------Case note & email sending
 	start_a_blank_CASE_NOTE
 	IF good_cause_droplist = "Application Review-Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
@@ -274,16 +291,18 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	IF good_cause_droplist = "Determination" THEN Call write_variable_in_case_note("Good Cause Application - Determination")
 	IF good_cause_droplist = "Recertification" THEN Call write_variable_in_case_note("Good Cause Application Review - Recertification")
 	Call write_bullet_and_variable_in_case_note("Good cause status", gc_status)
-	Call write_bullet_and_variable_in_case_note("Good cause claim date", claim_date)
-	Call write_bullet_and_variable_in_case_note("Next review date", review_date)
+	If claim_date <> "" THEN Call write_bullet_and_variable_in_case_note("Good cause claim date", claim_date)
+	If review_date <> "" THEN Call write_bullet_and_variable_in_case_note("Next review date", review_date)
 	Call write_bullet_and_variable_in_case_note("Child(ren) member number(s)", memb_number)
 	Call write_bullet_and_variable_in_case_note("ABPS name", client_name)
 	CALL write_bullet_and_variable_in_case_note("Applicable programs", programs_included)
   IF reason_droplist <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Reason for claiming good cause", reason_droplist)
-	IF verifs_req <> "" THEN Call write_bullet_and_variable_in_case_note("What is GC incomplete for/Verifications requested", verifs_req)
+	IF incomplete_form <> "Select One" THEN Call write_bullet_and_variable_in_case_note("What is GC form incomplete for", incomplete_form)
 	IF mets_info <> "" THEN Call write_bullet_and_variable_in_case_note("METS information", mets_info )
-	Call write_bullet_and_variable_in_case_note("Additional information", other_notes)
+	IF verfis_req <> "" THEN Call write_bullet_and_variable_in_case_note("Requested Verifcation(s)", verifs_req)
+	IF other_notes <> ""Call write_bullet_and_variable_in_case_note("Additional information", other_notes)
 	IF DHS_2338_complete_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* DHS-2338 is in ECF, and fully completed by parent/caregiver.")
+	IF SUP_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent request of proof to support a good cause claim")
 	IF DHS_2338_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Client Statement (DHS-2338)")
 	IF DHS_3628_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Notice of Denial of Good Cause Exemption (DHS-3628)")
 	IF DHS_3629_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Notice of Good Cause Approval (DHS-3629)")
