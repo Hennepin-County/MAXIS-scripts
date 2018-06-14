@@ -208,7 +208,7 @@ BeginDialog application_check_dialog, 0, 0, 391, 170, "Application check:  & app
   CheckBox 295, 65, 30, 10, "CASH", CASH_CHECKBOX
   CheckBox 295, 75, 25, 10, "EA", EA_CHECKBOX
   CheckBox 295, 85, 25, 10, "FS", FS_CHECKBOX
-  CheckBox 340, 70, 25, 10, "GRH", GRH_CHECKBOX
+  CheckBox 340, 70, 30, 10, "GRH", GRH_CHECKBOX
   CheckBox 340, 80, 20, 10, "HC", HC_CHECKBOX
   ButtonGroup ButtonPressed
     PushButton 240, 20, 30, 10, "AREP", AREP_button
