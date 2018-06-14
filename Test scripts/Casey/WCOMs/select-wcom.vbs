@@ -323,24 +323,31 @@ For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
 Next
 
 'DIALOG to select the WCOM to add
-BeginDialog wcom_selection_dlg, 0, 0, 251, 240, "Select WCOM"
-  CheckBox 15, 25, 190, 10, "WCOM for SNAP Duplicate Assistance in another state", duplicate_assistance_wcom_checkbox
+BeginDialog wcom_selection_dlg, 0, 0, 241, 360, "Select WCOM"
   Text 10, 10, 95, 10, "Check the WCOM needed."
-  CheckBox 15, 40, 145, 10, "WCOM for closing due to Returned Mail", returned_mail_wcom_checkbox
-  CheckBox 15, 55, 155, 10, "WCOM for SNAP closed via PACT due to FPI", pact_fraud_wcom_checkbox
-  CheckBox 15, 70, 130, 10, "WCOM for Temp disabled ABAWDs", temp_disa_abawd_wcom_checkbox
-  CheckBox 15, 85, 85, 10, "WCOM for Client Death", client_death_wcom_checkbox
-  CheckBox 15, 100, 125, 10, "WCOM for MFIP to SNAP transition", mfip_to_snap_wcom_checkbox
-  CheckBox 15, 115, 215, 10, "WCOM for ABAWD with postponed WREG verifs for EXP SNAP", wreg_postponed_verif_wcom_checkbox
-  CheckBox 15, 130, 160, 10, "WCOM for possible Banked Months available", banked_mos_avail_wcom_checkbox
-  CheckBox 15, 145, 180, 10, "WCOM for Banked Months closing due to non-coop", banked_mos_non_coop_wcom_checkbox
-  CheckBox 15, 160, 235, 10, "WCOM for Banked Months closing due to all available months used.", banked_mos_used_wcom_checkbox
-  CheckBox 15, 175, 235, 10, "WCOM for ABAWD WREG coded for Child under 18", abawd_child_coded_wcom_checkbox
-  CheckBox 15, 190, 205, 10, "WCOM for Failure to comply FSET - Good Cause Information", fset_fail_to_comply_wcom_checkbox
-  CheckBox 15, 205, 150, 10, "WCOM for SNAP closed/denied with PACT", snap_pact_wcom_checkbox
+  GroupBox 10, 25, 225, 240, "SNAP"
+  CheckBox 20, 40, 150, 10, "SNAP closed/denied with PACT", snap_pact_wcom_checkbox
+  CheckBox 20, 55, 155, 10, "SNAP closed via PACT for new HH Member", pact_fraud_wcom_checkbox
+  CheckBox 20, 70, 145, 10, "SNAP closing due to Returned Mail", returned_mail_wcom_checkbox
+  CheckBox 20, 85, 115, 10, "SNAP closing and MFIP opening", Check15
+  CheckBox 20, 100, 190, 10, "SNAP Duplicate Assistance in another state", duplicate_assistance_wcom_checkbox
+  CheckBox 20, 115, 190, 10, "SNAP Duplicate Assistance on another case in MN", Check14
+  CheckBox 20, 130, 85, 10, "SNAP Applicant Death", client_death_wcom_checkbox
+  CheckBox 20, 145, 200, 10, "SNAP Postponed verif of CAF pg 9 Signature -for EXP SNAP", Check16
+  CheckBox 20, 160, 190, 10, "ABAWD - Postponed WREG verifs for EXP SNAP", wreg_postponed_verif_wcom_checkbox
+  CheckBox 20, 175, 155, 10, "ABAWD WREG coded for Child under 18", abawd_child_coded_wcom_checkbox
+  CheckBox 20, 190, 130, 10, "ABAWD - Temporarily disabled", temp_disa_abawd_wcom_checkbox
+  CheckBox 20, 205, 160, 10, "ABAWD - Banked Months possibly available", banked_mos_avail_wcom_checkbox
+  CheckBox 20, 220, 180, 10, "Banked Months closing due to non-coop", banked_mos_non_coop_wcom_checkbox
+  CheckBox 20, 235, 190, 10, "ABAWD - Banked Months closing for months used", banked_mos_used_wcom_checkbox
+  CheckBox 20, 250, 195, 10, "FSET - Failure to comply with Good Cause Information", fset_fail_to_comply_wcom_checkbox
+  GroupBox 10, 275, 225, 60, "Cash"
+  CheckBox 20, 290, 55, 10, "CASH Denied", Check17
+  CheckBox 20, 305, 125, 10, "CASH closing due to Returned Mail", Check18
+  CheckBox 20, 320, 125, 10, "MFIP Closing and SNAP opening", mfip_to_snap_wcom_checkbox
   ButtonGroup ButtonPressed
-    OkButton 140, 220, 50, 15
-    CancelButton 195, 220, 50, 15
+    OkButton 135, 340, 50, 15
+    CancelButton 185, 340, 50, 15
 EndDialog
 
 'Initial declaration of arrays
@@ -695,19 +702,19 @@ For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
 Next
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE("Detail added to each notice:")
-If duplicate_assistance_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Advised duplicate assistance from state of: " & dup_state & " during the month of " & dup_month & "/" & dup_year & " was received.")
-If returned_mail_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Explained returned mail was received. Verification request sent: " & rm_sent_date & " and Due: " & rm_due_date & " with no response caused SNAP case closure.")
-If pact_fraud_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Explained New Household Member: " & new_hh_memb & " added. Verification needed: " & new_memb_verifs & ". Verification not received causing closure.")
-If temp_disa_abawd_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Advised client meets ABAWD exemption of temporary inability to work for " & numb_disa_mos & " months per Doctor statement.")
-If client_death_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Advised closure due to client death.")
-If mfip_to_snap_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Explained MFIP closure due to: " & MFIP_closing_reason & ".")
-If wreg_postponed_verif_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Advised " & abawd_name & " has used their 3 ABAWD months. Postponed WREG verification: " & wreg_verifs_needed & " is due: " & wreg_verifs_due_date & ".")
-If banked_mos_avail_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Advised ABAWD months have been used, explained Banked Months may be available.")
-If banked_mos_non_coop_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Explained " & banked_abawd_name & " was receiving Banked Months and fail cooperation with E & T. Explained requesting Good Cause, and future banked months ineligibility.")
-If banked_mos_used_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Explained Banked Months were being used are are now all used. Advised to review other WREG/ABAWD exemptions.")
-If abawd_child_coded_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Explained " & exempt_abawd_name & " is ABAWD and WREG exemptd due to a child(ren) under the age of 18 in the SNAP unit.")
-If fset_fail_to_comply_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Advised SNAP is closing due to FSET requirements not being met. Reasons for not meeting the rules: " & fset_fail_reason & ". Advised of good cause and contact information.")
-If snap_pact_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Explained SNAP case was " & SNAP_close_or_deny & " because " & pact_close_reason)
+If duplicate_assistance_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Duplicate assistance from state of: " & dup_state & " during the month of " & dup_month & "/" & dup_year & " was received.")
+If returned_mail_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Returned mail was received. Verification request sent: " & rm_sent_date & " and Due: " & rm_due_date & " with no response caused SNAP case closure.")
+If pact_fraud_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* New Household Member: " & new_hh_memb & " added. Verification needed: " & new_memb_verifs & ". Verification not received causing closure.")
+If temp_disa_abawd_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Client meets ABAWD exemption of temporary inability to work for " & numb_disa_mos & " months per Doctor statement.")
+If client_death_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Closure due to client death.")
+If mfip_to_snap_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* MFIP closure due to: " & MFIP_closing_reason & ".")
+If wreg_postponed_verif_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* " & abawd_name & " has used their 3 ABAWD months. Postponed WREG verification: " & wreg_verifs_needed & " is due: " & wreg_verifs_due_date & ".")
+If banked_mos_avail_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* ABAWD months have been used, explained Banked Months may be available.")
+If banked_mos_non_coop_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* " & banked_abawd_name & " was receiving Banked Months and fail cooperation with E & T. Explained requesting Good Cause, and future banked months ineligibility.")
+If banked_mos_used_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Banked Months were being used are are now all used. Advised to review other WREG/ABAWD exemptions.")
+If abawd_child_coded_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* " & exempt_abawd_name & " is ABAWD and WREG exemptd due to a child(ren) under the age of 18 in the SNAP unit.")
+If fset_fail_to_comply_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* SNAP is closing due to FSET requirements not being met. Reasons for not meeting the rules: " & fset_fail_reason & ". Advised of good cause and contact information.")
+If snap_pact_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* SNAP case was " & SNAP_close_or_deny & " because " & pact_close_reason)
 
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
