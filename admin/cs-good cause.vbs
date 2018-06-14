@@ -71,7 +71,7 @@ BeginDialog change_exemption_dialog, 0, 0, 216, 100, "Good cause change/exemptio
   Text 10, 50, 95, 10, "What was updated in MAXIS:"
 EndDialog
 
-BeginDialog Good_cause_dialog, 0, 0, 386, 280, "Good Cause"
+BeginDialog good_cause_dialog, 0, 0, 386, 280, "Good Cause"
   EditBox 55, 5, 45, 15, MAXIS_case_number
   EditBox 170, 5, 40, 15, claim_date
   EditBox 55, 25, 20, 15, MAXIS_footer_month
@@ -134,7 +134,7 @@ EndDialog
 Do
 	Do
 		err_msg = ""
-		dialog Good_cause_dialog
+		dialog good_cause_dialog
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
 		If good_cause_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select a good cause option."
@@ -159,7 +159,6 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	'Making sure we have the correct ABPS
 	EMReadScreen panel_number, 1, 2, 73
 	If panel_number = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
-
 	'If there is more than one panel, this part will grab employer info off of them and present it to the worker to decide which one to use.
 	If panel_number <> "0" then
 		Do
@@ -190,11 +189,11 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 		Call clear_line_of_text(6, 76)'next review date'
 		Call clear_line_of_text(6, 79)'next review date'
 	END IF
-	If gc_status = "Granted" THEN
+	IF gc_status = "Granted" THEN
 		EMWriteScreen "G", 5, 47
 		Call create_MAXIS_friendly_date(review_date, 0, 6, 73)
 	END IF
-	If gc_status = "Denied" THEN
+	IF gc_status = "Denied" THEN
 		EMWriteScreen "D", 5, 47
 		Call clear_line_of_text(6, 73)'next review date'
 		Call clear_line_of_text(6, 76)'next review date'
@@ -229,7 +228,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	If reason_droplist = "Cncptn Incest/Forced Rape" 		then claim_reason = "5"
 	If reason_droplist = "Legal adoption Before Court" 		then claim_reason = "6"
 	If reason_droplist = "Parent Gets Preadoptn Svc" 		then claim_reason = "7"
-	If gc_status <> "Not Claimed" THEN EMWriteScreen claim_reason, 6, 47
+	IF gc_status <> "Not Claimed" THEN EMWriteScreen claim_reason, 6, 47
 	EMReadScreen first_name, 12, 10, 63	'making sure we can actually update this case.
 	EMReadScreen last_name, 24, 10, 30	'making sure we can actually update this case.
 	first_name = trim(first_name)
@@ -301,7 +300,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	IF incomplete_form <> "Select One" THEN Call write_bullet_and_variable_in_case_note("What is GC form incomplete for", incomplete_form)
 	IF mets_info <> "" THEN Call write_bullet_and_variable_in_case_note("METS information", mets_info )
 	IF verfis_req <> "" THEN Call write_bullet_and_variable_in_case_note("Requested Verifcation(s)", verifs_req)
-	IF other_notes <> ""Call write_bullet_and_variable_in_case_note("Additional information", other_notes)
+	IF other_notes <> "" THEN Call write_bullet_and_variable_in_case_note("Additional information", other_notes)
 	IF DHS_2338_complete_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* DHS-2338 is in ECF, and fully completed by parent/caregiver.")
 	IF SUP_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent request of proof to support a good cause claim")
 	IF DHS_2338_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Client Statement (DHS-2338)")
