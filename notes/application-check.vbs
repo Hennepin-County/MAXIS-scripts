@@ -228,7 +228,7 @@ BeginDialog application_check_dialog, 0, 0, 391, 170, "Application check:  & app
   GroupBox 235, 5, 145, 45, "MAXIS navigation"
   Text 55, 130, 45, 10, "Other Notes:"
   GroupBox 280, 55, 100, 45, "Pending Programs"
-  Text 50, 110, 50, 10, "Actions taken:"
+  Text 50, 110, 50, 10, "Actions Taken:"
   ButtonGroup ButtonPressed
     CancelButton 330, 150, 50, 15
     OkButton 275, 150, 50, 15
