@@ -964,12 +964,12 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
         End If
         if notice_type = "Data Only" then
 
-            if ALL_CASES_ARRAY(date_of_interview, case_entry) <> "" then
-                'to_date = FormatDateTime(ALL_CASES_ARRAY(date_of_interview, case_entry))
-                'If DateDiff("d", interview_deadline, to_date) >= 0 then interviews_completed_timely = interviews_completed_timely + 1
-                'MsgBox DateDiff("d", interview_deadline, ALL_CASES_ARRAY(date_of_interview, case_entry))
-                If DateDiff("d", ALL_CASES_ARRAY(date_of_interview, case_entry), interview_deadline) >= 0 then interviews_completed_timely = interviews_completed_timely + 1
-            end if
+            ' if ALL_CASES_ARRAY(date_of_interview, case_entry) <> "" then
+            '     'to_date = FormatDateTime(ALL_CASES_ARRAY(date_of_interview, case_entry))
+            '     'If DateDiff("d", interview_deadline, to_date) >= 0 then interviews_completed_timely = interviews_completed_timely + 1
+            '     'MsgBox DateDiff("d", interview_deadline, ALL_CASES_ARRAY(date_of_interview, case_entry))
+            '     If DateDiff("d", ALL_CASES_ARRAY(date_of_interview, case_entry), interview_deadline) >= 0 then interviews_completed_timely = interviews_completed_timely + 1
+            ' end if
 
             if ALL_CASES_ARRAY(appt_notc_sent, case_entry) = TRUE then objExcel.Cells(row, appt_lrt_col).Value = "Y"
             if ALL_CASES_ARRAY(nomi_sent, case_entry) = TRUE then objExcel.Cells(row, nomi_col).Value = "Y"

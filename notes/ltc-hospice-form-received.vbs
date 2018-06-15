@@ -221,6 +221,34 @@ BeginDialog hospice_info_dlg, 0, 0, 291, 240, "Hospice Form Received"
   Text 10, 195, 60, 10, "Worker Signature:"
 EndDialog
 
+'DIALOG with a field for reason for exit - this may be added later
+' BeginDialog hospice_info_dlg, 0, 0, 291, 255, "Hospice Form Received"
+'   DropListBox 80, 25, 160, 45, "HH_Memb_DropDown", client_in_hospice
+'   EditBox 80, 45, 205, 15, hospice_name
+'   EditBox 80, 65, 80, 15, npi_number
+'   EditBox 80, 85, 50, 15, hospice_entry_date
+'   EditBox 185, 85, 50, 15, hospice_exit_date
+'   EditBox 80, 105, 205, 15, exit_cause
+'   EditBox 80, 125, 50, 15, mmis_updated_date
+'   EditBox 10, 160, 275, 15, reason_not_updated
+'   EditBox 10, 190, 275, 15, other_notes
+'   EditBox 80, 210, 205, 15, worker_signature
+'   ButtonGroup ButtonPressed
+'     OkButton 180, 235, 50, 15
+'     CancelButton 235, 235, 50, 15
+'   Text 15, 10, 140, 10, "Enter information from the Hospice Form"
+'   Text 30, 30, 45, 10, "Client Name:"
+'   Text 15, 50, 60, 10, "Name of Hospice:"
+'   Text 35, 70, 40, 10, "NPI Numbe:"
+'   Text 35, 90, 40, 10, "Entry Date:"
+'   Text 35, 110, 40, 10, "Exit due to:"
+'   Text 10, 130, 70, 10, "MMIS Updated as of "
+'   Text 10, 150, 165, 10, "If MMIS has not yet been updated, explain reason:"
+'   Text 10, 180, 50, 10, "Other Notes:"
+'   Text 10, 215, 60, 10, "Worker Signature:"
+'   Text 150, 90, 35, 10, "Exit Date:"
+' EndDialog
+
 'showing the dialog
 Do
     err_msg = ""
@@ -243,6 +271,7 @@ Call write_bullet_and_variable_in_CASE_NOTE("Hospice Name", hospice_name)
 Call write_bullet_and_variable_in_CASE_NOTE("NPI Number", npi_number)
 Call write_bullet_and_variable_in_CASE_NOTE("Date of Entry", hospice_entry_date)
 Call write_bullet_and_variable_in_CASE_NOTE("Exit Date", hospice_exit_date)
+'Call write_bullet_and_variable_in_MMIS_NOTE("Exit due to", exit_cause)         'This field is not currently in use so commented out - workers are testing, may add it back in
 Call write_bullet_and_variable_in_CASE_NOTE("MMIS updated as of", mmis_updated_date)
 Call write_bullet_and_variable_in_CASE_NOTE("MMIS not updated due to", reason_not_updated)
 Call write_bullet_and_variable_in_CASE_NOTE("Notes", other_notes)
