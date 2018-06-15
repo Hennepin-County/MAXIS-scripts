@@ -78,7 +78,7 @@ BeginDialog good_cause_dialog, 0, 0, 386, 280, "Good Cause"
   EditBox 80, 25, 20, 15, MAXIS_footer_year
   EditBox 170, 25, 40, 15, review_date
   EditBox 80, 45, 20, 15, memb_number
-  EditBox 170, 45, 40, 15, approved_date
+  EditBox 170, 45, 40, 15, actual_date
   CheckBox 225, 15, 25, 15, "CCA", CCA_CHECKBOX
   CheckBox 225, 30, 30, 10, "DWP", DWP_CHECKBOX
   CheckBox 225, 45, 30, 10, "METS", METS_CHECKBOX
@@ -112,7 +112,7 @@ BeginDialog good_cause_dialog, 0, 0, 386, 280, "Good Cause"
   ButtonGroup ButtonPressed
     OkButton 275, 260, 50, 15
     CancelButton 330, 260, 50, 15
-  Text 115, 50, 55, 10, "Approved date:"
+  Text 115, 50, 55, 10, "Actual date:"
   Text 100, 70, 25, 10, "Action:"
   Text 235, 70, 30, 10, "Reason:"
   Text 5, 70, 25, 10, "Status:"
@@ -141,11 +141,11 @@ Do
 		If isnumeric(MAXIS_footer_month) = false then err_msg = err_msg & vbnewline & "* You must enter the footer month to begin good cause."
 		If isnumeric(MAXIS_footer_year) = false then err_msg = err_msg & vbnewline & "* You must enter the footer year to begin good cause."
 		If gc_status = "Granted" THEN
-			If reason_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the Good Cause reason."
-			If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
 			If isdate(review_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause review date."
-			If isdate(approved_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid approval date."
 		END IF
+		If isdate(actual_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid approval date."
+		If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
+		If reason_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the Good Cause reason."
 		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -156,7 +156,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	'making sure that the date is recognized by the function as a date'
 	'claim_date = datevalue(claim_date)
 	'review_date = datevalue(review_date)
-	'approved_date = datevalue(approved_date)
+	'actual_date = datevalue(actual_date)
 	'----------------------------------------------------------------------------------------------------ABPS panel
 	Call navigate_to_MAXIS_screen("STAT", "ABPS")
 	'Making sure we have the correct ABPS
@@ -194,7 +194,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	END IF
 	IF gc_status = "Granted" THEN
 		EMWriteScreen "G", 5, 47
-		Call create_MAXIS_friendly_date(review_date, 0, 6, 73)
+		Call create_MAXIS_friendly_date(datevalue(review_date), 0, 6, 73)
 	END IF
 	IF gc_status = "Denied" THEN
 		EMWriteScreen "D", 5, 47
@@ -202,11 +202,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 		Call clear_line_of_text(6, 76)'next review date'
 		Call clear_line_of_text(6, 79)'next review date'
 	END IF
-	IF sup_evidence_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 47 ELSE EMWriteScreen "N", 7, 47
-	IF investigation_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 73 ELSE EMWriteScreen "N", 7, 73
-	IF med_sup_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 8, 48 ELSE EMWriteScreen "N", 8, 48
-
-	If gc_status = "Not Claimed" THEN
+	IF gc_status = "Not Claimed" THEN
 		EMWriteScreen "N", 5, 47
 		Call clear_line_of_text(5, 73)'good cause claim date'
 		Call clear_line_of_text(5, 76)'good cause claim date'
@@ -218,10 +214,13 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 		Call clear_line_of_text(7, 47)
 		Call clear_line_of_text(7, 73)
 		Call clear_line_of_text(8, 48)
-	ELSE
-		Call create_MAXIS_friendly_date(datevalue(claim_date), 0, 5, 73)
 	END IF
 
+	Call create_MAXIS_friendly_date(datevalue(claim_date), 0, 5, 73)
+	Call create_MAXIS_friendly_date(datevalue(actual_date), 0, 5, 73)
+	IF sup_evidence_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 47 ELSE EMWriteScreen "N", 7, 47
+	IF investigation_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 73 ELSE EMWriteScreen "N", 7, 73
+	IF med_sup_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 8, 48 ELSE EMWriteScreen "N", 8, 48
 
 	'converting the good cause reason from reason_droplist to the applicable MAXIS coding
 	If reason_droplist = "Potential phys harm/Child"		then claim_reason = "1"
@@ -240,7 +239,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	last_name = replace(last_name, "_", "")
 	client_name = first_name & " " & last_name
 	Call fix_case_for_name(client_name)
-	Call create_MAXIS_friendly_date_with_YYYY(approved_date, 0, 18, 38) 'creates and writes the date entered in dialog'
+	Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
 	Transmit'to add information
 	Transmit'to move past non-inhibiting warning messages on ABPS
 	PF3
