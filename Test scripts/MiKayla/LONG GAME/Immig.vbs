@@ -112,7 +112,7 @@ Do
 	Do
 		err_msg = ""
 		Dialog IMIG_dialog
-		IF buttonpressed = 0 THEN stopscript
+		cancel_confirmation
 		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF memb_number = "" or IsNumeric(memb_number) = False or len(memb_number) > 2 then err_msg = err_msg & vbNewLine & "* Enter a member number."
 		IF alien_id_number = "" or IsNumeric(alien_id_number) = False or len(alien_id_number) <> 9  then err_msg = err_msg & vbNewLine & "* Enter immigration ID number, must be 9 digits and numeric only."

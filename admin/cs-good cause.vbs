@@ -153,7 +153,10 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 	Call MAXIS_footer_month_confirmation			'function that confirms that the current footer month/year is the same as what was selected by the user. If not, it will navigate to correct footer month/year
-
+'making sure that the date is recognized by the function as a date'
+	claim_date = datevalue(claim_date)
+	review_date = datevalue(review_date)
+	approved_date = datevalue(approved_date)
 	'----------------------------------------------------------------------------------------------------ABPS panel
 	Call navigate_to_MAXIS_screen("STAT", "ABPS")
 	'Making sure we have the correct ABPS

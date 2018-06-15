@@ -122,7 +122,7 @@ memb_number = "01"
 date_recieved = date & ""
 
 '-----------------------------------------------------------------------------------------Initial dialog and do...loop
-BeginDialog update_action_dialog, 0, 0, 181, 155, "MATCH CLEARED"
+BeginDialog update_action_dialog, 0, 0, 181, 155, "MATCH CLEARED-No DAIL"
   EditBox 55, 5, 55, 15, MAXIS_case_number
   EditBox 155, 5, 20, 15, MEMB_Number
   DropListBox 90, 25, 85, 15, "Select One:"+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BE - OP Entered"+chr(9)+"BE - NC Non-collectible"+chr(9)+"BO - Other"+chr(9)+"BP - Wrong Person"+chr(9)+"CC - Claim Entered"+chr(9)+"NC - Non Cooperation", resolution_status
@@ -171,7 +171,7 @@ EndDialog
 DO
 	err_msg = ""
 	dialog update_action_dialog
-	IF buttonpressed = 0 then stopscript
+	cancel_confirmation
 	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
     If (Cleared_status = "CC - Claim Entered" AND instr(programs, "HC") or instr(programs, "Medical Assistance")) then err_msg = err_msg & vbNewLine & "* System does not allow HC or MA cases to be cleared with the code 'CC - Claim Entered'."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -230,20 +230,24 @@ LOOP UNTIL ievp_info_confirmation = vbYes
 CALL write_value_and_transmit("U", row, 3)
 '---------------------------------------------------------------------Reading potential errors for out-of-county cases
 EMReadScreen OutOfCounty_error, 12, 24, 2
-IF OutOfCounty_error = "MATCH IS NOT" THEN
+IF OutOfCounty_error = "MATCH IS NOT" then
 	script_end_procedure("Out-of-county case. Cannot update.")
-ELSE
-	IF IEVS_type = "WAGE" THEN
-		EMReadScreen quarter, 1, 8, 14
-		EMReadScreen IEVS_year, 4, 8, 22
-	ELSEIF IEVS_type = "NON-WAGE" THEN
-		EMReadScreen IEVS_year, 2, 8, 15
-		IEVS_year = "20" & IEVS_year
-	END IF
+	Else
+		IF IEVS_type = "WAGE" then
+			EMReadScreen quarter, 1, 8, 14
+			EMReadScreen IEVS_year, 4, 8, 22
+		ELSEIF IEVS_type = "UBEN" THEN
+			EMReadScreen IEVS_month, 2, 5, 68
+			EMReadScreen IEVS_year, 4, 8, 71
+		ELSEIF IEVS_type = "BEER" THEN
+			EMReadScreen IEVS_year, 2, 8, 15
+			IEVS_year = "20" & IEVS_year
+		END IF
 END IF
 
-IF IEVS_type = "NON-WAGE" THEN type_match = "B"
-
+IF IEVS_type = "BEER" THEN type_match = "B"
+IF IEVS_type = "UBEN" THEN type_match = "U"
+IF IEVS_type = "WAGE" THEN type_match = "U"
 '--------------------------------------------------------------------Client name
 EMReadScreen client_name, 35, 5, 24
 client_name = trim(client_name)                         'trimming the client name
@@ -279,19 +283,20 @@ programs = trim(programs)
 IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 
 '----------------------------------------------------------------------------------------------------Income info & differnce notice info
-EMReadScreen source_income, 44, 8, 37
+EMReadScreen source_income, 75, 8, 37
 source_income = trim(source_income)
 length = len(source_income)		'establishing the length of the variable
 
 IF instr(source_income, " AMOUNT: $") THEN
     position = InStr(source_income, " AMOUNT: $")    		      'sets the position at the deliminator
     source_income = Left(source_income, position)  'establishes employer as being before the deliminator
-Elseif instr(source_income, " AMT:") THEN 					  'establishing the length of the variable
+Elseif instr(source_income, " AMT: $") THEN 					  'establishing the length of the variable
     position = InStr(source_income, " AMT: $")    		      'sets the position at the deliminator
     source_income = Left(source_income, position)  'establishes employer as being before the deliminator
 Else
     source_income = source_income	'catch all variable
 END IF
+
 '----------------------------------------------------------------------------------------------------Employer info & difference notice info
 EMReadScreen notice_sent, 1, 14, 37
 EMReadScreen sent_date, 8, 14, 68

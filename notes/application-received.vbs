@@ -122,7 +122,7 @@ Do
 	Do
 		err_msg = ""
 		Dialog initial_dialog
-		IF buttonpressed = 0 THEN stopscript
+		cancel_confirmation
 		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF Active_checkbox = UNCHECKED and Not_Active_checkbox = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please select if the client is active or not."
 		IF Active_checkbox = CHECKED and Not_Active_checkbox = CHECKED then err_msg = err_msg & vbNewLine & "* Please select only box if the client is active or not."
@@ -280,7 +280,7 @@ IF Not_Active_checkbox = CHECKED THEN
     		cancel_confirmation
     		IF how_app_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
 			IF app_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
-    		IF isdate(application_date) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid application date."
+    	IF isdate(application_date) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid application date."
 			IF worker_number = "" OR len(worker_number) <> 3 then err_msg = err_msg & vbNewLine & "* You must enter the worker number of the worker if you would like the case to be transfered by the script."
     		'IF team_number = "" OR len(team_number) <> 3 then err_msg = err_msg & vbNewLine & "* You must enter the team number of the worker if you would like the case to be transfered by the script."
     		IF app_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "If an ApplyMN was received, you must enter the confirmation number and time received"

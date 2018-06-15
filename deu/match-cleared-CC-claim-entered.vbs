@@ -208,7 +208,7 @@ EndDialog
 Do
 	err_msg = ""
 	dialog OP_Cleared_dialog
-	IF buttonpressed = 0 then stopscript
+	cancel_confirmation
 	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
 	IF select_quarter = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match period entry."
 	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
@@ -230,7 +230,7 @@ Do
 	IF collectible_dropdown = "YES" THEN
 	IF collectible_reason_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise why claim is collectible."
 	END IF
-	IF income_rcvd_date = "" THEN err_msg = err_msg & vbnewline & "* Please advise of date income was received."
+	IF isdate(income_rcvd_date) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income recieved."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 LOOP UNTIL err_msg = ""
 CALL DEU_password_check(False)
@@ -282,16 +282,19 @@ END IF
 
 '---------------------------------------------------------------------Reading potential errors for out-of-county cases
 EMReadScreen OutOfCounty_error, 12, 24, 2
-IF OutOfCounty_error = "MATCH IS NOT" THEN
+IF OutOfCounty_error = "MATCH IS NOT" then
 	script_end_procedure("Out-of-county case. Cannot update.")
-ELSE
-	IF IEVS_type = "WAGE" THEN
-		EMReadScreen quarter, 1, 8, 14
-		EMReadScreen IEVS_year, 4, 8, 22
-	ELSEIF IEVS_type = "BEER" THEN
-		EMReadScreen IEVS_year, 2, 8, 15
-		IEVS_year = "20" & IEVS_year
-	END IF
+	Else
+		IF IEVS_type = "WAGE" then
+			EMReadScreen quarter, 1, 8, 14
+			EMReadScreen IEVS_year, 4, 8, 22
+		ELSEIF IEVS_type = "UBEN" THEN
+			EMReadScreen IEVS_month, 2, 5, 68
+			EMReadScreen IEVS_year, 4, 8, 71
+		ELSEIF IEVS_type = "BEER" THEN
+			EMReadScreen IEVS_year, 2, 8, 15
+			IEVS_year = "20" & IEVS_year
+		END IF
 END IF
 
 IF IEVS_type = "BEER" THEN type_match = "B"
@@ -431,7 +434,7 @@ IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
     CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
     CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
     CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
-		CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_date)
+		CALL write_bullet_and_variable_in_case_note("Income verification received", income_rcvd_date)
 		CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
 		CALL write_bullet_and_variable_in_case_note("MANDATORY-Reason for overpayment", Reason_OP)
     CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
