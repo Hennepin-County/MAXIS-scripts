@@ -179,7 +179,7 @@ Function approval_summary
   End if
 
   EMReadScreen elig_type, 2, 12, col - 2
-  EMReadScreen budget_type, 1, 13, col + 2
+  EMReadScreen budget_type, 1, 12, col + 3
   EMWriteScreen "x", 9, col + 2
   transmit
   'Reads which BUD screen it ended up on and then acts accordingly
@@ -264,37 +264,49 @@ Function approval_summary
     End if
   End if
 
-'---Dialog is dynamically created and needs results from BBUD to be created therefore needs to be seperate from other dialogs.
-BeginDialog COLA_dialog, 0, 0, 376, 147, "COLA"
-  DropListBox 45, 5, 30, 15, "EX"+chr(9)+"DX", elig_type
-  DropListBox 135, 5, 30, 15, "L"+chr(9)+"S"+chr(9)+"B", budget_type
-  EditBox 285, 5, 85, 15, recipient_amt
-  EditBox 90, 25, 280, 15, income
-  EditBox 50, 45, 320, 15, deductions
-  EditBox 85, 65, 185, 15, designated_provider
-  If BBUD_check = "BBUD" then
-    Text 280, 65, 25, 10, "NAV to:"
-    ButtonGroup ButtonPressed
-      PushButton 310, 65, 55, 10, "STAT/BILS", BILS_button_COLADLG
-      PushButton 310, 80, 55, 10, "ELIG/BBUD", BBUD_button
-  end if
-  CheckBox 5, 90, 65, 10, "Updated RSPL?", updated_RSPL_check
-  CheckBox 85, 90, 110, 10, "Approved new MAXIS results?", approved_check
-  CheckBox 210, 90, 70, 10, "Sent DHS-3050?", DHS_3050_check
-  EditBox 75, 105, 295, 15, other
-  EditBox 80, 125, 70, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 165, 125, 50, 15
-    CancelButton 225, 125, 50, 15
-  Text 5, 10, 35, 10, "Elig type:"
-  Text 85, 10, 45, 10, "Budget type:"
-  Text 175, 10, 110, 10, "Waiver obilgation/recipient amt:"
-  Text 5, 30, 80, 10, "Total countable income:"
-  Text 5, 50, 45, 10, "Deductions:"
-  Text 5, 70, 70, 10, "Designated provider:"
-  Text 5, 110, 70, 10, "Other (if applicable):"
-  Text 5, 130, 70, 10, "Sign your case note:"
-EndDialog
+  EMReadScreen EBUD_check, 4, 3, 60
+  If EBUD_check = "EBUD" then
+      EMReadScreen income, 10, 16, 32
+      income = "$" & trim(income)
+      EMReadScreen ma_epd_premium_amt, 7, 13, 72
+      ma_epd_premium_amt = trim(ma_epd_premium_amt)
+  End If
+
+    '---Dialog is dynamically created and needs results from BBUD to be created therefore needs to be seperate from other dialogs.
+    BeginDialog COLA_dialog, 0, 0, 376, 165, "COLA"
+      DropListBox 45, 5, 30, 15, "EX"+chr(9)+"DX"+chr(9)+"DP", elig_type
+      DropListBox 135, 5, 30, 15, "L"+chr(9)+"S"+chr(9)+"B"+chr(9)+"E", budget_type
+      EditBox 285, 5, 85, 15, recipient_amt
+      EditBox 285, 25, 85, 15, ma_epd_premium_amt
+      EditBox 90, 45, 280, 15, income
+      EditBox 50, 65, 320, 15, deductions
+      EditBox 85, 85, 185, 15, designated_provider
+      If BBUD_check = "BBUD" then
+        Text 280, 85, 25, 10, "NAV to:"
+        ButtonGroup ButtonPressed
+          PushButton 310, 85, 55, 10, "STAT/BILS", BILS_button_COLADLG
+          PushButton 310, 95, 55, 10, "ELIG/BBUD", BBUD_button
+      End If
+      CheckBox 5, 110, 65, 10, "Updated RSPL?", updated_RSPL_check
+      CheckBox 85, 110, 110, 10, "Approved new MAXIS results?", approved_check
+      CheckBox 210, 110, 70, 10, "Sent DHS-3050?", DHS_3050_check
+      CheckBox 295, 110, 70, 10, "MADE Email Sent", made_email_checkbox
+      EditBox 75, 125, 295, 15, other
+      EditBox 80, 145, 120, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 265, 145, 50, 15
+        CancelButton 320, 145, 50, 15
+      Text 5, 10, 35, 10, "Elig type:"
+      Text 85, 10, 45, 10, "Budget type:"
+      Text 175, 10, 110, 10, "Waiver obilgation/recipient amt:"
+      Text 220, 30, 60, 10, "MA-EPD Premium:"
+      Text 5, 50, 80, 10, "Total countable income:"
+      Text 5, 70, 45, 10, "Deductions:"
+      Text 5, 90, 70, 10, "Designated provider:"
+      Text 5, 130, 65, 10, "Other (if applicable):"
+      Text 5, 150, 70, 10, "Sign your case note:"
+    EndDialog
+
 
    Do
 	      Dialog COLA_dialog
@@ -334,7 +346,12 @@ EndDialog
   EMWriteScreen MAXIS_case_number, 18, 43
 
   Call start_a_blank_CASE_NOTE
-  Call write_variable_in_CASE_NOTE("Approved COLA updates " & MAXIS_footer_month & "/" & MAXIS_footer_year & ": " & elig_type & "-" & budget_type & " " & recipient_amt)
+
+  If ma_epd_premium_amt <> "" Then
+    Call write_variable_in_CASE_NOTE("Approved COLA updates " & MAXIS_footer_month & "/" & MAXIS_footer_year & ": " & elig_type & "-" & budget_type & " - EPD Premium $" & ma_epd_premium_amt)
+  else
+    Call write_variable_in_CASE_NOTE("Approved COLA updates " & MAXIS_footer_month & "/" & MAXIS_footer_year & ": " & elig_type & "-" & budget_type & " " & recipient_amt)
+  end if
   If budget_type = "L" then EMSendKey " LTC SD**"
   If budget_type = "S" then EMSendKey " SISEW waiver obl**"
   If budget_type = "B" then EMSendKey " Recip amt.**"
@@ -344,9 +361,10 @@ EndDialog
   Call write_variable_in_CASE_NOTE("---")
   If updated_RSPL_check = 1 then call write_variable_in_CASE_NOTE ("* Updated RSPL in MMIS.")
   If designated_provider_check = 1 then write_variable_in_CASE_NOTE("* Client has designated provider.")
+  If made_email_checkbox = 1 then write_variable_in_CASE_NOTE("* MADE emailed")
   If approved_check = 1 then call write_variable_in_CASE_NOTE("* Approved new MAXIS results.")
   If DHS_3050_check = 1 then call write_variable_in_CASE_NOTE ("* Sent DHS-3050 LTC communication form to facility.")
-  call write_variable_in_CASE_NOTE("Other: " & other)
+  call write_bullet_and_variable_in_CASE_NOTE("Other", other)
   Call write_variable_in_CASE_NOTE("---")
   Call write_variable_in_CASE_NOTE(worker_signature)
 end function
@@ -611,6 +629,8 @@ End function
 EMConnect ""
 
 Call MAXIS_case_number_finder(MAXIS_case_number)
+MAXIS_footer_month = CM_plus_1_mo
+MAXIS_footer_year = CM_plus_1_yr
 
 BeginDialog COLA_case_number_dialog, 0, 0, 171, 125, "COLA case number dialog"
   EditBox 100, 10, 60, 15, MAXIS_case_number
