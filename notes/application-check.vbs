@@ -197,7 +197,7 @@ Elseif DateDiff("d", application_check_date, date) > 60 then
 	reminder_text = "Post day 60"
 End if
 
-BeginDialog application_check_dialog, 0, 0, 391, 170, "Application check:  & application_check"
+BeginDialog application_check_dialog, 0, 0, 391, 170, "Application Check:  & application_check"
   DropListBox 75, 15, 80, 15, "Select one..."+chr(9)+"Apply MN"+chr(9)+"CAF"+chr(9)+"CAF addendum"+chr(9)+"HC - certain populations"+chr(9)+"HC - LTC"+chr(9)+"HC - EMA Mnsure ", application_type_droplist
   DropListBox 75, 45, 155, 15, "Select One:"+chr(9)+"Case is ready to approve or deny"+chr(9)+"Requested verifications not recieved"+chr(9)+"Partial verfications recieved, more are needed"+chr(9)+"Other", application_status_droplist
 	EditBox 175, 20, 50, 15, application_check_date
@@ -266,7 +266,7 @@ Call write_bullet_and_variable_in_CASE_NOTE("Program applied for", pending_progs
 Call write_bullet_and_variable_in_CASE_NOTE("Application date", application_check_date)
 Call write_variable_in_CASE_NOTE("---")
 Call write_bullet_and_variable_in_CASE_NOTE("Application status", application_status_droplist)
-Call write_bullet_and_variable_in_CASE_NOTE("Verification(s) recieved", verifs_rcvd)
+Call write_bullet_and_variable_in_CASE_NOTE("Verification(s) received", verifs_rcvd)
 Call write_bullet_and_variable_in_CASE_NOTE("Verification(s) still needed - request sent via ECF", verifs_needed)
 Call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
 Call write_bullet_and_variable_in_CASE_NOTE("Other application notes", other_notes)
