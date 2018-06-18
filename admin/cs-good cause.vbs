@@ -143,7 +143,7 @@ Do
 		If gc_status = "Granted" THEN
 			If isdate(review_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause review date."
 		END IF
-		If isdate(actual_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid approval date."
+		If isdate(actual_date) = False then err_msg = err_msg & vbnewline & "* You must enter an actual date in the footer month that you are working in."
 		If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
 		If reason_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the Good Cause reason."
 		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -217,7 +217,6 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	END IF
 
 	Call create_MAXIS_friendly_date(datevalue(claim_date), 0, 5, 73)
-	Call create_MAXIS_friendly_date(datevalue(actual_date), 0, 5, 73)
 	IF sup_evidence_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 47 ELSE EMWriteScreen "N", 7, 47
 	IF investigation_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 73 ELSE EMWriteScreen "N", 7, 73
 	IF med_sup_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 8, 48 ELSE EMWriteScreen "N", 8, 48
@@ -272,10 +271,10 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	If right(programs_included, 1) = "," THEN programs_included  = left(programs_included, len(programs_included) - 1)
 
 	IF ABPS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "ABPS name not written on the correct line,"
-	IF REASON_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "reason for requesting GC not selected,"
-	IF QUESTIONS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "all of the questions not answered,"
-	IF NOSIG_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "no signature and/or date,"
-	IF OTHER_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "other:,"
+	IF REASON_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " reason for requesting GC not selected,"
+	IF QUESTIONS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " all of the questions not answered,"
+	IF NOSIG_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " no signature and/or date,"
+	IF OTHER_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " other:,"
 	incomplete_form  = trim(incomplete_form)
 	If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
 

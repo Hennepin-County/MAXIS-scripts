@@ -39,23 +39,26 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog EA_approval_dialog, 0, 0, 306, 85, "EA Approved"
+BeginDialog EA_approval_dialog, 0, 0, 296, 105, "EA Approved"
   EditBox 60, 5, 55, 15, MAXIS_case_number
-  DropListBox 60, 25, 55, 15, "Select one..."+chr(9)+"1st"+chr(9)+"2nd", approval_number
+  EditBox 155, 5, 20, 15, numb_adults
+  EditBox 220, 5, 20, 15, numb_child
+  DropListBox 60, 25, 55, 15, "Select One:"+chr(9)+"1st"+chr(9)+"2nd", approval_number
   EditBox 190, 25, 100, 15, approval_dates
-  DropListBox 60, 45, 85, 15, "Select one..."+chr(9)+"FMF"+chr(9)+"PSP"+chr(9)+"St. Anne's"+chr(9)+"The Drake", shelter_droplist
-  CheckBox 130, 10, 140, 10, "Send mandatory vendor MEMO to client.", send_MEMO_checkbox
-  EditBox 60, 65, 130, 15, other_notes
+  DropListBox 60, 45, 85, 15, "Select One:"+chr(9)+"FMF"+chr(9)+"PSP"+chr(9)+"St. Anne's"+chr(9)+"The Drake", shelter_droplist
+  EditBox 60, 65, 230, 15, other_notes
+  CheckBox 10, 90, 140, 10, "Send mandatory vendor MEMO to client.", send_MEMO_checkbox
   ButtonGroup ButtonPressed
-    OkButton 195, 65, 50, 15
-    CancelButton 250, 65, 50, 15
-  Text 10, 70, 40, 10, "Other notes: "
-  Text 10, 10, 45, 10, "Case number:"
-  Text 10, 50, 45, 10, "Shelter name:"
-  Text 125, 30, 65, 10, "EA approval dates:"
+    OkButton 185, 85, 50, 15
+    CancelButton 240, 85, 50, 15
+  Text 10, 50, 50, 10, "Shelter Name:"
+  Text 125, 30, 65, 10, "EA Approval Dates:"
   Text 10, 30, 40, 10, "Approval #:"
+  Text 10, 10, 50, 10, "Case Number:"
+  Text 180, 10, 35, 10, "# Children:"
+  Text 10, 70, 45, 10, "Other Notes: "
+  Text 125, 10, 30, 10, "# Adults:"
 EndDialog
-
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
@@ -67,28 +70,30 @@ DO
 	DO
 		err_msg = ""
 		Dialog EA_approval_dialog
-        cancel_confirmation
+    cancel_confirmation
 		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
-		IF approval_number = "Select one..." then err_msg = err_msg & vbNewLine & "* Please select the approval number."
+		IF approval_number = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select the approval number."
 		IF approval_dates = "" then err_msg = err_msg & vbNewLine & "* Please enter the EA approval dates."
-		If shelter_droplist = "Select one..." then err_msg = err_msg & vbNewLine & "* Please select the name of the shelter."
+		IF numb_child = "" then err_msg = err_msg & vbNewLine & "* Please enter the number of children."
+		IF numb_adults = "" then err_msg = err_msg & vbNewLine & "* Please enter the number of adults."
+		If shelter_droplist = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select the name of the shelter."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
- 
+
 back_to_SELF
 EMWriteScreen MAXIS_case_number, 18, 43
 EMWriteScreen CM_mo, 20, 43	'entering current footer month/year
 EMWriteScreen CM_yr, 20, 46
 
-IF send_MEMO_checkbox = 1 then 
+IF send_MEMO_checkbox = CHECKED then
 	call navigate_to_MAXIS_screen("SPEC", "MEMO")		'Navigating to SPEC/MEMO
 	'Creates a new MEMO. If it's unable the script will stop.
 	PF5
 	EMReadScreen memo_display_check, 12, 2, 33
 	If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-	
+
 	'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
 	row = 4                             'Defining row and col for the search feature.
 	col = 1
@@ -100,7 +105,7 @@ IF send_MEMO_checkbox = 1 then
 		call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
 		PF5                                                     'PF5s again to initiate the new memo process
 	END IF
-		
+
 	'Checking for SWKR
 	row = 4                             'Defining row and col for the search feature.
 	col = 1
@@ -115,27 +120,27 @@ IF send_MEMO_checkbox = 1 then
 	EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
 	IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-	transmit  
+	transmit
 	'writing the MEMO'
 	Call write_variable_in_SPEC_MEMO("************************************************************")
-	Call write_variable_in_SPEC_MEMO("Call 1 (888) 577-2227 to get more information or enroll. You will be placed on mandatory vendor because you have used shelter or have requested assistance for housing issues.")   
+	Call write_variable_in_SPEC_MEMO("Call 1 (888) 577-2227 to get more information or enroll. You will be placed on mandatory vendor because you have used shelter or have requested assistance for housing issues.")
 	Call write_variable_in_SPEC_MEMO(" ")
-	Call write_variable_in_SPEC_MEMO("You will remain on mandatory vendor for 12 months. If you move, or your rent changes you must let your team know at least 15 days before the end of the month to make this change.")                                 
+	Call write_variable_in_SPEC_MEMO("You will remain on mandatory vendor for 12 months. If you move, or your rent changes you must let your team know at least 15 days before the end of the month to make this change.")
 	Call write_variable_in_SPEC_MEMO(" ")
 	Call write_variable_in_SPEC_MEMO("Call your Human Service Representative Team at the end of this 12 month period if you want them to stop vendoring your rent at that time. Budgeting classes are free to you and available through the Lutheran Social Services. If you have any questions call the Shelter Team at (612)-348-9410.")
 	Call write_variable_in_SPEC_MEMO(" ")
-	Call write_variable_in_SPEC_MEMO("Sincerely, Shelter Team")	
+	Call write_variable_in_SPEC_MEMO("Sincerely, Shelter Team")
 	Call write_variable_in_SPEC_MEMO("************************************************************")
 	PF4
 END IF
 
 'The case note---------------------------------------------------------------------------------------
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-Call write_variable_in_CASE_NOTE("###" & approval_number & " EA approved for: " & approval_dates & " for shelter stay at " & shelter_droplist & "###")
-If send_MEMO_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Sent SPEC/MEMO to client re: mandatory vendoring for the next 12 months.")
+Call write_variable_in_CASE_NOTE("###" & approval_number & " EA approved for: " & approval_dates & " for: " & numb_adults & " adult(s) & " & numb_child & " child(ren) " & "for shelter stay at " & shelter_droplist & "###")
+If send_MEMO_checkbox = CHECKED then Call write_variable_in_CASE_NOTE("* Sent SPEC/MEMO to client re: mandatory vendoring for the next 12 months.")
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE ("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
-script_end_procedure("")	
+script_end_procedure("")
