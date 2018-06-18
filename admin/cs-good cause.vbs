@@ -160,27 +160,16 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	'----------------------------------------------------------------------------------------------------ABPS panel
 	Call navigate_to_MAXIS_screen("STAT", "ABPS")
 	'Making sure we have the correct ABPS
-	EMReadScreen panel_number, 1, 2, 73
+	EMReadScreen panel_number, 1, 2, 78
 	If panel_number = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
 	'If there is more than one panel, this part will grab employer info off of them and present it to the worker to decide which one to use.
-	If panel_number <> "0" then
-		Do
-			EMReadScreen current_panel_number, 1, 2, 73
-			ABPS_check = MsgBox("Is this the right ABPS?", vbYesNo + vbQuestion)
-			If ABPS_check = vbYes then
-				ABPS_found = TRUE
-				exit do
-			END IF
-			If ABPS_check = vbNo then
-				ABPS_found = FALSE
-				TRANSMIT
-			END IF
-			'If (ABPS_check = vbNo AND current_panel_number = panel_number) then
-			''	ABPS_found = False
-				'script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
-			'End if
-		Loop until ABPS_found = TRUE'current_panel_number = panel_number
-	End if
+	Do
+		EMReadScreen current_panel_number, 1, 2, 73
+		ABPS_check = MsgBox("Is this the right ABPS?", vbYesNo + vbQuestion, "Confirmation")
+		If ABPS_check = vbYes then exit do
+		If ABPS_check = vbNo then	TRANSMIT
+		If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
+	Loop until current_panel_number = panel_number
 
 	'-------------------------------------------------------------------------Updating the ABPS panel
 	PF9'edit mode

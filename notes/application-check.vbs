@@ -68,8 +68,8 @@ Do
 	DO
 		err_msg = ""
 	    dialog case_number_dialog
-        cancel_confirmation
-        if IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+      cancel_confirmation
+      IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -199,12 +199,13 @@ End if
 
 BeginDialog application_check_dialog, 0, 0, 391, 170, "Application check:  & application_check"
   DropListBox 75, 15, 80, 15, "Select one..."+chr(9)+"Apply MN"+chr(9)+"CAF"+chr(9)+"CAF addendum"+chr(9)+"HC - certain populations"+chr(9)+"HC - LTC"+chr(9)+"HC - EMA Mnsure ", application_type_droplist
-  EditBox 175, 20, 50, 15, application_check_date
   DropListBox 75, 45, 155, 15, "Select One:"+chr(9)+"Case is ready to approve or deny"+chr(9)+"Requested verifications not recieved"+chr(9)+"Partial verfications recieved, more are needed"+chr(9)+"Other", application_status_droplist
-  EditBox 100, 65, 170, 15, verifs_rcvd
+	EditBox 175, 20, 50, 15, application_check_date
+	EditBox 100, 65, 170, 15, verifs_rcvd
   EditBox 100, 85, 170, 15, verifs_needed
   EditBox 100, 105, 280, 15, actions_taken
   EditBox 100, 125, 280, 15, other_notes
+  EditBox 100, 145, 125, 15, worker_signature
   CheckBox 295, 65, 30, 10, "CASH", CASH_CHECKBOX
   CheckBox 295, 75, 25, 10, "EA", EA_CHECKBOX
   CheckBox 295, 85, 25, 10, "FS", FS_CHECKBOX
@@ -219,20 +220,21 @@ BeginDialog application_check_dialog, 0, 0, 391, 170, "Application check:  & app
     PushButton 275, 35, 30, 10, "REVW", REVW_button
     PushButton 310, 35, 30, 10, "SHEL", SHEL_button
     PushButton 345, 35, 30, 10, "UNEA", UNEA_button
+    OkButton 275, 150, 50, 15
+    CancelButton 330, 150, 50, 15
   GroupBox 5, 5, 160, 30, "Day 1 application check only"
   Text 10, 20, 55, 10, "Application type:"
-  Text 10, 45, 60, 10, "Application status:"
   Text 175, 10, 55, 10, "Application date"
-  Text 20, 70, 75, 10, "Verifications Recieved:"
+  Text 10, 50, 60, 10, "Application status:"
+  Text 20, 70, 75, 10, "Verifications Received:"
   Text 10, 90, 85, 10, "Verifications Still Needed:"
-  GroupBox 235, 5, 145, 45, "MAXIS navigation"
-  Text 55, 130, 45, 10, "Other Notes:"
-  GroupBox 280, 55, 100, 45, "Pending Programs"
   Text 50, 110, 50, 10, "Actions Taken:"
-  ButtonGroup ButtonPressed
-    CancelButton 330, 150, 50, 15
-    OkButton 275, 150, 50, 15
+  Text 55, 130, 45, 10, "Other Notes:"
+  Text 35, 150, 60, 10, "Worker Signature:"
+  GroupBox 235, 5, 145, 45, "MAXIS navigation"
+  GroupBox 280, 55, 100, 45, "Pending Programs"
 EndDialog
+
 
 'main dialog
 Do

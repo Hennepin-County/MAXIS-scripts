@@ -150,7 +150,7 @@ END IF
 'The case note---------------------------------------------------------------------------------------
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 Call write_variable_in_CASE_NOTE("###" & approval_number & " EA approved for: " & approval_dates & " for shelter stay at " & shelter_droplist & "###")
-Call write_variable_in_CASE_NOTE ("For: " & numb_adults & " adult(s) & " & numb_child & " child(ren) ")
+Call write_variable_in_CASE_NOTE ("* HH Comp: " & numb_adults & " adult(s) & " & numb_child & " child(ren) ")
 If send_MEMO_checkbox = CHECKED then Call write_variable_in_CASE_NOTE("* Sent SPEC/MEMO to client re: mandatory vendoring for the next 12 months.")
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE ("---")
