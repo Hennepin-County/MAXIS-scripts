@@ -37,6 +37,19 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/18/2018", "Updated requested HH comp information.", "MiKayla Handley, Hennepin County")
+call changelog_update("03/27/2017", "Initial version.", "Ilse Ferris, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 BeginDialog EA_approval_dialog, 0, 0, 296, 105, "EA Approved"
@@ -136,7 +149,8 @@ END IF
 
 'The case note---------------------------------------------------------------------------------------
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-Call write_variable_in_CASE_NOTE("###" & approval_number & " EA approved for: " & approval_dates & " for: " & numb_adults & " adult(s) & " & numb_child & " child(ren) " & "for shelter stay at " & shelter_droplist & "###")
+Call write_variable_in_CASE_NOTE("###" & approval_number & " EA approved for: " & approval_dates & " for shelter stay at " & shelter_droplist & "###")
+Call write_variable_in_CASE_NOTE ("For: " & numb_adults & " adult(s) & " & numb_child & " child(ren) ")
 If send_MEMO_checkbox = CHECKED then Call write_variable_in_CASE_NOTE("* Sent SPEC/MEMO to client re: mandatory vendoring for the next 12 months.")
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE ("---")

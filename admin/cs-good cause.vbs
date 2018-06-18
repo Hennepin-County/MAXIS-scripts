@@ -168,15 +168,18 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 			EMReadScreen current_panel_number, 1, 2, 73
 			ABPS_check = MsgBox("Is this the right ABPS?", vbYesNo + vbQuestion)
 			If ABPS_check = vbYes then
-				ABPS_found = True
+				ABPS_found = TRUE
 				exit do
 			END IF
-			If (ABPS_check = vbNo AND current_panel_number = panel_number) then
-				ABPS_found = False
-				script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
-			End if
-			transmit
-		Loop until current_panel_number = panel_number
+			If ABPS_check = vbNo then
+				ABPS_found = FALSE
+				TRANSMIT
+			END IF
+			'If (ABPS_check = vbNo AND current_panel_number = panel_number) then
+			''	ABPS_found = False
+				'script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
+			'End if
+		Loop until ABPS_found = TRUE'current_panel_number = panel_number
 	End if
 
 	'-------------------------------------------------------------------------Updating the ABPS panel
