@@ -64,66 +64,119 @@ BeginDialog case_number_dialog, 0, 0, 156, 70, "Case number dialog"
   Text 95, 30, 20, 10, "Year:"
 EndDialog
 
-BeginDialog LTC_app_recd_dialog, 0, 0, 286, 415, "LTC application received dialog"
-  EditBox 75, 35, 65, 15, appl_date
-  EditBox 75, 55, 65, 15, appl_type
-  CheckBox 150, 45, 105, 10, "A transfer has been reported", transfer_reported_check
-  CheckBox 150, 60, 140, 10, "Spousal allocation has been requested", spousal_allocation_check
-  EditBox 160, 75, 120, 15, forms_needed
-  EditBox 30, 95, 30, 15, CFR
-  EditBox 110, 95, 170, 15, HH_comp
-  EditBox 65, 115, 215, 15, pre_FACI_ADDR
-  DropListBox 65, 135, 215, 15, "Select one..."+chr(9)+"Age 65 or older"+chr(9)+"Adult without children"+chr(9)+"Blind/disabled"+chr(9)+"Child under 21"+chr(9)+"Parent/Caretaker"+chr(9)+"Pregnant", basis_of_elig_droplist
-  EditBox 35, 155, 245, 15, FACI
-  EditBox 60, 175, 220, 15, retro_request
-  EditBox 35, 195, 245, 15, AREP
-  EditBox 60, 215, 220, 15, SWKR
-  EditBox 60, 235, 220, 15, INSA
-  EditBox 60, 255, 220, 15, adult_signatures
-  EditBox 50, 275, 230, 15, veteran_info
-  EditBox 50, 295, 230, 15, LTCC
-  EditBox 55, 315, 225, 15, actions_taken
-  CheckBox 5, 345, 220, 10, "Check here to have the script update PND2 to show client delay.", update_PND2_check
-  CheckBox 5, 360, 280, 10, "Check here to have the script create a TIKL to deny at the 45 day mark (NON-DISA).", TIKL_45_day_check
-  CheckBox 5, 375, 265, 10, "Check here to have the script create a TIKL to deny at the 60 day mark (DISA).", TIKL_60_day_check
-  EditBox 90, 395, 80, 15, worker_signature
+BeginDialog LTC_app_recd_dialog, 0, 0, 361, 410, "LTC application received dialog"
+  EditBox 75, 5, 65, 15, appl_date
+  EditBox 75, 25, 65, 15, appl_type
+  CheckBox 150, 15, 105, 10, "A transfer has been reported", transfer_reported_check
+  CheckBox 150, 30, 140, 10, "Spousal allocation has been requested", spousal_allocation_check
+  EditBox 160, 45, 120, 15, forms_needed
+  EditBox 30, 65, 30, 15, CFR
+  EditBox 110, 65, 170, 15, HH_comp
+  EditBox 65, 85, 215, 15, pre_FACI_ADDR
+  DropListBox 65, 105, 215, 15, "Select one..."+chr(9)+"Age 65 or older"+chr(9)+"Adult without children"+chr(9)+"Blind/disabled"+chr(9)+"Child under 21"+chr(9)+"Parent/Caretaker"+chr(9)+"Pregnant", basis_of_elig_droplist
+  EditBox 35, 125, 245, 15, FACI
+  EditBox 60, 145, 220, 15, retro_request
+  EditBox 35, 165, 245, 15, AREP
+  CheckBox 285, 170, 60, 10, "Forms to AREP", forms_to_arep_checkbox
+  EditBox 60, 185, 220, 15, SWKR
+  CheckBox 285, 190, 65, 10, "Forms to SWKR", forms_to_skwr_checkbox
+  EditBox 60, 205, 220, 15, INSA
+  CheckBox 75, 230, 210, 10, "Check here to update additional PNLR/PNLI/PNLE information.", add_detail_from_app_checkbox
+  EditBox 60, 250, 220, 15, adult_signatures
+  EditBox 50, 270, 230, 15, veteran_info
+  EditBox 50, 290, 230, 15, LTCC
+  EditBox 55, 310, 225, 15, actions_taken
+  CheckBox 5, 340, 220, 10, "Check here to have the script update PND2 to show client delay.", update_PND2_check
+  CheckBox 5, 355, 280, 10, "Check here to have the script create a TIKL to deny at the 45 day mark (NON-DISA).", TIKL_45_day_check
+  CheckBox 5, 370, 265, 10, "Check here to have the script create a TIKL to deny at the 60 day mark (DISA).", TIKL_60_day_check
+  EditBox 65, 390, 170, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 175, 395, 50, 15
-    CancelButton 230, 395, 50, 15
-    PushButton 180, 25, 45, 10, "next panel", next_panel_button
-    PushButton 230, 25, 45, 10, "next memb", next_memb_button
-    PushButton 5, 160, 25, 10, "FACI:", FACI_button
-    PushButton 5, 200, 25, 10, "AREP:", AREP_button
-    PushButton 25, 220, 30, 10, "SWKR:", SWKR_button
-    PushButton 5, 240, 25, 10, "INSA/", INSA_button
-    PushButton 30, 240, 25, 10, "MEDI:", MEDI_button
-    PushButton 15, 15, 25, 10, "TYPE", TYPE_button
-    PushButton 40, 15, 25, 10, "PROG", PROG_button
-    PushButton 65, 15, 25, 10, "HCRE", HCRE_button
-    PushButton 90, 15, 25, 10, "REVW", REVW_button
-    PushButton 115, 15, 25, 10, "MEMB", MEMB_button
-  Text 5, 100, 20, 10, "CFR:"
-  Text 70, 100, 40, 10, "HH Comp:"
-  Text 5, 120, 60, 10, "Pre FACI address:"
-  Text 5, 140, 60, 10, "Basis of eligibilty:"
-  Text 5, 180, 55, 10, "Retro requested:"
-  Text 5, 220, 20, 10, "PHN/"
-  Text 5, 260, 55, 10, "Adult signatures:"
-  Text 5, 300, 40, 10, "LTCC info:"
-  Text 5, 320, 50, 10, "Actions taken:"
-  Text 30, 400, 60, 10, "Worker signature:"
-  Text 5, 40, 55, 10, "Application date:"
-  Text 5, 80, 150, 10, "Forms needed? 1503, 3543, 3050, 5181, AA:"
-  GroupBox 10, 5, 135, 25, "General STAT navigation:"
-  GroupBox 175, 5, 105, 35, "STAT-based navigation"
-  Text 5, 60, 65, 10, "Appl type received:"
-  Text 5, 280, 45, 10, "Veteran info:"
-  GroupBox 0, 335, 285, 55, "Actions"
+    OkButton 250, 390, 50, 15
+    CancelButton 305, 390, 50, 15
+  GroupBox 295, 5, 55, 120, "STAT navigation"
   ButtonGroup ButtonPressed
-    PushButton 230, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 180, 15, 45, 10, "prev. panel", prev_panel_button
+    PushButton 300, 20, 45, 10, "prev. panel", prev_panel_button
+    PushButton 300, 30, 45, 10, "next panel", next_panel_button
+    PushButton 300, 45, 45, 10, "prev. memb", prev_memb_button
+    PushButton 300, 55, 45, 10, "next memb", next_memb_button
+    PushButton 300, 70, 25, 10, "TYPE", TYPE_button
+    PushButton 300, 80, 25, 10, "PROG", PROG_button
+    PushButton 300, 90, 25, 10, "HCRE", HCRE_button
+    PushButton 300, 100, 25, 10, "REVW", REVW_button
+    PushButton 300, 110, 25, 10, "MEMB", MEMB_button
+    PushButton 5, 130, 25, 10, "FACI:", FACI_button
+    PushButton 5, 170, 25, 10, "AREP:", AREP_button
+    PushButton 25, 190, 30, 10, "SWKR:", SWKR_button
+    PushButton 5, 210, 25, 10, "INSA/", INSA_button
+    PushButton 30, 210, 25, 10, "MEDI:", MEDI_button
+  Text 5, 10, 55, 10, "Application date:"
+  Text 5, 30, 65, 10, "Appl type received:"
+  Text 5, 50, 150, 10, "Forms needed? 1503, 3543, 3050, 5181, AA:"
+  Text 5, 70, 20, 10, "CFR:"
+  Text 70, 70, 40, 10, "HH Comp:"
+  Text 5, 90, 60, 10, "Pre FACI address:"
+  Text 5, 110, 60, 10, "Basis of eligibilty:"
+  Text 5, 150, 55, 10, "Retro requested:"
+  Text 5, 190, 20, 10, "PHN/"
+  Text 5, 255, 55, 10, "Adult signatures:"
+  Text 5, 275, 45, 10, "Veteran info:"
+  Text 5, 295, 35, 10, "LTCC info:"
+  Text 5, 315, 45, 10, "Actions taken:"
+  GroupBox 0, 330, 285, 55, "Actions"
+  Text 5, 395, 60, 10, "Worker signature:"
 EndDialog
 
+
+BeginDialog ltc_detail_dialog, 0, 0, 446, 300, "LTC Application Detail"
+  EditBox 45, 25, 225, 15, cit_id
+  EditBox 45, 45, 395, 15, accounts
+  EditBox 45, 65, 395, 15, securities
+  EditBox 45, 85, 395, 15, other_asset
+  EditBox 45, 105, 395, 15, vehicles
+  EditBox 50, 125, 390, 15, real_estate
+  EditBox 60, 145, 380, 15, earned_income
+  EditBox 70, 165, 370, 15, unearned_income
+  EditBox 35, 185, 245, 15, STWK
+  EditBox 350, 185, 90, 15, COEX_DCEX
+  EditBox 70, 205, 370, 15, notes_on_income
+  EditBox 155, 225, 285, 15, is_any_work_temporary
+  EditBox 55, 255, 385, 15, verifs_needed
+  ButtonGroup ButtonPressed
+    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 335, 25, 45, 10, "next panel", next_panel_button
+    PushButton 395, 25, 45, 10, "next memb", next_memb_button
+    PushButton 5, 190, 25, 10, "STWK:", STWK_button
+    PushButton 295, 190, 25, 10, "COEX/", COEX_button
+    PushButton 320, 190, 25, 10, "DCEX:", DCEX_button
+    PushButton 5, 210, 60, 10, "Notes on Income", notes_on_income_button
+    PushButton 10, 285, 25, 10, "BUSI", BUSI_button
+    PushButton 35, 285, 25, 10, "JOBS", JOBS_button
+    PushButton 60, 285, 25, 10, "RBIC", RBIC_button
+    PushButton 85, 285, 25, 10, "UNEA", UNEA_button
+    PushButton 125, 285, 25, 10, "ACCT", ACCT_button
+    PushButton 150, 285, 25, 10, "SECU", SECU_button
+    PushButton 175, 285, 25, 10, "CARS", CARS_button
+    PushButton 200, 285, 25, 10, "REST", REST_button
+    PushButton 250, 285, 35, 10, "ELIG/HC", ELIG_HC_button
+  Text 45, 10, 260, 10, "Information as entered in STAT - this may change as verifications are received."
+  GroupBox 330, 5, 115, 35, "STAT-based navigation"
+  Text 5, 30, 40, 10, "Cit/ID/imig:"
+  Text 5, 50, 35, 10, "Accounts:"
+  Text 5, 70, 35, 10, "Securities:"
+  Text 5, 90, 25, 10, "Other:"
+  Text 5, 110, 35, 10, "Vehicles:"
+  Text 5, 130, 40, 10, "Real Estate:"
+  Text 5, 150, 55, 10, "Earned income:"
+  Text 5, 170, 65, 10, "Unearned income:"
+  Text 5, 230, 150, 10, "Is any work temporary? If so, explain details:"
+  Text 5, 260, 50, 10, "Verifs needed:"
+  GroupBox 5, 275, 110, 25, "Income panels"
+  GroupBox 120, 275, 115, 25, "Asset panels"
+  ButtonGroup ButtonPressed
+    OkButton 335, 280, 50, 15
+    CancelButton 390, 280, 50, 15
+EndDialog
 
 'VARIABLES TO DECLARE----------------------------------------------------------------------------------------------------
 HH_memb_row = 05
@@ -172,21 +225,54 @@ End if
 
 'The main dialog
 Do
-	err_msg = ""
-	Dialog LTC_app_recd_dialog
-		cancel_confirmation
-		If buttonpressed <> -1 then Call MAXIS_dialog_navigation
-	IF appl_date = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please enter an application date."
-	IF basis_of_elig_droplist = "Select one..." AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please select an MA basis of eligibility."
-	IF actions_taken = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please discuss the actions taken."
-	IF worker_signature = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-	IF (TIKL_45_day_check = 1 AND TIKL_60_day_check = 1) AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* You cannot TIKL for both 45 and 60 days. Please select one or neither."
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-Loop UNTIL err_msg = "" AND ButtonPressed = -1
+    Do
+    	err_msg = ""
+    	Dialog LTC_app_recd_dialog
+    		cancel_confirmation
+    		If buttonpressed <> -1 and buttonpressed <> 0 then Call MAXIS_dialog_navigation
+    	IF appl_date = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please enter an application date."
+    	IF basis_of_elig_droplist = "Select one..." AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please select an MA basis of eligibility."
+    	IF actions_taken = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please discuss the actions taken."
+    	IF worker_signature = "" AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+    	IF (TIKL_45_day_check = 1 AND TIKL_60_day_check = 1) AND ButtonPressed = -1 THEN err_msg = err_msg & vbCr & "* You cannot TIKL for both 45 and 60 days. Please select one or neither."
+    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+    Loop UNTIL err_msg = "" AND ButtonPressed = -1
+    call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)
 
+If add_detail_from_app_checkbox = checked Then
+
+    call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", accounts)
+    call autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
+    call autofill_editbox_from_MAXIS(HH_member_array, "CASH", accounts)
+    call autofill_editbox_from_MAXIS(HH_member_array, "CARS", vehicles)
+    call autofill_editbox_from_MAXIS(HH_member_array, "COEX", COEX_DCEX)
+    call autofill_editbox_from_MAXIS(HH_member_array, "DCEX", COEX_DCEX)
+    call autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
+    call autofill_editbox_from_MAXIS(HH_member_array, "MEMI", cit_id)
+    call autofill_editbox_from_MAXIS(HH_member_array, "SECU", securities)
+    call autofill_editbox_from_MAXIS(HH_member_array, "OTHR", other_asset)
+    call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
+    call autofill_editbox_from_MAXIS(HH_member_array, "REST", real_estate)
+    call autofill_editbox_from_MAXIS(HH_member_array, "STWK", STWK)
+    call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
+
+    'The main dialog
+    Do
+        Do
+        	err_msg = ""
+        	Dialog ltc_detail_dialog
+        		cancel_confirmation
+        		If buttonpressed <> -1 then Call MAXIS_dialog_navigation
+
+        Loop UNTIL err_msg = "" AND ButtonPressed = -1
+        call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+    LOOP UNTIL are_we_passworded_out = false
+
+End If
 
 'UPDATING PND2----------------------------------------------------------------------------------------------------
 If update_PND2_check = 1 then
@@ -244,6 +330,8 @@ Call write_variable_in_CASE_NOTE("***LTC intake***")
 call write_bullet_and_variable_in_CASE_NOTE("Application date", appl_date)
 call write_bullet_and_variable_in_CASE_NOTE("Application type received", appl_type)
 call write_bullet_and_variable_in_CASE_NOTE("Forms Needed", forms_needed)
+If forms_to_arep_checkbox = checked then CALL write_variable_in_CASE_NOTE("* Sent form(s) to AREP.")
+If forms_to_skwr_checkbox = checked then CALL write_variable_in_CASE_NOTE("* Sent form(s) to Social Worker.")
 call write_bullet_and_variable_in_CASE_NOTE("HH comp", HH_comp)
 call write_bullet_and_variable_in_CASE_NOTE("CFR", CFR)
 call write_bullet_and_variable_in_CASE_NOTE("Pre FACI address", pre_FACI_ADDR)
@@ -262,6 +350,27 @@ IF spousal_allocation_check = 1 THEN Call write_variable_in_CASE_NOTE("* Spousal
 If update_PND2_check = 1 THEN Call write_variable_in_CASE_NOTE("* PND2 updated to show client delay.")
 IF TIKL_45_day_check = 1 Then call write_variable_in_CASE_NOTE("* Set TIKL for 45 days to recheck case.")
 IF TIKL_60_day_check = 1 Then call write_variable_in_CASE_NOTE("* Set TIKL for 60 days to recheck case.")
+If add_detail_from_app_checkbox = checked Then
+    IF move_verifs_needed = True THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Cit/ID", cit_id)
+    call write_variable_in_case_note("-----FOLLOWING INFORMATION WAS REPORTED ON APPLICATION-----")
+    call write_variable_in_Case_note("* The actual amounts may change onceverifs/forms have been rec'vd. *")
+    If earned_income <> "" or unearned_income <> "" or STWK <> "" Then Call write_variable_in_CASE_NOTE("- - - Income - - -")
+    call write_bullet_and_variable_in_CASE_NOTE("Earned Income", earned_income)
+    call write_bullet_and_variable_in_CASE_NOTE("Unearned Income", unearned_income)
+    call write_bullet_and_variable_in_CASE_NOTE("Notes on Income", notes_on_income)
+    call write_bullet_and_variable_in_CASE_NOTE("Stop Work", STWK)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Is any work temporary?", is_any_work_temporary)
+    If accounts <> "" or securities <> "" or other_asset <> "" or vehicles <> "" or real_estate <> "" Then Call write_variable_in_CASE_NOTE("- - - Assets - - -")
+    call write_bullet_and_variable_in_CASE_NOTE("Accounts", accounts)
+    call write_bullet_and_variable_in_CASE_NOTE("Securities", securities)
+    call write_bullet_and_variable_in_CASE_NOTE("Other", aother_asset)
+    call write_bullet_and_variable_in_CASE_NOTE("Vehicles", vehicles)
+    call write_bullet_and_variable_in_CASE_NOTE("Real Estate", real_estate)
+    If COEX_DCEX <> "" Then Call write_variable_in_CASE_NOTE("- - -")
+    CALL write_bullet_and_variable_in_CASE_NOTE("COEX/DCEX", COEX_DCEX)
+    IF move_verifs_needed = False THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)
+End If
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
