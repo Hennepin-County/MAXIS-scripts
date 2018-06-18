@@ -274,7 +274,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	IF REASON_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " reason for requesting GC not selected,"
 	IF QUESTIONS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " all of the questions not answered,"
 	IF NOSIG_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " no signature and/or date,"
-	IF OTHER_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " other:,"
+	IF OTHER_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " other (see additional information),"
 	incomplete_form  = trim(incomplete_form)
 	If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
 
