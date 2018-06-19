@@ -325,6 +325,7 @@ If action_type = "Apply sanction/disq."	then
 			If spec_edit_check = "NOTICE" THEN no_prog_waiting = true
 		Loop until spec_edit_check = "NOTICE"
 	End if 	
+End if 
 	
 If action_type = "Cure santion/disq." then
 	'Shows dialog
