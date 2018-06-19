@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("06/19/2018", "Updated verbiage in SPEC/WCOM for readibility.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/25/2017", "Repaired functionality to add SPEC/WCOM. Also updated text to send notice for sending a SPEC/LETR.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/28/2016", "Corrected DWP disqualification options and noting for policy compliance.", "David Courtright, Saint Louis County")
@@ -155,25 +156,6 @@ EndDialog
 'Connects to BlueZone & grabs case number
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
-
-'Grabbing counselor name and phone from database if applicable
-IF collecting_ES_statistics = true AND MAXIS_case_number <> "" THEN
-		'Setting constants
-		Const adOpenStatic = 3
-		Const adLockOptimistic = 3
-
-		'Creating objects for Access
-		Set objConnection = CreateObject("ADODB.Connection")
-		Set objRecordSet = CreateObject("ADODB.Recordset")
-
-		'Opening DB
-	objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = " & ES_database_path
-		'This looks for an existing case number and edits it if needed
-		set rs = objConnection.Execute("SELECT * FROM ESTrackingTbl WHERE ESCaseNbr = " & MAXIS_case_number & "")
-		IF NOT(rs.eof) THEN ES_counselor_name = rs("ESCounselor")
-	objConnection.Close
-	set rs = nothing
-END IF
 
 'Main dialog: user will input case number and initial month/year if not already auto-filled
 DO
@@ -322,7 +304,11 @@ If action_type = "Apply sanction/disq."	then
 				
 				'WCOM required by workers to informed client what who they need to contact, the contact info, and by when they need to resolve the sanction.
 				Call write_variable_in_SPEC_MEMO("")
-				Call write_variable_in_SPEC_MEMO("Please contact your " & sanction_type_droplist & " worker: " & ES_counselor_name & " at " & ES_counselor_phone & ", on how to cure this sanction.")
+				If trim(ES_counselor_name) = "" or trim(ES_counselor_phone) = "" then 
+                    Call write_variable_in_SPEC_MEMO("Please contact your team for information on how to cure this sanction.")
+                Else 
+                    Call write_variable_in_SPEC_MEMO("Please contact your counselor: " & ES_counselor_name & " at " & ES_counselor_phone & ", for information on how to cure this sanction.")
+                End if 
 				Call write_variable_in_SPEC_MEMO("")
 				Call write_variable_in_SPEC_MEMO("You need to be in compliance on/by " & Resolution_date & ".")
 				Call write_variable_in_SPEC_MEMO("")
@@ -340,14 +326,6 @@ If action_type = "Apply sanction/disq."	then
 		Loop until spec_edit_check = "NOTICE"
 	End if 	
 	
-	'Updating database if applicable
-	IF collecting_ES_statistics = true THEN
-		IF Sanction_Percentage_droplist = "100%" THEN ESActive = "No" 'updating ESActive when case is sanctioned out
-		Sanction_Percentage_droplist = replace(Sanction_Percentage_droplist, "%", "") 'clearing the % as the DB is numeric only
-		CALL write_MAXIS_info_to_ES_database(MAXIS_case_number, HH_Member_Number, ESMembName, Sanction_Percentage_droplist, ESEmpsStatus, ESTANFMosUsed, ESExtensionReason, ESDisaEnd, ESPrimaryActivity, ESDate, ESSite, ESCounselor, ESActive, insert_string)
-	END IF
-END IF
-
 If action_type = "Cure santion/disq." then
 	'Shows dialog
 	DO
