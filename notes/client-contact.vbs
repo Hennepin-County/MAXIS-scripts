@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/19/2018", "Added FAX to contact type, changed MNSURE IC # to METS IC #, updated look of dialog and back end mandatory field handling. Also removed message box prior to navigating to DAIL/WRIT.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/28/2017", "Removed call center information from bottom of dialog.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -52,42 +53,42 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
-BeginDialog client_contact_dialog, 0, 0, 386, 270, "Client contact"
-  ComboBox 50, 5, 60, 15, "Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Office visit"+chr(9)+"Letter", contact_type
+BeginDialog client_contact_dialog, 0, 0, 386, 245, "Client contact"
+  ComboBox 50, 5, 60, 15, "Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Office visit"+chr(9)+"Letter", contact_type
   DropListBox 115, 5, 45, 10, "from"+chr(9)+"to", contact_direction
   ComboBox 165, 5, 85, 15, "client"+chr(9)+"AREP"+chr(9)+"Non-AREP"+chr(9)+"SWKR", who_contacted
   EditBox 280, 5, 100, 15, regarding
   EditBox 70, 25, 65, 15, phone_number
-  EditBox 225, 25, 85, 15, when_contact_was_made
+  EditBox 280, 25, 100, 15, when_contact_was_made
   EditBox 70, 45, 65, 15, MAXIS_case_number
-  EditBox 70, 65, 65, 15, Mnsure_IC_number
-  EditBox 70, 85, 310, 15, contact_reason
-  EditBox 70, 105, 310, 15, actions_taken
-  EditBox 65, 140, 310, 15, verifs_needed
-  EditBox 65, 160, 310, 15, case_status
-  EditBox 85, 180, 290, 15, cl_instructions
-  CheckBox 5, 205, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
-  CheckBox 5, 220, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
-  CheckBox 5, 235, 135, 10, "Check here if you sent forms to AREP.", Sent_arep_checkbox
-  CheckBox 5, 250, 120, 10, "Check here if follow-up is needed.", follow_up_needed_checkbox
-  EditBox 270, 230, 105, 15, worker_signature
+  CheckBox 145, 50, 65, 10, "Used Interpreter", used_interpreter_checkbox
+  EditBox 280, 45, 65, 15, METS_IC_number
+  EditBox 70, 70, 310, 15, contact_reason
+  EditBox 70, 90, 310, 15, actions_taken
+  EditBox 65, 125, 310, 15, verifs_needed
+  EditBox 65, 145, 310, 15, case_status
+  EditBox 85, 165, 290, 15, cl_instructions
+  CheckBox 5, 190, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
+  CheckBox 5, 205, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
+  CheckBox 260, 190, 95, 10, "Forms were sent to AREP.", Sent_arep_checkbox
+  CheckBox 260, 205, 120, 10, "Follow up is needed on this case.", follow_up_needed_checkbox
+  EditBox 70, 225, 195, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 270, 250, 50, 15
-    CancelButton 325, 250, 50, 15
-  Text 5, 10, 45, 10, "Contact type:"
+    OkButton 275, 225, 50, 15
+    CancelButton 330, 225, 50, 15
   Text 260, 10, 15, 10, "Re:"
   Text 5, 30, 50, 10, "Phone number: "
-  Text 150, 30, 70, 10, "Date/Time of Contact"
+  Text 200, 30, 75, 10, "Date/Time of Contact:"
   Text 5, 50, 50, 10, "Case number: "
-  Text 5, 90, 65, 10, "Reason for contact:"
-  Text 5, 110, 50, 10, "Actions taken: "
-  GroupBox 5, 125, 375, 75, "Helpful info for call centers (or front desks) to pass on to clients"
-  Text 10, 145, 50, 10, "Verifs needed: "
-  Text 10, 165, 45, 10, "Case status: "
-  Text 10, 185, 75, 10, "Instructions/message:"
-  Text 200, 235, 70, 10, "Sign your case note: "
-  CheckBox 150, 45, 65, 10, "Used Interpreter", used_interpreter_checkbox
-  Text 5, 70, 60, 10, "Mnsure IC number:"
+  Text 5, 75, 65, 10, "Reason for contact:"
+  Text 5, 95, 50, 10, "Actions taken: "
+  GroupBox 5, 110, 375, 75, "Helpful info for call centers (or front desks) to pass on to clients:"
+  Text 10, 130, 50, 10, "Verifs needed: "
+  Text 10, 150, 45, 10, "Case status: "
+  Text 10, 170, 75, 10, "Instructions/message:"
+  Text 5, 230, 60, 10, "Worker signature:"
+  Text 5, 10, 45, 10, "Contact type:"
+  Text 215, 50, 60, 10, "METS IC number:"
 EndDialog
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------
@@ -97,20 +98,20 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'updates the "when contact was made" variable to show the current date & time
 when_contact_was_made = date & ", " & time
-DO
-	Do
-		Do
-			Do
-				Dialog client_contact_dialog
-				cancel_confirmation
-				IF contact_reason = "" or contact_type = "" Then MsgBox("You must enter a reason for contact, as well as a type (phone, etc.).")
-			Loop until contact_reason <> "" and contact_type <> ""
-			IF worker_signature = "" THEN MsgBox "Please sign your note"
-		LOOP UNTIL worker_signature <>""
-		If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then MsgBox "You must enter either a valid MAXIS or MCRE case number."
-	Loop until (isnumeric(MAXIS_case_number) = True) or (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) = 8)
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
+
+Do 
+    Do 
+        err_msg = ""
+		Dialog client_contact_dialog
+		cancel_confirmation
+        If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid case number."
+		If trim(contact_reason) = "" then err_msg = err_msg & vbcr & "* Enter a reason for contact."
+        If trim(contact_type) = "" then err_msg = err_msg & vbcr & "* Enter the contact type (phone, etc.)."
+		If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Sign your case note."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)
@@ -124,7 +125,7 @@ Else
 	CALL write_bullet_and_variable_in_CASE_NOTE("Contact was made", when_contact_was_made)
 End if
 CALL write_bullet_and_variable_in_CASE_NOTE("Phone number", phone_number)
-CALL write_bullet_and_variable_in_CASE_NOTE("MNSURE/IC number", Mnsure_IC_number)
+CALL write_bullet_and_variable_in_CASE_NOTE("METS/IC number", METS_IC_number)
 CALL write_bullet_and_variable_in_CASE_NOTE("Reason for contact", contact_reason)
 CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)
 CALL write_bullet_and_variable_in_CASE_NOTE("Verifs Needed", verifs_needed)
@@ -137,16 +138,11 @@ IF Sent_arep_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent fo
 IF call_center_answer_check = checked THEN CALL write_variable_in_CASE_NOTE("* Call center answered caller's question.")
 IF call_center_transfer_check = checked THEN CALL write_variable_in_CASE_NOTE("* Call center transferred call to a worker.")
 IF follow_up_needed_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Follow-up is needed.")
-
-'Worker sig
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
 'TIKLING
-IF TIKL_check = checked THEN
-	MsgBox "The script will now navigate to a TIKL."
-	CALL navigate_to_MAXIS_screen("dail", "writ")
-END IF
+IF TIKL_check = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")
 
 'If case requires followup, it will create a MsgBox (via script_end_procedure) explaining that followup is needed. This MsgBox gets inserted into the statistics database for counties using that function. This will allow counties to "pull statistics" on follow-up, including case numbers, which can be used to track outcomes.
 If follow_up_needed_checkbox = checked then
