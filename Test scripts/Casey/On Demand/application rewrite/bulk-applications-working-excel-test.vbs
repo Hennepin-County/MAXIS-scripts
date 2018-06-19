@@ -630,6 +630,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
         ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) = ""       'resetting this so that if it has changed we get good information
 
         If cash_stat_one = "PEND" Then                              'If the first cash line indicates pending - look for interview information
+            'MsgBox "Cash I pend"
             cash_pend = TRUE                                        'defining cash as a pending program
             EMReadScreen cash_intv_one, 8, 6, 55                    'read the interview date
             If cash_intv_one <> "__ __ __" Then                     'if it is not blank
@@ -638,6 +639,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
             Else
                 cash_intv_one = ""
             End If
+            'MsgBox "CASH I Interview: " & cash_intv_one
         ElseIf cash_stat_one = "ACTV" Then
             ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) = "Active" 'setting the array to identify that cash is active
         End If
@@ -645,6 +647,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
         'it is impportant that line 2 is looked at second because we could ahve an active cash program BUT line 2 indicates that another cash program is PENDING
         'having line 2 second will overwrite the line 1 happennings.
         If cash_stat_two = "PEND" Then                              'otherwirse, if the second cash line indicated pending, we will look at that line for information
+            'MsgBox "Cash II pend"
             cash_pend = TRUE                                        'note that cash is pending
             EMReadScreen cash_intv_two, 8, 7, 55                    'reading the interview date
             If cash_intv_two <> "__ __ __" Then                     'will convert to a date
@@ -653,9 +656,11 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
             Else
                 cash_intv_two = ""                                  'making that blank interview date a true blank
             End If
-        ElseIf cash_stat_one = "ACTV" Then
+            'MsgBox "CASH II Interview: " & cash_intv_two
+        ElseIf cash_stat_two = "ACTV" Then
             ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) = "Active" 'setting the array to identify that cash is active'
         End If
+
 
         If cash_pend = TRUE then ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) = "Pending"       'setting the cash status if a pending cash was found
 

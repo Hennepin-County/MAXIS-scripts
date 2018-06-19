@@ -653,7 +653,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
             Else
                 cash_intv_two = ""                                  'making that blank interview date a true blank
             End If
-        ElseIf cash_stat_one = "ACTV" Then
+        ElseIf cash_stat_two = "ACTV" Then
             ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) = "Active" 'setting the array to identify that cash is active'
         End If
 
