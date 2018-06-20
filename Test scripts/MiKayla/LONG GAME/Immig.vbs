@@ -129,23 +129,15 @@ LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 Call navigate_to_MAXIS_screen("STAT", "IMIG")
 'Making sure we have the correct IMIG
-EMReadScreen panel_number, 1, 2, 73
+EMReadScreen panel_number, 1, 2, 78
 If panel_number = "0" then script_end_procedure("An IMIG panel does not exist. Please create the panel before running the script again. ")
-
 'If there is more than one panel, this part will grab employer info off of them and present it to the worker to decide which one to use.
-If panel_number <> "0" then
-	Do
-		EMReadScreen current_panel_number, 1, 2, 73
-		IMIG_check = MsgBox("Is this the right IMIG?", vbYesNo +vbQuestion)
-		If IMIG_check = vbYes then
-			IMIG_found = True
-			exit do
-		END IF
-		If (IMIG_check = vbNo AND current_panel_number = panel_number) then
-			IMIG_found = False
-			script_end_procedure("Unable to find another IMIG. Please review the case, and run the script again if applicable.")
-		End if
-		transmit
+Do
+	EMReadScreen current_panel_number, 1, 2, 73
+	IMIG_check = MsgBox("Is this the right IMIG?", vbYesNo +vbQuestion, "Confirmation")
+	If IMIG_check = vbYes then exit do
+	If IMIG_check = vbNo then	TRANSMIT
+	If (IMIG_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another IMIG. Please review the case, and run the script again if applicable.")
 	Loop until current_panel_number = panel_number
 End if
 

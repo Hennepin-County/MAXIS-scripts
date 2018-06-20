@@ -88,9 +88,9 @@ BeginDialog good_cause_dialog, 0, 0, 386, 280, "Good Cause"
   CheckBox 305, 15, 60, 10, "Sup Evidence", sup_evidence_check
   CheckBox 305, 30, 55, 10, "Investigation", investigation_check
   CheckBox 305, 45, 70, 10, "Med Sup Svc Only", med_sup_check
-  DropListBox 30, 65, 60, 15, "Select One:"+chr(9)+"Not Claimed"+chr(9)+"Pending"+chr(9)+"Granted"+chr(9)+"Denied ", gc_status
-  DropListBox 125, 65, 105, 15, "Select One:"+chr(9)+"Application Review-Complete"+chr(9)+"Application Review-Incomplete"+chr(9)+"Change/exemption ending"+chr(9)+"Determination"+chr(9)+"Recertification", List4
-  DropListBox 265, 65, 115, 15, "Select One:"+chr(9)+"Potential phys harm/Child"+chr(9)+"Potential Emotnl harm/Child"+chr(9)+"Potential phys harm/Caregiver"+chr(9)+"Potential Emotnl harm/Caregiver"+chr(9)+"Cncptn Incest/Forced Rape"+chr(9)+"Legal adoption Before Court"+chr(9)+"Parent Gets Preadoptn Svc", reason_droplist
+  DropListBox 30, 65, 60, 15, "Select One:"+chr(9)+"Not Claimed"+chr(9)+"Pending"+chr(9)+"Granted"+chr(9)+"Denied", gc_status
+  DropListBox 125, 65, 105, 15, "Select One:"+chr(9)+"Application Review-Complete"+chr(9)+"Application Review-Incomplete"+chr(9)+"Change/exemption ending"+chr(9)+"Determination"+chr(9)+"Recertification", good_cause_droplist
+  DropListBox 265, 65, 115, 15, "Select One:"+chr(9)+"Potential phys harm/Child"+chr(9)+"Potential Emotnl harm/Child"+chr(9)+"Potential phys harm/Caregiver"+chr(9)+"Potential Emotnl harm/Caregiver"+chr(9)+"Cncptn Incest/Forced Rape"+chr(9)+"Legal adoption Before Court"+chr(9)+"Parent Gets Preadoptn Svc"+chr(9)+"No Longer Claiming", reason_droplist
   CheckBox 10, 95, 145, 10, "ABPS name not written on the correct line", ABPS_CHECKBOX
   CheckBox 10, 105, 140, 10, "Reason for requesting GC not selected", REASON_CHECKBOX
   CheckBox 165, 95, 120, 10, "All of the questions not answered", QUESTIONS_CHECKBOX
@@ -142,8 +142,10 @@ Do
 		If isnumeric(MAXIS_footer_year) = false then err_msg = err_msg & vbnewline & "* You must enter the footer year to begin good cause."
 		If gc_status = "Granted" THEN
 			If isdate(review_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause review date."
+		ELSEIF gc_status = "Denied" THEN
+			If denial_reason = "" then err_msg = err_msg & vbnewline & "* You must enter a denial reason."
 		END IF
-		If isdate(actual_date) = False then err_msg = err_msg & vbnewline & "* You must enter an actual date in the footer month that you are working in."
+		If isdate(actual_date) = "" then err_msg = err_msg & vbnewline & "* You must enter an actual date in the footer month that you are working in."
 		If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
 		If reason_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the Good Cause reason."
 		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -183,18 +185,16 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 		Call clear_line_of_text(6, 73)'next review date'
 		Call clear_line_of_text(6, 76)'next review date'
 		Call clear_line_of_text(6, 79)'next review date'
-	END IF
-	IF gc_status = "Granted" THEN
+	ELSEIF gc_status = "Granted" THEN
 		EMWriteScreen "G", 5, 47
 		Call create_MAXIS_friendly_date(datevalue(review_date), 0, 6, 73)
-	END IF
-	IF gc_status = "Denied" THEN
+	ELSEIF gc_status = "Denied" THEN
+		Msgbox gc_status
 		EMWriteScreen "D", 5, 47
 		Call clear_line_of_text(6, 73)'next review date'
 		Call clear_line_of_text(6, 76)'next review date'
 		Call clear_line_of_text(6, 79)'next review date'
-	END IF
-	IF gc_status = "Not Claimed" THEN
+	ELSEIF gc_status = "Not Claimed" THEN
 		EMWriteScreen "N", 5, 47
 		Call clear_line_of_text(5, 73)'good cause claim date'
 		Call clear_line_of_text(5, 76)'good cause claim date'
