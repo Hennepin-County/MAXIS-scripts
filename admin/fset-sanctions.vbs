@@ -492,7 +492,7 @@ If sanction_option = "Update WREG only" then
                 Call start_a_blank_CASE_NOTE
                 Call write_variable_in_CASE_NOTE("--SNAP sanction imposed for MEMB " & member_number & " for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "--")
                 If PWE_check = "Y" THEN Call write_variable_in_CASE_NOTE("* Entire household is sanctioned. Member is the PWE.")
-                If PWE_check = "N" THEN Call write_variable_in_CASE_NOTE("* Only the HH MEMB is sanctioned. Memeber is NOT the PWE.")
+                If PWE_check = "N" THEN Call write_variable_in_CASE_NOTE("* Only the HH MEMB is sanctioned. Member is NOT the PWE.")
                 Call write_bullet_and_variable_in_CASE_NOTE("Date agency was notified of sanction", agency_informed_sanction)
                 Call write_variable_in_CASE_NOTE("* Client does not appear to meet Good Cause criteria.")
                 If instr(sanction_notes, "Possible homeless exemption") then 
