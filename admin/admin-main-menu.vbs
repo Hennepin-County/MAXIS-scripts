@@ -2,6 +2,12 @@
 name_of_script = "ADMIN - MAIN MENU.vbs"
 start_time = timer
 
+'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
+'This is used in arrays that specify functionality to specific workers
+Set objNet = CreateObject("WScript.NetWork")  
+windows_user_ID = objNet.UserName 
+user_ID_for_validation= ucase(windows_user_ID)
+
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
