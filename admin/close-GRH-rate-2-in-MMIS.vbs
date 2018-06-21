@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/21/2018", "Removed case noting in MAXIS functionality. Also added PMI's to all cases instead of Rate 2 only cases.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/23/2018", "Enhancements include added handling for password prompting for BZ 7.1.5 and for SSR agreements closing prior to the end of the month.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/23/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -194,6 +195,13 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 	
 	'----------------------------------------------------------------------------------------------------SSRT: ensuring that a panel exists, and the FACI dates match.
 	If Update_MMIS_array(rate_two, item) = True then 
+    
+        Call navigate_to_MAXIS_screen("STAT", "MEMB")
+        EMReadScreen client_PMI, 8, 4, 46
+        client_PMI = trim(client_PMI)
+        client_PMI = right("00000000" & client_pmi, 8)
+        Update_MMIS_array(clt_PMI, item) = client_pmi
+        
         Call navigate_to_MAXIS_screen ("STAT", "SSRT")				
         call write_value_and_transmit ("01", 20, 76)	'For member 01 - All GRH cases should be for member 01. 
         
@@ -227,12 +235,6 @@ For item = 0 to UBound(Update_MMIS_array, 2)
                     row = row - 1
                 End if 	
             Loop until row = 9
-            
-            Call navigate_to_MAXIS_screen("STAT", "MEMB")
-            EMReadScreen client_PMI, 8, 4, 46
-            client_PMI = trim(client_PMI)
-            client_PMI = right("00000000" & client_pmi, 8)
-            Update_MMIS_array(clt_PMI, item) = client_pmi
         End if 	
     End if 
     
@@ -338,39 +340,39 @@ FOR i = 1 to 7
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
 
-''----------------------------------------------------------------------------------------------------MAXIS 
-BeginDialog MAXIS_dialog, 0, 0, 156, 55, "Going to MAXIS"
-ButtonGroup ButtonPressed
-OkButton 45, 35, 50, 15
-CancelButton 100, 35, 50, 15
-Text 5, 5, 150, 25, "The script will now navigate back to MAXIS. Press OK to continue. Press CANCEL to stop the script."
-EndDialog
-
-Call navigate_to_MAXIS("")  'Function to navigate back to MAXIS
-
-Do 
-    Do 
-        Dialog MAXIS_dialog
-        cancel_confirmation
-    Loop until ButtonPressed = -1
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-Call navigate_to_MAXIS_screen("CASE", "NOTE")
-'----------------------------------------------------------------------------------------------------CASE NOTE
-'Make the script case note
-For item = 0 to UBound(Update_MMIS_array, 2)
-	If Update_MMIS_array(update_MMIS, 	item) = True then 
-		MAXIS_case_number = Update_MMIS_array(case_number, 	item)
-        close_date = 		Update_MMIS_array(closing_date, item) 
-		Call start_a_blank_CASE_NOTE
-		Call write_variable_in_CASE_NOTE("GRH Rate 2 SSR closed in MMIS eff " & close_date)
-		Call write_variable_in_CASE_NOTE("* Case set to close on REPT/EOMC, but still active in MMIS.")
-		Call write_variable_in_CASE_NOTE("---")
-		Call write_variable_in_CASE_NOTE("Actions performed by BZ script, run by I. Ferris, QI team")
-		PF3
-	End if 
-Next
+'''----------------------------------------------------------------------------------------------------MAXIS 
+'BeginDialog MAXIS_dialog, 0, 0, 156, 55, "Going to MAXIS"
+'ButtonGroup ButtonPressed
+'OkButton 45, 35, 50, 15
+'CancelButton 100, 35, 50, 15
+'Text 5, 5, 150, 25, "The script will now navigate back to MAXIS. Press OK to continue. Press CANCEL to stop the script."
+'EndDialog
+'
+'Call navigate_to_MAXIS("")  'Function to navigate back to MAXIS
+'
+'Do 
+'    Do 
+'        Dialog MAXIS_dialog
+'        cancel_confirmation
+'    Loop until ButtonPressed = -1
+'	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+'Loop until are_we_passworded_out = false					'loops until user passwords back in
+'
+'Call navigate_to_MAXIS_screen("CASE", "NOTE")
+''----------------------------------------------------------------------------------------------------CASE NOTE
+''Make the script case note
+'For item = 0 to UBound(Update_MMIS_array, 2)
+'	If Update_MMIS_array(update_MMIS, 	item) = True then 
+'		MAXIS_case_number = Update_MMIS_array(case_number, 	item)
+'        close_date = 		Update_MMIS_array(closing_date, item) 
+'		Call start_a_blank_CASE_NOTE
+'		Call write_variable_in_CASE_NOTE("GRH Rate 2 SSR closed in MMIS eff " & close_date)
+'		Call write_variable_in_CASE_NOTE("* Case set to close on REPT/EOMC, but still active in MMIS.")
+'		Call write_variable_in_CASE_NOTE("---")
+'		Call write_variable_in_CASE_NOTE("Actions performed by BZ script, run by I. Ferris, QI team")
+'		PF3
+'	End if 
+'Next
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! Your list has been created. Please review for cases that need to be processed manually.")
