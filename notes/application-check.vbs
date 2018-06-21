@@ -197,42 +197,44 @@ Elseif DateDiff("d", application_check_date, date) > 60 then
 	reminder_text = "Post day 60"
 End if
 
-BeginDialog application_check_dialog, 0, 0, 391, 170, "Application Check:  & application_check"
+BeginDialog application_check_dialog, 0, 0, 391, 180, "Application Check:  & application_check"
   DropListBox 75, 15, 80, 15, "Select one..."+chr(9)+"Apply MN"+chr(9)+"CAF"+chr(9)+"CAF addendum"+chr(9)+"HC - certain populations"+chr(9)+"HC - LTC"+chr(9)+"HC - EMA Mnsure ", application_type_droplist
-  DropListBox 75, 45, 155, 15, "Select One:"+chr(9)+"Case is ready to approve or deny"+chr(9)+"Requested verifications not recieved"+chr(9)+"Partial verfications recieved, more are needed"+chr(9)+"Other", application_status_droplist
-	EditBox 175, 20, 50, 15, application_check_date
-	EditBox 100, 65, 170, 15, verifs_rcvd
-  EditBox 100, 85, 170, 15, verifs_needed
-  EditBox 100, 105, 280, 15, actions_taken
-  EditBox 100, 125, 280, 15, other_notes
-  EditBox 100, 145, 125, 15, worker_signature
-  CheckBox 295, 65, 30, 10, "CASH", CASH_CHECKBOX
-  CheckBox 295, 75, 25, 10, "EA", EA_CHECKBOX
-  CheckBox 295, 85, 25, 10, "FS", FS_CHECKBOX
-  CheckBox 340, 70, 30, 10, "GRH", GRH_CHECKBOX
-  CheckBox 340, 80, 20, 10, "HC", HC_CHECKBOX
+  DropListBox 75, 40, 155, 15, "Select One:"+chr(9)+"Case is ready to approve or deny"+chr(9)+"Requested verifications not recieved"+chr(9)+"Partial verfications recieved, more are needed"+chr(9)+"Interview still needed"+chr(9)+"Other", application_status_droplist
+  EditBox 175, 20, 50, 15, application_check_date
+  EditBox 100, 60, 170, 15, other_app_notes
+  EditBox 100, 80, 170, 15, verifs_rcvd
+  EditBox 100, 100, 280, 15, verifs_needed
+  EditBox 100, 120, 280, 15, actions_taken
+  EditBox 100, 140, 280, 15, other_notes
+  EditBox 100, 160, 125, 15, worker_signature
+  CheckBox 295, 55, 30, 10, "CASH", CASH_CHECKBOX
+  CheckBox 295, 65, 25, 10, "EA", EA_CHECKBOX
+  CheckBox 295, 75, 25, 10, "FS", FS_CHECKBOX
+  CheckBox 340, 60, 30, 10, "GRH", GRH_CHECKBOX
+  CheckBox 340, 70, 20, 10, "HC", HC_CHECKBOX
   ButtonGroup ButtonPressed
-    PushButton 240, 20, 30, 10, "AREP", AREP_button
-    PushButton 275, 20, 30, 10, "DISA", DISA_button
-    PushButton 310, 20, 30, 10, "HCRE", HCRE_button
-    PushButton 345, 20, 30, 10, "JOBS", JOBS_button
-    PushButton 240, 35, 30, 10, "PROG", PROG_button
-    PushButton 275, 35, 30, 10, "REVW", REVW_button
-    PushButton 310, 35, 30, 10, "SHEL", SHEL_button
-    PushButton 345, 35, 30, 10, "UNEA", UNEA_button
-    OkButton 275, 150, 50, 15
-    CancelButton 330, 150, 50, 15
-  GroupBox 5, 5, 160, 30, "Day 1 application check only"
+    PushButton 240, 15, 30, 10, "AREP", AREP_button
+    PushButton 275, 15, 30, 10, "DISA", DISA_button
+    PushButton 310, 15, 30, 10, "HCRE", HCRE_button
+    PushButton 345, 15, 30, 10, "JOBS", JOBS_button
+    PushButton 240, 25, 30, 10, "PROG", PROG_button
+    PushButton 275, 25, 30, 10, "REVW", REVW_button
+    PushButton 310, 25, 30, 10, "SHEL", SHEL_button
+    PushButton 345, 25, 30, 10, "UNEA", UNEA_button
+    OkButton 275, 165, 50, 15
+    CancelButton 330, 165, 50, 15
   Text 10, 20, 55, 10, "Application type:"
   Text 175, 10, 55, 10, "Application date"
-  Text 10, 50, 60, 10, "Application status:"
-  Text 20, 70, 75, 10, "Verifications Received:"
-  Text 10, 90, 85, 10, "Verifications Still Needed:"
-  Text 50, 110, 50, 10, "Actions Taken:"
-  Text 55, 130, 45, 10, "Other Notes:"
-  Text 35, 150, 60, 10, "Worker Signature:"
-  GroupBox 235, 5, 145, 45, "MAXIS navigation"
-  GroupBox 280, 55, 100, 45, "Pending Programs"
+  Text 10, 45, 60, 10, "Application status:"
+  Text 10, 65, 90, 10, "If status is 'other' explain:"
+  Text 20, 85, 75, 10, "Verifications Received:"
+  Text 10, 105, 85, 10, "Verifications Still Needed:"
+  Text 50, 125, 50, 10, "Actions Taken:"
+  Text 55, 145, 45, 10, "Other Notes:"
+  Text 35, 165, 60, 10, "Worker Signature:"
+  GroupBox 5, 5, 160, 30, "Day 1 application check only"
+  GroupBox 235, 5, 145, 35, "MAXIS navigation"
+  GroupBox 280, 45, 100, 45, "Pending Programs"
 EndDialog
 
 
@@ -257,6 +259,8 @@ If application_status_droplist <> "Case is ready to approve or deny" THEN
 	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "Application check: " & reminder_text & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
 	Outlook_remider = True
 End if
+
+If other_app_notes <> "" Then application_status_droplist = application_status_droplist & ", " & other_app_notes
 
 'THE CASENOTE----------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
