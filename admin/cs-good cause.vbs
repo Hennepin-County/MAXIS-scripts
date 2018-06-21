@@ -148,9 +148,9 @@ Do
 		ELSEIF gc_status = "Denied" THEN
 			If denial_reason = "" then err_msg = err_msg & vbnewline & "* You must enter a denial reason."
 		END IF
-		If isdate(actual_date) = "" then err_msg = err_msg & vbnewline & "* You must enter an actual date in the footer month that you are working in."
+		If isdate(actual_date) = FALSE then err_msg = err_msg & vbnewline & "* You must enter an actual date in the footer month that you are working in."
 		IF gc_status <> "Not Claimed" THEN
-			If isdate(actual_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
+			If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
 		END IF
 		If good_cause_droplist = "Application Review-Incomplete" then
 			If other_notes = "" and OTHER_CHECKBOX = CHECKED then err_msg = err_msg & vbnewline & "* You must enter a reason that application is incomplete."
