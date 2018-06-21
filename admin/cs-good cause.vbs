@@ -51,13 +51,12 @@ call changelog_update("03/27/2017", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-
-'The DIALOGS----------------------------------------------------------------------------------------------------
+'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
-'Inserts Maxis Case number
-CALL MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
+'----------------------------------------------------------------------------------------------------DIALOGS
 BeginDialog change_exemption_dialog, 0, 0, 216, 100, "Good cause change/exemption "
   EditBox 110, 5, 50, 15, change_reported_date
   EditBox 110, 25, 100, 15, change_reported
@@ -88,7 +87,7 @@ BeginDialog good_cause_dialog, 0, 0, 386, 280, "Good Cause"
   CheckBox 305, 15, 60, 10, "Sup Evidence", sup_evidence_check
   CheckBox 305, 30, 55, 10, "Investigation", investigation_check
   CheckBox 305, 45, 70, 10, "Med Sup Svc Only", med_sup_check
-  DropListBox 30, 65, 60, 15, "Select One:"+chr(9)+"Not Claimed"+chr(9)+"Pending"+chr(9)+"Granted"+chr(9)+"Denied", gc_status
+  DropListBox 30, 65, 60, 15, "Select One:"+chr(9)+"Denied"+chr(9)+"Granted"+chr(9)+"Not Claimed"+chr(9)+"Pending", gc_status
   DropListBox 125, 65, 105, 15, "Select One:"+chr(9)+"Application Review-Complete"+chr(9)+"Application Review-Incomplete"+chr(9)+"Change/exemption ending"+chr(9)+"Determination"+chr(9)+"Recertification", good_cause_droplist
   DropListBox 265, 65, 115, 15, "Select One:"+chr(9)+"Potential phys harm/Child"+chr(9)+"Potential Emotnl harm/Child"+chr(9)+"Potential phys harm/Caregiver"+chr(9)+"Potential Emotnl harm/Caregiver"+chr(9)+"Cncptn Incest/Forced Rape"+chr(9)+"Legal adoption Before Court"+chr(9)+"Parent Gets Preadoptn Svc"+chr(9)+"No Longer Claiming", reason_droplist
   CheckBox 10, 95, 145, 10, "ABPS name not written on the correct line", ABPS_CHECKBOX
@@ -146,7 +145,9 @@ Do
 			If denial_reason = "" then err_msg = err_msg & vbnewline & "* You must enter a denial reason."
 		END IF
 		If isdate(actual_date) = "" then err_msg = err_msg & vbnewline & "* You must enter an actual date in the footer month that you are working in."
-		If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
+		IF gc_status <> "Not Claimed" THEN
+			If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
+		END IF
 		If reason_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the Good Cause reason."
 		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
@@ -181,37 +182,35 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	EMWriteScreen "Y", 4, 73			'Support Coop Y/N field
 	IF gc_status = "Pending" THEN
+		Msgbox gc_status
 		EMWriteScreen "P", 5, 47			'Good Cause status field
-		Call clear_line_of_text(6, 73)'next review date'
-		Call clear_line_of_text(6, 76)'next review date'
-		Call clear_line_of_text(6, 79)'next review date'
+		EMWriteScreen "  ", 6, 73'next review date'
+		EMWriteScreen "  ", 6, 76'next review date'
+		EMWriteScreen "  ", 6, 79'next review date'
 	ELSEIF gc_status = "Granted" THEN
+		Msgbox gc_status
 		EMWriteScreen "G", 5, 47
 		Call create_MAXIS_friendly_date(datevalue(review_date), 0, 6, 73)
 	ELSEIF gc_status = "Denied" THEN
 		Msgbox gc_status
 		EMWriteScreen "D", 5, 47
-		Call clear_line_of_text(6, 73)'next review date'
-		Call clear_line_of_text(6, 76)'next review date'
-		Call clear_line_of_text(6, 79)'next review date'
+		EMWriteScreen "  ", 6, 73'next review date'
+		EMWriteScreen "  ", 6, 76'next review date'
+		EMWriteScreen "  ", 6, 79'next review date'
 	ELSEIF gc_status = "Not Claimed" THEN
+		Msgbox gc_status
 		EMWriteScreen "N", 5, 47
-		Call clear_line_of_text(5, 73)'good cause claim date'
-		Call clear_line_of_text(5, 76)'good cause claim date'
-		Call clear_line_of_text(5, 79)'good cause claim date'
-		Call clear_line_of_text(6, 47)'reason good cause claimed'
-		Call clear_line_of_text(6, 73)'next review date'
-		Call clear_line_of_text(6, 76)'next review date'
-		Call clear_line_of_text(6, 79)'next review date'
-		Call clear_line_of_text(7, 47)
-		Call clear_line_of_text(7, 73)
-		Call clear_line_of_text(8, 48)
+		EMWriteScreen "  ", 5, 73'good cause claim date'
+		EMWriteScreen "  ", 5, 76'good cause claim date'
+		EMWriteScreen "  ", 5, 79'good cause claim date'
+		EMWriteScreen " ", 6, 47'reason good cause claimed'
+		EMWriteScreen "  ", 6, 73'next review date'
+		EMWriteScreen "  ", 6, 76'next review date'
+		EMWriteScreen "  ", 6, 79'next review date'
+		EMWriteScreen " ", 7, 47'Sup Evidence'
+		EMWriteScreen " ", 7, 73 'Investigation'
+		EMWriteScreen " ", 8, 48 'Med Sup Svc Only'
 	END IF
-
-	Call create_MAXIS_friendly_date(datevalue(claim_date), 0, 5, 73)
-	IF sup_evidence_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 47 ELSE EMWriteScreen "N", 7, 47
-	IF investigation_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 73 ELSE EMWriteScreen "N", 7, 73
-	IF med_sup_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 8, 48 ELSE EMWriteScreen "N", 8, 48
 
 	'converting the good cause reason from reason_droplist to the applicable MAXIS coding
 	If reason_droplist = "Potential phys harm/Child"		then claim_reason = "1"
@@ -221,7 +220,16 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	If reason_droplist = "Cncptn Incest/Forced Rape" 		then claim_reason = "5"
 	If reason_droplist = "Legal adoption Before Court" 		then claim_reason = "6"
 	If reason_droplist = "Parent Gets Preadoptn Svc" 		then claim_reason = "7"
-	IF gc_status <> "Not Claimed" THEN EMWriteScreen claim_reason, 6, 47
+
+	IF gc_status <> "Not Claimed" THEN
+		Call create_MAXIS_friendly_date(datevalue(claim_date), 0, 5, 73)
+		IF sup_evidence_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 47 ELSE EMWriteScreen "N", 7, 47
+		IF investigation_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 73 ELSE EMWriteScreen "N", 7, 73
+		IF med_sup_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 8, 48 ELSE EMWriteScreen "N", 8, 48
+		EMWriteScreen claim_reason, 6, 47
+		Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
+	END IF
+
 	EMReadScreen first_name, 12, 10, 63	'making sure we can actually update this case.
 	EMReadScreen last_name, 24, 10, 30	'making sure we can actually update this case.
 	first_name = trim(first_name)
@@ -230,7 +238,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	last_name = replace(last_name, "_", "")
 	client_name = first_name & " " & last_name
 	Call fix_case_for_name(client_name)
-	Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
+
 	Transmit'to add information
 	Transmit'to move past non-inhibiting warning messages on ABPS
 	PF3
