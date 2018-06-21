@@ -127,7 +127,7 @@ BeginDialog good_cause_dialog, 0, 0, 386, 285, "Good Cause"
   Text 125, 10, 40, 10, "Claim date:"
   Text 5, 50, 65, 10, "Child's MEMB #(s):"
   Text 5, 30, 50, 10, "Footer MM/YY:"
-  GroupBox 5, 165, 250, 120, "Verifications"
+  GroupBox 5, 165, 250, 115, "Verifications"
 EndDialog
 
 'Initial dialog giving the user the option to select the type of good cause action
