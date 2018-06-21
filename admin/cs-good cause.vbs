@@ -233,9 +233,9 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 		IF investigation_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 73 ELSE EMWriteScreen "N", 7, 73
 		IF med_sup_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 8, 48 ELSE EMWriteScreen "N", 8, 48
 		EMWriteScreen claim_reason, 6, 47
-		Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
+		'Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
 	END IF
-
+	Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
 	EMReadScreen first_name, 12, 10, 63	'making sure we can actually update this case.
 	EMReadScreen last_name, 24, 10, 30	'making sure we can actually update this case.
 	first_name = trim(first_name)
