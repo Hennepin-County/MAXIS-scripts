@@ -137,7 +137,6 @@ Do
 		dialog good_cause_dialog
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
-		If good_cause_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select a good cause option."
 		If isnumeric(MAXIS_footer_month) = false then err_msg = err_msg & vbnewline & "* You must enter the footer month to begin good cause."
 		If isnumeric(MAXIS_footer_year) = false then err_msg = err_msg & vbnewline & "* You must enter the footer year to begin good cause."
 		IF memb_number = "" THEN err_msg = err_msg & vbnewline & "* Please enter a member number."
@@ -151,7 +150,7 @@ Do
 		END IF
 		If isdate(actual_date) = "" then err_msg = err_msg & vbnewline & "* You must enter an actual date in the footer month that you are working in."
 		IF gc_status <> "Not Claimed" THEN
-			If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
+			If isdate(actual_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
 		END IF
 		If good_cause_droplist = "Application Review-Incomplete" then
 			If other_notes = "" and OTHER_CHECKBOX = CHECKED then err_msg = err_msg & vbnewline & "* You must enter a reason that application is incomplete."
