@@ -4,8 +4,8 @@ start_time = timer
 
 'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
 'This is used in arrays that specify functionality to specific workers
-Set objNet = CreateObject("WScript.NetWork")  
-windows_user_ID = objNet.UserName 
+Set objNet = CreateObject("WScript.NetWork")
+windows_user_ID = objNet.UserName
 user_ID_for_validation= ucase(windows_user_ID)
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -61,7 +61,7 @@ Function declare_admin_menu_dialog(script_array)
     Text 5, 5, 516, 300, "Admin scripts main menu: select the script to run from the choices below."
     ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 30, 15, "ADMIN", 			admin_main_button
-		 	PushButton 045, 35, 30, 15, "QI", 				QI_button	 	
+		 	PushButton 045, 35, 30, 15, "QI", 				QI_button
 		'This starts here, but it shouldn't end here :)
 		vert_button_position = 70
 
@@ -141,7 +141,7 @@ script_array_admin_main(script_num).script_name			= "WF1 Case Status"											
 script_array_admin_main(script_num).file_name			= "wf1-case-status.vbs"												'Script URL
 script_array_admin_main(script_num).description			= "Updates a list of cases from Excel with current case and ABAWD status inforamtion."
 
-'----------------------------------------------------------------------------------------------------QI array 
+'----------------------------------------------------------------------------------------------------QI array
 script_num = 0
 ReDim Preserve script_array_QI_list(script_num)
 Set script_array_QI_list(script_num) = new script
@@ -176,6 +176,20 @@ Set script_array_QI_list(script_num) = new script	'Set this array element to be 
 script_array_QI_list(script_num).script_name		= "FSET Sanctions"													'Script name
 script_array_QI_list(script_num).file_name			= "fset-sanctions.vbs"												'Script URL
 script_array_QI_list(script_num).description		= "BULK script to assist in reviewing, applying, case noting and adding WCOM's for FSET sanction cases."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
+Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_QI_list(script_num).script_name		= "Individual Appointment Notice"													'Script name
+script_array_QI_list(script_num).file_name			= "individual-appointment-letter.vbs"												'Script URL
+script_array_QI_list(script_num).description		= "Sends an appointment letter for a single case, with the same wording as On Demand Applications"
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
+Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_QI_list(script_num).script_name		= "Individual NOMI"													'Script name
+script_array_QI_list(script_num).file_name			= "individual-nomi.vbs"												'Script URL
+script_array_QI_list(script_num).description		= "Sends a NOMI for a single case, with the same wording as On Demand Applications"
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
@@ -224,38 +238,38 @@ QI_button	        = 2000
 
 'Displays the dialog
 Do
-	If ButtonPressed = "" or ButtonPressed = admin_main_button then 
+	If ButtonPressed = "" or ButtonPressed = admin_main_button then
         declare_admin_menu_dialog(script_array_admin_main)
 	elseif ButtonPressed = QI_button then
-        If user_ID_for_validation = "ILFE001" OR _		
-        user_ID_for_validation = "WF7638" OR _		
-        user_ID_for_validation = "WF1875" OR _ 		
-        user_ID_for_validation = "WFQ898" OR _ 		
-        user_ID_for_validation = "WFP803" OR _		
-        user_ID_for_validation = "WFP106" OR _		
-        user_ID_for_validation = "WFK093" OR _ 		
-        user_ID_for_validation = "WF1373" OR _ 		
-        user_ID_for_validation = "WFU161" OR _ 		
-        user_ID_for_validation = "WFS395" OR _ 		
-        user_ID_for_validation = "WFU851" OR _ 		
-        user_ID_for_validation = "WFX901" OR _ 
-        user_ID_for_validation = "CALO001" OR _ 		
-        user_ID_for_validation = "WFI021" then 
+        If user_ID_for_validation = "ILFE001" OR _
+        user_ID_for_validation = "WF7638" OR _
+        user_ID_for_validation = "WF1875" OR _
+        user_ID_for_validation = "WFQ898" OR _
+        user_ID_for_validation = "WFP803" OR _
+        user_ID_for_validation = "WFP106" OR _
+        user_ID_for_validation = "WFK093" OR _
+        user_ID_for_validation = "WF1373" OR _
+        user_ID_for_validation = "WFU161" OR _
+        user_ID_for_validation = "WFS395" OR _
+        user_ID_for_validation = "WFU851" OR _
+        user_ID_for_validation = "WFX901" OR _
+        user_ID_for_validation = "CALO001" OR _
+        user_ID_for_validation = "WFI021" then
 		    declare_admin_menu_dialog(script_array_QI_list)
-        Else 
+        Else
             Msgbox "These scripts are for Quality Improvement staff only. You do not have access to access this menu."
             stopscript
-        End if 
-    end if 
-    
+        End if
+    end if
+
     dialog admin_dialog
 	If ButtonPressed = 0 then stopscript
 
     'Opening the SIR Instructions
 	'IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notices%20scripts.aspx")
 Loop until ButtonPressed <> admin_main_button and _
-			ButtonPressed <> QI_button 
-                
+			ButtonPressed <> QI_button
+
 'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
 For i = 0 to ubound(script_array_admin_main)
 	If ButtonPressed = script_array_admin_main(i).button then call run_from_GitHub(script_repository & "admin/" & script_array_admin_main(i).file_name)

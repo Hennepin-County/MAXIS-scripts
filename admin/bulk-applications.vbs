@@ -1094,6 +1094,11 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
             ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) = need_intv_date        'adding this date to the appointment date in the ARRAY
             need_intv_date = need_intv_date & ""		'turns interview date into string for variable
 
+            last_contact_day = dateadd("d", 30, ALL_PENDING_CASES_ARRAY(application_date, case_entry))       'setting the date to enter on the NOMI of the day of denial
+            'ensuring that we have given the client an additional10days fromt he day nomi sent'
+            IF DateDiff("d", need_intv_date, last_contact_day) < 1 then last_contact_day = need_intv_date
+
+
             start_a_new_spec_memo_and_continue(memo_started)		'Writes the appt letter into the MEMO.
 			IF memo_started = True THEN
                 EMsendkey("************************************************************")

@@ -6882,13 +6882,10 @@ function write_panel_to_MAXIS_JOBS(jobs_number, jobs_inc_type, jobs_inc_verif, j
 	ELSE
 		PF9
 	END IF
-	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN
-		EMWriteScreen jobs_inc_type, 5, 34
-		EMWriteScreen jobs_inc_verif, 6, 34
-	ELSE
-		EMWriteScreen jobs_inc_type, 5, 38
-		EMWriteScreen jobs_inc_verif, 6, 38
-	END IF
+
+	EMWriteScreen jobs_inc_type, 5, 34
+	EMWriteScreen jobs_inc_verif, 6, 34
+	
 	EMWriteScreen jobs_employer_name, 7, 42
 	call create_MAXIS_friendly_date(jobs_inc_start, 0, 9, 35)
 	EMWriteScreen jobs_pay_freq, 18, 35
