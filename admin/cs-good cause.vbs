@@ -184,23 +184,23 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	EMWriteScreen "Y", 4, 73			'Support Coop Y/N field
 	IF gc_status = "Pending" THEN
-		Msgbox gc_status
+		'Msgbox gc_status
 		EMWriteScreen "P", 5, 47			'Good Cause status field
 		EMWriteScreen "  ", 6, 73'next review date'
 		EMWriteScreen "  ", 6, 76'next review date'
 		EMWriteScreen "  ", 6, 79'next review date'
 	ELSEIF gc_status = "Granted" THEN
-		Msgbox gc_status
+		'Msgbox gc_status
 		EMWriteScreen "G", 5, 47
 		Call create_MAXIS_friendly_date(datevalue(review_date), 0, 6, 73)
 	ELSEIF gc_status = "Denied" THEN
-		Msgbox gc_status
+		'Msgbox gc_status
 		EMWriteScreen "D", 5, 47
 		EMWriteScreen "  ", 6, 73'next review date'
 		EMWriteScreen "  ", 6, 76'next review date'
 		EMWriteScreen "  ", 6, 79'next review date'
 	ELSEIF gc_status = "Not Claimed" THEN
-		Msgbox gc_status
+		'Msgbox gc_status
 		EMWriteScreen "N", 5, 47
 		EMWriteScreen "  ", 5, 73'good cause claim date'
 		EMWriteScreen "  ", 5, 76'good cause claim date'
