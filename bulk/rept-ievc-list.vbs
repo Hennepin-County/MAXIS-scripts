@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("06/21/2018", "Updated with requested enhancements.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("05/18/2018", "Updated coordinates for writing stats in excel.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -212,7 +213,7 @@ For each x_number in x_number_array
 		objExcel.Cells(excel_row, 1).Value = supervisor_id
 		EMReadScreen IEVC_check, 4, 2, 53
 		If IEVC_check = "IEVC" Then 						'Getting the worker name from the info pop-up and adding to Excel
-			EMSendKey "HOME"
+			EMSendKey "<HOME>"
 			PF1
 			EMReadScreen worker_name, 21, 19, 10
 			worker_name = trim(worker_name)

@@ -160,12 +160,8 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-	Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 	Call MAXIS_footer_month_confirmation			'function that confirms that the current footer month/year is the same as what was selected by the user. If not, it will navigate to correct footer month/year
-	'making sure that the date is recognized by the function as a date'
-	'claim_date = datevalue(claim_date)
-	'review_date = datevalue(review_date)
-	'actual_date = datevalue(actual_date)
+
 	'----------------------------------------------------------------------------------------------------ABPS panel
 	Call navigate_to_MAXIS_screen("STAT", "ABPS")
 	'Making sure we have the correct ABPS
@@ -305,6 +301,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	CALL write_bullet_and_variable_in_case_note("Applicable programs", programs_included)
   	IF reason_droplist <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Reason for claiming good cause", reason_droplist)
 	IF incomplete_form <> "Select One" THEN Call write_bullet_and_variable_in_case_note("What is GC form incomplete for", incomplete_form)
+	If denial_reason <> "" THEN Call write_bullet_and_variable_in_case_note("Reason for denial", denial_reason)
 	IF mets_info <> "" THEN Call write_bullet_and_variable_in_case_note("METS information", mets_info )
 	IF verfis_req <> "" THEN Call write_bullet_and_variable_in_case_note("Requested Verifcation(s)", verifs_req)
 	IF other_notes <> "" THEN Call write_bullet_and_variable_in_case_note("Additional information", other_notes)
