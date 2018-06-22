@@ -84,6 +84,8 @@ Call autofill_editbox_from_MAXIS(HH_member_array, "PROG", application_date)
 Call navigate_to_MAXIS_screen("CASE", "NOTE")
 note_row = 5            'resetting the variables on the loop
 
+day_before_app = DateAdd("d", -1, application_date)
+
 Do
     EMReadScreen note_date, 8, note_row, 6      'reading the note date
     EMReadScreen note_title, 55, note_row, 25   'reading the note header

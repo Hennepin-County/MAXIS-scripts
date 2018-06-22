@@ -1,9 +1,9 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "NOTICES - NOMI.vbs"
+name_of_script = "NOTICES - APPOINTMENT LETTER.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 276                     'manual run time in seconds
-STATS_denomination = "C"       			   'C is for each CASE
+STATS_manualtime = 195                               'manual run time in seconds
+STATS_denomination = "C"       'C is for each CASE
 'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -45,19 +45,13 @@ changelog = array()
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
 call changelog_update("06/22/2018", "Initial version.", "MiKayla Handley, Hennepin County")
+
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'logic to autofill the 'last_day_for_recert' field
-next_month = DateAdd("M", 1, date)
-next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)
-last_day_for_recert = dateadd("d", -1, next_month) & "" 	'blank space added to make 'last_day_for_recert' a string
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connects to BlueZone & grabs case number
 EMConnect ""
-Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_case_number_finder (MAXIS_case_number)
 
 BeginDialog case_number_dlg, 0, 0, 131, 45, "Case Number"
   EditBox 60, 5, 65, 15, MAXIS_case_number
@@ -79,92 +73,106 @@ Do
     If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
 Loop until err_msg = ""
 
-Call autofill_editbox_from_MAXIS(HH_member_array, "PROG", application_date)
-
-Call navigate_to_MAXIS_screen("CASE", "NOTE")
-note_row = 5            'resetting the variables on the loop
-
-Do
-    EMReadScreen note_date, 8, note_row, 6      'reading the note date
-    EMReadScreen note_title, 55, note_row, 25   'reading the note header
-    note_title = trim(note_title)
-
-    IF left(note_title, 37) = "~ Appointment letter sent in MEMO for" then
-        EMReadScreen appt_date, 10, note_row, 63
-        appt_date = replace(appt_date, "~", "")
-        appt_date = trim(appt_date)
-        'MsgBox ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
-
-        Exit Do
-    END IF
-
-    IF note_date = "        " then Exit Do
-    note_row = note_row + 1
-    IF note_row = 19 THEN
-        PF8
-        note_row = 5
-    END IF
-    EMReadScreen next_note_date, 8, note_row, 6
-    IF next_note_date = "        " then Exit Do
-Loop until datevalue(next_note_date) < day_before_app 'looking ahead at the next case note kicking out the dates before app'
-
+'grabs CAF date, turns CAF date into string for variable
+call autofill_editbox_from_MAXIS(HH_member_array, "PROG", application_date)
 application_date = application_date & ""
-appt_date = appt_date & ""
-'creates interview date for 7 calendar days from the CAF date
-' interview_date = dateadd("d", 7, application_date)
-' If interview_date <= date then interview_date = dateadd("d", 7, date)
-' interview_date = interview_date & ""		'turns interview date into string for variable
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog NOMI_dialog, 0, 0, 126, 75, "NOMI"
-  EditBox 70, 5, 50, 15, application_date
-  EditBox 70, 25, 50, 15, appt_date
+'creates interview date for 7 calendar days from the CAF date
+interview_date = dateadd("d", 7, application_date)
+If interview_date <= date then interview_date = dateadd("d", 7, date)
+interview_date = interview_date & ""		'turns interview date into string for variable
+
+BeginDialog appt_dialog, 0, 0, 121, 75, "APPOINTMENT LETTER"
+  EditBox 65, 5, 50, 15, application_date
+  EditBox 65, 25, 50, 15, interview_date
   ButtonGroup ButtonPressed
-    OkButton 15, 50, 50, 15
-    CancelButton 70, 50, 50, 15
-  Text 10, 30, 60, 10, "Missed Interview date:"
+    OkButton 10, 50, 50, 15
+    CancelButton 65, 50, 50, 15
+  Text 10, 30, 50, 10, "Interview date:"
   Text 5, 10, 55, 10, "Application date:"
 EndDialog
+
+
+
+ 'need to handle for if we dont need an appt letter, which would be...'
 
 Do
 	Do
 		err_msg = ""
-		dialog NOMI_dialog
+		dialog appt_dialog
 		cancel_confirmation
-        If IsDate(application_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date of application."
-        If IsDate(appt_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid missed interview date."
 
-		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-	Loop until err_msg = ""
+        If isdate(application_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid application date."
+		If isdate(interview_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid interview date."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    Loop until err_msg = ""
     call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
+'Figuring out the last contact day
 last_contact_day = dateadd("d", 30, application_date)
-If DateDiff("d", appt_date, last_contact_day) < 1 then last_contact_day = appt_date
-CALL start_a_new_spec_memo
+If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date
+
+'This checks to make sure the case is not in background and is in the correct footer month for PND1 cases.
+Do
+	call navigate_to_MAXIS_screen("STAT", "SUMM")
+	EMReadScreen month_check, 11, 24, 56 'checking for the error message when PND1 cases are not in APPL month
+	IF left(month_check, 5) = "CASES" THEN 'this means the case can't get into stat in current month
+		EMWriteScreen mid(month_check, 7, 2), 20, 43 'writing the correct footer month (taken from the error message)
+		EMWriteScreen mid(month_check, 10, 2), 20, 46 'writing footer year
+		EMWriteScreen "STAT", 16, 43
+		EMWriteScreen "SUMM", 21, 70
+		transmit 'This transmit should take us to STAT / SUMM now
+	END IF
+	'This section makes sure the case isn't locked by background, if it is it will loop and try again
+	EMReadScreen SELF_check, 4, 2, 50
+	If SELF_check = "SELF" then
+		PF3
+		Pause 2
+	End if
+Loop until SELF_check <> "SELF"
+
+'Navigating to SPEC/MEMO
+call start_a_new_spec_memo                                                   'Transmits to start the memo writing process
 EMsendkey("************************************************************")
-Call write_variable_in_SPEC_MEMO("You recently applied for assistance on " & application_date & ".")
-Call write_variable_in_SPEC_MEMO("Your interview should have been completed by " & appt_date & ".")
+Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & application_date & ".")
 Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
-Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at ")
+Call write_variable_in_SPEC_MEMO(" ")
+Call write_variable_in_SPEC_MEMO("The interview must be completed by " & interview_date & ".")
+Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
 Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday through Friday.")
+Call write_variable_in_SPEC_MEMO("You may be able to have SNAP benefits issued within 24 hours of the interview.")
+'Call write_variable_in_SPEC_MEMO("Some cases are eligible to have SNAP benefits issued within 24 hours of the interview, call right away if you have an urgent need.")
 Call write_variable_in_SPEC_MEMO(" ")
-Call write_variable_in_SPEC_MEMO("If you do not complete the interview by " & last_contact_day & " your application will be denied.") 'add 30 days
+Call write_variable_in_SPEC_MEMO("Interviews can also be completed in person at one of our six offices:")
+Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
 Call write_variable_in_SPEC_MEMO(" ")
-Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to- face interview.")
+Call write_variable_in_SPEC_MEMO("If we do not hear from you by " & last_contact_day & " your application will be denied.") 'add 30 days
+Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
 Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
 Call write_variable_in_SPEC_MEMO("You can also request a paper copy.")
 Call write_variable_in_SPEC_MEMO("Auth: 7CFR 273.2(e)(3). ")
-Call write_variable_in_SPEC_MEMO("************************************************************")
+'Call write_variable_in_SPEC_MEMO("************************************************************")
 PF4
-PF3
-'Writes the case note for the NOMI
+'msgbox "should be all memoed out"
+
 start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE("~ Client has not completed application interview, NOMI sent via script ~ ")
-Call write_variable_in_CASE_NOTE("A notice was previously sent to client with detail about completing an interview. ")
+Call write_variable_in_CASE_NOTE("~ Appointment letter sent in MEMO for " & interview_date & " ~")
+Call write_variable_in_CASE_NOTE("A notice has been sent via SPEC/MEMO informing the client of needed interview.")
 Call write_variable_in_CASE_NOTE("Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
 Call write_variable_in_CASE_NOTE("A link to the domestic violence brochure sent to client in SPEC/MEMO as a part of interview notice.")
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature & " via bulk on demand waiver script")
 PF3
-script_end_procedure("Success! The NOMI has been sent.")
+script_end_procedure("Success! The Appointment Letter has been sent.")
+'IF action_completed = False then 'build handling'
+'    script_end_procedure ("Warning! Appointment letter was not sent. Check the case manually.")
+'Else
+'    script_end_procedure ("Case has been updated please review to ensure it was processed correctly.")
+'End if
