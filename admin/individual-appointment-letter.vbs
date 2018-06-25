@@ -157,7 +157,7 @@ Call write_variable_in_SPEC_MEMO("If we do not hear from you by " & last_contact
 Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
 Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
 Call write_variable_in_SPEC_MEMO("You can also request a paper copy.")
-Call write_variable_in_SPEC_MEMO("Auth: 7CFR 273.2(e)(3). ")
+Call write_variable_in_SPEC_MEMO("Auth: 7CFR 273.2(e)(3).")
 'Call write_variable_in_SPEC_MEMO("************************************************************")
 PF4
 'msgbox "should be all memoed out"
