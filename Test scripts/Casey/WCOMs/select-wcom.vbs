@@ -179,6 +179,36 @@ Function add_words_to_message(message_to_add)
 
 End Function
 
+'This function creates the HH Member dropdown for a number of different dialogs
+function Generate_Client_List(list_for_dropdown)
+
+	memb_row = 5       'setting the row to look at the list of members on the left hand side of the panel
+
+	Call navigate_to_MAXIS_screen ("STAT", "MEMB")         'go to MEMB
+	Do                                                     'this loop transmits to each MEMB panel to read information for each member
+		EMReadScreen ref_numb, 2, memb_row, 3
+		If ref_numb = "  " Then Exit Do           'this is the end of the list of members
+		EMWriteScreen ref_numb, 20, 76            'writing the reference number in the command line to go to each MEMB panel
+		transmit
+		EMReadScreen first_name, 12, 6, 63        'reading the name on the panel
+		EMReadScreen last_name, 25, 6, 30
+		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")     'adding each client information to a string
+		memb_row = memb_row + 1                   'going to the next member
+	Loop until memb_row = 20
+
+    If memb_row = 6 Then        'If the row is only 6, then there is only one person in the HH
+        list_for_dropdown = right(client_info, len(client_info) - 1)    'taking the '~' off of the string
+    Else
+    	client_info = right(client_info, len(client_info) - 1)             'taking the left most '~' off
+    	client_list_array = split(client_info, "~")                        'making this an array
+
+    	For each person in client_list_array                               'creating the string to be added to the dialog code to fill the dropdown
+    		list_for_dropdown = list_for_dropdown & chr(9) & person
+    	Next
+    End If
+
+end function
+
 'THE SCRIPT=====================================================================================================================
 EMConnect ""            'Connect to BlueZone
 
@@ -323,32 +353,38 @@ For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
 Next
 
 'DIALOG to select the WCOM to add
-BeginDialog wcom_selection_dlg, 0, 0, 241, 360, "Select WCOM"
+BeginDialog wcom_selection_dlg, 0, 0, 241, 345, "Select WCOM"
   Text 10, 10, 95, 10, "Check the WCOM needed."
   GroupBox 10, 25, 225, 240, "SNAP"
   CheckBox 20, 40, 150, 10, "SNAP closed/denied with PACT", snap_pact_wcom_checkbox
   CheckBox 20, 55, 155, 10, "SNAP closed via PACT for new HH Member", pact_fraud_wcom_checkbox
   CheckBox 20, 70, 145, 10, "SNAP closing due to Returned Mail", returned_mail_wcom_checkbox
-  CheckBox 20, 85, 115, 10, "SNAP closing and MFIP opening", Check15
+  CheckBox 20, 85, 115, 10, "SNAP closing and MFIP opening", snap_to_mfip_wcom_checkbox
   CheckBox 20, 100, 190, 10, "SNAP Duplicate Assistance in another state", duplicate_assistance_wcom_checkbox
-  CheckBox 20, 115, 190, 10, "SNAP Duplicate Assistance on another case in MN", Check14
+  CheckBox 20, 115, 190, 10, "SNAP Duplicate Assistance on another case in MN", dup_assistance_in_MN_wcom_checkbox
   CheckBox 20, 130, 85, 10, "SNAP Applicant Death", client_death_wcom_checkbox
-  CheckBox 20, 145, 200, 10, "SNAP Postponed verif of CAF pg 9 Signature -for EXP SNAP", Check16
+  CheckBox 20, 145, 200, 10, "SNAP Postponed verif of CAF pg 9 Signature -for EXP SNAP", signature_postponed_verif_wcom_checkbox
   CheckBox 20, 160, 190, 10, "ABAWD - Postponed WREG verifs for EXP SNAP", wreg_postponed_verif_wcom_checkbox
   CheckBox 20, 175, 155, 10, "ABAWD WREG coded for Child under 18", abawd_child_coded_wcom_checkbox
   CheckBox 20, 190, 130, 10, "ABAWD - Temporarily disabled", temp_disa_abawd_wcom_checkbox
   CheckBox 20, 205, 160, 10, "ABAWD - Banked Months possibly available", banked_mos_avail_wcom_checkbox
-  CheckBox 20, 220, 180, 10, "Banked Months closing due to non-coop", banked_mos_non_coop_wcom_checkbox
-  CheckBox 20, 235, 190, 10, "ABAWD - Banked Months closing for months used", banked_mos_used_wcom_checkbox
-  CheckBox 20, 250, 195, 10, "FSET - Failure to comply with Good Cause Information", fset_fail_to_comply_wcom_checkbox
-  GroupBox 10, 275, 225, 60, "Cash"
-  CheckBox 20, 290, 55, 10, "CASH Denied", Check17
-  CheckBox 20, 305, 125, 10, "CASH closing due to Returned Mail", Check18
-  CheckBox 20, 320, 125, 10, "MFIP Closing and SNAP opening", mfip_to_snap_wcom_checkbox
+  'CheckBox 20, 220, 180, 10, "Banked Months closing due to non-coop", banked_mos_non_coop_wcom_checkbox
+  CheckBox 20, 220, 190, 10, "ABAWD - Banked Months closing for months used", banked_mos_used_wcom_checkbox
+  CheckBox 20, 235, 195, 10, "FSET - Failure to comply with Good Cause Information", fset_fail_to_comply_wcom_checkbox
+  GroupBox 10, 260, 225, 60, "Cash"
+  CheckBox 20, 275, 55, 10, "CASH Denied", Check17
+  CheckBox 20, 290, 125, 10, "CASH closing due to Returned Mail", Check18
+  CheckBox 20, 305, 125, 10, "MFIP Closing and SNAP opening", mfip_to_snap_wcom_checkbox
   ButtonGroup ButtonPressed
-    OkButton 135, 340, 50, 15
-    CancelButton 185, 340, 50, 15
+    OkButton 135, 325, 50, 15
+    CancelButton 185, 325, 50, 15
 EndDialog
+
+Dim myBtn
+
+myBtn = Dialog(wcom_selection_dlg)
+MsgBox "The user pressed button " & myBtn
+
 
 'Initial declaration of arrays
 Dim array_of_msg_lines ()
@@ -369,6 +405,87 @@ Do      'Just made this  loop - this needs sever testing.
     ReDim WCOM_TO_WRITE_ARRAY (0)
 
     'Here there is an IF statement for each checkbox - each WCOM may have it's own dialog and the verbiage will be added to the array for the WCOM lines
+    If snap_pact_wcom_checkbox Then             'SNAP closed with PACT
+        'code for the dialog for PACT closure (this dialog has the same name in each IF to prevent the over 7 dialog error)
+        BeginDialog wcom_details_dlg, 0, 0, 301, 85, "WCOM Details"
+          DropListBox 65, 5, 45, 45, "Select One..."+chr(9)+"CLOSED"+chr(9)+"DENIED", SNAP_close_or_deny
+          EditBox 5, 40, 290, 15, pact_close_reason
+          ButtonGroup ButtonPressed
+            OkButton 245, 65, 50, 15
+          Text 5, 10, 55, 10, "SNAP case was "
+          Text 120, 10, 35, 10, "on PACT."
+          Text 5, 25, 95, 10, "SNAP case closed reason(s):"
+        EndDialog
+
+        Do                          'displaying the dialog and ensuring that all required information is entered
+            err_msg = ""
+
+            Dialog wcom_details_dlg
+
+            If SNAP_close_or_deny = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the case was closed or denied."
+            If pact_close_reason = "" Then err_msg = err_msg & vbNewLine & "* Enter the reasons the SNAP was denied."
+            If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
+        Loop until err_msg = ""
+        'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
+        CALL add_words_to_message("Your SNAP case was " & SNAP_close_or_deny & " because " & pact_close_reason)
+    End If
+
+    If pact_fraud_wcom_checkbox Then        'FPI findings indicate another person
+        'code for the dialog for closing for fpi result (this dialog has the same name in each IF to prevent the over 7 dialog error)
+        BeginDialog wcom_details_dlg, 0, 0, 281, 85, "WCOM Details"
+          EditBox 75, 20, 45, 15, new_hh_memb
+          EditBox 215, 20, 60, 15, SNAP_close_date
+          EditBox 75, 40, 200, 15, new_memb_verifs
+          ButtonGroup ButtonPressed
+            OkButton 225, 65, 50, 15
+          Text 5, 5, 120, 10, "New HH Member Information Failed"
+          Text 5, 25, 65, 10, "New person in HH:"
+          Text 140, 25, 70, 10, "SNAP close eff date:"
+          Text 5, 45, 65, 10, "Verifs requested:"
+        EndDialog
+
+        Do                          'displaying the dialog and ensuring that all required information is entered
+            err_msg = ""
+
+            Dialog wcom_details_dlg
+
+            If trim(new_hh_memb) = "" Then err_msg = err_msg & vbNewLine & "*Enter the name of the person who has joined the household."
+            If isdate(SNAP_close_date) = False Then err_msg = err_msg & vbNewLine & "*Enter a valid date on which SNAP will close."
+            If trim(new_memb_verifs) = "" Then err_msg = err_msg & vbNewLine & "*Enter the verifications that were needed to add this person to the case." & vbNewLine & "If no verifications are required - this is not the correct WCOM to use."
+            If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
+        Loop until err_msg = ""
+        'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
+        CALL add_words_to_message("This agency received a request to add " & new_hh_memb & " but the information requested to add this person was not received. The information needed was: " & new_memb_verifs & ". This person and their income is mandatory to be provided and because this information has not been provided, your SNAP case will be closed on " & SNAP_close_date & ". ")
+    End If
+
+    If returned_mail_wcom_checkbox = checked Then           'Returned Mail
+        'code for the dialog for returned mail (this dialog has the same name in each IF to prevent the over 7 dialog error)
+        BeginDialog wcom_details_dlg, 0, 0, 126, 85, "WCOM Details"
+          EditBox 75, 20, 45, 15, rm_sent_date
+          EditBox 75, 40, 45, 15, rm_due_date
+          ButtonGroup ButtonPressed
+            OkButton 60, 65, 50, 15
+          Text 5, 5, 110, 10, "Returned Mail"
+          Text 5, 25, 65, 10, "Verif Request Sent:"
+          Text 5, 45, 65, 10, "Verif Request Due:"
+        EndDialog
+
+        Do                          'displaying the dialog and ensuring that all required information is entered
+            err_msg = ""
+
+            Dialog wcom_details_dlg
+
+            if isdate(rm_sent_date) = False Then err_msg = err_msg & vbNewLine & "*Enter a valid date for when the request for address information was sent."
+            if isdate(rm_due_date) = False Then err_msg = err_msg & vbNewLine & "*Enter a valid date for when the response for address information was due."
+            if err_msg <> "" Then msgBox "Resolve to continue:" & vbNewLine & err_msg
+        Loop until err_msg = ""
+        'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
+        CALL add_words_to_message("Your mail has been returned to our agency. On " & rm_sent_date & " you were sent a Request for you to contact this agency because of this returned mail. You did not contact this agency by " & rm_due_date & " so your SNAP case has been closed.")
+    End If
+
+    If snap_to_mfip_wcom_checkbox = checked then
+
+    End If
 
     If duplicate_assistance_wcom_checkbox = checked Then        'Duplicate assistance in another state
         If dup_state = "" Then                                  'If this is blank the script will look for it on MEMI - but if we are looping and the worker has already filled it in, the script will let that value stand
@@ -397,51 +514,96 @@ Do      'Just made this  loop - this needs sever testing.
 
             Dialog wcom_details_dlg
 
-            If dup_state = "" Then err_msg = err_msg & vbNewLine & "* Enter the state in which client already received SNAP."
-            If dup_month = "" or dup_year = "" Then err_msg = err_msg & vbNewLine & "* Enter the month and year for which SNAP in MN is being denied due to receipt of benefits in another state."
+            If trim(dup_state) = "" Then err_msg = err_msg & vbNewLine & "* Enter the state in which client already received SNAP."
+            If trim(dup_month) = "" or trim(dup_year) = "" Then err_msg = err_msg & vbNewLine & "* Enter the month and year for which SNAP in MN is being denied due to receipt of benefits in another state."
             If err_msg <> "" Then MsgBox "Please resolve before continuing:" & vbNewLine & err_msg
         Loop until err_msg = ""
         'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
         CALL add_words_to_message("You received SNAP benefits from the state of: " & dup_state & " during the month of " & dup_month & "/" & dup_year & ". You cannot recceive SNAP benefits from two states at the same time.")
     End If
 
-    If returned_mail_wcom_checkbox = checked Then           'Returned Mail
-        'code for the dialog for returned mail (this dialog has the same name in each IF to prevent the over 7 dialog error)
-        BeginDialog wcom_details_dlg, 0, 0, 126, 85, "WCOM Details"
-          EditBox 75, 20, 45, 15, rm_sent_date
-          EditBox 75, 40, 45, 15, rm_due_date
-          ButtonGroup ButtonPressed
-            OkButton 60, 65, 50, 15
-          Text 5, 5, 110, 10, "Returned Mail"
-          Text 5, 25, 65, 10, "Verif Request Sent:"
-          Text 5, 45, 65, 10, "Verif Request Due:"
-        EndDialog
+    If dup_assistance_in_MN_wcom_checkbox = checked Then
 
-        Do                          'displaying the dialog and ensuring that all required information is entered
-            err_msg = ""
-
-            Dialog wcom_details_dlg
-
-            if isdate(rm_sent_date) = False Then err_msg = err_msg & vbNewLine & "*Enter a valid date for when the request for address information was sent."
-            if isdate(rm_due_date) = False Then err_msg = err_msg & vbNewLine & "*Enter a valid date for when the response for address information was due."
-            if err_msg <> "" Then msgBox "Resolve to continue:" & vbNewLine & err_msg
-        Loop until err_msg = ""
-        'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
-        CALL add_words_to_message("Your mail has been returned to our agency. On " & rm_sent_date & " you were sent a Request for you to contact this agency because of this returned mail. You did not contact this agency by " & rm_due_date & " so your SNAP case has been closed.")
     End If
 
-    If pact_fraud_wcom_checkbox Then        'FPI findings indicate another person
-        'code for the dialog for closing for fpi result (this dialog has the same name in each IF to prevent the over 7 dialog error)
-        BeginDialog wcom_details_dlg, 0, 0, 281, 85, "WCOM Details"
-          EditBox 75, 20, 45, 15, new_hh_memb
-          EditBox 215, 20, 60, 15, SNAP_close_date
-          EditBox 75, 40, 200, 15, new_memb_verifs
+    If client_death_wcom_checkbox = checked Then      'Client death - NO WORKER INPUT NEEDED
+        single_person = FALSE
+
+        Call navigate_to_MAXIS_screen("STAT", "MEMB")
+
+        EmWriteScreen "01", 20, 76
+        transmit
+
+        EMReadScreen second_member, 2, 6, 3
+        If second_member = "  " Then single_person = TRUE
+
+
+        Do
+            EMReadScreen date_of_death, 10, 19, 42
+            date_of_death = replace(date_of_death, " ", "/")
+
+            If date_of_death <> "__/__/____" Then
+                EMReadScreen first_name, 12, 6, 63
+                EMReadScreen last_name, 25, 6, 30
+                EMReadScreen middle_initial, 1, 6, 79
+
+                first_name = replace(first_name, "_", "")
+                last_name = replace(last_name, "_", "")
+                middle_initial = replace(middle_initial, "_", "")
+
+                If middle_initial = "" Then
+                    deceased_client = first_name & " " & last_name
+                Else
+                    deceased_client = first_name & " " & middle_initial & ". " & last_name
+                End If
+
+                EMReadScreen client_ref_nbr, 2, 4, 33
+
+                Exit Do
+            Else
+                date_of_death = ""
+                transmit
+            ENd If
+
+            EMReadScreen check_for_last_memb, 13, 24, 2
+        Loop Until check_for_last_memb = "ENTER A VALID"
+
+        others_on_eats = FALSE
+
+        If single_person = TRUE then
+            only_elig_checkbox = checked
+        Else
+            Call navigate_to_MAXIS_screen("STAT", "EATS")
+            EMReadScreen check_for_eats, 14, 24, 7
+            If check_for_eats <> "DOES NOT EXIST" Then
+                EMReadScreen all_eat_together, 1, 4, 72
+                If all_eat_together = "Y" Then
+                    others_on_eats = TRUE
+                Else
+                    row = 1
+                    col = 1
+                    EMSearch client_ref_nbr, row, col
+
+                    If col <> 39 Then
+                        others_on_eats = TRUE
+                    Else
+                        EMReadScreen next_in_group, row, 43
+                        If next_in_group <> "__" Then others_on_eats = TRUE
+                    End If
+                ENd If
+            End If
+            If others_on_eats = FALSE Then only_elig_checkbox = checked
+        End If
+        MsgBox "single person - " & single_person & vbNewLine & "others on eats - " & others_on_eats
+
+        BeginDialog wcom_details_dlg, 0, 0, 236, 60, "WCOM Details"
+          EditBox 95, 5, 135, 15, deceased_client
+          CheckBox 5, 25, 220, 10, "Check here if client was only eligible SNAP member on this case.", only_elig_checkbox
+          EditBox 95, 40, 55, 15, date_of_death
           ButtonGroup ButtonPressed
-            OkButton 225, 65, 50, 15
-          Text 5, 5, 120, 10, "New HH Member Information Failed"
-          Text 5, 25, 65, 10, "New person in HH:"
-          Text 140, 25, 70, 10, "SNAP close eff date:"
-          Text 5, 45, 65, 10, "Verifs requested:"
+            OkButton 180, 40, 50, 15
+          Text 5, 10, 85, 10, "Name of deceased client:"
+          Text 40, 45, 45, 10, "Date of death:"
         EndDialog
 
         Do                          'displaying the dialog and ensuring that all required information is entered
@@ -449,16 +611,22 @@ Do      'Just made this  loop - this needs sever testing.
 
             Dialog wcom_details_dlg
 
-            If new_hh_memb = "" Then err_msg = err_msg & vbNewLine & "*Enter the name of the person who has joined the household."
-            If isdate(SNAP_close_date) = False Then err_msg = err_msg & vbNewLine & "*Enter a valid date on which SNAP will close."
-            If new_memb_verifs = "" Then err_msg = err_msg & vbNewLine & "*Enter the verifications that were needed to add this person to the case." & vbNewLine & "If no verifications are required - this is not the correct WCOM to use."
+            If trim(deceased_client) = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the client who died."
+            If IsDate(date_of_death) = "" Then err_msg = err_msg & vbNewLine & "* Enter a valid date for date of death."
+
             If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
         Loop until err_msg = ""
+
         'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
-        CALL add_words_to_message("This agency received a request to add " & new_hh_memb & " but the information requested to add this person was not received. The information needed was: " & new_memb_verifs & ". This person and their income is mandatory to be provided and because this informaiton has not been provided, your SNAP case will be closed on " & SNAP_close_date & " ")
+        CALL add_words_to_message("This SNAP case has closed because the applicant " & deceased_client & " has died.")
+        If only_elig_checkbox = unchecked Then CALL add_words_to_message("To continue to receive SNAP benefits, you must reapply for a new case.")
     End If
 
-    If temp_disa_abawd_wcom_checkbox Then       'Verified temporary disa for ABAWD exemption
+    If signature_postponed_verif_wcom_checkbox = checked Then
+
+    End If
+
+    If temp_disa_abawd_wcom_checkbox = checked Then       'Verified temporary disa for ABAWD exemption
         'code for the dialog for temporary disa for ABAWD (this dialog has the same name in each IF to prevent the over 7 dialog error)
         BeginDialog wcom_details_dlg, 0, 0, 131, 60, "WCOM Details"
           EditBox 105, 20, 20, 15, numb_disa_mos
@@ -473,19 +641,14 @@ Do      'Just made this  loop - this needs sever testing.
 
             Dialog wcom_details_dlg
 
-            If numb_disa_mos = "" Then err_msg = err_msg & vbNewLine & "*Enter the number of months the disability is expected to last from the doctor's information."
+            If trim(numb_disa_mos) = "" Then err_msg = err_msg & vbNewLine & "*Enter the number of months the disability is expected to last from the doctor's information."
             If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
         Loop until err_msg = ""
         'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
         CALL add_words_to_message("You are exempt from the ABAWD work provision because you are unable to work for " & numb_disa_mos & " months per your Doctor statement.")
     End If
 
-    If client_death_wcom_checkbox Then      'Client death - NO WORKER INPUT NEEDED
-        'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
-        CALL add_words_to_message("This SNAP case has been closed because the only eligible unit member has died.")
-    End If
-
-    If mfip_to_snap_wcom_checkbox Then      'MFIP is closing and SNAP is opening
+    If mfip_to_snap_wcom_checkbox = checked Then      'MFIP is closing and SNAP is opening
         'code for the dialog for MFIP closure reason when SNAP is reassessed (this dialog has the same name in each IF to prevent the over 7 dialog error)
         BeginDialog wcom_details_dlg, 0, 0, 166, 80, "WCOM Details"
           EditBox 5, 40, 155, 15, MFIP_closing_reason
@@ -507,7 +670,7 @@ Do      'Just made this  loop - this needs sever testing.
         CALL add_words_to_message("You are no longer eligible for MFIP because " & MFIP_closing_reason & ".")
     End If
 
-    If wreg_postponed_verif_wcom_checkbox Then      'XFS Postponed verifs are in WREG
+    If wreg_postponed_verif_wcom_checkbox = checked Then      'XFS Postponed verifs are in WREG
         'code for the dialog for postponed verifs from WREG (this dialog has the same name in each IF to prevent the over 7 dialog error)
         BeginDialog wcom_details_dlg, 0, 0, 281, 115, "WCOM Details"
           EditBox 60, 20, 135, 15, abawd_name
@@ -538,12 +701,12 @@ Do      'Just made this  loop - this needs sever testing.
         CALL add_words_to_message(abawd_name & " has used their 3 entitled months of SNAP benefits as an Able Bodied Adult Without Dependents. Verification of " & wreg_verifs_needed & " has been postponed. You must turn in verification of " & wreg_verifs_needed & " by " & wreg_verifs_due_date & " to continue to be eligible for SNAP benefits. If you do not turn in the required verifications, your case will close on " & snap_closure_date & ".")
     End If
 
-    If banked_mos_avail_wcom_checkbox Then      'ABAWD expired - Banked Months available - NO WORKER INPUT NEEDED
+    If banked_mos_avail_wcom_checkbox = checked Then      'ABAWD expired - Banked Months available - NO WORKER INPUT NEEDED
         'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
-        CALL add_words_to_message("You have used all of your available ABAWD months. You may be eligible for SNAP banked months if you are cooperating with Employment Services. Please contact your financial worker if you have questions.")
+        CALL add_words_to_message("You have used all of your available ABAWD months. You may be eligible for SNAP banked months. Please contact your team if you have questions.")
     End If
 
-    If banked_mos_non_coop_wcom_checkbox Then       'Banked Months closing due to FSET non-coop
+    If banked_mos_non_coop_wcom_checkbox = checked Then       'Banked Months closing due to FSET non-coop
         'code for the dialog for non-coop with banked months (this dialog has the same name in each IF to prevent the over 7 dialog error)
         BeginDialog wcom_details_dlg, 0, 0, 201, 65, "WCOM Details"
           EditBox 60, 20, 135, 15, banked_abawd_name
@@ -565,12 +728,12 @@ Do      'Just made this  loop - this needs sever testing.
         CALL add_words_to_message("You have been receiving SNAP banked months. Your SNAP case is closing because " & banked_abawd_name & " did not meet the requirements of working with Employment and Training. If you feel you have Good Cause for not cooperating with this requirement please contact your financial worker before you SNAP clsoes. If your SNAP closes for not cooperating with Employment and Training you will not be eligible for future banked months. If you meet an exemption listed above AND all other eligibility factors you may be eligible for SNAP. If you have questions please contact your financial worker.")
     End If
 
-    If banked_mos_used_wcom_checkbox Then       'Banked Months expired - NO WORKER INPUT NEEDED
+    If banked_mos_used_wcom_checkbox = checked Then       'Banked Months expired - NO WORKER INPUT NEEDED
         'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
-        CALL add_words_to_message("You have been receiving SNAP banked months. Your SNAP is closing for using all available banked months. If you meet one of the exemptions listed above AND all ofther eligibility factors you may still be eligible for SNAP. Please contact your financial worker if you have questions.")
+        CALL add_words_to_message("You have been receiving SNAP banked months. Your SNAP is closing for using all available banked months. If you meet one of the exemptions listed above AND all other eligibility factors you may still be eligible for SNAP. Please contact your team if you have questions.")
     End If
 
-    If abawd_child_coded_wcom_checkbox Then         'ABAWD exemption for care of child
+    If abawd_child_coded_wcom_checkbox = checked Then         'ABAWD exemption for care of child
         'code for the dialog for ABAWD child exemption (this dialog has the same name in each IF to prevent the over 7 dialog error)
         BeginDialog wcom_details_dlg, 0, 0, 201, 65, "WCOM Details"
           EditBox 60, 20, 135, 15, exempt_abawd_name
@@ -592,7 +755,7 @@ Do      'Just made this  loop - this needs sever testing.
         CALL add_words_to_message(exempt_abawd_name & " is exempt from the Able Bodied Adults Without Dependents (ABAWD) Work Requirements due to a child(ren) under the age of 18 in the SNAP unit.")
     End If
 
-    If fset_fail_to_comply_wcom_checkbox Then           'Fail to comply with FSET
+    If fset_fail_to_comply_wcom_checkbox = checked Then           'Fail to comply with FSET
         'code for the dialog for fail to comply with FSET (this dialog has the same name in each IF to prevent the over 7 dialog error)
         BeginDialog wcom_details_dlg, 0, 0, 201, 85, "WCOM Details"
           EditBox 5, 40, 190, 15, fset_fail_reason
@@ -613,31 +776,6 @@ Do      'Just made this  loop - this needs sever testing.
         'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
         CALL add_words_to_message("Reasons for not meeting the rules: " & fset_fail_reason & ". You can keep getting your SNAP benefits if you show you had a good reason for not meeting the SNAP E & T rules. If you had a good reason, tell us right away.;" & "What do you do next:;" &_
         "You must meet the SNAP E & T rules by the end of the month. If you want to meet the rules, contact your county worker at 612-596-1300, or your SNAP E &T provider at 612-596-7411. You can tell us why you did not meet with the rules. If you had a good reason for not meeting the SNAP E & T rules, contact your SNAP E & T provider right away.")
-    End If
-
-    If snap_pact_wcom_checkbox Then             'SNAP closed with PACT
-        'code for the dialog for PACT closure (this dialog has the same name in each IF to prevent the over 7 dialog error)
-        BeginDialog wcom_details_dlg, 0, 0, 301, 85, "WCOM Details"
-          DropListBox 65, 5, 45, 45, "Select One..."+chr(9)+"CLOSED"+chr(9)+"DENIED", SNAP_close_or_deny
-          EditBox 5, 40, 290, 15, pact_close_reason
-          ButtonGroup ButtonPressed
-            OkButton 245, 65, 50, 15
-          Text 5, 10, 55, 10, "SNAP case was "
-          Text 120, 10, 35, 10, "on PACT."
-          Text 5, 25, 95, 10, "SNAP case closed reason(s):"
-        EndDialog
-
-        Do                          'displaying the dialog and ensuring that all required information is entered
-            err_msg = ""
-
-            Dialog wcom_details_dlg
-
-            If SNAP_close_or_deny = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the case was closed or denied."
-            If pact_close_reason = "" Then err_msg = err_msg & vbNewLine & "* Enter the reasons the SNAP was denied."
-            If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
-        Loop until err_msg = ""
-        'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
-        CALL add_words_to_message("Your SNAP case was " & SNAP_close_or_deny & " because " & pact_close_reason)
     End If
 
     'This assesses if the message generated is too long for WCOM. If so then the checklist will reappear along with each selected WCOM dialog so it can be changed
@@ -704,7 +842,7 @@ CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE("Detail added to each notice:")
 If duplicate_assistance_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Duplicate assistance from state of: " & dup_state & " during the month of " & dup_month & "/" & dup_year & " was received.")
 If returned_mail_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Returned mail was received. Verification request sent: " & rm_sent_date & " and Due: " & rm_due_date & " with no response caused SNAP case closure.")
-If pact_fraud_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* New Household Member: " & new_hh_memb & " added. Verification needed: " & new_memb_verifs & ". Verification not received causing closure.")
+If pact_fraud_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Request to add: " & new_hh_memb & ". Verification needed: " & new_memb_verifs & ". Verification not received causing closure.")
 If temp_disa_abawd_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Client meets ABAWD exemption of temporary inability to work for " & numb_disa_mos & " months per Doctor statement.")
 If client_death_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Closure due to client death.")
 If mfip_to_snap_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* MFIP closure due to: " & MFIP_closing_reason & ".")
@@ -712,7 +850,7 @@ If wreg_postponed_verif_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* "
 If banked_mos_avail_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* ABAWD months have been used, explained Banked Months may be available.")
 If banked_mos_non_coop_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* " & banked_abawd_name & " was receiving Banked Months and fail cooperation with E & T. Explained requesting Good Cause, and future banked months ineligibility.")
 If banked_mos_used_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Banked Months were being used are are now all used. Advised to review other WREG/ABAWD exemptions.")
-If abawd_child_coded_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* " & exempt_abawd_name & " is ABAWD and WREG exemptd due to a child(ren) under the age of 18 in the SNAP unit.")
+If abawd_child_coded_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* " & exempt_abawd_name & " is ABAWD and WREG exempt due to a child(ren) under the age of 18 in the SNAP unit.")
 If fset_fail_to_comply_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* SNAP is closing due to FSET requirements not being met. Reasons for not meeting the rules: " & fset_fail_reason & ". Advised of good cause and contact information.")
 If snap_pact_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* SNAP case was " & SNAP_close_or_deny & " because " & pact_close_reason)
 
