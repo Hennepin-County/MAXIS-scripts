@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/27/2018", "Added/updated closing message.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -757,4 +758,4 @@ MsgBox("Success!"  & vbNewLine & _
 		vbNewLine & _
 		"A Word document has been created, containing active claims as well as cases with ABPS panels requiring update. If you have questions about these procedures, see a supervisor.")
 
-script_end_procedure("")
+script_end_procedure("Success!!")
