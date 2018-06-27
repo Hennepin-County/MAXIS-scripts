@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/27/2018", "Added/updated closing message.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/12/2018", "Removing information from CASE/NOTE regarding HC application.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -418,4 +419,4 @@ MsgBox "Success! All cases that are coded in REPT/REVW and/or REPT/MONT as eithe
 IF trim(priv_case_list) <> "" THEN MsgBox "Please note the following case numbers that are PRIVILEGED and could not be updated by the script.  They must be case noted manually:" & VbCr & priv_case_list
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("")
+script_end_procedure("Success! Your list has been created.")
