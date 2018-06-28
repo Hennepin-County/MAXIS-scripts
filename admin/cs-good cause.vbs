@@ -1,5 +1,5 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "NOTES-CS GOOD CAUSE.vbs"
+name_of_script = "NOTES - CS GOOD CAUSE.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 240          'manual run time in seconds
@@ -172,7 +172,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 		EMReadScreen current_panel_number, 1, 2, 73
 		ABPS_check = MsgBox("Is this the right ABPS?", vbYesNo + vbQuestion, "Confirmation")
 		If ABPS_check = vbYes then exit do
-		If ABPS_check = vbNo then	TRANSMIT
+		If ABPS_check = vbNo then TRANSMIT
 		If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
 	Loop until current_panel_number = panel_number
 
