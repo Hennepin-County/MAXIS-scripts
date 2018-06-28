@@ -127,23 +127,9 @@ const addr_zip	 	= 10
 const SS_rate 		= 11
 const auth_number  	= 12
 const case_status 	= 13
-
-'const case_number	= 0
-'const clt_PMI	 	= 7
-'const clt_DOB		= 8
-'const update_MMIS 	= 16
-
-'TODO read faci, disa and revw to determine start dates
-'TODO read faci, disa and revw to determine end dates
-'TODO break apart start and end dates to ensure they can be written into MMIS. 
-
-start_date = "05/17/2018"   'start and end service agreement dates
-end_date = "05/30/2018"
-total_units = datediff("d", start_date, end_date) + 1
-msgbox total_units
     
 ReDim Preserve Update_MMIS_array(14, 0)	'This resizes the array based on the number of rows in the Excel File'
-Update_MMIS_array(tot_units, 	0) = total_units				'STATIC for now. TODO: remove static coding for action script 
+Update_MMIS_array(tot_units, 	0) = ""				'STATIC for now. TODO: remove static coding for action script 
 Update_MMIS_array(vendor_num, 	0) = ""
 Update_MMIS_array(NPI_num, 		0) = ""
 Update_MMIS_array(in_date, 		0) = ""
@@ -261,26 +247,98 @@ If Update_MMIS = True then
 			EMReadScreen last_panel, 5, 24, 2
         Loop until last_panel = "ENTER"	'This means that there are no other faci panels
 	End if 
-    
+
     If current_faci = False then 
 		msgbox "Unable to find FACI panel or current FACI is not Rate 2."
 		Update_MMIS = False
         script_end_procedure("Unable to find FACI panel or current FACI is not Rate 2.")
 	Else 
-		'----------------------------------------------------------------------------------------------------SSRT: ensuring that a panel exists, and the FACI dates match.
-    	Call navigate_to_MAXIS_screen ("STAT", "SSRT")				
+	'----------------------------------------------------------------------------------------------------SSRT: ensuring that a panel exists, and the FACI dates match.
+	Call navigate_to_MAXIS_screen ("STAT", "SSRT")				
 		call write_value_and_transmit ("01", 20, 76)	'For member 01 - All GRH cases should be for member 01. 
-		
+		Calll write_value_and_transmit ("01", 20, 79)    'Ensuring we're on the 1st panel 
+        
 		EMReadScreen SSRT_total_check, 1, 2, 78
 		If SSRT_total_check = "0" then
 			msgbox "SSRT panel needs to be created."
             Update_MMIS = False
 			script_end_procedure("SSRT panel needs to be created.")
 		Else
-			'Matching the FACI panel vendor number to the SSRT panel vendor number 
+			'Trying to find a suggested date based on the SSRT panel 
 			Do 
-			    EMReadScreen SSRT_vendor_number, 8, 5, 43		'Enters vendor number 
-			    If SSRT_vendor_number = faci_vendor_number then 
+                EmReadscreen SSRT_current_panel, 1, 2, 73
+                EMReadScreen SSRT_vendor_number, 8, 5, 43		'Enters vendor number 
+			    EmReadscreen SSRT_vendor_name, 30, 6, 43
+                EMReadScreen NPI_number, 10, 7, 43
+                
+                row = 14
+                Do 
+                    current_faci = false 
+                    EMReadScreen ssrt_out_date, 10, row, 71
+                    EMReadScreen ssrt_in_date, 10, row, 47
+                    msgbox "date out: " & ssrt_out_date 
+                    If ssrt_out_date = "__ __ ____" then 
+                        If ssrt_in_date = "__ __ ____" then 
+                            current_faci = False 
+                            row = row - 1
+                        else
+                            current_faci = True 
+                            Exit do 
+                        End if
+                    Else 
+                        If instr(SSRT_vendor_name) = "ANDREW RESIDENCE" then
+                            current_faci = False 
+                        elseif trim(NPI_number) = "" then
+                            msgbox "No NPI number on SSRT panel."
+                            If SSRT_vendor_number = "00232644" then 
+                                NPI_number = "A996683600"
+                            Else 	
+                                current_faci = False 
+                                exit do 
+                            End if  
+                        else     
+                            current_faci = true 
+                            transmit    'to look for another panel on another SSRT panel
+                        end if 
+                    End if  
+                    If row = 9 then 
+                        transmit
+                        row = 14
+                    End if 
+                    EMReadScreen last_panel, 5, 24, 2
+                Loop until last_panel = "ENTER"	'This means that there are no other faci panels
+            
+                				
+                    If ssrt_in_date = date_in then
+                        EMReadScreen ssrt_out_date, 10, row, 71
+                        If ssrt_out_date = date_out then 
+                            'msgbox NPI_number
+                            'msgbox SSRT_vendor_number
+                            'trimming the leading 0's from the SSRT vendor numbers. This will be needed to measure against ELIG/GRH 
+                            If left(SSRT_vendor_number, 1) = "0" then 
+                                Do 
+                                    SSRT_vendor_number = right(SSRT_vendor_number, len(SSRT_vendor_number) - 1) 
+                                Loop until left(SSRT_vendor_number, 1) <> "0"
+                            End if  
+                            msgbox SSRT_vendor_number & " with 0's removed"
+                            Update_MMIS_array(vendor_num, item) = SSRT_vendor_number
+                            Update_MMIS_array(NPI_num, item) = NPI_number
+                            Update_MMIS = True
+                            exit do 
+                        else 
+                            msgbox "FACI dates and SSRT dates do not match."
+                            Update_MMIS = False
+                            script_end_procedure("FACI dates and SSRT dates do not match. Please review these panels for accuracy.")
+                        End if 
+                    Else 
+                        msgbox "Unable to find matching FACI and SSRT dates."
+                        Update_MMIS = False
+                        script_end_procedure("Unable to find matching FACI and SSRT dates.")
+                        row = row + 1
+                    End if 	
+                Loop until row = 15	
+			    
+                If SSRT_vendor_number = faci_vendor_number then 
 			    	SSRT_found = true
 					exit do	'when the correct  
 				else
@@ -290,11 +348,11 @@ If Update_MMIS = True then
 			    EMReadScreen last_panel, 5, 24, 2
         	Loop until last_panel = "ENTER"	'This means that there are no other faci panels
 			
-			If SSRT_found = False then 
-				msgbox "SSRT panel could not be found for the Rate 2 facility."
-                Update_MMIS = False
-				script_end_procedure("SSRT panel could not be found for the Rate 2 facility.")
-			Else 
+			'If SSRT_found = False then 
+			'	msgbox "SSRT panel could not be found for the Rate 2 facility."
+            '    Update_MMIS = False
+			'	script_end_procedure("SSRT panel could not be found for the Rate 2 facility.")
+			'Else 
 				EMReadScreen NPI_number, 10, 7, 43
                 
 				If trim(NPI_number) = "" then
@@ -308,43 +366,23 @@ If Update_MMIS = True then
 					    script_end_procedure("No NPI number on SSRT panel.")
                     End if 
 				Else 
-			        row = 10 
-			        Do 
-			        	EMReadScreen ssrt_in_date, 10, row, 47
-			        	If ssrt_in_date = date_in then
-							EMReadScreen ssrt_out_date, 10, row, 71
-							If ssrt_out_date = date_out then 
-								'msgbox NPI_number
-								'msgbox SSRT_vendor_number
-								'trimming the leading 0's from the SSRT vendor numbers. This will be needed to measure against ELIG/GRH 
-								If left(SSRT_vendor_number, 1) = "0" then 
-									Do 
-										SSRT_vendor_number = right(SSRT_vendor_number, len(SSRT_vendor_number) - 1) 
-									Loop until left(SSRT_vendor_number, 1) <> "0"
-								End if  
-								msgbox SSRT_vendor_number & " with 0's removed"
-								Update_MMIS_array(vendor_num, item) = SSRT_vendor_number
-								Update_MMIS_array(NPI_num, item) = NPI_number
-								Update_MMIS = True
-								exit do 
-							else 
-								msgbox "FACI dates and SSRT dates do not match."
-                                Update_MMIS = False
-								script_end_procedure("FACI dates and SSRT dates do not match. Please review these panels for accuracy.")
-						  	End if 
-						Else 
-							msgbox "Unable to find matching FACI and SSRT dates."
-							Update_MMIS = False
-							script_end_procedure("Unable to find matching FACI and SSRT dates.")
-							row = row + 1
-						End if 	
-					Loop until row = 15	
+			        
 				End if 	
 			End if         		
 		End if
-    End if
+    'End if
 	
 	If Update_MMIS = True then
+        'TODO read faci, disa and revw to determine start dates
+        'TODO read faci, disa and revw to determine end dates
+        'TODO break apart start and end dates to ensure they can be written into MMIS. 
+        
+        start_date = "05/17/2018"   'start and end service agreement dates: Hard coded for now
+        end_date = "05/30/2018"
+        total_units = datediff("d", start_date, end_date) + 1
+        Update_MMIS_array(tot_units, item) = total_units
+        msgbox total_units
+    
 	 	Call navigate_to_MAXIS_screen("STAT", "MEMB")
 		EMReadScreen client_PMI, 8, 4, 46
 		client_PMI = trim(client_PMI)
@@ -492,7 +530,7 @@ If Update_MMIS = True then
 		
 		'----------------------------------------------------------------------------------------------------ASA1 screen
 		Call MMIS_panel_check("ASA1")				'ensuring we are on the right MMIS screen
-		EmWriteScreen "051718", 4, 64				'Start date is static for the BULK conversion. TODO: change to date_in which will match the FACI dates. 
+		EmWriteScreen "051718", 4, 64				'Start date is static for the BULK conversion. TODO: change to date_in which will match the FACI dates. Hardcoded for now. 
 		EmWriteScreen "053018", 4, 71				'End date is static for the BULK conversion. TODO: change to date_out which will match the FACI dates. 
 		EmWriteScreen client_PMI, 8, 64							'Enters the client's PMI 
 		EmWriteScreen client_DOB, 9, 19							'Enters the client's DOB 
@@ -507,7 +545,7 @@ If Update_MMIS = True then
 		Call MMIS_panel_check("ASA3")				'ensuring we are on the right MMIS screen	
 		EMWriteScreen "H0043", 7, 36
 		EMWriteScreen "U5", 7, 44
-		EMWriteScreen "051718", 8, 60				'Start date is static for the BULK conversion. TODO: change to date_in which will match the FACI dates. 
+		EMWriteScreen "051718", 8, 60				'Start date is static for the BULK conversion. TODO: change to date_in which will match the FACI dates. Hardcoded for now
 		EMWriteScreen "053018", 8, 67				'End date is static for the BULK conversion. TODO: change to date_out which will match the FACI dates. 
 		EMWriteScreen service_rate, 9, 20			'Enters service rate from VND2 
 		EMWriteScreen total_units, 9, 60 			'Enters the difference between the start date and end date. TODO: update this coding to work with date_in and date_out after BULK conversion.
@@ -615,7 +653,7 @@ If Update_MMIS = True then
     Call start_a_blank_CASE_NOTE
     Call write_variable_in_CASE_NOTE("GRH Rate 2 SSR added to MMIS for NPI #" & npi_number)
     Call write_bullet_and_variable_in_CASE_NOTE("MMIS autorization number", authorization_number)
-    Call write_bullet_and_variable_in_CASE_NOTE("SSR start date", start_date)
+    Call write_bullet_and_variable_in_CASE_NOTE("SSR start date", start_date)   'Hard coded for now
     Call write_bullet_and_variable_in_CASE_NOTE("SSR end date", end_date)
     Call write_variable_in_CASE_NOTE("* SSR end date selected by worker based on PSN dates on DISA panel.")
     Call write_variable_in_CASE_NOTE("---")
