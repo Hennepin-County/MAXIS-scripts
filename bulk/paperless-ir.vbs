@@ -73,11 +73,17 @@ MAXIS_footer_year = CM_plus_1_yr
 
 'defaulting the cleared date in REVW to the frst of the current month
 current_month = CM_mo
-current_day = "01" 
+current_day = "01"
 current_year = CM_yr
 
+EMReadScreen on_revw_panel, 4, 2, 52
+If on_revw_panel = "REVW" Then
+    EMReadScreen basket_number, 7, 21, 6
+    worker_number = trim(basket_number)
+End If
+
 DO
-	DO	
+	DO
 		err_msg = ""
 		Dialog paperless_IR_dialog
 		If buttonpressed = 0 then stopscript
@@ -86,12 +92,14 @@ DO
 		If Len(worker_number) <> 7 then err_msg = err_msg & vbNewLine & "* You must enter a valid 7 DIGIT worker number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS				
-Loop until are_we_passworded_out = false					'loops until user passwords back in			
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call MAXIS_footer_month_confirmation
 Call navigate_to_MAXIS_screen("rept", "revw")
 EMWriteScreen worker_number, 21, 6
+EMWriteScreen MAXIS_footer_month, 20, 55
+EMWriteScreen MAXIS_footer_year, 20, 58
 transmit
 
 EMReadScreen REVW_check, 4, 2, 52
@@ -108,10 +116,10 @@ Do
     End if
     EMReadScreen MAXIS_case_number, 8, row, 6
     EMReadScreen paperless_check, 1, row, 51
-    if paperless_check = "*" then 
+    if paperless_check = "*" then
     	case_number_array = trim(case_number_array & " " & trim(MAXIS_case_number))
     	Stats_counter = Stats_counter + 1
-	End if 
+	End if
     row = row + 1
 Loop until last_page_check = "LAST" or trim(MAXIS_case_number) = ""
 
@@ -131,7 +139,7 @@ For each MAXIS_case_number in case_number_array
     	If total_panels <> "0" & date_check = "__ __ __" then actually_paperless = False
     	if current_panel <> total_panels then transmit
     Loop until current_panel = total_panels
-    
+
     call navigate_to_MAXIS_screen ("stat", "busi")
     EMWriteScreen "01", 20, 76
     transmit
@@ -182,18 +190,18 @@ For each MAXIS_case_number in case_number_array
       		EMWriteScreen new_renewal_year, 8, renewal_year_col
       		EMWriteScreen "U", 13, 43
       		EMReadScreen spouse_check, 1, 14, 43
-      		If spouse_check = "N" then 
+      		If spouse_check = "N" then
 				PF10
 				transmit
 			End if
-		End if  
+		End if
     End if
 Next
 
-If cases_to_tikl <> "" Then 
+If cases_to_tikl <> "" Then
 	cases_to_tikl = right(cases_to_tikl, len(cases_to_tikl)-1)
 	cases_to_tikl_array = split(cases_to_tikl, "~")
-End If 
+End If
 
 For each MAXIS_case_number in cases_to_tikl_array
 	navigate_to_MAXIS_screen "DAIL", "WRIT"

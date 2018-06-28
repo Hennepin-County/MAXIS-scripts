@@ -1099,7 +1099,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
             IF DateDiff("d", need_intv_date, last_contact_day) < 1 then last_contact_day = need_intv_date
 
 
-            start_a_new_spec_memo_and_continue(memo_started)		'Writes the appt letter into the MEMO.
+            CALL start_a_new_spec_memo_and_continue(memo_started)		'Writes the appt letter into the MEMO.
 			IF memo_started = True THEN
                 EMsendkey("************************************************************")
                 Call write_variable_in_SPEC_MEMO("You recently applied for assistance in Hennepin County on " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ".")
@@ -1209,7 +1209,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
             'ensuring that we have given the client an additional10days fromt he day nomi sent'
             IF DateDiff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), nomi_last_contact_day) < 1 then nomi_last_contact_day = dateadd("d", 10, ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry))
 
-            start_a_new_spec_memo_and_continue(memo_started)		'Writes the NOMI into the MEMO.
+            CALL start_a_new_spec_memo_and_continue(memo_started)		'Writes the NOMI into the MEMO.
             IF memo_started = TRUE THEN
                 EMsendkey("************************************************************")
                 Call write_variable_in_SPEC_MEMO("You recently applied for assistance on " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ".")
@@ -1346,7 +1346,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                             'ensuring that we have given the client an additional10days fromt he day nomi sent'
                             IF DateDiff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), nomi_last_contact_day) < 1 then nomi_last_contact_day = dateadd("d", 10, ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry))
 
-                            start_a_new_spec_memo_and_continue(memo_started)		'Writes the denial into the MEMO.
+                            CALL start_a_new_spec_memo_and_continue(memo_started)		'Writes the denial into the MEMO.
                 			IF memo_started = True THEN
                 				EMsendkey("************************************************************")
                 				Call write_variable_in_SPEC_MEMO("We received your application on " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ".")
