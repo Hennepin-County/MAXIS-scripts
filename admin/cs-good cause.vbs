@@ -264,10 +264,11 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	IF CCA_CHECKBOX = CHECKED THEN programs_included = programs_included & "CCAP, "
 	IF DWP_CHECKBOX = CHECKED THEN programs_included = programs_included & "DWP, "
-	IF MFIP_CHECKBOX = CHECKED THEN programs_included = programs_included & "MFIP, "
-	IF METS_CHECKBOX = CHECKED THEN programs_included = programs_included & "MNSURE, "
 	IF HC_CHECKBOX = CHECKED THEN programs_included = programs_included & "Healthcare, "
 	IF FS_CHECKBOX = CHECKED THEN programs_included = programs_included & "Food Support, "
+	IF MFIP_CHECKBOX = CHECKED THEN programs_included = programs_included & "MFIP, "
+	IF METS_CHECKBOX = CHECKED THEN programs_included = programs_included & "MNSURE, "
+
 	'trims excess spaces of programs
 	programs_included  = trim(programs_included )
 	'takes the last comma off of programs
