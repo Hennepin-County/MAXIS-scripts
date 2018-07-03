@@ -99,19 +99,19 @@ BeginDialog good_cause_dialog, 0, 0, 386, 285, "Good Cause"
   EditBox 65, 145, 85, 15, verifs_req
   EditBox 210, 125, 170, 15, denial_reason
   EditBox 210, 145, 170, 15, other_notes
-  CheckBox 10, 180, 185, 10, "Sent Request for Proof to Support Good Cause Claim", SUP_CHECKBOX
-  CheckBox 10, 190, 160, 10, "Sent Good Cause Client Statement (DHS-2338)", DHS_2338_CHECKBOX
-  CheckBox 10, 200, 220, 10, "Sent Imp Information about Your Request Exemption (DHS-3627) ", DHS_3627_CHECKBOX
-  CheckBox 10, 210, 205, 10, "Sent Notice of Denial of Good Cause Exemption (DHS-3628) ", DHS_3628_CHECKBOX
-  CheckBox 10, 220, 165, 10, "Sent Notice of Good Cause Approval (DHS-3629) ", DHS_3629_CHECKBOX
-  CheckBox 10, 230, 195, 10, "Sent Request to End Good Cause Exemption  (DHS-3631 )", DHS_3631_CHECKBOX
-  CheckBox 10, 240, 180, 10, "Sent Request for Additional Information (DHS 3632)", DHS_3632_CHECKBOX
-  CheckBox 10, 250, 165, 10, "Sent Good Cause Yearly Determination Packet", Recert_CHECKBOX
-  CheckBox 10, 270, 245, 10, "Good Cause Client Statement (DHS-2338) is in ECF and completed in full", DHS_2338_complete_CHECKBOX
-  CheckBox 10, 260, 195, 10, "Sent Good Cause Redetermination Approval ( DHS 3633)", DHS_3633_CHECKBOX
+  CheckBox 10, 175, 185, 10, "Sent Request for Proof to Support Good Cause Claim", SUP_CHECKBOX
+  CheckBox 10, 185, 160, 10, "Sent Good Cause Client Statement (DHS-2338)", DHS_2338_CHECKBOX
+  CheckBox 10, 195, 220, 10, "Sent Imp Information about Your Request Exemption (DHS-3627) ", DHS_3627_CHECKBOX
+  CheckBox 10, 205, 205, 10, "Sent Notice of Denial of Good Cause Exemption (DHS-3628) ", DHS_3628_CHECKBOX
+  CheckBox 10, 215, 165, 10, "Sent Notice of Good Cause Approval (DHS-3629) ", DHS_3629_CHECKBOX
+  CheckBox 10, 225, 195, 10, "Sent Request to End Good Cause Exemption  (DHS-3631 )", DHS_3631_CHECKBOX
+  CheckBox 10, 235, 180, 10, "Sent Request for Additional Information (DHS 3632)", DHS_3632_CHECKBOX
+  CheckBox 10, 245, 165, 10, "Sent Good Cause Yearly Determination Packet", Recert_CHECKBOX
+  CheckBox 10, 265, 240, 10, "Good Cause Client Statement (DHS-2338) is in ECF and completed in full", DHS_2338_complete_CHECKBOX
+  CheckBox 10, 255, 195, 10, "Sent Good Cause Redetermination Approval ( DHS 3633)", DHS_3633_CHECKBOX
   ButtonGroup ButtonPressed
-    OkButton 270, 270, 50, 15
-    CancelButton 325, 270, 50, 15
+    OkButton 270, 265, 50, 15
+    CancelButton 325, 265, 50, 15
   Text 115, 50, 55, 10, "Actual date:"
   Text 90, 70, 25, 10, "Action:"
   Text 235, 70, 30, 10, "Reason:"
