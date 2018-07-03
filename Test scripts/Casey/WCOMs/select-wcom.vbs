@@ -5,7 +5,7 @@ STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 90                               'manual run time in seconds
 STATS_denomination = "C"       'C is for each CASE
 'END OF stats block==============================================================================================
-
+'run_locally = TRUE
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -613,7 +613,7 @@ Do      'Just made this  loop - this needs sever testing.
             End If
             If others_on_eats = FALSE Then only_elig_checkbox = checked
         End If
-        MsgBox "single person - " & single_person & vbNewLine & "others on eats - " & others_on_eats
+        'MsgBox "single person - " & single_person & vbNewLine & "others on eats - " & others_on_eats
 
         BeginDialog wcom_details_dlg, 0, 0, 236, 60, "WCOM Details"
           EditBox 95, 5, 135, 15, deceased_client
@@ -866,7 +866,7 @@ Do      'Just made this  loop - this needs sever testing.
 
     'This assesses if the message generated is too long for WCOM. If so then the checklist will reappear along with each selected WCOM dialog so it can be changed
     If UBOUND(WCOM_TO_WRITE_ARRAY) > 14 Then big_err_msg = big_err_msg & vbNewLine & "The amount of text/information that is being added to WCOM will exceed the 15 lines available on MAXIS WCOMs. Please reduce the number of WCOMs that have been selected or reduce the amount of text in the selected WCOM."
-    MsgBox "UBOUND of array is " & UBOUND(WCOM_TO_WRITE_ARRAY)
+    'MsgBox "UBOUND of array is " & UBOUND(WCOM_TO_WRITE_ARRAY)
 
     ' If end_of_wcom_row > 14 Then big_err_msg = big_err_msg & vbNewLine & "The amount of text/information that is being added to WCOM will exceed the 15 lines available on MAXIS WCOMs. Please reduce the number of WCOMs that have been selected or reduce the amount of text in the selected WCOM."
     ' MsgBox "End of WCOM ROW is " & end_of_wcom_row
@@ -879,7 +879,7 @@ Do      'Just made this  loop - this needs sever testing.
             wcom_to_display = wcom_to_display & vbNewLine & msg_line
         end if
     Next
-    MsgBox wcom_to_display
+    'MsgBox wcom_to_display
 
     If big_err_msg <> "" Then MsgBox "*** Please resolved the following to continue ***" & vbNewLine & big_err_msg
 Loop until big_err_msg = ""
@@ -905,12 +905,9 @@ For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
 
         For each msg_line in WCOM_TO_WRITE_ARRAY        'each line in this array will be written to the WCOM
             CALL write_variable_in_SPEC_MEMO(msg_line)
-            EMReadScreen page_full_check, 12, 24, 2
-            MsgBox page_full_check
-            If page_full_check = "END OF INPUT" Then script_end_procedure("The WCOM area is already full and no additional informaion can be added. This script should be run prior to adding manual WCOMs.")
         Next
 
-        MsgBox "Look"
+        'MsgBox "Look"
         PF4     'Save the WCOM
         PF3     'Exit the WCOM
 
