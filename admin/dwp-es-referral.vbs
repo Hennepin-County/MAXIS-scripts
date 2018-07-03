@@ -2,7 +2,7 @@
 name_of_script = "NOTICES - DWP ES REFFERAL.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 280                     'manual run time in seconds
+STATS_manualtime = 340                     'manual run time in seconds
 STATS_denomination = "C"       			   'C is for each CASE
 'END OF stats block==============================================================================================
 
@@ -52,20 +52,24 @@ changelog_display
 
 'DIALOG----------------------------------------------------------------------------------------------------
 'This is a Hennepin specific dialog, should not be used for other counties!!!!!!!!
-BeginDialog referral_dialog, 0, 0, 291, 100, "ES Letter and Referral"
+BeginDialog referral_dialog, 0, 0, 291, 130, "ES Letter and Referral"
   EditBox 90, 10, 55, 15, MAXIS_case_number
   EditBox 210, 10, 75, 15, member_number
   DropListBox 90, 35, 195, 15, "Select one..."+chr(9)+"Bloomington (Tuesdays @ 9:00 a.m.)"+chr(9)+"Bloomington (Wednesdays @ 1:00 p.m.)"+chr(9)+"Bloomington (Thursdays @ 9:00 a.m.)"+chr(9)+"Brooklyn Center (Tuesdays @ 9:00 a.m.)"+chr(9)+"Brooklyn Center (Thursdays @ 9:00 a.m.)"+chr(9)+"North Mpls (Tuesdays @ 9:00 a.m.)"+chr(9)+"North Mpls (Wednesdays @ 9:00 a.m.)"+chr(9)+"South Mpls (Tuesdays @ 1:00 p.m.)"+chr(9)+"South Mpls (Wednesdays @ 9:00 a.m.)", interview_location
-  EditBox 90, 55, 195, 15, other_referral_notes
-  EditBox 90, 80, 85, 15, worker_signature
+  DropListBox 90, 60, 60, 15, "Select one..."+chr(9)+"Scheduled"+chr(9)+"Rescheduled", appt_type
+  EditBox 210, 60, 75, 15, vendor_num
+  EditBox 90, 85, 195, 15, other_referral_notes
+  EditBox 90, 110, 85, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 180, 80, 50, 15
-    CancelButton 235, 80, 50, 15
-  Text 5, 40, 85, 10, "Choose location and time:"
+    OkButton 180, 110, 50, 15
+    CancelButton 235, 110, 50, 15
   Text 40, 15, 50, 10, "Case Number:"
-  Text 20, 60, 65, 10, "Other referral notes:"
+  Text 20, 90, 65, 10, "Other referral notes:"
   Text 155, 15, 55, 10, "HH Memb # (s):"
-  Text 25, 85, 60, 10, "Worker Signature:"
+  Text 25, 115, 60, 10, "Worker Signature:"
+  Text 5, 40, 85, 10, "Choose location and time:"
+  Text 25, 65, 60, 10, "Appointment type:"
+  Text 170, 65, 40, 10, "Vendor #'s:"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -84,6 +88,7 @@ DO
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF trim(member_number) = "" then err_msg = err_msg & vbNewLine & "* Enter a 2 digit member number, or more than one HH members separated by a comma."
 		If interview_location = "Select one..." then err_msg = err_msg & vbNewLine & "* Enter an interview location."
+        if appt_type = "Select one..." THEN err_msg = err_msg & vbCr & "* Please enter the appointment type."
 		If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
@@ -265,11 +270,9 @@ For each member_number in member_array
         Call fix_case(client_name, 1)
         Call fix_case(first_name, 1)	
         client_name = trim(client_name)
-        msgbox client_name & vbcr & first_name
             
         'Ensuring that students have a FSET status of "12" and all others are coded with "30"
         EMReadScreen under_one, 1, 12, 76
-        'msgbox under_one
         If under_one = "Y" then 
         	Do 				'loops until user passwords back in
                 exemption_confirmation = MsgBox("Press YES to continue to make the referral. Press NO to skip this member. Press CANCEL to stop the script.", vbYesNoCancel + vbQuestion, "Member is coded as FT care of child under one.")
@@ -295,16 +298,18 @@ Next
 For each member_number in member_array 
     If make_referral = True then 
         appointment_time = appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM
-    
+        
         'The CASE/NOTE----------------------------------------------------------------------------------------------------
         'Navigates to a blank case note
         start_a_blank_CASE_NOTE
-        CALL write_variable_in_case_note("** DWP ES referral letter sent for MEMB " & member_number & " **")
+        CALL write_variable_in_case_note("**DWP ES referral Appt " & appt_type & " for MEMB " & member_number & "**")
         Call write_variable_in_case_note("* Member referred to ES: #" &  member_number & ", " & client_name)
         CALL write_bullet_and_variable_in_case_note("Appointment date", appointment_date)
         CALL write_bullet_and_variable_in_case_note("Appointment time", appointment_time)
         CALL write_bullet_and_variable_in_case_note("Appointment location", provider_name)
+        CALL write_variable_in_case_note("-")
         Call write_bullet_and_variable_in_case_note("Other referral notes", other_referral_notes)
+        Call write_bullet_and_variable_in_CASE_NOTE("Vendor #(s)", vendor_num)
         CALL write_variable_in_case_note("---")
         CALL write_variable_in_case_note(worker_signature)
         
@@ -360,10 +365,10 @@ If make_referral = true then
     Do 
         EMReadScreen ES_popup, 11, 2, 37
         IF ES_popup = "ES Provider" then Call write_value_and_transmit("X", provider_row, 9)
-        'msgbox provider_row
     Loop until ES_popup <> "ES Provider"
         												
     EMWriteScreen appointment_date & ", " & appointment_time & ", " & provider_name, 17, 6		'enters the location, date and time for Hennepin Co ES providers (per request)'
+    EmWriteScreen other_referral_notes, 18,6
     PF3			
     Call write_value_and_transmit("Y", 11, 64)		'Y to confirm save and saves referral
     
