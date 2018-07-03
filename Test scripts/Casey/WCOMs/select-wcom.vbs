@@ -333,6 +333,8 @@ EMWriteScreen MAXIS_footer_year, 3, 51
 
 transmit
 
+'TODO add functionality to read if the WCOM is blank, if not END the script, citing that the WCOMs must be blank and this script run frist.
+
 'setting these variables
 'IDEA the WCOMs available will vary depending on the type of notice that was selected - since each program has different WCOM needs
 SNAP_notice = FALSE
