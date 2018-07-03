@@ -1,4 +1,3 @@
-@@ -1,335 +0,0 @@
 'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - CS GOOD CAUSE.vbs"
 start_time = timer
