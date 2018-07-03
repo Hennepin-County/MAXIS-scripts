@@ -2,7 +2,7 @@
 name_of_script = "BULK - REPT-IEVC LIST.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 35                               'manual run time, per line, in seconds
+STATS_manualtime = 39                               'manual run time, per line, in seconds
 STATS_denomination = "I"       'I is for each ITEM
 'END OF stats block==============================================================================================
 
