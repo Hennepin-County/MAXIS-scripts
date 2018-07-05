@@ -54,7 +54,7 @@ Function declare_NOTES_menu_dialog(script_array)
 	  	ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 30, 15, "# - N", 				a_to_n_button
 		 	PushButton 045, 35, 30, 15, "P - Z", 				p_to_z_button
-		 	
+
 		'This starts here, but it shouldn't end here :)
 		vert_button_position = 70
 
@@ -327,14 +327,14 @@ Do
 	ElseIf ButtonPressed = p_to_z_button then
 		declare_NOTES_menu_dialog(script_array_p_to_z)
 	End if
-	
+
 	dialog NOTES_dialog
 	If ButtonPressed = 0 then stopscript
-	
+
     'Opening the SIR Instructions
 	'IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notes%20scripts.aspx")
 Loop until 	ButtonPressed <> a_to_n_button and _
-			ButtonPressed <> p_to_z_button 
+			ButtonPressed <> p_to_z_button
 
 'MsgBox buttonpressed = script_array_a_to_n(0).button
 
