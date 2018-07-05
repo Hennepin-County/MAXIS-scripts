@@ -119,6 +119,7 @@ Do
                 EMReadScreen total_versions, 2, row, 64
                 If total_versions = "01" Then
                     error_processing_msg = error_processing_msg & vbNewLine & "Appears HC eligibility was not approved in " & approval_month & "/" & approval_year & " for " & clt_ref_num & ", please approve HC and rerunscript."
+                    Exit Do
                 Else
                     EMReadScreen current_version, 2, row, 58
                     If current_version = "01" Then
@@ -161,7 +162,7 @@ Do
             budget_type = method_check
             approved_check = checked
             Exit Do
-        Else 
+        Else
             LTC_case = FALSE
         End If
     End If
