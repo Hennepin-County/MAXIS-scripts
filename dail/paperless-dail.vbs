@@ -1,9 +1,9 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
 name_of_script = "DAIL - paperless IR.vbs"
 start_time = timer
-STATS_counter = 1              'sets the stats counter at 0 because each iteration of the loop which counts the dail messages adds 1 to the counter.
-STATS_manualtime = 75          'manual run time in seconds
-STATS_denomination = "C"       'I is for each dail message
+STATS_counter = 1              'sets the stats counter at 1
+STATS_manualtime = 90          'manual run time in seconds
+STATS_denomination = "C"       'C is for each case
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once

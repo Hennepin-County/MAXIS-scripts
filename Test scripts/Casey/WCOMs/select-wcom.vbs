@@ -333,7 +333,50 @@ EMWriteScreen MAXIS_footer_year, 3, 51
 
 transmit
 
-'TODO add functionality to read if the WCOM is blank, if not END the script, citing that the WCOMs must be blank and this script run frist.
+'This will cycle through all the notices that are on WCOM
+For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
+
+    If NOTICES_ARRAY(selected, notices_listed) = checked Then   'If the worker selected the notice
+        'Navigate to the correct SPEC screen to select the notice
+        Call navigate_to_MAXIS_screen ("SPEC", notice_panel)
+
+        EMWriteScreen MAXIS_footer_month, 3, 46
+        EMWriteScreen MAXIS_footer_year, 3, 51
+
+        transmit
+
+        'Open the Notice
+        EMWriteScreen "X", NOTICES_ARRAY(MAXIS_row, notices_listed), 13
+        transmit
+
+        PF9     'Put in to edit mode - the worker comment input screen
+
+        'Checking to see that the WCOM goes in to edit mode because otherwise we can't add WCOMs
+        EMReadScreen edit_mode_check, 18, 24, 36
+        If edit_mode_check = "UPDATE NOT ALLOWED" Then
+            PF3
+            end_msg = "Could not put the WCOM (" & NOTICES_ARRAY(information, notices_listed) & ") in to EDIT mode to add a WCOM. Likely this notice has already been printed. Review the notices on this case and run the script again if needed."
+            script_end_procedure(end_msg)
+        End If
+
+        'Making sure there is no other text entered in the WCOM area as it needs to be open to being written in.
+        For wcom_row = 3 to 17
+            EMReadScreen wcom_line, 60, wcom_row, 15
+            'msgBox "~" & wcom_line & "~"
+            If trim(wcom_line) <> "" Then
+                PF10
+                PF3
+                script_end_procedure("This script must be run before adding any additional WCOMs. If there is a manual WCOM to add, run the script first, then add the manual WCOM second.")
+            End If
+        Next
+
+        PF10    'exiting without saving since we didn't do anything yet
+        PF3
+
+        back_to_self
+        wcom_row = ""
+    End If
+Next
 
 'setting these variables
 'IDEA the WCOMs available will vary depending on the type of notice that was selected - since each program has different WCOM needs
