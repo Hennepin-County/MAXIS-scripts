@@ -117,6 +117,23 @@ objExcel.Cells(1, 8).Value     = "DIFF NOTICE SENT"
 objExcel.Cells(1, 8).Font.Bold = True
 objExcel.Cells(1, 9).Value     = "DATE DIFF NOTICE SENT"
 objExcel.Cells(1, 9).Font.Bold = True
+objExcel.Cells(1, 10).Value     = "REL"  client_rel
+
+objExcel.Cells(1, 11).Value     = "DOB" client_dob
+
+objExcel.Cells(1, 12).Value     = "SSN" client_ssn
+
+objExcel.Cells(1, 13).Value     = "TYPE" match_type
+
+objExcel.Cells(1, 14).Value     = "PROGRAM" active_programs
+
+objExcel.Cells(1, 15).Value     = "AMOUNT" income_amount
+
+objExcel.Cells(1, 16).Value     = "YEAR" match_year
+
+objExcel.Cells(1, 17).Value     = "EMPLOYER NAME" income_source
+
+objExcel.Cells(1, 18).Value     = "NONWAGE INCOME DATE" nonwage_date
 
 'This bit freezes the top row of the Excel sheet for better useability when there is a lot of information
 ObjExcel.ActiveSheet.Range("A2").Select
