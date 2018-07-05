@@ -1,5 +1,5 @@
 'GATHERING STATS===========================================================================================
-name_of_script = "NOTES - SHELTER-DIVERSION PROGRAM REFFERRAL RESULT.vbs"
+name_of_script = "NOTES - SHELTER DIVERSION PROGRAM REFFERRAL RESULT.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 60
@@ -76,7 +76,6 @@ DO
 		Dialog dpr_dialog
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		If Isdate(referral_date) = False then err_msg = err_msg & vbNewLine & "* Enter the date the request was sent."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & "(enter NA in all fields that do not apply)" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -91,8 +90,8 @@ EMWriteScreen CM_yr, 20, 46
 
 'The case note'
 start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE("### Diversion Program Referral ###")
-Call write_bullet_and_variable_in_CASE_NOTE("Client was voluntarily referred to Diversion Navigators on", referral_date)
+Call write_variable_in_CASE_NOTE("### Diversion Program Referral Result ###")
+Call write_bullet_and_variable_in_CASE_NOTE("Client " & will_checkbox & " be working with the Diversion Navigation Program ", referral_date)
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE ("---")
 Call write_variable_in_CASE_NOTE(worker_signature)

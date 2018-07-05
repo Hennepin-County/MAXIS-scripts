@@ -54,7 +54,7 @@ Function declare_NOTES_menu_dialog(script_array)
 	  	ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 30, 15, "# - N", 				a_to_n_button
 		 	PushButton 045, 35, 30, 15, "P - Z", 				p_to_z_button
-		 	
+
 		'This starts here, but it shouldn't end here :)
 		vert_button_position = 70
 
@@ -150,6 +150,20 @@ Set script_array_a_to_n(script_num) = new script		'Set this array element to be 
 script_array_a_to_n(script_num).script_name 			= "Client Sheltered by Win A"																'Script name
 script_array_a_to_n(script_num).file_name 				= "shelter-client-sheltered-by-win-a.vbs"													'Script URL
 script_array_a_to_n(script_num).description 			= "Case note template for documenting details of contact with client at Window A."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
+Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_a_to_n(script_num).script_name 			= "Diversion Program Referral"																'Script name
+script_array_a_to_n(script_num).file_name 				= "shelter-diversion-program-referral.vbs"													'Script URL
+script_array_a_to_n(script_num).description 			= "Case note template for documenting details of Diversion Program Referral."
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
+Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_a_to_n(script_num).script_name 			= "Diversion Program Referral Result"																'Script name
+script_array_a_to_n(script_num).file_name 				= "shelter--diversion-program-referral-result.vbs"													'Script URL
+script_array_a_to_n(script_num).description 			= "Case note template for documenting details of Diversion Program Referral result."
+
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
@@ -327,14 +341,14 @@ Do
 	ElseIf ButtonPressed = p_to_z_button then
 		declare_NOTES_menu_dialog(script_array_p_to_z)
 	End if
-	
+
 	dialog NOTES_dialog
 	If ButtonPressed = 0 then stopscript
-	
+
     'Opening the SIR Instructions
 	'IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notes%20scripts.aspx")
 Loop until 	ButtonPressed <> a_to_n_button and _
-			ButtonPressed <> p_to_z_button 
+			ButtonPressed <> p_to_z_button
 
 'MsgBox buttonpressed = script_array_a_to_n(0).button
 

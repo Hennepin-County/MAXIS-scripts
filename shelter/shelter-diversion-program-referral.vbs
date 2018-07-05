@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - SHELTER-DIVERSION PROGRAM REFFERRAL.vbs"
+name_of_script = "NOTES - SHELTER DIVERSION PROGRAM REFFERRAL.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 60
