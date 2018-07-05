@@ -56,16 +56,17 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 referral_date = date & ""
 
 '----------------------------------------------------------------------------------------------------------DIALOG
-BeginDialog dpr_dialog, 0, 0, 246, 85, "Diversion Program Referral"
+BeginDialog dpr_dialog, 0, 0, 251, 85, "Diversion Program Referral Result"
   EditBox 55, 5, 40, 15, maxis_case_number
-  EditBox 195, 25, 45, 15, refferral_date
-  EditBox 45, 45, 195, 15, other_notes
+  DropListBox 30, 25, 50, 15, "Select:"+chr(9)+"will"+chr(9)+"will not", will_checkbox
+  EditBox 45, 45, 200, 15, other_notes
   ButtonGroup ButtonPressed
-    OkButton 135, 65, 50, 15
-    CancelButton 190, 65, 50, 15
-  Text 5, 50, 40, 10, "Comments: "
-  Text 5, 30, 190, 10, "Client was voluntarily referred to Diversion Navigators on:"
+    OkButton 140, 65, 50, 15
+    CancelButton 195, 65, 50, 15
+  Text 85, 30, 165, 10, "be working with the Diversion Navigation Program"
   Text 5, 10, 50, 10, "Case Number:"
+  Text 5, 30, 20, 10, "Client"
+  Text 5, 50, 40, 10, "Comments: "
 EndDialog
 
 'Running the initial dialog
