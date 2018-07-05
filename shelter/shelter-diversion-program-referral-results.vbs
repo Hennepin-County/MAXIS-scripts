@@ -1,5 +1,5 @@
 'GATHERING STATS===========================================================================================
-name_of_script = "NOTES - SHELTER-ACF USED.vbs"
+name_of_script = "NOTES - SHELTER-DIVERSION PROGRAM REFFERRAL RESULT.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 60
@@ -44,50 +44,57 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("08/01/2017", "Initial version.", "MiKayla Handley, Hennepin County")
+call changelog_update("07/05/2018", "Initial version.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
+'----------------------------------------------------------------------------------------------------------SCRIPT
 EMConnect ""
- 
-CALL MAXIS_case_number_finder (MAXIS_case_number)
-memb_number = "01"
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+'autofilling the review_date variable with the current date
+referral_date = date & ""
 
-BeginDialog ACF_used, 0, 0, 231, 90, "ACF Used for Shelter Stay"
-  EditBox 110, 10, 50, 15, Shelter_stay_bgn
-  EditBox 175, 10, 50, 15, Shelter_stay_end
-  EditBox 75, 30, 50, 15, EA_avail_date
-  EditBox 45, 50, 180, 15, Comments_notes
+'----------------------------------------------------------------------------------------------------------DIALOG
+BeginDialog dpr_dialog, 0, 0, 246, 85, "Diversion Program Referral"
+  EditBox 55, 5, 40, 15, maxis_case_number
+  EditBox 195, 25, 45, 15, refferral_date
+  EditBox 45, 45, 195, 15, other_notes
   ButtonGroup ButtonPressed
-    OkButton 120, 70, 50, 15
-    CancelButton 175, 70, 50, 15
-  Text 5, 35, 70, 10, "EA will be available:"
-  Text 165, 15, 10, 10, "to"
-  Text 5, 15, 105, 10, "Use ACF for Shelter Stay Dates:"
-  Text 5, 55, 40, 10, "Comments: "
+    OkButton 135, 65, 50, 15
+    CancelButton 190, 65, 50, 15
+  Text 5, 50, 40, 10, "Comments: "
+  Text 5, 30, 190, 10, "Client was voluntarily referred to Diversion Navigators on:"
+  Text 5, 10, 50, 10, "Case Number:"
 EndDialog
 
-Do
-	Do
+'Running the initial dialog
+DO
+	DO
 		err_msg = ""
-		dialog ACF_used
-		IF buttonpressed = 0 then stopscript 
-		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
-		IF isdate(Shelter_stay_bgn) = False then err_msg = err_msg & vbnewline & "* Enter a valid date of for the start of shelter stay."
-		IF isdate(shelter_stay_end) = False then err_msg = err_msg & vbnewline & "* Enter a valid date of for the end of shelter stay."
-        IF isdate(EA_avail_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid date of for EA availablity."
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+		Dialog dpr_dialog
+		cancel_confirmation
+		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+		If Isdate(referral_date) = False then err_msg = err_msg & vbNewLine & "* Enter the date the request was sent."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & "(enter NA in all fields that do not apply)" & vbNewLine & err_msg & vbNewLine
+	LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-start_a_blank_CASE_NOTE
-	Call write_variable_in_CASE_NOTE ("### ACF Used for Shelter Stay " & Shelter_stay_bgn & "-" & Shelter_stay_end & " ###")
-	Call write_bullet_and_variable_in_CASE_NOTE("EA will be available", EA_avail_date)
-	Call write_bullet_and_variable_in_case_note("Comments", Comments_Notes)
-	Call write_variable_in_CASE_NOTE ("-----")
-	Call write_variable_in_CASE_NOTE ("Hennepin County Shelter Team")
+'adding the case number
+back_to_self
+EMWriteScreen "________", 18, 43
+EMWriteScreen MAXIS_case_number, 18, 43
+EMWriteScreen CM_mo, 20, 43	'entering current footer month/year
+EMWriteScreen CM_yr, 20, 46
 
-script_end_procedure ("")
+'The case note'
+start_a_blank_CASE_NOTE
+Call write_variable_in_CASE_NOTE("### Diversion Program Referral ###")
+Call write_bullet_and_variable_in_CASE_NOTE("Client was voluntarily referred to Diversion Navigators on", referral_date)
+Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+Call write_variable_in_CASE_NOTE ("---")
+Call write_variable_in_CASE_NOTE(worker_signature)
+Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
+
+script_end_procedure("")
