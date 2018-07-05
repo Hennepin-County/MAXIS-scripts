@@ -91,7 +91,7 @@ EMWriteScreen CM_yr, 20, 46
 'The case note'
 start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("### Diversion Program Referral Result ###")
-Call write_bullet_and_variable_in_CASE_NOTE("Client " & will_checkbox & " be working with the Diversion Navigation Program ", referral_date)
+Call write_variable_in_CASE_NOTE("Client " & will_checkbox & " be working with the Diversion Navigation Program ")
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE ("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
