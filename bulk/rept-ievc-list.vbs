@@ -109,7 +109,7 @@ objExcel.Cells(1, 6).Value     = "TYPE" 'match_type IDLA
 objExcel.Cells(1, 7).Value     = "COVERED PERIOD" 'covered_period
 objExcel.Cells(1, 8).Value     = "DAYS REMAINING" 'days_remaining
 objExcel.Cells(1, 9).Value     = "DOB" 'client_dob
-objExcel.Cells(1, 10).Value    = "TYPE" 'match_type
+objExcel.Cells(1, 10).Value    = "STATUS" 'overdue
 objExcel.Cells(1, 11).Value    = "PROGRAM" 'active_programs
 objExcel.Cells(1, 12).Value    = "DIFF NOTICE SENT" 'diff_notc_sent
 objExcel.Cells(1, 13).Value    = "DATE DIFF NOTICE SENT" 'diff_notc_date
@@ -120,8 +120,10 @@ objExcel.Cells(1, 17).Value    = "NONWAGE INCOME DATE" 'nonwage_date
 objExcel.Cells(1, 18).Value    = "SUPERVISOR ID" 'supervisor_id
 objExcel.Cells(1, 19).Value    = "WORKER NAME" 'worker_name
 
-'FOR objExcel.Cells(i, 19).Font.Bold = True
 
+For excel_row = 1 to 19
+	objExcel.Cells(excel_row).Font.Bold = True
+Next
 'This bit freezes the top row of the Excel sheet for better useability when there is a lot of information
 ObjExcel.ActiveSheet.Range("A2").Select
 objExcel.ActiveWindow.FreezePanes = True
@@ -189,12 +191,12 @@ For each x_number in x_number_array
 
 			EMReadScreen days_remaining, 6, IEVC_Row, 74		'Reads how the days left to resolve the match and adds to excel
 			days_remaining = trim(days_remaining)
-			objExcel.Cells(excel_row, 7).Value = days_remaining
-			objExcel.Cells(excel_row, 7).NumberFormat = "0"
+			objExcel.Cells(excel_row, 8).Value = days_remaining
+			objExcel.Cells(excel_row, 8).NumberFormat = "0"
 			If left(days_remaining, 1) = "(" Then 				'If this is a negative number - listed in () on the panel
 				objExcel.Cells(excel_row, 10).Value = "OVERDUE!"		'Adds this to the spreadsheet
 				objExcel.Cells(excel_row, 10).Font.Bold = True 		'Highlights the overdue word
-				For col = 1 to 10
+				For col = 1 to 19
 					objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
 				Next
 			End If
@@ -210,7 +212,7 @@ For each x_number in x_number_array
 
 			EMReadScreen active_programs, 5, 7, 13			'Reads the client name and adds to excel
 			active_programs = trim(active_programs)
-			objExcel.Cells(excel_row, 14).Value = active_programs
+			objExcel.Cells(excel_row, 11).Value = active_programs
 
 			EMSearch "SEND IEVS DIFFERENCE NOTICE?", row, col 	'Finds where the difference notice code is - because it moves
 			EMReadScreen diff_notc_sent, 1, row, 36				'Reads if diff notice was sent or not
@@ -221,33 +223,33 @@ For each x_number in x_number_array
 
 			IF match_type = "A30" THEN 'BNDX'
 			row = 9
-				EMReadScreen income_amount, 12, row, 18			'Reads the client name and adds to excel
+				EMReadScreen income_amount, 15, row, 18			'Reads the client name and adds to excel
 				income_amount = trim(income_amount)
 				If instr(income_amount, "NOT") THEN 					  'establishing the length of the variable
 					position = InStr(income_amount, "NOT")    		      'sets the position at the deliminator
 					income_amount = left(income_amount, position - 1)  'establishes employer as being before the deliminator
 				END IF
-				objExcel.Cells(excel_row, 15).Value = income_amount
+				objExcel.Cells(excel_row, 14).Value = income_amount
 			END IF
 
 			IF match_type = "A40" THEN 'SDXS'
 			row = 9
-				EMReadScreen income_amount, 12, row, 14			'Reads the client name and adds to excel
+				EMReadScreen income_amount, 15, row, 14			'Reads the client name and adds to excel
 				income_amount = trim(income_amount)
 				If instr(income_amount, "NOT") THEN 					  'establishing the length of the variable
 					position = InStr(income_amount, "NOT")    		      'sets the position at the deliminator
 					income_amount = left(income_amount, position)  'establishes employer as being before the deliminator
 				END IF
-				objExcel.Cells(excel_row, 15).Value = income_amount
+				objExcel.Cells(excel_row, 14).Value = income_amount
 			END IF
 
 			IF match_type = "A50" THEN 'WAGE'
 			row = 9
-				EMReadScreen match_year, 4, row, 13			'Reads the client name and adds to excel
+				EMReadScreen match_year, 4, row, 16			'Reads the match_year and adds to excel
 				match_year = trim(match_year)
 				objExcel.Cells(excel_row, 15).Value = match_year
 
-				EMReadScreen income_source, 30, row, 31			'Reads the client name and adds to excel
+				EMReadScreen income_source, 16, row, 31			'Reads the income_source and adds to excel
 				income_source = trim(income_source)
 				If instr(income_source, "AMT: $") THEN 					  'establishing the length of the variable
 					position = InStr(income_source, "AMT: $")    		      'sets the position at the deliminator
@@ -256,88 +258,88 @@ For each x_number in x_number_array
 				objExcel.Cells(excel_row, 16).Value = income_source
 
 				EMSearch "AMT: $", row, col
-				EMReadScreen income_amount, 12, row, col + 9			'Reads the client name and adds to excel
+				EMReadScreen income_amount, 20, row, col + 9			'Reads the income_amount and adds to excel
 				income_amount = trim(income_amount)
 				If instr(income_amount, "AMT: $") THEN 					  'establishing the length of the variable
 					position = InStr(income_amount, "AMT: $")    		      'sets the position at the deliminator
-					income_amount = right(income_amount, position)  'establishes employer as being before the deliminator
+					income_amount = right(income_amount, position)  'establishes income_amount as being before the deliminator
 				END IF
-				objExcel.Cells(excel_row, 15).Value = income_amount
+				objExcel.Cells(excel_row, 14).Value = income_amount
 			END IF
 
 			IF match_type = "A51" THEN 'WAGE'
 			row = 9
-				EMReadScreen match_year, 4, row, 13			'Reads the client name and adds to excel
+				EMReadScreen match_year, 4, row, 16			'Reads the match_year and adds to excel
 				match_year = trim(match_year)
 				objExcel.Cells(excel_row, 15).Value = match_year
 
-				EMReadScreen income_source, 30, row, 31			'Reads the client name and adds to excel
+				EMReadScreen income_source, 16, row, 31			'Reads the income_source and adds to excel
 				income_source = trim(income_source)
 				If instr(income_source, "AMT: $") THEN 					  'establishing the length of the variable
 					position = InStr(income_source, "AMT: $")    		      'sets the position at the deliminator
-					income_source = Left(income_source, position)  'establishes employer as being before the deliminator
+					income_source = Left(income_source, position)  'establishes income_source as being before the deliminator
 				END IF
 				objExcel.Cells(excel_row, 16).Value = income_source
 
 				EMSearch "AMT: $", row, col
-				EMReadScreen income_amount, 12, row, col + 9			'Reads the client name and adds to excel
+				EMReadScreen income_amount, 20, row, col + 9			'Reads the income_amount and adds to excel
 				income_amount = trim(income_amount)
 				If instr(income_amount, "AMT: $") THEN 					  'establishing the length of the variable
 					position = InStr(income_amount, "AMT: $")    		      'sets the position at the deliminator
-					income_amount = right(income_amount, position)  'establishes employer as being before the deliminator
+					income_amount = right(income_amount, position)  'establishes income_amount as being before the deliminator
 				END IF
-				objExcel.Cells(excel_row, 15).Value = income_amount
+				objExcel.Cells(excel_row, 14).Value = income_amount
 			END IF
 
 			IF match_type = "A60" THEN 'UBEN'
 			row = 9
-				EMReadScreen nonwage_date, 10, row, 39			'Reads the client name and adds to excel
+				EMReadScreen nonwage_date, 10, row, 39			'Reads the nonwage_date and adds to excel
 				nonwage_date = trim(nonwage_date)
 				objExcel.Cells(excel_row, 17).Value = nonwage_date
 
-				EMReadScreen income_amount, 12, row, 11			'Reads the client name and adds to excel
+				EMReadScreen income_amount, 20, row, 11			'Reads the income_amount and adds to excel
 				income_amount = trim(income_amount)
 				If instr(income_amount, "DATE") THEN 					  'establishing the length of the variable
 					position = InStr(income_amount, "DATE")    		      'sets the position at the deliminator
-					income_amount = left(income_amount, position)  'establishes employer as being before the deliminator
+					income_amount = left(income_amount, position)  'establishes income_amount as being before the deliminator
 				END IF
-				objExcel.Cells(excel_row, 15).Value = income_amount
+				objExcel.Cells(excel_row, 14).Value = income_amount
 			END IF
 
 			IF match_type = "A70" THEN 'BEER'
 			row = 9
-				EMReadScreen match_year, 2, row, 13			'Reads the client name and adds to excel
+				EMReadScreen match_year, 2, row, 9			'Reads the match_year and adds to excel
 				match_year = trim(match_year)
 				objExcel.Cells(excel_row, 15).Value = match_year
 
-				EMReadScreen income_source, 30, row, 22			'Reads the client name and adds to excel
+				EMReadScreen income_source, 16, row, 22			'Reads the income_source and adds to excel
 				income_source = trim(income_source)
 				If instr(income_source, "AMOUNT: $") THEN 					  'establishing the length of the variable
 				    position = InStr(income_source, "AMOUNT: $")    		      'sets the position at the deliminator
-				    income_source = Left(income_source, position)  'establishes employer as being before the deliminator
+				    income_source = Left(income_source, position)  'establishes income_source as being before the deliminator
 				END IF
 				objExcel.Cells(excel_row, 16).Value = income_source
 
 				EMSearch "AMOUNT: $", row, col
-				EMReadScreen income_amount, 12, row, col + 9			'Reads the client name and adds to excel
+				EMReadScreen income_amount, 20, row, col + 9			'Reads the income_amount and adds to excel
 				income_amount = trim(income_amount)
 				If instr(income_amount, "AMOUNT: $") THEN 					  'establishing the length of the variable
 				    position = InStr(income_amount, "AMOUNT: $")    		      'sets the position at the deliminator
-				    income_amount = right(income_amount, position)  'establishes employer as being before the deliminator
+				    income_amount = right(income_amount, position)  'establishes income_amount as being before the deliminator
 				END IF
-				objExcel.Cells(excel_row, 15).Value = income_amount
+				objExcel.Cells(excel_row, 14).Value = income_amount
 			END IF
 			'
 			'IF match_type = "A80" THEN 'UNVI '
 
 			'Active programs handling for case notes'
-			Active_Programs =trim(Active_Programs)
+			active_Programs = trim(ative_Programs)
 			programs = ""
-			IF instr(Active_Programs, "D") THEN programs = programs & "DWP, "
-			IF instr(Active_Programs, "F") THEN programs = programs & "Food Support, "
-			IF instr(Active_Programs, "H") THEN programs = programs & "Health Care, "
-			IF instr(Active_Programs, "M") THEN programs = programs & "Medical Assistance, "
-			IF instr(Active_Programs, "S") THEN programs = programs & "MFIP, "
+			IF instr(active_Programs, "D") THEN programs = programs & "DWP, "
+			IF instr(active_Programs, "F") THEN programs = programs & "Food Support, "
+			IF instr(active_Programs, "H") THEN programs = programs & "Health Care, "
+			IF instr(active_Programs, "M") THEN programs = programs & "Medical Assistance, "
+			IF instr(active_Programs, "S") THEN programs = programs & "MFIP, "
 			'trims excess spaces of programs
 			programs = trim(programs)
 			'takes the last comma off of programs when autofilled into dialog
@@ -373,12 +375,12 @@ objExcel.Cells(5, 22).Font.Bold = TRUE
 
 ObjExcel.Cells(2, 22).Value = "Query date and time:"	'Goes back one, as this is on the next row
 ObjExcel.Cells(2, 23).Value = now
-ObjExcel.Cells(3, 24).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
-ObjExcel.Cells(3, 25).Value = timer - query_start_time
-ObjExcel.Cells(4, 26).Value = "Number of IEVS with No DAYS remaining:"
-objExcel.Cells(4, 27).Value = "=COUNTIFS(G:G, " & Chr(34) & "<=0" & Chr(34) & ", H:H, " & excel_is_not_blank & ")"	'Excel formula
-ObjExcel.Cells(5, 28).Value = "Number of total UNRESOLVED IEVS:"
-objExcel.Cells(5, 29).Value = "=(COUNTIF(H:H, " & excel_is_not_blank & ")-1)"	'Excel formula
+ObjExcel.Cells(3, 22).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
+ObjExcel.Cells(3, 23).Value = timer - query_start_time
+ObjExcel.Cells(4, 22).Value = "Number of IEVS with No DAYS remaining:"
+objExcel.Cells(4, 23).Value = "=COUNTIFS(G:G, " & Chr(34) & "<=0" & Chr(34) & ", H:H, " & excel_is_not_blank & ")"	'Excel formula
+ObjExcel.Cells(5, 22).Value = "Number of total UNRESOLVED IEVS:"
+objExcel.Cells(5, 23).Value = "=(COUNTIF(H:H, " & excel_is_not_blank & ")-1)"	'Excel formula
 
 
 'Formatting the column width.
