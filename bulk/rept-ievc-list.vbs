@@ -220,22 +220,111 @@ For each x_number in x_number_array
 			objExcel.Cells(excel_row, 13).Value = diff_notc_date
 
 			IF match_type = "A30" THEN 'BNDX'
+			row = 9
+				EMReadScreen income_amount, 12, row, 19			'Reads the client name and adds to excel
+				income_amount = trim(income_amount)
+				If instr(income_amount, "NOT") THEN 					  'establishing the length of the variable
+					position = InStr(income_amount, "NOT")    		      'sets the position at the deliminator
+					income_amount = left(income_amount, position)  'establishes employer as being before the deliminator
+				END IF
+				objExcel.Cells(excel_row, 15).Value = income_amount
+			END IF
+
 			IF match_type = "A40" THEN 'SDXS'
+			row = 9
+				EMReadScreen income_amount, 12, row, 14			'Reads the client name and adds to excel
+				income_amount = trim(income_amount)
+				If instr(income_amount, "NOT") THEN 					  'establishing the length of the variable
+					position = InStr(income_amount, "NOT")    		      'sets the position at the deliminator
+					income_amount = left(income_amount, position)  'establishes employer as being before the deliminator
+				END IF
+				objExcel.Cells(excel_row, 15).Value = income_amount
+			END IF
+
 			IF match_type = "A50" THEN 'WAGE'
-			IF match_type = "A51" THEN 'WAGE'
-			IF match_type = "A60" THEN 'UBEN'
-			IF match_type = "A70" THEN 'BEER'
-				EMReadScreen match_year, 5, 7, 13			'Reads the client name and adds to excel
+			row = 9
+				EMReadScreen match_year, 4, row, 13			'Reads the client name and adds to excel
 				match_year = trim(match_year)
 				objExcel.Cells(excel_row, 15).Value = match_year
 
-				EMReadScreen income_source, 30, 9, 22			'Reads the client name and adds to excel
+				EMReadScreen income_source, 30, row, 31			'Reads the client name and adds to excel
 				income_source = trim(income_source)
+				If instr(source_income, "AMT: $") THEN 					  'establishing the length of the variable
+					position = InStr(source_income, "AMT: $")    		      'sets the position at the deliminator
+					source_income = Left(source_income, position)  'establishes employer as being before the deliminator
+				END IF
+				objExcel.Cells(excel_row, 15).Value = income_source
+
+				EMSearch "AMT: $", row, col
+				EMReadScreen income_amount, 12, row, col + 9			'Reads the client name and adds to excel
+				income_amount = trim(income_amount)
+				If instr(income_amount, "AMT: $") THEN 					  'establishing the length of the variable
+					position = InStr(income_amount, "AMT: $")    		      'sets the position at the deliminator
+					income_amount = right(income_amount, position)  'establishes employer as being before the deliminator
+				END IF
+				objExcel.Cells(excel_row, 15).Value = income_amount
+			END IF
+
+			IF match_type = "A51" THEN 'WAGE'
+			row = 9
+				EMReadScreen match_year, 4, row, 13			'Reads the client name and adds to excel
+				match_year = trim(match_year)
+				objExcel.Cells(excel_row, 15).Value = match_year
+
+				EMReadScreen income_source, 30, row, 31			'Reads the client name and adds to excel
+				income_source = trim(income_source)
+				If instr(source_income, "AMT: $") THEN 					  'establishing the length of the variable
+					position = InStr(source_income, "AMT: $")    		      'sets the position at the deliminator
+					source_income = Left(source_income, position)  'establishes employer as being before the deliminator
+				END IF
+				objExcel.Cells(excel_row, 15).Value = income_source
+
+				EMSearch "AMT: $", row, col
+				EMReadScreen income_amount, 12, row, col + 9			'Reads the client name and adds to excel
+				income_amount = trim(income_amount)
+				If instr(income_amount, "AMT: $") THEN 					  'establishing the length of the variable
+					position = InStr(income_amount, "AMT: $")    		      'sets the position at the deliminator
+					income_amount = right(income_amount, position)  'establishes employer as being before the deliminator
+				END IF
+				objExcel.Cells(excel_row, 15).Value = income_amount
+			END IF
+
+			IF match_type = "A60" THEN 'UBEN'
+			row = 9
+				EMReadScreen nonwage_date, 10, row, 39			'Reads the client name and adds to excel
+				nonwage_date = trim(nonwage_date)
+				objExcel.Cells(excel_row, 17).Value = nonwage_date
+
+				EMReadScreen income_amount, 12, row, 11			'Reads the client name and adds to excel
+				income_amount = trim(income_amount)
+				If instr(income_amount, "DATE") THEN 					  'establishing the length of the variable
+					position = InStr(income_amount, "DATE")    		      'sets the position at the deliminator
+					income_amount = left(income_amount, position)  'establishes employer as being before the deliminator
+				END IF
+				objExcel.Cells(excel_row, 15).Value = income_amount
+			END IF
+
+			IF match_type = "A70" THEN 'BEER'
+			row = 9
+				EMReadScreen match_year, 2, row, 13			'Reads the client name and adds to excel
+				match_year = trim(match_year)
+				objExcel.Cells(excel_row, 15).Value = match_year
+
+				EMReadScreen income_source, 30, row, 22			'Reads the client name and adds to excel
+				income_source = trim(income_source)
+				If instr(source_income, "AMOUNT: $") THEN 					  'establishing the length of the variable
+				    position = InStr(source_income, "AMOUNT: $")    		      'sets the position at the deliminator
+				    source_income = Left(source_income, position)  'establishes employer as being before the deliminator
+				END IF
 				objExcel.Cells(excel_row, 15).Value = income_source
 
 				EMSearch "AMOUNT: $", row, col
 				EMReadScreen income_amount, 12, row, col + 9			'Reads the client name and adds to excel
 				income_amount = trim(income_amount)
+				If instr(income_amount, "AMOUNT: $") THEN 					  'establishing the length of the variable
+				    position = InStr(income_amount, "AMOUNT: $")    		      'sets the position at the deliminator
+				    income_amount = right(income_amount, position)  'establishes employer as being before the deliminator
+				END IF
 				objExcel.Cells(excel_row, 15).Value = income_amount
 			END IF
 			IF match_type = "A80" THEN 'UNVI '
