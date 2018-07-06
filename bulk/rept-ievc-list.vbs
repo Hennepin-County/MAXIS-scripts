@@ -99,41 +99,42 @@ objExcel.DisplayAlerts = True
 ObjExcel.ActiveSheet.Name = "Case information"
 
 'Excel headers and formatting the columns
-objExcel.Cells(1, 1).Value     = "SUPERVISOR ID"
+
+objExcel.Cells(1, 1).Value     = "CASE NBR"
 objExcel.Cells(1, 1).Font.Bold = True
-objExcel.Cells(1, 2).Value     = "X1 NUMBER"
+objExcel.Cells(1, 2).Value     = "CLIENT NAME"
 objExcel.Cells(1, 2).Font.Bold = True
-objExcel.Cells(1, 3).Value     = "WORKER NAME"
-objExcel.Cells(1, 3).Font.Bold = True
-objExcel.Cells(1, 4).Value     = "CASE NBR"
+objExcel.Cells(1, 3).Value     = "COVERED PERIOD"
 objExcel.Cells(1, 4).Font.Bold = True
-objExcel.Cells(1, 5).Value     = "CLIENT NAME"
+objExcel.Cells(1, 5).Value     = "DAYS REMAINING"
 objExcel.Cells(1, 5).Font.Bold = True
-objExcel.Cells(1, 6).Value     = "COVERED PERIOD"
+objExcel.Cells(1, 6).Value     = "DIFF NOTICE SENT"
 objExcel.Cells(1, 6).Font.Bold = True
-objExcel.Cells(1, 7).Value     = "DAYS REMAINING"
+objExcel.Cells(1, 7).Value     = "DATE DIFF NOTICE SENT"
 objExcel.Cells(1, 7).Font.Bold = True
-objExcel.Cells(1, 8).Value     = "DIFF NOTICE SENT"
-objExcel.Cells(1, 8).Font.Bold = True
-objExcel.Cells(1, 9).Value     = "DATE DIFF NOTICE SENT"
-objExcel.Cells(1, 9).Font.Bold = True
-objExcel.Cells(1, 10).Value     = "REL"  client_rel
+objExcel.Cells(1, 8).Value     = "REL"  client_rel
 
-objExcel.Cells(1, 11).Value     = "DOB" client_dob
+objExcel.Cells(1, 9).Value     = "DOB" client_dob
 
-objExcel.Cells(1, 12).Value     = "SSN" client_ssn
+objExcel.Cells(1, 10).Value     = "SSN" client_ssn
 
-objExcel.Cells(1, 13).Value     = "TYPE" match_type
+objExcel.Cells(1, 11).Value     = "TYPE" match_type
 
-objExcel.Cells(1, 14).Value     = "PROGRAM" active_programs
+objExcel.Cells(1, 12).Value     = "PROGRAM" active_programs
 
-objExcel.Cells(1, 15).Value     = "AMOUNT" income_amount
+objExcel.Cells(1, 13).Value     = "AMOUNT" income_amount
 
-objExcel.Cells(1, 16).Value     = "YEAR" match_year
+objExcel.Cells(1, 14).Value     = "YEAR" match_year
 
-objExcel.Cells(1, 17).Value     = "EMPLOYER NAME" income_source
+objExcel.Cells(1, 15).Value     = "EMPLOYER NAME" income_source
 
-objExcel.Cells(1, 18).Value     = "NONWAGE INCOME DATE" nonwage_date
+objExcel.Cells(1, 16).Value     = "NONWAGE INCOME DATE" nonwage_date
+objExcel.Cells(1, 17).Value     = "SUPERVISOR ID"
+objExcel.Cells(1, 17).Font.Bold = True
+objExcel.Cells(1, 18).Value     = "X1 NUMBER"
+objExcel.Cells(1, 18).Font.Bold = True
+objExcel.Cells(1, 19).Value     = "WORKER NAME"
+objExcel.Cells(1, 19).Font.Bold = True
 
 'This bit freezes the top row of the Excel sheet for better useability when there is a lot of information
 ObjExcel.ActiveSheet.Range("A2").Select
@@ -190,6 +191,22 @@ For each x_number in x_number_array
 			covered_period = trim(covered_period)
 			objExcel.Cells(excel_row, 6).Value = covered_period
 
+			EMReadScreen match_type, 17, IEVC_Row, 14			'Reads the client name and adds to excel
+			match_type = trim(match_type)
+			objExcel.Cells(excel_row, 12).Value = match_type
+
+			EMReadScreen client_rel 17, IEVC_Row, 14			'Reads the client name and adds to excel
+			 client_rel = trim( client_rel)
+			objExcel.Cells(excel_row, 5).Value =  client_rel
+
+			EMReadScreen client_dob, 17, IEVC_Row, 14			'Reads the client name and adds to excel
+			client_dob = trim(client_dob)
+			objExcel.Cells(excel_row, 5).Value = client_dob
+
+			EMReadScreen client_ssn, 17, IEVC_Row, 14			'Reads the client name and adds to excel
+			client_ssn = trim(client_ssn)
+			objExcel.Cells(excel_row, 12).Value = client_ssn
+
 			EMReadScreen days_remaining, 6, IEVC_Row, 74		'Reads how the days left to resolve the match and adds to excel
 			days_remaining = trim(days_remaining)
 			objExcel.Cells(excel_row, 7).Value = days_remaining
@@ -206,6 +223,10 @@ For each x_number in x_number_array
 			transmit
 			row = 1
 			col = 1
+			EMReadScreen active_programs, , row, 14			'Reads the client name and adds to excel
+			active_programs = trim(active_programs)
+			objExcel.Cells(excel_row, 14).Value = active_programs
+
 			EMSearch "SEND IEVS DIFFERENCE NOTICE?", row, col 	'Finds where the difference notice code is - because it moves
 			EMReadScreen diff_notc_sent, 1, row, 36				'Reads if diff notice was sent or not
 			If diff_notc_sent = "Y" Then EMReadScreen diff_notc_date, 8, row, 72	'If notice was sent, reads the date it was sent
@@ -226,18 +247,6 @@ For each x_number in x_number_array
 			maxis_case_number = ""
 		LOOP until last_page_check = "THIS IS THE LAST PAGE"
 	Else
-		objExcel.Cells(excel_row, 2).Value = x_number						'If there are no items on a worker's report, this adds that information to the excel sheet
-		EMReadScreen supervisor_id, 7, 4, 32				'Finding Supervisor X Number and adding to Excel
-		objExcel.Cells(excel_row, 1).Value = supervisor_id
-		EMReadScreen IEVC_check, 4, 2, 53
-		If IEVC_check = "IEVC" Then 						'Getting the worker name from the info pop-up and adding to Excel
-			EMSendKey "<HOME>"
-			PF1
-			EMReadScreen worker_name, 21, 19, 10
-			worker_name = trim(worker_name)
-			objExcel.Cells(excel_row, 3).Value = worker_name
-			transmit
-		End If
 		excel_row = excel_row + 1
 	End If
 Next
