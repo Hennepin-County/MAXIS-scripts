@@ -206,7 +206,7 @@ For each x_number in x_number_array
 
 			EMReadScreen client_ssn, 11, 5, 13			'Reads the client name and adds to excel
 			client_ssn = trim(client_ssn)
-			objExcel.Cells(excel_row, 12).Value = client_ssn
+			objExcel.Cells(excel_row, 4).Value = client_ssn
 
 			EMReadScreen active_programs, 5, 7, 13			'Reads the client name and adds to excel
 			active_programs = trim(active_programs)
@@ -249,11 +249,11 @@ For each x_number in x_number_array
 
 				EMReadScreen income_source, 30, row, 31			'Reads the client name and adds to excel
 				income_source = trim(income_source)
-				If instr(source_income, "AMT: $") THEN 					  'establishing the length of the variable
-					position = InStr(source_income, "AMT: $")    		      'sets the position at the deliminator
-					source_income = Left(source_income, position)  'establishes employer as being before the deliminator
+				If instr(income_source, "AMT: $") THEN 					  'establishing the length of the variable
+					position = InStr(income_source, "AMT: $")    		      'sets the position at the deliminator
+					income_source = Left(income_source, position)  'establishes employer as being before the deliminator
 				END IF
-				objExcel.Cells(excel_row, 15).Value = income_source
+				objExcel.Cells(excel_row, 16).Value = income_source
 
 				EMSearch "AMT: $", row, col
 				EMReadScreen income_amount, 12, row, col + 9			'Reads the client name and adds to excel
@@ -273,11 +273,11 @@ For each x_number in x_number_array
 
 				EMReadScreen income_source, 30, row, 31			'Reads the client name and adds to excel
 				income_source = trim(income_source)
-				If instr(source_income, "AMT: $") THEN 					  'establishing the length of the variable
-					position = InStr(source_income, "AMT: $")    		      'sets the position at the deliminator
-					source_income = Left(source_income, position)  'establishes employer as being before the deliminator
+				If instr(income_source, "AMT: $") THEN 					  'establishing the length of the variable
+					position = InStr(income_source, "AMT: $")    		      'sets the position at the deliminator
+					income_source = Left(income_source, position)  'establishes employer as being before the deliminator
 				END IF
-				objExcel.Cells(excel_row, 15).Value = income_source
+				objExcel.Cells(excel_row, 16).Value = income_source
 
 				EMSearch "AMT: $", row, col
 				EMReadScreen income_amount, 12, row, col + 9			'Reads the client name and adds to excel
@@ -312,11 +312,11 @@ For each x_number in x_number_array
 
 				EMReadScreen income_source, 30, row, 22			'Reads the client name and adds to excel
 				income_source = trim(income_source)
-				If instr(source_income, "AMOUNT: $") THEN 					  'establishing the length of the variable
-				    position = InStr(source_income, "AMOUNT: $")    		      'sets the position at the deliminator
-				    source_income = Left(source_income, position)  'establishes employer as being before the deliminator
+				If instr(income_source, "AMOUNT: $") THEN 					  'establishing the length of the variable
+				    position = InStr(income_source, "AMOUNT: $")    		      'sets the position at the deliminator
+				    income_source = Left(income_source, position)  'establishes employer as being before the deliminator
 				END IF
-				objExcel.Cells(excel_row, 15).Value = income_source
+				objExcel.Cells(excel_row, 16).Value = income_source
 
 				EMSearch "AMOUNT: $", row, col
 				EMReadScreen income_amount, 12, row, col + 9			'Reads the client name and adds to excel
