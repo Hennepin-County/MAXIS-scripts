@@ -154,9 +154,11 @@ const apply_to_CASH     = 23
 const apply_to_HC       = 24
 const pay_weekday       = 25
 const income_received   = 26
+const verif_date        = 27
+const verif_explain     = 28
 
-const spoke_to          = 27
-const convo_detail      = 28
+const spoke_to          = 29
+const convo_detail      = 30
 
 Dim EARNED_INCOME_PANELS_ARRAY()
 ReDim EARNED_INCOME_PANELS_ARRAY(convo_detail, 0)
@@ -421,18 +423,20 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
                     BeginDialog Dialog1, 0, 0, 606, (dlg_factor * 20) + 160, "Enter ALL Paychecks Received"
                       Text 10, 10, 265, 10, "JOBS 01 01 - EMPLOYER"
-                      Text 310, 10, 50, 10, "Income Type:"
-                      DropListBox 365, 10, 100, 45, "J - WIOA"+chr(9)+"W - Wages (Incl Tips)"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", income_type
+                      Text 220, 15, 40, 10, "Start Date:"
+                      EditBox 255, 10, 50, 15, EARNED_INCOME_PANELS_ARRAY (income_start_dt, ei_panel)
+                      Text 315, 15, 50, 10, "Income Type:"
+                      DropListBox 365, 10, 100, 45, "J - WIOA"+chr(9)+"W - Wages"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", EARNED_INCOME_PANELS_ARRAY(income_type, ei_panel)
                       GroupBox 475, 5, 125, 25, "Apply Income to Programs:"
                       CheckBox 485, 15, 30, 10, "SNAP", EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel)
                       CheckBox 530, 15, 30, 10, "CASH", EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel)
                       CheckBox 570, 15, 20, 10, "HC", EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel)
                       Text 5, 40, 60, 10, "JOBS Verif Code:"
-                      DropListBox 65, 35, 105, 45, "1 - Pay Stubs/Tip Report"+chr(9)+"2 - Empl Statement"+chr(9)+"3 - Coltrl Stmt"+chr(9)+"4 - Other Document"+chr(9)+"5 - Pend Out State Verification"+chr(9)+"N - No Ver Prvd", JOBS_verif_code
+                      DropListBox 65, 35, 105, 45, "1 - Pay Stubs/Tip Report"+chr(9)+"2 - Empl Statement"+chr(9)+"3 - Coltrl Stmt"+chr(9)+"4 - Other Document"+chr(9)+"5 - Pend Out State Verification"+chr(9)+"N - No Ver Prvd", EARNED_INCOME_PANELS_ARRAY(income_verif, ei_panel)
                       Text 175, 40, 155, 10, "additional detail of verification received:"
-                      EditBox 310, 35, 290, 15, Edit2
+                      EditBox 310, 35, 290, 15, EARNED_INCOME_PANELS_ARRAY(verif_explain, ei_panel)
                       Text 5, 60, 90, 10, "Date verification received:"
-                      EditBox 100, 55, 50, 15, verif_date
+                      EditBox 100, 55, 50, 15, EARNED_INCOME_PANELS_ARRAY(verif_date, ei_panel)
                       Text 5, 80, 80, 10, "Pay Date (MM/DD/YY):"
                       Text 90, 80, 50, 10, "Gross Amount:"
                       Text 145, 80, 25, 10, "Hours:"
@@ -449,7 +453,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                               EditBox 90, (y_pos * 20) + 90, 45, 15, LIST_OF_INCOME_ARRAY(gross_amount, all_income) 'gross_amount'
                               EditBox 145, (y_pos * 20) + 90, 25, 15, LIST_OF_INCOME_ARRAY(hours, all_income) 'hours_on_check'
                               OptionGroup RadioGroup1
-                                LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = 1
+                                If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) <> 1 Then LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = 1
                                 RadioButton 180, (y_pos * 20) + 90, 25, 10, "Yes", LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) 'budget_yes'
                                 RadioButton 210, (y_pos * 20) + 90, 25, 10, "No", LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) 'budget_no'
                               EditBox 235, (y_pos * 20) + 90, 115, 15, LIST_OF_INCOME_ARRAY(reason_to_exclude, all_income) 'reason_not_budgeted'
@@ -467,11 +471,11 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                       Text 225, (dlg_factor * 20) + 115, 70, 10, "Regular Non-Monthly"
                       Text 225, (dlg_factor * 20) + 130, 25, 10, "Amount"
                       Text 280, (dlg_factor * 20) + 130, 50, 10, "Nbr of Months"
-                      EditBox 5, (dlg_factor * 20) + 140, 50, 15, rate_of_pay
-                      EditBox 75, (dlg_factor * 20) + 140, 40, 15, hours_per_week
-                      DropListBox 130, (dlg_factor * 20) + 140, 85, 45, "1 - One Time Per Month"+chr(9)+"2 - Two Times Per Month"+chr(9)+"3 - Every Other Week"+chr(9)+"4 - Every Week", pay_frequency
-                      EditBox 225, (dlg_factor * 20) + 140, 40, 15, non_monthly_amt
-                      EditBox 280, (dlg_factor * 20) + 140, 30, 15, number_non_reg_months
+                      EditBox 5, (dlg_factor * 20) + 140, 50, 15, EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel)
+                      EditBox 75, (dlg_factor * 20) + 140, 40, 15, EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel)
+                      DropListBox 130, (dlg_factor * 20) + 140, 85, 45, "1 - One Time Per Month"+chr(9)+"2 - Two Times Per Month"+chr(9)+"3 - Every Other Week"+chr(9)+"4 - Every Week", EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
+                      EditBox 225, (dlg_factor * 20) + 140, 40, 15, EARNED_INCOME_PANELS_ARRAY(reg_non_monthly, ei_panel)
+                      EditBox 280, (dlg_factor * 20) + 140, 30, 15, EARNED_INCOME_PANELS_ARRAY(numb_months, ei_panel)
                       ButtonGroup ButtonPressed
                         PushButton 440, (dlg_factor * 20) + 140, 15, 15, "+", add_another_check
                         PushButton 460, (dlg_factor * 20) + 140, 15, 15, "-", take_a_check_away
@@ -566,8 +570,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                   Text 10, 10, 175, 10, "JOBS 01 01 - EMPLOYER"
                   Text 245, 10, 50, 10, "Pay Frequency"
                   DropListBox 305, 5, 95, 45, "1 - One Time Per Month"+chr(9)+"2 - Two Times Per Month"+chr(9)+"3 - Every Other Week"+chr(9)+"4 - Every Week"+chr(9)+"5 - Other", EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
-                  Text 240, 30, 60, 10, "Income Start Date:"
-                  EditBox 305, 25, 70, 15, income_start_date
+                  ' Text 240, 30, 60, 10, "Income Start Date:"
+                  ' EditBox 305, 25, 70, 15, income_start_date
                   GroupBox 5, 40, 410, 105, "SNAP Budget"
                   Text 10, 50, 100, 10, "Paychecks Inclued in Budget:"
                   y_pos = 0
@@ -605,6 +609,20 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                 cancel_confirmation
 
                 If confirm_budget_checkbox = unchecked then big_err_msg = big_err_msg & vbNewLine & "*** Since the budget is not confirmed as correct, the ENTER PAY INFORMATION DIALOG will reappear and allow information to be corrected to generate an accurate budget. ***"
+
+                If big_err_msg <> "" Then
+                    For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
+                        If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
+                            If LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = checked Then
+
+                                LIST_OF_INCOME_ARRAY(gross_amount, all_income) = LIST_OF_INCOME_ARRAY(gross_amount, all_income) & ""
+                                LIST_OF_INCOME_ARRAY(hours, all_income) = LIST_OF_INCOME_ARRAY(hours, all_income) & ""
+
+                            End If
+                        End If
+                    Next
+                    MsgBox "Review JOBS Pay Information" & vbNewLine & big_err_msg
+                End If
 
             Loop until big_err_msg = ""
 
