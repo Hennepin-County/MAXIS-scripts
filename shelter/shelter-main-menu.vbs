@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/05/2018", "Updates to add scripts per shelter team request..", "MiKayla Handley")
 call changelog_update("01/05/2018", "Updates to CES-Screening Appt per shelter team request..", "MiKayla Handley")
 call changelog_update("09/23/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -49,11 +50,11 @@ changelog_display
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_NOTES_menu_dialog(script_array)
-	BeginDialog NOTES_dialog, 0, 0, 516, 310, "Shelter Team Scripts"
+	BeginDialog NOTES_dialog, 0, 0, 516, 340, "Shelter Team Scripts"
 	 	Text 5, 5, 435, 10, "Shelter scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
-		 	PushButton 015, 35, 30, 15, "# - N", 				a_to_n_button
-		 	PushButton 045, 35, 30, 15, "P - Z", 				p_to_z_button
+		 	PushButton 015, 35, 30, 15, "# - L", 				a_to_n_button
+		 	PushButton 045, 35, 30, 15, "M - Z", 				p_to_z_button
 
 		'This starts here, but it shouldn't end here :)
 		vert_button_position = 70
@@ -70,7 +71,7 @@ Function declare_NOTES_menu_dialog(script_array)
 			button_placeholder = button_placeholder + 1
 		next
 
-		CancelButton 460, 290, 50, 15
+		CancelButton 460, 320, 50, 15
 		GroupBox 5, 20, 85, 35, "Shelter Sub-Menus"
 	EndDialog
 End function
@@ -154,6 +155,20 @@ script_array_a_to_n(script_num).description 			= "Case note template for documen
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
 Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_a_to_n(script_num).script_name 			= "Diversion Program Referral"																'Script name
+script_array_a_to_n(script_num).file_name 				= "shelter-diversion-program-referral.vbs"													'Script URL
+script_array_a_to_n(script_num).description 			= "Case note template for documenting details of Diversion Program Referral."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
+Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_a_to_n(script_num).script_name 			= "Diversion Program Referral Result"																'Script name
+script_array_a_to_n(script_num).file_name 				= "shelter-diversion-program-referral-results.vbs"													'Script URL
+script_array_a_to_n(script_num).description 			= "Case note template for documenting details of Diversion Program Referral result."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
+Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_a_to_n(script_num).script_name 			= "EA Approved"																				'Script name
 script_array_a_to_n(script_num).file_name 				= "shelter-ea-approved.vbs"																	'Script URL
 script_array_a_to_n(script_num).description 			= "Case note template for documenting details for the EA approval."
@@ -180,40 +195,41 @@ script_array_a_to_n(script_num).script_name 			= "Homelessness Verified"								
 script_array_a_to_n(script_num).file_name 				= "shelter-homelessness-verified.vbs"														'Script URL
 script_array_a_to_n(script_num).description 			= "Case note template for documenting homelessness information."
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
-'Set this array element to be a new script. Script details below...
-Set script_array_a_to_n(script_num) = new script
-script_array_a_to_n(script_num).script_name 			= "Mandatory Vendor App'd"																	'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter-mandatory-vendor-approved.vbs"													'Script URL
-script_array_a_to_n(script_num).description 			= "Memo and case note template for approving mandatory vendor(s)."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
-Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_a_to_n(script_num).script_name 			= "Mandatory Vendor Memo"																	'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter-mandatory-vendor-memo.vbs"														'Script URL
-script_array_a_to_n(script_num).description 			= "Notice script that sends a Mandatory Vendor MEMO."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
-Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_a_to_n(script_num).script_name 			= " Money Mismanagement "																	'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter-money-mismanagement.vbs"															'Script URL
-script_array_a_to_n(script_num).description 			= "Case note template for details for money mismanagement information."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
-Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_a_to_n(script_num).script_name 			= " NSPOW Checked "																			'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter-nspow-checked.vbs"																'Script URL
-script_array_a_to_n(script_num).description 			= "Case note template for details for NSPOW information."
-
 '-------------------------------------------------------------------------------------------------------------------------N through Z
 'Resetting the variable
-script_num = 0
-ReDim Preserve script_array_p_to_z(script_num)
-Set script_array_p_to_z(script_num) = new script
+'Set this array element to be a new script. Script details below...
+script_num = 0							'Sets to zero
+ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
+Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_p_to_z(script_num).script_name 			= "Mandatory Vendor App'd"																	'Script name
+script_array_p_to_z(script_num).file_name 				= "shelter-mandatory-vendor-approved.vbs"													'Script URL
+script_array_p_to_z(script_num).description 			= "Memo and case note template for approving mandatory vendor(s)."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
+Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_p_to_z(script_num).script_name 			= "Mandatory Vendor Memo"																	'Script name
+script_array_p_to_z(script_num).file_name 				= "shelter-mandatory-vendor-memo.vbs"														'Script URL
+script_array_p_to_z(script_num).description 			= "Notice script that sends a Mandatory Vendor MEMO."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
+Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_p_to_z(script_num).script_name 			= " Money Mismanagement "																	'Script name
+script_array_p_to_z(script_num).file_name 				= "shelter-money-mismanagement.vbs"															'Script URL
+script_array_p_to_z(script_num).description 			= "Case note template for details for money mismanagement information."
+ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
+Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_p_to_z(script_num).script_name 			= " NSPOW Checked "																			'Script name
+script_array_p_to_z(script_num).file_name 				= "shelter-nspow-checked.vbs"																'Script URL
+script_array_p_to_z(script_num).description 			= "Case note template for details for NSPOW information."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
+Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_p_to_z(script_num).script_name 			= "Partner Calls"																			'Script name
 script_array_p_to_z(script_num).file_name				= "shelter-partner-calls.vbs"																'Script URL
 script_array_p_to_z(script_num).description 			= "Case note template for documenting partner calls."

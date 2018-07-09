@@ -2,7 +2,7 @@
 name_of_script = "BULK - REPT-IEVC LIST.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 35                               'manual run time, per line, in seconds
+STATS_manualtime = 300                               'manual run time, per line, in seconds
 STATS_denomination = "I"       'I is for each ITEM
 'END OF stats block==============================================================================================
 
@@ -99,25 +99,31 @@ objExcel.DisplayAlerts = True
 ObjExcel.ActiveSheet.Name = "Case information"
 
 'Excel headers and formatting the columns
-objExcel.Cells(1, 1).Value     = "SUPERVISOR ID"
-objExcel.Cells(1, 1).Font.Bold = True
-objExcel.Cells(1, 2).Value     = "X1 NUMBER"
-objExcel.Cells(1, 2).Font.Bold = True
-objExcel.Cells(1, 3).Value     = "WORKER NAME"
-objExcel.Cells(1, 3).Font.Bold = True
-objExcel.Cells(1, 4).Value     = "CASE NBR"
-objExcel.Cells(1, 4).Font.Bold = True
-objExcel.Cells(1, 5).Value     = "CLIENT NAME"
-objExcel.Cells(1, 5).Font.Bold = True
-objExcel.Cells(1, 6).Value     = "COVERED PERIOD"
-objExcel.Cells(1, 6).Font.Bold = True
-objExcel.Cells(1, 7).Value     = "DAYS REMAINING"
-objExcel.Cells(1, 7).Font.Bold = True
-objExcel.Cells(1, 8).Value     = "DIFF NOTICE SENT"
-objExcel.Cells(1, 8).Font.Bold = True
-objExcel.Cells(1, 9).Value     = "DATE DIFF NOTICE SENT"
-objExcel.Cells(1, 9).Font.Bold = True
+'------------------------------------------------------IEVC'
+objExcel.Cells(1, 1).Value     = "X1 NUMBER" 'x_number
+objExcel.Cells(1, 2).Value     = "CASE NUMBER" 'maxis_case_number
+objExcel.Cells(1, 3).Value     = "CLIENT NAME" 'client_name
+objExcel.Cells(1, 4).Value     = "SSN" 'client_ssn IDLA
+objExcel.Cells(1, 5).Value     = "REL"  'client_rel
+objExcel.Cells(1, 6).Value     = "TYPE" 'match_type IDLA
+objExcel.Cells(1, 7).Value     = "COVERED PERIOD" 'covered_period
+objExcel.Cells(1, 8).Value     = "DAYS REMAINING" 'days_remaining
+objExcel.Cells(1, 9).Value     = "DOB" 'client_dob
+objExcel.Cells(1, 10).Value    = "STATUS" 'overdue
+objExcel.Cells(1, 11).Value    = "PROGRAM" 'active_programs
+objExcel.Cells(1, 12).Value    = "DIFF NOTICE SENT" 'diff_notc_sent
+objExcel.Cells(1, 13).Value    = "DATE DIFF NOTICE SENT" 'diff_notc_date
+objExcel.Cells(1, 14).Value    = "AMOUNT" 'income_amount
+objExcel.Cells(1, 15).Value    = "YEAR" 'match_year
+objExcel.Cells(1, 16).Value    = "EMPLOYER NAME" 'income_source
+objExcel.Cells(1, 17).Value    = "NONWAGE INCOME DATE" 'nonwage_date
+objExcel.Cells(1, 18).Value    = "SUPERVISOR ID" 'supervisor_id
+objExcel.Cells(1, 19).Value    = "WORKER NAME" 'worker_name
 
+
+For excel_row = 1 to 19
+	objExcel.Cells(excel_row).Font.Bold = True
+Next
 'This bit freezes the top row of the Excel sheet for better useability when there is a lot of information
 ObjExcel.ActiveSheet.Range("A2").Select
 objExcel.ActiveWindow.FreezePanes = True
@@ -140,11 +146,12 @@ For each x_number in x_number_array
 	transmit
 
 	EMReadScreen unresolved_ievs_exists, 1, 8, 5	'Checks to see if there is something listed on the first line
+	'TO DO' "No IEVS for this worker."		'Adds line to Excel sheet indicating no matches
 	If unresolved_ievs_exists <> " " Then 			'If so, the script will gather data
 		EMReadScreen supervisor_id, 7, 4, 32		'Pulls the X-Number of the supervisor
 		EMReadScreen IEVC_check, 4, 2, 53			'Makes sure still on the IEVC report - sometimes this glitches and causes all kinds of errors
 		If IEVC_check = "IEVC" Then
-			EMSendKey "HOME"						'Sets the cursor at the first editable field - which is the worker X-Number
+			EMSendKey "<HOME>"						'Sets the cursor at the first editable field - which is the worker X-Number
 			PF1										'PF1 on the X-Number to pull up worker information
 			EMReadScreen worker_name, 21, 19, 10	'Reads the worker name
 			worker_name = trim(worker_name)			'Trims the worker name
@@ -153,33 +160,43 @@ For each x_number in x_number_array
 		EMWriteScreen x_number, 4, 11				'goes to the specific worker's report - again
 		transmit									'This part happens again after looking at worker information due to some weird glitchy thing on this report
 		IEVC_Row = 8
-		DO
-			'Reading and trimming the MAXIS case number and dumping it in Excel
+		DO	'Reading and trimming the MAXIS case number and dumping it in Excel
 			EMReadScreen maxis_case_number, 8, IEVC_Row, 31
 			If maxis_case_number = "        " then exit Do 		'Once the script reaches the last line in the list, it will go to the next worker
 			maxis_case_number = trim(maxis_case_number)
-			objExcel.Cells(excel_row, 4).Value = maxis_case_number	'Adds case number to Excel
-
-			objExcel.Cells(excel_row, 2).Value = x_number		'enters the worker number to the excel spreadsheet
-			objExcel.Cells(excel_row, 1).Value = supervisor_id	'Adds Supervisor X-Numner to Excel
-			objExcel.Cells(excel_row, 3).Value = worker_name	'Adds the worker name to Excel
+			objExcel.Cells(excel_row, 1).Value = x_number		'enters the worker number to the excel spreadsheet
+			objExcel.Cells(excel_row, 2).Value = maxis_case_number	'Adds case number to Excel
+			objExcel.Cells(excel_row, 18).Value = supervisor_id	'Adds Supervisor X-Numner to Excel
+			objExcel.Cells(excel_row, 19).Value = worker_name	'Adds the worker name to Excel
 
 			EMReadScreen client_name, 17, IEVC_Row, 14			'Reads the client name and adds to excel
 			client_name = trim(client_name)
-			objExcel.Cells(excel_row, 5).Value = client_name
+			objExcel.Cells(excel_row, 3).Value = client_name
+
+			EMReadScreen client_rel, 02, IEVC_Row, 41			'Reads the client name and adds to excel
+			client_rel = trim(client_rel)
+			objExcel.Cells(excel_row, 5).Value = client_rel
+
+			EMReadScreen client_dob, 10, IEVC_Row, 45			'Reads the client name and adds to excel
+			client_dob = trim(client_dob)
+			objExcel.Cells(excel_row, 9).Value = client_dob
 
 			EMReadScreen covered_period, 11, IEVC_Row, 62		'Reads the dates of the match and adds to excel
 			covered_period = trim(covered_period)
-			objExcel.Cells(excel_row, 6).Value = covered_period
+			objExcel.Cells(excel_row, 7).Value = covered_period
+
+			EMReadScreen match_type, 3, IEVC_Row, 57			'Reads the client name and adds to excel
+			match_type = trim(match_type)
+			objExcel.Cells(excel_row, 6).Value = match_type
 
 			EMReadScreen days_remaining, 6, IEVC_Row, 74		'Reads how the days left to resolve the match and adds to excel
 			days_remaining = trim(days_remaining)
-			objExcel.Cells(excel_row, 7).Value = days_remaining
-			objExcel.Cells(excel_row, 7).NumberFormat = "0"
+			objExcel.Cells(excel_row, 8).Value = days_remaining
+			objExcel.Cells(excel_row, 8).NumberFormat = "0"
 			If left(days_remaining, 1) = "(" Then 				'If this is a negative number - listed in () on the panel
 				objExcel.Cells(excel_row, 10).Value = "OVERDUE!"		'Adds this to the spreadsheet
 				objExcel.Cells(excel_row, 10).Font.Bold = True 		'Highlights the overdue word
-				For col = 1 to 10
+				For col = 1 to 19
 					objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
 				Next
 			End If
@@ -188,16 +205,118 @@ For each x_number in x_number_array
 			transmit
 			row = 1
 			col = 1
+
+			EMReadScreen client_ssn, 11, 5, 13			'Reads the client name and adds to excel
+			client_ssn = trim(client_ssn)
+			objExcel.Cells(excel_row, 4).Value = client_ssn
+
+			EMReadScreen active_programs, 5, 7, 13			'Reads the client name and adds to excel
+			active_programs = trim(active_programs)
+			objExcel.Cells(excel_row, 11).Value = active_programs
+
 			EMSearch "SEND IEVS DIFFERENCE NOTICE?", row, col 	'Finds where the difference notice code is - because it moves
 			EMReadScreen diff_notc_sent, 1, row, 36				'Reads if diff notice was sent or not
+			If diff_notc_sent = "N" Then diff_notc_date = ""
 			If diff_notc_sent = "Y" Then EMReadScreen diff_notc_date, 8, row, 72	'If notice was sent, reads the date it was sent
-			objExcel.Cells(excel_row, 8).Value = diff_notc_sent	'Adding both of these to excel
-			objExcel.Cells(excel_row, 9).Value = diff_notc_date
+			objExcel.Cells(excel_row, 12).Value = diff_notc_sent	'Adding both of these to excel
+			objExcel.Cells(excel_row, 13).Value = diff_notc_date
 
+			IF match_type = "A30" THEN 'BNDX'
+				EMReadScreen income_amount, 15, 9, 18			'Reads the client name and adds to excel
+				income_amount = trim(income_amount)
+				If instr(income_amount, "NOT") THEN 					  'establishing the length of the variable
+					position = InStr(income_amount, "NOT")    		      'sets the position at the deliminator
+					income_amount = left(income_amount, position - 1)  'establishes employer as being before the deliminator
+				END IF
+				income_amount = replace(income_amount, "$", "")
+				objExcel.Cells(excel_row, 14).Value = income_amount
+			END IF
+
+			IF match_type = "A40" THEN 'SDXS'
+			row = 9
+				EMReadScreen income_amount, 15, row, 14			'Reads the client name and adds to excel
+				income_amount = trim(income_amount)
+				If instr(income_amount, "NOT") THEN 					  'establishing the length of the variable
+					position = InStr(income_amount, "NOT")    		      'sets the position at the deliminator
+					income_amount = left(income_amount, position)  'establishes employer as being before the deliminator
+				END IF
+				objExcel.Cells(excel_row, 14).Value = income_amount
+			END IF
+
+			IF match_type = "A50" or match_type = "A51" THEN 'WAGE'
+				EMReadScreen match_year, 4, 9, 16			'Reads the match_year and adds to excel
+				match_year = trim(match_year)
+				objExcel.Cells(excel_row, 15).Value = match_year
+
+				EMReadScreen income_source, 60, 9, 31			'Reads the income_source and adds to excel
+				income_source = trim(income_source)							  'establishing the length of the variable
+				length = len(income_source)
+				position = InStr(income_source, "AMT: $")    		      'sets the position at the deliminator
+				income_source = left(income_source, position - 1 )  'establishes employer as being before the deliminator
+				objExcel.Cells(excel_row, 16).Value = income_source
+
+				EMSearch "AMT: $", 9, col
+				'MsgBox col
+				EMReadScreen income_amount, 72 - col, 9, col + 6			'Reads the income_amount and adds to excel up to 36 spaces
+				'MsgBox 81 - col & vbcr & income_amount
+				income_amount = trim(income_amount)
+				objExcel.Cells(excel_row, 14).Value = income_amount
+			END IF
+
+			IF match_type = "A60" THEN 'UBEN'
+				EMReadScreen nonwage_date, 10, 9, 39			'Reads the nonwage_date and adds to excel
+				nonwage_date = trim(nonwage_date)
+				objExcel.Cells(excel_row, 17).Value = nonwage_date
+
+				EMReadScreen income_amount, 20, 9, 11			'Reads the income_amount and adds to excel
+				income_amount = trim(income_amount)
+				If instr(income_amount, "DATE") THEN 					  'establishing the length of the variable
+					position = InStr(income_amount, "DATE")    		      'sets the position at the deliminator
+					income_amount = left(income_amount, position - 1)  'establishes income_amount as being before the deliminator
+				END IF
+				objExcel.Cells(excel_row, 14).Value = income_amount
+			END IF
+
+			IF match_type = "A70" THEN 'BEER'
+				EMReadScreen match_year, 2, 9, 9			'Reads the match_year and adds to excel
+				match_year = trim(match_year)
+				objExcel.Cells(excel_row, 15).Value = match_year
+
+				EMReadScreen income_source, 60, 9, 22			'Reads the income_source and adds to excel
+				income_source = trim(income_source)
+				If instr(income_source, "AMOUNT: $") THEN 					  'establishing the length of the variable
+				    position = InStr(income_source, "AMOUNT: $")    		      'sets the position at the deliminator
+				    income_source = left(income_source, position - 1)  'establishes income_source as being before the deliminator
+				END IF
+				objExcel.Cells(excel_row, 16).Value = income_source
+
+				EMSearch "AMOUNT: $", 9, col
+				EMReadScreen income_amount, 20, 9, col + 9			'Reads the income_amount and adds to excel
+				income_amount = trim(income_amount)
+				If instr(income_amount, "AMOUNT: $") THEN 					  'establishing the length of the variable
+				    position = InStr(income_amount, "AMOUNT: $")    		      'sets the position at the deliminator
+				    income_amount = right(income_amount, position)  'establishes income_amount as being before the deliminator
+				END IF
+				objExcel.Cells(excel_row, 14).Value = income_amount
+			END IF
+			'
+			'IF match_type = "A80" THEN 'UNVI '
+
+				'email me
+			'Active programs handling for case notes'
+			active_Programs = trim(ative_Programs)
+			programs = ""
+			IF instr(active_Programs, "D") THEN programs = programs & "DWP, "
+			IF instr(active_Programs, "F") THEN programs = programs & "Food Support, "
+			IF instr(active_Programs, "H") THEN programs = programs & "Health Care, "
+			IF instr(active_Programs, "M") THEN programs = programs & "Medical Assistance, "
+			IF instr(active_Programs, "S") THEN programs = programs & "MFIP, "
+			'trims excess spaces of programs
+			programs = trim(programs)
+			'takes the last comma off of programs when autofilled into dialog
+			IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 			PF3 		'Back to the list!
-
 			IEVC_Row = IEVC_Row + 1 'increment to the next row on the panel
-
 			If IEVC_Row = 18 Then 		'If we have reached the end of the page, it will go to the next page
 				PF8
 				IEVC_Row = 8			'Resets the row
@@ -208,19 +327,6 @@ For each x_number in x_number_array
 			maxis_case_number = ""
 		LOOP until last_page_check = "THIS IS THE LAST PAGE"
 	Else
-		objExcel.Cells(excel_row, 2).Value = x_number						'If there are no items on a worker's report, this adds that information to the excel sheet
-		EMReadScreen supervisor_id, 7, 4, 32				'Finding Supervisor X Number and adding to Excel
-		objExcel.Cells(excel_row, 1).Value = supervisor_id
-		EMReadScreen IEVC_check, 4, 2, 53
-		If IEVC_check = "IEVC" Then 						'Getting the worker name from the info pop-up and adding to Excel
-			EMSendKey "<HOME>"
-			PF1
-			EMReadScreen worker_name, 21, 19, 10
-			worker_name = trim(worker_name)
-			objExcel.Cells(excel_row, 3).Value = worker_name
-			transmit
-		End If
-		objExcel.Cells(excel_row, 5).Value = "No IEVS for this worker."		'Adds line to Excel sheet indicating no matches
 		excel_row = excel_row + 1
 	End If
 Next
@@ -233,23 +339,23 @@ objExcel.Columns(8).HorizontalAlignment = -4108
 excel_is_not_blank = chr(34) & "<>" & chr(34)		'Setting up a variable for useable quote marks in Excel
 
 'Query date/time/runtime info
-objExcel.Cells(2, 11).Font.Bold = TRUE
-objExcel.Cells(3, 11).Font.Bold = TRUE
-objExcel.Cells(4, 11).Font.Bold = TRUE
-objExcel.Cells(5, 11).Font.Bold = TRUE
+objExcel.Cells(2, 22).Font.Bold = TRUE
+objExcel.Cells(3, 22).Font.Bold = TRUE
+objExcel.Cells(4, 22).Font.Bold = TRUE
+objExcel.Cells(5, 22).Font.Bold = TRUE
 
-ObjExcel.Cells(2, 11).Value = "Query date and time:"	'Goes back one, as this is on the next row
-ObjExcel.Cells(2, 12).Value = now
-ObjExcel.Cells(3, 11).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
-ObjExcel.Cells(3, 12).Value = timer - query_start_time
-ObjExcel.Cells(4, 11).Value = "Number of IEVS with No DAYS remaining:"
-objExcel.Cells(4, 12).Value = "=COUNTIFS(G:G, " & Chr(34) & "<=0" & Chr(34) & ", H:H, " & excel_is_not_blank & ")"	'Excel formula
-ObjExcel.Cells(5, 11).Value = "Number of total UNRESOLVED IEVS:"
-objExcel.Cells(5, 12).Value = "=(COUNTIF(H:H, " & excel_is_not_blank & ")-1)"	'Excel formula
+ObjExcel.Cells(2, 22).Value = "Query date and time:"	'Goes back one, as this is on the next row
+ObjExcel.Cells(2, 23).Value = now
+ObjExcel.Cells(3, 22).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
+ObjExcel.Cells(3, 23).Value = timer - query_start_time
+ObjExcel.Cells(4, 22).Value = "Number of IEVS with No DAYS remaining:"
+objExcel.Cells(4, 23).Value = "=COUNTIFS(G:G, " & Chr(34) & "<=0" & Chr(34) & ", H:H, " & excel_is_not_blank & ")"	'Excel formula
+ObjExcel.Cells(5, 22).Value = "Number of total UNRESOLVED IEVS:"
+objExcel.Cells(5, 23).Value = "=(COUNTIF(H:H, " & excel_is_not_blank & ")-1)"	'Excel formula
 
 
 'Formatting the column width.
-FOR i = 1 to 12
+FOR i = 1 to 23
 	objExcel.Columns(i).AutoFit()
 NEXT
 
@@ -258,20 +364,16 @@ ObjExcel.Worksheets.Add().Name = "IEVC stats by worker"
 
 'Headers
 ObjExcel.Cells(1, 2).Value = "IEVC STATS BY WORKER"
-ObjExcel.Cells(1, 2).Font.Bold = TRUE
 ObjExcel.Cells(2, 1).Value = "WORKER"
-objExcel.Cells(2, 1).Font.Bold = TRUE
 ObjExcel.Cells(2, 2).Value = "NAME"
-ObjExcel.Cells(2, 2).Font.Bold = TRUE
 ObjExcel.Cells(2, 3).Value = "OLDER THAN 45 DAYS"
-objExcel.Cells(2, 3).Font.Bold = TRUE
 ObjExcel.Cells(2, 4).Value = "UNRESOLVED"
-objExcel.Cells(2, 4).Font.Bold = TRUE
 ObjExcel.Cells(2, 5).Value = "% OF WORKERS IEVS OLDER THAN 45 DAYS"
-objExcel.Cells(2, 5).Font.Bold = TRUE
 ObjExcel.Cells(2, 6).Value = "% OF UNRESOLVED IEVS OWNED BY THIS WORKER"
-objExcel.Cells(2, 6).Font.Bold = TRUE
 
+For excel_row = 1 to 6
+	objExcel.Cells(excel_row).Font.Bold = True
+Next
 'This bit freezes the top 2 rows for scrolling ease of use
 'ObjExcel.ActiveSheet.Range("A3").Select
 'objExcel.ActiveWindow.FreezePanes = True
@@ -295,9 +397,9 @@ For each x_number in x_number_array
 	ObjExcel.Cells(worker_row, 1).Value = x_number
 	ObjExcel.Cells(worker_row, 2).Value = worker_name
 	'Writing a formula to excel - Count each row in which Column H on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row AND Column G is 0 or less - All OVERDUE matches for this worker
-	ObjExcel.Cells(worker_row, 3).Value = "=COUNTIFS('Case information'!H:H, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!B:B, A" & worker_row & ", 'Case information'!G:G, " & Chr(34) & "<=0" & Chr(34) & ")"
+	ObjExcel.Cells(worker_row, 3).Value = "=COUNTIFS('Case information'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & worker_row & ", 'Case information'!H:H, " & Chr(34) & "<=0" & Chr(34) & ")"
 	'Writing a formula to excel - Count each row in which Column H on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row - ALL matches for this worker
-	ObjExcel.Cells(worker_row, 4).Value = "=COUNTIFS('Case information'!H:H, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!B:B, A" & worker_row & ")"
+	ObjExcel.Cells(worker_row, 4).Value = "=COUNTIFS('Case information'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & worker_row & ")"
 	IF ObjExcel.Cells(worker_row, 4).Value <> "0" Then	'Preventing a divide by 0 error
 		ObjExcel.Cells(worker_row, 5).Value = "=C" & worker_row & "/D" & worker_row
 	Else
@@ -316,7 +418,7 @@ ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 6)).Merge
 objExcel.Cells(1, 2).HorizontalAlignment = -4108
 
 'Autofitting columns
-For col_to_autofit = 1 to 20
+For col_to_autofit = 1 to 23
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
 
