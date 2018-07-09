@@ -228,6 +228,7 @@ For each x_number in x_number_array
 					position = InStr(income_amount, "NOT")    		      'sets the position at the deliminator
 					income_amount = left(income_amount, position - 1)  'establishes employer as being before the deliminator
 				END IF
+				income_amount = replace(income_amount, "$", )
 				objExcel.Cells(excel_row, 14).Value = income_amount
 			END IF
 
@@ -242,7 +243,7 @@ For each x_number in x_number_array
 				objExcel.Cells(excel_row, 14).Value = income_amount
 			END IF
 
-			IF match_type = "A50" THEN 'WAGE'
+			IF match_type = "A50" or match_type = "A51" THEN 'WAGE'
 				EMReadScreen match_year, 4, 9, 16			'Reads the match_year and adds to excel
 				match_year = trim(match_year)
 				objExcel.Cells(excel_row, 15).Value = match_year
@@ -255,34 +256,14 @@ For each x_number in x_number_array
 				objExcel.Cells(excel_row, 16).Value = income_source
 
 				EMSearch "AMT: $", 9, col
-				EMReadScreen income_amount, 20, 9, col + 6			'Reads the income_amount and adds to excel up to 36 spaces
+				MsgBox col
+				EMReadScreen income_amount, 72 - col, 9, col + 6			'Reads the income_amount and adds to excel up to 36 spaces
+				MsgBox 81 - col & vbcr & income_amount
+
 				income_amount = trim(income_amount)
-				If instr(income_amount, "AMT: $") THEN 					  'establishing the length of the variable
-					position = InStr(income_amount, "AMT: $")    		      'sets the position at the deliminator
-					income_amount = right(income_amount, position)  'establishes income_amount as being before the deliminator
-				END IF
-				objExcel.Cells(excel_row, 14).Value = income_amount
-			END IF
+				position = InStr(income_amount, "AMT: $")    		      'sets the position at the deliminator
+				income_amount = right(income_amount, position)  'establishes income_amount as being before the deliminator
 
-			IF match_type = "A51" THEN 'WAGE'
-				EMReadScreen match_year, 4, 9, 16			'Reads the match_year and adds to excel
-				match_year = trim(match_year)
-				objExcel.Cells(excel_row, 15).Value = match_year
-
-				EMReadScreen income_source, 60, 9, 31			'Reads the income_source and adds to excel
-				income_source = trim(income_source)							  'establishing the length of the variable
-				length = len(income_source)
-				position = InStr(income_source, "AMT: $")    		      'sets the position at the deliminator
-				income_source = left(income_source, position - 1 )  'establishes employer as being before the deliminator
-				objExcel.Cells(excel_row, 16).Value = income_source
-
-				EMSearch "AMT: $", 9, col
-				EMReadScreen income_amount, 20, 9, col + 6			'Reads the income_amount and adds to excel up to 36 spaces
-				income_amount = trim(income_amount)
-				If instr(income_amount, "AMT: $") THEN 					  'establishing the length of the variable
-					position = InStr(income_amount, "AMT: $")    		      'sets the position at the deliminator
-					income_amount = right(income_amount, position)  'establishes income_amount as being before the deliminator
-				END IF
 				objExcel.Cells(excel_row, 14).Value = income_amount
 			END IF
 
