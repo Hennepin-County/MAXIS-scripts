@@ -163,7 +163,7 @@ script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
 Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_a_to_n(script_num).script_name 			= "Diversion Program Referral Result"																'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter--diversion-program-referral-result.vbs"													'Script URL
+script_array_a_to_n(script_num).file_name 				= "shelter-diversion-program-referral-results.vbs"													'Script URL
 script_array_a_to_n(script_num).description 			= "Case note template for documenting details of Diversion Program Referral result."
 
 script_num = script_num + 1								'Increment by one
