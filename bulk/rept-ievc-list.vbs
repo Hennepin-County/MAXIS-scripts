@@ -222,8 +222,7 @@ For each x_number in x_number_array
 			objExcel.Cells(excel_row, 13).Value = diff_notc_date
 
 			IF match_type = "A30" THEN 'BNDX'
-			row = 9
-				EMReadScreen income_amount, 15, row, 18			'Reads the client name and adds to excel
+				EMReadScreen income_amount, 15, 9, 18			'Reads the client name and adds to excel
 				income_amount = trim(income_amount)
 				If instr(income_amount, "NOT") THEN 					  'establishing the length of the variable
 					position = InStr(income_amount, "NOT")    		      'sets the position at the deliminator
@@ -253,36 +252,32 @@ For each x_number in x_number_array
 				length = len(income_source)
 				position = InStr(income_source, "AMT: $")    		      'sets the position at the deliminator
 				income_source = left(income_source, position - 1 )  'establishes employer as being before the deliminator
-				income_amount = right(income_source, position - 1)
-				income_amount = trim(income_amount)
 				objExcel.Cells(excel_row, 16).Value = income_source
 
-				'EMSearch "AMT: $", row, col
-				'EMReadScreen income_amount, 20, 9, col + 9			'Reads the income_amount and adds to excel
-				'income_amount = trim(income_amount)
-				'If instr(income_amount, "AMT: $") THEN 					  'establishing the length of the variable
-				'	position = InStr(income_amount, "AMT: $")    		      'sets the position at the deliminator
-				'	income_amount = right(income_amount, position)  'establishes income_amount as being before the deliminator
-				'END IF
+				EMSearch "AMT: $", 9, col
+				EMReadScreen income_amount, 20, 9, col + 6			'Reads the income_amount and adds to excel up to 36 spaces
+				income_amount = trim(income_amount)
+				If instr(income_amount, "AMT: $") THEN 					  'establishing the length of the variable
+					position = InStr(income_amount, "AMT: $")    		      'sets the position at the deliminator
+					income_amount = right(income_amount, position)  'establishes income_amount as being before the deliminator
+				END IF
 				objExcel.Cells(excel_row, 14).Value = income_amount
 			END IF
 
 			IF match_type = "A51" THEN 'WAGE'
-			row = 9
-				EMReadScreen match_year, 4, row, 16			'Reads the match_year and adds to excel
+				EMReadScreen match_year, 4, 9, 16			'Reads the match_year and adds to excel
 				match_year = trim(match_year)
 				objExcel.Cells(excel_row, 15).Value = match_year
 
-				EMReadScreen income_source, 16, row, 31			'Reads the income_source and adds to excel
-				income_source = trim(income_source)
-				If instr(income_source, "AMT: $") THEN 					  'establishing the length of the variable
-					position = InStr(income_source, "AMT: $")    		      'sets the position at the deliminator
-					income_source = right(income_source, position - 6)  'establishes income_source as being before the deliminator
-				END IF
+				EMReadScreen income_source, 60, 9, 31			'Reads the income_source and adds to excel
+				income_source = trim(income_source)							  'establishing the length of the variable
+				length = len(income_source)
+				position = InStr(income_source, "AMT: $")    		      'sets the position at the deliminator
+				income_source = left(income_source, position - 1 )  'establishes employer as being before the deliminator
 				objExcel.Cells(excel_row, 16).Value = income_source
 
-				EMSearch "AMT: $", row, col
-				EMReadScreen income_amount, 20, row, col + 9			'Reads the income_amount and adds to excel
+				EMSearch "AMT: $", 9, col
+				EMReadScreen income_amount, 20, 9, col + 6			'Reads the income_amount and adds to excel up to 36 spaces
 				income_amount = trim(income_amount)
 				If instr(income_amount, "AMT: $") THEN 					  'establishing the length of the variable
 					position = InStr(income_amount, "AMT: $")    		      'sets the position at the deliminator
@@ -292,12 +287,11 @@ For each x_number in x_number_array
 			END IF
 
 			IF match_type = "A60" THEN 'UBEN'
-			row = 9
-				EMReadScreen nonwage_date, 10, row, 39			'Reads the nonwage_date and adds to excel
+				EMReadScreen nonwage_date, 10, 9, 39			'Reads the nonwage_date and adds to excel
 				nonwage_date = trim(nonwage_date)
 				objExcel.Cells(excel_row, 17).Value = nonwage_date
 
-				EMReadScreen income_amount, 20, row, 11			'Reads the income_amount and adds to excel
+				EMReadScreen income_amount, 20, 9, 11			'Reads the income_amount and adds to excel
 				income_amount = trim(income_amount)
 				If instr(income_amount, "DATE") THEN 					  'establishing the length of the variable
 					position = InStr(income_amount, "DATE")    		      'sets the position at the deliminator
@@ -307,12 +301,11 @@ For each x_number in x_number_array
 			END IF
 
 			IF match_type = "A70" THEN 'BEER'
-			row = 9
-				EMReadScreen match_year, 2, row, 9			'Reads the match_year and adds to excel
+				EMReadScreen match_year, 2, 9, 9			'Reads the match_year and adds to excel
 				match_year = trim(match_year)
 				objExcel.Cells(excel_row, 15).Value = match_year
 
-				EMReadScreen income_source, 16, row, 22			'Reads the income_source and adds to excel
+				EMReadScreen income_source, 20, 9, 22			'Reads the income_source and adds to excel
 				income_source = trim(income_source)
 				If instr(income_source, "AMOUNT: $") THEN 					  'establishing the length of the variable
 				    position = InStr(income_source, "AMOUNT: $")    		      'sets the position at the deliminator
@@ -320,8 +313,8 @@ For each x_number in x_number_array
 				END IF
 				objExcel.Cells(excel_row, 16).Value = income_source
 
-				EMSearch "AMOUNT: $", row, col
-				EMReadScreen income_amount, 20, row, col + 9			'Reads the income_amount and adds to excel
+				EMSearch "AMOUNT: $", 9, col
+				EMReadScreen income_amount, 20, 9, col + 9			'Reads the income_amount and adds to excel
 				income_amount = trim(income_amount)
 				If instr(income_amount, "AMOUNT: $") THEN 					  'establishing the length of the variable
 				    position = InStr(income_amount, "AMOUNT: $")    		      'sets the position at the deliminator
