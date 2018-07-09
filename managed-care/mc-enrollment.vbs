@@ -1,6 +1,6 @@
 '**********THIS IS A RAMSEY SPECIFIC SCRIPT.  IF YOU REVERSE ENGINEER THIS SCRIPT, JUST BE CAREFUL.************
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "Action - Managed Care Enrollment.vbs"
+name_of_script = "ACTIONS - MANAGED CARE ENROLLMENT.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================

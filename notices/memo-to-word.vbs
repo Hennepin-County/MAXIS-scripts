@@ -235,17 +235,23 @@ For notice_to_print = 0 to UBound(notices_array, 2)
 		transmit
 
 		notice_length = 0
+        page_nbr = 2
 		Do
 			For notice_row = 2 to 21
 				EMReadScreen notice_line, 73, notice_row, 8
+                'MsgBox notice_line
 				if right(trim(notice_line),9) = "FMINFO___" Then notice_line = ""
+                If right(trim(notice_line),4) = "Page" Then
+                    notice_line = trim(notice_line) & " " & page_nbr
+                    page_nbr = page_nbr + 1
+                End If
 				client_notice = client_notice & notice_line & vbcr
 				If left(trim(notice_line), 7) = "WORKER:" Then Exit For
 				notice_line = ""
 			Next
-			EMReadScreen notice_end, 9, 24,14
+            PF8
+            EMReadScreen notice_end, 9, 24,14
 			If notice_end = "LAST PAGE" Then Exit Do
-			PF8
 			notice_length = notice_length + 1
 		Loop until notice_length = 20
 
@@ -255,7 +261,7 @@ For notice_to_print = 0 to UBound(notices_array, 2)
 		objSelection.PageSetup.LeftMargin = 50
 		objSelection.PageSetup.RightMargin = 50
 		objSelection.PageSetup.TopMargin = 30
-		objSelection.PageSetup.BottomMargin = 30
+		objSelection.PageSetup.BottomMargin = 25
 		objSelection.Font.Name = "Courier New"
 		objSelection.Font.Size = "10"
 		objSelection.ParagraphFormat.SpaceAfter = 0

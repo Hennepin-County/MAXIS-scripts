@@ -5,7 +5,7 @@ STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 90                               'manual run time in seconds
 STATS_denomination = "C"       'C is for each CASE
 'END OF stats block==============================================================================================
-
+'run_locally = TRUE
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -333,6 +333,51 @@ EMWriteScreen MAXIS_footer_year, 3, 51
 
 transmit
 
+'This will cycle through all the notices that are on WCOM
+For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
+
+    If NOTICES_ARRAY(selected, notices_listed) = checked Then   'If the worker selected the notice
+        'Navigate to the correct SPEC screen to select the notice
+        Call navigate_to_MAXIS_screen ("SPEC", notice_panel)
+
+        EMWriteScreen MAXIS_footer_month, 3, 46
+        EMWriteScreen MAXIS_footer_year, 3, 51
+
+        transmit
+
+        'Open the Notice
+        EMWriteScreen "X", NOTICES_ARRAY(MAXIS_row, notices_listed), 13
+        transmit
+
+        PF9     'Put in to edit mode - the worker comment input screen
+
+        'Checking to see that the WCOM goes in to edit mode because otherwise we can't add WCOMs
+        EMReadScreen edit_mode_check, 18, 24, 36
+        If edit_mode_check = "UPDATE NOT ALLOWED" Then
+            PF3
+            end_msg = "Could not put the WCOM (" & NOTICES_ARRAY(information, notices_listed) & ") in to EDIT mode to add a WCOM. Likely this notice has already been printed. Review the notices on this case and run the script again if needed."
+            script_end_procedure(end_msg)
+        End If
+
+        'Making sure there is no other text entered in the WCOM area as it needs to be open to being written in.
+        For wcom_row = 3 to 17
+            EMReadScreen wcom_line, 60, wcom_row, 15
+            'msgBox "~" & wcom_line & "~"
+            If trim(wcom_line) <> "" Then
+                PF10
+                PF3
+                script_end_procedure("This script must be run before adding any additional WCOMs. If there is a manual WCOM to add, run the script first, then add the manual WCOM second.")
+            End If
+        Next
+
+        PF10    'exiting without saving since we didn't do anything yet
+        PF3
+
+        back_to_self
+        wcom_row = ""
+    End If
+Next
+
 'setting these variables
 'IDEA the WCOMs available will vary depending on the type of notice that was selected - since each program has different WCOM needs
 SNAP_notice = FALSE
@@ -613,7 +658,7 @@ Do      'Just made this  loop - this needs sever testing.
             End If
             If others_on_eats = FALSE Then only_elig_checkbox = checked
         End If
-        MsgBox "single person - " & single_person & vbNewLine & "others on eats - " & others_on_eats
+        'MsgBox "single person - " & single_person & vbNewLine & "others on eats - " & others_on_eats
 
         BeginDialog wcom_details_dlg, 0, 0, 236, 60, "WCOM Details"
           EditBox 95, 5, 135, 15, deceased_client
@@ -866,7 +911,7 @@ Do      'Just made this  loop - this needs sever testing.
 
     'This assesses if the message generated is too long for WCOM. If so then the checklist will reappear along with each selected WCOM dialog so it can be changed
     If UBOUND(WCOM_TO_WRITE_ARRAY) > 14 Then big_err_msg = big_err_msg & vbNewLine & "The amount of text/information that is being added to WCOM will exceed the 15 lines available on MAXIS WCOMs. Please reduce the number of WCOMs that have been selected or reduce the amount of text in the selected WCOM."
-    MsgBox "UBOUND of array is " & UBOUND(WCOM_TO_WRITE_ARRAY)
+    'MsgBox "UBOUND of array is " & UBOUND(WCOM_TO_WRITE_ARRAY)
 
     ' If end_of_wcom_row > 14 Then big_err_msg = big_err_msg & vbNewLine & "The amount of text/information that is being added to WCOM will exceed the 15 lines available on MAXIS WCOMs. Please reduce the number of WCOMs that have been selected or reduce the amount of text in the selected WCOM."
     ' MsgBox "End of WCOM ROW is " & end_of_wcom_row
@@ -879,7 +924,7 @@ Do      'Just made this  loop - this needs sever testing.
             wcom_to_display = wcom_to_display & vbNewLine & msg_line
         end if
     Next
-    MsgBox wcom_to_display
+    'MsgBox wcom_to_display
 
     If big_err_msg <> "" Then MsgBox "*** Please resolved the following to continue ***" & vbNewLine & big_err_msg
 Loop until big_err_msg = ""
@@ -905,12 +950,9 @@ For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
 
         For each msg_line in WCOM_TO_WRITE_ARRAY        'each line in this array will be written to the WCOM
             CALL write_variable_in_SPEC_MEMO(msg_line)
-            EMReadScreen page_full_check, 12, 24, 2
-            MsgBox page_full_check
-            If page_full_check = "END OF INPUT" Then script_end_procedure("The WCOM area is already full and no additional informaion can be added. This script should be run prior to adding manual WCOMs.")
         Next
 
-        MsgBox "Look"
+        'MsgBox "Look"
         PF4     'Save the WCOM
         PF3     'Exit the WCOM
 

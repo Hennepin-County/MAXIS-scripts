@@ -1,9 +1,9 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
 name_of_script = "DAIL - paperless IR.vbs"
 start_time = timer
-STATS_counter = 1              'sets the stats counter at 0 because each iteration of the loop which counts the dail messages adds 1 to the counter.
-STATS_manualtime = 75          'manual run time in seconds
-STATS_denomination = "C"       'I is for each dail message
+STATS_counter = 1              'sets the stats counter at 1
+STATS_manualtime = 90          'manual run time in seconds
+STATS_denomination = "C"       'C is for each case
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -119,6 +119,7 @@ Do
                 EMReadScreen total_versions, 2, row, 64
                 If total_versions = "01" Then
                     error_processing_msg = error_processing_msg & vbNewLine & "Appears HC eligibility was not approved in " & approval_month & "/" & approval_year & " for " & clt_ref_num & ", please approve HC and rerunscript."
+                    Exit Do
                 Else
                     EMReadScreen current_version, 2, row, 58
                     If current_version = "01" Then
@@ -161,7 +162,7 @@ Do
             budget_type = method_check
             approved_check = checked
             Exit Do
-        Else 
+        Else
             LTC_case = FALSE
         End If
     End If
