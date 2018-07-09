@@ -398,7 +398,7 @@ For each x_number in x_number_array
 	ObjExcel.Cells(worker_row, 2).Value = worker_name
 	'Writing a formula to excel - Count each row in which Column H on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row AND Column G is 0 or less - All OVERDUE matches for this worker
 	ObjExcel.Cells(worker_row, 3).Value = "=COUNTIFS('Case information'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & worker_row & ", 'Case information'!H:H, " & Chr(34) & "<=0" & Chr(34) & ")"
-	'Writing a formula to excel - Count each row in which Col,umn H on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row - ALL matches for this worker
+	'Writing a formula to excel - Count each row in which Column H on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row - ALL matches for this worker
 	ObjExcel.Cells(worker_row, 4).Value = "=COUNTIFS('Case information'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & worker_row & ")"
 	IF ObjExcel.Cells(worker_row, 4).Value <> "0" Then	'Preventing a divide by 0 error
 		ObjExcel.Cells(worker_row, 5).Value = "=C" & worker_row & "/D" & worker_row
