@@ -53,13 +53,13 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOG=============================================================================
-BeginDialog bulk_ievs_report_dialog, 0, 0, 361, 105, "BULK IEVS"
+BeginDialog bulk_ievs_report_dialog, 0, 0, 361, 105, "BULK IEVC"
   EditBox 10, 35, 345, 15, x_number_editbox
   CheckBox 10, 70, 150, 10, "Check here to run this query county-wide.", all_workers_check
   ButtonGroup ButtonPressed
     OkButton 250, 85, 50, 15
     CancelButton 305, 85, 50, 15
-  Text 145, 5, 90, 10, "---BULK IEVS REPORT---"
+  Text 145, 5, 90, 10, "---BULK IEVC REPORT---"
   Text 10, 20, 350, 10, "Please enter the x1 numbers of the caseloads you wish to check, separated by commas (if more than one):"
   Text 10, 55, 290, 10, "Please enter the entire 7-digit number x127 number. (Example: ''x100abc, x100abc'')"
   Text 20, 85, 210, 20, "NOTE: running queries county-wide takes a significant amount of time, ensure you have a stable connection."
