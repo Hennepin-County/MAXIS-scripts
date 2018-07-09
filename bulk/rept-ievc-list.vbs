@@ -300,8 +300,28 @@ For each x_number in x_number_array
 				objExcel.Cells(excel_row, 14).Value = income_amount
 			END IF
 			'
-			'IF match_type = "A80" THEN 'UNVI '
+			IF match_type = "A80" THEN 'UNVI '
+				EMReadScreen match_year, 2, 9, 9			'Reads the match_year and adds to excel
+				match_year = trim(match_year)
+				objExcel.Cells(excel_row, 15).Value = match_year
 
+				EMReadScreen income_source, 60, 9, 22			'Reads the income_source and adds to excel
+				income_source = trim(income_source)
+				If instr(income_source, "AMOUNT: $") THEN 					  'establishing the length of the variable
+					position = InStr(income_source, "AMOUNT: $")    		      'sets the position at the deliminator
+					income_source = left(income_source, position - 1)  'establishes income_source as being before the deliminator
+				END IF
+				objExcel.Cells(excel_row, 16).Value = income_source
+
+				EMSearch "AMOUNT: $", 9, col
+				EMReadScreen income_amount, 20, 9, col + 9			'Reads the income_amount and adds to excel
+				income_amount = trim(income_amount)
+				If instr(income_amount, "AMOUNT: $") THEN 					  'establishing the length of the variable
+					position = InStr(income_amount, "AMOUNT: $")    		      'sets the position at the deliminator
+					income_amount = right(income_amount, position)  'establishes income_amount as being before the deliminator
+				END IF
+				objExcel.Cells(excel_row, 14).Value = income_amount
+			END IF
 				'email me
 			'Active programs handling for case notes'
 			active_Programs = trim(ative_Programs)
@@ -364,16 +384,21 @@ ObjExcel.Worksheets.Add().Name = "IEVC stats by worker"
 
 'Headers
 ObjExcel.Cells(1, 2).Value = "IEVC STATS BY WORKER"
+objExcel.Cells(1, 2).Font.Bold = TRUE
 ObjExcel.Cells(2, 1).Value = "WORKER"
+objExcel.Cells(2, 1).Font.Bold = TRUE
 ObjExcel.Cells(2, 2).Value = "NAME"
+objExcel.Cells(2, 2).Font.Bold = TRUE
 ObjExcel.Cells(2, 3).Value = "OLDER THAN 45 DAYS"
+objExcel.Cells(2, 3).Font.Bold = TRUE
 ObjExcel.Cells(2, 4).Value = "UNRESOLVED"
+objExcel.Cells(2, 4).Font.Bold = TRUE
 ObjExcel.Cells(2, 5).Value = "% OF WORKERS IEVS OLDER THAN 45 DAYS"
+objExcel.Cells(2, 5).Font.Bold = TRUE
 ObjExcel.Cells(2, 6).Value = "% OF UNRESOLVED IEVS OWNED BY THIS WORKER"
+objExcel.Cells(2, 6).Font.Bold = TRUE
 
-For excel_row = 1 to 6
-	objExcel.Cells(excel_row).Font.Bold = True
-Next
+
 'This bit freezes the top 2 rows for scrolling ease of use
 'ObjExcel.ActiveSheet.Range("A3").Select
 'objExcel.ActiveWindow.FreezePanes = True
