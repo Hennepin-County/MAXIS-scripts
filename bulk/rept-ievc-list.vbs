@@ -228,7 +228,7 @@ For each x_number in x_number_array
 					position = InStr(income_amount, "NOT")    		      'sets the position at the deliminator
 					income_amount = left(income_amount, position - 1)  'establishes employer as being before the deliminator
 				END IF
-				income_amount = replace(income_amount, "$", )
+				income_amount = replace(income_amount, "$", "")
 				objExcel.Cells(excel_row, 14).Value = income_amount
 			END IF
 
@@ -256,9 +256,9 @@ For each x_number in x_number_array
 				objExcel.Cells(excel_row, 16).Value = income_source
 
 				EMSearch "AMT: $", 9, col
-				MsgBox col
+				'MsgBox col
 				EMReadScreen income_amount, 72 - col, 9, col + 6			'Reads the income_amount and adds to excel up to 36 spaces
-				MsgBox 81 - col & vbcr & income_amount
+				'MsgBox 81 - col & vbcr & income_amount
 
 				income_amount = trim(income_amount)
 				position = InStr(income_amount, "AMT: $")    		      'sets the position at the deliminator
@@ -358,7 +358,7 @@ objExcel.Cells(5, 23).Value = "=(COUNTIF(H:H, " & excel_is_not_blank & ")-1)"	'E
 
 
 'Formatting the column width.
-FOR i = 1 to 22
+FOR i = 1 to 23
 	objExcel.Columns(i).AutoFit()
 NEXT
 
@@ -425,7 +425,7 @@ ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 6)).Merge
 objExcel.Cells(1, 2).HorizontalAlignment = -4108
 
 'Autofitting columns
-For col_to_autofit = 1 to 20
+For col_to_autofit = 1 to 23
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
 
