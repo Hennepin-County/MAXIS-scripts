@@ -2,7 +2,7 @@
 name_of_script = "CA - APPLICATION RECEIVED.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 145                     'manual run time in seconds
+STATS_manualtime = 500                     'manual run time in seconds
 STATS_denomination = "C"                   'C is for each CASE
 'END OF stats block=========================================================================================================
 
