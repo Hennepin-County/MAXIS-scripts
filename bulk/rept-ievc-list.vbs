@@ -244,26 +244,26 @@ For each x_number in x_number_array
 			END IF
 
 			IF match_type = "A50" THEN 'WAGE'
-			row = 9
-				EMReadScreen match_year, 4, row, 16			'Reads the match_year and adds to excel
+				EMReadScreen match_year, 4, 9, 16			'Reads the match_year and adds to excel
 				match_year = trim(match_year)
 				objExcel.Cells(excel_row, 15).Value = match_year
 
-				EMReadScreen income_source, 16, row, 31			'Reads the income_source and adds to excel
-				income_source = trim(income_source)
-				If instr(income_source, "AMT: $") THEN 					  'establishing the length of the variable
-					position = InStr(income_source, "AMT: $")    		      'sets the position at the deliminator
-					income_source = right(income_source, position - 6)  'establishes employer as being before the deliminator
-				END IF
+				EMReadScreen income_source, 60, 9, 31			'Reads the income_source and adds to excel
+				income_source = trim(income_source)							  'establishing the length of the variable
+				length = len(income_source)
+				position = InStr(income_source, "AMT: $")    		      'sets the position at the deliminator
+				income_source = left(income_source, position - 1 )  'establishes employer as being before the deliminator
+				income_amount = right(income_source, position - 1)
+				income_amount = trim(income_amount)
 				objExcel.Cells(excel_row, 16).Value = income_source
 
-				EMSearch "AMT: $", row, col
-				EMReadScreen income_amount, 20, row, col + 9			'Reads the income_amount and adds to excel
-				income_amount = trim(income_amount)
-				If instr(income_amount, "AMT: $") THEN 					  'establishing the length of the variable
-					position = InStr(income_amount, "AMT: $")    		      'sets the position at the deliminator
-					income_amount = right(income_amount, position)  'establishes income_amount as being before the deliminator
-				END IF
+				'EMSearch "AMT: $", row, col
+				'EMReadScreen income_amount, 20, 9, col + 9			'Reads the income_amount and adds to excel
+				'income_amount = trim(income_amount)
+				'If instr(income_amount, "AMT: $") THEN 					  'establishing the length of the variable
+				'	position = InStr(income_amount, "AMT: $")    		      'sets the position at the deliminator
+				'	income_amount = right(income_amount, position)  'establishes income_amount as being before the deliminator
+				'END IF
 				objExcel.Cells(excel_row, 14).Value = income_amount
 			END IF
 
