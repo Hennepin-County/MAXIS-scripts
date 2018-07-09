@@ -384,16 +384,21 @@ ObjExcel.Worksheets.Add().Name = "IEVC stats by worker"
 
 'Headers
 ObjExcel.Cells(1, 2).Value = "IEVC STATS BY WORKER"
+objExcel.Cells(1, 2).Font.Bold = TRUE
 ObjExcel.Cells(2, 1).Value = "WORKER"
+objExcel.Cells(2, 1).Font.Bold = TRUE
 ObjExcel.Cells(2, 2).Value = "NAME"
+objExcel.Cells(2, 2).Font.Bold = TRUE
 ObjExcel.Cells(2, 3).Value = "OLDER THAN 45 DAYS"
+objExcel.Cells(2, 3).Font.Bold = TRUE
 ObjExcel.Cells(2, 4).Value = "UNRESOLVED"
+objExcel.Cells(2, 4).Font.Bold = TRUE
 ObjExcel.Cells(2, 5).Value = "% OF WORKERS IEVS OLDER THAN 45 DAYS"
+objExcel.Cells(2, 5).Font.Bold = TRUE
 ObjExcel.Cells(2, 6).Value = "% OF UNRESOLVED IEVS OWNED BY THIS WORKER"
+objExcel.Cells(2, 6).Font.Bold = TRUE
 
-For excel_row = 1 to 6
-	objExcel.Cells(excel_row).Font.Bold = True
-Next
+
 'This bit freezes the top 2 rows for scrolling ease of use
 'ObjExcel.ActiveSheet.Range("A3").Select
 'objExcel.ActiveWindow.FreezePanes = True
