@@ -708,7 +708,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                     MsgBox "ENGLISH"
                 End Select
 
-                Memo_to_display = "The State sent you a packet of paperwork. This paperwork is to renew your " & programs & " case. Your " &_
+                Memo_to_display = "The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case. Your " &_
                                                 programs & " case will close on " & last_day_of_recert &_
                                                 " if we do not receive your paperwork. Please sign, date and return your renewal paperwork by " &_
                                                 CM_plus_1_mo & "/08/" & CM_plus_1_yr & "."
@@ -766,7 +766,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                 IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
 
                     EMSendKey("************************************************************")           'for some reason this is more stable then using write_variable
-                    CALL write_variable_in_SPEC_MEMO("The State sent you a packet of paperwork. This paperwork is to renew your " & programs & " case. Your " &_
+                    CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case. Your " &_
                                                     programs & " case will close on " & last_day_of_recert &_
                                                     " if we do not receive your paperwork. Please sign, date and return your renewal paperwork by " &_
                                                     CM_plus_1_mo & "/08/" & CM_plus_1_yr & ".")
@@ -851,7 +851,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
 
                         'creating the memo message and displaying it.
                         if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then Memo_to_display = "We received your Recertification on " & ALL_CASES_ARRAY(date_of_app, case_entry) & "."
-                        if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then Memo_to_display = "Your Recertification has not been received yet."
+                        if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then Memo_to_display = "Your Recertification has not yet been received."
 
                         Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "You must have an interview by " & last_day_of_recert & " or your benefits will end. "
                         Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "To complete a phone interview, call the EZ Info Line at 612-596-1300 between 9:00am and 4:00pm Monday through Friday."
@@ -900,7 +900,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                         IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
 
                             if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then CALL write_variable_in_SPEC_MEMO("We received your Recertification on " & ALL_CASES_ARRAY(date_of_app, case_entry) & ".")
-                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then CALL write_variable_in_SPEC_MEMO("Your Recertification has not been received yet.")
+                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then CALL write_variable_in_SPEC_MEMO("Your Recertification has not yet been received.")
                             CALL write_variable_in_SPEC_MEMO("")
                             CALL write_variable_in_SPEC_MEMO("You must have an interview by " & last_day_of_recert & " or your benefits will end. ")
                             CALL write_variable_in_SPEC_MEMO("")
