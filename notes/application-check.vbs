@@ -199,7 +199,7 @@ End if
 
 BeginDialog application_check_dialog, 0, 0, 391, 180, "Application Check:  & application_check"
   DropListBox 75, 15, 80, 15, "Select one..."+chr(9)+"Apply MN"+chr(9)+"CAF"+chr(9)+"CAF addendum"+chr(9)+"HC - certain populations"+chr(9)+"HC - LTC"+chr(9)+"HC - EMA Mnsure ", application_type_droplist
-  DropListBox 75, 40, 155, 15, "Select One:"+chr(9)+"Case is ready to approve or deny"+chr(9)+"Requested verifications not recieved"+chr(9)+"Partial verfications recieved, more are needed"+chr(9)+"Interview still needed"+chr(9)+"Other", application_status_droplist
+  DropListBox 75, 40, 155, 15, "Select One:"+chr(9)+"Case is ready to approve or deny"+chr(9)+"Requested verifications not received"+chr(9)+"Partial verfications received, more are needed"+chr(9)+"Interview still needed"+chr(9)+"Other", application_status_droplist
   EditBox 175, 20, 50, 15, application_check_date
   EditBox 100, 60, 170, 15, other_app_notes
   EditBox 100, 80, 170, 15, verifs_rcvd
