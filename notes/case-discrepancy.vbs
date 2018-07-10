@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/10/2018", "The ACTIONS TAKEN field is no longer a mandatory field.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -106,7 +107,6 @@ DO
 		If MNsure_case_number = "" and MNsure_checkbox = 1 then err_msg = err_msg & vbnewline & "* Enter the MNsure case number."
         If MEMB_PMI = "" then err_msg = err_msg & vbnewline & "* Enter the HH member and/or PMI #'s the discrepancy effects."
 		If describe_discrepancy = "" then err_msg = err_msg & vbnewline & "* Describe the discrepancy."
-		If actions_taken = "" then err_msg = err_msg & vbnewline & "* Enter the resolution/actions taken."
 		If worker_signature = "" then err_msg = err_msg & vbnewline & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
