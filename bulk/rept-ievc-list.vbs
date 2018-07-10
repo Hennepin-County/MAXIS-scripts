@@ -2,7 +2,7 @@
 name_of_script = "BULK - REPT-IEVC LIST.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 39                               'manual run time, per line, in seconds
+STATS_manualtime = 300                               'manual run time, per line, in seconds
 STATS_denomination = "I"       'I is for each ITEM
 'END OF stats block==============================================================================================
 
@@ -53,13 +53,13 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOG=============================================================================
-BeginDialog bulk_ievs_report_dialog, 0, 0, 361, 105, "BULK IEVS"
+BeginDialog bulk_ievs_report_dialog, 0, 0, 361, 105, "BULK IEVC"
   EditBox 10, 35, 345, 15, x_number_editbox
   CheckBox 10, 70, 150, 10, "Check here to run this query county-wide.", all_workers_check
   ButtonGroup ButtonPressed
     OkButton 250, 85, 50, 15
     CancelButton 305, 85, 50, 15
-  Text 145, 5, 90, 10, "---BULK IEVS REPORT---"
+  Text 145, 5, 90, 10, "---BULK IEVC REPORT---"
   Text 10, 20, 350, 10, "Please enter the x1 numbers of the caseloads you wish to check, separated by commas (if more than one):"
   Text 10, 55, 290, 10, "Please enter the entire 7-digit number x127 number. (Example: ''x100abc, x100abc'')"
   Text 20, 85, 210, 20, "NOTE: running queries county-wide takes a significant amount of time, ensure you have a stable connection."
@@ -120,7 +120,6 @@ objExcel.Cells(1, 17).Value    = "NONWAGE INCOME DATE" 'nonwage_date
 objExcel.Cells(1, 18).Value    = "SUPERVISOR ID" 'supervisor_id
 objExcel.Cells(1, 19).Value    = "WORKER NAME" 'worker_name
 
-
 For excel_row = 1 to 19
 	objExcel.Cells(excel_row).Font.Bold = True
 Next
@@ -133,7 +132,6 @@ excel_row = 2
 
 'This for...next contains each worker indicated above
 For each x_number in x_number_array
-
 	'Trims the x_number so that we don't have glitches
 	x_number = trim(x_number)
 	x_number = UCase(x_number)
@@ -228,7 +226,7 @@ For each x_number in x_number_array
 					position = InStr(income_amount, "NOT")    		      'sets the position at the deliminator
 					income_amount = left(income_amount, position - 1)  'establishes employer as being before the deliminator
 				END IF
-				income_amount = replace(income_amount, "$", )
+				income_amount = replace(income_amount, "$", "")
 				objExcel.Cells(excel_row, 14).Value = income_amount
 			END IF
 
@@ -256,14 +254,10 @@ For each x_number in x_number_array
 				objExcel.Cells(excel_row, 16).Value = income_source
 
 				EMSearch "AMT: $", 9, col
-				MsgBox col
+				'MsgBox col
 				EMReadScreen income_amount, 72 - col, 9, col + 6			'Reads the income_amount and adds to excel up to 36 spaces
-				MsgBox 81 - col & vbcr & income_amount
-
+				'MsgBox 81 - col & vbcr & income_amount
 				income_amount = trim(income_amount)
-				position = InStr(income_amount, "AMT: $")    		      'sets the position at the deliminator
-				income_amount = right(income_amount, position)  'establishes income_amount as being before the deliminator
-
 				objExcel.Cells(excel_row, 14).Value = income_amount
 			END IF
 
@@ -276,7 +270,7 @@ For each x_number in x_number_array
 				income_amount = trim(income_amount)
 				If instr(income_amount, "DATE") THEN 					  'establishing the length of the variable
 					position = InStr(income_amount, "DATE")    		      'sets the position at the deliminator
-					income_amount = left(income_amount, position)  'establishes income_amount as being before the deliminator
+					income_amount = left(income_amount, position - 1)  'establishes income_amount as being before the deliminator
 				END IF
 				objExcel.Cells(excel_row, 14).Value = income_amount
 			END IF
@@ -286,11 +280,11 @@ For each x_number in x_number_array
 				match_year = trim(match_year)
 				objExcel.Cells(excel_row, 15).Value = match_year
 
-				EMReadScreen income_source, 20, 9, 22			'Reads the income_source and adds to excel
+				EMReadScreen income_source, 60, 9, 22			'Reads the income_source and adds to excel
 				income_source = trim(income_source)
 				If instr(income_source, "AMOUNT: $") THEN 					  'establishing the length of the variable
 				    position = InStr(income_source, "AMOUNT: $")    		      'sets the position at the deliminator
-				    income_source = right(income_source, position - 9)  'establishes income_source as being before the deliminator
+				    income_source = left(income_source, position - 1)  'establishes income_source as being before the deliminator
 				END IF
 				objExcel.Cells(excel_row, 16).Value = income_source
 
@@ -304,8 +298,29 @@ For each x_number in x_number_array
 				objExcel.Cells(excel_row, 14).Value = income_amount
 			END IF
 			'
-			'IF match_type = "A80" THEN 'UNVI '
+			IF match_type = "A80" THEN 'UNVI '
+				EMReadScreen match_year, 2, 9, 9			'Reads the match_year and adds to excel
+				match_year = trim(match_year)
+				objExcel.Cells(excel_row, 15).Value = match_year
 
+				EMReadScreen income_source, 60, 9, 22			'Reads the income_source and adds to excel
+				income_source = trim(income_source)
+				If instr(income_source, "AMOUNT: $") THEN 					  'establishing the length of the variable
+					position = InStr(income_source, "AMOUNT: $")    		      'sets the position at the deliminator
+					income_source = left(income_source, position - 1)  'establishes income_source as being before the deliminator
+				END IF
+				objExcel.Cells(excel_row, 16).Value = income_source
+
+				EMSearch "AMOUNT: $", 9, col
+				EMReadScreen income_amount, 20, 9, col + 9			'Reads the income_amount and adds to excel
+				income_amount = trim(income_amount)
+				If instr(income_amount, "AMOUNT: $") THEN 					  'establishing the length of the variable
+					position = InStr(income_amount, "AMOUNT: $")    		      'sets the position at the deliminator
+					income_amount = right(income_amount, position)  'establishes income_amount as being before the deliminator
+				END IF
+				objExcel.Cells(excel_row, 14).Value = income_amount
+			END IF
+				'email me
 			'Active programs handling for case notes'
 			active_Programs = trim(ative_Programs)
 			programs = ""
@@ -329,8 +344,6 @@ For each x_number in x_number_array
 			STATS_counter = STATS_counter + 1		'Counts 1 item for every Match found and entered into excel.			diff_notc_date = ""			'blanks this out so that the information is not carried over in the do-loop'
 			maxis_case_number = ""
 		LOOP until last_page_check = "THIS IS THE LAST PAGE"
-	Else
-		excel_row = excel_row + 1
 	End If
 Next
 
@@ -352,83 +365,83 @@ ObjExcel.Cells(2, 23).Value = now
 ObjExcel.Cells(3, 22).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
 ObjExcel.Cells(3, 23).Value = timer - query_start_time
 ObjExcel.Cells(4, 22).Value = "Number of IEVS with No DAYS remaining:"
-objExcel.Cells(4, 23).Value = "=COUNTIFS(G:G, " & Chr(34) & "<=0" & Chr(34) & ", H:H, " & excel_is_not_blank & ")"	'Excel formula
+objExcel.Cells(4, 23).Value = "=COUNTIFS(H:H, " & Chr(34) & "<=0" & Chr(34) & ", H:H, " & excel_is_not_blank & ")"	'Excel formula
 ObjExcel.Cells(5, 22).Value = "Number of total UNRESOLVED IEVS:"
 objExcel.Cells(5, 23).Value = "=(COUNTIF(H:H, " & excel_is_not_blank & ")-1)"	'Excel formula
-
-
-'Formatting the column width.
-FOR i = 1 to 22
-	objExcel.Columns(i).AutoFit()
-NEXT
-
-'Going to another sheet, to enter worker-specific statistics
-ObjExcel.Worksheets.Add().Name = "IEVC stats by worker"
-
-'Headers
-ObjExcel.Cells(1, 2).Value = "IEVC STATS BY WORKER"
-ObjExcel.Cells(1, 2).Font.Bold = TRUE
-ObjExcel.Cells(2, 1).Value = "WORKER"
-objExcel.Cells(2, 1).Font.Bold = TRUE
-ObjExcel.Cells(2, 2).Value = "NAME"
-ObjExcel.Cells(2, 2).Font.Bold = TRUE
-ObjExcel.Cells(2, 3).Value = "OLDER THAN 45 DAYS"
-objExcel.Cells(2, 3).Font.Bold = TRUE
-ObjExcel.Cells(2, 4).Value = "UNRESOLVED"
-objExcel.Cells(2, 4).Font.Bold = TRUE
-ObjExcel.Cells(2, 5).Value = "% OF WORKERS IEVS OLDER THAN 45 DAYS"
-objExcel.Cells(2, 5).Font.Bold = TRUE
-ObjExcel.Cells(2, 6).Value = "% OF UNRESOLVED IEVS OWNED BY THIS WORKER"
-objExcel.Cells(2, 6).Font.Bold = TRUE
-
-'This bit freezes the top 2 rows for scrolling ease of use
-'ObjExcel.ActiveSheet.Range("A3").Select
-'objExcel.ActiveWindow.FreezePanes = True
-
-worker_row = 3
-'Writes each worker from the worker_array in the Excel spreadsheet
-For each x_number in x_number_array
-	'Trims the x_number so that we don't have glitches
-	x_number = trim(x_number)
-	x_number = UCase(x_number)
-	IF right(x_number, 3) <> "CLS" then 	'This bit gets worker names from REPT ACTV
-		Call navigate_to_MAXIS_screen ("REPT", "ACTV")
-		EMWriteScreen x_number, 21, 13
-		transmit
-		EMReadScreen worker_name, 24, 3, 11
-		worker_name = trim(worker_name)
-	Else
-		worker_name = "CLOSED RECORDS"		'Except CLS - which takes a long time to load and is Closed Records
-	End IF
-	'Adding all the information to Excel
-	ObjExcel.Cells(worker_row, 1).Value = x_number
-	ObjExcel.Cells(worker_row, 2).Value = worker_name
-	'Writing a formula to excel - Count each row in which Column H on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row AND Column G is 0 or less - All OVERDUE matches for this worker
-	ObjExcel.Cells(worker_row, 3).Value = "=COUNTIFS('Case information'!H:H, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!B:B, A" & worker_row & ", 'Case information'!G:G, " & Chr(34) & "<=0" & Chr(34) & ")"
-	'Writing a formula to excel - Count each row in which Column H on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row - ALL matches for this worker
-	ObjExcel.Cells(worker_row, 4).Value = "=COUNTIFS('Case information'!H:H, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!B:B, A" & worker_row & ")"
-	IF ObjExcel.Cells(worker_row, 4).Value <> "0" Then	'Preventing a divide by 0 error
-		ObjExcel.Cells(worker_row, 5).Value = "=C" & worker_row & "/D" & worker_row
-	Else
-		ObjExcel.Cells(worker_row, 5).Value = "0"
-	End If
-	ObjExcel.Cells(worker_row, 5).NumberFormat = "0.00%"		'Formula should be percent
-	ObjExcel.Cells(worker_row, 6).Value = "=D" & worker_row & "/SUM(D:D)"
-	ObjExcel.Cells(worker_row, 6).NumberFormat = "0.00%"		'Formula should be percent
-	worker_row = worker_row + 1
-Next
-
-'Merging header cell.
-ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 6)).Merge
-
-'Centering the cell
-objExcel.Cells(1, 2).HorizontalAlignment = -4108
-
-'Autofitting columns
-For col_to_autofit = 1 to 20
-	ObjExcel.columns(col_to_autofit).AutoFit()
-Next
-
-STATS_counter = STATS_counter - 1		'removing the initial counter so that this number is correct.
+'
+''Formatting the column width.
+'FOR i = 1 to 23
+'	objExcel.Columns(i).AutoFit()
+'NEXT
+'
+''Going to another sheet, to enter worker-specific statistics
+'ObjExcel.Worksheets.Add().Name = "IEVC stats by worker"
+'
+''Headers
+'ObjExcel.Cells(1, 2).Value = "IEVC STATS BY WORKER"
+'objExcel.Cells(1, 2).Font.Bold = TRUE
+'ObjExcel.Cells(2, 1).Value = "WORKER"
+'objExcel.Cells(2, 1).Font.Bold = TRUE
+'ObjExcel.Cells(2, 2).Value = "NAME"
+'objExcel.Cells(2, 2).Font.Bold = TRUE
+'ObjExcel.Cells(2, 3).Value = "OLDER THAN 45 DAYS"
+'objExcel.Cells(2, 3).Font.Bold = TRUE
+'ObjExcel.Cells(2, 4).Value = "UNRESOLVED"
+'objExcel.Cells(2, 4).Font.Bold = TRUE
+'ObjExcel.Cells(2, 5).Value = "% OF WORKERS IEVS OLDER THAN 45 DAYS"
+'objExcel.Cells(2, 5).Font.Bold = TRUE
+'ObjExcel.Cells(2, 6).Value = "% OF UNRESOLVED IEVS OWNED BY THIS WORKER"
+'objExcel.Cells(2, 6).Font.Bold = TRUE
+'
+'
+''This bit freezes the top 2 rows for scrolling ease of use
+''ObjExcel.ActiveSheet.Range("A3").Select
+''objExcel.ActiveWindow.FreezePanes = True
+'
+'worker_row = 3
+''Writes each worker from the worker_array in the Excel spreadsheet
+'For each x_number in x_number_array
+'	'Trims the x_number so that we don't have glitches
+'	x_number = trim(x_number)
+'	x_number = UCase(x_number)
+'	IF right(x_number, 3) <> "CLS" then 	'This bit gets worker names from REPT ACTV
+'		Call navigate_to_MAXIS_screen ("REPT", "ACTV")
+'		EMWriteScreen x_number, 21, 13
+'		transmit
+'		EMReadScreen worker_name, 24, 3, 11
+'		worker_name = trim(worker_name)
+'	Else
+'		worker_name = "CLOSED RECORDS"		'Except CLS - which takes a long time to load and is Closed Records
+'	End IF
+'	'Adding all the information to Excel
+'	ObjExcel.Cells(worker_row, 1).Value = x_number
+'	ObjExcel.Cells(worker_row, 2).Value = worker_name
+'	'Writing a formula to excel - Count each row in which Column H on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row AND Column G is 0 or less - All OVERDUE matches for this worker
+'	ObjExcel.Cells(worker_row, 3).Value = "=COUNTIFS('Case information'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & worker_row & ", 'Case information'!H:H, " & Chr(34) & "<=0" & Chr(34) & ")"
+'	'Writing a formula to excel - Count each row in which Column H on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row - ALL matches for this worker
+'	ObjExcel.Cells(worker_row, 4).Value = "=COUNTIFS('Case information'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & worker_row & ")"
+'	IF ObjExcel.Cells(worker_row, 4).Value <> "0" Then	'Preventing a divide by 0 error
+'		ObjExcel.Cells(worker_row, 5).Value = "=C" & worker_row & "/D" & worker_row
+'	Else
+'		ObjExcel.Cells(worker_row, 5).Value = "0"
+'	End If
+'	ObjExcel.Cells(worker_row, 5).NumberFormat = "0.00%"		'Formula should be percent
+'	ObjExcel.Cells(worker_row, 6).Value = "=D" & worker_row & "/SUM(D:D)"
+'	ObjExcel.Cells(worker_row, 6).NumberFormat = "0.00%"		'Formula should be percent
+'	worker_row = worker_row + 1
+'Next
+'
+''Merging header cell.
+'ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 6)).Merge
+'
+''Centering the cell
+'objExcel.Cells(1, 2).HorizontalAlignment = -4108
+'
+''Autofitting columns
+'For col_to_autofit = 1 to 23
+'	ObjExcel.columns(col_to_autofit).AutoFit()
+'Next
+'
+'STATS_counter = STATS_counter - 1		'removing the initial counter so that this number is correct.
 
 script_end_procedure("Success! The spreadsheet has all requested information.")
