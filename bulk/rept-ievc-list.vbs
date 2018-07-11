@@ -360,80 +360,80 @@ ObjExcel.Cells(4, 22).Value = "Number of IEVS with No DAYS remaining:"
 objExcel.Cells(4, 23).Value = "=COUNTIFS(H:H, " & Chr(34) & "<=0" & Chr(34) & ", H:H, " & excel_is_not_blank & ")"	'Excel formula
 ObjExcel.Cells(5, 22).Value = "Number of total UNRESOLVED IEVS:"
 objExcel.Cells(5, 23).Value = "=(COUNTIF(H:H, " & excel_is_not_blank & ")-1)"	'Excel formula
-'
-''Formatting the column width.
-'FOR i = 1 to 23
-'	objExcel.Columns(i).AutoFit()
-'NEXT
-'
-''Going to another sheet, to enter worker-specific statistics
-'ObjExcel.Worksheets.Add().Name = "IEVC stats by worker"
-'
-''Headers
-'ObjExcel.Cells(1, 2).Value = "IEVC STATS BY WORKER"
-'objExcel.Cells(1, 2).Font.Bold = TRUE
-'ObjExcel.Cells(2, 1).Value = "WORKER"
-'objExcel.Cells(2, 1).Font.Bold = TRUE
-'ObjExcel.Cells(2, 2).Value = "NAME"
-'objExcel.Cells(2, 2).Font.Bold = TRUE
-'ObjExcel.Cells(2, 3).Value = "OLDER THAN 45 DAYS"
-'objExcel.Cells(2, 3).Font.Bold = TRUE
-'ObjExcel.Cells(2, 4).Value = "UNRESOLVED"
-'objExcel.Cells(2, 4).Font.Bold = TRUE
-'ObjExcel.Cells(2, 5).Value = "% OF WORKERS IEVS OLDER THAN 45 DAYS"
-'objExcel.Cells(2, 5).Font.Bold = TRUE
-'ObjExcel.Cells(2, 6).Value = "% OF UNRESOLVED IEVS OWNED BY THIS WORKER"
-'objExcel.Cells(2, 6).Font.Bold = TRUE
-'
-'
-''This bit freezes the top 2 rows for scrolling ease of use
-''ObjExcel.ActiveSheet.Range("A3").Select
-''objExcel.ActiveWindow.FreezePanes = True
-'
-'worker_row = 3
-''Writes each worker from the worker_array in the Excel spreadsheet
-'For each x_number in x_number_array
-'	'Trims the x_number so that we don't have glitches
-'	x_number = trim(x_number)
-'	x_number = UCase(x_number)
-'	IF right(x_number, 3) <> "CLS" then 	'This bit gets worker names from REPT ACTV
-'		Call navigate_to_MAXIS_screen ("REPT", "ACTV")
-'		EMWriteScreen x_number, 21, 13
-'		transmit
-'		EMReadScreen worker_name, 24, 3, 11
-'		worker_name = trim(worker_name)
-'	Else
-'		worker_name = "CLOSED RECORDS"		'Except CLS - which takes a long time to load and is Closed Records
-'	End IF
-'	'Adding all the information to Excel
-'	ObjExcel.Cells(worker_row, 1).Value = x_number
-'	ObjExcel.Cells(worker_row, 2).Value = worker_name
-'	'Writing a formula to excel - Count each row in which Column H on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row AND Column G is 0 or less - All OVERDUE matches for this worker
-'	ObjExcel.Cells(worker_row, 3).Value = "=COUNTIFS('Case information'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & worker_row & ", 'Case information'!H:H, " & Chr(34) & "<=0" & Chr(34) & ")"
-'	'Writing a formula to excel - Count each row in which Column H on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row - ALL matches for this worker
-'	ObjExcel.Cells(worker_row, 4).Value = "=COUNTIFS('Case information'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & worker_row & ")"
-'	IF ObjExcel.Cells(worker_row, 4).Value <> "0" Then	'Preventing a divide by 0 error
-'		ObjExcel.Cells(worker_row, 5).Value = "=C" & worker_row & "/D" & worker_row
-'	Else
-'		ObjExcel.Cells(worker_row, 5).Value = "0"
-'	End If
-'	ObjExcel.Cells(worker_row, 5).NumberFormat = "0.00%"		'Formula should be percent
-'	ObjExcel.Cells(worker_row, 6).Value = "=D" & worker_row & "/SUM(D:D)"
-'	ObjExcel.Cells(worker_row, 6).NumberFormat = "0.00%"		'Formula should be percent
-'	worker_row = worker_row + 1
-'Next
-'
-''Merging header cell.
-'ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 6)).Merge
-'
-''Centering the cell
-'objExcel.Cells(1, 2).HorizontalAlignment = -4108
-'
-''Autofitting columns
-'For col_to_autofit = 1 to 23
-'	ObjExcel.columns(col_to_autofit).AutoFit()
-'Next
-'
-'STATS_counter = STATS_counter - 1		'removing the initial counter so that this number is correct.
+
+'Formatting the column width.
+FOR i = 1 to 23
+	objExcel.Columns(i).AutoFit()
+NEXT
+IF workerstat_checkbox = CHECKED THEN
+	'Going to another sheet, to enter worker-specific statistics
+	ObjExcel.Worksheets.Add().Name = "IEVC stats by worker"
+	
+	'Headers
+	ObjExcel.Cells(1, 2).Value = "IEVC STATS BY WORKER"
+	objExcel.Cells(1, 2).Font.Bold = TRUE
+	ObjExcel.Cells(2, 1).Value = "WORKER"
+	objExcel.Cells(2, 1).Font.Bold = TRUE
+	ObjExcel.Cells(2, 2).Value = "NAME"
+	objExcel.Cells(2, 2).Font.Bold = TRUE
+	ObjExcel.Cells(2, 3).Value = "OLDER THAN 45 DAYS"
+	objExcel.Cells(2, 3).Font.Bold = TRUE
+	ObjExcel.Cells(2, 4).Value = "UNRESOLVED"
+	objExcel.Cells(2, 4).Font.Bold = TRUE
+	ObjExcel.Cells(2, 5).Value = "% OF WORKERS IEVS OLDER THAN 45 DAYS"
+	objExcel.Cells(2, 5).Font.Bold = TRUE
+	ObjExcel.Cells(2, 6).Value = "% OF UNRESOLVED IEVS OWNED BY THIS WORKER"
+	objExcel.Cells(2, 6).Font.Bold = TRUE
+
+
+	'This bit freezes the top 2 rows for scrolling ease of use
+	'ObjExcel.ActiveSheet.Range("A3").Select
+	'objExcel.ActiveWindow.FreezePanes = True
+
+	worker_row = 3
+	'Writes each worker from the worker_array in the Excel spreadsheet
+	For each x_number in x_number_array
+		'Trims the x_number so that we don't have glitches
+		x_number = trim(x_number)
+		x_number = UCase(x_number)
+		IF right(x_number, 3) <> "CLS" then 	'This bit gets worker names from REPT ACTV
+			Call navigate_to_MAXIS_screen ("REPT", "ACTV")
+			EMWriteScreen x_number, 21, 13
+			transmit
+			EMReadScreen worker_name, 24, 3, 11
+			worker_name = trim(worker_name)
+			Else
+			worker_name = "CLOSED RECORDS"		'Except CLS - which takes a long time to load and is Closed Records
+			End IF
+			'Adding all the information to Excel
+			ObjExcel.Cells(worker_row, 1).Value = x_number
+			ObjExcel.Cells(worker_row, 2).Value = worker_name
+			'Writing a formula to excel - Count each row in which Column H on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row AND Column G is 0 or less - All OVERDUE matches for this worker
+			ObjExcel.Cells(worker_row, 3).Value = "=COUNTIFS('Case information'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & worker_row & ", 'Case information'!H:H, " & Chr(34) & "<=0" & Chr(34) & ")"
+			'Writing a formula to excel - Count each row in which Column H on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row - ALL matches for this worker
+			ObjExcel.Cells(worker_row, 4).Value = "=COUNTIFS('Case information'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & worker_row & ")"
+			IF ObjExcel.Cells(worker_row, 4).Value <> "0" Then	'Preventing a divide by 0 error
+			ObjExcel.Cells(worker_row, 5).Value = "=C" & worker_row & "/D" & worker_row
+			Else
+			ObjExcel.Cells(worker_row, 5).Value = "0"
+			End If
+			ObjExcel.Cells(worker_row, 5).NumberFormat = "0.00%"		'Formula should be percent
+			ObjExcel.Cells(worker_row, 6).Value = "=D" & worker_row & "/SUM(D:D)"
+			ObjExcel.Cells(worker_row, 6).NumberFormat = "0.00%"		'Formula should be percent
+			worker_row = worker_row + 1
+			Next
+
+			'Merging header cell.
+			ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 6)).Merge
+
+			'Centering the cell
+			objExcel.Cells(1, 2).HorizontalAlignment = -4108
+
+			'Autofitting columns
+			For col_to_autofit = 1 to 6
+			ObjExcel.columns(col_to_autofit).AutoFit()
+			Next
+END IF
+STATS_counter = STATS_counter - 1		'removing the initial counter so that this number is correct.
 
 script_end_procedure("Success! The spreadsheet has all requested information.")
