@@ -124,15 +124,15 @@ EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 
 '--------------------------------------------------------------------Dialog
-BeginDialog OP_Cleared_dialog, 0, 0, 361, 240, "Match Cleared CC Claim Entered-No DAIL"
+BeginDialog OP_Cleared_dialog, 0, 0, 361, 245, "Match Cleared CC Claim Entered-No DAIL"
   EditBox 55, 5, 35, 15, MAXIS_case_number
-	EditBox 150, 5, 45, 15, discovery_date
-	DropListBox 300, 5, 55, 15, "Select:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"LAST YEAR"+chr(9)+"OTHER", select_quarter
+  DropListBox 150, 5, 55, 15, "Select:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"LAST YEAR"+chr(9)+"OTHER", select_quarter
+  EditBox 270, 5, 45, 15, discovery_date
   DropListBox 55, 25, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
-	DropListBox 150, 25, 50, 15, "Select:"+chr(9)+"WAGE"+chr(9)+"BEER", IEVS_type
+  DropListBox 150, 25, 55, 15, "Select:"+chr(9)+"WAGE"+chr(9)+"BEER", IEVS_type
   EditBox 245, 25, 20, 15, memb_number
-  EditBox 335, 25, 20, 15, OT_resp_memb
-	DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
+  EditBox 330, 25, 20, 15, OT_resp_memb
+  DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
   EditBox 130, 65, 30, 15, OP_from
   EditBox 180, 65, 30, 15, OP_to
   EditBox 245, 65, 35, 15, Claim_number
@@ -147,24 +147,25 @@ BeginDialog OP_Cleared_dialog, 0, 0, 361, 240, "Match Cleared CC Claim Entered-N
   EditBox 180, 105, 30, 15, OP_to_III
   EditBox 245, 105, 35, 15, Claim_number_III
   EditBox 305, 105, 45, 15, Claim_amount_III
-  DropListBox 50, 140, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
-  EditBox 165, 140, 185, 15, collectible_reason
+  EditBox 70, 140, 190, 15, collectible_reason
+  DropListBox 315, 140, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
   EditBox 70, 160, 160, 15, EVF_used
+  EditBox 70, 180, 45, 15, income_rcvd_date
+  EditBox 70, 200, 185, 15, Reason_OP
   EditBox 305, 160, 45, 15, HC_resp_memb
-	EditBox 70, 180, 45, 15, income_rcvd_date
   EditBox 305, 180, 45, 15, Fed_HC_AMT
-	EditBox 70, 200, 280, 15, Reason_OP
-	CheckBox 5, 220, 120, 10, "Earned Income disregard allowed", EI_checkbox
+  EditBox 305, 200, 45, 15, hc_claim_number
+  CheckBox 70, 225, 120, 10, "Earned Income disregard allowed", EI_checkbox
   ButtonGroup ButtonPressed
-    OkButton 255, 220, 45, 15
-    CancelButton 305, 220, 45, 15
+    OkButton 255, 225, 45, 15
+    CancelButton 305, 225, 45, 15
   Text 5, 10, 50, 10, "Case Number: "
-	Text 95, 10, 55, 10, "Discovery Date: "
-  Text 250, 10, 45, 10, "Match Period:"
+  Text 100, 10, 45, 10, "Match Period:"
+  Text 215, 10, 55, 10, "Discovery Date: "
   Text 5, 30, 50, 10, "Fraud referral:"
   Text 110, 30, 40, 10, "IEVS Type:"
   Text 210, 30, 30, 10, "MEMB #:"
-  Text 270, 30, 60, 10, "Other resp. memb:"
+  Text 275, 30, 55, 10, "OT resp. memb:"
   GroupBox 10, 45, 345, 90, "Overpayment Information"
   Text 15, 70, 30, 10, "Program:"
   Text 105, 70, 20, 10, "From:"
@@ -181,13 +182,14 @@ BeginDialog OP_Cleared_dialog, 0, 0, 361, 240, "Match Cleared CC Claim Entered-N
   Text 165, 110, 10, 10, "To:"
   Text 215, 110, 25, 10, "Claim #"
   Text 285, 110, 20, 10, "AMT:"
-  Text 5, 145, 40, 10, "Collectible?"
-  Text 95, 145, 65, 10, "Collectible Reason:"
+  Text 5, 145, 65, 10, "Collectible Reason:"
+  Text 270, 145, 40, 10, "Collectible?"
   Text 5, 165, 60, 10, "Income verif used:"
   Text 240, 165, 65, 10, "HC resp. members:"
-  Text 240, 185, 65, 10, "Total FED HC AMT:"
-	Text 15, 205, 50, 10, "Reason for OP:"
   Text 5, 185, 60, 10, "Date income rcvd: "
+  Text 240, 185, 65, 10, "Total FED HC AMT:"
+  Text 15, 205, 50, 10, "Reason for OP:"
+  Text 265, 205, 40, 10, "HC Claim #:"
 EndDialog
 
 Do
@@ -416,11 +418,12 @@ END IF
         IF OP_3 <> "" then Call write_variable_in_case_note(programs & " Overpayment " & OP_3 & " through  " & OP_to_3 & "  Claim # " & Claim_3 & "  Amt $" & AMT_3)
         IF OP_4 <> "" then Call write_variable_in_case_note(programs & " Overpayment " & OP_4 & " through  " & OP_to_4 & "  Claim # " & Claim_4 & "  Amt $" & AMT_4)
         IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
-        IF instr(programs, "HC") then
+        IF program = "Health Care" or IF program = "Medical Assistance" THEN
         	Call write_bullet_and_variable_in_CASE_NOTE("HC responsible members", HC_resp_memb)
+			Call write_bullet_and_variable_in_CASE_NOTE("HC claim number", hc_claim_number)
         	Call write_bullet_and_variable_in_CASE_NOTE("Total federal Health Care amount", Fed_HC_AMT)
         	Call write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-        END IF
+		END IF
         CALL write_bullet_and_variable_in_case_note("Income verification received", income_rcvd_date)
         CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
         CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
