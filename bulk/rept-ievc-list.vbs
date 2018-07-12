@@ -137,26 +137,23 @@ For each x_number in x_number_array
 	'Trims the x_number so that we don't have glitches
 	x_number = trim(x_number)
 	x_number = UCase(x_number)
-
 	back_to_SELF
 	CALL navigate_to_MAXIS_screen("REPT", "IEVC")	'Navigates to the worker based report'
 	EMReadScreen non_disclosure_screen, 14, 2, 46	'Checks to make sure the NDA is current
 	If non_disclosure_screen = "Non-disclosure" Then script_end_procedure ("It appears you need to confirm agreement to access IEVC. Please navigate there manually to confirm and then run the script again.")
 	EMWriteScreen x_number, 4, 11					'goes to the specific worker's report
 	transmit
-
 	EMReadScreen unresolved_ievs_exists, 1, 8, 5	'Checks to see if there is something listed on the first line
-	'TO DO' "No IEVS for this worker."		'Adds line to Excel sheet indicating no matches
 	If unresolved_ievs_exists <> " " Then 			'If so, the script will gather data
 		EMReadScreen supervisor_id, 7, 4, 32		'Pulls the X-Number of the supervisor
-		EMReadScreen IEVC_check, 4, 2, 53			'Makes sure still on the IEVC report - sometimes this glitches and causes all kinds of errors
-		If IEVC_check = "IEVC" Then
+		'EMReadScreen IEVC_check, 4, 2, 53			'Makes sure still on the IEVC report - sometimes this glitches and causes all kinds of errors
+		'If IEVC_check = "IEVC" Then
 			EMSendKey "<HOME>"						'Sets the cursor at the first editable field - which is the worker X-Number
 			PF1										'PF1 on the X-Number to pull up worker information
 			EMReadScreen worker_name, 21, 19, 10	'Reads the worker name
 			worker_name = trim(worker_name)			'Trims the worker name
 			transmit 								'Closes the worker information pop-up
-		End If
+		'End If
 		EMWriteScreen x_number, 4, 11				'goes to the specific worker's report - again
 		transmit									'This part happens again after looking at worker information due to some weird glitchy thing on this report
 		IEVC_Row = 8
