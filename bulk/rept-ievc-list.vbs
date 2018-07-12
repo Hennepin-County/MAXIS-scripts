@@ -1,5 +1,5 @@
 'Required for statistical purposes===============================================================================
-name_of_script = "BULK - REPT-IEVC LIST.vbs"
+name_of_script = "BULK - REPT IEVC LIST.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 300                               'manual run time, per line, in seconds
@@ -368,7 +368,7 @@ NEXT
 IF workerstat_checkbox = CHECKED THEN
 	'Going to another sheet, to enter worker-specific statistics
 	ObjExcel.Worksheets.Add().Name = "IEVC stats by worker"
-	
+
 	'Headers
 	ObjExcel.Cells(1, 2).Value = "IEVC STATS BY WORKER"
 	objExcel.Cells(1, 2).Font.Bold = TRUE
