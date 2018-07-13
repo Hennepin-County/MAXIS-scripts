@@ -1,8 +1,8 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "NOTICES - SELECT WCOM.vbs"
+name_of_script = "testing function.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 90                               'manual run time in seconds
+STATS_manualtime = 5                               'manual run time in seconds
 STATS_denomination = "C"       'C is for each CASE
 'END OF stats block==============================================================================================
 'run_locally = TRUE
