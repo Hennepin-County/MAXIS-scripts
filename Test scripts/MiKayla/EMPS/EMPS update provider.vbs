@@ -65,8 +65,7 @@ EndDialog
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 'Connects to BlueZone
 EMConnect ""
-
-'Shows dialog
+'the dialog
 Do
 	Do
 		err_msg = ""
@@ -92,29 +91,29 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 excel_row = 2           're-establishing the row to start checking the members for
 
 Do
-
-        MAXIS_case_number   = objExcel.cells(excel_row, 1).Value	're-establishing the case number to use for the case
-        last_name           = objExcel.cells(excel_row, 3).Value
-        first_name          = objExcel.cells(excel_row, 2).Value
-      	'member_number       = objExcel.cells(excel_row, 4).Value
-        DEED_agency         = objExcel.cells(excel_row, 5).Value	're-establishing the agency
-        MAXIS_case_number = trim(MAXIS_case_number)
+        MAXIS_case_number = objExcel.cells(excel_row, 1).Value 	're-establishing the case number to use for the case
+		MAXIS_case_number = trim(MAXIS_case_number)
         If MAXIS_case_number = "" then exit do						'exits do if the case number is ""
-        client_name = last_name & ", " & first_name
 
-		EMWriteScreen MAXIS_case_number, 18, 43				'enters member number
+		'objExcel.cells(excel_row, _).Value = first_name
+		'objExcel.cells(excel_row, _).Value = last_name
+		'client_name = last_name & ", " & first_name
+      	'objExcel.cells(excel_row, _).Value = member_number
+     	name_of_EMPS = objExcel.cells(excel_row, 2).Value       	're-establishing the agency
+		'EMWriteScreen MAXIS_case_number, 18, 43				'enters member number
 
 		CALL navigate_to_MAXIS_screen("STAT", "EMPS")
-
+		'EMReadScreen x_number_check, 4, 21, 21 YOU HAVE 'READ ONLY' ACCESS FOR THIS CASE
+		'If x_number_check <> "X127" then exit do
 		EMReadScreen EMPS_panel_check, 4, 2, 55
       	If EMPS_panel_check <> "EMPS" then ObjExcel.Cells(excel_row, 7).Value = ""
 
         PF9	    'putting EMPS panel into edit mode
-        EMReadScreen err_msg, 18, 24, 02
-        If err_msg <> "" THEN
-          error_reason = msgbox "UNABLE TO UPDATE EMPS"
-          xcel_row = excel_row + 1
-        END IF
+		'EMReadScreen err_msg, 18, 24, 02
+		'If err_msg <> "" THEN
+		' 	excel_row = excel_row + 1
+		'	error_reason = err_msg
+		'END IF
 
         Call write_value_and_transmit("x", 19, 25)	'opening 'other provider information pop up box
         EMReadScreen other_box, 5, 4, 30
@@ -122,87 +121,91 @@ Do
         	error_reason = "Unable to get into Provider information"
         End if
 
-        CALL clear_line_of_text(6, 37)
-        CALL clear_line_of_text(7, 37)
-        CALL clear_line_of_text(8, 37)
-        CALL clear_line_of_text(9, 37)
-        CALL clear_line_of_text(10, 47)
-        CALL clear_line_of_text(12, 37)
+        CALL clear_line_of_text(6, 37) 'Job Counselor/Contact'
+        CALL clear_line_of_text(7, 37) 'Empl Services Agency'
+        CALL clear_line_of_text(8, 37)	'Street'
+        CALL clear_line_of_text(9, 37)  'City'
+        CALL clear_line_of_text(10, 37) 'St
+		CALL clear_line_of_text(10, 47) 'Zip
+		CALL clear_line_of_text(12, 39)
+        CALL clear_line_of_text(12, 45)
+        CALL clear_line_of_text(12, 49)
         CALL clear_line_of_text(13, 39)
         CALL clear_line_of_text(13, 45)
         CALL clear_line_of_text(13, 49)
 
-		IF DEED_agency = "AIOIC" THEN
-				EMWriteScreen "HSPH.ESP.61AIO", 6, 37
-				EMWriteScreen "AIOIC", 7, 37
-				EMWriteScreen "1845 EAST FRANKLIN AVENUE", 8, 37
-				EMWriteScreen "MINNEAPOLIS", 9, 37
-				EMWriteScreen "MN", 10, 37
-				EMWriteScreen "55404", 10, 47
-				EMWriteScreen "612", 12, 39
-				EMWriteScreen "341", 12, 45
-				EMWriteScreen "3358", 12, 49
-				start_a_blank_CASE_NOTE
-					CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO AIOIC AS PART OF THE HC ADJUSTMENT OF CASELOADS")
-					CALL write_variable_in_CASE_NOTE("HSPH.ESP.61AIO IS NEW ESP OFFICE")
-					CALL write_variable_in_CASE_NOTE("TRANSFERRED VIA BULK SCRIPT")
-				PF3 'saving the case note
-				error_reason = "EMPS updated"
+		IF name_of_EMPS = "AIOIC" THEN
+			EMWriteScreen "HSPH.ESP.61AIO", 7, 37
+			EMWriteScreen "AIOIC", 6, 37
+			EMWriteScreen "1845 EAST FRANKLIN AVENUE", 8, 37
+			EMWriteScreen "MINNEAPOLIS", 9, 37
+			EMWriteScreen "MN", 10, 37
+			EMWriteScreen "55404", 10, 47
+			EMWriteScreen "612", 12, 39
+			EMWriteScreen "341", 12, 45
+			EMWriteScreen "3358", 12, 49
+			PF3
+			start_a_blank_CASE_NOTE
+				CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO AIOIC AS PART OF THE HC ADJUSTMENT OF CASELOADS")
+				CALL write_variable_in_CASE_NOTE("HSPH.ESP.61AIO IS NEW ESP OFFICE")
+				CALL write_variable_in_CASE_NOTE("TRANSFERRED VIA BULK SCRIPT")
+			PF3 'saving the case note
+			error_reason = "EMPS updated"
 
-        Elseif DEED_agency = "AVIVO BROOKLYN CENTER" THEN
-            EMWriteScreen "HSPH.ESP.20268", 6, 37
-            EMWriteScreen "AVIVO BROOKLYN CENTER", 7, 37
-            EMWriteScreen "5701 SHINGLE CREEK PARKWAY", 8, 37
-            EMWriteScreen "BROOKLYN CENTER", 9, 37
-            EMWriteScreen "MN", 10, 37
-            EMWriteScreen "55430", 10, 47
-            EMWriteScreen "612", 12, 39
-            EMWriteScreen "752", 12, 45
-            EMWriteScreen "8900", 12, 49
-            start_a_blank_CASE_NOTE
-            CALL write_variable_in_CASE_NOTE("ESP CASE ASSIGNED TO AVIVO BROOKLYN CENTER")
-            CALL write_variable_in_CASE_NOTE("20268 IS AGENCY RETAINING THE CASE")
-            CALL write_variable_in_CASE_NOTE("HUB MODEL ENDED 12/31/17")
-            PF3 'saving the case note
-            error_reason = "EMPS updated"
+        'Elseif name_of_EMPS = "AVIVO BROOKLYN CENTER" THEN
+        '    EMWriteScreen "HSPH.ESP.20268", 6, 37
+        '    EMWriteScreen "AVIVO BROOKLYN CENTER", 7, 37
+        '    EMWriteScreen "5701 SHINGLE CREEK PARKWAY", 8, 37
+        '    EMWriteScreen "BROOKLYN CENTER", 9, 37
+        '    EMWriteScreen "MN", 10, 37
+        '    EMWriteScreen "55430", 10, 47
+        '    EMWriteScreen "612", 12, 39
+        '    EMWriteScreen "752", 12, 45
+        '    EMWriteScreen "8900", 12, 49
+        '    start_a_blank_CASE_NOTE
+        '    CALL write_variable_in_CASE_NOTE("ESP CASE ASSIGNED TO AVIVO BROOKLYN CENTER")
+        '    CALL write_variable_in_CASE_NOTE("20268 IS AGENCY RETAINING THE CASE")
+        '    CALL write_variable_in_CASE_NOTE("HUB MODEL ENDED 12/31/17")
+        '    PF3 'saving the case note
+        '    error_reason = "EMPS updated"
 
-        Elseif DEED_agency = "AVIVO BLOOMINGTON" THEN
-            EMWriteScreen "HSPH.ESP.26AVO", 6, 37
-            EMWriteScreen "AVIVO BLOOMINGTON", 7, 37
-            EMWriteScreen "2626 EAST 82ND ST #370", 8, 37
-            EMWriteScreen "BLOOMINGTON", 9, 37
-            EMWriteScreen "MN", 10, 37
-            EMWriteScreen "55425", 10, 47
-            EMWriteScreen "612", 12, 39
-            EMWriteScreen "752", 12, 45
-            EMWriteScreen "8940", 12, 49
-            start_a_blank_CASE_NOTE
-            CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO AVIVO BLOOMINGTON")
-            CALL write_variable_in_CASE_NOTE("26AVO IS AGENCY RETAINING THE CASE")
-            CALL write_variable_in_CASE_NOTE("HUB MODEL ENDED 12/31/17")
-            PF3 'saving the case note
-            error_reason = "EMPS updated"
+        'Elseif name_of_EMPS = "AVIVO BLOOMINGTON" THEN
+        '    EMWriteScreen "HSPH.ESP.26AVO", 6, 37
+        '    EMWriteScreen "AVIVO BLOOMINGTON", 7, 37
+        '    EMWriteScreen "2626 EAST 82ND ST #370", 8, 37
+        '    EMWriteScreen "BLOOMINGTON", 9, 37
+        '    EMWriteScreen "MN", 10, 37
+        '    EMWriteScreen "55425", 10, 47
+        '    EMWriteScreen "612", 12, 39
+        '    EMWriteScreen "752", 12, 45
+        '    EMWriteScreen "8940", 12, 49
+        '    start_a_blank_CASE_NOTE
+        '    CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO AVIVO BLOOMINGTON")
+        '    CALL write_variable_in_CASE_NOTE("26AVO IS AGENCY RETAINING THE CASE")
+        '    CALL write_variable_in_CASE_NOTE("HUB MODEL ENDED 12/31/17")
+        '    PF3 'saving the case note
+        '    error_reason = "EMPS updated"
 
-        Elseif DEED_agency = "AVIVO NORTH" THEN
-                EMWriteScreen "HSPH.ESP.27WIN", 6, 37
-                EMWriteScreen "AVIVO NORTH MINNEAPOLIS", 7, 37
-                EMWriteScreen "2143 LOWRY AVE NORTH", 8, 37
-                EMWriteScreen "MINNEAPOLIS", 9, 37
-                EMWriteScreen "MN", 10, 37
-                EMWriteScreen "55411", 10, 47
-                EMWriteScreen "612", 12, 39
-                EMWriteScreen "752", 12, 45
-                EMWriteScreen "8500", 12, 49
-                start_a_blank_CASE_NOTE
-                CALL write_variable_in_CASE_NOTE("ESP CASE ASSIGNED TO AVIVO NORTH MINNEAPOLIS")
-                CALL write_variable_in_CASE_NOTE("27WIN IS AGENCY RETAINING THE CASE")
-                CALL write_variable_in_CASE_NOTE("HUB MODEL ENDED 12/31/17")
-                PF3 'saving the case note
-                error_reason = "EMPS updated"
+        'Elseif name_of_EMPS = "AVIVO NORTH" THEN
+        '        EMWriteScreen "HSPH.ESP.27WIN", 6, 37
+        '        EMWriteScreen "AVIVO NORTH MINNEAPOLIS", 7, 37
+        '        EMWriteScreen "2143 LOWRY AVE NORTH", 8, 37
+        '        EMWriteScreen "MINNEAPOLIS", 9, 37
+        '        EMWriteScreen "MN", 10, 37
+        '        EMWriteScreen "55411", 10, 47
+        '        EMWriteScreen "612", 12, 39
+        '        EMWriteScreen "752", 12, 45
+        '        EMWriteScreen "8500", 12, 49
+        '        start_a_blank_CASE_NOTE
+        '        CALL write_variable_in_CASE_NOTE("ESP CASE ASSIGNED TO AVIVO NORTH MINNEAPOLIS")
+        '        CALL write_variable_in_CASE_NOTE("27WIN IS AGENCY RETAINING THE CASE")
+        '        CALL write_variable_in_CASE_NOTE("HUB MODEL ENDED 12/31/17")
+        '        PF3 'saving the case note
+        '        error_reason = "EMPS updated"
 
-        Elseif DEED_agency = "CAPI BROOKLYN CENTER" THEN
-            EMWriteScreen "HSPH.ESP.20297", 6, 37
-            EMWriteScreen "CAPI BROOKLYN CENTER", 7, 37
+        Elseif name_of_EMPS = "CAPI BC" THEN
+            EMWriteScreen "HSPH.ESP.20297", 7, 37
+            EMWriteScreen "CAPI BROOKLYN CENTER", 6, 37
             EMWriteScreen "5930 BROOKLYN BLVD", 8, 37
             EMWriteScreen "BROOKLYN CENTER", 9, 37
             EMWriteScreen "MN", 10, 37
@@ -210,6 +213,7 @@ Do
             EMWriteScreen "612", 12, 39
             EMWriteScreen "588", 12, 45
             EMWriteScreen "3592", 12, 49
+			PF3
 			start_a_blank_CASE_NOTE
 				CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO CAPI BROOKLYN CENTER AS PART OF THE HC ADJUSTMENT OF CASELOADS")
 				CALL write_variable_in_CASE_NOTE("HSPH.ESP.20297 IS NEW ESP OFFICE")
@@ -217,9 +221,9 @@ Do
 			PF3 'saving the case note
             error_reason = "EMPS updated"
 
-        Elseif DEED_agency = "CAPI SOUTH" THEN
-            EMWriteScreen "HSPH.ESP.1CP50", 6, 37
-            EMWriteScreen "CAPI SOUTH", 7, 37
+        Elseif name_of_EMPS = "CAPI SOUTH" THEN
+            EMWriteScreen "HSPH.ESP.1CP50", 7, 37
+            EMWriteScreen "CAPI SOUTH", 6, 37
             EMWriteScreen "3702 EAST LAKE ST", 8, 37
             EMWriteScreen "MINNEAPOLIS", 9, 37
             EMWriteScreen "MN", 10, 37
@@ -227,16 +231,17 @@ Do
             EMWriteScreen "612", 12, 39
             EMWriteScreen "721", 12, 45
             EMWriteScreen "0122", 12, 49
-            start_a_blank_CASE_NOTE
+			PF3
+		    start_a_blank_CASE_NOTE
             	CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO CAPI SOUTH AS PART OF THE HC ADJUSTMENT OF CASELOADS")
 				CALL write_variable_in_CASE_NOTE("HSPH.ESP.1CP50 IS NEW ESP OFFICE")
 				CALL write_variable_in_CASE_NOTE("TRANSFERRED VIA BULK SCRIPT")
 			PF3 'saving the case note
             error_reason = "EMPS updated"
 
-		Elseif DEED_agency = "EASTSIDE NEIGHBORHOOD" THEN
-				EMWriteScreen "HSPH.ESP.55ESN", 6, 37
-				EMWriteScreen "EASTSIDE NEIGHBORHOOD", 7, 37
+		Elseif name_of_EMPS = "EASTSIDE" THEN
+				EMWriteScreen "HSPH.ESP.55ESN", 7, 37
+				EMWriteScreen "EASTSIDE NEIGHBORHOOD", 6, 37
 				EMWriteScreen "1700 NE 2ND STREET", 8, 37
 				EMWriteScreen "MINNEAPOLIS", 9, 37
 				EMWriteScreen "MN", 10, 37
@@ -244,31 +249,32 @@ Do
 				EMWriteScreen "612", 12, 39
 				EMWriteScreen "781", 12, 45
 				EMWriteScreen "6911", 12, 49
+				PF3
 				start_a_blank_CASE_NOTE
-				CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO EASTSIDE NEIGHBORHOOD AS PART OF HC ADJUSTMENT OF CASELOADS")
-	            CALL write_variable_in_CASE_NOTE("HSPH.ESP.55ESN IS NEW ESP OFFICE")
-				CALL write_variable_in_CASE_NOTE("TRANSFERRED VIA BULK SCRIPT")
+					CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO EASTSIDE NEIGHBORHOOD AS PART OF HC ADJUSTMENT OF CASELOADS")
+	            	CALL write_variable_in_CASE_NOTE("HSPH.ESP.55ESN IS NEW ESP OFFICE")
+					CALL write_variable_in_CASE_NOTE("TRANSFERRED VIA BULK SCRIPT")
 				PF3 'saving the case note
 				error_reason = "EMPS updated"
 
-        Elseif DEED_agency = "EMERGE NORTH" THEN
-            EMWriteScreen "HSPH.ESP.79UNI", 6, 37
-            EMWriteScreen "EMERGE NORTH", 7, 37
-            EMWriteScreen "1834 Emerson Ave North", 8, 37
-            EMWriteScreen "Minneapolis", 9, 37
-            EMWriteScreen "MN", 10, 37
-            EMWriteScreen "55411", 10, 47
-            EMWriteScreen "612", 12, 39
-            EMWriteScreen "529", 12, 45
-            EMWriteScreen "9267", 12, 49
-            start_a_blank_CASE_NOTE
-            CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO EMERGE NORTH ")
-            CALL write_variable_in_CASE_NOTE("DEED IS NO LONGER AN MFIP ESP 1/1/2018")
-            CALL write_variable_in_CASE_NOTE(" 79UNI IS NEW ESP MFIP COORDINATION OFFICE")
-            PF3 'saving the case note
-            error_reason = "EMPS updated"
+        'Elseif name_of_EMPS = "EMERGE NORTH" THEN
+        '    EMWriteScreen "HSPH.ESP.79UNI", 6, 37
+        '    EMWriteScreen "EMERGE NORTH", 7, 37
+        '    EMWriteScreen "1834 Emerson Ave North", 8, 37
+        '    EMWriteScreen "Minneapolis", 9, 37
+        '    EMWriteScreen "MN", 10, 37
+        '    EMWriteScreen "55411", 10, 47
+        '    EMWriteScreen "612", 12, 39
+        '    EMWriteScreen "529", 12, 45
+        '    EMWriteScreen "9267", 12, 49
+        '    start_a_blank_CASE_NOTE
+        '    CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO EMERGE NORTH ")
+        '    CALL write_variable_in_CASE_NOTE("DEED IS NO LONGER AN MFIP ESP 1/1/2018")
+        '    CALL write_variable_in_CASE_NOTE(" 79UNI IS NEW ESP MFIP COORDINATION OFFICE")
+        '    PF3 'saving the case note
+        '    error_reason = "EMPS updated"
 
-        'Elseif DEED_agency = "GOODWILL EASTER SEALS" THEN
+        'Elseif name_of_EMPS = "GOODWILL EASTER SEALS" THEN
         '    EMWriteScreen "HSPH.ESP.24GES", 6, 37
         '    EMWriteScreen "GOODWILL EASTER SEALS", 7, 37
         '    EMWriteScreen "1455 WEST LAKE ST", 8, 37
@@ -285,9 +291,9 @@ Do
         '    PF3 'saving the case note
         '    error_reason = "EMPS updated"
 
-		Elseif DEED_agency = "GOODWILL EASTER SEALS" THEN
-			EMWriteScreen "HSPH.ESP.24GES", 6, 37
-			EMWriteScreen "GOODWILL EASTER SEALS", 7, 37
+		Elseif name_of_EMPS = "GOODWILL EASTER SEALS" THEN
+			EMWriteScreen "HSPH.ESP.24GES", 7, 37
+			EMWriteScreen "GOODWILL EASTER SEALS", 6, 37
 			EMWriteScreen "2801 21ST AVENUE SOUTH", 8, 37
 			EMWriteScreen "MINNEAPOLIS", 9, 37
 			EMWriteScreen "MN", 10, 37
@@ -295,51 +301,50 @@ Do
 			EMWriteScreen "612", 12, 39
 			EMWriteScreen "724", 12, 45
 			EMWriteScreen "0128", 12, 49
+			PF3 'saving the case note
 			start_a_blank_CASE_NOTE
-			CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO GOODWILL EASTER SEALS AS PART OF HC ADJUSTMENT OF CASELOADS")
-            CALL write_variable_in_CASE_NOTE("HSPH.ESP.24GES IS NEW ESP OFFICE")
-			CALL write_variable_in_CASE_NOTE("TRANSFERRED VIA BULK SCRIPT")
+				CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO GOODWILL EASTER SEALS AS PART OF HC ADJUSTMENT OF CASELOADS")
+            	CALL write_variable_in_CASE_NOTE("HSPH.ESP.24GES IS NEW ESP OFFICE")
+				CALL write_variable_in_CASE_NOTE("TRANSFERRED VIA BULK SCRIPT")
 			PF3 'saving the case note
 			error_reason = "EMPS updated"
 
+        'Elseif name_of_EMPS = "HIRED BLOOMINGTON" THEN
+        '    EMWriteScreen "HSPH.ESP.17HIR", 6, 37
+        '    EMWriteScreen "HIRED", 7, 37
+        '    EMWriteScreen "1701 EAST 79TH ST", 8, 37
+        '    EMWriteScreen "BLOOMINGTON,", 9, 37
+        '    EMWriteScreen "MN", 10, 37
+        '    EMWriteScreen "55425", 10, 47
+        '    EMWriteScreen "952", 12, 39
+        '    EMWriteScreen "853", 12, 45
+        '    EMWriteScreen "9100", 12, 49
+        '    start_a_blank_CASE_NOTE
+        '    CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO HIRED EAST BLOOMINGTON")
+        '    CALL write_variable_in_CASE_NOTE("DEED IS NO LONGER AN MFIP ESP 1/1/2018")
+        '    CALL write_variable_in_CASE_NOTE("17HIR IS NEW ESP MFIP COORDINATION OFFICE")
+        '    PF3 'saving the case note
+        '    error_reason = "EMPS updated"
 
-        Elseif DEED_agency = "HIRED BLOOMINGTON" THEN
-            EMWriteScreen "HSPH.ESP.17HIR", 6, 37
-            EMWriteScreen "HIRED", 7, 37
-            EMWriteScreen "1701 EAST 79TH ST", 8, 37
-            EMWriteScreen "BLOOMINGTON,", 9, 37
-            EMWriteScreen "MN", 10, 37
-            EMWriteScreen "55425", 10, 47
-            EMWriteScreen "952", 12, 39
-            EMWriteScreen "853", 12, 45
-            EMWriteScreen "9100", 12, 49
-            start_a_blank_CASE_NOTE
-            CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO HIRED EAST BLOOMINGTON")
-            CALL write_variable_in_CASE_NOTE("DEED IS NO LONGER AN MFIP ESP 1/1/2018")
-            CALL write_variable_in_CASE_NOTE("17HIR IS NEW ESP MFIP COORDINATION OFFICE")
-            PF3 'saving the case note
-            error_reason = "EMPS updated"
-
-        Elseif DEED_agency = "HIRED HENNEPIN NORTH" THEN
-            EMWriteScreen "HSPH.ESP.1HD10", 6, 37
-            EMWriteScreen "HIRED HENNEPIN NORTH", 7, 37
-            EMWriteScreen "7225 NORTHLAND DRIVE", 8, 37
-            EMWriteScreen "BROOKLYN PARK", 9, 37
-            EMWriteScreen "MN", 10, 37
-            EMWriteScreen "55428", 10, 47
-            EMWriteScreen "763", 12, 39
-            EMWriteScreen "210", 12, 45
-            EMWriteScreen "6200", 12, 49
-            start_a_blank_CASE_NOTE
-            CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO HIRED HENNEPIN NORTH")
-            CALL write_variable_in_CASE_NOTE("DEED IS NO LONGER AN MFIP ESP 1/1/2018")
-            CALL write_variable_in_CASE_NOTE("1HD10  IS NEW ESP MFIP COORDINATION OFFICE")
-            PF3 'saving the case note
-            error_reason = "EMPS updated"
+        'Elseif name_of_EMPS = "HIRED HENNEPIN NORTH" THEN
+        '    EMWriteScreen "HSPH.ESP.1HD10", 6, 37
+        '    EMWriteScreen "HIRED HENNEPIN NORTH", 7, 37
+        '    EMWriteScreen "7225 NORTHLAND DRIVE", 8, 37
+        '    EMWriteScreen "BROOKLYN PARK", 9, 37
+        '    EMWriteScreen "MN", 10, 37
+        '    EMWriteScreen "55428", 10, 47
+        '    EMWriteScreen "763", 12, 39
+        '    EMWriteScreen "210", 12, 45
+        '    EMWriteScreen "6200", 12, 49
+        '    start_a_blank_CASE_NOTE
+        '    CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO HIRED HENNEPIN NORTH")
+        '    CALL write_variable_in_CASE_NOTE("DEED IS NO LONGER AN MFIP ESP 1/1/2018")
+        '    CALL write_variable_in_CASE_NOTE("1HD10  IS NEW ESP MFIP COORDINATION OFFICE")
+        '    PF3 'saving the case note
+        '    error_reason = "EMPS updated"
 
 		Elseif name_of_EMPS = "LSS" THEN
-			EMPS_array(EMPS_update, item) = True
-			EMWriteScreen "HSPH.ESP.42LSS", 6, 37
+			EMWriteScreen "HSPH.ESP.42LSS", 7, 37
 			EMWriteScreen "LUTHERAN SOCIAL SERVICE", 6, 37
 			EMWriteScreen "2400 PARK AVENUE", 8, 37
 			EMWriteScreen "MINNEAPOLIS", 9, 37
@@ -348,6 +353,7 @@ Do
 			EMWriteScreen "612", 12, 39
 			EMWriteScreen "879", 12, 45
 			EMWriteScreen "5372", 12, 49
+			PF3'exit the provider information box
 			start_a_blank_CASE_NOTE
             	CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO LSS AS PART OF HC ADJUSTMENT OF CASELOADS")
             	CALL write_variable_in_CASE_NOTE("HSPH.ESP.42LSS IS NEW ESP OFFICE")
@@ -355,9 +361,8 @@ Do
             PF3 'saving the case note
             error_reason = "EMPS updated"
 
-		Elseif name_of_EMPS = "LIFETRACK: 1LT10" THEN
-			EMPS_array(EMPS_update, item) = True
-			EMWriteScreen "HSPH.ESP.1LT10", 6, 37
+		Elseif name_of_EMPS = "LIFETRACK" THEN
+			EMWriteScreen "HSPH.ESP.1LT10", 7, 37
 			EMWriteScreen "LIFETRACK RESOURCES", 6, 37
 			EMWriteScreen "3433 BROADWAY STREET N.E.", 8, 37
 			EMWriteScreen "MINNEAPOLIS", 9, 37
@@ -366,6 +371,7 @@ Do
 			EMWriteScreen "612", 12, 39
 			EMWriteScreen "788", 12, 45
 			EMWriteScreen "8855", 12, 49
+			PF3
 			start_a_blank_CASE_NOTE
 	           CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO LIFETRACk AS PART OF HC ADJUSTMENT OF CASELOADS")
 	           CALL write_variable_in_CASE_NOTE("HSPH.ESP.1LT10 IS NEW ESP OFFICE")
@@ -373,46 +379,45 @@ Do
 	        PF3 'saving the case note
 	        error_reason = "EMPS updated"
 
-        Elseif DEED_agency = "NORTHPOINT" THEN
-            EMWriteScreen "HSPH.ESP.NP027", 6, 37
-            EMWriteScreen "NORTHPOINT HEALTH & WELLNESS", 7, 37
-            EMWriteScreen "1315 PENN AVE NORTH", 8, 37
-            EMWriteScreen "MINNEAPOLIS", 9, 37
-            EMWriteScreen "MN", 10, 37
-            EMWriteScreen "55411", 10, 47
-            EMWriteScreen "612", 12, 39
-            EMWriteScreen "767", 12, 45
-            EMWriteScreen "0321", 12, 49
-            start_a_blank_CASE_NOTE
-            CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO NORTHPOINT HEALTH & WELLNESS")
-            CALL write_variable_in_CASE_NOTE("DEED IS NO LONGER AN MFIP ESP 1/1/2018")
-            CALL write_variable_in_CASE_NOTE(" NP027 IS NEW ESP MFIP COORDINATION OFFICE")
-            PF3 'saving the case note
-            error_reason = "EMPS updated"
+        'Elseif name_of_EMPS = "NORTHPOINT" THEN
+        '    EMWriteScreen "HSPH.ESP.NP027", 6, 37
+        '    EMWriteScreen "NORTHPOINT HEALTH & WELLNESS", 7, 37
+        '    EMWriteScreen "1315 PENN AVE NORTH", 8, 37
+        '    EMWriteScreen "MINNEAPOLIS", 9, 37
+        '    EMWriteScreen "MN", 10, 37
+        '    EMWriteScreen "55411", 10, 47
+        '    EMWriteScreen "612", 12, 39
+        '    EMWriteScreen "767", 12, 45
+        '    EMWriteScreen "0321", 12, 49
+        '    start_a_blank_CASE_NOTE
+        '    CALL write_variable_in_CASE_NOTE("ESP CASE TRANSFER TO NORTHPOINT HEALTH & WELLNESS")
+        '    CALL write_variable_in_CASE_NOTE("DEED IS NO LONGER AN MFIP ESP 1/1/2018")
+        '    CALL write_variable_in_CASE_NOTE(" NP027 IS NEW ESP MFIP COORDINATION OFFICE")
+        '    PF3 'saving the case note
+        '    error_reason = "EMPS updated"
 
-        Elseif DEED_agency = "RISE, INC SOUTH" THEN
-            EMWriteScreen "HSPH.ESP.1RI50", 6, 37
-            EMWriteScreen "RISE, INC SOUTH", 7, 37
-            EMWriteScreen "3708 NICOLLET AVE SOUTH", 8, 37
-            EMWriteScreen "MINNEAPOLIS", 9, 37
-            EMWriteScreen "MN", 10, 37
-            EMWriteScreen "55409", 10, 47
-            EMWriteScreen "612", 12, 39
-            EMWriteScreen "872", 12, 45
-            EMWriteScreen "7720", 12, 49
-            start_a_blank_CASE_NOTE
-            CALL write_variable_in_CASE_NOTE("ESP CSE ASSIGNED TO RISE, INC SOUTH")
-            CALL write_variable_in_CASE_NOTE("1RI50 IS AGENCY RETAINING THE CASE")
-            CALL write_variable_in_CASE_NOTE("HUB MODEL ENDED 12/31/17")
-            PF3 'saving the case note
-            error_reason = "EMPS updated"
+        'Elseif name_of_EMPS = "RISE, INC SOUTH" THEN
+        '    EMWriteScreen "HSPH.ESP.1RI50", 6, 37
+        '    EMWriteScreen "RISE, INC SOUTH", 7, 37
+        '    EMWriteScreen "3708 NICOLLET AVE SOUTH", 8, 37
+        '    EMWriteScreen "MINNEAPOLIS", 9, 37
+        '    EMWriteScreen "MN", 10, 37
+        '    EMWriteScreen "55409", 10, 47
+        '    EMWriteScreen "612", 12, 39
+        '    EMWriteScreen "872", 12, 45
+        '    EMWriteScreen "7720", 12, 49
+        '    start_a_blank_CASE_NOTE
+        '    CALL write_variable_in_CASE_NOTE("ESP CSE ASSIGNED TO RISE, INC SOUTH")
+        '    CALL write_variable_in_CASE_NOTE("1RI50 IS AGENCY RETAINING THE CASE")
+        '    CALL write_variable_in_CASE_NOTE("HUB MODEL ENDED 12/31/17")
+        '    PF3 'saving the case note
+        '    error_reason = "EMPS updated"
         END IF
 
-        ObjExcel.Cells(excel_row,  7).Value = trim(error_reason)
+        objExcel.Cells(excel_row,  3).Value = trim(error_reason)
         excel_row = excel_row + 1
         STATS_counter = STATS_counter + 1
         back_to_SELF
-
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'Loops until there are no more cases in the Excel list
 
 STATS_counter = STATS_counter - 1
