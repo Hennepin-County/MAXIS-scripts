@@ -69,14 +69,14 @@ EMConnect ""
 Do
 	Do
 		err_msg = ""
-		Dialog DEED_dialog
+		Dialog EMPS_dialog
 		cancel_confirmation
 		If ButtonPressed = select_a_file_button THEN
 			If file_selection_path <> "" THEN 'This is handling for if the BROWSE button is pushed more than once'
 				objExcel.Quit 'Closing the Excel file that was opened on the first push'
 				objExcel = "" 	'Blanks out the previous file path'
 			End If
-			call file_selection_system_dialog(file_selection_path, ".xlsx") 'allows the user to select the file'
+			call file_selection_system_dialog(file_selection_path,".xlsx") 'allows the user to select the file'
 		End If
 		If file_selection_path = "" THEN err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
 		If err_msg <> "" THEN MsgBox err_msg
@@ -94,14 +94,12 @@ Do
         MAXIS_case_number = objExcel.cells(excel_row, 1).Value 	're-establishing the case number to use for the case
 		MAXIS_case_number = trim(MAXIS_case_number)
         If MAXIS_case_number = "" then exit do						'exits do if the case number is ""
-
 		'objExcel.cells(excel_row, _).Value = first_name
 		'objExcel.cells(excel_row, _).Value = last_name
 		'client_name = last_name & ", " & first_name
       	'objExcel.cells(excel_row, _).Value = member_number
      	name_of_EMPS = objExcel.cells(excel_row, 2).Value       	're-establishing the agency
 		'EMWriteScreen MAXIS_case_number, 18, 43				'enters member number
-
 		CALL navigate_to_MAXIS_screen("STAT", "EMPS")
 		'EMReadScreen x_number_check, 4, 21, 21 YOU HAVE 'READ ONLY' ACCESS FOR THIS CASE
 		'If x_number_check <> "X127" then exit do
