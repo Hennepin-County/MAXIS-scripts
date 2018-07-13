@@ -87,16 +87,17 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'DIALOG TO GET CASE NUMBER
 'Possibly add worker signature here and take it out of the following dialogs
-BeginDialog Dialog1, 0, 0, 191, 135, "Case Number"
-  Text 5, 10, 85, 10, "Enter your case number:"
+BeginDialog Dialog1, 0, 0, 191, 175, "Case Number"
   EditBox 90, 5, 70, 15, MAXIS_case_number
-  Text 5, 25, 65, 10, "Worker Signature:"
   EditBox 5, 35, 175, 15, worker_signature
-  GroupBox 5, 55, 175, 55, "INSTRUCTIONS - PLEASE READ!!!"
-  Text 15, 70, 155, 30, "This script will allow you to update any JOBS/BUSI/RBIC on a case. It can process multiple panels in one run. "
   ButtonGroup ButtonPressed
-    OkButton 85, 115, 50, 15
-    CancelButton 140, 115, 50, 15
+    OkButton 80, 155, 50, 15
+    CancelButton 135, 155, 50, 15
+  Text 5, 10, 85, 10, "Enter your case number:"
+  Text 5, 25, 65, 10, "Worker Signature:"
+  GroupBox 5, 55, 180, 95, "INSTRUCTIONS - PLEASE READ!!!"
+  Text 10, 70, 170, 25, "This script is to help in correctly budgeting EARNED income on JOBS, BUSI, or RBIC. It will update MAXIS and CASE/NOTE the information provided. "
+  Text 10, 105, 170, 40, "If a JOBS panel or BUSI panel needs to be added to MAXIS for a client or income source, the script will ask for any panels that need to be added first. Review the case now to ensure that the correct action will be taken in the correct order."
 EndDialog
 
 Do
@@ -156,9 +157,10 @@ const pay_weekday       = 25
 const income_received   = 26
 const verif_date        = 27
 const verif_explain     = 28
+const old_verif         = 29
 
-const spoke_to          = 29
-const convo_detail      = 30
+const spoke_to          = 30
+const convo_detail      = 31
 
 Dim EARNED_INCOME_PANELS_ARRAY()
 ReDim EARNED_INCOME_PANELS_ARRAY(convo_detail, 0)
@@ -200,6 +202,7 @@ For each member in HH_member_array
             EMReadScreen start_date, 8, 9, 35
             EMReadScreen end_date, 8, 9, 49
             EMReadScreen frequency, 1, 18, 35
+            EMReadScreen current_verif, 27, 6, 34
 
             If type_of_job = "J" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "J - WIOA"
             If type_of_job = "W" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "W - Wages"
@@ -218,6 +221,7 @@ For each member in HH_member_array
             EARNED_INCOME_PANELS_ARRAY(hourly_wage, the_panel) = trim(listed_hrly_wage)
             EARNED_INCOME_PANELS_ARRAY(income_start_dt, the_panel) = replace(start_date, " ", "/")
             EARNED_INCOME_PANELS_ARRAY(income_end_dt, the_panel) = replace(end_date, " ", "/")
+            EARNED_INCOME_PANELS_ARRAY(old_verif, the_panel) = trim(current_verif)
             If frequency = "1" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "1 - One Time Per Month"
             If frequency = "2" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "2 - Two Times Per Month"
             If frequency = "3" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "3 - Every Other Week"
@@ -278,12 +282,73 @@ For each member in HH_member_array
             If listed_method = "02" Then EARNED_INCOME_PANELS_ARRAY(self_emp_mthd, the_panel) = "02 - Tax Forms"
             EARNED_INCOME_PANELS_ARRAY(method_date, the_panel) = replace(lst_mthd_date, " ", "/")
 
+            EmWriteScreen "X", 6, 26
+            transmit
+
+            For busi_row = 9 to 19
+                EMReadScreen busi_verif, 1, busi_row, 73
+                If busi_verif <> "_" Then
+                    If busi_verif = "1" Then EARNED_INCOME_PANELS_ARRAY(old_verif, the_panel) = "1 - Income Tax Returns"
+                    If busi_verif = "2" Then EARNED_INCOME_PANELS_ARRAY(old_verif, the_panel) = "2 - Receipts of Sales/Purchases"
+                    If busi_verif = "3" Then EARNED_INCOME_PANELS_ARRAY(old_verif, the_panel) = "3 - Client BUSI Records/Ledger"
+                    If busi_verif = "6" Then EARNED_INCOME_PANELS_ARRAY(old_verif, the_panel) = "6 - Other Document"
+                    If busi_verif = "N" Then EARNED_INCOME_PANELS_ARRAY(old_verif, the_panel) = "N - NO Verif Provided"
+                    Exit For
+                End If
+            Next
+            PF3
+
             EARNED_INCOME_PANELS_ARRAY(income_list_indct, the_panel) = "NONE"
 
             the_panel = the_panel + 1
         Next
     End If
 Next
+
+Do
+    y_pos = 25
+    dlg_len = 15 * UBOUND(EARNED_INCOME_PANELS_ARRAY, 2) + 15 * UBOUND(HH_member_array) + 125
+    BeginDialog Dialog1, 0, 0, 330, dlg_len, "Case Number"
+
+      Text 5, 10, 105, 10, "Known JOBS and BUSI panels:"
+
+      For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
+        earned_income_panel_detail = EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) & " - "
+        If EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel) = "JOBS" Then
+            earned_income_panel_detail = earned_income_panel_detail & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)
+        ElseIf EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel) = "BUSI" Then
+            earned_income_panel_detail = earned_income_panel_detail & "TYPE: " & EARNED_INCOME_PANELS_ARRAY(income_type, ei_panel)
+        End If
+        earned_income_panel_detail = earned_income_panel_detail & " - Income Start: " & EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel) & " - Verif: " & EARNED_INCOME_PANELS_ARRAY(old_verif, ei_panel)
+        Text 10, y_pos, 305, 10, earned_income_panel_detail
+        'Text 10, 25, 295, 10, "JOBS 01 01 - EMPLOYER - Income Start: mm/dd/yy - Verif: N"
+        'Text 10, 40, 295, 10, "BUSI 01 01 - TYPE: 04 - Other Sales - Income Start: mm/dd/yy - Verif: N"
+        y_pos = y_pos + 15
+      Next
+      y_pos = y_pos + 5
+      Text 5, y_pos, 295, 10, "These are all the panels that are currently known in MAXIS for these Household Members:"
+      y_pos = y_pos + 15
+      For each member in HH_member_array
+        Text 10, y_pos, 45, 10, member
+        y_pos = y_pos + 15
+        'Text 10, 75, 45, 10, "MEMBER 01"
+      Next
+      y_pos = y_pos - 10
+      Text 80, y_pos, 160, 10, "Do you need to add a new JOBS or BUSI panel?"
+      ButtonGroup ButtonPressed
+        PushButton 85, y_pos + 15, 140, 20, "Yes - Add a new Earned Income panel", add_new_panel_button
+        PushButton 85, y_pos + 40, 140, 10, "No - The panel(s) to update are in MAXIS", continue_to_update_button
+    EndDialog
+    MsgBOx "Y Position is " & y_pos & vbNewLine & "Dialog length is " & dlg_len
+
+    dialog Dialog1
+
+    If buttonpressed = add_new_panel_button Then
+        MsgBox "Add a new panel!"
+        '2 different dialogs for JOBS vs BUSI and add here then add to the EARNED_INCOME_PANELS_ARRAY
+    End If
+
+Loop until buttonpressed = continue_to_update_button
 
 const panel_indct           = 0
 const pay_date              = 1

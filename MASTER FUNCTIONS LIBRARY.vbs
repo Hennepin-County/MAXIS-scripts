@@ -5605,47 +5605,61 @@ function write_variable_in_SPEC_MEMO(variable)
 '--- This function writes a variable in SPEC/MEMO
 '~~~~~ variable: information to be entered into SPEC/MEMO
 '===== Keywords: MAXIS, SPEC, MEMO
-	EMGetCursor memo_row, memo_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
-	memo_col = 15										'The memo col should always be 15 at this point, because it's the beginning. But, this will be dynamically recreated each time.
-	'The following figures out if we need a new page
-	Do
-		EMReadScreen character_test, 1, memo_row, memo_col 	'Reads a single character at the memo row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond memo range).
-		If character_test <> " " or memo_row >= 18 then
-			memo_row = memo_row + 1
+    EMGetCursor memo_row, memo_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
+    memo_col = 15										'The memo col should always be 15 at this point, because it's the beginning. But, this will be dynamically recreated each time.
+    'The following figures out if we need a new page
+    Do
+        EMReadScreen line_test, 60, memo_row, memo_col 	'Reads a single character at the memo row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond memo range).
+        line_test = trim(line_test)
+        'MsgBox line_test
+        If line_test <> "" OR memo_row >= 18 Then
+            memo_row = memo_row + 1
 
-			'If we get to row 18 (which can't be written to), it will go to the next page of the memo (PF8).
-			If memo_row >= 18 then
-				PF8
-				memo_row = 3					'Resets this variable to 3
-			End if
-		End if
-	Loop until character_test = " "
+            'If we get to row 18 (which can't be written to), it will go to the next page of the memo (PF8).
+            If memo_row >= 18 then
+                PF8
+                memo_row = 3					'Resets this variable to 3
+            End if
+        End If
 
-	'Each word becomes its own member of the array called variable_array.
-	variable_array = split(variable, " ")
+        EMReadScreen page_full_check, 12, 24, 2
+        'MsgBox page_full_check
+        If page_full_check = "END OF INPUT" Then script_end_procedure("The WCOM/MEMO area is already full and no additional informaion can be added. This script should be run prior to adding manual wording.")
 
-	For each word in variable_array
-		'If the length of the word would go past col 74 (you can't write to col 74), it will kick it to the next line
-		If len(word) + memo_col > 74 then
-			memo_row = memo_row + 1
-			memo_col = 15
-		End if
+    Loop until line_test = ""
 
-		'If we get to row 18 (which can't be written to), it will go to the next page of the memo (PF8).
-		If memo_row >= 18 then
-			PF8
-			memo_row = 3					'Resets this variable to 3
-		End if
+    'Each word becomes its own member of the array called variable_array.
+    variable_array = split(variable, " ")
 
-		'Writes the word and a space using EMWriteScreen
-		EMWriteScreen word & " ", memo_row, memo_col
+    For each word in variable_array
+        'If the length of the word would go past col 74 (you can't write to col 74), it will kick it to the next line
+        If len(word) + memo_col > 74 then
+            memo_row = memo_row + 1
+            memo_col = 15
+        End if
 
-		'Increases memo_col the length of the word + 1 (for the space)
-		memo_col = memo_col + (len(word) + 1)
-	Next
+        'If we get to row 18 (which can't be written to), it will go to the next page of the memo (PF8).
+        If memo_row >= 18 then
+            PF8
+            memo_row = 3					'Resets this variable to 3
+        End if
 
-	'After the array is processed, set the cursor on the following row, in col 15, so that the user can enter in information here (just like writing by hand).
-	EMSetCursor memo_row + 1, 15
+        EMReadScreen page_full_check, 12, 24, 2
+        'MsgBox page_full_check
+        If page_full_check = "END OF INPUT" Then
+            PF10
+            end_msg = "The WCOM/MEMO area is already full and no additional informaion can be added. The wording that was not added and the script ended on is:" & vbNewLine & vbNewLine & variable & vbNewLine & vbNewLine & "**This script should be run prior to adding manual wording.**"
+            script_end_procedure(end_msg)
+        End If
+        'Writes the word and a space using EMWriteScreen
+        EMWriteScreen word & " ", memo_row, memo_col
+
+        'Increases memo_col the length of the word + 1 (for the space)
+        memo_col = memo_col + (len(word) + 1)
+    Next
+
+    'After the array is processed, set the cursor on the following row, in col 15, so that the user can enter in information here (just like writing by hand).
+    EMSetCursor memo_row + 1, 15
 end function
 
 function write_variable_in_TIKL(variable)

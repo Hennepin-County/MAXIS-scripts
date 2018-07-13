@@ -432,5 +432,5 @@ END IF
         CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
         CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
         CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-        IF instr(programs, "HC") THEN CALL create_outlook_email("", "mikayla.handley@hennepin.us", "Claims entered for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Date Overpayment Created: " & OP_Date & vbcr & "Programs: " & programs & vbcr & "See case notes for further details.", "", False)
+        IF program = "Health Care" or IF program = "Medical Assistance" THEN CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "", "Claims entered for #" &  MAXIS_case_number, " Member #: " & memb_number & vbcr & " Date Overpayment Created: " & OP_Date & vbcr & "Programs: " & programs & vbcr & " See case notes for further details.", "", False)
     END IF
