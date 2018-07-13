@@ -55,8 +55,8 @@ changelog_display
 BeginDialog referral_dialog, 0, 0, 291, 130, "ES Letter and Referral"
   EditBox 90, 10, 55, 15, MAXIS_case_number
   EditBox 210, 10, 75, 15, member_number
-  DropListBox 90, 35, 195, 15, "Select one..."+chr(9)+"Bloomington (Tuesdays @ 9:00 a.m.)"+chr(9)+"Bloomington (Wednesdays @ 1:00 p.m.)"+chr(9)+"Bloomington (Thursdays @ 9:00 a.m.)"+chr(9)+"Brooklyn Center (Tuesdays @ 9:00 a.m.)"+chr(9)+"Brooklyn Center (Thursdays @ 9:00 a.m.)"+chr(9)+"North Mpls (Tuesdays @ 9:00 a.m.)"+chr(9)+"North Mpls (Wednesdays @ 9:00 a.m.)"+chr(9)+"South Mpls (Tuesdays @ 1:00 p.m.)"+chr(9)+"South Mpls (Wednesdays @ 9:00 a.m.)", interview_location
-  DropListBox 90, 60, 60, 15, "Select one..."+chr(9)+"Scheduled"+chr(9)+"Rescheduled", appt_type
+  DropListBox 90, 35, 195, 15, "Select one..."+chr(9)+"Bloomington (Tuesdays @ 9:00 a.m.)"+chr(9)+"Bloomington (Wednesdays @ 1:00 p.m.)"+chr(9)+"Bloomington (Thursdays @ 9:00 a.m.)"+chr(9)+"Brooklyn Center (Tuesdays @ 9:00 a.m.)"+chr(9)+"Brooklyn Center (Thursdays @ 9:00 a.m.)"+chr(9)+"North Mpls (Tuesdays @ 9:00 a.m.)"+chr(9)+"North Mpls (Wednesdays @ 9:00 a.m.)"+chr(9)+"South Mpls (Tuesdays @ 1:00 p.m.)"+chr(9)+"South Mpls (Wednesdays @ 9:00 a.m.)"+chr(9)+"WERC Northwest"+chr(9)+"WERC South Mpls", interview_location
+  DropListBox 90, 60, 60, 15, "Select one..."+chr(9)+"Scheduled"+chr(9)+"Rescheduled"+chr(9)+"Additional 10 days", appt_type
   EditBox 210, 60, 75, 15, vendor_num
   EditBox 90, 85, 195, 15, other_referral_notes
   EditBox 90, 110, 85, 15, worker_signature
@@ -104,10 +104,8 @@ IF interview_location = "Bloomington (Tuesdays @ 9:00 a.m.)" then
     provider_ST = "MN"
     provider_zip = "554425"
     provider_phone = "612-752-8942"
-
-    appointment_time_prefix_editbox = "09"
-    appointment_time_post_editbox = "00"
-    AM_PM = "AM"
+    'Date and time
+    appointment_time = "9:00 AM"
     appointment_date = Date + 8 - Weekday(Date, vbTuesday)
     provider_row = 8    'WFM1 provider selection based on location
     
@@ -119,9 +117,7 @@ Elseif interview_location = "Bloomington (Wednesdays @ 1:00 p.m.)" THEN
     provider_zip = "554425"
     provider_phone = "612-752-8942"
     'Date and time 
-    appointment_time_prefix_editbox = "01"
-    appointment_time_post_editbox = "00"
-    AM_PM = "PM"
+    appointment_time = "1:00 PM"
     appointment_date = Date + 8 - Weekday(Date, vbWednesday)
     provider_row = 8    'WFM1 provider selection based on location
     'Date and time 
@@ -133,9 +129,7 @@ ElseIF interview_location = "Bloomington (Thursdays @ 9:00 a.m.)" THEN
     provider_zip = "554425"
     provider_phone = "612-752-8942"
     'Date and time 
-    appointment_time_prefix_editbox = "09"
-    appointment_time_post_editbox = "00"
-    AM_PM = "AM"
+    appointment_time = "9:00 AM"
     appointment_date = Date + 8 - Weekday(Date, vbThursday)
     provider_row = 8    'WFM1 provider selection based on location
     
@@ -148,9 +142,7 @@ ElseIf interview_location = "Brooklyn Center (Tuesdays @ 9:00 a.m.)" THEN
     provider_zip = "55430"
     provider_phone = "612-752-8904"
     'Date and time 
-    appointment_time_prefix_editbox = "09"
-    appointment_time_post_editbox = "00"
-    AM_PM = "AM"
+    appointment_time = "9:00 AM"
     appointment_date = Date + 8 - Weekday(Date, vbTuesday)
     provider_row = 9    'WFM1 provider selection based on location
     
@@ -162,9 +154,7 @@ ElseIf interview_location = "Brooklyn Center (Thursdays @ 9:00 a.m.)" THEN
     provider_zip = "55430"
     provider_phone = "612-752-8904"
     'Date and time 
-    appointment_time_prefix_editbox = "09"
-    appointment_time_post_editbox = "00"
-    AM_PM = "AM"
+    appointment_time = "9:00 AM"
     appointment_date = Date + 8 - Weekday(Date, vbThursday)
     provider_row = 9    'WFM1 provider selection based on location
     
@@ -177,9 +167,7 @@ ElseIf interview_location = "North Mpls (Tuesdays @ 9:00 a.m.)" THEN
     provider_zip = "55411"
     provider_phone = "612-752-8500"
     'Date and time 
-    appointment_time_prefix_editbox = "09"
-    appointment_time_post_editbox = "00"
-    AM_PM = "AM"
+    appointment_time = "9:00 AM"
     appointment_date = Date + 8 - Weekday(Date, vbTuesday)
     provider_row = 10    'WFM1 provider selection based on location
     
@@ -191,9 +179,7 @@ ElseIf interview_location = "North Mpls (Wednesdays @ 9:00 a.m.)" THEN
     provider_zip = "55411"
     provider_phone = "612-752-8500"
     'Date and time 
-    appointment_time_prefix_editbox = "09"
-    appointment_time_post_editbox = "00"
-    AM_PM = "AM"
+    appointment_time = "9:00 AM"
     appointment_date = Date + 8 - Weekday(Date, vbWednesday)
     provider_row = 10    'WFM1 provider selection based on location
     
@@ -206,9 +192,7 @@ ElseIf interview_location = "South Mpls (Tuesdays @ 1:00 p.m.)" THEN
     provider_zip = "55404"
     provider_phone = "612-752-8800"
     'Date and time 
-    appointment_time_prefix_editbox = "01"
-    appointment_time_post_editbox = "00"
-    AM_PM = "PM"
+    appointment_time = "1:00 PM"
     appointment_date = Date + 8 - Weekday(Date, vbTuesday)
     provider_row = 7    'WFM1 provider selection based on location
     
@@ -220,22 +204,54 @@ ElseIf interview_location = "South Mpls (Wednesdays @ 9:00 a.m.)" THEN
     provider_zip = "55404"
     provider_phone = "612-752-8800"
     'Date and time 
-    appointment_time_prefix_editbox = "09"
-    appointment_time_post_editbox = "00"
-    AM_PM = "AM"
+    appointment_time = "9:00 AM"
     appointment_date = Date + 8 - Weekday(Date, vbWednesday)
     provider_row = 7    'WFM1 provider selection based on location
+    
+'WERC Northwest     
+ElseIF interview_location = "WERC Northwest" THEN
+    provider_name = "WERC Northwest Human Service Center"
+    provider_address_01 = "7051 Brooklyn Blvd"
+    provider_city = "Brooklyn Center"
+    provider_ST = "MN"
+    provider_zip = "55429"
+    provider_phone = "612-596-1300" 'defaulting to EZ info number
+    'Date and time 
+    appointment_time = "8:00 - 4:30 PM"
+    appointment_date = Date
+    provider_row = 11    'WFM1 provider selection based on location
+    
+'WERC South Mpls   
+ElseIF interview_location = "WERC South Mpls" THEN
+    provider_name = "WERC South Minneapolis Human Service Center"
+    provider_address_01 = "2215 East Lake Street South"
+    provider_city = "Minneapolis"
+    provider_ST = "MN"
+    provider_zip = "55407"
+    provider_phone = "612-596-1300" 'defaulting to EZ info number
+    'Date and time 
+    appointment_time = "8:00 - 4:30 PM"
+    appointment_date = Date
+    provider_row = 5    'WFM1 provider selection based on location
 END IF 
 
 'selecting the interview date 
 DO
 	DO
 		orientation_date_confirmation = MsgBox("Press YES to confirm the orientation date. For the next week, press NO." & vbNewLine & vbNewLine & _
-		"                                                  " & appointment_date & " at " & appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & _
-		AM_PM, vbYesNoCancel, "Please confirm the ES orientation referral date")
+		"                                                  " & appointment_date & " at " & appointment_time, vbYesNoCancel, "Please confirm the ES orientation referral date")
 		If orientation_date_confirmation = vbCancel then script_end_procedure ("The script has ended. An orientation letter has not been sent.")
 		If orientation_date_confirmation = vbYes then exit do
-		If orientation_date_confirmation = vbNo then appointment_date = dateadd("d", 7, appointment_date)
+		If orientation_date_confirmation = vbNo then 
+            If instr(interview_location, "WERC") then 
+                appointment_date = DateAdd("d", 1, appointment_date)
+                weekend_check = weekday(appointment_date)
+                IF weekend_check = 7 then appointment_date = DateAdd("d", 2, appointment_date)  'Saturday handling
+                IF weekend_check = 0 then appointment_date = DateAdd("d", 1, appointment_date)  'Sunday handling
+            Else 
+                appointment_date = dateadd("d", 7, appointment_date)
+            End if 
+        End if 
 	LOOP until orientation_date_confirmation = vbYes
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -297,8 +313,6 @@ Next
         
 For each member_number in member_array 
     If make_referral = True then 
-        appointment_time = appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & " " & AM_PM
-        
         'The CASE/NOTE----------------------------------------------------------------------------------------------------
         'Navigates to a blank case note
         start_a_blank_CASE_NOTE
@@ -312,6 +326,23 @@ For each member_number in member_array
         Call write_bullet_and_variable_in_CASE_NOTE("Vendor #(s)", vendor_num)
         CALL write_variable_in_case_note("---")
         CALL write_variable_in_case_note(worker_signature)
+        
+        'Creating verbiaged based on the appt type and location 
+        If appt_type = "Scheduled" Then 
+            If instr(interview_location, "WERC") then 
+                num_days = "2"
+            Else 
+                num_days = "10"
+            End if 
+        Elseif appt_type = "Rescheduled" Then 
+            If instr(interview_location, "WERC") then 
+                num_days = "8"
+            Else 
+                num_days = "10"
+            End if 
+        Elseif appt_type = "Additional 10 days" then 
+            num_days = "10"
+        End if 
         
         'The SPEC/LETR----------------------------------------------------------------------------------------------------
         Call start_a_new_spec_memo
@@ -327,7 +358,7 @@ For each member_number in member_array
         Call write_variable_in_SPEC_MEMO(provider_city & ", " & provider_ST & " " &  provider_zip)
         Call write_variable_in_SPEC_MEMO("Phone #: " & provider_phone )
         Call write_variable_in_SPEC_MEMO(" ")
-        Call write_variable_in_SPEC_MEMO("If " & first_name & "cannot go to the orientation on this date, please contact the career counselor right away. You have 10 days to make, and keep a new appointment. After 10 days, you will need to return to the county, and reapply for benefits.")
+        Call write_variable_in_SPEC_MEMO("If " & first_name & "cannot go to the orientation on this date, please contact the career counselor right away. You have " & num_days & " days to make, and keep a new appointment. After 10 days, you will need to return to the county, and reapply for benefits.")
         Call write_variable_in_SPEC_MEMO(" ")
         Call write_variable_in_SPEC_MEMO("If " & first_name & "does not complete this appointment, no benefits will be issued. If " & first_name & " believes he/she has Good Cause for not attending, please contact the career counselor right away.")
         Call write_variable_in_SPEC_MEMO(" ")
