@@ -350,7 +350,6 @@ END IF
 
 	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
 	EMWriteScreen "010", 12, 46
-
 	programs_array = split(programs, ",")
 	For each programs in programs_array
 		programs = trim(programs)
@@ -377,7 +376,7 @@ END IF
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	If error_msg = "ACTION CODE" THEN script_end_procedure(err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
 	EMWriteScreen "Claim entered. ", 8, 6
-	EMWriteScreen Claim_1, 17, 9
+	EMWriteScreen Claim_number, 17, 9
 	'need to check about adding for mutli claims'
 
 	'msgbox "did the notes input?"
@@ -406,8 +405,8 @@ END IF
 		PF3 'back to the DAIL'
         '-----------------------------------------------------------------------------------------CASENOTE
 		start_a_blank_CASE_NOTE
-	    	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH " & "(" & first_name &  ")" & "CLEARED CC-CLAIM ENTERED-----")
-	    	IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name &  ")" &  "CLEARED CC-CLAIM ENTERED-----")
+	    	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH" & "(" & first_name &  ")" & "CLEARED CC-CLAIM ENTERED-----")
+	    	IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name &  ")" &  "CLEARED CC-CLAIM ENTERED-----")
 			CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
 			CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
 	    	CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)

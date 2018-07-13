@@ -417,8 +417,8 @@ IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
 		PF3 'back to the DAIL'
     '-----------------------------------------------------------------------------------------CASENOTE
     start_a_blank_CASE_NOTE
-    	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH " & "(" & first_name &  ")" & "CLEARED CC-CLAIM ENTERED-----")
-    	IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name &  ")" &  "CLEARED CC-CLAIM ENTERED-----")
+    	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH" & "(" & first_name &  ")" & "CLEARED CC-CLAIM ENTERED-----")
+    	IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name &  ")" &  "CLEARED CC-CLAIM ENTERED-----")
 		CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
     	CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
