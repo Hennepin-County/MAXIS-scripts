@@ -1,5 +1,5 @@
 ''GATHERING STATS===========================================================================================
-name_of_script = "ACTION-DEU-MATCH-CLEARED-CC-NO-DAIL.vbs"
+name_of_script = "ACTION - DEU MATCH CLEARED CC NO DAIL.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 300
@@ -213,7 +213,7 @@ Do
 	END IF
 	IF IEVS_type = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match type entry."
 	IF EI_allowed_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if Earned Income disregard was allowed."
-  IF collectible_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if claim is collectible."
+  	IF collectible_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if claim is collectible."
 	IF collectible_dropdown = "YES" THEN
 	IF collectible_reason_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise why claim is collectible."
 	END IF
@@ -350,15 +350,14 @@ END IF
 
 	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
 	EMWriteScreen "010", 12, 46
-
 	programs_array = split(programs, ",")
-	For each program in programs_array
-		program = trim(program)
-		IF program = "DWP" then cleared_header = "ACTD"
-		IF program = "Food Support" then cleared_header = "ACTF"
-		IF program = "Health Care" then cleared_header = "ACTH"
-		IF program = "Medical Assistance" then cleared_header = "ACTM"
-		IF program = "MFIP" then cleared_header = "ACTS"
+	For each programs in programs_array
+		programs = trim(programs)
+		IF programs = "DWP" then cleared_header = "ACTD"
+		IF programs = "Food Support" then cleared_header = "ACTF"
+		IF programs = "Health Care" then cleared_header = "ACTH"
+		IF programs = "Medical Assistance" then cleared_header = "ACTM"
+		IF programs = "MFIP" then cleared_header = "ACTS"
 		row = 11
 		col = 57
 		EMSearch cleared_header, row, col
@@ -376,9 +375,8 @@ END IF
 	EMReadScreen error_msg, 11, 24, 2
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	If error_msg = "ACTION CODE" THEN script_end_procedure(err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
-
-    EMWriteScreen "Claim entered. ", 8, 6
-	EMWriteScreen Claim_1, 17, 9
+	EMWriteScreen "Claim entered. ", 8, 6
+	EMWriteScreen Claim_number, 17, 9
 	'need to check about adding for mutli claims'
 
 	'msgbox "did the notes input?"
@@ -406,31 +404,32 @@ END IF
 		Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 		PF3 'back to the DAIL'
         '-----------------------------------------------------------------------------------------CASENOTE
-        start_a_blank_CASE_NOTE
-        IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH " & "(" & first_name &  ")" & "CLEARED CC-CLAIM ENTERED-----")
-        IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name &  ")" &  "CLEARED CC-CLAIM ENTERED-----")
-        CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
-        CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
-        CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
-        Call write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
-        Call write_variable_in_CASE_NOTE(programs & " Overpayment " & OP_1 & " through " & OP_to_1 & "  Claim # " & Claim_1 & "  Amt $" & AMT_1)
-        IF OP_2 <> "" then Call write_variable_in_case_note(programs & " Overpayment " & OP_2 & " through  " & OP_to_2 & "  Claim # " & Claim_2 & "  Amt $" & AMT_2)
-        IF OP_3 <> "" then Call write_variable_in_case_note(programs & " Overpayment " & OP_3 & " through  " & OP_to_3 & "  Claim # " & Claim_3 & "  Amt $" & AMT_3)
-        IF OP_4 <> "" then Call write_variable_in_case_note(programs & " Overpayment " & OP_4 & " through  " & OP_to_4 & "  Claim # " & Claim_4 & "  Amt $" & AMT_4)
-        IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
-        IF program = "Health Care" or IF program = "Medical Assistance" THEN
-        	Call write_bullet_and_variable_in_CASE_NOTE("HC responsible members", HC_resp_memb)
-			Call write_bullet_and_variable_in_CASE_NOTE("HC claim number", hc_claim_number)
-        	Call write_bullet_and_variable_in_CASE_NOTE("Total federal Health Care amount", Fed_HC_AMT)
-        	Call write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-		END IF
-        CALL write_bullet_and_variable_in_case_note("Income verification received", income_rcvd_date)
-        CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
-        CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
-        CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
-        CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
-        CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
-        CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
-        CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-        IF program = "Health Care" or IF program = "Medical Assistance" THEN CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "", "Claims entered for #" &  MAXIS_case_number, " Member #: " & memb_number & vbcr & " Date Overpayment Created: " & OP_Date & vbcr & "Programs: " & programs & vbcr & " See case notes for further details.", "", False)
+		start_a_blank_CASE_NOTE
+	    	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH" & "(" & first_name &  ")" & "CLEARED CC-CLAIM ENTERED-----")
+	    	IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name &  ")" &  "CLEARED CC-CLAIM ENTERED-----")
+			CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
+			CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
+	    	CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
+	    	CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
+			Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+			Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+			IF OP_program_II <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+			IF OP_program_III <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+			IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
+			IF programs = "Health Care" or programs = "Medical Assistance" THEN
+        	    CALL write_bullet_and_variable_in_CASE_NOTE("HC responsible members", HC_resp_memb)
+				Call write_bullet_and_variable_in_CASE_NOTE("HC claim number", hc_claim_number)
+        		Call write_bullet_and_variable_in_CASE_NOTE("Total federal Health Care amount", Fed_HC_AMT)
+        		Call write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+			END IF
+        	CALL write_bullet_and_variable_in_case_note("Income verification received", income_rcvd_date)
+        	CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
+        	CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
+        	CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
+        	CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
+        	CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
+        	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+        	CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+        	IF programs = "Health Care" or programs = "Medical Assistance" THEN CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "", "Claims entered for #" &  MAXIS_case_number, " Member #: " & memb_number & vbcr & " Date Overpayment Created: " & OP_Date & vbcr & "Programs: " & programs & vbcr & " See case notes for further details.", "", False)
     END IF
+script_end_procedure("Overpayment case note entered. Please remember to copy and paste your notes to CCOL/CLIC")
