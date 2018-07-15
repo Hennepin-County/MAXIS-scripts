@@ -346,6 +346,52 @@ Do
     If buttonpressed = add_new_panel_button Then
         MsgBox "Add a new panel!"
         '2 different dialogs for JOBS vs BUSI and add here then add to the EARNED_INCOME_PANELS_ARRAY
+
+        BeginDialog Dialog1, 0, 0, 191, 50, "Panel to Add"
+          DropListBox 30, 30, 60, 45, "Select one..."+chr(9)+"JOBS"+chr(9)+"BUSI", panel_to_add
+          ButtonGroup ButtonPressed
+            OkButton 135, 10, 50, 15
+            CancelButton 135, 30, 50, 15
+          Text 15, 10, 85, 20, "Which type of panel would you like to add?"
+        EndDialog
+
+        Do
+            err_msg = ""
+
+            dialog Dialog1
+            cancel_confirmation
+
+            If panel_to_add = "Select one..." Then err_msg = err_msg & vbNewLine & "* Indicate which type of panel needs to be added."
+
+            If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+
+        Loop until err_msg = ""
+
+        Select Case panel_to_add
+
+        Case "JOBS"
+        'Start on DIALOG need to keep working on it'
+        BeginDialog Dialog1, 0, 0, 436, 250, "Dialog"
+          ButtonGroup ButtonPressed
+            OkButton 325, 230, 50, 15
+            CancelButton 380, 230, 50, 15
+          Text 115, 15, 45, 10, "Income Type:"
+          DropListBox 165, 10, 60, 45, "W - Wages (Incl Tips)"+chr(9)+"J - WIOA"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", inc_type_code
+          Text 10, 15, 65, 10, "Client Ref Number:"
+          EditBox 75, 10, 30, 15, jobs_clt_ref_nbr
+          Text 240, 15, 85, 10, "Subsidized Income Type:"
+          DropListBox 335, 10, 95, 45, "   "+chr(9)+"01 - Subsidized Public Sector Employer"+chr(9)+"02 - Subsidized Private Sector Employer"+chr(9)+"03 - On-The-Job Training"+chr(9)+"04 - AmeriCorps(VISTA/State/National/NCCC)", subsdzd_inc_type
+          Text 20, 35, 40, 10, "Verification:"
+          DropListBox 70, 30, 60, 45, "   "+chr(9)+"1 - Pay Stubs/Tip Report"+chr(9)+"2 - Empl Statement"+chr(9)+"3 - Coltrl Stmt"+chr(9)+"4 - Other Document"+chr(9)+"5 - Pend Out State Verification"+chr(9)+"N - No Ver Prvd", verif_code
+          Text 160, 35, 50, 10, "Hourly Wage:"
+          EditBox 220, 30, 50, 15, enter_hrly_wage
+          Text 15, 55, 35, 10, "Employer:"
+          EditBox 55, 50, 300, 15, enter_employer
+        EndDialog
+
+        Case "BUSI"
+
+        End Select
     End If
 
 Loop until buttonpressed = continue_to_update_button
