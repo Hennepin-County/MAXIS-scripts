@@ -207,22 +207,22 @@ BeginDialog notice_action_dialog, 0, 0, 166, 90, "SEND DIFFERENCE NOTICE?"
   	CancelButton 110, 70, 45, 15
 EndDialog
 
-BeginDialog send_notice_dialog, 0, 0, 296, 160, "NON-WAGE MATCH SEND DIFFERENCE NOTICE"
-  GroupBox 5, 5, 285, 55, "WAGE MATCH"
-  Text 10, 20, 110, 10, "Case number: " & MAXIS_case_number
-  Text 10, 40, 105, 10, "Active Programs: " & programs
-  Text 120, 20, 165, 10, "Client name: " & client_name
-  Text 120, 40, 165, 15, "Income source: "  & source_income
-  GroupBox 5, 65, 190, 50, "Verification Requested: "
+BeginDialog send_notice_dialog, 0, 0, 296, 160, "WAGE MATCH SEND DIFFERENCE NOTICE"
   CheckBox 10, 80, 70, 10, "Difference Notice", Diff_Notice_Checkbox
   CheckBox 110, 80, 90, 10, "Employment Verification", empl_verf_checkbox
   CheckBox 10, 95, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
-  CheckBox 110, 95, 80, 10, "Other-please specify", other_checkbox
-  Text 5, 125, 40, 10, "Other notes: "
+  CheckBox 110, 95, 80, 10, "Other (please specify)", other_checkbox
   EditBox 50, 120, 240, 15, other_notes
   ButtonGroup ButtonPressed
-  OkButton 195, 140, 45, 15
-  CancelButton 245, 140, 45, 15
+    OkButton 195, 140, 45, 15
+    CancelButton 245, 140, 45, 15
+  GroupBox 5, 5, 285, 55, "WAGE MATCH"
+  GroupBox 5, 65, 200, 50, "Verification Requested: "
+  Text 10, 20, 110, 10, "Case number: "  & MAXIS_case_number
+  Text 120, 20, 165, 10, "Client name: "  & client_name
+  Text 10, 40, 105, 10, "Active Programs: "  & programs
+  Text 120, 40, 165, 15, "Income source: "   & source_income
+  Text 5, 125, 40, 10, "Other notes: "
 EndDialog
 
 IF notice_sent = "N" THEN
@@ -244,10 +244,11 @@ IF send_notice_checkbox = CHECKED THEN
 	ATR_Verf_CheckBox = CHECKED
     '---------------------------------------------------------------------send notice dialog and dialog DO...loop
 	DO
-    	err_msg = ""
-    	Dialog send_notice_dialog
-    	cancel_confirmation
-    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+		err_msg = ""
+		Dialog send_notice_dialog
+		cancel_confirmation
+		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please specify what other is to continue."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL DEU_password_check(False)
 
