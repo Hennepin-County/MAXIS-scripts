@@ -124,7 +124,7 @@ EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 
 '--------------------------------------------------------------------Dialog
-BeginDialog OP_Cleared_dialog, 0, 0, 361, 245, "Match Cleared CC Claim Entered-No DAIL"
+BeginDialog OP_Cleared_dialog, 0, 0, 361, 245, "Match Cleared CC Claim Entered-NO DAIL"
   EditBox 55, 5, 35, 15, MAXIS_case_number
   DropListBox 150, 5, 55, 15, "Select:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"LAST YEAR"+chr(9)+"OTHER", select_quarter
   EditBox 270, 5, 45, 15, discovery_date

@@ -1,5 +1,5 @@
 ''GATHERING STATS===========================================================================================
-name_of_script = "ACTION-DEU-NONWAGE-MATCH-CLEARED.vbs"
+name_of_script = "ACTION - DEU NONWAGE MATCH CLEARED.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 300
@@ -240,8 +240,8 @@ CALL DEU_password_check(False)
 
 IF send_notice_checkbox = CHECKED THEN
 '----------------------------------------------------------------Defaulting checkboxes to being checked (per DEU instruction)
-    Diff_Notice_Checkbox = CHECKED
-    ATR_Verf_CheckBox = CHECKED
+	Diff_Notice_Checkbox = CHECKED
+	ATR_Verf_CheckBox = CHECKED
     '---------------------------------------------------------------------send notice dialog and dialog DO...loop
 	DO
     	err_msg = ""
@@ -268,86 +268,86 @@ IF send_notice_checkbox = CHECKED THEN
 	transmit'exiting IULA, helps prevent errors when going to the case note
 	'--------------------------------------------------------------------The case note & case note related code
 	pending_verifs = ""
-  IF Diff_Notice_Checkbox = CHECKED THEN pending_verifs = pending_verifs & "Difference Notice, "
+  	IF Diff_Notice_Checkbox = CHECKED THEN pending_verifs = pending_verifs & "Difference Notice, "
 	IF empl_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "EVF, "
 	IF ATR_Verf_CheckBox = CHECKED THEN pending_verifs = pending_verifs & "ATR, "
 	IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
 
     '-------------------------------------------------------------------trims excess spaces of pending_verifs
-  pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more more than one app date is found and additional app is selected
-  IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
+  	pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more more than one app date is found and additional app is selected
+  	IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 
 	IEVS_match = replace(IEVS_match, "/", " to ")
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
 	'---------------------------------------------------------------------DIFF NOTC case note
-  start_a_blank_CASE_NOTE
-	IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & UBEN_month & "/" & UBEN_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
-	IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
-	CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
-  CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
-	CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
-	CALL write_variable_in_CASE_NOTE ("----- ----- -----")
-  CALL write_bullet_and_variable_in_CASE_NOTE("Verification Requested", pending_verifs)
-  CALL write_bullet_and_variable_in_CASE_NOTE("Verification Due", Due_date)
-	CALL write_variable_in_CASE_NOTE ("* Client must be provided 10 days to return requested verifications *")
-  CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-  CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
-  CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
+  	start_a_blank_CASE_NOTE
+		IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & UBEN_month & "/" & UBEN_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
+		IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
+		CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
+  		CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
+		CALL write_variable_in_CASE_NOTE ("----- ----- -----")
+  		CALL write_bullet_and_variable_in_CASE_NOTE("Verification Requested", pending_verifs)
+  		CALL write_bullet_and_variable_in_CASE_NOTE("Verification Due", Due_date)
+		CALL write_variable_in_CASE_NOTE ("* Client must be provided 10 days to return requested verifications *")
+  		CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+  		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+  		CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 END IF
 
 IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	'IF sent_date = "" THEN replace(sent_date, "N/A")
 	'MsgBox("A difference notice was sent: " & sent_date & "." & vbNewLine & "The script will now navigate to clear the Non-wage match.")
-  BeginDialog cleared_match_dialog, 0, 0, 311, 245, "NON-WAGE MATCH CLEARED"
-    Text 10, 20, 110, 10, "Case number: " & MAXIS_case_number
-    Text 120, 20, 165, 10, "Client name: " & client_name
-    Text 10, 40, 105, 10, "Active Programs: " & programs
-    Text 120, 40, 175, 15, "Income source: " & source_income
-    DropListBox 75, 65, 110, 15, "Select One:"+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BE - OP entered"+chr(9)+"BO - Other"+chr(9)+"BP - Wrong Person"+chr(9)+"CC - Claim Entered"+chr(9)+"CF - Future Savings"+chr(9)+"NC - Non Cooperation", resolution_status
-    DropListBox 125, 85, 60, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", change_response
-    EditBox 125, 105, 35, 15, resolve_time
-    CheckBox 210, 75, 70, 10, "Difference Notice", Diff_Notice_Checkbox
-    CheckBox 210, 85, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
-    CheckBox 210, 95, 90, 10, "Employment verification", EVF_checkbox
-    CheckBox 210, 105, 80, 10, "Other (please specify)", other_checkbox
-    DropListBox 40, 140, 40, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"HC"+chr(9)+"MF", claim_program
-    EditBox 105, 140, 15, 15, from_month
-    EditBox 125, 140, 15, 15, from_year
-    EditBox 155, 140, 15, 15, to_month
-    EditBox 175, 140, 15, 15, to_year
-    EditBox 200, 140, 45, 15, claim_number
-    EditBox 255, 140, 45, 15, claim_AMT
-    DropListBox 50, 160, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
-    EditBox 155, 160, 145, 15, collectible_reason
-    EditBox 65, 180, 60, 15, Discovery_date
-    EditBox 215, 180, 85, 15, reason_OP
-    EditBox 55, 205, 245, 15, other_notes
-    CheckBox 10, 225, 135, 10, "Check here if 10 day cutoff has passed", TIKL_checkbox
-    ButtonGroup ButtonPressed
-      OkButton 205, 225, 45, 15
-      CancelButton 255, 225, 45, 15
-    GroupBox 5, 5, 300, 55, "NON-WAGE MATCH"
-    Text 10, 70, 60, 10, "Resolution Status: "
-    GroupBox 195, 65, 110, 55, "Verification Used to Clear: "
-    Text 10, 90, 110, 10, "Responded to Difference Notice: "
-    Text 10, 110, 85, 10, "Resolve time (in minutes): "
-    GroupBox 5, 125, 300, 75, "If resolution status is CC"
-    Text 10, 145, 30, 10, "Program: "
-    Text 85, 145, 20, 10, "from: "
-    Text 105, 130, 20, 10, "(MM) "
-    Text 125, 130, 15, 10, "(YY) "
-    Text 155, 130, 20, 10, "(MM) "
-    Text 175, 130, 15, 10, "(YY) "
-    Text 200, 130, 30, 10, "Claim #: "
-    Text 255, 130, 20, 10, "AMT: "
-    Text 145, 145, 10, 10, "to: "
-    Text 10, 165, 40, 10, "Collectible: "
-    Text 90, 165, 65, 10, "Reason collectible: "
-    Text 10, 185, 55, 10, "Discovery date: "
-    Text 130, 185, 85, 10, "Reason for overpayment:"
-    Text 10, 210, 40, 10, "Other notes: "
-  EndDialog
+  	BeginDialog cleared_match_dialog, 0, 0, 311, 245, "NON-WAGE MATCH CLEARED"
+    	Text 10, 20, 110, 10, "Case number: " & MAXIS_case_number
+    	Text 120, 20, 165, 10, "Client name: " & client_name
+    	Text 10, 40, 105, 10, "Active Programs: " & programs
+    	Text 120, 40, 175, 15, "Income source: " & source_income
+    	DropListBox 75, 65, 110, 15, "Select One:"+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BE - OP entered"+chr(9)+"BO - Other"+chr(9)+"BP - Wrong Person"+chr(9)+"CC - Claim Entered"+chr(9)+"CF - Future Savings"+chr(9)+"NC - Non Cooperation", resolution_status
+    	DropListBox 125, 85, 60, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", change_response
+    	EditBox 125, 105, 35, 15, resolve_time
+    	CheckBox 210, 75, 70, 10, "Difference Notice", Diff_Notice_Checkbox
+    	CheckBox 210, 85, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
+    	CheckBox 210, 95, 90, 10, "Employment verification", EVF_checkbox
+    	CheckBox 210, 105, 80, 10, "Other (please specify)", other_checkbox
+    	DropListBox 40, 140, 40, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"HC"+chr(9)+"MF", claim_program
+    	EditBox 105, 140, 15, 15, from_month
+    	EditBox 125, 140, 15, 15, from_year
+    	EditBox 155, 140, 15, 15, to_month
+    	EditBox 175, 140, 15, 15, to_year
+    	EditBox 200, 140, 45, 15, claim_number
+    	EditBox 255, 140, 45, 15, claim_AMT
+    	DropListBox 50, 160, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
+    	EditBox 155, 160, 145, 15, collectible_reason
+    	EditBox 65, 180, 60, 15, Discovery_date
+    	EditBox 215, 180, 85, 15, reason_OP
+    	EditBox 55, 205, 245, 15, other_notes
+    	CheckBox 10, 225, 135, 10, "Check here if 10 day cutoff has passed", TIKL_checkbox
+    	ButtonGroup ButtonPressed
+      		OkButton 205, 225, 45, 15
+      		CancelButton 255, 225, 45, 15
+    	GroupBox 5, 5, 300, 55, "NON-WAGE MATCH"
+    	Text 10, 70, 60, 10, "Resolution Status: "
+    	GroupBox 195, 65, 110, 55, "Verification Used to Clear: "
+    	Text 10, 90, 110, 10, "Responded to Difference Notice: "
+    	Text 10, 110, 85, 10, "Resolve time (in minutes): "
+    	GroupBox 5, 125, 300, 75, "If resolution status is CC"
+    	Text 10, 145, 30, 10, "Program: "
+    	Text 85, 145, 20, 10, "from: "
+    	Text 105, 130, 20, 10, "(MM) "
+    	Text 125, 130, 15, 10, "(YY) "
+    	Text 155, 130, 20, 10, "(MM) "
+    	Text 175, 130, 15, 10, "(YY) "
+    	Text 200, 130, 30, 10, "Claim #: "
+    	Text 255, 130, 20, 10, "AMT: "
+    	Text 145, 145, 10, 10, "to: "
+    	Text 10, 165, 40, 10, "Collectible: "
+    	Text 90, 165, 65, 10, "Reason collectible: "
+    	Text 10, 185, 55, 10, "Discovery date: "
+    	Text 130, 185, 85, 10, "Reason for overpayment:"
+    	Text 10, 210, 40, 10, "Other notes: "
+  	EndDialog
 
 	DO
 		err_msg = ""
@@ -401,34 +401,33 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	END IF
 	transmit 'IULB
 	IF resolution_status = "CF - Future Savings" THEN
-  	BeginDialog future_savings_dialog, 0, 0, 161, 105, "Future Savings"
-    	DropListBox 35, 5, 120, 15, "Select One:"+chr(9)+"I - Case Became Ineligible"+chr(9)+"R - Person Removed"+chr(9)+"P - Benefit Increased"+chr(9)+"N - Benefit Decreased"+chr(9)+"M - AFDC Closed w/ Extended Med"+chr(9)+"X - MFIP closed w/ Extended Med", saving_result
-    	DropListBox 35, 25, 120, 15, "Select One:"+chr(9)+"O - One Time Only"+chr(9)+"R - Per Month For Nbr of Months", saving_method
+  		BeginDialog future_savings_dialog, 0, 0, 161, 105, "Future Savings"
+    		DropListBox 35, 5, 120, 15, "Select One:"+chr(9)+"I - Case Became Ineligible"+chr(9)+"R - Person Removed"+chr(9)+"P - Benefit Increased"+chr(9)+"N - Benefit Decreased"+chr(9)+"M - AFDC Closed w/ Extended Med"+chr(9)+"X - MFIP closed w/ Extended Med", saving_result
+    		DropListBox 35, 25, 120, 15, "Select One:"+chr(9)+"O - One Time Only"+chr(9)+"R - Per Month For Nbr of Months", saving_method
 			EditBox 35, 45, 40, 15, saving_amount
-  		EditBox 120, 45, 15, 15, date_month
-  		EditBox 140, 45, 15, 15, date_year
-  		EditBox 140, 65, 15, 15, saving_month
-    	ButtonGroup ButtonPressed
-      	OkButton 50, 85, 50, 15
-      	CancelButton 105, 85, 50, 15
-    	Text 5, 10, 30, 10, "Result:"
-    	Text 5, 30, 30, 10, "Method:"
-    	Text 5, 50, 30, 10, "Amount:"
-    	Text 100, 50, 20, 10, "Date: "
-    	Text 110, 70, 30, 10, "Months:"
-  	EndDialog
+  			EditBox 120, 45, 15, 15, date_month
+  			EditBox 140, 45, 15, 15, date_year
+  			EditBox 140, 65, 15, 15, saving_month
+    		ButtonGroup ButtonPressed
+      			OkButton 50, 85, 50, 15
+      			CancelButton 105, 85, 50, 15
+    		Text 5, 10, 30, 10, "Result:"
+    		Text 5, 30, 30, 10, "Method:"
+    		Text 5, 50, 30, 10, "Amount:"
+    		Text 100, 50, 20, 10, "Date: "
+    		Text 110, 70, 30, 10, "Months:"
+  		EndDialog
 
-  	DO
-    	err_msg = ""
-    	Dialog future_savings_dialog
-    	cancel_confirmation
-    	IF IsNumeric(date_month) = false or len(resolve_time) < 2 THEN err_msg = err_msg & vbNewLine & "* Enter a valid date MM/YY."
-    	IF saving_result = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please enter a saving result."
-    	IF saving_method = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please enter a saving method."
+  		DO
+    		err_msg = ""
+    		Dialog future_savings_dialog
+    		cancel_confirmation
+    		IF IsNumeric(date_month) = false or len(resolve_time) < 2 THEN err_msg = err_msg & vbNewLine & "* Enter a valid date MM/YY."
+    		IF saving_result = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please enter a saving result."
+    		IF saving_method = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please enter a saving method."
 			IF saving_method = "O - One Time Only" and saving_month <> "" THEN err_msg = err_msg & vbNewLine & "When selecting method O no months need to be entered."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-
-  	LOOP UNTIL err_msg = ""
+  		LOOP UNTIL err_msg = ""
 	END IF
 	''---------------------------------------------------------------------------writing the note on IULB
 	EMReadScreen error_msg, 11, 24, 2
@@ -448,7 +447,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	IF resolution_status = "CF - Future Savings" THEN
 		EMWriteScreen "Cost Savings - income can be budgeted timely for next month", 8, 6 						 	'CF
 		EMWriteScreen  Active_Programs, 12, 37
-    EMWriteScreen  saving_result, 12, 42
+    	EMWriteScreen  saving_result, 12, 42
 		EMWriteScreen  saving_method, 12, 49
 		EMWriteScreen  saving_amount, 12, 54
 		EMWriteScreen  date_month, 12, 65
@@ -471,15 +470,15 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 
 	'msgbox "Match cleared: " match_cleared
 	'IF match_cleared = TRUE THEN
-	  IEVS_match = replace(IEVS_match, "/", " to ")
-		Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
-		PF3 'back to the DAIL'
-	   '----------------------------------------------------------------the case match CLEARED note
-		start_a_blank_CASE_NOTE
+	IEVS_match = replace(IEVS_match, "/", " to ")
+	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
+	PF3 'back to the DAIL'
+	'----------------------------------------------------------------the case match CLEARED note
+	start_a_blank_CASE_NOTE
 		IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & UBEN_month & "/" & UBEN_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
-	  IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
-	  CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_match)
-	  CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
+	  	IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
+	  	CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_match)
+	  	CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
 		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 		IF resolution_status = "BC - Case Closed" 	THEN CALL write_variable_in_CASE_NOTE("* Case closed. ")
@@ -491,24 +490,24 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		IF resolution_status = "BP - Wrong Person" THEN CALL write_variable_in_CASE_NOTE("* Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
 		IF resolution_status = "CF - Future Savings" THEN CALL write_variable_in_CASE_NOTE("* Cost Savings - income can be budgeted timely for next month")
 		IF resolution_status = "CC - Claim Entered" THEN
-		  CALL write_variable_in_CASE_NOTE(claim_program & " Overpayment Claim # " & claim_number  & " Amount: $" & claim_AMT &  " From: " & from_month & "/" &  from_year & " through "  & to_month & "/" &  to_year)
-		  CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
-		  CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
-		  CALL write_bullet_and_variable_in_case_note("Verification used for overpayment", EVF_used)
-		  CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
-		  CALL write_bullet_and_variable_in_case_note("Discovery Date", Discovery_date)
-		  CALL write_bullet_and_variable_in_case_note("Reason for overpayment", reason_OP)
+			CALL write_variable_in_CASE_NOTE(claim_program & " Overpayment Claim # " & claim_number  & " Amount: $" & claim_AMT &  " From: " & from_month & "/" &  from_year & " through "  & to_month & "/" &  to_year)
+			CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
+			CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
+			CALL write_bullet_and_variable_in_case_note("Verification used for overpayment", EVF_used)
+			CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
+			CALL write_bullet_and_variable_in_case_note("Discovery Date", Discovery_date)
+			CALL write_bullet_and_variable_in_case_note("Reason for overpayment", reason_OP)
 		END IF
 		IF resolution_status = "NC - Non Cooperation" THEN
-      CALL write_variable_in_CASE_NOTE("* Client failed to cooperate with wage match.")
-      CALL write_variable_in_case_note("* Entered STAT/DISQ panels for each program.")
-      CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
-      CALL write_variable_in_case_note("* Case approved to close")
-      CALL write_variable_in_case_note("* Client needs to provide: ATR, Income Verification, Difference Notice")
-    END IF
-	  CALL write_bullet_and_variable_in_CASE_NOTE("Responded to Difference Notice", change_response)
+      		CALL write_variable_in_CASE_NOTE("* Client failed to cooperate with wage match.")
+      		CALL write_variable_in_case_note("* Entered STAT/DISQ panels for each program.")
+      		CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
+      		CALL write_variable_in_case_note("* Case approved to close")
+      		CALL write_variable_in_case_note("* Client needs to provide: ATR, Income Verification, Difference Notice")
+    	END IF
+	  	CALL write_bullet_and_variable_in_CASE_NOTE("Responded to Difference Notice", change_response)
 	 	CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-    CALL write_variable_in_CASE_NOTE("----- ----- -----")
+    	CALL write_variable_in_CASE_NOTE("----- ----- -----")
 	 	CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 
 		IF TIKL_checkbox = checked THEN

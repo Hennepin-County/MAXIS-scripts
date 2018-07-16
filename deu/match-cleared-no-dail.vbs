@@ -1,5 +1,5 @@
 ''GATHERING STATS===========================================================================================
-name_of_script = "ACTION-DEU-MATCH-CLEARED-NO-DAIL.vbs"
+name_of_script = "ACTION - DEU MATCH CLEARED NO DAIL.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 300
@@ -122,7 +122,7 @@ memb_number = "01"
 date_recieved = date & ""
 
 '-----------------------------------------------------------------------------------------Initial dialog and do...loop
-BeginDialog update_action_dialog, 0, 0, 181, 155, "MATCH CLEARED-No DAIL"
+BeginDialog update_action_dialog, 0, 0, 181, 155, "MATCH CLEARED-NO DAIL"
   EditBox 55, 5, 55, 15, MAXIS_case_number
   EditBox 155, 5, 20, 15, MEMB_Number
   DropListBox 90, 25, 85, 15, "Select One:"+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BE - OP Entered"+chr(9)+"BE - NC Non-collectible"+chr(9)+"BO - Other"+chr(9)+"BP - Wrong Person"+chr(9)+"CC - Claim Entered"+chr(9)+"NC - Non Cooperation", resolution_status
@@ -367,8 +367,8 @@ Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications a
 PF3 'back to the DAIL'
   '----------------------------------------------------------------the case match CLEARED note
 start_a_blank_CASE_NOTE
-IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & select_quarter & " QTR " & IEVS_year & " WAGE MATCH " & "(" & first_name & ") CLEARED " & rez_status & "-----")
-IF IEVS_type = "NON-WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
+IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & select_quarter & " QTR " & IEVS_year & " WAGE MATCH" & "(" & first_name & ") CLEARED " & rez_status & "-----")
+IF IEVS_type = "NON-WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
 CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
   	CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
