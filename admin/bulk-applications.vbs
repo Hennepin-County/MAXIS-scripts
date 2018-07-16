@@ -1110,7 +1110,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
 
             CALL start_a_new_spec_memo_and_continue(memo_started)		'Writes the appt letter into the MEMO.
 			IF memo_started = True THEN
-                EMsendkey("************************************************************")
+                EMsendkey("**********************************************************")
                 Call write_variable_in_SPEC_MEMO("You recently applied for assistance in Hennepin County on " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ".")
                 Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
                 Call write_variable_in_SPEC_MEMO(" ")
