@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("07/16/2018", "BUg Fix that was preventing notices from being sent.", "Casey Love, Hennepin County")
 CALL changelog_update("03/28/2018", "Updated appt letter case note for bulk script process.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/21/2018", "Added on demand waiver handling.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/16/2018", "Added case transfer confirmation coding.", "Ilse Ferris, Hennepin County")
@@ -517,7 +518,7 @@ IF send_appt_ltr = TRUE THEN
 
 		'Navigating to SPEC/MEMO
 		Call start_a_new_spec_memo		'Writes the appt letter into the MEMO.
-			Call write_variable_in_SPEC_MEMO("************************************************************")
+			Call write_variable_in_SPEC_MEMO("**********************************************************")
 			Call write_variable_in_SPEC_MEMO("You recently applied for assistance in Hennepin County on " & application_date & ".")
 			Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
 			Call write_variable_in_SPEC_MEMO(" ")
