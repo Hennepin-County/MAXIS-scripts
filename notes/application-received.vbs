@@ -551,7 +551,7 @@ IF send_appt_ltr = TRUE THEN
     Loop until SELF_check <> "SELF"
 		'Navigating to SPEC/MEMO
 		Call start_a_new_spec_memo		'Writes the appt letter into the MEMO.
-			Call write_variable_in_SPEC_MEMO("************************************************************")
+			Call write_variable_in_SPEC_MEMO("***********************************************************")
 			Call write_variable_in_SPEC_MEMO("You recently applied for assistance in Hennepin County on " & application_date & ".")
 			Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
 			Call write_variable_in_SPEC_MEMO(" ")
