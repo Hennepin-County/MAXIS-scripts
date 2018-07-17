@@ -87,22 +87,26 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'DIALOG TO GET CASE NUMBER
 'Possibly add worker signature here and take it out of the following dialogs
-BeginDialog Dialog1, 0, 0, 191, 175, "Case Number"
+BeginDialog Dialog1, 0, 0, 191, 205, "Case Number"
   EditBox 90, 5, 70, 15, MAXIS_case_number
-  EditBox 5, 35, 175, 15, worker_signature
+  EditBox 90, 25, 15, 15, MAXIS_footer_month
+  EditBox 110, 25, 15, 15, MAXIS_footer_year
+  EditBox 5, 60, 175, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 80, 155, 50, 15
-    CancelButton 135, 155, 50, 15
+    OkButton 80, 180, 50, 15
+    CancelButton 135, 180, 50, 15
   Text 5, 10, 85, 10, "Enter your case number:"
-  Text 5, 25, 65, 10, "Worker Signature:"
-  GroupBox 5, 55, 180, 95, "INSTRUCTIONS - PLEASE READ!!!"
-  Text 10, 70, 170, 25, "This script is to help in correctly budgeting EARNED income on JOBS, BUSI, or RBIC. It will update MAXIS and CASE/NOTE the information provided. "
-  Text 10, 105, 170, 40, "If a JOBS panel or BUSI panel needs to be added to MAXIS for a client or income source, the script will ask for any panels that need to be added first. Review the case now to ensure that the correct action will be taken in the correct order."
+  Text 20, 30, 65, 10, "Footer Month/Year:"
+  Text 5, 50, 65, 10, "Worker Signature:"
+  GroupBox 5, 80, 180, 95, "INSTRUCTIONS - PLEASE READ!!!"
+  Text 10, 95, 170, 25, "This script is to help in correctly budgeting EARNED income on JOBS, BUSI, or RBIC. It will update MAXIS and CASE/NOTE the information provided. "
+  Text 10, 130, 170, 40, "If a JOBS panel or BUSI panel needs to be added to MAXIS for a client or income source, the script will ask for any panels that need to be added first. Review the case now to ensure that the correct action will be taken in the correct order."
 EndDialog
 
 Do
     err_msg = ""
     dialog Dialog1
+    cancel_confirmation
 
     If IsNumeric(MAXIS_case_number) = FALSE or Len(MAXIS_case_number) > 8 Then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
     If trim(worker_signature) = "" Then err_msg = err_msg & vbNewLine & "* Enter your worker signature for your case notes."
@@ -370,24 +374,78 @@ Do
         Select Case panel_to_add
 
         Case "JOBS"
-        'Start on DIALOG need to keep working on it'
-        BeginDialog Dialog1, 0, 0, 436, 250, "Dialog"
-          ButtonGroup ButtonPressed
-            OkButton 325, 230, 50, 15
-            CancelButton 380, 230, 50, 15
-          Text 115, 15, 45, 10, "Income Type:"
-          DropListBox 165, 10, 60, 45, "W - Wages (Incl Tips)"+chr(9)+"J - WIOA"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", inc_type_code
-          Text 10, 15, 65, 10, "Client Ref Number:"
-          EditBox 75, 10, 30, 15, jobs_clt_ref_nbr
-          Text 240, 15, 85, 10, "Subsidized Income Type:"
-          DropListBox 335, 10, 95, 45, "   "+chr(9)+"01 - Subsidized Public Sector Employer"+chr(9)+"02 - Subsidized Private Sector Employer"+chr(9)+"03 - On-The-Job Training"+chr(9)+"04 - AmeriCorps(VISTA/State/National/NCCC)", subsdzd_inc_type
-          Text 20, 35, 40, 10, "Verification:"
-          DropListBox 70, 30, 60, 45, "   "+chr(9)+"1 - Pay Stubs/Tip Report"+chr(9)+"2 - Empl Statement"+chr(9)+"3 - Coltrl Stmt"+chr(9)+"4 - Other Document"+chr(9)+"5 - Pend Out State Verification"+chr(9)+"N - No Ver Prvd", verif_code
-          Text 160, 35, 50, 10, "Hourly Wage:"
-          EditBox 220, 30, 50, 15, enter_hrly_wage
-          Text 15, 55, 35, 10, "Employer:"
-          EditBox 55, 50, 300, 15, enter_employer
-        EndDialog
+            'Start on DIALOG need to keep working on it'
+            BeginDialog Dialog1, 0, 0, 431, 110, "New JOBS Panel"
+              EditBox 75, 10, 20, 15, enter_JOBS_clt_ref_nbr
+              DropListBox 155, 10, 60, 45, "  "+chr(9)+"W - Wages (Incl Tips)"+chr(9)+"J - WIOA"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", enter_JOBS_inc_type_code
+              DropListBox 330, 10, 95, 45, "  "+chr(9)+"01 - Subsidized Public Sector Employer"+chr(9)+"02 - Subsidized Private Sector Employer"+chr(9)+"03 - On-The-Job Training"+chr(9)+"04 - AmeriCorps(VISTA/State/National/NCCC)", enter_JOBS_subsdzd_inc_type
+              DropListBox 155, 30, 90, 45, "  "+chr(9)+"1 - Pay Stubs/Tip Report"+chr(9)+"2 - Empl Statement"+chr(9)+"3 - Coltrl Stmt"+chr(9)+"4 - Other Document"+chr(9)+"5 - Pend Out State Verification"+chr(9)+"N - No Ver Prvd"+chr(9)+"? - Unknown", enter_JOBS_verif_code
+              EditBox 330, 30, 50, 15, enter_JOBS_hrly_wage
+              EditBox 155, 50, 195, 15, enter_JOBS_employer
+              EditBox 155, 70, 50, 15, enter_JOBS_start_date
+              EditBox 330, 70, 50, 15, enter_JOBS_end_date
+              ButtonGroup ButtonPressed
+                OkButton 320, 90, 50, 15
+                CancelButton 375, 90, 50, 15
+              Text 10, 15, 65, 10, "Client Ref Number:"
+              Text 105, 15, 45, 10, "Income Type:"
+              Text 240, 15, 85, 10, "Subsidized Income Type:"
+              Text 110, 35, 40, 10, "Verification:"
+              Text 280, 35, 50, 10, "Hourly Wage:"
+              Text 115, 55, 35, 10, "Employer:"
+              Text 105, 75, 45, 10, "Income Start:"
+              Text 285, 75, 40, 10, "Income End:"
+            EndDialog
+
+            Do
+                err_msg = ""
+
+                dialog Dialog1
+                cancel_confirmation
+
+                If trim(enter_JOBS_clt_ref_nbr) = "" Then err_msg = err_msg & vbNewLine & "* Enter the member number of the client that is employed at this job."
+                If len(enter_JOBS_clt_ref_nbr) <> 2 Then err_msg = err_msg & vbNewLine & "* The member number should be 2 digits"
+                If trim(enter_JOBS_inc_type_code) = "  " Then err_msg = err_msg & vbNewLine & "* Enter the income type of the job."
+                If trim(enter_JOBS_verif_code) = "  " Then err_msg = err_msg & vbNewLine & "* Enter the verification code for this job."
+                If trim(enter_JOBS_employer) = "" Then err_msg = err_msg & vbNewLine & "* Enter the employer name for this job."
+                If IsDate(enter_JOBS_start_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for Income start date."
+                If trim(enter_JOBS_end_date) <> "" AND IsDate(enter_JOBS_end_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for Income end date."
+
+                if err_msg <> "" Then msgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+
+            Loop until err_msg = ""
+
+            beginning_month = DatePart("m", enter_JOBS_start_date)
+            beginning_year = DatePart("yyyy", enter_JOBS_start_date)
+
+            beginning_month = right("00"&beginning_month, 2)
+            beginning_year = right(beginning_year, 2)
+
+            'QUESTION - what to do about footer month'
+
+            Call navigate_to_MAXIS_screen("STAT", "SUMM")
+
+            EMWriteScreen "JOBS", 20, 71
+            EMWriteScreen enter_JOBS_clt_ref_nbr, 20, 76
+            EMWriteScreen "NN", 20, 79
+            transmit
+
+            EMWriteScreen left(enter_JOBS_inc_type_code, 1), 5, 34
+            EMWriteScreen left(enter_JOBS_subsdzd_inc_type, 2), 5, 74
+            EMWriteScreen left(enter_JOBS_verif_code, 1), 6, 34
+            EMWriteScreen enter_JOBS_hrly_wage, 6, 75
+            EMWriteScreen enter_JOBS_employer, 7, 42
+
+            If trim(enter_JOBS_start_date) <> "" Then Call write_date(enter_JOBS_start_date, "MM DD YY", 9, 35)
+            If trim(enter_JOBS_end_date) <> "" Then Call write_date(enter_JOBS_end_date, "MM DD YY", 9, 49)
+
+            EMReadScreen
+            Call write_date(dated, "MM DD YY", 12, 54)
+            EMWriteScreen "0", 12, 67
+
+            transmit
+
+
 
         Case "BUSI"
 
@@ -801,9 +859,58 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
 Next
 
-For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
-    If EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE Then
+Call back_to_SELF
+Call navigate_to_MAXIS_screen("STAT", "SUMM")
+Do
+    For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
+        If EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE Then
+            If EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel) = "JOBS" Then
+
+                Call Navigate_to_MAXIS_screen("STAT", "JOBS")
+                EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel), 20, 76
+                EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel), 20, 79
+                transmit
+
+                For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
+                    If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
 
 
-    End If
-Next
+
+                    End If
+                Next
+
+
+
+                If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) Then
+
+                End If
+                If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel)
+                If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel)
+
+
+            End If
+
+        End If
+    Next
+    If datediff("m", date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 1 then in_future_month = True
+
+    'If just on SNAP, the case does not have to update future months, so the script can now case note.
+    If future_months_check = 0 or in_future_month = True then exit do
+
+    'Navigates to the current month + 1 footer month, then back into the JOBS panel
+    CALL write_value_and_transmit("BGTX", 20, 71)
+    CALL write_value_and_transmit("y", 16, 54)
+    EMReadScreen MAXIS_footer_month, 2, 20, 55
+    EMReadScreen MAXIS_footer_year, 2, 20, 58
+    EMWriteScreen "jobs", 20, 71
+    EMWriteScreen HH_member, 20, 76
+    If len(current_panel_number) = 1 then current_panel_number = "0" & current_panel_number
+    EMWriteScreen current_panel_number, 20, 79
+    transmit
+    PF9
+Loop until in_future_month = True
+
+
+
+
+script_end_procedure("")
