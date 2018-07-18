@@ -765,24 +765,48 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
 
                 IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
 
-                    EMSendKey("************************************************************")           'for some reason this is more stable then using write_variable
-                    CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case. Your " &_
-                                                    programs & " case will close on " & last_day_of_recert &_
-                                                    " if we do not receive your paperwork. Please sign, date and return your renewal paperwork by " &_
-                                                    CM_plus_1_mo & "/08/" & CM_plus_1_yr & ".")
+                    ' EMSendKey("************************************************************")           'for some reason this is more stable then using write_variable
+                    ' CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case. Your " &_
+                    '                                 programs & " case will close on " & last_day_of_recert &_
+                    '                                 " if we do not receive your paperwork. Please sign, date and return your renewal paperwork by " &_
+                    '                                 CM_plus_1_mo & "/08/" & CM_plus_1_yr & ".")
+                    ' CALL write_variable_in_SPEC_MEMO("")
+                    ' CALL write_variable_in_SPEC_MEMO("You must also complete an interview for your " & programs &_
+                    '     " case to continue. To complete a phone interview, call the EZ Info Line at 612-596-1300 between 9:00am and 4:00pm Monday through Friday. Please complete your interview by " & interview_end_date & ".")
+                    ' CALL write_variable_in_SPEC_MEMO("")
+                    ' CALL write_variable_in_SPEC_MEMO("We must have your renewal paperwork to do your interview. Please send proofs with your renewal paperwork.")
+            		' CALL write_variable_in_SPEC_MEMO("")
+            		' CALL write_variable_in_SPEC_MEMO(" * Examples of income proofs: paystubs, income reports, business ledgers, income tax forms, etc.")
+            		' CALL write_variable_in_SPEC_MEMO("")
+            		' CALL write_variable_in_SPEC_MEMO(" * Examples of housing cost proofs(if changed): rent/house payment receipt, mortgage, lease, subsidy, etc.")
+            		' CALL write_variable_in_SPEC_MEMO("")
+            		' CALL write_variable_in_SPEC_MEMO(" * Examples of medical cost proofs(if changed): prescription and medical bills, etc.")
+                    ' CALL write_variable_in_SPEC_MEMO("")
+            		' CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy.")
+
+
+
+                    CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case.")
                     CALL write_variable_in_SPEC_MEMO("")
-                    CALL write_variable_in_SPEC_MEMO("You must also complete an interview for your " & programs &_
-                        " case to continue. To complete a phone interview, call the EZ Info Line at 612-596-1300 between 9:00am and 4:00pm Monday through Friday. Please complete your interview by " & interview_end_date & ".")
+                    CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & programs & " case to continue.")
                     CALL write_variable_in_SPEC_MEMO("")
-                    CALL write_variable_in_SPEC_MEMO("We must have your renewal paperwork to do your interview. Please send proofs with your renewal paperwork.")
-            		CALL write_variable_in_SPEC_MEMO("")
-            		CALL write_variable_in_SPEC_MEMO(" * Examples of income proofs: paystubs, income reports, business ledgers, income tax forms, etc.")
-            		CALL write_variable_in_SPEC_MEMO("")
-            		CALL write_variable_in_SPEC_MEMO(" * Examples of housing cost proofs(if changed): rent/house payment receipt, mortgage, lease, subsidy, etc.")
-            		CALL write_variable_in_SPEC_MEMO("")
-            		CALL write_variable_in_SPEC_MEMO(" * Examples of medical cost proofs(if changed): prescription and medical bills, etc.")
+                    Call write_variable_in_SPEC_MEMO("  *** Please complete your interview by " & interview_end_date & ". ***")
+                    Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+                    Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
                     CALL write_variable_in_SPEC_MEMO("")
-            		CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy.")
+                    CALL write_variable_in_SPEC_MEMO("**  Your " & programs & " case will close on " & last_day_of_recert & " unless    **")
+                    CALL write_variable_in_SPEC_MEMO("** we receive your paperwork and complete the interview. **")
+                    CALL write_variable_in_SPEC_MEMO("")
+                    Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
+                    Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                    Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                    Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+                    Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                    Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                    Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                    Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
+                    Call write_variable_in_SPEC_MEMO(" ")
+                    CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy.")
 
 
                     PF4         'Submit the MEMO
