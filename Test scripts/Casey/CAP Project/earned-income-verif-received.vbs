@@ -84,23 +84,27 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 'The footer month may be different for EVERY income source. NEED to add handling to identify if there is a begin date for updating MAXIS (app date that activates the case)
     'A client may apply in april and bring in checks from March but we cannot update MAXIS in March
 
+original_month = MAXIS_footer_month
+originial_year = MAXIS_footer_year
 
 'DIALOG TO GET CASE NUMBER
 'Possibly add worker signature here and take it out of the following dialogs
-BeginDialog Dialog1, 0, 0, 191, 205, "Case Number"
+BeginDialog Dialog1, 0, 0, 191, 220, "Case Number"
   EditBox 90, 5, 70, 15, MAXIS_case_number
-  EditBox 90, 25, 15, 15, MAXIS_footer_month
-  EditBox 110, 25, 15, 15, MAXIS_footer_year
-  EditBox 5, 60, 175, 15, worker_signature
+  EditBox 100, 25, 15, 15, original_month
+  EditBox 120, 25, 15, 15, originial_year
+  CheckBox 10, 45, 140, 10, "Check here to have the script update all", future_months_check
+  EditBox 5, 80, 175, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 80, 180, 50, 15
-    CancelButton 135, 180, 50, 15
+    OkButton 80, 200, 50, 15
+    CancelButton 135, 200, 50, 15
   Text 5, 10, 85, 10, "Enter your case number:"
-  Text 20, 30, 65, 10, "Footer Month/Year:"
-  Text 5, 50, 65, 10, "Worker Signature:"
-  GroupBox 5, 80, 180, 95, "INSTRUCTIONS - PLEASE READ!!!"
-  Text 10, 95, 170, 25, "This script is to help in correctly budgeting EARNED income on JOBS, BUSI, or RBIC. It will update MAXIS and CASE/NOTE the information provided. "
-  Text 10, 130, 170, 40, "If a JOBS panel or BUSI panel needs to be added to MAXIS for a client or income source, the script will ask for any panels that need to be added first. Review the case now to ensure that the correct action will be taken in the correct order."
+  Text 5, 30, 90, 10, "Starting Footer Month/Year:"
+  Text 20, 55, 120, 10, "future months and send through BG."
+  Text 5, 70, 65, 10, "Worker Signature:"
+  GroupBox 5, 100, 180, 95, "INSTRUCTIONS - PLEASE READ!!!"
+  Text 10, 115, 170, 25, "This script is to help in correctly budgeting EARNED income on JOBS, BUSI, or RBIC. It will update MAXIS and CASE/NOTE the information provided. "
+  Text 10, 150, 170, 40, "If a JOBS panel or BUSI panel needs to be added to MAXIS for a client or income source, the script will ask for any panels that need to be added first. Review the case now to ensure that the correct action will be taken in the correct order."
 EndDialog
 
 Do
@@ -113,6 +117,9 @@ Do
 
     If err_msg <> "" Then MsgBox "-- Please resolve the following to continue --" & vbNewLine & err_msg
 Loop until err_msg = ""
+
+MAXIS_footer_month = original_month
+MAXIS_footer_year = originial_year
 
 CASH_case = FALSE
 SNAP_case = FALSE
@@ -162,9 +169,12 @@ const income_received   = 26
 const verif_date        = 27
 const verif_explain     = 28
 const old_verif         = 29
+const initial_month_mo  = 30
+const initial_month_yr  = 31
+const update_futue_chkbx = 32
 
-const spoke_to          = 30
-const convo_detail      = 31
+const spoke_to          = 33
+const convo_detail      = 34
 
 Dim EARNED_INCOME_PANELS_ARRAY()
 ReDim EARNED_INCOME_PANELS_ARRAY(convo_detail, 0)
@@ -333,7 +343,7 @@ Do
       Text 5, y_pos, 295, 10, "These are all the panels that are currently known in MAXIS for these Household Members:"
       y_pos = y_pos + 15
       For each member in HH_member_array
-        Text 10, y_pos, 45, 10, member
+        Text 10, y_pos, 45, 10, "Member " & member
         y_pos = y_pos + 15
         'Text 10, 75, 45, 10, "MEMBER 01"
       Next
@@ -343,12 +353,14 @@ Do
         PushButton 85, y_pos + 15, 140, 20, "Yes - Add a new Earned Income panel", add_new_panel_button
         PushButton 85, y_pos + 40, 140, 10, "No - The panel(s) to update are in MAXIS", continue_to_update_button
     EndDialog
-    MsgBOx "Y Position is " & y_pos & vbNewLine & "Dialog length is " & dlg_len
+    'MsgBOx "Y Position is " & y_pos & vbNewLine & "Dialog length is " & dlg_len
 
     dialog Dialog1
 
     If buttonpressed = add_new_panel_button Then
-        MsgBox "Add a new panel!"
+        original_month = MAXIS_footer_month
+        original_year = MAXIS_footer_year
+        'MsgBox "Add a new panel!"
         '2 different dialogs for JOBS vs BUSI and add here then add to the EARNED_INCOME_PANELS_ARRAY
 
         BeginDialog Dialog1, 0, 0, 191, 50, "Panel to Add"
@@ -370,6 +382,8 @@ Do
             If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
 
         Loop until err_msg = ""
+
+        info_saved = FALSE
 
         Select Case panel_to_add
 
@@ -415,41 +429,160 @@ Do
 
             Loop until err_msg = ""
 
-            beginning_month = DatePart("m", enter_JOBS_start_date)
-            beginning_year = DatePart("yyyy", enter_JOBS_start_date)
+            Call navigate_to_MAXIS_screen("CASE", "CURR")
+
+            EMReadScreen appl_date, 8, 8, 29
+
+            If DateDiff("m", appl_date, enter_JOBS_start_date) > 0 Then
+                beginning_month = DatePart("m", enter_JOBS_start_date)
+                beginning_year = DatePart("yyyy", enter_JOBS_start_date)
+                first_check = enter_JOBS_start_date
+            Else
+                beginning_month = DatePart("m", appl_date)
+                beginning_year = DatePart("yyyy", appl_date)
+                first_check = beginning_month & "/01/" & beginning_year
+            End If
+
 
             beginning_month = right("00"&beginning_month, 2)
             beginning_year = right(beginning_year, 2)
+            'MsgBox "Begind date is " & beginning_month & "/" & beginning_year
 
+            MAXIS_footer_month = beginning_month
+            MAXIS_footer_year = beginning_year
+
+            Call back_to_SELF
             'QUESTION - what to do about footer month'
 
             Call navigate_to_MAXIS_screen("STAT", "SUMM")
 
-            EMWriteScreen "JOBS", 20, 71
-            EMWriteScreen enter_JOBS_clt_ref_nbr, 20, 76
-            EMWriteScreen "NN", 20, 79
-            transmit
+            Do
 
-            EMWriteScreen left(enter_JOBS_inc_type_code, 1), 5, 34
-            EMWriteScreen left(enter_JOBS_subsdzd_inc_type, 2), 5, 74
-            EMWriteScreen left(enter_JOBS_verif_code, 1), 6, 34
-            EMWriteScreen enter_JOBS_hrly_wage, 6, 75
-            EMWriteScreen enter_JOBS_employer, 7, 42
+                If info_saved = FALSE Then
+                    EMWriteScreen "JOBS", 20, 71
+                    EMWriteScreen enter_JOBS_clt_ref_nbr, 20, 76
+                    EMWriteScreen "NN", 20, 79
 
-            If trim(enter_JOBS_start_date) <> "" Then Call write_date(enter_JOBS_start_date, "MM DD YY", 9, 35)
-            If trim(enter_JOBS_end_date) <> "" Then Call write_date(enter_JOBS_end_date, "MM DD YY", 9, 49)
+                    transmit
+                Else
+                    EMWriteScreen "JOBS", 20, 71
+                    EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_member, the_panel-1), 20, 76
+                    EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_instance, the_panel-1), 20, 79
 
-            EMReadScreen
-            Call write_date(dated, "MM DD YY", 12, 54)
-            EMWriteScreen "0", 12, 67
+                    transmit
+                    'MsgBox "Pause"
 
-            transmit
+                    EMReadScreen check_for_panel, 14, 24, 13
+                    'MsgBox check_for_panel
+                    If check_for_panel = "DOES NOT EXIST" Then
+                        EMWriteScreen "JOBS", 20, 71
+                        EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_member, the_panel-1), 20, 76
+                        EMWriteScreen "NN", 20, 79
 
+                        transmit
+                    Else
+                        PF9
+                    End If
+                End If
+                'MsgBox "nav to panel"
 
+                EMWriteScreen left(enter_JOBS_inc_type_code, 1), 5, 34
+                EMWriteScreen left(enter_JOBS_subsdzd_inc_type, 2), 5, 74
+                EMWriteScreen left(enter_JOBS_verif_code, 1), 6, 34
+                EMWriteScreen enter_JOBS_hrly_wage, 6, 75
+                EMWriteScreen enter_JOBS_employer, 7, 42
 
+                Call write_date(enter_JOBS_start_date, "MM DD YY", 9, 35)
+                If trim(enter_JOBS_end_date) <> "" Then Call write_date(enter_JOBS_end_date, "MM DD YY", 9, 49)
+
+                Call write_date(first_check, "MM DD YY", 12, 54)
+                EMWriteScreen "    0.00", 12, 67
+                EMWriteScreen "0  ", 18, 72
+                'MsgBox "Pause before transmit"
+                transmit
+                'MsgBox "Pause after transmit"
+
+                If info_saved = FALSE Then
+                    ReDim Preserve EARNED_INCOME_PANELS_ARRAY(convo_detail, the_panel)
+
+                    EARNED_INCOME_PANELS_ARRAY(panel_type, the_panel) = "JOBS"
+                    EARNED_INCOME_PANELS_ARRAY(panel_member, the_panel) = member
+                    EARNED_INCOME_PANELS_ARRAY(panel_instance, the_panel) = "0" & panel
+                    EARNED_INCOME_PANELS_ARRAY(income_received, the_panel) = FALSE
+                    EARNED_INCOME_PANELS_ARRAY(initial_month_mo, the_panel) = MAXIS_footer_month
+                    EARNED_INCOME_PANELS_ARRAY(initial_month_yr, the_panel) = MAXIS_footer_year
+
+                    If CASH_case = TRUE Then EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, the_panel) = checked
+                    If SNAP_case = TRUE Then EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, the_panel) = checked
+                    If HC_case = TRUE Then EARNED_INCOME_PANELS_ARRAY(apply_to_HC, the_panel) = checked
+
+                    EMReadScreen type_of_job, 1, 5, 34
+                    EMReadScreen job_verif, 25, 6, 34
+                    EMReadScreen listed_hrly_wage, 6, 6, 75
+                    EMReadScreen employer_name, 30, 7, 42
+                    EMReadScreen start_date, 8, 9, 35
+                    EMReadScreen end_date, 8, 9, 49
+                    EMReadScreen frequency, 1, 18, 35
+                    EMReadScreen current_verif, 27, 6, 34
+
+                    If type_of_job = "J" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "J - WIOA"
+                    If type_of_job = "W" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "W - Wages"
+                    If type_of_job = "E" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "E - EITC"
+                    If type_of_job = "G" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "G - Experience Works"
+                    If type_of_job = "F" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "F - Federal Work Study"
+                    If type_of_job = "S" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "S - State Work Study"
+                    If type_of_job = "O" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "O - Other"
+                    If type_of_job = "C" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "C - Contract Income"
+                    If type_of_job = "T" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "T - Training Program"
+                    If type_of_job = "P" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "P - Service Program"
+                    If type_of_job = "R" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "R - Rehab Program"
+
+                    EARNED_INCOME_PANELS_ARRAY(income_verif, the_panel) = trim(job_verif)
+                    EARNED_INCOME_PANELS_ARRAY(employer, the_panel) = replace(employer_name, "_", "")
+                    EARNED_INCOME_PANELS_ARRAY(hourly_wage, the_panel) = trim(listed_hrly_wage)
+                    EARNED_INCOME_PANELS_ARRAY(income_start_dt, the_panel) = replace(start_date, " ", "/")
+                    EARNED_INCOME_PANELS_ARRAY(income_end_dt, the_panel) = replace(end_date, " ", "/")
+                    EARNED_INCOME_PANELS_ARRAY(old_verif, the_panel) = trim(current_verif)
+                    If frequency = "1" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "1 - One Time Per Month"
+                    If frequency = "2" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "2 - Two Times Per Month"
+                    If frequency = "3" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "3 - Every Other Week"
+                    If frequency = "4" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "4 - Every Week"
+                    If frequency = "5" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "5 - Other"
+
+                    EARNED_INCOME_PANELS_ARRAY(income_list_indct, the_panel) = "NONE"
+                    'EARNED_INCOME_PANELS_ARRAY(, the_panel) =
+
+                    the_panel = the_panel + 1
+
+                    info_saved = TRUE
+                End If
+
+                ' EMReadScreen expire_check, 11, 24, 12
+                '
+                ' If expire_check = "WILL EXPIRE" THen
+                '     Msgbox "need to update in other months"
+                '
+                '
+                '
+                ' End If
+                'Navigates to the current month + 1 footer month, then back into the JOBS panel
+                CALL write_value_and_transmit("BGTX", 20, 71)
+                CALL write_value_and_transmit("y", 16, 54)
+
+                EMReadScreen all_months_check, 24, 24, 2
+                EMReadScreen MAXIS_footer_month, 2, 20, 55
+                EMReadScreen MAXIS_footer_year, 2, 20, 58
+
+                first_check = MAXIS_footer_month & "/01/" & MAXIS_footer_year
+            Loop until all_months_check = "CONTINUATION NOT ALLOWED"
+            PF3
         Case "BUSI"
 
         End Select
+
+        MAXIS_footer_month = original_month
+        MAXIS_footer_year = original_year
+        Call back_to_SELF
     End If
 
 Loop until buttonpressed = continue_to_update_button
@@ -570,6 +703,10 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
         employer_check = MsgBox("Do you have income verification for this job? Employer name: " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel), vbYesNo + vbQuestion, "Select Income Panel")
 
+        If EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) = "" Then EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) = MAXIS_footer_month
+        If EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) = "" Then EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) = MAXIS_footer_year
+        EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel) = future_months_check
+
         If employer_check = vbYes Then
             EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE
             Do
@@ -645,6 +782,11 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                       DropListBox 130, (dlg_factor * 20) + 140, 85, 45, "1 - One Time Per Month"+chr(9)+"2 - Two Times Per Month"+chr(9)+"3 - Every Other Week"+chr(9)+"4 - Every Week", EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
                       EditBox 225, (dlg_factor * 20) + 140, 40, 15, EARNED_INCOME_PANELS_ARRAY(reg_non_monthly, ei_panel)
                       EditBox 280, (dlg_factor * 20) + 140, 30, 15, EARNED_INCOME_PANELS_ARRAY(numb_months, ei_panel)
+                      Text 410, (dlg_factor * 20) + 115, 85, 10, "Initial Month to Update:"
+                      EditBox 495, (dlg_factor * 20) + 110, 15, 15, EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel)
+                      EditBox 515, (dlg_factor * 20) + 110, 15, 15, EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel)
+                      CheckBox 410, (dlg_factor * 20) + 125, 120, 10, "Update Future Months", EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel)
+
                       ButtonGroup ButtonPressed
                         PushButton 440, (dlg_factor * 20) + 140, 15, 15, "+", add_another_check
                         PushButton 460, (dlg_factor * 20) + 140, 15, 15, "-", take_a_check_away
@@ -692,6 +834,18 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                 number_of_checks_budgeted = 0
                 EARNED_INCOME_PANELS_ARRAY(pay_weekday, ei_panel) = ""
                 list_of_excluded_pay_dates = ""
+                previous_pay_date = ""
+
+                'creating an order for pay stubs
+                For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
+                    If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
+                        If previous_pay_date = "" Then
+                            previous_pay_date = LIST_OF_INCOME_ARRAY(pay_date, all_income)
+                        Else
+                            If DateDiff("d", previous_pay_date, LIST_OF_INCOME_ARRAY(pay_date, all_income)) < 0 Then
+
+                    End If
+                Next
 
                 For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
                     If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
@@ -699,7 +853,10 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
                         'determining the pay frequency.
                         If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "" Then
-
+                            if previous_pay_date = "" Then
+                                previous_pay_date = LIST_OF_INCOME_ARRAY(pay_date, all_income)
+                            Else
+                                days_between_pay
                         End If
 
                         If LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = checked Then
@@ -859,17 +1016,23 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
 Next
 
-Call back_to_SELF
+
 Call navigate_to_MAXIS_screen("STAT", "SUMM")
-Do
-    For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
-        If EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE Then
+
+For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
+    Call back_to_SELF
+    If EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE Then
+        MAXIS_footer_month = EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel)
+        MAXIS_footer_year = EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel)
+
+        Do
             If EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel) = "JOBS" Then
 
                 Call Navigate_to_MAXIS_screen("STAT", "JOBS")
                 EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel), 20, 76
                 EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel), 20, 79
                 transmit
+                PF9
 
                 For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
                     If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
@@ -879,36 +1042,46 @@ Do
                     End If
                 Next
 
+                If LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = checked Then
+                    If LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = "" Then LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = 0
+                    LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = LIST_OF_INCOME_ARRAY(exclude_amount, all_income) * 1
+                    LIST_OF_INCOME_ARRAY(gross_amount, all_income) = LIST_OF_INCOME_ARRAY(gross_amount, all_income) * 1
+                    net_amount = LIST_OF_INCOME_ARRAY(gross_amount, all_income) - LIST_OF_INCOME_ARRAY(exclude_amount, all_income)
+                    total_of_counted_income = total_of_counted_income + net_amount
+                    number_of_checks_budgeted = number_of_checks_budgeted + 1
 
+                    LIST_OF_INCOME_ARRAY(hours, all_income) = LIST_OF_INCOME_ARRAY(hours, all_income) * 1
+                    total_of_hours = total_of_hours + LIST_OF_INCOME_ARRAY(hours, all_income)
+                End If
 
                 If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) Then
 
                 End If
-                If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel)
-                If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel)
+                'If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel)
+                'If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel)
 
 
             End If
 
-        End If
-    Next
-    If datediff("m", date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 1 then in_future_month = True
+            If EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel) = 0 then exit do
 
-    'If just on SNAP, the case does not have to update future months, so the script can now case note.
-    If future_months_check = 0 or in_future_month = True then exit do
+            'Navigates to the current month + 1 footer month, then back into the JOBS panel
+            CALL write_value_and_transmit("BGTX", 20, 71)
+            CALL write_value_and_transmit("y", 16, 54)
+            EMReadScreen all_months_check, 24, 24, 2
 
-    'Navigates to the current month + 1 footer month, then back into the JOBS panel
-    CALL write_value_and_transmit("BGTX", 20, 71)
-    CALL write_value_and_transmit("y", 16, 54)
-    EMReadScreen MAXIS_footer_month, 2, 20, 55
-    EMReadScreen MAXIS_footer_year, 2, 20, 58
-    EMWriteScreen "jobs", 20, 71
-    EMWriteScreen HH_member, 20, 76
-    If len(current_panel_number) = 1 then current_panel_number = "0" & current_panel_number
-    EMWriteScreen current_panel_number, 20, 79
-    transmit
-    PF9
-Loop until in_future_month = True
+            EMReadScreen MAXIS_footer_month, 2, 20, 55
+            EMReadScreen MAXIS_footer_year, 2, 20, 58
+
+
+        Loop until all_months_check = "CONTINUATION NOT ALLOWED"
+        PF3
+    End If
+    MAXIS_footer_month = original_month
+    MAXIS_footer_year = original_year
+Next
+
+
 
 
 
