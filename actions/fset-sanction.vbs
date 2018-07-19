@@ -217,7 +217,7 @@ If sanction_type_droplist = "Imposing sanction" THEN
 	Call write_bullet_and_variable_in_CASE_NOTE("Reason for sanction", sanction_reason_droplist)
 	Call write_bullet_and_variable_in_CASE_NOTE("Other sanction notes", other_sanction_notes)
 	Call write_variable_in_CASE_NOTE("* Sanction WREG status: 02 Fail To Cooperate With FSET")
-    If WCOM_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Added Good Cause/failure to comply informaiton to the notice.")
+    If WCOM_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Added Good Cause/failure to comply information to the notice.")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 'Case note if resolving sanction
