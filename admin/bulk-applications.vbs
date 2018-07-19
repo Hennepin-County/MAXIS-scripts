@@ -1096,31 +1096,48 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
             ' ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)         = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " - " & "Appointment Notice Sent today"
             ' todays_cases = todays_cases + 1
 
-            'THIS IS FOR REAL LIFE'
-            need_intv_date = dateadd("d", 7, ALL_PENDING_CASES_ARRAY(application_date, case_entry))       'setting the appointment date - it should be 7 days from the date of application
-            If need_intv_date <= date then need_intv_date = dateadd("d", 7, date)         'if this is today or in the past then we reset this for 7 days from today
+            IF expedited_status = "Client Appears Expedited" THEN
+                'creates interview date for 7 calendar days from the CAF date
+            	interview_date = dateadd("d", 7, application_date)
+            	If interview_date <= date then interview_date = dateadd("d", 7, date)
+            ELSE
+                'creates interview date for 7 calendar days from the CAF date
+            	interview_date = dateadd("d", 10, application_date)
+            	If interview_date <= date then interview_date = dateadd("d", 10, date)
 
-            ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) = need_intv_date        'adding this date to the appointment date in the ARRAY
-            need_intv_date = need_intv_date & ""		'turns interview date into string for variable
+            END IF
+
+            Call change_date_to_soonest_working_day(interview_date)
+
+            application_date = application_date & ""
+            interview_date = interview_date & ""		'turns interview date into string for variable
+
+            'THIS IS FOR REAL LIFE'
+            need_intv_date = dateadd("d", 10, ALL_PENDING_CASES_ARRAY(application_date, case_entry))       'setting the appointment date - it should be 7 days from the date of application
+            If need_intv_date <= date then need_intv_date = dateadd("d", 10, date)         'if this is today or in the past then we reset this for 7 days from today
+
+            Call change_date_to_soonest_working_day(need_intv_date)
 
             last_contact_day = dateadd("d", 30, ALL_PENDING_CASES_ARRAY(application_date, case_entry))       'setting the date to enter on the NOMI of the day of denial
             'ensuring that we have given the client an additional10days fromt he day nomi sent'
             IF DateDiff("d", need_intv_date, last_contact_day) < 1 then last_contact_day = need_intv_date
 
+            need_intv_date = need_intv_date & ""		'turns interview date into string for variable
+            ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) = need_intv_date        'adding this date to the appointment date in the ARRAY
 
             CALL start_a_new_spec_memo_and_continue(memo_started)		'Writes the appt letter into the MEMO.
 			IF memo_started = True THEN
-                EMsendkey("**********************************************************")
-                Call write_variable_in_SPEC_MEMO("You recently applied for assistance in Hennepin County on " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ".")
-                Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
+
+                Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & "")
+                Call write_variable_in_SPEC_MEMO("and an interview is required to process your application.")
                 Call write_variable_in_SPEC_MEMO(" ")
-                Call write_variable_in_SPEC_MEMO("The interview must be completed by " & need_intv_date & ".")
+                Call write_variable_in_SPEC_MEMO("** The interview must be completed by " & need_intv_date & ". **")
                 Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-                Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday through Friday.")
-                Call write_variable_in_SPEC_MEMO("You may be able to have SNAP benefits issued within 24 hours of the interview.")
-                'Call write_variable_in_SPEC_MEMO("Some cases are eligible to have SNAP benefits issued within 24 hours of the interview, call right away if you have an urgent need.")
+                Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
                 Call write_variable_in_SPEC_MEMO(" ")
-                Call write_variable_in_SPEC_MEMO("Interviews can also be completed in person at one of our six offices:")
+                Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
+                Call write_variable_in_SPEC_MEMO(" ")
+                Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
                 Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
                 Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
                 Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
@@ -1129,12 +1146,13 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                 Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
                 Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
                 Call write_variable_in_SPEC_MEMO(" ")
-                Call write_variable_in_SPEC_MEMO("If we do not hear from you by " & last_contact_day & " your application will be denied.") 'add 30 days
+                Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
+                Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **")
                 Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
+                Call write_variable_in_SPEC_MEMO(" ")
                 Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
-                Call write_variable_in_SPEC_MEMO("You can also request a paper copy.")
-                Call write_variable_in_SPEC_MEMO("Auth: 7CFR 273.2(e)(3).")
-                'Call write_variable_in_SPEC_MEMO("************************************************************")
+                Call write_variable_in_SPEC_MEMO("You can also request a paper copy.  Auth: 7CFR 273.2(e)(3).")
+
                 ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) = date
                 PF4
 			ELSE
