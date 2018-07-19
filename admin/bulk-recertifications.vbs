@@ -841,6 +841,8 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                     CALL write_variable_in_case_note("Link to Domestic Violence Brochure sent to client in SPEC/MEMO as a part of interview notice.")
                     call write_variable_in_case_note("---")
                     call write_variable_in_case_note(worker_signature)
+
+                    PF3
                 end if
             end if
             'Entering the code from notice confirmation to excel
@@ -969,6 +971,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             If forms_to_swkr = "Y" then CALL write_variable_in_CASE_NOTE("* Copy of notice sent to Social Worker.")
                             call write_variable_in_case_note("---")
                             call write_variable_in_case_note(worker_signature)
+                            PF3
                         end if
                     end if
                 Else
