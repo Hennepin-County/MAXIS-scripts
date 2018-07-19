@@ -83,7 +83,7 @@ BeginDialog good_cause_dialog, 0, 0, 386, 285, "Good Cause"
   CheckBox 225, 45, 30, 10, "METS", METS_CHECKBOX
   CheckBox 260, 15, 20, 10, "HC", HC_CHECKBOX
   CheckBox 260, 30, 20, 10, "FS", FS_CHECKBOX
-  CheckBox 260, 45, 25, 10, "MF", MFIP_CHECKBOX
+  CheckBox 260, 45, 20, 10, "MF", MFIP_CHECKBOX
   CheckBox 305, 15, 60, 10, "Sup Evidence", sup_evidence_check
   CheckBox 305, 30, 55, 10, "Investigation", investigation_check
   CheckBox 305, 45, 70, 10, "Med Sup Svc Only", med_sup_check
@@ -112,7 +112,7 @@ BeginDialog good_cause_dialog, 0, 0, 386, 285, "Good Cause"
   ButtonGroup ButtonPressed
     OkButton 270, 265, 50, 15
     CancelButton 325, 265, 50, 15
-  Text 115, 50, 55, 10, "Actual date:"
+  Text 125, 50, 40, 10, "Actual date:"
   Text 90, 70, 25, 10, "Action:"
   Text 235, 70, 30, 10, "Reason:"
   Text 5, 70, 25, 10, "Status:"
@@ -232,15 +232,25 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 		'Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
 	END IF
 	Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
-	EMReadScreen first_name, 12, 10, 63	'making sure we can actually update this case.
-	EMReadScreen last_name, 24, 10, 30	'making sure we can actually update this case.
-	first_name = trim(first_name)
-	last_name = trim(last_name)
-	first_name = replace(first_name, "_", "")
-	last_name = replace(last_name, "_", "")
-	client_name = first_name & " " & last_name
-	Call fix_case_for_name(client_name)
-
+	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
+		IF parental_status = "2" THEN
+			client_name = "Unknown"
+		ELSEIF parental_status = "3" THEN
+			client_name = "ABPS deceased"
+		ELSEIF parental_status = "4" THEN
+			client_name = "Rights Severed"
+		ELSEIF parental_status = "7" THEN
+			client_name = "HC No Order Sup"
+		ELSEIF parental_status = "1" THEN
+			EMReadScreen first_name, 12, 10, 63
+			EMReadScreen last_name, 24, 10, 30
+			first_name = trim(first_name)
+			last_name = trim(last_name)
+			first_name = replace(first_name, "_", "")
+			last_name = replace(last_name, "_", "")
+			client_name = first_name & " " & last_name
+			Call fix_case_for_name(client_name)
+		END IF
 	Transmit'to add information
 	Transmit'to move past non-inhibiting warning messages on ABPS
 	PF3
