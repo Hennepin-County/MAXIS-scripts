@@ -80,6 +80,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("07/20/2018", "Changed wording of the Appointment Notice and changed default interview date to 10 days from application for non-expedidted cases.", "Casey Love, Hennepin County")
 CALL changelog_update("07/16/2018", "BUg Fix that was preventing notices from being sent.", "Casey Love, Hennepin County")
 CALL changelog_update("04/10/2018", "Updated appt letter handling to ensure the appointment letter is sent correctly.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/28/2018", "Updated appt letter case note for bulk script process.", "MiKayla Handley, Hennepin County")
@@ -497,8 +498,6 @@ IF send_appt_ltr = TRUE THEN
     Text 15, 25, 35, 10, "CAF date:"
     Text 25, 45, 205, 10, "If same day interview is being offered please use today's date"
 	EndDialog
-	'grabs CAF date, turns CAF date into string for variable
-	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", application_date)
 
     IF expedited_status = "Client Appears Expedited" THEN
         'creates interview date for 7 calendar days from the CAF date
