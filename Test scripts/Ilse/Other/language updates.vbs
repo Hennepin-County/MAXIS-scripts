@@ -50,41 +50,35 @@ call changelog_update("01/22/2018", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'DIALOG
+'The dialog is defined in the loop as it can change as buttons are pressed 
+BeginDialog info_dialog, 0, 0, 266, 110, "Language updates script"
+    ButtonGroup ButtonPressed
+    PushButton 200, 45, 50, 15, "Browse...", select_a_file_button
+    OkButton 145, 90, 50, 15
+    CancelButton 200, 90, 50, 15
+    EditBox 15, 45, 180, 15, file_selection_path
+    GroupBox 10, 5, 250, 80, "Using the LANGUAGE UPDATES script"
+    Text 20, 20, 235, 20, "This script should be used when a list of cases is provided that require the language code on STAT/MEMB to be updated."
+    Text 15, 65, 230, 15, "Select the Excel file that contains the client's information by selecting the 'Browse' button, and finding the file."
+EndDialog
+
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 'Connects to BlueZone and establishing county name
 EMConnect ""	
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\Lang Fix for Ilse pt2.xlsx"
+file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\Completed projects\Language update\07-2018 updates.xlsx"
 
 'dialog and dialog DO...Loop	
 Do
-	Do
-			'The dialog is defined in the loop as it can change as buttons are pressed 
-			BeginDialog CBO_referral_dialog, 0, 0, 266, 110, "Language updates script"
-  				ButtonGroup ButtonPressed
-    			PushButton 200, 45, 50, 15, "Browse...", select_a_file_button
-    			OkButton 145, 90, 50, 15
-    			CancelButton 200, 90, 50, 15
-  				EditBox 15, 45, 180, 15, file_selection_path
-  				GroupBox 10, 5, 250, 80, "Using the LANGUAGE UPDATES script"
-  				Text 20, 20, 235, 20, "This script should be used when a list of cases is provided that require the language code on STAT/MEMB to be updated."
-  				Text 15, 65, 230, 15, "Select the Excel file that contains the client's information by selecting the 'Browse' button, and finding the file."
-			EndDialog
-			err_msg = ""
-			Dialog CBO_referral_dialog
-			cancel_confirmation
-			If ButtonPressed = select_a_file_button then
-				If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
-					objExcel.Quit 'Closing the Excel file that was opened on the first push'
-					objExcel = "" 	'Blanks out the previous file path'
-				End If
-				call file_selection_system_dialog(file_selection_path, ".xlsx") 'allows the user to select the file'
-			End If
-			If file_selection_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
-			If err_msg <> "" Then MsgBox err_msg
-		Loop until err_msg = ""
-		If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-		If err_msg <> "" Then MsgBox err_msg
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
+    'Show initial dialog
+    Do
+    	Dialog info_dialog
+    	If ButtonPressed = cancel then stopscript
+    	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
+    Loop until ButtonPressed = OK and file_selection_path <> ""
+    If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Ensures that user is in current month
@@ -108,7 +102,7 @@ DO
 	lang_description = objExcel.cells(excel_row, 6).value
 	lang_description = Trim(lang_description)
 	
-    Call navigate_to_MAXIS_screen("CASE", "CURR")
+    Call navigate_to_MAXIS_screen("STAT", "MEMB")
 	EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
 	If PRIV_check = "PRIV" then
 		'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
@@ -121,87 +115,79 @@ DO
 		transmit
 		ObjExcel.Cells(excel_row, excel_col).Value = "Priv case. Cannot access."
 	Else  
-	    EMReadScreen CURR_panel_check, 4, 2, 55
-	    If CURR_panel_check <> "CURR" then 
-	    	ObjExcel.Cells(excel_row, excel_col).Value = "Cannot access CASE/CURR."
-        else 
-        	EMReadScreen case_status, 8, 8, 9
-        	case_status = trim(case_status)
-        	If case_status = "INACTIVE" then 
-            	ObjExcel.Cells(excel_row, excel_col).Value = "Case inactive"
-	        Else
-	        	Emreadscreen county_code, 2, 21, 16
-	        	If county_code <> "27" then 
-	        		ObjExcel.Cells(excel_row, excel_col).Value = "Out-of-county case. County code is " & county_code
-	        	Else 	
-	        	    Call navigate_to_MAXIS_screen("STAT", "MEMB")
-	        	    Do 
-	        	    	EMReadScreen PMI, 8, 4, 46
-	        	    	If trim(PMI) = PMI_number then 
-	        	    		found_case = true 
-	        	    		exit do 
-	        	    	else 
-	        	    		transmit
-	        				found_case = false 
-	        			End if 
-	        	    	EMReadScreen MEMB_error, 5, 24, 2
-	        	    Loop until MEMB_error = "ENTER"
-	        	 
-	        		If found_case = false then
-	        			ObjExcel.Cells(excel_row, excel_col).Value = "Cannot find PMI."
-					Elseif found_case = true then
-                        EmReadscreen current_code, 2, 12, 42
-                        If current_code = lang_code then 
-                            Emreadscreen current_lang, 16, 12, 46
-                            current_lang = replace(current_lang, "_", "")
-                            If current_lang = lang_description then 
-                                ObjExcel.Cells(excel_row, excel_col).Value = "Case already reflects language."
-                                back_to_SELF
-                            End if   
-                        Else 
-						    PF9
-						    EmWriteScreen "__", 12, 42
-						    EmWriteScreen "__", 13, 42
-						    transmit 
-						    EmWriteScreen lang_code, 12, 42
-						    If lang_code = "98" then 
-						    	EmWriteScreen "________________", 12, 46
-						    	EmWriteScreen lang_description, 12, 46
-						    End if 
-						    	
-						    'Accounting for ASL persons as written langage cannot be ASl.
-						    If lang_code = "08" then 
-						    	EmWriteScreen "99", 13, 42
-						    	'msgbox "ASL"
-						    Else 
-						    	EmWriteScreen lang_code, 13, 42
-						    End if 
-						    If lang_code = "98" then 
-						    	EmWriteScreen "_________________________", 13, 46
-						    	EmWriteScreen lang_description, 13, 46
-						    End if 
-						    
-						    transmit
-						    PF3 'to stat/wrap 
-						    EMReadScreen wrap_check, 4, 2, 46
-						    If trim(wrap_check) = "WRAP" then 
-						    	ObjExcel.Cells(excel_row, excel_col).Value = "Updated!"
-						    Else 
-						    	ObjExcel.Cells(excel_row, excel_col).Value = "Case not updated in MEMB."
-						    End if 
-						    PF3 'back to start 
-						    'msgbox "what's happening?"
-                        End if 
-					End if 
-	        	End if 	
-			End if 
+        Do 
+            EMReadScreen PMI, 8, 4, 46
+            If trim(PMI) = PMI_number then 
+                found_case = true 
+                exit do 
+            else 
+                transmit
+                found_case = false 
+            End if 
+            EMReadScreen MEMB_error, 5, 24, 2
+        Loop until MEMB_error = "ENTER"
+        
+        If found_case = false then
+            ObjExcel.Cells(excel_row, excel_col).Value = "Cannot find PMI."
+        Elseif found_case = true then
+            PF9
+            EmReadscreen error_check, 14, 24, 2
+            If error_check = "YOU HAVE READ " then 
+                ObjExcel.Cells(excel_row, excel_col).Value = "Case is Out-of-county case."
+            Elseif error_check = "MAXIS PROGRAMS" then 
+                ObjExcel.Cells(excel_row, excel_col).Value = "Case is inactive."
+            Else 
+                EmReadscreen current_code, 2, 12, 42
+                If current_code = lang_code then 
+                    Emreadscreen current_lang, 16, 12, 46
+                    'msgbox current_lang
+                    current_lang = replace(current_lang, "_", "")
+                    If trim(current_lang) = lang_description then 
+                        'msgbox current_lang = lang_description
+                        ObjExcel.Cells(excel_row, excel_col).Value = "Case already reflects language."
+                    else 
+                        Call clear_line_of_text(12, 46)
+                        EmWriteScreen lang_description, 12, 46
+                    End if   
+                Else 
+                    EmWriteScreen "__", 12, 42
+                    EmWriteScreen "__", 13, 42
+                    transmit 
+                    EmWriteScreen lang_code, 12, 42
+                    If lang_code = "98" then 
+                        Call clear_line_of_text(12, 46)
+                        EmWriteScreen lang_description, 12, 46
+                    End if 
+                        
+                    'Accounting for ASL persons as written langage cannot be ASl.
+                    If lang_code = "08" then 
+                        EmWriteScreen "99", 13, 42
+                        'msgbox "ASL"
+                    Else 
+                        EmWriteScreen lang_code, 13, 42
+                    End if 
+                    If lang_code = "98" then 
+                        EmWriteScreen "_________________________", 13, 46
+                        EmWriteScreen lang_description, 13, 46
+                    End if 
+                End if 
+        
+                transmit
+                PF3 'to stat/wrap 
+                EMReadScreen wrap_check, 4, 2, 46
+                If trim(wrap_check) = "WRAP" then ObjExcel.Cells(excel_row, excel_col).Value = "Updated!"
+                PF3 'back to start 
+            End if 
 	    End if 
 	End if 
     MAXIS_case_number = ""
 	PMI_number = ""
 	lang_code = ""
+    lang_description = ""
+    
     excel_row = excel_row + 1
 	STATS_counter = STATS_counter + 1
+    back_to_SELF
 LOOP UNTIL objExcel.Cells(excel_row, 1).value = ""	'looping until the list of cases to check for recert is complete
 	
 STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning (because counting :p)
