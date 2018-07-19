@@ -581,7 +581,7 @@ IF send_appt_ltr = TRUE THEN
     Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
     Call write_variable_in_SPEC_MEMO(" ")
     Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
-    Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
+    Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **")
     Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
     Call write_variable_in_SPEC_MEMO(" ")
     Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
