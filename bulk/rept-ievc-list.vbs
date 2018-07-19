@@ -52,14 +52,13 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'Function ievs_match_array
 
-'=================================================================================Dialog
-BeginDialog language_stats_dialog, 0, 0, 296, 90, "Regional Language Statistics"
+'----------------------------------------------------------------------------------------------Dialog
+BeginDialog stats_dialog, 0, 0, 296, 90, "REPT/IEVC"
   ButtonGroup ButtonPressed
     OkButton 185, 70, 50, 15
     CancelButton 240, 70, 50, 15
-  Text 15, 25, 265, 20, "This script will gather language stats for each region. It will be going through every active case in the county, so it can take upwards of 8 hours or more to run."
+  Text 15, 25, 265, 20, "This script will gather IEVS."
   GroupBox 10, 10, 280, 55, "About this script:"
   Text 35, 50, 225, 10, " Please shut down your VGO (not pause it), and press OK to continue."
 EndDialog
@@ -67,10 +66,8 @@ EndDialog
 EMConnect ""
 
 Do
-	Do
-		dialog language_stats_dialog
-        If ButtonPressed = 0 then StopScript
-	LOOP until ButtonPressed = -1					'This is the OK button
+	dialog stats_dialog
+    cancel_confirmation
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
@@ -173,6 +170,8 @@ DO
 			objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
 		Next
 	End If
+
+	'DO
 		EMWriteScreen "D", IEVC_Row, 3		'Opens the detail on the match
 		transmit
 		row = 1
@@ -269,7 +268,8 @@ DO
 		END IF
 
 		PF3 		'Back to the list!
-
+		'EMReadScreen current_panel_name, 4, 2, 53
+	'Loop Until current_panel_name = "IEVC"
 		IEVC_Row = IEVC_Row + 1 'increment to the next row on the panel
 		If IEVC_Row = 18 Then 		'If we have reached the end of the page, it will go to the next page
 			PF8
@@ -279,7 +279,7 @@ DO
 		excel_row = excel_row + 1	'increments the excel row so we don't overwrite our data
 		STATS_counter = STATS_counter + 1		'Counts 1 item for every Match found and entered into excel.			diff_notc_date = ""			'blanks this out so that the information is not carried over in the do-loop'
 		maxis_case_number = ""
-	Loop until last_page_check = "THIS IS THE LAST PAGE"
+Loop until last_page_check = "THIS IS THE LAST PAGE"
 
 
 
@@ -309,75 +309,6 @@ objExcel.Cells(5, 23).Value = "=(COUNTIF(H:H, " & excel_is_not_blank & ")-1)"	'E
 FOR i = 1 to 23
 	objExcel.Columns(i).AutoFit()
 NEXT
-IF workerstat_checkbox = CHECKED THEN
-	'Going to another sheet, to enter worker-specific statistics
-	ObjExcel.Worksheets.Add().Name = "IEVC stats by worker"
 
-	'Headers
-	ObjExcel.Cells(1, 2).Value = "IEVC STATS BY WORKER"
-	objExcel.Cells(1, 2).Font.Bold = TRUE
-	ObjExcel.Cells(2, 1).Value = "WORKER"
-	objExcel.Cells(2, 1).Font.Bold = TRUE
-	ObjExcel.Cells(2, 2).Value = "NAME"
-	objExcel.Cells(2, 2).Font.Bold = TRUE
-	ObjExcel.Cells(2, 3).Value = "OLDER THAN 45 DAYS"
-	objExcel.Cells(2, 3).Font.Bold = TRUE
-	ObjExcel.Cells(2, 4).Value = "UNRESOLVED"
-	objExcel.Cells(2, 4).Font.Bold = TRUE
-	ObjExcel.Cells(2, 5).Value = "% OF WORKERS IEVS OLDER THAN 45 DAYS"
-	objExcel.Cells(2, 5).Font.Bold = TRUE
-	ObjExcel.Cells(2, 6).Value = "% OF UNRESOLVED IEVS OWNED BY THIS WORKER"
-	objExcel.Cells(2, 6).Font.Bold = TRUE
-
-
-	'This bit freezes the top 2 rows for scrolling ease of use
-	'ObjExcel.ActiveSheet.Range("A3").Select
-	'objExcel.ActiveWindow.FreezePanes = True
-
-	worker_row = 3
-	'Writes each worker from the worker_array in the Excel spreadsheet
-	For each x_number in x_number_array
-		'Trims the x_number so that we don't have glitches
-		x_number = trim(x_number)
-		x_number = UCase(x_number)
-		IF right(x_number, 3) <> "CLS" then 	'This bit gets worker names from REPT ACTV
-			Call navigate_to_MAXIS_screen ("REPT", "ACTV")
-			EMWriteScreen x_number, 21, 13
-			transmit
-			EMReadScreen worker_name, 24, 3, 11
-			worker_name = trim(worker_name)
-			Else
-			worker_name = "CLOSED RECORDS"		'Except CLS - which takes a long time to load and is Closed Records
-			End IF
-			'Adding all the information to Excel
-			ObjExcel.Cells(worker_row, 1).Value = x_number
-			ObjExcel.Cells(worker_row, 2).Value = worker_name
-			'Writing a formula to excel - Count each row in which Column H on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row AND Column G is 0 or less - All OVERDUE matches for this worker
-			ObjExcel.Cells(worker_row, 3).Value = "=COUNTIFS('Case information'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & worker_row & ", 'Case information'!H:H, " & Chr(34) & "<=0" & Chr(34) & ")"
-			'Writing a formula to excel - Count each row in which Column H on the first worksheet is not blank AND the x number in Column B on the first worksheet matches the X number on this row - ALL matches for this worker
-			ObjExcel.Cells(worker_row, 4).Value = "=COUNTIFS('Case information'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & worker_row & ")"
-			IF ObjExcel.Cells(worker_row, 4).Value <> "0" Then	'Preventing a divide by 0 error
-			ObjExcel.Cells(worker_row, 5).Value = "=C" & worker_row & "/D" & worker_row
-			Else
-			ObjExcel.Cells(worker_row, 5).Value = "0"
-			End If
-			ObjExcel.Cells(worker_row, 5).NumberFormat = "0.00%"		'Formula should be percent
-			ObjExcel.Cells(worker_row, 6).Value = "=D" & worker_row & "/SUM(D:D)"
-			ObjExcel.Cells(worker_row, 6).NumberFormat = "0.00%"		'Formula should be percent
-			worker_row = worker_row + 1
-			Next
-
-			'Merging header cell.
-			ObjExcel.Range(ObjExcel.Cells(1, 1), ObjExcel.Cells(1, 6)).Merge
-
-			'Centering the cell
-			objExcel.Cells(1, 2).HorizontalAlignment = -4108
-
-			'Autofitting columns
-			For col_to_autofit = 1 to 6
-			ObjExcel.columns(col_to_autofit).AutoFit()
-			Next
-END IF
-STATS_counter = STATS_counter - 1		'removing the initial counter so that this number is correct.
 
 script_end_procedure("Success! The spreadsheet has all requested information.")
