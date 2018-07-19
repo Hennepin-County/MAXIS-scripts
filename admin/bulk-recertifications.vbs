@@ -765,27 +765,6 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
 
                 IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
 
-                    ' EMSendKey("************************************************************")           'for some reason this is more stable then using write_variable
-                    ' CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case. Your " &_
-                    '                                 programs & " case will close on " & last_day_of_recert &_
-                    '                                 " if we do not receive your paperwork. Please sign, date and return your renewal paperwork by " &_
-                    '                                 CM_plus_1_mo & "/08/" & CM_plus_1_yr & ".")
-                    ' CALL write_variable_in_SPEC_MEMO("")
-                    ' CALL write_variable_in_SPEC_MEMO("You must also complete an interview for your " & programs &_
-                    '     " case to continue. To complete a phone interview, call the EZ Info Line at 612-596-1300 between 9:00am and 4:00pm Monday through Friday. Please complete your interview by " & interview_end_date & ".")
-                    ' CALL write_variable_in_SPEC_MEMO("")
-                    ' CALL write_variable_in_SPEC_MEMO("We must have your renewal paperwork to do your interview. Please send proofs with your renewal paperwork.")
-            		' CALL write_variable_in_SPEC_MEMO("")
-            		' CALL write_variable_in_SPEC_MEMO(" * Examples of income proofs: paystubs, income reports, business ledgers, income tax forms, etc.")
-            		' CALL write_variable_in_SPEC_MEMO("")
-            		' CALL write_variable_in_SPEC_MEMO(" * Examples of housing cost proofs(if changed): rent/house payment receipt, mortgage, lease, subsidy, etc.")
-            		' CALL write_variable_in_SPEC_MEMO("")
-            		' CALL write_variable_in_SPEC_MEMO(" * Examples of medical cost proofs(if changed): prescription and medical bills, etc.")
-                    ' CALL write_variable_in_SPEC_MEMO("")
-            		' CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy.")
-
-
-
                     CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case.")
                     CALL write_variable_in_SPEC_MEMO("")
                     CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & programs & " case to continue.")
@@ -807,7 +786,6 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                     Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
                     Call write_variable_in_SPEC_MEMO(" ")
                     CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy.")
-
 
                     PF4         'Submit the MEMO
 
@@ -831,6 +809,26 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                 END IF
 
                 if ALL_CASES_ARRAY(notc_confirm, case_entry) = "Y" then         'IF the notice was confirmed a CASENOTE will be entered
+
+                    Call start_a_new_spec_memo_and_continue(memo_started)   'Starting a MEMO to send information about verifications
+
+                    IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
+                        CALL write_variable_in_SPEC_MEMO("As a part of the Renewal Process we must receive recent verification of your inforomation. To speed the renewl process, please send proofs with your renewal paperwork.")
+                        CALL write_variable_in_SPEC_MEMO("")
+                        CALL write_variable_in_SPEC_MEMO(" * Examples of income proofs: paystubs, employer statement,")
+                        CALL write_variable_in_SPEC_MEMO("   income reports, business ledgers, income tax forms, etc.")
+                        CALL write_variable_in_SPEC_MEMO("   *If a job has ended, send proof of the end of employment")
+                        CALL write_variable_in_SPEC_MEMO("   and last pay.")
+                        CALL write_variable_in_SPEC_MEMO("")
+                        CALL write_variable_in_SPEC_MEMO(" * Examples of housing cost proofs(if changed): rent/house")
+                        CALL write_variable_in_SPEC_MEMO("   payment receipt, mortgage, lease, subsidy, etc.")
+                        CALL write_variable_in_SPEC_MEMO("")
+                        CALL write_variable_in_SPEC_MEMO(" * Examples of medical cost proofs(if changed):")
+                        CALL write_variable_in_SPEC_MEMO("   prescription and medical bills, etc.")
+                        CALL write_variable_in_SPEC_MEMO("")
+                        CALL write_variable_in_SPEC_MEMO("If you have questions about the type of verifications needed, call 612-596-1300 and someone will assist you.")
+                    End If
+
                     start_a_blank_case_note
                     EMSendKey("*** Notice of " & programs & " Recertification Interview Sent ***")
                     CALL write_variable_in_case_note("* A notice has been sent to client with detail about how to call in for an interview.")
