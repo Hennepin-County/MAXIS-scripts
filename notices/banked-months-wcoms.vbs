@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("07/19/2018", "Added option to inform client of possible Unfit for Employment exemption due to homelessness.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/02/2018", "Added option to inform client of the voluntary E & T option. Removed WCOM option to close for non-cooperation.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
@@ -68,16 +69,18 @@ BeginDialog case_number_dlg, 0, 0, 186, 90, "Case Number Dialog"
   Text 5, 55, 60, 10, "Worker signature:"
 EndDialog
 
-BeginDialog banked_months_menu_dialog, 0, 0, 356, 140, "Banked Months WCOMs"
+BeginDialog banked_months_menu_dialog, 0, 0, 346, 120, "Banked Months WCOMs"
   ButtonGroup ButtonPressed
-    PushButton 10, 25, 90, 10, "All Banked Months Used", banked_months_used_button
-    PushButton 10, 50, 90, 10, "Banked Months Notifier", banked_months_notifier
-    PushButton 10, 75, 90, 10, "Voluntary E and T info", voluntary_button
-    CancelButton 300, 120, 50, 15
-  Text 110, 25, 230, 20, "-- Use this script when a client's SNAP is closing because they used all their eligible banked months."
-  Text 110, 50, 230, 20, "-- Use this script to add a WCOM to a notice notifying the client they may be eligible for banked months."
-  Text 110, 75, 235, 25, "-- Use this script to add a WCOM to a client's approval notice informing them of the option to work with E and T on a voluntary basis."
-  GroupBox 5, 10, 345, 90, "WCOM"
+    PushButton 10, 20, 90, 10, "All Banked Months Used", banked_months_used_button
+    PushButton 10, 40, 90, 10, "Banked Months Notifier", banked_months_notifier
+    PushButton 10, 60, 90, 10, "Homeless Exemption Info", homeless_button
+    PushButton 10, 80, 90, 10, "Voluntary E and T info", voluntary_button
+    CancelButton 295, 100, 45, 15
+  Text 110, 40, 200, 10, "-- Notifying the client they may be eligible for banked months."
+  Text 110, 80, 200, 10, "-- Informing recipients of the voluntary E and T option."
+  GroupBox 5, 5, 335, 90, "Select the following WCOM to add to an approval when:"
+  Text 110, 20, 230, 10, "-- SNAP is closing because they used all their eligible banked months."
+  Text 110, 60, 230, 10, "-- A recipient may meet Unfit for Employment expansion (homeless)."
 EndDialog
 
 '--- The script -----------------------------------------------------------------------------------------------------------------
@@ -90,7 +93,7 @@ Do
     DO
     	err_msg = ""
     	dialog case_number_dlg
-    	cancel_confirmation
+    	If ButtonPressed = cancel then stopscript
     	IF MAXIS_case_number = "" THEN err_msg = "* Please enter a case number" & vbNewLine
     	IF len(approval_month) <> 2 THEN err_msg = err_msg & "* Enter the approval month in MM format." & vbNewLine
     	IF len(approval_year) <> 2 THEN err_msg = err_msg & "* Enter the approval year in YY format." & vbNewLine
@@ -104,28 +107,19 @@ CALL check_for_MAXIS(false)
 
 Do 
 	DIALOG banked_months_menu_dialog
-	cancel_confirmation
+	If ButtonPressed = cancel then stopscript
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
 If ButtonPressed = banked_months_used_button then 
     wcom_text = "You have been receiving SNAP banked months. Your SNAP is closing for using all available banked months. If you meet one of the exemptions listed above AND all other eligibility factors you may still be eligible for SNAP. Please contact your team if you have questions."
-    wcom_type = "all banked months"
 Elseif ButtonPressed = banked_months_notifier then 
-    wcom_text = "You have used all of your available ABAWD months. You may be eligible for SNAP banked months. Please contact your team if you have questions."
-    	wcom_type = "banked months notifier"
+    wcom_text = "You have used all of your available ABAWD months. You may be eligible for SNAP banked months. Please contact your team if you have questions."  
 Elseif ButtonPressed = voluntary_button then 
     wcom_text = "You have been approved to receive additional SNAP benefits under the SNAP Banked Months program. Working with Employment and Training is voluntary under this program. If you'd like work with Employment and Training, please contact your team."    
-    	wcom_type = "voluntary E & T info"
 End if 
 
-'This section will check for whether forms go to AREP and SWKR
-call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
-EMReadscreen forms_to_arep, 1, 10, 45
-call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
-EMReadscreen forms_to_swkr, 1, 15, 63
-
-call navigate_to_MAXIS_screen("spec", "wcom")
+Call navigate_to_MAXIS_screen("spec", "wcom")
 EMWriteScreen approval_month, 3, 46
 EMWriteScreen approval_year, 3, 51
 transmit
@@ -142,24 +136,18 @@ DO
 	EMReadscreen waiting_check, 7, read_row, 71 'finds if notice has been printed
 	If waiting_check = "Waiting" and prog_type = "FS" THEN 'checking program type and if it's been printed
 		EMSetcursor read_row, 13
-		EMSendKey "x"
-		Transmit
+		Call write_value_and_transmit("X", read_row, 13)
 		pf9
-		'The script is now on the recipient selection screen.  Mark all recipients that need NOTICES
-		row = 4                             'Defining row and col for the search feature.
-		col = 1
-		EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
-		IF row > 4 THEN  arep_row = row  'locating ALTREP location if it exists'
-		row = 4                             'reset row and col for the next search
-		col = 1
-		EMSearch "SOCWKR", row, col
-		IF row > 4 THEN  swkr_row = row     'Logs the row it found the SOCWKR string as swkr_row
-		EMWriteScreen "x", 5, 12                                        'We always send notice to client
-		IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-		IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-		transmit                                                        'Transmits to start the memo writing process'
 		EMSetCursor 03, 15
-		CALL write_variable_in_SPEC_MEMO(wcom_text)
+        If ButtonPressed = homeless_button then 
+            Call write_variable_in_SPEC_MEMO("You receive SNAP under time-limited Banked Months, due to being an ABAWD (Able-bodied adult without dependents). You previously reported to this agency that you are homeless. Based on this information, you may meet an ABAWD exemption and qualify for SNAP benefits that are not time-limited.")
+            Call write_variable_in_SPEC_MEMO("One exemption is for a person who is unfit for employment if he or she is currently homeless. Homelessness is specifically defined for this purpose as:")
+            Call write_variable_in_SPEC_MEMO("*Lacking a fixed and regular nighttime residence, including temporary housing situations, AND")
+            Call write_variable_in_SPEC_MEMO("*Lacking access to work-related necessities (i.e. shower/laundry facilities, etc.).")
+            Call write_variable_in_SPEC_MEMO("If you believe you may meet this exemption (or any other potential ABAWD exemption), please contact your team.")      
+        Else 
+		 CALL write_variable_in_SPEC_MEMO(wcom_text)
+        End if 
 		PF4
 		PF3
 		WCOM_count = WCOM_count + 1
@@ -180,12 +168,14 @@ ELSE 					'If a waiting FS notice is found
 	'Case note
 	start_a_blank_case_note
 	call write_variable_in_CASE_NOTE("---WCOM added regarding banked months---")
-	IF wcom_type = "all banked months" THEN
+	If ButtonPressed = banked_months_used_button then 
 		CALL write_variable_in_CASE_NOTE("* WCOM added because client all eligible banked months have been used.")
-	ELSEIF wcom_type = "voluntary E & T info" THEN
+	ELSEIf ButtonPressed = voluntary_button then 
 		CALL write_variable_in_CASE_NOTE("* WCOM added to inform client of voluntary option to work with E & T.")
-	ELSEIF wcom_type = "banked months notifier" THEN
+	ELSEIf ButtonPressed = banked_months_notifier then 
 		CALL write_variable_in_CASE_NOTE("* Client has used ABAWD counted months and MAY be eligible for banked months. Eligibility questions should be directed to financial worker.")
+    Elseif ButtonPressed = homeless_button then 
+        CALL write_variable_in_CASE_NOTE("* Client may meet the unfit for employment exapansion for homeless recipients detailed in CM 11.24.")
 	END IF
 	call write_variable_in_CASE_NOTE("---")
     call write_variable_in_CASE_NOTE(worker_signature)
