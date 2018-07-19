@@ -923,16 +923,25 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                         'MsgBox memo_started
                         IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
 
-                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then CALL write_variable_in_SPEC_MEMO("We received your Recertification on " & ALL_CASES_ARRAY(date_of_app, case_entry) & ".")
-                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then CALL write_variable_in_SPEC_MEMO("Your Recertification has not yet been received.")
+                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then CALL write_variable_in_SPEC_MEMO("We received your Recertification Paperwork on " & ALL_CASES_ARRAY(date_of_app, case_entry) & ".")
+                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then CALL write_variable_in_SPEC_MEMO("Your Recertification Paperwork has not yet been received.")
                             CALL write_variable_in_SPEC_MEMO("")
                             CALL write_variable_in_SPEC_MEMO("You must have an interview by " & last_day_of_recert & " or your benefits will end. ")
                             CALL write_variable_in_SPEC_MEMO("")
-                            CALL write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at 612-596-1300 between 9:00am and 4:00pm Monday through Friday.")
+                            Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+                            Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
                             CALL write_variable_in_SPEC_MEMO("")
-                            CALL write_variable_in_SPEC_MEMO("You may also come in to the office to complete an interview between 8:00 am and 4:30pm Monday through Friday.")
+                            Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
+                            Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                            Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                            Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+                            Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                            Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                            Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                            Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
                             CALL write_variable_in_SPEC_MEMO("")
-                            CALL write_variable_in_SPEC_MEMO("If we do not hear from you by " & last_day_of_recert & ", your benefits will end on " & last_day_of_recert & ".")
+                            CALL write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_day_of_recert & "  **")
+                            CALL write_variable_in_SPEC_MEMO("  **   your benefits will end on " & last_day_of_recert & ".   **")
 
                             PF4         'Submit the MEMO
 
