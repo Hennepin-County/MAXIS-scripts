@@ -250,6 +250,7 @@ For notice_to_print = 0 to UBound(notices_array, 2)
 		Do
 			For notice_row = 2 to 21
 				EMReadScreen notice_line, 73, notice_row, 8
+                If notice_row = 3 Then first_line = notice_line
                 'MsgBox notice_line
 				if right(trim(notice_line),9) = "FMINFO___" Then notice_line = ""
                 If right(trim(notice_line),4) = "Page" Then
@@ -262,8 +263,11 @@ For notice_to_print = 0 to UBound(notices_array, 2)
 			Next
             PF8
             EMReadScreen notice_end, 9, 24,14
-			If notice_end = "LAST PAGE" Then Exit Do
-			notice_length = notice_length + 1
+			If notice_end = "LAST PAGE" Then
+                EMReadScreen top_of_page, 73, 3, 8
+                If top_of_page = first_line Then Exit Do
+            End If
+            notice_length = notice_length + 1
 		Loop until notice_length = 20
 
 		Set objDoc = objWord.Documents.Add()
