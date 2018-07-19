@@ -105,12 +105,12 @@ script_array_NOTICES_main(script_num).script_name 			= "12 Month Contact"							
 script_array_NOTICES_main(script_num).file_name 			= "12-month-contact.vbs"															'Script URL
 script_array_NOTICES_main(script_num).description 			= "Sends a MEMO to the client of their reporting responsibilities (required for SNAP 2-yr certifications, per POLI/TEMP TE02.08.165)."
 
-'script_num = script_num + 1									'Increment by one
-'ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-'Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-'script_array_NOTICES_main(script_num).script_name 			= "Appointment Letter"																'Script name
-'script_array_NOTICES_main(script_num).file_name 			= "appointment-letter.vbs"															'Script URL
-'script_array_NOTICES_main(script_num).description 			= "Sends a MEMO containing the appointment letter (with text from POLI/TEMP TE02.05.15)."
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
+Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_NOTICES_main(script_num).script_name 			= "DWP ES Referral"													'Script name
+script_array_NOTICES_main(script_num).file_name 			= "dwp-es-referral.vbs"												'Script URL
+script_array_NOTICES_main(script_num).description 			= "Creates a case note, a manual referral in INFC/WF1M and sends a SPEC/MEMO to the client."
 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
