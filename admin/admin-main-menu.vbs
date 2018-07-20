@@ -222,6 +222,13 @@ script_array_QI_list(script_num).description		= "Template for documenting specif
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
 Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_QI_list(script_num).script_name		= " Select WCOM "										'Script name
+script_array_QI_list(script_num).file_name			= "select-wcom.vbs"									'Script URL
+script_array_QI_list(script_num).description		= "Adds WCOM(s) to approval notices."
+
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
+Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_QI_list(script_num).script_name		= "Send CBO Manual Referrals"										'Script name
 script_array_QI_list(script_num).file_name			= "send-cbo-manual-referrals.vbs"									'Script URL
 script_array_QI_list(script_num).description		= "Sends manual referrals for a list of cases provided by Employment and Training."
