@@ -757,17 +757,20 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                 'Once we have the memo translated into other languages, the MEMO portion will be put here and will be specific to the language needs.
                 Select Case ALL_CASES_ARRAY(written_lang, case_entry)
 
-                Case "02"   'Hmong
-                    'MsgBox "HMONG"
-                Case "21"   'Karen
-                    'MsgBox "KAREN"
-                Case "06"   'Russian
-                    'MsgBox "RUSSIAN"
-                Case "07"   'Somali
+
+                Case "07"   'Somali (2nd)
                     'MsgBox "SOMALI"
-                Case "01"   'Spanish
+                Case "01"   'Spanish (3rd)
                     'MsgBox "SPANISH"
-                Case Else
+                Case "02"   'Hmong (4th)
+                    'MsgBox "HMONG"
+                Case "06"   'Russian (5th)
+                    'MsgBox "RUSSIAN"
+                Case "12"   'Oromo (6th)
+                    'MsgBox "OROMO"
+                Case "03"   'Vietnamese (7th)
+                    'MsgBox "VIETNAMESE"
+                Case Else  'English (1st)
                     'MsgBox "ENGLISH"
                 End Select
 
