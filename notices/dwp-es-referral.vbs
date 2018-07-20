@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("06/22/2018", "Initial version.", "Ilse Ferris, Hennepin County")
+call changelog_update("07/20/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -89,6 +89,7 @@ DO
 		IF trim(member_number) = "" then err_msg = err_msg & vbNewLine & "* Enter a 2 digit member number, or more than one HH members separated by a comma."
 		If interview_location = "Select one..." then err_msg = err_msg & vbNewLine & "* Enter an interview location."
         if appt_type = "Select one..." THEN err_msg = err_msg & vbCr & "* Please enter the appointment type."
+        If appt_type <> "Scheduled" and instr(interview_location, "WERC") THEN err_msg = err_msg & vbCr & "* WERC locations cannot be selected for a reschedule."
 		If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
