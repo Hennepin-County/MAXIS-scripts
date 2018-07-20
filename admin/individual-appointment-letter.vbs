@@ -75,12 +75,23 @@ Loop until err_msg = ""
 
 'grabs CAF date, turns CAF date into string for variable
 call autofill_editbox_from_MAXIS(HH_member_array, "PROG", application_date)
-application_date = application_date & ""
 
-'creates interview date for 7 calendar days from the CAF date
-interview_date = dateadd("d", 7, application_date)
-If interview_date <= date then interview_date = dateadd("d", 7, date)
-interview_date = interview_date & ""		'turns interview date into string for variable
+
+IF expedited_status = "Client Appears Expedited" THEN
+    'creates interview date for 7 calendar days from the CAF date
+    interview_date = dateadd("d", 7, application_date)
+    If interview_date <= date then interview_date = dateadd("d", 7, date)
+ELSE
+    'creates interview date for 7 calendar days from the CAF date
+    interview_date = dateadd("d", 10, application_date)
+    If interview_date <= date then interview_date = dateadd("d", 10, date)
+
+END IF
+
+Call change_date_to_soonest_working_day(interview_date)
+
+application_date = application_date & ""
+interview_date = interview_date & ""
 
 BeginDialog appt_dialog, 0, 0, 121, 75, "APPOINTMENT LETTER"
   EditBox 65, 5, 50, 15, application_date
@@ -134,17 +145,17 @@ Loop until SELF_check <> "SELF"
 
 'Navigating to SPEC/MEMO
 call start_a_new_spec_memo                                                   'Transmits to start the memo writing process
-EMsendkey("************************************************************")
-Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & application_date & ".")
-Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
+
+Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & application_date & "")
+Call write_variable_in_SPEC_MEMO("and an interview is required to process your application.")
 Call write_variable_in_SPEC_MEMO(" ")
-Call write_variable_in_SPEC_MEMO("The interview must be completed by " & interview_date & ".")
+Call write_variable_in_SPEC_MEMO("** The interview must be completed by " & interview_date & ". **")
 Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday through Friday.")
-Call write_variable_in_SPEC_MEMO("You may be able to have SNAP benefits issued within 24 hours of the interview.")
-'Call write_variable_in_SPEC_MEMO("Some cases are eligible to have SNAP benefits issued within 24 hours of the interview, call right away if you have an urgent need.")
+Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
 Call write_variable_in_SPEC_MEMO(" ")
-Call write_variable_in_SPEC_MEMO("Interviews can also be completed in person at one of our six offices:")
+Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
+Call write_variable_in_SPEC_MEMO(" ")
+Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
 Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
 Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
 Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
@@ -153,12 +164,13 @@ Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
 Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
 Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
 Call write_variable_in_SPEC_MEMO(" ")
-Call write_variable_in_SPEC_MEMO("If we do not hear from you by " & last_contact_day & " your application will be denied.") 'add 30 days
+Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
+Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
 Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
+Call write_variable_in_SPEC_MEMO(" ")
 Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
-Call write_variable_in_SPEC_MEMO("You can also request a paper copy.")
-Call write_variable_in_SPEC_MEMO("Auth: 7CFR 273.2(e)(3).")
-'Call write_variable_in_SPEC_MEMO("************************************************************")
+Call write_variable_in_SPEC_MEMO("You can also request a paper copy.  Auth: 7CFR 273.2(e)(3).")
+
 PF4
 'msgbox "should be all memoed out"
 
