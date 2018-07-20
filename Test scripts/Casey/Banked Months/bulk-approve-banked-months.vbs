@@ -120,7 +120,7 @@ EMConnect ""
     'add each to the array
     'compare the array to the working list
         'if not already on the list, check WREG for 30/13
-        
+
 
 'Review of cases
     'Open the working Excel sheet
@@ -146,7 +146,7 @@ EMConnect ""
     'Have worker confirm the correct sheet opened
     'Read all the cases from the spreadsheet and add to an array
 
-    'Read PROG and ELIG to confirm client is still active SNAP on this case
+    'Read PROG and CASE/PERS to confirm client is still active SNAP on this case
     'Check for possible exemption in STAT
     'Review Case Notes to see if there are any case notes that need to be assessed
         'Have a series of case notes that can be ignored
@@ -162,3 +162,4 @@ EMConnect ""
     'Review ELIG and approve
     'Update Excel
 '
+'NEED another spreadsheet for all cases that WERE banked months cases but are no longer - so that we can save the case information
