@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("07/20/2018", "Updated transfer case in dialog.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("06/19/2018", "Updated verbiage in SPEC/WCOM for readibility.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/25/2017", "Repaired functionality to add SPEC/WCOM. Also updated text to send notice for sending a SPEC/LETR.", "Ilse Ferris, Hennepin County")
@@ -69,12 +70,13 @@ EndDialog
 
 BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 351, 350, "MFIP Sanction - DWP Disqualification"
   DropListBox 65, 5, 65, 15, "Select one..."+chr(9)+"imposed"+chr(9)+"pending"+chr(9)+"DWP disqual", sanction_status_droplist
-  EditBox 265, 5, 50, 15, HH_Member_Number
+  EditBox 235, 5, 20, 15, worker_number
+  EditBox 310, 5, 20, 15, HH_Member_Number
   DropListBox 65, 25, 110, 15, "Select one..."+chr(9)+"CS"+chr(9)+"ES"+chr(9)+"Dual (ES & CS)"+chr(9)+"Failed to attend orientation"+chr(9)+"Minor mom truancy", sanction_type_droplist
-  EditBox 265, 25, 50, 15, number_occurances
-  DropListBox 65, 45, 65, 15, ""+chr(9)+"10%"+chr(9)+"30%"+chr(9)+"100%", Sanction_Percentage_droplist
+  EditBox 310, 25, 20, 15, number_occurances
+  DropListBox 65, 45, 65, 15, "10%"+chr(9)+"30%"+chr(9)+"100%", Sanction_Percentage_droplist
   EditBox 265, 45, 65, 15, Date_Sanction
-  DropListBox 65, 65, 65, 15, ""+chr(9)+"Pre 60"+chr(9)+"Post 60", pre_post_droplist
+  DropListBox 65, 65, 65, 15, "Pre 60"+chr(9)+"Post 60", pre_post_droplist
   EditBox 220, 65, 110, 15, pre_post_notes
   DropListBox 90, 85, 240, 45, "Select one..."+chr(9)+"Failed to attend ES overview"+chr(9)+"Failed to develop employment plan"+chr(9)+"Non-compliance with employment plan"+chr(9)+"< 20, failed education requirement"+chr(9)+"Failed to accept suitable employment"+chr(9)+"Quit suitable employment w/o good cause"+chr(9)+"Failure to attend MFIP orientation"+chr(9)+"Non-cooperation with child support", sanction_reason_droplist
   EditBox 90, 105, 240, 15, sanction_information
@@ -83,13 +85,12 @@ BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 351, 350, "MFIP Sanction - DWP 
   EditBox 90, 145, 240, 15, other_sanction_notes
   EditBox 90, 165, 240, 15, Impact_Other_Programs
   EditBox 90, 185, 240, 15, Vendor_Information
-  CheckBox 10, 205, 300, 10, "*Click Here* IF sanction # is between 3 to 6, AND the sanction is for consecutive months", consecutive_sanction_months
-  Text 10, 220, 325, 10, "**Last day to cure (10 days or 1 day prior to the effective month - this will be in the case note)**"
-  CheckBox 10, 245, 130, 10, "Update sent to Employment Services", Update_Sent_ES_Checkbox
-  CheckBox 10, 260, 130, 10, "Update sent to Child Care Assistance", Update_Sent_CCA_Checkbox
-  CheckBox 10, 280, 85, 10, "Case has been FIAT'd", Fiat_check
-  CheckBox 10, 295, 140, 10, "Mandatory vendor form mailed to client", mandatory_vendor_check
+  CheckBox 10, 205, 275, 10, "Check if sanction # is between 3 to 6, AND the sanction is for consecutive months", consecutive_sanction_months
+  CheckBox 10, 250, 130, 10, "Update sent to Employment Services", Update_Sent_ES_Checkbox
   CheckBox 150, 245, 190, 10, "Sent MFIP sanction for future closed month SPEC/LETR", Sent_Spec_LETR
+  CheckBox 10, 265, 130, 10, "Update sent to Child Care Assistance", Update_Sent_CCA_Checkbox
+  Text 160, 255, 160, 10, "(See TE10.20 for info on when to use this notice)"
+  Text 10, 220, 325, 10, "**Last day to cure (10 days or 1 day prior to the effective month - this will be in the case note)**"
   CheckBox 150, 270, 130, 10, "TIKL to change sanction status ", TIKL_next_month
   CheckBox 150, 295, 145, 10, "If you want script to write to SPEC/WCOM", notating_spec_wcom
   EditBox 130, 325, 95, 15, worker_signature
@@ -97,7 +98,7 @@ BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 351, 350, "MFIP Sanction - DWP 
     OkButton 235, 325, 50, 15
     CancelButton 290, 325, 50, 15
   Text 5, 30, 60, 10, "Type of sanction:"
-  Text 185, 30, 75, 10, "Number of occurences:"
+  Text 230, 30, 75, 10, "Number of occurences:"
   Text 20, 50, 40, 10, "Sanction %:"
   Text 155, 50, 105, 10, "Effective Date of Sanction/Disq.:"
   Text 5, 90, 80, 10, "Reason for the sanction:"
@@ -108,48 +109,52 @@ BeginDialog MFIP_Sanction_DWP_Disq_Dialog, 0, 0, 351, 350, "MFIP Sanction - DWP 
   Text 5, 170, 85, 10, "Impact to other programs:"
   Text 5, 190, 65, 10, "Vendor information:"
   GroupBox 5, 235, 340, 85, "Check all that apply:"
-  Text 160, 255, 160, 10, "(See TE10.20 for info on when to use this notice)"
+  Text 275, 10, 35, 10, "MEMB #:"
   Text 160, 280, 175, 10, "(If the sanction status will change for next month)"
   Text 160, 305, 125, 10, "(Check only if MFIP/DWP is approved)"
   Text 65, 330, 60, 10, "Worker signature:"
   Text 10, 10, 55, 10, "Sanction status:"
-  Text 215, 10, 50, 10, "HH Member #:"
+  CheckBox 10, 280, 85, 10, "Case has been FIAT'd", Fiat_check
   Text 20, 70, 40, 10, "Pre/Post 60:"
   Text 155, 70, 60, 10, "Pre/Post 60 notes:"
+  CheckBox 10, 295, 140, 10, "Mandatory vendor form mailed to client", mandatory_vendor_check
+  Text 145, 10, 90, 10, "Transfer case (X127 last 3):"
 EndDialog
 
-BeginDialog MFIP_sanction_cured_dialog, 0, 0, 386, 205, "MFIP sanction/DWP disqualification cured"
-  DropListBox 90, 15, 70, 15, "Select One..."+chr(9)+"MFIP"+chr(9)+"DWP", select_program
-  EditBox 230, 15, 50, 15, household_member
+BeginDialog MFIP_sanction_cured_dialog, 0, 0, 381, 220, "MFIP sanction/DWP disqualification cured"
+  DropListBox 85, 15, 70, 15, "Select One..."+chr(9)+"MFIP"+chr(9)+"DWP", select_program
+  EditBox 235, 15, 50, 15, household_member
   EditBox 90, 40, 70, 15, sanction_lifted_month
-  EditBox 300, 40, 70, 15, compliance_date
+  EditBox 290, 40, 70, 15, compliance_date
   DropListBox 90, 65, 280, 15, "Select one..."+chr(9)+"Client complied with Employment Services"+chr(9)+"Client complied with Child Support"+chr(9)+"Client complied with Employment Services AND Child Support ", cured_reason
   EditBox 90, 85, 85, 15, fin_orientation_info
   EditBox 240, 85, 130, 15, good_cause
   DropListBox 90, 105, 70, 15, "Select one..."+chr(9)+"Letter"+chr(9)+"Phone Call"+chr(9)+"Email"+chr(9)+"Client Not Notified", notified_via
-  CheckBox 170, 110, 215, 10, "Set a TIKLto re-evaluate mandatory vendor status in 6 months.", vendor_TIKL_checkbox
-  CheckBox 15, 125, 370, 10, "Create monthly TIKL for the next 6 months to remind worker to FIAT the mandatory vendor info into ELIG results.", monthly_TIKL_checkbox
-  EditBox 90, 140, 280, 15, other_notes
-  EditBox 90, 160, 280, 15, action_taken
-  EditBox 90, 180, 170, 15, worker_signature
+  EditBox 340, 105, 30, 15, worker_number
+  CheckBox 5, 125, 370, 10, "Create monthly TIKL for the next 6 months to remind worker to FIAT the mandatory vendor info into ELIG results.", monthly_TIKL_checkbox
+  CheckBox 5, 140, 215, 10, "Set a TIKLto re-evaluate mandatory vendor status in 6 months.", vendor_TIKL_checkbox
+  EditBox 90, 160, 280, 15, other_notes
+  EditBox 90, 180, 280, 15, action_taken
+  EditBox 90, 200, 170, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 265, 180, 50, 15
-    CancelButton 320, 180, 50, 15
+    OkButton 265, 200, 50, 15
+    CancelButton 320, 200, 50, 15
     PushButton 295, 15, 25, 10, "EMPS", EMPS_button
     PushButton 320, 15, 25, 10, "SANC", SANC_button
     PushButton 345, 15, 25, 10, "TIME", TIME_button
-  Text 10, 45, 75, 10, "Month Sanction Lifted:"
   Text 25, 110, 60, 10, "Notified Client Via:"
   Text 175, 20, 55, 10, "HH member(s) #:"
-  Text 5, 145, 80, 10, "Other Notes/Comments:"
+  Text 40, 165, 45, 10, "Other notes:"
   Text 5, 70, 80, 10, "Sanction Cured Reason:"
-  Text 185, 45, 115, 10, "Date Client Came into Compliance:"
+  Text 175, 45, 115, 10, "Date Client Came into Compliance:"
   GroupBox 290, 5, 85, 25, "MAXIS navigation:"
-  Text 20, 185, 60, 10, "Worker signature:"
-  Text 35, 165, 50, 10, "Actions taken:"
+  Text 25, 205, 60, 10, "Worker signature:"
+  Text 35, 185, 50, 10, "Actions taken:"
   Text 5, 90, 85, 10, "Financial orientation info:"
-  Text 185, 90, 55, 10, "Good cause info:"
+  Text 180, 90, 55, 10, "Good cause info:"
   Text 30, 20, 55, 10, "Select program:"
+  Text 10, 45, 75, 10, "Month Sanction Lifted:"
+  Text 240, 110, 100, 10, "Transfer case to (X127 last 3):"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -217,6 +222,29 @@ If action_type = "Apply sanction/disq."	then
 		PF3
 	END If
 
+	IF worker_number <> "" THEN
+		transfer_case = True
+		CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
+		EMWriteScreen "x", 7, 16
+		transmit
+		PF9
+		EMWriteScreen "X127" & worker_number, 18, 61
+		transmit
+		EMReadScreen worker_check, 9, 24, 2
+
+		IF worker_check = "SERVICING" THEN
+	        action_completed = False
+			PF10
+		END IF
+
+	    EMReadScreen transfer_confirmation, 16, 24, 2
+	    IF transfer_confirmation = "CASE XFER'D FROM" then
+	    	action_completed = True
+	    Else
+	        action_completed = False
+	    End if
+	END IF
+
 	'This return the date the client has to be in compliance or comply by, and the date that workers need to inform client to cooperate by this date.
 	'This date is 10 days from the effective date if it is ES, No Show for Orientation, and/or Minor Mom Truancy, otherwise it is last day of the month prior to the effective month.
 	'consecutive months between 3 - 6 months, if they are consecutive months, client has up to the last day of the month prior to the effective date to resolve the sanction.
@@ -275,7 +303,7 @@ If action_type = "Apply sanction/disq."	then
 		EMReadscreen forms_to_swkr, 1, 15, 63
 
 		CALL navigate_to_MAXIS_screen("SPEC", "WCOM")
-		
+
 		'Searching for waiting SNAP notice
 		wcom_row = 6
 		Do
@@ -286,7 +314,7 @@ If action_type = "Apply sanction/disq."	then
 				Emwritescreen "x", wcom_row, 13
 				Transmit
 				PF9
-				
+
 				'The script is now on the recipient selection screen.  Mark all recipients that need NOTICES
 				row = 4                             'Defining row and col for the search feature.
 				col = 1
@@ -296,26 +324,26 @@ If action_type = "Apply sanction/disq."	then
 				col = 1
 				EMSearch "SOCWKR", row, col
 				IF row > 4 THEN  swkr_row = row     'Logs the row it found the SOCWKR string as swkr_row
-				
+
 				EMWriteScreen "x", 5, 12                                        'We always send notice to client
 				IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 				IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 				transmit                                                        'Transmits to start the memo writing process'
-				
+
 				'WCOM required by workers to informed client what who they need to contact, the contact info, and by when they need to resolve the sanction.
 				Call write_variable_in_SPEC_MEMO("")
-				If trim(ES_counselor_name) = "" or trim(ES_counselor_phone) = "" then 
+				If trim(ES_counselor_name) = "" or trim(ES_counselor_phone) = "" then
                     Call write_variable_in_SPEC_MEMO("Please contact your team for information on how to cure this sanction.")
-                Else 
+                Else
                     Call write_variable_in_SPEC_MEMO("Please contact your counselor: " & ES_counselor_name & " at " & ES_counselor_phone & ", for information on how to cure this sanction.")
-                End if 
+                End if
 				Call write_variable_in_SPEC_MEMO("")
 				Call write_variable_in_SPEC_MEMO("You need to be in compliance on/by " & Resolution_date & ".")
 				Call write_variable_in_SPEC_MEMO("")
 				PF4
 				PF3
 				wcom_written = true
-				exit do 
+				exit do
 			End If
 			If wcom_row = 17 then
 				PF8
@@ -324,9 +352,9 @@ If action_type = "Apply sanction/disq."	then
 			end if
 			If spec_edit_check = "NOTICE" THEN no_prog_waiting = true
 		Loop until spec_edit_check = "NOTICE"
-	End if 	
-End if 
-	
+	End if
+End if
+
 If action_type = "Cure santion/disq." then
 	'Shows dialog
 	DO
@@ -410,4 +438,8 @@ If action_type = "Cure santion/disq." then
 End if
 
 If no_prog_waiting = true then script_end_procedure("No waiting MFIP or DWP notices were found for the requested month.")
-script_end_procedure ("")
+IF action_completed = False then
+    script_end_procedure ("Warning! Case did not transfer. Transfer the case manually. Script was able to complete all other steps.")
+Else
+    script_end_procedure ("Case has been updated please review to ensure it was processed correctly.")
+End if
