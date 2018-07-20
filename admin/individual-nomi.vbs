@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/20/2018", "Updated verbiage of notice.", "Casey Love, Hennepin County")
 call changelog_update("06/22/2018", "Initial version.", "MiKayla Handley, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -144,20 +145,32 @@ LOOP UNTIL are_we_passworded_out = false
 last_contact_day = dateadd("d", 30, application_date)
 If DateDiff("d", appt_date, last_contact_day) < 1 then last_contact_day = appt_date
 CALL start_a_new_spec_memo
-EMsendkey("************************************************************")
+
 Call write_variable_in_SPEC_MEMO("You recently applied for assistance on " & application_date & ".")
 Call write_variable_in_SPEC_MEMO("Your interview should have been completed by " & appt_date & ".")
 Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
-Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at ")
-Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday through Friday.")
 Call write_variable_in_SPEC_MEMO(" ")
-Call write_variable_in_SPEC_MEMO("If you do not complete the interview by " & last_contact_day & " your application will be denied.") 'add 30 days
+Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
 Call write_variable_in_SPEC_MEMO(" ")
-Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to- face interview.")
+Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
+Call write_variable_in_SPEC_MEMO(" ")
+Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
+Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
+Call write_variable_in_SPEC_MEMO(" ")
+Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
+Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
+Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
+Call write_variable_in_SPEC_MEMO(" ")
 Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
-Call write_variable_in_SPEC_MEMO("You can also request a paper copy.")
-Call write_variable_in_SPEC_MEMO("Auth: 7CFR 273.2(e)(3). ")
-Call write_variable_in_SPEC_MEMO("************************************************************")
+Call write_variable_in_SPEC_MEMO("You can also request a paper copy.  Auth: 7CFR 273.2(e)(3).")
+
 PF4
 PF3
 'Writes the case note for the NOMI
