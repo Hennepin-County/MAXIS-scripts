@@ -75,27 +75,16 @@ If memo_to_send = "RECERT - APPT Notice" Then
     'EMSendKey("************************************************************")           'for some reason this is more stable then using write_variable
     CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case.")
     CALL write_variable_in_SPEC_MEMO("")
-
     CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & programs & " case to continue.")
-
-    ' CALL write_variable_in_SPEC_MEMO("** Your " & programs & " case will close on " & last_day_of_recert & " **")
-    ' CALL write_variable_in_SPEC_MEMO("if we do not complete an interview.")
-    ''"To complete a phone interview, call the EZ Info Line at 612-596-1300 between 9:00am and 4:00pm Monday through Friday. Please complete your interview by " & interview_end_date & ".")
     CALL write_variable_in_SPEC_MEMO("")
-
     Call write_variable_in_SPEC_MEMO("  *** Please complete your interview by " & interview_end_date & ". ***")
     Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-    'Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday through Friday.")
     Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
     CALL write_variable_in_SPEC_MEMO("")
-    ' CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ".")
-    ' 'CALL write_variable_in_SPEC_MEMO("")
-    ' CALL write_variable_in_SPEC_MEMO("You must also complete an interview for your " & programs & " case to continue.")
     CALL write_variable_in_SPEC_MEMO("**  Your " & programs & " case will close on " & last_day_of_recert & " unless    **")
     CALL write_variable_in_SPEC_MEMO("** we receive your paperwork and complete the interview. **")
     CALL write_variable_in_SPEC_MEMO("")
     Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
-
     Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
     Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
     Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
@@ -104,8 +93,6 @@ If memo_to_send = "RECERT - APPT Notice" Then
     Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
     Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
     Call write_variable_in_SPEC_MEMO(" ")
-
-
     CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy.")
 
 
@@ -130,7 +117,7 @@ If memo_to_send = "RECERT - APPT Notice" Then
 
 ElseIf memo_to_send = "RECERT - VERIFS" Then
 
-    CALL write_variable_in_SPEC_MEMO("As a part of the Renewal Process we must receive recent verification of your inforomation. To speed the renewl process, please send proofs with your renewal paperwork.")
+    CALL write_variable_in_SPEC_MEMO("As a part of the Renewal Process we must receive recent verification of your information. To speed the renewal process, please send proofs with your renewal paperwork.")
     CALL write_variable_in_SPEC_MEMO("")
     CALL write_variable_in_SPEC_MEMO(" * Examples of income proofs: paystubs, employer statement,")
     CALL write_variable_in_SPEC_MEMO("   income reports, business ledgers, income tax forms, etc.")
@@ -233,21 +220,13 @@ ElseIf memo_to_send = "APPLICATION - NOMI" Then
     Call write_variable_in_SPEC_MEMO("You recently applied for assistance on " & application_date & ".")
     Call write_variable_in_SPEC_MEMO("Your interview should have been completed by " & appointment_date & ".")
     Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
-
-
     Call write_variable_in_SPEC_MEMO(" ")
     Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-    'Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday through Friday.")
     Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
-    'Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Mon through Fri.")
     Call write_variable_in_SPEC_MEMO(" ")
     Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
     Call write_variable_in_SPEC_MEMO(" ")
-    'Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday through Friday.")
     Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
-
-    'Call write_variable_in_SPEC_MEMO("Some cases are eligible to have SNAP benefits issued within 24 hours of the interview, call right away if you have an urgent need.")
-    'Call write_variable_in_SPEC_MEMO("Interviews can also be completed in person at one of our six offices:")
     Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
     Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
     Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")

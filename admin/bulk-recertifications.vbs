@@ -44,8 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
-call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+CALL changelog_update("07/20/2018", "Updated verbiage for Appointment Notices and NOMIs", "Casey Love, Hennepin County")
+call changelog_update("06/01/2018", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -708,17 +708,28 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                     MsgBox "ENGLISH"
                 End Select
 
-                Memo_to_display = "The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case. Your " &_
-                                                programs & " case will close on " & last_day_of_recert &_
-                                                " if we do not receive your paperwork. Please sign, date and return your renewal paperwork by " &_
-                                                CM_plus_1_mo & "/08/" & CM_plus_1_yr & "."
-                Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "You must also complete an interview for your " & programs &_
-                    " case to continue. To complete a phone interview, call the EZ Info Line at 612-596-1300 between 9:00am and 4:00pm Monday through Friday. Please complete your interview by " & interview_end_date & "."
-                Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "We must have your renewal paperwork to do your interview. Please send proofs with your renewal paperwork."
-                Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & " * Examples of income proofs: paystubs, income reports, business ledgers, income tax forms, etc."
-                Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & " * Examples of housing cost proofs(if changed): rent/house payment receipt, mortgage, lease, subsidy, etc."
-                Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & " * Examples of medical cost proofs(if changed): prescription and medical bills, etc."
-                Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy."
+                Memo_to_display = "The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case."
+                Memo_to_display = Memo_to_display & vbNewLine & ""
+                Memo_to_display = Memo_to_display & vbNewLine & "Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & programs & " case to continue."
+                Memo_to_display = Memo_to_display & vbNewLine & ""
+                Memo_to_display = Memo_to_display & vbNewLine & "  *** Please complete your interview by " & interview_end_date & ". ***"
+                Memo_to_display = Memo_to_display & vbNewLine & "To complete a phone interview, call the EZ Info Line at"
+                Memo_to_display = Memo_to_display & vbNewLine & "612-596-1300 between 9:00am and 4:00pm Monday thru Friday."
+                Memo_to_display = Memo_to_display & vbNewLine & ""
+                Memo_to_display = Memo_to_display & vbNewLine & "**  Your " & programs & " case will close on " & last_day_of_recert & " unless    **"
+                Memo_to_display = Memo_to_display & vbNewLine & "** we receive your paperwork and complete the interview. **"
+                Memo_to_display = Memo_to_display & vbNewLine & ""
+                Memo_to_display = Memo_to_display & vbNewLine & "If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday."
+                Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                Memo_to_display = Memo_to_display & vbNewLine & "(Hours are M - F 8-4:30 unless otherwise noted)"
+                Memo_to_display = Memo_to_display & vbNewLine & " "
+                Memo_to_display = Memo_to_display & vbNewLine & "Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy."
+
 
                 MsgBox Memo_to_display
 
@@ -765,27 +776,6 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
 
                 IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
 
-                    ' EMSendKey("************************************************************")           'for some reason this is more stable then using write_variable
-                    ' CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case. Your " &_
-                    '                                 programs & " case will close on " & last_day_of_recert &_
-                    '                                 " if we do not receive your paperwork. Please sign, date and return your renewal paperwork by " &_
-                    '                                 CM_plus_1_mo & "/08/" & CM_plus_1_yr & ".")
-                    ' CALL write_variable_in_SPEC_MEMO("")
-                    ' CALL write_variable_in_SPEC_MEMO("You must also complete an interview for your " & programs &_
-                    '     " case to continue. To complete a phone interview, call the EZ Info Line at 612-596-1300 between 9:00am and 4:00pm Monday through Friday. Please complete your interview by " & interview_end_date & ".")
-                    ' CALL write_variable_in_SPEC_MEMO("")
-                    ' CALL write_variable_in_SPEC_MEMO("We must have your renewal paperwork to do your interview. Please send proofs with your renewal paperwork.")
-            		' CALL write_variable_in_SPEC_MEMO("")
-            		' CALL write_variable_in_SPEC_MEMO(" * Examples of income proofs: paystubs, income reports, business ledgers, income tax forms, etc.")
-            		' CALL write_variable_in_SPEC_MEMO("")
-            		' CALL write_variable_in_SPEC_MEMO(" * Examples of housing cost proofs(if changed): rent/house payment receipt, mortgage, lease, subsidy, etc.")
-            		' CALL write_variable_in_SPEC_MEMO("")
-            		' CALL write_variable_in_SPEC_MEMO(" * Examples of medical cost proofs(if changed): prescription and medical bills, etc.")
-                    ' CALL write_variable_in_SPEC_MEMO("")
-            		' CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy.")
-
-
-
                     CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case.")
                     CALL write_variable_in_SPEC_MEMO("")
                     CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & programs & " case to continue.")
@@ -807,7 +797,6 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                     Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
                     Call write_variable_in_SPEC_MEMO(" ")
                     CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy.")
-
 
                     PF4         'Submit the MEMO
 
@@ -831,6 +820,26 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                 END IF
 
                 if ALL_CASES_ARRAY(notc_confirm, case_entry) = "Y" then         'IF the notice was confirmed a CASENOTE will be entered
+
+                    Call start_a_new_spec_memo_and_continue(memo_started)   'Starting a MEMO to send information about verifications
+
+                    IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
+                        CALL write_variable_in_SPEC_MEMO("As a part of the Renewal Process we must receive recent verification of your information. To speed the renewal process, please send proofs with your renewal paperwork.")
+                        CALL write_variable_in_SPEC_MEMO("")
+                        CALL write_variable_in_SPEC_MEMO(" * Examples of income proofs: paystubs, employer statement,")
+                        CALL write_variable_in_SPEC_MEMO("   income reports, business ledgers, income tax forms, etc.")
+                        CALL write_variable_in_SPEC_MEMO("   *If a job has ended, send proof of the end of employment")
+                        CALL write_variable_in_SPEC_MEMO("   and last pay.")
+                        CALL write_variable_in_SPEC_MEMO("")
+                        CALL write_variable_in_SPEC_MEMO(" * Examples of housing cost proofs(if changed): rent/house")
+                        CALL write_variable_in_SPEC_MEMO("   payment receipt, mortgage, lease, subsidy, etc.")
+                        CALL write_variable_in_SPEC_MEMO("")
+                        CALL write_variable_in_SPEC_MEMO(" * Examples of medical cost proofs(if changed):")
+                        CALL write_variable_in_SPEC_MEMO("   prescription and medical bills, etc.")
+                        CALL write_variable_in_SPEC_MEMO("")
+                        CALL write_variable_in_SPEC_MEMO("If you have questions about the type of verifications needed, call 612-596-1300 and someone will assist you.")
+                    End If
+
                     start_a_blank_case_note
                     EMSendKey("*** Notice of " & programs & " Recertification Interview Sent ***")
                     CALL write_variable_in_case_note("* A notice has been sent to client with detail about how to call in for an interview.")
@@ -876,13 +885,25 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                         End Select
 
                         'creating the memo message and displaying it.
-                        if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then Memo_to_display = "We received your Recertification on " & ALL_CASES_ARRAY(date_of_app, case_entry) & "."
-                        if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then Memo_to_display = "Your Recertification has not yet been received."
-
+                        if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then Memo_to_display = "We received your Recertification Paperwork on " & ALL_CASES_ARRAY(date_of_app, case_entry) & "."
+                        if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then Memo_to_display = "Your Recertification Paperwork has not yet been received."
+                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & ""
                         Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "You must have an interview by " & last_day_of_recert & " or your benefits will end. "
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "To complete a phone interview, call the EZ Info Line at 612-596-1300 between 9:00am and 4:00pm Monday through Friday."
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "You may also come in to the office to complete an interview between 8:00 am and 4:30pm Monday through Friday."
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "If we do not hear from you by " & last_day_of_recert & ", your benefits will end on " & last_day_of_recert & "."
+                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & ""
+                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "To complete a phone interview, call the EZ Info Line at"
+                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "612-596-1300 between 9:00am and 4:00pm Monday thru Friday."
+                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & ""
+                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday."
+                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "(Hours are M - F 8-4:30 unless otherwise noted)"
+                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & ""
+                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "  ** If we do not hear from you by " & last_day_of_recert & "  **"
+                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "  **   your benefits will end on " & last_day_of_recert & ".   **"
 
                         MsgBox Memo_to_display
 
@@ -925,16 +946,25 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                         'MsgBox memo_started
                         IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
 
-                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then CALL write_variable_in_SPEC_MEMO("We received your Recertification on " & ALL_CASES_ARRAY(date_of_app, case_entry) & ".")
-                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then CALL write_variable_in_SPEC_MEMO("Your Recertification has not yet been received.")
+                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then CALL write_variable_in_SPEC_MEMO("We received your Recertification Paperwork on " & ALL_CASES_ARRAY(date_of_app, case_entry) & ".")
+                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then CALL write_variable_in_SPEC_MEMO("Your Recertification Paperwork has not yet been received.")
                             CALL write_variable_in_SPEC_MEMO("")
                             CALL write_variable_in_SPEC_MEMO("You must have an interview by " & last_day_of_recert & " or your benefits will end. ")
                             CALL write_variable_in_SPEC_MEMO("")
-                            CALL write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at 612-596-1300 between 9:00am and 4:00pm Monday through Friday.")
+                            Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+                            Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
                             CALL write_variable_in_SPEC_MEMO("")
-                            CALL write_variable_in_SPEC_MEMO("You may also come in to the office to complete an interview between 8:00 am and 4:30pm Monday through Friday.")
+                            Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
+                            Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                            Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                            Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+                            Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                            Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                            Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                            Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
                             CALL write_variable_in_SPEC_MEMO("")
-                            CALL write_variable_in_SPEC_MEMO("If we do not hear from you by " & last_day_of_recert & ", your benefits will end on " & last_day_of_recert & ".")
+                            CALL write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_day_of_recert & "  **")
+                            CALL write_variable_in_SPEC_MEMO("  **   your benefits will end on " & last_day_of_recert & ".   **")
 
                             PF4         'Submit the MEMO
 
