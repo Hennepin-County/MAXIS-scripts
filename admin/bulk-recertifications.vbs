@@ -824,7 +824,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                     Call start_a_new_spec_memo_and_continue(memo_started)   'Starting a MEMO to send information about verifications
 
                     IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
-                        CALL write_variable_in_SPEC_MEMO("As a part of the Renewal Process we must receive recent verification of your inforomation. To speed the renewl process, please send proofs with your renewal paperwork.")
+                        CALL write_variable_in_SPEC_MEMO("As a part of the Renewal Process we must receive recent verification of your information. To speed the renewal process, please send proofs with your renewal paperwork.")
                         CALL write_variable_in_SPEC_MEMO("")
                         CALL write_variable_in_SPEC_MEMO(" * Examples of income proofs: paystubs, employer statement,")
                         CALL write_variable_in_SPEC_MEMO("   income reports, business ledgers, income tax forms, etc.")

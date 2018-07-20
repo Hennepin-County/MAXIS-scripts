@@ -117,7 +117,7 @@ If memo_to_send = "RECERT - APPT Notice" Then
 
 ElseIf memo_to_send = "RECERT - VERIFS" Then
 
-    CALL write_variable_in_SPEC_MEMO("As a part of the Renewal Process we must receive recent verification of your inforomation. To speed the renewl process, please send proofs with your renewal paperwork.")
+    CALL write_variable_in_SPEC_MEMO("As a part of the Renewal Process we must receive recent verification of your information. To speed the renewal process, please send proofs with your renewal paperwork.")
     CALL write_variable_in_SPEC_MEMO("")
     CALL write_variable_in_SPEC_MEMO(" * Examples of income proofs: paystubs, employer statement,")
     CALL write_variable_in_SPEC_MEMO("   income reports, business ledgers, income tax forms, etc.")
