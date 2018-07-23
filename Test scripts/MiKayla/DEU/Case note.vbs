@@ -63,7 +63,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call navigate_to_MAXIS_screen("CASE", "NOTE")
 
-EmWriteScreen "x", 5, 3
+EMWriteScreen "x", 5, 3
 Transmit
 note_row = 4			'Beginning of the case notes
 	Do 						'Read each line

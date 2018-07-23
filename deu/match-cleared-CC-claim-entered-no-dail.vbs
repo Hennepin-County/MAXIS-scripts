@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("07/23/2018", "Updated script to correct version and added case note to email for HC matches.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("06/15/2018", "Corrected dialog to ensure income information is being stored in notes.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/02/2018", "Corrected IEVS match error due to new year.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/27/2017", "Updated to handle clearing the match when the date is over 45 days.", "MiKayla Handley, Hennepin County")
@@ -430,6 +431,28 @@ END IF
         	CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
         	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
         	CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-        	IF programs = "Health Care" or programs = "Medical Assistance" THEN CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "", "Claims entered for #" &  MAXIS_case_number, " Member #: " & memb_number & vbcr & " Date Overpayment Created: " & OP_Date & vbcr & "Programs: " & programs & vbcr & " See case notes for further details.", "", False)
-    END IF
+        PF3
+
+		IF programs = "Health Care" or programs = "Medical Assistance" THEN
+			EMWriteScreen "x", 5, 3
+			Transmit
+			note_row = 4			'Beginning of the case notes
+			Do 						'Read each line
+				EMReadScreen note_line, 76, note_row, 3
+		       	note_line = trim(note_line)
+				If trim(note_line) = "" Then Exit Do		'Any blank line indicates the end of the case note because there can be no blank lines in a note
+				message_array = message_array & note_line & vbcr		'putting the lines together
+				note_row = note_row + 1
+				If note_row = 18 then 									'End of a single page of the case note
+					EMReadScreen next_page, 7, note_row, 3
+					If next_page = "More: +" Then 						'This indicates there is another page of the case note
+						PF8												'goes to the next line and resets the row to read'\
+						note_row = 4
+					End If
+				End If
+			Loop until next_page = "More:  " OR next_page = "       "	'No more pages
+		    'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+		    CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & OP_Date & "Programs: " & programs, "CASE NOTE" & vbcr & message_array,"", False)
+		END IF
+	END IF
 script_end_procedure("Overpayment case note entered. Please remember to copy and paste your notes to CCOL/CLIC")
