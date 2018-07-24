@@ -80,42 +80,45 @@ memb_number = "01"
 OP_Date = date & ""
 
 BeginDialog match_claim_dialog, 0, 0, 361, 245, "Overpayment Claim Entered"
-	EditBox 55, 5, 35, 15, MAXIS_case_number
-	EditBox 150, 5, 45, 15, discovery_date
-	EditBox 240, 5, 20, 15, memb_number
-  EditBox 330, 5, 20, 15, OT_resp_memb
-	DropListBox 55, 25, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
-	DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
+  EditBox 60, 5, 35, 15, MAXIS_case_number
+  DropListBox 160, 5, 55, 15, "Select:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"LAST YEAR"+chr(9)+"OTHER", select_quarter
+  DropListBox 280, 5, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
+  EditBox 60, 25, 45, 15, discovery_date
+  EditBox 150, 25, 20, 15, memb_number
+  EditBox 235, 25, 20, 15, OT_resp_memb
+  DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MA"+chr(9)+"MF"+chr(9)+"MS", OP_program
   EditBox 130, 65, 30, 15, OP_from
   EditBox 180, 65, 30, 15, OP_to
   EditBox 245, 65, 35, 15, Claim_number
   EditBox 305, 65, 45, 15, Claim_amount
-  DropListBox 50, 85, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_II
+  DropListBox 50, 85, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MA"+chr(9)+"MF"+chr(9)+"MS", OP_program_II
   EditBox 130, 85, 30, 15, OP_from_II
   EditBox 180, 85, 30, 15, OP_to_II
   EditBox 245, 85, 35, 15, Claim_number_II
   EditBox 305, 85, 45, 15, Claim_amount_II
-  DropListBox 50, 105, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_III
+  DropListBox 50, 105, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MA"+chr(9)+"MF"+chr(9)+"MS", OP_program_III
   EditBox 130, 105, 30, 15, OP_from_III
   EditBox 180, 105, 30, 15, OP_to_III
   EditBox 245, 105, 35, 15, Claim_number_III
   EditBox 305, 105, 45, 15, Claim_amount_III
-  EditBox 70, 140, 160, 15, EVF_used
-	EditBox 305, 140, 50, 15, income_rcvd_date
-	EditBox 70, 160, 285, 15, Reason_OP
-	DropListBox 105, 180, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", EI_allowed_dropdown
-	DropListBox 185, 180, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
-  DropListBox 255, 180, 100, 15, "Select:"+chr(9)+"HH No Info"+chr(9)+"HH Incorrect Or Incompl"+chr(9)+"HH Not Timely Inform"+chr(9)+"Estimate Wrong Inadv"+chr(9)+"No HRF"+chr(9)+"Benefits Rcd Pend App"+chr(9)+"Replacement Bene Used" +chr(9)+"Prog Pol Prevents Chg" +chr(9)+"EBT- Representment" +chr(9)+"IEVS - BEER"+chr(9)+"IEVS - BENDEX" +chr(9)+"IEVS - UNVI"+chr(9)+"IEVS - SDX"+chr(9)+"IEVS - WAGE"+chr(9)+"IEVS - UBEN"+chr(9)+"PARIS Inter-state Match"+chr(9)+"Agency: Delay   Action"+chr(9)+"Agency: Issue Comp Error"+chr(9)+"Agency: Dup Issuance"+chr(9)+"Agency:$50 Pass-Thru"+chr(9)+"GRH Vndr: No Info"+chr(9)+"GRH Vndr: Incomplete"+chr(9)+"GRH Vndr: Not Timely"+chr(9)+"GRH Vndr: Client Left Faci"+chr(9)+"99 Other", collectible_reason_dropdown
-	EditBox 95, 200, 60, 15, HC_resp_memb
-  EditBox 290, 200, 65, 15, Fed_HC_AMT
+  EditBox 70, 140, 190, 15, collectible_reason
+  DropListBox 315, 140, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
+  EditBox 70, 160, 160, 15, EVF_used
+  EditBox 70, 180, 45, 15, income_rcvd_date
+  EditBox 70, 200, 185, 15, Reason_OP
+  EditBox 305, 160, 45, 15, HC_resp_memb
+  EditBox 305, 180, 45, 15, Fed_HC_AMT
+  EditBox 305, 200, 45, 15, hc_claim_number
+  CheckBox 70, 225, 120, 10, "Earned Income disregard allowed", EI_checkbox
   ButtonGroup ButtonPressed
-      OkButton 260, 225, 45, 15
-      CancelButton 310, 225, 45, 15
+    OkButton 255, 225, 45, 15
+    CancelButton 305, 225, 45, 15
   Text 5, 10, 50, 10, "Case Number: "
-  Text 95, 10, 55, 10, "Discovery Date: "
-  Text 5, 30, 50, 10, "Fraud referral:"
-  Text 205, 10, 30, 10, "MEMB #:"
-  Text 270, 10, 60, 10, "Other resp. memb:"
+  Text 110, 10, 45, 10, "Match Period:"
+  Text 5, 30, 55, 10, "Discovery Date: "
+  Text 230, 10, 50, 10, "Fraud referral:"
+  Text 115, 30, 30, 10, "MEMB #:"
+  Text 180, 30, 55, 10, "OT resp. memb:"
   GroupBox 10, 45, 345, 90, "Overpayment Information"
   Text 15, 70, 30, 10, "Program:"
   Text 105, 70, 20, 10, "From:"
@@ -132,16 +135,14 @@ BeginDialog match_claim_dialog, 0, 0, 361, 245, "Overpayment Claim Entered"
   Text 165, 110, 10, 10, "To:"
   Text 215, 110, 25, 10, "Claim #"
   Text 285, 110, 20, 10, "AMT:"
-	Text 5, 185, 100, 10, "E. Income disregard allowed?"
-  Text 145, 185, 40, 10, "Collectible?"
-  Text 225, 185, 30, 10, "Reason:"
-  Text 5, 145, 60, 10, "Income verif used:"
-  Text 05, 205, 90, 10, "HC responsible members:"
-  Text 200, 205, 85, 10, "Total Federal HC amount:"
-  Text 15, 165, 50, 10, "Reason for OP:"
-  Text 240, 145, 60, 10, "Date income rcvd: "
-	Text 180, 55, 30, 10, "(MM/YY)"
-  Text 130, 55, 30, 10, "(MM/YY)"
+  Text 5, 145, 65, 10, "Collectible Reason:"
+  Text 270, 145, 40, 10, "Collectible?"
+  Text 5, 165, 60, 10, "Income verif used:"
+  Text 240, 165, 65, 10, "HC resp. members:"
+  Text 5, 185, 60, 10, "Date income rcvd: "
+  Text 240, 185, 65, 10, "Total FED HC AMT:"
+  Text 15, 205, 50, 10, "Reason for OP:"
+  Text 265, 205, 40, 10, "HC Claim #:"
 EndDialog
 
 Do
@@ -165,7 +166,7 @@ Do
 	END IF
 	IF IEVS_type = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match type entry."
 	IF EI_allowed_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if Earned Income disregard was allowed."
-  IF collectible_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if claim is collectible."
+  	IF collectible_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if claim is collectible."
 	IF collectible_dropdown = "YES" THEN
 	IF collectible_reason_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise why claim is collectible."
 	END IF
@@ -180,7 +181,6 @@ EMwritescreen memb_number, 20, 76
 EMReadScreen first_name, 12, 6, 63
 first_name = replace(first_name, "_", "")
 first_name = trim(first_name)
-'-----------------------------------------------------------------------------------------CASENOTE
 '-----------------------------------------------------------------------------------------CASENOTE
 start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
@@ -205,7 +205,6 @@ CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_re
 CALL write_bullet_and_variable_in_case_note("MANDATORY-Reason for overpayment", Reason_OP)
 CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 CALL write_variable_in_CASE_NOTE(worker_signature)
-PF3
 PF3
 	IF OP_program = "HC" THEN
 		EmWriteScreen "x", 5, 3

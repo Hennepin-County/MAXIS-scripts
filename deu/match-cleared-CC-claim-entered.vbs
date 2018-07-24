@@ -140,24 +140,24 @@ EMReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number= TRIM(MAXIS_case_number)
 
 BeginDialog OP_Cleared_dialog, 0, 0, 361, 245, "Match Cleared CC Claim Entered"
-  EditBox 55, 5, 35, 15, MAXIS_case_number
+  EditBox 60, 5, 35, 15, MAXIS_case_number
   DropListBox 150, 5, 55, 15, "Select:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"LAST YEAR"+chr(9)+"OTHER", select_quarter
-  EditBox 270, 5, 45, 15, discovery_date
-  DropListBox 55, 25, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
-  DropListBox 150, 25, 55, 15, "Select:"+chr(9)+"WAGE"+chr(9)+"BEER", IEVS_type
+  EditBox 60, 25, 45, 15, discovery_date
+  DropListBox 260, 5, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
+  DropListBox 150, 25, 55, 15, "Select:"+chr(9)+"BNDX"+chr(9)+"SDXS/ SDXI"+chr(9)+"BEER"+chr(9)+"NONE"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", IEVS_type
   EditBox 245, 25, 20, 15, memb_number
-  EditBox 330, 25, 20, 15, OT_resp_memb
-  DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
+  EditBox 335, 25, 20, 15, OT_resp_memb
+  DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MA"+chr(9)+"MF"+chr(9)+"MS", OP_program
   EditBox 130, 65, 30, 15, OP_from
   EditBox 180, 65, 30, 15, OP_to
   EditBox 245, 65, 35, 15, Claim_number
   EditBox 305, 65, 45, 15, Claim_amount
-  DropListBox 50, 85, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_II
+  DropListBox 50, 85, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MA"+chr(9)+"MF"+chr(9)+"MS", OP_program_II
   EditBox 130, 85, 30, 15, OP_from_II
   EditBox 180, 85, 30, 15, OP_to_II
   EditBox 245, 85, 35, 15, Claim_number_II
   EditBox 305, 85, 45, 15, Claim_amount_II
-  DropListBox 50, 105, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_III
+  DropListBox 50, 105, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MA"+chr(9)+"MF"+chr(9)+"MS", OP_program_III
   EditBox 130, 105, 30, 15, OP_from_III
   EditBox 180, 105, 30, 15, OP_to_III
   EditBox 245, 105, 35, 15, Claim_number_III
@@ -176,12 +176,12 @@ BeginDialog OP_Cleared_dialog, 0, 0, 361, 245, "Match Cleared CC Claim Entered"
     CancelButton 305, 225, 45, 15
   Text 5, 10, 50, 10, "Case Number: "
   Text 100, 10, 45, 10, "Match Period:"
-  Text 215, 10, 55, 10, "Discovery Date: "
-  Text 5, 30, 50, 10, "Fraud referral:"
+  Text 5, 30, 55, 10, "Discovery Date: "
+  Text 210, 10, 50, 10, "Fraud referral:"
   Text 110, 30, 40, 10, "IEVS Type:"
   Text 210, 30, 30, 10, "MEMB #:"
-  Text 275, 30, 55, 10, "OT resp. memb:"
-  GroupBox 10, 45, 345, 90, "Overpayment Information"
+  Text 270, 30, 60, 10, "Other resp. memb:"
+  GroupBox 5, 45, 350, 90, "Overpayment Information"
   Text 15, 70, 30, 10, "Program:"
   Text 105, 70, 20, 10, "From:"
   Text 165, 70, 10, 10, "To:"
@@ -228,7 +228,7 @@ Do
 	END IF
 	IF IEVS_type = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match type entry."
 	IF EI_allowed_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if Earned Income disregard was allowed."
-  IF collectible_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if claim is collectible."
+  	IF collectible_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if claim is collectible."
 	IF collectible_dropdown = "YES" THEN
 	IF collectible_reason_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise why claim is collectible."
 	END IF
@@ -296,7 +296,14 @@ IF OutOfCounty_error = "MATCH IS NOT" then
 		ELSEIF IEVS_type = "BEER" THEN
 			EMReadScreen IEVS_year, 2, 8, 15
 			IEVS_year = "20" & IEVS_year
-		END IF
+'		END IF
+'BNDX
+'SDXS/ SDXI
+'BEER
+'NONE
+'UNVI
+'UBEN
+'WAGE
 END IF
 
 IF IEVS_type = "BEER" THEN type_match = "B"
@@ -428,7 +435,7 @@ IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
 		IF OP_program_II <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
 		IF OP_program_III <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
 		IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
-		IF programs = "Health Care" or programs = "Medical Assistance" THEN
+		IF OP_program = "HC" or OP_program = "MA" THEN
 			Call write_bullet_and_variable_in_CASE_NOTE("HC responsible members", HC_resp_memb)
 			Call write_bullet_and_variable_in_CASE_NOTE("HC claim number", hc_claim_number)
 			Call write_bullet_and_variable_in_CASE_NOTE("Total federal Health Care amount", Fed_HC_AMT)
@@ -443,7 +450,7 @@ IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
     	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
     	CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 	PF3
-		IF programs = "Health Care" or programs = "Medical Assistance" THEN
+		IF OP_program = "HC"  or OP_program = "MA" THEN
 			EmWriteScreen "x", 5, 3
 			Transmit
 			note_row = 4			'Beginning of the case notes
