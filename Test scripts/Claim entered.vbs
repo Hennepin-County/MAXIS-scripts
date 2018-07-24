@@ -124,21 +124,92 @@ EMConnect ""
 
 '--------------------------------------------------------------------CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
 EMReadscreen dail_check, 4, 2, 48
-IF dail_check <> "DAIL" THEN script_end_procedure("You are not in your dail. This script will stop.")
-EMSendKey "t"
-'checking for an active MAXIS session
-Call check_for_MAXIS(FALSE)
-EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
-'msgbox IEVS_type
-IF IEVS_type = "WAGE" or IEVS_type = "BEER" THEN
-	match_found = TRUE
+IF dail_check <> "DAIL" THEN
+	CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+	EMwritescreen memb_number, 20, 76
+	transmit
+
+	EMReadscreen SSN_number_read, 11, 7, 42
+	SSN_number_read = replace(SSN_number_read, " ", "")
+
+	CALL navigate_to_MAXIS_screen("INFC" , "____")
+	CALL write_value_and_transmit("IEVP", 20, 71)
+	CALL write_value_and_transmit(SSN_number_read, 3, 63) '
+	'Navigating deeper into the match interface
+	CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
+	CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
+	EMReadScreen error_msg, 7, 24, 2
+	IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
+
+	'-------------------------------------------------------------------Ensuring that match has not already been resolved.
+	Row = 7
+	DO
+	EMReadScreen IEVS_match, 11, row, 47
+	IF trim(IEVS_match) = "" THEN script_end_procedure("IEVS match for the selected period could not be found. The script will now end.")
+	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+	"   " & IEVS_match, vbYesNoCancel, "Please confirm this match")
+	IF ievp_info_confirmation = vbNo THEN
+	row = row + 1
+	'msgbox "row: " & row
+	IF row = 17 THEN
+	PF8
+	row = 7
+	END IF
+	END IF
+	IF ievp_info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
+	IF ievp_info_confirmation = vbYes THEN 	EXIT DO
+	LOOP UNTIL ievp_info_confirmation = vbYes
+
+	EMReadScreen multiple_match, 11, row + 1, 47
+	IF multiple_match = IEVS_period THEN
+	msgbox("More than one match exists for this time period. Determine the match you'd like to clear, and put your cursor in front of that match." & vbcr & "Press OK once match is determined.")
+	EMSendKey "U"
+	transmit
+	ELSE
+	CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
+	END IF
+'-------------------------------------------------------------------Reading potential errors for out-of-county cases
+EMReadScreen OutOfCounty_error, 12, 24, 2
+IF OutOfCounty_error = "MATCH IS NOT" then
+	script_end_procedure("Out-of-county case. Cannot update.")
+	Else
+		IF IEVS_type = "WAGE" then
+			EMReadScreen quarter, 1, 8, 14
+			EMReadScreen IEVS_year, 4, 8, 22
+		ELSEIF IEVS_type = "UBEN" THEN
+			EMReadScreen IEVS_month, 2, 5, 68
+			EMReadScreen IEVS_year, 4, 8, 71
+		ELSEIF IEVS_type = "BEER" THEN
+			EMReadScreen IEVS_year, 2, 8, 15
+			IEVS_year = "20" & IEVS_year
+		END IF
+END IF
+
+IF IEVS_type = "BEER" THEN type_match = "B"
+IF IEVS_type = "UBEN" THEN type_match = "U"
+IF IEVS_type = "WAGE" THEN type_match = "U"
+
+'--------------------------------------------------------------------Client name
+
+
+
+
+
 Else
-	script_end_procedure("This is not a IEVS match. Please select a WAGE match DAIL, and run the script again.")
-End if
 
-EMReadScreen MAXIS_case_number, 8, 5, 73
-MAXIS_case_number= TRIM(MAXIS_case_number)
+	EMSendKey "t"
+	'checking for an active MAXIS session
+	Call check_for_MAXIS(FALSE)
+	EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
+	'msgbox IEVS_type
+	IF IEVS_type = "WAGE" or IEVS_type = "BEER" THEN
+		match_found = TRUE
+	Else
+		script_end_procedure("This is not a IEVS match. Please select a WAGE match DAIL, and run the script again.")
+	End if
 
+	EMReadScreen MAXIS_case_number, 8, 5, 73
+	MAXIS_case_number= TRIM(MAXIS_case_number)
 BeginDialog OP_Cleared_dialog, 0, 0, 361, 245, "Match Cleared CC Claim Entered"
   EditBox 60, 5, 35, 15, MAXIS_case_number
   DropListBox 150, 5, 55, 15, "Select:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"LAST YEAR"+chr(9)+"OTHER", select_quarter
@@ -286,17 +357,24 @@ END IF
 EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" then
 	script_end_procedure("Out-of-county case. Cannot update.")
-Else
-	IF IEVS_type = "WAGE" then
-		EMReadScreen quarter, 1, 8, 14
-		EMReadScreen IEVS_year, 4, 8, 22
-	ELSEIF IEVS_type = "UBEN" THEN
-		EMReadScreen IEVS_month, 2, 5, 68
-		EMReadScreen IEVS_year, 4, 8, 71
-	ELSEIF IEVS_type = "BEER" THEN
-		EMReadScreen IEVS_year, 2, 8, 15
-		IEVS_year = "20" & IEVS_year
-	END IF
+	Else
+		IF IEVS_type = "WAGE" then
+			EMReadScreen quarter, 1, 8, 14
+			EMReadScreen IEVS_year, 4, 8, 22
+		ELSEIF IEVS_type = "UBEN" THEN
+			EMReadScreen IEVS_month, 2, 5, 68
+			EMReadScreen IEVS_year, 4, 8, 71
+		ELSEIF IEVS_type = "BEER" THEN
+			EMReadScreen IEVS_year, 2, 8, 15
+			IEVS_year = "20" & IEVS_year
+'		END IF
+'BNDX
+'SDXS/ SDXI
+'BEER
+'NONE
+'UNVI
+'UBEN
+'WAGE
 END IF
 
 IF IEVS_type = "BEER" THEN type_match = "B"
