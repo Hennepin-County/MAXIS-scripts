@@ -821,7 +821,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                       ButtonGroup ButtonPressed
                         PushButton 15, 75, 160, 15, "Yes - remove the month from the Master List", yes_remove_month_btn
                         PushButton 15, 95, 160, 10, "No - keep the month - case will be updated", no_keep_btn
-                      Text 30, 10, 130, 15, "It appears that for the month MM/YY the Member 01 was not active on SNAP."
+                      Text 30, 10, 130, 15, "It appears that for the month " & MAXIS_footer_month & "/" & MAXIS_footer_year & " the Member 01 was not active on SNAP."
                       Text 30, 35, 130, 15, "This month has been tracked on the Banked Month master list."
                       Text 10, 60, 180, 10, "Should the month be removed from the tracking sheet?"
                     EndDialog
