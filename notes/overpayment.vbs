@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("07/23/2018", "Updated script to correct version and added case note to email for HC matches.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("05/01/2018", "Updated script to ensure Reason for OP is entered as it is a mandatory field.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/25/2018", "Updated script to add Fraud and Earned Income handling.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/27/2018", "Updated script to add HC handling and the income received date.", "MiKayla Handley, Hennepin County")
@@ -204,6 +205,60 @@ CALL write_bullet_and_variable_in_case_note("MANDATORY-Reason for overpayment", 
 CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 PF3
-IF OP_program = "HC" THEN CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us", "Claim entered for case #" &  MAXIS_case_number, "Member #: " & OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount & "See case notes for further details.", "", False)
+PF3
+	IF programs = "Health Care" or programs = "Medical Assistance" THEN
+		EmWriteScreen "x", 5, 3
+		Transmit
+		note_row = 4			'Beginning of the case notes
+		Do 						'Read each line
+			EMReadScreen note_line, 76, note_row, 3
+			note_line = trim(note_line)
+			If trim(note_line) = "" Then Exit Do		'Any blank line indicates the end of the case note because there can be no blank lines in a note
+			message_array = message_array & note_line & vbcr		'putting the lines together
+			note_row = note_row + 1
+			If note_row = 18 then 									'End of a single page of the case note
+				EMReadScreen next_page, 7, note_row, 3
+				If next_page = "More: +" Then 						'This indicates there is another page of the case note
+					PF8												'goes to the next line and resets the row to read'\
+					note_row = 4
+				End If
+			End If
+		Loop until next_page = "More:  " OR next_page = "       "	'No more pages
+		'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+		CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & OP_Date & "Programs: " & programs, "CASE NOTE" & vbcr & message_array,"", False)
+	END IF
+END IF
 
-script_end_procedure("Overpayment case note entered. Please remember to copy and paste your notes to CCOL/CLIC")
+'---------------------------------------------------------------writing the CCOL case note'
+Call navigate_to_MAXIS_screen("CCOL", "CLSM")
+EMWriteScreen Claim_number, 4, 9
+Transmit
+PF4
+	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CCOL_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH" & "(" & first_name &  ")" & "CLEARED CC-CLAIM ENTERED-----")
+	IF IEVS_type = "BEER" THEN CALL write_variable_in_CCOL_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name &  ")" &  "CLEARED CC-CLAIM ENTERED-----")
+	CALL write_bullet_and_variable_in_CCOL_NOTE("Discovery date", discovery_date)
+	CALL write_bullet_and_variable_in_CCOL_NOTE("Period", IEVS_period)
+	CALL write_bullet_and_variable_in_CCOL_NOTE("Active Programs", programs)
+	CALL write_bullet_and_variable_in_CCOL_NOTE("Source of income", source_income)
+	CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
+	CALL write_variable_in_CCOL_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+	IF OP_program_II <> "Select:" then CALL write_variable_in_CCOL_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+	IF OP_program_III <> "Select:" then CALL write_variable_in_CCOL_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+	IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_NOTE("* Earned Income Disregard Allowed")
+	IF programs = "Health Care" or programs = "Medical Assistance" THEN
+		Call write_bullet_and_variable_in_CCOL_NOTE("HC responsible members", HC_resp_memb)
+		Call write_bullet_and_variable_in_CCOL_NOTE("HC claim number", hc_claim_number)
+		Call write_bullet_and_variable_in_CCOL_NOTE("Total federal Health Care amount", Fed_HC_AMT)
+		CALL write_variable_in_CCOL_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+	END IF
+	CALL write_bullet_and_variable_in_CCOL_NOTE("Fraud referral made", fraud_referral)
+	CALL write_bullet_and_variable_in_CCOL_NOTE("Collectible claim", collectible_dropdown)
+	CALL write_bullet_and_variable_in_CCOL_NOTE("Reason that claim is collectible or not", collectible_reason)
+	CALL write_bullet_and_variable_in_CCOL_NOTE("Income verification received", income_rcvd_date)
+	CALL write_bullet_and_variable_in_CCOL_NOTE("Other responsible member(s)", OT_resp_memb)
+	CALL write_bullet_and_variable_in_CCOL_NOTE("MANDATORY-Reason for overpayment", Reason_OP)
+	CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- ----- ----- -----")
+	CALL write_variable_in_CCOL_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+PF3 'exit the case note'
+PF3 'back to dail'
+script_end_procedure("Overpayment case note entered and copied to CCOL.")
