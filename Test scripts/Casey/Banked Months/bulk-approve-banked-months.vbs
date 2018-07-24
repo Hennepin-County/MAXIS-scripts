@@ -67,8 +67,8 @@ function excel_open_pw(file_url, visible_status, alerts_status, ObjExcel, objWor
 end function
 
 Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption)
-'--- This function screens for ABAWD/FSET exemptions for SNAP.
-'===== Keywords: MAXIS, ABAWD, FSET, exemption, SNAP
+    '--- This function screens for ABAWD/FSET exemptions for SNAP.
+    '===== Keywords: MAXIS, ABAWD, FSET, exemption, SNAP
     CALL check_for_MAXIS(False)
 
     possible_exemption = FALSE
@@ -210,7 +210,6 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption)
     			END IF
     		NEXT
     	END IF
-    NEXT
 
     '>>>>>>>>>>>>>>EARNED INCOME
     FOR EACH person IN HH_member_array
@@ -795,7 +794,7 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                         'Need to be sure that there isn't a new ABAWD month available - maybe another column with the counted months on the ongoing banked months cases
                         'Need to review case for possible exemption months - code from exemption finder
-                        Call review_ABAWD_FSET_exemptions
+                        'Call review_ABAWD_FSET_exemptions
 
                         ' PF9
                         ' EMWriteScreen month_tracker_nbr, 14, 50
