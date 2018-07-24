@@ -5156,7 +5156,7 @@ end function
 function write_date(date_variable, date_format_variable, screen_row, screen_col)
 '--- This function will write a date in any format desired.
 '~~~~~ date_variable: date to write
-'~~~~~ date_format_variable: format of date. Need to put in spaces between month/day/year if necessary to update your field. Example: MM DD YY or MM/DD/YYYY
+'~~~~~ date_format_variable: format of date. this should be a string with the correct spaces between month/day/year examples: MM DD YY, MM YY, MM  DD  YYYY 
 '~~~~~ screen_row: row to write date
 '~~~~~ screen_col: column to write date
 '===== Keywords: MAXIS, MMIS, PRISM, date, format
