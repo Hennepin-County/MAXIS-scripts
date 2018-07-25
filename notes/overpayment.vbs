@@ -184,7 +184,7 @@ first_name = trim(first_name)
 '-----------------------------------------------------------------------------------------CASENOTE
 start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
-CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
+CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", OP_program)
 CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
 Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
@@ -225,7 +225,7 @@ PF3
 			End If
 		Loop until next_page = "More:  " OR next_page = "       "	'No more pages
 		'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-		CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & OP_Date & "Programs: " & programs, "CASE NOTE" & vbcr & message_array,"", False)
+		CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & OP_Date & "Programs: " & OP_program, "CASE NOTE" & vbcr & message_array,"", False)
 	END IF
 END IF
 
@@ -236,7 +236,7 @@ Transmit
 PF4
 	CALL write_variable_in_CCOL_NOTE("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
 	CALL write_bullet_and_variable_in_CCOL_NOTE("Discovery date", discovery_date)
-	CALL write_bullet_and_variable_in_CCOL_NOTE("Active Programs", programs)
+	CALL write_bullet_and_variable_in_CCOL_NOTE("Active Programs", OP_program)
 	CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
 	CALL write_variable_in_CCOL_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
 	IF OP_program_II <> "Select:" then CALL write_variable_in_CCOL_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
@@ -255,6 +255,6 @@ PF4
 	CALL write_bullet_and_variable_in_CCOL_NOTE("MANDATORY-Reason for overpayment", Reason_OP)
 	CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
 	CALL write_variable_in_CCOL_NOTE(worker_signature)
-PF3 'exit the case note'
-PF3 'back to dail'
+	PF3 'exit the case note'
+	PF3 'back to dail'
 script_end_procedure("Overpayment case note entered and copied to CCOL.")
