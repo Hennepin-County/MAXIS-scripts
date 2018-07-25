@@ -77,11 +77,13 @@ EMConnect ""
 
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 memb_number = "01"
-OP_Date = date & ""
+discovery_date = date & ""
+
+back_to_self
 
 BeginDialog match_claim_dialog, 0, 0, 361, 245, "Overpayment Claim Entered"
   EditBox 60, 5, 45, 15, MAXIS_case_number
-  DropListBox 315, 25, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
+  DropListBox 315, 25, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
   EditBox 60, 25, 45, 15, discovery_date
   EditBox 150, 25, 20, 15, memb_number
   EditBox 235, 25, 20, 15, OT_resp_memb
@@ -101,7 +103,7 @@ BeginDialog match_claim_dialog, 0, 0, 361, 245, "Overpayment Claim Entered"
   EditBox 245, 105, 35, 15, Claim_number_III
   EditBox 305, 105, 45, 15, Claim_amount_III
   EditBox 70, 140, 190, 15, collectible_reason
-  DropListBox 315, 140, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
+  DropListBox 305, 140, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
   EditBox 70, 160, 160, 15, EVF_used
   EditBox 70, 180, 45, 15, income_rcvd_date
   EditBox 70, 200, 185, 15, Reason_OP
@@ -134,7 +136,7 @@ BeginDialog match_claim_dialog, 0, 0, 361, 245, "Overpayment Claim Entered"
   Text 215, 110, 25, 10, "Claim #"
   Text 285, 110, 20, 10, "AMT:"
   Text 5, 145, 65, 10, "Collectible Reason:"
-  Text 270, 145, 40, 10, "Collectible?"
+  Text 265, 145, 40, 10, "Collectible?"
   Text 5, 165, 60, 10, "Income verif used:"
   Text 240, 165, 65, 10, "HC resp. members:"
   Text 5, 185, 60, 10, "Date income rcvd: "
@@ -148,9 +150,8 @@ EndDialog
 Do
 	err_msg = ""
 	dialog match_claim_dialog
-	IF buttonpressed = 0 then stopscript
+	cancel_confirmation
 	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
-	IF select_quarter = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match period entry."
 	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
 	IF trim(Reason_OP) = "" or len(Reason_OP) < 8 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 8)."
 	IF OP_program = "Select:" THEN err_msg = err_msg & vbNewLine &  "* Please enter the program for the overpayment."
@@ -168,7 +169,7 @@ Do
 	IF EI_allowed_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if Earned Income disregard was allowed."
   	IF collectible_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if claim is collectible."
 	IF collectible_dropdown = "YES" THEN
-	IF collectible_reason_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise why claim is collectible."
+		IF collectible_reason_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise why claim is collectible."
 	END IF
 	IF income_rcvd_date = "" THEN err_msg = err_msg & vbnewline & "* Please advise of date income was received."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -230,30 +231,30 @@ start_a_blank_CASE_NOTE
 
 '---------------------------------------------------------------writing the CCOL case note'
 Call navigate_to_MAXIS_screen("CCOL", "CLSM")
-EMWriteScreen Claim_number, 4, 9
-Transmit
-PF4
-CALL write_variable_in_CCOL_NOTE("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
-CALL write_bullet_and_variable_in_CCOL_NOTE("Discovery date", discovery_date)
-CALL write_bullet_and_variable_in_CCOL_NOTE("Active Programs", OP_program)
-CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
-CALL write_variable_in_CCOL_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-IF OP_program_II <> "Select:" then CALL write_variable_in_CCOL_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-IF OP_program_III <> "Select:" then CALL write_variable_in_CCOL_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_NOTE("* Earned Income Disregard Allowed")
-IF OP_program = "HC" THEN
-	Call write_bullet_and_variable_in_CCOL_NOTE("HC responsible members", HC_resp_memb)
-	Call write_bullet_and_variable_in_CCOL_NOTE("Total federal Health Care amount", Fed_HC_AMT)
-	CALL write_variable_in_CCOL_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-END IF
-CALL write_bullet_and_variable_in_CCOL_NOTE("Fraud referral made", fraud_referral)
-CALL write_bullet_and_variable_in_CCOL_NOTE("Collectible claim", collectible_dropdown)
-CALL write_bullet_and_variable_in_CCOL_NOTE("Reason that claim is collectible or not", collectible_reason)
-CALL write_bullet_and_variable_in_CCOL_NOTE("Income verification received", income_rcvd_date)
-CALL write_bullet_and_variable_in_CCOL_NOTE("Other responsible member(s)", OT_resp_memb)
-CALL write_bullet_and_variable_in_CCOL_NOTE("MANDATORY-Reason for overpayment", Reason_OP)
-CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
-CALL write_variable_in_CCOL_NOTE(worker_signature)
-PF3 'exit the case note'
-PF3 'back to dail'
+	EMWriteScreen Claim_number, 4, 9
+	Transmit
+	PF4
+	CALL write_variable_in_CCOL_NOTE("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
+	CALL write_bullet_and_variable_in_CCOL_NOTE("Discovery date", discovery_date)
+	CALL write_bullet_and_variable_in_CCOL_NOTE("Active Programs", OP_program)
+	CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
+	CALL write_variable_in_CCOL_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+	IF OP_program_II <> "Select:" then CALL write_variable_in_CCOL_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+	IF OP_program_III <> "Select:" then CALL write_variable_in_CCOL_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+	IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_NOTE("* Earned Income Disregard Allowed")
+	IF OP_program = "HC" THEN
+		Call write_bullet_and_variable_in_CCOL_NOTE("HC responsible members", HC_resp_memb)
+		Call write_bullet_and_variable_in_CCOL_NOTE("Total federal Health Care amount", Fed_HC_AMT)
+		CALL write_variable_in_CCOL_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+	END IF
+	CALL write_bullet_and_variable_in_CCOL_NOTE("Fraud referral made", fraud_referral)
+	CALL write_bullet_and_variable_in_CCOL_NOTE("Collectible claim", collectible_dropdown)
+	CALL write_bullet_and_variable_in_CCOL_NOTE("Reason that claim is collectible or not", collectible_reason)
+	CALL write_bullet_and_variable_in_CCOL_NOTE("Income verification received", income_rcvd_date)
+	CALL write_bullet_and_variable_in_CCOL_NOTE("Other responsible member(s)", OT_resp_memb)
+	CALL write_bullet_and_variable_in_CCOL_NOTE("MANDATORY-Reason for overpayment", Reason_OP)
+	CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
+	CALL write_variable_in_CCOL_NOTE(worker_signature)
+	PF3 'exit the case note'
+	PF3 'back to dail'
 script_end_procedure("Overpayment case note entered and copied to CCOL.")
