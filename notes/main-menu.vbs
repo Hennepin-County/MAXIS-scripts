@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/25/2018", "Removed Good Cause Scripts, now located in ADMIN.", "MiKayla Handley, Hennepin County")
 call changelog_update("10/20/2017", "Added the following NOTES scripts: ABAWD Tracking record, Application Check, GA Basis of Eligibility, QI Renewal Accuracy, and Vendor. Changed LEP titled scripts (EMA, Sponsor Income and SAVE) to IMIG titled scripts.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/19/2017", "Added ASSET REDUCTION case note script.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/19/2017", "Added SMRT case note script.", "Ilse Ferris, Hennepin County")
@@ -339,20 +340,6 @@ Set script_array_G_to_L(script_num) = new script		'Set this array element to be 
 script_array_G_to_L(script_num).script_name 			= "GA Basis of Eligibility"
 script_array_G_to_L(script_num).file_name				= "ga-basis-of-eligibility.vbs"
 script_array_G_to_L(script_num).description				= "Template to document the basis of eligibility and verification of the basis for GA recipients."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
-Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_G_to_L(script_num).script_name 			= "Good Cause Claimed"
-script_array_G_to_L(script_num).file_name				= "good-cause-claimed.vbs"
-script_array_G_to_L(script_num).description				= "Template for requests of good cause to not receive child support."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
-Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_G_to_L(script_num).script_name 			= "Good Cause Results"
-script_array_G_to_L(script_num).file_name				= "good-cause-results.vbs"
-script_array_G_to_L(script_num).description				= "Template for Good Cause results for determination or renewal.*"
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
