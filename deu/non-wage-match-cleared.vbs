@@ -74,6 +74,7 @@ end function
 
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+
 '--------------------------------------------------------------------CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
 EMReadscreen dail_check, 4, 2, 48
 IF dail_check <> "DAIL" THEN script_end_procedure("You are not in your dail. This script will stop.")

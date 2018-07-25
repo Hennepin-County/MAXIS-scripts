@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("07/23/2018", "Updated script to correct version and added case note to email for HC matches.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("07/23/2018", "Updated script to correct version and added case note to email for HC matches and CCOL.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("06/15/2018", "Corrected dialog to ensure income information is being stored in notes.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/02/2018", "Corrected IEVS match error due to new year.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/27/2017", "Updated to handle clearing the match when the date is over 45 days.", "MiKayla Handley, Hennepin County")
@@ -122,16 +122,20 @@ end function
 
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-CALL MAXIS_case_number_finder (MAXIS_case_number)
 
+CALL MAXIS_case_number_finder (MAXIS_case_number)
+memb_number = "01"
+discovery_date = date & ""
+
+back_to_self
 '--------------------------------------------------------------------Dialog
 BeginDialog OP_Cleared_dialog, 0, 0, 361, 245, "Match Cleared CC Claim Entered-NO DAIL"
-  EditBox 55, 5, 35, 15, MAXIS_case_number
-  DropListBox 150, 5, 55, 15, "Select:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"LAST YEAR"+chr(9)+"OTHER", select_quarter
-  EditBox 270, 5, 45, 15, discovery_date
-  DropListBox 55, 25, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
-  DropListBox 150, 25, 55, 15, "Select:"+chr(9)+"WAGE"+chr(9)+"BEER", IEVS_type
-  EditBox 245, 25, 20, 15, memb_number
+  EditBox 55, 5, 45, 15, MAXIS_case_number
+  DropListBox 155, 5, 55, 15, "Select:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"LAST YEAR"+chr(9)+"OTHER", select_quarter
+  EditBox 305, 5, 45, 15, discovery_date
+  DropListBox 55, 25, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
+  DropListBox 155, 25, 55, 15, "Select:"+chr(9)+"WAGE"+chr(9)+"BEER", IEVS_type
+  EditBox 250, 25, 20, 15, memb_number
   EditBox 330, 25, 20, 15, OT_resp_memb
   DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
   EditBox 130, 65, 30, 15, OP_from
@@ -149,7 +153,7 @@ BeginDialog OP_Cleared_dialog, 0, 0, 361, 245, "Match Cleared CC Claim Entered-N
   EditBox 245, 105, 35, 15, Claim_number_III
   EditBox 305, 105, 45, 15, Claim_amount_III
   EditBox 70, 140, 190, 15, collectible_reason
-  DropListBox 315, 140, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
+  DropListBox 305, 140, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
   EditBox 70, 160, 160, 15, EVF_used
   EditBox 70, 180, 45, 15, income_rcvd_date
   EditBox 70, 200, 185, 15, Reason_OP
@@ -161,11 +165,11 @@ BeginDialog OP_Cleared_dialog, 0, 0, 361, 245, "Match Cleared CC Claim Entered-N
     OkButton 255, 225, 45, 15
     CancelButton 305, 225, 45, 15
   Text 5, 10, 50, 10, "Case Number: "
-  Text 100, 10, 45, 10, "Match Period:"
-  Text 215, 10, 55, 10, "Discovery Date: "
+  Text 105, 10, 45, 10, "Match Period:"
+  Text 250, 10, 55, 10, "Discovery Date: "
   Text 5, 30, 50, 10, "Fraud referral:"
   Text 110, 30, 40, 10, "IEVS Type:"
-  Text 210, 30, 30, 10, "MEMB #:"
+  Text 215, 30, 30, 10, "MEMB #:"
   Text 275, 30, 55, 10, "OT resp. memb:"
   GroupBox 10, 45, 345, 90, "Overpayment Information"
   Text 15, 70, 30, 10, "Program:"
@@ -184,7 +188,7 @@ BeginDialog OP_Cleared_dialog, 0, 0, 361, 245, "Match Cleared CC Claim Entered-N
   Text 215, 110, 25, 10, "Claim #"
   Text 285, 110, 20, 10, "AMT:"
   Text 5, 145, 65, 10, "Collectible Reason:"
-  Text 270, 145, 40, 10, "Collectible?"
+  Text 265, 145, 40, 10, "Collectible?"
   Text 5, 165, 60, 10, "Income verif used:"
   Text 240, 165, 65, 10, "HC resp. members:"
   Text 5, 185, 60, 10, "Date income rcvd: "
@@ -454,5 +458,37 @@ END IF
 		    'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 		    CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & OP_Date & "Programs: " & programs, "CASE NOTE" & vbcr & message_array,"", False)
 		END IF
+	 	'---------------------------------------------------------------writing the CCOL case note'
+		Call navigate_to_MAXIS_screen("CCOL", "CLSM")
+		EMWriteScreen Claim_number, 4, 9
+		Transmit
+		PF4
+		IF IEVS_type = "WAGE" THEN CALL write_variable_in_CCOL_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH" & "(" & first_name &  ")" & "CLEARED CC-CLAIM ENTERED-----")
+		IF IEVS_type = "BEER" THEN CALL write_variable_in_CCOL_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name &  ")" &  "CLEARED CC-CLAIM ENTERED-----")
+		CALL write_bullet_and_variable_in_CCOL_NOTE("Discovery date", discovery_date)
+		CALL write_bullet_and_variable_in_CCOL_NOTE("Period", IEVS_period)
+		CALL write_bullet_and_variable_in_CCOL_NOTE("Active Programs", programs)
+		CALL write_bullet_and_variable_in_CCOL_NOTE("Source of income", source_income)
+		CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
+		CALL write_variable_in_CCOL_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+		IF OP_program_II <> "Select:" then CALL write_variable_in_CCOL_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+		IF OP_program_III <> "Select:" then CALL write_variable_in_CCOL_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+		IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_NOTE("* Earned Income Disregard Allowed")
+		IF programs = "Health Care" or programs = "Medical Assistance" THEN
+			Call write_bullet_and_variable_in_CCOL_NOTE("HC responsible members", HC_resp_memb)
+			Call write_bullet_and_variable_in_CCOL_NOTE("HC claim number", hc_claim_number)
+			Call write_bullet_and_variable_in_CCOL_NOTE("Total federal Health Care amount", Fed_HC_AMT)
+			CALL write_variable_in_CCOL_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+		END IF
+		CALL write_bullet_and_variable_in_CCOL_NOTE("Fraud referral made", fraud_referral)
+		CALL write_bullet_and_variable_in_CCOL_NOTE("Collectible claim", collectible_dropdown)
+		CALL write_bullet_and_variable_in_CCOL_NOTE("Reason that claim is collectible or not", collectible_reason)
+		CALL write_bullet_and_variable_in_CCOL_NOTE("Income verification received", income_rcvd_date)
+		IF OT_resp_memb <> "" THEN CALL write_bullet_and_variable_in_CCOL_NOTE("Other responsible member(s)", OT_resp_memb)
+		CALL write_bullet_and_variable_in_CCOL_NOTE("MANDATORY-Reason for overpayment", Reason_OP)
+		CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- ----- ----- -----")
+		CALL write_variable_in_CCOL_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+		PF3 'exit the case note'
+		PF3 'back to dail'
 	END IF
-script_end_procedure("Overpayment case note entered. Please remember to copy and paste your notes to CCOL/CLIC")
+script_end_procedure("Overpayment case note entered and copied to CCOL.")

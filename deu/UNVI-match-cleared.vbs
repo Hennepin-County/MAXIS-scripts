@@ -1,5 +1,5 @@
 ''GATHERING STATS===========================================================================================
-name_of_script = "ACTIONS-DEU-UNVI-MATCH-CLEARED.vbs"
+name_of_script = "ACTIONS - DEU UNVI MATCH CLEARED.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 300
