@@ -207,7 +207,7 @@ CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 PF3
 	IF OP_program = "HC" THEN
-		EmWriteScreen "x", 5, 3
+		EMWriteScreen "x", 5, 3
 		Transmit
 		note_row = 4			'Beginning of the case notes
 		Do 						'Read each line
@@ -227,7 +227,7 @@ PF3
 		'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 		CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & OP_Date & "Programs: " & OP_program, "CASE NOTE" & vbcr & message_array,"", False)
 	END IF
-END IF
+
 
 '---------------------------------------------------------------writing the CCOL case note'
 Call navigate_to_MAXIS_screen("CCOL", "CLSM")
