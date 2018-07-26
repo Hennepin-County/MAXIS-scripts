@@ -285,7 +285,8 @@ If case_status = "Recertification" Then
         EMReadScreen first_check_month, 2, 12, 54
 
         'If these have not been updated then the script will end because STAT needs to be updated first
-        If job_verification = "?" OR first_check_month <> MAXIS_footer_month Then script_end_procedure("It does not appear this JOBS panel has been updated with income information for the review.")
+        end_msg = "It does not appear this JOBS panel has been updated with income information for the review." & vbNewLine & vbNewLine & "If this job has ended and has no income in this month, STWK should be updated and this JOBS panel deleted." & vbNewLine & vbNewLine & "Cases should be fully processed prior to fiating eligibility results."
+        If job_verification = "?" OR first_check_month <> MAXIS_footer_month Then script_end_procedure(end_msg)
 
         reDim Preserve JOBS_ARRAY(verif_code, each_job-1)   'Updating the array with JOB information
 
