@@ -5,7 +5,7 @@ STATS_counter = 1
 STATS_manualtime = 300
 STATS_denominatinon = "C"
 'END OF STATS BLOCK===========================================================================================
-
+'run_locally = TRUE
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -130,9 +130,11 @@ EMSendKey "t"
 Call check_for_MAXIS(FALSE)
 EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
 'msgbox IEVS_type
-IF IEVS_type = "WAGE" or IEVS_type = "BEER" THEN
+IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "BNDX" or  IEVS_type = "SDXS" or IEVS_type = "UBEN" or IEVS_type = "UNVI" THEN
 	match_found = TRUE
-Else
+'ElseIf
+ 	'IEVS_type = NONE THEN
+ELSE
 	script_end_procedure("This is not a IEVS match. Please select a WAGE match DAIL, and run the script again.")
 End if
 
@@ -146,7 +148,7 @@ BeginDialog OP_Cleared_dialog, 0, 0, 361, 245, "Match Cleared CC Claim Entered"
   DropListBox 150, 5, 55, 15, "Select:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"LAST YEAR"+chr(9)+"OTHER", select_quarter
   EditBox 60, 25, 45, 15, discovery_date
   DropListBox 260, 5, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
-  DropListBox 150, 25, 55, 15, "Select:"+chr(9)+"BNDX"+chr(9)+"SDXS/ SDXI"+chr(9)+"BEER"+chr(9)+"NONE"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", IEVS_type
+  DropListBox 150, 25, 55, 15, "Select:"+chr(9)+"BNDX"+chr(9)+"SDXS"+chr(9)+"BEER"+chr(9)+"NONE"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", IEVS_type
   EditBox 245, 25, 20, 15, memb_number
   EditBox 335, 25, 20, 15, OT_resp_memb
   DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MA"+chr(9)+"MF"+chr(9)+"MS", OP_program
@@ -255,6 +257,8 @@ ELSEIF select_quarter = "4" THEN
                 IEVS_period = "10-" & CM_minus_6_yr & "/12-" & CM_minus_6_yr
 ELSEIF select_quarter = "YEAR" THEN
 				IEVS_period = right(DatePart("yyyy",DateAdd("yyyy", -1, date)), 2)
+'ELSEIF select_quarter = "LAST YEAR" THEN
+'ELSEIF select_quarter = "OTHER" THEN
 END IF
 '-------------------------------------------------------------------Ensuring that match has not already been resolved.
 Row = 7
@@ -298,12 +302,18 @@ Else
 	ELSEIF IEVS_type = "BEER" THEN
 		EMReadScreen IEVS_year, 2, 8, 15
 		IEVS_year = "20" & IEVS_year
+	ELSEIF IEVS_type = "UNVI" THEN
+		EMReadScreen IEVS_year, 4, 8, 15
+
 	END IF
 END IF
 
 IF IEVS_type = "BEER" THEN type_match = "B"
-IF IEVS_type = "UBEN" THEN type_match = "U"
-IF IEVS_type = "WAGE" THEN type_match = "U"
+'IF IEVS_type = "BNDX" THEN type_match = ""
+'IF IEVS_type = "SDXS" THEN type_match = ""
+'IF IEVS_type = "WAGE" THEN type_match = ""
+'IF IEVS_type = "UBEN" THEN type_match = ""
+IF IEVS_type = "UNVI" THEN type_match = "U"
 
 '--------------------------------------------------------------------Client name
 EMReadScreen client_name, 35, 5, 24
@@ -324,7 +334,8 @@ IF instr(first_name, " ") THEN   						'If there is a middle initial in the firs
 END IF
 'it is not putting a space in'
 '----------------------------------------------------------------------------------------------------ACTIVE PROGRAMS
-EMReadScreen Active_Programs, 13, 6, 68
+IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "SDXS" THEN EMReadScreen Active_Programs, 5, 7, 13
+IF IEVS_type = "UNVI" or IEVS_type = "UBEN" THEN EMReadScreen Active_Programs, 5, 6, 68
 Active_Programs =trim(Active_Programs)
 
 programs = ""
@@ -418,7 +429,7 @@ programs_array = split(programs, ",")
     '-----------------------------------------------------------------------------------------CASENOTE
     start_a_blank_CASE_NOTE
     	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH" & "(" & first_name &  ")" & "CLEARED CC-CLAIM ENTERED-----")
-    	IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name &  ")" &  "CLEARED CC-CLAIM ENTERED-----")
+    	IF IEVS_type = "BEER" or IEVS_type = "UNVI"  THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name &  ")" &  "CLEARED CC-CLAIM ENTERED-----")
 		CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
     	CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
@@ -427,6 +438,7 @@ programs_array = split(programs, ",")
 		Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
 		IF OP_program_II <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
 		IF OP_program_III <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+		CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
 		IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
 		IF programs = "Health Care" or programs = "Medical Assistance" THEN
 			Call write_bullet_and_variable_in_CASE_NOTE("HC responsible members", HC_resp_memb)
@@ -438,7 +450,7 @@ programs_array = split(programs, ",")
     	CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
     	CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
 		CALL write_bullet_and_variable_in_case_note("Income verification received", income_rcvd_date)
-		CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
+
 		CALL write_bullet_and_variable_in_case_note("MANDATORY-Reason for overpayment", Reason_OP)
     	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
     	CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
@@ -470,7 +482,12 @@ programs_array = split(programs, ",")
 	Call navigate_to_MAXIS_screen("CCOL", "CLSM")
 	EMWriteScreen Claim_number, 4, 9
 	Transmit
-	PF4
+	EMReadScreen existing_case_note, 1, 5, 6
+	IF existing_case_note = "" THEN
+		PF4
+	ELSE
+		PF9
+	END IF
 	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CCOL_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH" & "(" & first_name &  ")" & "CLEARED CC-CLAIM ENTERED-----")
 	IF IEVS_type = "BEER" THEN CALL write_variable_in_CCOL_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name &  ")" &  "CLEARED CC-CLAIM ENTERED-----")
 	CALL write_bullet_and_variable_in_CCOL_NOTE("Discovery date", discovery_date)
@@ -481,6 +498,7 @@ programs_array = split(programs, ",")
 	CALL write_variable_in_CCOL_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
 	IF OP_program_II <> "Select:" then CALL write_variable_in_CCOL_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
 	IF OP_program_III <> "Select:" then CALL write_variable_in_CCOL_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+	IF OT_resp_memb <> "" THEN CALL write_bullet_and_variable_in_CCOL_NOTE("Other responsible member(s)", OT_resp_memb)
 	IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_NOTE("* Earned Income Disregard Allowed")
 	IF programs = "Health Care" or programs = "Medical Assistance" THEN
 		Call write_bullet_and_variable_in_CCOL_NOTE("HC responsible members", HC_resp_memb)
@@ -492,7 +510,6 @@ programs_array = split(programs, ",")
 	CALL write_bullet_and_variable_in_CCOL_NOTE("Collectible claim", collectible_dropdown)
 	CALL write_bullet_and_variable_in_CCOL_NOTE("Reason that claim is collectible or not", collectible_reason)
 	CALL write_bullet_and_variable_in_CCOL_NOTE("Income verification received", income_rcvd_date)
-	IF OT_resp_memb <> "" THEN CALL write_bullet_and_variable_in_CCOL_NOTE("Other responsible member(s)", OT_resp_memb)
 	CALL write_bullet_and_variable_in_CCOL_NOTE("MANDATORY-Reason for overpayment", Reason_OP)
 	CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- ----- ----- -----")
 	CALL write_variable_in_CCOL_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
