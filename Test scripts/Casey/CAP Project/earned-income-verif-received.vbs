@@ -53,6 +53,44 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'FUNCTIONS==================================================================================================================
+
+function sort_dates(dates_array)
+
+    dim ordered_dates ()
+    redim ordered_dates(0)
+
+    days =  0
+    do
+
+        prev_date = ""
+        for each thing in dates_array
+            check_this_date = TRUE
+            For each known_date in ordered_dates
+                if known_date = thing Then check_this_date = FALSE
+                'MsgBox "known dates is " & known_date & vbNewLine & "thing is " & thing & vbNewLine & "match - " & check_this_date
+            next
+            if check_this_date = TRUE Then
+                if prev_date = "" Then
+                    prev_date = thing
+                Else
+                    if DateDiff("d", prev_date, thing) <0 then
+                        prev_date = thing
+                    end if
+                end if
+            end if
+        next
+        if prev_date <> "" Then
+            redim preserve ordered_dates(days)
+            ordered_dates(days) = prev_date
+            days = days + 1
+        end if
+    loop until days > UBOUND(dates_array)
+
+    dates_array = ordered_dates
+end function
+
+'===========================================================================================================================
 'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
@@ -595,7 +633,8 @@ const budget_in_SNAP_yes    = 4
 const budget_in_SNAP_no     = 5
 const reason_to_exclude     = 6
 const exclude_amount        = 7
-const reason_amt_excluded   = 8
+const check_order           = 8
+const reason_amt_excluded   = 9
 
 Dim LIST_OF_INCOME_ARRAY()
 ReDim LIST_OF_INCOME_ARRAY(reason_amt_excluded, 0)
@@ -837,27 +876,27 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                 previous_pay_date = ""
 
                 'creating an order for pay stubs
-                For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
-                    If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
-                        If previous_pay_date = "" Then
-                            previous_pay_date = LIST_OF_INCOME_ARRAY(pay_date, all_income)
-                        Else
-                            If DateDiff("d", previous_pay_date, LIST_OF_INCOME_ARRAY(pay_date, all_income)) < 0 Then
-
-                    End If
-                Next
+                ' For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
+                '     If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
+                '         If previous_pay_date = "" Then
+                '             previous_pay_date = LIST_OF_INCOME_ARRAY(pay_date, all_income)
+                '         Else
+                '             If DateDiff("d", previous_pay_date, LIST_OF_INCOME_ARRAY(pay_date, all_income)) < 0 Then
+                '
+                '     End If
+                ' Next
 
                 For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
                     If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
                         EARNED_INCOME_PANELS_ARRAY(income_list_indct, ei_panel) = EARNED_INCOME_PANELS_ARRAY(income_list_indct, ei_panel) & "~" & all_income
 
                         'determining the pay frequency.
-                        If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "" Then
-                            if previous_pay_date = "" Then
-                                previous_pay_date = LIST_OF_INCOME_ARRAY(pay_date, all_income)
-                            Else
-                                days_between_pay
-                        End If
+                        ' If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "" Then
+                        '     if previous_pay_date = "" Then
+                        '         previous_pay_date = LIST_OF_INCOME_ARRAY(pay_date, all_income)
+                        '     Else
+                        '         days_between_pay
+                        ' End If
 
                         If LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = checked Then
                             If LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = "" Then LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = 0
@@ -955,7 +994,41 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
             'Add handling to check WREG for correct coding based upon this income information (potentiall update)
 
+            'Adding the order to the array for what the order the checks should be in
+            '-----THis block works to display in order------'
+            all_pay_dates = ""
+            array_of_pay_dates = ""
+            For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
+                If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
 
+                    all_pay_dates = all_pay_dates & "~" & LIST_OF_INCOME_ARRAY(pay_date, all_income)
+                End If
+            Next
+            all_pay_dates = right(all_pay_dates, len(all_pay_dates)-1)
+            array_of_pay_dates = split(all_pay_dates, "~")
+
+            Call sort_dates(array_of_pay_dates)
+            For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
+                If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
+                    for index = 0 to UBOUND(array_of_pay_dates)
+                        If array_of_pay_dates(index) = LIST_OF_INCOME_ARRAY(pay_date, all_income) Then LIST_OF_INCOME_ARRAY(check_order, all_income) = index + 1
+                        top_of_order = index + 1
+                    next
+                End If
+            Next
+
+            for each thing in array_of_pay_dates
+                'msgbox thing
+
+            next
+
+            For order_number = 1 to top_of_order
+                For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
+                    If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then list_of_dates = list_of_dates & vbNewLine & "Check Date: " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & " Income: $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " Hours: " & LIST_OF_INCOME_ARRAY(hours, all_income)
+                next
+            next
+            MsgBOx list_of_dates
+            '--------------------------------------'
 
             'Worker must confirm the frequency, first pay, and footer month
             'Worker will inicate if future months should be updated - default this to 'yes' as script will update retro and prospective specific to each month
