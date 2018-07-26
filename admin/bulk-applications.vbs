@@ -158,6 +158,8 @@ function convert_to_mainframe_date(date_var, yr_len)
     'This will change a variable to mm/dd/yy or mm/dd/yyyy format for comparison to dates in MX
     'yr_len should be a number - either 2 or 4
     'MsgBox date_var
+    date_var = DateValue(date_var)
+    If IsDate(date_var) = FALSE Then MsgBox "Contact a scriptwriter." & vbNewLine & "The date - " & date_var & " is not being read as a date." & vbNewLine & "Take note of the screen this message stopped the script as and which case number it stopped on."
     month_to_use = DatePart("m", date_var)
     month_to_use = right("00" & month_to_use, 2)
 
