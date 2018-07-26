@@ -158,8 +158,6 @@ function convert_to_mainframe_date(date_var, yr_len)
     'This will change a variable to mm/dd/yy or mm/dd/yyyy format for comparison to dates in MX
     'yr_len should be a number - either 2 or 4
     'MsgBox date_var
-    date_var = DateValue(date_var)
-    If IsDate(date_var) = FALSE Then MsgBox "Contact a scriptwriter." & vbNewLine & "The date - " & date_var & " is not being read as a date." & vbNewLine & "Take note of the screen this message stopped the script as and which case number it stopped on."
     month_to_use = DatePart("m", date_var)
     month_to_use = right("00" & month_to_use, 2)
 
@@ -570,7 +568,7 @@ For case_entry = 0 to UBOUND(TODAYS_CASES_ARRAY, 2)     'now we are going to loo
         ALL_PENDING_CASES_ARRAY(next_action_needed, add_a_case) = ObjWorkExcel.Cells(row, next_action_col)
         ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
         ALL_PENDING_CASES_ARRAY(need_face_to_face, add_a_case) = ObjWorkExcel.Cells(row, ftof_still_need_col)
-
+        ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case) = trim(ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case))
         'ALL_PENDING_CASES_ARRAY(, add_a_case) = ObjWorkExcel.Cells(row, )
 
         'defaulting this variable as we will determine if it is true later
@@ -912,6 +910,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
             start_dates = ""
             day_before_app = DateAdd("d", -1, ALL_PENDING_CASES_ARRAY(application_date, case_entry)) 'will set the date one day prior to app date
             'setting a variable of previously known questionable interview date(s) - this will be used to determine if anything changed
+            ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) = trim(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry))
             If InStr(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry), "~") <> 0 Then start_dates = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)            '
             If ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) <> "" Then
                 Call convert_to_mainframe_date(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry), 2)
