@@ -230,31 +230,36 @@ start_a_blank_CASE_NOTE
 	END IF
 
 '---------------------------------------------------------------writing the CCOL case note'
-Call navigate_to_MAXIS_screen("CCOL", "CLSM")
-	EMWriteScreen Claim_number, 4, 9
-	Transmit
-	PF4
-	CALL write_variable_in_CCOL_NOTE("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
-	CALL write_bullet_and_variable_in_CCOL_NOTE("Discovery date", discovery_date)
-	CALL write_bullet_and_variable_in_CCOL_NOTE("Active Programs", OP_program)
-	CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
-	CALL write_variable_in_CCOL_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-	IF OP_program_II <> "Select:" then CALL write_variable_in_CCOL_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-	IF OP_program_III <> "Select:" then CALL write_variable_in_CCOL_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-	IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_NOTE("* Earned Income Disregard Allowed")
-	IF OP_program = "HC" THEN
-		Call write_bullet_and_variable_in_CCOL_NOTE("HC responsible members", HC_resp_memb)
-		Call write_bullet_and_variable_in_CCOL_NOTE("Total federal Health Care amount", Fed_HC_AMT)
-		CALL write_variable_in_CCOL_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-	END IF
-	CALL write_bullet_and_variable_in_CCOL_NOTE("Fraud referral made", fraud_referral)
-	CALL write_bullet_and_variable_in_CCOL_NOTE("Collectible claim", collectible_dropdown)
-	CALL write_bullet_and_variable_in_CCOL_NOTE("Reason that claim is collectible or not", collectible_reason)
-	CALL write_bullet_and_variable_in_CCOL_NOTE("Income verification received", income_rcvd_date)
-	CALL write_bullet_and_variable_in_CCOL_NOTE("Other responsible member(s)", OT_resp_memb)
-	CALL write_bullet_and_variable_in_CCOL_NOTE("MANDATORY-Reason for overpayment", Reason_OP)
-	CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
-	CALL write_variable_in_CCOL_NOTE(worker_signature)
-	PF3 'exit the case note'
-	PF3 'back to dail'
-script_end_procedure("Overpayment case note entered and copied to CCOL.")
+'Call navigate_to_MAXIS_screen("CCOL", "CLSM")
+'EMWriteScreen Claim_number, 4, 9
+'Transmit
+'EMReadScreen existing_case_note, 1, 5, 6
+'IF existing_case_note = "" THEN
+'	PF4
+'ELSE
+'	PF9
+'END IF
+'	CALL write_variable_in_CCOL_NOTE("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
+'	CALL write_bullet_and_variable_in_CCOL_NOTE("Discovery date", discovery_date)
+'	CALL write_bullet_and_variable_in_CCOL_NOTE("Active Programs", OP_program)
+'	CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
+'	CALL write_variable_in_CCOL_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+'	IF OP_program_II <> "Select:" then Call write_variable_in_CCOL_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+'	IF OP_program_III <> "Select:" then Call write_variable_in_CCOL_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+'	CALL write_bullet_and_variable_in_CCOL_NOTE("Earned Income Disregard Allowed", EI_allowed_dropdown)
+'	IF OP_program = "HC" THEN
+'		Call write_bullet_and_variable_in_CCOL_NOTE("HC responsible members", HC_resp_memb)
+'		Call write_bullet_and_variable_in_CCOL_NOTE("Total federal Health Care amount", Fed_HC_AMT)
+'		Call write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+'	END IF
+'	CALL write_bullet_and_variable_in_CCOL_NOTE("Fraud referral made", fraud_referral)
+'	CALL write_bullet_and_variable_in_CCOL_NOTE("Collectible claim", collectible_dropdown)
+'	CALL write_bullet_and_variable_in_CCOL_NOTE("Reason that claim is collectible or not", collectible_reason)
+'	CALL write_bullet_and_variable_in_CCOL_NOTE("Income verification received", income_rcvd_date)
+'	CALL write_bullet_and_variable_in_CCOL_NOTE("Other responsible member(s)", OT_resp_memb)
+'	CALL write_bullet_and_variable_in_CCOL_NOTE("MANDATORY-Reason for overpayment", Reason_OP)
+'	CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
+'	CALL write_variable_in_CCOL_NOTE(worker_signature)
+'	PF3 'exit the case note'
+'	PF3 'back to dail'
+'script_end_procedure("Overpayment case note entered and copied to CCOL.")
