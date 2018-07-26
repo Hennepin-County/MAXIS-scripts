@@ -2,7 +2,7 @@
 dates_array = array(#12/23/2013#, #5/3/2010#, #6/28/2018#, #2/17/2015#, #12/23/2013#)
 MsgBox "start"
 
-function(dates_array)
+function sort_dates(dates_array)
 
     dim ordered_dates ()
     redim ordered_dates(0)
