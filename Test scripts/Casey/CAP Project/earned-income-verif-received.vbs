@@ -210,9 +210,10 @@ const old_verif         = 29
 const initial_month_mo  = 30
 const initial_month_yr  = 31
 const update_futue_chkbx = 32
+const order_ubound      = 33
 
-const spoke_to          = 33
-const convo_detail      = 34
+const spoke_to          = 34
+const convo_detail      = 35
 
 Dim EARNED_INCOME_PANELS_ARRAY()
 ReDim EARNED_INCOME_PANELS_ARRAY(convo_detail, 0)
@@ -996,34 +997,32 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
             'Adding the order to the array for what the order the checks should be in
             '-----THis block works to display in order------'
-            all_pay_dates = ""
+            all_pay_dates = ""          'blanking out for each loop of different EI panels
             array_of_pay_dates = ""
-            For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
-                If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
-
-                    all_pay_dates = all_pay_dates & "~" & LIST_OF_INCOME_ARRAY(pay_date, all_income)
+            For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)                                   'look at each entry inthe income array
+                If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then                    'find the ones for the current panel
+                    all_pay_dates = all_pay_dates & "~" & LIST_OF_INCOME_ARRAY(pay_date, all_income)'create a list of just the pay dates
                 End If
             Next
-            all_pay_dates = right(all_pay_dates, len(all_pay_dates)-1)
+            all_pay_dates = right(all_pay_dates, len(all_pay_dates)-1)      'make a single dimension array of the pay dates for this one panel
             array_of_pay_dates = split(all_pay_dates, "~")
 
-            Call sort_dates(array_of_pay_dates)
-            For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
-                If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
-                    for index = 0 to UBOUND(array_of_pay_dates)
+            Call sort_dates(array_of_pay_dates)                             'use the function to re order that array into chronological order.
+            For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)           'Now loop through all of the listed income - again
+                If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then    'find the ones for THIS PANEL ONLY
+                    for index = 0 to UBOUND(array_of_pay_dates)                     'loop through the array of the pay dates only'
+                        'once the pay date in the income array matches the one in the chronological list of dates, use the index number to set an order code within the list of income array
                         If array_of_pay_dates(index) = LIST_OF_INCOME_ARRAY(pay_date, all_income) Then LIST_OF_INCOME_ARRAY(check_order, all_income) = index + 1
-                        top_of_order = index + 1
+                        top_of_order = index + 1    'this identifies how many pay dates there are in for this panel
                     next
                 End If
             Next
+            EARNED_INCOME_PANELS_ARRAY(order_ubound, ei_panel) = top_of_order   'setting the number of unique pay dates within the panel array because we need it for sorting correctly
 
-            for each thing in array_of_pay_dates
-                'msgbox thing
-
-            next
-
-            For order_number = 1 to top_of_order
-                For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
+            'this part actually looks at the income information IN ORDER
+            For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
+                For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+                    'conditional if it is the right panel AND the order matches - then do the thing you need to do
                     If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then list_of_dates = list_of_dates & vbNewLine & "Check Date: " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & " Income: $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " Hours: " & LIST_OF_INCOME_ARRAY(hours, all_income)
                 next
             next
@@ -1038,52 +1037,101 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
         End If
     End If
 
-    'NAVIGATE to BUSI for each HH MEMBER and ask if Income Information was received for this Self Employment.
+    If EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel) = "BUSI" Then
+        'NAVIGATE to BUSI for each HH MEMBER and ask if Income Information was received for this Self Employment.
+        Call Navigate_to_MAXIS_screen("STAT", "BUSI")
+        EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel), 20, 76
+        EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel), 20, 79
+        transmit
 
-    BeginDialog Dialog1, 0, 0, 486, 175, "Enter Self Employment Information"
-      Text 10, 10, 180, 10, "BUSI 01 01 - CLIENT NAME"
-      Text 200, 10, 80, 10, "Self Employment Type:"
-      DropListBox 280, 5, 125, 45, "01 - Farming"+chr(9)+"02 - Real Estate"+chr(9)+"03 - Home Product Sales"+chr(9)+"04 - Other Sales"+chr(9)+"05 - Personal Services"+chr(9)+"06 - Paper Route"+chr(9)+"07 - In Home Daycare"+chr(9)+"08 - Rental Income"+chr(9)+"09 - Other", busi_type
-      Text 10, 30, 65, 10, "Verification srouce:"
-      DropListBox 90, 25, 75, 45, "1 - Income Tax Returns"+chr(9)+"2 - Receipts of Sales/Purch"+chr(9)+"3 - Client Busi Records/Ledger"+chr(9)+"6 - Other Document"+chr(9)+"N - No Ver Prvd", busi_verif_code
-      Text 180, 30, 100, 10, "Amount of Income Information:"
-      DropListBox 290, 25, 80, 45, "Select One..."+chr(9)+"A Full Year Totaled"+chr(9)+"Month by Month", amount_income
-      Text 10, 50, 120, 10, "Self Employment Budgeting Method"
-      DropListBox 135, 45, 85, 45, "01 - 50% Grosss Inc"+chr(9)+"02 - Tax Forms", busi_method
-      Text 225, 50, 50, 10, "Selection Date:"
-      EditBox 280, 45, 50, 15, method_selection_date
-      CheckBox 30, 65, 210, 10, "Check here to confirm this method was discussed with Client.", convo_checkbox
-      GroupBox 415, 5, 65, 70, "Apply Income To"
-      CheckBox 425, 20, 35, 10, "SNAP", apply_to_SNAP
-      CheckBox 425, 35, 35, 10, "CASH", apply_to_CASH
-      CheckBox 425, 50, 25, 10, "HC", apply_to_HC
-      ButtonGroup ButtonPressed
-        PushButton 355, 60, 50, 15, "Ready", open_button
-      Text 10, 90, 55, 10, "Month and Year"
-      Text 70, 90, 50, 10, "Gross Income"
-      Text 130, 80, 90, 10, "Exclude from SNAP Budget"
-      Text 130, 90, 30, 10, "Amount"
-      Text 190, 90, 30, 10, "Reason"
-      EditBox 10, 105, 40, 15, month_year
-      EditBox 70, 105, 50, 15, gross_income
-      EditBox 130, 105, 50, 15, exclude_from_SNAP
-      EditBox 190, 105, 185, 15, exclude_reason
-      Text 10, 140, 35, 10, "Tax Year"
-      Text 60, 130, 35, 20, "Months in Business"
-      Text 110, 140, 30, 10, "Income"
-      Text 155, 140, 35, 10, "Expenses"
-      EditBox 10, 155, 40, 15, tax_year
-      DropListBox 60, 155, 40, 45, "12"+chr(9)+"11"+chr(9)+"10"+chr(9)+"9"+chr(9)+"8"+chr(9)+"7"+chr(9)+"6"+chr(9)+"5"+chr(9)+"4"+chr(9)+"3"+chr(9)+"2"+chr(9)+"1", months_covered
-      EditBox 110, 155, 40, 15, tax_income
-      EditBox 155, 155, 40, 15, tax_expenses
-      ButtonGroup ButtonPressed
-        PushButton 320, 155, 15, 15, "+", plus_button
-        PushButton 340, 155, 15, 15, "-", minus_button
-        OkButton 375, 155, 50, 15
-        CancelButton 430, 155, 50, 15
-    EndDialog
+        employer_check = MsgBox("Do you have income verification for this self employment? Type of Self Employment: " & EARNED_INCOME_PANELS_ARRAY(income_type, ei_panel), vbYesNo + vbQuestion, "Select Income Panel")
 
+        ' If EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) = "" Then EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) = MAXIS_footer_month
+        ' If EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) = "" Then EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) = MAXIS_footer_year
+        ' EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel) = future_months_check
 
+        If employer_check = vbYes Then
+            EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE
+
+            Do
+                sm_err_msg = ""
+                basic_info_gathered = FALSE
+
+                BeginDialog Dialog1, 0, 0, 486, 175, "Enter Self Employment Information"
+                  Text 10, 10, 180, 10, EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel)  ''"BUSI 01 01 - CLIENT NAME"
+                  Text 200, 10, 80, 10, "Self Employment Type:"
+                  DropListBox 280, 5, 125, 45, "01 - Farming"+chr(9)+"02 - Real Estate"+chr(9)+"03 - Home Product Sales"+chr(9)+"04 - Other Sales"+chr(9)+"05 - Personal Services"+chr(9)+"06 - Paper Route"+chr(9)+"07 - In Home Daycare"+chr(9)+"08 - Rental Income"+chr(9)+"09 - Other", EARNED_INCOME_PANELS_ARRAY(income_type, ei_panel)
+                  Text 10, 30, 65, 10, "Verification srouce:"
+                  DropListBox 90, 25, 75, 45, " "+chr(9)+"1 - Income Tax Returns"+chr(9)+"2 - Receipts of Sales/Purch"+chr(9)+"3 - Client Busi Records/Ledger"+chr(9)+"6 - Other Document"+chr(9)+"N - No Ver Prvd", EARNED_INCOME_PANELS_ARRAY(income_verif, ei_panel)
+                  Text 180, 30, 100, 10, "Amount of Income Information:"
+                  DropListBox 290, 25, 80, 45, "Select One..."+chr(9)+"A Full Year Totaled"+chr(9)+"Month by Month", amount_income
+                  Text 10, 50, 120, 10, "Self Employment Budgeting Method"
+                  DropListBox 135, 45, 85, 45, " "+chr(9)+"01 - 50% Grosss Inc"+chr(9)+"02 - Tax Forms", busi_method
+                  Text 225, 50, 50, 10, "Selection Date:"
+                  EditBox 280, 45, 50, 15, method_selection_date
+                  CheckBox 30, 65, 210, 10, "Check here to confirm this method was discussed with Client.", convo_checkbox
+                  GroupBox 415, 5, 65, 70, "Apply Income To"
+                  CheckBox 425, 20, 35, 10, "SNAP", EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel)
+                  CheckBox 425, 35, 35, 10, "CASH", EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel)
+                  CheckBox 425, 50, 25, 10, "HC", EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel)
+                  ButtonGroup ButtonPressed
+                    PushButton 355, 60, 50, 15, "Ready", open_button
+                  If basic_info_gathered = TRUE Then
+                      If busi_method = "01 - 50% Grosss Inc" Then
+                          Text 10, 90, 55, 10, "Month and Year"
+                          Text 70, 90, 50, 10, "Gross Income"
+                          Text 130, 80, 90, 10, "Exclude from SNAP Budget"
+                          Text 130, 90, 30, 10, "Amount"
+                          Text 190, 90, 30, 10, "Reason"
+                          EditBox 10, 105, 40, 15, month_year
+                          EditBox 70, 105, 50, 15, gross_income
+                          EditBox 130, 105, 50, 15, exclude_from_SNAP
+                          EditBox 190, 105, 185, 15, exclude_reason
+                      ElseIf busi_method = "02 - Tax Forms" Then
+                          Text 10, 140, 35, 10, "Tax Year"
+                          Text 60, 130, 35, 20, "Months in Business"
+                          Text 110, 140, 30, 10, "Income"
+                          Text 155, 140, 35, 10, "Expenses"
+                          EditBox 10, 155, 40, 15, tax_year
+                          DropListBox 60, 155, 40, 45, "12"+chr(9)+"11"+chr(9)+"10"+chr(9)+"9"+chr(9)+"8"+chr(9)+"7"+chr(9)+"6"+chr(9)+"5"+chr(9)+"4"+chr(9)+"3"+chr(9)+"2"+chr(9)+"1", months_covered
+                          EditBox 110, 155, 40, 15, tax_income
+                          EditBox 155, 155, 40, 15, tax_expenses
+
+                          ButtonGroup ButtonPressed
+                            PushButton 320, 155, 15, 15, "+", plus_button
+                            PushButton 340, 155, 15, 15, "-", minus_button
+                            OkButton 375, 155, 50, 15
+                            CancelButton 430, 155, 50, 15
+                      End If
+                  End If
+                EndDialog
+
+                Dialog Dialog1
+                cancel_confirmation
+
+                If ButtonPressed = add_another_check Then
+                    pay_item = pay_item + 1
+                    ReDim Preserve LIST_OF_INCOME_ARRAY(reason_amt_excluded, pay_item)
+                    LIST_OF_INCOME_ARRAY(panel_indct, pay_item) = ei_panel
+                    dlg_factor = dlg_factor + 1
+
+                    sm_err_msg = "LOOP" & sm_err_msg
+
+                End If
+
+                If ButtonPressed = take_a_check_away Then
+                    pay_item = pay_item - 1
+                    ReDim Preserve LIST_OF_INCOME_ARRAY(reason_amt_excluded, pay_item)
+                    dlg_factor = dlg_factor - 1
+                    sm_err_msg = "LOOP" & sm_err_msg
+                End If
+
+                If sm_err_msg <> "" AND left(sm_err_msg, 4) <> "LOOP" then MsgBox "Please resolve before continuing:" & vbNewLine & sm_err_msg
+
+            Loop until sm_err_msg = ""
+
+        End If
+    End If
 
     'NAVIGATE to RBIC for each HH MEMBER and ask if Income Information was received for this RBIC
 
