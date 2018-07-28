@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/28/2018", "Fixed bug that was preventing output of ABAWD status. Also cleaned up code in the dialog handling.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/28/2017", "Added enhancement to support cases with case number instead of SSN.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/08/2017", "Added new BULK script that will send manual E & T referrals for cases that have been identified by E & T as partcipants working with CBO's (Community Based Organizations).", "Ilse Ferris, Hennepin County")
 call changelog_update("12/12/2016", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -52,40 +53,33 @@ call changelog_update("12/12/2016", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'The dialog is defined in the loop as it can change as buttons are pressed 
+BeginDialog info_dialog, 0, 0, 266, 110, "CBO referral"
+    ButtonGroup ButtonPressed
+    PushButton 200, 45, 50, 15, "Browse...", select_a_file_button
+    OkButton 145, 90, 50, 15
+    CancelButton 200, 90, 50, 15
+    EditBox 15, 45, 180, 15, file_selection_path
+    GroupBox 10, 5, 250, 80, "Using the SEND MANUAL REFERRAL script"
+    Text 20, 20, 235, 20, "This script should be used when E & T provides you with a list of recipeints that are working with CBO's and a manual referral is needed. "
+    Text 15, 65, 230, 15, "Select the Excel file that contains the CBO information by selecting the 'Browse' button, and finding the file."
+EndDialog
+
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 'Connects to BlueZone and establishing county name
 EMConnect ""	
 
 'dialog and dialog DO...Loop	
 Do
-	Do
-			'The dialog is defined in the loop as it can change as buttons are pressed 
-			BeginDialog CBO_referral_dialog, 0, 0, 266, 110, "CBO referral"
-  				ButtonGroup ButtonPressed
-    			PushButton 200, 45, 50, 15, "Browse...", select_a_file_button
-    			OkButton 145, 90, 50, 15
-    			CancelButton 200, 90, 50, 15
-  				EditBox 15, 45, 180, 15, file_selection_path
-  				GroupBox 10, 5, 250, 80, "Using the SEND MANUAL REFERRAL script"
-  				Text 20, 20, 235, 20, "This script should be used when E & T provides you with a list of recipeints that are working with CBO's and a manual referral is needed. "
-  				Text 15, 65, 230, 15, "Select the Excel file that contains the CBO information by selecting the 'Browse' button, and finding the file."
-			EndDialog
-			err_msg = ""
-			Dialog CBO_referral_dialog
-			cancel_confirmation
-			If ButtonPressed = select_a_file_button then
-				If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
-					objExcel.Quit 'Closing the Excel file that was opened on the first push'
-					objExcel = "" 	'Blanks out the previous file path'
-				End If
-				call file_selection_system_dialog(file_selection_path, ".xlsx") 'allows the user to select the file'
-			End If
-			If file_selection_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
-			If err_msg <> "" Then MsgBox err_msg
-		Loop until err_msg = ""
-		If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-		If err_msg <> "" Then MsgBox err_msg
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
+    'Show initial dialog
+    Do
+    	Dialog info_dialog
+    	If ButtonPressed = cancel then stopscript
+    	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
+    Loop until ButtonPressed = OK and file_selection_path <> ""
+    If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'ARRAY business----------------------------------------------------------------------------------------------------
@@ -268,7 +262,7 @@ For item = 0 to UBound(CBO_array, 2)
 				WREG_codes = fset_code & "-" & abawd_code
 				If WREG_codes = "30-11" then 
 					CBO_array(make_referral, item) = True
-					CBO_array(ABAWD_status, item) = "Volunatary"
+					CBO_array(ABAWD_status, item) = "Mandatory - 2nd Set"
 				Elseif WREG_codes = "30-10" then 
 					CBO_array(make_referral, item) = True
 					CBO_array(ABAWD_status, item) = "Mandatory - ABAWD"
@@ -308,7 +302,7 @@ For item = 0 to UBound(CBO_array, 2)
 	objExcel.cells(excel_row, 3).Value = CBO_array(case_number,		item)
 	objExcel.cells(excel_row, 6).Value = CBO_array(ref_status, 		item)
 	objExcel.cells(excel_row, 7).Value = CBO_array(ABAWD_status, 	item)
-	objExcel.cells(excel_row, 7).Value = CBO_array(error_reason, 	item)
+	objExcel.cells(excel_row, 8).Value = CBO_array(error_reason, 	item)
 Next 
 	
 STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning (because counting :p)
