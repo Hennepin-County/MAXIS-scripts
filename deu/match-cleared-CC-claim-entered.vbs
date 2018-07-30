@@ -236,7 +236,7 @@ Do
 	IF collectible_dropdown = "YES" THEN
 	IF collectible_reason_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise why claim is collectible."
 	END IF
-	IF isdate(income_rcvd_date) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income recieved."
+	IF isdate(income_rcvd_date) = FALSE or income_rcvd_date = "" then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income recieved."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 LOOP UNTIL err_msg = ""
 CALL DEU_password_check(False)
@@ -450,7 +450,6 @@ programs_array = split(programs, ",")
     	CALL write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
     	CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
 		CALL write_bullet_and_variable_in_case_note("Income verification received", income_rcvd_date)
-
 		CALL write_bullet_and_variable_in_case_note("MANDATORY-Reason for overpayment", Reason_OP)
     	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
     	CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")

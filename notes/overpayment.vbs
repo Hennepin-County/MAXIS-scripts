@@ -171,7 +171,7 @@ Do
 	IF collectible_dropdown = "YES" THEN
 		IF collectible_reason_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise why claim is collectible."
 	END IF
-	IF income_rcvd_date = "" THEN err_msg = err_msg & vbnewline & "* Please advise of date income was received."
+	IF isdate(income_rcvd_date) = FALSE or income_rcvd_date = "" THEN err_msg = err_msg & vbnewline & "* Please advise of date income was received."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 LOOP UNTIL err_msg = ""
 CALL DEU_password_check(False)
