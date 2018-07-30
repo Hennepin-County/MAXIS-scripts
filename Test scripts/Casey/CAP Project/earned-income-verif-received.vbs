@@ -1052,10 +1052,11 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
         If employer_check = vbYes Then
             EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE
-
+            basic_info_gathered = FALSE
             Do
                 sm_err_msg = ""
-                basic_info_gathered = FALSE
+                ready_err_msg = ""
+
 
                 BeginDialog Dialog1, 0, 0, 486, 175, "Enter Self Employment Information"
                   Text 10, 10, 180, 10, EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel)  ''"BUSI 01 01 - CLIENT NAME"
@@ -1066,9 +1067,9 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                   Text 180, 30, 100, 10, "Amount of Income Information:"
                   DropListBox 290, 25, 80, 45, "Select One..."+chr(9)+"A Full Year Totaled"+chr(9)+"Month by Month", amount_income
                   Text 10, 50, 120, 10, "Self Employment Budgeting Method"
-                  DropListBox 135, 45, 85, 45, " "+chr(9)+"01 - 50% Grosss Inc"+chr(9)+"02 - Tax Forms", busi_method
+                  DropListBox 135, 45, 85, 45, " "+chr(9)+"01 - 50% Grosss Inc"+chr(9)+"02 - Tax Forms", EARNED_INCOME_PANELS_ARRAY(self_emp_mthd, ei_panel)
                   Text 225, 50, 50, 10, "Selection Date:"
-                  EditBox 280, 45, 50, 15, method_selection_date
+                  EditBox 280, 45, 50, 15, EARNED_INCOME_PANELS_ARRAY(method_date, ei_panel)
                   CheckBox 30, 65, 210, 10, "Check here to confirm this method was discussed with Client.", convo_checkbox
                   GroupBox 415, 5, 65, 70, "Apply Income To"
                   CheckBox 425, 20, 35, 10, "SNAP", EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel)
@@ -1088,14 +1089,14 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                           EditBox 130, 105, 50, 15, exclude_from_SNAP
                           EditBox 190, 105, 185, 15, exclude_reason
                       ElseIf busi_method = "02 - Tax Forms" Then
-                          Text 10, 140, 35, 10, "Tax Year"
-                          Text 60, 130, 35, 20, "Months in Business"
-                          Text 110, 140, 30, 10, "Income"
-                          Text 155, 140, 35, 10, "Expenses"
-                          EditBox 10, 155, 40, 15, tax_year
-                          DropListBox 60, 155, 40, 45, "12"+chr(9)+"11"+chr(9)+"10"+chr(9)+"9"+chr(9)+"8"+chr(9)+"7"+chr(9)+"6"+chr(9)+"5"+chr(9)+"4"+chr(9)+"3"+chr(9)+"2"+chr(9)+"1", months_covered
-                          EditBox 110, 155, 40, 15, tax_income
-                          EditBox 155, 155, 40, 15, tax_expenses
+                          Text 10, 90, 35, 10, "Tax Year"
+                          Text 60, 80, 35, 20, "Months in Business"
+                          Text 110, 90, 30, 10, "Income"
+                          Text 155, 90, 35, 10, "Expenses"
+                          EditBox 10, 105, 40, 15, tax_year
+                          DropListBox 60, 105, 40, 45, "12"+chr(9)+"11"+chr(9)+"10"+chr(9)+"9"+chr(9)+"8"+chr(9)+"7"+chr(9)+"6"+chr(9)+"5"+chr(9)+"4"+chr(9)+"3"+chr(9)+"2"+chr(9)+"1", months_covered
+                          EditBox 110, 105, 40, 15, tax_income
+                          EditBox 155, 105, 40, 15, tax_expenses
 
                           ButtonGroup ButtonPressed
                             PushButton 320, 155, 15, 15, "+", plus_button
@@ -1108,6 +1109,15 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
                 Dialog Dialog1
                 cancel_confirmation
+
+                If buttonpressed = open_button Then
+                    basic_info_gathered = TRUE
+                    If trim(EARNED_INCOME_PANELS_ARRAY(income_type, ei_panel)) = "" Then ready_err_msg = ready_err_msg & vbNewLine & "* indicate the TYPE of self employment income."
+                    If ready_err_msg <> "" Then
+                        basic_info_gathered = FALSE
+                        MsgBOx "Cannot open additional details section until the income information section is completed. Please resolve the following:" & vbNewLine & ready_err_msg
+                    End If
+                End If
 
                 If ButtonPressed = add_another_check Then
                     pay_item = pay_item + 1
