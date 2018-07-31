@@ -1098,12 +1098,13 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                           EditBox 110, 105, 40, 15, tax_income
                           EditBox 155, 105, 40, 15, tax_expenses
 
-                          ButtonGroup ButtonPressed
-                            PushButton 320, 155, 15, 15, "+", plus_button
-                            PushButton 340, 155, 15, 15, "-", minus_button
-                            OkButton 375, 155, 50, 15
-                            CancelButton 430, 155, 50, 15
+
                       End If
+                      ButtonGroup ButtonPressed
+                        PushButton 320, 155, 15, 15, "+", plus_button
+                        PushButton 340, 155, 15, 15, "-", minus_button
+                        OkButton 375, 155, 50, 15
+                        CancelButton 430, 155, 50, 15
                   End If
                 EndDialog
 
