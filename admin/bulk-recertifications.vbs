@@ -694,18 +694,20 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                 Call navigate_to_MAXIS_screen ("SPEC", "MEMO")
                 Select Case ALL_CASES_ARRAY(written_lang, case_entry)
 
-                Case "02"   'Hmong
-                    MsgBox "HMONG"
-                Case "21"   'Karen
-                    MsgBox "KAREN"
-                Case "06"   'Russian
-                    MsgBox "RUSSIAN"
-                Case "07"   'Somali
-                    MsgBox "SOMALI"
-                Case "01"   'Spanish
-                    MsgBox "SPANISH"
-                Case Else
-                    MsgBox "ENGLISH"
+                Case "07"   'Somali (2nd)
+                    'MsgBox "SOMALI"
+                Case "01"   'Spanish (3rd)
+                    'MsgBox "SPANISH"
+                Case "02"   'Hmong (4th)
+                    'MsgBox "HMONG"
+                Case "06"   'Russian (5th)
+                    'MsgBox "RUSSIAN"
+                Case "12"   'Oromo (6th)
+                    'MsgBox "OROMO"
+                Case "03"   'Vietnamese (7th)
+                    'MsgBox "VIETNAMESE"
+                Case Else  'English (1st)
+                    'MsgBox "ENGLISH"
                 End Select
 
                 Memo_to_display = "The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case."
@@ -752,54 +754,73 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
 
             else
 
-
-                'Looking for the written language code.
-                'Once we have the memo translated into other languages, the MEMO portion will be put here and will be specific to the language needs.
-                Select Case ALL_CASES_ARRAY(written_lang, case_entry)
-
-
-                Case "07"   'Somali (2nd)
-                    'MsgBox "SOMALI"
-                Case "01"   'Spanish (3rd)
-                    'MsgBox "SPANISH"
-                Case "02"   'Hmong (4th)
-                    'MsgBox "HMONG"
-                Case "06"   'Russian (5th)
-                    'MsgBox "RUSSIAN"
-                Case "12"   'Oromo (6th)
-                    'MsgBox "OROMO"
-                Case "03"   'Vietnamese (7th)
-                    'MsgBox "VIETNAMESE"
-                Case Else  'English (1st)
-                    'MsgBox "ENGLISH"
-                End Select
-
                 'Writing the SPEC MEMO - dates will be input from the determination made earlier.
                 Call start_a_new_spec_memo_and_continue(memo_started)
 
                 IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
 
-                    CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case.")
-                    CALL write_variable_in_SPEC_MEMO("")
-                    CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & programs & " case to continue.")
-                    CALL write_variable_in_SPEC_MEMO("")
-                    Call write_variable_in_SPEC_MEMO("  *** Please complete your interview by " & interview_end_date & ". ***")
-                    Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-                    Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
-                    CALL write_variable_in_SPEC_MEMO("")
-                    CALL write_variable_in_SPEC_MEMO("**  Your " & programs & " case will close on " & last_day_of_recert & " unless    **")
-                    CALL write_variable_in_SPEC_MEMO("** we receive your paperwork and complete the interview. **")
-                    CALL write_variable_in_SPEC_MEMO("")
-                    Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
-                    Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
-                    Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
-                    Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
-                    Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
-                    Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
-                    Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
-                    Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
-                    Call write_variable_in_SPEC_MEMO(" ")
-                    CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy.")
+
+                    'Looking for the written language code.
+                    'Once we have the memo translated into other languages, the MEMO portion will be put here and will be specific to the language needs.
+                    Select Case ALL_CASES_ARRAY(written_lang, case_entry)
+
+
+                        Case "07"   'Somali (2nd)
+                            'MsgBox "SOMALI"
+                            CALL write_variable_in_SPEC_MEMO("Waaxda Adeegyada Aadanaha waxay kuu soo dirtay baakad warqado ah. Waraaqahani waxay cusbooneysiiyaan kiiskaaga " & programs & ".")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("Fadlan saxiix, taariikhdana ku qor oo soo celi waraaqaha cusboonaysiinta" & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". Waa inaad sidoo kale buuxusaa wareysiga " & programs & "-gaaga si kiisku u sii socdo.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("*Fadlan dhammaystir wareysigaaga inta ka horreysa " & interview_end_date & "*")
+                            CALL write_variable_in_SPEC_MEMO("Si aad u dhamaystirto wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 9:00 subaxnimo ilaa 4:00 galabnimo Isniinta ilaa Jimcaha.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("* Kiiskaaga " & programs & " wuxuu xirmi doonaa " & last_day_of_recert & " haddii *")
+                            CALL write_variable_in_SPEC_MEMO("* aynan helin waraaqahaaga iyo dhamaystirka wareysiga. *")
+                            CALL write_variable_in_SPEC_MEMO("Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha.")
+                            Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                            Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                            Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+                            Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                            Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                            Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                            CALL write_variable_in_SPEC_MEMO("(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)")
+                            CALL write_variable_in_SPEC_MEMO("Qoraallada rabshadaha qoysaska waxaad ka heli kartaa https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. Waxaad kaloo codsan kartaa qoraalkan oo warqad ah.")
+
+                        ' Case "01"   'Spanish (3rd)
+                        '     'MsgBox "SPANISH"
+                        ' Case "02"   'Hmong (4th)
+                        '     'MsgBox "HMONG"
+                        ' Case "06"   'Russian (5th)
+                        '     'MsgBox "RUSSIAN"
+                        ' Case "12"   'Oromo (6th)
+                        '     'MsgBox "OROMO"
+                        ' Case "03"   'Vietnamese (7th)
+                        '     'MsgBox "VIETNAMESE"
+                        Case Else  'English (1st)
+                            'MsgBox "ENGLISH"
+                            CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & programs & " case to continue.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            Call write_variable_in_SPEC_MEMO("  *** Please complete your interview by " & interview_end_date & ". ***")
+                            Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+                            Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("**  Your " & programs & " case will close on " & last_day_of_recert & " unless    **")
+                            CALL write_variable_in_SPEC_MEMO("** we receive your paperwork and complete the interview. **")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
+                            Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                            Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                            Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+                            Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                            Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                            Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                            Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
+                            Call write_variable_in_SPEC_MEMO(" ")
+                            CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy.")
+
+                    End Select
 
                     PF4         'Submit the MEMO
 
@@ -827,20 +848,58 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                     Call start_a_new_spec_memo_and_continue(memo_started)   'Starting a MEMO to send information about verifications
 
                     IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
-                        CALL write_variable_in_SPEC_MEMO("As a part of the Renewal Process we must receive recent verification of your information. To speed the renewal process, please send proofs with your renewal paperwork.")
-                        CALL write_variable_in_SPEC_MEMO("")
-                        CALL write_variable_in_SPEC_MEMO(" * Examples of income proofs: paystubs, employer statement,")
-                        CALL write_variable_in_SPEC_MEMO("   income reports, business ledgers, income tax forms, etc.")
-                        CALL write_variable_in_SPEC_MEMO("   *If a job has ended, send proof of the end of employment")
-                        CALL write_variable_in_SPEC_MEMO("   and last pay.")
-                        CALL write_variable_in_SPEC_MEMO("")
-                        CALL write_variable_in_SPEC_MEMO(" * Examples of housing cost proofs(if changed): rent/house")
-                        CALL write_variable_in_SPEC_MEMO("   payment receipt, mortgage, lease, subsidy, etc.")
-                        CALL write_variable_in_SPEC_MEMO("")
-                        CALL write_variable_in_SPEC_MEMO(" * Examples of medical cost proofs(if changed):")
-                        CALL write_variable_in_SPEC_MEMO("   prescription and medical bills, etc.")
-                        CALL write_variable_in_SPEC_MEMO("")
-                        CALL write_variable_in_SPEC_MEMO("If you have questions about the type of verifications needed, call 612-596-1300 and someone will assist you.")
+
+                        Select Case ALL_CASES_ARRAY(written_lang, case_entry)       'Sending notice by language if possible
+
+                        Case "07"   'Somali (2nd)
+                            'MsgBox "SOMALI"
+                            CALL write_variable_in_SPEC_MEMO("Nidaamka dib-u-cusboonaysiinta waxaa qayb ka ah inaan heno dhammaan xaqiijinta macaluumaadka. Si loo dedejiyo nidaamka dib-u-cusboonaysiinta, fadlan soo raacicaddaymnaha waraaqaha dib-u-cusboonaysiinta.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("* Tusaalooyinka caddaynta dakhliga: Qaybta dambe ee")
+                            CALL write_variable_in_SPEC_MEMO("  jeegaga, qoraalka loo shaqeeyaha, warbixinta dakhliga,")
+                            CALL write_variable_in_SPEC_MEMO("  xisaabaadka ganacsiga, foomamka canshuurta dakhliga, iwm.")
+                            CALL write_variable_in_SPEC_MEMO("  * Haddii shaqo kaa dhammaatay, soo dir caddeynta")
+                            CALL write_variable_in_SPEC_MEMO("    dhamaadka shaqada iyo mushaharka ugu dambeeya.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("* Tusaalooyinka caddaynta Kharashaadka guryaha (haddii wax")
+                            CALL write_variable_in_SPEC_MEMO("  isbeddelay): kirada/guriga rasiidka lacag bixinta,")
+                            CALL write_variable_in_SPEC_MEMO("  bixinta, amaah guri, ijaarka, kabitaanka, iwm.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("* Tusaalooyinka caddaymaha kharashka caafimaadka (haddii")
+                            CALL write_variable_in_SPEC_MEMO("  wax isbeddelay): wargadda daawada dhaktarka iyo biilal")
+                            CALL write_variable_in_SPEC_MEMO("  caafimaad, iwm.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("Haddii aad qabto su'aalo ku saabsan nooca xaqiijinta loo baahan yahay, wac 612-596-1300 qof ayaa ku caawin doona.")
+
+                        ' Case "01"   'Spanish (3rd)
+                        '     'MsgBox "SPANISH"
+                        ' Case "02"   'Hmong (4th)
+                        '     'MsgBox "HMONG"
+                        ' Case "06"   'Russian (5th)
+                        '     'MsgBox "RUSSIAN"
+                        ' Case "12"   'Oromo (6th)
+                        '     'MsgBox "OROMO"
+                        ' Case "03"   'Vietnamese (7th)
+                        '     'MsgBox "VIETNAMESE"
+                        Case Else  'English (1st)
+                            'MsgBox "ENGLISH"
+                            CALL write_variable_in_SPEC_MEMO("As a part of the Renewal Process we must receive recent verification of your information. To speed the renewal process, please send proofs with your renewal paperwork.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO(" * Examples of income proofs: paystubs, employer statement,")
+                            CALL write_variable_in_SPEC_MEMO("   income reports, business ledgers, income tax forms, etc.")
+                            CALL write_variable_in_SPEC_MEMO("   *If a job has ended, send proof of the end of employment")
+                            CALL write_variable_in_SPEC_MEMO("   and last pay.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO(" * Examples of housing cost proofs(if changed): rent/house")
+                            CALL write_variable_in_SPEC_MEMO("   payment receipt, mortgage, lease, subsidy, etc.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO(" * Examples of medical cost proofs(if changed):")
+                            CALL write_variable_in_SPEC_MEMO("   prescription and medical bills, etc.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("If you have questions about the type of verifications needed, call 612-596-1300 and someone will assist you.")
+
+                        End Select
+
                     End If
 
                     start_a_blank_case_note
@@ -873,18 +932,20 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                         Call navigate_to_MAXIS_screen ("SPEC", "MEMO")
                         Select Case ALL_CASES_ARRAY(written_lang, case_entry)       'Sending notice by language if possible
 
-                        Case "02"   'Hmong
-                            MsgBox "HMONG"
-                        Case "21"   'Karen
-                            MsgBox "KAREN"
-                        Case "06"   'Russian
-                            MsgBox "RUSSIAN"
-                        Case "07"   'Somali
-                            MsgBox "SOMALI"
-                        Case "01"   'Spanish
-                            MsgBox "SPANISH"
-                        Case Else
-                            MsgBox "ENGLISH"
+                        Case "07"   'Somali (2nd)
+                            'MsgBox "SOMALI"
+                        Case "01"   'Spanish (3rd)
+                            'MsgBox "SPANISH"
+                        Case "02"   'Hmong (4th)
+                            'MsgBox "HMONG"
+                        Case "06"   'Russian (5th)
+                            'MsgBox "RUSSIAN"
+                        Case "12"   'Oromo (6th)
+                            'MsgBox "OROMO"
+                        Case "03"   'Vietnamese (7th)
+                            'MsgBox "VIETNAMESE"
+                        Case Else  'English (1st)
+                            'MsgBox "ENGLISH"
                         End Select
 
                         'creating the memo message and displaying it.
@@ -927,47 +988,67 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                         successful_notices = successful_notices + 1                 'For statistical purposes
                         ALL_CASES_ARRAY(notc_confirm, case_entry) = "Y"         'setting this here because in dev mode - the notice is always successful
                     else
-
-                        Select Case ALL_CASES_ARRAY(written_lang, case_entry)       'selecting  the language and writing the memo by language
-
-                        Case "02"   'Hmong
-                            'MsgBox "HMONG"
-                        Case "21"   'Karen
-                            'MsgBox "KAREN"
-                        Case "06"   'Russian
-                            'MsgBox "RUSSIAN"
-                        Case "07"   'Somali
-                            'MsgBox "SOMALI"
-                        Case "01"   'Spanish
-                            'MsgBox "SPANISH"
-                        Case Else
-                            'MsgBox "ENGLISH"
-                        End Select
-
                         'writing a SPEC MEMO with the NOMI wording.
                         Call start_a_new_spec_memo_and_continue(memo_started)
                         'MsgBox memo_started
                         IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
 
-                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then CALL write_variable_in_SPEC_MEMO("We received your Recertification Paperwork on " & ALL_CASES_ARRAY(date_of_app, case_entry) & ".")
-                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then CALL write_variable_in_SPEC_MEMO("Your Recertification Paperwork has not yet been received.")
-                            CALL write_variable_in_SPEC_MEMO("")
-                            CALL write_variable_in_SPEC_MEMO("You must have an interview by " & last_day_of_recert & " or your benefits will end. ")
-                            CALL write_variable_in_SPEC_MEMO("")
-                            Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-                            Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
-                            CALL write_variable_in_SPEC_MEMO("")
-                            Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
-                            Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
-                            Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
-                            Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
-                            Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
-                            Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
-                            Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
-                            Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
-                            CALL write_variable_in_SPEC_MEMO("")
-                            CALL write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_day_of_recert & "  **")
-                            CALL write_variable_in_SPEC_MEMO("  **   your benefits will end on " & last_day_of_recert & ".   **")
+                            Select Case ALL_CASES_ARRAY(written_lang, case_entry)       'selecting  the language and writing the memo by language
+
+                                Case "07"   'Somali (2nd)
+                                    'MsgBox "SOMALI"
+                                    if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then CALL write_variable_in_SPEC_MEMO("Waraaqahaagii dib-u-cusboonaysiinta waxaan helnay" & ALL_CASES_ARRAY(date_of_app, case_entry) & ".")
+                                    if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then CALL write_variable_in_SPEC_MEMO("Waraaqahaagii dib-u-cusboonaysiinta weli ma aynaan helin.")
+                                    CALL write_variable_in_SPEC_MEMO("")
+                                    CALL write_variable_in_SPEC_MEMO("Waa inaad wareysi martaa inta ka horreysa " & last_day_of_recert & " haddii kale waxaa joogsan doona waxtarrada aad hesho.")
+                                    CALL write_variable_in_SPEC_MEMO("")
+                                    CALL write_variable_in_SPEC_MEMO("Si aad u dhamaystirto wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 9:00 subaxnimo ilaa 4:00 galabnimo Isniinta ilaa Jimcaha.")
+                                    CALL write_variable_in_SPEC_MEMO("")
+                                    CALL write_variable_in_SPEC_MEMO("Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha.")
+                                    Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                                    Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                                    Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+                                    Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                                    Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                                    Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                                    CALL write_variable_in_SPEC_MEMO("(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)")
+                                    CALL write_variable_in_SPEC_MEMO("")
+                                    CALL write_variable_in_SPEC_MEMO("* Haddii aynaan war kaa helin inta ka horreysa " & last_day_of_recert & " *")
+                                    CALL write_variable_in_SPEC_MEMO("*   Macaawinada aad hesho waxay instaageysaa " & last_day_of_recert & ". *")
+
+                                ' Case "01"   'Spanish (3rd)
+                                '     'MsgBox "SPANISH"
+                                ' Case "02"   'Hmong (4th)
+                                '     'MsgBox "HMONG"
+                                ' Case "06"   'Russian (5th)
+                                '     'MsgBox "RUSSIAN"
+                                ' Case "12"   'Oromo (6th)
+                                '     'MsgBox "OROMO"
+                                ' Case "03"   'Vietnamese (7th)
+                                '     'MsgBox "VIETNAMESE"
+                                Case Else  'English (1st)
+                                    'MsgBox "ENGLISH"
+                                    if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then CALL write_variable_in_SPEC_MEMO("We received your Recertification Paperwork on " & ALL_CASES_ARRAY(date_of_app, case_entry) & ".")
+                                    if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then CALL write_variable_in_SPEC_MEMO("Your Recertification Paperwork has not yet been received.")
+                                    CALL write_variable_in_SPEC_MEMO("")
+                                    CALL write_variable_in_SPEC_MEMO("You must have an interview by " & last_day_of_recert & " or your benefits will end. ")
+                                    CALL write_variable_in_SPEC_MEMO("")
+                                    Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+                                    Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
+                                    CALL write_variable_in_SPEC_MEMO("")
+                                    Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
+                                    Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                                    Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                                    Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+                                    Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                                    Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                                    Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                                    Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
+                                    CALL write_variable_in_SPEC_MEMO("")
+                                    CALL write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_day_of_recert & "  **")
+                                    CALL write_variable_in_SPEC_MEMO("  **   your benefits will end on " & last_day_of_recert & ".   **")
+
+                            End Select
 
                             PF4         'Submit the MEMO
 
