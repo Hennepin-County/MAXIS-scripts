@@ -79,9 +79,9 @@ BeginDialog case_number_dialog, 0, 0, 216, 170, "Add GRH Rate 2 to MMIS"
   ButtonGroup ButtonPressed
     OkButton 75, 55, 40, 15
     CancelButton 120, 55, 40, 15
-  Text 10, 130, 195, 25, "* Before you use the script, you must have approved GRH results that reflect the SSR information in the SSR pop-up on ELIG/GRFB for the selected footer month/year."
+  Text 10, 130, 195, 25, "Before you use the script, you must have approved GRH results that reflect the SSR information in the SSR pop-up on ELIG/GRFB for the selected footer month/year."
   Text 55, 15, 50, 10, "Case Number:"
-  Text 10, 95, 195, 25, "This script is to be used when a GRH Rate 2 case needs to be added into MMIS. Currently this script only supports adding a new agreement to MMIS."
+  Text 10, 95, 195, 25, "This script is to be used when a new service agreement needs to be added into MMIS. If you need to update an agreement, please do that manually."
   Text 45, 35, 60, 10, "Initial month/year:"
   GroupBox 5, 80, 205, 85, "Add GRH Rate 2 to MMIS script:"
 EndDialog
@@ -115,7 +115,6 @@ If PRIV_check = "PRIV" then script_end_procedure("PRIV case, cannot access/updat
 EMReadScreen grh_status, 4, 9, 74		'Ensuring that the case is active on GRH. If not, case will not be updated in MMIS. 
 If grh_status <> "ACTV" then
     If trim(grh_status) = "" then grh_status = "Inactive"
-	msgbox "GRH case status is " & grh_status
 	script_end_procedure("GRH case status is " & grh_status & ". The script will now end.") 	  
 End if 
 
@@ -127,17 +126,18 @@ Call HCRE_panel_bypass			'Function to bypass a jenky HCRE panel. If the HCRE pan
 '----------------------------------------------------------------------------------------------------UNEA panel
 SSA_disa = ""
 Call navigate_to_MAXIS_screen("STAT", "UNEA")
-EmWriteScreen "01", 20, 76
+Call write_value_and_transmit("01", 20, 76)
 Call write_value_and_transmit("01", 20, 79)
 EMReadScreen total_panels, 1, 2, 78
 If total_panels = "0" then 
+    'msgbox "no UNEA panels" & vbcr & SSA_disa
     SSA_disa = false 
 Else 
     Do
         EmReadscreen UNEA_type, 2, 5, 37
         If UNEA_type = "01" or UNEA_type = "02" or UNEA_type = "03" then 
             SSA_disa = True
-            msgbox SSA_disa
+            'msgbox SSA_disa
             exit do 
         ELSE
             SSA_disa = False
@@ -157,8 +157,8 @@ If waiver_type <> "_" then script_end_procedure("Client is active on a waiver. S
 If SSA_disa = True then 
     EmReadscreen cert_start_date, 10, 7, 47
     EmReadscreen cert_end_date, 10, 7, 69
-    If (SSA_disa = True and cert_start_date = "__ __ ____") 
-        then script_end_procedure("Client is certified disabled through SSA. Both SSA disability dates and PSN dates need to be listed on STAT/DISA. The script will now end.")
+    If (SSA_disa = True and cert_start_date = "__ __ ____") then  
+        script_end_procedure("Client is certified disabled through SSA. Both SSA disability dates and PSN dates need to be listed on STAT/DISA. The script will now end.")
     Else 
         DISA_start = replace(cert_start_date, " ", "/")
         If DISA_start = "__/__/____" then DISA_start = ""
@@ -171,6 +171,7 @@ Else
 	EMReadScreen disa_end_date, 10, 6, 69
 	IF disa_start_date <> "__/__/____" then disa_start = Replace(disa_start_date," ","/")		'cleans up DISA dates
 	If disa_end_date <> "__ __ ____" then disa_end = Replace(disa_end_date," ","/")
+    
     DISA_start = replace(disa_start_date, " ", "/")
     If DISA_start = "__/__/____" then DISA_start = ""
     
@@ -187,18 +188,19 @@ Call write_value_and_transmit("01", 20, 79)
 EMReadScreen total_panels, 1, 2, 78
 If total_panels = "0" then
     CSR_required = FALSE
+    'msgbox "no JOBS panels" & vbcr & CSR_required
 Else 
     Do
         EmReadscreen JOBS_end_date, 8, 9, 49
         If JOBS_end_date = "__ __ __" then 
             CSR_required = True
-            msgbox CSR_required
+            'msgbox CSR_required
             exit do 
         ELSE
             CSR_required = FALSE
             transmit
         End if 
-        msgbox CSR_required
+        'msgbox CSR_required
         EmReadscreen error_check, 5, 24, 2
     Loop until error_check = "ENTER"
 End if 
@@ -210,18 +212,19 @@ If CSR_requied <> True then
     EMReadScreen total_panels, 1, 2, 78
     If total_panels = "0" then
         CSR_required = FALSE
+        'msgbox "no BUSI panels" & vbcr & CSR_required
     Else 
         Do
             EmReadscreen BUSI_end_date, 8, 5, 72
             If BUSI_end_date = "__ __ __" then 
                 CSR_required = True
-                msgbox CSR_required
+                'msgbox CSR_required
                 exit do 
             ELSE
                 CSR_required = FALSE
                 transmit
             End if 
-            msgbox CSR_required
+            'msgbox CSR_required
             EmReadscreen error_check, 5, 24, 2
         Loop until error_check = "ENTER"
     End if 
@@ -234,16 +237,22 @@ If CSR_required = True then
     EmReadscreen SR_month, 2, 9, 26
     EmReadscreen SR_year, 2, 9, 32
     If SR_month = "__" then script_end_procedure("A CSR is required for this case due to earned income. Please update the case, and run the script again if needed. The script will now end.")
-    PF3 'back to stat/revw screen
 End if 
 
+PF3 'back to stat/revw screen
 EmReadscreen next_revw_month, 2, 9, 37
 EmReadscreen next_revw_day, 2, 9, 40
 EmReadscreen next_revw_year, 2, 9, 43
 
 next_revw_date = next_revw_month & "/" & next_revw_day & "/" & next_revw_year
-revw_end = dateadd("d", -1, next_revw_date) & "" 	'blank space added to make vorianble to make a string
-revw_start = dateadd("M", - 6, next_revw_date)	'blank space added to make vorianble to make a string
+revw_end = dateadd("d", -1, next_revw_date)  	
+IF CSR_required = true then 
+    revw_start = dateadd("M", - 6, next_revw_date)
+else
+    revw_start = dateadd("M", - 12, next_revw_date)
+End if 
+
+msgbox revw_start & vbcr & revw_end
 
 '----------------------------------------------------------------------------------------------------SSRT: ensuring that a panel exists, and the FACI dates match.
  Call navigate_to_MAXIS_screen ("STAT", "SSRT")				
@@ -255,6 +264,7 @@ If SSRT_total_check = "0" then
 	script_end_procedure("SSRT panel needs to be created. The script will now end.")
 Elseif SSRT_total_check = "1" then 
     SSRT_found = True 
+    msgbox "only one ssrt panel."
 Else
     Do 
         confirm_SSRT = msgbox("Is this the facility/vendor you'd like to create an agreement for? Press NO to check next facility. Press YES to continue.", vbYesNoCancel + vbQuestion, "More than one SSRT panel exists.")
@@ -262,10 +272,12 @@ Else
         If confirm_SSRT = vbYes then 
             SSRT_found = True 
             exit do 
+        End if 
         If confirm_SSRT = vbNo then 
             SSRT_found = False
             transmit
             EmReadscreen last_panel, 5, 24, 2
+        End if 
     Loop until last_panel = "ENTER"
     If SSRT_found = False then script_end_procedure("All facility/vendors have reviewed without being selected. The script will now end.")
 End if 
@@ -276,16 +288,17 @@ EmReadscreen SSRT_vendor_name, 30, 6, 43
 EMReadScreen NPI_number, 10, 7, 43
 
 SSRT_vendor_name = replace(SSRT_vendor_name, "_", "")
+'msgbox "SSRT vendor name: " & SSRT_vendor_name
 
 If trim(NPI_number) = "" then script_end_procedure("No NPI number on SSRT panel. Agreement cannot be loaded into MMIS. Please report this NPI number to DHS. The script will now end.")
-If instr(SSRT_vendor_name) = "ANDREW RESIDENCE" then script_end_procedure("Andrew Residence facilities do not get loaded into MMIS. The script will now end.")
+If instr(SSRT_vendor_name, "ANDREW RESIDENCE") then script_end_procedure("Andrew Residence facilities do not get loaded into MMIS. The script will now end.")
 
 current_faci = false 
 row = 14
 Do 
     EMReadScreen ssrt_out_date, 10, row, 71
     EMReadScreen ssrt_in_date, 10, row, 47
-    msgbox "date out: " & ssrt_out_date 
+    'msgbox "date out: " & ssrt_out_date 
     If ssrt_out_date = "__ __ ____" then 
         If ssrt_in_date = "__ __ ____" then 
             current_faci = False 
@@ -297,7 +310,6 @@ Do
     Else  
         current_faci = true 
         exit do  
-        end if 
     End if  
     If row = 9 then 
         transmit
@@ -307,13 +319,16 @@ Loop until row = 9
 
 SSRT_start = replace(ssrt_in_date, " ", "/")
 If SSRT_start = "__/__/____" then SSRT_start = ""
+If cdate(SSRT_start) <= cdate("02/01/2018") then SSRT_start = "02/01/2018"
 
 SSRT_end = replace(ssrt_out_date, " ", "/")
 If SSRT_end = "__/__/____" then SSRT_end = ""
 
+'msgbox SSRT_start & vbcr & SSRT_end
+
 '----------------------------------------------------------------------------------------------------FACI panel 
 Call navigate_to_MAXIS_screen("STAT", "FACI")	
-EMWriteScreen "01", 20, 76)	'For member 01 - All GRH cases should be for member 01. 
+Call write_value_and_transmit ("01", 20, 76) 	'For member 01 - All GRH cases should be for member 01. 
 Call write_value_and_transmit ("01", 20, 79)    'Ensuring we're on the 1st panel 
 
 'LOOKS FOR MULTIPLE STAT/FACI PANELS, GOES TO THE MOST RECENT ONE
@@ -323,7 +338,7 @@ If FACI_total_check = "0" then script_end_procedure("Case does not have a FACI p
 faci_found = False 
 Do 
     EMReadScreen faci_vendor_number, 8, 5, 43		'Enters vendor number 
-    If faci_vendor_number = SSRT_vendor_number =  then 
+    If faci_vendor_number = SSRT_vendor_number then 
         faci_found = true
         'Gathering approval county information 
         EMReadScreen approval_county, 2, 12, 71
@@ -339,13 +354,13 @@ Loop until last_panel = "ENTER"	'This means that there are no other faci panels
 If faci_found = False then script_end_procedure("FACI panel could not be found for the SSRT panel vendor. The script will now end.")
 
 '----------------------------------------------------------------------------------------------------Main selection dialog 
-BeginDialog date_dialog, 0, 0, 261, 170, "Select the SSR start and end dates for  & SSRT_vendor_name"
-  CheckBox 75, 25, 65, 10, disa_start
-  CheckBox 170, 25, 65, 10, disa_end
-  CheckBox 75, 45, 65, 10, revw_start
-  CheckBox 170, 45, 65, 10, revw_end
-  CheckBox 75, 65, 65, 10, SSRT_start
-  CheckBox 170, 65, 65, 10, SSRT_end
+BeginDialog date_dialog, 0, 0, 261, 170, "Select the SSR start and end dates for " & SSRT_vendor_name
+  CheckBox 75, 25, 65, 10,  DISA_start, disa_start_checkbox
+  CheckBox 170, 25, 65, 10,  DISA_end, disa_end_checkbox
+  CheckBox 75, 45, 65, 10,  revw_start, revw_start_checkbox
+  CheckBox 170, 45, 65, 10, revw_end, revw_end_checkbox
+  CheckBox 75, 65, 65, 10,  SSRT_start, SSRT_start_checkbox
+  CheckBox 170, 65, 65, 10, SSRT_end, SSRT_end_checkbox
   EditBox 75, 85, 55, 15, custom_start
   EditBox 170, 85, 55, 15, custom_end
   EditBox 85, 110, 170, 15, custom_dates_explained
@@ -368,51 +383,35 @@ EndDialog
 'Main dialog: user will input case number and initial month/year will default to current month - 1 and member 01 as member number
 DO
     DO 
-        err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP    
-        DO
-            err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
+        DO 
             dialog date_dialog				'main dialog
             cancel_confirmation
-            If (disa_start = unchecked and revw_start = unchecked and SSRT_start = unchecked and trim(custom_start) = "") then err_msg = err_msg & vbCr & "Choose/enter at least one start date."		'mandatory field
-            If (disa_end = unchecked and revw_end = unchecked and SSRT_end = unchecked and trim(custom_end) = "") then err_msg = err_msg & vbCr & "Choose/enter at least one end date."		'mandatory field
+            MAXIS_dialog_navigation
+             
+            start_date = "" 'revaluing the variables for the start_date date
+            end_date = ""   'revaluing the variables for the end date
+            If disa_start_checkbox = checked then start_date = start_date & disa_start
+            If revw_start_checkbox = checked then start_date = start_date & revw_start
+            If SSRT_start_checkbox = checked then start_date = start_date & SSRT_start
+            If trim(custom_start) <> "" then start_date = start_date & custom_start
             
-            If (disa_start = checked or revw_start = checked or SSRT_start = unchecked or trim(custom_start) <> "") then err_msg = err_msg & vbCr & "Choose/enter at least one start date."		'mandatory field
-            If (disa_end = unchecked or revw_end = unchecked or SSRT_end = unchecked or trim(custom_end) = "") then err_msg = err_msg & vbCr & "Choose/enter at least one end date."		'mandatory field
-            
-            If (trim(custom_start_date) <> "" or trim(custom_end_date) <> "" AND trim(custom_dates_explained) = "" then err_msg = err_msg & vbNewLine & "* Enter the reason for the custom start and/or end dates."
-            If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "Enter your worker signature."
-            IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-        LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+            If Disa_end_checkbox = checked then end_date = end_date & DISA_end
+            If revw_end_checkbox = checked then end_date = end_date & revw_end
+            If SSRT_end_checkbox = checked then end_date = end_date & SSRT_end
+            If trim(custom_end) <> "" then end_date = end_date & custom_end        
+        Loop until ButtonPressed = -1
         
-        'revaluing the variables for the start date
-        If disa_start = checked then disa_start = start
-        If disa_end = checked then disa_end = start
-        If revw_start = checked then revw_start = start
-        If custom_start = checked then custom_start = start
-        'revaluing the variables for the end date
-        If SSRT_start = checked then SSRT_start = end 
-        If SSRT_end = checked then SSRT_end = end 
-        If revw_end = checked then revw_end = end 
-        If custom_end = checked then custom_end = end 
-    
-        If IsDate(start_date) = false THEN err_msg = err_msg & vbCr & "Select/enter a valid start date."		'mandatory field
-        IF IsDate(end_date) = false THEN err_msg = err_msg & vbCr & "Select/enter a valid end date."		'mandatory field
-        
-        If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
-        If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
-        
+        err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
+        If trim(start_date) = "" or IsDate(start_date) = false THEN err_msg = err_msg & vbCr & "Select/enter one valid start date."		'mandatory field
+        IF trim(end_date) = "" or IsDate(end_date) = false THEN err_msg = err_msg & vbCr & "Select/enter one valid end date."		'mandatory field
+        If (trim(custom_start) <> "" or trim(custom_end) <> "" and trim(custom_dates_explained) = "") THEN err_msg = err_msg & vbCr & "Explain the reason for selecting custom dates."		'mandatory field
+        If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "Enter your worker signature."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+    LOOP UNTIL err_msg = ""	    
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 '----------------------------------------------------------------------------------------------------MEMB and ADDR panels 
-'TODO break apart start and end dates to ensure they can be written into MMIS. 
-'start_date = "05/17/2018"   'start and end service agreement dates: Hard coded for now
-'end_date = "05/30/2018"
-total_units = datediff("d", start, end) + 1
-msgbox total_units
-
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
 EMReadScreen client_PMI, 8, 4, 46
 client_PMI = trim(client_PMI)
@@ -454,6 +453,13 @@ service_rate = replace(service_rate, ".", "")	'removing the period for input int
 service_rate = trim(service_rate)
 
 '----------------------------------------------------------------------------------------------------ELIG/GRH
+'Trimming the vendor number of the preceding 0's since ELIG/GRH doesn't show the 0's. 
+If left(SSRT_vendor_number, 1) = "0" then 
+    Do 
+        SSRT_vendor_number = right(SSRT_vendor_number, len(SSRT_vendor_number) - 1) 
+    Loop until left(SSRT_vendor_number, 1) <> "0"
+End if  
+
 Call Navigate_to_MAXIS_screen("ELIG", "GRH ")
 EMReadScreen no_grh, 10, 24, 2		'NO GRH version means no conversion to MMIS will take place
 If no_grh = "NO VERSION" then script_end_procedure("There are no GRH eligibility results. Please review.")
@@ -490,7 +496,23 @@ End if
   
 msgbox "Going into MMIS"
 
-''----------------------------------------------------------------------------------------------------MMIS portion of the script
+'------------------------------------------------------------------------------------------------------calcuationas and conversion for MMIS
+total_units = datediff("d", start_date, end_date) + 1
+msgbox start_date & vbcr & end_date & vbcr & total_units
+
+start_mo =  right("0" &  DatePart("m",    start_date), 2)
+start_day = right("0" &  DatePart("d",    start_date), 2)
+start_yr =  right(       DatePart("yyyy", start_date), 2)
+
+output_start_date = start_mo & start_day & start_yr
+
+end_mo =  right("0" &  DatePart("m",    end_date), 2)
+end_day = right("0" &  DatePart("d",    end_date), 2)
+end_yr =  right(       DatePart("yyyy", end_date), 2)
+
+output_end_date = end_mo & end_day & end_yr
+
+'----------------------------------------------------------------------------------------------------MMIS portion of the script
 If Update_MMIS = True then
 	Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior autorization area
 	Call MMIS_panel_check("AKEY")				'ensuring we are on the right MMIS screen
@@ -502,7 +524,7 @@ If Update_MMIS = True then
     If active_agreement <> "NO DOCUMENTS" then 
 		EMReadScreen AGMT_status, 31, 3, 19 
 		AGMT_status = trim(AGMT_status)
-		If AGMT_status = "START DT:        END DT:" then 
+		If AGMT_status = "start_date DT:        END DT:" then 
 			AGMT_info = "More than one service agreement exists in MMIS."
 		Else 
 			AGMT_info = AGMT_status & " agreement already exists in MMIS."
@@ -519,12 +541,13 @@ If Update_MMIS = True then
 		Call write_value_and_transmit("2", 7, 77)	'Enters the agreement type and transmits
 		'----------------------------------------------------------------------------------------------------ASA1 screen
 		Call MMIS_panel_check("ASA1")				'ensuring we are on the right MMIS screen
-		EmWriteScreen "051718", 4, 64				'Start date is static for the BULK conversion. TODO: change to date_in which will match the FACI dates. Hardcoded for now. 
-		EmWriteScreen "053018", 4, 71				'End date is static for the BULK conversion. TODO: change to date_out which will match the FACI dates. 
-		EmWriteScreen client_PMI, 8, 64							'Enters the client's PMI 
-		EmWriteScreen client_DOB, 9, 19							'Enters the client's DOB 
-		EmWriteScreen approval_county, 11, 19					'Enters 3 digit CO of SVC
-		EmWriteScreen approval_county, 11, 39					'Enters 3 digit CO of RES
+        
+		EmWriteScreen output_start_date, 4, 64				'Start date 
+		EmWriteScreen output_end_date, 4, 71				'End date 
+		EmWriteScreen client_PMI, 8, 64						'Enters the client's PMI 
+		EmWriteScreen client_DOB, 9, 19						'Enters the client's DOB 
+		EmWriteScreen approval_county, 11, 19				'Enters 3 digit CO of SVC
+		EmWriteScreen approval_county, 11, 39				'Enters 3 digit CO of RES
 		msgbox "ASA1, is everything but CO of FIN entered?"
 		Call write_value_and_transmit(approval_county, 11, 64)	'Enters 3 digit CO of FIN RESP and transmits
 		
@@ -534,10 +557,10 @@ If Update_MMIS = True then
 		Call MMIS_panel_check("ASA3")				'ensuring we are on the right MMIS screen	
 		EMWriteScreen "H0043", 7, 36
 		EMWriteScreen "U5", 7, 44
-		EMWriteScreen "051718", 8, 60				'Start date is static for the BULK conversion. TODO: change to date_in which will match the FACI dates. Hardcoded for now
-		EMWriteScreen "053018", 8, 67				'End date is static for the BULK conversion. TODO: change to date_out which will match the FACI dates. 
+		EmWriteScreen output_start_date, 8, 60		
+		EmWriteScreen output_end_date, 8, 67
 		EMWriteScreen service_rate, 9, 20			'Enters service rate from VND2 
-		EMWriteScreen total_units, 9, 60 			'Enters the difference between the start date and end date. TODO: update this coding to work with date_in and date_out after BULK conversion.
+		EMWriteScreen total_units, 9, 60 			
 		msgbox "ASA3, is everything but the NPI entered?"
 		'If NPI_number = "1801986773" then NPI_number = "A767410200"
         'If NPI_number = "A096405300" then NPI_number = "A904695300"
@@ -590,7 +613,7 @@ If Update_MMIS = True then
  		    PF9 								'triggering stat edits 	
 		    EmreadScreen error_codes, 79, 20, 2	'checking for stat edits
 		    If trim(error_codes) <> "00 140  4          01 140  4" then 
-		    	script_end_procedure("MMIS stat edits exist. Edit codes are: " & error_codes & vbcr & "PF3 to save what's been updated in MMIS, and report error codes to The Quality Improvement Team.")
+		    	script_end_procedure("MMIS stat edits exist. Edit codes are: " & error_codes & vbcr & "PF3 to save what's been updated in MMIS, and follow up on the error codes.")
 		    	'figure out the rest of the steps here. 
 		    else 
 		    	EMWriteScreen "A", 3, 17						'Updating the AMT type/STAT to A for approved 
@@ -609,7 +632,7 @@ If Update_MMIS = True then
 	End if 		
 End if     
 
-'----------------------------------------------------------------------------------------------------MAXIS 
+'----------------------------------------------------------------------------------------------------Back to MAXIS 
 If Update_MMIS = True then
     Call navigate_to_MAXIS("")  'Function to navigate back to MAXIS
     transmit
@@ -630,14 +653,23 @@ If Update_MMIS = True then
         Loop until are_we_passworded_out = false					'loops until user passwords back in
     End if 
     
-    Call navigate_to_MAXIS_screen("CASE", "NOTE")
     '----------------------------------------------------------------------------------------------------CASE NOTE
+    
+    If disa_start_checkbox = checked then start_date_source = " , PSN start date."
+    If revw_start_checkbox = checked then start_date_source = " , start of certification period."
+    If SSRT_start_checkbox = checked then start_date_source = " , SSRT_total_check start date."
+    
+    If Disa_end_checkbox = checked then end_date_source = " , PSN end date."
+    If revw_end_checkbox = checked then end_date_source = " , end of certification period."
+    If SSRT_end_checkbox = checked then end_date_source = " , SSRT end date." 
+    
+    Call navigate_to_MAXIS_screen("CASE", "NOTE")
     PF9
-    Call write_variable_in_CASE_NOTE("GRH Rate 2 SSR added to MMIS for " & SSRT_vendor_name_)
+    Call write_variable_in_CASE_NOTE("GRH Rate 2 SSR added to MMIS for " & SSRT_vendor_name)
     Call write_bullet_and_variable_in_CASE_NOTE("NPI #", npi_number)
     Call write_bullet_and_variable_in_CASE_NOTE("MMIS autorization number", authorization_number)
-    Call write_bullet_and_variable_in_CASE_NOTE("SSR start date", start_date)   'Hard coded for now
-    Call write_bullet_and_variable_in_CASE_NOTE("SSR end date", end_date)
+    Call write_variable_in_CASE_NOTE("* SSR start date: " & start_date & start_date_source)   'Hard coded for now
+    Call write_variable_in_CASE_NOTE("* SSR end date: " & end_date & end_date_source )
     'Call write_variable_in_CASE_NOTE("* SSR end date selected by worker based on PSN dates on DISA panel.")
     Call write_bullet_and_variable_in_CASE_NOTE("Explaination of custom date", custom_dates_explained)
     Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
