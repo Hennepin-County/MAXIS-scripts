@@ -520,49 +520,74 @@ If Update_MMIS = True then
     EmWriteScreen client_PMI, 10, 36
     Call write_value_and_transmit("C", 3, 22)	'Checking to make sure that more than one agreement is not listed by trying to change (C) the information for the PMI selected.
 	EMReadScreen active_agreement, 12, 24, 2
-	msgbox active_agreement & vbcr & MAXIS_case_number
+    msgbox active_agreement & vbcr & MAXIS_case_number
+    
     If active_agreement <> "NO DOCUMENTS" then 
 		EMReadScreen AGMT_status, 31, 3, 19 
-		AGMT_status = trim(AGMT_status)
-		If AGMT_status = "start_date DT:        END DT:" then 
-			AGMT_info = "More than one service agreement exists in MMIS."
-		Else 
-			AGMT_info = AGMT_status & " agreement already exists in MMIS."
-		End if 
-    	Update_MMIS = False	
-    	script_end_procedure(AGMT_info)
-		PF3
-    Elseif active_agreement = "NO DOCUMENTS" then   
-		Call clear_line_of_text(10, 36) 	'clears out the PMI number. Cannot add new agreement with PMI listed on AKEY.
-		msgbox "did the PMI get cleared?"
-		EmWriteScreen "A", 3, 22					'Selects the action code (A)
-		EmWriteScreen "T", 3, 71					'Selecs the service agreement option (T)
-		msgbox "AKEY, is everything but the 2 entered?"
-		Call write_value_and_transmit("2", 7, 77)	'Enters the agreement type and transmits
-		'----------------------------------------------------------------------------------------------------ASA1 screen
-		Call MMIS_panel_check("ASA1")				'ensuring we are on the right MMIS screen
+        AGMT_status = trim(AGMT_status)
+        If AGMT_status = "START DT:        END DT:" then 
+            row = 6
+            Do 
+                EMReadScreen agreement_status, 1, row, 60
+                EMReadScreen ASEL_start_date, 6, row, 63
+                EmReadscreen ASEL_end_date, 6, row, 70
+                ASEL_period = ASEL_start_date & "-" & ASEL_end_date
+                output_period = output_start_date & "-" & output_end_date
+                If agreement_status = "A" then 
+                    If ASEL_period = output_period then 
+                        duplicate_agreement = True 
+                        script_end_procedure("An approved agreement already exists for the time frame selected. Please review the case. The script will now end.")
+                    Else 
+                        row = row + 1
+                        duplicate_agreement = True 
+                    End if 
+                ElseIf agreement_status = "D" then 
+                    duplicate_agreement = True 
+                    row = row + 1
+                End if 
+            Loop until trim(agreement_status) = ""
+            PF3
+        Else 
+            duplicate_agreement = False 
+        End if         
+    Else 
+        duplicate_agreement = False 
+    End if 
+    
+    If duplicate_agreement = False then 
+          
+      
+	    Call clear_line_of_text(10, 36) 	'clears out the PMI number. Cannot add new agreement with PMI listed on AKEY.
+	    msgbox "did the PMI get cleared?"
+	    EmWriteScreen "A", 3, 22					'Selects the action code (A)
+	    EmWriteScreen "T", 3, 71					'Selecs the service agreement option (T)
+	    msgbox "AKEY, is everything but the 2 entered?"
+	    Call write_value_and_transmit("2", 7, 77)	'Enters the agreement type and transmits
+
+	    '----------------------------------------------------------------------------------------------------ASA1 screen
+	    Call MMIS_panel_check("ASA1")				'ensuring we are on the right MMIS screen
         
-		EmWriteScreen output_start_date, 4, 64				'Start date 
-		EmWriteScreen output_end_date, 4, 71				'End date 
-		EmWriteScreen client_PMI, 8, 64						'Enters the client's PMI 
-		EmWriteScreen client_DOB, 9, 19						'Enters the client's DOB 
-		EmWriteScreen approval_county, 11, 19				'Enters 3 digit CO of SVC
-		EmWriteScreen approval_county, 11, 39				'Enters 3 digit CO of RES
-		msgbox "ASA1, is everything but CO of FIN entered?"
-		Call write_value_and_transmit(approval_county, 11, 64)	'Enters 3 digit CO of FIN RESP and transmits
-		
-		Call MMIS_panel_check("ASA2")				'ensuring we are on the right MMIS screen
-		transmit 	'no action required on ASA2
-		'----------------------------------------------------------------------------------------------------ASA3 screen
-		Call MMIS_panel_check("ASA3")				'ensuring we are on the right MMIS screen	
-		EMWriteScreen "H0043", 7, 36
-		EMWriteScreen "U5", 7, 44
-		EmWriteScreen output_start_date, 8, 60		
-		EmWriteScreen output_end_date, 8, 67
-		EMWriteScreen service_rate, 9, 20			'Enters service rate from VND2 
-		EMWriteScreen total_units, 9, 60 			
-		msgbox "ASA3, is everything but the NPI entered?"
-		'If NPI_number = "1801986773" then NPI_number = "A767410200"
+	    EmWriteScreen output_start_date, 4, 64				'Start date 
+	    EmWriteScreen output_end_date, 4, 71				'End date 
+	    EmWriteScreen client_PMI, 8, 64						'Enters the client's PMI 
+	    EmWriteScreen client_DOB, 9, 19						'Enters the client's DOB 
+	    EmWriteScreen approval_county, 11, 19				'Enters 3 digit CO of SVC
+	    EmWriteScreen approval_county, 11, 39				'Enters 3 digit CO of RES
+	    msgbox "ASA1, is everything but CO of FIN entered?"
+	    Call write_value_and_transmit(approval_county, 11, 64)	'Enters 3 digit CO of FIN RESP and transmits
+	    
+	    Call MMIS_panel_check("ASA2")				'ensuring we are on the right MMIS screen
+	    transmit 	'no action required on ASA2
+	    '----------------------------------------------------------------------------------------------------ASA3 screen
+	    Call MMIS_panel_check("ASA3")				'ensuring we are on the right MMIS screen	
+	    EMWriteScreen "H0043", 7, 36
+	    EMWriteScreen "U5", 7, 44
+	    EmWriteScreen output_start_date, 8, 60		
+	    EmWriteScreen output_end_date, 8, 67
+	    EMWriteScreen service_rate, 9, 20			'Enters service rate from VND2 
+	    EMWriteScreen total_units, 9, 60 			
+	    msgbox "ASA3, is everything but the NPI entered?"
+	    'If NPI_number = "1801986773" then NPI_number = "A767410200"
         'If NPI_number = "A096405300" then NPI_number = "A904695300"
         'If NPI_number = "A346627201" then NPI_number = "A346627200"
         'If NPI_number = "A346627203" then NPI_number = "A346627200"
@@ -571,65 +596,64 @@ If Update_MMIS = True then
         'If NPI_number = "A952618400" then NPI_number = "A186688300"
         
         Call write_value_and_transmit(NPI_number, 10, 20)	'Enters the NPI number then transmits 
-		Emreadscreen NPI_issue, 26, 24, 1
-		If NPI_issue = "CORRECT HIGHLIGHTED FIELDS" then 
-			Update_MMIS = False	
-			script_end_procedure("Issue with NPI# in MMIS. Please review case/report issue to the Quality Improvement Team.")
-			Call clear_line_of_text(10, 20) 	'clears out the NPI number so that the rest of the information can be saved. 
-			PF3
-		else 
-		    '----------------------------------------------------------------------------------------------------PPOP screen handling
-		    EMReadScreen PPOP_check, 4, 1, 52
-		    If PPOP_check = "PPOP" then 
-		    	'needs to serach for the facility that is associated with GRH facilities
-		    	Do 
-		    	    row = 1
-		    	    col = 1
-		    	    EMSearch "SPEC: GR", row, col		'Checking for "SPEC: GR"
-		    	    If row <> 0 Then
-		    	    	EMWriteScreen "x", row -1, 2	'Selects the correct facility found on the previous row. 
-		    			msgbox "Did the right facility get selected?"
-		    			exit do 
-		    	    Else 
-		    	    	PF8		'going to the next screen if not found on the 1st screen 
-		    	    End if
-		    	Loop
-		    	transmit							'To select match 
-				transmit 							'to ACF1. No action required on ACF3.
-			End if 
-		    
-		    '----------------------------------------------------------------------------------------------------ACF1 screen 
-		    Call MMIS_panel_check("ACF1")		'ensuring we are on the right MMIS screen
-		    EmWriteScreen addr_line_01, 5, 8	'enters the clients address 
-		    EmWriteScreen addr_line_02, 5, 37
-		    EmWriteScreen city_line, 6, 8
-		    EmWriteScreen state_line, 6, 34
-		    EmWriteScreen zip_line, 6, 42
-		    msgbox "ACF1, is address entered?"
-		    Call write_value_and_transmit("ASA1", 1, 8)		'direct navigating to ASA1
-		    
-		    '----------------------------------------------------------------------------------------------------ASA1 screen 
-		    Call MMIS_panel_check("ASA1")		'ensuring we are on the right MMIS screen
- 		    PF9 								'triggering stat edits 	
-		    EmreadScreen error_codes, 79, 20, 2	'checking for stat edits
-		    If trim(error_codes) <> "00 140  4          01 140  4" then 
-		    	script_end_procedure("MMIS stat edits exist. Edit codes are: " & error_codes & vbcr & "PF3 to save what's been updated in MMIS, and follow up on the error codes.")
-		    	'figure out the rest of the steps here. 
-		    else 
-		    	EMWriteScreen "A", 3, 17						'Updating the AMT type/STAT to A for approved 
-		    	Call write_value_and_transmit("ASA3", 1, 8)		'direct navigating to ASA3
-		    	Call MMIS_panel_check("ASA3")					'ensuring we are on the right MMIS screen
-		    	EMWriteScreen "A", 12, 19						'Updating the STAT CD/DATE to A for approved 
-		    	Update_MMIS = true
-		        PF3 '	to save changes 
+	    Emreadscreen NPI_issue, 26, 24, 1
+	    If NPI_issue = "CORRECT HIGHLIGHTED FIELDS" then 
+	    	Update_MMIS = False	
+	    	script_end_procedure("Issue with NPI# in MMIS. Please review case/report issue to the Quality Improvement Team.")
+	    	Call clear_line_of_text(10, 20) 	'clears out the NPI number so that the rest of the information can be saved. 
+	    	PF3
+	    else 
+	        '----------------------------------------------------------------------------------------------------PPOP screen handling
+	        EMReadScreen PPOP_check, 4, 1, 52
+	        If PPOP_check = "PPOP" then 
+	        	'needs to serach for the facility that is associated with GRH facilities
+	        	Do 
+	        	    row = 1
+	        	    col = 1
+	        	    EMSearch "SPEC: GR", row, col		'Checking for "SPEC: GR"
+	        	    If row <> 0 Then
+	        	    	EMWriteScreen "x", row -1, 2	'Selects the correct facility found on the previous row. 
+	        			msgbox "Did the right facility get selected?"
+	        			exit do 
+	        	    Else 
+	        	    	PF8		'going to the next screen if not found on the 1st screen 
+	        	    End if
+	        	Loop
+	        	transmit							'To select match 
+	    		transmit 							'to ACF1. No action required on ACF3.
+	    	End if 
+	        
+	        '----------------------------------------------------------------------------------------------------ACF1 screen 
+	        Call MMIS_panel_check("ACF1")		'ensuring we are on the right MMIS screen
+	        EmWriteScreen addr_line_01, 5, 8	'enters the clients address 
+	        EmWriteScreen addr_line_02, 5, 37
+	        EmWriteScreen city_line, 6, 8
+	        EmWriteScreen state_line, 6, 34
+	        EmWriteScreen zip_line, 6, 42
+	        msgbox "ACF1, is address entered?"
+	        Call write_value_and_transmit("ASA1", 1, 8)		'direct navigating to ASA1
+	        
+	        '----------------------------------------------------------------------------------------------------ASA1 screen 
+	        Call MMIS_panel_check("ASA1")		'ensuring we are on the right MMIS screen
+ 	        PF9 								'triggering stat edits 	
+	        EmreadScreen error_codes, 79, 20, 2	'checking for stat edits
+	        If trim(error_codes) <> "00 140  4          01 140  4" then 
+	        	script_end_procedure("MMIS stat edits exist. Edit codes are: " & error_codes & vbcr & "PF3 to save what's been updated in MMIS, and follow up on the error codes.")
+	        else 
+	        	EMWriteScreen "A", 3, 17						'Updating the AMT type/STAT to A for approved 
+	        	Call write_value_and_transmit("ASA3", 1, 8)		'direct navigating to ASA3
+	        	Call MMIS_panel_check("ASA3")					'ensuring we are on the right MMIS screen
+	        	EMWriteScreen "A", 12, 19						'Updating the STAT CD/DATE to A for approved 
+	        	Update_MMIS = true
+	            PF3 '	to save changes 
 
-		        Call MMIS_panel_check("AKEY")		'ensuring we are on the right MMIS screen
-		        EMReadScreen authorization_number, 13, 9, 36
-		        authorization_number = trim(authorization_number)
-		        EMReadscreen approval_message, 16, 24, 2
-		    End if 
-		End if 
-	End if 		
+	            Call MMIS_panel_check("AKEY")		'ensuring we are on the right MMIS screen
+	            EMReadScreen authorization_number, 13, 9, 36
+	            authorization_number = trim(authorization_number)
+	            EMReadscreen approval_message, 16, 24, 2
+	        End if 
+	    End if 	
+    End if 
 End if     
 
 '----------------------------------------------------------------------------------------------------Back to MAXIS 
