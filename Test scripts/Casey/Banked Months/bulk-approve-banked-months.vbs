@@ -81,7 +81,7 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 		EMReadScreen cl_age, 2, 8, 76
 		IF cl_age = "  " THEN cl_age = 0
 		cl_age = cl_age * 1
-		IF cl_age < 18 OR cl_age >= 50 THEN exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": Appears to have exemption. Age = " & cl_age & "."
+		IF cl_age < 18 OR cl_age >= 50 THEN exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": Appears to have exemption. Age = " & cl_age & "."
 	END IF
 
 
@@ -97,21 +97,21 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 			cert_end_dt = replace(cert_end_dt, " ", "/")
 			IF IsDate(disa_end_dt) = True THEN
 				IF DateDiff("D", date, disa_end_dt) > 0 THEN
-					exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": Appears to have disability exemption. DISA end date = " & disa_end_dt & "."
+					exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": Appears to have disability exemption. DISA end date = " & disa_end_dt & "."
 					disa_status = True
 				END IF
 			ELSE
 				IF disa_end_dt = "__/__/____" OR disa_end_dt = "99/99/9999" THEN
-					exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": Appears to have disability exemption. DISA has no end date."
+					exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": Appears to have disability exemption. DISA has no end date."
 					disa_status = True
 				END IF
 			END IF
 			IF IsDate(cert_end_dt) = True AND disa_status = False THEN
-				IF DateDiff("D", date, cert_end_dt) > 0 THEN exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": Appears to have disability exemption. DISA Certification end date = " & cert_end_dt & "."
+				IF DateDiff("D", date, cert_end_dt) > 0 THEN exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": Appears to have disability exemption. DISA Certification end date = " & cert_end_dt & "."
 			ELSE
 				IF cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999" THEN
 					EMReadScreen cert_begin_dt, 8, 7, 47
-					IF cert_begin_dt <> "__ __ __" THEN exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": Appears to have disability exemption. DISA certification has no end date."
+					IF cert_begin_dt <> "__ __ __" THEN exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": Appears to have disability exemption. DISA certification has no end date."
 				END IF
 			END IF
 		END IF
@@ -124,6 +124,7 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 	EMReadScreen all_eat_together, 1, 4, 72
 	IF all_eat_together = "_" THEN
 		eats_group_members = "01" & ","
+        memb_found = FALSE
 	ELSEIF all_eat_together = "Y" THEN
 		eats_row = 5
 		DO
@@ -158,7 +159,7 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 	END IF
 
 	IF memb_found = True THEN
-		IF placeholder_HH_array <> eats_group_members THEN script_end_procedure("You are asking the script to verify ABAWD and SNAP E&T exemptions for a household that does not match the EATS group. The script cannot support this request. It will now end." & "&~&" & "Please re-run the script selecting only the individuals in the EATS group.")
+		'IF placeholder_HH_array <> eats_group_members THEN script_end_procedure("You are asking the script to verify ABAWD and SNAP E&T exemptions for a household that does not match the EATS group. The script cannot support this request. It will now end." & "&~&" & "Please re-run the script selecting only the individuals in the EATS group.")
 		eats_group_members = trim(eats_group_members)
 		eats_group_members = split(eats_group_members, ",")
 
@@ -171,7 +172,7 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 					IF cl_age = "  " THEN cl_age = 0
 						cl_age = cl_age * 1
 						IF cl_age =< 17 THEN
-							exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": May have exemption for minor child caretaker. Household member " & eats_pers & " is minor. Please review for accuracy."
+							exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": May have exemption for minor child caretaker. Household member " & eats_pers & " is minor. Please review for accuracy."
 						END IF
 				END IF
 			NEXT
@@ -190,21 +191,21 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 					cert_end_dt = replace(cert_end_dt, " ", "/")
 					IF IsDate(disa_end_dt) = True THEN
 						IF DateDiff("D", date, disa_end_dt) > 0 THEN
-							exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": MAY have an exemption for disabled household member. Member " & disa_pers & " DISA end date = " & disa_end_dt & "."
+							exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": MAY have an exemption for disabled household member. Member " & disa_pers & " DISA end date = " & disa_end_dt & "."
 							disa_status = TRUE
 						END IF
 					ELSEIF IsDate(disa_end_dt) = False THEN
 						IF disa_end_dt = "__/__/____" OR disa_end_dt = "99/99/9999" THEN
-							exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & " : MAY have exemption for disabled household member. Member " & disa_pers & " DISA end date = " & disa_end_dt & "."
+							exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & " : MAY have exemption for disabled household member. Member " & disa_pers & " DISA end date = " & disa_end_dt & "."
 							disa_status = true
 						END IF
 					END IF
 					IF IsDate(cert_end_dt) = True AND disa_status = False THEN
-						IF DateDiff("D", date, cert_end_dt) > 0 THEN exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": MAY have exemption for disabled household member. Member " & disa_pers & " DISA certification end date = " & cert_end_dt & "."
+						IF DateDiff("D", date, cert_end_dt) > 0 THEN exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": MAY have exemption for disabled household member. Member " & disa_pers & " DISA certification end date = " & cert_end_dt & "."
 					ELSE
 						IF (cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999") THEN
 							EMReadScreen cert_begin_dt, 8, 7, 47
-							IF cert_begin_dt <> "__ __ __" THEN exemption_list = exemption_list & "&~&" & "* M" & person & ": MAY have exemption for disabled household member. Member " & disa_pers & " DISA certification has no end date."
+							IF cert_begin_dt <> "__ __ __" THEN exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person & ": MAY have exemption for disabled household member. Member " & disa_pers & " DISA certification has no end date."
 						END IF
 					END IF
 				END IF
@@ -318,11 +319,11 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 		EMWriteScreen "RBIC", 20, 71
 		CALL write_value_and_transmit(person_ref_nbr, 20, 76)
 		EMReadScreen num_of_RBIC, 1, 2, 78
-		IF num_of_RBIC <> "0" THEN exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": Has RBIC panel. Please review for ABAWD and/or SNAP E&T exemption."
+		IF num_of_RBIC <> "0" THEN exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": Has RBIC panel. Please review for ABAWD and/or SNAP E&T exemption."
 		IF prosp_inc >= 935.25 OR prospective_hours >= 129 THEN
-			exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": Appears to be working 30 hours/wk (regardless of wage level) or earning equivalent of 30 hours/wk at federal minimum wage. Please review for ABAWD and SNAP E&T exemptions."
+			exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": Appears to be working 30 hours/wk (regardless of wage level) or earning equivalent of 30 hours/wk at federal minimum wage. Please review for ABAWD and SNAP E&T exemptions."
 		ELSEIF prospective_hours >= 80 AND prospective_hours < 129 THEN
-			exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": Appears to be working at least 80 hours in the benefit month. Please review for ABAWD exemption and SNAP E&T exemptions."
+			exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": Appears to be working at least 80 hours in the benefit month. Please review for ABAWD exemption and SNAP E&T exemptions."
 		END IF
 	END IF
 
@@ -338,11 +339,11 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 				unea_end_dt = replace(unea_end_dt, " ", "/")
 				IF IsDate(unea_end_dt) = True THEN
 					IF DateDiff("D", date, unea_end_dt) > 0 THEN
-						IF unea_type = "14" THEN exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": Appears to have active unemployment benefits. Please review for ABAWD and SNAP E&T exemptions."
+						IF unea_type = "14" THEN exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": Appears to have active unemployment benefits. Please review for ABAWD and SNAP E&T exemptions."
 					END IF
 				ELSE
 					IF unea_end_dt = "__/__/__" THEN
-						IF unea_type = "14" THEN exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": Appears to have active unemployment benefits. Please review for ABAWD and SNAP E&T exemptions."
+						IF unea_type = "14" THEN exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": Appears to have active unemployment benefits. Please review for ABAWD and SNAP E&T exemptions."
 					END IF
 				END IF
 				transmit
@@ -363,7 +364,7 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 			    IF pben_type = "12" THEN		'UI pending'
 					EMReadScreen pben_disp, 1, pben_row, 77
 					IF pben_disp = "A" OR pben_disp = "E" OR pben_disp = "P" THEN
-						exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": Appears to have pending, appealing, or eligible Unemployment benefits. Please review for ABAWD and SNAP E&T exemption."
+						exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": Appears to have pending, appealing, or eligible Unemployment benefits. Please review for ABAWD and SNAP E&T exemption."
 						EXIT DO
 					END IF
 				ELSE
@@ -384,8 +385,8 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 
 		IF num_of_PREG <> "0" THen
             If preg_due_dt <> "__/__/__" Then
-                If DateDiff("d", date, preg_due_dt) > 0 AND preg_end_dt = "__ __ __" THEN exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": Appears to have active pregnancy. Please review for ABAWD exemption."
-                If DateDiff("d", date, preg_due_dt) < 0 Then exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": Appears to have an overdue pregnancy, person may meet a minor child exemption. Contact client."
+                If DateDiff("d", date, preg_due_dt) > 0 AND preg_end_dt = "__ __ __" THEN exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": Appears to have active pregnancy. Please review for ABAWD exemption."
+                If DateDiff("d", date, preg_due_dt) < 0 Then exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": Appears to have an overdue pregnancy, person may meet a minor child exemption. Contact client."
             End If
         End If
     END IF
@@ -394,14 +395,14 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
     CALL navigate_to_MAXIS_screen("STAT", "PROG")
     EMReadScreen cash1_status, 4, 6, 74
     EMReadScreen cash2_status, 4, 7, 74
-    IF cash1_status = "ACTV" OR cash2_status = "ACTV" THEN exemption_list = exemption_list & "&~&" & "* Case is active on CASH programs. Please review for ABAWD and SNAP E&T exemption."
+    IF cash1_status = "ACTV" OR cash2_status = "ACTV" THEN exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " Case is active on CASH programs. Please review for ABAWD and SNAP E&T exemption."
 
     '>>>>>>>>>>ADDR
     CALL navigate_to_MAXIS_screen("STAT", "ADDR")
     EMReadScreen homeless_code, 1, 10, 43
     EmReadscreen addr_line_01, 16, 6, 43
 
-    IF homeless_code = "Y" or addr_line_01 = "GENERAL DELIVERY" THEN exemption_list = exemption_list & "&~&" & "* Client is claiming homelessness. If client has barriers to employment, they could meet the 'Unfit for Employment' exemption. Exemption began 05/2018."
+    IF homeless_code = "Y" or addr_line_01 = "GENERAL DELIVERY" THEN exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " Client is claiming homelessness. If client has barriers to employment, they could meet the 'Unfit for Employment' exemption. Exemption began 05/2018."
 
     '>>>>>>>>>SCHL/STIN/STEC
 	IF person_ref_nbr <> "" THEN
@@ -410,7 +411,7 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 		EMReadScreen num_of_SCHL, 1, 2, 78
 		IF num_of_SCHL = "1" THEN
 			EMReadScreen school_status, 1, 6, 40
-			IF school_status <> "N" THEN exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": Appears to be enrolled in school. Please review for ABAWD and SNAP E&T exemptions."
+			IF school_status <> "N" THEN exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": Appears to be enrolled in school. Please review for ABAWD and SNAP E&T exemptions."
 		ELSE
 			EMWriteScreen "STIN", 20, 71
 			CALL write_value_and_transmit(person_ref_nbr, 20, 76)
@@ -424,7 +425,7 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 						cov_thru = DateAdd("M", 1, cov_thru)
 						cov_thru = DateAdd("D", -1, cov_thru)
 						IF DateDiff("D", date, cov_thru) > 0 THEN
-							exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": Appears to have active student income. Please review student status to confirm SNAP eligibility as well as ABAWD and SNAP E&T exemptions."
+							exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": Appears to have active student income. Please review student status to confirm SNAP eligibility as well as ABAWD and SNAP E&T exemptions."
 							EXIT DO
 						ELSE
 							STIN_row = STIN_row + 1
@@ -452,7 +453,7 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 							stec_thru = DateAdd("M", 1, stec_thru)
 							stec_thru = DateAdd("D", -1, stec_thru)
 							IF DateDiff("D", date, stec_thru) > 0 THEN
-								exemption_list = exemption_list & "&~&" & "* M" & person_ref_nbr & ": Appears to have active student expenses. Please review student status to confirm SNAP eligibility as well as ABAWD and SNAP E&T exemptions."
+								exemption_list = exemption_list & "&~&" & "* " & MAXIS_footer_month & "/" & MAXIS_footer_year & " M" & person_ref_nbr & ": Appears to have active student expenses. Please review student status to confirm SNAP eligibility as well as ABAWD and SNAP E&T exemptions."
 								EXIT DO
 							ELSE
 								STEC_row = STEC_row + 1
@@ -482,7 +483,7 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 
     'Displaying the results...now with added MsgBox bling.
     'vbSystemModal will keep the results in the foreground.
-    MsgBox exemption_list, vbInformation + vbSystemModal, "ABAWD/FSET Exemption Check -- Results"
+    'MsgBox exemption_list, vbInformation + vbSystemModal, "ABAWD/FSET Exemption Check -- Results"
 End Function
 '===========================================================================================================================
 
@@ -580,14 +581,14 @@ If process_option = "Ongoing Banked Months Cases" Then
     'working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\On Demand Waiver\Files for testing new application rewrite\Working Excel.xlsx"
     working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Master banked months list.xlsx"     'THIS IS THE REAL ONE
 
-    ' 'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
-    ' call excel_open_pw(working_excel_file_path, True, False, ObjExcel, objWorkbook, "BM")
+    'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
+    call excel_open_pw(working_excel_file_path, True, False, ObjExcel, objWorkbook, "BM")
 
-    'TRYING TO FIGURE OUT HOW TO IDENTIFY IF EXCEL IS IN READ ONLY AND IF TO OPEN OR NOT'
-    Set ObjExcel = CreateObject("Excel.Application") 'Allows a user to perform functions within Microsoft Excel
-    ObjExcel.Visible = True
-    ObjExcel.DisplayAlerts = True
-    Set objWorkbook = ObjExcel.Workbooks.Open(working_excel_file_path,,,, "BM",,,,,,FALSE) 'Opens an excel file from a specific URL
+    ' 'TRYING TO FIGURE OUT HOW TO IDENTIFY IF EXCEL IS IN READ ONLY AND IF TO OPEN OR NOT'
+    ' Set ObjExcel = CreateObject("Excel.Application") 'Allows a user to perform functions within Microsoft Excel
+    ' ObjExcel.Visible = True
+    ' ObjExcel.DisplayAlerts = True
+    ' Set objWorkbook = ObjExcel.Workbooks.Open(working_excel_file_path,,,, "BM",,,,,,FALSE) 'Opens an excel file from a specific URL
 
     'Open( FileName , UpdateLinks , ReadOnly , Format , Password , WriteResPassword , IgnoreReadOnlyRecommended , Origin , Delimiter , Editable , Notify , Converter , AddToMru , Local , CorruptLoad )
 
@@ -728,6 +729,10 @@ If process_option = "Ongoing Banked Months Cases" Then
         MAXIS_case_number = BANKED_MONTHS_CASES_ARRAY(case_nbr, the_case)
         BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case) = Right("00"&BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), 2)
         ObjExcel.Cells(list_row, memb_nrb_col) = BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case)
+        'list_of_exemption = ""
+        start_month = ""
+        start_year = ""
+        assist_a_new_approval = FALSE
 
         For month_indicator = clt_mo_one to clt_mo_nine
             Call back_to_SELF
@@ -791,38 +796,154 @@ If process_option = "Ongoing Banked Months Cases" Then
                         'Need to review case for possible exemption months - code from exemption finder
                         Call review_ABAWD_FSET_exemptions(BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), exemption_exists, list_of_exemption)
 
-                        dlg_len = 120 + UBOUND(list_of_exemption)*15
+                        dlg_len = 130
+                        For each exemption in list_of_exemption
+                            hgt = 10
+                            if len(exemption) > 100 then hgt = 20
+                            if len(exemption) > 200 then hgt = 30
+                            dlg_len = dlg_len + hgt
+                        Next
                         y_pos = 75
+                        code_for_banked = TRUE
                         If exemption_exists = TRUE Then
                             BeginDialog Dialog1, 0, 0, 346, dlg_len, "Possible ABAWD/FSET Exemption"
                             'BeginDialog Dialog1, 0, 0, 346, 135, "Possible ABAWD/FSET Exemption"
                               GroupBox 15, 10, 325, 55, "Case Review"
-                              Text 60, 25, 235, 10, "*** THIS CASE NEEDS REVIEW OF POSSIBLE ABAWD EXEMPTION ***"
+                              Text 60, 25, 250, 10, "*** THIS CASE NEEDS REVIEW OF POSSIBLE ABAWD EXEMPTION ***"
                               Text 20, 40, 310, 20, "At this time, review this case as STAT indicates that the client may meet an ABAWD exemption and may no longer need to use Banked Months. Check the case and update now."
                               For each exemption in list_of_exemption
                                 'Text 10, 75, 330, 10, "exemption list"
-                                Text 10, y_pos, 330, 10, exemption
-                                y_pos = y_pos + 15
+                                hgt = 10
+                                if len(exemption) > 100 then hgt = 20
+                                if len(exemption) > 200 then hgt = 30
+                                Text 10, y_pos, 330, hgt, exemption
+                                y_pos = y_pos + hgt + 5
                               next
                               Text 70, y_pos, 205, 10, "*** IF THIS CASE MEETS AN ABAWD OR FSET EXEMPTION ***"
                               y_pos = y_pos + 10
                               Text 90, y_pos, 160, 10, "*** UPDATE AND DO A NEW APPROVAL NOW ***"
                               y_pos = y_pos + 15
                               ButtonGroup ButtonPressed
-                                PushButton 20, y_pos, 135, 15, "CASE STILL NEEDS BANKED MONTHS", still_banked_btn
-                                PushButton 160, y_pos, 165, 15, "Client now meets an ABAWD or FSET Exemption", meets_exemption_btn
+                                PushButton 15, y_pos, 145, 15, "CASE STILL NEEDS BANKED MONTHS", still_banked_btn
+                                PushButton 165, y_pos, 165, 15, "Client now meets an ABAWD or FSET Exemption", meets_exemption_btn
                             EndDialog
 
+                            dialog Dialog1
+
+                            If ButtonPressed = meets_exemption_btn Then code_for_banked = FALSE
+
                         End If
-                        ' PF9
-                        ' EMWriteScreen month_tracker_nbr, 14, 50
-                        ' transmit
-                        ' EMWriteScreen "BGTX", 20, 71
-                        ' transmit
+
+                        Call navigate_to_MAXIS_screen("STAT", "WREG")
+
+                        EMWriteScreen BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), 20, 76
+                        transmit
+
+                        EMReadscreen current_banked_month_indicator, 2, 14, 50
+
+                        If right("00"&month_tracker_nbr, 2) = current_banked_month_indicator Then
+                            code_for_banked = FALSE
+                        Else
+                            if start_month = "" Then
+                                start_month = MAXIS_footer_month
+                                start_year = MAXIS_footer_year
+                            End If
+                        End If
+                        'This is for if we need the script to actually update WREG
+                        If code_for_banked = TRUE Then
+                            ' PF9
+                            ' EMWriteScreen month_tracker_nbr, 14, 50
+                            ' transmit
+                            ' EMWriteScreen "BGTX", 20, 71
+                            ' transmit
+                            assist_a_new_approval = TRUE
+                        End If
 
                         'Write TIKL or something to identify cases to be approved and noted.
                         'IDEA - write a new column in to Excel for cases needing approval in months
                         'IDEA - write a process that will send a case through background and stop with a dialog to allow for manual approval.
+
+                        'we only do an approval if we have reviewed CM + 1
+                        If assist_a_new_approval = TRUE and MAXIS_footer_month = CM_plus_1_mo AND MAXIS_footer_year = CM_plus_1_yr Then
+                            Call Navigate_to_MAXIS_screen("ELIG", "FS")
+                            EmWriteScreen start_month, 19, 54
+                            EMWriteScreen start_year, 19, 57
+                            transmit
+
+                            BeginDialog Dialog1, 0, 0, 236, 110, "Dialog"
+                              EditBox 95, 30, 15, 15, start_month
+                              EditBox 115, 30, 15, 15, start_year
+                              EditBox 60, 50, 170, 15, other_notes
+                              EditBox 75, 70, 155, 15, worker_signature
+                              ButtonGroup ButtonPressed
+                                OkButton 125, 90, 50, 15
+                                CancelButton 180, 90, 50, 15
+                              Text 10, 10, 155, 20, "This case has been sent through background and ready for review and approval. "
+                              Text 10, 35, 80, 10, "First Month of Approval:"
+                              Text 10, 55, 45, 10, "Other Notes:"
+                              Text 10, 75, 60, 10, "Worker Signature:"
+                            EndDialog
+
+                            dialog Dialog1
+
+                            footer_month = start_month
+                            footer_year = start_year
+                            Lines_in_note = ""
+                            Do
+                                Call Navigate_to_MAXIS_screen("ELIG", "    ")
+                                EmWriteScreen footer_month, 20, 55
+                                EMWriteScreen footer_year, 20, 58
+                                EMWriteScreen "FS", 20, 71
+                                transmit
+
+                                elig_row = 7
+                                list_of_fs_members = ""
+                                Do
+                                    EmReadscreen fs_memb, 2, elig_row, 10
+                                    EmReadscreen fs_memb_code, 1, elig_row, 35
+                                    EmReadscreen fs_memb_elig, 8, elig_row, 57
+
+                                    If fs_memb_code = "A" and fs_memb_elig = "ELIGIBLE" Then list_of_fs_members = list_of_fs_members & "~"& fs_memb
+
+                                    elig_row = elig_row + 1
+                                    EmReadscreen next_member, 2, elig_row, 10
+                                Loop until next_member = "  "
+                                list_of_fs_members = right(list_of_fs_members, len(list_of_fs_members)-1)
+                                member_array = split(list_of_fs_members, "~")
+
+                                transmit
+                                transmit
+
+                                EmReadscreen total_earned_income, 9, 8, 32
+                                EmReadscreen total_unea_income, 9, 18, 32
+
+                                transmit
+
+                                EmReadscreen total_shelter_costs, 9, 14, 28
+                                total_shelter_costs = trim(total_shelter_costs)
+                                'TODO add format number to each of these
+
+                                transmit
+
+                                EmReadscreen fs_benefit_amount, 9, 13, 72
+                                EmReadscreen reporting_status, 9, 8, 31
+
+                                Lines_in_note = Lines_in_note & "~!~* SNAP approved for " & footer_month & "/" & footer_year
+                                Lines_in_note = Lines_in_note & "~!~    Eligile Household Members: "
+                                For each person in member_array
+                                    Lines_in_note = Lines_in_note & person & ", "
+                                Next
+                                Lines_in_note = Lines_in_note & "~!~    Income: Earned: $" & total_earned_income & " Unearned: $" & total_unea_income
+                                If total_shelter_costs <> "" Then  Lines_in_note = Lines_in_note & "~!~    Shelter Costs: $" & total_shelter_costs
+                                Lines_in_note = Lines_in_note & "~!~    SNAP BENEFTIT: $" & fs_benefit_amount & " Reporting Status: " & reporting_status
+                            Loop until footer_month = CM_plus_1_mo and footer_year = CM_plus_1_yr
+
+                            ARRAY_OF_NOTE_LINES = split(Lines_in_note, "~!~")
+
+                            Call start_a_blank_CASE_NOTE
+
+
+                        End If
                         BANKED_MONTHS_CASES_ARRAY(notes_col, the_case) = BANKED_MONTHS_CASES_ARRAY(notes_col, the_case) & " ~ Approve SNAP for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "~"
                         'TODO need to find a casenoting solution for these months
                     End If
@@ -967,6 +1088,8 @@ If process_option = "Ongoing Banked Months Cases" Then
         If timer > end_time Then
             end_msg = "Success! Script has run for " & stop_time/60/60 & " hours and has finished for the time being."
             Exit For
+        Else
+            end_msg = "Last case was " & MAXIS_case_number
         End If
     Next
 
