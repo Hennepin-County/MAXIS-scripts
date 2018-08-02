@@ -696,6 +696,25 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
 
                 Case "07"   'Somali (2nd)
                     'MsgBox "SOMALI"
+                    Memo_to_display = "Waaxda Adeegyada Aadanaha waxay kuu soo dirtay baakad warqado ah. Waraaqahani waxay cusbooneysiiyaan kiiskaaga " & programs & "."
+                    Memo_to_display = Memo_to_display & vbNewLine & ""
+                    Memo_to_display = Memo_to_display & vbNewLine & "Fadlan saxiix, taariikhdana ku qor oo soo celi waraaqaha cusboonaysiinta" & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". Waa inaad sidoo kale buuxusaa wareysiga " & programs & "-gaaga si kiisku u sii socdo."
+                    Memo_to_display = Memo_to_display & vbNewLine & ""
+                    Memo_to_display = Memo_to_display & vbNewLine & "*Fadlan dhammaystir wareysigaaga inta ka horreysa " & interview_end_date & "*"
+                    Memo_to_display = Memo_to_display & vbNewLine & "Si aad u dhamaystirto wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 9:00 subaxnimo ilaa 4:00 galabnimo Isniinta ilaa Jimcaha."
+                    Memo_to_display = Memo_to_display & vbNewLine & ""
+                    Memo_to_display = Memo_to_display & vbNewLine & "* Kiiskaaga " & programs & " wuxuu xirmi doonaa " & last_day_of_recert & " haddii *"
+                    Memo_to_display = Memo_to_display & vbNewLine & "* aynan helin waraaqahaaga iyo dhamaystirka wareysiga. *"
+                    Memo_to_display = Memo_to_display & vbNewLine & "Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha."
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                    Memo_to_display = Memo_to_display & vbNewLine & "(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)"
+                    Memo_to_display = Memo_to_display & vbNewLine & "Qoraallada rabshadaha qoysaska waxaad ka heli kartaa https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. Waxaad kaloo codsan kartaa qoraalkan oo warqad ah."
+
                 Case "01"   'Spanish (3rd)
                     'MsgBox "SPANISH"
                 Case "02"   'Hmong (4th)
@@ -708,30 +727,29 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                     'MsgBox "VIETNAMESE"
                 Case Else  'English (1st)
                     'MsgBox "ENGLISH"
+                    Memo_to_display = "The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case."
+                    Memo_to_display = Memo_to_display & vbNewLine & ""
+                    Memo_to_display = Memo_to_display & vbNewLine & "Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & programs & " case to continue."
+                    Memo_to_display = Memo_to_display & vbNewLine & ""
+                    Memo_to_display = Memo_to_display & vbNewLine & "  *** Please complete your interview by " & interview_end_date & ". ***"
+                    Memo_to_display = Memo_to_display & vbNewLine & "To complete a phone interview, call the EZ Info Line at"
+                    Memo_to_display = Memo_to_display & vbNewLine & "612-596-1300 between 9:00am and 4:00pm Monday thru Friday."
+                    Memo_to_display = Memo_to_display & vbNewLine & ""
+                    Memo_to_display = Memo_to_display & vbNewLine & "**  Your " & programs & " case will close on " & last_day_of_recert & " unless    **"
+                    Memo_to_display = Memo_to_display & vbNewLine & "** we receive your paperwork and complete the interview. **"
+                    Memo_to_display = Memo_to_display & vbNewLine & ""
+                    Memo_to_display = Memo_to_display & vbNewLine & "If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday."
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                    Memo_to_display = Memo_to_display & vbNewLine & "(Hours are M - F 8-4:30 unless otherwise noted)"
+                    Memo_to_display = Memo_to_display & vbNewLine & " "
+                    Memo_to_display = Memo_to_display & vbNewLine & "Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy."
+
                 End Select
-
-                Memo_to_display = "The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case."
-                Memo_to_display = Memo_to_display & vbNewLine & ""
-                Memo_to_display = Memo_to_display & vbNewLine & "Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & programs & " case to continue."
-                Memo_to_display = Memo_to_display & vbNewLine & ""
-                Memo_to_display = Memo_to_display & vbNewLine & "  *** Please complete your interview by " & interview_end_date & ". ***"
-                Memo_to_display = Memo_to_display & vbNewLine & "To complete a phone interview, call the EZ Info Line at"
-                Memo_to_display = Memo_to_display & vbNewLine & "612-596-1300 between 9:00am and 4:00pm Monday thru Friday."
-                Memo_to_display = Memo_to_display & vbNewLine & ""
-                Memo_to_display = Memo_to_display & vbNewLine & "**  Your " & programs & " case will close on " & last_day_of_recert & " unless    **"
-                Memo_to_display = Memo_to_display & vbNewLine & "** we receive your paperwork and complete the interview. **"
-                Memo_to_display = Memo_to_display & vbNewLine & ""
-                Memo_to_display = Memo_to_display & vbNewLine & "If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday."
-                Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
-                Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
-                Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
-                Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
-                Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
-                Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
-                Memo_to_display = Memo_to_display & vbNewLine & "(Hours are M - F 8-4:30 unless otherwise noted)"
-                Memo_to_display = Memo_to_display & vbNewLine & " "
-                Memo_to_display = Memo_to_display & vbNewLine & "Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can also request a paper copy."
-
 
                 MsgBox Memo_to_display
 
@@ -934,6 +952,25 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
 
                         Case "07"   'Somali (2nd)
                             'MsgBox "SOMALI"
+                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then Memo_to_display = "Waraaqahaagii dib-u-cusboonaysiinta waxaan helnay" & ALL_CASES_ARRAY(date_of_app, case_entry) & "."
+                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then Memo_to_display = "Waraaqahaagii dib-u-cusboonaysiinta weli ma aynaan helin."
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "Waa inaad wareysi martaa inta ka horreysa " & last_day_of_recert & " haddii kale waxaa joogsan doona waxtarrada aad hesho."
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "Si aad u dhamaystirto wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 9:00 subaxnimo ilaa 4:00 galabnimo Isniinta ilaa Jimcaha."
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha."
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                            Memo_to_display = Memo_to_display & vbNewLine & "(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)"
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "* Haddii aynaan war kaa helin inta ka horreysa " & last_day_of_recert & " *"
+                            Memo_to_display = Memo_to_display & vbNewLine & "*   Macaawinada aad hesho waxay instaageysaa " & last_day_of_recert & ". *"
+
                         Case "01"   'Spanish (3rd)
                             'MsgBox "SPANISH"
                         Case "02"   'Hmong (4th)
@@ -946,28 +983,28 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             'MsgBox "VIETNAMESE"
                         Case Else  'English (1st)
                             'MsgBox "ENGLISH"
-                        End Select
+                            'creating the memo message and displaying it.
+                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then Memo_to_display = "We received your Recertification Paperwork on " & ALL_CASES_ARRAY(date_of_app, case_entry) & "."
+                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then Memo_to_display = "Your Recertification Paperwork has not yet been received."
+                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "You must have an interview by " & last_day_of_recert & " or your benefits will end. "
+                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "To complete a phone interview, call the EZ Info Line at"
+                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "612-596-1300 between 9:00am and 4:00pm Monday thru Friday."
+                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday."
+                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "(Hours are M - F 8-4:30 unless otherwise noted)"
+                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "  ** If we do not hear from you by " & last_day_of_recert & "  **"
+                            Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "  **   your benefits will end on " & last_day_of_recert & ".   **"
 
-                        'creating the memo message and displaying it.
-                        if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then Memo_to_display = "We received your Recertification Paperwork on " & ALL_CASES_ARRAY(date_of_app, case_entry) & "."
-                        if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then Memo_to_display = "Your Recertification Paperwork has not yet been received."
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & ""
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "You must have an interview by " & last_day_of_recert & " or your benefits will end. "
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & ""
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "To complete a phone interview, call the EZ Info Line at"
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "612-596-1300 between 9:00am and 4:00pm Monday thru Friday."
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & ""
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday."
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 1011 1st St S Hopkins 55343"
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "(Hours are M - F 8-4:30 unless otherwise noted)"
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & ""
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "  ** If we do not hear from you by " & last_day_of_recert & "  **"
-                        Memo_to_display = Memo_to_display & vbNewLine & vbNewLine & "  **   your benefits will end on " & last_day_of_recert & ".   **"
+                        End Select
 
                         MsgBox Memo_to_display
 
