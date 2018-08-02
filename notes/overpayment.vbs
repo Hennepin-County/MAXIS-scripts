@@ -226,7 +226,7 @@ start_a_blank_CASE_NOTE
 			End If
 		Loop until next_page = "More:  " OR next_page = "       "	'No more pages
 		'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-		CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & OP_Date & "Programs: " & OP_program, "CASE NOTE" & vbcr & message_array,"", False)
+		CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & " Programs: " & OP_program, "CASE NOTE" & vbcr & message_array,"", False)
 	END IF
 
 '---------------------------------------------------------------writing the CCOL case note'
