@@ -524,6 +524,7 @@ Const svnth_mo_col      = 12
 Const eighth_mo_col     = 13
 Const ninth_mo_col      = 14
 Const curr_mo_stat_col  = 15
+Const BM_to_approve_col = 16
 
 
 'CONSTANTS FOR ARRAYS
@@ -545,6 +546,7 @@ Const clt_mo_eight      = 13
 Const clt_mo_nine       = 14
 Const clt_curr_mo_stat  = 14
 Const case_errors       = 15
+Const months_to_approve = 16
 
 '==========================================================================================================================
 
@@ -555,7 +557,11 @@ Const case_errors       = 15
 EMConnect ""
 
 Dim BANKED_MONTHS_CASES_ARRAY ()
-ReDim BANKED_MONTHS_CASES_ARRAY (case_errors, 0)
+ReDim BANKED_MONTHS_CASES_ARRAY (months_to_approve, 0)
+
+CALL back_to_SELF
+EmReadscreen MX_region, 10, 22, 48
+MX_region = trim(MX_region)
 
 'Initial Dialog will have worker select which option is going to be run at this time
     'Assess Banked Month cases from DAIL PEPR List
@@ -600,29 +606,49 @@ If process_option = "Ongoing Banked Months Cases" Then
 End If
 
 excel_row_to_start = "2"
-stop_time = "1"
+'stop_time = "1"
 
-BeginDialog Dialog1, 0, 0, 116, 95, "Dialog"
-  EditBox 75, 25, 30, 15, stop_time
-  EditBox 75, 50, 30, 15, excel_row_to_start
+BeginDialog Dialog1, 0, 0, 176, 140, "Dialog"
+  EditBox 25, 55, 30, 15, stop_time
+  EditBox 65, 100, 30, 15, excel_row_to_start
+  EditBox 65, 120, 30, 15, excel_row_to_end
   ButtonGroup ButtonPressed
-    OkButton 60, 75, 50, 15
-  Text 10, 10, 95, 10, "Script will run "
-  Text 15, 30, 50, 10, "Hours"
-  Text 15, 55, 50, 10, "Excel to start"
+    OkButton 115, 120, 50, 15
+  Text 5, 10, 165, 10, "This run of the script will review and help process: "
+  Text 5, 20, 165, 10, process_option
+  Text 10, 35, 140, 20, "To time limit the run of the script enter the numeber of hours to run the script:"
+  Text 65, 60, 50, 10, "Hours"
+  Text 10, 80, 145, 20, "The run can be limited by indicating which rows of the Excel file to review/process:"
+  Text 15, 105, 50, 10, "Excel to start"
+  Text 15, 125, 45, 10, "Excel to end"
 EndDialog
 
-dialog Dialog1
+Do
+    err_msg = ""
+    dialog Dialog1
 
+    If trim(stop_time) <> "" AND IsNumeric(stop_time) = FALSE Then err_msg = err_msg & vbNewLine & "- Number of hours should be a number."
+    If trim(excel_row_to_start) <> "" AND IsNumeric(excel_row_to_start) = FALSE Then err_msg = err_msg & vbNewLine & "- Start row of Excel should be a number."
+    If trim(excel_row_to_end) <> "" AND IsNumeric(excel_row_to_end) = FALSE Then err_msg = err_msg & vbNewLine & "- End row of Excel should be a number."
+
+    If err_msg <> "" Then MsgBox "** Please Resolve the Following to Continue:" & vbNew & err_msg
+
+Loop until err_msg = ""
+
+If trim(excel_row_to_start) = "" Then excel_row_to_start = 2
 excel_row_to_start = excel_row_to_start * 1
+If trim(excel_row_to_end) <> "" Then excel_row_to_end = excel_row_to_end * 1
 
 'making stop time a number
-stop_time = FormatNumber(stop_time, 2,          0,                 0,                      0)
-                        'number     dec places  leading 0 - FALSE    neg nbr in () - FALSE   use deliminator(comma) - FALSE
-stop_time = stop_time * 60 * 60     'tunring hours to seconds
+If stop_time <> "" Then
+    stop_time = FormatNumber(stop_time, 2,          0,                 0,                      0)
+                            'number     dec places  leading 0 - FALSE    neg nbr in () - FALSE   use deliminator(comma) - FALSE
+    stop_time = stop_time * 60 * 60     'tunring hours to seconds
 
-end_time = timer + stop_time        'timer is the number of seconds from 12:00 AM so we need to add the hours to run to the time to determine at what point the script should exit the loop
-
+    end_time = timer + stop_time        'timer is the number of seconds from 12:00 AM so we need to add the hours to run to the time to determine at what point the script should exit the loop
+Else
+    end_time = 84600    'sets the end time for 11:30 PM so that is doesn't end out
+End If
 
 'DAIL PEPR Option
     'Dialog to select the Excel list that has the DAILs
@@ -643,7 +669,6 @@ end_time = timer + stop_time        'timer is the number of seconds from 12:00 A
     'Open the working Excel sheet
     'Have worker confirm the correct sheet opened
     'Read all the cases from the spreadsheet and add to an array
-
     'Check CASE CURR to see if case and person are still active SNAP
         'If closed need to review if the closure was correct
     'Check WREG
@@ -662,7 +687,6 @@ end_time = timer + stop_time        'timer is the number of seconds from 12:00 A
     'Open the working Excel sheet
     'Have worker confirm the correct sheet opened
     'Read all the cases from the spreadsheet and add to an array
-
     'Read PROG and CASE/PERS to confirm client is still active SNAP on this case
     'Check for possible exemption in STAT
     'Review Case Notes to see if there are any case notes that need to be assessed
@@ -679,20 +703,12 @@ end_time = timer + stop_time        'timer is the number of seconds from 12:00 A
     'Review ELIG and approve
     'Update Excel
 
+'This is to handle cases that were already approved as a banked month and needs to be continually reviewed and approved every month
 If process_option = "Ongoing Banked Months Cases" Then
-    ' 'working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\On Demand Waiver\Files for testing new application rewrite\Working Excel.xlsx"
-    ' working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Master banked months list.xlsx"     'THIS IS THE REAL ONE
-    '
-    ' 'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
-    ' call excel_open_pw(working_excel_file_path, True, True, ObjExcel, objWorkbook, "BM")
-    '
-    ' ObjExcel.Worksheets("Ongoing banked months").Activate
-    ' ObjExcel.SendKeys "{ENTER}"
-
-    list_row = excel_row_to_start
-    the_case = 0
+    list_row = excel_row_to_start           'script will allow the user to set where the script will start in taking case information from the excel row
+    the_case = 0                            'setting the incrementer for adding to the array
     Do
-        ReDim Preserve BANKED_MONTHS_CASES_ARRAY(case_errors, the_case)
+        ReDim Preserve BANKED_MONTHS_CASES_ARRAY(months_to_approve, the_case)
         BANKED_MONTHS_CASES_ARRAY(case_nbr, the_case)           = trim(ObjExcel.Cells(list_row, case_nbr_col).Value)
         BANKED_MONTHS_CASES_ARRAY(clt_excel_row, the_case)      = list_row
         BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case)       = trim(ObjExcel.Cells(list_row, memb_nrb_col).Value)
@@ -710,102 +726,105 @@ If process_option = "Ongoing Banked Months Cases" Then
         BANKED_MONTHS_CASES_ARRAY(clt_mo_eight, the_case)       = trim(ObjExcel.Cells(list_row, eighth_mo_col).Value)
         BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case)        = trim(ObjExcel.Cells(list_row, ninth_mo_col).Value)
         BANKED_MONTHS_CASES_ARRAY(clt_curr_mo_stat, the_case)   = trim(ObjExcel.Cells(list_row, curr_mo_stat_col).Value)
+        BANKED_MONTHS_CASES_ARRAY(months_to_approve, the_case)  = ""    'set this to zero at every run as it should be handled prior to the script run
 
-        list_row = list_row + 1
+        list_row = list_row + 1     'incrementing the excel row and the array
         the_case = the_case + 1
 
-    Loop Until trim(ObjExcel.Cells(list_row, case_nbr_col).Value) = ""
+        If excel_row_to_end = list_row Then Exit DO
 
-    function set_lastest_banked_month(date_variable, month_mo, month_yr, boo_var)
-        month_mo = left(date_variable, 2)
-        month_yr = right(date_variable, 2)
-        If month_mo <> CM_plus_1_mo Then boo_var = FALSE
-        If month_yr <> CM_plus_1_yr Then boo_var = FALSE
-    end function
+    Loop Until trim(ObjExcel.Cells(list_row, case_nbr_col).Value) = ""  'end of the list has case number as blank
 
+    'Loop through each item in the array to review the case.
     For the_case = 0 to UBOUND(BANKED_MONTHS_CASES_ARRAY, 2)
 
-        list_row = BANKED_MONTHS_CASES_ARRAY(clt_excel_row, the_case)
-        MAXIS_case_number = BANKED_MONTHS_CASES_ARRAY(case_nbr, the_case)
-        BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case) = Right("00"&BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), 2)
-        ObjExcel.Cells(list_row, memb_nrb_col) = BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case)
+        list_row = BANKED_MONTHS_CASES_ARRAY(clt_excel_row, the_case)       'setting the excel row to what was found in the array
+        MAXIS_case_number = BANKED_MONTHS_CASES_ARRAY(case_nbr, the_case)   'setting the case number to this variable for nav functions to work
+        BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case) = Right("00"&BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), 2)    'formatting the member number to be 2 digit
+        ObjExcel.Cells(list_row, memb_nrb_col) = BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case)                              'adding the formatted number to the excel sheet because I am tired of crazy looking excel files
         'list_of_exemption = ""
-        start_month = ""
+        start_month = ""    'blanking out these variables for each loop through the array
         start_year = ""
         assist_a_new_approval = FALSE
 
-        For month_indicator = clt_mo_one to clt_mo_nine
-            Call back_to_SELF
-            month_tracked = FALSE
-            abawd_status = ""
+        For month_indicator = clt_mo_one to clt_mo_nine     'These are set as constants that are numbers (parameters in the array) so we can loop through them
+            Call back_to_SELF                               'need to go to SELF so we can go to a different month
+            month_tracked = FALSE                           'this is reset for every month
+            abawd_status = ""                               'blanking out each variable
             fset_wreg_status = ""
 
-            If BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) <> "" Then                          'if the spreadsheet is already full
-                MAXIS_footer_month = left(BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case), 2)
+            If BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) <> "" Then                          'if the spreadsheet already has a month listed in one of the 'tracked months'
+                MAXIS_footer_month = left(BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case), 2)      'we set the footer month and year  using the month from the spreadsheet so that we look at the right month in STAT
                 MAXIS_footer_year = right(BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case), 2)
 
-                month_tracked = TRUE
+                month_tracked = TRUE            'if the month was listed on the spreadsheet - it was already tracked
             Else
-                first_of_footer_month = MAXIS_footer_month & "/01/" & MAXIS_footer_year     'this is set from the last month that was entered in the spreadsheet
-                next_month = DateAdd("m", 1, first_of_footer_month)
+                first_of_footer_month = MAXIS_footer_month & "/01/" & MAXIS_footer_year     'there was no month in the spreadsheet
+                next_month = DateAdd("m", 1, first_of_footer_month)                         'the month is advanded by ONE from what the last month we looked at was
 
-                MAXIS_footer_month = DatePart("m", next_month)
+                MAXIS_footer_month = DatePart("m", next_month)          'formatting the month and year and setting them for the nav functions to work
                 MAXIS_footer_month = right("00"&MAXIS_footer_month, 2)
 
                 MAXIS_footer_year = DatePart("yyyy", next_month)
                 MAXIS_footer_year = right(MAXIS_footer_year, 2)
             End If
 
-            Call navigate_to_MAXIS_screen("CASE", "PERS")
-            pers_row = 10
-            clt_SNAP_status = ""
+            Call navigate_to_MAXIS_screen("CASE", "PERS")       'go to CASE/PERS - which is month specific
+            pers_row = 10                                       'the first member number starts at row 10
+            clt_SNAP_status = ""                                'blanking out this variable for each loop through the array
             Do
-                EMReadScreen pers_ref_numb, 2, pers_row, 3
-                If pers_ref_numb = BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case) Then
-                    EMReadScreen clt_SNAP_status, 1, pers_row, 54
+                EMReadScreen pers_ref_numb, 2, pers_row, 3      'reading the member number
+                If pers_ref_numb = BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case) Then   'compaing it to the member number in the array
+                    EMReadScreen clt_SNAP_status, 1, pers_row, 54       'if it matches then read the SNAP status
                     Exit Do
-                Else
-                    pers_row = pers_row + 3
-                    If pers_row = 19 Then
-                        PF8
+                Else                                            'if it doesn't match
+                    pers_row = pers_row + 3                     'go to the next member number - which is 3 rows down
+                    If pers_row = 19 Then                       'if it reaches 19 - this is further down from the last member
+                        PF8                                     'go to the next page and reset to line 10
                         pers_row = 10
                     End If
                 End If
-            Loop until pers_ref_numb = "  "
+            Loop until pers_ref_numb = "  "                     'this is the end of the list
 
-            If clt_SNAP_status = "A" Then
-                Call navigate_to_MAXIS_screen("STAT", "WREG")
+            If clt_SNAP_status = "A" Then                       'If the member number was listed as ACTIVE on CASE/PERS then the script will check STAT
+                Call navigate_to_MAXIS_screen("STAT", "WREG")   'Go to WREG - where ABAWD information is
 
-                EMWriteScreen BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), 20, 76
+                EMWriteScreen BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), 20, 76 'go to the panel for the correct member
                 transmit
 
-                EMReadScreen fset_wreg_status, 2, 8, 50
+                EMReadScreen fset_wreg_status, 2, 8, 50     'Reading the FSET Status and ABAWD status
                 EMReadScreen abawd_status, 2, 13, 50
 
+                'Banked Months are numbered 1-9 as they are used
+                'This sets the indicator for WREG using the constants from the array to determine WHICH of the month it is
                 month_tracker_nbr = month_indicator - 5
-                update_WREG = FALSE
+                update_WREG = FALSE                         'resetting this boolean
 
-                If fset_wreg_status = "30" AND abawd_status = "13" Then
-                    If MAXIS_footer_month = CM_mo AND MAXIS_footer_year = CM_yr Then update_WREG = TRUE
+                If fset_wreg_status = "30" AND abawd_status = "13" Then     'If this is 30/13 then the case for this member is set as BANKED MONTHS
+                    If MAXIS_footer_month = CM_mo AND MAXIS_footer_year = CM_yr Then update_WREG = TRUE     'if we are in the current month, we can update WREG
 
-                    If MAXIS_footer_month = CM_plus_1_mo AND MAXIS_footer_year = CM_plus_1_yr Then update_WREG = TRUE
+                    If MAXIS_footer_month = CM_plus_1_mo AND MAXIS_footer_year = CM_plus_1_yr Then update_WREG = TRUE   'if we are in current month plus one, we can update WREG
 
+                    'In CM or CM+1 for banked months cases we will look in more detail
                     If update_WREG = TRUE Then
-
                         'Need to be sure that there isn't a new ABAWD month available - maybe another column with the counted months on the ongoing banked months cases
                         'Need to review case for possible exemption months - code from exemption finder
                         Call review_ABAWD_FSET_exemptions(BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), exemption_exists, list_of_exemption)
 
-                        dlg_len = 130
-                        For each exemption in list_of_exemption
-                            hgt = 10
-                            if len(exemption) > 100 then hgt = 20
-                            if len(exemption) > 200 then hgt = 30
-                            dlg_len = dlg_len + hgt
-                        Next
-                        y_pos = 75
-                        code_for_banked = TRUE
-                        If exemption_exists = TRUE Then
+                        code_for_banked = TRUE      'resetting this variable
+                        If exemption_exists = TRUE Then     'if the function above finds a potential issue then the script will ask the worker to determine if it is supposed to still be BANKED
+
+                            'finding the height of the dialog
+                            dlg_len = 130
+                            For each exemption in list_of_exemption
+                                hgt = 10
+                                if len(exemption) > 100 then hgt = 20
+                                if len(exemption) > 200 then hgt = 30
+                                dlg_len = dlg_len + hgt
+                            Next
+                            y_pos = 75
+
+                            'This dialog will list all of the exemptions the function found
                             BeginDialog Dialog1, 0, 0, 346, dlg_len, "Possible ABAWD/FSET Exemption"
                             'BeginDialog Dialog1, 0, 0, 346, 135, "Possible ABAWD/FSET Exemption"
                               GroupBox 15, 10, 325, 55, "Case Review"
@@ -828,22 +847,29 @@ If process_option = "Ongoing Banked Months Cases" Then
                                 PushButton 165, y_pos, 165, 15, "Client now meets an ABAWD or FSET Exemption", meets_exemption_btn
                             EndDialog
 
-                            dialog Dialog1
+                            dialog Dialog1      'display the dialog
 
+                            'If the worker indicates that the client meets an exemption this tells the script that we no longer need to code for banked months
                             If ButtonPressed = meets_exemption_btn Then code_for_banked = FALSE
-
                         End If
 
-                        Call navigate_to_MAXIS_screen("STAT", "WREG")
-
+                        Call navigate_to_MAXIS_screen("STAT", "WREG")   'The script or worker may have moved around in the case - need to navigate back
                         EMWriteScreen BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), 20, 76
                         transmit
 
-                        EMReadscreen current_banked_month_indicator, 2, 14, 50
+                        EMReadscreen current_banked_month_indicator, 1, 14, 50      'reading what is already listed in the Banked Month indicator
 
-                        If right("00"&month_tracker_nbr, 2) = current_banked_month_indicator Then
-                            code_for_banked = FALSE
+                        'This looks to see if the BM code on WREG panel matches what we expect the tracker number to be
+                        If right("00"&month_tracker_nbr, 1) = current_banked_month_indicator Then
+                            code_for_banked = FALSE         'if this matches we don't need to update WREG because the tracker is already correct
                         Else
+                            'This lists the months that need to be approved to be added to the Spreadsheet for manual approval
+                            If BANKED_MONTHS_CASES_ARRAY(months_to_approve, the_case) = "" Then
+                                BANKED_MONTHS_CASES_ARRAY(months_to_approve, the_case) = MAXIS_footer_month & "/" & MAXIS_footer_year
+                            Else
+                                BANKED_MONTHS_CASES_ARRAY(months_to_approve, the_case) = BANKED_MONTHS_CASES_ARRAY(months_to_approve, the_case) & ", " & MAXIS_footer_month & "/" & MAXIS_footer_year
+                            End If
+                            'This sets the first month to be approved.
                             if start_month = "" Then
                                 start_month = MAXIS_footer_month
                                 start_year = MAXIS_footer_year
@@ -851,12 +877,18 @@ If process_option = "Ongoing Banked Months Cases" Then
                         End If
                         'This is for if we need the script to actually update WREG
                         If code_for_banked = TRUE Then
-                            ' PF9
-                            ' EMWriteScreen month_tracker_nbr, 14, 50
-                            ' transmit
-                            ' EMWriteScreen "BGTX", 20, 71
-                            ' transmit
-                            assist_a_new_approval = TRUE
+                            If MX_region = "INQUIRY DB" Then           'If we are in Inquiry, the script runs in a developer mode, messaging the information
+                                MsgBox "WREG to be updated with BM Tracker number: " & month_tracker_nbr
+                            Else                                    'If we are in production, then we should actually update
+                                ' PF9
+                                ' EMWriteScreen month_tracker_nbr, 14, 50
+                                ' transmit
+                                ' EMWriteScreen "BGTX", 20, 71
+                                ' transmit
+                                'TODO add confirmation that WREG was updated
+                            End If
+                            assist_a_new_approval = TRUE            'This variable defines if more things should happen
+                            'This is only reset at the beginning of the loop for each CASE - not each month
                         End If
 
                         'Write TIKL or something to identify cases to be approved and noted.
@@ -865,11 +897,12 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                         'we only do an approval if we have reviewed CM + 1
                         If assist_a_new_approval = TRUE and MAXIS_footer_month = CM_plus_1_mo AND MAXIS_footer_year = CM_plus_1_yr Then
-                            Call Navigate_to_MAXIS_screen("ELIG", "FS")
+                            Call Navigate_to_MAXIS_screen("ELIG", "FS")     'Go to ELIG in what we expect is the start month and year
                             EmWriteScreen start_month, 19, 54
                             EMWriteScreen start_year, 19, 57
                             transmit
 
+                            'This dialog is to assist in the noting of the approval
                             BeginDialog Dialog1, 0, 0, 236, 110, "Dialog"
                               EditBox 95, 30, 15, 15, start_month
                               EditBox 115, 30, 15, 15, start_year
@@ -886,48 +919,69 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                             dialog Dialog1
 
+                            'setting the variables
                             footer_month = start_month
                             footer_year = start_year
                             Lines_in_note = ""
+                            'We are going to loop through each of the months from start month to CM + 1 to gather information from ELIG
                             Do
-                                Call Navigate_to_MAXIS_screen("ELIG", "    ")
-                                EmWriteScreen footer_month, 20, 55
-                                EMWriteScreen footer_year, 20, 58
-                                EMWriteScreen "FS", 20, 71
+                                Call Navigate_to_MAXIS_screen("ELIG", "SUMM")       'Go to ELIG/SUMM
+                                EmWriteScreen footer_month, 19, 56                  'Go to the SNAP eligibility for the correct month and year
+                                EMWriteScreen footer_year, 19, 59
+                                EMWriteScreen "FS  ", 19, 71
                                 transmit
 
-                                elig_row = 7
-                                list_of_fs_members = ""
+                                elig_row = 7                                        'beginning of the list of members in the case
+                                list_of_fs_members = ""                             'creating a list of all the members
                                 Do
-                                    EmReadscreen fs_memb, 2, elig_row, 10
+                                    EmReadscreen fs_memb, 2, elig_row, 10           'reading the member number, code and elig status
                                     EmReadscreen fs_memb_code, 1, elig_row, 35
                                     EmReadscreen fs_memb_elig, 8, elig_row, 57
 
+                                    'These are when a member is active and eligible for SNAP on this case
                                     If fs_memb_code = "A" and fs_memb_elig = "ELIGIBLE" Then list_of_fs_members = list_of_fs_members & "~"& fs_memb
 
-                                    elig_row = elig_row + 1
-                                    EmReadscreen next_member, 2, elig_row, 10
-                                Loop until next_member = "  "
-                                list_of_fs_members = right(list_of_fs_members, len(list_of_fs_members)-1)
-                                member_array = split(list_of_fs_members, "~")
+                                    elig_row = elig_row + 1     'looking at the next member
+                                    EmReadscreen next_member, 2, elig_row, 10   'looking at if there is another member to review
+                                Loop until next_member = "  "                   'This would be the end of the list of members in ELIG
+                                'MsgBox "Line 947" & vbNewLine & "List of Members" & list_of_fs_members
+                                list_of_fs_members = right(list_of_fs_members, len(list_of_fs_members)-1)   'This was assembled from reviewing ELIG
+                                member_array = split(list_of_fs_members, "~")       'making is an ARRAY
 
-                                transmit
+                                transmit    'going to FSB1'
                                 transmit
 
                                 EmReadscreen total_earned_income, 9, 8, 32
                                 EmReadscreen total_unea_income, 9, 18, 32
 
-                                transmit
+                                total_earned_income = trim(total_earned_income)
+                                total_unea_income = trim(total_unea_income)
+
+                                If total_earned_income = "" Then total_earned_income = 0
+                                If total_unea_income = "" Then total_unea_income = 0
+
+                                total_earned_income = FormatNumber(total_earned_income, 2, 1, 0, 1)
+                                total_unea_income = FormatNumber(total_unea_income, 2, 1, 0, 1)
+
+                                transmit    'going to FSB2'
 
                                 EmReadscreen total_shelter_costs, 9, 14, 28
                                 total_shelter_costs = trim(total_shelter_costs)
+                                If total_shelter_costs = "" Then total_shelter_costs = 0
+                                total_shelter_costs = FormatNumber(total_shelter_costs, 2, 1, 0, 1)
                                 'TODO add format number to each of these
 
-                                transmit
+                                transmit    'going to FSSM'
 
                                 EmReadscreen fs_benefit_amount, 9, 13, 72
                                 EmReadscreen reporting_status, 9, 8, 31
 
+                                fs_benefit_amount = trim(fs_benefit_amount)
+                                If fs_benefit_amount = "" Then fs_benefit_amount = 0
+                                fs_benefit_amount = FormatNumber(fs_benefit_amount, 2, 1, 0, 1)
+                                reporting_status = trim(reporting_status)
+
+                                'Creating a list of each line of the case note - created here instead of adding to an array because we don't need it after the note
                                 Lines_in_note = Lines_in_note & "~!~* SNAP approved for " & footer_month & "/" & footer_year
                                 Lines_in_note = Lines_in_note & "~!~    Eligile Household Members: "
                                 For each person in member_array
@@ -936,12 +990,41 @@ If process_option = "Ongoing Banked Months Cases" Then
                                 Lines_in_note = Lines_in_note & "~!~    Income: Earned: $" & total_earned_income & " Unearned: $" & total_unea_income
                                 If total_shelter_costs <> "" Then  Lines_in_note = Lines_in_note & "~!~    Shelter Costs: $" & total_shelter_costs
                                 Lines_in_note = Lines_in_note & "~!~    SNAP BENEFTIT: $" & fs_benefit_amount & " Reporting Status: " & reporting_status
-                            Loop until footer_month = CM_plus_1_mo and footer_year = CM_plus_1_yr
 
-                            ARRAY_OF_NOTE_LINES = split(Lines_in_note, "~!~")
+                                first_of_footer_month = footer_month & "/01/" & footer_year     'there was no month in the spreadsheet
+                                next_month = DateAdd("m", 1, first_of_footer_month)                         'the month is advanded by ONE from what the last month we looked at was
 
-                            Call start_a_blank_CASE_NOTE
+                                footer_month = DatePart("m", next_month)          'formatting the month and year and setting them for the nav functions to work
+                                footer_month = right("00"&footer_month, 2)
 
+                                footer_year = DatePart("yyyy", next_month)
+                                footer_year = right(footer_year, 2)
+
+                            Loop until footer_month = CM_plus_2_mo and footer_year = CM_plus_2_yr
+
+                            ARRAY_OF_NOTE_LINES = split(Lines_in_note, "~!~")       'making this an array
+
+                            If MX_region = "INQUIRY DB" Then
+                                case_note_to_display = "*** SNAP Approved starting in " & start_month & "/" & start_year & " ***"
+                                For each note_line in ARRAY_OF_NOTE_LINES
+                                    case_note_to_display = case_note_to_display & vbNewLine & note_line
+                                Next
+                                case_note_to_display = case_note_to_display & vbNewLine & "* Notes: " & other_notes
+                                case_note_to_display = case_note_to_display & vbNewLine & "---"
+                                case_note_to_display = case_note_to_display & vbNewLine & worker_signature
+
+                                MsgBox case_note_to_display
+                            Else
+                                Call start_a_blank_CASE_NOTE
+
+                                Call write_variable_in_CASE_NOTE("*** SNAP Approved starting in " & start_month & "/" & start_year & " ***")
+                                For each note_line in ARRAY_OF_NOTE_LINES
+                                    Call write_variable_in_CASE_NOTE(note_line)
+                                Next
+                                Call write_bullet_and_variable_in_CASE_NOTE("Notes", other_notes)
+                                Call write_variable_in_CASE_NOTE("---")
+                                Call write_variable_in_CASE_NOTE(worker_signature)
+                            End If
 
                         End If
                         BANKED_MONTHS_CASES_ARRAY(notes_col, the_case) = BANKED_MONTHS_CASES_ARRAY(notes_col, the_case) & " ~ Approve SNAP for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "~"
@@ -949,13 +1032,16 @@ If process_option = "Ongoing Banked Months Cases" Then
                     End If
                 End If
 
-                If month_tracked  = FALSE Then
+                If month_tracked  = FALSE Then  'if the month was not already in the traking cells from the spreadsheet
+                    'We will add it to the array and later to the spreadsheet
                     BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) = MAXIS_footer_month & "/" & MAXIS_footer_year
                 End If
 
-            Else
+            Else            'These cases are where the member is NOT active SNAP in the specified month
+                'If the month was tracked on the Excel spreadsheet
                 If month_tracked = TRUE Then
 
+                    'This dialog will allow the worker to determine if this should not be tracked as a banked month '
                     BeginDialog Dialog1, 0, 0, 191, 110, "Dialog"
                       ButtonGroup ButtonPressed
                         PushButton 15, 75, 160, 15, "Yes - remove the month from the Master List", yes_remove_month_btn
@@ -967,20 +1053,27 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                     dialog Dialog1
 
+                    'If the worker indicates that this should no longer be considered a USED banked month, and the array variable is removed - to be later updated in the spreadsheet
                     If ButtonPressed = yes_remove_month_btn Then BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) = ""
 
-                Else
-                    BANKED_MONTHS_CASES_ARRAY(case_errors, the_case) = "STALE"
-                    BANKED_MONTHS_CASES_ARRAY(notes_col, the_case) = BANKED_MONTHS_CASES_ARRAY(notes_col, the_case) & "  ~Client is not active SNAP in " & MAXIS_footer_month & "/" & MAXIS_footer_year & " ~  "
+                Else    'if the month was not tracked - and the client not active anymore
+                    BANKED_MONTHS_CASES_ARRAY(case_errors, the_case) = "STALE"      'This indicates that the case is no longer needing to be tracked
+                    BANKED_MONTHS_CASES_ARRAY(notes_col, the_case) = BANKED_MONTHS_CASES_ARRAY(notes_col, the_case) & "  ~Client is not active SNAP in " & MAXIS_footer_month & "/" & MAXIS_footer_year & " ~  "    'adding information to NOTES on the spreadsheet
                     'MsgBox "STALE"
                 End If
             End If
             'MsgBox "Column " & ObjExcel.Cells(1, month_indicator) & " for tracking says - " & BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) & vbNewLine & "For the month of " & MAXIS_footer_month & "/" & MAXIS_footer_year & " for the case: " & MAXIS_case_number & vbNewLine & "Member " & BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case) & " is " & clt_SNAP_status & "." & vbNewLine & "WREG is FSET - " & fset_wreg_status & " | ABAWD - " & abawd_status
-            If MAXIS_footer_month = CM_plus_1_mo AND MAXIS_footer_year = CM_plus_1_yr Then Exit For
+            If MAXIS_footer_month = CM_plus_1_mo AND MAXIS_footer_year = CM_plus_1_yr Then Exit For 'If we have completed review of CM+1, we can't gp any further and we leave the loop of all the months
         Next
 
         '************************************************************************************'
         ' banked_months_tracked = TRUE
+        ' function set_lastest_banked_month(date_variable, month_mo, month_yr, boo_var)
+        '     month_mo = left(date_variable, 2)
+        '     month_yr = right(date_variable, 2)
+        '     If month_mo <> CM_plus_1_mo Then boo_var = FALSE
+        '     If month_yr <> CM_plus_1_yr Then boo_var = FALSE
+        ' end function
         '
         ' If BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case) <> "" Then
         '     MsgBox "NINE"
@@ -1073,6 +1166,7 @@ If process_option = "Ongoing Banked Months Cases" Then
         ' ObjExcel.Cells(list_row, last_name_col).Value       = BANKED_MONTHS_CASES_ARRAY(clt_last_name, the_case)
         ' ObjExcel.Cells(list_row, first_name_col).Value      = BANKED_MONTHS_CASES_ARRAY(clt_first_name, the_case)
 
+        'For each element in the array for the case - we are going to add that to the Excel Spreadsheet
         ObjExcel.Cells(list_row, notes_col).Value           = BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case)
         ObjExcel.Cells(list_row, first_mo_col).Value        = BANKED_MONTHS_CASES_ARRAY(clt_mo_one, the_case)
         ObjExcel.Cells(list_row, scnd_mo_col).Value         = BANKED_MONTHS_CASES_ARRAY(clt_mo_two, the_case)
@@ -1084,17 +1178,19 @@ If process_option = "Ongoing Banked Months Cases" Then
         ObjExcel.Cells(list_row, eighth_mo_col).Value       = BANKED_MONTHS_CASES_ARRAY(clt_mo_eight, the_case)
         ObjExcel.Cells(list_row, ninth_mo_col).Value        = BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case)
         ObjExcel.Cells(list_row, curr_mo_stat_col).Value    = BANKED_MONTHS_CASES_ARRAY(clt_curr_mo_stat, the_case)
+        ObjExcel.Cells(list_row, BM_to_approve_col).Value   = BANKED_MONTHS_CASES_ARRAY(months_to_approve, the_case)
 
+        'This will cause the script to end if there was a timer set and the script needs to end
         If timer > end_time Then
             end_msg = "Success! Script has run for " & stop_time/60/60 & " hours and has finished for the time being."
             Exit For
         Else
-            end_msg = "Last case was " & MAXIS_case_number
+            end_msg = "Last case was " & MAXIS_case_number      'this is reset for testing so that I know where the script ends
         End If
     Next
 
 End If
-'
+
 'NEED another spreadsheet for all cases that WERE banked months cases but are no longer - so that we can save the case information
 
 script_end_procedure(end_msg)
