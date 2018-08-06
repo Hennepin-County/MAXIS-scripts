@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/06/2018", "Updated script to work without a template file. Also updated back-end dialog handling.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/05/2017", "Defaulting footer month/year to current month plus one. Changed disa dates to their own columns.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/09/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -64,44 +65,50 @@ Function HCRE_panel_bypass()
 	Loop until HCRE_panel_check <> "HCRE"
 End Function
 
+'dialog
+'The dialog is defined in the loop as it can change as buttons are pressed 
+BeginDialog file_selection_dialog, 0, 0, 266, 110, "DISA Dr. PEPR"
+    ButtonGroup ButtonPressed
+    PushButton 200, 45, 50, 15, "Browse...", select_a_file_button
+    OkButton 145, 90, 50, 15
+    CancelButton 200, 90, 50, 15
+    EditBox 15, 45, 180, 15, file_selection_path
+    GroupBox 10, 5, 250, 80, "Using the DISA DR. PEPR script"
+    Text 20, 20, 235, 20, "This script should be used when the DISA PEPR messages are run, and additional information needs to be added (for Charles). "
+    Text 15, 65, 230, 15, "Select the Excel file that contains the PEPR information by selecting the 'Browse' button, and finding the file."
+EndDialog
+
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connects to BlueZone
 EMConnect ""
 
-'dialog and dialog DO...Loop	
 Do
-	Do
-			'The dialog is defined in the loop as it can change as buttons are pressed 
-			BeginDialog file_selection_dialog, 0, 0, 266, 110, "DISA Dr. PEPR"
-  				ButtonGroup ButtonPressed
-    			PushButton 200, 45, 50, 15, "Browse...", select_a_file_button
-    			OkButton 145, 90, 50, 15
-    			CancelButton 200, 90, 50, 15
-  				EditBox 15, 45, 180, 15, file_selection_path
-  				GroupBox 10, 5, 250, 80, "Using the DISA DR. PEPR script"
-  				Text 20, 20, 235, 20, "This script should be used when the DISA PEPR messages are run, and additional information needs to be added (for Charles). "
-  				Text 15, 65, 230, 15, "Select the Excel file that contains the PEPR information by selecting the 'Browse' button, and finding the file."
-			EndDialog
-			err_msg = ""
-			Dialog file_selection_dialog
-			cancel_confirmation
-			If ButtonPressed = select_a_file_button then
-				If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
-					objExcel.Quit 'Closing the Excel file that was opened on the first push'
-					objExcel = "" 	'Blanks out the previous file path'
-				End If
-				call file_selection_system_dialog(file_selection_path, ".xlsx") 'allows the user to select the file'
-			End If
-			If file_selection_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
-			If err_msg <> "" Then MsgBox err_msg
-		Loop until err_msg = ""
-		If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-		If err_msg <> "" Then MsgBox err_msg
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
+    'Show initial dialog
+    Do
+    	Dialog file_selection_dialog
+    	If ButtonPressed = cancel then stopscript
+    	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
+    Loop until ButtonPressed = OK and file_selection_path <> ""
+    If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+objExcel.Cells(1, 7).Value = "Action"
+objExcel.Cells(1, 8).Value = "CASH"
+objExcel.Cells(1, 9).Value = "SNAP"
+objExcel.Cells(1, 10).Value = "HC"
+objExcel.Cells(1, 11).Value = "GRH"
+objExcel.Cells(1, 12).Value = "DISA Start"
+objExcel.Cells(1, 13).Value = "DISA End"
+objExcel.Cells(1, 14).Value = "WREG"
+objExcel.Cells(1, 15).Value = "Total TANF mo."
+objExcel.Cells(1, 16).Value = "60 Mo. Ext. RSN"
+
 For i = 1 to 16
-	ObjExcel.columns(i).NumberFormat = "@" 	'formatting as text
+    objExcel.Cells(1, i).Font.Bold = True		'bold font'
+    ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+    objExcel.Columns(i).AutoFit()				'sizing the columns'
 Next 
 
 'defaulting the footer month/year to current month plus one
