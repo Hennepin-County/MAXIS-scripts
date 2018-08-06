@@ -960,15 +960,15 @@ If process_option = "Ongoing Banked Months Cases" Then
                                 If total_earned_income = "" Then total_earned_income = 0
                                 If total_unea_income = "" Then total_unea_income = 0
 
-                                total_earned_income = FormatNumber(total_earned_income, 2, 1, 0, 1)
-                                total_unea_income = FormatNumber(total_unea_income, 2, 1, 0, 1)
+                                total_earned_income = FormatNumber(total_earned_income, 2, -1, 0, -1)
+                                total_unea_income = FormatNumber(total_unea_income, 2, -1, 0, -1)
 
                                 transmit    'going to FSB2'
 
                                 EmReadscreen total_shelter_costs, 9, 14, 28
                                 total_shelter_costs = trim(total_shelter_costs)
                                 If total_shelter_costs = "" Then total_shelter_costs = 0
-                                total_shelter_costs = FormatNumber(total_shelter_costs, 2, 1, 0, 1)
+                                total_shelter_costs = FormatNumber(total_shelter_costs, 2, -1, 0, -1)
                                 'TODO add format number to each of these
 
                                 transmit    'going to FSSM'
@@ -978,7 +978,7 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                                 fs_benefit_amount = trim(fs_benefit_amount)
                                 If fs_benefit_amount = "" Then fs_benefit_amount = 0
-                                fs_benefit_amount = FormatNumber(fs_benefit_amount, 2, 1, 0, 1)
+                                fs_benefit_amount = FormatNumber(fs_benefit_amount, 2, -1, 0, -1)
                                 reporting_status = trim(reporting_status)
 
                                 'Creating a list of each line of the case note - created here instead of adding to an array because we don't need it after the note
