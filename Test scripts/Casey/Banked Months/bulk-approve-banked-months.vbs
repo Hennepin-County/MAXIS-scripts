@@ -738,6 +738,8 @@ If process_option = "Ongoing Banked Months Cases" Then
     'Loop through each item in the array to review the case.
     For the_case = 0 to UBOUND(BANKED_MONTHS_CASES_ARRAY, 2)
 
+        'TODO add functionality to note on the spreadhseet and in the case for cases in which the used banked month has been CONFRIMED - that the client was active in a past or current month.
+
         list_row = BANKED_MONTHS_CASES_ARRAY(clt_excel_row, the_case)       'setting the excel row to what was found in the array
         MAXIS_case_number = BANKED_MONTHS_CASES_ARRAY(case_nbr, the_case)   'setting the case number to this variable for nav functions to work
         BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case) = Right("00"&BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), 2)    'formatting the member number to be 2 digit

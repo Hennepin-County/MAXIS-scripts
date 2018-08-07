@@ -1029,47 +1029,75 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                 'Script will determine the initial footer month to change by the pay dates listed.
                 'Script will create a budget based on the program this income applies to
                 'Dialog the budget and have the worker confirm - if they decline - pull the check list dialog back up and have them adjust it there.
-                BeginDialog Dialog1, 0, 0, 421, 240, "Confirm JOBS Budget"
+                dlg_len = 65
+                If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then
+                    dlg_len = dlg_len + 60
+                    dlg_len = dlg_len + number_of_checks_budgeted*10
+                ENd If
+                If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then dlg_len = dlg_len + 65
+                y_pos = 25
+                BeginDialog Dialog1, 0, 0, 421, dlg_len, "Confirm JOBS Budget"
                   Text 10, 10, 175, 10, "JOBS 01 01 - EMPLOYER"
                   Text 245, 10, 50, 10, "Pay Frequency"
                   DropListBox 305, 5, 95, 45, ""+chr(9)+"1 - One Time Per Month"+chr(9)+"2 - Two Times Per Month"+chr(9)+"3 - Every Other Week"+chr(9)+"4 - Every Week"+chr(9)+"5 - Other", EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
                   ' Text 240, 30, 60, 10, "Income Start Date:"
                   ' EditBox 305, 25, 70, 15, income_start_date
-                  GroupBox 5, 40, 410, 105, "SNAP Budget"
-                  Text 10, 50, 100, 10, "Paychecks Inclued in Budget:"
-                  y_pos = 0
-                  For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
-                      If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
-                        If LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = checked Then
-                          Text 20, (y_pos * 10) + 65, 90, 10, LIST_OF_INCOME_ARRAY(pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs."
-                          y_pos = y_pos + 1
-                          'Text 20, 65, 90, 10, "01/01/2018 - $400 - 40 hrs"
-                          'Text 20, 75, 90, 10, "01/15/2018- $400 - 40 hrs"
-                        End If
+                  If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then
+                      GroupBox 5, y_pos, 410, 75 + number_of_checks_budgeted*10, "SNAP Budget"
+                      Text 10, y_pos + 10, 100, 10, "Paychecks Inclued in Budget:"
+                      list_pos = 0
+
+                      ' 'this part actually looks at the income information IN ORDER
+                      For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
+                          For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+                              'conditional if it is the right panel AND the order matches - then do the thing you need to do
+                              If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
+                                  'list_of_dates = list_of_dates & vbNewLine & "Check Date: " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & " Income: $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " Hours: " & LIST_OF_INCOME_ARRAY(hours, all_income)
+                                  Text 20, (list_pos * 10) + y_pos + 25, 90, 10, LIST_OF_INCOME_ARRAY(pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs."
+                                  list_pos = list_pos + 1
+                              End If
+                          next
+                      next
+                      ' MsgBOx list_of_dates
+                      ' For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
+                      '     If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
+                      '       If LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = checked Then
+                      '         Text 20, (list_pos * 10) + 65 + 25, 90, 10, LIST_OF_INCOME_ARRAY(pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs."
+                      '         list_pos = list_pos + 1
+                      '         'Text 20, 65, 90, 10, "01/01/2018 - $400 - 40 hrs"
+                      '         'Text 20, 75, 90, 10, "01/15/2018- $400 - 40 hrs"
+                      '       End If
+                      '     End If
+                      ' Next
+
+                      Text 185, y_pos + 10, 200, 10, "Average hourly rate of pay: $" & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel)
+                      Text 185, y_pos + 25, 200, 10, "Average weekly hours: " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)
+                      Text 185, y_pos + 40, 200, 10, "Average paycheck amount: $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
+                      Text 185, y_pos + 55, 200, 10, "Monthly Budgeted Income: $" & EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel)
+                      y_pos = y_pos + (list_pos * 10) + 25
+                      Text 10, y_pos, 130, 10, "Paychecks not included: " & list_of_excluded_pay_dates
+                      If EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = "?" Then
+                        ButtonGroup ButtonPressed
+                            PushButton 305, y_pos, 60, 10, "Calculate", calc_btn
                       End If
-                  Next
-                  Text 10, 95, 130, 10, "Paychecks not included: " & list_of_excluded_pay_dates
-                  Text 185, 50, 200, 10, "Average hourly rate of pay: $" & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel)
-                  Text 185, 65, 200, 10, "Average weekly hours: " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)
-                  Text 185, 80, 200, 10, "Average paycheck amount: $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
-                  Text 185, 95, 200, 10, "Monthly Budgeted Income: $" & EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel)
-                  If EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = "?" Then
-                    ButtonGroup ButtonPressed
-                        PushButton 385, 95, 60, 10, "Calculate", calc_btn
+                      CheckBox 10, y_pos + 15, 330, 10, "Check here if you confirm that this budget is correct and is the best estimate of anticipated income.", confirm_budget_checkbox
+                      Text 10, y_pos + 35, 60, 10, "Conversation with:"
+                      ComboBox 75, y_pos + 30, 60, 45, " "+chr(9)+"Client - not employee"+chr(9)+"Employee"+chr(9)+"Employer",  EARNED_INCOME_PANELS_ARRAY(spoke_with, ei_panel)
+                      Text 140, y_pos + 35, 25, 10, "clarifies"
+                      EditBox 170, y_pos + 30, 235, 15, EARNED_INCOME_PANELS_ARRAY(convo_detail, ei_panel)
+                      y_pos = y_pos + 55
                   End If
-                  CheckBox 10, 110, 330, 10, "Check here if you confirm that this budget is correct and is the best estimate of anticipated income.", confirm_budget_checkbox
-                  Text 10, 130, 60, 10, "Conversation with:"
-                  ComboBox 75, 125, 60, 45, " "+chr(9)+"Client - not employee"+chr(9)+"Employee"+chr(9)+"Employer",  EARNED_INCOME_PANELS_ARRAY(spoke_with, ei_panel)
-                  Text 140, 130, 25, 10, "clarifies"
-                  EditBox 170, 125, 235, 15, EARNED_INCOME_PANELS_ARRAY(convo_detail, ei_panel)
                   'TODO deal with cash stuff - need to address retro/prosp and change this dialog to only show cash/snap if the income applies to that.
-                  GroupBox 5, 150, 410, 60, "CASH Budget"
-                  Text 15, 165, 110, 10, "Actual Paychecks to add to JOBS:"
-                  Text 25, 180, 90, 10, "01/01/2018 - $400 - 40 hrs"
-                  Text 25, 190, 90, 10, "01/15/2018- $400 - 40 hrs"
+                  If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then
+                      GroupBox 5, y_pos, 410, 60, "CASH Budget"
+                      Text 15, y_pos + 15, 110, 10, "Actual Paychecks to add to JOBS:"
+                      Text 25, y_pos + 30, 90, 10, "01/01/2018 - $400 - 40 hrs"
+                      Text 25, y_pos + 40, 90, 10, "01/15/2018- $400 - 40 hrs"
+                      y_pos = y_pos + 60
+                  End If
                   ButtonGroup ButtonPressed
-                    OkButton 315, 220, 50, 15
-                    CancelButton 370, 220, 50, 15
+                    OkButton 315, y_pos, 50, 15
+                    CancelButton 370, y_pos, 50, 15
                 EndDialog
 
 
