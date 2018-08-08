@@ -738,6 +738,8 @@ If process_option = "Ongoing Banked Months Cases" Then
     'Loop through each item in the array to review the case.
     For the_case = 0 to UBOUND(BANKED_MONTHS_CASES_ARRAY, 2)
 
+        'TODO add functionality to note on the spreadhseet and in the case for cases in which the used banked month has been CONFRIMED - that the client was active in a past or current month.
+
         list_row = BANKED_MONTHS_CASES_ARRAY(clt_excel_row, the_case)       'setting the excel row to what was found in the array
         MAXIS_case_number = BANKED_MONTHS_CASES_ARRAY(case_nbr, the_case)   'setting the case number to this variable for nav functions to work
         BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case) = Right("00"&BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), 2)    'formatting the member number to be 2 digit
@@ -960,15 +962,15 @@ If process_option = "Ongoing Banked Months Cases" Then
                                 If total_earned_income = "" Then total_earned_income = 0
                                 If total_unea_income = "" Then total_unea_income = 0
 
-                                total_earned_income = FormatNumber(total_earned_income, 2, 1, 0, 1)
-                                total_unea_income = FormatNumber(total_unea_income, 2, 1, 0, 1)
+                                total_earned_income = FormatNumber(total_earned_income, 2, -1, 0, -1)
+                                total_unea_income = FormatNumber(total_unea_income, 2, -1, 0, -1)
 
                                 transmit    'going to FSB2'
 
                                 EmReadscreen total_shelter_costs, 9, 14, 28
                                 total_shelter_costs = trim(total_shelter_costs)
                                 If total_shelter_costs = "" Then total_shelter_costs = 0
-                                total_shelter_costs = FormatNumber(total_shelter_costs, 2, 1, 0, 1)
+                                total_shelter_costs = FormatNumber(total_shelter_costs, 2, -1, 0, -1)
                                 'TODO add format number to each of these
 
                                 transmit    'going to FSSM'
@@ -978,7 +980,7 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                                 fs_benefit_amount = trim(fs_benefit_amount)
                                 If fs_benefit_amount = "" Then fs_benefit_amount = 0
-                                fs_benefit_amount = FormatNumber(fs_benefit_amount, 2, 1, 0, 1)
+                                fs_benefit_amount = FormatNumber(fs_benefit_amount, 2, -1, 0, -1)
                                 reporting_status = trim(reporting_status)
 
                                 'Creating a list of each line of the case note - created here instead of adding to an array because we don't need it after the note
