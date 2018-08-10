@@ -2725,8 +2725,19 @@ function check_for_MAXIS(end_script)
 			If end_script = True then
 				script_end_procedure("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again.")
 			Else
-				warning_box = MsgBox("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again, or press ""cancel"" to exit the script.", vbOKCancel)
-				If warning_box = vbCancel then stopscript
+                BeginDialog Password_dialog, 0, 0, 156, 55, "Password Dialog"
+                ButtonGroup ButtonPressed
+                OkButton 45, 35, 50, 15
+                CancelButton 100, 35, 50, 15
+                Text 5, 5, 150, 25, "You have passworded out. Please enter your password, then press OK to continue. Press CANCEL to stop the script. "
+                EndDialog
+                Do 
+                    Do 
+                        dialog Password_dialog
+                        cancel_confirmation
+                    Loop until ButtonPressed = -1
+                    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+                Loop until are_we_passworded_out = false					'loops until user passwords back in
 			End if
 		End if
 	Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
@@ -4100,7 +4111,21 @@ function navigate_to_MMIS()
 	DO
 		PF6
 		EMReadScreen password_prompt, 38, 2, 23
-		IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then StopScript
+		IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then
+            BeginDialog Password_dialog, 0, 0, 156, 55, "Password Dialog"
+            ButtonGroup ButtonPressed
+            OkButton 45, 35, 50, 15
+            CancelButton 100, 35, 50, 15
+            Text 5, 5, 150, 25, "You have passworded out. Please enter your password, then press OK to continue. Press CANCEL to stop the script. "
+            EndDialog
+            Do 
+                Do 
+                    dialog Password_dialog
+                    cancel_confirmation
+                Loop until ButtonPressed = -1
+                CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+            Loop until are_we_passworded_out = false					'loops until user passwords back in
+        End if 
 		EMReadScreen session_start, 18, 1, 7
 	LOOP UNTIL session_start = "SESSION TERMINATED"
 
@@ -4811,8 +4836,9 @@ function start_a_blank_CASE_NOTE()
               Text 20, 40, 185, 20, "* You may not have authorization to case note this case (e.g.: out-of-county case)"
               Text 5, 70, 225, 20, "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
             EndDialog
-
-            Dialog Inquiry_Dialog
+            Do 
+                Dialog Inquiry_Dialog
+            Loop until ButtonPressed = -1
         End If
 	Loop until (mode_check = "A" or mode_check = "E")
 end function
