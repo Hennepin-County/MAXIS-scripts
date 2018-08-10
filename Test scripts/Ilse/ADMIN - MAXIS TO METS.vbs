@@ -50,6 +50,18 @@ call changelog_update("07/16/2018", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+Function HCRE_panel_bypass() 
+	'handling for cases that do not have a completed HCRE panel
+	PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
+	Do
+		EMReadscreen HCRE_panel_check, 4, 2, 50
+		If HCRE_panel_check = "HCRE" then
+			PF10	'exists edit mode in cases where HCRE isn't complete for a member
+			PF3
+		END IF
+	Loop until HCRE_panel_check <> "HCRE"
+End Function
+
 '----------------------------------------------------------------------------------------------------DIALOG
 'The dialog is defined in the loop as it can change as buttons are pressed 
 BeginDialog info_dialog, 0, 0, 266, 115, "BULK - MAXIS TO METS"
@@ -91,7 +103,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Setting the column headers
-objExcel.Cells(1, 3).Value = "NAME"
+objExcel.Cells(1, 3).Value = "HC status"
 objExcel.Cells(1, 4).Value = "MAGI Persons"
 objExcel.Cells(1, 5).Value = "Non-MAGI Persons"
 objExcel.Cells(1, 6).Value = "# of MAGI"
@@ -101,6 +113,8 @@ objExcel.Cells(1, 9).Value = "Mixed Household"
 objExcel.Cells(1, 10).Value = "Non-MAGI Household"
 objExcel.Cells(1, 11).Value = "MAGI Review aligned?"
 objExcel.Cells(1, 12).Value = "HC ER MONTH"
+objExcel.Cells(1, 13).Value = "County"
+
 
 'And now BOLD because format
 FOR i = 1 TO 12
@@ -129,204 +143,210 @@ Do
 	non_magi_clients = ""
 
 	'navigating to ELIG/HC
-	CALL navigate_to_MAXIS_screen("ELIG", "HC")
+    Call navigate_to_MAXIS_screen("STAT", "PROG")
     EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
     If PRIV_check = "PRIV" then
         ObjExcel.Cells(excel_row, 3).Value = "PRIV"
         magi_clients = ""
         EMWriteScreen "________", 18, 43
     Else 
-        'setting the row to read on ELIG/HC
-        hhmm_row = 8
-        DO
-	        'reading the hc reference number
-	        EMReadScreen hc_ref_num, 2, hhmm_row, 3
-	        'looking to see that information is found for that client
-	        EMReadScreen hc_information_found, 70, hhmm_row, 3
-	        hc_information_found = trim(hc_information_found)
-	        EMReadScreen elig_result, 4, hhmm_row, 41
-	        EMReadScreen elig_status, 6, hhmm_row, 50
-	        '...and if information is found for that row...
-	        IF hc_information_found <> "" THEN
-	        	'...if the client is eligible and active...
-	        	IF elig_result = "ELIG" AND elig_status = "ACTIVE" THEN
-	        		'looking for the first character on hc request...
-	        		EMReadScreen hc_requested, 1, hhmm_row, 28
-	        		'...if the client is active on a medicare savings program...
-	        		IF hc_requested = "S" OR hc_requested = "Q" OR hc_requested = "I" THEN 			'IF the HH MEMB is MSP ONLY then they are automatically Budg Mthd B
-	        			IF hc_ref_num = "  " THEN
-	        				temp_hhmm_row = hhmm_row
-	        				DO
-	        					EMReadScreen hc_ref_num, 2, temp_hhmm_row, 3
-	        					IF hc_ref_num = "  " THEN
-	        						temp_hhmm_row = temp_hhmm_row - 1
-	        					ELSE
-	        						EXIT DO
-	        					END IF
-	        				LOOP
-	        			END IF
-	        			IF InStr(non_magi_clients, hc_ref_num & ";") = 0 THEN non_magi_clients = non_magi_clients & hc_ref_num & ";"
-	        			hhmm_row = hhmm_row + 1
-	        		'...otherwise, if the client is active on Medicaid or EMA...
-	        		ELSEIF hc_requested = "M" or hc_requested = "E" THEN
-	        			'...going in to grab the budget method...
-	        			EMWriteScreen "X", hhmm_row, 26
-	        			transmit
-	        			EMReadScreen budg_mthd, 1, 13, 76
-	        			IF budg_mthd = "A" THEN
-	        				IF hc_ref_num = "  " THEN
-	        					temp_hhmm_row = hhmm_row
-	        					DO
-	        						EMReadScreen hc_ref_num, 2, temp_hhmm_row, 3
-	        						IF hc_ref_num = "  " THEN
-	        							temp_hhmm_row = temp_hhmm_row - 1
-	        						ELSE
-	        							EXIT DO
-	        						END IF
-	        					LOOP
-	        				END IF
-	        				IF InStr(magi_clients, hc_ref_num & ";") = 0 THEN magi_clients = magi_clients & hc_ref_num & ";"
-	        			ELSE
-	        				IF hc_ref_num = "  " THEN
-	        					temp_hhmm_row = hhmm_row
-	        					DO
-	        						EMReadScreen hc_ref_num, 2, temp_hhmm_row, 3
-	        						IF hc_ref_num = "  " THEN
-	        							temp_hhmm_row = temp_hhmm_row - 1
-	        						ELSE
-	        							EXIT DO
-	        						END IF
-	        					LOOP
-	        				END IF
-	        				IF InStr(non_magi_clients, hc_ref_num & ";") = 0 THEN non_magi_clients = non_magi_clients & hc_ref_num & ";"
-	        			END IF
-	        			PF3
-	        			hhmm_row = hhmm_row + 1
-	        		ELSEIF hc_requested = "N" THEN
-	        			hhmm_row = hhmm_row + 1
-	        		END IF
-	        	ELSE
-	        		hhmm_row = hhmm_row + 1
-	        	END IF
-	        ELSE
-		        EXIT DO
-            End if 
-        LOOP UNTIL hhmm_row = 20 OR hc_ref_num = "  "
-
-	   'Going back to determine if the individual is still MAGI...SSI, Medicare, and MA-EPD disq the person as Non-MAGI
-	   IF magi_clients <> "" THEN
-	   	magi_peeps = replace(magi_clients & "~~~", ";~~~", "")
-	   	magi_peeps = split(magi_peeps, ";")
-	   	FOR EACH client IN magi_peeps
-	   		CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-	   		CALL write_value_and_transmit(client, 20, 76)
-	   		EMReadScreen client_age, 2, 8, 76
-	   		IF client_age = "  " THEN client_age = 0
-	   		'Removing that client from the non-magi list
-	   		IF client_age >= 65 THEN
-	   			magi_clients = replace(magi_clients, client & ";", "")
-	   			IF InStr(non_magi_clients, client & ";") = 0 THEN non_magi_clients = non_magi_clients & client & ";"
-	   		ELSE
-	   			'Checking DISA for a MA-EPD & SSI
-	   			CALL navigate_to_MAXIS_screen("STAT", "DISA")
-	   			CALL write_value_and_transmit(client, 20, 76)
-	   			EMReadScreen hc_disa_status, 2, 13, 59
-	   			IF hc_disa_status = "03" OR hc_disa_status = "04" OR hc_disa_status = "22" THEN
-	   				magi_clients = replace(magi_clients, client & ";", "")
-	   				IF InStr(non_magi_clients, client & ";") = 0 THEN non_magi_clients = non_magi_clients & client & ";"
-	   			ELSE
-	   				CALL navigate_to_MAXIS_screen("STAT", "MEDI")
-	   				CALL write_value_and_transmit(client, 20, 76)
-	   				EMReadScreen medi_ref_num, 15, 6, 44
-	   				medi_ref_num = trim(replace(medi_ref_num, "_", ""))
-	   				IF medi_ref_num <> "" THEN
-	   					magi_clients = replace(magi_clients, client & ";", "")
-	   					IF InStr(non_magi_clients, client & ";") = 0 THEN non_magi_clients = non_magi_clients & client & ";"
-	   				END IF
-	   			END IF
-	   		END IF
-	   	NEXT
-	   END IF
-
-	   'Going back to determine if the individual is still Non-MAGI...SSI, Medicare, and MA-EPD disq the person as Non-MAGI
-	   IF non_magi_clients <> "" THEN
-	   	non_magi_peeps = replace(non_magi_clients & "~~~", ";~~~", "")
-	   	non_magi_peeps = split(non_magi_peeps, ";")
-	   	FOR EACH client IN non_magi_peeps
-	   		'Checking for SSI, MA-EPD, and Medicare
-	   		non_magi = ""
-	   		CALL navigate_to_MAXIS_screen("STAT", "MEDI")
-	   		CALL write_value_and_transmit(client, 20, 76)
-	   		EMReadScreen medi_case_number, 15, 6, 44
-	   		medi_case_number = trim(replace(medi_case_number, "_", ""))
-	   		IF medi_case_number <> "" THEN non_magi = TRUE
-	   		IF non_magi <> TRUE THEN
-	   			CALL navigate_to_MAXIS_screen("STAT", "DISA")
-	   			CALL write_value_and_transmit(client, 20, 76)
-	   			EMReadScreen hc_disa_status, 2, 13, 59
-	   			IF hc_disa_status = "03" OR hc_disa_status = "04" OR hc_disa_status = "22" THEN non_magi = TRUE
-	   		END IF
-	   		IF non_magi <> TRUE THEN
-	   			non_magi_clients = replace(non_magi_clients, client & ";", "")
-	   			IF InStr(magi_clients, client & ";") = 0 THEN magi_clients = magi_clients & client & ";"
-	   		END IF
-	   	NEXT
-	   END IF
-
-	   'Writing all these ding-dang values to Excel
-	   objExcel.Cells(excel_row, 4).Value = magi_clients
-	   IF magi_clients <> "" THEN
-	   	MAGI_count = UBound(split(magi_clients, ";"))
-	   	objExcel.Cells(excel_row, 6).Value = MAGI_count
-	   ELSE
-	   	objExcel.Cells(excel_row, 6).Value = 0
-	   END IF
-
-	   objExcel.Cells(excel_row, 5).Value = non_magi_clients
-	   IF non_magi_clients <> "" THEN
-	   	nonMAGI_count = UBound(split(non_magi_clients, ";"))
-	   	objExcel.Cells(excel_row, 7).Value = nonMAGI_count
-	   ELSE
-	   	objExcel.Cells(excel_row, 7).Value = 0
-	   END IF
-
-	   CALL navigate_to_MAXIS_screen("STAT", "REVW")
-	   EMReadScreen revw_does_not_exist, 19, 24, 2
-	   IF revw_does_not_exist <> "REVW DOES NOT EXIST" THEN
-	   	EMwritescreen "X", 5, 71
-	   	Transmit
-	   	'Checking to make sure pop up opened
-	   	DO
-	   		EMReadScreen revw_pop_up_check, 8, 4, 44
-	   		EMWaitReady 1, 1
-	   	LOOP until revw_pop_up_check = "RENEWALS"
-	   	'Reading HC reviews to compare them
-	   	EMReadScreen hc_income_renewal, 8, 8, 27
-	   	EMReadScreen hc_IA_renewal, 8, 8, 71
-	   	EMReadScreen hc_annual_renewal, 8, 9, 27
-	   	objExcel.Cells(excel_row, 12).Value = replace(hc_annual_renewal, " ", "/")
-	   	IF MAGI_count <> 0 THEN
-	   		IF hc_income_renewal = "__ 01 __" THEN hc_compare_renewal = hc_IA_renewal
-	   		IF hc_IA_renewal = "__ 01 __" THEN hc_compare_renewal = hc_income_renewal
-
-	   		IF hc_annual_renewal = hc_compare_renewal THEN
-	   			objExcel.Cells(excel_row, 11).Value = "Y"
-	   		ELSE
-	   			objExcel.Cells(excel_row, 11).Value = "Y"
-	   		END IF
-	   	END IF
-	   ELSE
-	   	objExcel.Cells(excel_row, 12).Value = "NO REVIEW DATE"
-	   END IF
-
-	   IF MAGI_count <> 0 AND nonMAGI_count = 0 THEN
-	   	objExcel.Cells(excel_row, 8).Value = "Y"
-	   ELSEIF MAGI_count <> 0 AND nonMAGI_count <> 0 THEN
-	   	objExcel.Cells(excel_row, 9).Value = "Y"
-	   ELSEIF MAGI_count = 0 AND nonMAGI_count <> 0 THEN
-	   	objExcel.Cells(excel_row, 10).Value = "Y"
-	   END IF
+        EmReadscreen county_code, 2, 21, 23
+        ObjExcel.Cells(excel_row, 13).Value = county_code
+        EmReadscreen HC_active, 4, 12, 74
+        ObjExcel.Cells(excel_row, 3).Value = trim(HC_active)
+	    CALL navigate_to_MAXIS_screen("ELIG", "HC")
     End if 
+    '    'setting the row to read on ELIG/HC
+    '    hhmm_row = 8
+    '    DO
+	'        'reading the hc reference number
+	'        EMReadScreen hc_ref_num, 2, hhmm_row, 3
+	'        'looking to see that information is found for that client
+	'        EMReadScreen hc_information_found, 70, hhmm_row, 3
+	'        hc_information_found = trim(hc_information_found)
+	'        EMReadScreen elig_result, 4, hhmm_row, 41
+	'        EMReadScreen elig_status, 6, hhmm_row, 50
+	'        '...and if information is found for that row...
+	'        IF hc_information_found <> "" THEN
+	'        	'...if the client is eligible and active...
+	'        	IF elig_result = "ELIG" AND elig_status = "ACTIVE" THEN
+	'        		'looking for the first character on hc request...
+	'        		EMReadScreen hc_requested, 1, hhmm_row, 28
+	'        		'...if the client is active on a medicare savings program...
+	'        		IF hc_requested = "S" OR hc_requested = "Q" OR hc_requested = "I" THEN 			'IF the HH MEMB is MSP ONLY then they are automatically Budg Mthd B
+	'        			IF hc_ref_num = "  " THEN
+	'        				temp_hhmm_row = hhmm_row
+	'        				DO
+	'        					EMReadScreen hc_ref_num, 2, temp_hhmm_row, 3
+	'        					IF hc_ref_num = "  " THEN
+	'        						temp_hhmm_row = temp_hhmm_row - 1
+	'        					ELSE
+	'        						EXIT DO
+	'        					END IF
+	'        				LOOP
+	'        			END IF
+	'        			IF InStr(non_magi_clients, hc_ref_num & ";") = 0 THEN non_magi_clients = non_magi_clients & hc_ref_num & ";"
+	'        			hhmm_row = hhmm_row + 1
+	'        		'...otherwise, if the client is active on Medicaid or EMA...
+	'        		ELSEIF hc_requested = "M" or hc_requested = "E" THEN
+	'        			'...going in to grab the budget method...
+	'        			EMWriteScreen "X", hhmm_row, 26
+	'        			transmit
+	'        			EMReadScreen budg_mthd, 1, 13, 76
+	'        			IF budg_mthd = "A" THEN
+	'        				IF hc_ref_num = "  " THEN
+	'        					temp_hhmm_row = hhmm_row
+	'        					DO
+	'        						EMReadScreen hc_ref_num, 2, temp_hhmm_row, 3
+	'        						IF hc_ref_num = "  " THEN
+	'        							temp_hhmm_row = temp_hhmm_row - 1
+	'        						ELSE
+	'        							EXIT DO
+	'        						END IF
+	'        					LOOP
+	'        				END IF
+	'        				IF InStr(magi_clients, hc_ref_num & ";") = 0 THEN magi_clients = magi_clients & hc_ref_num & ";"
+	'        			ELSE
+	'        				IF hc_ref_num = "  " THEN
+	'        					temp_hhmm_row = hhmm_row
+	'        					DO
+	'        						EMReadScreen hc_ref_num, 2, temp_hhmm_row, 3
+	'        						IF hc_ref_num = "  " THEN
+	'        							temp_hhmm_row = temp_hhmm_row - 1
+	'        						ELSE
+	'        							EXIT DO
+	'        						END IF
+	'        					LOOP
+	'        				END IF
+	'        				IF InStr(non_magi_clients, hc_ref_num & ";") = 0 THEN non_magi_clients = non_magi_clients & hc_ref_num & ";"
+	'        			END IF
+	'        			PF3
+	'        			hhmm_row = hhmm_row + 1
+	'        		ELSEIF hc_requested = "N" THEN
+	'        			hhmm_row = hhmm_row + 1
+	'        		END IF
+	'        	ELSE
+	'        		hhmm_row = hhmm_row + 1
+	'        	END IF
+	'        ELSE
+	'	        EXIT DO
+    '        End if 
+    '    LOOP UNTIL hhmm_row = 20 OR hc_ref_num = "  "
+
+	'   'Going back to determine if the individual is still MAGI...SSI, Medicare, and MA-EPD disq the person as Non-MAGI
+	'   IF magi_clients <> "" THEN
+	'   	magi_peeps = replace(magi_clients & "~~~", ";~~~", "")
+	'   	magi_peeps = split(magi_peeps, ";")
+	'   	FOR EACH client IN magi_peeps
+	'   		CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+	'   		CALL write_value_and_transmit(client, 20, 76)
+	'   		EMReadScreen client_age, 2, 8, 76
+	'   		IF client_age = "  " THEN client_age = 0
+	'   		'Removing that client from the non-magi list
+	'   		IF client_age >= 65 THEN
+	'   			magi_clients = replace(magi_clients, client & ";", "")
+	'   			IF InStr(non_magi_clients, client & ";") = 0 THEN non_magi_clients = non_magi_clients & client & ";"
+	'   		ELSE
+	'   			'Checking DISA for a MA-EPD & SSI
+	'   			CALL navigate_to_MAXIS_screen("STAT", "DISA")
+	'   			CALL write_value_and_transmit(client, 20, 76)
+	'   			EMReadScreen hc_disa_status, 2, 13, 59
+	'   			IF hc_disa_status = "03" OR hc_disa_status = "04" OR hc_disa_status = "22" THEN
+	'   				magi_clients = replace(magi_clients, client & ";", "")
+	'   				IF InStr(non_magi_clients, client & ";") = 0 THEN non_magi_clients = non_magi_clients & client & ";"
+	'   			ELSE
+	'   				CALL navigate_to_MAXIS_screen("STAT", "MEDI")
+	'   				CALL write_value_and_transmit(client, 20, 76)
+	'   				EMReadScreen medi_ref_num, 15, 6, 44
+	'   				medi_ref_num = trim(replace(medi_ref_num, "_", ""))
+	'   				IF medi_ref_num <> "" THEN
+	'   					magi_clients = replace(magi_clients, client & ";", "")
+	'   					IF InStr(non_magi_clients, client & ";") = 0 THEN non_magi_clients = non_magi_clients & client & ";"
+	'   				END IF
+	'   			END IF
+	'   		END IF
+	'   	NEXT
+	'   END IF
+
+	'   'Going back to determine if the individual is still Non-MAGI...SSI, Medicare, and MA-EPD disq the person as Non-MAGI
+	'   IF non_magi_clients <> "" THEN
+	'   	non_magi_peeps = replace(non_magi_clients & "~~~", ";~~~", "")
+	'   	non_magi_peeps = split(non_magi_peeps, ";")
+	'   	FOR EACH client IN non_magi_peeps
+	'   		'Checking for SSI, MA-EPD, and Medicare
+	'   		non_magi = ""
+	'   		CALL navigate_to_MAXIS_screen("STAT", "MEDI")
+	'   		CALL write_value_and_transmit(client, 20, 76)
+	'   		EMReadScreen medi_case_number, 15, 6, 44
+	'   		medi_case_number = trim(replace(medi_case_number, "_", ""))
+	'   		IF medi_case_number <> "" THEN non_magi = TRUE
+	'   		IF non_magi <> TRUE THEN
+	'   			CALL navigate_to_MAXIS_screen("STAT", "DISA")
+	'   			CALL write_value_and_transmit(client, 20, 76)
+	'   			EMReadScreen hc_disa_status, 2, 13, 59
+	'   			IF hc_disa_status = "03" OR hc_disa_status = "04" OR hc_disa_status = "22" THEN non_magi = TRUE
+	'   		END IF
+	'   		IF non_magi <> TRUE THEN
+	'   			non_magi_clients = replace(non_magi_clients, client & ";", "")
+	'   			IF InStr(magi_clients, client & ";") = 0 THEN magi_clients = magi_clients & client & ";"
+	'   		END IF
+	'   	NEXT
+	'   END IF
+
+	'   'Writing all these ding-dang values to Excel
+	'   objExcel.Cells(excel_row, 4).Value = magi_clients
+	'   IF magi_clients <> "" THEN
+	'   	MAGI_count = UBound(split(magi_clients, ";"))
+	'   	objExcel.Cells(excel_row, 6).Value = MAGI_count
+	'   ELSE
+	'   	objExcel.Cells(excel_row, 6).Value = 0
+	'   END IF
+
+	'   objExcel.Cells(excel_row, 5).Value = non_magi_clients
+	'   IF non_magi_clients <> "" THEN
+	'   	nonMAGI_count = UBound(split(non_magi_clients, ";"))
+	'   	objExcel.Cells(excel_row, 7).Value = nonMAGI_count
+	'   ELSE
+	'   	objExcel.Cells(excel_row, 7).Value = 0
+	'   END IF
+
+	'   CALL navigate_to_MAXIS_screen("STAT", "REVW")
+	'   EMReadScreen revw_does_not_exist, 19, 24, 2
+	'   IF revw_does_not_exist <> "REVW DOES NOT EXIST" THEN
+	'   	EMwritescreen "X", 5, 71
+	'   	Transmit
+	'   	'Checking to make sure pop up opened
+	'   	DO
+	'   		EMReadScreen revw_pop_up_check, 8, 4, 44
+	'   		EMWaitReady 1, 1
+	'   	LOOP until revw_pop_up_check = "RENEWALS"
+	'   	'Reading HC reviews to compare them
+	'   	EMReadScreen hc_income_renewal, 8, 8, 27
+	'   	EMReadScreen hc_IA_renewal, 8, 8, 71
+	'   	EMReadScreen hc_annual_renewal, 8, 9, 27
+	'   	objExcel.Cells(excel_row, 12).Value = replace(hc_annual_renewal, " ", "/")
+	'   	IF MAGI_count <> 0 THEN
+	'   		IF hc_income_renewal = "__ 01 __" THEN hc_compare_renewal = hc_IA_renewal
+	'   		IF hc_IA_renewal = "__ 01 __" THEN hc_compare_renewal = hc_income_renewal
+
+	'   		IF hc_annual_renewal = hc_compare_renewal THEN
+	'   			objExcel.Cells(excel_row, 11).Value = "Y"
+	'   		ELSE
+	'   			objExcel.Cells(excel_row, 11).Value = "Y"
+	'   		END IF
+	'   	END IF
+	'   ELSE
+	'   	objExcel.Cells(excel_row, 12).Value = "NO REVIEW DATE"
+	'   END IF
+
+	'   IF MAGI_count <> 0 AND nonMAGI_count = 0 THEN
+	'   	objExcel.Cells(excel_row, 8).Value = "Y"
+	'   ELSEIF MAGI_count <> 0 AND nonMAGI_count <> 0 THEN
+	'   	objExcel.Cells(excel_row, 9).Value = "Y"
+	'   ELSEIF MAGI_count = 0 AND nonMAGI_count <> 0 THEN
+	'   	objExcel.Cells(excel_row, 10).Value = "Y"
+	'   END IF
+    'End if 
     
 	excel_row = excel_row + 1
 LOOP UNTIL objExcel.Cells(excel_row, 2).Value = ""
