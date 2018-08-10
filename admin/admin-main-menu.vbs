@@ -159,6 +159,13 @@ script_array_QI_list(script_num).description 		= "BULK script that gathers case 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
 Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_QI_list(script_num).script_name		= "Banked Months Review"													'Script name
+script_array_QI_list(script_num).file_name			= "banked-months-review.vbs"												'Script URL
+script_array_QI_list(script_num).description		= "Script to assist in the review and processing of SNAP Banked Months."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
+Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_QI_list(script_num).script_name		= "DAIL Decimator"													'Script name
 script_array_QI_list(script_num).file_name			= "dail-decimator.vbs"												'Script URL
 script_array_QI_list(script_num).description		= "BULK script that deletes specific DAILS based on content, and collects them into an Excel spreadsheet."
