@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/10/2018", "Added functionalty to disregard Andrew Residence cases as Rate 2.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/21/2018", "Removed case noting in MAXIS functionality. Also added PMI's to all cases instead of Rate 2 only cases.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/23/2018", "Enhancements include added handling for password prompting for BZ 7.1.5 and for SSR agreements closing prior to the end of the month.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/23/2018", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -206,7 +207,10 @@ For item = 0 to UBound(Update_MMIS_array, 2)
         
         Call navigate_to_MAXIS_screen ("STAT", "SSRT")				
         call write_value_and_transmit ("01", 20, 76)	'For member 01 - All GRH cases should be for member 01. 
-        
+    
+        EmReadscreen SSRT_vendor_name, 30, 6, 43            'checking for Andrew residence cases
+        SSRT_vendor_name = replace(SSRT_vendor_name, "_", "")
+
         EMReadScreen SSRT_total_check, 1, 2, 78
         If SSRT_total_check = "0" then
             Update_MMIS_array(rate_two, item) = False  
@@ -214,6 +218,9 @@ For item = 0 to UBound(Update_MMIS_array, 2)
         elseif SSRT_total_check <> "1" then 
             Update_MMIS_array(rate_two, item) = False  
             Update_MMIS_array(case_status, item) = "More than one SSRT panel exists. Process manually."
+        elseif instr(SSRT_vendor_name, "ANDREW RESIDENCE") then 
+            Update_MMIS_array(rate_two, item) = False  
+            Update_MMIS_array(case_status, item) = "Andrew Residence facilities do not get loaded into MMIS."
         Else
             Update_MMIS_array(rate_two, item) = True 
             EMReadScreen NPI_number, 10, 7, 43
