@@ -558,6 +558,9 @@ Const months_to_approve = 17
 'Connects to BlueZone
 EMConnect ""
 
+'Checks to make sure we're in MAXIS
+call check_for_MAXIS(True)
+
 Dim BANKED_MONTHS_CASES_ARRAY ()
 ReDim BANKED_MONTHS_CASES_ARRAY (months_to_approve, 0)
 
@@ -586,8 +589,11 @@ BeginDialog Dialog1, 0, 0, 181, 80, "Dialog"
   Text 10, 10, 170, 10, "Script to assess and review Banked Months cases."
 EndDialog
 
-dialog Dialog1
-cancel_confirmation
+Do
+    dialog Dialog1
+    cancel_confirmation
+    call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 If process_option = "Ongoing Banked Months Cases" OR process_option = "Find ABAWD Months" Then
     'working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\On Demand Waiver\Files for testing new application rewrite\Working Excel.xlsx"
@@ -630,16 +636,19 @@ BeginDialog Dialog1, 0, 0, 176, 140, "Dialog"
 EndDialog
 
 Do
-    err_msg = ""
-    dialog Dialog1
+    Do
+        err_msg = ""
+        dialog Dialog1
 
-    If trim(stop_time) <> "" AND IsNumeric(stop_time) = FALSE Then err_msg = err_msg & vbNewLine & "- Number of hours should be a number."
-    If trim(excel_row_to_start) <> "" AND IsNumeric(excel_row_to_start) = FALSE Then err_msg = err_msg & vbNewLine & "- Start row of Excel should be a number."
-    If trim(excel_row_to_end) <> "" AND IsNumeric(excel_row_to_end) = FALSE Then err_msg = err_msg & vbNewLine & "- End row of Excel should be a number."
+        If trim(stop_time) <> "" AND IsNumeric(stop_time) = FALSE Then err_msg = err_msg & vbNewLine & "- Number of hours should be a number."
+        If trim(excel_row_to_start) <> "" AND IsNumeric(excel_row_to_start) = FALSE Then err_msg = err_msg & vbNewLine & "- Start row of Excel should be a number."
+        If trim(excel_row_to_end) <> "" AND IsNumeric(excel_row_to_end) = FALSE Then err_msg = err_msg & vbNewLine & "- End row of Excel should be a number."
 
-    If err_msg <> "" Then MsgBox "** Please Resolve the Following to Continue:" & vbNew & err_msg
+        If err_msg <> "" Then MsgBox "** Please Resolve the Following to Continue:" & vbNew & err_msg
 
-Loop until err_msg = ""
+    Loop until err_msg = ""
+    call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 If trim(excel_row_to_start) = "" Then excel_row_to_start = 2
 excel_row_to_start = excel_row_to_start * 1
@@ -989,11 +998,14 @@ If process_option = "Find ABAWD Months" Then
             EndDialog
 
             Do
-                err_msg = ""
+                Do
+                    err_msg = ""
 
-                dialog Dialog1
+                    dialog Dialog1
 
-            Loop until err_msg = ""
+                Loop until err_msg = ""
+                call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+            LOOP UNTIL are_we_passworded_out = false
 
             If counted_month_one = "" OR counted_month_two = "" OR counted_month_three = "" Then
                 ObjExcel.Rows(list_row).Interior.ColorIndex = 3
