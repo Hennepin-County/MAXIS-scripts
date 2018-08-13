@@ -135,11 +135,11 @@ script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "Add GRH Rate 2 to MMIS"
-script_array(script_num).description			= "Adds supplemental service ."
+script_array(script_num).description			= "Adds new supplemental service rate (SSR) agreements to MMIS for GRH Rate 2 cases."
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
-script_array(script_num).release_date           = #02/09/2018#
+script_array(script_num).release_date           = #08/13/2018#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
