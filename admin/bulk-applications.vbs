@@ -715,6 +715,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                             End If
                             ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ", Cash interview incomplete."
                         End If
+                    Else
+                        ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = ""
                     End If
                 End If
             ElseIf fs_pend = "PEND" Then        'if SNAP is pending and cash is not then everything is much simpler
