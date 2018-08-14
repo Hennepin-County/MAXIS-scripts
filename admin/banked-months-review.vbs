@@ -783,7 +783,7 @@ If process_option = "Find ABAWD Months" Then
 
             EMReadScreen wreg_total, 1, 2, 78
             If wreg_total = "0" then
-                CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case) = "PRIV " & CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
+                CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case) = "NO WREG " & CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
                 ObjExcel.Cells(list_row, notes_col).Value = CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
                 continue_search = FALSE
             End If
@@ -1087,38 +1087,7 @@ If process_option = "Ongoing Banked Months Cases" Then
         ABAWD_MONTHS_ARRAY = ""
         still_three_used = TRUE
 
-        'TODO add functionality to note on the spreadhseet and in the case for cases in which the used banked month has been CONFRIMED - that the client was active in a past or current month.
-        If BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case) <> "" THen
-            If InStr(BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case), "~") <> 0 Then
-                ABAWD_MONTHS_ARRAY = Split(BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case), "~")
-            End If
-            BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case) = ""
-            If Ubound(ABAWD_MONTHS_ARRAY) <> 2 Then
-                BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) = BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) & " LESS than 3 ABAWD MONTHS listed as used."
-            Else
-                For each used_month in ABAWD_MONTHS_ARRAY
-                    the_month = left(used_month, 2)
-                    the_year = right(used_month, 2)
-                    the_ABAWD_month = the_month & "/01/" & the_year
-                    MsgBox "The ABAWD month is " & the_ABAWD_month & vbNewLine & "Difference is " & DateDiff("m", the_ABAWD_month, date)
 
-                    'TODO need to address this in each month to be reviewed since we may be looking at more than one month'
-                    If DateDiff("m", the_ABAWD_month, date) > 36 Then
-                        still_three_used = FALSE
-                        BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) = BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) & " " & the_ABAWD_month & " is more than 36 months ago."
-
-                    Else
-                        If BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case)  = "" Then
-                            BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case) = the_month & "/" & the_year
-                        Else
-                            BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case)  = BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case) & "~" & the_month & "/" & the_year
-                        End If
-                    End If
-                Next
-            End If
-        Else
-            BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) = BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) & " LESS than 3 ABAWD MONTHS listed as used."
-        End If
 
         list_row = BANKED_MONTHS_CASES_ARRAY(clt_excel_row, the_case)       'setting the excel row to what was found in the array
         MAXIS_case_number = BANKED_MONTHS_CASES_ARRAY(case_nbr, the_case)   'setting the case number to this variable for nav functions to work
@@ -1149,6 +1118,41 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                 MAXIS_footer_year = DatePart("yyyy", next_month)
                 MAXIS_footer_year = right(MAXIS_footer_year, 2)
+            End If
+
+            'TODO add functionality to note on the spreadhseet and in the case for cases in which the used banked month has been CONFRIMED - that the client was active in a past or current month.
+            If BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case) <> "" THen
+                If InStr(BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case), "~") <> 0 Then
+                    ABAWD_MONTHS_ARRAY = Split(BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case), "~")
+                End If
+                BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case) = ""
+                If Ubound(ABAWD_MONTHS_ARRAY) <> 2 Then
+                    BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) = BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) & " LESS than 3 ABAWD MONTHS listed as used."
+                Else
+                    For each used_month in ABAWD_MONTHS_ARRAY
+                        the_month = left(used_month, 2)
+                        the_year = right(used_month, 2)
+                        the_ABAWD_month = the_month & "/01/" & the_year
+
+                        this_month = MAXIS_footer_month & "/01/" & MAXIS_footer_year
+                        'MsgBox "The ABAWD month is " & the_ABAWD_month & vbNewLine & "Difference is " & DateDiff("m", the_ABAWD_month, this_month)
+
+                        'TODO need to address this in each month to be reviewed since we may be looking at more than one month'
+                        If DateDiff("m", the_ABAWD_month, this_month) > 36 Then
+                            still_three_used = FALSE
+                            BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) = BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) & " " & the_ABAWD_month & " is more than 36 months ago."
+
+                        Else
+                            If BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case)  = "" Then
+                                BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case) = the_month & "/" & the_year
+                            Else
+                                BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case)  = BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case) & "~" & the_month & "/" & the_year
+                            End If
+                        End If
+                    Next
+                End If
+            Else
+                BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) = BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) & " LESS than 3 ABAWD MONTHS listed as used."
             End If
 
             Call navigate_to_MAXIS_screen("CASE", "PERS")       'go to CASE/PERS - which is month specific
@@ -1232,7 +1236,13 @@ If process_option = "Ongoing Banked Months Cases" Then
                             dialog Dialog1      'display the dialog
 
                             'If the worker indicates that the client meets an exemption this tells the script that we no longer need to code for banked months
-                            If ButtonPressed = meets_exemption_btn Then code_for_banked = FALSE
+                            If ButtonPressed = meets_exemption_btn Then
+                                code_for_banked = FALSE
+
+                                For each exemption in list_of_exemption
+                                    BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) = BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) & " ~ Possible ABAWD/FSET Exemption: " & exemption
+                                Next
+                            End If
                         End If
 
                         Call navigate_to_MAXIS_screen("STAT", "WREG")   'The script or worker may have moved around in the case - need to navigate back
@@ -1262,11 +1272,11 @@ If process_option = "Ongoing Banked Months Cases" Then
                             If MX_region = "INQUIRY DB" Then           'If we are in Inquiry, the script runs in a developer mode, messaging the information
                                 MsgBox "WREG to be updated with BM Tracker number: " & month_tracker_nbr
                             Else                                    'If we are in production, then we should actually update
-                                ' PF9
-                                ' EMWriteScreen month_tracker_nbr, 14, 50
-                                ' transmit
-                                ' EMWriteScreen "BGTX", 20, 71
-                                ' transmit
+                                PF9
+                                EMWriteScreen month_tracker_nbr, 14, 50
+                                transmit
+                                EMWriteScreen "BGTX", 20, 71
+                                transmit
                                 'TODO add confirmation that WREG was updated
                             End If
                             assist_a_new_approval = TRUE            'This variable defines if more things should happen
@@ -1411,7 +1421,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                             End If
 
                         End If
-                        BANKED_MONTHS_CASES_ARRAY(notes_col, the_case) = BANKED_MONTHS_CASES_ARRAY(notes_col, the_case) & " ~ Approve SNAP for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "~"
+                        BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) = BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) & " ~ Approve SNAP for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "~"
                         'TODO need to find a casenoting solution for these months
                     End If
                 End If
@@ -1442,7 +1452,7 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                 Else    'if the month was not tracked - and the client not active anymore
                     BANKED_MONTHS_CASES_ARRAY(case_errors, the_case) = "STALE"      'This indicates that the case is no longer needing to be tracked
-                    BANKED_MONTHS_CASES_ARRAY(notes_col, the_case) = BANKED_MONTHS_CASES_ARRAY(notes_col, the_case) & "  ~Client is not active SNAP in " & MAXIS_footer_month & "/" & MAXIS_footer_year & " ~  "    'adding information to NOTES on the spreadsheet
+                    BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) = BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) & "  ~Client is not active SNAP in " & MAXIS_footer_month & "/" & MAXIS_footer_year & " ~  "    'adding information to NOTES on the spreadsheet
                     'MsgBox "STALE"
                 End If
             End If
