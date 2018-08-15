@@ -903,6 +903,7 @@ If process_option = "Find ABAWD Months" Then
 
             EMReadScreen no_issuance, 11, 24, 2
             If no_issuance = "NO ISSUANCE" then script_end_procedure(HH_memb & " does not have any issuance during this period. The script will now end.")
+            one_page = FALSE        'Reset for the loop
 
             EMReadScreen single_page, 8, 17, 73
             If trim(single_page) = "" then
