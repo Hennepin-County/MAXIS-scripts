@@ -796,9 +796,10 @@ If process_option = "Find ABAWD Months" Then
 
 
         If continue_search = TRUE THen
+            total_counted_months = 0
             'Opening the Excel file
             Set objABAWDExcel = CreateObject("Excel.Application")
-            objABAWDExcel.Visible = True
+            objABAWDExcel.Visible = False
             Set objWorkbook = objABAWDExcel.Workbooks.Add()
             objABAWDExcel.DisplayAlerts = True
 
@@ -866,6 +867,7 @@ If process_option = "Find ABAWD Months" Then
             	EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
             	IF is_counted_month <> "_" then objABAWDExcel.Cells(excel_row, 2).Value = is_counted_month
                 If is_counted_month = "X" OR is_counted_month = "M" Then
+                    total_counted_months = total_counted_months + 1
                     If counted_month_one = "" Then
                         counted_month_one = abawd_counted_months_string
                     ElseIf counted_month_two = "" Then
@@ -886,134 +888,138 @@ If process_option = "Find ABAWD Months" Then
             PF3 	'to exit the ABAWD tracking record
 
             '--------------------------------------------------------------------------------------------------------------------------------------------------INQX
-            INQX_yr = right(DatePart("yyyy", DateAdd("yyyy", -3, date)), 2)
+            If total_counted_months <> 3 Then
+                objABAWDExcel.Visible = True
 
-            Call navigate_to_MAXIS_screen("MONY", "INQX")
-            EMWritescreen "01", 6, 38
-            EMWritescreen INQX_yr, 6, 41
-            EMWritescreen CM_mo, 6, 53
-            EMwritescreen CM_yr, 6, 56
-            EMWritescreen "X", 9, 5		'Snap
-            EMWritescreen "X", 10, 5	'MFIP
-            EMWritescreen "X", 11, 5 	'GA
-            EMWritescreen "X", 15, 5	'RCA
-            EMWritescreen "X", 13, 50	'MSA
-            EMWritescreen "X", 17, 50 	'DWP
-            transmit
+                INQX_yr = right(DatePart("yyyy", DateAdd("yyyy", -3, date)), 2)
 
-            EMReadScreen no_issuance, 11, 24, 2
-            If no_issuance = "NO ISSUANCE" then script_end_procedure(HH_memb & " does not have any issuance during this period. The script will now end.")
-            one_page = FALSE        'Reset for the loop
+                Call navigate_to_MAXIS_screen("MONY", "INQX")
+                EMWritescreen "01", 6, 38
+                EMWritescreen INQX_yr, 6, 41
+                EMWritescreen CM_mo, 6, 53
+                EMwritescreen CM_yr, 6, 56
+                EMWritescreen "X", 9, 5		'Snap
+                EMWritescreen "X", 10, 5	'MFIP
+                EMWritescreen "X", 11, 5 	'GA
+                EMWritescreen "X", 15, 5	'RCA
+                EMWritescreen "X", 13, 50	'MSA
+                EMWritescreen "X", 17, 50 	'DWP
+                transmit
 
-            EMReadScreen single_page, 8, 17, 73
-            If trim(single_page) = "" then
-            	one_page = True
-            Else
-            	PF8
-            	EMReadScreen single_page_again, 8, 17, 73
-            	If trim(single_page) = trim(single_page_again) then one_page = True
-            End if
+                EMReadScreen no_issuance, 11, 24, 2
+                If no_issuance = "NO ISSUANCE" then script_end_procedure(HH_memb & " does not have any issuance during this period. The script will now end.")
+                one_page = FALSE        'Reset for the loop
 
-            'this do...loop gets the user back to the 1st page on the INQD screen to check the next issuance_month
-            Do
-            	PF7
-            	EMReadScreen first_page_check, 20, 24, 2
-            LOOP until first_page_check = "THIS IS THE 1ST PAGE"	'keeps hitting PF7 until user is back at the 1st page
+                EMReadScreen single_page, 8, 17, 73
+                If trim(single_page) = "" then
+                	one_page = True
+                Else
+                	PF8
+                	EMReadScreen single_page_again, 8, 17, 73
+                	If trim(single_page) = trim(single_page_again) then one_page = True
+                End if
 
-            Excel_row = 2
-            DO
-            	row = 6				'establishing the row to start searching for issuance
-            	tracking_month = objABAWDExcel.cells(excel_row, 1).Value	're-establishing the case number to use for the case
-            	If trim(tracking_month) = "" then exit do
-
-            	Do
-            	    Do
-            	    	EMReadScreen issuance_month, 2, row, 73
-            	    	EMReadScreen issuance_year, 2, row, 79
-            			EMReadScreen issuance_day, 2, row, 65
-            	    	INQX_issuance = issuance_month & "/" & issuance_year
-            	    	If trim(INQX_issuance) = "" then exit do
-
-            	    	If tracking_month = INQX_issuance then
-            	    		EMReadScreen prog_type, 5, row, 16
-            	    		prog_type = trim(prog_type)
-            	    		EMReadScreen amt_issued, 7, row, 40
-            				If issuance_day <> "01" then amt_issued = amt_issued & "*"
-            	    		If prog_type = "FS" 	then fs_issued = fs_issued + amt_issued
-            	    		If prog_type = "GA" 	then ga_issued = ga_issued + amt_issued
-            	    		If prog_type = "MF-MF" 	then mfip_issued = mfip_issued + amt_issued
-            	    		If prog_type = "MF-FS" 	then mffs_issued = mffs_issued + amt_issued
-            	    		If prog_type = "DW" 	then dw_issued = dw_issued + amt_issued
-            	    		If prog_type = "RC" 	then rc_issued = rc_issued + amt_issued
-            	    		If prog_type = "MS" 	then ms_issued = ms_issued + amt_issued
-            	    	End if
-            	    	row = row + 1
-            	    Loop until row = 18
-
-            		If one_page = True then exit do
-            		PF8
-            		EMReadScreen last_page_check, 21, 24, 2
-            		If last_page_check = "CAN NOT PAGE THROUGH " then
-            		 	review_required = True
-            			last_page = True
-            		elseIf last_page_check = "THIS IS THE LAST PAGE" then
-            			last_page = True
-            		Else
-            			last_page = False
-            			row = 6		're-establishes row for the new page
-            		End if
-            	Loop until last_page = True
-
-            	objABAWDExcel.Cells(excel_row, 3).Value = fs_issued
-            	objABAWDExcel.Cells(excel_row, 4).Value = ga_issued
-            	objABAWDExcel.Cells(excel_row, 5).Value = mfip_issued
-            	objABAWDExcel.Cells(excel_row, 6).Value = mffs_issued
-            	objABAWDExcel.Cells(excel_row, 7).Value = dw_issued
-            	objABAWDExcel.Cells(excel_row, 8).Value = rc_issued
-            	objABAWDExcel.Cells(excel_row, 9).Value = ms_issued
-
-            	amt_issued = ""
-            	fs_issued = ""
-            	ga_issued = ""
-            	mfip_issued = ""
-            	mffs_issued = ""
-            	dw_issued = ""
-            	rc_issued = ""
-            	ms_issued = ""
-
-            	If one_page <> True then
-            	    'this do...loop gets the user back to the 1st page on the INQD screen to check the next issuance_month
-            	    Do
-            	    	PF7
-            	    	EMReadScreen first_page_check, 20, 24, 2
-            	    LOOP until first_page_check = "THIS IS THE 1ST PAGE"	'keeps hitting PF7 until user is back at the 1st page
-            	End if
-
-            	excel_row = excel_row + 1
-            Loop
-
-            FOR i = 1 to 9
-            	objABAWDExcel.Columns(i).AutoFit()				'sizing the columns
-            NEXT
-
-            BeginDialog Dialog1, 0, 0, 141, 90, "Confirm Counted ABAWD Months"
-              EditBox 30, 30, 30, 15, counted_month_one
-              EditBox 30, 50, 30, 15, counted_month_two
-              EditBox 30, 70, 30, 15, counted_month_three
-              ButtonGroup ButtonPressed
-                OkButton 85, 70, 50, 15
-              Text 10, 5, 135, 20, "The script has determined that the counted ABAWD months appear to be:"
-            EndDialog
-
-            Do
+                'this do...loop gets the user back to the 1st page on the INQD screen to check the next issuance_month
                 Do
-                    err_msg = ""
+                	PF7
+                	EMReadScreen first_page_check, 20, 24, 2
+                LOOP until first_page_check = "THIS IS THE 1ST PAGE"	'keeps hitting PF7 until user is back at the 1st page
 
-                    dialog Dialog1
+                Excel_row = 2
+                DO
+                	row = 6				'establishing the row to start searching for issuance
+                	tracking_month = objABAWDExcel.cells(excel_row, 1).Value	're-establishing the case number to use for the case
+                	If trim(tracking_month) = "" then exit do
 
-                Loop until err_msg = ""
-                call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-            LOOP UNTIL are_we_passworded_out = false
+                	Do
+                	    Do
+                	    	EMReadScreen issuance_month, 2, row, 73
+                	    	EMReadScreen issuance_year, 2, row, 79
+                			EMReadScreen issuance_day, 2, row, 65
+                	    	INQX_issuance = issuance_month & "/" & issuance_year
+                	    	If trim(INQX_issuance) = "" then exit do
+
+                	    	If tracking_month = INQX_issuance then
+                	    		EMReadScreen prog_type, 5, row, 16
+                	    		prog_type = trim(prog_type)
+                	    		EMReadScreen amt_issued, 7, row, 40
+                				If issuance_day <> "01" then amt_issued = amt_issued & "*"
+                	    		If prog_type = "FS" 	then fs_issued = fs_issued + amt_issued
+                	    		If prog_type = "GA" 	then ga_issued = ga_issued + amt_issued
+                	    		If prog_type = "MF-MF" 	then mfip_issued = mfip_issued + amt_issued
+                	    		If prog_type = "MF-FS" 	then mffs_issued = mffs_issued + amt_issued
+                	    		If prog_type = "DW" 	then dw_issued = dw_issued + amt_issued
+                	    		If prog_type = "RC" 	then rc_issued = rc_issued + amt_issued
+                	    		If prog_type = "MS" 	then ms_issued = ms_issued + amt_issued
+                	    	End if
+                	    	row = row + 1
+                	    Loop until row = 18
+
+                		If one_page = True then exit do
+                		PF8
+                		EMReadScreen last_page_check, 21, 24, 2
+                		If last_page_check = "CAN NOT PAGE THROUGH " then
+                		 	review_required = True
+                			last_page = True
+                		elseIf last_page_check = "THIS IS THE LAST PAGE" then
+                			last_page = True
+                		Else
+                			last_page = False
+                			row = 6		're-establishes row for the new page
+                		End if
+                	Loop until last_page = True
+
+                	objABAWDExcel.Cells(excel_row, 3).Value = fs_issued
+                	objABAWDExcel.Cells(excel_row, 4).Value = ga_issued
+                	objABAWDExcel.Cells(excel_row, 5).Value = mfip_issued
+                	objABAWDExcel.Cells(excel_row, 6).Value = mffs_issued
+                	objABAWDExcel.Cells(excel_row, 7).Value = dw_issued
+                	objABAWDExcel.Cells(excel_row, 8).Value = rc_issued
+                	objABAWDExcel.Cells(excel_row, 9).Value = ms_issued
+
+                	amt_issued = ""
+                	fs_issued = ""
+                	ga_issued = ""
+                	mfip_issued = ""
+                	mffs_issued = ""
+                	dw_issued = ""
+                	rc_issued = ""
+                	ms_issued = ""
+
+                	If one_page <> True then
+                	    'this do...loop gets the user back to the 1st page on the INQD screen to check the next issuance_month
+                	    Do
+                	    	PF7
+                	    	EMReadScreen first_page_check, 20, 24, 2
+                	    LOOP until first_page_check = "THIS IS THE 1ST PAGE"	'keeps hitting PF7 until user is back at the 1st page
+                	End if
+
+                	excel_row = excel_row + 1
+                Loop
+
+                FOR i = 1 to 9
+                	objABAWDExcel.Columns(i).AutoFit()				'sizing the columns
+                NEXT
+
+                BeginDialog Dialog1, 0, 0, 141, 90, "Confirm Counted ABAWD Months"
+                  EditBox 30, 30, 30, 15, counted_month_one
+                  EditBox 30, 50, 30, 15, counted_month_two
+                  EditBox 30, 70, 30, 15, counted_month_three
+                  ButtonGroup ButtonPressed
+                    OkButton 85, 70, 50, 15
+                  Text 10, 5, 135, 20, "The script has determined that the counted ABAWD months appear to be:"
+                EndDialog
+
+                Do
+                    Do
+                        err_msg = ""
+
+                        dialog Dialog1
+
+                    Loop until err_msg = ""
+                    call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+                LOOP UNTIL are_we_passworded_out = false
+            End If
 
             If counted_month_one = "" OR counted_month_two = "" OR counted_month_three = "" Then
                 ObjExcel.Rows(list_row).Interior.ColorIndex = 3
