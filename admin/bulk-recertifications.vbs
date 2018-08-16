@@ -145,6 +145,7 @@ EndDialog
 'SCRIPT ====================================================================================================================
 'Connects to BlueZone
 EMConnect ""
+MsgBox "Got the new one"
 
 'Grabbing the worker's X number.
 CALL find_variable("User: ", worker_number, 7)
@@ -595,7 +596,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
     call back_to_SELF
 next
 'All information has been gathered
-
+MsgBox "We are going back to EXCEL!"
 
 'Insert columns in excel for additional information to be added
 column_end = last_col & "1"
@@ -714,17 +715,17 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                     Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
                     Memo_to_display = Memo_to_display & vbNewLine & "(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)"
                     Memo_to_display = Memo_to_display & vbNewLine & "Qoraallada rabshadaha qoysaska waxaad ka heli kartaa https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. Waxaad kaloo codsan kartaa qoraalkan oo warqad ah."
-
-                Case "01"   'Spanish (3rd)
-                    'MsgBox "SPANISH"
-                Case "02"   'Hmong (4th)
-                    'MsgBox "HMONG"
-                Case "06"   'Russian (5th)
-                    'MsgBox "RUSSIAN"
-                Case "12"   'Oromo (6th)
-                    'MsgBox "OROMO"
-                Case "03"   'Vietnamese (7th)
-                    'MsgBox "VIETNAMESE"
+                '
+                ' Case "01"   'Spanish (3rd)
+                '     'MsgBox "SPANISH"
+                ' Case "02"   'Hmong (4th)
+                '     'MsgBox "HMONG"
+                ' Case "06"   'Russian (5th)
+                '     'MsgBox "RUSSIAN"
+                ' Case "12"   'Oromo (6th)
+                '     'MsgBox "OROMO"
+                ' Case "03"   'Vietnamese (7th)
+                '     'MsgBox "VIETNAMESE"
                 Case Else  'English (1st)
                     'MsgBox "ENGLISH"
                     Memo_to_display = "The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case."
@@ -971,16 +972,16 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             Memo_to_display = Memo_to_display & vbNewLine & "* Haddii aynaan war kaa helin inta ka horreysa " & last_day_of_recert & " *"
                             Memo_to_display = Memo_to_display & vbNewLine & "*   Macaawinada aad hesho waxay instaageysaa " & last_day_of_recert & ". *"
 
-                        Case "01"   'Spanish (3rd)
-                            'MsgBox "SPANISH"
-                        Case "02"   'Hmong (4th)
-                            'MsgBox "HMONG"
-                        Case "06"   'Russian (5th)
-                            'MsgBox "RUSSIAN"
-                        Case "12"   'Oromo (6th)
-                            'MsgBox "OROMO"
-                        Case "03"   'Vietnamese (7th)
-                            'MsgBox "VIETNAMESE"
+                        ' Case "01"   'Spanish (3rd)
+                        '     'MsgBox "SPANISH"
+                        ' Case "02"   'Hmong (4th)
+                        '     'MsgBox "HMONG"
+                        ' Case "06"   'Russian (5th)
+                        '     'MsgBox "RUSSIAN"
+                        ' Case "12"   'Oromo (6th)
+                        '     'MsgBox "OROMO"
+                        ' Case "03"   'Vietnamese (7th)
+                        '     'MsgBox "VIETNAMESE"
                         Case Else  'English (1st)
                             'MsgBox "ENGLISH"
                             'creating the memo message and displaying it.
