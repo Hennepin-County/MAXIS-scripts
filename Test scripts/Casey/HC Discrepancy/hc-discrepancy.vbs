@@ -274,22 +274,39 @@ function navigate_to_MMIS_region(group_security_selection)
 end function
 
 'DIALOGS----------------------------------------------------------------------
-BeginDialog find_spenddowns_month_spec_dialog, 0, 0, 221, 180, "Pull REPT data into Excel dialog"
+' BeginDialog find_spenddowns_month_spec_dialog, 0, 0, 221, 180, "Pull REPT data into Excel dialog"
+'   EditBox 85, 20, 130, 15, worker_number
+'   DropListBox 125, 85, 80, 45, "ALL"+chr(9)+"January"+chr(9)+"February"+chr(9)+"March"+chr(9)+"April"+chr(9)+"May"+chr(9)+"June"+chr(9)+"July"+chr(9)+"August"+chr(9)+"September"+chr(9)+"October"+chr(9)+"November"+chr(9)+"December", revw_month_list
+'   CheckBox 5, 105, 150, 10, "Check here to have the script check MMIS", MMIS_checkbox
+'   CheckBox 5, 120, 150, 10, "Check here to run this query county-wide.", all_workers_check
+'   ButtonGroup ButtonPressed
+'     OkButton 110, 160, 50, 15
+'     CancelButton 165, 160, 50, 15
+'   Text 50, 5, 125, 10, "*** REPT ON MAXIS SPENDDOW ***"
+'   Text 5, 25, 65, 10, "Worker(s) to check:"
+'   Text 5, 40, 210, 20, "Enter 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
+'   Text 5, 60, 210, 25, "** If a supervisor 'x1 number' is entered, the script will add the 'x1 numbers' of all workers listed in MAXIS under that supervisor number."
+'   Text 5, 90, 120, 10, "Only pull cases with next review in:"
+'   Text 5, 135, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
+' EndDialog
+
+BeginDialog find_spenddowns_month_spec_dialog, 0, 0, 221, 200, "Pull REPT data into Excel dialog"
   EditBox 85, 20, 130, 15, worker_number
-  DropListBox 125, 85, 80, 45, "ALL"+chr(9)+"January"+chr(9)+"February"+chr(9)+"March"+chr(9)+"April"+chr(9)+"May"+chr(9)+"June"+chr(9)+"July"+chr(9)+"August"+chr(9)+"September"+chr(9)+"October"+chr(9)+"November"+chr(9)+"December", revw_month_list
-  CheckBox 5, 105, 150, 10, "Check here to have the script check MMIS", MMIS_checkbox
-  CheckBox 5, 120, 150, 10, "Check here to run this query county-wide.", all_workers_check
+  EditBox 5, 120, 210, 15, hc_cases_excel_file_path
   ButtonGroup ButtonPressed
-    OkButton 110, 160, 50, 15
-    CancelButton 165, 160, 50, 15
+    PushButton 165, 140, 50, 15, "Browse...", select_a_file_button
+  DropListBox 125, 160, 90, 45, "ALL"+chr(9)+"January"+chr(9)+"February"+chr(9)+"March"+chr(9)+"April"+chr(9)+"May"+chr(9)+"June"+chr(9)+"July"+chr(9)+"August"+chr(9)+"September"+chr(9)+"October"+chr(9)+"November"+chr(9)+"December", revw_month_list
+  ButtonGroup ButtonPressed
+    OkButton 110, 180, 50, 15
+    CancelButton 165, 180, 50, 15
   Text 50, 5, 125, 10, "*** REPT ON MAXIS SPENDDOW ***"
   Text 5, 25, 65, 10, "Worker(s) to check:"
   Text 5, 40, 210, 20, "Enter 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
   Text 5, 60, 210, 25, "** If a supervisor 'x1 number' is entered, the script will add the 'x1 numbers' of all workers listed in MAXIS under that supervisor number."
-  Text 5, 90, 120, 10, "Only pull cases with next review in:"
-  Text 5, 135, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
+  Text 100, 90, 15, 10, "OR"
+  Text 5, 105, 135, 10, "Select an Excel file of MAXIS MA cases:"
+  Text 5, 165, 120, 10, "Only pull cases with next review in:"
 EndDialog
-
 
 'THE SCRIPT-------------------------------------------------------------------------
 'Determining specific county for multicounty agencies...
@@ -298,15 +315,69 @@ get_county_code
 'Connects to BlueZone
 EMConnect ""
 
+'Setting up constants for ease of reading the array
+Const wrk_num       = 0
+Const case_num      = 1
+Const next_revw     = 2
+Const clt_name      = 3
+Const ref_numb      = 4
+Const clt_pmi       = 5
+Const hc_prog_one   = 6
+Const elig_type_one = 7
+Const elig_std_one  = 8
+Const elig_mthd_one = 9
+Const elig_waiv     = 10
+Const mobl_spdn     = 11
+Const spd_pd        = 12
+Const hc_excess     = 13
+Const hc_prog_two   = 14
+Const elig_type_two = 15
+Const elig_std_two  = 16
+Const elig_mthd_two = 17
+Const mmis_spdn     = 18
+Const error_notes   = 19
+Const add_xcl       = 120
+
+'Setting up the arrays to be dynamic
+Dim HC_CASES_ARRAY()
+ReDim HC_CASES_ARRAY (3, 0)
+
+Dim HC_CLIENTS_DETAIL_ARRAY ()
+ReDim HC_CLIENTS_DETAIL_ARRAY (add_xcl, 0)
+
 'Setting this variable to determine a filter later
 one_month_only = FALSE
 'defining current footer month so the script doesn't go to old things
 MAXIS_footer_month = right("00" & datepart("m", date), 2)
 MAXIS_footer_year = right("00" & datepart("yyyy", date), 2)
 
-'Shows dialog
-Dialog find_spenddowns_month_spec_dialog
-If buttonpressed = cancel then stopscript
+'Setting the initial path for the excel file to be found at - so we don't have to clickity click a bunch to get to the right file.
+hc_cases_excel_file_path = ""
+
+'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
+'Show initial dialog
+Do
+    Do
+        err_msg = ""
+
+    	Dialog find_spenddowns_month_spec_dialog
+    	If ButtonPressed = cancel then stopscript
+    	If ButtonPressed = select_a_file_button then
+            call file_selection_system_dialog(hc_cases_excel_file_path, ".xlsx")
+            err_msg = "LOOP" & err_msg
+        End If
+        If trim(worker_number) = "" AND trim(hc_cases_excel_file_path) = "" Then err_msg = err_msg & vbNewLine & "* Choose a source of cases, either a BOBI report or Basket Numbers."
+        If trim(worker_number) <> "" AND trim(hc_cases_excel_file_path) <> "" Then err_msg = err_msg & vbNewLine & "* Choose one source of cases. Both a BOBI report and Basket Numbers cannot be entered at the same time."
+
+        If err_msg <> "" Then
+            If left(err_msg, 4) = "LOOP" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+        End If
+    Loop until err_msg = ""
+    call check_for_password(are_we_passworded_out)
+LOOP UNTIL are_we_passworded_out = false
+
+'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
+call excel_open(hc_cases_excel_file_path, True, True, ObjExcel, objWorkbook)
 
 'Sets the script up to only pull cases for certain months if selected from the dialog
 If revw_month_list <> "ALL" AND revw_month_list <> "" Then
@@ -342,13 +413,14 @@ End If
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
 
+worker_number = trim(worker_number)
+
 'Checking for MAXIS
 Call check_for_MAXIS(True)
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
-If all_workers_check = checked then
-	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
-Else		'If worker numbers are litsted - this will create an array of workers to check
+If worker_number <> "" then
+
 	x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
 
 	'formatting array
@@ -384,37 +456,9 @@ Else		'If worker numbers are litsted - this will create an array of workers to c
 
 	'Split worker_array
 	worker_array = split(worker_array, ", ")
+Else
+
 End if
-
-'Setting up constants for ease of reading the array
-Const wrk_num       = 0
-Const case_num      = 1
-Const next_revw     = 2
-Const clt_name      = 3
-Const ref_numb      = 4
-Const clt_pmi       = 5
-Const hc_prog_one   = 6
-Const elig_type_one = 7
-Const elig_std_one  = 8
-Const elig_mthd_one = 9
-Const elig_waiv     = 10
-Const mobl_spdn     = 11
-Const spd_pd        = 12
-Const hc_excess     = 13
-Const hc_prog_two   = 14
-Const elig_type_two = 15
-Const elig_std_two  = 16
-Const elig_mthd_two = 17
-Const mmis_spdn     = 18
-Const error_notes   = 19
-Const add_xcl       = 120
-
-'Setting up the arrays to be dynamic
-Dim HC_CASES_ARRAY()
-ReDim HC_CASES_ARRAY (3, 0)
-
-Dim HC_CLIENTS_DETAIL_ARRAY ()
-ReDim HC_CLIENTS_DETAIL_ARRAY (add_xcl, 0)
 
 'Setting the variable for what's to come
 excel_row = 2
