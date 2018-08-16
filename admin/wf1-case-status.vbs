@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/16/2018", "Removed default to current month for case status. Users can navigate the footer month/year they wish to review, then run the script.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/13/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -136,11 +137,7 @@ Loop
 
 If entry_record = 0 then script_end_procedure("No cases have been found on this list. The script wil now end.")
 
-'Ensures that user is in current month
 back_to_self
-EMWriteScreen "________", 18, 43
-EMWriteScreen CM_mo, 20, 43
-EMWriteScreen CM_yr, 20, 46
 
 'Gathering info from MAXIS, and making the referrals and case notes if cases are found and active----------------------------------------------------------------------------------------------------
 For item = 0 to UBound(CBO_array, 2)
