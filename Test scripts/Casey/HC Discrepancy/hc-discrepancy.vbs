@@ -930,12 +930,13 @@ For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
     APPROVAL_NEEDED = FALSE
     found_elig = FALSE
     client_found = FALSE
-
+    'TODO add priv handling'
     row = 8
     Do
         EMReadscreen elig_clt, 2, row, 3
         EmReadscreen prog_exists, 1, row, 10
         If elig_clt = CLIENT_reference_number Then
+            'MsgBox "Elig Clt: " & elig_clt & vbNewLine & "Ref Number: " &CLIENT_reference_number
             client_found = TRUE
             EMReadScreen prog, 10, row, 28
             EMReadScreen version, 2, row, 58
@@ -955,6 +956,7 @@ For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
                 Else
                     Do
                         EMReadScreen version, 2, row, 58
+                        'MsgBox "1 - Version: " & version
                         version = version * 1
                         prev_verision = version - 1
                         prev_verision = right("00" & prev_verision, 2)
@@ -967,6 +969,7 @@ For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
                             found_elig = TRUE
                             Exit Do
                         End If
+                        'MsgBox "Loop 2 - prev_verision: " & prev_verision
                     Loop until prev_verision = "01"
                     EMReadScreen version, 2, row, 58
                     EMReadScreen app_indc, 6, row, 68
@@ -1002,6 +1005,7 @@ For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
                             If bsum_mo = MAXIS_footer_month and bsum_yr = MAXIS_footer_year Then Exit Do
                             mo_col = mo_col + 11
                             yr_col = yr_col + 11
+                            'MsgBox "Loop 3 - month col: " & mo_col
                         Loop until mo_col = 74
 
                         EMReadScreen cname, 35, 5, 20
@@ -1026,7 +1030,7 @@ For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
                         HC_CLIENTS_DETAIL_ARRAY (elig_mthd_one, hc_clt) = pers_mthd
                         HC_CLIENTS_DETAIL_ARRAY (elig_waiv, hc_clt) = pers_waiv
 
-                        If APPROVAL_NEEDED = TRUE THen HC_CLIENTS_DETAIL_ARRAY (error_notes, hc_clt) = "SPAN Needs Approval"
+                        If APPROVAL_NEEDED = TRUE THen HC_CLIENTS_DETAIL_ARRAY (error_notes, hc_clt) = HC_CLIENTS_DETAIL_ARRAY (error_notes, hc_clt) & " ~ SPAN Needs Approval"
 
                         EMWriteScreen "X", 18, 3        'Going in to MOBL
                         transmit
@@ -1040,10 +1044,13 @@ For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
                                 If type_of_spenddown <> "NO SPENDDOWN" Then
                                     EMReadScreen period, 13, mobl_row, 61
                                     HC_CLIENTS_DETAIL_ARRAY (spd_pd, hc_clt) = period
+
+                                    If HC_CLIENTS_DETAIL_ARRAY (mobl_spdn, hc_clt) = "WAIVER OBLIGATION" AND HC_CLIENTS_DETAIL_ARRAY (elig_waiv, hc_clt) = "_" Then HC_CLIENTS_DETAIL_ARRAY (error_notes, hc_clt) = HC_CLIENTS_DETAIL_ARRAY (error_notes, hc_clt) & " ~ Spenddown type is 'Waiver Obligation' but no waiver is indicated in ELIG."
                                 End If
                                 Exit Do
                             End if
                             mobl_row = mobl_row + 1
+                            'MsgBox "Loop 4 - Reference number: " & ref_nbr
                         Loop Until ref_nbr = "  "
                         PF3
                     Else
@@ -1088,6 +1095,7 @@ For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
                     Else
                         Do
                             EMReadScreen version, 2, row, 58
+                            'MsgBox "2 - Version: " & version
                             version = version * 1
                             prev_verision = version - 1
                             prev_verision = right("00" & prev_verision, 2)
@@ -1100,6 +1108,7 @@ For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
                                 found_elig = TRUE
                                 Exit Do
                             End If
+                            'MsgBox "Loop 6 - prev_verision: " & prev_verision
                         Loop until prev_verision = "01"
                         EMReadScreen version, 2, row, 58
                         EMReadScreen app_indc, 6, row, 68
@@ -1124,11 +1133,11 @@ For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
 
                     PF3
                 End If
-
+                'MsgBox "Loop 5 - the row: " & row
             Loop until row = 20
         End If
-
-
+        row = row + 1
+        'MsgBox "Loop 1 - client found: " & client_found
     Loop until client_found = TRUE
 
     ' HC_CLIENTS_DETAIL_ARRAY (hc_prog_one,   hc_clt) = trim(prog)
@@ -1190,6 +1199,18 @@ For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
             If relg_end_dt <> "99/99/99" Then
                 If DateDiff("d", relg_end_dt, date) > 0 Then HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) = "MMIS SPAN ENDED for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt)
             End If
+        ElseIf relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt), 2) Then
+            EmReadscreen relg_end_dt, 8, relg_row+1, 36
+            If relg_end_dt = "99/99/99" Then
+                HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) = "MMIS SPAN for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt) & " has the wrong ELIG TYPE"
+                span_found = TRUE
+            End If
+        End If
+
+        If relg_prog = "MA" and span_found = TRUE Then
+            EmReadscreen spd_indct, 1, relg_row+2, 62
+            If HC_CLIENTS_DETAIL_ARRAY(mobl_spdn, hc_clt) = "NO SPENDDOWN" and spd_indct = "Y" Then HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) & " ~ No spenddown indicated in MAXIS but MMIS spenddown indicator is Y."
+            If HC_CLIENTS_DETAIL_ARRAY(mobl_spdn, hc_clt) <> "NO SPENDDOWN" and spd_indct <> "Y" Then HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) & " ~ MAXIS ELIG indicates and Spenddown but MMIS span does not."
         End If
 
         If relg_prog = "  " Then Exit Do
@@ -1221,6 +1242,12 @@ For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
                 HC_CLIENTS_DETAIL_ARRAY(mmis_end_two, hc_clt) = relg_end_dt
                 If relg_end_dt <> "99/99/99" Then
                     If DateDiff("d", relg_end_dt, date) > 0 Then HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) = "MMIS SPAN ENDED for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt)
+                End If
+            ElseIf relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt), 2) Then
+                EmReadscreen relg_end_dt, 8, relg_row+1, 36
+                If relg_end_dt = "99/99/99" Then
+                    HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) = "MMIS SPAN for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt) & " has the wrong ELIG TYPE"
+                    span_found = TRUE
                 End If
             End If
 
@@ -1854,7 +1881,11 @@ For hc_clt = 0 to UBound(HC_CLIENTS_DETAIL_ARRAY, 2)
         'ObjExcel.Cells(excel_row, 9).Value  = HC_CLIENTS_DETAIL_ARRAY (hc_excess, hc_clt)
 		'ObjExcel.Cells(excel_row, 10).Value = HC_CLIENTS_DETAIL_ARRAY (mmis_spdn, hc_clt)
         ObjExcel.Cells(excel_row, waiver_col).Value     = HC_CLIENTS_DETAIL_ARRAY(elig_waiv, hc_clt)
-        ObjExcel.Cells(excel_row, errors_col).Value     = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) & HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) & HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt)
+        'If left(HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt), 3) = " ~ " Then HC_CLIENTS_DETAIL_ARRAY (error_notes, hc_clt) = right(HC_CLIENTS_DETAIL_ARRAY (error_notes, hc_clt), len(HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_cl)-3))
+        If HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) <>"" Then HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) & " ~ " & HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt)
+        If HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) <>"" Then HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) & " ~ " & HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt)
+
+        ObjExcel.Cells(excel_row, errors_col).Value     = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt)
 		excel_row = excel_row + 1
 	'End If
 Next
