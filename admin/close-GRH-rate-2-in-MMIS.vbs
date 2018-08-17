@@ -28,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/17/2018", "Added custom function for MAXIS navigation, updated output to show PMI numbers as they are collected, more handling for multiple agreements in MMIS.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/10/2018", "Added functionalty to disregard Andrew Residence cases as Rate 2.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/21/2018", "Removed case noting in MAXIS functionality. Also added PMI's to all cases instead of Rate 2 only cases.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/23/2018", "Enhancements include added handling for password prompting for BZ 7.1.5 and for SSR agreements closing prior to the end of the month.", "Ilse Ferris, Hennepin County")
@@ -71,6 +72,38 @@ Function MMIS_panel_check(panel_name)
 		If panel_check <> panel_name then Call write_value_and_transmit(panel_name, 1, 8)
 	Loop until panel_check = panel_name
 End function
+
+function navigate_to_MAXIS_test(maxis_mode)
+'--- This function is to be used when navigating back to MAXIS from another function in BlueZone (MMIS, PRISM, INFOPAC, etc.)
+'~~~~~ maxis_mode: This parameter needs to be "maxis_mode"
+'===== Keywords: MAXIS, navigate
+    attn
+    Do
+        EMReadScreen MAI_check, 3, 1, 33
+        If MAI_check <> "MAI" then EMWaitReady 1, 1
+    Loop until MAI_check = "MAI"
+    
+    EMReadScreen prod_check, 7, 6, 15
+    IF prod_check = "RUNNING" THEN
+        Call write_value_and_transmit("1", 2, 15)
+    ELSE
+        EMConnect"A"
+        attn
+        EMReadScreen prod_check, 7, 6, 15
+        IF prod_check = "RUNNING" THEN
+            Call write_value_and_transmit("1", 2, 15)
+        ELSE
+            EMConnect"B"
+            attn
+            EMReadScreen prod_check, 7, 6, 15
+            IF prod_check = "RUNNING" THEN
+                Call write_value_and_transmit("1", 2, 15)
+            Else 
+                script_end_procedure("You do not appear to have Production mode running. This script will now stop. Please make sure you have production and MMIS open in the same session, and re-run the script.")
+            END IF
+        END IF
+    END IF
+end function 
 
 '----------------------------------------------------------------------------------------------------DIALOG
 'The dialog is defined in the loop as it can change as buttons are pressed 
@@ -167,6 +200,7 @@ Loop
 
 back_to_self
 call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
+excel_row = 2
 
 For item = 0 to UBound(Update_MMIS_array, 2)
     
@@ -198,7 +232,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 	
 	'----------------------------------------------------------------------------------------------------SSRT: ensuring that a panel exists, and the FACI dates match.
 	If Update_MMIS_array(rate_two, item) = True then 
-    
+
         Call navigate_to_MAXIS_screen("STAT", "MEMB")
         EMReadScreen client_PMI, 8, 4, 46
         client_PMI = trim(client_PMI)
@@ -256,6 +290,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 			Update_MMIS_array(case_status, item) = "Client is active on a waiver. Should not be Rate 2."
 			Update_MMIS_array(rate_two, item) = False 
 		else 
+            Update_MMIS_array(rate_two, item) = True 
             Call navigate_to_MAXIS_screen("STAT", "REVW")
             EmReadscreen revw_type, 2, 9, 46
             If revw_type = "ER" then
@@ -270,163 +305,161 @@ For item = 0 to UBound(Update_MMIS_array, 2)
             cash_review_year = abs(cash_review_year) - 1
             cash_review_date = right("0" & cash_review_month & "/01/" & cash_review_year, 8)
             output_cash_review_date = replace(cash_review_date, "/", "")
-            'msgbox output_cash_review_date
             Update_MMIS_array(revw_date, item) = output_cash_review_date
         End if 
 	End if 	
+    objExcel.Cells(excel_row, 6).Value = Update_MMIS_array(clt_PMI, item)
+    excel_row = excel_row + 1  
 Next 	
+
+'Formatting the column width.
+FOR i = 1 to 6
+	objExcel.Columns(i).AutoFit()
+NEXT
 
 excel_row = 2
 '----------------------------------------------------------------------------------------------------MMIS portion of the script
 For item = 0 to UBound(Update_MMIS_array, 2)
-	MAXIS_case_number       = Update_MMIS_array(case_number, item) 
-	client_PMI              = Update_MMIS_array(clt_PMI, item) 
-    close_date              = Update_MMIS_array(closing_date, item) 
-    output_cash_review_date = Update_MMIS_array(revw_date,item)
+	MAXIS_case_number       = Update_MMIS_array(case_number,   item) 
+	client_PMI              = Update_MMIS_array(clt_PMI,       item) 
+    close_date              = Update_MMIS_array(closing_date,  item) 
+    output_cash_review_date = Update_MMIS_array(revw_date,     item)
 
 	If Update_MMIS_array(rate_two, item) = True then
-		Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior autorization area
+        Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior autorization area
 		Call MMIS_panel_check("AKEY")				'ensuring we are on the right MMIS screen
 	    EmWriteScreen client_PMI, 10, 36
-	    Call write_value_and_transmit("C", 3, 22)	'Checking to make sure that more than one agreement is not listed by trying to change (C) the information for the PMI selected.
-		EMReadScreen active_agreement, 12, 24, 2
-	
-	    If active_agreement = "NO DOCUMENTS" then 
+	    EmReadscreen PMI_check, 8, 10, 36
+        If trim(PMI_check) <> client_PMI then 
+            continue_update = False
             Update_MMIS_array(update_MMIS, item) = False	
-            Update_MMIS_array(case_status, item) = "Agreement for this PMI not found in MMIS."
-        Else    
-			EMReadScreen AGMT_status, 31, 3, 19 
-			AGMT_status = trim(AGMT_status)
-			If AGMT_status = "START DT:        END DT:" then 
-                EMReadScreen agreement_status, 1, 6, 60
-                EMReadScreen ASEL_start_date, 6, 6, 63
-                If agreement_status = "D" then 
-                    Update_MMIS_array(update_MMIS, item) = False	
-                    continue_update = false 
-                    Update_MMIS_array(case_status, item) = "Most recent agreement was denied. Review case and update manually."
-                    PF3
-                elseIf (agreement_status = "A" and ASEL_start_date <> output_cash_review_date) then     
-			        Update_MMIS_array(update_MMIS, item) = False	
-                    continue_update = false 
-	    	        Update_MMIS_array(case_status, item) = "More than one service agreement exists in MMIS. Update manually."
-			        PF3
-                Else
-                    continue_update = true 
-                    'msgbox ASEL_start_date & vbcr & output_cash_review_date
-                    Call write_value_and_transmit ("X", 6, 3)
-                    EmReadscreen error_code, 6, 24, 2
-                    If error_code = "PLEASE" then
-                        Update_MMIS_array(update_MMIS, item) = False 
-                        Update_MMIS_array(case_status, item) = "Unable to update case in MMIS. Please process manually."
+            Update_MMIS_array(case_status, item) = "Unable to pass the AKEY screen. Review manually."
+        else 
+
+            Call write_value_and_transmit("C", 3, 22)	'Checking to make sure that more than one agreement is not listed by trying to change (C) the information for the PMI selected.
+            EMReadScreen active_agreement, 12, 24, 2
+	        If active_agreement = "NO DOCUMENTS" then 
+                continue_update = False
+                Update_MMIS_array(update_MMIS, item) = False	
+                Update_MMIS_array(case_status, item) = "Agreement for this PMI not found in MMIS."
+            Else    
+		    	EMReadScreen AGMT_status, 31, 3, 19 
+		    	AGMT_status = trim(AGMT_status)
+		    	If AGMT_status = "START DT:        END DT:" then 
+                    EMReadScreen agreement_status, 1, 6, 60
+                    EMReadScreen ASEL_start_date, 6, 6, 63
+                    If agreement_status = "D" then 
+                        Update_MMIS_array(update_MMIS, item) = False	
+                        continue_update = false 
+                        Update_MMIS_array(case_status, item) = "Most recent agreement was denied. Review case and update manually."
                         PF3
+                    elseIf (agreement_status = "A" and ASEL_start_date <> output_cash_review_date) then     
+		    	        Update_MMIS_array(update_MMIS, item) = False	
+                        continue_update = false 
+	        	        Update_MMIS_array(case_status, item) = "More than one service agreement exists in MMIS. Update manually."
+		    	        PF3
+                    Else
+                        continue_update = true 
+                        Call write_value_and_transmit ("X", 6, 3)
+                        EmReadscreen error_code, 6, 24, 2
+                        If error_code = "PLEASE" then
+                            Update_MMIS_array(update_MMIS, item) = False 
+                            Update_MMIS_array(case_status, item) = "Unable to update case in MMIS. Please process manually."
+                            PF3
+                        End if 
                     End if 
+                else 
+                    continue_update = True 
                 End if 
-            else 
-                continue_update = True 
             End if 
         End if 
-    End if 
 
-    If continue_update = True then 
-	   '----------------------------------------------------------------------------------------------------ASA1 screen
-	    Call MMIS_panel_check("ASA1")				'ensuring we are on the right MMIS screen
-	    EMReadScreen ASA1_end_date, 6, 4, 71
-        If ASA1_end_date <> close_date then
+        If continue_update = True then 
+	       '----------------------------------------------------------------------------------------------------ASA1 screen
+	        Call MMIS_panel_check("ASA1")				'ensuring we are on the right MMIS screen
             EMReadScreen start_month, 2, 4, 64
             EMReadScreen start_day , 2, 4, 66
             EMReadScreen start_year , 2, 4, 68
-            start_date = start_month & "/" & start_day & "/" & start_year
-            total_units = datediff("d", start_date, close_date) + 1
+            agreement_start_date = start_month & "/" & start_day & "/" & start_year
+            total_units = datediff("d", agreement_start_date, close_date)
+            
             If total_units < "0" then 
                 PF6
+                continue_update = False 
                 Update_MMIS_array(update_MMIS, item) = False 
                 Update_MMIS_array(case_status, item) = "End date in SSRT is less than start date in MMIS. Check manually."
-            Else 
+            else 
+                EMReadScreen ASA1_end_date, 6, 4, 71
                 write_close_date = replace(close_date, "/", "")
-                Call write_value_and_transmit(write_close_date, 4, 71)				'End date is static for the BULK conversion. TODO: change to date_out which will match the FACI dates.
-            End if 
-	    ELSE
-            Transmit
+                If ASA1_end_date = write_close_date then
+                    continue_update = False 
+                    Update_MMIS_array(update_MMIS, item) = False 
+                    PF6
+                    Update_MMIS_array(case_status, item) = "MMIS already updated accurately for closure."
+                Else 
+                    continue_update = true 
+                    Call write_value_and_transmit(write_close_date, 4, 71)	
+                    
+                    Call MMIS_panel_check("ASA2")				'ensuring we are on the right MMIS screen
+            	    transmit 	'no action required on ASA2
+            	    '----------------------------------------------------------------------------------------------------ASA3 screen
+            	    Call MMIS_panel_check("ASA3")				'ensuring we are on the right MMIS screen	
+                    EMReadScreen ASA3_end_date, 6, 8, 67
+                    
+                    EMWriteScreen write_close_date, 8, 67
+                    Call clear_line_of_text(9, 60)
+                    EmWriteScreen total_units, 9, 60
+                    PF3 '	to save changes             
+                    EMReadscreen approval_message, 16, 24, 2
+                    
+                    If approval_message = "ACTION COMPLETED" then 
+                        Update_MMIS_array(update_MMIS, item) = True 
+                        Update_MMIS_array(case_status, item) = "SSR end date in MMIS updated to " & close_date	
+                    Else 
+                        PF6
+                        Update_MMIS_array(update_MMIS, item) = False 
+                        Update_MMIS_array(case_status, item) = "Check case in MMIS. May not have updated, review manually."
+                    End if    
+                End if 
+            End if
         End if 
+    End if 
     
-		Call MMIS_panel_check("ASA2")				'ensuring we are on the right MMIS screen
-		transmit 	'no action required on ASA2
-		'----------------------------------------------------------------------------------------------------ASA3 screen
-		Call MMIS_panel_check("ASA3")				'ensuring we are on the right MMIS screen	
-        EMReadScreen ASA3_end_date, 6, 8, 67
-        If ASA3_end_date <> close_date then 
-            EMWriteScreen write_close_date, 8, 67
-            
-            Call clear_line_of_text(9, 60)
-            EmWriteScreen total_units, 9, 60
-		       PF3 '	to save changes             
-    	    EMReadscreen approval_message, 16, 24, 2
-    	    If approval_message = "ACTION COMPLETED" then 
-                Update_MMIS_array(update_MMIS, item) = True 
-                Update_MMIS_array(case_status, item) = "SSR end date in MMIS updated to " & close_date	
-            Else
-                PF6
-                Update_MMIS_array(update_MMIS, item) = False 
-                Update_MMIS_array(case_status, item) = "Check case in MMIS. May not have updated, review manually."
-    	    End if
-		Else 
-            Update_MMIS_array(update_MMIS, item) = False 
-            Update_MMIS_array(case_status, item) = "MMIS already updated for closure."	
-        End if     
-	End if 		
-    objExcel.Cells(excel_row, 6).Value = Update_MMIS_array(clt_PMI, item)
 	objExcel.Cells(excel_row, 7).Value = Update_MMIS_array(case_status, item)
-	excel_row = excel_row + 1   
+	excel_row = excel_row + 1  
 Next
 
-''----------------------------------------------------------------------------------------------------EXCEL export
-'excel_row = 2
-'
-''Export informaiton to Excel re: case status
-'For item = 0 to UBound(Update_MMIS_array, 2)
-'	objExcel.Cells(excel_row, 6).Value = Update_MMIS_array(clt_PMI, item)
-'	objExcel.Cells(excel_row, 7).Value = Update_MMIS_array(case_status, item)
-'	excel_row = excel_row + 1
-'Next 
-'
-''formatting the cells
-'FOR i = 1 to 7
-'	objExcel.Columns(i).AutoFit()				'sizing the columns
-'NEXT
+''----------------------------------------------------------------------------------------------------MAXIS 
+Call navigate_to_MAXIS_test(maxis_mode)
 
-'''----------------------------------------------------------------------------------------------------MAXIS 
-'BeginDialog MAXIS_dialog, 0, 0, 156, 55, "Going to MAXIS"
-'ButtonGroup ButtonPressed
-'OkButton 45, 35, 50, 15
-'CancelButton 100, 35, 50, 15
-'Text 5, 5, 150, 25, "The script will now navigate back to MAXIS. Press OK to continue. Press CANCEL to stop the script."
-'EndDialog
-'
-'Call navigate_to_MAXIS("")  'Function to navigate back to MAXIS
-'
-'Do 
-'    Do 
-'        Dialog MAXIS_dialog
-'        cancel_confirmation
-'    Loop until ButtonPressed = -1
-'	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-'Loop until are_we_passworded_out = false					'loops until user passwords back in
-'
-'Call navigate_to_MAXIS_screen("CASE", "NOTE")
-''----------------------------------------------------------------------------------------------------CASE NOTE
-''Make the script case note
-'For item = 0 to UBound(Update_MMIS_array, 2)
-'	If Update_MMIS_array(update_MMIS, 	item) = True then 
-'		MAXIS_case_number = Update_MMIS_array(case_number, 	item)
-'        close_date = 		Update_MMIS_array(closing_date, item) 
-'		Call start_a_blank_CASE_NOTE
-'		Call write_variable_in_CASE_NOTE("GRH Rate 2 SSR closed in MMIS eff " & close_date)
-'		Call write_variable_in_CASE_NOTE("* Case set to close on REPT/EOMC, but still active in MMIS.")
-'		Call write_variable_in_CASE_NOTE("---")
-'		Call write_variable_in_CASE_NOTE("Actions performed by BZ script, run by I. Ferris, QI team")
-'		PF3
-'	End if 
-'Next
+BeginDialog MAXIS_dialog, 0, 0, 156, 55, "Going to MAXIS"
+ButtonGroup ButtonPressed
+OkButton 45, 35, 50, 15
+CancelButton 100, 35, 50, 15
+Text 5, 5, 150, 25, "The script will now navigate back to MAXIS. Press OK to continue. Press CANCEL to stop the script."
+EndDialog
+Do 
+    Do 
+        Dialog MAXIS_dialog
+        cancel_confirmation
+    Loop until ButtonPressed = -1
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+Call navigate_to_MAXIS_screen("CASE", "NOTE")
+'----------------------------------------------------------------------------------------------------CASE NOTE
+'Make the script case note
+For item = 0 to UBound(Update_MMIS_array, 2)
+	If Update_MMIS_array(update_MMIS, 	item) = True then 
+		MAXIS_case_number = Update_MMIS_array(case_number, 	item)
+        close_date = 		Update_MMIS_array(closing_date, item) 
+		Call start_a_blank_CASE_NOTE
+		Call write_variable_in_CASE_NOTE("GRH Rate 2 SSR closed in MMIS eff " & close_date)
+		Call write_variable_in_CASE_NOTE("---")
+		Call write_variable_in_CASE_NOTE("Actions performed by BZ script, run by I. Ferris, QI team")
+		PF3
+	End if 
+Next
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! Your list has been created. Please review for cases that need to be processed manually.")
