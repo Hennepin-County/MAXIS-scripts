@@ -91,7 +91,7 @@ FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 	array_name = split(array_name)
 END FUNCTION
 
-function navigate_to_MMIS_region(group_security_selection)
+function navigate_to_spec_MMIS_region(group_security_selection)
 '--- This function is to be used when navigating to MMIS from another function in BlueZone (MAXIS, PRISM, INFOPAC, etc.)
 '~~~~~ group_security_selection: region of MMIS to access - programed options are "CTY ELIG STAFF/UPDATE", "GRH UPDATE", "GRH INQUIRY", "MMIS MCRE"
 '===== Keywords: MMIS, navigate
@@ -130,6 +130,13 @@ function navigate_to_MMIS_region(group_security_selection)
 		EMReadScreen password_prompt, 38, 2, 23
 		IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then
 			Do
+
+                BeginDialog Dialog1, 0, 0, 81, 25, "Dialog"
+                  Text 10, 10, 65, 10, "Need Password"
+                EndDialog
+
+                dialog Dialog1
+
 				CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	 		Loop until are_we_passworded_out = false					'loops until user passwords back in
 		End if
@@ -144,7 +151,7 @@ function navigate_to_MMIS_region(group_security_selection)
 	group_security_selection = UCASE(group_security_selection)
 
 	EMReadScreen MMIS_menu, 24, 3, 30
-	If MMIS_menu <> "GROUP SECURITY SELECTION" Then
+	If MMIS_menu = "GROUP SECURITY SELECTION" Then
 		EMReadScreen mmis_group_selection, 4, 1, 65
 		EMReadScreen mmis_group_type, 4, 1, 57
 
@@ -186,14 +193,14 @@ function navigate_to_MMIS_region(group_security_selection)
 			col = 1
 			EMSearch " C3", row, col
 			If row <> 0 Then
-				EMWriteScreen "x", row, 4
+				EMWriteScreen "X", row, 4
 				transmit
 			Else
 				row = 1
 				col = 1
 				EMSearch " C4", row, col
 				If row <> 0 Then
-					EMWriteScreen "x", row, 4
+					EMWriteScreen "X", row, 4
 					transmit
 				Else
 					script_end_procedure("You do not appear to have access to the County Eligibility area of MMIS, this script requires access to this region. The script will now stop.")
@@ -204,7 +211,7 @@ function navigate_to_MMIS_region(group_security_selection)
 			row = 1
 			col = 1
 			EMSearch "RECIPIENT FILE APPLICATION", row, col
-			EMWriteScreen "x", row, col - 3
+			EMWriteScreen "X", row, col - 3
 			transmit
 
 		Case "GRH UPDATE"
@@ -295,7 +302,7 @@ BeginDialog find_spenddowns_month_spec_dialog, 0, 0, 221, 200, "Pull REPT data i
   EditBox 5, 120, 210, 15, hc_cases_excel_file_path
   ButtonGroup ButtonPressed
     PushButton 165, 140, 50, 15, "Browse...", select_a_file_button
-  DropListBox 125, 160, 90, 45, "ALL"+chr(9)+"January"+chr(9)+"February"+chr(9)+"March"+chr(9)+"April"+chr(9)+"May"+chr(9)+"June"+chr(9)+"July"+chr(9)+"August"+chr(9)+"September"+chr(9)+"October"+chr(9)+"November"+chr(9)+"December", revw_month_list
+  'DropListBox 125, 160, 90, 45, "ALL"+chr(9)+"January"+chr(9)+"February"+chr(9)+"March"+chr(9)+"April"+chr(9)+"May"+chr(9)+"June"+chr(9)+"July"+chr(9)+"August"+chr(9)+"September"+chr(9)+"October"+chr(9)+"November"+chr(9)+"December", revw_month_list
   ButtonGroup ButtonPressed
     OkButton 110, 180, 50, 15
     CancelButton 165, 180, 50, 15
@@ -305,7 +312,7 @@ BeginDialog find_spenddowns_month_spec_dialog, 0, 0, 221, 200, "Pull REPT data i
   Text 5, 60, 210, 25, "** If a supervisor 'x1 number' is entered, the script will add the 'x1 numbers' of all workers listed in MAXIS under that supervisor number."
   Text 100, 90, 15, 10, "OR"
   Text 5, 105, 135, 10, "Select an Excel file of MAXIS MA cases:"
-  Text 5, 165, 120, 10, "Only pull cases with next review in:"
+  'Text 5, 165, 120, 10, "Only pull cases with next review in:"
 EndDialog
 
 'THE SCRIPT-------------------------------------------------------------------------
@@ -323,20 +330,26 @@ Const clt_name      = 3
 Const ref_numb      = 4
 Const clt_pmi       = 5
 Const hc_prog_one   = 6
-Const elig_type_one = 7
-Const elig_std_one  = 8
-Const elig_mthd_one = 9
-Const elig_waiv     = 10
-Const mobl_spdn     = 11
-Const spd_pd        = 12
-Const hc_excess     = 13
-Const hc_prog_two   = 14
-Const elig_type_two = 15
-Const elig_std_two  = 16
-Const elig_mthd_two = 17
-Const mmis_spdn     = 18
-Const error_notes   = 19
-Const add_xcl       = 20
+Const mmis_end_one  = 7
+Const disc_one      = 8
+
+Const elig_type_one = 9
+Const elig_std_one  = 10
+Const elig_mthd_one = 11
+Const elig_waiv     = 12
+Const mobl_spdn     = 13
+Const spd_pd        = 14
+Const hc_excess     = 15
+Const hc_prog_two   = 16
+Const mmis_end_two  = 17
+Const disc_two      = 18
+
+Const elig_type_two = 19
+Const elig_std_two  = 20
+Const elig_mthd_two = 21
+Const mmis_spdn     = 22
+Const error_notes   = 23
+Const add_xcl       = 24
 
 'Setting up the arrays to be dynamic
 Dim HC_CASES_ARRAY()
@@ -370,13 +383,13 @@ Do
         If trim(worker_number) <> "" AND trim(hc_cases_excel_file_path) <> "" Then err_msg = err_msg & vbNewLine & "* Choose one source of cases. Both a BOBI report and Basket Numbers cannot be entered at the same time."
 
         If err_msg <> "" Then
-            If left(err_msg, 4) = "LOOP" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+            If left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
         End If
     Loop until err_msg = ""
     call check_for_password(are_we_passworded_out)
 LOOP UNTIL are_we_passworded_out = false
 
-
+revw_month_list = "ALL"
 'Sets the script up to only pull cases for certain months if selected from the dialog
 If revw_month_list <> "ALL" AND revw_month_list <> "" Then
 	one_month_only = TRUE 			'If any month is selected the script needs to filter
@@ -529,236 +542,456 @@ If worker_number <> "" then
     For hc_case = 0 to UBound(HC_CASES_ARRAY, 2)
         back_to_SELF
     	MAXIS_case_number = HC_CASES_ARRAY(case_num, hc_case)		'defining case number for functions to use
-    	Call navigate_to_MAXIS_screen ("ELIG", "HC")						'Goes to ELIG HC
-        row = 8
+
+        Call navigate_to_MAXIS_screen("CASE", "PERS")
+        pers_row = 10
         Do
-        'For row = 8 to 20
-            found_elig = FALSE
-            clt_hc_active = FALSE
-            APPROVAL_NEEDED = FALSE
-            Do
-                EMReadScreen prog, 10, row, 28
-                EMReadScreen result, 7, row, 41
-                EMReadScreen hc_status, 7, row, 50
-                EMReadScreen version, 2, row, 58
-                EMReadScreen app_indc, 6, row, 68
+            EmReadscreen clt_hc_status, 1, pers_row, 61
+            If clt_hc_status = "A" Then
+                EmReadscreen pers_ref_numb,  2, pers_row, 3
+                EmReadscreen pers_pmi_numb,  8, pers_row, 34
+                EmReadscreen pers_last_name, 15, pers_row, 6
+                EmReadscreen pers_frst_name, 11, pers_row, 22
 
-                'MsgBox "Row - " & row & vbNewLine & "Version - " & version
-                prog = trim(prog)
-                result = trim(result)
-                hc_status = trim(hc_status)
-                app_indc = trim(app_indc)
+                pers_pmi_numb = trim(pers_pmi_numb)
+                pers_last_name = trim(pers_last_name)
+                pers_frst_name = trim(pers_frst_name)
 
-                If prog = "NO REQUEST" Then Exit DO
-                If prog = "NO VERSION" Then Exit DO
-                If prog = "" Then Exit Do
+                ReDim Preserve HC_CLIENTS_DETAIL_ARRAY (add_xcl, hc_clt)
 
-                If app_indc <> "APP" Then
-                    if version = "01" Then
-                        found_elig = TRUE
-                        APPROVAL_NEEDED = TRUE
-                    Else
+                HC_CLIENTS_DETAIL_ARRAY (wrk_num,   hc_clt) = HC_CASES_ARRAY(wrk_num,  hc_case)
+                HC_CLIENTS_DETAIL_ARRAY (case_num,  hc_clt) = HC_CASES_ARRAY(case_num, hc_case)
+                'HC_CLIENTS_DETAIL_ARRAY (next_revw, hc_clt) = ObjExcel.Cells(excel_row, ). Value
+                HC_CLIENTS_DETAIL_ARRAY (clt_name,  hc_clt) = pers_last_name & ", " & pers_frst_name
+                HC_CLIENTS_DETAIL_ARRAY (ref_numb,  hc_clt) = pers_ref_numb
+                HC_CLIENTS_DETAIL_ARRAY (clt_pmi,   hc_clt) = pers_pmi_numb
+
+                hc_clt = hc_clt + 1
+            End If
+
+            pers_row = pers_row + 3
+            If pers_row = 19 Then
+                PF8
+                pers_row = 10
+                EmReadscreen end_of_list, 9, 24, 14
+                If end_of_list = "LAST PAGE" Then Exit Do
+            End If
+            EmReadscreen next_pers_ref_numb, 2, pers_row, 3
+
+        Loop until next_pers_ref_numb = "  "
+
+    Next
+        '
+        ' 'USING CASE PERS'
+    	' Call navigate_to_MAXIS_screen ("ELIG", "HC")						'Goes to ELIG HC
+        ' row = 8
+        ' Do
+        ' 'For row = 8 to 20
+        '     found_elig = FALSE
+        '     clt_hc_active = FALSE
+        '     APPROVAL_NEEDED = FALSE
+        '     Do
+        '         EMReadScreen prog, 10, row, 28
+        '         EMReadScreen result, 7, row, 41
+        '         EMReadScreen hc_status, 7, row, 50
+        '         EMReadScreen version, 2, row, 58
+        '         EMReadScreen app_indc, 6, row, 68
+        '
+        '         'MsgBox "Row - " & row & vbNewLine & "Version - " & version
+        '         prog = trim(prog)
+        '         result = trim(result)
+        '         hc_status = trim(hc_status)
+        '         app_indc = trim(app_indc)
+        '
+        '         If prog = "NO REQUEST" Then Exit DO
+        '         If prog = "NO VERSION" Then Exit DO
+        '         If prog = "" Then Exit Do
+        '
+        '         If app_indc <> "APP" Then
+        '             if version = "01" Then
+        '                 found_elig = TRUE
+        '                 APPROVAL_NEEDED = TRUE
+        '             Else
+        '                 version = version * 1
+        '                 prev_verision = version - 1
+        '                 prev_verision = right("00" & prev_verision, 2)
+        '
+        '                 EMWriteScreen prev_verision, row, 58
+        '                 transmit
+        '             End If
+        '         Else
+        '             found_elig = TRUE
+        '             If result = "ELIG" Then clt_hc_active = TRUE
+        '         End If
+        '
+        '     Loop until found_elig = TRUE
+        '
+        '
+        '
+        '     If clt_hc_active = TRUE Then
+        '
+        '         second_elig = FALSE                         'finding if there is another HC program open.
+        '         EMReadScreen next_member, 16, row+1, 7
+        '         EMReadScreen next_prog, 10, row+1, 28
+        '         next_member = trim(next_member)
+        '         next_prog = trim(next_prog)
+        '
+        '         If next_member = "" AND next_prog <> "" Then
+        '             EMReadScreen app_indc, 6, row+1, 68
+        '             EMReadScreen result, 7, row+1, 41
+        '             EMReadScreen version, 2, row+1, 58
+        '             app_indc = trim(app_indc)
+        '             result = trim(result)
+        '
+        '             If app_indc = "APP" Then
+        '                 If result = "ELIG" Then
+        '                     add_row = 1
+        '                     second_elig = TRUE
+        '                 End If
+        '             Else
+        '                 If version = "01"Then
+        '                     If result = "ELIG" Then
+        '                         APPROVAL_NEEDED = TRUE
+        '                         add_row = 1
+        '                     End If
+        '                 Else
+        '                     version = version * 1
+        '                     For hc_vers = 1 to version-1
+        '                         prev_verision = version - hc_vers
+        '                         prev_verision = right("00" & prev_verision, 2)
+        '
+        '                         EMWriteScreen prev_verision, row+1, 58
+        '                         transmit
+        '
+        '                         EMReadScreen this_app_indc, 6, row+1, 68
+        '                         EMReadScreen this_result, 7, row+1, 41
+        '
+        '                         If this_app_indc = "APP" Then
+        '                             If this_result = "ELIG" Then add_row = 1
+        '                             Exit For
+        '                         End If
+        '                     Next
+        '                 End If
+        '             End If
+        '         End If
+        '
+        '         EMReadScreen next_member, 16, row+2, 7          'Looking if there is a thrid row for a single member'
+        '         EMReadScreen next_prog, 10, row+2, 28
+        '         next_member = trim(next_member)
+        '         next_prog = trim(next_prog)
+        '
+        '         If next_member = "" AND next_prog <> "" Then
+        '             EMReadScreen app_indc, 6, row+2, 68
+        '             EMReadScreen result, 7, row+2, 41
+        '             EMReadScreen version, 2, row+2, 58
+        '             app_indc = trim(app_indc)
+        '             result = trim(result)
+        '
+        '             If app_indc = "APP" Then
+        '                 If result = "ELIG" Then
+        '                     add_row = 2
+        '                     second_elig = TRUE
+        '                 End If
+        '             Else
+        '                 If version = "01"Then
+        '                     If result = "ELIG" Then
+        '                         APPROVAL_NEEDED = TRUE
+        '                         add_row = 2
+        '                     End If
+        '                 Else
+        '                     version = version * 1
+        '                     For hc_vers = 1 to version-1
+        '                         prev_verision = version - hc_vers
+        '                         prev_verision = right("00" & prev_verision, 2)
+        '
+        '                         EMWriteScreen prev_verision, row+2, 58
+        '                         transmit
+        '
+        '                         EMReadScreen this_app_indc, 6, row+2, 68
+        '                         EMReadScreen this_result, 7, row+2, 41
+        '
+        '                         If this_app_indc = "APP" Then
+        '                             If this_result = "ELIG" Then add_row = 2
+        '                             Exit For
+        '                         End If
+        '                     Next
+        '                 End If
+        '             End If
+        '         End If
+        '
+        '         If add_row <> "" Then second_elig = TRUE
+        '
+        '         EMWriteScreen "X", row, 26		'Goes into the HC ELIG - BSUM
+        '         transmit
+        '         If prog = "MA" Then
+        '             mo_col = 19
+        '             yr_col = 22
+        '             Do
+        '                 EMReadScreen bsum_mo, 2, 6, mo_col
+        '                 EMReadScreen bsum_yr, 2, 6, yr_col
+        '
+        '                 If bsum_mo = MAXIS_footer_month and bsum_yr = MAXIS_footer_year Then Exit Do
+        '                 mo_col = mo_col + 11
+        '                 yr_col = yr_col + 11
+        '             Loop until mo_col = 74
+        '
+        '             EMReadScreen cname, 35, 5, 20
+        '             EMReadScreen reference, 2, 5, 16
+        '
+        '             EMReadScreen prog, 4, 11, mo_col
+        '             EMReadScreen pers_type, 2, 12, mo_col-2
+        '             EMReadScreen pers_std, 1, 12, yr_col
+        '             EMReadScreen pers_mthd, 1, 13, yr_col-1
+        '             EMReadScreen pers_waiv, 1, 14, yr_col-1
+        '
+        '             If pers_type = "__" Then
+        '                 EMReadScreen cur_mo_test, 6, 7, mo_col
+        '                 cur_mo_test = trim(cur_mo_test)
+        '                 pers_type = cur_mo_test
+        '                 pers_std = ""
+        '                 pers_mthd = ""
+        '             End If
+        '
+        '             ReDim Preserve HC_CLIENTS_DETAIL_ARRAY (add_xcl, hc_clt)			'Adding any client with a spenddown to a new array
+        '
+        '             HC_CLIENTS_DETAIL_ARRAY (wrk_num,   hc_clt) = HC_CASES_ARRAY(wrk_num, hc_case)
+        '             HC_CLIENTS_DETAIL_ARRAY (case_num,  hc_clt) = MAXIS_case_number
+        '             HC_CLIENTS_DETAIL_ARRAY (next_revw, hc_clt) = replace(HC_CASES_ARRAY(next_revw, hc_case), " ", "/")
+        '             HC_CLIENTS_DETAIL_ARRAY (clt_name,  hc_clt) = cname
+        '             HC_CLIENTS_DETAIL_ARRAY (ref_numb,  hc_clt) = reference
+        '             HC_CLIENTS_DETAIL_ARRAY (hc_prog_one,   hc_clt) = trim(prog)
+        '
+        '             HC_CLIENTS_DETAIL_ARRAY (elig_type_one, hc_clt) = pers_type
+        '             HC_CLIENTS_DETAIL_ARRAY (elig_std_one,  hc_clt) = pers_std
+        '             HC_CLIENTS_DETAIL_ARRAY (elig_mthd_one, hc_clt) = pers_mthd
+        '             HC_CLIENTS_DETAIL_ARRAY (elig_waiv, hc_clt) = pers_waiv
+        '
+        '             If APPROVAL_NEEDED = TRUE THen HC_CLIENTS_DETAIL_ARRAY (error_notes, hc_clt) = "SPAN Needs Approval"
+        '
+        '             EMWriteScreen "X", 18, 3        'Going in to MOBL
+        '             transmit
+        '
+        '             mobl_row = 6
+        '             Do
+        '                 EMReadScreen ref_nbr, 2, mobl_row, 6
+        '                 if ref_nbr = reference Then
+        '                     EMReadScreen type_of_spenddown, 20, mobl_row, 39
+        '                     HC_CLIENTS_DETAIL_ARRAY (mobl_spdn, hc_clt) = trim(type_of_spenddown)
+        '                     If type_of_spenddown <> "NO SPENDDOWN" Then
+        '                         EMReadScreen period, 13, mobl_row, 61
+        '                         HC_CLIENTS_DETAIL_ARRAY (spd_pd, hc_clt) = period
+        '                     End If
+        '                     Exit Do
+        '                 End if
+        '                 mobl_row = mobl_row + 1
+        '             Loop Until ref_nbr = "  "
+        '             PF3
+        '         Else
+        '             EMReadScreen cname, 35, 5, 15
+        '             EMReadScreen reference, 2, 5, 11
+        '
+        '             EMReadScreen pers_type, 2, 6, 56
+        '             EMReadScreen pers_std, 1, 6, 64
+        '
+        '             ReDim Preserve HC_CLIENTS_DETAIL_ARRAY (add_xcl, hc_clt)			'Adding any client with a spenddown to a new array
+        '
+        '             HC_CLIENTS_DETAIL_ARRAY (wrk_num,   hc_clt) = HC_CASES_ARRAY(wrk_num, hc_case)
+        '             HC_CLIENTS_DETAIL_ARRAY (case_num,  hc_clt) = MAXIS_case_number
+        '             HC_CLIENTS_DETAIL_ARRAY (next_revw, hc_clt) = replace(HC_CASES_ARRAY(next_revw, hc_case), " ", "/")
+        '             HC_CLIENTS_DETAIL_ARRAY (clt_name,  hc_clt) = trim(cname)
+        '             HC_CLIENTS_DETAIL_ARRAY (ref_numb,  hc_clt) = reference
+        '             HC_CLIENTS_DETAIL_ARRAY (hc_prog_one,   hc_clt) = prog
+        '
+        '             HC_CLIENTS_DETAIL_ARRAY (elig_type_one, hc_clt) = pers_type
+        '             HC_CLIENTS_DETAIL_ARRAY (elig_std_one,  hc_clt) = pers_std
+        '         End If
+        '         PF3
+        '
+        '         If second_elig = TRUE Then
+        '             row = row + add_row
+        '             EMReadScreen prog, 10, row, 28
+        '             prog = trim(prog)
+        '             EMWriteScreen "X", row, 26		'Goes into the HC ELIG - BSUM
+        '             transmit
+        '             If prog = "MA" Then
+        '                 mo_col = 19
+        '                 yr_col = 22
+        '                 Do
+        '                     EMReadScreen bsum_mo, 2, 6, mo_col
+        '                     EMReadScreen bsum_yr, 2, 6, yr_col
+        '
+        '                     If bsum_mo = MAXIS_footer_month and bsum_yr = MAXIS_footer_year Then Exit Do
+        '                     mo_col = mo_col + 11
+        '                     yr_col = yr_col + 11
+        '                 Loop until mo_col = 74
+        '
+        '                 EMReadScreen prog, 4, 11, mo_col
+        '                 EMReadScreen pers_type, 2, 12, mo_col-2
+        '                 EMReadScreen pers_std, 1, 12, yr_col
+        '                 EMReadScreen pers_mthd, 1, 13, yr_col-1
+        '                 EMReadScreen pers_waiv, 1, 14, yr_col-1
+        '
+        '                 If pers_type = "__" Then
+        '                     EMReadScreen cur_mo_test, 6, 7, mo_col
+        '                     cur_mo_test = trim(cur_mo_test)
+        '                     pers_type = cur_mo_test
+        '                     pers_std = ""
+        '                     pers_mthd = ""
+        '                 End If
+        '
+        '                 HC_CLIENTS_DETAIL_ARRAY (hc_prog_two,   hc_clt) = trim(prog)
+        '
+        '                 HC_CLIENTS_DETAIL_ARRAY (elig_type_two, hc_clt) = pers_type
+        '                 HC_CLIENTS_DETAIL_ARRAY (elig_std_two,  hc_clt) = pers_std
+        '                 HC_CLIENTS_DETAIL_ARRAY (elig_mthd_two, hc_clt) = pers_mthd
+        '
+        '                 If APPROVAL_NEEDED = TRUE THen HC_CLIENTS_DETAIL_ARRAY (error_notes, hc_clt) = "SPAN Needs Approval"
+        '
+        '                 EMWriteScreen "X", 18, 3        'Going in to MOBL
+        '                 transmit
+        '
+        '                 mobl_row = 6
+        '                 Do
+        '                     EMReadScreen ref_nbr, 2, mobl_row, 6
+        '                     if ref_nbr = reference Then
+        '                         EMReadScreen type_of_spenddown, 20, mobl_row, 39
+        '                         HC_CLIENTS_DETAIL_ARRAY (mobl_spdn, hc_clt) = trim(type_of_spenddown)
+        '                         If type_of_spenddown <> "NO SPENDDOWN" Then
+        '                             EMReadScreen period, 13, mobl_row, 61
+        '                             HC_CLIENTS_DETAIL_ARRAY (spd_pd, hc_clt) = period
+        '                         End If
+        '                         Exit Do
+        '                     End if
+        '                     mobl_row = mobl_row + 1
+        '                 Loop Until ref_nbr = "  "
+        '                 PF3
+        '             Else
+        '                 EMReadScreen cname, 35, 5, 15
+        '                 EMReadScreen reference, 2, 5, 11
+        '
+        '                 EMReadScreen pers_type, 2, 6, 56
+        '                 EMReadScreen pers_std, 1, 6, 64
+        '
+        '                 HC_CLIENTS_DETAIL_ARRAY (hc_prog_two,   hc_clt) = prog
+        '
+        '                 HC_CLIENTS_DETAIL_ARRAY (elig_type_two, hc_clt) = pers_type
+        '                 HC_CLIENTS_DETAIL_ARRAY (elig_std_two,  hc_clt) = pers_std
+        '             End If
+        '             PF3
+        '         End If
+        '         HC_CLIENTS_DETAIL_ARRAY(add_xcl, hc_clt) = TRUE
+        '         'MsgBox "Case Number: " & HC_CLIENTS_DETAIL_ARRAY(case_num, hc_clt) & vbNewLine & "HC - " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt)
+        '         hc_clt = hc_clt + 1
+        '     End If
+        '     row = row + 1
+        '     Call navigate_to_MAXIS_screen("ELIG", "HC")
+        ' 'Next
+        ' Loop until row = 20
+
+Else
+
+    'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
+    call excel_open(hc_cases_excel_file_path, True, True, ObjExcel, objWorkbook)
+
+    excel_row = 5
+    hc_clt = 0
+
+    Do
+        'ObjExcel.Cells(). Value
+        ReDim Preserve HC_CLIENTS_DETAIL_ARRAY (add_xcl, hc_clt)
+
+        HC_CLIENTS_DETAIL_ARRAY (wrk_num,   hc_clt) = ObjExcel.Cells(excel_row, 3). Value
+        HC_CLIENTS_DETAIL_ARRAY (case_num,  hc_clt) = ObjExcel.Cells(excel_row, 2). Value
+        'HC_CLIENTS_DETAIL_ARRAY (next_revw, hc_clt) = ObjExcel.Cells(excel_row, ). Value
+        HC_CLIENTS_DETAIL_ARRAY (clt_name,  hc_clt) = ObjExcel.Cells(excel_row, 8). Value
+        HC_CLIENTS_DETAIL_ARRAY (ref_numb,  hc_clt) = right(ObjExcel.Cells(excel_row, 7). Value, 2)
+        HC_CLIENTS_DETAIL_ARRAY (clt_pmi,   hc_clt) = ObjExcel.Cells(excel_row, 6). Value
+
+        ' MsgBox "Worker: " & HC_CLIENTS_DETAIL_ARRAY (wrk_num,   hc_clt) & vbNewLine &_
+        '        "Case: " & HC_CLIENTS_DETAIL_ARRAY (case_num,   hc_clt) & vbNewLine &_
+        '        "Client: " & HC_CLIENTS_DETAIL_ARRAY (clt_name,   hc_clt) & vbNewLine &_
+        '        "Ref Number: " & HC_CLIENTS_DETAIL_ARRAY (ref_numb,   hc_clt) & vbNewLine &_
+        '        "PMI: " & HC_CLIENTS_DETAIL_ARRAY (clt_pmi,   hc_clt)
+        excel_row = excel_row + 1
+        hc_clt = hc_clt + 1
+        next_case_number = ObjExcel.Cells(excel_row, 2). Value
+        next_case_number = trim(next_case_number)
+    Loop until next_case_number = ""
+
+    ObjExcel.Quit
+    Set ObjExcel = Nothing
+End If
+
+For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
+    back_to_SELF
+    MAXIS_case_number = HC_CLIENTS_DETAIL_ARRAY(case_num, hc_clt)		'defining case number for functions to use
+    CLIENT_reference_number = HC_CLIENTS_DETAIL_ARRAY (ref_numb,  hc_clt)
+    Call navigate_to_MAXIS_screen ("ELIG", "HC")						'Goes to ELIG HC
+    APPROVAL_NEEDED = FALSE
+    found_elig = FALSE
+    client_found = FALSE
+
+    row = 8
+    Do
+        EMReadscreen elig_clt, 2, row, 3
+        EmReadscreen prog_exists, 1, row, 10
+        If elig_clt = CLIENT_reference_number Then
+            client_found = TRUE
+            EMReadScreen prog, 10, row, 28
+            EMReadScreen version, 2, row, 58
+            EMReadScreen app_indc, 6, row, 68
+
+            prog = trim(prog)
+            app_indc = trim(app_indc)
+
+            If prog = "NO REQUEST" Then Exit DO
+            If prog = "NO VERSION" Then Exit DO
+            If prog = "" Then Exit Do
+
+            If app_indc <> "APP" Then
+                if version = "01" Then
+                    found_elig = TRUE
+                    APPROVAL_NEEDED = TRUE
+                Else
+                    Do
+                        EMReadScreen version, 2, row, 58
                         version = version * 1
                         prev_verision = version - 1
                         prev_verision = right("00" & prev_verision, 2)
 
                         EMWriteScreen prev_verision, row, 58
                         transmit
-                    End If
-                Else
-                    found_elig = TRUE
-                    If result = "ELIG" Then clt_hc_active = TRUE
-                End If
-
-            Loop until found_elig = TRUE
-
-
-
-            If clt_hc_active = TRUE Then
-
-                second_elig = FALSE                         'finding if there is another HC program open.
-                EMReadScreen next_member, 16, row+1, 7
-                EMReadScreen next_prog, 10, row+1, 28
-                next_member = trim(next_member)
-                next_prog = trim(next_prog)
-
-                If next_member = "" AND next_prog <> "" Then
-                    EMReadScreen app_indc, 6, row+1, 68
-                    EMReadScreen result, 7, row+1, 41
-                    EMReadScreen version, 2, row+1, 58
-                    app_indc = trim(app_indc)
-                    result = trim(result)
-
-                    If app_indc = "APP" Then
-                        If result = "ELIG" Then
-                            add_row = 1
-                            second_elig = TRUE
-                        End If
-                    Else
-                        If version = "01"Then
-                            If result = "ELIG" Then
-                                APPROVAL_NEEDED = TRUE
-                                add_row = 1
-                            End If
-                        Else
-                            version = version * 1
-                            For hc_vers = 1 to version-1
-                                prev_verision = version - hc_vers
-                                prev_verision = right("00" & prev_verision, 2)
-
-                                EMWriteScreen prev_verision, row+1, 58
-                                transmit
-
-                                EMReadScreen this_app_indc, 6, row+1, 68
-                                EMReadScreen this_result, 7, row+1, 41
-
-                                If this_app_indc = "APP" Then
-                                    If this_result = "ELIG" Then add_row = 1
-                                    Exit For
-                                End If
-                            Next
-                        End If
-                    End If
-                End If
-
-                EMReadScreen next_member, 16, row+2, 7          'Looking if there is a thrid row for a single member'
-                EMReadScreen next_prog, 10, row+2, 28
-                next_member = trim(next_member)
-                next_prog = trim(next_prog)
-
-                If next_member = "" AND next_prog <> "" Then
-                    EMReadScreen app_indc, 6, row+2, 68
-                    EMReadScreen result, 7, row+2, 41
-                    EMReadScreen version, 2, row+2, 58
-                    app_indc = trim(app_indc)
-                    result = trim(result)
-
-                    If app_indc = "APP" Then
-                        If result = "ELIG" Then
-                            add_row = 2
-                            second_elig = TRUE
-                        End If
-                    Else
-                        If version = "01"Then
-                            If result = "ELIG" Then
-                                APPROVAL_NEEDED = TRUE
-                                add_row = 2
-                            End If
-                        Else
-                            version = version * 1
-                            For hc_vers = 1 to version-1
-                                prev_verision = version - hc_vers
-                                prev_verision = right("00" & prev_verision, 2)
-
-                                EMWriteScreen prev_verision, row+2, 58
-                                transmit
-
-                                EMReadScreen this_app_indc, 6, row+2, 68
-                                EMReadScreen this_result, 7, row+2, 41
-
-                                If this_app_indc = "APP" Then
-                                    If this_result = "ELIG" Then add_row = 2
-                                    Exit For
-                                End If
-                            Next
-                        End If
-                    End If
-                End If
-
-                If add_row <> "" Then second_elig = TRUE
-
-                EMWriteScreen "X", row, 26		'Goes into the HC ELIG - BSUM
-                transmit
-                If prog = "MA" Then
-                    mo_col = 19
-                    yr_col = 22
-                    Do
-                        EMReadScreen bsum_mo, 2, 6, mo_col
-                        EMReadScreen bsum_yr, 2, 6, yr_col
-
-                        If bsum_mo = MAXIS_footer_month and bsum_yr = MAXIS_footer_year Then Exit Do
-                        mo_col = mo_col + 11
-                        yr_col = yr_col + 11
-                    Loop until mo_col = 74
-
-                    EMReadScreen cname, 35, 5, 20
-                    EMReadScreen reference, 2, 5, 16
-
-                    EMReadScreen prog, 4, 11, mo_col
-                    EMReadScreen pers_type, 2, 12, mo_col-2
-                    EMReadScreen pers_std, 1, 12, yr_col
-                    EMReadScreen pers_mthd, 1, 13, yr_col-1
-                    EMReadScreen pers_waiv, 1, 14, yr_col-1
-
-                    If pers_type = "__" Then
-                        EMReadScreen cur_mo_test, 6, 7, mo_col
-                        cur_mo_test = trim(cur_mo_test)
-                        pers_type = cur_mo_test
-                        pers_std = ""
-                        pers_mthd = ""
-                    End If
-
-                    ReDim Preserve HC_CLIENTS_DETAIL_ARRAY (add_xcl, hc_clt)			'Adding any client with a spenddown to a new array
-
-                    HC_CLIENTS_DETAIL_ARRAY (wrk_num,   hc_clt) = HC_CASES_ARRAY(wrk_num, hc_case)
-                    HC_CLIENTS_DETAIL_ARRAY (case_num,  hc_clt) = MAXIS_case_number
-                    HC_CLIENTS_DETAIL_ARRAY (next_revw, hc_clt) = replace(HC_CASES_ARRAY(next_revw, hc_case), " ", "/")
-                    HC_CLIENTS_DETAIL_ARRAY (clt_name,  hc_clt) = cname
-                    HC_CLIENTS_DETAIL_ARRAY (ref_numb,  hc_clt) = reference
-                    HC_CLIENTS_DETAIL_ARRAY (hc_prog_one,   hc_clt) = trim(prog)
-
-                    HC_CLIENTS_DETAIL_ARRAY (elig_type_one, hc_clt) = pers_type
-                    HC_CLIENTS_DETAIL_ARRAY (elig_std_one,  hc_clt) = pers_std
-                    HC_CLIENTS_DETAIL_ARRAY (elig_mthd_one, hc_clt) = pers_mthd
-                    HC_CLIENTS_DETAIL_ARRAY (elig_waiv, hc_clt) = pers_waiv
-
-                    If APPROVAL_NEEDED = TRUE THen HC_CLIENTS_DETAIL_ARRAY (error_notes, hc_clt) = "SPAN Needs Approval"
-
-                    EMWriteScreen "X", 18, 3        'Going in to MOBL
-                    transmit
-
-                    mobl_row = 6
-                    Do
-                        EMReadScreen ref_nbr, 2, mobl_row, 6
-                        if ref_nbr = reference Then
-                            EMReadScreen type_of_spenddown, 20, mobl_row, 39
-                            HC_CLIENTS_DETAIL_ARRAY (mobl_spdn, hc_clt) = trim(type_of_spenddown)
-                            If type_of_spenddown <> "NO SPENDDOWN" Then
-                                EMReadScreen period, 13, mobl_row, 61
-                                HC_CLIENTS_DETAIL_ARRAY (spd_pd, hc_clt) = period
-                            End If
+                        EMReadScreen app_indc, 6, row, 68
+                        app_indc = trim(app_indc)
+                        If app_indc = "APP" Then
+                            found_elig = TRUE
                             Exit Do
-                        End if
-                        mobl_row = mobl_row + 1
-                    Loop Until ref_nbr = "  "
-                    PF3
-                Else
-                    EMReadScreen cname, 35, 5, 15
-                    EMReadScreen reference, 2, 5, 11
+                        End If
+                    Loop until prev_verision = "01"
+                    EMReadScreen version, 2, row, 58
+                    EMReadScreen app_indc, 6, row, 68
+                    app_indc = trim(app_indc)
+                    If version = "01" AND app_indc <> "APP" Then APPROVAL_NEEDED = TRUE
+                End If
+            Else
+                found_elig = TRUE
+            End If
 
-                    EMReadScreen pers_type, 2, 6, 56
-                    EMReadScreen pers_std, 1, 6, 64
+            If found_elig = TRUE Then
+                EMReadScreen prog, 10, row, 28
+                EMReadScreen result, 7, row, 41
+                EMReadScreen hc_status, 7, row, 50
 
-                    ReDim Preserve HC_CLIENTS_DETAIL_ARRAY (add_xcl, hc_clt)			'Adding any client with a spenddown to a new array
+                prog = trim(prog)
+                result = trim(result)
+                hc_status = trim(hc_status)
 
-                    HC_CLIENTS_DETAIL_ARRAY (wrk_num,   hc_clt) = HC_CASES_ARRAY(wrk_num, hc_case)
-                    HC_CLIENTS_DETAIL_ARRAY (case_num,  hc_clt) = MAXIS_case_number
-                    HC_CLIENTS_DETAIL_ARRAY (next_revw, hc_clt) = replace(HC_CASES_ARRAY(next_revw, hc_case), " ", "/")
-                    HC_CLIENTS_DETAIL_ARRAY (clt_name,  hc_clt) = trim(cname)
-                    HC_CLIENTS_DETAIL_ARRAY (ref_numb,  hc_clt) = reference
+                If result = "ELIG" AND hc_status = "ACTIVE" Then
                     HC_CLIENTS_DETAIL_ARRAY (hc_prog_one,   hc_clt) = prog
 
-                    HC_CLIENTS_DETAIL_ARRAY (elig_type_one, hc_clt) = pers_type
-                    HC_CLIENTS_DETAIL_ARRAY (elig_std_one,  hc_clt) = pers_std
-                End If
-                PF3
-
-                If second_elig = TRUE Then
-                    row = row + add_row
-                    EMReadScreen prog, 10, row, 28
-                    prog = trim(prog)
-                    EMWriteScreen "X", row, 26		'Goes into the HC ELIG - BSUM
+                    EmWriteScreen "X", row, 26
                     transmit
+
                     If prog = "MA" Then
                         mo_col = 19
                         yr_col = 22
@@ -770,6 +1003,9 @@ If worker_number <> "" then
                             mo_col = mo_col + 11
                             yr_col = yr_col + 11
                         Loop until mo_col = 74
+
+                        EMReadScreen cname, 35, 5, 20
+                        EMReadScreen reference, 2, 5, 16
 
                         EMReadScreen prog, 4, 11, mo_col
                         EMReadScreen pers_type, 2, 12, mo_col-2
@@ -785,11 +1021,10 @@ If worker_number <> "" then
                             pers_mthd = ""
                         End If
 
-                        HC_CLIENTS_DETAIL_ARRAY (hc_prog_two,   hc_clt) = trim(prog)
-
-                        HC_CLIENTS_DETAIL_ARRAY (elig_type_two, hc_clt) = pers_type
-                        HC_CLIENTS_DETAIL_ARRAY (elig_std_two,  hc_clt) = pers_std
-                        HC_CLIENTS_DETAIL_ARRAY (elig_mthd_two, hc_clt) = pers_mthd
+                        HC_CLIENTS_DETAIL_ARRAY (elig_type_one, hc_clt) = pers_type
+                        HC_CLIENTS_DETAIL_ARRAY (elig_std_one,  hc_clt) = pers_std
+                        HC_CLIENTS_DETAIL_ARRAY (elig_mthd_one, hc_clt) = pers_mthd
+                        HC_CLIENTS_DETAIL_ARRAY (elig_waiv, hc_clt) = pers_waiv
 
                         If APPROVAL_NEEDED = TRUE THen HC_CLIENTS_DETAIL_ARRAY (error_notes, hc_clt) = "SPAN Needs Approval"
 
@@ -812,132 +1047,206 @@ If worker_number <> "" then
                         Loop Until ref_nbr = "  "
                         PF3
                     Else
-                        EMReadScreen cname, 35, 5, 15
-                        EMReadScreen reference, 2, 5, 11
-
                         EMReadScreen pers_type, 2, 6, 56
                         EMReadScreen pers_std, 1, 6, 64
 
-                        HC_CLIENTS_DETAIL_ARRAY (hc_prog_two,   hc_clt) = prog
+                        HC_CLIENTS_DETAIL_ARRAY (hc_prog_one,   hc_clt) = prog
 
-                        HC_CLIENTS_DETAIL_ARRAY (elig_type_two, hc_clt) = pers_type
-                        HC_CLIENTS_DETAIL_ARRAY (elig_std_two,  hc_clt) = pers_std
+                        HC_CLIENTS_DETAIL_ARRAY (elig_type_one, hc_clt) = pers_type
+                        HC_CLIENTS_DETAIL_ARRAY (elig_std_one,  hc_clt) = pers_std
                     End If
                     PF3
                 End If
-                HC_CLIENTS_DETAIL_ARRAY(add_xcl, hc_clt) = TRUE
-                'MsgBox "Case Number: " & HC_CLIENTS_DETAIL_ARRAY(case_num, hc_clt) & vbNewLine & "HC - " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt)
-                hc_clt = hc_clt + 1
             End If
-            row = row + 1
-            Call navigate_to_MAXIS_screen("ELIG", "HC")
-        'Next
-        Loop until row = 20
-    Next
-Else
 
-    'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
-    call excel_open(hc_cases_excel_file_path, True, True, ObjExcel, objWorkbook)
+            Do
+                row = row + 1
 
-    excel_row = 5
-    hc_clt = 0
+                EmReadscreen next_client_ref, 2, row, 3
+                EmReadscreen next_prog, 4, row, 28
 
-    Do
-        ObjExcel.Cells(). Value
-        ReDim Preserve HC_CLIENTS_DETAIL_ARRAY (add_xcl, hc_clt)
+                next_prog = trim(next_prog)
+                If next_client_ref <> "  " Then Exit Do
+                If next_prog = "" Then Exit Do
 
-        HC_CLIENTS_DETAIL_ARRAY (wrk_num,   hc_clt) = ObjExcel.Cells(excel_row, 3). Value
-        HC_CLIENTS_DETAIL_ARRAY (case_num,  hc_clt) = ObjExcel.Cells(excel_row, 2). Value
-        'HC_CLIENTS_DETAIL_ARRAY (next_revw, hc_clt) = ObjExcel.Cells(excel_row, ). Value
-        HC_CLIENTS_DETAIL_ARRAY (clt_name,  hc_clt) = ObjExcel.Cells(excel_row, 8). Value
-        HC_CLIENTS_DETAIL_ARRAY (ref_numb,  hc_clt) = ObjExcel.Cells(excel_row, 7). Value
-        HC_CLIENTS_DETAIL_ARRAY (clt_pmi,   hc_clt) = ObjExcel.Cells(excel_row, 6). Value
+                found_elig = FALSE
+                EMReadScreen prog, 10, row, 28
+                EMReadScreen version, 2, row, 58
+                EMReadScreen app_indc, 6, row, 68
 
-        'QUESTION - do we need review date???'
+                prog = trim(prog)
+                app_indc = trim(app_indc)
 
-        back_to_SELF
-        MAXIS_case_number = HC_CLIENTS_DETAIL_ARRAY(case_num, hc_case)		'defining case number for functions to use
-        CLIENT_reference_number = HC_CLIENTS_DETAIL_ARRAY (ref_numb,  hc_clt)
-        Call navigate_to_MAXIS_screen ("ELIG", "HC")						'Goes to ELIG HC
-        row = 8
-        Do
-            EMReadScreen prog, 10, row, 28
-            EMReadScreen result, 7, row, 41
-            EMReadScreen hc_status, 7, row, 50
-            EMReadScreen version, 2, row, 58
-            EMReadScreen app_indc, 6, row, 68
+                If prog = "NO REQUEST" Then Exit DO
+                If prog = "NO VERSION" Then Exit DO
+                If prog = "" Then Exit Do
 
-            'MsgBox "Row - " & row & vbNewLine & "Version - " & version
-            prog = trim(prog)
-            result = trim(result)
-            hc_status = trim(hc_status)
-            app_indc = trim(app_indc)
+                If app_indc <> "APP" Then
+                    if version = "01" Then
+                        found_elig = TRUE
+                        APPROVAL_NEEDED = TRUE
+                    Else
+                        Do
+                            EMReadScreen version, 2, row, 58
+                            version = version * 1
+                            prev_verision = version - 1
+                            prev_verision = right("00" & prev_verision, 2)
 
-            If prog = "NO REQUEST" Then Exit DO
-            If prog = "NO VERSION" Then Exit DO
-            If prog = "" Then Exit Do
-
-            If app_indc <> "APP" Then
-                if version = "01" Then
-                    found_elig = TRUE
-                    APPROVAL_NEEDED = TRUE
+                            EMWriteScreen prev_verision, row, 58
+                            transmit
+                            EMReadScreen app_indc, 6, row, 68
+                            app_indc = trim(app_indc)
+                            If app_indc = "APP" Then
+                                found_elig = TRUE
+                                Exit Do
+                            End If
+                        Loop until prev_verision = "01"
+                        EMReadScreen version, 2, row, 58
+                        EMReadScreen app_indc, 6, row, 68
+                        app_indc = trim(app_indc)
+                        If version = "01" AND app_indc <> "APP" Then APPROVAL_NEEDED = TRUE
+                    End If
                 Else
-                    version = version * 1
-                    prev_verision = version - 1
-                    prev_verision = right("00" & prev_verision, 2)
-
-                    EMWriteScreen prev_verision, row, 58
-                    transmit
+                    found_elig = TRUE
                 End If
-            Else
-                found_elig = TRUE
-                If result = "ELIG" Then clt_hc_active = TRUE
+
+                If found_elig = TRUE Then
+                    EmWriteScreen "X", row, 26
+                    transmit
+
+                    EMReadScreen pers_type, 2, 6, 56
+                    EMReadScreen pers_std, 1, 6, 64
+
+                    HC_CLIENTS_DETAIL_ARRAY (hc_prog_two,   hc_clt) = prog
+
+                    HC_CLIENTS_DETAIL_ARRAY (elig_type_two, hc_clt) = pers_type
+                    HC_CLIENTS_DETAIL_ARRAY (elig_std_two,  hc_clt) = pers_std
+
+                    PF3
+                End If
+
+            Loop until row = 20
+        End If
+
+
+    Loop until client_found = TRUE
+
+    ' HC_CLIENTS_DETAIL_ARRAY (hc_prog_one,   hc_clt) = trim(prog)
+    ' HC_CLIENTS_DETAIL_ARRAY (elig_type_one, hc_clt) = pers_type
+    ' HC_CLIENTS_DETAIL_ARRAY (elig_std_one,  hc_clt) = pers_std
+    ' HC_CLIENTS_DETAIL_ARRAY (elig_mthd_one, hc_clt) = pers_mthd
+    ' HC_CLIENTS_DETAIL_ARRAY (elig_waiv, hc_clt) = pers_waiv
+    ' HC_CLIENTS_DETAIL_ARRAY (mobl_spdn,  hc_clt) =
+    ' HC_CLIENTS_DETAIL_ARRAY (spd_pd,  hc_clt) =
+    ' HC_CLIENTS_DETAIL_ARRAY (hc_excess,  hc_clt) =
+    '
+    '
+    ' Const next_revw     = 2
+    '
+    ' Const hc_prog_one   = 6
+    ' Const elig_type_one = 7
+    ' Const elig_std_one  = 8
+    ' Const elig_mthd_one = 9
+    ' Const elig_waiv     = 10
+    ' Const mobl_spdn     = 11
+    ' Const spd_pd        = 12
+    ' Const hc_excess     = 13
+    '
+    ' Const hc_prog_two   = 14
+    ' Const elig_type_two = 15
+    ' Const elig_std_two  = 16
+    ' Const elig_mthd_two = 17
+    '
+    ' Const mmis_spdn     = 18
+    ' Const error_notes   = 19
+    ' Const add_xcl       = 20
+Next
+
+Call back_to_SELF
+Call navigate_to_spec_MMIS_region("CTY ELIG STAFF/UPDATE")
+
+For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
+    PMI_Number = right("00000000" & HC_CLIENTS_DETAIL_ARRAY(clt_pmi, hc_clt), 8)
+
+    EmWriteScreen "I", 2, 19
+    EmWriteScreen PMI_Number, 4, 19
+    transmit
+
+    EmWriteScreen "RELG", 1, 8
+    transmit
+
+    relg_row = 6
+    span_found = FALSE
+    Do
+        EmReadscreen relg_prog, 2, relg_row, 10
+        EmReadscreen relg_elig, 2, relg_row, 33
+        'MsgBox relg_prog & " - " & relg_elig
+
+        If relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt), 2) AND relg_elig = HC_CLIENTS_DETAIL_ARRAY(elig_type_one, hc_clt) Then
+            span_found = TRUE
+            EmReadscreen relg_end_dt, 8, relg_row+1, 36
+            'MsgBox "End Date - " & relg_end_dt
+            HC_CLIENTS_DETAIL_ARRAY(mmis_end_one, hc_clt) = relg_end_dt
+            If relg_end_dt <> "99/99/99" Then
+                If DateDiff("d", relg_end_dt, date) > 0 Then HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) = "MMIS SPAN ENDED for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt)
+            End If
+        End If
+
+        If relg_prog = "  " Then Exit Do
+        relg_row = relg_row + 4
+        If relg_row = 22 Then
+            PF8
+            relg_row = 6
+        End If
+        EmReadscreen end_of_list, 7, 24, 26
+        If end_of_list = "NO MORE" Then Exit Do
+    Loop until span_found = TRUE
+    If span_found = FALSE Then HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) = "No MMIS SPAN for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt)
+
+    EmWriteScreen "RELG", 1, 8
+    transmit
+
+    If HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt) <> "" Then
+        relg_row = 6
+        span_found = FALSE
+        Do
+            EmReadscreen relg_prog, 2, relg_row, 10
+            EmReadscreen relg_elig, 2, relg_row, 33
+            'MsgBox "2 - " & relg_prog & " - " & relg_elig
+
+            If relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt), 2) AND relg_elig = HC_CLIENTS_DETAIL_ARRAY(elig_type_two, hc_clt) Then
+                span_found = TRUE
+                EmReadscreen relg_end_dt, 8, relg_row+1, 36
+                'MsgBox "2 - End Date - " & relg_end_dt
+                HC_CLIENTS_DETAIL_ARRAY(mmis_end_two, hc_clt) = relg_end_dt
+                If relg_end_dt <> "99/99/99" Then
+                    If DateDiff("d", relg_end_dt, date) > 0 Then HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) = "MMIS SPAN ENDED for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt)
+                End If
             End If
 
-        Loop until found_elig = TRUE
+            If relg_prog = "  " Then Exit Do
+            relg_row = relg_row + 4
+            If relg_row = 22 Then
+                PF8
+                relg_row = 6
+            End If
+            EmReadscreen end_of_list, 7, 24, 26
+            If end_of_list = "NO MORE" Then Exit Do
+        Loop until span_found = TRUE
+        If span_found = FALSE Then HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) = "No MMIS SPAN for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt)
+
+    End If
+
+    EmWriteScreen "RKEY", 1, 8
+    transmit
+
+Next
 
 
 
-
-        HC_CLIENTS_DETAIL_ARRAY (ref_numb,  hc_clt) =
-        HC_CLIENTS_DETAIL_ARRAY (ref_numb,  hc_clt) =
-        HC_CLIENTS_DETAIL_ARRAY (ref_numb,  hc_clt) =
-
-        HC_CLIENTS_DETAIL_ARRAY (hc_prog_one,   hc_clt) = trim(prog)
-
-        HC_CLIENTS_DETAIL_ARRAY (elig_type_one, hc_clt) = pers_type
-        HC_CLIENTS_DETAIL_ARRAY (elig_std_one,  hc_clt) = pers_std
-        HC_CLIENTS_DETAIL_ARRAY (elig_mthd_one, hc_clt) = pers_mthd
-        HC_CLIENTS_DETAIL_ARRAY (elig_waiv, hc_clt) = pers_waiv
-
-
-        Const next_revw     = 2
-
-        Const hc_prog_one   = 6
-        Const elig_type_one = 7
-        Const elig_std_one  = 8
-        Const elig_mthd_one = 9
-        Const elig_waiv     = 10
-        Const mobl_spdn     = 11
-        Const spd_pd        = 12
-        Const hc_excess     = 13
-        Const hc_prog_two   = 14
-        Const elig_type_two = 15
-        Const elig_std_two  = 16
-        Const elig_mthd_two = 17
-        Const mmis_spdn     = 18
-        Const error_notes   = 19
-        Const add_xcl       = 20
-
-        excel_row = excel_row + 1
-        next_case_number = ObjExcel.Cells(excel_row, 2). Value
-        next_case_number = trim(next_case_number)
-    Loop until next_case_number = ""
-End if
-
-'Setting the variable for what's to come
-excel_row = 2
-all_case_numbers_array = "*"
+' 'Setting the variable for what's to come
+' excel_row = 2
+' all_case_numbers_array = "*"
 
 
 
@@ -1007,19 +1316,19 @@ all_case_numbers_array = "*"
 ''MY CODE===============================================
 'This bit will look to see if there are any cases that have a possible spenddown.
 'Occasionally the criteria selected produce no cases and this explains this to the user.
-If UBound(HC_CLIENTS_DETAIL_ARRAY, 2) = 0 AND HC_CLIENTS_DETAIL_ARRAY(case_num, 0) = "" Then
-	all_workers = Join(worker_array, ", ")
-	If one_month_only = True Then
-		selected_time = " for the month of " & revw_month_list & "."
-	Else
-		selected_time = "."
-	End If
-	end_msg = "Success! The script has completed!" & vbNewLine & "NO HC Cases FOUND!" & vbNewLine & vbNewLine &_
-	          "The script has checked REPT/ACTV for the case loads under worker number(s) " & all_workers & selected_time & vbNewLine &_
-			  "None of the active HC cases have a spenddown indicated on MOBL." & vbNewLine & vbNewLine &_
-			  "No report will be generated, the script has completed."
-	script_end_procedure(end_msg)
-End If
+' If UBound(HC_CLIENTS_DETAIL_ARRAY, 2) = 0 AND HC_CLIENTS_DETAIL_ARRAY(case_num, 0) = "" Then
+' 	all_workers = Join(worker_array, ", ")
+' 	If one_month_only = True Then
+' 		selected_time = " for the month of " & revw_month_list & "."
+' 	Else
+' 		selected_time = "."
+' 	End If
+' 	end_msg = "Success! The script has completed!" & vbNewLine & "NO HC Cases FOUND!" & vbNewLine & vbNewLine &_
+' 	          "The script has checked REPT/ACTV for the case loads under worker number(s) " & all_workers & selected_time & vbNewLine &_
+' 			  "None of the active HC cases have a spenddown indicated on MOBL." & vbNewLine & vbNewLine &_
+' 			  "No report will be generated, the script has completed."
+' 	script_end_procedure(end_msg)
+' End If
 '
 ' For hc_clt = 0 to UBound(HC_CLIENTS_DETAIL_ARRAY, 2)
 '     MAXIS_case_number = HC_CLIENTS_DETAIL_ARRAY(case_num, hc_clt)
@@ -1456,9 +1765,9 @@ ObjExcel.Cells(1, col_to_use).Value = "PMI"
 pmi_col = col_to_use
 col_to_use = col_to_use + 1
 
-ObjExcel.Cells(1, col_to_use).Value = "NEXT REVW DATE"
-revw_date_col = col_to_use
-col_to_use = col_to_use + 1
+' ObjExcel.Cells(1, col_to_use).Value = "NEXT REVW DATE"
+' revw_date_col = col_to_use
+' col_to_use = col_to_use + 1
 
 ObjExcel.Cells(1, col_to_use).Value = "1st Prog"
 prog_one_col = col_to_use
@@ -1468,12 +1777,20 @@ ObjExcel.Cells(1, col_to_use).Value = "ELIG TYPE"
 elig_one_col = col_to_use
 col_to_use = col_to_use + 1
 
+ObjExcel.Cells(1, col_to_use).Value = "MMIS End Date"
+mmis_one_col = col_to_use
+col_to_use = col_to_use + 1
+
 ObjExcel.Cells(1, col_to_use).Value = "2nd PROG"
 prog_two_col = col_to_use
 col_to_use = col_to_use + 1
 
 ObjExcel.Cells(1, col_to_use).Value = "ELIG TYPE"
 elig_two_col = col_to_use
+col_to_use = col_to_use + 1
+
+ObjExcel.Cells(1, col_to_use).Value = "MMIS End Date"
+mmis_two_col = col_to_use
 col_to_use = col_to_use + 1
 
 ObjExcel.Cells(1, col_to_use).Value = "SPDWN ON MOBL"
@@ -1495,16 +1812,17 @@ errors_col = col_to_use
 col_to_use = col_to_use + 1
 
 ObjExcel.Rows(1).Font.Bold = TRUE
+excel_row = 2
 
 'Adding all client information to a spreadsheet for your viewing pleasure
 For hc_clt = 0 to UBound(HC_CLIENTS_DETAIL_ARRAY, 2)
-	If HC_CLIENTS_DETAIL_ARRAY(add_xcl, hc_clt) = TRUE Then
+	'If HC_CLIENTS_DETAIL_ARRAY(add_xcl, hc_clt) = TRUE Then
 		ObjExcel.Cells(excel_row, worker_col).Value       = HC_CLIENTS_DETAIL_ARRAY (wrk_num,   hc_clt)
 		ObjExcel.Cells(excel_row, case_numb_col).Value    = HC_CLIENTS_DETAIL_ARRAY (case_num,  hc_clt)
 		ObjExcel.Cells(excel_row, ref_numb_col).Value     = "Memb " & HC_CLIENTS_DETAIL_ARRAY(ref_numb, hc_clt)
 		ObjExcel.Cells(excel_row, name_col).Value         = HC_CLIENTS_DETAIL_ARRAY (clt_name,  hc_clt)
 		ObjExcel.Cells(excel_row, pmi_col).Value          = HC_CLIENTS_DETAIL_ARRAY (clt_pmi,   hc_clt)
-		ObjExcel.Cells(excel_row, revw_date_col).Value    = HC_CLIENTS_DETAIL_ARRAY (next_revw, hc_clt)
+		'ObjExcel.Cells(excel_row, revw_date_col).Value    = HC_CLIENTS_DETAIL_ARRAY (next_revw, hc_clt)
         ObjExcel.Cells(excel_row, prog_one_col).Value     = HC_CLIENTS_DETAIL_ARRAY (hc_prog_one,   hc_clt)
         If HC_CLIENTS_DETAIL_ARRAY (hc_prog_one,   hc_clt) = "MA" Then
 		    ObjExcel.Cells(excel_row, elig_one_col).Value  = HC_CLIENTS_DETAIL_ARRAY (elig_type_one,   hc_clt) & "-" & HC_CLIENTS_DETAIL_ARRAY(elig_std_one, hc_clt) & " - Method: " & HC_CLIENTS_DETAIL_ARRAY(elig_mthd_one, hc_clt)
@@ -1516,6 +1834,7 @@ For hc_clt = 0 to UBound(HC_CLIENTS_DETAIL_ARRAY, 2)
         Else
             ObjExcel.Cells(excel_row, elig_one_col).Value  = HC_CLIENTS_DETAIL_ARRAY (elig_type_one,   hc_clt) & "-" & HC_CLIENTS_DETAIL_ARRAY(elig_std_one, hc_clt)
         End If
+        ObjExcel.Cells(excel_row, mmis_one_col).Value       = HC_CLIENTS_DETAIL_ARRAY(mmis_end_one, hc_clt)
 
         ObjExcel.Cells(excel_row, prog_two_col).Value     = HC_CLIENTS_DETAIL_ARRAY (hc_prog_two,   hc_clt)
         If HC_CLIENTS_DETAIL_ARRAY (hc_prog_two,   hc_clt) = "MA" Then
@@ -1528,14 +1847,16 @@ For hc_clt = 0 to UBound(HC_CLIENTS_DETAIL_ARRAY, 2)
         Else
             ObjExcel.Cells(excel_row, elig_two_col).Value  = HC_CLIENTS_DETAIL_ARRAY (elig_type_two,   hc_clt) & "-" & HC_CLIENTS_DETAIL_ARRAY(elig_std_two, hc_clt)
         End If
+        ObjExcel.Cells(excel_row, mmis_two_col).Value       = HC_CLIENTS_DETAIL_ARRAY(mmis_end_two, hc_clt)
 
+        If HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) <> "" OR HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) <> "" Then ObjExcel.Rows(excel_row).Interior.ColorIndex = 6
 
         'ObjExcel.Cells(excel_row, 9).Value  = HC_CLIENTS_DETAIL_ARRAY (hc_excess, hc_clt)
 		'ObjExcel.Cells(excel_row, 10).Value = HC_CLIENTS_DETAIL_ARRAY (mmis_spdn, hc_clt)
         ObjExcel.Cells(excel_row, waiver_col).Value     = HC_CLIENTS_DETAIL_ARRAY(elig_waiv, hc_clt)
-        ObjExcel.Cells(excel_row, errors_col).Value     = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt)
+        ObjExcel.Cells(excel_row, errors_col).Value     = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) & HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) & HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt)
 		excel_row = excel_row + 1
-	End If
+	'End If
 Next
 
 col_to_use = col_to_use + 1
