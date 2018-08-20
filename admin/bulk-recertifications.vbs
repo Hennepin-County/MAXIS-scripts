@@ -596,7 +596,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
     call back_to_SELF
 next
 'All information has been gathered
-MsgBox "We are going back to EXCEL!"
+'MsgBox "We are going back to EXCEL!"
 
 'Insert columns in excel for additional information to be added
 column_end = last_col & "1"
