@@ -580,6 +580,10 @@ If worker_number <> "" then
 
         Loop until next_pers_ref_numb = "  "
 
+        all_the_workers = join(worker_array, ", ")
+        end_msg = "Success! Client HC Eligibility and MMIS coding for workers: " & all_the_workers & " have been added to the spreadsheet."
+
+
     Next
         '
         ' 'USING CASE PERS'
@@ -893,8 +897,43 @@ Else
     'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
     call excel_open(hc_cases_excel_file_path, True, True, ObjExcel, objWorkbook)
 
-    excel_row = 5
+    excel_row_to_start = "5"
+
+    BeginDialog Dialog1, 0, 0, 176, 140, "Dialog"
+      EditBox 25, 55, 30, 15, stop_time
+      EditBox 65, 100, 30, 15, excel_row_to_start
+      EditBox 65, 120, 30, 15, excel_row_to_end
+      ButtonGroup ButtonPressed
+        OkButton 115, 120, 50, 15
+      Text 5, 10, 165, 10, "This run of the script will review and help process: "
+      Text 5, 20, 165, 10, process_option
+      Text 10, 35, 140, 20, "To time limit the run of the script enter the numeber of hours to run the script:"
+      Text 65, 60, 50, 10, "Hours"
+      Text 10, 80, 145, 20, "The run can be limited by indicating which rows of the Excel file to review/process:"
+      Text 15, 105, 50, 10, "Excel to start"
+      Text 15, 125, 45, 10, "Excel to end"
+    EndDialog
+
+    Do
+        Do
+            err_msg = ""
+            dialog Dialog1
+
+            If trim(stop_time) <> "" AND IsNumeric(stop_time) = FALSE Then err_msg = err_msg & vbNewLine & "- Number of hours should be a number."
+            If trim(excel_row_to_start) <> "" AND IsNumeric(excel_row_to_start) = FALSE Then err_msg = err_msg & vbNewLine & "- Start row of Excel should be a number."
+            If trim(excel_row_to_end) <> "" AND IsNumeric(excel_row_to_end) = FALSE Then err_msg = err_msg & vbNewLine & "- End row of Excel should be a number."
+
+            If err_msg <> "" Then MsgBox "** Please Resolve the Following to Continue:" & vbNew & err_msg
+
+        Loop until err_msg = ""
+        call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+    LOOP UNTIL are_we_passworded_out = false
+
+    excel_row = excel_row_to_start * 1
+    excel_row_to_end = excel_row_to_end * 1
     hc_clt = 0
+
+    'TODO add time handling'
 
     Do
         'ObjExcel.Cells(). Value
@@ -916,7 +955,10 @@ Else
         hc_clt = hc_clt + 1
         next_case_number = ObjExcel.Cells(excel_row, 2). Value
         next_case_number = trim(next_case_number)
+        If excel_row = excel_row_to_end Then Exit Do
     Loop until next_case_number = ""
+
+    end_msg = "Success! Client HC Eligibility and MMIS coding for row " & excel_row_to_start & " to " & excel_row_to_end & " have been added to the spreadsheet."
 
     ObjExcel.Quit
     Set ObjExcel = Nothing
@@ -930,9 +972,14 @@ For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
     APPROVAL_NEEDED = FALSE
     found_elig = FALSE
     client_found = FALSE
-    'TODO add priv handling'
     row = 8
     Do
+        EMReadScreen check_for_priv, 10, 24, 14
+        If check_for_priv = "PRIVILEGED" Then
+            HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) = "PRIV"
+            Exit Do
+        End If
+        'TODO add handling for more than 1 page of elig results (BOBI has one that is 168XXX or 169XXX)'
         EMReadscreen elig_clt, 2, row, 3
         EmReadscreen prog_exists, 1, row, 10
         If elig_clt = CLIENT_reference_number Then
@@ -1177,78 +1224,41 @@ Call navigate_to_spec_MMIS_region("CTY ELIG STAFF/UPDATE")
 For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
     PMI_Number = right("00000000" & HC_CLIENTS_DETAIL_ARRAY(clt_pmi, hc_clt), 8)
 
-    EmWriteScreen "I", 2, 19
-    EmWriteScreen PMI_Number, 4, 19
-    transmit
+    If HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) <> "PRIV" Then
+        EmWriteScreen "I", 2, 19
+        EmWriteScreen PMI_Number, 4, 19
+        transmit
 
-    EmWriteScreen "RELG", 1, 8
-    transmit
+        EmWriteScreen "RELG", 1, 8
+        transmit
 
-    relg_row = 6
-    span_found = FALSE
-    Do
-        EmReadscreen relg_prog, 2, relg_row, 10
-        EmReadscreen relg_elig, 2, relg_row, 33
-        'MsgBox relg_prog & " - " & relg_elig
-
-        If relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt), 2) AND relg_elig = HC_CLIENTS_DETAIL_ARRAY(elig_type_one, hc_clt) Then
-            span_found = TRUE
-            EmReadscreen relg_end_dt, 8, relg_row+1, 36
-            'MsgBox "End Date - " & relg_end_dt
-            HC_CLIENTS_DETAIL_ARRAY(mmis_end_one, hc_clt) = relg_end_dt
-            If relg_end_dt <> "99/99/99" Then
-                If DateDiff("d", relg_end_dt, date) > 0 Then HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) = "MMIS SPAN ENDED for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt)
-            End If
-        ElseIf relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt), 2) Then
-            EmReadscreen relg_end_dt, 8, relg_row+1, 36
-            If relg_end_dt = "99/99/99" Then
-                HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) = "MMIS SPAN for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt) & " has the wrong ELIG TYPE"
-                span_found = TRUE
-            End If
-        End If
-
-        If relg_prog = "MA" and span_found = TRUE Then
-            EmReadscreen spd_indct, 1, relg_row+2, 62
-            If HC_CLIENTS_DETAIL_ARRAY(mobl_spdn, hc_clt) = "NO SPENDDOWN" and spd_indct = "Y" Then HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) & " ~ No spenddown indicated in MAXIS but MMIS spenddown indicator is Y."
-            If HC_CLIENTS_DETAIL_ARRAY(mobl_spdn, hc_clt) <> "NO SPENDDOWN" and spd_indct <> "Y" Then HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) & " ~ MAXIS ELIG indicates and Spenddown but MMIS span does not."
-        End If
-
-        If relg_prog = "  " Then Exit Do
-        relg_row = relg_row + 4
-        If relg_row = 22 Then
-            PF8
-            relg_row = 6
-        End If
-        EmReadscreen end_of_list, 7, 24, 26
-        If end_of_list = "NO MORE" Then Exit Do
-    Loop until span_found = TRUE
-    If span_found = FALSE Then HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) = "No MMIS SPAN for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt)
-
-    EmWriteScreen "RELG", 1, 8
-    transmit
-
-    If HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt) <> "" Then
         relg_row = 6
         span_found = FALSE
         Do
             EmReadscreen relg_prog, 2, relg_row, 10
             EmReadscreen relg_elig, 2, relg_row, 33
-            'MsgBox "2 - " & relg_prog & " - " & relg_elig
+            'MsgBox relg_prog & " - " & relg_elig
 
-            If relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt), 2) AND relg_elig = HC_CLIENTS_DETAIL_ARRAY(elig_type_two, hc_clt) Then
+            If relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt), 2) AND relg_elig = HC_CLIENTS_DETAIL_ARRAY(elig_type_one, hc_clt) Then
                 span_found = TRUE
                 EmReadscreen relg_end_dt, 8, relg_row+1, 36
-                'MsgBox "2 - End Date - " & relg_end_dt
-                HC_CLIENTS_DETAIL_ARRAY(mmis_end_two, hc_clt) = relg_end_dt
+                'MsgBox "End Date - " & relg_end_dt
+                HC_CLIENTS_DETAIL_ARRAY(mmis_end_one, hc_clt) = relg_end_dt
                 If relg_end_dt <> "99/99/99" Then
-                    If DateDiff("d", relg_end_dt, date) > 0 Then HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) = "MMIS SPAN ENDED for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt)
+                    If DateDiff("d", relg_end_dt, date) > 0 Then HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) = "MMIS SPAN ENDED for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt)
                 End If
-            ElseIf relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt), 2) Then
+            ElseIf relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt), 2) Then
                 EmReadscreen relg_end_dt, 8, relg_row+1, 36
                 If relg_end_dt = "99/99/99" Then
-                    HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) = "MMIS SPAN for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt) & " has the wrong ELIG TYPE"
+                    HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) = "MMIS SPAN for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt) & " has the wrong ELIG TYPE"
                     span_found = TRUE
                 End If
+            End If
+
+            If relg_prog = "MA" and span_found = TRUE Then
+                EmReadscreen spd_indct, 1, relg_row+2, 62
+                If HC_CLIENTS_DETAIL_ARRAY(mobl_spdn, hc_clt) = "NO SPENDDOWN" and spd_indct = "Y" Then HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) & " ~ No spenddown indicated in MAXIS but MMIS spenddown indicator is Y."
+                If HC_CLIENTS_DETAIL_ARRAY(mobl_spdn, hc_clt) <> "NO SPENDDOWN" and spd_indct <> "Y" Then HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) & " ~ MAXIS ELIG indicates and Spenddown but MMIS span does not."
             End If
 
             If relg_prog = "  " Then Exit Do
@@ -1260,12 +1270,51 @@ For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
             EmReadscreen end_of_list, 7, 24, 26
             If end_of_list = "NO MORE" Then Exit Do
         Loop until span_found = TRUE
-        If span_found = FALSE Then HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) = "No MMIS SPAN for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt)
+        If span_found = FALSE Then HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) = "No MMIS SPAN for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt)
 
+        EmWriteScreen "RELG", 1, 8
+        transmit
+
+        If HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt) <> "" Then
+            relg_row = 6
+            span_found = FALSE
+            Do
+                EmReadscreen relg_prog, 2, relg_row, 10
+                EmReadscreen relg_elig, 2, relg_row, 33
+                'MsgBox "2 - " & relg_prog & " - " & relg_elig
+
+                If relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt), 2) AND relg_elig = HC_CLIENTS_DETAIL_ARRAY(elig_type_two, hc_clt) Then
+                    span_found = TRUE
+                    EmReadscreen relg_end_dt, 8, relg_row+1, 36
+                    'MsgBox "2 - End Date - " & relg_end_dt
+                    HC_CLIENTS_DETAIL_ARRAY(mmis_end_two, hc_clt) = relg_end_dt
+                    If relg_end_dt <> "99/99/99" Then
+                        If DateDiff("d", relg_end_dt, date) > 0 Then HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) = "MMIS SPAN ENDED for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt)
+                    End If
+                ElseIf relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt), 2) Then
+                    EmReadscreen relg_end_dt, 8, relg_row+1, 36
+                    If relg_end_dt = "99/99/99" Then
+                        HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) = "MMIS SPAN for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt) & " has the wrong ELIG TYPE"
+                        span_found = TRUE
+                    End If
+                End If
+
+                If relg_prog = "  " Then Exit Do
+                relg_row = relg_row + 4
+                If relg_row = 22 Then
+                    PF8
+                    relg_row = 6
+                End If
+                EmReadscreen end_of_list, 7, 24, 26
+                If end_of_list = "NO MORE" Then Exit Do
+            Loop until span_found = TRUE
+            If span_found = FALSE Then HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) = "No MMIS SPAN for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt)
+
+        End If
+
+        EmWriteScreen "RKEY", 1, 8
+        transmit
     End If
-
-    EmWriteScreen "RKEY", 1, 8
-    transmit
 
 Next
 
@@ -1908,4 +1957,4 @@ Next
 
 'Logging usage stats
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("Success! All cases for selected workers that appear to have a Spenddown indicated in MAXIS have been added to the Excel Spreadsheet.")
+script_end_procedure(end_msg)
