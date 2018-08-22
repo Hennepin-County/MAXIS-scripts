@@ -218,14 +218,14 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 		LOOP until SELF_screen_check = "SELF"
 		EMWriteScreen "________", 18, 43		'clears the MAXIS case number
 		transmit
-    End if 
-
-    EMReadscreen current_county, 4, 21, 21
-    If lcase(current_county) <> worker_county_code then 
-        Update_MMIS_array(rate_two, item) = False 
-        Update_MMIS_array(case_status, item) = "Out-of-county case."
     Else 
-        Update_MMIS_array(rate_two, item) = True  
+        EMReadscreen current_county, 4, 21, 21
+        If lcase(current_county) <> worker_county_code then 
+            Update_MMIS_array(rate_two, item) = False 
+            Update_MMIS_array(case_status, item) = "Out-of-county case."
+        Else 
+            Update_MMIS_array(rate_two, item) = True  
+        End if 
     End if 
     
 	Call HCRE_panel_bypass			'Function to bypass a janky HCRE panel. If the HCRE panel has fields not completed/'reds up' this gets us out of there. 
