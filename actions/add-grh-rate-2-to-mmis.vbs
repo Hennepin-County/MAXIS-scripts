@@ -122,6 +122,7 @@ EndDialog
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
 EMConnect ""
+get_county_code
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
@@ -151,8 +152,8 @@ If grh_status <> "ACTV" then
 	script_end_procedure("GRH case status is " & grh_status & ". The script will now end.") 	  
 End if 
 
-EMReadscreen county_code, 2, 21, 23
-If county_code <> "27" then script_end_procedure("Out-of-county case. Cannot update. The script will now end.") 	
+EMReadscreen current_county, 4, 21, 21
+If lcase(current_county) <> worker_county_code then script_end_procedure("Out-of-county case. Cannot update. The script will now end.") 
 
 Call HCRE_panel_bypass			'Function to bypass a jenky HCRE panel. If the HCRE panel has fields not completed/'reds up' this gets us out of there. 
 
