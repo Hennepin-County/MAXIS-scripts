@@ -120,6 +120,13 @@ Function HCRE_panel_bypass()
 	Loop until HCRE_panel_check <> "HCRE"
 End Function
 
+function convert_date_to_day_first(date_to_convert, date_to_output)
+    intv_date_mo = DatePart("m", date_to_convert)
+    intv_date_day = DatePart("d", date_to_convert)
+    intv_date_yr = DatePart("yyyy", date_to_convert)
+    date_to_output = intv_date_day & "/" & intv_date_mo & "/" & intv_date_yr
+end function
+
 'DIALOGS ===================================================================================================================
 
 'Initial Dialog which requests a file path for the excel file
@@ -715,11 +722,55 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                     Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
                     Memo_to_display = Memo_to_display & vbNewLine & "(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)"
                     Memo_to_display = Memo_to_display & vbNewLine & "Qoraallada rabshadaha qoysaska waxaad ka heli kartaa https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. Waxaad kaloo codsan kartaa qoraalkan oo warqad ah."
-                '
-                ' Case "01"   'Spanish (3rd)
-                '     'MsgBox "SPANISH"
-                ' Case "02"   'Hmong (4th)
-                '     'MsgBox "HMONG"
+
+                Case "01"   'Spanish (3rd)
+                    'MsgBox "SPANISH"
+                    CALL convert_date_to_day_first(interview_end_date, day_first_intv_date)
+                    CALL convert_date_to_day_first(last_day_of_recert, day_first_last_recert)
+
+                    Memo_to_display = "El Departamento de Servicios Humanos le envió un paquete con papeles. Son los papeles para renovar su caso " & programs & "."
+                    Memo_to_display = Memo_to_display & vbNewLine & ""
+                    Memo_to_display = Memo_to_display & vbNewLine & "Por favor, fírmelos, coloque la fecha y envíe de regreso los papeles para el 08/" & CM_plus_1_mo & "/" & CM_plus_1_yr & ". También debe realizar una entrevista para que continúe su caso " & programs & "."
+                    Memo_to_display = Memo_to_display & vbNewLine & "***Por favor, complete su entrevista para el " & day_first_intv_date & ".***"
+                    Memo_to_display = Memo_to_display & vbNewLine & "Para completar una entrevista telefónica, llame a la línea de información EZ al 612-596-1300 entre las 9 am y las 4 pm de lunes a viernes."
+                    Memo_to_display = Memo_to_display & vbNewLine & ""
+                    Memo_to_display = Memo_to_display & vbNewLine & "**Su caso " & programs & " será cerrado el " & day_first_last_recert & " a menos que recibamos sus papeles y realice la entrevista**"
+                    Memo_to_display = Memo_to_display & vbNewLine & ""
+                    Memo_to_display = Memo_to_display & vbNewLine & "Si desea programar una entrevista, llame al 612-596-1300."
+                    Memo_to_display = Memo_to_display & vbNewLine & "También puede acercarse a cualquiera de las seis oficinas mencionadas debajo para tener una entrevista personal entre las 8 y las 4:30 de lunes a viernes."
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 J h.: 8:30-6:30 "
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                    Memo_to_display = Memo_to_display & vbNewLine & "(Los horarios son de lunes a viernes de 8 a 4:30 a menos   que se remarque lo contrario)"
+                    Memo_to_display = Memo_to_display & vbNewLine & ""
+                    Memo_to_display = Memo_to_display & vbNewLine & "Los folletos de violencia doméstica están disponibles en"
+                    Memo_to_display = Memo_to_display & vbNewLine & "https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG."
+                    Memo_to_display = Memo_to_display & vbNewLine & "También puede solicitar una copia en papel."
+                Case "02"   'Hmong (4th)
+                    'MsgBox "HMONG"
+                    Memo_to_display = "Lub Koos Haum Department of Human Services tau xa ib pob ntawv tuaj rau koj sent. Cov ntawv no yog tuaj tauj koj txoj kev pab " & programs & "."
+                    Memo_to_display = Memo_to_display & vbNewLine & ""
+                    Memo_to_display = Memo_to_display & vbNewLine & "Thov kos npe, tso sij hawm thiab muaj xa cov ntawv tauj rov qab tuaj ua ntej " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". Koj yuav tsum mus xam phaj txog koj cov kev pab " & programs & " mas thiaj li tauj tau."
+                    Memo_to_display = Memo_to_display & vbNewLine & "*** Thov mus xam phaj ua ntej " & interview_end_date & ". ***"
+                    Memo_to_display = Memo_to_display & vbNewLine & "Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 9:00am thib 4:00pm hnub Mon txog Fri."
+                    Memo_to_display = Memo_to_display & vbNewLine & "** Koj cov kev pab " & programs & " yuav muab kaw thaum     **"
+                    Memo_to_display = Memo_to_display & vbNewLine & "** " & last_day_of_recert & " tsis li mas peb yuav tsum tau txais koj cov**"
+                    Memo_to_display = Memo_to_display & vbNewLine & "**      ntaub ntawvthiab koj txoj kev xam phaj.          **"
+                    Memo_to_display = Memo_to_display & vbNewLine & "  Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday."
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                    Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                    Memo_to_display = Memo_to_display & vbNewLine & " (Cov sij hawm qhib yog M - F 8-4:30 tsis li mas yuav tsum qhia ua ntej)"
+                    Memo_to_display = Memo_to_display & vbNewLine & ""
+                    Memo_to_display = Memo_to_display & vbNewLine & "Cov ntaub ntawv qhia txog kev raug tsim txom los ntawm cov txheeb ze kuj muaj nyob rau ntawm"
+                    Memo_to_display = Memo_to_display & vbNewLine & "https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG."
+                    Memo_to_display = Memo_to_display & vbNewLine & "Koj kuj thov tau ib qauv thiab."
                 Case "06"   'Russian (5th)
                     'MsgBox "RUSSIAN"
                     Memo_to_display = "Otdel soczial'ny'x sluzhb otpravil vam paket dokumentaczii."
@@ -826,10 +877,55 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             CALL write_variable_in_SPEC_MEMO("(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)")
                             CALL write_variable_in_SPEC_MEMO("Qoraallada rabshadaha qoysaska waxaad ka heli kartaa https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. Waxaad kaloo codsan kartaa qoraalkan oo warqad ah.")
 
-                        ' Case "01"   'Spanish (3rd)
-                        '     'MsgBox "SPANISH"
-                        ' Case "02"   'Hmong (4th)
-                        '     'MsgBox "HMONG"
+                        Case "01"   'Spanish (3rd)
+                            'MsgBox "SPANISH"
+                            CALL convert_date_to_day_first(interview_end_date, day_first_intv_date)
+                            CALL convert_date_to_day_first(last_day_of_recert, day_first_last_recert)
+
+                            CALL write_variable_in_SPEC_MEMO("El Departamento de Servicios Humanos le envió un paquete con papeles. Son los papeles para renovar su caso " & programs & ".")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("Por favor, fírmelos, coloque la fecha y envíe de regreso los papeles para el 08/" & CM_plus_1_mo & "/" & CM_plus_1_yr & ". También debe realizar una entrevista para que continúe su caso " & programs & ".")
+                            CALL write_variable_in_SPEC_MEMO("***Por favor, complete su entrevista para el " & day_first_intv_date & ".***")
+                            CALL write_variable_in_SPEC_MEMO("Para completar una entrevista telefónica, llame a la línea de información EZ al 612-596-1300 entre las 9 am y las 4 pm de lunes a viernes.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("**Su caso " & programs & " será cerrado el " & day_first_last_recert & " a menos que recibamos sus papeles y realice la entrevista**")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("Si desea programar una entrevista, llame al 612-596-1300.")
+                            CALL write_variable_in_SPEC_MEMO("También puede acercarse a cualquiera de las seis oficinas mencionadas debajo para tener una entrevista personal entre las 8 y las 4:30 de lunes a viernes.")
+                            Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                            Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                            Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 J h.: 8:30-6:30 ")
+                            Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                            Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                            Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                            CALL write_variable_in_SPEC_MEMO("(Los horarios son de lunes a viernes de 8 a 4:30 a menos   que se remarque lo contrario)")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("Los folletos de violencia doméstica están disponibles en")
+                            CALL write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
+                            CALL write_variable_in_SPEC_MEMO("También puede solicitar una copia en papel.")
+                        Case "02"   'Hmong (4th)
+                            'MsgBox "HMONG"
+                            CALL write_variable_in_SPEC_MEMO("Lub Koos Haum Department of Human Services tau xa ib pob ntawv tuaj rau koj sent. Cov ntawv no yog tuaj tauj koj txoj kev pab " & programs & ".")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("Thov kos npe, tso sij hawm thiab muaj xa cov ntawv tauj rov qab tuaj ua ntej " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". Koj yuav tsum mus xam phaj txog koj cov kev pab " & programs & " mas thiaj li tauj tau.")
+                            CALL write_variable_in_SPEC_MEMO("*** Thov mus xam phaj ua ntej " & interview_end_date & ". ***")
+                            CALL write_variable_in_SPEC_MEMO("Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 9:00am thib 4:00pm hnub Mon txog Fri.")
+                            CALL write_variable_in_SPEC_MEMO("** Koj cov kev pab " & programs & " yuav muab kaw thaum     **")
+                            CALL write_variable_in_SPEC_MEMO("** " & last_day_of_recert & " tsis li mas peb yuav tsum tau txais koj cov**")
+                            CALL write_variable_in_SPEC_MEMO("**      ntaub ntawvthiab koj txoj kev xam phaj.          **")
+                            CALL write_variable_in_SPEC_MEMO("  Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday.")
+                            Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                            Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                            Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+                            Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                            Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                            Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                            CALL write_variable_in_SPEC_MEMO(" (Cov sij hawm qhib yog M - F 8-4:30 tsis li mas yuav tsum qhia ua ntej)")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("Cov ntaub ntawv qhia txog kev raug tsim txom los ntawm cov txheeb ze kuj muaj nyob rau ntawm")
+                            CALL write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
+                            CALL write_variable_in_SPEC_MEMO("Koj kuj thov tau ib qauv thiab.")
+
                         Case "06"   'Russian (5th)
                             'MsgBox "RUSSIAN"
                             CALL write_variable_in_SPEC_MEMO("Otdel soczial'ny'x sluzhb otpravil vam paket dokumentaczii.")
@@ -931,10 +1027,46 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             CALL write_variable_in_SPEC_MEMO("")
                             CALL write_variable_in_SPEC_MEMO("Haddii aad qabto su'aalo ku saabsan nooca xaqiijinta loo baahan yahay, wac 612-596-1300 qof ayaa ku caawin doona.")
 
-                        ' Case "01"   'Spanish (3rd)
-                        '     'MsgBox "SPANISH"
-                        ' Case "02"   'Hmong (4th)
-                        '     'MsgBox "HMONG"
+                        Case "01"   'Spanish (3rd)
+                            'MsgBox "SPANISH"
+                            CALL write_variable_in_SPEC_MEMO("Como parte del Proceso de Renovación, debemos recibir una verificación reciente de su información. Para acelerar el proceso de renovación, por favor, envíe pruebas de sus papeles de renovación.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("* Ejemplos de pruebas de ingresos: resúmenes de pagos,")
+                            CALL write_variable_in_SPEC_MEMO("  declaración del empleador, reportes de ingresos, libros")
+                            CALL write_variable_in_SPEC_MEMO("  de contabilidad, formularios de impuestos, etc.")
+                            CALL write_variable_in_SPEC_MEMO("  * Si un trabajo se ha terminado, envíe pruebas de dicha")
+                            CALL write_variable_in_SPEC_MEMO("    situación y el último pago.                                      ")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("* Ejemplos de pruebas de costos de vivienda (si cambió):")
+                            CALL write_variable_in_SPEC_MEMO("  recibo de la renta/casa, hipoteca, préstamo, subsidio,")
+                            CALL write_variable_in_SPEC_MEMO("  etc.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("* Ejemplos de pruebas de gastos médicos (si cambió):")
+                            CALL write_variable_in_SPEC_MEMO("  prescripciones y cuentas médicas, etc.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("Si tiene preguntas sobre el tipo de verificación necesaria, llame al 612-596-1300 y alguien lo/la asistirá.")
+                        Case "02"   'Hmong (4th)
+                            'MsgBox "HMONG"
+                            CALL write_variable_in_SPEC_MEMO("Raws li peb txoj kev Rov Tauj Dua mas peb yuav tsum tau txais cov xov tseem ceeb los ntawm koj. Yuav kom tauj tau sai, thov xa cov pov thawj nrog koj ntaub ntawv tauj dua tshiab.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("* Piv txwv pov thawj txog nyiaj txiag: cov tw tshev, ntawv")
+                            CALL write_variable_in_SPEC_MEMO("  tom chaw ua hauj lwm, ntawv qhia txog nyiaj txiag, ntawv")
+                            CALL write_variable_in_SPEC_MEMO("  ua lag luam, ntawv ua se, lwm yam.")
+                            CALL write_variable_in_SPEC_MEMO("  *Yog hais tias koj txoj hauj lwm tu lawm, xa pav thawj")
+                            CALL write_variable_in_SPEC_MEMO("   txog hnub kawg ua hauj lwm thiab daim tshev uas yog daim")
+                            CALL write_variable_in_SPEC_MEMO("   kawg.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("* Piv txwv cov pov thawj them nqi tsev(yog hais tias")
+                            CALL write_variable_in_SPEC_MEMO("  hloov): pov thawj xauj tsev/them tsev, ntawv them tuam")
+                            CALL write_variable_in_SPEC_MEMO("  txhab qiv nyiaj yuav tsev, ntawv cog lus xauj tsev, ntawv")
+                            CALL write_variable_in_SPEC_MEMO("  them tsev luam, lwm yam.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("* Piv txwv cov pov thawj txog nqi kho mob(yog hais tias")
+                            CALL write_variable_in_SPEC_MEMO("  hloov lawm): Ntawv yuav tshuaj thiab nqi kho mob, lwm")
+                            CALL write_variable_in_SPEC_MEMO("  yam.")
+                            CALL write_variable_in_SPEC_MEMO("")
+                            CALL write_variable_in_SPEC_MEMO("Yog hais tias koj muaj lus nug txog cov yuav tsum muaj cov pov thaqwj twg, hu 612-596-1300 ces neeg mam los pab koj.")
+
                         Case "06"   'Russian (5th)
                             'MsgBox "RUSSIAN"
                             CALL write_variable_in_SPEC_MEMO("V czelyax obnovleniya proczessa my' dolzhny' poluchit' podtverzhdenie vashej unformaczii.  Chtoby' uskorit' proczess obnovlenie, pozhalujsta, otprav'te dokazatel'stva s vashej dokumentacziej na obnovlenie.")
@@ -1030,10 +1162,49 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                             Memo_to_display = Memo_to_display & vbNewLine & "* Haddii aynaan war kaa helin inta ka horreysa " & last_day_of_recert & " *"
                             Memo_to_display = Memo_to_display & vbNewLine & "*   Macaawinada aad hesho waxay instaageysaa " & last_day_of_recert & ". *"
 
-                        ' Case "01"   'Spanish (3rd)
-                        '     'MsgBox "SPANISH"
-                        ' Case "02"   'Hmong (4th)
-                        '     'MsgBox "HMONG"
+                        Case "01"   'Spanish (3rd)
+                            'MsgBox "SPANISH"
+                            CALL convert_date_to_day_first(ALL_CASES_ARRAY(date_of_app, case_entry), day_first_app_date)
+                            CALL convert_date_to_day_first(last_day_of_recert, day_first_last_recert)
+
+                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then Memo_to_display = "Recibimos sus papeles de recertificación el " & day_first_app_date & "."
+                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then Memo_to_display = "Aún no se han recibido sus Papeles de Recertificación."
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "Debe realizar una entrevista para el " & day_first_last_recert & " o sus beneficios se terminarán."
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "Para completar una entrevista telefónica, llame a la línea de información EZ al 612-596-1300 entre las 9 am y las 4 pm de lunes a viernes."
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "Si desea programar una entrevista, llame al 612-596-1300."
+                            Memo_to_display = Memo_to_display & vbNewLine & "También puede acercarse a cualquiera de las seis oficinas mencionadas debajo para tener una entrevista personal entre las 8 y las 4:30 de lunes a viernes."
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 J h.: 8:30-6:30 "
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                            Memo_to_display = Memo_to_display & vbNewLine & "(Los horarios son de lunes a viernes de 8 a 4:30 a menos   que se remarque lo contrario)"
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "**Si no tenemos novedades suyas para el " & day_first_last_recert & ", sus beneficios se terminarán el " & day_first_last_recert & "**"
+
+                        Case "02"   'Hmong (4th)
+                            'MsgBox "HMONG"
+                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then Memo_to_display = "Peb twb txais tau koj cov Ntaub Ntawv Rov Qab Tauj Dua thaum " & ALL_CASES_ARRAY(date_of_app, case_entry) & "."
+                            if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then Memo_to_display = "Peb tsis tau txais koj cov Ntaub Ntawv Rov Qab Tauj Duu."
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "Koj yuav tsum mus xam pphaj ua ntej " & last_day_of_recert & " los yog yuav txiav koj cov kev pab."
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 9:00am thib 4:00pm hnub Monday txog Friday."
+                            Memo_to_display = Memo_to_display & vbNewLine & "  Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday."
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                            Memo_to_display = Memo_to_display & vbNewLine & " (Cov sij hawm qhib yog M - F 8-4:30 tsis li mas yuav tsum qhia ua ntej)"
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "** Yog hais tias tsis hnov koj teb ua ntej " & last_day_of_recert & "  **"
+                            Memo_to_display = Memo_to_display & vbNewLine & "**   koj cov kev pab yuav raug kaw thaum " & last_day_of_recert & ".   **"
                         Case "06"   'Russian (5th)
                             'MsgBox "RUSSIAN"
                             if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then Memo_to_display = "My' poluchili vashu dokumentacziyu o pereodicheskoj attestaczii " & ALL_CASES_ARRAY(date_of_app, case_entry) & "."
@@ -1130,10 +1301,50 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
                                     CALL write_variable_in_SPEC_MEMO("* Haddii aynaan war kaa helin inta ka horreysa " & last_day_of_recert & " *")
                                     CALL write_variable_in_SPEC_MEMO("*   Macaawinada aad hesho waxay instaageysaa " & last_day_of_recert & ". *")
 
-                                ' Case "01"   'Spanish (3rd)
-                                '     'MsgBox "SPANISH"
-                                ' Case "02"   'Hmong (4th)
-                                '     'MsgBox "HMONG"
+                                Case "01"   'Spanish (3rd)
+                                    'MsgBox "SPANISH"
+                                    CALL convert_date_to_day_first(ALL_CASES_ARRAY(date_of_app, case_entry), day_first_app_date)
+                                    CALL convert_date_to_day_first(last_day_of_recert, day_first_last_recert)
+
+                                    if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then CALL write_variable_in_SPEC_MEMO("Recibimos sus papeles de recertificación el " & day_first_app_date & ".")
+                                    if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then CALL write_variable_in_SPEC_MEMO("Aún no se han recibido sus Papeles de Recertificación.")
+                                    CALL write_variable_in_SPEC_MEMO("")
+                                    CALL write_variable_in_SPEC_MEMO("Debe realizar una entrevista para el " & day_first_last_recert & " o sus beneficios se terminarán.")
+                                    CALL write_variable_in_SPEC_MEMO("")
+                                    CALL write_variable_in_SPEC_MEMO("Para completar una entrevista telefónica, llame a la línea de información EZ al 612-596-1300 entre las 9 am y las 4 pm de lunes a viernes.")
+                                    CALL write_variable_in_SPEC_MEMO("")
+                                    CALL write_variable_in_SPEC_MEMO("Si desea programar una entrevista, llame al 612-596-1300.")
+                                    CALL write_variable_in_SPEC_MEMO("También puede acercarse a cualquiera de las seis oficinas mencionadas debajo para tener una entrevista personal entre las 8 y las 4:30 de lunes a viernes.")
+                                    Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                                    Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                                    Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 J h.: 8:30-6:30 ")
+                                    Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                                    Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                                    Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                                    CALL write_variable_in_SPEC_MEMO("(Los horarios son de lunes a viernes de 8 a 4:30 a menos   que se remarque lo contrario)")
+                                    CALL write_variable_in_SPEC_MEMO("")
+                                    CALL write_variable_in_SPEC_MEMO("**Si no tenemos novedades suyas para el " & day_first_last_recert & ", sus beneficios se terminarán el " & day_first_last_recert & "**")
+
+                                Case "02"   'Hmong (4th)
+                                    'MsgBox "HMONG"
+                                    if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then CALL write_variable_in_SPEC_MEMO("Peb twb txais tau koj cov Ntaub Ntawv Rov Qab Tauj Dua thaum " & ALL_CASES_ARRAY(date_of_app, case_entry) & ".")
+                                    if ALL_CASES_ARRAY(recvd_appl, case_entry) = FALSE then CALL write_variable_in_SPEC_MEMO("Peb tsis tau txais koj cov Ntaub Ntawv Rov Qab Tauj Duu.")
+                                    CALL write_variable_in_SPEC_MEMO("")
+                                    CALL write_variable_in_SPEC_MEMO("Koj yuav tsum mus xam pphaj ua ntej " & last_day_of_recert & " los yog yuav txiav koj cov kev pab.")
+                                    CALL write_variable_in_SPEC_MEMO("")
+                                    CALL write_variable_in_SPEC_MEMO("Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 9:00am thib 4:00pm hnub Monday txog Friday.")
+                                    CALL write_variable_in_SPEC_MEMO("  Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday.")
+                                    Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                                    Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                                    Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+                                    Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                                    Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                                    Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                                    CALL write_variable_in_SPEC_MEMO(" (Cov sij hawm qhib yog M - F 8-4:30 tsis li mas yuav tsum qhia ua ntej)")
+                                    CALL write_variable_in_SPEC_MEMO("")
+                                    CALL write_variable_in_SPEC_MEMO("** Yog hais tias tsis hnov koj teb ua ntej " & last_day_of_recert & "  **")
+                                    CALL write_variable_in_SPEC_MEMO("**   koj cov kev pab yuav raug kaw thaum " & last_day_of_recert & ".   **")
+
                                 Case "06"   'Russian (5th)
                                     'MsgBox "RUSSIAN"
                                     if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then CALL write_variable_in_SPEC_MEMO("My' poluchili vashu dokumentacziyu o pereodicheskoj attestaczii " & ALL_CASES_ARRAY(date_of_app, case_entry) & ".")
