@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/24/2018", "Fixed script to accommodate a $0 income job.", "Casey Love, Hennepin County")
 call changelog_update("05/16/2018", "Added a place to input the footer month and year for the start of MA EPD.", "Casey Love, Hennepin County")
 call changelog_update("05/07/2018", "Updated the script to identify cases at application versus review, and provide different functionality for those options. Average income will now be determined from the budget on ELIG.", "Casey Love, Hennepin County")
 call changelog_update("04/23/2018", "Added functionality to allow any month to be selected as the first month to be FIATed.", "Casey Love, Hennepin County")
@@ -756,10 +757,13 @@ Do
 
     budg_row = 8                        'reading each row to enter the information for each job
     For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
+
         JOBS_ARRAY(average_monthly_inc, the_job) = FormatNumber(JOBS_ARRAY(average_monthly_inc, the_job), 2,,,0)    'making sure the number is formatted correctly, 2 decimal places and no commas
-        EmWriteScreen "___________", budg_row, 43       'blanking out the current income amount
-        EmWriteScreen JOBS_ARRAY(average_monthly_inc, the_job), budg_row, 43        'writing in the new averaged amount
-        budg_row = budg_row + 1
+        If JOBS_ARRAY(average_monthly_inc, the_job) <> 0.00 Then
+            EmWriteScreen "___________", budg_row, 43       'blanking out the current income amount
+            EmWriteScreen JOBS_ARRAY(average_monthly_inc, the_job), budg_row, 43        'writing in the new averaged amount
+            budg_row = budg_row + 1
+        End If
     Next
     'MsgBox ("Budget updated.")
     col = col + 11      'going to next month
