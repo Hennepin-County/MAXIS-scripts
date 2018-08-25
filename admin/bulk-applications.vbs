@@ -1048,10 +1048,9 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
     If ALL_PENDING_CASES_ARRAY(take_action_today, case_entry) = TRUE Then       'only the cases that we have determined need something today
         'TODO add MEMB for written language information
 
-        ' COMMENTED OUT BECAUSE THIS DOESN"T CHANGE ANYTHING RIGHT NOW
-        ' Call navigate_to_MAXIS_screen("STAT", "MEMB")
-        ' EMReadScreen language_code, 2, 13, 42
-        ' ALL_PENDING_CASES_ARRAY(written_lang, case_entry) = language_code
+        Call navigate_to_MAXIS_screen("STAT", "MEMB")
+        EMReadScreen language_code, 2, 13, 42
+        ALL_PENDING_CASES_ARRAY(written_lang, case_entry) = language_code
 
         if ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) = "Pending" then           'setting the language for the notices - Cash or SNAP or both
             if ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) = "Pending" then
@@ -1112,32 +1111,65 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
 
             CALL start_a_new_spec_memo_and_continue(memo_started)		'Writes the appt letter into the MEMO.
 			IF memo_started = True THEN
+                Select Case ALL_PENDING_CASES_ARRAY(written_lang, case_entry)
+                    Case "07"   'Somali (2nd)
+                        Call write_variable_in_SPEC_MEMO("Taariikhdu markey ahayd " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ", Waxaad Degmada Hennepin ka codsataycaawimaad, waxaasw loo baahan yahay wareysi si loo hiregeliyo codsigaaga.")
+                        Call write_variable_in_SPEC_MEMO("** Wareysiga waa in la dhammaystiro ka hor " & need_intv_date & " **")
+                        Call write_variable_in_SPEC_MEMO("Si loo dhammaystiro wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 9:00 aroornimo ilaa 4:00 galabnimo Isniina ilaa Jimcaha.")
+                        Call write_variable_in_SPEC_MEMO("* Waxaa dhici karta in lagu siiyo gargaarka SNAP 24 saac gudahood wareysiga kaddib.")
+                        Call write_variable_in_SPEC_MEMO("Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha.")
+                        Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                        Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                        Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+                        Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                        Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                        Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                        Call write_variable_in_SPEC_MEMO("(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)")
+                        Call write_variable_in_SPEC_MEMO("* Haddii aynaan war kaa helin inta ka horreyssa " & last_contact_day & " *")
+                        Call write_variable_in_SPEC_MEMO("*              codsigaaga waa la diidi doonaa             *")
+                        Call write_variable_in_SPEC_MEMO("Haddii aad codsaneyso barnaamijka lacagta caddaanka ah ee haweenka uurka leh ama caruurta yar yar, waxaa laga yaabaa inaad u baahato wareysi fool-ka-fool ah.")
+                        Call write_variable_in_SPEC_MEMO("Qoraallada rabshadaha qoysaska waxaad ka heli kartaa")
+                        Call write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
+                        Call write_variable_in_SPEC_MEMO("Waxaad kaloo codsan kartaa qoraalkan oo warqad ah.")
 
-                Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & "")
-                Call write_variable_in_SPEC_MEMO("and an interview is required to process your application.")
-                Call write_variable_in_SPEC_MEMO(" ")
-                Call write_variable_in_SPEC_MEMO("** The interview must be completed by " & need_intv_date & ". **")
-                Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-                Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
-                Call write_variable_in_SPEC_MEMO(" ")
-                Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
-                Call write_variable_in_SPEC_MEMO(" ")
-                Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
-                Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
-                Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
-                Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
-                Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
-                Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
-                Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
-                Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
-                Call write_variable_in_SPEC_MEMO(" ")
-                Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
-                Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **")
-                Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
-                Call write_variable_in_SPEC_MEMO(" ")
-                Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
-                Call write_variable_in_SPEC_MEMO("You can also request a paper copy.  Auth: 7CFR 273.2(e)(3).")
+                    Case "01"   'Spanish (3rd)
 
+                    Case "02"   'Hmong (4th)
+
+                    Case "06"   'Russian (5th)
+
+                    ' Case "12"   'Oromo (6th)
+                    '     'MsgBox "OROMO"
+                    ' Case "03"   'Vietnamese (7th)
+                    '     'MsgBox "VIETNAMESE"
+                    Case Else  'English (1st)
+
+                        Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & "")
+                        Call write_variable_in_SPEC_MEMO("and an interview is required to process your application.")
+                        Call write_variable_in_SPEC_MEMO(" ")
+                        Call write_variable_in_SPEC_MEMO("** The interview must be completed by " & need_intv_date & ". **")
+                        Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+                        Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
+                        Call write_variable_in_SPEC_MEMO(" ")
+                        Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
+                        Call write_variable_in_SPEC_MEMO(" ")
+                        Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
+                        Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                        Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                        Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+                        Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                        Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                        Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                        Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
+                        Call write_variable_in_SPEC_MEMO(" ")
+                        Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
+                        Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **")
+                        Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
+                        Call write_variable_in_SPEC_MEMO(" ")
+                        Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
+                        Call write_variable_in_SPEC_MEMO("You can also request a paper copy.  Auth: 7CFR 273.2(e)(3).")
+
+                End Select
                 ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) = date
                 PF4
 			ELSE
@@ -1223,32 +1255,66 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
 
             CALL start_a_new_spec_memo_and_continue(memo_started)		'Writes the NOMI into the MEMO.
             IF memo_started = TRUE THEN
+                Select Case ALL_PENDING_CASES_ARRAY(written_lang, case_entry)
+                    Case "07"   'Somali (2nd)
+                        Call write_variable_in_SPEC_MEMO("Waxdhawaan dalbatay caawinaad taariikhdu markay ahayd " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ".")
+                        Call write_variable_in_SPEC_MEMO("Wareysigaagu wuxuu ahaa in la dhammaystiro ka hor " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ".")
+                        Call write_variable_in_SPEC_MEMO("Wareysi ayaa loo baahan yahay is loo hirgeliyo codsigaaga.")
+                        Call write_variable_in_SPEC_MEMO("Si aad u dhamaystirto wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 9:00 subaxnimo ilaa 4:00 galabnimo Isniinta ilaa Jimcaha.")
+                        Call write_variable_in_SPEC_MEMO("* Waxaa dhici karta in lagu siiyo gargaarka SNAP 24 saac gudahood wareysiga kaddib.")
+                        Call write_variable_in_SPEC_MEMO("Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha.")
+                        Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                        Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                        Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+                        Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                        Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                        Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                        Call write_variable_in_SPEC_MEMO("(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)")
+                        Call write_variable_in_SPEC_MEMO("* Haddii aynaan war kaa helin inta ka horreyssa " & last_contact_day & " *")
+                        Call write_variable_in_SPEC_MEMO("*              codsigaaga waa la diidi doonaa             *")
+                        Call write_variable_in_SPEC_MEMO("Haddii aad codsaneyso barnaamijka lacagta caddaanka ah ee haweenka uurka leh ama caruurta yar yar, waxaa laga yaabaa inaad u baahato wareysi fool-ka-fool ah.")
+                        Call write_variable_in_SPEC_MEMO("Qoraallada rabshadaha qoysaska waxaad ka heli kartaa")
+                        Call write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
+                        Call write_variable_in_SPEC_MEMO("Waxaad kaloo codsan kartaa qoraalkan oo warqad ah.")
 
-                Call write_variable_in_SPEC_MEMO("You recently applied for assistance on " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ".")
-                Call write_variable_in_SPEC_MEMO("Your interview should have been completed by " & ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) & ".")
-                Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
-                Call write_variable_in_SPEC_MEMO(" ")
-                Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-                Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
-                Call write_variable_in_SPEC_MEMO(" ")
-                Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
-                Call write_variable_in_SPEC_MEMO(" ")
-                Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
-                Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
-                Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
-                Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
-                Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
-                Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
-                Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
-                Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
-                Call write_variable_in_SPEC_MEMO(" ")
-                Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & nomi_last_contact_day & " **")
-                Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
-                Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
-                Call write_variable_in_SPEC_MEMO(" ")
-                Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
-                Call write_variable_in_SPEC_MEMO("You can also request a paper copy.  Auth: 7CFR 273.2(e)(3).")
+                    Case "01"   'Spanish (3rd)
 
+                    Case "02"   'Hmong (4th)
+
+                    Case "06"   'Russian (5th)
+
+                    ' Case "12"   'Oromo (6th)
+                    '     'MsgBox "OROMO"
+                    ' Case "03"   'Vietnamese (7th)
+                    '     'MsgBox "VIETNAMESE"
+                    Case Else  'English (1st)
+
+                        Call write_variable_in_SPEC_MEMO("You recently applied for assistance on " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ".")
+                        Call write_variable_in_SPEC_MEMO("Your interview should have been completed by " & ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) & ".")
+                        Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
+                        Call write_variable_in_SPEC_MEMO(" ")
+                        Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+                        Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
+                        Call write_variable_in_SPEC_MEMO(" ")
+                        Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
+                        Call write_variable_in_SPEC_MEMO(" ")
+                        Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
+                        Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+                        Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+                        Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+                        Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+                        Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+                        Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+                        Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
+                        Call write_variable_in_SPEC_MEMO(" ")
+                        Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & nomi_last_contact_day & " **")
+                        Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
+                        Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
+                        Call write_variable_in_SPEC_MEMO(" ")
+                        Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
+                        Call write_variable_in_SPEC_MEMO("You can also request a paper copy.  Auth: 7CFR 273.2(e)(3).")
+
+                End Select
                 ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = date
                 PF4
             Else
