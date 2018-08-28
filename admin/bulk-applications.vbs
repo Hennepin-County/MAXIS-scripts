@@ -1059,6 +1059,18 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
         EMReadScreen language_code, 2, 13, 42
         ALL_PENDING_CASES_ARRAY(written_lang, case_entry) = language_code
 
+        Select Case language_code
+
+            Case "07"
+                MsgBox "Somali"
+            Case "01"
+                MsgBox "Spanish"
+            Case "02"
+                MsgBox "Hmong"
+            Case "06"
+                MsgBox "Russian"
+        End Select
+
         if ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) = "Pending" then           'setting the language for the notices - Cash or SNAP or both
             if ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) = "Pending" then
                 programs = "CASH/SNAP"
@@ -1139,6 +1151,30 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
                         Call write_variable_in_SPEC_MEMO("Waxaad kaloo codsan kartaa qoraalkan oo warqad ah.")
 
+                        If mx_region = "INQUIRY DB" Then
+                            Memo_to_display = "Taariikhdu markey ahayd " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ", Waxaad Degmada Hennepin ka codsataycaawimaad, waxaasw loo baahan yahay wareysi si loo hiregeliyo codsigaaga."
+                            Memo_to_display = Memo_to_display & vbNewLine & "** Wareysiga waa in la dhammaystiro ka hor " & need_intv_date & " **"
+                            Memo_to_display = Memo_to_display & vbNewLine & "Si loo dhammaystiro wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 9:00 aroornimo ilaa 4:00 galabnimo Isniina ilaa Jimcaha."
+                            Memo_to_display = Memo_to_display & vbNewLine & "* Waxaa dhici karta in lagu siiyo gargaarka SNAP 24 saac gudahood wareysiga kaddib."
+                            Memo_to_display = Memo_to_display & vbNewLine & "Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha."
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                            Memo_to_display = Memo_to_display & vbNewLine & "(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)"
+                            Memo_to_display = Memo_to_display & vbNewLine & "* Haddii aynaan war kaa helin inta ka horreyssa " & last_contact_day & " *"
+                            Memo_to_display = Memo_to_display & vbNewLine & "*              codsigaaga waa la diidi doonaa             *"
+                            Memo_to_display = Memo_to_display & vbNewLine & "Haddii aad codsaneyso barnaamijka lacagta caddaanka ah ee haweenka uurka leh ama caruurta yar yar, waxaa laga yaabaa inaad u baahato wareysi fool-ka-fool ah."
+                            Memo_to_display = Memo_to_display & vbNewLine & "Qoraallada rabshadaha qoysaska waxaad ka heli kartaa"
+                            Memo_to_display = Memo_to_display & vbNewLine & "https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG."
+                            Memo_to_display = Memo_to_display & vbNewLine & "Waxaad kaloo codsan kartaa qoraalkan oo warqad ah."
+
+                            MsgBox Memo_to_display
+                        Else
+                            MsgBox "Somali"
+                        End If
                     Case "01"   'Spanish (3rd)
                         CALL convert_date_to_day_first(ALL_PENDING_CASES_ARRAY(application_date, case_entry), day_first_app_date)
                         CALL convert_date_to_day_first(need_intv_date, day_first_intv_date)
@@ -1164,6 +1200,32 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
                         Call write_variable_in_SPEC_MEMO("También puede solicitar una copia en papel.")
 
+                        If mx_region = "INQUIRY DB" Then
+                            Memo_to_display = "Usted ha aplicado para recibir ayuda en el Condado de Hennepin el " & day_first_app_date & " y se requiere una entrevista para procesar su aplicación."
+                            Memo_to_display = Memo_to_display & vbNewLine & "**La entrevista debe ser completada para el " & day_first_intv_date & ".**"
+                            Memo_to_display = Memo_to_display & vbNewLine & "Para completar una entrevista telefónica, llame a la línea de información EZ al 612-596-1300 entre las 9:00 a.m. y las 4:00 p.m. de lunes a viernes."
+                            Memo_to_display = Memo_to_display & vbNewLine & "*Puede recibir los beneficios de SNAP dentro de las 24 horas de realizada la entrevista."
+                            Memo_to_display = Memo_to_display & vbNewLine & "Si desea programar una entrevista, llame al 612-596-1300. También puede acercarse a cualquiera de las seis oficinas mencionadas debajo para tener una entrevista personal entre las 8 y las 4:30 de lunes a viernes."
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 J h.: 8:30-6:30 "
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                            Memo_to_display = Memo_to_display & vbNewLine & "(Los horarios son de lunes a viernes de 8 a 4:30 a menos que se remarque lo contrario)"
+                            Memo_to_display = Memo_to_display & vbNewLine & " **   Si no tenemos novedades suyas para el " & day_first_last_contact_date & "   **"
+                            Memo_to_display = Memo_to_display & vbNewLine & " **             su aplicación será denegada              **"
+                            Memo_to_display = Memo_to_display & vbNewLine & "Si está aplicando para un programa para mujeres embarazadas o para niños menores, podría necesitar una entrevista en persona."
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "Los folletos de violencia doméstica están disponibles en"
+                            Memo_to_display = Memo_to_display & vbNewLine & "https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG."
+                            Memo_to_display = Memo_to_display & vbNewLine & "También puede solicitar una copia en papel."
+
+                            MsgBox Memo_to_display
+                        Else
+                            MsgBox "Spanish"
+                        End If
+
                     Case "02"   'Hmong (4th)
                         Call write_variable_in_SPEC_MEMO("Koj tau thov kev pab cuam los ntawm Hennepin County rau thaum " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & " Es yuav tsum tau tuaj xam phaj mas thiaj li yuav khiav koj cov ntaub ntawv.")
                         Call write_variable_in_SPEC_MEMO("** Txoj kev xam phaj mas yuav tsum tshwm sim ua ntej lub " & need_intv_date & ". **")
@@ -1183,6 +1245,31 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("   Cov ntaub ntawv qhia txog kev raug tsim txom los ntawm cov txheeb ze kuj muaj nyob rau ntawm")
                         Call write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
                         Call write_variable_in_SPEC_MEMO("Koj kuj thov tau ib qauv thiab.")
+
+                        If mx_region = "INQUIRY DB" Then
+                            Memo_to_display = "Koj tau thov kev pab cuam los ntawm Hennepin County rau thaum " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & " Es yuav tsum tau tuaj xam phaj mas thiaj li yuav khiav koj cov ntaub ntawv."
+                            Memo_to_display = Memo_to_display & vbNewLine & "** Txoj kev xam phaj mas yuav tsum tshwm sim ua ntej lub " & need_intv_date & ". **"
+                            Memo_to_display = Memo_to_display & vbNewLine & "Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 9:00am thib 4:00pm hnub Mon txog Fri."
+                            Memo_to_display = Memo_to_display & vbNewLine & "* Koj yuav tsim nyob tau cov kev pab SNAP uas siv tau 24 teev tom qab kev xam phaj."
+                            Memo_to_display = Memo_to_display & vbNewLine & " Yog hais tias koj xav teem tuaj xam phaj, hu 612-596-1300 Koj kuj tuaj tau rau ib lub ntawm rau lub hoob kas nyob hauv qab no tuaj xam phaj tim ntej muag thaum 8 thiab 4:30, hnub Monday txog Friday."
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                            Memo_to_display = Memo_to_display & vbNewLine & "(Cov sij hawm qhib yog M - F 8-4:30 tsis li mas yuav tsum qhia ua ntej)"
+                            Memo_to_display = Memo_to_display & vbNewLine & "** Yog hais tias peb tsis hnov koj teb ua ntej " & last_contact_day & " **"
+                            Memo_to_display = Memo_to_display & vbNewLine & "**    yuav tsis lees koj daim ntawv thov.     **"
+                            Memo_to_display = Memo_to_display & vbNewLine & "Yog hais tias koj thov nyiaj ntsuab rau cov poj niam uas cev xeeb tub los yog rau cov menyuam yaus, koj yuav tsum tuaj xam phaj tim ntsej muag."
+                            Memo_to_display = Memo_to_display & vbNewLine & "   Cov ntaub ntawv qhia txog kev raug tsim txom los ntawm cov txheeb ze kuj muaj nyob rau ntawm"
+                            Memo_to_display = Memo_to_display & vbNewLine & "https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG."
+                            Memo_to_display = Memo_to_display & vbNewLine & "Koj kuj thov tau ib qauv thiab."
+
+                            MsgBox Memo_to_display
+                        Else
+                            MsgBox "Hmong"
+                        End If
 
                     Case "06"   'Russian (5th)
                         Call write_variable_in_SPEC_MEMO("Vy' obratilis' za pomosh'ju v okrug Xennepin " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & " u dlya obrabotki zayavleniya trebuetsya sobesedovanie.")
@@ -1205,6 +1292,31 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("Broshyupy' o nasilii v sem'e dostupny' po adresu https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG")
                         Call write_variable_in_SPEC_MEMO("Vy' takzhe mozhete zaprosit' bumazhnuyu kopiyu.")
 
+                        If mx_region = "INQUIRY DB" Then
+                            Memo_to_display = "Vy' obratilis' za pomosh'ju v okrug Xennepin " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & " u dlya obrabotki zayavleniya trebuetsya sobesedovanie."
+                            Memo_to_display = Memo_to_display & vbNewLine & "** Sobesedovanie dolozhno by't' zaversheno k " & need_intv_date & ". ** "
+                            Memo_to_display = Memo_to_display & vbNewLine & "Chtoby' zavershit' sobesedovanie po telefonom, pozbonite v Informaczionnuju liniju EZ po telefonu 612-596-1300 s 9:00 do 16:00 s ponedel'nika po pyatniczu."
+                            Memo_to_display = Memo_to_display & vbNewLine & "** Vy' smozhete poluchit' vy'platu SNAP vtechenie 24 chasov posle niterv'ju."
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "Esli vy' xotite naznachit' sobesedovanie pozvonite po telefonu 612-596-1300. Vy' takzhe mozhete obratit'sya v ljubojiz shesti oficov. Dlya sobesedovanie s 8 i do 4:30, s ponedel'nika po pyatniczu."
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                            Memo_to_display = Memo_to_display & vbNewLine & "(Chasy priyoma s ponedel'nika po pyatniczu s 8 do 4:30, esli ne ukazano inoe.)"
+                            Memo_to_display = Memo_to_display & vbNewLine & "** Esli my' ne usly'shim ot vac do " & last_contact_day & " **"
+                            Memo_to_display = Memo_to_display & vbNewLine & "**    vashi zayavlenie budet otklonino.    **"
+                            Memo_to_display = Memo_to_display & vbNewLine & "Esli vy' podaete zayavku na poluchenie denezhnoj programmy' dlya beremenny'x zhenshhin ili nesovershennoletnix detej, vam mozhet potrebovat'sya lechnoe sobesedobanie."
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "Broshyupy' o nasilii v sem'e dostupny' po adresu https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG"
+                            Memo_to_display = Memo_to_display & vbNewLine & "Vy' takzhe mozhete zaprosit' bumazhnuyu kopiyu."
+
+                            MsgBox Memo_to_display
+                        Else
+                            MsgBox "Russian"
+                        End If
                     ' Case "12"   'Oromo (6th)
                     '     'MsgBox "OROMO"
                     ' Case "03"   'Vietnamese (7th)
@@ -1236,6 +1348,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
                         Call write_variable_in_SPEC_MEMO("You can also request a paper copy.  Auth: 7CFR 273.2(e)(3).")
 
+                        MsgBox "English"
                 End Select
                 ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) = date
                 PF4
@@ -1344,6 +1457,32 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
                         Call write_variable_in_SPEC_MEMO("Waxaad kaloo codsan kartaa qoraalkan oo warqad ah.")
 
+                        If mx_region = "INQUIRY DB" Then
+                            Memo_to_display = "Waxdhawaan dalbatay caawinaad taariikhdu markay ahayd " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & "."
+                            Memo_to_display = Memo_to_display & vbNewLine & "Wareysigaagu wuxuu ahaa in la dhammaystiro ka hor " & ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) & "."
+                            Memo_to_display = Memo_to_display & vbNewLine & "Wareysi ayaa loo baahan yahay is loo hirgeliyo codsigaaga."
+                            Memo_to_display = Memo_to_display & vbNewLine & "Si aad u dhamaystirto wareysiga telefoonka, wac laynka taleefanka EZ 612-596-1300 inta u dhaxaysa 9:00 subaxnimo ilaa 4:00 galabnimo Isniinta ilaa Jimcaha."
+                            Memo_to_display = Memo_to_display & vbNewLine & "* Waxaa dhici karta in lagu siiyo gargaarka SNAP 24 saac gudahood wareysiga kaddib."
+                            Memo_to_display = Memo_to_display & vbNewLine & "Haddii aad rabto inaad samaysato ballan wareysi, wac 612-596-1300. Waxa kale oo aad iman kartaa mid ka mid ah lixda xafiis ee hoos ku qoran si loo sameeyo wareysi gof ahaaneed inta u dhexeeya 8 ilaa 4:30, Isniinta ilaa jmcaha."
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                            Memo_to_display = Memo_to_display & vbNewLine & "(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)"
+                            Memo_to_display = Memo_to_display & vbNewLine & "* Haddii aynaan war kaa helin inta ka horreyssa " & nomi_last_contact_day & " *"
+                            Memo_to_display = Memo_to_display & vbNewLine & "*              codsigaaga waa la diidi doonaa             *"
+                            Memo_to_display = Memo_to_display & vbNewLine & "Haddii aad codsaneyso barnaamijka lacagta caddaanka ah ee haweenka uurka leh ama caruurta yar yar, waxaa laga yaabaa inaad u baahato wareysi fool-ka-fool ah."
+                            Memo_to_display = Memo_to_display & vbNewLine & "Qoraallada rabshadaha qoysaska waxaad ka heli kartaa"
+                            Memo_to_display = Memo_to_display & vbNewLine & "https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG."
+                            Memo_to_display = Memo_to_display & vbNewLine & "Waxaad kaloo codsan kartaa qoraalkan oo warqad ah."
+
+                            MsgBox Memo_to_display
+                        Else
+                            MsgBox "Somali"
+                        End If
+
                     Case "01"   'Spanish (3rd)
 
                         CALL convert_date_to_day_first(ALL_PENDING_CASES_ARRAY(application_date, case_entry), day_first_app_date)
@@ -1372,6 +1511,33 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
                         Call write_variable_in_SPEC_MEMO("También puede solicitar una copia en papel.")
 
+                        If mx_region = "INQUIRY DB" Then
+                            Memo_to_display = "Usted ha aplicado recientemente para recibir ayuda en el Condado de Hennepin el " & day_first_app_date"."
+                            Memo_to_display = Memo_to_display & vbNewLine & "Su entrevista debió haber sido realizada para el " & day_first_intv_date & "."
+                            Memo_to_display = Memo_to_display & vbNewLine & "Se requiere una entrevista para procesar su aplicación."
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "Para completar una entrevista telefónica, llame a la línea de información EZ al 612-596-1300 entre las 9:00 a.m. y las 4:00 p.m. de lunes a viernes."
+                            Memo_to_display = Memo_to_display & vbNewLine & "*Puede recibir los beneficios de SNAP dentro de las 24 horas de realizada la entrevista."
+                            Memo_to_display = Memo_to_display & vbNewLine & "Si desea programar una entrevista, llame al 612-596-1300. También puede acercarse a cualquiera de las seis oficinas mencionadas debajo para tener una entrevista personal entre las 8 y las 4:30 de lunes a viernes."
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 J h.: 8:30-6:30 "
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                            Memo_to_display = Memo_to_display & vbNewLine & "(Los horarios son de lunes a viernes de 8 a 4:30 a menos que se remarque lo contrario)"
+                            Memo_to_display = Memo_to_display & vbNewLine & " **   Si no tenemos novedades suyas para el " & day_first_nomi_last_contact_date & "   **"
+                            Memo_to_display = Memo_to_display & vbNewLine & " **             su aplicación será denegada              **"
+                            Memo_to_display = Memo_to_display & vbNewLine & "Si está aplicando para un programa para mujeres embarazadas o para niños menores, podría necesitar una entrevista en persona."
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "Los folletos de violencia doméstica están disponibles en"
+                            Memo_to_display = Memo_to_display & vbNewLine & "https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG."
+                            Memo_to_display = Memo_to_display & vbNewLine & "También puede solicitar una copia en papel."
+
+                            MsgBox Memo_to_display
+                        Else
+                            MsgBox "Spanish"
+                        End If
                     ' Case "02"   'Hmong (4th)
                     '     Call write_variable_in_SPEC_MEMO("")
                     '     Call write_variable_in_SPEC_MEMO("")
@@ -1406,7 +1572,33 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("Broshyupy' o nasilii v sem'e dostupny' po adresu https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG")
                         Call write_variable_in_SPEC_MEMO("Vy' takzhe mozhete zaprosit' bumazhnuyu kopiyu.")
 
+                        If mx_region = "INQUIRY DB" Then
+                            Memo_to_display = "Vy' podali zayavlenie na pomoshh' 7/12/2018."
+                            Memo_to_display = Memo_to_display & vbNewLine & "Vashe sobesedovanie dolzhno by't' zaversheno k 7/19/2018."
+                            Memo_to_display = Memo_to_display & vbNewLine & "Dlya obrabotki zayavleniya trebuetsya sobesedovanie."
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "Chtoby' zavershit' sobesedovanie po telefonom, pozbonite v Informaczionnuju liniju EZ po telefonu 612-596-1300 s 9:00 do 16:00 s ponedel'nika po pyatniczu."
+                            Memo_to_display = Memo_to_display & vbNewLine & "** Vy' smozhete poluchit' vy'platu SNAP vtechenie 24 chasov posle niterv'ju."
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "Esli vy' xotite naznachit' sobesedovanie pozvonite po telefonu 612-596-1300. Vy' takzhe mozhete obratit'sya v ljubojiz shesti oficov. Dlya sobesedovanie s 8 i do 4:30, s ponedel'nika po pyatniczu."
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 7051 Brooklyn Blvd Brooklyn Center 55429"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1011 1st St S Hopkins 55343"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 "
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 1001 Plymouth Ave N Minneapolis 55411"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 525 Portland Ave S Minneapolis 55415"
+                            Memo_to_display = Memo_to_display & vbNewLine & "- 2215 East Lake Street Minneapolis 55407"
+                            Memo_to_display = Memo_to_display & vbNewLine & "(Chasy priyoma s ponedel'nika po pyatniczu s 8 do 4:30, esli ne ukazano inoe.)"
+                            Memo_to_display = Memo_to_display & vbNewLine & "** Esli my' ne usly'shim ot vac do " & nomi_last_contact_day & " **"
+                            Memo_to_display = Memo_to_display & vbNewLine & "**    vashi zayavlenie budet otklonino.    **"
+                            Memo_to_display = Memo_to_display & vbNewLine & "Esli vy' podaete zayavku na poluchenie denezhnoj programmy' dlya beremenny'x zhenshhin ili nesovershennoletnix detej, vam mozhet potrebovat'sya lechnoe sobesedobanie."
+                            Memo_to_display = Memo_to_display & vbNewLine & ""
+                            Memo_to_display = Memo_to_display & vbNewLine & "Broshyupy' o nasilii v sem'e dostupny' po adresu https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG"
+                            Memo_to_display = Memo_to_display & vbNewLine & "Vy' takzhe mozhete zaprosit' bumazhnuyu kopiyu."
 
+                            MsgBox Memo_to_display
+                        Else
+                            MsgBox "Russian"
+                        End If
                     ' Case "12"   'Oromo (6th)
                     '     'MsgBox "OROMO"
                     ' Case "03"   'Vietnamese (7th)
