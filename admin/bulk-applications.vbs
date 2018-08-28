@@ -917,7 +917,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
             note_row = 5                                        'setting these for the beginning of the loop to look through all the notes
             start_dates = ""
             day_before_app = DateAdd("d", -1, ALL_PENDING_CASES_ARRAY(application_date, case_entry)) 'will set the date one day prior to app date
-            'setting a variable of previously known questionable interview date(s) - this will be used to determine if anything changed           '
+            'setting a variable of previously known questionable interview date(s) - this will be used to determine if anything changed
+            ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) = trim(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry))
             If InStr(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry), "~") <> 0 Then
                 start_dates = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)            '
             ElseIf ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) <> "" Then
