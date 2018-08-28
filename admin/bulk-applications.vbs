@@ -354,28 +354,29 @@ row = 5             'The BOBI report has cases starting at row 5
 Do
     anything_number = trim(objExcel.Cells(row, 3).value)            'anything_number is just a placeholder for looking at the case numbers
     'MsgBox anything_number
-    If instr(todays_cases_list, "*" & anything_number & "*") = 0 then       'This indicates that the case number was not already found on the BOBI
-        'MsgBox anything_number
-        todays_cases_list = todays_cases_list & anything_number & "*"       'adding the case number on the current row to the list of all the case numbers found.
-        ReDim Preserve TODAYS_CASES_ARRAY(error_notes, case_entry)          'resizing the array to add this case to the array
+    If left(anything_number, 4) = "X127" then
+        If instr(todays_cases_list, "*" & anything_number & "*") = 0 then       'This indicates that the case number was not already found on the BOBI
+            'MsgBox anything_number
+            todays_cases_list = todays_cases_list & anything_number & "*"       'adding the case number on the current row to the list of all the case numbers found.
+            ReDim Preserve TODAYS_CASES_ARRAY(error_notes, case_entry)          'resizing the array to add this case to the array
 
-        'Saving each piece of case information from the BOBI to the array
-        TODAYS_CASES_ARRAY(worker_ID, case_entry) = trim(objExcel.Cells(row, 2).value)
-        TODAYS_CASES_ARRAY(case_number, case_entry) = trim(objExcel.Cells(row, 3).value)
-        TODAYS_CASES_ARRAY(excel_row, case_entry) = row
-        TODAYS_CASES_ARRAY(client_name, case_entry) = trim(objExcel.cells(row, 4).value) 'storing all of the excel information
-        TODAYS_CASES_ARRAY(application_date, case_entry) = trim(objExcel.cells(row, 7).value)
-        TODAYS_CASES_ARRAY(interview_date, case_entry) = trim(objExcel.cells(row, 8).value)
-        TODAYS_CASES_ARRAY(on_working_list, case_entry) = FALSE         'defaulting this to FALSE
+            'Saving each piece of case information from the BOBI to the array
+            TODAYS_CASES_ARRAY(worker_ID, case_entry) = trim(objExcel.Cells(row, 2).value)
+            TODAYS_CASES_ARRAY(case_number, case_entry) = trim(objExcel.Cells(row, 3).value)
+            TODAYS_CASES_ARRAY(excel_row, case_entry) = row
+            TODAYS_CASES_ARRAY(client_name, case_entry) = trim(objExcel.cells(row, 4).value) 'storing all of the excel information
+            TODAYS_CASES_ARRAY(application_date, case_entry) = trim(objExcel.cells(row, 7).value)
+            TODAYS_CASES_ARRAY(interview_date, case_entry) = trim(objExcel.cells(row, 8).value)
+            TODAYS_CASES_ARRAY(on_working_list, case_entry) = FALSE         'defaulting this to FALSE
 
-        current_number = anything_number    'saving the case number that is being looked at for the next loop because these are sorted by case number
-        case_entry = case_entry + 1         'incrementing for the array to resize on the next loop
-    ElseIf anything_number = current_number Then    'this is if we are looking at the same case still
-        'Checking to see if one of the later lines for the case indicates no interview = this will make the array show no interview if EITHER Cash or SNAP have no interview indicated in PROG
-        If trim(objExcel.cells(row, 8).value) = "" Then TODAYS_CASES_ARRAY(interview_date, case_entry-1) = ""
+            current_number = anything_number    'saving the case number that is being looked at for the next loop because these are sorted by case number
+            case_entry = case_entry + 1         'incrementing for the array to resize on the next loop
+        ElseIf anything_number = current_number Then    'this is if we are looking at the same case still
+            'Checking to see if one of the later lines for the case indicates no interview = this will make the array show no interview if EITHER Cash or SNAP have no interview indicated in PROG
+            If trim(objExcel.cells(row, 8).value) = "" Then TODAYS_CASES_ARRAY(interview_date, case_entry-1) = ""
+        End If
+        stats_counter = stats_counter + 1       'incrementing for stats
     End If
-    stats_counter = stats_counter + 1       'incrementing for stats
-
     row = row + 1   'Going to the next row
     next_case_number = trim(objExcel.Cells(row, 3).Value)
 loop until next_case_number = ""
