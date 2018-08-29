@@ -353,8 +353,9 @@ row = 5             'The BOBI report has cases starting at row 5
 'Goes through the list, and creates an array of all cases - removing duplicates and removing cases with an interview date already listed
 Do
     anything_number = trim(objExcel.Cells(row, 3).value)            'anything_number is just a placeholder for looking at the case numbers
-    'MsgBox anything_number
-    If left(anything_number, 4) = "X127" then
+    case_basket = trim(objExcel.Cells(row, 2).value)
+    'MsgBox left(case_basket, 4)
+    If left(case_basket, 4) = "X127" then
         If instr(todays_cases_list, "*" & anything_number & "*") = 0 then       'This indicates that the case number was not already found on the BOBI
             'MsgBox anything_number
             todays_cases_list = todays_cases_list & anything_number & "*"       'adding the case number on the current row to the list of all the case numbers found.
@@ -1062,17 +1063,17 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
         EMReadScreen language_code, 2, 13, 42
         ALL_PENDING_CASES_ARRAY(written_lang, case_entry) = language_code
 
-        Select Case language_code
-
-            Case "07"
-                MsgBox "Somali"
-            Case "01"
-                MsgBox "Spanish"
-            Case "02"
-                MsgBox "Hmong"
-            Case "06"
-                MsgBox "Russian"
-        End Select
+        ' Select Case language_code
+        '
+        '     Case "07"
+        '         MsgBox "Somali"
+        '     Case "01"
+        '         MsgBox "Spanish"
+        '     Case "02"
+        '         MsgBox "Hmong"
+        '     Case "06"
+        '         MsgBox "Russian"
+        ' End Select
 
         if ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) = "Pending" then           'setting the language for the notices - Cash or SNAP or both
             if ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) = "Pending" then
@@ -1154,7 +1155,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
                         Call write_variable_in_SPEC_MEMO("Waxaad kaloo codsan kartaa qoraalkan oo warqad ah.")
 
-                        MsgBox "Somali"
+                        'MsgBox "Somali"
 
                     Case "01"   'Spanish (3rd)
                         CALL convert_date_to_day_first(ALL_PENDING_CASES_ARRAY(application_date, case_entry), day_first_app_date)
@@ -1181,7 +1182,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
                         Call write_variable_in_SPEC_MEMO("Tambien puede solicitar una copia en papel.")
 
-                        MsgBox "Spanish"
+                        'MsgBox "Spanish"
 
                     Case "02"   'Hmong (4th)
                         Call write_variable_in_SPEC_MEMO("Koj tau thov kev pab cuam los ntawm Hennepin County rau thaum " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & " Es yuav tsum tau tuaj xam phaj mas thiaj li yuav khiav koj cov ntaub ntawv.")
@@ -1203,7 +1204,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
                         Call write_variable_in_SPEC_MEMO("Koj kuj thov tau ib qauv thiab.")
 
-                        MsgBox "Hmong"
+                        'MsgBox "Hmong"
 
                     Case "06"   'Russian (5th)
                         Call write_variable_in_SPEC_MEMO("Vy' obratilis' za pomosh'ju v okrug Xennepin " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & " u dlya obrabotki zayavleniya trebuetsya sobesedovanie.")
@@ -1226,7 +1227,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("Broshyupy' o nasilii v sem'e dostupny' po adresu https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG")
                         Call write_variable_in_SPEC_MEMO("Vy' takzhe mozhete zaprosit' bumazhnuyu kopiyu.")
 
-                        MsgBox "Russian"
+                        'MsgBox "Russian"
 
                     ' Case "12"   'Oromo (6th)
                     '     'MsgBox "OROMO"
@@ -1368,7 +1369,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
                         Call write_variable_in_SPEC_MEMO("Waxaad kaloo codsan kartaa qoraalkan oo warqad ah.")
 
-                        MsgBox "Somali"
+                        'MsgBox "Somali"
 
                     Case "01"   'Spanish (3rd)
 
@@ -1398,7 +1399,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
                         Call write_variable_in_SPEC_MEMO("Tambien puede solicitar una copia en papel.")
 
-                        MsgBox "Spanish"
+                        'MsgBox "Spanish"
 
                     ' Case "02"   'Hmong (4th)
                     '     Call write_variable_in_SPEC_MEMO("")
@@ -1434,7 +1435,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("Broshyupy' o nasilii v sem'e dostupny' po adresu https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG")
                         Call write_variable_in_SPEC_MEMO("Vy' takzhe mozhete zaprosit' bumazhnuyu kopiyu.")
 
-                        MsgBox "Russian"
+                        'MsgBox "Russian"
 
                     ' Case "12"   'Oromo (6th)
                     '     'MsgBox "OROMO"
