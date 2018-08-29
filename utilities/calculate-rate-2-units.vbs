@@ -78,6 +78,6 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-total_units = datediff("D", start_date, end_date)
+total_units = datediff("D", start_date, end_date) + 1
 
 script_end_procedure(total_units & " total units")
