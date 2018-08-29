@@ -381,7 +381,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
             EMReadScreen start_day , 2, 4, 66
             EMReadScreen start_year , 2, 4, 68
             agreement_start_date = start_month & "/" & start_day & "/" & start_year
-            total_units = datediff("d", agreement_start_date, close_date)
+            total_units = datediff("d", agreement_start_date, close_date) + 1
             
             If total_units < "0" then 
                 PF6
