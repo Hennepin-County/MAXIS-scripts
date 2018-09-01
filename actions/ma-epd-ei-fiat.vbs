@@ -243,11 +243,16 @@ If case_status = "Recertification" Then
         hc_revw = replace(hc_revw, " ", "/")
     End If
 
-    MAXIS_footer_month = DatePart("m", hc_revw)                     'Setting the dates to month and year variables in a 2 digit format
-    MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
+    If hc_revw <> "__/__/__" Then
+        MAXIS_footer_month = DatePart("m", hc_revw)                     'Setting the dates to month and year variables in a 2 digit format
+        MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
 
-    MAXIS_footer_year = DatePart("yyyy", hc_revw)
-    MAXIS_footer_year = right(MAXIS_footer_year, 2)
+        MAXIS_footer_year = DatePart("yyyy", hc_revw)
+        MAXIS_footer_year = right(MAXIS_footer_year, 2)
+    Else
+        MAXIS_footer_month = CM_mo
+        MAXIS_footer_year = CM_yr
+    End If 
 
     Call back_to_SELF       'Getting out of STAT so that we can switch months if needed
 
