@@ -68,29 +68,29 @@ windows_user_ID = objNet.UserName
 FUNCTION income_test_SNAP_categorically_elig(household_size, income_limit) '165% FPG
 	'See Combined Manual 0019.06
 	'When using this function, you can pass (ubound(hh_array) + 1) for household_size
-	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'This will allow the function to be used during the transition period when both income limits can be used.
-		IF household_size = 1 THEN income_limit = 1634										'Going forward you should only have to change the years and this should hold.
-		IF household_size = 2 THEN income_limit = 2203										'Multipled the footer months by 1 to insure they become numeric
-		IF household_size = 3 THEN income_limit = 2772
-		IF household_size = 4 THEN income_limit = 3342
-		IF household_size = 5 THEN income_limit = 3911
-		IF household_size = 6 THEN income_limit = 4480
-		IF household_size = 7 THEN income_limit = 5051
-		IF household_size = 8 THEN income_limit = 5623
-		IF household_size > 8 THEN income_limit = 5623 + (572 * (household_size- 8))
+	IF ((MAXIS_footer_month * 1) >= "10" AND (MAXIS_footer_year * 1) >= "17") OR (MAXIS_footer_year = "18") THEN  'This will allow the function to be used during the transition period when both income limits can be used.
+		IF household_size = 1 THEN income_limit = 1670										'Going forward you should only have to change the years and this should hold.
+		IF household_size = 2 THEN income_limit = 2264										'Multipled the footer months by 1 to insure they become numeric
+		IF household_size = 3 THEN income_limit = 2858
+		IF household_size = 4 THEN income_limit = 3452
+		IF household_size = 5 THEN income_limit = 4046
+		IF household_size = 6 THEN income_limit = 4640
+		IF household_size = 7 THEN income_limit = 5234
+		IF household_size = 8 THEN income_limit = 5828
+		IF household_size > 8 THEN income_limit = 5828 + (594 * (household_size- 8))
 	ELSE
-		IF household_size = 1 THEN income_limit = 1619
-		IF household_size = 2 THEN income_limit = 2191
-		IF household_size = 3 THEN income_limit = 2763
-		IF household_size = 4 THEN income_limit = 3335
-		IF household_size = 5 THEN income_limit = 3907
-		IF household_size = 6 THEN income_limit = 4479
-		IF household_size = 7 THEN income_limit = 5051
-		IF household_size = 8 THEN income_limit = 5623
-		IF household_size > 8 THEN income_limit = 5623 + (572 * (household_size- 8))
+        IF household_size = 1 THEN income_limit = 1634									
+        IF household_size = 2 THEN income_limit = 2203									
+        IF household_size = 3 THEN income_limit = 2772
+        IF household_size = 4 THEN income_limit = 3342
+        IF household_size = 5 THEN income_limit = 3911
+        IF household_size = 6 THEN income_limit = 4480
+        IF household_size = 7 THEN income_limit = 5051
+        IF household_size = 8 THEN income_limit = 5623
+        IF household_size > 8 THEN income_limit = 5623 + (572 * (household_size- 8))
 	END IF
 
-	valid_through_date = #10/01/2016#
+	valid_through_date = #10/01/2019#
 	IF DateDiff("D", date, valid_through_date) <= 0 THEN
 		out_of_date_warning = MsgBox ("This script appears to be using out of date income limits. Please contact a scripts administrator to have this updated." & vbNewLine & vbNewLine & "Press OK to continue the script. Press CANCEL to stop the script.", vbOKCancel + vbCritical + vbSystemModal, "NOTICE!!!")
 		IF out_of_date_warning = vbCancel THEN script_end_procedure("")
@@ -101,29 +101,29 @@ FUNCTION income_test_SNAP_gross(household_size, income_limit) '130% FPG
 	'See Combined Manual 0019.06
 	'Also used for sponsor income
 	'When using this function, you can pass (ubound(hh_array) + 1) for household_size
-	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'This will allow the function to be used during the transition period when both income limits can be used.
-		IF household_size = 1 THEN income_limit = 1287										'Going forward you should only have to change the years and this should hold.
-		IF household_size = 2 THEN income_limit = 1736										'Multipled the footer months by 1 to insure they become numeric
-		IF household_size = 3 THEN income_limit = 2184
-		IF household_size = 4 THEN income_limit = 2633
-		IF household_size = 5 THEN income_limit = 3081
-		IF household_size = 6 THEN income_limit = 3530
-		IF household_size = 7 THEN income_limit = 3980
-		IF household_size = 8 THEN income_limit = 4430
-		IF household_size > 8 THEN income_limit = 4430 + (451 * (household_size- 8))
+	IF ((MAXIS_footer_month * 1) >= "10" AND (MAXIS_footer_year * 1) >= "17") OR (MAXIS_footer_year = "18") THEN  'This will allow the function to be used during the transition period when both income limits can be used.
+		IF household_size = 1 THEN income_limit = 1316										'Going forward you should only have to change the years and this should hold.
+		IF household_size = 2 THEN income_limit = 1784										'Multipled the footer months by 1 to insure they become numeric
+		IF household_size = 3 THEN income_limit = 2252
+		IF household_size = 4 THEN income_limit = 2720
+		IF household_size = 5 THEN income_limit = 3188
+		IF household_size = 6 THEN income_limit = 3656
+		IF household_size = 7 THEN income_limit = 4124
+		IF household_size = 8 THEN income_limit = 4592
+		IF household_size > 8 THEN income_limit = 4592 + (468 * (household_size- 8))
 	ELSE
-		IF household_size = 1 THEN income_limit = 1276
-		IF household_size = 2 THEN income_limit = 1726
-		IF household_size = 3 THEN income_limit = 2177
-		IF household_size = 4 THEN income_limit = 2628
-		IF household_size = 5 THEN income_limit = 3078
-		IF household_size = 6 THEN income_limit = 3529
-		IF household_size = 7 THEN income_limit = 3980
-		IF household_size = 8 THEN income_limit = 4430
-		IF household_size > 8 THEN income_limit = 4430 + (451 * (household_size- 8))
+        IF household_size = 1 THEN income_limit = 1307
+        IF household_size = 2 THEN income_limit = 1760
+        IF household_size = 3 THEN income_limit = 2213
+        IF household_size = 4 THEN income_limit = 2665
+        IF household_size = 5 THEN income_limit = 3118
+        IF household_size = 6 THEN income_limit = 3571
+        IF household_size = 7 THEN income_limit = 4024
+        IF household_size = 8 THEN income_limit = 4477
+        IF household_size > 8 THEN income_limit = 4477 + (453 * (sponsor_HH_size - 8))
 	END IF
 
-	valid_through_date = #10/01/2016#
+	valid_through_date = #10/01/2019#
 	IF DateDiff("D", date, valid_through_date) <= 0 THEN
 		out_of_date_warning = MsgBox ("This script appears to be using out of date income limits. Please contact a scripts administrator to have this updated." & vbNewLine & vbNewLine & "Press OK to continue the script. Press CANCEL to stop the script.", vbOKCancel + vbCritical + vbSystemModal, "NOTICE!!!")
 		IF out_of_date_warning = vbCancel THEN script_end_procedure("")
@@ -131,31 +131,31 @@ FUNCTION income_test_SNAP_gross(household_size, income_limit) '130% FPG
 END FUNCTION
 
 FUNCTION income_test_SNAP_net(household_size, income_limit)
-	'See Combined Manual 0020.12
+	'See Combined Manual 0020.12 - Net income standard 100% FPG
 	'When using this function, you can pass (ubound(hh_array) + 1) for household_size
-	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'This will allow the function to be used during the transition period when both income limits can be used.
-		IF household_size = 1 THEN income_limit = 990										'Going forward you should only have to change the years and this should hold.
-		IF household_size = 2 THEN income_limit = 1335										'Multipled the footer months by 1 to insure they become numeric
-		IF household_size = 3 THEN income_limit = 1680
-		IF household_size = 4 THEN income_limit = 2025
-		IF household_size = 5 THEN income_limit = 2370
-		IF household_size = 6 THEN income_limit = 2715
-		IF household_size = 7 THEN income_limit = 3061
-		IF household_size = 8 THEN income_limit = 3408
-		IF household_size > 8 THEN income_limit = 3408 + (347 * (household_size- 8))
+	IF ((MAXIS_footer_month * 1) >= "10" AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'This will allow the function to be used during the transition period when both income limits can be used.
+		IF household_size = 1 THEN income_limit = 1012										'Going forward you should only have to change the years and this should hold.
+		IF household_size = 2 THEN income_limit = 1372										'Multipled the footer months by 1 to insure they become numeric
+		IF household_size = 3 THEN income_limit = 1732
+		IF household_size = 4 THEN income_limit = 2092
+		IF household_size = 5 THEN income_limit = 2452
+		IF household_size = 6 THEN income_limit = 2812
+		IF household_size = 7 THEN income_limit = 3172
+		IF household_size = 8 THEN income_limit = 3532
+		IF household_size > 8 THEN income_limit = 3532 + (360 * (household_size- 8))
 	ELSE
-		IF household_size = 1 THEN income_limit = 981
-		IF household_size = 2 THEN income_limit = 1328
-		IF household_size = 3 THEN income_limit = 1675
-		IF household_size = 4 THEN income_limit = 2021
-		IF household_size = 5 THEN income_limit = 2368
-		IF household_size = 6 THEN income_limit = 2715
-		IF household_size = 7 THEN income_limit = 3061
-		IF household_size = 8 THEN income_limit = 3408
-		IF household_size > 8 THEN income_limit = 3408 + (347 * (household_size- 8))
+        IF household_size = 1 THEN income_limit = 1005								
+        IF household_size = 2 THEN income_limit = 1354									
+        IF household_size = 3 THEN income_limit = 1702
+        IF household_size = 4 THEN income_limit = 2050
+        IF household_size = 5 THEN income_limit = 2399
+        IF household_size = 6 THEN income_limit = 2747
+        IF household_size = 7 THEN income_limit = 3095
+        IF household_size = 8 THEN income_limit = 3444
+        IF household_size > 8 THEN income_limit = 3444 + (349 * (household_size- 8))
 	END IF
 
-	valid_through_date = #10/01/2016#
+	valid_through_date = #10/01/2019#
 	IF DateDiff("D", date, valid_through_date) <= 0 THEN
 		out_of_date_warning = MsgBox ("This script appears to be using out of date income limits. Please contact a scripts administrator to have this updated." & vbNewLine & vbNewLine & "Press OK to continue the script. Press CANCEL to stop the script.", vbOKCancel + vbCritical + vbSystemModal, "NOTICE!!!")
 		IF out_of_date_warning = vbCancel THEN script_end_procedure("")
