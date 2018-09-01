@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/01/2018", "Updated Utility standards that go into effect for 10/01/2018.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("07/20/2018", "Changed wording of the Appointment Notice and changed default interview date to 10 days from application for non-expedidted cases.", "Casey Love, Hennepin County")
 CALL changelog_update("07/16/2018", "BUg Fix that was preventing notices from being sent.", "Casey Love, Hennepin County")
 CALL changelog_update("03/28/2018", "Updated appt letter case note for bulk script process.", "MiKayla Handley, Hennepin County")
@@ -328,14 +329,14 @@ IF fs_pend = CHECKED OR cash_pend = CHECKED OR grh_pend = CHECKED THEN send_appt
     	EndDialog
 
 		'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
-		If date >= cdate("10/01/2017") then			'these variables need to change every October
-			heat_AC_amt = 556
-			electric_amt = 172
-			phone_amt = 41
-		Else
+		If application_date >= cdate("10/01/2018") then			'these variables need to change every October
 			heat_AC_amt = 532
 			electric_amt = 141
 			phone_amt = 38
+        else 
+            heat_AC_amt = 552
+            electric_amt = 126
+            phone_amt = 47
 		End if
 
     	'----------------------------------------------------------------------------------------------------THE SCRIPT
