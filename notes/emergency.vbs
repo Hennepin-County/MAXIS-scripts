@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/01/2018", "FPG standards updated.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/06/2018", "FPG standards updated.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/25/2017", "Fixed header for case notes that have an EGA screening, header information was duplicating.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -299,28 +300,27 @@ If EGA_screening_check = 1 then
       crisis = left(crisis, len(crisis) - 1)
     End if
 
-    'determining  200% FPG (using last year's amounts) per HH member---handles up to 20 members. Upddated with 2017's FPG
     If worker_county_code = "x127" then
-		If HH_members = "1"  then monthly_standard = "2010"
-    	If HH_members = "2"  then monthly_standard = "2707"
-    	If HH_members = "3"  then monthly_standard = "3403"
-    	If HH_members = "4"  then monthly_standard = "4100"
-    	If HH_members = "5"  then monthly_standard = "4797"
-    	If HH_members = "6"  then monthly_standard = "5493"
-    	If HH_members = "7"  then monthly_standard = "6190"
-    	If HH_members = "8"  then monthly_standard = "6887"
-    	If HH_members = "9"  then monthly_standard = "7582"
-    	If HH_members = "10" then monthly_standard = "8278"
-    	If HH_members = "11" then monthly_standard = "8975"
-    	If HH_members = "12" then monthly_standard = "9672"
-    	If HH_members = "13" then monthly_standard = "10369"
-    	If HH_members = "14" then monthly_standard = "11066"
-    	If HH_members = "15" then monthly_standard = "11763"
-    	If HH_members = "16" then monthly_standard = "12460"
-    	If HH_members = "17" then monthly_standard = "13157"
-    	If HH_members = "18" then monthly_standard = "13854"
-    	If HH_members = "19" then monthly_standard = "14551"
-    	If HH_members = "20" then monthly_standard = "15248"
+		If HH_members = "1"  then monthly_standard = "2023"
+    	If HH_members = "2"  then monthly_standard = "2743"
+    	If HH_members = "3"  then monthly_standard = "3463"
+    	If HH_members = "4"  then monthly_standard = "4183"
+    	If HH_members = "5"  then monthly_standard = "4903"
+    	If HH_members = "6"  then monthly_standard = "5623"
+    	If HH_members = "7"  then monthly_standard = "6343"
+    	If HH_members = "8"  then monthly_standard = "7063"
+    	If HH_members = "9"  then monthly_standard = "7783"
+    	If HH_members = "10" then monthly_standard = "8503"
+    	If HH_members = "11" then monthly_standard = "9223"
+    	If HH_members = "12" then monthly_standard = "9943"
+    	If HH_members = "13" then monthly_standard = "10663"
+    	If HH_members = "14" then monthly_standard = "11383"
+    	If HH_members = "15" then monthly_standard = "12103"
+    	If HH_members = "16" then monthly_standard = "12823"
+    	If HH_members = "17" then monthly_standard = "13543"
+    	If HH_members = "18" then monthly_standard = "14263"
+    	If HH_members = "19" then monthly_standard = "14983"
+    	If HH_members = "20" then monthly_standard = "15703"    
 	Elseif worker_county_code = "x162" then
 		If HH_members = "1" then monthly_standard = "1962"
 		If HH_members = "2" then monthly_standard = "2655"
