@@ -300,6 +300,7 @@ If EGA_screening_check = 1 then
       crisis = left(crisis, len(crisis) - 1)
     End if
 
+    'determining  200% FPG (using last year's amounts) per HH member---handles up to 20 members. Updated with 2018's FPG
     If worker_county_code = "x127" then
 		If HH_members = "1"  then monthly_standard = "2023"
     	If HH_members = "2"  then monthly_standard = "2743"
