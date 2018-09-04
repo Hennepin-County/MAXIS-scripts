@@ -44,59 +44,12 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("08/02/2018", "Updated case note to reflect standard NC and CC status.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/02/2018", "Corrected IEVS match error due to new year.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/11/2017", "Initial version.", "MiKayla Handley, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 '=======================================================================================================END CHANGELOG BLOCK
-'Fun with dates! --Creating variables for the rolling 12 calendar months
-'current month -1
-CM_minus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", -1, date)            ), 2)
-CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
-'current month -2'
-CM_minus_2_mo =  right("0" &             DatePart("m",           DateAdd("m", -2, date)            ), 2)
-CM_minus_2_yr =  right(                  DatePart("yyyy",        DateAdd("m", -2, date)            ), 2)
-'current month -3'
-CM_minus_3_mo =  right("0" &             DatePart("m",           DateAdd("m", -3, date)            ), 2)
-CM_minus_3_yr =  right(                  DatePart("yyyy",        DateAdd("m", -3, date)            ), 2)
-'current month -4'
-CM_minus_4_mo =  right("0" &             DatePart("m",           DateAdd("m", -4, date)            ), 2)
-CM_minus_4_yr =  right(                  DatePart("yyyy",        DateAdd("m", -4, date)            ), 2)
-'current month -5'
-CM_minus_5_mo =  right("0" &             DatePart("m",           DateAdd("m", -5, date)            ), 2)
-CM_minus_5_yr =  right(                  DatePart("yyyy",        DateAdd("m", -5, date)            ), 2)
-'current month -6'
-CM_minus_6_mo =  right("0" &             DatePart("m",           DateAdd("m", -6, date)            ), 2)
-CM_minus_6_yr =  right(                  DatePart("yyyy",        DateAdd("m", -6, date)            ), 2)
-'current month -7'
-CM_minus_7_mo =  right("0" &             DatePart("m",           DateAdd("m", -7, date)            ), 2)
-CM_minus_7_yr =  right(                  DatePart("yyyy",        DateAdd("m", -7, date)            ), 2)
-'current month -8'
-CM_minus_8_mo =  right("0" &             DatePart("m",           DateAdd("m", -8, date)            ), 2)
-CM_minus_8_yr =  right(                  DatePart("yyyy",        DateAdd("m", -8, date)            ), 2)
-'current month -9'
-CM_minus_9_mo =  right("0" &             DatePart("m",           DateAdd("m", -9, date)            ), 2)
-CM_minus_9_yr =  right(                  DatePart("yyyy",        DateAdd("m", -9, date)            ), 2)
-'current month -10'
-CM_minus_10_mo =  right("0" &            DatePart("m",           DateAdd("m", -10, date)           ), 2)
-CM_minus_10_yr =  right(                 DatePart("yyyy",        DateAdd("m", -10, date)           ), 2)
-'current month -11'
-CM_minus_11_mo =  right("0" &            DatePart("m",           DateAdd("m", -11, date)           ), 2)
-CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -11, date)           ), 2)
-
-'Establishing value of variables for the rolling 12 months
-current_month = CM_mo & "/" & CM_yr
-current_month_minus_one = CM_minus_1_mo & "/" & CM_minus_1_yr
-current_month_minus_two = CM_minus_2_mo & "/" & CM_minus_2_yr
-current_month_minus_three = CM_minus_3_mo & "/" & CM_minus_3_yr
-current_month_minus_four = CM_minus_4_mo & "/" & CM_minus_4_yr
-current_month_minus_five = CM_minus_5_mo & "/" & CM_minus_5_yr
-current_month_minus_six = CM_minus_6_mo & "/" & CM_minus_6_yr
-current_month_minus_seven = CM_minus_7_mo & "/" & CM_minus_7_yr
-current_month_minus_eight = CM_minus_8_mo & "/" & CM_minus_8_yr
-current_month_minus_nine = CM_minus_9_mo & "/" & CM_minus_9_yr
-current_month_minus_ten = CM_minus_10_mo & "/" & CM_minus_10_yr
-current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
 
 function DEU_password_check(end_script)
 '--- This function checks to ensure the user is in a MAXIS panel
@@ -122,77 +75,45 @@ memb_number = "01"
 date_recieved = date & ""
 
 '-----------------------------------------------------------------------------------------Initial dialog and do...loop
-BeginDialog update_action_dialog, 0, 0, 181, 155, "MATCH CLEARED-NO DAIL"
-  EditBox 55, 5, 55, 15, MAXIS_case_number
-  EditBox 155, 5, 20, 15, MEMB_Number
-  DropListBox 90, 25, 85, 15, "Select One:"+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BE - OP Entered"+chr(9)+"BE - NC Non-collectible"+chr(9)+"BO - Other"+chr(9)+"BP - Wrong Person"+chr(9)+"CC - Claim Entered"+chr(9)+"NC - Non Cooperation", resolution_status
-  DropListBox 90, 45, 60, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR", select_quarter
-  DropListBox 90, 65, 60, 15, "Select One:"+chr(9)+"WAGE"+chr(9)+"NON-WAGE", IEVS_type
-  DropListBox 90, 85, 85, 15, "Select One:"+chr(9)+"DELETED DISQ"+chr(9)+"PENDING VERF"+chr(9)+"N/A", DISQ_action
-  EditBox 50, 105, 125, 15, other_notes
+BeginDialog cleared_match_dialog, 0, 0, 306, 190, "MATCH CLEARED NO DAIL"
+  Text 10, 20, 110, 10, "Case number: "  & MAXIS_case_number
+  Text 120, 20, 165, 10, "Client name: " & client_name
+  Text 10, 40, 105, 10, "Active Programs: " & programs
+  Text 120, 40, 175, 15, "Income source:" & source_income
+  DropListBox 75, 65, 110, 15, "Select One:"+chr(9)+"BC-Case Closed"+chr(9)+"BN-Already Known, No Savings"+chr(9)+"BE-Child"+chr(9)+"BE-No Change"+chr(9)+"BE-OP Entered"+chr(9)+"BO-Other"+chr(9)+"BP-Wrong Person"+chr(9)+"CC-Claim Entered"+chr(9)+"NC-Non-Cooperation"+chr(9)+"CC/NC/CC-Non-Coop Claim Entered", resolution_status
+  EditBox 265, 65, 35, 15, resolve_time
+  DropListBox 125, 85, 60, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", change_response
+  DropListBox 125, 105, 60, 15, "Select One:"+chr(9)+"Delete DISQ"+chr(9)+"Pending Verf"+chr(9)+"N/A", DISQ_action
+  CheckBox 10, 130, 135, 10, "Check here if 10 day cutoff has passed", TIKL_checkbox
+  CheckBox 205, 100, 70, 10, "Difference Notice", diff_notice_checkbox
+  CheckBox 205, 110, 90, 10, "Authorization to Release", atr_verf_Checkbox
+  CheckBox 205, 120, 90, 10, "Employment Verification", EVF_checkbox
+  CheckBox 205, 130, 80, 10, "Other (please specify)", other_checkbox
+  EditBox 55, 150, 245, 15, other_notes
   ButtonGroup ButtonPressed
-    OkButton 70, 130, 50, 15
-    CancelButton 125, 130, 50, 15
-  Text 5, 10, 50, 10, "Case Number: "
-  Text 120, 10, 30, 10, "MEMB #"
-  Text 5, 30, 80, 10, "Update resolution status "
-  Text 5, 50, 75, 10, "Match Period (quarter)"
-  Text 5, 70, 65, 10, "Wage or Non-Wage"
-  Text 5, 90, 75, 10, "DISQ panel addressed"
-  Text 5, 110, 45, 10, "Other Notes:"
+	OkButton 205, 170, 45, 15
+	CancelButton 255, 170, 45, 15
+  Text 10, 70, 60, 10, "Resolution Status: "
+  Text 10, 90, 110, 10, "Responded to Difference Notice: "
+  Text 80, 110, 40, 10, "DISQ Panel: "
+  Text 10, 155, 45, 10, "Other Notes: "
+  GroupBox 190, 90, 110, 55, "Verification Used to Clear: "
+  Text 195, 70, 65, 10, "Resolve Time (min): "
 EndDialog
-'enhancment to add this to make the same as match cleared'
-'BeginDialog cleared_match_dialog, 0, 0, 311, 175, "MATCH CLEARED"
-'	Text 10, 20, 110, 10, "Case number: " & MAXIS_case_number
-'	Text 120, 20, 165, 10, "Client name: " & client_name
-'	Text 10, 40, 105, 10, "Active Programs: " & programs
-'	Text 120, 40, 175, 15, "Income source: " & source_income
-'	DropListBox 75, 65, 110, 15, "Select One: "+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BE - OP Entered"+chr(9)+"BO - Other"+chr(9)+"BP - Wrong Person"+chr(9)+"CC - Claim Entered"+chr(9)+"NC - Non Cooperation", resolution_status
-'	DropListBox 125, 85, 60, 15, "Select One: "+chr(9)+"Yes"+chr(9)+"No", change_response
-'	EditBox 150, 105, 35, 15, resolve_time
-'	EditBox 55, 130, 250, 15, other_notes
-'	CheckBox 210, 75, 70, 10, "Difference Notice", Diff_Notice_Checkbox
-'	CheckBox 210, 85, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
-'	CheckBox 210, 95, 90, 10, "Employment verification", EVF_checkbox
-'	CheckBox 210, 105, 80, 10, "Other (please specify)", other_checkbox
-'	CheckBox 10, 155, 135, 10, "Check here if 10 day cutoff has passed", TIKL_checkbox
-'	ButtonGroup ButtonPressed
-'		OkButton 210, 155, 45, 15
-'		CancelButton 260, 155, 45, 15
-'	Text 10, 70, 60, 10, "Resolution Status: "
-'	Text 10, 90, 110, 10, "Responded to Difference Notice: "
-'	Text 10, 110, 85, 10, "Resolve time (in minutes): "
-'	Text 10, 135, 40, 10, "Other notes: "
-'	GroupBox 195, 65, 110, 55, "Verification Used to Clear: "
-'EndDialog
-
-
 
 DO
 	err_msg = ""
-	dialog update_action_dialog
+	Dialog cleared_match_dialog
 	cancel_confirmation
-	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
-    If (Cleared_status = "CC - Claim Entered" AND instr(programs, "HC") or instr(programs, "Medical Assistance")) then err_msg = err_msg & vbNewLine & "* System does not allow HC or MA cases to be cleared with the code 'CC - Claim Entered'."
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-
+	IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "* Enter a valid numeric resolved time."
+	IF resolve_time = "" THEN err_msg = err_msg & vbNewLine & "Please complete resolve time."
+	IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the client respond to Difference Notice?"
+	IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
+	IF (resolution_status = "BE-No Change" AND other_notes = "") THEN err_msg = err_msg & vbNewLine & "When clearing using BE other notes must be completed."
+	If (resolution_status = "CC-Claim Entered" AND instr(programs, "HC") or instr(programs, "Medical Assistance")) THEN err_msg = err_msg & vbNewLine & "* System does not allow HC or MA cases to be cleared with the code 'CC-Claim Entered'."
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+LOOP UNTIL err_msg = ""
 CALL DEU_password_check(False)
-
-'-------------------------------------------------------------------------------------------Defaulting the quarters
-IF select_quarter = "1" THEN
-                IEVS_period = "01-" & CM_minus_1_yr & "/03-" & CM_minus_1_yr
-ELSEIF select_quarter = "2" THEN
-                IEVS_period = "04-" & CM_minus_1_yr & "/06-" & CM_minus_1_yr
-ELSEIF select_quarter = "3" THEN
-                IEVS_period = "07-" & CM_minus_1_yr  & "/09-" & CM_minus_1_yr
-ELSEIF select_quarter = "4" THEN
-                IEVS_period = "10-" & CM_minus_6_yr & "/12-" & CM_minus_6_yr
-ELSEIF select_quarter = "YEAR" THEN
-				IEVS_period = right(DatePart("yyyy",DateAdd("yyyy", -1, date)), 2)
-END IF
-
-'msgbox IEVS_period
 
 '----------------------------------------------------------------------------------------------------IEVS
 
@@ -357,43 +278,46 @@ TRANSMIT 'this will take us back to IEVP main menu'
 ''------------------------------------------------------------------back on the IEVP menu, making sure that the match cleared
 IF IEVS_type = "WAGE" THEN
 	'Updated IEVS_period to write into case note
-	IF quarter = 1 THEN select_quarter = "1ST"
-	IF quarter = 2 THEN select_quarter = "2ND"
-	IF quarter = 3 THEN select_quarter = "3RD"
-	IF quarter = 4 THEN select_quarter = "4TH"
+	IF quarter = 1 THEN IEVS_quarter = "1ST"
+	IF quarter = 2 THEN IEVS_quarter = "2ND"
+	IF quarter = 3 THEN IEVS_quarter = "3RD"
+	IF quarter = 4 THEN IEVS_quarter = "4TH"
 END IF
 IEVS_period = replace(IEVS_period, "/", " to ")
 Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 PF3 'back to the DAIL'
   '----------------------------------------------------------------the case match CLEARED note
-start_a_blank_CASE_NOTE
-IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & select_quarter & " QTR " & IEVS_year & " WAGE MATCH" & "(" & first_name & ") CLEARED " & rez_status & "-----")
-IF IEVS_type = "NON-WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
-CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
-CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
-CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
-CALL write_variable_in_CASE_NOTE ("----- ----- -----")
-IF resolution_status = "BC - Case Closed" 	THEN CALL write_variable_in_CASE_NOTE("Case closed. ")
-IF resolution_status = "BE - Child" THEN CALL write_variable_in_CASE_NOTE("INCOME IS EXCLUDED FOR MINOR CHILD IN SCHOOL.")
-IF resolution_status = "BE - OP Entered" THEN CALL write_variable_in_CASE_NOTE("OVERPAYMENTS OR SAVINGS WERE FOUND RELATED TO THIS.")
-IF resolution_status = "BE - No Change" THEN CALL write_variable_in_CASE_NOTE("NO OVERPAYMENTS OR SAVINGS RELATED TO THIS.")
-IF resolution_status = "BE - NC Non-collectible" THEN CALL write_variable_in_CASE_NOTE("NO COLLECTIBLE OVERPAYMENTS RELATED TO THIS MATCH, CLIENT IS STILL NC")
-IF resolution_status = "BN - Already known, No Savings" THEN CALL write_variable_in_CASE_NOTE("CLIENT REPORTED INCOME. CORRECT INCOME IS IN STAT PANELS AND BUDGETED.")
-IF resolution_status = "BO - Other" THEN CALL write_variable_in_CASE_NOTE("HC Claim entered. ")
-IF resolution_status = "BP - Wrong Person" THEN CALL write_variable_in_CASE_NOTE("Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
-IF resolution_status = "CC - Claim Entered" THEN CALL write_variable_in_CASE_NOTE("Client name and wage earner name are different.")
+start_a_blank_case_note
+IF IEVS_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH" & "(" & first_name & ") CLEARED " & rez_status & "-----")
+IF IEVS_type = "NON-WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
+IF IEVS_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & "(" & first_name & ")CLEARED " & case_note_header & "-----")
+IF IEVS_type = "BEER" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ")" & "(" & first_name & ")CLEARED " & case_note_header & "-----")
+IF IEVS_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH(" & type_match & ")" & "(" & first_name & ")CLEARED " & case_note_header & "-----")
+CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
+CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
+CALL write_bullet_and_variable_in_case_note("Source of income", source_income)
+CALL write_variable_in_case_note ("----- ----- -----")
+IF resolution_status = "BC - Case Closed" 	THEN CALL write_variable_in_case_note("Case closed. ")
+IF resolution_status = "BE - Child" THEN CALL write_variable_in_case_note("INCOME IS EXCLUDED FOR MINOR CHILD IN SCHOOL.")
+IF resolution_status = "BE - OP Entered" THEN CALL write_variable_in_case_note("OVERPAYMENTS OR SAVINGS WERE FOUND RELATED TO THIS.")
+IF resolution_status = "BE - No Change" THEN CALL write_variable_in_case_note("NO OVERPAYMENTS OR SAVINGS RELATED TO THIS.")
+IF resolution_status = "BE - NC Non-collectible" THEN CALL write_variable_in_case_note("NO COLLECTIBLE OVERPAYMENTS RELATED TO THIS MATCH, CLIENT IS STILL NC")
+IF resolution_status = "BN - Already known, No Savings" THEN CALL write_variable_in_case_note("CLIENT REPORTED INCOME. CORRECT INCOME IS IN STAT PANELS AND BUDGETED.")
+IF resolution_status = "BO - Other" THEN CALL write_variable_in_case_note("HC Claim entered. ")
+IF resolution_status = "BP - Wrong Person" THEN CALL write_variable_in_case_note("Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
+IF resolution_status = "CC - Claim Entered" THEN CALL write_variable_in_case_note("Client name and wage earner name are different.")
 IF resolution_status = "NC - Non Cooperation" THEN
-	CALL write_variable_in_CASE_NOTE("* CLIENT FAILED TO COOP WITH WAGE MATCH")
+	CALL write_variable_in_case_note("* CLIENT FAILED TO COOP WITH WAGE MATCH")
 	CALL write_variable_in_case_note("* Entered STAT/DISQ panels for each program.")
 	CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
 	CALL write_variable_in_case_note("* Case approved to close")
 	CALL write_variable_in_case_note("* Client needs to provide: ATR, Income Verification, Difference Notice")
 END IF
-CALL write_bullet_and_variable_in_CASE_NOTE("Responded to Difference Notice", change_response)
-CALL write_bullet_and_variable_in_CASE_NOTE("Resolution Status", resolution_status)
-CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
-CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
+CALL write_bullet_and_variable_in_case_note("Responded to Difference Notice", change_response)
+CALL write_bullet_and_variable_in_case_note("Resolution Status", resolution_status)
+CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
+CALL write_variable_in_case_note("----- ----- ----- ----- -----")
+CALL write_variable_in_case_note ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 
 
 script_end_procedure ("Match has been updated. Please take any additional action needed for your case.")
