@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("08/03/2018", "Fixed a bug in which the case is not being transferred.", "Casey Love, Hennepin County")
 CALL changelog_update("07/20/2018", "Updated transfer case in dialog.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("06/19/2018", "Updated verbiage in SPEC/WCOM for readibility.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
@@ -221,7 +222,7 @@ If action_type = "Apply sanction/disq."	then
 		transmit
 		PF3
 	END If
-
+    'MsgBox worker_number
 	IF worker_number <> "" THEN
 		transfer_case = True
 		CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
@@ -229,9 +230,10 @@ If action_type = "Apply sanction/disq."	then
 		transmit
 		PF9
 		EMWriteScreen "X127" & worker_number, 18, 61
+        'MsgBox "Worker number written"
 		transmit
 		EMReadScreen worker_check, 9, 24, 2
-
+        'MsgBox worker_check
 		IF worker_check = "SERVICING" THEN
 	        action_completed = False
 			PF10
@@ -287,7 +289,11 @@ If action_type = "Apply sanction/disq."	then
 	IF FIAT_check = 1 THEN CALL write_variable_in_case_note("* Case has been FIATed.")
 	IF mandatory_vendor_check = 1 THEN CALL write_variable_in_case_note("* A mandatory vendor form has been mailed to the sanctioned individual.") 'There was a huge space, I closed up the space
 	IF Sent_Spec_LETR = 1 THEN CALL write_variable_in_case_note ("* Sent MFIP sanction for future closed month SPEC/LETR to the sanctioned individual.")
-	CALL write_variable_in_case_note("---")
+    If action_completed = TRUE Then
+        CALL write_variable_in_CASE_NOTE("---")
+        CALL write_bullet_and_variable_in_CASE_NOTE("Case Transfered to", "x127" & worker_number)
+    End If
+    CALL write_variable_in_case_note("---")
 	CALL write_variable_in_case_note(worker_signature)
 
 	If notating_spec_wcom = checked THEN
@@ -415,6 +421,30 @@ If action_type = "Cure santion/disq." then
 		Loop until month_increment = 6
 	END If
 
+    IF worker_number <> "" THEN
+        transfer_case = True
+        CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
+        EMWriteScreen "x", 7, 16
+        transmit
+        PF9
+        EMWriteScreen "X127" & worker_number, 18, 61
+        'MsgBox "Worker number written"
+        transmit
+        EMReadScreen worker_check, 9, 24, 2
+        'MsgBox worker_check
+        IF worker_check = "SERVICING" THEN
+            action_completed = False
+            PF10
+        END IF
+
+        EMReadScreen transfer_confirmation, 16, 24, 2
+        IF transfer_confirmation = "CASE XFER'D FROM" then
+            action_completed = True
+        Else
+            action_completed = False
+        End if
+    END IF
+
 	'adding a case note header variable depending on which cash program is selected
 	If select_program = "MFIP" then case_note_header = "~~$~~MFIP SANCTION CURED~~$~~"
 	If select_program = "DWP" then case_note_header = "~~$~~DWP DISQUALIFICATION CURED~~$~~"
@@ -433,6 +463,10 @@ If action_type = "Cure santion/disq." then
 	If monthly_TIKL_checkbox = 1 then call write_variable_in_case_note("* Created TIKL's for each month to FIAT vendor info into new elig results.")
 	CALL write_bullet_and_variable_in_case_note("Other Notes/Comments", other_notes)                           'Writes any other notes/comment
 	CALL write_bullet_and_variable_in_case_note("Actions Taken", action_taken)                                 'Writes any actions taken
+    If action_completed = TRUE Then
+        CALL write_variable_in_CASE_NOTE("---")
+        CALL write_bullet_and_variable_in_CASE_NOTE("Case Transfered to", "x127" & worker_number)
+    End If
 	CALL write_variable_in_case_note ("---")
 	CALL write_variable_in_CASE_NOTE(worker_signature)                                                         'Writes worker signature in note
 End if

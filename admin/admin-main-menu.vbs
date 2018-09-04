@@ -57,7 +57,7 @@ changelog_display
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_admin_menu_dialog(script_array)
-    BeginDialog admin_dialog, 0, 0, 516, 300, "Admin Scripts"
+    BeginDialog admin_dialog, 0, 0, 516, 320, "Admin Scripts"
     Text 5, 5, 516, 300, "Admin scripts main menu: select the script to run from the choices below."
     ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 30, 15, "ADMIN", 			admin_main_button
@@ -77,7 +77,7 @@ Function declare_admin_menu_dialog(script_array)
 			button_placeholder = button_placeholder + 1
 		next
 
-		CancelButton 455, 280, 50, 15
+		CancelButton 455, 300, 50, 15
 		GroupBox 5, 20, 100, 35, "Admin Sub-Menus"
 	EndDialog
 End function
@@ -155,6 +155,20 @@ Set script_array_QI_list(script_num) = new script
 script_array_QI_list(script_num).script_name 		= "Auto-Dialer Case Status"											'Script name
 script_array_QI_list(script_num).file_name 			= "auto-dialer-case-status.vbs"										'Script URL
 script_array_QI_list(script_num).description 		= "BULK script that gathers case status for cases with recerts for SNAP/MFIP the previous month."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
+Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_QI_list(script_num).script_name		= "Banked Months Review"													'Script name
+script_array_QI_list(script_num).file_name			= "banked-months-review.vbs"												'Script URL
+script_array_QI_list(script_num).description		= "Script to assist in the review and processing of SNAP Banked Months."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
+Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_QI_list(script_num).script_name		= "Close GRH Rate 2 in MMIS"													'Script name
+script_array_QI_list(script_num).file_name			= "close-GRH-rate-2-in-MMIS.vbs"												'Script URL
+script_array_QI_list(script_num).description		= "Script to assist in closing SSR agreements in MMIS for GRH Rate 2 cases."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it

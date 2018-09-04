@@ -1,5 +1,5 @@
 ''GATHERING STATS===========================================================================================
-name_of_script = "ACTION - DEU MATCH CLEARED CC.vbs"
+name_of_script = "ACTIONS - DEU-MATCH CLEARED CC.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 300
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("08/17/2018", "Updated coding which reads active programs.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("07/23/2018", "Updated script to correct version and added case note to email for HC matches and CCOL.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/02/2018", "Corrected IEVS match error due to new year.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/27/2017", "Updated to handle clearing the match when the date is over 45 days.", "MiKayla Handley, Hennepin County")
@@ -218,7 +219,9 @@ DO
 	IF trim(IEVS_match) = "" THEN script_end_procedure("IEVS match for the selected period could not be found. The script will now end.")
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
 	"   " & IEVS_match, vbYesNoCancel, "Please confirm this match")
-	IF ievp_info_confirmation = vbNo THEN
+    IF ievp_info_confirmation = vbCancel THEN script_end_procedure("The script has ended. The match has not been acted on.")
+	IF ievp_info_confirmation = vbYes THEN EXIT DO
+    IF ievp_info_confirmation = vbNo THEN
 		row = row + 1
 		'msgbox "row: " & row
 		IF row = 17 THEN
@@ -226,9 +229,7 @@ DO
 			row = 7
 		END IF
 	END IF
-	IF ievp_info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
-	IF ievp_info_confirmation = vbYes THEN 	EXIT DO
-LOOP UNTIL ievp_info_confirmation = vbYes
+LOOP 
 
 EMReadScreen multiple_match, 11, row + 1, 47
 IF multiple_match = IEVS_period THEN
@@ -255,7 +256,6 @@ Else
 		IEVS_year = "20" & IEVS_year
 	ELSEIF IEVS_type = "UNVI" THEN
 		EMReadScreen IEVS_year, 4, 8, 15
-
 	END IF
 END IF
 
@@ -285,8 +285,7 @@ IF instr(first_name, " ") THEN   						'If there is a middle initial in the firs
 END IF
 'it is not putting a space in'
 '----------------------------------------------------------------------------------------------------ACTIVE PROGRAMS
-IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "SDXS" THEN EMReadScreen Active_Programs, 5, 7, 13
-IF IEVS_type = "UNVI" or IEVS_type = "UBEN" THEN EMReadScreen Active_Programs, 5, 6, 68
+EMReadScreen Active_Programs, 5, 6, 68
 Active_Programs =trim(Active_Programs)
 
 programs = ""
@@ -299,7 +298,6 @@ IF instr(Active_Programs, "S") THEN programs = programs & "MFIP, "
 programs = trim(programs)
 'takes the last comma off of programs when autofilled into dialog
 IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
-
 '----------------------------------------------------------------------------------------------------Employer info & difference notice info
 EMReadScreen source_income, 75, 8, 37
 source_income = trim(source_income)
@@ -321,7 +319,6 @@ EMReadScreen sent_date, 8, 14, 68
 sent_date = trim(sent_date)
 IF sent_date = "" THEN sent_date = replace(sent_date, " ", "N/A")
 IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
-
 '----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
 EMWriteScreen "010", 12, 46
 programs_array = split(programs, ",")
@@ -346,7 +343,6 @@ programs_array = split(programs, ",")
 	transmit 'IULB
 	'----------------------------------------------------------------------------------------writing the note on IULB
 	EMReadScreen error_msg, 11, 24, 2
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	If error_msg = "ACTION CODE" THEN script_end_procedure(err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
   	EMWriteScreen "Claim entered. ", 8, 6
 	EMWriteScreen Claim_number, 17, 9
@@ -377,7 +373,7 @@ programs_array = split(programs, ",")
 		Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 		PF3 'back to the DAIL'
     '-----------------------------------------------------------------------------------------CASENOTE
-    start_a_blank_CASE_NOTE
+        start_a_blank_CASE_NOTE
     	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH" & "(" & first_name &  ")" & "CLEARED CC-CLAIM ENTERED-----")
     	IF IEVS_type = "BEER" or IEVS_type = "UNVI" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name &  ")" &  "CLEARED CC-CLAIM ENTERED-----")
 		IF IEVS_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH(" & type_match & ")" & "(" & first_name & ")CLEARED " & case_note_header & "-----")

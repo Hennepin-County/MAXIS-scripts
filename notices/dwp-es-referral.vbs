@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/03/2018", "Avivo will be closed 08/16/18. The script has been update to exclude this date as a potential orientation date.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/20/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -241,8 +242,14 @@ DO
 		orientation_date_confirmation = MsgBox("Press YES to confirm the orientation date. For the next week, press NO." & vbNewLine & vbNewLine & _
 		"                                                  " & appointment_date & " at " & appointment_time, vbYesNoCancel, "Please confirm the ES orientation referral date")
 		If orientation_date_confirmation = vbCancel then script_end_procedure ("The script has ended. An orientation letter has not been sent.")
-		If orientation_date_confirmation = vbYes then exit do
-		If orientation_date_confirmation = vbNo then 
+        If orientation_date_confirmation = vbYes then 
+            If instr(provider_name, "Avivo") AND appointment_date = "8/16/2018" then 
+                msgbox "Avivo is not open on 08/16/2018. Please select another date."
+                appointment_date = dateadd("d", 7, appointment_date)    
+            Else     
+                exit do
+            End if 
+        elseif orientation_date_confirmation = vbNo then 
             If instr(interview_location, "WERC") then 
                 appointment_date = DateAdd("d", 1, appointment_date)
                 weekend_check = weekday(appointment_date)
@@ -250,9 +257,10 @@ DO
                 IF weekend_check = 0 then appointment_date = DateAdd("d", 1, appointment_date)  'Sunday handling
             Else 
                 appointment_date = dateadd("d", 7, appointment_date)
+                If appointment_date = "8/16/2018" then appointment_date = dateadd("d", 7, appointment_date)
             End if 
         End if 
-	LOOP until orientation_date_confirmation = vbYes
+	LOOP
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 

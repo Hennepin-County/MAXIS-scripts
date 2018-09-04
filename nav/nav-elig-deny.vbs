@@ -1,10 +1,10 @@
-'GATHERING STATS===========================================================================================
-name_of_script = "NOTES - DEU-APPEA SUMMARY COMPLETED.vbs"
+'Required for statistical purposes==========================================================================================
+name_of_script = "NAV - ELIG-EMER.vbs"
 start_time = timer
-STATS_counter = 1
-STATS_manualtime = 0
-STATS_denominatinon = "C"
-'END OF STATS BLOCK===========================================================================================
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 10                      'manual run time in seconds
+STATS_denomination = "C"                   'C is for each CASE
+'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -44,56 +44,37 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("04/13/2017", "Initial version.", "MiKayla Handley, Hennepin County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
-'END CHANGELOG BLOCK =======================================================================================================----------
-'connecting to BlueZone and grabbing the case number
-EMConnect ""
-Call MAXIS_case_number_finder(maxis_case_number)
+'SECTION 02: DIALOGS--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-'Initial dialog and do...loop
-BeginDialog , 0, 0, 276, 90, "Appeal Summary Completed"
-  EditBox 60, 5, 60, 15, maxis_case_number
-  EditBox 210, 5, 60, 15, date_appeal_rcvd
-  EditBox 60, 25, 60, 15, claim_number
-  EditBox 210, 25, 60, 15, effective_date
-  EditBox 95, 45, 175, 15, action_client_is_appealing
+BeginDialog case_number_dialog, 0, 0, 161, 41, "Case number"
+  EditBox 95, 0, 60, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
-    OkButton 165, 65, 50, 15
-    CancelButton 220, 65, 50, 15
-  Text 10, 10, 45, 10, "Case number:"
-  Text 130, 30, 80, 10, "Effective date of action:"
-  Text 10, 30, 50, 10, "Claim number:"
-  Text 10, 50, 85, 10, "Action client is appealing:"
-  Text 130, 10, 75, 10, "Date appeal received:"
+    OkButton 25, 20, 50, 15
+    CancelButton 85, 20, 50, 15
+  Text 5, 5, 85, 10, "Enter your case number:"
 EndDialog
 
-Do
-	Do
-        err_msg = ""
-		Dialog
-		IF ButtonPressed = 0 then StopScript
-		IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
-		IF Isdate(date_appeal_rcvd) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a date for the appeal."
-		IF IsNumeric(claim_number) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid claim number."
-		IF Isdate(effective_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the effective date."
-		IF action_client_is_appealing = "" THEN err_msg = err_msg & vbNewLine & "* Please enter action that client is appealing."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-    Loop until err_msg = ""
- 	Call check_for_password(are_we_passworded_out)
-LOOP UNTIL check_for_password(are_we_passworded_out) = False
+'SECTION 03: FINDING THE CASE NUMBER----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	Call write_variable_in_CASE_NOTE("-----APPEAL SUMMARY COMPLETED-----")
-	Call write_bullet_and_variable_in_CASE_NOTE("Claim number:", claim_number)
-	Call write_bullet_and_variable_in_CASE_NOTE("Date appeal request received:", date_appeal_rcvd)
-	Call write_bullet_and_variable_in_CASE_NOTE("Effective date of action being appealed:", effective_date)
-	Call write_bullet_and_variable_in_CASE_NOTE("Action client is appealing:", action_client_is_appealing)
-	Call write_bullet_and_variable_in_CASE_NOTE("Emailed Appeals", send_email)
-	Call write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
-	Call write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+EMConnect ""
+
+call MAXIS_case_number_finder(MAXIS_case_number)
+
+If MAXIS_case_number = "" then
+	Dialog case_number_dialog
+	cancel_confirmation
+End if
+
+'SECTION 04: NAVIGATING TO THE SCREEN---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+call check_for_MAXIS(true)
+
+call navigate_to_MAXIS_screen("elig", "deny")
 
 script_end_procedure("")

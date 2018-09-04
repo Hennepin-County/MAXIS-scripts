@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/24/2018", "Fixed script to accommodate a $0 income job.", "Casey Love, Hennepin County")
 call changelog_update("05/16/2018", "Added a place to input the footer month and year for the start of MA EPD.", "Casey Love, Hennepin County")
 call changelog_update("05/07/2018", "Updated the script to identify cases at application versus review, and provide different functionality for those options. Average income will now be determined from the budget on ELIG.", "Casey Love, Hennepin County")
 call changelog_update("04/23/2018", "Added functionality to allow any month to be selected as the first month to be FIATed.", "Casey Love, Hennepin County")
@@ -223,7 +224,8 @@ const pay_weekday       = 13
 const six_month_total   = 14
 const average_monthly_inc   = 15
 const employer          = 16
-const verif_code        = 17
+const est_pop_up        = 17
+const verif_code        = 18
 
 Dim JOBS_ARRAY()                    'setting up the array
 ReDim JOBS_ARRAY(verif_code, 0)
@@ -241,11 +243,16 @@ If case_status = "Recertification" Then
         hc_revw = replace(hc_revw, " ", "/")
     End If
 
-    MAXIS_footer_month = DatePart("m", hc_revw)                     'Setting the dates to month and year variables in a 2 digit format
-    MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
+    If hc_revw <> "__/__/__" Then
+        MAXIS_footer_month = DatePart("m", hc_revw)                     'Setting the dates to month and year variables in a 2 digit format
+        MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
 
-    MAXIS_footer_year = DatePart("yyyy", hc_revw)
-    MAXIS_footer_year = right(MAXIS_footer_year, 2)
+        MAXIS_footer_year = DatePart("yyyy", hc_revw)
+        MAXIS_footer_year = right(MAXIS_footer_year, 2)
+    Else
+        MAXIS_footer_month = CM_mo
+        MAXIS_footer_year = CM_yr
+    End If 
 
     Call back_to_SELF       'Getting out of STAT so that we can switch months if needed
 
@@ -322,6 +329,8 @@ If case_status = "Recertification" Then
 
         if hc_inc_est = "" Then hc_inc_est = 0
         hc_inc_est = FormatNumber(hc_inc_est, 2)        'This formats the number with 2 decimal places
+
+        JOBS_ARRAY(est_pop_up, each_job-1) = hc_inc_est
 
         transmit    'Going to the next JOBS panel
     Next
@@ -426,6 +435,7 @@ If case_status = "Application" Then
                 ElseIf JOBS_ARRAY(check_date_three, each_job-1) = "" Then                       'this reads if this position in the array already has data
                     JOBS_ARRAY(check_date_three, each_job-1) = replace(pay_date, " ", "/")      'formatting the date
                     EMReadScreen pay_amt, 8, jobs_row, 67                                       'reading the pay amount and then formats it
+                    total_prosp = total_prosp + trim(pay_amt) * 1
                     JOBS_ARRAY(check_amt_three, each_job-1) = trim(pay_amt) * 1
 
                 ElseIf JOBS_ARRAY(check_date_four, each_job-1) = "" Then                        'this reads if this position in the array already has data
@@ -445,11 +455,12 @@ If case_status = "Application" Then
 
         EMReadScreen total_pay, 8, 17, 67   'reading the total of the pay listed in the prospective side of the JOBS panel and formatting
         total_pay = trim(total_pay)
+        If total_pay = "" Then total_pay = 0
         total_pay = total_pay * 1
 
         JOBS_ARRAY(pay_average, each_job-1) = total_pay / divider       'Finding the average of all of the paychecks listed
         JOBS_ARRAY(six_month_total, each_job-1) = 0                     'setting this equal to 0 as we will be adding to it later
-
+        'MsgBox "Average - " & JOBS_ARRAY(pay_average, each_job-1)
         If JOBS_ARRAY(job_frequency, each_job-1) = "3" OR JOBS_ARRAY(job_frequency, each_job-1) = "4" Then  'if this JOB is paid weekly or biweekly
             day_validation_needed = FALSE       'default for this variable
             JOBS_ARRAY(pay_weekday, each_job-1) = WeekDayName(WeekDay(JOBS_ARRAY(check_date_one, each_job-1)))  'finding the day of the week of the first paycheck
@@ -482,6 +493,9 @@ If case_status = "Application" Then
             JOBS_ARRAY(pay_weekday, each_job-1) = selected_weekday
 
         End If
+
+        total_pay = FormatNumber(total_pay, 2)
+        JOBS_ARRAY(est_pop_up, each_job-1) = total_pay
 
         'This is commented out but can be used in testing to see all of the information gathered about each job
         ' BeginDialog JOBS_dlg, 0, 0, 200, 205, "JOBS"
@@ -540,6 +554,8 @@ If case_status = "Application" Then
 
         MAXIS_footer_month = left(footer, 2)        'setting the footer month and year to these global variables because those are used for the navigation functions
         MAXIS_footer_year = right(footer, 2)
+
+        If MAXIS_footer_month = CM_plus_2_mo AND MAXIS_footer_year = CM_plus_2_yr Then Exit For
 
         Call Navigate_to_MAXIS_screen("STAT", "JOBS")   'going to JOBS in that month for the member
         EmWriteScreen member_number, 20, 76
@@ -625,18 +641,26 @@ Do
     this_job = 0                        'setting to loop through the rows and jobs
     budg_row = 8
     Do
+
         EMReadScreen inc_type, 2, budg_row, 8           'looking for wage information
-        If inc_type = "02" Then
-            EMReadScreen month_total, 11, budg_row, 43      'finding the income in that row of wages and formatting the amount
-            month_total = replace(month_total, "_", "")
-            month_total = trim(month_total)
-            'MsgBox month_total
-            month_total = month_total * 1
-            JOBS_ARRAY(six_month_total, this_job) = JOBS_ARRAY(six_month_total, this_job) + month_total     'adding this amount to the array - to create a sum of all the income listed for the job
+        If inc_type = "__" Then Exit Do
+        'MsgBox "The job identifier is " & this_job & vbNewLine & "Budget Row: " & budg_row & vbNewLine & "Income Type is: " & inc_type
+        'MsgBox JOBS_ARRAY(employer, this_job) & vbNewLine & "The first check is for $" & JOBS_ARRAY(est_pop_up, this_job)
+        If JOBS_ARRAY(est_pop_up, this_job) <> 0.00 Then    ''
+            If inc_type = "02" Then
+                EMReadScreen month_total, 11, budg_row, 43      'finding the income in that row of wages and formatting the amount
+                month_total = replace(month_total, "_", "")
+                month_total = trim(month_total)
+                'MsgBox JOBS_ARRAY(employer, this_job) & vbNewLine & "Month Total $" & month_total
+                month_total = month_total * 1
+                JOBS_ARRAY(six_month_total, this_job) = JOBS_ARRAY(six_month_total, this_job) + month_total     'adding this amount to the array - to create a sum of all the income listed for the job
+                this_job = this_job + 1     'going to the next job in the array
+            End If
+            budg_row = budg_row + 1     'looking at the next budget row
+        Else
             this_job = this_job + 1     'going to the next job in the array
         End If
-        budg_row = budg_row + 1     'looking at the next budget row
-    Loop until inc_type = "__"
+    Loop until this_job > UBOUND(JOBS_ARRAY, 2)
 
     number_of_months = number_of_months + 1
     col = col + 11
@@ -647,6 +671,12 @@ loop until col > 76
 ' For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
 '     MsgBox "The total income for 6 months for this job is $" & JOBS_ARRAY(six_month_total, the_job) & vbNewLine & "Number of months is " & number_of_months
 ' Next
+job_msg = ""
+For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
+    job_msg = job_msg & vbNewLine & JOBS_ARRAY(employer, the_job) & " - paid " & JOBS_ARRAY(job_frequency, the_job) & " on " & JOBS_ARRAY(pay_weekday, the_job) & " - total income for six-month budget period - $" & JOBS_ARRAY(six_month_total, the_job) & " - Average monthly income $" & JOBS_ARRAY(average_monthly_inc, the_job)
+
+Next
+'MsgBox job_msg
 
 'Dynamic dialog to have the worker confirm the average income
 y_pos = 60
@@ -732,10 +762,13 @@ Do
 
     budg_row = 8                        'reading each row to enter the information for each job
     For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
+
         JOBS_ARRAY(average_monthly_inc, the_job) = FormatNumber(JOBS_ARRAY(average_monthly_inc, the_job), 2,,,0)    'making sure the number is formatted correctly, 2 decimal places and no commas
-        EmWriteScreen "___________", budg_row, 43       'blanking out the current income amount
-        EmWriteScreen JOBS_ARRAY(average_monthly_inc, the_job), budg_row, 43        'writing in the new averaged amount
-        budg_row = budg_row + 1
+        If JOBS_ARRAY(average_monthly_inc, the_job) <> 0.00 Then
+            EmWriteScreen "___________", budg_row, 43       'blanking out the current income amount
+            EmWriteScreen JOBS_ARRAY(average_monthly_inc, the_job), budg_row, 43        'writing in the new averaged amount
+            budg_row = budg_row + 1
+        End If
     Next
     'MsgBox ("Budget updated.")
     col = col + 11      'going to next month

@@ -80,6 +80,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/01/2018", "Updated Utility standards that go into effect for 10/01/2018.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("07/20/2018", "Changed wording of the Appointment Notice and changed default interview date to 10 days from application for non-expedidted cases.", "Casey Love, Hennepin County")
 CALL changelog_update("07/16/2018", "BUg Fix that was preventing notices from being sent.", "Casey Love, Hennepin County")
 CALL changelog_update("04/10/2018", "Updated appt letter handling to ensure the appointment letter is sent correctly.", "MiKayla Handley, Hennepin County")
@@ -366,16 +367,16 @@ start_a_blank_case_note
     	GroupBox 0, 130, 175, 30, "**IMPORTANT**"
     EndDialog
 
-		'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
-		If date >= cdate("10/01/2017") then			'these variables need to change every October
-			heat_AC_amt = 556
-			electric_amt = 172
-			phone_amt = 41
-		Else
-			heat_AC_amt = 532
-			electric_amt = 141
-			phone_amt = 38
-		End if
+        'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
+        If application_date >= cdate("10/01/2018") then			'these variables need to change every October
+            heat_AC_amt = 532
+            electric_amt = 141
+            phone_amt = 38
+        else 
+            heat_AC_amt = 552
+            electric_amt = 126
+            phone_amt = 47
+        End if
 
     	'----------------------------------------------------------------------------------------------------THE SCRIPT
     	CALL MAXIS_case_number_finder(MAXIS_case_number)
