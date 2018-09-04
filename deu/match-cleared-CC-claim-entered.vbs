@@ -333,6 +333,7 @@ programs_array = split(programs, ",")
 		col = 57
 		EMSearch cleared_header, row, col
 		EMWriteScreen "CC", row + 1, col + 1
+        'EMwritescreen rez_status, 12, 58
 	Next
 
 	IF change_response = "YES" THEN
@@ -375,8 +376,7 @@ programs_array = split(programs, ",")
     '-----------------------------------------------------------------------------------------CASENOTE
         start_a_blank_CASE_NOTE
     	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH" & "(" & first_name &  ")" & "CLEARED CC-CLAIM ENTERED-----")
-    	IF IEVS_type = "BEER" or IEVS_type = "UNVI" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name &  ")" &  "CLEARED CC-CLAIM ENTERED-----")
-		IF IEVS_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH(" & type_match & ")" & "(" & first_name & ")CLEARED " & case_note_header & "-----")
+    	IF IEVS_type = "BEER" or IEVS_type = "UNVI"  THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name &  ")" &  "CLEARED CC-CLAIM ENTERED-----")
 		CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
     	CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)

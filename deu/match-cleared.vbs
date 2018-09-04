@@ -13,7 +13,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		END IF
+		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
 		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
 		req.send													'Sends request
@@ -44,7 +44,6 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("08/02/2018", "Updated case note to reflect standard NC and CC status.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("04/23/2018", "Updated case note to reflect standard dialog and case note.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/26/2018", "Merged the claim referral tracking back into the script.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/16/2018", "Corrected case note for pulling IEVS period.", "MiKayla Handley, Hennepin County")
@@ -53,13 +52,63 @@ CALL changelog_update("12/27/2017", "Updated to handle clearing the match when t
 CALL changelog_update("12/27/2017", "Updated to handle clearing the match BE-OP entered.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/13/2017", "Updated correct handling for BEER matches.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/08/2017", "Now includes handling for sending the difference notice and clearing the WAGE match including NC codes.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("11/27/2017", "Added BP-Wrong Person", "MiKayla Handley, Hennepin County")
+CALL changelog_update("11/27/2017", "Added BP - Wrong Person", "MiKayla Handley, Hennepin County")
 CALL changelog_update("11/22/2017", "Updated Non-coop option to the cleared match.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("11/21/2017", "Updated to clear match, and added handling for sending the difference notice.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("11/14/2017", "Initial version.", "MiKayla Handley, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
+'Fun with dates! --Creating variables for the rolling 12 calendar months
+'current month -1
+CM_minus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", -1, date)            ), 2)
+CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
+'current month -2'
+CM_minus_2_mo =  right("0" &             DatePart("m",           DateAdd("m", -2, date)            ), 2)
+CM_minus_2_yr =  right(                  DatePart("yyyy",        DateAdd("m", -2, date)            ), 2)
+'current month -3'
+CM_minus_3_mo =  right("0" &             DatePart("m",           DateAdd("m", -3, date)            ), 2)
+CM_minus_3_yr =  right(                  DatePart("yyyy",        DateAdd("m", -3, date)            ), 2)
+'current month -4'
+CM_minus_4_mo =  right("0" &             DatePart("m",           DateAdd("m", -4, date)            ), 2)
+CM_minus_4_yr =  right(                  DatePart("yyyy",        DateAdd("m", -4, date)            ), 2)
+'current month -5'
+CM_minus_5_mo =  right("0" &             DatePart("m",           DateAdd("m", -5, date)            ), 2)
+CM_minus_5_yr =  right(                  DatePart("yyyy",        DateAdd("m", -5, date)            ), 2)
+'current month -6'
+CM_minus_6_mo =  right("0" &             DatePart("m",           DateAdd("m", -6, date)            ), 2)
+CM_minus_6_yr =  right(                  DatePart("yyyy",        DateAdd("m", -6, date)            ), 2)
+'current month -7'
+CM_minus_7_mo =  right("0" &             DatePart("m",           DateAdd("m", -7, date)            ), 2)
+CM_minus_7_yr =  right(                  DatePart("yyyy",        DateAdd("m", -7, date)            ), 2)
+'current month -8'
+CM_minus_8_mo =  right("0" &             DatePart("m",           DateAdd("m", -8, date)            ), 2)
+CM_minus_8_yr =  right(                  DatePart("yyyy",        DateAdd("m", -8, date)            ), 2)
+'current month -9'
+CM_minus_9_mo =  right("0" &             DatePart("m",           DateAdd("m", -9, date)            ), 2)
+CM_minus_9_yr =  right(                  DatePart("yyyy",        DateAdd("m", -9, date)            ), 2)
+'current month -10'
+CM_minus_10_mo =  right("0" &            DatePart("m",           DateAdd("m", -10, date)           ), 2)
+CM_minus_10_yr =  right(                 DatePart("yyyy",        DateAdd("m", -10, date)           ), 2)
+'current month -11'
+CM_minus_11_mo =  right("0" &            DatePart("m",           DateAdd("m", -11, date)           ), 2)
+CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -11, date)           ), 2)
+
+'Establishing value of variables for the rolling 12 months
+current_month = CM_mo & "/" & CM_yr
+current_month_minus_one = CM_minus_1_mo & "/" & CM_minus_1_yr
+current_month_minus_two = CM_minus_2_mo & "/" & CM_minus_2_yr
+current_month_minus_three = CM_minus_3_mo & "/" & CM_minus_3_yr
+current_month_minus_four = CM_minus_4_mo & "/" & CM_minus_4_yr
+current_month_minus_five = CM_minus_5_mo & "/" & CM_minus_5_yr
+current_month_minus_six = CM_minus_6_mo & "/" & CM_minus_6_yr
+current_month_minus_seven = CM_minus_7_mo & "/" & CM_minus_7_yr
+current_month_minus_eight = CM_minus_8_mo & "/" & CM_minus_8_yr
+current_month_minus_nine = CM_minus_9_mo & "/" & CM_minus_9_yr
+current_month_minus_ten = CM_minus_10_mo & "/" & CM_minus_10_yr
+current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
+
 
 function DEU_password_check(end_script)
 '--- This function checks to ensure the user is in a MAXIS panel
@@ -73,70 +122,50 @@ function DEU_password_check(end_script)
 			Else
 				warning_box = MsgBox("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again, or press ""cancel"" to exit the script.", vbOKCancel)
 				If warning_box = vbCancel then stopscript
-			END IF
-		END IF
+			End if
+		End if
 	Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
 end function
 
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+
 EMReadscreen dail_check, 4, 2, 48
-IF dail_check = "DAIL" THEN
-	EMSendKey "t"
-	'checking for an active MAXIS session
-	Call check_for_MAXIS(FALSE)
-	EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
-	'msgbox IEVS_type
-	IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" THEN
-		match_found = TRUE
-	ELSE
-		script_end_procedure("This is not a IEVS match. Please select a WAGE match DAIL, and run the script again.")
-	END IF
-	EMReadScreen MAXIS_case_number, 8, 5, 73
-	MAXIS_case_number= TRIM(MAXIS_case_number)
-	'---	-------------------------------------------------------------------------------------------------IEVS
-	'Navigating deeper into the match interface
-	CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
-	CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
-	EMReadScreen error_msg, 7, 24, 2
-	IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
+IF dail_check <> "DAIL" THEN script_end_procedure("You are not in your dail. This script will stop.")
+EMSendKey "t"
+'checking for an active MAXIS session
+Call check_for_MAXIS(FALSE)
+EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
+'msgbox IEVS_type
+IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" THEN
+	match_found = TRUE
 ELSE
-	CALL MAXIS_case_number_finder (MAXIS_case_number)
-	memb_number = "01"
-	date_recieved = date & ""
+	script_end_procedure("This is not a IEVS match. Please select a WAGE match DAIL, and run the script again.")
+END IF
+IF IEVS_type = "BEER" THEN type_match = "B"
+IF IEVS_type = "UBEN" THEN type_match = "U"
+IF IEVS_type = "WAGE" THEN type_match = "U"
 
-	BeginDialog nondail_cleared_dialog, 0, 0, 101, 85, "MATCH CLEARED NO DAIL"
-		EditBox 55, 5, 40, 15, MAXIS_case_number
-  		EditBox 55, 25, 20, 15, MEMB_Number
-  		DropListBox 55, 45, 40, 15, "Select:"+chr(9)+"BNDX"+chr(9)+"SDXS"+chr(9)+"BEER"+chr(9)+"NONE"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", IEVS_type
-  		ButtonGroup ButtonPressed
-    		OkButton 10, 65, 40, 15
-    		CancelButton 55, 65, 40, 15
-  		Text 5, 10, 50, 10, "Case Number:"
-  		Text 20, 30, 30, 10, "MEMB #:"
-  		Text 15, 50, 40, 10, "IEVS Type:"
-	EndDialog
+EMReadScreen MAXIS_case_number, 8, 5, 73
+MAXIS_case_number= TRIM(MAXIS_case_number)
 
-	DO
-		err_msg = ""
-		Dialog nondail_cleared_dialog
-		IF IsNumeric(MAXIS_case_number) = false or len(MAXIS_case_number) >= 8 THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	LOOP UNTIL err_msg = ""
-	CALL DEU_password_check(False)
+'----------------------------------------------------------------------------------------------------IEVS
+'Navigating deeper into the match interface
+CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
+CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
+EMReadScreen error_msg, 7, 24, 2
+IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
 
-	CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-	EMwritescreen memb_number, 20, 76
-	transmit
-
-	EMReadscreen SSN_number_read, 11, 7, 42
-	SSN_number_read = replace(SSN_number_read, " ", "")
-
-	CALL navigate_to_MAXIS_screen("INFC" , "____")
-	CALL write_value_and_transmit("IEVP", 20, 71)
-	CALL write_value_and_transmit(SSN_number_read, 3, 63)
-	EMReadScreen error_msg, 7, 24, 2
-	IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
+IF select_quarter = "1" THEN
+                IEVS_period = "01-" & CM_minus_1_yr & "/03-" & CM_minus_1_yr
+ELSEIF select_quarter = "2" THEN
+                IEVS_period = "04-" & CM_minus_1_yr & "/06-" & CM_minus_1_yr
+ELSEIF select_quarter = "3" THEN
+                IEVS_period = "07-" & CM_minus_1_yr  & "/09-" & CM_minus_1_yr
+ELSEIF select_quarter = "4" THEN
+                IEVS_period = "10-" & CM_minus_6_yr & "/12-" & CM_minus_6_yr
+ELSEIF select_quarter = "YEAR" THEN
+				IEVS_period = right(DatePart("yyyy",DateAdd("yyyy", -1, date)), 2)
 END IF
 '-------------------------------------------------------------------Ensuring that match has not already been resolved.
 Row = 7
@@ -155,37 +184,38 @@ DO
 		END IF
 	END IF
 	IF ievp_info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
-	IF ievp_info_confirmation = vbYes THEN EXIT DO
+	IF ievp_info_confirmation = vbYes THEN 	EXIT DO
 LOOP UNTIL ievp_info_confirmation = vbYes
 
-CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
+EMReadScreen multiple_match, 11, row + 1, 47
+IF multiple_match = IEVS_match THEN
+	msgbox("More than one match exists for this time period. Determine the match you'd like to clear, and put your cursor in front of that match." & vbcr & "Press OK once match is determined.")
+	EMSendKey "U"
+	transmit
+ELSE
+	CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
+END IF
 
 '---------------------------------------------------------------------Reading potential errors for out-of-county cases
 EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" then
 	script_end_procedure("Out-of-county case. Cannot update.")
-Else
-	IF IEVS_type = "WAGE" then
-		EMReadScreen quarter, 1, 8, 14
-		EMReadScreen IEVS_year, 4, 8, 22
-	ELSEIF IEVS_type = "UBEN" THEN
-		EMReadScreen IEVS_month, 2, 5, 68
-		EMReadScreen IEVS_year, 4, 8, 71
-	ELSEIF IEVS_type = "BEER" THEN
-		EMReadScreen IEVS_year, 2, 8, 15
-		IEVS_year = "20" & IEVS_year
-	ELSEIF IEVS_type = "UNVI" THEN
-		EMReadScreen IEVS_year, 4, 8, 15
-
-	END IF
+	Else
+		IF IEVS_type = "WAGE" then
+			EMReadScreen quarter, 1, 8, 14
+			EMReadScreen IEVS_year, 4, 8, 22
+		ELSEIF IEVS_type = "UBEN" THEN
+			EMReadScreen IEVS_month, 2, 5, 68
+			EMReadScreen IEVS_year, 4, 8, 71
+		ELSEIF IEVS_type = "BEER" THEN
+			EMReadScreen IEVS_year, 2, 8, 15
+			IEVS_year = "20" & IEVS_year
+		END IF
 END IF
-IF IEVS_type = "BEER" THEN type_match = "B"
-'IF IEVS_type = "BNDX" THEN type_match = ""
-'IF IEVS_type = "SDXS" THEN type_match = ""
-'IF IEVS_type = "WAGE" THEN type_match = ""
-'IF IEVS_type = "UBEN" THEN type_match = ""
-IF IEVS_type = "UNVI" THEN type_match = "U"
 
+IF IEVS_type = "BEER" THEN type_match = "B"
+IF IEVS_type = "UBEN" THEN type_match = "U"
+IF IEVS_type = "WAGE" THEN type_match = "U"
 '--------------------------------------------------------------------Client name
 EMReadScreen client_name, 35, 5, 24
 client_name = trim(client_name)                         'trimming the client name
@@ -197,6 +227,7 @@ IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st
 ELSE                                'In cases where the last name takes up the entire space, THEN the client name becomes the last name
 	first_name = ""
 	last_name = client_name
+
 END IF
 IF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
 	length = len(first_name)                        	'trimming the 1st name
@@ -206,8 +237,7 @@ END IF
 'it is not putting a space in the dialog MsgBox
 'TODO change_name_to_FML
 '----------------------------------------------------------------------------------------------------ACTIVE PROGRAMS
-IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "SDXS" THEN EMReadScreen Active_Programs, 5, 7, 13
-IF IEVS_type = "UNVI" or IEVS_type = "UBEN" THEN EMReadScreen Active_Programs, 5, 6, 68
+EMReadScreen Active_Programs, 13, 6, 68
 Active_Programs =trim(Active_Programs)
 
 programs = ""
@@ -247,16 +277,16 @@ IF sent_date <> "" THEN sent_date = replace(sent_date, "", "/")
 BeginDialog notice_action_dialog, 0, 0, 166, 90, "SEND DIFFERENCE NOTICE?"
 	CheckBox 25, 35, 105, 10, "YES - Send Difference Notice", send_notice_checkbox
 	CheckBox 25, 50, 130, 10, "NO - Continue Match Action to Clear", clear_action_checkbox
-	Text 10, 10, 145, 20, "A difference notice has not been sent, would you like to send the difference notice now?"
-	ButtonGroup ButtonPressed
-		OkButton 60, 70, 45, 15
-		CancelButton 110, 70, 45, 15
+  Text 10, 10, 145, 20, "A difference notice has not been sent, would you like to send the difference notice now?"
+  ButtonGroup ButtonPressed
+    OkButton 60, 70, 45, 15
+    CancelButton 110, 70, 45, 15
 EndDialog
 
 BeginDialog send_notice_dialog, 0, 0, 296, 160, "WAGE MATCH SEND DIFFERENCE NOTICE"
-  CheckBox 10, 80, 70, 10, "Difference Notice", diff_notice_checkbox
+  CheckBox 10, 80, 70, 10, "Difference Notice", Diff_Notice_Checkbox
   CheckBox 110, 80, 90, 10, "Employment Verification", empl_verf_checkbox
-  CheckBox 10, 95, 90, 10, "Authorization to Release", atr_verf_Checkbox
+  CheckBox 10, 95, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
   CheckBox 110, 95, 80, 10, "Other (please specify)", other_checkbox
   EditBox 50, 120, 240, 15, other_notes
   ButtonGroup ButtonPressed
@@ -273,20 +303,21 @@ EndDialog
 
 IF notice_sent = "N" THEN
 	DO
-    	err_msg = ""
-    	cancel_confirmation
-    	IF (send_notice_checkbox = UNCHECKED AND clear_action_checkbox = UNCHECKED) THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
-    	IF (send_notice_checkbox = CHECKED AND clear_action_checkbox = CHECKED) THEN err_msg = err_msg & vbNewLine & "* Please select only one answer to continue."
-    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    err_msg = ""
+    Dialog notice_action_dialog
+    IF ButtonPressed = 0 THEN StopScript
+    IF (send_notice_checkbox = UNCHECKED AND clear_action_checkbox = UNCHECKED) THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
+    IF (send_notice_checkbox = CHECKED AND clear_action_checkbox = CHECKED) THEN err_msg = err_msg & vbNewLine & "* Please select only one answer to continue."
+    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 END IF
 CALL DEU_password_check(False)
 
 IF send_notice_checkbox = CHECKED THEN
-'----------------------------------------------------------------Defaulting checkboxes to being checked (per DEU instruction)
-	diff_notice_checkbox = CHECKED
-	atr_verf_Checkbox = CHECKED
-'---------------------------------------------------------------------send notice dialog and dialog DO...loop
+		'----------------------------------------------------------------Defaulting checkboxes to being checked (per DEU instruction)
+    Diff_Notice_Checkbox = CHECKED
+    ATR_Verf_CheckBox = CHECKED
+    '---------------------------------------------------------------------send notice dialog and dialog DO...loop
 	DO
     	err_msg = ""
     	Dialog send_notice_dialog
@@ -303,37 +334,38 @@ IF send_notice_checkbox = CHECKED THEN
 	transmit 'goes into IULA
 	'removed the IULB information '
 	transmit'exiting IULA, helps prevent errors when going to the case note
-'Going to the MISC panel
-	Call navigate_to_MAXIS_screen ("STAT", "MISC")
-	Row = 6
-	EmReadScreen panel_number, 1, 02, 78
-	If panel_number = "0" then
-	EMWriteScreen "NN", 20,79
-	TRANSMIT
+
+	   'Going to the MISC panel
+  Call navigate_to_MAXIS_screen ("STAT", "MISC")
+  Row = 6
+  EmReadScreen panel_number, 1, 02, 78
+  If panel_number = "0" then
+  	EMWriteScreen "NN", 20,79
+  	TRANSMIT
   ELSE
-	Do
-'Checking to see if the MISC panel is empty, if not it will find a new line'
-		EmReadScreen MISC_description, 25, row, 30
-		MISC_description = replace(MISC_description, "_", "")
-		IF trim(MISC_description) = "" then
-			PF9
-			EXIT DO
-		ELSE
-	  		row = row + 1
-      END IF
+  	Do
+      'Checking to see if the MISC panel is empty, if not it will find a new line'
+      EmReadScreen MISC_description, 25, row, 30
+      MISC_description = replace(MISC_description, "_", "")
+      If trim(MISC_description) = "" then
+  		PF9
+      	EXIT DO
+      Else
+            row = row + 1
+      End if
   	Loop Until row = 17
     If row = 17 then script_end_procedure("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-END IF
+  End if
 
-'writing in the action taken and date to the MISC panel
-	EMWriteScreen "Initial Claim Referral", Row, 30
-	PF3
+  'writing in the action taken and date to the MISC panel
+  EMWriteScreen "Initial Claim Referral", Row, 30
+  PF3
 	Call navigate_to_MAXIS_screen("DAIL", "WRIT")
 	call create_MAXIS_friendly_date(date, 10, 5, 18)
 	Call write_variable_in_TIKL("Potential overpayment exists on case. Please review case for receipt of additional requested information.")
-  	PF3
+  PF3
 
-  start_a_blank_case_note
+  start_a_blank_CASE_NOTE
   	Call write_variable_in_case_note("-----Claim Referral Tracking-----")
   	Call write_bullet_and_variable_in_case_note("Program(s)", program)
   	Call write_bullet_and_variable_in_case_note("Action Date", Action_Date)
@@ -342,9 +374,9 @@ END IF
   	Call write_variable_in_case_note(worker_signature)
 	'--------------------------------------------------------------------The case note & case note related code
 	pending_verifs = ""
-  	IF diff_notice_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Difference Notice, "
+  	IF Diff_Notice_Checkbox = CHECKED THEN pending_verifs = pending_verifs & "Difference Notice, "
 	IF empl_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "EVF, "
-	IF atr_verf_Checkbox = CHECKED THEN pending_verifs = pending_verifs & "ATR, "
+	IF ATR_Verf_CheckBox = CHECKED THEN pending_verifs = pending_verifs & "ATR, "
 	IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
 
     '-------------------------------------------------------------------trims excess spaces of pending_verifs
@@ -358,53 +390,52 @@ END IF
 		IF quarter = 4 THEN IEVS_quarter = "4TH"
 	END IF
 	IEVS_match = replace(IEVS_match, "/", " to ")
-	due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
+	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
 	'---------------------------------------------------------------------DIFF NOTC case note
-	start_a_blank_case_note
-		IF IEVS_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH(" & first_name & ")DIFF NOTICE SENT-----")
-		IF IEVS_type = "BEER" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ")" & "(" & first_name & ")DIFF NOTICE SENT-----")
-		IF IEVS_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH(" & type_match & ")" & "(" & first_name & ")DIFF NOTICE SENT-----")
-		CALL write_bullet_and_variable_in_case_note("Client Name", client_name)
-  		CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
-		CALL write_bullet_and_variable_in_case_note("Source of income", source_income)
-		CALL write_variable_in_case_note ("----- ----- -----")
-  		CALL write_bullet_and_variable_in_case_note("Verification Requested", pending_verifs)
-  		CALL write_bullet_and_variable_in_case_note("Verification Due", due_date)
-		CALL write_variable_in_case_note ("* Client must be provided 10 days to return requested verifications *")
-  		CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
-  		CALL write_variable_in_case_note("----- ----- ----- ----- ----- ----- -----")
-  		CALL write_variable_in_case_note ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
+  	start_a_blank_CASE_NOTE
+	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH(" & first_name & ") DIFF NOTICE SENT-----")
+	IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
+	IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
+	CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
+  	CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
+	CALL write_variable_in_CASE_NOTE ("----- ----- -----")
+  	CALL write_bullet_and_variable_in_CASE_NOTE("Verification Requested", pending_verifs)
+  	CALL write_bullet_and_variable_in_CASE_NOTE("Verification Due", Due_date)
+	CALL write_variable_in_CASE_NOTE ("* Client must be provided 10 days to return requested verifications *")
+  	CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+  	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+  	CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 END IF
 
 IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	IF sent_date <> "" THEN MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The script will now navigate to clear the match.")
 
-	BeginDialog cleared_match_dialog, 0, 0, 306, 190, "MATCH CLEARED"
-	  Text 10, 20, 110, 10, "Case number: "  & MAXIS_case_number
-	  Text 120, 20, 165, 10, "Client name: " & client_name
-	  Text 10, 40, 105, 10, "Active Programs: " & programs
-	  Text 120, 40, 175, 15, "Income source:" & source_income
-	  DropListBox 75, 65, 110, 15, "Select One:"+chr(9)+"BC-Case Closed"+chr(9)+"BN-Already Known, No Savings"+chr(9)+"BE-Child"+chr(9)+"BE-No Change"+chr(9)+"BE-OP Entered"+chr(9)+"BO-Other"+chr(9)+"BP-Wrong Person"+chr(9)+"CC-Claim Entered"+chr(9)+"NC-Non-Cooperation"+chr(9)+"CC/NC/CC-Non-Coop Claim Entered", resolution_status
-	  EditBox 265, 65, 35, 15, resolve_time
-	  DropListBox 125, 85, 60, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", change_response
-	  DropListBox 125, 105, 60, 15, "Select One:"+chr(9)+"Delete DISQ"+chr(9)+"Pending Verf"+chr(9)+"N/A", DISQ_action
-	  CheckBox 10, 130, 135, 10, "Check here if 10 day cutoff has passed", TIKL_checkbox
-	  CheckBox 205, 100, 70, 10, "Difference Notice", diff_notice_checkbox
-	  CheckBox 205, 110, 90, 10, "Authorization to Release", atr_verf_Checkbox
-	  CheckBox 205, 120, 90, 10, "Employment Verification", EVF_checkbox
-	  CheckBox 205, 130, 80, 10, "Other (please specify)", other_checkbox
-	  EditBox 55, 150, 245, 15, other_notes
-	  ButtonGroup ButtonPressed
-	    OkButton 205, 170, 45, 15
-	    CancelButton 255, 170, 45, 15
-	  Text 10, 70, 60, 10, "Resolution Status: "
-	  Text 10, 90, 110, 10, "Responded to Difference Notice: "
-	  Text 80, 110, 40, 10, "DISQ Panel: "
-	  Text 10, 155, 45, 10, "Other Notes: "
-	  GroupBox 190, 90, 110, 55, "Verification Used to Clear: "
-	  Text 195, 70, 65, 10, "Resolve Time (min): "
+	BeginDialog cleared_match_dialog, 0, 0, 311, 175, "MATCH CLEARED"
+  	Text 10, 20, 110, 10, "Case number: " & MAXIS_case_number
+  	Text 120, 20, 165, 10, "Client name: " & client_name
+  	Text 10, 40, 105, 10, "Active Programs: " & programs
+		Text 120, 40, 175, 15, "Income source: " & source_income
+  	DropListBox 75, 65, 110, 15, "Select One: "+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BE - OP Entered"+chr(9)+"BO - Other"+chr(9)+"BP - Wrong Person"+chr(9)+"CC - Claim Entered"+chr(9)+"NC - Non Cooperation", resolution_status
+  	DropListBox 125, 85, 60, 15, "Select One: "+chr(9)+"Yes"+chr(9)+"No", change_response
+  	EditBox 150, 105, 35, 15, resolve_time
+  	EditBox 55, 130, 250, 15, other_notes
+  	CheckBox 210, 75, 70, 10, "Difference Notice", Diff_Notice_Checkbox
+  	CheckBox 210, 85, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
+  	CheckBox 210, 95, 90, 10, "Employment verification", EVF_checkbox
+  	CheckBox 210, 105, 80, 10, "Other (please specify)", other_checkbox
+  	CheckBox 10, 155, 135, 10, "Check here if 10 day cutoff has passed", TIKL_checkbox
+  	ButtonGroup ButtonPressed
+  		OkButton 210, 155, 45, 15
+			CancelButton 260, 155, 45, 15
+		Text 10, 70, 60, 10, "Resolution Status: "
+		Text 10, 90, 110, 10, "Responded to Difference Notice: "
+		Text 10, 110, 85, 10, "Resolve time (in minutes): "
+		Text 10, 135, 40, 10, "Other notes: "
+		GroupBox 195, 65, 110, 55, "Verification Used to Clear: "
 	EndDialog
+
 
 	DO
 		err_msg = ""
@@ -414,24 +445,23 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		IF resolve_time = "" THEN err_msg = err_msg & vbNewLine & "Please complete resolve time."
 		IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the client respond to Difference Notice?"
 		IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
-		IF (resolution_status = "BE-No Change" AND other_notes = "") THEN err_msg = err_msg & vbNewLine & "When clearing using BE other notes must be completed."
-		If (resolution_status = "CC-Claim Entered" AND instr(programs, "HC") or instr(programs, "Medical Assistance")) THEN err_msg = err_msg & vbNewLine & "* System does not allow HC or MA cases to be cleared with the code 'CC-Claim Entered'."
+		IF (resolution_status = "BE - No Change" AND other_notes = "") THEN err_msg = err_msg & vbNewLine & "When clearing using BE other notes must be completed."
+		If (resolution_status = "CC - Claim Entered" AND instr(programs, "HC") or instr(programs, "Medical Assistance")) THEN err_msg = err_msg & vbNewLine & "* System does not allow HC or MA cases to be cleared with the code 'CC - Claim Entered'."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL DEU_password_check(False)
 
 	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
 	EMWriteScreen resolve_time, 12, 46	    'resolved notes depending on the resolution_status
-	IF resolution_status = "BC-Case Closed" THEN IULA_status = "BC"
-	IF resolution_status = "BE-Child" THEN IULA_status = "BE"
-	IF resolution_status = "BE-No Change" THEN IULA_status = "BE"
-	IF resolution_status = "BE-OP Entered" THEN IULA_status = "BE"
-	IF resolution_status = "BN-Already Known, No Savings" THEN IULA_status = "BN"
-	IF resolution_status = "BO-Other" THEN IULA_status = "BO"
-	IF resolution_status = "BP-Wrong Person"  THEN IULA_status = "BP"
-	IF resolution_status = "CC-Claim Entered" THEN IULA_status = "CC"
-	IF resolution_status = "NC-Non-Cooperation" THEN IULA_status = "NC"
-	IF resolution_status = "CC/NC/CC-Non-Coop Claim Entered" THEN IULA_status = "NC"
+	IF resolution_status = "BC - Case Closed" THEN rez_status = "BC"
+	IF resolution_status = "BE - Child" THEN rez_status = "BE"
+	IF resolution_status = "BE - No Change" THEN rez_status = "BE"
+	IF resolution_status = "BE - OP Entered" THEN rez_status = "BE"
+	IF resolution_status = "BN - Already known, No Savings" THEN rez_status = "BN"
+	IF resolution_status = "BO - Other" THEN rez_status = "BO"
+	IF resolution_status = "BP - Wrong Person"  THEN rez_status = "BP"
+	IF resolution_status = "CC - Claim Entered" THEN rez_status = "CC"
+	IF resolution_status = "NC - Non Cooperation" THEN rez_status = "NC"
 	'CC cannot be used - ACTION CODE FOR ACTH OR ACTM IS INVALID
 	programs_array = split(programs, ",")
 	For each program in programs_array
@@ -444,8 +474,9 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	  	row = 11
 	  	col = 57
 	  	EMSearch cleared_header, row, col
-	  	EMWriteScreen IULA_status, row + 1, col + 1
+	  	EMWriteScreen resolution_status, row + 1, col + 1
 	Next
+	EMwritescreen rez_status, 12, 58
 	IF change_response = "YES" THEN
 		EMwritescreen "Y", 15, 37
 	ELSE
@@ -456,17 +487,15 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	EMReadScreen error_msg, 11, 24, 2
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	If error_msg = "ACTION CODE" THEN script_end_procedure(err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
-	IF resolution_status = "BC-Case Closed" 	THEN EMWriteScreen "Case closed. " & other_notes, 8, 6   							'BC
-	IF resolution_status = "BE-No Change" THEN EMWriteScreen "No change. " & other_notes, 8, 6 									'BE
-	IF resolution_status = "BE-Child" THEN EMWriteScreen "No change, minor child income excluded. " & other_notes, 8, 6 			'BE-Child
-	IF resolution_status = "BE-OP Entered" THEN EMWriteScreen "OP entered other programs." & other_notes, 8, 6
-	IF resolution_status = "BN-Already Known, No Savings" THEN EMWriteScreen "Already known - No savings. " & other_notes, 8, 6 	'BN
-	IF resolution_status = "BO-Other" THEN EMWriteScreen "HC Claim entered. " & other_notes, 8, 6 								'BO
-	IF resolution_status = "BP-Wrong Person" THEN EMWriteScreen "Client name and wage earner name are different. " & other_notes, 8, 6
-	IF resolution_status = "CC-Claim Entered" THEN EMWriteScreen "Claim entered. " & other_notes, 8, 6 						 	'CC
-	IF resolution_status = "NC-Non-Cooperation" THEN EMWriteScreen "Non-coop, requested verf not in ECF - " & other_notes, 8, 6 	'NC
-	IF resolution_status = "CC/NC/CC-Non-Coop Claim Entered" THEN EMWriteScreen "USED INFC INCOME TO CALCULATE OP" & other_notes, 9, 6 	'NC
-
+	IF resolution_status = "BC - Case Closed" 	THEN EMWriteScreen "Case closed. " & other_notes, 8, 6   							'BC
+	IF resolution_status = "BE - No Change" THEN EMWriteScreen "No change. " & other_notes, 8, 6 									'BE
+	IF resolution_status = "BE - Child" THEN EMWriteScreen "No change, minor child income excluded. " & other_notes, 8, 6 			'BE - child
+	IF resolution_status = "BE - OP Entered" THEN EMWriteScreen "OP entered other programs" & other_notes, 8, 6
+	IF resolution_status = "BN - Already known, No Savings" THEN EMWriteScreen "Already known - No savings. " & other_notes, 8, 6 	'BN
+	IF resolution_status = "BO - Other" THEN EMWriteScreen "HC Claim entered. " & other_notes, 8, 6 								'BO
+	IF resolution_status = "BP - Wrong Person" THEN EMWriteScreen "Client name and wage earner name are different. " & other_notes, 8, 6
+	IF resolution_status = "CC - Claim Entered" THEN EMWriteScreen "Claim entered. " & other_notes, 8, 6 						 	'CC
+	IF resolution_status = "NC - Non Cooperation" THEN EMWriteScreen "Non-coop, requested verf not in ECF, " & other_notes, 8, 6 	'NC
 	'msgbox "did the notes input?"
 	TRANSMIT 'this will take us back to IEVP main menu'
 	'------------------------------------------------------------------back on the IEVP menu, making sure that the match cleared
@@ -485,51 +514,39 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
   		IF quarter = 3 THEN IEVS_quarter = "3RD"
   		IF quarter = 4 THEN IEVS_quarter = "4TH"
   	END IF
-	'because the case note needs to be longer than the IULA status'
-	IF resolution_status = "BC-Case Closed" THEN case_note_header = "BC"
-	IF resolution_status = "BE-Child" THEN case_note_header = "BE"
-	IF resolution_status = "BE-No Change" THEN case_note_header = "BE"
-	IF resolution_status = "BE-OP Entered" THEN case_note_header = "BE"
-	IF resolution_status = "BN-Already Known, No Savings" THEN case_note_header = "BN"
-	IF resolution_status = "BO-Other" THEN case_note_header = "BO"
-	IF resolution_status = "BP-Wrong Person"  THEN case_note_header = "BP"
-	IF resolution_status = "CC-Claim Entered" THEN case_note_header = "CC"
-	IF resolution_status = "NC-Non-Cooperation" THEN case_note_header = "NC"
-	IF resolution_status = "CC/NC/CC-Non-Coop Claim Entered" THEN case_note_header = "CC/NC/CC NON-COOP WITH OP"
 
 	IEVS_match = replace(IEVS_match, "/", " to ")
-	due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
+	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 	PF3 'back to the DAIL'
 	   '----------------------------------------------------------------the case match CLEARED note
-	start_a_blank_case_note
-		IF IEVS_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & "(" & first_name & ")CLEARED " & case_note_header & "-----")
- 		IF IEVS_type = "BEER" or IEVS_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ")" & "(" & first_name & ")CLEARED " & case_note_header & "-----")
-		IF IEVS_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH(" & type_match & ")" & "(" & first_name & ")CLEARED " & case_note_header & "-----")
-		CALL write_bullet_and_variable_in_case_note("Period", IEVS_match)
-		CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
-		CALL write_bullet_and_variable_in_case_note("Source of income", source_income)
-		CALL write_variable_in_case_note ("----- ----- -----")
-		IF resolution_status = "BC-Case Closed" THEN CALL write_variable_in_case_note("CASE CLOSED. ")
-		IF resolution_status = "BE-Child" THEN CALL write_variable_in_case_note("INCOME IS EXCLUDED FOR MINOR CHILD IN SCHOOL.")
-		IF resolution_status = "BE-OP Entered" THEN CALL write_variable_in_case_note("OVERPAYMENTS OR SAVINGS WERE FOUND RELATED TO THIS.")
-		IF resolution_status = "BE-No Change" THEN CALL write_variable_in_case_note("NO OVERPAYMENTS OR SAVINGS RELATED TO THIS.")
-		IF resolution_status = "BN-Already Known, No Savings" THEN CALL write_variable_in_case_note("CLIENT REPORTED INCOME. CORRECT INCOME IS IN STAT PANELS AND BUDGETED.")
-		IF resolution_status = "BO-Other" THEN CALL write_variable_in_case_note("HC CLAIM ENTERED. ")
-		IF resolution_status = "BP-Wrong Person" THEN CALL write_variable_in_case_note("Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
-		IF resolution_status = "CC-Claim Entered" THEN CALL write_variable_in_case_note("CLAIM ENTERED.")
-		IF resolution_status = "CC/NC/CC-Non-Coop Claim Entered" THEN write_variable_in_case_note("Claim entered, client did not cooperate.")
-		IF resolution_status = "NC-Non-Cooperation" THEN
-  			CALL write_variable_in_case_note("* CLIENT FAILED TO COOP WITH WAGE MATCH")
-    		IF DISQ_action = "Pending Verf" THEN CALL write_variable_in_case_note("* Entered STAT/DISQ panels for each program.")
+	start_a_blank_CASE_NOTE
+		IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & "(" & first_name & ") CLEARED " & rez_status & "-----")
+ 		IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
+		IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
+		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_match)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
+		CALL write_variable_in_CASE_NOTE ("----- ----- -----")
+		IF resolution_status = "BC - Case Closed" 	THEN CALL write_variable_in_CASE_NOTE("Case closed. ")
+		IF resolution_status = "BE - Child" THEN CALL write_variable_in_CASE_NOTE("INCOME IS EXCLUDED FOR MINOR CHILD IN SCHOOL.")
+		IF resolution_status = "BE - OP Entered" THEN CALL write_variable_in_CASE_NOTE("OVERPAYMENTS OR SAVINGS WERE FOUND RELATED TO THIS.")
+		IF resolution_status = "BE - No Change" THEN CALL write_variable_in_CASE_NOTE("NO OVERPAYMENTS OR SAVINGS RELATED TO THIS.")
+		IF resolution_status = "BN - Already known, No Savings" THEN CALL write_variable_in_CASE_NOTE("CLIENT REPORTED INCOME. CORRECT INCOME IS IN STAT PANELS AND BUDGETED.")
+		IF resolution_status = "BO - Other" THEN CALL write_variable_in_CASE_NOTE("HC Claim entered. ")
+		IF resolution_status = "BP - Wrong Person" THEN CALL write_variable_in_CASE_NOTE("Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
+		IF resolution_status = "CC - Claim Entered" THEN CALL write_variable_in_CASE_NOTE("Claim entered.")
+		IF resolution_status = "NC - Non Cooperation" THEN
+  			CALL write_variable_in_CASE_NOTE("* CLIENT FAILED TO COOP WITH WAGE MATCH")
+    		CALL write_variable_in_case_note("* Entered STAT/DISQ panels for each program.")
     		CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
     		CALL write_variable_in_case_note("* Case approved to close")
     		CALL write_variable_in_case_note("* Client needs to provide: ATR, Income Verification, Difference Notice")
 		END IF
-  		CALL write_bullet_and_variable_in_case_note("Responded to Difference Notice", change_response)
-  		CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
-  		CALL write_variable_in_case_note("----- ----- ----- ----- -----")
-  		CALL write_variable_in_case_note ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
-		PF3
+  		CALL write_bullet_and_variable_in_CASE_NOTE("Responded to Difference Notice", change_response)
+  		CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+  		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+  		CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
+
 	IF TIKL_checkbox = checked THEN    'Navigates to TIKL
 	 	EMSendKey "w"
 	 	transmit
@@ -537,7 +554,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	 	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
 	 	CALL write_variable_in_TIKL("CLOSE FOR IEVS NON-COOP, CREATE DISQ(S) FOR " & first_name)
 	 	PF3		'Exits and saves TIKL
-	 	script_end_procedure("Success! Updated match, and a TIKL created.")
+	 	script_end_procedure("Success! Updated WAGE match, and a TIKL created.")
 	END IF
 END IF
 script_end_procedure ("Match has been acted on. Please take any additional action needed for your case.")

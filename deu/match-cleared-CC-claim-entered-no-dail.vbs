@@ -86,7 +86,6 @@ BeginDialog OP_Cleared_dialog, 0, 0, 361, 245, "Match Cleared CC Claim Entered-N
   EditBox 305, 5, 45, 15, discovery_date
   DropListBox 55, 25, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
   DropListBox 155, 25, 55, 15, "Select:"+chr(9)+"WAGE"+chr(9)+"BEER", IEVS_type
-	'DropListBox 150, 25, 55, 15, "Select:"+chr(9)+"BNDX"+chr(9)+"SDXS"+chr(9)+"BEER"+chr(9)+"NONE"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", IEVS_type
   EditBox 250, 25, 20, 15, memb_number
   EditBox 330, 25, 20, 15, OT_resp_memb
   DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
@@ -226,7 +225,14 @@ DO
 	IF ievp_info_confirmation = vbYes THEN 	EXIT DO
 LOOP UNTIL ievp_info_confirmation = vbYes
 
-CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
+EMReadScreen multiple_match, 11, row + 1, 47
+IF multiple_match = IEVS_period THEN
+	msgbox("More than one match exists for this time period. Determine the match you'd like to clear, and put your cursor in front of that match." & vbcr & "Press OK once match is determined.")
+	EMSendKey "U"
+	transmit
+ELSE
+	CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
+END IF
 
 '---------------------------------------------------------------------Reading potential errors for out-of-county cases
 EMReadScreen OutOfCounty_error, 12, 24, 2
@@ -247,6 +253,7 @@ END IF
 
 IF IEVS_type = "BEER" THEN type_match = "B"
 IF IEVS_type = "UBEN" THEN type_match = "U"
+IF IEVS_type = "WAGE" THEN type_match = "U"
 
 '--------------------------------------------------------------------Client name
 EMReadScreen client_name, 35, 5, 24
