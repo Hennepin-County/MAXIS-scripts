@@ -328,16 +328,16 @@ IF fs_pend = CHECKED OR cash_pend = CHECKED OR grh_pend = CHECKED THEN send_appt
       	GroupBox 0, 130, 175, 30, "**IMPORTANT**"
     	EndDialog
 
-		'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
-		If application_date >= cdate("10/01/2018") then			'these variables need to change every October
-			heat_AC_amt = 532
-			electric_amt = 141
-			phone_amt = 38
-        else 
-            heat_AC_amt = 552
+        'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
+        If application_date >= cdate("10/01/2018") then			'these variables need to change every October
+            heat_AC_amt = 493
             electric_amt = 126
             phone_amt = 47
-		End if
+        else 
+            heat_AC_amt = 556
+            electric_amt = 172
+            phone_amt = 41
+        End if
 
     	'----------------------------------------------------------------------------------------------------THE SCRIPT
     	CALL MAXIS_case_number_finder(MAXIS_case_number)

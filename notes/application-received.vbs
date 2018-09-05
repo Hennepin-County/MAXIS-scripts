@@ -369,13 +369,13 @@ start_a_blank_case_note
 
         'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
         If application_date >= cdate("10/01/2018") then			'these variables need to change every October
-            heat_AC_amt = 532
-            electric_amt = 141
-            phone_amt = 38
-        else 
-            heat_AC_amt = 552
+            heat_AC_amt = 493
             electric_amt = 126
             phone_amt = 47
+        else 
+            heat_AC_amt = 556
+            electric_amt = 172
+            phone_amt = 41
         End if
 
     	'----------------------------------------------------------------------------------------------------THE SCRIPT
