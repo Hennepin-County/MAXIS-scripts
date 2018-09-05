@@ -109,7 +109,7 @@ If date >= cdate("10/01/2018") then
     If sponsor_HH_size = 6 then income_limit = 3656
     If sponsor_HH_size = 7 then income_limit = 4124
     If sponsor_HH_size = 8 then income_limit = 4592
-    If sponsor_HH_size > 8 then income_limit = 4592 + (468 * (household_size- 8))
+    If sponsor_HH_size > 8 then income_limit = 4592 + (468 * (sponsor_HH_size - 8))
 else 
     If sponsor_HH_size = 1 then income_limit = 1307
     If sponsor_HH_size = 2 then income_limit = 1760
