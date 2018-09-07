@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/07/2018", "Added 2nd set to the ABAWD/Banked Months information field.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/11/2017", "Added ABAWD/Banked Months information field to be completed when users are closing SNAP. Hennepin users only: Added option to send probate information via SPEC/MEMO if a HC notice is not found.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -100,7 +101,7 @@ BeginDialog closed_dialog, 0, 0, 481, 265, "Closed Programs Dialog"
   Text 195, 245, 60, 10, "Worker Signature: "
   Text 285, 175, 95, 10, "For more information refer to:"
   Text 130, 10, 50, 10, "Progs Closed:"
-  Text 10, 90, 100, 10, "ABAWD/Banked Months info: "
+  Text 10, 90, 100, 10, "ABAWD/2nd Set/Banked info: "
 EndDialog
 
 'The script----------------------------------------------------------------------------------------------------
