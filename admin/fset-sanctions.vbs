@@ -135,13 +135,14 @@ notes_col = 13
 
 '----------------------------------------------------------------------------------------------------Actually imposing the sanction
 If sanction_option = "Review sanctions" then 
+    objExcel.Cells(1, 5).Value = "Agency notified date"
     objExcel.Cells(1, 6).Value = "SNAP Status"
     objExcel.Cells(1, 7).Value = "ABAWD/FSET"
     objExcel.Cells(1, 8).Value = "ABAWD Months Used"
     objExcel.Cells(1, 9).Value = "Referral Date"
     objExcel.Cells(1, 10).Value = "Orient Date"
     objExcel.Cells(1, 11).Value = "Notice Sent?"
-    objExcel.Cells(1, 12).Value = "Sanction"
+    objExcel.Cells(1, 12).Value = "Sanction?"
     objExcel.Cells(1, 13).Value = "BULK Notes"
     
     FOR i = 1 to 13 	'formatting the cells'
@@ -149,6 +150,8 @@ If sanction_option = "Review sanctions" then
         ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
         objExcel.Columns(i).AutoFit()				'sizing the columns'
     NEXT
+    
+    ObjExcel.columns(5).NumberFormat = "mm/dd/yyyy"
     
     Do 
         sanction_notes = ""
@@ -175,7 +178,7 @@ If sanction_option = "Review sanctions" then
             found_member = False 
     	Else
             EmReadscreen county_code, 4, 21, 21
-            IF county_code <> ucase(worker_county_code) then 
+            IF county_code <> UCase(worker_county_code) then 
                 'msgbox county_code & vbcr & worker_county_code
                 sanction_notes = sanction_notes & " Out-of-county case."
                 found_member = False 
@@ -186,16 +189,12 @@ If sanction_option = "Review sanctions" then
             EmReadscreen SNAP_actv, 4, 10, 74
             ObjExcel.Cells(excel_row, status_col).Value = SNAP_actv
             If SNAP_actv = "ACTV" then 
-                found_member = True
             else 
                 sanction_notes = sanction_notes & "SNAP not active."
-                found_member = FALSE
             End if
-        End if
-            
-        Call HCRE_panel_bypass  'function to ensure we get past HCRE panel 
         
-        If found_member = True then 
+            Call HCRE_panel_bypass  'function to ensure we get past HCRE panel 
+        
             '>>>>>>>>>>ADDR
             CALL navigate_to_MAXIS_screen("STAT", "ADDR")
             EMReadScreen homeless_code, 1, 10, 43
@@ -305,8 +304,10 @@ If sanction_option = "Review sanctions" then
                     EMReadscreen work_memb, 2, row, 3
                     If work_memb = member_number then 
                         EmReadscreen referral_date, 8, row, 72
+                        referral_date = trim(referral_date)
                         EmReadscreen appt_date, 8, row, 59
-                        If trim(referral_date) <> "" then referral_date = replace(referral_date, " ", "/")
+                        
+                        If referral_date <> "" then referral_date = replace(referral_date, " ", "/")
                         If appt_date <> "__ __ __" then 
                             appt_date = replace(appt_date, " ", "/")
                         Else 
@@ -317,64 +318,62 @@ If sanction_option = "Review sanctions" then
                         found_member = True
                         exit do 
                     Else 
-                        'row = row + 1
-                        sanction_notes = sanction_notes & " More than one referral. Process manually."
-                        found_member = False
-                        Exit do
+                        row = row + 1
                     End if 
                 Loop until trim(work_memb) = ""
+                If found_member <> true then sanction_notes = sanction_notes & " More than one referral. Process manually."
             End if 
         End if 
         
         If found_member = True then
             Call navigate_to_MAXIS_screen("SPEC", "WCOM")
             row = 7
+            notice_sent = False     'Defauliting notice sent to false (as this would likely be manually reviewed.)
             DO
             	EMReadscreen notice_type, 16, row, 30
-                If trim(notice_type) = "" then 
-                    'msgbox "going to PF7"
-                    PF7
-                    row = 7
-                    sanction_case = false 
-                elseIf notice_type = "SPEC/LETR Letter" then 
+                If notice_type = "SPEC/LETR Letter" then 
                     EmReadscreen FS_notice, 2, row, 26
                     If FS_notice = "FS" or FS_notice = "  " then 
                         Call write_value_and_transmit ("x", row, 13)
-                        'msgbox "entered into notice?"
-                        EmReadscreen in_notice, 4, 1, 45
-                        If in_notice = "Copy" then 
-                            PF8
-                            PF8 'twice to get to the date of the orientation 
-                            EmReadscreen orient_date_LETR, 10, 2, 8
-                            If isDate(orient_date_LETR) = False then 
+                        PF8
+                        PF8 'twice to get to the date of the orientation 
+                        EmReadscreen orient_date_LETR, 10, 2, 8
+                        If isDate(orient_date_LETR) = False then 
+                            sanction_case = FALSE
+                            PF3
+                        Else 
+                            Call ONLY_create_MAXIS_friendly_date(orient_date_LETR)
+                            If orient_date_LETR = appt_date then 
+                                notice_sent = True 
+                                sanction_case = TRUE
+                                'msgbox appt_date & vbcr & orient_date_LETR
+                                exit do 
+                            ELSE
+                                sanction_notes = sanction_notes & " Referral date does not match letter date of: " & orient_date_LETR & ". "
+                                notice_sent = True 
                                 sanction_case = FALSE
                                 PF3
-                            Else 
-                                Call ONLY_create_MAXIS_friendly_date(orient_date_LETR)
-                                If orient_date_LETR = appt_date then 
-                                    ObjExcel.Cells(excel_row, notice_col).Value = "Yes"
-                                    sanction_case = TRUE
-                                    'msgbox appt_date & vbcr & orient_date_LETR
-                                    exit do 
-                                ELSE
-                                    sanction_notes = sanction_notes & " Referral date does not match letter date. Letter date is: " & orient_date_LETR & ". "
-                                    sanction_case = FALSE
-                                    PF3
-                                End if 
                             End if 
-                            'msgbox sanction_case
                         End if 
                     else 
                         sanction_case = False 
                     End if 
-                else 
+                elseif trim(notice_type) = "" then 
+                    PF7         'navigating to the previous footer month/year.
+                    row = 7 
+                else  
                     sanction_case = false
-                    'msgbox row 
                 End if 
                 If sanction_case = False then row = row + 1
                 EmReadscreen no_notices, 10, 24, 2 
             Loop until no_notices = "NO NOTICES"
-                    
+            
+            If notice_sent = True then 
+                ObjExcel.Cells(excel_row, notice_col).Value = "Yes"
+            Else 
+                ObjExcel.Cells(excel_row, notice_col).Value = "No"
+            End if 
+    
             If sanction_case = true then 
                 If wreg_codes = "30/06" or wreg_codes = "30/08" or wreg_codes = "30/10" or wreg_codes = "30/11" then 
                     ObjExcel.Cells(excel_row, sanction_col).Value = "Yes"
@@ -410,7 +409,7 @@ If sanction_option = "Update WREG only" then
         sanction_notes = ObjExcel.Cells(excel_row, notes_col).Value
         
         If MAXIS_case_number = "" then exit do
-        If trim(sanction_code) = "Yes" or trim(sanction_code) = "YES" or trim(sanction_code) = "yes" then  
+        If trim(UCase(sanction_code)) = "YES" then  
             Call MAXIS_background_check
             MAXIS_footer_month = CM_mo	'establishing footer month/year as next month 
             MAXIS_footer_year = CM_yr 
@@ -591,6 +590,10 @@ If sanction_option = "Add WCOM" then
         excel_row = excel_row + 1 
     Loop until ObjExcel.Cells(excel_row, 2).Value = ""    
 End if  
+
+FOR i = 1 to 13 	'formatting the cells'
+    objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
 
 STATS_counter = STATS_counter - 1 'since we start with 1
 script_end_procedure("Success! Your list is complete. Please review the list for work that still may be required.")
