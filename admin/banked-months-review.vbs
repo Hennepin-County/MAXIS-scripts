@@ -782,8 +782,17 @@ If process_option = "Find ABAWD Months" Then
 
         'Checking for PRIV cases.
         EMReadScreen priv_check, 6, 24, 14 'If it can't get into the case, script will end.
+        EMReadScreen panel_check, 4, 2, 50
+        EMReadScreen stat_msg, 17, 24, 28
+        'MsgBox panel_check
         IF priv_check = "PRIVIL" THEN
             CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case) = "PRIV " & CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
+            ObjExcel.Cells(list_row, notes_col).Value = CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
+            continue_search = FALSE
+        ELSEIF panel_check = "SPAN" OR stat_msg = "APPLICATION MONTH" Then
+            PF3
+            MsgBox "Case appears to be in PND1, cannot review WREG on a case in PND1"
+            CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case) = "SPAN " & CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
             ObjExcel.Cells(list_row, notes_col).Value = CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
             continue_search = FALSE
         ELSE
