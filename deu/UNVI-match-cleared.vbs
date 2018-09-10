@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/10/2018", "Fixed navigation to IEVP bug. Added SSN number read needed to enter IEVP panel.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/21/2017", "Updated Noncoop option to the cleared match.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("11/06/2017", "Updated action to clear the match.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/24/2017", "Updated action to send difference notice.", "MiKayla Handley, Hennepin County")
@@ -82,6 +83,7 @@ IF IEVS_type <> "UNVI" THEN script_end_procedure("This is not a Non-wage match. 
 IF IEVS_type = "UNVI" THEN type_match = "U"
 EMreadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number= TRIM(MAXIS_case_number)
+EmReadscreen match_SSN, 9, 6, 20
 
 '----------------------------------------------------------------------------------------------------IEVS
 
@@ -116,12 +118,12 @@ UNVI_total = replace(UNVI_total, "$", "")
 DO
 	DO
 		unvi_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-		"   " & client_name & "  Non-wage match information: " & IEVS_year_check & " & " & UNVI_total, vbYesNoCancel, "Please confirm this match")
+		"   " & client_name & "  Non-wage match information: " & IEVS_year_check & " for $" & UNVI_total, vbYesNoCancel, "Please confirm this match")
 		IF unvi_info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
 		IF unvi_info_confirmation = vbNo THEN row = row + 1 'ask Ilse about putting in a do to stop the match'
 			EMReadScreen IEVS_year_check, 4, row, 6
 			IEVS_year_check = trim(IEVS_year_check)
-			msgbox IEVS_year_check
+			'msgbox IEVS_year_check
 			IF IEVS_year_check = "" THEN script_end_procedure ("The script has ended, no match has not been selected.")
 			EMReadScreen UNVI_total, 10, row, 11
 			UNVI_total = trim(UNVI_total)
@@ -137,14 +139,13 @@ EMReadScreen source_income, 40, 15, 8
 source_income = trim(source_income)
 EMReadScreen summary_source, 35, 19, 3
 summary_source = trim(summary_source)
-IF instr(summary_source, " = $") then
+IF instr(summary_source, " =") then
     length = len(summary_source) 						  'establishing the length of the variable
-    position = InStr(summary_source, " = $")    		      'sets the position at the deliminator
-    summary_source = Left(summary_source, position)  'establishes employer as being before the deliminator
+    position = InStr(summary_source, " =")    		      'sets the position at the deliminator  
+    summary_source = Left(summary_source, position-1)  'establishes employer as being before the deliminator
 ELSE
     summary_source = summary_source
 END IF
-'MsgBox source_income
 
 BeginDialog unvi_info_dialog, 0, 0, 216, 135, "NON-WAGE MATCH"
   GroupBox 5, 5, 205, 85, "NON-WAGE MATCH CASE NUMBER "  & MAXIS_case_number
@@ -152,13 +153,14 @@ BeginDialog unvi_info_dialog, 0, 0, 216, 135, "NON-WAGE MATCH"
   Text 10, 65, 165, 15, "Income source: "   & summary_source
   Text 10, 35, 165, 15, "Name: "   & source_income
   Text 5, 95, 195, 15, "*PLEASE TAKE NOTE OF INFORMATION - SCRIPT WILL     NOT CASE NOTE INCOME SOURCE OR AMOUNT"
-  Text 10, 50, 165, 10, "Total: "   & UNVI_total
+  Text 10, 50, 165, 10, "Total: $"   & UNVI_total
   ButtonGroup ButtonPressed
     OkButton 110, 115, 45, 15
     CancelButton 165, 115, 45, 15
 EndDialog
 
 Dialog unvi_info_dialog
+IF ButtonPressed = 0 THEN StopScript
 CALL DEU_password_check(False)
 
 PF3
@@ -166,6 +168,7 @@ PF3
 'msgbox "Where am i?"
 ''----------------------------------------------------------------------going back into IEVP
 CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
+EmWriteScreen match_SSN, 3, 63
 CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
 EMReadScreen error_msg, 7, 24, 2
 IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
@@ -320,7 +323,7 @@ IF send_notice_checkbox = CHECKED THEN
 	EMwritescreen "005", 12, 46 'writing the resolve time to read for later
 	EMwritescreen "Y", 14, 37 'send Notice
 	transmit
-	msgbox "notice sent"
+	'msgbox "notice sent"
 	transmit 'goes into IULA
 	ROW = 8
     EMReadScreen IULB_first_line, 1, row, 6
