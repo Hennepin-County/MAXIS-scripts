@@ -2,8 +2,8 @@
 name_of_script = "BULK - SPENDDOWN REPORT.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 72                      'manual run time in seconds
-STATS_denomination = "C"       							'C is for each CASE
+STATS_manualtime = 255                      'manual run time in seconds
+STATS_denomination = "M"       			   'M is for each Member
 'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -789,14 +789,15 @@ For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
                         'sometimes the month is not correctly found because of old budgets, this sets error information here because the case needs to be looked at manually
                         If prog = "    " Then HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) & " ~ HC ELIG Budget may need approval or budget needs to be aligned."
 
-                        If pers_type = "__" Then                        'TODO - determine why I have this here
-                            EMReadScreen cur_mo_test, 6, 7, mo_col
-                            cur_mo_test = trim(cur_mo_test)
-                            MsgBox "This is come up when person test is __" & vbNewLine & "cur_mo_test is " & cur_mo_test
-                            pers_type = cur_mo_test
-                            pers_std = ""
-                            pers_mthd = ""
-                        End If
+                        'Took this out because I think it is for a different script issue with a dirrect run and no longer needed. Will test with it gone for a while'
+                        ' If pers_type = "__" Then                        'TODO - REMOVE ON 9/28/18 if no longer needed - determine why I have this here - look at case # 132245
+                        '     EMReadScreen cur_mo_test, 6, 7, mo_col
+                        '     cur_mo_test = trim(cur_mo_test)
+                        '     'MsgBox "This is come up when person test is __" & vbNewLine & "cur_mo_test is " & cur_mo_test
+                        '     pers_type = cur_mo_test
+                        '     pers_std = ""
+                        '     pers_mthd = ""
+                        ' End If
 
                         HC_CLIENTS_DETAIL_ARRAY (elig_type_one, hc_clt) = pers_type     'setting all of the read information is added to the array
                         HC_CLIENTS_DETAIL_ARRAY (elig_std_one,  hc_clt) = pers_std
@@ -943,122 +944,135 @@ For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
     Loop until client_found = TRUE
 Next
 
-''
+'need to get to ground zero
 Call back_to_SELF
-Call navigate_to_spec_MMIS_region("CTY ELIG STAFF/UPDATE")
+Call navigate_to_spec_MMIS_region("CTY ELIG STAFF/UPDATE")      'Going to MMIS'
+'TODO add functionality to check for MMIS before the full run and use of the timer to check in to MMIS periodically through the run'
 
+'Looping through each of the HC clients while in MMIS
 For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
-    PMI_Number = right("00000000" & HC_CLIENTS_DETAIL_ARRAY(clt_pmi, hc_clt), 8)
+    STATS_counter = STATS_counter + 1       'incrementing for each client HC reviewed - it is here because this is the part that the timer will cut out on
+    PMI_Number = right("00000000" & HC_CLIENTS_DETAIL_ARRAY(clt_pmi, hc_clt), 8)    'making this 8 charactes because MMIS
 
-    If HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) <> "PRIV" Then
-        EmWriteScreen "I", 2, 19
-        EmWriteScreen PMI_Number, 4, 19
+    If HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) <> "PRIV" Then                  'Can't look at priv case information so we will ignore them
+        EmWriteScreen "I", 2, 19                                                    'read only
+        EmWriteScreen PMI_Number, 4, 19                                             'enter through the PMI so it isn't case specific
         transmit
 
-        EmWriteScreen "RELG", 1, 8
+        EmWriteScreen "RELG", 1, 8                  'go to RELG where all the elig detail is
         transmit
 
-        relg_row = 6
-        span_found = FALSE
+        relg_row = 6                                'beginning of the list.
+        span_found = FALSE                          'setting this for each client loop
         Do
-            EmReadscreen relg_prog, 2, relg_row, 10
+            EmReadscreen relg_prog, 2, relg_row, 10 'reading the prog and elig type information
             EmReadscreen relg_elig, 2, relg_row, 33
             'MsgBox relg_prog & " - " & relg_elig
 
+            'If the program matches and the elig type matches we will read for an end date
             If relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt), 2) AND relg_elig = HC_CLIENTS_DETAIL_ARRAY(elig_type_one, hc_clt) Then
-                span_found = TRUE
-                EmReadscreen relg_end_dt, 8, relg_row+1, 36
+                span_found = TRUE           'setting this for later/next loop
+                EmReadscreen relg_end_dt, 8, relg_row+1, 36     'this is where the end date is
                 'MsgBox "End Date - " & relg_end_dt
-                HC_CLIENTS_DETAIL_ARRAY(mmis_end_one, hc_clt) = relg_end_dt
-                If relg_end_dt <> "99/99/99" Then
+                HC_CLIENTS_DETAIL_ARRAY(mmis_end_one, hc_clt) = relg_end_dt     'setting the end date in to the array
+                If relg_end_dt <> "99/99/99" Then           '99/99/99 is a no end date - if there is an actual end date, we are going to compare it with today
+                    'if the difference is over 0, the end date is before today and it is not active.
                     If DateDiff("d", relg_end_dt, date) > 0 Then HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) = "MMIS SPAN ENDED for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt)
                 End If
-            ElseIf relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt), 2) Then
-                EmReadscreen relg_end_dt, 8, relg_row+1, 36
-                If relg_end_dt = "99/99/99" Then
+            ElseIf relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt), 2) Then       'sometimes the program matches but the elig type does not - HC is still active in MMIS but wrong
+                EmReadscreen relg_end_dt, 8, relg_row+1, 36         'reading the end date
+                'if there is no end date or the end date is after today then this span is active
+                If relg_end_dt = "99/99/99" or DateDiff("d", relg_end_dt, date) < 0 Then
+                    HC_CLIENTS_DETAIL_ARRAY(mmis_end_one, hc_clt) = relg_end_dt         'adding it to the array and adding a message about the wrong elig type
                     HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) = "MMIS SPAN for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt) & " has the wrong ELIG TYPE"
                     span_found = TRUE
                 End If
             End If
 
+            'For MA cases, look for a spenddown inicator in the span to compare it to the spandown indicated in MAXIS Elig
             If relg_prog = "MA" and span_found = TRUE Then
                 EmReadscreen spd_indct, 1, relg_row+2, 62
                 If HC_CLIENTS_DETAIL_ARRAY(mobl_spdn, hc_clt) = "NO SPENDDOWN" and spd_indct = "Y" Then HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) & " ~ No spenddown indicated in MAXIS but MMIS spenddown indicator is Y."
                 If HC_CLIENTS_DETAIL_ARRAY(mobl_spdn, hc_clt) <> "NO SPENDDOWN" and left(HC_CLIENTS_DETAIL_ARRAY(mobl_spdn, hc_clt), 15) <> "MONTHLY PREMIUM" and spd_indct <> "Y" Then HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) & " ~ MAXIS ELIG indicates and Spenddown but MMIS span does not."
             End If
 
+            'Once PROG is blank - there are no more spans to review
             If relg_prog = "  " Then Exit Do
-            relg_row = relg_row + 4
-            If relg_row = 22 Then
+            relg_row = relg_row + 4         'next span on RELG'
+            If relg_row = 22 Then           'this is the end of RELG and we need to go to a new page
                 PF8
                 relg_row = 6
             End If
-            EmReadscreen end_of_list, 7, 24, 26
+            EmReadscreen end_of_list, 7, 24, 26     'This is the end of the list
             If end_of_list = "NO MORE" Then Exit Do
         Loop until span_found = TRUE
+        'If we exited before finding the right Span then an error is added that a span does not exist.
         If span_found = FALSE Then HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) = "No MMIS SPAN for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt)
 
-        EmWriteScreen "RELG", 1, 8
+        EmWriteScreen "RELG", 1, 8      'This takes us back to the top in case we had to PF8 down'
         transmit
 
+        'If there is a second program for this client, we are goind to do it all over again.
         If HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt) <> "" Then
-            relg_row = 6
-            span_found = FALSE
+            relg_row = 6                'top of the list of Spans
+            span_found = FALSE          'reset this for the next program
             Do
-                EmReadscreen relg_prog, 2, relg_row, 10
+                EmReadscreen relg_prog, 2, relg_row, 10     'reading program and elig type'
                 EmReadscreen relg_elig, 2, relg_row, 33
                 'MsgBox "2 - " & relg_prog & " - " & relg_elig
 
+                'if both match, getting th end date
                 If relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt), 2) AND relg_elig = HC_CLIENTS_DETAIL_ARRAY(elig_type_two, hc_clt) Then
                     span_found = TRUE
-                    EmReadscreen relg_end_dt, 8, relg_row+1, 36
+                    EmReadscreen relg_end_dt, 8, relg_row+1, 36                 'reading the end date
                     'MsgBox "2 - End Date - " & relg_end_dt
-                    HC_CLIENTS_DETAIL_ARRAY(mmis_end_two, hc_clt) = relg_end_dt
-                    If relg_end_dt <> "99/99/99" Then
+                    HC_CLIENTS_DETAIL_ARRAY(mmis_end_two, hc_clt) = relg_end_dt 'setting it to the array
+                    If relg_end_dt <> "99/99/99" Then                           'looking to see is the span has ended.
                         If DateDiff("d", relg_end_dt, date) > 0 Then HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) = "MMIS SPAN ENDED for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt)
                     End If
-                ElseIf relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt), 2) Then
-                    EmReadscreen relg_end_dt, 8, relg_row+1, 36
-                    If relg_end_dt = "99/99/99" Then
+                ElseIf relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt), 2) Then       'if only the program matches
+                    EmReadscreen relg_end_dt, 8, relg_row+1, 36                 'reading the end date
+                    If relg_end_dt = "99/99/99" or DateDiff("d", relg_end_dt, date) < 0 Then        'if the span is active
+                        HC_CLIENTS_DETAIL_ARRAY(mmis_end_two, hc_clt) = relg_end_dt         'adding it to the array and adding a message about the wrong elig type
                         HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) = "MMIS SPAN for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt) & " has the wrong ELIG TYPE"
                         span_found = TRUE
                     End If
                 End If
 
-                If relg_prog = "  " Then Exit Do
-                relg_row = relg_row + 4
-                If relg_row = 22 Then
+                If relg_prog = "  " Then Exit Do            'leaving the loop if we are at the end of the RELG list'
+                relg_row = relg_row + 4                     'next span
+                If relg_row = 22 Then                       'next page
                     PF8
                     relg_row = 6
                 End If
                 EmReadscreen end_of_list, 7, 24, 26
-                If end_of_list = "NO MORE" Then Exit Do
+                If end_of_list = "NO MORE" Then Exit Do     'last page
             Loop until span_found = TRUE
+            'adding a message if no span was found for this program
             If span_found = FALSE Then HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) = "No MMIS SPAN for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt)
-
         End If
 
-        EmWriteScreen "RKEY", 1, 8
+        EmWriteScreen "RKEY", 1, 8  'back to the beginning for the next client/loop'
         transmit
     End If
-
+    'if for some reason no HC programs were in MAXIS to begin with - adding this detail to the message
     If HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt) = "" AND HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt) = "" Then HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) & " ~ No HC Programs found in MAXIS ELIG."
 
+    'this ends the script run if we have hid the time that was indicated to run for
     If timer > end_time Then
         end_msg = "Success! Script has run for " & stop_time/60/60 & " hours and has finished." & vbNewLine & "Last row from the BOBI reviewd and added: " & HC_CLIENTS_DETAIL_ARRAY (add_xcl, hc_clt) & vbNewLine & end_msg
         Exit For
     End If
 Next
 
-
-'Opening the Excel file
+'Opening a new Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
 Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 col_to_use = 1
-'Setting the first 4 col as worker, case number, name, and APPL date
+'Setting the column headers and defining the column numbers for entry of client information
 ObjExcel.Cells(1, col_to_use).Value = "WORKER"
 worker_col = col_to_use
 col_to_use = col_to_use + 1
@@ -1078,10 +1092,6 @@ col_to_use = col_to_use + 1
 ObjExcel.Cells(1, col_to_use).Value = "PMI"
 pmi_col = col_to_use
 col_to_use = col_to_use + 1
-
-' ObjExcel.Cells(1, col_to_use).Value = "NEXT REVW DATE"
-' revw_date_col = col_to_use
-' col_to_use = col_to_use + 1
 
 ObjExcel.Cells(1, col_to_use).Value = "1st Prog"
 prog_one_col = col_to_use
@@ -1115,12 +1125,6 @@ ObjExcel.Cells(1, col_to_use).Value = "WAIVER"
 waiver_col = col_to_use
 col_to_use = col_to_use + 1
 
-If MMIS_checkbox = checked Then
-	ObjExcel.Cells(1, col_to_use).Value = "MMIS SPDWN"
-    mmis_spdn_col = col_to_use
-    col_to_use = col_to_use + 1
-End If
-
 ObjExcel.Cells(1, col_to_use).Value = "ERRORS"
 errors_col = col_to_use
 col_to_use = col_to_use + 1
@@ -1130,54 +1134,48 @@ excel_row = 2
 
 'Adding all client information to a spreadsheet for your viewing pleasure
 For hc_clt = 0 to UBound(HC_CLIENTS_DETAIL_ARRAY, 2)
-	'If HC_CLIENTS_DETAIL_ARRAY(add_xcl, hc_clt) = TRUE Then
-		ObjExcel.Cells(excel_row, worker_col).Value       = HC_CLIENTS_DETAIL_ARRAY (wrk_num,   hc_clt)
-		ObjExcel.Cells(excel_row, case_numb_col).Value    = HC_CLIENTS_DETAIL_ARRAY (case_num,  hc_clt)
-		ObjExcel.Cells(excel_row, ref_numb_col).Value     = "Memb " & HC_CLIENTS_DETAIL_ARRAY(ref_numb, hc_clt)
-		ObjExcel.Cells(excel_row, name_col).Value         = HC_CLIENTS_DETAIL_ARRAY (clt_name,  hc_clt)
-		ObjExcel.Cells(excel_row, pmi_col).Value          = HC_CLIENTS_DETAIL_ARRAY (clt_pmi,   hc_clt)
-		'ObjExcel.Cells(excel_row, revw_date_col).Value    = HC_CLIENTS_DETAIL_ARRAY (next_revw, hc_clt)
-        ObjExcel.Cells(excel_row, prog_one_col).Value     = HC_CLIENTS_DETAIL_ARRAY (hc_prog_one,   hc_clt)
-        If HC_CLIENTS_DETAIL_ARRAY (hc_prog_one,   hc_clt) = "MA" Then
-		    ObjExcel.Cells(excel_row, elig_one_col).Value  = HC_CLIENTS_DETAIL_ARRAY (elig_type_one,   hc_clt) & "-" & HC_CLIENTS_DETAIL_ARRAY(elig_std_one, hc_clt) & " - Method: " & HC_CLIENTS_DETAIL_ARRAY(elig_mthd_one, hc_clt)
-		    If HC_CLIENTS_DETAIL_ARRAY(mobl_spdn, hc_clt) <> "NO SPENDDOWN" Then
-                ObjExcel.Cells(excel_row, spdn_col).Value  = HC_CLIENTS_DETAIL_ARRAY (mobl_spdn, hc_clt) & " for " & HC_CLIENTS_DETAIL_ARRAY(spd_pd, hc_clt)
-            Else
-                ObjExcel.Cells(excel_row, spdn_col).Value  = HC_CLIENTS_DETAIL_ARRAY (mobl_spdn, hc_clt)
-            End If
+	ObjExcel.Cells(excel_row, worker_col).Value       = HC_CLIENTS_DETAIL_ARRAY (wrk_num,   hc_clt)
+	ObjExcel.Cells(excel_row, case_numb_col).Value    = HC_CLIENTS_DETAIL_ARRAY (case_num,  hc_clt)
+	ObjExcel.Cells(excel_row, ref_numb_col).Value     = "Memb " & HC_CLIENTS_DETAIL_ARRAY(ref_numb, hc_clt)
+	ObjExcel.Cells(excel_row, name_col).Value         = HC_CLIENTS_DETAIL_ARRAY (clt_name,  hc_clt)
+	ObjExcel.Cells(excel_row, pmi_col).Value          = HC_CLIENTS_DETAIL_ARRAY (clt_pmi,   hc_clt)
+    ObjExcel.Cells(excel_row, prog_one_col).Value     = HC_CLIENTS_DETAIL_ARRAY (hc_prog_one,   hc_clt)
+    If HC_CLIENTS_DETAIL_ARRAY (hc_prog_one,   hc_clt) = "MA" Then
+	    ObjExcel.Cells(excel_row, elig_one_col).Value  = HC_CLIENTS_DETAIL_ARRAY (elig_type_one,   hc_clt) & "-" & HC_CLIENTS_DETAIL_ARRAY(elig_std_one, hc_clt) & " - Method: " & HC_CLIENTS_DETAIL_ARRAY(elig_mthd_one, hc_clt)
+	    If HC_CLIENTS_DETAIL_ARRAY(mobl_spdn, hc_clt) <> "NO SPENDDOWN" Then
+            ObjExcel.Cells(excel_row, spdn_col).Value  = HC_CLIENTS_DETAIL_ARRAY (mobl_spdn, hc_clt) & " for " & HC_CLIENTS_DETAIL_ARRAY(spd_pd, hc_clt)
         Else
-            ObjExcel.Cells(excel_row, elig_one_col).Value  = HC_CLIENTS_DETAIL_ARRAY (elig_type_one,   hc_clt) & "-" & HC_CLIENTS_DETAIL_ARRAY(elig_std_one, hc_clt)
+            ObjExcel.Cells(excel_row, spdn_col).Value  = HC_CLIENTS_DETAIL_ARRAY (mobl_spdn, hc_clt)
         End If
-        ObjExcel.Cells(excel_row, mmis_one_col).Value       = HC_CLIENTS_DETAIL_ARRAY(mmis_end_one, hc_clt)
+    Else
+        ObjExcel.Cells(excel_row, elig_one_col).Value  = HC_CLIENTS_DETAIL_ARRAY (elig_type_one,   hc_clt) & "-" & HC_CLIENTS_DETAIL_ARRAY(elig_std_one, hc_clt)
+    End If
+    ObjExcel.Cells(excel_row, mmis_one_col).Value       = HC_CLIENTS_DETAIL_ARRAY(mmis_end_one, hc_clt)
 
-        ObjExcel.Cells(excel_row, prog_two_col).Value     = HC_CLIENTS_DETAIL_ARRAY (hc_prog_two,   hc_clt)
-        If HC_CLIENTS_DETAIL_ARRAY (hc_prog_two,   hc_clt) = "MA" Then
-            ObjExcel.Cells(excel_row, elig_two_col).Value  = HC_CLIENTS_DETAIL_ARRAY (elig_type_two,   hc_clt) & "-" & HC_CLIENTS_DETAIL_ARRAY(elig_std_two, hc_clt) & " - Method: " & HC_CLIENTS_DETAIL_ARRAY(elig_mthd_two, hc_clt)
-            If HC_CLIENTS_DETAIL_ARRAY(mobl_spdn, hc_clt) <> "NO SPENDDOWN" Then
-                ObjExcel.Cells(excel_row, spdn_col).Value  = HC_CLIENTS_DETAIL_ARRAY (mobl_spdn, hc_clt) & " for " & HC_CLIENTS_DETAIL_ARRAY(spd_pd, hc_clt)
-            Else
-                ObjExcel.Cells(excel_row, spdn_col).Value  = HC_CLIENTS_DETAIL_ARRAY (mobl_spdn, hc_clt)
-            End If
+    ObjExcel.Cells(excel_row, prog_two_col).Value     = HC_CLIENTS_DETAIL_ARRAY (hc_prog_two,   hc_clt)
+    If HC_CLIENTS_DETAIL_ARRAY (hc_prog_two,   hc_clt) = "MA" Then
+        ObjExcel.Cells(excel_row, elig_two_col).Value  = HC_CLIENTS_DETAIL_ARRAY (elig_type_two,   hc_clt) & "-" & HC_CLIENTS_DETAIL_ARRAY(elig_std_two, hc_clt) & " - Method: " & HC_CLIENTS_DETAIL_ARRAY(elig_mthd_two, hc_clt)
+        If HC_CLIENTS_DETAIL_ARRAY(mobl_spdn, hc_clt) <> "NO SPENDDOWN" Then
+            ObjExcel.Cells(excel_row, spdn_col).Value  = HC_CLIENTS_DETAIL_ARRAY (mobl_spdn, hc_clt) & " for " & HC_CLIENTS_DETAIL_ARRAY(spd_pd, hc_clt)
         Else
-            If HC_CLIENTS_DETAIL_ARRAY(elig_type_two, hc_clt) <> "" Then ObjExcel.Cells(excel_row, elig_two_col).Value  = HC_CLIENTS_DETAIL_ARRAY (elig_type_two,   hc_clt) & "-" & HC_CLIENTS_DETAIL_ARRAY(elig_std_two, hc_clt)
+            ObjExcel.Cells(excel_row, spdn_col).Value  = HC_CLIENTS_DETAIL_ARRAY (mobl_spdn, hc_clt)
         End If
-        ObjExcel.Cells(excel_row, mmis_two_col).Value       = HC_CLIENTS_DETAIL_ARRAY(mmis_end_two, hc_clt)
+    Else
+        If HC_CLIENTS_DETAIL_ARRAY(elig_type_two, hc_clt) <> "" Then ObjExcel.Cells(excel_row, elig_two_col).Value  = HC_CLIENTS_DETAIL_ARRAY (elig_type_two,   hc_clt) & "-" & HC_CLIENTS_DETAIL_ARRAY(elig_std_two, hc_clt)
+    End If
+    ObjExcel.Cells(excel_row, mmis_two_col).Value       = HC_CLIENTS_DETAIL_ARRAY(mmis_end_two, hc_clt)
 
-        If HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) <> "" OR HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) <> "" Then ObjExcel.Rows(excel_row).Interior.ColorIndex = 6
+    If HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) <> "" OR HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) <> "" Then ObjExcel.Rows(excel_row).Interior.ColorIndex = 6
 
-        'ObjExcel.Cells(excel_row, 9).Value  = HC_CLIENTS_DETAIL_ARRAY (hc_excess, hc_clt)
-		'ObjExcel.Cells(excel_row, 10).Value = HC_CLIENTS_DETAIL_ARRAY (mmis_spdn, hc_clt)
-        ObjExcel.Cells(excel_row, waiver_col).Value     = HC_CLIENTS_DETAIL_ARRAY(elig_waiv, hc_clt)
-        'If left(HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt), 3) = " ~ " Then HC_CLIENTS_DETAIL_ARRAY (error_notes, hc_clt) = right(HC_CLIENTS_DETAIL_ARRAY (error_notes, hc_clt), len(HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_cl)-3))
-        If HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) <>"" Then HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) & " ~ " & HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt)
-        If HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) <>"" Then HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) & " ~ " & HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt)
+    ObjExcel.Cells(excel_row, waiver_col).Value     = HC_CLIENTS_DETAIL_ARRAY(elig_waiv, hc_clt)
+    If HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) <>"" Then HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) & " ~ " & HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt)
+    If HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) <>"" Then HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt) & " ~ " & HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt)
 
-        ObjExcel.Cells(excel_row, errors_col).Value     = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt)
-		excel_row = excel_row + 1
-	'End If
+    ObjExcel.Cells(excel_row, errors_col).Value     = HC_CLIENTS_DETAIL_ARRAY(error_notes, hc_clt)
+	excel_row = excel_row + 1      'next row
 Next
 
-col_to_use = col_to_use + 1
+col_to_use = col_to_use + 1     'moving over one extra for script run details.
 
 'Query date/time/runtime info
 objExcel.Cells(2, col_to_use).Font.Bold = TRUE
@@ -1186,7 +1184,6 @@ ObjExcel.Cells(1, col_to_use+1).Value = now
 ObjExcel.Cells(1, col_to_use+1).Font.Bold = FALSE
 ObjExcel.Cells(2, col_to_use).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
 ObjExcel.Cells(2, col_to_use+1).Value = timer - query_start_time
-
 
 'Autofitting columns
 For col_to_autofit = 1 to col_to_use+1
