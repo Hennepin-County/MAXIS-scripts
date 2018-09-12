@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/12/2018", "Bug fixed that was preventing LTC scripts from erroring out.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/19/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -173,7 +174,8 @@ If run_LTC_Approval = vbYes Then                'Defining more variables for the
     MAXIS_footer_month = approval_month         'The rest of this script will not run if LTC script is selected
     MAXIS_footer_year = approval_year
     special_header_droplist = "Paperless IR"
-    call run_from_GitHub(script_repository & "NOTES/NOTES - LTC - MA APPROVAL.vbs")
+    
+    call run_from_GitHub( script_repository & "notes/ltc-ma-approval.vbs")
 End If
 
 PF3             'Back to DAIL
