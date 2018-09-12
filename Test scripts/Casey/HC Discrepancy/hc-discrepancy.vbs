@@ -280,6 +280,17 @@ function navigate_to_spec_MMIS_region(group_security_selection)
 	End If
 end function
 
+'function specific to this script - running_stopwatch and MX_environment are defined outside of this function
+'meant to keep MMIS from passwording out while this long bulk script is running
+function keep_MMIS_passworded_in()
+    If timer - running_stopwatch > 720 Then         'this means the script has been running for more than 12 minutes since we last popped in to MMIS
+        Call navigate_to_spec_MMIS_region("CTY ELIG STAFF/UPDATE")      'Going to MMIS'
+        Call navigate_to_MAXIS(MX_environment)                          'going back to MAXIS'
+
+        running_stopwatch = timer                                       'resetting the stopwatch'
+    End If
+end function
+
 'DIALOGS----------------------------------------------------------------------
 ' BeginDialog find_spenddowns_month_spec_dialog, 0, 0, 221, 180, "Pull REPT data into Excel dialog"
 '   EditBox 85, 20, 130, 15, worker_number
@@ -321,6 +332,16 @@ get_county_code
 
 'Connects to BlueZone
 EMConnect ""
+
+'Checking for MAXIS
+Call check_for_MAXIS(True)
+Call back_to_SELF
+EmReadscreen MX_environment, 13, 22, 48
+MX_environment = trim(MX_environment)
+Call navigate_to_spec_MMIS_region("CTY ELIG STAFF/UPDATE")      'Going to MMIS'
+Call navigate_to_MAXIS(MX_environment)
+
+running_stopwatch = timer
 
 'Setting up constants for ease of reading the array
 Const wrk_num       = 0
@@ -533,6 +554,7 @@ If worker_number <> "" then
     			PF8                                 'Go to the next page of the REPT
     		Loop until last_page_check = "THIS IS THE LAST PAGE"      'This shows the end of the REPT
     	End if
+        Call keep_MMIS_passworded_in
     next
 
     hc_clt = 0          'Resetting this as we are using this for the NEW array we are creating
@@ -582,6 +604,8 @@ If worker_number <> "" then
         'creating an end of script message
         all_the_workers = join(worker_array, ", ")
         end_msg = "Success! Client HC Eligibility and MMIS coding for workers: " & all_the_workers & " have been added to the spreadsheet."
+
+        Call keep_MMIS_passworded_in
     Next
 
 'If there are no worker numbers entered, then we are going to use a BOBI list of active HC clients
@@ -668,6 +692,7 @@ Else
 
         next_case_number = ObjExcel.Cells(excel_row, 2). Value      'looking to see if we found the end of the list
         next_case_number = trim(next_case_number)
+        Call keep_MMIS_passworded_in
         If excel_row = excel_row_to_end Then Exit Do
     Loop until next_case_number = ""
 
@@ -942,6 +967,7 @@ For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
             End If
         End If
     Loop until client_found = TRUE
+    Call keep_MMIS_passworded_in
 Next
 
 'need to get to ground zero
@@ -982,7 +1008,12 @@ For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
             ElseIf relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt), 2) Then       'sometimes the program matches but the elig type does not - HC is still active in MMIS but wrong
                 EmReadscreen relg_end_dt, 8, relg_row+1, 36         'reading the end date
                 'if there is no end date or the end date is after today then this span is active
-                If relg_end_dt = "99/99/99" or DateDiff("d", relg_end_dt, date) < 0 Then
+                if relg_end_dt <> "99/99/99" Then
+                    difference_between = DateDiff("d", relg_end_dt, date)
+                Else
+                    difference_between = 1
+                End If
+                If relg_end_dt = "99/99/99" OR difference_between < 0 Then
                     HC_CLIENTS_DETAIL_ARRAY(mmis_end_one, hc_clt) = relg_end_dt         'adding it to the array and adding a message about the wrong elig type
                     HC_CLIENTS_DETAIL_ARRAY(disc_one, hc_clt) = "MMIS SPAN for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_one, hc_clt) & " has the wrong ELIG TYPE"
                     span_found = TRUE
@@ -1032,7 +1063,12 @@ For hc_clt = 0 to UBOUND(HC_CLIENTS_DETAIL_ARRAY, 2)
                     End If
                 ElseIf relg_prog = left(HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt), 2) Then       'if only the program matches
                     EmReadscreen relg_end_dt, 8, relg_row+1, 36                 'reading the end date
-                    If relg_end_dt = "99/99/99" or DateDiff("d", relg_end_dt, date) < 0 Then        'if the span is active
+                    if relg_end_dt <> "99/99/99" Then
+                        difference_between = DateDiff("d", relg_end_dt, date)
+                    Else
+                        difference_between = 1
+                    End If
+                    If relg_end_dt = "99/99/99" OR difference_between < 0 Then
                         HC_CLIENTS_DETAIL_ARRAY(mmis_end_two, hc_clt) = relg_end_dt         'adding it to the array and adding a message about the wrong elig type
                         HC_CLIENTS_DETAIL_ARRAY(disc_two, hc_clt) = "MMIS SPAN for " & HC_CLIENTS_DETAIL_ARRAY(hc_prog_two, hc_clt) & " has the wrong ELIG TYPE"
                         span_found = TRUE
