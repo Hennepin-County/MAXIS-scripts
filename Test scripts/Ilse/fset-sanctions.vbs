@@ -1,4 +1,3 @@
-worker_county_code = "x127"
 'Required for statistical purposes==========================================================================================
 name_of_script = "ADMIN - FSET SANCTIONS.vbs"
 start_time = timer
@@ -29,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -45,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/12/2018", "Auto approval functionality complete. Added comments and removed testing code.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("06/09/2018", "Made several updates to support using a single master sanction list while processing. Also added text to case note if the case has been identified as potentially homeless for unfit for employment expansion exemption.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("05/21/2018", "Added additional handling for when a WCOM exists in the add WCOM option.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("05/19/2018", "Added searching for LETR dates when don't match the orientation date.", "Ilse Ferris, Hennepin County")
@@ -97,8 +97,6 @@ EndDialog
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
 EMConnect ""
-file_selection_path = "C:\Users\ilfe001\Desktop\FSET sanction test.xlsx"
-sanction_option = "Sanction cases"
 
 'dialog and dialog DO...Loop	
 Do
@@ -114,6 +112,8 @@ Do
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     Loop until err_msg = ""
     If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+    
+    'Allows user to select which excel row to start at. Allows for updating cases as you go or sorting. 
     Do 
         dialog excel_row_dialog
         If ButtonPressed = cancel then stopscript
@@ -123,18 +123,18 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 back_to_SELF
-excel_row = excel_row_to_start
+excel_row = excel_row_to_start      'starting at user selected excel row 
 
 'Creating variables for the excel columns as this project has not yet finished evolving. 
-date_col = 5
-status_col = 6
-wreg_col = 7
-months_col = 8
-referral_col = 9
-orient_col = 10
-notice_col = 11
-sanction_col = 12
-notes_col = 13
+date_col        = 5
+status_col      = 6
+wreg_col        = 7
+months_col      = 8
+referral_col    = 9
+orient_col      = 10
+notice_col      = 11
+sanction_col    = 12
+notes_col       = 13
 
 '----------------------------------------------------------------------------------------------------Actually imposing the sanction
 If sanction_option = "Review sanctions" then 
@@ -154,7 +154,7 @@ If sanction_option = "Review sanctions" then
         objExcel.Columns(i).AutoFit()				'sizing the columns'
     NEXT
     
-    ObjExcel.columns(5).NumberFormat = "mm/dd/yyyy"
+    ObjExcel.columns(5).NumberFormat = "mm/dd/yyyy" 'Formatting the 'Agency notified date' as a date 
     
     Do 
         sanction_notes = ""
@@ -170,7 +170,7 @@ If sanction_option = "Review sanctions" then
         MAXIS_case_number = trim(MAXIS_case_number)
         If MAXIS_case_number = "" then exit do
         
-        MAXIS_footer_month = CM_mo	'establishing footer month/year as next month 
+        MAXIS_footer_month = CM_mo	'establishing footer month/year as the current month 
         MAXIS_footer_year = CM_yr 
         Call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
     
@@ -180,25 +180,24 @@ If sanction_option = "Review sanctions" then
             sanction_notes = sanction_notes & "PRIV case."
             found_member = False 
     	Else
-            EmReadscreen county_code, 4, 21, 21
+            EmReadscreen county_code, 4, 21, 21             'identifying cases that are out of county. 
             IF county_code <> UCase(worker_county_code) then 
-                'msgbox county_code & vbcr & worker_county_code
                 sanction_notes = sanction_notes & " Out-of-county case."
                 found_member = False 
             End if 
         End if 
         
         If found_member <> False then 
-            EmReadscreen SNAP_actv, 4, 10, 74
+            EmReadscreen SNAP_actv, 4, 10, 74               'identifying cases that are inactive vs active 
             ObjExcel.Cells(excel_row, status_col).Value = SNAP_actv
             If SNAP_actv = "ACTV" then 
             else 
-                sanction_notes = sanction_notes & "SNAP not active."
+                sanction_notes = sanction_notes & " SNAP not active."
             End if
         
             Call HCRE_panel_bypass  'function to ensure we get past HCRE panel 
         
-            Call navigate_to_MAXIS_screen ("STAT", "MEMB")
+            Call navigate_to_MAXIS_screen ("STAT", "MEMB")  'Finding the member number for the PMI provided by E & T
             member_number = ""
             Do 
                 EMReadscreen memb_PMI, 8, 4, 46
@@ -220,7 +219,7 @@ If sanction_option = "Review sanctions" then
         End if 
             
         If found_member = True then 
-    	    call navigate_to_MAXIS_screen("STAT", "WREG")
+    	    call navigate_to_MAXIS_screen("STAT", "WREG")          'Gathering WREG coding 
             Call write_value_and_transmit(member_number, 20, 76)
             
     	    EMReadScreen FSET_code, 2, 8, 50
@@ -267,10 +266,10 @@ If sanction_option = "Review sanctions" then
 
             			'counting and checking for counted ABAWD months
             			IF is_counted_month = "X" or is_counted_month = "M" THEN
-            				EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+            				EMReadScreen counted_date_year, 2, bene_yr_row, 14			                    'reading counted year date
             				abawd_counted_months_string = counted_date_month & "/" & counted_date_year
             				abawd_info_list = abawd_info_list & ", " & abawd_counted_months_string			'adding variable to list to add to array
-            				abawd_counted_months = abawd_counted_months + 1				'adding counted months
+            				abawd_counted_months = abawd_counted_months + 1				                    'incremeting counted months
             			END IF
 
             			'declaring & splitting the abawd months array
@@ -286,12 +285,12 @@ If sanction_option = "Review sanctions" then
             		LOOP until month_count = 36
             	    PF3
             	End if
-    	       	ObjExcel.Cells(excel_row, months_col).Value = abawd_counted_months
+    	       	ObjExcel.Cells(excel_row, months_col).Value = abawd_counted_months     'total of counted months 
     	       END If
         End if 
         
         If found_member = True then  
-            Call navigate_to_MAXIS_screen("INFC", "WORK")
+            Call navigate_to_MAXIS_screen("INFC", "WORK")       'Gathering referral information 
             EmReadscreen no_referral, 2, 24, 2
             If no_referral = "NO" then 
                 sanction_notes = sanction_notes & " No referral in WF1M for this case."
@@ -304,7 +303,7 @@ If sanction_option = "Review sanctions" then
                         referral_date = trim(referral_date)
                         EmReadscreen appt_date, 8, row, 59
                         
-                        If referral_date <> "" then referral_date = replace(referral_date, " ", "/")
+                        If referral_date <> "" then referral_date = replace(referral_date, " ", "/")    'cleaning up the referral date & appt date 
                         If appt_date <> "__ __ __" then 
                             appt_date = replace(appt_date, " ", "/")
                         Else 
@@ -315,10 +314,10 @@ If sanction_option = "Review sanctions" then
                         found_member = True
                         exit do 
                     Else 
-                        row = row + 1
+                        row = row + 1       'checking for non - memb 01 cases 
                     End if 
                 Loop until trim(work_memb) = ""
-                If found_member <> true then sanction_notes = sanction_notes & " More than one referral. Process manually."
+                If found_member <> true then sanction_notes = sanction_notes & " Unable to find referral for member in INFC."
             End if 
         End if 
         
@@ -327,71 +326,71 @@ If sanction_option = "Review sanctions" then
             row = 7
             notice_sent = False     'Defauliting notice sent to false (as this would likely be manually reviewed.)
             DO
-            	EMReadscreen notice_type, 16, row, 30
+            	EMReadscreen notice_type, 16, row, 30          'SPEC/LETR Letter at Hennepin County is generally the FSET letter 
                 If notice_type = "SPEC/LETR Letter" then 
-                    EmReadscreen FS_notice, 2, row, 26
+                    EmReadscreen FS_notice, 2, row, 26          'Confirms the letter is for SNAP receipients. 
                     If FS_notice = "FS" or FS_notice = "  " then 
                         Call write_value_and_transmit ("x", row, 13)
                         PF8
-                        PF8 'twice to get to the date of the orientation 
-                        EmReadscreen orient_date_LETR, 10, 2, 8
+                        PF8                                      'twice to get to the date of the orientation 
+                        EmReadscreen orient_date_LETR, 10, 2, 8     'Reads the orienation date on the letter  
                         If isDate(orient_date_LETR) = False then 
                             sanction_case = FALSE
                             PF3
                         Else 
-                            Call ONLY_create_MAXIS_friendly_date(orient_date_LETR)
+                            Call ONLY_create_MAXIS_friendly_date(orient_date_LETR) 'reformats the date 
                             If orient_date_LETR = appt_date then 
-                                notice_sent = True 
+                                notice_sent = True                                  'Confirms the date on the notice is the orientation date    
                                 sanction_case = TRUE
-                                'msgbox appt_date & vbcr & orient_date_LETR
                                 exit do 
                             ELSE
-                                sanction_notes = sanction_notes & " Referral date does not match letter date of: " & orient_date_LETR & ". "
-                                notice_sent = True 
-                                sanction_case = FALSE
+                                sanction_notes = sanction_notes & " Referral date does not match letter date of: " & orient_date_LETR & ". "    'ohterwise the information is output to be reviewed manually 
+                                notice_sent = True          'case is still identified in the Excel output as a member who was given a notice 
+                                sanction_case = FALSE       'but not identified as sanctioned. This will be done in the manual review. 
                                 PF3
                             End if 
                         End if 
                     else 
-                        sanction_case = False 
+                        sanction_case = False               'Continues to default to FALSE 
                     End if 
                 elseif trim(notice_type) = "" then 
-                    PF7         'navigating to the previous footer month/year.
-                    row = 7 
+                    PF7         'navigating to the previous footer month/year if no notices are found
+                    row = 7     'resetting the row to start as 7.
                 else  
-                    sanction_case = false
+                    sanction_case = false                   'Continues to default to FALSE 
                 End if 
                 If sanction_case = False then row = row + 1
                 EmReadscreen no_notices, 10, 24, 2 
             Loop until no_notices = "NO NOTICES"
             
             If notice_sent = True then 
-                ObjExcel.Cells(excel_row, notice_col).Value = "Yes"
+                ObjExcel.Cells(excel_row, notice_col).Value = "Yes"     'Updating the column information in the Excel spreadsheet 
             Else 
                 ObjExcel.Cells(excel_row, notice_col).Value = "No"
             End if 
     
             If sanction_case = true then 
                 If wreg_codes = "30/06" or wreg_codes = "30/08" or wreg_codes = "30/10" or wreg_codes = "30/11" then 
-                    ObjExcel.Cells(excel_row, sanction_col).Value = "Yes"
+                    ObjExcel.Cells(excel_row, sanction_col).Value = "Yes"       'Entering the sanction as a YES, mandatory FSET participants
                 Else 
-                    ObjExcel.Cells(excel_row, sanction_col).Value = "No"
-                End if 
+                    ObjExcel.Cells(excel_row, sanction_col).Value = "No"         'Entering the sanction as a NO, non-mandatory FSET participants      
+                End if  
             End if 
         End if     
-        'msgbox MAXIS_case_number & vbcr & sanction_case & vbcr & appt_date & vbcr & orient_date_LETR
-        ObjExcel.Cells(excel_row, notes_col).Value = sanction_notes            
-    	STATS_counter = STATS_counter + 1
+
+        ObjExcel.Cells(excel_row, notes_col).Value = sanction_notes         'Entering the sanction     
+    	STATS_counter = STATS_counter + 1                                  'Incrementing the stats counter 
         excel_row = excel_row + 1
     Loop until ObjExcel.Cells(excel_row, 2).Value = ""
 End if 
 
-'----------------------------------------------------------------------------------------------------UPDATE WREG ONLY option
+'----------------------------------------------------------------------------------------------------SANCTION CASES option
 If sanction_option = "Sanction cases" then 
-    excel_row = excel_row_to_start
+    excel_row = excel_row_to_start          'starting at user selected excel row 
     Do 
         sanction_notes = ""
         sanction_code = ""
+        
         PMI_number = ObjExcel.Cells(excel_row, 1).Value
         PMI_number = trim(PMI_number)
         MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
@@ -403,11 +402,10 @@ If sanction_option = "Sanction cases" then
         agency_informed_sanction = trim(agency_informed_sanction)
         sanction_notes = ObjExcel.Cells(excel_row, notes_col).Value
         
-        If MAXIS_case_number = "" then exit do
-        msgbox sanction_code & vbcr & MAXIS_case_number
+        If MAXIS_case_number = "" then exit do     'applying sanctions for cases that are marked as YES 
         If sanction_code = "YES" then
-            Call MAXIS_background_check
-            MAXIS_footer_month = CM_mo	'Checking current month for CASE/PERS info 
+            Call MAXIS_background_check         'Ensuring case is out of background 
+            MAXIS_footer_month = CM_mo	         'Establishing the current month for CASE/PERS info 
             MAXIS_footer_year = CM_yr 
             call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
             
@@ -418,21 +416,20 @@ If sanction_option = "Sanction cases" then
                 person_PMI = trim(person_PMI)
             	IF person_PMI = "" then exit do
             	IF PMI_number = person_PMI then 
-                    EMReadScreen FS_status, 1, row, 54
-                    msgbox FS_status 
+                    EMReadScreen FS_status, 1, row, 54      'Reading the SNAP status for the current month for the FSET member 
             		If FS_status = "A" then 
                         sanction_case = True 
                         EMReadScreen member_number, 2, row, 3               'gathers member number
                         exit do 
                     Else 
                         sanction_case = False 
-                        sanction_notes = sanction_notes & "Member is not active on SNAP. "
+                        sanction_notes = sanction_notes & "Member is not active on SNAP. "  'Case will not be sanctioned 
                         exit do 
                     End if 
             	Else
-            		row = row + 3			'information is 3 rows apart
+            		row = row + 3			'information is 3 rows apart. Will read for the next member. 
             		If row = 19 then
-            			PF8
+            			PF8  
             			row = 10					'changes MAXIS row if more than one page exists
             		END if
             	END if
@@ -459,27 +456,26 @@ If sanction_option = "Sanction cases" then
                         sanction_case = True
                     Else 
                         sanction_case = False
-                        sanction_notes = sanction_notes & "Member is not coded as a Mandatory FSET on WREG. "
+                        sanction_notes = sanction_notes & "Member is not coded as a Mandatory FSET on WREG. "       'Will not sanction cases that are no longer coded as mandatory FSET, while still bypassing banked months cases 
                     End if 
                 End if 
             End if 
     
             If sanction_case = True then 
-                EmReadscreen wreg_sanction_code, 2,  8, 50
+                EmReadscreen wreg_sanction_code, 2,  8, 50      'Reading sanction code 
                 If wreg_sanction_code = "02" then
-                    EmReadscreen sanction_month, 2, 10, 50
+                    EmReadscreen sanction_month, 2, 10, 50      'reading sanction month 
                     IF sanction_month = MAXIS_footer_month then 
-                        Update_wreg = False 
-                        msgbox "wreg already updated."
+                        Update_wreg = False                     'these cases have already been updated with the sanction. Prevents running through background unnecessarily. Good for caess that had stat errors, but have now been updated. 
                     else 
-                        update_wreg = true 
+                        update_wreg = true                      'Cases that still need to be updated for the current month, but may have already have a sanction set, but not applied. 
                     End if 
                 else 
-                    update_wreg = True 
+                    update_wreg = True                          'If case is not sanction code 02, case will be updated. 
                 End if 
                 
                 If update_wreg = true then 
-                    PF9
+                    PF9                                                 'Putting into edit mode to update case. 
                     EMReadscreen PWE_check, 1, 6, 68                    'who is the PWE?
                     'updating WREG to reflect sanction 
                     EMWriteScreen "02", 8, 50							'Enters sanction FSET code of "02"
@@ -491,7 +487,7 @@ If sanction_option = "Sanction cases" then
                     PF3
                 End if 
                 
-                '>>>>>>>>>>ADDR
+                '>>>>>>>>>>ADDR panel information to determine if case should get additional information about 'unfit for employment' in the case note.
                 CALL navigate_to_MAXIS_screen("STAT", "ADDR")
                 EMReadScreen homeless_code, 1, 10, 43
                 EmReadscreen addr_line_01, 16, 6, 43
@@ -499,12 +495,11 @@ If sanction_option = "Sanction cases" then
                 
                 '----------------------------------------------------------------------------------------------------The Case note
                 Call navigate_to_MAXIS_screen("CASE", "NOTE")
-                EmReadscreen first_casenote, 40, 5, 25
+                EmReadscreen first_casenote, 40, 5, 25                  'Reading 1st case note. 
                 If instr(first_casenote, "SNAP sanction imposed") then 
-                    create_casenote = False 
-                    msgbox "case note already exists"
+                    create_casenote = False                             'if duplicate exists, then a new case note will not be created. Preventing duplicdte case notes. 
                 Else
-                    PF9
+                    PF9     'edit mode (not Edna Mode)
                     Call write_variable_in_CASE_NOTE("--SNAP sanction imposed for MEMB " & member_number & " for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "--")
                     If PWE_check = "Y" THEN Call write_variable_in_CASE_NOTE("* Entire household is sanctioned. Member is the PWE.")
                     If PWE_check = "N" THEN Call write_variable_in_CASE_NOTE("* Only the HH MEMB is sanctioned. Member is NOT the PWE.")
@@ -528,33 +523,32 @@ If sanction_option = "Sanction cases" then
                     PF3
                 End if 
                 
-                Call MAXIS_background_check
+                Call MAXIS_background_check             'clearing background to make the approval 
                 '----------------------------------------------------------------------------------------------------Approval of sanction case 
                 Call navigate_to_MAXIS_screen("ELIG", "FS  ")
                 EMReadScreen is_case_approved, 10, 3, 3     'at FSPR screen 
                 IF is_case_approved <> "UNAPPROVED" THEN
-                    EmReadscreen STAT_edits, 10, 24, 2
+                    EmReadscreen STAT_edits, 10, 24, 2      'reading for inhibiting stat edits. These will be cleared manually since most of these cases have more than one issue.  
                     If STAT_edits = "STAT EDITS" then 
-                        msgbox "stat attack!"
-                        sanction_notes = sanction_notes & " Case has STAT edits. Resolve and approve manually."
+                        sanction_notes = sanction_notes & " Case has STAT edits. Resolve and approve manually."     'inhibiting stat edits found 
                         sanction_case = false 
                     else 
-                        sanction_notes = sanction_notes & " No approved results found. Review/approve manually."
+                        sanction_notes = sanction_notes & " No approved results found. Review/approve manually."    'If new results haven't been triggered for whatever reason 
                         sanction_case = false
                     End if 
                 Else 
-                    Row = 7
+                    Row = 7         'member 01 starts at row 7 
                     Do 
-                        EmReadscreen elig_memb, 2, row, 10
+                        EmReadscreen elig_memb, 2, row, 10      'reading member numbers to select the correct member 
                         If elig_memb = member_number then 
-                            Call write_value_and_transmit("X", row, 5)
+                            Call write_value_and_transmit("X", row, 5)      'found them!
                             sanction_case = True
                             exit do 
                         else 
-                            row = row + 1
+                            row = row + 1           'will check for next member
                             sanction_case = False 
                         End if 
-                    Loop until trim(elig_memb) = ""
+                    Loop until trim(elig_memb) = ""    'blank space means the list of members is complete 
                     
                     If sanction_case = false then 
                         sanction_notes = sanction_notes & " Unable to find memb " & member_number & " in ELIG results."
@@ -563,7 +557,7 @@ If sanction_option = "Sanction cases" then
                         If wreg_test = "FAILED" then 
                             sanction_case = true 
                         else 
-                            sanction_notes = sanction_notes & " Not failing elig and/or wreg test. Review/approve manually."
+                            sanction_notes = sanction_notes & " Not failing elig and/or wreg test. Review/approve manually."    'ensuring cases are failing for the correct reason. 
                             sanction_case = false 
                         end if 
                         transmit 'to exit person test
@@ -573,88 +567,88 @@ If sanction_option = "Sanction cases" then
                 If sanction_case = True then 
                     approval_confirm = ""  'resetting variable
                     Call write_value_and_transmit("FSSM", 19, 70)
-                    Call write_value_and_transmit("APP", 19, 70)
-                    transmit    'past approval pop up
-                    Call navigate_to_MAXIS_screen("ELIG", "FSPR")
-                    EmReadscreen approval_confirm, 8, 3, 3 
+                    Call write_value_and_transmit("APP", 19, 70)    'approving the SNAP results - So exciting! 
+                    transmit                                         'past approval pop up
+                    Call navigate_to_MAXIS_screen("ELIG", "FSPR")   
+                    EmReadscreen approval_confirm, 8, 3, 3          'confirming the approval took 
                     If approval_confirm = "APPROVED" then 
                         sanction_case = True
-                        sanction_notes = "" & "Sanction imposed."
+                        sanction_notes = "" & "Sanction imposed."   'labeling the case as sanctioned 
                     Else 
                         sanction_case = False 
-                        sanction_notes = sanction_notes & " Approval not confirmed. Review/approve manually."
+                        sanction_notes = sanction_notes & " Approval not confirmed. Review/approve manually."   'Catching cases tha tmay not have been approved. 
                     End if 
                 End if     
             End if 
         End if 
-        ObjExcel.Cells(Excel_row, notes_col).Value = sanction_notes    
-        msgbox MAXIS_CASE_NUMBER & vbcr & sanction_notes
+        ObjExcel.Cells(Excel_row, notes_col).Value = sanction_notes     'Adding sanction notes to spreadsheet  
         excel_row = excel_row + 1     
-    Loop until ObjExcel.Cells(excel_row, 2).Value = ""  
+    Loop until ObjExcel.Cells(excel_row, 2).Value = ""  'End of list 
     
     '----------------------------------------------------------------------------------------------------ADDING WCOM     
-    excel_row = excel_row_to_start    
+    excel_row = excel_row_to_start     'starting at user selected excel row 
     Do 
         sanction_notes = ""
         sanction_code = ""
     
         MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
         MAXIS_case_number = trim(MAXIS_case_number)
+        
         sanction_code = objExcel.cells(excel_row, sanction_col).Value
         sanction_code = Trim(Ucase(sanction_code))
         agency_informed_sanction = ObjExcel.Cells(excel_row, date_col).Value
         agency_informed_sanction = trim(agency_informed_sanction)
         sanction_notes = ObjExcel.Cells(excel_row, notes_col).Value
     
-        If MAXIS_case_number = "" then exit do
+        If MAXIS_case_number = "" then exit do          'adding WCOM for cases that are marked as YES 
         If sanction_code = "YES" then  
             If instr(sanction_notes, "Sanction imposed") then 
-                
-                CALL navigate_to_MAXIS_screen("SPEC", "WCOM")
+                'case has been approved as being sanctioned 
+                CALL navigate_to_MAXIS_screen("SPEC", "WCOM")   
                 'Searching for waiting SNAP notice
                 wcom_row = 6
                 Do
                     wcom_row = wcom_row + 1
-                    Emreadscreen program_type, 2, wcom_row, 26
-                    Emreadscreen print_status, 7, wcom_row, 71
+                    Emreadscreen program_type, 2, wcom_row, 26      'Looking for FS 
+                    Emreadscreen print_status, 7, wcom_row, 71      'Looing for waiting notice results 
                     If program_type = "FS" then
                         If print_status = "Waiting" then
-                            Call write_value_and_transmit("x", wcom_row, 13)
+                            Call write_value_and_transmit("x", wcom_row, 13)    'selecting the FS/Waiting notice 
                             PF9
                             Emreadscreen fs_wcom_exists, 3, 3, 15
                             If fs_wcom_exists <> "   " then 
-                                sanction_notes = sanction_notes & "WCOM already exists on the notice."
+                                sanction_notes = sanction_notes & "WCOM already exists on the notice."  'does not add additional WCOM's if worker comments 
                                 PF3
                                 PF3
-                                fs_wcom_writen = true  
+                                fs_wcom_writen = true  'WCOM exists 
                             Else
-                                fs_wcom_writen = true
-                                'This will write if the notice is for SNAP only
+                                fs_wcom_writen = true  'WCOM exists 
+                                'This will write if the notice is for SNAP only. This is not required. Information required should be sent by E & T.
                                 CALL write_variable_in_SPEC_MEMO("******************************************************")
                                 CALL write_variable_in_SPEC_MEMO("What to do next:")
                                 CALL write_variable_in_SPEC_MEMO("* You must meet the SNAP E&T rules by the end of the month. If you want to meet the rules, contact your team at 612-596-1300, or your SNAP E&T provider at 612-596-7411.")
                                 CALL write_variable_in_SPEC_MEMO("* You can tell us why you did not meet the rules. If you had a good reason for not meeting the SNAP E&T rules, contact your SNAP E&T provider right away.")
                                 CALL write_variable_in_SPEC_MEMO("******************************************************")
-                                PF4
-                                PF3
+                                PF4     'saving notice 
+                                PF3     'exiting specific notice 
                             End if
                         End If
                     End If
-                    If fs_wcom_writen = true then Exit Do
+                    If fs_wcom_writen = true then Exit Do   
                     If wcom_row = 17 then
-                        PF8
+                        PF8         'moved to next footer month/year if cannot find 
                         Emreadscreen spec_edit_check, 6, 24, 2
                         wcom_row = 6
                     end if
                     If spec_edit_check = "NOTICE" THEN no_fs_waiting = true
                 Loop until spec_edit_check = "NOTICE"
-                'Adding status 
+                 
                 If fs_wcom_writen <> True then sanction_notes = sanction_notes & " No waiting FS notice found. WCOM not added."
             End if 
-            ObjExcel.Cells(Excel_row, notes_col).Value = sanction_notes    
+            ObjExcel.Cells(Excel_row, notes_col).Value = sanction_notes  'Adding sanction notes
         End if 
         excel_row = excel_row + 1     
-    Loop until ObjExcel.Cells(excel_row, 2).Value = ""  
+    Loop until ObjExcel.Cells(excel_row, 2).Value = ""  'loops until the end 
 End if 
 
 'End of the script clean up and closure
