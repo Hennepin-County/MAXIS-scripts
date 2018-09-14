@@ -74,7 +74,7 @@ end function
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 
-CALL MAXIS_case_number_finder (MAXIS_case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 memb_number = "01"
 discovery_date = date & ""
 
