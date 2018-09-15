@@ -773,7 +773,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                         'MsgBox "Dialog Factor: " & dlg_factor
 
                         BeginDialog Dialog1, 0, 0, 606, (dlg_factor * 20) + 160, "Enter ALL Paychecks Received"
-                          Text 10, 10, 265, 10, "JOBS 01 01 - EMPLOYER"
+                          Text 10, 10, 265, 10, "JOBS " & EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) & " - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)
                           Text 220, 15, 40, 10, "Start Date:"
                           EditBox 255, 10, 50, 15, EARNED_INCOME_PANELS_ARRAY (income_start_dt, ei_panel)
                           Text 315, 15, 50, 10, "Income Type:"
@@ -1029,20 +1029,133 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                 'Script will determine the initial footer month to change by the pay dates listed.
                 'Script will create a budget based on the program this income applies to
                 'Dialog the budget and have the worker confirm - if they decline - pull the check list dialog back up and have them adjust it there.
+
+                'If we are applying to cash, we need to look at each month of paychecks to see if the month is prospective or retrospective
+                If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then
+                    list_of_months = "~"
+                    For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
+                        If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
+                            ''
+                            pay_month = DatePart("m", LIST_OF_INCOME_ARRAY(pay_date, all_income)
+                            pay_year = DatePart("yyyy", LIST_OF_INCOME_ARRAY(pay_date, all_income)
+                            pay_mo_yr = right("00"&pay_month, 2) & "/" & right(pay_year, 2)
+                            If InStr(list_of_months, "~"&pay_mo_yr&"~") <> 0 Then list_of_months = list_of_months & pay_mo_yr & "~"
+                        End If
+                    Next
+                    list_of_months = right(list_of_months, len(list_of_months)-1)
+                    list_of_months = left(list_of_months, len(list_of_months)-1)
+
+                    Call navigate_to_MAXIS_screen("STAT", "PROG")
+                    EmReadscreen cash_one_status, 4, 6, 74
+                    If cash_one_status = "ACTV" or cash_one_status = "PEND" Then
+                        EmReadscreen cash_prog, 2, 6, 67
+                    Else
+                        EmReadscreen cash_two_status, 4, 6, 74
+                        If cash_two_status = "ACTV" or cash_two_status = "PEND" Then
+                            EmReadscreen cash_prog, 2, 6, 67
+                        End If
+                    End If
+                    the_cash = cash_prog
+                    If the_cash = "MS" Then the_cash = "MSA"
+
+                    Call back_to_self
+                    starting_footer_month = MAXIS_footer_month
+                    starting_footer_year = MAXIS_footer_year
+
+                    Dim CASH_MONTHS_ARRAY()
+                    ReDim CASH_MONTHS_ARRAY(2, 0)
+
+                    Const cash_mo_yr    = 0
+                    Const budget_cycle  = 1
+                    Const update_y_n    = 2
+
+                    each_month = 0
+
+                    If InStr(list_of_months, "~") <> 0 Then
+                        array_of_months = split(list_of_months, "~")
+                        For each elig_thing in array_of_months
+                            MAXIS_footer_month = left(elig_thing, 2)
+                            MAXIS_footer_year = right(elig_thng, 2)
+
+                            Call back_to_SELF
+
+                            Call navigate_to_MAXIS_screen("ELIG", the_cash)
+                            If the_cash = "MF" Then
+                                EmWriteScreen "MFSM", 20, 71
+                                transmit
+
+                                EmReadscreen type_of_budget, 5, 12, 31
+                            ElseIf the_cash = "DW" Then
+                                type_of_budget = "PROSP"
+
+                            ElseIf the_cash = "MSA" Then
+                                EmWriteScreen "MSSM", 20, 71
+                                transmit
+
+                                EmReadscreen type_of_budget, 5, 13, 29
+                            ElseIf the_cash = "GA" Then
+                                EmWriteScreen "GASM", 20, 71
+                                transmit
+
+                                EmReadscreen type_of_budget, 5, 12, 32
+                            End If
+
+                            ReDim Preserve CASH_MONTHS_ARRAY(2, each_month)
+                            CASH_MONTHS_ARRAY(cash_mo_yr, each_month) = elig_thing
+                            CASH_MONTHS_ARRAY(budget_cycle, each_month) = type_of_budget
+                            CASH_MONTHS_ARRAY(update_y_n, each_month) = checked
+                            each_month = each_month + 1
+                        Next
+                    Else
+                        MAXIS_footer_month = left(list_of_months, 2)
+                        MAXIS_footer_year = right(list_of_months, 2)
+
+                        Call back_to_SELF
+
+                        Call navigate_to_MAXIS_screen("ELIG", the_cash)
+                        If the_cash = "MF" Then
+                            EmWriteScreen "MFSM", 20, 71
+                            transmit
+
+                            EmReadscreen type_of_budget, 5, 12, 31
+                        ElseIf the_cash = "DW" Then
+                            type_of_budget = "PROSP"
+
+                        ElseIf the_cash = "MSA" Then
+                            EmWriteScreen "MSSM", 20, 71
+                            transmit
+
+                            EmReadscreen type_of_budget, 5, 13, 29
+                        ElseIf the_cash = "GA" Then
+                            EmWriteScreen "GASM", 20, 71
+                            transmit
+
+                            EmReadscreen type_of_budget, 5, 12, 32
+                        End If
+
+                        CASH_MONTHS_ARRAY(cash_mo_yr, each_month) = elig_thing
+                        CASH_MONTHS_ARRAY(budget_cycle, each_month) = type_of_budget
+                        CASH_MONTHS_ARRAY(update_y_n, each_month) = checked
+                    End If
+                End If
+
                 dlg_len = 65
                 If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then
                     dlg_len = dlg_len + 60
                     dlg_len = dlg_len + number_of_checks_budgeted*10
+                    If number_of_checks_budgeted < 4 THen dlg_len = 165
                 ENd If
                 If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then dlg_len = dlg_len + 65
                 y_pos = 25
                 BeginDialog Dialog1, 0, 0, 421, dlg_len, "Confirm JOBS Budget"
-                  Text 10, 10, 175, 10, "JOBS 01 01 - EMPLOYER"
+                  Text 10, 10, 175, 10, "JOBS " & EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) & " - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)
                   Text 245, 10, 50, 10, "Pay Frequency"
                   DropListBox 305, 5, 95, 45, ""+chr(9)+"1 - One Time Per Month"+chr(9)+"2 - Two Times Per Month"+chr(9)+"3 - Every Other Week"+chr(9)+"4 - Every Week"+chr(9)+"5 - Other", EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
                   ' Text 240, 30, 60, 10, "Income Start Date:"
                   ' EditBox 305, 25, 70, 15, income_start_date
                   If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then
+                      grp_len = 75 + number_of_checks_budgeted*10
+                      If number_of_checks_budgeted < 4 Then grp_len = 115
                       GroupBox 5, y_pos, 410, 75 + number_of_checks_budgeted*10, "SNAP Budget"
                       Text 10, y_pos + 10, 100, 10, "Paychecks Inclued in Budget:"
                       list_pos = 0
@@ -1058,6 +1171,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                               End If
                           next
                       next
+                      If list_pos < 3 Then list_pos = 4
                       ' MsgBOx list_of_dates
                       ' For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
                       '     If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
@@ -1074,12 +1188,14 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                       Text 185, y_pos + 25, 200, 10, "Average weekly hours: " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)
                       Text 185, y_pos + 40, 200, 10, "Average paycheck amount: $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
                       Text 185, y_pos + 55, 200, 10, "Monthly Budgeted Income: $" & EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel)
-                      y_pos = y_pos + (list_pos * 10) + 25
-                      Text 10, y_pos, 130, 10, "Paychecks not included: " & list_of_excluded_pay_dates
                       If EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = "?" Then
                         ButtonGroup ButtonPressed
-                            PushButton 305, y_pos, 60, 10, "Calculate", calc_btn
+                            PushButton 305, y_pos + 55, 60, 10, "Calculate", calc_btn
                       End If
+
+                      y_pos = y_pos + (list_pos * 10) + 25
+                      Text 10, y_pos, 130, 10, "Paychecks not included: " & list_of_excluded_pay_dates
+
                       CheckBox 10, y_pos + 15, 330, 10, "Check here if you confirm that this budget is correct and is the best estimate of anticipated income.", confirm_budget_checkbox
                       Text 10, y_pos + 35, 60, 10, "Conversation with:"
                       ComboBox 75, y_pos + 30, 60, 45, " "+chr(9)+"Client - not employee"+chr(9)+"Employee"+chr(9)+"Employer",  EARNED_INCOME_PANELS_ARRAY(spoke_with, ei_panel)
@@ -1090,10 +1206,34 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                   'TODO deal with cash stuff - need to address retro/prosp and change this dialog to only show cash/snap if the income applies to that.
                   If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then
                       GroupBox 5, y_pos, 410, 60, "CASH Budget"
-                      Text 15, y_pos + 15, 110, 10, "Actual Paychecks to add to JOBS:"
+                      y_pos = y_pos + 15
+                      Text 15, y_pos, 30, 10, "MONTH"
+                      Text 50, y_pos, 30, 10, "CHECKS"
+                      Text 85, y_pos, 35, 10, "BUDGET"
+                      Text 120, y_pos, 40, 10, "UPDATE"
+
+                      y_pos = y_pos + 15
+                      For each_month = 0 to UBOUND(CASH_MONTHS_ARRAY, 2)
+                          Text 15, y_pos, 20, 10, CASH_MONTHS_ARRAY(cash_mo_yr, each_month)
+
+                          list_pos = 0
+                          ' 'this part actually looks at the income information IN ORDER
+                          For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
+                              For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+                                  'conditional if it is the right panel AND the order matches - then do the thing you need to do
+                                  If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
+                                      'list_of_dates = list_of_dates & vbNewLine & "Check Date: " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & " Income: $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " Hours: " & LIST_OF_INCOME_ARRAY(hours, all_income)
+                                      Text 20, (list_pos * 10) + y_pos, 90, 10, LIST_OF_INCOME_ARRAY(pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs."
+                                      list_pos = list_pos + 1
+                                  End If
+                              next
+                          next
+                          CASH_MONTHS_ARRAY(budget_cycle, each_month) = type_of_budget
+                          CASH_MONTHS_ARRAY(update_y_n, each_month) = checked
+                      Next
                       Text 25, y_pos + 30, 90, 10, "01/01/2018 - $400 - 40 hrs"
                       Text 25, y_pos + 40, 90, 10, "01/15/2018- $400 - 40 hrs"
-                      y_pos = y_pos + 60
+                      y_pos = y_pos + 50
                   End If
                   ButtonGroup ButtonPressed
                     OkButton 315, y_pos, 50, 15
