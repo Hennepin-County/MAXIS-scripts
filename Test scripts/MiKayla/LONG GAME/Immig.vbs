@@ -237,6 +237,7 @@ ELSE
 
 		IF entry_date <> "" THEN Call create_MAXIS_friendly_date_with_YYYY(entry_date, 0, 7, 45)
 		IF status_date <> "" THEN Call create_MAXIS_friendly_date_with_YYYY(status_date, 0, 7, 71)
+		reminder_date = dateadd("d", 10, actual_date)' FOR APPT DATE'
 
 		LPR_status = ""
 		If LPR_status_dropdown = "21 Refugee" then LPR_status = "21"
@@ -328,6 +329,7 @@ If save_CHECKBOX = CHECKED then Call write_variable_in_case_note("* SAVE request
 If additional_CHECKBOX = CHECKED then Call write_variable_in_case_note("* Additonal SAVE requested.")
 If SAVE_docs_check = CHECKED then Call write_variable_in_case_note("* attached a copy of the immigration document to request for SAVE")
 Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
+If Outlook_remider = True then call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
 Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)
 PF3
