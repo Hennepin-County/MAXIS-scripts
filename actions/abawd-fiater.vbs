@@ -52,6 +52,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/17/2018", "Added handling for fiating ABAWD eligibilty for cases that have FSET sanctions imposed.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/12/2018", "Changed closing message.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/05/2018", "Updated coordinates in STAT/JOBS for income type and verification codes.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/17/2017", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -696,6 +697,12 @@ For i = 0 to ubound(footer_month_array)
 		EMWritescreen "x", row, 5
 		transmit 'Now on FFPR
 		EMWritescreen "PASSED", 9, 12
+        EmReadscreen wreg_failure, 6, 17, 46
+        If wreg_failure = "FAILED" then 
+            elig_memb = False
+        else 
+            elig_memb = True 
+        End if 
 		EMReadscreen state_food_check, 1, 7, 58 'We need to enter something here if it is blank'
 		IF state_food_check <> "N" or state_food_check <> "Y" THEN EMwritescreen "N", 7, 58
 		transmit
@@ -707,7 +714,7 @@ For i = 0 to ubound(footer_month_array)
 	EMWritescreen "x", 17, 5
 	Transmit
 	'Passing all case tests
-	EMWritescreen "PASSED", 10, 7
+	If elig_memb = True then EMWritescreen "PASSED", 10, 7
 	EMWritescreen "PASSED", 13, 7
 	Transmit
 	EMReadscreen net_check, 3, 24, 40 'sometimes this test needs to be passed, sometimes n/a.  the transmit triggers an error msg if it needs to pass this'
