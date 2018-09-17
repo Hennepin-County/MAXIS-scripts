@@ -121,10 +121,12 @@ Function HCRE_panel_bypass()
 End Function
 
 function convert_date_to_day_first(date_to_convert, date_to_output)
-    intv_date_mo = DatePart("m", date_to_convert)
-    intv_date_day = DatePart("d", date_to_convert)
-    intv_date_yr = DatePart("yyyy", date_to_convert)
-    date_to_output = intv_date_day & "/" & intv_date_mo & "/" & intv_date_yr
+    If IsDate(date_to_convert) = TRUE Then
+        intv_date_mo = DatePart("m", date_to_convert)
+        intv_date_day = DatePart("d", date_to_convert)
+        intv_date_yr = DatePart("yyyy", date_to_convert)
+        date_to_output = intv_date_day & "/" & intv_date_mo & "/" & intv_date_yr
+    End If
 end function
 
 'DIALOGS ===================================================================================================================
@@ -152,7 +154,6 @@ EndDialog
 'SCRIPT ====================================================================================================================
 'Connects to BlueZone
 EMConnect ""
-MsgBox "Got the new one"
 
 'Grabbing the worker's X number.
 CALL find_variable("User: ", worker_number, 7)
@@ -1303,7 +1304,7 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
 
                                 Case "01"   'Spanish (3rd)
                                     'MsgBox "SPANISH"
-                                    CALL convert_date_to_day_first(ALL_CASES_ARRAY(date_of_app, case_entry), day_first_app_date)
+                                    If ALL_CASES_ARRAY(date_of_app, case_entry) <> "" Then CALL convert_date_to_day_first(ALL_CASES_ARRAY(date_of_app, case_entry), day_first_app_date)
                                     CALL convert_date_to_day_first(last_day_of_recert, day_first_last_recert)
 
                                     if ALL_CASES_ARRAY(recvd_appl, case_entry) = TRUE then CALL write_variable_in_SPEC_MEMO("Recibimos sus papeles de recertificacion el " & day_first_app_date & ".")
