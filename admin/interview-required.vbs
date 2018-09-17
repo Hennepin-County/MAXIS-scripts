@@ -198,9 +198,9 @@ For each reviews_total in REVS_array
 	EMReadScreen wrkr_numb, 7, 21, 21
 	
 	'Checking for PRIV cases.
-	EMReadScreen priv_check, 6, 24, 14 'If it can't get into the case needs to skip
-	IF priv_check = "PRIVIL" THEN 
-		priv_case_list = priv_case_list & "|" & MAXIS_case_number
+	EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip
+	IF priv_check = "PRIV" THEN 
+		priv_case_list = priv_case_list & MAXIS_case_number & "|"
 	ELSE						'For all of the cases that aren't privileged...
 		MFIP_ACTIVE = FALSE		'Setting some variables for the loop
 		SNAP_ACTIVE = False		
@@ -329,18 +329,18 @@ For item = 0 to UBound(Required_appt_array, 2)
 	excel_row = excel_row + 1 
 Next
 
-''Creating the list of privileged cases and adding to the spreadsheet
-'If priv_case_list <> "" Then
-'	priv_case_list = right(priv_case_list, (len(priv_case_list)-1))
-'	prived_case_array = split(priv_case_list, "|")
-'	
-'	excel_row = 2
-'
-'	FOR EACH MAXIS_case_number in prived_case_array
-'		objExcel.cells(excel_row, 9).value = MAXIS_case_number
-'		excel_row = excel_row + 1
-'	NEXT
-'End If
+'Creating the list of privileged cases and adding to the spreadsheet
+priv_case_list = priv_case_list & MAXIS_case_number & "|"
+priv_case_list = right(priv_case_list, (len(priv_case_list)-1))
+prived_case_array = split(priv_case_list, "|")
+
+excel_row = 2
+
+FOR EACH case_number in prived_case_array
+	objExcel.cells(excel_row, 9).value = MAXIS_case_number
+	excel_row = excel_row + 1
+NEXT
+
 
 'Query date/time/runtime info
 objExcel.Cells(1, 10).Font.Bold = TRUE
