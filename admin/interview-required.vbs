@@ -211,7 +211,7 @@ For each reviews_total in REVS_array
 	
 	'Checking for PRIV cases.
 	EMReadScreen priv_check, 6, 24, 14 'If it can't get into the case needs to skip
-	IF priv_check = "PRIVIL" or instr(priv_check, "NAT") then 
+	IF priv_check = "PRIVIL" THEN or instr(priv_check, "NAT") then 
 		priv_case_list = priv_case_list & MAXIS_case_number & "|"
 	ELSE						'For all of the cases that aren't privileged...
 		MFIP_ACTIVE = FALSE		'Setting some variables for the loop
