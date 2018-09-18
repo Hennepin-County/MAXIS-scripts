@@ -28,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -37,6 +37,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/18/2018", "Initial version.", "Ilse Ferris, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOG----------------------------------------------------------------------------------------------------
 BeginDialog appointment_required_dialog, 0, 0, 286, 60, "Appointment required dialog"
@@ -200,7 +212,7 @@ For each reviews_total in REVS_array
 	'Checking for PRIV cases.
 	EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip
 	IF priv_check = "PRIV" THEN 
-		priv_case_list = priv_case_list & MAXIS_case_number & "|"
+		priv_case_list = priv_case_list & "|" & MAXIS_case_number
 	ELSE						'For all of the cases that aren't privileged...
 		MFIP_ACTIVE = FALSE		'Setting some variables for the loop
 		SNAP_ACTIVE = False		
@@ -329,18 +341,17 @@ For item = 0 to UBound(Required_appt_array, 2)
 	excel_row = excel_row + 1 
 Next
 
-'Creating the list of privileged cases and adding to the spreadsheet
-priv_case_list = priv_case_list & MAXIS_case_number & "|"
-priv_case_list = right(priv_case_list, (len(priv_case_list)-1))
-prived_case_array = split(priv_case_list, "|")
-
-excel_row = 2
-
-FOR EACH case_number in prived_case_array
-	objExcel.cells(excel_row, 9).value = MAXIS_case_number
-	excel_row = excel_row + 1
-NEXT
-
+''Creating the list of privileged cases and adding to the spreadsheet
+'priv_case_list = priv_case_list & MAXIS_case_number & "|"
+'priv_case_list = right(priv_case_list, (len(priv_case_list)-1))
+'prived_case_array = split(priv_case_list, "|")
+'
+'excel_row = 2
+'
+'FOR EACH MAXIS_case_number in prived_case_array
+'	objExcel.cells(excel_row, 9).value = MAXIS_case_number
+'	excel_row = excel_row + 1
+'NEXT
 
 'Query date/time/runtime info
 objExcel.Cells(1, 10).Font.Bold = TRUE
