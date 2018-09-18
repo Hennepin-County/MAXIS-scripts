@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/17/2018", "Add extra handling for case noting sanctions for more than one HH member.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/12/2018", "Auto approval functionality complete. Added comments and removed testing code.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("06/09/2018", "Made several updates to support using a single master sanction list while processing. Also added text to case note if the case has been identified as potentially homeless for unfit for employment expansion exemption.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("05/21/2018", "Added additional handling for when a WCOM exists in the add WCOM option.", "Ilse Ferris, Hennepin County")
@@ -497,8 +498,17 @@ If sanction_option = "Sanction cases" then
                 Call navigate_to_MAXIS_screen("CASE", "NOTE")
                 EmReadscreen first_casenote, 40, 5, 25                  'Reading 1st case note. 
                 If instr(first_casenote, "SNAP sanction imposed") then 
-                    create_casenote = False                             'if duplicate exists, then a new case note will not be created. Preventing duplicdte case notes. 
-                Else
+                    EmReadscreen sanction_member, 2, 5, 58
+                    If sanction_member = member_number then 
+                        create_casenote = False                             'if duplicate exists, then a new case note will not be created. Preventing duplicdte case notes. 
+                    Else 
+                        create_casenote = True      'case note exists for another HH member, not the current member 
+                    End if 
+                Else 
+                    create_casenote = True 
+                End if 
+                        
+                If create_casenote = True then 
                     PF9     'edit mode (not Edna Mode)
                     Call write_variable_in_CASE_NOTE("--SNAP sanction imposed for MEMB " & member_number & " for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "--")
                     If PWE_check = "Y" THEN Call write_variable_in_CASE_NOTE("* Entire household is sanctioned. Member is the PWE.")
