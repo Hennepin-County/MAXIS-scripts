@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/20/2018", "Updated for current content.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -53,27 +54,26 @@ changelog_display
 'DIALOGS FOR THE SCRIPT======================================================================================================
 
     '------Paste any dialogs needed in from the dialog editor here. Dialogs typically include MAXIS_case_number and worker_signature fields
-BeginDialog client_dialog, 0, 0, 186, 220, "OUT OF STATE"
-  EditBox 90, 5, 60, 15, MAXIS_case_number
-  EditBox 125, 25, 25, 15, member_number
-  ButtonGroup ButtonPressed
-    PushButton 145, 55, 30, 10, "Web", outofstate_button
-  EditBox 100, 70, 50, 15, agency_name
-  EditBox 100, 90, 50, 15, agency_fax
-  EditBox 100, 110, 50, 15, worker_fax
-  CheckBox 10, 150, 150, 10, "Case note that out of state inquiry was sent", case_note_checkbox
-  EditBox 90, 170, 70, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 30, 195, 50, 15
-    CancelButton 85, 195, 50, 15
-  Text 5, 10, 80, 10, "Enter your case number:"
-  Text 5, 30, 120, 10, " member # you are inquiring (ex: 01): "
-  Text 5, 55, 135, 10, "Open up the OUT OF STATE contact site:"
-  Text 5, 75, 95, 10, "Out of State Agency name:"
-  Text 5, 95, 95, 10, "Out of State Agency fax:"
-  Text 5, 115, 95, 10, "Your County fax:"
-  Text 15, 175, 70, 10, "Sign your case note:"
-EndDialog
+	BeginDialog client_dialog, 0, 0, 161, 165, "OUT OF STATE INQUIRY"
+	  EditBox 55, 5, 35, 15, MAXIS_case_number
+	  EditBox 135, 5, 20, 15, member_number
+	  ButtonGroup ButtonPressed
+	    PushButton 25, 25, 105, 20, "National Directory Website", outofstate_button
+	  EditBox 95, 50, 60, 15, agency_name
+	  EditBox 95, 70, 60, 15, agency_fax
+	  EditBox 95, 90, 60, 15, worker_fax
+	  CheckBox 5, 110, 150, 10, "Case note that out of state inquiry was sent", case_note_checkbox
+	  EditBox 70, 125, 85, 15, worker_signature
+	  ButtonGroup ButtonPressed
+	    OkButton 50, 145, 50, 15
+	    CancelButton 105, 145, 50, 15
+	  Text 5, 10, 50, 10, "Case Number:"
+	  Text 105, 10, 30, 10, "Memb #:"
+	  Text 25, 55, 70, 10, "Out of State Agency:"
+	  Text 15, 75, 80, 10, "Out of State Agency fax:"
+	  Text 35, 95, 55, 10, "Your County fax:"
+	  Text 5, 130, 60, 10, "Worker Signature:"
+	EndDialog
 'END DIALOGS=================================================================================================================
 
 'THE SCRIPT==================================================================================================================
@@ -86,7 +86,7 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Dialog
 Do
-	If ButtonPressed = outofstate_button then CreateObject("WScript.Shell").Run("http://dpaweb.hss.state.ak.us/files/pdfs/NATIONALDIRECTORY.pdf")
+	If ButtonPressed = outofstate_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Documents/National_Directory.PDF")
 	Do
 		Dialog client_dialog
 		cancel_confirmation
@@ -321,7 +321,7 @@ EMSendKey "***OUT OF STATE INQUIRY SENT***"
 CALL write_bullet_and_variable_in_CASE_NOTE("SEND OUT OF STATE INQURY FAX TO: ", agency_name)
 CALL write_bullet_and_variable_in_CASE_NOTE("Agency FAX Contact", agency_fax)
 CALL write_bullet_and_variable_in_CASE_NOTE("FOR", client_name)
-CALL write_bullet_and_variable_in_CASE_NOTE("Memb Number", member_number)
+CALL write_bullet_and_variable_in_CASE_NOTE("Member Number", member_number)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 END IF
