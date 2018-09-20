@@ -318,9 +318,9 @@ If case_note_checkbox = 1 then
 pf4
 pf9
 EMSendKey "***OUT OF STATE INQUIRY SENT***"
-CALL write_bullet_and_variable_in_CASE_NOTE("SEND OUT OF STATE INQURY FAX TO: ", agency_name)
-CALL write_bullet_and_variable_in_CASE_NOTE("Agency FAX Contact", agency_fax)
-CALL write_bullet_and_variable_in_CASE_NOTE("FOR", client_name)
+CALL write_bullet_and_variable_in_CASE_NOTE("SENT OUT OF STATE INQURY FAX TO: ", agency_name)
+CALL write_bullet_and_variable_in_CASE_NOTE("Agency Fax Contact", agency_fax)
+CALL write_bullet_and_variable_in_CASE_NOTE("For:", client_name)
 CALL write_bullet_and_variable_in_CASE_NOTE("Member Number", member_number)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
