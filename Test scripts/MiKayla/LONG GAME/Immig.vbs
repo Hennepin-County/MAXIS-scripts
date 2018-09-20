@@ -113,7 +113,7 @@ BeginDialog addimig_dialog, 0, 0, 291, 115, "Additional Information"
   DropListBox 235, 5, 45, 10, "Select One:"+chr(9)+"YES"+chr(9)+"NO", verf_sscredits
   DropListBox 110, 20, 50, 12, "Select One:"+chr(9)+"YES"+chr(9)+"NO", battered_spouse 'mandatory for undoc'
   DropListBox 235, 20, 45, 10, "Select One:"+chr(9)+"YES"+chr(9)+"NO", battered_spouse_verf
-  DropListBox 110, 35, 80, 15, "Select One:"+chr(9)+"Veteran"+chr(9)+"Active Duty"+chr(9)+"Spouse of 1 or 2"+chr(9)+"Child of 1 or 2"+chr(9)+"No Military Stat or Other ", military_status
+  DropListBox 110, 35, 80, 15, "Select One:"+chr(9)+"Veteran"+chr(9)+"Active Duty"+chr(9)+"Spouse of 1 or 2"+chr(9)+"Child of 1 or 2"+chr(9)+"No Military Stat or Other", military_status
   DropListBox 235, 35, 45, 10, "Select One:"+chr(9)+"YES"+chr(9)+"NO", military_status_verf
   DropListBox 110, 50, 135, 15, "Select One:"+chr(9)+"Hmong During Vietnam War"+chr(9)+"Highland Lao During Vietnam"+chr(9)+"Spouse/Widow of 1 Or 2"+chr(9)+"Dep Child of 1 Or 2"+chr(9)+"Native Amer Born Can/Mex", nation_vietnam
   DropListBox 110, 65, 45, 10, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_ctzn 'mandatory for GA'
@@ -170,6 +170,19 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 Call MAXIS_footer_month_confirmation			'function that confirms that the current footer month/year is the same as what was selected by the user. If not, it will navigate to correct footer month/year
+
+IF immig_status_dropdown <> "US Citizen" Then
+	Do
+		Do
+			err_msg = ""
+			dialog addimig_dialog
+			cancel_confirmation
+			IF immig_status_dropdown = "28 Undocumented"  and battered_spouse = "Select One:" Then err_msg = err_msg & vbNewLine & "*This will delete IMIG, update MEMI & MEMB for this member."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+		LOOP UNTIL err_msg = ""
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+END IF
 
 Call navigate_to_MAXIS_screen("STAT", "IMIG")
 'Making sure we have the correct IMIG
@@ -303,6 +316,35 @@ ELSE
 
 		EMReadScreen id_number, 9, 10, 72
 		'IF alien_id_number <> id_number THEN MsgBox "The number enter for ID does not match the number entered in the case note"
+
+		IF military_status = "Veteran" THEN EmWriteScreen "1", 15, 56
+		IF military_status = "Active Duty" THEN EmWriteScreen "2", 15, 56
+		IF military_status = "Spouse of 1 or 2" THEN EmWriteScreen "3", 15, 56
+		IF military_status = "Child of 1 or 2" THEN EmWriteScreen "4", 15, 56
+		IF military_status = "No Military Stat or Other" THEN EmWriteScreen "N", 15, 56
+
+		IF DropListBox 110, 50, 135, 15, "Select One:"+chr(9)+"Hmong During Vietnam War"+chr(9)+"Highland Lao During Vietnam"+chr(9)+"Spouse/Widow of 1 Or 2"+chr(9)+"Dep Child of 1 Or 2"+chr(9)+"Native Amer Born Can/Mex", nation_vietnam
+	
+
+		IF ss_credits <> "Select One:" THEN EmWriteScreen ss_credits, 13, 56
+		IF verf_sscredits <> "Select One:" THEN EmWriteScreen verf_sscredits, 13, 71
+		IF battered_spouse <> "Select One:" THEN EmWriteScreen battered_spouse, 14, 56  'mandatory for undoc'
+	    IF battered_spouse_verf <> "Select One:" THEN EmWriteScreen battered_spouse_verf, 14, 71
+		IF military_status <> "Select One:" THEN
+			IF military_status = "Veteran" THEN EmWriteScreen "1", 15, 56
+			IF military_status = "Active Duty" THEN EmWriteScreen "2", 15, 56
+			IF military_status = "Spouse of 1 or 2" THEN EmWriteScreen "3", 15, 56
+			IF military_status = "Child of 1 or 2" THEN EmWriteScreen "4", 15, 56
+			IF military_status = "No Military Stat or Other" THEN EmWriteScreen "N", 15, 56
+		END IF
+
+		IF military_status_verf <> "Select One:" THEN EmWriteScreen military_status_verf, 15, 71
+		IF ESL_ctzn <> "Select One:" THEN EmWriteScreen ESL_ctzn, 17, 56  'mandatory for GA'
+		IF ESL_ctzn_verf <> "Select One:" THEN EmWriteScreen ESL_ctzn_verf, 17, 71
+		IF ESL_skills <> "Select One:" THEN EmWriteScreen ESL_skills, 18, 56
+
+
+
 		Transmit
 		'PF3	'to move past non-inhibiting warning messages on IMIG
 		EMReadScreen IMIG_screen, 4, 2, 49		'if inhibiting error exists, this will catch it and instruct the user to update IMIG

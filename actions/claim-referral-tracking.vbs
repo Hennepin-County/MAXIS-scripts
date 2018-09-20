@@ -37,37 +37,39 @@ STATS_denomination = "C"        'C is for each case
  	END IF
  END IF
  'END FUNCTIONS LIBRARY BLOCK================================================================================================
- 
+
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/20/2018", "Updated dialog to match MAXIS panel.", "MiKayla Handley")
 call changelog_update("06/26/2017", "Initial version.", "MiKayla Handley")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 '-----------------------------------------------------------------------------DIALOG
-BeginDialog Claim_Referral_Tracking, 0, 0, 301, 115, "Claim Referral Tracking "
-  EditBox 60, 10, 75, 15, MAXIS_case_number
-  DropListBox 195, 10, 95, 15, "Select One:"+chr(9)+"SNAP"+chr(9)+"MFIP"+chr(9)+"SNAP/MFIP", Program_droplist
-  EditBox 60, 30, 75, 15, Action_Date
-  DropListBox 195, 30, 95, 15, "Select One:"+chr(9)+"Initial Claim Referral"+chr(9)+"Claim Determination", Action_Taken
-  CheckBox 10, 55, 145, 10, "Sent Request for Additional Information ", Verif_Checkbox
-  CheckBox 175, 55, 75, 10, "Overpayment Exists", Overpayment_Checkbox
-  EditBox 60, 70, 230, 15, Other_Notes
-  EditBox 75, 90, 100, 15, Worker_Signature
+BeginDialog Claim_Referral_Tracking, 0, 0, 266, 105, "Claim Referral Tracking"
+  EditBox 55, 5, 45, 15, MAXIS_case_number
+  EditBox 165, 5, 45, 15, Action_Date
+  DropListBox 55, 25, 50, 15, "Select One:"+chr(9)+"SNAP"+chr(9)+"MFIP"+chr(9)+"SNAP/MFIP", Program_droplist
+  DropListBox 165, 25, 95, 15, "Select One:"+chr(9)+"Initial Claim Referral"+chr(9)+"Claim Determination", Action_Taken
+  CheckBox 55, 45, 110, 10, "Sent Request for Additional Info", Verif_Checkbox
+  CheckBox 185, 45, 75, 10, "Overpayment Exists", Overpayment_Checkbox
+  EditBox 50, 60, 210, 15, Other_Notes
+  EditBox 50, 80, 90, 15, Worker_Signature
   ButtonGroup ButtonPressed
-    OkButton 185, 90, 50, 15
-    CancelButton 240, 90, 50, 15
-  Text 145, 35, 45, 10, "Action Taken:"
-  Text 10, 75, 45, 10, "Other Notes:"
-  Text 10, 95, 60, 10, "Worker Signature:"
-  Text 10, 35, 40, 10, "Action Date:"
-  Text 145, 15, 40, 10, "Program(s):"
-  Text 10, 15, 50, 10, "Case Number: "
+    OkButton 155, 80, 50, 15
+    CancelButton 210, 80, 50, 15
+  Text 5, 45, 45, 10, "Action Taken:"
+  Text 5, 65, 45, 10, "Other Notes:"
+  Text 5, 85, 40, 10, "Worker Sig:"
+  Text 120, 10, 40, 10, "Action Date:"
+  Text 15, 30, 40, 10, "Program(s):"
+  Text 5, 10, 50, 10, "Case Number: "
+  Text 120, 30, 40, 10, "Description:"
 EndDialog
 
 '----------------------------------------------------------------------------------------------------Thescript
@@ -84,6 +86,7 @@ Do
 		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
 		IF isdate(action_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid action date."
 		IF program_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select a program."
+        IF Overpayment_Checkbox <> CHECKED and Verif_Checkbox <> CHECKED  THEN err_msg = err_msg & vbnewline & "Please select an action taken"
 		IF Action_Taken = "Select One:" then err_msg = err_msg & vbnewline & "* Select an action."
 		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
