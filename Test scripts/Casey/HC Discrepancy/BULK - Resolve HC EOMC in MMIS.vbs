@@ -301,11 +301,15 @@ Const prog_two_end          = 13
 Const MMIS_span_one         = 14
 Const MMIS_curr_end_one     = 15
 Const MMIS_new_end_one      = 16
-Const MMIS_span_two         = 17
-Const MMIS_curr_end_two     = 18
-Const MMIS_new_end_two      = 19
-Const clt_savings           = 20
-Const err_notes             = 21
+Const RELG_page_one         = 17
+Const RELG_row_one          = 18
+Const MMIS_span_two         = 19
+Const MMIS_curr_end_two     = 20
+Const MMIS_new_end_two      = 21
+Const RELG_page_two         = 22
+Const RELG_row_two          = 23
+Const clt_savings           = 24
+Const err_notes             = 25
 
 'Arrays
 Dim EOMC_CASES_ARRAY()
@@ -326,16 +330,18 @@ Call back_to_SELF
 EmReadscreen MX_environment, 13, 22, 48
 MX_environment = trim(MX_environment)
 Call navigate_to_spec_MMIS_region("CTY ELIG STAFF/UPDATE")      'Going to MMIS'
+'attn
+'MsgBox "Pause"
 Call navigate_to_MAXIS(MX_environment)
 
 running_stopwatch = timer
 
-' call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
+call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
 ' 'list_of_workers = "X127EJ6,X127FE5,X127EK3,X127EK1,X127EK2,X127EJ7,X127EJ8,X127EJ5"        'ADS'
 ' list_of_workers = "X127EU5,X127EX7,X127F3Y,X127FA3,X127EU6,X127F3S,X127FJ5,X127EY1,X127EY2,X127F3W,X127FA1,X127EU8,X127F3Q,X127EX9,X127FA4,X127BV1,X127F3T,X127FJ1,X127EU9,X127F3X,X127FA2,X127EU7,X127F3R,X127EX8,X127F3Z,X127FJ3,X127FJ4,X127F3V,X127F3U"
-list_of_workers = "X127ICT,X127F3P"
+' list_of_workers = "X127ICT,X127F3P"
 
-worker_array = split(list_of_workers, ",")
+' worker_array = split(list_of_workers, ",")
 
 list_of_cases = 0
 For each worker in worker_array
@@ -343,7 +349,7 @@ For each worker in worker_array
 	Call navigate_to_MAXIS_screen("rept", "eomc")
 	EMWriteScreen worker, 21, 16
 	transmit
-
+    'MsgBox "Pause"
 	'Skips workers with no info
 	EMReadScreen has_content_check, 1, 7, 5
 	If has_content_check <> " " then
@@ -782,16 +788,17 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
     PMI_Number = right("00000000" & EOMC_CLIENT_ARRAY(clt_pmi, hc_clt), 8)    'making this 8 charactes because MMIS
 
     If EOMC_CLIENT_ARRAY(err_notes, hc_clt) <> "PRIV" Then                  'Can't look at priv case information so we will ignore them
-        EmWriteScreen "C", 2, 19                                                    'read only
+        EmWriteScreen "I", 2, 19                                                    'read only
         EmWriteScreen PMI_Number, 4, 19                                             'enter through the PMI so it isn't case specific
         transmit
 
         EmWriteScreen "RELG", 1, 8                  'go to RELG where all the elig detail is
         transmit
-        MsgBox "To RELG"
+        'MsgBox "To RELG"
 
         relg_row = 6                                'beginning of the list.
         span_found = FALSE                          'setting this for each client loop
+        EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) = 1
         Do
             EmReadscreen relg_prog, 2, relg_row, 10 'reading the prog and elig type information
             EmReadscreen relg_elig, 2, relg_row, 33
@@ -803,75 +810,33 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                 EmReadscreen relg_end_dt, 8, relg_row+1, 36     'this is where the end date is
                 'MsgBox "End Date - " & relg_end_dt
                 EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = relg_end_dt     'setting the end date in to the array
+                EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = relg_row
             ElseIf relg_prog = "EH" AND EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "EMA" Then
                 span_found = TRUE           'setting this for later/next loop
                 EmReadscreen relg_end_dt, 8, relg_row+1, 36     'this is where the end date is
                 'MsgBox "End Date - " & relg_end_dt
                 EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = relg_end_dt     'setting the end date in to the array
+                EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = relg_row
             ElseIf relg_prog = "SL" AND EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "QI1" Then
                 If relg_elig = EOMC_CLIENT_ARRAY(elig_type_one, hc_clt) Then
                     span_found = TRUE           'setting this for later/next loop
                     EmReadscreen relg_end_dt, 8, relg_row+1, 36     'this is where the end date is
                     'MsgBox "End Date - " & relg_end_dt
                     EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = relg_end_dt     'setting the end date in to the array
+                    EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = relg_row
                 Else
                     EmReadscreen relg_end_dt, 8, relg_row+1, 36     'this is where the end date is
                     EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = relg_end_dt         'adding it to the array and adding a message about the wrong elig type
                     EOMC_CLIENT_ARRAY(err_notes, hc_clt) = EOMC_CLIENT_ARRAY(err_notes, hc_clt) & " ~ MMIS SPAN for " & EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) & " has the wrong ELIG TYPE"
                     span_found = TRUE
+                    EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = relg_row
                 End If
             ElseIf relg_prog = left(EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt), 2) Then       'sometimes the program matches but the elig type does not - HC is still active in MMIS but wrong
                 EmReadscreen relg_end_dt, 8, relg_row+1, 36     'this is where the end date is
                 EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = relg_end_dt         'adding it to the array and adding a message about the wrong elig type
                 EOMC_CLIENT_ARRAY(err_notes, hc_clt) = EOMC_CLIENT_ARRAY(err_notes, hc_clt) & " ~ MMIS SPAN for " & EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) & " has the wrong ELIG TYPE"
                 span_found = TRUE
-            End If
-
-            If span_found = TRUE Then
-                If EOMC_CLIENT_ARRAY(autoclose, hc_clt) = FALSE Then
-                    If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = "99/99/99" Then
-                        EmWriteScreen mmis_last_day_date, relg_row+1, 36
-                        EmWriteScreen "C", relg_row+1, 62
-                        EOMC_CLIENT_ARRAY(MMIS_new_end_one, hc_clt) = mmis_last_day_date
-
-                        If EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "MA" OR EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "IMD" OR EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "EMA" Then
-
-                            If EOMC_CLIENT_ARRAY(elig_type_one, hc_clt) = "PX" OR EOMC_CLIENT_ARRAY(elig_type_one, hc_clt) = "PC" Then
-                                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_PW
-                            Else
-                                If EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 1 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_11x
-                                If EOMC_CLIENT_ARRAY(clt_age, hc_clt) = 1 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_1
-                                If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 1 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 16 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_2_15
-                                If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 15 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 21 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_16_20
-                                If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 20 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 50 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_21_49
-                                If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 49 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_50_64
-                                If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_65
-                            ENd If
-
-                        ElseIf EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "QI1" Then
-                            EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_QI1
-                        ElseIf EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "QMB" Then
-                            EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_QMB
-                        ElseIf EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "SLMB" Then
-                            EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_SLMB
-                        End If
-
-                        PF3
-                        MsgBox "Saved"
-
-                        EmWriteScreen "C", 2, 19                                                    'read only
-                        EmWriteScreen PMI_Number, 4, 19                                             'enter through the PMI so it isn't case specific
-                        transmit
-
-                        EmWriteScreen "RELG", 1, 8                  'go to RELG where all the elig detail is
-                        transmit
-                        MsgBox "To RELG"
-                    Else
-                        PF6
-                    End If
-                Else
-                    PF6
-                End If
+                EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = relg_row
             End If
 
             'Once PROG is blank - there are no more spans to review
@@ -880,29 +845,16 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
             If relg_row = 22 Then           'this is the end of RELG and we need to go to a new page
                 PF8
                 relg_row = 6
+                EmReadscreen end_of_list, 7, 24, 26     'This is the end of the list
+                If end_of_list = "NO MORE" Then Exit Do
+                EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) = EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) + 1
             End If
-            EmReadscreen end_of_list, 7, 24, 26     'This is the end of the list
-            If end_of_list = "NO MORE" Then Exit Do
         Loop until span_found = TRUE
         'If we exited before finding the right Span then an error is added that a span does not exist.
-        If span_found = FALSE Then
-            PF6
-            MsgBox "NOT Saved"
-
-            EmWriteScreen "C", 2, 19                                                    'read only
-            EmWriteScreen PMI_Number, 4, 19                                             'enter through the PMI so it isn't case specific
-            transmit
-
-            EmWriteScreen "RELG", 1, 8                  'go to RELG where all the elig detail is
-            transmit
-            MsgBox "To RELG"
-
-            EOMC_CLIENT_ARRAY(err_notes, hc_clt) = EOMC_CLIENT_ARRAY(err_notes, hc_clt) & " ~ No MMIS SPAN for " & EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt)
-        End If
 
         EmWriteScreen "RELG", 1, 8      'This takes us back to the top in case we had to PF8 down'
         transmit
-        MsgBox "To RELG"
+        'MsgBox "To RELG"
 
         'If there is a second program for this client, we are goind to do it all over again.
         If EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) <> "" Then
@@ -919,108 +871,151 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                     EmReadscreen relg_end_dt, 8, relg_row+1, 36                 'reading the end date
                     'MsgBox "2 - End Date - " & relg_end_dt
                     EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = relg_end_dt 'setting it to the array
-
+                    EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = relg_row
                 ElseIf relg_prog = left(EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt), 2) Then       'if only the program matches
                     EmReadscreen relg_end_dt, 8, relg_row+1, 36                 'reading the end date
 
                     EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = relg_end_dt         'adding it to the array and adding a message about the wrong elig type
                     EOMC_CLIENT_ARRAY(err_notes, hc_clt) = EOMC_CLIENT_ARRAY(err_notes, hc_clt) & " ~ MMIS SPAN for " & EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) & " has the wrong ELIG TYPE"
                     span_found = TRUE
-
+                    EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = relg_row
                 End If
-
-                If span_found = TRUE Then
-                    If EOMC_CLIENT_ARRAY(autoclose, hc_clt) = FALSE Then
-                        If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then
-                            EmWriteScreen mmis_last_day_date, relg_row+1, 36
-                            EmWriteScreen "C", relg_row+1, 62
-                            EOMC_CLIENT_ARRAY(MMIS_new_end_two, hc_clt) = mmis_last_day_date
-
-                            If EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "MA" OR EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "IMD" OR EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "EMA" Then
-
-                                If EOMC_CLIENT_ARRAY(elig_type_two, hc_clt) = "PX" OR EOMC_CLIENT_ARRAY(elig_type_two, hc_clt) = "PC" Then
-                                    EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_PW
-                                Else
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 1 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_11x
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) = 1 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_1
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 1 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 16 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_2_15
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 15 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 21 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_16_20
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 20 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 50 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_21_49
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 49 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_50_64
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_65
-                                ENd If
-
-                            ElseIf EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "QI1" Then
-                                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_QI1
-                            ElseIf EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "QMB" Then
-                                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_QMB
-                            ElseIf EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "SLMB" Then
-                                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_SLMB
-                            End If
-
-                            PF3
-                            MsgBox "Saved"
-
-                            EmWriteScreen "C", 2, 19                                                    'read only
-                            EmWriteScreen PMI_Number, 4, 19                                             'enter through the PMI so it isn't case specific
-                            transmit
-
-                            EmWriteScreen "RELG", 1, 8                  'go to RELG where all the elig detail is
-                            transmit
-                            MsgBox "To RELG"
-                        End If
-                    Else
-                        PF6
-                    End If
-                Else
-                    PF6
-                End If
-
 
                 If relg_prog = "  " Then Exit Do            'leaving the loop if we are at the end of the RELG list'
                 relg_row = relg_row + 4                     'next span
-                If relg_row = 22 Then                       'next page
+                If relg_row = 22 Then           'this is the end of RELG and we need to go to a new page
                     PF8
                     relg_row = 6
+                    EmReadscreen end_of_list, 7, 24, 26     'This is the end of the list
+                    If end_of_list = "NO MORE" Then Exit Do
+                    EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) = EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) + 1
                 End If
-                EmReadscreen end_of_list, 7, 24, 26
-                If end_of_list = "NO MORE" Then Exit Do     'last page
             Loop until span_found = TRUE
             'adding a message if no span was found for this program
-            If span_found = FALSE Then
-                PF6
-                MsgBox "NOT Saved"
-
-                EmWriteScreen "C", 2, 19                                                    'read only
-                EmWriteScreen PMI_Number, 4, 19                                             'enter through the PMI so it isn't case specific
-                transmit
-
-                EmWriteScreen "RELG", 1, 8                  'go to RELG where all the elig detail is
-                transmit
-                MsgBox "To RELG"
-
-                EOMC_CLIENT_ARRAY(err_notes, hc_clt) = EOMC_CLIENT_ARRAY(err_notes, hc_clt) & " ~ No MMIS SPAN for " & EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt)
-            End If
-
+            If span_found = FALSE Then EOMC_CLIENT_ARRAY(err_notes, hc_clt) = EOMC_CLIENT_ARRAY(err_notes, hc_clt) & " ~ No MMIS SPAN for " & EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt)
         End If
 
-        ' EmWriteScreen "RKEY", 1, 8  'back to the beginning for the next client/loop'
-        ' transmit
-        ' MsgBox "To RKEY"
+        EmWriteScreen "RKEY", 1, 8  'back to the beginning for the next client/loop'
+        transmit
+        'MsgBox "To RKEY"
 
     End If
     'if for some reason no HC programs were in MAXIS to begin with - adding this detail to the message
     If EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "" AND EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "" Then EOMC_CLIENT_ARRAY(err_notes, hc_clt) = EOMC_CLIENT_ARRAY(err_notes, hc_clt) & " ~ No HC Programs found in MAXIS ELIG."
 
+
     If EOMC_CLIENT_ARRAY(autoclose, hc_clt) = FALSE Then
         If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = "99/99/99" Then
-            EmWriteScreen "C", 2, 19                                                    'changing
+            EmWriteScreen "C", 2, 19                                                    'read only
             EmWriteScreen PMI_Number, 4, 19                                             'enter through the PMI so it isn't case specific
             transmit
 
+            EmWriteScreen "RELG", 1, 8                  'go to RELG where all the elig detail is
+            transmit
+
+            If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) > 1 Then
+                for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt)
+                    PF8
+                next
+            End If
+
+            relg_row = EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) + 4
+
+            'EmWriteScreen "...", 6, 10
+
+            EmWriteScreen mmis_last_day_date, relg_row+1, 36
+            EmWriteScreen "C", relg_row+1, 62
+            EOMC_CLIENT_ARRAY(MMIS_new_end_one, hc_clt) = mmis_last_day_date
+
+            If EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "MA" OR EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "IMD" OR EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "EMA" Then
+
+                If EOMC_CLIENT_ARRAY(elig_type_one, hc_clt) = "PX" OR EOMC_CLIENT_ARRAY(elig_type_one, hc_clt) = "PC" Then
+                    EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_PW
+                Else
+                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 1 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_11x
+                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) = 1 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_1
+                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 1 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 16 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_2_15
+                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 15 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 21 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_16_20
+                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 20 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 50 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_21_49
+                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 49 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_50_64
+                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_65
+                ENd If
+
+            ElseIf EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "QI1" Then
+                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_QI1
+            ElseIf EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "QMB" Then
+                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_QMB
+            ElseIf EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "SLMB" Then
+                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_SLMB
+            End If
+
+            PF3
+            EmReadscreen warn_msg, 7, 24, 2
+            If warn_msg = "WARNING" Then PF3
+
+            PF3
+            EmWriteScreen "X",8, 3
+            transmit
+            'MsgBox "Saved"
 
         End If
+        If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then
+            EmWriteScreen "C", 2, 19                                                    'read only
+            EmWriteScreen PMI_Number, 4, 19                                             'enter through the PMI so it isn't case specific
+            transmit
+
+            EmWriteScreen "RELG", 1, 8                  'go to RELG where all the elig detail is
+            transmit
+
+            If EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) > 1 Then
+                for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt)
+                    PF8
+                next
+            End If
+
+            relg_row = EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) + 4
+
+            'EmWriteScreen "...", 6, 10
+
+            EmWriteScreen mmis_last_day_date, relg_row+1, 36
+            EmWriteScreen "C", relg_row+1, 62
+            EOMC_CLIENT_ARRAY(MMIS_new_end_two, hc_clt) = mmis_last_day_date
+
+            If EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "MA" OR EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "IMD" OR EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "EMA" Then
+
+                If EOMC_CLIENT_ARRAY(elig_type_two, hc_clt) = "PX" OR EOMC_CLIENT_ARRAY(elig_type_two, hc_clt) = "PC" Then
+                    EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_PW
+                Else
+                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 1 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_11x
+                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) = 1 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_1
+                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 1 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 16 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_2_15
+                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 15 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 21 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_16_20
+                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 20 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 50 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_21_49
+                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 49 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_50_64
+                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_65
+                ENd If
+
+            ElseIf EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "QI1" Then
+                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_QI1
+            ElseIf EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "QMB" Then
+                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_QMB
+            ElseIf EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "SLMB" Then
+                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_SLMB
+            End If
+
+            PF3
+            'MsgBox "Saved"
+            EmReadscreen warn_msg, 7, 24, 2
+            If warn_msg = "WARNING" Then PF3
+
+            PF3
+            EmWriteScreen "X",8, 3
+            transmit
+
+            'MsgBox "To RELG"
+        End If
     End If
+
 
     'this ends the script run if we have hid the time that was indicated to run for
     ' If timer > end_time Then
@@ -1148,6 +1143,8 @@ ObjExcel.Cells(1, col_to_use+1).Value = now
 ObjExcel.Cells(1, col_to_use+1).Font.Bold = FALSE
 ObjExcel.Cells(2, col_to_use).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
 ObjExcel.Cells(2, col_to_use+1).Value = timer - query_start_time
+ObjExcel.Cells(3, col_to_use).Value = "Total Savings:"	'Goes back one, as this is on the next row
+ObjExcel.Cells(3, col_to_use+1).Value = total_savings
 
 'Autofitting columns
 For col_to_autofit = 1 to col_to_use+1
