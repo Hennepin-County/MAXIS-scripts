@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/21/2018", "Added handling for more than one page of PARIS matches on INTM.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/02/2018", "Updates to fraud referral for the case note.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/18/2017", "Updates created to add options for sending difference notice and handling for resolution status and multiple states", "MiKayla Handley, Hennepin County")
 CALL changelog_update("09/20/2017", "Updates made across the board, including action and case note", "MiKayla Handley, Hennepin County")
@@ -50,7 +51,6 @@ CALL changelog_update("05/17/2017", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My DOcuments folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
 
 '---------------------------------------------------------------------dialog
 BeginDialog notice_action_dialog, 0, 0, 166, 85, "SEND DIFFERENCE NOTICE?"
@@ -94,10 +94,19 @@ DO
 	EMReadScreen Status, 2, row, 73 'DO loop to check status of case before we go into insm'
 	IF Status <> "UR" THEN
 		row = row + 1
+        If row = 18 then 
+            PF8
+            row = 8
+        End if 
+        found_match = False 
     ELSE
+        found_match = true 
 		EXIT DO
 	END IF
-LOOP UNTIL trim(Status) = "" or row = 19
+    EMReadScreen last_page_check, 21, 24, 2
+LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
+
+If found_match = false then script_end_procedure("Unable to find an UNRESOLVED (UR) match. Please review case.")
 
 CALL write_value_and_transmit("X", row, 3) 'navigating to insm'
 
@@ -217,7 +226,6 @@ For item = 0 to Ubound(state_array, 2)
 	Match_contact_info = phone_number & " " & fax_number
 	state_array(contact_info, item) = Match_contact_info
 NEXT
-
 
 IF notice_sent = "N" THEN
     DO
@@ -436,29 +444,28 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		END IF
 		PF3
     PF3
-		'CALL MAXIS_case_number
+	'CALL MAXIS_case_number
     '----------------------------------------------------------------the case match note
-    	start_a_blank_CASE_NOTE
-    	CALL write_variable_in_CASE_NOTE ("-----" & Match_month & " PARIS MATCH " & "(" & first_name &  ") CLEARED " & rez_status & "-----")
-    	CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
-    	CALL write_bullet_and_variable_in_CASE_NOTE("MN Active Programs", MN_active_programs)
-    	'formatting for multiple states
-    	For item = 0 to Ubound(state_array, 2)
-    		CALL write_variable_in_CASE_NOTE("----- Match State: " & state_array(state_name, item) & " -----")
-    		CALL write_bullet_and_variable_in_CASE_NOTE("Match State Active Programs", state_array(progs, item))
-    		CALL write_bullet_and_variable_in_CASE_NOTE("Match State Contact Info", state_array(contact_info, item))
-    	NEXT
-    	CALL write_variable_in_CASE_NOTE ("-----")
-    	CALL write_bullet_and_variable_in_CASE_NOTE("Client accessing benefits in other state", bene_other_state)
-    	CALL write_bullet_and_variable_in_CASE_NOTE("Contacted other state", Contact_other_state)
-    	CALL write_bullet_and_variable_in_CASE_NOTE("Verification used to clear", pending_verifs)
-    	CALL write_bullet_and_variable_in_CASE_NOTE("Resolution Status", resolution_status)
-			IF rez_status = "FR" THEN CALL write_variable_in_CASE_NOTE("Client has failed to cooperate with Paris Match - has not provided requested verifications showing they are living in MN. Client will need to provide this before the case is reopened ")
-			CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
-    	CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-    	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
-    	CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
-	'LOOP UNTIL MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
-
+    start_a_blank_CASE_NOTE
+    CALL write_variable_in_CASE_NOTE ("-----" & Match_month & " PARIS MATCH " & "(" & first_name &  ") CLEARED " & rez_status & "-----")
+    CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
+    CALL write_bullet_and_variable_in_CASE_NOTE("MN Active Programs", MN_active_programs)
+    'formatting for multiple states
+    For item = 0 to Ubound(state_array, 2)
+    	CALL write_variable_in_CASE_NOTE("----- Match State: " & state_array(state_name, item) & " -----")
+    	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Active Programs", state_array(progs, item))
+    	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Contact Info", state_array(contact_info, item))
+    NEXT
+    CALL write_variable_in_CASE_NOTE ("-----")
+    CALL write_bullet_and_variable_in_CASE_NOTE("Client accessing benefits in other state", bene_other_state)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Contacted other state", Contact_other_state)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Verification used to clear", pending_verifs)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Resolution Status", resolution_status)
+	IF rez_status = "FR" THEN CALL write_variable_in_CASE_NOTE("Client has failed to cooperate with Paris Match - has not provided requested verifications showing they are living in MN. Client will need to provide this before the case is reopened ")
+	CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+    CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+    CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 END IF
+
 script_end_procedure("")
