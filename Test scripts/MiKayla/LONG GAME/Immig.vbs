@@ -53,22 +53,25 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 memb_number = "01"
+actual_date = date & ""
 
 '-----------------------------------------------------------------------------------------------------------------------DIALOG
 BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
  EditBox 60, 5, 40, 15, MAXIS_case_number
  EditBox 140, 5, 20, 15, memb_number
  EditBox 210, 5, 40, 15, actual_date
- CheckBox 255, 10, 110, 10, "Emailed HP.immigration?", emailHP_CHECKBOX
+ ButtonGroup ButtonPressed
+   PushButton 270, 5, 85, 15, "Non-Citizen Guide ", Noncitzn_button
  DropListBox 60, 35, 110, 15, "Select One:"+chr(9)+"21 Refugee"+chr(9)+"22 Asylee"+chr(9)+"23 Deport/Remove Withheld"+chr(9)+"24 LPR"+chr(9)+"25 Paroled For 1 Year Or More"+chr(9)+"26 Conditional Entry < 4/80"+chr(9)+"27 Non-immigrant"+chr(9)+"28 Undocumented"+chr(9)+"50 Other Lawfully Residing"+chr(9)+"US Citizen", immig_status_dropdown
  DropListBox 60, 55, 110, 15, "Select One:"+chr(9)+"21 Refugee"+chr(9)+"22 Asylee"+chr(9)+"23 Deport/Remove Withheld"+chr(9)+"24 LPR"+chr(9)+"25 Paroled For 1 Year Or More"+chr(9)+"26 Conditional Entry < 4/80"+chr(9)+"27 Non-immigrant"+chr(9)+"28 Undocumented"+chr(9)+"50 Other Lawfully Residing"+chr(9)+"N/A", LPR_status_dropdown
  DropListBox 255, 35, 95, 15, "Select One:"+chr(9)+"SAVE Primary"+chr(9)+"SAVE Secondary"+chr(9)+"Alien Card"+chr(9)+"Passport/Visa"+chr(9)+"Re-Entry Prmt"+chr(9)+"INS Correspondence"+chr(9)+"Other Document"+chr(9)+"Certificate of Naturalization"+chr(9)+"No Ver Prvd", status_verification
- DropListBox 255, 55, 95, 15, "Select One:"+chr(9)+"AA Amerasian"+chr(9)+"EH Ethnic Chinese"+chr(9)+"EL Ethnic Lao"+chr(9)+"HG Hmong"+chr(9)+"KD Kurd"+chr(9)+"SJ Soviet Jew"+chr(9)+"TT Tinh"+chr(9)+"AF Afghanistan"+chr(9)+"BK Bosnia"+chr(9)+"CB Cambodia"+chr(9)+"CH China,"+chr(9)+"CU Cuba"+chr(9)+"ES El Salvador"+chr(9)+"ER Eritrea"+chr(9)+"ET Ethiopia"+chr(9)+"GT Guatemala"+chr(9)+"HA Haiti"+chr(9)+"HO Honduras"+chr(9)+"IR Iran"+chr(9)+"IZ Iraq"+chr(9)+"LI Liberia"+chr(9)+"MC Micronesia"+chr(9)+"MI Marshall"+chr(9)+"Islands"+chr(9)+"MX Mexico"+chr(9)+"WA Namibia"+chr(9)+"PK Pakistan"+chr(9)+"RP Philippines"+chr(9)+"PL Poland"+chr(9)+"RO Romania"+chr(9)+"RS Russia"+chr(9)+"SO Somalia"+chr(9)+"SF South Africa"+chr(9)+"TH Thailand"+chr(9)+"VM Vietnam"+chr(9)+"OT All Others", nationality_dropdown
+ DropListBox 255, 55, 95, 15, "Select One:"+chr(9)+"AA Amerasian"+chr(9)+"EH Ethnic Chinese"+chr(9)+"EL Ethnic Lao"+chr(9)+"HG Hmong"+chr(9)+"KD Kurd"+chr(9)+"SJ Soviet Jew"+chr(9)+"TT Tinh"+chr(9)+"AF Afghanistan"+chr(9)+"BK Bosnia"+chr(9)+"CB Cambodia"+chr(9)+"CH China"+chr(9)+"CU Cuba"+chr(9)+"ES El Salvador"+chr(9)+"ER Eritrea"+chr(9)+"ET Ethiopia"+chr(9)+"GT Guatemala"+chr(9)+"HA Haiti"+chr(9)+"HO Honduras"+chr(9)+"IR Iran"+chr(9)+"IZ Iraq"+chr(9)+"LI Liberia"+chr(9)+"MC Micronesia"+chr(9)+"MI Marshall Islands"+chr(9)+"MX Mexico"+chr(9)+"WA Namibia"+chr(9)+"PK Pakistan"+chr(9)+"RP Philippines"+chr(9)+"PL Poland"+chr(9)+"RO Romania"+chr(9)+"RS Russia"+chr(9)+"SO Somalia"+chr(9)+"SF South Africa"+chr(9)+"TH Thailand"+chr(9)+"VM Vietnam"+chr(9)+"OT All Others", nationality_dropdown
  DropListBox 255, 75, 95, 15, "Select One:"+chr(9)+"Certificate of Naturalization"+chr(9)+"Employment Auth Card (I-776 work permit)"+chr(9)+"I-94 Travel Document"+chr(9)+"I-220 B Order of Supervision"+chr(9)+"LPR Card (I-551 green card)"+chr(9)+"SAVE"+chr(9)+"Other"+chr(9)+"No Ver Prvd", immig_doc_type
  EditBox 305, 95, 45, 15, entry_date
  EditBox 305, 115, 45, 15, status_date
+ CheckBox 10, 75, 110, 10, "Emailed HP.immigration?", emailHP_CHECKBOX
  CheckBox 10, 90, 90, 10, "Inital SAVE Requested?", save_CHECKBOX
- CheckBox 10, 105, 105, 10, "Additional SAVE Requested?", additional_CHECKBOX
+ CheckBox 10, 105, 145, 10, "Additional SAVE Information Requested?", additional_CHECKBOX
  CheckBox 15, 120, 220, 10, "check here if immig document was attached to additional SAVE?", SAVE_docs_check
  OptionGroup RadioGroup1
     RadioButton 15, 155, 25, 10, "No", not_sponsored
@@ -82,8 +85,8 @@ BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
   EditBox 75, 255, 160, 15, other_notes
   EditBox 75, 275, 160, 15, worker_sig
   ButtonGroup ButtonPressed
-    CancelButton 305, 275, 45, 15
-    OkButton 255, 275, 45, 15
+    CancelButton 310, 275, 45, 15
+    OkButton 260, 275, 45, 15
   Text 165, 10, 40, 10, "Actual Date:"
   Text 255, 100, 45, 10, "Date of Entry:"
   Text 10, 40, 50, 10, "Immig Status:"
@@ -108,20 +111,20 @@ BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
   Text 10, 280, 65, 10, "Worker Signature:"
 EndDialog
 
-BeginDialog addimig_dialog, 0, 0, 291, 115, "Additional Information"
-  DropListBox 110, 5, 50, 12, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ss_credits
-  DropListBox 235, 5, 45, 10, "Select One:"+chr(9)+"YES"+chr(9)+"NO", verf_sscredits
-  DropListBox 110, 20, 50, 12, "Select One:"+chr(9)+"YES"+chr(9)+"NO", battered_spouse 'mandatory for undoc'
-  DropListBox 235, 20, 45, 10, "Select One:"+chr(9)+"YES"+chr(9)+"NO", battered_spouse_verf
+BeginDialog addimig_dialog, 0, 0, 296, 115, "Additional Information"
+  DropListBox 110, 5, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ss_credits
+  DropListBox 235, 5, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", verf_sscredits
+  DropListBox 110, 20, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", battered_spouse 'mandatory for undoc'
+  DropListBox 235, 20, 55, 12, "Select One:"+chr(9)+"YES"+chr(9)+"NO", battered_spouse_verf
   DropListBox 110, 35, 80, 15, "Select One:"+chr(9)+"Veteran"+chr(9)+"Active Duty"+chr(9)+"Spouse of 1 or 2"+chr(9)+"Child of 1 or 2"+chr(9)+"No Military Stat or Other", military_status
-  DropListBox 235, 35, 45, 10, "Select One:"+chr(9)+"YES"+chr(9)+"NO", military_status_verf
+  DropListBox 235, 35, 55, 12, "Select One:"+chr(9)+"YES"+chr(9)+"NO", military_status_verf
   DropListBox 110, 50, 135, 15, "Select One:"+chr(9)+"Hmong During Vietnam War"+chr(9)+"Highland Lao During Vietnam"+chr(9)+"Spouse/Widow of 1 Or 2"+chr(9)+"Dep Child of 1 Or 2"+chr(9)+"Native Amer Born Can/Mex", nation_vietnam
-  DropListBox 110, 65, 45, 10, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_ctzn 'mandatory for GA'
-  DropListBox 235, 65, 45, 10, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_ctzn_verf
-  DropListBox 110, 80, 45, 10, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_skills
+  DropListBox 110, 65, 55, 12, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_ctzn 'mandatory for GA'
+  DropListBox 235, 65, 55, 12, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_ctzn_verf
+  DropListBox 110, 80, 55, 12, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_skills
   ButtonGroup ButtonPressed
-    OkButton 190, 95, 45, 15
-    CancelButton 240, 95, 45, 15
+    OkButton 195, 95, 45, 15
+    CancelButton 245, 95, 45, 15
   Text 20, 10, 90, 10, "40 Social Security Credits:"
   Text 30, 25, 75, 10, "Battered Spouse/Child:"
   Text 55, 40, 50, 10, "Military Status:"
@@ -138,8 +141,11 @@ EndDialog
 Do
 	Do
 		err_msg = ""
-		dialog IMIG_dialog
-		cancel_confirmation
+		Do
+			dialog IMIG_dialog
+			cancel_confirmation
+			If ButtonPressed = Noncitzn_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Immigration_and_Non-Citizens.aspx")
+		Loop until ButtonPressed = -1
 		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF memb_number = "" or IsNumeric(memb_number) = False or len(memb_number) > 2 then err_msg = err_msg & vbNewLine & "* Enter a member number."
 		IF immig_status_dropdown = "US Citizen" Then
@@ -149,18 +155,21 @@ Do
 			EXIT DO
 		ELSE
 			If isdate(actual_date) = FALSE then err_msg = err_msg & vbnewline & "* You must enter an actual date in the footer month that you are working in and not in the future."
+''"21 Refugee" "22 Asylee""23 Deport/Remove Withheld" "24 LPR" "25 Paroled For 1 Year Or More" "26 Conditional Entry < 4/80" "27 Non-immigrant" "28 Undocumented""50 Other Lawfully Residing""US Citizen", immig_status_dropdown
+		IF immig_status_dropdown <> "22 Asylee" or immig_status_dropdown <> "23 Deport/Remove Withheld" or immig_status_dropdown <> "28 Undocumented" or immig_status_dropdown <> "28 Undocumented" Then
+			If isdate(entry_date) = FALSE then err_msg = err_msg & vbnewline & "*Entry Date is required for all persons with exception of Asylee, Deportation/Removal Withheld, or Undocumented statuses."
+		END IF
+		IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" or immig_status_dropdown <> "28 Undocumented"  Then
+			If isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "*Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
+		END IF
 			IF immig_status_dropdown <> "28 Undocumented" and save_CHECKBOX= UNCHECKED and additional_CHECKBOX = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please select if a SAVE has been run as it is mandatory."
 			IF save_CHECKBOX = CHECKED and additional_CHECKBOX= CHECKED then err_msg = err_msg & vbNewLine & "* Please select if a SAVE has been run as it is mandatory."
-			IF immig_status_dropdown <> "22 Asylee" or immig_status_dropdown <> "23 Deport/Remove Withheld" or immig_status_dropdown <> "28 Undocumented" or immig_status_dropdown <> "28 Undocumented" Then
-				If isdate(entry_date) = FALSE then err_msg = err_msg & vbnewline & "*Entry Date is required for all persons with exception of Asylee, Deportation/Removal Withheld, or Undocumented statuses."
-			END IF
-			IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" or immig_status_dropdown <> "28 Undocumented"  Then
-				If isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "*Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
-			END IF
+
+			'IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" and isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "* Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
 			IF immig_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of current immigration status."
 			IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
 			IF immig_status_dropdown <> "24 LPR" and LPR_status_dropdown <> "Select One:" and LPR_status_dropdown <> "N/A" then err_msg = err_msg & vbNewLine & "* IMMIGRATION STATUS DOES NOT INDICATE LPR, BUT ADJUSTED STATUS IS INDICATED"
-			IF immig_doc_type = "Select One:" or immig_status_dropdown <> "28 Undocumented" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
+			IF immig_doc_type = "Select One:" and immig_status_dropdown <> "28 Undocumented" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
 			'Battered Spouse/Child (Y/N): This field is mandatory for undocumented persons, non-immigrants and other lawfully residing persons.
 			IF nationality_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of Nationality or Nation."
 			IF sponsored = 1 and name_sponsor = "" then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information."
@@ -267,7 +276,7 @@ ELSE
 		'immig_doc_type "Select One:"+chr(9)+"Certificate of Naturalization"+chr(9)+"Employment Auth Card (I-776 work permit)"+chr(9)+"I-94 Travel Document", +chr(9)+"I-220 B Order of Supervision"+chr(9)+"LPR Card (I-551 green card)"+chr(9)+"SAVE"+chr(9)+"Other"
 		nationality_status = ""
 		IF nationality_dropdown = "AA Amerasian" THEN nationality_status = "AA"
-		IF nationality_dropdown = "EH Ethnic Chinese" THEN EMWriteScreen "EH"
+		IF nationality_dropdown = "EH Ethnic Chinese" THEN EMWriteScreen = "EH"
 		IF nationality_dropdown = "EL Ethnic Lao" THEN nationality_status = "EL"
 		IF nationality_dropdown = "HG Hmong" THEN nationality_status = "HG"
 		IF nationality_dropdown = "KD Kurd" THEN nationality_status = "KD"
@@ -314,17 +323,8 @@ ELSE
 		IF status_verification = "No Ver Prvd" THEN verif_status = "NO"
 		EMWriteScreen verif_status, 8, 45
 
-		EMReadScreen id_number, 9, 10, 72
+		'EMReadScreen id_number, 9, 10, 72
 		'IF alien_id_number <> id_number THEN MsgBox "The number enter for ID does not match the number entered in the case note"
-
-		IF military_status = "Veteran" THEN EmWriteScreen "1", 15, 56
-		IF military_status = "Active Duty" THEN EmWriteScreen "2", 15, 56
-		IF military_status = "Spouse of 1 or 2" THEN EmWriteScreen "3", 15, 56
-		IF military_status = "Child of 1 or 2" THEN EmWriteScreen "4", 15, 56
-		IF military_status = "No Military Stat or Other" THEN EmWriteScreen "N", 15, 56
-
-		IF DropListBox 110, 50, 135, 15, "Select One:"+chr(9)+"Hmong During Vietnam War"+chr(9)+"Highland Lao During Vietnam"+chr(9)+"Spouse/Widow of 1 Or 2"+chr(9)+"Dep Child of 1 Or 2"+chr(9)+"Native Amer Born Can/Mex", nation_vietnam
-	
 
 		IF ss_credits <> "Select One:" THEN EmWriteScreen ss_credits, 13, 56
 		IF verf_sscredits <> "Select One:" THEN EmWriteScreen verf_sscredits, 13, 71
@@ -337,14 +337,17 @@ ELSE
 			IF military_status = "Child of 1 or 2" THEN EmWriteScreen "4", 15, 56
 			IF military_status = "No Military Stat or Other" THEN EmWriteScreen "N", 15, 56
 		END IF
-
 		IF military_status_verf <> "Select One:" THEN EmWriteScreen military_status_verf, 15, 71
+		IF nation_vietnam <> "Select One:" THEN
+			IF nation_vietnam = "Hmong During Vietnam War" THEN EmWriteScreen "01", 13, 56
+			IF nation_vietnam = "Highland Lao During Vietnam" THEN EmWriteScreen "02", 13, 56
+			IF nation_vietnam = "Spouse/Widow of 1 Or 2"THEN EmWriteScreen "03", 13, 56
+			IF nation_vietnam = "Dep Child of 1 Or 2"THEN EmWriteScreen "04", 13, 56
+			IF nation_vietnam = "Native Amer Born Can/Mex" THEN EmWriteScreen "05", 13, 56
+		END IF
 		IF ESL_ctzn <> "Select One:" THEN EmWriteScreen ESL_ctzn, 17, 56  'mandatory for GA'
 		IF ESL_ctzn_verf <> "Select One:" THEN EmWriteScreen ESL_ctzn_verf, 17, 71
 		IF ESL_skills <> "Select One:" THEN EmWriteScreen ESL_skills, 18, 56
-
-
-
 		Transmit
 		'PF3	'to move past non-inhibiting warning messages on IMIG
 		EMReadScreen IMIG_screen, 4, 2, 49		'if inhibiting error exists, this will catch it and instruct the user to update IMIG
@@ -353,14 +356,19 @@ ELSE
 END IF
 
 start_a_blank_CASE_NOTE
-Call write_variable_in_case_note("SAVE requested/completed for M" & memb_number)
+IF immig_status_dropdown = "US Citizen" THEN
+	Call write_variable_in_case_note("SAVE requested/completed for M" & memb_number & "US Citizen")
+ELSE
+	Call write_variable_in_case_note("SAVE requested/completed for M" & memb_number)
+END IF
 Call write_bullet_and_variable_in_case_note("Immigration Status", immig_status_dropdown)
 IF LPR_status_dropdown <> "Select One:" then Call write_bullet_and_variable_in_case_note("LPR adjusted from", LPR_status_dropdown)
-Call write_bullet_and_variable_in_case_note("Date of entry", date_of_entry)
+IF status_date <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Status date", status_date)
+IF date_of_entry <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Date of entry", date_of_entry)
 IF nationality_dropdown <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Nationality", nationality_dropdown)
-Call write_bullet_and_variable_in_case_note("Status verfication", status_verification)
-Call write_bullet_and_variable_in_case_note("Immigration document received", immig_doc_type)
-Call write_bullet_and_variable_in_case_note("HP Immigration", emailHP_CHECKBOX)
+IF status_verification <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Status verification", status_verification)
+IF status_verification <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Immigration document received", immig_doc_type)
+IF emailHP_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("Emailed HP Immigration")
 Call write_variable_in_case_note("")
 If immig_status_dropdown <> "US Citizen" and sponsored = 1 then
 	Call write_variable_in_case_note("* Client is sponsored. Sponsor is indicated as " & sponsor_name & sponsor_addr & ".")
@@ -371,6 +379,16 @@ If save_CHECKBOX = CHECKED then Call write_variable_in_case_note("* SAVE request
 If additional_CHECKBOX = CHECKED then Call write_variable_in_case_note("* Additonal SAVE requested.")
 If SAVE_docs_check = CHECKED then Call write_variable_in_case_note("* attached a copy of the immigration document to request for SAVE")
 Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
+IF ss_credits <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("40 Social Security Credits", ss_credits)
+IF battered_spouse <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Battered Spouse/Child", battered_spouse)
+IF military_status <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Military Status", battered_spouse)
+
+
+IF nation_vietnam <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Hmong, Lao, Native American", battered_spouse)
+
+IF ESL_ctzn <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("St Prog ESL/Ctzn Coop", battered_spouse)
+
+IF ESL_skills <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("ESL/Skills Training", battered_spouse)
 If Outlook_remider = True then call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
 Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)
