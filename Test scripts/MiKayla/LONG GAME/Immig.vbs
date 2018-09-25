@@ -149,22 +149,20 @@ Do
 		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF memb_number = "" or IsNumeric(memb_number) = False or len(memb_number) > 2 then err_msg = err_msg & vbNewLine & "* Enter a member number."
 		IF immig_status_dropdown = "US Citizen" Then
-			err_msg = err_msg & vbNewLine & "*This will delete IMIG, update MEMI & MEMB for this member."
+			err_msg = err_msg & vbNewLine & "* This will delete IMIG, update MEMI & MEMB for this member."
 			'IF immig_doc_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
 			IF immig_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of current immigration status."
 			EXIT DO
 		ELSE
 			If isdate(actual_date) = FALSE then err_msg = err_msg & vbnewline & "* You must enter an actual date in the footer month that you are working in and not in the future."
 ''"21 Refugee" "22 Asylee""23 Deport/Remove Withheld" "24 LPR" "25 Paroled For 1 Year Or More" "26 Conditional Entry < 4/80" "27 Non-immigrant" "28 Undocumented""50 Other Lawfully Residing""US Citizen", immig_status_dropdown
-		IF immig_status_dropdown <> "22 Asylee" or immig_status_dropdown <> "23 Deport/Remove Withheld" or immig_status_dropdown <> "28 Undocumented" or immig_status_dropdown <> "28 Undocumented" Then
+		IF immig_status_dropdown <> "22 Asylee" and immig_status_dropdown <> "23 Deport/Remove Withheld" and immig_status_dropdown <> "28 Undocumented" Then
 			If isdate(entry_date) = FALSE then err_msg = err_msg & vbnewline & "*Entry Date is required for all persons with exception of Asylee, Deportation/Removal Withheld, or Undocumented statuses."
 		END IF
 		IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" or immig_status_dropdown <> "28 Undocumented"  Then
 			If isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "*Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
 		END IF
 			IF immig_status_dropdown <> "28 Undocumented" and save_CHECKBOX= UNCHECKED and additional_CHECKBOX = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please select if a SAVE has been run as it is mandatory."
-			IF save_CHECKBOX = CHECKED and additional_CHECKBOX= CHECKED then err_msg = err_msg & vbNewLine & "* Please select if a SAVE has been run as it is mandatory."
-
 			'IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" and isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "* Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
 			IF immig_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of current immigration status."
 			IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
@@ -186,7 +184,9 @@ IF immig_status_dropdown <> "US Citizen" Then
 			err_msg = ""
 			dialog addimig_dialog
 			cancel_confirmation
-			IF immig_status_dropdown = "28 Undocumented"  and battered_spouse = "Select One:" Then err_msg = err_msg & vbNewLine & "*This will delete IMIG, update MEMI & MEMB for this member."
+			IF battered_spouse = "Select One:" Then err_msg = err_msg & vbNewLine & "* Please advise if battered spouse or child is applicable."
+			'immig_status_dropdown = "28 Undocumented" and immig_status_dropdown = "27 Non-immigrant" and immig_status_dropdown = "50 Other Lawfully Residing"  and'
+			IF nation_vietnam = "Select One:" and nationality_dropdown = "EL Ethnic Lao" and nationality_dropdown = "HG Hmong" Then err_msg = err_msg & vbNewLine & "* Please advise if client has a status during Vietnam War or is Native American born in Mexico or Canada."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -245,6 +245,7 @@ ELSE
 	Call create_MAXIS_friendly_date_with_YYYY(actual_date, 0, 5, 45)
 	EMWriteScreen "N", 7, 47			'Sup evidence Y/N field (defaulted to N during this process)
 	'converting the immigration stauts from droplist to the applicable MAXIS coding
+	'check to see if we need to clear the page before we write to it'
 	immig_status = ""
 		If immig_status_dropdown = "21 Refugee" then immig_status = "21"
 		If immig_status_dropdown = "22 Asylee" then immig_status = "22"
@@ -258,7 +259,13 @@ ELSE
 		EMWriteScreen immig_status, 6, 45
 
 		IF entry_date <> "" THEN Call create_MAXIS_friendly_date_with_YYYY(entry_date, 0, 7, 45)
+		IF entry_date = "" THEN Call clear_line_of_text(7, 45)
+		IF entry_date = "" THEN Call clear_line_of_text(7, 48)
+		IF entry_date = "" THEN Call clear_line_of_text(7, 51)
 		IF status_date <> "" THEN Call create_MAXIS_friendly_date_with_YYYY(status_date, 0, 7, 71)
+		IF status_date = "" THEN Call clear_line_of_text(7, 71)
+		IF status_date = "" THEN Call clear_line_of_text(7, 74)
+		IF status_date = "" THEN Call clear_line_of_text(7, 77)
 		reminder_date = dateadd("d", 10, actual_date)' FOR APPT DATE'
 
 		LPR_status = ""
@@ -272,7 +279,7 @@ ELSE
 		If LPR_status_dropdown = "28 Undocumented" then LPR_status = "28"
 		If LPR_status_dropdown = "50 Other Lawfully Residing" then LPR_status = "50"
 		EMWriteScreen LPR_status, 9, 45
-
+		If LPR_status = "" THEN Call clear_line_of_text(9, 45)
 		'immig_doc_type "Select One:"+chr(9)+"Certificate of Naturalization"+chr(9)+"Employment Auth Card (I-776 work permit)"+chr(9)+"I-94 Travel Document", +chr(9)+"I-220 B Order of Supervision"+chr(9)+"LPR Card (I-551 green card)"+chr(9)+"SAVE"+chr(9)+"Other"
 		nationality_status = ""
 		IF nationality_dropdown = "AA Amerasian" THEN nationality_status = "AA"
@@ -327,9 +334,14 @@ ELSE
 		'IF alien_id_number <> id_number THEN MsgBox "The number enter for ID does not match the number entered in the case note"
 
 		IF ss_credits <> "Select One:" THEN EmWriteScreen ss_credits, 13, 56
+		IF ss_credits = "Select One:" THEN Call clear_line_of_text(13, 56)
 		IF verf_sscredits <> "Select One:" THEN EmWriteScreen verf_sscredits, 13, 71
+		IF verf_sscredits = "Select One:" THEN Call clear_line_of_text(13, 71)
 		IF battered_spouse <> "Select One:" THEN EmWriteScreen battered_spouse, 14, 56  'mandatory for undoc'
+		IF battered_spouse = "Select One:" THEN Call clear_line_of_text(14, 56)
 	    IF battered_spouse_verf <> "Select One:" THEN EmWriteScreen battered_spouse_verf, 14, 71
+		IF battered_spouse_verf = "Select One:" THEN Call clear_line_of_text(14, 71)
+		IF military_status = "Select One:" THEN Call clear_line_of_text(15, 56)
 		IF military_status <> "Select One:" THEN
 			IF military_status = "Veteran" THEN EmWriteScreen "1", 15, 56
 			IF military_status = "Active Duty" THEN EmWriteScreen "2", 15, 56
@@ -337,7 +349,9 @@ ELSE
 			IF military_status = "Child of 1 or 2" THEN EmWriteScreen "4", 15, 56
 			IF military_status = "No Military Stat or Other" THEN EmWriteScreen "N", 15, 56
 		END IF
+		IF military_status_verf = "Select One:" THEN Call clear_line_of_text(15, 71)
 		IF military_status_verf <> "Select One:" THEN EmWriteScreen military_status_verf, 15, 71
+		IF nation_vietnam = "Select One:" THEN Call clear_line_of_text(13, 56)
 		IF nation_vietnam <> "Select One:" THEN
 			IF nation_vietnam = "Hmong During Vietnam War" THEN EmWriteScreen "01", 13, 56
 			IF nation_vietnam = "Highland Lao During Vietnam" THEN EmWriteScreen "02", 13, 56
@@ -346,8 +360,11 @@ ELSE
 			IF nation_vietnam = "Native Amer Born Can/Mex" THEN EmWriteScreen "05", 13, 56
 		END IF
 		IF ESL_ctzn <> "Select One:" THEN EmWriteScreen ESL_ctzn, 17, 56  'mandatory for GA'
+		IF ESL_ctzn = "Select One:" THEN Call clear_line_of_text(17, 56)
 		IF ESL_ctzn_verf <> "Select One:" THEN EmWriteScreen ESL_ctzn_verf, 17, 71
+		IF ESL_ctzn_verf = "Select One:" THEN Call clear_line_of_text(17, 71)
 		IF ESL_skills <> "Select One:" THEN EmWriteScreen ESL_skills, 18, 56
+		IF ESL_skills = "Select One:" THEN Call clear_line_of_text(18, 56)
 		Transmit
 		'PF3	'to move past non-inhibiting warning messages on IMIG
 		EMReadScreen IMIG_screen, 4, 2, 49		'if inhibiting error exists, this will catch it and instruct the user to update IMIG
@@ -357,7 +374,9 @@ END IF
 
 start_a_blank_CASE_NOTE
 IF immig_status_dropdown = "US Citizen" THEN
-	Call write_variable_in_case_note("SAVE requested/completed for M" & memb_number & "US Citizen")
+	Call write_variable_in_case_note("SAVE requested/completed for M" & memb_number & " US Citizen")
+ELSEIF immig_status_dropdown = "28 Undocumented" THEN
+	Call write_variable_in_case_note("Updated IMIG for M" & memb_number)
 ELSE
 	Call write_variable_in_case_note("SAVE requested/completed for M" & memb_number)
 END IF
@@ -368,7 +387,7 @@ IF date_of_entry <> "Select One:" THEN Call write_bullet_and_variable_in_case_no
 IF nationality_dropdown <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Nationality", nationality_dropdown)
 IF status_verification <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Status verification", status_verification)
 IF status_verification <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Immigration document received", immig_doc_type)
-IF emailHP_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("Emailed HP Immigration")
+IF emailHP_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Emailed HP Immigration")
 Call write_variable_in_case_note("")
 If immig_status_dropdown <> "US Citizen" and sponsored = 1 then
 	Call write_variable_in_case_note("* Client is sponsored. Sponsor is indicated as " & sponsor_name & sponsor_addr & ".")
@@ -377,30 +396,25 @@ If immig_status_dropdown <> "US Citizen" and sponsored = 1 then
 END IF
 If save_CHECKBOX = CHECKED then Call write_variable_in_case_note("* SAVE requested.")
 If additional_CHECKBOX = CHECKED then Call write_variable_in_case_note("* Additonal SAVE requested.")
-If SAVE_docs_check = CHECKED then Call write_variable_in_case_note("* attached a copy of the immigration document to request for SAVE")
+If SAVE_docs_check = CHECKED then Call write_variable_in_case_note("* Attached a copy of the immigration document to request for SAVE")
 Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 IF ss_credits <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("40 Social Security Credits", ss_credits)
 IF battered_spouse <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Battered Spouse/Child", battered_spouse)
-IF military_status <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Military Status", battered_spouse)
-
-
-IF nation_vietnam <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Hmong, Lao, Native American", battered_spouse)
-
-IF ESL_ctzn <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("St Prog ESL/Ctzn Coop", battered_spouse)
-
-IF ESL_skills <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("ESL/Skills Training", battered_spouse)
+IF military_status <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Military Status", military_status)
+IF nation_vietnam <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Hmong, Lao, Native American", nation_vietnam)
+IF ESL_ctzn <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("St Prog ESL/Ctzn Coop", ESL_ctzn)
+IF ESL_skills <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("ESL/Skills Training", ESL_skills)
 If Outlook_remider = True then call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
 Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)
 PF3
 'TODO add a email to HP IMIG and reminder for second check on additional request
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-'IF send_email = True THEN CALL create_outlook_email("HSPH.HPImmigration@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
+'IF additional_CHECKBOX = CHECKED THEN CALL create_outlook_email("HSPH.HPImmigration@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
 ''create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, reminder_in_minutes, appt_category)
-'If application_status_droplist <> "Case is ready to approve or deny" THEN
-'	'Outlook appointment is created in prior to the case note being created
-'	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
-'	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "Application check: " & reminder_text & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
-'	Outlook_remider = True
-'End if
+IF additional_CHECKBOX = CHECKED THEN
+	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
+	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "SAVE request check: " & reminder_text & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
+	Outlook_remider = True
+End if
 script_end_procedure("Success! Please review your case notes and IMIG panels to ensure they were updated correctly.")
