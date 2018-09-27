@@ -79,8 +79,8 @@ FUNCTION income_test_SNAP_categorically_elig(household_size, income_limit) '165%
 		IF household_size = 8 THEN income_limit = 5828
 		IF household_size > 8 THEN income_limit = 5828 + (594 * (household_size- 8))
 	ELSE
-        IF household_size = 1 THEN income_limit = 1634									
-        IF household_size = 2 THEN income_limit = 2203									
+        IF household_size = 1 THEN income_limit = 1634
+        IF household_size = 2 THEN income_limit = 2203
         IF household_size = 3 THEN income_limit = 2772
         IF household_size = 4 THEN income_limit = 3342
         IF household_size = 5 THEN income_limit = 3911
@@ -144,8 +144,8 @@ FUNCTION income_test_SNAP_net(household_size, income_limit)
 		IF household_size = 8 THEN income_limit = 3532
 		IF household_size > 8 THEN income_limit = 3532 + (360 * (household_size- 8))
 	ELSE
-        IF household_size = 1 THEN income_limit = 1005								
-        IF household_size = 2 THEN income_limit = 1354									
+        IF household_size = 1 THEN income_limit = 1005
+        IF household_size = 2 THEN income_limit = 1354
         IF household_size = 3 THEN income_limit = 1702
         IF household_size = 4 THEN income_limit = 2050
         IF household_size = 5 THEN income_limit = 2399
@@ -2731,8 +2731,8 @@ function check_for_MAXIS(end_script)
                 CancelButton 100, 35, 50, 15
                 Text 5, 5, 150, 25, "You have passworded out. Please enter your password, then press OK to continue. Press CANCEL to stop the script. "
                 EndDialog
-                Do 
-                    Do 
+                Do
+                    Do
                         dialog Password_dialog
                         cancel_confirmation
                     Loop until ButtonPressed = -1
@@ -4118,14 +4118,14 @@ function navigate_to_MMIS()
             CancelButton 100, 35, 50, 15
             Text 5, 5, 150, 25, "You have passworded out. Please enter your password, then press OK to continue. Press CANCEL to stop the script. "
             EndDialog
-            Do 
-                Do 
+            Do
+                Do
                     dialog Password_dialog
                     cancel_confirmation
                 Loop until ButtonPressed = -1
                 CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
             Loop until are_we_passworded_out = false					'loops until user passwords back in
-        End if 
+        End if
 		EMReadScreen session_start, 18, 1, 7
 	LOOP UNTIL session_start = "SESSION TERMINATED"
 
@@ -4836,7 +4836,7 @@ function start_a_blank_CASE_NOTE()
               Text 20, 40, 185, 20, "* You may not have authorization to case note this case (e.g.: out-of-county case)"
               Text 5, 70, 225, 20, "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
             EndDialog
-            Do 
+            Do
                 Dialog Inquiry_Dialog
             Loop until ButtonPressed = -1
         End If
@@ -5182,7 +5182,7 @@ end function
 function write_date(date_variable, date_format_variable, screen_row, screen_col)
 '--- This function will write a date in any format desired.
 '~~~~~ date_variable: date to write
-'~~~~~ date_format_variable: format of date. this should be a string with the correct spaces between month/day/year examples: MM DD YY, MM YY, MM  DD  YYYY 
+'~~~~~ date_format_variable: format of date. this should be a string with the correct spaces between month/day/year examples: MM DD YY, MM YY, MM  DD  YYYY
 '~~~~~ screen_row: row to write date
 '~~~~~ screen_col: column to write date
 '===== Keywords: MAXIS, MMIS, PRISM, date, format
@@ -6465,7 +6465,7 @@ function write_panel_to_MAXIS_DIET(DIET_mfip_1, DIET_mfip_1_ver, DIET_mfip_2, DI
 	transmit
 end function
 
-function write_panel_to_MAXIS_DISA(disa_begin_date, disa_end_date, disa_cert_begin, disa_cert_end, disa_wavr_begin, disa_wavr_end, disa_grh_begin, disa_grh_end, disa_cash_status, disa_cash_status_ver, disa_snap_status, disa_snap_status_ver, disa_hc_status, disa_hc_status_ver, disa_waiver, disa_drug_alcohol)
+function write_panel_to_MAXIS_DISA(disa_begin_date, disa_end_date, disa_cert_begin, disa_cert_end, disa_wavr_begin, disa_wavr_end, disa_grh_begin, disa_grh_end, disa_cash_status, disa_cash_status_ver, disa_snap_status, disa_snap_status_ver, disa_hc_status, disa_hc_status_ver, disa_waiver, disa_1619, disa_drug_alcohol)
 '--- This function writes to MAXIS in Krabappel only (writes using the variables read off of the specialized excel template to the disa panel in MAXIS)
 '~~~~~ disa_begin_date, disa_end_date, disa_cert_begin, disa_cert_end, disa_wavr_begin, disa_wavr_end, disa_grh_begin, disa_grh_end, disa_cash_status, disa_cash_status_ver, disa_snap_status, disa_snap_status_ver, disa_hc_status, disa_hc_status_ver, disa_waiver, disa_drug_alcohol: parameters for the training case creator to work
 '===== Keywords: MAXIS, Krabappel, traning, case, creator

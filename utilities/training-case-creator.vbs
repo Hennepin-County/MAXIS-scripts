@@ -28,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-Scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -200,7 +200,11 @@ FUNCTION create_dialog(training_case_creator_excel_file_path, scenario_list, sce
 	Text 5, 100, 325, 20, "Please note: if you just wrote a scenario on the spreadsheet, it is recommended that you ''test'' it first by running a single case through. DHS staff cannot triage issues with agency-written scenarios."
 	EndDialog
 
-	DIALOG
+    Do
+	   DIALOG
+       CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+
 END FUNCTION
 
 
@@ -236,10 +240,14 @@ how_many_cases_to_make = "1"		'Defaults to 1, but users can modify this.
 
 'Show initial dialog
 Do
-	Dialog
-	If ButtonPressed = cancel then stopscript
-	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(training_case_creator_excel_file_path, ".xlsx")
-Loop until ButtonPressed = OK and training_case_creator_excel_file_path <> ""
+    Do
+    	Dialog
+    	If ButtonPressed = cancel then stopscript
+    	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(training_case_creator_excel_file_path, ".xlsx")
+    Loop until ButtonPressed = OK and training_case_creator_excel_file_path <> ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
 
 'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
 call excel_open(training_case_creator_excel_file_path, True, True, ObjExcel, objWorkbook)
@@ -251,45 +259,48 @@ Next
 
 'Connects to BlueZone
 EMConnect ""
+Do
+    DO
+    	DO
+    		DO
+    			CALL create_dialog(training_case_creator_excel_file_path, scenario_list, scenario_dropdown, approve_case_dropdown, how_many_cases_to_make, XFER_check, workers_to_XFER_cases_to, reload_excel_file_button, ButtonPressed)
+    				If buttonpressed = cancel then stopscript
+    				IF ButtonPressed = reload_excel_file_button THEN
+    					'Reseting the scenario list
+    					scenario_list = ""
+    					'Closing the current, active version of Excel
+    					objWorkbook.Close
+    					objExcel.Quit
 
-DO
-	DO
-		DO
-			CALL create_dialog(training_case_creator_excel_file_path, scenario_list, scenario_dropdown, approve_case_dropdown, how_many_cases_to_make, XFER_check, workers_to_XFER_cases_to, reload_excel_file_button, ButtonPressed)
-				If buttonpressed = cancel then stopscript
-				IF ButtonPressed = reload_excel_file_button THEN
-					'Reseting the scenario list
-					scenario_list = ""
-					'Closing the current, active version of Excel
-					objWorkbook.Close
-					objExcel.Quit
+    					'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
+    					Set objExcel = CreateObject("Excel.Application") 'Allows a user to perform functions within Microsoft Excel
+    					objExcel.Visible = True
+    					Set objWorkbook = objExcel.Workbooks.Open(training_case_creator_excel_file_path) 'Opens an excel file from a specific URL
+    					objExcel.DisplayAlerts = True
 
-					'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
-					Set objExcel = CreateObject("Excel.Application") 'Allows a user to perform functions within Microsoft Excel
-					objExcel.Visible = True
-					Set objWorkbook = objExcel.Workbooks.Open(training_case_creator_excel_file_path) 'Opens an excel file from a specific URL
-					objExcel.DisplayAlerts = True
+    					'Set objWorkSheet = objWorkbook.Worksheet
+    					For Each objWorkSheet In objWorkbook.Worksheets
+    						If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
+    					Next
+    				END IF
+    		LOOP UNTIL ButtonPressed <> reload_excel_file_button
+    		If scenario_dropdown = "select one..." AND ButtonPressed = -1 then MsgBox ("You must select a scenario from the dropdown!")
+    	LOOP UNTIL ButtonPressed <> reload_excel_file_button
+    	final_check_before_running = MsgBox("Here's what the scenario will try to create. Please review before proceeding:" & Chr(10) & Chr(10) & _
+    									"Scenario selection: " & scenario_dropdown & Chr(10) & _
+    									"Approving cases: " & approve_case_dropdown & Chr(10) & _
+    									"Amt of cases to make: " & how_many_cases_to_make & Chr(10) & _
+    									"Workers to XFER cases to: " & workers_to_XFER_cases_to & Chr(10) & Chr(10) & _
+    									"It is VERY IMPORTANT to review these details before proceeding. It is also highly recommended that if you've created your own scenarios, " & _
+    									"test them first creating a single case. This is to check to see if any details were missed on the spreadsheet. DHS CANNOT TRIAGE ISSUES WITH " & _
+    									"COUNTY/AGENCY CUSTOMIZED SCENARIOS." & Chr(10) & Chr(10) & _
+    									"Please also note that creating training cases can take a very long time. If you are creating hundreds of cases, you may want to run this " & _
+    									"overnight, or on a secondary machine." & Chr(10) & Chr(10) & _
+    									"If you are ready to continue, press ''Yes''. Otherwise, press ''no'' to return to the previous screen.", vbYesNo)
+    LOOP UNTIL final_check_before_running = vbYes
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-					'Set objWorkSheet = objWorkbook.Worksheet
-					For Each objWorkSheet In objWorkbook.Worksheets
-						If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
-					Next
-				END IF
-		LOOP UNTIL ButtonPressed <> reload_excel_file_button
-		If scenario_dropdown = "select one..." AND ButtonPressed = -1 then MsgBox ("You must select a scenario from the dropdown!")
-	LOOP UNTIL ButtonPressed <> reload_excel_file_button
-	final_check_before_running = MsgBox("Here's what the scenario will try to create. Please review before proceeding:" & Chr(10) & Chr(10) & _
-									"Scenario selection: " & scenario_dropdown & Chr(10) & _
-									"Approving cases: " & approve_case_dropdown & Chr(10) & _
-									"Amt of cases to make: " & how_many_cases_to_make & Chr(10) & _
-									"Workers to XFER cases to: " & workers_to_XFER_cases_to & Chr(10) & Chr(10) & _
-									"It is VERY IMPORTANT to review these details before proceeding. It is also highly recommended that if you've created your own scenarios, " & _
-									"test them first creating a single case. This is to check to see if any details were missed on the spreadsheet. DHS CANNOT TRIAGE ISSUES WITH " & _
-									"COUNTY/AGENCY CUSTOMIZED SCENARIOS." & Chr(10) & Chr(10) & _
-									"Please also note that creating training cases can take a very long time. If you are creating hundreds of cases, you may want to run this " & _
-									"overnight, or on a secondary machine." & Chr(10) & Chr(10) & _
-									"If you are ready to continue, press ''Yes''. Otherwise, press ''no'' to return to the previous screen.", vbYesNo)
-LOOP UNTIL final_check_before_running = vbYes
 
 'Activates worksheet based on user selection
 objExcel.worksheets(scenario_dropdown).Activate
@@ -988,6 +999,7 @@ For each MAXIS_case_number in case_number_array
 		DISA_hc_status = left(ObjExcel.Cells(DISA_starting_excel_row + 12, current_excel_col).Value, 2)
 		DISA_hc_status_ver = left(ObjExcel.Cells(DISA_starting_excel_row + 13, current_excel_col).Value, 1)
 		DISA_waiver = left(ObjExcel.Cells(DISA_starting_excel_row + 14, current_excel_col).Value, 1)
+        'DISA_1619 = left(ObjExcel.Cells(DISA_starting_excel_row + 15, current_excel_col).Value, 1)
 		DISA_drug_alcohol = ObjExcel.Cells(DISA_starting_excel_row + 15, current_excel_col).Value
 
 		DSTT_starting_excel_row = 277
@@ -1547,7 +1559,7 @@ For each MAXIS_case_number in case_number_array
 		END IF
 		'DISA
 		If DISA_begin_date <> "" then
-			call write_panel_to_MAXIS_DISA(disa_begin_date, disa_end_date, disa_cert_begin, disa_cert_end, disa_wavr_begin, disa_wavr_end, disa_grh_begin, disa_grh_end, disa_cash_status, disa_cash_status_ver, disa_snap_status, disa_snap_status_ver, disa_hc_status, disa_hc_status_ver, disa_waiver, disa_drug_alcohol)
+			call write_panel_to_MAXIS_DISA(disa_begin_date, disa_end_date, disa_cert_begin, disa_cert_end, disa_wavr_begin, disa_wavr_end, disa_grh_begin, disa_grh_end, disa_cash_status, disa_cash_status_ver, disa_snap_status, disa_snap_status_ver, disa_hc_status, disa_hc_status_ver, disa_waiver, disa_1619, disa_drug_alcohol)
 			STATS_manualtime = STATS_manualtime + 30
 		END IF
 		'DSTT
@@ -2074,26 +2086,26 @@ FOR EACH MAXIS_case_number IN case_number_array
 				Call write_value_and_transmit("MFSM", 20, 71)
 				Call write_value_and_transmit("APP", 20, 71)
 				STATS_manualtime = STATS_manualtime + 60    'adding manualtime for approval processing
-				
-                Do 
+
+                Do
                     EMReadscreen send_HRF, 3, 11, 50
                     'msgbox "did HRF come up?"
                     If send_HRF = "HRF" then Call write_value_and_transmit("Y", 12, 54)
                 Loop until send_HRF <> "HRF"
                 'msgbox "What's happening?"
                 row = 13
-                Do 
+                Do
                     EMReadscreen REI_issue, 1, row, 60
                     If REI_issue = "_" then EmWriteScreen "Y", row, 60
                     row = row + 1
                 Loop until REI_issue <> "_"
                 'transmit
-                
+
 				DO
 					transmit
 					EMReadScreen not_allowed, 11, 24, 18
 					EMReadScreen locked_by_background, 6, 24, 19
-                
+
 					MFIP_rei_screen = ""
 					CALL find_variable("(Y/", MFIP_rei_screen, 1)
                     'msgbox MFIP_rei_screen
@@ -2101,16 +2113,16 @@ FOR EACH MAXIS_case_number IN case_number_array
 						EMSendKey "Y"
 						transmit
 					END IF
-                    
+
 					row = 1					'This is looking for if there are more months listed that need to be scrolled through to review.
 					col = 1
 					EMSearch "More: +", row, col
-					If row <> 0 then 
-                        PF8    
+					If row <> 0 then
+                        PF8
 					    EMReadScreen package_approved, 8, 4, 39
-                    Else 
+                    Else
                         EMReadScreen package_approved, 8, 4, 39
-                    End if 
+                    End if
 				LOOP Until package_approved = "approved"
                 'msgbox "how about now?"
 				transmit
