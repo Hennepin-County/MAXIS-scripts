@@ -362,47 +362,82 @@ For item = 0 to UBound(case_array, 2)
                         
                 End if
                 'outputting to Excel 
-                objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            item)
-                objExcel.Cells(excel_row,  2).Value = case_array (last_name_const,          item)
-                objExcel.Cells(excel_row,  3).Value = case_array (first_name_const,         item)
-                objExcel.Cells(excel_row,  4).Value = case_array (HC_status_const,          item)
-                objExcel.Cells(excel_row,  5).Value = case_array (revw_date_const,          item)
-                objExcel.Cells(excel_row,  6).Value = case_array (waiver_info_const,	    item)
-                objExcel.Cells(excel_row,  7).Value = case_array (medicare_info_const,      item)
-                objExcel.Cells(excel_row,  8).Value = case_array (first_case_number_const,  item)
-                objExcel.Cells(excel_row,  9).Value = case_array (first_type_const, 	    item)
-                objExcel.Cells(excel_row, 10).Value = case_array (first_elig_const, 	    item)
-                objExcel.Cells(excel_row, 11).Value = case_array (second_case_number_const, item)
-                objExcel.Cells(excel_row, 12).Value = case_array (second_type_const, 	    item)
-                objExcel.Cells(excel_row, 13).Value = case_array (second_elig_const, 	    item)
-                objExcel.Cells(excel_row, 14).Value = case_array (third_case_number_const,  item)
-                objExcel.Cells(excel_row, 15).Value = case_array (third_type_const,      	item)
-                objExcel.Cells(excel_row, 16).Value = case_array (third_elig_const,         item) 
                 
-                'conditions for converting a case
-                convert_case = ""
-                
-                If left(first_case_number, 1) = "1" then 
-                    convert_case = False                                'Mets cases starting with 1
-                elseif left(first_case_number, 1) = "2" then 
-                    convert_case = False                                 'Mets cases starting with 2                     
-                elseif left(first_case_number, 1) = "S" then 
-                    convert_case = False                                'special HC programs
-                Elseif right(waiver_info, 2) = "19" then 
-                    convert_case = False                                'ongoing waiver programs
-                elseif right(medicare_info, 2) = "99" then 
-                    convert_case = False                                'current and ongoing Medicare coverage
-                else 
-                    If first_elig_end = "99/99/99" then 
-                        convert_case = TRUE                             'Open MA cases in MMIS
+                If first_case_number <> "" then 
+                    objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            item)
+                    objExcel.Cells(excel_row,  2).Value = case_array (last_name_const,          item)
+                    objExcel.Cells(excel_row,  3).Value = case_array (first_name_const,         item)
+                    objExcel.Cells(excel_row,  4).Value = case_array (HC_status_const,          item)
+                    objExcel.Cells(excel_row,  5).Value = case_array (revw_date_const,          item)
+                    objExcel.Cells(excel_row,  6).Value = case_array (waiver_info_const,	    item)
+                    objExcel.Cells(excel_row,  7).Value = case_array (medicare_info_const,      item)
+                    objExcel.Cells(excel_row,  8).Value = case_array (first_case_number_const,  item)
+                    objExcel.Cells(excel_row,  9).Value = case_array (first_type_const, 	    item)
+                    objExcel.Cells(excel_row, 10).Value = case_array (first_elig_const, 	    item)
+                    objExcel.Cells(excel_row, 11).Value = case_array (second_case_number_const, item)
+                    objExcel.Cells(excel_row, 12).Value = case_array (second_type_const, 	    item)
+                    objExcel.Cells(excel_row, 13).Value = case_array (second_elig_const, 	    item)
+                    objExcel.Cells(excel_row, 14).Value = case_array (third_case_number_const,  item)
+                    objExcel.Cells(excel_row, 15).Value = case_array (third_type_const,      	item)
+                    objExcel.Cells(excel_row, 16).Value = case_array (third_elig_const,         item) 
+                    
+                    'conditions for converting a case
+                    convert_case = ""
+                    
+                    If left(first_case_number, 1) = "1" then 
+                        convert_case = False                                'Mets cases starting with 1
+                    elseif left(first_case_number, 1) = "2" then 
+                        convert_case = False                                 'Mets cases starting with 2                     
+                    elseif left(first_case_number, 1) = "S" then 
+                        convert_case = False                                'special HC programs
+                    elseif left(first_elig_type, 2) = "IM" then 
+                        convert_case = FALSE                                'IMD cases     
+                    elseif left(first_elig_type, 2) = "NM" then 
+                        convert_case = FALSE                                  'EMA cases
+                    Elseif right(waiver_info, 2) = "19" then 
+                        convert_case = False                                'ongoing waiver programs
+                    elseif right(medicare_info, 2) = "99" then 
+                        If first_elig_type = "MA-AA" then 
+                            convert_case = True                             'parent basis with Medicare open
+                        else 
+                            convert_case = False                                'current and ongoing Medicare coverage
+                        end if 
+                    elseif first_elig_type = "MA-11" then 
+                        convert_case = FALSE          'Auto newborn
+                    elseIf first_elig_type = "MA-PX" then 
+                        convert_case = FALSE          'Pregnant women
+                    elseIf first_elig_type = "MA-14" then 
+                        convert_case = FALSE          'TYMA
+                    elseIf first_elig_type = "MA-15" then 
+                        convert_case = FALSE          '1619 B - disa
+                    elseIf first_elig_type = "MA-25" then 
+                        convert_case = FALSE          'Foster care
+                    elseIf first_elig_type = "MA-2A" then 
+                        convert_case = FALSE          'presumtive elig parent
+                    elseIf first_elig_type = "MA-2C" then 
+                        convert_case = FALSE          'presumtive elig child
+                    elseIf first_elig_type = "MA-BT" then 
+                        convert_case = FALSE          'TEFRA Blind
+                    elseIf first_elig_type = "MA-DC" then 
+                        convert_case = FALSE          'Disabled child
+                    elseIf first_elig_type = "MA-DP" then 
+                        convert_case = FALSE          'MA-EPD
+                    elseIf first_elig_type = "MA-DT" then 
+                        convert_case = FALSE          'TEFRA disabled child
+                    elseIf first_elig_type = "MA-EX" then 
+                        convert_case = FALSE          'Elderly basis
                     else 
-                        convert_case = False                            'Closed MA cases in MMIS
+                        If first_elig_end = "99/99/99" then 
+                            convert_case = TRUE                             'Open MA cases in MMIS
+                        else 
+                            convert_case = False                            'Closed MA cases in MMIS
+                        End if 
                     End if 
+                    
+                    If convert_case = False then objExcel.Cells(excel_row, 17).Value = "No"
+                    If convert_case = True then objExcel.Cells(excel_row, 17).Value = "Yes"
+                    excel_row = excel_row + 1
                 End if 
-            
-                If convert_case = False then objExcel.Cells(excel_row, 17).Value = "No"
-                If convert_case = True then objExcel.Cells(excel_row, 17).Value = "Yes"
-                excel_row = excel_row + 1
                 
                 If duplicate_entry = True then 
                     PF3
