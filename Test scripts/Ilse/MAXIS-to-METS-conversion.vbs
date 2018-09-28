@@ -204,17 +204,13 @@ For item = 0 to UBound(case_array, 2)
                 
                 EmReadscreen Client_SSN, 11, row + 1, 6
                 Client_SSN = trim(Client_SSN)
-                If Client_SSN = "-  -" then 
-                    Case_array(case_status, item) = False 
-                    case_array(clt_PMI_const, item) = MAXIS_case_number & "- No SSN for member." 
-                Else      
-                    Case_array(client_SSN_const, item) = replace(Client_SSN, "-", "")
-                    EMReadScreen HC_status, 1, row, 61      'Reading the HC status for the current month for the member 
-                    Case_array(HC_status_const, item) = HC_status
-                    Case_array(case_status, item) = True
-                    
-                    'msgbox last_name & vbcr & first_name & vbcr & Client_SSN & vbcr & HC_status  
-                End if
+                If Client_SSN = "-  -" then Client_SSN = "" 'blanking out to use the PMI later if no SSN exists
+                Case_array(client_SSN_const, item) = replace(Client_SSN, "-", "")
+                
+                EMReadScreen HC_status, 1, row, 61      'Reading the HC status for the current month for the member 
+                Case_array(HC_status_const, item) = HC_status
+                Case_array(case_status, item) = True
+                'msgbox last_name & vbcr & first_name & vbcr & Client_SSN & vbcr & HC_status
                 exit do 
             Else 
                 row = row + 3			'information is 3 rows apart. Will read for the next member. 
@@ -275,11 +271,20 @@ NEXT
 excel_row = 2
 For item = 0 to UBound(case_array, 2)
     Client_SSN = case_array(client_SSN_const, item) 
+    Client_PMI = case_array(clt_PMI_const, item)
+    client_PMI = right("00000000" & client_pmi, 8)
+    'msgbox Client_PMI
     
     If case_array(case_status, item) = True then
         'msgbox Client_SSN
         MMIS_panel_check("RKEY") 
-        EMWriteScreen Client_SSN, 5, 19
+        If Client_SSN = "" then 
+            Call clear_line_of_text(5, 19)
+            EmWriteScreen Client_PMI, 4, 19
+        else    
+            Call clear_line_of_text(4, 19)
+            EMWriteScreen Client_SSN, 5, 19
+        End if 
         Call write_value_and_transmit("I", 2, 19)
         RSEL_row = 7
         Do 
