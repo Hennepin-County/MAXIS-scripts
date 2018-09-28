@@ -256,17 +256,15 @@ IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st
 	position = InStr(client_name, ",")                  'sets the position at the deliminator (in this case the comma)
 	last_name = Left(client_name, position-1)           'establishes client last name as being before the deliminator
 	first_name = Right(client_name, length-position)    'establishes client first name as after before the deliminator
-ELSE                                'In cases where the last name takes up the entire space, THEN the client name becomes the last name
-	first_name = ""
-	last_name = client_name
-
-END IF
-IF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
+ELSEIF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
 	length = len(first_name)                        	'trimming the 1st name
 	position = InStr(first_name, " ")               	'establishing the length of the variable
 	first_name = Left(first_name, position-1)       	'trims the middle initial off of the first name
+ELSE                                'In cases where the last name takes up the entire space, THEN the client name becomes the last name
+	first_name = ""
+	last_name = client_name
 END IF
-
+first_name = trim(first_name)
 '----------------------------------------------------------------------------------------------------ACTIVE PROGRAMS
 EMReadScreen Active_Programs, 13, 6, 68
 Active_Programs = trim(Active_Programs)
