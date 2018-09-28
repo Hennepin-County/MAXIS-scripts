@@ -162,7 +162,7 @@ DO
 		EXIT DO
 	ELSE
 	'For item = 0 to Ubound(state_array, 2)
-		row = state_array(row_num, item)
+		'row = state_array(row_num, item)
 	    Match_Active_Programs = "" 'sometimes blanking over information will clear the value of the variable'
 	    'DO
 	    	EMReadScreen Match_Prog, 22, row, 60
@@ -370,8 +370,8 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
     DropListBox 120, 135, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", bene_other_state
     DropListBox 120, 155, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", contact_other_state
     DropListBox 120, 175, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"Undetermined", fraud_referral
-  GroupBox 205, 130, 160, 50, "Verification used to clear: "
-	 	CheckBox 210, 145, 50, 10, "Diff Notice", diff_notice_CHECKBOX
+  	GroupBox 205, 130, 160, 50, "Verification used to clear: "
+	CheckBox 210, 145, 50, 10, "Diff Notice", diff_notice_CHECKBOX
     CheckBox 290, 145, 70, 10, "Shelter Verification", shelter_verf_CHECKBOX
     CheckBox 210, 160, 70, 10, "Proof of Residency", proof_residency_CHECKBOX
     CheckBox 290, 160, 70, 10, "School Verification", schl_verf_CHECKBOX
@@ -379,66 +379,66 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
     EditBox 210, 220, 155, 15, Other_Notes
     Text 150, 200, 60, 10, "Resolution Status:"
     Text 170, 225, 40, 10, "Other notes:"
-	 	Text 60, 180, 60, 10, "Referral to Fraud:  "
-	 	Text 55, 160, 65, 10, "Contact other State:  "
-  ButtonGroup ButtonPressed
-    OkButton 220, 240, 70, 15
-    CancelButton 295, 240, 70, 15
-  EndDialog
+	Text 60, 180, 60, 10, "Referral to Fraud:  "
+	Text 55, 160, 65, 10, "Contact other State:  "
+  	ButtonGroup ButtonPressed
+    	OkButton 220, 240, 70, 15
+    	CancelButton 295, 240, 70, 15
+  	EndDialog
 
+    DO
     	DO
-    		DO
-    			err_msg = ""
-    			Dialog PARIS_MATCH_CLEARED_dialog
-    			IF ButtonPressed = 0 THEN StopScript
-    			IF bene_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is the client accessing benefits in other state?"
-    			IF contact_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Did you contact the other state?"
-				IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
-    			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-    		LOOP UNTIL err_msg = ""
+    		err_msg = ""
+    		Dialog PARIS_MATCH_CLEARED_dialog
+    		IF ButtonPressed = 0 THEN StopScript
+    		IF bene_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is the client accessing benefits in other state?"
+    		IF contact_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Did you contact the other state?"
+			IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	LOOP UNTIL err_msg = ""
 
-    		'CHECKING FOR MAXIS WITHOUT TRANSMITTING SINCE THIS WILL NAVIGATE US AWAY FROM THE AREA WE ARE AT
-    		EMReadScreen MAXIS_check, 5, 1, 39
-    		IF MAXIS_check <> "MAXIS"  and MAXIS_check <> "AXIS " THEN
-    			IF end_script = True THEN
-    				script_end_procedure("You Do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again.")
-    			ELSE
-    				warning_box = MsgBox("You Do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again, or press ""cancel"" to exit the script.", vbOKCancel)
-    				IF warning_box = vbCancel THEN stopscript
-    			END IF
+    	'CHECKING FOR MAXIS WITHOUT TRANSMITTING SINCE THIS WILL NAVIGATE US AWAY FROM THE AREA WE ARE AT
+    	EMReadScreen MAXIS_check, 5, 1, 39
+    	IF MAXIS_check <> "MAXIS"  and MAXIS_check <> "AXIS " THEN
+    		IF end_script = True THEN
+    			script_end_procedure("You Do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again.")
+    		ELSE
+    			warning_box = MsgBox("You Do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again, or press ""cancel"" to exit the script.", vbOKCancel)
+    			IF warning_box = vbCancel THEN stopscript
     		END IF
-    	LOOP UNTIL MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+    	END IF
+    LOOP UNTIL MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
 
-    	'--------------------------------------------------------------------The case note
-    	pending_verifs = ""
-    	IF shelter_verf_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "Shelter, "
-    	IF Other_Verif_Checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other verification provided, "
-    	IF proof_residency_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "Residency, "
-    	IF schl_verf_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "School, "
-    	'trims excess spaces of pending_verifs
-    	pending_verifs = trim(pending_verifs)
-    	'takes the last comma off of pending_verifs when autofilled into dialog if more more than one app date is found and additional app is selected
-    	IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
+    '--------------------------------------------------------------------The case note
+    pending_verifs = ""
+    IF shelter_verf_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "Shelter, "
+    IF Other_Verif_Checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other verification provided, "
+    IF proof_residency_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "Residency, "
+    IF schl_verf_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "School, "
+    'trims excess spaces of pending_verifs
+    pending_verifs = trim(pending_verifs)
+    'takes the last comma off of pending_verifs when autofilled into dialog if more more than one app date is found and additional app is selected
+    IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 
-    	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
-    	'requested for HEADER of casenote'
+    Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
+    'requested for HEADER of casenote'
 
-    	IF resolution_status = "PR - Person Removed From Household" THEN rez_status = "PR"
-    	IF resolution_status = "HM - Household Moved Out Of State" THEN rez_status = "HM"
-    	IF resolution_status = "RV - Residency Verified, Person in MN" THEN rez_status = "RV"
-    	IF resolution_status = "FR - Failed Residency Verification Request" THEN rez_status = "FR"
-    	IF resolution_status = "PC - Person Closed, Not PARIS Interstate" THEN rez_status = "PC"
-    	IF resolution_status = "CC - Case Closed, Not PARIS Interstate" THEN rez_status = "CC"
+    IF resolution_status = "PR - Person Removed From Household" THEN rez_status = "PR"
+    IF resolution_status = "HM - Household Moved Out Of State" THEN rez_status = "HM"
+    IF resolution_status = "RV - Residency Verified, Person in MN" THEN rez_status = "RV"
+    IF resolution_status = "FR - Failed Residency Verification Request" THEN rez_status = "FR"
+    IF resolution_status = "PC - Person Closed, Not PARIS Interstate" THEN rez_status = "PC"
+    IF resolution_status = "CC - Case Closed, Not PARIS Interstate" THEN rez_status = "CC"
 
-		'------------------------------------------------------------------'still need to be on PARIS Interstate Match Display (INSM)'
-		PF9
-		EMwritescreen rez_status, 9, 27
-		IF fraud_referral = "YES" THEN
-			EMwritescreen "Y", 10, 27
-			ELSE
-			TRANSMIT
-		END IF
-		PF3
+	'------------------------------------------------------------------'still need to be on PARIS Interstate Match Display (INSM)'
+	PF9
+	EMwritescreen rez_status, 9, 27
+	IF fraud_referral = "YES" THEN
+		EMwritescreen "Y", 10, 27
+		ELSE
+		TRANSMIT
+	END IF
+	PF3
     PF3
 	'CALL MAXIS_case_number
     '----------------------------------------------------------------the case match note
