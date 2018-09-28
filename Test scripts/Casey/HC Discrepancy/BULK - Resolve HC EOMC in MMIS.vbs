@@ -257,11 +257,12 @@ end function
 all_case_numbers_array = " "					'Creating blank variable for the future array
 two_digit_county_code = "27"                    'hard coding defining this because it is county specific'
 is_not_blank_excel_string = Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34)	'This is the string required to tell excel to ignore blank cells in a COUNTIFS function
-MAXIS_footer_month = CM_mo
+MAXIS_footer_month = CM_mo                      'defining footer month and year - we will always start in current month - EOMC doesn't function to make changes in other months
 MAXIS_footer_year = CM_yr
-first_of_next_month = CM_plus_1_mo & "/1/" & CM_plus_1_yr
-last_day_of_this_month = DateAdd("d", -1, first_of_next_month)
+first_of_next_month = CM_plus_1_mo & "/1/" & CM_plus_1_yr           'creating a date varibale for the first of the next month
+last_day_of_this_month = DateAdd("d", -1, first_of_next_month)      'creating a date variable with the LAST day of the current month
 
+'formatting the last day of the month in to MM/DD/YY for entry in to MMIS
 last_day_mo = DatePart("m", last_day_of_this_month)
 last_day_mo = right("00" & last_day_mo, 2)
 last_day_day = DatePart("d", last_day_of_this_month)
@@ -270,8 +271,9 @@ last_day_yr = DatePart("yyyy", last_day_of_this_month)
 last_day_yr = right("00" & last_day_yr, 2)
 mmis_last_day_date = last_day_mo & "/" & last_day_day & "/" & last_day_yr
 
-total_savings = 0
-capitation_11x      = 864.45
+'Setting amounts
+total_savings = 0                   'setting this at zero so that we can add up what we save
+capitation_11x      = 864.45        'capitation amounts set annually by DHS - eventually we need to move this to FuncLib
 capitation_PW       = 1174.15
 capitation_1        = 243.67
 capitation_2_15     = 244.00
@@ -326,6 +328,7 @@ EMConnect ""
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
 
+'dialog to restrict how many baskets the script is run on AND decide if the script will be run to change or just look up information
 BeginDialog EOMC_dialog, 0, 0, 351, 65, "Workers to check EOMC"
   EditBox 90, 10, 255, 15, list_of_workers
   CheckBox 10, 45, 140, 10, "Check here to have script update MMIS", change_checkbox
@@ -336,6 +339,7 @@ BeginDialog EOMC_dialog, 0, 0, 351, 65, "Workers to check EOMC"
   Text 95, 30, 125, 10, "(Leave blank to run on entrire county)"
 EndDialog
 
+'Showing the dialog
 Do
     Dialog EOMC_dialog
 
@@ -344,53 +348,47 @@ LOOP UNTIL are_we_passworded_out = false
 
 'Checking for MAXIS
 Call check_for_MAXIS(True)
-Call back_to_SELF
-EMReadScreen MX_environment, 13, 22, 48
+Call back_to_SELF                                               'starting at the SELF panel
+EMReadScreen MX_environment, 13, 22, 48                         'seeing which MX environment we are in
 MX_environment = trim(MX_environment)
 Call navigate_to_spec_MMIS_region("CTY ELIG STAFF/UPDATE")      'Going to MMIS'
-'attn
-'MsgBox "Pause"
-Call navigate_to_MAXIS(MX_environment)
+Call navigate_to_MAXIS(MX_environment)                          'going back to MAXIS
 
-running_stopwatch = timer
+running_stopwatch = timer               'setting the running timer so we log in to MMIS within every 15 mintues so we don't password out
 
-make_changes = FALSE
-
-If change_checkbox = checked Then make_changes = TRUE
+make_changes = FALSE                    'setting this at the start
+If change_checkbox = checked Then make_changes = TRUE   'if the dialog has indicated that changes should be changed reset this to true
 
 list_of_workers = trim(list_of_workers)
-If list_of_workers = "" Then
+If list_of_workers = "" Then            'if this is blank then we are going to search the entire county
     call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
-Else
+Else                                    'if x numbers are entered, then we are going to look at JUST those baskets
     worker_array = split(list_of_workers, ",")
 End If
 
-list_of_cases = 0
-For each worker in worker_array
+list_of_cases = 0                       'array incrementer
+For each worker in worker_array         'going through each worker in the list of workers
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-    worker = trim(worker)
-	Call navigate_to_MAXIS_screen("rept", "eomc")
+    worker = trim(worker)               'making sure there aren't any spaces around the basket number
+	Call navigate_to_MAXIS_screen("rept", "eomc")      'go to EOMC for the correct worker number
 	EMWriteScreen worker, 21, 16
 	transmit
-    'MsgBox "Pause"
+
 	'Skips workers with no info
 	EMReadScreen has_content_check, 1, 7, 5
 	If has_content_check <> " " then
-
-        'Grabbing each case number on screen
         Do
-
             EMReadScreen last_page_check, 21, 24, 2	'because on REPT/EOMC it displays right away, instead of when the second F8 is sent
 
             'Set variable for next do...loop
             MAXIS_row = 7
             Do
-                EMReadScreen MAXIS_case_number, 8, MAXIS_row, 7			'Reading case number
-                EMReadScreen client_name, 25, MAXIS_row, 16		'Reading client name
-                EMReadScreen cash_status, 4, MAXIS_row, 43		'Reading cash status
-                EMReadScreen SNAP_status, 4, MAXIS_row, 53		'Reading SNAP status
-                EMReadScreen HC_status, 4, MAXIS_row, 58			'Reading HC status
-                EMReadScreen GRH_status, 4, MAXIS_row, 68			'Reading GRH status
+                EMReadScreen MAXIS_case_number, 8, MAXIS_row, 7		   'Reading case number
+                EMReadScreen client_name, 25, MAXIS_row, 16		       'Reading client name
+                EMReadScreen cash_status, 4, MAXIS_row, 43		       'Reading cash status
+                EMReadScreen SNAP_status, 4, MAXIS_row, 53		       'Reading SNAP status
+                EMReadScreen HC_status, 4, MAXIS_row, 58			   'Reading HC status
+                EMReadScreen GRH_status, 4, MAXIS_row, 68			   'Reading GRH status
 
                 'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
                 MAXIS_case_number = trim(MAXIS_case_number)
@@ -399,69 +397,67 @@ For each worker in worker_array
 
                 If MAXIS_case_number = "" then exit do			'Exits do if we reach the end
 
-                If HC_status <> "    " then
-                    ReDim Preserve EOMC_CASES_ARRAY(hc_close_stat, list_of_cases)
-                    EOMC_CASES_ARRAY(autoclose, list_of_cases) = FALSE
+                If HC_status <> "    " then                     'we are only going to add cases closing HC
+                    ReDim Preserve EOMC_CASES_ARRAY(hc_close_stat, list_of_cases)       'resizing the array
+                    EOMC_CASES_ARRAY(autoclose, list_of_cases) = FALSE                  'default to false
 
-                    EOMC_CASES_ARRAY(basket_nbr, list_of_cases) = worker
+                    EOMC_CASES_ARRAY(basket_nbr, list_of_cases) = worker                'adding the cse information
                     EOMC_CASES_ARRAY(case_nbr, list_of_cases) = MAXIS_case_number
                     EOMC_CASES_ARRAY(clt_name, list_of_cases) = client_name
-                    If right(HC_status, 1) = "A" then EOMC_CASES_ARRAY(autoclose, list_of_cases) = TRUE
+                    If right(HC_status, 1) = "A" then EOMC_CASES_ARRAY(autoclose, list_of_cases) = TRUE     'if these are autoclose- redefining this
                     EOMC_CASES_ARRAY(hc_close_stat, list_of_cases) = trim(HC_status)
 
-                    list_of_cases = list_of_cases + 1
+                    list_of_cases = list_of_cases + 1       'incrementing
                 End If
 
-                MAXIS_row = MAXIS_row + 1
+                MAXIS_row = MAXIS_row + 1       'look at the next case
                 MAXIS_case_number = ""			'Blanking out variable
             Loop until MAXIS_row = 19
-            PF8
+            PF8     'go to the next page
         Loop until last_page_check = "THIS IS THE LAST PAGE"
     End if
-    Call keep_MMIS_passworded_in
+    Call keep_MMIS_passworded_in                'every 12 mintues or so, the script will pop in to MMIS to make sure we are passworded in
 Next
 
 hc_clt = 0
-
-'The script will now look in each case at MOBL to identify clients that have spenddown listed on MOBL
+'The script will now look in each case at MOBL to identify clients on HC for each case
 For hc_case = 0 to UBound(EOMC_CASES_ARRAY, 2)
     back_to_SELF                                                'Back to SELF at the beginning of each run so that we don't end up in the wrong case
     MAXIS_case_number = EOMC_CASES_ARRAY(case_nbr, hc_case)		'defining case number for functions to use
-    on_page = 1
+    on_page = 1                                                 'saving which page we are on because '
 
     Call navigate_to_MAXIS_screen("CASE", "PERS")               'Getting client eligibility of HC from CASE PERS
     pers_row = 10                                               'This is where client information starts on CASE PERS
     Do
-        clt_hc_ending = FALSE
+        clt_hc_ending = FALSE                                   'defining this at the beginning of each row of CASE PERS
         EMReadScreen clt_hc_status, 1, pers_row, 61             'reading the HC status of each client
         If clt_hc_status = "A" Then                             'if HC is active then we will add this client to the array to find additional information
-            If EOMC_CASES_ARRAY(autoclose, hc_case) = TRUE Then clt_hc_ending = TRUE
-            If EOMC_CASES_ARRAY(autoclose, hc_case) = FALSE Then
-                EMReadScreen pers_pmi_numb,  8, pers_row, 34
+            If EOMC_CASES_ARRAY(autoclose, hc_case) = TRUE Then clt_hc_ending = TRUE        'if client is active on a case that will AutoClose, then they will have HC ended
+            If EOMC_CASES_ARRAY(autoclose, hc_case) = FALSE Then                'If the case is not autoclosing we need to look and see if this client's HC will close
+                EMReadScreen pers_pmi_numb,  8, pers_row, 34                    'reading the PMI
 
-                EMWriteScreen CM_plus_1_mo, 19, 54
+                EMWriteScreen CM_plus_1_mo, 19, 54                              'go to the next month
                 EMWriteScreen CM_plus_1_yr, 19, 57
-
                 transmit
 
-                If on_page > 1 Then
+                If on_page > 1 Then                                             'if we had to PF8 on current month, doing the same in CM+1
                     For the_page = 2 to on_page
                         PF8
                     Next
                 End If
-                'MsgBox "Next month looking for " & pers_pmi_numb
-                EMReadScreen the_pmi, 8, pers_row, 34
-                If the_pmi <> pers_pmi_numb Then
-                    save_pers_row = pers_row
-                    Do
+
+                EMReadScreen the_pmi, 8, pers_row, 34                           'reading the pmi from the same place where we read it in CM
+                If the_pmi <> pers_pmi_numb Then                                'if they don't match, we are going to look for the person
+                    save_pers_row = pers_row                                    'saving the row because we need it when we go back to CM
+                    Do                                                          'go to the first page
                         PF7
                         EMReadScreen at_beginning, 10, 24, 14
                     Loop until at_beginning = "FIRST PAGE"
                     pers_row = 10                                               'This is where client information starts on CASE PERS
                     Do
-                        EMReadScreen the_pmi, 8, pers_row, 34
+                        EMReadScreen the_pmi, 8, pers_row, 34                   'reading the pmi on each road
 
-                        If the_pmi = pers_pmi_numb Then Exit Do
+                        If the_pmi = pers_pmi_numb Then Exit Do                 'if we find a match, we are at the right person
 
                         pers_row = pers_row + 3         'next client information is 3 rows down
                         If pers_row = 19 Then           'this is the end of the list of client on each list
@@ -474,25 +470,25 @@ For hc_case = 0 to UBound(EOMC_CASES_ARRAY, 2)
 
                     Loop until next_pers_ref_numb = "  "
 
-                    If next_pers_ref_numb = "  " Then
+                    If next_pers_ref_numb = "  " Then       'if we can't find the right person, then the person was removed from the case and the HC has ended
                         clt_hc_ending = TRUE
-                    Else
+                    Else                                    'if we did find the right person, we check the status
                         EMReadScreen clt_hc_status, 1, pers_row, 61
-                        If clt_hc_status = "I" Then clt_hc_ending = TRUE
+                        If clt_hc_status = "I" Then clt_hc_ending = TRUE        'If the status is 'I - inactive' in CM+1 then HC ended for this client
                     End If
 
-                    pers_row = save_pers_row
-                Else
+                    pers_row = save_pers_row                'resetting the row variable for the next client review
+                Else        'if the pmi matched right away, we look to see the status in CM+1
                     EMReadScreen clt_hc_status, 1, pers_row, 61
-                    If clt_hc_status = "I" Then clt_hc_ending = TRUE
+                    If clt_hc_status = "I" Then clt_hc_ending = TRUE            'If the status is 'I - inactive' in CM+1 then HC ended for this client
                 End If
 
-                EMWriteScreen MAXIS_footer_month, 19, 54
+                EMWriteScreen MAXIS_footer_month, 19, 54        'going back to CM
                 EMWriteScreen MAXIS_footer_year, 19, 57
 
                 transmit
 
-                If on_page > 1 Then
+                If on_page > 1 Then                 'going back to the right page of CASE/PERS
                     For the_page = 2 to on_page
                         PF8
                     Next
@@ -500,25 +496,25 @@ For hc_case = 0 to UBound(EOMC_CASES_ARRAY, 2)
 
             End If
 
-            If clt_hc_ending = TRUE Then
+            If clt_hc_ending = TRUE Then            'If the HC is ending for this client, the client information is added to the client array
 
                 EMReadScreen pers_ref_numb,  2, pers_row, 3         'reading the client information
                 EMReadScreen pers_pmi_numb,  8, pers_row, 34
                 EMReadScreen pers_last_name, 15, pers_row, 6
                 EMReadScreen pers_frst_name, 11, pers_row, 22
 
-                pers_pmi_numb = trim(pers_pmi_numb)
+                pers_pmi_numb = trim(pers_pmi_numb)                 'formatting the information read
                 pers_last_name = trim(pers_last_name)
                 pers_frst_name = trim(pers_frst_name)
 
-                ReDim Preserve EOMC_CLIENT_ARRAY (err_notes, hc_clt)        'adding client information to the client array
+                ReDim Preserve EOMC_CLIENT_ARRAY (err_notes, hc_clt)        'resizing the Client array
 
-                EOMC_CLIENT_ARRAY (basket_nbr,   hc_clt) = EOMC_CASES_ARRAY(basket_nbr,  hc_case)
+                EOMC_CLIENT_ARRAY (basket_nbr,   hc_clt) = EOMC_CASES_ARRAY(basket_nbr,  hc_case)       'some information is saved from the CASES array
                 EOMC_CLIENT_ARRAY (case_nbr,  hc_clt) = EOMC_CASES_ARRAY(case_nbr, hc_case)
                 EOMC_CLIENT_ARRAY (autoclose, hc_clt) = EOMC_CASES_ARRAY(autoclose, hc_case)
                 EOMC_CLIENT_ARRAY (hc_close_stat, hc_clt) = EOMC_CASES_ARRAY(hc_close_stat, hc_case)
                 'EOMC_CLIENT_ARRAY (next_revw, hc_clt) = ObjExcel.Cells(excel_row, ). Value
-                EOMC_CLIENT_ARRAY (clt_name,  hc_clt) = pers_last_name & ", " & pers_frst_name
+                EOMC_CLIENT_ARRAY (clt_name,  hc_clt) = pers_last_name & ", " & pers_frst_name          'some information is saved from the CASE/PERS information
                 EOMC_CLIENT_ARRAY (clt_ref_nbr,  hc_clt) = pers_ref_numb
                 EOMC_CLIENT_ARRAY (clt_pmi,   hc_clt) = pers_pmi_numb
 
@@ -529,8 +525,8 @@ For hc_case = 0 to UBound(EOMC_CASES_ARRAY, 2)
         pers_row = pers_row + 3         'next client information is 3 rows down
         If pers_row = 19 Then           'this is the end of the list of client on each list
             PF8                         'going to the next page of client information
-            on_page = on_page + 1
-            pers_row = 10
+            on_page = on_page + 1       'saving that we have gone to a new page
+            pers_row = 10               'resetting the row to read at the top of the next page
             EMReadScreen end_of_list, 9, 24, 14
             If end_of_list = "LAST PAGE" Then Exit Do
         End If
@@ -538,22 +534,17 @@ For hc_case = 0 to UBound(EOMC_CASES_ARRAY, 2)
 
     Loop until next_pers_ref_numb = "  "
 
-    ' 'creating an end of script message
-    ' all_the_workers = join(worker_array, ", ")
-    ' end_msg = "Success! Client HC Eligibility and MMIS coding for workers: " & all_the_workers & " have been added to the spreadsheet."
-
-    Call keep_MMIS_passworded_in
+    Call keep_MMIS_passworded_in        'making sure we are not passworded out in MMIS
 Next
 
-
-'Now the array is created - it is the same if we got it from REPT/PND2 or the BOBI
+'Now the client array is created
 'Information gathering in MAXIS now for every client on HC on the list
 For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
-    back_to_SELF                                                        'resetting at each loop
-    MAXIS_case_number = EOMC_CLIENT_ARRAY(case_nbr, hc_clt)		'defining case number for functions to use
-    CLIENT_reference_number = EOMC_CLIENT_ARRAY (clt_ref_nbr,  hc_clt)
+    back_to_SELF                                                       'resetting at each loop
+    MAXIS_case_number = EOMC_CLIENT_ARRAY(case_nbr, hc_clt)		       'defining case number for functions to use
+    CLIENT_reference_number = EOMC_CLIENT_ARRAY (clt_ref_nbr,  hc_clt) 'setting this to a more usable variable
 
-    Call navigate_to_MAXIS_screen("STAT", "MEMB")
+    Call navigate_to_MAXIS_screen("STAT", "MEMB")                       'going to MEMB to get age for identifying correct capitation
     EMWriteScreen CLIENT_reference_number, 20, 76
     EMReadScreen age_of_client, 3, 8, 76
     age_of_client = trim(age_of_client)
@@ -622,11 +613,9 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
 
             If found_elig = TRUE Then                                   'if we found the elig information
                 EMReadScreen prog, 10, row, 28                          'the script now reads the actual HC detail
-                'EMReadScreen result, 7, row, 41
                 EMReadScreen hc_status, 7, row, 50
 
                 prog = trim(prog)
-                'result = trim(result)
                 hc_status = trim(hc_status)
 
                 If hc_status = "ACTIVE" Then
@@ -666,7 +655,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                         If prog = "    " Then EOMC_CLIENT_ARRAY(err_notes, hc_clt) = EOMC_CLIENT_ARRAY(err_notes, hc_clt) & " ~ HC ELIG Budget may need approval or budget needs to be aligned."
 
                         'Took this out because I think it is for a different script issue with a dirrect run and no longer needed. Will test with it gone for a while'
-                        ' If pers_type = "__" Then                        'TODO - REMOVE ON 9/28/18 if no longer needed - determine why I have this here - look at case # 132245
+                        ' If pers_type = "__" Then                        'TODO - REMOVE ON 10/30/18 if no longer needed - determine why I have this here - look at case # 132245
                         '     EMReadScreen cur_mo_test, 6, 7, mo_col
                         '     cur_mo_test = trim(cur_mo_test)
                         '     'MsgBox "This is come up when person test is __" & vbNewLine & "cur_mo_test is " & cur_mo_test
@@ -825,11 +814,9 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
         Do
             EMReadScreen relg_prog, 2, relg_row, 10 'reading the prog and elig type information
             EMReadScreen relg_elig, 2, relg_row, 33
-            EMReadScreen relg_case_num, 8, relg_row, 73
-            'TODO - add a case number checking!!!!
-            'MsgBox relg_prog & " - " & relg_elig
+            EMReadScreen relg_case_num, 8, relg_row, 73 'reading the case number for this span
 
-            If relg_case_num = MAXIS_case_number Then
+            If relg_case_num = MAXIS_case_number Then       'only look at a SPAN if it is for the right case number
                 'If the program matches and the elig type matches we will read for an end date
                 If relg_prog = left(EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt), 2) AND relg_elig = EOMC_CLIENT_ARRAY(elig_type_one, hc_clt) Then
                     span_found = TRUE           'setting this for later/next loop
@@ -924,9 +911,10 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                     EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) = EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) + 1
                 End If
 
-                If span_found = TRUE Then
-                    Msgbox "Found HC in MMIS" & vbNewLine & "On Row: " & EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) & vbNewLine & EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) & " is ended on: " & EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt)
-                End If
+                ' 'for testing
+                ' If span_found = TRUE Then
+                '     Msgbox "Found HC in MMIS" & vbNewLine & "On Row: " & EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) & vbNewLine & EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) & " is ended on: " & EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt)
+                ' End If
 
             Loop until span_found = TRUE
             'adding a message if no span was found for this program
@@ -935,73 +923,78 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
 
         EMWriteScreen "RKEY", 1, 8  'back to the beginning for the next client/loop'
         transmit
-        'MsgBox "To RKEY"
 
     End If
     'if for some reason no HC programs were in MAXIS to begin with - adding this detail to the message
     If EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "" AND EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "" Then EOMC_CLIENT_ARRAY(err_notes, hc_clt) = EOMC_CLIENT_ARRAY(err_notes, hc_clt) & " ~ No HC Programs found in MAXIS ELIG."
 
+    'this block updated MMIS with the new end date if the change option was selected at the beginning
     If make_changes = TRUE Then
-        If EOMC_CLIENT_ARRAY(autoclose, hc_clt) = FALSE Then
-            If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = "99/99/99" Then
-                EMWriteScreen "C", 2, 19                                                    'read only
-                EMWriteScreen PMI_Number, 4, 19                                             'enter through the PMI so it isn't case specific
+        If EOMC_CLIENT_ARRAY(autoclose, hc_clt) = FALSE Then                                'autoclose cases should close on their own.
+            If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = "99/99/99" Then               'if the span has an open end date
+                EMWriteScreen "C", 2, 19                                                    'going in to change
+                EMWriteScreen PMI_Number, 4, 19                                             'enter through the PMI because navigation is easier
                 transmit
 
                 EMWriteScreen "RELG", 1, 8                  'go to RELG where all the elig detail is
                 transmit
 
-                If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) > 1 Then
+                If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) > 1 Then                        'we saved the RELG page so going back to it
                     for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt)
                         PF8
                     next
                 End If
 
-                relg_row = EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) + 4
+                'determine where the SPAN is
+                If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 18 Then            'if the span is the last on the page
+                    PF8                                                         'it is now on the next page
+                    relg_row = 10                                               'the top span is empty in change so the known spans start at 10
+                Else                                                            'if it wasn't the last on the page
+                    relg_row = EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) + 4      'since the top row is empty, the row is 4 down from where it was in inquiry
+                End If
 
-                'EMWriteScreen "...", 6, 10
+                EMWriteScreen mmis_last_day_date, relg_row+1, 36                'entering the last day of the current month to the end date on the span
+                EMWriteScreen "C", relg_row+1, 62                               'updating status to 'closed'
 
-                EMWriteScreen mmis_last_day_date, relg_row+1, 36
-                EMWriteScreen "C", relg_row+1, 62
-
-                PF3
+                PF3                                     'save and check for warning message
                 EMReadScreen warn_msg, 7, 24, 2
                 If warn_msg = "WARNING" Then PF3
 
-                PF3
+                PF3                                     'save and go back to RKEY
                 EMWriteScreen "X",8, 3
                 transmit
-                'MsgBox "Saved"
                 'NOW THE INFORMATION IS SAVED'
 
                 'We are going to confirm the information
-                EMWriteScreen "I", 2, 19                                                    'read only
-                EMWriteScreen PMI_Number, 4, 19                                             'enter through the PMI so it isn't case specific
+                EMWriteScreen "I", 2, 19                    'read only
+                EMWriteScreen PMI_Number, 4, 19             'enter through the PMI so it isn't case specific
                 transmit
 
-                EMReadScreen pph_end_date, 8, 16, 37
+                EMReadScreen pph_end_date, 8, 16, 37        'looking at the most recent capitation end date
 
                 EMWriteScreen "RELG", 1, 8                  'go to RELG where all the elig detail is
                 transmit
 
-                If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) > 1 Then
+                If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) > 1 Then            'now getting to the right page and row to read the span
                     for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt)
                         PF8
                     next
                 End If
 
-                relg_row = EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) + 4
+                relg_row = EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt)
 
-                EMReadScreen confirm_mmis_end, 8, relg_row+1, 36
+                EMReadScreen confirm_mmis_end, 8, relg_row+1, 36        'reading the end date and status to make sure the change was successful
                 EMReadScreen confirm_mmis_stat, 1, relg_row+1, 62
 
-                If confirm_mmis_end = mmis_last_day_date AND confirm_mmis_stat = "C" Then
+                If confirm_mmis_end = mmis_last_day_date AND confirm_mmis_stat = "C" Then   'if they match, we will update the array information
 
-                    EOMC_CLIENT_ARRAY(MMIS_new_end_one, hc_clt) = mmis_last_day_date
+                    EOMC_CLIENT_ARRAY(MMIS_new_end_one, hc_clt) = mmis_last_day_date        'This adds the last day of the month to the new MMIS end date
 
+                    'This part reviews for capitation savings
                     If EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "MA" OR EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "IMD" OR EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "EMA" Then
 
-                        If pph_end_date = mmis_last_day_date Then
+                        If pph_end_date = mmis_last_day_date Then       'if a PPH span is ending the same date, then the closure is caused by our update
+                            'the savings are added to the client array here
                             If EOMC_CLIENT_ARRAY(elig_type_one, hc_clt) = "PX" OR EOMC_CLIENT_ARRAY(elig_type_one, hc_clt) = "PC" Then
                                 EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_PW
                             Else
@@ -1014,11 +1007,12 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                                 If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_65
                             ENd If
 
-                            EOMC_CLIENT_ARRAY(capitation_ended, hc_clt) = TRUE
+                            EOMC_CLIENT_ARRAY(capitation_ended, hc_clt) = TRUE      'setting the capitation ending as true
                         Else
-                            EOMC_CLIENT_ARRAY(capitation_ended, hc_clt) = FALSE
+                            EOMC_CLIENT_ARRAY(capitation_ended, hc_clt) = FALSE     'if these don't match, then a capitation was not ended.
                         End If
 
+                    'for non-MA cases the savings is based on the medicare premium
                     ElseIf EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "QI1" Then
                         EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_QI1
                     ElseIf EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "QMB" Then
@@ -1028,37 +1022,40 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                     End If
                 End If
 
-                PF6
+                PF6     'backing out of the MMIS client information
 
             End If
 
-            If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then
-                EMWriteScreen "C", 2, 19                                                    'read only
-                EMWriteScreen PMI_Number, 4, 19                                             'enter through the PMI so it isn't case specific
+            If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then               'if program 2 is open ended
+                EMWriteScreen "C", 2, 19                                                    'entering change option
+                EMWriteScreen PMI_Number, 4, 19                                             'enter through the PMI because navigation is easier
                 transmit
 
                 EMWriteScreen "RELG", 1, 8                  'go to RELG where all the elig detail is
                 transmit
 
-                If EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) > 1 Then
+                If EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) > 1 Then            'we saved the row the span was found at - going back there
                     for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt)
                         PF8
                     next
                 End If
 
-                relg_row = EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) + 4
+                'determine where the SPAN is
+                If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 18 Then            'if the span is the last on the page
+                    PF8                                                         'it is now on the next page
+                    relg_row = 10                                               'the top span is empty in change so the known spans start at 10
+                Else                                                            'if it wasn't the last on the page
+                    relg_row = EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) + 4      'since the top row is empty, the row is 4 down from where it was in inquiry
+                End If
 
-                'EMWriteScreen "...", 6, 10
-
-                EMWriteScreen mmis_last_day_date, relg_row+1, 36
+                EMWriteScreen mmis_last_day_date, relg_row+1, 36                'entering the last day of the current month and changing status to closed
                 EMWriteScreen "C", relg_row+1, 62
 
-                PF3
-                'MsgBox "Saved"
+                PF3                                     'saving, checking for warning message and saving again
                 EMReadScreen warn_msg, 7, 24, 2
                 If warn_msg = "WARNING" Then PF3
 
-                PF3
+                PF3                                     'saving all the way, then going back to RKEY
                 EMWriteScreen "X",8, 3
                 transmit
                 'NOW THE INFORMATION IS SAVED'
@@ -1079,7 +1076,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                     next
                 End If
 
-                relg_row = EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) + 4
+                relg_row = EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt)
 
                 EMReadScreen confirm_mmis_end, 8, relg_row+1, 36
                 EMReadScreen confirm_mmis_stat, 1, relg_row+1, 62
@@ -1122,14 +1119,24 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                 'MsgBox "To RELG"
             End If
         End If
+    Else
+        'If we are not changing - we are still going to look for capitation end information
+        EMWriteScreen "I", 2, 19                    'read only
+        EMWriteScreen PMI_Number, 4, 19             'enter through the PMI so it isn't case specific
+        transmit
+
+        EMReadScreen pph_end_date, 8, 16, 37        'looking at the most recent capitation end date
+
+        If pph_end_date = mmis_last_day_date Then
+            EOMC_CLIENT_ARRAY(capitation_ended, hc_clt) = TRUE
+        Else
+            EOMC_CLIENT_ARRAY(capitation_ended, hc_clt) = FALSE
+        End If
+
+        PF6
     End If
 
-    'this ends the script run if we have hid the time that was indicated to run for
-    ' If timer > end_time Then
-    '     end_msg = "Success! Script has run for " & stop_time/60/60 & " hours and has finished." & vbNewLine & "Last row from the BOBI reviewd and added: " & EOMC_CLIENT_ARRAY (add_xcl, hc_clt) & vbNewLine & end_msg
-    '     Exit For
-    ' End If
-    total_savings = total_savings + EOMC_CLIENT_ARRAY(clt_savings, hc_clt)
+    total_savings = total_savings + EOMC_CLIENT_ARRAY(clt_savings, hc_clt)      'adding client savings to the total savings for the script run.
 Next
 
 'Opening a new Excel file
@@ -1256,12 +1263,12 @@ col_to_use = col_to_use + 1     'moving over one extra for script run details.
 
 'Query date/time/runtime info
 objExcel.Cells(2, col_to_use).Font.Bold = TRUE
-ObjExcel.Cells(1, col_to_use).Value = "Query date and time:"	'Goes back one, as this is on the next row
+ObjExcel.Cells(1, col_to_use).Value = "Query date and time:"
 ObjExcel.Cells(1, col_to_use+1).Value = now
 ObjExcel.Cells(1, col_to_use+1).Font.Bold = FALSE
-ObjExcel.Cells(2, col_to_use).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
+ObjExcel.Cells(2, col_to_use).Value = "Query runtime (in seconds):"
 ObjExcel.Cells(2, col_to_use+1).Value = timer - query_start_time
-ObjExcel.Cells(3, col_to_use).Value = "Total Savings:"	'Goes back one, as this is on the next row
+ObjExcel.Cells(3, col_to_use).Value = "Total Savings:"
 ObjExcel.Cells(3, col_to_use+1).Value = total_savings
 ObjExcel.Cells(3, col_to_use+1).NumberFormat = "$#,##0.00"
 
@@ -1270,6 +1277,7 @@ For col_to_autofit = 1 to col_to_use+1
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
 
+'setting a freeze row for easy scrolling
 ObjExcel.ActiveSheet.Range("A2").Select
 objExcel.ActiveWindow.FreezePanes = True
 
