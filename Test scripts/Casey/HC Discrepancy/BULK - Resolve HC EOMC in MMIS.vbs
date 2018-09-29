@@ -862,9 +862,10 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                 If end_of_list = "NO MORE" Then Exit Do
                 EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) = EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) + 1
             End If
-            If span_found = TRUE Then
-                Msgbox "Found HC in MMIS" & vbNewLine & "On Row: " & EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) & vbNewLine & EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) & " is ended on: " & EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt)
-            End If
+
+            ' If span_found = TRUE Then
+            '     Msgbox "Found HC in MMIS" & vbNewLine & "On Row: " & EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) & vbNewLine & EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) & " is ended on: " & EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt)
+            ' End If
 
         Loop until span_found = TRUE
         'If we exited before finding the right Span then an error is added that a span does not exist.
