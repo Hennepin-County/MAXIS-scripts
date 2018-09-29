@@ -64,7 +64,7 @@ changelog_display
 '         "Collect CN: " & collect_MAXIS_case_number
 
 'hardcode the file path for excel because this is a disposable script
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\MBI list.xlsx"
+file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\MBI Update\MBI list.xlsx"
 'Open the excel file
 CALL excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)
 'select the right sheet
@@ -137,6 +137,7 @@ const first_name_col    = 5
 const last_name_col     = 6
 const case_status_col   = 7
 const notes_col         = 8
+const source_col        = 9
 
 excel_row = 2
 'Read the excel list on a loop - NO ARRAY because we are just going to act on one case at a time
@@ -156,6 +157,7 @@ Do
         'MsgBox "ROW (2) is " & excel_row
         MAXIS_case_number = ObjExcel.Cells(excel_row, case_number_col).Value
         PMI_number = ObjExcel.Cells(excel_row, person_id_col).Value
+        'MsgBox "Row - " & excel_row & vbNewLine & "Case - " & MAXIS_case_number
         'MsgBox "ROW (3) is " & excel_row
         Do
             PMI_number = right(PMI_number, len(PMI_number)-1)
@@ -197,9 +199,11 @@ Do
         MBI_three = right(MBI_Number, 4)
 
         'enter each of the sections on to the MEDI panel
-        EMWriteScreen MBI_one, 5, 49
-        EMWriteScreen MBI_two, 5, 54
-        EMWriteScreen MBI_three, 5, 58
+        EMWriteScreen MBI_one, 5, 38
+        EMWriteScreen MBI_two, 5, 43
+        EMWriteScreen MBI_three, 5, 47
+
+        EMWriteScreen "M", 5, 64        'entering the source of the MBI information - which came from MMIS for this process
 
         transmit            'transmit to save the information to the panel
         'MsgBox "The MBI is entered"
@@ -233,9 +237,12 @@ Do
             'MsgBox "ERROR"
         Else                                'if no error the number should have saved
             'Read the MBI number to be sure it succeeded.
-            EMReadScreen Check_MBI_one, 4, 5, 49
-            EMReadScreen Check_MBI_two, 3, 5, 54
-            EMReadScreen Check_MBI_three, 4, 5, 58
+            EMReadScreen Check_MBI_one, 4, 5, 38
+            EMReadScreen Check_MBI_two, 3, 5, 43
+            EMReadScreen Check_MBI_three, 4, 5, 47
+
+            EMReadScreen Check_source, 1, 5, 64             'reading the saved source code and reformatting for the escel file
+            If Check_source = "_" Then Check_source = ""
 
             CHECK_MBI = Check_MBI_one & Check_MBI_two & Check_MBI_three
 
@@ -257,9 +264,89 @@ Do
                 End If
                 'MsgBox "FAILED"
             End If
+
+            ObjExcel.Cells(excel_row, source_col).Value = Check_source          'entering the source code in to the excel file
         End If
 
         Call back_to_SELF   'go back to self
+    ElseIf trim(ObjExcel.Cells(excel_row, source_col).Value) = "" Then          'if the excel file lists the update as DONE but the source code is not found/entered
+
+        MAXIS_case_number = ObjExcel.Cells(excel_row, case_number_col).Value    'setting for functions
+        PMI_number = ObjExcel.Cells(excel_row, person_id_col).Value
+        'MsgBox "Row - " & excel_row & vbNewLine & "Case - " & MAXIS_case_number
+        'MsgBox "ROW (3) is " & excel_row
+        Do          'taking the leading 0s out of the pmi number
+            PMI_number = right(PMI_number, len(PMI_number)-1)
+        Loop until left(PMI_number, 1) <> "0"
+        'MsgBox "PMI: " & PMI_number
+
+        Do          'getting in to STAT - we do this because sometimes there are 2 people on one case and it is stuck in background
+            Call navigate_to_MAXIS_screen("STAT", "SUMM")
+            EMReadScreen look_for_summ, 4, 2, 46
+        Loop until look_for_summ = "SUMM"
+        Call back_to_SELF
+
+        Call navigate_to_MAXIS_screen("STAT", "MEMB")       'going to find the reference number
+
+        'go through all the MEMB panels to find the right member
+        Do
+            EMReadScreen memb_pmi_numb, 8, 4, 46
+            memb_pmi_numb = trim(memb_pmi_numb)
+
+            If memb_pmi_numb <> PMI_number Then transmit
+        Loop until memb_pmi_numb = PMI_number
+
+        'save the member ref number for navigating
+        EMReadScreen MEMB_Ref_Number, 2, 4, 33
+
+        'MsgBox "Reference Number: " & MEMB_Ref_Number
+        'go to MEDI for the selected member
+        CALL navigate_to_MAXIS_screen("STAT", "MEDI")
+        EMWriteScreen MEMB_Ref_Number, 20, 76
+        transmit
+
+        EMReadScreen curr_source_code, 1, 5, 64         'reading what is on the source code for the MBI number
+
+        If curr_source_code = "_" Then                  'if it is blank, we will update it
+            'Read the MBI number to be sure it is right
+            EMReadScreen Check_MBI_one, 4, 5, 38
+            EMReadScreen Check_MBI_two, 3, 5, 43
+            EMReadScreen Check_MBI_three, 4, 5, 47
+
+            CHECK_MBI = Check_MBI_one & Check_MBI_two & Check_MBI_three
+
+            MBI_Number = trim(ObjExcel.Cells(excel_row, mbi_number_col).Value)  'getting the correct number from excel
+
+            MBI_one = left(MBI_Number, 4)
+            MBI_two = left(right(MBI_Number, 7), 3)
+            MBI_three = right(MBI_Number, 4)
+
+            'MsgBox "Check MBI - " & CHECK_MBI & vbNewLine & "MBI Number - " & MBI_Number
+            If CHECK_MBI = MBI_Number Then          'If the MBI is right, we will update the panel
+                PF9                 'put in to edit mode
+
+                EMWriteScreen "M", 5, 64        'entering the source of the MBI information - which came from MMIS for this process
+
+                transmit            'transmit to save the information to the panel
+
+                EMReadScreen look_for_error, 8, 24, 2   'checking the bottom for an error message
+                look_for_error = trim(look_for_error)
+
+                If look_for_error = "WARNING:" Then     'we can transmit past warning messages and then look again
+                    transmit
+                    EMReadScreen look_for_error, 8, 24, 2   'checking the bottom for an error message
+                    look_for_error = trim(look_for_error)
+                End If
+
+                EMReadScreen Check_source, 1, 5, 64
+
+                ObjExcel.Cells(excel_row, source_col).Value = Check_source  'entering what is actually on the panel to excel
+            Else        'if the MBI is not correct, we will note the source as ? on excel for review
+                ObjExcel.Cells(excel_row, source_col).Value = "?"
+            End If
+        Else        'if the source code is not blank, we will just enter the actual source code from the panel
+            ObjExcel.Cells(excel_row, source_col).Value = curr_source_code
+        End If
     End If
 
     'MsgBox "TIMER: " & timer
@@ -273,6 +360,7 @@ Do
 'loop through
 Loop until next_row_case = ""
 
+Call back_to_SELF
 
 objWorkbook.Save
 
