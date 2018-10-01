@@ -256,12 +256,12 @@ IF send_notice_checkbox = CHECKED THEN
     	Text 10, 35, 110, 10, "Match month: "   & Match_Month
     	Text 165, 35, 175, 10, "MN active program(s): "   & MN_active_programs
 	GroupBox 5, 50, 360, 75, "PARIS MATCH INFORMATION:"
-		   For item = 0 to Ubound(state_array, 2)
-			   Text 10, 60, 75, 10, "Match State: "   & state_array(state_name, item)
-			   Text 10, 75, 135, 10, "Match State Case Number: "   & state_array(match_case_num, item)
-			   Text 10, 90, 155, 10, "Match State Active Programs:" & state_array(Progs, item)
-			   Text 10, 105, 170, 15, "Match StateContact Info: "   &  state_array(contact_info, item)
-		   Next
+		For item = 0 to Ubound(state_array, 2)
+		 Text 10, 60, 75, 10, "Match State: "   & state_array(state_name, item)
+		 Text 10, 75, 135, 10, "Match State Case Number: "   & state_array(match_case_num, item)
+		 Text 10, 90, 155, 10, "Match State Active Programs:" & state_array(progs, item)
+		 Text 10, 105, 170, 15, "Match StateContact Info: "   &  state_array(contact_info, item)
+		Next
 		   'For item = 1 to Ubound(state_array, 2)
 			'   Text 185, 60, 110, 10, "2nd Match State: "   &  state_array(state_name, item)
 			'   Text 185, 90, 185, 10, "2nd Match Active Programs: "   & state_array(progs, item)
@@ -362,7 +362,7 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	 	For item = 0 to Ubound(state_array, 2)
      		Text 10, 60, 75, 10, "Match State: "   & state_array(state_name, item)
 			Text 10, 75, 135, 10, "Match State Case Number: "   & state_array(match_case_num, item)
-			Text 10, 90, 155, 10, "Match Active Programs: " & state_array(Progs, item)
+			Text 10, 90, 155, 10, "Match Active Programs: " & state_array(progs, item)
  			Text 10, 105, 170, 15, "Match State Contact Info: "   &  state_array(contact_info, item)
 		Next
  		'For item = 1 to Ubound(state_array, 2)
