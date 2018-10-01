@@ -90,7 +90,7 @@ EMConnect ""
 MAXIS_footer_month = CM_mo	'establishing footer month/year 
 MAXIS_footer_year = CM_yr 
 
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\MAXIS to METS\METS Migration Discrepancy Report.xlsx"
+file_selection_path = ""
 
 'dialog and dialog DO...Loop	
 Do
