@@ -93,8 +93,9 @@ IF error_msg <> "" THEN script_end_procedure("An error occured in INFC, please p
 Row = 8
 DO
 	EMReadScreen IEVS_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
-	IF IEVS_match_status = "UR" THEN
-        ievp_info = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+	EMReadScreen IEVS_match, 5, row, 59
+	IF IEVS_match_status <> "RV" THEN
+	    ievp_info = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
         "   " & IEVS_match, vbYesNoCancel, "Please confirm this match")
 		IF ievp_info = vbNo THEN
             row = row + 1
@@ -107,10 +108,12 @@ DO
 		IF IEVS_match_status = "" THEN script_end_procedure("A PARIS match could not be found. The script will now end.")
 		IF ievp_info = vbYes THEN EXIT DO
     	IF ievp_info = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
+	Else
+		row = row + 1
 	END IF
 LOOP UNTIL ievp_info = vbYes
 '-----------------------------------------------------navigating into the match'
-MsgBox row
+'MsgBox row
 CALL write_value_and_transmit("X", row, 3) 'navigating to insm'
 
 'Ensuring that the client has not already had a difference notice sent
@@ -158,22 +161,11 @@ Const progs 			= 5
 
 row = 13
 DO
+	'-------------------------------------------------------Reading for each state active programs
 	EMReadScreen state, 2, row, 3
 	IF trim(state) = "" THEN
 		EXIT DO
 	ELSE
-	'For item = 0 to Ubound(state_array, 2)
-		'row = state_array(row_num, item)
-	    Match_Active_Programs = "" 'sometimes blanking over information will clear the value of the variable'
-	    'DO
-	    	EMReadScreen Match_Prog, 22, row, 60
-	    	Match_Prog = TRIM(Match_Prog)
-			IF Match_Prog = "FOOD SUPPORT" THEN  Match_Prog = "FS"
-			IF Match_Prog = "HEALTH CARE" THEN Match_Prog = "HC"
-	    	IF Match_Prog <> "" THEN Match_Active_Programs = Match_Active_Programs & Match_Prog & ", "
-			row = row + 1
-	    'LOOP UNTIL Match_Prog = "" or row = 19
-
 		'-------------------------------------------------------------------Case number for match state (if exists)
 		EMReadScreen Match_State_Case_Number, 13, row, 9
 		Match_State_Case_Number = trim(Match_State_Case_Number)
@@ -182,15 +174,7 @@ DO
 		state_array(row_num, 			add_state) = row
 		state_array(state_name, 		add_state) = state
 		state_array(match_case_num, 	add_state) = Match_State_Case_Number
-		'-------------------------------------------------------------------trims excess spaces of Match_Active_Programs
-		Match_Active_Programs = trim(Match_Active_Programs)
-		'takes the last comma off of Match_Active_Programs when autofilled into dialog if more more than one app date is found and additional app is selected
-		IF right(Match_Active_Programs, 1) = "," THEN Match_Active_Programs = left(Match_Active_Programs, len(Match_Active_Programs) - 1)
-		state_array(progs, item) = Match_Active_Programs
-		row = state_array(row_num, item)		're-establish the value of row to read phone and fax info
-		Match_contact_info = ""
-		phone_number = ""
-		fax_number = ""
+
 		'-------------------------------------------------------------------PARIS match contact information
 		EMReadScreen phone_number, 23, row, 22
 		phone_number = TRIM(phone_number)
@@ -201,7 +185,7 @@ DO
 			phone_number_ext = trim(phone_number_ext)
 			If phone_number_ext <> "" then phone_number = phone_number & " Ext: " & phone_number_ext
 		End if
-	'-------------------------------------------------------------------reading and cleaning up the fax number if it exists
+		'-------------------------------------------------------------------reading and cleaning up the fax number if it exists
 		EMReadScreen fax_check, 8, row + 1, 37
 		fax_check = trim(fax_check)
 		If fax_check <> "" then
@@ -212,6 +196,26 @@ DO
 		Match_contact_info = phone_number & " " & fax_number
 		state_array(contact_info, item) = Match_contact_info
 
+		'-------------------------------------------------------------------trims excess spaces of Match_Active_Programs
+	   	Match_Active_Programs = "" 'sometimes blanking over information will clear the value of the variable'
+		DO
+			EMReadScreen Match_Prog, 22, row, 60
+	   		Match_Prog = TRIM(Match_Prog)
+			IF Match_Active_Programs = "" THEN 	EXIT DO
+			IF Match_Prog = "FOOD SUPPORT" THEN  Match_Prog = "FS"
+			IF Match_Prog = "HEALTH CARE" THEN Match_Prog = "HC"
+	    	IF Match_Prog <> "" THEN Match_Active_Programs = Match_Active_Programs & Match_Prog & ", "
+			row = row + 1
+		LOOP
+			Match_Active_Programs = trim(Match_Active_Programs)
+			'takes the last comma off of Match_Active_Programs when autofilled into dialog if more more than one app date is found and additional app is selected
+			IF right(Match_Active_Programs, 1) = "," THEN Match_Active_Programs = left(Match_Active_Programs, len(Match_Active_Programs) - 1)
+			state_array(progs, item) = Match_Active_Programs
+			row = state_array(row_num, item)		're-establish the value of row to read phone and fax info
+			Match_contact_info = ""
+			phone_number = ""
+			fax_number = ""
+		'-----------------------------------------------add_state allows for the next state to gather all the information for array'
 		add_state = add_state + 1
 		'MsgBox add_state
 		row = row + 3
