@@ -426,6 +426,7 @@ For hc_case = 0 to UBound(EOMC_CASES_ARRAY, 2)
     MAXIS_case_number = EOMC_CASES_ARRAY(case_nbr, hc_case)		'defining case number for functions to use
     on_page = 1                                                 'saving which page we are on because '
 
+    ' If MAXIS_case_number = "" Then MsgBox "Case number: " &  EOMC_CASES_ARRAY(case_nbr, hc_case)
     Call navigate_to_MAXIS_screen("CASE", "PERS")               'Getting client eligibility of HC from CASE PERS
     pers_row = 10                                               'This is where client information starts on CASE PERS
     Do
@@ -543,6 +544,8 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
     back_to_SELF                                                       'resetting at each loop
     MAXIS_case_number = EOMC_CLIENT_ARRAY(case_nbr, hc_clt)		       'defining case number for functions to use
     CLIENT_reference_number = EOMC_CLIENT_ARRAY (clt_ref_nbr,  hc_clt) 'setting this to a more usable variable
+
+    ' If MAXIS_case_number = "" Then MsgBox "Case number: " & EOMC_CLIENT_ARRAY(case_nbr, hc_case) & vbNewLine & "Client: " & EOMC_CLIENT_ARRAY (clt_ref_nbr,  hc_clt) & vbNewLines & "PMI: " & EOMC_CLIENT_ARRAY (clt_pmi,   hc_clt)
 
     Call navigate_to_MAXIS_screen("STAT", "MEMB")                       'going to MEMB to get age for identifying correct capitation
     EMWriteScreen CLIENT_reference_number, 20, 76
