@@ -2777,6 +2777,19 @@ function check_for_password(are_we_passworded_out)
 	End If
 end function
 
+function check_for_password_without_transmit(are_we_passworded_out)
+'--- This function checks to make sure a user is not passworded out. If they are, it allows the user to password back in. NEEDS TO BE ADDED INTO dialog DO...lOOPS
+'~~~~~ are_we_passworded_out: When adding to dialog enter "Call check_for_password(are_we_passworded_out)", then Loop until are_we_passworded_out = false. Parameter will remain true if the user still needs to input password.
+'===== Keywords: MAXIS, PRISM, password
+	Emreadscreen password_check, 8, 2, 33 'checking for the word password which will indicate you are passworded out
+	If password_check = "PASSWORD" then 'If the word password is found then it will tell the worker and set the parameter to be true, otherwise it will be set to false.
+		Msgbox "Are you passworded out? Press OK and the dialog will reappear. Once it does, you can enter your password."
+		are_we_passworded_out = true
+	Else
+		are_we_passworded_out = false
+	End If
+end function
+
 function check_for_PRISM(end_script)
 '--- This function checks to ensure the user is in a PRISM panel
 '~~~~~ end_script: If end_script = TRUE the script will end. If end_script = FALSE, the user will be given the option to cancel the script, or manually navigate to a PRISM screen.
