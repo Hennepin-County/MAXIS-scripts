@@ -6480,7 +6480,7 @@ end function
 
 function write_panel_to_MAXIS_DISA(disa_begin_date, disa_end_date, disa_cert_begin, disa_cert_end, disa_wavr_begin, disa_wavr_end, disa_grh_begin, disa_grh_end, disa_cash_status, disa_cash_status_ver, disa_snap_status, disa_snap_status_ver, disa_hc_status, disa_hc_status_ver, disa_waiver, disa_1619, disa_drug_alcohol)
 '--- This function writes to MAXIS in Krabappel only (writes using the variables read off of the specialized excel template to the disa panel in MAXIS)
-'~~~~~ disa_begin_date, disa_end_date, disa_cert_begin, disa_cert_end, disa_wavr_begin, disa_wavr_end, disa_grh_begin, disa_grh_end, disa_cash_status, disa_cash_status_ver, disa_snap_status, disa_snap_status_ver, disa_hc_status, disa_hc_status_ver, disa_waiver, disa_drug_alcohol: parameters for the training case creator to work
+'~~~~~ disa_begin_date, disa_end_date, disa_cert_begin, disa_cert_end, disa_wavr_begin, disa_wavr_end, disa_grh_begin, disa_grh_end, disa_cash_status, disa_cash_status_ver, disa_snap_status, disa_snap_status_ver, disa_hc_status, disa_hc_status_ver, disa_waiver, disa_1619, disa_drug_alcohol: parameters for the training case creator to work
 '===== Keywords: MAXIS, Krabappel, traning, case, creator
 	Call navigate_to_MAXIS_screen("STAT", "DISA")  'navigates to the stat panel
 	call create_panel_if_nonexistent
@@ -7101,10 +7101,10 @@ function write_panel_to_MAXIS_MEDI(SSN_first, SSN_mid, SSN_last, MEDI_claim_numb
 	EMReadScreen ERRR_check, 4, 2, 52			'Checking for the ERRR screen
 	If ERRR_check = "ERRR" then transmit		'If the ERRR screen is found, it transmits
 	call create_panel_if_nonexistent
-	EMWriteScreen SSN_first, 6, 44				'Next three lines pulled
-	EMWriteScreen SSN_mid, 6, 48
-	EMWriteScreen SSN_last, 6, 51
-	EMWriteScreen MEDI_claim_number_suffix, 6, 56
+	EMWriteScreen SSN_first, 6, 39				'Next three lines pulled
+	EMWriteScreen SSN_mid, 6, 43
+	EMWriteScreen SSN_last, 6, 46
+	EMWriteScreen MEDI_claim_number_suffix, 6, 51
 	EMWriteScreen MEDI_part_A_premium, 7, 46
 	EMWriteScreen MEDI_part_B_premium, 7, 73
 	If MEDI_part_A_begin_date <> "" then call create_MAXIS_friendly_date(MEDI_part_A_begin_date, 0, 15, 24)
