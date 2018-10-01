@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/30/2018", "Consolidated WCOMs to one script. New submenus of script categories.", "Casey Love, Hennepin County")
 call changelog_update("03/01/2018", "Removed NOTICES scripts APPOINTMENT LETTER and NOMI. This process has been automated through the On Demand Waiver process.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/25/2017", "Added new script: SNAP WCOM - Failure to Comply WCOM.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")

@@ -2,7 +2,7 @@
 name_of_script = "NOTICES - SELECT WCOM.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 90                               'manual run time in seconds
+STATS_manualtime = 120                               'manual run time in seconds
 STATS_denomination = "C"       'C is for each CASE
 'END OF stats block==============================================================================================
 'run_locally = TRUE
@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("03/13/2018", "Initial version.", "Casey Love, Hennepin County")
+call changelog_update("09/30/2018", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
