@@ -1548,9 +1548,16 @@ if notice_type = "NOMI" then
     objExcel.Cells(entry_row, stats_col).Value              = timer - query_start_time
     entry_row = entry_row + 1
 
+
+    objExcel.Cells(entry_row, stats_col+1).Value            = "=" & stats_letter_col & entry_row & "/" & stats_letter_col & total_entry_row
+    objExcel.Cells(entry_row, stats_col+1).NumberFormat     = "0.00%"
+
+
     objExcel.Cells(entry_row, stats_header_col).Value       = "Cases with no Interview"     'number of cases that potentially need a NOMI'
     objExcel.Cells(entry_row, stats_header_col).Font.Bold 	= TRUE
     objExcel.Cells(entry_row, stats_col).Value              = "=COUNTBLANK(" & intvw_date_letter_col & "2:" & intvw_date_letter_col & last_excel_row & ")"
+    objExcel.Cells(entry_row, stats_col+1).Value            = "=" & stats_col & entry_row & "/" & stats_col & "4"
+    objExcel.Cells(entry_row, stats_col+1).NumberFormat     = "0.00%"
     no_intv_row = entry_row
     entry_row = entry_row + 1
 
@@ -1569,7 +1576,16 @@ if notice_type = "NOMI" then
 
     objExcel.Cells(entry_row, stats_header_col).Value       = "Interviews Completed"   'Calculates the percentage of NOMIs siucessful (from attempted)'
     objExcel.Cells(entry_row, stats_header_col).Font.Bold 	= TRUE
-    objExcel.Cells(entry_row, stats_col).Value              = "=COUNTIF(" & intvw_date_letter_col & "2:" & intvw_date_letter_col & total_cases + 1 & ", " & is_not_blank_excel_string & ")"
+    objExcel.Cells(entry_row, stats_col).Value              = "=COUNTIF(" & intvw_date_letter_col & "2:" & intvw_date_letter_col & last_excel_row & ", " & is_not_blank_excel_string & ")"
+    objExcel.Cells(entry_row, stats_col+1).Value            = "=" & stats_col & entry_row & "/" & stats_col & "4"
+    objExcel.Cells(entry_row, stats_col+1).NumberFormat     = "0.00%"
+    entry_row = entry_row + 1
+
+    objExcel.Cells(entry_row, stats_header_col).Value       = "Applications Received"   'Calculates the percentage of NOMIs siucessful (from attempted)'
+    objExcel.Cells(entry_row, stats_header_col).Font.Bold 	= TRUE
+    objExcel.Cells(entry_row, stats_col).Value              = "=COUNTIF(" & app_date_letter_col & "2:" & app_date_letter_col & last_excel_row & ", " & is_not_blank_excel_string & ")"
+    objExcel.Cells(entry_row, stats_col+1).Value            = "=" & stats_col & entry_row & "/" & stats_col & "4"
+    objExcel.Cells(entry_row, stats_col+1).NumberFormat     = "0.00%"
     entry_row = entry_row + 1
 
     objExcel.Cells(entry_row, stats_header_col).Value       = "Privleged Cases:"        'PRIV cases header'
@@ -1583,6 +1599,7 @@ if notice_type = "Data Only" then
 
     'Determining the number of days in the calendar month.
     benefit_month = MAXIS_footer_month & "/01/" & MAXIS_footer_year			'Converts whatever the next_month variable is to a MM/01/YYYY format
+    month_after_bene = DateAdd("M", 1, benefit_month)
     num_of_days = DatePart("D", (DateAdd("D", -1, benefit_month)))			'Determines the number of days in the processing month
 
     processing_month = DateAdd("M", -1, benefit_month)                      'Finding the processing month
@@ -1674,6 +1691,30 @@ if notice_type = "Data Only" then
 
                 row_to_use = row_to_use + 1
             next
+        else
+            last_day_of_benefit_month = DatePart("D", (DateAdd("D", -1, month_after_bene)))
+            end_of_benefit_month = MAXIS_footer_month & "/" & last_day_of_benefit_month & "/" & MAXIS_footer_year
+
+            bene_mo = DatePart("M", benefit_month)
+            bene_yr = DatePart("YYYY", benefit_month)
+
+            If DateValue(end_of_benefit_month) < date Then
+                for each_day = 1 to last_day_of_benefit_month
+                    day_entry = bene_mo & "/" & each_day & "/" & bene_yr                'writing each day in the same column
+                    objExcel.Cells(row_to_use, month_dates_col).Value = day_entry
+
+                    if interview_frequency_checkbox = checked then                      'counts the number of interviews on the list worksheet that match each entry
+                        objExcel.Cells(row_to_use, intv_freq_col).Value = "=COUNTIF('" & scenario_dropdown & "'!" & intvw_date_letter_col & ":" & intvw_date_letter_col & ", " & month_dates_letter_col & row_to_use & ")"
+                    end if
+
+                    if recvd_appl_frequency_checkbox = checked then                     'counts the number of applications on the list worksheet that match each entry
+                        objExcel.Cells(row_to_use, app_freq_col).Value = "=COUNTIF('" & scenario_dropdown & "'!" & app_date_letter_col & ":" & app_date_letter_col & ", " & month_dates_letter_col & row_to_use & ")"
+                    end if
+
+                    row_to_use = row_to_use + 1
+                next
+            End If
+
         end if
         col_to_use = col_to_use + 1     'Moving over to the right
     end if
@@ -1983,7 +2024,7 @@ if notice_type = "Data Only" then
     if interview_deadline_checkbox = checked then
         objExcel.Cells(entry_row, stats_header_col).Value       = "Interviews completed before " & interview_deadline & ":"
         objExcel.Cells(entry_row, stats_header_col).Font.Bold 	= TRUE
-        objExcel.Cells(entry_row, stats_col).Value              = "=COUNTIF('" & scenario_dropdown & "'!" & intvw_date_letter_col & excel_row_to_start & ":" & intvw_date_letter_col & last_excel_row & ", " & Chr(34) & "<" & interview_deadline & Chr(34) & ")"
+        objExcel.Cells(entry_row, stats_col).Value              = "=COUNTIF('" & scenario_dropdown & "'!" & intvw_date_letter_col & excel_row_to_start & ":" & intvw_date_letter_col & last_excel_row & ", " & Chr(34) & "<=" & interview_deadline & Chr(34) & ")"
         objExcel.Cells(entry_row, stats_col+1).Value            = "=" & stats_letter_col & entry_row & "/" & stats_letter_col & total_entry_row
         objExcel.Cells(entry_row, stats_col+1).NumberFormat     = "0.00%"
         entry_row = entry_row + 1
