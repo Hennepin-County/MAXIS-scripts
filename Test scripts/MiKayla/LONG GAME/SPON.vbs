@@ -56,9 +56,9 @@ changelog_display
 BeginDialog sponsor_income_calculation_dialog, 0, 0, 346, 290, "Sponsor income calculation"
   EditBox 55, 5, 40, 15, MAXIS_case_number
   EditBox 160, 5, 20, 15, memb_number
-  CheckBox 190, 5, 105, 10, "Verified via SAVE requested?", Check3
+  CheckBox 190, 5, 105, 10, "Verified via SAVE requested?", via_save
   CheckBox 190, 15, 135, 10, "TPQY / SSA quarters checked? HRS:", TPQY_check
-  EditBox 325, 10, 15, 15, Edit23
+  EditBox 320, 10, 15, 15, SSA_hours
   EditBox 45, 35, 55, 15, primary_sponsor_earned_income
   EditBox 145, 35, 55, 15, spousal_sponsor_earned_income
   DropListBox 260, 35, 75, 15, "Select One:"+chr(9)+"Paystubs"+chr(9)+"Taxes"+chr(9)+"EVF"+chr(9)+"SMI"+chr(9)+"Other please specify ", List2
@@ -66,21 +66,26 @@ BeginDialog sponsor_income_calculation_dialog, 0, 0, 346, 290, "Sponsor income c
   EditBox 145, 70, 55, 15, spousal_sponsor_unearned_income
   DropListBox 260, 70, 75, 15, "Select One:"+chr(9)+"Paystubs"+chr(9)+"Taxes"+chr(9)+"EVF"+chr(9)+"SMI"+chr(9)+"Other please specify ", income_verification
   EditBox 80, 105, 70, 15, name_sponsor
-  EditBox 250, 105, 85, 15, Edit17
-  EditBox 80, 125, 140, 15, sponsor_addr
-  EditBox 255, 125, 80, 15, Edit21
-  EditBox 80, 145, 30, 15, Edit19
-  EditBox 220, 145, 30, 15, number_of_sponsored_immigrants
+  EditBox 250, 105, 80, 15, name_of_spon_spouse
+  EditBox 80, 125, 135, 15, sponsor_addr
+  EditBox 250, 125, 20, 15, phone_one
+  EditBox 275, 125, 20, 15, phone_two
+  EditBox 300, 125, 30, 15, phone_three
+  EditBox 80, 145, 20, 15, spon_HH_size
+  EditBox 205, 145, 20, 15, number_of_spon
   EditBox 80, 170, 70, 15, name_sponsor_two
-  EditBox 250, 170, 85, 15, Edit22
+  EditBox 250, 170, 80, 15, name_of_spon_spouse_two
   EditBox 80, 190, 135, 15, sponsor_addr_two
-  EditBox 250, 190, 85, 15, Edit18
-  EditBox 80, 210, 30, 15, sponsor_HH_size
-  EditBox 215, 210, 30, 15, Edit20
-  CheckBox 10, 240, 110, 10, "Indigent Exemption reviewed?", Check4
-  CheckBox 10, 250, 85, 10, "DV waiver reviewed?", DVW_check
-  EditBox 200, 245, 135, 15, sponsor_addr_three
+  EditBox 250, 190, 20, 15, phone_one_two
+  EditBox 275, 190, 20, 15, phone_two_two
+  EditBox 300, 190, 30, 15, phone_three_two
+  EditBox 80, 210, 20, 15, spon_HH_size_two
+  EditBox 205, 210, 20, 15, number_of_spon_two
+  EditBox 200, 245, 135, 15, denial_reason
   EditBox 60, 270, 175, 15, other_notes
+  CheckBox 10, 240, 110, 10, "Indigent Exemption Reviewed?", indexmp_CHECKBOX
+  CheckBox 10, 250, 85, 10, "DV Waiver Reviewed?", DVW_CHECKBOX
+  CheckBox 245, 215, 90, 10, "Check if additional SPON", additonal_spon_CHECKBOX
   ButtonGroup ButtonPressed
     OkButton 245, 270, 45, 15
     CancelButton 295, 270, 45, 15
@@ -98,18 +103,18 @@ BeginDialog sponsor_income_calculation_dialog, 0, 0, 346, 290, "Sponsor income c
   Text 15, 110, 60, 10, "Name of sponsor:"
   Text 155, 110, 90, 10, "Name of sponsor's spouse:"
   Text 45, 130, 30, 10, "Address:"
-  Text 230, 130, 25, 10, "Phone:"
+  Text 225, 130, 25, 10, "Phone:"
   Text 15, 150, 60, 10, "Sponsor HH size:"
-  Text 120, 150, 100, 10, "Number of sponsored clients:"
+  Text 105, 150, 100, 10, "Number of sponsored clients:"
   Text 15, 175, 60, 10, "Name of sponsor:"
   Text 155, 175, 90, 10, "Name of sponsor's spouse:"
   Text 45, 195, 30, 10, "Address:"
   Text 225, 195, 25, 10, "Phone:"
   Text 15, 215, 60, 10, "Sponsor HH size:"
-  Text 115, 215, 100, 10, "Number of sponsored clients:"
+  Text 105, 215, 100, 10, "Number of sponsored clients:"
   GroupBox 5, 230, 335, 35, "HP. Immigration Information"
-  Text 15, 275, 45, 10, "Other Notes:"
   Text 135, 250, 65, 10, "Reason for denial?"
+  Text 15, 275, 45, 10, "Other Notes:"
 EndDialog
 
 
@@ -117,7 +122,7 @@ EndDialog
 'Connecting to BlueZone, and finding case number
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-
+TODO Multiple-Case noted
 'Dialog is presented. Requires all sections other than spousal sponsor income to be filled out.
 Do
 	Do
