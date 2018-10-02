@@ -5,7 +5,7 @@ STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 120                              'manual run time in seconds  this run time only includes appl'ing the case. it gets time added it to as panels are added and approvals are made.
 STATS_denomination = "C"       'I is for each case
 'END OF stats block==============================================================================================
-run_locally = TRUE
+
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
