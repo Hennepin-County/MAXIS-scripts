@@ -226,6 +226,7 @@ Call check_for_MAXIS(False)     'Making sure that we are not passworded out
 
 'Finds MAXIS case number
 call MAXIS_case_number_finder(MAXIS_case_number)
+notice_panel = "WCOM"
 
 EMReadScreen which_panel, 4, 2, 47          'Checking to see where the script is started from
 If which_panel <> "WCOM" then               'If this is not on WCOM - and if the case number is known, the script will navigate to WCOM
