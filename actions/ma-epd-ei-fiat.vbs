@@ -252,7 +252,7 @@ If case_status = "Recertification" Then
     Else
         MAXIS_footer_month = CM_mo
         MAXIS_footer_year = CM_yr
-    End If 
+    End If
 
     Call back_to_SELF       'Getting out of STAT so that we can switch months if needed
 
@@ -452,6 +452,8 @@ If case_status = "Application" Then
 
             jobs_row = jobs_row + 1         'going to the next row in the list of paychecks
         Loop until jobs_row = 17
+
+        If divider = 0 Then script_end_procedure("This case appears to have a JOBS panel for a job that has ended. The script cannot process this case. Ensure there is a STWK panel for the job and delete the JOBS panel that has ended and try again.")
 
         EMReadScreen total_pay, 8, 17, 67   'reading the total of the pay listed in the prospective side of the JOBS panel and formatting
         total_pay = trim(total_pay)
