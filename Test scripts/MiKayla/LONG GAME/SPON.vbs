@@ -139,17 +139,30 @@ Do
 call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
+
 'Determines the income limits
 ' >> Income limits from CM 19.06 - MAXIS Gross Income 130% FPG (Updated effective 10/01/17)
-If sponsor_HH_size = 1 then income_limit = 1307
-If sponsor_HH_size = 2 then income_limit = 1760
-If sponsor_HH_size = 3 then income_limit = 2213
-If sponsor_HH_size = 4 then income_limit = 2665
-If sponsor_HH_size = 5 then income_limit = 3118
-If sponsor_HH_size = 6 then income_limit = 3571
-If sponsor_HH_size = 7 then income_limit = 4024
-If sponsor_HH_size = 8 then income_limit = 4477
-If sponsor_HH_size > 8 then income_limit = 4477 + (453 * (sponsor_HH_size - 8))
+If date >= cdate("10/01/2018") then
+    If sponsor_HH_size = 1 then income_limit = 1316
+    If sponsor_HH_size = 2 then income_limit = 1784
+    If sponsor_HH_size = 3 then income_limit = 2252
+    If sponsor_HH_size = 4 then income_limit = 2720
+    If sponsor_HH_size = 5 then income_limit = 3188
+    If sponsor_HH_size = 6 then income_limit = 3656
+    If sponsor_HH_size = 7 then income_limit = 4124
+    If sponsor_HH_size = 8 then income_limit = 4592
+    If sponsor_HH_size > 8 then income_limit = 4592 + (468 * (sponsor_HH_size - 8))
+else
+    If sponsor_HH_size = 1 then income_limit = 1307
+    If sponsor_HH_size = 2 then income_limit = 1760
+    If sponsor_HH_size = 3 then income_limit = 2213
+    If sponsor_HH_size = 4 then income_limit = 2665
+    If sponsor_HH_size = 5 then income_limit = 3118
+    If sponsor_HH_size = 6 then income_limit = 3571
+    If sponsor_HH_size = 7 then income_limit = 4024
+    If sponsor_HH_size = 8 then income_limit = 4477
+    If sponsor_HH_size > 8 then income_limit = 4477 + (453 * (sponsor_HH_size - 8))
+End if
 
 'If any income variables are not numeric, the script will convert them to a "0" for calculating
 If IsNumeric(primary_sponsor_earned_income) = False then primary_sponsor_earned_income = 0

@@ -271,7 +271,7 @@ ELSEIF dail_check <> "DAIL" THEN
 			End if
 			If fax_number = "Fax: (     )" then fax_number = ""
 			Match_contact_info = phone_number & " " & fax_number
-			state_array(contact_info, item) = Match_contact_info
+			state_array(contact_info, add_state) = Match_contact_info
 
 			'-------------------------------------------------------------------trims excess spaces of Match_Active_Programs
 	   		Match_Active_Programs = "" 'sometimes blanking over information will clear the value of the variable'
@@ -287,8 +287,8 @@ ELSEIF dail_check <> "DAIL" THEN
 			Match_Active_Programs = trim(Match_Active_Programs)
 			'takes the last comma off of Match_Active_Programs when autofilled into dialog if more more than one app date is found and additional app is selected
 			IF right(Match_Active_Programs, 1) = "," THEN Match_Active_Programs = left(Match_Active_Programs, len(Match_Active_Programs) - 1)
-			state_array(progs, item) = Match_Active_Programs
-			row = state_array(row_num, item)		're-establish the value of row to read phone and fax info
+			state_array(progs, add_state) = Match_Active_Programs
+			row = state_array(row_num, add_state)		're-establish the value of row to read phone and fax info
 			Match_contact_info = ""
 			phone_number = ""
 			fax_number = ""
@@ -310,11 +310,11 @@ ELSEIF dail_check <> "DAIL" THEN
 	'--------------------------------------------------------------------Dialog
 	BeginDialog OP_Cleared_dialog, 0, 0, 361, 260, "PARIS Match Claim Entered"
 	  EditBox 55, 5, 45, 15, MAXIS_case_number
-	  EditBox 145, 5, 20, 15, memb_number
-	  EditBox 305, 5, 45, 15, IEVS_period
+	  EditBox 170, 5, 20, 15, memb_number
+	  EditBox 260, 5, 45, 15, IEVS_period
 	  DropListBox 55, 25, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
 	  EditBox 170, 25, 20, 15, OT_resp_memb
-	  EditBox 305, 25, 45, 15, discovery_date
+	  EditBox 260, 25, 45, 15, discovery_date
 	  DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS"+chr(9)+"SSI", OP_program
 	  EditBox 130, 65, 30, 15, OP_from
 	  EditBox 180, 65, 30, 15, OP_to
@@ -330,25 +330,26 @@ ELSEIF dail_check <> "DAIL" THEN
 	  EditBox 180, 105, 30, 15, OP_to_III
 	  EditBox 245, 105, 35, 15, Claim_number_III
 	  EditBox 305, 105, 45, 15, Claim_amount_III
-	  DropListBox 85, 135, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", contact_other_state
-	  DropListBox 305, 135, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", bene_other_state
-	  EditBox 75, 155, 170, 15, collectible_reason
-	  DropListBox 305, 155, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
-	  EditBox 75, 175, 45, 15, HC_resp_memb
-	  EditBox 210, 175, 45, 15, Fed_HC_AMT
+	  DropListBox 120, 135, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", Contact_other_state
+	  DropListBox 120, 155, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", bene_other_state
+	  DropListBox 250, 135, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
+	  EditBox 250, 155, 100, 15, collectible_reason
+	  EditBox 60, 175, 45, 15, HC_resp_memb
+	  EditBox 185, 175, 45, 15, Fed_HC_AMT
 	  EditBox 305, 175, 45, 15, hc_claim_number
 	  EditBox 60, 195, 290, 15, Reason_OP
 	  EditBox 60, 215, 290, 15, other_notes
 	  CheckBox 60, 240, 120, 10, "Earned Income disregard allowed", EI_checkbox
+	  CheckBox 70, 240, 120, 10, "Out of state verification received", vrf_rcvd_checkbox
 	  ButtonGroup ButtonPressed
 	    OkButton 255, 240, 45, 15
 	    CancelButton 305, 240, 45, 15
 	  Text 5, 10, 50, 10, "Case Number: "
-	  Text 110, 10, 30, 10, "MEMB #:"
-	  Text 255, 10, 45, 10, "Match Period:"
+	  Text 130, 10, 30, 10, "MEMB #:"
+	  Text 205, 10, 45, 10, "Match Period:"
 	  Text 5, 30, 50, 10, "Fraud Referral:"
 	  Text 110, 30, 55, 10, "OT Resp. Memb:"
-	  Text 245, 30, 55, 10, "Discovery Date: "
+	  Text 205, 30, 55, 10, "Discovery Date: "
 	  GroupBox 5, 45, 350, 85, "Overpayment Information"
 	  Text 15, 70, 30, 10, "Program:"
 	  Text 105, 70, 20, 10, "From:"
@@ -361,12 +362,12 @@ ELSEIF dail_check <> "DAIL" THEN
 	  Text 165, 110, 10, 10, "To:"
 	  Text 215, 110, 25, 10, "Claim #"
 	  Text 285, 110, 20, 10, "AMT:"
-	  Text 5, 160, 65, 10, "Collectible Reason:"
-	  Text 260, 160, 40, 10, "Collectible?"
-	  Text 185, 140, 115, 10, "Accessing benefits in other state?:"
-	  Text 5, 180, 65, 10, "HC resp. members:"
-	  Text 5, 140, 75, 10, "Contacted other state?: "
-	  Text 140, 180, 65, 10, "Total FED HC AMT:"
+	  Text 180, 160, 65, 10, "Collectible Reason:"
+	  Text 205, 140, 40, 10, "Collectible?:"
+	  Text 5, 160, 115, 10, "Accessing benefits in other state?:"
+	  Text 5, 180, 55, 10, "HC Resp Memb:"
+	  Text 40, 140, 75, 10, "Contacted other state?: "
+	  Text 115, 180, 65, 10, "Total FED HC AMT:"
 	  Text 5, 200, 50, 10, "Reason for OP:"
 	  Text 265, 180, 40, 10, "HC Claim #:"
 	  Text 105, 90, 20, 10, "From:"
@@ -400,7 +401,6 @@ ELSEIF dail_check <> "DAIL" THEN
 		IF collectible_dropdown = "YES" and collectible_reason = "" THEN err_msg = err_msg & vbnewline & "* Please advise why claim is collectible."
 		IF contact_other_state = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if other state(s) have been contacted."
 		IF bene_other_state = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if client received benefits in other state(s)."
-		IF isdate(income_rcvd_date) = False or income_rcvd_date = "" then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income recieved."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
@@ -447,20 +447,18 @@ ELSEIF dail_check <> "DAIL" THEN
 		Call write_bullet_and_variable_in_case_note("MN Active Programs", MN_active_programs)
 		Call write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
 		Call write_bullet_and_variable_in_case_note("Period", IEVS_period)
-		Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
-		'formatting for multiple states
-		FOR item = 0 to Ubound(state_array, 2)
-			CALL write_variable_in_CASE_NOTE("----- Match State: " & state_array(state_name, item) & " -----")
-			Call write_bullet_and_variable_in_case_note("Match State Active Programs", state_array(progs, item))
-			Call write_bullet_and_variable_in_case_note("Match State Contact Info", state_array(contact_info, item))
+	'formatting for multiple states
+		FOR paris_match = 0 to Ubound(state_array, 2)
+			CALL write_variable_in_CASE_NOTE("----- Match State: " & state_array(state_name, paris_match) & " -----")
+			Call write_bullet_and_variable_in_case_note("Match State Active Programs", state_array(progs, paris_match))
+			Call write_bullet_and_variable_in_case_note("Match State Contact Info", state_array(contact_info, paris_match))
+			Call write_bullet_and_variable_in_case_note("Match State Active Programs", state_array(progs, paris_match))
 		NEXT
-		Call write_bullet_and_variable_in_case_note("Match State Active Programs", state_array(progs, item))
 		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 		CALL write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
 		IF OP_program_II <> "Select:" then CALL write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
 		IF OP_program_III <> "Select:" then CALL write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
 		IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
-		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 		Call write_bullet_and_variable_in_case_note("Client accessing benefits in other state", bene_other_state)
 		Call write_bullet_and_variable_in_case_note("Contacted other state", contact_other_state)
 		IF programs = "Health Care" or programs = "Medical Assistance" THEN
@@ -469,7 +467,7 @@ ELSEIF dail_check <> "DAIL" THEN
 			Call write_bullet_and_variable_in_case_note("Total federal Health Care amount", Fed_HC_AMT)
 			CALL write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
 		END IF
-		Call write_bullet_and_variable_in_case_note("Out of state verification received", vrf_rcvd_date)
+		Call write_bullet_and_variable_in_case_note("Out of state verification received", vrf_rcvd_checkbox)
 		Call write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
 		Call write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
 		Call write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
@@ -506,22 +504,19 @@ ELSEIF dail_check <> "DAIL" THEN
 	EMWriteScreen Claim_number, 4, 9
 	Transmit
 	PF4
-
-	CALL write_variable_in_CCOL_NOTE("-----" & IEVS_period & " PARIS MATCH " & "(" & first_name &  ") OVERPAYMENT CLAIM ENTERED-----")
-	start_a_blank_case_note
-		write_variable_in_CCOL_NOTE ("-----" & IEVS_period & " PARIS MATCH " & "(" & first_name &  ") OVERPAYMENT CLAIM ENTERED-----")
+		CALL write_variable_in_CCOL_NOTE ("-----" & IEVS_period & " PARIS MATCH " & "(" & first_name &  ") OVERPAYMENT CLAIM ENTERED-----")
 		CALL write_bullet_and_variable_in_CCOL_note("Client Name", Client_Name)
 		CALL write_bullet_and_variable_in_CCOL_note("MN Active Programs", MN_active_programs)
 		CALL write_bullet_and_variable_in_CCOL_note("Discovery date", discovery_date)
 		CALL write_bullet_and_variable_in_CCOL_note("Period", IEVS_period)
 		write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
 		'formatting for multiple states
-		FOR item = 0 to Ubound(state_array, 2)
-			write_variable_in_CCOL_NOTE("----- Match State: " & state_array(state_name, item) & " -----")
-			CALL write_bullet_and_variable_in_CCOL_note("Match State Active Programs", state_array(progs, item))
-			CALL write_bullet_and_variable_in_CCOL_note("Match State Contact Info", state_array(contact_info, item))
+		FOR paris_match = 0 to Ubound(state_array, 2)
+			write_variable_in_CCOL_NOTE("----- Match State: " & state_array(state_name, paris_match) & " -----")
+			CALL write_bullet_and_variable_in_CCOL_note("Match State Active Programs", state_array(progs, paris_match))
+			CALL write_bullet_and_variable_in_CCOL_note("Match State Contact Info", state_array(contact_info, paris_match))
+			CALL write_bullet_and_variable_in_CCOL_note("Match State Active Programs", state_array(progs, paris_match))
 		NEXT
-		CALL write_bullet_and_variable_in_CCOL_note("Match State Active Programs", state_array(progs, item))
 		write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
 		write_variable_in_CCOL_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
 		IF OP_program_II <> "Select:" then write_variable_in_CCOL_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)

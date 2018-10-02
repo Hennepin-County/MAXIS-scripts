@@ -53,7 +53,7 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 memb_number = "01"
-actual_date = date & ""
+'actual_date = date & ""
 
 '-----------------------------------------------------------------------------------------------------------------------DIALOG
 BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
@@ -118,7 +118,7 @@ BeginDialog addimig_dialog, 0, 0, 296, 115, "Additional Information"
   DropListBox 235, 20, 55, 12, "Select One:"+chr(9)+"YES"+chr(9)+"NO", battered_spouse_verf
   DropListBox 110, 35, 80, 15, "Select One:"+chr(9)+"Veteran"+chr(9)+"Active Duty"+chr(9)+"Spouse of 1 or 2"+chr(9)+"Child of 1 or 2"+chr(9)+"No Military Stat or Other", military_status
   DropListBox 235, 35, 55, 12, "Select One:"+chr(9)+"YES"+chr(9)+"NO", military_status_verf
-  DropListBox 110, 50, 135, 15, "Select One:"+chr(9)+"Hmong During Vietnam War"+chr(9)+"Highland Lao During Vietnam"+chr(9)+"Spouse/Widow of 1 Or 2"+chr(9)+"Dep Child of 1 Or 2"+chr(9)+"Native Amer Born Can/Mex", nation_vietnam
+  DropListBox 110, 50, 135, 15, "Select One:"+chr(9)+"Hmong During Vietnam War"+chr(9)+"Highland Lao During Vietnam"+chr(9)+"Spouse/Widow of 1 Or 2"+chr(9)+"Dep Child of 1 Or 2"+chr(9)+"Native Amer Born Can/Mex"+chr(9)+"N/A", nation_vietnam
   DropListBox 110, 65, 55, 12, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_ctzn 'mandatory for GA'
   DropListBox 235, 65, 55, 12, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_ctzn_verf
   DropListBox 110, 80, 55, 12, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_skills
@@ -155,12 +155,11 @@ Do
 			EXIT DO
 		ELSE
 			If isdate(actual_date) = FALSE then err_msg = err_msg & vbnewline & "* You must enter an actual date in the footer month that you are working in and not in the future."
-''"21 Refugee" "22 Asylee""23 Deport/Remove Withheld" "24 LPR" "25 Paroled For 1 Year Or More" "26 Conditional Entry < 4/80" "27 Non-immigrant" "28 Undocumented""50 Other Lawfully Residing""US Citizen", immig_status_dropdown
-		IF immig_status_dropdown <> "22 Asylee" and immig_status_dropdown <> "23 Deport/Remove Withheld" and immig_status_dropdown <> "28 Undocumented" Then
-			If isdate(entry_date) = FALSE then err_msg = err_msg & vbnewline & "*Entry Date is required for all persons with exception of Asylee, Deportation/Removal Withheld, or Undocumented statuses."
+			''"21 Refugee" "22 Asylee""23 Deport/Remove Withheld" "24 LPR" "25 Paroled For 1 Year Or More" "26 Conditional Entry < 4/80" "27 Non-immigrant" "28 Undocumented""50 Other Lawfully Residing""US Citizen", immig_status_dropdown
+			If isdate(entry_date) = FALSE then err_msg = err_msg & vbnewline & "* Entry Date is required for all persons." 'with exception of Asylee, Deportation/Removal Withheld, or Undocumented statuses."
 		END IF
-		IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" or immig_status_dropdown <> "28 Undocumented"  Then
-			If isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "*Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
+		IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" Then
+			If isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "* Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
 		END IF
 			IF immig_status_dropdown <> "28 Undocumented" and save_CHECKBOX= UNCHECKED and additional_CHECKBOX = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please select if a SAVE has been run as it is mandatory."
 			'IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" and isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "* Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
@@ -171,7 +170,8 @@ Do
 			'Battered Spouse/Child (Y/N): This field is mandatory for undocumented persons, non-immigrants and other lawfully residing persons.
 			IF nationality_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of Nationality or Nation."
 			IF sponsored = 1 and name_sponsor = "" then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information."
-		END IF
+			IF status_verification = "Certificate of Naturalization" and immig_status_dropdown <> "US Citizen" THEN err_msg = err_msg & vbNewLine & "* You indicated that you have received Certificate of Naturalization immigration status should be US Citizen."
+		'END IF
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -192,6 +192,13 @@ IF immig_status_dropdown <> "US Citizen" Then
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 END IF
+
+the_month = datepart("m", actual_date)
+MAXIS_footer_month = right("00" & the_month, 2)
+
+the_year = datepart("yyyy", actual_date)
+MAXIS_footer_year = right("00" & the_year, 2)
+
 
 Call navigate_to_MAXIS_screen("STAT", "IMIG")
 'Making sure we have the correct IMIG
@@ -266,7 +273,7 @@ ELSE
 		IF status_date = "" THEN Call clear_line_of_text(7, 71)
 		IF status_date = "" THEN Call clear_line_of_text(7, 74)
 		IF status_date = "" THEN Call clear_line_of_text(7, 77)
-		reminder_date = dateadd("d", 10, actual_date)' FOR APPT DATE'
+		reminder_date = dateadd("d", 10, date)' FOR APPT DATE'
 
 		LPR_status = ""
 		If LPR_status_dropdown = "21 Refugee" then LPR_status = "21"
@@ -283,7 +290,7 @@ ELSE
 		'immig_doc_type "Select One:"+chr(9)+"Certificate of Naturalization"+chr(9)+"Employment Auth Card (I-776 work permit)"+chr(9)+"I-94 Travel Document", +chr(9)+"I-220 B Order of Supervision"+chr(9)+"LPR Card (I-551 green card)"+chr(9)+"SAVE"+chr(9)+"Other"
 		nationality_status = ""
 		IF nationality_dropdown = "AA Amerasian" THEN nationality_status = "AA"
-		IF nationality_dropdown = "EH Ethnic Chinese" THEN EMWriteScreen = "EH"
+		IF nationality_dropdown = "EH Ethnic Chinese" THEN nationality_status = "EH"
 		IF nationality_dropdown = "EL Ethnic Lao" THEN nationality_status = "EL"
 		IF nationality_dropdown = "HG Hmong" THEN nationality_status = "HG"
 		IF nationality_dropdown = "KD Kurd" THEN nationality_status = "KD"
@@ -358,6 +365,7 @@ ELSE
 			IF nation_vietnam = "Spouse/Widow of 1 Or 2"THEN EmWriteScreen "03", 13, 56
 			IF nation_vietnam = "Dep Child of 1 Or 2"THEN EmWriteScreen "04", 13, 56
 			IF nation_vietnam = "Native Amer Born Can/Mex" THEN EmWriteScreen "05", 13, 56
+			IF nation_vietnam = "N/A" THEN EmWriteScreen "  ", 13, 56
 		END IF
 		IF ESL_ctzn <> "Select One:" THEN EmWriteScreen ESL_ctzn, 17, 56  'mandatory for GA'
 		IF ESL_ctzn = "Select One:" THEN Call clear_line_of_text(17, 56)
@@ -374,11 +382,12 @@ END IF
 
 start_a_blank_CASE_NOTE
 IF immig_status_dropdown = "US Citizen" THEN
-	Call write_variable_in_case_note("SAVE requested/completed for M" & memb_number & " US Citizen")
+	Call write_variable_in_case_note("SAVE completed for M" & memb_number & " US Citizen")
 ELSEIF immig_status_dropdown = "28 Undocumented" THEN
 	Call write_variable_in_case_note("Updated IMIG for M" & memb_number)
-ELSE
-	Call write_variable_in_case_note("SAVE requested/completed for M" & memb_number)
+ELSEIF additional_CHECKBOX = CHEKCED THEN
+ 		Call write_variable_in_case_note("IMIG-Instituted Additional SAVE for M" & memb_number)
+ELSE Call write_variable_in_case_note("IMIG-Initial SAVE completed for M" & memb_number)
 END IF
 Call write_bullet_and_variable_in_case_note("Immigration Status", immig_status_dropdown)
 IF LPR_status_dropdown <> "Select One:" then Call write_bullet_and_variable_in_case_note("LPR adjusted from", LPR_status_dropdown)
