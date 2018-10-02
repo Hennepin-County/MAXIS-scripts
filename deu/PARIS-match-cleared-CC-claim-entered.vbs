@@ -1,7 +1,7 @@
-name_of_script = "ACTIONS - DEU PARIS MATCH CLEARED CC.vbs"
+name_of_script = "ACTIONS-DEU PARIS MATCH CLEARED CC.vbs"
 start_time = timer
 STATS_counter = 1              'sets the stats counter at one
-STATS_manualtime = 300         'manual run time in seconds
+STATS_manualtime = 700         'manual run time in seconds
 STATS_denomination = "C"      'C is for each case
 'END OF stats block=========================================================================================================
 
@@ -27,7 +27,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "<C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs>"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -36,11 +36,10 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
-
+CALL changelog_update("09/28/2018", "Added handling for more than two states of PARIS matches on INSM.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/27/2017", "Updates made to correct error.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/11/2017", "Initial version.", "MiKayla Handley, Hennepin County")
 
@@ -49,283 +48,505 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 
-function DEU_password_check(end_script)
-'--- This function checks to ensure the user is in a MAXIS panel
-'~~~~~ end_script: If end_script = TRUE the script will end. If end_script = FALSE, the user will be given the option to cancel the script, or manually navigate to a MAXIS screen.
-'===== Keywords: MAXIS, production, script_end_procedure
-	Do
-		EMReadScreen MAXIS_check, 5, 1, 39
-		If MAXIS_check <> "MAXIS"  and MAXIS_check <> "AXIS " then
-			If end_script = True then
-				script_end_procedure("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again.")
-			Else
-				warning_box = MsgBox("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again, or press ""cancel"" to exit the script.", vbOKCancel)
-				If warning_box = vbCancel then stopscript
-			End if
-		End if
-	Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
-end function
-
-
 '---------------------------------------------------------------------THE SCRIPT
 'Connecting to MAXIS
 EMConnect ""
 
-'warning_box = MsgBox("You DO not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again, or press ""cancel"" to exit the script.", vbOKCancel)
+'warning_box = MsgBox("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again, or press ""cancel"" to exit the script.", vbOKCancel)
 'If warning_box = vbCancel THEN stopscript
 
 EMReadscreen dail_check, 4, 2, 48
-IF dail_check <> "DAIL" THEN script_end_procedure("You are not in your dail. This script will stop.")
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+memb_number = "01"
+discovery_date = date & ""
+'--------------------------------------------------If a DAIL is present'
+IF dail_check = "PARI" THEN
+	'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
+	EMSendKey "t"
+	transmit
 
-'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
-EMSendKey "t"
-transmit
+	EMReadScreen DAIL_message, 4, 6, 6 'read the DAIL msg'
+	IF DAIL_message <> "PARI" THEN script_end_procedure("This is not a Paris match. Please select a Paris match, and run the script again.")
 
-EMReadScreen DAIL_message, 4, 6, 6 'read the DAIL msg'
-IF DAIL_message <> "PARI" THEN script_end_procedure("This is not a Paris match. Please select a Paris match, and run the script again.")
+	EMReadScreen MAXIS_case_number, 8, 5, 73
+	MAXIS_case_number= TRIM(MAXIS_case_number)
+	'msgbox "did i make it"
+	'Navigating deeper into the match interface
+	CALL write_value_and_transmit("I", 6, 3)   'navigates to INFC
+	CALL write_value_and_transmit("INTM", 20, 71)   'navigates to INTM
+	EMReadScreen error_msg, 2, 24, 2
+	error_msg = TRIM(error_msg)
+	IF error_msg <> "" THEN script_end_procedure("An error occured in INFC, please process manually.")'-------option to read from REPT need to checking for error msg'
 
-EMReadScreen MAXIS_case_number, 8, 5, 73
-MAXIS_case_number= TRIM(MAXIS_case_number)
-
-'Navigating deeper into the match interface
-CALL write_value_and_transmit("I", 6, 3)   'navigates to INFC
-CALL write_value_and_transmit("INTM", 20, 71)   'navigates to INTM
-EMReadScreen error_msg, 2, 24, 2
-error_msg = TRIM(error_msg)
-IF error_msg <> "" THEN script_end_procedure("An error occured in INFC, please process manually.")'-------option to read from REPT need to checking for error msg'
-
-Row = 8
-DO
-	EMReadScreen Status, 2, row, 73 'DO loop to check status of case before we go into insm'
-	IF Status <> "UR" THEN
-		row = row + 1
-    ELSE
-		EXIT DO
-	END IF
-LOOP UNTIL trim(Status) = "" or row = 19
-
-CALL write_value_and_transmit("X", row, 3) 'navigating to insm'
-'Ensuring that the client has not already had a difference notice sent
-EMReadScreen notice_sent, 1, 8, 73
-EMReadScreen sent_date, 8, 9, 73
-If trim(sent_date) <> "" then sent_date= replace(sent_date, " ", "/")
-'--------------------------------------------------------------------Client name
-'Reading client name and splitting out the 1st name
-EMReadScreen Client_Name, 26, 5, 27
-'Formatting the client name for the spreadsheet
-client_name = trim(client_name)                         'trimming the client name
-IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This seperates the two names
-	length = len(client_name)                           'establishing the length of the variable
-	position = InStr(client_name, ",")                  'sets the position at the deliminator (in this case the comma)
-	last_name = Left(client_name, position-1)           'establishes client last name as being before the deliminator
-	first_name = Right(client_name, length-position)    'establishes client first name as after before the deliminator
-ELSEIF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
-	length = len(first_name)                        	'trimming the 1st name
-	position = InStr(first_name, " ")               	'establishing the length of the variable
-	first_name = Left(first_name, position-1)       	'trims the middle initial off of the first name
-ELSE                                'In cases where the last name takes up the entire space, THEN the client name becomes the last name
-	first_name = ""
-	last_name = client_name
-END IF
-first_name = trim(first_name)
-'----------------------------------------------------------------------Minnesota active programs
-EMReadScreen MN_Active_Programs, 15, 6, 59
-MN_active_programs = Trim(MN_active_programs)
-MN_active_programs = Trim(MN_active_programs)
-MN_active_programs = replace(MN_active_programs, " ", ", ")
-
-'Month of the PARIS match
-EMReadScreen Match_Month, 2, 6, 27
-Match_month = replace(Match_Month, " ", "/")
-EMReadScreen Match_year, 2, 6, 30
-Match_year = replace(Match_year, " ", "/")
-
-'--------------------------------------------------------------------PARIS match state & active programs-this will handle more than one state
-DIM state_array()
-ReDIM state_array(5, 0)
-add_state = 0
-
-Const row_num			= 1
-Const state_name		= 2
-Const match_case_num 	= 3
-Const contact_info		= 4
-Const progs 			= 5
-
-row = 13
-DO
-	EMReadScreen state, 2, row, 3
-	IF trim(state) = "" THEN
-		EXIT DO
-	ELSE
-		'-------------------------------------------------------------------Case number for match state (if exists)
-		EMReadScreen Match_State_Case_Number, 13, row, 9
-		Match_State_Case_Number = trim(Match_State_Case_Number)
-		IF Match_State_Case_Number = "" THEN Match_State_Case_Number = "N/A"
-		Redim Preserve state_array(5, 	add_state)
-		state_array(row_num, 			add_state) = row
-		state_array(state_name, 		add_state) = state
-		state_array(match_case_num, 	add_state) = Match_State_Case_Number
-		add_state = add_state + 1
+	Row = 8
+	DO
+		EMReadScreen IEVS_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
+		EMReadScreen IEVS_period, 5, row, 59
+		IF IEVS_match_status <> "  x" THEN
+	    	ievp_info = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+        	"   " & IEVS_period, vbYesNoCancel, "Please confirm this match")
+			IF ievp_info = vbNo THEN
+            	row = row + 1
+            	'msgbox "row: " & row
+            	IF row = 18 THEN
+                	PF8
+                	row = 7
+            	END IF
+        	END IF
+			IF IEVS_match_status = "" THEN script_end_procedure("A PARIS match could not be found. The script will now end.")
+			IF ievp_info = vbYes THEN EXIT DO
+    		IF ievp_info = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
+		Else
+			row = row + 1
 		END IF
-	row = row + 3
-	IF row = 19 THEN
-		PF8
-		EMReadScreen last_page_check, 21, 24, 2
-		last_page_check = trim(last_page_check)
-		IF last_page_check = "" THEN MsgBox "It appears there are 3 or more matches on this case, please process additional cases manually. The script will process the first two states."
+	LOOP UNTIL ievp_info = vbYes
+
+ELSEIF dail_check <> "DAIL" THEN
+		CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+		EMwritescreen memb_number, 20, 76
+		transmit
+		EMReadscreen worker_number, 7, 21, 21
+		EMReadscreen PMI_number, 9, 4, 46
+		PMI_number = trim(PMI_number)
+		EMReadscreen SSN_number, 11, 7, 42
+		SSN_number = replace(SSN_number, " ", "")
+		back_to_self
+		CALL navigate_to_MAXIS_screen("INFC" , "____")
+		CALL write_value_and_transmit("INTM", 20, 71)
+		CALL write_value_and_transmit(SSN_number, 3, 63) '
+		Row = 8
+		DO
+			EMReadScreen IEVS_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
+			EMReadScreen IEVS_period, 5, row, 59
+			IF IEVS_match_status <> "  " THEN
+			    ievp_info = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+		        "   " & IEVS_period, vbYesNoCancel, "Please confirm this match")
+				IF ievp_info = vbNo THEN
+		            row = row + 1
+		            'msgbox "row: " & row
+		            IF row = 18 THEN
+		                PF8
+		                row = 7
+		            END IF
+		        END IF
+				IF IEVS_match_status = "" THEN script_end_procedure("A PARIS match could not be found. The script will now end.")
+				IF ievp_info = vbYes THEN EXIT DO
+		    	IF ievp_info = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
+			Else
+				row = row + 1
+			END IF
+		LOOP UNTIL ievp_info = vbYes
+
+		'----------------------------------------clearing the case number
+'ELSEIF dail_check <> "DAIL" THEN 'and No PMI is found going into report intr
+'		CALL clear_line_of_text(18, 43)
+'		CALL navigate_to_MAXIS_screen("REPT" , "INTR")
+'		CALL write_value_and_transmit(worker_number, 5, 15)
+'		Row = 11
+		'EMReadScreen MAXIS_case_number_intr, 8, row, 6
+		'IF MAXIS_case_number_intr = MAXIS_case_number THEN
+			'EMReadScreen PMI_number_intr, 7, row, 23
+			'PMI_number_intr = trim(PMI_number_intr)
+			'IF PMI_number = PMI_number_intr Then
+				'ievp_info = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+				'"   " & PMI_number_intr, vbYesNoCancel, "Please confirm this match")
+				'IF ievp_info = vbNo THEN
+					'row = row + 1
+					''msgbox "row: " & row
+					'IF row = 18 THEN
+						'PF8
+						'row = 11
+						'END IF
+						'END IF
+						'IF IEVS_match_status = "" THEN script_end_procedure("A PARIS match could not be found. The script will now end.")
+						'IF ievp_info = vbYes THEN EXIT DO
+						'IF ievp_info = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
+						'END IF
+						'Else
+						'row = row + 1
+						'END IF
+						'LOOP UNTIL ievp_info = vbYes
+'		Row = 8
+'		DO
+'			EMReadScreen MAXIS_case_number_intm, 8 row, 3
+'			IF MAXIS_case_number_intr = MAXIS_case_number THEN
+'				EMReadScreen PMI_number_intr, 7, row, 23
+'				PMI_number_intr = trim(PMI_number_intr)
+'				IF PMI_number = PMI_number_intr Then
+'	    			ievp_info = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+'        			"   " & PMI_number_intr, vbYesNoCancel, "Please confirm this match")
+'					IF ievp_info = vbNo THEN
+'            			row = row + 1
+'            			'msgbox "row: " & row
+'            			IF row = 18 THEN
+'                			PF8
+'                			row = 11
+'            			END IF
+'        		END IF
+'				IF IEVS_match_status = "" THEN script_end_procedure("A PARIS match could not be found. The script will now end.")
+'				IF ievp_info = vbYes THEN EXIT DO
+'    			IF ievp_info = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
+'				END IF
+'			Else
+'				row = row + 1
+'			END IF
+'		LOOP UNTIL ievp_info = vbYes
+''-----------------------------------------------------navigating into the match'
+		'MsgBox row
+		CALL write_value_and_transmit("X", row, 3) 'navigating to insm'
+		'Ensuring that the client has not already had a difference notice sent
+		EMReadScreen notice_sent, 1, 8, 73
+		EMReadScreen sent_date, 8, 9, 73
+		sent_date = trim(sent_date)
+		If trim(sent_date) <> "" then sent_date= replace(sent_date, " ", "/")
+	'--------------------------------------------------------------------Client name
+		EMReadScreen client_Name, 26, 5, 27
+		client_name = trim(client_name)                         'trimming the client name
+		IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This seperates the two names
+			length = len(client_name)                           'establishing the length of the variable
+			position = InStr(client_name, ",")                  'sets the position at the deliminator (in this case the comma)
+			last_name = Left(client_name, position-1)           'establishes client last name as being before the deliminator
+			first_name = Right(client_name, length-position)    'establishes client first name as after before the deliminator
+		ELSEIF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
+			length = len(first_name)                        	'trimming the 1st name
+			position = InStr(first_name, " ")               	'establishing the length of the variable
+			first_name = Left(first_name, position-1)       	'trims the middle initial off of the first name
+		ELSE                                'In cases where the last name takes up the entire space, THEN the client name becomes the last name
+			first_name = ""
+			last_name = client_name
+		END IF
+		first_name = trim(first_name)
+	'----------------------------------------------------------------------Minnesota active programs
+	EMReadScreen MN_Active_Programs, 15, 6, 59
+	MN_active_programs = Trim(MN_active_programs)
+	MN_active_programs = Trim(MN_active_programs)
+	MN_active_programs = replace(MN_active_programs, " ", ", ")
+
+	'Month of the PARIS match
+	EMReadScreen Match_Month, 5, 6, 27
+	Match_month = replace(Match_Month, " ", "/")
+
+	'--------------------------------------------------------------------PARIS match state & active programs-this will handle more than one state
+	DIM state_array()
+	ReDIM state_array(5, 0)
+	add_state = 0
+
+	Const row_num			= 1
+	Const state_name		= 2
+	Const match_case_num 	= 3
+	Const contact_info		= 4
+	Const progs 			= 5
+
+	row = 13
+	DO
+	'-------------------------------------------------------Reading for each state active programs
+		EMReadScreen state, 2, row, 3
+		IF trim(state) = "" THEN
+			EXIT DO
+		ELSE
+			'-------------------------------------------------------------------Case number for match state (if exists)
+			EMReadScreen Match_State_Case_Number, 13, row, 9
+			Match_State_Case_Number = trim(Match_State_Case_Number)
+			IF Match_State_Case_Number = "" THEN Match_State_Case_Number = "N/A"
+			Redim Preserve state_array(5, 	add_state)
+			state_array(row_num, 			add_state) = row
+			state_array(state_name, 		add_state) = state
+			state_array(match_case_num, 	add_state) = Match_State_Case_Number
+		'-------------------------------------------------------------------PARIS match contact information
+			EMReadScreen phone_number, 23, row, 22
+			phone_number = TRIM(phone_number)
+			If phone_number = "Phone: (     )" then
+				phone_number = ""
+			Else
+				EMReadScreen phone_number_ext, 8, row, 51
+				phone_number_ext = trim(phone_number_ext)
+				If phone_number_ext <> "" then phone_number = phone_number & " Ext: " & phone_number_ext
+			End if
+			'-------------------------------------------------------------------reading and cleaning up the fax number if it exists
+			EMReadScreen fax_check, 8, row + 1, 37
+			fax_check = trim(fax_check)
+			If fax_check <> "" then
+				EMReadScreen fax_number, 21, row + 1, 24
+				fax_number = TRIM(fax_number)
+			End if
+			If fax_number = "Fax: (     )" then fax_number = ""
+			Match_contact_info = phone_number & " " & fax_number
+			state_array(contact_info, item) = Match_contact_info
+
+			'-------------------------------------------------------------------trims excess spaces of Match_Active_Programs
+	   		Match_Active_Programs = "" 'sometimes blanking over information will clear the value of the variable'
+			DO
+				EMReadScreen Match_Prog, 22, row, 60
+	   			Match_Prog = TRIM(Match_Prog)
+				IF Match_Active_Programs = "" THEN EXIT DO
+				IF Match_Prog = "FOOD SUPPORT" THEN  Match_Prog = "FS"
+				IF Match_Prog = "HEALTH CARE" THEN Match_Prog = "HC"
+	    		IF Match_Prog <> "" THEN Match_Active_Programs = Match_Active_Programs & Match_Prog & ", "
+				row = row + 1
+			LOOP
+			Match_Active_Programs = trim(Match_Active_Programs)
+			'takes the last comma off of Match_Active_Programs when autofilled into dialog if more more than one app date is found and additional app is selected
+			IF right(Match_Active_Programs, 1) = "," THEN Match_Active_Programs = left(Match_Active_Programs, len(Match_Active_Programs) - 1)
+			state_array(progs, item) = Match_Active_Programs
+			row = state_array(row_num, item)		're-establish the value of row to read phone and fax info
+			Match_contact_info = ""
+			phone_number = ""
+			fax_number = ""
+			'-----------------------------------------------add_state allows for the next state to gather all the information for array'
+			add_state = add_state + 1
+			'MsgBox add_state
+			row = row + 3
+			IF row = 19 THEN
+				EMReadScreen last_page_check, 21, 24, 2
+				last_page_check = trim(last_page_check)
+				IF last_page_check = ""  THEN
+					PF8
+					row = 13
+				END IF
+			END IF
+		END IF
+	LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
+
+	'--------------------------------------------------------------------Dialog
+	BeginDialog OP_Cleared_dialog, 0, 0, 361, 260, "PARIS Match Claim Entered"
+	  EditBox 55, 5, 45, 15, MAXIS_case_number
+	  EditBox 145, 5, 20, 15, memb_number
+	  EditBox 305, 5, 45, 15, IEVS_period
+	  DropListBox 55, 25, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
+	  EditBox 170, 25, 20, 15, OT_resp_memb
+	  EditBox 305, 25, 45, 15, discovery_date
+	  DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS"+chr(9)+"SSI", OP_program
+	  EditBox 130, 65, 30, 15, OP_from
+	  EditBox 180, 65, 30, 15, OP_to
+	  EditBox 245, 65, 35, 15, Claim_number
+	  EditBox 305, 65, 45, 15, Claim_amount
+	  DropListBox 50, 85, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS"+chr(9)+"SSI", OP_program_II
+	  EditBox 130, 85, 30, 15, OP_from_II
+	  EditBox 180, 85, 30, 15, OP_to_II
+	  EditBox 245, 85, 35, 15, Claim_number_II
+	  EditBox 305, 85, 45, 15, Claim_amount_II
+	  DropListBox 50, 105, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS"+chr(9)+"SSI", OP_program_III
+	  EditBox 130, 105, 30, 15, OP_from_III
+	  EditBox 180, 105, 30, 15, OP_to_III
+	  EditBox 245, 105, 35, 15, Claim_number_III
+	  EditBox 305, 105, 45, 15, Claim_amount_III
+	  DropListBox 85, 135, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", contact_other_state
+	  DropListBox 305, 135, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", bene_other_state
+	  EditBox 75, 155, 170, 15, collectible_reason
+	  DropListBox 305, 155, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
+	  EditBox 75, 175, 45, 15, HC_resp_memb
+	  EditBox 210, 175, 45, 15, Fed_HC_AMT
+	  EditBox 305, 175, 45, 15, hc_claim_number
+	  EditBox 60, 195, 290, 15, Reason_OP
+	  EditBox 60, 215, 290, 15, other_notes
+	  CheckBox 60, 240, 120, 10, "Earned Income disregard allowed", EI_checkbox
+	  ButtonGroup ButtonPressed
+	    OkButton 255, 240, 45, 15
+	    CancelButton 305, 240, 45, 15
+	  Text 5, 10, 50, 10, "Case Number: "
+	  Text 110, 10, 30, 10, "MEMB #:"
+	  Text 255, 10, 45, 10, "Match Period:"
+	  Text 5, 30, 50, 10, "Fraud Referral:"
+	  Text 110, 30, 55, 10, "OT Resp. Memb:"
+	  Text 245, 30, 55, 10, "Discovery Date: "
+	  GroupBox 5, 45, 350, 85, "Overpayment Information"
+	  Text 15, 70, 30, 10, "Program:"
+	  Text 105, 70, 20, 10, "From:"
+	  Text 165, 70, 10, 10, "To:"
+	  Text 215, 70, 25, 10, "Claim #"
+	  Text 285, 70, 20, 10, "AMT:"
+	  Text 285, 90, 20, 10, "AMT:"
+	  Text 15, 110, 30, 10, "Program:"
+	  Text 105, 110, 20, 10, "From:"
+	  Text 165, 110, 10, 10, "To:"
+	  Text 215, 110, 25, 10, "Claim #"
+	  Text 285, 110, 20, 10, "AMT:"
+	  Text 5, 160, 65, 10, "Collectible Reason:"
+	  Text 260, 160, 40, 10, "Collectible?"
+	  Text 185, 140, 115, 10, "Accessing benefits in other state?:"
+	  Text 5, 180, 65, 10, "HC resp. members:"
+	  Text 5, 140, 75, 10, "Contacted other state?: "
+	  Text 140, 180, 65, 10, "Total FED HC AMT:"
+	  Text 5, 200, 50, 10, "Reason for OP:"
+	  Text 265, 180, 40, 10, "HC Claim #:"
+	  Text 105, 90, 20, 10, "From:"
+	  Text 165, 90, 10, 10, "To:"
+	  Text 215, 90, 25, 10, "Claim #"
+	  Text 15, 90, 30, 10, "Program:"
+	  Text 5, 220, 45, 10, "Other Notes:"
+	EndDialog
+
+	Do
+		err_msg = ""
+		dialog OP_Cleared_dialog
+		cancel_confirmation
+		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
+		IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
+		IF trim(Reason_OP) = "" or len(Reason_OP) < 8 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 8)."
+		IF OP_program = "Select:"THEN err_msg = err_msg & vbNewLine &  "* Please enter the program for the overpayment."
+		IF OP_program_II <> "Select:" THEN
+			IF OP_from_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred."
+			IF Claim_number_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
+			IF Claim_amount_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
+		END IF
+		IF OP_program_III <> "Select:" THEN
+			IF OP_from_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred."
+			IF Claim_number_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
+			IF Claim_amount_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
+		END IF
+		IF IEVS_type = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match type entry."
+		IF EI_allowed_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if Earned Income disregard was allowed."
+	  	IF collectible_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if claim is collectible."
+		IF collectible_dropdown = "YES" and collectible_reason = "" THEN err_msg = err_msg & vbnewline & "* Please advise why claim is collectible."
+		IF contact_other_state = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if other state(s) have been contacted."
+		IF bene_other_state = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if client received benefits in other state(s)."
+		IF isdate(income_rcvd_date) = False or income_rcvd_date = "" then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income recieved."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""
+	CALL check_for_password_without_transmit(are_we_passworded_out)
+
+	'Going to the MISC panel to add claim referral tracking information
+	Call navigate_to_MAXIS_screen ("STAT", "MISC")
+	Row = 6
+	EmReadScreen panel_number, 1, 02, 78
+	If panel_number = "0" then
+		EMWriteScreen "NN", 20,79
+		TRANSMIT
+	ELSE
+		Do
+			'Checking to see if the MISC panel is empty, if not it will find a new line'
+			EmReadScreen MISC_description, 25, row, 30
+			MISC_description = replace(MISC_description, "_", "")
+			If trim(MISC_description) = "" then
+				PF9
+				EXIT DO
+			Else
+				row = row + 1
+			End if
+		Loop Until row = 17
+		If row = 17 then script_end_procedure("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+	End if
+	'writing in the action taken and date to the MISC panel
+	EMWriteScreen Action_Taken, Row, 30
+	EMWriteScreen date, Row, 66
+	PF3
+	'-----------------------------------------------------------------------------------------CASENOTE
+	start_a_blank_CASE_NOTE
+		Call write_variable_in_case_note("-----Claim Referral Tracking - Claim Determination-----")
+		Call write_bullet_and_variable_in_case_note("Program(s)", MN_active_programs)
+		Call write_bullet_and_variable_in_case_note("Action Date", date)
+		Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
+		Call write_variable_in_case_note("* Overpayment exists, collection process to follow.")
+		Call write_variable_in_case_note("---")
+		Call write_variable_in_case_note(worker_signature)
+	PF3
+
+	start_a_blank_case_note
+		CALL write_variable_in_CASE_NOTE ("-----" & IEVS_period & " PARIS MATCH " & "(" & first_name &  ") OVERPAYMENT CLAIM ENTERED-----")
+		Call write_bullet_and_variable_in_case_note("Client Name", Client_Name)
+		Call write_bullet_and_variable_in_case_note("MN Active Programs", MN_active_programs)
+		Call write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
+		Call write_bullet_and_variable_in_case_note("Period", IEVS_period)
+		Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+		'formatting for multiple states
+		FOR item = 0 to Ubound(state_array, 2)
+			CALL write_variable_in_CASE_NOTE("----- Match State: " & state_array(state_name, item) & " -----")
+			Call write_bullet_and_variable_in_case_note("Match State Active Programs", state_array(progs, item))
+			Call write_bullet_and_variable_in_case_note("Match State Contact Info", state_array(contact_info, item))
+		NEXT
+		Call write_bullet_and_variable_in_case_note("Match State Active Programs", state_array(progs, item))
+		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+		CALL write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+		IF OP_program_II <> "Select:" then CALL write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+		IF OP_program_III <> "Select:" then CALL write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+		IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
+		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+		Call write_bullet_and_variable_in_case_note("Client accessing benefits in other state", bene_other_state)
+		Call write_bullet_and_variable_in_case_note("Contacted other state", contact_other_state)
+		IF programs = "Health Care" or programs = "Medical Assistance" THEN
+			Call write_bullet_and_variable_in_case_note("HC responsible members", HC_resp_memb)
+			Call write_bullet_and_variable_in_case_note("HC claim number", hc_claim_number)
+			Call write_bullet_and_variable_in_case_note("Total federal Health Care amount", Fed_HC_AMT)
+			CALL write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+		END IF
+		Call write_bullet_and_variable_in_case_note("Out of state verification received", vrf_rcvd_date)
+		Call write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
+		Call write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
+		Call write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
+		Call write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
+		Call write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
+		IF other_notes <> "" THEN Call write_bullet_and_variable_in_case_note("Other notes", other_notes)
+		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+		CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+	PF3
+	IF programs = "Health Care" or programs = "Medical Assistance" THEN
+		EMWriteScreen "x", 5, 3
+		Transmit
+		note_row = 4			'Beginning of the case notes
+		Do 						'Read each line
+			EMReadScreen note_line, 76, note_row, 3
+			note_line = trim(note_line)
+			If trim(note_line) = "" Then Exit Do		'Any blank line indicates the end of the case note because there can be no blank lines in a note
+			message_array = message_array & note_line & vbcr		'putting the lines together
+			note_row = note_row + 1
+			If note_row = 18 then 									'End of a single page of the case note
+				EMReadScreen next_page, 7, note_row, 3
+				If next_page = "More: +" Then 						'This indicates there is another page of the case note
+					PF8												'goes to the next line and resets the row to read'\
+					note_row = 4
+				End If
+			End If
+		Loop until next_page = "More:  " OR next_page = "       "	'No more pages
+		'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+		CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & " Programs: " & programs, "CASE NOTE" & vbcr & message_array,"", False)
 	END IF
-LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
+	'---------------------------------------------------------------writing the CCOL case note'
+	msgbox "Navigating to CCOL"
+	Call navigate_to_MAXIS_screen("CCOL", "CLSM")
+	EMWriteScreen Claim_number, 4, 9
+	Transmit
+	PF4
 
-For item = 0 to Ubound(state_array, 2)
-	row = state_array(row_num, item)
-    Match_Active_Programs = "" 'sometimes blanking over information will clear the value of the variable'
-    DO
-    	EMReadScreen Match_Prog, 22, row, 60
-    	Match_Prog = TRIM(Match_Prog)
-		IF Match_Prog = "FOOD SUPPORT" THEN  Match_Prog = "FS"
-		IF Match_Prog = "HEALTH CARE" THEN Match_Prog = "HC"
-    	IF Match_Prog <> "" THEN Match_Active_Programs = Match_Active_Programs & Match_Prog & ", "
-		row = row + 1
-    LOOP UNTIL Match_Prog = "" or row = 19
-
-	'-------------------------------------------------------------------trims excess spaces of Match_Active_Programs
-	Match_Active_Programs = trim(Match_Active_Programs)
-	'takes the last comma off of Match_Active_Programs when autofilled into dialog if more more than one app date is found and additional app is selected
-	IF right(Match_Active_Programs, 1) = "," THEN Match_Active_Programs = left(Match_Active_Programs, len(Match_Active_Programs) - 1)
-	state_array(progs, item) = Match_Active_Programs
-
-	row = state_array(row_num, item)		're-establish the value of row to read phone and fax info
-	Match_contact_info = ""
-	phone_number = ""
-	fax_number = ""
-
-	'-------------------------------------------------------------------PARIS match contact information
-	EMReadScreen Phone_Number, 23, row, 22
-	Phone_Number = TRIM(Phone_Number)
-	If Phone_Number = "Phone: (     )" then
-		Phone_Number = ""
-	Else
-		EMReadScreen Phone_Number_ext, 8, row, 51
-		Phone_Number_ext = trim(Phone_Number_ext)
-		If Phone_Number_ext <> "" then Phone_Number = Phone_Number & " Ext: " & Phone_Number_ext
-	End if
-	'-------------------------------------------------------------------reading and cleaning up the fax number if it exists
-	EMReadScreen fax_check, 8, row + 1, 37
-	fax_check = trim(fax_check)
-	If fax_check <> "" then
-		EMReadScreen fax_number, 21, row + 1, 24
-		fax_number = TRIM(fax_number)
-	End if
-
-	If fax_number = "Fax: (     )" then fax_number = ""
-	Match_contact_info = phone_number & " " & fax_number
-	state_array(contact_info, item) = Match_contact_info
-NEXT
-'---------------------------------------------------------------------dialog'
-BeginDialog PARIS_match_claim_dialog, 0, 0, 281, 225, "PARIS Match Claim Entered"
-  EditBox 65, 5, 60, 15, MAXIS_case_number
-  DropListBox 210, 5, 55, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"YEAR", match_month
-  EditBox 35, 35, 35, 15, OP_1
-  EditBox 90, 35, 35, 15, OP_to_1
-  EditBox 160, 35, 35, 15, Claim_1
-  EditBox 220, 35, 45, 15, AMT_1
-  EditBox 35, 55, 35, 15, OP_2
-  EditBox 90, 55, 35, 15, OP_to_2
-  EditBox 160, 55, 35, 15, Claim_2
-  EditBox 220, 55, 45, 15, Amt_2
-  EditBox 35, 75, 35, 15, OP_3
-  EditBox 90, 75, 35, 15, OP_to_3
-  EditBox 160, 75, 35, 15, Claim_3
-  EditBox 220, 75, 45, 15, AMT_3
-  EditBox 35, 95, 35, 15, OP_4
-  EditBox 90, 95, 35, 15, OP_to_4
-  EditBox 160, 95, 35, 15, Claim_4
-  EditBox 220, 95, 45, 15, AMT_4
-  DropListBox 75, 120, 65, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
-  DropListBox 75, 140, 65, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", collectible_status
-  EditBox 75, 160, 70, 15, EVF_date
-  EditBox 60, 180, 85, 15, Reason_OP
-  CheckBox 150, 125, 120, 10, "Earned Income disregard allowed", EI_checkbox
-  EditBox 220, 140, 45, 15, OT_resp_memb
-  EditBox 220, 160, 45, 15, Fed_HC_AMT
-  EditBox 220, 180, 45, 15, HC_resp_memb
-  ButtonGroup ButtonPressed
-    OkButton 180, 205, 45, 15
-    CancelButton 230, 205, 45, 15
-  Text 10, 10, 50, 10, "Case Number: "
-  Text 160, 10, 45, 10, "Match Month:"
-  GroupBox 5, 25, 270, 90, "Overpayment Information"
-  Text 10, 40, 25, 10, "From:"
-  Text 75, 40, 10, 10, "To:"
-  Text 130, 40, 25, 10, "Claim #"
-  Text 200, 40, 20, 10, "AMT:"
-  Text 10, 60, 20, 10, "From:"
-  Text 75, 60, 10, 10, "To:"
-  Text 130, 60, 25, 10, "Claim #"
-  Text 200, 60, 20, 10, "AMT:"
-  Text 10, 80, 20, 10, "From:"
-  Text 75, 80, 10, 10, "To:"
-  Text 130, 80, 25, 10, "Claim #"
-  Text 200, 80, 20, 10, "AMT:"
-  Text 10, 100, 20, 10, "From:"
-  Text 75, 100, 10, 10, "To:"
-  Text 130, 100, 25, 10, "Claim #"
-  Text 200, 100, 20, 10, "AMT:"
-  Text 5, 125, 55, 10, "Fraud referral:"
-  Text 5, 145, 60, 10, "Claim Collectible? "
-  Text 5, 165, 65, 10, "Verification Used:"
-  Text 5, 185, 50, 10, "Reason for OP: "
-  Text 155, 145, 65, 10, "HC resp. members:"
-  Text 155, 165, 65, 10, "Total FED HC AMT:"
-  Text 155, 185, 60, 10, "Other resp. memb:"
-EndDialog
-
-
-DO
-	err_msg = ""
-	Dialog PARIS_match_claim_dialog
-	IF ButtonPressed = 0 THEN StopScript
-	IF fraud_referral = "Select One:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
-	IF collectible_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is this overpayment collectible?"
-	IF OP_1 = "" THEN err_msg = err_msg & vbnewline & "* You must have an overpayment entry."
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-LOOP UNTIL err_msg = ""
-
-CALL DEU_password_check(False)
-
-
-'----------------------------------------------------------------the case match note
-start_a_blank_CASE_NOTE
-CALL write_variable_in_CASE_NOTE ("-----" & Match_month &"/" & Match_year & " PARIS MATCH " & "(" & first_name &  ") OVERPAYMENT CLAIM ENTERED-----")
-CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
-CALL write_bullet_and_variable_in_CASE_NOTE("MN Active Programs", MN_active_programs)
-'formatting for multiple states
-FOR item = 0 to Ubound(state_array, 2)
-	CALL write_variable_in_CASE_NOTE("----- Match State: " & state_array(state_name, item) & " -----")
-	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Active Programs", state_array(progs, item))
-	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Contact Info", state_array(contact_info, item))
-NEXT
-Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
-Call write_variable_in_CASE_NOTE(other_programs & programs & " Overpayment " & OP_1 & " through " & OP_to_1 & " Claim # " & Claim_1 & " Amt $" & AMT_1)
-IF OP_2 <> "" then Call write_variable_in_case_note(other_programs & " Overpayment " & OP_2 & " through  " & OP_to_2 & " Claim # " & Claim_2 & "  Amt $" & AMT_2)
-IF OP_3 <> "" then Call write_variable_in_case_note(other_programs & " Overpayment " & OP_3 & " through  " & OP_to_3 & " Claim # " & Claim_3 & "  Amt $" & AMT_3)
-IF OP_4 <> "" then Call write_variable_in_case_note(other_programs & " Overpayment " & OP_4 & " through  " & OP_to_4 & " Claim # " & Claim_4 & "  Amt $" & AMT_4)
-IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
-IF instr(Active_Programs, "HC") then
-	Call write_bullet_and_variable_in_CASE_NOTE("HC responsible members", HC_resp_memb)
-	Call write_bullet_and_variable_in_CASE_NOTE("Total federal Health Care amount", Fed_HC_AMT)
-	Call write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+	CALL write_variable_in_CCOL_NOTE("-----" & IEVS_period & " PARIS MATCH " & "(" & first_name &  ") OVERPAYMENT CLAIM ENTERED-----")
+	start_a_blank_case_note
+		write_variable_in_CCOL_NOTE ("-----" & IEVS_period & " PARIS MATCH " & "(" & first_name &  ") OVERPAYMENT CLAIM ENTERED-----")
+		CALL write_bullet_and_variable_in_CCOL_note("Client Name", Client_Name)
+		CALL write_bullet_and_variable_in_CCOL_note("MN Active Programs", MN_active_programs)
+		CALL write_bullet_and_variable_in_CCOL_note("Discovery date", discovery_date)
+		CALL write_bullet_and_variable_in_CCOL_note("Period", IEVS_period)
+		write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
+		'formatting for multiple states
+		FOR item = 0 to Ubound(state_array, 2)
+			write_variable_in_CCOL_NOTE("----- Match State: " & state_array(state_name, item) & " -----")
+			CALL write_bullet_and_variable_in_CCOL_note("Match State Active Programs", state_array(progs, item))
+			CALL write_bullet_and_variable_in_CCOL_note("Match State Contact Info", state_array(contact_info, item))
+		NEXT
+		CALL write_bullet_and_variable_in_CCOL_note("Match State Active Programs", state_array(progs, item))
+		write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
+		write_variable_in_CCOL_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+		IF OP_program_II <> "Select:" then write_variable_in_CCOL_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+		IF OP_program_III <> "Select:" then write_variable_in_CCOL_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+		IF EI_checkbox = CHECKED THEN write_variable_in_CCOL_NOTE("* Earned Income Disregard Allowed")
+		write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
+		CALL write_bullet_and_variable_in_CCOL_note("Client accessing benefits in other state", bene_other_state)
+		CALL write_bullet_and_variable_in_CCOL_note("Contacted other state", contact_other_state)
+		IF programs = "Health Care" or programs = "Medical Assistance" THEN
+			CALL write_bullet_and_variable_in_CCOL_note("HC responsible members", HC_resp_memb)
+			CALL write_bullet_and_variable_in_CCOL_note("HC claim number", hc_claim_number)
+			CALL write_bullet_and_variable_in_CCOL_note("Total federal Health Care amount", Fed_HC_AMT)
+			write_variable_in_CCOL_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+		END IF
+		CALL write_bullet_and_variable_in_CCOL_note("Out of state verification received", vrf_rcvd_date)
+		CALL write_bullet_and_variable_in_CCOL_note("Other responsible member(s)", OT_resp_memb)
+		CALL write_bullet_and_variable_in_CCOL_note("Fraud referral made", fraud_referral)
+		CALL write_bullet_and_variable_in_CCOL_note("Collectible claim", collectible_dropdown)
+		CALL write_bullet_and_variable_in_CCOL_note("Reason that claim is collectible or not", collectible_reason)
+		CALL write_bullet_and_variable_in_CCOL_note("Reason for overpayment", Reason_OP)
+		IF other_notes <> "" THEN CALL write_bullet_and_variable_in_CCOL_note("Other notes", other_notes)
+		write_variable_in_CCOL_NOTE("----- ----- ----- ----- ----- ----- -----")
+		write_variable_in_CCOL_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+	PF3 'exit the case note'
+	PF3 'back to dail'
 END IF
-CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
-CALL write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
-CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
-CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
-CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
-CALL write_bullet_and_variable_in_CASE_NOTE("Client accessing benefits in other state", bene_other_state)
-CALL write_bullet_and_variable_in_CASE_NOTE("Contacted other state", Contact_other_state)
-IF fraud_referral = "YES" THEN CALL write_variable_in_CASE_NOTE("Fraud Referral Made")
-CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
-CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 
-script_end_procedure("")
+script_end_procedure("Success PARIS match updated and CCOL case note entered.")
