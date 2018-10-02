@@ -1021,3 +1021,5 @@ If mfip_to_snap_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("*
 
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
+
+script_end_procedure("WCOMs added to Notice and case note created.")
