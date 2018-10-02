@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/2/2018", "Fixed bug with creating MEDI panel. Added functionality to add waiver or 1619 status to DISA.", "Casey Love, Hennepin County")
 call changelog_update("03/28/2018", "Added handling to send the HRF, and updated REI handling for MFIP cases.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/06/2018", "Updated WF1M handling for MFIP cases that require a referral.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -998,6 +999,7 @@ For each MAXIS_case_number in case_number_array
 		DISA_snap_status_ver = left(ObjExcel.Cells(DISA_starting_excel_row + 11, current_excel_col).Value, 1)
 		DISA_hc_status = left(ObjExcel.Cells(DISA_starting_excel_row + 12, current_excel_col).Value, 2)
 		DISA_hc_status_ver = left(ObjExcel.Cells(DISA_starting_excel_row + 13, current_excel_col).Value, 1)
+        'This is variable because we have added a row to the template but some scenarios will not have this row added yet.
         for add_row = 14 to 16
             If trim(ObjExcel.Cells(DISA_starting_excel_row + add_row, 2).Value) = "home/community based waiver" Then
                 DISA_waiver = left(ObjExcel.Cells(DISA_starting_excel_row + add_row, current_excel_col).Value, 1)
