@@ -225,7 +225,7 @@ DO
             PF8                                         'moves to next page of matches or forces 
 			EMReadScreen last_page_check, 21, 24, 2
 			last_page_check = trim(last_page_check)
-			IF last_page_check = "" THEN row = 13
+			IF last_page_check = "" THEN row = 13       'next page was found. looping to gather the rest of the cases on the additional page. 
 		END IF
 	END IF
 LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
