@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/2/2018", "Fixed bug with creating MEDI panel. Added functionality to add waiver or 1619 status to DISA.", "Casey Love, Hennepin County")
 call changelog_update("03/28/2018", "Added handling to send the HRF, and updated REI handling for MFIP cases.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/06/2018", "Updated WF1M handling for MFIP cases that require a referral.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -998,30 +999,44 @@ For each MAXIS_case_number in case_number_array
 		DISA_snap_status_ver = left(ObjExcel.Cells(DISA_starting_excel_row + 11, current_excel_col).Value, 1)
 		DISA_hc_status = left(ObjExcel.Cells(DISA_starting_excel_row + 12, current_excel_col).Value, 2)
 		DISA_hc_status_ver = left(ObjExcel.Cells(DISA_starting_excel_row + 13, current_excel_col).Value, 1)
-		DISA_waiver = left(ObjExcel.Cells(DISA_starting_excel_row + 14, current_excel_col).Value, 1)
-        'DISA_1619 = left(ObjExcel.Cells(DISA_starting_excel_row + 15, current_excel_col).Value, 1)
-		DISA_drug_alcohol = ObjExcel.Cells(DISA_starting_excel_row + 15, current_excel_col).Value
+        'This is variable because we have added a row to the template but some scenarios will not have this row added yet.
+        for add_row = 14 to 16
+            If trim(ObjExcel.Cells(DISA_starting_excel_row + add_row, 2).Value) = "home/community based waiver" Then
+                DISA_waiver = left(ObjExcel.Cells(DISA_starting_excel_row + add_row, current_excel_col).Value, 1)
+            ElseIf trim(ObjExcel.Cells(DISA_starting_excel_row + add_row, 2).Value) = "1619 status" Then
+                DISA_1619 = left(ObjExcel.Cells(DISA_starting_excel_row + add_row, current_excel_col).Value, 1)
+            ElseIf trim(ObjExcel.Cells(DISA_starting_excel_row + add_row, 2).Value) = "drug/alcoholism ver code" Then
+                DISA_drug_alcohol = left(ObjExcel.Cells(DISA_starting_excel_row + add_row, current_excel_col).Value, 1)
+            End If
 
-		DSTT_starting_excel_row = 277
+            If trim(ObjExcel.Cells(DISA_starting_excel_row + add_row, 2).Value) = "drug/alcoholism ver code" Then
+                starting_row = DISA_starting_excel_row + add_row + 1
+            End If
+        next
+
+		DSTT_starting_excel_row = starting_row        '277
 		DSTT_ongoing_income = ObjExcel.Cells(DSTT_starting_excel_row, current_excel_col).Value
 		DSTT_HH_income_stop_date = ObjExcel.Cells(DSTT_starting_excel_row + 1, current_excel_col).Value
 		DSTT_income_expected_amt = ObjExcel.Cells(DSTT_starting_excel_row + 2, current_excel_col).Value
+        starting_row = starting_row + 3
 
-		EATS_starting_excel_row = 280
+		EATS_starting_excel_row = starting_row        '280
 		EATS_together = ObjExcel.Cells(EATS_starting_excel_row, current_excel_col).Value
 		EATS_boarder = ObjExcel.Cells(EATS_starting_excel_row + 1, current_excel_col).Value
 		EATS_group_one = ObjExcel.Cells(EATS_starting_excel_row + 2, current_excel_col).Value
 		EATS_group_two = ObjExcel.Cells(EATS_starting_excel_row + 3, current_excel_col).Value
 		EATS_group_three = ObjExcel.Cells(EATS_starting_excel_row + 4, current_excel_col).Value
+        starting_row = starting_row + 5
 
-		EMMA_starting_excel_row = 285
+		EMMA_starting_excel_row = starting_row        '285
 		EMMA_medical_emergency = left(ObjExcel.Cells(EMMA_starting_excel_row, current_excel_col).Value, 2)
 		EMMA_health_consequence = left(ObjExcel.Cells(EMMA_starting_excel_row + 1, current_excel_col).Value, 2)
 		EMMA_verification = left(ObjExcel.Cells(EMMA_starting_excel_row + 2, current_excel_col).Value, 2)
 		EMMA_begin_date = ObjExcel.Cells(EMMA_starting_excel_row + 3, current_excel_col).Value
 		EMMA_end_date = ObjExcel.Cells(EMMA_starting_excel_row + 4, current_excel_col).Value
+        starting_row = starting_row + 5
 
-		EMPS_starting_excel_row = 290
+		EMPS_starting_excel_row = starting_row        '290
 		EMPS_orientation_date = ObjExcel.Cells(EMPS_starting_excel_row, current_excel_col).Value
 		EMPS_orientation_attended = ObjExcel.Cells(EMPS_starting_excel_row + 1, current_excel_col).Value
 		EMPS_good_cause = left(ObjExcel.Cells(EMPS_starting_excel_row + 2, current_excel_col).Value, 2)
@@ -1033,8 +1048,9 @@ For each MAXIS_case_number in case_number_array
 		EMPS_hard_employ = left(ObjExcel.Cells(EMPS_starting_excel_row + 8, current_excel_col).Value, 2)
 		EMPS_under1 = ObjExcel.Cells(EMPS_starting_excel_row + 9, current_excel_col).Value
 		EMPS_DWP_date = ObjExcel.Cells(EMPS_starting_excel_row + 10, current_excel_col).Value
+        starting_row = starting_row + 11
 
-		FACI_starting_excel_row = 301
+		FACI_starting_excel_row = starting_row        '301
 		FACI_vendor_number = ObjExcel.Cells(FACI_starting_excel_row, current_excel_col).Value
 		FACI_name = ObjExcel.Cells(FACI_starting_excel_row + 1, current_excel_col).Value
 		FACI_type = left(ObjExcel.Cells(FACI_starting_excel_row + 2, current_excel_col).Value, 2)
@@ -1042,8 +1058,9 @@ For each MAXIS_case_number in case_number_array
 		FACI_FS_facility_type = left(ObjExcel.Cells(FACI_starting_excel_row + 4, current_excel_col).Value, 1)
 		FACI_date_in = ObjExcel.Cells(FACI_starting_excel_row + 5, current_excel_col).Value
 		FACI_date_out = ObjExcel.Cells(FACI_starting_excel_row + 6, current_excel_col).Value
+        starting_row = starting_row + 7
 
-		FMED_starting_excel_row = 308
+		FMED_starting_excel_row = starting_row        '308
 		FMED_medical_mileage = objExcel.Cells(FMED_starting_excel_row, current_excel_col).Value
 		FMED_1_type = left(objExcel.Cells(FMED_starting_excel_row + 1, current_excel_col).Value, 2)
 		FMED_1_verif = left(objExcel.Cells(FMED_starting_excel_row + 2, current_excel_col).Value, 2)
@@ -1073,8 +1090,9 @@ For each MAXIS_case_number in case_number_array
 		FMED_4_begin = objExcel.Cells(FMED_starting_excel_row + 26, current_excel_col).Value
 		FMED_4_end = objExcel.Cells(FMED_starting_excel_row + 27, current_excel_col).Value
 		FMED_4_amount = objExcel.Cells(FMED_starting_excel_row + 28, current_excel_col).Value
+        starting_row = starting_row + 29
 
-		HEST_starting_excel_row = 337
+		HEST_starting_excel_row = starting_row        '337
 		HEST_FS_choice_date = ObjExcel.Cells(HEST_starting_excel_row, current_excel_col).Value
 		HEST_first_month = ObjExcel.Cells(HEST_starting_excel_row + 1, current_excel_col).Value
 		HEST_heat_air_retro = ObjExcel.Cells(HEST_starting_excel_row + 2, current_excel_col).Value
@@ -1083,8 +1101,9 @@ For each MAXIS_case_number in case_number_array
 		HEST_electric_pro = ObjExcel.Cells(HEST_starting_excel_row + 5, current_excel_col).Value
 		HEST_phone_retro = ObjExcel.Cells(HEST_starting_excel_row + 6, current_excel_col).Value
 		HEST_phone_pro = ObjExcel.Cells(HEST_starting_excel_row + 7, current_excel_col).Value
+        starting_row = starting_row + 8
 
-		IMIG_starting_excel_row = 345
+		IMIG_starting_excel_row = starting_row        '345
 		IMIG_imigration_status = left(ObjExcel.Cells(IMIG_starting_excel_row, current_excel_col).Value, 2)
 		IMIG_entry_date = ObjExcel.Cells(IMIG_starting_excel_row + 1, current_excel_col).Value
 		IMIG_status_date = ObjExcel.Cells(IMIG_starting_excel_row + 2, current_excel_col).Value
@@ -1101,8 +1120,9 @@ For each MAXIS_case_number in case_number_array
 		IMIG_st_prog_esl_ctzn_coop = ObjExcel.Cells(IMIG_starting_excel_row + 13, current_excel_col).Value
 		IMIG_st_prog_esl_ctzn_coop_verif = ObjExcel.Cells(IMIG_starting_excel_row + 14, current_excel_col).Value
 		IMIG_fss_esl_skills_training = ObjExcel.Cells(IMIG_starting_excel_row + 15, current_excel_col).Value
+        starting_row = starting_row + 16
 
-		INSA_starting_excel_row = 361
+		INSA_starting_excel_row = starting_row        '361
 		INSA_pers_coop_ohi = ObjExcel.Cells(INSA_starting_excel_row, current_excel_col).Value
 		INSA_good_cause_status = left(ObjExcel.Cells(INSA_starting_excel_row + 1, current_excel_col).Value, 1)
 		INSA_good_cause_cliam_date = ObjExcel.Cells(INSA_starting_excel_row + 2, current_excel_col).Value
@@ -1112,8 +1132,9 @@ For each MAXIS_case_number in case_number_array
 		INSA_prescrip_drug_cover = ObjExcel.Cells(INSA_starting_excel_row + 6, current_excel_col).Value
 		INSA_prescrip_end_date = ObjExcel.Cells(INSA_starting_excel_row + 7, current_excel_col).Value
 		INSA_persons_covered = ObjExcel.Cells(INSA_starting_excel_row + 8, current_excel_col).Value
+        starting_row = starting_row + 9
 
-		JOBS_1_starting_excel_row = 370
+		JOBS_1_starting_excel_row = starting_row      '370
 		JOBS_1_inc_type = left(ObjExcel.Cells(JOBS_1_starting_excel_row, current_excel_col).Value, 1)
 		JOBS_1_inc_verif = left(ObjExcel.Cells(JOBS_1_starting_excel_row + 1, current_excel_col).Value, 1)
 		JOBS_1_employer_name = ObjExcel.Cells(JOBS_1_starting_excel_row + 2, current_excel_col).Value
@@ -1121,8 +1142,9 @@ For each MAXIS_case_number in case_number_array
 		JOBS_1_pay_freq = ObjExcel.Cells(JOBS_1_starting_excel_row + 4, current_excel_col).Value
 		JOBS_1_wkly_hrs = ObjExcel.Cells(JOBS_1_starting_excel_row + 5, current_excel_col).Value
 		JOBS_1_hrly_wage = ObjExcel.Cells(JOBS_1_starting_excel_row + 6, current_excel_col).Value
+        starting_row = starting_row + 7
 
-		JOBS_2_starting_excel_row = 377
+		JOBS_2_starting_excel_row = starting_row      '377
 		JOBS_2_inc_type = left(ObjExcel.Cells(JOBS_2_starting_excel_row, current_excel_col).Value, 1)
 		JOBS_2_inc_verif = left(ObjExcel.Cells(JOBS_2_starting_excel_row + 1, current_excel_col).Value, 1)
 		JOBS_2_employer_name = ObjExcel.Cells(JOBS_2_starting_excel_row + 2, current_excel_col).Value
@@ -1130,8 +1152,9 @@ For each MAXIS_case_number in case_number_array
 		JOBS_2_pay_freq = ObjExcel.Cells(JOBS_2_starting_excel_row + 4, current_excel_col).Value
 		JOBS_2_wkly_hrs = ObjExcel.Cells(JOBS_2_starting_excel_row + 5, current_excel_col).Value
 		JOBS_2_hrly_wage = ObjExcel.Cells(JOBS_2_starting_excel_row + 6, current_excel_col).Value
+        starting_row = starting_row + 7
 
-		JOBS_3_starting_excel_row = 384
+		JOBS_3_starting_excel_row = starting_row      '384
 		JOBS_3_inc_type = left(ObjExcel.Cells(JOBS_3_starting_excel_row, current_excel_col).Value, 1)
 		JOBS_3_inc_verif = left(ObjExcel.Cells(JOBS_3_starting_excel_row + 1, current_excel_col).Value, 1)
 		JOBS_3_employer_name = ObjExcel.Cells(JOBS_3_starting_excel_row + 2, current_excel_col).Value
@@ -1139,8 +1162,9 @@ For each MAXIS_case_number in case_number_array
 		JOBS_3_pay_freq = ObjExcel.Cells(JOBS_3_starting_excel_row + 4, current_excel_col).Value
 		JOBS_3_wkly_hrs = ObjExcel.Cells(JOBS_3_starting_excel_row + 5, current_excel_col).Value
 		JOBS_3_hrly_wage = ObjExcel.Cells(JOBS_3_starting_excel_row + 6, current_excel_col).Value
+        starting_row = starting_row + 7
 
-		MEDI_starting_excel_row = 391
+		MEDI_starting_excel_row = starting_row        '391
 		MEDI_claim_number_suffix = ObjExcel.Cells(MEDI_starting_excel_row, current_excel_col).Value
 		MEDI_part_A_premium = ObjExcel.Cells(MEDI_starting_excel_row + 1, current_excel_col).Value
 		MEDI_part_B_premium = ObjExcel.Cells(MEDI_starting_excel_row + 2, current_excel_col).Value
@@ -1148,17 +1172,20 @@ For each MAXIS_case_number in case_number_array
 		MEDI_part_B_begin_date = ObjExcel.Cells(MEDI_starting_excel_row + 4, current_excel_col).Value
 		MEDI_apply_prem_to_spdn = ObjExcel.Cells(MEDI_starting_excel_row + 5, current_excel_col).Value
 		MEDI_apply_prem_end_date = ObjExcel.Cells(MEDI_starting_excel_row + 6, current_excel_col).Value
+        starting_row = starting_row + 7
 
-		MMSA_starting_excel_row = 398
+		MMSA_starting_excel_row = starting_row        '398
 		MMSA_liv_arr = left(ObjExcel.Cells(MMSA_starting_excel_row, current_excel_col).Value, 1)
 		MMSA_cont_elig = ObjExcel.Cells(MMSA_starting_excel_row + 1, current_excel_col).Value
 		MMSA_spous_inc = ObjExcel.Cells(MMSA_starting_excel_row + 2, current_excel_col).Value
 		MMSA_shared_hous = ObjExcel.Cells(MMSA_starting_excel_row + 3, current_excel_col).Value
+        starting_row = starting_row + 4
 
-		MSUR_starting_excel_row = 402
+		MSUR_starting_excel_row = starting_row        '402
 		MSUR_begin_date = ObjExcel.Cells(MSUR_starting_excel_row, current_excel_col).Value
+        starting_row = starting_row + 1
 
-		OTHR_starting_excel_row = 403
+		OTHR_starting_excel_row = starting_row        '403
 		OTHR_type = left(ObjExcel.Cells(OTHR_starting_excel_row, current_excel_col).Value, 1)
 		OTHR_cash_value = ObjExcel.Cells(OTHR_starting_excel_row + 1, current_excel_col).Value
 		OTHR_cash_value_ver = left(ObjExcel.Cells(OTHR_starting_excel_row + 2, current_excel_col).Value, 1)
@@ -1171,8 +1198,9 @@ For each MAXIS_case_number in case_number_array
 		OTHR_IV_count = ObjExcel.Cells(OTHR_starting_excel_row + 9, current_excel_col).Value
 		OTHR_joint = ObjExcel.Cells(OTHR_starting_excel_row + 10, current_excel_col).Value
 		OTHR_share_ratio = ObjExcel.Cells(OTHR_starting_excel_row + 11, current_excel_col).Value
+        starting_row = starting_row + 12
 
-		PARE_starting_excel_row = 415
+		PARE_starting_excel_row = starting_row        '415
 		PARE_child_1 = ObjExcel.Cells(PARE_starting_excel_row, current_excel_col).Value
 		PARE_child_1_relation = left(ObjExcel.Cells(PARE_starting_excel_row + 1, current_excel_col).Value, 1)
 		PARE_child_1_verif = left(ObjExcel.Cells(PARE_starting_excel_row + 2, current_excel_col).Value, 2)
@@ -1191,32 +1219,36 @@ For each MAXIS_case_number in case_number_array
 		PARE_child_6 = ObjExcel.Cells(PARE_starting_excel_row + 15, current_excel_col).Value
 		PARE_child_6_relation = left(ObjExcel.Cells(PARE_starting_excel_row + 16, current_excel_col).Value, 1)
 		PARE_child_6_verif = left(ObjExcel.Cells(PARE_starting_excel_row + 17, current_excel_col).Value, 2)
+        starting_row = starting_row + 18
 
-		PBEN_1_starting_excel_row = 433
+		PBEN_1_starting_excel_row = starting_row      '433
 		PBEN_1_referal_date = ObjExcel.Cells(PBEN_1_starting_excel_row, current_excel_col).Value
 		PBEN_1_type = left(ObjExcel.Cells(PBEN_1_starting_excel_row + 1, current_excel_col).Value, 2)
 		PBEN_1_appl_date = ObjExcel.Cells(PBEN_1_starting_excel_row + 2, current_excel_col).Value
 		PBEN_1_appl_ver = left(ObjExcel.Cells(PBEN_1_starting_excel_row + 3, current_excel_col).Value, 1)
 		PBEN_1_IAA_date = ObjExcel.Cells(PBEN_1_starting_excel_row + 4, current_excel_col).Value
 		PBEN_1_disp = left(ObjExcel.Cells(PBEN_1_starting_excel_row + 5, current_excel_col).Value, 1)
+        starting_row = starting_row + 6
 
-		PBEN_2_starting_excel_row = 439
+		PBEN_2_starting_excel_row = starting_row      '439
 		PBEN_2_referal_date = ObjExcel.Cells(PBEN_2_starting_excel_row, current_excel_col).Value
 		PBEN_2_type = left(ObjExcel.Cells(PBEN_2_starting_excel_row + 1, current_excel_col).Value, 2)
 		PBEN_2_appl_date = ObjExcel.Cells(PBEN_2_starting_excel_row + 2, current_excel_col).Value
 		PBEN_2_appl_ver = left(ObjExcel.Cells(PBEN_2_starting_excel_row + 3, current_excel_col).Value, 1)
 		PBEN_2_IAA_date = ObjExcel.Cells(PBEN_2_starting_excel_row + 4, current_excel_col).Value
 		PBEN_2_disp = left(ObjExcel.Cells(PBEN_2_starting_excel_row + 5, current_excel_col).Value, 1)
+        starting_row = starting_row + 6
 
-		PBEN_3_starting_excel_row = 445
+		PBEN_3_starting_excel_row = starting_row      '445
 		PBEN_3_referal_date = ObjExcel.Cells(PBEN_3_starting_excel_row, current_excel_col).Value
 		PBEN_3_type = left(ObjExcel.Cells(PBEN_3_starting_excel_row + 1, current_excel_col).Value, 2)
 		PBEN_3_appl_date = ObjExcel.Cells(PBEN_3_starting_excel_row + 2, current_excel_col).Value
 		PBEN_3_appl_ver = left(ObjExcel.Cells(PBEN_3_starting_excel_row + 3, current_excel_col).Value, 1)
 		PBEN_3_IAA_date = ObjExcel.Cells(PBEN_3_starting_excel_row + 4, current_excel_col).Value
 		PBEN_3_disp = left(ObjExcel.Cells(PBEN_3_starting_excel_row + 5, current_excel_col).Value, 1)
+        starting_row = starting_row + 6
 
-		PDED_starting_excel_row = 451
+		PDED_starting_excel_row = starting_row        '451
 		PDED_wid_deduction = ObjExcel.Cells(PDED_starting_excel_row, current_excel_col).Value
 		PDED_adult_child_disregard = ObjExcel.Cells(PDED_starting_excel_row + 1, current_excel_col).Value
 		PDED_wid_disregard = ObjExcel.Cells(PDED_starting_excel_row + 2, current_excel_col).Value
@@ -1231,15 +1263,17 @@ For each MAXIS_case_number in case_number_array
 		PDED_shel_spcl_needs = ObjExcel.Cells(PDED_starting_excel_row + 11, current_excel_col).Value
 		PDED_excess_need = ObjExcel.Cells(PDED_starting_excel_row + 12, current_excel_col).Value
 		PDED_restaurant_meals = ObjExcel.Cells(PDED_starting_excel_row + 13, current_excel_col).Value
+        starting_row = starting_row + 14
 
-		PREG_starting_excel_row = 465
+		PREG_starting_excel_row = starting_row        '465
 		PREG_conception_date = ObjExcel.Cells(PREG_starting_excel_row, current_excel_col).Value
 		PREG_conception_date_ver = ObjExcel.Cells(PREG_starting_excel_row + 1, current_excel_col).Value
 		PREG_third_trimester_ver = ObjExcel.Cells(PREG_starting_excel_row + 2, current_excel_col).Value
 		PREG_due_date = ObjExcel.Cells(PREG_starting_excel_row + 3, current_excel_col).Value
 		PREG_multiple_birth = ObjExcel.Cells(PREG_starting_excel_row + 4, current_excel_col).Value
+        starting_row = starting_row + 5
 
-		RBIC_starting_excel_row = 470
+		RBIC_starting_excel_row = starting_row        '470
 		RBIC_type = left(ObjExcel.Cells(RBIC_starting_excel_row, current_excel_col).Value, 2)
 		RBIC_start_date = ObjExcel.Cells(RBIC_starting_excel_row + 1, current_excel_col).Value
 		RBIC_end_date = ObjExcel.Cells(RBIC_starting_excel_row + 2, current_excel_col).Value
@@ -1265,8 +1299,9 @@ For each MAXIS_case_number in case_number_array
 		RBIC_exp_retro_2 = ObjExcel.Cells(RBIC_starting_excel_row + 22, current_excel_col).Value
 		RBIC_exp_prosp_2 = ObjExcel.Cells(RBIC_starting_excel_row + 23, current_excel_col).Value
 		RBIC_exp_ver_2 = left(ObjExcel.Cells(RBIC_starting_excel_row + 24, current_excel_col).Value, 1)
+        starting_row = starting_row + 25
 
-		REST_starting_excel_row = 495
+		REST_starting_excel_row = starting_row        '495
 		REST_type = left(ObjExcel.Cells(REST_starting_excel_row, current_excel_col).Value, 1)
 		REST_type_ver = left(ObjExcel.Cells(REST_starting_excel_row + 1, current_excel_col).Value, 2)
 		REST_market = ObjExcel.Cells(REST_starting_excel_row + 2, current_excel_col).Value
@@ -1278,8 +1313,9 @@ For each MAXIS_case_number in case_number_array
 		REST_joint = ObjExcel.Cells(REST_starting_excel_row + 8, current_excel_col).Value
 		REST_share_ratio = ObjExcel.Cells(REST_starting_excel_row + 9, current_excel_col).Value
 		REST_agreement_date = ObjExcel.Cells(REST_starting_excel_row + 10, current_excel_col).Value
+        starting_row = starting_row + 11
 
-		SCHL_starting_excel_row = 506
+		SCHL_starting_excel_row = starting_row        '506
 		SCHL_status = left(ObjExcel.Cells(SCHL_starting_excel_row, current_excel_col).Value, 1)
 		SCHL_ver = left(ObjExcel.Cells(SCHL_starting_excel_row + 1, current_excel_col).Value, 2)
 		SCHL_type = left(ObjExcel.Cells(SCHL_starting_excel_row + 2, current_excel_col).Value, 2)
@@ -1290,8 +1326,9 @@ For each MAXIS_case_number in case_number_array
 		SCHL_primary_secondary_funding = left(ObjExcel.Cells(SCHL_starting_excel_row + 7, current_excel_col).Value, 1)
 		SCHL_FS_eligibility_status = left(ObjExcel.Cells(SCHL_starting_excel_row + 8, current_excel_col).Value, 2)
 		SCHL_higher_ed = ObjExcel.Cells(SCHL_starting_excel_row + 9, current_excel_col).Value
+        starting_row = starting_row + 10
 
-		SECU_starting_excel_row = 516
+		SECU_starting_excel_row = starting_row        '516
 		SECU_type = left(ObjExcel.Cells(SECU_starting_excel_row, current_excel_col).Value, 2)
 		SECU_pol_numb = ObjExcel.Cells(SECU_starting_excel_row + 1, current_excel_col).Value
 		SECU_name = ObjExcel.Cells(SECU_starting_excel_row + 2, current_excel_col).Value
@@ -1307,8 +1344,9 @@ For each MAXIS_case_number in case_number_array
 		SECU_IV_count = ObjExcel.Cells(SECU_starting_excel_row + 12, current_excel_col).Value
 		SECU_joint = ObjExcel.Cells(SECU_starting_excel_row + 13, current_excel_col).Value
 		SECU_share_ratio = ObjExcel.Cells(SECU_starting_excel_row + 14, current_excel_col).Value
+        starting_row = starting_row + 15
 
-		SHEL_starting_excel_row = 531
+		SHEL_starting_excel_row = starting_row        '531
 		SHEL_subsidized = ObjExcel.Cells(SHEL_starting_excel_row, current_excel_col).Value
 		SHEL_shared = ObjExcel.Cells(SHEL_starting_excel_row + 1, current_excel_col).Value
 		SHEL_paid_to = ObjExcel.Cells(SHEL_starting_excel_row + 2, current_excel_col).Value
@@ -1344,19 +1382,22 @@ For each MAXIS_case_number in case_number_array
 		SHEL_subsidy_retro_ver = left(ObjExcel.Cells(SHEL_starting_excel_row + 32, current_excel_col).Value, 2)
 		SHEL_subsidy_pro = ObjExcel.Cells(SHEL_starting_excel_row + 33, current_excel_col).Value
 		SHEL_subsidy_pro_ver = left(ObjExcel.Cells(SHEL_starting_excel_row + 34, current_excel_col).Value, 2)
+        starting_row = starting_row + 35
 
-		SIBL_starting_excel_row = 566
+		SIBL_starting_excel_row = starting_row        '566
 		SIBL_group_1 = ObjExcel.Cells(SIBL_starting_excel_row, current_excel_col).Value
 		SIBL_group_2 = ObjExcel.Cells(SIBL_starting_excel_row + 1, current_excel_col).Value
 		SIBL_group_3 = ObjExcel.Cells(SIBL_starting_excel_row + 2, current_excel_col).Value
+        starting_row = starting_row + 3
 
-		SPON_starting_excel_row = 569
+		SPON_starting_excel_row = starting_row        '569
 		SPON_type = left(ObjExcel.Cells(SPON_starting_excel_row, current_excel_col).Value, 2)
 		SPON_ver = ObjExcel.Cells(SPON_starting_excel_row + 1, current_excel_col).Value
 		SPON_name = ObjExcel.Cells(SPON_starting_excel_row + 2, current_excel_col).Value
 		SPON_state = ObjExcel.Cells(SPON_starting_excel_row + 3, current_excel_col).Value
+        starting_row = starting_row + 4
 
-		STEC_starting_excel_row = 573
+		STEC_starting_excel_row = starting_row        '573
 		STEC_type_1 = left(ObjExcel.Cells(STEC_starting_excel_row, current_excel_col).Value, 2)
 		STEC_amt_1 = ObjExcel.Cells(STEC_starting_excel_row + 1, current_excel_col).Value
 		STEC_actual_from_thru_months_1 = ObjExcel.Cells(STEC_starting_excel_row + 2, current_excel_col).Value
@@ -1369,8 +1410,9 @@ For each MAXIS_case_number in case_number_array
 		STEC_ver_2 = left(ObjExcel.Cells(STEC_starting_excel_row + 9, current_excel_col).Value, 1)
 		STEC_earmarked_amt_2 = ObjExcel.Cells(STEC_starting_excel_row + 10, current_excel_col).Value
 		STEC_earmarked_from_thru_months_2 = ObjExcel.Cells(STEC_starting_excel_row + 11, current_excel_col).Value
+        starting_row = starting_row + 12
 
-		STIN_starting_excel_row = 585
+		STIN_starting_excel_row = starting_row        '585
 		STIN_type_1 = left(ObjExcel.Cells(STIN_starting_excel_row, current_excel_col).Value, 2)
 		STIN_amt_1 = ObjExcel.Cells(STIN_starting_excel_row + 1, current_excel_col).Value
 		STIN_avail_date_1 = ObjExcel.Cells(STIN_starting_excel_row + 2, current_excel_col).Value
@@ -1381,8 +1423,9 @@ For each MAXIS_case_number in case_number_array
 		STIN_avail_date_2 = ObjExcel.Cells(STIN_starting_excel_row + 7, current_excel_col).Value
 		STIN_months_covered_2 = ObjExcel.Cells(STIN_starting_excel_row + 8, current_excel_col).Value
 		STIN_ver_2 = left(ObjExcel.Cells(STIN_starting_excel_row + 9, current_excel_col).Value, 1)
+        starting_row = starting_row + 10
 
-		STWK_starting_excel_row = 595
+		STWK_starting_excel_row = starting_row        '595
 		STWK_empl_name = ObjExcel.Cells(STWK_starting_excel_row, current_excel_col).Value
 		STWK_wrk_stop_date = ObjExcel.Cells(STWK_starting_excel_row + 1, current_excel_col).Value
 		STWK_wrk_stop_date_verif = left(ObjExcel.Cells(STWK_starting_excel_row + 2, current_excel_col).Value, 1)
@@ -1395,32 +1438,36 @@ For each MAXIS_case_number in case_number_array
 		STWK_gc_fs = ObjExcel.Cells(STWK_starting_excel_row + 9, current_excel_col).Value
 		STWK_fs_pwe = ObjExcel.Cells(STWK_starting_excel_row + 10, current_excel_col).Value
 		STWK_maepd_ext = left(ObjExcel.Cells(STWK_starting_excel_row + 11, current_excel_col).Value, 1)
+        starting_row = starting_row + 12
 
-		UNEA_1_starting_excel_row = 607
+		UNEA_1_starting_excel_row = starting_row      '607
 		UNEA_1_inc_type = left(ObjExcel.Cells(UNEA_1_starting_excel_row, current_excel_col).Value, 2)
 		UNEA_1_inc_verif = left(ObjExcel.Cells(UNEA_1_starting_excel_row + 1, current_excel_col).Value, 1)
 		UNEA_1_claim_suffix = ObjExcel.Cells(UNEA_1_starting_excel_row + 2, current_excel_col).Value
 		UNEA_1_start_date = ObjExcel.Cells(UNEA_1_starting_excel_row + 3, current_excel_col).Value
 		UNEA_1_pay_freq = ObjExcel.Cells(UNEA_1_starting_excel_row + 4, current_excel_col).Value
 		UNEA_1_inc_amount = ObjExcel.Cells(UNEA_1_starting_excel_row + 5, current_excel_col).Value
+        starting_row = starting_row + 6
 
-		UNEA_2_starting_excel_row = 613
+		UNEA_2_starting_excel_row = starting_row      '613
 		UNEA_2_inc_type = left(ObjExcel.Cells(UNEA_2_starting_excel_row, current_excel_col).Value, 2)
 		UNEA_2_inc_verif = left(ObjExcel.Cells(UNEA_2_starting_excel_row + 1, current_excel_col).Value, 1)
 		UNEA_2_claim_suffix = ObjExcel.Cells(UNEA_2_starting_excel_row + 2, current_excel_col).Value
 		UNEA_2_start_date = ObjExcel.Cells(UNEA_2_starting_excel_row + 3, current_excel_col).Value
 		UNEA_2_pay_freq = ObjExcel.Cells(UNEA_2_starting_excel_row + 4, current_excel_col).Value
 		UNEA_2_inc_amount = ObjExcel.Cells(UNEA_2_starting_excel_row + 5, current_excel_col).Value
+        starting_row = starting_row + 6
 
-		UNEA_3_starting_excel_row = 619
+		UNEA_3_starting_excel_row = starting_row      '619
 		UNEA_3_inc_type = left(ObjExcel.Cells(UNEA_3_starting_excel_row, current_excel_col).Value, 2)
 		UNEA_3_inc_verif = left(ObjExcel.Cells(UNEA_3_starting_excel_row + 1, current_excel_col).Value, 1)
 		UNEA_3_claim_suffix = ObjExcel.Cells(UNEA_3_starting_excel_row + 2, current_excel_col).Value
 		UNEA_3_start_date = ObjExcel.Cells(UNEA_3_starting_excel_row + 3, current_excel_col).Value
 		UNEA_3_pay_freq = ObjExcel.Cells(UNEA_3_starting_excel_row + 4, current_excel_col).Value
 		UNEA_3_inc_amount = ObjExcel.Cells(UNEA_3_starting_excel_row + 5, current_excel_col).Value
+        starting_row = starting_row + 6
 
-		WKEX_starting_excel_row = 625
+		WKEX_starting_excel_row = starting_row        '625
 		WKEX_program = objExcel.Cells(WKEX_starting_excel_row, current_excel_col).Value
 		WKEX_fed_tax_retro = objExcel.Cells(WKEX_starting_excel_row + 1, current_excel_col).Value
 		WKEX_fed_tax_prosp = objExcel.Cells(WKEX_starting_excel_row + 2, current_excel_col).Value
@@ -1470,8 +1517,9 @@ For each MAXIS_case_number in case_number_array
 		WKEX_HC_Exp_Dues_Imp_Rel = objExcel.Cells(WKEX_starting_excel_row + 46, current_excel_col).Value
 		WKEX_HC_Exp_Othr = objExcel.Cells(WKEX_starting_excel_row + 47, current_excel_col).Value
 		WKEX_HC_Exp_Othr_Imp_Rel = objExcel.Cells(WKEX_starting_excel_row + 48, current_excel_col).Value
+        starting_row = starting_row + 49
 
-		WREG_starting_excel_row = 674
+		WREG_starting_excel_row = starting_row        '674
 		WREG_fs_pwe = ObjExcel.Cells(WREG_starting_excel_row, current_excel_col).Value
 		WREG_fset_status = left(ObjExcel.Cells(WREG_starting_excel_row + 1, current_excel_col).Value, 2)
 		WREG_defer_fs = ObjExcel.Cells(WREG_starting_excel_row + 2, current_excel_col).Value
@@ -1480,6 +1528,7 @@ For each MAXIS_case_number in case_number_array
 		WREG_num_sanctions = ObjExcel.Cells(WREG_starting_excel_row + 5, current_excel_col).Value
 		WREG_abawd_status = left(ObjExcel.Cells(WREG_starting_excel_row + 6, current_excel_col).Value, 2)
 		WREG_ga_basis = left(ObjExcel.Cells(WREG_starting_excel_row + 7, current_excel_col).Value, 2)
+        starting_row = starting_row + 8
 
 		'-------------------------------ACTUALLY FILLING OUT MAXIS
 

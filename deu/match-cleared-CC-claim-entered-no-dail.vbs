@@ -1,5 +1,5 @@
 ''GATHERING STATS===========================================================================================
-name_of_script = "ACTIONS - DEU-MATCH CLEARED CC NO DAIL.vbs"
+name_of_script = "ACTIONS-DEU-MATCH CLEARED CC NO DAIL.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 300
@@ -53,24 +53,6 @@ CALL changelog_update("11/14/2017", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-function DEU_password_check(end_script)
-'--- This function checks to ensure the user is in a MAXIS panel
-'~~~~~ end_script: If end_script = TRUE the script will end. If end_script = FALSE, the user will be given the option to cancel the script, or manually navigate to a MAXIS screen.
-'===== Keywords: MAXIS, production, script_end_procedure
-	Do
-		EMReadScreen MAXIS_check, 5, 1, 39
-		If MAXIS_check <> "MAXIS"  and MAXIS_check <> "AXIS " then
-			If end_script = True then
-				script_end_procedure("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again.")
-			Else
-				warning_box = MsgBox("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again, or press ""cancel"" to exit the script.", vbOKCancel)
-				If warning_box = vbCancel then stopscript
-			End if
-		End if
-	Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
-end function
-
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 
@@ -176,7 +158,7 @@ Do
 	IF isdate(income_rcvd_date) = False or income_rcvd_date = "" then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income recieved."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 LOOP UNTIL err_msg = ""
-CALL DEU_password_check(False)
+CALL check_for_password_without_transmit(are_we_passworded_out)
 
 '----------------------------------------------------------------------------------------------------Getting the ssn for IEVS
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
