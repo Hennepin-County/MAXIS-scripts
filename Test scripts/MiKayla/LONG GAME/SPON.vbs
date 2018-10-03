@@ -58,13 +58,13 @@ BeginDialog sponsor_income_calculation_dialog, 0, 0, 346, 290, "Sponsor income c
   EditBox 160, 5, 20, 15, memb_number
   CheckBox 190, 5, 105, 10, "Verified via SAVE requested?", via_save
   CheckBox 190, 15, 135, 10, "TPQY / SSA quarters checked? HRS:", TPQY_check
-  EditBox 320, 10, 15, 15, SSA_hours
+  EditBox 325, 10, 15, 15, SSA_hours
   EditBox 45, 35, 55, 15, primary_sponsor_earned_income
   EditBox 145, 35, 55, 15, spousal_sponsor_earned_income
-  DropListBox 260, 35, 75, 15, "Select One:"+chr(9)+"Paystubs"+chr(9)+"Taxes"+chr(9)+"EVF"+chr(9)+"SMI"+chr(9)+"Other please specify ", List2
+  DropListBox 260, 35, 75, 15, "Select One:"+chr(9)+"Paystubs"+chr(9)+"Taxes"+chr(9)+"EVF"+chr(9)+"SMI"+chr(9)+"Other please specify ", earned_income_verification
   EditBox 45, 70, 55, 15, primary_sponsor_unearned_income
   EditBox 145, 70, 55, 15, spousal_sponsor_unearned_income
-  DropListBox 260, 70, 75, 15, "Select One:"+chr(9)+"Paystubs"+chr(9)+"Taxes"+chr(9)+"EVF"+chr(9)+"SMI"+chr(9)+"Other please specify ", income_verification
+  DropListBox 260, 70, 75, 15, "Select One:"+chr(9)+"Paystubs"+chr(9)+"Taxes"+chr(9)+"EVF"+chr(9)+"SMI"+chr(9)+"Other please specify ", unearned_income_verification
   EditBox 80, 105, 70, 15, name_sponsor
   EditBox 250, 105, 80, 15, name_of_spon_spouse
   EditBox 80, 125, 135, 15, sponsor_addr
@@ -122,7 +122,7 @@ EndDialog
 'Connecting to BlueZone, and finding case number
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-TODO Multiple-Case noted
+'T'ODO Multiple-Case noted
 'Dialog is presented. Requires all sections other than spousal sponsor income to be filled out.
 Do
 	Do
@@ -180,20 +180,41 @@ sponsor_deeming_amount_other_programs = abs(primary_sponsor_earned_income) + abs
 'If the deeming amounts are less than 0 they need to show a 0
 If sponsor_deeming_amount_SNAP < 0 then sponsor_deeming_amount_SNAP = 0
 If sponsor_deeming_amount_other_programs < 0 then sponsor_deeming_amount_other_programs = 0
-
+'phone_one, & "-" & phone_two & "-" & phone_three
 'Case note the findings
 start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE("~~~Sponsor deeming income calculation~~~")
-If primary_sponsor_earned_income <> 0 then call write_bullet_and_variable_in_case_note("Primary sponsor earned income", "$" & primary_sponsor_earned_income)
+Call write_variable_in_CASE_NOTE("SPON-Income deeming calculation for M" & memb_number)
+If primary_sponsor_earned_income <> 0 then
+	call write_bullet_and_variable_in_case_note("Primary sponsor earned income", "$" & primary_sponsor_earned_income)
+	CALL write_bullet_and_variable_in_case_note("Income verification received", earned_income_verification)
+END IF
 If spousal_sponsor_earned_income <> 0 then call write_bullet_and_variable_in_case_note("Spousal sponsor earned income", "$" & spousal_sponsor_earned_income)
-If primary_sponsor_unearned_income <> 0 then call write_bullet_and_variable_in_case_note("Primary sponsor unearned income", "$" & primary_sponsor_unearned_income)
+If primary_sponsor_unearned_income <> 0 then
+	call write_bullet_and_variable_in_case_note("Primary sponsor unearned income", "$" & primary_sponsor_unearned_income)
+	CALL write_bullet_and_variable_in_case_note("Unearned income verification received", unearned_income_verification)
+END IF
 If spousal_sponsor_unearned_income <> 0 then call write_bullet_and_variable_in_case_note("Spousal sponsor unearned income", "$" & spousal_sponsor_unearned_income)
 If SNAP_EI_disregard <> 0 then call write_bullet_and_variable_in_case_note("20% diregard of EI for SNAP", "$" & SNAP_EI_disregard)
-call write_bullet_and_variable_in_case_note("Sponsor HH size and income limit", sponsor_HH_size & ", $" & income_limit)
-call write_bullet_and_variable_in_case_note("Number of sponsored immigrants", number_of_sponsored_immigrants)
+CALL write_bullet_and_variable_in_case_note("Sponsor HH size and income limit", sponsor_HH_size & ", $" & income_limit)
+CALL write_bullet_and_variable_in_case_note("Number of sponsored immigrants", number_of_spon)
 call write_bullet_and_variable_in_case_note("Sponsor deeming amount for SNAP", "$" & sponsor_deeming_amount_SNAP)
 call write_bullet_and_variable_in_case_note("Sponsor deeming amount for other programs", "$" & sponsor_deeming_amount_other_programs)
-call write_variable_in_CASE_NOTE("---")
+CALL write_bullet_and_variable_in_case_note("Verified via SAVE requested?", via_save)
+IF TPQY_check = CHECKED THEN CALL write_variable_in_case_note("TPQY/SSA quarters checked? HRS:")
+CALL write_bullet_and_variable_in_case_note("TPQY/SSA quarters HRS", SSA_hours)
+CALL write_bullet_and_variable_in_case_note("Name of Sponsor", name_sponsor)
+CALL write_bullet_and_variable_in_case_note("Name of Sponsor's Spouse", name_of_spon_spouse)
+CALL write_bullet_and_variable_in_case_note("Address", sponsor_addr)
+CALL write_bullet_and_variable_in_case_note("Phone", phone_one)
+CALL write_bullet_and_variable_in_case_note("Name of second sponsor", name_of_spon_spouse_two)
+CALL write_bullet_and_variable_in_case_note("Address", sponsor_addr_two)
+CALL write_bullet_and_variable_in_case_note("Phone", phone_one)
+CALL write_bullet_and_variable_in_case_note("Second Sponsor HH size", spon_HH_size_two)
+CALL write_bullet_and_variable_in_case_note("Reason for Denial", denial_reason)
+CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
+IF indexmp_CHECKBOX = CHECKED THEN CALL write_bullet_and_variable_in_case_note("Indigent Exemption Reviewed")
+IF DVW_CHECKBOX = CHECKED THEN CALL write_bullet_and_variable_in_case_note("DV Waiver Reviewed?")
+CALL write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")

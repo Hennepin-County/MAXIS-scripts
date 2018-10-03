@@ -1,4 +1,4 @@
-name_of_script = "ACTIONS-DEU PARIS MATCH CLEARED CC.vbs"
+name_of_script = "ACTIONS - DEU PARIS MATCH CLEARED CC.vbs"
 start_time = timer
 STATS_counter = 1              'sets the stats counter at one
 STATS_manualtime = 700         'manual run time in seconds
@@ -308,11 +308,11 @@ ELSEIF dail_check <> "DAIL" THEN
 	LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 
 	'--------------------------------------------------------------------Dialog
-	BeginDialog OP_Cleared_dialog, 0, 0, 361, 260, "PARIS Match Claim Entered"
-	  EditBox 55, 5, 45, 15, MAXIS_case_number
+	BeginDialog OP_Cleared_dialog, 0, 0, 361, 255, "PARIS Match Claim Entered"
+	  EditBox 55, 5, 40, 15, MAXIS_case_number
 	  EditBox 170, 5, 20, 15, memb_number
 	  EditBox 260, 5, 45, 15, IEVS_period
-	  DropListBox 55, 25, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
+	  DropListBox 55, 25, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
 	  EditBox 170, 25, 20, 15, OT_resp_memb
 	  EditBox 260, 25, 45, 15, discovery_date
 	  DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS"+chr(9)+"SSI", OP_program
@@ -330,23 +330,21 @@ ELSEIF dail_check <> "DAIL" THEN
 	  EditBox 180, 105, 30, 15, OP_to_III
 	  EditBox 245, 105, 35, 15, Claim_number_III
 	  EditBox 305, 105, 45, 15, Claim_amount_III
-	  DropListBox 120, 135, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", Contact_other_state
-	  DropListBox 120, 155, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", bene_other_state
-	  DropListBox 250, 135, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
-	  EditBox 250, 155, 100, 15, collectible_reason
-	  EditBox 60, 175, 45, 15, HC_resp_memb
-	  EditBox 185, 175, 45, 15, Fed_HC_AMT
-	  EditBox 305, 175, 45, 15, hc_claim_number
-	  EditBox 60, 195, 290, 15, Reason_OP
-	  EditBox 60, 215, 290, 15, other_notes
-	  CheckBox 60, 240, 120, 10, "Earned Income disregard allowed", EI_checkbox
-	  CheckBox 70, 240, 120, 10, "Out of state verification received", vrf_rcvd_checkbox
+	  DropListBox 85, 135, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", Contact_other_state
+	  DropListBox 265, 135, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", bene_other_state
+	  DropListBox 185, 155, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
+	  DropListBox 265, 155, 90, 15, "Agency Error"+chr(9)+"Household"+chr(9)+"Non-Collect--Agency Error"+chr(9)+"GRH Vendor"+chr(9)+"Fraud"+chr(9)+"Admit Fraud", collectible_reason
+	  EditBox 50, 175, 45, 15, hc_claim_number
+	  EditBox 185, 175, 40, 15, Fed_HC_AMT
+	  EditBox 310, 175, 45, 15, HC_resp_memb
+	  EditBox 50, 195, 150, 15, Reason_OP
+	  EditBox 50, 215, 305, 15, other_notes
 	  ButtonGroup ButtonPressed
-	    OkButton 255, 240, 45, 15
-	    CancelButton 305, 240, 45, 15
+	    OkButton 265, 235, 45, 15
+	    CancelButton 310, 235, 45, 15
 	  Text 5, 10, 50, 10, "Case Number: "
 	  Text 130, 10, 30, 10, "MEMB #:"
-	  Text 205, 10, 45, 10, "Match Period:"
+	  Text 210, 10, 45, 10, "Match Period:"
 	  Text 5, 30, 50, 10, "Fraud Referral:"
 	  Text 110, 30, 55, 10, "OT Resp. Memb:"
 	  Text 205, 30, 55, 10, "Discovery Date: "
@@ -362,19 +360,21 @@ ELSEIF dail_check <> "DAIL" THEN
 	  Text 165, 110, 10, 10, "To:"
 	  Text 215, 110, 25, 10, "Claim #"
 	  Text 285, 110, 20, 10, "AMT:"
-	  Text 180, 160, 65, 10, "Collectible Reason:"
-	  Text 205, 140, 40, 10, "Collectible?:"
-	  Text 5, 160, 115, 10, "Accessing benefits in other state?:"
-	  Text 5, 180, 55, 10, "HC Resp Memb:"
-	  Text 40, 140, 75, 10, "Contacted other state?: "
-	  Text 115, 180, 65, 10, "Total FED HC AMT:"
-	  Text 5, 200, 50, 10, "Reason for OP:"
-	  Text 265, 180, 40, 10, "HC Claim #:"
+	  Text 235, 160, 30, 10, "Reason:"
+	  Text 145, 160, 40, 10, "Collectible?"
+	  Text 150, 140, 115, 10, "Accessing benefits in other state?:"
+	  Text 250, 180, 55, 10, "HC Resp. Memb:"
+	  Text 5, 140, 75, 10, "Contacted other state?: "
+	  Text 140, 180, 45, 10, "Fed HC AMT:"
+	  Text 5, 200, 40, 10, "OP Reason:"
+	  Text 5, 180, 40, 10, "HC Claim #:"
 	  Text 105, 90, 20, 10, "From:"
 	  Text 165, 90, 10, 10, "To:"
 	  Text 215, 90, 25, 10, "Claim #"
 	  Text 15, 90, 30, 10, "Program:"
 	  Text 5, 220, 45, 10, "Other Notes:"
+	  CheckBox 5, 160, 115, 10, "Out of state verification received", out_state_checkbox
+	  CheckBox 235, 195, 120, 10, "Earned Income disregard allowed", EI_checkbox
 	EndDialog
 
 	Do
@@ -427,7 +427,7 @@ ELSEIF dail_check <> "DAIL" THEN
 		If row = 17 then script_end_procedure("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
 	End if
 	'writing in the action taken and date to the MISC panel
-	EMWriteScreen Action_Taken, Row, 30
+	EMWriteScreen "Claim Determination", Row, 30
 	EMWriteScreen date, Row, 66
 	PF3
 	'-----------------------------------------------------------------------------------------CASENOTE
@@ -467,7 +467,7 @@ ELSEIF dail_check <> "DAIL" THEN
 			Call write_bullet_and_variable_in_case_note("Total federal Health Care amount", Fed_HC_AMT)
 			CALL write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
 		END IF
-		Call write_bullet_and_variable_in_case_note("Out of state verification received", vrf_rcvd_checkbox)
+		If out_state_checkbox = CHECKED THEN Call write_variable_in_case_note("Out of state verification received.")
 		Call write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
 		Call write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
 		Call write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
@@ -499,7 +499,7 @@ ELSEIF dail_check <> "DAIL" THEN
 		CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & " Programs: " & programs, "CASE NOTE" & vbcr & message_array,"", False)
 	END IF
 	'---------------------------------------------------------------writing the CCOL case note'
-	msgbox "Navigating to CCOL"
+	msgbox "Navigating to CCOL to add case note, please contact MiKayla with any concerns."
 	Call navigate_to_MAXIS_screen("CCOL", "CLSM")
 	EMWriteScreen Claim_number, 4, 9
 	Transmit
@@ -531,7 +531,7 @@ ELSEIF dail_check <> "DAIL" THEN
 			CALL write_bullet_and_variable_in_CCOL_note("Total federal Health Care amount", Fed_HC_AMT)
 			write_variable_in_CCOL_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
 		END IF
-		CALL write_bullet_and_variable_in_CCOL_note("Out of state verification received", vrf_rcvd_date)
+		If out_state_checkbox = CHECKED THEN Call write_variable_in_CCOL_note("Out of state verification received.")
 		CALL write_bullet_and_variable_in_CCOL_note("Other responsible member(s)", OT_resp_memb)
 		CALL write_bullet_and_variable_in_CCOL_note("Fraud referral made", fraud_referral)
 		CALL write_bullet_and_variable_in_CCOL_note("Collectible claim", collectible_dropdown)
