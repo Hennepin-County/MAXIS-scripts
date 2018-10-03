@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("10/03/2018", "Updated coding for multiple states on INSM panel.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/28/2018", "Added handling for more than two states of PARIS matches on INSM.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("09/21/2018", "Added handling for more than one page of PARIS matches on INTM.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/02/2018", "Updates to fraud referral for the case note.", "MiKayla Handley, Hennepin County")
@@ -174,6 +175,8 @@ DO
 		state_array(row_num, 			add_state) = row
 		state_array(state_name, 		add_state) = state
 		state_array(match_case_num, 	add_state) = Match_State_Case_Number
+        
+    
 
 		'-------------------------------------------------------------------PARIS match contact information
 		EMReadScreen phone_number, 23, row, 22
@@ -185,6 +188,7 @@ DO
 			phone_number_ext = trim(phone_number_ext)
 			If phone_number_ext <> "" then phone_number = phone_number & " Ext: " & phone_number_ext
 		End if
+        
 		'-------------------------------------------------------------------reading and cleaning up the fax number if it exists
 		EMReadScreen fax_check, 8, row + 1, 37
 		fax_check = trim(fax_check)
@@ -194,38 +198,34 @@ DO
 		End if
 		If fax_number = "Fax: (     )" then fax_number = ""
 		Match_contact_info = phone_number & " " & fax_number
-		state_array(contact_info, item) = Match_contact_info
+		state_array(contact_info, add_state) = Match_contact_info
 
 		'-------------------------------------------------------------------trims excess spaces of Match_Active_Programs
 	   	Match_Active_Programs = "" 'sometimes blanking over information will clear the value of the variable'
-		DO
-			EMReadScreen Match_Prog, 22, row, 60
+		match_row = row           'establishing match row the same as the current state row. Needs another variables since we are only incrementing the match row in the loop. Row needs to stay the same for larger loop/next state.
+        DO
+			EMReadScreen Match_Prog, 22, match_row, 60
 	   		Match_Prog = TRIM(Match_Prog)
-			IF Match_Active_Programs = "" THEN 	EXIT DO
+			IF Match_Prog = "" THEN EXIT DO
 			IF Match_Prog = "FOOD SUPPORT" THEN  Match_Prog = "FS"
 			IF Match_Prog = "HEALTH CARE" THEN Match_Prog = "HC"
 	    	IF Match_Prog <> "" THEN Match_Active_Programs = Match_Active_Programs & Match_Prog & ", "
-			row = row + 1
+			match_row = match_row + 1        'incrementing to look for another match program
 		LOOP
-			Match_Active_Programs = trim(Match_Active_Programs)
-			'takes the last comma off of Match_Active_Programs when autofilled into dialog if more more than one app date is found and additional app is selected
-			IF right(Match_Active_Programs, 1) = "," THEN Match_Active_Programs = left(Match_Active_Programs, len(Match_Active_Programs) - 1)
-			state_array(progs, item) = Match_Active_Programs
-			row = state_array(row_num, item)		're-establish the value of row to read phone and fax info
-			Match_contact_info = ""
-			phone_number = ""
-			fax_number = ""
+    
+		Match_Active_Programs = trim(Match_Active_Programs)
+		'takes the last comma off of Match_Active_Programs when autofilled into dialog if more more than one app date is found and additional app is selected
+		IF right(Match_Active_Programs, 1) = "," THEN Match_Active_Programs = left(Match_Active_Programs, len(Match_Active_Programs) - 1)
+		state_array(progs, add_state) = Match_Active_Programs
+	
 		'-----------------------------------------------add_state allows for the next state to gather all the information for array'
 		add_state = add_state + 1
-		'MsgBox add_state
-		row = row + 3
+        row = row + 3
 		IF row = 19 THEN
+            PF8                                         'moves to next page of matches or forces 
 			EMReadScreen last_page_check, 21, 24, 2
 			last_page_check = trim(last_page_check)
-			IF last_page_check = ""  THEN
-				PF8
-				row = 13
-			END IF
+			IF last_page_check = "" THEN row = 13
 		END IF
 	END IF
 LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
@@ -257,10 +257,10 @@ IF send_notice_checkbox = CHECKED THEN
     	Text 165, 35, 175, 10, "MN active program(s): "   & MN_active_programs
 	GroupBox 5, 50, 360, 75, "PARIS MATCH INFORMATION:"
 		For item = 0 to Ubound(state_array, 2)
-		 Text 10, 60, 75, 10, "Match State: "   & state_array(state_name, item)
-		 Text 10, 75, 135, 10, "Match State Case Number: "   & state_array(match_case_num, item)
-		 Text 10, 90, 155, 10, "Match State Active Programs:" & state_array(progs, item)
-		 Text 10, 105, 170, 15, "Match StateContact Info: "   &  state_array(contact_info, item)
+		    Text 10, 60, 75, 10, "Match State: "   & state_array(state_name, add_state)
+		    Text 10, 75, 135, 10, "Match State Case Number: "   & state_array(match_case_num, add_state)
+		    Text 10, 90, 155, 10, "Match State Active Programs:" & state_array(progs, add_state)
+		    Text 10, 105, 360, 15, "Match State Contact Info: " & state_array(contact_info, add_state)
 		Next
 		   'For item = 1 to Ubound(state_array, 2)
 			'   Text 185, 60, 110, 10, "2nd Match State: "   &  state_array(state_name, item)
@@ -268,8 +268,8 @@ IF send_notice_checkbox = CHECKED THEN
 			'   Text 185, 75, 110, 10, "2nd Match State Case Number: " & state_array(match_case_num, item)
 			'   Text 185, 105, 175, 15, "2nd Match Contact Info: "  & state_array(contact_info, item)
 		   'Next
-    	Text 60, 180, 60, 10, "Referral to Fraud:  "
-      	Text 55, 160, 65, 10, "Contact Other State:  "
+    	Text 60, 180, 60, 10, "Referral to Fraud:"
+      	Text 55, 160, 65, 10, "Contact Other State:"
     	Text 10, 140, 110, 10, "Accessing benefits in other state:"
       	DropListBox 120, 135, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", bene_other_state
       	DropListBox 120, 155, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", contact_other_state
