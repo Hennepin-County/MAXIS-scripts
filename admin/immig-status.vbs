@@ -51,7 +51,6 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 memb_number = "01"
 'actual_date = date & ""
 
@@ -70,7 +69,7 @@ BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
  EditBox 305, 95, 45, 15, entry_date
  EditBox 305, 115, 45, 15, status_date
  CheckBox 10, 75, 110, 10, "Emailed HP.immigration?", emailHP_CHECKBOX
- CheckBox 10, 90, 90, 10, "Inital SAVE Requested?", save_CHECKBOX
+ CheckBox 10, 90, 90, 10, "Inital SAVE Completed?", save_CHECKBOX
  CheckBox 10, 105, 145, 10, "Additional SAVE Information Requested?", additional_CHECKBOX
  CheckBox 15, 120, 220, 10, "check here if immig document was attached to additional SAVE?", SAVE_docs_check
  OptionGroup RadioGroup1
@@ -193,6 +192,7 @@ IF immig_status_dropdown <> "US Citizen" Then
 	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 END IF
 
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 the_month = datepart("m", actual_date)
 MAXIS_footer_month = right("00" & the_month, 2)
 
@@ -339,7 +339,7 @@ ELSE
 
 		'EMReadScreen id_number, 9, 10, 72
 		'IF alien_id_number <> id_number THEN MsgBox "The number enter for ID does not match the number entered in the case note"
-
+		'VERIFICATION OF 40 SOCIAL SECURITY CREDITS IS NOT NEEDED  '
 		IF ss_credits <> "Select One:" THEN EmWriteScreen ss_credits, 13, 56
 		IF ss_credits = "Select One:" THEN Call clear_line_of_text(13, 56)
 		IF verf_sscredits <> "Select One:" THEN EmWriteScreen verf_sscredits, 13, 71
@@ -381,13 +381,14 @@ ELSE
 END IF
 
 start_a_blank_CASE_NOTE
-IF immig_status_dropdown = "US Citizen" THEN
+IF additional_CHECKBOX = CHECKED THEN
+ 		Call write_variable_in_case_note("IMIG-Instituted Additional SAVE for M" & memb_number)
+ELSEIF save_CHECKBOX = CHECKED THEN
+	Call write_variable_in_case_note("IMIG-Initial SAVE completed for M" & memb_number)
+ELSEIF immig_status_dropdown = "US Citizen" THEN
 	Call write_variable_in_case_note("SAVE completed for M" & memb_number & " US Citizen")
 ELSEIF immig_status_dropdown = "28 Undocumented" THEN
 	Call write_variable_in_case_note("Updated IMIG for M" & memb_number)
-ELSEIF additional_CHECKBOX = CHEKCED THEN
- 		Call write_variable_in_case_note("IMIG-Instituted Additional SAVE for M" & memb_number)
-ELSE Call write_variable_in_case_note("IMIG-Initial SAVE completed for M" & memb_number)
 END IF
 Call write_bullet_and_variable_in_case_note("Immigration Status", immig_status_dropdown)
 IF LPR_status_dropdown <> "Select One:" then Call write_bullet_and_variable_in_case_note("LPR adjusted from", LPR_status_dropdown)
@@ -404,7 +405,7 @@ If immig_status_dropdown <> "US Citizen" and sponsored = 1 then
 	IF sponsor_name_three <> "" THEN Call write_variable_in_case_note("* Client is sponsored. Third Sponsor is indicated as " & sponsor_name_three & sponsor_addr_three & ".")
 END IF
 If save_CHECKBOX = CHECKED then Call write_variable_in_case_note("* SAVE requested.")
-If additional_CHECKBOX = CHECKED then Call write_variable_in_case_note("* Additonal SAVE requested.")
+If additional_CHECKBOX = CHECKED then Call write_variable_in_case_note("* Additional SAVE requested.")
 If SAVE_docs_check = CHECKED then Call write_variable_in_case_note("* Attached a copy of the immigration document to request for SAVE")
 Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 IF ss_credits <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("40 Social Security Credits", ss_credits)
