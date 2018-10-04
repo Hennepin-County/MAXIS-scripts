@@ -184,8 +184,8 @@ IF immig_status_dropdown <> "US Citizen" Then
 			err_msg = ""
 			dialog addimig_dialog
 			cancel_confirmation
-			'IF immig_status_dropdown = "28 Undocumented" or immig_status_dropdown = "27 Non-immigrant" or immig_status_dropdown = "50 Other Lawfully Residing" and battered_spouse = "Select One:" THEN	err_msg = err_msg & vbNewLine & "* Please advise if battered spouse or child is applicable."
-			'IF nationality_dropdown = "EL Ethnic Lao" or nationality_dropdown = "HG Hmong" and nation_vietnam = "Select One:" Then err_msg = err_msg & vbNewLine & "* Please advise if client has a status during Vietnam War or is Native American born in Mexico or Canada."
+			IF (immig_status_dropdown = "28 Undocumented" or immig_status_dropdown = "27 Non-immigrant" or immig_status_dropdown = "50 Other Lawfully Residing" and battered_spouse = "Select One:") THEN err_msg = err_msg & vbNewLine & "* Please advise if battered spouse or child is applicable."
+			IF (nationality_dropdown = "EL Ethnic Lao" or nationality_dropdown = "HG Hmong" and nation_vietnam = "Select One:") Then err_msg = err_msg & vbNewLine & "* Please advise if client has a status during Vietnam War or is Native American born in Mexico or Canada."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
