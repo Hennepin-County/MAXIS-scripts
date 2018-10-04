@@ -110,31 +110,39 @@ BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
   Text 10, 280, 65, 10, "Worker Signature:"
 EndDialog
 
-BeginDialog addimig_dialog, 0, 0, 296, 115, "Additional Information"
-  DropListBox 110, 5, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ss_credits
-  DropListBox 235, 5, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", verf_sscredits
-  DropListBox 110, 20, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", battered_spouse 'mandatory for undoc'
-  DropListBox 235, 20, 55, 12, "Select One:"+chr(9)+"YES"+chr(9)+"NO", battered_spouse_verf
-  DropListBox 110, 35, 80, 15, "Select One:"+chr(9)+"Veteran"+chr(9)+"Active Duty"+chr(9)+"Spouse of 1 or 2"+chr(9)+"Child of 1 or 2"+chr(9)+"No Military Stat or Other", military_status
-  DropListBox 235, 35, 55, 12, "Select One:"+chr(9)+"YES"+chr(9)+"NO", military_status_verf
-  DropListBox 110, 50, 135, 15, "Select One:"+chr(9)+"Hmong During Vietnam War"+chr(9)+"Highland Lao During Vietnam"+chr(9)+"Spouse/Widow of 1 Or 2"+chr(9)+"Dep Child of 1 Or 2"+chr(9)+"Native Amer Born Can/Mex"+chr(9)+"N/A", nation_vietnam
-  DropListBox 110, 65, 55, 12, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_ctzn 'mandatory for GA'
-  DropListBox 235, 65, 55, 12, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_ctzn_verf
-  DropListBox 110, 80, 55, 12, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_skills
+BeginDialog addimig_dialog, 0, 0, 370, 240, "Additional Information for IMIG"
+  DropListBox 115, 15, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ss_credits
+  DropListBox 300, 15, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", verf_sscredits
+  DropListBox 115, 30, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", battered_spouse 'mandatory for undoc'
+  DropListBox 300, 30, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", battered_spouse_verf
+  DropListBox 115, 45, 80, 15, "Select One:"+chr(9)+"Veteran"+chr(9)+"Active Duty"+chr(9)+"Spouse of 1 or 2"+chr(9)+"Child of 1 or 2"+chr(9)+"No Military Stat or Other", military_status
+  DropListBox 300, 45, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", military_status_verf
+  DropListBox 115, 60, 135, 15, "Select One:"+chr(9)+"Hmong During Vietnam War"+chr(9)+"Highland Lao During Vietnam"+chr(9)+"Spouse/Widow of 1 Or 2"+chr(9)+"Dep Child of 1 Or 2"+chr(9)+"Native Amer Born Can/Mex"+chr(9)+"N/A", nation_vietnam
+  DropListBox 115, 75, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_ctzn 'mandatory for GA'
+  DropListBox 300, 75, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_ctzn_verf
+  DropListBox 115, 90, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ESL_skills
   ButtonGroup ButtonPressed
-    OkButton 195, 95, 45, 15
-    CancelButton 245, 95, 45, 15
-  Text 20, 10, 90, 10, "40 Social Security Credits:"
-  Text 30, 25, 75, 10, "Battered Spouse/Child:"
-  Text 55, 40, 50, 10, "Military Status:"
-  Text 5, 55, 100, 10, "Hmong, Lao, Native American:"
-  Text 30, 70, 80, 10, "St Prog ESL/Ctzn Coop:"
-  Text 25, 85, 80, 10, "FSS ESL/Skills Training:"
-  Text 200, 10, 35, 10, "Verified?:"
-  Text 200, 25, 35, 10, "Verified?:"
-  Text 200, 40, 35, 10, "Verified?:"
-  Text 200, 70, 35, 10, "Verified?:"
+    OkButton 260, 100, 45, 15
+    CancelButton 310, 100, 45, 15
+  Text 10, 135, 350, 10, "* 40 Social Security Credits: Mandatory field only for those LPRs not otherwise eligible for federal funding. "
+  Text 30, 35, 75, 10, "Battered Spouse/Child:"
+  Text 10, 175, 345, 15, "* Military Status: If the client is an active duty member or veteran of the US armed forces (or a spouse or unmarried minor child) of an active duty member or veteran."
+  Text 10, 65, 100, 10, "Hmong, Lao, Native American:"
+  Text 30, 80, 80, 10, "St Prog ESL/Ctzn Coop:"
+  Text 30, 95, 80, 10, "FSS ESL/Skills Training:"
+  Text 260, 20, 35, 10, "Verified?:"
+  Text 260, 35, 35, 10, "Verified?:"
+  Text 260, 50, 35, 10, "Verified?:"
+  Text 260, 80, 35, 10, "Verified?:"
+  GroupBox 5, 120, 360, 120, "Information: Please see instructions for additional information"
+  Text 10, 150, 350, 15, "* Battered Spouse/Child: Mandatory field only for those LPRs not otherwise eligible for federal funding. HSR records whether the person has 40 Social Security work credits."
+  Text 55, 50, 50, 10, "Military Status:"
+  Text 10, 195, 345, 15, "* Hmong, Lao, Native American: If the non-citizen client is Hmong, Lao, or Native American born in Canada, please PF12 on the line for more information."
+  Text 10, 220, 345, 15, "* St Prog ESL/Ctzn Coop: This field needs to be completed for all LPRs age 18 through 69 in the GA or state-funded MFIP unit."
+  Text 20, 20, 90, 10, "40 Social Security Credits:"
+  GroupBox 5, 5, 360, 115, "IMIG fields"
 EndDialog
+
 
 '-----------------------------------------------------------------------------------------------------------THE SCRIPT
 Do
@@ -148,11 +156,11 @@ Do
 		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF memb_number = "" or IsNumeric(memb_number) = False or len(memb_number) > 2 then err_msg = err_msg & vbNewLine & "* Enter a member number."
 		IF immig_status_dropdown = "US Citizen" Then
-			err_msg = err_msg & vbNewLine & "* This will delete IMIG, update MEMI & MEMB for this member."
-			'IF immig_doc_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
-			IF immig_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of current immigration status."
+			err_msg = err_msg & vbNewLine & "* This will delete IMIG, SPON, and update MEMI & MEMB for this member."
 			EXIT DO
 		ELSE
+			IF immig_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of current immigration status."
+			IF immig_doc_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
 			If isdate(actual_date) = FALSE then err_msg = err_msg & vbnewline & "* You must enter an actual date in the footer month that you are working in and not in the future."
 			''"21 Refugee" "22 Asylee""23 Deport/Remove Withheld" "24 LPR" "25 Paroled For 1 Year Or More" "26 Conditional Entry < 4/80" "27 Non-immigrant" "28 Undocumented""50 Other Lawfully Residing""US Citizen", immig_status_dropdown
 			If isdate(entry_date) = FALSE then err_msg = err_msg & vbnewline & "* Entry Date is required for all persons." 'with exception of Asylee, Deportation/Removal Withheld, or Undocumented statuses."
@@ -197,10 +205,11 @@ the_month = datepart("m", actual_date)
 MAXIS_footer_month = right("00" & the_month, 2)
 the_year = datepart("yyyy", actual_date)
 MAXIS_footer_year = right("00" & the_year, 2)
-
 CALL convert_date_into_MAXIS_footer_month(actual_date, footer_month, footer_year)
 
 Call navigate_to_MAXIS_screen("STAT", "IMIG")
+EmWriteScreen, memb_number, 20, 76
+TRANSMIT
 'Making sure we have the correct IMIG
 EMReadScreen panel_number, 1, 2, 78
 If panel_number = "0" then script_end_procedure("An IMIG panel does not exist. Please create the panel before running the script again. ")
@@ -209,7 +218,10 @@ DO
 	EMReadScreen current_panel_number, 1, 2, 73
 	IMIG_check = MsgBox("Is this the right IMIG?", vbYesNo +vbQuestion, "Confirmation")
 	If IMIG_check = vbYes THEN EXIT DO
-	If IMIG_check = vbNo THEN TRANSMIT
+	If IMIG_check = vbNo THEN
+		EmWriteScreen, memb_number, 20, 76
+		TRANSMIT
+	END IF
 	If (IMIG_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another IMIG. Please review the case, and run the script again if applicable.")
 Loop until current_panel_number = panel_number
 
@@ -232,6 +244,14 @@ IF immig_status_dropdown = "US Citizen" THEN
 	'deleting the panel'
 	EMwritescreen "DEL", 20, 71
 	TRANSMIT
+	'Navigates to delete SPON'
+	Call navigate_to_MAXIS_screen("STAT", "SPON")
+	Emwritescreen memb_number, 20, 76
+	TRANSMIT
+	PF9
+	EMwritescreen "DEL", 20, 71
+	TRANSMIT
+
 	'Navigates to MEMI tp update citizenship status'
 	Call navigate_to_MAXIS_screen("STAT", "MEMI")
 	Emwritescreen memb_number, 20, 76
