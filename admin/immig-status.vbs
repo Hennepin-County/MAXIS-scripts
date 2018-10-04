@@ -164,6 +164,7 @@ Do
 			'IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" and isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "* Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
 			IF immig_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of current immigration status."
 			IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
+			IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "N/A" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
 			IF immig_status_dropdown <> "24 LPR" and LPR_status_dropdown <> "Select One:" and LPR_status_dropdown <> "N/A" then err_msg = err_msg & vbNewLine & "* IMMIGRATION STATUS DOES NOT INDICATE LPR, BUT ADJUSTED STATUS IS INDICATED"
 			IF immig_doc_type = "Select One:" and immig_status_dropdown <> "28 Undocumented" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
 			'Battered Spouse/Child (Y/N): This field is mandatory for undocumented persons, non-immigrants and other lawfully residing persons.
@@ -190,7 +191,7 @@ IF immig_status_dropdown <> "US Citizen" Then
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 END IF
-
+'write for 10 '
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 the_month = datepart("m", actual_date)
 MAXIS_footer_month = right("00" & the_month, 2)
