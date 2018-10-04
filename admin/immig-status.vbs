@@ -95,8 +95,8 @@ BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
   Text 195, 80, 55, 10, "Immig Doc Type:"
   Text 105, 10, 30, 10, "Memb #:"
   GroupBox 5, 140, 350, 110, "Sponsored on I-864 Affidavit of Support? (LPR COA CODE: C, CF, CR, CX, F, FX, IF, IR)"
-  Text 80, 155, 245, 10, "*If date of entry was prior to 12/19/1997 sponsor information is not needed"
-  Text 120, 170, 205, 10, "*If sponsor is active on MAXIS case information is not needed"
+  Text 80, 155, 245, 10, "* If date of entry was prior to 12/19/1997 sponsor information is not needed"
+  Text 120, 170, 205, 10, "* If sponsor(s) are currenlty unknown please enter unknown and send request additonal SAVE"
   Text 20, 195, 60, 10, "Name of sponsor:"
   Text 165, 195, 55, 10, "Address/Phone:"
   Text 20, 215, 60, 10, "Name of sponsor:"
@@ -193,12 +193,12 @@ IF immig_status_dropdown <> "US Citizen" Then
 END IF
 'write for 10 '
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-the_month = datepart("m", actual_date)
+'the_month = datepart("m", actual_date)
 MAXIS_footer_month = right("00" & the_month, 2)
-
 the_year = datepart("yyyy", actual_date)
 MAXIS_footer_year = right("00" & the_year, 2)
 
+CALL convert_date_into_MAXIS_footer_month(actual_date, footer_month, footer_year)
 
 Call navigate_to_MAXIS_screen("STAT", "IMIG")
 'Making sure we have the correct IMIG
