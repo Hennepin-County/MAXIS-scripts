@@ -193,7 +193,7 @@ IF immig_status_dropdown <> "US Citizen" Then
 END IF
 'write for 10 '
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-'the_month = datepart("m", actual_date)
+the_month = datepart("m", actual_date)
 MAXIS_footer_month = right("00" & the_month, 2)
 the_year = datepart("yyyy", actual_date)
 MAXIS_footer_year = right("00" & the_year, 2)
