@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/05/2018", "Added identification to MA-DX basis recipients as not coverting to METS.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/13/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -431,6 +432,8 @@ For item = 0 to UBound(case_array, 2)
                         convert_case = FALSE          'TEFRA disabled child
                     elseIf first_elig_type = "MA-EX" then 
                         convert_case = FALSE          'Elderly basis
+                    elseIf first_elig_type = "MA-DX" then 
+                        convert_case = FALSE          'Disabled basis
                     else 
                         If first_elig_end = "99/99/99" then 
                             convert_case = TRUE                             'Open MA cases in MMIS
