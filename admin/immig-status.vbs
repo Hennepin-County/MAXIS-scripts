@@ -403,7 +403,7 @@ ELSE
 		Transmit
 		'PF3	'to move past non-inhibiting warning messages on IMIG
 		EMReadScreen IMIG_screen, 4, 2, 49		'if inhibiting error exists, this will catch it and instruct the user to update IMIG
-		msgbox IMIG_screen
+		'msgbox IMIG_screen
 		'If IMIG_screen = "IMIG" then script_end_procedure("An error occurred on the IMIG panel. Please update the panel before using the script again.")
 END IF
 
@@ -417,7 +417,7 @@ ELSEIF immig_status_dropdown = "US Citizen" THEN
 	Call write_variable_in_case_note("* Updated MEMB to remove Alien ID")
 	Call write_variable_in_case_note("* Updated MEMI to correct status")
 	Call write_variable_in_case_note("* Deleted IMIG and SPON")
-	Call write_bullet_and_variable_in_case_note("Sent" & status_verification & "to ECF")
+	Call write_variable_in_case_note("Sent status verification to ECF")
 ELSEIF immig_status_dropdown = "28 Undocumented" THEN
 	Call write_variable_in_case_note("Updated IMIG for M" & MEMB_number)
 END IF
