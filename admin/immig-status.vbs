@@ -90,7 +90,7 @@ BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
  Text 165, 235, 55, 10, "Address/Phone:"
  EditBox 220, 230, 125, 15, sponsor_addr_three
   EditBox 75, 255, 160, 15, other_notes
-  EditBox 75, 275, 160, 15, worker_sig
+  EditBox 75, 275, 160, 15, worker_signature
   ButtonGroup ButtonPressed
     CancelButton 310, 275, 45, 15
     OkButton 260, 275, 45, 15
@@ -161,26 +161,22 @@ Do
 			IF immig_doc_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
 			IF (immig_doc_type = "Certificate of Naturalization" and immig_status_dropdown <> "US Citizen") THEN err_msg = err_msg & vbNewLine & "* You indicated that you have received Certificate of Naturalization immigration status should be US Citizen."
 			If isdate(actual_date) = FALSE then err_msg = err_msg & vbnewline & "* You must enter an actual date in the footer month that you are working in and not in the future."
-			''"21 Refugee" "22 Asylee""23 Deport/Remove Withheld" "24 LPR" "25 Paroled For 1 Year Or More" "26 Conditional Entry < 4/80" "27 Non-immigrant" "28 Undocumented""50 Other Lawfully Residing""US Citizen", immig_status_dropdown
 			If isdate(entry_date) = FALSE then err_msg = err_msg & vbnewline & "* Entry Date is required for all persons." 'with exception of Asylee, Deportation/Removal Withheld, or Undocumented statuses."
 		END IF
 		IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" Then
 			If isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "* Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
 		END IF
-			IF immig_status_dropdown <> "28 Undocumented" and save_CHECKBOX= UNCHECKED and additional_CHECKBOX = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please select if a SAVE has been run as it is mandatory."
-			'IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" and isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "* Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
-			IF immig_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of current immigration status."
-			IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
-			IF immig_status_dropdown = "24 LPR" and yes_sponsored = UNCHECKED and not_sponsored = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please advise of LPR Sponosr status."
-			IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "N/A" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
-			IF immig_status_dropdown <> "24 LPR" and LPR_status_dropdown <> "Select One:" and LPR_status_dropdown <> "N/A" then err_msg = err_msg & vbNewLine & "* Immigration status does not indicate LPR, but adjusted status is indicated."
-			IF immig_doc_type = "Select One:" and immig_status_dropdown <> "28 Undocumented" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
-			'Battered Spouse/Child (Y/N): This field is mandatory for undocumented persons, non-immigrants and other lawfully residing persons.
-			IF nationality_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of Nationality or Nation."
-			IF yes_sponsored = CHECKED and name_sponsor = "" then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information."
-			IF yes_sponsored = CHECKED and not_sponsored = CHECKED then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information and uncheck no."
-
-		'END IF
+		IF immig_status_dropdown <> "28 Undocumented" and save_CHECKBOX= UNCHECKED and additional_CHECKBOX = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please select if a SAVE has been run as it is mandatory."
+		IF immig_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of current immigration status."
+		IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
+		IF immig_status_dropdown = "24 LPR" and yes_sponsored = UNCHECKED and not_sponsored = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please advise of LPR Sponosr status."
+		IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "N/A" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
+		IF immig_status_dropdown <> "24 LPR" and LPR_status_dropdown <> "Select One:" and LPR_status_dropdown <> "N/A" then err_msg = err_msg & vbNewLine & "* Immigration status does not indicate LPR, but adjusted status is indicated."
+		IF immig_doc_type = "Select One:" and immig_status_dropdown <> "28 Undocumented" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
+		'Battered Spouse/Child (Y/N): This field is mandatory for undocumented persons, non-immigrants and other lawfully residing persons.
+		IF nationality_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of Nationality or Nation."
+		IF yes_sponsored = CHECKED and name_sponsor = "" then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information."
+		IF yes_sponsored = CHECKED and not_sponsored = CHECKED then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information and uncheck no."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
