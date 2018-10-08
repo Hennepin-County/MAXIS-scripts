@@ -52,7 +52,7 @@ changelog_display
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 MEMB_number = "01"
-actual_date = date & ""
+'actual_date = date & ""
 
 '-----------------------------------------------------------------------------------------------------------------------DIALOG
 BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
@@ -193,12 +193,12 @@ IF immig_status_dropdown <> "US Citizen" Then
 			err_msg = ""
 			dialog addimig_dialog
 			cancel_confirmation
-			IF (immig_status_dropdown = "28 Undocumented" or immig_status_dropdown = "27 Non-immigrant" or immig_status_dropdown = "50 Other Lawfully Residing" and battered_spouse = "Select One:") THEN err_msg = err_msg & vbNewLine & "* Please advise if battered spouse or child is applicable."
+			'IF (immig_status_dropdown = "28 Undocumented" or immig_status_dropdown = "27 Non-immigrant" or immig_status_dropdown = "50 Other Lawfully Residing" and battered_spouse = "Select One:") THEN err_msg = err_msg & vbNewLine & "* Please advise if battered spouse or child is applicable."
 			'IF (nationality_dropdown = "EL Ethnic Lao" or nationality_dropdown = "HG Hmong" and nation_vietnam = "Select One:") Then err_msg = err_msg & vbNewLine & "* Please advise if client has a status during Vietnam War or is Native American born in Mexico or Canada."
 			'IF (ss_credits <> "Select One:" and verf_sscredits = "YES" or verf_sscredits = "NO") THEN err_msg = err_msg & vbNewLine & "* You selected that social secuirty credits are verified, please advise if SS credits are applicable."
 			'IF (battered_spouse <> "Select One:" and battered_spouse_verf = "YES" or battered_spouse_verf  = "NO") THEN err_msg = err_msg & vbNewLine & "* You selected that battered spouse is verified, please advise if advise if battered spouse is applicable."
 			'IF (military_status <> "Select One:" and military_status_verf= "YES" or military_status_verf = "NO") THEN err_msg = err_msg & vbNewLine & "* You selected that military status is verified, please advise if military status is applicable."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+			'IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
@@ -381,7 +381,7 @@ ELSE
 		IF status_verification = "No Ver Prvd" THEN verif_status = "NO"
 		EMWriteScreen verif_status, 8, 45
 
-		'EMReadScreen alien_id_numbe, 9, 10, 72
+		'EMReadScreen alien_id_number, 9, 10, 72
 		'IF alien_id_number <> id_number THEN MsgBox "The number enter for ID does not match the number entered in the case note"
 		'VERIFICATION OF 40 SOCIAL SECURITY CREDITS IS NOT NEEDED  '
 		IF ss_credits <> "Select One:" THEN EmWriteScreen ss_credits, 13, 56
@@ -434,7 +434,7 @@ ELSEIF immig_status_dropdown = "US Citizen" THEN
 	Call write_variable_in_case_note("* Updated MEMB to remove Alien ID")
 	Call write_variable_in_case_note("* Updated MEMI to correct status")
 	Call write_variable_in_case_note("* Deleted IMIG and SPON")
-	Call write_variable_in_case_note("Sent status verification to ECF")
+	Call write_variable_in_case_note("* Sent status verification to ECF")
 ELSEIF immig_status_dropdown = "28 Undocumented" THEN
 	Call write_variable_in_case_note("Updated IMIG for M" & MEMB_number)
 END IF
