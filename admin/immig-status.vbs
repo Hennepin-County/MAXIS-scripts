@@ -159,6 +159,7 @@ Do
 		ELSE
 			IF immig_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of current immigration status."
 			IF immig_doc_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
+			IF (immig_doc_type = "Certificate of Naturalization" and immig_status_dropdown <> "US Citizen") THEN err_msg = err_msg & vbNewLine & "* You indicated that you have received Certificate of Naturalization immigration status should be US Citizen."
 			If isdate(actual_date) = FALSE then err_msg = err_msg & vbnewline & "* You must enter an actual date in the footer month that you are working in and not in the future."
 			''"21 Refugee" "22 Asylee""23 Deport/Remove Withheld" "24 LPR" "25 Paroled For 1 Year Or More" "26 Conditional Entry < 4/80" "27 Non-immigrant" "28 Undocumented""50 Other Lawfully Residing""US Citizen", immig_status_dropdown
 			If isdate(entry_date) = FALSE then err_msg = err_msg & vbnewline & "* Entry Date is required for all persons." 'with exception of Asylee, Deportation/Removal Withheld, or Undocumented statuses."
@@ -170,7 +171,7 @@ Do
 			'IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" and isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "* Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
 			IF immig_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of current immigration status."
 			IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
-			IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "24 None" and yes_sponsored = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please advise of LPR Sponosr status."
+			IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "24 None" and yes_sponsored = UNCHECKED and no_sponsor = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please advise of LPR Sponosr status."
 			IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "N/A" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
 			IF immig_status_dropdown <> "24 LPR" and LPR_status_dropdown <> "Select One:" and LPR_status_dropdown <> "N/A" then err_msg = err_msg & vbNewLine & "* Immigration status does not indicate LPR, but adjusted status is indicated."
 			IF immig_doc_type = "Select One:" and immig_status_dropdown <> "28 Undocumented" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
@@ -178,7 +179,7 @@ Do
 			IF nationality_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of Nationality or Nation."
 			IF yes_sponsored = CHECKED and name_sponsor = "" then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information."
 			IF yes_sponsored = CHECKED and no_sponsor = CHECKED then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information and uncheck no."
-			IF status_verification = "Certificate of Naturalization" and immig_status_dropdown <> "US Citizen" THEN err_msg = err_msg & vbNewLine & "* You indicated that you have received Certificate of Naturalization immigration status should be US Citizen."
+
 		'END IF
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
@@ -193,7 +194,10 @@ IF immig_status_dropdown <> "US Citizen" Then
 			dialog addimig_dialog
 			cancel_confirmation
 			IF (immig_status_dropdown = "28 Undocumented" or immig_status_dropdown = "27 Non-immigrant" or immig_status_dropdown = "50 Other Lawfully Residing" and battered_spouse = "Select One:") THEN err_msg = err_msg & vbNewLine & "* Please advise if battered spouse or child is applicable."
-			IF (nationality_dropdown = "EL Ethnic Lao" or nationality_dropdown = "HG Hmong" and nation_vietnam = "Select One:") Then err_msg = err_msg & vbNewLine & "* Please advise if client has a status during Vietnam War or is Native American born in Mexico or Canada."
+			'IF (nationality_dropdown = "EL Ethnic Lao" or nationality_dropdown = "HG Hmong" and nation_vietnam = "Select One:") Then err_msg = err_msg & vbNewLine & "* Please advise if client has a status during Vietnam War or is Native American born in Mexico or Canada."
+			'IF (ss_credits <> "Select One:" and verf_sscredits = "YES" or verf_sscredits = "NO") THEN err_msg = err_msg & vbNewLine & "* You selected that social secuirty credits are verified, please advise if SS credits are applicable."
+			'IF (battered_spouse <> "Select One:" and battered_spouse_verf = "YES" or battered_spouse_verf  = "NO") THEN err_msg = err_msg & vbNewLine & "* You selected that battered spouse is verified, please advise if advise if battered spouse is applicable."
+			'IF (military_status <> "Select One:" and military_status_verf= "YES" or military_status_verf = "NO") THEN err_msg = err_msg & vbNewLine & "* You selected that military status is verified, please advise if military status is applicable."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -214,19 +218,27 @@ TRANSMIT
 EMReadScreen panel_number, 1, 2, 78
 If panel_number = "0" then script_end_procedure("An IMIG panel does not exist. Please create the panel before running the script again. ")
 'If there is more than one panel, this part will grab employer info off of them and present it to the worker to decide which one to use.
-DO
-	EMReadScreen current_panel_number, 1, 2, 73
-	IMIG_check = MsgBox("Is this the right IMIG?", vbYesNo +vbQuestion, "Confirmation")
-	If IMIG_check = vbYes THEN EXIT DO
-	If IMIG_check = vbNo THEN
-		EmWriteScreen MEMB_number, 20, 76
-		TRANSMIT
-	END IF
-	If (IMIG_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another IMIG. Please review the case, and run the script again if applicable.")
-Loop until current_panel_number = panel_number
-
+EMReadScreen current_panel_check, 4, 2, 49
+IF current_panel_check = "IMIG" THEN
+	DO
+		EMReadScreen current_panel_number, 1, 2, 73
+		IMIG_check = MsgBox("Is this the right IMIG?", vbYesNo +vbQuestion, "Confirmation")
+		If IMIG_check = vbYes THEN EXIT DO
+		If IMIG_check = vbNo THEN
+			EmWriteScreen MEMB_number, 20, 76
+			TRANSMIT
+		END IF
+		If (IMIG_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another IMIG. Please review the case, and run the script again if applicable.")
+	Loop until current_panel_number = panel_number
+ELSE
+	back_to_self
+	Call navigate_to_MAXIS_screen("STAT", "IMIG")
+	EmWriteScreen MEMB_number, 20, 76
+	TRANSMIT
+END IF
 '-------------------------------------------------------------------------------Updating the IMIG panel
 PF9
+EMReadScreen alien_id_numbe, 9, 10, 72
 EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
 error_check = trim(error_check)
 If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
@@ -273,8 +285,11 @@ IF immig_status_dropdown = "US Citizen" THEN
 	Emwritescreen MEMB_number, 20, 76
 	TRANSMIT
 	PF9
-	Call clear_line_of_text(15, 68)
-	TRANSMIT
+	EMReadScreen alien_id_numbe, 9, 15, 68
+	IF alien_id_numbe <> "" THEN
+		Call clear_line_of_text(15, 68)
+		TRANSMIT
+
 ELSE
 	Call create_MAXIS_friendly_date_with_YYYY(actual_date, 0, 5, 45)
 	EMWriteScreen "N", 7, 47			'Sup evidence Y/N field (defaulted to N during this process)
@@ -364,7 +379,7 @@ ELSE
 		IF status_verification = "No Ver Prvd" THEN verif_status = "NO"
 		EMWriteScreen verif_status, 8, 45
 
-		'EMReadScreen id_number, 9, 10, 72
+		'EMReadScreen alien_id_numbe, 9, 10, 72
 		'IF alien_id_number <> id_number THEN MsgBox "The number enter for ID does not match the number entered in the case note"
 		'VERIFICATION OF 40 SOCIAL SECURITY CREDITS IS NOT NEEDED  '
 		IF ss_credits <> "Select One:" THEN EmWriteScreen ss_credits, 13, 56
