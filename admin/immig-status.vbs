@@ -238,7 +238,7 @@ ELSE
 END IF
 '-------------------------------------------------------------------------------Updating the IMIG panel
 PF9
-EMReadScreen alien_id_numbe, 9, 10, 72
+EMReadScreen alien_id_number, 9, 10, 72
 EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
 error_check = trim(error_check)
 If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
@@ -284,11 +284,13 @@ IF immig_status_dropdown = "US Citizen" THEN
 	Call navigate_to_MAXIS_screen("STAT", "MEMB")
 	Emwritescreen MEMB_number, 20, 76
 	TRANSMIT
-	PF9
-	EMReadScreen alien_id_numbe, 9, 15, 68
-	IF alien_id_numbe <> "" THEN
+
+	EMReadScreen alien_id_number, 9, 15, 68
+	IF alien_id_number <> "" THEN
+		PF9
 		Call clear_line_of_text(15, 68)
 		TRANSMIT
+	END IF
 
 ELSE
 	Call create_MAXIS_friendly_date_with_YYYY(actual_date, 0, 5, 45)
