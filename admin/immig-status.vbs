@@ -171,21 +171,21 @@ Do
 			'IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" and isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "* Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
 			IF immig_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of current immigration status."
 			IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
-			IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "24 None" and yes_sponsored = UNCHECKED and no_sponsor = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please advise of LPR Sponosr status."
+			IF immig_status_dropdown = "24 LPR" and yes_sponsored = UNCHECKED and not_sponsored = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please advise of LPR Sponosr status."
 			IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "N/A" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
 			IF immig_status_dropdown <> "24 LPR" and LPR_status_dropdown <> "Select One:" and LPR_status_dropdown <> "N/A" then err_msg = err_msg & vbNewLine & "* Immigration status does not indicate LPR, but adjusted status is indicated."
 			IF immig_doc_type = "Select One:" and immig_status_dropdown <> "28 Undocumented" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
 			'Battered Spouse/Child (Y/N): This field is mandatory for undocumented persons, non-immigrants and other lawfully residing persons.
 			IF nationality_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of Nationality or Nation."
 			IF yes_sponsored = CHECKED and name_sponsor = "" then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information."
-			IF yes_sponsored = CHECKED and no_sponsor = CHECKED then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information and uncheck no."
+			IF yes_sponsored = CHECKED and not_sponsored = CHECKED then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information and uncheck no."
 
 		'END IF
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-Call MAXIS_footer_month_confirmation			'function that confirms that the current footer month/year is the same as what was selected by the user. If not, it will navigate to correct footer month/year
+
 
 IF immig_status_dropdown <> "US Citizen" Then
 	Do
@@ -193,17 +193,26 @@ IF immig_status_dropdown <> "US Citizen" Then
 			err_msg = ""
 			dialog addimig_dialog
 			cancel_confirmation
-			'IF (immig_status_dropdown = "28 Undocumented" or immig_status_dropdown = "27 Non-immigrant" or immig_status_dropdown = "50 Other Lawfully Residing" and battered_spouse = "Select One:") THEN err_msg = err_msg & vbNewLine & "* Please advise if battered spouse or child is applicable."
-			'IF (nationality_dropdown = "EL Ethnic Lao" or nationality_dropdown = "HG Hmong" and nation_vietnam = "Select One:") Then err_msg = err_msg & vbNewLine & "* Please advise if client has a status during Vietnam War or is Native American born in Mexico or Canada."
-			'IF (ss_credits <> "Select One:" and verf_sscredits = "YES" or verf_sscredits = "NO") THEN err_msg = err_msg & vbNewLine & "* You selected that social secuirty credits are verified, please advise if SS credits are applicable."
-			'IF (battered_spouse <> "Select One:" and battered_spouse_verf = "YES" or battered_spouse_verf  = "NO") THEN err_msg = err_msg & vbNewLine & "* You selected that battered spouse is verified, please advise if advise if battered spouse is applicable."
-			'IF (military_status <> "Select One:" and military_status_verf= "YES" or military_status_verf = "NO") THEN err_msg = err_msg & vbNewLine & "* You selected that military status is verified, please advise if military status is applicable."
-			'IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+			'IF ss_credits = "Select One:" THEN
+			'	immig_status_dropdown = "24 LPR" THEN err_msg = err_msg & vbNewLine & "* Please advise if social security credits are applicable."
+			'END IF
+			IF battered_spouse = "Select One:" THEN
+			 	IF immig_status_dropdown = "28 Undocumented" or immig_status_dropdown = "27 Non-immigrant" or immig_status_dropdown = "50 Other Lawfully Residing" THEN err_msg = err_msg & vbNewLine & "* Please advise if battered spouse or child is applicable."
+			END IF
+			IF nation_vietnam = "Select One:" THEN
+				IF nationality_dropdown = "EL Ethnic Lao" or nationality_dropdown = "HG Hmong"  or nationality_dropdown = "HG Hmong" THEN err_msg = err_msg & vbNewLine & "* Please advise if client has a status during Vietnam War or is Native American born in Mexico or Canada."
+			END IF
+			IF ESL_ctzn = "Select One:" and immig_status_dropdown = "24 LPR" THEN err_msg = err_msg & vbNewLine & "* Please advise of ESL cooperation requirment for state funded GA and MFIP."
+			IF ss_credits = "Select One:" and verf_sscredits <> "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that social secuirty credits are verified, please advise if SS credits are applicable."
+			IF battered_spouse =  "Select One:" and battered_spouse_verf  <> "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that battered spouse is verified, please advise if advise if battered spouse is applicable."
+			IF military_status = "Select One:" and military_status_verf  <> "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that military status is verified, please advise if military status is applicable."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 END IF
 'write for 10 '
+'Call MAXIS_footer_month_confirmation			'function that confirms that the current footer month/year is the same as what was selected by the user. If not, it will navigate to correct footer month/year
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 the_month = datepart("m", actual_date)
 MAXIS_footer_month = right("00" & the_month, 2)
