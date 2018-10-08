@@ -323,6 +323,7 @@ ELSE
 		IF status_date = "" THEN Call clear_line_of_text(7, 74)
 		IF status_date = "" THEN Call clear_line_of_text(7, 77)
 		reminder_date = dateadd("d", 10, date)' FOR APPT DATE'
+		Call change_date_to_soonest_working_day(reminder_date) 
 
 		LPR_status = ""
 		If LPR_status_dropdown = "21 Refugee" then LPR_status = "21"
