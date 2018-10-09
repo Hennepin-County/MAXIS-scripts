@@ -111,11 +111,14 @@ current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
 
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-Call back_to_self
+
 EMReadscreen dail_check, 4, 2, 48
+
 IF dail_check <> "DAIL" THEN
+
 	CALL MAXIS_case_number_finder (MAXIS_case_number)
 	MEMB_number = "01"
+	Call back_to_self
 
     BeginDialog ase_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
       EditBox 60, 5, 65, 15, MAXIS_case_number
@@ -149,8 +152,7 @@ IF dail_check <> "DAIL" THEN
 	CALL navigate_to_MAXIS_screen("INFC" , "____")
 	CALL write_value_and_transmit("IEVP", 20, 71)
 	CALL write_value_and_transmit(SSN_number_read, 3, 63) '
-ELSE
-	IF dail_check = "DAIL" THEN
+ELSEIF dail_check = "DAIL" THEN
 	    EMSendKey "t"
 	    'checking for an active MAXIS session
 	    Call check_for_MAXIS(FALSE)
@@ -169,7 +171,7 @@ ELSE
 		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
 		EMReadScreen error_msg, 7, 24, 2
 		IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
-	END IF
+	'END IF
 END IF
 
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
