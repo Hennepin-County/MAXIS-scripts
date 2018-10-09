@@ -51,18 +51,18 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-memb_number = "01"
+MEMB_number = "01"
 'actual_date = date & ""
 
 '-----------------------------------------------------------------------------------------------------------------------DIALOG
 BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
  EditBox 60, 5, 40, 15, MAXIS_case_number
- EditBox 140, 5, 20, 15, memb_number
+ EditBox 140, 5, 20, 15, MEMB_number
  EditBox 210, 5, 40, 15, actual_date
  ButtonGroup ButtonPressed
    PushButton 270, 5, 85, 15, "Non-Citizen Guide ", Noncitzn_button
  DropListBox 60, 35, 110, 15, "Select One:"+chr(9)+"21 Refugee"+chr(9)+"22 Asylee"+chr(9)+"23 Deport/Remove Withheld"+chr(9)+"24 LPR"+chr(9)+"25 Paroled For 1 Year Or More"+chr(9)+"26 Conditional Entry < 4/80"+chr(9)+"27 Non-immigrant"+chr(9)+"28 Undocumented"+chr(9)+"50 Other Lawfully Residing"+chr(9)+"US Citizen", immig_status_dropdown
- DropListBox 60, 55, 110, 15, "Select One:"+chr(9)+"21 Refugee"+chr(9)+"22 Asylee"+chr(9)+"23 Deport/Remove Withheld"+chr(9)+"24 LPR"+chr(9)+"25 Paroled For 1 Year Or More"+chr(9)+"26 Conditional Entry < 4/80"+chr(9)+"27 Non-immigrant"+chr(9)+"28 Undocumented"+chr(9)+"50 Other Lawfully Residing"+chr(9)+"N/A", LPR_status_dropdown
+ DropListBox 60, 55, 110, 15, "Select One:"+chr(9)+"21 Refugee"+chr(9)+"22 Asylee"+chr(9)+"23 Deport/Remove Withheld"+chr(9)+"24 None"+chr(9)+"25 Paroled For 1 Year Or More"+chr(9)+"26 Conditional Entry < 4/80"+chr(9)+"27 Non-immigrant"+chr(9)+"28 Undocumented"+chr(9)+"50 Other Lawfully Residing"+chr(9)+"N/A", LPR_status_dropdown
  DropListBox 255, 35, 95, 15, "Select One:"+chr(9)+"SAVE Primary"+chr(9)+"SAVE Secondary"+chr(9)+"Alien Card"+chr(9)+"Passport/Visa"+chr(9)+"Re-Entry Prmt"+chr(9)+"INS Correspondence"+chr(9)+"Other Document"+chr(9)+"Certificate of Naturalization"+chr(9)+"No Ver Prvd", status_verification
  DropListBox 255, 55, 95, 15, "Select One:"+chr(9)+"AA Amerasian"+chr(9)+"EH Ethnic Chinese"+chr(9)+"EL Ethnic Lao"+chr(9)+"HG Hmong"+chr(9)+"KD Kurd"+chr(9)+"SJ Soviet Jew"+chr(9)+"TT Tinh"+chr(9)+"AF Afghanistan"+chr(9)+"BK Bosnia"+chr(9)+"CB Cambodia"+chr(9)+"CH China"+chr(9)+"CU Cuba"+chr(9)+"ES El Salvador"+chr(9)+"ER Eritrea"+chr(9)+"ET Ethiopia"+chr(9)+"GT Guatemala"+chr(9)+"HA Haiti"+chr(9)+"HO Honduras"+chr(9)+"IR Iran"+chr(9)+"IZ Iraq"+chr(9)+"LI Liberia"+chr(9)+"MC Micronesia"+chr(9)+"MI Marshall Islands"+chr(9)+"MX Mexico"+chr(9)+"WA Namibia"+chr(9)+"PK Pakistan"+chr(9)+"RP Philippines"+chr(9)+"PL Poland"+chr(9)+"RO Romania"+chr(9)+"RS Russia"+chr(9)+"SO Somalia"+chr(9)+"SF South Africa"+chr(9)+"TH Thailand"+chr(9)+"VM Vietnam"+chr(9)+"OT All Others", nationality_dropdown
  DropListBox 255, 75, 95, 15, "Select One:"+chr(9)+"Certificate of Naturalization"+chr(9)+"Employment Auth Card (I-776 work permit)"+chr(9)+"I-94 Travel Document"+chr(9)+"I-220 B Order of Supervision"+chr(9)+"LPR Card (I-551 green card)"+chr(9)+"SAVE"+chr(9)+"Other"+chr(9)+"No Ver Prvd", immig_doc_type
@@ -72,17 +72,25 @@ BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
  CheckBox 10, 90, 90, 10, "Inital SAVE Completed?", save_CHECKBOX
  CheckBox 10, 105, 145, 10, "Additional SAVE Information Requested?", additional_CHECKBOX
  CheckBox 15, 120, 220, 10, "check here if immig document was attached to additional SAVE?", SAVE_docs_check
- OptionGroup RadioGroup1
-    RadioButton 15, 155, 25, 10, "No", not_sponsored
-    RadioButton 15, 170, 75, 10, "Yes, sponsored by:", sponsored
-  EditBox 85, 190, 70, 15, name_sponsor
-  EditBox 220, 190, 125, 15, sponsor_addr
-  EditBox 85, 210, 70, 15, name_sponsor_two
-  EditBox 220, 210, 125, 15, sponsor_addr_two
-  EditBox 85, 230, 70, 15, name_sponsor_three
-  EditBox 220, 230, 125, 15, sponsor_addr_three
+ GroupBox 5, 140, 350, 110, "Sponsored on I-864 Affidavit of Support?          (LPR COA CODE: C, CF, CR, CX, F, FX, IF, IR)"
+ Text 15, 150, 245, 10, "* If date of entry was prior to 12/19/1997 sponsor(s) information is not needed"
+ Text 15, 160, 315, 10, "* If sponsor(s) are currenlty unknown please enter unknown and request an additonal SAVE"
+ CheckBox 10, 175, 175, 10, "YES - If sponsored please complete the following:", yes_sponsored
+ CheckBox 220, 175, 25, 10, "NO", not_sponsored
+ Text 10, 195, 60, 10, "Name of sponsor:"
+ EditBox 75, 190, 80, 15, name_sponsor
+ Text 165, 195, 55, 10, "Address/Phone:"
+ EditBox 220, 190, 125, 15, sponsor_addr
+ Text 10, 215, 60, 10, "Name of sponsor:"
+ EditBox 75, 210, 80, 15, name_sponsor_two
+ Text 165, 215, 55, 10, "Address/Phone:"
+ EditBox 220, 210, 125, 15, sponsor_addr_two
+ Text 10, 235, 60, 10, "Name of sponsor:"
+ EditBox 75, 230, 80, 15, name_sponsor_three
+ Text 165, 235, 55, 10, "Address/Phone:"
+ EditBox 220, 230, 125, 15, sponsor_addr_three
   EditBox 75, 255, 160, 15, other_notes
-  EditBox 75, 275, 160, 15, worker_sig
+  EditBox 75, 275, 160, 15, worker_signature
   ButtonGroup ButtonPressed
     CancelButton 310, 275, 45, 15
     OkButton 260, 275, 45, 15
@@ -94,15 +102,6 @@ BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
   Text 190, 60, 60, 10, "Nationality/Nation:"
   Text 195, 80, 55, 10, "Immig Doc Type:"
   Text 105, 10, 30, 10, "Memb #:"
-  GroupBox 5, 140, 350, 110, "Sponsored on I-864 Affidavit of Support? (LPR COA CODE: C, CF, CR, CX, F, FX, IF, IR)"
-  Text 80, 155, 245, 10, "* If date of entry was prior to 12/19/1997 sponsor information is not needed"
-  'Text 120, 170, 205, 15, "* If sponsor(s) are currenlty unknown please enter unknown and send request additonal SAVE"
-  Text 20, 195, 60, 10, "Name of sponsor:"
-  Text 165, 195, 55, 10, "Address/Phone:"
-  Text 20, 215, 60, 10, "Name of sponsor:"
-  Text 165, 215, 55, 10, "Address/Phone:"
-  Text 20, 235, 60, 10, "Name of sponsor:"
-  Text 165, 235, 55, 10, "Address/Phone:"
   Text 25, 260, 45, 10, "Other Notes:"
   GroupBox 5, 25, 350, 110, "Immigration Information"
   Text 260, 120, 40, 10, "Status Date:"
@@ -124,25 +123,24 @@ BeginDialog addimig_dialog, 0, 0, 370, 240, "Additional Information for IMIG"
   ButtonGroup ButtonPressed
     OkButton 260, 100, 45, 15
     CancelButton 310, 100, 45, 15
-  Text 10, 135, 350, 10, "* 40 Social Security Credits: Mandatory field only for those LPRs not otherwise eligible for federal funding. "
-  Text 30, 35, 75, 10, "Battered Spouse/Child:"
-  Text 10, 175, 345, 15, "* Military Status: If the client is an active duty member or veteran of the US armed forces (or a spouse or unmarried minor child) of an active duty member or veteran."
-  Text 10, 65, 100, 10, "Hmong, Lao, Native American:"
-  Text 30, 80, 80, 10, "St Prog ESL/Ctzn Coop:"
-  Text 30, 95, 80, 10, "FSS ESL/Skills Training:"
+  GroupBox 5, 5, 360, 115, "IMIG fields"
+  Text 20, 20, 90, 10, "40 Social Security Credits:"
   Text 260, 20, 35, 10, "Verified?:"
+  Text 30, 35, 75, 10, "Battered Spouse/Child:"
   Text 260, 35, 35, 10, "Verified?:"
+  Text 55, 50, 50, 10, "Military Status:"
+  Text 10, 170, 345, 15, "* Military Status: If the client is an active duty member or veteran of the US armed forces (or a spouse or unmarried minor child) of an active duty member or veteran."
+  Text 30, 80, 80, 10, "St Prog ESL/Ctzn Coop:"
   Text 260, 50, 35, 10, "Verified?:"
   Text 260, 80, 35, 10, "Verified?:"
   GroupBox 5, 120, 360, 120, "Information: Please see instructions for additional information"
-  Text 10, 150, 350, 15, "* Battered Spouse/Child: Mandatory field only for those LPRs not otherwise eligible for federal funding. HSR records whether the person has 40 Social Security work credits."
-  Text 55, 50, 50, 10, "Military Status:"
-  Text 10, 195, 345, 15, "* Hmong, Lao, Native American: If the non-citizen client is Hmong, Lao, or Native American born in Canada, please PF12 on the line for more information."
+  Text 10, 145, 350, 15, "* Battered Spouse/Child: Mandatory field only for those LPRs not otherwise eligible for federal funding. HSR records whether the person has 40 Social Security work credits."
+  Text 30, 95, 80, 10, "FSS ESL/Skills Training:"
+  Text 10, 195, 345, 20, "* Hmong, Lao, Native American: If the non-citizen client is Hmong, Lao, or Native American born in Canada, please PF12 on the line for more information."
   Text 10, 220, 345, 15, "* St Prog ESL/Ctzn Coop: This field needs to be completed for all LPRs age 18 through 69 in the GA or state-funded MFIP unit."
-  Text 20, 20, 90, 10, "40 Social Security Credits:"
-  GroupBox 5, 5, 360, 115, "IMIG fields"
+  Text 10, 65, 100, 10, "Hmong, Lao, Native American:"
+  Text 10, 130, 350, 10, "* 40 Social Security Credits: Mandatory field only for those LPRs not otherwise eligible for federal funding. "
 EndDialog
-
 
 '-----------------------------------------------------------------------------------------------------------THE SCRIPT
 Do
@@ -154,37 +152,36 @@ Do
 			If ButtonPressed = Noncitzn_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Immigration_and_Non-Citizens.aspx")
 		Loop until ButtonPressed = -1
 		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		IF memb_number = "" or IsNumeric(memb_number) = False or len(memb_number) > 2 then err_msg = err_msg & vbNewLine & "* Enter a member number."
+		IF MEMB_number = "" or IsNumeric(MEMB_number) = False or len(MEMB_number) > 2 then err_msg = err_msg & vbNewLine & "* Enter a member number."
 		IF immig_status_dropdown = "US Citizen" Then
 			err_msg = err_msg & vbNewLine & "* This will delete IMIG, SPON, and update MEMI & MEMB for this member."
 			EXIT DO
 		ELSE
 			IF immig_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of current immigration status."
 			IF immig_doc_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
+			IF (immig_doc_type = "Certificate of Naturalization" and immig_status_dropdown <> "US Citizen") THEN err_msg = err_msg & vbNewLine & "* You indicated that you have received Certificate of Naturalization immigration status should be US Citizen."
 			If isdate(actual_date) = FALSE then err_msg = err_msg & vbnewline & "* You must enter an actual date in the footer month that you are working in and not in the future."
-			''"21 Refugee" "22 Asylee""23 Deport/Remove Withheld" "24 LPR" "25 Paroled For 1 Year Or More" "26 Conditional Entry < 4/80" "27 Non-immigrant" "28 Undocumented""50 Other Lawfully Residing""US Citizen", immig_status_dropdown
 			If isdate(entry_date) = FALSE then err_msg = err_msg & vbnewline & "* Entry Date is required for all persons." 'with exception of Asylee, Deportation/Removal Withheld, or Undocumented statuses."
 		END IF
 		IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" Then
 			If isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "* Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
 		END IF
-			IF immig_status_dropdown <> "28 Undocumented" and save_CHECKBOX= UNCHECKED and additional_CHECKBOX = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please select if a SAVE has been run as it is mandatory."
-			'IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" and isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "* Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
-			IF immig_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of current immigration status."
-			IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
-			IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "N/A" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
-			IF immig_status_dropdown <> "24 LPR" and LPR_status_dropdown <> "Select One:" and LPR_status_dropdown <> "N/A" then err_msg = err_msg & vbNewLine & "* IMMIGRATION STATUS DOES NOT INDICATE LPR, BUT ADJUSTED STATUS IS INDICATED"
-			IF immig_doc_type = "Select One:" and immig_status_dropdown <> "28 Undocumented" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
-			'Battered Spouse/Child (Y/N): This field is mandatory for undocumented persons, non-immigrants and other lawfully residing persons.
-			IF nationality_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of Nationality or Nation."
-			IF sponsored = 1 and name_sponsor = "" then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information."
-			IF status_verification = "Certificate of Naturalization" and immig_status_dropdown <> "US Citizen" THEN err_msg = err_msg & vbNewLine & "* You indicated that you have received Certificate of Naturalization immigration status should be US Citizen."
-		'END IF
+		IF immig_status_dropdown <> "28 Undocumented" and save_CHECKBOX= UNCHECKED and additional_CHECKBOX = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please select if a SAVE has been run as it is mandatory."
+		IF immig_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of current immigration status."
+		IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
+		IF immig_status_dropdown = "24 LPR" and yes_sponsored = UNCHECKED and not_sponsored = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please advise of LPR Sponosr status."
+		IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "N/A" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
+		IF immig_status_dropdown <> "24 LPR" and LPR_status_dropdown <> "Select One:" and LPR_status_dropdown <> "N/A" then err_msg = err_msg & vbNewLine & "* Immigration status does not indicate LPR, but adjusted status is indicated."
+		IF immig_doc_type = "Select One:" and immig_status_dropdown <> "28 Undocumented" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
+		'Battered Spouse/Child (Y/N): This field is mandatory for undocumented persons, non-immigrants and other lawfully residing persons.
+		IF nationality_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of Nationality or Nation."
+		IF yes_sponsored = CHECKED and name_sponsor = "" then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information."
+		IF yes_sponsored = CHECKED and not_sponsored = CHECKED then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information and uncheck no."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-Call MAXIS_footer_month_confirmation			'function that confirms that the current footer month/year is the same as what was selected by the user. If not, it will navigate to correct footer month/year
+
 
 IF immig_status_dropdown <> "US Citizen" Then
 	Do
@@ -192,14 +189,26 @@ IF immig_status_dropdown <> "US Citizen" Then
 			err_msg = ""
 			dialog addimig_dialog
 			cancel_confirmation
-			IF (immig_status_dropdown = "28 Undocumented" or immig_status_dropdown = "27 Non-immigrant" or immig_status_dropdown = "50 Other Lawfully Residing" and battered_spouse = "Select One:") THEN err_msg = err_msg & vbNewLine & "* Please advise if battered spouse or child is applicable."
-			'IF (nationality_dropdown = "EL Ethnic Lao" or nationality_dropdown = "HG Hmong" and nation_vietnam = "Select One:") Then err_msg = err_msg & vbNewLine & "* Please advise if client has a status during Vietnam War or is Native American born in Mexico or Canada."
+			'IF ss_credits = "Select One:" THEN
+			'	immig_status_dropdown = "24 LPR" THEN err_msg = err_msg & vbNewLine & "* Please advise if social security credits are applicable."
+			'END IF
+			IF battered_spouse = "Select One:" THEN
+			 	IF immig_status_dropdown = "28 Undocumented" or immig_status_dropdown = "27 Non-immigrant" or immig_status_dropdown = "50 Other Lawfully Residing" THEN err_msg = err_msg & vbNewLine & "* Please advise if battered spouse or child is applicable."
+			END IF
+			IF nation_vietnam = "Select One:" THEN
+				IF nationality_dropdown = "EL Ethnic Lao" or nationality_dropdown = "HG Hmong"  or nationality_dropdown = "HG Hmong" THEN err_msg = err_msg & vbNewLine & "* Please advise if client has a status during Vietnam War or is Native American born in Mexico or Canada."
+			END IF
+			IF ESL_ctzn = "Select One:" and immig_status_dropdown = "24 LPR" THEN err_msg = err_msg & vbNewLine & "* Please advise of ESL cooperation requirment for state funded GA and MFIP."
+			IF ss_credits = "Select One:" and verf_sscredits <> "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that social secuirty credits are verified, please advise if SS credits are applicable."
+			IF battered_spouse =  "Select One:" and battered_spouse_verf  <> "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that battered spouse is verified, please advise if advise if battered spouse is applicable."
+			IF military_status = "Select One:" and military_status_verf  <> "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that military status is verified, please advise if military status is applicable."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 END IF
 'write for 10 '
+'Call MAXIS_footer_month_confirmation			'function that confirms that the current footer month/year is the same as what was selected by the user. If not, it will navigate to correct footer month/year
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 the_month = datepart("m", actual_date)
 MAXIS_footer_month = right("00" & the_month, 2)
@@ -208,25 +217,33 @@ MAXIS_footer_year = right("00" & the_year, 2)
 CALL convert_date_into_MAXIS_footer_month(actual_date, footer_month, footer_year)
 
 Call navigate_to_MAXIS_screen("STAT", "IMIG")
-EmWriteScreen, memb_number, 20, 76
+EmWriteScreen MEMB_number, 20, 76
 TRANSMIT
 'Making sure we have the correct IMIG
 EMReadScreen panel_number, 1, 2, 78
 If panel_number = "0" then script_end_procedure("An IMIG panel does not exist. Please create the panel before running the script again. ")
 'If there is more than one panel, this part will grab employer info off of them and present it to the worker to decide which one to use.
-DO
-	EMReadScreen current_panel_number, 1, 2, 73
-	IMIG_check = MsgBox("Is this the right IMIG?", vbYesNo +vbQuestion, "Confirmation")
-	If IMIG_check = vbYes THEN EXIT DO
-	If IMIG_check = vbNo THEN
-		EmWriteScreen, memb_number, 20, 76
-		TRANSMIT
-	END IF
-	If (IMIG_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another IMIG. Please review the case, and run the script again if applicable.")
-Loop until current_panel_number = panel_number
-
-'Updating the IMIG panel
+EMReadScreen current_panel_check, 4, 2, 49
+IF current_panel_check = "IMIG" THEN
+	DO
+		EMReadScreen current_panel_number, 1, 2, 73
+		IMIG_check = MsgBox("Is this the right IMIG?", vbYesNo +vbQuestion, "Confirmation")
+		If IMIG_check = vbYes THEN EXIT DO
+		If IMIG_check = vbNo THEN
+			EmWriteScreen MEMB_number, 20, 76
+			TRANSMIT
+		END IF
+		If (IMIG_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another IMIG. Please review the case, and run the script again if applicable.")
+	Loop until current_panel_number = panel_number
+ELSE
+	back_to_self
+	Call navigate_to_MAXIS_screen("STAT", "IMIG")
+	EmWriteScreen MEMB_number, 20, 76
+	TRANSMIT
+END IF
+'-------------------------------------------------------------------------------Updating the IMIG panel
 PF9
+EMReadScreen alien_id_number, 9, 10, 72
 EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
 error_check = trim(error_check)
 If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
@@ -246,15 +263,22 @@ IF immig_status_dropdown = "US Citizen" THEN
 	TRANSMIT
 	'Navigates to delete SPON'
 	Call navigate_to_MAXIS_screen("STAT", "SPON")
-	Emwritescreen memb_number, 20, 76
+	Emwritescreen MEMB_number, 20, 76
 	TRANSMIT
-	PF9
-	EMwritescreen "DEL", 20, 71
-	TRANSMIT
-
+	'Making sure we have the correct IMIG
+	EMReadScreen panel_number, 1, 2, 78
+	If panel_number = "0" then
+		EMReadScreen error_msg, 2, 24, 2
+		error_msg = TRIM(error_msg)
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	else
+		PF9
+		EMwritescreen "DEL", 20, 71
+		TRANSMIT
+	end if
 	'Navigates to MEMI tp update citizenship status'
 	Call navigate_to_MAXIS_screen("STAT", "MEMI")
-	Emwritescreen memb_number, 20, 76
+	Emwritescreen MEMB_number, 20, 76
 	TRANSMIT
 	PF9
 	Call create_MAXIS_friendly_date_with_YYYY(actual_date, 0, 6, 35)
@@ -263,11 +287,16 @@ IF immig_status_dropdown = "US Citizen" THEN
 	TRANSMIT
 	'Navigates to MEMB tp update alien ID'
 	Call navigate_to_MAXIS_screen("STAT", "MEMB")
-	Emwritescreen memb_number, 20, 76
+	Emwritescreen MEMB_number, 20, 76
 	TRANSMIT
-	PF9
-	Call clear_line_of_text(15, 68)
-	TRANSMIT
+
+	EMReadScreen alien_id_number, 9, 15, 68
+	IF alien_id_number <> "" THEN
+		PF9
+		Call clear_line_of_text(15, 68)
+		TRANSMIT
+	END IF
+
 ELSE
 	Call create_MAXIS_friendly_date_with_YYYY(actual_date, 0, 5, 45)
 	EMWriteScreen "N", 7, 47			'Sup evidence Y/N field (defaulted to N during this process)
@@ -294,12 +323,13 @@ ELSE
 		IF status_date = "" THEN Call clear_line_of_text(7, 74)
 		IF status_date = "" THEN Call clear_line_of_text(7, 77)
 		reminder_date = dateadd("d", 10, date)' FOR APPT DATE'
+		Call change_date_to_soonest_working_day(reminder_date) 
 
 		LPR_status = ""
 		If LPR_status_dropdown = "21 Refugee" then LPR_status = "21"
 		If LPR_status_dropdown = "22 Asylee" then LPR_status = "22"
 		If LPR_status_dropdown = "23 Deport/Remove Withheld" then LPR_status = "23"
-		If LPR_status_dropdown = "24 LPR" then LPR_status = "24"
+		If LPR_status_dropdown = "24 None" then LPR_status = "24"
 		If LPR_status_dropdown = "25 Paroled For 1 Year Or More" then LPR_status = "25"
 		If LPR_status_dropdown = "26 Conditional Entry < 4/80" then LPR_status = "26"
 		If LPR_status_dropdown = "27 Non-immigrant" then LPR_status = "27"
@@ -357,7 +387,7 @@ ELSE
 		IF status_verification = "No Ver Prvd" THEN verif_status = "NO"
 		EMWriteScreen verif_status, 8, 45
 
-		'EMReadScreen id_number, 9, 10, 72
+		'EMReadScreen alien_id_number, 9, 10, 72
 		'IF alien_id_number <> id_number THEN MsgBox "The number enter for ID does not match the number entered in the case note"
 		'VERIFICATION OF 40 SOCIAL SECURITY CREDITS IS NOT NEEDED  '
 		IF ss_credits <> "Select One:" THEN EmWriteScreen ss_credits, 13, 56
@@ -396,19 +426,23 @@ ELSE
 		Transmit
 		'PF3	'to move past non-inhibiting warning messages on IMIG
 		EMReadScreen IMIG_screen, 4, 2, 49		'if inhibiting error exists, this will catch it and instruct the user to update IMIG
-		msgbox IMIG_screen
+		'msgbox IMIG_screen
 		'If IMIG_screen = "IMIG" then script_end_procedure("An error occurred on the IMIG panel. Please update the panel before using the script again.")
 END IF
 
 start_a_blank_CASE_NOTE
 IF additional_CHECKBOX = CHECKED THEN
- 		Call write_variable_in_case_note("IMIG-Instituted Additional SAVE for M" & memb_number)
+ 		Call write_variable_in_case_note("IMIG-Instituted Additional SAVE for M" & MEMB_number)
 ELSEIF save_CHECKBOX = CHECKED THEN
-	Call write_variable_in_case_note("IMIG-Initial SAVE Completed for M" & memb_number)
+	Call write_variable_in_case_note("IMIG-Initial SAVE Completed for M" & MEMB_number)
 ELSEIF immig_status_dropdown = "US Citizen" THEN
-	Call write_variable_in_case_note("SAVE Completed for M" & memb_number & " US Citizen")
+	Call write_variable_in_case_note("SAVE Completed for M" & MEMB_number & " US Citizen")
+	Call write_variable_in_case_note("* Updated MEMB to remove Alien ID")
+	Call write_variable_in_case_note("* Updated MEMI to correct status")
+	Call write_variable_in_case_note("* Deleted IMIG and SPON")
+	Call write_variable_in_case_note("* Sent status verification to ECF")
 ELSEIF immig_status_dropdown = "28 Undocumented" THEN
-	Call write_variable_in_case_note("Updated IMIG for M" & memb_number)
+	Call write_variable_in_case_note("Updated IMIG for M" & MEMB_number)
 END IF
 Call write_bullet_and_variable_in_case_note("Immigration Status", immig_status_dropdown)
 IF LPR_status_dropdown <> "Select One:" then Call write_bullet_and_variable_in_case_note("LPR adjusted from", LPR_status_dropdown)
@@ -419,12 +453,16 @@ IF status_verification <> "Select One:" THEN Call write_bullet_and_variable_in_c
 IF status_verification <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Immigration document received", immig_doc_type)
 IF emailHP_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Emailed HP Immigration")
 Call write_variable_in_case_note("")
-If immig_status_dropdown <> "US Citizen" and sponsored = 1 then
-	Call write_variable_in_case_note("* Client is sponsored. Sponsor is indicated as " & sponsor_name & sponsor_addr & ".")
+If immig_status_dropdown <> "US Citizen" and yes_sponsored = CHECKED then
+	Call write_variable_in_case_note("* Client is sponsored.")
+	Call write_variable_in_case_note("* Sponsor is indicated as " & sponsor_name & sponsor_addr & ".")
 	IF sponsor_name_two <> "" THEN Call write_variable_in_case_note("* Client is sponsored. Second Sponsor is indicated as " & sponsor_name_two & sponsor_addr_two & ".")
 	IF sponsor_name_three <> "" THEN Call write_variable_in_case_note("* Client is sponsored. Third Sponsor is indicated as " & sponsor_name_three & sponsor_addr_three & ".")
 END IF
-If save_CHECKBOX = CHECKED then Call write_variable_in_case_note("* SAVE requested.")
+If immig_status_dropdown = "LPR" THEN
+	IF not_sponsored = CHECKED or yes_sponsored = UNCHECKED then Call write_variable_in_case_note("* No Sponosr indicated")
+END IF
+If save_CHECKBOX = CHECKED then Call write_variable_in_case_note("* Inital SAVE Completed and sent to ECF.")
 If additional_CHECKBOX = CHECKED then Call write_variable_in_case_note("* Additional SAVE requested.")
 If SAVE_docs_check = CHECKED then Call write_variable_in_case_note("* Attached a copy of the immigration document to request for SAVE")
 Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
@@ -438,7 +476,7 @@ If Outlook_remider = True then call write_bullet_and_variable_in_CASE_NOTE("Outl
 Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)
 PF3
-'TODO add a email to HP IMIG and reminder for second check on additional request
+'TODO add a email to HP IMIG
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 'IF additional_CHECKBOX = CHECKED THEN CALL create_outlook_email("HSPH.HPImmigration@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
 ''create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, reminder_in_minutes, appt_category)
@@ -447,4 +485,4 @@ IF additional_CHECKBOX = CHECKED THEN
 	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "SAVE request check: " & reminder_text & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
 	Outlook_remider = True
 End if
-script_end_procedure("Success! Please review your case notes and IMIG panels to ensure they were updated correctly.")
+script_end_procedure("Success! Please review your case notes and IMIG panel to ensure they were updated correctly.")

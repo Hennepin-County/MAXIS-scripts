@@ -90,7 +90,77 @@ function sort_dates(dates_array)
     dates_array = ordered_dates
 end function
 
+'Declarations ==============================================================================================================
+'CONSTANTS'
+'Panel Constants
+const panel_type        = 0
+const panel_member      = 1
+const panel_instance    = 2
+const employer          = 3
+const income_type       = 4
+const income_verif      = 5
+const hourly_wage       = 6
+const income_start_dt   = 7
+const income_end_dt     = 8
+const income_list_indct = 9
+const pay_freq          = 10
+const date_of_calc      = 11
+const hrs_per_wk        = 12
+const pay_per_hr        = 13
+const ave_hrs_per_pay   = 14
+const ave_inc_per_pay   = 15
+const SNAP_mo_inc       = 16
+const reg_non_monthly   = 17
+const numb_months       = 18
+const self_emp_mthd     = 19
+const method_date       = 20
+const reptd_hours       = 21
+const apply_to_SNAP     = 22
+const apply_to_CASH     = 23
+const apply_to_HC       = 24
+const pay_weekday       = 25
+const income_received   = 26
+const verif_date        = 27
+const verif_explain     = 28
+const old_verif         = 29
+const initial_month_mo  = 30
+const initial_month_yr  = 31
+const update_futue_chkbx = 32
+const order_ubound      = 33
+const self_emp_mthd_conv = 34
+
+const spoke_to          = 35
+const convo_detail      = 36
+
+
+'Income Constants
+const panel_indct           = 0
+const pay_date              = 1
+const gross_amount          = 2
+const hours                 = 3
+const budget_in_SNAP_yes    = 4
+const budget_in_SNAP_no     = 5
+const reason_to_exclude     = 6
+const exclude_amount        = 7
+const check_order           = 8
+const reason_amt_excluded   = 9
+
+
+'Cash Months Constants
+Const cash_mo_yr    = 0
+Const budget_cycle  = 1
+Const update_y_n    = 2
+
+'ARRAYS'
+Dim LIST_OF_INCOME_ARRAY()
+ReDim LIST_OF_INCOME_ARRAY(reason_amt_excluded, 0)
+
+Dim EARNED_INCOME_PANELS_ARRAY()
+ReDim EARNED_INCOME_PANELS_ARRAY(convo_detail, 0)
 '===========================================================================================================================
+
+
+'THE SCRIPT ================================================================================================================
 'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
@@ -175,49 +245,13 @@ If cash_two_status = "ACTV" OR cash_two_status = "PEND" Then CASH_case = TRUE
 If snap_status = "ACTV" OR snap_status = "PEND" Then SNAP_case = TRUE
 If hc_status = "ACTV" OR hc_status = "PEND" Then HC_case = TRUE
 
-'Add functionality ask if worker needs to add a new JOBS or BUSI panel.'
 
-const panel_type        = 0
-const panel_member      = 1
-const panel_instance    = 2
-const employer          = 3
-const income_type       = 4
-const income_verif      = 5
-const hourly_wage       = 6
-const income_start_dt   = 7
-const income_end_dt     = 8
-const income_list_indct = 9
-const pay_freq          = 10
-const date_of_calc      = 11
-const hrs_per_wk        = 12
-const pay_per_hr        = 13
-const ave_hrs_per_pay   = 14
-const ave_inc_per_pay   = 15
-const SNAP_mo_inc       = 16
-const reg_non_monthly   = 17
-const numb_months       = 18
-const self_emp_mthd     = 19
-const method_date       = 20
-const reptd_hours       = 21
-const apply_to_SNAP     = 22
-const apply_to_CASH     = 23
-const apply_to_HC       = 24
-const pay_weekday       = 25
-const income_received   = 26
-const verif_date        = 27
-const verif_explain     = 28
-const old_verif         = 29
-const initial_month_mo  = 30
-const initial_month_yr  = 31
-const update_futue_chkbx = 32
-const order_ubound      = 33
-const self_emp_mthd_conv = 34
+                            '----------------------------------------------------------'
+                    '---------------------------------------------------------------------------------'
+'-------------------------------------------------FINDING ALL CURRENT EI PANELS --------------------------------------------------'
+                    '---------------------------------------------------------------------------------'
+                            '----------------------------------------------------------'
 
-const spoke_to          = 35
-const convo_detail      = 36
-
-Dim EARNED_INCOME_PANELS_ARRAY()
-ReDim EARNED_INCOME_PANELS_ARRAY(convo_detail, 0)
 
 the_panel = 0
 all_ei_panels_found = FALSE
@@ -359,6 +393,16 @@ For each member in HH_member_array
         Next
     End If
 Next
+
+
+
+                            '----------------------------------------------------------'
+                    '---------------------------------------------------------------------------------'
+'------------------------------------------------- ADDING NEW EI PANELS --------------------------------------------------'
+                    '---------------------------------------------------------------------------------'
+                            '----------------------------------------------------------'
+
+
 
 Do
     y_pos = 25
@@ -628,109 +672,16 @@ Do
 
 Loop until buttonpressed = continue_to_update_button
 
-const panel_indct           = 0
-const pay_date              = 1
-const gross_amount          = 2
-const hours                 = 3
-const budget_in_SNAP_yes    = 4
-const budget_in_SNAP_no     = 5
-const reason_to_exclude     = 6
-const exclude_amount        = 7
-const check_order           = 8
-const reason_amt_excluded   = 9
 
-Dim LIST_OF_INCOME_ARRAY()
-ReDim LIST_OF_INCOME_ARRAY(reason_amt_excluded, 0)
-'CREATE ARRAY OF ALL EI panels'
-'Put them in a 'FOR-NEXT' to loop through each panel.
-'IF all income will be case noted as 1 note then create an ARRAY of all the case note information.
+                                '----------------------------------------------------------'
+                        '---------------------------------------------------------------------------------'
+'------------------------------------------------- GATHERING PAY INFORMATION FOR EACH PANEL --------------------------------------------------'
+                        '---------------------------------------------------------------------------------'
+                                '----------------------------------------------------------'
 
 
-'NAVIGATE TO JOBS for each HH MEMBER and ask if Income information was received for this job.
-
-'This will become dynamic and there will be an array of all the checks listed.
 'STILL need some handling for scheduled income with no actual checks or cases where scheduled income is different from actual checks but we get both.
-'NEED TO ADD CHECKBOXES FOR PROGRAMS THIS INCOME APPLIES TO - and precheck all the programs that are active on this case'
 
-' HOLDING FOR A VERSION TO BE PUT IN TO DLG EDIT'
-' BeginDialog Dialog1, 0, 0, 606, 160, "Enter ALL Paychecks Received"
-'   Text 10, 10, 265, 10, "JOBS 01 01 - EMPLOYER"
-'   Text 310, 10, 50, 10, "Income Type:"
-'   DropListBox 365, 10, 100, 45, "J - WIOA"+chr(9)+"W - Wages (Incl Tips)"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", income_type
-'   GroupBox 475, 5, 125, 25, "Apply Income to Programs:"
-'   CheckBox 485, 15, 30, 10, "SNAP", apply_to_SNAP
-'   CheckBox 530, 15, 30, 10, "CASH", apply_to_CASH
-'   CheckBox 570, 15, 20, 10, "HC", apply_to_HC
-'   Text 5, 40, 60, 10, "JOBS Verif Code:"
-'   DropListBox 65, 35, 105, 45, "1 - Pay Stubs/Tip Report"+chr(9)+"2 - Empl Statement"+chr(9)+"3 - Coltrl Stmt"+chr(9)+"4 - Other Document"+chr(9)+"5 - Pend Out State Verification"+chr(9)+"N - No Ver Prvd", JOBS_verif_code
-'   Text 175, 40, 155, 10, "additional detail of verification received:"
-'   EditBox 310, 35, 290, 15, Edit2
-'   Text 5, 60, 90, 10, "Date verification received:"
-'   EditBox 100, 55, 50, 15, verif_date
-'   Text 5, 80, 80, 10, "Pay Date (MM/DD/YY):"
-'   Text 90, 80, 50, 10, "Gross Amount:"
-'   Text 145, 80, 25, 10, "Hours:"
-'   Text 180, 65, 25, 25, "Use in SNAP budget"
-'   Text 235, 80, 85, 10, "If not used, explain why:"
-'   Text 355, 70, 245, 10, "If there is a specific amount that should be NOT budgeted from this check:"
-'   Text 355, 80, 30, 10, "Amount:"
-'   Text 410, 80, 30, 10, "Reason:"
-'   EditBox 5, 90, 65, 15, pay_date
-'   EditBox 90, 90, 45, 15, gross_amount
-'   EditBox 145, 90, 25, 15, hours_on_check
-'   OptionGroup RadioGroup1
-'     RadioButton 180, 90, 25, 10, "Yes", budget_yes
-'     RadioButton 210, 90, 25, 10, "No", budget_no
-'   EditBox 235, 90, 115, 15, reason_not_budgeted
-'   EditBox 355, 90, 45, 15, not_budgeted_amount
-'   EditBox 410, 90, 185, 15, amount_not_budgeted_reason
-'   Text 5, 115, 70, 10, "Anticipated Income"
-'   Text 5, 130, 50, 10, "Rate of Pay/Hr"
-'   Text 75, 130, 35, 10, "Hours/Wk"
-'   Text 130, 130, 50, 10, "Pay Frequency"
-'   Text 225, 115, 70, 10, "Regular Non-Monthly"
-'   Text 225, 130, 25, 10, "Amount"
-'   Text 280, 130, 50, 10, "Nbr of Months"
-'   EditBox 5, 140, 50, 15, rate_of_pay
-'   EditBox 75, 140, 40, 15, hours_per_week
-'   DropListBox 130, 140, 85, 45, "1 - One Time Per Month"+chr(9)+"2 - Two Times Per Month"+chr(9)+"3 - Every Other Week"+chr(9)+"4 - Every Week", pay_frequency
-'   EditBox 225, 140, 40, 15, non_monthly_amt
-'   EditBox 280, 140, 30, 15, number_non_reg_months
-'   ButtonGroup ButtonPressed
-'     PushButton 440, 140, 15, 15, "+", add_another_check
-'     PushButton 460, 140, 15, 15, "-", take_a_check_away
-'     OkButton 495, 140, 50, 15
-'     CancelButton 550, 140, 50, 15
-' EndDialog
-
-' BeginDialog Dialog1, 0, 0, 421, 240, "Confirm JOBS Budget"
-'   Text 10, 10, 175, 10, "JOBS 01 01 - EMPLOYER"
-'   Text 245, 10, 50, 10, "Pay Frequency"
-'   DropListBox 305, 5, 95, 45, "1 - One Time Per Month"+chr(9)+"2 - Two Times Per Month"+chr(9)+"3 - Every Other Week"+chr(9)+"4 - Every Week"+chr(9)+"5 - Other", pay_frequency
-'   Text 240, 30, 60, 10, "Income Start Date:"
-'   EditBox 305, 25, 70, 15, income_start_date
-'   GroupBox 5, 40, 410, 105, "SNAP Budget"
-'   Text 10, 50, 100, 10, "Paychecks Inclued in Budget:"
-'   Text 20, 65, 90, 10, "01/01/2018 - $400 - 40 hrs"
-'   Text 20, 75, 90, 10, "01/15/2018- $400 - 40 hrs"
-'   Text 10, 95, 130, 10, "Paychecks not included: 12/24/2018"
-'   Text 185, 50, 90, 10, "Average hourly rate of pay:"
-'   Text 185, 65, 90, 10, "Average weekly hours:"
-'   Text 185, 80, 90, 10, "Average paycheck amount:"
-'   Text 185, 95, 90, 10, "Monthly Budgeted Income:"
-'   CheckBox 10, 110, 330, 10, "Check here if you confirm that this budget is correct and is the best estimate of anticipated income.", confirm_budget_checkbox
-'   Text 10, 130, 60, 10, "Conversation with:"
-'   ComboBox 75, 125, 60, 45, " "+chr(9)+"Client - not employee"+chr(9)+"Employee"+chr(9)+"Employer", converstion_with
-'   Text 140, 130, 25, 10, "clarifies"
-'   EditBox 170, 125, 235, 15, conversation_detail
-'   GroupBox 5, 150, 410, 60, "CASH Budget"
-'   Text 15, 165, 110, 10, "Actual Paychecks to add to JOBS:"
-'   Text 25, 180, 90, 10, "01/01/2018 - $400 - 40 hrs"
-'   Text 25, 190, 90, 10, "01/15/2018- $400 - 40 hrs"
-'   ButtonGroup ButtonPressed
-'     OkButton 315, 220, 50, 15
-'     CancelButton 370, 220, 50, 15
-' EndDialog
 
 pay_item = 0
 For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
@@ -888,6 +839,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                 array_of_pay_dates = ""
                 For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)                                   'look at each entry inthe income array
                     If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then                    'find the ones for the current panel
+                        'MsgBox "Look at each date: " & LIST_OF_INCOME_ARRAY(pay_date, all_income)
                         all_pay_dates = all_pay_dates & "~" & LIST_OF_INCOME_ARRAY(pay_date, all_income)'create a list of just the pay dates
                     End If
                 Next
@@ -899,13 +851,14 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                     If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then    'find the ones for THIS PANEL ONLY
                         for index = 0 to UBOUND(array_of_pay_dates)                     'loop through the array of the pay dates only'
                             'once the pay date in the income array matches the one in the chronological list of dates, use the index number to set an order code within the list of income array
+                            'MsgBox "Look at each index: " & index
                             If array_of_pay_dates(index) = LIST_OF_INCOME_ARRAY(pay_date, all_income) Then LIST_OF_INCOME_ARRAY(check_order, all_income) = index + 1
                             top_of_order = index + 1    'this identifies how many pay dates there are in for this panel
                         next
                     End If
                 Next
                 EARNED_INCOME_PANELS_ARRAY(order_ubound, ei_panel) = top_of_order   'setting the number of unique pay dates within the panel array because we need it for sorting correctly
-
+                'MsgBox top_of_order
                 ' 'this part actually looks at the income information IN ORDER
                 ' For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
                 '     For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
@@ -967,6 +920,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                         For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
                             If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
                                 EARNED_INCOME_PANELS_ARRAY(pay_weekday, ei_panel) = WeekDayName(Weekday(LIST_OF_INCOME_ARRAY(pay_date, all_income)))
+                                MsgBox "Look at the payday: " & EARNED_INCOME_PANELS_ARRAY(pay_weekday, ei_panel)
                                 Exit For
                             End If
                         Next
@@ -1032,18 +986,9 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
                 'If we are applying to cash, we need to look at each month of paychecks to see if the month is prospective or retrospective
                 If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then
-                    list_of_months = "~"
-                    For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
-                        If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
-                            ''
-                            pay_month = DatePart("m", LIST_OF_INCOME_ARRAY(pay_date, all_income)
-                            pay_year = DatePart("yyyy", LIST_OF_INCOME_ARRAY(pay_date, all_income)
-                            pay_mo_yr = right("00"&pay_month, 2) & "/" & right(pay_year, 2)
-                            If InStr(list_of_months, "~"&pay_mo_yr&"~") <> 0 Then list_of_months = list_of_months & pay_mo_yr & "~"
-                        End If
-                    Next
-                    list_of_months = right(list_of_months, len(list_of_months)-1)
-                    list_of_months = left(list_of_months, len(list_of_months)-1)
+
+                    MAXIS_footer_month = EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel)
+                    MAXIS_footer_year = EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel)
 
                     Call navigate_to_MAXIS_screen("STAT", "PROG")
                     EmReadscreen cash_one_status, 4, 6, 74
@@ -1059,23 +1004,48 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                     If the_cash = "MS" Then the_cash = "MSA"
 
                     Call back_to_self
-                    starting_footer_month = MAXIS_footer_month
-                    starting_footer_year = MAXIS_footer_year
+
+                    list_of_months = "~"
+                    pay_month = MAXIS_footer_month
+                    pay_year = MAXIS_footer_year
+
+                    Do
+                        list_of_months = list_of_months & pay_month & "/" & pay_year & "~"
+
+                        pay_month = (pay_month * 1) + 1
+                        If pay_month = 13 Then
+                            pay_month = "01"
+                            pay_year = right("00"&((pay_year * 1) + 1), 2)
+                        Else
+                            pay_month = right("00"&pay_month, 2)
+                        End If
+                    Loop Until pay_month = CM_plus_2_mo AND pay_year = CM_plus_2_yr
 
                     Dim CASH_MONTHS_ARRAY()
                     ReDim CASH_MONTHS_ARRAY(2, 0)
 
-                    Const cash_mo_yr    = 0
-                    Const budget_cycle  = 1
-                    Const update_y_n    = 2
-
+                    If left(list_of_months, 1) = "~" Then list_of_months = right(list_of_months, len(list_of_months)-1)
+                    If right(list_of_months, 1) = "~" Then list_of_months = left(list_of_months, len(list_of_months)-1)
                     each_month = 0
+                    MsgBox list_of_months
 
                     If InStr(list_of_months, "~") <> 0 Then
                         array_of_months = split(list_of_months, "~")
                         For each elig_thing in array_of_months
-                            MAXIS_footer_month = left(elig_thing, 2)
-                            MAXIS_footer_year = right(elig_thng, 2)
+                            ReDim Preserve CASH_MONTHS_ARRAY(2, each_month)
+                            CASH_MONTHS_ARRAY(cash_mo_yr, each_month) = elig_thing
+                            CASH_MONTHS_ARRAY(update_y_n, each_month) = checked
+                            each_month = each_month + 1
+                        Next
+                    Else
+                        CASH_MONTHS_ARRAY(cash_mo_yr, each_month) = elig_thing
+                        CASH_MONTHS_ARRAY(update_y_n, each_month) = checked
+                    End If
+
+                    If the_cash <> "" Then
+                        For update_month = 0 to UBOUND(CASH_MONTHS_ARRAY, 2)
+                            MAXIS_footer_month = left(CASH_MONTHS_ARRAY(cash_mo_yr, update_month), 2)
+                            MAXIS_footer_year = right(CASH_MONTHS_ARRAY(cash_mo_yr, update_month), 2)
 
                             Call back_to_SELF
 
@@ -1099,43 +1069,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
                                 EmReadscreen type_of_budget, 5, 12, 32
                             End If
-
-                            ReDim Preserve CASH_MONTHS_ARRAY(2, each_month)
-                            CASH_MONTHS_ARRAY(cash_mo_yr, each_month) = elig_thing
-                            CASH_MONTHS_ARRAY(budget_cycle, each_month) = type_of_budget
-                            CASH_MONTHS_ARRAY(update_y_n, each_month) = checked
-                            each_month = each_month + 1
+                            CASH_MONTHS_ARRAY(budget_cycle, update_month) = type_of_budget
                         Next
-                    Else
-                        MAXIS_footer_month = left(list_of_months, 2)
-                        MAXIS_footer_year = right(list_of_months, 2)
-
-                        Call back_to_SELF
-
-                        Call navigate_to_MAXIS_screen("ELIG", the_cash)
-                        If the_cash = "MF" Then
-                            EmWriteScreen "MFSM", 20, 71
-                            transmit
-
-                            EmReadscreen type_of_budget, 5, 12, 31
-                        ElseIf the_cash = "DW" Then
-                            type_of_budget = "PROSP"
-
-                        ElseIf the_cash = "MSA" Then
-                            EmWriteScreen "MSSM", 20, 71
-                            transmit
-
-                            EmReadscreen type_of_budget, 5, 13, 29
-                        ElseIf the_cash = "GA" Then
-                            EmWriteScreen "GASM", 20, 71
-                            transmit
-
-                            EmReadscreen type_of_budget, 5, 12, 32
-                        End If
-
-                        CASH_MONTHS_ARRAY(cash_mo_yr, each_month) = elig_thing
-                        CASH_MONTHS_ARRAY(budget_cycle, each_month) = type_of_budget
-                        CASH_MONTHS_ARRAY(update_y_n, each_month) = checked
                     End If
                 End If
 
@@ -1145,7 +1080,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                     dlg_len = dlg_len + number_of_checks_budgeted*10
                     If number_of_checks_budgeted < 4 THen dlg_len = 165
                 ENd If
-                If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then dlg_len = dlg_len + 65
+                If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then dlg_len = dlg_len + 200
                 y_pos = 25
                 BeginDialog Dialog1, 0, 0, 421, dlg_len, "Confirm JOBS Budget"
                   Text 10, 10, 175, 10, "JOBS " & EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) & " - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)
@@ -1205,35 +1140,45 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                   End If
                   'TODO deal with cash stuff - need to address retro/prosp and change this dialog to only show cash/snap if the income applies to that.
                   If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then
-                      GroupBox 5, y_pos, 410, 60, "CASH Budget"
+                      GroupBox 5, y_pos, 410, 150, "CASH Budget"
                       y_pos = y_pos + 15
-                      Text 15, y_pos, 30, 10, "MONTH"
-                      Text 50, y_pos, 30, 10, "CHECKS"
-                      Text 85, y_pos, 35, 10, "BUDGET"
-                      Text 120, y_pos, 40, 10, "UPDATE"
+                      Text 10, y_pos, 400, 30, "Checks to be entered will depend on the month and budget cycle. Prosp months will have the checks for that month entered to the prospective side of JOBS. Retro months will have the checks from 2 months prior entered into the retrospective side of JOBS."
+                      y_pos = y_pos + 30
+                      Text 10, y_pos, 30, 10, "CHECKS"
+                      y_pos = y_pos + 15
+
+
+                      list_pos = 0
+                      ' 'this part actually looks at the income information IN ORDER
+                      For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
+                          For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+                              'conditional if it is the right panel AND the order matches - then do the thing you need to do
+                              If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
+                                  'list_of_dates = list_of_dates & vbNewLine & "Check Date: " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & " Income: $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " Hours: " & LIST_OF_INCOME_ARRAY(hours, all_income)
+                                  Text 50, (list_pos * 10) + y_pos, 90, 10, LIST_OF_INCOME_ARRAY(pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs."
+
+
+                                  list_pos = list_pos + 1
+                              End If
+                          next
+                      next
+                      y_pos = y_pos + (list_pos * 10) + 10
+
+                      Text 10, y_pos, 30, 10, "MONTH"
+                      Text 50, y_pos, 35, 10, "BUDGET"
+                      Text 100, y_pos, 40, 10, "UPDATE"
 
                       y_pos = y_pos + 15
+
                       For each_month = 0 to UBOUND(CASH_MONTHS_ARRAY, 2)
                           Text 15, y_pos, 20, 10, CASH_MONTHS_ARRAY(cash_mo_yr, each_month)
-
-                          list_pos = 0
-                          ' 'this part actually looks at the income information IN ORDER
-                          For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
-                              For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
-                                  'conditional if it is the right panel AND the order matches - then do the thing you need to do
-                                  If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
-                                      'list_of_dates = list_of_dates & vbNewLine & "Check Date: " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & " Income: $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " Hours: " & LIST_OF_INCOME_ARRAY(hours, all_income)
-                                      Text 20, (list_pos * 10) + y_pos, 90, 10, LIST_OF_INCOME_ARRAY(pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs."
-                                      list_pos = list_pos + 1
-                                  End If
-                              next
-                          next
-                          CASH_MONTHS_ARRAY(budget_cycle, each_month) = type_of_budget
-                          CASH_MONTHS_ARRAY(update_y_n, each_month) = checked
+                          DropListBox 50, y_pos, 45, 45, " "+chr(9)+"Retro"+chr(9)+"Prosp", CASH_MONTHS_ARRAY(budget_cycle, each_month)
+                          CheckBox 100, y_pos, 75, 10, "Update this month", CASH_MONTHS_ARRAY(update_y_n, each_month)
+                          y_pos = y_pos + 15
                       Next
-                      Text 25, y_pos + 30, 90, 10, "01/01/2018 - $400 - 40 hrs"
-                      Text 25, y_pos + 40, 90, 10, "01/15/2018- $400 - 40 hrs"
-                      y_pos = y_pos + 50
+                      ' Text 25, y_pos + 30, 90, 10, "01/01/2018 - $400 - 40 hrs"
+                      ' Text 25, y_pos + 40, 90, 10, "01/15/2018- $400 - 40 hrs"
+                      y_pos = y_pos + 10
                   End If
                   ButtonGroup ButtonPressed
                     OkButton 315, y_pos, 50, 15
@@ -1438,6 +1383,13 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 Next
 
 
+                        '----------------------------------------------------------'
+                '---------------------------------------------------------------------------------'
+'-------------------------------------------------GIONG TO UPDATE THE PANEL --------------------------------------------------'
+                '---------------------------------------------------------------------------------'
+                        '----------------------------------------------------------'
+
+
 Call navigate_to_MAXIS_screen("STAT", "SUMM")
 
 For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
@@ -1455,13 +1407,38 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                 transmit
                 PF9
 
+                'FOR SNAP BUDGETING
+                'script will determine which dates of the current month need to be entered.
+                'go through all of the income information and find the dates that need to be entered
+                'if no check is found for the coresponding date the script enteres the date and the average pay
+                'the script goes through the checks again and any that were not previously entered will be entered.
+
+                'open the PIC
+                'read to see if it was updated already - create a BOOLEAN for the first month to make sure that it is updated in the first month THEN use the date updated to determine if it was updated
+                'enter all the information'
+
+                'FOR CASH BUDGETING
+                'determine all of the dates for prosp side
+                'if the month we are in is retro budgeted,
+                    'go through all the checks IN ORDER and find all of the ones for CM-2 and put in retro side
+                    'go through all the checks IN ORDER and find all of the ones for CM and enter in to prosp side
+                'read through the prosp side and determine if any of the dates were missed.
+                'if they were missed, create an average from the retro side and enter an estimated amount.
+
+                'if the month we are in is prosp Budgeted
+                'go through all of the dates and find paychecks for those dates, entering estimates for missing dates.
+
                 For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
                     If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
+                        'Go through all of the paychecks IN ORDER.
+                            'If the check is for the month that we are in, then it will enter that check.
 
 
 
                     End If
                 Next
+
+                'after all the checks are entered, the script will go back and read the '
 
                 If LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = checked Then
                     If LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = "" Then LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = 0
@@ -1523,7 +1500,94 @@ Next
 
 
 
-
+                '----------------------------------------------------------'
+        '---------------------------------------------------------------------------------'
+'-------------------------------------------------CASE NOTING --------------------------------------------------'
+        '---------------------------------------------------------------------------------'
+                '----------------------------------------------------------'
 
 
 script_end_procedure("")
+
+
+'SAVING SOME STATIC DIALOG CODE FOR MAYBE RE WORKING'
+
+' HOLDING FOR A VERSION TO BE PUT IN TO DLG EDIT'
+' BeginDialog Dialog1, 0, 0, 606, 160, "Enter ALL Paychecks Received"
+'   Text 10, 10, 265, 10, "JOBS 01 01 - EMPLOYER"
+'   Text 310, 10, 50, 10, "Income Type:"
+'   DropListBox 365, 10, 100, 45, "J - WIOA"+chr(9)+"W - Wages (Incl Tips)"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", income_type
+'   GroupBox 475, 5, 125, 25, "Apply Income to Programs:"
+'   CheckBox 485, 15, 30, 10, "SNAP", apply_to_SNAP
+'   CheckBox 530, 15, 30, 10, "CASH", apply_to_CASH
+'   CheckBox 570, 15, 20, 10, "HC", apply_to_HC
+'   Text 5, 40, 60, 10, "JOBS Verif Code:"
+'   DropListBox 65, 35, 105, 45, "1 - Pay Stubs/Tip Report"+chr(9)+"2 - Empl Statement"+chr(9)+"3 - Coltrl Stmt"+chr(9)+"4 - Other Document"+chr(9)+"5 - Pend Out State Verification"+chr(9)+"N - No Ver Prvd", JOBS_verif_code
+'   Text 175, 40, 155, 10, "additional detail of verification received:"
+'   EditBox 310, 35, 290, 15, Edit2
+'   Text 5, 60, 90, 10, "Date verification received:"
+'   EditBox 100, 55, 50, 15, verif_date
+'   Text 5, 80, 80, 10, "Pay Date (MM/DD/YY):"
+'   Text 90, 80, 50, 10, "Gross Amount:"
+'   Text 145, 80, 25, 10, "Hours:"
+'   Text 180, 65, 25, 25, "Use in SNAP budget"
+'   Text 235, 80, 85, 10, "If not used, explain why:"
+'   Text 355, 70, 245, 10, "If there is a specific amount that should be NOT budgeted from this check:"
+'   Text 355, 80, 30, 10, "Amount:"
+'   Text 410, 80, 30, 10, "Reason:"
+'   EditBox 5, 90, 65, 15, pay_date
+'   EditBox 90, 90, 45, 15, gross_amount
+'   EditBox 145, 90, 25, 15, hours_on_check
+'   OptionGroup RadioGroup1
+'     RadioButton 180, 90, 25, 10, "Yes", budget_yes
+'     RadioButton 210, 90, 25, 10, "No", budget_no
+'   EditBox 235, 90, 115, 15, reason_not_budgeted
+'   EditBox 355, 90, 45, 15, not_budgeted_amount
+'   EditBox 410, 90, 185, 15, amount_not_budgeted_reason
+'   Text 5, 115, 70, 10, "Anticipated Income"
+'   Text 5, 130, 50, 10, "Rate of Pay/Hr"
+'   Text 75, 130, 35, 10, "Hours/Wk"
+'   Text 130, 130, 50, 10, "Pay Frequency"
+'   Text 225, 115, 70, 10, "Regular Non-Monthly"
+'   Text 225, 130, 25, 10, "Amount"
+'   Text 280, 130, 50, 10, "Nbr of Months"
+'   EditBox 5, 140, 50, 15, rate_of_pay
+'   EditBox 75, 140, 40, 15, hours_per_week
+'   DropListBox 130, 140, 85, 45, "1 - One Time Per Month"+chr(9)+"2 - Two Times Per Month"+chr(9)+"3 - Every Other Week"+chr(9)+"4 - Every Week", pay_frequency
+'   EditBox 225, 140, 40, 15, non_monthly_amt
+'   EditBox 280, 140, 30, 15, number_non_reg_months
+'   ButtonGroup ButtonPressed
+'     PushButton 440, 140, 15, 15, "+", add_another_check
+'     PushButton 460, 140, 15, 15, "-", take_a_check_away
+'     OkButton 495, 140, 50, 15
+'     CancelButton 550, 140, 50, 15
+' EndDialog
+
+' BeginDialog Dialog1, 0, 0, 421, 240, "Confirm JOBS Budget"
+'   Text 10, 10, 175, 10, "JOBS 01 01 - EMPLOYER"
+'   Text 245, 10, 50, 10, "Pay Frequency"
+'   DropListBox 305, 5, 95, 45, "1 - One Time Per Month"+chr(9)+"2 - Two Times Per Month"+chr(9)+"3 - Every Other Week"+chr(9)+"4 - Every Week"+chr(9)+"5 - Other", pay_frequency
+'   Text 240, 30, 60, 10, "Income Start Date:"
+'   EditBox 305, 25, 70, 15, income_start_date
+'   GroupBox 5, 40, 410, 105, "SNAP Budget"
+'   Text 10, 50, 100, 10, "Paychecks Inclued in Budget:"
+'   Text 20, 65, 90, 10, "01/01/2018 - $400 - 40 hrs"
+'   Text 20, 75, 90, 10, "01/15/2018- $400 - 40 hrs"
+'   Text 10, 95, 130, 10, "Paychecks not included: 12/24/2018"
+'   Text 185, 50, 90, 10, "Average hourly rate of pay:"
+'   Text 185, 65, 90, 10, "Average weekly hours:"
+'   Text 185, 80, 90, 10, "Average paycheck amount:"
+'   Text 185, 95, 90, 10, "Monthly Budgeted Income:"
+'   CheckBox 10, 110, 330, 10, "Check here if you confirm that this budget is correct and is the best estimate of anticipated income.", confirm_budget_checkbox
+'   Text 10, 130, 60, 10, "Conversation with:"
+'   ComboBox 75, 125, 60, 45, " "+chr(9)+"Client - not employee"+chr(9)+"Employee"+chr(9)+"Employer", converstion_with
+'   Text 140, 130, 25, 10, "clarifies"
+'   EditBox 170, 125, 235, 15, conversation_detail
+'   GroupBox 5, 150, 410, 60, "CASH Budget"
+'   Text 15, 165, 110, 10, "Actual Paychecks to add to JOBS:"
+'   Text 25, 180, 90, 10, "01/01/2018 - $400 - 40 hrs"
+'   Text 25, 190, 90, 10, "01/15/2018- $400 - 40 hrs"
+'   ButtonGroup ButtonPressed
+'     OkButton 315, 220, 50, 15
+'     CancelButton 370, 220, 50, 15
+' EndDialog
