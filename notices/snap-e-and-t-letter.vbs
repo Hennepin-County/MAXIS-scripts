@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/27/2018", "Updated to allow referrals for members not coded as mandatory participants under OTHER REFERRAL and WORKING WITH CBO options.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/29/2018", "Added ABAWD 2nd set as a referral reason. Removed manual referral option, script will now send a manual referral on all cases. Removed TIKL to follow up on case in 30 days.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/27/2018", "Multiple updates include handling for multiple household members, background check, removed exempt counties coding, added other manual reason info into case note, upated TIKL msgbox, and added ABAWD to manual referral droplist. ", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -221,25 +222,19 @@ For each member_number in member_array
 
     Client_name = first_name & " " & last_name
         
-    'Ensuring that students have a FSET status of "12" and all others are coded with "30"
+    'Ensuring that the ABAWD_status is "13" for banked months manual referral recipients
+    EMReadScreen ABAWD_status, 2, 13, 50
+    If manual_referral = "Banked months" then
+        if ABAWD_status <> "13" then script_end_procedure("Member " & member_number & " is not coded as a banked months recipient. The script will now end.")
+    Elseif manual_referral = "ABAWD 2nd Set" then
+        if ABAWD_status <> "11" then script_end_procedure("Member " & member_number & " is not coded as ABAWD 2nd set. The script will now end.")
+    Elseif manual_referral = "ABAWD (3/36 mo.)" then
+        if ABAWD_status <> "10" then script_end_procedure("Member " & member_number & " is not coded as ABAWD. The script will now end.")
+    End if
+    
+    'Ensuring that students have a FSET status of "12".
     EMReadScreen FSET_status, 2, 8, 50
-    If manual_referral <> "Other referral" or manual_referral <> "Working with CBO" then  
-        If manual_referral = "Student" then
-            if FSET_status <> "12" then script_end_procedure("Member " & member_number & " is not coded as a student. The script will now end.")
-        Else 
-            If FSET_status <> "30" then script_end_procedure("Member " & member_number & " is not coded as a Mandatory FSET Participant. The script will now end.")
-        End if
-        
-        'Ensuring that the ABAWD_status is "13" for banked months manual referral recipients
-        EMReadScreen ABAWD_status, 2, 13, 50
-        If manual_referral = "Banked months" then
-         	if ABAWD_status <> "13" then script_end_procedure("Member " & member_number & " is not coded as a banked months recipient. The script will now end.")
-        Elseif manual_referral = "ABAWD 2nd Set" then
-            if ABAWD_status <> "11" then script_end_procedure("Member " & member_number & " is not coded as ABAWD 2nd set. The script will now end.")
-        Elseif manual_referral = "ABAWD (3/36 mo.)" then
-            if ABAWD_status <> "10" then script_end_procedure("Member " & member_number & " is not coded as ABAWD. The script will now end.")
-        End if
-    End if 
+    If manual_referral = "Student" and FSET_status <> "12" then script_end_procedure("Member " & member_number & " is not coded as a student. The script will now end.")
     
     'Ensuring the orientation date is coding in the with the referral date scheduled
     EMReadScreen orientation_date, 8, 9, 50
