@@ -412,10 +412,10 @@ IF send_notice_checkbox = CHECKED THEN
 	IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 	IF IEVS_type = "WAGE" THEN
 		'Updated IEVS_match to write into case note
-		IF quarter = 1 THEN IEVS_quarter = "1ST"
-		IF quarter = 2 THEN IEVS_quarter = "2ND"
-		IF quarter = 3 THEN IEVS_quarter = "3RD"
-		IF quarter = 4 THEN IEVS_quarter = "4TH"
+		IF casenote_quarter = 1 THEN IEVS_quarter = "1ST"
+		IF casenote_quarter = 2 THEN IEVS_quarter = "2ND"
+		IF casenote_quarter = 3 THEN IEVS_quarter = "3RD"
+		IF casenote_quarter = 4 THEN IEVS_quarter = "4TH"
 	END IF
 	IEVS_match = replace(IEVS_match, "/", " to ")
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
@@ -503,19 +503,6 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	IF resolution_status = "NC - Non Cooperation" THEN rez_status = "NC"
 	'CC cannot be used - ACTION CODE FOR ACTH OR ACTM IS INVALID
 	'checked these all to programS'
-	programs_array = split(programs, ",")
-	For each programs in programs_array
-	 	programs = trim(programs)
-	 	IF programs = "DWP" then cleared_header = "ACTD"
-	 	IF programs = "Food Support" then cleared_header = "ACTF"
-	 	IF programs = "Health Care" then cleared_header = "ACTH"
-	 	IF programs = "Medical Assistance" then cleared_header = "ACTM"
-	 	IF programs = "MFIP" then cleared_header = "ACTS"
-	  	row = 11
-	  	col = 57
-	  	EMSearch cleared_header, row, col
-	  	EMWriteScreen resolution_status, row + 1, col + 1
-	Next
 	EMwritescreen rez_status, 12, 58
 	IF change_response = "YES" THEN
 		EMwritescreen "Y", 15, 37
