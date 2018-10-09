@@ -636,8 +636,8 @@ If sanction_option = "Sanction cases" then
                                 'This will write if the notice is for SNAP only. This is not required. Information required should be sent by E & T.
                                 CALL write_variable_in_SPEC_MEMO("******************************************************")
                                 CALL write_variable_in_SPEC_MEMO("What to do next:")
-                                CALL write_variable_in_SPEC_MEMO("* You must meet the SNAP E&T rules by the end of the month. If you want to meet the rules, contact your team at 612-596-1300, or your SNAP E&T provider at 612-596-7411.")
-                                CALL write_variable_in_SPEC_MEMO("* You can tell us why you did not meet the rules. If you had a good reason for not meeting the SNAP E&T rules, contact your SNAP E&T provider right away.")
+                                CALL write_variable_in_SPEC_MEMO("* You must meet the SNAP Employment and Training rules by the end of the month. If you want to meet the rules, contact your team at 612-596-1300, or your SNAP Employment and Training provider at 612-596-7411.")
+                                CALL write_variable_in_SPEC_MEMO("* You can tell us why you did not meet the rules. If you had a good reason for not meeting the SNAP Employment and Training rules, contact your SNAP Employment and Training provider right away.")
                                 CALL write_variable_in_SPEC_MEMO("******************************************************")
                                 PF4     'saving notice 
                                 PF3     'exiting specific notice 
