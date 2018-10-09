@@ -111,14 +111,11 @@ current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
 
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-
 EMReadscreen dail_check, 4, 2, 48
-
 IF dail_check <> "DAIL" THEN
-
+	Call check_for_MAXIS(FALSE)
 	CALL MAXIS_case_number_finder (MAXIS_case_number)
 	MEMB_number = "01"
-	Call back_to_self
 
     BeginDialog ase_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
       EditBox 60, 5, 65, 15, MAXIS_case_number
@@ -144,7 +141,7 @@ IF dail_check <> "DAIL" THEN
 
 	CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 	EMwritescreen MEMB_number, 20, 76
-	transmit
+	TRANSMIT
 
 	EMReadscreen SSN_number_read, 11, 7, 42
 	SSN_number_read = replace(SSN_number_read, " ", "")
@@ -153,16 +150,17 @@ IF dail_check <> "DAIL" THEN
 	CALL write_value_and_transmit("IEVP", 20, 71)
 	CALL write_value_and_transmit(SSN_number_read, 3, 63) '
 ELSEIF dail_check = "DAIL" THEN
+    EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
+    'msgbox IEVS_type
+    IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" THEN
+    	match_found = TRUE
+    ELSE
+    	script_end_procedure("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
+    END IF
+	IF match_found = TRUE THEN
 	    EMSendKey "t"
-	    'checking for an active MAXIS session
 	    Call check_for_MAXIS(FALSE)
-	    EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
-	    'msgbox IEVS_type
-	    IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" THEN
-		    match_found = TRUE
-	 	ELSE
-		    script_end_procedure("This is not an IEVS match. Please select a WAGE match DAIL, and run the script again.")
-	    END IF
+
 	    EMReadScreen MAXIS_case_number, 8, 5, 73
 		MAXIS_case_number= TRIM(MAXIS_case_number)
 		 '----------------------------------------------------------------------------------------------------IEVP
@@ -171,7 +169,7 @@ ELSEIF dail_check = "DAIL" THEN
 		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
 		EMReadScreen error_msg, 7, 24, 2
 		IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
-	'END IF
+	END IF
 END IF
 
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
@@ -194,35 +192,24 @@ DO
 	IF ievp_info_confirmation = vbYes THEN 	EXIT DO
 LOOP UNTIL ievp_info_confirmation = vbYes
 
-'EMReadScreen multiple_match, 11, row + 1, 47
-'IF multiple_match = IEVS_match THEN
-'	msgbox("More than one match exists for this time period. Determine the match you'd like to clear, and put your cursor in front of that match." & vbcr & "Press OK once match is determined.")
-'	EMSendKey "U"
-'	transmit
-'ELSE
+''---------------------------------------------------------------------Reading potential errors for out-of-county cases
 CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
-'END IF
-
-'---------------------------------------------------------------------Reading potential errors for out-of-county cases
 EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" then
 	script_end_procedure("Out-of-county case. Cannot update.")
-	Else
-		IF IEVS_type = "WAGE" then
-			EMReadScreen casenote_quarter, 1, 8, 14
-			EMReadScreen IEVS_year, 4, 8, 22
-		ELSEIF IEVS_type = "UBEN" THEN
-			EMReadScreen IEVS_month, 2, 5, 68
-			EMReadScreen IEVS_year, 4, 8, 71
-		ELSEIF IEVS_type = "BEER" THEN
-			EMReadScreen IEVS_year, 2, 8, 15
-			IEVS_year = "20" & IEVS_year
-		END IF
+Else
+	IF IEVS_type = "WAGE" then
+		EMReadScreen casenote_quarter, 1, 8, 14
+		EMReadScreen IEVS_year, 4, 8, 22
+	ELSEIF IEVS_type = "UBEN" THEN
+		EMReadScreen IEVS_month, 2, 5, 68
+		EMReadScreen IEVS_year, 4, 8, 71
+	ELSEIF IEVS_type = "BEER" THEN
+		EMReadScreen IEVS_year, 2, 8, 15
+		IEVS_year = "20" & IEVS_year
+	END IF
 END IF
 
-IF IEVS_type = "BEER" THEN type_match = "B"
-IF IEVS_type = "UBEN" THEN type_match = "U"
-IF IEVS_type = "WAGE" THEN type_match = "U"
 
 EMReadScreen number_IEVS_type, 3, 7, 12 'read the DAIL msg'
 IF number_IEVS_type = "A30" THEN IEVS_type = "BNDX"
@@ -231,16 +218,15 @@ IF number_IEVS_type = "A70" THEN IEVS_type = "BEER"
 IF number_IEVS_type = "A80" THEN IEVS_type = "UNVI"
 IF number_IEVS_type = "A60" THEN IEVS_type = "UBEN"
 IF number_IEVS_type = "A50" or number_IEVS_type = "A51"  THEN IEVS_type = "WAGE"
-
-msgbox IEVS_type
-IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" THEN
-	match_found = TRUE
-ELSE
-	script_end_procedure("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
-END IF
+'------------------------------------------setting up case note header'
+IF IEVS_type = "BEER" THEN type_match = "B"
+IF IEVS_type = "UBEN" THEN type_match = "U"
+IF IEVS_type = "WAGE" THEN type_match = "U"
 
 IF IEVS_type = "WAGE" THEN EMreadscreen casenote_quarter, 1, 8, 14
 '--------------------------------------------------------------------Client name
+EmReadScreen panel_name, 4, 02, 52
+IF panel_name <> "IULA" THEN script_end_procedure("Script did not find IULA.")
 EMReadScreen client_name, 35, 5, 24
 client_name = trim(client_name)                         'trimming the client name
 IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This separates the two names
@@ -256,14 +242,7 @@ ELSE                                'In cases where the last name takes up the e
 	first_name = ""
 	last_name = client_name
 END IF
-first_name = trim(first_name)
-IF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
-	length = len(first_name)                        	'trimming the 1st name
-	position = InStr(first_name, " ")               	'establishing the length of the variable
-	first_name = Left(first_name, position-1)       	'trims the middle initial off of the first name
-END IF
-'it is not putting a space in the dialog MsgBox
-'TODO change_name_to_FML
+
 '----------------------------------------------------------------------------------------------------ACTIVE PROGRAMS
 EMReadScreen Active_Programs, 13, 6, 68
 Active_Programs = trim(Active_Programs)
@@ -279,7 +258,7 @@ programs = trim(programs)
 'takes the last comma off of programs when autofilled into dialog
 IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 
-msgbox programs
+'msgbox programs
 
 '----------------------------------------------------------------------------------------------------Employer info & difference notice info
 EMReadScreen source_income, 75, 8, 37
@@ -360,9 +339,9 @@ IF send_notice_checkbox = CHECKED THEN
 	EMwritescreen "005", 12, 46 'writing the resolve time to read for later
 	EMwritescreen "Y", 14, 37 'send Notice
 	'msgbox "Difference Notice Sent"
-	transmit 'goes into IULA
+	TRANSMIT 'goes into IULA
 	'removed the IULB information '
-	transmit'exiting IULA, helps prevent errors when going to the case note
+	TRANSMIT'exiting IULA, helps prevent errors when going to the case note
 '-----------------------------------------------------------------------------------Claim Referral Tracking
   	Call navigate_to_MAXIS_screen ("STAT", "MISC")
   	Row = 6
@@ -425,7 +404,7 @@ IF send_notice_checkbox = CHECKED THEN
 	    IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH(" & first_name & ") DIFF NOTICE SENT-----")
 	    IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
 	    IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
-	    CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
+	    CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", client_name)
   	    CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 	    CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
 	    CALL write_variable_in_CASE_NOTE ("----- ----- -----")
@@ -509,7 +488,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	ELSE
 		EMwritescreen "N", 15, 37
 	END IF
-	transmit 'IULB
+	TRANSMIT 'IULB
 	'----------------------------------------------------------------------------------------writing the note on IULB
 	EMReadScreen error_msg, 11, 24, 2
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -621,7 +600,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 		CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 		EMSendKey "w"
-	 	transmit
+	 	TRANSMIT
 	 	'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
 	 	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
 	 	CALL write_variable_in_TIKL("CLOSE FOR NON-COOP, CREATE DISQ(S) FOR " & first_name)
