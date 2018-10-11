@@ -203,7 +203,6 @@ Else
 	END IF
 END IF
 
-
 EMReadScreen number_IEVS_type, 3, 7, 12 'read the DAIL msg'
 IF number_IEVS_type = "A30" THEN IEVS_type = "BNDX"
 IF number_IEVS_type = "A40" THEN IEVS_type = "SDXS/I"
@@ -215,12 +214,8 @@ IF number_IEVS_type = "A50" or number_IEVS_type = "A51"  THEN IEVS_type = "WAGE"
 IF IEVS_type = "BEER" THEN type_match = "B"
 IF IEVS_type = "UBEN" THEN type_match = "U"
 IF IEVS_type = "WAGE" THEN type_match = "U"
-
 IF IEVS_type = "WAGE" THEN EMreadscreen casenote_quarter, 1, 8, 14
 
-
-income_rcvd_date = date
-discovery_date = date
 '--------------------------------------------------------------------Client name
 EmReadScreen panel_name, 4, 02, 52
 IF panel_name <> "IULA" THEN script_end_procedure("Script did not find IULA.")
@@ -275,6 +270,8 @@ Else
     source_income = source_income	'catch all variable
 END IF
 
+income_rcvd_date = date
+discovery_date = date
 
 BeginDialog OP_Cleared_dialog, 0, 0, 361, 245, "Match Cleared CC Claim Entered"
   EditBox 60, 5, 35, 15, MAXIS_case_number
@@ -379,7 +376,7 @@ CALL check_for_password_without_transmit(are_we_passworded_out)
 
 EMReadScreen confirm_source_income, 75, 8, 37
 confirm_source_income = trim(confirm_source_income)
-IF confirm_source_income <> source_income THEN MsgBox source_income
+IF confirm_source_income <> source_income THEN MsgBox MsgBox "*** NOTICE!!! ***" & vbNewLine & source_income & vbNewLine
 
 EMWriteScreen "030", 12, 46
 EMWriteScreen "CC", row + 1, col + 1
@@ -402,13 +399,13 @@ EMWriteScreen "Claim entered. ", 8, 6
 Call clear_line_of_text(17, 9)
 EMWriteScreen Claim_number, 17, 9
 'need to check about adding for mutli claims'
-msgbox "did the notes input?"
+'msgbox "did the notes input?"
 TRANSMIT 'this will take us back to IEVP main menu'
 
 EmReadScreen panel_name, 4, 02, 52
 IF panel_name = "IEVP" THEN msgbox "Script did not find IEVP."
 '------------------------------------------------------------------back on the IEVP menu, making sure that the match cleared
-msgbox panel_name
+'msgbox panel_name
 EMReadScreen days_pending, 5, 7, 72
 days_pending = trim(days_pending)
 IF IsNumeric(days_pending) = TRUE THEN
