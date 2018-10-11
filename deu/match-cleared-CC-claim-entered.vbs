@@ -391,7 +391,7 @@ EMReadScreen confirm_source_income, 75, 8, 37
 confirm_source_income = trim(confirm_source_income)
 IF confirm_source_income <> source_income THEN MsgBox source_income
 
-EMWriteScreen "000", 12, 46
+EMWriteScreen "030", 12, 46
 EMWriteScreen "CC", row + 1, col + 1
 IF change_response = "YES" THEN
 	EMwritescreen "Y", 15, 37
