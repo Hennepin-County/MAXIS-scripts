@@ -63,6 +63,7 @@ Function declare_admin_menu_dialog(script_array)
     ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 30, 15, "ADMIN", 			admin_main_button
 		 	PushButton 045, 35, 30, 15, "QI", 				QI_button
+            If show_BZ_button = TRUE Then PushButton 075, 35, 30, 15, "BZ",               BZ_button
 		'This starts here, but it shouldn't end here :)
 		vert_button_position = 70
 
@@ -79,7 +80,11 @@ Function declare_admin_menu_dialog(script_array)
 		next
 
 		CancelButton 455, 300, 50, 15
-		GroupBox 5, 20, 100, 35, "Admin Sub-Menus"
+        If show_BZ_button = TRUE Then
+		    GroupBox 5, 20, 115, 35, "Admin Sub-Menus"
+        Else
+            GroupBox 5, 20, 100, 35, "Admin Sub-Menus"
+        End If
 	EndDialog
 End function
 'END CUSTOM FUNCTIONS=======================================================================================================
@@ -93,6 +98,7 @@ dim admin_dialog
 
 script_array_admin_main = array()
 script_array_QI_list = array()
+script_array_BZ_list = array()
 'END VARIABLES TO DECLARE===================================================================================================
 
 'LIST OF SCRIPTS================================================================================================================
@@ -151,46 +157,11 @@ script_array_admin_main(script_num).description			= "Updates a list of cases fro
 
 '----------------------------------------------------------------------------------------------------QI array
 script_num = 0
-ReDim Preserve script_array_QI_list(script_num)
-Set script_array_QI_list(script_num) = new script
-script_array_QI_list(script_num).script_name 		= " ABAWD Report "											'Script name
-script_array_QI_list(script_num).file_name 			= "abawd-report.vbs"										'Script URL
-script_array_QI_list(script_num).description 		= "BULK script that gathers ABAWD/FSET codes for members on SNAP/MFIP active cases."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_QI_list(script_num)
-Set script_array_QI_list(script_num) = new script
-script_array_QI_list(script_num).script_name 		= "Auto-Dialer Case Status"											'Script name
-script_array_QI_list(script_num).file_name 			= "auto-dialer-case-status.vbs"										'Script URL
-script_array_QI_list(script_num).description 		= "BULK script that gathers case status for cases with recerts for SNAP/MFIP the previous month."
-
-script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
 Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_QI_list(script_num).script_name		= "Banked Months Review"													'Script name
 script_array_QI_list(script_num).file_name			= "banked-months-review.vbs"												'Script URL
 script_array_QI_list(script_num).description		= "Script to assist in the review and processing of SNAP Banked Months."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
-Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_QI_list(script_num).script_name		= "Close GRH Rate 2 in MMIS"													'Script name
-script_array_QI_list(script_num).file_name			= "close-GRH-rate-2-in-MMIS.vbs"												'Script URL
-script_array_QI_list(script_num).description		= "Script to assist in closing SSR agreements in MMIS for GRH Rate 2 cases."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
-Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_QI_list(script_num).script_name		= "DAIL Decimator"													'Script name
-script_array_QI_list(script_num).file_name			= "dail-decimator.vbs"												'Script URL
-script_array_QI_list(script_num).description		= "BULK script that deletes specific DAILS based on content, and collects them into an Excel spreadsheet."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
-Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_QI_list(script_num).script_name		= "DISA Dr. PEPR"													'Script name
-script_array_QI_list(script_num).file_name			= "disa-dr-pepr.vbs"												'Script URL
-script_array_QI_list(script_num).description		= "Adds additional information to an existing list of cases applicable to DAIL PEPR DAILS."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
@@ -213,20 +184,6 @@ script_array_QI_list(script_num).script_name		= "Individual NOMI"													'S
 script_array_QI_list(script_num).file_name			= "individual-nomi.vbs"												'Script URL
 script_array_QI_list(script_num).description		= "Sends a NOMI for a single case, with the same wording as On Demand Applications"
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
-Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_QI_list(script_num).script_name		= "Interview Required"													'Script name
-script_array_QI_list(script_num).file_name			= "interview-required.vbs"												'Script URL
-script_array_QI_list(script_num).description		= "BULK script to collect case information for cases that require an interview for SNAP/MFIP."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
-Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_QI_list(script_num).script_name		= "MAXIS to METS Conversion"													'Script name
-script_array_QI_list(script_num).file_name			= "maxis-to-mets-conversion.vbs"												'Script URL
-script_array_QI_list(script_num).description		= "BULK script to collect case information for cases that may need to convert from MAXIS to METS."
-
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_QI_list(script_num)		 'Resets the array to add one more element to it
 Set script_array_QI_list(script_num) = new script	 'Set this array element to be a new script. Script details below...
@@ -235,39 +192,84 @@ script_array_QI_list(script_num).file_name			 = "bulk-applications.vbs"									
 script_array_QI_list(script_num).description		 = "BULK script to collect information for cases that require an interview for the On Demand Waiver."
 
 script_num = script_num + 1							'Increment by one
-ReDim Preserve script_array_QI_list(script_num)		 'Resets the array to add one more element to it
-Set script_array_QI_list(script_num) = new script	 'Set this array element to be a new script. Script details below...
-script_array_QI_list(script_num).script_name		 = "On Demand Waiver - Recertifications"													'Script name
-script_array_QI_list(script_num).file_name			 = "bulk-recertifications.vbs"												'Script URL
-script_array_QI_list(script_num).description		 = "BULK script to send notices for cases at recertification that require an interview for the On Demand Waiver."
-
-script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
 Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_QI_list(script_num).script_name		= "QI Renewal Accuracy"                                              'Script name
 script_array_QI_list(script_num).file_name			= "qi-renewal-accuracy.vbs"                                          'Script URL
 script_array_QI_list(script_num).description		= "Template for documenting specific renewal inforamtion that has been reviewed by policy experts."
 
-script_num = script_num + 1							'Increment by one
-ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
-Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_QI_list(script_num).script_name		= " Select WCOM "										'Script name
-script_array_QI_list(script_num).file_name			= "select-wcom.vbs"									'Script URL
-script_array_QI_list(script_num).description		= "Adds WCOM(s) to approval notices."
+'----------------------------------------------------------------------------------------------------BZ array
+script_num = 0
+ReDim Preserve script_array_BZ_list(script_num)
+Set script_array_BZ_list(script_num) = new script
+script_array_BZ_list(script_num).script_name 		= " ABAWD Report "											'Script name
+script_array_BZ_list(script_num).file_name 			= "abawd-report.vbs"										'Script URL
+script_array_BZ_list(script_num).description 		= "BULK script that gathers ABAWD/FSET codes for members on SNAP/MFIP active cases."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BZ_list(script_num)
+Set script_array_BZ_list(script_num) = new script
+script_array_BZ_list(script_num).script_name 		= "Auto-Dialer Case Status"											'Script name
+script_array_BZ_list(script_num).file_name 			= "auto-dialer-case-status.vbs"										'Script URL
+script_array_BZ_list(script_num).description 		= "BULK script that gathers case status for cases with recerts for SNAP/MFIP the previous month."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BZ_list(script_num).script_name		= "Close GRH Rate 2 in MMIS"													'Script name
+script_array_BZ_list(script_num).file_name			= "close-GRH-rate-2-in-MMIS.vbs"												'Script URL
+script_array_BZ_list(script_num).description		= "Script to assist in closing SSR agreements in MMIS for GRH Rate 2 cases."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BZ_list(script_num).script_name		= "DAIL Decimator"													'Script name
+script_array_BZ_list(script_num).file_name			= "dail-decimator.vbs"												'Script URL
+script_array_BZ_list(script_num).description		= "BULK script that deletes specific DAILS based on content, and collects them into an Excel spreadsheet."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BZ_list(script_num).script_name		= "DISA Dr. PEPR"													'Script name
+script_array_BZ_list(script_num).file_name			= "disa-dr-pepr.vbs"												'Script URL
+script_array_BZ_list(script_num).description		= "Adds additional information to an existing list of cases applicable to DAIL PEPR DAILS."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BZ_list(script_num).script_name		= "Interview Required"													'Script name
+script_array_BZ_list(script_num).file_name			= "interview-required.vbs"												'Script URL
+script_array_BZ_list(script_num).description		= "BULK script to collect case information for cases that require an interview for SNAP/MFIP."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BZ_list(script_num).script_name		= "MAXIS to METS Conversion"													'Script name
+script_array_BZ_list(script_num).file_name			= "maxis-to-mets-conversion.vbs"												'Script URL
+script_array_BZ_list(script_num).description		= "BULK script to collect case information for cases that may need to convert from MAXIS to METS."
 
 script_num = script_num + 1							'Increment by one
-ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
-Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_QI_list(script_num).script_name		= "Send CBO Manual Referrals"										'Script name
-script_array_QI_list(script_num).file_name			= "send-cbo-manual-referrals.vbs"									'Script URL
-script_array_QI_list(script_num).description		= "Sends manual referrals for a list of cases provided by Employment and Training."
+ReDim Preserve script_array_BZ_list(script_num)		 'Resets the array to add one more element to it
+Set script_array_BZ_list(script_num) = new script	 'Set this array element to be a new script. Script details below...
+script_array_BZ_list(script_num).script_name		 = "On Demand Waiver - Recertifications"													'Script name
+script_array_BZ_list(script_num).file_name			 = "bulk-recertifications.vbs"												'Script URL
+script_array_BZ_list(script_num).description		 = "BULK script to send notices for cases at recertification that require an interview for the On Demand Waiver."
 
 script_num = script_num + 1							'Increment by one
-ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
-Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_QI_list(script_num).script_name		= "UNEA Updater"										'Script name
-script_array_QI_list(script_num).file_name			= "unea-updater.vbs"									'Script URL
-script_array_QI_list(script_num).description		= "BULK script that updates UNEA information and sends SPEC/MEMO for VA cases at ER."
+ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BZ_list(script_num).script_name		= "Send CBO Manual Referrals"										'Script name
+script_array_BZ_list(script_num).file_name			= "send-cbo-manual-referrals.vbs"									'Script URL
+script_array_BZ_list(script_num).description		= "Sends manual referrals for a list of cases provided by Employment and Training."
+
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BZ_list(script_num).script_name		= "UNEA Updater"										'Script name
+script_array_BZ_list(script_num).file_name			= "unea-updater.vbs"									'Script URL
+script_array_BZ_list(script_num).description		= "BULK script that updates UNEA information and sends SPEC/MEMO for VA cases at ER."
+
+
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
 '	We're doing this because we want to assign a value to each button pressed, and we want
@@ -278,9 +280,14 @@ script_array_QI_list(script_num).description		= "BULK script that updates UNEA i
 button_placeholder 	= 24601
 admin_main_button	= 1000
 QI_button	        = 2000
+BZ_button           = 3000
+
+show_BZ_button = FALSE
 
 'Displays the dialog
 Do
+    If user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "WFS395" OR user_ID_for_validation = "CALO001" then show_BZ_button = TRUE
+
 	If ButtonPressed = "" or ButtonPressed = admin_main_button then
         declare_admin_menu_dialog(script_array_admin_main)
 	elseif ButtonPressed = QI_button then
@@ -303,6 +310,15 @@ Do
             Msgbox "These scripts are for Quality Improvement staff only. You do not have access to access this menu."
             stopscript
         End if
+    elseif ButtonPressed = BZ_button then
+        If user_ID_for_validation = "ILFE001" OR _
+        user_ID_for_validation = "WFS395" OR _
+        user_ID_for_validation = "CALO001" then
+		    declare_admin_menu_dialog(script_array_BZ_list)
+        Else
+            Msgbox "These scripts are for Scriptwriters only. You do not have access to access this menu."
+            stopscript
+        End if
     end if
 
     dialog admin_dialog
@@ -311,7 +327,8 @@ Do
     'Opening the SIR Instructions
 	'IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notices%20scripts.aspx")
 Loop until ButtonPressed <> admin_main_button and _
-			ButtonPressed <> QI_button
+			ButtonPressed <> QI_button and _
+            ButtonPressed <> BZ_button
 
 'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
 For i = 0 to ubound(script_array_admin_main)
@@ -320,6 +337,10 @@ Next
 
 For i = 0 to ubound(script_array_QI_list)
 	If ButtonPressed = script_array_QI_list(i).button then call run_from_GitHub(script_repository & "admin/" & script_array_QI_list(i).file_name)
+Next
+
+For i = 0 to ubound(script_array_BZ_list)
+	If ButtonPressed = script_array_BZ_list(i).button then call run_from_GitHub(script_repository & "admin/" & script_array_BZ_list(i).file_name)
 Next
 
 stopscript
