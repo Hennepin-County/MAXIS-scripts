@@ -105,36 +105,32 @@ current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
 
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-'Call back_to_self
-'--------------------------------------------------------------------CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
 EMReadscreen dail_check, 4, 2, 48
-
 IF dail_check <> "DAIL" THEN
 	Call check_for_MAXIS(FALSE)
 	CALL MAXIS_case_number_finder (MAXIS_case_number)
 	MEMB_number = "01"
+	BeginDialog ase_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
+	  EditBox 60, 5, 65, 15, MAXIS_case_number
+	  EditBox 60, 25, 30, 15, MEMB_number
+	  ButtonGroup ButtonPressed
+	    OkButton 20, 45, 50, 15
+	    CancelButton 75, 45, 50, 15
+	  Text 5, 30, 55, 10, "MEMB Number:"
+	  Text 5, 10, 50, 10, "Case Number:"
+	EndDialog
 
-	    BeginDialog ase_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
-	      EditBox 60, 5, 65, 15, MAXIS_case_number
-	      EditBox 60, 25, 30, 15, MEMB_number
-	      ButtonGroup ButtonPressed
-	        OkButton 20, 45, 50, 15
-	        CancelButton 75, 45, 50, 15
-	      Text 5, 30, 55, 10, "MEMB Number:"
-	      Text 5, 10, 50, 10, "Case Number:"
-	    EndDialog
-
-	    DO
-	    	DO
-	    		err_msg = ""
-	    		Dialog case_number_dialog
-	    		IF ButtonPressed = 0 THEN StopScript
-		  		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		  		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
-	    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-			LOOP UNTIL err_msg = ""
-			CALL check_for_password(are_we_passworded_out)
-		LOOP UNTIL are_we_passworded_out = false
+	 DO
+	  	DO
+	  		err_msg = ""
+	  		Dialog case_number_dialog
+	  		IF ButtonPressed = 0 THEN StopScript
+	 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+	 		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
+	  		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+		LOOP UNTIL err_msg = ""
+		CALL check_for_password(are_we_passworded_out)
+	LOOP UNTIL are_we_passworded_out = false
 
 	CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 	EMwritescreen MEMB_number, 20, 76
@@ -164,9 +160,9 @@ ELSEIF dail_check = "DAIL" THEN
 	    'Navigating deeper into the match interface
 	    CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
 	    CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
-	    EMReadScreen error_msg, 7, 24, 2
-	    IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
-END IF
+	    EMReadScreen err_msg, 7, 24, 2
+	    IF err_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
+	END IF
 END IF
 
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
@@ -279,19 +275,12 @@ Else
     source_income = source_income	'catch all variable
 END IF
 
-'----------------------------------------------------------------------------------------------------notice sent
-EMReadScreen notice_sent, 1, 14, 37
-EMReadScreen sent_date, 8, 14, 68
-sent_date = trim(sent_date)
-IF sent_date = "" THEN sent_date = replace(sent_date, " ", "N/A")
-IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
-
 
 BeginDialog OP_Cleared_dialog, 0, 0, 361, 245, "Match Cleared CC Claim Entered"
   EditBox 60, 5, 35, 15, MAXIS_case_number
   DropListBox 150, 5, 55, 15, "Select:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"LAST YEAR"+chr(9)+"OTHER", casenote_quarter
   EditBox 60, 25, 45, 15, discovery_date
-  DropListBox 260, 5, 35, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
+  DropListBox 260, 5, 35, 20, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
   DropListBox 150, 25, 55, 15, "Select:"+chr(9)+"BNDX"+chr(9)+"SDXS"+chr(9)+"BEER"+chr(9)+"NONE"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", IEVS_type
   EditBox 245, 25, 20, 15, memb_number
   EditBox 335, 25, 20, 15, OT_resp_memb
@@ -378,15 +367,16 @@ Do
 	IF EI_allowed_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if Earned Income disregard was allowed."
 	IF collectible_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if claim is collectible."
 	IF collectible_dropdown = "YES" THEN
-	IF collectible_reason_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise why claim is collectible."
+		IF collectible_reason_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise why claim is collectible."
 	END IF
 	IF isdate(income_rcvd_date) = FALSE or income_rcvd_date = "" then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income recieved."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 LOOP UNTIL err_msg = ""
 CALL check_for_password_without_transmit(are_we_passworded_out)
 	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
-EmReadScreen panel_name, 4, 02, 52
-IF panel_name <> "IULA" THEN script_end_procedure("Script did not find IULA.")
+'EmReadScreen panel_name, 4, 02, 52
+'IF panel_name <> "IULA" THEN msgbox panel_name
+
 EMReadScreen confirm_source_income, 75, 8, 37
 confirm_source_income = trim(confirm_source_income)
 IF confirm_source_income <> source_income THEN MsgBox source_income
@@ -400,17 +390,25 @@ ELSE
 END IF
 TRANSMIT
 '----------------------------------------------------------------------------------------writing the note on IULB
-EmReadScreen panel_name, 4, 02, 52
-IF panel_name = "IULB" THEN msgbox "Script did not find IULB."
-EMReadScreen error_msg, 11, 24, 2
+'EmReadScreen panel_name, 4, 02, 52
+'IF panel_name = "IULB" THEN msgbox "Script did not find IULB."
+
+Call clear_line_of_text(8, 6)
+
+EMReadScreen err_msg, 11, 24, 2
 IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-If error_msg = "ACTION CODE" THEN script_end_procedure(err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
+If err_msg = "ACTION CODE" THEN script_end_procedure(err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
 EMWriteScreen "Claim entered. ", 8, 6
+Call clear_line_of_text(17, 9)
 EMWriteScreen Claim_number, 17, 9
 'need to check about adding for mutli claims'
-'msgbox "did the notes input?"
+msgbox "did the notes input?"
 TRANSMIT 'this will take us back to IEVP main menu'
+
+EmReadScreen panel_name, 4, 02, 52
+IF panel_name = "IEVP" THEN msgbox "Script did not find IEVP."
 '------------------------------------------------------------------back on the IEVP menu, making sure that the match cleared
+msgbox panel_name
 EMReadScreen days_pending, 5, 7, 72
 days_pending = trim(days_pending)
 IF IsNumeric(days_pending) = TRUE THEN
@@ -421,48 +419,54 @@ ELSE
 END IF
 IF IEVS_type = "WAGE" THEN
 	IF casenote_quarter = 1 THEN IEVS_quarter = "1ST"
-		IF casenote_quarter = 2 THEN IEVS_quarter = "2ND"
+	IF casenote_quarter = 2 THEN IEVS_quarter = "2ND"
  	IF casenote_quarter = 3 THEN IEVS_quarter = "3RD"
  	IF casenote_quarter = 4 THEN IEVS_quarter = "4TH"
 END IF
 IEVS_period = replace(IEVS_period, "/", " to ")
 Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 PF3 'back to the DAIL'
-'-----------------------------------------------------------------------------------Claim Referral Tracking
+PF3
+'Going to the MISC panel to add claim referral tracking information
 Call navigate_to_MAXIS_screen ("STAT", "MISC")
 Row = 6
-EmReadScreen panel_number, 1, 02, 78
-If panel_number = "0" then
-  	EMWriteScreen "NN", 20,79
-  	TRANSMIT
-ELSE
-  	Do
-		'Checking to see if the MISC panel is empty, if not it will find a new line'
-		EmReadScreen MISC_description, 25, row, 30
-		MISC_description = replace(MISC_description, "_", "")
-		If trim(MISC_description) = "" then
-	  		PF9
-	  		EXIT DO
-		Else
-			row = row + 1
-		End if
-  	Loop Until row = 17
-  	If row = 17 then script_end_procedure("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-End if
+EmReadScreen err_msg, 53, 24, 02
+	IF err_msg <> "" THEN
+		MsgBox "*** No claim referral can be entered ***" & vbNewLine & err_msg & vbNewLine
+	ELSE
+        EmReadScreen panel_number, 1, 02, 78
+        If panel_number = "0" then
+        	EMWriteScreen "NN", 20,79
+        	TRANSMIT
+        ELSE
+        	Do
+        		'Checking to see if the MISC panel is empty, if not it will find a new line'
+        		EmReadScreen MISC_description, 25, row, 30
+        		MISC_description = replace(MISC_description, "_", "")
+        		If trim(MISC_description) = "" then
+        			PF9
+        			EXIT DO
+        		Else
+        			row = row + 1
+        		End if
+        	Loop Until row = 17
+        	If row = 17 then script_end_procedure("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+        End if
+        'writing in the action taken and date to the MISC panel
+        EMWriteScreen "Claim Determination", Row, 30
+        EMWriteScreen date, Row, 66
+        PF3
+	    start_a_blank_CASE_NOTE
+  	    Call write_variable_in_case_note("-----Claim Referral Tracking-----")
+  	    Call write_bullet_and_variable_in_case_note("Program(s)", programs)
+  	    Call write_bullet_and_variable_in_case_note("Action Date", date)
+  	    Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
+  	    Call write_variable_in_case_note("-----")
+  	    Call write_variable_in_case_note(worker_signature)
+	END IF
 
-'writing in the action taken and date to the MISC panel
-EMWriteScreen "Claim Determination", Row, 30
-EMWriteScreen date, Row, 66
-
-start_a_blank_CASE_NOTE
-  	Call write_variable_in_case_note("-----Claim Referral Tracking-----")
-  	Call write_bullet_and_variable_in_case_note("Program(s)", programs)
-  	Call write_bullet_and_variable_in_case_note("Action Date", date)
-  	Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
-  	Call write_variable_in_case_note("-----")
-  	Call write_variable_in_case_note(worker_signature)
-   '----------------------------------------------------------------the case match CLEARED note
-start_a_blank_CASE_NOTE
+   '    ----------------------------------------------------------------the case match CLEARED note
+	start_a_blank_CASE_NOTE
 	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
 	IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
 	IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
@@ -490,37 +494,40 @@ start_a_blank_CASE_NOTE
 	CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
 	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
 	CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-PF3
-IF programs = "Health Care" or programs = "Medical Assistance" THEN
-	EmWriteScreen "x", 5, 3
-	Transmit
-	note_row = 4			'Beginning of the case notes
-	Do 						'Read each line
-		EMReadScreen note_line, 76, note_row, 3
-       	note_line = trim(note_line)
-		If trim(note_line) = "" Then Exit Do		'Any blank line indicates the end of the case note because there can be no blank lines in a note
-		message_array = message_array & note_line & vbcr		'putting the lines together
-		note_row = note_row + 1
-		If note_row = 18 then 									'End of a single page of the case note
-			EMReadScreen next_page, 7, note_row, 3
-			If next_page = "More: +" Then 						'This indicates there is another page of the case note
-					PF8												'goes to the next line and resets the row to read'\
-					note_row = 4
+
+	PF3 'to save casenote'
+
+	IF programs = "Health Care" or programs = "Medical Assistance" THEN
+		EmWriteScreen "x", 5, 3
+		Transmit
+		note_row = 4			'Beginning of the case notes
+		Do 						'Read each line
+			EMReadScreen note_line, 76, note_row, 3
+	       	note_line = trim(note_line)
+			If trim(note_line) = "" Then Exit Do		'Any blank line indicates the end of the case note because there can be no blank lines in a note
+			message_array = message_array & note_line & vbcr		'putting the lines together
+			note_row = note_row + 1
+			If note_row = 18 then 									'End of a single page of the case note
+				EMReadScreen next_page, 7, note_row, 3
+				If next_page = "More: +" Then 						'This indicates there is another page of the case note
+						PF8												'goes to the next line and resets the row to read'\
+						note_row = 4
+					End If
 				End If
-			End If
-	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
-	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & " Programs: " & programs, "CASE NOTE" & vbcr & message_array,"", False)
-'END IF
-'END IF
+		Loop until next_page = "More:  " OR next_page = "       "	'No more pages
+		'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+		CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & " Programs: " & programs, "CASE NOTE" & vbcr & message_array,"", False)
+	END IF
+
 '---------------------------------------------------------------writing the CCOL case note'
 msgbox "Navigating to CCOL to add case note, please contact MiKayla with any concerns."
 Call navigate_to_MAXIS_screen("CCOL", "CLSM")
 EMWriteScreen claim_number, 4, 9
 Transmit
+PF4
 EMReadScreen existing_case_note, 1, 5, 6
 IF existing_case_note = "" THEN
-	PF4
+	msgbox "Entering casenote into CCOL"
 ELSE
 	PF9
 END IF
@@ -553,4 +560,6 @@ CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- ----- ----- -----")
 CALL write_variable_in_CCOL_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 PF3 'exit the case note'
 PF3 'back to dail'
+
+'END IF
 script_end_procedure("Overpayment case note entered please review case note to ensure accuracy.")

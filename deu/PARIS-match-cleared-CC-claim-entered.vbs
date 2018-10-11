@@ -537,6 +537,7 @@ ELSEIF dail_check <> "DAIL" THEN
 	Call navigate_to_MAXIS_screen("CCOL", "CLSM")
 	EMWriteScreen Claim_number, 4, 9
 	Transmit
+	PF4
 	EMReadScreen existing_case_note, 1, 5, 6
 	IF existing_case_note = "" THEN
 		PF4
