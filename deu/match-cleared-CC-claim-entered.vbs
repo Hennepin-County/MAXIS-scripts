@@ -140,21 +140,43 @@ IF dail_check <> "DAIL" THEN
 	EMwritescreen MEMB_number, 20, 76
 	TRANSMIT
 
-                IEVS_period = "10-" & CM_minus_6_yr & "/12-" & CM_minus_6_yr
-ELSEIF select_quarter = "YEAR" THEN
-				IEVS_period = right(DatePart("yyyy",DateAdd("yyyy", -1, date)), 2)
-'ELSEIF select_quarter = "LAST YEAR" THEN
-'ELSEIF select_quarter = "OTHER" THEN
+	EMReadscreen SSN_number_read, 11, 7, 42
+	SSN_number_read = replace(SSN_number_read, " ", "")
+
+	CALL navigate_to_MAXIS_screen("INFC" , "____")
+	CALL write_value_and_transmit("IEVP", 20, 71)
+	CALL write_value_and_transmit(SSN_number_read, 3, 63) '
+ELSEIF dail_check = "DAIL" THEN
+        EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
+        'msgbox IEVS_type
+    IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" THEN
+	        match_found = TRUE
+ 	    ELSE
+    	script_end_procedure("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
+	    END IF
+	IF match_found = TRUE THEN
+	    EMSendKey "t"
+	    Call check_for_MAXIS(FALSE)
+
+	    EMReadScreen MAXIS_case_number, 8, 5, 73
+	    MAXIS_case_number= TRIM(MAXIS_case_number)
+	    '----------------------------------------------------------------------------------------------------IEVP
+	    'Navigating deeper into the match interface
+	    CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
+	    CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
+	    EMReadScreen error_msg, 7, 24, 2
+	    IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
 END IF
-'-------------------------------------------------------------------Ensuring that match has not already been resolved.
+END IF
+
+'----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 7
 DO
-	EMReadScreen IEVS_match, 11, row, 47
-	IF trim(IEVS_match) = "" THEN script_end_procedure("IEVS match for the selected period could not be found. The script will now end.")
+	EMReadScreen IEVS_period, 11, row, 47
+	IF trim(IEVS_period) = "" THEN script_end_procedure("A match for the selected period could not be found. The script will now end.")
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-	"   " & IEVS_match, vbYesNoCancel, "Please confirm this match")
-    IF ievp_info_confirmation = vbCancel THEN script_end_procedure("The script has ended. The match has not been acted on.")
-	IF ievp_info_confirmation = vbYes THEN EXIT DO
+	"   " & IEVS_period, vbYesNoCancel, "Please confirm this match")
+	'msgbox IEVS_period
     IF ievp_info_confirmation = vbNo THEN
 		row = row + 1
 		'msgbox "row: " & row
