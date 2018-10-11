@@ -190,9 +190,7 @@ IF immig_status_dropdown <> "US Citizen" Then
 			err_msg = ""
 			dialog addimig_dialog
 			cancel_confirmation
-			'IF ss_credits = "Select One:" THEN
-			'	immig_status_dropdown = "24 LPR" THEN err_msg = err_msg & vbNewLine & "* Please advise if social security credits are applicable."
-			'END IF
+			IF immig_status_dropdown = "24 LPR"  and ss_credits = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please advise if social security credits are applicable."
 			IF battered_spouse = "Select One:" THEN
 			 	IF immig_status_dropdown = "28 Undocumented" or immig_status_dropdown = "27 Non-immigrant" or immig_status_dropdown = "50 Other Lawfully Residing" THEN err_msg = err_msg & vbNewLine & "* Please advise if battered spouse or child is applicable."
 			END IF
