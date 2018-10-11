@@ -1,4 +1,4 @@
-name_of_script = "ACTIONS-DEU-PARIS MATCH CLEARED.vbs"
+name_of_script = "ACTION - DEU-PARIS MATCH CLEARED.vbs"
 start_time = timer
 STATS_counter = 1             'sets the stats counter at one
 STATS_manualtime = 700        'manual run time in seconds
@@ -175,8 +175,8 @@ DO
 		state_array(row_num, 			add_state) = row
 		state_array(state_name, 		add_state) = state
 		state_array(match_case_num, 	add_state) = Match_State_Case_Number
-        
-    
+
+
 
 		'-------------------------------------------------------------------PARIS match contact information
 		EMReadScreen phone_number, 23, row, 22
@@ -188,7 +188,7 @@ DO
 			phone_number_ext = trim(phone_number_ext)
 			If phone_number_ext <> "" then phone_number = phone_number & " Ext: " & phone_number_ext
 		End if
-        
+
 		'-------------------------------------------------------------------reading and cleaning up the fax number if it exists
 		EMReadScreen fax_check, 8, row + 1, 37
 		fax_check = trim(fax_check)
@@ -212,20 +212,20 @@ DO
 	    	IF Match_Prog <> "" THEN Match_Active_Programs = Match_Active_Programs & Match_Prog & ", "
 			match_row = match_row + 1        'incrementing to look for another match program
 		LOOP
-    
+
 		Match_Active_Programs = trim(Match_Active_Programs)
 		'takes the last comma off of Match_Active_Programs when autofilled into dialog if more more than one app date is found and additional app is selected
 		IF right(Match_Active_Programs, 1) = "," THEN Match_Active_Programs = left(Match_Active_Programs, len(Match_Active_Programs) - 1)
 		state_array(progs, add_state) = Match_Active_Programs
-	
+
 		'-----------------------------------------------add_state allows for the next state to gather all the information for array'
 		add_state = add_state + 1
         row = row + 3
 		IF row = 19 THEN
-            PF8                                         'moves to next page of matches or forces 
+            PF8                                         'moves to next page of matches or forces
 			EMReadScreen last_page_check, 21, 24, 2
 			last_page_check = trim(last_page_check)
-			IF last_page_check = "" THEN row = 13       'next page was found. looping to gather the rest of the cases on the additional page. 
+			IF last_page_check = "" THEN row = 13       'next page was found. looping to gather the rest of the cases on the additional page.
 		END IF
 	END IF
 LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
@@ -294,7 +294,7 @@ IF send_notice_checkbox = CHECKED THEN
     			IF ButtonPressed = 0 THEN StopScript
     			IF bene_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is the client accessing benefits in other state?"
     			IF contact_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Did you contact the other state?"
-					IF fraud_referral = "Select One:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
+				IF fraud_referral = "Select One:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
     			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 			LOOP UNTIL err_msg = ""
     		'--------------------------------------------------------------CHECKING FOR MAXIS WITHOUT TRANSMITTING SINCE THIS WILL NAVIGATE US AWAY FROM THE AREA WE ARE AT
@@ -352,7 +352,6 @@ IF send_notice_checkbox = CHECKED THEN
 
 ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	IF sent_date <> "" then MsgBox("A difference notice was sent on " & sent_date & ". The script will now navigate to clear the PARIS match.")
-
 	BeginDialog PARIS_MATCH_CLEARED_dialog, 0, 0, 376, 260, "PARIS MATCH CLEARED"
      Text 10, 15, 130, 10, "Case number: "   & MAXIS_case_number
      Text 165, 15, 175, 10, "Client Name: "  & Client_Name
@@ -365,30 +364,24 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 			Text 10, 90, 155, 10, "Match Active Programs: " & state_array(progs, item)
  			Text 10, 105, 170, 15, "Match State Contact Info: "   &  state_array(contact_info, item)
 		Next
- 		'For item = 1 to Ubound(state_array, 2)
- 		'	Text 185, 60, 110, 10, "2nd Match State: "   &  state_array(state_name, item)
-     	'	Text 185, 90, 185, 10, "2nd Match active programs: "   & state_array(progs, item)
-     	'	Text 185, 75, 110, 10, "2nd Match State Case Number: " & state_array(match_case_num, item)
-     	'	Text 185, 105, 175, 15, "2nd Match contact info: "  & state_array(contact_info, item)
-		'Next
-  	Text 10, 140, 110, 10, "Accessing benefits in other state:"
-    DropListBox 120, 135, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", bene_other_state
-    DropListBox 120, 155, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", contact_other_state
-    DropListBox 120, 175, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"Undetermined", fraud_referral
-  	GroupBox 205, 130, 160, 50, "Verification used to clear: "
-	CheckBox 210, 145, 50, 10, "Diff Notice", diff_notice_CHECKBOX
-    CheckBox 290, 145, 70, 10, "Shelter Verification", shelter_verf_CHECKBOX
-    CheckBox 210, 160, 70, 10, "Proof of Residency", proof_residency_CHECKBOX
-    CheckBox 290, 160, 70, 10, "School Verification", schl_verf_CHECKBOX
-    DropListBox 210, 195, 155, 15, "Select One:"+chr(9)+"PR - Person Removed From Household"+chr(9)+"HM - Household Moved Out Of State"+chr(9)+"RV - Residency Verified, Person in MN"+chr(9)+"FR - Failed Residency Verification Request"+chr(9)+"PC - Person Closed, Not PARIS Interstate"+chr(9)+"CC - Case Closed, Not PARIS Interstate", resolution_status
-    EditBox 210, 220, 155, 15, Other_Notes
-    Text 150, 200, 60, 10, "Resolution Status:"
-    Text 170, 225, 40, 10, "Other notes:"
-	Text 60, 180, 60, 10, "Referral to Fraud:  "
-	Text 55, 160, 65, 10, "Contact other State:  "
-  	ButtonGroup ButtonPressed
-    	OkButton 220, 240, 70, 15
-    	CancelButton 295, 240, 70, 15
+  	 Text 10, 140, 110, 10, "Accessing benefits in other state:"
+     DropListBox 120, 135, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", bene_other_state
+     DropListBox 120, 155, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", contact_other_state
+     DropListBox 120, 175, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"Undetermined", fraud_referral
+  	 GroupBox 205, 130, 160, 50, "Verification used to clear: "
+	 CheckBox 210, 145, 50, 10, "Diff Notice", diff_notice_CHECKBOX
+     CheckBox 290, 145, 70, 10, "Shelter Verification", shelter_verf_CHECKBOX
+     CheckBox 210, 160, 70, 10, "Proof of Residency", proof_residency_CHECKBOX
+     CheckBox 290, 160, 70, 10, "School Verification", schl_verf_CHECKBOX
+     DropListBox 210, 195, 155, 15, "Select One:"+chr(9)+"PR - Person Removed From Household"+chr(9)+"HM - Household Moved Out Of State"+chr(9)+"RV - Residency Verified, Person in MN"+chr(9)+"FR - Failed Residency Verification Request"+chr(9)+"PC - Person Closed, Not PARIS Interstate"+chr(9)+"CC - Case Closed, Not PARIS Interstate", resolution_status
+     EditBox 210, 220, 155, 15, Other_Notes
+     Text 150, 200, 60, 10, "Resolution Status:"
+     Text 170, 225, 40, 10, "Other notes:"
+	 Text 60, 180, 60, 10, "Referral to Fraud:  "
+	 Text 55, 160, 65, 10, "Contact other State:  "
+  	 ButtonGroup ButtonPressed
+     	OkButton 220, 240, 70, 15
+     	CancelButton 295, 240, 70, 15
   	EndDialog
 
     DO
@@ -437,6 +430,7 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 
 	'------------------------------------------------------------------'still need to be on PARIS Interstate Match Display (INSM)'
 	PF9
+	'msgbox rez_status
 	EMwritescreen rez_status, 9, 27
 	IF fraud_referral = "YES" THEN
 		EMwritescreen "Y", 10, 27

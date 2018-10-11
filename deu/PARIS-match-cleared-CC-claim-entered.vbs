@@ -46,7 +46,15 @@ CALL changelog_update("12/11/2017", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My DOcuments folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
+BeginDialog case_number_dialog, 0, 0, 131, 65, "Dialog"
+  EditBox 60, 5, 65, 15, MAXIS_case_number
+  EditBox 60, 25, 30, 15, MEMB_number
+  ButtonGroup ButtonPressed
+    OkButton 20, 45, 50, 15
+    CancelButton 75, 45, 50, 15
+  Text 5, 30, 55, 10, "MEMB Number:"
+  Text 5, 10, 50, 10, "Case Number:"
+EndDialog
 
 '---------------------------------------------------------------------THE SCRIPT
 'Connecting to MAXIS
@@ -57,7 +65,20 @@ EMConnect ""
 
 EMReadscreen dail_check, 4, 2, 48
 CALL MAXIS_case_number_finder(MAXIS_case_number)
-memb_number = "01"
+IF MAXIS_case_number = "" THEN
+    DO
+    	DO
+    		err_msg = ""
+    		Dialog case_number_dialog
+    		IF ButtonPressed = 0 THEN StopScript
+	  		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+	  		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+		LOOP UNTIL err_msg = ""
+		CALL check_for_password(are_we_passworded_out)
+	LOOP UNTIL are_we_passworded_out = false
+END IF
+MEMB_number = "01"
 discovery_date = date & ""
 '--------------------------------------------------If a DAIL is present'
 IF dail_check = "PARI" THEN
@@ -81,6 +102,11 @@ IF dail_check = "PARI" THEN
 	Row = 8
 	DO
 		EMReadScreen IEVS_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
+		IF IEVS_match_status = "" THEN
+			EMReadScreen error_msg, 2, 24, 2
+			error_msg = TRIM(error_msg)
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+		END IF
 		EMReadScreen IEVS_period, 5, row, 59
 		IF IEVS_match_status <> "  x" THEN
 	    	ievp_info = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
@@ -103,7 +129,7 @@ IF dail_check = "PARI" THEN
 
 ELSEIF dail_check <> "DAIL" THEN
 		CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-		EMwritescreen memb_number, 20, 76
+		EMwritescreen MEMB_number, 20, 76
 		transmit
 		EMReadscreen worker_number, 7, 21, 21
 		EMReadscreen PMI_number, 9, 4, 46
@@ -117,23 +143,31 @@ ELSEIF dail_check <> "DAIL" THEN
 		Row = 8
 		DO
 			EMReadScreen IEVS_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
-			EMReadScreen IEVS_period, 5, row, 59
-			IF IEVS_match_status <> "  " THEN
-			    ievp_info = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-		        "   " & IEVS_period, vbYesNoCancel, "Please confirm this match")
-				IF ievp_info = vbNo THEN
-		            row = row + 1
-		            'msgbox "row: " & row
-		            IF row = 18 THEN
-		                PF8
-		                row = 7
-		            END IF
-		        END IF
-				IF IEVS_match_status = "" THEN script_end_procedure("A PARIS match could not be found. The script will now end.")
+			msgbox IEVS_match_status
+			IF IEVS_match_status = "" THEN
+				EMReadScreen error_msg, 2, 24, 2
+				error_msg = TRIM(error_msg)
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+				EXIT DO
+			ELSE
+				EMReadScreen IEVS_period, 5, row, 59
+				IF IEVS_period <> "" THEN
+			    	ievp_info = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+		        	"   " & IEVS_period, vbYesNoCancel, "Please confirm this match")
+					IF ievp_info = vbNo THEN
+		            	row = row + 1
+		            	'msgbox "row: " & row
+		            	IF row = 18 THEN
+		                	PF8
+		                	row = 7
+		            	END IF
+		        	END IF
+				END IF
+				'IF IEVS_match_status = "" THEN script_end_procedure("A PARIS match could not be found. The script will now end.")
 				IF ievp_info = vbYes THEN EXIT DO
 		    	IF ievp_info = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
-			Else
-				row = row + 1
+			'Else
+				'row = row + 1
 			END IF
 		LOOP UNTIL ievp_info = vbYes
 
@@ -310,7 +344,7 @@ ELSEIF dail_check <> "DAIL" THEN
 	'--------------------------------------------------------------------Dialog
 	BeginDialog OP_Cleared_dialog, 0, 0, 361, 255, "PARIS Match Claim Entered"
 	  EditBox 55, 5, 40, 15, MAXIS_case_number
-	  EditBox 170, 5, 20, 15, memb_number
+	  EditBox 170, 5, 20, 15, MEMB_number
 	  EditBox 260, 5, 45, 15, IEVS_period
 	  DropListBox 55, 25, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
 	  EditBox 170, 25, 20, 15, OT_resp_memb
@@ -496,14 +530,19 @@ ELSEIF dail_check <> "DAIL" THEN
 			End If
 		Loop until next_page = "More:  " OR next_page = "       "	'No more pages
 		'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-		CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & " Programs: " & programs, "CASE NOTE" & vbcr & message_array,"", False)
+		CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us","Claims entered for #" &  MAXIS_case_number & " Member # " & MEMB_number & " Date Overpayment Created: " & discovery_date & " Programs: " & programs, "CASE NOTE" & vbcr & message_array,"", False)
 	END IF
 	'---------------------------------------------------------------writing the CCOL case note'
 	msgbox "Navigating to CCOL to add case note, please contact MiKayla with any concerns."
 	Call navigate_to_MAXIS_screen("CCOL", "CLSM")
 	EMWriteScreen Claim_number, 4, 9
 	Transmit
-	PF4
+	EMReadScreen existing_case_note, 1, 5, 6
+	IF existing_case_note = "" THEN
+		PF4
+	ELSE
+		PF9
+	END IF
 		CALL write_variable_in_CCOL_NOTE ("-----" & IEVS_period & " PARIS MATCH " & "(" & first_name &  ") OVERPAYMENT CLAIM ENTERED-----")
 		CALL write_bullet_and_variable_in_CCOL_note("Client Name", Client_Name)
 		CALL write_bullet_and_variable_in_CCOL_note("MN Active Programs", MN_active_programs)

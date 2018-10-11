@@ -175,11 +175,11 @@ END IF
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 7
 DO
-	EMReadScreen IEVS_match, 11, row, 47
-	IF trim(IEVS_match) = "" THEN script_end_procedure("A match for the selected period could not be found. The script will now end.")
+	EMReadScreen IEVS_period, 11, row, 47
+	IF trim(IEVS_period) = "" THEN script_end_procedure("A match for the selected period could not be found. The script will now end.")
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-	"   " & IEVS_match, vbYesNoCancel, "Please confirm this match")
-	'msgbox IEVS_match
+	"   " & IEVS_period, vbYesNoCancel, "Please confirm this match")
+	'msgbox IEVS_period
 	IF ievp_info_confirmation = vbNo THEN
 		row = row + 1
 	'msgbox "row: " & row
@@ -241,6 +241,12 @@ ELSEIF instr(first_name, " ") THEN   						'If there is a middle initial in the 
 ELSE                                'In cases where the last name takes up the entire space, THEN the client name becomes the last name
 	first_name = ""
 	last_name = client_name
+END IF
+first_name = trim(first_name)
+IF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
+	length = len(first_name)                        	'trimming the 1st name
+	position = InStr(first_name, " ")               	'establishing the length of the variable
+	first_name = Left(first_name, position-1)       	'trims the middle initial off of the first name
 END IF
 
 '----------------------------------------------------------------------------------------------------ACTIVE PROGRAMS
@@ -390,13 +396,12 @@ IF send_notice_checkbox = CHECKED THEN
   	pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more than one app date is found and additional app is selected
 	IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 	IF IEVS_type = "WAGE" THEN
-		'Updated IEVS_match to write into case note
 		IF casenote_quarter = 1 THEN IEVS_quarter = "1ST"
 		IF casenote_quarter = 2 THEN IEVS_quarter = "2ND"
 		IF casenote_quarter = 3 THEN IEVS_quarter = "3RD"
 		IF casenote_quarter = 4 THEN IEVS_quarter = "4TH"
 	END IF
-	IEVS_match = replace(IEVS_match, "/", " to ")
+	IEVS_period = replace(IEVS_period, "/", " to ")
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
 	'---------------------------------------------------------------------DIFF NOTC case note
@@ -516,14 +521,14 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	END IF
 
   	IF IEVS_type = "WAGE" THEN
-  	'Updated IEVS_match to write into case note
+  	'Updated IEVS_periodto write into case note
   		IF casenote_quarter = 1 THEN IEVS_quarter = "1ST"
   		IF casenote_quarter = 2 THEN IEVS_quarter = "2ND"
   		IF casenote_quarter = 3 THEN IEVS_quarter = "3RD"
   		IF casenote_quarter = 4 THEN IEVS_quarter = "4TH"
   	END IF
 
-	IEVS_match = replace(IEVS_match, "/", " to ")
+	IEVS_period = replace(IEVS_period, "/", " to ")
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 	PF3 'back to the DAIL'
 	'-----------------------------------------------------------------------------------Claim Referral Tracking
@@ -565,7 +570,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & "(" & first_name & ") CLEARED " & rez_status & "-----")
 		IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
 		IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
-		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_match)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
 		CALL write_variable_in_CASE_NOTE ("----- ----- -----")
@@ -586,7 +591,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & "(" & first_name & ") NON-COOPERATION-----")
 		IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") NON-COOPERATION-----")
 		IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") NON-COOPERATION-----")
-		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_match)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
 		CALL write_variable_in_CASE_NOTE ("----- ----- -----")
