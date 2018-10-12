@@ -128,9 +128,10 @@ const initial_month_yr  = 31
 const update_futue_chkbx = 32
 const order_ubound      = 33
 const self_emp_mthd_conv = 34
+const cash_mos_list     = 35
 
-const spoke_to          = 35
-const convo_detail      = 36
+const spoke_to          = 36
+const convo_detail      = 37
 
 
 'Income Constants
@@ -1118,9 +1119,9 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                     If cash_one_status = "ACTV" or cash_one_status = "PEND" Then
                         EmReadscreen cash_prog, 2, 6, 67
                     Else
-                        EmReadscreen cash_two_status, 4, 6, 74
+                        EmReadscreen cash_two_status, 4, 7, 74
                         If cash_two_status = "ACTV" or cash_two_status = "PEND" Then
-                            EmReadscreen cash_prog, 2, 6, 67
+                            EmReadscreen cash_prog, 2, 7, 67
                         End If
                     End If
                     the_cash = cash_prog
@@ -1369,6 +1370,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
             Loop until big_err_msg = ""
 
+            EARNED_INCOME_PANELS_ARRAY(cash_mos_list, ei_panel) = Join(CASH_MONTHS_ARRAY, "~")
 
             'Add handling to check WREG for correct coding based upon this income information (potentiall update)
 
@@ -1534,6 +1536,46 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 Next
 
 
+                                '----------------------------------------------------------'
+                    '---------------------------------------------------------------------------------'
+'------------------------------------------------- DETERMINING WHICH MONTHS TO UPDATE --------------------------------------------------'
+                    '---------------------------------------------------------------------------------'
+                                '----------------------------------------------------------'
+
+
+list_of_all_months_to_update = "~"
+For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
+    If EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE Then
+
+        'TODO find handling for EARNED_INCOME_PANELS_ARRAY(cash_mos_list, ei_panel in here somewhere
+        mm_1_yy = EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) & "/01/" & EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel)
+        If InStr(list_of_all_months_to_update, "~" & mm_1_yy & "~") = 0 Then
+            list_of_all_months_to_update = list_of_all_months_to_update & mm_1_yy & "~"
+        End If
+
+        If EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel = checked AND EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) <> CM_plus_1_mo AND EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) <> CM_plus_1_yr Then
+            next_month = DateAdd("m", 1, mm_1_yy)
+            CM_plus_2 = DateValue(CM_plus_2_mo & "/1/" & CM_plus_2_yr)
+            Do
+                If InStr(list_of_all_months_to_update, "~" & next_month & "~") = 0 Then
+                    list_of_all_months_to_update = list_of_all_months_to_update & next_month & "~"
+                End If
+
+                next_month = DateAdd("m", 1, next_month)
+            Loop until next_month - CM_plus_2
+        End If
+    End If
+Next
+
+list_of_all_months_to_update = right(list_of_all_months_to_update, len(list_of_all_months_to_update)-1)
+list_of_all_months_to_update = left(list_of_all_months_to_update, len(list_of_all_months_to_update)-1)
+If InStr(list_of_all_months_to_update, "~") <> 0 Then
+    update_months_array = split(list_of_all_months_to_update, "~")
+    Call sort_dates(update_months_array)
+End If
+
+
+
                         '----------------------------------------------------------'
                 '---------------------------------------------------------------------------------'
 '-------------------------------------------------GIONG TO UPDATE THE PANEL --------------------------------------------------'
@@ -1541,8 +1583,46 @@ Next
                         '----------------------------------------------------------'
 
 
-Call navigate_to_MAXIS_screen("STAT", "SUMM")
+' First we are going to get all the way to SELF
+' Then we will go in to each month that is in our list
+' Once there we will loop through the panels, pick the one that needs updating AND determine if the month we are in is one to update FOR THAT Panel
+' Then we loop through the income to actually update the panel
+' Array witin and array within an array (probably some more arrays)
+Call back_to_SELF
 
+For each active_month in update_months_array
+    MAXIS_footer_month = DatePart("m", active_month)
+    MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
+    MAXIS_footer_year = DatePart("yyyy", active_month)
+    MAXIS_footer_year = right(MAXIS_footer_year, 2)
+
+    EmReadscreen summ_check, 4, 2, 46
+    If summ_check <> "SUMM" Then
+        Call back_to_SELF
+
+        Do
+            Call navigate_to_MAXIS_screen("STAT", "SUMM")
+            EmReadscreen summ_check, 4, 2, 46
+        Loop until summ_check = "SUMM"
+
+    End If
+
+    For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
+        If EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE Then
+            'ALL THE JUICY BITS GO HERE
+        End If
+    Next
+
+    EmWriteScreen "BGTX", 20, 71
+    EmWriteScreen "Y", 16, 54
+    transmit
+
+    EmWriteScreen "SUMM", 20, 71
+    transmit
+Next
+
+
+'THIS IS GOOD START FOR SOME OF THE PANEL UPDATING BUT IT NEEDS TO GO IN THE ABOVE LOOP'
 For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
     Call back_to_SELF
     If EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE Then
