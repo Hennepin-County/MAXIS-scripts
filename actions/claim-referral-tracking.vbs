@@ -50,6 +50,64 @@ call changelog_update("06/26/2017", "Initial version.", "MiKayla Handley")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+Call MAXIS_case_number_finder(MAXIS_case_number)
+MEMB_number = "01"
+'actual_date = date & ""
+'Determines which programs are currently status_checking in the month of application
+CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
+'Checking for PRIV cases.
+'EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip
+'IF priv_check = "PRIV" THEN
+'	priv_case_list = priv_case_list & "|" & MAXIS_case_number
+'ELSE						'For all of the cases that aren't privileged...
+'Setting some variables for the loop
+DW_STATUS = FALSE 'Diversionary Work Program'
+GA_STATUS = FALSE 'General Assistance'
+MS_STATUS = FALSE 'Mn Suppl Aid '
+MF_STATUS = FALSE 'Mn Family Invest Program '
+RC_STATUS = FALSE 'Refugee Cash Assistance'
+FS_STATUS = FALSE
+CASH_STATUS = FALSE
+'Reading the status and program
+EMReadScreen cash1_status_check, 4, 6, 74
+EMReadScreen cash2_status_check, 4, 7, 74
+EMReadScreen emer_status_check, 4, 8, 74
+EMReadScreen grh_status_check, 4, 9, 74
+EMReadScreen fs_status_check, 4, 10, 74
+EMReadScreen ive_status_check, 4, 11, 74
+EMReadScreen hc_status_check, 4, 12, 74
+EMReadScreen cca_status_check, 4, 14, 74
+EMReadScreen cash1_prog_check, 2, 6, 67
+EMReadScreen cash2_prog_check, 2, 7, 67
+EMReadScreen emer_prog_check, 2, 8, 67
+EMReadScreen grh_prog_check, 2, 9, 67
+EMReadScreen fs_prog_check, 2, 10, 67
+EMReadScreen ive_prog_check, 2, 11, 67
+EMReadScreen hc_prog_check, 2, 12, 67
+EMReadScreen cca_prog_check, 2, 14, 67
+
+IF FS_status_check = "ACTV" or FS_status_check = "PEND"  Then SNAP_STATUS = TRUE
+
+'Logic to determine if MFIP is active
+If cash1_prog_check = "MF" or cash1_prog_check = "GA" Then
+	If cash1_status_check = "ACTV" Then CASH_STATUS = TRUE
+	If cash1_status_check = "PEND" Then CASH_STATUS = TRUE
+	If cash1_status_check = "INAC" Then CASH_STATUS = FALSE
+	If cash1_status_check = "SUSP" Then CASH_STATUS = FALSE
+	If cash1_status_check = "DENY" Then CASH_STATUS = FALSE
+	If cash1_status_check = ""     Then CASH_STATUS = FALSE
+END IF
+If cash2_prog_check = "MF" or cash2_prog_check = "GA" Then
+	If cash2_status_check = "ACTV" Then CASH_STATUS = TRUE
+	If cash2_status_check = "PEND" Then CASH_STATUS = TRUE
+	If cash2_status_check = "INAC" Then CASH_STATUS = FALSE
+	If cash2_status_check = "SUSP" Then CASH_STATUS = FALSE
+	If cash2_status_check = "DENY" Then CASH_STATUS = FALSE
+	If cash2_status_check = ""     Then CASH_STATUS = FALSE
+END IF
+
+action_date = date
+
 '-----------------------------------------------------------------------------DIALOG
 BeginDialog Claim_Referral_Tracking, 0, 0, 266, 105, "Claim Referral Tracking"
   EditBox 55, 5, 45, 15, MAXIS_case_number

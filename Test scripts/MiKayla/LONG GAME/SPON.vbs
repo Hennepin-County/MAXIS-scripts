@@ -217,4 +217,4 @@ IF DVW_CHECKBOX = CHECKED THEN CALL write_bullet_and_variable_in_case_note("DV W
 CALL write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure("")
+script_end_procedure("Udated SPON income and casenote")

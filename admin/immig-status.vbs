@@ -509,9 +509,9 @@ IF emailHP_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Emailed H
 Call write_variable_in_case_note("")
 If immig_status_dropdown <> "US Citizen" and yes_sponsored = CHECKED then
 	Call write_variable_in_case_note("* Client is sponsored.")
-	Call write_variable_in_case_note("* Sponsor is indicated as " & sponsor_name & sponsor_addr & ".")
-	IF sponsor_name_two <> "" THEN Call write_variable_in_case_note("* Client is sponsored. Second Sponsor is indicated as " & sponsor_name_two & sponsor_addr_two & ".")
-	IF sponsor_name_three <> "" THEN Call write_variable_in_case_note("* Client is sponsored. Third Sponsor is indicated as " & sponsor_name_three & sponsor_addr_three & ".")
+	Call write_bullet_and_variable_in_case_note("Sponsor is indicated as " & sponsor_name & " " & sponsor_addr & ".")
+	IF sponsor_name_two <> "" THEN Call write_bullet_and_variable_in_case_note("* Client is sponsored. Second Sponsor is indicated as " & sponsor_name_two  & " " & sponsor_addr_two & ".")
+	IF sponsor_name_three <> "" THEN Call write_bullet_and_variable_in_case_note("* Client is sponsored. Third Sponsor is indicated as " & sponsor_name_three & " " & sponsor_addr_three & ".")
 END IF
 If immig_status_dropdown = "LPR" THEN
 	IF not_sponsored = CHECKED or yes_sponsored = UNCHECKED then Call write_variable_in_case_note("* No Sponosr indicated")
