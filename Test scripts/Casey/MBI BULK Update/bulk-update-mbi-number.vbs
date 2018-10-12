@@ -149,7 +149,7 @@ const case_status_col   = 7
 const notes_col         = 8
 const source_col        = 9
 
-excel_row = 29370
+excel_row = 2
 'Read the excel list on a loop - NO ARRAY because we are just going to act on one case at a time
 
 'MANUAL TIME
