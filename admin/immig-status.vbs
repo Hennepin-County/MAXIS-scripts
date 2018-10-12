@@ -53,6 +53,58 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 MEMB_number = "01"
 'actual_date = date & ""
+'Determines which programs are currently status_checking in the month of application
+CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
+'Checking for PRIV cases.
+'EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip
+'IF priv_check = "PRIV" THEN
+'	priv_case_list = priv_case_list & "|" & MAXIS_case_number
+'ELSE						'For all of the cases that aren't privileged...
+'Setting some variables for the loop
+DW_STATUS = FALSE 'Diversionary Work Program'
+GA_STATUS = FALSE 'General Assistance'
+MS_STATUS = FALSE 'Mn Suppl Aid '
+MF_STATUS = FALSE 'Mn Family Invest Program '
+RC_STATUS = FALSE 'Refugee Cash Assistance'
+FS_STATUS = FALSE
+CASH_STATUS = FALSE
+'Reading the status and program
+EMReadScreen cash1_status_check, 4, 6, 74
+EMReadScreen cash2_status_check, 4, 7, 74
+EMReadScreen emer_status_check, 4, 8, 74
+EMReadScreen grh_status_check, 4, 9, 74
+EMReadScreen fs_status_check, 4, 10, 74
+EMReadScreen ive_status_check, 4, 11, 74
+EMReadScreen hc_status_check, 4, 12, 74
+EMReadScreen cca_status_check, 4, 14, 74
+EMReadScreen cash1_prog_check, 2, 6, 67
+EMReadScreen cash2_prog_check, 2, 7, 67
+EMReadScreen emer_prog_check, 2, 8, 67
+EMReadScreen grh_prog_check, 2, 9, 67
+EMReadScreen fs_prog_check, 2, 10, 67
+EMReadScreen ive_prog_check, 2, 11, 67
+EMReadScreen hc_prog_check, 2, 12, 67
+EMReadScreen cca_prog_check, 2, 14, 67
+
+IF FS_status_check = "ACTV" or FS_status_check = "PEND"  Then SNAP_STATUS = TRUE
+
+'Logic to determine if MFIP is active
+If cash1_prog_check = "MF" or cash1_prog_check = "GA" Then
+	If cash1_status_check = "ACTV" Then CASH_STATUS = TRUE
+	If cash1_status_check = "PEND" Then CASH_STATUS = TRUE
+	If cash1_status_check = "INAC" Then CASH_STATUS = FALSE
+	If cash1_status_check = "SUSP" Then CASH_STATUS = FALSE
+	If cash1_status_check = "DENY" Then CASH_STATUS = FALSE
+	If cash1_status_check = ""     Then CASH_STATUS = FALSE
+END IF
+If cash2_prog_check = "MF" or cash2_prog_check = "GA" Then
+	If cash2_status_check = "ACTV" Then CASH_STATUS = TRUE
+	If cash2_status_check = "PEND" Then CASH_STATUS = TRUE
+	If cash2_status_check = "INAC" Then CASH_STATUS = FALSE
+	If cash2_status_check = "SUSP" Then CASH_STATUS = FALSE
+	If cash2_status_check = "DENY" Then CASH_STATUS = FALSE
+	If cash2_status_check = ""     Then CASH_STATUS = FALSE
+END IF
 
 '-----------------------------------------------------------------------------------------------------------------------DIALOG
 BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
@@ -199,72 +251,14 @@ IF immig_status_dropdown <> "US Citizen" Then
 			END IF
 			If CASH_STATUS = TRUE THEN
 				IF ESL_ctzn = "Select One:" and immig_status_dropdown = "24 LPR" THEN err_msg = err_msg & vbNewLine & "* Please advise of ESL cooperation requirment for state funded GA and MFIP."
-				IF ss_credits = "Select One:" and verf_sscredits <> "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that social secuirty credits are verified, please advise if SS credits are applicable."
+				IF ss_credits <> "Select One:" and verf_sscredits = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that social secuirty credits are verified, please advise if SS credits are applicable."
 			END IF
-			IF battered_spouse =  "Select One:" and battered_spouse_verf  <> "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that battered spouse is verified, please advise if advise if battered spouse is applicable."
-			IF military_status = "Select One:" and military_status_verf  <> "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that military status is verified, please advise if military status is applicable."
+			IF battered_spouse <>  "Select One:" and battered_spouse_verf = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that battered spouse is verified, please advise if advise if battered spouse is applicable."
+			IF military_status <> "Select One:" and military_status_verf  = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that military status is verified, please advise if military status is applicable."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-END IF
-
-'Determines which programs are currently status_checking in the month of application
-CALL navigate_to_MAXIS_screen("STAT","PROG")
-
-EMReadScreen err_msg, 7, 24, 02
-IF err_msg = "BENEFIT" THEN	script_end_procedure ("Case must be in status_check II status for script to run.")
-
-CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
-'Checking for PRIV cases.
-'EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip
-'IF priv_check = "PRIV" THEN
-'	priv_case_list = priv_case_list & "|" & MAXIS_case_number
-'ELSE						'For all of the cases that aren't privileged...
-'Setting some variables for the loop
-DW_STATUS = FALSE 'Diversionary Work Program'
-GA_STATUS = FALSE 'General Assistance'
-MS_STATUS = FALSE 'Mn Suppl Aid '
-MF_STATUS = FALSE 'Mn Family Invest Program '
-RC_STATUS = FALSE 'Refugee Cash Assistance'
-FS_STATUS = FALSE
-CASH_STATUS = FALSE
-'Reading the status and program
-EMReadScreen cash1_status_check, 4, 6, 74
-EMReadScreen cash2_status_check, 4, 7, 74
-EMReadScreen emer_status_check, 4, 8, 74
-EMReadScreen grh_status_check, 4, 9, 74
-EMReadScreen fs_status_check, 4, 10, 74
-EMReadScreen ive_status_check, 4, 11, 74
-EMReadScreen hc_status_check, 4, 12, 74
-EMReadScreen cca_status_check, 4, 14, 74
-EMReadScreen cash1_prog_check, 2, 6, 67
-EMReadScreen cash2_prog_check, 2, 7, 67
-EMReadScreen emer_prog_check, 2, 8, 67
-EMReadScreen grh_prog_check, 2, 9, 67
-EMReadScreen fs_prog_check, 2, 10, 67
-EMReadScreen ive_prog_check, 2, 11, 67
-EMReadScreen hc_prog_check, 2, 12, 67
-EMReadScreen cca_prog_check, 2, 14, 67
-
-IF FS_status_check = "ACTV" or FS_status_check = "PEND"  Then SNAP_STATUS = TRUE
-
-'Logic to determine if MFIP is active
-If cash1_prog_check = "MF" or cash1_prog_check = "GA" Then
-	If cash1_status_check = "ACTV" Then CASH_STATUS = TRUE
-	If cash1_status_check = "PEND" Then CASH_STATUS = TRUE
-	If cash1_status_check = "INAC" Then CASH_STATUS = FALSE
-	If cash1_status_check = "SUSP" Then CASH_STATUS = FALSE
-	If cash1_status_check = "DENY" Then CASH_STATUS = FALSE
-	If cash1_status_check = ""     Then CASH_STATUS = FALSE
-END IF
-If cash2_prog_check = "MF" or cash2_prog_check = "GA" Then
-	If cash2_status_check = "ACTV" Then CASH_STATUS = TRUE
-	If cash2_status_check = "PEND" Then CASH_STATUS = TRUE
-	If cash2_status_check = "INAC" Then CASH_STATUS = FALSE
-	If cash2_status_check = "SUSP" Then CASH_STATUS = FALSE
-	If cash2_status_check = "DENY" Then CASH_STATUS = FALSE
-	If cash2_status_check = ""     Then CASH_STATUS = FALSE
 END IF
 
 'Defaults the date status_checked to today

@@ -111,6 +111,68 @@ IF application_date = "  /  /  " THEN
 	CALL convert_date_into_MAXIS_footer_month (date, MAXIS_footer_month, MAXIS_footer_year)
 END IF
 
+'ADDING THIS FOR THE ACTIVE VS PENDING'
+'CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
+''Checking for PRIV cases.
+''EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip
+''IF priv_check = "PRIV" THEN
+''	priv_case_list = priv_case_list & "|" & MAXIS_case_number
+''ELSE						'For all of the cases that aren't privileged...
+''Setting some variables for the loop
+'DW_STATUS = FALSE 'Diversionary Work Program'
+'GA_STATUS = FALSE 'General Assistance'
+'MS_STATUS = FALSE 'Mn Suppl Aid '
+'MF_STATUS = FALSE 'Mn Family Invest Program '
+'RC_STATUS = FALSE 'Refugee Cash Assistance'
+'FS_STATUS = FALSE
+'CASH_STATUS = FALSE
+''Reading the status and program
+'EMReadScreen cash1_status_check, 4, 6, 74
+'EMReadScreen cash2_status_check, 4, 7, 74
+'EMReadScreen emer_status_check, 4, 8, 74
+'EMReadScreen grh_status_check, 4, 9, 74
+'EMReadScreen fs_status_check, 4, 10, 74
+'EMReadScreen ive_status_check, 4, 11, 74
+'EMReadScreen hc_status_check, 4, 12, 74
+'EMReadScreen cca_status_check, 4, 14, 74
+'EMReadScreen cash1_prog_check, 2, 6, 67
+'EMReadScreen cash2_prog_check, 2, 7, 67
+'EMReadScreen emer_prog_check, 2, 8, 67
+'EMReadScreen grh_prog_check, 2, 9, 67
+'EMReadScreen fs_prog_check, 2, 10, 67
+'EMReadScreen ive_prog_check, 2, 11, 67
+'EMReadScreen hc_prog_check, 2, 12, 67
+'EMReadScreen cca_prog_check, 2, 14, 67
+'
+'IF FS_status_check = "ACTV" or FS_status_check = "PEND"  Then SNAP_STATUS = TRUE
+'
+''Logic to determine if MFIP is active
+'If cash1_prog_check = "MF" or cash1_prog_check = "GA" Then
+'	If cash1_status_check = "ACTV" Then CASH_STATUS = TRUE
+'	If cash1_status_check = "PEND" Then CASH_STATUS = TRUE
+'	If cash1_status_check = "INAC" Then CASH_STATUS = FALSE
+'	If cash1_status_check = "SUSP" Then CASH_STATUS = FALSE
+'	If cash1_status_check = "DENY" Then CASH_STATUS = FALSE
+'	If cash1_status_check = ""     Then CASH_STATUS = FALSE
+'END IF
+'If cash2_prog_check = "MF" or cash2_prog_check = "GA" Then
+'	If cash2_status_check = "ACTV" Then CASH_STATUS = TRUE
+'	If cash2_status_check = "PEND" Then CASH_STATUS = TRUE
+'	If cash2_status_check = "INAC" Then CASH_STATUS = FALSE
+'	If cash2_status_check = "SUSP" Then CASH_STATUS = FALSE
+'	If cash2_status_check = "DENY" Then CASH_STATUS = FALSE
+'	If cash2_status_check = ""     Then CASH_STATUS = FALSE
+'END IF
+'
+''Defaults the date status_checked to today
+'status_checked_date = date & ""
+'Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+'the_month = datepart("m", actual_date)
+'MAXIS_footer_month = right("00" & the_month, 2)
+'the_year = datepart("yyyy", actual_date)
+'MAXIS_footer_year = right("00" & the_year, 2)
+'CALL convert_date_into_MAXIS_footer_month(actual_date, footer_month, footer_year)
+
 'Determines which programs are currently pending in the month of application
 CALL navigate_to_MAXIS_screen("STAT","PROG")
 
@@ -210,7 +272,7 @@ BeginDialog appl_detail_dialog, 0, 0, 296, 145, "APPLICATION RECEIVED"
   Text 145, 80, 145, 10, "* Script will transfer case to assigned worker"
 EndDialog
 
-BeginDialog add_detail_dialog, 0, 0, 281, 110, "ADD A PROGRAM"
+BeginDialog add_detail_dialog, 0, 0, 281, 110, "APPLICATION RECEIVED TO ADD A PROGRAM"
   DropListBox 80, 5, 65, 15, "Select One:"+chr(9)+"Online"+chr(9)+"Mail"+chr(9)+"Fax", how_app_rcvd
   EditBox 215, 5, 60, 15, application_date
   DropListBox 80, 25, 65, 15, "Select One:"+chr(9)+"Addendum"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
@@ -333,7 +395,7 @@ IF fs_pend = CHECKED OR cash_pend = CHECKED OR grh_pend = CHECKED THEN send_appt
             heat_AC_amt = 493
             electric_amt = 126
             phone_amt = 47
-        else 
+        else
             heat_AC_amt = 556
             electric_amt = 172
             phone_amt = 41
