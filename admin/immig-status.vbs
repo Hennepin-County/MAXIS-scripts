@@ -163,7 +163,7 @@ EndDialog
 
 BeginDialog addimig_dialog, 0, 0, 370, 240, "Additional Information for IMIG"
   DropListBox 115, 15, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ss_credits
-  DropListBox 300, 15, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", verf_sscredits
+  DropListBox 300, 15, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", ss_credits_verf
   DropListBox 115, 30, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", battered_spouse 'mandatory for undoc'
   DropListBox 300, 30, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", battered_spouse_verf
   DropListBox 115, 45, 80, 15, "Select One:"+chr(9)+"Veteran"+chr(9)+"Active Duty"+chr(9)+"Spouse of 1 or 2"+chr(9)+"Child of 1 or 2"+chr(9)+"No Military Stat or Other", military_status
@@ -242,16 +242,17 @@ IF immig_status_dropdown <> "US Citizen" Then
 			err_msg = ""
 			dialog addimig_dialog
 			cancel_confirmation
-			IF immig_status_dropdown = "24 LPR"  and ss_credits = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please advise if social security credits are applicable."
 			IF battered_spouse = "Select One:" THEN
 			 	IF immig_status_dropdown = "28 Undocumented" or immig_status_dropdown = "27 Non-immigrant" or immig_status_dropdown = "50 Other Lawfully Residing" THEN err_msg = err_msg & vbNewLine & "* Please advise if battered spouse or child is applicable."
 			END IF
 			IF nation_vietnam = "Select One:" THEN
 				IF nationality_dropdown = "EL Ethnic Lao" or nationality_dropdown = "HG Hmong"  or nationality_dropdown = "HG Hmong" THEN err_msg = err_msg & vbNewLine & "* Please advise if client has a status during Vietnam War or is Native American born in Mexico or Canada."
 			END IF
+			IF yes_sponsored = CHECKED and CASH_STATUS = TRUE THEN
+				IF ss_credits <> "Select One:" and ss_credits_verf = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that social secuirty credits are verified, please advise if SS credits are applicable."
+			END IF
 			If CASH_STATUS = TRUE THEN
-				IF ESL_ctzn = "Select One:" and immig_status_dropdown = "24 LPR" THEN err_msg = err_msg & vbNewLine & "* Please advise of ESL cooperation requirment for state funded GA and MFIP."
-				IF ss_credits <> "Select One:" and verf_sscredits = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that social secuirty credits are verified, please advise if SS credits are applicable."
+				IF ESL_ctzn = "Select One:" and immig_status_dropdown = "24 LPR" THEN err_msg = err_msg & vbNewLine & "* Please advise of ESL cooperation requirement for state funded GA and MFIP."
 			END IF
 			IF battered_spouse <>  "Select One:" and battered_spouse_verf = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that battered spouse is verified, please advise if advise if battered spouse is applicable."
 			IF military_status <> "Select One:" and military_status_verf  = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that military status is verified, please advise if military status is applicable."
@@ -353,106 +354,116 @@ IF immig_status_dropdown = "US Citizen" THEN
 
 ELSE
 	Call create_MAXIS_friendly_date_with_YYYY(actual_date, 0, 5, 45)
-	EMWriteScreen "N", 7, 47			'Sup evidence Y/N field (defaulted to N during this process)
-	'converting the immigration stauts from droplist to the applicable MAXIS coding
-	'check to see if we need to clear the page before we write to it'
+
 	immig_status = ""
-		If immig_status_dropdown = "21 Refugee" then immig_status = "21"
-		If immig_status_dropdown = "22 Asylee" then immig_status = "22"
-		If immig_status_dropdown = "23 Deport/Remove Withheld" then immig_status = "23"
-		If immig_status_dropdown = "24 LPR" then immig_status = "24"
-		If immig_status_dropdown = "25 Paroled For 1 Year Or More" then immig_status = "25"
-		If immig_status_dropdown = "26 Conditional Entry < 4/80" then immig_status = "26"
-		If immig_status_dropdown = "27 Non-immigrant" then immig_status = "27"
-		If immig_status_dropdown = "28 Undocumented" then immig_status = "28"
-		If immig_status_dropdown = "50 Other Lawfully Residing" then immig_status = "50"
-		EMWriteScreen immig_status, 6, 45
+	If immig_status_dropdown = "21 Refugee" then immig_status = "21"
+	If immig_status_dropdown = "22 Asylee" then immig_status = "22"
+	If immig_status_dropdown = "23 Deport/Remove Withheld" then immig_status = "23"
+	If immig_status_dropdown = "24 LPR" then immig_status = "24"
+	If immig_status_dropdown = "25 Paroled For 1 Year Or More" then immig_status = "25"
+	If immig_status_dropdown = "26 Conditional Entry < 4/80" then immig_status = "26"
+	If immig_status_dropdown = "27 Non-immigrant" then immig_status = "27"
+	If immig_status_dropdown = "28 Undocumented" then immig_status = "28"
+	If immig_status_dropdown = "50 Other Lawfully Residing" then immig_status = "50"
+	EMWriteScreen immig_status, 6, 45
 
-		IF entry_date <> "" THEN Call create_MAXIS_friendly_date_with_YYYY(entry_date, 0, 7, 45)
-		IF entry_date = "" THEN Call clear_line_of_text(7, 45)
-		IF entry_date = "" THEN Call clear_line_of_text(7, 48)
-		IF entry_date = "" THEN Call clear_line_of_text(7, 51)
-		IF status_date <> "" THEN Call create_MAXIS_friendly_date_with_YYYY(status_date, 0, 7, 71)
-		IF status_date = "" THEN Call clear_line_of_text(7, 71)
-		IF status_date = "" THEN Call clear_line_of_text(7, 74)
-		IF status_date = "" THEN Call clear_line_of_text(7, 77)
-		reminder_date = dateadd("d", 10, date)' FOR APPT DATE'
-		Call change_date_to_soonest_working_day(reminder_date)
+	IF entry_date <> "" THEN Call create_MAXIS_friendly_date_with_YYYY(entry_date, 0, 7, 45)
+	IF entry_date = "" THEN Call clear_line_of_text(7, 45)
+	IF entry_date = "" THEN Call clear_line_of_text(7, 48)
+	IF entry_date = "" THEN Call clear_line_of_text(7, 51)
+	IF status_date <> "" THEN Call create_MAXIS_friendly_date_with_YYYY(status_date, 0, 7, 71)
+	IF status_date = "" THEN Call clear_line_of_text(7, 71)
+	IF status_date = "" THEN Call clear_line_of_text(7, 74)
+	IF status_date = "" THEN Call clear_line_of_text(7, 77)
+	reminder_date = dateadd("d", 10, date)' FOR APPT DATE'
+	Call change_date_to_soonest_working_day(reminder_date)
 
-		LPR_status = ""
-		If LPR_status_dropdown = "21 Refugee" then LPR_status = "21"
-		If LPR_status_dropdown = "22 Asylee" then LPR_status = "22"
-		If LPR_status_dropdown = "23 Deport/Remove Withheld" then LPR_status = "23"
-		If LPR_status_dropdown = "24 None" then LPR_status = "24"
-		If LPR_status_dropdown = "25 Paroled For 1 Year Or More" then LPR_status = "25"
-		If LPR_status_dropdown = "26 Conditional Entry < 4/80" then LPR_status = "26"
-		If LPR_status_dropdown = "27 Non-immigrant" then LPR_status = "27"
-		If LPR_status_dropdown = "28 Undocumented" then LPR_status = "28"
-		If LPR_status_dropdown = "50 Other Lawfully Residing" then LPR_status = "50"
-		EMWriteScreen LPR_status, 9, 45
-		If LPR_status = "" THEN Call clear_line_of_text(9, 45)
-		'immig_doc_type "Select One:"+chr(9)+"Certificate of Naturalization"+chr(9)+"Employment Auth Card (I-776 work permit)"+chr(9)+"I-94 Travel Document", +chr(9)+"I-220 B Order of Supervision"+chr(9)+"LPR Card (I-551 green card)"+chr(9)+"SAVE"+chr(9)+"Other"
-		nationality_status = ""
-		IF nationality_dropdown = "AA Amerasian" THEN nationality_status = "AA"
-		IF nationality_dropdown = "EH Ethnic Chinese" THEN nationality_status = "EH"
-		IF nationality_dropdown = "EL Ethnic Lao" THEN nationality_status = "EL"
-		IF nationality_dropdown = "HG Hmong" THEN nationality_status = "HG"
-		IF nationality_dropdown = "KD Kurd" THEN nationality_status = "KD"
-		IF nationality_dropdown = "SJ Soviet Jew" THEN nationality_status = "SJ"
-		IF nationality_dropdown = "TT Tinh" THEN nationality_status = "TT"
-		IF nationality_dropdown = "AF Afghanistan" THEN nationality_status = "AF"
-		IF nationality_dropdown = "BK Bosnia" THEN nationality_status = "BK"
-		IF nationality_dropdown = "CB Cambodia" THEN nationality_status = "CB"
-		IF nationality_dropdown = "CH China Mainland" THEN nationality_status = "CH"
-		IF nationality_dropdown = "CU Cuba" THEN nationality_status = "CU"
-		IF nationality_dropdown = "ES El Salvador" THEN nationality_status = "ES"
-		IF nationality_dropdown = "ER Eritrea" THEN nationality_status = "ER"
-		IF nationality_dropdown = "ET Ethiopia" THEN nationality_status = "ET"
-		IF nationality_dropdown = "GT Guatemala" THEN nationality_status = "GT"
-		IF nationality_dropdown = "HA Haiti" THEN nationality_status = "HA"
-		IF nationality_dropdown = "HO Honduras" THEN nationality_status = "HO"
-		IF nationality_dropdown = "IR Iran" THEN nationality_status = "IR"
-		IF nationality_dropdown = "IZ Iraq" THEN nationality_status = "IZ"
-		IF nationality_dropdown = "LI Liberia" THEN nationality_status = "LI"
-		IF nationality_dropdown = "MC Micronesia" THEN nationality_status = "MC"
-		IF nationality_dropdown = "MI Marshall Islands" THEN nationality_status = "MI"
-		IF nationality_dropdown = "MX Mexico" THEN nationality_status = "MX"
-		IF nationality_dropdown = "WA Namibia" THEN nationality_status = "WA"
-		IF nationality_dropdown = "PK Pakistan" THEN nationality_status = "PK"
-		IF nationality_dropdown = "RP Philippines" THEN nationality_status = "RP"
-		IF nationality_dropdown = "PL Poland" THEN nationality_status = "PL"
-		IF nationality_dropdown = "RO Romania" THEN nationality_status = "RO"
-		IF nationality_dropdown = "RS Russia" THEN nationality_status = "RS"
-		IF nationality_dropdown = "SO Somalia" THEN nationality_status = "SO"
-		IF nationality_dropdown = "SF South Africa" THEN nationality_status = "SF"
-		IF nationality_dropdown = "TH Thailand" THEN nationality_status = "TH"
-		IF nationality_dropdown = "VM Vietnam" THEN nationality_status = "VM"
-		IF nationality_dropdown = "OT All Others" THEN nationality_status = "OT"
-		EMWriteScreen nationality_status, 10, 45
+	LPR_status = ""
+	If LPR_status_dropdown = "21 Refugee" then LPR_status = "21"
+	If LPR_status_dropdown = "22 Asylee" then LPR_status = "22"
+	If LPR_status_dropdown = "23 Deport/Remove Withheld" then LPR_status = "23"
+	If LPR_status_dropdown = "24 None" then LPR_status = "24"
+	If LPR_status_dropdown = "25 Paroled For 1 Year Or More" then LPR_status = "25"
+	If LPR_status_dropdown = "26 Conditional Entry < 4/80" then LPR_status = "26"
+	If LPR_status_dropdown = "27 Non-immigrant" then LPR_status = "27"
+	If LPR_status_dropdown = "28 Undocumented" then LPR_status = "28"
+	If LPR_status_dropdown = "50 Other Lawfully Residing" then LPR_status = "50"
+	EMWriteScreen LPR_status, 9, 45
+	If LPR_status = "" THEN Call clear_line_of_text(9, 45)
+	'immig_doc_type "Select One:"+chr(9)+"Certificate of Naturalization"+chr(9)+"Employment Auth Card (I-776 work permit)"+chr(9)+"I-94 Travel Document", +chr(9)+"I-220 B Order of Supervision"+chr(9)+"LPR Card (I-551 green card)"+chr(9)+"SAVE"+chr(9)+"Other"
+	nationality_status = ""
+	IF nationality_dropdown = "AA Amerasian" THEN nationality_status = "AA"
+	IF nationality_dropdown = "EH Ethnic Chinese" THEN nationality_status = "EH"
+	IF nationality_dropdown = "EL Ethnic Lao" THEN nationality_status = "EL"
+	IF nationality_dropdown = "HG Hmong" THEN nationality_status = "HG"
+	IF nationality_dropdown = "KD Kurd" THEN nationality_status = "KD"
+	IF nationality_dropdown = "SJ Soviet Jew" THEN nationality_status = "SJ"
+	IF nationality_dropdown = "TT Tinh" THEN nationality_status = "TT"
+	IF nationality_dropdown = "AF Afghanistan" THEN nationality_status = "AF"
+	IF nationality_dropdown = "BK Bosnia" THEN nationality_status = "BK"
+	IF nationality_dropdown = "CB Cambodia" THEN nationality_status = "CB"
+	IF nationality_dropdown = "CH China Mainland" THEN nationality_status = "CH"
+	IF nationality_dropdown = "CU Cuba" THEN nationality_status = "CU"
+	IF nationality_dropdown = "ES El Salvador" THEN nationality_status = "ES"
+	IF nationality_dropdown = "ER Eritrea" THEN nationality_status = "ER"
+	IF nationality_dropdown = "ET Ethiopia" THEN nationality_status = "ET"
+	IF nationality_dropdown = "GT Guatemala" THEN nationality_status = "GT"
+	IF nationality_dropdown = "HA Haiti" THEN nationality_status = "HA"
+	IF nationality_dropdown = "HO Honduras" THEN nationality_status = "HO"
+	IF nationality_dropdown = "IR Iran" THEN nationality_status = "IR"
+	IF nationality_dropdown = "IZ Iraq" THEN nationality_status = "IZ"
+	IF nationality_dropdown = "LI Liberia" THEN nationality_status = "LI"
+	IF nationality_dropdown = "MC Micronesia" THEN nationality_status = "MC"
+	IF nationality_dropdown = "MI Marshall Islands" THEN nationality_status = "MI"
+	IF nationality_dropdown = "MX Mexico" THEN nationality_status = "MX"
+	IF nationality_dropdown = "WA Namibia" THEN nationality_status = "WA"
+	IF nationality_dropdown = "PK Pakistan" THEN nationality_status = "PK"
+	IF nationality_dropdown = "RP Philippines" THEN nationality_status = "RP"
+	IF nationality_dropdown = "PL Poland" THEN nationality_status = "PL"
+	IF nationality_dropdown = "RO Romania" THEN nationality_status = "RO"
+	IF nationality_dropdown = "RS Russia" THEN nationality_status = "RS"
+	IF nationality_dropdown = "SO Somalia" THEN nationality_status = "SO"
+	IF nationality_dropdown = "SF South Africa" THEN nationality_status = "SF"
+	IF nationality_dropdown = "TH Thailand" THEN nationality_status = "TH"
+	IF nationality_dropdown = "VM Vietnam" THEN nationality_status = "VM"
+	IF nationality_dropdown = "OT All Others" THEN nationality_status = "OT"
+	EMWriteScreen nationality_status, 10, 45
 
-		'IF save_CHECKBOX = CHECKED or additional_CHECKBOX = CHECKED THEN
-		IF status_verification = "SAVE Primary" THEN verif_status = "S1"
-		IF status_verification = "SAVE Secondary" THEN verif_status = "S2"
-		IF status_verification = "Alien Card" THEN verif_status = "AL"
-		IF status_verification = "Passport/Visa" THEN verif_status = "PV"
-		IF status_verification = "Re-Entry Prmt" THEN verif_status = "RE"
-		IF status_verification = "INS Correspondence" THEN verif_status = "IM"
-		IF status_verification = "Other Document" THEN verif_status = "OT"
-		IF status_verification = "No Ver Prvd" THEN verif_status = "NO"
-		EMWriteScreen verif_status, 8, 45
+	IF status_verification = "SAVE Primary" THEN verif_status = "S1"
+	IF status_verification = "SAVE Secondary" THEN verif_status = "S2"
+	IF status_verification = "Alien Card" THEN verif_status = "AL"
+	IF status_verification = "Passport/Visa" THEN verif_status = "PV"
+	IF status_verification = "Re-Entry Prmt" THEN verif_status = "RE"
+	IF status_verification = "INS Correspondence" THEN verif_status = "IM"
+	IF status_verification = "Other Document" THEN verif_status = "OT"
+	IF status_verification = "No Ver Prvd" THEN verif_status = "NO"
+	EMWriteScreen verif_status, 8, 45
 
 		'EMReadScreen alien_id_number, 9, 10, 72
 		'IF alien_id_number <> id_number THEN MsgBox "The number enter for ID does not match the number entered in the case note"
 		'VERIFICATION OF 40 SOCIAL SECURITY CREDITS IS NOT NEEDED  '
-		IF ss_credits <> "Select One:" THEN EmWriteScreen ss_credits, 13, 56
 		IF ss_credits = "Select One:" THEN Call clear_line_of_text(13, 56)
-		IF verf_sscredits <> "Select One:" THEN EmWriteScreen verf_sscredits, 13, 71
-		IF verf_sscredits = "Select One:" THEN Call clear_line_of_text(13, 71)
-		IF battered_spouse <> "Select One:" THEN EmWriteScreen battered_spouse, 14, 56  'mandatory for undoc'
+		IF ss_credits_verf = "Select One:" THEN Call clear_line_of_text(13, 71)
+
 		IF battered_spouse = "Select One:" THEN Call clear_line_of_text(14, 56)
-	    IF battered_spouse_verf <> "Select One:" THEN EmWriteScreen battered_spouse_verf, 14, 71
 		IF battered_spouse_verf = "Select One:" THEN Call clear_line_of_text(14, 71)
+
 		IF military_status = "Select One:" THEN Call clear_line_of_text(15, 56)
+		IF military_status_verf = "Select One:" THEN Call clear_line_of_text(15, 71)
+
+		IF nation_vietnam = "Select One:" THEN Call clear_line_of_text(16, 56)
+
+		IF ESL_ctzn = "Select One:" THEN Call clear_line_of_text(17, 56)
+		IF ESL_ctzn_verf = "Select One:" THEN Call clear_line_of_text(17, 71)
+		IF ESL_skills = "Select One:" THEN Call clear_line_of_text(18, 56)
+
+
+		IF ss_credits <> "Select One:" THEN EmWriteScreen ss_credits, 13, 56
+		IF ss_credits_verf <> "Select One:" THEN EmWriteScreen ss_credits_verf, 13, 71
+
+		IF battered_spouse <> "Select One:" THEN EmWriteScreen battered_spouse, 14, 56  'mandatory for undoc'
+	    IF battered_spouse_verf <> "Select One:" THEN EmWriteScreen battered_spouse_verf, 14, 71
+
 		IF military_status <> "Select One:" THEN
 			IF military_status = "Veteran" THEN EmWriteScreen "1", 15, 56
 			IF military_status = "Active Duty" THEN EmWriteScreen "2", 15, 56
@@ -460,28 +471,22 @@ ELSE
 			IF military_status = "Child of 1 or 2" THEN EmWriteScreen "4", 15, 56
 			IF military_status = "No Military Stat or Other" THEN EmWriteScreen "N", 15, 56
 		END IF
-		IF military_status_verf = "Select One:" THEN Call clear_line_of_text(15, 71)
 		IF military_status_verf <> "Select One:" THEN EmWriteScreen military_status_verf, 15, 71
-		IF nation_vietnam = "Select One:" THEN Call clear_line_of_text(13, 56)
+
 		IF nation_vietnam <> "Select One:" THEN
-			IF nation_vietnam = "Hmong During Vietnam War" THEN EmWriteScreen "01", 13, 56
-			IF nation_vietnam = "Highland Lao During Vietnam" THEN EmWriteScreen "02", 13, 56
-			IF nation_vietnam = "Spouse/Widow of 1 Or 2"THEN EmWriteScreen "03", 13, 56
-			IF nation_vietnam = "Dep Child of 1 Or 2"THEN EmWriteScreen "04", 13, 56
-			IF nation_vietnam = "Native Amer Born Can/Mex" THEN EmWriteScreen "05", 13, 56
-			IF nation_vietnam = "N/A" THEN EmWriteScreen "  ", 13, 56
+			IF nation_vietnam = "Hmong During Vietnam War" THEN EmWriteScreen "01", 16, 56
+			IF nation_vietnam = "Highland Lao During Vietnam" THEN EmWriteScreen "02", 16, 56
+			IF nation_vietnam = "Spouse/Widow of 1 Or 2"THEN EmWriteScreen "03", 16, 56
+			IF nation_vietnam = "Dep Child of 1 Or 2"THEN EmWriteScreen "04", 16, 56
+			IF nation_vietnam = "Native Amer Born Can/Mex" THEN EmWriteScreen "05", 16, 56
+			IF nation_vietnam = "N/A" THEN Call clear_line_of_text(16, 56)
 		END IF
+
 		IF ESL_ctzn <> "Select One:" THEN EmWriteScreen ESL_ctzn, 17, 56  'mandatory for GA'
-		IF ESL_ctzn = "Select One:" THEN Call clear_line_of_text(17, 56)
 		IF ESL_ctzn_verf <> "Select One:" THEN EmWriteScreen ESL_ctzn_verf, 17, 71
-		IF ESL_ctzn_verf = "Select One:" THEN Call clear_line_of_text(17, 71)
 		IF ESL_skills <> "Select One:" THEN EmWriteScreen ESL_skills, 18, 56
-		IF ESL_skills = "Select One:" THEN Call clear_line_of_text(18, 56)
+
 		Transmit
-		'PF3	'to move past non-inhibiting warning messages on IMIG
-		EMReadScreen IMIG_screen, 4, 2, 49		'if inhibiting error exists, this will catch it and instruct the user to update IMIG
-		'msgbox IMIG_screen
-		'If IMIG_screen = "IMIG" then script_end_procedure("An error occurred on the IMIG panel. Please update the panel before using the script again.")
 END IF
 
 start_a_blank_CASE_NOTE

@@ -242,6 +242,10 @@ DO
                         first_name = Left(first_name, position-1)       	'trims the middle initial off of the first name
                     End if
 
+					EMReadScreen earner_name, 35, 9, 22
+                    'Formatting the client name for the spreadsheet
+                    earner_name = trim(earner_name)                         'trimming the client name
+            
                     EMReadScreen diff_date, 10, 14, 68
 	                diff_date = trim(diff_date)
 		            If diff_date <> "" then

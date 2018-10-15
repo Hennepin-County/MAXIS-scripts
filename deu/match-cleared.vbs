@@ -410,8 +410,9 @@ IF send_notice_checkbox = CHECKED THEN
 	    IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
 	    IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
 	    CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", client_name)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
   	    CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
-	    CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
 	    CALL write_variable_in_CASE_NOTE ("----- ----- -----")
   	    CALL write_bullet_and_variable_in_CASE_NOTE("Verification Requested", pending_verifs)
   	    CALL write_bullet_and_variable_in_CASE_NOTE("Verification Due", Due_date)
@@ -556,15 +557,15 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 			Do
 		  		err_msg = ""
 		  		Do
-		              dialog Claim_Referral_Tracking
-		              cancel_confirmation
-		              If ButtonPressed = claims_procedures then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Claims_Maxis_Procedures.aspx")
-		          Loop until ButtonPressed = -1
+		            dialog Claim_Referral_Tracking
+		            cancel_confirmation
+		            If ButtonPressed = claims_procedures then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Claims_Maxis_Procedures.aspx")
+		        Loop until ButtonPressed = -1
 		  		IF buttonpressed = 0 then stopscript
 		  		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
 		  		IF isdate(action_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid action date."
 		  		IF next_action = "Select One:" then err_msg = err_msg & vbnewline & "* Select the action taken for next step in overpayment."
-		          IF next_action = "Sent Request for Additional Info" and verif_requested = "" then err_msg = err_msg & vbnewline & "* You selected that a request for additional information was sent, please advise what verifications were requested."
+		        IF next_action = "Sent Request for Additional Info" and verif_requested = "" then err_msg = err_msg & vbnewline & "* You selected that a request for additional information was sent, please advise what verifications were requested."
 		  		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 		  		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 		  	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
@@ -628,7 +629,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 			script_end_procedure("You have indicated that you sent a request for additional information. Please follow the agency's procedure(s) for claim entry once received.")
 		Else
 		  	script_end_procedure("You have indicated that an overpayment exists. Please follow the agency's procedure(s) for claim entry.")
-		End if	  
+		End if
 	END IF
 	       '----------------------------------------------------------------the case match CLEARED note
 	start_a_blank_CASE_NOTE
