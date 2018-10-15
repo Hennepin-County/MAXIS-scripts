@@ -1557,7 +1557,7 @@ if notice_type = "NOMI" then
     objExcel.Cells(entry_row, stats_header_col).Value       = "Cases with no Interview"     'number of cases that potentially need a NOMI'
     objExcel.Cells(entry_row, stats_header_col).Font.Bold 	= TRUE
     objExcel.Cells(entry_row, stats_col).Value              = "=COUNTBLANK(" & intvw_date_letter_col & "2:" & intvw_date_letter_col & last_excel_row & ")"
-    objExcel.Cells(entry_row, stats_col+1).Value            = "=" & stats_col & entry_row & "/" & stats_col & "4"
+    objExcel.Cells(entry_row, stats_col+1).Value            = "=" & stats_letter_col & entry_row & "/" & stats_letter_col & "4"
     objExcel.Cells(entry_row, stats_col+1).NumberFormat     = "0.00%"
     no_intv_row = entry_row
     entry_row = entry_row + 1
@@ -1578,14 +1578,14 @@ if notice_type = "NOMI" then
     objExcel.Cells(entry_row, stats_header_col).Value       = "Interviews Completed"   'Calculates the percentage of NOMIs siucessful (from attempted)'
     objExcel.Cells(entry_row, stats_header_col).Font.Bold 	= TRUE
     objExcel.Cells(entry_row, stats_col).Value              = "=COUNTIF(" & intvw_date_letter_col & "2:" & intvw_date_letter_col & last_excel_row & ", " & is_not_blank_excel_string & ")"
-    objExcel.Cells(entry_row, stats_col+1).Value            = "=" & stats_col & entry_row & "/" & stats_col & "4"
+    objExcel.Cells(entry_row, stats_col+1).Value            = "=" & stats_letter_col & entry_row & "/" & stats_letter_col & "4"
     objExcel.Cells(entry_row, stats_col+1).NumberFormat     = "0.00%"
     entry_row = entry_row + 1
 
     objExcel.Cells(entry_row, stats_header_col).Value       = "Applications Received"   'Calculates the percentage of NOMIs siucessful (from attempted)'
     objExcel.Cells(entry_row, stats_header_col).Font.Bold 	= TRUE
     objExcel.Cells(entry_row, stats_col).Value              = "=COUNTIF(" & app_date_letter_col & "2:" & app_date_letter_col & last_excel_row & ", " & is_not_blank_excel_string & ")"
-    objExcel.Cells(entry_row, stats_col+1).Value            = "=" & stats_col & entry_row & "/" & stats_col & "4"
+    objExcel.Cells(entry_row, stats_col+1).Value            = "=" & stats_letter_col & entry_row & "/" & stats_letter_col & "4"
     objExcel.Cells(entry_row, stats_col+1).NumberFormat     = "0.00%"
     entry_row = entry_row + 1
 
