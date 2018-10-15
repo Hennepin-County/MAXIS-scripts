@@ -155,15 +155,16 @@ EndDialog
 'Connects to BlueZone
 EMConnect ""
 
-'Grabbing the worker's X number.
-CALL find_variable("User: ", worker_number, 7)
-get_county_code
+' 'Grabbing the worker's X number.
+' CALL find_variable("User: ", worker_number, 7)
+' get_county_code
+
+' 'if user is not Hennepin County - the script will end. Process is not approved for other counties
+' if worker_county_code <> "x127" Then script_end_procedure("This script is built specifically for a process defined in the 'On Demand Waiver' for interviews. Currenly only Hennepin County has this waiver. This script should not be run for any cases outside of Hennepin County.")
+
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
-
-'if user is not Hennepin County - the script will end. Process is not approved for other counties
-if worker_county_code <> "x127" Then script_end_procedure("This script is built specifically for a process defined in the 'On Demand Waiver' for interviews. Currenly only Hennepin County has this waiver. This script should not be run for any cases outside of Hennepin County.")
 
 'Script will determine if this is likely being run for the appointment notice or the NOMI
 'Appointment notice will be run around the 18th of 2 months prior to the recert month
