@@ -218,11 +218,14 @@ Do
 		IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" Then
 			If isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "* Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
 		END IF
+		IF LPR_status_dropdown = "23 Deport/Remove Withheld" or LPR_status_dropdown = "22 Asylee" Then
+			If isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "* Enter the date status was granted as an Asylee or the date Deportation/Removal Withheld was granted."
+		END IF
 		IF nationality_dropdown = "OT All Others" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please advise of Nationality in Other Notes."
 		IF immig_status_dropdown <> "28 Undocumented" and save_CHECKBOX= UNCHECKED and additional_CHECKBOX = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please select if a SAVE has been run as it is mandatory."
 		IF immig_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of current immigration status."
 		IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
-		IF immig_status_dropdown = "24 LPR" and yes_sponsored = UNCHECKED and not_sponsored = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please advise of LPR Sponosr status."
+		IF immig_status_dropdown = "24 LPR" and yes_sponsored = UNCHECKED and not_sponsored = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please advise of LPR Sponosr Information."
 		IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "N/A" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
 		IF immig_status_dropdown <> "24 LPR" and LPR_status_dropdown <> "Select One:" and LPR_status_dropdown <> "N/A" then err_msg = err_msg & vbNewLine & "* Immigration status does not indicate LPR, but adjusted status is indicated."
 		IF immig_doc_type = "Select One:" and immig_status_dropdown <> "28 Undocumented" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
@@ -513,33 +516,34 @@ IF status_verification <> "Select One:" THEN Call write_bullet_and_variable_in_c
 IF emailHP_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Emailed HP Immigration")
 Call write_variable_in_case_note("")
 If  yes_sponsored = CHECKED then
-	Call write_variable_in_case_note("* Client is sponsored.")
-	Call write_bullet_and_variable_in_case_note("Sponsor is indicated as " & sponsor_name)
-	Call write_bullet_and_variable_in_case_note("Sponsor address is " & sponsor_addr)
+	Call write_variable_in_case_note("* Client is sponsored:")
+	Call write_bullet_and_variable_in_case_note("Sponsor is indicated as ",  sponsor_name)
+	Call write_bullet_and_variable_in_case_note("Sponsor address is ", sponsor_addr)
 	IF sponsor_name_two <> "" THEN
-		Call write_variable_in_case_note("* Client is sponsored.")
-		Call write_bullet_and_variable_in_case_note("Second sponsor is indicated as " & sponsor_name_two)
-		Call write_bullet_and_variable_in_case_note("Second sponsor address is " & sponsor_addr_two)
+		Call write_variable_in_case_note("---")
+		Call write_bullet_and_variable_in_case_note("Second sponsor is indicated as ", sponsor_name_two)
+		Call write_bullet_and_variable_in_case_note("Second sponsor address is ", sponsor_addr_two)
 	END IF
 	IF sponsor_name_three <> "" THEN
-		Call write_variable_in_case_note("* Client is sponsored.")
-		Call write_bullet_and_variable_in_case_note("Third sponsor is indicated as " & sponsor_name_third)
-		Call write_bullet_and_variable_in_case_note("Third sponsor address is " & sponsor_addr_third)
+		Call write_variable_in_case_note("---")
+		Call write_bullet_and_variable_in_case_note("Third sponsor is indicated as ", sponsor_name_third)
+		Call write_bullet_and_variable_in_case_note("Third sponsor address is ", sponsor_addr_third)
 	END IF
-ELSE Call write_variable_in_case_note("* No Sponosr indicated")
+ELSE Call write_variable_in_case_note("* No Sponsor indicated")
 END IF
-IF not_sponsored = CHECKED or yes_sponsored = UNCHECKED then Call write_variable_in_case_note("* No Sponosr indicated")
-If save_CHECKBOX = CHECKED then Call write_variable_in_case_note("* Inital SAVE Completed and sent to ECF.")
-If additional_CHECKBOX = CHECKED then Call write_variable_in_case_note("* Additional SAVE requested.")
+If save_CHECKBOX = CHECKED then Call write_variable_in_case_note("* Inital SAVE Completed and sent to ECF")
+If additional_CHECKBOX = CHECKED then
+	Call write_variable_in_case_note("* Additional SAVE requested")
+ 	Call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
+END IF
 If SAVE_docs_check = CHECKED then Call write_variable_in_case_note("* Attached a copy of the immigration document to request for SAVE")
 Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 IF ss_credits <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("40 Social Security Credits", ss_credits)
 IF battered_spouse <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Battered Spouse/Child", battered_spouse)
 IF military_status <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Military Status", military_status)
-IF nation_vietnam <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Hmong, Lao, Native American", nation_vietnam)
+IF nation_vietnam <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Hmong or Lao, during Vietnam War or Native American born in Mexico or Canada", nation_vietnam)
 IF ESL_ctzn <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("St Prog ESL/Ctzn Coop", ESL_ctzn)
 IF ESL_skills <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("ESL/Skills Training", ESL_skills)
-If Outlook_remider = True then call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
 Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)
 PF3
