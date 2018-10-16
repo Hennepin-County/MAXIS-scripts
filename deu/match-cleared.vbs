@@ -112,7 +112,28 @@ current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 EMReadscreen dail_check, 4, 2, 48
-IF dail_check <> "DAIL" THEN
+IF dail_check = "DAIL" THEN
+    EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
+    'msgbox IEVS_type
+    IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" THEN
+    	match_found = TRUE
+    ELSE
+    	script_end_procedure("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
+    END IF
+	IF match_found = TRUE THEN
+	    EMSendKey "t"
+	    Call check_for_MAXIS(FALSE)
+
+	    EMReadScreen MAXIS_case_number, 8, 5, 73
+		MAXIS_case_number= TRIM(MAXIS_case_number)
+		 '----------------------------------------------------------------------------------------------------IEVP
+		'Navigating deeper into the match interface
+		CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
+		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
+	    EMReadScreen err_msg, 7, 24, 2
+	    IF err_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
+	END IF
+ELSEIF dail_check <> "DAIL" THEN
 	Call check_for_MAXIS(FALSE)
 	CALL MAXIS_case_number_finder (MAXIS_case_number)
 	MEMB_number = "01"
@@ -149,27 +170,6 @@ IF dail_check <> "DAIL" THEN
 	CALL navigate_to_MAXIS_screen("INFC" , "____")
 	CALL write_value_and_transmit("IEVP", 20, 71)
 	CALL write_value_and_transmit(SSN_number_read, 3, 63) '
-ELSEIF dail_check = "DAIL" THEN
-    EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
-    'msgbox IEVS_type
-    IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" THEN
-    	match_found = TRUE
-    ELSE
-    	script_end_procedure("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
-    END IF
-	IF match_found = TRUE THEN
-	    EMSendKey "t"
-	    Call check_for_MAXIS(FALSE)
-
-	    EMReadScreen MAXIS_case_number, 8, 5, 73
-		MAXIS_case_number= TRIM(MAXIS_case_number)
-		 '----------------------------------------------------------------------------------------------------IEVP
-		'Navigating deeper into the match interface
-		CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
-		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
-	    EMReadScreen err_msg, 7, 24, 2
-	    IF err_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
-	END IF
 END IF
 
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
@@ -316,6 +316,26 @@ BeginDialog send_notice_dialog, 0, 0, 296, 160, "WAGE MATCH SEND DIFFERENCE NOTI
   Text 5, 125, 40, 10, "Other notes: "
 EndDialog
 
+BeginDialog Claim_Referral_Tracking, 0, 0, 216, 155, "Claim Referral Tracking"
+  EditBox 65, 30, 45, 15, MAXIS_case_number
+  EditBox 165, 30, 45, 15, action_date
+  DropListBox 65, 50, 110, 15, "Select One:"+chr(9)+"Sent Request for Additional Info"+chr(9)+"Overpayment Exists", next_action
+  EditBox 65, 70, 145, 15, verif_requested
+  EditBox 65, 90, 145, 15, other_notes
+  EditBox 110, 110, 100, 15, worker_signature
+  ButtonGroup ButtonPressed
+	PushButton 5, 135, 85, 15, "Claims Procedures", claims_procedures
+	OkButton 115, 135, 45, 15
+	CancelButton 165, 135, 45, 15
+  Text 5, 5, 205, 20, "Federal regulations require tracking the date it is first suspected there may be a SNAP or MFIP Federal Food claim. "
+  Text 65, 115, 40, 10, "Worker Sig:"
+  Text 5, 75, 55, 10, "Verif Requested:"
+  Text 15, 35, 50, 10, "Case Number: "
+  Text 20, 95, 45, 10, "Other Notes:"
+  Text 15, 55, 45, 10, "Action Taken:"
+  Text 120, 35, 40, 10, "Action Date: "
+EndDialog
+
 IF notice_sent = "N" THEN
 	DO
     err_msg = ""
@@ -352,25 +372,6 @@ IF send_notice_checkbox = CHECKED THEN
     action_date = date & ""
 
     '-----------------------------------------------------------------------------DIALOG
-    BeginDialog Claim_Referral_Tracking, 0, 0, 216, 155, "Claim Referral Tracking"
-      EditBox 65, 30, 45, 15, MAXIS_case_number
-      EditBox 165, 30, 45, 15, action_date
-      DropListBox 65, 50, 110, 15, "Select One:"+chr(9)+"Sent Request for Additional Info"+chr(9)+"Overpayment Exists", next_action
-      EditBox 65, 70, 145, 15, verif_requested
-      EditBox 65, 90, 145, 15, other_notes
-      EditBox 110, 110, 100, 15, worker_signature
-      ButtonGroup ButtonPressed
-        PushButton 5, 135, 85, 15, "Claims Procedures", claims_procedures
-        OkButton 115, 135, 45, 15
-        CancelButton 165, 135, 45, 15
-      Text 5, 5, 205, 20, "Federal regulations require tracking the date it is first suspected there may be a SNAP or MFIP Federal Food claim. "
-      Text 65, 115, 40, 10, "Worker Sig:"
-      Text 5, 75, 55, 10, "Verif Requested:"
-      Text 15, 35, 50, 10, "Case Number: "
-      Text 20, 95, 45, 10, "Other Notes:"
-      Text 15, 55, 45, 10, "Action Taken:"
-      Text 120, 35, 40, 10, "Action Date: "
-    EndDialog
 
     Do
     	Do
