@@ -167,8 +167,8 @@ ELSEIF dail_check = "DAIL" THEN
 		'Navigating deeper into the match interface
 		CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
 		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
-		EMReadScreen error_msg, 7, 24, 2
-		IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
+	    EMReadScreen err_msg, 7, 24, 2
+	    IF err_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
 	END IF
 END IF
 
@@ -731,10 +731,11 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		CALL write_bullet_and_variable_in_CASE_NOTE("* Other notes", other_notes)
 		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 		CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
-		EMSendKey "w"
-	 	TRANSMIT
-	 	'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-	 	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
+		PF3
+
+		'-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
+		Call navigate_to_MAXIS_screen("DAIL", "WRIT")
+	  	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
 	 	CALL write_variable_in_TIKL("CLOSE FOR NON-COOP, CREATE DISQ(S) FOR " & first_name)
 	 	PF3		'Exits and saves TIKL
 		script_end_procedure("Success! Updated match, and a TIKL created.")
