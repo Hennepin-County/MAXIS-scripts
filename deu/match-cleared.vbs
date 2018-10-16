@@ -111,6 +111,8 @@ current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
 
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+Call check_for_MAXIS(FALSE)
+CALL MAXIS_case_number_finder (MAXIS_case_number)
 EMReadscreen dail_check, 4, 2, 48
 IF dail_check = "DAIL" THEN
     EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'

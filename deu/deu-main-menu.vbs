@@ -101,28 +101,28 @@ script_num = 0
 ReDim Preserve script_array_DEU_main(script_num)
 Set script_array_DEU_main(script_num) = new script
 script_array_DEU_main(script_num).script_name 			= "ADH Info and Hearing"																'Script name
-script_array_DEU_main(script_num).file_name 				= "ADH-info-hearing.vbs"													'Script URL
+script_array_DEU_main(script_num).file_name 			= "ADH-info-hearing.vbs"													'Script URL
 script_array_DEU_main(script_num).description 			= "Case note template the Administrative Disqualification Hearing process."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_DEU_main(script_num).script_name 			= "Appeal Summary Completed"																'Script name
-script_array_DEU_main(script_num).file_name 				= "appeal-summary-completed.vbs"												'Script URL
+script_array_DEU_main(script_num).file_name 			= "appeal-summary-completed.vbs"												'Script URL
 script_array_DEU_main(script_num).description 			= "Case note template for documenting the appeal summary."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_DEU_main(script_num).script_name 			= "ATR Received"																'Script name
-script_array_DEU_main(script_num).file_name 			  = "ATR-received.vbs"												'Script URL
+script_array_DEU_main(script_num).file_name 			= "ATR-received.vbs"												'Script URL
 script_array_DEU_main(script_num).description 			= "Case note template for documenting the ATR received. Also updates IULB."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_DEU_main(script_num).script_name 			= "BULK Cleared Match"																'Script name
-script_array_DEU_main(script_num).file_name 			  = "bulk-match-cleared.vbs"														'Script URL
+script_array_DEU_main(script_num).file_name 			= "bulk-match-cleared.vbs"														'Script URL
 script_array_DEU_main(script_num).description 			= "BULK script to clear multiple matches after being reviewed, and ready for INFC updates."
 
 script_num = script_num + 1								'Increment by one
