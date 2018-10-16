@@ -110,6 +110,7 @@ IF dail_check <> "DAIL" THEN
 	Call check_for_MAXIS(FALSE)
 	CALL MAXIS_case_number_finder (MAXIS_case_number)
 	MEMB_number = "01"
+
 	BeginDialog ase_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
 	  EditBox 60, 5, 65, 15, MAXIS_case_number
 	  EditBox 60, 25, 30, 15, MEMB_number
@@ -376,7 +377,7 @@ CALL check_for_password_without_transmit(are_we_passworded_out)
 
 EMReadScreen confirm_source_income, 75, 8, 37
 confirm_source_income = trim(confirm_source_income)
-IF confirm_source_income <> source_income THEN MsgBox MsgBox "*** NOTICE!!! ***" & vbNewLine & source_income & vbNewLine
+IF confirm_source_income <> source_income THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & source_income & vbNewLine
 
 EMWriteScreen "030", 12, 46
 EMWriteScreen "CC", row + 1, col + 1
