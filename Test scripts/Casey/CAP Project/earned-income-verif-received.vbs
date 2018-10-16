@@ -757,10 +757,12 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                                   EditBox 5, (y_pos * 20) + 90, 65, 15, LIST_OF_INCOME_ARRAY(pay_date, all_income) 'pay_date'
                                   EditBox 90, (y_pos * 20) + 90, 45, 15, LIST_OF_INCOME_ARRAY(gross_amount, all_income) 'gross_amount'
                                   EditBox 145, (y_pos * 20) + 90, 25, 15, LIST_OF_INCOME_ARRAY(hours, all_income) 'hours_on_check'
-                                  OptionGroup RadioGroup1
-                                    If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) <> 1 Then LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = 1
-                                    RadioButton 180, (y_pos * 20) + 90, 25, 10, "Yes", LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) 'budget_yes'
-                                    RadioButton 210, (y_pos * 20) + 90, 25, 10, "No", LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) 'budget_no'
+
+                                  CheckBox 180, (y_pos * 25) + 90, 50, 10, "Exclude", LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income)
+                                  ' OptionGroup RadioGroup1
+                                  '   If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) <> 1 Then LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = 1
+                                  '   RadioButton 180, (y_pos * 20) + 90, 25, 10, "Yes", LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) 'budget_yes'
+                                  '   RadioButton 210, (y_pos * 20) + 90, 25, 10, "No", LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) 'budget_no'
                                   EditBox 235, (y_pos * 20) + 90, 115, 15, LIST_OF_INCOME_ARRAY(reason_to_exclude, all_income) 'reason_not_budgeted'
                                   EditBox 355, (y_pos * 20) + 90, 45, 15, LIST_OF_INCOME_ARRAY(exclude_amount, all_income) 'not_budgeted_amount'
                                   EditBox 410, (y_pos * 20) + 90, 185, 15, LIST_OF_INCOME_ARRAY(reason_amt_excluded, all_income) 'amount_not_budgeted_reason'
@@ -887,6 +889,26 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                     first_date = array_of_pay_dates(0)
                     last_date = array_of_pay_dates(UBOUND(array_of_pay_dates))
                     spread_of_pay_dates = DateDiff("d", first_date, last_date)
+                    If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked THen
+                        using_30_days = TRUE
+
+                        If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "1 - One Time Per Month" Then
+                            If spread_of_pay_dates > 30 Then using_30_days = FALSE
+                        ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "2 - Two Times Per Month" Then
+                            If spread_of_pay_dates > 30 Then using_30_days = FALSE
+                            If spread_of_pay_dates < 13 Then using_30_days = FALSE
+                        ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "3 - Every Other Week" Then
+                            If spread_of_pay_dates <> 28 Then using_30_days = FALSE
+                        ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "4 - Every Week" Then
+                            If spread_of_pay_dates <> 28 Then using_30_days = FALSE
+                        ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "5 - Other" Then
+                        End If
+
+                        MsgBox "First pay date: " & first_date & vbNewLine & "Last pay date: " & last_date & vbNewLine & "Spread - " & spread_of_pay_dates & vbNewLine & "30 days of income - " & using_30_days
+
+
+                    End If
+
                     For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)           'Now loop through all of the listed income - again
                         If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then    'find the ones for THIS PANEL ONLY
                             for index = 0 to UBOUND(array_of_pay_dates)                     'loop through the array of the pay dates only'
@@ -1023,6 +1045,17 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
                     If anticipated_income_provided = TRUE Then
                         'TODO add handling for when anticipated income AND paychecks are provided'
+
+                        Text 185, y_pos + 10, 200, 10, "Average hourly rate of pay: $" & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel)
+                        Text 185, y_pos + 25, 200, 10, "Average weekly hours: " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)
+                        Text 185, y_pos + 40, 200, 10, "Average paycheck amount: $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
+                        Text 185, y_pos + 55, 200, 10, "Monthly Budgeted Income: $" & EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel)
+
+                        EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) = EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel)
+                        EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel) = EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel)
+
+                        'https://www.dhssir.cty.dhs.state.mn.us/MAXIS/trntl/snap/SNAP_Anticipating_Income.pdf
+
                     End If
 
                 ElseIf anticipated_income_provided = TRUE Then
@@ -1200,9 +1233,10 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
                 dlg_len = 65
                 If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then
-                    dlg_len = dlg_len + 60
+                    dlg_len = dlg_len + 80
                     dlg_len = dlg_len + number_of_checks_budgeted*10
-                    If number_of_checks_budgeted < 4 THen dlg_len = 165
+                    If number_of_checks_budgeted < 4 THen dlg_len = 180
+                    If using_30_days = FALSE Then dlg_len = dlg_len + 20
                 End If
                 If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then
                     dlg_len = dlg_len + 45
@@ -1217,6 +1251,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                         dlg_len = dlg_len + length_of_months_list
                         cash_grp_len = cash_grp_len + length_of_months_list
                     End If
+
                 End If
 
                 y_pos = 25
@@ -1227,9 +1262,20 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                   ' Text 240, 30, 60, 10, "Income Start Date:"
                   ' EditBox 305, 25, 70, 15, income_start_date
                   If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then
-                      grp_len = 75 + number_of_checks_budgeted*10
-                      If number_of_checks_budgeted < 4 Then grp_len = 115
+                      grp_len = 110 + number_of_checks_budgeted*10
+                      If number_of_checks_budgeted < 4 Then grp_len = 130
+                      If using_30_days = FALSE Then grp_len = grp_len + 20
                       GroupBox 5, y_pos, 410, grp_len, "SNAP Budget"
+
+                      Text 10, y_pos + 10, 400, 10, "Income provided covers the period " & first_date & " to " & last_date & ". This income covers " & spread_of_pay_dates & " days."
+                      If using_30_days = FALSE Then
+                          y_pos = y_pos + 25
+                          Text 10, y_pos + 5, 175, 10, "It appears this is not 30 days of income. Explain:"
+                          EditBox 185, y_pos, 200, 15, not_30_explanation
+                      End If
+
+                      y_pos = y_pos + 10
+
                       'GroupBox 5, y_pos, 410, 75 + number_of_checks_budgeted*10, "SNAP Budget"
                       Text 10, y_pos + 10, 100, 10, paycheck_list_title        '"Paychecks Inclued in Budget:"'
                       list_pos = 0
@@ -1275,7 +1321,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                             PushButton 305, y_pos + 55, 60, 10, "Calculate", calc_btn
                       End If
 
-                      y_pos = y_pos + (list_pos * 10) + 25
+                      y_pos = y_pos + (list_pos * 10) + 40
                       Text 10, y_pos, 130, 10, "Paychecks not included: " & list_of_excluded_pay_dates
 
                       CheckBox 10, y_pos + 15, 330, 10, "Check here if you confirm that this budget is correct and is the best estimate of anticipated income.", confirm_budget_checkbox
@@ -1344,6 +1390,9 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                 If confirm_budget_checkbox = unchecked then
                     big_err_msg = big_err_msg & vbNewLine & "*** Since the budget is not confirmed as correct, the ENTER PAY INFORMATION DIALOG will reappear and allow information to be corrected to generate an accurate budget. ***"
                     review_small_dlg = TRUE
+                End If
+                If using_30_days = FALSE Then
+                    If not_30_explanation = "" Then big_err_msg = big_err_msg & vbNewLine & "** Since income received is not 30 days of income for SNAP, it must be explained why we are accepting more or less."
                 End If
                 If ButtonPressed = calc_btn Then
                     review_small_dlg = FALSE
@@ -1553,7 +1602,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
             list_of_all_months_to_update = list_of_all_months_to_update & mm_1_yy & "~"
         End If
 
-        If EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel = checked AND EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) <> CM_plus_1_mo AND EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) <> CM_plus_1_yr Then
+        If EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel) = checked AND EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) <> CM_plus_1_mo AND EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) <> CM_plus_1_yr Then
             next_month = DateAdd("m", 1, mm_1_yy)
             CM_plus_2 = DateValue(CM_plus_2_mo & "/1/" & CM_plus_2_yr)
             Do

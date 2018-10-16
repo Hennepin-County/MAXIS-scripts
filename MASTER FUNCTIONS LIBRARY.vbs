@@ -3988,15 +3988,21 @@ function navigate_to_MAXIS(maxis_mode)
 '--- This function is to be used when navigating back to MAXIS from another function in BlueZone (MMIS, PRISM, INFOPAC, etc.)
 '~~~~~ maxis_mode: This parameter needs to be "maxis_mode"
 '===== Keywords: MAXIS, navigate
-	attn
+    EMWaitReady 0, 0
+    attn
+    EMWaitReady 0, 0
 	EMConnect "A"
+    EMWaitReady 0, 0
+
 	IF maxis_mode = "PRODUCTION" THEN
 		EMReadScreen prod_running, 7, 6, 15
 		IF prod_running = "RUNNING" THEN
 			x = "A"
 		ELSE
 			EMConnect"B"
+            EMWaitReady 0, 0
 			attn
+            EMWaitReady 0, 0
 			EMReadScreen prod_running, 7, 6, 15
 			IF prod_running = "RUNNING" THEN
 				x = "B"
@@ -4010,7 +4016,9 @@ function navigate_to_MAXIS(maxis_mode)
 			x = "A"
 		ELSE
 			EMConnect "B"
+            EMWaitReady 0, 0
 			attn
+            EMWaitReady 0, 0
 			EMReadScreen inq_running, 7, 7, 15
 			IF inq_running = "RUNNING" THEN
 				x = "B"
@@ -4020,7 +4028,9 @@ function navigate_to_MAXIS(maxis_mode)
 		END IF
 	END IF
 
+    EMWaitReady 0, 0
 	EMConnect (x)
+    EMWaitReady 0, 0
 	IF maxis_mode = "PRODUCTION" THEN
 		EMWriteScreen "1", 2, 15
 		transmit
