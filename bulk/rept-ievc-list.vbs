@@ -28,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -174,7 +174,7 @@ DO
 	    client_name = trim(client_name)                         'trimming the client name
 		IF instr(client_name, ",") <> 0 THEN client_name =  replace(client_name, ",", ", ")
 		objExcel.Cells(excel_row, 3).Value = trim(client_name)
-		
+
         EMReadScreen client_ssn, 11, 5, 13						'Reads the client name and adds to excel
 	    objExcel.Cells(excel_row, 5).Value = trim(client_ssn)
 

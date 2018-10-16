@@ -28,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -332,7 +332,22 @@ DO
 	MAXIS_case_number = ""
 	Client_SSN = ""
 	STATS_counter = STATS_counter + 1
-LOOP UNTIL objExcel.Cells(excel_row, 1).value = ""	'looping until the list of cases to check for recert is complete
+LOOP UNTIL objExcel.Cells(excel_row, 1).value = ""	'looping until the list of cases to check for recert is complete\
+'Centers the text for the columns with days remaining and difference notice
+
+objExcel.Columns(1).HorizontalAlignment = -4131
+objExcel.Columns(2).HorizontalAlignment = -4131
+objExcel.Columns(3).HorizontalAlignment = -4131
+objExcel.Columns(4).HorizontalAlignment = -4131
+objExcel.Columns(5).HorizontalAlignment = -4131
+objExcel.Columns(6).HorizontalAlignment = -4131
+objExcel.Columns(7).HorizontalAlignment = -4131
+objExcel.Columns(8).HorizontalAlignment = -4131
+
+'Formatting the column width.
+FOR i = 1 to 9
+	objExcel.Columns(i).AutoFit()
+NEXT
 
 STATS_counter = STATS_counter - 1		'removes 1 to correct the count
 script_end_procedure("Success! The IEVS match cases have now been updated. Please review the NOTES section to review the cases/follow up work to be completed.")
