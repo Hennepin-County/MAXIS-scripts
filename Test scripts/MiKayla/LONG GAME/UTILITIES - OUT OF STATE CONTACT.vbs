@@ -1,16 +1,10 @@
-Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("C:\DHS-MAXIS-Scripts\Script Files\SETTINGS - GLOBAL VARIABLES.vbs")
-text_from_the_other_script = fso_command.ReadAll
-fso_command.Close
-Execute text_from_the_other_script
-
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "UTILITIES - OUT OF STATE CONTACT.vbs" 'BULK script that creates a list of cases that require an interview, and the contact phone numbers'
 start_time = timer
-STATS_counter = 1               'sets the stats counter at one 
-STATS_manualtime = 0            'manual run time in seconds 
-STATS_denomination = "C"        'C is for each case 
- 'END OF stats block========================================================================================================= 
+STATS_counter = 1               'sets the stats counter at one
+STATS_manualtime = 0            'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
+ 'END OF stats block=========================================================================================================
 
  'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
  IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -49,7 +43,7 @@ BeginDialog select_state_dialog, 0, 0, 146, 50, "Out-of-state contact informatio
   "Florida"+chr(9)+"Georga"+chr(9)+"Guam"+chr(9)+"Hawaii"+chr(9)+"Idaho"+chr(9)+"Illinois"+chr(9)+"Indiana"+chr(9)+"Iowa"+chr(9)+"Kansas"+chr(9)+"Kentucky"+chr(9)+"Louisana"+chr(9)+ _
   "Maine"+chr(9)+"Maryland"+chr(9)+"Massachusetts"+chr(9)+"Michigan"+chr(9)+"Mississippi"+chr(9)+"Missouri"+chr(9)+"Montana"+chr(9)+"Nebraska"+chr(9)+"Nevada"+chr(9)+"New Hampshire"+chr(9)+"New Jersey"+chr(9)+ _
   "New Mexico"+chr(9)+"New York"+chr(9)+"North Carolina"+chr(9)+"North Dakota"+chr(9)+"Ohio"+chr(9)+"Oklahoma"+chr(9)+"Oregon"+chr(9)+"Pennsylvania"+chr(9)+"Rhode Island"+chr(9)+"Puerto Rico"+chr(9)+"South Carolina"+chr(9)+  _
-  "South Dakota"+chr(9)+"Tennessee"+chr(9)+"Texas"+chr(9)+"Utah"+chr(9)+"Vermont"+chr(9)+"Virginia"+chr(9)+"Viriginia"+chr(9)+"Washington"+chr(9)+"West Virginia"+chr(9)+"Wisconsin"+chr(9)+"Wyoming", state_list 
+  "South Dakota"+chr(9)+"Tennessee"+chr(9)+"Texas"+chr(9)+"Utah"+chr(9)+"Vermont"+chr(9)+"Virginia"+chr(9)+"Viriginia"+chr(9)+"Washington"+chr(9)+"West Virginia"+chr(9)+"Wisconsin"+chr(9)+"Wyoming", state_list
   ButtonGroup ButtonPressed
   OkButton 35, 30, 50, 15
   CancelButton 90, 30, 50, 15
@@ -59,22 +53,22 @@ EndDialog
 'The script----------------------------------------------------------------------------------------------------
 EMCONNECT ""
 
-Do 
-	Do 
+Do
+	Do
 		err_msg = ""
 		Dialog select_state_dialog
 		If ButtonPressed = 0 then StopScript
 		If state_list = "Select one..." then err_msg = err_msg & vbNewLine & "* You must select a state."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in					
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'info_array = (state_list, general_header, )
 
 'Alabama
-IF state_list = "Alabama" then 	
-	general_header = "Out of State inquiries:" 
+IF state_list = "Alabama" then
+	general_header = "Out of State inquiries:"
 	general_person = "Betty S.White, Program Supervisor"
 	general_pref_contact = ""
 	general_phone = "334-242-1745"
@@ -83,7 +77,7 @@ IF state_list = "Alabama" then
 	general_email = "Betty.White@dhr.alabama.gov"
 	general_info = ""
 
-	web_addr = "www.dhr.alabama.gov" 
+	web_addr = "www.dhr.alabama.gov"
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = "email"
@@ -92,18 +86,18 @@ IF state_list = "Alabama" then
 	SNAP_addr = ""
 	SNAP_email  = "fs@dhr.alabama.gov"
 	SNAP_info = ""
-	
+
 	If SNAP_header <> "" then SNAP_info_list = SNAP_header & "|" 'UNSURE WHAT THIS DOES ASK ILSE'
-	
-	SNAP_header = 
-	SNAP_person = 
+
+	SNAP_header =
+	SNAP_person =
 	SNAP_pref_contact = ""
 	SNAP_phone = ""
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	 
+	SNAP_info = ""
+
 	CASH_header = ""
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -112,7 +106,7 @@ IF state_list = "Alabama" then
 	CASH_addr  = ""
 	CASH_email = "DHR_PA_Helpdesk@dhr.alabama.gov"
 	CASH_info = "TANF/FIP-No TANF information given over the phone."
-	
+
 	HC_header = "Medical Benefits:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -121,7 +115,7 @@ IF state_list = "Alabama" then
 	HC_addr  = ""
 	HC_email = "PIDParis@medicaid.alabama.gov"
 	HC_info = ""
-	
+
 	Claims_header = ""
 	Claims_person = "Geraldine Turner"
 	Claims_pref_contact = "email"
@@ -130,19 +124,19 @@ IF state_list = "Alabama" then
 	Claims_addr  = "Same"
 	Claims_email = "Geraldine.turner@dhr.alabama.gov"
 	Claims_info = ""
-	
+
 'Alaska'
-If state_list = "ALASKA" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "ALASKA" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = "Fax"
 	general_phone = "907-465-3347"
     general_addr = "PO Box 110640, Juneau, AK 99811-0640"
     general_email = "DPApolicy@alaska.gov"
     general_info = "Contact the office from which the client last received benefits. A list of offices can be found at:
-				    http://dhss.alaska.gov/dpa/Pages/features/org/dpado.aspx" 
+				    http://dhss.alaska.gov/dpa/Pages/features/org/dpado.aspx"
 	web_addr = "http://www.hss.state.ak.us/dpa/"
-	
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = "Fax"
@@ -151,8 +145,8 @@ If state_list = "ALASKA" then
 	SNAP_addr = "PO Box 110640, Juneau, AK 99811-0640"
 	SNAP_email = "DPApolicy@alaska.gov"
 	SNAP_info = "Contact the office from which the client last received benefits. A list of offices can be found at:
-                     http://dhss.alaska.gov/dpa/Pages/features/org/dpado.aspx" 
-	
+                     http://dhss.alaska.gov/dpa/Pages/features/org/dpado.aspx"
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -160,8 +154,8 @@ If state_list = "ALASKA" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assitance Participation"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -169,8 +163,8 @@ If state_list = "ALASKA" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -178,11 +172,11 @@ If state_list = "ALASKA" then
 	claims_fax = ""
 	claims_addr = ""
 	claims_email = ""
-	claims_info = "" 
-	
-'Arizona'	
-If state_list = "ARIZONA" then 
-    general_header = "Out of State inquiries:" 
+	claims_info = ""
+
+'Arizona'
+If state_list = "ARIZONA" then
+    general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = "EMAIL"
 	general_phone = "602-771-2047"
@@ -190,9 +184,9 @@ If state_list = "ARIZONA" then
 	general_addr = ""
 	general_email = "Azstateinquiries@Azdes.go"
 	general_info = "Dept. of Economic Security Communication Center"
-	
+
 	web_addr = "www.des.az.gov"
-	
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = "EMAIL"
@@ -200,8 +194,8 @@ If state_list = "ARIZONA" then
 	SNAP_fax = "602-353-5746"
 	SNAP_addr = ""
 	SNAP_email = "Azstateinquiries@Azdes.gov"
-	SNAP_info = "Dept. of Economic Security Communication Center" 
-	
+	SNAP_info = "Dept. of Economic Security Communication Center"
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -209,8 +203,8 @@ If state_list = "ARIZONA" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -218,8 +212,8 @@ If state_list = "ARIZONA" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -227,10 +221,10 @@ If state_list = "ARIZONA" then
 	claims_fax = ""
 	claims_addr = ""
 	claims_email = ""
-	claims_info = "" 
-		
+	claims_info = ""
+
 'Arkansas'
-If state_list = "ARKANSAS" then 
+If state_list = "ARKANSAS" then
 	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = ""
@@ -238,10 +232,10 @@ If state_list = "ARKANSAS" then
 	general_fax= ""
 	general_addr = ""
 	general_email = ""
-	general_info = "" 
+	general_info = ""
 
 	web_addr = "www.arkansas.gov/dhhs"
-	
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = "Beverly Stewart-Coleman, Administrative Specialist II"
 	SNAP_pref_contact = ""
@@ -249,8 +243,8 @@ If state_list = "ARKANSAS" then
 	SNAP_fax = ""
 	SNAP_addr = " Customer Assistance Unit, PO Box 1437, Slot S-341 Little Rock, Arkansas 72203-1437"
 	SNAP_email = "beverly.stewart-coleman@dhs.arkansas.gov"
-	SNAP_info = "" 
-	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -258,8 +252,8 @@ If state_list = "ARKANSAS" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -267,8 +261,8 @@ If state_list = "ARKANSAS" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -276,11 +270,11 @@ If state_list = "ARKANSAS" then
 	claims_fax = ""
 	claims_addr = ""
 	claims_email = ""
-	claims_info = "" 
-	
+	claims_info = ""
+
 'California'
-If state_list = "CALIFORNIA" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "CALIFORNIA" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = ""
 	general_phone = "916-651-8848" "press 1, then press 7"
@@ -289,10 +283,10 @@ If state_list = "CALIFORNIA" then
 	general_email = ""
 	general_info = "The city and/or county in which the client resided
 					in California must be provided in order to provide a referral to one of the 58 counties for
-					verification of benefits.  See web address to get a Central County Index Listing." 
+					verification of benefits.  See web address to get a Central County Index Listing."
 
 	web_addr = "http://www.cdss.ca.gov/cdssweb/entres/pdf/CountyCentral"   "IndexListing.pdf"
-	
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = ""
@@ -300,8 +294,8 @@ If state_list = "CALIFORNIA" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -309,8 +303,8 @@ If state_list = "CALIFORNIA" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -318,8 +312,8 @@ If state_list = "CALIFORNIA" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -327,21 +321,21 @@ If state_list = "CALIFORNIA" then
 	claims_fax = ""
 	claims_addr = ""
 	claims_email = ""
-	claims_info = "" 
-	
+	claims_info = ""
+
 'Colorado'
 If state_list = "COLORADO" then
-	general_header = "Out of State inquiries:" 
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = ""
 	general_phone = "1-800-536-5298"
 	general_fax = ""
 	general_addr = "Colorado Department of Human Services 1575 Sherman St. 3rd Fl Denver, CO 80203"
 	general_email = "Outofstateinquiries@state.co.us"
-	general_info = "" 
+	general_info = ""
 
-	web_addr = "www.cdhs.state.co.us" 
-	
+	web_addr = "www.cdhs.state.co.us"
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = ""
@@ -349,8 +343,8 @@ If state_list = "COLORADO" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -358,8 +352,8 @@ If state_list = "COLORADO" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -367,8 +361,8 @@ If state_list = "COLORADO" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = "PARIS match"
 	claims_person = ""
 	claims_pref_contact = ""
@@ -376,12 +370,12 @@ If state_list = "COLORADO" then
 	claims_fax = ""
 	claims_addr = ""
 	claims_email = ""
-	calims_fraud_line = 
-	claims_info = "" 
-	
+	calims_fraud_line =
+	claims_info = ""
+
 'Connecticut'
-If state_list = "CONNECTICUT" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "CONNECTICUT" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = ""
 	general_phone = "1-860-424-5030"
@@ -390,10 +384,10 @@ If state_list = "CONNECTICUT" then
 	general_email = "TPI.EU@ct.gov."
 	general_info = "Please send an email from you State or County email	account on your agency’s letter head to: TPI.EU@ct.gov.
 			Requests must include names, dates of birth and last 4 digits of SSN for each individual for whom verifications are being sought. Also include what	programs you need
-			verified and the application address in your state.	Allow 3 to 5 working days for a response." 
+			verified and the application address in your state.	Allow 3 to 5 working days for a response."
 
 	web_addr = ""
-	
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = ""
@@ -401,8 +395,8 @@ If state_list = "CONNECTICUT" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -410,8 +404,8 @@ If state_list = "CONNECTICUT" then
 	CASH_fax = "1-860-424-4886"
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "Fax request on your Agency’s Letterhead 1-860-424-4886, allow 3 to 5 days for a response" 
-	
+	CASH_info = "Fax request on your Agency’s Letterhead 1-860-424-4886, allow 3 to 5 days for a response"
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -419,8 +413,8 @@ If state_list = "CONNECTICUT" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -428,18 +422,18 @@ If state_list = "CONNECTICUT" then
 	claims_fax = ""
 	claims_addr = ""
 	claims_email = ""
-	claims_info = "" 
-	
+	claims_info = ""
+
 'DELAWARE'
-If state_list = "DELAWARE" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "DELAWARE" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = "EMAIL"
 	general_phone = "302-571-4900"
 	general_fax = ""
 	general_addr = "Delaware Division of Social Services PO Box 906, New Castle, DE 19720"
 	general_email = "DHSS_DSS_Outofstate@state.de.us"
-	general_info = "" 
+	general_info = ""
 
 	web_addr = "http://www.dhss.delaware.gov/dhss/dss"
 
@@ -450,8 +444,8 @@ If state_list = "DELAWARE" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -459,8 +453,8 @@ If state_list = "DELAWARE" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -468,8 +462,8 @@ If state_list = "DELAWARE" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -477,11 +471,11 @@ If state_list = "DELAWARE" then
 	claims_fax = ""
 	claims_addr = ""
 	claims_email = ""
-	claims_info = "" 
+	claims_info = ""
 
 'District of Columbia'
-If state_list = "DISTRICT OF COLUMBIA" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "DISTRICT OF COLUMBIA" then
+	general_header = "Out of State inquiries:"
 	general_person = "Vivessia Avent, Program Analyst"
 	general_pref_contact = "EMAIL"
 	general_phone = "202-535-1145"
@@ -489,10 +483,10 @@ If state_list = "DISTRICT OF COLUMBIA" then
 	general_addr = "District of Columbia Department of Human Services Office of Program Review, Monitoring and Investigation
 					64 New York Avenue, N.E. – 6th Floor Washington, D.C. 20002"
 	general_email = "Vivesia.Avent@dc.gov"
-	general_info = "" 
+	general_info = ""
 
 	web_addr = "www.dhs.dc.gov"
-	
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = ""
@@ -500,8 +494,8 @@ If state_list = "DISTRICT OF COLUMBIA" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -509,8 +503,8 @@ If state_list = "DISTRICT OF COLUMBIA" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -518,8 +512,8 @@ If state_list = "DISTRICT OF COLUMBIA" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -527,10 +521,10 @@ If state_list = "DISTRICT OF COLUMBIA" then
 	claims_fax = ""
 	claims_addr = ""
 	claims_email = ""
-	claims_info = "" 
-	
+	claims_info = ""
+
 'Florida
-If state_list = "FLORIDA" then 
+If state_list = "FLORIDA" then
 	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = "EMAIL"
@@ -540,10 +534,10 @@ If state_list = "FLORIDA" then
 					1317 Winewood Blvd., Bldg. 3, Room 435
 					Tallahassee, FL 32399-0700"
 	general_email = "SNR.D11.SFL.CallCenter@myflfamilies.com"
-	general_info = "" 
+	general_info = ""
 
 	web_addr= "www.dcf.state.fl.us/ess/"
-	
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = ""
@@ -551,8 +545,8 @@ If state_list = "FLORIDA" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -560,8 +554,8 @@ If state_list = "FLORIDA" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -569,8 +563,8 @@ If state_list = "FLORIDA" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -578,19 +572,19 @@ If state_list = "FLORIDA" then
 	claims_fax = ""
 	claims_addr = ""
 	claims_email = ""
-	claims_info = "" 
-	
+	claims_info = ""
+
 'Georgia'
-If state_list = "GEORGIA" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "GEORGIA" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = "EMAIL"
 	general_phone = "1-877-423-4746"
 	general_fax = "1-888-740-9355"
 	general_addr = "DFCS Customer Service Operations, 2 Peachtree Street, Suite 8-268 Atlanta, Georgia 30303"
 	general_email = "ga.paris@dhs.ga.gov"
-	general_info = "" 
-	
+	general_info = ""
+
     web_addr = ""
 
 	SNAP_header = "SNAP Participation:"
@@ -600,8 +594,8 @@ If state_list = "GEORGIA" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -609,8 +603,8 @@ If state_list = "GEORGIA" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -618,8 +612,8 @@ If state_list = "GEORGIA" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -627,10 +621,10 @@ If state_list = "GEORGIA" then
 	claims_fax = ""
 	claims_addr = ""
 	claims_email = ""
-	claims_info = "" 
+	claims_info = ""
 'Guam'
-If state_list = "Guam" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "Guam" then
+	general_header = "Out of State inquiries:"
 	general_person = "Maria Cindy F. Malanum, Social Services Supervisor I"
 	general_pref_contact = ""
 	general_phone = "671-735-7288/7237"
@@ -641,10 +635,10 @@ If state_list = "Guam" then
 					123 Chalan Kareta
 					Mangilao, Guam 96913"
 	general_email = "mariacindy.malanum@dphss.guam.gov"
-	general_info = "" 
-		
+	general_info = ""
+
 	web_addr = "http://dphss.guam.gov"
-	
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = ""
@@ -652,8 +646,8 @@ If state_list = "Guam" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-		
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -661,8 +655,8 @@ If state_list = "Guam" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -670,8 +664,8 @@ If state_list = "Guam" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-		
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -679,11 +673,11 @@ If state_list = "Guam" then
 	claims_fax = ""
 	claims_addr = ""
 	claims_email = ""
-	claims_info = "" 
-		
+	claims_info = ""
+
 'Hawaii'
-If state_list = "HAWAII" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "HAWAII" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = ""
 	general_phone = "808-586-5735"
@@ -694,8 +688,8 @@ If state_list = "HAWAII" then
 					820 Mililani Street, Suite 606
 					Honolulu, Hi 96813"
 	general_email = ""
-	general_info = "" 
-	
+	general_info = ""
+
     web_addr = "http://hawaii.gov/dhs"
 
 	SNAP_header = "SNAP Participation:"
@@ -705,8 +699,8 @@ If state_list = "HAWAII" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -714,8 +708,8 @@ If state_list = "HAWAII" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -723,8 +717,8 @@ If state_list = "HAWAII" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -732,11 +726,11 @@ If state_list = "HAWAII" then
 	claims_fax = ""
 	claims_addr = ""
 	claims_email = ""
-	claims_info = "" 
+	claims_info = ""
 
-'IDAHO'	
-If state_list = "IDAHO" then 
-	general_header = "Out of State inquiries:" 
+'IDAHO'
+If state_list = "IDAHO" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = ""
 	general_phone = "208-334-5815"
@@ -745,10 +739,10 @@ If state_list = "IDAHO" then
 					Division of Welfare, 2nd Floor
 					P.O. Box 8372, Boise, ID 83720-0036"
 	general_email = "mybenefits@dhw.idaho.gov"
-	general_info = "" 
-		
+	general_info = ""
+
 	web_addr = "http://www.healthandwelfare.idaho.gov/"
-	
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = ""
@@ -756,8 +750,8 @@ If state_list = "IDAHO" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-		
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -765,8 +759,8 @@ If state_list = "IDAHO" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -774,8 +768,8 @@ If state_list = "IDAHO" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -786,10 +780,10 @@ If state_list = "IDAHO" then
 	claims_info = "To verify benefit status in Idaho for clients already
 				   active on benefits in your state (dual participation
 				   alerts & investigations, PARIS matches, etc.), please
-				   contact the Fraud Unit via e-mail at:" 
+				   contact the Fraud Unit via e-mail at:"
 'ILLINOIS'
- If state_list = "ILLINOIS" then 
-	general_header = "Out of State inquiries:" 
+ If state_list = "ILLINOIS" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = ""
 	general_phone = "217-524-4174"
@@ -798,7 +792,7 @@ If state_list = "IDAHO" then
 					Bureau of Customer and Support Services
 					600 East Ash St. Bld. 500, Springfield, IL 62703"
 	general_email = "DHS.WEBBITS@Illinois.gov" 'please be sure to encrypt ask Ilse if we can build this in'
-	general_info = "Allow 3-5 Business days for a response." 
+	general_info = "Allow 3-5 Business days for a response."
 
 	web_addr = "http://www.dhs.state.il.us/page.aspx?module=16&type=2 "
 
@@ -809,7 +803,7 @@ If state_list = "IDAHO" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
+	SNAP_info = ""
 
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
@@ -818,7 +812,7 @@ If state_list = "IDAHO" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
+	CASH_info = ""
 
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
@@ -827,7 +821,7 @@ If state_list = "IDAHO" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
+	HC_info = ""
 
 	claims_header = ""
 	claims_person = ""
@@ -836,11 +830,11 @@ If state_list = "IDAHO" then
 	claims_fax = ""
 	claims_addr = ""
 	claims_email = ""
-	claims_info = "" 
+	claims_info = ""
 
-'INDIANA'		
-If state_list = "INDIANA" then 
-	general_header = "Out of State inquiries:" 
+'INDIANA'
+If state_list = "INDIANA" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = ""
 	general_phone = ""
@@ -851,10 +845,10 @@ If state_list = "INDIANA" then
 	general_email = "INoutofstate.inquiries@fssa.IN.gov."
 	general_info = "Indiana no longer accepts faxed/telephone inquiries. Requests must include names, dates of birth and last
 					4 digits of SSN for each individual for whom verifications are being sought. Also include what programs you need
-					verified." 
-	
+					verified."
+
 	web_addr = "www.in.gov/fssa/"
-	
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = ""
@@ -862,8 +856,8 @@ If state_list = "INDIANA" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -871,8 +865,8 @@ If state_list = "INDIANA" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -880,8 +874,8 @@ If state_list = "INDIANA" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -889,11 +883,11 @@ If state_list = "INDIANA" then
 	claims_fax = ""
 	claims_addr = ""
 	claims_email = ""
-	claims_info = "" 
+	claims_info = ""
 
 'IOWA'
-If state_list = "IOWA" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "IOWA" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = ""
 	general_phone = "1-877-855-0021"
@@ -903,10 +897,10 @@ If state_list = "IOWA" then
 	general_email = "ICRU@dhs.state.ia.us"
 	general_info = "To have an active Iowa case closed:
 					Clients can call Customer Service Call Center at 1-877-
-					347-5678 OR Email: IMCustomerSC@dhs.state.ia.us" 
-		
+					347-5678 OR Email: IMCustomerSC@dhs.state.ia.us"
+
 	web_addr = "www.dhs.state.ia.us"
-		
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = ""
@@ -914,8 +908,8 @@ If state_list = "IOWA" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-		
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -923,8 +917,8 @@ If state_list = "IOWA" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -932,8 +926,8 @@ If state_list = "IOWA" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-		
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -941,11 +935,11 @@ If state_list = "IOWA" then
 	claims_fax = ""
 	claims_addr = ""
 	claims_email = ""
-	claims_info = "" 	
-	
+	claims_info = ""
+
 'KANSAS'
-If state_list = "KANSAS" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "KANSAS" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = ""
 	general_phone = ""
@@ -954,8 +948,8 @@ If state_list = "KANSAS" then
 					Economic and Employment Services
 		  			555 S Kansas Avenue, 4th Floor, Topeka, KS 66603"
 	general_email = "DCF.EBTMAIL@ks.gov"
-	general_info = "Kansas no longer accepts faxed inquires. All SNAP and TANF out-of-state inquiries must be emailed" 
-		
+	general_info = "Kansas no longer accepts faxed inquires. All SNAP and TANF out-of-state inquiries must be emailed"
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = ""
@@ -963,8 +957,8 @@ If state_list = "KANSAS" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-			
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -972,8 +966,8 @@ If state_list = "KANSAS" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-			
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -981,8 +975,8 @@ If state_list = "KANSAS" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "For all Medical inquiries, contact Kansas Department of Health and Environment" 
-			
+	HC_info = "For all Medical inquiries, contact Kansas Department of Health and Environment"
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -991,11 +985,11 @@ If state_list = "KANSAS" then
 	claims_addr = ""
 	claims_email = ""
 	claims_info = ""
-			
+
 	web_addr = "www.dcf.ks.gov"
 'KENTUCKY'
- If state_list = "KENTUCKY" then 
-	general_header = "Out of State inquiries:" 
+ If state_list = "KENTUCKY" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = ""
 	general_phone = "502-564-3440"
@@ -1003,9 +997,9 @@ If state_list = "KANSAS" then
 	general_addr = ""
 	general_email = "Outofstateinquiries@ky.gov"
 	general_info = ""
-	
+
 	web_addr = "http://cfc.ky.gov"
-	
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = ""
@@ -1013,8 +1007,8 @@ If state_list = "KANSAS" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	 	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -1022,8 +1016,8 @@ If state_list = "KANSAS" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	 	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -1031,8 +1025,8 @@ If state_list = "KANSAS" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -1041,10 +1035,10 @@ If state_list = "KANSAS" then
 	claims_addr = ""
 	claims_email = ""
 	claims_info = ""
-		
+
 'MAINE'
-If state_list = "MAINE" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "MAINE" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = ""
 	general_phone = "207-624-4130"
@@ -1053,10 +1047,10 @@ If state_list = "MAINE" then
 					Department of Health and Human Services Office for Family Independence
 					19 Union Street, SHS#11, Augusta, ME 04333 "
  	general_email = "DESK.ACESHELP@Maine.gov"
-	general_info = "A signed release is required to obtain the verification Out-of-State Inquiries" 
-			
+	general_info = "A signed release is required to obtain the verification Out-of-State Inquiries"
+
 	web_addr = "http://www.maine.gov/dhhs/ofi/index.html"
-		
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = ""
@@ -1064,8 +1058,8 @@ If state_list = "MAINE" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-			
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -1073,8 +1067,8 @@ If state_list = "MAINE" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-			
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -1082,8 +1076,8 @@ If state_list = "MAINE" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -1091,11 +1085,11 @@ If state_list = "MAINE" then
 	claims_fax = ""
 	claims_addr = ""
 	claims_email = ""
-	claims_info = "" 
-			
+	claims_info = ""
+
 'MARAND'
-If state_list = "MARYLAND" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "MARYLAND" then
+	general_header = "Out of State inquiries:"
 	general_person = "Tanisha Williams"
 	general_pref_contact = ""
 	general_phone = "410-767-7928"
@@ -1103,10 +1097,10 @@ If state_list = "MARYLAND" then
 	general_addr = "Maryland Department of Human Resources
 	              	311 W. Saratoga St. Baltimore, MD 21201"
 	general_email = "dhr.outofstateinquiry@maryland.gov or tanisha.williams@maryland.gov"
-	general_info = "" 
-	
+	general_info = ""
+
 	web_addr = ""
-	       
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = ""
@@ -1114,8 +1108,8 @@ If state_list = "MARYLAND" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -1123,8 +1117,8 @@ If state_list = "MARYLAND" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -1132,8 +1126,8 @@ If state_list = "MARYLAND" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-			
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -1141,11 +1135,11 @@ If state_list = "MARYLAND" then
 	claims_fax = ""
 	claims_addr = ""
 	claims_email = ""
-	claims_info = "" 
-				
+	claims_info = ""
+
 'MASSACHUSET
-If state_list = "MASSACHUSETTS" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "MASSACHUSETTS" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = ""
 		general_phone = ""
@@ -1154,11 +1148,11 @@ If state_list = "MASSACHUSETTS" then
 				        Data Matching Unit
 				  		600 Washington Street, 5th Floor, Boston, MA 02111"
 		general_email = ""
-		general_info = "MAIL or FAX REQUEST ON AGENCY LETTERHEAD:" 
-		
+		general_info = "MAIL or FAX REQUEST ON AGENCY LETTERHEAD:"
+
 				     web_addr = "www.state.ma.us/DTA"
-	
-	
+
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -1166,8 +1160,8 @@ If state_list = "MASSACHUSETTS" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -1175,8 +1169,8 @@ If state_list = "MASSACHUSETTS" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -1184,8 +1178,8 @@ If state_list = "MASSACHUSETTS" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -1196,8 +1190,8 @@ If state_list = "MASSACHUSETTS" then
 		claims_info = ""
 
 'MICHIG
-If state_list = "MICHIGAN" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "MICHIGAN" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = ""
 		general_phone = "1-517-373-3908"
@@ -1205,12 +1199,12 @@ If state_list = "MICHIGAN" then
 		general_addr = "Dept of Human Services
 						PO Box 30037, 235 S. Grand Ave, Lansing, MI 48909"
 		general_email = "DHS-ICU-Customer-Service@michigan.gov"
-		general_info = "Require client’s new address before they will close case in MI" 
-		
+		general_info = "Require client’s new address before they will close case in MI"
+
 	    web_addr = "www.michigan.gov/dhs"
-	
+
 		Client_Services "1-855-ASK-MICH" 'add to variable'
-	
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -1218,8 +1212,8 @@ If state_list = "MICHIGAN" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -1227,8 +1221,8 @@ If state_list = "MICHIGAN" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -1236,8 +1230,8 @@ If state_list = "MICHIGAN" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-						
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -1245,12 +1239,12 @@ If state_list = "MICHIGAN" then
 		claims_fax = ""
 		claims_addr = ""
 		claims_email = ""
-		claimsnfo = "" 	
-				
-				
+		claimsnfo = ""
+
+
 'MINNESOT
-If state_list "MINNESOTA" then 
-		general_header = "Out of State inquiries:" 
+If state_list "MINNESOTA" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = ""
 		general_phone = ""
@@ -1264,9 +1258,9 @@ If state_list "MINNESOTA" then
 						At the web site home page, complete the required fields	for self- registration. In the code field, enter the 			word guest. After accepting the Oath, click the Next 			button which brings up the client information page. When 			all the client information has been entered, click the 			submit
 						button which generates the request. A secure email	response will be sent to the requestor with the results 			of
 						the benefit verification. No other means for requesting	this information is offered."
-					
+
 		web_addr = "https://mn.gov/snap-tanf-benefit-verification/"
-				
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -1274,8 +1268,8 @@ If state_list "MINNESOTA" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-					
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -1283,8 +1277,8 @@ If state_list "MINNESOTA" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-					
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -1292,8 +1286,8 @@ If state_list "MINNESOTA" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -1301,11 +1295,11 @@ If state_list "MINNESOTA" then
 		claims_fax = ""
 		claims_addr = ""
 		claims_email = ""
-		claims_info = "" 
-		
+		claims_info = ""
+
 'MISSISSIPPI'
-If state_list = "MISSISSIPPI" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "MISSISSIPPI" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = "EMAIL"
 		general_phone = "1-800-948-3050"
@@ -1315,11 +1309,11 @@ If state_list = "MISSISSIPPI" then
 		general_email = "ea.CustomerService@mdhs.ms.gov"
 		general_info = "Please include email address, agency telephone number and mailing address.
 		Also include case member’s name, date of birth, SSN, current mailing address and brief description of verification
-		that is needed." 
-			
+		that is needed."
+
 		web_addr = "www.mdhs.state.ms.us"
-		      
-		
+
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -1327,8 +1321,8 @@ If state_list = "MISSISSIPPI" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-			
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -1336,8 +1330,8 @@ If state_list = "MISSISSIPPI" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-			
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -1345,8 +1339,8 @@ If state_list = "MISSISSIPPI" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -1354,11 +1348,11 @@ If state_list = "MISSISSIPPI" then
 		claims_fax = ""
 		claims_addr = ""
 		claims_email = ""
-		claims_info = "" 							
-								
+		claims_info = ""
+
 'MISSOURI'
-If state_list = "MISSOURI" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "MISSOURI" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = ""
 		general_phone = "1-800-392-1261"
@@ -1368,10 +1362,10 @@ If state_list = "MISSOURI" then
 						P.O. Box 2320, Jefferson City, MO 65102-2320"
 		general_email = "Cole.CoXIX@dss.mo.gov"
 		general_info = "Out-of-State line: The Family Support Division
-					    Information Center at 855-FSD-INFO or 855-373-4636,	Option 3." 
-									
+					    Information Center at 855-FSD-INFO or 855-373-4636,	Option 3."
+
 		web_addr = "http://www.dss.mo.gov"
-								
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -1379,8 +1373,8 @@ If state_list = "MISSOURI" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -1388,8 +1382,8 @@ If state_list = "MISSOURI" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -1397,8 +1391,8 @@ If state_list = "MISSOURI" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -1406,10 +1400,10 @@ If state_list = "MISSOURI" then
 		fax = ""
 		addr = ""
 		email = ""
-		info = "" 		
-'MONTANA'														
-If state_list = "MONTANA" then 
-		general_header = "Out of State inquiries:" 
+		info = ""
+'MONTANA'
+If state_list = "MONTANA" then
+		general_header = "Out of State inquiries:"
 		general_person = "Mollye Gauer"
 		general_pref_contact = ""
 		general_phone = "406-444-9401"
@@ -1418,10 +1412,10 @@ If state_list = "MONTANA" then
 		                Human & Community Services Division
 						PO Box 202925, Helena, MT 59620-2925"
 		general_email = "mgauer@mt.gov"
-		general_info = "" 
-			
+		general_info = ""
+
 		web_addr = "http://www.dphhs.mt.gov/"
-		
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -1429,8 +1423,8 @@ If state_list = "MONTANA" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-        SNAP_info = "" 
-		
+        SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = "Maria Jimenez Gonzalez, TANF Program Coordinator"
@@ -1438,8 +1432,8 @@ If state_list = "MONTANA" then
 		CASH_fax = "406-444-0617"
 		CASH_addr = "111 N. Jackson, Helena, MT 59601"
 		CASH_email = "mjimenezgonzalez@mt.gov"
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -1447,8 +1441,8 @@ If state_list = "MONTANA" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -1457,21 +1451,21 @@ If state_list = "MONTANA" then
 		claims_addr = ""
 		claims_email = ""
 		claims_info = ""
-										
-										
+
+
 'NEBRASKA'
-If state_list = "NEBRASKA" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "NEBRASKA" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = ""
 		general_phone = "1-800- 383-4278"
 		general_fax = ""
 		general_addr = ""
 		general_email = ""
-		general_info = "Customer Service Center Economic Assistance Customer Service Center" 
-		
+		general_info = "Customer Service Center Economic Assistance Customer Service Center"
+
 		web_addr = "www.accessnebraska.ne.gov"
-		    
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -1479,8 +1473,8 @@ If state_list = "NEBRASKA" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -1488,8 +1482,8 @@ If state_list = "NEBRASKA" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = "DHHS.EconomicAssistancePolicyQuestions@nebraska.gov"
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -1497,8 +1491,8 @@ If state_list = "NEBRASKA" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = "DHHS.MedicaidPolicyQuestions@nebraska.gov"
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -1506,11 +1500,11 @@ If state_list = "NEBRASKA" then
 		claims_fax = ""
 		claims_addr = ""
 		claims_email = ""
-		claims_info = "" 									
-											
+		claims_info = ""
+
 'NEVADA'
-If state_list = "NEVADA" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "NEVADA" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = ""
 		general_phone = ""
@@ -1522,10 +1516,10 @@ If state_list = "NEVADA" then
 		general_email = "WELFOOSINQUIRIES@DWSS.NV.GOV"
 		general_info = "Nevada requires requests to be sent on agency letterhead. Please include clients; Name, Date of Birth; the SSN or the
 						last 4 of the SSN; and a listing of all household members who are applying for assistance in your state. Also be sure to
-						include the return information (your name, phone, and fax #’s). Please allow 3 – 5 business days for a response." 
-											
+						include the return information (your name, phone, and fax #’s). Please allow 3 – 5 business days for a response."
+
 		web_addr = "http://dwss.nv.gov"
-										
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -1533,8 +1527,8 @@ If state_list = "NEVADA" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -1542,8 +1536,8 @@ If state_list = "NEVADA" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -1551,8 +1545,8 @@ If state_list = "NEVADA" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -1560,11 +1554,11 @@ If state_list = "NEVADA" then
 		claims_fax = ""
 		claims_addr = ""
 		claims_email = ""
-		claims_info = "" 
-										
+		claims_info = ""
+
 'NEW HAMPSHIRE'
-If state_list = "NEW HAMPSHIRE" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "NEW HAMPSHIRE" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = "Katy Halvorsen"
 		general_phone = "603-444-0348"
@@ -1574,10 +1568,10 @@ If state_list = "NEW HAMPSHIRE" then
 						Division of Client Services
 						129 Pleasant St, Concord, NH 03301"
 		general_email = "outofstateinquiries@dhhs.state.nh.us"
-		general_info = "" 
-		
+		general_info = ""
+
 		web_addr = "http://www.dhhs.nh.gov/"
-								
+
 		Client_Services = "603-271-9700"
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
@@ -1586,8 +1580,8 @@ If state_list = "NEW HAMPSHIRE" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -1595,8 +1589,8 @@ If state_list = "NEW HAMPSHIRE" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -1604,8 +1598,8 @@ If state_list = "NEW HAMPSHIRE" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -1613,11 +1607,11 @@ If state_list = "NEW HAMPSHIRE" then
 		claims_fax = ""
 		claims_addr = ""
 		claims_email = ""
-		claims_info = "" 
-		
+		claims_info = ""
+
 'NEW JERSEY'
-If state_list = "NEW JERSEY" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "NEW JERSEY" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = "EMAIL"
 		general_phone = "609-588-2283"
@@ -1626,10 +1620,10 @@ If state_list = "NEW JERSEY" then
 						Program Assessment and Integrity Unit
 						P.O. Box 716, Trenton, NJ 08625-0716"
 		general_email = "dfd.paiu@dhs.state.nj.us."
-		general_info = "NJ no longer accepts faxed requests. It is also required that the individual’s name, DOB and last 4 numbers of their SSN be included." 
-		
+		general_info = "NJ no longer accepts faxed requests. It is also required that the individual’s name, DOB and last 4 numbers of their SSN be included."
+
 		web_addr = "www.state.nj.us/humanservices/dfd/index.html"
-	
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -1637,8 +1631,8 @@ If state_list = "NEW JERSEY" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -1646,8 +1640,8 @@ If state_list = "NEW JERSEY" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = "State Eligibility Policy Liaison for Medicaid: Stephen Myers"
 		HC_pref_contact = ""
@@ -1655,8 +1649,8 @@ If state_list = "NEW JERSEY" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = "Stephen.myers@dhs.state.nj.us."
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -1664,11 +1658,11 @@ If state_list = "NEW JERSEY" then
 		claims_fax = ""
 		claims_addr = ""
 		claims_email = ""
-		claims_info = "" 												
+		claims_info = ""
 
 'NEW MEXICO'
-If state_list = "NEW MEXICO" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "NEW MEXICO" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = "EMAIL"
 		general_phone = "505-827-7250"
@@ -1678,10 +1672,10 @@ If state_list = "NEW MEXICO" then
 						P.O.B 2348 2009 S Pacheco Street
 						Santa Fe, NM 87504"
 		general_email = "nmhsdinquiry@state.nm.us"
-		general_info = "" 
-								
+		general_info = ""
+
 	    web_addr = "www.hsd.state.nm.us"
-	
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person= ""
 		SNAP_pref_contact = ""
@@ -1689,7 +1683,7 @@ If state_list = "NEW MEXICO" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
+		SNAP_info = ""
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -1697,8 +1691,8 @@ If state_list = "NEW MEXICO" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -1706,8 +1700,8 @@ If state_list = "NEW MEXICO" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -1716,12 +1710,12 @@ If state_list = "NEW MEXICO" then
 		claims_addr = ""
 		claims_email = ""
 		claims_info = ""
-		
+
 		client_services = "1-800-283-4465"
-	
+
 'NEW YORK'
-If state_list = "NEW YORK" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "NEW YORK" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = "Fax"
 		general_phone = ""
@@ -1731,10 +1725,10 @@ If state_list = "NEW YORK" then
 		general_info = "Be sure to include correct return FAX number. No Email/Phone. Include customer’s full name,
 						DOB and last 4 digits of SS# - Please include customer’s new address. If names of all household members are not
 						included, response may not be completely accurate. If you have not received a response in 5 business days please direct
-						an email to:wendy.buell@otda.ny.gov or call 518-486-3460." 
-														
+						an email to:wendy.buell@otda.ny.gov or call 518-486-3460."
+
 		web_addr = "http://www.dfa.state.ny.us"
-				
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -1742,8 +1736,8 @@ If state_list = "NEW YORK" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -1751,8 +1745,8 @@ If state_list = "NEW YORK" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -1760,8 +1754,8 @@ If state_list = "NEW YORK" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = "Stephen Bach, Director"
 		claims_pref_contact = ""
@@ -1771,12 +1765,12 @@ If state_list = "NEW YORK" then
 						4th Floor, 40 N Pearl St, Albany, NY 12243"
 		claims_email = "Stephen.Bach@otda.ny.gov"
 		claims_info = ""
-		
+
 		client_services = ""
-																																		
+
 'NORTH CAROLINA'
-If state_list = "NORTH CAROLINA" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "NORTH CAROLINA" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = ""
 		general_phone = "1-866-719-0141"
@@ -1787,10 +1781,10 @@ If state_list = "NORTH CAROLINA" then
 		general_email = "ebt.csc.leads@dhhs.nc.gov"
 		general_info = "When forwarding request to the DHHS Call Center, include your agency’s name, mailing address, telephone number, and fax number if not already
 						indicated in your request. Due to NC security requirements with SSNs, if your original e-mail contained
-						a full SSN, it will be edited so that only the last four digits	remain." 
-															
+						a full SSN, it will be edited so that only the last four digits	remain."
+
 	 	web_addr = "www.ncdhhs.gov/dss"
-														
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -1798,8 +1792,8 @@ If state_list = "NORTH CAROLINA" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -1807,8 +1801,8 @@ If state_list = "NORTH CAROLINA" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -1816,8 +1810,8 @@ If state_list = "NORTH CAROLINA" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -1826,22 +1820,22 @@ If state_list = "NORTH CAROLINA" then
 		claims_addr = ""
 		claims_email = ""
 		claims_info = ""
-		
+
 		client_services = ""
-																
+
 'NORTH DAKOTA'
-If state_list = "NORTH DAKOTA" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "NORTH DAKOTA" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = ""
 		general_phone = "701-328-2332 or 701-328-3513"
 		general_fax = ""
 		general_addr = ""
 		general_email = "dhseap@nd.gov"
-		general_info = "secure E-mail request with client’s name, full SSN, and DOB on your Agency’s Letterhead. Please allow 1 to 3 business days for a response." 
-		
+		general_info = "secure E-mail request with client’s name, full SSN, and DOB on your Agency’s Letterhead. Please allow 1 to 3 business days for a response."
+
 		web_addr = " www.nd.gov/dhs/services"
-		
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -1849,8 +1843,8 @@ If state_list = "NORTH DAKOTA" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -1858,8 +1852,8 @@ If state_list = "NORTH DAKOTA" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -1867,8 +1861,8 @@ If state_list = "NORTH DAKOTA" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -1877,23 +1871,23 @@ If state_list = "NORTH DAKOTA" then
 		claims_addr = ""
 		claims_email = ""
 		claims_info = ""
-		
+
 		client_services = ""
-					
-					
+
+
 'OKLAHOMA'
-If state_list = "OKLAHOMA" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "OKLAHOMA" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = ""
 		general_phone = "405-521-3444 or 1-866-411-1877"
 		general_fax = "405-521-4158"
 		general_addr = ""
 		general_email = "SNAP@okdhs.org"
-		general_info = "" 
-		
+		general_info = ""
+
 		web_addr = "www.okdhs.org"
-	
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -1901,8 +1895,8 @@ If state_list = "OKLAHOMA" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -1910,8 +1904,8 @@ If state_list = "OKLAHOMA" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -1919,8 +1913,8 @@ If state_list = "OKLAHOMA" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = "eligibility@OKHCA.org"
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -1929,12 +1923,12 @@ If state_list = "OKLAHOMA" then
 		claims_addr = ""
 		claims_email = ""
 		claims_info = ""
-		
+
 		client_services = ""
-	
+
 'OHIO'
-If state_list = "OHIO" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "OHIO" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = ""
 		general_phone = "614-466-4815 option 2, 1"
@@ -1946,10 +1940,10 @@ If state_list = "OHIO" then
 		general_info = "Our Staff cannot provide benefit information. Because	Ohio is a state supervised, county administered state, any
 						eligibility information must be provided by the county	agency. Please FAX request w/clients name, SSN,
 						DOB, & the County they lived in Ohio on your Agency letterhead. To receive direct contact information for each
-						county agency, see attached." 
-			
+						county agency, see attached."
+
 		web_addr = "www.jfs.ohio.gov/"
-		
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -1957,8 +1951,8 @@ If state_list = "OHIO" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -1966,8 +1960,8 @@ If state_list = "OHIO" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -1975,8 +1969,8 @@ If state_list = "OHIO" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -1985,14 +1979,14 @@ If state_list = "OHIO" then
 		claims_addr = ""
 		claims_email = ""
 		claims_info = ""
-		
+
 		client_services = ""
-		
-		
-		
+
+
+
 'OREGON'
-If state_list = "OREGON" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "OREGON" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = ""
 		general_phone = "503-945-5600"
@@ -2002,10 +1996,10 @@ If state_list = "OREGON" then
 						Salem, OR 97301-1066"
 		general_email = ""
 		general_info = "TO VERIFY RECEIPT OF SNAP, MEDICAL, AND/OR TANF BENEFITS:
-						FAX request w/client's name, SSN & DOB on your Agency's Letterhead" 
-		
+						FAX request w/client's name, SSN & DOB on your Agency's Letterhead"
+
 		web_addr = "http://www.oregon.gov/DHS/assistance/index.shtml"
-	
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -2013,8 +2007,8 @@ If state_list = "OREGON" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -2022,8 +2016,8 @@ If state_list = "OREGON" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -2031,8 +2025,8 @@ If state_list = "OREGON" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -2041,12 +2035,12 @@ If state_list = "OREGON" then
 		claims_addr = ""
 		claims_email = ""
 		claims_info = ""
-		
+
 		client_services = ""
-	
+
 'PENNSYLVANIA'
-If state_list = "PENNSYLVANIA" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "PENNSYLVANIA" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = ""
 		general_phone = "717-787-3119"
@@ -2056,10 +2050,10 @@ If state_list = "PENNSYLVANIA" then
 						P.O. Box 2675 Harrisburg, PA 17105-2675"
 		general_email = "ra-dpwoimnet@pa.gov"
 		general_info = "Name of the household members who are applying for benefits, Each members date of birth and last 4 of their social
-						security number, The client’s new address. Allow 3 to 5 business days for a response." 
-															
+						security number, The client’s new address. Allow 3 to 5 business days for a response."
+
 		web_addr = "www.DHS.state.pa.us"
-														
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -2067,8 +2061,8 @@ If state_list = "PENNSYLVANIA" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -2076,8 +2070,8 @@ If state_list = "PENNSYLVANIA" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -2085,8 +2079,8 @@ If state_list = "PENNSYLVANIA" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -2095,12 +2089,12 @@ If state_list = "PENNSYLVANIA" then
 		claims_addr = ""
 		claims_email = ""
 		claims_info = ""
-		
+
 		client_services = ""
-																											
+
 'RHODE ISLAND'
-If state_list = "RHODE ISLAND" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "RHODE ISLAND" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = ""
 		general_phone = ""
@@ -2108,10 +2102,10 @@ If state_list = "RHODE ISLAND" then
 		general_addr = "Rhode Island Department of Human Services
 						57 Howard Ave  Louis Pastore Building, Cranston, RI 02920"
 		general_email = ""
-		general_info = "" 
-													
+		general_info = ""
+
 		web_addr = "http://www.dhs.ri.gov/"
-														
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -2119,8 +2113,8 @@ If state_list = "RHODE ISLAND" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -2128,8 +2122,8 @@ If state_list = "RHODE ISLAND" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -2137,8 +2131,8 @@ If state_list = "RHODE ISLAND" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -2147,12 +2141,12 @@ If state_list = "RHODE ISLAND" then
 		claims_addr = ""
 		claims_email = ""
 		claims_info = ""
-		
+
 		client_services = ""
-														
+
 'SOUTH CAROLINA'
-If state_list = "SOUTH CAROLINA" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "SOUTH CAROLINA" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = "Email"
 		general_phone = ""
@@ -2162,10 +2156,10 @@ If state_list = "SOUTH CAROLINA" then
 						P.O. Box 1520 Columbia, SC 29202-1520"
 		general_email = "ClientServices@dss.sc.gov"
 		general_info = "Subject line should read: ‘Out of State Inquiry from ‘name of state’. We will be unable to process your request without the
-						following information:Individual’s name, SS#, DOB and current address" 
-														
+						following information:Individual’s name, SS#, DOB and current address"
+
 		web_addr = ""
-														
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -2173,8 +2167,8 @@ If state_list = "SOUTH CAROLINA" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -2182,8 +2176,8 @@ If state_list = "SOUTH CAROLINA" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -2191,8 +2185,8 @@ If state_list = "SOUTH CAROLINA" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = "Mrs. Angela Clark"
 		claims_pref_contact = ""
@@ -2201,12 +2195,12 @@ If state_list = "SOUTH CAROLINA" then
 		claims_addr = ""
 		claims_email = "angela.clark@dss.sc.gov."
 		claims_info = ""
-		
+
 		client_services = ""
-														
+
 'SOUTH DAKOTA'
-If state_list = "SOUTH DAKOTA" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "SOUTH DAKOTA" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = ""
 		general_phone = "877-999-5612 or 605-773-4678 "
@@ -2214,10 +2208,10 @@ If state_list = "SOUTH DAKOTA" then
 		general_addr = "Department of Social Services
 						700 Governors Drive	Pierre, South Dakota 57501-2291"
 		general_email = "SNAP@state.sd.us"
-		general_info = "" 
-		
+		general_info = ""
+
 	 	web_addr = "http://dss.sd.gov/economicassistance/snap/"
-	
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -2225,8 +2219,8 @@ If state_list = "SOUTH DAKOTA" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -2234,8 +2228,8 @@ If state_list = "SOUTH DAKOTA" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -2243,8 +2237,8 @@ If state_list = "SOUTH DAKOTA" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -2253,12 +2247,12 @@ If state_list = "SOUTH DAKOTA" then
 		claims_addr = ""
 		claims_email = ""
 		claims_info = ""
-		
+
 		client_services = ""
-														
+
 'TENNESSEE'
-If state_list = "TENNESSEE" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "TENNESSEE" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = "Fax"
 		general_phone = ""
@@ -2267,8 +2261,8 @@ If state_list = "TENNESSEE" then
 		general_email = ""
 		general_info = "Your Name, Agency Name and Address, phone number and fax number. Names of household members applying for benefits in
 						your State. Complete Social Security Numbers. A Current Address so that closure notices can be sent to
-						the client" 
-		
+						the client"
+
 		  web_addr = "www.tn.gov/humanservices"
 				SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
@@ -2279,8 +2273,8 @@ If state_list = "TENNESSEE" then
 					Department of Human Services Citizen Plaza Bldg, 8th Floor
 					400 Deaderick Street Nashville, TN 37243-7200"
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -2288,8 +2282,8 @@ If state_list = "TENNESSEE" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -2297,8 +2291,8 @@ If state_list = "TENNESSEE" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -2307,22 +2301,22 @@ If state_list = "TENNESSEE" then
 		claims_addr = ""
 		claims_email = ""
 		claims_info = ""
-		
+
 		client_services = ""
-																
+
 'TEXAS'
-If state_list = "TEXAS" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "TEXAS" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = ""
 		general_phone = "877-541-7905"
 		general_fax = "877-447-2839"
 		general_addr = ""
 		general_email = ""
-		general_info = "" 
-		
+		general_info = ""
+
 	    web_addr = "YourTexasBenefits.com"
-	
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -2330,8 +2324,8 @@ If state_list = "TEXAS" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -2339,8 +2333,8 @@ If state_list = "TEXAS" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -2348,8 +2342,8 @@ If state_list = "TEXAS" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -2358,12 +2352,12 @@ If state_list = "TEXAS" then
 		claims_addr = ""
 		claims_email = ""
 		claims_info = ""
-		
+
 		client_services = ""
-														
+
 'UTAH'
-If state_list = "UTAH" then 
-		general_header = "Out of State inquiries:" 
+If state_list = "UTAH" then
+		general_header = "Out of State inquiries:"
 		general_person = ""
 		general_pref_contact = ""
 		general_phone = "866-435-7414 Option 5"
@@ -2372,10 +2366,10 @@ If state_list = "UTAH" then
 						Eligibility Services Division
 						P.O. Box 143245 Salt Lake City, UT 84114-3245"
 		general_email = ""
-		general_info = "" 
-			
+		general_info = ""
+
 		web_addr = "www.jobs.utah.gov"
-		
+
 		SNAP_header = "SNAP Participation:"
 		SNAP_person = ""
 		SNAP_pref_contact = ""
@@ -2383,8 +2377,8 @@ If state_list = "UTAH" then
 		SNAP_fax = ""
 		SNAP_addr = ""
 		SNAP_email = ""
-		SNAP_info = "" 
-		
+		SNAP_info = ""
+
 		CASH_header = "TANF Participation:"
 		CASH_person = ""
 		CASH_pref_contact = ""
@@ -2392,8 +2386,8 @@ If state_list = "UTAH" then
 		CASH_fax = ""
 		CASH_addr = ""
 		CASH_email = ""
-		CASH_info = "" 
-		
+		CASH_info = ""
+
 		HC_header = "Medical Assistance Participation:"
 		HC_person = ""
 		HC_pref_contact = ""
@@ -2401,8 +2395,8 @@ If state_list = "UTAH" then
 		HC_fax = ""
 		HC_addr = ""
 		HC_email = ""
-		HC_info = "" 
-		
+		HC_info = ""
+
 		claims_header = ""
 		claims_person = ""
 		claims_pref_contact = ""
@@ -2411,12 +2405,12 @@ If state_list = "UTAH" then
 		claims_addr = ""
 		claims_email = ""
 		claims_info = ""
-		
+
 		client_services = ""
-		
+
 'VERMONT'
-If state_list = "VERMONT" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "VERMONT" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = "Phone"
 	general_phone = "800- 479-6151 or 802-828-6896"
@@ -2424,10 +2418,10 @@ If state_list = "VERMONT" then
 	general_addr = "Call Center Economic Services Benefits Service Center
 					103 South Main St Waterbury, VT 05671-1201"
 	general_email = ""
-	general_info = "" 
-		
+	general_info = ""
+
 	web_addr = " www.mybenefits.vt.gov " (this site can be used, but not preferred).
-		
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = ""
@@ -2435,8 +2429,8 @@ If state_list = "VERMONT" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -2444,8 +2438,8 @@ If state_list = "VERMONT" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -2453,8 +2447,8 @@ If state_list = "VERMONT" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -2463,12 +2457,12 @@ If state_list = "VERMONT" then
 	claims_addr = ""
 	claims_email = ""
 	claims_info = ""
-	
+
 	client_services = ""
-	
+
 'VIRGINIA'
-If state_list = "VIRGINIA" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "VIRGINIA" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = ""
 	general_phone = ""
@@ -2477,10 +2471,10 @@ If state_list = "VIRGINIA" then
 					801 East Main Street Richmond, VA 23219-2901"
 	general_email = "vaoutofstateverifications@dss.virginia.gov"
 	general_info = "Include the following:	Client’s name, DOB, SSN (if last four only, you must provide entire DOB), and current address
-					All household members who are applying for assistance in your state" 
-			
+					All household members who are applying for assistance in your state"
+
 	 web_addr = "http://www.dss.virginia.gov/benefit/foodstamp.cgi"
-		
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = ""
@@ -2488,8 +2482,8 @@ If state_list = "VIRGINIA" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-			
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -2497,8 +2491,8 @@ If state_list = "VIRGINIA" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-			
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -2506,8 +2500,8 @@ If state_list = "VIRGINIA" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -2516,12 +2510,12 @@ If state_list = "VIRGINIA" then
 	claims_addr = ""
 	claims_email = ""
 	claims_info = ""
-	
+
 	client_services = ""
 
 'VIRGIN ISLANDS'
-If state_list = "VIRGIN ISLANDS" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "VIRGIN ISLANDS" then
+	general_header = "Out of State inquiries:"
 	general_person = "Emmanueline Archer"
 	general_pref_contact = ""
 	general_phone = "340-774-0930 ext. 4309"
@@ -2529,8 +2523,8 @@ If state_list = "VIRGIN ISLANDS" then
 	general_addr = "Department of Human Services Division of Family Assistance
 					1303 Hospital Ground, STE 1 St. Thomas, VI 00801-6722"
 	general_email = "emmanueline.archer@dhs.vi.gov"
-	general_info = "" 
-	
+	general_info = ""
+
 	web_addr = ""
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
@@ -2539,8 +2533,8 @@ If state_list = "VIRGIN ISLANDS" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -2548,8 +2542,8 @@ If state_list = "VIRGIN ISLANDS" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -2557,8 +2551,8 @@ If state_list = "VIRGIN ISLANDS" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -2567,12 +2561,12 @@ If state_list = "VIRGIN ISLANDS" then
 	claims_addr = ""
 	claims_email = ""
 	claims_info = ""
-	
+
 	client_services = ""
-		
+
 'WASHINGTON'
-If state_list = "WASHINGTON" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "WASHINGTON" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = "Fax"
 	general_phone = "855-927-2747"
@@ -2584,10 +2578,10 @@ If state_list = "WASHINGTON" then
 	general_info = "Please provide the following information:
 					Name of the worker requesting the information Direct contact information for the worker requesting
 					information	Name, SSN, DOB of all household members who applied in your state
-					Current mailing address for the client(s) Date/programs applied for in the other state" 
-			
+					Current mailing address for the client(s) Date/programs applied for in the other state"
+
 	web_addr = ""
-		
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = ""
@@ -2595,8 +2589,8 @@ If state_list = "WASHINGTON" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -2604,8 +2598,8 @@ If state_list = "WASHINGTON" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -2613,8 +2607,8 @@ If state_list = "WASHINGTON" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -2623,12 +2617,12 @@ If state_list = "WASHINGTON" then
 	claims_addr = ""
 	claims_email = ""
 	claims_info = ""
-	
+
 	client_services = ""
-		
+
 'WEST VIRGINA'
-If state_list = "WEST VIRGINA" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "WEST VIRGINA" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = ""
 	general_phone = "304-356-4619 (Request to speak to the Worker of the Day)"
@@ -2637,8 +2631,8 @@ If state_list = "WEST VIRGINA" then
 					Division of Family Assistance
 					350 Capitol St., Room B-18	Charleston, WV 25301-3705"
 	general_email = "DHHRbcfbenefitver@wv.gov"
-	general_info = "" 
-	
+	general_info = ""
+
 	web_addr = "www.dhhr.wv.gov"
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
@@ -2647,8 +2641,8 @@ If state_list = "WEST VIRGINA" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -2656,8 +2650,8 @@ If state_list = "WEST VIRGINA" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -2665,8 +2659,8 @@ If state_list = "WEST VIRGINA" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -2675,12 +2669,12 @@ If state_list = "WEST VIRGINA" then
 	claims_addr = ""
 	claims_email = ""
 	claims_info = ""
-	
+
 	client_services = ""
-		
+
 'WISCONSIN'
-If state_list = "" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = ""
 	general_phone = "608-261-6378--Option 3"
@@ -2688,10 +2682,10 @@ If state_list = "" then
 	general_addr = "SNAP and HealthCare (MA): WI Department of Health & Family Services
 						1 W Wilson St, Madison, WI 53703"
 	general_email = "DHSCARESCallCenter@wisconsin.gov"
-	general_info = "" 
-	
+	general_info = ""
+
 	web_addr = "http://dhs.wisconsin.gov/"
-	
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = ""
@@ -2699,8 +2693,8 @@ If state_list = "" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -2708,8 +2702,8 @@ If state_list = "" then
 	CASH_fax = "608-327-6125"
 	CASH_addr = ""
 	CASH_email = "DCFW2TANFVerify@wisconsin.gov."
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -2717,8 +2711,8 @@ If state_list = "" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -2727,12 +2721,12 @@ If state_list = "" then
 	claims_addr = ""
 	claims_email = "dcfoig@wisconsin.gov"
 	claims_info = ""
-	
+
 	client_services = "1-800-362-3002 or go to dhs.wi.gov/em/customerhelp."
 
 'WYOMING'
-If state_list = "WYOMING" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "WYOMING" then
+	general_header = "Out of State inquiries:"
 	general_person = "Annette Jones, Administrative Specialist"
 	general_pref_contact = ""
 	general_phone = "307-777-5846"
@@ -2740,10 +2734,10 @@ If state_list = "WYOMING" then
 	general_addr = "Department of Family Services
 					2300 Capitol Ave., Hathaway Bldg, Third Fl.	Cheyenne, WY 82002-0490"
 	general_email = "annette.jones@wyo.gov"
-	general_info = "" 
-	
+	general_info = ""
+
 	web_addr = "http://dfsweb.state.wy.us/foodstampinfo.html"
-	
+
 	SNAP_header = "SNAP Participation:"
 	SNAP_person = ""
 	SNAP_pref_contact = ""
@@ -2751,8 +2745,8 @@ If state_list = "WYOMING" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -2760,8 +2754,8 @@ If state_list = "WYOMING" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -2769,8 +2763,8 @@ If state_list = "WYOMING" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = "wesapplications@wyo.gov"
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -2779,22 +2773,22 @@ If state_list = "WYOMING" then
 	claims_addr = ""
 	claims_email = ""
 	claims_info = ""
-	
+
 	client_services = ""
 
-End if 
+End if
 
  'template'
-If state_list = "" then 
-	general_header = "Out of State inquiries:" 
+If state_list = "" then
+	general_header = "Out of State inquiries:"
 	general_person = ""
 	general_pref_contact = ""
 	general_phone = ""
 	general_fax = ""
 	general_addr = ""
 	general_email = ""
-	general_info = "" 
-	
+	general_info = ""
+
         web_addr = ""
 
 	SNAP_header = "SNAP Participation:"
@@ -2804,8 +2798,8 @@ If state_list = "" then
 	SNAP_fax = ""
 	SNAP_addr = ""
 	SNAP_email = ""
-	SNAP_info = "" 
-	
+	SNAP_info = ""
+
 	CASH_header = "TANF Participation:"
 	CASH_person = ""
 	CASH_pref_contact = ""
@@ -2813,8 +2807,8 @@ If state_list = "" then
 	CASH_fax = ""
 	CASH_addr = ""
 	CASH_email = ""
-	CASH_info = "" 
-	
+	CASH_info = ""
+
 	HC_header = "Medical Assistance Participation:"
 	HC_person = ""
 	HC_pref_contact = ""
@@ -2822,8 +2816,8 @@ If state_list = "" then
 	HC_fax = ""
 	HC_addr = ""
 	HC_email = ""
-	HC_info = "" 
-	
+	HC_info = ""
+
 	claims_header = ""
 	claims_person = ""
 	claims_pref_contact = ""
@@ -2831,11 +2825,4 @@ If state_list = "" then
 	claims_fax = ""
 	claims_addr = ""
 	claims_email = ""
-	claims_info = "" 
-
-
-
-
-
-
-
+	claims_info = ""
