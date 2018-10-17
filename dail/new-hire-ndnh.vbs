@@ -46,6 +46,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/17/2018", "Updated the dialog box, no change to functionality.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("06/20/2018", "Updated date handling for hired date and navigation to the DAIL/WRIT.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("06/19/2018", "Corrected for handling on duplicate jobs and updated dialog box.", "MiKayla Handley, Hennepin County")
 call changelog_update("01/05/2018", "Updated coordinates in STAT/JOBS for income type and verification codes.", "Ilse Ferris, Hennepin County")
@@ -102,33 +103,31 @@ Do
 LOOP UNTIL err_msg = ""
 CALL INFC_password_check(False)
     'This is a dialog asking if the job is known to the agency.
-BeginDialog new_HIRE_dialog, 0, 0, 231, 220, "NEW HIRE"
-  CheckBox 5, 30, 100, 10, "Job is known to the agency.", job_known_checkbox
-  CheckBox 5, 65, 190, 10, "Check to have the script make a new JOBS panel.", create_JOBS_checkbox
-  CheckBox 15, 90, 105, 10, "Sent a status update to CCA.", CCA_checkbox
-  CheckBox 15, 100, 100, 10, "Sent a status update to ES. ", ES_checkbox
-  CheckBox 15, 110, 110, 10, "Sent request for CEI/OHI docs.", CEI_checkbox
-  CheckBox 15, 120, 145, 10, "Sent request for verifications out of ECF.", verif_checkbox
-  CheckBox 15, 130, 180, 10, "Sent a Work Number request and submitted to ECF.", work_number_checkbox
-  CheckBox 15, 140, 205, 10, "Check to set a TIKL to check for returned proofs in 10 days.", TIKL_checkbox
-  EditBox 80, 10, 25, 15, HH_memb
-  EditBox 110, 45, 115, 15, employer
-  EditBox 50, 160, 175, 15, other_notes
-  EditBox 70, 180, 155, 15, worker_signature
+BeginDialog new_HIRE_dialog, 0, 0, 281, 205, "New HIRE dialog"
+  EditBox 65, 5, 20, 15, HH_memb
+  EditBox 65, 25, 95, 15, employer
+  CheckBox 15, 45, 190, 10, "Check here to have the script create a new JOBS panel.", create_JOBS_checkbox
+  CheckBox 15, 70, 195, 10, "Sent a request for verifications out of ECF.", TIKL_checkbox
+  CheckBox 15, 85, 190, 10, "Sent a Work Number request and submitted to ECF. ", work_number_checkbox
+  CheckBox 15, 100, 100, 10, "Requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
+  CheckBox 15, 115, 105, 10, "Sent a status update to CCA.", CCA_checkbox
+  CheckBox 15, 130, 100, 10, "Sent a status update to ES. ", ES_checkbox
+  CheckBox 15, 150, 160, 10, "Job is known to the agency (exit the script).", job_known_checkbox
+  EditBox 65, 165, 210, 15, other_notes
+  EditBox 65, 185, 110, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 120, 200, 50, 15
-    CancelButton 175, 200, 50, 15
-  GroupBox 110, 5, 115, 35, "STAT-based navigation"
-  ButtonGroup ButtonPressed
-    PushButton 115, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 170, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 115, 25, 45, 10, "next panel", next_panel_button
-    PushButton 170, 25, 45, 10, "next memb", next_memb_button
-  Text 5, 15, 70, 10, "HH member number:"
-  Text 25, 50, 85, 10, "Job on DAIL is listed as:"
-  GroupBox 5, 80, 220, 75, "Verifications"
-  Text 5, 165, 40, 10, "Other notes:"
-  Text 5, 185, 60, 10, "Worker signature:"
+    OkButton 190, 185, 40, 15
+    CancelButton 235, 185, 40, 15
+    PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
+    PushButton 175, 25, 45, 10, "next panel", next_panel_button
+    PushButton 225, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 225, 25, 45, 10, "next memb", next_memb_button
+  Text 5, 190, 60, 10, "Worker signature:"
+  GroupBox 170, 5, 105, 35, "STAT-based navigation"
+  Text 5, 30, 50, 10, "New HIRE Info:"
+  Text 20, 170, 40, 10, "Other notes:"
+  Text 5, 10, 60, 10, "Member Number:"
+  GroupBox 5, 60, 270, 85, "Verification or updates"
 EndDialog
 
 'The script needs to determine what the day is in a MAXIS friendly format. The following does that.
@@ -222,11 +221,11 @@ HH_memb_row = 5
 'Show dialog
 Do
 	Do
-	Dialog new_HIRE_dialog
-	cancel_confirmation
-	MAXIS_dialog_navigation
+		Dialog new_HIRE_dialog
+		cancel_confirmation
+		MAXIS_dialog_navigation
 	LOOP UNTIL ButtonPressed = -1
-call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 'Checking to see if 5 jobs already exist. If so worker will need to manually delete one first.
 EMReadScreen jobs_total_panel_count, 1, 2, 78
@@ -246,36 +245,36 @@ If create_JOBS_checkbox = checked then
 	EMWriteScreen day_hired, 9, 38			'Adds day hired
 	EMWriteScreen year_hired, 9, 41			'Adds year hired
 	EMWriteScreen MAXIS_footer_month, 12, 54		'Puts footer month in as the month on prospective side of panel
-  IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date.
-  	EMWriteScreen day_hired, 12, 57			'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
-  ELSE
-  	EMWriteScreen current_day, 12, 57		'Puts today in as the day on prospective side, because that's the day we edited the panel
-  END IF
-  EMWriteScreen MAXIS_footer_year, 12, 60		'Puts footer year in on prospective side
-  EMWriteScreen "0", 12, 67				'Puts $0 in as the received income amt
-  EMWriteScreen "0", 18, 72				'Puts 0 hours in as the worked hours
-  If FS_case = True then 					'If case is SNAP, it creates a PIC
-  	EMWriteScreen "x", 19, 38
-  	transmit
   	IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date.
-  		EMWriteScreen month_hired, 5, 34
-  		EMWriteScreen day_hired, 5, 37
-  		EMWriteScreen year_hired, 5, 40
+  		EMWriteScreen day_hired, 12, 57			'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
   	ELSE
+  		EMWriteScreen current_day, 12, 57		'Puts today in as the day on prospective side, because that's the day we edited the panel
+  	END IF
+  	EMWriteScreen MAXIS_footer_year, 12, 60		'Puts footer year in on prospective side
+  	EMWriteScreen "0", 12, 67				'Puts $0 in as the received income amt
+  	EMWriteScreen "0", 18, 72				'Puts 0 hours in as the worked hours
+  	If FS_case = True then 					'If case is SNAP, it creates a PIC
+  		EMWriteScreen "x", 19, 38
+  		transmit
+  		IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date.
+  			EMWriteScreen month_hired, 5, 34
+  			EMWriteScreen day_hired, 5, 37
+  			EMWriteScreen year_hired, 5, 40
+  		ELSE
   		EMWriteScreen current_month, 5, 34
     	EMWriteScreen current_day, 5, 37
     	EMWriteScreen current_year, 5, 40
-  	END IF
-  	EMWriteScreen "1", 5, 64
-  	EMWriteScreen "0", 8, 64
-  	EMWriteScreen "0", 9, 66
-  	transmit
-  	transmit
-  	transmit
-  END IF
-  transmit						'Transmits to submit the panel
-  EMReadScreen expired_check, 6, 24, 17 'Checks to see if the jobs panel will carry over by looking for the "This information will expire" at the bottom of the page
-  If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
+  		END IF
+  		EMWriteScreen "1", 5, 64
+  		EMWriteScreen "0", 8, 64
+  		EMWriteScreen "0", 9, 66
+  		transmit
+  		transmit
+  		transmit
+	END IF
+	transmit						'Transmits to submit the panel
+  	EMReadScreen expired_check, 6, 24, 17 'Checks to see if the jobs panel will carry over by looking for the "This information will expire" at the bottom of the page
+  	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
 END IF
   '-----------------------------------------------------------------------------------------CASENOTE
   start_a_blank_CASE_NOTE
@@ -287,13 +286,12 @@ END IF
   CALL write_variable_in_case_note(new_hire_third_line)
   CALL write_variable_in_case_note(new_hire_fourth_line)
   CALL write_variable_in_case_note("---")
-  IF verif_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent employment verification and DHS-2919B (Verif Request Form B) from ECF.")
+  IF TIKL_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent employment verification and DHS-2919B (Verif Request Form B) from ECF & TIKLed for 10-day return. ")
   IF create_JOBS_checkbox = checked THEN CALL write_variable_in_case_note("* STAT/JOBS updated with new hire information from DAIL.")
   IF CCA_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to CCA.")
   IF ES_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to ES.")
   IF work_number_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent request for Work Number after confirming client authorization.")
   IF CEI_checkbox = checked THEN CALL write_variable_in_case_note("* Requested CEI/OHI docs.")
-  IF TIKL_checkbox = checked THEN CALL write_variable_in_case_note("* TIKLed for 10-day return. ")
   CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
   CALL write_variable_in_case_note("---")
   CALL write_variable_in_case_note(worker_signature)
