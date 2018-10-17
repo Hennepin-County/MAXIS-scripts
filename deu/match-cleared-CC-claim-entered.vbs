@@ -110,17 +110,17 @@ CALL MAXIS_case_number_finder (MAXIS_case_number)
 MEMB_number = "01"
 
 IF dail_check = "DAIL" THEN
-        EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
-        'msgbox IEVS_type
+    EMSendKey "t"
+    Transmit
+    EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
+    'msgbox IEVS_type
     IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" THEN
-	        match_found = TRUE
- 	    ELSE
-    	script_end_procedure("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
-	    END IF
+	    match_found = TRUE
+ 	ELSE
+        script_end_procedure("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
+	END IF
 	IF match_found = TRUE THEN
-	    EMSendKey "t"
 	    Call check_for_MAXIS(FALSE)
-
 	    EMReadScreen MAXIS_case_number, 8, 5, 73
 	    MAXIS_case_number= TRIM(MAXIS_case_number)
 	    '----------------------------------------------------------------------------------------------------IEVP
