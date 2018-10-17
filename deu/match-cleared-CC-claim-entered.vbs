@@ -105,11 +105,11 @@ current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
 
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-EMReadscreen dail_check, 4, 2, 48
+EMReadscreen dail_check, 4, 4, 14 'changed from DAIL to view to ensure we are in DAIL/DAIL'
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 MEMB_number = "01"
 
-IF dail_check = "DAIL" THEN
+IF dail_check = "View" THEN
         EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
         'msgbox IEVS_type
     IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" THEN
@@ -130,8 +130,8 @@ IF dail_check = "DAIL" THEN
 	    EMReadScreen err_msg, 7, 24, 2
 	    IF err_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
 	END IF
-ELSEIF dail_check <> "DAIL" THEN
-	
+ELSEIF dail_check <> "View" THEN
+
 	BeginDialog ase_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
 	  EditBox 60, 5, 65, 15, MAXIS_case_number
 	  EditBox 60, 25, 30, 15, MEMB_number

@@ -111,11 +111,11 @@ current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
 
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-EMReadscreen dail_check, 4, 2, 48
+EMReadscreen dail_check, 4, 4, 14 'changed from DAIL to view to ensure we are in DAIL/DAIL'
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 MEMB_number = "01"
 
-IF dail_check = "DAIL" THEN
+IF dail_check = "View" THEN
     EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
     'msgbox IEVS_type
     IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" THEN
@@ -136,7 +136,7 @@ IF dail_check = "DAIL" THEN
 	    EMReadScreen err_msg, 7, 24, 2
 	    IF err_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
 	END IF
-ELSEIF dail_check <> "DAIL" THEN
+ELSEIF dail_check <> "View" THEN
 
 	BeginDialog ase_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
       EditBox 60, 5, 65, 15, MAXIS_case_number
@@ -525,7 +525,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "* Enter a valid numeric resolved time, ie 005."
 		IF resolve_time = "" THEN err_msg = err_msg & vbNewLine & "Please complete resolve time."
 		If other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other verification was used to clear the match."
-		IF resolution_status <> "BE - Child" or "BE - No Change" or "BN - Already known, No Savings" THEN
+		IF resolution_status <> "BE - Child" or resolution_status <> "BE - No Change" or resolution_status <> "BN - Already known, No Savings" THEN
 			IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the client respond to Difference Notice?"
 		END IF
 		IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
