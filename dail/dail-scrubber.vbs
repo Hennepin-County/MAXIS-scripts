@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/18/2018", "Updated to support updated ABAWD message 'SNAP ABAWD ELIGIBILITY HAS EXPIR'.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -172,7 +173,7 @@ IF TYMA_check = "~*~3RD QUARTERLY REPORT" THEN call run_from_GitHub(script_repos
 
 'FS Eligibility Ending for ABAWD
 EMReadScreen ABAWD_elig_end, 32, 6, 20
-IF ABAWD_elig_end = "FS ABAWD ELIGIBILITY HAS EXPIRED" THEN CALL run_from_GitHub(script_repository & "dail/abawd-fset-exemption-check.vbs")
+IF ABAWD_elig_end = "FS ABAWD ELIGIBILITY HAS EXPIRED" or ABAWD_elig_end = "SNAP ABAWD ELIGIBILITY HAS EXPIR" THEN CALL run_from_GitHub(script_repository & "dail/abawd-fset-exemption-check.vbs")
 
 'WAGE MATCH Scrubber
 EMReadScreen wage_match, 4, 6, 6
