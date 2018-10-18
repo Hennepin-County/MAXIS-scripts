@@ -27,7 +27,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -61,21 +61,21 @@ EndDialog
 'CONNECTS TO DEFAULT SCREEN
 EMConnect ""
 
-'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
-EMReadscreen dail_check, 4, 2, 48
-If dail_check <> "DAIL" then script_end_procedure("You are not in your dail. This script will stop.")
-
-'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
-EMSendKey "t"
-transmit
-
-'The following reads the message in full for the end part (which tells the worker which message was selected)
-EMReadScreen full_message, 58, 6, 20
-
-'FS Eligibility Ending for ABAWD
-EMReadScreen Paperless_tikl_check, 49, 6, 20
-IF Paperless_tikl_check <> "%^% SENT THROUGH BACKGROUND USING BULK SCRIPT %^%" THEN script_end_procedure("This is not the correct kind of DAIL for this script. Run the main DAIL Scrubber for the full supported scripts.")
-
+''CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
+'EMReadscreen dail_check, 4, 2, 48
+'If dail_check <> "DAIL" then script_end_procedure("You are not in your dail. This script will stop.")
+'
+''TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
+'EMSendKey "t"
+'transmit
+'
+''The following reads the message in full for the end part (which tells the worker which message was selected)
+'EMReadScreen full_message, 58, 6, 20
+'
+''FS Eligibility Ending for ABAWD
+'EMReadScreen Paperless_tikl_check, 49, 6, 20
+'IF Paperless_tikl_check <> "%^% SENT THROUGH BACKGROUND USING BULK SCRIPT %^%" THEN script_end_procedure("This is not the correct kind of DAIL for this script. Run the main DAIL Scrubber for the full supported scripts.")
+'
 '=========================================================================================
 'Everything above this line is a part of the DAIL Scrubber Script if this becomes state supported. Just change the last line to the correct call from github
 
@@ -86,10 +86,6 @@ approval_year = DatePart("yyyy", next_month)
 
 approval_month = right("00" & approval_month, 2)
 approval_year = right(approval_year, 2)
-
-'Processing the DAIL - this would remain as the individual script called from the Scrubber if state supported
-EMReadScreen MAXIS_case_number, 8, 5, 73        'Reads the case number from DAIL
-MAXIS_case_number = trim(MAXIS_case_number)
 
 EMWriteScreen "E", 6, 3                         'Navigates to ELIG/HC - maintaining tie to the DAIL for ease of processin
 transmit

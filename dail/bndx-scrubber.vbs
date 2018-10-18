@@ -46,7 +46,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -82,7 +82,6 @@ EndDialog
 
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
 '------------------As such, it does NOT include protections to be ran independently.
-
 EMConnect ""
 
 EMReadScreen on_dail, 4, 2, 48
@@ -102,17 +101,6 @@ EMReadScreen cl_ssn, 9, read_row, 20
 	ssn_end = right(cl_ssn, 4)
 	use_ssn = ssn_first & ssn_mid & ssn_end
 search_row = read_row
-
-'========== Collects the case number ==========
-DO
-	EMReadScreen look_for_case_number, 18, search_row, 63
-	IF left(look_for_case_number, 10) = "CASE NBR: " THEN
-		maxis_case_number = right(look_for_case_number, 8)
-		maxis_case_number = replace(maxis_case_number, " ", "")
-	ELSE
-		search_row = search_row - 1
-	END IF
-LOOP UNTIL left(look_for_case_number, 10) = "CASE NBR: "
 
 EMWriteScreen "I", read_row, 3
 transmit
@@ -150,14 +138,12 @@ EMReadScreen bndx_claim_three_number, 13, 5, 64
 bndx_claim_three_number = replace(bndx_claim_three_number, " ", "")
 EMReadScreen bndx_claim_three_amt, 8, 7, 64
 bndx_claim_three_amt = replace(bndx_claim_three_amt, " ", "")
-	IF bndx_claim_three_amt <> "" THEN
-'		ReDim bndx_array(2, 5)
-		num_of_rsdi = 2
-		bndx_array(2, 0) = bndx_claim_three_number
-		bndx_array(2, 1) = bndx_claim_three_amt
-	END IF
-
-
+IF bndx_claim_three_amt <> "" THEN
+'	ReDim bndx_array(2, 5)
+	num_of_rsdi = 2
+	bndx_array(2, 0) = bndx_claim_three_number
+	bndx_array(2, 1) = bndx_claim_three_amt
+END IF
 
 '========== Goes back to STAT/PROG to determine which programs are active. ==========
 back_to_SELF
