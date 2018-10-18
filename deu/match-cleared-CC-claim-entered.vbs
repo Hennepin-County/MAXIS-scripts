@@ -108,7 +108,7 @@ EMConnect ""
 EMReadscreen dail_check, 4, 4, 14 'changed from DAIL to view to ensure we are in DAIL/DAIL'
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 MEMB_number = "01"
-BeginDialog ase_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
+BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
   EditBox 60, 5, 65, 15, MAXIS_case_number
   EditBox 60, 25, 30, 15, MEMB_number
   ButtonGroup ButtonPressed
