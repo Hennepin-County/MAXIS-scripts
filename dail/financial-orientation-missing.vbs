@@ -28,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -54,8 +54,6 @@ changelog_display
 '------------------As such, it does NOT include protections to be ran independently.
 
 EMConnect ""
-EMReadScreen MAXIS_case_number, 8, 5, 73		'Getting the case number from the DAIL
-MAXIS_case_number = trim(MAXIS_case_number)
 
 EMReadScreen name_for_dail, 57, 5, 5			'Reading the name of the client
 'This next block will determine the name of the client the message is for
