@@ -101,6 +101,7 @@ DO
 	'cleaned up
 	MAXIS_case_number 	= trim(MAXIS_case_number) 'remove extra spaces'
 	Client_SSN 			= trim(Client_SSN)
+	Client_SSN 			= replace(Client_SSN, "-", "")
 	Employer_name 	   	= trim(Employer_name)
 	Cleared_status 	  	= trim(Cleared_status)
 
@@ -116,6 +117,7 @@ DO
 		 If case_number <> MAXIS_case_number then
 			objExcel.cells(excel_row, 9).value = "A pending IEVS match could not be found on DAIL/DAIL."
 			match_found = False
+			case_note_actions = FALSE
 		End if
 	Else
 	    row = 6    'establishing 1st row to search
@@ -153,12 +155,12 @@ DO
 		    	End if
 		    End if
 		Loop until match_found = true
+		If match_found = False then
+			case_note_actions = False 'no case note'
+			objExcel.cells(excel_row, 9).value = "A IEVS match wasn't found on DAIL/DAIL or SSN did not match."
+		End if
 	End if
 
-	If match_found = False then
-		case_note_actions = False 'no case note'
-		objExcel.cells(excel_row, 9).value = "A IEVS match wasn't found on DAIL/DAIL or SSN did not match."
-	End if
 	'----------------------------------------------------------------------------------------------------IEVS
 	If match_found = True then
 	    'Navigating deeper into the match interface

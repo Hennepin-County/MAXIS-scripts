@@ -111,69 +111,37 @@ current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
 
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-EMReadscreen dail_check, 4, 2, 48
+EMReadscreen dail_check, 4, 4, 14 'changed from DAIL to view to ensure we are in DAIL/DAIL'
 CALL MAXIS_case_number_finder (MAXIS_case_number)
-MEMB_number = "01"
-
-IF dail_check = "DAIL" THEN
-    EMSendKey "t"
-    Transmit
-    EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
-    'msgbox IEVS_type
-    IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" THEN
-    	match_found = TRUE
-    ELSE
-    	script_end_procedure("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
-    END IF
-	IF match_found = TRUE THEN
-	    
-	    Call check_for_MAXIS(FALSE)
-
-	    EMReadScreen MAXIS_case_number, 8, 5, 73
-		MAXIS_case_number= TRIM(MAXIS_case_number)
-		 '----------------------------------------------------------------------------------------------------IEVP
-		'Navigating deeper into the match interface
-		CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
-		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
-	    EMReadScreen err_msg, 7, 24, 2
-	    IF err_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
-	END IF
-ELSEIF dail_check <> "DAIL" THEN
-
-	BeginDialog ase_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
-      EditBox 60, 5, 65, 15, MAXIS_case_number
-      EditBox 60, 25, 30, 15, MEMB_number
-      ButtonGroup ButtonPressed
-        OkButton 20, 45, 50, 15
-        CancelButton 75, 45, 50, 15
-      Text 5, 30, 55, 10, "MEMB Number:"
-      Text 5, 10, 50, 10, "Case Number:"
-    EndDialog
-
-    DO
-    	DO
-    		err_msg = ""
-    		Dialog case_number_dialog
-    		IF ButtonPressed = 0 THEN StopScript
-	  		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-	  		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
-    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP UNTIL err_msg = ""
-		CALL check_for_password(are_we_passworded_out)
-	LOOP UNTIL are_we_passworded_out = false
-
-	CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-	EMwritescreen MEMB_number, 20, 76
-	TRANSMIT
-
-	EMReadscreen SSN_number_read, 11, 7, 42
-	SSN_number_read = replace(SSN_number_read, " ", "")
-
-	CALL navigate_to_MAXIS_screen("INFC" , "____")
-	CALL write_value_and_transmit("IEVP", 20, 71)
-	CALL write_value_and_transmit(SSN_number_read, 3, 63) '
-END IF
-
+'MEMB_number = "01"
+BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
+  EditBox 60, 5, 65, 15, MAXIS_case_number
+  EditBox 60, 25, 30, 15, MEMB_number
+  ButtonGroup ButtonPressed
+    OkButton 20, 45, 50, 15
+    CancelButton 75, 45, 50, 15
+  Text 5, 30, 55, 10, "MEMB Number:"
+  Text 5, 10, 50, 10, "Case Number:"
+EndDialog
+DO
+	DO
+		err_msg = ""
+		Dialog case_number_dialog
+		IF ButtonPressed = 0 THEN StopScript
+  		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+  		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP UNTIL err_msg = ""
+	CALL check_for_password(are_we_passworded_out)
+LOOP UNTIL are_we_passworded_out = false
+CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+EMwritescreen MEMB_number, 20, 76
+TRANSMIT
+EMReadscreen SSN_number_read, 11, 7, 42
+SSN_number_read = replace(SSN_number_read, " ", "")
+CALL navigate_to_MAXIS_screen("INFC" , "____")
+CALL write_value_and_transmit("IEVP", 20, 71)
+CALL write_value_and_transmit(SSN_number_read, 3, 63) '
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 7
 DO
@@ -527,7 +495,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "* Enter a valid numeric resolved time, ie 005."
 		IF resolve_time = "" THEN err_msg = err_msg & vbNewLine & "Please complete resolve time."
 		If other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other verification was used to clear the match."
-		IF resolution_status <> "BE - Child" or "BE - No Change" or "BN - Already known, No Savings" THEN
+		IF resolution_status <> "BE - Child" or resolution_status <> "BE - No Change" or resolution_status <> "BN - Already known, No Savings" THEN
 			IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the client respond to Difference Notice?"
 		END IF
 		IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
