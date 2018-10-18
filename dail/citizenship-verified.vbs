@@ -28,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -127,21 +127,6 @@ END Function
 'Connecting
 EMConnect ""
 
-'Setting variables
-row = 1
-col = 1
-
-'Finding case number
-EMSearch "CASE NBR:", row, col
-If row <> 0 then
-  EMReadScreen MAXIS_case_number, 8, row, col + 10
-  MAXIS_case_number = replace(MAXIS_case_number, "_", "")
-  MAXIS_case_number = trim(MAXIS_case_number)
-End if
-
-'Error out in case it can't find the case number
-If row = 0 then script_end_procedure("A case number could not be found on this DAIL message. Use the ''MAXIS notes'' version of the script at this time.")
-
 Call HH_member_custom_dialog_cit_id_ver(HH_member_array)
 
 'Updated MEMI section-------------------------------------------------------------------------------------------------------
@@ -170,7 +155,6 @@ EndDialog
 dialog workersig_dlg
 cancel_confirmation
 STATS_counter = STATS_counter - 1 'Had to -1 at the end of the script because the counter starts at 1 and Veronica has reasons why we should not change it to 0.
-'Msgbox STATS_counter
 
 'Case note section-----------------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE
