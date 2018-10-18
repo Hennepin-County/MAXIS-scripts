@@ -34,7 +34,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -69,6 +69,9 @@ transmit
 
 'The following reads the message in full for the end part (which tells the worker which message was selected)
 EMReadScreen full_message, 58, 6, 20
+EmReadScreen MAXIS_case_number, 8, 5, 73
+MAXIS_case_number = trim(MAXIS_case_number)
+msgbox MAXIS_case_number
 
 'THE FOLLOWING CODES ARE THE INDIVIDUAL MESSAGES. IT READS THE MESSAGE, THEN CALLS A NEW SCRIPT.----------------------------------------------------------------------------------------------------
 
