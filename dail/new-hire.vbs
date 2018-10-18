@@ -31,7 +31,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -101,8 +101,6 @@ current_year = CM_yr
 'SELECTS THE DAIL MESSAGE AND READS THE RESPONSE
 EMSendKey "x"
 transmit
-EMReadScreen MAXIS_case_number, 8, 6, 57
-MAXIS_case_number = trim(MAXIS_case_number)
 row = 1
 col = 1
 EMSearch "NEW JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
