@@ -108,40 +108,34 @@ EMConnect ""
 EMReadscreen dail_check, 4, 4, 14 'changed from DAIL to view to ensure we are in DAIL/DAIL'
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 MEMB_number = "01"
-
-	BeginDialog ase_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
-	  EditBox 60, 5, 65, 15, MAXIS_case_number
-	  EditBox 60, 25, 30, 15, MEMB_number
-	  ButtonGroup ButtonPressed
-	    OkButton 20, 45, 50, 15
-	    CancelButton 75, 45, 50, 15
-	  Text 5, 30, 55, 10, "MEMB Number:"
-	  Text 5, 10, 50, 10, "Case Number:"
-	EndDialog
-
-	 DO
-	  	DO
-	  		err_msg = ""
-	  		Dialog case_number_dialog
-	  		IF ButtonPressed = 0 THEN StopScript
-	 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-	 		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
-	  		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP UNTIL err_msg = ""
-		CALL check_for_password(are_we_passworded_out)
-	LOOP UNTIL are_we_passworded_out = false
-
-	CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-	EMwritescreen MEMB_number, 20, 76
-	TRANSMIT
-
-	EMReadscreen SSN_number_read, 11, 7, 42
-	SSN_number_read = replace(SSN_number_read, " ", "")
-
-	CALL navigate_to_MAXIS_screen("INFC" , "____")
-	CALL write_value_and_transmit("IEVP", 20, 71)
-	CALL write_value_and_transmit(SSN_number_read, 3, 63) '
-
+BeginDialog ase_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
+  EditBox 60, 5, 65, 15, MAXIS_case_number
+  EditBox 60, 25, 30, 15, MEMB_number
+  ButtonGroup ButtonPressed
+    OkButton 20, 45, 50, 15
+    CancelButton 75, 45, 50, 15
+  Text 5, 30, 55, 10, "MEMB Number:"
+  Text 5, 10, 50, 10, "Case Number:"
+EndDialog
+ DO
+  	DO
+  		err_msg = ""
+  		Dialog case_number_dialog
+  		IF ButtonPressed = 0 THEN StopScript
+ 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+ 		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
+  		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP UNTIL err_msg = ""
+	CALL check_for_password(are_we_passworded_out)
+LOOP UNTIL are_we_passworded_out = false
+CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+EMwritescreen MEMB_number, 20, 76
+TRANSMIT
+EMReadscreen SSN_number_read, 11, 7, 42
+SSN_number_read = replace(SSN_number_read, " ", "")
+CALL navigate_to_MAXIS_screen("INFC" , "____")
+CALL write_value_and_transmit("IEVP", 20, 71)
+CALL write_value_and_transmit(SSN_number_read, 3, 63) '
 
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 7
