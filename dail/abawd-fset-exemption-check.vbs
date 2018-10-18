@@ -28,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -57,12 +57,6 @@ changelog_display
 EMConnect""
 'Writing "S" on the DAIL message
 CALL write_value_and_transmit("S", 6, 3)
-
-'Grabbing the case number.
-'We need this to make the function navigate_to_MAXIS_screen work.
-CALL find_variable("Case Nbr: ", MAXIS_case_number, 8)
-MAXIS_case_number = replace(MAXIS_case_number, "_", "")
-MAXIS_case_number = trim(MAXIS_case_number)
 
 Call ABAWD_FSET_exemption_finder
 script_end_procedure("")
