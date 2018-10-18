@@ -28,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -53,9 +53,7 @@ changelog_display
 
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
 '------------------As such, it does NOT include protections to be ran independently.
-
-EMReadscreen MAXIS_case_number, 8, 5, 72			'Reading the case number and footer month/year
-EMReadscreen MAXIS_footer_month, 2, 6, 11
+EMReadscreen MAXIS_footer_month, 2, 6, 11               	'Reading the footer month/year
 EMReadscreen MAXIS_footer_year, 2, 6, 14
 
 dail_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year			'Creates a date out of the footer month and year
