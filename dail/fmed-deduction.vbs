@@ -28,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -61,9 +61,6 @@ BeginDialog worker_sig_dialog, 0, 0, 141, 46, "Worker signature"
     CancelButton 85, 25, 50, 15
   Text 5, 10, 75, 10, "Sign your case note."
 EndDialog
-
-EMReadScreen MAXIS_case_number, 8, 5, 73
-MAXIS_case_number = trim(MAXIS_case_number)
 
 Do 
 	Dialog worker_sig_dialog
