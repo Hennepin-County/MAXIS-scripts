@@ -71,7 +71,6 @@ transmit
 EMReadScreen full_message, 58, 6, 20
 EmReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number = trim(MAXIS_case_number)
-msgbox MAXIS_case_number
 
 'THE FOLLOWING CODES ARE THE INDIVIDUAL MESSAGES. IT READS THE MESSAGE, THEN CALLS A NEW SCRIPT.----------------------------------------------------------------------------------------------------
 
