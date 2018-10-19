@@ -987,7 +987,7 @@ CALL navigate_to_MAXIS_screen("CASE", "NOTE")
 start_a_blank_case_note
 
 CALL write_variable_in_CASE_NOTE("*** Added WCOM for to Notice to clarify action taken ***")
-CALL write_variable_in_CASE_NOTE("Inormation added to the following WCOM notices in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ":")
+CALL write_variable_in_CASE_NOTE("Information added to the following WCOM notices in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ":")
 For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
     If NOTICES_ARRAY(selected, notices_listed) = checked Then
         CALL write_variable_in_CASE_NOTE("* " & NOTICES_ARRAY(information, notices_listed))
