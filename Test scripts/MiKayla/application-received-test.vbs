@@ -107,21 +107,13 @@ EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
-BeginDialog initial_dialog, 0, 0, 116, 65, "Application Received"
+BeginDialog initial_dialog, 0, 0, 116, 45, "Application Received"
   EditBox 65, 5, 45, 15, MAXIS_case_number
-  EditBox 65, 25, 45, 15, appl_date
   ButtonGroup ButtonPressed
-    OkButton 15, 45, 45, 15
-    CancelButton 65, 45, 45, 15
+    OkButton 5, 25, 50, 15
+    CancelButton 60, 25, 50, 15
   Text 10, 10, 50, 10, "Case Number:"
-  Text 5, 30, 55, 10, "Application Date:"
 EndDialog
-
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-the_month = datepart("m", appl_date)
-MAXIS_footer_month = right("00" & the_month, 2)
-the_year = datepart("yyyy", appl_date)
-MAXIS_footer_year = right("00" & the_year, 2)
 
 'Runs the first dialog - which confirms the case number
 Do
@@ -135,24 +127,55 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
-'-------------------------------------------------------------------DIALOG
-'Gathers Date of application and creates MAXIS friendly dates to be sure to navigate to the correct time frame
-'This only functions if case is in PND2 status
-CALL navigate_to_MAXIS_screen("REPT","PND2")
-dateofapp_row = 1
-dateofapp_col = 1
-EMSearch MAXIS_case_number, dateofapp_row, dateofapp_col
-EMReadScreen MAXIS_case_name,  20, dateofapp_row, 16
-EMReadScreen MAXIS_footer_month, 2, dateofapp_row, 38
-EMReadScreen app_day, 2, dateofapp_row, 41
-EMReadScreen MAXIS_footer_year, 2, dateofapp_row, 44
-application_date = MAXIS_footer_month & "/" & app_day & "/" & MAXIS_footer_year
 
-'If case is not in PND2 status this defaults the date information to current date to allow correct navigation
-IF application_date = "  /  /  " THEN
-	application_date = date
-	CALL convert_date_into_MAXIS_footer_month (date, MAXIS_footer_month, MAXIS_footer_year)
-END IF
+'information gathering to auto-populate the application date
+'pending programs information
+back_to_self
+EMWriteScreen MAXIS_case_number, 18, 43
+Call navigate_to_MAXIS_screen("REPT", "PND2")
+
+'Ensuring that the user is in REPT/PND2
+Do
+	EMReadScreen PND2_check, 4, 2, 52
+	If PND2_check <> "PND2" then
+		back_to_SELF
+		Call navigate_to_MAXIS_screen("REPT", "PND2")
+	End if
+LOOP until PND2_check = "PND2"
+
+'checking the case to make sure there is a pending case.  If not script will end & inform the user no pending case exists in PND2
+EMReadScreen not_pending_check, 5, 24, 2
+If not_pending_check = "CASE " THEN script_end_procedure("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
+
+'grabs row and col number that the cursor is at
+EMGetCursor MAXIS_row, MAXIS_col
+EMReadScreen app_month, 2, MAXIS_row, 38
+EMReadScreen app_day, 2, MAXIS_row, 41
+EMReadScreen app_year, 2, MAXIS_row, 44
+EMReadScreen days_pending, 3, MAXIS_row, 50
+EMReadScreen additional_application_check, 14, MAXIS_row + 1, 17
+EMReadScreen add_app_month, 2, MAXIS_row + 1, 38
+EMReadScreen add_app_day, 2, MAXIS_row + 1, 41
+EMReadScreen add_app_year, 2, MAXIS_row + 1, 44
+
+'Creating new variable for application check date and additional application date.
+application_date = app_month & "/" & app_day & "/" & app_year
+additional_application_date = add_app_month & "/" & add_app_day & "/" & add_app_year
+
+'checking for multiple application dates.  Creates message boxes giving the user an option of which app date to choose
+If additional_application_check = "ADDITIONAL APP" THEN multiple_apps = MsgBox("Do you want this application date: " & application_date, VbYesNoCancel)
+If multiple_apps = vbCancel then stopscript
+If multiple_apps = vbYes then additional_date_found = False
+IF multiple_apps = vbNo then
+	additional_apps = Msgbox("Do you want this application date: " & additional_application_date, VbYesNoCancel)
+	If additional_apps = vbCancel then stopscript
+	If additional_apps = vbNo then script_end_procedure("No more application dates exist. Please review the case, and start the script again if applicable.")
+	If additional_apps = vbYes then
+		additional_date_found = TRUE
+		application_date = additional_application_date
+		MAXIS_row = MAXIS_row + 1
+	END IF
+End if
 
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 'EMReadScreen application_date, 8, 6, 33
@@ -220,6 +243,8 @@ END IF
 
 'Defaults the date pended to today
 pended_date = date & ""
+additional_application_date
+
 'Creates a variable that lists all the programs pending.
 programs_applied_for = ""
 IF cash_pends = TRUE or cash2_pends = TRUE THEN programs_applied_for = programs_applied_for & "CASH, "
@@ -229,6 +254,16 @@ IF snap_pends = TRUE THEN programs_applied_for = programs_applied_for & "SNAP, "
 IF ive_pends  = TRUE THEN programs_applied_for = programs_applied_for & "IV-E, "
 IF hc_pends   = TRUE THEN programs_applied_for = programs_applied_for & "HC, "
 IF cca_pends  = TRUE THEN programs_applied_for = programs_applied_for & "CCA"
+
+programs_applied_for = ""
+IF cash_pends = TRUE or cash2_pends = TRUE and additional_application_date <> date THEN other_programs_applied_for = programs_applied_for & "CASH, "
+IF emer_pends = TRUE THEN programs_applied_for = programs_applied_for & "Emergency, "
+IF grh_pends  = TRUE THEN programs_applied_for = programs_applied_for & "GRH, "
+IF snap_pends = TRUE THEN programs_applied_for = programs_applied_for & "SNAP, "
+IF ive_pends  = TRUE THEN programs_applied_for = programs_applied_for & "IV-E, "
+IF hc_pends   = TRUE THEN programs_applied_for = programs_applied_for & "HC, "
+IF cca_pends  = TRUE THEN programs_applied_for = programs_applied_for & "CCA"
+
 
 active_programs = ""
 IF cash_active = TRUE or cash2_active = TRUE THEN active_programs = active_programs & "CASH, "
@@ -245,23 +280,22 @@ programs_applied_for = trim(programs_applied_for)
 If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
 active_programs = trim(active_programs)
 If right(active_programs, 1) = "," THEN active_programs = left(active_programs, len(active_programs) - 1)
+
 '----------------------------------------------------------------------------------------------------dialogs
 BeginDialog appl_detail_dialog, 0, 0, 286, 110, "APPLICATION RECEIVED"
   DropListBox 80, 5, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
-  EditBox 230, 5, 45, 15, application_date
   DropListBox 80, 25, 65, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
-  'to align with CAF script'''"DHS-2128 (LTC Renewal)"+chr(9)+"DHS-3417B (Req. to Apply...)"+chr(9)+"DHS-3418 (HC Renewal)"+chr(9)+"DHS-3531 (LTC Application)"+chr(9)+"DHS-3876 (Certain Pops App)"+chr(9)+"DHS-6696(MNsure HC App)", HC_document_received
   EditBox 230, 25, 45, 15, confirmation_number
   EditBox 45, 45, 25, 15, transfer_case_number
   ButtonGroup ButtonPressed
-    PushButton 230, 45, 45, 15, "GeoCoder", GeoCoder_button
+    PushButton 230, 45, 45, 15, "GeoCoder", geocoder_button
   EditBox 50, 70, 230, 15, other_notes
   EditBox 70, 90, 100, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 175, 90, 50, 15
     CancelButton 230, 90, 50, 15
   Text 5, 10, 70, 10, "Application Received:"
-  Text 160, 10, 65, 10, "Date of Application:"
+  Text 160, 10, 125, 10, "Date of Application: "  & application_date
   Text 5, 30, 65, 10, "Type of Application:"
   Text 175, 30, 50, 10, "Confirmation #:"
   Text 5, 50, 40, 10, "Transfer to:"
@@ -271,18 +305,19 @@ BeginDialog appl_detail_dialog, 0, 0, 286, 110, "APPLICATION RECEIVED"
   Text 5, 95, 60, 10, "Worker Signature:"
 EndDialog
 
+
+
 '------------------------------------------------------------------------------------DIALOG APPL
 Do
 	Do
+		err_msg = ""
 		Do
-			err_msg = ""
 			Dialog appl_detail_dialog
-			If ButtonPressed = geocode_button then CreateObject("WScript.Shell").Run("https://hcgis.hennepin.us/agsinteractivegeocoder/default.aspx")
+			cancel_confirmation
+			If ButtonPressed = geocoder_button then CreateObject("WScript.Shell").Run("https://hcgis.hennepin.us/agsinteractivegeocoder/default.aspx")
 		Loop until ButtonPressed = -1
-		cancel_confirmation
 		IF how_app_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
 		IF app_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
-		IF isdate(application_date) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid application date."
 		IF transfer_case_number = "" OR len(transfer_case_number) <> 3 then err_msg = err_msg & vbNewLine & "* You must enter the worker number of the worker if you would like the case to be transfered by the script."
 		IF app_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "If an ApplyMN was received, you must enter the confirmation number and time received"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -303,8 +338,7 @@ IF how_app_rcvd = "Office" THEN
     LOOP UNTIL same_day_confirmation = vbYes
 END IF
 
-IF snap_pends = TRUE OR cash_pends = TRUE OR cash2_pends = TRUE OR grh_pends = TRUE OR ea_pends THEN send_appt_ltr = TRUE
-
+IF cash_pends = TRUE or cash2_pends = TRUE or emer_pends = TRUE or SNAP_pends = TRUE  THEN send_appt_ltr = TRUE
 '--------------------------------------------------------------------------------initial case note
 start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
@@ -314,8 +348,9 @@ IF app_type = "HCAPP" THEN write_variable_in_CASE_NOTE ("Form Rcvd: Health Care 
 IF app_type = "HC-Certain Pop" THEN write_variable_in_CASE_NOTE ("Form Rcvd: MHC Programs Application for Certain Populations (DHS-3876) ")
 IF app_type = "LTC" THEN write_variable_in_CASE_NOTE ("Form Rcvd: Application for Medical Assistance for Long Term Care Services (DHS-3531) ")
 IF app_type = "MHCP B/C Cancer" THEN write_variable_in_CASE_NOTE ("Form Rcvd: Minnesota Health Care Programs Application and Renewal Form Medical Assistance for Women with Breast or Cervical Cancer (DHS-3525) ")
-CALL write_bullet_and_variable_in_CASE_NOTE ("Requesting", programs_applied_for)
+CALL write_bullet_and_variable_in_CASE_NOTE ("Application Requesting", programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
+CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", pending_programs)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Application assigned to", transfer_case_number)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
