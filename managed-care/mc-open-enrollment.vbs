@@ -25,7 +25,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/19/2018", "Updated to support 2019 enrollments.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/06/2017", "Updated to support 2018 enrollments.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/01/2016", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -141,8 +142,8 @@ If len(MMIS_case_number) = 8 AND left(MMIS_case_number, 1) <> 0 THEN MNSURE_Case
 MMIS_case_number = right("00000000" & MMIS_case_number, 8)
 
 enrollment_month = "01"
-enrollment_year = "18"
-enrollment_date = "01/01/18"
+enrollment_year = "19"
+enrollment_date = "01/01/19"
 'enrollment_date = enrollment_month & "/01/" & enrollment_year
 
 'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
