@@ -28,7 +28,7 @@ STATS_denomination = "C"        'C is for each case
              StopScript
  		END IF
  	ELSE
- 		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+ 		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
  		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
  		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
  		text_from_the_other_script = fso_command.ReadAll
