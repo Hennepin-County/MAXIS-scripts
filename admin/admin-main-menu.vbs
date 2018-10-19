@@ -2,6 +2,17 @@
 name_of_script = "ADMIN - MAIN MENU.vbs"
 start_time = timer
 
+'=====User ID's====== 
+'ILFE001 = Ilse 
+'WFS395 = MiKayla
+'CALO001 = Casey 
+'WFX901 = Faughn 
+'WFU851 = Jennifer 
+'WFG492 = Melissa F. 
+'WFV701 = Darcy 
+
+
+
 'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
 'This is used in arrays that specify functionality to specific workers
 Set objNet = CreateObject("WScript.NetWork")
@@ -30,7 +41,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -293,7 +304,7 @@ show_BZ_button = FALSE
 
 'Displays the dialog
 Do
-    If user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "WFS395" OR user_ID_for_validation = "CALO001" then show_BZ_button = TRUE
+    If user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "WFS395" OR user_ID_for_validation = "CALO001" OR user_ID_for_validation = "WFX901" OR user_ID_for_validation = "WFU851" then show_BZ_button = TRUE
 
 	If ButtonPressed = "" or ButtonPressed = admin_main_button then
         declare_admin_menu_dialog(script_array_admin_main)
@@ -311,7 +322,9 @@ Do
         user_ID_for_validation = "WFU851" OR _
         user_ID_for_validation = "WFX901" OR _
         user_ID_for_validation = "CALO001" OR _
-        user_ID_for_validation = "WFI021" then
+        user_ID_for_validation = "WFI021" OR _
+        user_ID_for_validation = "WFG492" OR _
+        user_ID_for_validation = "WFV701" then
 		    declare_admin_menu_dialog(script_array_QI_list)
         Else
             Msgbox "These scripts are for Quality Improvement staff only. You do not have access to access this menu."
