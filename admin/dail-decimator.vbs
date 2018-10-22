@@ -28,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -88,41 +88,18 @@ EndDialog
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 
-'Grabbing user ID to validate user of script. Only some users are allowed to use this script.
-Set objNet = CreateObject("WScript.NetWork") 
-user_ID_for_validation = ucase(objNet.UserName)
-
-'Validating user ID
-If user_ID_for_validation = "ILFE001" OR _		
-	user_ID_for_validation = "WF7638" OR _		
-	user_ID_for_validation = "WF1875" OR _ 		
-	user_ID_for_validation = "WFQ898" OR _ 		
-	user_ID_for_validation = "WFP803" OR _		
-	user_ID_for_validation = "WFP106" OR _		
-	user_ID_for_validation = "WFK093" OR _ 		
-	user_ID_for_validation = "WF1373" OR _ 		
-	user_ID_for_validation = "WFU161" OR _ 		
-	user_ID_for_validation = "WFS395" OR _ 		
-	user_ID_for_validation = "WFU851" OR _ 		
-	user_ID_for_validation = "WFX901" OR _ 
-	user_ID_for_validation = "CALO001" OR _ 		
-	user_ID_for_validation = "WFI021" then 		
-    'the dialog
-    Do
-    	Do
-      		err_msg = ""
-      		dialog dail_dialog
-      		If ButtonPressed = 0 then StopScript
-      		If dail_to_decimate = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the type of DAIL message to decimate!"	
-      		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."	
-      		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."							
-      	  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine										
-      	LOOP until err_msg = ""		
-      	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-      Loop until are_we_passworded_out = false					'loops until user passwords back in		
-Else 
-	script_end_procedure("This script is for Quality Improvement staff only. You do not have access to use this script.")
-End if 
+Do
+	Do
+  		err_msg = ""
+  		dialog dail_dialog
+  		If ButtonPressed = 0 then StopScript
+  		If dail_to_decimate = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the type of DAIL message to decimate!"	
+  		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."	
+  		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."							
+  	  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine										
+  	LOOP until err_msg = ""		
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in		
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -245,12 +222,14 @@ For each worker in worker_array
 			 	add_to_excel = True 		
 			ElseIf instr(dail_msg, "MEMB:WRITTEN LANGUAGE HAS BEEN CHANGED FROM") then 
 			 	add_to_excel = True
-			ElseIf instr(dail_msg, "PMI MERGED AND AUTO CASE NOTE ENTERED") then 
+			ElseIf instr(dail_msg, "PMI MERGED") then 
 			 	add_to_excel = True 
 			ElseIf instr(dail_msg, "MEMI: HAS BEEN DELETED BY THE PMI MERGE PROCESS") then 
 			 	add_to_excel = True 			 		 	
 			ElseIf instr(dail_msg, "THIS APPLICATION WILL BE AUTOMATICALLY DENIED") then 
-			 	add_to_excel = True 
+			 	add_to_excel = True  
+            ElseIf instr(dail_msg, "NOT ACCESSED FOR 300 DAYS,SPEC NOT") then 
+                add_to_excel = True      
 			ElseIf instr(dail_msg, "THIS CASE IS ERROR PRONE") then 
 			 	add_to_excel = True '----------------------------------------------------------------------------------------------------ELIG Messsages
 			ElseIf instr(dail_msg, "NEW DENIAL ELIG RESULTS EXIST") then 
@@ -297,58 +276,12 @@ For each worker in worker_array
                 add_to_excel = True  
             ElseIf instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then 
                 add_to_excel = True 
+            ElseIf instr(dail_msg, "MSA COUNTED IN SBUD AS UNEARNED INCOME. REVIEW BUDGET") then 
+        	 	add_to_excel = True      'HC ELIG message
             Else	
 			    add_to_excel = False 
 			End if 
-		    
-            '----------------------------------------------------------------------------------------------------January COLA messages 
-            'If instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") then 
-            '	add_to_excel = True
-            'ElseIf instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO") then 
-            '	add_to_excel = True
-            'ElseIf instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO") then 
-            '	add_to_excel = True	
-            'ElseIf instr(dail_msg, "MSA RECERT DUE - NOT AUTO") then 
-            '	add_to_excel = True
-            'ElseIf instr(dail_msg, "MSA HRF DUE - NOT AUTO") then 
-            '	add_to_excel = True
-            'ElseIf instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO") then 
-            '	add_to_excel = True
-            'ElseIf instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE - REVIEW FOR MEDI UPDATES") then 
-            '	add_to_excel = True			
-            'ElseIf instr(dail_msg, "NEW MSA ELIG AUTO") then
-            '	add_to_excel = True
-            'ElseIf instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO") then 
-            '	add_to_excel = True
-            'ElseIf instr(dail_msg, "SNAP: NEW VERSION AUTO") then 
-            '	add_to_excel = True
-            'ElseIf instr(dail_msg, "GRH: NEW VERSION AUTO") then       
-            '	add_to_excel = True
-            ''----------------------------------------------------------------------------------------------------March COLA messages
-            'ElseIf instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") then       
-			'	add_to_excel = True
-            'Elseif instr(dail_msg, "SNAP: RECERTIFICATION DUE - NOT AUTO-APPROVED") then       
-			'	add_to_excel = True
-            'Elseif instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") then       
-    		'	add_to_excel = True
-            'Elseif instr(dail_msg, "SNAP: HRF DUE - NOT AUTO-APPROVED") then       
-    		'	add_to_excel = True
-            'Elseif instr(dail_msg, "SNAP: NEW ELIG AUTO-APPROVED") then       
-        	'	add_to_excel = True
-            'Elseif instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") then       
-            '	add_to_excel = True 
-            'Elseif instr(dail_msg, "NEW MFIP ELIG AUTO-APPROVED") then       
-    		'	add_to_excel = True
-            'Elseif instr(dail_msg, "MFIP RECERT DUE - NOT AUTO-APPROVED") then       
-        	'	add_to_excel = True
-            'Elseif instr(dail_msg, "MFIP HRF DUE - NOT AUTO-APPROVED") then       
-    		'	add_to_excel = True 
-            'Elseif instr(dail_msg, "APPROVED MFIP VERSION EXISTS - NOT AUTO-APPROVED") then       
-            '    add_to_excel = True  
-            'Else 
-            '    add_to_excel = False
-            'End if 
-
+		   
 			IF add_to_excel = True then 
 				EMReadScreen maxis_case_number, 8, dail_row - 1, 73
 				EMReadScreen dail_month, 8, dail_row, 11
@@ -359,23 +292,6 @@ For each worker in worker_array
 				objExcel.Cells(excel_row, 4).Value = trim(dail_month)
 				objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
 				excel_row = excel_row + 1
-				
-				'If (DAIL_type = "COLA" and case_note = True) then 
-				'	Call write_value_and_transmit("N", dail_row, 3)	
-				'	EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
-				'	If PRIV_check = "PRIV" then
-				'		msgbox "PRIV case, clear case and navigate back to the message." & vbcr & MAXIS_case_number
-				'	Else 
-				'	    PF9
-				'	    CALL write_variable_in_case_note(dail_msg)
-				'	    CALL write_variable_in_case_note("DAIL messages removed, no current action required.")
-				'	    CALL write_variable_in_case_note("---")
-				'	    CALL write_variable_in_case_note(worker_signature)
-				'	    'Navigating back to DAIL/DAIL by pf3 2 times
-				'	    PF3
-				'	    PF3
-				'	End If 
-				'END IF
 				
 				Call write_value_and_transmit("D", dail_row, 3)	
 				EMReadScreen other_worker_error, 13, 24, 2
