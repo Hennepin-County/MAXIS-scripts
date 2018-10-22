@@ -52,6 +52,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("10/22/2018", "Removed denial memo.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("07/20/2018", "Updated verbiage of Appointment Notice and NOMI, changed appointment date to 10 days from application date.", "Casey Love, Hennepin County")
 CALL changelog_update("07/11/2018", "Adding check to ensure script is not being run in Inquiry.", "Casey Love, Hennepin County")
 CALL changelog_update("02/05/2018", "Initial version.", "MiKayla Handley, Hennepin County")
@@ -1599,41 +1600,17 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                             nomi_last_contact_day = dateadd("d", 30, ALL_PENDING_CASES_ARRAY(application_date, case_entry))
                             'ensuring that we have given the client an additional10days fromt he day nomi sent'
                             IF DateDiff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), nomi_last_contact_day) < 1 then nomi_last_contact_day = dateadd("d", 10, ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry))
+                            Call start_a_blank_case_note
+                            Call write_variable_in_case_note("~ Denied " & programs & " via script ~")
+                        	Call write_bullet_and_variable_in_case_note("Application date", ALL_PENDING_CASES_ARRAY(application_date, case_entry))
+                            Call write_variable_in_case_note("* Reason for denial: interview was not completed timely.")
+                            Call write_variable_in_case_note("* Confirmed client was provided sufficient 10 day notice.")
+                            Call write_bullet_and_variable_in_case_note("NOMI sent to client on ", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry))
+                            Call write_variable_in_case_note("---")
+                            Call write_variable_in_CASE_NOTE(worker_signature & " via bulk on demand waiver script")
+                            'MsgBox "What casenote was sent?"
+                            PF3
 
-                            CALL start_a_new_spec_memo_and_continue(memo_started)		'Writes the denial into the MEMO.
-                			IF memo_started = True THEN
-                				EMsendkey("************************************************************")
-                				Call write_variable_in_SPEC_MEMO("We received your application on " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ".")
-                				Call write_variable_in_SPEC_MEMO("Your interview was not completed by " & nomi_last_contact_day & ".")
-                				call write_variable_in_spec_memo("Due to failing to complete the interview within 30 days of your application date your case has been denied.")
-                				Call write_variable_in_SPEC_MEMO("************************************************************")
-                				PF4
-                			ELSE
-                				ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry) = "N"         'Setting this as N if the MEMO failed
-                				'MsgBox "What memo was sent?"
-                			END IF
-
-                            If ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry) <> "N" Then Call confirm_memo_waiting(ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry))
-
-                            If ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry) = "N" Then
-                                ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send DENY MEMO Manually"
-                            ElseIf ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry) = "Y" Then   'this will case note the denial
-                                ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL"
-                                Call start_a_blank_case_note
-
-                                Call write_variable_in_case_note("~ Denied " & programs & " via script ~")
-                                Call write_bullet_and_variable_in_case_note("Application date", ALL_PENDING_CASES_ARRAY(application_date, case_entry))
-                                Call write_variable_in_case_note("* Reason for denial: interview was not completed timely.")
-                                Call write_variable_in_case_note("* Confirmed client was provided sufficient 10 day notice.")
-                                Call write_bullet_and_variable_in_case_note("NOMI sent to client on ", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry))
-                                Call write_variable_in_case_note("---")
-                                Call write_variable_in_CASE_NOTE(worker_signature & " via bulk on demand waiver script")
-
-                                'MsgBox "What casenote was sent?"
-                                PF3
-                            Else
-                                ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "???"       'for testing - has never happened
-                            End If
                             'msgbox nbr_days_pending
                             Call back_to_SELF
 
