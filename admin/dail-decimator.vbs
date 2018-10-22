@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/22/2018", "Added support for ADDR INFO messages, STAT edits over 10 days old, temporary addition of COLA messages greater than 07/18 COLA and MSA SBUD/LBUD messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/02/2018", "Added supported PEPR and CSES messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/02/2018", "Added Casey Love as autorized user of the script, blanked out MAXIS case number for PRIV cases, and merged SVES and INFO messages together into one option.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/30/2017", "Complete updates for INFO, SVES, COLA and ELIG messages.", "Ilse Ferris, Hennepin County")
@@ -190,13 +191,17 @@ For each worker in worker_array
 			EMReadScreen dail_type, 4, dail_row, 6
 			EMReadScreen dail_msg, 61, dail_row, 20
 			dail_msg = trim(dail_msg)
+            EMReadScreen dail_month, 8, dail_row, 11
+            dail_month = trim(dail_month)
 			stats_counter = stats_counter + 1
 	
 			If instr(dail_msg, "TPQY RESPONSE") then 
 			 	add_to_excel = True				'added this in for clearing the SVES messages
 			ElseIf instr(dail_msg, "APPLCT ID CHNGD") then 
 			 	add_to_excel = True  '----------------------------------------------------------------------------------------------------INFO Messages              
-			ElseIf instr(dail_msg, "CASE AUTOMATICALLY DENIED") then 
+            ElseIf instr(dail_msg, "ADDR CHG*CHK SHEL") then 
+    		 	add_to_excel = True 
+            ElseIf instr(dail_msg, "CASE AUTOMATICALLY DENIED") then 
 			 	add_to_excel = True 
 			ElseIf instr(dail_msg, "CASE FILE INFORMATION WAS SENT ON") then 
 				 add_to_excel = True
@@ -242,6 +247,10 @@ For each worker in worker_array
 				add_to_excel = True
             ElseIf instr(dail_msg, "COMPLETE ELIG IN FIAT") then 
     			add_to_excel = True
+            ElseIf instr(dail_msg, "COUNTED IN SBUD AS UNEARNED INCOME") then            
+             	add_to_excel = True      'HC ELIG message
+            ElseIf instr(dail_msg, "COUNTED IN LBUD AS UNEARNED INCOME") then 
+             	add_to_excel = True      'HC ELIG message    
 			ElseIf instr(dail_msg, "POTENTIALLY CATEGORICALLY ELIGIBLE") then 
 				add_to_excel = True '----------------------------------------------------------------------------------------------------CSES Messages
             ElseIf instr(dail_msg, "AMT CHILD SUPP MOD/ORD") then 
@@ -270,21 +279,30 @@ For each worker in worker_array
             	add_to_excel = True 
             ElseIf instr(dail_msg, "EMPL SERV REF DATE IS > 60 DAYS; CHECK ES PROVIDER RESPONSE") then 
             	add_to_excel = True
+            ElseIf instr(dail_msg, "MEMBER HAS TURNED 60 - FSET:WORK REG HAS BEEN UPDATED") then 
+            	add_to_excel = True    
             ElseIf instr(dail_msg, "MANUAL REFERRAL WAS MADE") then 
                 add_to_excel = True'----------------------------------------------------------------------------------------------------TIKL messages non-actionable             
             ElseIf instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") then 
                 add_to_excel = True  
             ElseIf instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then 
-                add_to_excel = True 
-            ElseIf instr(dail_msg, "MSA COUNTED IN SBUD AS UNEARNED INCOME. REVIEW BUDGET") then 
-        	 	add_to_excel = True      'HC ELIG message
-            Else	
+                add_to_excel = True
+            ElseIf dail_type = "COLA" and dail_month <> "07 18" then 
+                add_to_excel = True 'temporary to clean up old COLA messages. 
+            ElseIf instr(dail_msg, "CORRECT STAT EDITS") then 
+                EmReadscreen stat_date, 8, dail_row, 39 'Will delete CORRECT STAT EDITS over 10 days old
+                ten_days_ago = DateAdd("d", -10, date)
+                If cdate(ten_days_ago) => cdate(stat_date) then 
+                    add_to_excel = True     
+                Else 
+                    add_to_excel = False 
+                End if 
+            Else
 			    add_to_excel = False 
 			End if 
 		   
 			IF add_to_excel = True then 
 				EMReadScreen maxis_case_number, 8, dail_row - 1, 73
-				EMReadScreen dail_month, 8, dail_row, 11
 				'--------------------------------------------------------------------...and put that in Excel.
 				objExcel.Cells(excel_row, 1).Value = worker
 				objExcel.Cells(excel_row, 2).Value = trim(maxis_case_number)
