@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("10/22/2018", "Changed output about orientation letters from a YES/NO to the date of the orientation on the letter.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/17/2018", "Add extra handling for case noting sanctions for more than one HH member.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/12/2018", "Auto approval functionality complete. Added comments and removed testing code.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("06/09/2018", "Made several updates to support using a single master sanction list while processing. Also added text to case note if the case has been identified as potentially homeless for unfit for employment expansion exemption.", "Ilse Ferris, Hennepin County")
@@ -145,7 +146,7 @@ If sanction_option = "Review sanctions" then
     objExcel.Cells(1, 8).Value = "ABAWD Months Used"
     objExcel.Cells(1, 9).Value = "Referral Date"
     objExcel.Cells(1, 10).Value = "Orient Date"
-    objExcel.Cells(1, 11).Value = "Notice Sent?"
+    objExcel.Cells(1, 11).Value = "Orient LETR Date"
     objExcel.Cells(1, 12).Value = "Sanction?"
     objExcel.Cells(1, 13).Value = "BULK Notes"
     
@@ -323,6 +324,7 @@ If sanction_option = "Review sanctions" then
         End if 
         
         If found_member = True then
+            orient_date_LETR = ""
             Call navigate_to_MAXIS_screen("SPEC", "WCOM")
             row = 7
             notice_sent = False     'Defauliting notice sent to false (as this would likely be manually reviewed.)
@@ -338,6 +340,7 @@ If sanction_option = "Review sanctions" then
                         If isDate(orient_date_LETR) = False then 
                             sanction_case = FALSE
                             PF3
+                            orient_date_LETR = ""
                         Else 
                             Call ONLY_create_MAXIS_friendly_date(orient_date_LETR) 'reformats the date 
                             If orient_date_LETR = appt_date then 
@@ -345,10 +348,11 @@ If sanction_option = "Review sanctions" then
                                 sanction_case = TRUE
                                 exit do 
                             ELSE
-                                sanction_notes = sanction_notes & " Referral date does not match letter date of: " & orient_date_LETR & ". "    'ohterwise the information is output to be reviewed manually 
+                                sanction_notes = sanction_notes & " Referral date does not match date on letter."    'ohterwise the information is output to be reviewed manually 
                                 notice_sent = True          'case is still identified in the Excel output as a member who was given a notice 
                                 sanction_case = FALSE       'but not identified as sanctioned. This will be done in the manual review. 
                                 PF3
+                                exit do 
                             End if 
                         End if 
                     else 
@@ -364,12 +368,8 @@ If sanction_option = "Review sanctions" then
                 EmReadscreen no_notices, 10, 24, 2 
             Loop until no_notices = "NO NOTICES"
             
-            If notice_sent = True then 
-                ObjExcel.Cells(excel_row, notice_col).Value = "Yes"     'Updating the column information in the Excel spreadsheet 
-            Else 
-                ObjExcel.Cells(excel_row, notice_col).Value = "No"
-            End if 
-    
+            ObjExcel.Cells(excel_row, notice_col).Value = orient_date_LETR
+        
             If sanction_case = true then 
                 If wreg_codes = "30/06" or wreg_codes = "30/08" or wreg_codes = "30/10" or wreg_codes = "30/11" then 
                     ObjExcel.Cells(excel_row, sanction_col).Value = "Yes"       'Entering the sanction as a YES, mandatory FSET participants
