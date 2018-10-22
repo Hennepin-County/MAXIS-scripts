@@ -37,43 +37,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-function start_a_new_spec_memo_and_continue(success_var)
-'--- This function navigates user to SPEC/MEMO and starts a new SPEC/MEMO, selecting client, AREP, and SWKR if appropriate
-'===== Keywords: MAXIS, notice, navigate, edit
-  success_var = True
-	call navigate_to_MAXIS_screen("SPEC", "MEMO")				'Navigating to SPEC/MEMO
 
-	PF5															'Creates a new MEMO. If it's unable the script will stop.
-	EMReadScreen memo_display_check, 12, 2, 33
-	If memo_display_check = "Memo Display" then success_var = False
-
-	'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
-	row = 4                             'Defining row and col for the search feature.
-	col = 1
-	EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
-	IF row > 4 THEN                     'If it isn't 4, that means it was found.
-	    arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
-	    call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
-	    EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
-	    call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
-	    PF5                                                     'PF5s again to initiate the new memo process
-	END IF
-	'Checking for SWKR
-	row = 4                             'Defining row and col for the search feature.
-	col = 1
-	EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
-	IF row > 4 THEN                     'If it isn't 4, that means it was found.
-	    swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
-	    call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
-	    EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
-	    call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
-	    PF5                                           'PF5s again to initiate the new memo process
-	END IF
-	EMWriteScreen "x", 5, 12                                        'Initiates new memo to client
-	IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-	transmit                                                        'Transmits to start the memo writing process
-end function
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
@@ -162,12 +126,14 @@ EMReadScreen add_app_year, 2, MAXIS_row + 1, 44
 application_date = app_month & "/" & app_day & "/" & app_year
 additional_application_date = add_app_month & "/" & add_app_day & "/" & add_app_year
 
+
 'checking for multiple application dates.  Creates message boxes giving the user an option of which app date to choose
 If additional_application_check = "ADDITIONAL APP" THEN multiple_apps = MsgBox("Do you want this application date: " & application_date, VbYesNoCancel)
 If multiple_apps = vbCancel then stopscript
 If multiple_apps = vbYes then additional_date_found = False
 IF multiple_apps = vbNo then
 	additional_apps = Msgbox("Do you want this application date: " & additional_application_date, VbYesNoCancel)
+	application_date = ""
 	If additional_apps = vbCancel then stopscript
 	If additional_apps = vbNo then script_end_procedure("No more application dates exist. Please review the case, and start the script again if applicable.")
 	If additional_apps = vbYes then
@@ -177,18 +143,59 @@ IF multiple_apps = vbNo then
 	END IF
 End if
 
+'Defaults the date pended to today
+IF additional_date_found = TRUE THEN
+	EMReadScreen additional_application_cash, 1, MAXIS_row + 1, 54
+	EMReadScreen additional_application_snap, 1, MAXIS_row + 1, 62
+	EMReadScreen additional_application_hc, 1, MAXIS_row + 1, 65
+	EMReadScreen additional_application_ea, 1, MAXIS_row + 1, 68
+	EMReadScreen additional_application_grh, 1, MAXIS_row + 1, 72
+	EMReadScreen additional_application_cca, 1, MAXIS_row + 1, 80
+END IF
+
+IF additional_application_cash = "P" THEN additional_programs_applied_for = additional_programs_applied_for & "CASH, "
+IF additional_application_snap = "P" THEN additional_programs_applied_for = additional_programs_applied_for & "SNAP, "
+IF additional_application_hc = "P" THEN additional_programs_applied_for = additional_programs_applied_for & "HC, "
+IF additional_application_ea = "P" THEN additional_programs_applied_for = additional_programs_applied_for & "Emergency, "
+IF additional_application_grh = "P" THEN additional_programs_applied_for = additional_programs_applied_for & "GRH, "
+IF additional_application_CCA = "P" THEN additional_programs_applied_for = additional_programs_applied_for & "CCA"
+
+IF cash_pends = "P" THEN programs_applied_for = programs_applied_for & "CASH, "
+IF snap_pends = "P" THEN programs_applied_for = programs_applied_for & "SNAP, "
+IF hc_pends = "P" THEN programs_applied_for = programs_applied_for & "HC, "
+'IF emer_pends = "P" THEN programs_applied_for = programs_applied_for & "Emergency, "
+IF grh_pends = "P" THEN programs_applied_for = programs_applied_for & "GRH, "
+IF cca_pends = "P" THEN programs_applied_for = programs_applied_for & "CCA"
+
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 'EMReadScreen application_date, 8, 6, 33
 
 EMReadScreen err_msg, 7, 24, 02
 IF err_msg = "BENEFIT" THEN	script_end_procedure ("Case must be in PEND II status for script to run, please update MAXIS panels TYPE & PROG (HCRE for HC) and run the script again.")
 
+'Reading the app date from PROG
+EMReadScreen cash1_app_date, 8, 6, 33
+cash1_app_date = replace(cash1_app_date, " ", "/")
+EMReadScreen cash2_app_date, 8, 7, 33
+cash2_app_date = replace(cash2_app_date, " ", "/")
+EMReadScreen emer_app_month, 8, 8, 33
+emer_app_month = replace(emer_app_month, " ", "/")
+EMReadScreen grh_app_date, 8, 9, 33
+grh_app_date = replace(grh_app_date, " ", "/")
+EMReadScreen snap_app_date, 8, 10, 33
+snap_app_date = replace(snap_app_date, " ", "/")
+EMReadScreen ive_app_date, 8, 11, 33
+ive_app_date = replace(ive_app_date, " ", "/")
+EMReadScreen hc_app_date, 8, 12, 33
+hc_app_date = replace(hc_app_date, " ", "/")
+EMReadScreen cca_app_date, 8, 14, 33
+cca_app_date = replace(cca_app_date, " ", "/")
 'Reading the status and program
 EMReadScreen cash1_status_check, 4, 6, 74
 EMReadScreen cash2_status_check, 4, 7, 74
 EMReadScreen emer_status_check, 4, 8, 74
 EMReadScreen grh_status_check, 4, 9, 74
-EMReadScreen fs_status_check, 4, 10, 74
+EMReadScreen snap_status_check, 4, 10, 74
 EMReadScreen ive_status_check, 4, 11, 74
 EMReadScreen hc_status_check, 4, 12, 74
 EMReadScreen cca_status_check, 4, 14, 74
@@ -196,75 +203,55 @@ EMReadScreen cca_status_check, 4, 14, 74
 EMReadScreen cash1_prog_check, 2, 6, 67
 EMReadScreen cash2_prog_check, 2, 7, 67
 EMReadScreen emer_prog_check, 2, 8, 67
-'EMReadScreen grh_prog_check, 2, 9, 67
-'EMReadScreen fs_prog_check, 2, 10, 67
-'EMReadScreen ive_prog_check, 2, 11, 67
-'EMReadScreen hc_prog_check, 2, 12, 67
-'EMReadScreen cca_prog_check, 2, 14, 67
+EMReadScreen emer_prog_check, 2, 8, 67
+
+IF emer_prog_check = "EG"  THEN
+	IF emer_status_check = "ACTV" THEN emer_active = TRUE
+	IF emer_status_check = "PEND" THEN programs_applied_for = programs_applied_for & "Emergency, "
+END IF
+
 IF cash1_status_check = "ACTV" THEN cash_active  = TRUE
-IF cash1_status_check = "PEND" THEN cash_pends   = TRUE
 IF cash2_status_check = "ACTV" THEN cash2_active = TRUE
-IF cash2_status_check = "PEND" THEN cash2_pends  = TRUE
-IF FS_status_check    = "ACTV" THEN SNAP_active  = TRUE
-IF FS_status_check    = "PEND" THEN SNAP_pends   = TRUE
+IF snap_status_check  = "ACTV" THEN SNAP_active  = TRUE
 IF grh_status_check   = "ACTV" THEN grh_active   = TRUE
-IF grh_status_check   = "PEND" THEN grh_pends    = TRUE
 IF ive_status_check   = "ACTV" THEN IVE_active   = TRUE
-IF ive_status_check   = "PEND" THEN IVE_pends    = TRUE
 IF hc_status_check    = "ACTV" THEN hc_active    = TRUE
-IF hc_status_check    = "PEND" THEN hc_pends     = TRUE
 IF cca_status_check   = "ACTV" THEN cca_active   = TRUE
-IF cca_status_check   = "PEND" THEN cca_pends    = TRUE
+
+msgbox cash1_app_date
+
+msgbox application_date
+
+MsgBox snap_app_date & "Snap"
+
+IF cash1_status_check = "PEND" and cash1_app_date = application_date THEN cash_pends   = TRUE
+IF cash2_status_check = "PEND" and cash2_app_date = application_date THEN cash2_pends  = TRUE
+IF snap_status_check  = "PEND" and snap_app_date  = application_date THEN SNAP_pends   = TRUE
+IF grh_status_check   = "PEND" and grh_app_date   = application_date THEN grh_pends    = TRUE
+IF ive_status_check   = "PEND" and ive_app_date   = application_date THEN IVE_pends    = TRUE
+IF hc_status_check    = "PEND" and hc_app_date    = application_date THEN hc_pends     = TRUE
+IF cca_status_check   = "PEND" and cca_app_date   = application_date THEN cca_pends    = TRUE
+
 'Logic to determine if MFIP is active
 IF cash1_prog_check = "MF" or cash1_prog_check = "GA" or cash1_prog_check = "DW" or cash1_prog_check = "MS" THEN
 	IF cash1_status_check = "ACTV" THEN cash_active = TRUE
-	IF cash1_status_check = "PEND" THEN cash_pends  = TRUE
-	IF cash1_status_check = "INAC" THEN CASH_STATUS = FALSE
-	IF cash1_status_check = "SUSP" THEN CASH_STATUS = FALSE
-	IF cash1_status_check = "DENY" THEN CASH_STATUS = FALSE
-	IF cash1_status_check = ""     THEN CASH_STATUS = FALSE
 END IF
 IF cash2_prog_check = "MF" or cash2_prog_check = "GA" or cash2_prog_check = "DW" or cash2_prog_check = "MS" THEN
 	IF cash2_status_check = "ACTV" THEN cash2_active = TRUE
-	IF cash2_status_check = "PEND" THEN cash2_pends  = TRUE
-	IF cash2_status_check = "INAC" THEN CASH_STATUS = FALSE
-	IF cash2_status_check = "SUSP" THEN CASH_STATUS = FALSE
-	IF cash2_status_check = "DENY" THEN CASH_STATUS = FALSE
-	IF cash2_status_check = ""     THEN CASH_STATUS = FALSE
 END IF
 IF emer_prog_check = "EG"  THEN
 	IF emer_status_check = "ACTV" THEN emer_active = TRUE
-	IF emer_status_check = "PEND" THEN emer_pends  = TRUE
-	IF emer_status_check = "INAC" THEN CASH_STATUS = FALSE
-	IF emer_status_check = "SUSP" THEN CASH_STATUS = FALSE
-	IF emer_status_check = "DENY" THEN CASH_STATUS = FALSE
-	IF emer_status_check = ""     THEN CASH_STATUS = FALSE
 END IF
 
-'Defaults the date pended to today
-msgbox application_date
-If additional_application_check = "ADDITIONAL APP" THEN msgbox additional_application_date
-
-'Creates a variable that lists all the programs pending.
-programs_applied_for = ""
-IF cash_pends = TRUE or cash2_pends = TRUE THEN programs_applied_for = programs_applied_for & "CASH, "
-IF emer_pends = TRUE THEN programs_applied_for = programs_applied_for & "Emergency, "
-IF grh_pends  = TRUE THEN programs_applied_for = programs_applied_for & "GRH, "
-IF snap_pends = TRUE THEN programs_applied_for = programs_applied_for & "SNAP, "
-IF ive_pends  = TRUE THEN programs_applied_for = programs_applied_for & "IV-E, "
-IF hc_pends   = TRUE THEN programs_applied_for = programs_applied_for & "HC, "
-IF cca_pends  = TRUE THEN programs_applied_for = programs_applied_for & "CCA"
-
-additional_programs_applied_for = ""
-IF additional_application_check = "ADDITIONAL APP" and cash_pends = TRUE or cash2_pends = TRUE THEN additional_programs_applied_for = additional_programs_applied_for & "CASH, "
-IF additional_application_check = "ADDITIONAL APP" and emer_pends = TRUE THEN additional_programs_applied_for = additional_programs_applied_for & "Emergency, "
-IF additional_application_check = "ADDITIONAL APP" and grh_pends  = TRUE THEN additional_programs_applied_for = additional_programs_applied_for & "GRH, "
-IF additional_application_check = "ADDITIONAL APP" and snap_pends = TRUE THEN additional_programs_applied_for = additional_programs_applied_for & "SNAP, "
-IF additional_application_check = "ADDITIONAL APP" and ive_pends  = TRUE THEN additional_programs_applied_for = additional_programs_applied_for & "IV-E, "
-IF additional_application_check = "ADDITIONAL APP" and hc_pends   = TRUE THEN additional_programs_applied_for = additional_programs_applied_for & "HC, "
-IF additional_application_check = "ADDITIONAL APP" and cca_pends  = TRUE THEN additional_programs_applied_for = additional_programs_applied_for & "CCA"
-
-
+'programs_applied_for = ""
+'IF cash_pends = TRUE or cash2_pends = TRUE THEN programs_applied_for = programs_applied_for & "CASH, "
+'IF emer_pends = TRUE THEN programs_applied_for = programs_applied_for & "Emergency, "
+'IF grh_pends  = TRUE THEN programs_applied_for = programs_applied_for & "GRH, "
+'IF snap_pends = TRUE THEN programs_applied_for = programs_applied_for & "SNAP, "
+'IF ive_pends  = TRUE THEN programs_applied_for = programs_applied_for & "IV-E, "
+'IF hc_pends   = TRUE THEN programs_applied_for = programs_applied_for & "HC, "
+'IF cca_pends  = TRUE THEN programs_applied_for = programs_applied_for & "CCA"
+'Creates a variable that lists all the active.
 active_programs = ""
 IF cash_active = TRUE or cash2_active = TRUE THEN active_programs = active_programs & "CASH, "
 IF emer_active = TRUE THEN active_programs = active_programs & "Emergency, "
@@ -276,19 +263,21 @@ IF cca_active  = TRUE THEN active_programs = active_programs & "CCA"
 
 'trims excess spaces of programs_applied_for
 programs_applied_for = trim(programs_applied_for)
-'takes the last comma off of programs_applied_for when autofilled into dialog if more more than one app date is found and additional app is selected
 If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
-active_programs = trim(active_programs)
-If right(active_programs, 1) = "," THEN active_programs = left(active_programs, len(active_programs) - 1)
 
 additional_programs_applied_for = trim(additional_programs_applied_for)
 If right(additional_programs_applied_for, 1) = "," THEN additional_programs_applied_for = left(additional_programs_applied_for, len(additional_programs_applied_for) - 1)
+
+active_programs = trim(active_programs)
+If right(active_programs, 1) = "," THEN active_programs = left(active_programs, len(active_programs) - 1)
+
+
 '----------------------------------------------------------------------------------------------------dialogs
 BeginDialog appl_detail_dialog, 0, 0, 296, 145, ""
   DropListBox 85, 10, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
   DropListBox 85, 30, 65, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
   EditBox 215, 30, 45, 15, confirmation_number
-  EditBox 55, 70, 20, 15, transfer_case
+  EditBox 55, 70, 20, 15, transfer_case_number
   CheckBox 85, 85, 140, 10, "Check if case does not require a transfer ", no_transfer_check
   EditBox 60, 105, 230, 15, other_notes
   EditBox 80, 125, 100, 15, worker_signature
@@ -320,8 +309,10 @@ Do
 			If ButtonPressed = geocoder_button then CreateObject("WScript.Shell").Run("https://hcgis.hennepin.us/agsinteractivegeocoder/default.aspx")
 		Loop until ButtonPressed = -1
 		IF how_app_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
+		IF how_app_rcvd = "Online" and app_type <> "ApplyMN" then err_msg = err_msg & vbNewLine & "* You selected that the application was received online please select ApplyMN from the drop down."
 		IF app_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
-		IF no_transfer_check = UNCHECKED and transfer_case = "" OR len(transfer_case) <> 3 then err_msg = err_msg & vbNewLine & "* You must enter the basket number the case to be transfered by the script or check that no transfer is needed."
+		IF no_transfer_check = UNCHECKED AND transfer_case_number = "" then err_msg = err_msg & vbNewLine & "* You must enter the basket number the case to be transfered by the script or check that no transfer is needed."
+		IF no_transfer_check = CHECKED and transfer_case_number <> "" then err_msg = err_msg & vbNewLine & "* You have checked that no transfer is needed, please remove basket number from transfer field."
 		IF app_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "If an ApplyMN was received, you must enter the confirmation number and time received"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
@@ -330,9 +321,9 @@ LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
 
 IF how_app_rcvd = "Office" THEN
 	same_day_confirmation = MsgBox("Press YES to confirm a same day interview was completed?." & vbNewLine & "If no interview was offered, press NO." & vbNewLine & vbNewLine & _
-	"How application was received " & how_app_rcvd, vbYesNoCancel, "Application received - Same day interview completed?")
-	IF same_day_confirmation = vbNo THEN send_appt_ltr = TRUE
-	IF same_day_confirmation = vbYes THEN send_appt_ltr = FALSE
+	"Application was received in " & how_app_rcvd, vbYesNoCancel, "Application received - Same day interview completed?")
+	IF same_day_confirmation = vbNo THEN same_day_interview = FALSE
+	IF same_day_confirmation = vbYes THEN same_day_interview = TRUE
 	IF same_day_confirmation = vbCancel THEN script_end_procedure ("The script has ended.")
 END IF
 
@@ -349,10 +340,12 @@ CALL write_bullet_and_variable_in_CASE_NOTE ("Application Requesting", programs_
 CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", additional_programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
-If transfer_case <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Application assigned to", transfer_case)
+If transfer_case_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Application assigned to", transfer_case_number)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
 CALL write_variable_in_CASE_NOTE ("---")
 CALL write_variable_in_CASE_NOTE (worker_signature)
+
+PF3
 
 '----------------------------------------------------------------------------------------------------EXPEDITED SCREENING!
 IF snap_pends = TRUE THEN
@@ -440,7 +433,7 @@ IF snap_pends = TRUE THEN
    		CALL navigate_to_MAXIS_screen("MONY", "DISB")
    		EMReadScreen EBT_account_status, 1, 14, 27
    		MsgBox "This Client Appears EXPEDITED. A same day interview needs to be offered."
-   		same_day_checkbox = CHECKED
+   		same_day_interview = TRUE
 	END IF
 	IF expedited_status = "Client does not appear expedited" THEN MsgBox "This client does NOT appear expedited. A same day interview does not need to be offered."
 	'-----------------------------------------------------------------------------------------------EXPCASENOTE
@@ -462,10 +455,12 @@ IF snap_pends = TRUE THEN
 	CALL write_variable_in_CASE_NOTE("---")
 	CALL write_variable_in_CASE_NOTE(worker_signature)
 END IF
+
+'IF expedited_status = "Client appears expedited" THEN same_day_interview = TRUE
 '-------------------------------------------------------------------------------------Transfers the case to the assigned worker if this was selected in the second dialog box
 
 'Determining if a case will be transferred or not. All cases will be transferred except addendum app types. THIS IS NOT CORRECT AND NEEDS TO BE DISCUSSED WITH QI
-IF transfer_case = "" THEN
+IF transfer_case_number = "" and no_transfer_check = CHECKED THEN
 	transfer_case = False
   	action_completed = TRUE     'This is to decide if the case was successfully transferred or not
 ELSE
@@ -474,7 +469,7 @@ ELSE
 	EMWriteScreen "x", 7, 16
 	transmit
 	PF9
-	EMWriteScreen "X127" & transfer_case, 18, 61
+	EMWriteScreen "X127" & transfer_case_number, 18, 61
 	transmit
 	EMReadScreen worker_check, 9, 24, 2
 
@@ -524,9 +519,6 @@ IF send_appt_ltr = TRUE THEN
     application_date = application_date & ""
     interview_date = interview_date & ""		'turns interview date into string for variable
  	'need to handle for if we dont need an appt letter, which would be...'
-
- 	last_contact_day = dateadd("d", 30, application_date)
- 	If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date
 
 	Do
 		Do
@@ -597,15 +589,16 @@ IF send_appt_ltr = TRUE THEN
 END IF
 
 IF same_day_interview = TRUE and how_app_rcvd = "Office" THEN
-  start_a_blank_CASE_NOTE
-  Call write_variable_in_CASE_NOTE("~ Same day interview offered ~")
-  Call write_variable_in_CASE_NOTE("* Agency informed the client of needed interview.")
-  Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
-  Call write_variable_in_CASE_NOTE("* A Domestic Violence Brochure has been offered to client as part of application packet.")
-  Call write_variable_in_CASE_NOTE("---")
-  CALL write_variable_in_CASE_NOTE (worker_signature)
-  PF3
+  	start_a_blank_CASE_NOTE
+  	Call write_variable_in_CASE_NOTE("~ Same day interview offered ~")
+  	Call write_variable_in_CASE_NOTE("* Agency informed the client of needed interview.")
+  	Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
+  	Call write_variable_in_CASE_NOTE("* A Domestic Violence Brochure has been offered to client as part of application packet.")
+  	Call write_variable_in_CASE_NOTE("---")
+  	CALL write_variable_in_CASE_NOTE (worker_signature)
+  	PF3
 END IF
+
 
 IF action_completed = False then
     script_end_procedure ("Warning! Case did not transfer. Transfer the case manually. Script was able to complete all other steps.")
