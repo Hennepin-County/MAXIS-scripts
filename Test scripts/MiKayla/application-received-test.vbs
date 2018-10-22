@@ -242,8 +242,8 @@ IF emer_prog_check = "EG"  THEN
 END IF
 
 'Defaults the date pended to today
-pended_date = date & ""
-additional_application_date
+msgbox application_date
+If additional_application_check = "ADDITIONAL APP" THEN msgbox additional_application_date
 
 'Creates a variable that lists all the programs pending.
 programs_applied_for = ""
@@ -255,14 +255,14 @@ IF ive_pends  = TRUE THEN programs_applied_for = programs_applied_for & "IV-E, "
 IF hc_pends   = TRUE THEN programs_applied_for = programs_applied_for & "HC, "
 IF cca_pends  = TRUE THEN programs_applied_for = programs_applied_for & "CCA"
 
-programs_applied_for = ""
-IF cash_pends = TRUE or cash2_pends = TRUE and additional_application_date <> date THEN other_programs_applied_for = programs_applied_for & "CASH, "
-IF emer_pends = TRUE THEN programs_applied_for = programs_applied_for & "Emergency, "
-IF grh_pends  = TRUE THEN programs_applied_for = programs_applied_for & "GRH, "
-IF snap_pends = TRUE THEN programs_applied_for = programs_applied_for & "SNAP, "
-IF ive_pends  = TRUE THEN programs_applied_for = programs_applied_for & "IV-E, "
-IF hc_pends   = TRUE THEN programs_applied_for = programs_applied_for & "HC, "
-IF cca_pends  = TRUE THEN programs_applied_for = programs_applied_for & "CCA"
+additional_programs_applied_for = ""
+IF additional_application_check = "ADDITIONAL APP" and cash_pends = TRUE or cash2_pends = TRUE THEN additional_programs_applied_for = additional_programs_applied_for & "CASH, "
+IF additional_application_check = "ADDITIONAL APP" and emer_pends = TRUE THEN additional_programs_applied_for = additional_programs_applied_for & "Emergency, "
+IF additional_application_check = "ADDITIONAL APP" and grh_pends  = TRUE THEN additional_programs_applied_for = additional_programs_applied_for & "GRH, "
+IF additional_application_check = "ADDITIONAL APP" and snap_pends = TRUE THEN additional_programs_applied_for = additional_programs_applied_for & "SNAP, "
+IF additional_application_check = "ADDITIONAL APP" and ive_pends  = TRUE THEN additional_programs_applied_for = additional_programs_applied_for & "IV-E, "
+IF additional_application_check = "ADDITIONAL APP" and hc_pends   = TRUE THEN additional_programs_applied_for = additional_programs_applied_for & "HC, "
+IF additional_application_check = "ADDITIONAL APP" and cca_pends  = TRUE THEN additional_programs_applied_for = additional_programs_applied_for & "CCA"
 
 
 active_programs = ""
@@ -281,28 +281,31 @@ If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(program
 active_programs = trim(active_programs)
 If right(active_programs, 1) = "," THEN active_programs = left(active_programs, len(active_programs) - 1)
 
+additional_programs_applied_for = trim(additional_programs_applied_for)
+If right(additional_programs_applied_for, 1) = "," THEN additional_programs_applied_for = left(additional_programs_applied_for, len(additional_programs_applied_for) - 1)
 '----------------------------------------------------------------------------------------------------dialogs
-BeginDialog appl_detail_dialog, 0, 0, 286, 110, "APPLICATION RECEIVED"
-  DropListBox 80, 5, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
-  DropListBox 80, 25, 65, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
-  EditBox 230, 25, 45, 15, confirmation_number
-  EditBox 45, 45, 25, 15, transfer_case_number
+BeginDialog appl_detail_dialog, 0, 0, 296, 145, ""
+  DropListBox 85, 10, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
+  DropListBox 85, 30, 65, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
+  EditBox 215, 30, 45, 15, confirmation_number
+  EditBox 55, 70, 20, 15, transfer_case
+  CheckBox 85, 85, 140, 10, "Check if case does not require a transfer ", no_transfer_check
+  EditBox 60, 105, 230, 15, other_notes
+  EditBox 80, 125, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    PushButton 230, 45, 45, 15, "GeoCoder", geocoder_button
-  EditBox 50, 70, 230, 15, other_notes
-  EditBox 70, 90, 100, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 175, 90, 50, 15
-    CancelButton 230, 90, 50, 15
-  Text 5, 10, 70, 10, "Application Received:"
-  Text 160, 10, 125, 10, "Date of Application: "  & application_date
-  Text 5, 30, 65, 10, "Type of Application:"
-  Text 175, 30, 50, 10, "Confirmation #:"
-  Text 5, 50, 40, 10, "Transfer to:"
-  Text 80, 45, 135, 10, "(last 3 digit of X#) transfer case to basket"
-  Text 85, 55, 120, 10, " -- if left blank no transfer will occur --"
-  Text 5, 75, 45, 10, "Other Notes:"
-  Text 5, 95, 60, 10, "Worker Signature:"
+    OkButton 185, 125, 50, 15
+    CancelButton 240, 125, 50, 15
+    PushButton 235, 70, 45, 15, "GeoCoder", geocoder_button
+  Text 160, 15, 125, 10, "Date of Application: " & application_date
+  Text 15, 30, 65, 10, "Type of Application:"
+  Text 160, 35, 50, 10, "Confirmation #:"
+  Text 10, 75, 40, 10, "Transfer to:"
+  Text 90, 70, 135, 10, "(last 3 digit of X#) transfer case to basket"
+  Text 15, 110, 45, 10, "Other Notes:"
+  Text 15, 130, 60, 10, "Worker Signature:"
+  GroupBox 5, 55, 285, 45, "Transfer Information"
+  Text 10, 15, 70, 10, "Application Received:"
+  GroupBox 5, 0, 285, 50, "Application Information"
 EndDialog
 
 
@@ -318,7 +321,7 @@ Do
 		Loop until ButtonPressed = -1
 		IF how_app_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
 		IF app_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
-		IF transfer_case_number = "" OR len(transfer_case_number) <> 3 then err_msg = err_msg & vbNewLine & "* You must enter the worker number of the worker if you would like the case to be transfered by the script."
+		IF no_transfer_check = UNCHECKED and transfer_case = "" OR len(transfer_case) <> 3 then err_msg = err_msg & vbNewLine & "* You must enter the basket number the case to be transfered by the script or check that no transfer is needed."
 		IF app_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "If an ApplyMN was received, you must enter the confirmation number and time received"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
@@ -326,19 +329,13 @@ Do
 LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
 
 IF how_app_rcvd = "Office" THEN
-    DO
-    	same_day_confirmation = MsgBox("Press YES to confirm a same day interview was completed?." & vbNewLine & "If no interview was offered, press NO." & vbNewLine & vbNewLine & _
-    	"How app was received" & how_app_rcvd, vbYesNoCancel, "Application received - Same day interview completed?")
-    	IF same_day_confirmation = vbNo THEN send_appt_ltr = TRUE
-    	IF same_day_confirmation = vbCancel THEN script_end_procedure ("The script has ended.")
-    	IF same_day_confirmation = vbYes THEN
-    		send_appt_ltr = FALSE
-    		EXIT DO
-    	END IF
-    LOOP UNTIL same_day_confirmation = vbYes
+	same_day_confirmation = MsgBox("Press YES to confirm a same day interview was completed?." & vbNewLine & "If no interview was offered, press NO." & vbNewLine & vbNewLine & _
+	"How application was received " & how_app_rcvd, vbYesNoCancel, "Application received - Same day interview completed?")
+	IF same_day_confirmation = vbNo THEN send_appt_ltr = TRUE
+	IF same_day_confirmation = vbYes THEN send_appt_ltr = FALSE
+	IF same_day_confirmation = vbCancel THEN script_end_procedure ("The script has ended.")
 END IF
 
-IF cash_pends = TRUE or cash2_pends = TRUE or emer_pends = TRUE or SNAP_pends = TRUE  THEN send_appt_ltr = TRUE
 '--------------------------------------------------------------------------------initial case note
 start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
@@ -350,9 +347,9 @@ IF app_type = "LTC" THEN write_variable_in_CASE_NOTE ("Form Rcvd: Application fo
 IF app_type = "MHCP B/C Cancer" THEN write_variable_in_CASE_NOTE ("Form Rcvd: Minnesota Health Care Programs Application and Renewal Form Medical Assistance for Women with Breast or Cervical Cancer (DHS-3525) ")
 CALL write_bullet_and_variable_in_CASE_NOTE ("Application Requesting", programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
-CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", pending_programs)
+CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", additional_programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
-CALL write_bullet_and_variable_in_CASE_NOTE ("Application assigned to", transfer_case_number)
+If transfer_case <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Application assigned to", transfer_case)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
 CALL write_variable_in_CASE_NOTE ("---")
 CALL write_variable_in_CASE_NOTE (worker_signature)
@@ -466,17 +463,18 @@ IF snap_pends = TRUE THEN
 	CALL write_variable_in_CASE_NOTE(worker_signature)
 END IF
 '-------------------------------------------------------------------------------------Transfers the case to the assigned worker if this was selected in the second dialog box
+
 'Determining if a case will be transferred or not. All cases will be transferred except addendum app types. THIS IS NOT CORRECT AND NEEDS TO BE DISCUSSED WITH QI
-IF transfer_case_number = "" THEN
+IF transfer_case = "" THEN
 	transfer_case = False
-  action_completed = TRUE     'This is to decide if the case was successfully transferred or not
+  	action_completed = TRUE     'This is to decide if the case was successfully transferred or not
 ELSE
 	transfer_case = True
 	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
 	EMWriteScreen "x", 7, 16
 	transmit
 	PF9
-	EMWriteScreen "X127" & transfer_case_number, 18, 61
+	EMWriteScreen "X127" & transfer_case, 18, 61
 	transmit
 	EMReadScreen worker_check, 9, 24, 2
 
@@ -494,9 +492,10 @@ ELSE
 END IF
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-'IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & transfer_case_number & "  EOM.", "", "", TRUE)
+'IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & transfer_case & "  EOM.", "", "", TRUE)
 
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
+IF cash_pends = TRUE or cash2_pends = TRUE or emer_pends = TRUE or SNAP_pends = TRUE THEN send_appt_ltr = TRUE
 IF send_appt_ltr = TRUE THEN
 	BeginDialog Hennepin_appt_dialog, 0, 0, 266, 80, "APPOINTMENT LETTER"
     EditBox 185, 20, 55, 15, interview_date
