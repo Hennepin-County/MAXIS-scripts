@@ -83,40 +83,18 @@ EndDialog
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 
-'Grabbing user ID to validate user of script. Only some users are allowed to use this script.
-Set objNet = CreateObject("WScript.NetWork") 
-user_ID_for_validation = ucase(objNet.UserName)
-
-'Validating user ID
-If user_ID_for_validation = "ILFE001" OR _		
-	user_ID_for_validation = "WF7638" OR _		
-	user_ID_for_validation = "WF1875" OR _ 		
-	user_ID_for_validation = "WFQ898" OR _ 		
-	user_ID_for_validation = "WFP803" OR _		
-	user_ID_for_validation = "WFP106" OR _		
-	user_ID_for_validation = "WFK093" OR _ 		
-	user_ID_for_validation = "WF1373" OR _ 		
-	user_ID_for_validation = "WFU161" OR _ 		
-	user_ID_for_validation = "WFS395" OR _ 		
-	user_ID_for_validation = "WFU851" OR _ 		
-	user_ID_for_validation = "WFX901" OR _ 
-	user_ID_for_validation = "CALO001" OR _ 		
-	user_ID_for_validation = "WFI021" then 		
-    'the dialog
-    Do
-    	Do
-      		err_msg = ""
-      		dialog dail_dialog
-      		If ButtonPressed = 0 then StopScript
-      		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."	
-      		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."							
-      	  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine										
-      	LOOP until err_msg = ""		
-      	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-      Loop until are_we_passworded_out = false					'loops until user passwords back in		
-Else 
-	script_end_procedure("This script is for Quality Improvement staff only. You do not have access to use this script.")
-End if 
+'the dialog
+Do
+	Do
+  		err_msg = ""
+  		dialog dail_dialog
+  		If ButtonPressed = 0 then StopScript
+  		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."	
+  		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."							
+  	  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine										
+  	LOOP until err_msg = ""		
+  	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in		
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -212,6 +190,8 @@ For each worker in worker_array
 	
 			If instr(dail_msg, "SDX MATCH - PBEN UPDATED - MAXIS INTERFACED IAA DATE TO SSA") then 
 			    add_to_excel = TRUE
+            ElseIf instr(dail_msg, "SDX MATCH - MAXIS INTERFACED IAA DATE TO SSA") then 
+    		    add_to_excel = TRUE    
             Elseif instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") then 
     			add_to_excel = TRUE
             Elseif instr(dail_msg, "IS IN REINSTATE OR PENDING STATUS") then 
