@@ -28,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/22/2018", "Updated EGA eligibilty period to a year and a day after the start of the eligibilty period, per EGA group.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/01/2018", "FPG standards updated.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/06/2018", "FPG standards updated.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/25/2017", "Fixed header for case notes that have an EGA screening, header information was duplicating.", "Ilse Ferris, Hennepin County")
@@ -111,7 +112,7 @@ BeginDialog case_number_dialog, 0, 0, 141, 115, "Case number dialog"
   CheckBox 10, 60, 30, 10, "cash", cash_check
   CheckBox 55, 60, 30, 10, "HC", HC_check
   CheckBox 95, 60, 35, 10, "SNAP", SNAP_check
-  IF worker_county_code = "x127" or worker_county_code = "x162" then CheckBox 10, 80, 120, 10, "Check here if program is EGA?", EGA_screening_check
+  CheckBox 10, 80, 120, 10, "Check here if program is EGA?", EGA_screening_check
   ButtonGroup ButtonPressed
     OkButton 15, 95, 50, 15
     CancelButton 75, 95, 50, 15
@@ -278,7 +279,7 @@ If EGA_screening_check = 1 then
     LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 
     'creating variables and conditions for EMER screening
-    New_EMER_year = dateadd("YYYY", 1, EMER_elig_end_date)
+    New_EMER_year = dateadd("YYYY", 1, EMER_elig_start_date)
     EMER_available_date = dateadd("d", 1, New_EMER_year)	'creating emer available date that is 1 day & 1 year past the EMER_elig_end_date
     EMER_last_used_dates = EMER_elig_start_date & " - " & EMER_elig_end_date	'combining dates into new variable
 
