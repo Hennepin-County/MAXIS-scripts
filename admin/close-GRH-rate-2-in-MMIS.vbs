@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/22/2018", "Added functionalty to support more than one SSR agreement in MMIS.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/17/2018", "Added custom function for MAXIS navigation, updated output to show PMI numbers as they are collected, more handling for multiple agreements in MMIS.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/10/2018", "Added functionalty to disregard Andrew Residence cases as Rate 2.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/21/2018", "Removed case noting in MAXIS functionality. Also added PMI's to all cases instead of Rate 2 only cases.", "Ilse Ferris, Hennepin County")
@@ -353,11 +354,6 @@ For item = 0 to UBound(Update_MMIS_array, 2)
                         continue_update = false 
                         Update_MMIS_array(case_status, item) = "Most recent agreement was denied. Review case and update manually."
                         PF3
-                    elseIf (agreement_status = "A" and ASEL_start_date <> output_cash_review_date) then     
-		    	        Update_MMIS_array(update_MMIS, item) = False	
-                        continue_update = false 
-	        	        Update_MMIS_array(case_status, item) = "More than one service agreement exists in MMIS. Update manually."
-		    	        PF3
                     Else
                         continue_update = true 
                         Call write_value_and_transmit ("X", 6, 3)
