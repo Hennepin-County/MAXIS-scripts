@@ -154,6 +154,7 @@ EMReadScreen new_hire_fourth_line, 61, row + 3, col -15'new hire name'
 	new_hire_fourth_line = trim(new_hire_fourth_line)
 	new_hire_fourth_line = replace(new_hire_fourth_line, ",", ", ")
 'TO DO the date_hired often throws an error figure your life out
+EMWaitReady 0, 0
 EMReadScreen date_hired, 10, 10, 22
 If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then date_hired = current_month & "-" & current_day & "-" & current_year
 date_hired = trim(date_hired)
@@ -330,46 +331,54 @@ IF match_answer_droplist = "YES - INFC clear match" THEN
 	transmit
 	EMWriteScreen "HIRE", 20, 71
 	transmit
-	Row = 9
- 	'checking to see if match is know to the agency, therefore acted on'
-	DO
-		EMReadScreen case_number, 8, row, 5
-		case_number = trim(case_number)
-		IF case_number = MAXIS_case_number THEN
-			EXIT DO
-		ELSE
-	  		row = row + 1
-	  		IF row = 17 THEN
-	    		PF8
-	   			ROW = 9
-			END IF
-	  END IF
-	LOOP UNTIL case_number = ""
+	row = 9
+ 	' 'checking to see if match is know to the agency, therefore acted on'
+	' DO
+	' 	EMReadScreen case_number, 8, row, 5
+	' 	case_number = trim(case_number)
+	' 	IF case_number = MAXIS_case_number THEN
+	' 		EXIT DO
+	' 	ELSE
+	'   		row = row + 1
+	'   		IF row = 17 THEN
+	'     		PF8
+	'    			ROW = 9
+	' 		END IF
+	'   END IF
+	' LOOP UNTIL case_number = ""
 'checking for an employer match'
 	DO
-		EMReadScreen employer_match, 20, row, 36
-		employer_match = trim(employer_match)
-		IF trim(employer_match) = "" THEN script_end_procedure("An employer match for the could not be found. The script will now end.")
-	  	IF employer_match = employer THEN
-	   		EMReadScreen cleared_value, 1, row, 61
-			IF cleared_value = " " THEN
-				info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-				"   " & employer_match, vbYesNoCancel, "Please confirm this match")
-				IF info_confirmation = vbNo THEN row = row + 1
-				IF info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
-				IF info_confirmation = vbYes THEN EXIT DO
-			ELSE
-		   		row = row + 1
-			END IF
-		ELSE
-	    	row = row + 1
-	  	END IF
-		IF row = 17 THEN
+        EMReadScreen case_number, 8, row, 5
+        case_number = trim(case_number)
+        IF case_number = MAXIS_case_number THEN
+    		EMReadScreen employer_match, 20, row, 36
+    		employer_match = trim(employer_match)
+    		IF trim(employer_match) = "" THEN script_end_procedure("An employer match for the could not be found. The script will now end.")
+    	  	IF employer_match = employer THEN
+    	   		EMReadScreen cleared_value, 1, row, 61
+    			IF cleared_value = " " THEN
+                    EmReadscreen date_of_hire, 8, row, 20
+                    EmReadscreen match_month, 5, row, 14
+    				info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+    				"   " & employer_match & vbNewLine & "     Case: " & case_number & vbNewLine & "     Hire Date: " & date_of_hire & vbNewLine & "     Month: " & match_month, vbYesNoCancel, "Please confirm this match")
+    				IF info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
+    				IF info_confirmation = vbYes THEN
+                        hire_match = TRUE
+                        match_row = row
+                        EXIT DO
+                    END IF
+    			END IF
+    	  	END IF
+        END IF
+        row = row + 1
+		IF row = 19 THEN
 			PF8
+            EmReadscreen end_of_list, 9, 24, 14
+            If end_of_list = "LAST PAGE" Then Exit Do
 			row = 9
 		END IF
-	LOOP UNTIL trim(employer_match) = ""
-	'IF hire_match <> TRUE THEN script_end_procedure("No pending HIRE match found. Please review NEW HIRE.")
+	LOOP UNTIL case_number = ""
+	IF hire_match <> TRUE THEN script_end_procedure("No pending HIRE match found. Please review NEW HIRE.")
 	DO
 		DO
 			err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
@@ -386,7 +395,7 @@ IF match_answer_droplist = "YES - INFC clear match" THEN
 	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 	'entering the INFC/HIRE match '
 
-	EMWriteScreen "U", row, 3
+	EMWriteScreen "U", match_row, 3
 	transmit
 	IF Emp_known_droplist = "NO-See Next Question" THEN EMWriteScreen "N", 16, 54
 	IF Emp_known_droplist = "YES-No Further Action" THEN EMWriteScreen "Y", 16, 54
