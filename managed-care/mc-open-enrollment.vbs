@@ -88,7 +88,7 @@ EndDialog
 EMConnect ""
 'call check_for_MMIS(True) 'Sending MMIS back to the beginning screen and checking for a password prompt
 EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
-IF MMIS_panel_check <> "RKEY" THEN 
+IF MMIS_panel_check <> "RKEY" THEN
 	DO
 		PF6
 		EMReadScreen session_terminated_check, 18, 1, 7
@@ -99,7 +99,7 @@ IF MMIS_panel_check <> "RKEY" THEN
 	transmit
 	EMWriteScreen "x", 8, 3
 	transmit
-END IF 
+END IF
 
 'grabs the PMI number if one is listed on RKEY
 EMReadscreen MMIS_case_number, 8, 9, 19
@@ -121,7 +121,7 @@ disenrollment_reason = "OE"
 'checking for an active MMIS session
 Call check_for_MMIS(True)
 EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
-IF MMIS_panel_check <> "RKEY" THEN 
+IF MMIS_panel_check <> "RKEY" THEN
 	DO
 		PF6
 		EMReadScreen session_terminated_check, 18, 1, 7
@@ -132,7 +132,7 @@ IF MMIS_panel_check <> "RKEY" THEN
 	transmit
 	EMWriteScreen "x", 8, 3
 	transmit
-END IF 
+END IF
 
 'formatting variables----------------------------------------------------------------------------------------------------
 Need_CNOTE = FALSE
@@ -148,7 +148,7 @@ enrollment_date = "01/01/19"
 
 'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
 EMWriteScreen "i", 2, 19
-EMWriteScreen MMIS_case_number, 9, 19 
+EMWriteScreen MMIS_case_number, 9, 19
 transmit
 transmit
 transmit
@@ -166,10 +166,10 @@ DO								'reads the reference number, last name, first name, and then puts it i
 	EMReadscreen first_name, 9, rcin_row, 42
 	last_name = trim(last_name)
 	first_name = trim(first_name)
-	client_string = pmi_nbr & " - " & last_name & ", " & first_name 
+	client_string = pmi_nbr & " - " & last_name & ", " & first_name
 	client_array = client_array & client_string & "|"
-	rcin_row = rcin_row + 1 
-	If rcin_row = 21 Then 
+	rcin_row = rcin_row + 1
+	If rcin_row = 21 Then
 		PF8
 		EMReadScreen end_rcin, 6, 24, 2
 		If end_rcin = "CANNOT" then Exit Do
@@ -192,16 +192,16 @@ FOR x = 0 to total_clients				'using a dummy array to build in the autofilled ch
 	PF7
 	Do
 		Search_pmi = left(Interim_array(x), 8)
-		row = 1 
-		col = 1 
-		EMSearch Search_pmi, row, col 
-		If row = 0 then 
+		row = 1
+		col = 1
+		EMSearch Search_pmi, row, col
+		If row = 0 then
 			PF8
-		Else 
+		Else
 			EMReadScreen hc_status, 1, row, 76
 			If hc_status = "A" Then all_clients_array(x, 1) = 1
 			Exit Do
-		End If 
+		End If
 		EMReadScreen end_rcin, 6, 24, 2
 	Loop until end_rcin = "CANNOT"
 NEXT
@@ -246,9 +246,9 @@ Dim MMIS_clients_array
 ReDim MMIS_clients_array (6, 0)
 
 EMReadScreen RCIN_check, 4, 1, 49
-If RCIN_check = "RCIN" Then PF6 
+If RCIN_check = "RCIN" Then PF6
 EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
-IF MMIS_panel_check <> "RKEY" THEN 
+IF MMIS_panel_check <> "RKEY" THEN
 	DO
 		PF6
 		EMReadScreen session_terminated_check, 18, 1, 7
@@ -259,14 +259,14 @@ IF MMIS_panel_check <> "RKEY" THEN
 	transmit
 	EMWriteScreen "x", 8, 3
 	transmit
-END IF 
+END IF
 
-item = 0 
+item = 0
 
 For each member in HH_member_array
 	ReDim Preserve MMIS_clients_array(6, item)
 	EMWriteScreen "I", 2, 19
-	EMWriteScreen member, 4, 19 
+	EMWriteScreen member, 4, 19
 	EMWriteScreen "        ", 9, 19
 	transmit
 	MMIS_clients_array (client_pmi, item) = member
@@ -278,16 +278,16 @@ For each member in HH_member_array
 	EMWriteScreen "RPPH", 1, 8
 	transmit
 	row = 1
-	col = 1 
+	col = 1
 	EMSearch "99/99/99", row, col
-	IF row < 10 Then 
-		If col = 18 Then 
+	IF row < 10 Then
+		If col = 18 Then
 			EMReadScreen excl_code, 2, row, 2
-		ElseIf col = 45 Then 
+		ElseIf col = 45 Then
 			EMReadScreen excl_code, 2, row, 29
-		ElseIf col = 72 Then 
+		ElseIf col = 72 Then
 			EMReadScreen excl_code, 2, row, 56
-		End If 
+		End If
 		If excl_code = "AA" Then MMIS_clients_array(current_plan, item) = "XCL - Adoption Assistance"
 		If excl_code = "AB" Then MMIS_clients_array(current_plan, item) = "XCL - Part A or B Only"
 		If excl_code = "BB" Then MMIS_clients_array(current_plan, item) = "XCL - Blind/Disabled under 65 years"
@@ -317,12 +317,12 @@ For each member in HH_member_array
 		If excl_code = "WW" Then MMIS_clients_array(current_plan, item) = "XCL - Delayed Nursing Home"
 		If excl_code = "YY" Then MMIS_clients_array(current_plan, item) = "XCL - Delayed Decision"
 		If excl_code = "ZZ" Then MMIS_clients_array(current_plan, item) = "XCL - RTC/IMD Resident"
-	Else 
+	Else
 		EMReadScreen hp_code, 10, row, 23
-		
-        If hp_code = "A585713900" then MMIS_clients_array(current_plan, item) = "Health Partners" 
+
+        If hp_code = "A585713900" then MMIS_clients_array(current_plan, item) = "Health Partners"
         If hp_code = "A565813600" then MMIS_clients_array(current_plan, item) = "Ucare"
-        If hp_code = "A405713900" then MMIS_clients_array(current_plan, item) = "Medica" 
+        If hp_code = "A405713900" then MMIS_clients_array(current_plan, item) = "Medica"
         If hp_code = "A065813800" then MMIS_clients_array(current_plan, item) = "Blue Plus"
         If hp_code = "A836618200" then MMIS_clients_array(current_plan, item) = "Hennepin Health PMAP"
         If hp_code = "A965713400" then MMIS_clients_array(current_plan, item) = "Hennepin Health SNBC"
@@ -330,7 +330,7 @@ For each member in HH_member_array
 	MMIS_clients_array(new_plan,     item) = health_plan
 	PF6
 	EMWaitReady 0, 0
-	item = item + 1 
+	item = item + 1
 Next
 
 x = 0
@@ -360,7 +360,7 @@ BeginDialog Enrollment_dlg, 0, 0, 395, (max * 20) + 60, "Enrollment Information"
     CancelButton 330, (max * 20) + 40, 50, 15
 EndDialog
 
-Do 
+Do
 	Dialog Enrollment_dlg
 	cancel_confirmation
 Loop Until ButtonPressed = OK
@@ -368,11 +368,11 @@ Loop Until ButtonPressed = OK
 process_manually_message = ""
 
 
-If MNSURE_Case = TRUE Then 
+If MNSURE_Case = TRUE Then
 	For member = 0 to Ubound(MMIS_clients_array, 2)
-		
+
 		EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
-		IF MMIS_panel_check <> "RKEY" THEN 
+		IF MMIS_panel_check <> "RKEY" THEN
 			DO
 				PF6
 				EMReadScreen session_terminated_check, 18, 1, 7
@@ -383,11 +383,11 @@ If MNSURE_Case = TRUE Then
 			transmit
 			EMWriteScreen "x", 8, 3
 			transmit
-		END IF 
+		END IF
 		'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
 		EMWriteScreen "c", 2, 19
 		EMWriteScreen "        ", 9, 19
-		EMWriteScreen MMIS_clients_array(client_pmi, member), 4, 19 
+		EMWriteScreen MMIS_clients_array(client_pmi, member), 4, 19
 		transmit
 		EMReadscreen RKEY_check, 4, 1, 52
 		If RKEY_check = "RKEY" then process_manually_message = process_manually_message & "PMI " & MMIS_clients_array(client_pmi, member) & " could not be accessed. The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
@@ -409,58 +409,58 @@ If MNSURE_Case = TRUE Then
 			'making sure script got to right panel
 			EMReadScreen RPPH_check, 4, 1, 52
 			If RPPH_check <> "RPPH" then process_manually_message = process_manually_message & "Could not navigate to RPPH for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
-	 
+
 			plan_end_date = DateAdd("d", -1, enrollment_date)
 			plan_end_month = right("00" & DatePart("m", plan_end_date), 2)
 			plan_end_day   = right("00" & DatePart("d", plan_end_date), 2)
 			plan_end_year  = right(DatePart("yyyy", plan_end_date), 2)
 			plan_end_date  = plan_end_month & "/" & plan_end_day & "/" & plan_end_year
 			'Checks for exclusion code only deletes if YY or blank, if any other span entered it stops script.
-			If left(MMIS_clients_array(current_plan, member), 3) = "XCL" Then 
-				If MMIS_clients_array(current_plan, member) = "XCL - Delayed Decision" Then 
+			If left(MMIS_clients_array(current_plan, member), 3) = "XCL" Then
+				If MMIS_clients_array(current_plan, member) = "XCL - Delayed Decision" Then
 					row = 1
-					col = 1 
+					col = 1
 					EMSearch "99/99/99", row, col
 					If col <> 0 Then EMWriteScreen xcl_end_date, row, col
-				Else 
+				Else
 					process_manually_message = process_manually_message & "There is an exclusion code other than 'YY' for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
-				End If 
-			End If 
+				End If
+			End If
 			EMReadscreen XCL_code, 2, 6, 2
 			If XCL_code = "* " then
 				EMSetCursor 6, 2
 				EMSendKey "..."
 			End if
-			
+
             If MMIS_clients_array(new_plan, member) = "Health Partners" then health_plan_code = "A585713900"
 			If MMIS_clients_array(new_plan, member) = "Ucare" then health_plan_code = "A565813600"
 			If MMIS_clients_array(new_plan, member) = "Medica" then health_plan_code = "A405713900"
 			If MMIS_clients_array(new_plan, member) = "Blue Plus" then health_plan_code = "A065813800"
 			If MMIS_clients_array(new_plan, member) = "Hennepin Health PMAP" then health_plan_code = "A836618200"
 			If MMIS_clients_array(new_plan, member) = "Hennepin Health SNBC" then health_plan_code = "A965713400"
-			
+
 			contract_code = MMIS_clients_array (contr_code, member)
 			Contract_code_part_one = left(contract_code, 2)
 			Contract_code_part_two = right(contract_code, 2)
-			
+
 			EMReadscreen current_plan_end_date, 8, 13, 14
-			If current_plan_end_date = "99/99/99" Then 
+			If current_plan_end_date = "99/99/99" Then
 				EMReadscreen plan_to_end, 10, 13, 23
-				If plan_to_end = health_plan_code Then 
+				If plan_to_end = health_plan_code Then
 					MsgBox "This client, " & MMIS_clients_array(client_name, member) & " is already enrolled in the plan that is being requested to change. PMI " & MMIS_clients_array(client_pmi, member) & ". If action needs to be taken, it needs to happen manually."
-				Else 
+				Else
 					EMReadscreen current_plan_start_date, 8, 13, 5
-					IF DateDiff("d", current_plan_start_date, enrollment_date) < 0 Then 
+					IF DateDiff("d", current_plan_start_date, enrollment_date) < 0 Then
 						EMSetCursor 13, 5
 						EMSendKey "..."
 						PF11
-					Else 
+					Else
 						EMWriteScreen plan_end_date, 13, 14
                         pf4
 						EMWriteScreen disenrol_rsn, 13, 75
 						pf11
-					End If 
-					
+					End If
+
 					'enter enrollment date
 					EMWriteScreen enrollment_date, 13, 5
 					'enter managed care plan code
@@ -470,19 +470,19 @@ If MNSURE_Case = TRUE Then
 					EMWriteScreen contract_code_part_two, 13, 37
 					'enter change reason
 					EMWriteScreen change_reason, 13, 71
-					
+
 					EMWaitReady 0, 0
-					
+
 					EMReadScreen false_end, 8, 14, 14
-					If false_end = "99/99/99" Then 
+					If false_end = "99/99/99" Then
 						EMReadScreen double_check, 2, 14, 5
 						If double_check = "  " Then EMWriteScreen "...", 14, 5
-					End If 
-					
-				End If 
-			End If 
-			
-			If  MMIS_clients_array(current_plan, member) = "" Then 
+					End If
+
+				End If
+			End If
+
+			If  MMIS_clients_array(current_plan, member) = "" Then
 				pf11
 				'enter enrollment date
 				EMWriteScreen enrollment_date, 13, 5
@@ -493,14 +493,14 @@ If MNSURE_Case = TRUE Then
 				EMWriteScreen contract_code_part_two, 13, 37
 				'enter change reason
 				EMWriteScreen change_reason, 13, 71
-				
+
 				EMWaitReady 0, 0
-				
+
 				EMReadScreen false_end, 8, 14, 14
-				If false_end = "99/99/99" Then 
+				If false_end = "99/99/99" Then
 					EMReadScreen double_check, 2, 14, 5
 					If double_check = "  " Then EMWriteScreen "...", 14, 5
-				End If 
+				End If
 			End If
 
 			'REFM screen
@@ -510,36 +510,36 @@ If MNSURE_Case = TRUE Then
 			IF trim(RPPH_error_check) = "ENROLLMENT" then
 				EMReadscreen old_end, 8, 14, 14
 				EMReadscreen old_begin, 8, 14, 5
-				If DateDiff("d", old_begin, old_end) < 0 then 
+				If DateDiff("d", old_begin, old_end) < 0 then
 					EMSetCursor 14, 5
 					EMSendkey "..."
 					transmit
-				End If 
-			End If 
+				End If
+			End If
 			EMReadScreen RPPH_error_check, 10, 24, 2
-			If trim(RPPH_error_check) = "EXCLSN END" then 
+			If trim(RPPH_error_check) = "EXCLSN END" then
 				Do
 					Dialog excl_code_dialog
 					cancel_confirmation
 					transmit
 					EMReadScreen RPPH_error_check, 10, 24, 2
-				Loop until trim(RPPH_error_check) <> "EXCLSN END" 
-			ELSEIF trim(RPPH_error_check) <> "" then 
+				Loop until trim(RPPH_error_check) <> "EXCLSN END"
+			ELSEIF trim(RPPH_error_check) <> "" then
 				dialog RPPH_error_dialog
 				If buttonpressed = 0 then script_end_procedure("Error message was not resolved. Please review enrollment information before trying the script again.")
 				EMWriteScreen "...", 13, 5
 				EMReadScreen false_end, 8, 14, 14
-				If false_end = "99/99/99" Then 
+				If false_end = "99/99/99" Then
 					EMReadScreen double_check, 2, 14, 5
 					If double_check = "??" Then EMWriteScreen "...", 14, 5
-				End If 
-			END IF 
-	        
+				End If
+			END IF
+
 			'making sure script got to right panel
 			EMReadScreen REFM_check, 4, 1, 52
 			If REFM_check <> "REFM" then process_manually_message = process_manually_message & "The script was unable to navigate to REFM for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
 		Loop until REFM_check = "REFM"
-		
+
 		'form rec'd
 		EMsetcursor 10, 16
 		EMSendkey "n"
@@ -551,13 +551,13 @@ If MNSURE_Case = TRUE Then
 			script_end_procedure("This health plan is not available until 01/01/16." & vbNewLine & "Make sure you change the enrollment date when using the script again.")
 		ELSEIF REFM_error_check <> "WARNING: MA12,01/16" Then
 			IF REFM_error_check <> "                   " then
-                IF REFM_error_check <> "INVALID KEY ENTERED" then 
+                IF REFM_error_check <> "INVALID KEY ENTERED" then
                     EMReadScreen full_error_msg, 79, 24, 2
                     full_error_msg = trim(full_error_msg)
 				    process_manually_message = process_manually_message & "You have entered information that is causing a warning error, or an inhibiting error for PMI "& MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & ". Refer to the MMIS USER MANUAL to resolve if necessary. Full error message: " & full_error_msg & vbNewLine & vbNewLine
-			    END if 
-            END IF 
-		END IF 
+			    END if
+            END IF
+		END IF
 		'Save and case note
 		pf3
 		EMWriteScreen "c", 2, 19
@@ -567,21 +567,21 @@ If MNSURE_Case = TRUE Then
 		IF rsum_enrollment = Enrollment_date AND rsum_plan = health_plan_code Then
 			MMIS_clients_array(enrol_sucs, member) = TRUE
 			Need_CNOTE = TRUE
-		Else 
+		Else
 			failed_enrollment_message = failed_enrollment_message & vbNewLine & vbNewLine & process_manually_message
-			MMIS_clients_array(enrol_sucs, member) = FALSE		
-		End If 
+			MMIS_clients_array(enrol_sucs, member) = FALSE
+		End If
 		pf3
 		IF REFM_error_check = "WARNING: MA12,01/16" Then
 			PF3
 		END IF
 		process_manually_message = ""
-	Next 
+	Next
 Else
 	For member = 0 to Ubound(MMIS_clients_array, 2)
-		
+
 		EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
-		IF MMIS_panel_check <> "RKEY" THEN 
+		IF MMIS_panel_check <> "RKEY" THEN
 			DO
 				PF6
 				EMReadScreen session_terminated_check, 18, 1, 7
@@ -592,11 +592,11 @@ Else
 			transmit
 			EMWriteScreen "x", 8, 3
 			transmit
-		END IF 
+		END IF
 		'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
 		EMWriteScreen "c", 2, 19
 		EMWriteScreen "        ", 4, 19
-		EMWriteScreen MMIS_case_number, 9, 19 
+		EMWriteScreen MMIS_case_number, 9, 19
 		transmit
 		transmit
 		transmit
@@ -604,23 +604,23 @@ Else
 		If RKEY_check = "RKEY" then process_manually_message = process_manually_message & "PMI " & MMIS_clients_array(client_pmi, member) & " could not be accessed. The enrollment for " & MMIS_clients_array(client_name, member) & " needs to be processed manually." & vbNewLine & vbNewLine
 		Do
 			row = 1
-			col = 1 
+			col = 1
 			EMSearch MMIS_clients_array(client_pmi, member), row, col
 			If row = 0 Then
-				PF8 
+				PF8
 				EMReadScreen end_of_clts, 6, 24, 2
-				If end_of_clts = "CANNOT" Then 
+				If end_of_clts = "CANNOT" Then
 					process_manually_message = process_manually_message & "PMI " & MMIS_clients_array(client_pmi, member) & " could not be found on this case. The enrollment for " &  MMIS_clients_array(client_name, member) & " needs to be processed manually." & vbNewLine & vbNewLine
 					Exit Do
-				End If 
-			End If	
+				End If
+			End If
 		Loop until row <> 0
 		clt_rcin_row = row
 		EMWriteScreen "X", clt_rcin_row, 2
 		transmit
 		EMReadscreen RKEY_check, 4, 1, 52
 		If RKEY_check = "RKEY" then process_manually_message = process_manually_message & "PMI " & MMIS_clients_array(client_pmi, member) & " could not be accessed. The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
-		
+
 		DO
 			'check RPOL to see if there is other insurance available, if so worker processes manually
 			EMWriteScreen "rpol", 1, 8
@@ -638,60 +638,60 @@ Else
 			'making sure script got to right panel
 			EMReadScreen RPPH_check, 4, 1, 52
 			If RPPH_check <> "RPPH" then process_manually_message = process_manually_message & "Could not navigate to RPPH for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
-	 
+
 			plan_end_date = DateAdd("d", -1, enrollment_date)
 			plan_end_month = right("00" & DatePart("m", plan_end_date), 2)
 			plan_end_day   = right("00" & DatePart("d", plan_end_date), 2)
 			plan_end_year  = right(DatePart("yyyy", plan_end_date), 2)
 			plan_end_date  = plan_end_month & "/" & plan_end_day & "/" & plan_end_year
 			'Checks for exclusion code only deletes if YY or blank, if any other span entered it stops script.
-			If left(MMIS_clients_array(current_plan, member), 3) = "XCL" Then 
-				If MMIS_clients_array(current_plan, member) = "XCL - Delayed Decision" Then 
+			If left(MMIS_clients_array(current_plan, member), 3) = "XCL" Then
+				If MMIS_clients_array(current_plan, member) = "XCL - Delayed Decision" Then
 					row = 1
-					col = 1 
+					col = 1
 					EMSearch "99/99/99", row, col
 					If col <> 0 Then EMWriteScreen xcl_end_date, row, col
-				Else 
+				Else
 					process_manually_message = process_manually_message & "There is an exclusion code other than 'YY' for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
-				End If 
-			End If 
+				End If
+			End If
 			EMReadscreen XCL_code, 2, 6, 2
 			If XCL_code = "* " then
 				EMSetCursor 6, 2
 				EMSendKey "..."
 			End if
-			
+
             If MMIS_clients_array(new_plan, member) = "Health Partners" then health_plan_code = "A585713900"
 			If MMIS_clients_array(new_plan, member) = "Ucare" then health_plan_code = "A565813600"
 			If MMIS_clients_array(new_plan, member) = "Medica" then health_plan_code = "A405713900"
 			If MMIS_clients_array(new_plan, member) = "Blue Plus" then health_plan_code = "A065813800"
 			If MMIS_clients_array(new_plan, member) = "Hennepin Health PMAP" then health_plan_code = "A836618200"
 			If MMIS_clients_array(new_plan, member) = "Hennepin Health SNBC" then health_plan_code = "A965713400"
-			
+
 			contract_code = MMIS_clients_array (contr_code, member)
 			Contract_code_part_one = left(contract_code, 2)
 			Contract_code_part_two = right(contract_code, 2)
-			
+
 			EMReadscreen current_plan_end_date, 8, 13, 14
-			If current_plan_end_date = "99/99/99" Then 
+			If current_plan_end_date = "99/99/99" Then
 				EMReadscreen plan_to_end, 10, 13, 23
 				plan_to_end = trim(plan_to_end)
 				health_plan_code = trim(health_plan_code)
-				If plan_to_end = health_plan_code Then 
+				If plan_to_end = health_plan_code Then
 					MsgBox "This client, " & MMIS_clients_array(client_name, member) & " is already enrolled in the plan that is being requested to change. PMI " & MMIS_clients_array(client_pmi, member) & ". If action needs to be taken, it needs to happen manually."
-				Else 
+				Else
 					EMReadscreen current_plan_start_date, 8, 13, 5
-					IF DateDiff("d", current_plan_start_date, enrollment_date) < 0 Then 
+					IF DateDiff("d", current_plan_start_date, enrollment_date) < 0 Then
 						EMSetCursor 13, 5
 						EMSendKey "..."
 						PF11
-					Else 
+					Else
 						EMWriteScreen plan_end_date, 13, 14
                         pf4
 						EMWriteScreen disenrol_rsn, 13, 75
 						pf11
-					End If 
-					
+					End If
+
 					'enter enrollment date
 					EMWriteScreen enrollment_date, 13, 5
 					'enter managed care plan code
@@ -701,19 +701,19 @@ Else
 					EMWriteScreen contract_code_part_two, 13, 37
 					'enter change reason
 					EMWriteScreen change_reason, 13, 71
-					
+
 					EMWaitReady 0, 0
-					
+
 					EMReadScreen false_end, 8, 14, 14
-					If false_end = "99/99/99" Then 
+					If false_end = "99/99/99" Then
 						EMReadScreen double_check, 2, 14, 5
 						If double_check = "  " Then EMWriteScreen "...", 14, 5
-					End If 
-					
-				End If 
-			End If 
-			
-			If  MMIS_clients_array(current_plan, member) = "" Then 
+					End If
+
+				End If
+			End If
+
+			If  MMIS_clients_array(current_plan, member) = "" Then
 				pf11
 				'enter enrollment date
 				EMWriteScreen enrollment_date, 13, 5
@@ -724,14 +724,14 @@ Else
 				EMWriteScreen contract_code_part_two, 13, 37
 				'enter change reason
 				EMWriteScreen change_reason, 13, 71
-				
+
 				EMWaitReady 0, 0
-				
+
 				EMReadScreen false_end, 8, 14, 14
-				If false_end = "99/99/99" Then 
+				If false_end = "99/99/99" Then
 					EMReadScreen double_check, 2, 14, 5
 					If double_check = "  " Then EMWriteScreen "...", 14, 5
-				End If 
+				End If
 			End If
 
 			'REFM screen
@@ -741,36 +741,36 @@ Else
 			IF trim(RPPH_error_check) = "ENROLLMENT" then
 				EMReadscreen old_end, 8, 14, 14
 				EMReadscreen old_begin, 8, 14, 5
-				If DateDiff("d", old_begin, old_end) < 0 then 
+				If DateDiff("d", old_begin, old_end) < 0 then
 					EMSetCursor 14, 5
 					EMSendkey "..."
 					transmit
-				End If 
-			End If 
+				End If
+			End If
 			EMReadScreen RPPH_error_check, 10, 24, 2
-			If trim(RPPH_error_check) = "EXCLSN END" then 
+			If trim(RPPH_error_check) = "EXCLSN END" then
 				Do
 					Dialog excl_code_dialog
 					cancel_confirmation
 					transmit
 					EMReadScreen RPPH_error_check, 10, 24, 2
-				Loop until trim(RPPH_error_check) <> "EXCLSN END" 
-			ELSEIF trim(RPPH_error_check) <> "" then 
+				Loop until trim(RPPH_error_check) <> "EXCLSN END"
+			ELSEIF trim(RPPH_error_check) <> "" then
 				dialog RPPH_error_dialog
 				If buttonpressed = 0 then script_end_procedure("Error message was not resolved. Please review enrollment information before trying the script again.")
 				EMWriteScreen "...", 13, 5
 				EMReadScreen false_end, 8, 14, 14
-				If false_end = "99/99/99" Then 
+				If false_end = "99/99/99" Then
 					EMReadScreen double_check, 2, 14, 5
 					If double_check = "??" Then EMWriteScreen "...", 14, 5
-				End If 
-			END IF 
-	        
+				End If
+			END IF
+
 			'making sure script got to right panel
 			EMReadScreen REFM_check, 4, 1, 52
 			If REFM_check <> "REFM" then process_manually_message = process_manually_message & "The script was unable to navigate to REFM for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
 		Loop until REFM_check = "REFM"
-		
+
 		'form rec'd
 		EMsetcursor 10, 16
 		EMSendkey "n"
@@ -782,21 +782,21 @@ Else
 			script_end_procedure("This health plan is not available until 01/01/16." & vbNewLine & "Make sure you change the enrollment date when using the script again.")
 		ELSEIF REFM_error_check <> "WARNING: MA12,01/16" Then
 			IF REFM_error_check <> "                   " then
-                IF REFM_error_check <> "INVALID KEY ENTERED" then 
+                IF REFM_error_check <> "INVALID KEY ENTERED" then
                     EMReadScreen full_error_msg, 79, 24, 2
                     full_error_msg = trim(full_error_msg)
 				    process_manually_message = process_manually_message & "You have entered information that is causing a warning error, or an inhibiting error for PMI "& MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & ". Refer to the MMIS USER MANUAL to resolve if necessary. Full error message: " & full_error_msg & vbNewLine & vbNewLine
 			    	pf6
-				END IF 
-            END IF 
-		END IF 
+				END IF
+            END IF
+		END IF
 		'Save and case note
 		pf3
 		EMWriteScreen "c", 2, 19
 		transmit
 		transmit
 		transmit
-		
+
 		EMWriteScreen "X", clt_rcin_row, 2
 		transmit
 		EMReadScreen rsum_enrollment, 8, 16, 20
@@ -804,20 +804,20 @@ Else
 		IF rsum_enrollment = Enrollment_date AND rsum_plan = health_plan_code Then
 			MMIS_clients_array(enrol_sucs, member) = TRUE
 			Need_CNOTE = TRUE
-		Else 
+		Else
 			failed_enrollment_message = failed_enrollment_message & vbNewLine & vbNewLine & process_manually_message
-			MMIS_clients_array(enrol_sucs, member) = FALSE		
-		End If 
+			MMIS_clients_array(enrol_sucs, member) = FALSE
+		End If
 		pf3
 		IF REFM_error_check = "WARNING: MA12,01/16" Then
 			PF3
 		END IF
 		process_manually_message = ""
 	Next
-End If 
+End If
 
 EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
-IF MMIS_panel_check <> "RKEY" THEN 
+IF MMIS_panel_check <> "RKEY" THEN
 	DO
 		PF6
 		EMReadScreen session_terminated_check, 18, 1, 7
@@ -828,25 +828,25 @@ IF MMIS_panel_check <> "RKEY" THEN
 	transmit
 	EMWriteScreen "x", 8, 3
 	transmit
-END IF 
+END IF
 
 'Case Noting - goes into RSUM for the first client to do the case note
 IF Need_CNOTE = TRUE Then
 	EMWriteScreen "c", 2, 19
 	EMWriteScreen "        ", 9, 19
-	EMWriteScreen MMIS_clients_array(client_pmi, 0), 4, 19 
+	EMWriteScreen MMIS_clients_array(client_pmi, 0), 4, 19
 	transmit
 	pf4
 	pf11		'Starts a new case note'
 
-	EMWriteScreen "***HMO Note*** Open Enrollment Processed for 2018", 5, 8
+    EMWriteScreen "AHPS request processed for 2019 selection", 5, 8
 	row = 6
 	For member = 0 to Ubound(MMIS_clients_array, 2)
 		If MMIS_clients_array(enrol_sucs, member) = TRUE Then
 			EMWriteScreen MMIS_clients_array(client_name, member) & " enrolled into " & MMIS_clients_array(new_plan, member), row, 8
 			row = row + 1
-		End If 
-	Next 
+		End If
+	Next
 	EMWriteScreen "Processed by " & worker_signature, row, 8
 	pf3
 	pf3
