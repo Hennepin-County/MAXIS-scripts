@@ -29,7 +29,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("10/17/2018", "Updated dialog box to reflect currecnt application process.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/05/2018", "Added autofill functionality for the DIET panel. NAT errors have been resolved.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/04/2018", "Removed autofill functionality for the DIET panel temporarily until MAXIS help desk can resolve NAT errors.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/11/2017", "Adding functionality to offer a TIKL for 12 month contact on 24 month SNAP renewals.", "Charles Potter, DHS")
@@ -59,11 +60,11 @@ BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 80, 25, 30, 15, MAXIS_footer_month
   EditBox 110, 25, 30, 15, MAXIS_footer_year
-  CheckBox 10, 60, 30, 10, "cash", cash_checkbox
+  CheckBox 10, 60, 30, 10, "CASH", cash_checkbox
   CheckBox 50, 60, 30, 10, "HC", HC_checkbox
   CheckBox 90, 60, 35, 10, "SNAP", SNAP_checkbox
   CheckBox 135, 60, 35, 10, "EMER", EMER_checkbox
-  DropListBox 70, 80, 75, 15, "Select one..."+chr(9)+"Intake"+chr(9)+"Reapplication"+chr(9)+"Recertification"+chr(9)+"Add program"+chr(9)+"Addendum", CAF_type
+  DropListBox 70, 80, 75, 15, "Select One:"+chr(9)+"Application"+chr(9)+"Recertification"+chr(9)+"Addendum", CAF_type
   ButtonGroup ButtonPressed
     OkButton 35, 100, 50, 15
     CancelButton 95, 100, 50, 15
@@ -78,7 +79,7 @@ BeginDialog CAF_dialog_01, 0, 0, 451, 290, "CAF dialog part 1"
   ComboBox 175, 5, 70, 15, " "+chr(9)+"phone"+chr(9)+"office", interview_type
   CheckBox 255, 5, 65, 10, "Used Interpreter", Used_Interpreter_checkbox
   EditBox 60, 25, 50, 15, interview_date
-  ComboBox 230, 25, 95, 15, " "+chr(9)+"in-person"+chr(9)+"dropped off"+chr(9)+"mailed in"+chr(9)+"ApplyMN"+chr(9)+"faxed"+chr(9)+"emailed", how_app_was_received
+  ComboBox 230, 25, 95, 15,  " "+chr(9)+"Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
   ComboBox 220, 45, 105, 15, " "+chr(9)+"DHS-2128 (LTC Renewal)"+chr(9)+"DHS-3417B (Req. to Apply...)"+chr(9)+"DHS-3418 (HC Renewal)"+chr(9)+"DHS-3531 (LTC Application)"+chr(9)+"DHS-3876 (Certain Pops App)"+chr(9)+"DHS-6696(MNsure HC App)", HC_document_received
   EditBox 390, 45, 50, 15, HC_datestamp
   EditBox 75, 70, 370, 15, HH_comp
@@ -301,7 +302,7 @@ Do
 		err_msg = ""
 		Dialog case_number_dialog
 		cancel_confirmation
-		If CAF_type = "Select one..." then err_msg = err_msg & vbnewline & "* You must select the CAF type."
+		If CAF_type = "Select One:" then err_msg = err_msg & vbnewline & "* You must select the CAF type."
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* You need to type a valid case number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
@@ -381,7 +382,7 @@ call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "WREG", notes_on_abawd)
 
 'MAKING THE GATHERED INFORMATION LOOK BETTER FOR THE CASE NOTE
-If cash_checkbox = checked then programs_applied_for = programs_applied_for & "cash, "
+If cash_checkbox = checked then programs_applied_for = programs_applied_for & "CASH, "
 If HC_checkbox = checked then programs_applied_for = programs_applied_for & "HC, "
 If SNAP_checkbox = checked then programs_applied_for = programs_applied_for & "SNAP, "
 If EMER_checkbox = checked then programs_applied_for = programs_applied_for & "emergency, "
@@ -467,18 +468,18 @@ If CAF_type <> "Recertification" AND CAF_type <> "Addendum" Then        'Intervi
             EMReadScreen cash_one_app, 8, 6, 33                     'First the script needs to identify if it is cash 1 or cash 2 that has the application information
             EMReadScreen cash_two_app, 8, 7, 33
             EMReadScreen grh_cash_app, 8, 9, 33
-            
+
             cash_one_app = replace(cash_one_app, " ", "/")          'Turning this in to a date format
             cash_two_app = replace(cash_two_app, " ", "/")
             grh_cash_app = replace(grh_cash_app, " ", "/")
-            
+
             If cash_one_app <> "__/__/__" Then      'Error handling - VB doesn't like date comparisons with non-dates
                 if DateDiff("d", cash_one_app, CAF_datestamp) = 0 then prog_row = 6     'If date of application on PROG matches script date of applicaton
             End If
             If cash_two_app <> "__/__/__" Then
                 if DateDiff("d", cash_two_app, CAF_datestamp) = 0 then prog_row = 7
             End If
-            
+
             If grh_cash_app <> "__/__/__" Then
                 if DateDiff("d", grh_cash_app, CAF_datestamp) = 0 then prog_row = 9
             End If
@@ -558,14 +559,14 @@ If CAF_type <> "Recertification" AND CAF_type <> "Addendum" Then        'Intervi
                     cash_one_app = replace(cash_one_app, " ", "/")      'Formatting as dates
                     cash_two_app = replace(cash_two_app, " ", "/")
                     grh_cash_app = replace(grh_cash_app, " ", "/")
-                    
+
                     If cash_one_app <> "__/__/__" Then              'Comparing them to the date of application to determine which row to use
                         if DateDiff("d", cash_one_app, CAF_datestamp) = 0 then prog_row = 6
                     End If
                     If cash_two_app <> "__/__/__" Then
                         if DateDiff("d", cash_two_app, CAF_datestamp) = 0 then prog_row = 7
                     End If
-                    
+
                     If grh_cash_app <> "__/__/__" Then
                         if DateDiff("d", grh_cash_app, CAF_datestamp) = 0 then prog_row = 9
                     End If
@@ -705,7 +706,7 @@ If do_not_update_prog = 1 Then CALL write_bullet_and_variable_in_CASE_NOTE("PROG
 CALL write_bullet_and_variable_in_CASE_NOTE("HC document received", HC_document_received)
 CALL write_bullet_and_variable_in_CASE_NOTE("HC datestamp", HC_datestamp)
 CALL write_bullet_and_variable_in_CASE_NOTE("Programs applied for", programs_applied_for)
-CALL write_bullet_and_variable_in_CASE_NOTE("How CAF was received", how_app_was_received)
+CALL write_bullet_and_variable_in_CASE_NOTE("How CAF was received", how_app_rcvd)
 CALL write_bullet_and_variable_in_CASE_NOTE("HH comp/EATS", HH_comp)
 CALL write_bullet_and_variable_in_CASE_NOTE("Cit/ID", cit_id)
 CALL write_bullet_and_variable_in_CASE_NOTE("IMIG", IMIG)
