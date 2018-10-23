@@ -60,7 +60,7 @@ BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 80, 25, 30, 15, MAXIS_footer_month
   EditBox 110, 25, 30, 15, MAXIS_footer_year
-  CheckBox 10, 60, 30, 10, "cash", cash_checkbox
+  CheckBox 10, 60, 30, 10, "CASH", cash_checkbox
   CheckBox 50, 60, 30, 10, "HC", HC_checkbox
   CheckBox 90, 60, 35, 10, "SNAP", SNAP_checkbox
   CheckBox 135, 60, 35, 10, "EMER", EMER_checkbox
@@ -382,7 +382,7 @@ call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "WREG", notes_on_abawd)
 
 'MAKING THE GATHERED INFORMATION LOOK BETTER FOR THE CASE NOTE
-If cash_checkbox = checked then programs_applied_for = programs_applied_for & "cash, "
+If cash_checkbox = checked then programs_applied_for = programs_applied_for & "CASH, "
 If HC_checkbox = checked then programs_applied_for = programs_applied_for & "HC, "
 If SNAP_checkbox = checked then programs_applied_for = programs_applied_for & "SNAP, "
 If EMER_checkbox = checked then programs_applied_for = programs_applied_for & "emergency, "

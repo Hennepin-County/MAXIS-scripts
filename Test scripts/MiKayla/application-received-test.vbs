@@ -161,7 +161,8 @@ EMReadScreen hc_app_date, 8, 12, 33
 hc_app_date = replace(hc_app_date, " ", "/")
 EMReadScreen cca_app_date, 8, 14, 33
 cca_app_date = replace(cca_app_date, " ", "/")
-'Reading the program status 
+
+'Reading the program status
 EMReadScreen cash1_status_check, 4, 6, 74
 EMReadScreen cash2_status_check, 4, 7, 74
 EMReadScreen emer_status_check, 4, 8, 74
@@ -171,10 +172,10 @@ EMReadScreen ive_status_check, 4, 11, 74
 EMReadScreen hc_status_check, 4, 12, 74
 EMReadScreen cca_status_check, 4, 14, 74
 
-'----------------------------------------------------------------------------------------------------ACTIVE program coding 
+'----------------------------------------------------------------------------------------------------ACTIVE program coding
 EMReadScreen cash1_prog_check, 2, 6, 67     'Reading cash 1
 EMReadScreen cash2_prog_check, 2, 7, 67     'Reading cash 2
-EMReadScreen emer_prog_check, 2, 8, 67      'EMER Program 
+EMReadScreen emer_prog_check, 2, 8, 67      'EMER Program
 
 'Logic to determine if MFIP is active
 IF cash1_prog_check = "MF" or cash1_prog_check = "GA" or cash1_prog_check = "DW" or cash1_prog_check = "MS" THEN
@@ -206,83 +207,83 @@ IF cca_active  = TRUE THEN active_programs = active_programs & "CCA"
 active_programs = trim(active_programs)  'trims excess spaces of active_programs
 If right(active_programs, 1) = "," THEN active_programs = left(active_programs, len(active_programs) - 1)
 
-'----------------------------------------------------------------------------------------------------Pending programs 
+'----------------------------------------------------------------------------------------------------Pending programs
 programs_applied_for = ""   'Creates a variable that lists all pening cases.
 additional_programs_applied_for = ""
 'cash I
-IF cash1_status_check = "PEND" then 
-    If cash1_app_date = application_date THEN 
+IF cash1_status_check = "PEND" then
+    If cash1_app_date = application_date THEN
         cash_pends = TRUE
         programs_applied_for = programs_applied_for & "CASH, "
-    Else 
+    Else
         additional_programs_applied_for = additional_programs_applied_for & "CASH, "
-    End if 
-End if 
+    End if
+End if
 'cash II
-IF cash2_status_check = "PEND" then    
-    if cash2_app_date = application_date THEN 
+IF cash2_status_check = "PEND" then
+    if cash2_app_date = application_date THEN
         cash2_pends = TRUE
         programs_applied_for = programs_applied_for & "CASH, "
-    Else 
+    Else
         additional_programs_applied_for = additional_programs_applied_for & "CASH, "
-    End if 
-End if 
-'SNAP 
-IF snap_status_check  = "PEND" then 
-    If snap_app_date  = application_date THEN 
+    End if
+End if
+'SNAP
+IF snap_status_check  = "PEND" then
+    If snap_app_date  = application_date THEN
         SNAP_pends = TRUE
         programs_applied_for = programs_applied_for & "SNAP, "
-    else 
+    else
         additional_programs_applied_for = additional_programs_applied_for & "SNAP, "
-    end if 
-End if 
-'GRH 
-IF grh_status_check = "PEND" then 
-    If grh_app_date = application_date THEN 
+    end if
+End if
+'GRH
+IF grh_status_check = "PEND" then
+    If grh_app_date = application_date THEN
         grh_pends = TRUE
         programs_applied_for = programs_applied_for & "GRH, "
-    else 
+    else
         additional_programs_applied_for = additional_programs_applied_for & "GRH, "
-    End if 
-End if 
+    End if
+End if
 'I-VE
 IF ive_status_check = "PEND" then
-    if ive_app_date = application_date THEN 
+    if ive_app_date = application_date THEN
         IVE_pends = TRUE
         programs_applied_for = programs_applied_for & "IV-E, "
-    else 
+    else
         additional_programs_applied_for = additional_programs_applied_for & "IV-E, "
-    End if 
-End if 
+    End if
+End if
 'HC
-IF hc_status_check = "PEND" then 
-    If hc_app_date = application_date THEN 
+IF hc_status_check = "PEND" then
+    If hc_app_date = application_date THEN
         hc_pends = TRUE
         programs_applied_for = programs_applied_for & "HC, "
-    else 
+    else
         additional_programs_applied_for = additional_programs_applied_for & "HC, "
-    End if 
-End if 
+    End if
+End if
 'CCA
-IF cca_status_check = "PEND" then 
-    If cca_app_date = application_date THEN 
+IF cca_status_check = "PEND" then
+    If cca_app_date = application_date THEN
         cca_pends = TRUE
         programs_applied_for = programs_applied_for & "CCA, "
-    else 
+    else
         additional_programs_applied_for = additional_programs_applied_for & "CCA, "
-    End if 
-End if 
-'EMER 
-If emer_status_check = "PEND" then 
-    If emer_app_date = application_date then 
-        emer_pends = TRUE 
+    End if
+End if
+'EMER
+If emer_status_check = "PEND" then
+    If emer_app_date = application_date then
+        emer_pends = TRUE
         IF emer_prog_check = "EG" THEN programs_applied_for = programs_applied_for & "EGA, "
         IF emer_prog_check = "EA" THEN programs_applied_for = programs_applied_for & "EA, "
-    else    
+    else
         IF emer_prog_check = "EG" THEN additional_programs_applied_for = additional_programs_applied_for & "EGA, "
         IF emer_prog_check = "EA" THEN additional_programs_applied_for = additional_programs_applied_for & "EA, "
-    End if 
-End if 
+    End if
+End if
 
 programs_applied_for = trim(programs_applied_for)       'trims excess spaces of programs_applied_for
 If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
@@ -466,7 +467,7 @@ IF snap_pends = TRUE THEN
 	IF expedited_status = "Client appears expedited" AND EBT_account_status = "N" THEN CALL write_variable_in_CASE_NOTE("* EBT Account is NOT open.  Recipient is able to get initial card in the agency.  Rapid Electronic Issuance (REI) can be used, but only to avoid an emergency issuance or to meet EXP criteria.")
 	CALL write_variable_in_CASE_NOTE("---")
 	IF expedited_status = "Client does not appear expedited" THEN CALL write_variable_in_CASE_NOTE("Client does not appear expedited. Application sent to ECF.")
-	IF expedited_status = "Client appears expedited" THEN CALL write_variable_in_CASE_NOTE("Client appears expedited. Application sent to ECF. Emailed Triagers.")
+	IF expedited_status = "Client appears expedited" THEN CALL write_variable_in_CASE_NOTE("Client appears expedited. Application sent to ECF.")
 	CALL write_variable_in_CASE_NOTE("---")
 	CALL write_variable_in_CASE_NOTE(worker_signature)
 END IF
