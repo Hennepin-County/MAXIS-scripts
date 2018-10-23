@@ -325,11 +325,11 @@ EndDialog
 		Loop until ButtonPressed = -1
     		IF how_app_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
 		IF how_app_rcvd = "Online" and app_type <> "ApplyMN" then err_msg = err_msg & vbNewLine & "* You selected that the application was received online please select ApplyMN from the drop down."
-			IF app_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
+		IF app_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
 		IF no_transfer_check = UNCHECKED AND transfer_case_number = "" then err_msg = err_msg & vbNewLine & "* You must enter the basket number the case to be transfered by the script or check that no transfer is needed."
 		IF no_transfer_check = CHECKED and transfer_case_number <> "" then err_msg = err_msg & vbNewLine & "* You have checked that no transfer is needed, please remove basket number from transfer field."
-    		IF app_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "If an ApplyMN was received, you must enter the confirmation number and time received"
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	IF app_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "If an ApplyMN was received, you must enter the confirmation number and time received"
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
@@ -342,6 +342,7 @@ IF how_app_rcvd = "Office" THEN
 	IF same_day_confirmation = vbCancel THEN script_end_procedure ("The script has ended.")
 END IF
 
+pended_date = date
 '--------------------------------------------------------------------------------initial case note
 start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")

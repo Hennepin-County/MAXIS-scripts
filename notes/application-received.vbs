@@ -354,7 +354,6 @@ IF app_type = "HC-Certain Pop" THEN write_variable_in_CASE_NOTE ("Form Rcvd: MHC
 IF app_type = "LTC" THEN write_variable_in_CASE_NOTE ("Form Rcvd: Application for Medical Assistance for Long Term Care Services (DHS-3531) ")
 IF app_type = "MHCP B/C Cancer" THEN write_variable_in_CASE_NOTE ("Form Rcvd: Minnesota Health Care Programs Application and Renewal Form Medical Assistance for Women with Breast or Cervical Cancer (DHS-3525) ")
 CALL write_bullet_and_variable_in_CASE_NOTE ("Application Requesting", programs_applied_for)
-CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", additional_programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
 If transfer_case_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Application assigned to", transfer_case_number)
