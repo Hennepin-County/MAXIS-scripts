@@ -1247,19 +1247,22 @@ For hc_clt = 0 to UBound(EOMC_CLIENT_ARRAY, 2)
     ObjExcel.Cells(excel_row, elig_one_col).Value       = EOMC_CLIENT_ARRAY (elig_type_one,   hc_clt)
     ObjExcel.Cells(excel_row, MAXIS_end_one_col).Value  = EOMC_CLIENT_ARRAY(prog_one_end, hc_clt)
     ObjExcel.Cells(excel_row, mmis_one_col).Value       = EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt)
-    ObjExcel.Cells(excel_row, new_mmis_one_col).Value   = EOMC_CLIENT_ARRAY(MMIS_new_end_one, hc_clt)
-
-    ObjExcel.Cells(excel_row, cap_col).Value            = EOMC_CLIENT_ARRAY(capitation_ended, hc_clt)
 
     ObjExcel.Cells(excel_row, prog_two_col).Value       = EOMC_CLIENT_ARRAY (hc_prog_two,   hc_clt)
     ObjExcel.Cells(excel_row, elig_two_col).Value       = EOMC_CLIENT_ARRAY (elig_type_two,   hc_clt)
     ObjExcel.Cells(excel_row, MAXIS_end_two_col).Value  = EOMC_CLIENT_ARRAY(prog_two_end, hc_clt)
     ObjExcel.Cells(excel_row, mmis_two_col).Value       = EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt)
-    ObjExcel.Cells(excel_row, new_mmis_two_col).Value   = EOMC_CLIENT_ARRAY(MMIS_new_end_two, hc_clt)
 
-    ObjExcel.Cells(excel_row, savings_col).Value        = EOMC_CLIENT_ARRAY(clt_savings, hc_clt)
-    ObjExcel.Cells(excel_row, savings_col).NumberFormat = "$#,##0.00"
     ObjExcel.Cells(excel_row, errors_col).Value         = EOMC_CLIENT_ARRAY(err_notes, hc_clt)
+
+    If make_changes = TRUE Then
+        ObjExcel.Cells(excel_row, new_mmis_one_col).Value   = EOMC_CLIENT_ARRAY(MMIS_new_end_one, hc_clt)
+        ObjExcel.Cells(excel_row, cap_col).Value            = EOMC_CLIENT_ARRAY(capitation_ended, hc_clt)
+
+        ObjExcel.Cells(excel_row, new_mmis_two_col).Value   = EOMC_CLIENT_ARRAY(MMIS_new_end_two, hc_clt)
+        ObjExcel.Cells(excel_row, savings_col).Value        = EOMC_CLIENT_ARRAY(clt_savings, hc_clt)
+        ObjExcel.Cells(excel_row, savings_col).NumberFormat = "$#,##0.00"
+    End If
 	excel_row = excel_row + 1      'next row
 Next
 
