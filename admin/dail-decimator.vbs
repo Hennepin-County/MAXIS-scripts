@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/24/2018", "Reorganized messages by type and alphabetical. Cleaned up backup coding.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/22/2018", "Added support for ADDR INFO messages, STAT edits over 10 days old, temporary addition of COLA messages greater than 07/18 COLA and MSA SBUD/LBUD messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/02/2018", "Added supported PEPR and CSES messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/02/2018", "Added Casey Love as autorized user of the script, blanked out MAXIS case number for PRIV cases, and merged SVES and INFO messages together into one option.", "Ilse Ferris, Hennepin County")
@@ -195,113 +196,65 @@ For each worker in worker_array
             dail_month = trim(dail_month)
 			stats_counter = stats_counter + 1
 	
-			If instr(dail_msg, "TPQY RESPONSE") then 
-			 	add_to_excel = True				'added this in for clearing the SVES messages
-			ElseIf instr(dail_msg, "APPLCT ID CHNGD") then 
-			 	add_to_excel = True  '----------------------------------------------------------------------------------------------------INFO Messages              
-            ElseIf instr(dail_msg, "ADDR CHG*CHK SHEL") then 
-    		 	add_to_excel = True 
-            ElseIf instr(dail_msg, "CASE AUTOMATICALLY DENIED") then 
-			 	add_to_excel = True 
-			ElseIf instr(dail_msg, "CASE FILE INFORMATION WAS SENT ON") then 
-				 add_to_excel = True
-			ElseIf instr(dail_msg, "CASE NOTE ENTERED BY") then 
-			 	add_to_excel = True 
-			ElseIf instr(dail_msg, "CASE NOTE TRANSFER FROM") then 
-			 	add_to_excel = True 		
-			ElseIf instr(dail_msg, "CASE VOLUNTARY WITHDRAWN") then 
-			 	add_to_excel = True
-			ElseIf instr(dail_msg, "CASE XFER") then 
-			 	add_to_excel = True 		 		 	
-			ElseIf instr(dail_msg, "DIRECT DEPOSIT STATUS") then 
-			 	add_to_excel = True 
-			ElseIf instr(dail_msg, "MEMB:NEEDS INTERPRETER HAS BEEN CHANGED") then 
-			 	add_to_excel = True
-			ElseIf instr(dail_msg, "MEMB:SPOKEN LANGUAGE HAS BEEN CHANGED") then 
-				 add_to_excel = True
-			ElseIf instr(dail_msg, "MEMB:RACE CODE HAS BEEN CHANGED FROM UNABLE") then 
-			 	add_to_excel = True	 
-			ElseIf instr(dail_msg, "MEMB:SSN HAS BEEN CHANGED FROM") then 
-			 	add_to_excel = True 
-			ElseIf instr(dail_msg, "MEMB:SSN VER HAS BEEN CHANGED FROM") then 
-			 	add_to_excel = True 		
-			ElseIf instr(dail_msg, "MEMB:WRITTEN LANGUAGE HAS BEEN CHANGED FROM") then 
-			 	add_to_excel = True
-			ElseIf instr(dail_msg, "PMI MERGED") then 
-			 	add_to_excel = True 
-			ElseIf instr(dail_msg, "MEMI: HAS BEEN DELETED BY THE PMI MERGE PROCESS") then 
-			 	add_to_excel = True 			 		 	
-			ElseIf instr(dail_msg, "THIS APPLICATION WILL BE AUTOMATICALLY DENIED") then 
-			 	add_to_excel = True  
-            ElseIf instr(dail_msg, "NOT ACCESSED FOR 300 DAYS,SPEC NOT") then 
-                add_to_excel = True      
-			ElseIf instr(dail_msg, "THIS CASE IS ERROR PRONE") then 
-			 	add_to_excel = True '----------------------------------------------------------------------------------------------------ELIG Messsages
-			ElseIf instr(dail_msg, "NEW DENIAL ELIG RESULTS EXIST") then 
-				add_to_excel = True			 		 	
-			ElseIf instr(dail_msg, "NEW ELIG RESULTS EXIST") then 
-				add_to_excel = True 
-			ElseIf instr(dail_msg, "CASE IS CATEGORICALLY ELIGIBLE") then 
-				add_to_excel = True
-			ElseIf instr(dail_msg, "WARNING MESSAGES EXIST") then 
-				add_to_excel = True
-            ElseIf instr(dail_msg, "COMPLETE ELIG IN FIAT") then 
-    			add_to_excel = True
-            ElseIf instr(dail_msg, "COUNTED IN SBUD AS UNEARNED INCOME") then            
-             	add_to_excel = True      'HC ELIG message
-            ElseIf instr(dail_msg, "COUNTED IN LBUD AS UNEARNED INCOME") then 
-             	add_to_excel = True      'HC ELIG message    
-			ElseIf instr(dail_msg, "POTENTIALLY CATEGORICALLY ELIGIBLE") then 
-				add_to_excel = True '----------------------------------------------------------------------------------------------------CSES Messages
-            ElseIf instr(dail_msg, "AMT CHILD SUPP MOD/ORD") then 
-            	add_to_excel = True 
-            ElseIf instr(dail_msg, "AP OF CHILD REF NBR:") then 
-    			add_to_excel = True
-            ElseIf instr(dail_msg, "ADDRESS DIFFERS W/ CS RECORDS:") then 
-        		add_to_excel = True        
-            ElseIf instr(dail_msg, "REPORTED NAME CHG TO:") then 
-            	add_to_excel = True
-            ElseIf instr(dail_msg, "NAME DIFFERS W/ CS RECORDS:") then 
-            	add_to_excel = True
-            ElseIf instr(dail_msg, "CHILD SUPP PAYMT FREQUENCY IS MONTHLY FOR CHILD REF NBR") then 
-            	add_to_excel = True
-            ElseIf instr(dail_msg, "NAME DIFFERS W/ CS RECORDS:") then 
-            	add_to_excel = True
-            ElseIf instr(dail_msg, "CHILD SUPP PAYMT FREQUENCY IS MONTHLY FOR CHILD REF NBR") then 
-            	add_to_excel = True
-            ElseIf instr(dail_msg, "CHILD SUPP PAYMTS PD THRU THE COURT/AGENCY FOR CHILD") then 
-            	add_to_excel = True 
-            ElseIf instr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR") then 
-            	add_to_excel = True 
-            ElseIf instr(dail_msg, "IS LIVING W/CAREGIVER") then 
-            	add_to_excel = True    '----------------------------------------------------------------------------------------------------PEPR Messages    
-            ElseIf instr(dail_msg, "UPDATE MEMI:LAST GRADE COMPLETED IF NEEDED") then 
-            	add_to_excel = True 
-            ElseIf instr(dail_msg, "EMPL SERV REF DATE IS > 60 DAYS; CHECK ES PROVIDER RESPONSE") then 
-            	add_to_excel = True
-            ElseIf instr(dail_msg, "MEMBER HAS TURNED 60 - FSET:WORK REG HAS BEEN UPDATED") then 
-            	add_to_excel = True    
-            ElseIf instr(dail_msg, "MANUAL REFERRAL WAS MADE") then 
-                add_to_excel = True'----------------------------------------------------------------------------------------------------TIKL messages non-actionable             
-            ElseIf instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") then 
-                add_to_excel = True  
-            ElseIf instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then 
-                add_to_excel = True
-            'ElseIf dail_type = "COLA" and dail_month <> "07 18" then 
-            '    add_to_excel = True 'Clean up old COLA messages. 
-            ElseIf instr(dail_msg, "CORRECT STAT EDITS") then 
-                EmReadscreen stat_date, 8, dail_row, 39 'Will delete CORRECT STAT EDITS over 10 days old
+            '----------------------------------------------------------------------------------------------------CSES Messages
+            If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
+                instr(dail_msg, "AP OF CHILD REF NBR:") OR _ 
+                instr(dail_msg, "ADDRESS DIFFERS W/ CS RECORDS:") OR _ 
+                instr(dail_msg, "CHILD SUPP PAYMT FREQUENCY IS MONTHLY FOR CHILD REF NBR") OR _ 
+                instr(dail_msg, "CHILD SUPP PAYMT FREQUENCY IS MONTHLY FOR CHILD REF NBR") OR _ 
+                instr(dail_msg, "CHILD SUPP PAYMTS PD THRU THE COURT/AGENCY FOR CHILD") OR _ 
+                instr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR") OR _ 
+                instr(dail_msg, "IS LIVING W/CAREGIVER") OR _  
+                instr(dail_msg, "NAME DIFFERS W/ CS RECORDS:") OR _ 
+                instr(dail_msg, "REPORTED NAME CHG TO:") OR _
+    		    instr(dail_msg, "CASE IS CATEGORICALLY ELIGIBLE") OR _ 
+                instr(dail_msg, "COMPLETE ELIG IN FIAT") OR _ 
+    		    instr(dail_msg, "COUNTED IN LBUD AS UNEARNED INCOME") OR _
+                instr(dail_msg, "COUNTED IN SBUD AS UNEARNED INCOME") OR _            
+                instr(dail_msg, "NEW DENIAL ELIG RESULTS EXIST") OR _ 				 		 	
+    		    instr(dail_msg, "NEW ELIG RESULTS EXIST") OR _   
+    		    instr(dail_msg, "POTENTIALLY CATEGORICALLY ELIGIBLE") OR _ 
+                instr(dail_msg, "WARNING MESSAGES EXIST") OR _ 
+                instr(dail_msg, "ADDR CHG*CHK SHEL") OR _  
+                instr(dail_msg, "APPLCT ID CHNGD") OR _           
+                instr(dail_msg, "CASE AUTOMATICALLY DENIED") OR _ 
+			    instr(dail_msg, "CASE FILE INFORMATION WAS SENT ON") OR _ 
+			    instr(dail_msg, "CASE NOTE ENTERED BY") OR _ 
+			    instr(dail_msg, "CASE NOTE TRANSFER FROM") OR _ 
+			    instr(dail_msg, "CASE VOLUNTARY WITHDRAWN") OR _ 
+			    instr(dail_msg, "CASE XFER") OR _ 
+			    instr(dail_msg, "DIRECT DEPOSIT STATUS") OR _ 
+			    instr(dail_msg, "MEMB:NEEDS INTERPRETER HAS BEEN CHANGED") OR _ 
+			    instr(dail_msg, "MEMB:SPOKEN LANGUAGE HAS BEEN CHANGED") OR _ 
+			    instr(dail_msg, "MEMB:RACE CODE HAS BEEN CHANGED FROM UNABLE") OR _ 
+			    instr(dail_msg, "MEMB:SSN HAS BEEN CHANGED FROM") OR _ 
+			    instr(dail_msg, "MEMB:SSN VER HAS BEEN CHANGED FROM") OR _ 
+			    instr(dail_msg, "MEMB:WRITTEN LANGUAGE HAS BEEN CHANGED FROM") OR _ 
+                instr(dail_msg, "MEMI: HAS BEEN DELETED BY THE PMI MERGE PROCESS") OR _ 
+                instr(dail_msg, "NOT ACCESSED FOR 300 DAYS,SPEC NOT") OR _ 
+			    instr(dail_msg, "PMI MERGED") OR _ 
+			    instr(dail_msg, "THIS APPLICATION WILL BE AUTOMATICALLY DENIED") OR _ 
+			    instr(dail_msg, "THIS CASE IS ERROR PRONE") OR _ 		 
+                instr(dail_msg, "EMPL SERV REF DATE IS > 60 DAYS; CHECK ES PROVIDER RESPONSE") OR _ 	
+                instr(dail_msg, "MEMBER HAS TURNED 60 - FSET:WORK REG HAS BEEN UPDATED") OR _  
+                instr(dail_msg, "UPDATE MEMI:LAST GRADE COMPLETED IF NEEDED") OR _      
+                instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") OR _  
+                instr(dail_msg, "TPQY RESPONSE") OR _
+                instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then 
+    		    add_to_excel = True				
+            Elseif instr(dail_msg, "CORRECT STAT EDITS") then 
+                EmReadscreen stat_date, 8, dail_row, 39             'Will delete CORRECT STAT EDITS over 10 days old
                 ten_days_ago = DateAdd("d", -10, date)
                 If cdate(ten_days_ago) => cdate(stat_date) then 
                     add_to_excel = True     
                 Else 
                     add_to_excel = False 
                 End if 
-            Else
-			    add_to_excel = False 
-			End if 
-		   
-			IF add_to_excel = True then 
+            Else 
+                add_to_excel = False 
+            End if 
+            
+            IF add_to_excel = True then 
 				EMReadScreen maxis_case_number, 8, dail_row - 1, 73
 				'--------------------------------------------------------------------...and put that in Excel.
 				objExcel.Cells(excel_row, 1).Value = worker
