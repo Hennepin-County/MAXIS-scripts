@@ -287,8 +287,8 @@ For each worker in worker_array
                 add_to_excel = True  
             ElseIf instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then 
                 add_to_excel = True
-            ElseIf dail_type = "COLA" and dail_month <> "07 18" then 
-                add_to_excel = True 'temporary to clean up old COLA messages. 
+            'ElseIf dail_type = "COLA" and dail_month <> "07 18" then 
+            '    add_to_excel = True 'Clean up old COLA messages. 
             ElseIf instr(dail_msg, "CORRECT STAT EDITS") then 
                 EmReadscreen stat_date, 8, dail_row, 39 'Will delete CORRECT STAT EDITS over 10 days old
                 ten_days_ago = DateAdd("d", -10, date)
