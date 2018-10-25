@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("10/25/2018", "Updated script to add handling for case correction.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/17/2018", "Updated appointment letter to address EGA programs.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("09/01/2018", "Updated Utility standards that go into effect for 10/01/2018.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("07/20/2018", "Changed wording of the Appointment Notice and changed default interview date to 10 days from application for non-expedidted cases.", "Casey Love, Hennepin County")
@@ -290,28 +291,32 @@ additional_programs_applied_for = trim(additional_programs_applied_for)       't
 If right(additional_programs_applied_for, 1) = "," THEN additional_programs_applied_for = left(additional_programs_applied_for, len(additional_programs_applied_for) - 1)
 
 '----------------------------------------------------------------------------------------------------dialogs
-BeginDialog appl_detail_dialog, 0, 0, 296, 145, "Application Received for: " & programs_applied_for
-  DropListBox 85, 10, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
-  DropListBox 85, 30, 65, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
-  EditBox 215, 30, 45, 15, confirmation_number
-  EditBox 55, 70, 20, 15, transfer_case_number
-  CheckBox 85, 85, 140, 10, "Check if case does not require a transfer ", no_transfer_check
-  EditBox 60, 105, 230, 15, other_notes
-  EditBox 80, 125, 100, 15, worker_signature
+BeginDialog appl_detail_dialog, 0, 0, 296, 160, "Application Received for: "  & programs_applied_for
+  DropListBox 90, 10, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
+  DropListBox 90, 30, 65, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
+  EditBox 230, 30, 55, 15, confirmation_number
+  CheckBox 20, 55, 115, 10, "Check if this is a case correction", case_correction
+  EditBox 230, 50, 55, 15, requested_person
+  EditBox 55, 80, 20, 15, transfer_case_number
   ButtonGroup ButtonPressed
-    OkButton 185, 125, 50, 15
-    CancelButton 240, 125, 50, 15
-    PushButton 235, 70, 45, 15, "GeoCoder", geocoder_button
-  Text 160, 15, 125, 10, "Date of Application: " & application_date
-  Text 15, 30, 65, 10, "Type of Application:"
-  Text 160, 35, 50, 10, "Confirmation #:"
-  Text 10, 75, 40, 10, "Transfer to:"
-  Text 90, 70, 135, 10, "(last 3 digit of X#) transfer case to basket"
-  Text 15, 110, 45, 10, "Other Notes:"
-  Text 15, 130, 60, 10, "Worker Signature:"
-  GroupBox 5, 55, 285, 45, "Transfer Information"
-  Text 10, 15, 70, 10, "Application Received:"
-  GroupBox 5, 0, 285, 50, "Application Information"
+    PushButton 230, 80, 55, 15, "GeoCoder", geocoder_button
+  CheckBox 75, 100, 155, 10, "Check if the case does not require a transfer ", no_transfer_check
+  EditBox 55, 120, 235, 15, other_notes
+  EditBox 75, 140, 105, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 185, 140, 50, 15
+    CancelButton 240, 140, 50, 15
+  Text 175, 35, 50, 10, "Confirmation #:"
+  Text 15, 85, 40, 10, "Transfer to:"
+  Text 85, 85, 135, 10, "(last 3 digit of X#) transfer case to basket"
+  Text 10, 125, 45, 10, "Other Notes:"
+  Text 10, 145, 60, 10, "Worker Signature:"
+  GroupBox 5, 70, 285, 45, "Transfer Information"
+  Text 15, 15, 70, 10, "Application Received:"
+  GroupBox 5, 0, 285, 70, "Application Information"
+  Text 20, 35, 65, 10, "Type of Application:"
+  Text 160, 15, 125, 10, "Date of Application: "  & application_date
+  Text 160, 55, 65, 10, "Requesting person:"
 EndDialog
 
 '------------------------------------------------------------------------------------DIALOG APPL
@@ -345,6 +350,10 @@ END IF
 pended_date = date
 '--------------------------------------------------------------------------------initial case note
 start_a_blank_case_note
+IF case_correction = CHECKED Then
+	CALL write_variable_in_CASE_NOTE("~ Case Correction received via " & app_type & " on " & application_date & " ~")
+	CALL write_bullet_and_variable_in_CASE_NOTE ("Requested By ", requested_person)
+END IF
 CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
 IF confirmation_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
 IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("Form Rcvd: MNsure Application for Health Coverage and Help Paying Costs (DHS-6696) ")
