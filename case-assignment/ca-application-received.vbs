@@ -351,7 +351,7 @@ pended_date = date
 '--------------------------------------------------------------------------------initial case note
 start_a_blank_case_note
 IF case_correction = CHECKED Then
-	CALL write_variable_in_CASE_NOTE("~ Case Correction received via " & app_type & " on " & application_date & " ~")
+	CALL write_variable_in_CASE_NOTE("~ Case Correction Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
 	CALL write_bullet_and_variable_in_CASE_NOTE ("Requested By ", requested_person)
 END IF
 CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
