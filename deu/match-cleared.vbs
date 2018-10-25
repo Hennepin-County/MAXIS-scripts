@@ -377,7 +377,7 @@ IF send_notice_checkbox = CHECKED THEN
     		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
     		IF isdate(action_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid action date."
     		IF next_action = "Select One:" then err_msg = err_msg & vbnewline & "* Select the action taken for next step in overpayment."
-            IF next_action = "Sent Request for Additional Info" and verif_requested = "" then err_msg = err_msg & vbnewline & "* You selected that a request for additional information was sent, please advise what verifications were requested."
+            IF next_action = "Sent Request for Additional Info" then err_msg = err_msg & vbnewline & "* You selected that a request for additional information was sent, please advise what verifications were requested."
     		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
     	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
