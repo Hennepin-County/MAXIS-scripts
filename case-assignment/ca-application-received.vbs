@@ -367,7 +367,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", additiona
 CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
 If transfer_case_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Application assigned to", transfer_case_number)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
-IF mnsure_retro_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("Emailed " & requested_person & "to let them know the retro request is ready to be processed in MAXIS.")
+IF mnsure_retro_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Emailed " & requested_person & " to let them know the retro request is ready to be processed in MAXIS.")
 CALL write_variable_in_CASE_NOTE ("---")
 CALL write_variable_in_CASE_NOTE (worker_signature)
 PF3 ' to save Case note
