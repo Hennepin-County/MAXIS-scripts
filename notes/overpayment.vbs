@@ -201,7 +201,7 @@ EmReadScreen err_msg, 53, 24, 02
 start_a_blank_CASE_NOTE
 	Call write_variable_in_CASE_NOTE("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
-	Call write_variable_in_CASE_NOTE("Period " & OP_from & " through " & OP_to)
+	Call write_variable_in_CASE_NOTE("* Period " & OP_from & " through " & OP_to)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", OP_program)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
 	Call write_variable_in_CASE_NOTE("----- ----- -----")
@@ -263,7 +263,7 @@ ELSE
 END IF
 CALL write_variable_in_ccol_note("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
 CALL write_bullet_and_variable_in_ccol_note("Discovery date", discovery_date)
-CALL write_variable_in_ccol_note("Period " & OP_from & " through " & OP_to)
+CALL write_variable_in_ccol_note("* Period " & OP_from & " through " & OP_to)
 CALL write_bullet_and_variable_in_ccol_note("Active Programs", OP_program)
 CALL write_bullet_and_variable_in_ccol_note("Source of income", income_source)
 CALL write_variable_in_ccol_note("----- ----- -----")
