@@ -54,43 +54,60 @@ CALL changelog_update("11/14/2017", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'---------------------------------------------------------------------------------------FUNCTION'
-
-EMConnect ""
-
-CALL MAXIS_case_number_finder (MAXIS_case_number)
-memb_number = "01"
-discovery_date = date & ""
-
-BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
-  EditBox 60, 5, 65, 15, MAXIS_case_number
-  EditBox 60, 25, 30, 15, MEMB_number
-  ButtonGroup ButtonPressed
-    OkButton 20, 45, 50, 15
-    CancelButton 75, 45, 50, 15
-  Text 5, 30, 55, 10, "MEMB Number:"
-  Text 5, 10, 50, 10, "Case Number:"
-EndDialog
- DO
-  	DO
-  		err_msg = ""
-  		Dialog case_number_dialog
-  		IF ButtonPressed = 0 THEN StopScript
- 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
- 		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
-  		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	LOOP UNTIL err_msg = ""
-	CALL check_for_password(are_we_passworded_out)
-LOOP UNTIL are_we_passworded_out = false
-
-CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-EMwritescreen MEMB_number, 20, 76
-TRANSMIT
-EMReadscreen SSN_number_read, 11, 7, 42
-SSN_number_read = replace(SSN_number_read, " ", "")
-CALL navigate_to_MAXIS_screen("INFC" , "____")
-CALL write_value_and_transmit("IEVP", 20, 71)
-CALL write_value_and_transmit(SSN_number_read, 3, 63) '
+'----------------------------------------------------------------------------------------------------DAIL
+EMReadscreen dail_check, 4, 4, 14 'changed from DAIL to view to ensure we are in DAIL/DAIL'
+IF dail_check = "View" THEN
+    EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
+    EMSendKey "t"
+	'msgbox IEVS_type
+    IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" THEN
+    	match_found = TRUE
+    ELSE
+    	script_end_procedure("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
+    END IF
+	IF match_found = TRUE THEN
+    	EMReadScreen MAXIS_case_number, 8, 5, 73
+		MAXIS_case_number= TRIM(MAXIS_case_number)
+		 '----------------------------------------------------------------------------------------------------IEVP
+		'Navigating deeper into the match interface
+		CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
+		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
+		TRANSMIT
+	    EMReadScreen err_msg, 7, 24, 2
+	    IF err_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
+	END IF
+ElseIF dail_check <> "View" THEN
+    CALL MAXIS_case_number_finder (MAXIS_case_number)
+    MEMB_number = "01"
+    BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
+      EditBox 60, 5, 65, 15, MAXIS_case_number
+      EditBox 60, 25, 30, 15, MEMB_number
+      ButtonGroup ButtonPressed
+        OkButton 20, 45, 50, 15
+        CancelButton 75, 45, 50, 15
+      Text 5, 30, 55, 10, "MEMB Number:"
+      Text 5, 10, 50, 10, "Case Number:"
+    EndDialog
+    DO
+    	DO
+    		err_msg = ""
+    		Dialog case_number_dialog
+    		IF ButtonPressed = 0 THEN StopScript
+      		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+      		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	LOOP UNTIL err_msg = ""
+    	CALL check_for_password(are_we_passworded_out)
+    LOOP UNTIL are_we_passworded_out = false
+    CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+    EMwritescreen MEMB_number, 20, 76
+    TRANSMIT
+    EMReadscreen SSN_number_read, 11, 7, 42
+    SSN_number_read = replace(SSN_number_read, " ", "")
+	CALL navigate_to_MAXIS_screen("INFC" , "____")
+	CALL write_value_and_transmit("IEVP", 20, 71)
+	CALL write_value_and_transmit(SSN_number_read, 3, 63)
+end if
 
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 7

@@ -111,37 +111,60 @@ current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
 
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+'----------------------------------------------------------------------------------------------------DAIL
 EMReadscreen dail_check, 4, 4, 14 'changed from DAIL to view to ensure we are in DAIL/DAIL'
-CALL MAXIS_case_number_finder (MAXIS_case_number)
-'MEMB_number = "01"
-BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
-  EditBox 60, 5, 65, 15, MAXIS_case_number
-  EditBox 60, 25, 30, 15, MEMB_number
-  ButtonGroup ButtonPressed
-    OkButton 20, 45, 50, 15
-    CancelButton 75, 45, 50, 15
-  Text 5, 30, 55, 10, "MEMB Number:"
-  Text 5, 10, 50, 10, "Case Number:"
-EndDialog
-DO
-	DO
-		err_msg = ""
-		Dialog case_number_dialog
-		IF ButtonPressed = 0 THEN StopScript
-  		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-  		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	LOOP UNTIL err_msg = ""
-	CALL check_for_password(are_we_passworded_out)
-LOOP UNTIL are_we_passworded_out = false
-CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-EMwritescreen MEMB_number, 20, 76
-TRANSMIT
-EMReadscreen SSN_number_read, 11, 7, 42
-SSN_number_read = replace(SSN_number_read, " ", "")
-CALL navigate_to_MAXIS_screen("INFC" , "____")
-CALL write_value_and_transmit("IEVP", 20, 71)
-CALL write_value_and_transmit(SSN_number_read, 3, 63) '
+IF dail_check = "View" THEN
+    EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
+    EMSendKey "t"
+	'msgbox IEVS_type
+    IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" THEN
+    	match_found = TRUE
+    ELSE
+    	script_end_procedure("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
+    END IF
+	IF match_found = TRUE THEN
+    	EMReadScreen MAXIS_case_number, 8, 5, 73
+		MAXIS_case_number= TRIM(MAXIS_case_number)
+		 '----------------------------------------------------------------------------------------------------IEVP
+		'Navigating deeper into the match interface
+		CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
+		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
+		TRANSMIT
+	    EMReadScreen err_msg, 7, 24, 2
+	    IF err_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
+	END IF
+ElseIF dail_check <> "View" THEN
+    CALL MAXIS_case_number_finder (MAXIS_case_number)
+    MEMB_number = "01"
+    BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
+      EditBox 60, 5, 65, 15, MAXIS_case_number
+      EditBox 60, 25, 30, 15, MEMB_number
+      ButtonGroup ButtonPressed
+        OkButton 20, 45, 50, 15
+        CancelButton 75, 45, 50, 15
+      Text 5, 30, 55, 10, "MEMB Number:"
+      Text 5, 10, 50, 10, "Case Number:"
+    EndDialog
+    DO
+    	DO
+    		err_msg = ""
+    		Dialog case_number_dialog
+    		IF ButtonPressed = 0 THEN StopScript
+      		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+      		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	LOOP UNTIL err_msg = ""
+    	CALL check_for_password(are_we_passworded_out)
+    LOOP UNTIL are_we_passworded_out = false
+    CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+    EMwritescreen MEMB_number, 20, 76
+    TRANSMIT
+    EMReadscreen SSN_number_read, 11, 7, 42
+    SSN_number_read = replace(SSN_number_read, " ", "")
+	CALL navigate_to_MAXIS_screen("INFC" , "____")
+	CALL write_value_and_transmit("IEVP", 20, 71)
+	CALL write_value_and_transmit(SSN_number_read, 3, 63)
+end if
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 7
 DO
@@ -289,21 +312,20 @@ EndDialog
 BeginDialog Claim_Referral_Tracking, 0, 0, 216, 155, "Claim Referral Tracking"
   EditBox 65, 30, 45, 15, MAXIS_case_number
   EditBox 165, 30, 45, 15, action_date
-  DropListBox 65, 50, 110, 15, "Select One:"+chr(9)+"Sent Request for Additional Info"+chr(9)+"Overpayment Exists", next_action
-  EditBox 65, 70, 145, 15, verif_requested
-  EditBox 65, 90, 145, 15, other_notes
-  EditBox 110, 110, 100, 15, worker_signature
+  DropListBox 65, 50, 145, 15, "Select One:"+chr(9)+"Sent Request for Additional Info"+chr(9)+"Overpayment Exists", next_action
+  EditBox 65, 95, 145, 15, other_notes
+  EditBox 110, 115, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-	PushButton 5, 135, 85, 15, "Claims Procedures", claims_procedures
-	OkButton 115, 135, 45, 15
-	CancelButton 165, 135, 45, 15
+    PushButton 5, 135, 85, 15, "Claims Procedures", claims_procedures
+    OkButton 115, 135, 45, 15
+    CancelButton 165, 135, 45, 15
   Text 5, 5, 205, 20, "Federal regulations require tracking the date it is first suspected there may be a SNAP or MFIP Federal Food claim. "
-  Text 65, 115, 40, 10, "Worker Sig:"
-  Text 5, 75, 55, 10, "Verif Requested:"
+  Text 65, 120, 40, 10, "Worker Sig:"
   Text 15, 35, 50, 10, "Case Number: "
-  Text 20, 95, 45, 10, "Other Notes:"
+  Text 20, 100, 45, 10, "Other Notes:"
   Text 15, 55, 45, 10, "Action Taken:"
   Text 120, 35, 40, 10, "Action Date: "
+  Text 5, 70, 205, 20, "Verif Requested:" & pending_verifs
 EndDialog
 
 IF notice_sent = "N" THEN
@@ -407,7 +429,7 @@ IF send_notice_checkbox = CHECKED THEN
     Call write_bullet_and_variable_in_case_note("Active Program(s)", programs)
     IF next_action = "Sent Request for Additional Info" THEN Call write_bullet_and_variable_in_case_note("Action taken", next_action)
     IF next_action = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note("* Additional verifications requested, TIKL set for 10 day return.")
-    If next_action = "Sent Request for Additional Info" THEN  Call write_bullet_and_variable_in_case_note("Verification requested", verif_requested)
+    If next_action = "Sent Request for Additional Info" THEN  Call write_bullet_and_variable_in_case_note("Verification requested", pending_verifs)
     If next_action = "Overpayment Exists" THEN  Call write_variable_in_case_note("* Overpayment exists, claims procedure to follow.")
     Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
     Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
