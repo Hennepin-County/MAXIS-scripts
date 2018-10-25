@@ -363,26 +363,6 @@ IF send_notice_checkbox = CHECKED THEN
     '-----------------------------------------------------------------------------------Claim Referral Tracking
     action_date = date & ""
 
-    '-----------------------------------------------------------------------------DIALOG
-
-    Do
-    	Do
-    		err_msg = ""
-    		Do
-                dialog Claim_Referral_Tracking
-                cancel_confirmation
-                If ButtonPressed = claims_procedures then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Claims_Maxis_Procedures.aspx")
-            Loop until ButtonPressed = -1
-    		IF buttonpressed = 0 then stopscript
-    		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
-    		IF isdate(action_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid action date."
-    		IF next_action = "Select One:" then err_msg = err_msg & vbnewline & "* Select the action taken for next step in overpayment."
-            IF next_action = "Sent Request for Additional Info" then err_msg = err_msg & vbnewline & "* You selected that a request for additional information was sent, please advise what verifications were requested."
-    		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature."
-    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-    	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    Loop until are_we_passworded_out = false					'loops until user passwords back in
     '-----------------------------------------------------------------Going to the MISC panel
     Call navigate_to_MAXIS_screen ("STAT", "MISC")
     Row = 6
@@ -405,32 +385,16 @@ IF send_notice_checkbox = CHECKED THEN
         If row = 17 then script_end_procedure("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
     End if
 
-    'writing in the action taken and date to the MISC panel
-    IF next_action = "Sent Request for Additional Info" THEN action_taken = "Initial Claim Referral"
-    IF next_action = "Overpayment Exists" THEN action_taken = "Claim Determination"
-    EMWriteScreen action_taken, Row, 30
+	EMWriteScreen "Initial Claim Referral", Row, 30
     EMWriteScreen date, Row, 66
     PF3
-
-    'set TIKL------------------------------------------------------------------------------------------------------
-    If next_action = "Overpayment Exists" THEN
-    	Msgbox "You identified your case is ready to process for overpayment follow procedures for claim entry.  A TIKL will NOT be made."
-    ELSE
-    	Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-    	call create_MAXIS_friendly_date(action_date, 10, 5, 18)
-    	Call write_variable_in_TIKL("Potential overpayment exists on case. Please review case for receipt of additional requested information.")
-    	PF3
-    END IF
 
     'The case note-------------------------------------------------------------------------------------------------
     start_a_blank_CASE_NOTE
     Call write_variable_in_case_note("-----Claim Referral Tracking - " & action_taken & "-----")
     Call write_bullet_and_variable_in_case_note("Action Date", action_date)
     Call write_bullet_and_variable_in_case_note("Active Program(s)", programs)
-    IF next_action = "Sent Request for Additional Info" THEN Call write_bullet_and_variable_in_case_note("Action taken", next_action)
     IF next_action = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note("* Additional verifications requested, TIKL set for 10 day return.")
-    If next_action = "Sent Request for Additional Info" THEN  Call write_bullet_and_variable_in_case_note("Verification requested", pending_verifs)
-    If next_action = "Overpayment Exists" THEN  Call write_variable_in_case_note("* Overpayment exists, claims procedure to follow.")
     Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
     Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
     Call write_variable_in_case_note("---")
@@ -586,104 +550,48 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 	PF3 'back to the DAIL'
 	'-----------------------------------------------------------------------------------Claim Referral Tracking
-	IF claim_referral = CHECKED THEN
-	  	BeginDialog Claim_Referral_Tracking, 0, 0, 216, 155, "Claim Referral Tracking"
-	     EditBox 65, 30, 45, 15, MAXIS_case_number
-	     EditBox 165, 30, 45, 15, action_date
-	     DropListBox 65, 50, 110, 15, "Select One:"+chr(9)+"Sent Request for Additional Info"+chr(9)+"Overpayment Exists", next_action
-	     EditBox 65, 70, 145, 15, verif_requested
-	     EditBox 65, 90, 145, 15, other_notes
-	     EditBox 110, 110, 100, 15, worker_signature
-	     ButtonGroup ButtonPressed
-	       PushButton 5, 135, 85, 15, "Claims Procedures", claims_procedures
-	       OkButton 115, 135, 45, 15
-	       CancelButton 165, 135, 45, 15
-	     Text 5, 5, 205, 20, "Federal regulations require tracking the date it is first suspected there may be a SNAP or MFIP Federal Food claim. "
-	     Text 65, 115, 40, 10, "Worker Sig:"
-	     Text 5, 75, 55, 10, "Verif Requested:"
-	     Text 15, 35, 50, 10, "Case Number: "
-	     Text 20, 95, 45, 10, "Other Notes:"
-	     Text 15, 55, 45, 10, "Action Taken:"
-	     Text 120, 35, 40, 10, "Action Date: "
-	    EndDialog
+	Call navigate_to_MAXIS_screen ("STAT", "MISC")
+	Row = 6
+	EmReadScreen panel_number, 1, 02, 78
+	If panel_number = "0" then
+		EMWriteScreen "NN", 20,79
+		TRANSMIT
+	ELSE
 		Do
-			Do
-		  		err_msg = ""
-		  		Do
-		            dialog Claim_Referral_Tracking
-		            cancel_confirmation
-		            If ButtonPressed = claims_procedures then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Claims_Maxis_Procedures.aspx")
-		        Loop until ButtonPressed = -1
-		  		IF buttonpressed = 0 then stopscript
-		  		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
-		  		IF isdate(action_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid action date."
-		  		IF next_action = "Select One:" then err_msg = err_msg & vbnewline & "* Select the action taken for next step in overpayment."
-		        IF next_action = "Sent Request for Additional Info" and verif_requested = "" then err_msg = err_msg & vbnewline & "* You selected that a request for additional information was sent, please advise what verifications were requested."
-		  		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature."
-		  		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-		  	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-		  	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-		Loop until are_we_passworded_out = false					'loops until user passwords back in
-	  	'Going to the MISC panel
-		Call navigate_to_MAXIS_screen ("STAT", "MISC")
-		Row = 6
-		EmReadScreen panel_number, 1, 02, 78
-		If panel_number = "0" then
-			EMWriteScreen "NN", 20,79
-			TRANSMIT
-		ELSE
-			Do
-		    	'Checking to see if the MISC panel is empty, if not it will find a new line'
-		    	EmReadScreen MISC_description, 25, row, 30
-		    	MISC_description = replace(MISC_description, "_", "")
-		      	If trim(MISC_description) = "" then
-		  			PF9
-		      		EXIT DO
-		      	Else
-		              row = row + 1
-		      	End if
-		  	Loop Until row = 17
-		      If row = 17 then script_end_procedure("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-		End if
-
-		'writing in the action taken and date to the MISC panel
-		IF next_action = "Sent Request for Additional Info" THEN action_taken = "Initial Claim Referral"
-		IF next_action = "Overpayment Exists" THEN action_taken = "Claim Determination"
-		EMWriteScreen action_taken, Row, 30
-		EMWriteScreen date, Row, 66
+	    	'Checking to see if the MISC panel is empty, if not it will find a new line'
+	    	EmReadScreen MISC_description, 25, row, 30
+	    	MISC_description = replace(MISC_description, "_", "")
+	      	If trim(MISC_description) = "" then
+	  			PF9
+	      		EXIT DO
+	      	Else
+	              row = row + 1
+	      	End if
+	  	Loop Until row = 17
+	      If row = 17 then script_end_procedure("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+	End if
+ 	EMWriteScreen "Claim Determination", Row, 30
+	EMWriteScreen date, Row, 66
+	PF3
+	Msgbox "You identified your case is ready to process for overpayment follow procedures for claim entry.  A TIKL will NOT be made."
+	 	Call navigate_to_MAXIS_screen("DAIL", "WRIT")
+		call create_MAXIS_friendly_date(action_date, 10, 5, 18)
+		Call write_variable_in_TIKL("Potential overpayment exists on case. Please review case for receipt of additional requested information.")
 		PF3
 
-		'set TIKL------------------------------------------------------------------------------------------------------
-		 If next_action = "Overpayment Exists" THEN
-		 	Msgbox "You identified your case is ready to process for overpayment follow procedures for claim entry.  A TIKL will NOT be made."
-		 ELSE
-		 	Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-		 	call create_MAXIS_friendly_date(action_date, 10, 5, 18)
-		 	Call write_variable_in_TIKL("Potential overpayment exists on case. Please review case for receipt of additional requested information.")
-		 	PF3
-		 END IF
+	'The case note-------------------------------------------------------------------------------------------------
+	start_a_blank_CASE_NOTE
+	  Call write_variable_in_case_note("-----Claim Referral Tracking - " & action_taken & "-----")
+	  Call write_bullet_and_variable_in_case_note("Action Date", action_date)
+	  Call write_bullet_and_variable_in_case_note("Active Program(s)", programs)
+	  If next_action = "Overpayment Exists" THEN  Call write_variable_in_case_note("* Overpayment exists, claims procedure to follow.")
+	  Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
+	  Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
+	  Call write_variable_in_case_note("---")
+	  Call write_variable_in_case_note(worker_signature)
+ 	PF3
 
-		'The case note-------------------------------------------------------------------------------------------------
-		start_a_blank_CASE_NOTE
-		  Call write_variable_in_case_note("-----Claim Referral Tracking - " & action_taken & "-----")
-		  Call write_bullet_and_variable_in_case_note("Action Date", action_date)
-		  Call write_bullet_and_variable_in_case_note("Active Program(s)", programs)
-		  IF next_action = "Sent Request for Additional Info" THEN Call write_bullet_and_variable_in_case_note("Action taken", next_action)
-		  IF next_action = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note("* Additional verifications requested, TIKL set for 10 day return.")
-		  If next_action = "Sent Request for Additional Info" THEN  Call write_bullet_and_variable_in_case_note("Verification requested", verif_requested)
-		  If next_action = "Overpayment Exists" THEN  Call write_variable_in_case_note("* Overpayment exists, claims procedure to follow.")
-		  Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
-		  Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
-		  Call write_variable_in_case_note("---")
-		  Call write_variable_in_case_note(worker_signature)
-	 	PF3
-
-		IF next_action = "Sent Request for Additional Info" THEN
-			script_end_procedure("You have indicated that you sent a request for additional information. Please follow the agency's procedure(s) for claim entry once received.")
-		Else
-		  	script_end_procedure("You have indicated that an overpayment exists. Please follow the agency's procedure(s) for claim entry.")
-		End if
-	END IF
+	'END IF
 	       '----------------------------------------------------------------the case match CLEARED note
 	start_a_blank_CASE_NOTE
 	IF resolution_status <> "NC - Non Cooperation" THEN
