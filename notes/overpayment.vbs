@@ -204,7 +204,7 @@ start_a_blank_CASE_NOTE
 	Call write_variable_in_CASE_NOTE("Period " & OP_from & " through " & OP_to)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", OP_program)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
-	Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+	Call write_variable_in_CASE_NOTE("----- ----- -----")
 	Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & claim_number & " Amt $" & Claim_amount)
 	IF OP_program_II <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
 	IF OP_program_III <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
@@ -222,8 +222,8 @@ start_a_blank_CASE_NOTE
 	CALL write_bullet_and_variable_in_case_note("Date verification received", income_rcvd_date)
 	CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
 	CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
-	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
-	CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+	CALL write_variable_in_CASE_NOTE("----- ----- -----")
+	CALL write_variable_in_CASE_NOTE(worker_signature)
 
 	PF3 'to save casenote'
 
@@ -250,7 +250,7 @@ start_a_blank_CASE_NOTE
 	END IF
 
 '---------------------------------------------------------------writing the CCOL case note'
-msgbox "Navigating to CCOL to add case note, please contact MiKayla with any concerns."
+msgbox "Navigating to CCOL to add case note, please contact MiKayla Handley with any concerns."
 Call navigate_to_MAXIS_screen("CCOL", "CLSM")
 EMWriteScreen claim_number, 4, 9
 Transmit
@@ -266,7 +266,7 @@ CALL write_bullet_and_variable_in_ccol_note("Discovery date", discovery_date)
 CALL write_variable_in_ccol_note("Period " & OP_from & " through " & OP_to)
 CALL write_bullet_and_variable_in_ccol_note("Active Programs", OP_program)
 CALL write_bullet_and_variable_in_ccol_note("Source of income", income_source)
-CALL write_variable_in_ccol_note("----- ----- ----- ----- -----")
+CALL write_variable_in_ccol_note("----- ----- -----")
 CALL write_variable_in_ccol_note(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
 IF OP_program_II <> "Select:" then CALL write_variable_in_ccol_note(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
 IF OP_program_III <> "Select:" then CALL write_variable_in_ccol_note(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
@@ -285,8 +285,8 @@ CALL write_bullet_and_variable_in_ccol_note("Date verification received", income
 CALL write_bullet_and_variable_in_ccol_note("Reason for overpayment", Reason_OP)
 CALL write_bullet_and_variable_in_ccol_note("Other responsible member(s)", OT_resp_memb)
 CALL write_bullet_and_variable_in_ccol_note("Income verification received", income_rcvd_date)
-CALL write_variable_in_ccol_note("----- ----- ----- ----- ----- ----- -----")
-CALL write_variable_in_ccol_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+CALL write_variable_in_ccol_note(" ----- ----- -----")
+CALL write_variable_in_ccol_note(worker_signature)
 PF3 'exit the case note'
 PF3 'back to dail'
 
