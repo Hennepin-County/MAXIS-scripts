@@ -990,7 +990,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                 EMReadScreen confirm_mmis_end, 8, relg_row+1, 36        'reading the end date and status to make sure the change was successful
                 EMReadScreen confirm_mmis_stat, 1, relg_row+1, 62
 
-                If confirm_mmis_end = mmis_last_day_date AND confirm_mmis_stat = "C" Then   'if they match, we will update the array information
+                If DateValue(confirm_mmis_end) = DateValue(mmis_last_day_date) AND confirm_mmis_stat = "C" Then   'if they match, we will update the array information
 
                     EOMC_CLIENT_ARRAY(MMIS_new_end_one, hc_clt) = mmis_last_day_date        'This adds the last day of the month to the new MMIS end date
 
@@ -1045,11 +1045,11 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                 End If
 
                 'determine where the SPAN is
-                If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 18 Then            'if the span is the last on the page
+                If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 18 Then            'if the span is the last on the page
                     PF8                                                         'it is now on the next page
                     relg_row = 10                                               'the top span is empty in change so the known spans start at 10
                 Else                                                            'if it wasn't the last on the page
-                    relg_row = EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) + 4      'since the top row is empty, the row is 4 down from where it was in inquiry
+                    relg_row = EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) + 4      'since the top row is empty, the row is 4 down from where it was in inquiry
                 End If
 
                 EMWriteScreen mmis_last_day_date, relg_row+1, 36                'entering the last day of the current month and changing status to closed
@@ -1085,7 +1085,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                 EMReadScreen confirm_mmis_end, 8, relg_row+1, 36
                 EMReadScreen confirm_mmis_stat, 1, relg_row+1, 62
 
-                If confirm_mmis_end = mmis_last_day_date AND confirm_mmis_stat = "C" Then
+                If  DateValue(confirm_mmis_end) = DateValue(mmis_last_day_date) AND confirm_mmis_stat = "C" Then
 
                     EOMC_CLIENT_ARRAY(MMIS_new_end_two, hc_clt) = mmis_last_day_date
 
@@ -1247,19 +1247,22 @@ For hc_clt = 0 to UBound(EOMC_CLIENT_ARRAY, 2)
     ObjExcel.Cells(excel_row, elig_one_col).Value       = EOMC_CLIENT_ARRAY (elig_type_one,   hc_clt)
     ObjExcel.Cells(excel_row, MAXIS_end_one_col).Value  = EOMC_CLIENT_ARRAY(prog_one_end, hc_clt)
     ObjExcel.Cells(excel_row, mmis_one_col).Value       = EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt)
-    ObjExcel.Cells(excel_row, new_mmis_one_col).Value   = EOMC_CLIENT_ARRAY(MMIS_new_end_one, hc_clt)
-
-    ObjExcel.Cells(excel_row, cap_col).Value            = EOMC_CLIENT_ARRAY(capitation_ended, hc_clt)
 
     ObjExcel.Cells(excel_row, prog_two_col).Value       = EOMC_CLIENT_ARRAY (hc_prog_two,   hc_clt)
     ObjExcel.Cells(excel_row, elig_two_col).Value       = EOMC_CLIENT_ARRAY (elig_type_two,   hc_clt)
     ObjExcel.Cells(excel_row, MAXIS_end_two_col).Value  = EOMC_CLIENT_ARRAY(prog_two_end, hc_clt)
     ObjExcel.Cells(excel_row, mmis_two_col).Value       = EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt)
-    ObjExcel.Cells(excel_row, new_mmis_two_col).Value   = EOMC_CLIENT_ARRAY(MMIS_new_end_two, hc_clt)
 
-    ObjExcel.Cells(excel_row, savings_col).Value        = EOMC_CLIENT_ARRAY(clt_savings, hc_clt)
-    ObjExcel.Cells(excel_row, savings_col).NumberFormat = "$#,##0.00"
     ObjExcel.Cells(excel_row, errors_col).Value         = EOMC_CLIENT_ARRAY(err_notes, hc_clt)
+
+    If make_changes = TRUE Then
+        ObjExcel.Cells(excel_row, new_mmis_one_col).Value   = EOMC_CLIENT_ARRAY(MMIS_new_end_one, hc_clt)
+        ObjExcel.Cells(excel_row, cap_col).Value            = EOMC_CLIENT_ARRAY(capitation_ended, hc_clt)
+
+        ObjExcel.Cells(excel_row, new_mmis_two_col).Value   = EOMC_CLIENT_ARRAY(MMIS_new_end_two, hc_clt)
+        ObjExcel.Cells(excel_row, savings_col).Value        = EOMC_CLIENT_ARRAY(clt_savings, hc_clt)
+        ObjExcel.Cells(excel_row, savings_col).NumberFormat = "$#,##0.00"
+    End If
 	excel_row = excel_row + 1      'next row
 Next
 
