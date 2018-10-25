@@ -391,7 +391,7 @@ IF send_notice_checkbox = CHECKED THEN
 
     'The case note-------------------------------------------------------------------------------------------------
     start_a_blank_CASE_NOTE
-    Call write_variable_in_case_note("-----Claim Referral Tracking - " & action_taken & "-----")
+    Call write_variable_in_case_note("-----Claim Referral Tracking - Initial Claim Referral-----")
     Call write_bullet_and_variable_in_case_note("Action Date", action_date)
     Call write_bullet_and_variable_in_case_note("Active Program(s)", programs)
     IF next_action = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note("* Additional verifications requested, TIKL set for 10 day return.")
@@ -581,7 +581,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 
 	'The case note-------------------------------------------------------------------------------------------------
 	start_a_blank_CASE_NOTE
-	  Call write_variable_in_case_note("-----Claim Referral Tracking - " & action_taken & "-----")
+	  Call write_variable_in_case_note("-----Claim Referral Tracking - Claim Determination-----")
 	  Call write_bullet_and_variable_in_case_note("Action Date", action_date)
 	  Call write_bullet_and_variable_in_case_note("Active Program(s)", programs)
 	  If next_action = "Overpayment Exists" THEN  Call write_variable_in_case_note("* Overpayment exists, claims procedure to follow.")
