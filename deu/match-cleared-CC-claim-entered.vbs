@@ -459,16 +459,16 @@ IF OP_program_III <> "Select:" then CALL write_variable_in_CCOL_NOTE(OP_program_
 IF OT_resp_memb <> "" THEN CALL write_bullet_and_variable_in_CCOL_NOTE("Other responsible member(s)", OT_resp_memb)
 IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_NOTE("* Earned Income Disregard Allowed")
 IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_CCOL_NOTE("* Earned Income Disregard Not Allowed")
-IF programs = "Health Care" or programs = "Medical Assistance" THEN
+IF programs = "Health Care" THEN
 	Call write_bullet_and_variable_in_CCOL_NOTE("HC responsible members", HC_resp_memb)
-	Call write_bullet_and_variable_in_CCOL_NOTE("HC claim number", hc_claim_number)
+	Call write_bullet_and_variable_in_CCOL_NOTE("HC claim number", claim_number)
 	Call write_bullet_and_variable_in_CCOL_NOTE("Total federal Health Care amount", Fed_HC_AMT)
 	CALL write_variable_in_CCOL_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
 END IF
 CALL write_bullet_and_variable_in_CCOL_NOTE("Fraud referral made", fraud_referral)
 
 CALL write_bullet_and_variable_in_CCOL_NOTE("Income verification received", income_rcvd_date)
-CALL write_bullet_and_variable_in_CCOL_NOTE("MANDATORY-Reason for overpayment", Reason_OP)
+CALL write_bullet_and_variable_in_CCOL_NOTE("Reason for overpayment", Reason_OP)
 CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- ----- ----- -----")
 CALL write_variable_in_CCOL_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 PF3 'exit the case note'
