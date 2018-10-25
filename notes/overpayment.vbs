@@ -263,7 +263,7 @@ ELSE
 END IF
 CALL write_variable_in_CCOL_NOTE("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
 CALL write_bullet_and_variable_in_CCOL_NOTE("Discovery date", discovery_date)
-CALL write_bullet_and_variable_in_CCOL_NOTE("Period " & OP_from & " through " & OP_to)
+CALL write_variable_in_CCOL_NOTE("Period " & OP_from & " through " & OP_to)
 CALL write_bullet_and_variable_in_CCOL_NOTE("Active Programs", OP_program)
 CALL write_bullet_and_variable_in_CCOL_NOTE("Source of income", income_source)
 CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
@@ -280,13 +280,11 @@ IF OP_program = "HC" THEN
 	CALL write_variable_in_CCOL_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
 END IF
 CALL write_bullet_and_variable_in_CCOL_NOTE("Fraud referral made", fraud_referral)
-
-CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_used)
-CALL write_bullet_and_variable_in_case_note("Date verification received", income_rcvd_date)
-CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
-CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
-CALL write_bullet_and_variable_in_CCOL_NOTE("Income verification received", income_rcvd_date)
+CALL write_bullet_and_variable_in_CCOL_NOTE("Income verification received", EVF_used)
+CALL write_bullet_and_variable_in_CCOL_NOTE("Date verification received", income_rcvd_date)
 CALL write_bullet_and_variable_in_CCOL_NOTE("Reason for overpayment", Reason_OP)
+CALL write_bullet_and_variable_in_CCOL_NOTE("Other responsible member(s)", OT_resp_memb)
+CALL write_bullet_and_variable_in_CCOL_NOTE("Income verification received", income_rcvd_date)
 CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- ----- ----- -----")
 CALL write_variable_in_CCOL_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 PF3 'exit the case note'
