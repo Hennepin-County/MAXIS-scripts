@@ -291,32 +291,32 @@ additional_programs_applied_for = trim(additional_programs_applied_for)       't
 If right(additional_programs_applied_for, 1) = "," THEN additional_programs_applied_for = left(additional_programs_applied_for, len(additional_programs_applied_for) - 1)
 
 '----------------------------------------------------------------------------------------------------dialogs
-BeginDialog appl_detail_dialog, 0, 0, 296, 160, "Application Received for: "  & programs_applied_for
+BeginDialog appl_detail_dialog, 0, 0, 296, 170, "Application Received for: " & programs_applied_for
   DropListBox 90, 10, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
   DropListBox 90, 30, 65, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
   EditBox 230, 30, 55, 15, confirmation_number
-  CheckBox 20, 55, 115, 10, "Check if this is a case correction", case_correction
-  EditBox 230, 50, 55, 15, requested_person
-  EditBox 55, 80, 20, 15, transfer_case_number
+  EditBox 55, 90, 20, 15, transfer_case_number
+  CheckBox 75, 110, 155, 10, "Check if the case does not require a transfer ", no_transfer_check
+  EditBox 55, 130, 235, 15, other_notes
+  EditBox 75, 150, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-    PushButton 230, 80, 55, 15, "GeoCoder", geocoder_button
-  CheckBox 75, 100, 155, 10, "Check if the case does not require a transfer ", no_transfer_check
-  EditBox 55, 120, 235, 15, other_notes
-  EditBox 75, 140, 105, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 185, 140, 50, 15
-    CancelButton 240, 140, 50, 15
-  Text 175, 35, 50, 10, "Confirmation #:"
-  Text 15, 85, 40, 10, "Transfer to:"
-  Text 85, 85, 135, 10, "(last 3 digit of X#) transfer case to basket"
-  Text 10, 125, 45, 10, "Other Notes:"
-  Text 10, 145, 60, 10, "Worker Signature:"
-  GroupBox 5, 70, 285, 45, "Transfer Information"
-  Text 15, 15, 70, 10, "Application Received:"
-  GroupBox 5, 0, 285, 70, "Application Information"
-  Text 20, 35, 65, 10, "Type of Application:"
+    OkButton 185, 150, 50, 15
+    CancelButton 240, 150, 50, 15
+    PushButton 230, 90, 55, 15, "GeoCoder", geocoder_button
   Text 160, 15, 125, 10, "Date of Application: "  & application_date
+  Text 20, 35, 65, 10, "Type of Application:"
+  Text 175, 35, 50, 10, "Confirmation #:"
+  Text 15, 95, 40, 10, "Transfer to:"
+  Text 85, 95, 135, 10, "(last 3 digit of X#) transfer case to basket"
+  Text 10, 135, 45, 10, "Other Notes:"
+  Text 10, 155, 60, 10, "Worker Signature:"
+  GroupBox 5, 80, 285, 45, "Transfer Information"
+  Text 15, 15, 70, 10, "Application Received:"
+  GroupBox 5, 0, 285, 80, "Application Information"
+  CheckBox 10, 50, 115, 10, "Check if this is a case correction", case_correction
+  EditBox 230, 50, 55, 15, requested_person
   Text 160, 55, 65, 10, "Requesting person:"
+  CheckBox 10, 65, 150, 10, "Check if this is a MNSURE Retro Request", mnsure_retro_checkbox
 EndDialog
 
 '------------------------------------------------------------------------------------DIALOG APPL
@@ -367,6 +367,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", additiona
 CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
 If transfer_case_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Application assigned to", transfer_case_number)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
+IF mnsure_retro_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("Emailed " & requested_person & "to let them know the retro request is ready to be processed in MAXIS.")
 CALL write_variable_in_CASE_NOTE ("---")
 CALL write_variable_in_CASE_NOTE (worker_signature)
 PF3 ' to save Case note
@@ -513,7 +514,7 @@ END IF
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
-
+IF mnsure_retro_checkbox = CHECKED THEN CALL create_outlook_email("", "", MAXIS_case_name & maxis_case_number & " Retro Request for MNSURE ready to be processed. " & worker_number & "  EOM.", "", "", FALSE)
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE
 IF send_appt_ltr = TRUE THEN
