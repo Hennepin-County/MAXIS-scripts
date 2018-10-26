@@ -163,11 +163,11 @@ SSN_number_read = replace(SSN_number_read, " ", "")
 Call navigate_to_MAXIS_screen ("STAT", "MISC")
 Row = 6
 EmReadScreen err_msg, 53, 24, 02
-	IF err_msg <> "" THEN
-		MsgBox "*** No claim referral can be entered ***" & vbNewLine & err_msg & vbNewLine
-	ELSE
+	'IF err_msg  "" THEN
+		'MsgBox "*** No claim referral can be entered ***" & vbNewLine & err_msg & vbNewLine
+	'ELSE
         EmReadScreen panel_number, 1, 02, 78
-        If panel_number = "0" then
+        If panel_number = "0" then 'MISC DOES NOT EXIST FOR THIS CASE '
         	EMWriteScreen "NN", 20,79
         	TRANSMIT
         ELSE
@@ -195,7 +195,7 @@ EmReadScreen err_msg, 53, 24, 02
   	    Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
   	    Call write_variable_in_case_note("-----")
   	    Call write_variable_in_case_note(worker_signature)
-	END IF
+	'END IF
 start_a_blank_CASE_NOTE
 	Call write_variable_in_CASE_NOTE("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
@@ -225,7 +225,7 @@ start_a_blank_CASE_NOTE
 
 	PF3 'to save casenote'
 
-	IF programs = "Health Care" THEN
+	IF OP_program = "HC" THEN
 		EmWriteScreen "x", 5, 3
 		Transmit
 		note_row = 4			'Beginning of the case notes
