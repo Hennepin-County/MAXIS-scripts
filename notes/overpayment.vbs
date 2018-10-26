@@ -196,7 +196,7 @@ EmReadScreen err_msg, 53, 24, 02
   	    Call write_variable_in_case_note("-----")
   	    Call write_variable_in_case_note(worker_signature)
 	'END IF
-start_a_blank_CASE_NOTE
+	start_a_blank_CASE_NOTE
 	IF OP_program <> "Select One:" THEN
 		Call write_variable_in_CASE_NOTE(OP_program & "OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
 		Call write_variable_in_CASE_NOTE("* Period " & OP_from & " through " & OP_to)
@@ -260,11 +260,7 @@ EMWriteScreen claim_number, 4, 9
 Transmit
 PF4
 EMReadScreen existing_case_note, 1, 5, 6
-IF existing_case_note = "" THEN
-	msgbox "Entering casenote into CCOL"
-ELSE
-	PF9
-END IF
+IF existing_case_note = "" THEN	PF9
 	IF OP_program <> "Select One:" THEN
 		Call write_variable_in_CCOL_NOTE(OP_program & " OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
 		Call write_variable_in_CCOL_NOTE("* Period " & OP_from & " through " & OP_to)
