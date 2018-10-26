@@ -5113,8 +5113,8 @@ function write_bullet_and_variable_in_CCOL_NOTE(bullet, variable)
 	    	If character_test <> " " or noting_row >= 18 then
 	    		noting_row = noting_row + 1
 
-	    		'If we get to row 18 (which can't be read here), it will go to the next panel (PF8).
-	    		If noting_row >= 18 then
+	    		'If we get to row 19 (which can't be read here), it will go to the next panel (PF8).
+	    		If noting_row >= 19 then
 	    			EMSendKey "<PF8>"
 	    			EMWaitReady 0, 0
 
@@ -5561,8 +5561,8 @@ function write_variable_in_CCOL_NOTE(variable)
 	    	If character_test <> " " or noting_row >= 18 then
 	    		noting_row = noting_row + 1
 
-				'If we get to row 18 (which can't be read here), it will go to the next panel (PF8).
-	    		If noting_row >= 18 then
+				'If we get to row 19 (which can't be read here), it will go to the next panel (PF8).
+	    		If noting_row >= 19 then
 	    			EMSendKey "<PF8>"
 	    			EMWaitReady 0, 0
 
