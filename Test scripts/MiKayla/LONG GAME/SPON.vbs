@@ -58,7 +58,7 @@ BeginDialog sponsor_income_calculation_dialog, 0, 0, 346, 290, "Sponsor income c
   EditBox 160, 5, 20, 15, memb_number
   CheckBox 190, 5, 105, 10, "Verified via SAVE requested?", via_save
   CheckBox 190, 15, 135, 10, "TPQY / SSA quarters checked? HRS:", TPQY_check
-  EditBox 325, 10, 15, 15, SSA_hours
+  EditBox 320, 10, 20, 15, SSA_hours
   EditBox 45, 35, 55, 15, primary_sponsor_earned_income
   EditBox 145, 35, 55, 15, spousal_sponsor_earned_income
   DropListBox 260, 35, 75, 15, "Select One:"+chr(9)+"Paystubs"+chr(9)+"Taxes"+chr(9)+"EVF"+chr(9)+"SMI"+chr(9)+"Other please specify ", earned_income_verification
@@ -66,21 +66,17 @@ BeginDialog sponsor_income_calculation_dialog, 0, 0, 346, 290, "Sponsor income c
   EditBox 145, 70, 55, 15, spousal_sponsor_unearned_income
   DropListBox 260, 70, 75, 15, "Select One:"+chr(9)+"Paystubs"+chr(9)+"Taxes"+chr(9)+"EVF"+chr(9)+"SMI"+chr(9)+"Other please specify ", unearned_income_verification
   EditBox 80, 105, 70, 15, name_sponsor
-  EditBox 250, 105, 80, 15, name_of_spon_spouse
-  EditBox 80, 125, 135, 15, sponsor_addr
-  EditBox 250, 125, 20, 15, phone_one
-  EditBox 275, 125, 20, 15, phone_two
-  EditBox 300, 125, 30, 15, phone_three
+  EditBox 255, 105, 80, 15, name_of_spon_spouse
+  EditBox 80, 125, 165, 15, sponsor_addr
+  EditBox 280, 125, 55, 15, phone_one
   EditBox 80, 145, 20, 15, spon_HH_size
-  EditBox 205, 145, 20, 15, number_of_spon
+  EditBox 205, 145, 20, 15, number_of_spon_clients
   EditBox 80, 170, 70, 15, name_sponsor_two
-  EditBox 250, 170, 80, 15, name_of_spon_spouse_two
-  EditBox 80, 190, 135, 15, sponsor_addr_two
-  EditBox 250, 190, 20, 15, phone_one_two
-  EditBox 275, 190, 20, 15, phone_two_two
-  EditBox 300, 190, 30, 15, phone_three_two
+  EditBox 255, 170, 80, 15, name_of_spon_spouse_two
+  EditBox 80, 190, 165, 15, sponsor_addr_two
+  EditBox 280, 190, 55, 15, phone_two
   EditBox 80, 210, 20, 15, spon_HH_size_two
-  EditBox 205, 210, 20, 15, number_of_spon_two
+  EditBox 205, 210, 20, 15, number_of_spon_clients_two
   EditBox 200, 245, 135, 15, denial_reason
   EditBox 60, 270, 175, 15, other_notes
   CheckBox 10, 240, 110, 10, "Indigent Exemption Reviewed?", indexmp_CHECKBOX
@@ -101,21 +97,22 @@ BeginDialog sponsor_income_calculation_dialog, 0, 0, 346, 290, "Sponsor income c
   Text 205, 75, 55, 10, "Income verified: "
   GroupBox 5, 95, 335, 135, "Sponsor Information:"
   Text 15, 110, 60, 10, "Name of sponsor:"
-  Text 155, 110, 90, 10, "Name of sponsor's spouse:"
+  Text 160, 110, 90, 10, "Name of sponsor's spouse:"
   Text 45, 130, 30, 10, "Address:"
-  Text 225, 130, 25, 10, "Phone:"
+  Text 250, 130, 25, 10, "Phone:"
   Text 15, 150, 60, 10, "Sponsor HH size:"
   Text 105, 150, 100, 10, "Number of sponsored clients:"
   Text 15, 175, 60, 10, "Name of sponsor:"
-  Text 155, 175, 90, 10, "Name of sponsor's spouse:"
+  Text 160, 175, 90, 10, "Name of sponsor's spouse:"
   Text 45, 195, 30, 10, "Address:"
-  Text 225, 195, 25, 10, "Phone:"
+  Text 255, 195, 25, 10, "Phone:"
   Text 15, 215, 60, 10, "Sponsor HH size:"
   Text 105, 215, 100, 10, "Number of sponsored clients:"
   GroupBox 5, 230, 335, 35, "HP. Immigration Information"
   Text 135, 250, 65, 10, "Reason for denial?"
   Text 15, 275, 45, 10, "Other Notes:"
 EndDialog
+
 
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -132,7 +129,7 @@ Do
 		If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 THEN err_msg = err_msg & vbCr & "* You must enter a valid case number."
 		If isnumeric(primary_sponsor_earned_income) = False and isnumeric(spousal_sponsor_earned_income) = False and isnumeric(primary_sponsor_unearned_income) = False and isnumeric(spousal_sponsor_unearned_income) = False THEN err_msg = err_msg & vbCr & "* You must enter some income. You can enter a ''0'' if that is accurate."
 		If isnumeric(sponsor_HH_size) = False THEN err_msg = err_msg & vbCr & "* You must enter a sponsor HH size."
-		If isnumeric(number_of_sponsored_immigrants) = False THEN err_msg = err_msg & vbCr & "* You must enter the number of sponsored immigrants."
+		If isnumeric(number_of_spon_clients) = False THEN err_msg = err_msg & vbCr & "* You must enter the number of sponsored clients."
 		If worker_signature = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = ""
@@ -141,7 +138,7 @@ LOOP UNTIL are_we_passworded_out = false
 
 
 'Determines the income limits
-' >> Income limits from CM 19.06 - MAXIS Gross Income 130% FPG (Updated effective 10/01/17)
+' >> Income limits from CM 19.06 - MAXIS Gross Income 130% FPG (Updated effective 10/01/18)
 If date >= cdate("10/01/2018") then
     If sponsor_HH_size = 1 then income_limit = 1316
     If sponsor_HH_size = 2 then income_limit = 1784
@@ -172,7 +169,7 @@ If IsNumeric(spousal_sponsor_unearned_income) = False then spousal_sponsor_unear
 
 'Determines the sponsor deeming amount for SNAP
 SNAP_EI_disregard = (abs(primary_sponsor_earned_income) + abs(spousal_sponsor_earned_income)) * 0.2
-sponsor_deeming_amount_SNAP = ((((abs(primary_sponsor_earned_income) + abs(spousal_sponsor_earned_income)) - SNAP_EI_disregard) + (abs(primary_sponsor_unearned_income) + abs(spousal_sponsor_unearned_income)) - income_limit)/abs(number_of_sponsored_immigrants))
+sponsor_deeming_amount_SNAP = ((((abs(primary_sponsor_earned_income) + abs(spousal_sponsor_earned_income)) - SNAP_EI_disregard) + (abs(primary_sponsor_unearned_income) + abs(spousal_sponsor_unearned_income)) - income_limit)/abs(number_of_spon_clients))
 
 'Determines the sponsor deeming amount for other programs
 sponsor_deeming_amount_other_programs = abs(primary_sponsor_earned_income) + abs(spousal_sponsor_earned_income) + abs(primary_sponsor_unearned_income) + abs(spousal_sponsor_unearned_income)
@@ -196,7 +193,7 @@ END IF
 If spousal_sponsor_unearned_income <> 0 then call write_bullet_and_variable_in_case_note("Spousal sponsor unearned income", "$" & spousal_sponsor_unearned_income)
 If SNAP_EI_disregard <> 0 then call write_bullet_and_variable_in_case_note("20% diregard of EI for SNAP", "$" & SNAP_EI_disregard)
 CALL write_bullet_and_variable_in_case_note("Sponsor HH size and income limit", sponsor_HH_size & ", $" & income_limit)
-CALL write_bullet_and_variable_in_case_note("Number of sponsored immigrants", number_of_spon)
+CALL write_bullet_and_variable_in_case_note("Number of sponsored people", number_of_spon_clients)
 call write_bullet_and_variable_in_case_note("Sponsor deeming amount for SNAP", "$" & sponsor_deeming_amount_SNAP)
 call write_bullet_and_variable_in_case_note("Sponsor deeming amount for other programs", "$" & sponsor_deeming_amount_other_programs)
 CALL write_bullet_and_variable_in_case_note("Verified via SAVE requested?", via_save)
@@ -208,11 +205,11 @@ CALL write_bullet_and_variable_in_case_note("Address", sponsor_addr)
 CALL write_bullet_and_variable_in_case_note("Phone", phone_one)
 CALL write_bullet_and_variable_in_case_note("Name of second sponsor", name_of_spon_spouse_two)
 CALL write_bullet_and_variable_in_case_note("Address", sponsor_addr_two)
-CALL write_bullet_and_variable_in_case_note("Phone", phone_one)
+CALL write_bullet_and_variable_in_case_note("Phone", phone_two)
 CALL write_bullet_and_variable_in_case_note("Second Sponsor HH size", spon_HH_size_two)
 CALL write_bullet_and_variable_in_case_note("Reason for Denial", denial_reason)
 CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
-IF indexmp_CHECKBOX = CHECKED THEN CALL write_bullet_and_variable_in_case_note("Indigent Exemption Reviewed")
+IF indexmp_CHECKBOX = CHECKED THEN CALL write_variable_in_case_note("Indigent Exemption Reviewed")
 IF DVW_CHECKBOX = CHECKED THEN CALL write_bullet_and_variable_in_case_note("DV Waiver Reviewed?")
 CALL write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)

@@ -200,7 +200,7 @@ EmReadScreen err_msg, 53, 24, 02
 	IF OP_program <> "Select One:" THEN
 		Call write_variable_in_CASE_NOTE(OP_program & " OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
 		Call write_variable_in_CASE_NOTE("* Period " & OP_from & " through " & OP_to)
-		Call write_variable_in_CASE_NOTE(" Claim # " & claim_number & " Amt $" & Claim_amount)
+		Call write_variable_in_CASE_NOTE("* Claim # " & claim_number & " Amt $" & Claim_amount)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
 		Call write_variable_in_CASE_NOTE("----- ----- -----")
@@ -264,7 +264,7 @@ IF existing_case_note = "" THEN	PF9
 	IF OP_program <> "Select One:" THEN
 		Call write_variable_in_CCOL_NOTE(OP_program & " OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
 		Call write_variable_in_CCOL_NOTE("* Period " & OP_from & " through " & OP_to)
-		Call write_variable_in_CCOL_NOTE(" Claim # " & claim_number & " Amt $" & Claim_amount)
+		Call write_variable_in_CCOL_NOTE("* Claim # " & claim_number & " Amt $" & Claim_amount)
 		CALL write_bullet_and_variable_in_CCOL_NOTE("Discovery date", discovery_date)
 		CALL write_bullet_and_variable_in_CCOL_NOTE("Source of income", income_source)
 		Call write_variable_in_CCOL_NOTE("----- ----- -----")
