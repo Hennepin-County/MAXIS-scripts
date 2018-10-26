@@ -121,7 +121,7 @@ BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
  EditBox 305, 95, 45, 15, entry_date
  EditBox 305, 115, 45, 15, status_date
  CheckBox 10, 75, 110, 10, "Emailed HP.immigration?", emailHP_CHECKBOX
- CheckBox 10, 90, 90, 10, "Inital SAVE Completed?", save_CHECKBOX
+ CheckBox 10, 90, 90, 10, "SAVE Completed?", save_CHECKBOX
  CheckBox 10, 105, 145, 10, "Additional SAVE Information Requested?", additional_CHECKBOX
  CheckBox 15, 120, 220, 10, "check here if immig document was attached to additional SAVE?", SAVE_docs_check
  GroupBox 5, 140, 350, 110, "Sponsored on I-864 Affidavit of Support?          (LPR COA CODE: C, CF, CR, CX, F, FX, IF, IR)"
@@ -496,7 +496,7 @@ start_a_blank_CASE_NOTE
 IF additional_CHECKBOX = CHECKED THEN
  		Call write_variable_in_case_note("IMIG-Instituted Additional SAVE for M" & MEMB_number)
 ELSEIF save_CHECKBOX = CHECKED THEN
-	Call write_variable_in_case_note("IMIG-Initial SAVE Completed for M" & MEMB_number)
+	Call write_variable_in_case_note("IMIG-SAVE Completed for M" & MEMB_number)
 ELSEIF immig_status_dropdown = "US Citizen" THEN
 	Call write_variable_in_case_note("SAVE Completed for M" & MEMB_number & " US Citizen")
 	Call write_variable_in_case_note("* Updated MEMB to remove Alien ID")
