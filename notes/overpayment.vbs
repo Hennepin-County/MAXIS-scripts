@@ -266,7 +266,7 @@ ELSE
 	PF9
 END IF
 	IF OP_program <> "Select One:" THEN
-		Call write_variable_in_CCOL_NOTE(OP_program & "OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
+		Call write_variable_in_CCOL_NOTE(OP_program & " OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
 		Call write_variable_in_CCOL_NOTE("* Period " & OP_from & " through " & OP_to)
 		Call write_variable_in_CCOL_NOTE(" Claim # " & claim_number & " Amt $" & Claim_amount)
 		CALL write_bullet_and_variable_in_CCOL_NOTE("Discovery date", discovery_date)
