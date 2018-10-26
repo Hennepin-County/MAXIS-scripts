@@ -5110,11 +5110,11 @@ function write_bullet_and_variable_in_CCOL_NOTE(bullet, variable)
 		'The following figures out if we need a new page, or if we need a new case note entirely as well.
 	    Do
 	    	EMReadScreen character_test, 1, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
-	    	If character_test <> " " or noting_row >= 19 then
+	    	If character_test <> " " or noting_row >= 18 then
 	    		noting_row = noting_row + 1
 
 	    		'If we get to row 18 (which can't be read here), it will go to the next panel (PF8).
-	    		If noting_row >= 19 then
+	    		If noting_row >= 18 then
 	    			EMSendKey "<PF8>"
 	    			EMWaitReady 0, 0
 
@@ -5558,11 +5558,11 @@ function write_variable_in_CCOL_NOTE(variable)
 	    'The following figures out if we need a new page, or if we need a new case note entirely as well.
 	    Do
 	    	EMReadScreen character_test, 1, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
-	    	If character_test <> " " or noting_row >= 19 then
+	    	If character_test <> " " or noting_row >= 18 then
 	    		noting_row = noting_row + 1
 
 	    		'If we get to row 19 (which can't be read here), it will go to the next panel (PF8).
-	    		If noting_row >= 19 then
+	    		If noting_row >= 18 then
 	    			EMSendKey "<PF8>"
 	    			EMWaitReady 0, 0
 
@@ -5595,7 +5595,7 @@ function write_variable_in_CCOL_NOTE(variable)
 	    	End if
 
 	    	'If the next line is row 19 (you can't write to row 19), it will PF8 to get to the next page
-	    	If noting_row >= 19 then
+	    	If noting_row >= 18 then
 	    		EMSendKey "<PF8>"
 	    		EMWaitReady 0, 0
 

@@ -63,8 +63,6 @@ EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 memb_number = "01"
 discovery_date = date & ""
-back_to_self
-
 	BeginDialog overpayment_dialog, 0, 0, 361, 230, "Overpayment Claim Entered"
 	  EditBox 60, 5, 40, 15, MAXIS_case_number
 	  EditBox 140, 5, 20, 15, memb_number
