@@ -5110,11 +5110,11 @@ function write_bullet_and_variable_in_CCOL_NOTE(bullet, variable)
 		'The following figures out if we need a new page, or if we need a new case note entirely as well.
 	    Do
 	    	EMReadScreen character_test, 1, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
-	    	If character_test <> " " or noting_row >= 19 then
+	    	If character_test <> " " or noting_row >= 18 then
 	    		noting_row = noting_row + 1
 
 	    		'If we get to row 18 (which can't be read here), it will go to the next panel (PF8).
-	    		If noting_row >= 19 then
+	    		If noting_row >= 18 then
 	    			EMSendKey "<PF8>"
 	    			EMWaitReady 0, 0
 
@@ -5125,11 +5125,11 @@ function write_bullet_and_variable_in_CCOL_NOTE(bullet, variable)
 	    				EMWaitReady 0, 0
 	    				EMSendKey "<PF9>"												'PF9s (opens new note)
 	    				EMWaitReady 0, 0
-	    				EMWriteScreen "~~~continued from previous note~~~", 5, 	3		'enters a header
-	    				EMSetCursor 6, 3												'Sets cursor in a good place to start noting.
-	    				noting_row = 6													'Resets this variable to work in the new locale
+						EMWriteScreen "~~~continued from previous note~~~", 4, 	3		'enters a header
+						EMSetCursor 5, 3												'Sets cursor in a good place to start noting.
+						noting_row = 5													'Resets this variable to work in the new locale
 	    			Else
-	    				noting_row = 5													'Resets this variable to 5 if we did not need a brand new note.
+						noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
 	    			End if
 	    		End if
 	    	End if
@@ -5159,7 +5159,7 @@ function write_bullet_and_variable_in_CCOL_NOTE(bullet, variable)
 				End if
 
 		'If the next line is row 18 (you can't write to row 18), it will PF8 to get to the next page
-			If noting_row >= 18 then
+			If noting_row >= 19 then
 				EMSendKey "<PF8>"
 				EMWaitReady 0, 0
 
@@ -5172,9 +5172,9 @@ function write_bullet_and_variable_in_CCOL_NOTE(bullet, variable)
 					EMWaitReady 0, 0
 					EMWriteScreen "~~~continued from previous note~~~", 4, 	3		'enters a header
 					EMSetCursor 5, 3												'Sets cursor in a good place to start noting.
-					noting_row = 6													'Resets this variable to work in the new locale
+					noting_row = 5													'Resets this variable to work in the new locale
 					Else
-					noting_row = 5													'Resets this variable to 4 if we did not need a brand new note.
+					noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
 				End if
 			End if
 
@@ -5201,7 +5201,7 @@ function write_bullet_and_variable_in_CCOL_NOTE(bullet, variable)
 
 		'After the array is processed, set the cursor on the following row, in col 3, so that the user can enter in information here (just like writing by hand). If you're on row 18 (which isn't writeable), hit a PF8. If the panel is at the very end (page 5), it will back out and go into another case note, as we did above.
 		EMSetCursor noting_row + 1, 3
-	END IF
+	End if
 end function
 
 function write_date(date_variable, date_format_variable, screen_row, screen_col)
@@ -5558,11 +5558,11 @@ function write_variable_in_CCOL_NOTE(variable)
 	    'The following figures out if we need a new page, or if we need a new case note entirely as well.
 	    Do
 	    	EMReadScreen character_test, 1, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
-	    	If character_test <> " " or noting_row >= 19 then
+	    	If character_test <> " " or noting_row >= 18 then
 	    		noting_row = noting_row + 1
 
-	    		'If we get to row 19 (which can't be read here), it will go to the next panel (PF8).
-	    		If noting_row >= 19 then
+				'If we get to row 18 (which can't be read here), it will go to the next panel (PF8).
+	    		If noting_row >= 18 then
 	    			EMSendKey "<PF8>"
 	    			EMWaitReady 0, 0
 
@@ -5575,9 +5575,9 @@ function write_variable_in_CCOL_NOTE(variable)
 	    				EMWaitReady 0, 0
 	    				EMWriteScreen "~~~continued from previous note~~~", 4, 	3		'enters a header
 	    				EMSetCursor 5, 3												'Sets cursor in a good place to start noting.
-	    				noting_row = 6													'Resets this variable to work in the new locale
+						noting_row = 5													'Resets this variable to work in the new locale
 	    			Else
-	    				noting_row = 5													'Resets this variable to 5 if we did not need a brand new note.
+						noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
 	    			End if
 	    		End if
 	    	End if
@@ -5594,7 +5594,7 @@ function write_variable_in_CCOL_NOTE(variable)
 	    		noting_col = 3
 	    	End if
 
-	    	'If the next line is row 19 (you can't write to row 19), it will PF8 to get to the next page
+			'If the next line is row 18 (you can't write to row 18), it will PF8 to get to the next page
 	    	If noting_row >= 19 then
 	    		EMSendKey "<PF8>"
 	    		EMWaitReady 0, 0
@@ -5608,9 +5608,9 @@ function write_variable_in_CCOL_NOTE(variable)
 	    			EMWaitReady 0, 0
 	    			EMWriteScreen "~~~continued from previous note~~~", 4, 	3		'enters a header
 	    			EMSetCursor 5, 3												'Sets cursor in a good place to start noting.
-	    			noting_row = 6													'Resets this variable to work in the new locale
+					noting_row = 5													'Resets this variable to work in the new locale
 	    		Else
-	    			noting_row = 5													'Resets this variable to 5 if we did not need a brand new note.
+					noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
 	    		End if
 	    	End if
 
@@ -5623,7 +5623,7 @@ function write_variable_in_CCOL_NOTE(variable)
 
 	    'After the array is processed, set the cursor on the following row, in col 3, so that the user can enter in information here (just like writing by hand). If you're on row 18 (which isn't writeable), hit a PF8. If the panel is at the very end (page 5), it will back out and go into another case note, as we did above.
 	    EMSetCursor noting_row + 1, 3
-	END IF
+	End if
 end function
 
 function write_variable_in_DORD(string_to_write, recipient)
