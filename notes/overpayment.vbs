@@ -198,7 +198,7 @@ EmReadScreen err_msg, 53, 24, 02
 	'END IF
 	start_a_blank_CASE_NOTE
 	IF OP_program <> "Select One:" THEN
-		Call write_variable_in_CASE_NOTE(OP_program & "OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
+		Call write_variable_in_CASE_NOTE(OP_program & " OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
 		Call write_variable_in_CASE_NOTE("* Period " & OP_from & " through " & OP_to)
 		Call write_variable_in_CASE_NOTE(" Claim # " & claim_number & " Amt $" & Claim_amount)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
