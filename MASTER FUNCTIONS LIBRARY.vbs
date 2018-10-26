@@ -5159,7 +5159,7 @@ function write_bullet_and_variable_in_CCOL_NOTE(bullet, variable)
 				End if
 
 		'If the next line is row 18 (you can't write to row 18), it will PF8 to get to the next page
-			If noting_row >= 18 then
+			If noting_row >= 19 then
 				EMSendKey "<PF8>"
 				EMWaitReady 0, 0
 
@@ -5595,7 +5595,7 @@ function write_variable_in_CCOL_NOTE(variable)
 	    	End if
 
 			'If the next line is row 18 (you can't write to row 18), it will PF8 to get to the next page
-	    	If noting_row >= 18 then
+	    	If noting_row >= 19 then
 	    		EMSendKey "<PF8>"
 	    		EMWaitReady 0, 0
 
