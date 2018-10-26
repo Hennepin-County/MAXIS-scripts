@@ -254,46 +254,4 @@ EmReadScreen err_msg, 53, 24, 02
 	END IF
 
 '---------------------------------------------------------------writing the CCOL case note'
-msgbox "Navigating to CCOL to add case note, please contact MiKayla Handley with any concerns."
-Call navigate_to_MAXIS_screen("CCOL", "CLSM")
-EMWriteScreen claim_number, 4, 9
-Transmit
-PF4
-EMReadScreen existing_case_note, 1, 5, 6
-IF existing_case_note <> "" THEN PF9
-
-IF OP_program <> "Select One:" THEN
-	Call write_variable_in_CCOL_NOTE(OP_program & " OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
-	Call write_variable_in_CCOL_NOTE("* Period " & OP_from & " through " & OP_to)
-	Call write_variable_in_CCOL_NOTE("* Claim # " & claim_number & " Amt $" & Claim_amount)
-	CALL write_bullet_and_variable_in_CCOL_NOTE("Discovery date", discovery_date)
-	CALL write_bullet_and_variable_in_CCOL_NOTE("Source of income", income_source)
-	Call write_variable_in_CCOL_NOTE("----- ----- -----")
-	IF OP_program_II <> "Select:" then
-		Call write_variable_in_CCOL_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-		Call write_variable_in_CCOL_NOTE("----- ----- -----")
-	END IF
-END IF
-IF HC_claim_number <> "" THEN
-	Call write_variable_in_CCOL_NOTE("HC OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & HC_from & " through " & HC_to)
-	Call write_variable_in_CCOL_NOTE(" HC Claim # " & HC_claim_number & " Amt $" & HC_Claim_amount)
-	Call write_bullet_and_variable_in_CCOL_NOTE("Health Care responsible members", HC_resp_memb)
-	Call write_bullet_and_variable_in_CCOL_NOTE("Total Federal Health Care amount", Fed_HC_AMT)
-	CALL write_bullet_and_variable_in_CCOL_NOTE("Discovery date", discovery_date)
-	CALL write_bullet_and_variable_in_CCOL_NOTE("Source of income", income_source)
-	Call write_variable_in_CCOL_NOTE("----- ----- -----")
-	Call write_variable_in_CCOL_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-END IF
-IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note("* Earned Income Disregard Allowed")
-IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_CCOL_note("* Earned Income Disregard Not Allowed")
-CALL write_bullet_and_variable_in_CCOL_note("Fraud referral made", fraud_referral)
-CALL write_bullet_and_variable_in_CCOL_note("Income verification received", EVF_used)
-CALL write_bullet_and_variable_in_CCOL_note("Date verification received", income_rcvd_date)
-CALL write_bullet_and_variable_in_CCOL_note("Reason for overpayment", Reason_OP)
-CALL write_bullet_and_variable_in_CCOL_note("Other responsible member(s)", OT_resp_memb)
-CALL write_variable_in_CCOL_NOTE("----- ----- -----")
-CALL write_variable_in_CCOL_NOTE(worker_signature)
-PF3 'exit the case note'
-PF3 'back to dail'
-
-script_end_procedure("Overpayment case note entered please review case note to ensure accuracy.")
+script_end_procedure("Overpayment case note entered please review case note to ensure accuracy and copy case note to CCOL.")
