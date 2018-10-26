@@ -206,7 +206,6 @@ start_a_blank_CASE_NOTE
 	Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & claim_number & " Amt $" & Claim_amount)
 	IF OP_program_II <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
 	IF OP_program_III <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-	CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
 	IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
 	IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Not Allowed")
 	IF OP_program = "HC" THEN
@@ -268,7 +267,6 @@ CALL write_variable_in_ccol_note("----- ----- -----")
 CALL write_variable_in_ccol_note(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
 IF OP_program_II <> "Select:" then CALL write_variable_in_ccol_note(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
 IF OP_program_III <> "Select:" then CALL write_variable_in_ccol_note(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-IF OT_resp_memb <> "" THEN CALL write_bullet_and_variable_in_ccol_note("Other responsible member(s)", OT_resp_memb)
 IF EI_checkbox = CHECKED THEN CALL write_variable_in_ccol_note("* Earned Income Disregard Allowed")
 IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_ccol_note("* Earned Income Disregard Not Allowed")
 IF OP_program = "HC" THEN
@@ -282,7 +280,6 @@ CALL write_bullet_and_variable_in_ccol_note("Income verification received", EVF_
 CALL write_bullet_and_variable_in_ccol_note("Date verification received", income_rcvd_date)
 CALL write_bullet_and_variable_in_ccol_note("Reason for overpayment", Reason_OP)
 CALL write_bullet_and_variable_in_ccol_note("Other responsible member(s)", OT_resp_memb)
-CALL write_bullet_and_variable_in_ccol_note("Income verification received", income_rcvd_date)
 CALL write_variable_in_ccol_note(" ----- ----- -----")
 CALL write_variable_in_ccol_note(worker_signature)
 PF3 'exit the case note'
