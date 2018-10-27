@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/01/2018", "Removed 'Failure to Comply' WCOM and added WCOM for Voluntary SNAP E&T..", "Casey Love, Hennepin County")
 call changelog_update("09/30/2018", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -402,9 +403,9 @@ For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
 Next
 
 'DIALOG to select the WCOM to add
-BeginDialog wcom_selection_dlg, 0, 0, 241, 360, "Select WCOM"
+BeginDialog wcom_selection_dlg, 0, 0, 241, 350, "Select WCOM"
   Text 10, 10, 95, 10, "Check the WCOM needed."
-  GroupBox 10, 25, 225, 255, "SNAP"
+  GroupBox 10, 25, 225, 240, "SNAP"
   CheckBox 20, 40, 150, 10, "SNAP closed/denied with PACT", snap_pact_wcom_checkbox
   CheckBox 20, 55, 155, 10, "SNAP closed via PACT for new HH Member", pact_fraud_wcom_checkbox
   CheckBox 20, 70, 145, 10, "SNAP closing due to Returned Mail", snap_returned_mail_wcom_checkbox
@@ -421,13 +422,13 @@ BeginDialog wcom_selection_dlg, 0, 0, 241, 360, "Select WCOM"
   CheckBox 20, 220, 180, 10, "ABAWD - Banked Months E and T voluntary", banked_mos_vol_e_t_wcom_checkbox
   CheckBox 20, 235, 190, 10, "ABAWD - Banked Months closing for months used", banked_mos_used_wcom_checkbox
   CheckBox 20, 250, 195, 10, "ABAWD - E and T Voluntary", voluntary_e_t_wcom_checkbox
-  GroupBox 10, 280, 225, 55, "Cash"
-  CheckBox 20, 290, 55, 10, "CASH Denied", cash_denied_checkbox
-  CheckBox 20, 305, 125, 10, "CASH closing due to Returned Mail", mfip_returned_mail_wcom_checkbox
-  CheckBox 20, 320, 125, 10, "MFIP Closing and SNAP opening", mfip_to_snap_wcom_checkbox
+  GroupBox 10, 270, 225, 55, "Cash"
+  CheckBox 20, 280, 55, 10, "CASH Denied", cash_denied_checkbox
+  CheckBox 20, 295, 125, 10, "CASH closing due to Returned Mail", mfip_returned_mail_wcom_checkbox
+  CheckBox 20, 310, 125, 10, "MFIP Closing and SNAP opening", mfip_to_snap_wcom_checkbox
   ButtonGroup ButtonPressed
-    OkButton 135, 340, 50, 15
-    CancelButton 185, 340, 50, 15
+    OkButton 135, 330, 50, 15
+    CancelButton 185, 330, 50, 15
 EndDialog
 
 ' Dim myBtn
@@ -863,6 +864,8 @@ Do      'Just made this  loop - this needs sever testing.
             If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
         Loop until err_msg = ""
 
+        abawd_memb_name = right(abawd_memb_name, len(abawd_memb_name)-5)
+
         CALL add_words_to_message("Minnesota has changed the rules for time-limited SNAP recipients. " & abawd_memb_name & " is not required to participate in SNAP Employment and Training (SNAP E&T), but may choose to. Participation in SNAP E&T may extend your SNAP benefits and offer you support as you seek employment. Ask your worker about SNAP E&T.")
     End If
 
@@ -1036,7 +1039,7 @@ If banked_mos_avail_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOT
 If banked_mos_vol_e_t_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* E&T is voluntary with Banked Months.")
 If banked_mos_non_coop_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & banked_abawd_name & " was receiving Banked Months and fail cooperation with E & T. Explained requesting Good Cause, and future banked months ineligibility.")
 If banked_mos_used_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Banked Months were being used are are now all used. Advised to review other WREG/ABAWD exemptions.")
-If voluntary_e_t_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* SNAP E&T is now voluntary.")
+If voluntary_e_t_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Voluntary SNAP E&T offered to " & abawd_memb_name & ".")
 ' If fset_fail_to_comply_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* SNAP is closing due to FSET requirements not being met. Reasons for not meeting the rules: " & fset_fail_reason & ". Advised of good cause and contact information.")
 If cash_denied_checkbox = checked Then
     CALL write_variable_in_CASE_NOTE("* " & cash_one_program & " denied because " & cash_one_reason & ".")
