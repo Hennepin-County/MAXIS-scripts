@@ -28,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/27/2018", "Added WCOM's regarding voluntary compliance to SPEC/LETR. Updated comments in manual referrals to include 'voluntary' for 30/10 and 30/11 recipients.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/27/2018", "Updated to allow referrals for members not coded as mandatory participants under OTHER REFERRAL and WORKING WITH CBO options.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/29/2018", "Added ABAWD 2nd set as a referral reason. Removed manual referral option, script will now send a manual referral on all cases. Removed TIKL to follow up on case in 30 days.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/27/2018", "Multiple updates include handling for multiple household members, background check, removed exempt counties coding, added other manual reason info into case note, upated TIKL msgbox, and added ABAWD to manual referral droplist. ", "Ilse Ferris, Hennepin County")
@@ -282,16 +283,52 @@ For each member_number in member_array
     call create_MAXIS_friendly_phone_number(SNAPET_phone, 13, 28) 'takes out non-digits if listed in variable, and formats phone number for the field
     EMWriteScreen SNAPET_contact, 16, 28
     PF4		'saves and sends memo
-    PF3
-    PF3
+    
+    '----------------------------------------------------------------------------------------------------WCOM to Orientation Letter
+    Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+    row = 7
+    DO
+        EMReadscreen notice_type, 16, row, 30          'SPEC/LETR Letter at Hennepin County is generally the FSET letter 
+        If notice_type = "SPEC/LETR Letter" then 
+            EmReadscreen FS_notice, 2, row, 26          'Confirms the letter is for SNAP receipients. 
+            If FS_notice = "FS" or FS_notice = "  " then 
+                EmReadscreen print_status, 7, row, 71
+                If print_status = "Waiting" then 
+                    Call write_value_and_transmit ("x", row, 13)
+    			    PF9
+    			    Emreadscreen fs_wcom_exists, 3, 3, 15
+    			    If fs_wcom_exists <> "   " then 
+                        added_wcom = False 
+    			    Else 
+    			    	added_wcom = true
+    			    	'This will write if the notice is for SNAP only
+    			    	CALL write_variable_in_SPEC_MEMO("******************************************************")
+    			    	CALL write_variable_in_SPEC_MEMO("Minnesota has changed the rules for time-limited SNAP recipients." & client_name & " is not required to participate in SNAP Employment and Training (SNAP E&T), but may choose to.")
+    			    	CALL write_variable_in_SPEC_MEMO("Particiapation in SNAP E&T may extend your SNAP benefits and offer you support as you seek employment. Ask your worker about SNAP E&T.")
+    			    	CALL write_variable_in_SPEC_MEMO("******************************************************")
+                        PF4
+    			    	PF3
+    			    End if
+                End if 
+    		End If
+        else 
+            row = row + 1
+    	End If
+    	If added_wcom = true then Exit Do
+    	If row = 17 then
+    		PF8
+    		Emreadscreen spec_edit_check, 6, 24, 2
+    	    row = 7
+    	end if
+    	If spec_edit_check = "NOTICE" THEN added_wcom = False
+    Loop until spec_edit_check = "NOTICE"
 Next 
 
 'Manual referral creation if banked months are used
 Call navigate_to_MAXIS_screen("INFC", "WF1M")			'navigates to WF1M to create the manual referral'
 EMWriteScreen "99", 4, 47								'this is the manual referral code that DHS has approved
-												'this is a program for ABAWD's for SNAP is the only option for banked months
 If manual_referral = "Banked months" then
-	EMWriteScreen "Banked ABAWD month referral, initial month", 17, 6	'DHS wants these referrals marked, this marks them
+	EMWriteScreen "Banked ABAWD month referral, initial month - Voluntary", 17, 6	'DHS wants these referrals marked, this marks them
 ELSEIF manual_referral = "Student" then
 	EMWriteScreen "Student", 17, 6
 ELSEIF manual_referral = "Working with CBO" then
@@ -299,9 +336,9 @@ ELSEIF manual_referral = "Working with CBO" then
 ELSEIF manual_referral = "Other referral" then
 	EMWriteScreen other_referral_notes, 17, 6
 ELSEIF manual_referral = "ABAWD (3/36 mo.)" then
-	EMWriteScreen "ABAWD (3/36 mo.)", 17, 6    
+	EMWriteScreen "ABAWD (3/36 mo.) - Voluntary", 17, 6    
 ELSEIF manual_referral = "ABAWD 2nd Set" then
-	EMWriteScreen "ABAWD 2nd Set", 17, 6  
+	EMWriteScreen "ABAWD 2nd Set - Voluntary", 17, 6  
 END IF
 
 row = 8
