@@ -24,7 +24,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -71,6 +71,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/29/2018", "Removed FSET SANCTION script. Cases no longer require FSET sanctions (voluntary compliance).", "Ilse Ferris, Hennepin County")
 call changelog_update("02/09/2018", "Added ADD GRH RATE 2 TO MMIS script for GRH Rate 2 case.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/12/2018", "Retired ACTIONS - ABAWD MINOR CHILD EXEMPTION FIATER'. MAXIS has been updated to support this process.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/17/2017", "Added new ACTION script 'ABAWD FIATER'.", "Ilse Ferris, Hennepin County")
