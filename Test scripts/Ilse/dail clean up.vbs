@@ -2,7 +2,7 @@
 name_of_script = "BULK - DAIL CLEAN UP.vbs"
 start_time = timer
 STATS_counter = 1                       'sets the stats counter at one
-STATS_manualtime = 20
+STATS_manualtime = 30
 STATS_denomination = "C"       			'C is for each CASE
 'END OF stats block==============================================================================================
 
@@ -44,61 +44,54 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("03/23/2018", "Initial version.", "Ilse Ferris, Hennepin County")
+call changelog_update("06/11/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 
+Function dail_selection
+	'selecting the type of DAIl message
+	EMWriteScreen "x", 4, 12		'transmits to the PICK screen
+	transmit
+	EMWriteScreen "_", 7, 39		'clears the all selection
+	
+    IF dail_to_decimate = "ALL" then selection_row = 7
+    IF dail_to_decimate = "CSES" then selection_row = 10
+	IF dail_to_decimate = "COLA" then selection_row = 8
+	IF dail_to_decimate = "ELIG" then selection_row = 11
+	IF dail_to_decimate = "INFO" then selection_row = 13
+    IF dail_to_decimate = "PEPR" then selection_row = 18
+    
+	Call write_value_and_transmit("x", selection_row, 39)	
+End Function
+
 'END CHANGELOG BLOCK =======================================================================================================
 
-BeginDialog dail_dialog, 0, 0, 266, 90, "Dail Decimator dialog"
-  Text 20, 20, 235, 20, "This script will delete DAILs for cases that are inactive, and capture DAIL messages that cannot be deleted, and may need action."
-  EditBox 80, 50, 180, 15, worker_number
-  CheckBox 15, 75, 135, 10, "Check here to process for all workers.", all_workers_check
+BeginDialog dail_dialog, 0, 0, 266, 95, "COLA Decimator dialog"
+  EditBox 80, 55, 180, 15, worker_number
+  CheckBox 15, 80, 135, 10, "Check here to process for all workers.", all_workers_check
   ButtonGroup ButtonPressed
-    OkButton 155, 70, 50, 15
-    CancelButton 210, 70, 50, 15
-  Text 15, 55, 60, 10, "Worker number(s):"
-  GroupBox 10, 5, 250, 40, "Using the DAIL Decimator script"
+    OkButton 155, 75, 50, 15
+    CancelButton 210, 75, 50, 15
+  Text 15, 60, 60, 10, "Worker number(s):"
+  GroupBox 10, 5, 250, 45, "Using the DAIL Decimator script"
+  Text 20, 20, 235, 25, "This script should be used to remove COLA and INFO messages that have been determined by Quality Improvement staff do not require action."
 EndDialog
-
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 
-'Grabbing user ID to validate user of script. Only some users are allowed to use this script.
-Set objNet = CreateObject("WScript.NetWork") 
-user_ID_for_validation = ucase(objNet.UserName)
-
-'Validating user ID
-If user_ID_for_validation = "ILFE001" OR _		
-	user_ID_for_validation = "WF7638" OR _		
-	user_ID_for_validation = "WF1875" OR _ 		
-	user_ID_for_validation = "WFQ898" OR _ 		
-	user_ID_for_validation = "WFP803" OR _		
-	user_ID_for_validation = "WFP106" OR _		
-	user_ID_for_validation = "WFK093" OR _ 		
-	user_ID_for_validation = "WF1373" OR _ 		
-	user_ID_for_validation = "WFU161" OR _ 		
-	user_ID_for_validation = "WFS395" OR _ 		
-	user_ID_for_validation = "WFU851" OR _ 		
-	user_ID_for_validation = "WFX901" OR _ 
-	user_ID_for_validation = "CALO001" OR _ 		
-	user_ID_for_validation = "WFI021" then 		
-    'the dialog
-    Do
-    	Do
-      		err_msg = ""
-      		dialog dail_dialog
-      		If ButtonPressed = 0 then StopScript
-      		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."	
-      		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."							
-      	  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine										
-      	LOOP until err_msg = ""		
-      	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-      Loop until are_we_passworded_out = false					'loops until user passwords back in		
-Else 
-	script_end_procedure("This script is for Quality Improvement staff only. You do not have access to use this script.")
-End if 
+'the dialog
+Do
+	Do
+  		err_msg = ""
+  		dialog dail_dialog
+  		If ButtonPressed = 0 then StopScript
+  		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."	
+  		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."							
+  	  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine										
+  	LOOP until err_msg = ""		
+  	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in		
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -125,17 +118,17 @@ Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Changes name of Excel sheet to "DAIL List"
-ObjExcel.ActiveSheet.Name = "Clean Up!" 
+ObjExcel.ActiveSheet.Name = "Deleted DAILS - COLA and INFO"
 
 'Excel headers and formatting the columns
 objExcel.Cells(1, 1).Value = "X NUMBER"
 objExcel.Cells(1, 2).Value = "CASE #"
 objExcel.Cells(1, 3).Value = "DAIL TYPE"
 objExcel.Cells(1, 4).Value = "DAIL MO."
-objExcel.Cells(1, 5).Value = "DAIL MESSAGE"
-objExcel.Cells(1, 6).Value = "NOTES"
+objExcel.Cells(1, 5).Value = "DAIL MESSAGE" 
+objExcel.Cells(1, 6).Value = "DAIL NOTES" 
 
-FOR i = 1 to 6		'formatting the cells'
+FOR i = 1 to 5		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -150,6 +143,7 @@ CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 
 'This for...next contains each worker indicated above
 For each worker in worker_array	
+	'msgbox worker
 	DO 
 		EMReadScreen dail_check, 4, 2, 48
 		If next_dail_check <> "DAIL" then 
@@ -160,7 +154,10 @@ For each worker in worker_array
 	
 	EMWriteScreen worker, 21, 6
 	transmit
-	transmit 'transmit past 'not your dail message'	
+	transmit 'transmit past 'not your dail message'
+	
+	Call dail_selection
+	
 	EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
 	
 	DO
@@ -185,152 +182,99 @@ For each worker in worker_array
 			
 			EMReadScreen dail_type, 4, dail_row, 6
 			EMReadScreen dail_msg, 61, dail_row, 20
-            EMReadScreen dail_month, 8, dail_row, 11
-            EMReadScreen maxis_case_number, 8, dail_row - 1, 73
-            maxis_case_number = trim(maxis_case_number)
 			dail_msg = trim(dail_msg)
-            dail_month = trim(dail_month)
 			stats_counter = stats_counter + 1
-
-            Call write_value_and_transmit("H", dail_row, 3)
-            EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
-            If PRIV_check = "PRIV" then
-                msgbox "PRIV case, navigate to the case after this one, and go into CASE/CURR." & vbcr & MAXIS_case_number
-                'clear message, go back to the DAIL and find the case number after it
-            End if 
-            EMReadScreen case_status, 8, 8, 9
-            If case_status = "INACTIVE" then 
-                add_to_excel = True
-                PF3
-                '--------------------------------------------------------------------...and put that in Excel.
-				Do 
-                    objExcel.Cells(excel_row, 1).Value = worker
-				    objExcel.Cells(excel_row, 2).Value = trim(maxis_case_number)
-				    objExcel.Cells(excel_row, 3).Value = trim(dail_type)
-				    objExcel.Cells(excel_row, 4).Value = trim(dail_month)
-				    objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
-				    
-				    Call write_value_and_transmit("D", dail_row, 3)	
-				    EMReadScreen other_worker_error, 13, 24, 2
-				    If other_worker_error = "** WARNING **" then 
-                        transmit
-				        deleted_dails = deleted_dails + 1
-                        exit do 
-                    Elseif trim(other_worker_error) <> "" then 
-                        EMWriteScreen "_", dail_row, 3
-                        objExcel.Cells(excel_row, 6).Value = "Unable to delete"
-                        dail_row = dail_row + 1
-                        Do 
-                            EMReadScreen next_case, 8, dail_row, 63
-                            'msgbox next_case & vbcr & dail_row
-                            If next_case <> "CASE NBR" THEN
-                                exit do    'this will make the next dail message will be added to excel 
-                            elseIf next_case = "CASE NBR" then 
-                                EMReadScreen next_case_number, 8, dail_row, 73
-                                'msgbox next_case_number & vbcr & dail_row & vbcr & maxis_case_number
-                                If trim(next_case_number) = maxis_case_number then 
-                                    matching_case_number = true
-                                    dail_row = dail_row + 1 
-                                    'msgbox "Matching case number is TRUE" & vbcr & dail_row
-                                Elseif IsNumeric(next_case_number) = true then 
-                                    'msgbox "exit do"
-                                    next_case = True 
-                                    exit do 'another case number was found 
-                                Else 
-                                    'msgbox "Matching case number is FALSE"
-                                    matching_case_number = false 
-                                    dail_row = dail_row + 1 
-                                End if
-                            End if 
-                            If dail_row = 19 then 
-                                PF8
-                                dail_row = 6
-                            End if 
-                        Loop until matching_case_number = False
-                    END IF
-                    If next_case = True then exit do 
-                    If matching_case_number = False then exit do
-                Loop
-                excel_row = excel_row + 1    
-            Else 
-                add_to_excel = False 
-                PF3
-                dail_row = dail_row + 1
-                Do 
-                    EMReadScreen next_case, 8, dail_row, 63
-                    If trim(next_case) = "" then    
-                        'msgbox next_case & vbcr & dail_row
-                        EMReadScreen dail_content, 4, dail_row, 6
-                        'msgbox dail_content & vbcr & dail_row
-                        If trim(dail_content) = "" then
-                            If dail_row = 18 then 
-                                PF8
-                                EMReadScreen last_page_check, 21, 24, 2
-                				If last_page_check = "THIS IS THE LAST PAGE" then 
-                					all_done = true
-                                    msgbox "all done: " & all_done
-                                    exit do 
-                                Else 
-                                    dail_row = 6
-                                End if 
-                            End if 
-                        else
-                            dail_row = dail_row + 1
-                        End if 
-                    elseif next_case = "CASE NBR" then 
-                        EMReadScreen next_case_number, 8, dail_row, 73
-                        'msgbox next_case_number & vbcr & dail_row & vbcr & maxis_case_number
-                        If trim(next_case_number) = maxis_case_number then 
-                            matching_case_number = true
-                            dail_row = dail_row + 1 
-                            'msgbox "Matching case number is TRUE" & vbcr & dail_row
-                        Elseif IsNumeric(next_case_number) = true then 
-                            'msgbox "exit do"
-                            exit do 'another case number was found 
-                        Else 
-                            'msgbox "Matching case number is FALSE"
-                            matching_case_number = false 
-                            dail_row = dail_row + 1 
-                        End if
-                    Else 
-                        dail_row = dail_row + 1
-                    End if 
-                    If dail_row = 19 then 
-                        PF8
-                        dail_row = 6
-                    End if 
-                    'msgbox matching_case_number & vbcr & maxis_case_number & vbcr & next_case_number
-                    'msgbox dail_row
-                Loop until matching_case_number = False
-                'msgbox "out of loop"
-            End if 
-                
-			''msgbox dail_row
-			'EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
-			'If message_error = "NO MESSAGES" then
-			'	CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
-			'	Call write_value_and_transmit(worker, 21, 6)
-			'	transmit   'transmit past 'not your dail message'
-			'	exit do
-			'End if 
+	
+			If instr(dail_msg, "SDX MATCH - PBEN UPDATED - MAXIS INTERFACED IAA DATE TO SSA") then 
+			    add_to_excel = TRUE
+            ElseIf instr(dail_msg, "SDX MATCH - MAXIS INTERFACED IAA DATE TO SSA") then 
+    		    add_to_excel = TRUE    
+            Elseif instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") then 
+    			add_to_excel = TRUE
+            Elseif instr(dail_msg, "IS IN REINSTATE OR PENDING STATUS") then 
+        		add_to_excel = TRUE
+            Else	
+			    add_to_excel = False 
+			End if 
+		    
+			IF add_to_excel = True then 
+				EMReadScreen maxis_case_number, 8, dail_row - 1, 73
+				EMReadScreen dail_month, 8, dail_row, 11
+				'--------------------------------------------------------------------...and put that in Excel.
+				objExcel.Cells(excel_row, 1).Value = worker
+				objExcel.Cells(excel_row, 2).Value = trim(maxis_case_number)
+				objExcel.Cells(excel_row, 3).Value = trim(dail_type)
+				objExcel.Cells(excel_row, 4).Value = trim(dail_month)
+				objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
+				excel_row = excel_row + 1
+			
+				Call write_value_and_transmit("D", dail_row, 3)	
+				EMReadScreen other_worker_error, 13, 24, 2
+				If other_worker_error = "** WARNING **" then transmit
+				deleted_dails = deleted_dails + 1
+			else
+				add_to_excel = False
+				dail_row = dail_row + 1
+			End if
+			
+			EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
+			If message_error = "NO MESSAGES" then
+				CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
+				Call write_value_and_transmit(worker, 21, 6)
+				transmit   'transmit past 'not your dail message'
+				Call dail_selection	
+				exit do
+			End if 
 	    	
-			''...going to the next page if necessary
-			'EMReadScreen next_dail_check, 4, dail_row, 4
-			'If trim(next_dail_check) = "" then 
-			'	PF8
-			'	EMReadScreen last_page_check, 21, 24, 2
-			'	If last_page_check = "THIS IS THE LAST PAGE" then 
-			'		all_done = true
-			'		exit do 
-			'	Else 
-			'		dail_row = 6
-			'	End if
-            'End if 
-			''End if
+			'...going to the next page if necessary
+			EMReadScreen next_dail_check, 4, dail_row, 4
+			If trim(next_dail_check) = "" then 
+				PF8
+				EMReadScreen last_page_check, 21, 24, 2
+				If last_page_check = "THIS IS THE LAST PAGE" then 
+					all_done = true
+					exit do 
+				Else 
+					dail_row = 6
+				End if 
+			End if
 		LOOP
 		IF all_done = true THEN exit do
 	LOOP
 Next
+
+'Creating the case note--------------------------------------------------------------------------------------------------
+dail_msg = ""
+excel_row = 2
+
+Do 
+    MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
+    MAXIS_case_number = trim(MAXIS_case_number)
+
+    dail_msg = ObjExcel.Cells(excel_row, 5).Value
+    dail_msg = trim(dail_msg)
+    
+    If instr(dail_msg, "SDX MATCH - PBEN UPDATED - MAXIS INTERFACED IAA DATE TO SSA") or instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") then 
+        Call start_a_blank_CASE_NOTE
+        EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
+        If PRIV_check = "PRIV" then 
+            objExcel.Cells(excel_row, 6).Value = "PRIV, unable to case note."
+            'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
+    		Do
+    			back_to_self
+    			EMReadScreen SELF_screen_check, 4, 2, 50	'DO LOOP makes sure that we're back in SELF menu
+    			If SELF_screen_check <> "SELF" then PF3
+    		LOOP until SELF_screen_check = "SELF"
+    		EMWriteScreen "________", 18, 43		'clears the MAXIS case number
+    		transmit
+        Else 
+            CALL write_variable_in_case_note(dail_msg)
+            PF3 ' save message
+            objExcel.Cells(excel_row, 6).Value = "Case note created."
+        End If 
+    END IF
+    excel_row = excel_row + 1     
+Loop until ObjExcel.Cells(excel_row, 2).Value = ""   
 
 STATS_counter = STATS_counter - 1
 'Enters info about runtime for the benefit of folks using the script
@@ -354,18 +298,3 @@ FOR i = 1 to 8
 NEXT
 
 script_end_procedure("Success! Please review the list created for accuracy.")
-
-'NEW HIRE msg stuff
-
-''current month -1
-'CM_minus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", -1, date)            ), 2)
-'CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
-
-
-'current_month = CM_mo & " " & CM_yr
-'next_month = CM_plus_1_mo & " " & CM_plus_1_yr
-'previous_month = CM_minus_1_mo & " " & CM_minus_1_yr
-
-'If case_status = "INACTIVE" then 
-'    If (dail_type = "HIRE" AND dail_month = current_month OR dail_month = next_month OR dail_month = previous_month) then                     
-'        add_to_excel = False 'does not delete current new hire messages 

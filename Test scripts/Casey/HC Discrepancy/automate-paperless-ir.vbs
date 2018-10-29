@@ -79,6 +79,7 @@ changelog_display
 'Confirm the memo
 'Case note the approval
 'Review STAT to make sure REVW has been updated
+'check MMIS to make sure the spans match
 'Add all case action information to Excel Spreadsheet
 'Go to the next case
 
