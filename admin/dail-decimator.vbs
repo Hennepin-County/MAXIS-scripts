@@ -44,6 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/26/2018", "Added additional messages included TIKL's over 6 months old, STAT edits over 5 days old and EFUNDS messages.", "Ilse Ferris, Hennepin County")
+call changelog_update("10/26/2018", "Added MEC2 messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/24/2018", "Reorganized messages by type and alphabetical. Cleaned up backup coding.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/22/2018", "Added support for ADDR INFO messages, STAT edits over 10 days old, temporary addition of COLA messages greater than 07/18 COLA and MSA SBUD/LBUD messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/02/2018", "Added supported PEPR and CSES messages.", "Ilse Ferris, Hennepin County")
@@ -197,6 +199,7 @@ For each worker in worker_array
 			stats_counter = stats_counter + 1
 	
             '----------------------------------------------------------------------------------------------------CSES Messages
+            '
             If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
                 instr(dail_msg, "AP OF CHILD REF NBR:") OR _ 
                 instr(dail_msg, "ADDRESS DIFFERS W/ CS RECORDS:") OR _ 
@@ -206,11 +209,14 @@ For each worker in worker_array
                 instr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR") OR _ 
                 instr(dail_msg, "IS LIVING W/CAREGIVER") OR _  
                 instr(dail_msg, "NAME DIFFERS W/ CS RECORDS:") OR _ 
+                instr(dail_msg, "PATERNITY ON CHILD REF NBR") OR _
                 instr(dail_msg, "REPORTED NAME CHG TO:") OR _
+                instr(dail_msg, "BENEFITS RETURNED, IF IOC HAS NEW ADDRESS") OR _
     		    instr(dail_msg, "CASE IS CATEGORICALLY ELIGIBLE") OR _ 
                 instr(dail_msg, "COMPLETE ELIG IN FIAT") OR _ 
     		    instr(dail_msg, "COUNTED IN LBUD AS UNEARNED INCOME") OR _
-                instr(dail_msg, "COUNTED IN SBUD AS UNEARNED INCOME") OR _            
+                instr(dail_msg, "COUNTED IN SBUD AS UNEARNED INCOME") OR _  
+                instr(dail_msg, "HAS EARNED INCOME IN 6 MONTH BUDGET BUT NO DCEX PANEL") OR _           
                 instr(dail_msg, "NEW DENIAL ELIG RESULTS EXIST") OR _ 				 		 	
     		    instr(dail_msg, "NEW ELIG RESULTS EXIST") OR _   
     		    instr(dail_msg, "POTENTIALLY CATEGORICALLY ELIGIBLE") OR _ 
@@ -222,8 +228,10 @@ For each worker in worker_array
 			    instr(dail_msg, "CASE NOTE ENTERED BY") OR _ 
 			    instr(dail_msg, "CASE NOTE TRANSFER FROM") OR _ 
 			    instr(dail_msg, "CASE VOLUNTARY WITHDRAWN") OR _ 
-			    instr(dail_msg, "CASE XFER") OR _ 
+			    instr(dail_msg, "CASE XFER") OR _
+                instr(dail_msg, "CHANGE REPORT FORM SENT ON") OR _ 
 			    instr(dail_msg, "DIRECT DEPOSIT STATUS") OR _ 
+                instr(dail_msg, "EFUNDS HAS NOTIFIED DHS THAT THIS CLIENT'S EBT CARD") OR _
 			    instr(dail_msg, "MEMB:NEEDS INTERPRETER HAS BEEN CHANGED") OR _ 
 			    instr(dail_msg, "MEMB:SPOKEN LANGUAGE HAS BEEN CHANGED") OR _ 
 			    instr(dail_msg, "MEMB:RACE CODE HAS BEEN CHANGED FROM UNABLE") OR _ 
@@ -241,15 +249,38 @@ For each worker in worker_array
                 instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") OR _  
                 instr(dail_msg, "TPQY RESPONSE") OR _
                 instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then 
-    		    add_to_excel = True				
+    		    add_to_excel = True	
+                '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
             Elseif instr(dail_msg, "CORRECT STAT EDITS") then 
-                EmReadscreen stat_date, 8, dail_row, 39             'Will delete CORRECT STAT EDITS over 10 days old
-                ten_days_ago = DateAdd("d", -10, date)
+                EmReadscreen stat_date, 8, dail_row, 39            
+                ten_days_ago = DateAdd("d", -5, date)
                 If cdate(ten_days_ago) => cdate(stat_date) then 
                     add_to_excel = True     
                 Else 
                     add_to_excel = False 
                 End if 
+                '----------------------------------------------------------------------------------------------------MEC2
+            Elseif dail_type = "MEC2" then 
+                if  instr(dail_msg, "RSDI END DATE") OR _ 
+                    instr(dail_msg, "SELF EMPLOYMENT REPORTED TO MEC²") OR _
+                    instr(dail_msg, "SSI REPORTED TO MEC²") OR _ 
+                    instr(dail_msg, "UNEMPLOYMENT INS") then 
+                    add_to_excel = FALSE            'Income based MEC2 messages will not be removed 
+                Else 
+                    add_to_excel =  True    'All other MEC2 messages can be deleted.
+                End if 
+                '----------------------------------------------------------------------------------------------------TIKL 
+            Elseif dail_type = "TIKL" then 
+                if instr(dail_msg, "VENDOR") OR instr(dail_msg, "VND") then 
+                    add_to_excel = FALSE        'Will not delete TIKL's with vendor information 
+                Else 
+                    six_months = DateAdd("M", -6, date)
+                    If cdate(six_months) => cdate(dail_month) then 
+                        add_to_excel = True     'Will delete any TIKL over 6 months old
+                    Else 
+                        add_to_excel = False 
+                    End if 
+                End if       
             Else 
                 add_to_excel = False 
             End if 
