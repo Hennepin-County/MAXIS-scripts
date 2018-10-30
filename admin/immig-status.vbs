@@ -225,7 +225,7 @@ Do
 		IF immig_status_dropdown <> "28 Undocumented" and save_CHECKBOX= UNCHECKED and additional_CHECKBOX = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please select if a SAVE has been run as it is mandatory."
 		IF immig_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of current immigration status."
 		IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
-		IF immig_status_dropdown = "24 LPR" and yes_sponsored = UNCHECKED and not_sponsored = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please advise of LPR Sponosr Information."
+		IF immig_status_dropdown = "24 LPR" and yes_sponsored = UNCHECKED and not_sponsored = UNCHECKED then err_msg = err_msg & vbNewLine & "* Please advise of LPR Sponsor Information."
 		IF immig_status_dropdown = "24 LPR" and LPR_status_dropdown = "N/A" then err_msg = err_msg & vbNewLine & "* Please advise of LPR adjusted status."
 		IF immig_status_dropdown <> "24 LPR" and LPR_status_dropdown <> "Select One:" and LPR_status_dropdown <> "N/A" then err_msg = err_msg & vbNewLine & "* Immigration status does not indicate LPR, but adjusted status is indicated."
 		IF immig_doc_type = "Select One:" and immig_status_dropdown <> "28 Undocumented" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
