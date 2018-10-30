@@ -458,12 +458,11 @@ ELSE
 	IF ESL_ctzn_verf = "Select One:" THEN Call clear_line_of_text(17, 71)
 	IF ESL_skills = "Select One:" THEN Call clear_line_of_text(18, 56)
 
-
 	IF ss_credits <> "Select One:" THEN EmWriteScreen ss_credits, 13, 56
 	IF ss_credits_verf <> "Select One:" THEN EmWriteScreen ss_credits_verf, 13, 71
 
 	IF battered_spouse <> "Select One:" THEN EmWriteScreen battered_spouse, 14, 56  'mandatory for undoc'
-	   IF battered_spouse_verf <> "Select One:" THEN EmWriteScreen battered_spouse_verf, 14, 71
+	IF battered_spouse_verf <> "Select One:" THEN EmWriteScreen battered_spouse_verf, 14, 71
 
 	IF military_status <> "Select One:" THEN
 		IF military_status = "Veteran" THEN EmWriteScreen "1", 15, 56
@@ -486,13 +485,12 @@ ELSE
 	IF ESL_ctzn <> "Select One:" THEN EmWriteScreen ESL_ctzn, 17, 56  'mandatory for GA'
 	IF ESL_ctzn_verf <> "Select One:" THEN EmWriteScreen ESL_ctzn_verf, 17, 71
 	IF ESL_skills <> "Select One:" THEN EmWriteScreen ESL_skills, 18, 56
-
 	Transmit
 END IF
 
 start_a_blank_CASE_NOTE
 IF additional_CHECKBOX = CHECKED THEN
- 		Call write_variable_in_case_note("IMIG-Instituted Additional SAVE for M" & MEMB_number)
+	Call write_variable_in_case_note("IMIG-Instituted Additional SAVE for M" & MEMB_number)
 ELSEIF save_CHECKBOX = CHECKED THEN
 	Call write_variable_in_case_note("IMIG-SAVE Completed for M" & MEMB_number)
 ELSEIF immig_status_dropdown = "US Citizen" THEN
@@ -539,7 +537,7 @@ Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 IF ss_credits <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("40 Social Security Credits", ss_credits)
 IF battered_spouse <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Battered Spouse/Child", battered_spouse)
 IF military_status <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Military Status", military_status)
-IF nation_vietnam <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Status during Vietnam War", nation_vietnam)
+IF nationality_dropdown = "EL Ethnic Lao" or nationality_dropdown = "HG Hmong" THEN Call write_bullet_and_variable_in_case_note("Status during Vietnam War", nation_vietnam)
 IF nation_vietnam = "Native Amer Born Can/Mex" THEN Call write_bullet_and_variable_in_case_note("Native American born in Mexico or Canada", nation_vietnam)
 IF ESL_ctzn <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("St Prog ESL/Ctzn Coop", ESL_ctzn)
 IF ESL_skills <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("ESL/Skills Training", ESL_skills)
