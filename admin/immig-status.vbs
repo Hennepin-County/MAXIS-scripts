@@ -130,15 +130,15 @@ BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
  CheckBox 10, 175, 175, 10, "YES - If sponsored please complete the following:", yes_sponsored
  CheckBox 220, 175, 25, 10, "NO", not_sponsored
  Text 10, 195, 60, 10, "Name of sponsor:"
- EditBox 75, 190, 80, 15, name_sponsor
+ EditBox 75, 190, 80, 15, sponsor_name
  Text 165, 195, 55, 10, "Address/Phone:"
  EditBox 220, 190, 125, 15, sponsor_addr
  Text 10, 215, 60, 10, "Name of sponsor:"
- EditBox 75, 210, 80, 15, name_sponsor_two
+ EditBox 75, 210, 80, 15, sponsor_name_two
  Text 165, 215, 55, 10, "Address/Phone:"
  EditBox 220, 210, 125, 15, sponsor_addr_two
  Text 10, 235, 60, 10, "Name of sponsor:"
- EditBox 75, 230, 80, 15, name_sponsor_three
+ EditBox 75, 230, 80, 15, sponsor_name_three
  Text 165, 235, 55, 10, "Address/Phone:"
  EditBox 220, 230, 125, 15, sponsor_addr_three
   EditBox 75, 255, 160, 15, other_notes
@@ -231,7 +231,7 @@ Do
 		IF immig_doc_type = "Select One:" and immig_status_dropdown <> "28 Undocumented" then err_msg = err_msg & vbNewLine & "* Please advise of immigration document used."
 		'Battered Spouse/Child (Y/N): This field is mandatory for undocumented persons, non-immigrants and other lawfully residing persons.
 		IF nationality_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please advise of Nationality or Nation."
-		IF yes_sponsored = CHECKED and name_sponsor = "" then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information."
+		IF yes_sponsored = CHECKED and sponsor_name = "" then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information."
 		IF yes_sponsored = CHECKED and not_sponsored = CHECKED then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information and uncheck no."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
@@ -354,10 +354,8 @@ IF immig_status_dropdown = "US Citizen" THEN
 		Call clear_line_of_text(15, 68)
 		TRANSMIT
 	END IF
-
 ELSE
 	Call create_MAXIS_friendly_date_with_YYYY(actual_date, 0, 5, 45)
-
 	immig_status = ""
 	If immig_status_dropdown = "21 Refugee" then immig_status = "21"
 	If immig_status_dropdown = "22 Asylee" then immig_status = "22"
@@ -442,54 +440,54 @@ ELSE
 	IF status_verification = "No Ver Prvd" THEN verif_status = "NO"
 	EMWriteScreen verif_status, 8, 45
 
-		'EMReadScreen alien_id_number, 9, 10, 72
-		'IF alien_id_number <> id_number THEN MsgBox "The number enter for ID does not match the number entered in the case note"
-		'VERIFICATION OF 40 SOCIAL SECURITY CREDITS IS NOT NEEDED  '
-		IF ss_credits = "Select One:" THEN Call clear_line_of_text(13, 56)
-		IF ss_credits_verf = "Select One:" THEN Call clear_line_of_text(13, 71)
+	'EMReadScreen alien_id_number, 9, 10, 72
+	'IF alien_id_number <> id_number THEN MsgBox "The number enter for ID does not match the number entered in the case note"
+	'VERIFICATION OF 40 SOCIAL SECURITY CREDITS IS NOT NEEDED  '
+	IF ss_credits = "Select One:" THEN Call clear_line_of_text(13, 56)
+	IF ss_credits_verf = "Select One:" THEN Call clear_line_of_text(13, 71)
 
-		IF battered_spouse = "Select One:" THEN Call clear_line_of_text(14, 56)
-		IF battered_spouse_verf = "Select One:" THEN Call clear_line_of_text(14, 71)
+	IF battered_spouse = "Select One:" THEN Call clear_line_of_text(14, 56)
+	IF battered_spouse_verf = "Select One:" THEN Call clear_line_of_text(14, 71)
 
-		IF military_status = "Select One:" THEN Call clear_line_of_text(15, 56)
-		IF military_status_verf = "Select One:" THEN Call clear_line_of_text(15, 71)
+	IF military_status = "Select One:" THEN Call clear_line_of_text(15, 56)
+	IF military_status_verf = "Select One:" THEN Call clear_line_of_text(15, 71)
 
-		IF nation_vietnam = "Select One:" THEN Call clear_line_of_text(16, 56)
+	IF nation_vietnam = "Select One:" THEN Call clear_line_of_text(16, 56)
 
-		IF ESL_ctzn = "Select One:" THEN Call clear_line_of_text(17, 56)
-		IF ESL_ctzn_verf = "Select One:" THEN Call clear_line_of_text(17, 71)
-		IF ESL_skills = "Select One:" THEN Call clear_line_of_text(18, 56)
+	IF ESL_ctzn = "Select One:" THEN Call clear_line_of_text(17, 56)
+	IF ESL_ctzn_verf = "Select One:" THEN Call clear_line_of_text(17, 71)
+	IF ESL_skills = "Select One:" THEN Call clear_line_of_text(18, 56)
 
 
-		IF ss_credits <> "Select One:" THEN EmWriteScreen ss_credits, 13, 56
-		IF ss_credits_verf <> "Select One:" THEN EmWriteScreen ss_credits_verf, 13, 71
+	IF ss_credits <> "Select One:" THEN EmWriteScreen ss_credits, 13, 56
+	IF ss_credits_verf <> "Select One:" THEN EmWriteScreen ss_credits_verf, 13, 71
 
-		IF battered_spouse <> "Select One:" THEN EmWriteScreen battered_spouse, 14, 56  'mandatory for undoc'
-	    IF battered_spouse_verf <> "Select One:" THEN EmWriteScreen battered_spouse_verf, 14, 71
+	IF battered_spouse <> "Select One:" THEN EmWriteScreen battered_spouse, 14, 56  'mandatory for undoc'
+	   IF battered_spouse_verf <> "Select One:" THEN EmWriteScreen battered_spouse_verf, 14, 71
 
-		IF military_status <> "Select One:" THEN
-			IF military_status = "Veteran" THEN EmWriteScreen "1", 15, 56
-			IF military_status = "Active Duty" THEN EmWriteScreen "2", 15, 56
-			IF military_status = "Spouse of 1 or 2" THEN EmWriteScreen "3", 15, 56
-			IF military_status = "Child of 1 or 2" THEN EmWriteScreen "4", 15, 56
-			IF military_status = "No Military Stat or Other" THEN EmWriteScreen "N", 15, 56
-		END IF
-		IF military_status_verf <> "Select One:" THEN EmWriteScreen military_status_verf, 15, 71
+	IF military_status <> "Select One:" THEN
+		IF military_status = "Veteran" THEN EmWriteScreen "1", 15, 56
+		IF military_status = "Active Duty" THEN EmWriteScreen "2", 15, 56
+		IF military_status = "Spouse of 1 or 2" THEN EmWriteScreen "3", 15, 56
+		IF military_status = "Child of 1 or 2" THEN EmWriteScreen "4", 15, 56
+		IF military_status = "No Military Stat or Other" THEN EmWriteScreen "N", 15, 56
+	END IF
+	IF military_status_verf <> "Select One:" THEN EmWriteScreen military_status_verf, 15, 71
 
-		IF nation_vietnam <> "Select One:" THEN
-			IF nation_vietnam = "Hmong During Vietnam War" THEN EmWriteScreen "01", 16, 56
-			IF nation_vietnam = "Highland Lao During Vietnam" THEN EmWriteScreen "02", 16, 56
-			IF nation_vietnam = "Spouse/Widow of 1 Or 2"THEN EmWriteScreen "03", 16, 56
-			IF nation_vietnam = "Dep Child of 1 Or 2"THEN EmWriteScreen "04", 16, 56
-			IF nation_vietnam = "Native Amer Born Can/Mex" THEN EmWriteScreen "05", 16, 56
-			IF nation_vietnam = "N/A" THEN Call clear_line_of_text(16, 56)
-		END IF
+	IF nation_vietnam <> "Select One:" THEN
+		IF nation_vietnam = "Hmong During Vietnam War" THEN EmWriteScreen "01", 16, 56
+		IF nation_vietnam = "Highland Lao During Vietnam" THEN EmWriteScreen "02", 16, 56
+		IF nation_vietnam = "Spouse/Widow of 1 Or 2"THEN EmWriteScreen "03", 16, 56
+		IF nation_vietnam = "Dep Child of 1 Or 2"THEN EmWriteScreen "04", 16, 56
+		IF nation_vietnam = "Native Amer Born Can/Mex" THEN EmWriteScreen "05", 16, 56
+		IF nation_vietnam = "N/A" THEN Call clear_line_of_text(16, 56)
+	END IF
 
-		IF ESL_ctzn <> "Select One:" THEN EmWriteScreen ESL_ctzn, 17, 56  'mandatory for GA'
-		IF ESL_ctzn_verf <> "Select One:" THEN EmWriteScreen ESL_ctzn_verf, 17, 71
-		IF ESL_skills <> "Select One:" THEN EmWriteScreen ESL_skills, 18, 56
+	IF ESL_ctzn <> "Select One:" THEN EmWriteScreen ESL_ctzn, 17, 56  'mandatory for GA'
+	IF ESL_ctzn_verf <> "Select One:" THEN EmWriteScreen ESL_ctzn_verf, 17, 71
+	IF ESL_skills <> "Select One:" THEN EmWriteScreen ESL_skills, 18, 56
 
-		Transmit
+	Transmit
 END IF
 
 start_a_blank_CASE_NOTE
@@ -498,7 +496,7 @@ IF additional_CHECKBOX = CHECKED THEN
 ELSEIF save_CHECKBOX = CHECKED THEN
 	Call write_variable_in_case_note("IMIG-SAVE Completed for M" & MEMB_number)
 ELSEIF immig_status_dropdown = "US Citizen" THEN
-	Call write_variable_in_case_note("SAVE Completed for M" & MEMB_number & " US Citizen")
+	Call write_variable_in_case_note("IMIG-SAVE Completed for M" & MEMB_number & " US Citizen")
 	Call write_variable_in_case_note("* Updated MEMB to remove Alien ID")
 	Call write_variable_in_case_note("* Updated MEMI to correct status")
 	Call write_variable_in_case_note("* Deleted IMIG and SPON")
@@ -515,23 +513,23 @@ IF status_verification <> "Select One:" THEN Call write_bullet_and_variable_in_c
 IF status_verification <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Immigration document received", immig_doc_type)
 IF emailHP_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Emailed HP Immigration")
 Call write_variable_in_case_note("")
-If  yes_sponsored = CHECKED then
-	Call write_variable_in_case_note("* Client is sponsored:")
-	Call write_bullet_and_variable_in_case_note("Sponsor is indicated as ",  sponsor_name)
-	Call write_bullet_and_variable_in_case_note("Sponsor address is ", sponsor_addr)
+If yes_sponsored = CHECKED then
+	Call write_variable_in_case_note("* Client is sponsored")
+	Call write_bullet_and_variable_in_case_note("Sponsor is indicated as", sponsor_name)
+	Call write_bullet_and_variable_in_case_note("Sponsor address is", sponsor_addr)
 	IF sponsor_name_two <> "" THEN
 		Call write_variable_in_case_note("---")
-		Call write_bullet_and_variable_in_case_note("Second sponsor is indicated as ", sponsor_name_two)
-		Call write_bullet_and_variable_in_case_note("Second sponsor address is ", sponsor_addr_two)
+		Call write_bullet_and_variable_in_case_note("Second sponsor is indicated as", sponsor_name_two)
+		Call write_bullet_and_variable_in_case_note("Second sponsor address is", sponsor_addr_two)
 	END IF
 	IF sponsor_name_three <> "" THEN
 		Call write_variable_in_case_note("---")
-		Call write_bullet_and_variable_in_case_note("Third sponsor is indicated as ", sponsor_name_third)
-		Call write_bullet_and_variable_in_case_note("Third sponsor address is ", sponsor_addr_third)
+		Call write_bullet_and_variable_in_case_note("Third sponsor is indicated as", sponsor_name_three)
+		Call write_bullet_and_variable_in_case_note("Third sponsor address is", sponsor_addr_three)
 	END IF
-ELSE Call write_variable_in_case_note("* No Sponsor indicated")
+ELSE Call write_variable_in_case_note("* No Sponsor indicated or sponsor is not applicable")
 END IF
-If save_CHECKBOX = CHECKED then Call write_variable_in_case_note("* Inital SAVE Completed and sent to ECF")
+If save_CHECKBOX = CHECKED then Call write_variable_in_case_note("* SAVE Completed and sent to ECF")
 If additional_CHECKBOX = CHECKED then
 	Call write_variable_in_case_note("* Additional SAVE requested")
  	Call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
