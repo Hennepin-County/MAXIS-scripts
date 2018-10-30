@@ -51,7 +51,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-MEMB_number = "01"
+'MEMB_number = "01"
 'actual_date = date & ""
 'Determines which programs are currently status_checking in the month of application
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
