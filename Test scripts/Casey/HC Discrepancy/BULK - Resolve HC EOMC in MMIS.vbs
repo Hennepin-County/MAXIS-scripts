@@ -657,16 +657,6 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                         'sometimes the month is not correctly found because of old budgets, this sets error information here because the case needs to be looked at manually
                         If prog = "    " Then EOMC_CLIENT_ARRAY(err_notes, hc_clt) = EOMC_CLIENT_ARRAY(err_notes, hc_clt) & " ~ HC ELIG Budget may need approval or budget needs to be aligned."
 
-                        'Took this out because I think it is for a different script issue with a dirrect run and no longer needed. Will test with it gone for a while'
-                        ' If pers_type = "__" Then                        'TODO - REMOVE ON 10/30/18 if no longer needed - determine why I have this here - look at case # 132245
-                        '     EMReadScreen cur_mo_test, 6, 7, mo_col
-                        '     cur_mo_test = trim(cur_mo_test)
-                        '     'MsgBox "This is come up when person test is __" & vbNewLine & "cur_mo_test is " & cur_mo_test
-                        '     pers_type = cur_mo_test
-                        '     pers_std = ""
-                        '     pers_mthd = ""
-                        ' End If
-
                         EOMC_CLIENT_ARRAY (elig_type_one, hc_clt) = pers_type     'setting all of the read information is added to the array
 
                         'if this was found to be true in this loop, will add error note that the case needs review and approval
@@ -935,13 +925,79 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
     'this block updated MMIS with the new end date if the change option was selected at the beginning
     If make_changes = TRUE Then
         If EOMC_CLIENT_ARRAY(autoclose, hc_clt) = FALSE Then                                'autoclose cases should close on their own.
-            If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = "99/99/99" Then               'if the span has an open end date
+            Update_two = FALSE
+            have_to_go_to_next_page = FALSE
+            If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = "99/99/99" AND EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then
+                Update_two = TRUE
+                If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) > 1 OR
+                    have_to_go_to_next_page = TRUE
+
+                End If
+                If EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) > 1 Then
+                    have_to_go_to_next_page = TRUE
+
+                End If
+            End If
+            If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = "99/99/99" or EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then               'if the span has an open end date
                 EMWriteScreen "C", 2, 19                                                    'going in to change
                 EMWriteScreen PMI_Number, 4, 19                                             'enter through the PMI because navigation is easier
                 transmit
 
                 EMWriteScreen "RELG", 1, 8                  'go to RELG where all the elig detail is
                 transmit
+
+                prog_one_order = 0
+                prog_two_order = 0
+                on_page = 1
+
+                'THIS IS MY NEW CODE TO TRY THE THINGS
+                If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = "99/99/99" Then
+                    If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) = 1 Then
+                        If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 6 Then prog_one_order = 1
+                        If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 10 Then prog_one_order = 2
+                        If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 14 Then prog_one_order = 3
+                        If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 18 Then prog_one_order = 4
+                    ElseIf If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) = 2 Then
+                        If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 6 Then prog_one_order = 5
+                        If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 10 Then prog_one_order = 6
+                        If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 14 Then prog_one_order = 7
+                        If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 18 Then prog_one_order = 8
+                    End If
+                End If
+
+                If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then
+                    If EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) = 1 Then
+                        If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 6 Then prog_two_order = 1
+                        If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 10 Then prog_two_order = 2
+                        If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 14 Then prog_two_order = 3
+                        If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 18 Then prog_two_order = 4
+                    ElseIf If EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) = 2 Then
+                        If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 6 Then prog_two_order = 5
+                        If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 10 Then prog_two_order = 6
+                        If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 14 Then prog_two_order = 7
+                        If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 18 Then prog_two_order = 8
+                    End If
+                End If
+
+                For each_prog = 8 to 1 Step -1
+
+                    If each_prog = prog_one_order OR each_prog = prog_two_order Then
+                        If each_prog > 6 Then
+
+                        End If
+                    End If
+                    If prog_one_order = each_prog Then
+                        If each_prog > 3 and each_prog < 7 Then
+
+                        End If 
+                    ElseIf prog_two_order = each_prog Then
+
+
+                    End If
+                Next
+
+
+                'END OF NEW CODE
 
                 If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) > 1 Then                        'we saved the RELG page so going back to it
                     for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt)
@@ -959,6 +1015,30 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
 
                 EMWriteScreen mmis_last_day_date, relg_row+1, 36                'entering the last day of the current month to the end date on the span
                 EMWriteScreen "C", relg_row+1, 62                               'updating status to 'closed'
+
+
+                If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then               'if program 2 is open ended
+
+
+                    If EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) > 1 Then            'we saved the row the span was found at - going back there
+                        for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt)
+                            PF8
+                        next
+                    End If
+
+                    'determine where the SPAN is
+                    If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 18 Then            'if the span is the last on the page
+                        PF8                                                         'it is now on the next page
+                        relg_row = 10                                               'the top span is empty in change so the known spans start at 10
+                    Else                                                            'if it wasn't the last on the page
+                        relg_row = EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) + 4      'since the top row is empty, the row is 4 down from where it was in inquiry
+                    End If
+
+                    EMWriteScreen mmis_last_day_date, relg_row+1, 36                'entering the last day of the current month and changing status to closed
+                    EMWriteScreen "C", relg_row+1, 62
+
+
+
 
                 PF3                                     'save and check for warning message
                 EMReadScreen warn_msg, 7, 24, 2
@@ -1036,31 +1116,6 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
 
             End If
 
-            If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then               'if program 2 is open ended
-                EMWriteScreen "C", 2, 19                                                    'entering change option
-                EMWriteScreen PMI_Number, 4, 19                                             'enter through the PMI because navigation is easier
-                transmit
-
-                EMWriteScreen "RELG", 1, 8                  'go to RELG where all the elig detail is
-                transmit
-
-                If EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) > 1 Then            'we saved the row the span was found at - going back there
-                    for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt)
-                        PF8
-                    next
-                End If
-
-                'determine where the SPAN is
-                If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 18 Then            'if the span is the last on the page
-                    PF8                                                         'it is now on the next page
-                    relg_row = 10                                               'the top span is empty in change so the known spans start at 10
-                Else                                                            'if it wasn't the last on the page
-                    relg_row = EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) + 4      'since the top row is empty, the row is 4 down from where it was in inquiry
-                End If
-
-                EMWriteScreen mmis_last_day_date, relg_row+1, 36                'entering the last day of the current month and changing status to closed
-                EMWriteScreen "C", relg_row+1, 62
-
                 PF3                                     'saving, checking for warning message and saving again
                 EMReadScreen warn_msg, 7, 24, 2
                 If warn_msg = "WARNING" Then PF3
@@ -1129,7 +1184,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                         End If
                     End If
                 End If
-                
+
                 PF6
 
                 'MsgBox "To RELG"
