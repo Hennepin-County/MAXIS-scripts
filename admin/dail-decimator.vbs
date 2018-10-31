@@ -245,7 +245,7 @@ For each worker in worker_array
 			    instr(dail_msg, "THIS CASE IS ERROR PRONE") OR _ 		 
                 instr(dail_msg, "EMPL SERV REF DATE IS > 60 DAYS; CHECK ES PROVIDER RESPONSE") OR _ 	
                 instr(dail_msg, "MEMBER HAS TURNED 60 - FSET:WORK REG HAS BEEN UPDATED") OR _  
-                instr(dail_msg, "UPDATE MEMI:LAST GRADE COMPLETED IF NEEDED") OR _      
+                instr(dail_msg, "LAST GRADE COMPLETED") OR _      
                 instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") OR _  
                 instr(dail_msg, "TPQY RESPONSE") OR _
                 instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then 
