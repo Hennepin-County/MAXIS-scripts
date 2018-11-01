@@ -192,7 +192,7 @@ Call write_variable_in_case_note("-----")
 Call write_variable_in_case_note(worker_signature)
 
 start_a_blank_CASE_NOTE
-IF OP_program <> "Select One:" THEN
+IF OP_program <> "Select:" THEN
 	Call write_variable_in_CASE_NOTE(OP_program & " OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
 	Call write_variable_in_CASE_NOTE("* Period " & OP_from & " through " & OP_to)
 	Call write_variable_in_CASE_NOTE("* Claim # " & claim_number & " Amt $" & Claim_amount)
