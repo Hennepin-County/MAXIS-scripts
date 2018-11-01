@@ -2,14 +2,14 @@
 name_of_script = "ADMIN - MAIN MENU.vbs"
 start_time = timer
 
-'=====User ID's====== 
-'ILFE001 = Ilse 
+'=====User ID's======
+'ILFE001 = Ilse
 'WFS395 = MiKayla
-'CALO001 = Casey 
-'WFX901 = Faughn 
-'WFU851 = Jennifer 
-'WFG492 = Melissa F. 
-'WFV701 = Darcy 
+'CALO001 = Casey
+'WFX901 = Faughn
+'WFU851 = Jennifer
+'WFG492 = Melissa F.
+'WFV701 = Darcy
 
 
 
@@ -123,13 +123,6 @@ Set script_array_admin_main(script_num) = new script
 script_array_admin_main(script_num).script_name 		= "CS Good Cause "											'Script name
 script_array_admin_main(script_num).file_name 			= "cs-good cause.vbs"										'Script URL
 script_array_admin_main(script_num).description 		= "Completes updates to ABPS and case notes actions taken."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
-Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_admin_main(script_num).script_name			= "Immigration Status"													'Script name
-script_array_admin_main(script_num).file_name			= "immig-status.vbs"												'Script URL
-script_array_admin_main(script_num).description			= "Completes updates to IMIG and case notes actions taken."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
