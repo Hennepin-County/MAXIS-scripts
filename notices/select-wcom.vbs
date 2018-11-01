@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/01/2018", "Removed 'Failure to Comply' WCOM and added WCOM for Voluntary SNAP E&T..", "Casey Love, Hennepin County")
 call changelog_update("09/30/2018", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -402,9 +403,9 @@ For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
 Next
 
 'DIALOG to select the WCOM to add
-BeginDialog wcom_selection_dlg, 0, 0, 241, 360, "Select WCOM"
+BeginDialog wcom_selection_dlg, 0, 0, 241, 350, "Select WCOM"
   Text 10, 10, 95, 10, "Check the WCOM needed."
-  GroupBox 10, 25, 225, 255, "SNAP"
+  GroupBox 10, 25, 225, 240, "SNAP"
   CheckBox 20, 40, 150, 10, "SNAP closed/denied with PACT", snap_pact_wcom_checkbox
   CheckBox 20, 55, 155, 10, "SNAP closed via PACT for new HH Member", pact_fraud_wcom_checkbox
   CheckBox 20, 70, 145, 10, "SNAP closing due to Returned Mail", snap_returned_mail_wcom_checkbox
@@ -420,14 +421,14 @@ BeginDialog wcom_selection_dlg, 0, 0, 241, 360, "Select WCOM"
   'CheckBox 20, 220, 160, 10, "ABAWD - Banked Months possibly available", banked_mos_avail_wcom_checkbox
   CheckBox 20, 220, 180, 10, "ABAWD - Banked Months E and T voluntary", banked_mos_vol_e_t_wcom_checkbox
   CheckBox 20, 235, 190, 10, "ABAWD - Banked Months closing for months used", banked_mos_used_wcom_checkbox
-  CheckBox 20, 250, 195, 10, "FSET - Failure to comply with Good Cause Information", fset_fail_to_comply_wcom_checkbox
-  GroupBox 10, 280, 225, 55, "Cash"
-  CheckBox 20, 290, 55, 10, "CASH Denied", cash_denied_checkbox
-  CheckBox 20, 305, 125, 10, "CASH closing due to Returned Mail", mfip_returned_mail_wcom_checkbox
-  CheckBox 20, 320, 125, 10, "MFIP Closing and SNAP opening", mfip_to_snap_wcom_checkbox
+  CheckBox 20, 250, 195, 10, "ABAWD - E and T Voluntary", voluntary_e_t_wcom_checkbox
+  GroupBox 10, 270, 225, 55, "Cash"
+  CheckBox 20, 280, 55, 10, "CASH Denied", cash_denied_checkbox
+  CheckBox 20, 295, 125, 10, "CASH closing due to Returned Mail", mfip_returned_mail_wcom_checkbox
+  CheckBox 20, 310, 125, 10, "MFIP Closing and SNAP opening", mfip_to_snap_wcom_checkbox
   ButtonGroup ButtonPressed
-    OkButton 135, 340, 50, 15
-    CancelButton 185, 340, 50, 15
+    OkButton 135, 330, 50, 15
+    CancelButton 185, 330, 50, 15
 EndDialog
 
 ' Dim myBtn
@@ -817,14 +818,41 @@ Do      'Just made this  loop - this needs sever testing.
         CALL add_words_to_message("Your SNAP is closing for using all available banked months. If you meet one of the exemptions listed above AND all other eligibility factors you may still be eligible for SNAP. Please contact your team if you have questions.")
     End If
 
-    If fset_fail_to_comply_wcom_checkbox = checked Then           'Fail to comply with FSET
-        'code for the dialog for fail to comply with FSET (this dialog has the same name in each IF to prevent the over 7 dialog error)
-        BeginDialog wcom_details_dlg, 0, 0, 201, 85, "WCOM Details"
-          EditBox 5, 40, 190, 15, fset_fail_reason
+    ' If fset_fail_to_comply_wcom_checkbox = checked Then           'Fail to comply with FSET
+    '     'code for the dialog for fail to comply with FSET (this dialog has the same name in each IF to prevent the over 7 dialog error)
+    '     BeginDialog wcom_details_dlg, 0, 0, 201, 85, "WCOM Details"
+    '       EditBox 5, 40, 190, 15, fset_fail_reason
+    '       ButtonGroup ButtonPressed
+    '         OkButton 145, 65, 50, 15
+    '       Text 5, 5, 115, 10, "Client did not meet SNAP E & T rules"
+    '       Text 5, 25, 95, 10, "Reasons client failed FSET"
+    '     EndDialog
+    '
+    '     Do                          'displaying the dialog and ensuring that all required information is entered
+    '         err_msg = ""
+    '
+    '         Dialog wcom_details_dlg
+    '
+    '         If fset_fail_reason = "" Then err_msg = err_msg & vbNewLine & "* Enter the reasons the client failed E&T."
+    '         If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
+    '     Loop until err_msg = ""
+    '     'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
+    '     ' CALL add_words_to_message("Reasons for not meeting the rules: " & fset_fail_reason & ". You can keep getting your SNAP benefits if you show you had a good reason for not meeting the SNAP E & T rules. If you had a good reason, tell us right away.;" & "What do you do next:;" &_
+    '     ' "You must meet the SNAP E & T rules by the end of the month. If you want to meet the rules, contact your county worker at 612-596-1300, or your SNAP E &T provider at 612-596-7411. You can tell us why you did not meet with the rules. If you had a good reason for not meeting the SNAP E & T rules, contact your SNAP E & T provider right away.")
+    '
+    '     CALL add_words_to_message("What to do next:; * You must meet the SNAP E&T rules by the end of the month. If you want to meet the rules, contact your team at 612-596-1300, or your SNAP E&T provider at 612-596-7411.; * You can tell us why you did not meet the rules. If you had a good reason for not meeting the SNAP E&T rules, contact your SNAP E&T provider right away.")
+    ' End If
+
+    If voluntary_e_t_wcom_checkbox = checked Then
+
+        CALL Generate_Client_List(client_dropdown)
+
+        BeginDialog wcom_details_dlg, 0, 0, 171, 60, "WCOM Details"
+          DropListBox 30, 20, 130, 45, "Select One..."+chr(9)+client_dropdown, abawd_memb_name
           ButtonGroup ButtonPressed
-            OkButton 145, 65, 50, 15
-          Text 5, 5, 115, 10, "Client did not meet SNAP E & T rules"
-          Text 5, 25, 95, 10, "Reasons client failed FSET"
+            OkButton 115, 40, 50, 15
+          Text 5, 5, 160, 10, "ABAWD Client to advise about Voluntary E and T"
+          Text 5, 25, 25, 10, "Client:"
         EndDialog
 
         Do                          'displaying the dialog and ensuring that all required information is entered
@@ -832,14 +860,13 @@ Do      'Just made this  loop - this needs sever testing.
 
             Dialog wcom_details_dlg
 
-            If fset_fail_reason = "" Then err_msg = err_msg & vbNewLine & "* Enter the reasons the client failed E&T."
+            If abawd_memb_name = "Select One..." Then err_msg = err_msg & vbNewLine & "* Choose the ABAWD Client."
             If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
         Loop until err_msg = ""
-        'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
-        ' CALL add_words_to_message("Reasons for not meeting the rules: " & fset_fail_reason & ". You can keep getting your SNAP benefits if you show you had a good reason for not meeting the SNAP E & T rules. If you had a good reason, tell us right away.;" & "What do you do next:;" &_
-        ' "You must meet the SNAP E & T rules by the end of the month. If you want to meet the rules, contact your county worker at 612-596-1300, or your SNAP E &T provider at 612-596-7411. You can tell us why you did not meet with the rules. If you had a good reason for not meeting the SNAP E & T rules, contact your SNAP E & T provider right away.")
 
-        CALL add_words_to_message("What to do next:; * You must meet the SNAP E&T rules by the end of the month. If you want to meet the rules, contact your team at 612-596-1300, or your SNAP E&T provider at 612-596-7411.; * You can tell us why you did not meet the rules. If you had a good reason for not meeting the SNAP E&T rules, contact your SNAP E&T provider right away.")
+        abawd_memb_name = right(abawd_memb_name, len(abawd_memb_name)-5)
+
+        CALL add_words_to_message("Minnesota has changed the rules for time-limited SNAP recipients. " & abawd_memb_name & " is not required to participate in SNAP Employment and Training (SNAP E&T), but may choose to. Participation in SNAP E&T may extend your SNAP benefits and offer you support as you seek employment. Ask your worker about SNAP E&T.")
     End If
 
     If cash_denied_checkbox = checked Then              'Information to add to CASH denial
@@ -1012,7 +1039,8 @@ If banked_mos_avail_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOT
 If banked_mos_vol_e_t_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* E&T is voluntary with Banked Months.")
 If banked_mos_non_coop_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & banked_abawd_name & " was receiving Banked Months and fail cooperation with E & T. Explained requesting Good Cause, and future banked months ineligibility.")
 If banked_mos_used_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Banked Months were being used are are now all used. Advised to review other WREG/ABAWD exemptions.")
-If fset_fail_to_comply_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* SNAP is closing due to FSET requirements not being met. Reasons for not meeting the rules: " & fset_fail_reason & ". Advised of good cause and contact information.")
+If voluntary_e_t_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Voluntary SNAP E&T offered to " & abawd_memb_name & ".")
+' If fset_fail_to_comply_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* SNAP is closing due to FSET requirements not being met. Reasons for not meeting the rules: " & fset_fail_reason & ". Advised of good cause and contact information.")
 If cash_denied_checkbox = checked Then
     CALL write_variable_in_CASE_NOTE("* " & cash_one_program & " denied because " & cash_one_reason & ".")
     If cash_two_program <> "Select one..." Then CALL write_variable_in_CASE_NOTE("* " & cash_two_program & " denied because " & cash_two_reason & ".")
