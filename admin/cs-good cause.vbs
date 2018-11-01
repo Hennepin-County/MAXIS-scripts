@@ -72,30 +72,29 @@ EndDialog
 
 BeginDialog good_cause_dialog, 0, 0, 386, 285, "Good Cause"
   EditBox 55, 5, 45, 15, MAXIS_case_number
-  EditBox 165, 5, 20, 15, MAXIS_footer_month
-  EditBox 185, 5, 20, 15, MAXIS_footer_year
-  EditBox 265, 5, 40, 15, actual_date
-  EditBox 80, 25, 20, 15, memb_number
-  EditBox 165, 25, 40, 15, claim_date
-  EditBox 80, 45, 20, 15, child_memb_number
-  EditBox 165, 45, 40, 15, review_date
-  CheckBox 220, 25, 70, 10, "Med Sup Svc Only", med_sup_check
-  CheckBox 220, 35, 60, 10, "Sup Evidence", sup_evidence_check
-  CheckBox 220, 45, 55, 10, "Investigation", investigation_check
-  CheckBox 320, 15, 25, 10, "CCA", CCA_CHECKBOX
-  CheckBox 320, 30, 30, 10, "DWP", DWP_CHECKBOX
-  CheckBox 320, 45, 30, 10, "METS", METS_CHECKBOX
-  CheckBox 355, 15, 20, 10, "FS", FS_CHECKBOX
-  CheckBox 355, 30, 20, 10, "HC", HC_CHECKBOX
-  CheckBox 355, 45, 20, 10, "MF", MFIP_CHECKBOX
+  EditBox 170, 5, 40, 15, claim_date
+  EditBox 55, 25, 20, 15, MAXIS_footer_month
+  EditBox 80, 25, 20, 15, MAXIS_footer_year
+  EditBox 170, 25, 40, 15, review_date
+  EditBox 80, 45, 20, 15, memb_number
+  EditBox 170, 45, 40, 15, actual_date
+  CheckBox 225, 15, 25, 15, "CCA", CCA_CHECKBOX
+  CheckBox 225, 30, 30, 10, "DWP", DWP_CHECKBOX
+  CheckBox 225, 45, 30, 10, "METS", METS_CHECKBOX
+  CheckBox 260, 15, 20, 10, "HC", HC_CHECKBOX
+  CheckBox 260, 30, 20, 10, "FS", FS_CHECKBOX
+  CheckBox 260, 45, 20, 10, "MF", MFIP_CHECKBOX
+  CheckBox 305, 15, 60, 10, "Sup Evidence", sup_evidence_check
+  CheckBox 305, 30, 55, 10, "Investigation", investigation_check
+  CheckBox 305, 45, 70, 10, "Med Sup Svc Only", med_sup_check
+  DropListBox 30, 65, 55, 15, "Select One:"+chr(9)+"Denied"+chr(9)+"Granted"+chr(9)+"Not Claimed"+chr(9)+"Pending", gc_status
+  DropListBox 115, 65, 115, 15, "Select One:"+chr(9)+"Application Review-Complete"+chr(9)+"Application Review-Incomplete"+chr(9)+"Change/exemption ending"+chr(9)+"Determination"+chr(9)+"Recertification", good_cause_droplist
+  DropListBox 265, 65, 115, 15, "Select One:"+chr(9)+"Potential phys harm/Child"+chr(9)+"Potential Emotnl harm/Child"+chr(9)+"Potential phys harm/Caregiver"+chr(9)+"Potential Emotnl harm/Caregiver"+chr(9)+"Cncptn Incest/Forced Rape"+chr(9)+"Legal adoption Before Court"+chr(9)+"Parent Gets Preadoptn Svc"+chr(9)+"No Longer Claiming", reason_droplist
   CheckBox 10, 95, 145, 10, "ABPS name not written on the correct line", ABPS_CHECKBOX
   CheckBox 10, 105, 140, 10, "Reason for requesting GC not selected", REASON_CHECKBOX
   CheckBox 165, 95, 120, 10, "All of the questions not answered", QUESTIONS_CHECKBOX
   CheckBox 165, 105, 90, 10, "No signature and/or date ", NOSIG_CHECKBOX
   CheckBox 290, 105, 80, 10, "Other (please specify)", OTHER_CHECKBOX
-  DropListBox 30, 65, 55, 15, "Select One:"+chr(9)+"Denied"+chr(9)+"Granted"+chr(9)+"Not Claimed"+chr(9)+"Pending", gc_status
-  DropListBox 115, 65, 115, 15, "Select One:"+chr(9)+"Application Review-Complete"+chr(9)+"Application Review-Incomplete"+chr(9)+"Change/exemption ending"+chr(9)+"Determination"+chr(9)+"Recertification", good_cause_droplist
-  DropListBox 265, 65, 115, 15, "Select One:"+chr(9)+"Potential phys harm/Child"+chr(9)+"Potential Emotnl harm/Child"+chr(9)+"Potential phys harm/Caregiver"+chr(9)+"Potential Emotnl harm/Caregiver"+chr(9)+"Cncptn Incest/Forced Rape"+chr(9)+"Legal adoption Before Court"+chr(9)+"Parent Gets Preadoptn Svc"+chr(9)+"No Longer Claiming", reason_droplist
   EditBox 65, 125, 85, 15, mets_info
   EditBox 65, 145, 85, 15, verifs_req
   EditBox 210, 125, 170, 15, denial_reason
@@ -113,7 +112,7 @@ BeginDialog good_cause_dialog, 0, 0, 386, 285, "Good Cause"
   ButtonGroup ButtonPressed
     OkButton 270, 265, 50, 15
     CancelButton 325, 265, 50, 15
-  Text 220, 10, 40, 10, "Actual date:"
+  Text 125, 50, 40, 10, "Actual date:"
   Text 90, 70, 25, 10, "Action:"
   Text 235, 70, 30, 10, "Reason:"
   Text 5, 70, 25, 10, "Status:"
@@ -121,19 +120,17 @@ BeginDialog good_cause_dialog, 0, 0, 386, 285, "Good Cause"
   Text 5, 150, 60, 10, "Verifs Requested:"
   Text 155, 130, 50, 10, "Denial Reason:"
   Text 165, 150, 45, 10, "Other Notes:"
-  Text 115, 50, 45, 10, "Next review:"
-  GroupBox 315, 5, 65, 55, "Programs"
+  Text 120, 30, 45, 10, "Next review:"
+  GroupBox 220, 5, 65, 55, "Programs"
   GroupBox 5, 85, 375, 35, "Incomplete Form:"
   Text 5, 10, 45, 10, "Case number:"
-  Text 120, 30, 40, 10, "Claim date:"
-  Text 10, 50, 65, 10, "Child's MEMB #(s):"
-  Text 110, 10, 50, 10, "Footer MM/YY:"
+  Text 125, 10, 40, 10, "Claim date:"
+  Text 5, 50, 65, 10, "Child's MEMB #(s):"
+  Text 5, 30, 50, 10, "Footer MM/YY:"
   GroupBox 5, 165, 250, 115, "Verifications"
-  Text 5, 30, 75, 10, "Caregiver's MEMB #:"
 EndDialog
 
 'Initial dialog giving the user the option to select the type of good cause action
-
 Do
 	Do
 		err_msg = ""
@@ -142,8 +139,7 @@ Do
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
 		If isnumeric(MAXIS_footer_month) = false then err_msg = err_msg & vbnewline & "* You must enter the footer month to begin good cause."
 		If isnumeric(MAXIS_footer_year) = false then err_msg = err_msg & vbnewline & "* You must enter the footer year to begin good cause."
-		IF memb_number = "" THEN err_msg = err_msg & vbnewline & "* Please enter the caregiver member number."
-		IF child_memb_number = "" THEN err_msg = err_msg & vbnewline & "* Please enter the child's member number."
+		IF memb_number = "" THEN err_msg = err_msg & vbnewline & "* Please enter a member number."
 		If good_cause_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the Good Cause Application Status."
 		IF gc_status = "Select One:" THEN err_msg = err_msg & vbnewline & "* Select the Good Cause Case Status."
 		If reason_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the Good Cause reason."
@@ -164,29 +160,28 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-Call MAXIS_footer_month_confirmation			'function that confirms that the current footer month/year is the same as what was selected by the user. If not, it will navigate to correct footer month/year
+	Call MAXIS_footer_month_confirmation			'function that confirms that the current footer month/year is the same as what was selected by the user. If not, it will navigate to correct footer month/year
 
 	'----------------------------------------------------------------------------------------------------ABPS panel
-DO
 	Call navigate_to_MAXIS_screen("STAT", "ABPS")
 	'Making sure we have the correct ABPS
 	EMReadScreen panel_number, 1, 2, 78
-	EMReadScreen abps_number, 9, 13, 40
-	abps_number = trim(abps_number)
 	If panel_number = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
 	'If there is more than one panel, this part will grab employer info off of them and present it to the worker to decide which one to use.
 	Do
 		EMReadScreen current_panel_number, 1, 2, 73
-		ABPS_check = MsgBox("Is this the right ABPS " & abps_number & "?", vbYesNo + vbQuestion, "Confirmation of ABPS")
+		ABPS_check = MsgBox("Is this the right ABPS?", vbYesNo + vbQuestion, "Confirmation")
 		If ABPS_check = vbYes then exit do
 		If ABPS_check = vbNo then TRANSMIT
 		If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
 	Loop until current_panel_number = panel_number
+
 	'-------------------------------------------------------------------------Updating the ABPS panel
 	PF9'edit mode
 	EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
 	error_check = trim(error_check)
 	If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
+
 	EMWriteScreen "Y", 4, 73			'Support Coop Y/N field
 	IF gc_status = "Pending" THEN
 		'Msgbox gc_status
@@ -218,6 +213,7 @@ DO
 		EMWriteScreen " ", 7, 73 'Investigation'
 		EMWriteScreen " ", 8, 48 'Med Sup Svc Only'
 	END IF
+
 	'converting the good cause reason from reason_droplist to the applicable MAXIS coding
 	If reason_droplist = "Potential phys harm/Child"		then claim_reason = "1"
 	If reason_droplist = "Potential Emotnl harm/Child"	 	then claim_reason = "2"
@@ -226,6 +222,7 @@ DO
 	If reason_droplist = "Cncptn Incest/Forced Rape" 		then claim_reason = "5"
 	If reason_droplist = "Legal adoption Before Court" 		then claim_reason = "6"
 	If reason_droplist = "Parent Gets Preadoptn Svc" 		then claim_reason = "7"
+
 	IF gc_status <> "Not Claimed" THEN
 		Call create_MAXIS_friendly_date(datevalue(claim_date), 0, 5, 73)
 		IF sup_evidence_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 47 ELSE EMWriteScreen "N", 7, 47
@@ -257,6 +254,7 @@ DO
 	Transmit'to add information
 	Transmit'to move past non-inhibiting warning messages on ABPS
 	PF3
+
 	EMReadScreen ABPS_screen, 4, 2, 50		'if inhibiting error exists, this will catch it and instruct the user to update ABPS
 	'msgbox ABPS_screen
 	If ABPS_screen = "ABPS" then script_end_procedure("An error occurred on the ABPS panel. Please update the panel before using the script with the absent parent information.")
@@ -272,16 +270,19 @@ DO
   		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
   	Loop until are_we_passworded_out = false					'loops until user passwords back in
 	END IF
+
 	IF CCA_CHECKBOX = CHECKED THEN programs_included = programs_included & "CCAP, "
 	IF DWP_CHECKBOX = CHECKED THEN programs_included = programs_included & "DWP, "
 	IF HC_CHECKBOX = CHECKED THEN programs_included = programs_included & "Healthcare, "
 	IF FS_CHECKBOX = CHECKED THEN programs_included = programs_included & "Food Support, "
 	IF MFIP_CHECKBOX = CHECKED THEN programs_included = programs_included & "MFIP, "
 	IF METS_CHECKBOX = CHECKED THEN programs_included = programs_included & "MNSURE, "
+
 	'trims excess spaces of programs
 	programs_included  = trim(programs_included )
 	'takes the last comma off of programs
 	If right(programs_included, 1) = "," THEN programs_included  = left(programs_included, len(programs_included) - 1)
+
 	IF ABPS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "ABPS name not written on the correct line,"
 	IF REASON_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " reason for requesting GC not selected,"
 	IF QUESTIONS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " all of the questions not answered,"
@@ -289,26 +290,6 @@ DO
 	IF OTHER_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " other (see additional information),"
 	incomplete_form  = trim(incomplete_form)
 	If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
-	'--------------------------------------------------------------------------------this will run the case thru background 'and update the future months
-		'Transmits after ending the JOBS panel updating
-		Do
-			transmit
-			EMReadScreen display_mode_check, 1, 20, 8
-		Loop until display_mode_check = "D"
-		If datediff("m", date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 1 then in_future_month = True
-		'If just on SNAP, the case does not have to update future months, so the script can now case note.
-		If future_months_check = 0 or in_future_month = True then exit do
-		'Navigates to the current month + 1 footer month, then back into the JOBS panel
-		CALL write_value_and_transmit("BGTX", 20, 71)
-		CALL write_value_and_transmit("y", 16, 54)
-		EMReadScreen MAXIS_footer_month, 2, 20, 55
-		EMReadScreen MAXIS_footer_year, 2, 20, 58
-		EMWriteScreen "ABPS", 20, 71
-		If len(current_panel_number) = 1 then current_panel_number = "0" & current_panel_number
-		EMWriteScreen current_panel_number, 20, 79
-		transmit
-		PF9
-Loop until in_future_month = True
 
 	'-----------------------------------------------------------------------------------------------------Case note & email sending
 	start_a_blank_CASE_NOTE
@@ -326,7 +307,7 @@ Loop until in_future_month = True
 	Call write_bullet_and_variable_in_case_note("Good cause status", gc_status)
 	If claim_date <> "" THEN Call write_bullet_and_variable_in_case_note("Good cause claim date", claim_date)
 	If review_date <> "" THEN Call write_bullet_and_variable_in_case_note("Next review date", review_date)
-	Call write_bullet_and_variable_in_case_note("Child(ren) member number(s)", child_memb_number)
+	Call write_bullet_and_variable_in_case_note("Child(ren) member number(s)", memb_number)
 	Call write_bullet_and_variable_in_case_note("ABPS name", client_name)
 	CALL write_bullet_and_variable_in_case_note("Applicable programs", programs_included)
   	IF reason_droplist <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Reason for claiming good cause", reason_droplist)
@@ -362,5 +343,4 @@ Loop until in_future_month = True
 		Call write_variable_in_SPEC_MEMO("************************************************************")
 		PF4
 	END IF
-
 script_end_procedure("Success! MAXIS has been updated, and the Good Cause results case noted.")
