@@ -162,7 +162,7 @@ SSN_number_read = replace(SSN_number_read, " ", "")
 Call navigate_to_MAXIS_screen ("STAT", "MISC")
 Row = 6
 EmReadScreen panel_number, 1, 02, 78
-If panel_number = "0" then 'MISC DOES NOT EXIST FOR THIS CASE '
+If panel_number = "0" then
 	EMWriteScreen "NN", 20,79
 	TRANSMIT
 ELSE
