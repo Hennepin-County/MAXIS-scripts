@@ -50,7 +50,7 @@ class script_bowie
     'Details the class itself figures out
 	public property get script_URL
 		If run_locally = true then
-			script_repository = "C:\DHS-MAXIS-Scripts\"
+			script_repository = "C:\MAXIS-Scripts\"
 			script_URL = script_repository & lcase(category) & "\" & lcase(replace(script_name, " ", "-") & ".vbs")
 		Else
         	If script_repository = "" then script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/"    'Assumes we're scriptwriters
@@ -65,10 +65,6 @@ class script_bowie
 end class
 
 'INSTRUCTIONS: simply add your new script below. Scripts are listed in alphabetical order first by category, then by script name. Copy a block of code from above and paste your script info in. The function does the rest.
-
-
-
-
 'ACTIONS SCRIPTS=====================================================================================================================================
 
 'script_num = 0
@@ -191,15 +187,15 @@ script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #09/25/2017#
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name			= "FSET Sanction"
-script_array(script_num).description			= "Updates the WREG panel, and case notes when imposing or resolving a FSET sanction."
-script_array(script_num).category               = "ACTIONS"
-script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("ABAWD")
-script_array(script_num).release_date           = #10/01/2000#
+'script_num = script_num + 1								'Increment by one
+'ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+'Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+'script_array(script_num).script_name			= "FSET Sanction"
+'script_array(script_num).description			= "Updates the WREG panel, and case notes when imposing or resolving a FSET sanction."
+'script_array(script_num).category               = "ACTIONS"
+'script_array(script_num).workflows              = ""
+'script_array(script_num).subcategory            = array("ABAWD")
+'script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it

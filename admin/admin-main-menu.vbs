@@ -170,7 +170,14 @@ script_array_QI_list(script_num).description		= "Script to assist in the review 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
 Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_QI_list(script_num).script_name		= "FSET Sanctions"													'Script name
+script_array_QI_list(script_num).script_name		= "FSET Sanctions - BULK"													'Script name
+script_array_QI_list(script_num).file_name			= "fset-sanctions-bulk.vbs"												'Script URL
+script_array_QI_list(script_num).description		= "BULK script to assist in reviewing, applying, case noting and adding WCOM's for FSET sanction cases."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
+Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_QI_list(script_num).script_name		= "FSET Sanctions - CASE"													'Script name
 script_array_QI_list(script_num).file_name			= "fset-sanctions.vbs"												'Script URL
 script_array_QI_list(script_num).description		= "BULK script to assist in reviewing, applying, case noting and adding WCOM's for FSET sanction cases."
 
