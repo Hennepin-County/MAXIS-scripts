@@ -409,7 +409,6 @@ IF HC_claim_number <> "" THEN
 	Call write_variable_in_CASE_NOTE("HC OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & HC_from & " through " & HC_to)
 	Call write_variable_in_CASE_NOTE("* HC Claim # " & HC_claim_number & " Amt $" & HC_Claim_amount)
 	Call write_bullet_and_variable_in_CASE_NOTE("Health Care responsible members", HC_resp_memb)
-	Call write_bullet_and_variable_in_CASE_NOTE("Health Care claim number", claim_number)
 	Call write_bullet_and_variable_in_CASE_NOTE("Total Federal Health Care amount", Fed_HC_AMT)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
