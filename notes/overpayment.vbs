@@ -206,13 +206,13 @@ IF OP_program <> "Select One:" THEN
 END IF
 IF HC_claim_number <> "" THEN
 	Call write_variable_in_CASE_NOTE("HC OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & HC_from & " through " & HC_to)
-	Call write_variable_in_CASE_NOTE(" HC Claim # " & HC_claim_number & " Amt $" & HC_Claim_amount)
+	Call write_variable_in_CASE_NOTE("* HC Claim # " & HC_claim_number & " Amt $" & HC_Claim_amount)
 	Call write_bullet_and_variable_in_CASE_NOTE("Health Care responsible members", HC_resp_memb)
 	Call write_bullet_and_variable_in_CASE_NOTE("Total Federal Health Care amount", Fed_HC_AMT)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
+	Call write_variable_in_CASE_NOTE("Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
 	Call write_variable_in_CASE_NOTE("----- ----- -----")
-	Call write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
 END IF
 IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
 IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Not Allowed")
@@ -243,7 +243,7 @@ IF HC_claim_number <> "" THEN
 		End If
 	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
 	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & " Programs: " & programs, "CASE NOTE" & vbcr & message_array,"", False)
+CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
 END IF
 
 script_end_procedure("Overpayment case note entered please review case note to ensure accuracy and copy case note to CCOL.")
