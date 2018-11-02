@@ -525,8 +525,9 @@ If MNSURE_Case = TRUE Then
 					EMReadScreen RPPH_error_check, 10, 24, 2
 				Loop until trim(RPPH_error_check) <> "EXCLSN END"
 			ELSEIF trim(RPPH_error_check) <> "" then
-				dialog RPPH_error_dialog
-				If buttonpressed = 0 then script_end_procedure("Error message was not resolved. Please review enrollment information before trying the script again.")
+				' dialog RPPH_error_dialog
+				' If buttonpressed = 0 then script_end_procedure("Error message was not resolved. Please review enrollment information before trying the script again.")
+                script_end_procedure("There is an error on RPPH that needs to be resolved.")
 				EMWriteScreen "...", 13, 5
 				EMReadScreen false_end, 8, 14, 14
 				If false_end = "99/99/99" Then
@@ -756,8 +757,9 @@ Else
 					EMReadScreen RPPH_error_check, 10, 24, 2
 				Loop until trim(RPPH_error_check) <> "EXCLSN END"
 			ELSEIF trim(RPPH_error_check) <> "" then
-				dialog RPPH_error_dialog
-				If buttonpressed = 0 then script_end_procedure("Error message was not resolved. Please review enrollment information before trying the script again.")
+                ' dialog RPPH_error_dialog
+                ' If buttonpressed = 0 then script_end_procedure("Error message was not resolved. Please review enrollment information before trying the script again.")
+                script_end_procedure("There is an error on RPPH that needs to be resolved.")
 				EMWriteScreen "...", 13, 5
 				EMReadScreen false_end, 8, 14, 14
 				If false_end = "99/99/99" Then
