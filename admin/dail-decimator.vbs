@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/02/2018", "Added additional ELIG messages older than CM.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/26/2018", "Added additional messages included TIKL's over 6 months old, STAT edits over 5 days old and EFUNDS messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/26/2018", "Added MEC2 messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/24/2018", "Reorganized messages by type and alphabetical. Cleaned up backup coding.", "Ilse Ferris, Hennepin County")
@@ -91,6 +92,8 @@ EndDialog
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+this_month = CM_mo & " " & CM_yr
+next_month = CM_plus_1_mo & " " & CM_plus_1_yr
 
 Do
 	Do
@@ -213,6 +216,7 @@ For each worker in worker_array
                 instr(dail_msg, "REPORTED NAME CHG TO:") OR _
                 instr(dail_msg, "BENEFITS RETURNED, IF IOC HAS NEW ADDRESS") OR _
     		    instr(dail_msg, "CASE IS CATEGORICALLY ELIGIBLE") OR _ 
+                instr(dail_msg, "CHANGE IN BUDGET CYCLE") OR _ 
                 instr(dail_msg, "COMPLETE ELIG IN FIAT") OR _ 
     		    instr(dail_msg, "COUNTED IN LBUD AS UNEARNED INCOME") OR _
                 instr(dail_msg, "COUNTED IN SBUD AS UNEARNED INCOME") OR _  
@@ -258,6 +262,13 @@ For each worker in worker_array
                     add_to_excel = True     
                 Else 
                     add_to_excel = False 
+                End if 
+            '----------------------------------------------------------------------------------------------------clearing elig messages older than CM
+            Elseif instr(dail_msg, "OVERPAYMENT POSSIBLE") or InStr(dail_msg, "DISBURSE EXPEDITED SERVICE") then 
+                if dail_month = this_month or dail_month = next_month then 
+                    add_to_excel = False 
+                Else 
+                    add_to_excel = True ' delete the old messages 
                 End if 
                 '----------------------------------------------------------------------------------------------------MEC2
             Elseif dail_type = "MEC2" then 
