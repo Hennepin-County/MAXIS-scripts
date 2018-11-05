@@ -34,6 +34,19 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/02/2018", "Bug Fix that would stop the script with long names.", "Casey Love, Hennepin County")
+call changelog_update("11/30/2017", "Initial version.", "Ilse Ferris, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'Required for statistical purposes===========================================================================================
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 1            'manual run time in seconds
@@ -167,16 +180,16 @@ Navigate_to_MAXIS_screen "ELIG", "MFIP"
 case_ready_for_sanction = FALSE
 mx_row = 7
 
-Do 
-	EMReadScreen mf_elig_status, 7, mx_row, 53 
-	If mf_elig_status = "UNKNOWN" Then 
-		case_ready_for_sanction = TRUE 
-		Exit Do 
-	ElseIf mf_elig_status = "       " Then 
+Do
+	EMReadScreen mf_elig_status, 7, mx_row, 53
+	If mf_elig_status = "UNKNOWN" Then
+		case_ready_for_sanction = TRUE
 		Exit Do
-	Else 
+	ElseIf mf_elig_status = "       " Then
+		Exit Do
+	Else
 		mx_row = mx_row + 1
-	End If 
+	End If
 Loop until mx_row = 20
 
 'DETERMINE HOW THIS WORKS FOR NON Included HH Memb who are sanctioned'
@@ -229,7 +242,7 @@ Const sanc_type = 8
 Const numb_clt_sanc = 9
 Const prev_month_in_sanc = 10
 
-deeming_needed = FALSE 
+deeming_needed = FALSE
 
 Dim client_sanction_array()
 ReDim client_sanction_array(2, 0)
@@ -242,45 +255,51 @@ EMWriteScreen "99", 20, 79
 transmit
 
 mx_row = 7
-Do 
+Do
 	EMReadScreen approval_status, 15, mx_row, 50
 	approval_status = trim(approval_status)
-	If approval_status = "APPROVED" Then 
+	If approval_status = "APPROVED" Then
 		EMReadScreen elig_version, 2, mx_row, 22
 		elig_version = trim(elig_version)
 		EMWriteScreen elig_version, 18, 54
 		transmit
 		Exit Do
-	Else 
+	Else
 		mx_row = mx_row + 1
-	End If 
+	End If
 Loop until mx_row = 18
 
 mx_row = 7
 client_in_case = 0
 
-Do 
+Do
 	EMReadScreen reference_number, 2, mx_row, 6
 	EMReadScreen elig_name, 21, mx_row, 10
 	EMReadScreen member_code, 16, mx_row, 36
 	EMReadScreen elig_status, 10, mx_row, 53
-	
-	If reference_number = "  " Then Exit Do 
-	
+
+    first_name = ""
+    last_name = ""
+
+	If reference_number = "  " Then Exit Do
+
 	elig_name = trim(elig_name)
 	comma_pos = Instr(elig_name, ",")
-	last_name = left(elig_name, comma_pos - 1)
-	If left(right(elig_name, 2), 1) = " " Then 
-		first_name = right(left(elig_name, len(elig_name)-2), len(elig_name)-comma_pos-3)
-		middle_initial = right(elig_name, 1)
-		first_name = first_name & " " & middle_initial
-	Else 
-		first_name = right(elig_name, len(elig_name)-comma_pos-1)
-	End If 
-	
+    If comma_pos <> 0 Then
+	    last_name = left(elig_name, comma_pos - 1)
+        If left(right(elig_name, 2), 1) = " " Then
+            first_name = right(left(elig_name, len(elig_name)-2), len(elig_name)-comma_pos-3)
+            middle_initial = right(elig_name, 1)
+            first_name = first_name & " " & middle_initial
+    	Else
+    		first_name = right(elig_name, len(elig_name)-comma_pos-1)
+    	End If
+    End If
+
 	ReDim Preserve MFIP_Members_array(10, client_in_case)
 	MFIP_Members_array(clt_ref, client_in_case) = reference_number
 	MFIP_Members_array(clt_name, client_in_case) = first_name & " " & last_name
+    MFIP_Members_array(clt_name, client_in_case) = trim(MFIP_Members_array(clt_name, client_in_case))
 	MFIP_Members_array(clt_counted, client_in_case) = trim(member_code)
 	MFIP_Members_array(clt_elig, client_in_case) = trim(elig_status)
 ''	MsgBox MFIP_Members_array(clt_name, client_in_case) & vbNewLine & "MAXIS Row: " & mx_row & vbNewLine & "Line 286"
@@ -289,6 +308,22 @@ Do
 
 Loop until mx_row = 20
 
+Navigate_to_MAXIS_screen "STAT", "MEMB"
+
+For each_client = 0 to UBOUND(MFIP_Members_array, 2)
+    If MFIP_Members_array(clt_name, each_client) = "" Then
+        EmWriteScreen MFIP_Members_array(clt_ref, each_client), 20, 76
+        transmit
+
+        EmReadscreen last_name, 25, 6, 30
+        EmReadscreen first_name, 12, 6, 63
+        last_name = replace(last_name, "_", "")
+        first_name = replace(first_name, "_", "")
+
+        MFIP_Members_array(clt_name, each_client) = first_name & " " & last_name
+    End If
+Next
+
 Navigate_to_MAXIS_screen "STAT", "PARE"
 'MsgBox "STAT/PARE" & vbNewLine & "Line 292"
 
@@ -296,72 +331,72 @@ For client_list = 0 to UBOUND(MFIP_Members_array, 2)
 
 	EMWriteScreen MFIP_Members_array(clt_ref, client_list), 20, 76
 	transmit
-	
+
 	EMReadScreen panel_instance, 1, 2, 73
-	
-	If panel_instance = "0" Then 
-		MFIP_Members_array(caregiver, client_list) = FALSE 
-	Else 
-		counted_code = left(MFIP_Members_array(clt_counted, client_list), 1) 
-		If counted_code = "A" OR counted_code = "F" OR counted_code = "G" OR counted_code = "H" OR counted_code = "J" Then 
+
+	If panel_instance = "0" Then
+		MFIP_Members_array(caregiver, client_list) = FALSE
+	Else
+		counted_code = left(MFIP_Members_array(clt_counted, client_list), 1)
+		If counted_code = "A" OR counted_code = "F" OR counted_code = "G" OR counted_code = "H" OR counted_code = "J" Then
 			MFIP_Members_array(caregiver, client_list) = TRUE
-		Else 
-			MFIP_Members_array(caregiver, client_list) = FALSE 
-		End If 
+		Else
+			MFIP_Members_array(caregiver, client_list) = FALSE
+		End If
 		counted_code = ""
-	End If 
-Next 
+	End If
+Next
 
 Navigate_to_MAXIS_screen "STAT", "EMPS"
 'MsgBox "STAT/EMPS" & vbNewLine & "Line 315"
 
 For client_list = 0 to UBOUND(MFIP_Members_array, 2)
-	If MFIP_Members_array(caregiver, client_list) = TRUE Then 
+	If MFIP_Members_array(caregiver, client_list) = TRUE Then
 		EMWriteScreen MFIP_Members_array(clt_ref, client_list), 20, 76
 		transmit
 		EMReadScreen fin_orient_sanc_begin, 8, 6, 39
 		EMReadScreen fin_orient_sanc_end, 8, 6, 65
-		
+
 		If fin_orient_sanc_begin <> "__ 01 __" AND fin_orient_sanc_end = "__ 01 __" Then
-			MFIP_Members_array(in_sanc, client_list) = TRUE 
+			MFIP_Members_array(in_sanc, client_list) = TRUE
 			MFIP_Members_array(in_sanc, client_list) = "Employment Services"
-		End If 
-		
+		End If
+
 		EMReadScreen sanc_rsn, 2, 18, 40
 		EMReadScreen sanc_begin, 8, 18, 51
 		EMReadScreen sanc_end, 8, 18, 70
-		
-		If sanc_rsn <> "__" Then 
+
+		If sanc_rsn <> "__" Then
 			If sanc_begin <> "__ 01 __" AND sanc_end = "__ 01 __" Then
-				MFIP_Members_array(in_sanc, client_list) = TRUE 
+				MFIP_Members_array(in_sanc, client_list) = TRUE
 				MFIP_Members_array(in_sanc, client_list) = "Employment Services"
-			End If 
-		End If 
-		
-	End If 
-	counted_code = left(MFIP_Members_array(clt_counted, client_listed), 1)
-	If counted_code = "F" OR counted_code = "G" OR counted_code = "H" OR counted_code = "J" Then deeming_needed = TRUE 
-Next 
+			End If
+		End If
+
+	End If
+	counted_code = left(MFIP_Members_array(clt_counted, client_list), 1)
+	If counted_code = "F" OR counted_code = "G" OR counted_code = "H" OR counted_code = "J" Then deeming_needed = TRUE
+Next
 
 Navigate_to_MAXIS_screen "STAT", "ABPS"
 'MsgBox "STAT/ABPS" & vbNewLine & "Line 346"
 
-Do 
+Do
 	For client_list = 0 to UBOUND(MFIP_Members_array, 2)
 		If MFIP_Members_array(caregiver, client_list) = TRUE Then
 			EMReadScreen caregiver_ref_number, 2, 4, 47
-			If caregiver_ref_number = MFIP_Members_array(clt_ref, client_list) Then 
-				EMReadScreen support_coop, 1, 4, 73 
+			If caregiver_ref_number = MFIP_Members_array(clt_ref, client_list) Then
+				EMReadScreen support_coop, 1, 4, 73
 				If support_coop = "N" Then
-					MFIP_Members_array(in_sanc, client_list) = TRUE 
-					If MFIP_Members_array(in_sanc, client_list) = "Employment Services" Then 
+					MFIP_Members_array(in_sanc, client_list) = TRUE
+					If MFIP_Members_array(in_sanc, client_list) = "Employment Services" Then
 						MFIP_Members_array(in_sanc, client_list) = "Both"
-					Else 
+					Else
 						MFIP_Members_array(in_sanc, client_list) = "Child Support"
-					End If 
-				End If 
-			End If 
-		End If 
+					End If
+				End If
+			End If
+		End If
 	Next
 	transmit
 	EMReadScreen next_panel_check, 7, 24, 2
@@ -373,31 +408,31 @@ Dim sanc_occurence(50)
 Dim number_sanctions_total(50)
 
 numb_case_sanctions = 0
-case_in_sanc_last_month = FALSE 
+case_in_sanc_last_month = FALSE
 Navigate_to_MAXIS_screen "STAT", "SANC"
 'MsgBox "STAT/SANC" & vbNewLine & "Line 377"
 
 For client_list = 0 to UBOUND(MFIP_Members_array, 2)
-	If MFIP_Members_array(caregiver, client_list) = TRUE Then 
+	If MFIP_Members_array(caregiver, client_list) = TRUE Then
 		EMReadScreen number_of_client_sanctions, 2, 16, 43
 		number_of_client_sanctions = trim(number_of_client_sanctions)
 		If number_of_client_sanctions = "" Then number_of_client_sanctions = 0
 		number_of_client_sanctions = number_of_client_sanctions * 1
-		
-		EMReadScreen case_sanctions, 2, 17, 43 
+
+		EMReadScreen case_sanctions, 2, 17, 43
 		case_sanctions = trim(case_sanctions)
 
-		EMReadScreen case_clsd_7th_sanc, 5, 18, 43 
+		EMReadScreen case_clsd_7th_sanc, 5, 18, 43
 		If case_clsd_7th_sanc <> "     " Then case_sanctions = 7
-		
-		If case_sanctions <> "" Then 
+
+		If case_sanctions <> "" Then
 			case_sanctions = case_sanctions * 1
 			If case_sanctions > numb_case_sanctions Then numb_case_sanctions = case_sanctions
-		Else 
+		Else
 			case_sanctions = 0
 		End If
-		
-		
+
+
 		row = 7
 		DO
 			EMReadScreen sanc_year, 2, row, 5	'searching for footer/year
@@ -422,19 +457,19 @@ For client_list = 0 to UBOUND(MFIP_Members_array, 2)
 		If MAXIS_footer_month = "12" then col = "70"
 		'determines consecutive or have gaps from previous month'
 		If col = 76 then row = row - 1
-		
+
 		EMreadScreen prev_sanc_month, 2, row, col
 		If prev_sanc_month = "__" OR prev_sanc_month = "DD" OR prev_sanc_month = "SR" then
-			MFIP_Members_array(prev_month_in_sanc, client_list) = FALSE 
+			MFIP_Members_array(prev_month_in_sanc, client_list) = FALSE
 		Else
-			MFIP_Members_array(prev_month_in_sanc, client_list) = TRUE 
-			case_in_sanc_last_month = TRUE 
+			MFIP_Members_array(prev_month_in_sanc, client_list) = TRUE
+			case_in_sanc_last_month = TRUE
 		End If
-	End If 
-Next 
+	End If
+Next
 
 Const panel_name = 0
-Const panel_ref = 1 
+Const panel_ref = 1
 const panel_inst = 2
 Const retro_income = 3
 Const prosp_income = 4
@@ -443,131 +478,131 @@ Dim income_array()
 ReDim income_array(4, 0)
 
 panel_counter = 0
-If deeming_needed = TRUE Then 
-	
+If deeming_needed = TRUE Then
+
 	For client_listed = 0 to UBOUND(MFIP_Members_array, 2)
 		Navigate_to_MAXIS_screen "STAT", "SUMM"
 		EMWriteScreen "JOBS", 20, 71
 		'MsgBox "STAT/JOBS" & vbNewLine & "Line 448"
 		EMWriteScreen MFIP_Members_array(clt_ref, client_listed), 20, 76
-		transmit 
-		
+		transmit
+
 		EMReadScreen check_if_exists, 14, 24, 13
 		EMReadScreen check_if_exists2, 14, 24, 7
 		If check_if_exists <> "DOES NOT EXIST" AND check_if_exists2 <> "DOES NOT EXIST" Then
-			Do 
-				EMReadScreen panel_numb, 1, 2, 73 
+			Do
+				EMReadScreen panel_numb, 1, 2, 73
 				panel_numb = right("00"& panel_numb, 2)
-				
+
 				ReDim Preserve income_array(4, panel_counter)
-				
+
 				income_array(panel_name, panel_counter) = "JOBS"
 				income_array(panel_ref, panel_counter) = MFIP_Members_array(clt_ref, client_listed)
 				income_array(panel_inst, panel_counter) = panel_numb
-				
+
 				EMReadScreen gross_wage_lf, 8, 17, 38
 				EMReadScreen gross_wage_rt, 8, 17, 67
-				
+
 				gross_wage_lf = trim(gross_wage_lf)
 				gross_wage_rt = trim(gross_wage_rt)
-				
-				If gross_wage_lf = "" Then gross_wage_lf = 0 
+
+				If gross_wage_lf = "" Then gross_wage_lf = 0
 				If gross_wage_rt = "" Then gross_wage_rt = 0
-				
+
 				gross_wage_lf = gross_wage_lf * 1
 				gross_wage_rt = gross_wage_rt * 1
-				
+
 				income_array(retro_income, panel_counter) = gross_wage_lf
 				income_array(prosp_income, panel_counter) = gross_wage_rt
-				
+
 				panel_counter = panel_counter + 1
-				
+
 				transmit
 				EMReadScreen next_panel, 7, 24, 2
 			Loop until next_panel = "ENTER A"
-		End If 
-		
+		End If
+
 		EMWriteScreen "BUSI", 20, 71
 		'MsgBox "STAT/BUSI" & vbNewLine & "Line 488"
 		EMWriteScreen MFIP_Members_array(clt_ref, client_listed), 20, 76
-		transmit 
-		
+		transmit
+
 		EMReadScreen check_if_exists, 14, 24, 13
 		EMReadScreen check_if_exists2, 14, 24, 7
 		If check_if_exists <> "DOES NOT EXIST" AND check_if_exists2 <> "DOES NOT EXIST" Then
-			Do 
-				EMReadScreen panel_numb, 1, 2, 73 
+			Do
+				EMReadScreen panel_numb, 1, 2, 73
 				panel_numb = right("00"& panel_numb, 2)
-				
+
 				ReDim Preserve income_array(4, panel_counter)
-				
+
 				income_array(panel_name, panel_counter) = "BUSI"
 				income_array(panel_ref, panel_counter) = MFIP_Members_array(clt_ref, client_listed)
 				income_array(panel_inst, panel_counter) = panel_numb
-				
+
 				EMReadScreen gross_wage_lf, 8, 8, 55
 				EMReadScreen gross_wage_rt, 8, 8, 69
-				
+
 				gross_wage_lf = trim(gross_wage_lf)
 				gross_wage_rt = trim(gross_wage_rt)
-				
-				If gross_wage_lf = "" Then gross_wage_lf = 0 
+
+				If gross_wage_lf = "" Then gross_wage_lf = 0
 				If gross_wage_rt = "" Then gross_wage_rt = 0
-				
+
 				gross_wage_lf = gross_wage_lf * 1
 				gross_wage_rt = gross_wage_rt * 1
-				
+
 				income_array(retro_income, panel_counter) = gross_wage_lf
 				income_array(prosp_income, panel_counter) = gross_wage_rt
-				
+
 				panel_counter = panel_counter + 1
-				
+
 				transmit
 				EMReadScreen next_panel, 7, 24, 2
 			Loop until next_panel = "ENTER A"
-		End If 
-		
+		End If
+
 		EMWriteScreen "UNEA", 20, 71
 		'MsgBox "STAT/UNEA" & vbNewLine & "Line 528"
 		EMWriteScreen MFIP_Members_array(clt_ref, client_listed), 20, 76
-		transmit 
-		
+		transmit
+
 		EMReadScreen check_if_exists, 14, 24, 13
 		EMReadScreen check_if_exists2, 14, 24, 7
-		If check_if_exists <> "DOES NOT EXIST" AND check_if_exists2 <> "DOES NOT EXIST" Then 
-			Do 
-				EMReadScreen panel_numb, 1, 2, 73 
+		If check_if_exists <> "DOES NOT EXIST" AND check_if_exists2 <> "DOES NOT EXIST" Then
+			Do
+				EMReadScreen panel_numb, 1, 2, 73
 				panel_numb = right("00"& panel_numb, 2)
-				
+
 				ReDim Preserve income_array(4, panel_counter)
-				
+
 				income_array(panel_name, panel_counter) = "UNEA"
 				income_array(panel_ref, panel_counter) = MFIP_Members_array(clt_ref, client_listed)
 				income_array(panel_inst, panel_counter) = panel_numb
-				
+
 				EMReadScreen gross_wage_lf, 8, 18, 39
 				EMReadScreen gross_wage_rt, 8, 18, 68
-				
+
 				gross_wage_lf = trim(gross_wage_lf)
 				gross_wage_rt = trim(gross_wage_rt)
-				
-				If gross_wage_lf = "" Then gross_wage_lf = 0 
+
+				If gross_wage_lf = "" Then gross_wage_lf = 0
 				If gross_wage_rt = "" Then gross_wage_rt = 0
-				
+
 				gross_wage_lf = gross_wage_lf * 1
 				gross_wage_rt = gross_wage_rt * 1
-				
+
 				income_array(retro_income, panel_counter) = gross_wage_lf
 				income_array(prosp_income, panel_counter) = gross_wage_rt
-				
+
 				panel_counter = panel_counter + 1
-				
+
 				transmit
 				EMReadScreen next_panel, 7, 24, 2
 			Loop until next_panel = "ENTER A"
-		End If 
+		End If
 	Next
-End If 
+End If
 
 
 
@@ -610,7 +645,7 @@ End If
 ''		row = row - 1
 ''	End if
 ''	EMreadScreen prev_sanc_month, 2, row, col
-''	If prev_sanc_month = "__" OR prev_sanc_month = "DD"  then 
+''	If prev_sanc_month = "__" OR prev_sanc_month = "DD"  then
 ''		sanc_occurence(clt_i) = 1
 ''	Else
 ''		sanc_occurence(clt_i) = 2
@@ -625,83 +660,83 @@ End If
 'Next
 
 
-Do 
+Do
 	err_msg = ""
 	dlg_ext = 0
-	
-	BeginDialog sanction_type_dialog, 0, 0, 271, 75, "Sanction Detail"
+
+	BeginDialog sanction_type_dialog, 0, 0, 305, 75, "Sanction Detail"
 	  For entered_sanc = 0 to UBOUND(MFIP_Members_array, 2)
-	  	If MFIP_Members_array(caregiver, entered_sanc) = TRUE Then 
-		  	Text 10, 25 + (20 * dlg_ext), 145, 10, MFIP_Members_array(clt_ref, entered_sanc) & " - " & MFIP_Members_array(clt_name, entered_sanc)
-		  	DropListBox 160, 25 + (20 * dlg_ext), 90, 45, "Select One..."+chr(9)+"Employment Services"+chr(9)+"Child Support"+chr(9)+"Both", MFIP_Members_array(sanc_type, entered_sanc)
+	  	If MFIP_Members_array(caregiver, entered_sanc) = TRUE Then
+		  	Text 10, 25 + (20 * dlg_ext), 176, 10, MFIP_Members_array(clt_ref, entered_sanc) & " - " & MFIP_Members_array(clt_name, entered_sanc)
+		  	DropListBox 200, 20 + (20 * dlg_ext), 90, 45, "Select One..."+chr(9)+"Employment Services"+chr(9)+"Child Support"+chr(9)+"Both", MFIP_Members_array(sanc_type, entered_sanc)
 			dlg_ext = dlg_ext + 1
-		End If 
+		End If
 	  Next
 	  ButtonGroup ButtonPressed
 	   ' 'PushButton 255, 25, 10, 15, "+", plus_button
-	    OkButton 165, 50, 50, 15
-	    CancelButton 215, 50, 50, 15
+	    OkButton 200, 55, 50, 15
+	    CancelButton 250, 55, 50, 15
 	  Text 10, 10, 65, 10, "Client in Sanction"
-	  Text 160, 10, 60, 10, "Sanction Type"
+	  Text 200, 10, 60, 10, "Sanction Type"
 	  Text 10, 55, 110, 10, "Case currently has " & case_sanctions & " sanctions"
 	EndDialog
-	
+
 	Dialog sanction_type_dialog
 	cancel_confirmation
-	
-	sanction_listed = FALSE 
+
+	sanction_listed = FALSE
 	For entered_sanc = 0 to UBOUND(MFIP_Members_array, 2)
 		If MFIP_Members_array(caregiver, entered_sanc) = TRUE Then
-			If MFIP_Members_array(sanc_type, entered_sanc) <> "Select One..." Then sanction_listed = TRUE 
-		End If 
+			If MFIP_Members_array(sanc_type, entered_sanc) <> "Select One..." Then sanction_listed = TRUE
+		End If
 	Next
-	
+
 	If sanction_listed = FALSE Then err_msg = err_msg & vbNewLine & "One of the caregivers must have a sanction indicated for the script to correctly FIAT. Indicate which caregiver is in sanction."
-	
+
 	If err_msg <> "" Then MsgBox "** Please resolve for the script to continue. **" & vbNewLine & err_msg
 Loop until err_msg = ""
 
 case_sanc_type = ""
 For client_listed = 0 to UBOUND(MFIP_Members_array, 2)
-	If MFIP_Members_array(sanc_type, client_listed) = "" OR MFIP_Members_array(sanc_type, client_listed) = "Select One..." Then 
-		MFIP_Members_array(in_sanc, client_listed) = FALSE 
-	Else 
-		MFIP_Members_array(in_sanc, client_listed) = TRUE 
-		If MFIP_Members_array(sanc_type, client_listed) = "Employment Services" Then 
-			If case_sanc_type = "Child Support" OR case_sanc_type = "Both" Then 
+	If MFIP_Members_array(sanc_type, client_listed) = "" OR MFIP_Members_array(sanc_type, client_listed) = "Select One..." Then
+		MFIP_Members_array(in_sanc, client_listed) = FALSE
+	Else
+		MFIP_Members_array(in_sanc, client_listed) = TRUE
+		If MFIP_Members_array(sanc_type, client_listed) = "Employment Services" Then
+			If case_sanc_type = "Child Support" OR case_sanc_type = "Both" Then
 				case_sanc_type = "Both"
-			Else 
+			Else
 				case_sanc_type = "Employment Services"
-			End If 
-		ElseIf MFIP_Members_array(sanc_type, client_listed) = "Child Support" Then 
-			If case_sanc_type = "Employment Services" OR case_sanc_type = "Both" Then 
+			End If
+		ElseIf MFIP_Members_array(sanc_type, client_listed) = "Child Support" Then
+			If case_sanc_type = "Employment Services" OR case_sanc_type = "Both" Then
 				case_sanc_type = "Both"
-			Else 
+			Else
 				case_sanc_type = "Child Support"
-			End If 
-		ElseIf MFIP_Members_array(sanc_type, client_listed) = "Both" Then 
+			End If
+		ElseIf MFIP_Members_array(sanc_type, client_listed) = "Both" Then
 			case_sanc_type = "Both"
-		End If 
-	End If 
+		End If
+	End If
 Next
 'MsgBox "Case Sanc Type: " & case_sanc_type
 
-If case_sanctions > 0 Then 
+If case_sanctions > 0 Then
 	percent_sanction = "30"
 	sanction_vendor = "Y"
 	sanc_occurence_for_fiat = "2"
-Else 
-	If case_sanc_type = "Employment Services" Then 
+Else
+	If case_sanc_type = "Employment Services" Then
 		percent_sanction = "10"
-	Else 
+	Else
 		percent_sanction = "30"
-	End If 
+	End If
 	sanction_vendor = "N"
 	sanc_occurence_for_fiat = "1"
-End If 
+End If
 
 'Going to SHEL to get vendor information
-If sanction_vendor = "Y" Then 
+If sanction_vendor = "Y" Then
 	Navigate_to_MAXIS_screen "STAT", "SHEL"
 
 	EMReadScreen shel_landlord, 25, 7, 50
@@ -710,109 +745,109 @@ If sanction_vendor = "Y" Then
 	EMReadScreen shel_retro_rent_verif, 2, 11, 48
 	EMReadScreen shel_prosp_rent, 8, 11, 56
 	EMReadScreen shel_prosp_rent_verif, 2, 11, 67
-	
+
 	shel_retro_rent = trim(shel_retro_rent)
 	shel_prosp_rent = trim(shel_prosp_rent)
 	If shel_retro_rent = "________" Then shel_retro_rent = 0
 	If shel_prosp_rent = "________" Then shel_prosp_rent = 0
-	
+
 	shel_retro_rent = shel_retro_rent * 1
 	shel_prosp_rent = shel_prosp_rent * 1
-	
-	If shel_retro_rent <> shel_prosp_rent Then 
-		rent_consistent = FALSE 
-	Else 
-		rent_consistent = TRUE 
-	End If 
 
-	rent_verified = TRUE 
-	If shel_retro_rent_verif = "NO" OR shel_retro_rent_verif = "PC" OR shel_retro_rent_verif = "NC" OR shel_retro_rent_verif = "__" Then rent_verified = FALSE 
+	If shel_retro_rent <> shel_prosp_rent Then
+		rent_consistent = FALSE
+	Else
+		rent_consistent = TRUE
+	End If
+
+	rent_verified = TRUE
+	If shel_retro_rent_verif = "NO" OR shel_retro_rent_verif = "PC" OR shel_retro_rent_verif = "NC" OR shel_retro_rent_verif = "__" Then rent_verified = FALSE
 	If shel_prosp_rent_verif = "NO" OR shel_prosp_rent_verif = "PC" OR shel_prosp_rent_verif = "NC" OR shel_prosp_rent_verif = "__" Then rent_verified = FALSE
 
 	EMReadScreen shel_retro_lot_rent, 8, 12, 37
 	EMReadScreen shel_retro_lot_rent_verif, 2, 12, 48
 	EMReadScreen shel_prosp_lot_rent, 8, 12, 56
 	EMReadScreen shel_prosp_lot_rent_verif, 2, 12, 67
-	
+
 	shel_retro_lot_rent = trim(shel_retro_lot_rent)
 	shel_prosp_lot_rent = trim(shel_prosp_lot_rent)
 	If shel_retro_lot_rent = "________" Then shel_retro_lot_rent = 0
 	If shel_prosp_lot_rent = "________" Then shel_prosp_lot_rent = 0
-	
+
 	shel_retro_lot_rent = shel_retro_lot_rent * 1
 	shel_prosp_lot_rent = shel_prosp_lot_rent * 1
-	
-	If shel_retro_lot_rent <> shel_prosp_lot_rent Then 
-		lot_rent_consistent = FALSE 
-	Else 
-		lot_rent_consistent = TRUE 
-	End If 
-	
-	lot_rent_verified = TRUE 
-	If shel_retro_lot_rent_verif = "NO" OR shel_retro_lot_rent_verif = "PC" OR shel_retro_lot_rent_verif = "NC" OR shel_retro_lot_rent_verif = "__" Then lot_rent_verified = FALSE 
-	If shel_prosp_lot_rent_verif = "NO" OR shel_prosp_lot_rent_verif = "PC" OR shel_prosp_lot_rent_verif = "NC" OR shel_prosp_lot_rent_verif = "__" Then lot_rent_verified = FALSE 
+
+	If shel_retro_lot_rent <> shel_prosp_lot_rent Then
+		lot_rent_consistent = FALSE
+	Else
+		lot_rent_consistent = TRUE
+	End If
+
+	lot_rent_verified = TRUE
+	If shel_retro_lot_rent_verif = "NO" OR shel_retro_lot_rent_verif = "PC" OR shel_retro_lot_rent_verif = "NC" OR shel_retro_lot_rent_verif = "__" Then lot_rent_verified = FALSE
+	If shel_prosp_lot_rent_verif = "NO" OR shel_prosp_lot_rent_verif = "PC" OR shel_prosp_lot_rent_verif = "NC" OR shel_prosp_lot_rent_verif = "__" Then lot_rent_verified = FALSE
 
 	EMReadScreen shel_retro_mortgage, 8, 13, 37
 	EMReadScreen shel_retro_mortgage_verif, 2, 13, 48
 	EMReadScreen shel_prosp_mortgage, 8, 13, 56
 	EMReadScreen shel_prosp_mortgage_verif, 2, 13, 67
-	
+
 	shel_retro_mortgage = trim(shel_retro_mortgage)
 	shel_prosp_mortgage = trim(shel_prosp_mortgage)
 	If shel_retro_mortgage = "________" Then shel_retro_mortgage = 0
 	If shel_prosp_mortgage = "________" Then shel_prosp_mortgage = 0
-	
+
 	shel_retro_mortgage = shel_retro_mortgage * 1
 	shel_prosp_mortgage = shel_prosp_mortgage * 1
-	
-	If shel_retro_mortgage <> shel_prosp_mortgage Then 
-		mortgage_consistent = FALSE 
-	Else 
-		mortgage_consistent = TRUE 
-	End If 
-	
-	mortgage_verified = TRUE 
-	If shel_retro_mortgage_verif = "NO" OR shel_retro_mortgage_verif = "PC" OR shel_retro_mortgage_verif = "NC" OR shel_retro_mortgage_verif = "__" Then mortgage_verified = FALSE 
+
+	If shel_retro_mortgage <> shel_prosp_mortgage Then
+		mortgage_consistent = FALSE
+	Else
+		mortgage_consistent = TRUE
+	End If
+
+	mortgage_verified = TRUE
+	If shel_retro_mortgage_verif = "NO" OR shel_retro_mortgage_verif = "PC" OR shel_retro_mortgage_verif = "NC" OR shel_retro_mortgage_verif = "__" Then mortgage_verified = FALSE
 	If shel_prosp_mortgage_verif = "NO" OR shel_prosp_mortgage_verif = "PC" OR shel_prosp_mortgage_verif = "NC" OR shel_prosp_mortgage_verif = "__" Then mortgage_verified = FALSE
 
 	EMReadScreen shel_retro_room, 8, 16, 37
 	EMReadScreen shel_retro_room_verif, 2, 16, 48
 	EMReadScreen shel_prosp_room, 8, 16, 56
 	EMReadScreen shel_prosp_room_verif, 2, 16, 67
-	
+
 	shel_retro_room = trim(shel_retro_room)
 	shel_prosp_room = trim(shel_prosp_room)
 	If shel_retro_room = "________" Then shel_retro_room = 0
 	If shel_prosp_room = "________" Then shel_prosp_room = 0
-	
+
 	shel_retro_room = shel_retro_room * 1
 	shel_prosp_room = shel_prosp_room * 1
-	
-	If shel_retro_room <> shel_prosp_room Then 
-		room_consistent = FALSE 
-	Else 
-		room_consistent = TRUE 
-	End If 
-	
-	room_verified = TRUE 
-	If shel_retro_room_verif = "NO" OR shel_retro_room_verif = "PC" OR shel_retro_room_verif = "NC" OR shel_retro_room_verif = "__" Then room_verified = FALSE 
+
+	If shel_retro_room <> shel_prosp_room Then
+		room_consistent = FALSE
+	Else
+		room_consistent = TRUE
+	End If
+
+	room_verified = TRUE
+	If shel_retro_room_verif = "NO" OR shel_retro_room_verif = "PC" OR shel_retro_room_verif = "NC" OR shel_retro_room_verif = "__" Then room_verified = FALSE
 	If shel_prosp_room_verif = "NO" OR shel_prosp_room_verif = "PC" OR shel_prosp_room_verif = "NC" OR shel_prosp_room_verif = "__" Then room_verified = FALSE
 
 	known_retro_shelter_amount = shel_retro_rent + shel_retro_lot_rent + shel_retro_mortgage + shel_retro_room
 	known_prosp_shelter_amount = shel_prosp_rent + shel_prosp_lot_rent + shel_prosp_mortgage + shel_prosp_room
-	expense_exists = TRUE 
-	
-	If known_prosp_shelter_amount = 0 AND known_retro_shelter_amount = 0 Then 
-		expense_exists = FALSE 
-		vendor_confirmation_needed = MsgBox ("It appears no expenses are listed on SHEL for Rent, Lot Rent, Morgage, or Room expense." & vbNewLine & "This will mean that no cash beneift will allocated to pay client's shelter expense." & vbNewLine & "Do you confirm that there is no shelter expense on this case?", vbYesNo + vbQuestion, "Zero Shelter Expense")
-	End If 
+	expense_exists = TRUE
 
-	If shel_prosp_rent <> 0 Then use_rent_expense = checked 
-	If shel_prosp_lot_rent <> 0 Then use_lot_rent_expense = checked 
-	If shel_prosp_mortgage <> 0 Then use_mortgage_expense = checked 
-	If shel_prosp_room <> 0 Then use_room_expense = checked 
-	
-	If vendor_confirmation_needed = vbNo OR expense_exists =TRUE Then 
+	If known_prosp_shelter_amount = 0 AND known_retro_shelter_amount = 0 Then
+		expense_exists = FALSE
+		vendor_confirmation_needed = MsgBox ("It appears no expenses are listed on SHEL for Rent, Lot Rent, Morgage, or Room expense." & vbNewLine & "This will mean that no cash beneift will allocated to pay client's shelter expense." & vbNewLine & "Do you confirm that there is no shelter expense on this case?", vbYesNo + vbQuestion, "Zero Shelter Expense")
+	End If
+
+	If shel_prosp_rent <> 0 Then use_rent_expense = checked
+	If shel_prosp_lot_rent <> 0 Then use_lot_rent_expense = checked
+	If shel_prosp_mortgage <> 0 Then use_mortgage_expense = checked
+	If shel_prosp_room <> 0 Then use_room_expense = checked
+
+	If vendor_confirmation_needed = vbNo OR expense_exists =TRUE Then
 		BeginDialog vendor_dialog, 0, 0, 296, 130, "Confirm Vendor Amount"
 		  Text 65, 10, 50, 10, "Retrospective"
 		  Text 140, 10, 50, 10, "Prospective"
@@ -845,194 +880,194 @@ If sanction_vendor = "Y" Then
 		    CancelButton 240, 110, 50, 15
 		EndDialog
 
-		Do 
+		Do
 			err_msg = ""
 			Dialog vendor_dialog
 			cancel_confirmation
 		Loop until err_msg = ""
-		
-		vendor_rent_error = FALSE 
-		vendor_lot_rent_error = FALSE 
-		vendor_mortgage_error = FALSE 
-		vendor_room_error = FALSE 
-		
+
+		vendor_rent_error = FALSE
+		vendor_lot_rent_error = FALSE
+		vendor_mortgage_error = FALSE
+		vendor_room_error = FALSE
+
 		total_errors = 0
-		
+
 		'If use_rent_expense = unchecked AND use_lot_rent_expense = unchecked AND use_mortgage_expense = unchecked AND use_room_expense = unchecked Then total_errors = total_errors + 1
 
-		If use_rent_expense = checked Then 
+		If use_rent_expense = checked Then
 			If rent_verified = FALSE Then total_errors = total_errors + 1
 			If rent_consistent = FALSE Then total_errors = total_errors + 1
-		End If 
-		
-		If use_lot_rent_expense = checked Then 
+		End If
+
+		If use_lot_rent_expense = checked Then
 			If lot_rent_verified = TALSE Then total_errors = total_errors + 1
 			If lot_rent_consistent = FALSE Then total_errors = total_errors + 1
-		End If 
-		
-		If use_mortgage_expense = checked Then 
+		End If
+
+		If use_mortgage_expense = checked Then
 			If mortgage_verified = FALSE Then total_errors = total_errors + 1
 			If mortgage_consistent = FALSE Then total_errors = total_errors + 1
-		End If 
-		
-		If use_room_expense = checked Then 
+		End If
+
+		If use_room_expense = checked Then
 			If room_verified = FALSE Then total_errors = total_errors + 1
 			If room_consistent = FALSE Then total_errors = total_errors + 1
-		End If 
-		
-		If total_errors <> 0 Then 
-		
+		End If
+
+		If total_errors <> 0 Then
+
 			x_pos = 20
-			
+
 			BeginDialog vendor_error_dialog, 0, 0, 345, 55 + (30 * total_errors), "Confirm Vendor Information"
 			  Text 80, 5, 195, 10, "Please confirm before vendoring can be allocated in FIAT"
-			  If use_rent_expense = checked Then 
-			  	If rent_verified = FALSE Then 
+			  If use_rent_expense = checked Then
+			  	If rent_verified = FALSE Then
 					Text 5, x_pos, 220, 10, "The Rent expense has not been verified, this is a requirement."
 					Text 30, x_pos + 15, 230, 10, "Is there verification on file OR a Mandatory Vendor Form(DHS 3365)?"
 					OptionGroup RadioGroupRentVerif
 					  RadioButton 275, x_pos + 15, 25, 10, "No", rent_no_radio
 					  RadioButton 305, x_pos + 15, 25, 10, "Yes", rent_yes_radio
 					x_pos = x_pos + 35
-				End If 
-				If rent_consistent = FALSE Then 
+				End If
+				If rent_consistent = FALSE Then
 					Text 5, x_pos, 225, 10, "The Rent prospective and retrospective expenses do not match."
 					Text 30, x_pos + 15, 150, 10, "Which amount should be used for vendoring?"
 					OptionGroup RadioGroupRentDiff
 					  RadioButton 195, x_pos + 15, 50, 10, "Prospective", rent_prosp_radio
 					  RadioButton 260, x_pos + 15, 60, 10, "Retrospective", rent_retro_radio
 					x_pos = x_pos + 35
-				End If 
-			  End If 
-			  
-			  If use_lot_rent_expense = checked Then 
-				  If lot_rent_verified = FALSE Then 
+				End If
+			  End If
+
+			  If use_lot_rent_expense = checked Then
+				  If lot_rent_verified = FALSE Then
 					  Text 5, x_pos, 220, 10, "The Lot Rent expense has not been verified, this is a requirement."
 					  Text 30, x_pos + 15, 230, 10, "Is there verification on file OR a Mandatory Vendor Form(DHS 3365)?"
 					  OptionGroup RadioGroupRentVerif
 						RadioButton 275, x_pos + 15, 25, 10, "No", lot_rent_no_radio
 						RadioButton 305, x_pos + 15, 25, 10, "Yes", lot_rent_yes_radio
 					  x_pos = x_pos + 35
-				  End If 
-				  If lot_rent_consistent = FALSE Then 
+				  End If
+				  If lot_rent_consistent = FALSE Then
 					  Text 5, x_pos, 225, 10, "The Lot Rent prospective and retrospective expenses do not match."
 					  Text 30, x_pos + 15, 150, 10, "Which amount should be used for vendoring?"
 					  OptionGroup RadioGroupRentDiff
 						RadioButton 195, x_pos + 15, 50, 10, "Prospective", lot_rent_prosp_radio
 						RadioButton 260, x_pos + 15, 60, 10, "Retrospective", lot_rent_retro_radio
 					  x_pos = x_pos + 35
-				  End If 
-			  End If 
-			  
-			  If use_mortgage_expense = checked Then 
-				  If mortgage_verified = FALSE Then 
+				  End If
+			  End If
+
+			  If use_mortgage_expense = checked Then
+				  If mortgage_verified = FALSE Then
 					  Text 5, x_pos, 220, 10, "The Mortgage expense has not been verified, this is a requirement."
 					  Text 30, x_pos + 15, 230, 10, "Is there verification on file OR a Mandatory Vendor Form(DHS 3365)?"
 					  OptionGroup RadioGroupRentVerif
 						RadioButton 275, x_pos + 15, 25, 10, "No", mortgage_no_radio
 						RadioButton 305, x_pos + 15, 25, 10, "Yes", mortgage_yes_radio
 					  x_pos = x_pos + 35
-				  End If 
-				  If mortgage_consistent = FALSE Then 
+				  End If
+				  If mortgage_consistent = FALSE Then
 					  Text 5, x_pos, 225, 10, "The Mortgage prospective and retrospective expenses do not match."
 					  Text 30, x_pos + 15, 150, 10, "Which amount should be used for vendoring?"
 					  OptionGroup RadioGroupRentDiff
 						RadioButton 195, x_pos + 15, 50, 10, "Prospective", mortgage_prosp_radio
 						RadioButton 260, x_pos + 15, 60, 10, "Retrospective", mortgage_retro_radio
 					  x_pos = x_pos + 35
-				  End If 
-			  End If 
-			  
-			  If use_room_expense = checked Then 
-				  If room_verified = FALSE Then 
+				  End If
+			  End If
+
+			  If use_room_expense = checked Then
+				  If room_verified = FALSE Then
 				  Text 5, x_pos, 220, 10, "The Room expense has not been verified, this is a requirement."
 				  Text 30, x_pos + 15, 230, 10, "Is there verification on file OR a Mandatory Vendor Form(DHS 3365)?"
 				  OptionGroup RadioGroupRentVerif
 					RadioButton 275, x_pos + 15, 25, 10, "No", room_no_radio
 					RadioButton 305, x_pos + 15, 25, 10, "Yes", room_yes_radio
 				  x_pos = x_pos + 35
-				  End If 
-				  If room_consistent = FALSE Then 
+				  End If
+				  If room_consistent = FALSE Then
 				  Text 5, x_pos, 225, 10, "The Room prospective and retrospective expenses do not match."
 				  Text 30, x_pos + 15, 150, 10, "Which amount should be used for vendoring?"
 				  OptionGroup RadioGroupRentDiff
 					RadioButton 195, x_pos + 15, 50, 10, "Prospective", room_prosp_radio
 					RadioButton 260, x_pos + 15, 60, 10, "Retrospective", room_retro_radio
 				  x_pos = x_pos + 35
-				  End If 
-			  End If 
+				  End If
+			  End If
 			  ButtonGroup ButtonPressed
 				OkButton 225, x_pos, 50, 15
 				CancelButton 285, x_pos, 50, 15
 			EndDialog
-			
-			Do 
+
+			Do
 				vnderr_err_msg = err_msg
 				dialog vendor_error_dialog
 				cancel_confirmation
 			Loop until vnderr_err_msg = ""
-		End If 
-		
-		
-		total_vendor_amount = 0 
+		End If
+
+
+		total_vendor_amount = 0
 		known_shelter_amount = shel_prosp_rent + shel_prosp_lot_rent + shel_prosp_mortgage + shel_prosp_room
 		shelter_not_verified = ""
-		
-		If use_rent_expense = checked Then 
-			If rent_consistent = FALSE Then 
+
+		If use_rent_expense = checked Then
+			If rent_consistent = FALSE Then
 				If rent_prosp_radio = 1 Then total_vendor_amount = total_vendor_amount + shel_prosp_rent
 				If rent_retro_radio = 1 Then total_vendor_amount = total_vendor_amount + shel_retro_rent
-			Else 
+			Else
 				total_vendor_amount = total_vendor_amount + shel_prosp_rent
-			End If 
-			
+			End If
+
 			If rent_no_radio = 1 Then shelter_not_verified = "Rent, "
-		End If 
-		
-		If use_lot_rent_expense = checked Then 
-			If lot_rent_consistent = FALSE Then 
+		End If
+
+		If use_lot_rent_expense = checked Then
+			If lot_rent_consistent = FALSE Then
 				If lot_rent_prosp_radio = 1 Then total_vendor_amount = total_vendor_amount + shel_prosp_lot_rent
 				If lot_rent_retro_radio = 1 Then total_vendor_amount = total_vendor_amount + shel_retro_lot_rent
-			Else 
+			Else
 				total_vendor_amount = total_vendor_amount + shel_prosp_lot_rent
-			End If 
-			
+			End If
+
 			If lot_rent_no_radio = 1 Then shelter_not_verified = "Lot Rent, "
-		End If 
-		
-		If use_mortgage_expense = checked Then 
-			If mortgage_consistent = FALSE Then 
+		End If
+
+		If use_mortgage_expense = checked Then
+			If mortgage_consistent = FALSE Then
 				If mortgage_prosp_radio = 1 Then total_vendor_amount = total_vendor_amount + shel_prosp_mortgage
 				If mortgage_retro_radio = 1 Then total_vendor_amount = total_vendor_amount + shel_retro_mortgage
-			Else 
+			Else
 				total_vendor_amount = total_vendor_amount + shel_prosp_mortgage
-			End If 
-			
+			End If
+
 			If mortgage_no_radio = 1 Then shelter_not_verified = "Mortgage, "
-		End If 
-		
-		If use_room_expense = checked Then 
-			If room_consistent = FALSE Then 
+		End If
+
+		If use_room_expense = checked Then
+			If room_consistent = FALSE Then
 				If room_prosp_radio = 1 Then total_vendor_amount = total_vendor_amount + shel_prosp_room
 				If room_retro_radio = 1 Then total_vendor_amount = total_vendor_amount + shel_retro_room
-			Else 
+			Else
 				total_vendor_amount = total_vendor_amount + shel_prosp_room
-			End If 
-			
+			End If
+
 			If room_no_radio = 1 Then shelter_not_verified = "Room, "
-		End If 
-		
+		End If
+
 		If shelter_not_verified <> "" Then script_end_procedure ("FIAT Cancelled. The script will now end. This sanction requires Mandatory Vendoring. Shelter Costs must be verified or a Mandatory Vendor Form (DHS 3365) completed.")
-		If total_vendor_amount = 0 Then 
-			expense_exists = FALSE 
+		If total_vendor_amount = 0 Then
+			expense_exists = FALSE
 			vendor_confirmation_needed = MsgBox ("It appears no expenses are listed on SHEL for Rent, Lot Rent, Morgage, or Room expense." & vbNewLine & "This will mean that no cash beneift will allocated to pay client's shelter expense." & vbNewLine & "Do you confirm that there is no shelter expense on this case?", vbYesNo + vbQuestion, "Zero Shelter Expense")
-		Else 
-			expense_exists = TRUE 
-		End if 
-	End If 
-	
+		Else
+			expense_exists = TRUE
+		End if
+	End If
+
 	If expense_exists = FALSE AND vendor_confirmation_needed = vbNo Then script_end_procedure ("FIAT cancelled. Shelter expense appears to be Zero." & vbNewLine & "Worker did not confirm this to be correct." & vbNewLine & "Script cannot continue as this case has Mandatory Vendoring and the shelter expense is not confirmed.")
-End If 
+End If
 
 'MsgBox "Vendor Amount: " & total_vendor_amount
 
@@ -1045,57 +1080,57 @@ Transmit
 
 'MsgBox "In FIAT"
 mx_row = 9
-Do 
+Do
 	'MsgBox mx_row
 	EMReadScreen elig_status, 4, mx_row, 55
-	If elig_status = "UNKN" Then 
+	If elig_status = "UNKN" Then
 		EMWriteScreen "X", mx_row, 4
-		transmit 
+		transmit
 		PF3
-	ElseIf elig_status = "INEL" Then 
+	ElseIf elig_status = "INEL" Then
 		EMReadScreen memb_code, 1, mx_row, 37
-		If memb_code = "H" OR memb_code = "F" OR memb_code = "G" OR memb_code = "J" Then 
+		If memb_code = "H" OR memb_code = "F" OR memb_code = "G" OR memb_code = "J" Then
 			EMWriteScreen "X", mx_row, 4
-			transmit 
+			transmit
 			PF3
-		End If 
-	End If 
+		End If
+	End If
 	mx_row = mx_row + 1
 Loop until elig_status = "    "
 
 EMWritescreen "X", 16, 4
-EMWritescreen "x", 17, 4 
+EMWritescreen "x", 17, 4
 
-transmit 
+transmit
 
 'Bypassing FMCR
-PF3 
+PF3
 
 'Entering the Sanction information
 For client_listed = 0 to UBOUND(MFIP_Members_array, 2)
-	If MFIP_Members_array(in_sanc, client_listed) = TRUE Then 
+	If MFIP_Members_array(in_sanc, client_listed) = TRUE Then
 		mx_row = 9
 		EMReadScreen fmbf_ref_nbr, 2, mx_row, 4
 		'MsgBox fmbf_ref_nbr
-		If fmbf_ref_nbr = MFIP_Members_array(clt_ref, client_listed) Then 
+		If fmbf_ref_nbr = MFIP_Members_array(clt_ref, client_listed) Then
 			EMWriteScreen "X", mx_row, 65
 			transmit
-			If MFIP_Members_array(sanc_type, client_listed) = "Employment Services" Then 
+			If MFIP_Members_array(sanc_type, client_listed) = "Employment Services" Then
 				EMWriteScreen "FAILED", 9, 14
-			ElseIf MFIP_Members_array(sanc_type, client_listed) = "Child Support" Then 
+			ElseIf MFIP_Members_array(sanc_type, client_listed) = "Child Support" Then
 				EMWriteScreen "FAILED", 7, 14
-			ElseIf MFIP_Members_array(sanc_type, client_listed) = "Both" then 
+			ElseIf MFIP_Members_array(sanc_type, client_listed) = "Both" then
 				EMWriteScreen "FAILED", 9, 14
 				EMWriteScreen "FAILED", 7, 14
-			End If 
+			End If
 			EMWritescreen sanc_occurence_for_fiat, 13, 24
 			EMWritescreen MAXIS_footer_month, 13, 42
 			EMWritescreen MAXIS_footer_year, 13, 45
 			'MsgBox "Pause"
 			PF3
-		End If 
+		End If
 		mx_row = mx_row + 1
-	End If 
+	End If
 Next
 
 'bypasses warning vnd signs'
@@ -1108,18 +1143,18 @@ PF3
 
 ''	For client_listed = 0 to UBOUND(MFIP_Members_array, 2)
 ''		counted_code = left(MFIP_Members_array(clt_counted, client_listed), 1)
-''		If counted_code = "F" OR counted_code = "G" OR counted_code = "H" OR counted_code = "J" Then 
+''		If counted_code = "F" OR counted_code = "G" OR counted_code = "H" OR counted_code = "J" Then
 ''			mx_row = 8
 ''			Do
 ''				EMReadScreen elig_ref, 2, mx_row, 12
-''				If elig_ref = MFIP_Members_array(clt_ref, client_listed) Then 
+''				If elig_ref = MFIP_Members_array(clt_ref, client_listed) Then
 ''				 	EMWriteScreen "X", mx_row, 8
 ''					transmit
 ''				Else
 ''					mx_row = mx_row + 1
-''				End If 
+''				End If
 ''			Loop until elig_ref = "  "
-''		End If 
+''		End If
 ''	Next
 
 	'bypasses warning vnd signs'
@@ -1132,26 +1167,26 @@ PF3
 
 'going to budget
 EMWritescreen "X", 18, 4
-transmit 
+transmit
 'transmit through all of budget
 'NEED TO ADD VENDOR AMOUNT! - will be entered here'
-If sanction_vendor = "Y" Then 
+If sanction_vendor = "Y" Then
 	EMWritescreen "X", 8, 44
 	transmit
 	EMReadScreen mf_cash_portion, 8, 10, 56
 	mf_cash_portion = trim(mf_cash_portion)
 	mf_cash_portion = mf_cash_portion * 1
-	If total_vendor_amount > mf_cash_portion Then 
+	If total_vendor_amount > mf_cash_portion Then
 		shel_expense_not_vendored = total_vendor_amount - mf_cash_portion
 		vendor_allotment = mf_cash_portion
-	Else 
+	Else
 		vendor_allotment = total_vendor_amount
-	End If 
+	End If
 	EMWritescreen "        ", 11, 56
 	EMWritescreen vendor_allotment, 11, 56
 	transmit
-	transmit 
-End If 
+	transmit
+End If
 
 transmit
 transmit
@@ -1175,5 +1210,5 @@ If sanction_vendor = "Yes" Then end_message = "Success! A MFIP Sanction version 
 If sanction_vendor = "No" Then end_message = "Success! A MFIP Sanction version was created for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "." & vbNewLine &_
  	"The sanction was " & percent_sanction & "% deduction and the vendor was set to: '" & sanction_vendor & "." & vbNewLine &_
 	"Please review your results and run the NOTES - MFIP SANCTION/DWP Disqualification script if needed."
-		
+
 script_end_procedure(end_message)

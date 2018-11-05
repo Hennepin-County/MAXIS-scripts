@@ -51,17 +51,18 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOG----------------------------------------------------------------------------------------------------
-BeginDialog paperless_IR_dialog, 0, 0, 241, 115, "PAPERLESS IR"
+BeginDialog paperless_IR_dialog, 0, 0, 241, 130, "PAPERLESS IR"
   EditBox 70, 10, 50, 15, worker_number
   EditBox 190, 10, 15, 15, MAXIS_footer_month
   EditBox 210, 10, 15, 15, MAXIS_footer_year
+  CheckBox 10, 30, 145, 10, "Check here to run for the entire agency", whole_county_check
   ButtonGroup ButtonPressed
-    OkButton 120, 95, 50, 15
-    CancelButton 175, 95, 50, 15
-  Text 125, 15, 65, 10, "Footer month/year:"
+    OkButton 120, 110, 50, 15
+    CancelButton 175, 110, 50, 15
   Text 5, 15, 60, 10, "Worker number(s):"
-  GroupBox 5, 35, 220, 55, "About the Paperless IR script:"
-  Text 10, 50, 205, 35, "This script will update REVW for each starred IR, after checking JOBS/BUSI/RBIC for discrepancies. It skips cases that are also reviewing for SNAP. You will have to manually check ELIG/HC for each case and approve the results/case note."
+  Text 125, 15, 65, 10, "Footer month/year:"
+  GroupBox 5, 50, 220, 55, "About the Paperless IR script:"
+  Text 10, 65, 205, 35, "This script will update REVW for each starred IR, after checking JOBS/BUSI/RBIC for discrepancies. It skips cases that are also reviewing for SNAP. You will have to manually check ELIG/HC for each case and approve the results/case note."
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -89,39 +90,58 @@ DO
 		If buttonpressed = 0 then stopscript
 		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
 		If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
-		If Len(worker_number) <> 7 then err_msg = err_msg & vbNewLine & "* You must enter a valid 7 DIGIT worker number."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+		If trim(worker_number) <> "" AND Len(worker_number) <> 7 then err_msg = err_msg & vbNewLine & "* You must enter a valid 7 DIGIT worker number."
+        If trim(worker_number) = "" AND whole_county_check = unchecked then err_msg = err_msg & vbNewLine & "* You must either list a 7 DIGIT worker number OR indicate the script should be run for the entire county."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-Call MAXIS_footer_month_confirmation
-Call navigate_to_MAXIS_screen("rept", "revw")
-EMWriteScreen worker_number, 21, 6
-EMWriteScreen MAXIS_footer_month, 20, 55
-EMWriteScreen MAXIS_footer_year, 20, 58
-transmit
+If whole_county_check = checked Then
+    all_case_numbers_array = " "					'Creating blank variable for the future array
+    get_county_code	'Determines worker county code
 
-EMReadScreen REVW_check, 4, 2, 52
-If REVW_check <> "REVW" then script_end_procedure("You must start this script at the beginning of REPT/REVW. Navigate to the screen and try again!")
+    call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
+Else
+    worker_array = Array()
+    worker_array = Array(worker_number)
+End If
+' 
+' For each worker in worker_array
+'     MsgBox worker
+' Next
 
-row = 7
-Do
-    If row = 19 then
-        PF8
-        row = 7
-        EMReadScreen MAXIS_check, 5, 1, 39
-        If MAXIS_check <> "MAXIS" then stopscript
-        EMReadScreen last_page_check, 4, 24, 14
-    End if
-    EMReadScreen MAXIS_case_number, 8, row, 6
-    EMReadScreen paperless_check, 1, row, 51
-    if paperless_check = "*" then
-    	case_number_array = trim(case_number_array & " " & trim(MAXIS_case_number))
-    	Stats_counter = Stats_counter + 1
-	End if
-    row = row + 1
-Loop until last_page_check = "LAST" or trim(MAXIS_case_number) = ""
+For each worker in worker_array
+
+    Call back_to_SELF
+    Call MAXIS_footer_month_confirmation
+    Call navigate_to_MAXIS_screen("rept", "revw")
+    EMWriteScreen worker, 21, 6
+    EMWriteScreen MAXIS_footer_month, 20, 55
+    EMWriteScreen MAXIS_footer_year, 20, 58
+    transmit
+
+    EMReadScreen REVW_check, 4, 2, 52
+    If REVW_check <> "REVW" then script_end_procedure("You must start this script at the beginning of REPT/REVW. Navigate to the screen and try again!")
+
+    row = 7
+    Do
+        If row = 19 then
+            PF8
+            row = 7
+            EMReadScreen MAXIS_check, 5, 1, 39
+            If MAXIS_check <> "MAXIS" then stopscript
+            EMReadScreen last_page_check, 4, 24, 14
+        End if
+        EMReadScreen MAXIS_case_number, 8, row, 6
+        EMReadScreen paperless_check, 1, row, 51
+        if paperless_check = "*" then
+        	case_number_array = trim(case_number_array & " " & trim(MAXIS_case_number))
+        	Stats_counter = Stats_counter + 1
+    	End if
+        row = row + 1
+    Loop until last_page_check = "LAST" or trim(MAXIS_case_number) = ""
+Next
 
 case_number_array = split(case_number_array)
 
@@ -201,6 +221,8 @@ Next
 If cases_to_tikl <> "" Then
 	cases_to_tikl = right(cases_to_tikl, len(cases_to_tikl)-1)
 	cases_to_tikl_array = split(cases_to_tikl, "~")
+Else
+    script_end_procedure("No Paperless IR cases found for the worker.")
 End If
 
 For each MAXIS_case_number in cases_to_tikl_array
