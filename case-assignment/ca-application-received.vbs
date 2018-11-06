@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("11/06/2018", "Updated handling for HC only applications.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/25/2018", "Updated script to add handling for case correction.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/17/2018", "Updated appointment letter to address EGA programs.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("09/01/2018", "Updated Utility standards that go into effect for 10/01/2018.", "Ilse Ferris, Hennepin County")
@@ -339,9 +340,12 @@ EndDialog
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
 
-IF how_app_rcvd = "Office" THEN
-	same_day_confirmation = MsgBox("Press YES to confirm a same day interview was completed?." & vbNewLine & "If no interview was offered, press NO." & vbNewLine & vbNewLine & _
-	"Application was received in " & how_app_rcvd, vbYesNoCancel, "Application received - Same day interview completed?")
+HC_applied_for = FALSE
+IF app_type = "6696" or app_type = "HCAPP" or app_type = "HC-Certain Pop" or app_type = "LTC" or app_type = "MHCP B/C Cancer"  THEN HC_applied_for = TRUE
+	
+IF how_app_rcvd = "Office" and HC_applied_for = FALSE THEN
+	same_day_confirmation = MsgBox("Press YES to confirm a same-day interview was completed?." & vbNewLine & "If no interview was offered, press NO." & vbNewLine & vbNewLine & _
+	"Application was received in " & how_app_rcvd, vbYesNoCancel, "Application received - same-day interview completed?")
 	IF same_day_confirmation = vbNo THEN same_day_interview = FALSE
 	IF same_day_confirmation = vbYes THEN same_day_interview = TRUE
 	IF same_day_confirmation = vbCancel THEN script_end_procedure ("The script has ended.")
@@ -457,12 +461,12 @@ IF snap_pends = TRUE THEN
     IF expedited_status = "Client Appears Expedited" THEN
       		CALL navigate_to_MAXIS_screen("MONY", "DISB")
       		EMReadScreen EBT_account_status, 1, 14, 27
-	  		MsgBox "This Client Appears EXPEDITED. A same day interview needs to be offered."
+	  		MsgBox "This Client Appears EXPEDITED. A same-day interview needs to be offered."
 		same_day_interview = TRUE
 		Send_email = TRUE
     END IF
 
-	IF expedited_status = "Client does not appear expedited" THEN MsgBox "This client does NOT appear expedited. A same day interview does not need to be offered."
+	IF expedited_status = "Client does not appear expedited" THEN MsgBox "This client does NOT appear expedited. A same-day interview does not need to be offered."
 
     '-----------------------------------------------------------------------------------------------EXPCASENOTE
     start_a_blank_CASE_NOTE
@@ -528,7 +532,7 @@ IF send_appt_ltr = TRUE THEN
     Text 120, 25, 60, 10, "Appointment date:"
     GroupBox 5, 5, 255, 35, "Enter a new appointment date only if it's a date county offices are not open."
     Text 15, 25, 35, 10, "CAF date:"
-    Text 25, 45, 205, 10, "If same day interview is being offered please use today's date"
+    Text 25, 45, 205, 10, "If same-day interview is being offered please use today's date"
   EndDialog
 
     IF expedited_status = "Client Appears Expedited" THEN
@@ -616,7 +620,7 @@ END IF
 
 IF same_day_interview = TRUE and how_app_rcvd = "Office" THEN
    	start_a_blank_CASE_NOTE
-   	Call write_variable_in_CASE_NOTE("~ Same day interview offered ~")
+   	Call write_variable_in_CASE_NOTE("~ same-day interview offered ~")
   	Call write_variable_in_CASE_NOTE("* Agency informed the client of needed interview.")
   	Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
   	Call write_variable_in_CASE_NOTE("* A Domestic Violence Brochure has been offered to client as part of application packet.")
