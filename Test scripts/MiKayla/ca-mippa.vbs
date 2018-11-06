@@ -113,7 +113,14 @@ TRANSMIT
 
 EMReadScreen error_msg, 18, 24, 2
 error_msg = trim(error_msg)
-IF error_msg = "SSN DOES NOT EXIST" THEN script_end_procedure ("Unable to find person in SSN search." & vbNewLine & "Please do a PERS search using the client's name." & vbNewLine & "Case may need to be APPLd.")
+IF error_msg = "SSN DOES NOT EXIST" THEN
+	EMWriteScreen
+
+
+
+
+
+	script_end_procedure ("Unable to find person in SSN search." & vbNewLine & "Please do a PERS search using the client's name." & vbNewLine & "Case may need to be APPLd.")
 'This will take us to certain places based on PERS search'
 EMReadscreen current_panel_check, 4, 2, 51
 IF current_panel_check = "PERS" THEN script_end_procedure ("Please search by person name and run script again.")
@@ -162,9 +169,9 @@ IF current_panel_check = "DSPL" THEN
 	IF MAXIS_case_number = "" THEN
 		EMwritescreen "  ", 07, 22
 		TRANSMIT
-		EMReadScreen MAXIS_case_number, 8, row, 06
-		EMReadscreen current_case, 7, row, 35
-		EMReadScreen pending_case, 4, row, 53
+		EMReadScreen MAXIS_case_number, 8, row, 06 'not sure about this part'
+		EMReadscreen case_status, 4, row, 35
+		EMReadScreen case_status, 4, row, 53
 	END IF
     '-------------------------------------------------------------------checking for an active case
 	row = 10
@@ -189,15 +196,15 @@ IF current_panel_check = "DSPL" THEN
 		IF MLAR_case_number_check = vbCancel THEN script_end_procedure ("The script has ended. The case has not been acted on.")
 	LOOP UNTIL MLAR_case_number_check = vbYes
 
-    IF current_case = "CURRENT" THEN
+    IF case_status = "CURRENT" THEN
     	EMReadScreen appl_date, 8, row, 25
     	APPL_box = MsgBox("This information is read from REPT/MLAR:" & vbcr & MLAD_maxis_name & vbcr & appl_date & vbcr & maxis_name & vbcr & birth_date & vbcr & gender_ask & vbcr & MLAR_addr_street & MLAR_addr_street & MLAR_addr_city & MLAR_addr_state & "" & MLAR_addr_zip & vbcr & MLAR_addr_phone & vbcr & "APPL case and click OK if you wish to continue running the script and CANCEL if you want to exit." & vbcr & "HCRE must be updated when adding HC", vbOKCancel)
     	IF APPL_box = vbCancel then script_end_procedure("The script has ended. Please review the REPT/MLAR as you indicated that you wish to exit the script")
-    ELSEIF pending_case = "PEND" THEN
+    ELSEIF case_status = "PEND" THEN
     	EMReadScreen pend_date, 5, row, 47
     	PEND_box = MsgBox("This information is read from REPT/MLAR:" & vbcr & MLAD_maxis_name & vbcr & appl_date & vbcr & maxis_name & vbcr & birth_date & vbcr & gender_ask & vbcr & MLAR_addr_street & MLAR_addr_street & MLAR_addr_city & MLAR_addr_state & "" & MLAR_addr_zip & vbcr & MLAR_addr_phone & vbcr & "APPL case and click OK if you wish to continue running the script and CANCEL if you want to exit." & vbcr & "HCRE must be updated when adding HC", vbOKCancel)
     	IF PEND_box = vbCancel then script_end_procedure("The script has ended. Please review the REPT/MLAR as you indicated that you wish to exit the script")
-    ELSEIF pending_case = "CAF " THEN
+    ELSEIF case_status = "CAF " THEN
     	MsgBox "Please ensure case is in a PEND II status"
     	EMReadScreen end_date, 5, row, 53
     END IF
@@ -205,7 +212,7 @@ IF current_panel_check = "DSPL" THEN
 
     'Call navigate_to_MAXIS_screen("CASE", "CURR")
 
-    IF current_case = "CURRENT" or pending_case = "PEND" THEN
+    IF case_status = "CURRENT" or case_status = "PEND" THEN
         Call navigate_to_MAXIS_screen("STAT", "ADDR")
         EMReadscreen current_panel_check, 4, 2, 44
         IF current_panel_check = "ADDR" THEN 'Reading and cleaning up Residence address
