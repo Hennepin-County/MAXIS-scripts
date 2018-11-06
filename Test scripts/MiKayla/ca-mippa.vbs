@@ -124,7 +124,6 @@ IF current_panel_check = "MTCH" THEN
 	DO
 		EMReadScreen PMI_number, 7, row, 71
 		IF trim(PMI_number) = "" THEN script_end_procedure("A PMI could not be found. The script will now end.")
-
 		PERS_check = MsgBox("Multiple matches found. Ensure duplicate PMIs have been reported, APPL using oldest PMI." & vbNewLine & "Press YES to confirm this is the PERS match you wish to act on." & vbNewLine & "For the next PERS match, press NO." & vbNewLine & vbNewLine & _
 		"   " & PMI_number, vbYesNoCancel, "Please confirm this PERS match")
 		If PERS_check = vbYes THEN
@@ -152,7 +151,7 @@ IF current_panel_check = "MTCH" THEN
 END IF
 'msgbox "Where am I this should be DSPL if there is a match"
 IF current_panel_check = "DSPL" THEN
-	EMwritescreen "HC", 07, 22
+	EMwritescreen "HC", 07, 22 'drilling down for accuracy '
 	TRANSMIT
 	EMReadScreen error_msg, 23, 24, 2
 	error_msg = trim(error_msg)
