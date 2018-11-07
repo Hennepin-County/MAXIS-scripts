@@ -90,7 +90,7 @@ DO
 		If buttonpressed = 0 then stopscript
 		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
 		If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
-		If trim(worker_number) <> "" AND Len(worker_number) <> 7 then err_msg = err_msg & vbNewLine & "* You must enter a valid 7 DIGIT worker number."
+		'If trim(worker_number) <> "" AND Len(worker_number) <> 7 then err_msg = err_msg & vbNewLine & "* You must enter a valid 7 DIGIT worker number."
         If trim(worker_number) = "" AND whole_county_check = unchecked then err_msg = err_msg & vbNewLine & "* You must either list a 7 DIGIT worker number OR indicate the script should be run for the entire county."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
@@ -104,25 +104,30 @@ If whole_county_check = checked Then
     call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
 Else
     worker_array = Array()
-    worker_array = Array(worker_number)
+    If len(worker_number) = 7 Then
+        worker_array = Array(worker_number)
+    Else
+        worker_array = split(worker_number, ",")
+    End If
 End If
-' 
+'
 ' For each worker in worker_array
 '     MsgBox worker
 ' Next
 
 For each worker in worker_array
+    worker = trim(worker)
 
     Call back_to_SELF
     Call MAXIS_footer_month_confirmation
-    Call navigate_to_MAXIS_screen("rept", "revw")
+    Call navigate_to_MAXIS_screen("rept", "revs")
     EMWriteScreen worker, 21, 6
     EMWriteScreen MAXIS_footer_month, 20, 55
     EMWriteScreen MAXIS_footer_year, 20, 58
     transmit
 
     EMReadScreen REVW_check, 4, 2, 52
-    If REVW_check <> "REVW" then script_end_procedure("You must start this script at the beginning of REPT/REVW. Navigate to the screen and try again!")
+    If REVW_check <> "REVS" then script_end_procedure("You must start this script at the beginning of REPT/REVS. Navigate to the screen and try again!")
 
     row = 7
     Do
@@ -135,7 +140,8 @@ For each worker in worker_array
         End if
         EMReadScreen MAXIS_case_number, 8, row, 6
         EMReadScreen paperless_check, 1, row, 51
-        if paperless_check = "*" then
+        EmReadscreen not_approved_check, 1, row, 49
+        if paperless_check = "*" and not_approved_check <> "A" then
         	case_number_array = trim(case_number_array & " " & trim(MAXIS_case_number))
         	Stats_counter = Stats_counter + 1
     	End if
