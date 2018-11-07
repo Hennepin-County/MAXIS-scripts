@@ -97,7 +97,7 @@ EMReadScreen medi_number, 10, 10, 20
 EMReadScreen rcvd_date, 8, 12, 20
 EMReadScreen gender_ask, 1, 9, 20
 EMReadScreen MLAR_addr_street, 19, 9, 56
-EMReadScreen MLAR_addr_street, 19, 8, 56
+EMReadScreen MLAR_addr_streetII, 19, 8, 56
 EMReadScreen MLAR_addr_city, 22, 12, 56
 EMReadScreen MLAR_addr_state, 2, 13, 56
 EMReadScreen MLAR_addr_zip, 5, 13, 65
@@ -113,15 +113,16 @@ TRANSMIT
 
 EMReadScreen error_msg, 18, 24, 2
 error_msg = trim(error_msg)
-IF error_msg = "SSN DOES NOT EXIST" THEN
-	EMWriteScreen
+IF error_msg = "SSN DOES NOT EXIST" THEN script_end_procedure ("Unable to find person in SSN search." & vbNewLine & "Please do a PERS search using the client's name." & vbNewLine & "Case may need to be APPLd.")
+'Right here we want to write for the first and last name_of_script pull this from match cleared
 
 
 
 
 
-	script_end_procedure ("Unable to find person in SSN search." & vbNewLine & "Please do a PERS search using the client's name." & vbNewLine & "Case may need to be APPLd.")
+
 'This will take us to certain places based on PERS search'
+
 EMReadscreen current_panel_check, 4, 2, 51
 IF current_panel_check = "PERS" THEN script_end_procedure ("Please search by person name and run script again.")
 'IF current_panel_check <> "DSPL" THEN script_end_procedure("Unable to access DSPL screen. Please review your case, and process manually if necessary.")
@@ -208,8 +209,6 @@ IF current_panel_check = "DSPL" THEN
     	MsgBox "Please ensure case is in a PEND II status"
     	EMReadScreen end_date, 5, row, 53
     END IF
-
-
     'Call navigate_to_MAXIS_screen("CASE", "CURR")
 
     IF case_status = "CURRENT" or case_status = "PEND" THEN
@@ -243,23 +242,37 @@ IF current_panel_check = "DSPL" THEN
 	END IF
 	IF current_panel_check <> "ADDR" THEN MsgBox(current_panel_check)
 END IF
-'------------------------------------------------------------------------------------------------dialogs'
-BeginDialog MIPPA_active_dialog, 0, 0, 206, 105, "MIPAA & maxis_case_number"
+'------------------------------------------------------------------------------------------------dialog
+BeginDialog MIPPA_active_dialog, 0, 0, 376, 175, "MIPAA"
   EditBox 55, 5, 35, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
-    PushButton 100, 5, 100, 15, "Geocoder", Geo_coder_button
-  CheckBox 15, 25, 160, 10, "Check if case does not need to be transferred", transfer_case_checkbox
-  EditBox 55, 40, 20, 15, spec_xfer_worker
-  DropListBox 85, 65, 115, 15, "Select One:"+chr(9)+"YES-Update MLAD"+chr(9)+"NO-APPL(Known to MAXIS)"+chr(9)+"NO-APPL(Not known to MAXIS)"+chr(9)+"NO-ADD A PROGRAM", select_answer
+    PushButton 100, 5, 50, 15, "Geocoder", Geo_coder_button
+  CheckBox 175, 25, 160, 10, "Check if case does not need to be transferred", transfer_case_checkbox
+  EditBox 55, 25, 20, 15, spec_xfer_worker
+  DropListBox 255, 5, 115, 15, "Select One:"+chr(9)+"YES-Update MLAD"+chr(9)+"NO-APPL(Known to MAXIS)"+chr(9)+"NO-APPL(Not known to MAXIS)"+chr(9)+"NO-ADD A PROGRAM", select_answer
   ButtonGroup ButtonPressed
-    OkButton 105, 85, 45, 15
-    CancelButton 155, 85, 45, 15
-  Text 5, 70, 75, 10, "Active on Health Care?"
-  Text 15, 45, 40, 10, "Transfer to:"
-  Text 5, 10, 50, 10, "Case Number: "
-  Text 80, 45, 60, 10, " (last 3 digit of X#)"
+    OkButton 275, 45, 45, 15
+    CancelButton 325, 45, 45, 15
+  Text 175, 10, 75, 10, "Active on Health Care?"
+  Text 15, 30, 40, 10, "Transfer to:"
+  Text 5, 10, 50, 10, "Case Number:"
+  Text 80, 30, 60, 10, " (last 3 digit of X#)"
+  Text 15, 75, 190, 10, "Case Name: " & MLAD_maxis_name
+  Text 15, 100, 110, 10, "APPL date: " & appl_date
+  Text 15, 110, 80, 10, "DOB: " & birth_date
+  Text 170, 140, 100, 10, "Phone: " & MLAR_addr_phone
+  Text 15, 130, 110, 10, "Received Date: " & rcvd_date
+  Text 15, 120, 120, 10, "MEDI Number: " &  medi_number
+  Text 15, 90, 120, 10, "SSN: " & MLAD_SSN_number
+  Text 15, 140, 110, 10, "Gender Marker: " & gender_ask
+  Text 170, 90, 195, 10, "Addr: " & MLAR_addr_street & MLAR_addr_streetII
+  Text 170, 110, 90, 10, "State: " & MLAR_addr_state
+  Text 170, 100, 195, 10, "City: " &  MLAR_addr_city
+  Text 170, 120, 110, 10, "Zip: " & MLAR_addr_zip
+  Text 15, 150, 110, 10, "Status: " & appl_status
+  Text 170, 130, 110, 10, "County: " & addr_county
+  GroupBox 5, 60, 365, 110, "MLAR Information"
 EndDialog
-
 
 '--------------------------------------------------------------------------------------------------script
 Do
@@ -306,18 +319,18 @@ END IF
 start_a_blank_case_note
 IF select_answer = "YES-Update MLAD" THEN
 	CALL write_variable_in_CASE_NOTE("~ MIPAA received via REPT/MLAR on " & rcvd_date & " ~")
-	CALL write_variable_in_CASE_NOTE("** Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate.")
+	CALL write_variable_in_CASE_NOTE("* Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate.")
 ELSE CALL write_variable_in_CASE_NOTE ("~ HC PENDED - MIPAA received via REPT/MLAR on " & appl_date & " ~")
     IF select_answer = "NO-APPL(Known to MAXIS)" THEN
-    	CALL write_variable_in_CASE_NOTE("** APPL'd case using the MIPPA record and case information applicant is   known to MAXIS by SSN or name search.")
+    	CALL write_variable_in_CASE_NOTE("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS by SSN or name search.")
     	CALL write_variable_in_CASE_NOTE ("* Pended on: " & date)
 		CALL write_variable_in_CASE_NOTE ("* Application mailed using automated system per DHS: " & rcvd_date)
     ELSEIF select_answer = "NO-APPL(Not known to MAXIS)" THEN
-    	CALL write_variable_in_CASE_NOTE("** APPL'd case using the MIPPA record and case information applicant is not     known to MAXIS by SSN or name search.")
+    	CALL write_variable_in_CASE_NOTE("* APPL'd case using the MIPPA record and case information applicant is not known to MAXIS by SSN or name search.")
     	CALL write_variable_in_CASE_NOTE ("* Pended on: " & date)
 		CALL write_variable_in_CASE_NOTE ("* Application mailed using automated system per DHS: " & rcvd_date)
     ELSEIF select_answer = "NO-ADD A PROGRAM" THEN
-    	CALL write_variable_in_CASE_NOTE("** APPL'd case using the MIPPA record and case information applicant is      known to MAXIS and may be active on other programs.")
+    	CALL write_variable_in_CASE_NOTE("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS and may be active on other programs.")
 		CALL write_variable_in_CASE_NOTE ("* Application mailed using automated system per DHS: " & rcvd_date)
     	CALL write_variable_in_CASE_NOTE ("* HC Ended on: " & end_date)
 	END IF
