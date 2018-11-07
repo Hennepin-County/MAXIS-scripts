@@ -93,8 +93,10 @@ EMReadScreen appl_date, 8, 11, 20
 appl_date = replace(appl_date, " ", "/")
 '----------------------------------------------------------------------used for the dialog to appl
 EMReadScreen birth_date, 8, 8, 20
+birth_date = replace(birth_date, " ", "/")
 EMReadScreen medi_number, 10, 10, 20
 EMReadScreen rcvd_date, 8, 12, 20
+rcvd_date = replace(rcvd_date, " ", "/")
 EMReadScreen gender_ask, 1, 9, 20
 EMReadScreen MLAR_addr_street, 19, 9, 56
 EMReadScreen MLAR_addr_streetII, 19, 8, 56
