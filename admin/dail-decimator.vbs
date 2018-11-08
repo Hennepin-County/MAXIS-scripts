@@ -216,6 +216,7 @@ For each worker in worker_array
                 instr(dail_msg, "REPORTED NAME CHG TO:") OR _
                 instr(dail_msg, "BENEFITS RETURNED, IF IOC HAS NEW ADDRESS") OR _
     		    instr(dail_msg, "CASE IS CATEGORICALLY ELIGIBLE") OR _ 
+                instr(dail_msg, "CASE NOT AUTO-APPROVED - HRF/SR/RECERT DUE") OR _
                 instr(dail_msg, "CHANGE IN BUDGET CYCLE") OR _ 
                 instr(dail_msg, "COMPLETE ELIG IN FIAT") OR _ 
     		    instr(dail_msg, "COUNTED IN LBUD AS UNEARNED INCOME") OR _
@@ -348,7 +349,7 @@ objExcel.Cells(3, 7).Value = "Average time to find/select/copy/paste one line (i
 objExcel.Cells(4, 7).Value = "Estimated manual processing time (lines x average):"
 objExcel.Cells(5, 7).Value = "Script run time (in seconds):"
 objExcel.Cells(6, 7).Value = "Estimated time savings by using script (in minutes):"
-objExcel.Cells(7, 7).Value = "Number of " & dail_to_decimate & " messages reviewed"
+objExcel.Cells(7, 7).Value = "Number of "" messages reviewed"
 objExcel.Columns(7).Font.Bold = true
 objExcel.Cells(2, 8).Value = deleted_dails
 objExcel.Cells(3, 8).Value = STATS_manualtime
