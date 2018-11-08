@@ -79,6 +79,7 @@ BeginDialog dail_dialog, 0, 0, 266, 95, "DAIL CASE NOTE CAPTURE"
 EndDialog
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+dail_to_decimate - "ALL"    'defaults to all. Some x-numbers don't select the DAIL hence the default. 
 
 'the dialog
 Do
@@ -155,7 +156,7 @@ For each worker in worker_array
 	transmit
 	transmit 'transmit past 'not your dail message'
 	
-	'Call dail_selection
+	Call dail_selection
 	
 	EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
 	
