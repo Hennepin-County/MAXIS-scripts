@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/08/2018", "Enhanced script to be footer month/year specific to gather INQX information for months prior to 3 years old.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/20/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -66,6 +67,7 @@ EndDialog
 'Connects to MAXIS, grabbing the case MAXIS_case_number
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 HH_memb = "01"
 
 'Main dialog: user will input case number and initial month/year will default to current month - 1 and member 01 as member number
@@ -82,11 +84,7 @@ DO
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 MAXIS_background_check
-
-'Will check ATR in current month/year
 back_to_self
-'EMWriteScreen CM_mo, 20, 43				'
-'EMWriteScreen CM_yr, 20, 46
 
 'For each HH_memb in HH_member_array
 Call navigate_to_MAXIS_screen("STAT", "WREG")
@@ -129,11 +127,6 @@ FOR i = 1 to 9
 NEXT
 	
 excel_row = 2
-
-'establishing what MAXIS_footer_month and year are for WREG panel/ATR months determination
-MAXIS_footer_month 	= CM_mo
-MAXIS_footer_year 	= CM_yr
-
 EmWriteScreen "x", 13, 57		'Pulls up the WREG tracker'
 transmit
 EMREADScreen tracking_record_check, 15, 4, 40  		'adds cases to the rejection list if the ABAWD tracking record cannot be accessed.
@@ -177,17 +170,16 @@ DO
 		bene_mo_col = 63
 	END IF
 LOOP until bene_yr_row = 6	
-	
-PF3 	'to exit the ABAWD tracking record
-	
+
+PF3 	'to exit the ABAWD tracking record	
 '--------------------------------------------------------------------------------------------------------------------------------------------------INQX
-INQX_yr = right(DatePart("yyyy", DateAdd("yyyy", -3, date)), 2)
 
 Call navigate_to_MAXIS_screen("MONY", "INQX")
 EMWritescreen "01", 6, 38
-EMWritescreen INQX_yr, 6, 41
-EMWritescreen CM_mo, 6, 53
-EMwritescreen CM_yr, 6, 56
+EMWritescreen counted_date_year, 6, 41  'this is the last counted_date_year in the ABAWD tracking record 
+EMWritescreen MAXIS_footer_month, 6, 53 'Will check issuances through the footer month/year selected
+EMwritescreen MAXIS_footer_year, 6, 56
+
 EMWritescreen "X", 9, 5		'Snap
 EMWritescreen "X", 10, 5	'MFIP
 EMWritescreen "X", 11, 5 	'GA	
