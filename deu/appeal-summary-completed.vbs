@@ -1,5 +1,5 @@
 'GATHERING STATS===========================================================================================
-name_of_script = "NOTES - DEU-APPEA SUMMARY COMPLETED.vbs"
+name_of_script = "NOTES - DEU-APPEAL SUMMARY COMPLETED.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 0
@@ -75,7 +75,7 @@ Do
 	Do
         err_msg = ""
 		Dialog
-		IF ButtonPressed = 0 then StopScript
+		cancel_confirmation
 		IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF Isdate(date_appeal_rcvd) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a date for the appeal."
 		IF IsNumeric(claim_number) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid claim number."
@@ -96,4 +96,4 @@ start_a_blank_case_note      'navigates to case/note and puts case/note into edi
 	Call write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
 	Call write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 
-script_end_procedure("")
+script_end_procedure("Appeal Summary case note complete.")
