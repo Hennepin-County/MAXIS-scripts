@@ -78,29 +78,8 @@ Do
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 '----------------------------------------------------------------------------------------------------'pending & active programs information
-'information gathering to auto-populate the application date
-'VARIABLES TO DECLARE----------------------------------------------------------------------------
-SPEC_MEMO_check = checked		'Should default to checked, as we usually want to send a new worker memo
-
-'Checks for county info from global variables, or asks if it is not already defined.
-get_county_code
-
-'----------DIALOGS----------
-BeginDialog xfer_menu_dialog, 0, 0, 121, 95, "Case Transfer"
-  EditBox 65, 5, 40, 15, maxis_case_number
-  OptionGroup RadioGroup1
-    RadioButton 15, 40, 95, 10, "Within the County/Agency", within_agency_check
-    RadioButton 15, 55, 80, 10, "Out-of-County/Agency", out_of_agency_check
-  ButtonGroup ButtonPressed
-    OkButton 10, 75, 50, 15
-    CancelButton 65, 75, 50, 15
-  GroupBox 5, 25, 110, 45, "Please select transfer type:"
-  Text 10, 10, 45, 10, "Case Number"
-EndDialog
 
 
-'information gathering to auto-populate the application date
-back_to_self
 EMWriteScreen MAXIS_case_number, 18, 43
 Call navigate_to_MAXIS_screen("REPT", "PND2")
 
@@ -114,8 +93,8 @@ Do
 LOOP until PND2_check = "PND2"
 
 'checking the case to make sure there is a pending case.  If not script will end & inform the user no pending case exists in PND2
-EMReadScreen not_pending_check, 5, 24, 2
-If not_pending_check = "CASE " THEN script_end_procedure("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
+'EMReadScreen not_pending_check, 5, 24, 2
+'If not_pending_check = "CASE " THEN script_end_procedure("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
 
 'grabs row and col number that the cursor is at
 EMGetCursor MAXIS_row, MAXIS_col

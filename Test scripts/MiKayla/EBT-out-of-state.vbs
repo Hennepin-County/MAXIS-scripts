@@ -1,5 +1,5 @@
 'GATHERING STATS===========================================================================================
-name_of_script = "NOTES - DEU-APPEAL SUMMARY COMPLETED.vbs"
+name_of_script = "NOTES - DEU-EBT OUT OF STATE.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 0
@@ -55,21 +55,24 @@ EMConnect ""
 Call MAXIS_case_number_finder(maxis_case_number)
 
 'Initial dialog and do...loop
-BeginDialog , 0, 0, 276, 90, "Appeal Summary Completed"
-  EditBox 60, 5, 60, 15, maxis_case_number
-  EditBox 210, 5, 60, 15, date_appeal_rcvd
-  EditBox 60, 25, 60, 15, claim_number
-  EditBox 210, 25, 60, 15, effective_date
-  EditBox 95, 45, 175, 15, action_client_is_appealing
+BeginDialog EBT_dialog, 0, 0, 256, 105, "EBT OUT OF STATE "
+  EditBox 60, 5, 50, 15, maxis_case_number
+  EditBox 200, 5, 50, 15, bene_date
+  EditBox 60, 25, 50, 15, state
+  EditBox 60, 45, 50, 15, date_closed
+  DropListBox 180, 25, 70, 15, "Select One:"+chr(9)+"Initial Review"+chr(9)+"Respond to Request"+chr(9)+"Other", action_taken
+  EditBox 60, 65, 195, 15, reason_closed
   ButtonGroup ButtonPressed
-    OkButton 165, 65, 50, 15
-    CancelButton 220, 65, 50, 15
-  Text 10, 10, 45, 10, "Case number:"
-  Text 130, 30, 80, 10, "Effective date of action:"
-  Text 10, 30, 50, 10, "Claim number:"
-  Text 10, 50, 85, 10, "Action client is appealing:"
-  Text 130, 10, 75, 10, "Date appeal received:"
+    OkButton 150, 85, 50, 15
+    CancelButton 205, 85, 50, 15
+  Text 115, 10, 80, 10, "Date accessing benefits:"
+  Text 5, 70, 55, 10, "Closure Reason:"
+  Text 30, 30, 30, 10, "State(s):"
+  Text 10, 10, 50, 10, "Case Number:"
+  Text 130, 30, 45, 10, "Action Taken:"
+  Text 15, 50, 45, 10, "Date Closed:"
 EndDialog
+
 
 Do
 	Do
@@ -77,23 +80,37 @@ Do
 		Dialog
 		cancel_confirmation
 		IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
-		IF Isdate(date_appeal_rcvd) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a date for the appeal."
-		IF IsNumeric(claim_number) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid claim number."
-		IF Isdate(effective_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the effective date."
-		IF action_client_is_appealing = "" THEN err_msg = err_msg & vbNewLine & "* Please enter action that client is appealing."
+		IF Isdate(bene_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the benefit start date."
+		IF Isdate(date_closed) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the closed date."
+		IF action_taken = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please enter action completed."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     Loop until err_msg = ""
  	Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	Call write_variable_in_CASE_NOTE("-----APPEAL SUMMARY COMPLETED-----")
-	Call write_bullet_and_variable_in_CASE_NOTE("Claim number:", claim_number)
-	Call write_bullet_and_variable_in_CASE_NOTE("Date appeal request received:", date_appeal_rcvd)
-	Call write_bullet_and_variable_in_CASE_NOTE("Effective date of action being appealed:", effective_date)
-	Call write_bullet_and_variable_in_CASE_NOTE("Action client is appealing:", action_client_is_appealing)
-	Call write_bullet_and_variable_in_CASE_NOTE("Emailed Appeals", send_email)
+	Call write_variable_in_CASE_NOTE("----- EBT OUT OF STATE REVIEWED -----")
+	Call write_variable_in_CASE_NOTE("----- EBT OUT OF STATE SHELTER FORM SENT -----")
+    Call write_bullet_and_variable_in_CASE_NOTE("Client has been accessing benefits out of state since:", bene_date)
+	Call write_bullet_and_variable_in_CASE_NOTE("State(s):", state)
+	Call write_variable_in_CASE_NOTE("Request sent to client for explanation of benefits received in the other state and shelter request ")
+    Call write_variable_in_CASE_NOTE("Client will need to verify residence when reapplying")
+    Call write_variable_in_CASE_NOTE("Agency will need to verify benefits received in the other state prior to reopening case")
+
+	Call write_bullet_and_variable_in_CASE_NOTE("Date case was closed:", date_closed)
+	Call write_bullet_and_variable_in_CASE_NOTE("Explanation of action to close the case:", reason_closed)
+	Call write_variable_in_CASE_NOTE("Possible overpayments will be reviewed") 'do we want to add the claim referral?'
+	Call write_variable_in_CASE_NOTE("Clients have 10 days to return requested verifications")
 	Call write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
 	Call write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 
-script_end_procedure("Appeal Summary case note complete.")
+
+	REQUEST TO CLIENT TO VERIFY WHY ACCESSING BENEFITS OUT OF STATE
+	AND SHELTER VERIFICATION FORM.
+	EBT OUT OF STATE USAGE WILL BE REVIEWED FOR POSSIBLE OVERPAYMENT OR NO OVERPAYMENT AT A LATER DATE.
+	DUE:
+	Debt Establishment Unit 612-348-4290 X111
+	d.	 Clients have 10 days to respond.
+
+
+script_end_procedure("EBT out of state case note complete.")

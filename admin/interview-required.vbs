@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/09/2018", "Added handling to export information about CSR's.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/18/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -51,14 +52,15 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOG----------------------------------------------------------------------------------------------------
-BeginDialog appointment_required_dialog, 0, 0, 286, 60, "Appointment required dialog"
+BeginDialog appointment_required_dialog, 0, 0, 286, 70, "Appointment required dialog"
   EditBox 70, 5, 210, 15, worker_number
-  CheckBox 5, 45, 155, 10, "Select all active workers in the agency", all_workers_check
+  CheckBox 5, 40, 140, 10, "Select all active workers in the agency.", all_workers_check
+  CheckBox 5, 55, 90, 10, "Current month plus two?", CM_plus_two_checkbox
   ButtonGroup ButtonPressed
-    OkButton 175, 40, 50, 15
-    CancelButton 230, 40, 50, 15
-  Text 5, 25, 275, 10, "Enter the fulll 7-digit worker number, separate each with a comma if more than one."
+    OkButton 175, 45, 50, 15
+    CancelButton 230, 45, 50, 15
   Text 5, 10, 60, 10, "Worker number(s):"
+  Text 5, 25, 275, 10, "Enter the fulll 7-digit worker number, separate each with a comma if more than one."
 EndDialog
 
 Function HCRE_panel_bypass() 
@@ -76,6 +78,7 @@ End Function
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""		'Connects to BlueZone
 all_workers_check = 1		'defaulting the check box to checked
+CM_plus_two_checkbox = 1    'defaulting the check box to checked
 
 'DISPLAYS DIALOG
 DO
@@ -85,14 +88,19 @@ DO
 		If ButtonPressed = 0 then StopScript
 		If worker_number = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Enter a valid worker number."
 		if worker_number <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Enter a worker number OR select the entire agency, not both." 
-		If datePart("d", date) < 16 then err_msg = err_msg & VbNewLine & "* This is not a valid time period for REPT/REVS until the 16th of the month. Please select a new time period."
+		If (CM_plus_two_checkbox = 1 and datePart("d", date) < 16) then err_msg = err_msg & VbNewLine & "* This is not a valid time period for REPT/REVS until the 16th of the month. Please select a new time period."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 Loop until are_we_passworded_out = false					'loops until user passwords back in		
 
-REPT_month = CM_plus_2_mo
-REPT_year  = CM_plus_2_yr
+If CM_plus_two_checkbox = 1 then 
+    REPT_month = CM_plus_2_mo
+    REPT_year  = CM_plus_2_yr
+Else 
+    REPT_month = CM_plus_1_mo
+    REPT_year  = CM_plus_1_yr
+End if 
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
@@ -131,7 +139,7 @@ EMWriteScreen REPT_month, 20, 55
 EMWriteScreen REPT_year, 20, 58
 transmit
 
-'establishes values for variables and declaring the arrays
+'establishes counts and declaring arrays for recert cases with interview (SNAP/MFIP)
 reviews_total = 0
 total_cases_review = 0
 DIM REVS_array()
@@ -184,8 +192,14 @@ For each worker in worker_array
 	Loop until last_page_check = "THIS IS THE LAST PAGE"
 next
 
+recert_cases = 0	'value for the array
 DIM Required_appt_array()
 ReDim Required_appt_array(8, 0)
+
+'establishes counts and declaring arrays for CSR cases. 
+CSR_count = 0
+DIM CSR_array()
+REDim CSR_array(8, 0)
 
 'constants for array
 const basket_number = 0
@@ -199,8 +213,6 @@ const phone_three	= 7
 
 worker_number = ""
 back_to_SELF
-
-recert_cases = 0	'value for the array
 
 'DO 'Loops until there are no more cases in the Excel list
 For each reviews_total in REVS_array
@@ -222,6 +234,7 @@ For each reviews_total in REVS_array
 		MFIP_status_1_check = ""
 		MFIP_prog_2_check = ""
 		MFIP_status_2_check = ""
+        GRH_status_check = ""
 
 		'Reading the status and program
 		EMReadScreen SNAP_status_check, 4, 10, 74		'checking the SNAP status
@@ -229,6 +242,7 @@ For each reviews_total in REVS_array
 		EMReadScreen MFIP_status_1_check, 4, 6, 74
 		EMReadScreen MFIP_prog_2_check, 2, 6, 67		'checking for an active MFIP case
 		EMReadScreen MFIP_status_2_check, 4, 6, 74
+        EmReadscreen GRH_status_check, 4, 9, 74          'GRH cases for CSR array
 
 		IF SNAP_status_check = "ACTV" Then SNAP_ACTIVE = TRUE
 		
@@ -237,13 +251,24 @@ For each reviews_total in REVS_array
 			If MFIP_status_1_check = "ACTV" Then MFIP_ACTIVE = TRUE
 		ElseIf MFIP_prog_2_check = "MF" Then
 			If MFIP_status_2_check = "ACTV" Then MFIP_ACTIVE = TRUE
+        Else 
+            MFIP_ACTVIE = FALSE
 		End If
 		
+        If GRH_status_check = "ACTV" then 
+            GRH_ACTIVE = TRUE
+        Else 
+            GRH_ACTIVE = FALSE
+        END IF 
+        
+        'msgbox MAXIS_case_number & vbcr & "GRH_ACTIVE: " & GRH_ACTIVE
+        
 		HCRE_panel_bypass	'function I created to ensure that we don't get trapped in the HCRE panel
 
 		'Going to STAT/REVW to to check for ER vs CSR for SNAP cases
 		CALL navigate_to_MAXIS_screen("STAT", "REVW")
 		If MFIP_ACTIVE = TRUE Then recert_status = "YES"	'MFIP will only have an ER - so if listed on REVS - will be an ER - don't need to check dates
+        
 		If SNAP_ACTIVE = TRUE Then
 			EMReadScreen SNAP_review_check, 8, 9, 57
 			If SNAP_review_check = "__ 01 __" then 		'If this is blank there are big issues
@@ -262,11 +287,34 @@ For each reviews_total in REVS_array
 				EMReadScreen recert_yr, 2, 9, 70
 
 				'Comparing CSR and ER daates to the month of REVS review
-				IF CSR_mo = left(REPT_month, 2) and CSR_yr = right(REPT_year, 2) THEN recert_status = "NO"
+				IF CSR_mo = left(REPT_month, 2) and CSR_yr = right(REPT_year, 2) THEN 
+                    recert_status = "NO"
+                    CSR_month = True 
+                else 
+                    CSR_month = False
+                End if 
 				If recert_mo = left(REPT_month, 2) and recert_yr <> right(REPT_year, 2) THEN recert_status = "NO"
 				IF recert_mo = left(REPT_month, 2) and recert_yr = right(REPT_year, 2) THEN recert_status = "YES"
 			End If
-		End If 
+		elseif (SNAP_ACTIVE <> TRUE and GRH_ACTIVE = TRUE) then
+            EMwritescreen "x", 5, 35		'Opening the CASH pop-up
+            Transmit
+            'msgbox MAXIS_case_number
+            'The script will now read the CSR MO/YR and the Recert MO/YR
+            EMReadScreen CSR_mo, 2, 9, 26
+            EMReadScreen CSR_yr, 2, 9, 32
+
+            'Comparing CSR and ER daates to the month of REVS review
+            IF CSR_mo = left(REPT_month, 2) and CSR_yr = right(REPT_year, 2) THEN 
+                recert_status = "NO"
+                CSR_month = True 
+            Else 
+                CSR_month = False 
+            End if 
+        Else 
+            recert_status = "NO"    'defaulting everything else (HC, MSA, GRH only) as no interview 
+            CSR_month = False       'defaulting all non GRH or SNAP as non CSR 
+        End if 
 		
 		If recert_status = "YES" then 
 			Redim Preserve Required_appt_array(8, 	recert_cases)
@@ -300,7 +348,44 @@ For each reviews_total in REVS_array
 			Required_appt_array (case_lang,    recert_cases) = language_coded
 			recert_cases = recert_cases + 1
 			STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
-		End if 
+            '----------------------------------------------------------------------------------------------------Gathering case info for CSR cases 
+		Elseif CSR_month = true then 
+            Redim Preserve CSR_array(8, CSR_count)
+            CSR_array (case_number, 	CSR_count) = MAXIS_case_number
+            CSR_array (x1number, 		CSR_count) = wrkr_numb
+            IF MFIP_ACTIVE = TRUE AND SNAP_ACTIVE = FALSE Then CSR_array(active_progs, CSR_count) = "MFIP"
+            If MFIP_ACTIVE = TRUE AND SNAP_ACTIVE = TRUE  Then CSR_array(active_progs, CSR_count) = "MFIP & SNAP"
+            If MFIP_ACTIVE = FALSE AND SNAP_ACTIVE = TRUE Then CSR_array(active_progs, CSR_count) = "SNAP"
+            IF GRH_ACTIVE = TRUE then CSR_array(active_progs, CSR_count) = "GRH"
+            IF GRH_ACTIVE = TRUE AND SNAP_ACTIVE = TRUE then CSR_array(active_progs, CSR_count) = "SNAP & GRH"
+            IF GRH_ACTIVE = TRUE and MFIP_ACTIVE = True Then CSR_array(active_progs, CSR_count) = "MFIP & GRH"
+            If MFIP_ACTIVE = TRUE AND SNAP_ACTIVE = TRUE AND GRH_ACTIVE = True then  CSR_array(active_progs, CSR_count) = "MFIP, SNAP, GRH"
+            
+            'Gathering the phone numbers
+            call navigate_to_MAXIS_screen("STAT", "ADDR")
+            EMReadScreen phone_number_one, 16, 17, 43	' if phone numbers are blank it doesn't add them to EXCEL
+            If phone_number_one <> "( ___ ) ___ ____" then CSR_array(phone_one, CSR_count) = phone_number_one
+            EMReadScreen phone_number_two, 16, 18, 43
+            If phone_number_two <> "( ___ ) ___ ____" then CSR_array(phone_two, CSR_count) = phone_number_two
+            EMReadScreen phone_number_three, 16, 19, 43
+            If phone_number_three <> "( ___ ) ___ ____" then CSR_array(phone_three, CSR_count) = phone_number_three	
+            
+            'Going to STAT/MEMB for Language Information
+            CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+            EMReadScreen interpreter_code, 1, 14, 68
+            EMReadScreen language_coded, 16, 12, 46
+            language_coded = replace(language_coded, "_", "")
+            If trim(language_coded) = "" then 
+                EMReadScreen lang_ID, 2, 12, 42
+                If lang_ID = "99" then lang_ID = "English"
+                language_coded = lang_ID
+            End if 
+            
+            CSR_array (case_interp,  CSR_count) = interpreter_code
+            CSR_array (case_lang,    CSR_count) = language_coded
+            CSR_count = CSR_count + 1
+            STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
+        End if 
 	End if 	
 Next
 
@@ -366,6 +451,60 @@ ObjExcel.Cells(1, 11).Value = now
 ObjExcel.Cells(2, 11).Value = timer - query_start_time
 ObjExcel.Cells(3, 11).Value = total_cases_review
 ObjExcel.Cells(4, 11).Value = recert_cases
+
+'Formatting the columns to autofit after they are all finished being created.
+FOR i = 1 to 11
+	objExcel.Columns(i).autofit()
+Next
+
+'Opening the Excel file, (now that the dialog is done)
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = True
+Set objWorkbook = objExcel.Workbooks.Add()
+objExcel.DisplayAlerts = True
+
+'formatting excel file with columns for case number and interview date/time
+objExcel.cells(1, 1).value 	= "X number"
+objExcel.cells(1, 2).value 	= "Case number"
+objExcel.cells(1, 3).value 	= "Programs"
+objExcel.cells(1, 4).value 	= "Case language"
+objExcel.Cells(1, 5).value 	= "Interpreter"
+objExcel.cells(1, 6).value 	= "Phone # One"
+objExcel.cells(1, 7).value 	= "Phone # Two"
+objExcel.Cells(1, 8).value 	= "Phone # Three"
+	
+FOR i = 1 to 8									'formatting the cells'
+	objExcel.Cells(1, i).Font.Bold = True		'bold font'
+	objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
+
+'Adding the case information to Excel
+excel_row = 2
+For item = 0 to UBound(CSR_array, 2)
+	ObjExcel.Cells(excel_row, 1).value = CSR_array(x1number,     item)
+	ObjExcel.Cells(excel_row, 2).value = CSR_array(case_number,  item)
+	ObjExcel.Cells(excel_row, 3).value = CSR_array(active_progs, item)
+	ObjExcel.Cells(excel_row, 4).value = CSR_array(case_lang,    item)
+	ObjExcel.Cells(excel_row, 5).value = CSR_array(case_interp,  item)
+	ObjExcel.Cells(excel_row, 6).value = CSR_array(phone_one,    item)
+	ObjExcel.Cells(excel_row, 7).value = CSR_array(phone_two,    item)
+	ObjExcel.Cells(excel_row, 8).value = CSR_array(phone_three,  item)
+	excel_row = excel_row + 1 
+Next
+
+'Query date/time/runtime info
+objExcel.Cells(1, 10).Font.Bold = TRUE
+objExcel.Cells(2, 10).Font.Bold = TRUE
+objExcel.Cells(3, 10).Font.Bold = TRUE
+objExcel.Cells(4, 10).Font.Bold = TRUE
+ObjExcel.Cells(1, 10).Value = "Query date and time:"	
+ObjExcel.Cells(2, 10).Value = "Query runtime (in seconds):"	
+ObjExcel.Cells(3, 10).Value = "Total reviews:"
+ObjExcel.Cells(4, 10).Value = "CSR cases:"
+ObjExcel.Cells(1, 11).Value = now
+ObjExcel.Cells(2, 11).Value = timer - query_start_time
+ObjExcel.Cells(3, 11).Value = total_cases_review
+ObjExcel.Cells(4, 11).Value = CSR_count
 
 'Formatting the columns to autofit after they are all finished being created.
 FOR i = 1 to 11
