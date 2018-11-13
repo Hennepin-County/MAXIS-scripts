@@ -925,19 +925,19 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
     'this block updated MMIS with the new end date if the change option was selected at the beginning
     If make_changes = TRUE Then
         If EOMC_CLIENT_ARRAY(autoclose, hc_clt) = FALSE Then                                'autoclose cases should close on their own.
-            Update_two = FALSE
-            have_to_go_to_next_page = FALSE
-            If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = "99/99/99" AND EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then
-                Update_two = TRUE
-                If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) > 1 OR
-                    have_to_go_to_next_page = TRUE
-
-                End If
-                If EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) > 1 Then
-                    have_to_go_to_next_page = TRUE
-
-                End If
-            End If
+            ' Update_two = FALSE
+            ' have_to_go_to_next_page = FALSE
+            ' If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = "99/99/99" AND EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then
+            '     Update_two = TRUE
+            '     If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) > 1 OR
+            '         have_to_go_to_next_page = TRUE
+            '
+            '     End If
+            '     If EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) > 1 Then
+            '         have_to_go_to_next_page = TRUE
+            '
+            '     End If
+            ' End If
             If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = "99/99/99" or EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then               'if the span has an open end date
                 EMWriteScreen "C", 2, 19                                                    'going in to change
                 EMWriteScreen PMI_Number, 4, 19                                             'enter through the PMI because navigation is easier
@@ -982,63 +982,93 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                 For each_prog = 8 to 1 Step -1
 
                     If each_prog = prog_one_order OR each_prog = prog_two_order Then
+                        Select Case each_prog
+
+                            Case 1
+                                relg_row = 10
+                            Case 2
+                                relg_row = 14
+                            Case 3
+                                relg_row = 18
+                            Case 4
+                                relg_row = 10
+                            Case 5
+                                relg_row = 14
+                            Case 6
+                                relg_row = 18
+                            Case 7
+                                relg_row = 10
+                            Case 8
+                                relg_row = 14
+
+                        End Select
                         If each_prog > 6 Then
+                            Do While on_page <> 3
+                                PF8
+                                on_page = on_page + 1
+                            Loop
+                        ElseIf each_prog > 3 and each_prog < 7 Then
+                            If on_page > 2 Then
+                                PF7
+                                on_page = on_page - 1
+                            ElseIf on_page < 2 Then
+                                PF8
+                                on_page = on_page + 1
+                            End If
+                        Else
+                            Do While on_page <> 1
+                                PF7
+                                on_page = on_page - 1
+                            Loop
 
                         End If
-                    End If
-                    If prog_one_order = each_prog Then
-                        If each_prog > 3 and each_prog < 7 Then
 
-                        End If 
-                    ElseIf prog_two_order = each_prog Then
-
+                        EMWriteScreen mmis_last_day_date, relg_row+1, 36                'entering the last day of the current month and changing status to closed
+                        EMWriteScreen "C", relg_row+1, 62
 
                     End If
                 Next
 
-
-                'END OF NEW CODE
-
-                If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) > 1 Then                        'we saved the RELG page so going back to it
-                    for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt)
-                        PF8
-                    next
-                End If
-
-                'determine where the SPAN is
-                If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 18 Then            'if the span is the last on the page
-                    PF8                                                         'it is now on the next page
-                    relg_row = 10                                               'the top span is empty in change so the known spans start at 10
-                Else                                                            'if it wasn't the last on the page
-                    relg_row = EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) + 4      'since the top row is empty, the row is 4 down from where it was in inquiry
-                End If
-
-                EMWriteScreen mmis_last_day_date, relg_row+1, 36                'entering the last day of the current month to the end date on the span
-                EMWriteScreen "C", relg_row+1, 62                               'updating status to 'closed'
-
-
-                If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then               'if program 2 is open ended
-
-
-                    If EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) > 1 Then            'we saved the row the span was found at - going back there
-                        for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt)
-                            PF8
-                        next
-                    End If
-
-                    'determine where the SPAN is
-                    If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 18 Then            'if the span is the last on the page
-                        PF8                                                         'it is now on the next page
-                        relg_row = 10                                               'the top span is empty in change so the known spans start at 10
-                    Else                                                            'if it wasn't the last on the page
-                        relg_row = EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) + 4      'since the top row is empty, the row is 4 down from where it was in inquiry
-                    End If
-
-                    EMWriteScreen mmis_last_day_date, relg_row+1, 36                'entering the last day of the current month and changing status to closed
-                    EMWriteScreen "C", relg_row+1, 62
-
-
-
+                '
+                ' 'END OF NEW CODE
+                '
+                ' If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) > 1 Then                        'we saved the RELG page so going back to it
+                '     for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt)
+                '         PF8
+                '     next
+                ' End If
+                '
+                ' 'determine where the SPAN is
+                ' If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 18 Then            'if the span is the last on the page
+                '     PF8                                                         'it is now on the next page
+                '     relg_row = 10                                               'the top span is empty in change so the known spans start at 10
+                ' Else                                                            'if it wasn't the last on the page
+                '     relg_row = EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) + 4      'since the top row is empty, the row is 4 down from where it was in inquiry
+                ' End If
+                '
+                ' EMWriteScreen mmis_last_day_date, relg_row+1, 36                'entering the last day of the current month to the end date on the span
+                ' EMWriteScreen "C", relg_row+1, 62                               'updating status to 'closed'
+                '
+                '
+                ' If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then               'if program 2 is open ended
+                '
+                '
+                '     If EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) > 1 Then            'we saved the row the span was found at - going back there
+                '         for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt)
+                '             PF8
+                '         next
+                '     End If
+                '
+                '     'determine where the SPAN is
+                '     If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 18 Then            'if the span is the last on the page
+                '         PF8                                                         'it is now on the next page
+                '         relg_row = 10                                               'the top span is empty in change so the known spans start at 10
+                '     Else                                                            'if it wasn't the last on the page
+                '         relg_row = EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) + 4      'since the top row is empty, the row is 4 down from where it was in inquiry
+                '     End If
+                '
+                '     EMWriteScreen mmis_last_day_date, relg_row+1, 36                'entering the last day of the current month and changing status to closed
+                '     EMWriteScreen "C", relg_row+1, 62
 
                 PF3                                     'save and check for warning message
                 EMReadScreen warn_msg, 7, 24, 2
@@ -1062,132 +1092,114 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                 EMWriteScreen "RELG", 1, 8                  'go to RELG where all the elig detail is
                 transmit
 
-                If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) > 1 Then            'now getting to the right page and row to read the span
-                    for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt)
-                        PF8
-                    next
-                End If
+                If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = "99/99/99" Then
+                    If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) > 1 Then            'now getting to the right page and row to read the span
+                        for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt)
+                            PF8
+                        next
+                    End If
 
-                relg_row = EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt)
+                    relg_row = EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt)
 
-                EMReadScreen confirm_mmis_end, 8, relg_row+1, 36        'reading the end date and status to make sure the change was successful
-                EMReadScreen confirm_mmis_stat, 1, relg_row+1, 62
+                    EMReadScreen confirm_mmis_end, 8, relg_row+1, 36        'reading the end date and status to make sure the change was successful
+                    EMReadScreen confirm_mmis_stat, 1, relg_row+1, 62
 
-                If confirm_mmis_end <> "99/99/99" Then
+                    If confirm_mmis_end <> "99/99/99" Then
 
-                    If DateValue(confirm_mmis_end) = DateValue(mmis_last_day_date) AND confirm_mmis_stat = "C" Then   'if they match, we will update the array information
+                        If DateValue(confirm_mmis_end) = DateValue(mmis_last_day_date) AND confirm_mmis_stat = "C" Then   'if they match, we will update the array information
 
-                        EOMC_CLIENT_ARRAY(MMIS_new_end_one, hc_clt) = mmis_last_day_date        'This adds the last day of the month to the new MMIS end date
+                            EOMC_CLIENT_ARRAY(MMIS_new_end_one, hc_clt) = mmis_last_day_date        'This adds the last day of the month to the new MMIS end date
 
-                        'This part reviews for capitation savings
-                        If EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "MA" OR EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "IMD" OR EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "EMA" Then
+                            'This part reviews for capitation savings
+                            If EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "MA" OR EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "IMD" OR EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "EMA" Then
 
-                            If pph_end_date = mmis_last_day_date Then       'if a PPH span is ending the same date, then the closure is caused by our update
-                                'the savings are added to the client array here
-                                If EOMC_CLIENT_ARRAY(elig_type_one, hc_clt) = "PX" OR EOMC_CLIENT_ARRAY(elig_type_one, hc_clt) = "PC" Then
-                                    EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_PW
+                                If pph_end_date = mmis_last_day_date Then       'if a PPH span is ending the same date, then the closure is caused by our update
+                                    'the savings are added to the client array here
+                                    If EOMC_CLIENT_ARRAY(elig_type_one, hc_clt) = "PX" OR EOMC_CLIENT_ARRAY(elig_type_one, hc_clt) = "PC" Then
+                                        EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_PW
+                                    Else
+                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 1 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_11x
+                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) = 1 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_1
+                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 1 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 16 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_2_15
+                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 15 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 21 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_16_20
+                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 20 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 50 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_21_49
+                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 49 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_50_64
+                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_65
+                                    ENd If
+
+                                    EOMC_CLIENT_ARRAY(capitation_ended, hc_clt) = TRUE      'setting the capitation ending as true
                                 Else
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 1 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_11x
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) = 1 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_1
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 1 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 16 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_2_15
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 15 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 21 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_16_20
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 20 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 50 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_21_49
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 49 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_50_64
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_65
-                                ENd If
+                                    EOMC_CLIENT_ARRAY(capitation_ended, hc_clt) = FALSE     'if these don't match, then a capitation was not ended.
+                                End If
 
-                                EOMC_CLIENT_ARRAY(capitation_ended, hc_clt) = TRUE      'setting the capitation ending as true
-                            Else
-                                EOMC_CLIENT_ARRAY(capitation_ended, hc_clt) = FALSE     'if these don't match, then a capitation was not ended.
+                            'for non-MA cases the savings is based on the medicare premium
+                            ElseIf EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "QI1" Then
+                                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_QI1
+                            ElseIf EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "QMB" Then
+                                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_QMB
+                            ElseIf EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "SLMB" Then
+                                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_SLMB
                             End If
-
-                        'for non-MA cases the savings is based on the medicare premium
-                        ElseIf EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "QI1" Then
-                            EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_QI1
-                        ElseIf EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "QMB" Then
-                            EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_QMB
-                        ElseIf EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "SLMB" Then
-                            EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_SLMB
                         End If
                     End If
+                    Do
+                        PF7
+
+                        EmReadscreen look_for_top, 12, 24,27
+                    Loop Until look_for_top = "NO MORE DATA"
                 End If
 
+                If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then
+                    If EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) > 1 Then
+                        for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt)
+                            PF8
+                        next
+                    End If
+
+                    relg_row = EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt)
+
+                    EMReadScreen confirm_mmis_end, 8, relg_row+1, 36
+                    EMReadScreen confirm_mmis_stat, 1, relg_row+1, 62
+
+                    If confirm_mmis_end <> "99/99/99" Then
+
+                        If  DateValue(confirm_mmis_end) = DateValue(mmis_last_day_date) AND confirm_mmis_stat = "C" Then
+
+                            EOMC_CLIENT_ARRAY(MMIS_new_end_two, hc_clt) = mmis_last_day_date
+
+                            If EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "MA" OR EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "IMD" OR EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "EMA" Then
+
+                                If pph_end_date = mmis_last_day_date Then
+                                    If EOMC_CLIENT_ARRAY(elig_type_two, hc_clt) = "PX" OR EOMC_CLIENT_ARRAY(elig_type_two, hc_clt) = "PC" Then
+                                        EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_PW
+                                    Else
+                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 1 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_11x
+                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) = 1 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_1
+                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 1 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 16 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_2_15
+                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 15 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 21 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_16_20
+                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 20 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 50 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_21_49
+                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 49 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_50_64
+                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_65
+                                    ENd If
+
+                                    EOMC_CLIENT_ARRAY(capitation_ended, hc_clt) = TRUE
+                                Else
+                                    EOMC_CLIENT_ARRAY(capitation_ended, hc_clt) = FALSE
+                                End If
+
+                            ElseIf EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "QI1" Then
+                                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_QI1
+                            ElseIf EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "QMB" Then
+                                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_QMB
+                            ElseIf EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "SLMB" Then
+                                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_SLMB
+                            End If
+                        End If
+                    End If
+
+                End If
                 PF6     'backing out of the MMIS client information
 
-            End If
-
-                PF3                                     'saving, checking for warning message and saving again
-                EMReadScreen warn_msg, 7, 24, 2
-                If warn_msg = "WARNING" Then PF3
-
-                EmReadscreen check_for_RKEY, 4, 1, 52
-                If check_for_RKEY <> "RKEY" Then PF6
-
-                PF3                                     'saving all the way, then going back to RKEY
-                EMWriteScreen "X",8, 3
-                transmit
-                'NOW THE INFORMATION IS SAVED'
-
-                'We are going to confirm the information
-                EMWriteScreen "I", 2, 19                                                    'read only
-                EMWriteScreen PMI_Number, 4, 19                                             'enter through the PMI so it isn't case specific
-                transmit
-
-                EMReadScreen pph_end_date, 8, 16, 37
-
-                EMWriteScreen "RELG", 1, 8                  'go to RELG where all the elig detail is
-                transmit
-
-                If EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) > 1 Then
-                    for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt)
-                        PF8
-                    next
-                End If
-
-                relg_row = EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt)
-
-                EMReadScreen confirm_mmis_end, 8, relg_row+1, 36
-                EMReadScreen confirm_mmis_stat, 1, relg_row+1, 62
-
-                If confirm_mmis_end <> "99/99/99" Then
-
-                    If  DateValue(confirm_mmis_end) = DateValue(mmis_last_day_date) AND confirm_mmis_stat = "C" Then
-
-                        EOMC_CLIENT_ARRAY(MMIS_new_end_two, hc_clt) = mmis_last_day_date
-
-                        If EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "MA" OR EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "IMD" OR EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "EMA" Then
-
-                            If pph_end_date = mmis_last_day_date Then
-                                If EOMC_CLIENT_ARRAY(elig_type_two, hc_clt) = "PX" OR EOMC_CLIENT_ARRAY(elig_type_two, hc_clt) = "PC" Then
-                                    EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_PW
-                                Else
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 1 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_11x
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) = 1 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_1
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 1 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 16 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_2_15
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 15 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 21 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_16_20
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 20 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 50 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_21_49
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 49 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_50_64
-                                    If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_65
-                                ENd If
-
-                                EOMC_CLIENT_ARRAY(capitation_ended, hc_clt) = TRUE
-                            Else
-                                EOMC_CLIENT_ARRAY(capitation_ended, hc_clt) = FALSE
-                            End If
-
-                        ElseIf EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "QI1" Then
-                            EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_QI1
-                        ElseIf EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "QMB" Then
-                            EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_QMB
-                        ElseIf EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "SLMB" Then
-                            EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_SLMB
-                        End If
-                    End If
-                End If
-
-                PF6
-
-                'MsgBox "To RELG"
             End If
         End If
     Else
