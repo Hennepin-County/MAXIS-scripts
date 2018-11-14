@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("11/14/2018", "Added phone enrollment information to the Case Note.", "Casey Love, Hennepin County")
 call changelog_update("10/19/2018", "Updated to support 2019 enrollments.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/06/2017", "Updated to support 2018 enrollments.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/01/2016", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -50,16 +51,21 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOG----------------------------------------------------------------------------------------------------
-BeginDialog case_dlg, 0, 0, 161, 150, "Enrollment Information"
+BeginDialog case_dlg, 0, 0, 161, 225, "Enrollment Information"
   EditBox 90, 25, 60, 15, MMIS_case_number
   DropListBox 70, 45, 80, 15, "Select one..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Hennepin Health SNBC"+chr(9)+"Ucare", Health_plan
+  EditBox 15, 155, 130, 15, caller_name
+  EditBox 75, 175, 65, 15, phone_number
   ButtonGroup ButtonPressed
-    OkButton 45, 125, 50, 15
-    CancelButton 100, 125, 50, 15
+    OkButton 50, 205, 50, 15
+    CancelButton 105, 205, 50, 15
   GroupBox 5, 10, 150, 55, "Leading zeros not needed"
   Text 10, 30, 50, 10, "Case Number:"
   Text 10, 50, 60, 10, "New Health Plan:"
   Text 10, 70, 140, 50, "This script is for Open Enrollment Form processing ONLY. As such it will disenroll the client(s) from one plan on 12/31/16 and reenroll them to the new plan on 01/01/18. The disenrollment AND enrollment reason will be OE."
+  GroupBox 5, 125, 150, 70, "For Phone Requests"
+  Text 15, 140, 50, 10, "Name of Caller:"
+  Text 15, 180, 50, 10, "Phone Number"
 EndDialog
 
 BeginDialog RPPH_error_dialog, 0, 0, 236, 110, "RPPH error detected"
@@ -107,11 +113,26 @@ MMIS_case_number= trim(MMIS_case_number)
 
 'do the dialog here
 Do
+    err_msg = ""
+
 	Dialog case_dlg
 	cancel_confirmation
-	If MMIS_case_number = "" then MsgBox "You must have a Case number to continue!"
-	If health_plan = "Select one..." then MsgBox " You must select a health plan."
-Loop until (MMIS_case_number <> "" and health_plan <> "Select one...")
+
+	If MMIS_case_number = "" then err_msg = err_msg & vbNewLine & "You must have a Case number to continue!"
+	If health_plan = "Select one..." then err_msg = err_msg & vbNewLine &  "You must select a health plan."
+
+    If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+Loop until err_msg = ""
+
+caller_name = trim(caller_name)
+phone_number = trim(phone_number)
+If Instr(phone_number, "-") = 0 Then
+    If len(phone_number) = 7 Then
+        phone_number = left(phone_number, 3) & "-" & right(phone_number, 4)
+    ElseIf len(phone_number) = 10 Then
+        phone_number = left(phone_number, 3) & "-" & mid(phone_number, 4, 3) & "-" & right(phone_number, 4)
+    End If
+End If
 
 'blanking out varibles if the other option is selected
 change_reason = "OE"
@@ -849,7 +870,15 @@ IF Need_CNOTE = TRUE Then
 			row = row + 1
 		End If
 	Next
-	EMWriteScreen "Processed by " & worker_signature, row, 8
+    If caller_name <> "" Then
+        EmWriteScreen "Enrollment requested over phone by " & caller_name, row, 8
+        col_pos = 35 + 8 + len(caller_name)
+        If phone_number <> "" Then EmWriteScreen " at " & phone_number, row, col_pos
+    Else
+        If phone_number <> "" Then EmWriteScreen "Enrollment requested over phone from " & phone_number
+    End If
+    row = row + 1
+    EMWriteScreen "Processed by " & worker_signature, row, 8
 	pf3
 	pf3
 	IF REFM_error_check = "WARNING: MA12,01/16" Then
