@@ -560,7 +560,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
 		CALL write_variable_in_CASE_NOTE ("----- ----- -----")
 		IF resolution_status = "BC - Case Closed" 	THEN CALL write_variable_in_CASE_NOTE("* Case closed. ")
-		IF resolution_status = "BE - Child" THEN CALL write_variable_in_CASE_NOTE("* Income is excluded for minor in school.")
+		IF resolution_status = "BE - Child" THEN CALL write_variable_in_CASE_NOTE("* Income is excluded for minor child in school.")
 		IF resolution_status = "BE - OP Entered" THEN CALL write_variable_in_CASE_NOTE("* Overpayments or savings were found related to this match.")
 		IF resolution_status = "BE - No Change" THEN CALL write_variable_in_CASE_NOTE("* No Overpayments or savings were found related to this match.")
 		IF resolution_status = "BE - NC Non-collectible" THEN CALL write_variable_in_CASE_NOTE("* No collectible overpayments or savings were found related to this match. Client is still non-coop.")
