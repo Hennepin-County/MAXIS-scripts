@@ -795,7 +795,7 @@ If process_option = "Find ABAWD Months" Then
         ELSEIF panel_check = "SPAN" OR stat_msg = "APPLICATION MONTH" Then
             PF3
             MsgBox "Case appears to be in PND1, cannot review WREG on a case in PND1"
-            CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case) = "SPAN " & CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
+            CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case) = "Case in PND1 " & CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
             ObjExcel.Cells(list_row, notes_col).Value = CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
             continue_search = FALSE
         ELSE
