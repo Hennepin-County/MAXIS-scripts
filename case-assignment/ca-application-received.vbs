@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("11/15/2018", "Enhanced functionality for SameDay interview cases.", "Casey Love, Hennepin County")
 CALL changelog_update("11/06/2018", "Updated handling for HC only applications.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/25/2018", "Updated script to add handling for case correction.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/17/2018", "Updated appointment letter to address EGA programs.", "MiKayla Handley, Hennepin County")
@@ -137,6 +138,9 @@ IF multiple_apps = vbNo then
 		application_date = additional_application_date
 END IF
 End if
+
+MAXIS_footer_month = right("00" & DatePart("m", application_date), 2)
+MAXIS_footer_year = right(DatePart("yyyy", application_date), 2)
 
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 'EMReadScreen application_date, 8, 6, 33
@@ -342,14 +346,54 @@ EndDialog
 
 HC_applied_for = FALSE
 IF app_type = "6696" or app_type = "HCAPP" or app_type = "HC-Certain Pop" or app_type = "LTC" or app_type = "MHCP B/C Cancer"  THEN HC_applied_for = TRUE
-	
+
 IF how_app_rcvd = "Office" and HC_applied_for = FALSE THEN
-	same_day_confirmation = MsgBox("Press YES to confirm a same-day interview was completed?." & vbNewLine & "If no interview was offered, press NO." & vbNewLine & vbNewLine & _
+	same_day_confirmation = MsgBox("This client applied in the office. Will or has the client completed a sameday interview?" & vbNewLine & vbNewLine & "Press YES to confirm a same-day interview was completed." & vbNewLine & "If client declined an interview or one was not offered, press NO." & vbNewLine & vbNewLine & _
 	"Application was received in " & how_app_rcvd, vbYesNoCancel, "Application received - same-day interview completed?")
-	IF same_day_confirmation = vbNo THEN same_day_interview = FALSE
-	IF same_day_confirmation = vbYes THEN same_day_interview = TRUE
+	IF same_day_confirmation = vbNo THEN interview_completed = FALSE
+	IF same_day_confirmation = vbYes THEN interview_completed = TRUE
 	IF same_day_confirmation = vbCancel THEN script_end_procedure ("The script has ended.")
 END IF
+
+If interview_completed = TRUE Then
+
+    Call back_to_SELF
+    Call Navigate_to_MAXIS_screen("STAT", "PROG")
+    PF9
+
+    intv_day = right("00" & DatePart("d", date), 2)
+    Intv_mo  = right("00" & DatePart("m", date), 2)
+    intv_yr  = right(DatePart("yyyy", date), 2)
+
+    If cash_pends = TRUE Then
+        EmReadscreen interview_date, 8, 6, 55
+        If interview_date = "__ __ __" Then
+            EmWriteScreen intv_mo, 6, 55
+            EmWriteScreen intv_day, 6, 58
+            EmWriteScreen intv_yr, 6, 61
+        End If
+    End If
+    If cash2_pends = TRUE Then
+        EmReadscreen interview_date, 8, 7, 55
+        If interview_date = "__ __ __" Then
+            EmWriteScreen intv_mo, 7, 55
+            EmWriteScreen intv_day, 7, 58
+            EmWriteScreen intv_yr, 7, 61
+        End If
+    End If
+    If SNAP_pends = TRUE Then
+        EmReadscreen interview_date, 8, 10, 55
+        If interview_date = "__ __ __" Then
+            EmWriteScreen intv_mo, 10, 55
+            EmWriteScreen intv_day, 10, 58
+            EmWriteScreen intv_yr, 10, 61
+        End If
+    End If
+
+    transmit
+
+    Call back_to_SELF
+End If
 
 pended_date = date
 '--------------------------------------------------------------------------------initial case note
@@ -373,6 +417,10 @@ CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
 If transfer_case_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Application assigned to", transfer_case_number)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
 IF mnsure_retro_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Emailed " & requested_person & " to let them know the retro request is ready to be processed.")
+If interview_completed = TRUE Then
+    CALL write_variable_in_CASE_NOTE ("---")
+    CALL write_variable_in_CASE_NOTE("* This case had an interview completed sameday. Interview Date on PROG was checked and updated if needed.")
+End If
 CALL write_variable_in_CASE_NOTE ("---")
 CALL write_variable_in_CASE_NOTE (worker_signature)
 PF3 ' to save Case note
@@ -459,10 +507,18 @@ IF snap_pends = TRUE THEN
 
     'Reads MONY/DISB to see if EBT account is open
     IF expedited_status = "Client Appears Expedited" THEN
-      		CALL navigate_to_MAXIS_screen("MONY", "DISB")
-      		EMReadScreen EBT_account_status, 1, 14, 27
-	  		MsgBox "This Client Appears EXPEDITED. A same-day interview needs to be offered."
-		same_day_interview = TRUE
+  		CALL navigate_to_MAXIS_screen("MONY", "DISB")
+  		EMReadScreen EBT_account_status, 1, 14, 27
+        same_day_offered = FALSE
+
+        If interview_completed = TRUE Then same_day_offered = TRUE
+        If interview_completed = FALSE Then
+            offer_same_date_interview = MsgBox("This client appears EXPEDITED. A same-day needs to be offered." & vbNewLine & vbNewLine & "Has the client been offered a Same Day Interview?", vbYesNo + vbQuestion, "SameDay Offered?")
+
+            if offer_same_date_interview = vbYes Then same_day_offered = TRUE
+        End If
+  		'MsgBox "This Client Appears EXPEDITED. A same-day interview needs to be offered."
+		'same_day_interview = TRUE
 		Send_email = TRUE
     END IF
 
@@ -518,10 +574,12 @@ ELSE
 END IF
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+If run_locally = TRUE Then send_email = FALSE
 IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
 IF mnsure_retro_checkbox = CHECKED THEN CALL create_outlook_email("", "", MAXIS_case_name & maxis_case_number & " Retro Request for MNSURE ready to be processed. " & worker_number & "  EOM.", "", "", FALSE)
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE
+if interview_completed = TRUE Then send_appt_ltr = FALSE
 IF send_appt_ltr = TRUE THEN
 	BeginDialog Hennepin_appt_dialog, 0, 0, 266, 80, "APPOINTMENT LETTER"
     EditBox 185, 20, 55, 15, interview_date
@@ -618,7 +676,7 @@ IF send_appt_ltr = TRUE THEN
     CALL write_variable_in_CASE_NOTE (worker_signature)
 END IF
 
-IF same_day_interview = TRUE and how_app_rcvd = "Office" THEN
+IF same_day_offered = TRUE and how_app_rcvd = "Office" THEN
    	start_a_blank_CASE_NOTE
    	Call write_variable_in_CASE_NOTE("~ same-day interview offered ~")
   	Call write_variable_in_CASE_NOTE("* Agency informed the client of needed interview.")
