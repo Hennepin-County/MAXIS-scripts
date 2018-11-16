@@ -432,7 +432,9 @@ For hc_case = 0 to UBound(EOMC_CASES_ARRAY, 2)
     Do
         clt_hc_ending = FALSE                                   'defining this at the beginning of each row of CASE PERS
         EMReadScreen clt_hc_status, 1, pers_row, 61             'reading the HC status of each client
+        'MsgBox clt_hc_status
         If clt_hc_status = "A" Then                             'if HC is active then we will add this client to the array to find additional information
+            'MsgBox EOMC_CASES_ARRAY(autoclose, hc_case)
             If EOMC_CASES_ARRAY(autoclose, hc_case) = TRUE Then clt_hc_ending = TRUE        'if client is active on a case that will AutoClose, then they will have HC ended
             If EOMC_CASES_ARRAY(autoclose, hc_case) = FALSE Then                'If the case is not autoclosing we need to look and see if this client's HC will close
                 EMReadScreen pers_pmi_numb,  8, pers_row, 34                    'reading the PMI
@@ -510,6 +512,7 @@ For hc_case = 0 to UBound(EOMC_CASES_ARRAY, 2)
 
                 ReDim Preserve EOMC_CLIENT_ARRAY (err_notes, hc_clt)        'resizing the Client array
 
+                'mSGbOX MAXIS_case_number
                 EOMC_CLIENT_ARRAY (basket_nbr,   hc_clt) = EOMC_CASES_ARRAY(basket_nbr,  hc_case)       'some information is saved from the CASES array
                 EOMC_CLIENT_ARRAY (case_nbr,  hc_clt) = EOMC_CASES_ARRAY(case_nbr, hc_case)
                 EOMC_CLIENT_ARRAY (autoclose, hc_clt) = EOMC_CASES_ARRAY(autoclose, hc_case)
@@ -957,7 +960,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                         If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 10 Then prog_one_order = 2
                         If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 14 Then prog_one_order = 3
                         If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 18 Then prog_one_order = 4
-                    ElseIf If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) = 2 Then
+                    ElseIf EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) = 2 Then
                         If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 6 Then prog_one_order = 5
                         If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 10 Then prog_one_order = 6
                         If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 14 Then prog_one_order = 7
@@ -971,7 +974,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                         If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 10 Then prog_two_order = 2
                         If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 14 Then prog_two_order = 3
                         If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 18 Then prog_two_order = 4
-                    ElseIf If EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) = 2 Then
+                    ElseIf EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) = 2 Then
                         If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 6 Then prog_two_order = 5
                         If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 10 Then prog_two_order = 6
                         If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 14 Then prog_two_order = 7
