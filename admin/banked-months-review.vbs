@@ -1619,8 +1619,61 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                     End If
 
+                    function sort_dates(dates_array)
+
+                        dim ordered_dates ()
+                        redim ordered_dates(0)
+
+                        days =  0
+                        do
+
+                            prev_date = ""
+                            for each thing in dates_array
+                                check_this_date = TRUE
+                                For each known_date in ordered_dates
+                                    if known_date = thing Then check_this_date = FALSE
+                                    'MsgBox "known dates is " & known_date & vbNewLine & "thing is " & thing & vbNewLine & "match - " & check_this_date
+                                next
+                                if check_this_date = TRUE Then
+                                    if prev_date = "" Then
+                                        prev_date = thing
+                                    Else
+                                        if DateDiff("d", prev_date, thing) <0 then
+                                            prev_date = thing
+                                        end if
+                                    end if
+                                end if
+                            next
+                            if prev_date <> "" Then
+                                redim preserve ordered_dates(days)
+                                ordered_dates(days) = prev_date
+                                days = days + 1
+                            end if
+                        loop until days > UBOUND(dates_array)
+
+                        dates_array = ordered_dates
+                    end function
+
+                    For each used_month in ABAWD_MONTHS_ARRAY
+                        the_month = left(used_month, 2)
+                        the_year = right(used_month, 2)
+                        the_ABAWD_month = the_month & "/01/" & the_year
+
+                        used_month = the_ABAWD_month
+                    Next
+
+                    Call sort_dates(ABAWD_MONTHS_ARRAY)
+
+                    For each used_month in ABAWD_MONTHS_ARRAY
+                        the_month = right("00"&DatePart("m", used_month), 2)
+                        the_year = right(DatePart("yyyy", used_month), 2)
+
+                        used_month = the_month & "/" & the_year
+                    Next
+
                     BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case) = ""
                     For each used_month in ABAWD_MONTHS_ARRAY
+                        MsgBox used_month
                         the_month = left(used_month, 2)
                         the_year = right(used_month, 2)
                         the_ABAWD_month = the_month & "/01/" & the_year
