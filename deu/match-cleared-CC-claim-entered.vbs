@@ -104,6 +104,9 @@ current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
 
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+
+MAXIS_footer_month = CM_mo
+MAXIS_footer_year = CM_yr 
 '----------------------------------------------------------------------------------------------------DAIL
 EMReadscreen dail_check, 4, 4, 14 'changed from DAIL to view to ensure we are in DAIL/DAIL'
 IF dail_check = "View" THEN
@@ -402,17 +405,32 @@ IF OP_program <> "HC" THEN  EMWriteScreen Claim_number, 17, 9
 TRANSMIT 'this will take us back to IEVP main menu'
 
 EmReadScreen panel_name, 4, 02, 52
-IF panel_name = "IEVP" THEN msgbox "Script did not find IEVP."
+IF panel_name = "IEVP" THEN 'msgbox "Script did not find IEVP."
+    CALL back_to_SELF
+    CALL navigate_to_MAXIS_screen("INFC" , "____")
+    CALL write_value_and_transmit("IEVP", 20, 71)
+    CALL write_value_and_transmit(SSN_number_read, 3, 63)
+End If
 '------------------------------------------------------------------back on the IEVP menu, making sure that the match cleared
 'msgbox panel_name
-EMReadScreen days_pending, 5, 7, 72
+EMReadScreen days_pending, 5, row, 72
 days_pending = trim(days_pending)
-IF IsNumeric(days_pending) = TRUE THEN
-	match_cleared = FALSE
-	script_end_procedure("This match did not appear to clear. Please check case, and try again.")
-ELSE
-	match_cleared = TRUE
-END IF
+atch_cleared = TRUE
+IF IsNumeric(days_pending) = TRUE THEN match_cleared = FALSE
+
+If match_cleared = FALSE Then
+    confirm_cleared = MsgBox ("The script cannot identify that this match has cleared." & vbNewLine & vbNewLine & "Review IEVP and find the match that is being cleared with this run." &vbNewLine & " ** HAS THE MATCH BEEN CLEARED? **", vbQuestion + vbYesNo, "Confirm Match Cleared")
+
+    if confirm_cleared = vbYes Then match_cleared = TRUE
+End If
+If match_cleared = FALSE Then script_end_procedure("This match did not appear to clear. Please check case, and try again.")
+
+' 	match_cleared = FALSE
+' 	script_end_procedure("This match did not appear to clear. Please check case, and try again.")
+' ELSE
+' 	match_cleared = TRUE
+' END IF
+
 IF IEVS_type = "WAGE" THEN
 	IF casenote_quarter = 1 THEN IEVS_quarter = "1ST"
 	IF casenote_quarter = 2 THEN IEVS_quarter = "2ND"
