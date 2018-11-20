@@ -106,7 +106,7 @@ current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
 EMConnect ""
 
 MAXIS_footer_month = CM_mo
-MAXIS_footer_year = CM_yr 
+MAXIS_footer_year = CM_yr
 '----------------------------------------------------------------------------------------------------DAIL
 EMReadscreen dail_check, 4, 4, 14 'changed from DAIL to view to ensure we are in DAIL/DAIL'
 IF dail_check = "View" THEN
@@ -378,13 +378,29 @@ IF panel_name <> "IULA" THEN
 End If
 
 EMWriteScreen "030", 12, 46
-IF programs = "Health Care" THEN
-	' EMWriteScreen "BE", row + 1, col + 1
-    EMWriteScreen "BE", 12, 58
-ELSE
-	' EMWriteScreen "CC", row + 1, col + 1
-    EMWriteScreen "CC", 12, 58
-END IF
+
+col = 57
+Do
+    EMReadscreen action_header, 4, 11, col
+
+    If action_header <> "    " Then
+        If action_header = "ACTH" Then
+            EMWriteScreen "BE", 12, col+1
+        Else
+            EMWriteScreen "CC", 12, col+1
+        End If
+    End If
+
+    col = col + 6
+Loop until action_header = "    "
+
+' IF programs = "Health Care" THEN
+' 	' EMWriteScreen "BE", row + 1, col + 1
+'     EMWriteScreen "BE", 12, 58
+' ELSE
+' 	' EMWriteScreen "CC", row + 1, col + 1
+'     EMWriteScreen "CC", 12, 58
+' END IF
 
 TRANSMIT
 '----------------------------------------------------------------------------------------writing the note on IULB
