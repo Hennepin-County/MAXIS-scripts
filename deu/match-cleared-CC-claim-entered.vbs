@@ -453,7 +453,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
 		Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
 		Call write_variable_in_CASE_NOTE("----- ----- -----")
 	END IF
-END IF
+
 IF HC_claim_number <> "" THEN
 	Call write_variable_in_CASE_NOTE("HC OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & HC_from & " through " & HC_to)
 	Call write_variable_in_CASE_NOTE("* HC Claim # " & HC_claim_number & " Amt $" & HC_Claim_amount)
