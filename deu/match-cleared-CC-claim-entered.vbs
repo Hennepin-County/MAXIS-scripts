@@ -465,11 +465,12 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
 CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
 CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
+Call write_variable_in_CASE_NOTE("----- ----- -----")
+Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+IF OP_program_II <> "Select:" then
+	Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
 	Call write_variable_in_CASE_NOTE("----- ----- -----")
-	IF OP_program_II <> "Select:" then
-		Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-		Call write_variable_in_CASE_NOTE("----- ----- -----")
-	END IF
+END IF
 
 IF HC_claim_number <> "" THEN
 	Call write_variable_in_CASE_NOTE("HC OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & HC_from & " through " & HC_to)
