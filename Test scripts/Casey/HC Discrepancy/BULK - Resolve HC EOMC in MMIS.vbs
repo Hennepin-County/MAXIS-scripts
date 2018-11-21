@@ -872,6 +872,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
 
         'If there is a second program for this client, we are goind to do it all over again.
         If EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) <> "" Then
+            EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) = 1
             relg_row = 6                'top of the list of Spans
             span_found = FALSE          'reset this for the next program
             Do
@@ -944,6 +945,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
             If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = "99/99/99" or EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then               'if the span has an open end date
                 EMWriteScreen "C", 2, 19                                                    'going in to change
                 EMWriteScreen PMI_Number, 4, 19                                             'enter through the PMI because navigation is easier
+                ' MsgBox "Going in to CHANGE" & vbNewLine & "Prog 1 - " & EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) & " END - " & EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) & vbNewLine & "PROG 2 - " &  EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) & " END - " & EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt)
                 transmit
 
                 EMWriteScreen "RELG", 1, 8                  'go to RELG where all the elig detail is
@@ -955,6 +957,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
 
                 'THIS IS MY NEW CODE TO TRY THE THINGS
                 If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = "99/99/99" Then
+                    ' MsgBox "PROG 1" & vbNewLine & "PAGE - " & EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) & vbNewLine & "ROW - " & EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt)
                     If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) = 1 Then
                         If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 6 Then prog_one_order = 1
                         If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 10 Then prog_one_order = 2
@@ -969,6 +972,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                 End If
 
                 If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then
+                    ' MsgBox "PROG 2" & vbNewLine & "PAGE - " & EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) & vbNewLine & "ROW - " & EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt)
                     If EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) = 1 Then
                         If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 6 Then prog_two_order = 1
                         If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 10 Then prog_two_order = 2
@@ -981,6 +985,8 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                         If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 18 Then prog_two_order = 8
                     End If
                 End If
+
+                ' MsgBox "PROG one order - " & prog_one_order & vbNewLine & "PROG two order - " & prog_two_order
 
                 For each_prog = 8 to 1 Step -1
 
@@ -1029,8 +1035,12 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                         EMWriteScreen mmis_last_day_date, relg_row+1, 36                'entering the last day of the current month and changing status to closed
                         EMWriteScreen "C", relg_row+1, 62
 
+                        ' MsgBox "ORDER - " & each_prog & vbNewLine & "ROW - " & relg_row
+
                     End If
                 Next
+
+                ' MsgBox "Changes Made"
 
                 '
                 ' 'END OF NEW CODE
@@ -1104,12 +1114,48 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
 
                     relg_row = EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt)
 
+                    EMReadScreen relg_prog, 2, relg_row, 10 'reading the prog and elig type information
+                    EMReadScreen relg_elig, 2, relg_row, 33
+                    EMReadScreen relg_case_num, 8, relg_row, 73 'reading the case number for this span
+
+                    If relg_prog = "EH" Then relg_prog = "EMA"
+                    IF EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "QI1" AND relg_prog = "SL" Then relg_prog = "QI1"
+
+                    IF left(EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt), 2) = relg_prog AND MAXIS_case_number = relg_case_num Then
+
+                    Else
+                        Do
+                            pf7
+                            EmReadScreen top_check, 13, 24, 2
+                        Loop Until top_check = "CANNOT SCROLL"
+
+                        relg_row = 6
+                        Do
+                            EMReadScreen relg_prog, 2, relg_row, 10 'reading the prog and elig type information
+                            EMReadScreen relg_elig, 2, relg_row, 33
+                            EMReadScreen relg_case_num, 8, relg_row, 73 'reading the case number for this span
+
+                            If relg_prog = "EH" Then relg_prog = "EMA"
+                            IF EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "QI1" AND relg_prog = "SL" Then relg_prog = "QI1"
+
+                            IF left(EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt), 2) = relg_prog AND MAXIS_case_number = relg_case_num Then Exit Do
+
+                            relg_row = relg_row + 4
+                            If relg_row = 22 Then
+                                PF8
+                                relg_row = 6
+                            End If
+                            EmReadScreen bottom_check, 13, 24, 2
+                        Loop Until bottom_check = "CANNOT SCROLL"
+
+                    End If
+
                     EMReadScreen confirm_mmis_end, 8, relg_row+1, 36        'reading the end date and status to make sure the change was successful
                     EMReadScreen confirm_mmis_stat, 1, relg_row+1, 62
 
                     If confirm_mmis_end <> "99/99/99" Then
 
-                        If DateValue(confirm_mmis_end) = DateValue(mmis_last_day_date) AND confirm_mmis_stat = "C" Then   'if they match, we will update the array information
+                        If confirm_mmis_end = mmis_last_day_date AND confirm_mmis_stat = "C" Then   'if they match, we will update the array information
 
                             EOMC_CLIENT_ARRAY(MMIS_new_end_one, hc_clt) = mmis_last_day_date        'This adds the last day of the month to the new MMIS end date
 
@@ -1161,12 +1207,48 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
 
                     relg_row = EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt)
 
+                    EMReadScreen relg_prog, 2, relg_row, 10 'reading the prog and elig type information
+                    EMReadScreen relg_elig, 2, relg_row, 33
+                    EMReadScreen relg_case_num, 8, relg_row, 73 'reading the case number for this span
+
+                    If relg_prog = "EH" Then relg_prog = "EMA"
+                    IF EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "QI1" AND relg_prog = "SL" Then relg_prog = "QI1"
+
+                    IF left(EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt), 2) = relg_prog AND MAXIS_case_number = relg_case_num Then
+
+                    Else
+                        Do
+                            pf7
+                            EmReadScreen top_check, 13, 24, 2
+                        Loop Until top_check = "CANNOT SCROLL"
+
+                        relg_row = 6
+                        Do
+                            EMReadScreen relg_prog, 2, relg_row, 10 'reading the prog and elig type information
+                            EMReadScreen relg_elig, 2, relg_row, 33
+                            EMReadScreen relg_case_num, 8, relg_row, 73 'reading the case number for this span
+
+                            If relg_prog = "EH" Then relg_prog = "EMA"
+                            IF EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "QI1" AND relg_prog = "SL" Then relg_prog = "QI1"
+
+                            IF left(EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt), 2) = relg_prog AND MAXIS_case_number = relg_case_num Then Exit Do
+
+                            relg_row = relg_row + 4
+                            If relg_row = 22 Then
+                                PF8
+                                relg_row = 6
+                            End If
+                            EmReadScreen bottom_check, 13, 24, 2
+                        Loop Until bottom_check = "CANNOT SCROLL"
+
+                    End If
+
                     EMReadScreen confirm_mmis_end, 8, relg_row+1, 36
                     EMReadScreen confirm_mmis_stat, 1, relg_row+1, 62
 
                     If confirm_mmis_end <> "99/99/99" Then
 
-                        If  DateValue(confirm_mmis_end) = DateValue(mmis_last_day_date) AND confirm_mmis_stat = "C" Then
+                        If  confirm_mmis_end = mmis_last_day_date AND confirm_mmis_stat = "C" Then
 
                             EOMC_CLIENT_ARRAY(MMIS_new_end_two, hc_clt) = mmis_last_day_date
 
