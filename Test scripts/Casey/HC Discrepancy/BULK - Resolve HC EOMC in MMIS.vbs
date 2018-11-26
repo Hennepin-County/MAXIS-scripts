@@ -44,209 +44,51 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/21/2018", "Removed custom function navigate_to_spec_MMIS_region(group_security_selection). Added test function navigate_to_MAXIS_test. Updated function 'keep_MMIS_passworded_in()' that calls these functions.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/21/2018", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'FUNCTIONS==================================================================================================================
-function navigate_to_spec_MMIS_region(group_security_selection)
-'--- This function is to be used when navigating to MMIS from another function in BlueZone (MAXIS, PRISM, INFOPAC, etc.)
-'~~~~~ group_security_selection: region of MMIS to access - programed options are "CTY ELIG STAFF/UPDATE", "GRH UPDATE", "GRH INQUIRY", "MMIS MCRE"
-'===== Keywords: MMIS, navigate
-	attn
-	Do
-		EMReadScreen MAI_check, 3, 1, 33
-		If MAI_check <> "MAI" then EMWaitReady 1, 1
-	Loop until MAI_check = "MAI"
-
-	EMReadScreen mmis_check, 7, 15, 15
-	IF mmis_check = "RUNNING" THEN
-		EMWriteScreen "10", 2, 15
-		transmit
-	ELSE
-		EMConnect"A"
-		attn
-		EMReadScreen mmis_check, 7, 15, 15
-		IF mmis_check = "RUNNING" THEN
-			EMWriteScreen "10", 2, 15
-			transmit
-		ELSE
-			EMConnect"B"
-			attn
-			EMReadScreen mmis_b_check, 7, 15, 15
-			IF mmis_b_check <> "RUNNING" THEN
-				script_end_procedure("You do not appear to have MMIS running. This script will now stop. Please make sure you have an active version of MMIS and re-run the script.")
-			ELSE
-				EMWriteScreen "10", 2, 15
-				transmit
-			END IF
-		END IF
-	END IF
-
-	DO
-		PF6
-		EMReadScreen password_prompt, 38, 2, 23
-		IF password_prompt = "ACF2/CICS PASSWORD VERIFICATION PROMPT" then
-			Do
-
-                BeginDialog Dialog1, 0, 0, 81, 25, "Dialog"
-                  Text 10, 10, 65, 10, "Need Password"
-                EndDialog
-
-                dialog Dialog1
-
-				CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-	 		Loop until are_we_passworded_out = false					'loops until user passwords back in
-		End if
-		EMReadScreen session_start, 18, 1, 7
-	LOOP UNTIL session_start = "SESSION TERMINATED"
-
-	'Getting back in to MMIS and trasmitting past the warning screen (workers should already have accepted the warning when they logged themselves into MMIS the first time, yo.
-	EMWriteScreen "MW00", 1, 2
-	transmit
-	transmit
-
-	group_security_selection = UCASE(group_security_selection)
-
-	EMReadScreen MMIS_menu, 24, 3, 30
-	If MMIS_menu = "GROUP SECURITY SELECTION" Then
-		EMReadScreen mmis_group_selection, 4, 1, 65
-		EMReadScreen mmis_group_type, 4, 1, 57
-
-		correct_group = FALSE
-
-		Select Case group_security_selection
-
-		Case "CTY ELIG STAFF/UPDATE"
-			mmis_group_selection_part = left(mmis_group_selection, 2)
-
-			If mmis_group_selection_part = "C3" Then correct_group = TRUE
-			If mmis_group_selection_part = "C4" Then correct_group = TRUE
-
-			If correct_group = FALSE Then script_end_procedure("It does not appear you have access to the correct region of MMIS. This script requires access to the County Eligibility region. The script will now stop.")
-
-		Case "GRH UPDATE"
-			If mmis_group_selection  = "GRHU" Then correct_group = TRUE
-
-			If correct_group = FALSE Then script_end_procedure("It does not appear you have access to the correct region of MMIS. This script requires access to the GRH Update region. The script will now stop.")
-
-		Case "GRH INQUIRY"
-			If mmis_group_selection  = "GRHI" Then correct_group = TRUE
-
-			If correct_group = FALSE Then script_end_procedure("It does not appear you have access to the correct region of MMIS. This script requires access to the GRH Inquiry region. The script will now stop.")
-
-		Case "MMIS MCRE"
-			If mmis_group_selection  = "EK01" Then correct_group = TRUE
-			If mmis_group_selection  = "EKIQ" Then correct_group = TRUE
-
-			If correct_group = FALSE Then script_end_procedure("It does not appear you have access to the correct region of MMIS. This script requires access to the MCRE region. The script will now stop.")
-
-		End Select
-
-	Else
-		Select Case group_security_selection
-
-		Case "CTY ELIG STAFF/UPDATE"
-			row = 1
-			col = 1
-			EMSearch " C3", row, col
-			If row <> 0 Then
-				EMWriteScreen "X", row, 4
-				transmit
-			Else
-				row = 1
-				col = 1
-				EMSearch " C4", row, col
-				If row <> 0 Then
-					EMWriteScreen "X", row, 4
-					transmit
-				Else
-					script_end_procedure("You do not appear to have access to the County Eligibility area of MMIS, this script requires access to this region. The script will now stop.")
-				End If
-			End If
-
-			'Now it finds the recipient file application feature and selects it.
-			row = 1
-			col = 1
-			EMSearch "RECIPIENT FILE APPLICATION", row, col
-			EMWriteScreen "X", row, col - 3
-			transmit
-
-		Case "GRH UPDATE"
-			row = 1
-			col = 1
-			EMSearch "GRHU", row, col
-			If row <> 0 Then
-				EMWriteScreen "x", row, 4
-				transmit
-			Else
-				script_end_procedure("You do not appear to have access to the GRH area of MMIS, this script requires access to this region. The script will now stop.")
-			End If
-
-			'Now it finds the pror authorization application feature and selects it.
-			row = 1
-			col = 1
-			EMSearch "PRIOR AUTHORIZATION   ", row, col
-			EMWriteScreen "x", row, col - 3
-			transmit
-
-		Case "GRH INQUIRY"
-			row = 1
-			col = 1
-			EMSearch "GRHI", row, col
-			If row <> 0 Then
-				EMWriteScreen "x", row, 4
-				transmit
-			Else
-				script_end_procedure("You do not appear to have access to the GRH Inquiry area of MMIS, this script requires access to this region. The script will now stop.")
-			End If
-
-			'Now it finds the pror authorization application feature and selects it.
-			row = 1
-			col = 1
-			EMSearch "PRIOR AUTHORIZATION   ", row, col
-			EMWriteScreen "x", row, col - 3
-			transmit
-
-		Case "MMIS MCRE"
-			row = 1
-			col = 1
-			EMSearch "EK01", row, col
-			If row <> 0 Then
-				EMWriteScreen "x", row, 4
-				transmit
-			Else
-				row = 1
-				col = 1
-				EMSearch "EKIQ", row, col
-				If row <> 0 Then
-					EMWriteScreen "x", row, 4
-					transmit
-				Else
-					script_end_procedure("You do not appear to have access to the MCRE area of MMIS, this script requires access to this region. The script will now stop.")
-				End If
-			End If
-
-			'Now it finds the recipient file application feature and selects it.
-			row = 1
-			col = 1
-			EMSearch "RECIPIENT FILE APPLICATION", row, col
-			EMWriteScreen "x", row, col - 3
-			transmit
-
-		End Select
-	End If
-end function
+function navigate_to_MAXIS_test(maxis_mode)
+'--- This function is to be used when navigating back to MAXIS from another function in BlueZone (MMIS, PRISM, INFOPAC, etc.)
+'~~~~~ maxis_mode: This parameter needs to be "maxis_mode"
+'===== Keywords: MAXIS, navigate
+    attn
+    Do
+        EMReadScreen MAI_check, 3, 1, 33
+        If MAI_check <> "MAI" then EMWaitReady 1, 1
+    Loop until MAI_check = "MAI"
+    
+    EMReadScreen prod_check, 7, 6, 15
+    IF prod_check = "RUNNING" THEN
+        Call write_value_and_transmit("1", 2, 15)
+    ELSE
+        EMConnect"A"
+        attn
+        EMReadScreen prod_check, 7, 6, 15
+        IF prod_check = "RUNNING" THEN
+            Call write_value_and_transmit("1", 2, 15)
+        ELSE
+            EMConnect"B"
+            attn
+            EMReadScreen prod_check, 7, 6, 15
+            IF prod_check = "RUNNING" THEN
+                Call write_value_and_transmit("1", 2, 15)
+            Else 
+                script_end_procedure("You do not appear to have Production mode running. This script will now stop. Please make sure you have production and MMIS open in the same session, and re-run the script.")
+            END IF
+        END IF
+    END IF
+end function 
 
 'function specific to this script - running_stopwatch and MX_environment are defined outside of this function
 'meant to keep MMIS from passwording out while this long bulk script is running
 function keep_MMIS_passworded_in()
     If timer - running_stopwatch > 720 Then         'this means the script has been running for more than 12 minutes since we last popped in to MMIS
-        Call navigate_to_spec_MMIS_region("CTY ELIG STAFF/UPDATE")      'Going to MMIS'
-        Call navigate_to_MAXIS(MX_environment)                          'going back to MAXIS'
-
+        Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")      'Going to MMIS'
+        Call navigate_to_MAXIS_test(maxis_mode)                       'going back to MAXIS'
         running_stopwatch = timer                                       'resetting the stopwatch'
     End If
 end function
@@ -351,7 +193,7 @@ Call check_for_MAXIS(True)
 Call back_to_SELF                                               'starting at the SELF panel
 EMReadScreen MX_environment, 13, 22, 48                         'seeing which MX environment we are in
 MX_environment = trim(MX_environment)
-Call navigate_to_spec_MMIS_region("CTY ELIG STAFF/UPDATE")      'Going to MMIS'
+Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")        'Going to MMIS'
 Call navigate_to_MAXIS(MX_environment)                          'going back to MAXIS
 
 running_stopwatch = timer               'setting the running timer so we log in to MMIS within every 15 mintues so we don't password out
@@ -787,7 +629,7 @@ Next
 
 'need to get to ground zero
 Call back_to_SELF
-Call navigate_to_spec_MMIS_region("CTY ELIG STAFF/UPDATE")      'Going to MMIS'
+Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")      'Going to MMIS'
 
 'Looping through each of the HC clients while in MMIS
 For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
