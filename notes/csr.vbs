@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/27/2018", "Removed Paperless (*) IR Option as this CASE/NOTE was insufficient.", "Casey Love, Hennepin County")
 call changelog_update("01/17/2017", "This script has been updated to clean up the case note. The script was case noting the ''Verifs Needed'' section twice. This has been resolved.", "Robert Fewins-Kalb, Anoka County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -56,24 +57,20 @@ MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 171, 220, "Case number dialog"
+BeginDialog case_number_dialog, 0, 0, 171, 125, "Case number dialog"
   EditBox 70, 5, 65, 15, MAXIS_case_number
   EditBox 70, 25, 30, 15, MAXIS_footer_month
   EditBox 105, 25, 30, 15, MAXIS_footer_year
   CheckBox 30, 60, 35, 10, "SNAP", SNAP_checkbox
   CheckBox 80, 60, 30, 10, "GRH", GRH_checkbox
   CheckBox 130, 60, 25, 10, "HC", HC_checkbox
-  CheckBox 10, 80, 90, 10, "Is this an exempt (*) IR?", paperless_checkbox
-  EditBox 70, 95, 95, 15, Worker_signature
+  EditBox 70, 85, 95, 15, Worker_signature
   ButtonGroup ButtonPressed
-    OkButton 60, 115, 50, 15
-    CancelButton 115, 115, 50, 15
+    OkButton 60, 105, 50, 15
+    CancelButton 115, 105, 50, 15
   Text 5, 30, 65, 10, "Footer month/year:"
   GroupBox 10, 45, 155, 30, "Programs recertifying"
-  Text 10, 100, 60, 10, "Worker Signature"
-  GroupBox 10, 140, 155, 75, "Exempt IR checkbox warning:"
-  Text 15, 155, 145, 25, "If you select ''Is this an exempt IR'', the case note will only read that the paperless IR was cleared (no case information listed)."
-  Text 15, 190, 140, 20, " If you are processing a CSR with SNAP, you should NOT check that option."
+  Text 10, 90, 60, 10, "Worker Signature"
   Text 20, 10, 45, 10, "Case number:"
 EndDialog
 
@@ -220,15 +217,6 @@ Do
 	LOOP UNTIL err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
-
-'If "paperless" was checked, the script will put a simple case note in and end.
-If paperless_checkbox = 1 then
-	call start_a_blank_CASE_NOTE
-	Call write_variable_in_case_note("***Cleared paperless IR for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "***")
-	Call write_variable_in_case_note("---")
-	Call write_variable_in_case_note(worker_signature)
-	call script_end_procedure("")
-End if
 
 'confirms that footer month/year from dialog matches footer month/year on MAXIS
 Call MAXIS_footer_month_confirmation
