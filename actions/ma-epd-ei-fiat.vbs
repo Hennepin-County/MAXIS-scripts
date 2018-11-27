@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/27/2018", "Changed the case options to 'Initial' and 'Update' for the type of approval being made.", "Casey Love, Hennepin County")
 call changelog_update("08/24/2018", "Fixed script to accommodate a $0 income job.", "Casey Love, Hennepin County")
 call changelog_update("05/16/2018", "Added a place to input the footer month and year for the start of MA EPD.", "Casey Love, Hennepin County")
 call changelog_update("05/07/2018", "Updated the script to identify cases at application versus review, and provide different functionality for those options. Average income will now be determined from the budget on ELIG.", "Casey Love, Hennepin County")
@@ -156,13 +157,13 @@ end function
 BeginDialog case_number_dialog, 0, 0, 161, 85, "Case number"
   EditBox 90, 5, 65, 15, MAXIS_case_number
   EditBox 90, 25, 30, 15, memb_number
-  DropListBox 90, 45, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", case_status
+  DropListBox 90, 45, 65, 45, "Select One..."+chr(9)+"Initial"+chr(9)+"Update", case_status
   ButtonGroup ButtonPressed
     OkButton 40, 65, 50, 15
     CancelButton 100, 65, 50, 15
   Text 5, 10, 80, 10, "Enter your case number:"
   Text 20, 30, 65, 10, "HH memb number:"
-  Text 50, 50, 35, 10, "Case is at"
+  Text 30, 50, 55, 10, "Approval will be "
 EndDialog
 
 'THE SCRIPT
@@ -252,7 +253,7 @@ If case_status = "Recertification" Then
     Else
         MAXIS_footer_month = CM_mo
         MAXIS_footer_year = CM_yr
-    End If 
+    End If
 
     Call back_to_SELF       'Getting out of STAT so that we can switch months if needed
 
