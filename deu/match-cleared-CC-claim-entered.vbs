@@ -421,7 +421,7 @@ IF OP_program <> "HC" THEN  EMWriteScreen Claim_number, 17, 9
 TRANSMIT 'this will take us back to IEVP main menu'
 
 EmReadScreen panel_name, 4, 02, 52
-IF panel_name = "IEVP" THEN 'msgbox "Script did not find IEVP."
+IF panel_name <> "IEVP" THEN 'msgbox "Script did not find IEVP."
     CALL back_to_SELF
     CALL navigate_to_MAXIS_screen("INFC" , "____")
     CALL write_value_and_transmit("IEVP", 20, 71)
