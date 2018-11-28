@@ -186,12 +186,12 @@ If MAXIS_case_number <> "" Then
         EMReadScreen ma_status, 7, row, col+4   'Reading the status'
         'MsgBox ma_status
         ma_status = trim(ma_status)             'cutting blank
-        If ma_status = "ACTIVE" Then case_status = "Recertification"    'If a case is alread active, it is often at review'
-        If ma_status = "PENDING" Then case_status = "Application"       'If a case is pending then it is usually at application
+        If ma_status = "ACTIVE" Then case_status = "Update"    'If a case is alread active, it is often at review'
+        If ma_status = "PENDING" Then case_status = "Initial"       'If a case is pending then it is usually at Initial
     End If
 End If
 
-'Running a dialog to get case number, member number and if the case is at application or recertification.'
+'Running a dialog to get case number, member number and if the case is at Initial or Update.'
 Do
     err_msg = ""
 
@@ -201,7 +201,7 @@ Do
     If MAXIS_case_number = "" Then                                             err_msg = err_msg & vbNewLine & "* Enter a case number to continue."
     If IsNumeric(MAXIS_case_number) = FALSE or len(MAXIS_case_number) > 8 Then err_msg = err_msg & vbNewLine & "* Case number appears to be invalid. Check the case number and fix."
     If memb_number = "" Then                                                   err_msg = err_msg & vbNewLine & "* Enter a reference number for the member on MA-EPD."
-    If case_status = "Select One..." Then                                      err_msg = err_msg & vbNewLine & "* Identify if case is at recertification or application."
+    If case_status = "Select One..." Then                                      err_msg = err_msg & vbNewLine & "* Identify if approval is update or initial."
     'If MAXIS_footer_month = "" OR MAXIS_footer_year = "" Then                  err_msg = err_msg & vbNewLine & "* Enter the MAXIS footer month and year that has the best income information in it."
 
     If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
@@ -231,8 +231,8 @@ const verif_code        = 18
 Dim JOBS_ARRAY()                    'setting up the array
 ReDim JOBS_ARRAY(verif_code, 0)
 
-'Cases at recertification have a different information to look at
-If case_status = "Recertification" Then
+'Cases at Update have a different information to look at
+If case_status = "Update" Then
 
     Call Navigate_to_MAXIS_screen("STAT", "REVW")       'Going to find the REVW month as that this the relevant JOBS information
 
@@ -337,8 +337,8 @@ If case_status = "Recertification" Then
     Next
 End If
 
-'For applications, there are months with pay already put in it.
-If case_status = "Application" Then
+'For Initials, there are months with pay already put in it.
+If case_status = "Initial" Then
 
     Call Navigate_to_MAXIS_screen("STAT", "HCRE")   'Going to HCRE to get information about when to start the FIATing
 
@@ -682,9 +682,9 @@ Next
 'Dynamic dialog to have the worker confirm the average income
 y_pos = 60
 BeginDialog average_income_dlg, 0, 0, 480, 105 + (UBOUND(JOBS_ARRAY, 2) *20), "Average Monthly JOBS Income"
-  Text 10, 10, 95, 10, "This case is at " & case_status     'identify if at application or recertification
-  If case_status = "Application" Then Text 10, 25, 210, 10, "The date of application is " & application_date & " and the first month to FIAT is"
-  If case_status = "Recertification" Then Text 10, 25, 210, 10, "The recertificiation is for " & MAXIS_footer_month & "/" & MAXIS_footer_year & " and the first month to FIAT is"
+  Text 10, 10, 95, 10, "This case is at " & case_status     'identify if at Initial or Update
+  If case_status = "Initial" Then Text 10, 25, 210, 10, "The date of application is " & application_date & " and the first month to FIAT is"
+  If case_status = "Update" Then Text 10, 25, 210, 10, "The ongoing case is for " & MAXIS_footer_month & "/" & MAXIS_footer_year & " and the first month to FIAT is"
   EditBox 225, 20, 15, 15, MAXIS_footer_month
   EditBox 245, 20, 15, 15, MAXIS_footer_year
   Text 10, 45, 125, 10, "The script found the following  job(s):"
@@ -714,8 +714,8 @@ Do
 
     If trim(MAXIS_footer_month) = "" or trim(MAXIS_footer_year) = "" Then
         err_msg = err_msg & vbNewLine & "* Enter the footer month and year in which the FIATing should start."
-        If case_status = "Application" Then err_msg = err_msg & vbNewLine & "  - This case is at application and most cases at application should be FIATed starting in the month of application."
-        If case_status = "Recertification" Then err_msg = err_msg & vbNewLine & "  - This case is at recertification and most cases at recertification should be FIATed starting the first month of the next budget period."
+        If case_status = "Initial" Then err_msg = err_msg & vbNewLine & "  - This case is at application and most cases at application should be FIATed starting in the month of application."
+        If case_status = "Update" Then err_msg = err_msg & vbNewLine & "  - This case is ongoing and most ongoing cases should be FIATed starting the first month of the next budget period."
     End If
 
     For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
