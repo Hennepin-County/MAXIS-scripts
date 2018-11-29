@@ -45,6 +45,7 @@ changelog = array()
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
 call changelog_update("01/19/2017", "Initial version.", "Ilse Ferris, Hennepin County")
+call changelog_update("11/29/2017", "Update script for denials to remove start date.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -71,13 +72,13 @@ Do
 		if ButtonPressed = 0 then StopScript
 		if IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		If SMRT_actions = "Select one..." THEN err_msg = err_msg & vbNewLine & "* Select a SMRT action."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine		
-	Loop until err_msg = ""	
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+	Loop until err_msg = ""
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
 'Initial request action coding----------------------------------------------------------------------------------------------------
-If SMRT_actions = "Initial request" then 
+If SMRT_actions = "Initial request" then
     BeginDialog , 0, 0, 326, 180, "Initial SMRT referral dialog"
       EditBox 80, 10, 75, 15, SMRT_member
       EditBox 270, 10, 50, 15, referral_date
@@ -102,8 +103,8 @@ If SMRT_actions = "Initial request" then
       Text 155, 40, 45, 10, "If yes, why?:"
       Text 10, 65, 65, 10, "Reason for referral:"
     EndDialog
-	
-    Do 
+
+    Do
     	Do
     		err_msg = ""
     		Dialog
@@ -115,13 +116,13 @@ If SMRT_actions = "Initial request" then
 			If trim(referral_reason) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the reason for the referral."
 			If isdate(SMRT_start_date) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid SMRT start date."
 			If trim(action_taken) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the actions taken."
-			If trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature." 
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine		
-    	Loop until err_msg = ""	
+			If trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    	Loop until err_msg = ""
     Call check_for_password(are_we_passworded_out)
     LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
-	start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode		 
+	start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 	Call write_variable_in_CASE_NOTE("---Initial SMRT referral requested---")
 	call write_bullet_and_variable_in_CASE_NOTE("SMRT requested for", SMRT_member)
 	Call write_bullet_and_variable_in_CASE_NOTE("SMRT referral completed on", referral_date)
@@ -129,15 +130,15 @@ If SMRT_actions = "Initial request" then
 	If referred_exp = "Yes" then Call write_bullet_and_variable_in_CASE_NOTE("Expedited reason", expedited_reason)
 	Call write_bullet_and_variable_in_CASE_NOTE("Reason for referral", referral_reason)
 	Call write_bullet_and_variable_in_CASE_NOTE("SMRT start date", SMRT_start_date)
-	Call write_bullet_and_variable_in_CASE_NOTE("Other SMRT notes", other_notes) 
+	Call write_bullet_and_variable_in_CASE_NOTE("Other SMRT notes", other_notes)
 	Call write_bullet_and_variable_in_CASE_NOTE("Actions taken", action_taken)
 	If ECF_workflow_checkbox = 1 then call write_variable_in_CASE_NOTE("* ECF workflow has been completed in ECF.")
 	Call write_variable_in_CASE_NOTE ("---")
-	call write_variable_in_CASE_NOTE(worker_signature)	 
-END If 	
+	call write_variable_in_CASE_NOTE(worker_signature)
+END If
 
 'ISDS referral completed & inputted action coding----------------------------------------------------------------------------------------------------
-If SMRT_actions = "ISDS referral completed" then  
+If SMRT_actions = "ISDS referral completed" then
     BeginDialog , 0, 0, 326, 130, "ISDS referral completed for SMRT"
       EditBox 80, 10, 75, 15, SMRT_member
       EditBox 225, 10, 50, 15, referral_date
@@ -157,33 +158,33 @@ If SMRT_actions = "ISDS referral completed" then
       Text 165, 40, 60, 10, "SMRT start date:"
       Text 15, 115, 60, 10, "Worker Signature:"
     EndDialog
-    Do 
+    Do
     	Do
     		err_msg = ""
     		Dialog
     		cancel_confirmation
     		If SMRT_member = "" THEN err_msg = err_msg & vbNewLine & "* Enter the member info the SMRT referral."
     		If isdate(referral_date) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid referral date."
-    		If trim(prog_requested) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the program requested by the client." 
+    		If trim(prog_requested) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the program requested by the client."
     		If isdate(SMRT_start_date) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid SMRT start date."
 			If trim(action_taken) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the actions taken."
-    		If trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature." 
-    		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine		
-    	Loop until err_msg = ""	
+    		If trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    	Loop until err_msg = ""
     Call check_for_password(are_we_passworded_out)
     LOOP UNTIL check_for_password(are_we_passworded_out) = False
-    
-    start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode		 
+
+    start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("---ISDS referral completed for SMRT---")
     call write_bullet_and_variable_in_CASE_NOTE("SMRT requested for", SMRT_member)
     Call write_bullet_and_variable_in_CASE_NOTE("SMRT referral completed on", referral_date)
     Call write_bullet_and_variable_in_CASE_NOTE("Program requested", prog_requested)
     Call write_bullet_and_variable_in_CASE_NOTE("Reason for referral", referral_reason)
     Call write_bullet_and_variable_in_CASE_NOTE("SMRT start date", SMRT_start_date)
-    Call write_bullet_and_variable_in_CASE_NOTE("Other SMRT notes", other_notes) 
+    Call write_bullet_and_variable_in_CASE_NOTE("Other SMRT notes", other_notes)
     Call write_bullet_and_variable_in_CASE_NOTE("Actions taken", action_taken)
     Call write_variable_in_CASE_NOTE ("---")
-    call write_variable_in_CASE_NOTE(worker_signature)	 
+    call write_variable_in_CASE_NOTE(worker_signature)
 END If
 
 'Determination received action coding----------------------------------------------------------------------------------------------------
@@ -209,32 +210,32 @@ If SMRT_actions = "Determination received" then
       Text 10, 40, 70, 10, "Approved programs:"
     EndDialog
 
-    Do 
+    Do
     	Do
     		err_msg = ""
     		Dialog
     		cancel_confirmation
     		If SMRT_member = "" THEN err_msg = err_msg & vbNewLine & "* Enter the member info the SMRT referral."
-    		If SMRT_determination = "Select one..." THEN err_msg = err_msg & vbNewLine & "* Select the determination status." 
-    		If trim(appd_progs) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the approved programs." 
-    		If isdate(SMRT_start_date) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid SMRT start date."
+    		If SMRT_determination = "Select one..." THEN err_msg = err_msg & vbNewLine & "* Select the determination status."
+    		If trim(appd_progs) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the approved programs."
+    		If isdate(SMRT_start_date) = False and SMRT_determination = "Approved" THEN err_msg = err_msg & vbNewLine & "* Enter a valid SMRT start date."
 			If trim(action_taken) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the actions taken."
-    		If trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature." 
-    		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine		
-    	Loop until err_msg = ""	
+    		If trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    	Loop until err_msg = ""
     Call check_for_password(are_we_passworded_out)
     LOOP UNTIL check_for_password(are_we_passworded_out) = False
-    
-    start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode		 
+
+    start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("---SMRT determination received: " & SMRT_determination & "---")
     call write_bullet_and_variable_in_CASE_NOTE("SMRT requested for", SMRT_member)
     Call write_bullet_and_variable_in_CASE_NOTE("Approved programs",appd_progs)
     Call write_bullet_and_variable_in_CASE_NOTE("SMRT start date", SMRT_start_date)
-    Call write_bullet_and_variable_in_CASE_NOTE("Other SMRT notes", other_notes) 
+    Call write_bullet_and_variable_in_CASE_NOTE("Other SMRT notes", other_notes)
     Call write_bullet_and_variable_in_CASE_NOTE("Actions taken", action_taken)
 	If MMIS_checkbox = 1 then Call write_variable_in_CASE_NOTE("* MMIS updated")
     Call write_variable_in_CASE_NOTE ("---")
-    call write_variable_in_CASE_NOTE(worker_signature)	 
+    call write_variable_in_CASE_NOTE(worker_signature)
 END If
 
 script_end_procedure("")
