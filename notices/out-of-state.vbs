@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/29/2018", "Updated for current National Directory information.", "MiKayla Handley, Hennepin County")
 call changelog_update("09/20/2018", "Updated for current content.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -86,7 +87,7 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 
 'Dialog
 Do
-	If ButtonPressed = outofstate_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Documents/National_Directory.PDF")
+	If ButtonPressed = outofstate_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Out_of_State_Phone_Numbers.aspx")
 	Do
 		Dialog client_dialog
 		cancel_confirmation
