@@ -149,6 +149,28 @@ For each worker in worker_array
     Loop until last_page_check = "LAST" or trim(MAXIS_case_number) = ""
 Next
 
+'Opening the Excel file
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = True
+Set objWorkbook = objExcel.Workbooks.Add()
+objExcel.DisplayAlerts = True
+
+'Name for the current sheet'
+ObjExcel.ActiveSheet.Name = "Waived IR Cases"
+
+'Excel headers and formatting the columns
+objExcel.Cells(1, 1).Value     = "BASKET"
+objExcel.Cells(1, 1).Font.Bold = True
+objExcel.Cells(1, 2).Value     = "CASE NBR"
+objExcel.Cells(1, 2).Font.Bold = True
+objExcel.Cells(1, 3).Value     = "SNAP REVW"
+objExcel.Cells(1, 3).Font.Bold = True
+objExcel.Cells(1, 4).Value     = "TIKL SUCCESS"
+objExcel.Cells(1, 4).Font.Bold = True
+
+
+excel_row = 2
+
 case_number_array = split(case_number_array)
 
 For each MAXIS_case_number in case_number_array
@@ -195,6 +217,15 @@ For each MAXIS_case_number in case_number_array
   	If actually_paperless = True then
     	call navigate_to_MAXIS_screen ("stat", "revw")
     	EMReadScreen SNAP_review_check, 1, 7, 60
+        EmReadscreen basket_nbr, 7, 21, 21
+
+        'ADD TO EXCEL
+        objExcel.Cells(excel_row, 1).Value = basket_nbr
+        objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
+        objExcel.Cells(excel_row, 3).Value = SNAP_review_check
+        excel_row = excel_row + 1
+
+
     	If SNAP_review_check <> "N" then
 			STATS_counter = STATS_counter + 1
 	  		cases_to_tikl = cases_to_tikl & "~" & MAXIS_case_number
@@ -221,6 +252,8 @@ For each MAXIS_case_number in case_number_array
 				transmit
 			End if
 		End if
+    Else
+        not_paperless_cases = not_paperless_cases & "~" & MAXIS_case_number
     End if
 Next
 
@@ -231,15 +264,38 @@ Else
     script_end_procedure("No Paperless IR cases found for the worker.")
 End If
 
+excel_row = 2
+
 For each MAXIS_case_number in cases_to_tikl_array
 	navigate_to_MAXIS_screen "DAIL", "WRIT"
     call create_MAXIS_friendly_date(date, 0, 5, 18)
 	EMWritescreen "%^% Sent through background using bulk script %^%", 9, 3
 	transmit
 	EMReadScreen tikl_success, 4, 24, 2
-	If tikl_success <> "    " Then MsgBox "This case - " & MAXIS_case_number & " failed to have a TIKL set, track and case note manually"
+	If tikl_success <> "    " Then
+        objExcel.Cells(excel_row, 4).Value = "Fail"
+        ' MsgBox "This case - " & MAXIS_case_number & " failed to have a TIKL set, track and case note manually"
+    Else
+        .Cells(excel_row, 4).Value = "Success"
+    End If
+    excel_row = excel_row + 1
 	PF3
 Next
+
+Call back_to_SELF
+If not_paperless_cases <> "" Then
+    not_paperless_array = split(not_paperless_cases, "~")
+
+    'It creates a new worksheet and names it
+    objExcel.Worksheets.Add().Name = "Cases that Appear Paperless but are not"
+    objExcel.Cells(1, 1).Value = "CASE NUMBER"
+    objExcel.Cells(1, 1).Font.Bold = TRUE
+    excel_row = 2
+
+    For each MAXIS_case_number in not_paperless_array
+        objExcel.Cells(excel_row, 1).Value = MAXIS_case_number
+    Next
+End If
 
 transmit
 Do
