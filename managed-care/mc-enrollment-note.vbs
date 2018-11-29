@@ -294,7 +294,7 @@ Select Case this_month
     Case "October"
         cut_off_date = #10/22/19#
     Case "November"
-        cut_off_date = #11/18/19#
+        cut_off_date = #11/18/18#
     Case "December"
         cut_off_date = #12/19/18#
 End Select
