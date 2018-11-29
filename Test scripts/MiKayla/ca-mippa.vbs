@@ -59,9 +59,12 @@ changelog_display
 EMConnect ""
 'Navigates to MIPPA Lis Application-Medicare Improvement for Patients and Providers (MIPPA)
 CALL navigate_to_MAXIS_screen("REPT", "MLAR")
+EMReadscreen error_check, 5, 24, 02
+IF error_check <> "" THEN script_end_procedure("You are not on a MIPPA message. This script will stop.")
 row = 11 'this part should be a for next?' can we jsut do a cursor read for now?
 EMReadscreen msg_check, 1, row, 03
 IF msg_check <> "_" THEN script_end_procedure("You are not on a MIPPA message. This script will stop.")
+
 DO
 	EMReadScreen MLAR_maxis_name, 21, row, 5
 	MLAR_maxis_name = TRIM(MLAR_maxis_name)

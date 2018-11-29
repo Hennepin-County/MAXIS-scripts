@@ -131,6 +131,14 @@ BeginDialog good_cause_dialog, 0, 0, 386, 285, "Good Cause"
 EndDialog
 
 'Initial dialog giving the user the option to select the type of good cause action
+MAXIS_case_number = "276348"
+actual_date = "09/01/18"
+memb_number = "01"
+claim_date = "09/15/18"
+child_memb_number = "03, 04"
+review_date = "09/15/19"
+
+
 
 Do
 	Do
@@ -168,9 +176,10 @@ the_year = datepart("yyyy", actual_date)
 MAXIS_footer_year = right("00" & the_year, 2)
 CALL convert_date_into_MAXIS_footer_month(actual_date, footer_month, footer_year)
 	'----------------------------------------------------------------------------------------------------ABPS panel
-DO
+
 	Call navigate_to_MAXIS_screen("STAT", "ABPS")
 	'Making sure we have the correct ABPS
+DO
 	EMReadScreen panel_number, 1, 2, 78
 	EMReadScreen abps_number, 9, 13, 40
 	abps_number = trim(abps_number)
@@ -190,24 +199,25 @@ DO
 	error_check = trim(error_check)
 	If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
 	EMWriteScreen "Y", 4, 73			'Support Coop Y/N field
+	msgbox "I entered a Y"
 	IF gc_status = "Pending" THEN
-		'Msgbox gc_status
+		Msgbox gc_status
 		EMWriteScreen "P", 5, 47			'Good Cause status field
 		EMWriteScreen "  ", 6, 73'next review date'
 		EMWriteScreen "  ", 6, 76'next review date'
 		EMWriteScreen "  ", 6, 79'next review date'
 	ELSEIF gc_status = "Granted" THEN
-		'Msgbox gc_status
+		Msgbox gc_status
 		EMWriteScreen "G", 5, 47
 		Call create_MAXIS_friendly_date(datevalue(review_date), 0, 6, 73)
 	ELSEIF gc_status = "Denied" THEN
-		'Msgbox gc_status
+		Msgbox gc_status
 		EMWriteScreen "D", 5, 47
 		EMWriteScreen "  ", 6, 73'next review date'
 		EMWriteScreen "  ", 6, 76'next review date'
 		EMWriteScreen "  ", 6, 79'next review date'
 	ELSEIF gc_status = "Not Claimed" THEN
-		'Msgbox gc_status
+		Msgbox gc_status
 		EMWriteScreen "N", 5, 47
 		EMWriteScreen "  ", 5, 73'good cause claim date'
 		EMWriteScreen "  ", 5, 76'good cause claim date'
@@ -237,6 +247,7 @@ DO
 	END IF
 	Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
 	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
+	msgbox parental_status
 	IF parental_status = "2" THEN
 		client_name = "Unknown"
 	ELSEIF parental_status = "3" THEN
@@ -256,7 +267,7 @@ DO
 		Call fix_case_for_name(client_name)
 	END IF
 	Transmit'to add information
-	Transmit'to move past non-inhibiting warning messages on ABPS
+	Transmit'to move past non-inhibiting warning messages on ABPS (this also takes you to the next abps)
 	PF3
 	EMReadScreen ABPS_screen, 4, 2, 50		'if inhibiting error exists, this will catch it and instruct the user to update ABPS
 	'msgbox ABPS_screen
@@ -291,23 +302,29 @@ DO
 	incomplete_form  = trim(incomplete_form)
 	If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
 	'--------------------------------------------------------------------------------this will run the case thru background 'and update the future months
-	Do
-		transmit
-		EMReadScreen display_mode_check, 1, 20, 8
-	Loop until display_mode_check = "D"
-	If datediff("m", date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 1 then in_future_month = True
-	If future_months_check = 0 or in_future_month = True then exit do
-	'Navigates to the current month + 1 footer month, then back into the ABPS panel
-	CALL write_value_and_transmit("BGTX", 20, 71)
-	CALL write_value_and_transmit("y", 16, 54)
-	EMReadScreen MAXIS_footer_month, 2, 20, 55
-	EMReadScreen MAXIS_footer_year, 2, 20, 58
-	EMWriteScreen "ABPS", 20, 71
-	If len(current_panel_number) = 1 then current_panel_number = "0" & current_panel_number
-	EMWriteScreen current_panel_number, 20, 79
-	transmit
-	PF9
+	msgbox "END"
+	EMReadScreen current_panel_check, 4, 2, 46
+	in_future_month = FALSE THEN
+	IF current_panel_check = "WRAP" and MAXIS_footer_month = THEN
+	    CALL write_value_and_transmit("y", 16, 54)
+		TRANSMIT
+	    EMReadScreen MAXIS_footer_month, 2, 20, 55
+	    EMReadScreen MAXIS_footer_year, 2, 20, 58
+	    EMWriteScreen "ABPS", 20, 71
+		TRANSMIT
+	    'PF9
+		If datediff("m", actual_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 1 then in_future_month = True
+		If future_months_check = 0 or in_future_month = True then exit do
+		'Navigates to the current month + 1 footer month, then back into the ABPS panel
+		'CALL write_value_and_transmit("BGTX", 20, 71)
+	END IF
 Loop until in_future_month = True
+
+'Do
+'	EMReadScreen display_mode_check, 1, 20, 8
+'Loop until display_mode_check = "D"
+'If len(current_panel_number) = 1 then current_panel_number = "0" & current_panel_number
+'EMWriteScreen current_panel_number, 20, 79
 
 	'-----------------------------------------------------------------------------------------------------Case note & email sending
 	start_a_blank_CASE_NOTE
