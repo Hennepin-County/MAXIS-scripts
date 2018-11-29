@@ -274,27 +274,27 @@ enrollment_year = CM_plus_1_yr
 this_month = monthname(month(date))
 Select Case this_month
     Case "January"
-        cut_off_date = #01/22/18#
+        cut_off_date = #01/22/19#
     Case "February"
-        cut_off_date = #2/16/18#
+        cut_off_date = #2/19/19#
     Case "March"
-        cut_off_date = #3/21/18#
+        cut_off_date = #3/20/19#
     Case "April"
-        cut_off_date = #4/19/18#
+        cut_off_date = #4/19/19#
     Case "May"
-        cut_off_date = #5/21/18#
+        cut_off_date = #5/21/19#
     Case "June"
-        cut_off_date = #6/20/18#
+        cut_off_date = #6/19/19#
     Case "July"
-        cut_off_date = #7/20/18#
+        cut_off_date = #7/22/19#
     Case "August"
-        cut_off_date = #8/22/18#
+        cut_off_date = #8/21/19#
     Case "September"
-        cut_off_date = #9/19/18#
+        cut_off_date = #9/19/19#
     Case "October"
-        cut_off_date = #10/22/18#
+        cut_off_date = #10/22/19#
     Case "November"
-        cut_off_date = #11/19/18#
+        cut_off_date = #11/18/18#
     Case "December"
         cut_off_date = #12/19/18#
 End Select
