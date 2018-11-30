@@ -1953,7 +1953,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                                 End If
 
                                 If ButtonPressed = still_banked_btn Then
-                                    If left(BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case), 8) <> "PRORATED" Then
+                                    If left(BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case), 8) = "" Then
                                     'If BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "PRORATED - REG" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "PRORATED - BM" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "REG ABAWD" Then
                                         BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) = MAXIS_footer_month & "/" & MAXIS_footer_year
                                         BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "BANKED MONTH"   'Type of ABAWD/SNAP month
@@ -1970,7 +1970,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                             BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) = BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) & " ~ " & MAXIS_footer_month & "/" &  MAXIS_footer_year & " WREG coded for ABAWD exemption."
                             BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = TRUE
                         End If
-                    ElseIF BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "PRORATED - REG" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "PRORATED - BM" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "REG ABAWD" Then
+                    ElseIF BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "" Then ''"PRORATED - REG" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "PRORATED - BM" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "REG ABAWD" Then
                         BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "BANKED MONTH"
                     End If
 
