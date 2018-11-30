@@ -161,7 +161,7 @@ IF ADH_option = "ADH waiver signed" THEN
 	 CALL write_variable_in_case_note("Client signed ADH waiver on: " & date_waiver_signed & " waiving his/her right to an Administrative Disqualification Hearing for wrongfully obtaining public assistance. This disqualification is not for any other household member and does not affect MA eligibility.")
 	 CALL write_variable_in_case_note("* Programs: " & program_droplist)
 	 CALL write_variable_in_case_note("* Period of Offense: " & start_date & " - " & end_date)
-	 CALL write_variable_in_case_note("* Client is subject to a " & months_disq & " month DISQ from " & DISQ_begin_date & "-" & DISQ_end_date & ".")
+	 CALL write_variable_in_case_note("* Client is subject to a " & months_disq & " month DISQ from " & DISQ_begin_date & " - "  & DISQ_end_date & ".")
 	 IF program_droplist <> "SNAP"  THEN CALL write_variable_in_case_note("* Because member " & memb_number & " is DQ'd from MFIP, client is also barred from FS for that same period of time.")
 	 IF fraud_claim_number <> "" THEN
 		 CALL write_variable_in_case_note("----- ----- -----")
@@ -244,7 +244,7 @@ IF ADH_option = "Hearing Held" THEN
      CALL write_bullet_and_variable_in_case_note("Date order signed ", date_order_signed)
 	 CALL write_bullet_and_variable_in_case_note("Programs", program_droplist)
 	 CALL write_variable_in_case_note("* Period of Offense: " & start_date & " - " & end_date)
-	 CALL write_variable_in_case_note("* Client is subject to a " & months_disq & " month DISQ from " & DISQ_begin_date & "-" & DISQ_end_date)
+	 CALL write_variable_in_case_note("* Client is subject to a " & months_disq & " month DISQ from " & DISQ_begin_date & " - "  & DISQ_end_date)
 	 IF program_droplist <> "SNAP"  THEN CALL write_variable_in_case_note("* Because member " & memb_number & " is DQ'd from MFIP, client is also barred from FS for that same period of time.")
 	 IF fraud_claim_number <> "" THEN
 		 CALL write_variable_in_case_note("----- ----- -----")
