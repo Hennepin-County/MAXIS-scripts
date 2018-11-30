@@ -1553,7 +1553,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                 Call navigate_to_MAXIS_screen("STAT", "SUMM")
                 EmReadscreen summ_check, 4, 2, 46
             Loop until summ_check = "SUMM"
-            
+
             client_not_in_HH = FALSE
             If HH_memb <> "01" Then
                 Call navigate_to_MAXIS_screen("STAT", "REMO")
@@ -1881,78 +1881,88 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                     If BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) = "" Then
                         'MsgBox "Pause"
-                        Call review_ABAWD_FSET_exemptions(BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), exemption_exists, list_of_exemption)
+                        If fset_wreg_status = "30" Then
+                            Call review_ABAWD_FSET_exemptions(BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), exemption_exists, list_of_exemption)
 
-                        code_for_banked = TRUE      'resetting this variable
-                        If exemption_exists = TRUE Then     'if the function above finds a potential issue then the script will ask the worker to determine if it is supposed to still be BANKED
+                            code_for_banked = TRUE      'resetting this variable
+                            If exemption_exists = TRUE Then     'if the function above finds a potential issue then the script will ask the worker to determine if it is supposed to still be BANKED
 
-                            'finding the height of the dialog
-                            dlg_len = 130
-                            For each exemption in list_of_exemption
-                                hgt = 10
-                                if len(exemption) > 100 then hgt = 20
-                                if len(exemption) > 200 then hgt = 30
-                                dlg_len = dlg_len + hgt
-                            Next
-                            y_pos = 75
-
-                            'ObjExcel.Rows(list_row).Interior.ColorIndex = 6
-
-                            'This dialog will list all of the exemptions the function found
-                            BeginDialog Dialog1, 0, 0, 346, dlg_len, "Possible ABAWD/FSET Exemption"
-                            'BeginDialog Dialog1, 0, 0, 346, 135, "Possible ABAWD/FSET Exemption"
-                              GroupBox 15, 10, 325, 55, "Case Review"
-                              Text 60, 25, 250, 10, "*** THIS CASE NEEDS REVIEW OF POSSIBLE ABAWD EXEMPTION ***"
-                              Text 20, 40, 310, 20, "At this time, review this case as STAT indicates that the client may meet an ABAWD exemption and may no longer need to use Banked Months. Check the case and update now."
-                              For each exemption in list_of_exemption
-                                'Text 10, 75, 330, 10, "exemption list"
-                                hgt = 10
-                                if len(exemption) > 100 then hgt = 20
-                                if len(exemption) > 200 then hgt = 30
-                                Text 10, y_pos, 330, hgt, exemption
-                                y_pos = y_pos + hgt + 5
-                              next
-                              Text 70, y_pos, 205, 10, "*** IF THIS CASE MEETS AN ABAWD OR FSET EXEMPTION ***"
-                              y_pos = y_pos + 10
-                              Text 90, y_pos, 160, 10, "*** UPDATE AND DO A NEW APPROVAL NOW ***"
-                              y_pos = y_pos + 15
-                              ButtonGroup ButtonPressed
-                                PushButton 15, y_pos, 145, 15, "CASE STILL NEEDS BANKED MONTHS", still_banked_btn
-                                PushButton 165, y_pos, 165, 15, "Client now meets an ABAWD or FSET Exemption", meets_exemption_btn
-                            EndDialog
-
-                            dialog Dialog1      'display the dialog
-
-                            'ObjExcel.Rows(list_row).Interior.ColorIndex = 0
-
-                            'If the worker indicates that the client meets an exemption this tells the script that we no longer need to code for banked months
-                            If ButtonPressed = meets_exemption_btn Then
-                                BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) = ""
-                                BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "EXEMPT"   'Type of ABAWD/SNAP month
-                                BANKED_MONTHS_CASES_ARRAY(month_indicator + 18, the_case) = TRUE       'WREG to be updated
-                                If approvable_month = FALSE Then BANKED_MONTHS_CASES_ARRAY(month_indicator + 27, the_case) = FALSE       'SNAP approval to be made
-                                If approvable_month = TRUE Then BANKED_MONTHS_CASES_ARRAY(month_indicator + 27, the_case) = TRUE       'SNAP approval to be made
-
+                                'finding the height of the dialog
+                                dlg_len = 130
                                 For each exemption in list_of_exemption
-                                    BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) = BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) & " ~ Possible ABAWD/FSET Exemption: " & exemption
+                                    hgt = 10
+                                    if len(exemption) > 100 then hgt = 20
+                                    if len(exemption) > 200 then hgt = 30
+                                    dlg_len = dlg_len + hgt
                                 Next
+                                y_pos = 75
 
-                                CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-                                CALL write_value_and_transmit(BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), 20, 76)
-                                EMReadScreen cl_age, 2, 8, 76
-                                IF cl_age = "  " THEN cl_age = 0
-                                cl_age = cl_age * 1
-                            End If
+                                'ObjExcel.Rows(list_row).Interior.ColorIndex = 6
 
-                            If ButtonPressed = still_banked_btn Then
-                                BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) = MAXIS_footer_month & "/" & MAXIS_footer_year
-                                BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "BANKED MONTH"   'Type of ABAWD/SNAP month
-                                BANKED_MONTHS_CASES_ARRAY(month_indicator + 18, the_case) = TRUE       'WREG to be updated
-                                If approvable_month = FALSE Then BANKED_MONTHS_CASES_ARRAY(month_indicator + 27, the_case) = FALSE       'SNAP approval to be made
-                                If approvable_month = TRUE Then BANKED_MONTHS_CASES_ARRAY(month_indicator + 27, the_case) = TRUE       'SNAP approval to be made
+                                'This dialog will list all of the exemptions the function found
+                                BeginDialog Dialog1, 0, 0, 346, dlg_len, "Possible ABAWD/FSET Exemption"
+                                'BeginDialog Dialog1, 0, 0, 346, 135, "Possible ABAWD/FSET Exemption"
+                                  GroupBox 15, 10, 325, 55, "Case Review"
+                                  Text 60, 25, 250, 10, "*** THIS CASE NEEDS REVIEW OF POSSIBLE ABAWD EXEMPTION ***"
+                                  Text 20, 40, 310, 20, "At this time, review this case as STAT indicates that the client may meet an ABAWD exemption and may no longer need to use Banked Months. Check the case and update now."
+                                  For each exemption in list_of_exemption
+                                    'Text 10, 75, 330, 10, "exemption list"
+                                    hgt = 10
+                                    if len(exemption) > 100 then hgt = 20
+                                    if len(exemption) > 200 then hgt = 30
+                                    Text 10, y_pos, 330, hgt, exemption
+                                    y_pos = y_pos + hgt + 5
+                                  next
+                                  Text 70, y_pos, 205, 10, "*** IF THIS CASE MEETS AN ABAWD OR FSET EXEMPTION ***"
+                                  y_pos = y_pos + 10
+                                  Text 90, y_pos, 160, 10, "*** UPDATE AND DO A NEW APPROVAL NOW ***"
+                                  y_pos = y_pos + 15
+                                  ButtonGroup ButtonPressed
+                                    PushButton 15, y_pos, 145, 15, "CASE STILL NEEDS BANKED MONTHS", still_banked_btn
+                                    PushButton 165, y_pos, 165, 15, "Client now meets an ABAWD or FSET Exemption", meets_exemption_btn
+                                EndDialog
+
+                                dialog Dialog1      'display the dialog
+
+                                'ObjExcel.Rows(list_row).Interior.ColorIndex = 0
+
+                                'If the worker indicates that the client meets an exemption this tells the script that we no longer need to code for banked months
+                                If ButtonPressed = meets_exemption_btn Then
+                                    BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) = ""
+                                    BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "EXEMPT"   'Type of ABAWD/SNAP month
+                                    BANKED_MONTHS_CASES_ARRAY(month_indicator + 18, the_case) = TRUE       'WREG to be updated
+                                    If approvable_month = FALSE Then BANKED_MONTHS_CASES_ARRAY(month_indicator + 27, the_case) = FALSE       'SNAP approval to be made
+                                    If approvable_month = TRUE Then BANKED_MONTHS_CASES_ARRAY(month_indicator + 27, the_case) = TRUE       'SNAP approval to be made
+
+                                    For each exemption in list_of_exemption
+                                        BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) = BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) & " ~ Possible ABAWD/FSET Exemption: " & exemption
+                                    Next
+
+                                    CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+                                    CALL write_value_and_transmit(BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), 20, 76)
+                                    EMReadScreen cl_age, 2, 8, 76
+                                    IF cl_age = "  " THEN cl_age = 0
+                                    cl_age = cl_age * 1
+                                End If
+
+                                If ButtonPressed = still_banked_btn Then
+                                    If BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "PRORATED - REG" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "PRORATED - BM" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "REG ABAWD" Then
+                                        BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) = MAXIS_footer_month & "/" & MAXIS_footer_year
+                                        BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "BANKED MONTH"   'Type of ABAWD/SNAP month
+                                        BANKED_MONTHS_CASES_ARRAY(month_indicator + 18, the_case) = TRUE       'WREG to be updated
+                                        If approvable_month = FALSE Then BANKED_MONTHS_CASES_ARRAY(month_indicator + 27, the_case) = FALSE       'SNAP approval to be made
+                                        If approvable_month = TRUE Then BANKED_MONTHS_CASES_ARRAY(month_indicator + 27, the_case) = TRUE       'SNAP approval to be made
+                                    End If
+                                End If
                             End If
+                        Else
+                            BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "EXEMPT"
+                            BANKED_MONTHS_CASES_ARRAY(month_indicator + 18, the_case) = FALSE
+                            BANKED_MONTHS_CASES_ARRAY(month_indicator + 27, the_case) = FALSE
+                            BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) = BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) & " ~ " & MAXIS_footer_month & "/" &  MAXIS_footer_year & " WREG coded for ABAWD exemption."
+                            BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = TRUE
                         End If
-                    ElseIF BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "PRORATED" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "REG ABAWD" Then
+                    ElseIF BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "PRORATED - REG" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "PRORATED - BM" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "REG ABAWD" Then
                         BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "BANKED MONTH"
                     End If
 
@@ -1988,6 +1998,52 @@ If process_option = "Ongoing Banked Months Cases" Then
                                 EMWriteScreen "30", 8, 50
                                 EMWriteScreen "10", 13, 50
                                 EMWriteScreen " ", 14, 50
+
+                                If approvable_month = FALSE Then
+                                    EMWriteScreen "X", 13, 57
+                                    transmit
+
+                                    Select Case MAXIS_footer_month
+                                        Case "01"
+                                            search_mo = "Jan"
+                                        Case "02"
+                                            search_mo = "Feb"
+                                        Case "03"
+                                            search_mo = "Mar"
+                                        Case "04"
+                                            search_mo = "Apr"
+                                        Case "05"
+                                            search_mo = "May"
+                                        Case "06"
+                                            search_mo = "Jun"
+                                        Case "07"
+                                            search_mo = "Jul"
+                                        Case "08"
+                                            search_mo = "Aug"
+                                        Case "09"
+                                            search_mo = "Sep"
+                                        Case "10"
+                                            search_mo = "Oct"
+                                        Case "11"
+                                            search_mo = "Nov"
+                                        Case "12"
+                                            search_mo = "Dec"
+                                    End Select
+
+                                    row = 1
+                                    wreg_col = 1
+                                    EMSearch search_mo, row, wreg_col
+                                    wreg_col = wreg_col + 1
+
+                                    wreg_row = 1
+                                    col = 1
+                                    EMSearch MAXIS_footer_year, wreg_row, col
+
+                                    EMWriteScreen "M", wreg_row, wreg_col
+
+                                    PF3
+                                End If
+
                                 transmit
                                 EMWriteScreen "BGTX", 20, 71
                                 transmit
@@ -2350,7 +2406,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                         ARRAY_OF_NOTE_LINES = split(Lines_in_note, "~!~")       'making this an array
 
                         If MX_region = "INQUIRY DB" Then
-                            case_note_to_display = "*** SNAP Approved starting in " & start_month & "/" & start_year & " ***"
+                            case_note_to_display = "*** SNAP Approved for " & start_month & "/" & start_year & " ***"
                             For each note_line in ARRAY_OF_NOTE_LINES
                                 case_note_to_display = case_note_to_display & vbNewLine & note_line
                             Next
