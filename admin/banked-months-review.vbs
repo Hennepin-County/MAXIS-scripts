@@ -255,6 +255,7 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 		prospective_hours = 0
 
 		CALL navigate_to_MAXIS_screen("STAT", "JOBS")
+        'MsgBox "At JOBS"
 		EMWritescreen person_ref_nbr, 20, 76
 		EMWritescreen "01", 20, 79				'ensures that we start at 1st job
 		transmit
@@ -1548,6 +1549,11 @@ If process_option = "Ongoing Banked Months Cases" Then
             If MAXIS_footer_month = CM_mo AND MAXIS_footer_year = CM_yr Then approvable_month = TRUE
             If MAXIS_footer_month = CM_plus_1_mo AND MAXIS_footer_year = CM_plus_1_yr Then approvable_month = TRUE
 
+            Do
+                Call navigate_to_MAXIS_screen("STAT", "SUMM")
+                EmReadscreen summ_check, 4, 2, 46
+            Loop until summ_check = "SUMM"
+            
             client_not_in_HH = FALSE
             If HH_memb <> "01" Then
                 Call navigate_to_MAXIS_screen("STAT", "REMO")
@@ -1874,6 +1880,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                     ' MsgBox "BEGINNING" & vbNewLine & "Month type - " & BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) & vbNewLine & "The month is - '" & BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) & "'" & vbNewLine & "Update WREG - " & BANKED_MONTHS_CASES_ARRAY(month_indicator + 18, the_case) & vbNewLine & "Do Approval - " & BANKED_MONTHS_CASES_ARRAY(month_indicator + 27, the_case)
 
                     If BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) = "" Then
+                        'MsgBox "Pause"
                         Call review_ABAWD_FSET_exemptions(BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), exemption_exists, list_of_exemption)
 
                         code_for_banked = TRUE      'resetting this variable
