@@ -745,7 +745,7 @@ function find_three_ABAWD_months(all_counted_months)
     LOOP UNTIL are_we_passworded_out = false
 
     If counted_month_one = "" OR counted_month_two = "" OR counted_month_three = "" Then
-        ObjExcel.Rows(list_row).Interior.ColorIndex = 3
+        ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 3
     End If
 
     all_counted_months = ""
@@ -1146,7 +1146,7 @@ If process_option = "Find ABAWD Months" Then
             If abawd_gather_error <> "" Then
                 MsgBox "Review this case as script could not gather Information to assist in ABAWD months determination." & vbNewLine & abawd_gather_error
                 CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case) = "FIND ABAWD MONTHS MANUALLY " & CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
-                ObjExcel.Rows(list_row).Interior.ColorIndex = 3
+                ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 3
             End If
             ' 'Opening the Excel file
             ' Set objABAWDExcel = CreateObject("Excel.Application")
@@ -1368,7 +1368,7 @@ If process_option = "Find ABAWD Months" Then
             ' LOOP UNTIL are_we_passworded_out = false
             '
             ' If counted_month_one = "" OR counted_month_two = "" OR counted_month_three = "" Then
-            '     ObjExcel.Rows(list_row).Interior.ColorIndex = 3
+            '     ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 3
             ' End If
             '
             ' all_counted_months = ""
@@ -1460,7 +1460,7 @@ If process_option = "Ongoing Banked Months Cases" Then
         start_year = ""
         assist_a_new_approval = FALSE
 
-        ObjExcel.Rows(list_row).Interior.ColorIndex = 6
+        ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 6
 
         ' If ObjExcel.Cells(list_row, NOT_BANKED_col).Value = "TRUE" Then
         '     MAXIS_footer_month = CM_mo
@@ -1603,7 +1603,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                 EmWriteScreen clt_pmi, 15, 36
                 transmit
 
-                'ObjExcel.Rows(list_row).Interior.ColorIndex = 6
+                'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 6
 
                 BeginDialog Dialog1, 0, 0, 216, 135, "Dialog"
                   CheckBox 10, 60, 180, 10, "Check here if client is active SNAP on another case.", new_case_checkbox
@@ -1633,7 +1633,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                     call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
                 LOOP UNTIL are_we_passworded_out = false
 
-                'ObjExcel.Rows(list_row).Interior.ColorIndex = 0
+                'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 0
 
                 If clt_closed_checkbox = checked Then
                     BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = TRUE
@@ -1691,7 +1691,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                     If abawd_gather_error <> "" Then
                         MsgBox "Review this case as script could not gather Information to assist in ABAWD months determination." & vbNewLine & abawd_gather_error
                         CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case) = "FIND ABAWD MONTHS MANUALLY " & CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
-                        'ObjExcel.Rows(list_row).Interior.ColorIndex = 3
+                        'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 3
                     End If
                     BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case) = counted_list
                 End If
@@ -1707,7 +1707,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                         If abawd_gather_error <> "" Then
                             MsgBox "Review this case as script could not gather Information to assist in ABAWD months determination." & vbNewLine & abawd_gather_error
                             CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case) = "FIND ABAWD MONTHS MANUALLY " & CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
-                            'ObjExcel.Rows(list_row).Interior.ColorIndex = 3
+                            'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 3
                         End If
                         BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case) = counted_list
 
@@ -1715,21 +1715,21 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                         If BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case) = "" Then
                             CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case) = "PROCESS MANUALLY " & CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
-                            'ObjExcel.Rows(list_row).Interior.ColorIndex = 3
+                            'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 3
                             Exit Do
                         Else
                             If InStr(BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case), "~") <> 0 Then
                                 ABAWD_MONTHS_ARRAY = Split(BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case), "~")
                             Else
                                 CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case) = "PROCESS MANUALLY " & CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
-                                'ObjExcel.Rows(list_row).Interior.ColorIndex = 3
+                                'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 3
                                 Exit Do
                             End If
 
                             ' MsgBox "UBOUND - " & UBOUND(ABAWD_MONTHS_ARRAY)
                             If Ubound(ABAWD_MONTHS_ARRAY) <> 2 Then
                                 CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case) = "PROCESS MANUALLY " & CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
-                                'ObjExcel.Rows(list_row).Interior.ColorIndex = 3
+                                'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 3
                                 Exit Do
                             End If
                         End If
@@ -1904,7 +1904,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                                 Next
                                 y_pos = 75
 
-                                'ObjExcel.Rows(list_row).Interior.ColorIndex = 6
+                                'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 6
 
                                 'This dialog will list all of the exemptions the function found
                                 BeginDialog Dialog1, 0, 0, 346, dlg_len, "Possible ABAWD/FSET Exemption"
@@ -1931,7 +1931,7 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                                 dialog Dialog1      'display the dialog
 
-                                'ObjExcel.Rows(list_row).Interior.ColorIndex = 0
+                                'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 0
 
                                 'If the worker indicates that the client meets an exemption this tells the script that we no longer need to code for banked months
                                 If ButtonPressed = meets_exemption_btn Then
@@ -1953,7 +1953,8 @@ If process_option = "Ongoing Banked Months Cases" Then
                                 End If
 
                                 If ButtonPressed = still_banked_btn Then
-                                    If BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "PRORATED - REG" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "PRORATED - BM" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "REG ABAWD" Then
+                                    If left(BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case), 8) = "" Then
+                                    'If BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "PRORATED - REG" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "PRORATED - BM" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "REG ABAWD" Then
                                         BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) = MAXIS_footer_month & "/" & MAXIS_footer_year
                                         BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "BANKED MONTH"   'Type of ABAWD/SNAP month
                                         BANKED_MONTHS_CASES_ARRAY(month_indicator + 18, the_case) = TRUE       'WREG to be updated
@@ -1961,6 +1962,8 @@ If process_option = "Ongoing Banked Months Cases" Then
                                         If approvable_month = TRUE Then BANKED_MONTHS_CASES_ARRAY(month_indicator + 27, the_case) = TRUE       'SNAP approval to be made
                                     End If
                                 End If
+                            ElseIF BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "" Then
+                                BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "BANKED MONTH"
                             End If
                         Else
                             BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "EXEMPT"
@@ -1969,10 +1972,11 @@ If process_option = "Ongoing Banked Months Cases" Then
                             BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) = BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) & " ~ " & MAXIS_footer_month & "/" &  MAXIS_footer_year & " WREG coded for ABAWD exemption."
                             BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = TRUE
                         End If
-                    ElseIF BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "PRORATED - REG" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "PRORATED - BM" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "REG ABAWD" Then
+                    ElseIF BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "" Then ''"PRORATED - REG" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "PRORATED - BM" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "REG ABAWD" Then
                         BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "BANKED MONTH"
                     End If
 
+                    ' MsgBOx BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case)
                     Call back_to_SELF
                     Call navigate_to_MAXIS_screen("STAT", "WREG")   'The script or worker may have moved around in the case - need to navigate back
                     EMWriteScreen BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), 20, 76
@@ -2090,7 +2094,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                             If new_fset_wreg_status = "03" OR new_fset_wreg_status = "04" OR new_fset_wreg_status = "05" OR new_fset_wreg_status = "06" OR new_fset_wreg_status = "07" OR new_fset_wreg_status = "09" OR new_fset_wreg_status = "11" OR new_fset_wreg_status = "12" Then new_abawd_status = "01"
                             If new_abawd_status = "05" OR new_abawd_status = "06" Then new_fset_wreg_status = "30"
 
-                            'ObjExcel.Rows(list_row).Interior.ColorIndex = 6
+                            'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 6
 
                             BeginDialog Dialog1, 0, 0, 111, 90, "FSET ABAWD Status"
                               EditBox 80, 30, 20, 15, new_fset_wreg_status
@@ -2114,7 +2118,7 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                             Loop until err_msg = ""
 
-                            'ObjExcel.Rows(list_row).Interior.ColorIndex = 0
+                            'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 0
 
 
                             If MX_region = "INQUIRY DB" Then           'If we are in Inquiry, the script runs in a developer mode, messaging the information
@@ -2207,7 +2211,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                     '             Next
                     '             y_pos = 75
                     '
-                    '             ObjExcel.Rows(list_row).Interior.ColorIndex = 6
+                    '             ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 6
                     '
                     '             'This dialog will list all of the exemptions the function found
                     '             BeginDialog Dialog1, 0, 0, 346, dlg_len, "Possible ABAWD/FSET Exemption"
@@ -2234,7 +2238,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                     '
                     '             dialog Dialog1      'display the dialog
                     '
-                    '             ObjExcel.Rows(list_row).Interior.ColorIndex = 0
+                    '             ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 0
                     '
                     '             'If the worker indicates that the client meets an exemption this tells the script that we no longer need to code for banked months
                     '             If ButtonPressed = meets_exemption_btn Then
@@ -2295,7 +2299,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                         EMWriteScreen start_year, 19, 57
                         transmit
 
-                        'ObjExcel.Rows(list_row).Interior.ColorIndex = 6
+                        'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 6
                         ' MsgBox other_notes
 
                         'This dialog is to assist in the noting of the approval
@@ -2315,7 +2319,7 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                         dialog Dialog1
 
-                        'ObjExcel.Rows(list_row).Interior.ColorIndex = 0
+                        'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 0
 
                         'setting the variables
                         footer_month = start_month
@@ -2602,12 +2606,14 @@ If process_option = "Ongoing Banked Months Cases" Then
         'ObjExcel.Cells(list_row, BM_to_approve_col).Value   = BANKED_MONTHS_CASES_ARRAY(months_to_approve, the_case)
 
         If BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = TRUE Then
-            ObjExcel.Rows(list_row).Interior.ColorIndex = 16
+            ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 16
             ObjExcel.Cells(list_row, NOT_BANKED_col).Value = "TRUE"
         ElseIf InStr(BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case), "PROCESS MANUALLY") <> 0 Then
-            ObjExcel.Rows(list_row).Interior.ColorIndex = 3
+            ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 3
         Else
-            ObjExcel.Rows(list_row).Interior.ColorIndex = 0
+            ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 0
+            ' ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex 
+            ' ObjExcel.Rows(list_row).Interior.ColorIndex
         End If
 
         objExcel.Cells(1, 20).Value = list_row
