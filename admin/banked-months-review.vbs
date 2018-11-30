@@ -925,16 +925,19 @@ Do
     call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
-If process_option = "Ongoing Banked Months Cases" OR process_option = "Find ABAWD Months" Then
-    ' 'This is where the actual file lives
-    ' working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Master banked months list.xlsx"     'THIS IS THE REAL ONE
-    'This file is for testing and is up to date for 08/18
-    'working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\Banked Months\Master banked months list.xlsx"
+If process_option = "Ongoing Banked Months Cases" Then working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"     'THIS IS THE REAL ONE
+' working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Copy of Ongoing banked months list.xlsx"  'use for tesing.'
+'Live
+If process_option = "Find ABAWD Months" Then working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"     'THIS IS THE REAL ONE
+'Test
+'If process_option = "Find ABAWD Months" Then working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\Banked Months\Ongoing banked months list.xlsx"     'THIS IS THE REAL ONE
 
+If process_option = "Ongoing Banked Months Cases" Then
+    'For REAL'
+    working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"     'THIS IS THE REAL ONE
 
-    ' working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Copy of Ongoing banked months list.xlsx"  'use for tesing.'
-    working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"  'use for REAL.'
-
+    ' 'For testing'
+    ' working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\Banked Months\Ongoing banked months list.xlsx"
 
     'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
     call excel_open_pw(working_excel_file_path, True, False, ObjExcel, objWorkbook, "BM")
@@ -951,6 +954,10 @@ If process_option = "Ongoing Banked Months Cases" OR process_option = "Find ABAW
     'ObjExcel.SendKeys "{RETURN}"
     'ObjExcel.SendKeys "~"
 
+    ObjExcel.Worksheets("Ongoing banked months").Activate
+ElseIf process_option = "Find ABAWD Months" Then
+    working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"     'THIS IS THE REAL ONE
+    call excel_open(working_excel_file_path, True, False, ObjExcel, objWorkbook)
     ObjExcel.Worksheets("Ongoing banked months").Activate
 End If
 
