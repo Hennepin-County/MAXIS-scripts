@@ -365,6 +365,9 @@ EMWriteScreen appointment_date & ", " & appointment_time_prefix_editbox & ":" & 
 PF3			
 Call write_value_and_transmit("Y", 11, 64)		'Y to confirm save and saves referral
 
+'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+CALL create_outlook_email("Ilse.Ferris@hennepin.us", "", maxis_case_number & " Send E & T orientation letter, EOM.", "", "", TRUE)
+
 'script_end_procedure("Your orientation letter, WF1M (manual) referral and case note have been created. Navigate to SPEC/WCOM if you want to review the notice sent to the client." & _
 'vbNewLine & vbNewLine & "Please ensure that you have sent the form ""ABAWD FS RULES"" to the client.")
 
