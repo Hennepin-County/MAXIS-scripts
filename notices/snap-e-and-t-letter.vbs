@@ -262,66 +262,66 @@ For each member_number in member_array
     CALL write_variable_in_case_note("---")
     CALL write_variable_in_case_note(worker_signature)
     
-    'The SPEC/LETR----------------------------------------------------------------------------------------------------
-    call navigate_to_MAXIS_screen("SPEC", "LETR")
-    'Opens up the SNAP E&T Orientation LETR. If it's unable the script will stop.
-    EMWriteScreen "x", 8, 12
-    transmit
-    EMReadScreen LETR_check, 4, 2, 49
-    If LETR_check = "LETR" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
-    
-    'Writes the info into the LETR.
-    IF len(appointment_time_prefix_editbox) = 1 THEN appointment_time_prefix_editbox = "0" & appointment_time_prefix_editbox 'This prevents the letter from being cancelled due to single digit hour
-    EMWriteScreen client_name, 4, 28
-    call create_MAXIS_friendly_date_three_spaces_between(appointment_date, 0, 6, 28)
-    EMWriteScreen appointment_time_prefix_editbox, 7, 28
-    EMWriteScreen appointment_time_post_editbox, 7, 33
-    EMWriteScreen AM_PM, 7, 38
-    EMWriteScreen SNAPET_name, 9, 28
-    EMWriteScreen SNAPET_address_01, 10, 28
-    EMWriteScreen SNAPET_city & ", " & SNAPET_ST & " " &  SNAPET_zip, 11, 28
-    call create_MAXIS_friendly_phone_number(SNAPET_phone, 13, 28) 'takes out non-digits if listed in variable, and formats phone number for the field
-    EMWriteScreen SNAPET_contact, 16, 28
-    PF4		'saves and sends memo
-    
-    '----------------------------------------------------------------------------------------------------WCOM to Orientation Letter
-    Call navigate_to_MAXIS_screen("SPEC", "WCOM")
-    row = 7
-    DO
-        EMReadscreen notice_type, 16, row, 30          'SPEC/LETR Letter at Hennepin County is generally the FSET letter 
-        If notice_type = "SPEC/LETR Letter" then 
-            EmReadscreen FS_notice, 2, row, 26          'Confirms the letter is for SNAP receipients. 
-            If FS_notice = "FS" or FS_notice = "  " then 
-                EmReadscreen print_status, 7, row, 71
-                If print_status = "Waiting" then 
-                    Call write_value_and_transmit ("x", row, 13)
-    			    PF9
-    			    Emreadscreen fs_wcom_exists, 3, 3, 15
-    			    If fs_wcom_exists <> "   " then 
-                        added_wcom = False 
-    			    Else 
-    			    	added_wcom = true
-    			    	'This will write if the notice is for SNAP only
-    			    	CALL write_variable_in_SPEC_MEMO("******************************************************")
-    			    	CALL write_variable_in_SPEC_MEMO("Minnesota has changed the rules for time-limited SNAP recipients." & client_name & " is not required to participate in SNAP Employment and Training (SNAP E&T), but may choose to.")
-    			    	CALL write_variable_in_SPEC_MEMO("Particiapation in SNAP E&T may extend your SNAP benefits and offer you support as you seek employment. Ask your worker about SNAP E&T.")
-    			    	CALL write_variable_in_SPEC_MEMO("******************************************************")
-                        PF4
-    			    	PF3
-    			    End if
-                End if 
-    		End If
-        else 
-            row = row + 1
-    	End If
-    	If added_wcom = true then Exit Do
-    	If row = 17 then
-    		PF8
-    		Emreadscreen spec_edit_check, 6, 24, 2
-    	    row = 7
-    	end if
-    	If spec_edit_check = "NOTICE" THEN added_wcom = False
-    Loop until spec_edit_check = "NOTICE"
+    ''The SPEC/LETR----------------------------------------------------------------------------------------------------
+    'call navigate_to_MAXIS_screen("SPEC", "LETR")
+    ''Opens up the SNAP E&T Orientation LETR. If it's unable the script will stop.
+    'EMWriteScreen "x", 8, 12
+    'transmit
+    'EMReadScreen LETR_check, 4, 2, 49
+    'If LETR_check = "LETR" then script_end_procedure("You are not able to go into update mode. Did you enter in inquiry by mistake? Please try again in production.")
+    '
+    ''Writes the info into the LETR.
+    'IF len(appointment_time_prefix_editbox) = 1 THEN appointment_time_prefix_editbox = "0" & appointment_time_prefix_editbox 'This prevents the letter from being cancelled due to single digit hour
+    'EMWriteScreen client_name, 4, 28
+    'call create_MAXIS_friendly_date_three_spaces_between(appointment_date, 0, 6, 28)
+    'EMWriteScreen appointment_time_prefix_editbox, 7, 28
+    'EMWriteScreen appointment_time_post_editbox, 7, 33
+    'EMWriteScreen AM_PM, 7, 38
+    'EMWriteScreen SNAPET_name, 9, 28
+    'EMWriteScreen SNAPET_address_01, 10, 28
+    'EMWriteScreen SNAPET_city & ", " & SNAPET_ST & " " &  SNAPET_zip, 11, 28
+    'call create_MAXIS_friendly_phone_number(SNAPET_phone, 13, 28) 'takes out non-digits if listed in variable, and formats phone number for the field
+    'EMWriteScreen SNAPET_contact, 16, 28
+    'PF4		'saves and sends memo
+    '
+    ''----------------------------------------------------------------------------------------------------WCOM to Orientation Letter
+    'Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+    'row = 7
+    'DO
+    '    EMReadscreen notice_type, 16, row, 30          'SPEC/LETR Letter at Hennepin County is generally the FSET letter 
+    '    If notice_type = "SPEC/LETR Letter" then 
+    '        EmReadscreen FS_notice, 2, row, 26          'Confirms the letter is for SNAP receipients. 
+    '        If FS_notice = "FS" or FS_notice = "  " then 
+    '            EmReadscreen print_status, 7, row, 71
+    '            If print_status = "Waiting" then 
+    '                Call write_value_and_transmit ("x", row, 13)
+    '			    PF9
+    '			    Emreadscreen fs_wcom_exists, 3, 3, 15
+    '			    If fs_wcom_exists <> "   " then 
+    '                    added_wcom = False 
+    '			    Else 
+    '			    	added_wcom = true
+    '			    	'This will write if the notice is for SNAP only
+    '			    	CALL write_variable_in_SPEC_MEMO("******************************************************")
+    '			    	CALL write_variable_in_SPEC_MEMO("Minnesota has changed the rules for time-limited SNAP recipients." & client_name & " is not required to participate in SNAP Employment and Training (SNAP E&T), but may choose to.")
+    '			    	CALL write_variable_in_SPEC_MEMO("Particiapation in SNAP E&T may extend your SNAP benefits and offer you support as you seek employment. Ask your worker about SNAP E&T.")
+    '			    	CALL write_variable_in_SPEC_MEMO("******************************************************")
+    '                    PF4
+    '			    	PF3
+    '			    End if
+    '            End if 
+    '		End If
+    '    else 
+    '        row = row + 1
+    '	End If
+    '	If added_wcom = true then Exit Do
+    '	If row = 17 then
+    '		PF8
+    '		Emreadscreen spec_edit_check, 6, 24, 2
+    '	    row = 7
+    '	end if
+    '	If spec_edit_check = "NOTICE" THEN added_wcom = False
+    'Loop until spec_edit_check = "NOTICE"
 Next 
 
 'Manual referral creation if banked months are used
@@ -365,5 +365,7 @@ EMWriteScreen appointment_date & ", " & appointment_time_prefix_editbox & ":" & 
 PF3			
 Call write_value_and_transmit("Y", 11, 64)		'Y to confirm save and saves referral
 
-script_end_procedure("Your orientation letter, WF1M (manual) referral and case note have been created. Navigate to SPEC/WCOM if you want to review the notice sent to the client." & _
-vbNewLine & vbNewLine & "Make sure that you have made your E & T referral, and that you have sent the form ""ABAWD FS RULES"" to the client.")
+'script_end_procedure("Your orientation letter, WF1M (manual) referral and case note have been created. Navigate to SPEC/WCOM if you want to review the notice sent to the client." & _
+'vbNewLine & vbNewLine & "Please ensure that you have sent the form ""ABAWD FS RULES"" to the client.")
+
+script_end_procedure("Your WF1M (manual) referral and case note has been created. Please ensure that you have sent the form ""ABAWD FS RULES"" to the client.")
