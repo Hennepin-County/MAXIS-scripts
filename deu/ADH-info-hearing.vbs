@@ -62,7 +62,7 @@ memb_number = "01"
 BeginDialog , 0, 0, 166, 75, "ADH INFORMATION"
   EditBox 55, 5, 45, 15, MAXIS_case_number
   EditBox 135, 5, 25, 15, memb_number
-  DropListBox 80, 30, 80, 15, "Select one..."+chr(9)+"ADH waiver signed"+chr(9)+"Hearing Held", ADH_option
+  DropListBox 80, 30, 80, 15, "Select One:"+chr(9)+"ADH waiver signed"+chr(9)+"Hearing Held", ADH_option
   ButtonGroup ButtonPressed
     OkButton 55, 55, 50, 15
     CancelButton 110, 55, 50, 15
@@ -75,10 +75,10 @@ Do
 	Do
         err_msg = ""
 		Dialog
-		IF ButtonPressed = 0 then StopScript
+		IF ButtonPressed = 0 THEN StopScript
 		IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF IsNumeric(memb_number) = false or len(memb_number) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid two-digit member number."
-		IF ADH_option = "Select one..." THEN err_msg = err_msg & vbNewLine & "* Please select an ADH action."
+		IF ADH_option = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select an ADH action."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     Loop until err_msg = ""
  	CALL check_for_password(are_we_passworded_out)
@@ -99,31 +99,31 @@ memb_name = replace(memb_name, "_", "")
 'edit_error = trim(edit_error)
 'IF edit_error <> "" THEN script_end_procedure("No Memb # matches and/ or could not access MEMB.")
 
-IF ADH_option = "ADH waiver signed" then
-    BeginDialog adh_dialog, 0, 0, 376, 100, "ADH waiver signed"
-      EditBox 110, 5, 50, 15, date_waiver_signed
-      DropListBox 295, 5, 70, 15, "Select Programs:"+chr(9)+"CASH"+chr(9)+"SNAP"+chr(9)+"CASH & SNAP", Program_droplist
-      EditBox 35, 35, 50, 15, start_date
-      EditBox 35, 55, 50, 15, end_date
-      EditBox 160, 35, 20, 15, months_disq
-      EditBox 160, 55, 50, 15, DISQ_begin_date
-      EditBox 290, 35, 50, 15, fraud_case_number
-      DropListBox 290, 55, 75, 15, "Select one..."+chr(9)+"Unknown"+chr(9)+"Judy Grandel"+chr(9)+"Chris Gormley"+chr(9)+"Keyatta Hill"+chr(9)+"Amanda Lange"+chr(9)+"Kimberly Littlejohn"+chr(9)+"Jonathan Martin"+chr(9)+"Ryan Swanson"+chr(9)+"Scott Benedict", Fraud_investigator
-      EditBox 60, 80, 195, 15, other_notes
+IF ADH_option = "ADH waiver signed" THEN
+    BeginDialog adh_dialog, 0, 0, 326, 100, "ADH waiver signed"
+      EditBox 100, 5, 40, 15, date_waiver_signed
+      DropListBox 250, 5, 65, 15, "Select One:"+chr(9)+"CASH"+chr(9)+"SNAP"+chr(9)+"CASH & SNAP", Program_droplist
+      EditBox 30, 35, 40, 15, end_date
+      EditBox 30, 55, 40, 15, start_date
+      EditBox 135, 35, 20, 15, months_disq
+      EditBox 135, 55, 40, 15, DISQ_begin_date
+      EditBox 250, 35, 65, 15, fraud_claim_number
+      DropListBox 250, 55, 65, 15, "Select One:"+chr(9)+"Unknown"+chr(9)+"Judy Grandel"+chr(9)+"Chris Gormley"+chr(9)+"Keyatta Hill"+chr(9)+"Amanda Lange"+chr(9)+"Kimberly Littlejohn"+chr(9)+"Jonathan Martin"+chr(9)+"Ryan Swanson"+chr(9)+"Scott Benedict", Fraud_investigator
+      EditBox 55, 80, 125, 15, other_notes
       ButtonGroup ButtonPressed
-        OkButton 265, 80, 50, 15
-        CancelButton 320, 80, 50, 15
-      Text 255, 10, 35, 10, "Programs:"
-      Text 15, 60, 15, 10, "End:"
-      Text 100, 40, 55, 10, "Months of DISQ:"
-      Text 5, 10, 100, 10, "Date ADH waiver was signed:"
-      Text 15, 40, 15, 10, "Start:"
-      Text 100, 60, 60, 10, "DISQ Begin Date:"
-      Text 235, 40, 50, 10, "Claim Number:"
-      GroupBox 5, 25, 215, 50, "Period of offense:"
-      GroupBox 230, 25, 140, 50, "Fraud Information"
-      Text 15, 85, 45, 10, "Other Notes:"
-      Text 245, 60, 45, 10, "Investigator:"
+        OkButton 215, 80, 50, 15
+        CancelButton 270, 80, 50, 15
+      Text 75, 40, 55, 10, "Months of DISQ:"
+      Text 210, 10, 35, 10, "Programs:"
+      Text 10, 40, 20, 10, "Start:"
+      Text 75, 60, 60, 10, "DISQ Begin Date:"
+      Text 195, 40, 50, 10, "Claim Number:"
+      GroupBox 5, 25, 175, 50, "Period of offense:"
+      GroupBox 190, 25, 130, 50, "Fraud Information"
+      Text 10, 85, 45, 10, "Other Notes:"
+      Text 205, 60, 40, 10, "Investigator:"
+      Text 10, 60, 15, 10, "End:"
+      Text 5, 10, 95, 10, "Date ADH Hearing was held:"
     EndDialog
     DO
     	Do
@@ -131,95 +131,93 @@ IF ADH_option = "ADH waiver signed" then
     		Dialog adh_dialog
     		cancel_confirmation
     		IF isdate(date_waiver_signed) = false THEN err_msg = err_msg & vbNewLine & "* Please enter date waiver was signed."
-    		IF program_droplist = "Select Programs:" THEN err_msg = err_msg & vbNewLine & "* Please select the program."
+    		IF program_droplist = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select the program."
     		IF isdate(start_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter start date."
     		IF isdate(end_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter end date."
     		IF IsNumeric(months_disq) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the amount of disqualification months."
     		IF isdate(DISQ_begin_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter DISQ beign date."
-    		IF trim(fraud_case_number) = "" and Fraud_investigator <> "Select one..." then err_msg = err_msg & vbNewLine & "* Enter both the fraud case number AND the Fraud Investigator's name, or clear the non-applicable info."
-    		IF trim(fraud_case_number) <> "" and Fraud_investigator = "Select one..."  THEN err_msg = err_msg & vbNewLine & "* Enter both the fraud case number AND the Fraud Investigator's name, or clear the non-applicable info."
+    		IF trim(fraud_claim_number) = "" and Fraud_investigator <> "Select One:" THEN err_msg = err_msg & vbNewLine & "* Enter both the fraud case number AND the Fraud Investigator's name, or clear the non-applicable info."
+    		IF trim(fraud_claim_number) <> "" and Fraud_investigator = "Select One:"  THEN err_msg = err_msg & vbNewLine & "* Enter both the fraud case number AND the Fraud Investigator's name, or clear the non-applicable info."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     	Loop until err_msg = ""
     	CALL check_for_password(are_we_passworded_out)
     LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
     DISQ_end_date = DateAdd("M", months_disq, DISQ_begin_date)
-    IF Fraud_investigator = "Select one..."  THEN Fraud_investigator = ""
-    IF Fraud_investigator = "" 						then fraud_email = ""
-    IF Fraud_investigator = "Judy Grandel" 			then fraud_email = "Judith.Grandel@hennepin.us"
-    IF Fraud_investigator = "Chris Gormley"		 	then fraud_email = "Chris.Gormley@hennepin.us"
-    IF Fraud_investigator = "Keyatta Hill" 	 		then fraud_email = "Keyatta.Hill@hennepin.us"
-    IF Fraud_investigator = "Amanda Lange" 			then fraud_email = "Amanda.Lange@hennepin.us"
-    IF Fraud_investigator = "Kimberly Littlejohn"	then fraud_email = "Kimberly.Littlejohn@Hennepin.us"
-    IF Fraud_investigator = "Jonathan Martin" 		then fraud_email = "Jonathan.Martin@Hennepin.us"
-    IF Fraud_investigator = "Ryan Swanson" 			then fraud_email = "Ryan.Swanson@hennepin.us"
-    IF Fraud_investigator = "Scott Benedict" 		then fraud_email = "Scott.Benedict@hennepin.us"
+    IF Fraud_investigator = "Select One:"  THEN Fraud_investigator = ""
+    'IF Fraud_investigator = "" 						THEN fraud_email = ""
+    IF Fraud_investigator = "Judy Grandel" 			THEN fraud_email = "Judith.Grandel@hennepin.us"
+    IF Fraud_investigator = "Chris Gormley"		 	THEN fraud_email = "Chris.Gormley@hennepin.us"
+    IF Fraud_investigator = "Keyatta Hill" 	 		THEN fraud_email = "Keyatta.Hill@hennepin.us"
+    IF Fraud_investigator = "Amanda Lange" 			THEN fraud_email = "Amanda.Lange@hennepin.us"
+    IF Fraud_investigator = "Kimberly Littlejohn"	THEN fraud_email = "Kimberly.Littlejohn@Hennepin.us"
+    IF Fraud_investigator = "Jonathan Martin" 		THEN fraud_email = "Jonathan.Martin@Hennepin.us"
+    IF Fraud_investigator = "Ryan Swanson" 			THEN fraud_email = "Ryan.Swanson@hennepin.us"
+    IF Fraud_investigator = "Scott Benedict" 		THEN fraud_email = "Scott.Benedict@hennepin.us"
 
 'The 1st case note-------------------------------------------------------------------------------------------------
  	start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	 CALL write_variable_in_CASE_NOTE("-----1st Fraud DISQ/Claims (" & memb_name & ") ADH Waiver Signed-----")
-	 CALL write_variable_in_CASE_NOTE("Client signed ADH waiver on: " & date_waiver_signed & " waiving his/her right to an Administrative Disqualification Hearing for wrongfully obtaining public assistance. This disqualification is not for any other household member and does not affect MA eligibility.")
-	 CALL write_variable_in_CASE_NOTE("* Programs: " & program_droplist)
-	 CALL write_variable_in_CASE_NOTE("* Period of Offense: " & start_date & " - " & end_date)
-	 CALL write_variable_in_CASE_NOTE("* Client is subject to a " & months_disq & " month DISQ from " & DISQ_begin_date & "-" & DISQ_end_date & ".")
-	 IF program_droplist <> "SNAP"  THEN CALL write_variable_in_CASE_NOTE("* Other Notes: Because member " & memb_number & " is DQ'd from MFIP, client is also barred from FS for that same period of time.")
-	 IF fraud_case_number <> "" THEN
-		 CALL write_variable_in_CASE_NOTE("----- ----- -----")
-		 CALL write_bullet_and_variable_in_CASE_NOTE("Fraud claim number", fraud_case_number)
-		 CALL write_bullet_and_variable_in_CASE_NOTE("Fraud Investigator", Fraud_investigator)
+	 CALL write_variable_in_case_note("-----1st Fraud DISQ/Claims (" & memb_name & ") ADH Waiver Signed-----")
+	 CALL write_variable_in_case_note("Client signed ADH waiver on: " & date_waiver_signed & " waiving his/her right to an Administrative Disqualification Hearing for wrongfully obtaining public assistance. This disqualification is not for any other household member and does not affect MA eligibility.")
+	 CALL write_variable_in_case_note("* Programs: " & program_droplist)
+	 CALL write_variable_in_case_note("* Period of Offense: " & start_date & " - " & end_date)
+	 CALL write_variable_in_case_note("* Client is subject to a " & months_disq & " month DISQ from " & DISQ_begin_date & " - "  & DISQ_end_date & ".")
+	 IF program_droplist <> "SNAP"  THEN CALL write_variable_in_case_note("* Because member " & memb_number & " is DQ'd from MFIP, client is also barred from FS for that same period of time.")
+	 IF fraud_claim_number <> "" THEN
+		 CALL write_variable_in_case_note("----- ----- -----")
+		 CALL write_bullet_and_variable_in_case_note("Fraud claim number", fraud_claim_number)
+		 CALL write_bullet_and_variable_in_case_note("Fraud Investigator", Fraud_investigator)
 	 END IF
-	 CALL write_variable_in_CASE_NOTE("* Email sent to team: L. Bloomquist, TTL, and FSS")
-     CALL write_variable_in_CASE_NOTE("* Other Notes:", other_notes)
-	 CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
- 	 CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-	 'Drafting an email. Does not send the email!!!!
+	 CALL write_variable_in_case_note("* Email sent to team: L. Bloomquist, TTL, and FSS")
+     CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
+	 CALL write_variable_in_case_note("----- ----- ----- ----- -----")
+ 	 CALL write_variable_in_case_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 	 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 	 CALL create_outlook_email("Lea.Bloomquist@hennepin.us", "HSPH.ES.TEAM.TTL@hennepin.us;" & "HSPH.FSSDataTeam@hennepin.us;" & fraud_email, "1st Fraud DISQ/Claims--ADH Waiver Signed for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Client signed ADH waiver on: " & date_waiver_signed & " waiving his/her right to an Administrative Disqualification Hearing for wrongfully obtaining public assistance." & vbcr & "Programs: " & program_droplist & vbcr & "Period of Offense: " & start_date & " - " & end_date & vbcr & "See case notes for further details.", "", False)
 END IF
 
-IF ADH_option = "Hearing Held" then
-    BeginDialog hearing_dialog, 0, 0, 366, 120, "ADH waiver signed"
-      EditBox 100, 5, 50, 15, date_waiver_signed
-      EditBox 100, 25, 50, 15, Edit8
-      DropListBox 280, 5, 70, 15, "Select Programs:"+chr(9)+"CASH"+chr(9)+"SNAP"+chr(9)+"CASH & SNAP", Program_droplist
-      EditBox 35, 55, 50, 15, end_date
-      EditBox 35, 75, 50, 15, start_date
-      EditBox 155, 55, 20, 15, months_disq
-      EditBox 155, 75, 50, 15, DISQ_begin_date
-      EditBox 280, 55, 50, 15, fraud_case_number
-      DropListBox 280, 75, 75, 15, "Select one..."+chr(9)+"Unknown"+chr(9)+"Judy Grandel"+chr(9)+"Chris Gormley"+chr(9)+"Keyatta Hill"+chr(9)+"Amanda Lange"+chr(9)+"Kimberly Littlejohn"+chr(9)+"Jonathan Martin"+chr(9)+"Ryan Swanson"+chr(9)+"Scott Benedict", Fraud_investigator
-      EditBox 55, 100, 195, 15, other_notes
+IF ADH_option = "Hearing Held" THEN
+    BeginDialog hearing_dialog, 0, 0, 326, 120, "Hearing Held"
+      EditBox 100, 5, 40, 15, hearing_date
+      EditBox 100, 25, 40, 15, date_order_signed
+      DropListBox 250, 5, 65, 15, "Select One:"+chr(9)+"CASH"+chr(9)+"SNAP"+chr(9)+"CASH & SNAP", Program_droplist
+      EditBox 30, 55, 40, 15, end_date
+      EditBox 30, 75, 40, 15, start_date
+      EditBox 135, 55, 20, 15, months_disq
+      EditBox 135, 75, 40, 15, DISQ_begin_date
+      EditBox 250, 55, 65, 15, fraud_claim_number
+      DropListBox 250, 75, 65, 15, "Select One:"+chr(9)+"Unknown"+chr(9)+"Judy Grandel"+chr(9)+"Chris Gormley"+chr(9)+"Keyatta Hill"+chr(9)+"Amanda Lange"+chr(9)+"Kimberly Littlejohn"+chr(9)+"Jonathan Martin"+chr(9)+"Ryan Swanson"+chr(9)+"Scott Benedict", Fraud_investigator
+      EditBox 55, 100, 125, 15, other_notes
       ButtonGroup ButtonPressed
-        OkButton 255, 100, 50, 15
-        CancelButton 310, 100, 50, 15
-      Text 5, 10, 95, 10, "Date ADH Hearing was held:"
-      Text 95, 60, 55, 10, "Months of DISQ:"
-      Text 235, 10, 35, 10, "Programs:"
-      Text 10, 60, 15, 10, "Start:"
-      Text 95, 80, 60, 10, "DISQ Begin Date:"
-      Text 225, 60, 50, 10, "Claim Number:"
-      GroupBox 5, 45, 210, 50, "Period of offense:"
-      GroupBox 220, 45, 140, 50, "Fraud Information"
+        OkButton 215, 100, 50, 15
+        CancelButton 270, 100, 50, 15
+      Text 75, 60, 55, 10, "Months of DISQ:"
+      Text 210, 10, 35, 10, "Programs:"
+      Text 10, 60, 20, 10, "Start:"
+      Text 75, 80, 60, 10, "DISQ Begin Date:"
+      Text 195, 60, 50, 10, "Claim Number:"
+      GroupBox 5, 45, 175, 50, "Period of offense:"
+      GroupBox 190, 45, 130, 50, "Fraud Information"
       Text 10, 105, 45, 10, "Other Notes:"
-      Text 235, 80, 45, 10, "Investigator:"
+      Text 205, 80, 45, 10, "Investigator:"
       Text 10, 80, 15, 10, "End:"
       Text 20, 30, 80, 10, "Date order was signed:"
+      Text 5, 10, 95, 10, "Date ADH Hearing was held:"
     EndDialog
-
 	DO
 		Do
 			err_msg = ""
 			Dialog
 			cancel_confirmation
 			IF isdate(hearing_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the hearing date."
-			IF program_droplist = "Select Programs:" THEN err_msg = err_msg & vbNewLine & "* Please select the program."
+			IF program_droplist = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select the program."
 			IF isdate(date_order_signed) = false THEN err_msg = err_msg & vbNewLine & "* Please enter date order was signed"
 			IF isdate(start_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter start date"
 			IF isdate(end_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter end date"
 			IF IsNumeric(months_disq) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the amount of disqualification months."
 			IF isdate(DISQ_begin_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter date DISQ begins"
-			IF trim(fraud_case_number) = "" and Fraud_investigator <> "Select one..." THEN err_msg = err_msg & vbNewLine & "* Enter both the fraud case number AND the Fraud Investigator's name, or clear the non-applicable info."
-			IF trim(fraud_case_number) <> "" and Fraud_investigator = "Select one..."  THEN err_msg = err_msg & vbNewLine & "* Enter both the fraud case number AND the Fraud Investigator's name, or clear the non-applicable info."
+			IF trim(fraud_claim_number) = "" and Fraud_investigator <> "Select One:" THEN err_msg = err_msg & vbNewLine & "* Enter both the fraud case number AND the Fraud Investigator's name, or clear the non-applicable info."
+			IF trim(fraud_claim_number) <> "" and Fraud_investigator = "Select One:"  THEN err_msg = err_msg & vbNewLine & "* Enter both the fraud case number AND the Fraud Investigator's name, or clear the non-applicable info."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 		Loop until err_msg = ""
 		CALL check_for_password(are_we_passworded_out)
@@ -227,34 +225,36 @@ IF ADH_option = "Hearing Held" then
 
 	DISQ_end_date = DateAdd("M", months_disq, DISQ_begin_date)
 	IF Fraud_investigator = "Unknown" THEN Fraud_investigator = ""
-	IF Fraud_investigator = "" 						then fraud_email = ""
-	IF Fraud_investigator = "Judy Grandel" 			then fraud_email = "Judith.Grandel@hennepin.us"
-	IF Fraud_investigator = "Chris Gormley"		 	then fraud_email = "Chris.Gormley@hennepin.us"
-	IF Fraud_investigator = "Keyatta Hill" 	 		then fraud_email = "Keyatta.Hill@hennepin.us"
-	IF Fraud_investigator = "Amanda Lange" 			then fraud_email = "Amanda.Lange@hennepin.us"
-	IF Fraud_investigator = "Kimberly Littlejohn"	then fraud_email = "Kimberly.Littlejohn@Hennepin.us"
-	IF Fraud_investigator = "Jonathan Martin" 		then fraud_email = "Jonathan.Martin@Hennepin.us"
-	IF Fraud_investigator = "Ryan Swanson" 			then fraud_email = "Ryan.Swanson@hennepin.us"
-	IF Fraud_investigator = "Scott Benedict" 		then fraud_email = "Scott.Benedict@hennepin.us"
+	'IF Fraud_investigator = "" 						THEN fraud_email = ""
+	IF Fraud_investigator = "Judy Grandel" 			THEN fraud_email = "Judith.Grandel@hennepin.us"
+	IF Fraud_investigator = "Chris Gormley"		 	THEN fraud_email = "Chris.Gormley@hennepin.us"
+	IF Fraud_investigator = "Keyatta Hill" 	 		THEN fraud_email = "Keyatta.Hill@hennepin.us"
+	IF Fraud_investigator = "Amanda Lange" 			THEN fraud_email = "Amanda.Lange@hennepin.us"
+	IF Fraud_investigator = "Kimberly Littlejohn"	THEN fraud_email = "Kimberly.Littlejohn@Hennepin.us"
+	IF Fraud_investigator = "Jonathan Martin" 		THEN fraud_email = "Jonathan.Martin@Hennepin.us"
+	IF Fraud_investigator = "Ryan Swanson" 			THEN fraud_email = "Ryan.Swanson@hennepin.us"
+	IF Fraud_investigator = "Scott Benedict" 		THEN fraud_email = "Scott.Benedict@hennepin.us"
 
 'The 2nd case note-------------------------------------------------------------------------------------------------
 	start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	 CALL write_variable_in_CASE_NOTE("-----1st Fraud DISQ/Claim (" & memb_name & ")  ADH Hearing Held-----")
-	 CALL write_variable_in_CASE_NOTE("Administrative Disqualification Hearing for Wrongfully Obtaining Public Assistance was held on: " & hearing_date & " " & "Order was signed: " & date_order_signed & "This disqualification is not for any other household member and does not affect MA eligibility.")
-	 CALL write_variable_in_CASE_NOTE("----- ----- -----")
-	 CALL write_variable_in_CASE_NOTE("* Programs: " & program_droplist)
-	 CALL write_variable_in_CASE_NOTE("* Period of Offense: " & start_date & " - " & end_date)
-	 CALL write_variable_in_CASE_NOTE("* Client is subject to a " & months_disq & " month DISQ from " & DISQ_begin_date & "-" & DISQ_end_date)
-	 IF program_droplist <> "SNAP"  then CALL write_variable_in_CASE_NOTE("* Other Notes: Because member " & memb_number & " is DQ'd from MFIP, client is also barred from FS for that same period of time.")
-	 IF fraud_case_number <> "" THEN
-		 CALL write_variable_in_CASE_NOTE("----- ----- -----")
-		 CALL write_bullet_and_variable_in_CASE_NOTE("Fraud claim number", fraud_case_number)
-		 CALL write_bullet_and_variable_in_CASE_NOTE("Fraud Investigator", Fraud_investigator)
+	 CALL write_variable_in_case_note("-----1st Fraud DISQ/Claim (" & memb_name & ")  ADH Hearing Held-----")
+	 CALL write_variable_in_case_note("Administrative Disqualification Hearing for Wrongfully Obtaining Public Assistance was held on: " & hearing_date & " " & "Order was signed: " & date_order_signed & "This disqualification is not for any other household member and does not affect MA eligibility.")
+	 CALL write_variable_in_case_note("----- ----- -----")
+     CALL write_bullet_and_variable_in_case_note("Hearing Date", hearing_date)
+     CALL write_bullet_and_variable_in_case_note("Date order signed ", date_order_signed)
+	 CALL write_bullet_and_variable_in_case_note("Programs", program_droplist)
+	 CALL write_variable_in_case_note("* Period of Offense: " & start_date & " - " & end_date)
+	 CALL write_variable_in_case_note("* Client is subject to a " & months_disq & " month DISQ from " & DISQ_begin_date & " - "  & DISQ_end_date)
+	 IF program_droplist <> "SNAP"  THEN CALL write_variable_in_case_note("* Because member " & memb_number & " is DQ'd from MFIP, client is also barred from FS for that same period of time.")
+	 IF fraud_claim_number <> "" THEN
+		 CALL write_variable_in_case_note("----- ----- -----")
+		 CALL write_bullet_and_variable_in_case_note("Fraud claim number", fraud_claim_number)
+		 CALL write_bullet_and_variable_in_case_note("Fraud Investigator", Fraud_investigator)
 	 END IF
-	 CALL write_variable_in_CASE_NOTE("* Email sent to team: L. Bloomquist, TTL, and FSS")
-     CALL write_variable_in_CASE_NOTE("* Other Notes:", other_notes)
-	 CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
-	 CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+	 CALL write_variable_in_case_note("* Email sent to team: L. Bloomquist, TTL, and FSS")
+     CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
+	 CALL write_variable_in_case_note("----- ----- ----- ----- -----")
+	 CALL write_variable_in_case_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 	 'Drafting an email. Does not send the email!!!!
 	 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 	 CALL create_outlook_email("Lea.Bloomquist@hennepin.us", "HSPH.ES.TEAM.TTL@hennepin.us;" & "HSPH.FSSDataTeam@hennepin.us;" & fraud_email, "1st Fraud DISQ/Claims--ADH Hearing Held for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Administrative Disqualification Hearing for Wrongfully Obtaining Public Assistance was held on: " & hearing_date & vbcr & "Order was signed: " & date_order_signed & vbcr & "Programs: " & program_droplist & vbcr & "Period of Offense: " & start_date & " - " & end_date & vbcr & "See case notes for further details.", "", False)
