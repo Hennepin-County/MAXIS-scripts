@@ -119,6 +119,7 @@ For each worker in worker_array
     worker = trim(worker)
 
     Call back_to_SELF
+    EMWriteScreen "        ", 18, 43
     Call MAXIS_footer_month_confirmation
     Call navigate_to_MAXIS_screen("rept", "revs")
     EMWriteScreen worker, 21, 6
@@ -138,15 +139,16 @@ For each worker in worker_array
             If MAXIS_check <> "MAXIS" then stopscript
             EMReadScreen last_page_check, 4, 24, 14
         End if
-        EMReadScreen MAXIS_case_number, 8, row, 6
+        EMReadScreen the_case_number, 8, row, 6
         EMReadScreen paperless_check, 1, row, 51
         EmReadscreen not_approved_check, 1, row, 49
         if paperless_check = "*" and not_approved_check <> "A" then
-        	case_number_array = trim(case_number_array & " " & trim(MAXIS_case_number))
+        	case_number_array = trim(case_number_array & " " & trim(the_case_number))
         	Stats_counter = Stats_counter + 1
     	End if
         row = row + 1
-    Loop until last_page_check = "LAST" or trim(MAXIS_case_number) = ""
+    Loop until last_page_check = "LAST" or trim(the_case_number) = ""
+    pf3
 Next
 
 'Opening the Excel file
@@ -176,86 +178,104 @@ case_number_array = split(case_number_array)
 For each MAXIS_case_number in case_number_array
     actually_paperless = "" 'Resetting the variable.
     call navigate_to_MAXIS_screen ("stat", "memb")
-    call navigate_to_MAXIS_screen ("stat", "jobs")
-    EMWriteScreen "01", 20, 76
-    transmit
-    Do
-    	EMReadScreen panel_check, 8, 2, 72
-    	current_panel = trim(left(panel_check, 2))
-    	total_panels = trim(right(panel_check, 2))
-    	EMReadScreen date_check, 8, 9, 49
-    	If total_panels <> "0" & date_check = "__ __ __" then actually_paperless = False
-    	if current_panel <> total_panels then transmit
-    Loop until current_panel = total_panels
+    EmReadscreen priv_check, 4, 24, 14
+    If priv_check <> "PRIV" Then
+        call navigate_to_MAXIS_screen ("stat", "jobs")
+        EMWriteScreen "01", 20, 76
+        transmit
+        Do
+        	EMReadScreen panel_check, 8, 2, 72
+        	current_panel = trim(left(panel_check, 2))
+        	total_panels = trim(right(panel_check, 2))
+        	EMReadScreen date_check, 8, 9, 49
+        	If total_panels <> "0" & date_check = "__ __ __" then actually_paperless = False
+        	if current_panel <> total_panels then transmit
+        Loop until current_panel = total_panels
 
-    call navigate_to_MAXIS_screen ("stat", "busi")
-    EMWriteScreen "01", 20, 76
-    transmit
-  	Do
-    	current_panel = trim(left(panel_check, 2))
-		EMReadScreen panel_check, 8, 2, 72
-    	total_panels = trim(right(panel_check, 2))
-    	EMReadScreen date_check, 8, 5, 71
-    	If total_panels <> "0" & date_check = "__ __ __" then actually_paperless = False
-    	if current_panel <> total_panels then transmit
-  	Loop until current_panel = total_panels
+        call navigate_to_MAXIS_screen ("stat", "busi")
+        EMWriteScreen "01", 20, 76
+        transmit
+      	Do
+        	current_panel = trim(left(panel_check, 2))
+    		EMReadScreen panel_check, 8, 2, 72
+        	total_panels = trim(right(panel_check, 2))
+        	EMReadScreen date_check, 8, 5, 71
+        	If total_panels <> "0" & date_check = "__ __ __" then actually_paperless = False
+        	if current_panel <> total_panels then transmit
+      	Loop until current_panel = total_panels
 
-  	call navigate_to_MAXIS_screen ("stat", "rbic")
-  	EMWriteScreen "01", 20, 76
-  	transmit
-  	Do
-  		EMReadScreen panel_check, 8, 2, 72
-  		current_panel = trim(left(panel_check, 2))
-  		total_panels = trim(right(panel_check, 2))
-  		EMReadScreen date_check, 8, 6, 68
-  		If total_panels <> "0" & date_check = "__ __ __" then actually_paperless = False
-  		if current_panel <> total_panels then transmit
-  	Loop until current_panel = total_panels
+      	call navigate_to_MAXIS_screen ("stat", "rbic")
+      	EMWriteScreen "01", 20, 76
+      	transmit
+      	Do
+      		EMReadScreen panel_check, 8, 2, 72
+      		current_panel = trim(left(panel_check, 2))
+      		total_panels = trim(right(panel_check, 2))
+      		EMReadScreen date_check, 8, 6, 68
+      		If total_panels <> "0" & date_check = "__ __ __" then actually_paperless = False
+      		if current_panel <> total_panels then transmit
+      	Loop until current_panel = total_panels
 
-  	If actually_paperless <> False then actually_paperless = True
+      	If actually_paperless <> False then actually_paperless = True
 
-  	If actually_paperless = True then
-    	call navigate_to_MAXIS_screen ("stat", "revw")
-    	EMReadScreen SNAP_review_check, 1, 7, 60
-        EmReadscreen basket_nbr, 7, 21, 21
+      	If actually_paperless = True then
+        	call navigate_to_MAXIS_screen ("stat", "revw")
+        	EMReadScreen SNAP_review_check, 1, 7, 60
+            EmReadscreen basket_nbr, 7, 21, 21
 
-        'ADD TO EXCEL
-        objExcel.Cells(excel_row, 1).Value = basket_nbr
-        objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
-        objExcel.Cells(excel_row, 3).Value = SNAP_review_check
-        excel_row = excel_row + 1
+            'ADD TO EXCEL
+            objExcel.Cells(excel_row, 1).Value = basket_nbr
+            objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
+            objExcel.Cells(excel_row, 3).Value = SNAP_review_check
+            excel_row = excel_row + 1
 
 
-    	If SNAP_review_check <> "N" then
-			STATS_counter = STATS_counter + 1
-	  		cases_to_tikl = cases_to_tikl & "~" & MAXIS_case_number
-      		PF9
-      		EMWriteScreen "x", 5, 71
-      		transmit
-      		EMReadScreen renewal_year, 2, 8, 33
-      		If renewal_year = "__" then
-        		EMReadScreen renewal_year, 2, 8, 77
-        		renewal_year_col = 77
-      		Else
-        		renewal_year_col = 33
-      		End if
-      		EMWriteScreen left(current_month, 2), 6, 27
-      		EMWriteScreen current_day, 6, 30
-      		EMWriteScreen right(current_year, 2), 6, 33
-      		new_renewal_year = cint(right(current_year, 2)) + 1
-      		If current_month = 12 then new_renewal_year = new_renewal_year + 1 'Because otherwise the renewal year will be the current footer month.
-      		EMWriteScreen new_renewal_year, 8, renewal_year_col
-      		EMWriteScreen "U", 13, 43
-      		EMReadScreen spouse_check, 1, 14, 43
-      		If spouse_check = "N" then
-				PF10
-				transmit
-			End if
-		End if
+        	If SNAP_review_check <> "N" then
+    			STATS_counter = STATS_counter + 1
+    	  		cases_to_tikl = cases_to_tikl & "~" & MAXIS_case_number
+          		PF9
+          		EMWriteScreen "x", 5, 71
+          		transmit
+          		EMReadScreen renewal_year, 2, 8, 33
+          		If renewal_year = "__" then
+            		EMReadScreen renewal_year, 2, 8, 77
+            		renewal_year_col = 77
+          		Else
+            		renewal_year_col = 33
+          		End if
+          		EMWriteScreen left(current_month, 2), 6, 27
+          		EMWriteScreen current_day, 6, 30
+          		EMWriteScreen right(current_year, 2), 6, 33
+          		new_renewal_year = cint(right(current_year, 2)) + 1
+          		If current_month = 12 then new_renewal_year = new_renewal_year + 1 'Because otherwise the renewal year will be the current footer month.
+          		EMWriteScreen new_renewal_year, 8, renewal_year_col
+          		EMWriteScreen "U", 13, 43
+          		EMReadScreen spouse_check, 1, 14, 43
+          		If spouse_check = "N" then
+    				PF10
+    				transmit
+    			End if
+    		End if
+        Else
+            not_paperless_cases = not_paperless_cases & "~" & MAXIS_case_number
+        End if
     Else
-        not_paperless_cases = not_paperless_cases & "~" & MAXIS_case_number
-    End if
+        priv_cases = priv_cases & "~" & MAXIS_case_number
+    End If
 Next
+
+If priv_cases <> "" Then
+    priv_array = split(priv_cases, "~")
+
+    ObjExcel.Cells(1, 6). Value = "PRIV CASES"
+    ObjExcel.Cells(1, 6).Font.Bold = TRUE
+
+    priv_row = 2
+    For each case_nbr in priv_array
+        ObjExcel.Cells(priv_row, 6).Value = case_nbr
+        priv_row = priv_row + 1
+    Next
+End If
 
 If cases_to_tikl <> "" Then
 	cases_to_tikl = right(cases_to_tikl, len(cases_to_tikl)-1)
@@ -276,7 +296,7 @@ For each MAXIS_case_number in cases_to_tikl_array
         objExcel.Cells(excel_row, 4).Value = "Fail"
         ' MsgBox "This case - " & MAXIS_case_number & " failed to have a TIKL set, track and case note manually"
     Else
-        .Cells(excel_row, 4).Value = "Success"
+        objExcel.Cells(excel_row, 4).Value = "Success"
     End If
     excel_row = excel_row + 1
 	PF3
