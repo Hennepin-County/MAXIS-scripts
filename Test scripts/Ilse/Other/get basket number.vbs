@@ -286,7 +286,7 @@ DO
     If basket = "X127ES9" then population_type = "Families"		'2: North Mpls
     If basket = "X127EX1" then population_type = "Families"		'2: North Mpls
     If basket = "X127FF3" then population_type = "Families"		'2: North Mpls
-    If basket = "X127EW7" then population_type = "Families"		'2: North Mpls
+    If basket = "X127EW7" then population_type = "ADS"		    '2: North Mpls ADS for FAD
     If basket = "X127EW8" then population_type = "Families"		'2: North Mpls
     If basket = "X127EW9" then population_type = "Families"		'2: North Mpls
     
@@ -398,6 +398,10 @@ DO
     If basket = "X127FF4" then population_type = "LTC" 
     If basket = "X127FG6" then population_type = "LTC" 
     
+    If basket = "x127F3F" then population_type = "MA-EPD"
+    If basket = "x127F3K" then population_type = "MA-EPD"
+    If basket = "x127F3P" then population_type = "MA-EPD"
+        
     ObjExcel.Cells(excel_row, pop_col).Value = population_type
     
     MAXIS_case_number = ""
