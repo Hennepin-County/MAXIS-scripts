@@ -1912,7 +1912,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                                     hgt = 10
                                     if len(exemption) > 100 then hgt = 20
                                     if len(exemption) > 200 then hgt = 30
-                                    dlg_len = dlg_len + hgt
+                                    dlg_len = dlg_len + hgt + 10
                                 Next
                                 y_pos = 75
 
