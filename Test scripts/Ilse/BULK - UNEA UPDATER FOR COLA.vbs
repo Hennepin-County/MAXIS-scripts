@@ -291,7 +291,7 @@ For i = 0 to Ubound(UNEA_array, 2)
                             If income_type = "13" then cola_muliplier = .028     'VA (2.8%)
                             If income_type = "38" then cola_muliplier = 0       'VA A & A - no updates for 2019
                             If income_type = "16" then cola_muliplier = .028     'Railroad (2.8%)
-                            If income_type = "17" then cola_muliplier .014       'General PERA (1.4%)
+                            If income_type = "17" then cola_muliplier = .014       'General PERA (1.4%)
                             
                             'Figuring out the calculations
                             increase_amt = prospective_amt * cola_muliplier
@@ -407,7 +407,7 @@ For i = 0 to Ubound(UNEA_array, 2)
         Elseif income_type = "16" then 
             increase_perc = "2.8%"
         Elseif income_type = "17" then 
-            increase_amt = "1.4%"
+            increase_perc = "1.4%"
         End if 
     
 	    '----------------------------------------------------------------------------------------------------THE CASE NOTE
