@@ -164,30 +164,32 @@ END FUNCTION
 
 FUNCTION ten_day_cutoff_check(MAXIS_footer_month, MAXIS_footer_year, ten_day_cutoff)
 	'All 10-day cutoff dates are provided in POLI/TEMP TE19.132
-	IF MAXIS_footer_month = "01" AND MAXIS_footer_year = "18" THEN
-		ten_day_cutoff = #01/19/2018#
-	ELSEIF MAXIS_footer_month = "02" AND MAXIS_footer_year = "18" THEN
-		ten_day_cutoff = #02/15/2018#
-	ELSEIF MAXIS_footer_month = "03" AND MAXIS_footer_year = "18" THEN
-		ten_day_cutoff = #03/21/2018#
-	ELSEIF MAXIS_footer_month = "04" AND MAXIS_footer_year = "18" THEN
-		ten_day_cutoff = #04/19/2018#
-	ELSEIF MAXIS_footer_month = "05" AND MAXIS_footer_year = "18" THEN
-		ten_day_cutoff = #05/21/2018#
-	ELSEIF MAXIS_footer_month = "06" AND MAXIS_footer_year = "18" THEN
-		ten_day_cutoff = #06/20/2018#
-	ELSEIF MAXIS_footer_month = "07" AND MAXIS_footer_year = "18" THEN
-		ten_day_cutoff = #07/19/2018#
-	ELSEIF MAXIS_footer_month = "08" AND MAXIS_footer_year = "18" THEN
-		ten_day_cutoff = #08/21/2018#
-	ELSEIF MAXIS_footer_month = "09" AND MAXIS_footer_year = "18" THEN
-		ten_day_cutoff = #09/20/2018#
-	ELSEIF MAXIS_footer_month = "10" AND MAXIS_footer_year = "18" THEN
-		ten_day_cutoff = #10/19/2018#
-	ELSEIF MAXIS_footer_month = "11" AND MAXIS_footer_year = "18" THEN
-		ten_day_cutoff = #11/20/2018#
-	ELSEIF MAXIS_footer_month = "12" AND MAXIS_footer_year = "18" THEN
-		ten_day_cutoff = #12/20/2018#
+	IF MAXIS_footer_month = "01" AND MAXIS_footer_year = "19" THEN
+		ten_day_cutoff = #01/18/2019#
+	ELSEIF MAXIS_footer_month = "02" AND MAXIS_footer_year = "19" THEN
+		ten_day_cutoff = #02/15/2019#
+	ELSEIF MAXIS_footer_month = "03" AND MAXIS_footer_year = "19" THEN
+		ten_day_cutoff = #03/21/2019#
+	ELSEIF MAXIS_footer_month = "04" AND MAXIS_footer_year = "19" THEN
+		ten_day_cutoff = #04/18/2019#
+	ELSEIF MAXIS_footer_month = "05" AND MAXIS_footer_year = "19" THEN
+		ten_day_cutoff = #05/21/2019#
+	ELSEIF MAXIS_footer_month = "06" AND MAXIS_footer_year = "19" THEN
+		ten_day_cutoff = #06/20/2019#
+	ELSEIF MAXIS_footer_month = "07" AND MAXIS_footer_year = "19" THEN
+		ten_day_cutoff = #07/19/2019#
+	ELSEIF MAXIS_footer_month = "08" AND MAXIS_footer_year = "19" THEN
+		ten_day_cutoff = #08/21/2019#
+	ELSEIF MAXIS_footer_month = "09" AND MAXIS_footer_year = "19" THEN
+		ten_day_cutoff = #09/19/2019#
+	ELSEIF MAXIS_footer_month = "10" AND MAXIS_footer_year = "19" THEN
+		ten_day_cutoff = #10/21/2019#
+	ELSEIF MAXIS_footer_month = "11" AND MAXIS_footer_year = "19" THEN
+		ten_day_cutoff = #11/19/2019#
+	ELSEIF MAXIS_footer_month = "12" AND MAXIS_footer_year = "19" THEN
+		ten_day_cutoff = #12/19/2019#
+    ELSEIF MAXIS_footer_month = "12" AND MAXIS_footer_year = "18" THEN
+    	ten_day_cutoff = #12/20/2018#                                      'last month of current year
 	ELSE
 		MsgBox "You have entered a date (" & MAXIS_footer_month & "/" & MAXIS_footer_year & ") not supported by this function. Please contact a scripts administrator to determine if the script requires updating.", vbInformation + vbSystemModal, "NOTICE"
 	END IF

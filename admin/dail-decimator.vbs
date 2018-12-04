@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/03/2018", "Added COLA messages for 01/19 COLA.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/02/2018", "Added additional ELIG messages older than CM.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/26/2018", "Added additional messages included TIKL's over 6 months old, STAT edits over 5 days old and EFUNDS messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/26/2018", "Added MEC2 messages.", "Ilse Ferris, Hennepin County")
@@ -92,6 +93,8 @@ EndDialog
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+dail_to_decimate = "ALL"
+all_workers_check = 1
 this_month = CM_mo & " " & CM_yr
 next_month = CM_plus_1_mo & " " & CM_plus_1_yr
 
@@ -253,6 +256,8 @@ For each worker in worker_array
                 instr(dail_msg, "LAST GRADE COMPLETED") OR _      
                 instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") OR _  
                 instr(dail_msg, "TPQY RESPONSE") OR _
+                instr(dail_msg, "CHECK FOR COLA") OR _
+                instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") OR _
                 instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then 
     		    add_to_excel = True	
                 '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
@@ -292,7 +297,7 @@ For each worker in worker_array
                     Else 
                         add_to_excel = False 
                     End if 
-                End if       
+                End if  
             Else 
                 add_to_excel = False 
             End if 
