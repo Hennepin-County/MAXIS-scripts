@@ -104,16 +104,13 @@ If whole_county_check = checked Then
     call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
 Else
     worker_array = Array()
+    ' MsgBox worker_number
     If len(worker_number) = 7 Then
         worker_array = Array(worker_number)
     Else
         worker_array = split(worker_number, ",")
     End If
 End If
-'
-' For each worker in worker_array
-'     MsgBox worker
-' Next
 
 For each worker in worker_array
     worker = trim(worker)
@@ -130,8 +127,12 @@ For each worker in worker_array
     EMReadScreen REVW_check, 4, 2, 52
     If REVW_check <> "REVS" then script_end_procedure("You must start this script at the beginning of REPT/REVS. Navigate to the screen and try again!")
 
+    EMWaitReady 0, 0
     row = 7
+    ' numb_cases = 0
     Do
+        MAXIS_check = ""
+        last_page_check = ""
         If row = 19 then
             PF8
             row = 7
@@ -139,15 +140,21 @@ For each worker in worker_array
             If MAXIS_check <> "MAXIS" then stopscript
             EMReadScreen last_page_check, 4, 24, 14
         End if
+        EMWaitReady 0, 0
         EMReadScreen the_case_number, 8, row, 6
         EMReadScreen paperless_check, 1, row, 51
         EmReadscreen not_approved_check, 1, row, 49
-        if paperless_check = "*" and not_approved_check <> "A" then
-        	case_number_array = trim(case_number_array & " " & trim(the_case_number))
-        	Stats_counter = Stats_counter + 1
-    	End if
+        if paperless_check = "*" Then
+            ' MsgBox not_approved_check
+            If not_approved_check <> "A" then
+                case_number_array = trim(case_number_array & " " & trim(the_case_number))
+        	    Stats_counter = Stats_counter + 1
+                ' numb_cases = numb_cases + 1
+    	    End if
+        End If
         row = row + 1
     Loop until last_page_check = "LAST" or trim(the_case_number) = ""
+
     pf3
 Next
 
@@ -223,14 +230,17 @@ For each MAXIS_case_number in case_number_array
         	EMReadScreen SNAP_review_check, 1, 7, 60
             EmReadscreen basket_nbr, 7, 21, 21
 
-            'ADD TO EXCEL
-            objExcel.Cells(excel_row, 1).Value = basket_nbr
-            objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
-            objExcel.Cells(excel_row, 3).Value = SNAP_review_check
-            excel_row = excel_row + 1
-
-
         	If SNAP_review_check <> "N" then
+
+                ' MsgBox "Going to Enter"
+                'ADD TO EXCEL
+                objExcel.Cells(excel_row, 1).Value = basket_nbr
+                objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
+                objExcel.Cells(excel_row, 3).Value = SNAP_review_check
+                excel_row = excel_row + 1
+
+                ' MsgBox "Now entered"
+
     			STATS_counter = STATS_counter + 1
     	  		cases_to_tikl = cases_to_tikl & "~" & MAXIS_case_number
           		PF9
@@ -251,10 +261,13 @@ For each MAXIS_case_number in case_number_array
           		EMWriteScreen new_renewal_year, 8, renewal_year_col
           		EMWriteScreen "U", 13, 43
           		EMReadScreen spouse_check, 1, 14, 43
+                'may be mul'
           		If spouse_check = "N" then
     				PF10
     				transmit
     			End if
+            Else
+                not_paperless_cases = not_paperless_cases & "~" & MAXIS_case_number
     		End if
         Else
             not_paperless_cases = not_paperless_cases & "~" & MAXIS_case_number
@@ -267,12 +280,12 @@ Next
 If priv_cases <> "" Then
     priv_array = split(priv_cases, "~")
 
-    ObjExcel.Cells(1, 6). Value = "PRIV CASES"
-    ObjExcel.Cells(1, 6).Font.Bold = TRUE
+    objExcel.Cells(1, 6). Value = "PRIV CASES"
+    objExcel.Cells(1, 6).Font.Bold = TRUE
 
     priv_row = 2
     For each case_nbr in priv_array
-        ObjExcel.Cells(priv_row, 6).Value = case_nbr
+        objExcel.Cells(priv_row, 6).Value = case_nbr
         priv_row = priv_row + 1
     Next
 End If
@@ -292,6 +305,7 @@ For each MAXIS_case_number in cases_to_tikl_array
 	EMWritescreen "%^% Sent through background using bulk script %^%", 9, 3
 	transmit
 	EMReadScreen tikl_success, 4, 24, 2
+    ' MsgBox "Suc? - ''" & tikl_success & "'"
 	If tikl_success <> "    " Then
         objExcel.Cells(excel_row, 4).Value = "Fail"
         ' MsgBox "This case - " & MAXIS_case_number & " failed to have a TIKL set, track and case note manually"
@@ -303,17 +317,19 @@ For each MAXIS_case_number in cases_to_tikl_array
 Next
 
 Call back_to_SELF
+' MsgBox "Not paperless - " & not_paperless_cases
 If not_paperless_cases <> "" Then
     not_paperless_array = split(not_paperless_cases, "~")
 
     'It creates a new worksheet and names it
-    objExcel.Worksheets.Add().Name = "Cases that Appear Paperless but are not"
+    objExcel.Worksheets.Add().Name = "Not actually Paperless"
     objExcel.Cells(1, 1).Value = "CASE NUMBER"
     objExcel.Cells(1, 1).Font.Bold = TRUE
     excel_row = 2
 
     For each MAXIS_case_number in not_paperless_array
         objExcel.Cells(excel_row, 1).Value = MAXIS_case_number
+        excel_row = excel_row + 1
     Next
 End If
 
