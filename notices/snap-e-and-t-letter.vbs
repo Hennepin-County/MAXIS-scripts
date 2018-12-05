@@ -279,7 +279,7 @@ For each member_number in member_array
     Call write_variable_in_SPEC_MEMO("Orientation Date:")
     Call write_variable_in_SPEC_MEMO("Your appointment is scheduled for " & appointment_info)
     Call write_variable_in_SPEC_MEMO("")
-    Call write_variable_in_SPEC_MEMO("Orientaion Location:")
+    Call write_variable_in_SPEC_MEMO("Orientation Location:")
     Call write_variable_in_SPEC_MEMO(appointment_location)
     Call write_variable_in_SPEC_MEMO("")
     Call write_variable_in_SPEC_MEMO("If " & first_name & "cannot attend, contact the SNAP E&T team right away to inquire about additional training dates.")
