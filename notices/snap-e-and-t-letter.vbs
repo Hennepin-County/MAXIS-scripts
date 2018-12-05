@@ -274,7 +274,6 @@ For each member_number in member_array
         
     Call start_a_new_spec_memo
     Call write_variable_in_SPEC_MEMO("                     SNAP E&T ORIENTATION")
-    Call write_variable_in_SPEC_MEMO("")
     Call write_variable_in_SPEC_MEMO(Client_name & " has volunteered to work with SNAP Employment & Training (SNAP E & T).")
     Call write_variable_in_SPEC_MEMO("")
     Call write_variable_in_SPEC_MEMO("Orientation Date:")
