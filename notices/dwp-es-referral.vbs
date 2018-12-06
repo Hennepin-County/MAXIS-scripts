@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/06/2018", "Bloomington Thrusday sessions discontinued effective 12/14/18. Option removed from script.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/03/2018", "Avivo will be closed 08/16/18. The script has been update to exclude this date as a potential orientation date.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/20/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -55,7 +56,7 @@ changelog_display
 BeginDialog referral_dialog, 0, 0, 291, 130, "ES Letter and Referral"
   EditBox 90, 10, 55, 15, MAXIS_case_number
   EditBox 210, 10, 75, 15, member_number
-  DropListBox 90, 35, 195, 15, "Select one..."+chr(9)+"Bloomington (Tuesdays @ 9:00 a.m.)"+chr(9)+"Bloomington (Wednesdays @ 1:00 p.m.)"+chr(9)+"Bloomington (Thursdays @ 9:00 a.m.)"+chr(9)+"Brooklyn Center (Tuesdays @ 9:00 a.m.)"+chr(9)+"Brooklyn Center (Thursdays @ 9:00 a.m.)"+chr(9)+"North Mpls (Tuesdays @ 9:00 a.m.)"+chr(9)+"North Mpls (Wednesdays @ 9:00 a.m.)"+chr(9)+"South Mpls (Tuesdays @ 1:00 p.m.)"+chr(9)+"South Mpls (Wednesdays @ 9:00 a.m.)"+chr(9)+"WERC Northwest"+chr(9)+"WERC South Mpls", interview_location
+  DropListBox 90, 35, 195, 15, "Select one..."+chr(9)+"Bloomington (Tuesdays @ 9:00 a.m.)"+chr(9)+"Bloomington (Wednesdays @ 1:00 p.m.)"+chr(9)+"Brooklyn Center (Tuesdays @ 9:00 a.m.)"+chr(9)+"Brooklyn Center (Thursdays @ 9:00 a.m.)"+chr(9)+"North Mpls (Tuesdays @ 9:00 a.m.)"+chr(9)+"North Mpls (Wednesdays @ 9:00 a.m.)"+chr(9)+"South Mpls (Tuesdays @ 1:00 p.m.)"+chr(9)+"South Mpls (Wednesdays @ 9:00 a.m.)"+chr(9)+"WERC Northwest"+chr(9)+"WERC South Mpls", interview_location
   DropListBox 65, 60, 100, 15, "Select one..."+chr(9)+"Scheduled"+chr(9)+"Rescheduled"+chr(9)+"Rescheduled from WERC", appt_type
   EditBox 210, 60, 75, 15, vendor_num
   EditBox 75, 85, 210, 15, other_referral_notes
@@ -71,7 +72,6 @@ BeginDialog referral_dialog, 0, 0, 291, 130, "ES Letter and Referral"
   Text 25, 65, 35, 10, "Appt type:"
   Text 170, 65, 40, 10, "Vendor #'s:"
 EndDialog
-
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connects to BlueZone default screen & 'Searches for a case number
@@ -121,20 +121,7 @@ Elseif interview_location = "Bloomington (Wednesdays @ 1:00 p.m.)" THEN
     'Date and time 
     appointment_time = "1:00 PM"
     appointment_date = Date + 8 - Weekday(Date, vbWednesday)
-    provider_row = 8    'WFM1 provider selection based on location
-    'Date and time 
-ElseIF interview_location = "Bloomington (Thursdays @ 9:00 a.m.)" THEN
-    provider_name = "Avivo Bloomington"
-    provider_address_01 = "2626 East 82nd Street, Suite 370"
-    provider_city = "Bloomington"
-    provider_ST = "MN"
-    provider_zip = "554425"
-    provider_phone = "612-752-8942"
-    'Date and time 
-    appointment_time = "9:00 AM"
-    appointment_date = Date + 8 - Weekday(Date, vbThursday)
-    provider_row = 8    'WFM1 provider selection based on location
-    
+    provider_row = 8    'WFM1 provider selection based on location    
 'Brooklyn Center
 ElseIf interview_location = "Brooklyn Center (Tuesdays @ 9:00 a.m.)" THEN
     provider_name = "Avivo Brooklyn Center"
