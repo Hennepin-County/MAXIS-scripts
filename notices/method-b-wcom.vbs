@@ -37,13 +37,14 @@
  	END IF
  END IF
  'END FUNCTIONS LIBRARY BLOCK================================================================================================
- 
+
  'CHANGELOG BLOCK ===========================================================================================================
  'Starts by defining a changelog array
  changelog = array()
 
  'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
  'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+ CALL changelog_update("12/07/2018", "Update Recipient Amount to truncate instead of round.", "Casey Love, Hennepin County")
  CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
  call changelog_update("04/04/2017", "Added handling for multiple recipient changes to SPEC/WCOM", "David Courtright, St Louis County")
  call changelog_update("12/27/2016", "Script can now write to a MEMO is a waiting notice is not available/found.", "Charles Potter, DHS")
@@ -197,6 +198,9 @@ Do
   IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
   Loop until err_msg = ""
 
+dec_place = InStr(recipient_amt, ".")
+If dec_place <> 0 Then recipient_amt = Left(recipient_amt, len(recipient_amt) - dec_place + 1)
+
 recipient_amt = Round(recipient_amt)  'rounds variable to nearest decimal point to clean up for memo'
 recipient_amt = recipient_amt & ".00"
 'This section will check for whether forms go to AREP and SWKR
@@ -235,9 +239,9 @@ If no_hc_waiting = true then
 END IF
 'based on output of fancy message box we either end the script or write the WCOM
 IF swap_to_memo = vbNo THEN script_end_procedure("No waiting HC results were found for the requested month")
-IF swap_to_memo = vbYes THEN 
+IF swap_to_memo = vbYes THEN
     CALL start_a_new_spec_memo
-Else       
+Else
     'transmitting and putting wcom into edit mode
     Transmit
     PF9
@@ -254,7 +258,7 @@ Else
     IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
     IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
     transmit                                                        'Transmits to start the memo writing process'
-End if 
+End if
 
 'Worker Comment Input
 Write_variable_in_SPEC_MEMO("Although your spenddown is $" & spenddown & " your recipient amount (the amount you pay each month) is $" & recipient_amt & ". This is how the recipient amount is determined:")
