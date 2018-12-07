@@ -2410,7 +2410,7 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                                 'Creating a list of each line of the case note - created here instead of adding to an array because we don't need it after the note
                                 Lines_in_note = Lines_in_note & "~!~* SNAP approved for " & footer_month & "/" & footer_year
-                                Lines_in_note = Lines_in_note & "~!~    Eligile Household Members: "
+                                Lines_in_note = Lines_in_note & "~!~    Eligible Household Members: "
                                 For each person in member_array
                                     Lines_in_note = Lines_in_note & person & ", "
                                 Next
