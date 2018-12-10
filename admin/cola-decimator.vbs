@@ -180,9 +180,7 @@ For each worker in worker_array
 			dail_msg = trim(dail_msg)
 			stats_counter = stats_counter + 1
 	
-			If instr(dail_msg, "SDX MATCH - PBEN UPDATED - MAXIS INTERFACED IAA DATE TO SSA") OR _
-			    instr(dail_msg, "SDX MATCH - MAXIS INTERFACED IAA DATE TO SSA") OR _
-    		    instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") OR _ 
+			If instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") OR _ 
                 instr(dail_msg, "NEW MSA ELIG AUTO-APPROVED") OR _ 
                 instr(dail_msg, "SNAP: AUTO-APPROVED") OR _ 
                 instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") OR _ 
