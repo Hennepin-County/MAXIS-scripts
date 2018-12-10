@@ -338,9 +338,7 @@ Do
             stopscript
         End if
     elseif ButtonPressed = BZ_button then
-        If user_ID_for_validation = "ILFE001" OR _
-        user_ID_for_validation = "WFS395" OR _
-        user_ID_for_validation = "CALO001" then
+        If show_BZ_button = True then 
 		    declare_admin_menu_dialog(script_array_BZ_list)
         Else
             Msgbox "These scripts are for Scriptwriters only. You do not have access to access this menu."
