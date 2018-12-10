@@ -193,10 +193,6 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 '
 ' MsgBox "That's it"
 
-'Find case number and footer month - set a variable with the initially found footer month for the default for every loop
-'The footer month may be different for EVERY income source. NEED to add handling to identify if there is a begin date for updating MAXIS (app date that activates the case)
-    'A client may apply in april and bring in checks from March but we cannot update MAXIS in March
-
 original_month = MAXIS_footer_month
 originial_year = MAXIS_footer_year
 
@@ -896,7 +892,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                                 actual_checks_provided = TRUE
                                 If IsDate(LIST_OF_INCOME_ARRAY(pay_date, all_income)) = FALSE Then sm_err_msg = sm_err_msg & vbNewLine & "* Enter a valid pay date for all checks."
                                 If IsNumeric(LIST_OF_INCOME_ARRAY(gross_amount, all_income)) = FALSE Then sm_err_msg = sm_err_msg & vbNewLine & "* Enter the Gross Amount of the check as a number."
-                                If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = 1 AND trim(LIST_OF_INCOME_ARRAY(reason_to_exclude, all_income)) = "" Then err_msg = err_msg & vbNewLine & "* The check on " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & " is to be excluded, list a reason for excluding this check."
+                                If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = 1 AND trim(LIST_OF_INCOME_ARRAY(reason_to_exclude, all_income)) = "" Then sm_err_msg = sm_err_msg & vbNewLine & "* The check on " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & " is to be excluded, list a reason for excluding this check."
                                 If IsNumeric(LIST_OF_INCOME_ARRAY(hours, all_income)) = FALSE Then sm_err_msg = sm_err_msg & vbNewLine & "* Enter the number of hours for the paycheck on " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & " as a number."
                                 If IsNumeric(LIST_OF_INCOME_ARRAY(exclude_amount, all_income)) = FALSE AND trim(LIST_OF_INCOME_ARRAY(exclude_amount, all_income)) <> "" Then sm_err_msg = sm_err_msg & vbNewLine & "* Enter the amount excluded from the budget as a number."
                             End If
@@ -1108,11 +1104,6 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                                         End If
 
                                     End If
-                                    ' "1 - One Time Per Month"
-                                    ' "2 - Two Times Per Month"
-                                    ' "3 - Every Other Week"
-                                    ' "4 - Every Week"
-                                    ' "5 - Other"
                                 Else
 
                                 End If
@@ -1140,13 +1131,6 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                             cash_checks = cash_checks + 1
                             EARNED_INCOME_PANELS_ARRAY(income_list_indct, ei_panel) = EARNED_INCOME_PANELS_ARRAY(income_list_indct, ei_panel) & "~" & all_income
 
-                            'determining the pay frequency.
-                            ' If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "" Then
-                            '     if previous_pay_date = "" Then
-                            '         previous_pay_date = LIST_OF_INCOME_ARRAY(pay_date, all_income)
-                            '     Else
-                            '         days_between_pay
-                            ' End If
                             If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = unchecked Then LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = checked
                             If LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = checked Then
                                 If LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = "" Then LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = 0
