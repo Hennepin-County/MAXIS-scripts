@@ -203,9 +203,8 @@ For each worker in worker_array
             EMReadScreen dail_month, 8, dail_row, 11
             dail_month = trim(dail_month)
 			stats_counter = stats_counter + 1
-	
+            
             '----------------------------------------------------------------------------------------------------CSES Messages
-            '
             If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
                 instr(dail_msg, "AP OF CHILD REF NBR:") OR _ 
                 instr(dail_msg, "ADDRESS DIFFERS W/ CS RECORDS:") OR _ 
@@ -258,6 +257,12 @@ For each worker in worker_array
                 instr(dail_msg, "TPQY RESPONSE") OR _
                 instr(dail_msg, "CHECK FOR COLA") OR _
                 instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") OR _
+                instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO-APPROVED") OR _ 
+                instr(dail_msg, "MSA RECERT DUE - NOT AUTO-APPROVED") OR _ 
+                instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO-APPROVED") OR _ 
+                instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO-APPROVED") OR _ 
+                instr(dail_msg, "APPROVED MSA VERSION EXISTS - NOT AUTO-APPROVED") OR _ 
+                instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") OR _     
                 instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then 
     		    add_to_excel = True	
                 '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
