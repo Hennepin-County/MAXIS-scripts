@@ -79,24 +79,33 @@ EMConnect ""
 '=========================================================================================
 'Everything above this line is a part of the DAIL Scrubber Script if this becomes state supported. Just change the last line to the correct call from github
 
-'DATE CALCULATIONS'
-next_month = DateAdd("m", 1, date)
-approval_month = DatePart("m", next_month)
-approval_year = DatePart("yyyy", next_month)
+If run_from_DAIL = TRUE Then
+    'DATE CALCULATIONS'
+    next_month = DateAdd("m", 1, date)
+    approval_month = DatePart("m", next_month)
+    approval_year = DatePart("yyyy", next_month)
 
-approval_month = right("00" & approval_month, 2)
-approval_year = right(approval_year, 2)
+    approval_month = right("00" & approval_month, 2)
+    approval_year = right(approval_year, 2)
 
-EMWriteScreen "E", 6, 3                         'Navigates to ELIG/HC - maintaining tie to the DAIL for ease of processin
-transmit
-EMWriteScreen "HC", 20, 71
-transmit
+    EMWriteScreen "E", 6, 3                         'Navigates to ELIG/HC - maintaining tie to the DAIL for ease of processin
+    transmit
+    EMWriteScreen "HC", 20, 71
+    transmit
+Else
+    approval_month = MAXIS_footer_month
+    approval_year = MAXIS_footer_year
+
+    Call Navigate_to_MAXIS_screen("ELIG", "HC  ")
+End If
+
 EMReadScreen hc_elig_check, 4, 3, 51
 If hc_elig_check <> "HHMM" Then script_end_procedure("No HC ELIG results exist, resolve edits and approve new version and run the script again.")
 EMWriteScreen approval_month, 20, 56            'Goes to the next month and checks that elig results exist
 EMWriteScreen approval_year,  20, 59
 transmit
 If hc_elig_check <> "HHMM" Then script_end_procedure("No HC ELIG results exist, resolve edits and approve new version and run the script again.")
+
 
 row = 8                                          'Reads each line of Elig HC to find all the approved programs in a case
 Do
@@ -170,11 +179,13 @@ If run_LTC_Approval = vbYes Then                'Defining more variables for the
     MAXIS_footer_month = approval_month         'The rest of this script will not run if LTC script is selected
     MAXIS_footer_year = approval_year
     special_header_droplist = "Paperless IR"
-    
+
     call run_from_GitHub( script_repository & "notes/ltc-ma-approval.vbs")
 End If
 
-PF3             'Back to DAIL
+If run_from_DAIL = TRUE Then
+    PF3             'Back to DAIL
+End If
 
 If error_processing_msg <> "" Then script_end_procedure(error_processing_msg)
 
@@ -222,14 +233,17 @@ Do
     if err_msg <> "" Then MsgBox err_msg
 Loop until err_msg = ""
 
-EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
-transmit
+If run_from_DAIL = TRUE Then
+    EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
+    transmit
 
-'Starts a blank case note
-PF9
-EMReadScreen case_note_mode_check, 7, 20, 3
-If case_note_mode_check <> "Mode: A" then MsgBox "You are not in a case note on edit mode. You might be in inquiry. Try the script again in production."
-If case_note_mode_check <> "Mode: A" then stopscript
+    'Starts a blank case note
+    PF9
+    EMReadScreen case_note_mode_check, 7, 20, 3
+    If case_note_mode_check <> "Mode: A" then script_end_procedure("You are not in a case note on edit mode. You might be in inquiry. Try the script again in production.")
+Else
+    start_a_blank_CASE_NOTE
+End If
 
 'Adding information to case note
 Call write_variable_in_CASE_NOTE ("---Approved HC - IR Waived---")
@@ -243,26 +257,28 @@ Call write_variable_in_CASE_NOTE ("* Case processing assisted by a script")
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
-DIALOG delete_message_dialog
-IF ButtonPressed = delete_button THEN
-	PF3
-	PF3
-	DO
-		dail_read_row = 6
-		DO
-			EMReadScreen double_check, 49, dail_read_row, 20
-			IF double_check = Paperless_tikl_check THEN
-				EMWriteScreen "D", dail_read_row, 3
-				transmit
-				EXIT DO
-			ELSE
-				dail_read_row = dail_read_row + 1
-			END IF
-			IF dail_read_row = 19 THEN PF8
-		LOOP UNTIL dail_read_row = 19
-		EMReadScreen others_dail, 13, 24, 2
-		If others_dail = "** WARNING **" Then transmit
-	LOOP UNTIL double_check = Paperless_tikl_check
-END IF
+If run_from_DAIL = TRUE Then
+    DIALOG delete_message_dialog
+    IF ButtonPressed = delete_button THEN
+    	PF3
+    	PF3
+    	DO
+    		dail_read_row = 6
+    		DO
+    			EMReadScreen double_check, 49, dail_read_row, 20
+    			IF double_check = Paperless_tikl_check THEN
+    				EMWriteScreen "D", dail_read_row, 3
+    				transmit
+    				EXIT DO
+    			ELSE
+    				dail_read_row = dail_read_row + 1
+    			END IF
+    			IF dail_read_row = 19 THEN PF8
+    		LOOP UNTIL dail_read_row = 19
+    		EMReadScreen others_dail, 13, 24, 2
+    		If others_dail = "** WARNING **" Then transmit
+    	LOOP UNTIL double_check = Paperless_tikl_check
+    END IF
+End If
 
 script_end_procedure("")
