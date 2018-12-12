@@ -71,6 +71,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/12/2018", "Added COUNTED ABAWD MONTHS script under ABAWD sub-menu.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/29/2018", "Removed FSET SANCTION script. Cases no longer require FSET sanctions (voluntary compliance).", "Ilse Ferris, Hennepin County")
 call changelog_update("02/09/2018", "Added ADD GRH RATE 2 TO MMIS script for GRH Rate 2 case.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/12/2018", "Retired ACTIONS - ABAWD MINOR CHILD EXEMPTION FIATER'. MAXIS has been updated to support this process.", "Ilse Ferris, Hennepin County")
