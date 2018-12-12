@@ -404,7 +404,14 @@ DO
     If basket = "X127F3K" then population_type = "MA-EPD"
     If basket = "X127F3P" then population_type = "MA-EPD"
     
-    If basket = "X127EA0" then population = "Families" 'EA'
+    If basket = "X127EA0" then population_type = "Families" 'EA'
+    
+    If basket = "X127FG1" then population_type = "IV-E"
+    If basket = "X127EW6" then population_type = "IV-E"
+    If basket = "X1274EC" then population_type = "IV-E"
+    If basket = "X127FG2" then population_type = "IV-E"
+    If basket = "X127EW4" then population_type = "IV-E"
+    If basket = "X127EW5" then population_type = "IV-E"
         
     ObjExcel.Cells(excel_row, pop_col).Value = population_type
     
