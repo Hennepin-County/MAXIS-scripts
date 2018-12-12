@@ -125,12 +125,12 @@ script_array_BULK_main(script_num).script_name			= "CEI Premium Noter"
 script_array_BULK_main(script_num).file_name			= "cei-premium-noter.vbs"
 script_array_BULK_main(script_num).description			= "Case notes recurring CEI premiums on multiple cases simultaneously."
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_main(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_main(script_num).script_name			= "COLA Auto-approved Dail Noter"
-script_array_BULK_main(script_num).file_name			= "cola-auto-approved-dail-noter.vbs"
-script_array_BULK_main(script_num).description			= "Case notes all cases on DAIL/DAIL with Auto-approved COLA message, creates list of these messages, deletes the DAIL."
+'script_num = script_num + 1								'Increment by one
+'ReDim Preserve script_array_BULK_main(script_num)		'Resets the array to add one more element to it
+'Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+'script_array_BULK_main(script_num).script_name			= "COLA Auto-approved Dail Noter"
+'script_array_BULK_main(script_num).file_name			= "cola-auto-approved-dail-noter.vbs"
+'script_array_BULK_main(script_num).description			= "Case notes all cases on DAIL/DAIL with Auto-approved COLA message, creates list of these messages, deletes the DAIL."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_main(script_num)		'Resets the array to add one more element to it
@@ -160,19 +160,12 @@ script_array_BULK_main(script_num).script_name			= "Returned Mail"
 script_array_BULK_main(script_num).file_name			= "returned-mail.vbs"
 script_array_BULK_main(script_num).description			= "Case notes that returned mail (without a forwarding address) was received for up to 60 cases, TIKLs for 10-day return."
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_main(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_main(script_num).script_name			= "Paperless IR"
-script_array_BULK_main(script_num).file_name			= "paperless-ir.vbs"
-script_array_BULK_main(script_num).description			= "Updates cases on a caseload(s) that require paperless IR processing. Does not approve cases."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_main(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_main(script_num).script_name			= " REVS Scrubber "
-script_array_BULK_main(script_num).file_name			= "revs-scrubber.vbs"
-script_array_BULK_main(script_num).description			= "Sends appointment letters to all interview-requiring REVS cases, and creates a spreadsheet of when each appointment is."
+'script_num = script_num + 1								'Increment by one
+'ReDim Preserve script_array_BULK_main(script_num)		'Resets the array to add one more element to it
+'Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+'script_array_BULK_main(script_num).script_name			= " REVS Scrubber "
+'script_array_BULK_main(script_num).file_name			= "revs-scrubber.vbs"
+'script_array_BULK_main(script_num).description			= "Sends appointment letters to all interview-requiring REVS cases, and creates a spreadsheet of when each appointment is."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_main(script_num)		'Resets the array to add one more element to it
