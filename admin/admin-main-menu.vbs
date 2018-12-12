@@ -203,6 +203,13 @@ script_array_QI_list(script_num).file_name			 = "bulk-applications.vbs"									
 script_array_QI_list(script_num).description		 = "BULK script to collect information for cases that require an interview for the On Demand Waiver."
 
 script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array_BULK_main(script_num)	'Resets the array to add one more element to it
+Set script_array_BULK_main(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BULK_main(script_num).script_name		= "Paperless IR"
+script_array_BULK_main(script_num).file_name		= "paperless-ir.vbs"
+script_array_BULK_main(script_num).description		= "Updates cases on a caseload(s) that require paperless IR processing. Does not approve cases."
+
+script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
 Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_QI_list(script_num).script_name		= "QI Renewal Accuracy"                                              'Script name
