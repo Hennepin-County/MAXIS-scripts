@@ -302,7 +302,7 @@ excel_row = 2
 For each MAXIS_case_number in cases_to_tikl_array
 	navigate_to_MAXIS_screen "DAIL", "WRIT"
     call create_MAXIS_friendly_date(date, 0, 5, 18)
-	EMWritescreen "%^% Sent through background using bulk script %^%", 9, 3
+	EMWritescreen "%^% Sent through background for Paperless IR Review %^%", 9, 3
 	transmit
 	EMReadScreen tikl_success, 4, 24, 2
     ' MsgBox "Suc? - ''" & tikl_success & "'"
