@@ -120,11 +120,16 @@ Do
     	LOOP until SELF_screen_check = "SELF"
     	EMWriteScreen "________", 18, 43		'clears the MAXIS case number
     	transmit
-    Else 
-        Call start_a_blank_CASE_NOTE
-        CALL write_variable_in_case_note(dail_msg)
-        PF3 ' save message
-        objExcel.Cells(excel_row, 6).Value = "Case note created."
+    Else
+        EmReadscreen county_check, 2, 21, 16
+        If county_check <> "27" then 
+            objExcel.Cells(excel_row, 6).Value = "Out of county case."
+        Else 
+            Call start_a_blank_CASE_NOTE
+            CALL write_variable_in_case_note(dail_msg)
+            PF3 ' save message
+            objExcel.Cells(excel_row, 6).Value = "Case note created."
+        End if 
     End If 
     excel_row = excel_row + 1     
 Loop until ObjExcel.Cells(excel_row, 2).Value = ""    

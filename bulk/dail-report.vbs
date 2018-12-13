@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/13/2018", "Updated option selection handling, and other background functionality.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/12/2018", "Fixed bug for cases with more than one page of DAILs for the same case. Added all agency handling.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -89,12 +90,16 @@ all_workers_check = 1
 
 'Shows the dialog. Doesn't need to loop since we already looked at MAXIS.
 DO
-	dialog bulk_dail_report_dialog
-	cancel_confirmation
-	If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."	
-	If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."	
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+	Do 
+        err_msg = ""
+        dialog bulk_dail_report_dialog
+	    cancel_confirmation
+	    If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."	
+	    If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."	
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine										
+    LOOP until err_msg = ""		
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in	
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -140,6 +145,7 @@ objExcel.Cells(1, 6).Font.Bold = True
 'Sets variable for all of the Excel stuff
 excel_row = 2
 
+back_to_self
 CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 
 'This for...next contains each worker indicated above
@@ -235,23 +241,6 @@ For each worker in worker_array
 						dail_row = 6
 					End if 
 				End if
-
-				''...going to the next page if necessary
-				'IF dail_row = 19 AND dail_msg <> "" THEN
-				'	PF8
-				'	dail_row = 6
-				'ELSEIF dail_row = 19 AND dail_msg = "" THEN
-				'	EMReadScreen more_pages, 7, 19, 3
-				'	if more_pages = "More: -" OR more_pages = "       " then
-				'		all_done = true
-				'		'If the script determines that it is on the last page, it EXITS DO...
-				'		exit do
-				'	else
-				'		PF8
-				'		dail_row = 6
-				'	end if
-				'end if
-				
 			ELSEIF new_case = "CASE NBR" THEN
 				'...if the script does find that there is a new case number (indicated by the presence
 				'   of "CASE NBR", it will write a "T" in the next row and transmit, bringing that
@@ -286,7 +275,6 @@ NEXT
 
 'Going to another sheet, to enter worker-specific statistics
 ObjExcel.Worksheets.Add().Name = "DAIL stats by worker"
-
 col_to_use = 3
 
 'Headers
@@ -400,7 +388,6 @@ IF all_check = checked OR wf1_check = checked THEN
 	col_to_use = col_to_use + 1
 	WF1_letter_col = convert_digit_to_excel_column(WF1_col)
 END IF
-
 
 'Writes each worker from the worker_array in the Excel spreadsheet
 For x = 0 to ubound(worker_array)
