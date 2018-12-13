@@ -835,7 +835,7 @@ function update_WREG_coding(enter_wreg_status, enter_abawd_status, FSET_funds, e
     End If
     EMReadScreen panel_error, 7, 24, 2
     If panel_error = "WARNING" Then transmit
-    'MsgBox "Look for error messages"
+    ' MsgBox "Look for error messages"
     EMWriteScreen "BGTX", 20, 71
     transmit
 end function
@@ -2054,6 +2054,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                         BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "BANKED MONTH"
                     End If
 
+                    If BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = "" Then BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = TRUE
                     ' MsgBOx BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case)
                     Call back_to_SELF
                     Call navigate_to_MAXIS_screen("STAT", "WREG")   'The script or worker may have moved around in the case - need to navigate back
@@ -2179,8 +2180,11 @@ If process_option = "Ongoing Banked Months Cases" Then
                         BANKED_MONTHS_CASES_ARRAY(clt_curr_mo_stat, the_case) = MAXIS_footer_month & "/" & MAXIS_footer_year & " - " & BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case)
                         Updates_made = TRUE
                     End If
-                    If BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case) = "INACTIVE" Then BANKED_MONTHS_CASES_ARRAY(clt_curr_mo_stat, the_case) = MAXIS_footer_month & "/" & MAXIS_footer_year & " - " & BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case)
-
+                    If BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case) = "INACTIVE" Then
+                        BANKED_MONTHS_CASES_ARRAY(clt_curr_mo_stat, the_case) = MAXIS_footer_month & "/" & MAXIS_footer_year & " - " & BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case)
+                        BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = TRUE
+                    End If
+                    If BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case) = "EXEMPT" Then BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = TRUE
                     If BANKED_MONTHS_CASES_ARRAY(month_indicator + 27, the_case) = TRUE Then
                         if start_month = "" Then
                             start_month = MAXIS_footer_month
@@ -2498,7 +2502,8 @@ If process_option = "Ongoing Banked Months Cases" Then
                     '     'We will add it to the array and later to the spreadsheet
                     '     BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) = MAXIS_footer_month & "/" & MAXIS_footer_year
                     ' End If
-                    BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = FALSE
+
+                    ' BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = FALSE
 
                 Else            'These cases are where the member is NOT active SNAP in the specified month
                     'If the month was tracked on the Excel spreadsheet
@@ -2586,7 +2591,7 @@ If process_option = "Ongoing Banked Months Cases" Then
             If BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "BANKED MONTH" Then month_indicator = month_indicator + 1
 
         ' Next
-        Loop until month_indicator = clt_mo_nine
+        Loop until month_indicator > clt_mo_nine
 
         '************************************************************************************'
         ' banked_months_tracked = TRUE
