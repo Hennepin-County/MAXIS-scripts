@@ -51,32 +51,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-'DIALOGS FOR THE SCRIPT======================================================================================================
-
-    '------Paste any dialogs needed in from the dialog editor here. Dialogs typically include MAXIS_case_number and worker_signature fields
-	BeginDialog client_dialog, 0, 0, 161, 165, "OUT OF STATE INQUIRY"
-	  EditBox 55, 5, 35, 15, MAXIS_case_number
-	  EditBox 135, 5, 20, 15, member_number
-	  ButtonGroup ButtonPressed
-	    PushButton 25, 25, 105, 20, "National Directory Website", outofstate_button
-	  EditBox 95, 50, 60, 15, agency_name
-	  EditBox 95, 70, 60, 15, agency_fax
-	  EditBox 95, 90, 60, 15, worker_fax
-	  CheckBox 5, 110, 150, 10, "Case note that out of state inquiry was sent", case_note_checkbox
-	  EditBox 70, 125, 85, 15, worker_signature
-	  ButtonGroup ButtonPressed
-	    OkButton 50, 145, 50, 15
-	    CancelButton 105, 145, 50, 15
-	  Text 5, 10, 50, 10, "Case Number:"
-	  Text 105, 10, 30, 10, "Memb #:"
-	  Text 25, 55, 70, 10, "Out of State Agency:"
-	  Text 15, 75, 80, 10, "Out of State Agency fax:"
-	  Text 35, 95, 55, 10, "Your County fax:"
-	  Text 5, 130, 60, 10, "Worker Signature:"
-	EndDialog
-'END DIALOGS=================================================================================================================
-
 'THE SCRIPT==================================================================================================================
 
 'Connects to BlueZone
@@ -84,6 +58,30 @@ EMConnect ""
 
 'Grabs case number
 call MAXIS_case_number_finder(MAXIS_case_number)
+case_note_checkbox = CHECKED
+'DIALOGS FOR THE SCRIPT======================================================================================================
+'------Paste any dialogs needed in from the dialog editor here. Dialogs typically include MAXIS_case_number and worker_signature fields
+BeginDialog client_dialog, 0, 0, 191, 165, "OUT OF STATE INQUIRY"
+  EditBox 55, 5, 35, 15, MAXIS_case_number
+  EditBox 135, 5, 20, 15, member_number
+  ButtonGroup ButtonPressed
+    PushButton 30, 25, 105, 20, "National Directory Website", outofstate_button
+  EditBox 105, 50, 80, 15, agency_name
+  EditBox 105, 70, 80, 15, agency_info
+  EditBox 105, 90, 80, 15, worker_info
+  CheckBox 30, 110, 150, 10, "Script will case note that out of state inquiry was sent", case_note_checkbox
+  EditBox 100, 125, 85, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 80, 145, 50, 15
+    CancelButton 135, 145, 50, 15
+  Text 5, 10, 50, 10, "Case Number:"
+  Text 105, 10, 30, 10, "Memb #:"
+  Text 10, 55, 90, 10, "Out of State Agency Name:"
+  Text 5, 75, 95, 10, "Out of State Agency Contact:"
+  Text 60, 95, 40, 10, "County Info:"
+  Text 35, 130, 60, 10, "Worker Signature:"
+EndDialog
+'END DIALOGS=================================================================================================================
 
 'Dialog
 Do
@@ -92,7 +90,7 @@ Do
 		Dialog client_dialog
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
-		If case_note_checkbox = 1 and worker_signature = "" then MsgBox "You need to add a signature since you are adding a casenote"
+		If worker_signature = "" then MsgBox "You need to add a signature since you are adding a casenote"
     		Call check_for_MAXIS(False)
     		call check_for_password (are_we_passworded_out) 'adding functionality for MAXIS v.6 Password Out issue'
     		call navigate_to_MAXIS_screen("stat","memb")
@@ -202,7 +200,7 @@ objSelection.Font.Size = "10"
 objSelection.Font.Bold = True
 objSelection.TypeText "TO: " & agency_name
 objSelection.TypeParagraph
-objSelection.TypeText "FAX NUMBER: " & agency_fax
+objSelection.TypeText "FAX NUMBER: " & agency_info
 objSelection.TypeParagraph
 objSelection.TypeText "RE: " & client_name
 objSelection.TypeParagraph
@@ -284,7 +282,7 @@ objSelection.TypeText Year(date) & ":   Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  
 objSelection.TypeParagraph
 objSelection.TypeParagraph
 objSelection.TypeParagraph
-objSelection.TypeText "Please FAX your response to: " & worker_name & " MY FAX NUMBER IS: " & worker_fax & "."
+objSelection.TypeText "Please email or fax your response to: " & worker_name & " Hennepin County contact information: " & worker_info & "."
 objSelection.TypeParagraph
 objSelection.TypeText "If you have any questions about this request, you may contact me at: " & worker_phone
 objSelection.TypeParagraph
@@ -307,21 +305,21 @@ oDoc.FormFields("client_address").Result = client_address
 oDoc.FormFields("worker_name").Result = worker_name
 oDoc.FormFields("worker_phone").Result = worker_phone
 oDoc.FormFields("agency_name").Result = agency_name
-oDoc.FormFields("agency_fax").Result = agency_fax
+oDoc.FormFields("agency_info").Result = agency_info
 oDoc.FormFields("client_dob").Result = client_dob
-oDoc.FormFields("worker_fax").Result = worker_fax
+oDoc.FormFields("worker_info").Result = worker_info
 
 oDoc.SaveAs("Z:\My Documents\BlueZone\Scripts\OUT OF STATE.doc")
 End If
 
 'Generates a Casenote
-If case_note_checkbox = 1 then
+If case_note_checkbox = CHECKED then
 pf4
 pf9
 EMSendKey "***OUT OF STATE INQUIRY SENT***"
-CALL write_bullet_and_variable_in_CASE_NOTE("SENT OUT OF STATE INQURY FAX TO: ", agency_name)
-CALL write_bullet_and_variable_in_CASE_NOTE("Agency Fax Contact", agency_fax)
-CALL write_bullet_and_variable_in_CASE_NOTE("For:", client_name)
+CALL write_bullet_and_variable_in_CASE_NOTE("Out of State Inquiry sent to", agency_name)
+CALL write_bullet_and_variable_in_CASE_NOTE("Agency Contact Info", agency_info)
+CALL write_bullet_and_variable_in_CASE_NOTE("For", client_name)
 CALL write_bullet_and_variable_in_CASE_NOTE("Member Number", member_number)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
