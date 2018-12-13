@@ -4289,15 +4289,21 @@ function navigate_to_MMIS_region(group_security_selection)
 
 			If correct_group = FALSE Then script_end_procedure("It does not appear you have access to the correct region of MMIS. This script requires access to the County Eligibility region. The script will now stop.")
 
+            menu_to_enter = "RECIPIENT FILE APPLICATION"
+
 		Case "GRH UPDATE"
 			If mmis_group_selection  = "GRHU" Then correct_group = TRUE
 
 			If correct_group = FALSE Then script_end_procedure("It does not appear you have access to the correct region of MMIS. This script requires access to the GRH Update region. The script will now stop.")
 
+            menu_to_enter = "PRIOR AUTHORIZATION   "
+
 		Case "GRH INQUIRY"
 			If mmis_group_selection  = "GRHI" Then correct_group = TRUE
 
 			If correct_group = FALSE Then script_end_procedure("It does not appear you have access to the correct region of MMIS. This script requires access to the GRH Inquiry region. The script will now stop.")
+
+            menu_to_enter = "PRIOR AUTHORIZATION   "
 
 		Case "MMIS MCRE"
 			If mmis_group_selection  = "EK01" Then correct_group = TRUE
@@ -4305,7 +4311,16 @@ function navigate_to_MMIS_region(group_security_selection)
 
 			If correct_group = FALSE Then script_end_procedure("It does not appear you have access to the correct region of MMIS. This script requires access to the MCRE region. The script will now stop.")
 
+            menu_to_enter = "RECIPIENT FILE APPLICATION"
+
 		End Select
+
+        'Now it finds the recipient file application feature and selects it.
+        row = 1
+        col = 1
+        EMSearch menu_to_enter, row, col
+        EMWriteScreen "x", row, col - 3
+        transmit
 
 	Else
 		Select Case group_security_selection
