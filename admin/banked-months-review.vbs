@@ -835,6 +835,7 @@ function update_WREG_coding(enter_wreg_status, enter_abawd_status, FSET_funds, e
     End If
     EMReadScreen panel_error, 7, 24, 2
     If panel_error = "WARNING" Then transmit
+    transmit
     ' MsgBox "Look for error messages"
     EMWriteScreen "BGTX", 20, 71
     transmit
@@ -2071,6 +2072,13 @@ If process_option = "Ongoing Banked Months Cases" Then
                                 BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) = MAXIS_footer_month & "/" & MAXIS_footer_year
                             Else                                    'If we are in production, then we should actually update
                                 CALL update_WREG_coding("30", "13", "N", month_tracker_nbr, FALSE, "")
+
+                                ' EMReadScreen new_fset, 2, 8, 50
+                                ' EMReadScreen new_abawd, 2, 13, 50
+                                ' EMReadScreen new_bm, 1, 14, 50
+                                ' EMReadScreen new_funds, 1, 8, 80
+                                '
+                                ' If new_fset = "30" AND new_abawd = "13" AND new_bm = month_tracker_nbr AND new_funds = "N" Then update_success = TRUE
 
                                 BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) = MAXIS_footer_month & "/" & MAXIS_footer_year
                                 'TODO add confirmation that WREG was updated
