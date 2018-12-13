@@ -141,7 +141,7 @@ EMReadScreen summary_source, 35, 19, 3
 summary_source = trim(summary_source)
 IF instr(summary_source, " =") then
     length = len(summary_source) 						  'establishing the length of the variable
-    position = InStr(summary_source, " =")    		      'sets the position at the deliminator  
+    position = InStr(summary_source, " =")    		      'sets the position at the deliminator
     summary_source = Left(summary_source, position-1)  'establishes employer as being before the deliminator
 ELSE
     summary_source = summary_source
@@ -353,7 +353,7 @@ IF send_notice_checkbox = CHECKED THEN
     CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
     CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
-	CALL write_variable_in_CASE_NOTE("* Type of income:")
+	'CALL write_variable_in_CASE_NOTE("* Type of income:")
     CALL write_variable_in_CASE_NOTE ("----- ----- -----")
     CALL write_bullet_and_variable_in_CASE_NOTE("Verification Requested", pending_verifs)
     CALL write_bullet_and_variable_in_CASE_NOTE("Verification Due", Due_date)
@@ -476,7 +476,7 @@ MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The s
 		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
-		CALL write_variable_in_CASE_NOTE("* Type of income:")
+		'CALL write_bullet_and_variable_in_CASE_NOTE("Type of income", income_type)
 		CALL write_variable_in_CASE_NOTE ("----- ----- -----")
 		IF resolution_status = "BN - Already known, No Savings" THEN CALL write_variable_in_CASE_NOTE("CLIENT REPORTED INCOME. CORRECT INCOME IS IN STAT PANELS AND BUDGETED.")
 	    IF resolution_status = "BE - Child" THEN CALL write_variable_in_CASE_NOTE("INCOME IS EXCLUDED FOR MINOR CHILD IN SCHOOL.")
