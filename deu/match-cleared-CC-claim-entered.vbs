@@ -431,12 +431,11 @@ End If
 'msgbox panel_name
 EMReadScreen days_pending, 5, row, 72
 days_pending = trim(days_pending)
-atch_cleared = TRUE
+match_cleared = TRUE
 IF IsNumeric(days_pending) = TRUE THEN match_cleared = FALSE
 
 If match_cleared = FALSE Then
     confirm_cleared = MsgBox ("The script cannot identify that this match has cleared." & vbNewLine & vbNewLine & "Review IEVP and find the match that is being cleared with this run." &vbNewLine & " ** HAS THE MATCH BEEN CLEARED? **", vbQuestion + vbYesNo, "Confirm Match Cleared")
-
     if confirm_cleared = vbYes Then match_cleared = TRUE
 End If
 If match_cleared = FALSE Then script_end_procedure("This match did not appear to clear. Please check case, and try again.")
