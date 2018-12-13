@@ -2332,7 +2332,7 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                         'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 0
 
-                        If ButtonPressed = OKButton Then
+                        If ButtonPressed = -1 Then
                             'setting the variables
                             footer_month = start_month
                             footer_year = start_year
