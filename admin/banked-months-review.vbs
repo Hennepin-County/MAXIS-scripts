@@ -5,7 +5,7 @@ STATS_counter = 0			 'sets the stats counter at one
 STATS_manualtime = 0			 'manual run time in seconds
 STATS_denomination = "C"		 'C is for each case
 'END OF stats block==============================================================================================
-run_locally = TRUE
+'run_locally = TRUE
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -772,6 +772,72 @@ function find_three_ABAWD_months(all_counted_months)
     objABAWDExcel.DisplayAlerts = TRUE
     Set objABAWDExcel = Nothing
 
+end function
+
+function update_WREG_coding(enter_wreg_status, enter_abawd_status, FSET_funds, enter_banked_nbr, update_tracker, tracker_code)
+    PF9
+    EMWriteScreen enter_wreg_status, 8, 50
+    EMWriteScreen enter_abawd_status, 13, 50
+    EMWriteScreen enter_banked_nbr, 14, 50
+    EmWriteScreen FSET_funds, 8, 80
+
+    If update_tracker = TRUE Then
+        EMWriteScreen "X", 13, 57
+        transmit
+
+        Select Case MAXIS_footer_month
+            Case "01"
+                search_mo = "Jan"
+            Case "02"
+                search_mo = "Feb"
+            Case "03"
+                search_mo = "Mar"
+            Case "04"
+                search_mo = "Apr"
+            Case "05"
+                search_mo = "May"
+            Case "06"
+                search_mo = "Jun"
+            Case "07"
+                search_mo = "Jul"
+            Case "08"
+                search_mo = "Aug"
+            Case "09"
+                search_mo = "Sep"
+            Case "10"
+                search_mo = "Oct"
+            Case "11"
+                search_mo = "Nov"
+            Case "12"
+                search_mo = "Dec"
+        End Select
+
+        row = 1
+        wreg_col = 1
+        EMSearch search_mo, row, wreg_col
+        wreg_col = wreg_col + 1
+
+        wreg_row = 1
+        col = 1
+        EMSearch MAXIS_footer_year, wreg_row, col
+
+        EMWriteScreen tracker_code, wreg_row, wreg_col
+
+        PF3
+    End If
+
+
+    transmit
+    EMReadScreen panel_error, 10, 24, 2
+    If panel_error = "DEFER FSET" Then
+        EMWriteScreen "N", 8, 80
+        transmit
+    End If
+    EMReadScreen panel_error, 7, 24, 2
+    If panel_error = "WARNING" Then transmit
+    'MsgBox "Look for error messages"
+    EMWriteScreen "BGTX", 20, 71
+    transmit
 end function
 '===========================================================================================================================
 
@@ -2003,75 +2069,23 @@ If process_option = "Ongoing Banked Months Cases" Then
                                 MsgBox "WREG to be updated with BM Tracker number: " & month_tracker_nbr
                                 BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) = MAXIS_footer_month & "/" & MAXIS_footer_year
                             Else                                    'If we are in production, then we should actually update
-                                PF9
-                                EMWriteScreen "30", 8, 50
-                                EMWriteScreen "13", 13, 50
-                                EMWriteScreen month_tracker_nbr, 14, 50
-                                transmit
-                                EMWriteScreen "BGTX", 20, 71
-                                transmit
+                                CALL update_WREG_coding("30", "13", "N", month_tracker_nbr, FALSE, "")
 
                                 BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) = MAXIS_footer_month & "/" & MAXIS_footer_year
                                 'TODO add confirmation that WREG was updated
                             End If
+                            BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = FALSE
                         ElseIf BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "REG ABAWD" Then
                             If MX_region = "INQUIRY DB" Then           'If we are in Inquiry, the script runs in a developer mode, messaging the information
                                 MsgBox "WREG to be updated with 30/10"
                             Else                                    'If we are in production, then we should actually update
-                                PF9
-                                EMWriteScreen "30", 8, 50
-                                EMWriteScreen "10", 13, 50
-                                EMWriteScreen " ", 14, 50
 
-                                If approvable_month = FALSE Then
-                                    EMWriteScreen "X", 13, 57
-                                    transmit
+                                need_tracking = FALSE
+                                If approvable_month = FALSE then need_tracking = TRUE
+                                CALL update_WREG_coding("30", "10", "N", "", need_tracking, "M")
 
-                                    Select Case MAXIS_footer_month
-                                        Case "01"
-                                            search_mo = "Jan"
-                                        Case "02"
-                                            search_mo = "Feb"
-                                        Case "03"
-                                            search_mo = "Mar"
-                                        Case "04"
-                                            search_mo = "Apr"
-                                        Case "05"
-                                            search_mo = "May"
-                                        Case "06"
-                                            search_mo = "Jun"
-                                        Case "07"
-                                            search_mo = "Jul"
-                                        Case "08"
-                                            search_mo = "Aug"
-                                        Case "09"
-                                            search_mo = "Sep"
-                                        Case "10"
-                                            search_mo = "Oct"
-                                        Case "11"
-                                            search_mo = "Nov"
-                                        Case "12"
-                                            search_mo = "Dec"
-                                    End Select
-
-                                    row = 1
-                                    wreg_col = 1
-                                    EMSearch search_mo, row, wreg_col
-                                    wreg_col = wreg_col + 1
-
-                                    wreg_row = 1
-                                    col = 1
-                                    EMSearch MAXIS_footer_year, wreg_row, col
-
-                                    EMWriteScreen "M", wreg_row, wreg_col
-
-                                    PF3
-                                End If
-
-                                transmit
-                                EMWriteScreen "BGTX", 20, 71
-                                transmit
                             End If
+                            BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = FALSE
                         ElseIf BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "EXEMPT" Then
                             full_of_exemptions = JOIN(list_of_exemption, "~")
                             If InStr(full_of_exemptions, "active on CASH programs") <> 0 Then new_fset_wreg_status = "17"
@@ -2137,47 +2151,30 @@ If process_option = "Ongoing Banked Months Cases" Then
                             If MX_region = "INQUIRY DB" Then           'If we are in Inquiry, the script runs in a developer mode, messaging the information
                                 MsgBox "WREG to be updated with " & new_fset_wreg_status & "/" & new_abawd_status
                             Else                                    'If we are in production, then we should actually update
-                                PF9
-                                EMWriteScreen new_fset_wreg_status, 8, 50
-                                EMWriteScreen new_abawd_status, 13, 50
-                                EMWriteScreen " ", 14, 50
-                                transmit
-                                EMWriteScreen "BGTX", 20, 71
-                                transmit
+                                CALL update_WREG_coding(new_fset_wreg_status, new_abawd_status, " ", "", FALSE, "")
                             End If
+                            BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = TRUE
                         ElseIF BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "PRORATED - REG" Then
                             If MX_region = "INQUIRY DB" Then           'If we are in Inquiry, the script runs in a developer mode, messaging the information
                                 MsgBox "WREG to be updated with 30/10"
                             Else                                    'If we are in production, then we should actually update
-                                PF9
-                                EMWriteScreen "30", 8, 50
-                                EMWriteScreen "10", 13, 50
-                                EMWriteScreen " ", 14, 50
-                                transmit
-                                EMWriteScreen "BGTX", 20, 71
-                                transmit
+                                CALL update_WREG_coding("30", "10", "N", "", FALSE, "")
                             End If
                         ElseIF BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "PRORATED - BM" Then
                             If MX_region = "INQUIRY DB" Then           'If we are in Inquiry, the script runs in a developer mode, messaging the information
                                 MsgBox "WREG to be updated with 30/13 - tracker removed"
                             Else                                    'If we are in production, then we should actually update
-                                PF9
-                                EMWriteScreen "30", 8, 50
-                                EMWriteScreen "13", 13, 50
-                                EMWriteScreen " ", 14, 50
-                                transmit
-                                EMWriteScreen "BGTX", 20, 71
-                                transmit
+                                CALL update_WREG_coding("30", "13", "N", "", FALSE, "")
                             End If
                         End If
                     End If
 
                     If BANKED_MONTHS_CASES_ARRAY(month_indicator + 18, the_case) = TRUE Then
                         If BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case) = "BANKED MONTH" Then
-                            other_notes = other_notes & "For the month - " & MAXIS_footer_month & "/" & MAXIS_footer_year & " the SNAP for Memb " & HH_memb & " is " & BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case) & " - Banked Month: " & month_tracker_nbr & ".; "
+                            other_notes = other_notes & MAXIS_footer_month & "/" & MAXIS_footer_year & " for " & HH_memb & " is " & BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case) & " - Banked Month: " & month_tracker_nbr & ".; "
 
                         Else
-                            other_notes = other_notes & "For the month - " & MAXIS_footer_month & "/" & MAXIS_footer_year & " the SNAP for Memb " & HH_memb & " is " & BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case) & "; "
+                            other_notes = other_notes & MAXIS_footer_month & "/" & MAXIS_footer_year & " for " & HH_memb & " is " & BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case) & "; "
                         End If
                         BANKED_MONTHS_CASES_ARRAY(clt_curr_mo_stat, the_case) = MAXIS_footer_month & "/" & MAXIS_footer_year & " - " & BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case)
                         Updates_made = TRUE
@@ -2335,7 +2332,7 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                         'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 0
 
-                        If ButtonPressed = OKButton Then
+                        If ButtonPressed = -1 Then
                             'setting the variables
                             footer_month = start_month
                             footer_year = start_year
@@ -2443,6 +2440,7 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                                 MsgBox case_note_to_display
                             Else
+                                'MsgBox "Detail - " & other_notes
                                 Call start_a_blank_CASE_NOTE
 
                                 Call write_variable_in_CASE_NOTE("*** SNAP Approved starting in " & start_month & "/" & start_year & " ***")
@@ -2468,6 +2466,20 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                                     MsgBox case_note_to_display
                                 Else
+                                    'MsgBox "Detail - " & other_notes
+                                    BeginDialog Dialog1, 0, 0, 441, 195, "Dialog"
+                                      EditBox 60, 45, 370, 15, other_notes
+                                      ButtonGroup ButtonPressed
+                                        OkButton 385, 175, 50, 15
+                                      Text 10, 10, 100, 10, "This will be the CASE/NOTE"
+                                      Text 25, 30, 160, 10, "WREG Updated for ABAWD Information for M"
+                                      Text 25, 50, 25, 10, "Detail"
+                                      Text 10, 85, 85, 10, "Other Detail script found"
+                                      Text 20, 105, 350, 80, BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case)
+                                    EndDialog
+
+                                    dialog Dialog1
+
                                     Call start_a_blank_CASE_NOTE
 
                                     Call write_variable_in_CASE_NOTE("WREG Updated for ABAWD Information for M" & HH_memb)
@@ -2529,6 +2541,20 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                     MsgBox case_note_to_display
                 Else
+                    'MsgBox "Detail - " & other_notes
+                    BeginDialog Dialog1, 0, 0, 441, 195, "Dialog"
+                      EditBox 60, 45, 370, 15, other_notes
+                      ButtonGroup ButtonPressed
+                        OkButton 385, 175, 50, 15
+                      Text 10, 10, 100, 10, "This will be the CASE/NOTE"
+                      Text 25, 30, 160, 10, "WREG Updated for ABAWD Information for M"
+                      Text 25, 50, 25, 10, "Detail"
+                      Text 10, 85, 85, 10, "Other Detail script found"
+                      Text 20, 105, 350, 80, BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case)
+                    EndDialog
+
+                    dialog Dialog1
+
                     Call start_a_blank_CASE_NOTE
 
                     Call write_variable_in_CASE_NOTE("WREG Updated for ABAWD Information for M" & HH_memb)
