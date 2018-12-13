@@ -49,50 +49,30 @@ call changelog_update("06/11/2018", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 
-Function dail_selection
-	'selecting the type of DAIl message
-	EMWriteScreen "x", 4, 12		'transmits to the PICK screen
-	transmit
-	EMWriteScreen "_", 7, 39		'clears the all selection
-    EmWriteScreen "X", 8, 39
-    EmWriteScreen "X", 13, 39
-	
-    'IF dail_to_decimate = "ALL" then selection_row = 7
-    'IF dail_to_decimate = "CSES" then selection_row = 10
-	'IF dail_to_decimate = "COLA" then selection_row = 8
-	'IF dail_to_decimate = "ELIG" then selection_row = 11
-	'IF dail_to_decimate = "INFO" then selection_row = 13
-    'IF dail_to_decimate = "PEPR" then selection_row = 18
-    
-	'Call write_value_and_transmit("x", selection_row, 39)	
-    transmit
-End Function
-
 'END CHANGELOG BLOCK =======================================================================================================
 
-BeginDialog dail_dialog, 0, 0, 266, 95, "COLA Decimator dialog"
-  EditBox 80, 55, 180, 15, worker_number
-  CheckBox 15, 80, 135, 10, "Check here to process for all workers.", all_workers_check
-  ButtonGroup ButtonPressed
-    OkButton 155, 75, 50, 15
-    CancelButton 210, 75, 50, 15
-  Text 15, 60, 60, 10, "Worker number(s):"
-  GroupBox 10, 5, 250, 45, "Using the DAIL Decimator script"
-  Text 20, 20, 235, 25, "This script should be used to remove COLA and INFO messages that have been determined by Quality Improvement staff do not require action."
-EndDialog
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 
 'The dialog is defined in the loop as it can change as buttons are pressed 
-BeginDialog info_dialog, 0, 0, 266, 115, "Close MMIS service agreements in MMIS"
+BeginDialog info_dialog, 0, 0, 266, 115, "Restart COLA Decimator at CASE/NOTE."
   ButtonGroup ButtonPressed
     PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
     OkButton 150, 95, 50, 15
     CancelButton 205, 95, 50, 15
   EditBox 15, 50, 180, 15, file_selection_path
-  Text 20, 20, 235, 25, "This script should be used when a GRH only list is provided from REPT/EOMC at the end of a month. These are cases that need to close in MMIS."
+  Text 20, 20, 235, 25, "This script should be used when a COLA Decimator list needs to be restared at the point of the Case noting portion."
   Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
   GroupBox 10, 5, 250, 85, "Using this script:"
+EndDialog
+
+'Select Excel row dialog
+BeginDialog excel_row_dialog, 0, 0, 126, 50, "Select the excel row to restart"
+  EditBox 75, 5, 40, 15, excel_row_to_restart
+  ButtonGroup ButtonPressed
+    OkButton 10, 25, 50, 15
+    CancelButton 65, 25, 50, 15
+  Text 10, 10, 60, 10, "Excel row to start:"
 EndDialog
 
 'dialog and dialog DO...Loop	
@@ -108,8 +88,13 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-dail_msg = ""
-excel_row = 2
+do 
+	dialog excel_row_dialog
+	If buttonpressed = 0 then stopscript								'loops until all errors are resolved
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+excel_row = excel_row_to_restart
 
 Do 
     MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
@@ -117,29 +102,32 @@ Do
 
     dail_msg = ObjExcel.Cells(excel_row, 5).Value
     dail_msg = trim(dail_msg)
+    'Cleaning up the DAIL messages for the case note 
+    If right(dail_msg, 9) = "-SEE PF12" THEN dail_msg = left(dail_msg, len(dail_msg) - 9)
+    If right(dail_msg, 1) = "*" THEN dail_msg = left(dail_msg, len(dail_msg) - 1)
+    dail_msg = trim(dail_msg)
     
-    If instr(dail_msg, "SDX MATCH - PBEN UPDATED - MAXIS INTERFACED IAA DATE TO SSA") or instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") then 
-        Call navigate_to_MAXIS_screen("CASE", "NOTE")
-        EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
-        If PRIV_check = "PRIV" then 
-            objExcel.Cells(excel_row, 6).Value = "PRIV, unable to case note."
-            'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
-    		Do
-    			back_to_self
-    			EMReadScreen SELF_screen_check, 4, 2, 50	'DO LOOP makes sure that we're back in SELF menu
-    			If SELF_screen_check <> "SELF" then PF3
-    		LOOP until SELF_screen_check = "SELF"
-    		EMWriteScreen "________", 18, 43		'clears the MAXIS case number
-    		transmit
-        Else
-            Call start_a_blank_CASE_NOTE 
-            CALL write_variable_in_case_note(dail_msg)
-            PF3 ' save message
-            objExcel.Cells(excel_row, 6).Value = "Case note created."
-        End If 
-    END IF
+    Call navigate_to_MAXIS_screen("CASE", "NOTE")
+    EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
+    
+    If PRIV_check = "PRIV" then 
+        objExcel.Cells(excel_row, 6).Value = "PRIV, unable to case note."
+        'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
+    	Do
+    		back_to_self
+    		EMReadScreen SELF_screen_check, 4, 2, 50	'DO LOOP makes sure that we're back in SELF menu
+    		If SELF_screen_check <> "SELF" then PF3
+    	LOOP until SELF_screen_check = "SELF"
+    	EMWriteScreen "________", 18, 43		'clears the MAXIS case number
+    	transmit
+    Else 
+        Call start_a_blank_CASE_NOTE
+        CALL write_variable_in_case_note(dail_msg)
+        PF3 ' save message
+        objExcel.Cells(excel_row, 6).Value = "Case note created."
+    End If 
     excel_row = excel_row + 1     
-Loop until ObjExcel.Cells(excel_row, 2).Value = ""   
+Loop until ObjExcel.Cells(excel_row, 2).Value = ""    
 
 STATS_counter = STATS_counter - 1
 'Enters info about runtime for the benefit of folks using the script
