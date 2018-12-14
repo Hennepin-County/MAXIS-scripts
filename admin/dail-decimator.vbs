@@ -262,7 +262,9 @@ For each worker in worker_array
                 instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO-APPROVED") OR _ 
                 instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO-APPROVED") OR _ 
                 instr(dail_msg, "APPROVED MSA VERSION EXISTS - NOT AUTO-APPROVED") OR _ 
-                instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") OR _     
+                instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") OR _  
+                instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO-APPROVED") OR _   
+                instr(dail_msg, "GRH: APPROVED VERSION EXISTS FOR JANUARY - NOT AUTO-APPROVED") OR _
                 instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then 
     		    add_to_excel = True	
                 '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
