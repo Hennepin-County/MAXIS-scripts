@@ -170,6 +170,13 @@ script_array_QI_list(script_num).description		= "Script to assist in the review 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
 Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_QI_list(script_num).script_name		= "Banked Months Individual Case Notes"													'Script name
+script_array_QI_list(script_num).file_name			= "individual-banked-note.vbs"												'Script URL
+script_array_QI_list(script_num).description		= "Script to enter case notes in line with BULK Processing script."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
+Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_QI_list(script_num).script_name		= "FSET Sanctions - BULK"													'Script name
 script_array_QI_list(script_num).file_name			= "fset-sanctions-bulk.vbs"												'Script URL
 script_array_QI_list(script_num).description		= "BULK script to assist in reviewing, applying, case noting and adding WCOM's for FSET sanction cases."
@@ -352,7 +359,7 @@ Do
             stopscript
         End if
     elseif ButtonPressed = BZ_button then
-        If show_BZ_button = True then 
+        If show_BZ_button = True then
 		    declare_admin_menu_dialog(script_array_BZ_list)
         Else
             Msgbox "These scripts are for Scriptwriters only. You do not have access to access this menu."
