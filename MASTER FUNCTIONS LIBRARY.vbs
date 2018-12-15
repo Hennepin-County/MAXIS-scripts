@@ -26,16 +26,82 @@ time_array_30_min = array("7:00 AM", "7:30 AM", "8:00 AM", "8:30 AM", "9:00 AM",
 HOLIDAYS_ARRAY = Array(#9/3/18#, #11/12/18#, #11/22/18#, #11/23/18#, #12/24/18#, #12/25/18#, #1/1/19#, #1/21/19#, #2/18/19#, #5/27/19#, #7/4/19#)
 
 'Determines CM and CM+1 month and year using the two rightmost chars of both the month and year. Adds a "0" to all months, which will only pull over if it's a single-digit-month
-Dim CM_mo, CM_yr, CM_plus_1_mo, CM_plus_1_yr, CM_plus_2_mo, CM_plus_2_yr
+Dim CM_mo, CM_yr, CM_plus_1_mo, CM_plus_1_yr, CM_plus_2_mo, CM_plus_2_yr, CM_plus_3_mo, CM_plus_3_yr, CM_plus_4_mo, CM_plus_4_yr, CM_plus_5_mo, CM_plus_5_yr, CM_plus_6_mo, CM_plus_6_yr, CM_plus_7_mo, CM_plus_7_yr, CM_plus_8_mo, CM_plus_8_yr, CM_plus_9_mo, CM_plus_9_yr, CM_plus_10_mo, CM_plus_10_yr, CM_plus_11_mo, CM_plus_11_yr
 'var equals...  the right part of...    the specific part...    of either today or next month... just the right 2 chars!
 CM_mo =         right("0" &             DatePart("m",           date                             ), 2)
 CM_yr =         right(                  DatePart("yyyy",        date                             ), 2)
-
+'current month +1'
 CM_plus_1_mo =  right("0" &             DatePart("m",           DateAdd("m", 1, date)            ), 2)
 CM_plus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", 1, date)            ), 2)
-
+'current month +2'
 CM_plus_2_mo =  right("0" &             DatePart("m",           DateAdd("m", 2, date)            ), 2)
 CM_plus_2_yr =  right(                  DatePart("yyyy",        DateAdd("m", 2, date)            ), 2)
+'current month +3'
+CM_minus_3_mo =  right("0" &             DatePart("m",           DateAdd("m", 3, date)            ), 2)
+CM_minus_3_yr =  right(                  DatePart("yyyy",        DateAdd("m", 3, date)            ), 2)
+'current month +4'
+CM_minus_4_mo =  right("0" &             DatePart("m",           DateAdd("m", 4, date)            ), 2)
+CM_minus_4_yr =  right(                  DatePart("yyyy",        DateAdd("m", 4, date)            ), 2)
+'current month +5'
+CM_minus_5_mo =  right("0" &             DatePart("m",           DateAdd("m", 5, date)            ), 2)
+CM_minus_5_yr =  right(                  DatePart("yyyy",        DateAdd("m", 5, date)            ), 2)
+'current month +6'
+CM_minus_6_mo =  right("0" &             DatePart("m",           DateAdd("m", 6, date)            ), 2)
+CM_minus_6_yr =  right(                  DatePart("yyyy",        DateAdd("m", 6, date)            ), 2)
+'current month +7'
+CM_minus_7_mo =  right("0" &             DatePart("m",           DateAdd("m", 7, date)            ), 2)
+CM_minus_7_yr =  right(                  DatePart("yyyy",        DateAdd("m", 7, date)            ), 2)
+'current month +8'
+CM_minus_8_mo =  right("0" &             DatePart("m",           DateAdd("m", 8, date)            ), 2)
+CM_minus_8_yr =  right(                  DatePart("yyyy",        DateAdd("m", 8, date)            ), 2)
+'current month +9'
+CM_minus_9_mo =  right("0" &             DatePart("m",           DateAdd("m", 9, date)            ), 2)
+CM_minus_9_yr =  right(                  DatePart("yyyy",        DateAdd("m", 9, date)            ), 2)
+'current month +10'
+CM_minus_10_mo =  right("0" &            DatePart("m",           DateAdd("m", 10, date)           ), 2)
+CM_minus_10_yr =  right(                 DatePart("yyyy",        DateAdd("m", 10, date)           ), 2)
+'current month +11'
+CM_minus_11_mo =  right("0" &            DatePart("m",           DateAdd("m", 11, date)           ), 2)
+CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", 11, date)           ), 2)
+
+
+'Determines CM and CM+1 month and year using the two rightmost chars of both the month and year. Adds a "0" to all months, which will only pull over if it's a single-digit-month
+Dim CM_mo, CM_yr, CM_minus_1_mo, CM_minus_1_yr, CM_minus_2_mo, CM_minus_2_yr, CM_minus_3_mo, CM_minus_3_yr, CM_minus_4_mo, CM_minus_4_yr, CM_minus_5_mo, CM_minus_5_yr, CM_minus_6_mo, CM_minus_6_yr, CM_minus_7_mo, CM_minus_7_yr, CM_minus_8_mo, CM_minus_8_yr, CM_minus_9_mo, CM_minus_9_yr, CM_minus_10_mo, CM_minus_10_yr, CM_minus_11_mo, CM_minus_11_yr 
+'var equals...  the right part of...    the specific part...    of either today or next month... just the right 2 chars!
+'current month -1
+CM_minus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", -1, date)            ), 2)
+CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
+'current month -2'
+CM_minus_2_mo =  right("0" &             DatePart("m",           DateAdd("m", -2, date)            ), 2)
+CM_minus_2_yr =  right(                  DatePart("yyyy",        DateAdd("m", -2, date)            ), 2)
+'current month -3'
+CM_minus_3_mo =  right("0" &             DatePart("m",           DateAdd("m", -3, date)            ), 2)
+CM_minus_3_yr =  right(                  DatePart("yyyy",        DateAdd("m", -3, date)            ), 2)
+'current month -4'
+CM_minus_4_mo =  right("0" &             DatePart("m",           DateAdd("m", -4, date)            ), 2)
+CM_minus_4_yr =  right(                  DatePart("yyyy",        DateAdd("m", -4, date)            ), 2)
+'current month -5'
+CM_minus_5_mo =  right("0" &             DatePart("m",           DateAdd("m", -5, date)            ), 2)
+CM_minus_5_yr =  right(                  DatePart("yyyy",        DateAdd("m", -5, date)            ), 2)
+'current month -6'
+CM_minus_6_mo =  right("0" &             DatePart("m",           DateAdd("m", -6, date)            ), 2)
+CM_minus_6_yr =  right(                  DatePart("yyyy",        DateAdd("m", -6, date)            ), 2)
+'current month -7'
+CM_minus_7_mo =  right("0" &             DatePart("m",           DateAdd("m", -7, date)            ), 2)
+CM_minus_7_yr =  right(                  DatePart("yyyy",        DateAdd("m", -7, date)            ), 2)
+'current month -8'
+CM_minus_8_mo =  right("0" &             DatePart("m",           DateAdd("m", -8, date)            ), 2)
+CM_minus_8_yr =  right(                  DatePart("yyyy",        DateAdd("m", -8, date)            ), 2)
+'current month -9'
+CM_minus_9_mo =  right("0" &             DatePart("m",           DateAdd("m", -9, date)            ), 2)
+CM_minus_9_yr =  right(                  DatePart("yyyy",        DateAdd("m", -9, date)            ), 2)
+'current month -10'
+CM_minus_10_mo =  right("0" &            DatePart("m",           DateAdd("m", -10, date)           ), 2)
+CM_minus_10_yr =  right(                 DatePart("yyyy",        DateAdd("m", -10, date)           ), 2)
+'current month -11'
+CM_minus_11_mo =  right("0" &            DatePart("m",           DateAdd("m", -11, date)           ), 2)
+CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -11, date)           ), 2)
+'----------------------------------------------------------------------------------------------------------------------------End of dates
 
 If worker_county_code   = "" then worker_county_code = "MULTICOUNTY"
 IF PRISM_script <> true then county_name = ""		'VKC NOTE 08/12/2016: ADDED IF...THEN CONDITION BECAUSE PRISM IS STILL USING THIS VARIABLE IN ALL SCRIPTS.vbs. IT WILL BE REMOVED AND THIS CAN BE RESTORED.
