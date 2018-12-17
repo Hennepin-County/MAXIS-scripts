@@ -97,8 +97,8 @@ start_a_blank_case_note      'navigates to case/note and puts case/note into edi
     Call write_variable_in_CASE_NOTE("Client will need to verify residence when reapplying")
     Call write_variable_in_CASE_NOTE("Agency will need to verify benefits received in the other state prior to reopening case")
 
-	Call write_bullet_and_variable_in_CASE_NOTE("Date case was closed:", date_closed)
-	Call write_bullet_and_variable_in_CASE_NOTE("Explanation of action to close the case:", reason_closed)
+	Call write_bullet_and_variable_in_CASE_NOTE("Date case was closed", date_closed)
+	Call write_bullet_and_variable_in_CASE_NOTE("Explanation of action to close the case", reason_closed)
 	Call write_variable_in_CASE_NOTE("Possible overpayments will be reviewed") 'do we want to add the claim referral?'
 	Call write_variable_in_CASE_NOTE("Clients have 10 days to return requested verifications")
 	Call write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
