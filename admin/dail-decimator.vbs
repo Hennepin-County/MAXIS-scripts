@@ -260,7 +260,6 @@ For each worker in worker_array
                 instr(dail_msg, "MEMBER HAS TURNED 60 - FSET:WORK REG HAS BEEN UPDATED") OR _  
                 instr(dail_msg, "LAST GRADE COMPLETED") OR _      
                 instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") OR _  
-                instr(dail_msg, "TPQY RESPONSE") OR _
                 instr(dail_msg, "CHECK FOR COLA") OR _
                 instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") OR _
                 instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO-APPROVED") OR _ 
@@ -271,8 +270,12 @@ For each worker in worker_array
                 instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") OR _  
                 instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO-APPROVED") OR _   
                 instr(dail_msg, "GRH: APPROVED VERSION EXISTS FOR JANUARY - NOT AUTO-APPROVED") OR _
+                instr(dail_msg, "GRH: STATUS IS REIN, PENDING OR SUSPEND - NOT AUTO-APPROVED") OR _ 
+                instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO-APPROVED") OR _ 
                 instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then 
     		    add_to_excel = True	
+                
+                'instr(dail_msg, "TPQY RESPONSE") OR _  ---removed temporarily
                 '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
             Elseif instr(dail_msg, "CORRECT STAT EDITS") then 
                 EmReadscreen stat_date, 8, dail_row, 39            
