@@ -147,7 +147,7 @@ LOOP UNTIL are_we_passworded_out = false
 Call start_a_blank_case_note
 
 'THE CASE NOTE===========================================================================
-CALL write_variable_in_CASE_NOTE("***MTAF Interview Completed***")
+CALL write_variable_in_CASE_NOTE("***MTAF Interview " & MTAF_status_dropdown & "***")
 CALL write_bullet_and_variable_in_CASE_NOTE ("Date received", MTAF_date)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Date of eligibility", MFIP_elig_date)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Date of interview", interview_date)
@@ -157,7 +157,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE ("Change in assets", asset_change)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Change in earned income", earned_income_change)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Change in unearned income", unearned_income_change)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Change in shelter costs", shelter_costs_change)
-CALL write_bullet_and_variable_in_CASE_NOTE ("Is housing subsidized? If so, what is the amount?", subsidized_housing)
+CALL write_bullet_and_variable_in_CASE_NOTE ("Is housing subsidized? If so, what is the amount", subsidized_housing)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Subsidized housing status", sub_housing_droplist)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Child or adult care costs", child_adult_care_costs)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Proof of relationship on file", relationship_proof)
