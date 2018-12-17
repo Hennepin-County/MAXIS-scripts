@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/06/2018", "Brooklyn Center Avivo Tuesday sessions discontining effective 12/31/18. Option removed from script as rest of the referral dates fall on holiday days. Also blocked Christmas Day and New Year's day as potential orientation dates.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/06/2018", "Bloomington Thrusday sessions discontinued effective 12/14/18. Option removed from script.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/03/2018", "Avivo will be closed 08/16/18. The script has been update to exclude this date as a potential orientation date.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/20/2018", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -56,7 +57,7 @@ changelog_display
 BeginDialog referral_dialog, 0, 0, 291, 130, "ES Letter and Referral"
   EditBox 90, 10, 55, 15, MAXIS_case_number
   EditBox 210, 10, 75, 15, member_number
-  DropListBox 90, 35, 195, 15, "Select one..."+chr(9)+"Bloomington (Tuesdays @ 9:00 a.m.)"+chr(9)+"Bloomington (Wednesdays @ 1:00 p.m.)"+chr(9)+"Brooklyn Center (Tuesdays @ 9:00 a.m.)"+chr(9)+"Brooklyn Center (Thursdays @ 9:00 a.m.)"+chr(9)+"North Mpls (Tuesdays @ 9:00 a.m.)"+chr(9)+"North Mpls (Wednesdays @ 9:00 a.m.)"+chr(9)+"South Mpls (Tuesdays @ 1:00 p.m.)"+chr(9)+"South Mpls (Wednesdays @ 9:00 a.m.)"+chr(9)+"WERC Northwest"+chr(9)+"WERC South Mpls", interview_location
+  DropListBox 90, 35, 195, 15, "Select one..."+chr(9)+"Bloomington (Tuesdays @ 9:00 a.m.)"+chr(9)+"Bloomington (Wednesdays @ 1:00 p.m.)"+chr(9)+"Brooklyn Center (Thursdays @ 9:00 a.m.)"+chr(9)+"North Mpls (Tuesdays @ 9:00 a.m.)"+chr(9)+"North Mpls (Wednesdays @ 9:00 a.m.)"+chr(9)+"South Mpls (Tuesdays @ 1:00 p.m.)"+chr(9)+"South Mpls (Wednesdays @ 9:00 a.m.)"+chr(9)+"WERC Northwest"+chr(9)+"WERC South Mpls", interview_location
   DropListBox 65, 60, 100, 15, "Select one..."+chr(9)+"Scheduled"+chr(9)+"Rescheduled"+chr(9)+"Rescheduled from WERC", appt_type
   EditBox 210, 60, 75, 15, vendor_num
   EditBox 75, 85, 210, 15, other_referral_notes
@@ -122,19 +123,7 @@ Elseif interview_location = "Bloomington (Wednesdays @ 1:00 p.m.)" THEN
     appointment_time = "1:00 PM"
     appointment_date = Date + 8 - Weekday(Date, vbWednesday)
     provider_row = 8    'WFM1 provider selection based on location    
-'Brooklyn Center
-ElseIf interview_location = "Brooklyn Center (Tuesdays @ 9:00 a.m.)" THEN
-    provider_name = "Avivo Brooklyn Center"
-    provider_address_01 = "5701 Shingle Creek Parkway, Suite 100"
-    provider_city = "Brooklyn Center"
-    provider_ST = "MN"
-    provider_zip = "55430"
-    provider_phone = "612-752-8904"
-    'Date and time 
-    appointment_time = "9:00 AM"
-    appointment_date = Date + 8 - Weekday(Date, vbTuesday)
-    provider_row = 9    'WFM1 provider selection based on location
-    
+'Brooklyn Center    
 ElseIf interview_location = "Brooklyn Center (Thursdays @ 9:00 a.m.)" THEN
     provider_name = "Avivo Brooklyn Center"
     provider_address_01 = "5701 Shingle Creek Parkway, Suite 100"
@@ -146,7 +135,6 @@ ElseIf interview_location = "Brooklyn Center (Thursdays @ 9:00 a.m.)" THEN
     appointment_time = "9:00 AM"
     appointment_date = Date + 8 - Weekday(Date, vbThursday)
     provider_row = 9    'WFM1 provider selection based on location
-    
 'North Mpls
 ElseIf interview_location = "North Mpls (Tuesdays @ 9:00 a.m.)" THEN
     provider_name = "Avivo North Mpls"
@@ -226,17 +214,21 @@ END IF
 'selecting the interview date 
 DO
 	DO
-		orientation_date_confirmation = MsgBox("Press YES to confirm the orientation date. For the next week, press NO." & vbNewLine & vbNewLine & _
+        Do 
+            If appointment_date = "12/25/2018" or appointment_date = "1/1/2019" then 
+                appointment_date = dateadd("d", 7, appointment_date) 
+                appt_date = False   'dates are identified holiday dates 
+            else 
+                appt_date = True    'date is not a holiday 
+                exit do 
+            End if 
+        Loop until appt_date = true    
+        
+        orientation_date_confirmation = MsgBox("Press YES to confirm the orientation date. For the next week, press NO." & vbNewLine & vbNewLine & _
 		"                                                  " & appointment_date & " at " & appointment_time, vbYesNoCancel, "Please confirm the ES orientation referral date")
 		If orientation_date_confirmation = vbCancel then script_end_procedure ("The script has ended. An orientation letter has not been sent.")
-        If orientation_date_confirmation = vbYes then 
-            If instr(provider_name, "Avivo") AND appointment_date = "8/16/2018" then 
-                msgbox "Avivo is not open on 08/16/2018. Please select another date."
-                appointment_date = dateadd("d", 7, appointment_date)    
-            Else     
-                exit do
-            End if 
-        elseif orientation_date_confirmation = vbNo then 
+        If orientation_date_confirmation = vbYes then exit do 
+        If orientation_date_confirmation = vbNo then 
             If instr(interview_location, "WERC") then 
                 appointment_date = DateAdd("d", 1, appointment_date)
                 weekend_check = weekday(appointment_date)

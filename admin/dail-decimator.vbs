@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/17/2018", "Added PEPR messages older than CM, and BENDEX and SDX messages for this month only.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/15/2018", "Added TIKL's for exempt IR process over 2 months old.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/03/2018", "Added COLA messages for 01/19 COLA.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/02/2018", "Added additional ELIG messages older than CM.", "Ilse Ferris, Hennepin County")
@@ -260,7 +261,6 @@ For each worker in worker_array
                 instr(dail_msg, "MEMBER HAS TURNED 60 - FSET:WORK REG HAS BEEN UPDATED") OR _  
                 instr(dail_msg, "LAST GRADE COMPLETED") OR _      
                 instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") OR _  
-                instr(dail_msg, "TPQY RESPONSE") OR _
                 instr(dail_msg, "CHECK FOR COLA") OR _
                 instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") OR _
                 instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO-APPROVED") OR _ 
@@ -271,8 +271,13 @@ For each worker in worker_array
                 instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") OR _  
                 instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO-APPROVED") OR _   
                 instr(dail_msg, "GRH: APPROVED VERSION EXISTS FOR JANUARY - NOT AUTO-APPROVED") OR _
+                instr(dail_msg, "GRH: STATUS IS REIN, PENDING OR SUSPEND - NOT AUTO-APPROVED") OR _ 
+                instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO-APPROVED") OR _ 
+                instr(dail_msg, "BENDEX INFORMATION HAS BEEN STORED") OR _  
+                instr(dail_msg, "SDX INFORMATION HAS BEEN STORED") OR _
                 instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then 
-    		    add_to_excel = True	
+    		        add_to_excel = True	
+                'instr(dail_msg, "TPQY RESPONSE") OR _  ---removed temporarily
                 '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
             Elseif instr(dail_msg, "CORRECT STAT EDITS") then 
                 EmReadscreen stat_date, 8, dail_row, 39            
@@ -281,6 +286,13 @@ For each worker in worker_array
                     add_to_excel = True     
                 Else 
                     add_to_excel = False 
+                End if 
+            '----------------------------------------------------------------------------------------------------REMOVING PEPR messages not CM or CM + 1
+            Elseif dail_type = "PEPR" then 
+                if dail_month = this_month or dail_month = next_month then 
+                    add_to_excel = False 
+                Else 
+                    add_to_excel = True ' delete the old messages 
                 End if 
             '----------------------------------------------------------------------------------------------------clearing elig messages older than CM
             Elseif instr(dail_msg, "OVERPAYMENT POSSIBLE") or InStr(dail_msg, "DISBURSE EXPEDITED SERVICE") then 
