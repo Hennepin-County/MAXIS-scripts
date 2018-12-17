@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/17/2018", "Added functionality to block Christmas Day and New Year's day as potential orientation dates.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/04/2018", "Updated orientation letter functionality to send SPEC/MEMO. SPEC/LETR retired on 12/01/18.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/27/2018", "Added WCOM's regarding voluntary compliance to SPEC/LETR. Updated comments in manual referrals to include 'voluntary' for 30/10 and 30/11 recipients.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/27/2018", "Updated to allow referrals for members not coded as mandatory participants under OTHER REFERRAL and WORKING WITH CBO options.", "Ilse Ferris, Hennepin County")
@@ -190,7 +191,16 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 'selecting the interview date 
 DO
 	DO
-		orientation_date_confirmation = MsgBox("Press YES to confirm the orientation date. For the next week, press NO." & vbNewLine & vbNewLine & _
+        Do 
+            If appointment_date = "12/25/2018" or appointment_date = "1/1/2019" then 
+                appointment_date = dateadd("d", 7, appointment_date) 
+                appt_date = False   'dates are identified holiday dates 
+            else 
+                appt_date = True    'date is not a holiday 
+                exit do 
+            End if 
+        Loop until appt_date = true   
+        orientation_date_confirmation = MsgBox("Press YES to confirm the orientation date. For the next week, press NO." & vbNewLine & vbNewLine & _
 		"                                                  " & appointment_date & " at " & appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & _
 		AM_PM, vbYesNoCancel, "Please confirm the SNAP E & T orientation referral date")
 		If orientation_date_confirmation = vbCancel then script_end_procedure ("The script has ended. An orientation letter has not been sent.")
