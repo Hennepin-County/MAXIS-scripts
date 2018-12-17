@@ -215,7 +215,6 @@ IF number_IEVS_type = "A50" or number_IEVS_type = "A51"  THEN IEVS_type = "WAGE"
 IF IEVS_type = "BEER" THEN type_match = "B"
 IF IEVS_type = "UBEN" THEN type_match = "U"
 IF IEVS_type = "WAGE" THEN type_match = "U"
-
 IF IEVS_type = "WAGE" THEN EMreadscreen casenote_quarter, 1, 8, 14
 '--------------------------------------------------------------------Client name
 EmReadScreen panel_name, 4, 02, 52
