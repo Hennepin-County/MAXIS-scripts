@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/01/2018", "Updated remedial care amount to $196.00 for 2019.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -52,8 +53,8 @@ changelog_display
 
 '<<<GO THROUGH AND REMOVE REDUNDANT FUNCTIONS
 EMConnect ""
-remedial_care_amt = "188.00"	'Amount that needs to be updated with current remedial care amount.
-target_date = "12/31/2017" 'This sets the date range that should be changed, and will need to be updated in code at each COLA.
+remedial_care_amt = "196.00"	'Amount that needs to be updated with current remedial care amount.
+target_date = "12/31/2018" 'This sets the date range that should be changed, and will need to be updated in code at each COLA.
 
 BeginDialog Dialog1, 0, 0, 191, 86, "Dialog"
   ButtonGroup ButtonPressed

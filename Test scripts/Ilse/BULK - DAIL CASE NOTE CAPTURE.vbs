@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/14/2018", "Updated DAIL selection to INFO only to reduce run time.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/31/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -79,7 +80,7 @@ BeginDialog dail_dialog, 0, 0, 266, 95, "DAIL CASE NOTE CAPTURE"
 EndDialog
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-dail_to_decimate - "ALL"    'defaults to all. Some x-numbers don't select the DAIL hence the default. 
+dail_to_decimate = "INFO"    'defaults to all. Some x-numbers don't select the DAIL hence the default. 
 
 'the dialog
 Do
@@ -187,8 +188,7 @@ For each worker in worker_array
             dail_msg = trim(dail_msg) 
 			stats_counter = stats_counter + 1
 	
-			If instr(dail_msg, "HC AUTOCLOSED FOR RENEWAL AND ELIGIBILITY FOR METS") OR _
-               instr(dail_msg, "SDX MATCH - PBEN UPDATED - MAXIS INTERFACED IAA DATE TO SSA") OR _
+			If instr(dail_msg, "SDX MATCH - PBEN UPDATED - MAXIS INTERFACED IAA DATE TO SSA") OR _
    			   instr(dail_msg, "SDX MATCH - MAXIS INTERFACED IAA DATE TO SSA") then 
                add_to_excel = TRUE
             elseif instr(dail_msg, "CANCELLED DUE TO AGING") then
@@ -206,6 +206,8 @@ For each worker in worker_array
 			    add_to_excel = False 
 			End if 
 		    
+            'instr(dail_msg, "HC AUTOCLOSED FOR RENEWAL AND ELIGIBILITY FOR METS") OR _ ---removed for now. Unable to find current messages 12/14/2018
+            
 			IF add_to_excel = True then 
 				EMReadScreen maxis_case_number, 8, dail_row - 1, 73
 				EMReadScreen dail_month, 8, dail_row, 11
@@ -261,8 +263,10 @@ Do
 
     dail_msg = ObjExcel.Cells(excel_row, 5).Value
     dail_msg = trim(dail_msg)
+    'Cleaning up the DAIL messages for the case note 
     If right(dail_msg, 9) = "-SEE PF12" THEN dail_msg = left(dail_msg, len(dail_msg) - 9)
-    
+    If right(dail_msg, 1) = "*" THEN dail_msg = left(dail_msg, len(dail_msg) - 1)
+    dail_msg = trim(dail_msg)
     
     Call navigate_to_MAXIS_screen("CASE", "NOTE")
     EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list

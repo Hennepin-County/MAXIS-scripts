@@ -184,6 +184,7 @@ For each worker in worker_array
                 instr(dail_msg, "NEW MSA ELIG AUTO-APPROVED") OR _ 
                 instr(dail_msg, "SNAP: AUTO-APPROVED") OR _ 
                 instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") OR _ 
+                instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") OR _ 
                 instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO-APPROVED FOR JANUARY") then
         		add_to_excel = TRUE
             Else	

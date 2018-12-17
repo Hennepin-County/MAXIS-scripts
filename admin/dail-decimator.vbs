@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/15/2018", "Added TIKL's for exempt IR process over 2 months old.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/03/2018", "Added COLA messages for 01/19 COLA.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/02/2018", "Added additional ELIG messages older than CM.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/26/2018", "Added additional messages included TIKL's over 6 months old, STAT edits over 5 days old and EFUNDS messages.", "Ilse Ferris, Hennepin County")
@@ -95,8 +96,10 @@ EndDialog
 EMConnect ""
 dail_to_decimate = "ALL"
 all_workers_check = 1
+
 this_month = CM_mo & " " & CM_yr
 next_month = CM_plus_1_mo & " " & CM_plus_1_yr
+CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
 
 Do
 	Do
@@ -110,6 +113,8 @@ Do
   	LOOP until err_msg = ""		
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
 Loop until are_we_passworded_out = false					'loops until user passwords back in		
+
+back_to_SELF 'navigates back to self in case the worker is working within the DAIL. All messages for a single number may not be captured otherwise.
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -184,6 +189,7 @@ For each worker in worker_array
 		DO
 			dail_type = ""
 			dail_msg = ""
+            
 			
 		    'Determining if there is a new case number...
 		    EMReadScreen new_case, 8, dail_row, 63
@@ -262,7 +268,9 @@ For each worker in worker_array
                 instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO-APPROVED") OR _ 
                 instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO-APPROVED") OR _ 
                 instr(dail_msg, "APPROVED MSA VERSION EXISTS - NOT AUTO-APPROVED") OR _ 
-                instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") OR _     
+                instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") OR _  
+                instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO-APPROVED") OR _   
+                instr(dail_msg, "GRH: APPROVED VERSION EXISTS FOR JANUARY - NOT AUTO-APPROVED") OR _
                 instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then 
     		    add_to_excel = True	
                 '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
@@ -280,6 +288,15 @@ For each worker in worker_array
                     add_to_excel = False 
                 Else 
                     add_to_excel = True ' delete the old messages 
+                End if 
+            '----------------------------------------------------------------------------------------------------clearing Exempt IR TIKL's over 2 months old.    
+            Elseif instr(dail_msg, "%^% SENT THROUGH") then 
+                TIKL_date = cdate(TIKL_date)
+                TIKL_date = right("0" & DatePart("m",dail_month), 2)
+                if TIKL_date = CM_minus_2_mo then  
+                    add_to_excel = True   ' delete the exempt IR message older than last month.
+                Else 
+                    add_to_excel = False 
                 End if 
                 '----------------------------------------------------------------------------------------------------MEC2
             Elseif dail_type = "MEC2" then 
