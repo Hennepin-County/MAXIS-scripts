@@ -234,6 +234,14 @@ script_array_NOTICES_main(script_num).subcategory           = "WORD"
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_NOTICES_main(script_num).script_name 			= "Resources Notifier"															'Script name
+script_array_NOTICES_main(script_num).file_name 			= "resources-notifier.vbs"														'Script URL
+script_array_NOTICES_main(script_num).description 			= "Sends a MEMO informing client of some possible outside resources."
+script_array_NOTICES_main(script_num).subcategory           = "SNAP~HC~CASH"
+
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
+Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= "SNAP E and T Letter"
 script_array_NOTICES_main(script_num).file_name				= "snap-e-and-t-letter.vbs"
 script_array_NOTICES_main(script_num).description			= "Sends a SPEC/LETR informing client that they have an Employment and Training appointment."

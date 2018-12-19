@@ -61,9 +61,34 @@ current_month = CM_mo
 current_day = "01"
 current_year = CM_yr
 
-
 'Constants
-const   case_nbr        = 0
+const case_nrb      = 0
+const basket_nbr    = 1
+const clt_name      = 2
+const memb_on_hc    = 3
+const revw_type     = 4
+const hc_sr_date    = 5
+const hc_er_date    = 6
+
+const cash_revw     = 7
+const SNAP_revw     = 8
+
+const ca_sr_date    = 9
+const ca_er_date    = 10
+const fs_sr_date    = 11
+const fs_er_date    = 12
+
+const time_between  = 13
+const hc_type       = 14
+const cash_status   = 15
+const SNAP_status   = 16
+const waived_revw   = 17
+const actually_paperless = 18
+const case_notes    = 19
+
+'ARRAY
+Dim ALL_HC_REVS_ARRAY()
+ReDim ALL_HC_REVS_ARRAY(case_notes, 0)
 
 '----------------------------------------------------------------------------------------------------------
 'DIALOG----------------------------------------------------------------------------------------------------
@@ -121,6 +146,125 @@ Else
         worker_array = split(worker_number, ",")
     End If
 End If
+
+
+For each worker in worker_array
+    worker = trim(worker)
+
+    Call back_to_SELF
+    EMWriteScreen "        ", 18, 43
+    Call MAXIS_footer_month_confirmation
+    Call navigate_to_MAXIS_screen("rept", "revs")
+    EMWriteScreen worker, 21, 6
+    EMWriteScreen CM_plus_2_mo, 20, 55
+    EMWriteScreen CM_plus_2_yr, 20, 58
+    transmit
+
+    EMReadScreen REVW_check, 4, 2, 52
+    If REVW_check <> "REVS" then script_end_procedure("You must start this script at the beginning of REPT/REVS. Navigate to the screen and try again!")
+
+    row = 7
+    Do
+        MAXIS_check = ""
+        last_page_check = ""
+
+        EMReadScreen the_case_number, 8, row, 6
+        EMReadScreen cash_review, 1, row, 39
+        EMReadScreen snap_review, 1, row, 45
+        EMReadScreen hc_review, 1, row, 49
+        EMReadScreen paperless_check, 1, row, 51
+        EMReadScreen hc_pop, 4, row, 55
+
+        If hc_review = "N" Then
+
+            ReDim Preserve ALL_HC_REVS_ARRAY(case_notes, hc_reviews)
+            If trim(the_case_number) = "" Then MsgBox "Row: " & row & vbNewLine & "review code: " & hc_review
+            ALL_HC_REVS_ARRAY(case_nrb, hc_reviews)     = trim(the_case_number)
+            ALL_HC_REVS_ARRAY (basket_nbr, hc_reviews)   = worker
+            If paperless_check = "*" Then
+                ALL_HC_REVS_ARRAY(waived_revw, hc_reviews) = TRUE
+            Else
+                ALL_HC_REVS_ARRAY(waived_revw, hc_reviews) = FALSE
+            End If
+            ALL_HC_REVS_ARRAY (hc_type, hc_reviews)      = trim(hc_pop)
+            If cash_review = "N" Then ALL_HC_REVS_ARRAY (cash_revw, hc_reviews) = TRUE
+            If SNAP_review = "N" Then ALL_HC_REVS_ARRAY (SNAP_revw, hc_reviews) = TRUE
+
+            hc_reviews = hc_reviews + 1
+        End If
+
+        row = row + 1
+
+        If row = 19 then
+            PF8
+            row = 7
+            EMReadScreen MAXIS_check, 5, 1, 39
+            If MAXIS_check <> "MAXIS" then stopscript
+            EMReadScreen last_page_check, 4, 24, 14
+        End if
+    Loop until last_page_check = "LAST" or trim(the_case_number) = ""
+
+    pf3
+
+Next
+
+Call back_to_SELF
+
+For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
+    MAXIS_case_number = ALL_HC_REVS_ARRAY (case_nrb, hc_reviews)
+
+    Call navigate_to_MAXIS_screen("CASE", "CURR")
+    EmReadscreen priv_check, 4, 24, 46
+    If priv_check <> "PRIV" Then
+        ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = TRUE
+        'figure out who is on HC
+        For each pers_nbr in HC_PERS_ARRAY
+            call navigate_to_MAXIS_screen ("STAT", "JOBS")
+            EMWriteScreen pers_nbr, 20, 76
+            transmit
+            Do
+                EMReadScreen panel_check, 8, 2, 72
+                current_panel = trim(left(panel_check, 2))
+                total_panels = trim(right(panel_check, 2))
+                EMReadScreen date_check, 8, 9, 49
+                If total_panels <> "0" & date_check = "__ __ __" then
+                    ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = False
+                    ALL_HC_REVS_ARRAY (case_notes, hc_reviews) = ALL_HC_REVS_ARRAY (case_notes, hc_reviews) & "; " & pers_nbr
+                if current_panel <> total_panels then transmit
+            Loop until current_panel = total_panels
+
+            call navigate_to_MAXIS_screen ("STAT", "BUSI")
+            EMWriteScreen pers_nbr, 20, 76
+            transmit
+            Do
+                current_panel = trim(left(panel_check, 2))
+                EMReadScreen panel_check, 8, 2, 72
+                total_panels = trim(right(panel_check, 2))
+                EMReadScreen date_check, 8, 5, 71
+                If total_panels <> "0" & date_check = "__ __ __" then ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = False
+                if current_panel <> total_panels then transmit
+            Loop until current_panel = total_panels
+
+            call navigate_to_MAXIS_screen ("STAT", "RBIC")
+            EMWriteScreen pers_nbr, 20, 76
+            transmit
+            Do
+                EMReadScreen panel_check, 8, 2, 72
+                current_panel = trim(left(panel_check, 2))
+                total_panels = trim(right(panel_check, 2))
+                EMReadScreen date_check, 8, 6, 68
+                If total_panels <> "0" & date_check = "__ __ __" then ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = False
+                if current_panel <> total_panels then transmit
+            Loop until current_panel = total_panels
+
+        Next
+
+        ALL_HC_REVS_ARRAY(memb_on_hc, hc_reviews) = Join(HC_PERS_ARRAY, ", ")
+        ReDim HC_PERS_ARRAY
+    Else
+        ALL_HC_REVS_ARRAY (revw_type, hc_reviews) = "PRIV"
+    End If
+Next
 
 'Create Multidimensional Array for all of the information about each case
 'Go to REVS for each worker and get all of the Exempt Cases along with other reviews due

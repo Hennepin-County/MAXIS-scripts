@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/18/2018", "Updated to output two worksheets. One with ER case info, one with CSR case info.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/09/2018", "Added handling to export information about CSR's.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/18/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -396,6 +397,9 @@ objExcel.Visible = True
 Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
+'Changes name of Excel sheet to "Case information"
+ObjExcel.ActiveSheet.Name = "ER cases " & REPT_month & "-" & REPT_year
+
 'formatting excel file with columns for case number and interview date/time
 objExcel.cells(1, 1).value 	= "X number"
 objExcel.cells(1, 2).value 	= "Case number"
@@ -457,11 +461,8 @@ FOR i = 1 to 11
 	objExcel.Columns(i).autofit()
 Next
 
-'Opening the Excel file, (now that the dialog is done)
-Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add()
-objExcel.DisplayAlerts = True
+'Adding another sheet
+ObjExcel.Worksheets.Add().Name = "CSR cases " & REPT_month & "-" & REPT_year
 
 'formatting excel file with columns for case number and interview date/time
 objExcel.cells(1, 1).value 	= "X number"
