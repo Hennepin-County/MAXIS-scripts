@@ -51,7 +51,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog Resources_MEMO_dialog, 0, 0, 206, 240, "Potential Eligibility MEMO"
+BeginDialog Resources_MEMO_dialog, 0, 0, 206, 240, "Resources MEMO"
   EditBox 60, 5, 50, 15, MAXIS_case_number
   CheckBox 15, 45, 140, 10, "Community Action Partnership - CAP", cap_checkbox
   CheckBox 15, 60, 125, 10, "COPE - Mental Health Emergencies", COPE_checkbox
