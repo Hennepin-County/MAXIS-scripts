@@ -135,17 +135,17 @@ If MNSURE_helpdesk_checkbox = checked Then
 End If
 If disability_hub_checkbox = checked Then
     script_to_say = script_to_say & vbNewLine & "Disability Hub (formerly Disability Linkage Line)" & vbNewLine &_
-        "Phone: 1-​866-333-2466  - Hours: Mon - Fri 8:00 AM - 5:00 PM" & vbNewLine &_
+        "Phone: 1-866-333-2466 -Hrs: Mon - Fri 8:00AM - 5:00PM" & vbNewLine &_
         "Website: disabilityhubmn.org" & vbNewLine &_
         "--   --   --   --   --   --   --   --   --   --   --"
 End If
 If emer_food_network_checkbox = checked Then
     script_to_say = script_to_say & vbNewLine & "The Food Group (formerly Emergency Food Network)" & vbNewLine &_
-        "Phone: ​763 450-3860  - Website: thefoodgroupmn.org" & vbNewLine &_
+        "Phone: 763-450-3860  - Website: thefoodgroupmn.org" & vbNewLine &_
         "--   --   --   --   --   --   --   --   --   --   --"
 End If
 If front_door_checkbox = checked Then
-    script_to_say = script_to_say & vbNewLine & "Hennepin County FRONT DOOR - ​612 348-4111" & vbNewLine &_
+    script_to_say = script_to_say & vbNewLine & "Hennepin County FRONT DOOR - 612-348-4111" & vbNewLine &_
     "--   --   --   --   --   --   --   --   --   --   --"
 End If
 If sr_linkage_line_checkbox = checked Then
