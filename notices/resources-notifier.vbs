@@ -87,6 +87,7 @@ DO
 		err_msg = ""
 		Dialog Resources_MEMO_dialog
 		If ButtonPressed = cancel then stopscript
+        If cap_checkbox = unchecked AND COPE_checkbox = unchecked AND MMIS_helpdesk_checkbox = unchecked AND MNSURE_helpdesk_checkbox = unchecked AND disability_hub_checkbox = unchecked AND emer_food_network_checkbox = unchecked AND front_door_checkbox = unchecked AND sr_linkage_line_checkbox = unchecked AND united_way_checkbox = unchecked AND xcel_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "You must select at least one resource."
 		If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & "You must fill in a valid case number." & vbNewLine
 		If worker_signature = "" then err_msg = err_msg & "You must sign your case note." & vbNewLine
         If ButtonPressed = check_all_button Then
@@ -171,96 +172,207 @@ script_to_say = script_to_say & vbNewLine & "Relay any of the above information 
 
 MsgBox script_to_say
 
+BeginDialog Resources_MEMO_dialog, 0, 0, 106, 80, "Dialog"
+  DropListBox 15, 40, 80, 45, "SPEC/MEMO"+chr(9)+"Word Document", resource_method
+  ButtonGroup ButtonPressed
+    OkButton 45, 60, 50, 15
+  Text 5, 10, 90, 20, "What is the best format for the Resource information?"
+EndDialog
+
+dialog Resources_MEMO_dialog
+
 'Create a question - MEMO or Word Doc'
+If resource_method = "SPEC/MEMO" Then
+    Call start_a_new_spec_memo  ' start the memo writing process
 
-Call start_a_new_spec_memo  ' start the memo writing process
+    need_divider = FALSE
+    'Writes the MEMO.
+    call write_variable_in_SPEC_MEMO("  ----Outsdie Resources - current as of " & date & "----")
+    If cap_checkbox = checked Then
+        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
+        call write_variable_in_SPEC_MEMO("* CAP - Community Action Partnership (Inc. Energy Assist)")
+        call write_variable_in_SPEC_MEMO("Hours: Mon-Fri 8:00AM - 4:30PM Website: www.caphennepin.org")
+        call write_variable_in_SPEC_MEMO("Locations: Minneapolis Urban League   Phone: 952-930-3541")
+        call write_variable_in_SPEC_MEMO("           MN Council of Churches     Phone: 952-933-9639")
+        call write_variable_in_SPEC_MEMO("           Sabathani Community Center Phone: 952-930-3541")
+        call write_variable_in_SPEC_MEMO("           St. Louis Park             Phone: 952-933-9639")
+        need_divider = FALSE
+        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
+    End If
+    If COPE_checkbox = checked Then
+        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
+        call write_variable_in_SPEC_MEMO("* COPE - Mental Health Crisis and Emergency")
+        call write_variable_in_SPEC_MEMO("       Adults 18 and older: 612-596-1223")
+        call write_variable_in_SPEC_MEMO("       Children: 612-348-2233")
+        need_divider = FALSE
+        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
+    End If
+    If MMIS_helpdesk_checkbox = checked Then
+        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
+        call write_variable_in_SPEC_MEMO("* MN Health Care Recipient Help Desk - 651-431-2670")
+        need_divider = TRUE
+        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
+    End If
+    If MNSURE_helpdesk_checkbox = checked Then
+        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
+        call write_variable_in_SPEC_MEMO("* MNSure Helpdesk - 1-855-366-7873 (1-855-3MNSURE)")
+        need_divider = TRUE
+        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
+    End If
+    If disability_hub_checkbox = checked Then
+        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
+        call write_variable_in_SPEC_MEMO("* Disability Hub (formerly Disability Linkage Line)")
+        call write_variable_in_SPEC_MEMO("    Phone: 1-866-333-2466 -Hrs: Mon - Fri 8:00AM - 5:00PM")
+        call write_variable_in_SPEC_MEMO("    Website: disabilityhubmn.org")
+        need_divider = FALSE
+        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
+    End If
+    If emer_food_network_checkbox = checked Then
+        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
+        call write_variable_in_SPEC_MEMO("* The Food Group (formerly Emergency Food Network)")
+        call write_variable_in_SPEC_MEMO("     Phone: 763-450-3860  - Website: thefoodgroupmn.org")
+        need_divider = FALSE
+        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
+    End If
+    If front_door_checkbox = checked Then
+        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
+        call write_variable_in_SPEC_MEMO("* Hennepin County FRONT DOOR - 612-348-4111")
+        need_divider = TRUE
+        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
+    End If
+    If sr_linkage_line_checkbox = checked Then
+        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
+        call write_variable_in_SPEC_MEMO("* Senior Linkage Line - Hours: Mon - Fri 8:00AM - 4:30PM")
+        call write_variable_in_SPEC_MEMO("   Phone: 1-800-333-2433")
+        call write_variable_in_SPEC_MEMO("   Currently has extended hours Mon - Thur 4:30PM - 6:30PM")
+        call write_variable_in_SPEC_MEMO("   Website: metroaging.org")
+        need_divider = FALSE
+        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
+    End If
+    If united_way_checkbox = checked Then
+        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
+        call write_variable_in_SPEC_MEMO("* United Way First Call for Help (211)")
+        call write_variable_in_SPEC_MEMO("   Phone: 1-800-543-7709 OR 651- 291-0211 - 24 Hrs")
+        call write_variable_in_SPEC_MEMO("   Website: www.211unitedway.org")
+        need_divider = FALSE
+        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
+    End If
+    If xcel_checkbox = checked Then
+        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
+        call write_variable_in_SPEC_MEMO("* Xcel Energy - 1-800-331-5262")
+        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
+    End If
 
-need_divider = FALSE
-'Writes the MEMO.
-call write_variable_in_SPEC_MEMO("  ----Outsdie Resources - current as of " & date & "----")
-If cap_checkbox = checked Then
-    If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-    call write_variable_in_SPEC_MEMO("* CAP - Community Action Partnership (Inc. Energy Assist)")
-    call write_variable_in_SPEC_MEMO("Hours: Mon-Fri 8:00AM - 4:30PM Website: www.caphennepin.org")
-    call write_variable_in_SPEC_MEMO("Locations: Minneapolis Urban League   Phone: 952-930-3541")
-    call write_variable_in_SPEC_MEMO("           MN Council of Churches     Phone: 952-933-9639")
-    call write_variable_in_SPEC_MEMO("           Sabathani Community Center Phone: 952-930-3541")
-    call write_variable_in_SPEC_MEMO("           St. Louis Park             Phone: 952-933-9639")
-    need_divider = FALSE
-    'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-End If
-If COPE_checkbox = checked Then
-    If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-    call write_variable_in_SPEC_MEMO("* COPE - Mental Health Crisis and Emergency")
-    call write_variable_in_SPEC_MEMO("       Adults 18 and older: 612-596-1223")
-    call write_variable_in_SPEC_MEMO("       Children: 612-348-2233")
-    need_divider = FALSE
-    'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-End If
-If MMIS_helpdesk_checkbox = checked Then
-    If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-    call write_variable_in_SPEC_MEMO("* MN Health Care Recipient Help Desk - 651-431-2670")
-    need_divider = TRUE
-    'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-End If
-If MNSURE_helpdesk_checkbox = checked Then
-    If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-    call write_variable_in_SPEC_MEMO("* MNSure Helpdesk - 1-855-366-7873 (1-855-3MNSURE)")
-    need_divider = TRUE
-    'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-End If
-If disability_hub_checkbox = checked Then
-    If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-    call write_variable_in_SPEC_MEMO("* Disability Hub (formerly Disability Linkage Line)")
-    call write_variable_in_SPEC_MEMO("    Phone: 1-866-333-2466 -Hrs: Mon - Fri 8:00AM - 5:00PM")
-    call write_variable_in_SPEC_MEMO("    Website: disabilityhubmn.org")
-    need_divider = FALSE
-    'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-End If
-If emer_food_network_checkbox = checked Then
-    If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-    call write_variable_in_SPEC_MEMO("* The Food Group (formerly Emergency Food Network)")
-    call write_variable_in_SPEC_MEMO("     Phone: 763-450-3860  - Website: thefoodgroupmn.org")
-    need_divider = FALSE
-    'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-End If
-If front_door_checkbox = checked Then
-    If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-    call write_variable_in_SPEC_MEMO("* Hennepin County FRONT DOOR - 612-348-4111")
-    need_divider = TRUE
-    'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-End If
-If sr_linkage_line_checkbox = checked Then
-    If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-    call write_variable_in_SPEC_MEMO("* Senior Linkage Line - Hours: Mon - Fri 8:00AM - 4:30PM")
-    call write_variable_in_SPEC_MEMO("   Phone: 1-800-333-2433")
-    call write_variable_in_SPEC_MEMO("   Currently has extended hours Mon - Thur 4:30PM - 6:30PM")
-    call write_variable_in_SPEC_MEMO("   Website: metroaging.org")
-    need_divider = FALSE
-    'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-End If
-If united_way_checkbox = checked Then
-    If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-    call write_variable_in_SPEC_MEMO("* United Way First Call for Help (211)")
-    call write_variable_in_SPEC_MEMO("   Phone: 1-800-543-7709 OR 651- 291-0211 - 24 Hrs")
-    call write_variable_in_SPEC_MEMO("   Website: www.211unitedway.org")
-    need_divider = FALSE
-    'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-End If
-If xcel_checkbox = checked Then
-    If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-    call write_variable_in_SPEC_MEMO("* Xcel Energy - 1-800-331-5262")
-    'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
+    'Exits the MEMO
+    PF4
 End If
 
-'Exits the MEMO
-PF4
+If resource_method = "Word Document" Then
+    '****writing the word document
+    Set objWord = CreateObject("Word.Application")
+    Const wdDialogFilePrint = 88
+    Const end_of_doc = 6
+    objWord.Caption = "Outsdie Resource Information"
+    objWord.Visible = True
 
+    Set objDoc = objWord.Documents.Add()
+    Set objSelection = objWord.Selection
+
+    objSelection.PageSetup.LeftMargin = 50
+    objSelection.PageSetup.RightMargin = 50
+    objSelection.PageSetup.TopMargin = 30
+    objSelection.PageSetup.BottomMargin = 25
+
+    todays_date = date & ""
+    objSelection.Font.Name = "Arial"
+    objSelection.Font.Size = "14"
+    objSelection.Font.Bold = TRUE
+    objSelection.TypeText "Outside Resource Information - Current as of "
+    objSelection.TypeText todays_date
+    objSelection.TypeParagraph()
+    objSelection.ParagraphFormat.SpaceAfter = 0
+    'objSelection.TypeText "The following is contact information for other agencies/programs:"
+    'objSelection.TypeParagraph()
+    'objSelection.TypeParagraph()
+
+    objSelection.Font.Size = "12"
+    objSelection.Font.Bold = FALSE
+    If cap_checkbox = checked Then
+        objSelection.TypeText "* CAP - Community Action Partnership (Inc. Energy Assist)" & vbCr
+        objSelection.TypeText "  Hours: Mon-Fri 8:00AM - 4:30PM Website: www.caphennepin.org" & vbCr
+        objSelection.TypeText "  Locations: Minneapolis Urban League   Phone: 952-930-3541" & vbCr
+        objSelection.TypeText "                    MN Council of Churches     Phone: 952-933-9639" & vbCr
+        objSelection.TypeText "                    Sabathani Community Center Phone: 952-930-3541" & vbCr
+        objSelection.TypeText "                    St. Louis Park             Phone: 952-933-9639" & vbCr
+        'objSelection.TypeText "_____________________________" & chr(10)
+        objSelection.TypeParagraph()
+    End If
+    If COPE_checkbox = checked Then
+        objSelection.TypeText "* COPE - Mental Health Crisis and Emergency" & vbCr
+        objSelection.TypeText "       Adults 18 and older: 612-596-1223" & vbCr
+        objSelection.TypeText "       Children: 612-348-2233" & vbCr
+        'objSelection.TypeText "_____________________________" & vbCr
+        objSelection.TypeParagraph()
+    End If
+    If MMIS_helpdesk_checkbox = checked Then
+        objSelection.TypeText "* MN Health Care Recipient Help Desk - 651-431-2670" & vbCr
+        'objSelection.TypeText "_____________________________" & vbCr
+        objSelection.TypeParagraph()
+    End If
+    If MNSURE_helpdesk_checkbox = checked Then
+        objSelection.TypeText "* MNSure Helpdesk - 1-855-366-7873 (1-855-3MNSURE)" & vbCr
+        'objSelection.TypeText "_____________________________" & vbCr
+        objSelection.TypeParagraph()
+    End If
+    If disability_hub_checkbox = checked Then
+        objSelection.TypeText "* Disability Hub (formerly Disability Linkage Line)" & vbCr
+        objSelection.TypeText "    Phone: 1-866-333-2466 -Hrs: Mon - Fri 8:00AM - 5:00PM" & vbCr
+        objSelection.TypeText "    Website: disabilityhubmn.org" & vbCr
+        'objSelection.TypeText "_____________________________" & vbCr
+        objSelection.TypeParagraph()
+    End If
+    If emer_food_network_checkbox = checked Then
+        objSelection.TypeText "* The Food Group (formerly Emergency Food Network)" & vbCr
+        objSelection.TypeText "     Phone: 763-450-3860  - Website: thefoodgroupmn.org" & vbCr
+        'objSelection.TypeText "_____________________________" & vbCr
+        objSelection.TypeParagraph()
+    End If
+    If front_door_checkbox = checked Then
+        objSelection.TypeText "* Hennepin County FRONT DOOR - 612-348-4111" & vbCr
+        'objSelection.TypeText "_____________________________" & vbCr
+        objSelection.TypeParagraph()
+    End If
+    If sr_linkage_line_checkbox = checked Then
+        objSelection.TypeText "* Senior Linkage Line" & vbCr
+        objSelection.TypeText "   Phone: 1-800-333-2433 - Hours: Mon - Fri 8:00AM - 4:30PM" & vbCr
+        objSelection.TypeText "   Currently has extended hours Mon - Thur 4:30PM - 6:30PM" & vbCr
+        objSelection.TypeText "   Website: metroaging.org" & vbCr
+        'objSelection.TypeText "_____________________________" & vbCr
+        objSelection.TypeParagraph()
+    End If
+    If united_way_checkbox = checked Then
+        objSelection.TypeText "* United Way First Call for Help (211)" & vbCr
+        objSelection.TypeText "   Phone: 1-800-543-7709 OR 651- 291-0211 - 24 Hrs" & vbCr
+        objSelection.TypeText "   Website: www.211unitedway.org" & vbCr
+        'objSelection.TypeText "_____________________________" & vbCr
+        objSelection.TypeParagraph()
+    End If
+    If xcel_checkbox = checked Then
+        objSelection.TypeText "* Xcel Energy - 1-800-331-5262" & vbCr
+        'objSelection.TypeText "_____________________________" & vbCr
+        objSelection.TypeParagraph()
+    End If
+
+
+End If
 'Navigates to CASE/NOTE and starts a blank one
 start_a_blank_CASE_NOTE
 
 'Writes the case note--------------------------------------------
 call write_variable_in_CASE_NOTE("Outside resource information sent to client")
+If resource_method = "SPEC/MEMO" Then Call write_variable_in_CASE_NOTE("* Information added to SPEC/MEMO to send in overnight batch.")
+If resource_method = "Word Document" Then Call write_variable_in_CASE_NOTE("* Information added to Word Document for printing locally.")
+
 IF cap_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Compunity Action Partnership - CAP (Energy Assistance)")
 IF COPE_checkbox = checked Then Call write_variable_in_CASE_NOTE("* COPE - Mental Health Crisis Line")
 IF MMIS_helpdesk_checkbox = checked Then Call write_variable_in_CASE_NOTE("* DHS MHCP HelpDesk")
