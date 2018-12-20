@@ -60,7 +60,7 @@ BeginDialog EBT_dialog, 0, 0, 256, 105, "EBT OUT OF STATE "
   EditBox 200, 5, 50, 15, bene_date
   EditBox 60, 25, 50, 15, state
   EditBox 60, 45, 50, 15, date_closed
-  DropListBox 180, 25, 70, 15, "Select One:"+chr(9)+"Initial Review"+chr(9)+"Respond to Request"+chr(9)+"Other", action_taken
+  DropListBox 180, 25, 70, 15, "Select One:"+chr(9)+"Initial Review"+chr(9)+"Client Response to Request"+chr(9)+"No Response Received"+chr(9)+"Other", action_taken
   EditBox 60, 65, 195, 15, reason_closed
   ButtonGroup ButtonPressed
     OkButton 150, 85, 50, 15
@@ -96,21 +96,21 @@ start_a_blank_case_note      'navigates to case/note and puts case/note into edi
 	Call write_variable_in_CASE_NOTE("Request sent to client for explanation of benefits received in the other state and shelter request ")
     Call write_variable_in_CASE_NOTE("Client will need to verify residence when reapplying")
     Call write_variable_in_CASE_NOTE("Agency will need to verify benefits received in the other state prior to reopening case")
-
 	Call write_bullet_and_variable_in_CASE_NOTE("Date case was closed", date_closed)
 	Call write_bullet_and_variable_in_CASE_NOTE("Explanation of action to close the case", reason_closed)
-	Call write_variable_in_CASE_NOTE("Possible overpayments will be reviewed") 'do we want to add the claim referral?'
+	Call write_variable_in_CASE_NOTE("DEU will review for possible overpayment regarding out of state usage at a later date.")
 	Call write_variable_in_CASE_NOTE("Clients have 10 days to return requested verifications")
+	Call write_bullet_and_variable_in_CASE_NOTE("Date due", date_due)
 	Call write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
 	Call write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 
-
-	REQUEST TO CLIENT TO VERIFY WHY ACCESSING BENEFITS OUT OF STATE
-	AND SHELTER VERIFICATION FORM.
-	EBT OUT OF STATE USAGE WILL BE REVIEWED FOR POSSIBLE OVERPAYMENT OR NO OVERPAYMENT AT A LATER DATE.
-	DUE:
-	Debt Establishment Unit 612-348-4290 X111
-	d.	 Clients have 10 days to respond.
+	IF  THEN
+		Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
+		two_weeks_from_now = DateAdd("d", 14, date)
+		call create_MAXIS_friendly_date(two_weeks_from_now, 10, 5, 18)
+		call write_variable_in_TIKL ("Review client's application for Unemployment and request an update if needed.")
+		PF3
+	END IF
 
 
 script_end_procedure("EBT out of state case note complete.")
