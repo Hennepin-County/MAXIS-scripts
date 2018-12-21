@@ -52,9 +52,53 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================----------
 'connecting to BlueZone and grabbing the case number
 EMConnect ""
-Call MAXIS_case_number_finder(maxis_case_number)
+CALL MAXIS_case_number_finder (MAXIS_case_number)
+MEMB_number = "01"
+BeginDialog EBT_dialog, 0, 0, 161, 85, "EBT OUT OF STATE "
+  EditBox 55, 5, 50, 15, maxis_case_number
+  EditBox 55, 25, 50, 15, out_of_state
+  DropListBox 55, 45, 100, 15, "Select One:"+chr(9)+"Initial Review"+chr(9)+"Response Received"+chr(9)+"No Response Received"+chr(9)+"Other", action_taken
+  ButtonGroup ButtonPressed
+    OkButton 60, 65, 45, 15
+    CancelButton 110, 65, 45, 15
+  Text 25, 30, 30, 10, "State(s):"
+  Text 5, 10, 50, 10, "Case Number:"
+  Text 5, 50, 45, 10, "Action Taken:"
+EndDialog
 
-'Initial dialog and do...loop
+BeginDialog intial_review_dialog, 0, 0, 196, 105, "EBT Out of State Initial Review"
+  EditBox 55, 5, 40, 15, date_received
+  DropListBox 160, 5, 30, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"YEAR plus", months_used
+  CheckBox 10, 35, 75, 10, "Request for Contact", request_contact_checkbox
+  CheckBox 10, 45, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
+  CheckBox 105, 35, 70, 10, "Shelter Verification", EVF_checkbox
+  CheckBox 105, 45, 80, 10, "Other (please specify)", other_checkbox
+  EditBox 50, 65, 140, 15, other_notes
+  ButtonGroup ButtonPressed
+    OkButton 105, 85, 40, 15
+    CancelButton 150, 85, 40, 15
+  Text 5, 10, 50, 10, "Date reported:"
+  Text 105, 10, 55, 10, "# Months Used: "
+  GroupBox 5, 25, 185, 35, "Verification Requested: "
+  Text 5, 70, 45, 10, "Other Notes: "
+EndDialog
+
+
+
+
+DO
+	DO
+		err_msg = ""
+		Dialog EBT_dialog
+		IF ButtonPressed = 0 THEN StopScript
+		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+		If out_of_state = ""  then err_msg = err_msg & vbNewLine & "* Enter the state(s) that the client has used benefits in."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP UNTIL err_msg = ""
+	CALL check_for_password(are_we_passworded_out)
+LOOP UNTIL are_we_passworded_out = false
+
+
 BeginDialog EBT_dialog, 0, 0, 256, 105, "EBT OUT OF STATE "
   EditBox 60, 5, 50, 15, maxis_case_number
   EditBox 200, 5, 50, 15, bene_date
