@@ -255,7 +255,7 @@ IF immig_status_dropdown <> "US Citizen" Then
 				IF ss_credits <> "Select One:" and ss_credits_verf = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that social secuirty credits are verified, please advise if SS credits are applicable."
 			END IF
 			If CASH_STATUS = TRUE THEN
-				IF ESL_ctzn = "Select One:" and immig_status_dropdown = "24 LPR" THEN err_msg = err_msg & vbNewLine & "* Please advise of ESL cooperation requirement for state funded GA and MFIP."
+				IF ESL_ctzn = "Select One:" and immig_status_dropdown = "24 LPR" THEN err_msg = err_msg & vbNewLine & "* Please advise of ESL/Citizenship requirements for state funded cash, see CM 11.03.03 and CM 11.03.09"
 			END IF
 			IF battered_spouse <>  "Select One:" and battered_spouse_verf = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that battered spouse is verified, please advise if advise if battered spouse is applicable."
 			IF military_status <> "Select One:" and military_status_verf  = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that military status is verified, please advise if military status is applicable."
