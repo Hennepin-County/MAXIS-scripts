@@ -51,6 +51,55 @@ call changelog_update("03/27/2017", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+'Fun with dates! --Creating variables for the rolling 12 calendar months
+'current month -1
+CM_minus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", -1, date)            ), 2)
+CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
+'current month -2'
+CM_minus_2_mo =  right("0" &             DatePart("m",           DateAdd("m", -2, date)            ), 2)
+CM_minus_2_yr =  right(                  DatePart("yyyy",        DateAdd("m", -2, date)            ), 2)
+'current month -3'
+CM_minus_3_mo =  right("0" &             DatePart("m",           DateAdd("m", -3, date)            ), 2)
+CM_minus_3_yr =  right(                  DatePart("yyyy",        DateAdd("m", -3, date)            ), 2)
+'current month -4'
+CM_minus_4_mo =  right("0" &             DatePart("m",           DateAdd("m", -4, date)            ), 2)
+CM_minus_4_yr =  right(                  DatePart("yyyy",        DateAdd("m", -4, date)            ), 2)
+'current month -5'
+CM_minus_5_mo =  right("0" &             DatePart("m",           DateAdd("m", -5, date)            ), 2)
+CM_minus_5_yr =  right(                  DatePart("yyyy",        DateAdd("m", -5, date)            ), 2)
+'current month -6'
+CM_minus_6_mo =  right("0" &             DatePart("m",           DateAdd("m", -6, date)            ), 2)
+CM_minus_6_yr =  right(                  DatePart("yyyy",        DateAdd("m", -6, date)            ), 2)
+'current month -7'
+CM_minus_7_mo =  right("0" &             DatePart("m",           DateAdd("m", -7, date)            ), 2)
+CM_minus_7_yr =  right(                  DatePart("yyyy",        DateAdd("m", -7, date)            ), 2)
+'current month -8'
+CM_minus_8_mo =  right("0" &             DatePart("m",           DateAdd("m", -8, date)            ), 2)
+CM_minus_8_yr =  right(                  DatePart("yyyy",        DateAdd("m", -8, date)            ), 2)
+'current month -9'
+CM_minus_9_mo =  right("0" &             DatePart("m",           DateAdd("m", -9, date)            ), 2)
+CM_minus_9_yr =  right(                  DatePart("yyyy",        DateAdd("m", -9, date)            ), 2)
+'current month -10'
+CM_minus_10_mo =  right("0" &            DatePart("m",           DateAdd("m", -10, date)           ), 2)
+CM_minus_10_yr =  right(                 DatePart("yyyy",        DateAdd("m", -10, date)           ), 2)
+'current month -11'
+CM_minus_11_mo =  right("0" &            DatePart("m",           DateAdd("m", -11, date)           ), 2)
+CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -11, date)           ), 2)
+
+'Establishing value of variables for the rolling 12 months
+current_month = CM_mo & "/" & CM_yr
+current_month_minus_one = CM_minus_1_mo & "/" & CM_minus_1_yr
+current_month_minus_two = CM_minus_2_mo & "/" & CM_minus_2_yr
+current_month_minus_three = CM_minus_3_mo & "/" & CM_minus_3_yr
+current_month_minus_four = CM_minus_4_mo & "/" & CM_minus_4_yr
+current_month_minus_five = CM_minus_5_mo & "/" & CM_minus_5_yr
+current_month_minus_six = CM_minus_6_mo & "/" & CM_minus_6_yr
+current_month_minus_seven = CM_minus_7_mo & "/" & CM_minus_7_yr
+current_month_minus_eight = CM_minus_8_mo & "/" & CM_minus_8_yr
+current_month_minus_nine = CM_minus_9_mo & "/" & CM_minus_9_yr
+current_month_minus_ten = CM_minus_10_mo & "/" & CM_minus_10_yr
+current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
+
 'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
@@ -138,8 +187,6 @@ claim_date = "09/15/18"
 child_memb_number = "03, 04"
 review_date = "09/15/19"
 
-
-
 Do
 	Do
 		err_msg = ""
@@ -168,6 +215,18 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+If good_cause_droplist = "Change/exemption ending" THEN
+	Do
+		Do
+			err_msg = ""
+			dialog change_exemption_dialog
+			cancel_confirmation
+			If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
+END IF
+
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 MsgBox actual_date
 the_month = datepart("m", actual_date)
@@ -176,8 +235,7 @@ the_year = datepart("yyyy", actual_date)
 MAXIS_footer_year = right("00" & the_year, 2)
 CALL convert_date_into_MAXIS_footer_month(actual_date, footer_month, footer_year)
 	'----------------------------------------------------------------------------------------------------ABPS panel
-
-	Call navigate_to_MAXIS_screen("STAT", "ABPS")
+Call navigate_to_MAXIS_screen("STAT", "ABPS")
 	'Making sure we have the correct ABPS
 DO
 	EMReadScreen panel_number, 1, 2, 78
@@ -193,11 +251,19 @@ DO
 		If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
 	Loop until current_panel_number = panel_number
 	'-------------------------------------------------------------------------Updating the ABPS panel
+
+
+	Do
+		EMReadScreen first_display_mode_check, 1, 20, 8
+		IF first_display_mode_check = "E" then exit do
+		IF first_display_mode_check = "D" THEN
+			PF9'edit mode
+			EMReadScreen error_msg, 2, 24, 2	'making sure we can actually update this case.
+			error_msg = trim(error_msg)
+			If error_msg <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
+		END IF
+	Loop until first_display_mode_check = "E"
 	Call create_MAXIS_friendly_date_with_YYYY(actual_date, 0, 6, 35)
-	PF9'edit mode
-	EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
-	error_check = trim(error_check)
-	If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
 	EMWriteScreen "Y", 4, 73			'Support Coop Y/N field
 	msgbox "I entered a Y"
 	IF gc_status = "Pending" THEN
@@ -266,117 +332,104 @@ DO
 		client_name = first_name & " " & last_name
 		Call fix_case_for_name(client_name)
 	END IF
+
 	Transmit'to add information
 	Transmit'to move past non-inhibiting warning messages on ABPS (this also takes you to the next abps)
 	PF3
 	EMReadScreen ABPS_screen, 4, 2, 50		'if inhibiting error exists, this will catch it and instruct the user to update ABPS
-	'msgbox ABPS_screen
+	msgbox ABPS_screen
 	If ABPS_screen = "ABPS" then script_end_procedure("An error occurred on the ABPS panel. Please update the panel before using the script with the absent parent information.")
-	'seting variables for the programs included
-	If good_cause_droplist = "Change/exemption ending" THEN
-  	    Do
-  	    	Do
-  	    		err_msg = ""
-  	    		dialog change_exemption_dialog
-  	    		cancel_confirmation
-  	    		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-  	    	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-  	    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-  	    Loop until are_we_passworded_out = false					'loops until user passwords back in
-	END IF
-	IF CCA_CHECKBOX = CHECKED THEN programs_included = programs_included & "CCAP, "
-	IF DWP_CHECKBOX = CHECKED THEN programs_included = programs_included & "DWP, "
-	IF HC_CHECKBOX = CHECKED THEN programs_included = programs_included & "Healthcare, "
-	IF FS_CHECKBOX = CHECKED THEN programs_included = programs_included & "Food Support, "
-	IF MFIP_CHECKBOX = CHECKED THEN programs_included = programs_included & "MFIP, "
-	IF METS_CHECKBOX = CHECKED THEN programs_included = programs_included & "MNSURE, "
-	'trims excess spaces of programs
-	programs_included  = trim(programs_included )
-	'takes the last comma off of programs
-	If right(programs_included, 1) = "," THEN programs_included  = left(programs_included, len(programs_included) - 1)
-	IF ABPS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "ABPS name not written on the correct line,"
-	IF REASON_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " reason for requesting GC not selected,"
-	IF QUESTIONS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " all of the questions not answered,"
-	IF NOSIG_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " no signature and/or date,"
-	IF OTHER_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " other (see additional information),"
-	incomplete_form  = trim(incomplete_form)
-	If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
+
+	EMReadScreen error_msg, 7, 24, 2	'making sure we can actually update this case.
+	error_msg = trim(error_msg)
+	If error_msg = "WARNING" then TRANSMIT
 	'--------------------------------------------------------------------------------this will run the case thru background 'and update the future months
-	msgbox "END"
-	EMReadScreen current_panel_check, 4, 2, 46
-	in_future_month = FALSE THEN
-	IF current_panel_check = "WRAP" and MAXIS_footer_month = THEN
-	    CALL write_value_and_transmit("y", 16, 54)
-		TRANSMIT
-	    EMReadScreen MAXIS_footer_month, 2, 20, 55
-	    EMReadScreen MAXIS_footer_year, 2, 20, 58
-	    EMWriteScreen "ABPS", 20, 71
-		TRANSMIT
-	    'PF9
-		If datediff("m", actual_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 1 then in_future_month = True
+	EMReadScreen WRAP_check, 4, 2, 46
+	If WRAP_check = "WRAP" then
+		EMReadScreen MAXIS_footer_month, 2, 20, 55
+		EMReadScreen MAXIS_footer_year, 2, 20, 58
+		If datediff("m", date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 1 then in_future_month = True
 		If future_months_check = 0 or in_future_month = True then exit do
-		'Navigates to the current month + 1 footer month, then back into the ABPS panel
-		'CALL write_value_and_transmit("BGTX", 20, 71)
+		IF in_future_month = FALSE THEN
+		 	CALL write_value_and_transmit("y", 16, 54)
+			EMWriteScreen "ABPS", 20, 71
+			If len(current_panel_number) = 1 then current_panel_number = "0" & current_panel_number
+			EMWriteScreen current_panel_number, 20, 79
+			transmit
+			PF9
+		END IF
 	END IF
 Loop until in_future_month = True
 
-'Do
-'	EMReadScreen display_mode_check, 1, 20, 8
-'Loop until display_mode_check = "D"
-'If len(current_panel_number) = 1 then current_panel_number = "0" & current_panel_number
-'EMWriteScreen current_panel_number, 20, 79
+'Case note stuffs'
+IF CCA_CHECKBOX = CHECKED THEN programs_included = programs_included & "CCAP, "
+IF DWP_CHECKBOX = CHECKED THEN programs_included = programs_included & "DWP, "
+IF HC_CHECKBOX = CHECKED THEN programs_included = programs_included & "Healthcare, "
+IF FS_CHECKBOX = CHECKED THEN programs_included = programs_included & "Food Support, "
+IF MFIP_CHECKBOX = CHECKED THEN programs_included = programs_included & "MFIP, "
+IF METS_CHECKBOX = CHECKED THEN programs_included = programs_included & "MNSURE, "
+'trims excess spaces of programs
+programs_included  = trim(programs_included )
+'takes the last comma off of programs
+If right(programs_included, 1) = "," THEN programs_included  = left(programs_included, len(programs_included) - 1)
+IF ABPS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "ABPS name not written on the correct line,"
+IF REASON_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " reason for requesting GC not selected,"
+IF QUESTIONS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " all of the questions not answered,"
+IF NOSIG_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " no signature and/or date,"
+IF OTHER_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " other (see additional information),"
+incomplete_form  = trim(incomplete_form)
+If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
 
-	'-----------------------------------------------------------------------------------------------------Case note & email sending
-	start_a_blank_CASE_NOTE
-	IF good_cause_droplist = "Application Review-Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
-	IF good_cause_droplist = "Application Review-Incomplete" THEN Call write_variable_in_case_note("Good Cause Application Review - Incomplete")
-	IF good_cause_droplist = "Change/exemption ending" THEN
-		Call write_variable_in_case_note("Good Cause Application Change/exemption ending")
-		Call write_bullet_and_variable_in_case_note("Date of change reported", change_reported_date)
-		Call write_bullet_and_variable_in_case_note("What change was reported", change_reported)
-		Call write_bullet_and_variable_in_case_note("What was updated in MAXIS", maxis_updates)
-		IF no_longer_claiming_checkbox = CHECKED THEN Call write_variable_in_case_note("* Client is no longer claiming good cause")
-	END IF
-	IF good_cause_droplist = "Determination" THEN Call write_variable_in_case_note("Good Cause Application - Determination")
-	IF good_cause_droplist = "Recertification" THEN Call write_variable_in_case_note("Good Cause Application Review - Recertification")
-	Call write_bullet_and_variable_in_case_note("Good cause status", gc_status)
-	If claim_date <> "" THEN Call write_bullet_and_variable_in_case_note("Good cause claim date", claim_date)
-	If review_date <> "" THEN Call write_bullet_and_variable_in_case_note("Next review date", review_date)
-	Call write_bullet_and_variable_in_case_note("Child(ren) member number(s)", child_memb_number)
-	Call write_bullet_and_variable_in_case_note("ABPS name", client_name)
-	CALL write_bullet_and_variable_in_case_note("Applicable programs", programs_included)
-  	IF reason_droplist <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Reason for claiming good cause", reason_droplist)
-	IF incomplete_form <> "Select One" THEN Call write_bullet_and_variable_in_case_note("What is GC form incomplete for", incomplete_form)
-	If denial_reason <> "" THEN Call write_bullet_and_variable_in_case_note("Reason for denial", denial_reason)
-	IF mets_info <> "" THEN Call write_bullet_and_variable_in_case_note("METS information", mets_info )
-	IF verfis_req <> "" THEN Call write_bullet_and_variable_in_case_note("Requested Verifcation(s)", verifs_req)
-	IF other_notes <> "" THEN Call write_bullet_and_variable_in_case_note("Additional information", other_notes)
-	IF DHS_2338_complete_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* DHS-2338 is in ECF, and fully completed by parent/caregiver.")
-	IF SUP_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent request of proof to support a good cause claim")
-	IF DHS_2338_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Client Statement (DHS-2338)")
-	IF DHS_3628_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Notice of Denial of Good Cause Exemption (DHS-3628)")
-	IF DHS_3629_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Notice of Good Cause Approval (DHS-3629)")
-	IF DHS_3632_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Request for Additional Information (DHS 3632)")
-	IF DHS_3631_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause End Exemption (DHS-3631)")
-	IF DHS_3627_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Imp Information about Your Request Exemption (DHS-3627)")
-	IF Recert_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Yearly Determination Packet")
-	IF DHS_3633_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Redetermination Approval (DHS 3633)")
-	Call write_variable_in_case_note("---")
-	Call write_variable_in_case_note(worker_signature)
-
-	IF FS_CHECKBOX = CHECKED and CCA_CHECKBOX = UNCHECKED and DWP_CHECKBOX = UNCHECKED and MFIP_CHECKBOX = UNCHECKED and HC_CHECKBOX = UNCHECKED and METS_CHECKBOX = UNCHECKED THEN memo_started = TRUE
-	IF memo_started = TRUE THEN
-		Call start_a_new_spec_memo
-		EMsendkey("************************************************************")
-		Call write_variable_in_SPEC_MEMO("You recently applied for Food Support assistance and")
-		Call write_variable_in_SPEC_MEMO("requested Good Cause for Child Support.")
-		Call write_variable_in_SPEC_MEMO("You do not need to cooperate with Child Support for Food")
-		Call write_variable_in_SPEC_MEMO("Support applications, therefore you do not need to request")
-		Call write_variable_in_SPEC_MEMO("good cause at this time.")
-		Call write_variable_in_SPEC_MEMO("If you apply for Cash or Health Care programs in the future")
-		Call write_variable_in_SPEC_MEMO("you will need to resubmit the application for Good Cause.")
-		Call write_variable_in_SPEC_MEMO("************************************************************")
-		PF4
-	END IF
+'-----------------------------------------------------------------------------------------------------Case note & email sending
+start_a_blank_CASE_NOTE
+IF good_cause_droplist = "Application Review-Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
+IF good_cause_droplist = "Application Review-Incomplete" THEN Call write_variable_in_case_note("Good Cause Application Review - Incomplete")
+IF good_cause_droplist = "Change/exemption ending" THEN
+	Call write_variable_in_case_note("Good Cause Application Change/exemption ending")
+	Call write_bullet_and_variable_in_case_note("Date of change reported", change_reported_date)
+	Call write_bullet_and_variable_in_case_note("What change was reported", change_reported)
+	Call write_bullet_and_variable_in_case_note("What was updated in MAXIS", maxis_updates)
+	IF no_longer_claiming_checkbox = CHECKED THEN Call write_variable_in_case_note("* Client is no longer claiming good cause")
+END IF
+IF good_cause_droplist = "Determination" THEN Call write_variable_in_case_note("Good Cause Application - Determination")
+IF good_cause_droplist = "Recertification" THEN Call write_variable_in_case_note("Good Cause Application Review - Recertification")
+Call write_bullet_and_variable_in_case_note("Good cause status", gc_status)
+If claim_date <> "" THEN Call write_bullet_and_variable_in_case_note("Good cause claim date", claim_date)
+If review_date <> "" THEN Call write_bullet_and_variable_in_case_note("Next review date", review_date)
+Call write_bullet_and_variable_in_case_note("Child(ren) member number(s)", child_memb_number)
+Call write_bullet_and_variable_in_case_note("ABPS name", client_name)
+CALL write_bullet_and_variable_in_case_note("Applicable programs", programs_included)
+ 	IF reason_droplist <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Reason for claiming good cause", reason_droplist)
+IF incomplete_form <> "Select One" THEN Call write_bullet_and_variable_in_case_note("What is GC form incomplete for", incomplete_form)
+If denial_reason <> "" THEN Call write_bullet_and_variable_in_case_note("Reason for denial", denial_reason)
+IF mets_info <> "" THEN Call write_bullet_and_variable_in_case_note("METS information", mets_info )
+IF verfis_req <> "" THEN Call write_bullet_and_variable_in_case_note("Requested Verifcation(s)", verifs_req)
+IF other_notes <> "" THEN Call write_bullet_and_variable_in_case_note("Additional information", other_notes)
+IF DHS_2338_complete_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* DHS-2338 is in ECF, and fully completed by parent/caregiver.")
+IF SUP_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent request of proof to support a good cause claim")
+IF DHS_2338_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Client Statement (DHS-2338)")
+IF DHS_3628_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Notice of Denial of Good Cause Exemption (DHS-3628)")
+IF DHS_3629_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Notice of Good Cause Approval (DHS-3629)")
+IF DHS_3632_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Request for Additional Information (DHS 3632)")
+IF DHS_3631_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause End Exemption (DHS-3631)")
+IF DHS_3627_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Imp Information about Your Request Exemption (DHS-3627)")
+IF Recert_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Yearly Determination Packet")
+IF DHS_3633_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Redetermination Approval (DHS 3633)")
+Call write_variable_in_case_note("---")
+Call write_variable_in_case_note(worker_signature)
+IF FS_CHECKBOX = CHECKED and CCA_CHECKBOX = UNCHECKED and DWP_CHECKBOX = UNCHECKED and MFIP_CHECKBOX = UNCHECKED and HC_CHECKBOX = UNCHECKED and METS_CHECKBOX = UNCHECKED THEN memo_started = TRUE
+IF memo_started = TRUE THEN
+	Call start_a_new_spec_memo
+	EMsendkey("************************************************************")
+	Call write_variable_in_SPEC_MEMO("You recently applied for Food Support assistance and")
+	Call write_variable_in_SPEC_MEMO("requested Good Cause for Child Support.")
+	Call write_variable_in_SPEC_MEMO("You do not need to cooperate with Child Support for Food")
+	Call write_variable_in_SPEC_MEMO("Support applications, therefore you do not need to request")
+	Call write_variable_in_SPEC_MEMO("good cause at this time.")
+	Call write_variable_in_SPEC_MEMO("If you apply for Cash or Health Care programs in the future")
+	Call write_variable_in_SPEC_MEMO("you will need to resubmit the application for Good Cause.")
+	Call write_variable_in_SPEC_MEMO("************************************************************")
+	PF4
+END IF
 
 script_end_procedure("Success! MAXIS has been updated, and the Good Cause results case noted.")
