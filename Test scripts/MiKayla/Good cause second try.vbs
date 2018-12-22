@@ -331,6 +331,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	IF FS_CHECKBOX = CHECKED and CCA_CHECKBOX = UNCHECKED and DWP_CHECKBOX = UNCHECKED and MFIP_CHECKBOX = UNCHECKED and HC_CHECKBOX = UNCHECKED and METS_CHECKBOX = UNCHECKED THEN memo_started = TRUE
 	IF memo_started = TRUE THEN
+	Call
 		Call start_a_new_spec_memo
 		EMsendkey("************************************************************")
 		Call write_variable_in_SPEC_MEMO("You recently applied for Food Support assistance and")
