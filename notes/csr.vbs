@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/22/2018", "Added closing message reminder about accepting all ECF work items for CSR's at the time of processing.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/07/2018", "Added Paperless (*) IR Option back, with updated functionality.", "Casey Love, Hennepin County")
 call changelog_update("11/27/2018", "Removed Paperless (*) IR Option as this CASE/NOTE was insufficient.", "Casey Love, Hennepin County")
 call changelog_update("01/17/2017", "This script has been updated to clean up the case note. The script was case noting the ''Verifs Needed'' section twice. This has been resolved.", "Robert Fewins-Kalb, Anoka County")
@@ -379,4 +380,8 @@ If grab_FS_info_checkbox = 1 AND FSPR_check = "FSPR" then
 End if
 call write_variable_in_case_note(worker_signature)
 
-call script_end_procedure("")
+If paperless_checkbox = unchecked then 
+    script_end_procedure("Please make sure to accept the Work items in ECF associated with this CSR. Thank you!")
+else 
+    script_end_procedure("")
+End if 
