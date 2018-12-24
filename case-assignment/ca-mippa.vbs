@@ -120,58 +120,6 @@ TRANSMIT
 EMReadScreen error_msg, 18, 24, 2
 error_msg = trim(error_msg)
 IF error_msg = "SSN DOES NOT EXIST" THEN script_end_procedure ("Unable to find person in SSN search." & vbNewLine & "Please do a PERS search using the client's name." & vbNewLine & "Case may need to be APPLd.")
-	'Right here we want to write for the first and last name_of_script pull this from match cleared
-	'EMWriteScreen, last_name, 4, 36
-	'EMWriteScreen, first_name, 10, 36
-	'where do i find formatiing for taking a dob from 4 to 1941?'
-	'going into MTCH to check on possible matches' lets talkto claudia about this how does she PERS search
-	'row = 8
-	'match the DOB in a loop'
-	'Then yes no to APPL
-	'DO
-	'	EMReadScreen client_dob, 10, row, 60
-
-	'	'second loop to ensure we are acting on the correct case number'
-	'	msgbox "checking the DOB"
-	'	client_dob_check = MsgBox("Need to ensure multiple PMIs are not created , APPL or update using Current or Pending case." & vbNewLine & "Press YES to confirm this is the case you wish to act on." & vbNewLine & "For the next case, press NO." & vbNewLine & vbNewLine & _
-	'	"   " & MAXIS_case_number, vbYesNoCancel, "Please confirm this case.")
-	'	IF MLAR_case_number_check = vbYes THEN
-	'		EMWriteScreen "x", row, 5
-	'		TRANSMIT
-	'	END IF
-	'	If MLAR_case_number_check = vbNo THEN
-	'		row = row + 1
-	'		msgbox "row: " & row
-	'		IF row = 19 THEN
-	'			PF8
-	'			row = 7
-	'		END IF
-	'	END IF
-	'	IF MLAR_case_number_check = vbCancel THEN script_end_procedure ("The script has ended. The case has not been acted on.")
-	'LOOP UNTIL MLAR_case_number_check = vbYes
-
-'APPLd'
-'EMWriteScreen appl_date, 4, 63
-'EMWriteScreen last_name, 7, 30
-'EMWriteScreen first_name, 7, 63
-''EMWriteScreen midd, 7, 79
-'TRANSMIT
-'
-''MEMB'
-'EMWriteScreen MLAD_SSN_number, 7, 42
-'EMWriteScreen "P", 7, 63
-'EMWriteScreen client_dob, 8, 42
-'EMWriteScreen "OT", 8, 68
-'EMWriteScreen gender_ask, 9, 42
-'EMWriteScreen "OT", 9, 68
-'EMWriteScreen "99", 12, 42
-'EMWriteScreen "99", 13, 42
-'EMWriteScreen "N", 14, 68
-'EMWriteScreen "N", 15, 42
-'EMWriteScreen "N", 16, 68
-'EMWriteScreen "N", 15, 42
-'this is where we go into mathes and you have to select the match'
-
 'This will take us to certain places based on PERS search'
 EMReadscreen current_panel_check, 4, 2, 51
 IF current_panel_check = "PERS" THEN script_end_procedure ("Please search by person name and run script again.")
