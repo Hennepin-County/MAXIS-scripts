@@ -123,7 +123,7 @@ IF error_msg = "SSN DOES NOT EXIST" THEN script_end_procedure ("Unable to find p
 	'Right here we want to write for the first and last name_of_script pull this from match cleared
 	'EMWriteScreen, last_name, 4, 36
 	'EMWriteScreen, first_name, 10, 36
-	'where do i find formatiing for taking a dob form 4 to 1941?'
+	'where do i find formatiing for taking a dob from 4 to 1941?'
 	'going into MTCH to check on possible matches' lets talkto claudia about this how does she PERS search
 	'row = 8
 	'match the DOB in a loop'
@@ -382,25 +382,23 @@ IF transfer_case_checkbox = CHECKED THEN
     	action_completed = False
     End if
 END IF
-
 '----------------------------------------------------------------------------------case note
-
 start_a_blank_case_note
-	CALL write_variable_in_case_note("~ MIPAA received via REPT/MLAR on " & rcvd_date & " ~")
-	IF select_answer = "YES-Update MLAD" THEN CALL write_variable_in_case_note("* Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate.")
-	IF select_answer = "NO-APPL(Known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS.")
-	IF select_answer = "NO-APPL(Not known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is not known to MAXIS.")
-    IF select_answer = "NO-ADD A PROGRAM" THEN
-		CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS and may be active on other programs.")
-		CALL write_variable_in_case_note ("* HC Ended on: " & end_date)
-	END IF
-	CALL write_variable_in_case_note ("* Pended on: " & date)
-	CALL write_variable_in_case_note ("* REPT/MLAR APPL Date: " & appl_date)
-	IF select_answer <> "NO-ADD A PROGRAM" THEN CALL write_variable_in_case_note("* Application mailed using automated system per DHS")
-	IF transfer_case_checkbox = CHECKED THEN CALL write_variable_in_case_note ("* Case transferred to basket " & spec_xfer_worker & ".")
-	CALL write_variable_in_case_note ("* MIPPA rcvd and acted on per: TE 02.07.459")
-	CALL write_variable_in_case_note ("---")
-	CALL write_variable_in_case_note (worker_signature)
+CALL write_variable_in_case_note("~ MIPAA received via REPT/MLAR on " & rcvd_date & " ~")
+IF select_answer = "YES-Update MLAD" THEN CALL write_variable_in_case_note("* Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate.")
+IF select_answer = "NO-APPL(Known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS.")
+IF select_answer = "NO-APPL(Not known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is not known to MAXIS.")
+IF select_answer = "NO-ADD A PROGRAM" THEN
+	CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS and may be active on other programs.")
+	CALL write_variable_in_case_note ("* HC Ended on: " & end_date)
+END IF
+CALL write_variable_in_case_note ("* Pended on: " & date)
+CALL write_variable_in_case_note ("* REPT/MLAR APPL Date: " & appl_date)
+IF select_answer <> "NO-ADD A PROGRAM" THEN CALL write_variable_in_case_note("* Application mailed using automated system per DHS")
+IF transfer_case_checkbox = CHECKED THEN CALL write_variable_in_case_note ("* Case transferred to basket " & spec_xfer_worker & ".")
+CALL write_variable_in_case_note ("* MIPPA rcvd and acted on per: TE 02.07.459")
+CALL write_variable_in_case_note ("---")
+CALL write_variable_in_case_note (worker_signature)
 'writing the TIKL'
 CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 CALL create_MAXIS_friendly_date(date, 0, 5, 18)
