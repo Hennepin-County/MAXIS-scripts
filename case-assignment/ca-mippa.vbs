@@ -259,22 +259,22 @@ IF current_panel_check = "DSPL" THEN
 	'IF current_panel_check <> "ADDR" THEN MsgBox(current_panel_check)
 END IF
 '------------------------------------------------------------------------------------------------dialog
-BeginDialog MIPPA_active_dialog, 0, 0, 376, 175, "MIPAA"
+BeginDialog MIPPA_active_dialog, 0, 0, 376, 180, "MIPAA"
   EditBox 55, 5, 35, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
-    PushButton 100, 5, 50, 15, "Geocoder", Geo_coder_button
-  CheckBox 175, 25, 160, 10, "Check if case does not need to be transferred", transfer_case_checkbox
+    PushButton 110, 5, 50, 15, "Geocoder", Geo_coder_button
+  CheckBox 5, 45, 160, 10, "Check if case does not need to be transferred", transfer_case_checkbox
   EditBox 55, 25, 20, 15, spec_xfer_worker
-  DropListBox 255, 5, 115, 15, "Select One:"+chr(9)+"YES-Update MLAD"+chr(9)+"NO-APPL(Known to MAXIS)"+chr(9)+"NO-APPL(Not known to MAXIS)"+chr(9)+"NO-ADD A PROGRAM", select_answer
+  DropListBox 250, 5, 120, 15, "Select One:"+chr(9)+"YES - Update MLAD"+chr(9)+"NO - APPL (Known to MAXIS)"+chr(9)+"NO - APPL (Not known to MAXIS)"+chr(9)+"NO - ADD A PROGRAM", select_answer
   ButtonGroup ButtonPressed
-    OkButton 275, 45, 45, 15
-    CancelButton 325, 45, 45, 15
-  Text 175, 10, 75, 10, "Active on Health Care?"
-  Text 15, 30, 40, 10, "Transfer to:"
+    OkButton 275, 160, 45, 15
+    CancelButton 325, 160, 45, 15
+  Text 170, 10, 75, 10, "Active on Health Care?"
+  Text 5, 30, 40, 10, "Transfer to:"
   Text 5, 10, 50, 10, "Case Number:"
   Text 80, 30, 60, 10, " (last 3 digit of X#)"
-  Text 15, 75, 190, 10, "Case Name: " & MLAD_maxis_name
-  Text 170, 75, 110, 10, "APPL date: " & appl_date
+  Text 15, 75, 215, 10, "Case Name: " & MLAD_maxis_name
+  Text 255, 75, 110, 10, "APPL date: " & appl_date
   Text 15, 100, 80, 10, "DOB: " & client_dob
   Text 170, 140, 100, 10, "Phone: " & MLAR_addr_phone
   Text 15, 130, 110, 10, "Received Date: " & rcvd_date
@@ -285,7 +285,6 @@ BeginDialog MIPPA_active_dialog, 0, 0, 376, 175, "MIPAA"
   Text 170, 110, 90, 10, "State: " & MLAR_addr_state
   Text 170, 100, 195, 10, "City: " &  MLAR_addr_city
   Text 170, 120, 110, 10, "Zip: " & MLAR_addr_zip
-  Text 15, 150, 110, 10, "Status: " & appl_status
   Text 170, 130, 110, 10, "County: " & addr_county
   GroupBox 5, 60, 365, 110, "MLAR Information"
 EndDialog
@@ -333,16 +332,16 @@ END IF
 '----------------------------------------------------------------------------------case note
 start_a_blank_case_note
 CALL write_variable_in_case_note("~ MIPAA received via REPT/MLAR on " & rcvd_date & " ~")
-IF select_answer = "YES-Update MLAD" THEN CALL write_variable_in_case_note("* Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate.")
-IF select_answer = "NO-APPL(Known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS.")
-IF select_answer = "NO-APPL(Not known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is not known to MAXIS.")
-IF select_answer = "NO-ADD A PROGRAM" THEN
+IF select_answer = "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate.")
+IF select_answer = "NO - APPL (Known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS.")
+IF select_answer = "NO - APPL (Not known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is not known to MAXIS.")
+IF select_answer = "NO - ADD A PROGRAM" THEN
 	CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS and may be active on other programs.")
 	CALL write_variable_in_case_note ("* HC Ended on: " & end_date)
 END IF
 CALL write_variable_in_case_note ("* Pended on: " & date)
 CALL write_variable_in_case_note ("* REPT/MLAR APPL Date: " & appl_date)
-IF select_answer <> "NO-ADD A PROGRAM" THEN CALL write_variable_in_case_note("* Application mailed using automated system per DHS")
+IF select_answer <> "NO - ADD A PROGRAM" THEN CALL write_variable_in_case_note("* Application mailed.")
 IF transfer_case_checkbox = CHECKED THEN CALL write_variable_in_case_note ("* Case transferred to basket " & spec_xfer_worker & ".")
 CALL write_variable_in_case_note ("* MIPPA rcvd and acted on per: TE 02.07.459")
 CALL write_variable_in_case_note ("---")
@@ -350,7 +349,7 @@ CALL write_variable_in_case_note (worker_signature)
 'writing the TIKL'
 CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 CALL create_MAXIS_friendly_date(date, 0, 5, 18)
-IF select_answer = "YES-Update MLAD" or select_answer = "NO-ADD A PROGRAM" THEN
+IF select_answer = "YES - Update MLAD" or select_answer = "NO - ADD A PROGRAM" THEN
 	CALL write_variable_in_TIKL("~ A MIPPA record was recieved please check case information for consistency and follow-up with any inconsistent information, as appropriate.")
 ELSE
 	CALL write_variable_in_TIKL("~ Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate.")
@@ -384,7 +383,7 @@ DO
 		TRANSMIT
 		PF9
 		'this is the updated for MLAD'
-		IF select_answer = "YES-Update MLAD" or select_answer = "NO-ADD A PROGRAM" THEN
+		IF select_answer = "YES - Update MLAD" or select_answer = "NO - ADD A PROGRAM" THEN
 			EMwritescreen "AP", 4, 20
 		ELSE
 			EMwritescreen "PN", 4, 20
@@ -398,4 +397,4 @@ LOOP UNTIL END_info_confirmation = vbYes
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 'CALL create_outlook_email("pahoua.vang@hennepin.us;", "", maxis_name & maxis_case_number & " MIPPA case need Application sent EOM.", "", "", TRUE)
 'msgbox "where am i ending?"
-script_end_procedure("MIPPA CASE NOTE HAS BEEN UPDATED. PLEASE ENSURE THE CASE IS CLEARED on REPT/MLAR.")
+script_end_procedure("MIPPA CASE NOTE HAS BEEN UPDATED. PLEASE ENSURE THE CASE IS CLEARED on REPT/MLAR & THE FORMS HAVE BEEN MAILED. ")
