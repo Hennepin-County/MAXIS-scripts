@@ -263,7 +263,7 @@ BeginDialog MIPPA_active_dialog, 0, 0, 376, 180, "MIPAA"
   EditBox 55, 5, 35, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     PushButton 110, 5, 50, 15, "Geocoder", Geo_coder_button
-  CheckBox 5, 45, 160, 10, "Check if case does not need to be transferred", transfer_case_checkbox
+  CheckBox 170, 30, 160, 10, "Check if case does not need to be transferred", transfer_case_checkbox
   EditBox 55, 25, 20, 15, spec_xfer_worker
   DropListBox 250, 5, 120, 15, "Select One:"+chr(9)+"YES - Update MLAD"+chr(9)+"NO - APPL (Known to MAXIS)"+chr(9)+"NO - APPL (Not known to MAXIS)"+chr(9)+"NO - ADD A PROGRAM", select_answer
   ButtonGroup ButtonPressed
@@ -273,20 +273,20 @@ BeginDialog MIPPA_active_dialog, 0, 0, 376, 180, "MIPAA"
   Text 5, 30, 40, 10, "Transfer to:"
   Text 5, 10, 50, 10, "Case Number:"
   Text 80, 30, 60, 10, " (last 3 digit of X#)"
-  Text 15, 75, 215, 10, "Case Name: " & MLAD_maxis_name
-  Text 255, 75, 110, 10, "APPL date: " & appl_date
-  Text 15, 100, 80, 10, "DOB: " & client_dob
-  Text 170, 140, 100, 10, "Phone: " & MLAR_addr_phone
-  Text 15, 130, 110, 10, "Received Date: " & rcvd_date
-  Text 15, 120, 120, 10, "MEDI Number: " &  medi_number
-  Text 15, 90, 120, 10, "SSN: " & MLAD_SSN_number
-  Text 15, 140, 110, 10, "Gender Marker: " & gender_ask
-  Text 170, 90, 195, 10, "Addr: "  & MLAR_addr_streetII & MLAR_addr_street
-  Text 170, 110, 90, 10, "State: " & MLAR_addr_state
-  Text 170, 100, 195, 10, "City: " &  MLAR_addr_city
+  Text 15, 60, 215, 10, "Case Name:"   & MLAD_maxis_name
+  Text 15, 70, 110, 10, "APPL date: "  & appl_date
+  Text 15, 100, 80, 10, "DOB: "   & client_dob
+  Text 170, 140, 100, 10, "Phone: "   & MLAR_addr_phone
+  Text 15, 115, 110, 10, "Received Date: "  & rcvd_date
+  Text 15, 135, 120, 10, "MEDI Number: "  &  medi_number
+  Text 15, 90, 120, 10, "SSN: "  & MLAD_SSN_number
+  Text 15, 125, 110, 10, "Gender Marker: "   & gender_ask
+  Text 170, 90, 195, 10, "Addr: "   & MLAR_addr_streetII & MLAR_addr_street
+  Text 170, 110, 90, 10, "State: "  & MLAR_addr_state
+  Text 170, 100, 195, 10, "City: "  &  MLAR_addr_city
   Text 170, 120, 110, 10, "Zip: " & MLAR_addr_zip
   Text 170, 130, 110, 10, "County: " & addr_county
-  GroupBox 5, 60, 365, 110, "MLAR Information"
+  GroupBox 5, 45, 365, 110, "MLAR Information"
 EndDialog
 
 '--------------------------------------------------------------------------------------------------script
