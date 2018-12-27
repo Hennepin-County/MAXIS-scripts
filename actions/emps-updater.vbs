@@ -160,11 +160,11 @@ Else
 	ES_Referral_Dt = replace(ES_Referral_Dt, " ", "/")
 End If
 
-EMReadScreen ES_Status, 2, 15, 40					'Determining the ES status
-ES_Status = abs(ES_Status)
-If ES_Status = 20 Then
+EMReadScreen ES_Status, 2, 15, 40					'Determining the ES status what happens if it is to be assigned??
+'ES_Status = abs(ES_Status)
+If ES_Status = "20" Then
 	UniversalParticipant = TRUE
-ElseIf ES_Status < 20 Then
+ElseIf ES_Status < "20" Then
 	ExtensionCase = TRUE
 Else
 	FSSCase = TRUE
