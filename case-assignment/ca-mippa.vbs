@@ -273,7 +273,7 @@ BeginDialog MIPPA_active_dialog, 0, 0, 376, 180, "MIPAA"
   Text 5, 30, 40, 10, "Transfer to:"
   Text 5, 10, 50, 10, "Case Number:"
   Text 80, 30, 60, 10, " (last 3 digit of X#)"
-  Text 15, 60, 215, 10, "Case Name:"   & MLAD_maxis_name
+  Text 15, 60, 215, 10, "Case Name: "   & MLAD_maxis_name
   Text 15, 70, 110, 10, "APPL date: "  & appl_date
   Text 15, 100, 80, 10, "DOB: "   & client_dob
   Text 170, 140, 100, 10, "Phone: "   & MLAR_addr_phone
