@@ -355,7 +355,8 @@ msgbox MAXIS_footer_month
 	PF3' this takes us back to stat/wrap
 		IF MAXIS_footer_month <> CM_plus_1_mo THEN
 		EMWriteScreen "Y"
-		
+		``
+
 	'TRANSMIT 'takes us back to self '
 	Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 	'IF MAXIS_footer_month =
