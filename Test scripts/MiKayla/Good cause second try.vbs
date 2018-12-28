@@ -353,9 +353,12 @@ msgbox MAXIS_footer_month
 
 	Transmit'to move past non-inhibiting warning messages on ABPS
 	PF3' this takes us back to stat/wrap
-		IF MAXIS_footer_month <> CM_plus_1_mo THEN
-		EMWriteScreen "Y"
-		``
+	IF MAXIS_footer_month <> CM_plus_1_mo THEN
+	    EMWriteScreen "Y"
+	    EMWriteScreen check_PNLP, 4, 2,53
+	    IF check_PNLP = "PNLP" THEN EMWriteScreen "ABPS", 20, 71
+	    TRANSMIT
+		
 
 	'TRANSMIT 'takes us back to self '
 	Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
