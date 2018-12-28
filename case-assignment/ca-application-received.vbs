@@ -298,30 +298,30 @@ If right(additional_programs_applied_for, 1) = "," THEN additional_programs_appl
 '----------------------------------------------------------------------------------------------------dialogs
 BeginDialog appl_detail_dialog, 0, 0, 296, 170, "Application Received for: " & programs_applied_for
   DropListBox 90, 10, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
+  Text 175, 15, 110, 10, "Application Date: "  & application_date
   DropListBox 90, 30, 65, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
   EditBox 230, 30, 55, 15, confirmation_number
-  EditBox 55, 90, 20, 15, transfer_case_number
-  CheckBox 75, 110, 155, 10, "Check if the case does not require a transfer ", no_transfer_check
+  CheckBox 10, 55, 115, 10, "Check if this is a case correction", case_correction
+  EditBox 230, 50, 55, 15, requested_person
+  CheckBox 10, 65, 150, 10, "Check if this is a MNSURE Retro Request", mnsure_retro_checkbox
+  EditBox 50, 90, 20, 15, transfer_case_number
+  CheckBox 10, 110, 155, 10, "Check if the case does not require a transfer ", no_transfer_check
   EditBox 55, 130, 235, 15, other_notes
   EditBox 75, 150, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 185, 150, 50, 15
-    CancelButton 240, 150, 50, 15
+    OkButton 195, 150, 45, 15
+    CancelButton 245, 150, 45, 15
     PushButton 230, 90, 55, 15, "GeoCoder", geocoder_button
-  Text 160, 15, 125, 10, "Date of Application: "  & application_date
-  Text 20, 35, 65, 10, "Type of Application:"
-  Text 175, 35, 50, 10, "Confirmation #:"
-  Text 15, 95, 40, 10, "Transfer to:"
-  Text 85, 95, 135, 10, "(last 3 digit of X#) transfer case to basket"
+  Text 10, 95, 40, 10, "Transfer to:"
+  Text 75, 95, 60, 10, "(last 3 digit of X#)"
   Text 10, 135, 45, 10, "Other Notes:"
   Text 10, 155, 60, 10, "Worker Signature:"
   GroupBox 5, 80, 285, 45, "Transfer Information"
   Text 15, 15, 70, 10, "Application Received:"
   GroupBox 5, 0, 285, 80, "Application Information"
-  CheckBox 10, 50, 115, 10, "Check if this is a case correction", case_correction
-  EditBox 230, 50, 55, 15, requested_person
+  Text 175, 35, 50, 10, "Confirmation #:"
   Text 160, 55, 65, 10, "Requesting person:"
-  CheckBox 10, 65, 150, 10, "Check if this is a MNSURE Retro Request", mnsure_retro_checkbox
+  Text 20, 35, 65, 10, "Type of Application:"
 EndDialog
 
 '------------------------------------------------------------------------------------DIALOG APPL
@@ -333,7 +333,7 @@ EndDialog
     		cancel_confirmation
 			If ButtonPressed = geocoder_button then CreateObject("WScript.Shell").Run("https://hcgis.hennepin.us/agsinteractivegeocoder/default.aspx")
 		Loop until ButtonPressed = -1
-    		IF how_app_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
+    	IF how_app_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
 		IF how_app_rcvd = "Online" and app_type <> "ApplyMN" then err_msg = err_msg & vbNewLine & "* You selected that the application was received online please select ApplyMN from the drop down."
 		IF app_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
 		IF no_transfer_check = UNCHECKED AND transfer_case_number = "" then err_msg = err_msg & vbNewLine & "* You must enter the basket number the case to be transfered by the script or check that no transfer is needed."
@@ -348,7 +348,7 @@ HC_applied_for = FALSE
 IF app_type = "6696" or app_type = "HCAPP" or app_type = "HC-Certain Pop" or app_type = "LTC" or app_type = "MHCP B/C Cancer"  THEN HC_applied_for = TRUE
 
 IF how_app_rcvd = "Office" and HC_applied_for = FALSE THEN
-	same_day_confirmation = MsgBox("This client applied in the office. Will or has the client completed a sameday interview?" & vbNewLine & vbNewLine & "Press YES to confirm a same-day interview was completed." & vbNewLine & "If client declined an interview or one was not offered, press NO." & vbNewLine & vbNewLine & _
+	same_day_confirmation = MsgBox("Press YES to confirm a same-day interview was completed?." & vbNewLine & "If no interview was offered, press NO." & vbNewLine & vbNewLine & _
 	"Application was received in " & how_app_rcvd, vbYesNoCancel, "Application received - same-day interview completed?")
 	IF same_day_confirmation = vbNo THEN interview_completed = FALSE
 	IF same_day_confirmation = vbYes THEN interview_completed = TRUE
@@ -356,7 +356,6 @@ IF how_app_rcvd = "Office" and HC_applied_for = FALSE THEN
 END IF
 
 If interview_completed = TRUE Then
-
     Call back_to_SELF
     Call Navigate_to_MAXIS_screen("STAT", "PROG")
     PF9
@@ -389,9 +388,7 @@ If interview_completed = TRUE Then
             EmWriteScreen intv_yr, 10, 61
         End If
     End If
-
-    transmit
-
+    TRANSMIT
     Call back_to_SELF
 End If
 
@@ -405,11 +402,11 @@ ELSE
 	CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
 END IF
 IF confirmation_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
-IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("* Form Rcvd: MNsure Application for Health Coverage and Help Paying Costs (DHS-6696) ")
-IF app_type = "HCAPP" THEN write_variable_in_CASE_NOTE ("* Form Rcvd: Health Care Application (HCAPP) (DHS-3417) ")
-IF app_type = "HC-Certain Pop" THEN write_variable_in_CASE_NOTE ("* Form Rcvd: MHC Programs Application for Certain Populations (DHS-3876) ")
-IF app_type = "LTC" THEN write_variable_in_CASE_NOTE ("* Form Rcvd: Application for Medical Assistance for Long Term Care Services (DHS-3531) ")
-IF app_type = "MHCP B/C Cancer" THEN write_variable_in_CASE_NOTE ("* Form Rcvd: Minnesota Health Care Programs Application and Renewal Form Medical Assistance for Women with Breast or Cervical Cancer (DHS-3525) ")
+IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("* Form Received: MNsure Application for Health Coverage and Help Paying Costs (DHS-6696) ")
+IF app_type = "HCAPP" THEN write_variable_in_CASE_NOTE ("* Form Received: Health Care Application (HCAPP) (DHS-3417) ")
+IF app_type = "HC-Certain Pop" THEN write_variable_in_CASE_NOTE ("* Form Received: MHC Programs Application for Certain Populations (DHS-3876) ")
+IF app_type = "LTC" THEN write_variable_in_CASE_NOTE ("* Form Received: Application for Medical Assistance for Long Term Care Services (DHS-3531) ")
+IF app_type = "MHCP B/C Cancer" THEN write_variable_in_CASE_NOTE ("* Form Received: Minnesota Health Care Programs Application and Renewal Form Medical Assistance for Women with Breast or Cervical Cancer (DHS-3525) ")
 CALL write_bullet_and_variable_in_CASE_NOTE ("Application Requesting", programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", additional_programs_applied_for)
@@ -427,53 +424,52 @@ PF3 ' to save Case note
 
 '----------------------------------------------------------------------------------------------------EXPEDITED SCREENING!
 IF snap_pends = TRUE THEN
-    	BeginDialog exp_screening_dialog, 0, 0, 181, 165, "Expedited Screening"
-      	EditBox 100, 5, 50, 15, MAXIS_case_number
-      	EditBox 100, 25, 50, 15, income
-      	EditBox 100, 45, 50, 15, assets
-      	EditBox 100, 65, 50, 15, rent
-      	CheckBox 15, 95, 55, 10, "Heat (or AC)", heat_AC_check
-      	CheckBox 75, 95, 45, 10, "Electricity", electric_check
-      	CheckBox 130, 95, 35, 10, "Phone", phone_check
-      	ButtonGroup ButtonPressed
-        	OkButton 70, 115, 50, 15
-        	CancelButton 125, 115, 50, 15
-      	Text 10, 140, 160, 15, "The income, assets and shelter costs fields will default to $0 if left blank. "
-      	Text 5, 30, 95, 10, "Income received this month:"
-      	Text 5, 50, 95, 10, "Cash, checking, or savings: "
-      	Text 5, 70, 90, 10, "AMT paid for rent/mortgage:"
-      	GroupBox 5, 85, 170, 25, "Utilities claimed (check below):"
-      	Text 50, 10, 50, 10, "Case number: "
-      	GroupBox 0, 130, 175, 30, "**IMPORTANT**"
-    	EndDialog
+    BeginDialog exp_screening_dialog, 0, 0, 181, 165, "Expedited Screening"
+     	EditBox 100, 5, 50, 15, MAXIS_case_number
+     	EditBox 100, 25, 50, 15, income
+     	EditBox 100, 45, 50, 15, assets
+     	EditBox 100, 65, 50, 15, rent
+     	CheckBox 15, 95, 55, 10, "Heat (or AC)", heat_AC_check
+     	CheckBox 75, 95, 45, 10, "Electricity", electric_check
+     	CheckBox 130, 95, 35, 10, "Phone", phone_check
+     	ButtonGroup ButtonPressed
+    	OkButton 70, 115, 50, 15
+    	CancelButton 125, 115, 50, 15
+     	Text 10, 140, 160, 15, "The income, assets and shelter costs fields will default to $0 if left blank. "
+     	Text 5, 30, 95, 10, "Income received this month:"
+     	Text 5, 50, 95, 10, "Cash, checking, or savings: "
+     	Text 5, 70, 90, 10, "AMT paid for rent/mortgage:"
+     	GroupBox 5, 85, 170, 25, "Utilities claimed (check below):"
+     	Text 50, 10, 50, 10, "Case number: "
+     	GroupBox 0, 130, 175, 30, "**IMPORTANT**"
+    EndDialog
 
-        'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
-        If application_date >= cdate("10/01/2018") then			'these variables need to change every October
-            heat_AC_amt = 493
-            electric_amt = 126
-            phone_amt = 47
-        else
-            heat_AC_amt = 556
-            electric_amt = 172
-            phone_amt = 41
-        End if
+    'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
+    If application_date >= cdate("10/01/2018") then			'these variables need to change every October
+        heat_AC_amt = 493
+        electric_amt = 126
+        phone_amt = 47
+    else
+        heat_AC_amt = 556
+        electric_amt = 172
+        phone_amt = 41
+    End if
 
-    	'----------------------------------------------------------------------------------------------------THE SCRIPT
-    	CALL MAXIS_case_number_finder(MAXIS_case_number)
+    '----------------------------------------------------------------------------------------------------THE SCRIPT
+    CALL MAXIS_case_number_finder(MAXIS_case_number)
+    Do
     	Do
-        	Do
-    			err_msg = ""
-        		Dialog exp_screening_dialog
-        		cancel_confirmation
-        		If isnumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbnewline & "* You must enter a valid case number."
-    			If (income <> "" and isnumeric(income) = false) or (assets <> "" and isnumeric(assets) = false) or (rent <> "" and isnumeric(rent) = false) THEN err_msg = err_msg & vbnewline & "* The income/assets/rent fields must be numeric only. Do not put letters or symbols in these sections."
-    			If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-        	LOOP UNTIL err_msg = ""
-    		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    	Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-    	''----------------------------------------------------------------------------------------------------LOGIC AND CALCULATIONS
-    	'Logic for figuring out utils. The highest priority for the if...THEN is heat/AC, followed by electric and phone, followed by phone and electric separately.
+    		err_msg = ""
+    		Dialog exp_screening_dialog
+    		cancel_confirmation
+    		If isnumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbnewline & "* You must enter a valid case number."
+    		If (income <> "" and isnumeric(income) = false) or (assets <> "" and isnumeric(assets) = false) or (rent <> "" and isnumeric(rent) = false) THEN err_msg = err_msg & vbnewline & "* The income/assets/rent fields must be numeric only. Do not put letters or symbols in these sections."
+    		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	LOOP UNTIL err_msg = ""
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+    '----------------------------------------------------------------------------------------------------LOGIC AND CALCULATIONS
+    'Logic for figuring out utils. The highest priority for the if...THEN is heat/AC, followed by electric and phone, followed by phone and electric separately.
     IF heat_AC_check = CHECKED THEN
        	utilities = heat_AC_amt
     ELSEIF electric_check = CHECKED and phone_check = CHECKED THEN
@@ -509,21 +505,17 @@ IF snap_pends = TRUE THEN
     IF expedited_status = "Client Appears Expedited" THEN
   		CALL navigate_to_MAXIS_screen("MONY", "DISB")
   		EMReadScreen EBT_account_status, 1, 14, 27
-        same_day_offered = FALSE
-
+	    same_day_offered = FALSE
         If interview_completed = TRUE Then same_day_offered = TRUE
         If interview_completed = FALSE Then
             offer_same_date_interview = MsgBox("This client appears EXPEDITED. A same-day needs to be offered." & vbNewLine & vbNewLine & "Has the client been offered a Same Day Interview?", vbYesNo + vbQuestion, "SameDay Offered?")
-
             if offer_same_date_interview = vbYes Then same_day_offered = TRUE
         End If
   		'MsgBox "This Client Appears EXPEDITED. A same-day interview needs to be offered."
 		'same_day_interview = TRUE
 		Send_email = TRUE
     END IF
-
 	IF expedited_status = "Client does not appear expedited" THEN MsgBox "This client does NOT appear expedited. A same-day interview does not need to be offered."
-
     '-----------------------------------------------------------------------------------------------EXPCASENOTE
     start_a_blank_CASE_NOTE
     CALL write_variable_in_CASE_NOTE("~ Received Application for SNAP, " & expedited_status & " ~")
