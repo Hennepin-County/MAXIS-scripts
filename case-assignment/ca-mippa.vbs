@@ -59,12 +59,15 @@ changelog_display
 EMConnect ""
 'Navigates to MIPPA Lis Application-Medicare Improvement for Patients and Providers (MIPPA)
 CALL navigate_to_MAXIS_screen("REPT", "MLAR")
-'EMReadscreen error_check, 5, 24, 02
-'IF error_check <> "" THEN script_end_procedure("You are not on a MIPPA message. This script will stop.")
-row = 11 'this part should be a for next?' can we jsut do a cursor read for now?
-EMReadscreen msg_check, 1, row, 03
-IF msg_check <> "_" THEN script_end_procedure("You are not on a MIPPA message. This script will stop.")
+EMReadscreen current_panel_check, 4, 2, 51
+IF current_panel_check = "MLAR" THEN script_end_procedure ("You are not on a MIPPA message. This script will stop")
+EMReadscreen appl_status, 2, 5, 17
+IF appl_status <> "NO" THEN
+ EMWriteScreen "NO", 5, 17
+ TRANSMIT
+END IF
 
+row = 11 'this part should be a for next?' can we jsut do a cursor read for now?
 DO
 	EMReadScreen MLAR_maxis_name, 21, row, 5
 	MLAR_maxis_name = TRIM(MLAR_maxis_name)
@@ -109,7 +112,7 @@ EMReadScreen MLAR_addr_state, 2, 13, 56
 EMReadScreen MLAR_addr_zip, 5, 13, 65
 EMReadScreen addr_county, 22, 14, 56
 EMReadScreen MLAR_addr_phone, 12, 15, 56
-EMReadScreen appl_status, 2, 4, 20 'this is not used anywhere else in the script'
+'EMReadScreen appl_status, 2, 4, 20 'this is not used anywhere else in the script'
 '--------------------------------------------------------------------navigates to PERS and writing SSN'
 PF2
 EMwritescreen SSN_first, 14, 36
@@ -123,8 +126,7 @@ IF error_msg = "SSN DOES NOT EXIST" THEN script_end_procedure ("Unable to find p
 'This will take us to certain places based on PERS search'
 EMReadscreen current_panel_check, 4, 2, 51
 IF current_panel_check = "PERS" THEN script_end_procedure ("Please search by person name and run script again.")
-'IF current_panel_check <> "DSPL" THEN script_end_procedure("Unable to access DSPL screen. Please review your case, and process manually if necessary.")
-'If there are more than one match for a case the script will take you to MTCH'
+
 Row = 8
 IF current_panel_check = "MTCH" THEN
 	DO
