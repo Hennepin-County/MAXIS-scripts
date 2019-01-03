@@ -343,7 +343,7 @@ IF select_answer = "NO - ADD A PROGRAM" THEN
 END IF
 CALL write_variable_in_case_note ("* Pended on: " & date)
 CALL write_variable_in_case_note ("* REPT/MLAR APPL Date: " & appl_date)
-IF select_answer <> "NO - ADD A PROGRAM" THEN CALL write_variable_in_case_note("* Application mailed.")
+IF select_answer <> "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Application mailed.")
 IF transfer_case_checkbox = CHECKED THEN CALL write_variable_in_case_note ("* Case transferred to basket " & spec_xfer_worker & ".")
 CALL write_variable_in_case_note ("* MIPPA rcvd and acted on per: TE 02.07.459")
 CALL write_variable_in_case_note ("---")
