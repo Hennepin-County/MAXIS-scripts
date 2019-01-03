@@ -70,21 +70,31 @@ const revw_type     = 4
 const hc_sr_date    = 5
 const hc_er_date    = 6
 
-const cash_revw     = 7
-const SNAP_revw     = 8
+const new_hc_sr     = 7
+const new_hc_er     = 8
 
-const ca_sr_date    = 9
-const ca_er_date    = 10
-const fs_sr_date    = 11
-const fs_er_date    = 12
+const cash_revw     = 9
+const SNAP_revw     = 10
 
-const time_between  = 13
-const hc_type       = 14
-const cash_status   = 15
-const SNAP_status   = 16
-const waived_revw   = 17
-const actually_paperless = 18
-const case_notes    = 19
+const ca_sr_date    = 11
+const ca_er_date    = 12
+const fs_sr_date    = 13
+const fs_er_date    = 14
+
+const new_ca_er     = 15
+const new_fs_sr     = 16
+const new_fs_er     = 17
+
+const time_between  = 18
+const hc_type       = 19
+const cash_status   = 20
+const SNAP_status   = 21
+const waived_revw   = 22
+const actually_paperless = 23
+const membs_updated = 24
+const current_budg  = 25
+const tikl_done     = 26
+const case_notes    = 27
 
 'ARRAY
 Dim ALL_HC_REVS_ARRAY()
@@ -111,6 +121,10 @@ EMConnect ""
 
 'THIS IS THE MAPPING FOR A REWRITE OF PAPERLESS IR
 'THIS SCRIPT IS NOT LIVE AND IS NOT TESTED
+developer_mode = FALSE
+
+'Starting the query start time (for the query runtime at the end)
+query_start_time = timer
 
 EMReadScreen on_revw_panel, 4, 2, 52
 If on_revw_panel = "REVW" Then
@@ -132,6 +146,14 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+worker_number = trim(worker_number)
+
+If left(worker_number, 10) = "UUDDLRLRBA" Then
+    developer_mode = TRUE
+    worker_number = right(worker_number, len(worker_number)-10)
+    worker_number = trim(worker_number)
+    MsgBox "Congratulations! You are now in DEVELOPER MODE. Have Fun!"
+End If
 If whole_county_check = checked Then
     all_case_numbers_array = " "					'Creating blank variable for the future array
     get_county_code	'Determines worker county code
@@ -213,59 +235,297 @@ Call back_to_SELF
 For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
     MAXIS_case_number = ALL_HC_REVS_ARRAY (case_nrb, hc_reviews)
 
-    Call navigate_to_MAXIS_screen("CASE", "CURR")
-    EmReadscreen priv_check, 4, 24, 46
-    If priv_check <> "PRIV" Then
-        ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = TRUE
-        'figure out who is on HC
-        For each pers_nbr in HC_PERS_ARRAY
-            call navigate_to_MAXIS_screen ("STAT", "JOBS")
-            EMWriteScreen pers_nbr, 20, 76
-            transmit
+    If ALL_HC_REVS_ARRAY(waived_revw, hc_reviews) = TRUE Then
+        Call navigate_to_MAXIS_screen("CASE", "CURR")
+        EmReadscreen priv_check, 4, 24, 46
+        If priv_check <> "PRIV" Then
+            ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = TRUE
+            'figure out who is on HC
+
+            Call navigate_to_MAXIS_screen("CASE", "PERS")
+            pers_row = 10
+            last_page_check = ""
             Do
-                EMReadScreen panel_check, 8, 2, 72
-                current_panel = trim(left(panel_check, 2))
-                total_panels = trim(right(panel_check, 2))
-                EMReadScreen date_check, 8, 9, 49
-                If total_panels <> "0" & date_check = "__ __ __" then
-                    ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = False
-                    ALL_HC_REVS_ARRAY (case_notes, hc_reviews) = ALL_HC_REVS_ARRAY (case_notes, hc_reviews) & "; " & pers_nbr
-                if current_panel <> total_panels then transmit
-            Loop until current_panel = total_panels
+                EMReadScreen pers_memb_numb, 2, pers_row, 3
+                EMReadScreen pers_hc_status, 1, pers_row, 61
 
-            call navigate_to_MAXIS_screen ("STAT", "BUSI")
-            EMWriteScreen pers_nbr, 20, 76
+                If pers_memb_numb = "  " Then Exit Do
+                If pers_hc_status = "A" Then list_of_hc_membs = list_of_hc_membs & "~" & pers_memb_numb
+
+                pers_row = pers_row + 3
+                If pers_row = 19 Then
+                    pers_row = 10
+                    PF8
+                    EMReadScreen last_page_check, 9, 24, 14
+                End If
+            Loop until last_page_check = "LAST PAGE"
+            list_of_hc_membs = right(list_of_hc_membs, len(list_of_hc_membs) - 1)
+            HC_PERS_ARRAY = split(list_of_hc_membs, "~")
+
+            For each pers_nbr in HC_PERS_ARRAY
+                call navigate_to_MAXIS_screen ("STAT", "JOBS")
+                EMWriteScreen pers_nbr, 20, 76
+                transmit
+                Do
+                    EMReadScreen panel_check, 8, 2, 72
+                    current_panel = trim(left(panel_check, 2))
+                    total_panels = trim(right(panel_check, 2))
+                    EMReadScreen date_check, 8, 9, 49
+                    If total_panels <> "0" & date_check = "__ __ __" then
+                        ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = False
+                        ALL_HC_REVS_ARRAY (case_notes, hc_reviews) = ALL_HC_REVS_ARRAY (case_notes, hc_reviews) & "; MEMB " & pers_nbr & " has an open JOBS Panel."
+                    End If
+                    if current_panel <> total_panels then transmit
+                Loop until current_panel = total_panels
+
+                call navigate_to_MAXIS_screen ("STAT", "BUSI")
+                EMWriteScreen pers_nbr, 20, 76
+                transmit
+                Do
+                    current_panel = trim(left(panel_check, 2))
+                    EMReadScreen panel_check, 8, 2, 72
+                    total_panels = trim(right(panel_check, 2))
+                    EMReadScreen date_check, 8, 5, 71
+                    If total_panels <> "0" & date_check = "__ __ __" then
+                        ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = False
+                        ALL_HC_REVS_ARRAY (case_notes, hc_reviews) = ALL_HC_REVS_ARRAY (case_notes, hc_reviews) & "; MEMB " & pers_nbr & " has an open BUSI Panel."
+                    End If
+                    if current_panel <> total_panels then transmit
+                Loop until current_panel = total_panels
+
+                call navigate_to_MAXIS_screen ("STAT", "RBIC")
+                EMWriteScreen pers_nbr, 20, 76
+                transmit
+                Do
+                    EMReadScreen panel_check, 8, 2, 72
+                    current_panel = trim(left(panel_check, 2))
+                    total_panels = trim(right(panel_check, 2))
+                    EMReadScreen date_check, 8, 6, 68
+                    If total_panels <> "0" & date_check = "__ __ __" then
+                        ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = False
+                        ALL_HC_REVS_ARRAY (case_notes, hc_reviews) = ALL_HC_REVS_ARRAY (case_notes, hc_reviews) & "; MEMB " & pers_nbr & " has an open JOBS Panel."
+                    End If
+                    if current_panel <> total_panels then transmit
+                Loop until current_panel = total_panels
+            Next
+
+
+            Call navigate_to_MAXIS_screen ("STAT", "MEMB")
+            EMReadScreen last_name, 25, 6, 30
+            EMReadScreen first_name, 12, 6, 63
+            last_name = replace(last_name, "_", "")
+            first_name = replace(first_name, "_", "")
+
+            ALL_HC_REVS_ARRAY (clt_name, hc_reviews) = last_name & ", " & first_name
+
+            Call navigate_to_MAXIS_screen ("STAT", "PROG")
+
+            EMReadScreen Cash1_code, 4, 6, 74
+            EMReadScreen Cash2_code, 4, 7, 74
+            EMReadScreen SNAP_code, 4, 10, 74
+
+            If Cash1_code = "ACTV" Then ALL_HC_REVS_ARRAY (cash_status, hc_reviews)  = "Active"
+            If Cash2_code = "ACTV" Then ALL_HC_REVS_ARRAY (cash_status, hc_reviews)  = "Active"
+            If Cash1_code = "PEND" Then ALL_HC_REVS_ARRAY (cash_status, hc_reviews)  = "Pending"
+            If Cash2_code = "PEND" Then ALL_HC_REVS_ARRAY (cash_status, hc_reviews)  = "Pending"
+            If ALL_HC_REVS_ARRAY (cash_status, hc_reviews) = "" Then ALL_HC_REVS_ARRAY (cash_status, hc_reviews) = "Inactive"
+
+            If SNAP_code = "ACTV" Then ALL_HC_REVS_ARRAY (SNAP_status, hc_reviews)  = "Active"
+            If SNAP_code = "PEND" Then ALL_HC_REVS_ARRAY (SNAP_status, hc_reviews)  = "Pending"
+            If ALL_HC_REVS_ARRAY (SNAP_status, hc_reviews) = "" Then ALL_HC_REVS_ARRAY (SNAP_status, hc_reviews) = "Inactive"
+
+            Call navigate_to_MAXIS_screen("STAT", "REVW")
+
+            EMReadScreen revw_cycle_hc, 2, 9, 79
+            ALL_HC_REVS_ARRAY (revw_type, hc_reviews) = revw_cycle_hc
+
+            EMWriteScreen "X", 5, 71
             transmit
-            Do
-                current_panel = trim(left(panel_check, 2))
-                EMReadScreen panel_check, 8, 2, 72
-                total_panels = trim(right(panel_check, 2))
-                EMReadScreen date_check, 8, 5, 71
-                If total_panels <> "0" & date_check = "__ __ __" then ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = False
-                if current_panel <> total_panels then transmit
-            Loop until current_panel = total_panels
 
-            call navigate_to_MAXIS_screen ("STAT", "RBIC")
-            EMWriteScreen pers_nbr, 20, 76
-            transmit
-            Do
-                EMReadScreen panel_check, 8, 2, 72
-                current_panel = trim(left(panel_check, 2))
-                total_panels = trim(right(panel_check, 2))
-                EMReadScreen date_check, 8, 6, 68
-                If total_panels <> "0" & date_check = "__ __ __" then ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = False
-                if current_panel <> total_panels then transmit
-            Loop until current_panel = total_panels
+            EMReadScreen ALL_HC_REVS_ARRAY(hc_er_date, hc_reviews), 8, 9, 27
+            ALL_HC_REVS_ARRAY (hc_er_date, hc_reviews) = replace(ALL_HC_REVS_ARRAY (hc_er_date, hc_reviews), " ", "/")
 
-        Next
+            EMReadScreen inc_renw_date, 8, 8, 27
+            EMReadScreen ast_renw_date, 8, 8, 71
+            If inc_renw_date <> "__ 01 __" Then ALL_HC_REVS_ARRAY (hc_sr_date, hc_reviews) = replace(inc_renw_date, " ", "/")
+            If ast_renw_date <> "__ 01 __" Then ALL_HC_REVS_ARRAY (hc_sr_date, hc_reviews) = replace(ast_renw_date, " ", "/")
+            PF3
 
-        ALL_HC_REVS_ARRAY(memb_on_hc, hc_reviews) = Join(HC_PERS_ARRAY, ", ")
-        ReDim HC_PERS_ARRAY
-    Else
-        ALL_HC_REVS_ARRAY (revw_type, hc_reviews) = "PRIV"
+            If ALL_HC_REVS_ARRAY (cash_status, hc_reviews) = "Active" Then
+
+                EMReadScreen ALL_HC_REVS_ARRAY (ca_er_date, hc_reviews), 8, 9, 37
+
+                ALL_HC_REVS_ARRAY (ca_er_date, hc_reviews) = replace(ALL_HC_REVS_ARRAY (ca_er_date, hc_reviews), " ", "/")
+
+            End If
+
+            If ALL_HC_REVS_ARRAY (SNAP_status, hc_reviews) = "Active" Then
+                EMWriteScreen "X", 5, 58
+                transmit
+                EMReadScreen ALL_HC_REVS_ARRAY (fs_sr_date, hc_reviews), 8, 9, 26
+                EMReadScreen ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews), 8, 9, 64
+
+                ALL_HC_REVS_ARRAY (fs_sr_date, hc_reviews) = replace(ALL_HC_REVS_ARRAY (fs_sr_date, hc_reviews), " ", "/")
+                ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews) = replace(ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews), " ", "/")
+
+                If ALL_HC_REVS_ARRAY (fs_sr_date, hc_reviews) = "__/01/__" Then ALL_HC_REVS_ARRAY (fs_sr_date, hc_reviews) = ""
+                PF3
+            End If
+
+            hc_sr = ""
+            hc_er = ""
+            snap_sr = ""
+            snap_er = ""
+            cash_er = ""
+            If ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = TRUE Then
+                If developer_mode = FALSE Then PF9
+
+                If ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews) <> "" Then                                                    'If there is a SNAP ER
+                    If ALL_HC_REVS_ARRAY (hc_er_date, hc_reviews) <> ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews) THen        'If the SNAP ER doesn't match the HC ER
+                        If DateDiff("m", date, ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews)) < 12 then
+                            hc_er = ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews)
+                        Else
+                            Do
+                                hc_er = DateAdd("m", -12, ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews))
+                            Loop Until DateDiff("m", date, hc_er) < 12
+                        End If
+                        ALL_HC_REVS_ARRAY(new_hc_er, hc_reviews) = hc_er
+
+                        If ALL_HC_REVS_ARRAY (ca_er_date, hc_reviews) <> "" Then
+                            If hc_er <> ALL_HC_REVS_ARRAY (ca_er_date, hc_reviews) Then ALL_HC_REVS_ARRAY (new_ca_er, hc_reviews) = hc_er
+                        End If
+                    End If
+
+                    If ALL_HC_REVS_ARRAY (fs_sr_date, hc_reviews) <> "" AND DateDiff("m", date, ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews)) > 12 Then
+                        ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews) = "__ __ __"
+                    ElseIf ALL_HC_REVS_ARRAY (fs_sr_date, hc_reviews) <> "" Then
+                        snap_sr_correct = FALSE
+                        If DateDiff("m", ALL_HC_REVS_ARRAY (fs_sr_date, hc_reviews), ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews)) <> 6 Then snap_sr_correct = TRUE
+                        If DateDiff("m", ALL_HC_REVS_ARRAY (fs_sr_date, hc_reviews), ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews)) <> -6 Then snap_sr_correct = TRUE
+
+
+                        If snap_sr_correct = FALSE Then
+                            If DateDiff("m", date, ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews)) > 6 Then
+                                 ALL_HC_REVS_ARRAY (new_fs_sr, hc_reviews) = DateAdd("m", -6, ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews))
+                            Else
+                                 ALL_HC_REVS_ARRAY (new_fs_sr, hc_reviews) = DateAdd("m", 6, ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews))
+                            End If
+                        End If
+
+                    End If
+                ElseIf ALL_HC_REVS_ARRAY (ca_er_date, hc_reviews) <> "" Then
+                    If ALL_HC_REVS_ARRAY (hc_er_date, hc_reviews) <> ALL_HC_REVS_ARRAY (ca_er_date, hc_reviews) Then ALL_HC_REVS_ARRAY(new_hc_er, hc_reviews) = ALL_HC_REVS_ARRAY (ca_er_date, hc_reviews)
+                End If
+
+                If ALL_HC_REVS_ARRAY (fs_sr_date, hc_reviews) <> "" Then
+                    snap_sr = ALL_HC_REVS_ARRAY (fs_sr_date, hc_reviews)
+                    If ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews) <> "__ __ __" AND ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews) <> "" Then snap_sr = ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews)
+
+                    If snap_sr <> ALL_HC_REVS_ARRAY (hc_sr_date, hc_reviews) Then ALL_HC_REVS_ARRAY (new_hc_sr, hc_reviews) = snap_sr
+                Else
+                    hc_sr_correct = FALSE
+                    If DateDiff("m", ALL_HC_REVS_ARRAY (hc_sr_date, hc_reviews), ALL_HC_REVS_ARRAY (hc_er_date, hc_reviews)) <> 6 Then hc_sr_correct = TRUE
+                    If DateDiff("m", ALL_HC_REVS_ARRAY (hc_sr_date, hc_reviews), ALL_HC_REVS_ARRAY (hc_er_date, hc_reviews)) <> -6 Then hc_sr_correct = TRUE
+
+                    If hc_sr_correct = FALSE Then
+                        If DateDiff("m", date, ALL_HC_REVS_ARRAY (hc_er_date, hc_reviews)) > 6 Then
+                             ALL_HC_REVS_ARRAY (new_hc_sr, hc_reviews) = DateAdd("m", -6, ALL_HC_REVS_ARRAY (hc_er_date, hc_reviews))
+                        Else
+                             ALL_HC_REVS_ARRAY (new_hc_sr, hc_reviews) = DateAdd("m", 6, ALL_HC_REVS_ARRAY (hc_er_date, hc_reviews))
+                        End If
+                    End If
+                End If
+
+                'THIS IS THE OLD WAY
+                EMWriteScreen "x", 5, 71                'Open HC Renewals Pop-Up
+                transmit
+                EMReadScreen renewal_year, 2, 8, 33
+                If renewal_year = "__" then
+                    EMReadScreen renewal_year, 2, 8, 77
+                    renewal_year_col = 77
+                Else
+                    renewal_year_col = 33
+                End if
+                If developer_mode = FALSE Then
+                    EMWriteScreen CM_mo, 6, 27
+                    EMWriteScreen "01", 6, 30
+                    EMWriteScreen CM_yr, 6, 33
+
+                    new_renewal_year = cint(right(current_year, 2)) + 1
+                    If current_month = 12 then new_renewal_year = new_renewal_year + 1 'Because otherwise the renewal year will be the current footer month.
+                    EMWriteScreen new_renewal_year, 8, renewal_year_col
+                End If
+
+                revw_row = 13
+                Do
+                    EMReadScreen renewal_status, 1, revw_row, 6
+                    EMReadScreen ref_nbr, 2, revw_row, 43
+                    If ref_nbr = "  " Then Exit Do
+
+                    If renewal_status <> " " Then
+                        If developer_mode = FALSE Then EMWriteScreen "U", revw_row, 43
+                        ALL_HC_REVS_ARRAY(membs_updated, hc_reviews) = ALL_HC_REVS_ARRAY(membs_updated, hc_reviews) & ", " & ref_nbr
+                    End If
+
+                    revw_row = revw_row + 1
+                    if revw_row = 21 Then
+                        EMReadScreen first_ref_nbr, 2, 13, 6
+                        PF20
+                        EMReadScreen new_first, 2, 13, 6
+                        if first_ref_nbr <> new_first Then revw_row = 13
+                    End If
+
+                Loop Until revw_row = 21
+                transmit    'save and get out of pop up
+
+                'THE NEW WAY
+                'This should change all to an IR and use the new review dates as determined above.
+                'Will also adjust budget.
+                Call navigate_to_MAXIS_screen("STAT", "BUDG")
+
+                EMReadScreen start_of_budg, 5, 10, 35
+                EMReadScreen end_of_budg, 5, 10, 46
+
+                start_of_budg = replace(start_of_budg, " ", "/")
+                end_of_budg = replace(end_of_budg, " ", "/")
+
+                ALL_HC_REVS_ARRAY(current_budg, hc_reviews) = start_of_budg & " - " & end_of_budg
+
+
+            End IF
+
+
+
+            ALL_HC_REVS_ARRAY(memb_on_hc, hc_reviews) = Join(HC_PERS_ARRAY, ", ")
+            HC_PERS_ARRAY = ""
+        Else
+            ALL_HC_REVS_ARRAY (revw_type, hc_reviews) = "PRIV"
+        End If
     End If
 Next
 
+If developer_mode = FALSE Then
+    For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
+        MAXIS_case_number = ALL_HC_REVS_ARRAY (case_nrb, hc_reviews)
+
+        If ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = TRUE Then
+            navigate_to_MAXIS_screen "DAIL", "WRIT"
+            call create_MAXIS_friendly_date(date, 0, 5, 18)
+        	EMWritescreen "%^% Sent through background for Paperless IR Review %^%", 9, 3
+        	transmit
+        	EMReadScreen tikl_success, 4, 24, 2
+            ' MsgBox "Suc? - ''" & tikl_success & "'"
+        	If tikl_success <> "    " Then
+                ALL_HC_REVS_ARRAY(tikl_done, hc_reviews) = "Fail"
+                ' MsgBox "This case - " & MAXIS_case_number & " failed to have a TIKL set, track and case note manually"
+            Else
+                ALL_HC_REVS_ARRAY(tikl_done, hc_reviews) = "Success"
+            End If
+        	PF3
+        End If
+
+    Next
+End If
 'Create Multidimensional Array for all of the information about each case
 'Go to REVS for each worker and get all of the Exempt Cases along with other reviews due
 'Go to STAT and confirm actually paperless
@@ -279,4 +539,380 @@ Next
 'Dump array on to spreadsheet
 'Some stats would be good - basics
 '
+
+
+'Opening the Excel file
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = True
+Set objWorkbook = objExcel.Workbooks.Add()
+objExcel.DisplayAlerts = True
+
+'Name for the current sheet'
+ObjExcel.ActiveSheet.Name = "WAIVED IR Reviews"
+
+col_to_use = 1
+
+'Excel headers and formatting the columns
+objExcel.Cells(1, col_to_use).Value  = "BASKET"
+basket_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "CASE NUMBER"
+case_number_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "CLIENT NAME"
+client_name_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "MEMBS ON HC"
+membs_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "MAGI HC"
+magi_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "Current HC REVW"
+current_revw_col = col_to_use
+current_revw_letter_col = convert_digit_to_excel_column(current_revw_col)
+col_to_use = col_to_use + 1
+
+' objExcel.Cells(1, col_to_use).Value  = "Paperless IR"
+' paperless_col = col_to_use
+' paperless_letter_col = convert_digit_to_excel_column(paperless_col)
+' col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "HC SR"
+hc_sr_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "HC ER"
+hc_er_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "NEW HC SR"
+new_hc_sr_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "NEW HC ER"
+new_hc_er_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "Cash Status"
+cash_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "Cash ER"
+cash_er_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "NEW Cash ER"
+new_cash_er_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "SNAP Status"
+snap_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "SNAP SR"
+snap_sr_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "SNAP ER"
+snap_er_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "NEW SNAP SR"
+new_snap_sr_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "HH Updt on REVW"
+updates_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "Budget"
+budg_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "TIKL"
+tikl_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "NOTES"
+notes_col = col_to_use
+col_to_use = col_to_use + 1
+
+For i = 1 to col_to_use
+    ObjExcel.Cells(1, i).Font.Bold = TRUE
+Next
+
+excel_row = 2
+For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
+    If ALL_HC_REVS_ARRAY(actually_paperless, hc_reviews) = TRUE Then
+
+        ObjExcel.Cells(excel_row, basket_col).Value         = ALL_HC_REVS_ARRAY(basket_nbr, hc_reviews)
+        ObjExcel.Cells(excel_row, case_number_col).Value    = ALL_HC_REVS_ARRAY(case_nrb, hc_reviews)
+        ObjExcel.Cells(excel_row, client_name_col).Value    = ALL_HC_REVS_ARRAY(clt_name, hc_reviews)
+        ObjExcel.Cells(excel_row, membs_col).Value          = ALL_HC_REVS_ARRAY(memb_on_hc, hc_reviews)
+        ObjExcel.Cells(excel_row, magi_col).Value           = ALL_HC_REVS_ARRAY(hc_type, hc_reviews)
+        ObjExcel.Cells(excel_row, current_revw_col).Value   = ALL_HC_REVS_ARRAY(revw_type, hc_reviews)
+        ' ObjExcel.Cells(excel_row, paperless_col).Value      = ALL_HC_REVS_ARRAY(waived_revw, hc_reviews)
+        ObjExcel.Cells(excel_row, hc_sr_col).Value          = ALL_HC_REVS_ARRAY(hc_sr_date, hc_reviews)
+        ObjExcel.Cells(excel_row, hc_er_col).Value          = ALL_HC_REVS_ARRAY(hc_er_date, hc_reviews)
+        ObjExcel.Cells(excel_row, new_hc_sr_col).Value      = ALL_HC_REVS_ARRAY(new_hc_sr, hc_reviews)
+        ObjExcel.Cells(excel_row, new_hc_er_col).Value      = ALL_HC_REVS_ARRAY(new_hc_er, hc_reviews)
+
+        ObjExcel.Cells(excel_row, cash_col).Value           = ALL_HC_REVS_ARRAY(cash_status, hc_reviews)
+        ObjExcel.Cells(excel_row, cash_er_col).Value        = ALL_HC_REVS_ARRAY(ca_er_date, hc_reviews)
+        ObjExcel.Cells(excel_row, new_cash_er_col).Value    = ALL_HC_REVS_ARRAY(new_ca_er, hc_reviews)
+
+        ObjExcel.Cells(excel_row, snap_col).Value           = ALL_HC_REVS_ARRAY(SNAP_status, hc_reviews)
+        ObjExcel.Cells(excel_row, snap_sr_col).Value        = ALL_HC_REVS_ARRAY(fs_sr_date, hc_reviews)
+        ObjExcel.Cells(excel_row, snap_er_col).Value        = ALL_HC_REVS_ARRAY(fs_er_date, hc_reviews)
+        ObjExcel.Cells(excel_row, new_snap_sr_col).Value    = ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews)
+        ObjExcel.Cells(excel_row, new_snap_er_col).Value    = ALL_HC_REVS_ARRAY(new_fs_er, hc_reviews)
+
+        ObjExcel.Cells(excel_row, updates_col).Value        = ALL_HC_REVS_ARRAY(membs_updated, hc_reviews)
+        ObjExcel.Cells(excel_row, budg_col).Value           = ALL_HC_REVS_ARRAY(current_budg, hc_reviews)
+        ObjExcel.Cells(excel_row, tikl_col).Value           = ALL_HC_REVS_ARRAY(tikl_done, hc_reviews)
+        ObjExcel.Cells(excel_row, notes_col).Value          = ALL_HC_REVS_ARRAY(case_notes, hc_reviews)
+
+        ' 'Constants
+        ' const case_nrb      = 0
+        ' const basket_nbr    = 1
+        ' const clt_name      = 2
+        ' const memb_on_hc    = 3
+        ' const revw_type     = 4
+        ' const hc_sr_date    = 5
+        ' const hc_er_date    = 6
+        '
+        ' const new_hc_sr     = 7
+        ' const new_hc_er     = 8
+        '
+        ' const cash_revw     = 9
+        ' const SNAP_revw     = 10
+        '
+        ' const ca_sr_date    = 11
+        ' const ca_er_date    = 12
+        ' const fs_sr_date    = 13
+        ' const fs_er_date    = 14
+        '
+        ' const new_ca_er     = 15
+        ' const new_fs_sr     = 16
+        ' const new_fs_er     = 17
+        '
+        ' const time_between  = 18
+        ' const hc_type       = 19
+        ' const cash_status   = 20
+        ' const SNAP_status   = 21
+        ' const waived_revw   = 22
+        ' const actually_paperless = 23
+        ' const membs_updated = 24
+        ' const current_budg  = 25
+        ' const tikl_done     = 26
+        ' const case_notes    = 27
+        excel_row = excel_row + 1
+    End If
+Next
+
+col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
+letter_col_to_use = convert_digit_to_excel_column(col_to_use)
+
+'Query date/time/runtime info
+ObjExcel.Cells(1, col_to_use - 1).Value = "Query date and time:"	'Goes back one, as this is on the next row
+ObjExcel.Cells(1, col_to_use).Value = now
+ObjExcel.Cells(2, col_to_use - 1).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
+ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
+
+
+'Autofitting columns
+For col_to_autofit = 1 to col_to_use
+	ObjExcel.columns(col_to_autofit).AutoFit()
+Next
+
+'Going to another sheet, to enter worker-specific statistics
+ObjExcel.Worksheets.Add().Name = "Cases NOT Actually Waived"
+
+col_to_use = 1
+
+'Excel headers and formatting the columns
+objExcel.Cells(1, col_to_use).Value  = "BASKET"
+basket_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "CASE NUMBER"
+case_number_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "CLIENT NAME"
+client_name_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "MEMBS ON HC"
+membs_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "MAGI HC"
+magi_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "Current HC REVW"
+current_revw_col = col_to_use
+current_revw_letter_col = convert_digit_to_excel_column(current_revw_col)
+col_to_use = col_to_use + 1
+
+' objExcel.Cells(1, col_to_use).Value  = "Paperless IR"
+' paperless_col = col_to_use
+' paperless_letter_col = convert_digit_to_excel_column(paperless_col)
+' col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "HC SR"
+hc_sr_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "HC ER"
+hc_er_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "NEW HC SR"
+new_hc_sr_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "NEW HC ER"
+new_hc_er_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "Cash Status"
+cash_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "Cash ER"
+cash_er_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "NEW Cash ER"
+new_cash_er_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "SNAP Status"
+snap_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "SNAP SR"
+snap_sr_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "SNAP ER"
+snap_er_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "NEW SNAP SR"
+new_snap_sr_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "HH Updt on REVW"
+updates_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "Budget"
+budg_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "TIKL"
+tikl_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "NOTES"
+notes_col = col_to_use
+col_to_use = col_to_use + 1
+
+For i = 1 to col_to_use
+    ObjExcel.Cells(1, i).Font.Bold = TRUE
+Next
+
+excel_row = 2
+For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
+    If ALL_HC_REVS_ARRAY(actually_paperless, hc_reviews) = FALSE Then
+
+        ObjExcel.Cells(excel_row, basket_col).Value         = ALL_HC_REVS_ARRAY(basket_nbr, hc_reviews)
+        ObjExcel.Cells(excel_row, case_number_col).Value    = ALL_HC_REVS_ARRAY(case_nrb, hc_reviews)
+        ObjExcel.Cells(excel_row, client_name_col).Value    = ALL_HC_REVS_ARRAY(clt_name, hc_reviews)
+        ObjExcel.Cells(excel_row, membs_col).Value          = ALL_HC_REVS_ARRAY(memb_on_hc, hc_reviews)
+        ObjExcel.Cells(excel_row, magi_col).Value           = ALL_HC_REVS_ARRAY(hc_type, hc_reviews)
+        ObjExcel.Cells(excel_row, current_revw_col).Value   = ALL_HC_REVS_ARRAY(revw_type, hc_reviews)
+        ' ObjExcel.Cells(excel_row, paperless_col).Value      = ALL_HC_REVS_ARRAY(waived_revw, hc_reviews)
+        ObjExcel.Cells(excel_row, hc_sr_col).Value          = ALL_HC_REVS_ARRAY(hc_sr_date, hc_reviews)
+        ObjExcel.Cells(excel_row, hc_er_col).Value          = ALL_HC_REVS_ARRAY(hc_er_date, hc_reviews)
+        ObjExcel.Cells(excel_row, new_hc_sr_col).Value      = ALL_HC_REVS_ARRAY(new_hc_sr, hc_reviews)
+        ObjExcel.Cells(excel_row, new_hc_er_col).Value      = ALL_HC_REVS_ARRAY(new_hc_er, hc_reviews)
+
+        ObjExcel.Cells(excel_row, cash_col).Value           = ALL_HC_REVS_ARRAY(cash_status, hc_reviews)
+        ObjExcel.Cells(excel_row, cash_er_col).Value        = ALL_HC_REVS_ARRAY(ca_er_date, hc_reviews)
+        ObjExcel.Cells(excel_row, new_cash_er_col).Value    = ALL_HC_REVS_ARRAY(new_ca_er, hc_reviews)
+
+        ObjExcel.Cells(excel_row, snap_col).Value           = ALL_HC_REVS_ARRAY(SNAP_status, hc_reviews)
+        ObjExcel.Cells(excel_row, snap_sr_col).Value        = ALL_HC_REVS_ARRAY(fs_sr_date, hc_reviews)
+        ObjExcel.Cells(excel_row, snap_er_col).Value        = ALL_HC_REVS_ARRAY(fs_er_date, hc_reviews)
+        ObjExcel.Cells(excel_row, new_snap_sr_col).Value    = ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews)
+        ObjExcel.Cells(excel_row, new_snap_er_col).Value    = ALL_HC_REVS_ARRAY(new_fs_er, hc_reviews)
+
+        ObjExcel.Cells(excel_row, updates_col).Value        = ALL_HC_REVS_ARRAY(membs_updated, hc_reviews)
+        ObjExcel.Cells(excel_row, budg_col).Value           = ALL_HC_REVS_ARRAY(current_budg, hc_reviews)
+        ObjExcel.Cells(excel_row, tikl_col).Value           = ALL_HC_REVS_ARRAY(tikl_done, hc_reviews)
+        ObjExcel.Cells(excel_row, notes_col).Value          = ALL_HC_REVS_ARRAY(case_notes, hc_reviews)
+
+        ' 'Constants
+        ' const case_nrb      = 0
+        ' const basket_nbr    = 1
+        ' const clt_name      = 2
+        ' const memb_on_hc    = 3
+        ' const revw_type     = 4
+        ' const hc_sr_date    = 5
+        ' const hc_er_date    = 6
+        '
+        ' const new_hc_sr     = 7
+        ' const new_hc_er     = 8
+        '
+        ' const cash_revw     = 9
+        ' const SNAP_revw     = 10
+        '
+        ' const ca_sr_date    = 11
+        ' const ca_er_date    = 12
+        ' const fs_sr_date    = 13
+        ' const fs_er_date    = 14
+        '
+        ' const new_ca_er     = 15
+        ' const new_fs_sr     = 16
+        ' const new_fs_er     = 17
+        '
+        ' const time_between  = 18
+        ' const hc_type       = 19
+        ' const cash_status   = 20
+        ' const SNAP_status   = 21
+        ' const waived_revw   = 22
+        ' const actually_paperless = 23
+        ' const membs_updated = 24
+        ' const current_budg  = 25
+        ' const tikl_done     = 26
+        ' const case_notes    = 27
+        excel_row = excel_row + 1
+    End If
+Next
+
+col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
+letter_col_to_use = convert_digit_to_excel_column(col_to_use)
+
+'Query date/time/runtime info
+ObjExcel.Cells(1, col_to_use - 1).Value = "Query date and time:"	'Goes back one, as this is on the next row
+ObjExcel.Cells(1, col_to_use).Value = now
+ObjExcel.Cells(2, col_to_use - 1).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
+ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
+
+
+'Autofitting columns
+For col_to_autofit = 1 to col_to_use
+	ObjExcel.columns(col_to_autofit).AutoFit()
+Next
+
 script_end_procedure("Success! All starred (*) IRs have been sent into background, except those with current JOBS/BUSI/RBIC, those who have members other than 01 open, or those who also have SNAP up for review. You must go through and approve these results when they come through background.")

@@ -275,6 +275,7 @@ For each worker in worker_array
                 instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO-APPROVED") OR _ 
                 instr(dail_msg, "BENDEX INFORMATION HAS BEEN STORED") OR _  
                 instr(dail_msg, "SDX INFORMATION HAS BEEN STORED") OR _
+                instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE - REVIEW FOR MEDI UPDATES") OR _ 
                 instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then 
     		        add_to_excel = True	
                 'instr(dail_msg, "TPQY RESPONSE") OR _  ---removed temporarily
