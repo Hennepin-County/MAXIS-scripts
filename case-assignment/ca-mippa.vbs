@@ -345,8 +345,9 @@ CALL write_variable_in_case_note ("* REPT/MLAR APPL Date: " & appl_date)
 IF select_answer <> "YES - Update MLAD" THEN
 	CALL write_variable_in_case_note("* Application mailed.")
 	CALL write_variable_in_case_note ("* Pended on: " & date)
+	CALL write_variable_in_case_note ("* Case transferred to basket " & spec_xfer_worker & ".")
 END IF
-IF transfer_case_checkbox = UNCHECKED and spec_xfer_worker <> "" THEN CALL write_variable_in_case_note ("* Case transferred to basket " & spec_xfer_worker & ".")
+'IF transfer_case_checkbox = UNCHECKED and spec_xfer_worker <> "" THEN CALL write_variable_in_case_note ("* Case transferred to basket " & spec_xfer_worker & ".")
 CALL write_variable_in_case_note ("* MIPPA rcvd and acted on per: TE 02.07.459")
 CALL write_variable_in_case_note ("---")
 CALL write_variable_in_case_note (worker_signature)
