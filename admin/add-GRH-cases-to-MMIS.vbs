@@ -679,7 +679,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 	'msgbox MAXIS_case_number
 	If Update_MMIS_array(update_MMIS, item) = True then
 		'msgbox "True"
-		Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior autorization area
+		Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior authorization area
 		Call MMIS_panel_check("AKEY")				'ensuring we are on the right MMIS screen
 	
 	    EmWriteScreen client_PMI, 10, 36
@@ -819,7 +819,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 	'    
 	'    Call start_a_blank_CASE_NOTE
 	'    Call write_variable_in_CASE_NOTE("GRH Rate 2 SSR updateed in MMIS for NPI #" & npi_number)
-	'    Call write_bullet_and_variable_in_CASE_NOTE("MMIS autorization number", authorization_number)
+	'    Call write_bullet_and_variable_in_CASE_NOTE("MMIS authorization number", authorization_number)
 	'    Call write_variable_in_CASE_NOTE("* A new GRH span has been created length of certification 2/1/19-1/31/19. This does not change the case's recertification date in MAXIS.")
 	'    Call write_variable_in_CASE_NOTE("---")
 	'    Call write_variable_in_CASE_NOTE("Actions performed by BZ script, run by I. Ferris, QI team")
@@ -860,7 +860,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
 		
 		Call start_a_blank_CASE_NOTE
 		Call write_variable_in_CASE_NOTE("GRH Rate 2 SSR updateed in MMIS for NPI #" & npi_number)
-		Call write_bullet_and_variable_in_CASE_NOTE("MMIS autorization number", authorization_number)
+		Call write_bullet_and_variable_in_CASE_NOTE("MMIS authorization number", authorization_number)
 		Call write_variable_in_CASE_NOTE("* A new GRH span has been created length of certification 2/1/19-1/31/19. This does not change the case's recertification date in MAXIS.")
 		Call write_variable_in_CASE_NOTE("---")
 		Call write_variable_in_CASE_NOTE("Actions performed by BZ script, run by I. Ferris, QI team")

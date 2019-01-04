@@ -327,7 +327,7 @@ For item = 0 to UBound(Update_MMIS_array, 2)
     output_cash_review_date = Update_MMIS_array(revw_date,     item)
 
 	If Update_MMIS_array(rate_two, item) = True then
-        Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior autorization area
+        Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior authorization area
 		Call MMIS_panel_check("AKEY")				'ensuring we are on the right MMIS screen
 	    EmWriteScreen client_PMI, 10, 36
 	    EmReadscreen PMI_check, 8, 10, 36

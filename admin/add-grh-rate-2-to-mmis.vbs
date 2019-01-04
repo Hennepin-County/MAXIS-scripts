@@ -520,7 +520,7 @@ DO
             MAXIS_dialog_navigation
             If ButtonPressed = MAXIS_button then Call navigate_to_MAXIS_test(maxis_mode)  'Function to navigate back to MAXIS
             If ButtonPressed = MMIS_button then
-                Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior autorization area
+                Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior authorization area
                 Call MMIS_panel_check("AKEY")				'ensuring we are on the right MMIS screen
                 Call write_value_and_transmit(client_PMI, 10, 36)
             End if
@@ -575,7 +575,7 @@ end_yr =  right(       DatePart("yyyy", end_date), 2)
 output_end_date = end_mo & end_day & end_yr
 
 '----------------------------------------------------------------------------------------------------MMIS portion of the script
-Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior autorization area
+Call navigate_to_MMIS_region("GRH UPDATE")	'function to navigate into MMIS, select the GRH update realm, and enter the prior authorization area
 Call MMIS_panel_check("AKEY")				'ensuring we are on the right MMIS screen
 
 EmWriteScreen client_PMI, 10, 36
@@ -736,7 +736,7 @@ If Update_MMIS = True then
     PF9
     Call write_variable_in_CASE_NOTE("GRH Rate 2 SSR added to MMIS for " & SSRT_vendor_name)
     Call write_bullet_and_variable_in_CASE_NOTE("NPI #", npi_number)
-    Call write_bullet_and_variable_in_CASE_NOTE("MMIS autorization number", authorization_number)
+    Call write_bullet_and_variable_in_CASE_NOTE("MMIS authorization number", authorization_number)
     Call write_variable_in_CASE_NOTE("* SSR start date: " & start_date & start_date_source)   'Hard coded for now
     Call write_variable_in_CASE_NOTE("* SSR end date: " & end_date & end_date_source)
     Call write_bullet_and_variable_in_CASE_NOTE("Explaination of custom date", custom_dates_explained)
