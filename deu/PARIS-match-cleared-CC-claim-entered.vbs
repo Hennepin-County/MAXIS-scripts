@@ -585,4 +585,4 @@ ELSEIF dail_check <> "DAIL" THEN
 	'PF3 'back to dail'
 END IF
 
-script_end_procedure("Success PARIS match updated and CCOL case note entered.")
+script_end_procedure("Success PARIS match updated and please copy case note to CCOL.")
