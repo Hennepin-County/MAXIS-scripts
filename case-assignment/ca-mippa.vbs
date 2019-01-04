@@ -334,7 +334,7 @@ END IF
 '----------------------------------------------------------------------------------case note
 start_a_blank_case_note
 CALL write_variable_in_case_note("~ MIPAA received via REPT/MLAR on " & rcvd_date & " ~")
-IF select_answer = "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate.")
+IF select_answer = "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate. Case is currently active on HC.")
 IF select_answer = "NO - APPL (Known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS.")
 IF select_answer = "NO - APPL (Not known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is not known to MAXIS.")
 IF select_answer = "NO - ADD A PROGRAM" THEN
@@ -345,9 +345,9 @@ CALL write_variable_in_case_note ("* REPT/MLAR APPL Date: " & appl_date)
 IF select_answer <> "YES - Update MLAD" THEN
 	CALL write_variable_in_case_note("* Application mailed.")
 	CALL write_variable_in_case_note ("* Pended on: " & date)
-	CALL write_variable_in_case_note ("* Case transferred to basket " & spec_xfer_worker & ".")
+	'CALL write_variable_in_case_note ("* Case transferred to basket " & spec_xfer_worker & ".")
 END IF
-'IF transfer_case_checkbox = UNCHECKED and spec_xfer_worker <> "" THEN CALL write_variable_in_case_note ("* Case transferred to basket " & spec_xfer_worker & ".")
+IF transfer_case_checkbox = UNCHECKED and spec_xfer_worker <> "" THEN CALL write_variable_in_case_note ("* Case transferred to basket " & spec_xfer_worker & ".")
 CALL write_variable_in_case_note ("* MIPPA rcvd and acted on per: TE 02.07.459")
 CALL write_variable_in_case_note ("---")
 CALL write_variable_in_case_note (worker_signature)
