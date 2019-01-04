@@ -310,7 +310,7 @@ LOOP UNTIL are_we_passworded_out = FALSE
 
 '-------------------------------------------------------------------------------------Transfers the case to the assigned worker if this was selected in the second dialog box
 'Determining if a case will be transferred or not. All cases will be transferred except addendum app types. THIS IS NOT CORRECT AND NEEDS TO BE DISCUSSED WITH QI
-IF transfer_case_checkbox = CHECKED THEN
+IF spec_xfer_worker <> "" THEN
     CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
     EMWriteScreen "x", 7, 16
     TRANSMIT
@@ -334,20 +334,24 @@ END IF
 '----------------------------------------------------------------------------------case note
 start_a_blank_case_note
 CALL write_variable_in_case_note("~ MIPAA received via REPT/MLAR on " & rcvd_date & " ~")
-IF select_answer = "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate.")
+IF select_answer = "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate. Case is currently active on HC.")
 IF select_answer = "NO - APPL (Known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS.")
 IF select_answer = "NO - APPL (Not known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is not known to MAXIS.")
 IF select_answer = "NO - ADD A PROGRAM" THEN
 	CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS and may be active on other programs.")
 	CALL write_variable_in_case_note ("* HC Ended on: " & end_date)
 END IF
-CALL write_variable_in_case_note ("* Pended on: " & date)
 CALL write_variable_in_case_note ("* REPT/MLAR APPL Date: " & appl_date)
-IF select_answer <> "NO - ADD A PROGRAM" THEN CALL write_variable_in_case_note("* Application mailed.")
-IF transfer_case_checkbox = CHECKED THEN CALL write_variable_in_case_note ("* Case transferred to basket " & spec_xfer_worker & ".")
+IF select_answer <> "YES - Update MLAD" THEN
+	CALL write_variable_in_case_note ("* Pended on: " & date)
+	CALL write_variable_in_case_note("* Application mailed.")
+	'CALL write_variable_in_case_note ("* Case transferred to basket " & spec_xfer_worker & ".")
+END IF
+IF spec_xfer_worker <> "" THEN CALL write_variable_in_case_note ("* Case transferred to basket " & spec_xfer_worker & ".")
 CALL write_variable_in_case_note ("* MIPPA rcvd and acted on per: TE 02.07.459")
 CALL write_variable_in_case_note ("---")
 CALL write_variable_in_case_note (worker_signature)
+
 'writing the TIKL'
 CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 CALL create_MAXIS_friendly_date(date, 0, 5, 18)

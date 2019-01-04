@@ -534,55 +534,55 @@ ELSEIF dail_check <> "DAIL" THEN
 		CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "mikayla.handley@hennepin.us","Claims entered for #" &  MAXIS_case_number & " Member # " & MEMB_number & " Date Overpayment Created: " & discovery_date & " Programs: " & programs, "CASE NOTE" & vbcr & message_array,"", False)
 	END IF
 	'---------------------------------------------------------------writing the CCOL case note'
-	msgbox "Navigating to CCOL to add case note, please contact MiKayla with any concerns."
-	Call navigate_to_MAXIS_screen("CCOL", "CLSM")
-	EMWriteScreen Claim_number, 4, 9
-	Transmit
-	PF4
-	EMReadScreen existing_case_note, 1, 5, 6
-	IF existing_case_note = "" THEN
-		PF4
-	ELSE
-		PF9
-	END IF
-		CALL write_variable_in_CCOL_NOTE ("-----" & IEVS_period & " PARIS MATCH " & "(" & first_name &  ") OVERPAYMENT CLAIM ENTERED-----")
-		CALL write_bullet_and_variable_in_CCOL_note("Client Name", Client_Name)
-		CALL write_bullet_and_variable_in_CCOL_note("MN Active Programs", MN_active_programs)
-		CALL write_bullet_and_variable_in_CCOL_note("Discovery date", discovery_date)
-		CALL write_bullet_and_variable_in_CCOL_note("Period", IEVS_period)
-		write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
-		'formatting for multiple states
-		FOR paris_match = 0 to Ubound(state_array, 2)
-			write_variable_in_CCOL_NOTE("----- Match State: " & state_array(state_name, paris_match) & " -----")
-			CALL write_bullet_and_variable_in_CCOL_note("Match State Active Programs", state_array(progs, paris_match))
-			CALL write_bullet_and_variable_in_CCOL_note("Match State Contact Info", state_array(contact_info, paris_match))
-			CALL write_bullet_and_variable_in_CCOL_note("Match State Active Programs", state_array(progs, paris_match))
-		NEXT
-		write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
-		write_variable_in_CCOL_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-		IF OP_program_II <> "Select:" then write_variable_in_CCOL_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-		IF OP_program_III <> "Select:" then write_variable_in_CCOL_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-		IF EI_checkbox = CHECKED THEN write_variable_in_CCOL_NOTE("* Earned Income Disregard Allowed")
-		write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
-		CALL write_bullet_and_variable_in_CCOL_note("Client accessing benefits in other state", bene_other_state)
-		CALL write_bullet_and_variable_in_CCOL_note("Contacted other state", contact_other_state)
-		IF programs = "Health Care" or programs = "Medical Assistance" THEN
-			CALL write_bullet_and_variable_in_CCOL_note("HC responsible members", HC_resp_memb)
-			CALL write_bullet_and_variable_in_CCOL_note("HC claim number", hc_claim_number)
-			CALL write_bullet_and_variable_in_CCOL_note("Total federal Health Care amount", Fed_HC_AMT)
-			write_variable_in_CCOL_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-		END IF
-		If out_state_checkbox = CHECKED THEN Call write_variable_in_CCOL_note("Out of state verification received.")
-		CALL write_bullet_and_variable_in_CCOL_note("Other responsible member(s)", OT_resp_memb)
-		CALL write_bullet_and_variable_in_CCOL_note("Fraud referral made", fraud_referral)
-		CALL write_bullet_and_variable_in_CCOL_note("Collectible claim", collectible_dropdown)
-		CALL write_bullet_and_variable_in_CCOL_note("Reason that claim is collectible or not", collectible_reason)
-		CALL write_bullet_and_variable_in_CCOL_note("Reason for overpayment", Reason_OP)
-		IF other_notes <> "" THEN CALL write_bullet_and_variable_in_CCOL_note("Other notes", other_notes)
-		write_variable_in_CCOL_NOTE("----- ----- ----- ----- ----- ----- -----")
-		write_variable_in_CCOL_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-	PF3 'exit the case note'
-	PF3 'back to dail'
+	'msgbox "Navigating to CCOL to add case note, please contact MiKayla with any concerns."
+	'Call navigate_to_MAXIS_screen("CCOL", "CLSM")
+	'EMWriteScreen Claim_number, 4, 9
+	'Transmit
+	'PF4
+	'EMReadScreen existing_case_note, 1, 5, 6
+	'IF existing_case_note = "" THEN
+	'	PF4
+	'ELSE
+	'	PF9
+	'END IF
+	'	CALL write_variable_in_CCOL_NOTE ("-----" & IEVS_period & " PARIS MATCH " & "(" & first_name &  ") OVERPAYMENT CLAIM ENTERED-----")
+	'	CALL write_bullet_and_variable_in_CCOL_note("Client Name", Client_Name)
+	'	CALL write_bullet_and_variable_in_CCOL_note("MN Active Programs", MN_active_programs)
+	'	CALL write_bullet_and_variable_in_CCOL_note("Discovery date", discovery_date)
+	'	CALL write_bullet_and_variable_in_CCOL_note("Period", IEVS_period)
+	'	write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
+	'	'formatting for multiple states
+	'	FOR paris_match = 0 to Ubound(state_array, 2)
+	'		write_variable_in_CCOL_NOTE("----- Match State: " & state_array(state_name, paris_match) & " -----")
+	'		CALL write_bullet_and_variable_in_CCOL_note("Match State Active Programs", state_array(progs, paris_match))
+	'		CALL write_bullet_and_variable_in_CCOL_note("Match State Contact Info", state_array(contact_info, paris_match))
+	'		CALL write_bullet_and_variable_in_CCOL_note("Match State Active Programs", state_array(progs, paris_match))
+	'	NEXT
+	'	write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
+	'	write_variable_in_CCOL_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+	'	IF OP_program_II <> "Select:" then write_variable_in_CCOL_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+	'	IF OP_program_III <> "Select:" then write_variable_in_CCOL_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+	'	IF EI_checkbox = CHECKED THEN write_variable_in_CCOL_NOTE("* Earned Income Disregard Allowed")
+	'	write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
+	'	CALL write_bullet_and_variable_in_CCOL_note("Client accessing benefits in other state", bene_other_state)
+	'	CALL write_bullet_and_variable_in_CCOL_note("Contacted other state", contact_other_state)
+	'	IF programs = "Health Care" or programs = "Medical Assistance" THEN
+	'		CALL write_bullet_and_variable_in_CCOL_note("HC responsible members", HC_resp_memb)
+	'		CALL write_bullet_and_variable_in_CCOL_note("HC claim number", hc_claim_number)
+	'		CALL write_bullet_and_variable_in_CCOL_note("Total federal Health Care amount", Fed_HC_AMT)
+	'		write_variable_in_CCOL_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+	'	END IF
+	'	If out_state_checkbox = CHECKED THEN Call write_variable_in_CCOL_note("Out of state verification received.")
+	'	CALL write_bullet_and_variable_in_CCOL_note("Other responsible member(s)", OT_resp_memb)
+	'	CALL write_bullet_and_variable_in_CCOL_note("Fraud referral made", fraud_referral)
+	'	CALL write_bullet_and_variable_in_CCOL_note("Collectible claim", collectible_dropdown)
+	'	CALL write_bullet_and_variable_in_CCOL_note("Reason that claim is collectible or not", collectible_reason)
+	'	CALL write_bullet_and_variable_in_CCOL_note("Reason for overpayment", Reason_OP)
+	'	IF other_notes <> "" THEN CALL write_bullet_and_variable_in_CCOL_note("Other notes", other_notes)
+	'	write_variable_in_CCOL_NOTE("----- ----- ----- ----- ----- ----- -----")
+	'	write_variable_in_CCOL_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+	'PF3 'exit the case note'
+	'PF3 'back to dail'
 END IF
 
-script_end_procedure("Success PARIS match updated and CCOL case note entered.")
+script_end_procedure("Success PARIS match updated and please copy case note to CCOL.")

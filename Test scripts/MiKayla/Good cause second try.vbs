@@ -217,12 +217,13 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 'Call MAXIS_footer_month_confirmation			'function that confirms that the current footer month/year is the same as what was selected by the user. If not, it will navigate to correct footer month/year
 
 	'----------------------------------------------------------------------------------------------------ABPS panel
-DO
-Call MAXIS_footer_month_confirmation
-msgbox MAXIS_footer_month
+'DO
+	Call MAXIS_footer_month_confirmation
+	msgbox MAXIS_footer_month
 	err_msg = ""
 	Call navigate_to_MAXIS_screen("STAT", "ABPS")
 	'Making sure we have the correct ABPS
+DO
 	EMReadScreen panel_number, 1, 2, 78
 	If panel_number = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
 	'If there is more than one panel, this part will grab employer info off of them and present it to the worker to decide which one to use.
@@ -294,24 +295,24 @@ msgbox MAXIS_footer_month
 	END IF
 	Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
 	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
-		IF parental_status = "2" THEN
-			client_name = "Unknown"
-		ELSEIF parental_status = "3" THEN
-			client_name = "ABPS deceased"
-		ELSEIF parental_status = "4" THEN
-			client_name = "Rights Severed"
-		ELSEIF parental_status = "7" THEN
-			client_name = "HC No Order Sup"
-		ELSEIF parental_status = "1" THEN
-			EMReadScreen first_name, 12, 10, 63
-			EMReadScreen last_name, 24, 10, 30
-			first_name = trim(first_name)
-			last_name = trim(last_name)
-			first_name = replace(first_name, "_", "")
-			last_name = replace(last_name, "_", "")
-			client_name = first_name & " " & last_name
-			Call fix_case_for_name(client_name)
-		END IF
+	IF parental_status = "2" THEN
+		client_name = "Unknown"
+	ELSEIF parental_status = "3" THEN
+		client_name = "ABPS deceased"
+	ELSEIF parental_status = "4" THEN
+		client_name = "Rights Severed"
+	ELSEIF parental_status = "7" THEN
+		client_name = "HC No Order Sup"
+	ELSEIF parental_status = "1" THEN
+		EMReadScreen first_name, 12, 10, 63
+		EMReadScreen last_name, 24, 10, 30
+		first_name = trim(first_name)
+		last_name = trim(last_name)
+		first_name = replace(first_name, "_", "")
+		last_name = replace(last_name, "_", "")
+		client_name = first_name & " " & last_name
+		Call fix_case_for_name(client_name)
+	END IF
 
 	EMReadScreen ABPS_screen, 4, 2, 50		'if inhibiting error exists, this will catch it and instruct the user to update ABPS
 	'msgbox ABPS_screen
@@ -349,16 +350,23 @@ msgbox MAXIS_footer_month
 	incomplete_form  = trim(incomplete_form)
 	If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
 
-	Transmit'to add information
+	TRANSMIT'to add information
 
-	Transmit'to move past non-inhibiting warning messages on ABPS
+	TRANSMIT'to move past non-inhibiting warning messages on ABPS
+	'EMReadScreen expire_msg, 4, 24, 02
+	'IF expire_msg = "THIS" THEN
 	PF3' this takes us back to stat/wrap
 	IF MAXIS_footer_month <> CM_plus_1_mo THEN
-	    EMWriteScreen "Y"
-	    EMWriteScreen check_PNLP, 4, 2,53
-	    IF check_PNLP = "PNLP" THEN EMWriteScreen "ABPS", 20, 71
-	    TRANSMIT
-		
+		DO
+	    	EMWriteScreen "Y"
+			TRANSMIT
+	    	EMWriteScreen check_PNLP, 4, 2,53
+	    	IF check_PNLP = "PNLP" THEN
+			
+
+			'THEN EMWriteScreen "ABPS", 20, 71
+	    	'TRANSMIT
+			MsgBox "AM I IN A NEW FOOTER MONTH?"
 
 	'TRANSMIT 'takes us back to self '
 	Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
