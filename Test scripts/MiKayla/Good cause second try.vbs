@@ -51,59 +51,12 @@ call changelog_update("03/27/2017", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-'Fun with dates! --Creating variables for the rolling 12 calendar months
-'current month -1
-CM_minus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", -1, date)            ), 2)
-CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
-'current month -2'
-CM_minus_2_mo =  right("0" &             DatePart("m",           DateAdd("m", -2, date)            ), 2)
-CM_minus_2_yr =  right(                  DatePart("yyyy",        DateAdd("m", -2, date)            ), 2)
-'current month -3'
-CM_minus_3_mo =  right("0" &             DatePart("m",           DateAdd("m", -3, date)            ), 2)
-CM_minus_3_yr =  right(                  DatePart("yyyy",        DateAdd("m", -3, date)            ), 2)
-'current month -4'
-CM_minus_4_mo =  right("0" &             DatePart("m",           DateAdd("m", -4, date)            ), 2)
-CM_minus_4_yr =  right(                  DatePart("yyyy",        DateAdd("m", -4, date)            ), 2)
-'current month -5'
-CM_minus_5_mo =  right("0" &             DatePart("m",           DateAdd("m", -5, date)            ), 2)
-CM_minus_5_yr =  right(                  DatePart("yyyy",        DateAdd("m", -5, date)            ), 2)
-'current month -6'
-CM_minus_6_mo =  right("0" &             DatePart("m",           DateAdd("m", -6, date)            ), 2)
-CM_minus_6_yr =  right(                  DatePart("yyyy",        DateAdd("m", -6, date)            ), 2)
-'current month -7'
-CM_minus_7_mo =  right("0" &             DatePart("m",           DateAdd("m", -7, date)            ), 2)
-CM_minus_7_yr =  right(                  DatePart("yyyy",        DateAdd("m", -7, date)            ), 2)
-'current month -8'
-CM_minus_8_mo =  right("0" &             DatePart("m",           DateAdd("m", -8, date)            ), 2)
-CM_minus_8_yr =  right(                  DatePart("yyyy",        DateAdd("m", -8, date)            ), 2)
-'current month -9'
-CM_minus_9_mo =  right("0" &             DatePart("m",           DateAdd("m", -9, date)            ), 2)
-CM_minus_9_yr =  right(                  DatePart("yyyy",        DateAdd("m", -9, date)            ), 2)
-'current month -10'
-CM_minus_10_mo =  right("0" &            DatePart("m",           DateAdd("m", -10, date)           ), 2)
-CM_minus_10_yr =  right(                 DatePart("yyyy",        DateAdd("m", -10, date)           ), 2)
-'current month -11'
-CM_minus_11_mo =  right("0" &            DatePart("m",           DateAdd("m", -11, date)           ), 2)
-CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -11, date)           ), 2)
-
-'Establishing value of variables for the rolling 12 months
-current_month = CM_mo & "/" & CM_yr
-current_month_minus_one = CM_minus_1_mo & "/" & CM_minus_1_yr
-current_month_minus_two = CM_minus_2_mo & "/" & CM_minus_2_yr
-current_month_minus_three = CM_minus_3_mo & "/" & CM_minus_3_yr
-current_month_minus_four = CM_minus_4_mo & "/" & CM_minus_4_yr
-current_month_minus_five = CM_minus_5_mo & "/" & CM_minus_5_yr
-current_month_minus_six = CM_minus_6_mo & "/" & CM_minus_6_yr
-current_month_minus_seven = CM_minus_7_mo & "/" & CM_minus_7_yr
-current_month_minus_eight = CM_minus_8_mo & "/" & CM_minus_8_yr
-current_month_minus_nine = CM_minus_9_mo & "/" & CM_minus_9_yr
-current_month_minus_ten = CM_minus_10_mo & "/" & CM_minus_10_yr
-current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
 'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 'Initial dialog giving the user the option to select the type of good cause action
+updated_date  = date
 MAXIS_case_number = "276348"
 actual_date = "09/01/18"
 memb_number = "01"
@@ -219,14 +172,12 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	'----------------------------------------------------------------------------------------------------ABPS panel
 'DO
 	Call MAXIS_footer_month_confirmation
-	msgbox MAXIS_footer_month
-	err_msg = ""
 	Call navigate_to_MAXIS_screen("STAT", "ABPS")
-	'Making sure we have the correct ABPS
 DO
+	msgbox MAXIS_footer_month\
+	'Making sure we have the correct ABPS
 	EMReadScreen panel_number, 1, 2, 78
 	If panel_number = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
-	'If there is more than one panel, this part will grab employer info off of them and present it to the worker to decide which one to use.
 	Do
 		EMReadScreen current_panel_number, 1, 2, 73
 		ABPS_check = MsgBox("Is this the right ABPS?", vbYesNo + vbQuestion, "Confirmation")
@@ -356,22 +307,25 @@ DO
 	'EMReadScreen expire_msg, 4, 24, 02
 	'IF expire_msg = "THIS" THEN
 	PF3' this takes us back to stat/wrap
-	IF MAXIS_footer_month <> CM_plus_1_mo THEN
-		DO
-	    	EMWriteScreen "Y"
+	'Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+	msgbox MAXIS_footer_month
+	'IF MAXIS_footer_month <> CM_plus_1_mo THEN
+	Do
+		EMReadScreen MAXIS_footer_month, 2, 20, 55
+		MAXIS_footer_month_check = MsgBox("Do you need to run through backgorund?", vbYesNo + vbQuestion, "Maxis footer month")
+		If MAXIS_footer_month_check = vbYes THEN
+			EMWriteScreen "Y", 16, 54
 			TRANSMIT
-	    	EMWriteScreen check_PNLP, 4, 2,53
-	    	IF check_PNLP = "PNLP" THEN
-			
-
-			'THEN EMWriteScreen "ABPS", 20, 71
-	    	'TRANSMIT
-			MsgBox "AM I IN A NEW FOOTER MONTH?"
-
-	'TRANSMIT 'takes us back to self '
-	Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-	'IF MAXIS_footer_month =
-Loop until datediff("m", actual_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) <> 0
+			EMReadScreen check_PNLP, 4, 2,53
+			IF check_PNLP = "PNLP" THEN
+				EMWriteScreen "ABPS", 20, 71
+				TRANSMIT
+				MsgBox "AM I IN A NEW FOOTER MONTH?"
+			END IF
+		END IF
+		If MAXIS_footer_month_check = vbNo then exit do
+	Loop until MAXIS_footer_month_check = vbYes
+Loop until datediff("m", updated_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) <> 0
 
 '-----------------------------------------------------------------------------------------------------Case note & email sending
 	start_a_blank_CASE_NOTE
