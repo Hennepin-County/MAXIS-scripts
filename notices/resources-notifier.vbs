@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/09/2019", "Updated COPE resource to EMERGENCY MENTAL HEALTH SERVICES. Also Updated DHS MMIS Helpdesk text to DHS MMIS RECIPIENT HELPDESK. These changes align with the resources provided in the CONTACTS FOR HSR's resource.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/18/2018", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -53,25 +54,24 @@ changelog_display
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog Resources_MEMO_dialog, 0, 0, 206, 240, "Resources MEMO"
   EditBox 60, 5, 50, 15, MAXIS_case_number
+  ButtonGroup ButtonPressed
+    PushButton 150, 5, 50, 10, "Check All", check_all_button
+    OkButton 95, 220, 50, 15
+    CancelButton 150, 220, 50, 15
   CheckBox 15, 45, 140, 10, "Community Action Partnership - CAP", cap_checkbox
-  CheckBox 15, 60, 125, 10, "COPE - Mental Health Emergencies", COPE_checkbox
-  CheckBox 15, 75, 80, 10, "DHS MMIS HelpDesk", MMIS_helpdesk_checkbox
-  CheckBox 15, 90, 180, 10, "DHS MNSure Helpdesk   * NOT FOR MA CLIENTS", MNSURE_helpdesk_checkbox
-  CheckBox 15, 105, 145, 10, "Disability Hub (Disability Linkage Line)", disability_hub_checkbox
+  CheckBox 15, 60, 115, 10, "DHS MMIS Recipient HelpDesk", MMIS_helpdesk_checkbox
+  CheckBox 15, 75, 180, 10, "DHS MNSure Helpdesk   * NOT FOR MA CLIENTS", MNSURE_helpdesk_checkbox
+  CheckBox 15, 90, 145, 10, "Disability Hub (Disability Linkage Line)", disability_hub_checkbox
+  CheckBox 15, 105, 125, 10, "Emergency Mental Health Services", emer_mental_health_checkbox
   CheckBox 15, 120, 175, 10, "Emergency Food Shelf Network (The Food Group)", emer_food_network_checkbox
   CheckBox 15, 135, 50, 10, "Front Door", front_door_checkbox
   CheckBox 15, 150, 75, 10, "Senior Linkage Line", sr_linkage_line_checkbox
   CheckBox 15, 165, 130, 10, "United Way First Call for Help (211)", united_way_checkbox
   CheckBox 15, 180, 60, 10, "Xcel Energy", xcel_checkbox
   EditBox 80, 200, 120, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 95, 220, 50, 15
-    CancelButton 150, 220, 50, 15
-  Text 10, 10, 50, 10, "Case number:"
   Text 10, 30, 195, 10, "Check any to send detail about the service to a client:"
   Text 10, 205, 65, 10, "Worker signature:"
-  ButtonGroup ButtonPressed
-    PushButton 150, 5, 50, 10, "Check All", check_all_button
+  Text 10, 10, 50, 10, "Case number:"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -87,18 +87,18 @@ DO
 		err_msg = ""
 		Dialog Resources_MEMO_dialog
 		If ButtonPressed = cancel then stopscript
-        If cap_checkbox = unchecked AND COPE_checkbox = unchecked AND MMIS_helpdesk_checkbox = unchecked AND MNSURE_helpdesk_checkbox = unchecked AND disability_hub_checkbox = unchecked AND emer_food_network_checkbox = unchecked AND front_door_checkbox = unchecked AND sr_linkage_line_checkbox = unchecked AND united_way_checkbox = unchecked AND xcel_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "You must select at least one resource."
+        If cap_checkbox = unchecked AND emer_mental_health_checkbox = unchecked AND MMIS_helpdesk_checkbox = unchecked AND MNSURE_helpdesk_checkbox = unchecked AND disability_hub_checkbox = unchecked AND emer_food_network_checkbox = unchecked AND front_door_checkbox = unchecked AND sr_linkage_line_checkbox = unchecked AND united_way_checkbox = unchecked AND xcel_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "You must select at least one resource."
 		If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & "You must fill in a valid case number." & vbNewLine
 		If worker_signature = "" then err_msg = err_msg & "You must sign your case note." & vbNewLine
         If ButtonPressed = check_all_button Then
             err_msg = "LOOP" & err_msg
 
             cap_checkbox = checked
-            COPE_checkbox = checked
             MMIS_helpdesk_checkbox = checked
             MNSURE_helpdesk_checkbox = checked
             disability_hub_checkbox = checked
             emer_food_network_checkbox = checked
+            emer_mental_health_checkbox = checked
             front_door_checkbox = checked
             sr_linkage_line_checkbox = checked
             united_way_checkbox = checked
@@ -120,12 +120,6 @@ If cap_checkbox = checked Then
         "           St. Louis Park             Phone: 952-933-9639" & vbNewLine &_
         "--   --   --   --   --   --   --   --   --   --   --"
 End If
-If COPE_checkbox = checked Then
-    script_to_say = script_to_say & vbNewLine & "COPE - Mental Health Crisis and Emergency" & vbNewLine &_
-        "Adults 18 and older: 612-596-1223" & vbNewLine &_
-        "Children: 612-348-2233" & vbNewLine &_
-        "--   --   --   --   --   --   --   --   --   --   --"
-End If
 If MMIS_helpdesk_checkbox = checked Then
     script_to_say = script_to_say & vbNewLine & "MN Health Care Recipient Help Desk - 651-431-2670" & vbNewLine &_
     "--   --   --   --   --   --   --   --   --   --   --"
@@ -143,6 +137,12 @@ End If
 If emer_food_network_checkbox = checked Then
     script_to_say = script_to_say & vbNewLine & "The Food Group (formerly Emergency Food Network)" & vbNewLine &_
         "Phone: 763-450-3860  - Website: thefoodgroupmn.org" & vbNewLine &_
+        "--   --   --   --   --   --   --   --   --   --   --"
+End If
+If emer_mental_health_checkbox = checked Then
+    script_to_say = script_to_say & vbNewLine & "Emergency Mental Health Services" & vbNewLine &_
+        "Adults 18 and older (COPE): 612-596-1223" & vbNewLine &_
+        "Children (Child Crisis Services): 612-348-2233" & vbNewLine &_
         "--   --   --   --   --   --   --   --   --   --   --"
 End If
 If front_door_checkbox = checked Then
@@ -187,7 +187,7 @@ If resource_method = "SPEC/MEMO" Then
 
     need_divider = FALSE
     'Writes the MEMO.
-    call write_variable_in_SPEC_MEMO("  ----Outsdie Resources - current as of " & date & "----")
+    call write_variable_in_SPEC_MEMO("  ----Outside Resources - current as of " & date & "----")
     If cap_checkbox = checked Then
         If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
         call write_variable_in_SPEC_MEMO("* CAP - Community Action Partnership (Inc. Energy Assist)")
@@ -199,14 +199,7 @@ If resource_method = "SPEC/MEMO" Then
         need_divider = FALSE
         'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
     End If
-    If COPE_checkbox = checked Then
-        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
-        call write_variable_in_SPEC_MEMO("* COPE - Mental Health Crisis and Emergency")
-        call write_variable_in_SPEC_MEMO("       Adults 18 and older: 612-596-1223")
-        call write_variable_in_SPEC_MEMO("       Children: 612-348-2233")
-        need_divider = FALSE
-        'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
-    End If
+    
     If MMIS_helpdesk_checkbox = checked Then
         If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
         call write_variable_in_SPEC_MEMO("* MN Health Care Recipient Help Desk - 651-431-2670")
@@ -233,6 +226,13 @@ If resource_method = "SPEC/MEMO" Then
         call write_variable_in_SPEC_MEMO("     Phone: 763-450-3860  - Website: thefoodgroupmn.org")
         need_divider = FALSE
         'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
+    End If
+    If emer_mental_health_checkbox = checked Then
+        If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
+        call write_variable_in_SPEC_MEMO("* Emergency Mental Health Services")
+        call write_variable_in_SPEC_MEMO("       Adults 18 and older (COPE): 612-596-1223")
+        call write_variable_in_SPEC_MEMO("       Children (Child Crisis Services): 612-348-2233")
+        need_divider = FALSE
     End If
     If front_door_checkbox = checked Then
         If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
@@ -272,7 +272,7 @@ If resource_method = "Word Document" Then
     Set objWord = CreateObject("Word.Application")
     Const wdDialogFilePrint = 88
     Const end_of_doc = 6
-    objWord.Caption = "Outsdie Resource Information"
+    objWord.Caption = "Outside Resource Information"
     objWord.Visible = True
 
     Set objDoc = objWord.Documents.Add()
@@ -307,13 +307,6 @@ If resource_method = "Word Document" Then
         'objSelection.TypeText "_____________________________" & chr(10)
         objSelection.TypeParagraph()
     End If
-    If COPE_checkbox = checked Then
-        objSelection.TypeText "* COPE - Mental Health Crisis and Emergency" & vbCr
-        objSelection.TypeText "       Adults 18 and older: 612-596-1223" & vbCr
-        objSelection.TypeText "       Children: 612-348-2233" & vbCr
-        'objSelection.TypeText "_____________________________" & vbCr
-        objSelection.TypeParagraph()
-    End If
     If MMIS_helpdesk_checkbox = checked Then
         objSelection.TypeText "* MN Health Care Recipient Help Desk - 651-431-2670" & vbCr
         'objSelection.TypeText "_____________________________" & vbCr
@@ -334,6 +327,13 @@ If resource_method = "Word Document" Then
     If emer_food_network_checkbox = checked Then
         objSelection.TypeText "* The Food Group (formerly Emergency Food Network)" & vbCr
         objSelection.TypeText "     Phone: 763-450-3860  - Website: thefoodgroupmn.org" & vbCr
+        'objSelection.TypeText "_____________________________" & vbCr
+        objSelection.TypeParagraph()
+    End If
+    If emer_mental_health_checkbox = checked Then
+        objSelection.TypeText "* Emergency Mental Health Services" & vbCr
+        objSelection.TypeText "       Adults 18 and older (COPE): 612-596-1223" & vbCr
+        objSelection.TypeText "       Children (Child Crisis Services): 612-348-2233" & vbCr
         'objSelection.TypeText "_____________________________" & vbCr
         objSelection.TypeParagraph()
     End If
@@ -374,11 +374,11 @@ If resource_method = "SPEC/MEMO" Then Call write_variable_in_CASE_NOTE("* Inform
 If resource_method = "Word Document" Then Call write_variable_in_CASE_NOTE("* Information added to Word Document for printing locally.")
 
 IF cap_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Compunity Action Partnership - CAP (Energy Assistance)")
-IF COPE_checkbox = checked Then Call write_variable_in_CASE_NOTE("* COPE - Mental Health Crisis Line")
-IF MMIS_helpdesk_checkbox = checked Then Call write_variable_in_CASE_NOTE("* DHS MHCP HelpDesk")
+IF MMIS_helpdesk_checkbox = checked Then Call write_variable_in_CASE_NOTE("* DHS MHCP Recipient HelpDesk")
 IF MNSURE_helpdesk_checkbox = checked Then Call write_variable_in_CASE_NOTE("* DHS MNSure HelpDesk")
 IF disability_hub_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Disability Hub")
 IF emer_food_network_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Emergency Food Network")
+IF emer_mental_health_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Emergency Mental Health Services")
 IF front_door_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Front Door")
 IF sr_linkage_line_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Senior Linkage Line")
 IF united_way_checkbox = checked Then Call write_variable_in_CASE_NOTE("* United Way - 211")
