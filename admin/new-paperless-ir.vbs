@@ -169,7 +169,7 @@ Else
     End If
 End If
 
-
+hc_reviews = 0
 For each worker in worker_array
     worker = trim(worker)
 
@@ -178,8 +178,8 @@ For each worker in worker_array
     Call MAXIS_footer_month_confirmation
     Call navigate_to_MAXIS_screen("rept", "revs")
     EMWriteScreen worker, 21, 6
-    EMWriteScreen CM_plus_2_mo, 20, 55
-    EMWriteScreen CM_plus_2_yr, 20, 58
+    EMWriteScreen MAXIS_footer_month, 20, 55
+    EMWriteScreen MAXIS_footer_year, 20, 58
     transmit
 
     EMReadScreen REVW_check, 4, 2, 52
@@ -230,10 +230,223 @@ For each worker in worker_array
 
 Next
 
+'Opening the Excel file
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = True
+Set objWorkbook = objExcel.Workbooks.Add()
+objExcel.DisplayAlerts = True
+
+'Name for the current sheet'
+ObjExcel.ActiveSheet.Name = "WAIVED IR Reviews"
+
+col_to_use = 1
+
+'Excel headers and formatting the columns
+objExcel.Cells(1, col_to_use).Value  = "BASKET"
+basket_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "CASE NUMBER"
+case_number_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "CLIENT NAME"
+client_name_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "MEMBS ON HC"
+membs_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "MAGI HC"
+magi_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "Current HC REVW"
+current_revw_col = col_to_use
+current_revw_letter_col = convert_digit_to_excel_column(current_revw_col)
+col_to_use = col_to_use + 1
+
+' objExcel.Cells(1, col_to_use).Value  = "Paperless IR"
+' paperless_col = col_to_use
+' paperless_letter_col = convert_digit_to_excel_column(paperless_col)
+' col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "HC SR"
+hc_sr_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "HC ER"
+hc_er_col = col_to_use
+col_to_use = col_to_use + 1
+
+' objExcel.Cells(1, col_to_use).Value  = "NEW HC SR"
+' new_hc_sr_col = col_to_use
+' col_to_use = col_to_use + 1
+'
+' objExcel.Cells(1, col_to_use).Value  = "NEW HC ER"
+' new_hc_er_col = col_to_use
+' col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "Cash Status"
+cash_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "Cash ER"
+cash_er_col = col_to_use
+col_to_use = col_to_use + 1
+
+' objExcel.Cells(1, col_to_use).Value = "NEW Cash ER"
+' new_cash_er_col = col_to_use
+' col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "SNAP Status"
+snap_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "SNAP SR"
+snap_sr_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "SNAP ER"
+snap_er_col = col_to_use
+col_to_use = col_to_use + 1
+
+' objExcel.Cells(1, col_to_use).Value = "NEW SNAP SR"
+' new_snap_sr_col = col_to_use
+' col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "HH Updt on REVW"
+updates_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "Budget"
+budg_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "TIKL"
+tikl_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "NOTES"
+notes_col = col_to_use
+col_to_use = col_to_use + 1
+
+For i = 1 to col_to_use
+    ObjExcel.Cells(1, i).Font.Bold = TRUE
+Next
+last_col = col_to_use
+
+
+'Going to another sheet, to enter worker-specific statistics
+ObjExcel.Worksheets.Add().Name = "Cases NOT Actually Waived"
+
+col_to_use = 1
+
+'Excel headers and formatting the columns
+objExcel.Cells(1, col_to_use).Value  = "BASKET"
+basket_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "CASE NUMBER"
+case_number_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "CLIENT NAME"
+client_name_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "MEMBS ON HC"
+membs_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "MAGI HC"
+magi_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "Current HC REVW"
+current_revw_col = col_to_use
+current_revw_letter_col = convert_digit_to_excel_column(current_revw_col)
+col_to_use = col_to_use + 1
+
+' objExcel.Cells(1, col_to_use).Value  = "Paperless IR"
+' paperless_col = col_to_use
+' paperless_letter_col = convert_digit_to_excel_column(paperless_col)
+' col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "HC SR"
+hc_sr_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "HC ER"
+hc_er_col = col_to_use
+col_to_use = col_to_use + 1
+
+' objExcel.Cells(1, col_to_use).Value  = "NEW HC SR"
+' new_hc_sr_col = col_to_use
+' col_to_use = col_to_use + 1
+'
+' objExcel.Cells(1, col_to_use).Value  = "NEW HC ER"
+' new_hc_er_col = col_to_use
+' col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value  = "Cash Status"
+cash_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "Cash ER"
+cash_er_col = col_to_use
+col_to_use = col_to_use + 1
+
+' objExcel.Cells(1, col_to_use).Value = "NEW Cash ER"
+' new_cash_er_col = col_to_use
+' col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "SNAP Status"
+snap_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "SNAP SR"
+snap_sr_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "SNAP ER"
+snap_er_col = col_to_use
+col_to_use = col_to_use + 1
+
+' objExcel.Cells(1, col_to_use).Value = "NEW SNAP SR"
+' new_snap_sr_col = col_to_use
+' col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "HH Updt on REVW"
+updates_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "Budget"
+budg_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "TIKL"
+tikl_col = col_to_use
+col_to_use = col_to_use + 1
+
+objExcel.Cells(1, col_to_use).Value = "NOTES"
+notes_col = col_to_use
+col_to_use = col_to_use + 1
+
+For i = 1 to col_to_use
+    ObjExcel.Cells(1, i).Font.Bold = TRUE
+Next
+
+not_waived_excel_row = 2
+paperless_excel_row = 2
+
 Call back_to_SELF
 
 For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
     MAXIS_case_number = ALL_HC_REVS_ARRAY (case_nrb, hc_reviews)
+    list_of_hc_membs = ""
+    HC_PERS_ARRAY = ""
 
     If ALL_HC_REVS_ARRAY(waived_revw, hc_reviews) = TRUE Then
         Call navigate_to_MAXIS_screen("CASE", "CURR")
@@ -263,6 +476,11 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
             HC_PERS_ARRAY = split(list_of_hc_membs, "~")
 
             For each pers_nbr in HC_PERS_ARRAY
+                Do
+                    Call navigate_to_MAXIS_screen("STAT", "SUMM")
+                    EMReadScreen summ_check, 4, 2, 46
+                Loop until summ_check = "SUMM"
+                
                 call navigate_to_MAXIS_screen ("STAT", "JOBS")
                 EMWriteScreen pers_nbr, 20, 76
                 transmit
@@ -378,7 +596,16 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
             snap_er = ""
             cash_er = ""
             If ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = TRUE Then
-                If developer_mode = FALSE Then PF9
+                If developer_mode = FALSE Then
+                    EMReadScreen fs_revw_code, 1, 7, 60
+                    EMReadScreen cash_revw_code, 1, 7, 40
+
+                    other_review = FALSE
+                    If fs_revw_code <> "_" Then other_review = TRUE
+                    If cash_revw_code <> "_" Then other_review = TRUE
+
+                    If other_review = FALSE Then PF9
+                End If
 
                 If ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews) <> "" Then                                                    'If there is a SNAP ER
                     If ALL_HC_REVS_ARRAY (hc_er_date, hc_reviews) <> ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews) THen        'If the SNAP ER doesn't match the HC ER
@@ -458,11 +685,11 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
 
                 revw_row = 13
                 Do
-                    EMReadScreen renewal_status, 1, revw_row, 6
-                    EMReadScreen ref_nbr, 2, revw_row, 43
+                    EMReadScreen renewal_status, 1, revw_row, 43
+                    EMReadScreen ref_nbr, 2, revw_row, 6
                     If ref_nbr = "  " Then Exit Do
 
-                    If renewal_status <> " " Then
+                    If renewal_status <> " " AND renewal_status <> "_" Then
                         If developer_mode = FALSE Then EMWriteScreen "U", revw_row, 43
                         ALL_HC_REVS_ARRAY(membs_updated, hc_reviews) = ALL_HC_REVS_ARRAY(membs_updated, hc_reviews) & ", " & ref_nbr
                     End If
@@ -501,31 +728,119 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
         Else
             ALL_HC_REVS_ARRAY (revw_type, hc_reviews) = "PRIV"
         End If
+
+        If developer_mode = FALSE Then
+            If ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = TRUE AND other_review = FALSE Then
+                navigate_to_MAXIS_screen "DAIL", "WRIT"
+                call create_MAXIS_friendly_date(date, 0, 5, 18)
+                EMWritescreen "%^% Sent through background for Paperless IR Review %^%", 9, 3
+                transmit
+                EMReadScreen tikl_success, 4, 24, 2
+                ' MsgBox "Suc? - ''" & tikl_success & "'"
+                If tikl_success <> "    " Then
+                    ALL_HC_REVS_ARRAY(tikl_done, hc_reviews) = "Fail"
+                    ' MsgBox "This case - " & MAXIS_case_number & " failed to have a TIKL set, track and case note manually"
+                Else
+                    ALL_HC_REVS_ARRAY(tikl_done, hc_reviews) = "Success"
+                End If
+                PF3
+            ElseIf other_review = TRUE Then
+                ALL_HC_REVS_ARRAY(tikl_done, hc_reviews) = "OTHER REVIEW"
+            End If
+        End If
+
+        If ALL_HC_REVS_ARRAY(actually_paperless, hc_reviews) = TRUE Then
+            'Activates worksheet based on user selection
+            objExcel.worksheets("WAIVED IR Reviews").Activate
+
+            ObjExcel.Cells(paperless_excel_row, basket_col).Value         = ALL_HC_REVS_ARRAY(basket_nbr, hc_reviews)
+            ObjExcel.Cells(paperless_excel_row, case_number_col).Value    = ALL_HC_REVS_ARRAY(case_nrb, hc_reviews)
+            ObjExcel.Cells(paperless_excel_row, client_name_col).Value    = ALL_HC_REVS_ARRAY(clt_name, hc_reviews)
+            ObjExcel.Cells(paperless_excel_row, membs_col).Value          = ALL_HC_REVS_ARRAY(memb_on_hc, hc_reviews)
+            ObjExcel.Cells(paperless_excel_row, magi_col).Value           = ALL_HC_REVS_ARRAY(hc_type, hc_reviews)
+            ObjExcel.Cells(paperless_excel_row, current_revw_col).Value   = ALL_HC_REVS_ARRAY(revw_type, hc_reviews)
+            ' ObjExcel.Cells(paperless_excel_row, paperless_col).Value      = ALL_HC_REVS_ARRAY(waived_revw, hc_reviews)
+            ObjExcel.Cells(paperless_excel_row, hc_sr_col).Value          = ALL_HC_REVS_ARRAY(hc_sr_date, hc_reviews)
+            ObjExcel.Cells(paperless_excel_row, hc_er_col).Value          = ALL_HC_REVS_ARRAY(hc_er_date, hc_reviews)
+            ' ObjExcel.Cells(paperless_excel_row, new_hc_er_col).Value      = ALL_HC_REVS_ARRAY(new_hc_er, hc_reviews)
+            ' ObjExcel.Cells(paperless_excel_row, new_hc_sr_col).Value      = ALL_HC_REVS_ARRAY(new_hc_sr, hc_reviews)
+
+            ObjExcel.Cells(paperless_excel_row, cash_col).Value           = ALL_HC_REVS_ARRAY(cash_status, hc_reviews)
+            ObjExcel.Cells(paperless_excel_row, cash_er_col).Value        = ALL_HC_REVS_ARRAY(ca_er_date, hc_reviews)
+            ' ObjExcel.Cells(paperless_excel_row, new_cash_er_col).Value    = ALL_HC_REVS_ARRAY(new_ca_er, hc_reviews)
+
+            ObjExcel.Cells(paperless_excel_row, snap_col).Value           = ALL_HC_REVS_ARRAY(SNAP_status, hc_reviews)
+            ObjExcel.Cells(paperless_excel_row, snap_sr_col).Value        = ALL_HC_REVS_ARRAY(fs_sr_date, hc_reviews)
+            ObjExcel.Cells(paperless_excel_row, snap_er_col).Value        = ALL_HC_REVS_ARRAY(fs_er_date, hc_reviews)
+            ' ObjExcel.Cells(paperless_excel_row, new_snap_sr_col).Value    = ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews)
+            ' ObjExcel.Cells(paperless_excel_row, new_snap_er_col).Value    = ALL_HC_REVS_ARRAY(new_fs_er, hc_reviews)
+
+            ObjExcel.Cells(paperless_excel_row, updates_col).Value        = ALL_HC_REVS_ARRAY(membs_updated, hc_reviews)
+            ObjExcel.Cells(paperless_excel_row, budg_col).Value           = ALL_HC_REVS_ARRAY(current_budg, hc_reviews)
+            ObjExcel.Cells(paperless_excel_row, tikl_col).Value           = ALL_HC_REVS_ARRAY(tikl_done, hc_reviews)
+            ObjExcel.Cells(paperless_excel_row, notes_col).Value          = ALL_HC_REVS_ARRAY(case_notes, hc_reviews)
+
+            paperless_excel_row = paperless_excel_row + 1
+        ElseIf ALL_HC_REVS_ARRAY(actually_paperless, hc_reviews) = FALSE Then
+            'Activates worksheet based on user selection
+            objExcel.worksheets("Cases NOT Actually Waived").Activate
+
+            ObjExcel.Cells(not_waived_excel_row, basket_col).Value         = ALL_HC_REVS_ARRAY(basket_nbr, hc_reviews)
+            ObjExcel.Cells(not_waived_excel_row, case_number_col).Value    = ALL_HC_REVS_ARRAY(case_nrb, hc_reviews)
+            ObjExcel.Cells(not_waived_excel_row, client_name_col).Value    = ALL_HC_REVS_ARRAY(clt_name, hc_reviews)
+            ObjExcel.Cells(not_waived_excel_row, membs_col).Value          = ALL_HC_REVS_ARRAY(memb_on_hc, hc_reviews)
+            ObjExcel.Cells(not_waived_excel_row, magi_col).Value           = ALL_HC_REVS_ARRAY(hc_type, hc_reviews)
+            ObjExcel.Cells(not_waived_excel_row, current_revw_col).Value   = ALL_HC_REVS_ARRAY(revw_type, hc_reviews)
+            ' ObjExcel.Cells(not_waived_excel_row, paperless_col).Value      = ALL_HC_REVS_ARRAY(waived_revw, hc_reviews)
+            ObjExcel.Cells(not_waived_excel_row, hc_sr_col).Value          = ALL_HC_REVS_ARRAY(hc_sr_date, hc_reviews)
+            ObjExcel.Cells(not_waived_excel_row, hc_er_col).Value          = ALL_HC_REVS_ARRAY(hc_er_date, hc_reviews)
+            ' ObjExcel.Cells(not_waived_excel_row, new_hc_sr_col).Value      = ALL_HC_REVS_ARRAY(new_hc_sr, hc_reviews)
+            ' ObjExcel.Cells(not_waived_excel_row, new_hc_er_col).Value      = ALL_HC_REVS_ARRAY(new_hc_er, hc_reviews)
+
+            ObjExcel.Cells(not_waived_excel_row, cash_col).Value           = ALL_HC_REVS_ARRAY(cash_status, hc_reviews)
+            ObjExcel.Cells(not_waived_excel_row, cash_er_col).Value        = ALL_HC_REVS_ARRAY(ca_er_date, hc_reviews)
+            ' ObjExcel.Cells(not_waived_excel_row, new_cash_er_col).Value    = ALL_HC_REVS_ARRAY(new_ca_er, hc_reviews)
+
+            ObjExcel.Cells(not_waived_excel_row, snap_col).Value           = ALL_HC_REVS_ARRAY(SNAP_status, hc_reviews)
+            ObjExcel.Cells(not_waived_excel_row, snap_sr_col).Value        = ALL_HC_REVS_ARRAY(fs_sr_date, hc_reviews)
+            ObjExcel.Cells(not_waived_excel_row, snap_er_col).Value        = ALL_HC_REVS_ARRAY(fs_er_date, hc_reviews)
+            ' ObjExcel.Cells(not_waived_excel_row, new_snap_sr_col).Value    = ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews)
+            ' ObjExcel.Cells(not_waived_excel_row, new_snap_er_col).Value    = ALL_HC_REVS_ARRAY(new_fs_er, hc_reviews)
+
+            ObjExcel.Cells(not_waived_excel_row, updates_col).Value        = ALL_HC_REVS_ARRAY(membs_updated, hc_reviews)
+            ObjExcel.Cells(not_waived_excel_row, budg_col).Value           = ALL_HC_REVS_ARRAY(current_budg, hc_reviews)
+            ObjExcel.Cells(not_waived_excel_row, tikl_col).Value           = ALL_HC_REVS_ARRAY(tikl_done, hc_reviews)
+            ObjExcel.Cells(not_waived_excel_row, notes_col).Value          = ALL_HC_REVS_ARRAY(case_notes, hc_reviews)
+
+            not_waived_excel_row = not_waived_excel_row + 1
+
+        End If
     End If
 Next
 
-If developer_mode = FALSE Then
-    For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
-        MAXIS_case_number = ALL_HC_REVS_ARRAY (case_nrb, hc_reviews)
+' If developer_mode = FALSE Then
+'     For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
+'         MAXIS_case_number = ALL_HC_REVS_ARRAY (case_nrb, hc_reviews)
+'
+'         If ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = TRUE Then
+'             navigate_to_MAXIS_screen "DAIL", "WRIT"
+'             call create_MAXIS_friendly_date(date, 0, 5, 18)
+'         	EMWritescreen "%^% Sent through background for Paperless IR Review %^%", 9, 3
+'         	transmit
+'         	EMReadScreen tikl_success, 4, 24, 2
+'             ' MsgBox "Suc? - ''" & tikl_success & "'"
+'         	If tikl_success <> "    " Then
+'                 ALL_HC_REVS_ARRAY(tikl_done, hc_reviews) = "Fail"
+'                 ' MsgBox "This case - " & MAXIS_case_number & " failed to have a TIKL set, track and case note manually"
+'             Else
+'                 ALL_HC_REVS_ARRAY(tikl_done, hc_reviews) = "Success"
+'             End If
+'         	PF3
+'         End If
+'
+'     Next
+' End If
 
-        If ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = TRUE Then
-            navigate_to_MAXIS_screen "DAIL", "WRIT"
-            call create_MAXIS_friendly_date(date, 0, 5, 18)
-        	EMWritescreen "%^% Sent through background for Paperless IR Review %^%", 9, 3
-        	transmit
-        	EMReadScreen tikl_success, 4, 24, 2
-            ' MsgBox "Suc? - ''" & tikl_success & "'"
-        	If tikl_success <> "    " Then
-                ALL_HC_REVS_ARRAY(tikl_done, hc_reviews) = "Fail"
-                ' MsgBox "This case - " & MAXIS_case_number & " failed to have a TIKL set, track and case note manually"
-            Else
-                ALL_HC_REVS_ARRAY(tikl_done, hc_reviews) = "Success"
-            End If
-        	PF3
-        End If
-
-    Next
-End If
 'Create Multidimensional Array for all of the information about each case
 'Go to REVS for each worker and get all of the Exempt Cases along with other reviews due
 'Go to STAT and confirm actually paperless
@@ -541,182 +856,80 @@ End If
 '
 
 
-'Opening the Excel file
-Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add()
-objExcel.DisplayAlerts = True
 
-'Name for the current sheet'
-ObjExcel.ActiveSheet.Name = "WAIVED IR Reviews"
 
-col_to_use = 1
 
-'Excel headers and formatting the columns
-objExcel.Cells(1, col_to_use).Value  = "BASKET"
-basket_col = col_to_use
-col_to_use = col_to_use + 1
+' For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
+'     If ALL_HC_REVS_ARRAY(actually_paperless, hc_reviews) = TRUE Then
+'
+'         ObjExcel.Cells(excel_row, basket_col).Value         = ALL_HC_REVS_ARRAY(basket_nbr, hc_reviews)
+'         ObjExcel.Cells(excel_row, case_number_col).Value    = ALL_HC_REVS_ARRAY(case_nrb, hc_reviews)
+'         ObjExcel.Cells(excel_row, client_name_col).Value    = ALL_HC_REVS_ARRAY(clt_name, hc_reviews)
+'         ObjExcel.Cells(excel_row, membs_col).Value          = ALL_HC_REVS_ARRAY(memb_on_hc, hc_reviews)
+'         ObjExcel.Cells(excel_row, magi_col).Value           = ALL_HC_REVS_ARRAY(hc_type, hc_reviews)
+'         ObjExcel.Cells(excel_row, current_revw_col).Value   = ALL_HC_REVS_ARRAY(revw_type, hc_reviews)
+'         ' ObjExcel.Cells(excel_row, paperless_col).Value      = ALL_HC_REVS_ARRAY(waived_revw, hc_reviews)
+'         ObjExcel.Cells(excel_row, hc_sr_col).Value          = ALL_HC_REVS_ARRAY(hc_sr_date, hc_reviews)
+'         ObjExcel.Cells(excel_row, hc_er_col).Value          = ALL_HC_REVS_ARRAY(hc_er_date, hc_reviews)
+'         ObjExcel.Cells(excel_row, new_hc_sr_col).Value      = ALL_HC_REVS_ARRAY(new_hc_sr, hc_reviews)
+'         ObjExcel.Cells(excel_row, new_hc_er_col).Value      = ALL_HC_REVS_ARRAY(new_hc_er, hc_reviews)
+'
+'         ObjExcel.Cells(excel_row, cash_col).Value           = ALL_HC_REVS_ARRAY(cash_status, hc_reviews)
+'         ObjExcel.Cells(excel_row, cash_er_col).Value        = ALL_HC_REVS_ARRAY(ca_er_date, hc_reviews)
+'         ObjExcel.Cells(excel_row, new_cash_er_col).Value    = ALL_HC_REVS_ARRAY(new_ca_er, hc_reviews)
+'
+'         ObjExcel.Cells(excel_row, snap_col).Value           = ALL_HC_REVS_ARRAY(SNAP_status, hc_reviews)
+'         ObjExcel.Cells(excel_row, snap_sr_col).Value        = ALL_HC_REVS_ARRAY(fs_sr_date, hc_reviews)
+'         ObjExcel.Cells(excel_row, snap_er_col).Value        = ALL_HC_REVS_ARRAY(fs_er_date, hc_reviews)
+'         ObjExcel.Cells(excel_row, new_snap_sr_col).Value    = ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews)
+'         ObjExcel.Cells(excel_row, new_snap_er_col).Value    = ALL_HC_REVS_ARRAY(new_fs_er, hc_reviews)
+'
+'         ObjExcel.Cells(excel_row, updates_col).Value        = ALL_HC_REVS_ARRAY(membs_updated, hc_reviews)
+'         ObjExcel.Cells(excel_row, budg_col).Value           = ALL_HC_REVS_ARRAY(current_budg, hc_reviews)
+'         ObjExcel.Cells(excel_row, tikl_col).Value           = ALL_HC_REVS_ARRAY(tikl_done, hc_reviews)
+'         ObjExcel.Cells(excel_row, notes_col).Value          = ALL_HC_REVS_ARRAY(case_notes, hc_reviews)
+'
+'         ' 'Constants
+'         ' const case_nrb      = 0
+'         ' const basket_nbr    = 1
+'         ' const clt_name      = 2
+'         ' const memb_on_hc    = 3
+'         ' const revw_type     = 4
+'         ' const hc_sr_date    = 5
+'         ' const hc_er_date    = 6
+'         '
+'         ' const new_hc_sr     = 7
+'         ' const new_hc_er     = 8
+'         '
+'         ' const cash_revw     = 9
+'         ' const SNAP_revw     = 10
+'         '
+'         ' const ca_sr_date    = 11
+'         ' const ca_er_date    = 12
+'         ' const fs_sr_date    = 13
+'         ' const fs_er_date    = 14
+'         '
+'         ' const new_ca_er     = 15
+'         ' const new_fs_sr     = 16
+'         ' const new_fs_er     = 17
+'         '
+'         ' const time_between  = 18
+'         ' const hc_type       = 19
+'         ' const cash_status   = 20
+'         ' const SNAP_status   = 21
+'         ' const waived_revw   = 22
+'         ' const actually_paperless = 23
+'         ' const membs_updated = 24
+'         ' const current_budg  = 25
+'         ' const tikl_done     = 26
+'         ' const case_notes    = 27
+'         excel_row = excel_row + 1
+'     End If
+' Next
 
-objExcel.Cells(1, col_to_use).Value  = "CASE NUMBER"
-case_number_col = col_to_use
-col_to_use = col_to_use + 1
+objExcel.worksheets("WAIVED IR Reviews").Activate
 
-objExcel.Cells(1, col_to_use).Value  = "CLIENT NAME"
-client_name_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value  = "MEMBS ON HC"
-membs_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value  = "MAGI HC"
-magi_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value  = "Current HC REVW"
-current_revw_col = col_to_use
-current_revw_letter_col = convert_digit_to_excel_column(current_revw_col)
-col_to_use = col_to_use + 1
-
-' objExcel.Cells(1, col_to_use).Value  = "Paperless IR"
-' paperless_col = col_to_use
-' paperless_letter_col = convert_digit_to_excel_column(paperless_col)
-' col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value  = "HC SR"
-hc_sr_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value  = "HC ER"
-hc_er_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value  = "NEW HC SR"
-new_hc_sr_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value  = "NEW HC ER"
-new_hc_er_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value  = "Cash Status"
-cash_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "Cash ER"
-cash_er_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "NEW Cash ER"
-new_cash_er_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "SNAP Status"
-snap_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "SNAP SR"
-snap_sr_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "SNAP ER"
-snap_er_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "NEW SNAP SR"
-new_snap_sr_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "HH Updt on REVW"
-updates_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "Budget"
-budg_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "TIKL"
-tikl_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "NOTES"
-notes_col = col_to_use
-col_to_use = col_to_use + 1
-
-For i = 1 to col_to_use
-    ObjExcel.Cells(1, i).Font.Bold = TRUE
-Next
-
-excel_row = 2
-For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
-    If ALL_HC_REVS_ARRAY(actually_paperless, hc_reviews) = TRUE Then
-
-        ObjExcel.Cells(excel_row, basket_col).Value         = ALL_HC_REVS_ARRAY(basket_nbr, hc_reviews)
-        ObjExcel.Cells(excel_row, case_number_col).Value    = ALL_HC_REVS_ARRAY(case_nrb, hc_reviews)
-        ObjExcel.Cells(excel_row, client_name_col).Value    = ALL_HC_REVS_ARRAY(clt_name, hc_reviews)
-        ObjExcel.Cells(excel_row, membs_col).Value          = ALL_HC_REVS_ARRAY(memb_on_hc, hc_reviews)
-        ObjExcel.Cells(excel_row, magi_col).Value           = ALL_HC_REVS_ARRAY(hc_type, hc_reviews)
-        ObjExcel.Cells(excel_row, current_revw_col).Value   = ALL_HC_REVS_ARRAY(revw_type, hc_reviews)
-        ' ObjExcel.Cells(excel_row, paperless_col).Value      = ALL_HC_REVS_ARRAY(waived_revw, hc_reviews)
-        ObjExcel.Cells(excel_row, hc_sr_col).Value          = ALL_HC_REVS_ARRAY(hc_sr_date, hc_reviews)
-        ObjExcel.Cells(excel_row, hc_er_col).Value          = ALL_HC_REVS_ARRAY(hc_er_date, hc_reviews)
-        ObjExcel.Cells(excel_row, new_hc_sr_col).Value      = ALL_HC_REVS_ARRAY(new_hc_sr, hc_reviews)
-        ObjExcel.Cells(excel_row, new_hc_er_col).Value      = ALL_HC_REVS_ARRAY(new_hc_er, hc_reviews)
-
-        ObjExcel.Cells(excel_row, cash_col).Value           = ALL_HC_REVS_ARRAY(cash_status, hc_reviews)
-        ObjExcel.Cells(excel_row, cash_er_col).Value        = ALL_HC_REVS_ARRAY(ca_er_date, hc_reviews)
-        ObjExcel.Cells(excel_row, new_cash_er_col).Value    = ALL_HC_REVS_ARRAY(new_ca_er, hc_reviews)
-
-        ObjExcel.Cells(excel_row, snap_col).Value           = ALL_HC_REVS_ARRAY(SNAP_status, hc_reviews)
-        ObjExcel.Cells(excel_row, snap_sr_col).Value        = ALL_HC_REVS_ARRAY(fs_sr_date, hc_reviews)
-        ObjExcel.Cells(excel_row, snap_er_col).Value        = ALL_HC_REVS_ARRAY(fs_er_date, hc_reviews)
-        ObjExcel.Cells(excel_row, new_snap_sr_col).Value    = ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews)
-        ObjExcel.Cells(excel_row, new_snap_er_col).Value    = ALL_HC_REVS_ARRAY(new_fs_er, hc_reviews)
-
-        ObjExcel.Cells(excel_row, updates_col).Value        = ALL_HC_REVS_ARRAY(membs_updated, hc_reviews)
-        ObjExcel.Cells(excel_row, budg_col).Value           = ALL_HC_REVS_ARRAY(current_budg, hc_reviews)
-        ObjExcel.Cells(excel_row, tikl_col).Value           = ALL_HC_REVS_ARRAY(tikl_done, hc_reviews)
-        ObjExcel.Cells(excel_row, notes_col).Value          = ALL_HC_REVS_ARRAY(case_notes, hc_reviews)
-
-        ' 'Constants
-        ' const case_nrb      = 0
-        ' const basket_nbr    = 1
-        ' const clt_name      = 2
-        ' const memb_on_hc    = 3
-        ' const revw_type     = 4
-        ' const hc_sr_date    = 5
-        ' const hc_er_date    = 6
-        '
-        ' const new_hc_sr     = 7
-        ' const new_hc_er     = 8
-        '
-        ' const cash_revw     = 9
-        ' const SNAP_revw     = 10
-        '
-        ' const ca_sr_date    = 11
-        ' const ca_er_date    = 12
-        ' const fs_sr_date    = 13
-        ' const fs_er_date    = 14
-        '
-        ' const new_ca_er     = 15
-        ' const new_fs_sr     = 16
-        ' const new_fs_er     = 17
-        '
-        ' const time_between  = 18
-        ' const hc_type       = 19
-        ' const cash_status   = 20
-        ' const SNAP_status   = 21
-        ' const waived_revw   = 22
-        ' const actually_paperless = 23
-        ' const membs_updated = 24
-        ' const current_budg  = 25
-        ' const tikl_done     = 26
-        ' const case_notes    = 27
-        excel_row = excel_row + 1
-    End If
-Next
-
-col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
+col_to_use = last_col + 2	'Doing two because the wrap-up is two columns
 letter_col_to_use = convert_digit_to_excel_column(col_to_use)
 
 'Query date/time/runtime info
@@ -731,188 +944,89 @@ For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
 
-'Going to another sheet, to enter worker-specific statistics
-ObjExcel.Worksheets.Add().Name = "Cases NOT Actually Waived"
-
-col_to_use = 1
-
-'Excel headers and formatting the columns
-objExcel.Cells(1, col_to_use).Value  = "BASKET"
-basket_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value  = "CASE NUMBER"
-case_number_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value  = "CLIENT NAME"
-client_name_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value  = "MEMBS ON HC"
-membs_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value  = "MAGI HC"
-magi_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value  = "Current HC REVW"
-current_revw_col = col_to_use
-current_revw_letter_col = convert_digit_to_excel_column(current_revw_col)
-col_to_use = col_to_use + 1
-
-' objExcel.Cells(1, col_to_use).Value  = "Paperless IR"
-' paperless_col = col_to_use
-' paperless_letter_col = convert_digit_to_excel_column(paperless_col)
-' col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value  = "HC SR"
-hc_sr_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value  = "HC ER"
-hc_er_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value  = "NEW HC SR"
-new_hc_sr_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value  = "NEW HC ER"
-new_hc_er_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value  = "Cash Status"
-cash_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "Cash ER"
-cash_er_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "NEW Cash ER"
-new_cash_er_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "SNAP Status"
-snap_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "SNAP SR"
-snap_sr_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "SNAP ER"
-snap_er_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "NEW SNAP SR"
-new_snap_sr_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "HH Updt on REVW"
-updates_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "Budget"
-budg_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "TIKL"
-tikl_col = col_to_use
-col_to_use = col_to_use + 1
-
-objExcel.Cells(1, col_to_use).Value = "NOTES"
-notes_col = col_to_use
-col_to_use = col_to_use + 1
-
-For i = 1 to col_to_use
-    ObjExcel.Cells(1, i).Font.Bold = TRUE
-Next
-
-excel_row = 2
-For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
-    If ALL_HC_REVS_ARRAY(actually_paperless, hc_reviews) = FALSE Then
-
-        ObjExcel.Cells(excel_row, basket_col).Value         = ALL_HC_REVS_ARRAY(basket_nbr, hc_reviews)
-        ObjExcel.Cells(excel_row, case_number_col).Value    = ALL_HC_REVS_ARRAY(case_nrb, hc_reviews)
-        ObjExcel.Cells(excel_row, client_name_col).Value    = ALL_HC_REVS_ARRAY(clt_name, hc_reviews)
-        ObjExcel.Cells(excel_row, membs_col).Value          = ALL_HC_REVS_ARRAY(memb_on_hc, hc_reviews)
-        ObjExcel.Cells(excel_row, magi_col).Value           = ALL_HC_REVS_ARRAY(hc_type, hc_reviews)
-        ObjExcel.Cells(excel_row, current_revw_col).Value   = ALL_HC_REVS_ARRAY(revw_type, hc_reviews)
-        ' ObjExcel.Cells(excel_row, paperless_col).Value      = ALL_HC_REVS_ARRAY(waived_revw, hc_reviews)
-        ObjExcel.Cells(excel_row, hc_sr_col).Value          = ALL_HC_REVS_ARRAY(hc_sr_date, hc_reviews)
-        ObjExcel.Cells(excel_row, hc_er_col).Value          = ALL_HC_REVS_ARRAY(hc_er_date, hc_reviews)
-        ObjExcel.Cells(excel_row, new_hc_sr_col).Value      = ALL_HC_REVS_ARRAY(new_hc_sr, hc_reviews)
-        ObjExcel.Cells(excel_row, new_hc_er_col).Value      = ALL_HC_REVS_ARRAY(new_hc_er, hc_reviews)
-
-        ObjExcel.Cells(excel_row, cash_col).Value           = ALL_HC_REVS_ARRAY(cash_status, hc_reviews)
-        ObjExcel.Cells(excel_row, cash_er_col).Value        = ALL_HC_REVS_ARRAY(ca_er_date, hc_reviews)
-        ObjExcel.Cells(excel_row, new_cash_er_col).Value    = ALL_HC_REVS_ARRAY(new_ca_er, hc_reviews)
-
-        ObjExcel.Cells(excel_row, snap_col).Value           = ALL_HC_REVS_ARRAY(SNAP_status, hc_reviews)
-        ObjExcel.Cells(excel_row, snap_sr_col).Value        = ALL_HC_REVS_ARRAY(fs_sr_date, hc_reviews)
-        ObjExcel.Cells(excel_row, snap_er_col).Value        = ALL_HC_REVS_ARRAY(fs_er_date, hc_reviews)
-        ObjExcel.Cells(excel_row, new_snap_sr_col).Value    = ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews)
-        ObjExcel.Cells(excel_row, new_snap_er_col).Value    = ALL_HC_REVS_ARRAY(new_fs_er, hc_reviews)
-
-        ObjExcel.Cells(excel_row, updates_col).Value        = ALL_HC_REVS_ARRAY(membs_updated, hc_reviews)
-        ObjExcel.Cells(excel_row, budg_col).Value           = ALL_HC_REVS_ARRAY(current_budg, hc_reviews)
-        ObjExcel.Cells(excel_row, tikl_col).Value           = ALL_HC_REVS_ARRAY(tikl_done, hc_reviews)
-        ObjExcel.Cells(excel_row, notes_col).Value          = ALL_HC_REVS_ARRAY(case_notes, hc_reviews)
-
-        ' 'Constants
-        ' const case_nrb      = 0
-        ' const basket_nbr    = 1
-        ' const clt_name      = 2
-        ' const memb_on_hc    = 3
-        ' const revw_type     = 4
-        ' const hc_sr_date    = 5
-        ' const hc_er_date    = 6
-        '
-        ' const new_hc_sr     = 7
-        ' const new_hc_er     = 8
-        '
-        ' const cash_revw     = 9
-        ' const SNAP_revw     = 10
-        '
-        ' const ca_sr_date    = 11
-        ' const ca_er_date    = 12
-        ' const fs_sr_date    = 13
-        ' const fs_er_date    = 14
-        '
-        ' const new_ca_er     = 15
-        ' const new_fs_sr     = 16
-        ' const new_fs_er     = 17
-        '
-        ' const time_between  = 18
-        ' const hc_type       = 19
-        ' const cash_status   = 20
-        ' const SNAP_status   = 21
-        ' const waived_revw   = 22
-        ' const actually_paperless = 23
-        ' const membs_updated = 24
-        ' const current_budg  = 25
-        ' const tikl_done     = 26
-        ' const case_notes    = 27
-        excel_row = excel_row + 1
-    End If
-Next
-
-col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
-letter_col_to_use = convert_digit_to_excel_column(col_to_use)
-
-'Query date/time/runtime info
-ObjExcel.Cells(1, col_to_use - 1).Value = "Query date and time:"	'Goes back one, as this is on the next row
-ObjExcel.Cells(1, col_to_use).Value = now
-ObjExcel.Cells(2, col_to_use - 1).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
-ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
-
-
-'Autofitting columns
-For col_to_autofit = 1 to col_to_use
-	ObjExcel.columns(col_to_autofit).AutoFit()
-Next
+'
+' excel_row = 2
+' For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
+'     If ALL_HC_REVS_ARRAY(actually_paperless, hc_reviews) = FALSE Then
+'
+'         ObjExcel.Cells(excel_row, basket_col).Value         = ALL_HC_REVS_ARRAY(basket_nbr, hc_reviews)
+'         ObjExcel.Cells(excel_row, case_number_col).Value    = ALL_HC_REVS_ARRAY(case_nrb, hc_reviews)
+'         ObjExcel.Cells(excel_row, client_name_col).Value    = ALL_HC_REVS_ARRAY(clt_name, hc_reviews)
+'         ObjExcel.Cells(excel_row, membs_col).Value          = ALL_HC_REVS_ARRAY(memb_on_hc, hc_reviews)
+'         ObjExcel.Cells(excel_row, magi_col).Value           = ALL_HC_REVS_ARRAY(hc_type, hc_reviews)
+'         ObjExcel.Cells(excel_row, current_revw_col).Value   = ALL_HC_REVS_ARRAY(revw_type, hc_reviews)
+'         ' ObjExcel.Cells(excel_row, paperless_col).Value      = ALL_HC_REVS_ARRAY(waived_revw, hc_reviews)
+'         ObjExcel.Cells(excel_row, hc_sr_col).Value          = ALL_HC_REVS_ARRAY(hc_sr_date, hc_reviews)
+'         ObjExcel.Cells(excel_row, hc_er_col).Value          = ALL_HC_REVS_ARRAY(hc_er_date, hc_reviews)
+'         ObjExcel.Cells(excel_row, new_hc_sr_col).Value      = ALL_HC_REVS_ARRAY(new_hc_sr, hc_reviews)
+'         ObjExcel.Cells(excel_row, new_hc_er_col).Value      = ALL_HC_REVS_ARRAY(new_hc_er, hc_reviews)
+'
+'         ObjExcel.Cells(excel_row, cash_col).Value           = ALL_HC_REVS_ARRAY(cash_status, hc_reviews)
+'         ObjExcel.Cells(excel_row, cash_er_col).Value        = ALL_HC_REVS_ARRAY(ca_er_date, hc_reviews)
+'         ObjExcel.Cells(excel_row, new_cash_er_col).Value    = ALL_HC_REVS_ARRAY(new_ca_er, hc_reviews)
+'
+'         ObjExcel.Cells(excel_row, snap_col).Value           = ALL_HC_REVS_ARRAY(SNAP_status, hc_reviews)
+'         ObjExcel.Cells(excel_row, snap_sr_col).Value        = ALL_HC_REVS_ARRAY(fs_sr_date, hc_reviews)
+'         ObjExcel.Cells(excel_row, snap_er_col).Value        = ALL_HC_REVS_ARRAY(fs_er_date, hc_reviews)
+'         ObjExcel.Cells(excel_row, new_snap_sr_col).Value    = ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews)
+'         ObjExcel.Cells(excel_row, new_snap_er_col).Value    = ALL_HC_REVS_ARRAY(new_fs_er, hc_reviews)
+'
+'         ObjExcel.Cells(excel_row, updates_col).Value        = ALL_HC_REVS_ARRAY(membs_updated, hc_reviews)
+'         ObjExcel.Cells(excel_row, budg_col).Value           = ALL_HC_REVS_ARRAY(current_budg, hc_reviews)
+'         ObjExcel.Cells(excel_row, tikl_col).Value           = ALL_HC_REVS_ARRAY(tikl_done, hc_reviews)
+'         ObjExcel.Cells(excel_row, notes_col).Value          = ALL_HC_REVS_ARRAY(case_notes, hc_reviews)
+'
+'         ' 'Constants
+'         ' const case_nrb      = 0
+'         ' const basket_nbr    = 1
+'         ' const clt_name      = 2
+'         ' const memb_on_hc    = 3
+'         ' const revw_type     = 4
+'         ' const hc_sr_date    = 5
+'         ' const hc_er_date    = 6
+'         '
+'         ' const new_hc_sr     = 7
+'         ' const new_hc_er     = 8
+'         '
+'         ' const cash_revw     = 9
+'         ' const SNAP_revw     = 10
+'         '
+'         ' const ca_sr_date    = 11
+'         ' const ca_er_date    = 12
+'         ' const fs_sr_date    = 13
+'         ' const fs_er_date    = 14
+'         '
+'         ' const new_ca_er     = 15
+'         ' const new_fs_sr     = 16
+'         ' const new_fs_er     = 17
+'         '
+'         ' const time_between  = 18
+'         ' const hc_type       = 19
+'         ' const cash_status   = 20
+'         ' const SNAP_status   = 21
+'         ' const waived_revw   = 22
+'         ' const actually_paperless = 23
+'         ' const membs_updated = 24
+'         ' const current_budg  = 25
+'         ' const tikl_done     = 26
+'         ' const case_notes    = 27
+'         excel_row = excel_row + 1
+'     End If
+' Next
+'
+' col_to_use = col_to_use + 2	'Doing two because the wrap-up is two columns
+' letter_col_to_use = convert_digit_to_excel_column(col_to_use)
+'
+' 'Query date/time/runtime info
+' ObjExcel.Cells(1, col_to_use - 1).Value = "Query date and time:"	'Goes back one, as this is on the next row
+' ObjExcel.Cells(1, col_to_use).Value = now
+' ObjExcel.Cells(2, col_to_use - 1).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
+' ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
+'
+'
+' 'Autofitting columns
+' For col_to_autofit = 1 to col_to_use
+' 	ObjExcel.columns(col_to_autofit).AutoFit()
+' Next
 
 script_end_procedure("Success! All starred (*) IRs have been sent into background, except those with current JOBS/BUSI/RBIC, those who have members other than 01 open, or those who also have SNAP up for review. You must go through and approve these results when they come through background.")
