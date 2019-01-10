@@ -52,6 +52,29 @@ call changelog_update("03/27/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 'Connecting to MAXIS, and grabbing the case number and footer month'
+'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
+ current_month_plus_one = dateadd("m", 1, date)
+
+ MAXIS_footer_month = datepart("m", current_month_plus_one)
+ If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
+
+ MAXIS_footer_year = datepart("yyyy", current_month_plus_one)
+ MAXIS_footer_year = MAXIS_footer_year - 2000
+
+ current_month = datepart("m", date)
+ If len(current_month) = 1 then current_month = "0" & current_month
+
+ current_year = datepart("yyyy", date)
+ current_year = current_year - 2000
+
+ current_month_and_year = current_month & "/" & current_year
+ next_month_and_year = MAXIS_footer_month & "/" & MAXIS_footer_year
+
+'datediff("m", updated_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year)
+
+'MAXIS_footer_month = right("00"&MAXIS_footer_month, 2)
+'MAXIS_footer_year = right("00"&MAXIS_footer_year, 2)
+
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
@@ -85,10 +108,10 @@ BeginDialog good_cause_dialog, 0, 0, 386, 285, "Good Cause"
   EditBox 170, 25, 40, 15, review_date
   EditBox 80, 45, 20, 15, memb_number
   EditBox 170, 45, 40, 15, actual_date
-  CheckBox 225, 15, 25, 15, "CCA", CCA_CHECKBOX
+  CheckBox 225, 15, 25, 10, "CCA", CCA_CHECKBOX
   CheckBox 225, 30, 30, 10, "DWP", DWP_CHECKBOX
   CheckBox 225, 45, 30, 10, "METS", METS_CHECKBOX
-  CheckBox 260, 15, 20, 10, "HC", HC_CHECKBOX
+  CheckBox 260, 15, 25, 10, "HC", HC_CHECKBOX
   CheckBox 260, 30, 20, 10, "FS", FS_CHECKBOX
   CheckBox 260, 45, 20, 10, "MF", MFIP_CHECKBOX
   CheckBox 305, 15, 60, 10, "Sup Evidence", sup_evidence_check
@@ -96,7 +119,7 @@ BeginDialog good_cause_dialog, 0, 0, 386, 285, "Good Cause"
   CheckBox 305, 45, 70, 10, "Med Sup Svc Only", med_sup_check
   DropListBox 30, 65, 55, 15, "Select One:"+chr(9)+"Denied"+chr(9)+"Granted"+chr(9)+"Not Claimed"+chr(9)+"Pending", gc_status
   DropListBox 115, 65, 115, 15, "Select One:"+chr(9)+"Application Review-Complete"+chr(9)+"Application Review-Incomplete"+chr(9)+"Change/exemption ending"+chr(9)+"Determination"+chr(9)+"Recertification", good_cause_droplist
-  DropListBox 265, 65, 115, 15, "Select One:"+chr(9)+"Potential phys harm/Child"+chr(9)+"Potential Emotnl harm/Child"+chr(9)+"Potential phys harm/Caregiver"+chr(9)+"Potential Emotnl harm/Caregiver"+chr(9)+"Cncptn Incest/Forced Rape"+chr(9)+"Legal adoption Before Court"+chr(9)+"Parent Gets Preadoptn Svc"+chr(9)+"No Longer Claiming", reason_droplist
+  DropListBox 265, 65, 115, 15, "Select One:"+chr(9)+"Potential phys harm/child"+chr(9)+"Potential phys harm/child"+chr(9)+"Potential phys harm/caregiver"+chr(9)+"Potential emotnl harm/caregiver"+chr(9)+"Cncptn incest/forced rape"+chr(9)+"Legal adoption before court"+chr(9)+"Parent gets preadoptn svc"+chr(9)+"No Longer Claiming", reason_droplist
   CheckBox 10, 95, 145, 10, "ABPS name not written on the correct line", ABPS_CHECKBOX
   CheckBox 10, 105, 140, 10, "Reason for requesting GC not selected", REASON_CHECKBOX
   CheckBox 165, 95, 120, 10, "All of the questions not answered", QUESTIONS_CHECKBOX
@@ -123,18 +146,19 @@ BeginDialog good_cause_dialog, 0, 0, 386, 285, "Good Cause"
   Text 90, 70, 25, 10, "Action:"
   Text 235, 70, 30, 10, "Reason:"
   Text 5, 70, 25, 10, "Status:"
-  Text 5, 130, 60, 10, "Mets Information:"
-  Text 5, 150, 60, 10, "Verifs Requested:"
-  Text 155, 130, 50, 10, "Denial Reason:"
-  Text 165, 150, 45, 10, "Other Notes:"
+  Text 5, 130, 60, 10, "Mets information:"
+  Text 5, 150, 60, 10, "Verifs requested:"
+  Text 155, 130, 50, 10, "Denial reason:"
+  Text 165, 150, 45, 10, "Other notes:"
   Text 120, 30, 45, 10, "Next review:"
-  GroupBox 220, 5, 65, 55, "Programs"
+  GroupBox 300, 5, 80, 55, "Follow up"
   GroupBox 5, 85, 375, 35, "Incomplete Form:"
   Text 5, 10, 45, 10, "Case number:"
   Text 125, 10, 40, 10, "Claim date:"
   Text 5, 50, 65, 10, "Child's MEMB #(s):"
   Text 5, 30, 50, 10, "Footer MM/YY:"
   GroupBox 5, 165, 250, 115, "Verifications"
+  GroupBox 220, 5, 65, 55, "Programs"
 EndDialog
 
 'Initial dialog giving the user the option to select the type of good cause action
@@ -167,22 +191,48 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-'Call MAXIS_footer_month_confirmation			'function that confirms that the current footer month/year is the same as what was selected by the user. If not, it will navigate to correct footer month/year
-
 	'----------------------------------------------------------------------------------------------------ABPS panel
-'DO
 	Call MAXIS_footer_month_confirmation
 	Call navigate_to_MAXIS_screen("STAT", "ABPS")
+	EMReadScreen child_ref_number, 2, 15, 35
+	EMReadScreen child_ref_number_II, 2, 16, 35
+	EMReadScreen child_ref_number_III, 2, 17, 35
+	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
+	IF parental_status = "2" THEN
+		client_name = "Unknown"
+	ELSEIF parental_status = "3" THEN
+		client_name = "ABPS deceased"
+	ELSEIF parental_status = "4" THEN
+		client_name = "Rights Severed"
+	ELSEIF parental_status = "7" THEN
+		client_name = "HC No Order Sup"
+	ELSEIF parental_status = "1" THEN
+		EMReadScreen first_name, 12, 10, 63
+		EMReadScreen last_name, 24, 10, 30
+		first_name = trim(first_name)
+		last_name = trim(last_name)
+		first_name = replace(first_name, "_", "")
+		last_name = replace(last_name, "_", "")
+		client_name = first_name & " " & last_name
+		Call fix_case_for_name(client_name)
+		EMReadScreen ABPS_gender, 1, 11, 80	'reading the ssn
+		EMReadScreen ABPS_SSN, 11, 11, 30	'reading the ssn
+		EMReadScreen ABPS_DOB, 10, 11, 60	'reading the DOB
+		EMReadScreen ABPS_parent_ID, 10, 13, 40	'making sure ABPS is not unknown.
+		ABPS_parent_ID = trim(ABPS_parent_ID)
+		EMReadScreen HC_ins_order, 1, 12, 44	'making sure ABPS is not unknown.
+		EMReadScreen HC_ins_compliance, 1, 12, 80
+	END IF
+	'24, 02"THIS DATA WILL EXPIRE ON --/--/--"
 DO
-	msgbox MAXIS_footer_month\
-	'Making sure we have the correct ABPS
+
 	EMReadScreen panel_number, 1, 2, 78
 	If panel_number = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
 	Do
 		EMReadScreen current_panel_number, 1, 2, 73
-		ABPS_check = MsgBox("Is this the right ABPS?", vbYesNo + vbQuestion, "Confirmation")
+		ABPS_check = MsgBox("Is this the right ABPS?" & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
 		If ABPS_check = vbYes then exit do
-		If ABPS_check = vbNo then TRANSMIT
+		If ABPS_check = vbNo then TRANSMITm
 		If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
 	Loop until current_panel_number = panel_number
 
@@ -228,13 +278,13 @@ DO
 	END IF
 
 	'converting the good cause reason from reason_droplist to the applicable MAXIS coding
-	If reason_droplist = "Potential phys harm/Child"		then claim_reason = "1"
-	If reason_droplist = "Potential Emotnl harm/Child"	 	then claim_reason = "2"
-	If reason_droplist = "Potential phys harm/Caregiver" 	then claim_reason = "3"
-	If reason_droplist = "Potential Emotnl harm/Caregiver" 	then claim_reason = "4"
-	If reason_droplist = "Cncptn Incest/Forced Rape" 		then claim_reason = "5"
-	If reason_droplist = "Legal adoption Before Court" 		then claim_reason = "6"
-	If reason_droplist = "Parent Gets Preadoptn Svc" 		then claim_reason = "7"
+	If reason_droplist = "Potential phys harm/child"		then claim_reason = "1"
+	If reason_droplist = "Potential phys harm/child"	 	then claim_reason = "2"
+	If reason_droplist = "Potential phys harm/caregiver" 	then claim_reason = "3"
+	If reason_droplist = "Potential emotnl harm/caregiver" 	then claim_reason = "4"
+	If reason_droplist = "Cncptn incest/forced rape" 		then claim_reason = "5"
+	If reason_droplist = "Legal adoption before court" 		then claim_reason = "6"
+	If reason_droplist = "Parent gets preadoptn svc" 		then claim_reason = "7"
 
 	IF gc_status <> "Not Claimed" THEN
 		Call create_MAXIS_friendly_date(datevalue(claim_date), 0, 5, 73)
@@ -244,26 +294,21 @@ DO
 		EMWriteScreen claim_reason, 6, 47
 		'Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
 	END IF
-	Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
-	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
-	IF parental_status = "2" THEN
-		client_name = "Unknown"
-	ELSEIF parental_status = "3" THEN
-		client_name = "ABPS deceased"
-	ELSEIF parental_status = "4" THEN
-		client_name = "Rights Severed"
-	ELSEIF parental_status = "7" THEN
-		client_name = "HC No Order Sup"
-	ELSEIF parental_status = "1" THEN
-		EMReadScreen first_name, 12, 10, 63
-		EMReadScreen last_name, 24, 10, 30
-		first_name = trim(first_name)
-		last_name = trim(last_name)
-		first_name = replace(first_name, "_", "")
-		last_name = replace(last_name, "_", "")
-		client_name = first_name & " " & last_name
-		Call fix_case_for_name(client_name)
+
+	EMReadScreen parental_status_check, 1, 15, 53
+	IF parental_status <> parental_status_check THEN
+		EmWriteScreen parental_status 15, 53 THEN
+		IF first_name <> "" THEN EmWriteScreen first_name, 10, 63
+		IF last_name <> "" THEN EmWriteScreen last_name, 10, 30
+		IF ABPS_gender <> "" THEN EmWriteScreen ABPS_gender, 11, 80	'reading the ssn
+		IF ABPS_SSN <> "" THEN EmWriteScreen ABPS_SSN, 11, 30	'reading the ssn
+		IF ABPS_DOB <> "" THEN EmWriteScreen ABPS_DOB, 11, 60	'reading the DOB
+		IF HC_ins_order <> "" THEN EmWriteScreen HC_ins_order, 12, 44	'making sure ABPS is not unknown.
+		IF HC_ins_compliance <> "" THENEmWriteScreen HC_ins_compliance, 12, 80
+
 	END IF
+
+	Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
 
 	EMReadScreen ABPS_screen, 4, 2, 50		'if inhibiting error exists, this will catch it and instruct the user to update ABPS
 	'msgbox ABPS_screen
@@ -308,24 +353,50 @@ DO
 	'IF expire_msg = "THIS" THEN
 	PF3' this takes us back to stat/wrap
 	'Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-	msgbox MAXIS_footer_month
 	'IF MAXIS_footer_month <> CM_plus_1_mo THEN
-	Do
-		EMReadScreen MAXIS_footer_month, 2, 20, 55
-		MAXIS_footer_month_check = MsgBox("Do you need to run through backgorund?", vbYesNo + vbQuestion, "Maxis footer month")
-		If MAXIS_footer_month_check = vbYes THEN
-			EMWriteScreen "Y", 16, 54
-			TRANSMIT
-			EMReadScreen check_PNLP, 4, 2,53
-			IF check_PNLP = "PNLP" THEN
-				EMWriteScreen "ABPS", 20, 71
+	    Do
+	    	EMReadScreen MAXIS_footer_month, 2, 20, 55
+	    	MAXIS_footer_month_check = MsgBox("Do you need to run through backgorund?", vbYesNo + vbQuestion, "Maxis footer month")
+	    	If MAXIS_footer_month_check = vbYes THEN
+	    		EMWriteScreen "Y", 16, 54
+	    		TRANSMIT
+	    		EMReadScreen check_PNLP, 4, 2,53
+	    		IF check_PNLP = "PNLP" THEN
+	    			EMWriteScreen "ABPS", 20, 71
+	    			TRANSMIT
+	    			MsgBox "AM I IN A NEW FOOTER MONTH?"
+	    		END IF
+	    	END IF
+	    	If MAXIS_footer_month_check = vbNo then
 				TRANSMIT
-				MsgBox "AM I IN A NEW FOOTER MONTH?"
+				exit do
 			END IF
-		END IF
-		If MAXIS_footer_month_check = vbNo then exit do
-	Loop until MAXIS_footer_month_check = vbYes
-Loop until datediff("m", updated_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) <> 0
+	    Loop until MAXIS_footer_month_check = vbYes
+	'Else
+
+	    'first_of_this_month = MAXIS_footer_month & "/1/" & MAXIS_footer_year    'setting to a date so we can use date functionality
+	    ''MsgBox "FIRST - " &first_of_this_month
+	    'next_month = DateAdd("m", 1, first_of_this_month)       'going to the next month
+
+	    'Do
+	    '    next_month_mo = DatePart("m", next_month)       'finding the next month and creating a 2 digit variable for the month and year
+	    '    next_month_mo = right("00"&next_month_mo, 2)
+	    '    next_month_yr = DatePart("yyyy", next_month)
+	    '    next_month_yr = right(next_month_yr, 2)
+
+	    '    list_of_months = list_of_months & "~" & next_month_mo & "/" & next_month_yr     'creating a list of month/years that need to be looked at
+	    '    'MsgBox "List " & list_of_months
+
+	    '    first_of_this_month = next_month_mo & "/1/" & next_month_yr     'and to the next month
+	    '    next_month = DateAdd("m", 1, first_of_this_month)
+
+	    '    'MsgBox "Start month and year - " & next_month & vbNewLine & "DIFF " & DateDiff("d", date, next_month)
+	    'Loop until DateDiff("d", date, next_month) > 0      'doing this until the next month variable is after the current date
+
+	    'MsgBox "Complete List " & list_of_months
+	    'list_of_months = right(list_of_months, len(list_of_months)-1)   'creating an array of all the months to check
+	    'month_array = split(list_of_months, "~")
+Loop until MAXIS_footer_month_check = vbNo
 
 '-----------------------------------------------------------------------------------------------------Case note & email sending
 	start_a_blank_CASE_NOTE
