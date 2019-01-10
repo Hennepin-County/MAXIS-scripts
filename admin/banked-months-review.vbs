@@ -1896,8 +1896,16 @@ If process_option = "Ongoing Banked Months Cases" Then
                     two_mo_after_yr = right("00" & DatePart("yyyy", two_after), 2)
                     EmWriteScreen two_mo_before_mo, 6, 38
                     EmWriteScreen two_mo_before_yr, 6, 41
-                    EmWriteScreen two_mo_after_mo, 6, 53
-                    EmWriteScreen two_mo_after_yr, 6, 56
+                    If MAXIS_footer_month = CM_plus_1_mo AND MAXIS_footer_year = CM_plus_1_yr Then
+                        EmWriteScreen CM_plus_1_mo, 6, 53
+                        EmWriteScreen CM_plus_1_yr, 6, 56
+                    ElseIf MAXIS_footer_month = CM_mo AND MAXIS_footer_year = CM_yr Then
+                        EmWriteScreen CM_plus_1_mo, 6, 53
+                        EmWriteScreen CM_plus_1_yr, 6, 56
+                    Else
+                        EmWriteScreen two_mo_after_mo, 6, 53
+                        EmWriteScreen two_mo_after_yr, 6, 56
+                    End If
                     EmWriteScreen "X", 9, 5
 
                     transmit
