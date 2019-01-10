@@ -2970,7 +2970,12 @@ If process_option = "Ongoing Banked Months Cases" Then
                     Loop until elig_row = 19
 
                     If person_test_correct = FALSE Then
-
+                    BeginDialog Dialog1, 0, 0, 211, 105, "Dialog"
+                      ButtonGroup ButtonPressed
+                        OkButton 90, 85, 50, 15
+                        CancelButton 140, 85, 50, 15
+                      Text 5, 10, 200, 20, "Expectation is that only MEMB 01 is ineligible for SNAP due to use of all ABAWD and Banked Months being expired. "
+                    EndDialog
                     End If
 
 
