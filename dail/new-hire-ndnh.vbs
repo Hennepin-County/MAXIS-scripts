@@ -145,7 +145,6 @@ EMSearch "JOB DETAILS", row, col 	'Has to search, because every once in a while 
 If row = 0 then script_end_procedure("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
 EMReadScreen new_hire_first_line, 61, row, col - 7 'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
 	new_hire_first_line = replace(new_hire_first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
-
 	new_hire_first_line = trim(new_hire_first_line)
 EMReadScreen new_hire_second_line, 61, row + 1, col - 15
 	new_hire_second_line = trim(new_hire_second_line)
@@ -216,97 +215,96 @@ IF match_answer_droplist = "NO - RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AN
 	TIKL_checkbox = CHECKED
 	'Setting the variable for the following do...loop
 	HH_memb_row = 5
-'	Show dialog
-DO
 	DO
-		Dialog new_HIRE_dialog
-		cancel_confirmation
-		MAXIS_dialog_navigation
-	LOOP UNTIL ButtonPressed = -1
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
+	    DO
+	    	Dialog new_HIRE_dialog
+	    	cancel_confirmation
+	    	MAXIS_dialog_navigation
+	    LOOP UNTIL ButtonPressed = -1
+	    call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+    LOOP UNTIL are_we_passworded_out = false
 
 'Checking to see if 5 jobs already exist. If so worker will need to manually delete one first.
-EMReadScreen jobs_total_panel_count, 1, 2, 78
-IF create_JOBS_checkbox = checked AND jobs_total_panel_count = "5" THEN script_end_procedure("This client has 5 jobs panels already. Please review and delete and unneeded panels if you want the script to add a new one.")
+	EMReadScreen jobs_total_panel_count, 1, 2, 78
+	IF create_JOBS_checkbox = checked AND jobs_total_panel_count = "5" THEN script_end_procedure("This client has 5 jobs panels already. Please review and delete and unneeded panels if you want the script to add a new one.")
 
 'If new job is known, script ends.
-If job_known_checkbox = checked then script_end_procedure("The script will stop as this job is known.")
+	If job_known_checkbox = checked then script_end_procedure("The script will stop as this job is known.")
 
 'Now it will create a new JOBS panel for this case.
-If create_JOBS_checkbox = checked then
-	EMWriteScreen "nn", 20, 79				'Creates new panel
-	transmit
-	EMReadScreen MAXIS_footer_month, 2, 20, 55	'Reads footer month for updating the panel
-	EMReadScreen MAXIS_footer_year, 2, 20, 58		'Reads footer year
-	EMWriteScreen "w", 5, 34				'Wage income is the type
-	EMWriteScreen "n", 6, 34				'No proof has been provided
-	EMWriteScreen employer, 7, 42			'Adds employer info
-	EMWriteScreen month_hired, 9, 35		'Adds month hired to start date (this is actually the day income was received)
-	EMWriteScreen day_hired, 9, 38			'Adds day hired
-	EMWriteScreen year_hired, 9, 41			'Adds year hired
-	EMWriteScreen MAXIS_footer_month, 12, 54		'Puts footer month in as the month on prospective side of panel
-  	IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date.
-  		EMWriteScreen day_hired, 12, 57			'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
-  	ELSE
-  		EMWriteScreen current_day, 12, 57		'Puts today in as the day on prospective side, because that's the day we edited the panel
-  	END IF
-  	EMWriteScreen MAXIS_footer_year, 12, 60		'Puts footer year in on prospective side
-  	EMWriteScreen "0", 12, 67				'Puts $0 in as the received income amt
-  	EMWriteScreen "0", 18, 72				'Puts 0 hours in as the worked hours
-  	If FS_case = True then 					'If case is SNAP, it creates a PIC
-  		EMWriteScreen "x", 19, 38
-  		transmit
-  		IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date.
-  			EMWriteScreen month_hired, 5, 34
-  			EMWriteScreen day_hired, 5, 37
-  			EMWriteScreen year_hired, 5, 40
-  		ELSE
-  		EMWriteScreen current_month, 5, 34
-    	EMWriteScreen current_day, 5, 37
-    	EMWriteScreen current_year, 5, 40
-  		END IF
-  		EMWriteScreen "1", 5, 64
-  		EMWriteScreen "0", 8, 64
-  		EMWriteScreen "0", 9, 66
-  		transmit
-  		transmit
-  		transmit
+	If create_JOBS_checkbox = checked then
+    	EMWriteScreen "nn", 20, 79				'Creates new panel
+    	transmit
+    	EMReadScreen MAXIS_footer_month, 2, 20, 55	'Reads footer month for updating the panel
+    	EMReadScreen MAXIS_footer_year, 2, 20, 58		'Reads footer year
+    	EMWriteScreen "w", 5, 34				'Wage income is the type
+    	EMWriteScreen "n", 6, 34				'No proof has been provided
+    	EMWriteScreen employer, 7, 42			'Adds employer info
+    	EMWriteScreen month_hired, 9, 35		'Adds month hired to start date (this is actually the day income was received)
+    	EMWriteScreen day_hired, 9, 38			'Adds day hired
+    	EMWriteScreen year_hired, 9, 41			'Adds year hired
+    	EMWriteScreen MAXIS_footer_month, 12, 54		'Puts footer month in as the month on prospective side of panel
+      	IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date.
+      		EMWriteScreen day_hired, 12, 57			'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
+      	ELSE
+      		EMWriteScreen current_day, 12, 57		'Puts today in as the day on prospective side, because that's the day we edited the panel
+      	END IF
+      	EMWriteScreen MAXIS_footer_year, 12, 60		'Puts footer year in on prospective side
+      	EMWriteScreen "0", 12, 67				'Puts $0 in as the received income amt
+      	EMWriteScreen "0", 18, 72				'Puts 0 hours in as the worked hours
+      	If FS_case = True then 					'If case is SNAP, it creates a PIC
+      		EMWriteScreen "x", 19, 38
+      		transmit
+      		IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date.
+      			EMWriteScreen month_hired, 5, 34
+      			EMWriteScreen day_hired, 5, 37
+      			EMWriteScreen year_hired, 5, 40
+      		ELSE
+      		EMWriteScreen current_month, 5, 34
+        	EMWriteScreen current_day, 5, 37
+        	EMWriteScreen current_year, 5, 40
+      		END IF
+      		EMWriteScreen "1", 5, 64
+      		EMWriteScreen "0", 8, 64
+      		EMWriteScreen "0", 9, 66
+      		transmit
+      		transmit
+      		transmit
+    	END IF
+    	transmit						'Transmits to submit the panel
+      	EMReadScreen expired_check, 6, 24, 17 'Checks to see if the jobs panel will carry over by looking for the "This information will expire" at the bottom of the page
+      	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
 	END IF
-	transmit						'Transmits to submit the panel
-  	EMReadScreen expired_check, 6, 24, 17 'Checks to see if the jobs panel will carry over by looking for the "This information will expire" at the bottom of the page
-  	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
-END IF
+'END IF
   '-----------------------------------------------------------------------------------------CASENOTE
-  start_a_blank_CASE_NOTE
-  new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
-  'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
-  CALL write_variable_in_case_note("-NDNH " & new_hire_first_line & " unreported to agency-")
-  CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
-  CALL write_variable_in_case_note("EMPLOYER: " & employer)
-  CALL write_variable_in_case_note(new_hire_third_line)
-  CALL write_variable_in_case_note(new_hire_fourth_line)
-  CALL write_variable_in_case_note("---")
-  IF TIKL_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent employment verification and DHS-2919B (Verif Request Form B) from ECF & TIKLed for 10-day return. ")
-  IF create_JOBS_checkbox = checked THEN CALL write_variable_in_case_note("* STAT/JOBS updated with new hire information from DAIL.")
-  IF CCA_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to CCA.")
-  IF ES_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to ES.")
-  IF work_number_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent request for Work Number after confirming client authorization.")
-  IF CEI_checkbox = checked THEN CALL write_variable_in_case_note("* Requested CEI/OHI docs.")
-  CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
-  CALL write_variable_in_case_note("---")
-  CALL write_variable_in_case_note(worker_signature)
-  PF3
-  PF3
-
-  'If TIKL_checkbox is unchecked, it needs to end here.
-  IF TIKL_checkbox = unchecked THEN script_end_procedure("Success! MAXIS updated for new NDNH HIRE message, and a case note made. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
-  'Navigates to TIKL
-  Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-  CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-  CALL write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action." & vbcr & "For all federal matches INFC/HIRE must be cleared please see HSR manual.")
-  PF3		'Exits and saves TIKL
-  script_end_procedure("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
+	start_a_blank_CASE_NOTE
+  	new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
+  	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
+  	CALL write_variable_in_case_note("-NDNH " & new_hire_first_line & " unreported to agency-")
+  	CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
+  	CALL write_variable_in_case_note("EMPLOYER: " & employer)
+  	CALL write_variable_in_case_note(new_hire_third_line)
+  	CALL write_variable_in_case_note(new_hire_fourth_line)
+  	CALL write_variable_in_case_note("---")
+  	IF TIKL_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent employment verification and DHS-2919B (Verif Request Form B) from ECF & TIKLed for 10-day return. ")
+  	IF create_JOBS_checkbox = checked THEN CALL write_variable_in_case_note("* STAT/JOBS updated with new hire information from DAIL.")
+  	IF CCA_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to CCA.")
+  	IF ES_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to ES.")
+  	IF work_number_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent request for Work Number after confirming client authorization.")
+  	IF CEI_checkbox = checked THEN CALL write_variable_in_case_note("* Requested CEI/OHI docs.")
+  	CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
+  	CALL write_variable_in_case_note("---")
+  	CALL write_variable_in_case_note(worker_signature)
+  	PF3
+  	PF3
+  	'If TIKL_checkbox is unchecked, it needs to end here.
+    IF TIKL_checkbox = unchecked THEN script_end_procedure("Success! MAXIS updated for new NDNH HIRE message, and a case note made. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
+    'Navigates to TIKL
+    Call navigate_to_MAXIS_screen("DAIL", "WRIT")
+    CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
+    CALL write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action." & vbcr & "For all federal matches INFC/HIRE must be cleared please see HSR manual.")
+    PF3		'Exits and saves TIKL
+    script_end_procedure("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
 END IF
 
 IF match_answer_droplist = "YES - INFC clear match" THEN
