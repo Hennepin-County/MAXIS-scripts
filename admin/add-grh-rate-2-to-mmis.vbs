@@ -152,8 +152,12 @@ If PRIV_check = "PRIV" then script_end_procedure("PRIV case, cannot access/updat
 
 EMReadScreen grh_status, 4, 9, 74		'Ensuring that the case is active on GRH. If not, case will not be updated in MMIS.
 If grh_status <> "ACTV" then
-    If trim(grh_status) = "" then grh_status = "Inactive"
-	script_end_procedure("GRH case status is " & grh_status & ". The script will now end.")
+    confirmation_needed = MsgBox("GRH is currently not active. Press YES if you have confirmed GRH was open during the SSR dates. Press NO to stop the script.", vbYesNo, "Please confirm GRH active date.")
+    'If confirmation_needed = vbYes then grh_actv = True
+    If confirmation_needed = vbNo then script_end_procedure("GRH case status is " & grh_status & ". The script will now end.")
+    Do 
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 End if
 
 EMReadscreen current_county, 4, 21, 21
