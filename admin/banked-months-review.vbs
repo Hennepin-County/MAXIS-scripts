@@ -1887,10 +1887,17 @@ If process_option = "Ongoing Banked Months Cases" Then
                 If clt_SNAP_status = "A" Then                       'If the member number was listed as ACTIVE on CASE/PERS then the script will check STAT
                     Call back_to_SELF
                     Call Navigate_to_MAXIS_screen ("MONY", "INQX")
-                    EmWriteScreen MAXIS_footer_month, 6, 38
-                    EmWriteScreen MAXIS_footer_year, 6, 41
-                    EmWriteScreen MAXIS_footer_month, 6, 53
-                    EmWriteScreen MAXIS_footer_year, 6, 56
+                    MX_month = MAXIS_footer_month & "/1/" & MAXIS_footer_year
+                    two_before = DateAdd("m", -2, MX_month)
+                    two_after = DateAdd("m", 2, MX_month)
+                    two_mo_before_mo = right("00" & DatePart("m", two_before), 2)
+                    two_mo_before_yr = right("00" & DatePart("yyyy", two_before), 2)
+                    two_mo_after_mo = right("00" & DatePart("m", two_after), 2)
+                    two_mo_after_yr = right("00" & DatePart("yyyy", two_after), 2)
+                    EmWriteScreen two_mo_before_mo, 6, 38
+                    EmWriteScreen two_mo_before_yr, 6, 41
+                    EmWriteScreen two_mo_after_mo, 6, 53
+                    EmWriteScreen two_mo_after_yr, 6, 56
                     EmWriteScreen "X", 9, 5
 
                     transmit
