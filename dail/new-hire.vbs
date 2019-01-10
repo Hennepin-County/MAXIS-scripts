@@ -102,12 +102,14 @@ EMSendKey "x"
 transmit
 row = 1
 col = 1
-EMSearch "JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
+EMSearch "NEW JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
 If row = 0 then script_end_procedure("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
 
 EMReadScreen new_hire_first_line, 61, row, col'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
 	new_hire_first_line = replace(new_hire_first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
-	new_hire_first_line = trim(new_hire_first_line)
+	new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
+	new_hire_first_line = replace(new_hire_first_line, "SSN #", "")
+		new_hire_first_line = trim(new_hire_first_line)
 EMReadScreen new_hire_second_line, 61, row + 1, col
 	new_hire_second_line = trim(new_hire_second_line)
 EMReadScreen new_hire_third_line, 61, row + 2, col 'maxis name'
@@ -252,9 +254,7 @@ If create_JOBS_checkbox = checked then
 	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
 END IF
   '-----------------------------------------------------------------------------------------CASENOTE
-  start_a_blank_CASE_NOTE
-  new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
-	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
+  start_a_blank_CASE_NOTE	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
   CALL write_variable_in_case_note("-" & new_hire_first_line & " unreported to agency-")
   CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
   CALL write_variable_in_case_note("EMPLOYER: " & employer)
