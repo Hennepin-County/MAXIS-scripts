@@ -275,7 +275,7 @@ IF match_answer_droplist = "NO - RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AN
       	EMReadScreen expired_check, 6, 24, 17 'Checks to see if the jobs panel will carry over by looking for the "This information will expire" at the bottom of the page
       	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
 	END IF
-'END IF
+END IF
   '-----------------------------------------------------------------------------------------CASENOTE
 	start_a_blank_CASE_NOTE
   	new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
