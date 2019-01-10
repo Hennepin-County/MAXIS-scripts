@@ -61,8 +61,14 @@ changelog_display
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------------
 
-'Connecting to BlueZone
+'----------------------------------------------------------------------------------------------------------Script
 EMConnect ""
+'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
+EMReadscreen dail_check, 4, 2, 48
+If dail_check <> "DAIL" then script_end_procedure("You are not in your DAIL. This script will stop.")
+'TYPES "T" TO BRING THE SELECTED MESSAGE TO THE TOP
+EMSendKey "t"
+transmit
 'This is a dialog asking if the job is known to the agency.
 BeginDialog new_HIRE_dialog, 0, 0, 281, 205, "New HIRE dialog"
   EditBox 65, 5, 20, 15, HH_memb
@@ -107,8 +113,7 @@ If row = 0 then script_end_procedure("MAXIS may be busy: the script appears to h
 
 EMReadScreen new_hire_first_line, 61, row, col'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
 	new_hire_first_line = replace(new_hire_first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
-	new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
-	new_hire_first_line = replace(new_hire_first_line, "SSN #", "")
+
 	new_hire_first_line = trim(new_hire_first_line)
 EMReadScreen new_hire_second_line, 61, row + 1, col
 	new_hire_second_line = trim(new_hire_second_line)
@@ -125,7 +130,7 @@ IF right(new_hire_third_line, 46) <> right(new_hire_fourth_line, 46) then 				's
 END IF
 row = 1 						'Now it's searching for info on the hire date as well as employer
 col = 1
-
+'Now it's searching for info on the hire date as well as employer
 EMSearch "DATE HIRED:", row, col
 EMReadScreen date_hired, 10, row, col + 12
 If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then date_hired = current_month & "-" & current_day & "-" & current_year
@@ -147,6 +152,7 @@ col = 1
 EMSearch "SSN #", row, col
 EMReadScreen new_HIRE_SSN, 11, row, col + 5
 new_HIRE_SSN = TRIM(new_HIRE_SSN)
+new_HIRE_SSN = replace(new_HIRE_SSN, "-", "")
 PF3
 
 'CHECKING CASE CURR. MFIP AND SNAP HAVE DIFFERENT RULES.
@@ -255,6 +261,9 @@ If create_JOBS_checkbox = checked then
 END IF
   '-----------------------------------------------------------------------------------------CASENOTE
   start_a_blank_CASE_NOTE	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
+  new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
+  new_hire_first_line = replace(new_hire_first_line, "SSN #", "")
+
   CALL write_variable_in_case_note("-" & new_hire_first_line & " unreported to agency-")
   CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
   CALL write_variable_in_case_note("EMPLOYER: " & employer)
