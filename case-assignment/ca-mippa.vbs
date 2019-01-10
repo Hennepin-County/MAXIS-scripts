@@ -71,7 +71,7 @@ row = 11 'this part should be a for next?' can we jsut do a cursor read for now?
 DO
 	EMReadScreen MLAR_maxis_name, 21, row, 5
 	MLAR_maxis_name = TRIM(MLAR_maxis_name)
-	    MLAR_info_confirmation = MsgBox("Press YES to confirm this is the MIPAA you wish to clear." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+	    MLAR_info_confirmation = MsgBox("Press YES to confirm this is the MIPPA you wish to clear." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
 		"   " & MLAR_maxis_name, vbYesNoCancel, "Please confirm this match")
 			IF MLAR_info_confirmation = vbNo THEN
 				row = row + 1
@@ -261,7 +261,7 @@ IF current_panel_check = "DSPL" THEN
 	'IF current_panel_check <> "ADDR" THEN MsgBox(current_panel_check)
 END IF
 '------------------------------------------------------------------------------------------------dialog
-BeginDialog MIPPA_active_dialog, 0, 0, 376, 180, "MIPAA"
+BeginDialog MIPPA_active_dialog, 0, 0, 376, 180, "MIPPA"
   EditBox 55, 5, 35, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     PushButton 110, 5, 50, 15, "Geocoder", Geo_coder_button
@@ -333,12 +333,12 @@ IF spec_xfer_worker <> "" THEN
 END IF
 '----------------------------------------------------------------------------------case note
 start_a_blank_case_note
-CALL write_variable_in_case_note("~ MIPAA received via REPT/MLAR on " & rcvd_date & " ~")
-IF select_answer = "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate. Case is currently active on HC.")
-IF select_answer = "NO - APPL (Known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS.")
-IF select_answer = "NO - APPL (Not known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is not known to MAXIS.")
+CALL write_variable_in_case_note("~ MIPPA received via REPT/MLAR on " & rcvd_date & " ~")
+IF select_answer = "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Please review the MIPPArecord and case information for consistency and follow-up with any inconsistent information, as appropriate. Case is currently active on HC.")
+IF select_answer = "NO - APPL (Known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPArecord and case information applicant is known to MAXIS.")
+IF select_answer = "NO - APPL (Not known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPArecord and case information applicant is not known to MAXIS.")
 IF select_answer = "NO - ADD A PROGRAM" THEN
-	CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS and may be active on other programs.")
+	CALL write_variable_in_case_note("* APPL'd case using the MIPPArecord and case information applicant is known to MAXIS and may be active on other programs.")
 	CALL write_variable_in_case_note ("* HC Ended on: " & end_date)
 END IF
 CALL write_variable_in_case_note ("* REPT/MLAR APPL Date: " & appl_date)
@@ -373,7 +373,7 @@ IF msg_check <> "_" THEN script_end_procedure("You are not on a MIPPA message. T
 DO
 	EMReadScreen MLAR_maxis_name, 21, row, 5
 	MLAR_maxis_name = TRIM(MLAR_maxis_name)
-	END_info_confirmation = MsgBox("Press YES to confirm this is the MIPAA you wish to clear." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+	END_info_confirmation = MsgBox("Press YES to confirm this is the MIPPA  you wish to clear." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
 	"   " & MLAR_maxis_name, vbYesNoCancel, "Please confirm this match")
 	IF END_info_confirmation = vbNo THEN
 		row = row + 1

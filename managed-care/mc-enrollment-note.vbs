@@ -294,9 +294,9 @@ Select Case this_month
     Case "October"
         cut_off_date = #10/22/19#
     Case "November"
-        cut_off_date = #11/18/18#
+        cut_off_date = #11/18/19#
     Case "December"
-        cut_off_date = #12/19/18#
+        cut_off_date = #12/19/19#
 End Select
 'MsgBox cut_off_date
 If cut_off_date <> "" Then
