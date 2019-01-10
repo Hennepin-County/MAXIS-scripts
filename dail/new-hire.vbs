@@ -260,9 +260,9 @@ If create_JOBS_checkbox = checked then
 	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
 END IF
   '-----------------------------------------------------------------------------------------CASENOTE
-  start_a_blank_CASE_NOTE	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
+  start_a_blank_case_note	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
   new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
-  new_hire_first_line = replace(new_hire_first_line, "SSN #", "")
+  	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
 
   CALL write_variable_in_case_note("-" & new_hire_first_line & " unreported to agency-")
   CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
