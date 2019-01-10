@@ -145,8 +145,7 @@ EMSearch "JOB DETAILS", row, col 	'Has to search, because every once in a while 
 If row = 0 then script_end_procedure("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
 EMReadScreen new_hire_first_line, 61, row, col - 7 'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
 	new_hire_first_line = replace(new_hire_first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
-	new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
-	new_hire_first_line = replace(new_hire_first_line, "SSN #", "")
+
 	new_hire_first_line = trim(new_hire_first_line)
 EMReadScreen new_hire_second_line, 61, row + 1, col - 15
 	new_hire_second_line = trim(new_hire_second_line)
@@ -175,51 +174,49 @@ employer = TRIM(employer)
 EMReadScreen new_HIRE_SSN, 9, 9, 5
 PF3
 
-IF match_answer_droplist = "NO - RUN NEW HIRE" THEN
-'CHECKING CASE CURR. MFIP AND SNAP HAVE DIFFERENT RULES.
-EMWriteScreen "h", 6, 3
-transmit
-row = 1
-col = 1
-EMSearch "FS: ", row, col
-If row <> 0 then FS_case = True
-If row = 0 then FS_case = False
-row = 1
-col = 1
-EMSearch "MFIP: ", row, col
-If row <> 0 then MFIP_case = True
-If row = 0 then MFIP_case = False
-PF3
-'GOING TO STAT
-EMSendKey "s"
-transmit
-EMReadScreen stat_check, 4, 20, 21
-If stat_check <> "STAT" then script_end_procedure("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
-'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
-EMWriteScreen "memb", 20, 71
-transmit
-Do
-	EMReadScreen MEMB_current, 1, 2, 73
-	EMReadScreen MEMB_total, 1, 2, 78
-	EMReadScreen MEMB_SSN, 11, 7, 42
-	If new_HIRE_SSN = replace(MEMB_SSN, " ", "") then
-		EMReadScreen HH_memb, 2, 4, 33
-		EMReadScreen memb_age, 2, 8, 76
-		If cint(memb_age) < 19 then MsgBox "This client is under 19, so make sure to check that school verification is on file."
-	End if
+IF match_answer_droplist = "NO - RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND SNAP HAVE DIFFERENT RULES.
+	EMWriteScreen "h", 6, 3
 	transmit
-LOOP UNTIL (MEMB_current = MEMB_total) or (new_HIRE_SSN = replace(MEMB_SSN, " ", ""))
-'GOING TO JOBS
-EMWriteScreen "jobs", 20, 71
-EMWriteScreen HH_memb, 20, 76
-transmit
-'MFIP cases need to manually add the JOBS panel for ES purposes.
-If MFIP_case = False then create_JOBS_checkbox = checked
-'Defaulting the "set TIKL" variable to checked
-TIKL_checkbox = CHECKED
-'Setting the variable for the following do...loop
-HH_memb_row = 5
-'Show dialog
+	row = 1
+	col = 1
+	EMSearch "FS: ", row, col
+	If row <> 0 then FS_case = True
+	If row = 0 then FS_case = False
+	row = 1
+	col = 1
+	EMSearch "MFIP: ", row, col
+	If row <> 0 then MFIP_case = True
+	If row = 0 then MFIP_case = False
+	PF3
+	'GOING TO STAT
+	EMSendKey "s"
+	transmit
+	EMReadScreen stat_check, 4, 20, 21
+	If stat_check <> "STAT" then script_end_procedure("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
+	'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
+	EMWriteScreen "memb", 20, 71
+	transmit
+	Do
+		EMReadScreen MEMB_current, 1, 2, 73
+		EMReadScreen MEMB_total, 1, 2, 78
+		EMReadScreen MEMB_SSN, 11, 7, 42
+		If new_HIRE_SSN = replace(MEMB_SSN, " ", "") then
+			EMReadScreen HH_memb, 2, 4, 33
+			EMReadScreen memb_age, 2, 8, 76
+			If cint(memb_age) < 19 then MsgBox "This client is under 19, so make sure to check that school verification is on file."
+		End if
+			transmit
+	LOOP UNTIL (MEMB_current = MEMB_total) or (new_HIRE_SSN = replace(MEMB_SSN, " ", ""))
+			'GOING TO JOBS
+	EMWriteScreen "jobs", 20, 71
+	EMWriteScreen HH_memb, 20, 76
+	transmit	'MFIP cases need to manually add the JOBS panel for ES purposes.
+	If MFIP_case = False then create_JOBS_checkbox = checked
+	'Defaulting the "set TIKL" variable to checked
+	TIKL_checkbox = CHECKED
+	'Setting the variable for the following do...loop
+	HH_memb_row = 5
+'	Show dialog
 DO
 	DO
 		Dialog new_HIRE_dialog
