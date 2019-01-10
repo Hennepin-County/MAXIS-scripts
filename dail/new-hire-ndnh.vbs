@@ -412,6 +412,6 @@ IF match_answer_droplist = "YES - INFC clear match" THEN
 ''	MsgBox "ARE YOU SURE YOU WANT TO UPDATE? PF3 TO CANCEL OR TRANSMIT TO UPDATE "
 	transmit
 	PF3
-
+END IF
 'Exits script and logs stats if appropriate
 script_end_procedure("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
