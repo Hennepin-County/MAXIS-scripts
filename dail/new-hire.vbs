@@ -259,11 +259,10 @@ If create_JOBS_checkbox = checked then
 	EMReadScreen expired_check, 6, 24, 17 'Checks to see if the jobs panel will carry over by looking for the "This information will expire" at the bottom of the page
 	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
 END IF
+new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
+new_hire_first_line = replace(new_hire_first_line, "SSN #", "")
   '-----------------------------------------------------------------------------------------CASENOTE
   start_a_blank_case_note	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
-  new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
-  	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
-
   CALL write_variable_in_case_note("-" & new_hire_first_line & " unreported to agency-")
   CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
   CALL write_variable_in_case_note("EMPLOYER: " & employer)
