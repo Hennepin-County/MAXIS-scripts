@@ -109,7 +109,7 @@ EMReadScreen new_hire_first_line, 61, row, col'JOB DETAIL Reads each line for th
 	new_hire_first_line = replace(new_hire_first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
 	new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
 	new_hire_first_line = replace(new_hire_first_line, "SSN #", "")
-		new_hire_first_line = trim(new_hire_first_line)
+	new_hire_first_line = trim(new_hire_first_line)
 EMReadScreen new_hire_second_line, 61, row + 1, col
 	new_hire_second_line = trim(new_hire_second_line)
 EMReadScreen new_hire_third_line, 61, row + 2, col 'maxis name'
