@@ -97,29 +97,38 @@ If len(current_month) = 1 then current_month = "0" & current_month
 current_day = datepart("d", date)
 If len(current_day) = 1 then current_day = "0" & current_day
 current_year = CM_yr
-
 'SELECTS THE DAIL MESSAGE AND READS THE RESPONSE
 EMSendKey "x"
 transmit
 row = 1
 col = 1
-EMSearch "NEW JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
+EMSearch "JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
 If row = 0 then script_end_procedure("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
-EMReadScreen new_hire_first_line, 61, row, col 'Reads each line for the case note.
+
+EMReadScreen new_hire_first_line, 61, row, col'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
+	new_hire_first_line = replace(new_hire_first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
+	new_hire_first_line = trim(new_hire_first_line)
 EMReadScreen new_hire_second_line, 61, row + 1, col
-EMReadScreen new_hire_third_line, 61, row + 2, col
-EMReadScreen new_hire_fourth_line, 61, row + 3, col
+	new_hire_second_line = trim(new_hire_second_line)
+EMReadScreen new_hire_third_line, 61, row + 2, col 'maxis name'
+	new_hire_third_line = trim(new_hire_third_line)
+EMReadScreen new_hire_fourth_line, 61, row + 3, col'new hire name'
+	new_hire_fourth_line = trim(new_hire_fourth_line)
+	new_hire_fourth_line = replace(new_hire_fourth_line, ",", ", ")
+
+
 IF right(new_hire_third_line, 46) <> right(new_hire_fourth_line, 46) then 				'script was being run on cases where the names did not match but SSN did. This will allow users to review.
 	warning_box = MsgBox("The names found on the NEW HIRE message do not match exactly." & vbcr & new_hire_third_line & vbcr & new_hire_fourth_line & vbcr & "Please review and click OK if you wish to continue and CANCEL if the name is incorrect.", vbOKCancel)
 	If warning_box = vbCancel then script_end_procedure("The script has ended. Please review the new hire as you indicated that the name read from the NEW HIRE and the MAXIS name did not match.")
 END IF
 row = 1 						'Now it's searching for info on the hire date as well as employer
 col = 1
+
 EMSearch "DATE HIRED:", row, col
 EMReadScreen date_hired, 10, row, col + 12
 If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then date_hired = current_month & "-" & current_day & "-" & current_year
 date_hired = trim(date_hired)
-date_hired = CDate(date_hired)
+'date_hired = CDate(date_hired)'
 month_hired = Datepart("m", date_hired)
 If len(month_hired) = 1 then month_hired = "0" & month_hired
 day_hired = Datepart("d", date_hired)
@@ -128,10 +137,14 @@ year_hired = Datepart("yyyy", date_hired)
 year_hired = year_hired - 2000
 EMSearch "EMPLOYER:", row, col
 EMReadScreen employer, 25, row, col + 10
+employer = TRIM(employer)
+
+
 row = 1 						'Now it's searching for the SSN
 col = 1
 EMSearch "SSN #", row, col
 EMReadScreen new_HIRE_SSN, 11, row, col + 5
+new_HIRE_SSN = TRIM(new_HIRE_SSN)
 PF3
 
 'CHECKING CASE CURR. MFIP AND SNAP HAVE DIFFERENT RULES.
@@ -179,11 +192,11 @@ TIKL_checkbox = CHECKED
 HH_memb_row = 5
 'Show dialog
 DO
-	Do
+	DO
 		Dialog new_HIRE_dialog
 		cancel_confirmation
 		MAXIS_dialog_navigation
-	Loop until ButtonPressed = -1
+	LOOP UNTIL ButtonPressed = -1
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
@@ -200,10 +213,8 @@ If create_JOBS_checkbox = checked then
 	transmit
 	EMReadScreen MAXIS_footer_month, 2, 20, 55	'Reads footer month for updating the panel
 	EMReadScreen MAXIS_footer_year, 2, 20, 58		'Reads footer year
-
 	EMWriteScreen "w", 5, 34				'Wage income is the type
 	EMWriteScreen "n", 6, 34				'No proof has been provided
-
 	EMWriteScreen employer, 7, 42			'Adds employer info
 	EMWriteScreen month_hired, 9, 35		'Adds month hired to start date (this is actually the day income was received)
 	EMWriteScreen day_hired, 9, 38			'Adds day hired

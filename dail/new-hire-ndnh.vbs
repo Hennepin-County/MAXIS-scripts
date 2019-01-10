@@ -158,7 +158,7 @@ EMWaitReady 0, 0
 EMReadScreen date_hired, 10, 10, 22
 If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then date_hired = current_month & "-" & current_day & "-" & current_year
 date_hired = trim(date_hired)
-date_hired = CDate(date_hired)
+'date_hired = CDate(date_hired)
 month_hired = Datepart("m", date_hired)
 If len(month_hired) = 1 then month_hired = "0" & month_hired
 day_hired = Datepart("d", date_hired)
@@ -218,19 +218,22 @@ TIKL_checkbox = CHECKED
 'Setting the variable for the following do...loop
 HH_memb_row = 5
 'Show dialog
-Do
-	Do
+DO
+	DO
 		Dialog new_HIRE_dialog
 		cancel_confirmation
 		MAXIS_dialog_navigation
 	LOOP UNTIL ButtonPressed = -1
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
+
 'Checking to see if 5 jobs already exist. If so worker will need to manually delete one first.
 EMReadScreen jobs_total_panel_count, 1, 2, 78
 IF create_JOBS_checkbox = checked AND jobs_total_panel_count = "5" THEN script_end_procedure("This client has 5 jobs panels already. Please review and delete and unneeded panels if you want the script to add a new one.")
+
 'If new job is known, script ends.
 If job_known_checkbox = checked then script_end_procedure("The script will stop as this job is known.")
+
 'Now it will create a new JOBS panel for this case.
 If create_JOBS_checkbox = checked then
 	EMWriteScreen "nn", 20, 79				'Creates new panel
