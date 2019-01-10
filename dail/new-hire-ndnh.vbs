@@ -145,6 +145,8 @@ EMSearch "JOB DETAILS", row, col 	'Has to search, because every once in a while 
 If row = 0 then script_end_procedure("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
 EMReadScreen new_hire_first_line, 61, row, col - 7 'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
 	new_hire_first_line = replace(new_hire_first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
+	new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
+	new_hire_first_line = replace(new_hire_first_line, "SSN #", "")
 	new_hire_first_line = trim(new_hire_first_line)
 EMReadScreen new_hire_second_line, 61, row + 1, col - 15
 	new_hire_second_line = trim(new_hire_second_line)
@@ -415,41 +417,6 @@ IF match_answer_droplist = "YES - INFC clear match" THEN
 ''	MsgBox "ARE YOU SURE YOU WANT TO UPDATE? PF3 TO CANCEL OR TRANSMIT TO UPDATE "
 	transmit
 	PF3
-	PF3
-	new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
-	start_a_blank_CASE_NOTE
-	IF Emp_known_droplist = "YES-No Further Action" THEN
-		CALL write_variable_in_case_note("-NDNH " & new_hire_first_line & " INFC cleared reported to agency-")
-		CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
-		CALL write_variable_in_case_note("EMPLOYER: " & employer)
-		CALL write_variable_in_case_note(new_hire_third_line)
-		CALL write_variable_in_case_note(new_hire_fourth_line)
-		CALL write_variable_in_case_note("---")
-		CALL write_variable_in_case_note("* Reviewed ECF for requested verifications and MAXIS for correctly budgeted income.")
-		CALL write_variable_in_case_note("* Cleared match in INFC/HIRE - Previously reported to agency.")
-		CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
-		CALL write_variable_in_case_note("---")
-		CALL write_variable_in_case_note(worker_signature)
-		PF3
-		PF3
-	ELSEIF Emp_known_droplist = "NO-See Next Question" THEN
-		CALL write_variable_in_case_note("-NDNH " & new_hire_first_line & " INFC cleared unreported to agency-")
-		CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
-		CALL write_variable_in_case_note("EMPLOYER: " & employer)
-		CALL write_variable_in_case_note(new_hire_third_line)
-		CALL write_variable_in_case_note(new_hire_fourth_line)
-		CALL write_variable_in_case_note("---")
-		CALL write_variable_in_case_note("* Reviewed ECF for requested verifications updated INFC/HIRE accordingly")
-		IF Action_taken_droplist = "NA-No Action Taken" THEN CALL write_variable_in_case_note("* No futher action taken on this match at this time")
-		IF Action_taken_droplist = "BR-Benefits Reduced" THEN CALL write_variable_in_case_note("* Action taken: Benefits Reduced")
-		IF Action_taken_droplist = "CC-Case Closed" THEN CALL write_variable_in_case_note("* Action taken: Case Closed (allowing for 10 day cutoff if applicable)")
-		CALL write_variable_in_case_note("* First Month Cost Savings: $" & cost_savings)
-		CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
-		CALL write_variable_in_case_note("---")
-		CALL write_variable_in_case_note(worker_signature)
-		PF3
-		PF3
-		IF tenday_checkbox = CHECKED THEN CALL write_variable_in_TIKL("Unable to close due to 10 day cutoff. Verification of job via NEW HIRE should have returned by now. If not received and processed, take appropriate action.")
-	END IF
-	script_end_procedure("Success! The NDNH HIRE message has been cleared. Please start overpayment process if necessary.")
-END IF
+
+'Exits script and logs stats if appropriate
+script_end_procedure("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
