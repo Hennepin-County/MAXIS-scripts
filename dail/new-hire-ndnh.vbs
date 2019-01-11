@@ -161,8 +161,8 @@ END IF
 row = 1 						'Now it's searching for info on the hire date as well as employer
 col = 1
 'Now it's searching for info on the hire date as well as employer
-EMSearch "DATE HIRED:", row, col
-EMReadScreen date_hired, 10, row, col + 12
+EMSearch "DATE HIRED", row, col
+EMReadScreen date_hired, 10, row, col + 15
 If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then date_hired = current_month & "-" & current_day & "-" & current_year
 date_hired = trim(date_hired)
 'date_hired = CDate(date_hired)
