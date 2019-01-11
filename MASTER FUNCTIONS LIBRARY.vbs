@@ -5496,8 +5496,9 @@ function write_variable_in_CASE_NOTE(variable)
 		noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
 		'The following figures out if we need a new page, or if we need a new case note entirely as well.
 		Do
-			EMReadScreen character_test, 1, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
-			If character_test <> " " or noting_row >= 18 then
+			EMReadScreen character_test, 40, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+            character_test = trim(character_test)
+            If character_test <> "" or noting_row >= 18 then
 				noting_row = noting_row + 1
 
 				'If we get to row 18 (which can't be read here), it will go to the next panel (PF8).
@@ -5520,7 +5521,7 @@ function write_variable_in_CASE_NOTE(variable)
 					End if
 				End if
 			End if
-		Loop until character_test = " "
+		Loop until character_test = ""
 
 		'Splits the contents of the variable into an array of words
 		variable_array = split(variable, " ")
