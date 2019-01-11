@@ -53,22 +53,6 @@ CALL changelog_update("10/23/2017", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-function DEU_password_check(end_script)
-'--- This function checks to ensure the user is in a MAXIS panel
-'~~~~~ end_script: If end_script = TRUE the script will end. If end_script = FALSE, the user will be given the option to cancel the script, or manually navigate to a MAXIS screen.
-'===== Keywords: MAXIS, production, script_end_procedure
-	Do
-		EMReadScreen MAXIS_check, 5, 1, 39
-		If MAXIS_check <> "MAXIS"  and MAXIS_check <> "AXIS " then
-			If end_script = True then
-				script_end_procedure("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again.")
-			Else
-				warning_box = MsgBox("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again, or press ""cancel"" to exit the script.", vbOKCancel)
-				If warning_box = vbCancel then stopscript
-			End if
-		End if
-	Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
-end function
 
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
@@ -161,7 +145,7 @@ EndDialog
 
 Dialog unvi_info_dialog
 IF ButtonPressed = 0 THEN StopScript
-CALL DEU_password_check(False)
+CALL check_for_password_without_transmit(are_we_passworded_out)
 
 PF3
 PF3
@@ -177,7 +161,9 @@ ROW = 7
 Do
 	EMReadScreen days_pending, 2, row, 74
 	days_pending = trim(days_pending)
-	IF IsNumeric(days_pending) = false THEN
+	EMReadScreen days_overdue, 5, row, 74
+	days_overdue = replace(days_overdue, "<<", "")
+	IF IsNumeric(days_pending) = false and days_overdue = ""  THEN
 		script_end_procedure("No pending IEVS match found. Please review IEVP.")
 	ELSE
 		'Entering the IEVS match & reading the difference notice to ensure this has been sent
@@ -204,7 +190,7 @@ IF found_match = False THEN script_end_procedure("No pending IEVS match found. P
 
 DO
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-	"   " & client_name & "  Non-wage match information: " & IEVS_year_check & " & " & UNVI_total, vbYesNoCancel, "Please ensure the cursor is on the match.")
+	"   " & client_name & "  Non-wage match information: " & IEVS_period & " & " & UNVI_total, vbYesNoCancel, "UNVI Please ensure the cursor is on the match.")
 	IF ievp_info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
 	IF ievp_info_confirmation = vbNo THEN row = row + 1
 	IF ievp_info_confirmation = vbYes THEN EXIT DO
@@ -304,7 +290,7 @@ IF notice_sent = "N" THEN
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 END IF
-CALL DEU_password_check(False)
+CALL check_for_password_without_transmit(are_we_passworded_out)
 
 IF send_notice_checkbox = CHECKED THEN
 '----------------------------------------------------------------Defaulting checkboxes to being checked (per DEU instruction)
@@ -317,7 +303,7 @@ IF send_notice_checkbox = CHECKED THEN
     	IF ButtonPressed = 0 THEN StopScript
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
-	CALL DEU_password_check(False)
+	CALL check_for_password_without_transmit(are_we_passworded_out)
 
 	'--------------------------------------------------------------------sending the notice in IULA
 	EMwritescreen "005", 12, 46 'writing the resolve time to read for later
@@ -402,7 +388,7 @@ MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The s
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
 
-	CALL DEU_password_check(False)
+	CALL check_for_password_without_transmit(are_we_passworded_out)
 
 	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
 	EMWriteScreen resolve_time, 12, 46
@@ -459,7 +445,7 @@ MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The s
 	days_pending = trim(days_pending)
 	If IsNumeric(days_pending) = TRUE then
 		match_cleared = FALSE
-		script_end_procedure("This match did not appear to clear. Please check case, and try again.")
+		msgbox("This match did not appear to clear. If the case is overdue please send an email to MiKayla or Claudine to allow testing.")
 	Else
 		match_cleared = TRUE
 	End if
