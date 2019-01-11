@@ -46,7 +46,6 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("01/10/2019", "Updated casenote due to formatting issue, some change to functionality.", "MiKayla Handley, Hennepin County")
 call changelog_update("10/17/2018", "Updated the dialog box, no change to functionality.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("06/20/2018", "Updated date handling for hired date and navigation to the DAIL/WRIT.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("06/19/2018", "Corrected for handling on duplicate jobs and updated dialog box.", "MiKayla Handley, Hennepin County")
@@ -155,8 +154,8 @@ EMReadScreen new_hire_fourth_line, 61, row + 3, col -15'new hire name'
 	new_hire_fourth_line = trim(new_hire_fourth_line)
 	new_hire_fourth_line = replace(new_hire_fourth_line, ",", ", ")
 'Now it's searching for info on the hire date as well as employer
-EMSearch "DATE HIRED:", row, col
-EMReadScreen date_hired, 10, row, col + 12
+EMWaitReady 0, 0
+EMReadScreen date_hired, 10, 10, 22
 If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then date_hired = current_month & "-" & current_day & "-" & current_year
 date_hired = trim(date_hired)
 'date_hired = CDate(date_hired)
@@ -279,9 +278,11 @@ IF match_answer_droplist = "NO - RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AN
       	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
 	END IF
 
+    new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
+
     '-----------------------------------------------------------------------------------------CASENOTE
     start_a_blank_case_note	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
-	CALL write_variable_in_case_note("-NDNH New job details for (M" & HH_memb & ") unreported to agency-")
+    CALL write_variable_in_case_note("-" & new_hire_first_line & " unreported to agency-")
     CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
     CALL write_variable_in_case_note("EMPLOYER: " & employer)
     CALL write_variable_in_case_note(new_hire_third_line)
@@ -297,15 +298,123 @@ IF match_answer_droplist = "NO - RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AN
     CALL write_variable_in_case_note("---")
     CALL write_variable_in_case_note(worker_signature)
     PF3
-
-
+    PF3
 	'If TIKL_checkbox is unchecked, it needs to end here.
-	IF TIKL_checkbox = UNCHECKED THEN script_end_procedure("Success! MAXIS updated for new NDNH HIRE message, and a case note made. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
+	IF TIKL_checkbox = unchecked THEN script_end_procedure("Success! MAXIS updated for new NDNH HIRE message, and a case note made. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
     'Navigates to TIKL
-	IF TIKL_checkbox = CHECKED THEN
-    	Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-    	CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-    	CALL write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action." & vbcr & "For all federal matches INFC/HIRE must be cleared please see HSR manual.")
-    	PF3		'Exits and saves TIKL
-    	script_end_procedure("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
+    Call navigate_to_MAXIS_screen("DAIL", "WRIT")
+    CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
+    CALL write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action." & vbcr & "For all federal matches INFC/HIRE must be cleared please see HSR manual.")
+    PF3		'Exits and saves TIKL
+    script_end_procedure("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
+	PF3
+END IF
+
+IF match_answer_droplist = "YES - INFC clear match" THEN
+'This is a dialog asking if the job is known to the agency.
+	BeginDialog Match_Info_dialog, 0, 0, 281, 190, "NDNH Match Resolution Information"
+	  CheckBox 10, 20, 265, 10, "Check here to verify that ECF has been reviewed and acted upon appropriately", ECF_checkbox
+	  DropListBox 170, 45, 95, 15, "Select One:"+chr(9)+"YES-No Further Action"+chr(9)+"NO-See Next Question", Emp_known_droplist
+	  DropListBox 170, 65, 95, 15, "Select One:"+chr(9)+"NA-No Action Taken"+chr(9)+"BR-Benefits Reduced"+chr(9)+"CC-Case Closed", Action_taken_droplist
+	  EditBox 170, 85, 95, 15, cost_savings
+	  EditBox 55, 105, 210, 15, other_notes
+	  CheckBox 10, 145, 260, 10, "Check here if 10 day cutoff has passed  -  TIKL will be set for following month", tenday_checkbox
+	  ButtonGroup ButtonPressed
+	    OkButton 170, 170, 50, 15
+	    CancelButton 225, 170, 50, 15
+	  GroupBox 5, 5, 270, 35, "ECF review"
+	  Text 20, 50, 145, 10, "Was this employment known to the agency?"
+	  Text 10, 70, 155, 10, "If unknown: what action was taken by agency?"
+	  Text 10, 90, 155, 10, "First month cost savings (enter only numbers):"
+	  Text 10, 110, 40, 10, "Other notes:"
+	  GroupBox 5, 130, 270, 35, "10 day cutoff for closure"
+	EndDialog
+	'naviagting into INFC'
+	EMSendKey "I"
+	transmit
+	EMWriteScreen "HIRE", 20, 71
+	transmit
+	row = 9
+ 	' 'checking to see if match is know to the agency, therefore acted on'
+	' DO
+	' 	EMReadScreen case_number, 8, row, 5
+	' 	case_number = trim(case_number)
+	' 	IF case_number = MAXIS_case_number THEN
+	' 		EXIT DO
+	' 	ELSE
+	'   		row = row + 1
+	'   		IF row = 17 THEN
+	'     		PF8
+	'    			ROW = 9
+	' 		END IF
+	'   END IF
+	' LOOP UNTIL case_number = ""
+'checking for an employer match'
+	DO
+        EMReadScreen case_number, 8, row, 5
+        case_number = trim(case_number)
+        IF case_number = MAXIS_case_number THEN
+    		EMReadScreen employer_match, 20, row, 36
+    		employer_match = trim(employer_match)
+    		IF trim(employer_match) = "" THEN script_end_procedure("An employer match for the could not be found. The script will now end.")
+    	  	IF employer_match = employer THEN
+    	   		EMReadScreen cleared_value, 1, row, 61
+    			IF cleared_value = " " THEN
+                    EmReadscreen date_of_hire, 8, row, 20
+                    EmReadscreen match_month, 5, row, 14
+    				info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+    				"   " & employer_match & vbNewLine & "     Case: " & case_number & vbNewLine & "     Hire Date: " & date_of_hire & vbNewLine & "     Month: " & match_month, vbYesNoCancel, "Please confirm this match")
+    				IF info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
+    				IF info_confirmation = vbYes THEN
+                        hire_match = TRUE
+                        match_row = row
+                        EXIT DO
+                    END IF
+    			END IF
+    	  	END IF
+        END IF
+        row = row + 1
+		IF row = 19 THEN
+			PF8
+            EmReadscreen end_of_list, 9, 24, 14
+            If end_of_list = "LAST PAGE" Then Exit Do
+			row = 9
+		END IF
+	LOOP UNTIL case_number = ""
+	IF hire_match <> TRUE THEN script_end_procedure("No pending HIRE match found. Please review NEW HIRE.")
+	DO
+		DO
+			err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
+			Dialog Match_Info_dialog
+			cancel_confirmation
+			IF ECF_checkbox = UNCHECKED THEN err_msg = err_msg & vbCr & "* You must check that you reviewed ECF and the HIRE was acted on appropriately."
+			IF Emp_known_droplist = "Select One:" THEN err_msg = err_msg & vbCr & "* You must select yes or no for was this employment known to the agency?"
+			IF (Emp_known_droplist = "NO-See Next Question" AND Action_taken_droplist = "Select One:") THEN err_msg = err_msg & vbCr & "* You must select an action taken."
+			IF (Action_taken_droplist = "NA-No Action Taken" AND cost_savings <> "") THEN err_msg = err_msg & vbCr & "* Please remove Cost savings information or make another selection"
+			IF (Action_taken_droplist = "BR-Benefits Reduced" OR Action_taken_droplist = "CC-Case Closed") AND cost_savings = "" THEN err_msg = err_msg & vbCr & "* Enter the 1st month's cost savings for this case."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+	'entering the INFC/HIRE match '
+
+	EMWriteScreen "U", match_row, 3
+	transmit
+	IF Emp_known_droplist = "NO-See Next Question" THEN EMWriteScreen "N", 16, 54
+	IF Emp_known_droplist = "YES-No Further Action" THEN EMWriteScreen "Y", 16, 54
+	IF Action_taken_droplist = "NA-No Action Taken" THEN EMWriteScreen "NA", 17, 54
+	IF Action_taken_droplist = "BR-Benefits Reduced" THEN EMWriteScreen "BR", 17, 54
+	IF Action_taken_droplist = "CC-Case Closed" THEN EMWriteScreen "CC", 17, 54
+	IF cost_savings <> "" THEN
+		cost_savings = round(cost_savings)
+		EMWriteScreen cost_savings, 18, 54
 	END IF
+	'IF cost_savings = "" THEN EMWriteScreen "", 18, 54 'COST SAVINGS MUST BE BLANK IF ACTION TAKEN = NA'
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	transmit
+''	MsgBox "ARE YOU SURE YOU WANT TO UPDATE? PF3 TO CANCEL OR TRANSMIT TO UPDATE "
+	transmit
+	PF3
+END IF
+'Exits script and logs stats if appropriate
+script_end_procedure("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
