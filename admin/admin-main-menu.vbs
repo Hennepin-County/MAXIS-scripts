@@ -10,6 +10,8 @@ start_time = timer
 'WFU851 = Jennifer
 'WFG492 = Melissa F.
 'WFV701 = Darcy
+'WFX490 = Molly
+'WFM207 = Mandora 
 
 
 
@@ -359,6 +361,8 @@ Do
         user_ID_for_validation = "CALO001" OR _
         user_ID_for_validation = "WFI021" OR _
         user_ID_for_validation = "WFG492" OR _
+        user_ID_for_validation = "WFX490" OR _
+        user_ID_for_validation = "WFM207" OR _
         user_ID_for_validation = "WFV701" then
 		    declare_admin_menu_dialog(script_array_QI_list)
         Else
