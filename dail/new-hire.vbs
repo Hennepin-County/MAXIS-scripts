@@ -258,7 +258,7 @@ END IF
 
 '-----------------------------------------------------------------------------------------CASENOTE
 start_a_blank_case_note	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
-CALL write_variable_in_case_note("-NEW JOB DETAILS FOR (" & HH_memb & ") unreported to agency-")
+CALL write_variable_in_case_note("-New job details for (M" & HH_memb & ") unreported to agency-")
 CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
 CALL write_variable_in_case_note("EMPLOYER: " & employer)
 CALL write_variable_in_case_note(new_hire_third_line)
