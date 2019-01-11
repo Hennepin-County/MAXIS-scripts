@@ -256,36 +256,33 @@ If create_JOBS_checkbox = checked then
 	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
 END IF
 
-  '-----------------------------------------------------------------------------------------CASENOTE
-  start_a_blank_case_note	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
-  CALL write_variable_in_case_note("-NEW JOB DETAILS FOR (" & HH_memb & ") unreported to agency-")
-  CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
-  CALL write_variable_in_case_note("EMPLOYER: " & employer)
-  CALL write_variable_in_case_note(new_hire_third_line)
-  CALL write_variable_in_case_note(new_hire_fourth_line)
-  CALL write_variable_in_case_note("---")
-  IF TIKL_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent employment verification and DHS-2919B (Verif Request Form B) from ECF & TIKLed for 10-day return. ")
-  IF create_JOBS_checkbox = checked THEN CALL write_variable_in_case_note("* STAT/JOBS updated with new hire information from DAIL.")
-  IF CCA_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to CCA.")
-  IF ES_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to ES.")
-  IF work_number_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent request for Work Number after confirming client authorization.")
-  IF CEI_checkbox = checked THEN CALL write_variable_in_case_note("* Requested CEI/OHI docs.")
-  CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
-  CALL write_variable_in_case_note("---")
-  CALL write_variable_in_case_note(worker_signature)
+'-----------------------------------------------------------------------------------------CASENOTE
+start_a_blank_case_note	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
+CALL write_variable_in_case_note("-NEW JOB DETAILS FOR (" & HH_memb & ") unreported to agency-")
+CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
+CALL write_variable_in_case_note("EMPLOYER: " & employer)
+CALL write_variable_in_case_note(new_hire_third_line)
+CALL write_variable_in_case_note(new_hire_fourth_line)
+CALL write_variable_in_case_note("---")
+IF TIKL_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent employment verification and DHS-2919B (Verif Request Form B) from ECF & TIKLed for 10-day return. ")
+IF create_JOBS_checkbox = checked THEN CALL write_variable_in_case_note("* STAT/JOBS updated with new hire information from DAIL.")
+IF CCA_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to CCA.")
+IF ES_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to ES.")
+IF work_number_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent request for Work Number after confirming client authorization.")
+IF CEI_checkbox = checked THEN CALL write_variable_in_case_note("* Requested CEI/OHI docs.")
+CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
+CALL write_variable_in_case_note("---")
+CALL write_variable_in_case_note(worker_signature)
 PF3
-PF3
+
 
 'If TIKL_checkbox is unchecked, it needs to end here.
-IF TIKL_checkbox = unchecked THEN script_end_procedure("Success! MAXIS updated for new NDNH HIRE message, and a case note made. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
+IF TIKL_checkbox = UNCHECKED THEN script_end_procedure("Success! MAXIS updated for new NDNH HIRE message, and a case note made. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
 'Navigates to TIKL
-Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-CALL write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action." & vbcr & "For all federal matches INFC/HIRE must be cleared please see HSR manual.")
-PF3		'Exits and saves TIKL
-script_end_procedure("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
-'END IF
-PF3
-
-'Exits script and logs stats if appropriate
-script_end_procedure("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
+IF TIKL_checkbox = CHECKED THEN
+	Call navigate_to_MAXIS_screen("DAIL", "WRIT")
+	CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
+	CALL write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action." & vbcr & "For all federal matches INFC/HIRE must be cleared please see HSR manual.")
+	PF3		'Exits and saves TIKL
+	script_end_procedure("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
+END IF
