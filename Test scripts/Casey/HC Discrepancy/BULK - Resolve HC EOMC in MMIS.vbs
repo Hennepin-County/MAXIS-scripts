@@ -5,7 +5,8 @@ STATS_counter = 0                          'sets the stats counter at one
 STATS_manualtime = 1                       'manual run time in seconds
 STATS_denomination = "M"       							'C is for each CASE
 'END OF stats block==============================================================================================
-
+run_locally = TRUE
+'TODO Figure out what is going on with the funclib on this - I need to run locally ?!'
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -60,28 +61,28 @@ function navigate_to_MAXIS_test(maxis_mode)
         EMReadScreen MAI_check, 3, 1, 33
         If MAI_check <> "MAI" then EMWaitReady 1, 1
     Loop until MAI_check = "MAI"
-    
-    EMReadScreen prod_check, 7, 6, 15
+
+    EMReadScreen prod_check, 7, 7, 15
     IF prod_check = "RUNNING" THEN
-        Call write_value_and_transmit("1", 2, 15)
+        Call write_value_and_transmit("2", 2, 15)
     ELSE
         EMConnect"A"
         attn
-        EMReadScreen prod_check, 7, 6, 15
+        EMReadScreen prod_check, 7, 7, 15
         IF prod_check = "RUNNING" THEN
-            Call write_value_and_transmit("1", 2, 15)
+            Call write_value_and_transmit("2", 2, 15)
         ELSE
             EMConnect"B"
             attn
-            EMReadScreen prod_check, 7, 6, 15
+            EMReadScreen prod_check, 7, 7, 15
             IF prod_check = "RUNNING" THEN
-                Call write_value_and_transmit("1", 2, 15)
-            Else 
-                script_end_procedure("You do not appear to have Production mode running. This script will now stop. Please make sure you have production and MMIS open in the same session, and re-run the script.")
+                Call write_value_and_transmit("2", 2, 15)
+            Else
+                script_end_procedure("You do not appear to have Inquiry mode running. This script will now stop. Please make sure you have production and MMIS open in the same session, and re-run the script.")
             END IF
         END IF
     END IF
-end function 
+end function
 
 'function specific to this script - running_stopwatch and MX_environment are defined outside of this function
 'meant to keep MMIS from passwording out while this long bulk script is running
@@ -194,7 +195,7 @@ Call back_to_SELF                                               'starting at the
 EMReadScreen MX_environment, 13, 22, 48                         'seeing which MX environment we are in
 MX_environment = trim(MX_environment)
 Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")        'Going to MMIS'
-Call navigate_to_MAXIS(MX_environment)                          'going back to MAXIS
+Call navigate_to_MAXIS_test(MX_environment)                          'going back to MAXIS
 
 running_stopwatch = timer               'setting the running timer so we log in to MMIS within every 15 mintues so we don't password out
 
