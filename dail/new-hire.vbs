@@ -110,10 +110,8 @@ row = 1
 col = 1
 EMSearch "NEW JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
 If row = 0 then script_end_procedure("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
-
 EMReadScreen new_hire_first_line, 61, row, col'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
 	new_hire_first_line = replace(new_hire_first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
-
 	new_hire_first_line = trim(new_hire_first_line)
 EMReadScreen new_hire_second_line, 61, row + 1, col
 	new_hire_second_line = trim(new_hire_second_line)
@@ -122,8 +120,6 @@ EMReadScreen new_hire_third_line, 61, row + 2, col 'maxis name'
 EMReadScreen new_hire_fourth_line, 61, row + 3, col'new hire name'
 	new_hire_fourth_line = trim(new_hire_fourth_line)
 	new_hire_fourth_line = replace(new_hire_fourth_line, ",", ", ")
-
-
 IF right(new_hire_third_line, 46) <> right(new_hire_fourth_line, 46) then 				'script was being run on cases where the names did not match but SSN did. This will allow users to review.
 	warning_box = MsgBox("The names found on the NEW HIRE message do not match exactly." & vbcr & new_hire_third_line & vbcr & new_hire_fourth_line & vbcr & "Please review and click OK if you wish to continue and CANCEL if the name is incorrect.", vbOKCancel)
 	If warning_box = vbCancel then script_end_procedure("The script has ended. Please review the new hire as you indicated that the name read from the NEW HIRE and the MAXIS name did not match.")
@@ -146,13 +142,12 @@ EMSearch "EMPLOYER:", row, col
 EMReadScreen employer, 25, row, col + 10
 employer = TRIM(employer)
 
-
 row = 1 						'Now it's searching for the SSN
 col = 1
 EMSearch "SSN #", row, col
 EMReadScreen new_HIRE_SSN, 11, row, col + 5
 new_HIRE_SSN = TRIM(new_HIRE_SSN)
-new_HIRE_SSN = replace(new_HIRE_SSN, "-", "")
+new_HIRE_SSN = replace(new_HIRE_SSN, "-", "") '01/10/19 it has the dashes in the match now'
 PF3
 
 'CHECKING CASE CURR. MFIP AND SNAP HAVE DIFFERENT RULES.
@@ -178,6 +173,7 @@ If stat_check <> "STAT" then script_end_procedure("Unable to get to stat due to 
 EMWriteScreen "memb", 20, 71
 transmit
 Do
+	'Msgbox new_HIRE_SSN
 	EMReadScreen MEMB_current, 1, 2, 73
 	EMReadScreen MEMB_total, 1, 2, 78
 	EMReadScreen MEMB_SSN, 11, 7, 42
@@ -259,11 +255,10 @@ If create_JOBS_checkbox = checked then
 	EMReadScreen expired_check, 6, 24, 17 'Checks to see if the jobs panel will carry over by looking for the "This information will expire" at the bottom of the page
 	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
 END IF
-new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
-new_hire_first_line = replace(new_hire_first_line, "SSN #", "")
+
   '-----------------------------------------------------------------------------------------CASENOTE
   start_a_blank_case_note	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
-  CALL write_variable_in_case_note("-" & new_hire_first_line & " unreported to agency-")
+  CALL write_variable_in_case_note("-NEW JOB DETAILS FOR (" & HH_memb & ") unreported to agency-")
   CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
   CALL write_variable_in_case_note("EMPLOYER: " & employer)
   CALL write_variable_in_case_note(new_hire_third_line)
