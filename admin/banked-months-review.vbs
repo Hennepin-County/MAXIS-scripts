@@ -5,7 +5,7 @@ STATS_counter = 0			 'sets the stats counter at one
 STATS_manualtime = 0			 'manual run time in seconds
 STATS_denomination = "C"		 'C is for each case
 'END OF stats block==============================================================================================
-run_locally = TRUE
+'run_locally = TRUE
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -109,6 +109,11 @@ Function review_ABAWD_FSET_exemptions(person_ref_nbr, possible_exemption, exempt
 
     possible_exemption = FALSE
     exemption_list = ""
+
+    Do
+        Call navigate_to_MAXIS_screen("STAT", "SUMM")
+        EMReadScreen summ_check, 4, 2, 46
+    Loop until summ_check = "SUMM"
 
     'MsgBox "Line 113"
     CALL navigate_to_MAXIS_screen("STAT", "MEMB")
@@ -1570,6 +1575,11 @@ If process_option = "Ongoing Banked Months Cases" Then
                 approvable_month = FALSE
                 BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = ""
 
+                Do
+                    Call navigate_to_MAXIS_screen("STAT", "SUMM")
+                    EmReadscreen summ_check, 4, 2, 46
+                Loop until summ_check = "SUMM"
+
                 If BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) <> "" Then                          'if the spreadsheet already has a month listed in one of the 'tracked months'
                     MAXIS_footer_month = left(BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case), 2)      'we set the footer month and year  using the month from the spreadsheet so that we look at the right month in STAT
                     MAXIS_footer_year = right(BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case), 2)
@@ -1644,10 +1654,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                 If MAXIS_footer_month = CM_mo AND MAXIS_footer_year = CM_yr Then approvable_month = TRUE
                 If MAXIS_footer_month = CM_plus_1_mo AND MAXIS_footer_year = CM_plus_1_yr Then approvable_month = TRUE
 
-                Do
-                    Call navigate_to_MAXIS_screen("STAT", "SUMM")
-                    EmReadscreen summ_check, 4, 2, 46
-                Loop until summ_check = "SUMM"
+
 
                 client_not_in_HH = FALSE
                 If HH_memb <> "01" Then
@@ -2956,10 +2963,17 @@ If process_option = "Ongoing Banked Months Cases" Then
                 End If
 
                 If comnplete_approval = TRUE Then
-                    Call Navigate_to_MAXIS_screen("ELIG", "FS")     'Go to ELIG in what we expect is the start month and year
-                    EmWriteScreen MAXIS_footer_month, 19, 54
-                    EMWriteScreen MAXIS_footer_year, 19, 57
-                    transmit
+                    Do
+                        Call back_to_SELF
+                        Call Navigate_to_MAXIS_screen("ELIG", "    ")     'Go to ELIG in what we expect is the start month and year
+
+                        EmWriteScreen MAXIS_footer_month, 20, 55
+                        EMWriteScreen MAXIS_footer_year, 20, 58
+                        EmWriteScreen "FS  ", 20, 71
+                        transmit
+
+                        EMReadScreen elig_fs_check, 4, 3, 48
+                    Loop until elig_fs_check = "FSPR"
 
                     '276651 - Family
                     '276898 - single
@@ -3215,6 +3229,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                                 End If
 
                                 If fs_elig_result = "INELIGIBLE" Then action_type = "CLOSURE"
+                                If fs_elig_result = "ELIGIBLE" Then action_type = "REDUCTION"
 
                                 'Creating a list of each line of the case note - created here instead of adding to an array because we don't need it after the note
                                 If action_type = "CLOSURE" Then Lines_in_note = Lines_in_note & "~!~* SNAP CLOSED eff " & MAXIS_footer_month & "/" & MAXIS_footer_year
@@ -3238,7 +3253,8 @@ If process_option = "Ongoing Banked Months Cases" Then
                                 End If
 
                                 If action_type = "CLOSURE" Then
-                                    Lines_in_note = Lines_in_note & "~!~* Benefits ending as clt does not meet an FSET or ABAWD exemption and has no ABAWD or Banked Months available."
+                                    Lines_in_note = Lines_in_note & "~!~* Benefits ending as clt does not meet an FSET or ABAWD exemption and"
+                                    Lines_in_note = Lines_in_note & "~!~  no ABAWD or Banked Months available."
                                 End If
 
                                 ARRAY_OF_NOTE_LINES = split(Lines_in_note, "~!~")       'making this an array
@@ -3269,6 +3285,39 @@ If process_option = "Ongoing Banked Months Cases" Then
                                     Call write_variable_in_CASE_NOTE(worker_signature)
                                 End If
 
+                                'Here we are adding a SPEC/WCOM
+
+                                'navigating to the panel for case case and footer month/year specified.
+                                Call navigate_to_MAXIS_screen ("SPEC", "WCOM")
+
+                                EMWriteScreen MAXIS_footer_month, 3, 46
+                                EMWriteScreen MAXIS_footer_year, 3, 51
+
+                                transmit
+
+                                wcom_row = 7
+                                Do
+                                    EMReadScreen notice_print_status, 7, wcom_row, 71
+                                    EMReadScreen prg_typ, 2, wcom_row, 26
+                                    If notice_print_status = "Waiting" AND prg_typ = "FS" Then
+                                        'Open the Notice
+                                        EMWriteScreen "X", wcom_row, 13
+                                        transmit
+
+                                        PF9     'Put in to edit mode - the worker comment input screen
+
+                                        CALL write_variable_in_SPEC_MEMO(BANKED_MONTHS_CASES_ARRAY(clt_first_name, the_case) & " receives SNAP under time-limited Banked Months, as you are an ABAWD (Able-bodied adult without dependents).")
+                                        CALL write_variable_in_SPEC_MEMO("   ")
+                                        CALL write_variable_in_SPEC_MEMO("SNAP is closing for " & BANKED_MONTHS_CASES_ARRAY(clt_first_name, the_case) & " using all available banked months. If you meet one of the exemptions listed above AND all other eligibility factors you may still be eligible for SNAP. Please contact your team if you have questions.")
+
+                                        PF4     'Save the WCOM
+                                        PF3     'Exit the WCOM
+
+                                    End If
+
+                                    wcom_row = wcom_row + 1
+                                Loop until notice_print_status = "       "
+                                Call back_to_SELF
                             End If
 
 
@@ -3439,6 +3488,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                         If note_title = "** BANKED MONTHS EXPIRED **" Then need_end_of_BM_note = FALSE
 
                         note_date = DateValue(note_date)
+                        note_row = note_row + 1
 
                     Loop until DateDiff("d", note_date, two_months_ago) > 0
 
@@ -3483,7 +3533,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                             Call write_variable_in_CASE_NOTE(worker_signature)
 
                         End If
-                    End If 
+                    End If
 
                 Else
 
