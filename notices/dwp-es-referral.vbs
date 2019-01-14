@@ -204,7 +204,7 @@ END IF
 DO
 	DO
         Do 
-            If appointment_date = "12/25/2018" or appointment_date = "1/1/2019" then 
+            If appointment_date = "1/21/2019" or appointment_date = "2/18/2019" then 
                 appointment_date = dateadd("d", 7, appointment_date) 
                 appt_date = False   'dates are identified holiday dates 
             else 
