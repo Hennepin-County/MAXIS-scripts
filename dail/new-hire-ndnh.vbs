@@ -192,6 +192,9 @@ IF match_answer_droplist = "NO - RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AN
 	If row <> 0 then MFIP_case = True
 	If row = 0 then MFIP_case = False
 	PF3
+
+    If dail_row <> 6 Then Call write_value_and_transmit("t", dail_row, 3)       'bringing the correct message back to the top'
+
 	'GOING TO STAT
 	EMSendKey "s"
 	transmit
@@ -231,6 +234,9 @@ IF match_answer_droplist = "NO - RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AN
 	    call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
     LOOP UNTIL are_we_passworded_out = false
 
+    EMWriteScreen "jobs", 20, 71
+	EMWriteScreen HH_memb, 20, 76
+	transmit
 'Checking to see if 5 jobs already exist. If so worker will need to manually delete one first.
 	EMReadScreen jobs_total_panel_count, 1, 2, 78
 	IF create_JOBS_checkbox = checked AND jobs_total_panel_count = "5" THEN script_end_procedure("This client has 5 jobs panels already. Please review and delete and unneeded panels if you want the script to add a new one.")
@@ -282,9 +288,33 @@ IF match_answer_droplist = "NO - RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AN
       	EMReadScreen expired_check, 6, 24, 17 'Checks to see if the jobs panel will carry over by looking for the "This information will expire" at the bottom of the page
       	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
 	END IF
+    PF3 'back to DAIL
+    transmit
 
     '-----------------------------------------------------------------------------------------CASENOTE
-    start_a_blank_case_note	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
+    ' start_a_blank_case_note	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
+    Call write_value_and_transmit("n", 6, 3)
+
+    DO
+        PF9
+        EMReadScreen case_note_check, 17, 2, 33
+        EMReadScreen mode_check, 1, 20, 09
+        If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then
+            'msgbox "The script can't open a case note. Reasons may include:" & vbnewline & vbnewline & "* You may be in inquiry" & vbnewline & "* You may not have authorization to case note this case (e.g.: out-of-county case)" & vbnewline & vbnewline & "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
+            BeginDialog Inquiry_Dialog, 0, 0, 241, 115, "CASE NOTE Cannot be Started"
+              ButtonGroup ButtonPressed
+                OkButton 185, 95, 50, 15
+              Text 10, 10, 190, 10, "The script can't open a case note. Reasons may include:"
+              Text 20, 25, 80, 10, "* You may be in inquiry"
+              Text 20, 40, 185, 20, "* You may not have authorization to case note this case (e.g.: out-of-county case)"
+              Text 5, 70, 225, 20, "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
+            EndDialog
+            Do
+                Dialog Inquiry_Dialog
+            Loop until ButtonPressed = -1
+        End If
+    Loop until (mode_check = "A" or mode_check = "E")
+
 	CALL write_variable_in_case_note("-NDNH JOB DETAILS FOR (M" & HH_memb & ") unreported to agency-")
     CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
     CALL write_variable_in_case_note("EMPLOYER: " & employer)
@@ -300,6 +330,8 @@ IF match_answer_droplist = "NO - RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AN
     CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
     CALL write_variable_in_case_note("---")
     CALL write_variable_in_case_note(worker_signature)
+
+    PF3
     PF3
 
 
@@ -307,7 +339,7 @@ IF match_answer_droplist = "NO - RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AN
 	IF TIKL_checkbox = UNCHECKED THEN script_end_procedure("Success! MAXIS updated for new NDNH HIRE message, and a case note made. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
     'Navigates to TIKL
 	IF TIKL_checkbox = CHECKED THEN
-    	Call navigate_to_MAXIS_screen("DAIL", "WRIT")
+    	Call write_value_and_transmit("w", 6, 3)
     	CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
     	CALL write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action." & vbcr & "For all federal matches INFC/HIRE must be cleared please see HSR manual.")
     	PF3		'Exits and saves TIKL
