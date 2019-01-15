@@ -825,10 +825,11 @@ function update_WREG_coding(enter_wreg_status, enter_abawd_status, FSET_funds, e
 
         wreg_row = 1
         col = 1
-        EMSearch MAXIS_footer_year, wreg_row, col
+        search_year = "20" & MAXIS_footer_year
+        EMSearch search_year, wreg_row, col
 
         EMWriteScreen tracker_code, wreg_row, wreg_col
-
+        transmit
         PF3
     End If
 
@@ -1542,6 +1543,9 @@ If process_option = "Ongoing Banked Months Cases" Then
 
         Call back_to_SELF
 
+        MAXIS_footer_month = CM_mo
+        MAXIS_footer_year = CM_yr
+
         Do
             Call navigate_to_MAXIS_screen("STAT", "    ")
             EmReadscreen summ_check, 4, 2, 46
@@ -1555,6 +1559,9 @@ If process_option = "Ongoing Banked Months Cases" Then
         Loop until summ_check = "SUMM"
 
         EMReadScreen county_code, 2, 21, 19
+
+        MAXIS_footer_month = ""
+        MAXIS_footer_year = ""
 
 
         If county_code <> "27" Then
@@ -1573,6 +1580,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                 this_month_is_ABAWD = FALSE
                 fset_wreg_status = ""
                 approvable_month = FALSE
+                yes_abawd_exempt_checkbox = unchecked
                 BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = ""
 
                 Do
@@ -1590,6 +1598,15 @@ If process_option = "Ongoing Banked Months Cases" Then
                         If MAXIS_footer_month = CM_mo AND MAXIS_footer_year = CM_yr Then
                             MAXIS_footer_month = CM_plus_1_mo
                             MAXIS_footer_year = CM_plus_1_yr
+                        ElseIf MAXIS_footer_month <> "" AND MAXIS_footer_year <> "" Then
+                            first_of_footer_month = MAXIS_footer_month & "/01/" & MAXIS_footer_year     'there was no month in the spreadsheet
+                            next_month = DateAdd("m", 1, first_of_footer_month)                         'the month is advanded by ONE from what the last month we looked at was
+
+                            MAXIS_footer_month = DatePart("m", next_month)          'formatting the month and year and setting them for the nav functions to work
+                            MAXIS_footer_month = right("00"&MAXIS_footer_month, 2)
+
+                            MAXIS_footer_year = DatePart("yyyy", next_month)
+                            MAXIS_footer_year = right(MAXIS_footer_year, 2)
                         Else
                             MAXIS_footer_month = CM_mo
                             MAXIS_footer_year = CM_yr
@@ -2007,10 +2024,44 @@ If process_option = "Ongoing Banked Months Cases" Then
                         End If
 
                         ' MsgBox "BEGINNING" & vbNewLine & "Month type - " & BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) & vbNewLine & "The month is - '" & BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) & "'" & vbNewLine & "Update WREG - " & BANKED_MONTHS_CASES_ARRAY(month_indicator + 18, the_case) & vbNewLine & "Do Approval - " & BANKED_MONTHS_CASES_ARRAY(month_indicator + 27, the_case)
-
                         If BANKED_MONTHS_CASES_ARRAY(month_indicator, the_case) = "" Then
+
+                            If fset_wreg_status = "30" AND (abawd_status = "01" OR abawd_status = "02" OR abawd_status = "03" OR abawd_status = "04" OR abawd_status = "05" OR abawd_status = "06" OR abawd_status = "07" OR abawd_status = "08" OR abawd_status = "09" OR abawd_status = "12") Then
+                                update_abawd_status = abawd_status
+                                yes_abawd_exempt_checkbox = checked
+
+                                BeginDialog Dialog1, 0, 0, 201, 85, "Review ABAWD Exemption"
+                                  CheckBox 10, 50, 170, 10, "Check here if client meets an ABAWD exemption.", yes_abawd_exempt_checkbox
+                                  DropListBox 90, 65, 35, 45, "01"+chr(9)+"02"+chr(9)+"03"+chr(9)+"04"+chr(9)+"05"+chr(9)+"06"+chr(9)+"07"+chr(9)+"08"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"13", update_abawd_status
+                                  ButtonGroup ButtonPressed
+                                    OkButton 145, 65, 50, 15
+                                  Text 5, 10, 195, 10, "It appears the ABAWD status on WREG for this case is: )#"
+                                  Text 65, 30, 75, 10, "*** REVIEW CASE ***"
+                                  Text 10, 70, 80, 10, "Correct ABAWD Status:"
+                                EndDialog
+
+                                Do
+                                    err_msg = ""
+
+                                    dialog Dialog1
+
+                                    If yes_abawd_exempt_checkbox = checked AND (update_abawd_status = "10" OR update_abawd_status = "11" OR update_abawd_status = "13") Then err_msg = err_msg & vbNewLine &_
+                                                            "* Client is not ABAWD exempt with an ABAWD status of: " & update_abawd_status & ". Either update status or UNCHECK the ABAWD exempt checkbox."
+                                    If yes_abawd_exempt_checkbox = unchecked AND (update_abawd_status = "01" OR update_abawd_status = "02" OR update_abawd_status = "03" OR update_abawd_status = "04" OR update_abawd_status = "05" OR update_abawd_status = "06" OR update_abawd_status = "07" OR update_abawd_status = "08" OR update_abawd_status = "09" OR update_abawd_status = "12") Then err_msg = err_msg &_
+                                                            vbNewLine & "* Client should be listed as ABAWD exempt with an ABAWD status of " & update_abawd_status &_
+                                                            ". Either update status or CHECK the ABAWD exempt checkbox."
+
+                                    If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+
+                                Loop until err_msg = ""
+
+                            Else
+                                update_abawd_status = abawd_status
+                            End If
                             'MsgBox "Pause"
-                            If fset_wreg_status = "30" Then
+                            If fset_wreg_status = "30" AND yes_abawd_exempt_checkbox = unchecked Then
+
+
                                 Call review_ABAWD_FSET_exemptions(BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), exemption_exists, list_of_exemption)
 
                                 code_for_banked = TRUE      'resetting this variable
@@ -2089,12 +2140,19 @@ If process_option = "Ongoing Banked Months Cases" Then
                                     BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "BANKED MONTH"
                                 End If
                             Else
+
+                                'this is for if there is an ABAWD month available that was used previously
+                                '
+
+
                                 BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "EXEMPT"
                                 BANKED_MONTHS_CASES_ARRAY(month_indicator + 18, the_case) = FALSE
                                 BANKED_MONTHS_CASES_ARRAY(month_indicator + 27, the_case) = FALSE
                                 BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) = BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case) & " ~ " & MAXIS_footer_month & "/" &  MAXIS_footer_year & " WREG coded for ABAWD exemption."
                                 BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = TRUE
                                 BANKED_MONTHS_CASES_ARRAY(removal_reason, the_case) = "Client WREG Exempt"
+                                If yes_abawd_exempt_checkbox = checked Then BANKED_MONTHS_CASES_ARRAY(removal_reason, the_case) = "Client ABAWD Exempt"
+                                If update_abawd_status <> abawd_status Then BANKED_MONTHS_CASES_ARRAY(month_indicator + 18, the_case) = TRUE
                             End If
                         ElseIF BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "" Then ''"PRORATED - REG" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "PRORATED - BM" AND BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) <> "REG ABAWD" Then
                             BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "BANKED MONTH"
@@ -2110,6 +2168,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                         'WREG Updated'
                         EMReadScreen fset_wreg_status, 2, 8, 50     'Reading the FSET Status and ABAWD status
                         EMReadScreen abawd_status, 2, 13, 50
+
                         If BANKED_MONTHS_CASES_ARRAY(month_indicator + 18, the_case) = TRUE Then
                             If BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "BANKED MONTH" Then
                                 If MX_region = "INQUIRY DB" Then           'If we are in Inquiry, the script runs in a developer mode, messaging the information
@@ -2141,6 +2200,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                                 End If
                                 BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = FALSE
                             ElseIf BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = "EXEMPT" Then
+
                                 full_of_exemptions = JOIN(list_of_exemption, "~")
                                 If InStr(full_of_exemptions, "active on CASH programs") <> 0 Then new_fset_wreg_status = "17"
                                 If InStr(full_of_exemptions, "claiming homelessness") <> 0 Then new_fset_wreg_status = "03"
@@ -2174,6 +2234,8 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                                 If new_fset_wreg_status = "03" OR new_fset_wreg_status = "04" OR new_fset_wreg_status = "05" OR new_fset_wreg_status = "06" OR new_fset_wreg_status = "07" OR new_fset_wreg_status = "09" OR new_fset_wreg_status = "11" OR new_fset_wreg_status = "12" Then new_abawd_status = "01"
                                 If new_abawd_status = "05" OR new_abawd_status = "06" Then new_fset_wreg_status = "30"
+
+                                If update_abawd_status <> abawd_status Then new_abawd_status = update_abawd_status
 
                                 'ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 6
 
@@ -2239,7 +2301,30 @@ If process_option = "Ongoing Banked Months Cases" Then
                             BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = TRUE
                             BANKED_MONTHS_CASES_ARRAY(removal_reason, the_case) = "Client not active SNAP"
                         End If
-                        If BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case) = "EXEMPT" Then BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = TRUE
+                        If BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case) = "EXEMPT" Then
+                            BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = TRUE
+
+                            If InStr(BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case), MAXIS_footer_month & "/" & MAXIS_footer_year) <> 0 Then
+                                ABAWD_MONTHS_ARRAY = ""
+                                ABAWD_MONTHS_ARRAY = Split(BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case), "~")
+
+                                BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case) = ""
+                                For each used_month in ABAWD_MONTHS_ARRAY
+                                    ' MsgBox used_month
+                                    the_month = left(used_month, 2)
+                                    the_year = right(used_month, 2)
+
+                                    If MAXIS_footer_month = the_month AND MAXIS_footer_year = the_year Then
+                                        BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case)  = BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case) & "~" & removed_month
+                                    Else
+                                        BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case)  = BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case) & "~" & the_month & "/" & the_year
+                                    End If
+                                Next
+
+                                If left(BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case), 1) = "~" Then BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case) = right(BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case), len(BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case))-1)
+                                ObjExcel.Cells(list_row, counted_ABAWD_col).Value = BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case)
+                            End If
+                        End If
                         If BANKED_MONTHS_CASES_ARRAY(month_indicator + 27, the_case) = TRUE Then
                             if start_month = "" Then
                                 start_month = MAXIS_footer_month
@@ -2248,7 +2333,8 @@ If process_option = "Ongoing Banked Months Cases" Then
                             assist_a_new_approval = TRUE
                         End If
 
-
+                        other_notes = replace(other_notes, " - BM", "")
+                        other_notes = replace(other_notes, " - REG", "")
 
                         '
                         ' 'Banked Months are numbered 1-9 as they are used
@@ -3318,6 +3404,42 @@ If process_option = "Ongoing Banked Months Cases" Then
                                     wcom_row = wcom_row + 1
                                 Loop until notice_print_status = "       "
                                 Call back_to_SELF
+
+                            Else
+
+                                If MX_region = "INQUIRY DB" Then
+                                    case_note_to_display = "WREG Updated for ABAWD Information for M" & HH_memb
+                                    notes_array = Split(other_notes, "; ")
+                                    for each cnote in notes_array
+                                        case_note_to_display = case_note_to_display & vbNewLine & cnote
+                                    next
+                                    case_note_to_display = case_note_to_display & vbNewLine & "---"
+                                    case_note_to_display = case_note_to_display & vbNewLine & worker_signature
+
+                                    MsgBox case_note_to_display
+                                Else
+                                    'MsgBox "Detail - " & other_notes
+                                    BeginDialog Dialog1, 0, 0, 441, 195, "Dialog"
+                                      EditBox 60, 45, 370, 15, other_notes
+                                      ButtonGroup ButtonPressed
+                                        OkButton 385, 175, 50, 15
+                                      Text 10, 10, 100, 10, "This will be the CASE/NOTE"
+                                      Text 25, 30, 160, 10, "WREG Updated for ABAWD Information for MEMB " & HH_memb
+                                      Text 25, 50, 25, 10, "Detail"
+                                      Text 10, 85, 85, 10, "Other Detail script found"
+                                      Text 20, 105, 350, 80, BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case)
+                                    EndDialog
+
+                                    dialog Dialog1
+
+                                    Call start_a_blank_CASE_NOTE
+
+                                    Call write_variable_in_CASE_NOTE("WREG Updated for ABAWD Information for M" & HH_memb)
+                                    Call write_bullet_and_variable_in_CASE_NOTE("Detail", other_notes)
+                                    'Call write_variable_in_CASE_NOTE("---")
+                                    Call write_variable_in_CASE_NOTE(worker_signature)
+                                End If
+
                             End If
 
 
@@ -3449,6 +3571,42 @@ If process_option = "Ongoing Banked Months Cases" Then
                                 'Call write_variable_in_CASE_NOTE("---")
                                 Call write_variable_in_CASE_NOTE(worker_signature)
                             End If
+
+                        Else
+
+                            If MX_region = "INQUIRY DB" Then
+                                case_note_to_display = "WREG Updated for ABAWD Information for M" & HH_memb
+                                notes_array = Split(other_notes, "; ")
+                                for each cnote in notes_array
+                                    case_note_to_display = case_note_to_display & vbNewLine & cnote
+                                next
+                                case_note_to_display = case_note_to_display & vbNewLine & "---"
+                                case_note_to_display = case_note_to_display & vbNewLine & worker_signature
+
+                                MsgBox case_note_to_display
+                            Else
+                                'MsgBox "Detail - " & other_notes
+                                BeginDialog Dialog1, 0, 0, 441, 195, "Dialog"
+                                  EditBox 60, 45, 370, 15, other_notes
+                                  ButtonGroup ButtonPressed
+                                    OkButton 385, 175, 50, 15
+                                  Text 10, 10, 100, 10, "This will be the CASE/NOTE"
+                                  Text 25, 30, 160, 10, "WREG Updated for ABAWD Information for MEMB " & HH_memb
+                                  Text 25, 50, 25, 10, "Detail"
+                                  Text 10, 85, 85, 10, "Other Detail script found"
+                                  Text 20, 105, 350, 80, BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case)
+                                EndDialog
+
+                                dialog Dialog1
+
+                                Call start_a_blank_CASE_NOTE
+
+                                Call write_variable_in_CASE_NOTE("WREG Updated for ABAWD Information for M" & HH_memb)
+                                Call write_bullet_and_variable_in_CASE_NOTE("Detail", other_notes)
+                                'Call write_variable_in_CASE_NOTE("---")
+                                Call write_variable_in_CASE_NOTE(worker_signature)
+                            End If
+
 
                         End If
 
