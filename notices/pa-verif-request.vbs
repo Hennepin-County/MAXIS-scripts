@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/15/2019", "Updated to accomodate benefits larger than $1,000 for SNAP, MFIP, and DWP.", "Casey Love, Hennepin County")
 call changelog_update("12/01/2016", "Checkbox added with the option to have 'Other Income' not listed on the word document.", "Casey Love, Ramsey County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -216,9 +217,11 @@ call navigate_to_MAXIS_screen("case", "curr")
 		transmit
         EMWriteScreen "MFB2", 20, 71
         transmit
-        EMReadScreen MFIP_cash, 7, 12, 35
-        EMReadScreen MFIP_food, 7, 7, 35
+        EMReadScreen MFIP_cash, 8, 12, 34
+        EMReadScreen MFIP_food, 8, 7, 34
 		EMReadScreen MFIP_housing, 6, 17, 36
+        MFIP_cash = trim(MFIP_cash)
+        MFIP_food = trim(MFIP_food)
 		IF MFIP_housing = "" then MFIP_housing = 0
 		'MFIP_cash = (cInt(MFIP_cash) + MFIP_housing)
 		'MFIP_cash = cstr(MFIP_cash)
@@ -269,7 +272,8 @@ call navigate_to_MAXIS_screen("case", "curr")
 		transmit
 		EMWriteScreen "DWB2", 20, 71
 		transmit
-		EMReadScreen DWP_grant, 7, 5, 37
+		EMReadScreen DWP_grant, 8, 5, 36
+        DWP_grant = trim(DWP_grant)
 	    EMWriteScreen "DWSM", 20, 71
 		transmit
 		call find_variable("Caregivers....", caregivers, 5)
