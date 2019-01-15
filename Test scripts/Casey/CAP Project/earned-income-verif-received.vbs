@@ -1505,7 +1505,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                             PushButton 305, y_pos + 55, 60, 10, "Calculate", calc_btn
                       End If
 
-                      y_pos = y_pos + (list_pos * 10) + 30
+                      y_pos = y_pos + (list_pos * 10) + 40
                       Text 10, y_pos, 400, 10, "Paychecks not included: " & list_of_excluded_pay_dates
 
                       CheckBox 10, y_pos + 15, 330, 10, "Check here if you confirm that this budget is correct and is the best estimate of anticipated income.", confirm_budget_checkbox
@@ -1778,6 +1778,7 @@ Next
 
 
 list_of_all_months_to_update = "~"
+
 For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
     If EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE Then
         EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel) = FALSE
@@ -1800,6 +1801,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
             Loop until next_month = CM_plus_2
         End If
     End If
+    MsgBox "2 - " & list_of_all_months_to_update
 Next
 
 list_of_all_months_to_update = right(list_of_all_months_to_update, len(list_of_all_months_to_update)-1)
@@ -1807,6 +1809,8 @@ list_of_all_months_to_update = left(list_of_all_months_to_update, len(list_of_al
 If InStr(list_of_all_months_to_update, "~") <> 0 Then
     update_months_array = split(list_of_all_months_to_update, "~")
     Call sort_dates(update_months_array)
+Else
+    update_months_array = array(list_of_all_months_to_update)
 End If
 
 
@@ -1824,6 +1828,7 @@ End If
 ' Then we loop through the income to actually update the panel
 ' Array witin and array within an array (probably some more arrays)
 Call back_to_SELF
+MsgBox update_months_array
 For each active_month in update_months_array
     MsgBox active_month
 Next
