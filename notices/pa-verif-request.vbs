@@ -247,7 +247,8 @@ call navigate_to_MAXIS_screen("case", "curr")
 		transmit
 		EMWriteScreen "FSB2", 19, 70
 		transmit
-		EMReadScreen SNAP_grant, 7, 10, 75
+		EMReadScreen SNAP_grant, 8, 10, 73
+        SNAP_grant = trim(SNAP_grant)
 	    call navigate_to_MAXIS_screen ("case", "curr")
 	End if
 	If fs_check = "APP CL" then msgbox "SNAP is set to close, please enter amounts manually to avoid errors."
@@ -404,15 +405,15 @@ If no_income_checkbox = unchecked Then 		'Only adding the detail from stat if th
 Else 										'If worker requests income from STAT to be omitted, the script only adds the cash grant size and other notes.
 	objSelection.EndKey end_of_doc
 	objSelection.TypeParagraph()
-	
+
 	objSelection.TypeText "Number of family members on cash grant: "
 	objSelection.TypeText cash_members
 	objSelection.TypeParagraph()
-	
+
 	ObjSelection.TypeText "Other Notes: "
 	objSelection.TypeText other_notes
 	objSelection.TypeParagraph()
-End If 
+End If
 
 'Writing INQX to the doc if selected
 IF inqd_check = checked THEN
