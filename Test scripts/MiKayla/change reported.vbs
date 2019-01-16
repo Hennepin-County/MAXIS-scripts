@@ -63,13 +63,13 @@ BeginDialog change_reported_dialog, 0, 0, 136, 105, "Change Reported"
   EditBox 70, 5, 35, 15, MAXIS_case_number
   EditBox 70, 25, 15, 15, MAXIS_footer_month
   EditBox 90, 25, 15, 15, MAXIS_footer_year
-  DropListBox 5, 65, 125, 15, "Select One:"+chr(9)+"Baby Born"+chr(9)+"HHLD Comp Change", nature_change
+  DropListBox 20, 65, 85, 15, "Select One:"+chr(9)+"Address "+chr(9)+"Baby Born"+chr(9)+"HHLD Comp"+chr(9)+"Income "+chr(9)+"Shelter Cost "+chr(9)+"Other(please specify)", nature_change
   ButtonGroup ButtonPressed
     OkButton 45, 85, 40, 15
     CancelButton 90, 85, 40, 15
   Text 5, 10, 50, 10, "Case number:"
   Text 5, 30, 65, 10, "Footer month/year: "
-  Text 5, 50, 130, 10, "Please select the nature of the change."
+  Text 5, 50, 130, 10, "Please select the nature of the change:"
 EndDialog
 
 BeginDialog HHLD_Comp_Change_Dialog, 0, 0, 161, 200, "Household Comp Change"
