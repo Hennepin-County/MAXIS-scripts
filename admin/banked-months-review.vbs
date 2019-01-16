@@ -1514,6 +1514,7 @@ If process_option = "Ongoing Banked Months Cases" Then
         MAXIS_footer_year = ""
         other_notes = ""
         Updates_made = FALSE
+        shut_down_review_case = ""
 
         list_row = BANKED_MONTHS_CASES_ARRAY(clt_excel_row, the_case)       'setting the excel row to what was found in the array
         MAXIS_case_number = BANKED_MONTHS_CASES_ARRAY(case_nbr, the_case)   'setting the case number to this variable for nav functions to work
@@ -3407,6 +3408,8 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                             Else
 
+                                shut_down_review_case = MsgBox("Does this case need review due to shutdown early issuance?", vbQuestion + vbYesNo,"Shutdown Affected")
+
                                 If MX_region = "INQUIRY DB" Then
                                     case_note_to_display = "WREG Updated for ABAWD Information for M" & HH_memb
                                     notes_array = Split(other_notes, "; ")
@@ -3820,6 +3823,7 @@ If process_option = "Ongoing Banked Months Cases" Then
         If BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = TRUE Then
             ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 18)).Interior.ColorIndex = 16
             ObjExcel.Cells(list_row, NOT_BANKED_col).Value = "TRUE"
+            If shut_down_review_case = vbYes Then ObjExcel.Cells(list_row, NOT_BANKED_col).Value = "REVIEW"
             ObjExcel.Cells(list_row, reason_col).Value = BANKED_MONTHS_CASES_ARRAY(removal_reason, the_case)
         ElseIf InStr(BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case), "PROCESS MANUALLY") <> 0 Then
             ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 18)).Interior.ColorIndex = 3
