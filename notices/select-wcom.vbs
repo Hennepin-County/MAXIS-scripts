@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/16/2019", "Updated Banked months homeless WCOM to be used for all ABAWD cases. This option allows users to notify a client of the potential for the homeless ABAWD exemption.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/01/2018", "Removed 'Failure to Comply' WCOM and added WCOM for Voluntary SNAP E&T..", "Casey Love, Hennepin County")
 call changelog_update("09/30/2018", "Initial version.", "Casey Love, Hennepin County")
 
@@ -403,32 +404,31 @@ For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
 Next
 
 'DIALOG to select the WCOM to add
-BeginDialog wcom_selection_dlg, 0, 0, 241, 350, "Select WCOM"
-  Text 10, 10, 95, 10, "Check the WCOM needed."
-  GroupBox 10, 25, 225, 240, "SNAP"
-  CheckBox 20, 40, 150, 10, "SNAP closed/denied with PACT", snap_pact_wcom_checkbox
-  CheckBox 20, 55, 155, 10, "SNAP closed via PACT for new HH Member", pact_fraud_wcom_checkbox
-  CheckBox 20, 70, 145, 10, "SNAP closing due to Returned Mail", snap_returned_mail_wcom_checkbox
-  CheckBox 20, 85, 115, 10, "SNAP closing and MFIP opening", snap_to_mfip_wcom_checkbox
-  CheckBox 20, 100, 190, 10, "SNAP Duplicate Assistance in another state", duplicate_assistance_wcom_checkbox
-  CheckBox 20, 115, 190, 10, "SNAP Duplicate Assistance on another case in MN", dup_assistance_in_MN_wcom_checkbox
-  CheckBox 20, 130, 85, 10, "SNAP Applicant Death", client_death_wcom_checkbox
-  CheckBox 20, 145, 205, 10, "SNAP Postponed verif of CAF pg 9 Signature - for EXP SNAP", signature_postponed_verif_wcom_checkbox
-  CheckBox 20, 160, 190, 10, "ABAWD - Postponed WREG verifs for EXP SNAP", wreg_postponed_verif_wcom_checkbox
-  CheckBox 20, 175, 155, 10, "ABAWD WREG coded for Child under 18", abawd_child_coded_wcom_checkbox
-  CheckBox 20, 190, 130, 10, "ABAWD - Temporarily disabled", temp_disa_abawd_wcom_checkbox
-  CheckBox 20, 205, 150, 10, "ABAWD - Banked Months homelessness", banked_mos_homeless_wcom_checkbox
-  'CheckBox 20, 220, 160, 10, "ABAWD - Banked Months possibly available", banked_mos_avail_wcom_checkbox
-  CheckBox 20, 220, 180, 10, "ABAWD - Banked Months E and T voluntary", banked_mos_vol_e_t_wcom_checkbox
-  CheckBox 20, 235, 190, 10, "ABAWD - Banked Months closing for months used", banked_mos_used_wcom_checkbox
-  CheckBox 20, 250, 195, 10, "ABAWD - E and T Voluntary", voluntary_e_t_wcom_checkbox
-  GroupBox 10, 270, 225, 55, "Cash"
-  CheckBox 20, 280, 55, 10, "CASH Denied", cash_denied_checkbox
-  CheckBox 20, 295, 125, 10, "CASH closing due to Returned Mail", mfip_returned_mail_wcom_checkbox
-  CheckBox 20, 310, 125, 10, "MFIP Closing and SNAP opening", mfip_to_snap_wcom_checkbox
+BeginDialog wcom_selection_dlg, 0, 0, 241, 340, "Check the WCOM needed"
+  CheckBox 20, 20, 85, 10, "SNAP Applicant Death", client_death_wcom_checkbox
+  CheckBox 20, 35, 150, 10, "SNAP closed/denied with PACT", snap_pact_wcom_checkbox
+  CheckBox 20, 50, 155, 10, "SNAP closed via PACT for new HH Member", pact_fraud_wcom_checkbox
+  CheckBox 20, 65, 145, 10, "SNAP closing due to Returned Mail", snap_returned_mail_wcom_checkbox
+  CheckBox 20, 80, 115, 10, "SNAP closing and MFIP opening", snap_to_mfip_wcom_checkbox
+  CheckBox 20, 95, 190, 10, "SNAP Duplicate Assistance in another state", duplicate_assistance_wcom_checkbox
+  CheckBox 20, 110, 190, 10, "SNAP Duplicate Assistance on another case in MN", dup_assistance_in_MN_wcom_checkbox
+  CheckBox 20, 125, 205, 10, "SNAP Postponed verif of CAF pg 9 Signature - for EXP SNAP", signature_postponed_verif_wcom_checkbox
+  CheckBox 20, 140, 180, 10, "ABAWD - Banked Months E and T voluntary", banked_mos_vol_e_t_wcom_checkbox
+  CheckBox 20, 155, 190, 10, "ABAWD - Banked Months closing for months used", banked_mos_used_wcom_checkbox
+  CheckBox 20, 170, 160, 10, "ABAWD - Banked Months possibly available", banked_mos_avail_wcom_checkbox
+  CheckBox 20, 185, 195, 10, "ABAWD - E and T Voluntary", voluntary_e_t_wcom_checkbox
+  CheckBox 20, 200, 160, 10, "ABAWD - Homeless exemption information", abawd_homeless_wcom_checkbox
+  CheckBox 20, 215, 190, 10, "ABAWD - Postponed WREG verifs for EXP SNAP", wreg_postponed_verif_wcom_checkbox
+  CheckBox 20, 230, 130, 10, "ABAWD - Temporarily disabled", temp_disa_abawd_wcom_checkbox
+  CheckBox 20, 245, 155, 10, "ABAWD - WREG coded for Child under 18", abawd_child_coded_wcom_checkbox
+  CheckBox 20, 270, 55, 10, "CASH Denied", cash_denied_checkbox
+  CheckBox 20, 285, 125, 10, "CASH closing due to Returned Mail", mfip_returned_mail_wcom_checkbox
+  CheckBox 20, 300, 125, 10, "MFIP Closing and SNAP opening", mfip_to_snap_wcom_checkbox
   ButtonGroup ButtonPressed
-    OkButton 135, 330, 50, 15
-    CancelButton 185, 330, 50, 15
+    OkButton 135, 320, 50, 15
+    CancelButton 185, 320, 50, 15
+  GroupBox 5, 260, 230, 55, "Cash"
+  GroupBox 5, 5, 230, 255, "SNAP"
 EndDialog
 
 ' Dim myBtn
@@ -792,11 +792,11 @@ Do      'Just made this  loop - this needs sever testing.
         CALL add_words_to_message("You are exempt from the ABAWD work provision because you are unable to work for " & numb_disa_mos & " months per your Doctor statement.")
     End If
 
-    If banked_mos_homeless_wcom_checkbox = checked OR banked_mos_avail_wcom_checkbox = checked OR banked_mos_vol_e_t_wcom_checkbox = checked OR banked_mos_used_wcom_checkbox = checked THen
-        CALL add_words_to_message("You receive SNAP under time-limited Banked Months, as you are an ABAWD (Able-bodied adult without dependents).")
+    If abawd_homeless_wcom_checkbox = checked OR banked_mos_avail_wcom_checkbox = checked OR banked_mos_vol_e_t_wcom_checkbox = checked OR banked_mos_used_wcom_checkbox = checked THen
+        CALL add_words_to_message("You receive time-limited SNAP as you are an ABAWD (Able-bodied adult without dependents).")
     End If
 
-    If banked_mos_homeless_wcom_checkbox = checked Then
+    If abawd_homeless_wcom_checkbox = checked Then
         CALL add_words_to_message("You previously reported that you are homeless, specifically defined for this purpose as lacking both:; *Fixed/regular nighttime residence (inc. temporary housing); *Access to work-related necessities (shower/laundry/etc.); Based on this information, you may qualify for SNAP benefits that are not time-limited. If you believe you meet the homeless and unfit for employment exemption (or any other exemption), please contact your team.")
         'CALL add_words_to_message("You receive SNAP under time-limited Banked Months, due to being an ABAWD(Able-bodied adult without dependents).  You previously reported to this agency that you are homeless.  Based on this information, you may meet an ABAWD exemption and qualify for SNAP benefits that are not time-limited.; One exemption is for a person who is unfit for employment if he or she is currently homeless.  Homelessness is specifically defined for this purpose as:; * Lacking a fixed and regular nighttime residence, including temporary housing situations, AND; * Lacking access to work-related necessities (i.e. shower/laundry facilities, etc.).; If you believe you may meet this exemption (or any other potential ABAWD exemption), please contact your team.")
     End If
@@ -1034,7 +1034,7 @@ If signature_postponed_verif_wcom_checkbox = checked Then CALL write_variable_in
 If wreg_postponed_verif_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & abawd_name & " has used their 3 ABAWD months. Postponed WREG verification: " & wreg_verifs_needed & " is due: " & wreg_verifs_due_date & ".")
 If abawd_child_coded_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & exempt_abawd_name & " is ABAWD and WREG exempt due to a child(ren) under the age of 18 in the SNAP unit.")
 If temp_disa_abawd_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Client meets ABAWD exemption of temporary inability to work for " & numb_disa_mos & " months per Doctor statement.")
-If banked_mos_homeless_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Information about ABAWD Exemption for homelessness.")
+If abawd_homeless_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Information about ABAWD Exemption for homelessness.")
 If banked_mos_avail_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* ABAWD months have been used, explained Banked Months may be available.")
 If banked_mos_vol_e_t_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* E&T is voluntary with Banked Months.")
 If banked_mos_non_coop_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & banked_abawd_name & " was receiving Banked Months and fail cooperation with E & T. Explained requesting Good Cause, and future banked months ineligibility.")

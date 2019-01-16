@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/16/2019", "Updated conditional handling and output of MFIP only cases.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/18/2018", "Updated to output two worksheets. One with ER case info, one with CSR case info.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/09/2018", "Added handling to export information about CSR's.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/18/2018", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -228,7 +229,7 @@ For each reviews_total in REVS_array
 		priv_case_list = priv_case_list & "|" & MAXIS_case_number
 	ELSE						'For all of the cases that aren't privileged...
 		MFIP_ACTIVE = FALSE		'Setting some variables for the loop
-		SNAP_ACTIVE = False		
+		SNAP_ACTIVE = FALSE	
 
 		SNAP_status_check = ""
 		MFIP_prog_1_check = ""
@@ -262,15 +263,13 @@ For each reviews_total in REVS_array
             GRH_ACTIVE = FALSE
         END IF 
         
-        'msgbox MAXIS_case_number & vbcr & "GRH_ACTIVE: " & GRH_ACTIVE
-        
 		HCRE_panel_bypass	'function I created to ensure that we don't get trapped in the HCRE panel
-
-		'Going to STAT/REVW to to check for ER vs CSR for SNAP cases
+        'Going to STAT/REVW to to check for ER vs CSR for SNAP cases
 		CALL navigate_to_MAXIS_screen("STAT", "REVW")
-		If MFIP_ACTIVE = TRUE Then recert_status = "YES"	'MFIP will only have an ER - so if listed on REVS - will be an ER - don't need to check dates
         
-		If SNAP_ACTIVE = TRUE Then
+		If MFIP_ACTIVE = TRUE Then 
+            recert_status = "YES"	'MFIP will only have an ER - so if listed on REVS - will be an ER - don't need to check dates
+        Elseif SNAP_ACTIVE = TRUE Then
 			EMReadScreen SNAP_review_check, 8, 9, 57
 			If SNAP_review_check = "__ 01 __" then 		'If this is blank there are big issues
 				recert_status = "NO"
@@ -297,7 +296,7 @@ For each reviews_total in REVS_array
 				If recert_mo = left(REPT_month, 2) and recert_yr <> right(REPT_year, 2) THEN recert_status = "NO"
 				IF recert_mo = left(REPT_month, 2) and recert_yr = right(REPT_year, 2) THEN recert_status = "YES"
 			End If
-		elseif (SNAP_ACTIVE <> TRUE and GRH_ACTIVE = TRUE) then
+		elseif (SNAP_ACTIVE = FALSE and GRH_ACTIVE = TRUE) then
             EMwritescreen "x", 5, 35		'Opening the CASH pop-up
             Transmit
             'msgbox MAXIS_case_number
@@ -316,7 +315,7 @@ For each reviews_total in REVS_array
             recert_status = "NO"    'defaulting everything else (HC, MSA, GRH only) as no interview 
             CSR_month = False       'defaulting all non GRH or SNAP as non CSR 
         End if 
-		
+	    
 		If recert_status = "YES" then 
 			Redim Preserve Required_appt_array(8, 	recert_cases)
 			Required_appt_array (case_number, 		recert_cases) = MAXIS_case_number
@@ -513,4 +512,4 @@ FOR i = 1 to 11
 Next
 
 STATS_counter = STATS_counter - 1
-script_end_procedure("Success! The file is ready to clean up and submit.")
+script_end_procedure("PRIV case list: " & priv_case_list)
