@@ -44,53 +44,56 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/16/2019", "Updated dialog boxes to prepare for enhancements to script.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-
-'Initial Dialog Box
-BeginDialog change_reported_dialog, 0, 0, 171, 105, "Change Reported"
-  ButtonGroup ButtonPressed
-    OkButton 5, 85, 50, 15
-    CancelButton 115, 85, 50, 15
-  EditBox 85, 5, 60, 15, MAXIS_case_number
-  EditBox 85, 25, 30, 15, MAXIS_footer_month
-  EditBox 125, 25, 30, 15, MAXIS_footer_year
-  DropListBox 25, 65, 125, 15, "Select One"+chr(9)+"Baby Born"+chr(9)+"HHLD Comp Change", List1
-  Text 30, 10, 50, 10, "Case number:"
-  Text 15, 30, 65, 10, "Footer month/year: "
-  Text 25, 50, 130, 10, "Please select the nature of the change."
-EndDialog
-
-BeginDialog HHLD_Comp_Change_Dialog, 0, 0, 291, 175, "Household Comp Change"
-  Text 5, 15, 50, 10, "Case Number"
-  EditBox 60, 10, 100, 15, MAXIS_case_number
-  Text 5, 35, 80, 10, "Unit Member HH Change"
-  EditBox 90, 30, 45, 15, HH_member
-  Text 5, 55, 85, 10, "Date Reported/Addendum"
-  EditBox 95, 50, 60, 15, date_reported
-  Text 165, 55, 45, 10, "Effective Date"
-  EditBox 215, 50, 70, 15, effective_date
-  CheckBox 110, 70, 110, 10, "Check if the change is temporary.", temporary_change_checkbox
-  Text 10, 90, 45, 10, "Action Taken"
-  EditBox 60, 85, 225, 15, actions_taken
-  Text 5, 110, 60, 10, "Additional Notes"
-  EditBox 60, 105, 225, 15, additional_notes
-  Text 10, 130, 45, 15, "Worker Name"
-  EditBox 60, 125, 100, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 15, 150, 50, 15
-    CancelButton 230, 150, 50, 15
-EndDialog
-
 'Connecting to BlueZone
 EMConnect ""
 
 'Finds the case number
 Call MAXIS_case_number_finder(MAXIS_case_number)
+
+
+'Initial Dialog Box
+BeginDialog change_reported_dialog, 0, 0, 136, 105, "Change Reported"
+  EditBox 70, 5, 35, 15, MAXIS_case_number
+  EditBox 70, 25, 15, 15, MAXIS_footer_month
+  EditBox 90, 25, 15, 15, MAXIS_footer_year
+  DropListBox 5, 65, 125, 15, "Select One:"+chr(9)+"Baby Born"+chr(9)+"HHLD Comp Change", nature_change
+  ButtonGroup ButtonPressed
+    OkButton 45, 85, 40, 15
+    CancelButton 90, 85, 40, 15
+  Text 5, 10, 50, 10, "Case number:"
+  Text 5, 30, 65, 10, "Footer month/year: "
+  Text 5, 50, 130, 10, "Please select the nature of the change."
+EndDialog
+
+BeginDialog HHLD_Comp_Change_Dialog, 0, 0, 161, 200, "Household Comp Change"
+  EditBox 80, 5, 20, 15, HH_member
+  EditBox 80, 25, 35, 15, date_reported
+  EditBox 80, 45, 35, 15, effective_date
+  CheckBox 15, 75, 90, 10, "Verifications sent to ECF", Verif_checkbox
+  CheckBox 15, 85, 80, 10, "Updated STAT panels", STAT_checkbox
+  CheckBox 15, 95, 80, 10, "Approved new results", APP_checkbox
+  CheckBox 15, 105, 80, 10, "Notified other agency", notify_checkbox
+  EditBox 50, 125, 100, 15, additional_notes
+  EditBox 50, 145, 100, 15, worker_signature
+  CheckBox 5, 165, 125, 10, "Check if the change is temporary", temporary_change_checkbox
+  ButtonGroup ButtonPressed
+    OkButton 65, 180, 40, 15
+    CancelButton 110, 180, 40, 15
+  Text 5, 10, 75, 10, "Member # HH change:"
+  Text 30, 50, 50, 10, "Effective date:"
+  Text 5, 130, 45, 10, "Other Notes:"
+  GroupBox 5, 65, 145, 55, "Action Taken"
+  Text 30, 30, 50, 10, "Date reported:"
+  Text 5, 150, 40, 10, "Worker Sig:"
+EndDialog
+
+
 
 'Finds the benefit month
 EMReadScreen on_SELF, 4, 2, 50
@@ -113,7 +116,7 @@ DO
 	DIALOG change_reported_dialog
 		IF ButtonPressed = 0 THEN stopscript
 		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
-		IF List1 = "Select One" THEN err_msg = err_msg & vbCr & "* Please select the type of change reported."
+		IF nature_change = "Select One:" THEN err_msg = err_msg & vbCr & "* Please select the type of change reported."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 LOOP UNTIL err_msg = ""
 
@@ -156,43 +159,39 @@ NEXT
 HH_member_array_dialog = Right(HH_member_array, len(HH_member_array) - total_clients)
 
 'Baby_born Dialog needs to begin here to accept 'HH_member_array_dialog into dropdown list: mothers_name
-BeginDialog baby_born_dialog, 0, 0, 221, 350, "BABY BORN"
-  EditBox 55, 5, 100, 15, MAXIS_case_number
-  EditBox 55, 25, 100, 15, babys_name
-  EditBox 55, 45, 100, 15, date_of_birth
-  DropListBox 55, 65, 100, 15, "Select One"+chr(9)+"Male"+chr(9)+"Female", baby_gender
-  DropListBox 85, 85, 70, 15, "Select One"+chr(9)+"Yes"+chr(9)+"No", father_in_household
-  EditBox 70, 105, 85, 15, fathers_name
-  EditBox 70, 130, 85, 15, fathers_employer
-  DropListBox 70, 155, 130, 15, "Select One" & (HH_member_array_dialog), mothers_name
-  EditBox 70, 180, 85, 15, mothers_employer
-  DropListBox 80, 205, 70, 15, "Select One"+chr(9)+"Yes"+chr(9)+"No", other_health_insurance
-  EditBox 115, 230, 80, 15, OHI_source
-  EditBox 60, 255, 105, 15, other_notes
-  EditBox 60, 275, 105, 15, actions_taken
-  CheckBox 20, 295, 165, 10, "Newborns MHC plan updated to mothers carrier.", MHC_plan_checkbox
-  EditBox 155, 310, 60, 15, worker_signature
+BeginDialog baby_born_dialog, 0, 0, 186, 265, "BABY BORN"
+  EditBox 55, 5, 115, 15, babys_name
+  EditBox 55, 25, 40, 15, date_of_birth
+  DropListBox 130, 25, 40, 15, "Select One:"+chr(9)+"Male"+chr(9)+"Female", baby_gender
+  DropListBox 100, 45, 40, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", parent_in_household
+  DropListBox 85, 75, 80, 15, "Select One:" & (HH_member_array_dialog), mothers_name
+  EditBox 85, 95, 80, 15, mothers_employer
+  EditBox 80, 130, 85, 15, fathers_name
+  EditBox 80, 150, 85, 15, fathers_employer
+  CheckBox 10, 170, 165, 10, "Newborns MHC plan updated to mother's carrier", MHC_plan_checkbox
+  DropListBox 140, 185, 40, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", other_health_insurance
+  EditBox 110, 205, 70, 15, OHI_source
+  EditBox 50, 225, 130, 15, other_notes
   ButtonGroup ButtonPressed
-    OkButton 5, 330, 50, 15
-    CancelButton 165, 330, 50, 15
-  Text 5, 235, 110, 15, "If yes to OHI, source of the OHI:"
-  Text 10, 260, 45, 15, "Other Notes:"
-  Text 5, 280, 50, 15, "Actions Taken:"
-  Text 90, 315, 65, 15, "Worker Signature:"
-  Text 5, 45, 45, 15, "Date of Birth:"
-  Text 20, 105, 50, 10, "Fathers Name:"
-  Text 5, 5, 50, 15, "Case Number: "
-  Text 5, 25, 50, 15, "Baby's Name:"
-  Text 5, 130, 65, 15, "Father's Employer:"
-  Text 5, 85, 75, 15, "Father In Household?"
-  Text 20, 65, 25, 10, "Gender:"
-  Text 55, 205, 20, 10, "OHI?"
-  Text 5, 155, 65, 10, "Mother of Newborn: "
-  Text 5, 180, 65, 10, "Mother's Employer: "
+    OkButton 95, 245, 40, 15
+    CancelButton 140, 245, 40, 15
+  Text 5, 30, 45, 10, "Date of birth:"
+  Text 100, 30, 25, 10, "Gender:"
+  Text 5, 50, 95, 10, "Other parent in household?"
+  Text 15, 135, 50, 10, "Fathers Name:"
+  Text 5, 10, 50, 10, "Child's name:"
+  Text 15, 155, 65, 10, "Father's Employer:"
+  Text 5, 230, 45, 10, "Other Notes:"
+  Text 5, 210, 105, 10, "If yes to OHI, source of the OHI:"
+  Text 55, 190, 80, 10, "Other Health Insurance?"
+  Text 15, 80, 65, 10, "Mother of Newborn: "
+  Text 15, 100, 65, 10, "Mother's Employer: "
+  GroupBox 5, 120, 175, 50, "Father's Information"
+  GroupBox 5, 65, 175, 50, "Mother's Information"
 EndDialog
 
 
-IF List1 = "Baby Born" THEN
+IF nature_change = "Baby Born" THEN
 
 'Do loop for Baby Born Dialogbox
 DO
@@ -200,24 +199,19 @@ DO
 		err_msg = ""
 		DIALOG Baby_Born_Dialog
 		cancel_confirmation
-		IF mothers_name = "Select One" THEN err_msg = err_msg & vbNewLine & "You must choose newborn's mother"
-		IF MAXIS_case_number = "" THEN err_msg = "You must enter case number!"
+		IF mothers_name = "Select One:" THEN err_msg = err_msg & vbNewLine & "You must choose newborn's mother"
 		IF babys_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter the babys name"
 		IF date_of_birth = "" THEN err_msg = err_msg & vbNewLine &  "You must enter a birth date"
-		If father_in_household = "Select One" then err_msg = err_msg & vbNewLine &  "You must answer 'Yes' or 'No' if father is listed in the household."
-		If father_in_household = "Yes" and fathers_name = "" then err_msg = err_msg & vbNewLine &  "You must enter Father's name, since he is listed in household."
-		'IF fathers_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter Father's name"
-		IF actions_taken = "" THEN err_msg = err_msg & vbNewLine & "You must enter the actions taken"
-		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "Please sign your note"
+		If parent_in_household = "Select One:" then err_msg = err_msg & vbNewLine &  "You must answer 'Yes' or 'No' if father is listed in the household."
+		If parent_in_household = "Yes" and fathers_name = "" then err_msg = err_msg & vbNewLine &  "You must enter Father's name, since he is listed in household."
 		IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
 	Loop Until err_msg = ""
-
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
 END IF
 
-IF List1 = "HHLD Comp Change" THEN
+IF nature_change = "HHLD Comp Change" THEN
 
 'Do loop for HHLD Comp Change Dialogbox
 DO
@@ -225,11 +219,10 @@ DO
 		err_msg = ""
 		DIALOG HHLD_Comp_Change_Dialog
 		cancel_confirmation
-		IF MAXIS_case_number = "" THEN err_msg = "You must enter case number!"
 		IF HH_Member = "" THEN err_msg = err_msg & vbNewLine & "You must enter a HH Member"
 		IF date_reported = "" THEN err_msg = err_msg & vbNewLine & "You must enter date reported"
 		IF effective_date = "" THEN err_msg = err_msg & vbNewLine & "You must enter effective date"
-		IF actions_taken = "" THEN err_msg = err_msg & vbNewLine & "You must enter the actions taken"
+		IF notify_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise in other notes the name of the agencyt notified"
 		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "Please sign your note"
 		IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
 	LOOP UNTIL err_msg = ""
@@ -241,56 +234,50 @@ END IF
 'Checks MAXIS for password prompt
 CALL check_for_MAXIS(false)
 
-'Navigates to case note
-CALL navigate_to_MAXIS_screen("CASE", "NOTE")
+actions_taken = ""
+IF Verif_checkbox = CHECKED THEN actions_taken = actions_taken & "Verifications sent to ECF,"
+IF STAT_checkbox = CHECKED THEN actions_taken = actions_taken & "Updated STAT panels,"
+IF APP_checkbox = CHECKED THEN actions_taken = actions_taken & "Approved new results,"
+IF notify_checkbox = CHECKED THEN actions_taken = actions_taken & "Notified other agency,"
 
-'Send PF9 to case note
-PF9
-
-
+start_a_blank_case_note
 'writes case note for Baby Born
-IF List1 = "Baby Born" THEN
-
-	CALL write_variable_in_Case_Note("--Client reports birth of baby--")
-	CALL write_bullet_and_variable_in_Case_Note("Baby's name", babys_name)
-	If baby_gender = "Select One" then									'gender will be listed as unknown if not updated'
+IF nature_change = "Baby Born" THEN
+	CALL write_variable_in_Case_Note("--CHANGE REPORTED - Client reports birth of baby--")
+	CALL write_bullet_and_variable_in_Case_Note("Child's's name", babys_name)
+	If baby_gender = "Select One:" then									'gender will be listed as unknown if not updated'
 		CALL write_bullet_and_variable_in_Case_Note("Gender", "unknown")
 	Else
 		CALL write_bullet_and_variable_in_Case_Note("Gender", baby_gender)
 	End If
 	CALL write_bullet_and_variable_in_Case_Note("Date of birth", date_of_birth)
 	father_HH = " - not reported in the same household"
-	If father_in_household = "Yes" Then father_HH = " - reported in the same household."
-	If fathers_name = "" then fathers_name = "unknown"
-	CALL write_bullet_and_variable_in_Case_Note("Father's name", fathers_name & father_HH)
-	CALL write_bullet_and_variable_in_Case_Note("Father's employer", fathers_employer)
+	If parent_in_household = "Yes" Then father_HH = " - reported in the same household."
+	If fathers_name = "" then fathers_name = "Unknown or not provided"
 	CALL write_bullet_and_variable_in_Case_Note("Mother's name", mothers_name)
 	CALL write_bullet_and_variable_in_Case_Note("Mother's employer", mothers_employer)
+	CALL write_bullet_and_variable_in_Case_Note("Father's name", fathers_name & father_HH)
+	CALL write_bullet_and_variable_in_Case_Note("Father's employer", fathers_employer)
 	IF other_health_insurance = "Yes" THEN CALL write_bullet_and_variable_in_Case_Note("OHI", OHI_Source)
-	IF MHC_plan_checkbox = 1 THEN CALL write_variable_in_CASE_NOTE("* Newborns MHC plan updated to match the mothers.")
+	IF MHC_plan_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Newborns MHC plan updated to match the mothers.")
 	CALL write_bullet_and_variable_in_Case_Note("Other Notes", other_notes)
-	CALL write_bullet_and_variable_in_Case_Note("Actions Taken", actions_taken)
-	CALL write_bullet_and_variable_in_Case_Note("Additional Notes", additional_notes)
 END IF
 
 'writes case note for HHLD Comp Change
-IF List1 = "HHLD Comp Change" THEN
-
-	CALL write_variable_in_case_note("HH Comp Change Reported")
+IF nature_change = "HHLD Comp Change" THEN
+	CALL write_variable_in_case_note("--CHANGE REPORTED - HH Comp Change--")
 	CALL write_bullet_and_variable_in_Case_Note("Unit member HH Member", HH_Member)
 	CALL write_bullet_and_variable_in_Case_Note("Date Reported/Addendum", date_reported)
 	CALL write_bullet_and_variable_in_Case_Note("Date Effective", effective_date)
 	CALL write_bullet_and_variable_in_Case_Note("Actions Taken", actions_taken)
-	CALL write_bullet_and_variable_in_Case_Note("Additional Notes", additional_notes)
-
+	CALL write_bullet_and_variable_in_Case_Note("Additional Notes", other_notes)
 	'case notes if the change is temporary
-	IF Temporary_Change_Checkbox = 1 THEN CALL write_variable_in_Case_Note("***Change is temporary***")
-	IF Temporary_Change_Checkbox = 0 THEN CALL write_variable_in_Case_Note("***Change is NOT temporary***")
-
+	IF Temporary_Change_Checkbox = CHECKED THEN CALL write_variable_in_Case_Note("***Change is temporary***")
+	IF Temporary_Change_Checkbox = UNCHECKED THEN CALL write_variable_in_Case_Note("***Change is NOT temporary***")
 END IF
 
 'signs case note
 CALL write_variable_in_Case_Note("----")
 CALL write_variable_in_Case_Note(worker_signature)
 
-script_end_procedure ("")
+script_end_procedure ("The case note has been created please be sure to send verifications to ECF or case note how the information was received.")
