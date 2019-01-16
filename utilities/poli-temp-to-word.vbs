@@ -93,7 +93,7 @@ Do
         Dialog POLI_TEMP_dialog
         If buttonpressed = cancel then stopscript
 
-        If trim(temp_one) <> "" AND trim(temp_two) = "" Then err_msg = err_msg & vbNewLine & "* TEMP Table Codes have at least "
+        If trim(temp_one) <> "" AND trim(temp_two) = "" Then err_msg = err_msg & vbNewLine & "* TEMP Table Codes have at least two reference positions."
         If trim(temp_three) = "" AND trim(temp_four) <> "" Then err_msg = err_msg & vbNewLine & "* If there is a code in the 4th position, there needs to be one in the third."
 
         If err_msg <> "" Then MsgBox "**Please Resolve to Continue **" & vbNewLine & err_msg
@@ -101,7 +101,6 @@ Do
     Loop Until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
-
 
 temp_one = trim(temp_one)
 temp_two = trim(temp_two)
@@ -145,7 +144,7 @@ If temp_one <> "" Then
     panel_title = "TABLE"
 
     If temp_one <> "" Then temp_one = right("00" & temp_one, 2)
-    If temp_two <> "" Then temp_two = right("00" & temp_two, 2)
+    If len(temp_two) = 1 Then temp_two = right("00" & temp_two, 2)
     If len(temp_three) = 1 Then temp_three = right("00" & temp_three, 2)
     If len(temp_four) = 1 Then temp_four = right("00" & temp_four, 2)
 
