@@ -53,10 +53,10 @@ changelog_display
 
 'DIALOGS--------------------------------------------------
 BeginDialog POLI_TEMP_dialog, 0, 0, 211, 90, "POLI/TEMP dialog"
-  EditBox 40, 40, 15, 15, temp_one
-  EditBox 65, 40, 15, 15, temp_two
-  EditBox 90, 40, 15, 15, temp_three
-  EditBox 115, 40, 15, 15, temp_four
+  EditBox 40, 40, 20, 15, temp_one
+  EditBox 65, 40, 20, 15, temp_two
+  EditBox 90, 40, 20, 15, temp_three
+  EditBox 115, 40, 20, 15, temp_four
   ButtonGroup ButtonPressed
     OkButton 95, 65, 50, 15
     CancelButton 155, 65, 50, 15
