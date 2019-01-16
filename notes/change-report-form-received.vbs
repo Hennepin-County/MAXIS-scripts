@@ -52,44 +52,43 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'THE DIALOG--------------------------------------------------------------------------------------------------------------
-BeginDialog crf_received_dialog, 0, 0, 381, 290, "Change Report Form Received"
+BeginDialog crf_received_dialog, 0, 0, 376, 280, "Change Report Form Received"
   EditBox 60, 5, 40, 15, MAXIS_case_number
-  EditBox 160, 5, 45, 15, effective_date
-  EditBox 320, 5, 45, 15, date_received
-  EditBox 60, 35, 305, 15, address_notes
-  EditBox 60, 55, 305, 15, household_notes
-  EditBox 120, 75, 245, 15, asset_notes
-  EditBox 60, 100, 305, 15, vehicles_notes
-  EditBox 60, 120, 305, 15, income_notes
-  EditBox 60, 140, 305, 15, shelter_notes
-  EditBox 60, 160, 305, 15, other__changes
-  EditBox 60, 190, 305, 15, actions_taken
-  EditBox 60, 210, 305, 15, other_notes
-  EditBox 70, 230, 295, 15, verifs_requested
-  DropListBox 270, 250, 95, 20, "Select One:"+chr(9)+"will continue next month"+chr(9)+"will not continue next month", changes_continue
-  CheckBox 10, 250, 140, 10, "Check here to navigate to DAIL/WRIT", tikl_nav_check
-  EditBox 75, 270, 85, 15, worker_signature
+  EditBox 160, 5, 45, 15, date_received
+  EditBox 320, 5, 45, 15, effective_date
+  EditBox 50, 35, 315, 15, address_notes
+  EditBox 50, 55, 315, 15, household_notes
+  EditBox 115, 75, 250, 15, asset_notes
+  EditBox 50, 95, 315, 15, vehicles_notes
+  EditBox 50, 115, 315, 15, income_notes
+  EditBox 50, 135, 315, 15, shelter_notes
+  EditBox 50, 155, 315, 15, other_change_notes
+  EditBox 60, 180, 305, 15, actions_taken
+  EditBox 60, 200, 305, 15, other_notes
+  EditBox 70, 220, 295, 15, verifs_requested
+  DropListBox 270, 240, 95, 20, "Select One:"+chr(9)+"will continue next month"+chr(9)+"will not continue next month", changes_continue
+  CheckBox 10, 245, 140, 10, "Check here to navigate to DAIL/WRIT", tikl_nav_check
+  EditBox 75, 260, 85, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 260, 270, 50, 15
-    CancelButton 315, 270, 50, 15
+    OkButton 260, 260, 50, 15
+    CancelButton 315, 260, 50, 15
   Text 5, 10, 50, 10, "Case Number:"
   Text 110, 10, 50, 10, "Effective Date:"
   Text 210, 10, 110, 10, "Date Change Reported/Received:"
-  GroupBox 5, 25, 370, 160, "Changes Reported:"
-  Text 30, 40, 30, 10, "Address:"
-  Text 25, 60, 35, 10, "HH Comp:"
-  Text 15, 80, 100, 10, "Assets (savings or property):"
-  Text 25, 105, 30, 10, "Vehicles:"
-  Text 30, 125, 30, 10, "Income:"
-  Text 30, 145, 25, 10, "Shelter:"
-  Text 35, 165, 20, 10, "Other:"
-  Text 10, 195, 45, 10, "Action Taken:"
-  Text 10, 215, 45, 10, "Other Notes:"
-  Text 10, 235, 60, 10, "Verifs Requested:"
-  Text 10, 275, 60, 10, "Worker Signature:"
-  Text 180, 255, 90, 10, "The changes client reports:"
+  GroupBox 5, 25, 365, 150, "Changes Reported:"
+  Text 15, 40, 30, 10, "Address:"
+  Text 15, 60, 35, 10, "HH Comp:"
+  Text 15, 80, 95, 10, "Assets (savings or property):"
+  Text 15, 100, 30, 10, "Vehicles:"
+  Text 15, 120, 30, 10, "Income:"
+  Text 15, 140, 25, 10, "Shelter:"
+  Text 15, 160, 20, 10, "Other:"
+  Text 10, 185, 45, 10, "Action Taken:"
+  Text 10, 205, 45, 10, "Other Notes:"
+  Text 10, 225, 60, 10, "Verifs Requested:"
+  Text 10, 265, 60, 10, "Worker Signature:"
+  Text 180, 245, 90, 10, "The changes client reports:"
 EndDialog
-
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------
 'Connect to Bluezone
@@ -128,7 +127,7 @@ CALL write_bullet_and_variable_in_case_note("Assets", asset_notes)
 CALL write_bullet_and_variable_in_case_note("Vehicles", vehicles_notes)
 CALL write_bullet_and_variable_in_case_note("Income", income_notes)
 CALL write_bullet_and_variable_in_case_note("Shelter", shelter_notes)
-CALL write_bullet_and_variable_in_case_note("Other", other)
+CALL write_bullet_and_variable_in_case_note("Other", other_change_notes)
 CALL write_bullet_and_variable_in_case_note("Action Taken", actions_taken)
 CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 CALL write_bullet_and_variable_in_case_note("Verifs Requested", verifs_requested)
