@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/16/2019", "Updated dialog box to match the form received.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -51,43 +52,44 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'THE DIALOG--------------------------------------------------------------------------------------------------------------
-BeginDialog crf_received_dialog, 0, 0, 411, 320, "Change Report Form Received"
-  EditBox 55, 5, 55, 15, MAXIS_case_number
-  EditBox 270, 5, 60, 15, date_received
-  EditBox 50, 35, 340, 15, address_notes
-  EditBox 75, 55, 315, 15, household_notes
-  EditBox 50, 75, 340, 15, savings_notes
-  EditBox 50, 95, 340, 15, property_notes
-  EditBox 50, 115, 340, 15, vehicles_notes
-  EditBox 50, 135, 340, 15, income_notes
-  EditBox 45, 155, 345, 15, shelter_notes
-  EditBox 40, 175, 350, 15, other
-  EditBox 55, 205, 325, 15, actions_taken
-  EditBox 50, 225, 330, 15, other_notes
-  EditBox 70, 245, 310, 15, verifs_requested
-  CheckBox 10, 270, 140, 15, "Check here to navigate to DAIL/WRIT", tikl_nav_check
-  DropListBox 275, 270, 95, 20, "Select One..."+chr(9)+"will continue next month"+chr(9)+"will not continue next month", changes_continue
-  EditBox 80, 295, 85, 15, worker_signature
+BeginDialog crf_received_dialog, 0, 0, 381, 290, "Change Report Form Received"
+  EditBox 60, 5, 40, 15, MAXIS_case_number
+  EditBox 160, 5, 45, 15, effective_date
+  EditBox 320, 5, 45, 15, date_received
+  EditBox 60, 35, 305, 15, address_notes
+  EditBox 60, 55, 305, 15, household_notes
+  EditBox 120, 75, 245, 15, asset_notes
+  EditBox 60, 100, 305, 15, vehicles_notes
+  EditBox 60, 120, 305, 15, income_notes
+  EditBox 60, 140, 305, 15, shelter_notes
+  EditBox 60, 160, 305, 15, other__changes
+  EditBox 60, 190, 305, 15, actions_taken
+  EditBox 60, 210, 305, 15, other_notes
+  EditBox 70, 230, 295, 15, verifs_requested
+  DropListBox 270, 250, 95, 20, "Select One:"+chr(9)+"will continue next month"+chr(9)+"will not continue next month", changes_continue
+  CheckBox 10, 250, 140, 10, "Check here to navigate to DAIL/WRIT", tikl_nav_check
+  EditBox 75, 270, 85, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 290, 300, 50, 15
-    CancelButton 345, 300, 50, 15
-  Text 20, 180, 25, 10, "Other:"
-  Text 20, 40, 30, 15, "Address:"
-  Text 10, 210, 45, 10, "Action Taken:"
-  Text 20, 100, 35, 15, "Property:"
-  Text 10, 230, 40, 10, "Other notes:"
-  Text 160, 10, 110, 10, "Change Report Form Rec'd Date:"
-  Text 10, 250, 60, 10, "Verifs Requested:"
-  Text 20, 120, 35, 15, "Vehicles:"
-  Text 20, 60, 60, 15, "Household Mbrs:"
-  Text 185, 270, 90, 15, "The changes client reports:"
-  Text 20, 140, 30, 15, "Income:"
-  Text 10, 300, 70, 10, "Sign your case note:"
+    OkButton 260, 270, 50, 15
+    CancelButton 315, 270, 50, 15
   Text 5, 10, 50, 10, "Case Number:"
-  Text 20, 160, 30, 15, "Shelter:"
-  Text 20, 80, 30, 15, "Savings:"
-  GroupBox 5, 25, 395, 175, "Changes Reported:"
+  Text 110, 10, 50, 10, "Effective Date:"
+  Text 210, 10, 110, 10, "Date Change Reported/Received:"
+  GroupBox 5, 25, 370, 160, "Changes Reported:"
+  Text 30, 40, 30, 10, "Address:"
+  Text 25, 60, 35, 10, "HH Comp:"
+  Text 15, 80, 100, 10, "Assets (savings or property):"
+  Text 25, 105, 30, 10, "Vehicles:"
+  Text 30, 125, 30, 10, "Income:"
+  Text 30, 145, 25, 10, "Shelter:"
+  Text 35, 165, 20, 10, "Other:"
+  Text 10, 195, 45, 10, "Action Taken:"
+  Text 10, 215, 45, 10, "Other Notes:"
+  Text 10, 235, 60, 10, "Verifs Requested:"
+  Text 10, 275, 60, 10, "Worker Signature:"
+  Text 180, 255, 90, 10, "The changes client reports:"
 EndDialog
+
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------
 'Connect to Bluezone
@@ -106,23 +108,23 @@ DO
 			LOOP UNTIL worker_signature <> ""
 			IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
 		LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE
-		IF changes_continue = "Select One..." THEN MsgBox "You Must Select 'The changes client reports field'"
-	LOOP UNTIL changes_continue <> "Select One..."
+		IF changes_continue = "Select One:" THEN MsgBox "You Must Select 'The changes client reports field'"
+	LOOP UNTIL changes_continue <> "Select One:"
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
 'Checks Maxis for password prompt
 CALL check_for_MAXIS(FALSE)
 
-'THE CASE NOTE----------------------------------------------------------------------------------------------------
+'THE CASENOTE----------------------------------------------------------------------------------------------------
 'Navigates to case note
-Call start_a_blank_CASE_NOTE
-CALL write_variable_in_case_note ("***Change Report Form Received***")
-CALL write_bullet_and_variable_in_case_note("Date Form Received", date_received)
+Call start_a_blank_case_note
+CALL write_variable_in_case_note ("--CHANGE REPORTED--")
+CALL write_bullet_and_variable_in_case_note("Date Received", date_received)
+CALL write_bullet_and_variable_in_case_note("Date Effective", effective_date)
 CALL write_bullet_and_variable_in_case_note("Address", address_notes)
 CALL write_bullet_and_variable_in_case_note("Household Members", household_notes)
-CALL write_bullet_and_variable_in_case_note("Savings", savings_notes)
-CALL write_bullet_and_variable_in_case_note("Property", property_notes)
+CALL write_bullet_and_variable_in_case_note("Assets", asset_notes)
 CALL write_bullet_and_variable_in_case_note("Vehicles", vehicles_notes)
 CALL write_bullet_and_variable_in_case_note("Income", income_notes)
 CALL write_bullet_and_variable_in_case_note("Shelter", shelter_notes)
@@ -130,7 +132,7 @@ CALL write_bullet_and_variable_in_case_note("Other", other)
 CALL write_bullet_and_variable_in_case_note("Action Taken", actions_taken)
 CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 CALL write_bullet_and_variable_in_case_note("Verifs Requested", verifs_requested)
-IF changes_continue <> "select one..." THEN CALL write_bullet_and_variable_in_case_note("The changes client reports", changes_continue)
+IF changes_continue <> "Select One:" THEN CALL write_bullet_and_variable_in_case_note("The changes client reports", changes_continue)
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
@@ -140,5 +142,4 @@ IF tikl_nav_check = 1 THEN
 	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
 	EMSetCursor 9, 3
 END IF
-
-script_end_procedure("")
+script_end_procedure ("The case note has been created please be sure to send verifications to ECF or case note how the information was received.")
