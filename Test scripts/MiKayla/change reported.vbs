@@ -142,12 +142,6 @@ ELSE
 	IF MAXIS_footer_month <> "" THEN CALL find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
 END IF
 
-
-'Info to the user of what this script currently covers
-MsgBox "This script currently only covers if there is a HHLD Comp Change or a Baby Born. Other reported changes will be covered here in the future."
-
-check_for_maxis(False)
-
 DO
 	err_msg = ""
 	DIALOG change_reported_dialog
@@ -278,11 +272,8 @@ IF nature_change <> "Baby Born" or nature_change <>"HHLD Comp Change"  THEN
     DO
     	DO
     		DO
-    			DO
-    				Dialog crf_received_dialog
-    				cancel_confirmation
-    				IF worker_signature = "" THEN MsgBox "You must sign your case note!"
-    			LOOP UNTIL worker_signature <> ""
+    			Dialog change_received_dialog
+    			cancel_confirmation
     			IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
     		LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE
     		IF changes_continue = "Select One:" THEN MsgBox "You Must Select 'The changes client reports field'"
