@@ -77,6 +77,88 @@ IF dail_check = "View" THEN
 	IF IEVS_type = "UNVI" THEN
 		type_match = "U"
 		match_found = TRUE
+		'---------------------------------------------------------------------------Reading client name and splitting out the 1st name
+		EMReadScreen Client_Name, 26, 5, 22
+		client_name = trim(client_name)                         'trimming the client name
+		IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This seperates the two names
+			length = len(client_name)                           'establishing the length of the variable
+			position = InStr(client_name, ",")                  'sets the position at the deliminator (in this case the comma)
+			last_name = Left(client_name, position-1)           'establishes client last name as being before the deliminator
+			first_name = Right(client_name, length-position)    'establishes client first name as after before the deliminator
+		ELSEIF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
+			length = len(first_name)                        	'trimming the 1st name
+			position = InStr(first_name, " ")               	'establishing the length of the variable
+			first_name = Left(first_name, position-1)       	'trims the middle initial off of the first name
+		ELSE                                'In cases where the last name takes up the entire space, THEN the client name becomes the last name
+			first_name = ""
+			last_name = client_name
+		END IF
+		first_name = trim(first_name)
+		ROW = 8
+		EMReadScreen IEVS_year_check, 4, row, 6 'Entering the UNVI match & reading the income source
+		EMReadScreen UNVI_total, 10, row, 11
+		UNVI_total = trim(UNVI_total)
+		UNVI_total = replace(UNVI_total, "$", "")
+
+		DO
+			DO
+				unvi_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+				"   " & client_name & "  Non-wage match information: " & IEVS_year_check & " for $" & UNVI_total, vbYesNoCancel, "Please confirm this match")
+				IF unvi_info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
+				IF unvi_info_confirmation = vbNo THEN row = row + 1 'ask Ilse about putting in a do to stop the match'
+					EMReadScreen IEVS_year_check, 4, row, 6
+					IEVS_year_check = trim(IEVS_year_check)
+					'msgbox IEVS_year_check
+					IF IEVS_year_check = "" THEN script_end_procedure ("The script has ended, no match has not been selected.")
+					EMReadScreen UNVI_total, 10, row, 11
+					UNVI_total = trim(UNVI_total)
+					UNVI_total = replace(UNVI_total, "$", "")
+				IF unvi_info_confirmation = vbYes THEN EXIT DO
+			LOOP UNTIL unvi_info_confirmation = vbYes
+			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+		LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
+		EMwritescreen "X", row, 3
+		TRANSMIT
+		EMReadScreen source_income, 40, 15, 8
+		source_income = trim(source_income)
+		EMReadScreen summary_source, 35, 19, 3
+		summary_source = trim(summary_source)
+		IF instr(summary_source, " =") then
+		    length = len(summary_source) 						  'establishing the length of the variable
+		    position = InStr(summary_source, " =")    		      'sets the position at the deliminator
+		    summary_source = Left(summary_source, position-1)  'establishes employer as being before the deliminator
+		ELSE
+		    summary_source = summary_source
+		END IF
+
+		BeginDialog unvi_info_dialog, 0, 0, 216, 135, "NON-WAGE MATCH"
+		  GroupBox 5, 5, 205, 85, "NON-WAGE MATCH CASE NUMBER "  & MAXIS_case_number
+		  Text 10, 20, 165, 10, "Client name: "  & client_name
+		  Text 10, 65, 165, 15, "Income source: "   & summary_source
+		  Text 10, 35, 165, 15, "Name: "   & source_income
+		  Text 5, 95, 195, 15, "*PLEASE TAKE NOTE OF INFORMATION - SCRIPT WILL     NOT CASE NOTE INCOME SOURCE OR AMOUNT"
+		  Text 10, 50, 165, 10, "Total: $"   & UNVI_total
+		  ButtonGroup ButtonPressed
+		    OkButton 110, 115, 45, 15
+		    CancelButton 165, 115, 45, 15
+		EndDialog
+
+		Dialog unvi_info_dialog
+		IF ButtonPressed = 0 THEN StopScript
+		CALL check_for_password_without_transmit(are_we_passworded_out)
+
+		PF3
+		PF3
+		'msgbox "Where am i?"
+		''----------------------------------------------------------------------going back into IEVP
+		CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
+		EmWriteScreen match_SSN, 3, 63
+		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
+		EMReadScreen error_msg, 7, 24, 2
+		IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
+		ROW = 7
+		'--------------------------------------------------------------------Ensuring that match has not already been resolved.
 	ELSE
     	script_end_procedure("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
     END IF
@@ -85,9 +167,14 @@ IF dail_check = "View" THEN
 		MAXIS_case_number= TRIM(MAXIS_case_number)
 		EmReadscreen match_SSN, 9, 6, 20
 		 '----------------------------------------------------------------------------------------------------IEVP
-		'Navigating deeper into the match interface
+		'''Navigating deeper into the match interface
+		'CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
+		'CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
+		'----------------------------------------------------------------------------------------------------IEVS
 		CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
-		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
+		CALL write_value_and_transmit("UNVI", 20, 71)   'navigates to UNVI
+		EMReadScreen error_msg, 7, 24, 2
+		If error_msg = "NO UNVI RECORD FOUND" THEN script_end_procedure(err_msg & vbNewLine & "An error occurred in UNVI, please process manually - checking for footer month.")'checking for error msg'
 		TRANSMIT
 	    EMReadScreen err_msg, 7, 24, 2
 	    IF err_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
@@ -125,101 +212,6 @@ ElseIF dail_check <> "View" THEN
 	CALL write_value_and_transmit(SSN_number_read, 3, 63)
 end if
 
-
-
-
-
-
-
-'----------------------------------------------------------------------------------------------------IEVS
-
-CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
-CALL write_value_and_transmit("UNVI", 20, 71)   'navigates to UNVI
-EMReadScreen error_msg, 7, 24, 2
-If error_msg = "NO UNVI RECORD FOUND" THEN script_end_procedure(err_msg & vbNewLine & "An error occurred in UNVI, please process manually - checking for footer month.")'checking for error msg'
-
-'---------------------------------------------------------------------------Reading client name and splitting out the 1st name
-EMReadScreen Client_Name, 26, 5, 22
-client_name = trim(client_name)                         'trimming the client name
-IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This seperates the two names
-	length = len(client_name)                           'establishing the length of the variable
-	position = InStr(client_name, ",")                  'sets the position at the deliminator (in this case the comma)
-	last_name = Left(client_name, position-1)           'establishes client last name as being before the deliminator
-	first_name = Right(client_name, length-position)    'establishes client first name as after before the deliminator
-ELSEIF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
-	length = len(first_name)                        	'trimming the 1st name
-	position = InStr(first_name, " ")               	'establishing the length of the variable
-	first_name = Left(first_name, position-1)       	'trims the middle initial off of the first name
-ELSE                                'In cases where the last name takes up the entire space, THEN the client name becomes the last name
-	first_name = ""
-	last_name = client_name
-END IF
-first_name = trim(first_name)
-ROW = 8
-EMReadScreen IEVS_year_check, 4, row, 6 'Entering the UNVI match & reading the income source
-EMReadScreen UNVI_total, 10, row, 11
-UNVI_total = trim(UNVI_total)
-UNVI_total = replace(UNVI_total, "$", "")
-
-DO
-	DO
-		unvi_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-		"   " & client_name & "  Non-wage match information: " & IEVS_year_check & " for $" & UNVI_total, vbYesNoCancel, "Please confirm this match")
-		IF unvi_info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
-		IF unvi_info_confirmation = vbNo THEN row = row + 1 'ask Ilse about putting in a do to stop the match'
-			EMReadScreen IEVS_year_check, 4, row, 6
-			IEVS_year_check = trim(IEVS_year_check)
-			'msgbox IEVS_year_check
-			IF IEVS_year_check = "" THEN script_end_procedure ("The script has ended, no match has not been selected.")
-			EMReadScreen UNVI_total, 10, row, 11
-			UNVI_total = trim(UNVI_total)
-			UNVI_total = replace(UNVI_total, "$", "")
-		IF unvi_info_confirmation = vbYes THEN EXIT DO
-	LOOP UNTIL unvi_info_confirmation = vbYes
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-
-EMwritescreen "X", row, 3
-TRANSMIT
-EMReadScreen source_income, 40, 15, 8
-source_income = trim(source_income)
-EMReadScreen summary_source, 35, 19, 3
-summary_source = trim(summary_source)
-IF instr(summary_source, " =") then
-    length = len(summary_source) 						  'establishing the length of the variable
-    position = InStr(summary_source, " =")    		      'sets the position at the deliminator
-    summary_source = Left(summary_source, position-1)  'establishes employer as being before the deliminator
-ELSE
-    summary_source = summary_source
-END IF
-
-BeginDialog unvi_info_dialog, 0, 0, 216, 135, "NON-WAGE MATCH"
-  GroupBox 5, 5, 205, 85, "NON-WAGE MATCH CASE NUMBER "  & MAXIS_case_number
-  Text 10, 20, 165, 10, "Client name: "  & client_name
-  Text 10, 65, 165, 15, "Income source: "   & summary_source
-  Text 10, 35, 165, 15, "Name: "   & source_income
-  Text 5, 95, 195, 15, "*PLEASE TAKE NOTE OF INFORMATION - SCRIPT WILL     NOT CASE NOTE INCOME SOURCE OR AMOUNT"
-  Text 10, 50, 165, 10, "Total: $"   & UNVI_total
-  ButtonGroup ButtonPressed
-    OkButton 110, 115, 45, 15
-    CancelButton 165, 115, 45, 15
-EndDialog
-
-Dialog unvi_info_dialog
-IF ButtonPressed = 0 THEN StopScript
-CALL check_for_password_without_transmit(are_we_passworded_out)
-
-PF3
-PF3
-'msgbox "Where am i?"
-''----------------------------------------------------------------------going back into IEVP
-CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
-EmWriteScreen match_SSN, 3, 63
-CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
-EMReadScreen error_msg, 7, 24, 2
-IF error_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
-ROW = 7
-'--------------------------------------------------------------------Ensuring that match has not already been resolved.
 Do
 	EMReadScreen days_pending, 2, row, 74
 	days_pending = trim(days_pending)
