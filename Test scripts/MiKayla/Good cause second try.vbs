@@ -191,6 +191,45 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+'this creates the client array for dropdown list
+CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+	EMReadscreen ref_nbr, 2, 4, 33
+	EMReadscreen last_name_array, 25, 6, 30								'took out clients last name apparently may be too much characters within the form restrictions.
+	EMReadscreen first_name_array, 12, 6, 63
+	last_name_array = replace(last_name_array, "_", "")
+	last_name_array = Lcase(last_name_array)
+	last_name_array = UCase(Left(last_name_array, 1)) &  Mid(last_name_array, 2)     	'took out clients last name apparently may be too much characters within the form restrictions.
+	first_name_array = replace(first_name_array, "_", "") '& " "
+	first_name_array = Lcase(first_name_array)
+	first_name_array = UCase(Left(first_name_array, 1)) &  Mid(first_name_array, 2)
+	client_string =  "MEMB " & ref_nbr & " - " & first_name_array & " " & last_name_array
+	client_array = client_array & client_string & "|"
+	transmit
+	Emreadscreen edit_check, 7, 24, 2
+LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+client_array = TRIM(client_array)
+test_array = split(client_array, "|")
+total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
+DIM all_client_array()
+ReDim all_clients_array(total_clients, 1)
+FOR clt_x = 0 to total_clients				'using a dummy array to build list into the array used for the dialog.
+	Interim_array = split(client_array, "|")
+	all_clients_array(clt_x, 0) = Interim_array(clt_x)
+	all_clients_array(clt_x, 1) = 1
+NEXT
+HH_member_array = ""
+FOR i = 0 to total_clients
+	IF all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts.
+		IF all_clients_array(i, 1) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
+			HH_member_array = chr(9) & HH_member_array & chr(9) & all_clients_array(i, 0)
+		END IF
+	END IF
+NEXT
+'removes all of the first 'chr(9)'
+HH_member_array_dialog = Right(HH_member_array, len(HH_member_array) - total_clients)
+
+
 	'----------------------------------------------------------------------------------------------------ABPS panel
 	Call MAXIS_footer_month_confirmation
 	Call navigate_to_MAXIS_screen("STAT", "ABPS")
