@@ -131,9 +131,10 @@ const selection_rsn     = 38
 const ignore_antic      = 39
 const antic_pay_list    = 40
 const update_this_month = 41
+const last_paycheck     = 42
 
-const spoke_to          = 42
-const convo_detail      = 43
+const spoke_to          = 43
+const convo_detail      = 44
 
 const use_actual        = 1
 const use_estimate      = 2
@@ -842,7 +843,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                                   EditBox 90, (y_pos * 20) + 90, 45, 15, LIST_OF_INCOME_ARRAY(gross_amount, all_income) 'gross_amount'
                                   EditBox 145, (y_pos * 20) + 90, 25, 15, LIST_OF_INCOME_ARRAY(hours, all_income) 'hours_on_check'
 
-                                  CheckBox 180, (y_pos * 25) + 90, 50, 10, "Exclude", LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income)
+                                  CheckBox 180, (y_pos * 20) + 95, 50, 10, "Exclude", LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income)
                                   ' OptionGroup RadioGroup1
                                   '   If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) <> 1 Then LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = 1
                                   '   RadioButton 180, (y_pos * 20) + 90, 25, 10, "Yes", LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) 'budget_yes'
@@ -1028,6 +1029,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                     Call sort_dates(array_of_pay_dates)                             'use the function to re order that array into chronological order.
                     first_date = array_of_pay_dates(0)
                     last_date = array_of_pay_dates(UBOUND(array_of_pay_dates))
+                    EARNED_INCOME_PANELS_ARRAY(last_paycheck, ei_panel) = last_date
                     spread_of_pay_dates = DateDiff("d", first_date, last_date)
                     If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked THen
                         using_30_days = TRUE
@@ -1044,9 +1046,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                         ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "5 - Other" Then
                         End If
 
-                        MsgBox "First pay date: " & first_date & vbNewLine & "Last pay date: " & last_date & vbNewLine & "Spread - " & spread_of_pay_dates & vbNewLine & "30 days of income - " & using_30_days
-
-
+                        ' MsgBox "First pay date: " & first_date & vbNewLine & "Last pay date: " & last_date & vbNewLine & "Spread - " & spread_of_pay_dates & vbNewLine & "30 days of income - " & using_30_days
                     End If
 
                     For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)           'Now loop through all of the listed income - again
@@ -1060,6 +1060,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                         End If
                     Next
                     EARNED_INCOME_PANELS_ARRAY(order_ubound, ei_panel) = top_of_order   'setting the number of unique pay dates within the panel array because we need it for sorting correctly
+
                     'MsgBox top_of_order
                     ' 'this part actually looks at the income information IN ORDER
                     ' For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
@@ -1483,7 +1484,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                               list_pos = list_pos + 1
                           Next
                       End If
-                      If list_pos < 3 Then list_pos = 4
+                      If list_pos < 3 Then list_pos = 3
                       ' MsgBOx list_of_dates
                       ' For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
                       '     If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
@@ -1505,7 +1506,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                             PushButton 305, y_pos + 55, 60, 10, "Calculate", calc_btn
                       End If
 
-                      y_pos = y_pos + (list_pos * 10) + 40
+                      y_pos = y_pos + (list_pos * 10) + 35
                       Text 10, y_pos, 400, 10, "Paychecks not included: " & list_of_excluded_pay_dates
 
                       CheckBox 10, y_pos + 15, 330, 10, "Check here if you confirm that this budget is correct and is the best estimate of anticipated income.", confirm_budget_checkbox
@@ -1785,14 +1786,18 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
         'TODO find handling for EARNED_INCOME_PANELS_ARRAY(cash_mos_list, ei_panel in here somewhere
         mm_1_yy = EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) & "/1/" & EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel)
+        mm_1_yy = DateValue(mm_1_yy)
         If InStr(list_of_all_months_to_update, "~" & mm_1_yy & "~") = 0 Then
             list_of_all_months_to_update = list_of_all_months_to_update & mm_1_yy & "~"
         End If
 
-        If EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel) = checked AND EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) <> CM_plus_1_mo AND EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) <> CM_plus_1_yr Then
-            next_month = DateAdd("m", 1, mm_1_yy)
+        'If EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel) = checked AND EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) <> CM_plus_1_mo AND EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) <> CM_plus_1_yr Then
+        If EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel) = checked Then
+            next_month = mm_1_yy
             CM_plus_2 = DateValue(CM_plus_2_mo & "/1/" & CM_plus_2_yr)
+            CM_plus_2 = DateValue(CM_plus_2)
             Do
+                'MsgBox next_month
                 If InStr(list_of_all_months_to_update, "~" & next_month & "~") = 0 Then
                     list_of_all_months_to_update = list_of_all_months_to_update & next_month & "~"
                 End If
@@ -1801,7 +1806,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
             Loop until next_month = CM_plus_2
         End If
     End If
-    MsgBox "2 - " & list_of_all_months_to_update
+    'MsgBox "2 - " & list_of_all_months_to_update
 Next
 
 list_of_all_months_to_update = right(list_of_all_months_to_update, len(list_of_all_months_to_update)-1)
@@ -1828,7 +1833,6 @@ End If
 ' Then we loop through the income to actually update the panel
 ' Array witin and array within an array (probably some more arrays)
 Call back_to_SELF
-MsgBox update_months_array
 For each active_month in update_months_array
     MsgBox active_month
 Next
@@ -1850,8 +1854,18 @@ For each active_month in update_months_array
     End If
 
     For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
+
         If EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE Then
             'ALL THE JUICY BITS GO HERE
+            top_of_order = EARNED_INCOME_PANELS_ARRAY(order_ubound, ei_panel)
+
+            'Find all the checks in this month
+            'TODO - create a list of all the checks for THIS month for THIS income so later we can just loop through that lsit to update JOBS'
+            this_month_checks_array = ""
+
+            
+
+            this_month_checks_array = Split(checks_list,"~")
             If EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) = MAXIS_footer_month AND EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) = MAXIS_footer_year Then EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel) = TRUE
             MsgBox "Update this month - " & EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel)
             If EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel) = TRUE Then
@@ -1908,15 +1922,17 @@ For each active_month in update_months_array
                                 For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
                                     'conditional if it is the right panel AND the order matches - then do the thing you need to do
                                     If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
-                                        Call create_MAXIS_friendly_date(LIST_OF_INCOME_ARRAY(pay_date, all_income), 0, list_row, 13)
-                                        net_amount = LIST_OF_INCOME_ARRAY(gross_amount, all_income) - LIST_OF_INCOME_ARRAY(exclude_amount, all_income)
-                                        EMWriteScreen net_amount, list_row, 25
-                                        EMWriteScreen LIST_OF_INCOME_ARRAY(hours, all_income), list_row, 35
+                                        If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = unchecked Then
+                                            Call create_MAXIS_friendly_date(LIST_OF_INCOME_ARRAY(pay_date, all_income), 0, list_row, 13)
+                                            net_amount = LIST_OF_INCOME_ARRAY(gross_amount, all_income) - LIST_OF_INCOME_ARRAY(exclude_amount, all_income)
+                                            EMWriteScreen net_amount, list_row, 25
+                                            EMWriteScreen LIST_OF_INCOME_ARRAY(hours, all_income), list_row, 35
 
-                                        list_row = list_row + 1
-                                        If list_row = 14 Then
-                                            PF20
-                                            list_row = 9
+                                            list_row = list_row + 1
+                                            If list_row = 14 Then
+                                                PF20
+                                                list_row = 9
+                                            End If
                                         End If
                                     End If
                                 next
@@ -1951,6 +1967,37 @@ For each active_month in update_months_array
                                 jobs_row = jobs_row + 1
                             End If
                         Loop until jobs_row = 17
+
+
+
+                        jobs_row = 12
+                        jobs_col = 25
+                        For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
+                            For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+                                'conditional if it is the right panel AND the order matches - then do the thing you need to do
+                                If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
+                                    pay_month = right("00" & DatePart("m", LIST_OF_INCOME_ARRAY(pay_date, all_income)), 2)
+                                    pay_year = right(DatePart("yyyy", LIST_OF_INCOME_ARRAY(pay_date, all_income)), 2)
+
+                                    If pay_month = MAXIS_footer_month AND pay_year = MAXIS_footer_year Then
+
+                                        Call create_MAXIS_friendly_date(LIST_OF_INCOME_ARRAY(pay_date, all_income), 0, jobs_row, 13)
+                                        EMWriteScreen LIST_OF_INCOME_ARRAY(gross_amount, all_income), jobs_row, 25
+
+                                        jobs_row = jobs_row + 1
+                                    End If
+                                End If
+                            next
+                        next
+
+
+                    End If
+
+                    If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then
+
+                    End If
+
+                    If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel) = checked Then
 
                     End If
                 End If
