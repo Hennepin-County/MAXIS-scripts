@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/17/2019", "Added total of DAIL messages left after processing.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/17/2018", "Added PEPR messages older than CM, and BENDEX and SDX messages for this month only.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/15/2018", "Added TIKL's for exempt IR process over 2 months old.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/03/2018", "Added COLA messages for 01/19 COLA.", "Ilse Ferris, Hennepin County")
@@ -261,21 +262,6 @@ For each worker in worker_array
                 instr(dail_msg, "MEMBER HAS TURNED 60 - FSET:WORK REG HAS BEEN UPDATED") OR _  
                 instr(dail_msg, "LAST GRADE COMPLETED") OR _      
                 instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") OR _  
-                instr(dail_msg, "CHECK FOR COLA") OR _
-                instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") OR _
-                instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO-APPROVED") OR _ 
-                instr(dail_msg, "MSA RECERT DUE - NOT AUTO-APPROVED") OR _ 
-                instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO-APPROVED") OR _ 
-                instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO-APPROVED") OR _ 
-                instr(dail_msg, "APPROVED MSA VERSION EXISTS - NOT AUTO-APPROVED") OR _ 
-                instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") OR _  
-                instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO-APPROVED") OR _   
-                instr(dail_msg, "GRH: APPROVED VERSION EXISTS FOR JANUARY - NOT AUTO-APPROVED") OR _
-                instr(dail_msg, "GRH: STATUS IS REIN, PENDING OR SUSPEND - NOT AUTO-APPROVED") OR _ 
-                instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO-APPROVED") OR _ 
-                instr(dail_msg, "BENDEX INFORMATION HAS BEEN STORED") OR _  
-                instr(dail_msg, "SDX INFORMATION HAS BEEN STORED") OR _
-                instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE - REVIEW FOR MEDI UPDATES") OR _ 
                 instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then 
     		        add_to_excel = True	
                 'instr(dail_msg, "TPQY RESPONSE") OR _  ---removed temporarily
@@ -397,6 +383,7 @@ objExcel.Cells(4, 8).Value = STATS_counter * STATS_manualtime
 objExcel.Cells(5, 8).Value = timer - start_time
 objExcel.Cells(6, 8).Value = ((STATS_counter * STATS_manualtime) - (timer - start_time)) / 60
 objExcel.Cells(7, 8).Value = STATS_counter
+objExcel.Cells(7, 9).Value = STATS_counter - deleted_dails
 
 'Formatting the column width.
 FOR i = 1 to 8
@@ -404,3 +391,17 @@ FOR i = 1 to 8
 NEXT
 
 script_end_procedure("Success! Please review the list created for accuracy.")
+
+'instr(dail_msg, "CHECK FOR COLA") OR _
+'instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") OR _
+'instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO-APPROVED") OR _ 
+'instr(dail_msg, "MSA RECERT DUE - NOT AUTO-APPROVED") OR _ 
+'instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO-APPROVED") OR _ 
+'instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO-APPROVED") OR _ 
+'instr(dail_msg, "APPROVED MSA VERSION EXISTS - NOT AUTO-APPROVED") OR _ 
+'instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") OR _  
+'instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO-APPROVED") OR _   
+'instr(dail_msg, "GRH: APPROVED VERSION EXISTS FOR JANUARY - NOT AUTO-APPROVED") OR _
+'instr(dail_msg, "GRH: STATUS IS REIN, PENDING OR SUSPEND - NOT AUTO-APPROVED") OR _ 
+'instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO-APPROVED") OR _ 
+'instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE - REVIEW FOR MEDI UPDATES") OR _ 
