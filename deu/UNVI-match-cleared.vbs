@@ -212,12 +212,28 @@ ElseIF dail_check <> "View" THEN
 	CALL write_value_and_transmit(SSN_number_read, 3, 63)
 end if
 Row = 7
-'Do
+	type_match = "U"
 	EMReadScreen IEVS_period, 11, row, 47
 	EMReadScreen days_pending, 4, row, 72
 	days_pending = trim(days_pending)
 	EMReadScreen days_overdue, 5, row, 74
 	days_overdue = replace(days_overdue, "<<", "")
+	IF IsNumeric(days_pending) = TRUE THEN
+	    DO
+	    	DO
+	    		IEVP_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+	    		"   " & client_name & "  Non-wage match cleard information: " & days_pending & " for: " & IEVS_period, vbYesNoCancel, "Please confirm this match")
+	    		IF IEVP_info_confirmation= vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
+	    		IF IEVP_info_confirmation = vbNo THEN
+	    			row = row + 1 'ask Ilse about putting in a do to stop the match'
+	    			EMReadScreen IEVS_period, 11, row, 47
+	    			msgbox IEVS_period
+	    		END IF
+	    		IF IEVS_period = "" THEN script_end_procedure ("The script has ended, no match has not been selected.")
+	    		IF IEVP_info_confirmation = vbYes THEN EXIT DO
+	    	LOOP UNTIL IEVP_info_confirmation = vbYes
+	    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	    LOOP UNTIL are_we_passworded_out = false
 	IF IsNumeric(days_pending) = false THEN
 	    DO
 	    	DO
@@ -235,32 +251,6 @@ Row = 7
 	    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	    LOOP UNTIL are_we_passworded_out = false
 	END IF
-'ELSE
-'		EMReadScreen start_month, 2, row, 47
-'		EMReadScreen end_month, 2, row, 53
-'		IF trim(start_month) = "" or trim(end_month) = "" THEN
-'			Found_match = False
-'		ELSE
-'			'month_difference = abs(end_month) - abs(start_month)
-'			IF IEVS_type = "UNVI" THEN  'ensuring that if it a beer that the match is a year'
-'				found_match = True
-'			    EXIT DO
-'			END IF
-'		END IF
-'		row = row + 1
-'	END IF
-'LOOP UNTIL row = 17
-'IF found_match = False THEN script_end_procedure("No pending IEVS match found. Please review IEVP.")
-
-
-'DO
-'	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-'	"   " & client_name & "  Non-wage match information: " & IEVS_period & " & " & UNVI_total, vbYesNoCancel, "UNVI Please ensure the cursor is on the match.")
-'	IF ievp_info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
-'	IF ievp_info_confirmation = vbNo THEN row = row + 1
-'	IF ievp_info_confirmation = vbYes THEN EXIT DO
-'LOOP UNTIL ievp_info_confirmation = vbYes
-
 '---------------------------------------------------------------------IULA
 CALL write_value_and_transmit("U", row, 3)
 '---------------------------------------------------------------------Reading potential errors for out-of-county cases
@@ -273,7 +263,6 @@ ELSE
 		EMReadScreen IEVS_year, 4, 8, 22
 	ELSEIF IEVS_type = "UNVI" THEN
 		EMReadScreen IEVS_year, 4, 8, 15
-		'IEVS_year = "20" & IEVS_year check to make sure it reads the full year
 	END IF
 END IF
 
@@ -403,7 +392,7 @@ IF send_notice_checkbox = CHECKED THEN
     CALL write_variable_in_CASE_NOTE ("-----" & IEVS_year & "NON-WAGE MATCH " & "(" & type_match & ") " & "(" & first_name &  ") DIFF NOTICE SENT-----")
     CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
     CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
-	CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
+	'CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
     CALL write_variable_in_CASE_NOTE ("----- ----- -----")
     CALL write_bullet_and_variable_in_CASE_NOTE("Verification Requested", pending_verifs)
     CALL write_bullet_and_variable_in_CASE_NOTE("Verification Due", Due_date)
