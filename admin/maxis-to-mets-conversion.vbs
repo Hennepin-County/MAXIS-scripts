@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/17/2019", "Added function to determine and add recipient's age.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/05/2018", "Added identification to MA-DX basis recipients as not coverting to METS.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/13/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -69,6 +70,33 @@ Function MMIS_panel_check(panel_name)
 		If panel_check <> panel_name then Call write_value_and_transmit(panel_name, 1, 8)
 	Loop until panel_check = panel_name
 End function
+
+Function client_age(client_DOB, output_variable)
+    Dim CurrentDate, Years, ThisYear, Months, ThisMonth, Days
+    CurrentDate = CDate(client_DOB)
+    Years = DateDiff("yyyy", CurrentDate, Date)
+    ThisYear = DateAdd("yyyy", Years, CurrentDate)
+    Months = DateDiff("m", ThisYear, Date)
+    ThisMonth = DateAdd("m", Months, ThisYear)
+    Days = DateDiff("d", ThisMonth, Date)
+
+    Do While (Days < 0) Or (Months < 0)
+        If Days < 0 Then
+            Months = Months - 1
+            ThisMonth = DateAdd("m", Months, ThisYear)
+            Days = DateDiff("d", ThisMonth, Date)
+        End If
+        If Months < 0 Then
+            Years = Years - 1
+            ThisYear = DateAdd("yyyy", Years, CurrentDate)
+            Months = DateDiff("m", ThisYear, Date)
+            ThisMonth = DateAdd("m", Months, ThisYear)
+            Days = DateDiff("d", ThisMonth, Date)
+        End If
+    Loop
+    output_variable = Years
+End Function
+
 
 '----------------------------------------------------------------------------------------------------DIALOG
 'The dialog is defined in the loop as it can change as buttons are pressed 
@@ -107,7 +135,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 DIM case_array()
-ReDim case_array(18, 0)
+ReDim case_array(19, 0)
 
 'constants for array
 const case_number_const     	= 0
@@ -115,20 +143,21 @@ const clt_PMI_const 	        = 1
 const last_name_const           = 2
 const first_name_const          = 3
 const client_SSN_const          = 4
-const HC_status_const           = 5
-const revw_date_const           = 6
-const waiver_info_const	        = 7
-const medicare_info_const       = 8
-const first_case_number_const   = 9
-const first_type_const 	        = 10
-const first_elig_const 	        = 11
-const second_case_number_const 	= 12
-const second_type_const 	    = 13
-const second_elig_const 	    = 14
-const third_case_number_const 	= 15
-const third_type_const      	= 16
-const third_elig_const      	= 17
-const case_status             	= 18
+const client_age_const          = 5
+const HC_status_const           = 6
+const revw_date_const           = 7
+const waiver_info_const	        = 8
+const medicare_info_const       = 9
+const first_case_number_const   = 10
+const first_type_const 	        = 11
+const first_elig_const 	       	= 12
+const second_case_number_const  = 13
+const second_type_const 	    = 14
+const second_elig_const 	  	= 15 
+const third_case_number_const   = 16
+const third_type_const      	= 17
+const third_elig_const      	= 18	
+const case_status               = 19           
 
 'Now the script adds all the clients on the excel list into an array
 excel_row = 2 're-establishing the row to start checking the members for
@@ -141,13 +170,18 @@ Do
     Client_PMI = objExcel.cells(excel_row, 4).Value          'reading the PMI from Excel 
     Client_PMI = trim(Client_PMI)
     If Client_PMI = "" then exit do
-
-    ReDim Preserve case_array(18, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+    
+    clients_DOB = objExcel.cells(excel_row, 7).Value          'reading the PMI from Excel 
+    clients_DOB = trim(clients_DOB)
+    Call client_age(clients_DOB, clients_age)
+    
+    ReDim Preserve case_array(19, entry_record)	'This resizes the array based on the number of rows in the Excel File'
     case_array(case_number_const,           entry_record) = MAXIS_case_number	'The client information is added to the array'
     case_array(clt_PMI_const,               entry_record) = Client_PMI			
     case_array(last_name_const,             entry_record) = ""             
     case_array(first_name_const,            entry_record) = ""   
     case_array(client_SSN_const,            entry_record) = ""   
+    case_array(client_age_const,            entry_record) = clients_age 
     case_array(HC_status_const,             entry_record) = ""              
     case_array(revw_date_const,             entry_record) = ""              
     case_array(waiver_info_const,	        entry_record) = ""
@@ -248,22 +282,23 @@ objExcel.DisplayAlerts = True
 ObjExcel.Cells(1,  1).Value = "PMI"
 ObjExcel.Cells(1,  2).Value = "Last Name"
 ObjExcel.Cells(1,  3).Value = "First Name"
-ObjExcel.Cells(1,  4).Value = "MAXIS HC"
-ObjExcel.Cells(1,  5).Value = "Next REVW"
-ObjExcel.Cells(1,  6).Value = "Waiver"
-ObjExcel.Cells(1,  7).Value = "Medicare"
-ObjExcel.Cells(1,  8).Value = "1st case"
-ObjExcel.Cells(1,  9).Value = "1st type/prog"
-ObjExcel.Cells(1, 10).Value = "1st elig dates"
-ObjExcel.Cells(1, 11).Value = "2nd case"
-ObjExcel.Cells(1, 12).Value = "2nd type/prog"
-ObjExcel.Cells(1, 13).Value = "2nd elig dates"
-ObjExcel.Cells(1, 14).Value = "3rd case"
-ObjExcel.Cells(1, 15).Value = "3rd type/prog"
-ObjExcel.Cells(1, 16).Value = "3rd elig dates"
-ObjExcel.Cells(1, 17).Value = "Convert?"
+ObjExcel.Cells(1,  4).Value = "Client Age"
+ObjExcel.Cells(1,  5).Value = "MAXIS HC"
+ObjExcel.Cells(1,  6).Value = "Next REVW"
+ObjExcel.Cells(1,  7).Value = "Waiver"
+ObjExcel.Cells(1,  8).Value = "Medicare"
+ObjExcel.Cells(1,  9).Value = "1st case"
+ObjExcel.Cells(1, 10).Value = "1st type/prog"
+ObjExcel.Cells(1, 11).Value = "1st elig dates"
+ObjExcel.Cells(1, 12).Value = "2nd case"
+ObjExcel.Cells(1, 13).Value = "2nd type/prog"
+ObjExcel.Cells(1, 14).Value = "2nd elig dates"
+ObjExcel.Cells(1, 15).Value = "3rd case"
+ObjExcel.Cells(1, 16).Value = "3rd type/prog"
+ObjExcel.Cells(1, 17).Value = "3rd elig dates"
+ObjExcel.Cells(1, 18).Value = "Convert?"
 
-FOR i = 1 to 17 	'formatting the cells'
+FOR i = 1 to 18 	'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -373,19 +408,20 @@ For item = 0 to UBound(case_array, 2)
                     objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            item)
                     objExcel.Cells(excel_row,  2).Value = case_array (last_name_const,          item)
                     objExcel.Cells(excel_row,  3).Value = case_array (first_name_const,         item)
-                    objExcel.Cells(excel_row,  4).Value = case_array (HC_status_const,          item)
-                    objExcel.Cells(excel_row,  5).Value = case_array (revw_date_const,          item)
-                    objExcel.Cells(excel_row,  6).Value = case_array (waiver_info_const,	    item)
-                    objExcel.Cells(excel_row,  7).Value = case_array (medicare_info_const,      item)
-                    objExcel.Cells(excel_row,  8).Value = case_array (first_case_number_const,  item)
-                    objExcel.Cells(excel_row,  9).Value = case_array (first_type_const, 	    item)
-                    objExcel.Cells(excel_row, 10).Value = case_array (first_elig_const, 	    item)
-                    objExcel.Cells(excel_row, 11).Value = case_array (second_case_number_const, item)
-                    objExcel.Cells(excel_row, 12).Value = case_array (second_type_const, 	    item)
-                    objExcel.Cells(excel_row, 13).Value = case_array (second_elig_const, 	    item)
-                    objExcel.Cells(excel_row, 14).Value = case_array (third_case_number_const,  item)
-                    objExcel.Cells(excel_row, 15).Value = case_array (third_type_const,      	item)
-                    objExcel.Cells(excel_row, 16).Value = case_array (third_elig_const,         item) 
+                    objExcel.Cells(excel_row,  4).Value = case_array (client_age_const,         item)
+                    objExcel.Cells(excel_row,  5).Value = case_array (HC_status_const,          item)
+                    objExcel.Cells(excel_row,  6).Value = case_array (revw_date_const,          item)
+                    objExcel.Cells(excel_row,  7).Value = case_array (waiver_info_const,	    item)
+                    objExcel.Cells(excel_row,  8).Value = case_array (medicare_info_const,      item)
+                    objExcel.Cells(excel_row,  9).Value = case_array (first_case_number_const,  item)
+                    objExcel.Cells(excel_row, 10).Value = case_array (first_type_const, 	    item)
+                    objExcel.Cells(excel_row, 11).Value = case_array (first_elig_const, 	    item)
+                    objExcel.Cells(excel_row, 12).Value = case_array (second_case_number_const, item)
+                    objExcel.Cells(excel_row, 13).Value = case_array (second_type_const, 	    item)
+                    objExcel.Cells(excel_row, 14).Value = case_array (second_elig_const, 	    item)
+                    objExcel.Cells(excel_row, 15).Value = case_array (third_case_number_const,  item)
+                    objExcel.Cells(excel_row, 16).Value = case_array (third_type_const,      	item)
+                    objExcel.Cells(excel_row, 17).Value = case_array (third_elig_const,         item) 
                     
                     'conditions for converting a case
                     convert_case = ""
