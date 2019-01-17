@@ -211,44 +211,55 @@ ElseIF dail_check <> "View" THEN
 	CALL write_value_and_transmit("IEVP", 20, 71)
 	CALL write_value_and_transmit(SSN_number_read, 3, 63)
 end if
-
-Do
-	EMReadScreen days_pending, 2, row, 74
+Row = 7
+'Do
+	EMReadScreen IEVS_period, 11, row, 47
+	EMReadScreen days_pending, 4, row, 72
 	days_pending = trim(days_pending)
 	EMReadScreen days_overdue, 5, row, 74
 	days_overdue = replace(days_overdue, "<<", "")
-	IF IsNumeric(days_pending) = false and days_overdue = ""  THEN
-		script_end_procedure("No pending IEVS match found. Please review IEVP.")
-	ELSE
-		'Entering the IEVS match & reading the difference notice to ensure this has been sent
-		EMReadScreen IEVS_period, 11, row, 47
-		EMReadScreen start_month, 2, row, 47
-		EMReadScreen end_month, 2, row, 53
-		IF trim(start_month) = "" or trim(end_month) = "" THEN
-			Found_match = False
-		ELSE
-			month_difference = abs(end_month) - abs(start_month)
-			IF (IEVS_type = "WAGE" and month_difference = 2) THEN 'ensuring if it is a wage the match is a quarter'
-				found_match = true
-				EXIT DO
-			ELSEIF (IEVS_type = "UNVI" and month_difference = 11) THEN  'ensuring that if it a beer that the match is a year'
-				found_match = True
-				EXIT DO
-			END IF
-		END IF
-		row = row + 1
+	IF IsNumeric(days_pending) = false THEN
+	    DO
+	    	DO
+	    		IEVP_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+	    		"   " & client_name & "  Non-wage match cleard information: " & days_pending & " for: " & IEVS_period, vbYesNoCancel, "Please confirm this match")
+	    		IF IEVP_info_confirmation= vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
+	    		IF IEVP_info_confirmation = vbNo THEN
+					row = row + 1 'ask Ilse about putting in a do to stop the match'
+	    			EMReadScreen IEVS_period, 11, row, 47
+	    			msgbox IEVS_period
+				END IF
+	    		IF IEVS_period = "" THEN script_end_procedure ("The script has ended, no match has not been selected.")
+	    		IF IEVP_info_confirmation = vbYes THEN EXIT DO
+	    	LOOP UNTIL IEVP_info_confirmation = vbYes
+	    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	    LOOP UNTIL are_we_passworded_out = false
 	END IF
-LOOP UNTIL row = 17
-IF found_match = False THEN script_end_procedure("No pending IEVS match found. Please review IEVP.")
+'ELSE
+'		EMReadScreen start_month, 2, row, 47
+'		EMReadScreen end_month, 2, row, 53
+'		IF trim(start_month) = "" or trim(end_month) = "" THEN
+'			Found_match = False
+'		ELSE
+'			'month_difference = abs(end_month) - abs(start_month)
+'			IF IEVS_type = "UNVI" THEN  'ensuring that if it a beer that the match is a year'
+'				found_match = True
+'			    EXIT DO
+'			END IF
+'		END IF
+'		row = row + 1
+'	END IF
+'LOOP UNTIL row = 17
+'IF found_match = False THEN script_end_procedure("No pending IEVS match found. Please review IEVP.")
 
 
-DO
-	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-	"   " & client_name & "  Non-wage match information: " & IEVS_period & " & " & UNVI_total, vbYesNoCancel, "UNVI Please ensure the cursor is on the match.")
-	IF ievp_info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
-	IF ievp_info_confirmation = vbNo THEN row = row + 1
-	IF ievp_info_confirmation = vbYes THEN EXIT DO
-LOOP UNTIL ievp_info_confirmation = vbYes
+'DO
+'	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+'	"   " & client_name & "  Non-wage match information: " & IEVS_period & " & " & UNVI_total, vbYesNoCancel, "UNVI Please ensure the cursor is on the match.")
+'	IF ievp_info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
+'	IF ievp_info_confirmation = vbNo THEN row = row + 1
+'	IF ievp_info_confirmation = vbYes THEN EXIT DO
+'LOOP UNTIL ievp_info_confirmation = vbYes
 
 '---------------------------------------------------------------------IULA
 CALL write_value_and_transmit("U", row, 3)
