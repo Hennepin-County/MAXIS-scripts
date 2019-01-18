@@ -129,11 +129,11 @@ IF dail_check = "View" THEN
 		'Navigating deeper into the match interface
 		CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
 		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
-		TRANSMIT
+		'TRANSMIT
 	    EMReadScreen err_msg, 7, 24, 2
 	    IF err_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
 	END IF
-ElseIF dail_check <> "View" THEN
+ELSEIF dail_check <> "View" THEN
     CALL MAXIS_case_number_finder (MAXIS_case_number)
     MEMB_number = "01"
     BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
@@ -277,8 +277,8 @@ END IF
 EMReadScreen notice_sent, 1, 14, 37
 EMReadScreen sent_date, 8, 14, 68
 sent_date = trim(sent_date)
-IF sent_date = "" THEN sent_date = replace(sent_date, "", "/")
-IF sent_date <> "" THEN sent_date = replace(sent_date, "", "/")
+'IF sent_date = "" THEN sent_date = replace(sent_date, " ", "/")
+IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
 
 '----------------------------------------------------------------------------dialogs
 BeginDialog notice_action_dialog, 0, 0, 166, 90, "SEND DIFFERENCE NOTICE?"
