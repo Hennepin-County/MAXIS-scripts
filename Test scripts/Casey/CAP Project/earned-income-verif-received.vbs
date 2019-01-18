@@ -132,9 +132,10 @@ const ignore_antic      = 39
 const antic_pay_list    = 40
 const update_this_month = 41
 const last_paycheck     = 42
+const panel_first_check = 43
 
-const spoke_to          = 43
-const convo_detail      = 44
+const spoke_to          = 44
+const convo_detail      = 45
 
 const use_actual        = 1
 const use_estimate      = 2
@@ -1054,7 +1055,10 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                             for index = 0 to UBOUND(array_of_pay_dates)                     'loop through the array of the pay dates only'
                                 'once the pay date in the income array matches the one in the chronological list of dates, use the index number to set an order code within the list of income array
                                 'MsgBox "Look at each index: " & index
-                                If array_of_pay_dates(index) = LIST_OF_INCOME_ARRAY(pay_date, all_income) Then LIST_OF_INCOME_ARRAY(check_order, all_income) = index + 1
+                                If array_of_pay_dates(index) = LIST_OF_INCOME_ARRAY(pay_date, all_income) Then
+                                    LIST_OF_INCOME_ARRAY(check_order, all_income) = index + 1
+                                    If EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel) = "" Then EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel) = LIST_OF_INCOME_ARRAY(pay_date, all_income)
+                                End If
                                 top_of_order = index + 1    'this identifies how many pay dates there are in for this panel
                             next
                         End If
@@ -1191,7 +1195,6 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                     '
                     ' ""+chr(9)+"1 - One Time Per Month"+chr(9)+"2 - Two Times Per Month"+chr(9)+"3 - Every Other Week"+chr(9)+"4 - Every Week", EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
 
-                    money_day = 0
                     the_first_of_CM_2 = CM_plus_2_mo & "/1/" & CM_plus_2_yr
                     CM_2_mo = DatePart("m", the_first_of_CM_2)
                     CM_2_yr = DatePart("yyyy", the_first_of_CM_2)
@@ -1249,9 +1252,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                     End Select
                     ' MsgBox "Default start date - "& default_start_date
 
-                    'WHAT IN THE ACTUAL ^#)(%^ This Do While is dumb'
-                    Dim snap_anticipated_pay_array()
-                    ReDim snap_anticipated_pay_array(0)
+                    snap_anticipated_pay_array = ""
+                    checks_list = ""
                     ' list_of_actual_paydates
                     'Trying to figure out the ACTUAL pay dates.
                     Call Navigate_to_MAXIS_screen("STAT", "JOBS")
@@ -1278,10 +1280,11 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                     MsgBox "Initial Month " & the_initial_month
                     Do 'While DatePart("m", this_pay_date) <> CM_2_mo AND DatePart("yyyy", this_pay_date) <> CM_2_yr
                         ' MsgBox this_pay_date
+                        save_dates = FALSE
                         If DatePart("m", this_pay_date) = DatePart("m", the_initial_month) AND DatePart("yyyy", this_pay_date) = DatePart("yyyy", the_initial_month) Then save_dates = TRUE
                         If save_dates = TRUE Then
                             MsgBox "SAVE - " & this_pay_date
-                            ReDim Preserve snap_anticipated_pay_array(money_day)
+                            If EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel) = "" Then EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel) = this_pay_date
 
                             check_found = FALSE
                             For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
@@ -1294,31 +1297,33 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                                 End If
                             Next
                             If check_found = TRUE Then
-                                If len(this_pay_date) = 10 Then snap_anticipated_pay_array(money_day) = this_pay_date & "   ~   $" & LIST_OF_INCOME_ARRAY(gross_amount, check_number)
-                                If len(this_pay_date) = 9 Then snap_anticipated_pay_array(money_day) = this_pay_date & "    ~   $" & LIST_OF_INCOME_ARRAY(gross_amount, check_number)
-                                If len(this_pay_date) = 8 Then snap_anticipated_pay_array(money_day) = this_pay_date & "     ~   $" & LIST_OF_INCOME_ARRAY(gross_amount, check_number)
+                                If len(this_pay_date) = 10 Then checks_list = checks_list & "~" & this_pay_date & "   ~   $" & LIST_OF_INCOME_ARRAY(gross_amount, check_number)
+                                If len(this_pay_date) = 9 Then checks_list = checks_list & "~" & this_pay_date & "    ~   $" & LIST_OF_INCOME_ARRAY(gross_amount, check_number)
+                                If len(this_pay_date) = 8 Then checks_list = checks_list & "~" & this_pay_date & "     ~   $" & LIST_OF_INCOME_ARRAY(gross_amount, check_number)
                             Else
-                                If len(this_pay_date) = 10 Then snap_anticipated_pay_array(money_day) = this_pay_date & "   ~   $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
-                                If len(this_pay_date) = 9 Then snap_anticipated_pay_array(money_day) = this_pay_date & "    ~   $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
-                                If len(this_pay_date) = 8 Then snap_anticipated_pay_array(money_day) = this_pay_date & "     ~   $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
+                                If len(this_pay_date) = 10 Then checks_list = checks_list & "~" & this_pay_date & "   ~   $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
+                                If len(this_pay_date) = 9 Then checks_list = checks_list & "~" & this_pay_date & "    ~   $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
+                                If len(this_pay_date) = 8 Then checks_list = checks_list & "~" & this_pay_date & "     ~   $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
                             End If
-                            money_day = money_day + 1
-                            ' MsgBox snap_anticipated_pay_array(money_day)
                         End If
                         If months_to_add = 0 Then
                             this_pay_date = DateAdd("d", days_to_add, this_pay_date)
                         ElseIf days_to_add = 0 Then
                             this_pay_date = DateAdd("m", months_to_add, this_pay_date)
                         Else
-                            ReDim Preserve snap_anticipated_pay_array(money_day)
-                            snap_anticipated_pay_array(money_day) = DateAdd("d", days_to_add, this_pay_date) & " ~ $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
+                            checks_list = checks_list & "~" & DateAdd("d", days_to_add, this_pay_date) & " ~ $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
                             this_pay_date = DateAdd("m", months_to_add, this_pay_date)
-                            money_day = money_day + 1
 
                         End If
                         MsgBox "NEXT - " & this_pay_date
                     Loop until DatePart("m", this_pay_date) = CM_2_mo AND DatePart("yyyy", this_pay_date) = CM_2_yr
 
+                    If left(checks_list, 1) = "~" Then checks_list = right(checks_list, len(checks_list)-1)
+                    If InStr(checks_list, "~") <> 0 Then
+                        snap_anticipated_pay_array = Split(checks_list,"~")
+                    Else
+                        snap_anticipated_pay_array = Array(checks_list)
+                    End If
                 End If
 
                 'Script will determine pay frequency and potentially 1st check (if not listed on JOBS)
@@ -1862,10 +1867,47 @@ For each active_month in update_months_array
             'Find all the checks in this month
             'TODO - create a list of all the checks for THIS month for THIS income so later we can just loop through that lsit to update JOBS'
             this_month_checks_array = ""
+            checks_list = ""
 
-            
+            'EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel)
+            this_month = MAXIS_footer_month & "/1/" & MAXIS_footer_year
 
-            this_month_checks_array = Split(checks_list,"~")
+
+            If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "1 - One Time Per Month" Then
+                day_of_month = DatePart("d", EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel))
+                checks_list = MAXIS_footer_month & "/" & day_of_month & "/" & MAXIS_footer_year
+
+            ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "2 - Two Times Per Month" Then
+
+
+            ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "3 - Every Other Week" Then
+                the_date = EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel)
+                Do
+                    If DatePart("m", the_date) = DatePart("m", this_month) AND DatePart("yyyy", the_date) = DatePart("yyyy", this_month) Then
+                        checks_list = checks_list & "~" & the_date
+                    End If
+                    the_date = DateAdd("d", 14, the_date)
+                Loop until right("0" & DatePart("m", the_date), 2) = CM_plus_2_mo AND right(DatePart("yyyy", the_date), 2) = CM_plus_2_yr
+            ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "4 - Every Week" Then
+                the_date = EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel)
+                Do
+                    If DatePart("m", the_date) = DatePart("m", this_month) AND DatePart("yyyy", the_date) = DatePart("yyyy", this_month) Then
+                        checks_list = checks_list & "~" & the_date
+                    End If
+                    the_date = DateAdd("d", 14, the_date)
+                Loop until right("0" & DatePart("m", the_date), 2) = CM_plus_2_mo AND right(DatePart("yyyy", the_date), 2) = CM_plus_2_yr
+
+            ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "5 - Other" Then
+            End If
+
+
+            If InStr(checks_list, "~") <> 0 Then
+                If left(checks_list, 1) = "~" Then checks_list = right(checks_list, len(checks_list)-1)
+                this_month_checks_array = Split(checks_list,"~")
+            Else
+                this_month_checks_array = Array(checks_list)
+            End If
+
             If EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) = MAXIS_footer_month AND EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) = MAXIS_footer_year Then EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel) = TRUE
             MsgBox "Update this month - " & EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel)
             If EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel) = TRUE Then
