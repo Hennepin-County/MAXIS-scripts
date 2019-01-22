@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/18/2019", "Reorganized and renamed WCOM options in user dialog for ease of use.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/16/2019", "Updated Banked months homeless WCOM to be used for all ABAWD cases. This option allows users to notify a client of the potential for the homeless ABAWD exemption.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/01/2018", "Removed 'Failure to Comply' WCOM and added WCOM for Voluntary SNAP E&T..", "Casey Love, Hennepin County")
 call changelog_update("09/30/2018", "Initial version.", "Casey Love, Hennepin County")
@@ -404,38 +405,40 @@ For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
 Next
 
 'DIALOG to select the WCOM to add
-BeginDialog wcom_selection_dlg, 0, 0, 241, 340, "Check the WCOM needed"
-  CheckBox 20, 20, 85, 10, "SNAP Applicant Death", client_death_wcom_checkbox
-  CheckBox 20, 35, 150, 10, "SNAP closed/denied with PACT", snap_pact_wcom_checkbox
-  CheckBox 20, 50, 155, 10, "SNAP closed via PACT for new HH Member", pact_fraud_wcom_checkbox
-  CheckBox 20, 65, 145, 10, "SNAP closing due to Returned Mail", snap_returned_mail_wcom_checkbox
-  CheckBox 20, 80, 115, 10, "SNAP closing and MFIP opening", snap_to_mfip_wcom_checkbox
-  CheckBox 20, 95, 190, 10, "SNAP Duplicate Assistance in another state", duplicate_assistance_wcom_checkbox
-  CheckBox 20, 110, 190, 10, "SNAP Duplicate Assistance on another case in MN", dup_assistance_in_MN_wcom_checkbox
-  CheckBox 20, 125, 205, 10, "SNAP Postponed verif of CAF pg 9 Signature - for EXP SNAP", signature_postponed_verif_wcom_checkbox
-  CheckBox 20, 140, 180, 10, "ABAWD - Banked Months E and T voluntary", banked_mos_vol_e_t_wcom_checkbox
-  CheckBox 20, 155, 190, 10, "ABAWD - Banked Months closing for months used", banked_mos_used_wcom_checkbox
-  CheckBox 20, 170, 160, 10, "ABAWD - Banked Months possibly available", banked_mos_avail_wcom_checkbox
-  CheckBox 20, 185, 195, 10, "ABAWD - E and T Voluntary", voluntary_e_t_wcom_checkbox
-  CheckBox 20, 200, 160, 10, "ABAWD - Homeless exemption information", abawd_homeless_wcom_checkbox
-  CheckBox 20, 215, 190, 10, "ABAWD - Postponed WREG verifs for EXP SNAP", wreg_postponed_verif_wcom_checkbox
-  CheckBox 20, 230, 130, 10, "ABAWD - Temporarily disabled", temp_disa_abawd_wcom_checkbox
-  CheckBox 20, 245, 155, 10, "ABAWD - WREG coded for Child under 18", abawd_child_coded_wcom_checkbox
-  CheckBox 20, 270, 55, 10, "CASH Denied", cash_denied_checkbox
-  CheckBox 20, 285, 125, 10, "CASH closing due to Returned Mail", mfip_returned_mail_wcom_checkbox
-  CheckBox 20, 300, 125, 10, "MFIP Closing and SNAP opening", mfip_to_snap_wcom_checkbox
+BeginDialog wcom_selection_dlg, 0, 0, 241, 395, "Check the WCOM needed"
+  CheckBox 20, 25, 195, 10, "ABAWD - E and T Voluntary", voluntary_e_t_wcom_checkbox
+  CheckBox 20, 40, 160, 10, "ABAWD - Homeless exemption information", abawd_homeless_wcom_checkbox
+  CheckBox 20, 55, 190, 10, "ABAWD - Postponed WREG verifs for EXP SNAP", wreg_postponed_verif_wcom_checkbox
+  CheckBox 20, 70, 130, 10, "ABAWD - Temporarily disabled", temp_disa_abawd_wcom_checkbox
+  CheckBox 20, 85, 155, 10, "ABAWD - WREG coded for Child under 18", abawd_child_coded_wcom_checkbox
+  CheckBox 20, 125, 180, 10, "Banked Months - E and T voluntary", banked_mos_vol_e_t_wcom_checkbox
+  CheckBox 20, 140, 190, 10, "Banked Months - Closing for all 9 months used", banked_mos_used_wcom_checkbox
+  CheckBox 20, 155, 160, 10, "Banked Months -  Possibly available", banked_mos_avail_wcom_checkbox
+  CheckBox 20, 185, 85, 10, "Applicant Death", client_death_wcom_checkbox
+  CheckBox 20, 200, 150, 10, "Closed/denied with PACT", snap_pact_wcom_checkbox
+  CheckBox 20, 215, 155, 10, "Closed via PACT for new HH Member", pact_fraud_wcom_checkbox
+  CheckBox 20, 230, 145, 10, "Closing due to Returned Mail", snap_returned_mail_wcom_checkbox
+  CheckBox 20, 245, 115, 10, "Closing SNAP and MFIP opening", snap_to_mfip_wcom_checkbox
+  CheckBox 20, 260, 190, 10, "Duplicate Assistance in another state", duplicate_assistance_wcom_checkbox
+  CheckBox 20, 275, 190, 10, "Duplicate Assistance on another case in MN", dup_assistance_in_MN_wcom_checkbox
+  CheckBox 20, 290, 185, 10, "EXP SNAP - Postponed verif of CAF page 9 Signature", signature_postponed_verif_wcom_checkbox
+  CheckBox 20, 325, 55, 10, "CASH Denied", cash_denied_checkbox
+  CheckBox 20, 340, 125, 10, "CASH closing due to Returned Mail", mfip_returned_mail_wcom_checkbox
+  CheckBox 20, 355, 125, 10, "MFIP Closing and SNAP opening", mfip_to_snap_wcom_checkbox
   ButtonGroup ButtonPressed
-    OkButton 135, 320, 50, 15
-    CancelButton 185, 320, 50, 15
-  GroupBox 5, 260, 230, 55, "Cash"
-  GroupBox 5, 5, 230, 255, "SNAP"
+    OkButton 135, 375, 50, 15
+    CancelButton 185, 375, 50, 15
+  GroupBox 5, 315, 230, 55, "Cash"
+  GroupBox 5, 5, 230, 305, "SNAP"
+  GroupBox 15, 15, 210, 90, "ABAWD's"
+  GroupBox 15, 110, 210, 60, "Banked Months"
+  GroupBox 15, 175, 215, 130, "Other SNAP"
 EndDialog
 
 ' Dim myBtn
 '
 ' myBtn = Dialog(wcom_selection_dlg)
 ' MsgBox "The user pressed button " & myBtn
-
 
 'Initial declaration of arrays
 Dim array_of_msg_lines ()
