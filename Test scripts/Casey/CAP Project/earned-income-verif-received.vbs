@@ -1069,7 +1069,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                         EARNED_INCOME_PANELS_ARRAY(pay_weekday, ei_panel) = ""
                         list_of_excluded_pay_dates = ""
                         previous_pay_date = ""
-                        paycheck_list_title = "Paychecks Inclued in Budget:"
+                        paycheck_list_title = "Paychecks Provided for Determination:"
 
                         'Adding the order to the array for what the order the checks should be in
                         '-----THis block works to display in order------'
