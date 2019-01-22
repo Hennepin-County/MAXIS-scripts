@@ -905,19 +905,21 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                                   Text 225, (dlg_factor * 20) + 115, 70, 10, "Regular Non-Monthly"
                                   Text 225, (dlg_factor * 20) + 130, 25, 10, "Amount"
                                   Text 280, (dlg_factor * 20) + 130, 50, 10, "Nbr of Months"
+                                  Text 340, (dlg_factor * 20) + 130, 65, 10, "Known Pay Date"
                                   EditBox 5, (dlg_factor * 20) + 140, 50, 15, EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel)
                                   EditBox 75, (dlg_factor * 20) + 140, 40, 15, EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel)
                                   DropListBox 130, (dlg_factor * 20) + 140, 85, 45, ""+chr(9)+"1 - One Time Per Month"+chr(9)+"2 - Two Times Per Month"+chr(9)+"3 - Every Other Week"+chr(9)+"4 - Every Week", EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
                                   EditBox 225, (dlg_factor * 20) + 140, 40, 15, EARNED_INCOME_PANELS_ARRAY(reg_non_monthly, ei_panel)
                                   EditBox 280, (dlg_factor * 20) + 140, 30, 15, EARNED_INCOME_PANELS_ARRAY(numb_months, ei_panel)
-                                  Text 410, (dlg_factor * 20) + 115, 85, 10, "Initial Month to Update:"
-                                  EditBox 495, (dlg_factor * 20) + 110, 15, 15, EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel)
-                                  EditBox 515, (dlg_factor * 20) + 110, 15, 15, EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel)
-                                  CheckBox 410, (dlg_factor * 20) + 125, 120, 10, "Update Future Months", EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel)
+                                  EditBox 340, (dlg_factor * 20) + 140, 65, 15, known_pay_date
+                                  Text 455, (dlg_factor * 20) + 115, 85, 10, "Initial Month to Update:"
+                                  EditBox 535, (dlg_factor * 20) + 110, 15, 15, EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel)
+                                  EditBox 560, (dlg_factor * 20) + 110, 15, 15, EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel)
+                                  CheckBox 455, (dlg_factor * 20) + 125, 120, 10, "Update Future Months", EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel)
 
                                   ButtonGroup ButtonPressed
-                                    PushButton 440, (dlg_factor * 20) + 140, 15, 15, "+", add_another_check
-                                    PushButton 460, (dlg_factor * 20) + 140, 15, 15, "-", take_a_check_away
+                                    PushButton 455, (dlg_factor * 20) + 140, 15, 15, "+", add_another_check
+                                    PushButton 475, (dlg_factor * 20) + 140, 15, 15, "-", take_a_check_away
                                     OkButton 495, (dlg_factor * 20) + 140, 50, 15
                                     CancelButton 550, (dlg_factor * 20) + 140, 50, 15
                                 EndDialog
@@ -948,6 +950,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
                                 EARNED_INCOME_PANELS_ARRAY(reg_non_monthly, ei_panel) = trim(EARNED_INCOME_PANELS_ARRAY(reg_non_monthly, ei_panel))
                                 EARNED_INCOME_PANELS_ARRAY(numb_months, ei_panel) = trim(EARNED_INCOME_PANELS_ARRAY(numb_months, ei_panel))
+                                known_pay_date = trim(known_pay_date)
 
                                 If EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel) <> "" AND EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel) <> "" AND EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) <> "" Then
                                     anticipated_income_provided = TRUE
@@ -958,6 +961,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                                 If anticipated_income_provided = FALSE AND actual_checks_provided = FALSE Then
                                     sm_err_msg = sm_err_msg & vbNewLine & "* Income information needs to be provided, either in the form of actual checks or anticipated income, hours, and rate of pay."
                                 End If
+                                If known_pay_date <> "" AND IsDate(known_pay_date) = FALSE Then sm_err_msg = sm_err_msg & vbNewLine & "* A known pay date needs to be entered as a date. Check the entry."
                                 If ButtonPressed = add_another_check Then
                                     pay_item = pay_item + 1
                                     ReDim Preserve LIST_OF_INCOME_ARRAY(reason_amt_excluded, pay_item)
@@ -1058,6 +1062,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
                     If EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_actual Then
                         total_of_counted_income = 0
+                        total_of_included_pay_checks = 0
                         total_of_hours = 0
                         number_of_checks_budgeted = 0
                         cash_checks = 0
@@ -1196,6 +1201,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                                     LIST_OF_INCOME_ARRAY(gross_amount, all_income) = LIST_OF_INCOME_ARRAY(gross_amount, all_income) * 1
                                     net_amount = LIST_OF_INCOME_ARRAY(gross_amount, all_income) - LIST_OF_INCOME_ARRAY(exclude_amount, all_income)
                                     total_of_counted_income = total_of_counted_income + net_amount
+                                    total_of_included_pay_checks = total_of_included_pay_checks +  LIST_OF_INCOME_ARRAY(gross_amount, all_income)
                                     number_of_checks_budgeted = number_of_checks_budgeted + 1
 
                                     LIST_OF_INCOME_ARRAY(hours, all_income) = LIST_OF_INCOME_ARRAY(hours, all_income) * 1
@@ -1213,7 +1219,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                         EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) = total_of_counted_income / number_of_checks_budgeted
                         EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel),2,,0)
 
-                        EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) = total_of_counted_income / total_of_hours
+                        EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) = total_of_included_pay_checks / total_of_hours
                         EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel),2,,0)
 
                         If list_of_excluded_pay_dates <> "" Then list_of_excluded_pay_dates = right(list_of_excluded_pay_dates, len(list_of_excluded_pay_dates) - 2)
@@ -1320,6 +1326,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                             this_pay_date = paydates_array(0)
                             If EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel) = "" Then EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel) = this_pay_date
 
+                        ElseIf known_pay_date <> "" Then
+                            this_pay_date = DateDiff("d", 0, known_pay_date)
                         Else
                             EMReadScreen this_pay_date, 8, 12, 25   'first check on retro side
                             If this_pay_date = "__ __ __" Then
@@ -1477,12 +1485,18 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                     '     End If
                     ' End If
 
+                    word_for_freq = ""
+                    If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "1 - One Time Per Month" Then word_for_freq = "monthly"
+                    If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "2 - Two Times Per Month" Then word_for_freq = "semi-monthly"
+                    If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "3 - Every Other Week" Then word_for_freq = "biweekly"
+                    If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "4 - Every Week" Then word_for_freq = "weekly"
+
                     dlg_len = 65
                     If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then
                         dlg_len = dlg_len + 80
                         dlg_len = dlg_len + number_of_checks_budgeted*10
                         If number_of_checks_budgeted < 4 THen dlg_len = 180
-                        If using_30_days = FALSE Then dlg_len = dlg_len + 20
+                        If using_30_days = FALSE Then dlg_len = dlg_len + 30
                     End If
                     If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then
                         dlg_len = dlg_len + 45
@@ -1504,7 +1518,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                       If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then
                           grp_len = 100 + number_of_checks_budgeted*10
                           If number_of_checks_budgeted < 4 Then grp_len = 130
-                          If using_30_days = FALSE Then grp_len = grp_len + 20
+                          If using_30_days = FALSE Then grp_len = grp_len + 30
                           GroupBox 5, y_pos, 410, grp_len, "SNAP Budget"
 
                           Text 10, y_pos + 10, 400, 10, "Income provided covers the period " & first_date & " to " & last_date & ". This income covers " & spread_of_pay_dates & " days."
@@ -1553,7 +1567,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                           ' Next
 
                           Text 185, y_pos + 10, 200, 10, "Average hourly rate of pay: $" & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel)
-                          Text 185, y_pos + 25, 200, 10, "Average weekly hours: " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)
+                          Text 185, y_pos + 25, 200, 10, "Average " & word_for_freq & " hours: " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)
                           Text 185, y_pos + 40, 200, 10, "Average paycheck amount: $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
                           Text 185, y_pos + 55, 200, 10, "Monthly Budgeted Income: $" & EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel)
                           If EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = "?" Then
