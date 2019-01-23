@@ -133,6 +133,14 @@ script_array_admin_main(script_num).script_name 		= "CS Good Cause "											'
 script_array_admin_main(script_num).file_name 			= "cs-good cause.vbs"										'Script URL
 script_array_admin_main(script_num).description 		= "Completes updates to ABPS and case notes actions taken."
 
+script_num = script_num + 1
+ReDim Preserve script_array_admin_main(script_num)
+Set script_array_admin_main(script_num) = new script
+script_array_admin_main(script_num).script_name 		= "Earned Income Budgeting"											'Script name
+script_array_admin_main(script_num).file_name 			= "earned-income-budgeting.vbs"										'Script URL
+script_array_admin_main(script_num).description 		= "Assists with determination and entry of income information."
+
+
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
 Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
