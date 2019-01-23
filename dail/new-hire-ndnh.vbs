@@ -57,23 +57,6 @@ call changelog_update("09/11/2017", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-function INFC_password_check(end_script)
-'--- This function checks to ensure the user is in a MAXIS panel
-'~~~~~ end_script: If end_script = TRUE the script will end. If end_script = FALSE, the user will be given the option to cancel the script, or manually navigate to a MAXIS screen.
-'===== Keywords: MAXIS, production, script_end_procedure
-	Do
-		EMReadScreen MAXIS_check, 5, 1, 39
-		If MAXIS_check <> "MAXIS"  and MAXIS_check <> "AXIS " then
-			If end_script = True then
-				script_end_procedure("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again.")
-			Else
-				warning_box = MsgBox("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again, or press ""cancel"" to exit the script.", vbOKCancel)
-				If warning_box = vbCancel then stopscript
-			End if
-		End if
-	Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
-end function
-
 'DIALOGS----------------------------------------------------------------------------------------------
 
 BeginDialog NDNH_only_dialog, 0, 0, 236, 70, "National Directory of New Hires"
@@ -102,7 +85,7 @@ Do
 	LOOP UNTIL match_answer_droplist <> "Select One:"
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 LOOP UNTIL err_msg = ""
-CALL INFC_password_check(False)
+
     'This is a dialog asking if the job is known to the agency.
 BeginDialog new_HIRE_dialog, 0, 0, 281, 205, "New HIRE dialog"
   EditBox 65, 5, 20, 15, HH_memb
@@ -147,7 +130,7 @@ If row = 0 then script_end_procedure("MAXIS may be busy: the script appears to h
 EMReadScreen new_hire_first_line, 61, row, col - 7 'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
 	new_hire_first_line = replace(new_hire_first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
 	new_hire_first_line = trim(new_hire_first_line)
-EMReadScreen new_hire_second_line, 61, row + 1, col - 15
+EMReadScreen new_hire_second_line, 61, row + 1, col -15
 	new_hire_second_line = trim(new_hire_second_line)
 EMReadScreen new_hire_third_line, 61, row + 2, col -15 'maxis name'
 	new_hire_third_line = trim(new_hire_third_line)
@@ -332,14 +315,14 @@ IF match_answer_droplist = "NO - RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AN
     CALL write_variable_in_case_note(worker_signature)
 
     PF3
-    PF3
+    'PF3
 
 
 	'If TIKL_checkbox is unchecked, it needs to end here.
 	IF TIKL_checkbox = UNCHECKED THEN script_end_procedure("Success! MAXIS updated for new NDNH HIRE message, and a case note made. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
     'Navigates to TIKL
 	IF TIKL_checkbox = CHECKED THEN
-    	Call write_value_and_transmit("w", 6, 3)
+	Call navigate_to_MAXIS_screen("DAIL", "WRIT")
     	CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
     	CALL write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action." & vbcr & "For all federal matches INFC/HIRE must be cleared please see HSR manual.")
     	PF3		'Exits and saves TIKL
@@ -420,6 +403,8 @@ IF match_answer_droplist = "YES - INFC clear match" THEN
 	'entering the INFC/HIRE match '
 	EMWriteScreen "U", match_row, 3
 	transmit
+	EMReadscreen panel_check, 4, 2, 49
+	IF panel_check <> "NHMD" THEN msgbox "We did not enter to clear the match"
 	IF Emp_known_droplist = "NO-See Next Question" THEN EMWriteScreen "N", 16, 54
 	IF Emp_known_droplist = "YES-No Further Action" THEN EMWriteScreen "Y", 16, 54
 	IF Action_taken_droplist = "NA-No Action Taken" THEN EMWriteScreen "NA", 17, 54
@@ -428,13 +413,15 @@ IF match_answer_droplist = "YES - INFC clear match" THEN
 	IF cost_savings <> "" THEN
 		cost_savings = round(cost_savings)
 		EMWriteScreen cost_savings, 18, 54
-		transmit
-		PF3
 	END IF
+	TRANSMIT 'enters the information then a warning message comes up WARNING: ARE YOU SURE YOU WANT TO UPDATE? PF3 TO CANCEL OR TRANSMIT TO UPDATE '
+	TRANSMIT 'this confirms the cleared status'
 	PF3
-	'PF3
+	EMReadscreen cleared_confirmation, 1, match_row, 61
+	IF cleared_confirmation = "" THEN MsgBox "the match did not appear to clear"
+	PF3' this takes us back to DAIL/DAIL
 	new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
-	start_a_blank_CASE_NOTE
+	start_a_blank_case_note
 	IF Emp_known_droplist = "YES-No Further Action" THEN
 		CALL write_variable_in_case_note("-NDNH " & new_hire_first_line & " INFC cleared reported to agency-")
 		CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
