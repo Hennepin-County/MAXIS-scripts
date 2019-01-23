@@ -11,7 +11,7 @@ start_time = timer
 'WFG492 = Melissa F.
 'WFV701 = Darcy
 'WFX490 = Molly
-'WFM207 = Mandora 
+'WFM207 = Mandora
 
 
 
@@ -126,12 +126,20 @@ script_array_admin_main(script_num).script_name 		= "Add GRH Rate 2 to MMIS"				
 script_array_admin_main(script_num).file_name 			= "add-grh-rate-2-to-mmis.vbs"										'Script URL
 script_array_admin_main(script_num).description 		= "ACTION script adds GRH Rate 2 SSR's to MMIS. This version without Rate 2 in elig results for error cases."
 
-script_num = script_num + 1	
+script_num = script_num + 1
 ReDim Preserve script_array_admin_main(script_num)
 Set script_array_admin_main(script_num) = new script
 script_array_admin_main(script_num).script_name 		= "CS Good Cause "											'Script name
 script_array_admin_main(script_num).file_name 			= "cs-good cause.vbs"										'Script URL
 script_array_admin_main(script_num).description 		= "Completes updates to ABPS and case notes actions taken."
+
+script_num = script_num + 1
+ReDim Preserve script_array_admin_main(script_num)
+Set script_array_admin_main(script_num) = new script
+script_array_admin_main(script_num).script_name 		= "Earned Income Budgeting"											'Script name
+script_array_admin_main(script_num).file_name 			= "earned-income-budgeting.vbs"										'Script URL
+script_array_admin_main(script_num).description 		= "Assists with determination and entry of income information."
+
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
