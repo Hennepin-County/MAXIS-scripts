@@ -46,6 +46,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/10/2019", "Added claim referral handling and checks to make sure the case is cleared in INFC.", "MiKayla Handley, Hennepin County")
 call changelog_update("01/10/2019", "Updated casenote due to formatting issue, some change to functionality.", "MiKayla Handley, Hennepin County")
 call changelog_update("10/17/2018", "Updated the dialog box, no change to functionality.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("06/20/2018", "Updated date handling for hired date and navigation to the DAIL/WRIT.", "MiKayla Handley, Hennepin County")
@@ -60,7 +61,7 @@ changelog_display
 'DIALOGS----------------------------------------------------------------------------------------------
 
 BeginDialog NDNH_only_dialog, 0, 0, 236, 70, "National Directory of New Hires"
-  DropListBox 150, 5, 80, 15, "Select One: "+chr(9)+"NO - RUN NEW HIRE"+chr(9)+"YES - INFC clear match", match_answer_droplist
+  DropListBox 150, 5, 80, 15, "Select One:"+chr(9)+"NO-RUN NEW HIRE"+chr(9)+"YES-INFC clear match", match_answer_droplist
   ButtonGroup ButtonPressed
     OkButton 125, 50, 50, 15
     CancelButton 180, 50, 50, 15
@@ -161,7 +162,7 @@ employer = TRIM(employer)
 EMReadScreen new_HIRE_SSN, 9, 9, 5
 PF3
 
-IF match_answer_droplist = "NO - RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND SNAP HAVE DIFFERENT RULES.
+IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND SNAP HAVE DIFFERENT RULES.
 	EMWriteScreen "h", 6, 3
 	transmit
 	row = 1
@@ -329,7 +330,7 @@ IF match_answer_droplist = "NO - RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AN
     	script_end_procedure("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
 	END IF
 END IF
-IF match_answer_droplist = "YES - INFC clear match" THEN
+IF match_answer_droplist = "YES-INFC clear match" THEN
 'This is a dialog asking if the job is known to the agency.
     BeginDialog Match_Info_dialog, 0, 0, 281, 190, "NDNH Match Resolution Information"
       CheckBox 10, 15, 265, 10, "Check here to verify that ECF has been reviewed and acted upon appropriately", ECF_checkbox
@@ -485,7 +486,7 @@ IF match_answer_droplist = "YES - INFC clear match" THEN
 		IF Action_taken_droplist = "NA-No Action Taken" THEN CALL write_variable_in_case_note("* No futher action taken on this match at this time")
 		IF Action_taken_droplist = "BR-Benefits Reduced" THEN CALL write_variable_in_case_note("* Action taken: Benefits Reduced")
 		IF Action_taken_droplist = "CC-Case Closed" THEN CALL write_variable_in_case_note("* Action taken: Case Closed (allowing for 10 day cutoff if applicable)")
-		CALL write_variable_in_case_note("* First Month Cost Savings: $" & cost_savings)
+		IF cost_savings <> "" THEN CALL write_variable_in_case_note("* First Month Cost Savings: $" & cost_savings)
 		CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
 		CALL write_variable_in_case_note("---")
 		CALL write_variable_in_case_note(worker_signature)
