@@ -839,6 +839,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
             confirm_checks_checkbox = unchecked
             hc_confirm_checks_checkbox = unchecked
             est_weekly_hrs = ""
+            list_of_excluded_pay_dates = ""
 
             If LIST_OF_INCOME_ARRAY(panel_indct, pay_item) = "" Then
                 LIST_OF_INCOME_ARRAY(panel_indct, pay_item) = ei_panel
@@ -1523,29 +1524,40 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                     If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "3 - Every Other Week" Then word_for_freq = "biweekly"
                     If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "4 - Every Week" Then word_for_freq = "weekly"
 
-                    dlg_len = 65
+                    dlg_len = 40
                     If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then
-                        dlg_len = dlg_len + 80
-                        dlg_len = dlg_len + number_of_checks_budgeted*10
-                        If number_of_checks_budgeted < 4 THen dlg_len = 180
-                        If using_30_days = FALSE Then dlg_len = dlg_len + 30
+                        dlg_len = dlg_len + 15
+                        ' dlg_len = dlg_len + number_of_checks_budgeted*10
+                        ' If number_of_checks_budgeted < 4 THen dlg_len = 180
+                        ' If using_30_days = FALSE Then dlg_len = dlg_len + 30
+
+                        grp_len = 100 + number_of_checks_budgeted*10
+                        If number_of_checks_budgeted < 4 Then grp_len = 130
+                        If using_30_days = FALSE Then grp_len = grp_len + 30
+
+                        dlg_len = dlg_len + grp_len
                     End If
                     If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then
-                        dlg_len = dlg_len + 45
+                        dlg_len = dlg_len + 10
                         cash_grp_len = 60
                         length_of_checks_list = cash_checks*10
 
-                        dlg_len = dlg_len + length_of_checks_list
+                        ' dlg_len = dlg_len + length_of_checks_list
                         cash_grp_len = cash_grp_len + length_of_checks_list
+
+                        dlg_len = dlg_len + cash_grp_len
 
                     End If
                     If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel) = checked Then
-                        dlg_len = dlg_len + 15
+                        dlg_len = dlg_len + 10
                         hc_grp_len = 40
                         length_of_checks_list = cash_checks*10
 
-                        dlg_len = dlg_len + length_of_checks_list
+                        ' dlg_len = dlg_len + length_of_checks_list
                         hc_grp_len = hc_grp_len + length_of_checks_list
+
+                        dlg_len = dlg_len + hc_grp_len
+
                     End If
 
                     y_pos = 25
@@ -1556,9 +1568,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                       ' Text 240, 30, 60, 10, "Income Start Date:"
                       ' EditBox 305, 25, 70, 15, income_start_date
                       If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then
-                          grp_len = 100 + number_of_checks_budgeted*10
-                          If number_of_checks_budgeted < 4 Then grp_len = 130
-                          If using_30_days = FALSE Then grp_len = grp_len + 30
+
                           GroupBox 5, y_pos, 410, grp_len, "SNAP Budget"
 
                           Text 10, y_pos + 10, 400, 10, "Income provided covers the period " & first_date & " to " & last_date & ". This income covers " & spread_of_pay_dates & " days."
@@ -2145,7 +2155,7 @@ If update_with_verifs = TRUE Then
                             checks_in_month = checks_in_month + 1
                             checks_list = checks_list & "~" & LIST_OF_INCOME_ARRAY(pay_date, all_income)
                         End If
-                    Next 
+                    Next
 
                     If checks_in_month = 0 Then
                         checks_list = checks_list & "~" & DateValue(RETRO_month) & "~" & DateAdd("d", 15, RETRO_month)
