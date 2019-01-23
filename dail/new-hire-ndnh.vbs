@@ -339,8 +339,8 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
       DropListBox 170, 55, 95, 15, "Select One:"+chr(9)+"NA-No Action Taken"+chr(9)+"BR-Benefits Reduced"+chr(9)+"CC-Case Closed", Action_taken_droplist
       EditBox 220, 75, 45, 15, cost_savings
       EditBox 55, 95, 210, 15, other_notes
-      CheckBox 10, 125, 260, 10, "Check here if 10 day cutoff has passed  -  TIKL will be set for following month", tenday_checkbox
-      CheckBox 10, 150, 250, 10, "Check here if an overpayemnt is possible - run claim referral tracking", claim_referral_checkbox
+      CheckBox 10, 125, 260, 10, "Check here if 10 day cutoff has passed - TIKL will be set for following month", tenday_checkbox
+      CheckBox 10, 150, 250, 10, "Check here if an overpayment is possible - run claim referral tracking", claim_referral_checkbox
       ButtonGroup ButtonPressed
         OkButton 170, 170, 50, 15
         CancelButton 225, 170, 50, 15
