@@ -174,7 +174,7 @@ ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one
 Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_admin_main(script_num).script_name			= "WF1 Case Status"													'Script name
 script_array_admin_main(script_num).file_name			= "wf1-case-status.vbs"												'Script URL
-script_array_admin_main(script_num).description			= "Updates a list of cases from Excel with current case and ABAWD status inforamtion."
+script_array_admin_main(script_num).description			= "Updates a list of cases from Excel with current case and ABAWD status information."
 
 '----------------------------------------------------------------------------------------------------QI array
 script_num = 0
@@ -238,7 +238,7 @@ ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one mo
 Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_QI_list(script_num).script_name		= "QI Renewal Accuracy"                                              'Script name
 script_array_QI_list(script_num).file_name			= "qi-renewal-accuracy.vbs"                                          'Script URL
-script_array_QI_list(script_num).description		= "Template for documenting specific renewal inforamtion that has been reviewed by policy experts."
+script_array_QI_list(script_num).description		= "Template for documenting specific renewal information that has been reviewed by policy experts."
 
 '----------------------------------------------------------------------------------------------------BZ array
 script_num = 0

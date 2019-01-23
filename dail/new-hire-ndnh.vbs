@@ -135,6 +135,7 @@ EMReadScreen new_hire_second_line, 61, row + 1, col -15
 	new_hire_second_line = trim(new_hire_second_line)
 EMReadScreen new_hire_third_line, 61, row + 2, col -15 'maxis name'
 	new_hire_third_line = trim(new_hire_third_line)
+	new_hire_third_line = replace(new_hire_third_line, ",", ", ")
 EMReadScreen new_hire_fourth_line, 61, row + 3, col -15'new hire name'
 	new_hire_fourth_line = trim(new_hire_fourth_line)
 	new_hire_fourth_line = replace(new_hire_fourth_line, ",", ", ")
