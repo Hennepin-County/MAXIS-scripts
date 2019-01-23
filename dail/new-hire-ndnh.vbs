@@ -137,10 +137,10 @@ EMReadScreen new_hire_third_line, 61, row + 2, col -15 'maxis name'
 EMReadScreen new_hire_fourth_line, 61, row + 3, col -15'new hire name'
 	new_hire_fourth_line = trim(new_hire_fourth_line)
 	new_hire_fourth_line = replace(new_hire_fourth_line, ",", ", ")
-IF right(new_hire_third_line, 46) <> right(new_hire_fourth_line, 46) then 				'script was being run on cases where the names did not match but SSN did. This will allow users to review.
-	warning_box = MsgBox("The names found on the NEW HIRE message do not match exactly." & vbcr & new_hire_third_line & vbcr & new_hire_fourth_line & vbcr & "Please review and click OK if you wish to continue and CANCEL if the name is incorrect.", vbOKCancel)
-	If warning_box = vbCancel then script_end_procedure("The script has ended. Please review the new hire as you indicated that the name read from the NEW HIRE and the MAXIS name did not match.")
-END IF
+'IF right(new_hire_third_line, 46) <> right(new_hire_fourth_line, 46) then 				'script was being run on cases where the names did not match but SSN did. This will allow users to review.
+'	warning_box = MsgBox("The names found on the NEW HIRE message do not match exactly." & vbcr & new_hire_third_line & vbcr & new_hire_fourth_line & vbcr & "Please review and click OK if you wish to continue and CANCEL if the name is incorrect.", vbOKCancel)
+'	If warning_box = vbCancel then script_end_procedure("The script has ended. Please review the new hire as you indicated that the name read from the NEW HIRE and the MAXIS name did not match.")
+'END IF
 row = 1 						'Now it's searching for info on the hire date as well as employer
 col = 1
 'Now it's searching for info on the hire date as well as employer
@@ -331,23 +331,25 @@ IF match_answer_droplist = "NO - RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AN
 END IF
 IF match_answer_droplist = "YES - INFC clear match" THEN
 'This is a dialog asking if the job is known to the agency.
-	BeginDialog Match_Info_dialog, 0, 0, 281, 190, "NDNH Match Resolution Information"
-	  CheckBox 10, 20, 265, 10, "Check here to verify that ECF has been reviewed and acted upon appropriately", ECF_checkbox
-	  DropListBox 170, 45, 95, 15, "Select One:"+chr(9)+"YES-No Further Action"+chr(9)+"NO-See Next Question", Emp_known_droplist
-	  DropListBox 170, 65, 95, 15, "Select One:"+chr(9)+"NA-No Action Taken"+chr(9)+"BR-Benefits Reduced"+chr(9)+"CC-Case Closed", Action_taken_droplist
-	  EditBox 170, 85, 95, 15, cost_savings
-	  EditBox 55, 105, 210, 15, other_notes
-	  CheckBox 10, 145, 260, 10, "Check here if 10 day cutoff has passed  -  TIKL will be set for following month", tenday_checkbox
-	  ButtonGroup ButtonPressed
-	    OkButton 170, 170, 50, 15
-	    CancelButton 225, 170, 50, 15
-	  GroupBox 5, 5, 270, 35, "ECF review"
-	  Text 20, 50, 145, 10, "Was this employment known to the agency?"
-	  Text 10, 70, 155, 10, "If unknown: what action was taken by agency?"
-	  Text 10, 90, 155, 10, "First month cost savings (enter only numbers):"
-	  Text 10, 110, 40, 10, "Other notes:"
-	  GroupBox 5, 130, 270, 35, "10 day cutoff for closure"
-	EndDialog
+    BeginDialog Match_Info_dialog, 0, 0, 281, 190, "NDNH Match Resolution Information"
+      CheckBox 10, 15, 265, 10, "Check here to verify that ECF has been reviewed and acted upon appropriately", ECF_checkbox
+      DropListBox 170, 35, 95, 15, "Select One:"+chr(9)+"YES-No Further Action"+chr(9)+"NO-See Next Question", Emp_known_droplist
+      DropListBox 170, 55, 95, 15, "Select One:"+chr(9)+"NA-No Action Taken"+chr(9)+"BR-Benefits Reduced"+chr(9)+"CC-Case Closed", Action_taken_droplist
+      EditBox 220, 75, 45, 15, cost_savings
+      EditBox 55, 95, 210, 15, other_notes
+      CheckBox 10, 125, 260, 10, "Check here if 10 day cutoff has passed  -  TIKL will be set for following month", tenday_checkbox
+      CheckBox 10, 150, 250, 10, "Check here if an overpayemnt is possible - run claim referral tracking", claim_referral_checkbox
+      ButtonGroup ButtonPressed
+        OkButton 170, 170, 50, 15
+        CancelButton 225, 170, 50, 15
+      GroupBox 5, 5, 270, 25, "ECF review"
+      Text 10, 40, 145, 10, "Was this employment known to the agency?"
+      Text 10, 60, 155, 10, "If unknown: what action was taken by agency?"
+      Text 10, 80, 155, 10, "First month cost savings (enter only numbers):"
+      Text 10, 100, 40, 10, "Other notes:"
+      GroupBox 5, 115, 270, 25, "10 day cutoff for closure"
+      GroupBox 5, 140, 270, 25, "Possible Overpayment"
+    EndDialog
 	'naviagting into INFC'
 	EMSendKey "I"
 	transmit
@@ -420,6 +422,42 @@ IF match_answer_droplist = "YES - INFC clear match" THEN
 	EMReadscreen cleared_confirmation, 1, match_row, 61
 	IF cleared_confirmation = "" THEN MsgBox "the match did not appear to clear"
 	PF3' this takes us back to DAIL/DAIL
+
+	IF claim_referral_checkbox = CHECKED Then
+	    Call navigate_to_MAXIS_screen ("STAT", "MISC")
+	    Row = 6
+
+	    EmReadScreen panel_number, 1, 02, 78
+	    If panel_number = "0" then
+	    	EMWriteScreen "NN", 20,79
+	    	TRANSMIT
+	    ELSE
+	    	Do
+	    		'Checking to see if the MISC panel is empty, if not it will find a new line'
+	    		EmReadScreen MISC_description, 25, row, 30
+	    		MISC_description = replace(MISC_description, "_", "")
+	    		If trim(MISC_description) = "" then
+	    			PF9
+	    			EXIT DO
+	    		Else
+	    			row = row + 1
+	    		End if
+	    	Loop Until row = 17
+	    	If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+	    End if
+	    'writing in the action taken and date to the MISC panel
+	    EMWriteScreen "Initial Claim Referral", Row, 30
+	    EMWriteScreen date, Row, 66
+	    PF3
+	    start_a_blank_CASE_NOTE
+	    Call write_variable_in_case_note("-----Claim Referral Tracking-----")
+		Call write_variable_in_case_note("* NDNH new hire information received overpayment possible")
+	    Call write_bullet_and_variable_in_case_note("Action Date", date)
+	    Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
+	    Call write_variable_in_case_note("-----")
+	    Call write_variable_in_case_note(worker_signature)
+	END IF
+
 	new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
 	start_a_blank_case_note
 	IF Emp_known_droplist = "YES-No Further Action" THEN
