@@ -225,6 +225,7 @@ Row = 7
 					IF row = 17 THEN
 						PF8
 						row = 7
+						IF IEVS_period = "" THEN MsgBox "No IEVS match found"
 					END IF
 	    			'msgbox IEVS_period
 	    		END IF
@@ -247,6 +248,7 @@ Row = 7
 					IF row = 17 THEN
 						PF8
 						row = 7
+						IF IEVS_period = "" THEN MsgBox "No IEVS match found"
 					END IF
 				END IF
 	    		IF IEVS_period = "" THEN script_end_procedure ("The script has ended, no match has not been selected.")
