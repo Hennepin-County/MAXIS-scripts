@@ -228,8 +228,6 @@ FOR i = 0 to total_clients
 NEXT
 'removes all of the first 'chr(9)'
 HH_member_array_dialog = Right(HH_member_array, len(HH_member_array) - total_clients)
-
-
 	'----------------------------------------------------------------------------------------------------ABPS panel
 	Call MAXIS_footer_month_confirmation
 	Call navigate_to_MAXIS_screen("STAT", "ABPS")
@@ -269,7 +267,7 @@ DO
 	If panel_number = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
 	Do
 		EMReadScreen current_panel_number, 1, 2, 73
-		ABPS_check = MsgBox("Is this the right ABPS?" & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
+		ABPS_check = MsgBox("Is this the right ABPS?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
 		If ABPS_check = vbYes then exit do
 		If ABPS_check = vbNo then TRANSMITm
 		If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
@@ -335,16 +333,15 @@ DO
 	END IF
 
 	EMReadScreen parental_status_check, 1, 15, 53
-	IF parental_status <> parental_status_check THEN
-		EmWriteScreen parental_status 15, 53 THEN
+	IF parental_status_check <> parental_status THEN
+		EmWriteScreen parental_status, 15, 53
 		IF first_name <> "" THEN EmWriteScreen first_name, 10, 63
 		IF last_name <> "" THEN EmWriteScreen last_name, 10, 30
 		IF ABPS_gender <> "" THEN EmWriteScreen ABPS_gender, 11, 80	'reading the ssn
 		IF ABPS_SSN <> "" THEN EmWriteScreen ABPS_SSN, 11, 30	'reading the ssn
 		IF ABPS_DOB <> "" THEN EmWriteScreen ABPS_DOB, 11, 60	'reading the DOB
 		IF HC_ins_order <> "" THEN EmWriteScreen HC_ins_order, 12, 44	'making sure ABPS is not unknown.
-		IF HC_ins_compliance <> "" THENEmWriteScreen HC_ins_compliance, 12, 80
-
+		IF HC_ins_compliance <> "" THEN EmWriteScreen HC_ins_compliance, 12, 80
 	END IF
 
 	Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
@@ -395,7 +392,7 @@ DO
 	'IF MAXIS_footer_month <> CM_plus_1_mo THEN
 	    Do
 	    	EMReadScreen MAXIS_footer_month, 2, 20, 55
-	    	MAXIS_footer_month_check = MsgBox("Do you need to run through backgorund?", vbYesNo + vbQuestion, "Maxis footer month")
+	    	MAXIS_footer_month_check = MsgBox("Do you need to run through background?", vbYesNo + vbQuestion, "Maxis footer month")
 	    	If MAXIS_footer_month_check = vbYes THEN
 	    		EMWriteScreen "Y", 16, 54
 	    		TRANSMIT
