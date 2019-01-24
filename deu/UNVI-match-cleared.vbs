@@ -524,4 +524,4 @@ MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The s
 	    END IF
 	END IF
 END IF
-script_end_procedure ("NON-WAGE MATCH HAS BEEN UPDATED." & vbnewline & vbnewline & "Please remember to approve case to close and update STAT/DISQ if needed.")
+script_end_procedure ("NON-WAGE MATCH HAS BEEN UPDATED." & vbnewline & vbnewline & "Please remember to act on case appropriately and update STAT/DISQ if needed.")
