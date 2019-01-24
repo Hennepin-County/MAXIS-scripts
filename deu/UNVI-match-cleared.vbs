@@ -155,7 +155,7 @@ IF dail_check = "View" THEN
 	'Navigating deeper into the match interface
 	CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
 	CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
-	msgbox "Where am i?"
+	'msgbox "Where am i?"
 '	IF match_found = TRUE THEN
 '		EMreadScreen MAXIS_case_number, 8, 5, 73
 '		MAXIS_case_number= TRIM(MAXIS_case_number)
@@ -222,7 +222,11 @@ Row = 7
 	    		IF IEVP_info_confirmation = vbNo THEN
 	    			row = row + 1 'ask Ilse about putting in a do to stop the match'
 	    			EMReadScreen IEVS_period, 11, row, 47
-	    			msgbox IEVS_period
+					IF row = 17 THEN
+						PF8
+						row = 7
+					END IF
+	    			'msgbox IEVS_period
 	    		END IF
 	    		IF IEVS_period = "" THEN script_end_procedure ("The script has ended, no match has not been selected.")
 	    		IF IEVP_info_confirmation = vbYes THEN EXIT DO
