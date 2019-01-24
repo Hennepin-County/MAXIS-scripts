@@ -243,7 +243,11 @@ Row = 7
 	    		IF IEVP_info_confirmation = vbNo THEN
 					row = row + 1 'ask Ilse about putting in a do to stop the match'
 	    			EMReadScreen IEVS_period, 11, row, 47
-	    			msgbox IEVS_period
+	    			'msgbox IEVS_period
+					IF row = 17 THEN
+						PF8
+						row = 7
+					END IF
 				END IF
 	    		IF IEVS_period = "" THEN script_end_procedure ("The script has ended, no match has not been selected.")
 	    		IF IEVP_info_confirmation = vbYes THEN EXIT DO
