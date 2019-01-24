@@ -1524,14 +1524,14 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                     If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "3 - Every Other Week" Then word_for_freq = "biweekly"
                     If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "4 - Every Week" Then word_for_freq = "weekly"
 
-                    dlg_len = 40
+                    dlg_len = 25
                     If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then
-                        dlg_len = dlg_len + 15
+                        dlg_len = dlg_len + 25
                         ' dlg_len = dlg_len + number_of_checks_budgeted*10
                         ' If number_of_checks_budgeted < 4 THen dlg_len = 180
                         ' If using_30_days = FALSE Then dlg_len = dlg_len + 30
 
-                        grp_len = 100 + number_of_checks_budgeted*10
+                        grp_len = 95 + number_of_checks_budgeted*10
                         If number_of_checks_budgeted < 4 Then grp_len = 130
                         If using_30_days = FALSE Then grp_len = grp_len + 30
 
@@ -1541,6 +1541,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                         dlg_len = dlg_len + 10
                         cash_grp_len = 60
                         length_of_checks_list = cash_checks*10
+                        If length_of_checks_list = 0 Then length_of_checks_list = 20
 
                         ' dlg_len = dlg_len + length_of_checks_list
                         cash_grp_len = cash_grp_len + length_of_checks_list
@@ -1552,6 +1553,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                         dlg_len = dlg_len + 10
                         hc_grp_len = 40
                         length_of_checks_list = cash_checks*10
+                        If length_of_checks_list = 0 Then length_of_checks_list = 20
 
                         ' dlg_len = dlg_len + length_of_checks_list
                         hc_grp_len = hc_grp_len + length_of_checks_list
@@ -1635,7 +1637,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                           ComboBox 75, y_pos + 30, 60, 45, " "+chr(9)+"Client - not employee"+chr(9)+"Employee"+chr(9)+"Employer",  EARNED_INCOME_PANELS_ARRAY(spoke_with, ei_panel)
                           Text 140, y_pos + 35, 25, 10, "clarifies"
                           EditBox 170, y_pos + 30, 235, 15, EARNED_INCOME_PANELS_ARRAY(convo_detail, ei_panel)
-                          y_pos = y_pos + 55
+                          y_pos = y_pos + 60
                       Else
                         confirm_budget_checkbox = checked
                         using_30_days = TRUE
@@ -1727,8 +1729,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                           '     mo_list = mo_list + 1
                           '     'y_pos = y_pos + 15
                           ' Next
-
                           bottom_of_checks = y_pos + (list_pos * 10)
+                          If list_pos < 2 Then bottom_of_checks = y_pos + 20
                           y_pos = bottom_of_checks + 10
 
                           'y_pos = y_pos + 10
@@ -1751,6 +1753,10 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                     End If
                     If confirm_checks_checkbox = unchecked Then
                         big_err_msg = big_err_msg & vbNewLine & "*** If the checks are not accurate, review them and update as necessary. ***"
+                        review_small_dlg = TRUE
+                    End If
+                    If hc_confirm_checks_checkbox = unchecked Then
+                        big_err_msg = big_err_msg & vbNewLine & "*** If the checks or HC Income Estimate are not accurate, review them and update as necessary. ***"
                         review_small_dlg = TRUE
                     End If
                     If using_30_days = FALSE Then
