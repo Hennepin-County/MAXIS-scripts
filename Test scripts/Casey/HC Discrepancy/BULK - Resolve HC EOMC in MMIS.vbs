@@ -5,7 +5,7 @@ STATS_counter = 0                          'sets the stats counter at one
 STATS_manualtime = 1                       'manual run time in seconds
 STATS_denomination = "M"       							'C is for each CASE
 'END OF stats block==============================================================================================
-run_locally = TRUE
+' run_locally = TRUE
 'TODO Figure out what is going on with the funclib on this - I need to run locally ?!'
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -56,40 +56,67 @@ function navigate_to_MAXIS_test(maxis_mode)
 '--- This function is to be used when navigating back to MAXIS from another function in BlueZone (MMIS, PRISM, INFOPAC, etc.)
 '~~~~~ maxis_mode: This parameter needs to be "maxis_mode"
 '===== Keywords: MAXIS, navigate
+    maxis_mode = UCase(maxis_mode)
+    If right(maxis_mode, 2) = "DB" Then maxis_mode = left(maxis_mode, 7)
+
     attn
     Do
         EMReadScreen MAI_check, 3, 1, 33
         If MAI_check <> "MAI" then EMWaitReady 1, 1
     Loop until MAI_check = "MAI"
 
-    EMReadScreen prod_check, 7, 7, 15
-    IF prod_check = "RUNNING" THEN
-        Call write_value_and_transmit("2", 2, 15)
-    ELSE
-        EMConnect"A"
-        attn
-        EMReadScreen prod_check, 7, 7, 15
+    If maxis_mode = "PRODUCTION" Then
+        EMReadScreen prod_check, 7, 6, 15
         IF prod_check = "RUNNING" THEN
             Call write_value_and_transmit("2", 2, 15)
         ELSE
-            EMConnect"B"
+            EMConnect"A"
             attn
-            EMReadScreen prod_check, 7, 7, 15
+            EMReadScreen prod_check, 7, 6, 15
             IF prod_check = "RUNNING" THEN
-                Call write_value_and_transmit("2", 2, 15)
-            Else
-                script_end_procedure("You do not appear to have Inquiry mode running. This script will now stop. Please make sure you have production and MMIS open in the same session, and re-run the script.")
+                Call write_value_and_transmit("1", 2, 15)
+            ELSE
+                EMConnect"B"
+                attn
+                EMReadScreen prod_check, 7, 6, 15
+                IF prod_check = "RUNNING" THEN
+                    Call write_value_and_transmit("1", 2, 15)
+                Else
+                    script_end_procedure("You do not appear to have Production mode running. This script will now stop. Please make sure you have production and MMIS open in the same session, and re-run the script.")
+                END IF
             END IF
         END IF
-    END IF
+    ElseIf maxis_mode = "INQUIRY" Then
+
+        EMReadScreen inq_check, 7, 7, 15
+        IF inq_check = "RUNNING" THEN
+            Call write_value_and_transmit("2", 2, 15)
+        ELSE
+            EMConnect"A"
+            attn
+            EMReadScreen inq_check, 7, 7, 15
+            IF inq_check = "RUNNING" THEN
+                Call write_value_and_transmit("2", 2, 15)
+            ELSE
+                EMConnect"B"
+                attn
+                EMReadScreen inq_check, 7, 7, 15
+                IF inq_check = "RUNNING" THEN
+                    Call write_value_and_transmit("2", 2, 15)
+                Else
+                    script_end_procedure("You do not appear to have Inquiry mode running. This script will now stop. Please make sure you have inquiry and MMIS open in the same session, and re-run the script.")
+                END IF
+            END IF
+        END IF
+    End If
 end function
 
 'function specific to this script - running_stopwatch and MX_environment are defined outside of this function
 'meant to keep MMIS from passwording out while this long bulk script is running
-function keep_MMIS_passworded_in()
+function keep_MMIS_passworded_in(mmis_area, maxis_area)
     If timer - running_stopwatch > 720 Then         'this means the script has been running for more than 12 minutes since we last popped in to MMIS
-        Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")      'Going to MMIS'
-        Call navigate_to_MAXIS_test(maxis_mode)                       'going back to MAXIS'
+        Call navigate_to_MMIS_region(mmis_area)      'Going to MMIS'
+        Call navigate_to_MAXIS_test(maxis_area)                       'going back to MAXIS'
         running_stopwatch = timer                                       'resetting the stopwatch'
     End If
 end function
@@ -259,7 +286,7 @@ For each worker in worker_array         'going through each worker in the list o
             PF8     'go to the next page
         Loop until last_page_check = "THIS IS THE LAST PAGE"
     End if
-    Call keep_MMIS_passworded_in                'every 12 mintues or so, the script will pop in to MMIS to make sure we are passworded in
+    Call keep_MMIS_passworded_in("CTY ELIG STAFF/UPDATE", MX_environment)                'every 12 mintues or so, the script will pop in to MMIS to make sure we are passworded in
 Next
 
 hc_clt = 0
@@ -381,7 +408,7 @@ For hc_case = 0 to UBound(EOMC_CASES_ARRAY, 2)
 
     Loop until next_pers_ref_numb = "  "
 
-    Call keep_MMIS_passworded_in        'making sure we are not passworded out in MMIS
+    Call keep_MMIS_passworded_in("CTY ELIG STAFF/UPDATE", MX_environment)        'making sure we are not passworded out in MMIS
 Next
 
 'Now the client array is created
@@ -625,7 +652,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
     If EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) <> "" Then EOMC_CLIENT_ARRAY(prog_one_end, hc_clt) = last_day_of_this_month
     If EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) <> "" Then EOMC_CLIENT_ARRAY(prog_two_end, hc_clt) = last_day_of_this_month
     EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = 0
-    Call keep_MMIS_passworded_in
+    Call keep_MMIS_passworded_in("CTY ELIG STAFF/UPDATE", MX_environment)
 Next
 
 'need to get to ground zero
