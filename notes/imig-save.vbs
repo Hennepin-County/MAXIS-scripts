@@ -44,7 +44,10 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/25/2019", "Added a case note only option when a case is inactive.", "MiKayla Handley")
 call changelog_update("03/28/2018", "Initial version.", "MiKayla Handley")
+
+
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -61,13 +64,18 @@ CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 '	priv_case_list = priv_case_list & "|" & MAXIS_case_number
 'ELSE						'For all of the cases that aren't privileged...
 'Setting some variables for the loop
+CASH_STATUS = FALSE 'overall variable'
+CCA_STATUS = FALSE
 DW_STATUS = FALSE 'Diversionary Work Program'
+ER_STATUS = FALSE
+FS_STATUS = FALSE
 GA_STATUS = FALSE 'General Assistance'
+GRH_STATUS = FALSE
+HC_STATUS = FALSE
 MS_STATUS = FALSE 'Mn Suppl Aid '
 MF_STATUS = FALSE 'Mn Family Invest Program '
 RC_STATUS = FALSE 'Refugee Cash Assistance'
-FS_STATUS = FALSE
-CASH_STATUS = FALSE
+
 'Reading the status and program
 EMReadScreen cash1_status_check, 4, 6, 74
 EMReadScreen cash2_status_check, 4, 7, 74
@@ -86,10 +94,13 @@ EMReadScreen ive_prog_check, 2, 11, 67
 EMReadScreen hc_prog_check, 2, 12, 67
 EMReadScreen cca_prog_check, 2, 14, 67
 
-IF FS_status_check = "ACTV" or FS_status_check = "PEND"  Then SNAP_STATUS = TRUE
-
+IF FS_status_check = "ACTV" or FS_status_check = "PEND"  THEN FS_STATUS = TRUE
+IF emer_status_check = "ACTV" or emer_status_check = "PEND"  THEN ER_STATUS = TRUE
+IF grh_status_check = "ACTV" or grh_status_check = "PEND"  THEN GRH_STATUS = TRUE
+IF hc_status_check = "ACTV" or hc_status_check = "PEND"  THEN HC_STATUS = TRUE
+IF cca_status_check = "ACTV" or cca_status_check = "PEND"  THEN CCA_STATUS = TRUE
 'Logic to determine if MFIP is active
-If cash1_prog_check = "MF" or cash1_prog_check = "GA" Then
+If cash1_prog_check = "MF" or cash1_prog_check = "GA" or cash1_prog_check = "DW" or cash1_prog_check = "RC" or cash1_prog_check = "MS" THEN
 	If cash1_status_check = "ACTV" Then CASH_STATUS = TRUE
 	If cash1_status_check = "PEND" Then CASH_STATUS = TRUE
 	If cash1_status_check = "INAC" Then CASH_STATUS = FALSE
@@ -97,7 +108,7 @@ If cash1_prog_check = "MF" or cash1_prog_check = "GA" Then
 	If cash1_status_check = "DENY" Then CASH_STATUS = FALSE
 	If cash1_status_check = ""     Then CASH_STATUS = FALSE
 END IF
-If cash2_prog_check = "MF" or cash2_prog_check = "GA" Then
+If cash2_prog_check = "MF" or cash2_prog_check = "GA" or cash2_prog_check = "DW" or cash2_prog_check = "RC" or cash2_prog_check = "MS" THEN
 	If cash2_status_check = "ACTV" Then CASH_STATUS = TRUE
 	If cash2_status_check = "PEND" Then CASH_STATUS = TRUE
 	If cash2_status_check = "INAC" Then CASH_STATUS = FALSE
@@ -105,6 +116,8 @@ If cash2_prog_check = "MF" or cash2_prog_check = "GA" Then
 	If cash2_status_check = "DENY" Then CASH_STATUS = FALSE
 	If cash2_status_check = ""     Then CASH_STATUS = FALSE
 END IF
+
+'IF CASH_STATUS = FALSE or FS_STATUS = FALSE THEN
 
 '-----------------------------------------------------------------------------------------------------------------------DIALOG
 BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
@@ -159,6 +172,7 @@ BeginDialog IMIG_dialog, 0, 0, 366, 300, "Immigration Status"
   Text 260, 120, 40, 10, "Status Date:"
   Text 10, 10, 50, 10, "Case Number:"
   Text 10, 280, 65, 10, "Worker Signature:"
+  CheckBox 245, 255, 110, 10, "Check here if case is INACTIVE", case_note_only_checkbox
 EndDialog
 
 BeginDialog addimig_dialog, 0, 0, 370, 240, "Additional Information for IMIG"
@@ -238,256 +252,256 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
+IF case_note_only_checkbox <> CHECKED THEN
+    IF immig_status_dropdown <> "US Citizen" Then
+    	Do
+    		Do
+    			err_msg = ""
+    			dialog addimig_dialog
+    			cancel_confirmation
+    			IF battered_spouse = "Select One:" THEN
+    			 	IF immig_status_dropdown = "28 Undocumented" or immig_status_dropdown = "27 Non-immigrant" or immig_status_dropdown = "50 Other Lawfully Residing" THEN err_msg = err_msg & vbNewLine & "* Please advise if battered spouse or child is applicable."
+    			END IF
+    			IF nation_vietnam = "Select One:" THEN
+    				IF nationality_dropdown = "EL Ethnic Lao" or nationality_dropdown = "HG Hmong"  or nationality_dropdown = "HG Hmong" THEN err_msg = err_msg & vbNewLine & "* Please advise if client has a status during Vietnam War or is Native American born in Mexico or Canada."
+    			END IF
+    			IF yes_sponsored = CHECKED and CASH_STATUS = TRUE THEN
+    				IF ss_credits <> "Select One:" and ss_credits_verf = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that social secuirty credits are verified, please advise if SS credits are applicable."
+    			END IF
+    			If CASH_STATUS = TRUE THEN
+    				IF ESL_ctzn = "Select One:" and immig_status_dropdown = "24 LPR" THEN err_msg = err_msg & vbNewLine & "* Please advise of ESL/Citizenship requirements for state funded cash, see CM 11.03.03 and CM 11.03.09"
+    			END IF
+    			IF battered_spouse <>  "Select One:" and battered_spouse_verf = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that battered spouse is verified, please advise if advise if battered spouse is applicable."
+    			IF military_status <> "Select One:" and military_status_verf  = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that military status is verified, please advise if military status is applicable."
+    			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    		LOOP UNTIL err_msg = ""
+    		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+    END IF
 
-IF immig_status_dropdown <> "US Citizen" Then
-	Do
-		Do
-			err_msg = ""
-			dialog addimig_dialog
-			cancel_confirmation
-			IF battered_spouse = "Select One:" THEN
-			 	IF immig_status_dropdown = "28 Undocumented" or immig_status_dropdown = "27 Non-immigrant" or immig_status_dropdown = "50 Other Lawfully Residing" THEN err_msg = err_msg & vbNewLine & "* Please advise if battered spouse or child is applicable."
-			END IF
-			IF nation_vietnam = "Select One:" THEN
-				IF nationality_dropdown = "EL Ethnic Lao" or nationality_dropdown = "HG Hmong"  or nationality_dropdown = "HG Hmong" THEN err_msg = err_msg & vbNewLine & "* Please advise if client has a status during Vietnam War or is Native American born in Mexico or Canada."
-			END IF
-			IF yes_sponsored = CHECKED and CASH_STATUS = TRUE THEN
-				IF ss_credits <> "Select One:" and ss_credits_verf = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that social secuirty credits are verified, please advise if SS credits are applicable."
-			END IF
-			If CASH_STATUS = TRUE THEN
-				IF ESL_ctzn = "Select One:" and immig_status_dropdown = "24 LPR" THEN err_msg = err_msg & vbNewLine & "* Please advise of ESL/Citizenship requirements for state funded cash, see CM 11.03.03 and CM 11.03.09"
-			END IF
-			IF battered_spouse <>  "Select One:" and battered_spouse_verf = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that battered spouse is verified, please advise if advise if battered spouse is applicable."
-			IF military_status <> "Select One:" and military_status_verf  = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You selected that military status is verified, please advise if military status is applicable."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP UNTIL err_msg = ""
-		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+    'Defaults the date status_checked to today
+    status_checked_date = date & ""
+    Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+    the_month = datepart("m", actual_date)
+    MAXIS_footer_month = right("00" & the_month, 2)
+    the_year = datepart("yyyy", actual_date)
+    MAXIS_footer_year = right("00" & the_year, 2)
+    CALL convert_date_into_MAXIS_footer_month(actual_date, footer_month, footer_year)
+
+    Call navigate_to_MAXIS_screen("STAT", "IMIG")
+    EmWriteScreen MEMB_number, 20, 76
+    TRANSMIT
+    'Making sure we have the correct IMIG
+    EMReadScreen panel_number, 1, 2, 78
+    If panel_number = "0" then script_end_procedure("An IMIG panel does not exist. Please create the panel before running the script again. ")
+    'If there is more than one panel, this part will grab employer info off of them and present it to the worker to decide which one to use.
+    EMReadScreen current_panel_check, 4, 2, 49
+    IF current_panel_check = "IMIG" THEN
+    	DO
+    		EMReadScreen current_panel_number, 1, 2, 73
+    		IMIG_check = MsgBox("Is this the right IMIG?", vbYesNo +vbQuestion, "Confirmation")
+    		If IMIG_check = vbYes THEN EXIT DO
+    		If IMIG_check = vbNo THEN
+    			EmWriteScreen MEMB_number, 20, 76
+    			TRANSMIT
+    		END IF
+    		If (IMIG_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another IMIG. Please review the case, and run the script again if applicable.")
+    	Loop until current_panel_number = panel_number
+    ELSE
+    	back_to_self
+    	Call navigate_to_MAXIS_screen("STAT", "IMIG")
+    	EmWriteScreen MEMB_number, 20, 76
+    	TRANSMIT
+    END IF
+    '-------------------------------------------------------------------------------Updating the IMIG panel
+    PF9
+    EMReadScreen alien_id_number, 9, 10, 72
+    EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
+    error_check = trim(error_check)
+    If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
+    'if the client is now a citizen this will delete IMIG and update MEMB and MEMI'
+    IF immig_status_dropdown = "US Citizen" THEN
+    	IF status_verification = "SAVE Primary" THEN citizen_status = "IM"
+    	IF status_verification = "SAVE Secondary" THEN citizen_status = "IM"
+    	IF status_verification = "Alien Card" THEN citizen_status = "IM"
+    	IF status_verification = "Passport/Visa" THEN citizen_status = "PV"
+    	IF status_verification = "Re-Entry Prmt" THEN citizen_status = "PV"
+    	IF status_verification = "INS Correspondence" THEN citizen_status = "IM"
+    	IF status_verification = "Other Document" THEN citizen_status = "OT"
+    	IF status_verification = "Certificate of Naturalization" THEN citizen_status = "NP"
+    	IF status_verification = "No Ver Prvd" THEN citizen_status = "NO"
+    	'deleting the panel'
+    	EMwritescreen "DEL", 20, 71
+    	TRANSMIT
+    	'Navigates to delete SPON'
+    	Call navigate_to_MAXIS_screen("STAT", "SPON")
+    	Emwritescreen MEMB_number, 20, 76
+    	TRANSMIT
+    	'Making sure we have the correct IMIG
+    	EMReadScreen panel_number, 1, 2, 78
+    	If panel_number = "0" then
+    		EMReadScreen error_msg, 2, 24, 2
+    		error_msg = TRIM(error_msg)
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	else
+    		PF9
+    		EMwritescreen "DEL", 20, 71
+    		TRANSMIT
+    	end if
+    	'Navigates to MEMI tp update citizenship status'
+    	Call navigate_to_MAXIS_screen("STAT", "MEMI")
+    	Emwritescreen MEMB_number, 20, 76
+    	TRANSMIT
+    	PF9
+    	Call create_MAXIS_friendly_date_with_YYYY(actual_date, 0, 6, 35)
+    	Emwritescreen "Y", 10, 49
+    	Emwritescreen citizen_status, 10, 78
+    	TRANSMIT
+    	'Navigates to MEMB tp update alien ID'
+    	Call navigate_to_MAXIS_screen("STAT", "MEMB")
+    	Emwritescreen MEMB_number, 20, 76
+    	TRANSMIT
+
+    	EMReadScreen alien_id_number, 9, 15, 68
+    	IF alien_id_number <> "" THEN
+    		PF9
+    		Call clear_line_of_text(15, 68)
+    		TRANSMIT
+    	END IF
+    ELSE
+    	Call create_MAXIS_friendly_date_with_YYYY(actual_date, 0, 5, 45)
+    	immig_status = ""
+    	If immig_status_dropdown = "21 Refugee" then immig_status = "21"
+    	If immig_status_dropdown = "22 Asylee" then immig_status = "22"
+    	If immig_status_dropdown = "23 Deport/Remove Withheld" then immig_status = "23"
+    	If immig_status_dropdown = "24 LPR" then immig_status = "24"
+    	If immig_status_dropdown = "25 Paroled For 1 Year Or More" then immig_status = "25"
+    	If immig_status_dropdown = "26 Conditional Entry < 4/80" then immig_status = "26"
+    	If immig_status_dropdown = "27 Non-immigrant" then immig_status = "27"
+    	If immig_status_dropdown = "28 Undocumented" then immig_status = "28"
+    	If immig_status_dropdown = "50 Other Lawfully Residing" then immig_status = "50"
+    	EMWriteScreen immig_status, 6, 45
+
+    	IF entry_date <> "" THEN Call create_MAXIS_friendly_date_with_YYYY(entry_date, 0, 7, 45)
+    	IF entry_date = "" THEN Call clear_line_of_text(7, 45)
+    	IF entry_date = "" THEN Call clear_line_of_text(7, 48)
+    	IF entry_date = "" THEN Call clear_line_of_text(7, 51)
+    	IF status_date <> "" THEN Call create_MAXIS_friendly_date_with_YYYY(status_date, 0, 7, 71)
+    	IF status_date = "" THEN Call clear_line_of_text(7, 71)
+    	IF status_date = "" THEN Call clear_line_of_text(7, 74)
+    	IF status_date = "" THEN Call clear_line_of_text(7, 77)
+    	reminder_date = dateadd("d", 10, date)' FOR APPT DATE'
+    	Call change_date_to_soonest_working_day(reminder_date)
+
+    	LPR_status = ""
+    	If LPR_status_dropdown = "21 Refugee" then LPR_status = "21"
+    	If LPR_status_dropdown = "22 Asylee" then LPR_status = "22"
+    	If LPR_status_dropdown = "23 Deport/Remove Withheld" then LPR_status = "23"
+    	If LPR_status_dropdown = "24 None" then LPR_status = "24"
+    	If LPR_status_dropdown = "25 Paroled For 1 Year Or More" then LPR_status = "25"
+    	If LPR_status_dropdown = "26 Conditional Entry < 4/80" then LPR_status = "26"
+    	If LPR_status_dropdown = "27 Non-immigrant" then LPR_status = "27"
+    	If LPR_status_dropdown = "28 Undocumented" then LPR_status = "28"
+    	If LPR_status_dropdown = "50 Other Lawfully Residing" then LPR_status = "50"
+    	EMWriteScreen LPR_status, 9, 45
+    	If LPR_status = "" THEN Call clear_line_of_text(9, 45)
+    	'immig_doc_type "Select One:"+chr(9)+"Certificate of Naturalization"+chr(9)+"Employment Auth Card (I-776 work permit)"+chr(9)+"I-94 Travel Document", +chr(9)+"I-220 B Order of Supervision"+chr(9)+"LPR Card (I-551 green card)"+chr(9)+"SAVE"+chr(9)+"Other"
+    	nationality_status = ""
+    	IF nationality_dropdown = "AA Amerasian" THEN nationality_status = "AA"
+    	IF nationality_dropdown = "EH Ethnic Chinese" THEN nationality_status = "EH"
+    	IF nationality_dropdown = "EL Ethnic Lao" THEN nationality_status = "EL"
+    	IF nationality_dropdown = "HG Hmong" THEN nationality_status = "HG"
+    	IF nationality_dropdown = "KD Kurd" THEN nationality_status = "KD"
+    	IF nationality_dropdown = "SJ Soviet Jew" THEN nationality_status = "SJ"
+    	IF nationality_dropdown = "TT Tinh" THEN nationality_status = "TT"
+    	IF nationality_dropdown = "AF Afghanistan" THEN nationality_status = "AF"
+    	IF nationality_dropdown = "BK Bosnia" THEN nationality_status = "BK"
+    	IF nationality_dropdown = "CB Cambodia" THEN nationality_status = "CB"
+    	IF nationality_dropdown = "CH China Mainland" THEN nationality_status = "CH"
+    	IF nationality_dropdown = "CU Cuba" THEN nationality_status = "CU"
+    	IF nationality_dropdown = "ES El Salvador" THEN nationality_status = "ES"
+    	IF nationality_dropdown = "ER Eritrea" THEN nationality_status = "ER"
+    	IF nationality_dropdown = "ET Ethiopia" THEN nationality_status = "ET"
+    	IF nationality_dropdown = "GT Guatemala" THEN nationality_status = "GT"
+    	IF nationality_dropdown = "HA Haiti" THEN nationality_status = "HA"
+    	IF nationality_dropdown = "HO Honduras" THEN nationality_status = "HO"
+    	IF nationality_dropdown = "IR Iran" THEN nationality_status = "IR"
+    	IF nationality_dropdown = "IZ Iraq" THEN nationality_status = "IZ"
+    	IF nationality_dropdown = "LI Liberia" THEN nationality_status = "LI"
+    	IF nationality_dropdown = "MC Micronesia" THEN nationality_status = "MC"
+    	IF nationality_dropdown = "MI Marshall Islands" THEN nationality_status = "MI"
+    	IF nationality_dropdown = "MX Mexico" THEN nationality_status = "MX"
+    	IF nationality_dropdown = "WA Namibia" THEN nationality_status = "WA"
+    	IF nationality_dropdown = "PK Pakistan" THEN nationality_status = "PK"
+    	IF nationality_dropdown = "RP Philippines" THEN nationality_status = "RP"
+    	IF nationality_dropdown = "PL Poland" THEN nationality_status = "PL"
+    	IF nationality_dropdown = "RO Romania" THEN nationality_status = "RO"
+    	IF nationality_dropdown = "RS Russia" THEN nationality_status = "RS"
+    	IF nationality_dropdown = "SO Somalia" THEN nationality_status = "SO"
+    	IF nationality_dropdown = "SF South Africa" THEN nationality_status = "SF"
+    	IF nationality_dropdown = "TH Thailand" THEN nationality_status = "TH"
+    	IF nationality_dropdown = "VM Vietnam" THEN nationality_status = "VM"
+    	IF nationality_dropdown = "OT All Others" THEN nationality_status = "OT"
+    	EMWriteScreen nationality_status, 10, 45
+
+    	IF status_verification = "SAVE Primary" THEN verif_status = "S1"
+    	IF status_verification = "SAVE Secondary" THEN verif_status = "S2"
+    	IF status_verification = "Alien Card" THEN verif_status = "AL"
+    	IF status_verification = "Passport/Visa" THEN verif_status = "PV"
+    	IF status_verification = "Re-Entry Prmt" THEN verif_status = "RE"
+    	IF status_verification = "INS Correspondence" THEN verif_status = "IM"
+    	IF status_verification = "Other Document" THEN verif_status = "OT"
+    	IF status_verification = "No Ver Prvd" THEN verif_status = "NO"
+    	EMWriteScreen verif_status, 8, 45
+
+    	'EMReadScreen alien_id_number, 9, 10, 72
+    	'IF alien_id_number <> id_number THEN MsgBox "The number enter for ID does not match the number entered in the case note"
+    	'VERIFICATION OF 40 SOCIAL SECURITY CREDITS IS NOT NEEDED  '
+    	IF ss_credits = "Select One:" THEN Call clear_line_of_text(13, 56)
+    	IF ss_credits_verf = "Select One:" THEN Call clear_line_of_text(13, 71)
+
+    	IF battered_spouse = "Select One:" THEN Call clear_line_of_text(14, 56)
+    	IF battered_spouse_verf = "Select One:" THEN Call clear_line_of_text(14, 71)
+
+    	IF military_status = "Select One:" THEN Call clear_line_of_text(15, 56)
+    	IF military_status_verf = "Select One:" THEN Call clear_line_of_text(15, 71)
+
+    	IF nation_vietnam = "Select One:" THEN Call clear_line_of_text(16, 56)
+
+    	IF ESL_ctzn = "Select One:" THEN Call clear_line_of_text(17, 56)
+    	IF ESL_ctzn_verf = "Select One:" THEN Call clear_line_of_text(17, 71)
+    	IF ESL_skills = "Select One:" THEN Call clear_line_of_text(18, 56)
+
+    	IF ss_credits <> "Select One:" THEN EmWriteScreen ss_credits, 13, 56
+    	IF ss_credits_verf <> "Select One:" THEN EmWriteScreen ss_credits_verf, 13, 71
+
+    	IF battered_spouse <> "Select One:" THEN EmWriteScreen battered_spouse, 14, 56  'mandatory for undoc'
+    	IF battered_spouse_verf <> "Select One:" THEN EmWriteScreen battered_spouse_verf, 14, 71
+
+    	IF military_status <> "Select One:" THEN
+    		IF military_status = "Veteran" THEN EmWriteScreen "1", 15, 56
+    		IF military_status = "Active Duty" THEN EmWriteScreen "2", 15, 56
+    		IF military_status = "Spouse of 1 or 2" THEN EmWriteScreen "3", 15, 56
+    		IF military_status = "Child of 1 or 2" THEN EmWriteScreen "4", 15, 56
+    		IF military_status = "No Military Stat or Other" THEN EmWriteScreen "N", 15, 56
+    	END IF
+    	IF military_status_verf <> "Select One:" THEN EmWriteScreen military_status_verf, 15, 71
+
+    	IF nation_vietnam <> "Select One:" THEN
+    		IF nation_vietnam = "Hmong During Vietnam War" THEN EmWriteScreen "01", 16, 56
+    		IF nation_vietnam = "Highland Lao During Vietnam" THEN EmWriteScreen "02", 16, 56
+    		IF nation_vietnam = "Spouse/Widow of 1 Or 2"THEN EmWriteScreen "03", 16, 56
+    		IF nation_vietnam = "Dep Child of 1 Or 2"THEN EmWriteScreen "04", 16, 56
+    		IF nation_vietnam = "Native Amer Born Can/Mex" THEN EmWriteScreen "05", 16, 56
+    		IF nation_vietnam = "N/A" THEN Call clear_line_of_text(16, 56)
+    	END IF
+
+    	IF ESL_ctzn <> "Select One:" THEN EmWriteScreen ESL_ctzn, 17, 56  'mandatory for GA'
+    	IF ESL_ctzn_verf <> "Select One:" THEN EmWriteScreen ESL_ctzn_verf, 17, 71
+    	IF ESL_skills <> "Select One:" THEN EmWriteScreen ESL_skills, 18, 56
+    	Transmit
+    END IF
 END IF
-
-'Defaults the date status_checked to today
-status_checked_date = date & ""
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-the_month = datepart("m", actual_date)
-MAXIS_footer_month = right("00" & the_month, 2)
-the_year = datepart("yyyy", actual_date)
-MAXIS_footer_year = right("00" & the_year, 2)
-CALL convert_date_into_MAXIS_footer_month(actual_date, footer_month, footer_year)
-
-Call navigate_to_MAXIS_screen("STAT", "IMIG")
-EmWriteScreen MEMB_number, 20, 76
-TRANSMIT
-'Making sure we have the correct IMIG
-EMReadScreen panel_number, 1, 2, 78
-If panel_number = "0" then script_end_procedure("An IMIG panel does not exist. Please create the panel before running the script again. ")
-'If there is more than one panel, this part will grab employer info off of them and present it to the worker to decide which one to use.
-EMReadScreen current_panel_check, 4, 2, 49
-IF current_panel_check = "IMIG" THEN
-	DO
-		EMReadScreen current_panel_number, 1, 2, 73
-		IMIG_check = MsgBox("Is this the right IMIG?", vbYesNo +vbQuestion, "Confirmation")
-		If IMIG_check = vbYes THEN EXIT DO
-		If IMIG_check = vbNo THEN
-			EmWriteScreen MEMB_number, 20, 76
-			TRANSMIT
-		END IF
-		If (IMIG_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another IMIG. Please review the case, and run the script again if applicable.")
-	Loop until current_panel_number = panel_number
-ELSE
-	back_to_self
-	Call navigate_to_MAXIS_screen("STAT", "IMIG")
-	EmWriteScreen MEMB_number, 20, 76
-	TRANSMIT
-END IF
-'-------------------------------------------------------------------------------Updating the IMIG panel
-PF9
-EMReadScreen alien_id_number, 9, 10, 72
-EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
-error_check = trim(error_check)
-If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
-'if the client is now a citizen this will delete IMIG and update MEMB and MEMI'
-IF immig_status_dropdown = "US Citizen" THEN
-	IF status_verification = "SAVE Primary" THEN citizen_status = "IM"
-	IF status_verification = "SAVE Secondary" THEN citizen_status = "IM"
-	IF status_verification = "Alien Card" THEN citizen_status = "IM"
-	IF status_verification = "Passport/Visa" THEN citizen_status = "PV"
-	IF status_verification = "Re-Entry Prmt" THEN citizen_status = "PV"
-	IF status_verification = "INS Correspondence" THEN citizen_status = "IM"
-	IF status_verification = "Other Document" THEN citizen_status = "OT"
-	IF status_verification = "Certificate of Naturalization" THEN citizen_status = "NP"
-	IF status_verification = "No Ver Prvd" THEN citizen_status = "NO"
-	'deleting the panel'
-	EMwritescreen "DEL", 20, 71
-	TRANSMIT
-	'Navigates to delete SPON'
-	Call navigate_to_MAXIS_screen("STAT", "SPON")
-	Emwritescreen MEMB_number, 20, 76
-	TRANSMIT
-	'Making sure we have the correct IMIG
-	EMReadScreen panel_number, 1, 2, 78
-	If panel_number = "0" then
-		EMReadScreen error_msg, 2, 24, 2
-		error_msg = TRIM(error_msg)
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	else
-		PF9
-		EMwritescreen "DEL", 20, 71
-		TRANSMIT
-	end if
-	'Navigates to MEMI tp update citizenship status'
-	Call navigate_to_MAXIS_screen("STAT", "MEMI")
-	Emwritescreen MEMB_number, 20, 76
-	TRANSMIT
-	PF9
-	Call create_MAXIS_friendly_date_with_YYYY(actual_date, 0, 6, 35)
-	Emwritescreen "Y", 10, 49
-	Emwritescreen citizen_status, 10, 78
-	TRANSMIT
-	'Navigates to MEMB tp update alien ID'
-	Call navigate_to_MAXIS_screen("STAT", "MEMB")
-	Emwritescreen MEMB_number, 20, 76
-	TRANSMIT
-
-	EMReadScreen alien_id_number, 9, 15, 68
-	IF alien_id_number <> "" THEN
-		PF9
-		Call clear_line_of_text(15, 68)
-		TRANSMIT
-	END IF
-ELSE
-	Call create_MAXIS_friendly_date_with_YYYY(actual_date, 0, 5, 45)
-	immig_status = ""
-	If immig_status_dropdown = "21 Refugee" then immig_status = "21"
-	If immig_status_dropdown = "22 Asylee" then immig_status = "22"
-	If immig_status_dropdown = "23 Deport/Remove Withheld" then immig_status = "23"
-	If immig_status_dropdown = "24 LPR" then immig_status = "24"
-	If immig_status_dropdown = "25 Paroled For 1 Year Or More" then immig_status = "25"
-	If immig_status_dropdown = "26 Conditional Entry < 4/80" then immig_status = "26"
-	If immig_status_dropdown = "27 Non-immigrant" then immig_status = "27"
-	If immig_status_dropdown = "28 Undocumented" then immig_status = "28"
-	If immig_status_dropdown = "50 Other Lawfully Residing" then immig_status = "50"
-	EMWriteScreen immig_status, 6, 45
-
-	IF entry_date <> "" THEN Call create_MAXIS_friendly_date_with_YYYY(entry_date, 0, 7, 45)
-	IF entry_date = "" THEN Call clear_line_of_text(7, 45)
-	IF entry_date = "" THEN Call clear_line_of_text(7, 48)
-	IF entry_date = "" THEN Call clear_line_of_text(7, 51)
-	IF status_date <> "" THEN Call create_MAXIS_friendly_date_with_YYYY(status_date, 0, 7, 71)
-	IF status_date = "" THEN Call clear_line_of_text(7, 71)
-	IF status_date = "" THEN Call clear_line_of_text(7, 74)
-	IF status_date = "" THEN Call clear_line_of_text(7, 77)
-	reminder_date = dateadd("d", 10, date)' FOR APPT DATE'
-	Call change_date_to_soonest_working_day(reminder_date)
-
-	LPR_status = ""
-	If LPR_status_dropdown = "21 Refugee" then LPR_status = "21"
-	If LPR_status_dropdown = "22 Asylee" then LPR_status = "22"
-	If LPR_status_dropdown = "23 Deport/Remove Withheld" then LPR_status = "23"
-	If LPR_status_dropdown = "24 None" then LPR_status = "24"
-	If LPR_status_dropdown = "25 Paroled For 1 Year Or More" then LPR_status = "25"
-	If LPR_status_dropdown = "26 Conditional Entry < 4/80" then LPR_status = "26"
-	If LPR_status_dropdown = "27 Non-immigrant" then LPR_status = "27"
-	If LPR_status_dropdown = "28 Undocumented" then LPR_status = "28"
-	If LPR_status_dropdown = "50 Other Lawfully Residing" then LPR_status = "50"
-	EMWriteScreen LPR_status, 9, 45
-	If LPR_status = "" THEN Call clear_line_of_text(9, 45)
-	'immig_doc_type "Select One:"+chr(9)+"Certificate of Naturalization"+chr(9)+"Employment Auth Card (I-776 work permit)"+chr(9)+"I-94 Travel Document", +chr(9)+"I-220 B Order of Supervision"+chr(9)+"LPR Card (I-551 green card)"+chr(9)+"SAVE"+chr(9)+"Other"
-	nationality_status = ""
-	IF nationality_dropdown = "AA Amerasian" THEN nationality_status = "AA"
-	IF nationality_dropdown = "EH Ethnic Chinese" THEN nationality_status = "EH"
-	IF nationality_dropdown = "EL Ethnic Lao" THEN nationality_status = "EL"
-	IF nationality_dropdown = "HG Hmong" THEN nationality_status = "HG"
-	IF nationality_dropdown = "KD Kurd" THEN nationality_status = "KD"
-	IF nationality_dropdown = "SJ Soviet Jew" THEN nationality_status = "SJ"
-	IF nationality_dropdown = "TT Tinh" THEN nationality_status = "TT"
-	IF nationality_dropdown = "AF Afghanistan" THEN nationality_status = "AF"
-	IF nationality_dropdown = "BK Bosnia" THEN nationality_status = "BK"
-	IF nationality_dropdown = "CB Cambodia" THEN nationality_status = "CB"
-	IF nationality_dropdown = "CH China Mainland" THEN nationality_status = "CH"
-	IF nationality_dropdown = "CU Cuba" THEN nationality_status = "CU"
-	IF nationality_dropdown = "ES El Salvador" THEN nationality_status = "ES"
-	IF nationality_dropdown = "ER Eritrea" THEN nationality_status = "ER"
-	IF nationality_dropdown = "ET Ethiopia" THEN nationality_status = "ET"
-	IF nationality_dropdown = "GT Guatemala" THEN nationality_status = "GT"
-	IF nationality_dropdown = "HA Haiti" THEN nationality_status = "HA"
-	IF nationality_dropdown = "HO Honduras" THEN nationality_status = "HO"
-	IF nationality_dropdown = "IR Iran" THEN nationality_status = "IR"
-	IF nationality_dropdown = "IZ Iraq" THEN nationality_status = "IZ"
-	IF nationality_dropdown = "LI Liberia" THEN nationality_status = "LI"
-	IF nationality_dropdown = "MC Micronesia" THEN nationality_status = "MC"
-	IF nationality_dropdown = "MI Marshall Islands" THEN nationality_status = "MI"
-	IF nationality_dropdown = "MX Mexico" THEN nationality_status = "MX"
-	IF nationality_dropdown = "WA Namibia" THEN nationality_status = "WA"
-	IF nationality_dropdown = "PK Pakistan" THEN nationality_status = "PK"
-	IF nationality_dropdown = "RP Philippines" THEN nationality_status = "RP"
-	IF nationality_dropdown = "PL Poland" THEN nationality_status = "PL"
-	IF nationality_dropdown = "RO Romania" THEN nationality_status = "RO"
-	IF nationality_dropdown = "RS Russia" THEN nationality_status = "RS"
-	IF nationality_dropdown = "SO Somalia" THEN nationality_status = "SO"
-	IF nationality_dropdown = "SF South Africa" THEN nationality_status = "SF"
-	IF nationality_dropdown = "TH Thailand" THEN nationality_status = "TH"
-	IF nationality_dropdown = "VM Vietnam" THEN nationality_status = "VM"
-	IF nationality_dropdown = "OT All Others" THEN nationality_status = "OT"
-	EMWriteScreen nationality_status, 10, 45
-
-	IF status_verification = "SAVE Primary" THEN verif_status = "S1"
-	IF status_verification = "SAVE Secondary" THEN verif_status = "S2"
-	IF status_verification = "Alien Card" THEN verif_status = "AL"
-	IF status_verification = "Passport/Visa" THEN verif_status = "PV"
-	IF status_verification = "Re-Entry Prmt" THEN verif_status = "RE"
-	IF status_verification = "INS Correspondence" THEN verif_status = "IM"
-	IF status_verification = "Other Document" THEN verif_status = "OT"
-	IF status_verification = "No Ver Prvd" THEN verif_status = "NO"
-	EMWriteScreen verif_status, 8, 45
-
-	'EMReadScreen alien_id_number, 9, 10, 72
-	'IF alien_id_number <> id_number THEN MsgBox "The number enter for ID does not match the number entered in the case note"
-	'VERIFICATION OF 40 SOCIAL SECURITY CREDITS IS NOT NEEDED  '
-	IF ss_credits = "Select One:" THEN Call clear_line_of_text(13, 56)
-	IF ss_credits_verf = "Select One:" THEN Call clear_line_of_text(13, 71)
-
-	IF battered_spouse = "Select One:" THEN Call clear_line_of_text(14, 56)
-	IF battered_spouse_verf = "Select One:" THEN Call clear_line_of_text(14, 71)
-
-	IF military_status = "Select One:" THEN Call clear_line_of_text(15, 56)
-	IF military_status_verf = "Select One:" THEN Call clear_line_of_text(15, 71)
-
-	IF nation_vietnam = "Select One:" THEN Call clear_line_of_text(16, 56)
-
-	IF ESL_ctzn = "Select One:" THEN Call clear_line_of_text(17, 56)
-	IF ESL_ctzn_verf = "Select One:" THEN Call clear_line_of_text(17, 71)
-	IF ESL_skills = "Select One:" THEN Call clear_line_of_text(18, 56)
-
-	IF ss_credits <> "Select One:" THEN EmWriteScreen ss_credits, 13, 56
-	IF ss_credits_verf <> "Select One:" THEN EmWriteScreen ss_credits_verf, 13, 71
-
-	IF battered_spouse <> "Select One:" THEN EmWriteScreen battered_spouse, 14, 56  'mandatory for undoc'
-	IF battered_spouse_verf <> "Select One:" THEN EmWriteScreen battered_spouse_verf, 14, 71
-
-	IF military_status <> "Select One:" THEN
-		IF military_status = "Veteran" THEN EmWriteScreen "1", 15, 56
-		IF military_status = "Active Duty" THEN EmWriteScreen "2", 15, 56
-		IF military_status = "Spouse of 1 or 2" THEN EmWriteScreen "3", 15, 56
-		IF military_status = "Child of 1 or 2" THEN EmWriteScreen "4", 15, 56
-		IF military_status = "No Military Stat or Other" THEN EmWriteScreen "N", 15, 56
-	END IF
-	IF military_status_verf <> "Select One:" THEN EmWriteScreen military_status_verf, 15, 71
-
-	IF nation_vietnam <> "Select One:" THEN
-		IF nation_vietnam = "Hmong During Vietnam War" THEN EmWriteScreen "01", 16, 56
-		IF nation_vietnam = "Highland Lao During Vietnam" THEN EmWriteScreen "02", 16, 56
-		IF nation_vietnam = "Spouse/Widow of 1 Or 2"THEN EmWriteScreen "03", 16, 56
-		IF nation_vietnam = "Dep Child of 1 Or 2"THEN EmWriteScreen "04", 16, 56
-		IF nation_vietnam = "Native Amer Born Can/Mex" THEN EmWriteScreen "05", 16, 56
-		IF nation_vietnam = "N/A" THEN Call clear_line_of_text(16, 56)
-	END IF
-
-	IF ESL_ctzn <> "Select One:" THEN EmWriteScreen ESL_ctzn, 17, 56  'mandatory for GA'
-	IF ESL_ctzn_verf <> "Select One:" THEN EmWriteScreen ESL_ctzn_verf, 17, 71
-	IF ESL_skills <> "Select One:" THEN EmWriteScreen ESL_skills, 18, 56
-	Transmit
-END IF
-
 start_a_blank_CASE_NOTE
 IF additional_CHECKBOX = CHECKED THEN
 	Call write_variable_in_case_note("IMIG-Instituted Additional SAVE for M" & MEMB_number)
