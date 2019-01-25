@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-
+call changelog_update("01/25/2019", "Removed enhanced Banked Months case noting as this is tracked by QI staff, Banked Months indicator is still within the approval note for reflecing a SNAP Banked Months case.", "Casey Love, Hennepin County")
 call changelog_update("05/19/2018", "Added 'Verifs Needed' as a mandatory field for cases identified as expedited SNAP.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -56,27 +56,29 @@ changelog_display
 get_county_code
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog benefits_approved, 0, 0, 271, 235, "Benefits Approved"
+BeginDialog benefits_approved, 0, 0, 316, 235, "Benefits Approved"
   CheckBox 80, 5, 30, 10, "SNAP", snap_approved_check
   CheckBox 115, 5, 30, 10, "Cash", cash_approved_check
   CheckBox 150, 5, 50, 10, "Health Care", hc_approved_check
   CheckBox 210, 5, 50, 10, "Emergency", emer_approved_check
   EditBox 60, 20, 55, 15, MAXIS_case_number
   ComboBox 180, 20, 80, 15, "Initial"+chr(9)+"Renewal"+chr(9)+"Recertification"+chr(9)+"Change"+chr(9)+"Reinstate", type_of_approval
-  EditBox 115, 45, 150, 15, benefit_breakdown
+  EditBox 115, 45, 195, 15, benefit_breakdown
   CheckBox 5, 65, 255, 10, "Check here to have the script autofill the approval amounts.", autofill_check
   EditBox 175, 80, 15, 15, start_mo
   EditBox 190, 80, 15, 15, start_yr
-  EditBox 55, 100, 210, 15, other_notes
-  EditBox 75, 120, 190, 15, programs_pending
-  EditBox 55, 140, 210, 15, docs_needed
+  EditBox 55, 100, 255, 15, other_notes
+  EditBox 75, 120, 235, 15, programs_pending
+  EditBox 55, 140, 255, 15, docs_needed
   CheckBox 10, 165, 250, 10, "Check here if SNAP was approved expedited with postponed verifications.", postponed_verif_check
   CheckBox 10, 180, 125, 10, "Check here if the case was FIATed", FIAT_checkbox
   CheckBox 10, 195, 190, 10, "Check here if SNAP BANKED MONTHS were approved.", SNAP_banked_mo_check
-  EditBox 75, 210, 80, 15, worker_signature
+  EditBox 280, 190, 15, 15, banked_footer_month
+  EditBox 295, 190, 15, 15, banked_footer_year
+  EditBox 75, 210, 125, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 160, 210, 50, 15
-    CancelButton 215, 210, 50, 15
+    OkButton 205, 210, 50, 15
+    CancelButton 260, 210, 50, 15
   Text 5, 40, 110, 20, "Benefit Breakdown (Issuance/Spenddown/Premium):"
   Text 10, 85, 160, 10, "Select the first month of approval (MM YY)..."
   Text 5, 105, 45, 10, "Other Notes:"
@@ -86,7 +88,9 @@ BeginDialog benefits_approved, 0, 0, 271, 235, "Benefits Approved"
   Text 120, 25, 60, 10, "Type of Approval:"
   Text 5, 5, 70, 10, "Approved Programs:"
   Text 5, 25, 50, 10, "Case Number:"
+  Text 200, 195, 75, 10, "BANKED footer month: "
 EndDialog
+
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'connecting to MAXIS
@@ -140,6 +144,7 @@ Do
 				 vbCr & "* You checked to have the approved amount autofilled but have not selected a program with an approval amount. Please check your selections."
 			End If
             If postponed_verif_check = checked and trim(docs_needed) = "" then err_msg = err_msg & vbCr & "* Please enter the postponed verifications needed/requested."
+            If SNAP_banked_mo_check = checked AND (trim(banked_footer_month) = "" OR trim(banked_footer_year) = "") Then err_msg = err_msg & vbNewLine & "* Indicate the first month being approved with BANKED MONTHS since this approval includes a BANKED MONTH."
 			IF worker_signature = "" then err_msg = err_msg & vbCr & "* Please sign your case note."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	Loop until err_msg = ""
@@ -179,186 +184,6 @@ Const banked_months_approved   = 8
 
 Dim BM_Clients_Array () 	'Array of all clients approved for BANKED MONTHS with this approval
 clt_banked_mo_apprvd = 0	'g
-
-'If worker selects that banked months have been approved, script will write additional case notes, document the months and tikl
-IF SNAP_banked_mo_check = checked THEN
-	clients_on_case = 0 	'b
-
-	navigate_to_MAXIS_screen "STAT", "MEMB"
-	DO								'Gets name, ref number, and age for all clients and adds to an array
-		ReDim Preserve ALL_SNAP_CLIENTS_ARRAY(banked_months_approved, clients_on_case)
-		EMReadscreen ref_nbr, 3, 4, 33
-		EMReadscreen last_name, 25, 6, 30
-		EMReadscreen first_name, 12, 6, 63
-		EMReadscreen Mid_intial, 1, 6, 79
-		EMReadScreen age, 2, 8, 76
-		last_name = replace(last_name, "_", "") & " "
-		first_name = replace(first_name, "_", "") & " "
-		mid_initial = replace(mid_initial, "_", "")
-		ALL_SNAP_CLIENTS_ARRAY(clt_ref_nbr, clients_on_case) = ref_nbr
-		ALL_SNAP_CLIENTS_ARRAY(client_name, clients_on_case) = last_name & first_name & mid_intial
-		ALL_SNAP_CLIENTS_ARRAY(client_age, clients_on_case) = trim(age)
-		clients_on_case = clients_on_case + 1
-		transmit
-		Emreadscreen edit_check, 7, 24, 2
-	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
-
-	wreg_check = 0 		'zero-ing out the value of wreg_check variable
-
-    'TODO look at the BANKED months Counter - to compare to if SNAP is prorated'
-	DO 		'Gets information from WREG for each client
-		navigate_to_MAXIS_screen "STAT", "WREG"
-		EMWriteScreen ALL_SNAP_CLIENTS_ARRAY(clt_ref_nbr, wreg_check), 20, 76
-		transmit
-		EMReadScreen FSET_status, 2, 8, 50
-		EMReadScreen ABAWD_status, 2, 13, 50
-		ALL_SNAP_CLIENTS_ARRAY(client_fset_status, wreg_check) = FSET_status
-		ALL_SNAP_CLIENTS_ARRAY(wreg_status, wreg_check) = ABAWD_status
-		IF FSET_status = "30" then
-			IF ABAWD_status = 10 OR ABAWD_status = 11 then
-				ALL_SNAP_CLIENTS_ARRAY(using_banked_check, wreg_check) = 1
-				ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, wreg_check) = start_mo
-				ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, wreg_check) = start_yr
-				ALL_SNAP_CLIENTS_ARRAY(banked_months_approved, wreg_check) = 3
-			End If
-		End If
-		wreg_check = wreg_check + 1
-	Loop until wreg_check = clients_on_case
-
-	'Dialog is defined here because the Array needs to happen first for it to be dynamic
-	BeginDialog Banked_Months_Dialog, 0, 0, 330, ((clients_on_case * 45) + 40), "Determining Clients Using Banked Months"
-	  Text 65, 5, 145, 10, "Household Members Using Banked Months"
-	  For client_dialog = 0 to (clients_on_case - 1)
-		CheckBox 5, (20 + (client_dialog * 45)), 85, 10, "Using Banked Months", ALL_SNAP_CLIENTS_ARRAY(using_banked_check, client_dialog)
-		Text 100, (20 + (client_dialog * 45)), 65, 10, "First Banked Month"
-		EditBox 165, (15 + (client_dialog * 45)), 15, 15, ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, client_dialog)
-		EditBox 180, (15 + (client_dialog * 45)), 15, 15, ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, client_dialog)
-		 Text 205, (20 + (client_dialog * 45)), 100, 10, "Number of Banked Months App"
-		EditBox 310, (15 + (client_dialog * 45)), 15, 15, ALL_SNAP_CLIENTS_ARRAY(banked_months_approved, client_dialog)
-		Text 20, (35 + (client_dialog * 45)), 30, 10, "Memb " & ALL_SNAP_CLIENTS_ARRAY(clt_ref_nbr, client_dialog)
-		Text 60, (35 + (client_dialog * 45)), 210, 10, ALL_SNAP_CLIENTS_ARRAY(client_name, client_dialog)
-		Text 60, (50 + (client_dialog * 45)), 35, 10, "FSET: " & ALL_SNAP_CLIENTS_ARRAY(client_fset_status, client_dialog)
-		Text 100, (50 + (client_dialog * 45)), 45, 10, "ABAWD: " & ALL_SNAP_CLIENTS_ARRAY(wreg_status, client_dialog)
-		Text 265, (35 + (client_dialog * 45)), 35, 10, "Age: " & ALL_SNAP_CLIENTS_ARRAY(client_age, client_dialog)
-	  Next
-	  ButtonGroup ButtonPressed
-		OkButton 220, (65 + ((clients_on_case - 1) * 45)), 50, 15
-		CancelButton 275, (65 + ((clients_on_case - 1) * 45)), 50, 15
-	EndDialog
-
-	Do
-		err_msg = ""
-		Dialog Banked_Months_Dialog
-		cancel_confirmation
-		clients_with_banked_mo = 0
-		FOR clt_err_check = 0 to (clients_on_case - 1)
-			IF ALL_SNAP_CLIENTS_ARRAY(using_banked_check, clt_err_check) = checked THEN
-				clients_with_banked_mo = clients_with_banked_mo + 1
-				IF ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_err_check)  = "" AND ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_err_check) = "" THEN _
-				err_msg = err_msg & vbCr & "You must indicate an initial banked month and year for " & ALL_SNAP_CLIENTS_ARRAY(client_name, clt_err_check)
-				IF  ALL_SNAP_CLIENTS_ARRAY(banked_months_approved, clt_err_check)  = "" THEN _
-				err_msg = err_msg & vbCr & "You must indicate the number of banked months approved for " & ALL_SNAP_CLIENTS_ARRAY(client_name, clt_err_check)
-			End If
-		Next
-		IF clients_with_banked_mo = 0 THEN err_msg = err_msg & vbCr & "You have not indicated any clients using banked months." & _
-		  vbCr & "Though you previously marked Banked Months were approved."
-		IF err_msg <> "" THEN MsgBox err_msg
-	Loop until err_msg = ""
-
-	ReDim BM_Clients_Array (3, 0)
-
-	For clt_dialog_response = 0 to (clients_on_case - 1)		'Creates an array of all the clients the worker selected as using banked months
-		IF ALL_SNAP_CLIENTS_ARRAY(using_banked_check, clt_dialog_response) = checked THEN
-			ReDim Preserve BM_Clients_Array (3, clt_banked_mo_apprvd)
-			BM_Clients_Array (0, clt_banked_mo_apprvd) = ALL_SNAP_CLIENTS_ARRAY(clt_ref_nbr, clt_dialog_response)	'Client Ref Numb
-			BM_Clients_Array (1, clt_banked_mo_apprvd) = ALL_SNAP_CLIENTS_ARRAY(client_name, clt_dialog_response)	'Client Name
-			BM_Clients_Array (3, clt_banked_mo_apprvd) = ALL_SNAP_CLIENTS_ARRAY(banked_months_approved, clt_dialog_response)	'Number of Banked Months Approved
-
-            'MsgBox "Banked Months Approved: " & ALL_SNAP_CLIENTS_ARRAY(banked_months_approved, clt_dialog_response)
-            initial_month_number = ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response) * 1
-            last_banked_month = initial_month_number + ALL_SNAP_CLIENTS_ARRAY(banked_months_approved, clt_dialog_response) - 1
-            'MsgBox "Last Banked Month: " & last_banked_month
-
-            If last_banked_month > 12 Then
-                last_banked_month = last_banked_month - 12
-                last_banked_year = ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response) + 1
-            Else
-                last_banked_year = ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response)
-            End If
-
-            ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response) = right("00" & ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response), 2)
-            ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response) = right("00" & ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response), 2)
-            last_banked_month = right("00" & last_banked_month, 2)
-            last_banked_year = right("00" & last_banked_year, 2)
-
-            BM_Clients_Array (2, clt_banked_mo_apprvd) = ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response) & "/" & ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response) & " to " &_
-                                                        last_banked_month & "/" & last_banked_year
-            'Taking this out because 1 - we don't need a list of all the months - a range is fine and 2 - it called march the 15th month... which is incorrect
-            ' For m = 0 to (ALL_SNAP_CLIENTS_ARRAY(banked_months_approved, clt_dialog_response) - 1)
-			' 	IF ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response) + m = 13 THEN
-			' 		IF BM_Clients_Array (2, clt_banked_mo_apprvd) = "" Then
-			' 			BM_Clients_Array (2, clt_banked_mo_apprvd) = 01 & "/" & (ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response) + 1)
-			' 		Else
-			' 			BM_Clients_Array (2, clt_banked_mo_apprvd) = BM_Clients_Array (2, clt_banked_mo_apprvd) & " & " & 01 & "/" & (ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response) + 1)
-			' 		End IF
-			' 	ElseIf ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response) + m = 14 THEN
-			' 		IF BM_Clients_Array (2, clt_banked_mo_apprvd) = "" Then
-			' 			BM_Clients_Array (2, clt_banked_mo_apprvd) = 02 & "/" & (ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response) + 1)
-			' 		Else
-			' 			BM_Clients_Array (2, clt_banked_mo_apprvd) = BM_Clients_Array (2, clt_banked_mo_apprvd) & " & " & 02 & "/" & (ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response) + 1)
-			' 		End IF
-			' 	Else
-			' 		IF BM_Clients_Array (2, clt_banked_mo_apprvd) = "" Then
-			' 			BM_Clients_Array (2, clt_banked_mo_apprvd) = (ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response) + m) & "/" & ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response)
-			' 		Else
-			' 			BM_Clients_Array (2, clt_banked_mo_apprvd) = BM_Clients_Array (2, clt_banked_mo_apprvd) & " & " & (ALL_SNAP_CLIENTS_ARRAY(initial_banked_month, clt_dialog_response) + m) & "/" & ALL_SNAP_CLIENTS_ARRAY(initial_banked_year, clt_dialog_response)
-			' 		End IF
-			' 	End If
-			' Next
-
-			'Used_ABAWD_Months_Array = Split (BM_Clients_Array (2, clt_banked_mo_apprvd), "&")	'Creates an array of all BANKED MONTHS approved
-
-'This for... loop will write a TIKL to review SNAP and update tracking for each banked month - TAKING THIS OUT BECAUSE WE MANUALLY TRACK
-			' For each month_to_tikl in Used_ABAWD_Months_Array
-
-			' 	month_to_tikl = Trim(month_to_tikl)
-			' 	IF len(month_to_tikl) = 4 THEN month_to_tikl = "0" & month_to_tikl
-			' 	tikl_month_mm = left(month_to_tikl,2)
-			' 	tikl_month_yy = right(month_to_tikl,2)
-			' 	tikl_date = tikl_month_mm & "/01/20" & tikl_month_yy
-			' 	IF cdate(tikl_date) > date THEN 'We can only enter TIKL's for tomorrow or later
-			' 		navigate_to_MAXIS_screen "DAIL", "WRIT"
-			' 		EMWriteScreen tikl_month_mm, 5, 18
-			' 		EMWriteScreen "01", 5, 21
-			' 		EMWriteScreen tikl_month_yy, 5, 24
-			' 		transmit
-			' 		EMReadScreen tikl_corr, 4, 24, 2
-			' 		IF tikl_corr = "DATE" then
-			' 			PF10
-			' 			PF3
-			' 			tikl_set = False
-			' 			MsgBox "*** ALERT !!! ***" & vbCr & "The TIKL to review SNAP BANKED MONTHS was not set for some reason!" & vbCr & "You must set a TIKL Manually"
-			' 		Else
-			' 			tikl_notc = "BANKED MONTH CASE Must be reviewed.  Review eligibility,"
-			' 			tikl_notc_two = "update WREG tracking and appove results."
-			' 			EMWriteScreen tikl_notc, 9, 3
-			' 			EMWriteScreen tikl_notc_two, 10, 3
-			' 			tikl_set = TRUE
-			' 			cls_month = abs(last_month_mm) + 1
-			' 			IF cls_month = 13 then
-			' 				cls_date = "01" & "/" & (abs(last_month_yy) + 1)
-			' 			Else
-			' 				cls_date = cls_month & "/" & last_month_yy
-			' 			End IF
-			' 		END IF
-			' 	IF tikl_set = FALSE THEN MsgBox "*** ATTENTION ***" & vbCr & "The TIKL to review Banked Months did not set" & vbCr & "You must manually set the TIKL!"
-			' End If
-
-		    ' NEXT
-		clt_banked_mo_apprvd = clt_banked_mo_apprvd + 1
-		END IF
-	Next
-End IF
 
 all_elig_results = 0
 
@@ -740,16 +565,6 @@ For all_elig_results = 0 to UBound (BENE_AMOUNT_ARRAY,2)
 Next
 
 'Case notes----------------------------------------------------------------------------------------------------
-IF clt_banked_mo_apprvd <> 0 THEN 	'BANKED MONTH Case Note - each client gets a seperate case note
-	For clt_banked_mo_apprvd = 0 to UBound (BM_Clients_Array,2)
-		Call start_a_blank_CASE_NOTE
-		Call write_variable_in_CASE_NOTE ("!~!~! Memb " & BM_Clients_Array(0,clt_banked_mo_apprvd) & "used BANKED MONTHS in " & BM_Clients_Array (2, clt_banked_mo_apprvd) & " !~!~!")	'Months used moved to header
-		IF tikl_set = TRUE Then Call write_variable_in_CASE_NOTE ("TIKL Created to review results and update tracking for each month noted above.")
-		Call write_variable_in_CASE_NOTE ("---")
-		Call write_variable_in_CASE_NOTE (worker_signature)
-	Next
-End If
-
 IF infant_on_case = TRUE Then
 	Call navigate_to_MAXIS_screen ("STAT", "EMPS")
 	baby_warning = MsgBox ("This is a family cash (MFIP or DWP) case with a child under 1 year old on it." & vbNewLine & vbNewLine & "These cases are error prone particularly at intake. Please review the EMPS panel to be sure the coding matches the client request.", vbSystemModal, "Child Under 1 Year Cash Case Warning")
@@ -762,6 +577,7 @@ IF snap_approved_check = checked THEN
 	ELSE
 		approved_programs = approved_programs & "SNAP/"
 	END IF
+    If SNAP_banked_mo_check = checked Then approved_programs = "BANKED " & approved_programs
 END IF
 
 IF hc_approved_check = checked THEN approved_programs = approved_programs & "HC/"
@@ -821,7 +637,7 @@ IF FIAT_checkbox = 1 THEN Call write_variable_in_CASE_NOTE ("* This case has bee
 IF other_notes <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Approval Notes", other_notes)
 IF programs_pending <> "" THEN call write_bullet_and_variable_in_CASE_NOTE("Programs Pending", programs_pending)
 If docs_needed <> "" then call write_bullet_and_variable_in_CASE_NOTE("Verifs needed", docs_needed)
-IF SNAP_banked_mo_check = checked THEN Call write_variable_in_CASE_NOTE ("BANKED MONTHS were approved - see previous case note for detail.")
+IF SNAP_banked_mo_check = checked THEN Call write_variable_in_CASE_NOTE ("* BANKED MONTHS were approved on this case starting with " & banked_footer_month & "/" & banked_footer_year & ".")
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
