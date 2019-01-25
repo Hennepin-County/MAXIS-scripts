@@ -1726,7 +1726,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                         dlg_len = dlg_len + grp_len
                     End If
                     If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then
-                        dlg_len = dlg_len + 10
+                        dlg_len = dlg_len + 20
                         cash_grp_len = 60
                         length_of_checks_list = cash_checks*10
                         If length_of_checks_list = 0 Then length_of_checks_list = 20
