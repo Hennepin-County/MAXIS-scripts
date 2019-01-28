@@ -113,7 +113,7 @@ IF dail_check = "View" THEN
     EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
     EMSendKey "t"
 	'msgbox IEVS_type
-    IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" THEN
+    IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" or IEVS_type = "UNVI" THEN
     	match_found = TRUE
     ELSE
     	script_end_procedure("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
@@ -196,6 +196,8 @@ Else
 	ELSEIF IEVS_type = "BEER" THEN
 		EMReadScreen IEVS_year, 2, 8, 15
 		IEVS_year = "20" & IEVS_year
+	ELSEIF IEVS_type = "UNVI" THEN
+		EMReadScreen IEVS_year, 4, 8, 15
 	END IF
 END IF
 
@@ -207,9 +209,10 @@ IF number_IEVS_type = "A80" THEN IEVS_type = "UNVI"
 IF number_IEVS_type = "A60" THEN IEVS_type = "UBEN"
 IF number_IEVS_type = "A50" or number_IEVS_type = "A51"  THEN IEVS_type = "WAGE"
 '------------------------------------------setting up case note header'
-IF IEVS_type = "BEER" THEN type_match = "B"
-IF IEVS_type = "UBEN" THEN type_match = "U"
-IF IEVS_type = "WAGE" THEN type_match = "U"
+IF IEVS_type = "BEER" THEN match_type = "B"
+IF IEVS_type = "UBEN" THEN match_type = "U"
+IF IEVS_type = "WAGE" THEN match_type = "U"
+IF IEVS_type = "UNVI" THEN match_type = "U"
 IF IEVS_type = "WAGE" THEN EMreadscreen casenote_quarter, 1, 8, 14
 
 '--------------------------------------------------------------------Client name
@@ -252,18 +255,21 @@ programs = trim(programs)
 'takes the last comma off of programs when autofilled into dialog
 IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 '----------------------------------------------------------------------------------------------------Employer info & difference notice info
-EMReadScreen income_source, 75, 8, 37
-income_source = trim(income_source)
-length = len(income_source)		'establishing the length of the variable
-
-IF instr(income_source, " AMOUNT: $") THEN
-    position = InStr(income_source, " AMOUNT: $")    		      'sets the position at the deliminator
-    income_source = Left(income_source, position)  'establishes employer as being before the deliminator
-Elseif instr(income_source, " AMT: $") THEN 					  'establishing the length of the variable
-    position = InStr(income_source, " AMT: $")    		      'sets the position at the deliminator
-    income_source = Left(income_source, position)  'establishes employer as being before the deliminator
-Else
-    income_source = income_source	'catch all variable
+IF ievs_type = "UBEN" or IEVS_type = "UNVI" THEN income_source = "NON-WAGE"
+IF ievs_type = "WAGE" or IEVS_type = "BEER" THEN
+	EMReadScreen income_source, 75, 8, 37
+    income_source = trim(income_source)
+    length = len(income_source)		'establishing the length of the variable
+    'should be to the right of emplyer and the left of amount '
+    IF instr(income_source, " AMOUNT: $") THEN
+        position = InStr(income_source, " AMOUNT: $")    		      'sets the position at the deliminator
+        income_source = Left(income_source, position)  'establishes employer as being before the deliminator
+    Elseif instr(income_source, " AMT: $") THEN 					  'establishing the length of the variable
+        position = InStr(income_source, " AMT: $")    		      'sets the position at the deliminator
+        income_source = Left(income_source, position)  'establishes employer as being before the deliminator
+    Else
+        income_source = income_source	'catch all variable
+    END IF
 END IF
 
 discovery_date = date
@@ -361,10 +367,6 @@ Do
     CALL check_for_password_without_transmit(are_we_passworded_out)
 Loop Until are_we_passworded_out = false
 	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
-' EMReadScreen confirm_income_source, 75, 8, 37
-' confirm_income_source = trim(confirm_income_source)
-' IF confirm_income_source <> income_source THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & income_source & vbNewLine
-
 EmReadScreen panel_name, 4, 02, 52
 IF panel_name <> "IULA" THEN
     EmReadScreen back_panel_name, 4, 2, 52
@@ -408,7 +410,6 @@ TRANSMIT
 'IF panel_name = "IULB" THEN msgbox "Script did not find IULB."
 
 Call clear_line_of_text(8, 6)
-
 EMReadScreen err_msg, 11, 24, 2
 err_msg = trim(err_msg)
 IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -416,7 +417,7 @@ If err_msg = "ACTION CODE" THEN script_end_procedure(err_msg & vbNewLine & "Plea
 EMWriteScreen "Claim entered. See Case Note. ", 8, 6
 Call clear_line_of_text(17, 9)
 IF OP_program <> "HC" THEN  EMWriteScreen Claim_number, 17, 9
-'need to check about adding for mutli claims'
+'need to check about adding for multiple claims'
 'msgbox "did the notes input?"
 TRANSMIT 'this will take us back to IEVP main menu'
 
@@ -439,12 +440,6 @@ If match_cleared = FALSE Then
     if confirm_cleared = vbYes Then match_cleared = TRUE
 End If
 If match_cleared = FALSE Then script_end_procedure("This match did not appear to clear. Please check case, and try again.")
-
-' 	match_cleared = FALSE
-' 	script_end_procedure("This match did not appear to clear. Please check case, and try again.")
-' ELSE
-' 	match_cleared = TRUE
-' END IF
 
 IF IEVS_type = "WAGE" THEN
 	IF casenote_quarter = 1 THEN IEVS_quarter = "1ST"
@@ -492,9 +487,9 @@ Call write_variable_in_case_note(worker_signature)
   '    ----------------------------------------------------------------the case match CLEARED note
 start_a_blank_CASE_NOTE
 IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-IF IEVS_type = "UNVI" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+IF IEVS_type = "UNVI" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
 CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
 CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
 CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)

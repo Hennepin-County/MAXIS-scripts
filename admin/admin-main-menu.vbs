@@ -11,7 +11,7 @@ start_time = timer
 'WFG492 = Melissa F.
 'WFV701 = Darcy
 'WFX490 = Molly
-'WFM207 = Mandora 
+'WFM207 = Mandora
 
 
 
@@ -126,12 +126,20 @@ script_array_admin_main(script_num).script_name 		= "Add GRH Rate 2 to MMIS"				
 script_array_admin_main(script_num).file_name 			= "add-grh-rate-2-to-mmis.vbs"										'Script URL
 script_array_admin_main(script_num).description 		= "ACTION script adds GRH Rate 2 SSR's to MMIS. This version without Rate 2 in elig results for error cases."
 
-script_num = script_num + 1	
+script_num = script_num + 1
 ReDim Preserve script_array_admin_main(script_num)
 Set script_array_admin_main(script_num) = new script
 script_array_admin_main(script_num).script_name 		= "CS Good Cause "											'Script name
 script_array_admin_main(script_num).file_name 			= "cs-good cause.vbs"										'Script URL
 script_array_admin_main(script_num).description 		= "Completes updates to ABPS and case notes actions taken."
+
+script_num = script_num + 1
+ReDim Preserve script_array_admin_main(script_num)
+Set script_array_admin_main(script_num) = new script
+script_array_admin_main(script_num).script_name 		= "Earned Income Budgeting"											'Script name
+script_array_admin_main(script_num).file_name 			= "earned-income-budgeting.vbs"										'Script URL
+script_array_admin_main(script_num).description 		= "Assists with determination and entry of income information."
+
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
@@ -166,7 +174,7 @@ ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one
 Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_admin_main(script_num).script_name			= "WF1 Case Status"													'Script name
 script_array_admin_main(script_num).file_name			= "wf1-case-status.vbs"												'Script URL
-script_array_admin_main(script_num).description			= "Updates a list of cases from Excel with current case and ABAWD status inforamtion."
+script_array_admin_main(script_num).description			= "Updates a list of cases from Excel with current case and ABAWD status information."
 
 '----------------------------------------------------------------------------------------------------QI array
 script_num = 0
@@ -230,7 +238,7 @@ ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one mo
 Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_QI_list(script_num).script_name		= "QI Renewal Accuracy"                                              'Script name
 script_array_QI_list(script_num).file_name			= "qi-renewal-accuracy.vbs"                                          'Script URL
-script_array_QI_list(script_num).description		= "Template for documenting specific renewal inforamtion that has been reviewed by policy experts."
+script_array_QI_list(script_num).description		= "Template for documenting specific renewal information that has been reviewed by policy experts."
 
 '----------------------------------------------------------------------------------------------------BZ array
 script_num = 0

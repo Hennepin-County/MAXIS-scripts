@@ -339,8 +339,8 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
       DropListBox 170, 55, 95, 15, "Select One:"+chr(9)+"NA-No Action Taken"+chr(9)+"BR-Benefits Reduced"+chr(9)+"CC-Case Closed", Action_taken_droplist
       EditBox 220, 75, 45, 15, cost_savings
       EditBox 55, 95, 210, 15, other_notes
-      CheckBox 10, 125, 260, 10, "Check here if 10 day cutoff has passed  -  TIKL will be set for following month", tenday_checkbox
-      CheckBox 10, 150, 250, 10, "Check here if an overpayemnt is possible - run claim referral tracking", claim_referral_checkbox
+      CheckBox 10, 125, 260, 10, "Check here if 10 day cutoff has passed - TIKL will be set for following month", tenday_checkbox
+      CheckBox 10, 150, 250, 10, "Check here if an overpayment is possible - run claim referral tracking", claim_referral_checkbox
       ButtonGroup ButtonPressed
         OkButton 170, 170, 50, 15
         CancelButton 225, 170, 50, 15
@@ -397,9 +397,11 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 			cancel_confirmation
 			IF ECF_checkbox = UNCHECKED THEN err_msg = err_msg & vbCr & "* You must check that you reviewed ECF and the HIRE was acted on appropriately."
 			IF Emp_known_droplist = "Select One:" THEN err_msg = err_msg & vbCr & "* You must select yes or no for was this employment known to the agency?"
+			IF (Emp_known_droplist = "YES-No Further Action" AND Action_taken_droplist <> "Select One:") THEN err_msg = err_msg & vbCr & "* The employment is known and no selection needs to made for action taken."
 			IF (Emp_known_droplist = "NO-See Next Question" AND Action_taken_droplist = "Select One:") THEN err_msg = err_msg & vbCr & "* You must select an action taken."
 			IF (Action_taken_droplist = "NA-No Action Taken" AND cost_savings <> "") THEN err_msg = err_msg & vbCr & "* Please remove Cost savings information or make another selection"
 			IF (Action_taken_droplist = "BR-Benefits Reduced" OR Action_taken_droplist = "CC-Case Closed") AND cost_savings = "" THEN err_msg = err_msg & vbCr & "* Enter the 1st month's cost savings for this case."
+			IF (Action_taken_droplist = "BR-Benefits Reduced" OR Action_taken_droplist = "CC-Case Closed") AND claim_referral_checkbox = UNCHECKED THEN err_msg = err_msg & vbCr & "* If there are cost savings associated with this match, claim referral should be checked."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS

@@ -54,18 +54,6 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-'--------------------------------------------------------------------CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
-'EMReadscreen dail_check, 4, 2, 48
-'IF dail_check <> "DAIL" THEN script_end_procedure("You are not in your dail. This script will stop.")
-'EMSendKey "t"
-''checking for an active MAXIS session
-'Call check_for_MAXIS(FALSE)
-'EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
-'IF IEVS_type <> "UNVI" THEN script_end_procedure("This is not a Non-wage match. Please select a Non-wage match, and run the script again.")
-'IF IEVS_type = "UNVI" THEN type_match = "U"
-'EMreadScreen MAXIS_case_number, 8, 5, 73
-'MAXIS_case_number= TRIM(MAXIS_case_number)
-'EmReadscreen match_SSN, 9, 6, 20
 
 '----------------------------------------------------------------------------------------------------DAIL
 EMReadscreen dail_check, 4, 4, 14 'changed from DAIL to view to ensure we are in DAIL/DAIL'
@@ -76,10 +64,11 @@ IF dail_check = "View" THEN
 	EMreadScreen MAXIS_case_number, 8, 5, 73
 	MAXIS_case_number= TRIM(MAXIS_case_number)
 	EMReadscreen match_SSN, 9, 6, 20
-	'msgbox IEVS_type
-	IF IEVS_type <> "UNVI" THEN script_end_procedure("This is not a Non-wage match. Please select a Non-wage match, and run the script again.")
+	IF IEVS_type <> "UNVI" THEN script_end_procedure("This is not a Non-wage match. Please select a Non-wage match, and run the script again. If the match has no DAIL please go to the SELF screen.")
+	IF IEVS_type = "UNVI" THEN type_match = "U"
+	EMReadscreen match_SSN, 9, 6, 20
 	match_found = TRUE
-	match_type = "U"
+
 	CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
 	CALL write_value_and_transmit("UNVI", 20, 71)   'navigates to IEVP
 	EMReadScreen error_msg, 7, 24, 2
@@ -120,8 +109,8 @@ IF dail_check = "View" THEN
 				UNVI_total = replace(UNVI_total, "$", "")
 			IF unvi_info_confirmation = vbYes THEN EXIT DO
 		LOOP UNTIL unvi_info_confirmation = vbYes
-		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+		CALL check_for_password_without_transmit(are_we_passworded_out)		'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	LOOP UNTIL are_we_passworded_out_without_transmit = false					'loops until user passwords back in
 	EMwritescreen "X", row, 3
 	TRANSMIT
 	EMReadScreen source_income, 40, 15, 8
@@ -155,24 +144,7 @@ IF dail_check = "View" THEN
 	'Navigating deeper into the match interface
 	CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
 	CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
-	msgbox "Where am i?"
-'	IF match_found = TRUE THEN
-'		EMreadScreen MAXIS_case_number, 8, 5, 73
-'		MAXIS_case_number= TRIM(MAXIS_case_number)
-'		EmReadscreen match_SSN, 9, 6, 20
-'		 '----------------------------------------------------------------------------------------------------IEVP
-'		'''Navigating deeper into the match interface
-'		'CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
-'		'CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
-'		'----------------------------------------------------------------------------------------------------IEVS
-'		CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
-'		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to UNVI
-'		EMReadScreen error_msg, 7, 24, 2
-'		If error_msg = "NO UNVI RECORD FOUND" THEN script_end_procedure(err_msg & vbNewLine & "An error occurred in UNVI, please process manually - checking for footer month.")'checking for error msg'
-'		TRANSMIT
-'	    EMReadScreen err_msg, 7, 24, 2
-'	    IF err_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
-'	END IF
+	'----------------------------------------------------------------------------------------------------No DAIL OPTION
 ElseIF dail_check <> "View" THEN
     CALL MAXIS_case_number_finder (MAXIS_case_number)
     MEMB_number = "01"
@@ -201,9 +173,10 @@ ElseIF dail_check <> "View" THEN
     TRANSMIT
     EMReadscreen SSN_number_read, 11, 7, 42
     SSN_number_read = replace(SSN_number_read, " ", "")
+
 	CALL navigate_to_MAXIS_screen("INFC" , "____")
+	EMWritescreen SSN_number_read, 3, 63
 	CALL write_value_and_transmit("IEVP", 20, 71)
-	CALL write_value_and_transmit(SSN_number_read, 3, 63)
 END IF
 '----------------------------------------------------------------------------------------------------IEVS
 Row = 7
@@ -222,13 +195,18 @@ Row = 7
 	    		IF IEVP_info_confirmation = vbNo THEN
 	    			row = row + 1 'ask Ilse about putting in a do to stop the match'
 	    			EMReadScreen IEVS_period, 11, row, 47
-	    			msgbox IEVS_period
+					IF row = 17 THEN
+						PF8
+						row = 7
+						IF IEVS_period = "" THEN MsgBox "No IEVS match found"
+					END IF
+	    			'msgbox IEVS_period
 	    		END IF
 	    		IF IEVS_period = "" THEN script_end_procedure ("The script has ended, no match has not been selected.")
 	    		IF IEVP_info_confirmation = vbYes THEN EXIT DO
 	    	LOOP UNTIL IEVP_info_confirmation = vbYes
-	    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-	    LOOP UNTIL are_we_passworded_out = false
+	    	CALL check_for_password_without_transmit(are_we_passworded_out)		'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	    LOOP UNTIL are_we_passworded_out_without_transmit = false
 	END IF
 	IF IsNumeric(days_pending) = false THEN
 	    DO
@@ -239,13 +217,18 @@ Row = 7
 	    		IF IEVP_info_confirmation = vbNo THEN
 					row = row + 1 'ask Ilse about putting in a do to stop the match'
 	    			EMReadScreen IEVS_period, 11, row, 47
-	    			msgbox IEVS_period
+	    			'msgbox IEVS_period
+					IF row = 17 THEN
+						PF8
+						row = 7
+						IF IEVS_period = "" THEN MsgBox "No IEVS match found"
+					END IF
 				END IF
 	    		IF IEVS_period = "" THEN script_end_procedure ("The script has ended, no match has not been selected.")
 	    		IF IEVP_info_confirmation = vbYes THEN EXIT DO
 	    	LOOP UNTIL IEVP_info_confirmation = vbYes
-	    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-	    LOOP UNTIL are_we_passworded_out = false
+	    	CALL check_for_password_without_transmit(are_we_passworded_out)		'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	    LOOP UNTIL are_we_passworded_out_without_transmit = false
 	END IF
 '---------------------------------------------------------------------IULA
 CALL write_value_and_transmit("U", row, 3)
@@ -541,4 +524,4 @@ MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The s
 	    END IF
 	END IF
 END IF
-script_end_procedure ("NON-COOPERATION FOR NON-WAGE MATCH HAS BEEN UPDATED." & vbnewline & vbnewline & "Please remember to approve case to close and update STAT/DISQ if needed.")
+script_end_procedure ("NON-WAGE MATCH HAS BEEN UPDATED." & vbnewline & vbnewline & "Please remember to act on case appropriately and update STAT/DISQ if needed.")

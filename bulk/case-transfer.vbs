@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("01/24/2019", "BUG fixed that caused an error if there are no MFIP eligibility results.", "Casey Love, Hennepin County")
 CALL changelog_update("01/12/2018", "Entering a supervisor X-Number in the Workers to Check will pull all X-Numbers listed under that supervisor in MAXIS. Addiional bug fix where script was missing cases.", "Casey Love, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -575,69 +576,75 @@ For n = 0 to Ubound(Full_case_list_array,2)	'This will check all the cases from 
 			IF Full_case_list_array(3,n) = "MF" OR Full_case_list_array(5,n) = "MF" then
 				adult_on_mfip = False
 				navigate_to_MAXIS_screen "ELIG", "MFIP"
-				STATS_counter = STATS_counter + 1
-				EMReadScreen approval_check, 8, 3, 3
-				IF approval_check <> "APPROVED" then
-					EMReadScreen version_number, 1, 2, 12
-					prev_version = abs(version_number)-1
-					EMWriteScreen 0 & prev_version, 20, 79
-					transmit
-				End If
-				ReDim eligible_members_array (0)
-				ReDim non_mfip_members_array (0)
-				a = 0
-				b = 0
-				For row_to_check = 7 to 19
-					EMReadScreen pers_status, 10, row_to_check, 53
-					EMReadScreen memb_number, 2, row_to_check, 6
-					If pers_status = "INELIGIBLE" then
-						non_mfip_members_array(a) = memb_number
-						a = a + 1
-						ReDim Preserve non_mfip_members_array(a)
-					ElseIF pers_status = "ELIGIBLE  " then
-						eligible_members_array(b) = memb_number
-						b = b + 1
-						ReDim Preserve eligible_members_array(b)
-					Else
-						Exit For
-					End If
-				Next
-				navigate_to_MAXIS_screen "STAT", "MEMB"
-				For i = 0 to b
-					STATS_counter = STATS_counter + 1
-					EMWriteScreen eligible_members_array(i), 20, 76
-					transmit
-					EMReadScreen member_age, 2, 8, 76
-					If member_age = "  " then member_age = 0
-					If abs(member_age) > 18 then
-						adult_on_mfip = TRUE
-					ElseIF abs(member_age) = 18 AND eligible_members_array(i) = "01" THEN
-						adult_on_mfip = TRUE
-					End IF
-					If adult_on_mfip = TRUE then
-						Exit For
-					Else
-						adult_on_mfip = FALSE
-					End If
-				Next
+                EMReadScreen look_for_version, 10, 24, 2
+                If look_for_version <> "NO VERSION" Then
+    				STATS_counter = STATS_counter + 1
+    				EMReadScreen approval_check, 8, 3, 3
+    				IF approval_check <> "APPROVED" then
+    					EMReadScreen version_number, 1, 2, 12
+    					prev_version = abs(version_number)-1
+    					EMWriteScreen 0 & prev_version, 20, 79
+    					transmit
+    				End If
+    				ReDim eligible_members_array (0)
+    				ReDim non_mfip_members_array (0)
+    				a = 0
+    				b = 0
+    				For row_to_check = 7 to 19
+    					EMReadScreen pers_status, 10, row_to_check, 53
+    					EMReadScreen memb_number, 2, row_to_check, 6
+    					If pers_status = "INELIGIBLE" then
+    						non_mfip_members_array(a) = memb_number
+    						a = a + 1
+    						ReDim Preserve non_mfip_members_array(a)
+    					ElseIF pers_status = "ELIGIBLE  " then
+    						eligible_members_array(b) = memb_number
+    						b = b + 1
+    						ReDim Preserve eligible_members_array(b)
+    					Else
+    						Exit For
+    					End If
+    				Next
+    				navigate_to_MAXIS_screen "STAT", "MEMB"
+    				For i = 0 to b
+    					STATS_counter = STATS_counter + 1
+    					EMWriteScreen eligible_members_array(i), 20, 76
+    					transmit
+    					EMReadScreen member_age, 2, 8, 76
+    					If member_age = "  " then member_age = 0
+    					If abs(member_age) > 18 then
+    						adult_on_mfip = TRUE
+    					ElseIF abs(member_age) = 18 AND eligible_members_array(i) = "01" THEN
+    						adult_on_mfip = TRUE
+    					End IF
+    					If adult_on_mfip = TRUE then
+    						Exit For
+    					Else
+    						adult_on_mfip = FALSE
+    					End If
+    				Next
+                End If
 			End If
 		End If
 		'//////Checking for monthly reporter
 		IF mont_rept_check = checked then
 			IF Full_case_list_array(3,n) = "MF" OR Full_case_list_array(5,n) = "MF" then
 				navigate_to_MAXIS_screen "ELIG", "MFIP"
-				STATS_counter = STATS_counter + 1
-				EMReadScreen approval_check, 8, 3, 3
-				IF approval_check <> "APPROVED" then
-					EMReadScreen version_number, 1, 2, 12
-					prev_version = abs(version_number)-1
-					EMWriteScreen 0 & prev_version, 20, 79
-					transmit
-				End If
-				EMWriteScreen "MFSM", 20, 71
-				transmit
-				EMReadScreen reporter_type, 10, 8, 31
-				reporter_type = trim(reporter_type)
+                EMReadScreen look_for_version, 10, 24, 2
+                If look_for_version <> "NO VERSION" Then
+    				STATS_counter = STATS_counter + 1
+    				EMReadScreen approval_check, 8, 3, 3
+    				IF approval_check <> "APPROVED" then
+    					EMReadScreen version_number, 1, 2, 12
+    					prev_version = abs(version_number)-1
+    					EMWriteScreen 0 & prev_version, 20, 79
+    					transmit
+    				End If
+    				EMWriteScreen "MFSM", 20, 71
+    				transmit
+    				EMReadScreen reporter_type, 10, 8, 31
+    				reporter_type = trim(reporter_type)
+                End If
 			End If
 		End If
 		'//////Checking for ABAWD Status

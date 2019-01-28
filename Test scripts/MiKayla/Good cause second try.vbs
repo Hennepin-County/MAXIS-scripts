@@ -80,7 +80,7 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 'Initial dialog giving the user the option to select the type of good cause action
 updated_date  = date
-MAXIS_case_number = "276348"
+MAXIS_case_number = "276348" '276348
 actual_date = "09/01/18"
 memb_number = "01"
 claim_date = "09/15/18"
@@ -228,14 +228,25 @@ FOR i = 0 to total_clients
 NEXT
 'removes all of the first 'chr(9)'
 HH_member_array_dialog = Right(HH_member_array, len(HH_member_array) - total_clients)
-
-
 	'----------------------------------------------------------------------------------------------------ABPS panel
 	Call MAXIS_footer_month_confirmation
 	Call navigate_to_MAXIS_screen("STAT", "ABPS")
-	EMReadScreen child_ref_number, 2, 15, 35
+	EMReadScreen child_ref_number_I, 2, 15, 35
+	msgbox  child_ref_number_I
 	EMReadScreen child_ref_number_II, 2, 16, 35
+	msgbox  child_ref_number_II
 	EMReadScreen child_ref_number_III, 2, 17, 35
+	msgbox  child_ref_number_III
+	IF child_ref_number_III <> "" THEN
+		PF18 ' shift PF8 look into the function lib PF19 is shift f8' Pf20 is shift f8'
+		PF18
+		EMReadScreen child_ref_number_IV, 2, 15, 35
+		msgbox  child_ref_number_IV
+		EMReadScreen child_ref_number_V, 2, 16, 35
+		EMReadScreen child_ref_number_VI, 2, 17, 35
+		TRANSMIT
+		msgbox "where am i checking ref number"
+	END IF
 	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
 	IF parental_status = "2" THEN
 		client_name = "Unknown"
@@ -246,6 +257,7 @@ HH_member_array_dialog = Right(HH_member_array, len(HH_member_array) - total_cli
 	ELSEIF parental_status = "7" THEN
 		client_name = "HC No Order Sup"
 	ELSEIF parental_status = "1" THEN
+		EMReadScreen custodial_status, 1, 15, 57
 		EMReadScreen first_name, 12, 10, 63
 		EMReadScreen last_name, 24, 10, 30
 		first_name = trim(first_name)
@@ -264,17 +276,15 @@ HH_member_array_dialog = Right(HH_member_array, len(HH_member_array) - total_cli
 	END IF
 	'24, 02"THIS DATA WILL EXPIRE ON --/--/--"
 DO
-
 	EMReadScreen panel_number, 1, 2, 78
 	If panel_number = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
 	Do
 		EMReadScreen current_panel_number, 1, 2, 73
-		ABPS_check = MsgBox("Is this the right ABPS?" & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
+		ABPS_check = MsgBox("Is this the right ABPS?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
 		If ABPS_check = vbYes then exit do
 		If ABPS_check = vbNo then TRANSMITm
 		If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
 	Loop until current_panel_number = panel_number
-
 	'-------------------------------------------------------------------------Updating the ABPS panel
 	PF9
 	'checking to see if we got into edit mode.
@@ -287,7 +297,7 @@ DO
 	EMWriteScreen "Y", 4, 73			'Support Coop Y/N field
 	IF gc_status = "Pending" THEN
 		'Msgbox gc_status
-		EMWriteScreen "P", 5, 47			'Good Cause status field
+		EMWriteScreen "P", 5, 47'Good Cause status field
 		EMWriteScreen "  ", 6, 73'next review date'
 		EMWriteScreen "  ", 6, 76'next review date'
 		EMWriteScreen "  ", 6, 79'next review date'
@@ -333,18 +343,105 @@ DO
 		EMWriteScreen claim_reason, 6, 47
 		'Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
 	END IF
+	'this needs to be a for next for all the kids on the ABPS page'
 
 	EMReadScreen parental_status_check, 1, 15, 53
-	IF parental_status <> parental_status_check THEN
-		EmWriteScreen parental_status 15, 53 THEN
-		IF first_name <> "" THEN EmWriteScreen first_name, 10, 63
-		IF last_name <> "" THEN EmWriteScreen last_name, 10, 30
-		IF ABPS_gender <> "" THEN EmWriteScreen ABPS_gender, 11, 80	'reading the ssn
-		IF ABPS_SSN <> "" THEN EmWriteScreen ABPS_SSN, 11, 30	'reading the ssn
-		IF ABPS_DOB <> "" THEN EmWriteScreen ABPS_DOB, 11, 60	'reading the DOB
-		IF HC_ins_order <> "" THEN EmWriteScreen HC_ins_order, 12, 44	'making sure ABPS is not unknown.
-		IF HC_ins_compliance <> "" THENEmWriteScreen HC_ins_compliance, 12, 80
+	IF parental_status_check <> parental_status THEN
+	msgbox parental_status_check
+		EmWriteScreen parental_status, 15, 53
+		EmWriteScreen custodial_status, 15, 57
 
+		EMReadScreen first_name_second_round, 12, 10, 63
+		EMReadScreen last_name_second_round, 24, 10, 30
+
+		EMReadScreen ABPS_gender_second_round, 1, 11, 80	'reading the ssn
+		EMReadScreen ABPS_SSN_second_round, 11, 11, 30	'reading the ssn
+		EMReadScreen ABPS_DOB_second_round, 10, 11, 60	'reading the DOB
+
+
+		EMReadScreen HC_ins_order_second_round, 1, 12, 44	'making sure ABPS is not unknown.
+		EMReadScreen HC_ins_compliance_second_round, 1, 12, 80
+
+		IF first_name_second_round <> "" THEN EmWriteScreen first_name, 10, 63
+		IF last_name_second_round <> "" THEN EmWriteScreen last_name, 10, 30
+		IF ABPS_gender_second_round <> "" THEN EmWriteScreen ABPS_gender, 11, 80	'reading the ssn
+		IF ABPS_SSN_second_round <> "" THEN EmWriteScreen ABPS_SSN, 11, 30	'reading the ssn
+		IF ABPS_DOB_second_round <> "" THEN EmWriteScreen ABPS_DOB, 11, 60	'reading the DOB
+		IF HC_ins_order_second_round <> "" THEN EmWriteScreen HC_ins_order, 12, 44	'making sure ABPS is not unknown.
+		IF HC_ins_compliance_second_round <> "" THEN EmWriteScreen HC_ins_compliance, 12, 80
+		EMReadScreen child_ref_number_second_round, 2, 15, 35
+		msgbox  child_ref_number_second_round
+		EMReadScreen child_ref_number_II_second_round, 2, 16, 35
+		msgbox  child_ref_number_II_second_round
+		EMReadScreen child_ref_number_III_second_round, 2, 17, 35
+		msgbox  child_ref_number_III_second_round
+		IF child_ref_number_III_second_round <> "" THEN
+			PF18 ' shift PF8 look into the function lib PF19 is shift f8' Pf20 is shift f8'
+			EMReadScreen child_ref_number_IV_second_round, 2, 15, 35
+			msgbox  child_ref_number_V_second_round
+			EMReadScreen child_ref_number_VI_second_round, 2, 16, 35
+			PF18
+			PF18
+			EMReadScreen child_ref_number_VII_second_round, 2, 17, 35
+			TRANSMIT
+		END IF
+		IF child_ref_number_II_second_round <> "" THEN
+			EmWriteScreen parental_status, 16, 53
+			EmWriteScreen custodial_status, 16, 57
+		END IF
+		IF child_ref_number_III_second_round <> "" THEN
+			EmWriteScreen parental_status, 17, 53
+			EmWriteScreen custodial_status, 17, 57
+		END IF
+		IF child_ref_number_III_second_round <> "" THEN
+			PF18 ' pass the edits'
+			PF18 ' shift PF8 look into the function lib PF19 is shift f8' Pf20 is shift f8'
+			IF child_ref_number_IV_second_round <> "" THEN
+				EmWriteScreen parental_status, 15, 53
+				EmWriteScreen custodial_status, 15, 57
+			END IF
+			IF child_ref_number_V_second_round <> "" THEN
+				EmWriteScreen parental_status, 16, 53
+				EmWriteScreen custodial_status, 16, 57
+			END IF
+			IF child_ref_number_VI_second_round <> "" THEN
+				EmWriteScreen parental_status, 17, 53
+				EmWriteScreen custodial_status, 17, 57
+			END IF
+		    IF child_ref_number_VI_second_round <> "" THEN
+		        PF18 ' shift PF8 look into the function lib PF19 is shift f8' Pf20 is shift f8'
+				PF18
+		        IF child_ref_number_VII_second_round <> "" THEN
+					EmWriteScreen parental_status, 15, 53
+					EmWriteScreen custodial_status, 15, 57
+				END IF
+		        IF child_ref_number_VIII_second_round <> "" THEN
+					EmWriteScreen parental_status, 16, 53
+					EmWriteScreen custodial_status, 16, 57
+				END IF
+		        IF child_ref_number_IX_second_round <> "" THEN
+					EmWriteScreen parental_status, 17, 53
+					EmWriteScreen custodial_status, 17, 57
+				END IF
+		    END IF
+		    IF child_ref_number_IX_second_round <> "" THEN
+		        PF18 ' shift PF8 look into the function lib PF19 is shift f8' Pf20 is shift f8'
+				PF18
+		        IF child_ref_number_X_second_round <> "" THEN
+					EmWriteScreen parental_status, 15, 53
+					EmWriteScreen custodial_status, 15, 57
+				END IF
+		        IF child_ref_number_XI_second_round <> "" THEN
+					EmWriteScreen parental_status, 16, 53
+					EmWriteScreen custodial_status, 16, 57
+				END IF
+		        IF child_ref_number_XII <> "" THEN
+					EmWriteScreen parental_status, 17, 53
+					EmWriteScreen custodial_status, 17, 57
+				END IF
+		    END IF
+	 	TRANSMIT
+		END IF
 	END IF
 
 	Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
@@ -365,12 +462,16 @@ DO
   	Loop until are_we_passworded_out = false					'loops until user passwords back in
 	END IF
 
-	IF CCA_CHECKBOX = CHECKED THEN programs_included = programs_included & "CCAP, "
-	IF DWP_CHECKBOX = CHECKED THEN programs_included = programs_included & "DWP, "
-	IF HC_CHECKBOX = CHECKED THEN programs_included = programs_included & "Healthcare, "
-	IF FS_CHECKBOX = CHECKED THEN programs_included = programs_included & "Food Support, "
-	IF MFIP_CHECKBOX = CHECKED THEN programs_included = programs_included & "MFIP, "
-	IF METS_CHECKBOX = CHECKED THEN programs_included = programs_included & "MNSURE, "
+	IF child_ref_number_I <> "" THEN child_ref_number_I = child_ref_number & ","
+	IF child_ref_number_II <> "" THEN child_ref_number_II = child_ref_number_II & ","
+	IF child_ref_number_III <> "" THEN child_ref_number_III = child_ref_number_III & ","
+	IF child_ref_number_IV <> "" THEN child_ref_number_IV = child_ref_number_IV & ","
+	IF child_ref_number_VI <> "" THEN child_ref_number_VI = child_ref_number_VI & ","
+	IF child_ref_number_VIII <> "" THEN child_ref_number_VIII = child_ref_number_VIII & ","
+	IF child_ref_number_IX <> "" THEN child_ref_number_IX = child_ref_number_IX & ","
+	IF child_ref_number_X <> "" THEN child_ref_number_X = child_ref_number_X & ","
+	IF child_ref_number_XI <> "" THEN child_ref_number_XI = child_ref_number_XI & ","
+	IF child_ref_number_XII <> "" THEN child_ref_number_XII = child_ref_number_XII & ","
 
 	'trims excess spaces of programs
 	programs_included  = trim(programs_included )
@@ -395,7 +496,7 @@ DO
 	'IF MAXIS_footer_month <> CM_plus_1_mo THEN
 	    Do
 	    	EMReadScreen MAXIS_footer_month, 2, 20, 55
-	    	MAXIS_footer_month_check = MsgBox("Do you need to run through backgorund?", vbYesNo + vbQuestion, "Maxis footer month")
+	    	MAXIS_footer_month_check = MsgBox("Do you need to run through background?", vbYesNo + vbQuestion, "Maxis footer month")
 	    	If MAXIS_footer_month_check = vbYes THEN
 	    		EMWriteScreen "Y", 16, 54
 	    		TRANSMIT
@@ -410,33 +511,20 @@ DO
 				TRANSMIT
 				exit do
 			END IF
+			'checking to see if we got into edit mode.
+			EMReadScreen edit_mode_check, 1, 20, 8
+			If edit_mode_check = "D" then TRANSMIT
+			EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
+			error_check = trim(error_check)
+			If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
+
 	    Loop until MAXIS_footer_month_check = vbYes
-	'Else
-
-	    'first_of_this_month = MAXIS_footer_month & "/1/" & MAXIS_footer_year    'setting to a date so we can use date functionality
-	    ''MsgBox "FIRST - " &first_of_this_month
-	    'next_month = DateAdd("m", 1, first_of_this_month)       'going to the next month
-
-	    'Do
-	    '    next_month_mo = DatePart("m", next_month)       'finding the next month and creating a 2 digit variable for the month and year
-	    '    next_month_mo = right("00"&next_month_mo, 2)
-	    '    next_month_yr = DatePart("yyyy", next_month)
-	    '    next_month_yr = right(next_month_yr, 2)
-
-	    '    list_of_months = list_of_months & "~" & next_month_mo & "/" & next_month_yr     'creating a list of month/years that need to be looked at
-	    '    'MsgBox "List " & list_of_months
-
-	    '    first_of_this_month = next_month_mo & "/1/" & next_month_yr     'and to the next month
-	    '    next_month = DateAdd("m", 1, first_of_this_month)
-
-	    '    'MsgBox "Start month and year - " & next_month & vbNewLine & "DIFF " & DateDiff("d", date, next_month)
-	    'Loop until DateDiff("d", date, next_month) > 0      'doing this until the next month variable is after the current date
-
-	    'MsgBox "Complete List " & list_of_months
-	    'list_of_months = right(list_of_months, len(list_of_months)-1)   'creating an array of all the months to check
-	    'month_array = split(list_of_months, "~")
 Loop until MAXIS_footer_month_check = vbNo
 
+IF Diff_Notice_Checkbox = CHECKED THEN pending_verifs = pending_verifs & "Difference Notice, "
+IF empl_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "EVF, "
+IF ATR_Verf_CheckBox = CHECKED THEN pending_verifs = pending_verifs & "ATR, "
+IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
 '-----------------------------------------------------------------------------------------------------Case note & email sending
 	start_a_blank_CASE_NOTE
 	IF good_cause_droplist = "Application Review-Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
@@ -453,7 +541,7 @@ Loop until MAXIS_footer_month_check = vbNo
 	Call write_bullet_and_variable_in_case_note("Good cause status", gc_status)
 	If claim_date <> "" THEN Call write_bullet_and_variable_in_case_note("Good cause claim date", claim_date)
 	If review_date <> "" THEN Call write_bullet_and_variable_in_case_note("Next review date", review_date)
-	Call write_bullet_and_variable_in_case_note("Child(ren) member number(s)", memb_number)
+	Call write_variable_in_case_note("* Child(ren) member number(s)" & child_ref_number)
 	Call write_bullet_and_variable_in_case_note("ABPS name", client_name)
 	CALL write_bullet_and_variable_in_case_note("Applicable programs", programs_included)
   	IF reason_droplist <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Reason for claiming good cause", reason_droplist)
