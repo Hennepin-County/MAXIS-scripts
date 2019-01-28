@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/28/2019", "Removed text in spreadsheet that indicates if there is no DAIL for a particular x number. Stats will still relfect the number of DAILS found.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/13/2018", "Updated option selection handling, and other background functionality.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/12/2018", "Fixed bug for cases with more than one page of DAILs for the same case. Added all agency handling.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -175,12 +176,12 @@ For each worker in worker_array
 	transmit
 	EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
 	DO
-		If number_of_dails = " " Then 			'if this space is blank the rest of the DAIL reading is skipped
-			objExcel.Cells(excel_row, 1).Value = worker
-			objExcel.Cells(excel_row, 3).Value = "No DAILs for this worker."
-			excel_row = excel_row + 1
-			Exit Do
-		End If
+		If number_of_dails = " " Then exit do 			'if this space is blank the rest of the DAIL reading is skipped
+		'	objExcel.Cells(excel_row, 1).Value = worker
+		'	objExcel.Cells(excel_row, 3).Value = "No DAILs for this worker."
+		'	excel_row = excel_row + 1
+		'	Exit Do
+		'End If
 		'Reading and trimming the MAXIS case number and dumping it in Excel
 		EMReadScreen maxis_case_number, 8, 5, 73
 		maxis_case_number = trim(maxis_case_number)
