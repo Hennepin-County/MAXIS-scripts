@@ -478,8 +478,8 @@ For item = 0 to UBound(case_array, 2)
                         End if 
                     End if 
                     
-                    If convert_case = False then objExcel.Cells(excel_row, 17).Value = "No"
-                    If convert_case = True then objExcel.Cells(excel_row, 17).Value = "Yes"
+                    If convert_case = False then objExcel.Cells(excel_row, 18).Value = "No"
+                    If convert_case = True then objExcel.Cells(excel_row, 18).Value = "Yes"
                     excel_row = excel_row + 1
                 End if 
                 
