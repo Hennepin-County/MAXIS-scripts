@@ -135,9 +135,10 @@ const last_paycheck     = 42
 const panel_first_check = 43
 const this_is_a_new_panel = 44
 const days_of_verif     = 45
+const months_updated    = 46
 
-const spoke_to          = 46
-const convo_detail      = 47
+const spoke_to          = 47
+const convo_detail      = 48
 
 const use_actual        = 1
 const use_estimate      = 2
@@ -248,6 +249,13 @@ LOOP UNTIL are_we_passworded_out = false
 MAXIS_footer_month = original_month
 MAXIS_footer_year = originial_year
 
+Call back_to_SELF
+Do
+    Call navigate_to_MAXIS_screen ("STAT", "SUMM")
+    EMReadScreen summ_check, 4, 2, 46
+
+Loop until summ_check = "SUMM"
+
 CASH_case = FALSE
 SNAP_case = FALSE
 HC_case = FALSE
@@ -300,7 +308,7 @@ For each member in HH_member_array
                 end_date = replace(end_date, " ", "/")
                 end_date = DateValue(end_date)
 
-                If DateDiff(end_date, date, "m") > 3 Then
+                If DateDiff("m", end_date, date) > 3 Then
 
                     BeginDialog Dialog1, 0, 0, 186, 140, "Dialog"
                       OptionGroup RadioGroup1
@@ -645,6 +653,7 @@ Do
 
             EMReadScreen appl_date, 8, 8, 29
 
+            'MsgBox DateDiff("m", appl_date, enter_JOBS_start_date)
             If DateDiff("m", appl_date, enter_JOBS_start_date) > 0 Then
                 beginning_month = DatePart("m", enter_JOBS_start_date)
                 beginning_year = DatePart("yyyy", enter_JOBS_start_date)
@@ -701,18 +710,35 @@ Do
                 EMWriteScreen left(enter_JOBS_inc_type_code, 1), 5, 34
                 EMWriteScreen left(enter_JOBS_subsdzd_inc_type, 2), 5, 74
                 EMWriteScreen left(enter_JOBS_verif_code, 1), 6, 34
+                EMWriteScreen "      ", 6, 75
                 EMWriteScreen enter_JOBS_hrly_wage, 6, 75
                 EMWriteScreen enter_JOBS_employer, 7, 42
 
                 Call write_date(enter_JOBS_start_date, "MM DD YY", 9, 35)
-                If trim(enter_JOBS_end_date) <> "" Then Call write_date(enter_JOBS_end_date, "MM DD YY", 9, 49)
-
-                Call write_date(first_check, "MM DD YY", 12, 54)
-                EMWriteScreen "    0.00", 12, 67
-                EMWriteScreen "0  ", 18, 72
+                If trim(enter_JOBS_end_date) <> "" Then
+                    Call write_date(enter_JOBS_end_date, "MM DD YY", 9, 49)
+                    If DateDiff("d", first_check, enter_JOBS_end_date) >= 0 Then
+                        Call write_date(first_check, "MM DD YY", 12, 54)
+                        EMWriteScreen "    0.00", 12, 67
+                        EMWriteScreen "0  ", 18, 72
+                    Else
+                        EMWriteScreen "  ", 12, 54
+                        EMWriteScreen "  ", 12, 57
+                        EMWriteScreen "  ", 12, 60
+                        EMWriteScreen "        ", 12, 67
+                        EMWriteScreen "   ", 18, 72
+                    End If
+                Else
+                    Call write_date(first_check, "MM DD YY", 12, 54)
+                    EMWriteScreen "    0.00", 12, 67
+                    EMWriteScreen "0  ", 18, 72
+                End If
                 'MsgBox "Pause before transmit"
                 transmit
                 'MsgBox "Pause after transmit"
+                EMReadScreen check_for_error_prone_warning, 20, 6, 43
+                If check_for_error_prone_warning = "Error Prone Warnings" Then transmit
+                'MsgBox "Pause after check for error"
                 EMReadScreen new_panel, 1, 2, 73
 
                 If info_saved = FALSE Then
@@ -1282,6 +1308,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                         End If
                     Loop Until loop_to_add_missing_checks = FALSE
 
+                    prev_date = ""
+                    days_between_checks = ""
                     If actual_checks_provided = TRUE Then
                         issues_with_frequency = FALSE
                         For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
@@ -2279,7 +2307,11 @@ If update_with_verifs = TRUE Then
 
                     the_day_of_pay = MAXIS_footer_month & "/" & day_of_month & "/" & MAXIS_footer_year
                     the_day_of_pay = DateValue(the_day_of_pay)
-                    checks_list = checks_list & "~" & the_day_of_pay
+                    If EARNED_INCOME_PANELS_ARRAY(income_end_dt, ei_panel) <> "" Then
+                        If DateDiff("d", the_day_of_pay, EARNED_INCOME_PANELS_ARRAY(income_end_dt, ei_panel)) >= 0 Then checks_list = checks_list & "~" & the_day_of_pay
+                    Else
+                        checks_list = checks_list & "~" & the_day_of_pay
+                    End If
 
                 ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "2 - Two Times Per Month" Then
                     checks_in_month = 0
@@ -2291,7 +2323,13 @@ If update_with_verifs = TRUE Then
                     Next
 
                     If checks_in_month = 0 Then
-                        checks_list = checks_list & "~" & DateValue(this_month) & "~" & DateAdd("d", 15, this_month)
+                        If EARNED_INCOME_PANELS_ARRAY(income_end_dt, ei_panel) <> "" Then
+                            If DateDiff("d", this_month, EARNED_INCOME_PANELS_ARRAY(income_end_dt, ei_panel)) >= 0 Then checks_list = checks_list & "~" & DateValue(this_month)
+                            If DateDiff("d", DateAdd("d", 15, this_month), EARNED_INCOME_PANELS_ARRAY(income_end_dt, ei_panel)) >= 0 Then checks_list = checks_list & "~" & DateAdd("d", 15, this_month)
+
+                        Else
+                            checks_list = checks_list & "~" & DateValue(this_month) & "~" & DateAdd("d", 15, this_month)
+                        End If
                     ElseIf checks_in_month = 1 Then
                         the_check = replace(checks_list, "~", "")
                         the_other_check = DateAdd("d", 15, the_check)
@@ -2304,7 +2342,11 @@ If update_with_verifs = TRUE Then
                     the_date = DateValue(EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel))
                     Do
                         If DatePart("m", the_date) = DatePart("m", this_month) AND DatePart("yyyy", the_date) = DatePart("yyyy", this_month) Then
-                            checks_list = checks_list & "~" & the_date
+                            If EARNED_INCOME_PANELS_ARRAY(income_end_dt, ei_panel) <> "" Then
+                                If DateDiff("d", the_date, EARNED_INCOME_PANELS_ARRAY(income_end_dt, ei_panel)) >= 0 Then checks_list = checks_list & "~" & the_date
+                            Else
+                                checks_list = checks_list & "~" & the_date
+                            End If
                         End If
                         the_date = DateAdd("d", 14, the_date)
                     Loop until right("0" & DatePart("m", the_date), 2) = CM_plus_2_mo AND right(DatePart("yyyy", the_date), 2) = CM_plus_2_yr
@@ -2312,7 +2354,11 @@ If update_with_verifs = TRUE Then
                     the_date = DateValue(EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel))
                     Do
                         If DatePart("m", the_date) = DatePart("m", this_month) AND DatePart("yyyy", the_date) = DatePart("yyyy", this_month) Then
-                            checks_list = checks_list & "~" & the_date
+                            If EARNED_INCOME_PANELS_ARRAY(income_end_dt, ei_panel) <> "" Then
+                                If DateDiff("d", the_date, EARNED_INCOME_PANELS_ARRAY(income_end_dt, ei_panel)) >= 0 Then checks_list = checks_list & "~" & the_date
+                            Else
+                                checks_list = checks_list & "~" & the_date
+                            End If
                         End If
                         the_date = DateAdd("d", 7, the_date)
                     Loop until right("0" & DatePart("m", the_date), 2) = CM_plus_2_mo AND right(DatePart("yyyy", the_date), 2) = CM_plus_2_yr
@@ -2396,8 +2442,35 @@ If update_with_verifs = TRUE Then
 
                 If EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) = MAXIS_footer_month AND EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) = MAXIS_footer_year Then EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel) = TRUE
                 ' MsgBox "Update this month - " & EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel)
+                If EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel) = "JOBS" Then Call Navigate_to_MAXIS_screen("STAT", "JOBS")
+                EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel), 20, 76
+                EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel), 20, 79
+                EMReadScreen confirm_same_employer, len(EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)), 7, 42
+                the_new_instance = ""
+                If confirm_same_employer <> UCase(EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)) Then
+                    EMWriteScreen "JOBS", 20, 71
+                    EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel), 20, 76
+                    Do
+                        EMReadScreen confirm_same_employer, len(EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)), 7, 42
+                        MsgBox "Panel - " & confirm_same_employer & vbNewLine & "Array = " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)
+                        If confirm_same_employer <> UCase(EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)) Then
+                            transmit
+                        Else
+                            EMReadScreen the_new_instance, 1, 2, 73
+                            EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) = "0" & the_new_instance
+                        End If
+                        EMReadScreen last_jobs, 7, 24, 2
+                    Loop until last_jobs = "ENTER A"
+
+                    If the_new_instance = "" Then
+                        EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel) = FALSE
+                        MsgBox "The panel for " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel) & " could not be found in the month " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". It may have been deleted. The script will not attempt to update this or any future month for this panel."
+                    End If
+                End If
                 If EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel) = TRUE Then
                     ' MsgBox "Panel type - " & EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel)
+                    EARNED_INCOME_PANELS_ARRAY(months_updated, ei_panel) = EARNED_INCOME_PANELS_ARRAY(months_updated, ei_panel) & ", " & MAXIS_footer_month & "/" & MAXIS_footer_year
+
                     If EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel) = "JOBS" Then
 
                         Call Navigate_to_MAXIS_screen("STAT", "JOBS")
@@ -3003,14 +3076,16 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                 ' End If
 
                 Call write_variable_in_CASE_NOTE("ACTION TAKEN: JOBS Updated ------------------------------------")
+                If left(EARNED_INCOME_PANELS_ARRAY(months_updated, ei_panel), 1) = "," Then  EARNED_INCOME_PANELS_ARRAY(months_updated, ei_panel) = right(EARNED_INCOME_PANELS_ARRAY(months_updated, ei_panel), len(EARNED_INCOME_PANELS_ARRAY(months_updated, ei_panel) - 1))
 
-                If EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel) = unchecked Then
-                    Call write_variable_in_CASE_NOTE("* Updated jobs for the month " & EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) & "/" & EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) & ".")
-                ElseIf EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) = CM_plus_1_mo AND EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) = CM_plus_1_yr Then
-                    Call write_variable_in_CASE_NOTE("* Updated jobs for the month " & EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) & "/" & EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) & ".")
-                ElseIf EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel) = checked Then
-                    Call write_variable_in_CASE_NOTE("* Updated jobs from " & EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) & "/" & EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) & " to " & CM_plus_1_mo & "/" & CM_plus_1_yr & ".")
-                End If
+                Call write_bullet_and_variable_in_CASE_NOTE("Months updated", EARNED_INCOME_PANELS_ARRAY(months_updated, ei_panel))
+                ' If EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel) = unchecked Then
+                '     Call write_variable_in_CASE_NOTE("* Updated jobs for the month " & EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) & "/" & EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) & ".")
+                ' ElseIf EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) = CM_plus_1_mo AND EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) = CM_plus_1_yr Then
+                '     Call write_variable_in_CASE_NOTE("* Updated jobs for the month " & EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) & "/" & EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) & ".")
+                ' ElseIf EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel) = checked Then
+                '     Call write_variable_in_CASE_NOTE("* Updated jobs from " & EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) & "/" & EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) & " to " & CM_plus_1_mo & "/" & CM_plus_1_yr & ".")
+                ' End If
 
             Else
                 Call write_variable_in_CASE_NOTE("New Job: M" & EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel) & " - JOBS - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel) & " - PROG: " & prog_list)
