@@ -250,6 +250,21 @@ MAXIS_footer_month = original_month
 MAXIS_footer_year = originial_year
 
 Call back_to_SELF
+
+Call navigate_to_MAXIS_screen("CASE", "CURR")
+curr_row = 1
+curr_col = 1
+EMSearch " FS:", curr_row, curr_col
+If curr_row <> 0 Then
+    EMReadScreen fs_prog_status, 7, curr_row, curr_col + 5
+    fs_prog_status = trim(fs_prog_status)
+    If fs_prog_status = "ACTIVE" OR fs_prog_status = "PENDING" Then
+        EMReadScreen fs_appl_date, 8, curr_row, curr_col + 25
+    End If
+End If
+fs_appl_footer_month = left(fs_appl_date, 2)
+fs_appl_footer_year = right(fs_appl_date, 2)
+
 EMReadScreen MX_region, 7, 22, 48
 If MX_region = "INQUIRY" Then
     continue_in_inquiry = MsgBox("It appears you are in INQUIRY. Income information cannot be saved to STAT and a CASE/NOTE cannot be created." & vbNewLine & vbNewLine & "Do you wish to continue?", vbQuestion + vbYesNo, "Continue in Inquiry?")
@@ -663,7 +678,7 @@ Do
             EMReadScreen appl_date, 8, 8, 29
 
             'MsgBox DateDiff("m", appl_date, enter_JOBS_start_date)
-            If DateDiff("m", appl_date, enter_JOBS_start_date) > 0 Then
+            If DateDiff("m", appl_date, enter_JOBS_start_date) >= 0 Then
                 beginning_month = DatePart("m", enter_JOBS_start_date)
                 beginning_year = DatePart("yyyy", enter_JOBS_start_date)
                 first_check = enter_JOBS_start_date
@@ -787,6 +802,7 @@ Do
                     EARNED_INCOME_PANELS_ARRAY(hourly_wage, the_panel) = trim(listed_hrly_wage)
                     EARNED_INCOME_PANELS_ARRAY(income_start_dt, the_panel) = replace(start_date, " ", "/")
                     EARNED_INCOME_PANELS_ARRAY(income_end_dt, the_panel) = replace(end_date, " ", "/")
+                    If EARNED_INCOME_PANELS_ARRAY(income_end_dt, the_panel) = "__/__/__" Then EARNED_INCOME_PANELS_ARRAY(income_end_dt, the_panel) = ""
                     EARNED_INCOME_PANELS_ARRAY(old_verif, the_panel) = trim(current_verif)
                     If frequency = "1" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "1 - One Time Per Month"
                     If frequency = "2" Then EARNED_INCOME_PANELS_ARRAY(pay_freq, the_panel) = "2 - Two Times Per Month"
@@ -2537,27 +2553,55 @@ If update_with_verifs = TRUE Then
                                 EMWriteScreen EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel), 8, 64
                             End If
                             If EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_actual Then
-                                list_row = 9
-                                For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
+                                If fs_appl_footer_month = MAXIS_footer_month AND fs_appl_footer_year = MAXIS_footer_year Then
+                                    fs_appl_date = DateValue(fs_appl_date)
+                                    appl_month_gross = 0
+                                    appl_month_hours = 0
                                     For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
                                         'conditional if it is the right panel AND the order matches - then do the thing you need to do
-                                        If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
+                                        If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
                                             If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = unchecked Then
-                                                Call create_MAXIS_friendly_date(LIST_OF_INCOME_ARRAY(view_pay_date, all_income), 0, list_row, 13)
-                                                net_amount = LIST_OF_INCOME_ARRAY(gross_amount, all_income) - LIST_OF_INCOME_ARRAY(exclude_amount, all_income)
-                                                net_amount = FormatNumber(net_amount, 2, -1, 0, 0)
-                                                EMWriteScreen net_amount, list_row, 25
-                                                EMWriteScreen LIST_OF_INCOME_ARRAY(hours, all_income), list_row, 35
 
-                                                list_row = list_row + 1
-                                                If list_row = 14 Then
-                                                    PF20
-                                                    list_row = 9
+                                                If DatePart("m", LIST_OF_INCOME_ARRAY(view_pay_date, all_income)) = DatePart("m", fs_appl_date) AND DatePart("yyyy", LIST_OF_INCOME_ARRAY(view_pay_date, all_income)) = DatePart("yyyy", fs_appl_date) Then
+                                                    net_amount = LIST_OF_INCOME_ARRAY(gross_amount, all_income) - LIST_OF_INCOME_ARRAY(exclude_amount, all_income)
+                                                    appl_month_gross = appl_month_gross + net_amount
+                                                    appl_month_hours = appl_month_hours + LIST_OF_INCOME_ARRAY(hours, all_income)
                                                 End If
+
                                             End If
                                         End If
                                     next
-                                next
+                                    EMWriteScreen "1", 5, 64
+                                    EMWriteScreen MAXIS_footer_month, 9, 13
+                                    EMWriteScreen "01", 9, 16
+                                    EMWriteScreen MAXIS_footer_year, 9, 19
+                                    appl_month_gross = FormatNumber(appl_month_gross, 2, -1, 0, 0)
+                                    EMWriteScreen appl_month_gross, list_row, 25
+                                    EMWriteScreen appl_month_hours, list_row, 35
+                                    MsgBox "Review PIC"
+                                Else
+                                    list_row = 9
+                                    For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
+                                        For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+                                            'conditional if it is the right panel AND the order matches - then do the thing you need to do
+                                            If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
+                                                If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = unchecked Then
+                                                    Call create_MAXIS_friendly_date(LIST_OF_INCOME_ARRAY(view_pay_date, all_income), 0, list_row, 13)
+                                                    net_amount = LIST_OF_INCOME_ARRAY(gross_amount, all_income) - LIST_OF_INCOME_ARRAY(exclude_amount, all_income)
+                                                    net_amount = FormatNumber(net_amount, 2, -1, 0, 0)
+                                                    EMWriteScreen net_amount, list_row, 25
+                                                    EMWriteScreen LIST_OF_INCOME_ARRAY(hours, all_income), list_row, 35
+
+                                                    list_row = list_row + 1
+                                                    If list_row = 14 Then
+                                                        PF20
+                                                        list_row = 9
+                                                    End If
+                                                End If
+                                            End If
+                                        next
+                                    next
+                                End If
 
                             End If
                             transmit
