@@ -1057,7 +1057,12 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                                             'ADD ERROR HANDLING HERE
                                             actual_checks_provided = TRUE
                                             If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = unchecked Then there_are_counted_checks = TRUE
-                                            If IsDate(LIST_OF_INCOME_ARRAY(pay_date, all_income)) = FALSE Then sm_err_msg = sm_err_msg & vbNewLine & "* Enter a valid pay date for all checks."
+                                            If IsDate(LIST_OF_INCOME_ARRAY(pay_date, all_income)) = FALSE Then
+                                                sm_err_msg = sm_err_msg & vbNewLine & "* Enter a valid pay date for all checks."
+                                            ElseIf DateDiff("d", date, LIST_OF_INCOME_ARRAY(pay_date, all_income)) > 0 Then
+                                                LIST_OF_INCOME_ARRAY(pay_date, all_income) = "**" & LIST_OF_INCOME_ARRAY(pay_date, all_income)
+                                                sm_err_msg = sm_err_msg & vbNewLine & "* Paydates cannot be in the future."
+                                            End If
                                             If IsNumeric(LIST_OF_INCOME_ARRAY(gross_amount, all_income)) = FALSE Then sm_err_msg = sm_err_msg & vbNewLine & "* Enter the Gross Amount of the check as a number."
                                             If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = 1 AND trim(LIST_OF_INCOME_ARRAY(reason_to_exclude, all_income)) = "" Then sm_err_msg = sm_err_msg & vbNewLine & "* The check on " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & " is to be excluded, list a reason for excluding this check."
                                             If IsNumeric(LIST_OF_INCOME_ARRAY(hours, all_income)) = FALSE Then sm_err_msg = sm_err_msg & vbNewLine & "* Enter the number of hours for the paycheck on " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & " as a number."
@@ -1474,6 +1479,15 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                                 Loop until pay_dates_correct_checkbox = checked
                                 call check_for_password(are_we_passworded_out)
                             Loop until are_we_passworded_out = false
+
+                            For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+                                If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
+                                    If LIST_OF_INCOME_ARRAY(frequency_issue, all_income) = TRUE Then
+                                        If abs(DateDiff("d", LIST_OF_INCOME_ARRAY(view_pay_date, all_income), LIST_OF_INCOME_ARRAY(pay_date, all_income))) > 6 Then LIST_OF_INCOME_ARRAY(pay_date, all_income) = LIST_OF_INCOME_ARRAY(view_pay_date, all_income)
+                                    End If
+                                End If
+                            Next
+
                         End If
 
 
