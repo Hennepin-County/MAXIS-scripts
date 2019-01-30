@@ -52,6 +52,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("01/30/2019", "Adding tracking of statistics, particularly around NOMIs and Correction Emails.", "Casey Love, Hennepin County")
 CALL changelog_update("10/23/2018", "Bug Fixes: Next Action Needed update, Daily List Detail, Cases with Only a Face to Face interview required.", "Casey Love, Hennepin County")
 CALL changelog_update("10/22/2018", "Removed denial memo.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("07/20/2018", "Updated verbiage of Appointment Notice and NOMI, changed appointment date to 10 days from application date.", "Casey Love, Hennepin County")
@@ -317,6 +318,25 @@ const on_working_list       = 23
 const questionable_intv     = 24
 const take_action_today     = 25
 const need_face_to_face     = 26
+
+const worker_name_one       = 20
+const sup_name_one          = 21
+const issue_item_one        = 22
+const email_ym_one          = 23
+const qi_worker_one         = 24
+
+const worker_name_two       = 25
+const sup_name_two          = 26
+const issue_item_two        = 27
+const email_ym_two          = 28
+const qi_worker_two         = 29
+
+const worker_name_three     = 30
+const sup_name_three        = 31
+const issue_item_three      = 32
+const email_ym_three        = 33
+const qi_worker_three       = 34
+
 const error_notes 			= 27
 
 'Constants for columns in the working excel sheet - to make the excel code easier to read.
@@ -339,9 +359,28 @@ const deny_notc_confirm_col = 16
 const next_action_col       = 17
 const day_30_col            = 18
 const correct_need_col      = 19
-const action_worker_col     = 20
-const action_sup_col        = 21
-const email_sent_col        = 22
+
+const worker_name_one_col   = 20
+const sup_name_one_col      = 21
+const issue_item_one_col    = 22
+const email_ym_one_col      = 23
+const qi_worker_one_col     = 24
+
+const worker_name_two_col   = 25
+const sup_name_two_col      = 26
+const issue_item_two_col    = 27
+const email_ym_two_col      = 28
+const qi_worker_two_col     = 29
+
+const worker_name_three_col = 30
+const sup_name_three_col    = 31
+const issue_item_three_col  = 32
+const email_ym_three_col    = 33
+const qi_worker_three_col   = 34
+
+' const action_worker_col     = 20
+' const action_sup_col        = 21
+' const email_sent_col        = 22
 
 'ARRAY used to store ALL the cases listed on the BOBI today
 Dim TODAYS_CASES_ARRAY()
@@ -394,6 +433,61 @@ working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improv
 'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
 call excel_open(working_excel_file_path, True, True, ObjWorkExcel, objWorkbook)
 
+statistics_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Applications Statistics\2019 Statistics Tracking.xlsx"
+call excel_open(statistics_excel_file_path, False,  False, ObjStatsExcel, objStatsWorkbook)
+
+'Now we need to open the right worksheet
+'Select Case MonthName(Month(#2/15/19#))
+Select Case MonthName(Month(date))
+
+    Case "January"
+        sheet_selection = "January 2019"
+    Case "February"
+        sheet_selection = "February 2019"
+    Case "March"
+        sheet_selection = "March 2019"
+    Case "April"
+        sheet_selection = "April 2019"
+    Case "May"
+        sheet_selection = "May 2019"
+    Case "June"
+        sheet_selection = "June 2019"
+    Case "July"
+        sheet_selection = "July 2019"
+    Case "August"
+        sheet_selection = "August 2019"
+    Case "September"
+        sheet_selection = "September 2019"
+    Case "October"
+        sheet_selection = "October 2019"
+    Case "November"
+        sheet_selection = "November 2019"
+    Case "December"
+        sheet_selection = "December 2019"
+
+End Select
+'Activates worksheet based on user selection
+ObjStatsExcel.worksheets(sheet_selection).Activate
+
+stats_excel_nomi_row = 3
+Do
+    this_entry = ObjStatsExcel.Cells(stats_excel_nomi_row, 1).Value
+    this_entry = trim(this_entry)
+    If this_entry <> "" Then stats_excel_nomi_row = stats_excel_nomi_row + 1
+Loop until this_entry = ""
+
+stats_excel_email_row = 3
+Do
+    this_entry = ObjStatsExcel.Cells(stats_excel_email_row, 8).Value
+    this_entry = trim(this_entry)
+    If this_entry <> "" Then stats_excel_email_row = stats_excel_email_row + 1
+Loop until this_entry = ""
+
+' 'For testing'
+' ObjStatsExcel.Visible = TRUE
+' MsgBox "NOMI Row - " & stats_excel_nomi_row & vbNewLine & "Email row - " & stats_excel_email_row
+
+
 'ARRAY of all the cases that are on the working spreadsheet (this is essentially the spreadsheet doumped into a script array for use)
 Dim ALL_PENDING_CASES_ARRAY()
 ReDim ALL_PENDING_CASES_ARRAY(error_notes, 0)
@@ -440,7 +534,26 @@ Do
                 CASES_NO_LONGER_WORKING(questionable_intv, case_removed) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
                 CASES_NO_LONGER_WORKING(need_face_to_face, case_removed) = ObjWorkExcel.Cells(row, ftof_still_need_col)
 
+                CASES_NO_LONGER_WORKING(worker_name_one, case_removed) = ObjWorkExcel.Cells(row, worker_name_one_col)
+                CASES_NO_LONGER_WORKING(sup_name_one, case_removed) = ObjWorkExcel.Cells(row, sup_name_one_col)
+                CASES_NO_LONGER_WORKING(issue_item_one, case_removed) = ObjWorkExcel.Cells(row, issue_item_one_col)
+                CASES_NO_LONGER_WORKING(email_ym_one, case_removed) = ObjWorkExcel.Cells(row, email_ym_one_col)
+                CASES_NO_LONGER_WORKING(qi_worker_one, case_removed) = ObjWorkExcel.Cells(row, qi_worker_one_col)
+
+                CASES_NO_LONGER_WORKING(worker_name_two, case_removed) = ObjWorkExcel.Cells(row, worker_name_two_col)
+                CASES_NO_LONGER_WORKING(sup_name_two, case_removed) = ObjWorkExcel.Cells(row, sup_name_two_col)
+                CASES_NO_LONGER_WORKING(issue_item_two, case_removed) = ObjWorkExcel.Cells(row, issue_item_two_col)
+                CASES_NO_LONGER_WORKING(email_ym_two, case_removed) = ObjWorkExcel.Cells(row, email_ym_two_col)
+                CASES_NO_LONGER_WORKING(qi_worker_two, case_removed) = ObjWorkExcel.Cells(row, qi_worker_two_col)
+
+                CASES_NO_LONGER_WORKING(worker_name_three, case_removed) = ObjWorkExcel.Cells(row, worker_name_three_col)
+                CASES_NO_LONGER_WORKING(sup_name_three, case_removed) = ObjWorkExcel.Cells(row, sup_name_three_col)
+                CASES_NO_LONGER_WORKING(issue_item_three, case_removed) = ObjWorkExcel.Cells(row, issue_item_three_col)
+                CASES_NO_LONGER_WORKING(email_ym_three, case_removed) = ObjWorkExcel.Cells(row, email_ym_three_col)
+                CASES_NO_LONGER_WORKING(qi_worker_three, case_removed) = ObjWorkExcel.Cells(row, qi_worker_three_col)
+
                 CASES_NO_LONGER_WORKING(error_notes, case_removed) = "Interview Completed on " & TODAYS_CASES_ARRAY(interview_date, each_case)  'This field is used on the removed cases list to indicate WHY it no longer needs to be on the working list
+
 
                 case_removed = case_removed + 1     'increasing the incrementer for the removed cases ARRAY
                 'DELETING THE ROW FOR THIS CASE FROM THE WORKING LIST- notice that ROW does not increase as the curent row is now new
@@ -467,6 +580,24 @@ Do
                 CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = ObjWorkExcel.Cells(row, next_action_col)
                 CASES_NO_LONGER_WORKING(questionable_intv, case_removed) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
                 CASES_NO_LONGER_WORKING(need_face_to_face, case_removed) = ObjWorkExcel.Cells(row, ftof_still_need_col)
+
+                CASES_NO_LONGER_WORKING(worker_name_one, case_removed) = ObjWorkExcel.Cells(row, worker_name_one_col)
+                CASES_NO_LONGER_WORKING(sup_name_one, case_removed) = ObjWorkExcel.Cells(row, sup_name_one_col)
+                CASES_NO_LONGER_WORKING(issue_item_one, case_removed) = ObjWorkExcel.Cells(row, issue_item_one_col)
+                CASES_NO_LONGER_WORKING(email_ym_one, case_removed) = ObjWorkExcel.Cells(row, email_ym_one_col)
+                CASES_NO_LONGER_WORKING(qi_worker_one, case_removed) = ObjWorkExcel.Cells(row, qi_worker_one_col)
+
+                CASES_NO_LONGER_WORKING(worker_name_two, case_removed) = ObjWorkExcel.Cells(row, worker_name_two_col)
+                CASES_NO_LONGER_WORKING(sup_name_two, case_removed) = ObjWorkExcel.Cells(row, sup_name_two_col)
+                CASES_NO_LONGER_WORKING(issue_item_two, case_removed) = ObjWorkExcel.Cells(row, issue_item_two_col)
+                CASES_NO_LONGER_WORKING(email_ym_two, case_removed) = ObjWorkExcel.Cells(row, email_ym_two_col)
+                CASES_NO_LONGER_WORKING(qi_worker_two, case_removed) = ObjWorkExcel.Cells(row, qi_worker_two_col)
+
+                CASES_NO_LONGER_WORKING(worker_name_three, case_removed) = ObjWorkExcel.Cells(row, worker_name_three_col)
+                CASES_NO_LONGER_WORKING(sup_name_three, case_removed) = ObjWorkExcel.Cells(row, sup_name_three_col)
+                CASES_NO_LONGER_WORKING(issue_item_three, case_removed) = ObjWorkExcel.Cells(row, issue_item_three_col)
+                CASES_NO_LONGER_WORKING(email_ym_three, case_removed) = ObjWorkExcel.Cells(row, email_ym_three_col)
+                CASES_NO_LONGER_WORKING(qi_worker_three, case_removed) = ObjWorkExcel.Cells(row, qi_worker_three_col)
 
                 CASES_NO_LONGER_WORKING(error_notes, case_removed) = "No programs pending."     'This field is used on the removed list to indicate WHY it is no longer on the Working Excel
 
@@ -531,6 +662,24 @@ Do
         CASES_NO_LONGER_WORKING(nomi_confirm, case_removed) = ObjWorkExcel.Cells(row, nomi_confirm_col)
         CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = ObjWorkExcel.Cells(row, next_action_col)
         CASES_NO_LONGER_WORKING(questionable_intv, case_removed) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
+
+        CASES_NO_LONGER_WORKING(worker_name_one, case_removed) = ObjWorkExcel.Cells(row, worker_name_one_col)
+        CASES_NO_LONGER_WORKING(sup_name_one, case_removed) = ObjWorkExcel.Cells(row, sup_name_one_col)
+        CASES_NO_LONGER_WORKING(issue_item_one, case_removed) = ObjWorkExcel.Cells(row, issue_item_one_col)
+        CASES_NO_LONGER_WORKING(email_ym_one, case_removed) = ObjWorkExcel.Cells(row, email_ym_one_col)
+        CASES_NO_LONGER_WORKING(qi_worker_one, case_removed) = ObjWorkExcel.Cells(row, qi_worker_one_col)
+
+        CASES_NO_LONGER_WORKING(worker_name_two, case_removed) = ObjWorkExcel.Cells(row, worker_name_two_col)
+        CASES_NO_LONGER_WORKING(sup_name_two, case_removed) = ObjWorkExcel.Cells(row, sup_name_two_col)
+        CASES_NO_LONGER_WORKING(issue_item_two, case_removed) = ObjWorkExcel.Cells(row, issue_item_two_col)
+        CASES_NO_LONGER_WORKING(email_ym_two, case_removed) = ObjWorkExcel.Cells(row, email_ym_two_col)
+        CASES_NO_LONGER_WORKING(qi_worker_two, case_removed) = ObjWorkExcel.Cells(row, qi_worker_two_col)
+
+        CASES_NO_LONGER_WORKING(worker_name_three, case_removed) = ObjWorkExcel.Cells(row, worker_name_three_col)
+        CASES_NO_LONGER_WORKING(sup_name_three, case_removed) = ObjWorkExcel.Cells(row, sup_name_three_col)
+        CASES_NO_LONGER_WORKING(issue_item_three, case_removed) = ObjWorkExcel.Cells(row, issue_item_three_col)
+        CASES_NO_LONGER_WORKING(email_ym_three, case_removed) = ObjWorkExcel.Cells(row, email_ym_three_col)
+        CASES_NO_LONGER_WORKING(qi_worker_three, case_removed) = ObjWorkExcel.Cells(row, qi_worker_three_col)
 
         CASES_NO_LONGER_WORKING(error_notes, case_removed) = ""
         'CASES_NO_LONGER_WORKING(error_notes, case_removed) = "Interview Completed on " & TODAYS_CASES_ARRAY(interview_date, case_entry)
@@ -1041,7 +1190,9 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
         If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "" Then MsgBox "Case Number: " & ALL_PENDING_CASES_ARRAY(case_number, case_entry) & vbNewLine & "Does not have an action to take!!!"           'this is for but I have never seen it come up
     End If
 
-    IF ALL_PENDING_CASES_ARRAY(error_notes, case_entry) <> "" THEN ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = right(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), len(ALL_PENDING_CASES_ARRAY(error_notes, case_entry))- 2)     'removing the first ', ' from the error notes to make it be not weird
+    IF ALL_PENDING_CASES_ARRAY(error_notes, case_entry) <> "" THEN
+        If left(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), 1) = "," Then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = right(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), len(ALL_PENDING_CASES_ARRAY(error_notes, case_entry))- 2)     'removing the first ', ' from the error notes to make it be not weird
+    END IF
 Next
 back_to_SELF
 
@@ -1507,6 +1658,13 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                 Call write_variable_in_CASE_NOTE(worker_signature & " via bulk on demand waiver script")
                 'MsgBox "What casenote was sent?"
                 PF3
+
+                'Here we add the NOMI to the statistics
+                ObjStatsExcel.Cells(stats_excel_nomi_row, 1).Value = ALL_PENDING_CASES_ARRAY(case_number, case_entry)        'Adding the case number to the statistics sheet
+                ObjStatsExcel.Cells(stats_excel_nomi_row, 2).Value = ALL_PENDING_CASES_ARRAY(application_date, case_entry)   'Adding the date of application to the statistics sheet
+                ObjStatsExcel.Cells(stats_excel_nomi_row, 3).Value = date                                                    'Adding today's date of the NOMI date for the stats sheet
+                ObjStatsExcel.Cells(stats_excel_nomi_row, 4).Value = 1                                                       'Need to count - this is always 1
+                stats_excel_nomi_row = stats_excel_nomi_row + 1
             Else
                 ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "???"           'this is for testing - this has never come up
             End If
@@ -1741,6 +1899,24 @@ ObjExcel.Cells(1, need_deny_col)        = "Denial"
 ObjExcel.Cells(1, deny_notc_confirm_col)= "Confirm"
 ObjExcel.Cells(1, next_action_col)      = "Next Action"
 ObjExcel.Cells(1, correct_need_col)     = "Detail"
+
+ObjExcel.Cells(1, worker_name_one_col)  = "Worker Name - 1"
+ObjExcel.Cells(1, sup_name_one_col)     = "Supervisor - 1"
+ObjExcel.Cells(1, issue_item_one_col)   = "Issue - 1"
+ObjExcel.Cells(1, email_ym_one_col)     = "Email Sent - 1"
+ObjExcel.Cells(1, qi_worker_one_col)    = "QI Worker Name - 1"
+
+ObjExcel.Cells(1, worker_name_two_col)  = "Worker Name - 2"
+ObjExcel.Cells(1, sup_name_two_col)     = "Supervisor - 2"
+ObjExcel.Cells(1, issue_item_two_col)   = "Issue - 2"
+ObjExcel.Cells(1, email_ym_two_col)     = "Email Sent - 2"
+ObjExcel.Cells(1, qi_worker_two_col)    = "QI Worker Name - 2"
+
+ObjExcel.Cells(1, worker_name_three_col)= "Worker Name - 3"
+ObjExcel.Cells(1, sup_name_three_col)   = "Supervisor - 3"
+ObjExcel.Cells(1, issue_item_three_col) = "Issue - 3"
+ObjExcel.Cells(1, email_ym_three_col)   = "Email Sent - 3"
+ObjExcel.Cells(1, qi_worker_three_col)  = "QI Worker Name - 3"
 ' ObjExcel.Cells(1, action_worker_col)    =
 ' ObjExcel.Cells(1, action_sup_col)       =
 ' ObjExcel.Cells(1, email_sent_col)       =
@@ -1877,6 +2053,25 @@ For case_removed = 0 to UBOUND(CASES_NO_LONGER_WORKING, 2)      'looping through
         End If
     End If
 
+    If CASES_NO_LONGER_WORKING(worker_name_one, case_removed) <> "" OR CASES_NO_LONGER_WORKING(issue_item_one, case_removed) <> "" OR CASES_NO_LONGER_WORKING(qi_worker_one, case_removed) <> "" Then
+        ObjStatsExcel.Cells(stats_excel_email_row, 8).Value = CASES_NO_LONGER_WORKING(case_number, case_removed)        'Adding all information to the stats excel
+        ObjStatsExcel.Cells(stats_excel_email_row, 10).Value = CASES_NO_LONGER_WORKING(sup_name_one, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 11).Value = CASES_NO_LONGER_WORKING(issue_item_one, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 12).Value = CASES_NO_LONGER_WORKING(email_ym_one, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 13).Value = CASES_NO_LONGER_WORKING(qi_worker_one, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 14).Value = CASES_NO_LONGER_WORKING(worker_name_two, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 15).Value = CASES_NO_LONGER_WORKING(sup_name_two, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 16).Value = CASES_NO_LONGER_WORKING(issue_item_two, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 17).Value = CASES_NO_LONGER_WORKING(email_ym_two, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 18).Value = CASES_NO_LONGER_WORKING(qi_worker_two, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 19).Value = CASES_NO_LONGER_WORKING(worker_name_three, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 20).Value = CASES_NO_LONGER_WORKING(sup_name_three, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 21).Value = CASES_NO_LONGER_WORKING(issue_item_three, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 22).Value = CASES_NO_LONGER_WORKING(email_ym_three, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 23).Value = CASES_NO_LONGER_WORKING(qi_worker_three, case_removed)
+        stats_excel_email_row = stats_excel_email_row + 1
+    End If
+
     'making sure the script has the Excel Daily List up and saves the information about the case to the next blank row
     ObjExcel.Worksheets("Cases Removed From Working LIST").Activate
     'MsgBox "Row is " & removed_row & vbNewLine & "Worker ID " & CASES_NO_LONGER_WORKING(worker_ID, case_removed)
@@ -1900,6 +2095,24 @@ For case_removed = 0 to UBOUND(CASES_NO_LONGER_WORKING, 2)      'looping through
     ObjExcel.Cells(removed_row, ftof_still_need_col).Value     = CASES_NO_LONGER_WORKING(need_face_to_face, case_removed)
 
     ObjExcel.Cells(removed_row, correct_need_col).Value         = CASES_NO_LONGER_WORKING(error_notes, case_removed)
+
+    ObjExcel.Cells(removed_row, worker_name_one_col).Value  = CASES_NO_LONGER_WORKING(worker_name_one, case_removed)
+    ObjExcel.Cells(removed_row, sup_name_one_col).Value     = CASES_NO_LONGER_WORKING(sup_name_one, case_removed)
+    ObjExcel.Cells(removed_row, issue_item_one_col).Value   = CASES_NO_LONGER_WORKING(issue_item_one, case_removed)
+    ObjExcel.Cells(removed_row, email_ym_one_col).Value     = CASES_NO_LONGER_WORKING(email_ym_one, case_removed)
+    ObjExcel.Cells(removed_row, qi_worker_one_col).Value    = CASES_NO_LONGER_WORKING(qi_worker_one, case_removed)
+
+    ObjExcel.Cells(removed_row, worker_name_two_col).Value  = CASES_NO_LONGER_WORKING(worker_name_two, case_removed)
+    ObjExcel.Cells(removed_row, sup_name_two_col).Value     = CASES_NO_LONGER_WORKING(sup_name_two, case_removed)
+    ObjExcel.Cells(removed_row, issue_item_two_col).Value   = CASES_NO_LONGER_WORKING(issue_item_two, case_removed)
+    ObjExcel.Cells(removed_row, email_ym_two_col).Value     = CASES_NO_LONGER_WORKING(email_ym_two, case_removed)
+    ObjExcel.Cells(removed_row, qi_worker_two_col).Value    = CASES_NO_LONGER_WORKING(qi_worker_two, case_removed)
+
+    ObjExcel.Cells(removed_row, worker_name_three_col).Value= CASES_NO_LONGER_WORKING(worker_name_three, case_removed)
+    ObjExcel.Cells(removed_row, sup_name_three_col).Value   = CASES_NO_LONGER_WORKING(sup_name_three, case_removed)
+    ObjExcel.Cells(removed_row, issue_item_three_col).Value = CASES_NO_LONGER_WORKING(issue_item_three, case_removed)
+    ObjExcel.Cells(removed_row, email_ym_three_col).Value   = CASES_NO_LONGER_WORKING(email_ym_three, case_removed)
+    ObjExcel.Cells(removed_row, qi_worker_three_col).Value  = CASES_NO_LONGER_WORKING(qi_worker_three, case_removed)
 
     'MsgBox removed_row & " = " & removed_row & " + 1"
     removed_row = removed_row + 1   'moving to the next row for the next loop
@@ -1970,5 +2183,8 @@ Next
 For col_to_autofit =1 to  correct_need_col      'formatting the sheet
     ObjExcel.Columns(col_to_autofit).AutoFit()
 Next
+
+objStatsWorkbook.Save
+ObjStatsExcel.Quit
 
 script_end_procedure("It worked!")  'WE'RE DONE!
