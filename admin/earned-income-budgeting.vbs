@@ -2508,21 +2508,26 @@ If update_with_verifs = TRUE Then
                 If EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel) = "JOBS" Then Call Navigate_to_MAXIS_screen("STAT", "JOBS")
                 EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel), 20, 76
                 EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel), 20, 79
+                transmit
                 EMReadScreen confirm_same_employer, len(EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)), 7, 42
                 the_new_instance = ""
                 If confirm_same_employer <> UCase(EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)) Then
                     EMWriteScreen "JOBS", 20, 71
                     EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel), 20, 76
+                    transmit
+                    try = 1
                     Do
                         EMReadScreen confirm_same_employer, len(EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)), 7, 42
-                        MsgBox "Panel - " & confirm_same_employer & vbNewLine & "Array = " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)
-                        If confirm_same_employer <> UCase(EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)) Then
-                            transmit
-                        Else
+                        'MsgBox "Panel - " & confirm_same_employer & vbNewLine & "Array = " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)
+                        If confirm_same_employer = UCase(EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)) Then
                             EMReadScreen the_new_instance, 1, 2, 73
                             EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) = "0" & the_new_instance
+                            Exit Do
                         End If
+                        transmit
                         EMReadScreen last_jobs, 7, 24, 2
+                        try = try + 1
+                        If try = 15 Then Exit Do
                     Loop until last_jobs = "ENTER A"
 
                     If the_new_instance = "" Then
