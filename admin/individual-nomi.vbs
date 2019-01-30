@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/30/2019", "Added statistics tracking.", "Casey Love, Hennepin County")
 call changelog_update("07/20/2018", "Updated verbiage of notice.", "Casey Love, Hennepin County")
 call changelog_update("06/22/2018", "Initial version.", "MiKayla Handley, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -182,4 +183,57 @@ Call write_variable_in_CASE_NOTE("A link to the domestic violence brochure sent 
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature & " via bulk on demand waiver script")
 PF3
+
+statistics_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Applications Statistics\2019 Statistics Tracking.xlsx"
+call excel_open(statistics_excel_file_path, False,  False, ObjStatsExcel, objStatsWorkbook)
+
+'Now we need to open the right worksheet
+'Select Case MonthName(Month(#2/15/19#))
+Select Case MonthName(Month(date))
+
+    Case "January"
+        sheet_selection = "January 2019"
+    Case "February"
+        sheet_selection = "February 2019"
+    Case "March"
+        sheet_selection = "March 2019"
+    Case "April"
+        sheet_selection = "April 2019"
+    Case "May"
+        sheet_selection = "May 2019"
+    Case "June"
+        sheet_selection = "June 2019"
+    Case "July"
+        sheet_selection = "July 2019"
+    Case "August"
+        sheet_selection = "August 2019"
+    Case "September"
+        sheet_selection = "September 2019"
+    Case "October"
+        sheet_selection = "October 2019"
+    Case "November"
+        sheet_selection = "November 2019"
+    Case "December"
+        sheet_selection = "December 2019"
+
+End Select
+'Activates worksheet based on user selection
+ObjStatsExcel.worksheets(sheet_selection).Activate
+
+stats_excel_nomi_row = 3
+Do
+    this_entry = ObjStatsExcel.Cells(stats_excel_nomi_row, 1).Value
+    this_entry = trim(this_entry)
+    If this_entry <> "" Then stats_excel_nomi_row = stats_excel_nomi_row + 1
+Loop until this_entry = ""
+
+'Here we add the NOMI to the statistics
+ObjStatsExcel.Cells(stats_excel_nomi_row, 1).Value = MAXIS_case_number      'Adding the case number to the statistics sheet
+ObjStatsExcel.Cells(stats_excel_nomi_row, 2).Value = application_date       'Adding the date of application to the statistics sheet
+ObjStatsExcel.Cells(stats_excel_nomi_row, 3).Value = date                   'Adding today's date of the NOMI date for the stats sheet
+ObjStatsExcel.Cells(stats_excel_nomi_row, 4).Value = 1                      'Need to count - this is always 1
+
+objStatsWorkbook.Save
+ObjStatsExcel.Quit
+
 script_end_procedure("Success! The NOMI has been sent.")
