@@ -70,7 +70,7 @@ changelog_display
  current_month_and_year = current_month & "/" & current_year
  next_month_and_year = MAXIS_footer_month & "/" & MAXIS_footer_year
 
-'datediff("m", updated_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year)
+datediff("m", updated_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year)
 
 'MAXIS_footer_month = right("00"&MAXIS_footer_month, 2)
 'MAXIS_footer_year = right("00"&MAXIS_footer_year, 2)
@@ -462,16 +462,16 @@ DO
   	Loop until are_we_passworded_out = false					'loops until user passwords back in
 	END IF
 
-	IF child_ref_number_I <> "" THEN child_ref_number_I = child_ref_number & ","
-	IF child_ref_number_II <> "" THEN child_ref_number_II = child_ref_number_II & ","
-	IF child_ref_number_III <> "" THEN child_ref_number_III = child_ref_number_III & ","
-	IF child_ref_number_IV <> "" THEN child_ref_number_IV = child_ref_number_IV & ","
-	IF child_ref_number_VI <> "" THEN child_ref_number_VI = child_ref_number_VI & ","
-	IF child_ref_number_VIII <> "" THEN child_ref_number_VIII = child_ref_number_VIII & ","
-	IF child_ref_number_IX <> "" THEN child_ref_number_IX = child_ref_number_IX & ","
-	IF child_ref_number_X <> "" THEN child_ref_number_X = child_ref_number_X & ","
-	IF child_ref_number_XI <> "" THEN child_ref_number_XI = child_ref_number_XI & ","
-	IF child_ref_number_XII <> "" THEN child_ref_number_XII = child_ref_number_XII & ","
+	IF child_ref_number_I <> "" THEN child_ref_number = child_ref_number_I & ","
+	IF child_ref_number_II <> "" THEN child_ref_number = child_ref_number_II & ","
+	IF child_ref_number_III <> "" THEN child_ref_number = child_ref_number_III & ","
+	IF child_ref_number_IV <> "" THEN child_ref_number = child_ref_number_IV & ","
+	IF child_ref_number_VI <> "" THEN child_ref_number = child_ref_number_VI & ","
+	IF child_ref_number_VIII <> "" THEN child_ref_number = child_ref_number_VIII & ","
+	IF child_ref_number_IX <> "" THEN child_ref_number = child_ref_number_IX & ","
+	IF child_ref_number_X <> "" THEN child_ref_number = child_ref_number_X & ","
+	IF child_ref_number_XI <> "" THEN child_ref_number = child_ref_number_XI & ","
+	IF child_ref_number_XII <> "" THEN child_ref_number = child_ref_number_XII & ","
 
 	'trims excess spaces of programs
 	programs_included  = trim(programs_included )
