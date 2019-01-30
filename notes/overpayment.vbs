@@ -63,12 +63,13 @@ EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 memb_number = "01"
 discovery_date = date & ""
-BeginDialog overpayment_dialog, 0, 0, 361, 230, "Overpayment Claim Entered"
+BeginDialog overpayment_dialog, 0, 0, 361, 280, "Overpayment Claim Entered"
   EditBox 60, 5, 40, 15, MAXIS_case_number
   EditBox 140, 5, 20, 15, memb_number
   EditBox 230, 5, 20, 15, OT_resp_memb
   DropListBox 315, 5, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
   EditBox 60, 25, 40, 15, discovery_date
+  CheckBox 110, 30, 175, 10, "FS OP - Claim Determination form completed in ECF", ECF_checkbox
   DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
   EditBox 130, 65, 30, 15, OP_from
   EditBox 180, 65, 30, 15, OP_to
@@ -79,51 +80,72 @@ BeginDialog overpayment_dialog, 0, 0, 361, 230, "Overpayment Claim Entered"
   EditBox 180, 85, 30, 15, OP_to_II
   EditBox 245, 85, 35, 15, Claim_number_II
   EditBox 305, 85, 45, 15, Claim_amount_II
-  EditBox 130, 105, 30, 15, HC_from
-  EditBox 180, 105, 30, 15, HC_to
-  EditBox 245, 105, 35, 15, HC_claim_number
-  EditBox 305, 105, 45, 15, HC_claim_amount
-  EditBox 190, 125, 20, 15, HC_resp_memb
-  EditBox 305, 125, 45, 15, Fed_HC_AMT
-  CheckBox 235, 155, 120, 10, "Earned Income Disregard Allowed", EI_checkbox
-  EditBox 70, 150, 160, 15, income_source
-  EditBox 70, 170, 160, 15, EVF_used
-  EditBox 310, 170, 45, 15, income_rcvd_date
-  EditBox 70, 190, 285, 15, Reason_OP
-  CheckBox 70, 210, 175, 10, "FS OP - Claim Determination form completed in ECF", ECF_checkbox
+  DropListBox 50, 105, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_III
+  EditBox 130, 105, 30, 15, OP_from_III
+  EditBox 180, 105, 30, 15, OP_to_III
+  EditBox 245, 105, 35, 15, claim_number_III
+  EditBox 305, 105, 45, 15, Claim_amount_III
+  DropListBox 50, 125, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_IV
+  EditBox 130, 125, 30, 15, OP_from_IV
+  EditBox 180, 125, 30, 15, OP_to_IV
+  EditBox 245, 125, 35, 15, claim_number_IV
+  EditBox 305, 125, 45, 15, Claim_amount_IV
+  EditBox 40, 155, 30, 15, HC_from
+  EditBox 90, 155, 30, 15, HC_to
+  EditBox 160, 155, 50, 15, HC_claim_number
+  EditBox 235, 155, 45, 15, HC_claim_amount
+  EditBox 100, 175, 20, 15, HC_resp_memb
+  EditBox 235, 175, 45, 15, Fed_HC_AMT
+  EditBox 70, 200, 160, 15, income_source
+  CheckBox 235, 205, 120, 10, "Earned income disregard allowed", EI_checkbox
+  EditBox 70, 220, 160, 15, EVF_used
+  EditBox 310, 220, 45, 15, income_rcvd_date
+  EditBox 70, 240, 285, 15, Reason_OP
   ButtonGroup ButtonPressed
-    OkButton 260, 210, 45, 15
-    CancelButton 310, 210, 45, 15
-  Text 265, 10, 50, 10, "Fraud Referral:"
+    OkButton 260, 260, 45, 15
+    CancelButton 310, 260, 45, 15
+  Text 5, 10, 50, 10, "Case number: "
   Text 110, 10, 30, 10, "Memb #:"
-  Text 170, 10, 60, 10, "Ot Resp. Memb #:"
+  Text 170, 10, 60, 10, "OT resp. Memb #:"
+  Text 265, 10, 50, 10, "Fraud referral:"
+  Text 5, 30, 55, 10, "Discovery date: "
   GroupBox 5, 45, 350, 100, "Overpayment Information"
   Text 15, 70, 30, 10, "Program:"
   Text 105, 70, 20, 10, "From:"
   Text 165, 70, 10, 10, "To:"
   Text 215, 70, 25, 10, "Claim #"
   Text 285, 70, 20, 10, "AMT:"
+  Text 130, 55, 30, 10, "(MM/YY)"
+  Text 180, 55, 30, 10, "(MM/YY)"
   Text 15, 90, 30, 10, "Program:"
   Text 105, 90, 20, 10, "From:"
   Text 165, 90, 10, 10, "To:"
   Text 215, 90, 25, 10, "Claim #"
   Text 285, 90, 20, 10, "AMT:"
-  Text 15, 110, 70, 10, "HC Program(s) Only:"
+  Text 15, 110, 30, 10, "Program:"
   Text 105, 110, 20, 10, "From:"
   Text 165, 110, 10, 10, "To:"
   Text 215, 110, 25, 10, "Claim #"
   Text 285, 110, 20, 10, "AMT:"
-  Text 15, 155, 50, 10, "Income Source:"
-  Text 5, 175, 65, 10, "Income Verif Used:"
-  Text 90, 130, 100, 10, "Health Care Resp. Memb(s) #:"
-  Text 230, 130, 75, 10, "Total Federal HC AMT:"
-  Text 25, 195, 40, 10, "OP Reason:"
-  Text 240, 175, 65, 10, "Date Income Rcvd: "
-  Text 130, 55, 30, 10, "(MM/YY)"
-  Text 180, 55, 30, 10, "(MM/YY)"
-  Text 5, 10, 50, 10, "Case Number: "
-  Text 5, 30, 55, 10, "Discovery Date: "
+  Text 15, 90, 30, 10, "Program:"
+  Text 15, 130, 30, 10, "Program:"
+  Text 105, 130, 20, 10, "From:"
+  Text 165, 130, 10, 10, "To:"
+  Text 215, 130, 25, 10, "Claim #"
+  Text 285, 130, 20, 10, "AMT:"
+  Text 5, 225, 65, 10, "Income verif used:"
+  Text 15, 180, 80, 10, "HC OT resp. Memb(s) #:"
+  Text 160, 180, 75, 10, "Total federal HC AMT:"
+  Text 30, 245, 40, 10, "OP reason:"
+  Text 245, 225, 60, 10, "Date income rcvd: "
+  Text 215, 160, 20, 10, "AMT:"
+  Text 15, 205, 50, 10, "Income source:"
+  Text 15, 160, 20, 10, "From:"
+  Text 130, 160, 25, 10, "Claim #"
+  Text 75, 160, 10, 10, "To:"
+  GroupBox 5, 145, 350, 50, "HC Programs Only"
 EndDialog
+
 
 Do
 	err_msg = ""
@@ -203,6 +225,14 @@ IF OP_program <> "Select:" THEN
 	Call write_variable_in_CASE_NOTE("----- ----- -----")
 	IF OP_program_II <> "Select:" then
 		Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+		Call write_variable_in_CASE_NOTE("----- ----- -----")
+	END IF
+	IF OP_program_III <> "Select:" then
+		Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+		Call write_variable_in_CASE_NOTE("----- ----- -----")
+	END IF
+	IF OP_program_IV <> "Select:" then
+		Call write_variable_in_CASE_NOTE(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
 		Call write_variable_in_CASE_NOTE("----- ----- -----")
 	END IF
 END IF
