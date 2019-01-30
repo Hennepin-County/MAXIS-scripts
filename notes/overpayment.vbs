@@ -86,13 +86,14 @@ BeginDialog overpayment_dialog, 0, 0, 361, 230, "Overpayment Claim Entered"
   EditBox 190, 125, 20, 15, HC_resp_memb
   EditBox 305, 125, 45, 15, Fed_HC_AMT
   CheckBox 235, 155, 120, 10, "Earned Income Disregard Allowed", EI_checkbox
+  EditBox 70, 150, 160, 15, income_source
   EditBox 70, 170, 160, 15, EVF_used
   EditBox 310, 170, 45, 15, income_rcvd_date
   EditBox 70, 190, 285, 15, Reason_OP
+  CheckBox 70, 210, 175, 10, "FS OP - Claim Determination form completed in ECF", ECF_checkbox
   ButtonGroup ButtonPressed
     OkButton 260, 210, 45, 15
     CancelButton 310, 210, 45, 15
-  EditBox 70, 150, 160, 15, income_source
   Text 265, 10, 50, 10, "Fraud Referral:"
   Text 110, 10, 30, 10, "Memb #:"
   Text 170, 10, 60, 10, "Ot Resp. Memb #:"
@@ -142,8 +143,9 @@ Do
 		IF HC_to = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment ended."
 		IF HC_claim_amount = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
 	END IF
-	IF EVF_used = "" then err_msg = err_msg & vbNewLine & "* Please enter verication used for the income recieved. If no verification was received enter N/A."
+	IF EVF_used = "" then err_msg = err_msg & vbNewLine & "* Please enter verification used for the income recieved. If no verification was received enter N/A."
 	'IF isdate(income_rcvd_date) = False or income_rcvd_date = "" then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income recieved."
+	IF ECF_checkbox = UNCHECKED and OP_program = "FS" THEN err_msg = err_msg & vbNewLine &  "* Please ensure you are entering the FS OP Determination form in ECF and check the appropriate box."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 LOOP UNTIL err_msg = ""
 CALL check_for_password_without_transmit(are_we_passworded_out)
@@ -221,6 +223,7 @@ CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_
 CALL write_bullet_and_variable_in_case_note("Date verification received", income_rcvd_date)
 CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
 CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
+IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* FS OP - Claim Determination form completed in ECF")
 CALL write_variable_in_CASE_NOTE("----- ----- -----")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 PF3 'to save casenote'
