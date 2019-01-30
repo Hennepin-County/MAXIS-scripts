@@ -328,37 +328,38 @@ For each member in HH_member_array
                 end_date = replace(end_date, " ", "/")
                 end_date = DateValue(end_date)
 
-                If DateDiff("m", end_date, date) > 3 Then
-
-                    BeginDialog Dialog1, 0, 0, 186, 140, "Dialog"
-                      OptionGroup RadioGroup1
-                        RadioButton 20, 45, 70, 10, "Delete this Panel", delete_panel
-                        RadioButton 20, 60, 75, 10, "Leave this Panel", leave_ended_panel
-                      EditBox 10, 100, 170, 15, explain_leaving_ended_panel
-                      ButtonGroup ButtonPressed
-                        OkButton 130, 120, 50, 15
-                      Text 10, 10, 170, 25, "This JOBS panel indicates the income ended more than 3 months ago. This panel is no longer needed in this month since this income has ended."
-                      Text 10, 80, 115, 20, "If this ened panel is to be left, explain why it is still needed:"
-                    EndDialog
-
-                    Do
-                        Do
-                            err_msg = ""
-
-                            Dialog Dialog1
-
-                            explain_leaving_ended_panel = trim(explain_leaving_ended_panel)
-
-                            If leave_ended_panel = checked and explain_leaving_ended_panel = "" Then err_msg = err_msg & vbNewLine & "* If an ended panel is to be left on an active case, explain why it is still needed."
-
-                            If err_msg <> "" Then MsgBox "** Please Resolve to Continue **" & vbNewLine & err_msg
-                        Loop Until err_msg = ""
-                        call check_for_password(are_we_passworded_out)
-                    Loop until are_we_passworded_out = false
-
-                    If delete_panel = checked then panels_to_delete = panels_to_delete & "~" & "JOBS " & member & " " & "0" & panel
-
-                End If
+                'Commented out because we are not ready for that yet.
+                ' If DateDiff("m", end_date, date) > 3 Then
+                '
+                '     BeginDialog Dialog1, 0, 0, 186, 140, "Dialog"
+                '       OptionGroup RadioGroup1
+                '         RadioButton 20, 45, 70, 10, "Delete this Panel", delete_panel
+                '         RadioButton 20, 60, 75, 10, "Leave this Panel", leave_ended_panel
+                '       EditBox 10, 100, 170, 15, explain_leaving_ended_panel
+                '       ButtonGroup ButtonPressed
+                '         OkButton 130, 120, 50, 15
+                '       Text 10, 10, 170, 25, "This JOBS panel indicates the income ended more than 3 months ago. This panel is no longer needed in this month since this income has ended."
+                '       Text 10, 80, 115, 20, "If this ened panel is to be left, explain why it is still needed:"
+                '     EndDialog
+                '
+                '     Do
+                '         Do
+                '             err_msg = ""
+                '
+                '             Dialog Dialog1
+                '
+                '             explain_leaving_ended_panel = trim(explain_leaving_ended_panel)
+                '
+                '             If leave_ended_panel = checked and explain_leaving_ended_panel = "" Then err_msg = err_msg & vbNewLine & "* If an ended panel is to be left on an active case, explain why it is still needed."
+                '
+                '             If err_msg <> "" Then MsgBox "** Please Resolve to Continue **" & vbNewLine & err_msg
+                '         Loop Until err_msg = ""
+                '         call check_for_password(are_we_passworded_out)
+                '     Loop until are_we_passworded_out = false
+                '
+                '     If delete_panel = checked then panels_to_delete = panels_to_delete & "~" & "JOBS " & member & " " & "0" & panel
+                '
+                ' End If
             End If
 
             If save_this_panel = TRUE Then
@@ -574,10 +575,10 @@ Do
       Next
       y_pos = y_pos - 10
       ' Text 80, y_pos, 160, 10, "Do you need to add a new JOBS or BUSI panel?"
-      Text 80, y_pos, 160, 10, "Do you need to add a new JOBS panel?"
+      Text 115, y_pos, 160, 10, "Do you need to add a new JOBS panel?"
       ButtonGroup ButtonPressed
-        PushButton 85, y_pos + 15, 140, 20, "Yes - Add a new Earned Income panel", add_new_panel_button
-        PushButton 85, y_pos + 40, 140, 10, "No - The panel(s) to update are in MAXIS", continue_to_update_button
+        PushButton 120, y_pos + 15, 140, 20, "Yes - Add a new Earned Income panel", add_new_panel_button
+        PushButton 120, y_pos + 35, 140, 20, "No - The panel(s) to update are in MAXIS", continue_to_update_button
     EndDialog
     'MsgBOx "Y Position is " & y_pos & vbNewLine & "Dialog length is " & dlg_len
 
@@ -688,13 +689,46 @@ Do
                 first_check = beginning_month & "/01/" & beginning_year
             End If
 
-
             beginning_month = right("00"&beginning_month, 2)
             beginning_year = right(beginning_year, 2)
             'MsgBox "Begind date is " & beginning_month & "/" & beginning_year
 
+            ' MsgBox beginning_month & "/" & beginning_year
+
+            If DateDiff("m", first_check, date) > 12 Then
+                BeginDialog Dialog1, 0, 0, 191, 175, "Confirm Update Month"
+                  EditBox 140, 60, 15, 15, beginning_month
+                  EditBox 160, 60, 15, 15, beginning_year
+                  ButtonGroup ButtonPressed
+                    OkButton 135, 155, 50, 15
+                  Text 10, 10, 165, 10, "** This new job started at least 12 months ago. **"
+                  Text 10, 30, 165, 20, "The script will go back to " & beginning_month & "/" & beginning_year & " to add this JOBS panel in the month the job started."
+                  Text 10, 60, 120, 15, "If this needs to be adjusted, change the footer month and year here:"
+                  GroupBox 10, 85, 170, 65, "Info"
+                  Text 20, 100, 150, 40, "Best practice is to add the job information in the footer month and year the income started. An exception may be if the job was currently in STAT and the panel was deleted, only add the information in the first month of deletion."
+                EndDialog
+
+                dialog Dialog1
+
+                beginning_month = beginning_month * 1
+                beginning_year = beginning_year * 1
+
+                If beginning_month = DatePart("m", enter_JOBS_start_date) AND beginning_year = DatePart("yyyy", enter_JOBS_start_date) Then
+                    first_check = enter_JOBS_start_date
+                Else
+                    first_check = beginning_month & "/01/" & beginning_year
+                End If
+
+                beginning_month = right("00"&beginning_month, 2)
+                beginning_year = right(beginning_year, 2)
+
+            End If
+
             MAXIS_footer_month = beginning_month
             MAXIS_footer_year = beginning_year
+
+            ' MsgBox MAXIS_footer_month & "/" & MAXIS_footer_year
+
 
             Call back_to_SELF
             'QUESTION - what to do about footer month'
@@ -1023,7 +1057,12 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                                             'ADD ERROR HANDLING HERE
                                             actual_checks_provided = TRUE
                                             If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = unchecked Then there_are_counted_checks = TRUE
-                                            If IsDate(LIST_OF_INCOME_ARRAY(pay_date, all_income)) = FALSE Then sm_err_msg = sm_err_msg & vbNewLine & "* Enter a valid pay date for all checks."
+                                            If IsDate(LIST_OF_INCOME_ARRAY(pay_date, all_income)) = FALSE Then
+                                                sm_err_msg = sm_err_msg & vbNewLine & "* Enter a valid pay date for all checks."
+                                            ElseIf DateDiff("d", date, LIST_OF_INCOME_ARRAY(pay_date, all_income)) > 0 Then
+                                                LIST_OF_INCOME_ARRAY(pay_date, all_income) = "**" & LIST_OF_INCOME_ARRAY(pay_date, all_income)
+                                                sm_err_msg = sm_err_msg & vbNewLine & "* Paydates cannot be in the future."
+                                            End If
                                             If IsNumeric(LIST_OF_INCOME_ARRAY(gross_amount, all_income)) = FALSE Then sm_err_msg = sm_err_msg & vbNewLine & "* Enter the Gross Amount of the check as a number."
                                             If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = 1 AND trim(LIST_OF_INCOME_ARRAY(reason_to_exclude, all_income)) = "" Then sm_err_msg = sm_err_msg & vbNewLine & "* The check on " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & " is to be excluded, list a reason for excluding this check."
                                             If IsNumeric(LIST_OF_INCOME_ARRAY(hours, all_income)) = FALSE Then sm_err_msg = sm_err_msg & vbNewLine & "* Enter the number of hours for the paycheck on " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & " as a number."
@@ -1440,6 +1479,15 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
                                 Loop until pay_dates_correct_checkbox = checked
                                 call check_for_password(are_we_passworded_out)
                             Loop until are_we_passworded_out = false
+
+                            For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+                                If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
+                                    If LIST_OF_INCOME_ARRAY(frequency_issue, all_income) = TRUE Then
+                                        If abs(DateDiff("d", LIST_OF_INCOME_ARRAY(view_pay_date, all_income), LIST_OF_INCOME_ARRAY(pay_date, all_income))) > 6 Then LIST_OF_INCOME_ARRAY(pay_date, all_income) = LIST_OF_INCOME_ARRAY(view_pay_date, all_income)
+                                    End If
+                                End If
+                            Next
+
                         End If
 
 
@@ -2474,21 +2522,26 @@ If update_with_verifs = TRUE Then
                 If EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel) = "JOBS" Then Call Navigate_to_MAXIS_screen("STAT", "JOBS")
                 EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel), 20, 76
                 EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel), 20, 79
+                transmit
                 EMReadScreen confirm_same_employer, len(EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)), 7, 42
                 the_new_instance = ""
                 If confirm_same_employer <> UCase(EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)) Then
                     EMWriteScreen "JOBS", 20, 71
                     EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel), 20, 76
+                    transmit
+                    try = 1
                     Do
                         EMReadScreen confirm_same_employer, len(EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)), 7, 42
-                        MsgBox "Panel - " & confirm_same_employer & vbNewLine & "Array = " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)
-                        If confirm_same_employer <> UCase(EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)) Then
-                            transmit
-                        Else
+                        'MsgBox "Panel - " & confirm_same_employer & vbNewLine & "Array = " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)
+                        If confirm_same_employer = UCase(EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)) Then
                             EMReadScreen the_new_instance, 1, 2, 73
                             EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) = "0" & the_new_instance
+                            Exit Do
                         End If
+                        transmit
                         EMReadScreen last_jobs, 7, 24, 2
+                        try = try + 1
+                        If try = 15 Then Exit Do
                     Loop until last_jobs = "ENTER A"
 
                     If the_new_instance = "" Then

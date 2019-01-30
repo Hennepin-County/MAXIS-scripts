@@ -245,7 +245,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
       	IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date.
       		EMWriteScreen day_hired, 12, 57			'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
       	ELSE
-      		EMWriteScreen current_day, 12, 57		'Puts today in as the day on prospective side, because that's the day we edited the panel
+      		EMWriteScreen "01", 12, 57		'Puts the first in as the day on prospective side
       	END IF
       	EMWriteScreen MAXIS_footer_year, 12, 60		'Puts footer year in on prospective side
       	EMWriteScreen "0", 12, 67				'Puts $0 in as the received income amt
