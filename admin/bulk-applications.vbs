@@ -319,25 +319,25 @@ const questionable_intv     = 24
 const take_action_today     = 25
 const need_face_to_face     = 26
 
-const worker_name_one       = 20
-const sup_name_one          = 21
-const issue_item_one        = 22
-const email_ym_one          = 23
-const qi_worker_one         = 24
+const worker_name_one       = 27
+const sup_name_one          = 28
+const issue_item_one        = 29
+const email_ym_one          = 30
+const qi_worker_one         = 31
 
-const worker_name_two       = 25
-const sup_name_two          = 26
-const issue_item_two        = 27
-const email_ym_two          = 28
-const qi_worker_two         = 29
+const worker_name_two       = 32
+const sup_name_two          = 33
+const issue_item_two        = 34
+const email_ym_two          = 35
+const qi_worker_two         = 36
 
-const worker_name_three     = 30
-const sup_name_three        = 31
-const issue_item_three      = 32
-const email_ym_three        = 33
-const qi_worker_three       = 34
+const worker_name_three     = 37
+const sup_name_three        = 38
+const issue_item_three      = 39
+const email_ym_three        = 40
+const qi_worker_three       = 41
 
-const error_notes 			= 35
+const error_notes 			= 42
 
 'Constants for columns in the working excel sheet - to make the excel code easier to read.
 const worker_id_col         = 1
@@ -2040,7 +2040,7 @@ For case_removed = 0 to UBOUND(CASES_NO_LONGER_WORKING, 2)      'looping through
 Next
 
 'formatting the spreadsheet
-For col_to_autofit =1 to  correct_need_col
+For col_to_autofit =1 to  qi_worker_three_col
     ObjExcel.Columns(col_to_autofit).AutoFit()
 Next
 
@@ -2161,8 +2161,8 @@ Loop until this_entry = ""
 For action_case = 0 to UBOUND(ACTION_TODAY_CASES_ARRAY, 2)      'looping through the ARRAY created when we took actions on the cases on the Working Excel
     If InStr(ACTION_TODAY_CASES_ARRAY(error_notes, action_case), "NOMI Sent today") <> 0 Then
         'Here we add the NOMI to the statistics
-        ObjStatsExcel.Cells(stats_excel_nomi_row, 1).Value = ALL_PENDING_CASES_ARRAY(case_number, case_entry)        'Adding the case number to the statistics sheet
-        ObjStatsExcel.Cells(stats_excel_nomi_row, 2).Value = ALL_PENDING_CASES_ARRAY(application_date, case_entry)   'Adding the date of application to the statistics sheet
+        ObjStatsExcel.Cells(stats_excel_nomi_row, 1).Value = ALL_PENDING_CASES_ARRAY(case_number, action_case)        'Adding the case number to the statistics sheet
+        ObjStatsExcel.Cells(stats_excel_nomi_row, 2).Value = ALL_PENDING_CASES_ARRAY(application_date, action_case)   'Adding the date of application to the statistics sheet
         ObjStatsExcel.Cells(stats_excel_nomi_row, 3).Value = date                                                    'Adding today's date of the NOMI date for the stats sheet
         ObjStatsExcel.Cells(stats_excel_nomi_row, 4).Value = 1                                                       'Need to count - this is always 1
         stats_excel_nomi_row = stats_excel_nomi_row + 1
