@@ -319,25 +319,25 @@ const questionable_intv     = 24
 const take_action_today     = 25
 const need_face_to_face     = 26
 
-const worker_name_one       = 20
-const sup_name_one          = 21
-const issue_item_one        = 22
-const email_ym_one          = 23
-const qi_worker_one         = 24
+const worker_name_one       = 27
+const sup_name_one          = 28
+const issue_item_one        = 29
+const email_ym_one          = 30
+const qi_worker_one         = 31
 
-const worker_name_two       = 25
-const sup_name_two          = 26
-const issue_item_two        = 27
-const email_ym_two          = 28
-const qi_worker_two         = 29
+const worker_name_two       = 32
+const sup_name_two          = 33
+const issue_item_two        = 34
+const email_ym_two          = 35
+const qi_worker_two         = 36
 
-const worker_name_three     = 30
-const sup_name_three        = 31
-const issue_item_three      = 32
-const email_ym_three        = 33
-const qi_worker_three       = 34
+const worker_name_three     = 37
+const sup_name_three        = 38
+const issue_item_three      = 39
+const email_ym_three        = 40
+const qi_worker_three       = 41
 
-const error_notes 			= 27
+const error_notes 			= 42
 
 'Constants for columns in the working excel sheet - to make the excel code easier to read.
 const worker_id_col         = 1
@@ -432,60 +432,6 @@ working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improv
 
 'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
 call excel_open(working_excel_file_path, True, True, ObjWorkExcel, objWorkbook)
-
-statistics_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Applications Statistics\2019 Statistics Tracking.xlsx"
-call excel_open(statistics_excel_file_path, False,  False, ObjStatsExcel, objStatsWorkbook)
-
-'Now we need to open the right worksheet
-'Select Case MonthName(Month(#2/15/19#))
-Select Case MonthName(Month(date))
-
-    Case "January"
-        sheet_selection = "January 2019"
-    Case "February"
-        sheet_selection = "February 2019"
-    Case "March"
-        sheet_selection = "March 2019"
-    Case "April"
-        sheet_selection = "April 2019"
-    Case "May"
-        sheet_selection = "May 2019"
-    Case "June"
-        sheet_selection = "June 2019"
-    Case "July"
-        sheet_selection = "July 2019"
-    Case "August"
-        sheet_selection = "August 2019"
-    Case "September"
-        sheet_selection = "September 2019"
-    Case "October"
-        sheet_selection = "October 2019"
-    Case "November"
-        sheet_selection = "November 2019"
-    Case "December"
-        sheet_selection = "December 2019"
-
-End Select
-'Activates worksheet based on user selection
-ObjStatsExcel.worksheets(sheet_selection).Activate
-
-stats_excel_nomi_row = 3
-Do
-    this_entry = ObjStatsExcel.Cells(stats_excel_nomi_row, 1).Value
-    this_entry = trim(this_entry)
-    If this_entry <> "" Then stats_excel_nomi_row = stats_excel_nomi_row + 1
-Loop until this_entry = ""
-
-stats_excel_email_row = 3
-Do
-    this_entry = ObjStatsExcel.Cells(stats_excel_email_row, 8).Value
-    this_entry = trim(this_entry)
-    If this_entry <> "" Then stats_excel_email_row = stats_excel_email_row + 1
-Loop until this_entry = ""
-
-' 'For testing'
-' ObjStatsExcel.Visible = TRUE
-' MsgBox "NOMI Row - " & stats_excel_nomi_row & vbNewLine & "Email row - " & stats_excel_email_row
 
 
 'ARRAY of all the cases that are on the working spreadsheet (this is essentially the spreadsheet doumped into a script array for use)
@@ -1659,12 +1605,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                 'MsgBox "What casenote was sent?"
                 PF3
 
-                'Here we add the NOMI to the statistics
-                ObjStatsExcel.Cells(stats_excel_nomi_row, 1).Value = ALL_PENDING_CASES_ARRAY(case_number, case_entry)        'Adding the case number to the statistics sheet
-                ObjStatsExcel.Cells(stats_excel_nomi_row, 2).Value = ALL_PENDING_CASES_ARRAY(application_date, case_entry)   'Adding the date of application to the statistics sheet
-                ObjStatsExcel.Cells(stats_excel_nomi_row, 3).Value = date                                                    'Adding today's date of the NOMI date for the stats sheet
-                ObjStatsExcel.Cells(stats_excel_nomi_row, 4).Value = 1                                                       'Need to count - this is always 1
-                stats_excel_nomi_row = stats_excel_nomi_row + 1
             Else
                 ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "???"           'this is for testing - this has never come up
             End If
@@ -2053,25 +1993,6 @@ For case_removed = 0 to UBOUND(CASES_NO_LONGER_WORKING, 2)      'looping through
         End If
     End If
 
-    If CASES_NO_LONGER_WORKING(worker_name_one, case_removed) <> "" OR CASES_NO_LONGER_WORKING(issue_item_one, case_removed) <> "" OR CASES_NO_LONGER_WORKING(qi_worker_one, case_removed) <> "" Then
-        ObjStatsExcel.Cells(stats_excel_email_row, 8).Value = CASES_NO_LONGER_WORKING(case_number, case_removed)        'Adding all information to the stats excel
-        ObjStatsExcel.Cells(stats_excel_email_row, 10).Value = CASES_NO_LONGER_WORKING(sup_name_one, case_removed)
-        ObjStatsExcel.Cells(stats_excel_email_row, 11).Value = CASES_NO_LONGER_WORKING(issue_item_one, case_removed)
-        ObjStatsExcel.Cells(stats_excel_email_row, 12).Value = CASES_NO_LONGER_WORKING(email_ym_one, case_removed)
-        ObjStatsExcel.Cells(stats_excel_email_row, 13).Value = CASES_NO_LONGER_WORKING(qi_worker_one, case_removed)
-        ObjStatsExcel.Cells(stats_excel_email_row, 14).Value = CASES_NO_LONGER_WORKING(worker_name_two, case_removed)
-        ObjStatsExcel.Cells(stats_excel_email_row, 15).Value = CASES_NO_LONGER_WORKING(sup_name_two, case_removed)
-        ObjStatsExcel.Cells(stats_excel_email_row, 16).Value = CASES_NO_LONGER_WORKING(issue_item_two, case_removed)
-        ObjStatsExcel.Cells(stats_excel_email_row, 17).Value = CASES_NO_LONGER_WORKING(email_ym_two, case_removed)
-        ObjStatsExcel.Cells(stats_excel_email_row, 18).Value = CASES_NO_LONGER_WORKING(qi_worker_two, case_removed)
-        ObjStatsExcel.Cells(stats_excel_email_row, 19).Value = CASES_NO_LONGER_WORKING(worker_name_three, case_removed)
-        ObjStatsExcel.Cells(stats_excel_email_row, 20).Value = CASES_NO_LONGER_WORKING(sup_name_three, case_removed)
-        ObjStatsExcel.Cells(stats_excel_email_row, 21).Value = CASES_NO_LONGER_WORKING(issue_item_three, case_removed)
-        ObjStatsExcel.Cells(stats_excel_email_row, 22).Value = CASES_NO_LONGER_WORKING(email_ym_three, case_removed)
-        ObjStatsExcel.Cells(stats_excel_email_row, 23).Value = CASES_NO_LONGER_WORKING(qi_worker_three, case_removed)
-        stats_excel_email_row = stats_excel_email_row + 1
-    End If
-
     'making sure the script has the Excel Daily List up and saves the information about the case to the next blank row
     ObjExcel.Worksheets("Cases Removed From Working LIST").Activate
     'MsgBox "Row is " & removed_row & vbNewLine & "Worker ID " & CASES_NO_LONGER_WORKING(worker_ID, case_removed)
@@ -2119,7 +2040,7 @@ For case_removed = 0 to UBOUND(CASES_NO_LONGER_WORKING, 2)      'looping through
 Next
 
 'formatting the spreadsheet
-For col_to_autofit =1 to  correct_need_col
+For col_to_autofit =1 to  qi_worker_three_col
     ObjExcel.Columns(col_to_autofit).AutoFit()
 Next
 
@@ -2182,6 +2103,91 @@ Next
 
 For col_to_autofit =1 to  correct_need_col      'formatting the sheet
     ObjExcel.Columns(col_to_autofit).AutoFit()
+Next
+
+statistics_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Applications Statistics\2019 Statistics Tracking.xlsx"
+call excel_open(statistics_excel_file_path, False,  False, ObjStatsExcel, objStatsWorkbook)
+
+'Now we need to open the right worksheet
+'Select Case MonthName(Month(#2/15/19#))
+Select Case MonthName(Month(date))
+
+    Case "January"
+        sheet_selection = "January 2019"
+    Case "February"
+        sheet_selection = "February 2019"
+    Case "March"
+        sheet_selection = "March 2019"
+    Case "April"
+        sheet_selection = "April 2019"
+    Case "May"
+        sheet_selection = "May 2019"
+    Case "June"
+        sheet_selection = "June 2019"
+    Case "July"
+        sheet_selection = "July 2019"
+    Case "August"
+        sheet_selection = "August 2019"
+    Case "September"
+        sheet_selection = "September 2019"
+    Case "October"
+        sheet_selection = "October 2019"
+    Case "November"
+        sheet_selection = "November 2019"
+    Case "December"
+        sheet_selection = "December 2019"
+
+End Select
+'Activates worksheet based on user selection
+ObjStatsExcel.worksheets(sheet_selection).Activate          'activates the stat worksheet.'
+
+stats_excel_nomi_row = 3
+Do
+    this_entry = ObjStatsExcel.Cells(stats_excel_nomi_row, 1).Value
+    this_entry = trim(this_entry)
+    If this_entry <> "" Then stats_excel_nomi_row = stats_excel_nomi_row + 1
+Loop until this_entry = ""
+
+stats_excel_email_row = 3
+Do
+    this_entry = ObjStatsExcel.Cells(stats_excel_email_row, 8).Value
+    this_entry = trim(this_entry)
+    If this_entry <> "" Then stats_excel_email_row = stats_excel_email_row + 1
+Loop until this_entry = ""
+
+' 'For testing'
+' ObjStatsExcel.Visible = TRUE
+' MsgBox "NOMI Row - " & stats_excel_nomi_row & vbNewLine & "Email row - " & stats_excel_email_row
+For action_case = 0 to UBOUND(ACTION_TODAY_CASES_ARRAY, 2)      'looping through the ARRAY created when we took actions on the cases on the Working Excel
+    If InStr(ACTION_TODAY_CASES_ARRAY(error_notes, action_case), "NOMI Sent today") <> 0 Then
+        'Here we add the NOMI to the statistics
+        ObjStatsExcel.Cells(stats_excel_nomi_row, 1).Value = ALL_PENDING_CASES_ARRAY(case_number, action_case)        'Adding the case number to the statistics sheet
+        ObjStatsExcel.Cells(stats_excel_nomi_row, 2).Value = ALL_PENDING_CASES_ARRAY(application_date, action_case)   'Adding the date of application to the statistics sheet
+        ObjStatsExcel.Cells(stats_excel_nomi_row, 3).Value = date                                                    'Adding today's date of the NOMI date for the stats sheet
+        ObjStatsExcel.Cells(stats_excel_nomi_row, 4).Value = 1                                                       'Need to count - this is always 1
+        stats_excel_nomi_row = stats_excel_nomi_row + 1
+    End If
+Next
+
+For case_removed = 0 to UBOUND(CASES_NO_LONGER_WORKING, 2)      'looping through each of the cases in the ARRAY from the beginning of cases that were taken off of the Working Excel
+    If CASES_NO_LONGER_WORKING(worker_name_one, case_removed) <> "" OR CASES_NO_LONGER_WORKING(issue_item_one, case_removed) <> "" OR CASES_NO_LONGER_WORKING(qi_worker_one, case_removed) <> "" Then
+        ObjStatsExcel.Cells(stats_excel_email_row, 8).Value = CASES_NO_LONGER_WORKING(case_number, case_removed)        'Adding all information to the stats excel
+        ObjStatsExcel.Cells(stats_excel_email_row, 10).Value = CASES_NO_LONGER_WORKING(sup_name_one, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 11).Value = CASES_NO_LONGER_WORKING(issue_item_one, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 12).Value = CASES_NO_LONGER_WORKING(email_ym_one, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 13).Value = CASES_NO_LONGER_WORKING(qi_worker_one, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 14).Value = CASES_NO_LONGER_WORKING(worker_name_two, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 15).Value = CASES_NO_LONGER_WORKING(sup_name_two, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 16).Value = CASES_NO_LONGER_WORKING(issue_item_two, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 17).Value = CASES_NO_LONGER_WORKING(email_ym_two, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 18).Value = CASES_NO_LONGER_WORKING(qi_worker_two, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 19).Value = CASES_NO_LONGER_WORKING(worker_name_three, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 20).Value = CASES_NO_LONGER_WORKING(sup_name_three, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 21).Value = CASES_NO_LONGER_WORKING(issue_item_three, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 22).Value = CASES_NO_LONGER_WORKING(email_ym_three, case_removed)
+        ObjStatsExcel.Cells(stats_excel_email_row, 23).Value = CASES_NO_LONGER_WORKING(qi_worker_three, case_removed)
+        stats_excel_email_row = stats_excel_email_row + 1
+    End If
 Next
 
 objStatsWorkbook.Save
