@@ -192,9 +192,10 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 DO
 	DO
         Do 
-            If appointment_date = "1/21/2019" or appointment_date = "2/18/2019" then 
+            holidays = Join(HOLIDAYS_ARRAY, ",")     
+            If instr(holidays, appointment_date) then 
                 appointment_date = dateadd("d", 7, appointment_date) 
-                appt_date = False   'dates are identified holiday dates 
+                appt_date = False   'dates are identified holiday dates   
             else 
                 appt_date = True    'date is not a holiday 
                 exit do 
