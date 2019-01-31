@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/31/2019", "Added functionality to change Defer FSET funds field if coded incorrectly on STAT/WREG.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/23/2018", "Added code to write in client name if presenting as a PRIV case on initial spreadsheet.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/30/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -129,7 +130,20 @@ Do
 	    EMReadScreen ABAWD_code, 2, 13, 50
         EMReadScreen banked_months, 1, 14, 50
         EMReadScreen defer_funds, 1, 8, 80
+        
+        If FSET_code = "30" then 
+            If (ABWAD_code = "05" and defer_funds <> "Y") then 
+                PF9
+                Call write_value_and_transmit("Y", 8, 80)       'Pregnant members need to be coded Y for Defer FSET funds. They are the only ones in this county.
+                PF3
+            elseif defer_funds <> "N" then
+                PF9
+                Call write_value_and_transmit("N", 8, 80)       'Coding the rest of the ABAWD's as N for Defer FSET funds. Even though voluntary, this code is still N.
+                PF3
+            End if 
+        End if 
 	    
+        ObjExcel.Cells(excel_row, 7).Value = member_number                      'writing in the member number with initial 0 trimmed.
         ObjExcel.Cells(excel_row, 8).Value = replace(FSET_code, "_", "")
 	    ObjExcel.Cells(excel_row, 9).Value = replace(ABAWD_code, "_", "")
         ObjExcel.Cells(excel_row, 10).Value = replace(banked_months, "_", "")
