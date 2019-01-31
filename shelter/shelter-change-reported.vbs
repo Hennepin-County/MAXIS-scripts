@@ -324,7 +324,7 @@ PF3 'to save casenote'
 			End If
 		Loop until next_page = "More:  " OR next_page = "       "	'No more pages
 		'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-		CALL create_outlook_email("HSPH. ", "","Change Reported For #" &  MAXIS_case_number & " Member # " & memb_number & " Date Change Reported " & date_received, "CASE NOTE" & vbcr & message_array,"", False)
+		CALL create_outlook_email("", "","Change Reported For #" &  MAXIS_case_number & " Member # " & memb_number & " Date Change Reported " & date_received, "CASE NOTE" & vbcr & message_array,"", False)
 	END IF
 'If we checked to TIKL out, it goes to TIKL and sends a TIKL
 IF tikl_nav_check = 1 THEN
