@@ -259,7 +259,7 @@ END IF
 'IF nature_change = "Income"
 'IF nature_change = "Shelter Cost"
 IF nature_change = "Other(please specify)" THEN nature_change = "Other"
-
+IF memb_number = "" THEN memb_number = "01"
     '----------------------------------------------------------------------------------------------------THE CASENOTE
     Call start_a_blank_case_note
 	CALL write_variable_in_case_note("--CHANGE REPORTED - " & nature_change & "--")
