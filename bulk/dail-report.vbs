@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/28/2019", "Added functionality to remove '=' from any TIKL messages. The equal sign is not able to be written into Excel.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/28/2019", "Removed text in spreadsheet that indicates if there is no DAIL for a particular x number. Stats will still relfect the number of DAILS found.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/13/2018", "Updated option selection handling, and other background functionality.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/12/2018", "Fixed bug for cases with more than one page of DAILs for the same case. Added all agency handling.", "Ilse Ferris, Hennepin County")
@@ -177,11 +178,7 @@ For each worker in worker_array
 	EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
 	DO
 		If number_of_dails = " " Then exit do 			'if this space is blank the rest of the DAIL reading is skipped
-		'	objExcel.Cells(excel_row, 1).Value = worker
-		'	objExcel.Cells(excel_row, 3).Value = "No DAILs for this worker."
-		'	excel_row = excel_row + 1
-		'	Exit Do
-		'End If
+		
 		'Reading and trimming the MAXIS case number and dumping it in Excel
 		EMReadScreen maxis_case_number, 8, 5, 73
 		maxis_case_number = trim(maxis_case_number)
@@ -214,15 +211,17 @@ For each worker in worker_array
 				EMReadScreen dail_type,  4, dail_row, 6
 				EMReadScreen dail_month, 8, dail_row, 11
 				EMReadScreen dail_msg, 	61, dail_row, 20
+                dail_msg = replace(dail_msg, "=", "")       'This is an Excel no-no
+                dail_msg = trim(dail_msg)
 				
-				IF trim(dail_msg) <> "" AND dail_type <> "    " and trim(dail_month) <> "" THEN
+				IF dail_msg <> "" AND dail_type <> "    " and trim(dail_month) <> "" THEN
 					'...and put that in Excel.
 					objExcel.Cells(excel_row, 1).Value = worker
 					objExcel.Cells(excel_row, 2).Value = maxis_case_number
 					objExcel.Cells(excel_row, 3).Value = client_name
 					objExcel.Cells(excel_row, 4).Value = dail_type
 					objExcel.Cells(excel_row, 5).Value = trim(dail_month)
-					objExcel.Cells(excel_row, 6).Value = trim(dail_msg)
+					objExcel.Cells(excel_row, 6).Value = dail_msg
 					excel_row = excel_row + 1			'only does this if there's data there (if no data has been entered, it means we're at the end of a DAIL list of some type somehow)
 					STATS_counter = STATS_counter + 1 	'adds one instance to the stats counter
 				END IF
