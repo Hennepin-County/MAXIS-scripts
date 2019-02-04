@@ -462,16 +462,16 @@ DO
   	Loop until are_we_passworded_out = false					'loops until user passwords back in
 	END IF
 
-	IF child_ref_number_I <> "" THEN child_ref_number = child_ref_number_I & ","
-	IF child_ref_number_II <> "" THEN child_ref_number = child_ref_number_II & ","
-	IF child_ref_number_III <> "" THEN child_ref_number = child_ref_number_III & ","
-	IF child_ref_number_IV <> "" THEN child_ref_number = child_ref_number_IV & ","
-	IF child_ref_number_VI <> "" THEN child_ref_number = child_ref_number_VI & ","
-	IF child_ref_number_VIII <> "" THEN child_ref_number = child_ref_number_VIII & ","
-	IF child_ref_number_IX <> "" THEN child_ref_number = child_ref_number_IX & ","
-	IF child_ref_number_X <> "" THEN child_ref_number = child_ref_number_X & ","
-	IF child_ref_number_XI <> "" THEN child_ref_number = child_ref_number_XI & ","
-	IF child_ref_number_XII <> "" THEN child_ref_number = child_ref_number_XII & ","
+	IF child_ref_number_I <> "" THEN child_ref_number = child_ref_number & ","
+	IF child_ref_number_II <> "" THEN child_ref_number = child_ref_number & ","
+	IF child_ref_number_III <> "" THEN child_ref_number = child_ref_number & ","
+	IF child_ref_number_IV <> "" THEN child_ref_number = child_ref_number & ","
+	IF child_ref_number_VI <> "" THEN child_ref_number = child_ref_number & ","
+	IF child_ref_number_VIII <> "" THEN child_ref_number = child_ref_number & ","
+	IF child_ref_number_IX <> "" THEN child_ref_number = child_ref_number & ","
+	IF child_ref_number_X <> "" THEN child_ref_number = child_ref_number & ","
+	IF child_ref_number_XI <> "" THEN child_ref_number = child_ref_number & ","
+	IF child_ref_number_XII <> "" THEN child_ref_number = child_ref_number & ","
 
 	'trims excess spaces of programs
 	programs_included  = trim(programs_included )
@@ -517,7 +517,6 @@ DO
 			EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
 			error_check = trim(error_check)
 			If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
-
 	    Loop until MAXIS_footer_month_check = vbYes
 Loop until MAXIS_footer_month_check = vbNo
 
