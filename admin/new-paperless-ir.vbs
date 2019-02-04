@@ -75,28 +75,31 @@ const new_hc_er     = 8
 
 const cash_revw     = 9
 const SNAP_revw     = 10
+const GRH_revw      = 11
 
-const ca_sr_date    = 11
-const ca_er_date    = 12
-const fs_sr_date    = 13
-const fs_er_date    = 14
+const ca_sr_date    = 12
+const ca_er_date    = 13
+const grh_er_date   = 14
+const fs_sr_date    = 15
+const fs_er_date    = 16
 
-const new_ca_er     = 15
-const new_fs_sr     = 16
-const new_fs_er     = 17
+const new_ca_er     = 17
+const new_fs_sr     = 18
+const new_fs_er     = 19
 
-const time_between  = 18
-const hc_type       = 19
-const cash_status   = 20
-const SNAP_status   = 21
-const waived_revw   = 22
-const actually_paperless = 23
-const membs_updated = 24
-const current_budg  = 25
-const tikl_done     = 26
-const correct_list  = 27
-const revw_updated  = 28
-const case_notes    = 29
+const time_between  = 20
+const hc_type       = 21
+const cash_status   = 22
+const SNAP_status   = 23
+const GRH_status    = 24
+const waived_revw   = 25
+const actually_paperless = 26
+const membs_updated = 27
+const current_budg  = 28
+const tikl_done     = 29
+const correct_list  = 30
+const revw_updated  = 31
+const case_notes    = 32
 
 'Updated Waived IRs
 'Other current reviews
@@ -307,6 +310,13 @@ Do
     cash_er_col = col_to_use
     col_to_use = col_to_use + 1
 
+    objExcel.Cells(1, col_to_use).Value  = "GRH Status"
+    grh_col = col_to_use
+    col_to_use = col_to_use + 1
+
+    objExcel.Cells(1, col_to_use).Value = "GRH ER"
+    grh_er_col = col_to_use
+    col_to_use = col_to_use + 1
     ' objExcel.Cells(1, col_to_use).Value = "NEW Cash ER"
     ' new_cash_er_col = col_to_use
     ' col_to_use = col_to_use + 1
@@ -393,8 +403,10 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
                     EMReadScreen last_page_check, 9, 24, 14
                 End If
             Loop until last_page_check = "LAST PAGE"
-            list_of_hc_membs = right(list_of_hc_membs, len(list_of_hc_membs) - 1)
-            HC_PERS_ARRAY = split(list_of_hc_membs, "~")
+            If list_of_hc_membs <> "" Then
+                list_of_hc_membs = right(list_of_hc_membs, len(list_of_hc_membs) - 1)
+                HC_PERS_ARRAY = split(list_of_hc_membs, "~")
+            End If
 
             For each pers_nbr in HC_PERS_ARRAY
                 Do
@@ -462,6 +474,7 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
             EMReadScreen Cash1_code, 4, 6, 74
             EMReadScreen Cash2_code, 4, 7, 74
             EMReadScreen SNAP_code, 4, 10, 74
+            EMReadScreen GRH_code, 4, 9, 74
 
             If Cash1_code = "ACTV" Then ALL_HC_REVS_ARRAY (cash_status, hc_reviews)  = "Active"
             If Cash2_code = "ACTV" Then ALL_HC_REVS_ARRAY (cash_status, hc_reviews)  = "Active"
@@ -472,6 +485,10 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
             If SNAP_code = "ACTV" Then ALL_HC_REVS_ARRAY (SNAP_status, hc_reviews)  = "Active"
             If SNAP_code = "PEND" Then ALL_HC_REVS_ARRAY (SNAP_status, hc_reviews)  = "Pending"
             If ALL_HC_REVS_ARRAY (SNAP_status, hc_reviews) = "" Then ALL_HC_REVS_ARRAY (SNAP_status, hc_reviews) = "Inactive"
+
+            If GRH_code = "ACTV" Then ALL_HC_REVS_ARRAY (GRH_status, hc_reviews)  = "Active"
+            If GRH_code = "PEND" Then ALL_HC_REVS_ARRAY (GRH_status, hc_reviews)  = "Pending"
+            If ALL_HC_REVS_ARRAY (GRH_status, hc_reviews) = "" Then ALL_HC_REVS_ARRAY (GRH_status, hc_reviews) = "Inactive"
 
             Call navigate_to_MAXIS_screen("STAT", "REVW")
 
@@ -489,12 +506,21 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
             If inc_renw_date <> "__ 01 __" Then ALL_HC_REVS_ARRAY (hc_sr_date, hc_reviews) = replace(inc_renw_date, " ", "/")
             If ast_renw_date <> "__ 01 __" Then ALL_HC_REVS_ARRAY (hc_sr_date, hc_reviews) = replace(ast_renw_date, " ", "/")
             PF3
+            'MsgBox "Pause 1"
 
             If ALL_HC_REVS_ARRAY (cash_status, hc_reviews) = "Active" Then
 
                 EMReadScreen ALL_HC_REVS_ARRAY (ca_er_date, hc_reviews), 8, 9, 37
 
                 ALL_HC_REVS_ARRAY (ca_er_date, hc_reviews) = replace(ALL_HC_REVS_ARRAY (ca_er_date, hc_reviews), " ", "/")
+
+            End If
+
+            If ALL_HC_REVS_ARRAY (GRH_status, hc_reviews) = "Active" Then
+
+                EMReadScreen ALL_HC_REVS_ARRAY (grh_er_date, hc_reviews), 8, 9, 37
+
+                ALL_HC_REVS_ARRAY (grh_er_date, hc_reviews) = replace(ALL_HC_REVS_ARRAY (grh_er_date, hc_reviews), " ", "/")
 
             End If
 
@@ -510,7 +536,7 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
                 If ALL_HC_REVS_ARRAY (fs_sr_date, hc_reviews) = "__/01/__" Then ALL_HC_REVS_ARRAY (fs_sr_date, hc_reviews) = ""
                 PF3
             End If
-
+            'MsgBox "Pause 2"
             hc_sr = ""
             hc_er = ""
             snap_sr = ""
@@ -518,7 +544,7 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
             cash_er = ""
             ALL_HC_REVS_ARRAY(revw_updated, hc_reviews) = FALSE
             If ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = TRUE Then
-
+                'MsgBox "Pause 3"
                 ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "Updated Waived IRs"
 
                 EMReadScreen fs_revw_code, 1, 7, 60
@@ -533,9 +559,12 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
                         If DateDiff("m", date, ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews)) < 12 then
                             hc_er = ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews)
                         Else
-                            Do
-                                hc_er = DateAdd("m", -12, ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews))
-                            Loop Until DateDiff("m", date, hc_er) < 12
+                            hc_er = DateAdd("m", -12, ALL_HC_REVS_ARRAY (fs_er_date, hc_reviews))
+                            If DateDiff("m", date, hc_er) >= 12 Then
+                                Do
+                                    hc_er = DateAdd("m", -12, hc_er)
+                                Loop Until DateDiff("m", date, hc_er) < 12
+                            End If
                         End If
                         ALL_HC_REVS_ARRAY(new_hc_er, hc_reviews) = hc_er
 
@@ -564,7 +593,7 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
                 ElseIf ALL_HC_REVS_ARRAY (ca_er_date, hc_reviews) <> "" Then
                     If ALL_HC_REVS_ARRAY (hc_er_date, hc_reviews) <> ALL_HC_REVS_ARRAY (ca_er_date, hc_reviews) Then ALL_HC_REVS_ARRAY(new_hc_er, hc_reviews) = ALL_HC_REVS_ARRAY (ca_er_date, hc_reviews)
                 End If
-
+                'MsgBox "Pause 4"
                 If ALL_HC_REVS_ARRAY (fs_sr_date, hc_reviews) <> "" Then
                     snap_sr = ALL_HC_REVS_ARRAY (fs_sr_date, hc_reviews)
                     If ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews) <> "__ __ __" AND ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews) <> "" Then snap_sr = ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews)
@@ -583,7 +612,7 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
                         End If
                     End If
                 End If
-
+                'MsgBox "Pause 5"
                 'THIS IS THE OLD WAY
                 If developer_mode = FALSE Then PF9
                 EMWriteScreen "x", 5, 71                'Open HC Renewals Pop-Up
@@ -636,6 +665,17 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
                     ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "No MEMBS with N REVW"
                 Else
                     PF3
+                    EMReadScreen check_hc_exit, 67, 23, 5 'check these coordinates'
+                    If check_hc_exit = "ELIG RENEWAL DATE CANNOT BE PRIOR OR EQUAL TO CURRENT BENEFIT MONTH" Then
+                        review_month = MAXIS_footer_month & "/1/" & MAXIS_footer_year
+                        review_six_mo_away = DateAdd("m", 6, review_month)
+                        update_ER_mo = right("0" & DatePart("m", review_six_mo_away), 2)
+                        update_ER_yr = right(DatePart("yyyy", review_six_mo_away), 2)
+                        ALL_HC_REVS_ARRAY (hc_er_date, hc_reviews) = review_six_mo_away
+                        EMWriteScreen update_ER_mo, 9, 27
+                        EMWriteScreen update_ER_yr, 9, 33
+                        PF3
+                    End If
                     EMReadScreen hc_revw_code, 1, 7, 73
                     If hc_revw_code = "N" Then
                         ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "No MEMBS with N REVW"
@@ -651,6 +691,15 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
                         ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "Other current reviews"
                         ALL_HC_REVS_ARRAY(revw_updated, hc_reviews) = FALSE
                         ALL_HC_REVS_ARRAY(membs_updated, hc_reviews) = ""
+                        ALL_HC_REVS_ARRAY(case_notes, hc_reviews) = ALL_HC_REVS_ARRAY(case_notes, hc_reviews) & " - " & failure_check
+                        PF10
+                    End If
+
+                    If failure_check = "CA REVIEW DATES MUST ALSO BE UPDATED" Then
+                        ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "Other current reviews"
+                        ALL_HC_REVS_ARRAY(revw_updated, hc_reviews) = FALSE
+                        ALL_HC_REVS_ARRAY(membs_updated, hc_reviews) = ""
+                        ALL_HC_REVS_ARRAY(case_notes, hc_reviews) = ALL_HC_REVS_ARRAY(case_notes, hc_reviews) & " - " & failure_check
                         PF10
                     End If
 
@@ -658,6 +707,7 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
                         ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "Other current reviews"
                         ALL_HC_REVS_ARRAY(revw_updated, hc_reviews) = FALSE
                         ALL_HC_REVS_ARRAY(membs_updated, hc_reviews) = ""
+                        ALL_HC_REVS_ARRAY(case_notes, hc_reviews) = ALL_HC_REVS_ARRAY(case_notes, hc_reviews) & " - " & failure_check
                         PF10
                     End If
 
@@ -665,6 +715,23 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
                         ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "Other reviews are off"
                         ALL_HC_REVS_ARRAY(revw_updated, hc_reviews) = FALSE
                         ALL_HC_REVS_ARRAY(membs_updated, hc_reviews) = ""
+                        ALL_HC_REVS_ARRAY(case_notes, hc_reviews) = ALL_HC_REVS_ARRAY(case_notes, hc_reviews) & " - " & failure_check
+                        PF10
+                    End If
+
+                    If failure_check = "NEXT REVIEW DATE CANNOT BE MORE THAN 12 MONTHS FROM LAST REVIEW DATE" Then
+                        ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "Other reviews are off"
+                        ALL_HC_REVS_ARRAY(revw_updated, hc_reviews) = FALSE
+                        ALL_HC_REVS_ARRAY(membs_updated, hc_reviews) = ""
+                        ALL_HC_REVS_ARRAY(case_notes, hc_reviews) = ALL_HC_REVS_ARRAY(case_notes, hc_reviews) & " - " & failure_check
+                        PF10
+                    End If
+
+                    If failure_check = "NEXT REVIEW DATE IS MISSING" Then
+                        ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "Other reviews are off"
+                        ALL_HC_REVS_ARRAY(revw_updated, hc_reviews) = FALSE
+                        ALL_HC_REVS_ARRAY(membs_updated, hc_reviews) = ""
+                        ALL_HC_REVS_ARRAY(case_notes, hc_reviews) = ALL_HC_REVS_ARRAY(case_notes, hc_reviews) & " - " & failure_check
                         PF10
                     End If
 
@@ -725,6 +792,7 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
         ObjExcel.Cells(excel_row_to_use, basket_col).Value         = ALL_HC_REVS_ARRAY(basket_nbr, hc_reviews)
         ObjExcel.Cells(excel_row_to_use, case_number_col).Value    = ALL_HC_REVS_ARRAY(case_nrb, hc_reviews)
         ObjExcel.Cells(excel_row_to_use, client_name_col).Value    = ALL_HC_REVS_ARRAY(clt_name, hc_reviews)
+        ObjExcel.Cells(excel_row_to_use, membs_col).NumberFormat   = "@"
         ObjExcel.Cells(excel_row_to_use, membs_col).Value          = ALL_HC_REVS_ARRAY(memb_on_hc, hc_reviews)
         ObjExcel.Cells(excel_row_to_use, magi_col).Value           = ALL_HC_REVS_ARRAY(hc_type, hc_reviews)
         ObjExcel.Cells(excel_row_to_use, current_revw_col).Value   = ALL_HC_REVS_ARRAY(revw_type, hc_reviews)
@@ -736,6 +804,8 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
 
         ObjExcel.Cells(excel_row_to_use, cash_col).Value           = ALL_HC_REVS_ARRAY(cash_status, hc_reviews)
         ObjExcel.Cells(excel_row_to_use, cash_er_col).Value        = ALL_HC_REVS_ARRAY(ca_er_date, hc_reviews)
+        ObjExcel.Cells(excel_row_to_use, grh_col).Value           = ALL_HC_REVS_ARRAY(GRH_status, hc_reviews)
+        ObjExcel.Cells(excel_row_to_use, grh_er_col).Value        = ALL_HC_REVS_ARRAY(grh_er_date, hc_reviews)
         ' ObjExcel.Cells(excel_row_to_use, new_cash_er_col).Value    = ALL_HC_REVS_ARRAY(new_ca_er, hc_reviews)
 
         ObjExcel.Cells(excel_row_to_use, snap_col).Value           = ALL_HC_REVS_ARRAY(SNAP_status, hc_reviews)
@@ -744,12 +814,18 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
         ' ObjExcel.Cells(excel_row_to_use, new_snap_sr_col).Value    = ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews)
         ' ObjExcel.Cells(excel_row_to_use, new_snap_er_col).Value    = ALL_HC_REVS_ARRAY(new_fs_er, hc_reviews)
 
+        If left(ALL_HC_REVS_ARRAY(membs_updated, hc_reviews), 2) = ", " Then ALL_HC_REVS_ARRAY(membs_updated, hc_reviews) = right(ALL_HC_REVS_ARRAY(membs_updated, hc_reviews), len(ALL_HC_REVS_ARRAY(membs_updated, hc_reviews)) - 2)
+        ObjExcel.Cells(excel_row_to_use, updates_col).Numberformat = "@"
         ObjExcel.Cells(excel_row_to_use, updates_col).Value        = ALL_HC_REVS_ARRAY(membs_updated, hc_reviews)
         ObjExcel.Cells(excel_row_to_use, budg_col).Value           = ALL_HC_REVS_ARRAY(current_budg, hc_reviews)
         ObjExcel.Cells(excel_row_to_use, tikl_col).Value           = ALL_HC_REVS_ARRAY(tikl_done, hc_reviews)
         ObjExcel.Cells(excel_row_to_use, notes_col).Value          = ALL_HC_REVS_ARRAY(case_notes, hc_reviews)
 
-        excel_row_to_use = excel_row_to_use + 1
+        If ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "Updated Waived IRs" Then not_waived_excel_row = not_waived_excel_row + 1
+        If ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "Other current reviews" Then curr_revw_excel_row = curr_revw_excel_row + 1
+        If ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "Other reviews are off" Then othr_revw_excel_row = othr_revw_excel_row + 1
+        If ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "Not actually paperless" Then paperless_excel_row = paperless_excel_row + 1
+        If ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "No MEMBS with N REVW" Then not_updated_excel_row = not_updated_excel_row + 1
 
 
     End If
