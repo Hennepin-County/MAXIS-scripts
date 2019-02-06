@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/04/2019", "Updated for 03/19 COLA messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/10/2018", "Updated for 01/19 COLA messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/11/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -180,12 +181,9 @@ For each worker in worker_array
 			dail_msg = trim(dail_msg)
 			stats_counter = stats_counter + 1
 	
-			If instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") OR _ 
-                instr(dail_msg, "NEW MSA ELIG AUTO-APPROVED") OR _ 
-                instr(dail_msg, "SNAP: AUTO-APPROVED") OR _ 
+			If instr(dail_msg, "NEW MFIP ELIG AUTO-APPROVED") OR _ 
                 instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") OR _ 
-                instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") OR _ 
-                instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO-APPROVED FOR JANUARY") then
+                instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") then
         		add_to_excel = TRUE
             Else	
 			    add_to_excel = False 
