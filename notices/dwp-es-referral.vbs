@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/06/2019", "Updated EMERGE North MPLS orientation dates/times per their request.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/06/2019", "Added HIRED and EMERGE ES providers. Also updated the ES provider droplist to follow the order of orientation locations on the DWP ES CHOICE SHEET.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/06/2018", "Brooklyn Center Avivo Thursday sessions discontining effective 12/31/18.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/06/2018", "Brooklyn Center Avivo Tuesday sessions discontining effective 12/31/18. Option removed from script as rest of the referral dates fall on holiday days. Also blocked Christmas Day and New Year's day as potential orientation dates.", "Ilse Ferris, Hennepin County")
@@ -79,7 +80,7 @@ End function
 BeginDialog referral_dialog, 0, 0, 291, 130, "ES Letter and Referral"
   EditBox 60, 10, 55, 15, MAXIS_case_number
   EditBox 205, 10, 55, 15, member_number
-  DropListBox 60, 35, 125, 15, "Select one..."+chr(9)+"Quick Connect: Northwest"+chr(9)+"Quick Connect: South Mpls"+chr(9)+"Avivo: South MPLS (Tues 1 PM)"+chr(9)+"Avivo: South MPLS (Wed 9 AM)"+chr(9)+"Avivo: South Subs (Tues 9 AM)"+chr(9)+"Avivo: South Subs (Wed 1 PM)"+chr(9)+"Avivo: North MPLS (Tues 9 AM)"+chr(9)+"Avivo: North MPLS (Wed 9AM)"+chr(9)+"Emerge: South MPLS (Wed 9 AM)"+chr(9)+"Emerge: South MPLS (Fri 1PM)"+chr(9)+"Emerge: North MPLS (Wed 9 AM)"+chr(9)+"Emerge: North MPLS (Fri '1PM)"+chr(9)+"Hired: Brooklyn Park (Mon 1 PM)"+chr(9)+"Hired: Brooklyn Park (Wed 9 AM)", interview_location 
+  DropListBox 60, 35, 125, 15, "Select one..."+chr(9)+"Quick Connect: Northwest"+chr(9)+"Quick Connect: South Mpls"+chr(9)+"Avivo: South MPLS (Tues 1 PM)"+chr(9)+"Avivo: South MPLS (Wed 9 AM)"+chr(9)+"Avivo: South Subs (Tues 9 AM)"+chr(9)+"Avivo: South Subs (Wed 1 PM)"+chr(9)+"Avivo: North MPLS (Tues 9 AM)"+chr(9)+"Avivo: North MPLS (Wed 9AM)"+chr(9)+"Emerge: South MPLS (Wed 9 AM)"+chr(9)+"Emerge: South MPLS (Fri 1PM)"+chr(9)+"Emerge: North MPLS (Tues 1 PM)"+chr(9)+"Emerge: North MPLS (Thurs 9 AM)"+chr(9)+"Hired: Brooklyn Park (Mon 1 PM)"+chr(9)+"Hired: Brooklyn Park (Wed 9 AM)", interview_location 
   DropListBox 60, 55, 100, 15, "Select one..."+chr(9)+"Scheduled"+chr(9)+"Rescheduled"+chr(9)+"Rescheduled from WERC", appt_type
   EditBox 205, 55, 75, 15, vendor_num
   EditBox 75, 80, 205, 15, other_referral_notes
@@ -245,21 +246,9 @@ ElseIf interview_location = "Emerge: South MPLS (Fri 1PM)" THEN
     appointment_time = "1:00 PM"
     appointment_date = Date + 8 - Weekday(Date, vbFriday)
     provider_row = 12    'WFM1 provider selection based on location
-       
+
 'Emerge North MPLS
-ElseIf interview_location = "Emerge: North MPLS (Wed 9 AM)" THEN
-    provider_name = "Emerge North Mpls"
-    provider_address_01 = "1834 Emerson Avenue North"
-    provider_city = "Minneapolis"
-    provider_ST = "MN"
-    provider_zip = "55411"
-    provider_phone = "612-876-9301"
-    'Date and time 
-    appointment_time = "9:00 AM"
-    appointment_date = Date + 8 - Weekday(Date, vbWednesday)
-    provider_row = 11    'WFM1 provider selection based on location
-    
-ElseIf interview_location = "Emerge: North MPLS (Fri 1PM)" THEN
+ElseIf interview_location = "Emerge: North MPLS (Tues 1 PM)" THEN
     provider_name = "Emerge North Mpls"
     provider_address_01 = "1834 Emerson Avenue North"
     provider_city = "Minneapolis"
@@ -268,7 +257,19 @@ ElseIf interview_location = "Emerge: North MPLS (Fri 1PM)" THEN
     provider_phone = "612-876-9301"
     'Date and time 
     appointment_time = "1:00 PM"
-    appointment_date = Date + 8 - Weekday(Date, vbFriday)
+    appointment_date = Date + 8 - Weekday(Date, vbTuesday)
+    provider_row = 11    'WFM1 provider selection based on location
+    
+ElseIf interview_location = "Emerge: North MPLS (Thurs 9 AM)" THEN
+    provider_name = "Emerge North Mpls"
+    provider_address_01 = "1834 Emerson Avenue North"
+    provider_city = "Minneapolis"
+    provider_ST = "MN"
+    provider_zip = "55411"
+    provider_phone = "612-876-9301"
+    'Date and time 
+    appointment_time = "9:00 AM"
+    appointment_date = Date + 8 - Weekday(Date, vbThursday)
     provider_row = 11    'WFM1 provider selection based on location
 
 'HIRED Brooklyn Park 
