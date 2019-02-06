@@ -255,8 +255,9 @@ programs = trim(programs)
 'takes the last comma off of programs when autofilled into dialog
 IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 '----------------------------------------------------------------------------------------------------Employer info & difference notice info
-IF ievs_type = "UBEN" or IEVS_type = "UNVI" THEN income_source = "NON-WAGE"
-IF ievs_type = "WAGE" or IEVS_type = "BEER" THEN
+IF IEVS_type = "UBEN" THEN income_source = "Unemployment"
+IF IEVS_type = "UNVI" THEN income_source = "NON-WAGE"
+IF IEVS_type = "WAGE" or IEVS_type = "BEER" THEN
 	EMReadScreen income_source, 75, 8, 37
     income_source = trim(income_source)
     length = len(income_source)		'establishing the length of the variable
