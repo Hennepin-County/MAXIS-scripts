@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("02/05/2019", "Updated case correction handling.", "Casey Love, Hennepin County")
 CALL changelog_update("11/15/2018", "Enhanced functionality for SameDay interview cases.", "Casey Love, Hennepin County")
 CALL changelog_update("11/06/2018", "Updated handling for HC only applications.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/25/2018", "Updated script to add handling for case correction.", "MiKayla Handley, Hennepin County")
@@ -136,7 +137,7 @@ IF multiple_apps = vbNo then
 	If additional_apps = vbYes then
 		additional_date_found = TRUE
 		application_date = additional_application_date
-END IF
+	END IF
 End if
 
 MAXIS_footer_month = right("00" & DatePart("m", application_date), 2)
@@ -395,11 +396,9 @@ End If
 pended_date = date
 '--------------------------------------------------------------------------------initial case note
 start_a_blank_case_note
-IF case_correction = CHECKED Then
-	CALL write_variable_in_CASE_NOTE("~ Case Correction Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
-	CALL write_bullet_and_variable_in_CASE_NOTE ("Requested By ", requested_person)
-ELSE
-	CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
+CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
+IF case_correction = CHECKED THEN
+	CALL write_variable_in_CASE_NOTE("* Case Correction requested by " & requested_person & " on " & pended_date & ".")
 END IF
 IF confirmation_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
 IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("* Form Received: MNsure Application for Health Coverage and Help Paying Costs (DHS-6696) ")
