@@ -94,6 +94,7 @@ LOOP UNTIL err_msg = ""
 'this creates the client array for baby_born_dialog dropdown list
 CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
 DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+	EMReadscreen worker_number, 7, 21, 21
 	EMReadscreen ref_nbr, 2, 4, 33
 	EMReadscreen last_name_array, 25, 6, 30								'took out clients last name apparently may be too much characters within the form restrictions.
 	EMReadscreen first_name_array, 12, 6, 63
@@ -252,7 +253,6 @@ ELSE
 	CALL check_for_MAXIS(FALSE)
 END IF
 
-
 'IF nature_change = "Address"
 'IF nature_change = "Baby Born"
 'IF nature_change = "HHLD Comp"
@@ -263,7 +263,6 @@ IF memb_number = "" THEN memb_number = "01"
     '----------------------------------------------------------------------------------------------------THE CASENOTE
     Call start_a_blank_case_note
 	CALL write_variable_in_case_note("--CHANGE REPORTED - " & nature_change & "--")
-
     CALL write_bullet_and_variable_in_Case_Note("Date Reported/Addendum", date_received)
 	CALL write_bullet_and_variable_in_Case_Note("Date Effective", effective_date)
     CALL write_bullet_and_variable_in_case_note("Address", address_notes)
@@ -272,12 +271,11 @@ IF memb_number = "" THEN memb_number = "01"
     CALL write_bullet_and_variable_in_case_note("Vehicles", vehicles_notes)
     CALL write_bullet_and_variable_in_case_note("Income", income_notes)
     CALL write_bullet_and_variable_in_case_note("Shelter", shelter_notes)
-
     CALL write_bullet_and_variable_in_case_note("Verifs Requested", verifs_requested)
 	'CALL write_variable_in_case_note("--CHANGE REPORTED -' HH Comp Change--")
 	CALL write_bullet_and_variable_in_Case_Note("Unit member HH Member", HH_Member)
-	IF Temporary_Change_Checkbox = CHECKED THEN CALL write_variable_in_Case_Note("***Change is temporary***")
-	IF Temporary_Change_Checkbox = UNCHECKED THEN CALL write_variable_in_Case_Note("***Change is NOT temporary***")
+	IF Temporary_Change_Checkbox = CHECKED THEN CALL write_variable_in_Case_Note("* Change is temporary")
+	IF Temporary_Change_Checkbox = UNCHECKED THEN CALL write_variable_in_Case_Note("* Change is NOT temporary")
 	'babyborn casenote'
 	CALL write_bullet_and_variable_in_Case_Note("Child's's name", babys_name)
 	CALL write_bullet_and_variable_in_Case_Note("Gender", baby_gender)
@@ -298,34 +296,334 @@ IF memb_number = "" THEN memb_number = "01"
 	IF MHC_plan_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Newborns MHC plan updated to match the mothers.")
 	CALL write_bullet_and_variable_in_case_note("Other Change Reported", other_change_notes)
 	IF changes_continue <> "Select:" THEN CALL write_bullet_and_variable_in_case_note("The changes client reports", changes_continue)
-
 	CALL write_bullet_and_variable_in_case_note("Action Taken", actions_taken)
 	CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 	CALL write_variable_in_case_note("---")
     CALL write_variable_in_case_note(worker_signature)
 PF3 'to save casenote'
 
-	IF send_email_checkbox = CHECKED THEN
-		EmWriteScreen "x", 5, 3
-		Transmit
-		note_row = 4			'Beginning of the case notes
-		Do 						'Read each line
-			EMReadScreen note_line, 76, note_row, 3
-			note_line = trim(note_line)
-			If trim(note_line) = "" Then Exit Do		'Any blank line indicates the end of the case note because there can be no blank lines in a note
-			message_array = message_array & note_line & vbcr		'putting the lines together
-			note_row = note_row + 1
-			If note_row = 18 then 									'End of a single page of the case note
-				EMReadScreen next_page, 7, note_row, 3
-				If next_page = "More: +" Then 						'This indicates there is another page of the case note
-					PF8												'goes to the next line and resets the row to read'\
-					note_row = 4
-				End If
+IF worker_number =	"X127F3P" 	THEN email_address = 	"HSPH.ES.MA.EPD.Adult@hennepin.us"
+IF worker_number =	"X127F3K" 	THEN email_address = 	"HSPH.ES.MA.EPD.FAM@hennepin.us"
+IF worker_number =	"X127F3F"	THEN email_address = 	"HSPH.ES.MA.EPD.ADS@hennepin.us"
+IF worker_number =	"X127EA0" 	THEN email_address = 	"hsph.es.ea.team@hennepin.us"
+IF worker_number =	"X127EAK" 	THEN email_address = 	"hsph.es.ea.team@hennepin.us"
+IF worker_number =	"X127EM3" 	THEN email_address = 	"hsph.es.extendicare@hennepin.us"
+IF worker_number =	"X127EM4" 	THEN email_address = 	"hsph.es.extendicare@hennepin.us"
+IF worker_number =	"X127FG6" 	THEN email_address = 	"hsph.es.goldenliving@hennepin.us"
+IF worker_number =	"X127FG7" 	THEN email_address = 	"hsph.es.goldenliving@hennepin.us"
+IF worker_number =	"X127LE1" 	THEN email_address = 	"hsph.es.littleearth@hennepin.us"
+IF worker_number =	"X127NP0"	THEN email_address = 	"hsph.es.northpoint@hennepin.us"
+IF worker_number =	"X127NPC" 	THEN email_address = 	"hsph.es.northpoint@hennepin.us"
+IF worker_number =	"X127FF4" 	THEN email_address = 	"hsph.es.northridge@hennepin.us"
+IF worker_number =	"X127FF5" 	THEN email_address = 	"hsph.es.northridge@hennepin.us"
+IF worker_number =	"X127ED8" 	THEN email_address = 	"hsph.es.team.110@hennepin.us"
+IF worker_number =	"X127EAJ" 	THEN email_address = 	"hsph.es.team.110@hennepin.us"
+IF worker_number =	"X127EN1" 	THEN email_address = 	"hsph.es.team.110@hennepin.us"
+IF worker_number =	"X127EN2" 	THEN email_address = 	"hsph.es.team.110@hennepin.us"
+IF worker_number =	"X127EN3" 	THEN email_address = 	"hsph.es.team.110@hennepin.us"
+IF worker_number =	"X127EN4"  	THEN email_address = 	"hsph.es.team.110@hennepin.us"
+IF worker_number =	"X127ED6" 	THEN email_address = 	"hsph.es.team.110@hennepin.us"
+IF worker_number =	"X127ED7" 	THEN email_address = 	"hsph.es.team.110@hennepin.us"
+IF worker_number =	"X127FE6" 	THEN email_address = 	"hsph.es.team.110@hennepin.us"
+IF worker_number =	"X127EJ9" 	THEN email_address = 	"hsph.es.team.120@hennepin.us"
+IF worker_number =	"X127ER6" 	THEN email_address = 	"hsph.es.team.120@hennepin.us"
+IF worker_number =	"X127EE2" 	THEN email_address = 	"hsph.es.team.120@hennepin.us"
+IF worker_number =	"X127EE3" 	THEN email_address = 	"hsph.es.team.120@hennepin.us"
+IF worker_number =	"X127EE4"	THEN email_address = 	"hsph.es.team.120@hennepin.us"
+IF worker_number =	"X127EE5" 	THEN email_address = 	"hsph.es.team.120@hennepin.us"
+IF worker_number =	"X127EG5" 	THEN email_address = 	"hsph.es.team.120@hennepin.us"
+IF worker_number =	"X127EQ1" 	THEN email_address = 	"hsph.es.team.130@hennepin.us"
+IF worker_number =	"X127EQ2" 	THEN email_address = 	"hsph.es.team.130@hennepin.us"
+IF worker_number =	"X127EQ5" 	THEN email_address = 	"hsph.es.team.130@hennepin.us"
+IF worker_number =	"X127EK8" 	THEN email_address = 	"hsph.es.team.130@hennepin.us"
+IF worker_number =	"X127EQ4" 	THEN email_address = 	"hsph.es.team.130@hennepin.us"
+IF worker_number =	"X127FH9" 	THEN email_address = 	"hsph.es.team.130@hennepin.us"
+IF worker_number =	"X127EG6" 	THEN email_address = 	"hsph.es.team.130@hennepin.us"
+IF worker_number =	"X127EE1"	THEN email_address = 	"hsph.es.team.140@hennepin.us"
+IF worker_number =	"X127FB2"	THEN email_address = 	"hsph.es.team.140@hennepin.us"
+IF worker_number =	"X127EG7" 	THEN email_address = 	"hsph.es.team.140@hennepin.us"
+IF worker_number =	"X127ED9"	THEN email_address = 	"hsph.es.team.140@hennepin.us"
+IF worker_number =	"X127EE0" 	THEN email_address = 	"hsph.es.team.140@hennepin.us"
+IF worker_number =	"X127EH4" 	THEN email_address = 	"hsph.es.team.140@hennepin.us"
+IF worker_number =	"X127EH5" 	THEN email_address = 	"hsph.es.team.140@hennepin.us"
+IF worker_number =	"X127F3D" 	THEN email_address = 	"hsph.es.team.140@hennepin.us"
+IF worker_number =	"X127FH8" 	THEN email_address = 	"hsph.es.team.140@hennepin.us"
+IF worker_number =	"X127EQ8" 	THEN email_address = 	"hsph.es.team.150@hennepin.us"
+IF worker_number =	"X127EE6" 	THEN email_address = 	"hsph.es.team.150@hennepin.us"
+IF worker_number =	"X127EE7" 	THEN email_address = 	"hsph.es.team.150@hennepin.us"
+IF worker_number =	"X127ER1" 	THEN email_address = 	"hsph.es.team.150@hennepin.us"
+IF worker_number =	"X127EG8" 	THEN email_address = 	"hsph.es.team.150@hennepin.us"
+IF worker_number =	"X127FH2" 	THEN email_address = 	"hsph.es.team.150@hennepin.us"
+IF worker_number =	"X127EF8" 	THEN email_address = 	"hsph.es.team.160@hennepin.us"
+IF worker_number =	"X127EF9" 	THEN email_address = 	"hsph.es.team.160@hennepin.us"
+IF worker_number =	"X127EG9" 	THEN email_address = 	"hsph.es.team.160@hennepin.us"
+IF worker_number =	"X127EG0" 	THEN email_address = 	"hsph.es.team.160@hennepin.us"
+IF worker_number =	"X127EP8" 	THEN email_address = 	"hsph.es.team.170@hennepin.us"
+IF worker_number =	"X127EP6" 	THEN email_address = 	"hsph.es.team.170@hennepin.us"
+IF worker_number =	"X127EP7"	THEN email_address = 	"hsph.es.team.170@hennepin.us"
+IF worker_number =	"X127EG4"	THEN email_address = 	"hsph.es.team.170@hennepin.us"
+IF worker_number =	"X127FG8" 	THEN email_address = 	"hsph.es.team.170@hennepin.us"
+IF worker_number =	"X127EH1" 	THEN email_address = 	"hsph.es.team.251@hennepin.us"
+IF worker_number =	"X127EH7" 	THEN email_address = 	"hsph.es.team.251@hennepin.us"
+IF worker_number =	"X127EH2"  	THEN email_address = 	"hsph.es.team.251@hennepin.us"
+IF worker_number =	"X127EH3" 	THEN email_address = 	"hsph.es.team.251@hennepin.us"
+IF worker_number =	"X127FH4" 	THEN email_address = 	"hsph.es.team.251@hennepin.us"
+IF worker_number =	"X127EH8" 	THEN email_address = 	"hsph.es.team.252@hennepin.us"
+IF worker_number =	"X127EQ3" 	THEN email_address = 	"hsph.es.team.252@hennepin.us"
+IF worker_number =	"X127EJ2" 	THEN email_address = 	"hsph.es.team.252@hennepin.us"
+IF worker_number =	"X127EJ3" 	THEN email_address = 	"hsph.es.team.252@hennepin.us"
+IF worker_number =	"X127FH1" 	THEN email_address = 	"hsph.es.team.252@hennepin.us"
+IF worker_number =	"X127FG4" 	THEN email_address = 	"hsph.es.team.252@hennepin.us"
+IF worker_number =	"X127F3C" 	THEN email_address = 	"hsph.es.team.252@hennepin.us"
+IF worker_number =	"X127F3G"	THEN email_address = 	"hsph.es.team.252@hennepin.us"
+IF worker_number =	"X127F3L" 	THEN email_address = 	"hsph.es.team.252@hennepin.us"
+IF worker_number =	"X127EJ1" 	THEN email_address = 	"hsph.es.team.252@hennepin.us"
+IF worker_number =	"X127EH9" 	THEN email_address = 	"hsph.es.team.252@hennepin.us"
+IF worker_number =	"X127EM2" 	THEN email_address = 	"hsph.es.team.252@hennepin.us"
+IF worker_number =	"X127EJ6" 	THEN email_address = 	"hsph.es.team.253@hennepin.us"
+IF worker_number =	"X127FE5" 	THEN email_address = 	"hsph.es.team.253@hennepin.us"
+IF worker_number =	"X127EK3" 	THEN email_address = 	"hsph.es.team.253@hennepin.us"
+IF worker_number =	"X127EK1" 	THEN email_address = 	"hsph.es.team.253@hennepin.us"
+IF worker_number =	"X127EK2" 	THEN email_address = 	"hsph.es.team.253@hennepin.us"
+IF worker_number =	"X127EJ7" 	THEN email_address = 	"hsph.es.team.253@hennepin.us"
+IF worker_number =	"X127EJ8" 	THEN email_address = 	"hsph.es.team.253@hennepin.us"
+IF worker_number =	"X127EJ5" 	THEN email_address = 	"hsph.es.team.253@hennepin.us"
+IF worker_number =	"X127EL8" 	THEN email_address = 	"hsph.es.team.255@hennepin.us"
+IF worker_number =	"X127EL9" 	THEN email_address = 	"hsph.es.team.255@hennepin.us"
+IF worker_number =	"X127FE1" 	THEN email_address = 	"hsph.es.team.255@hennepin.us"
+IF worker_number =	"X127EL2" 	THEN email_address = 	"hsph.es.team.255@hennepin.us"
+IF worker_number =	"X127EL3" 	THEN email_address = 	"hsph.es.team.255@hennepin.us"
+IF worker_number =	"X127EL4" 	THEN email_address = 	"hsph.es.team.255@hennepin.us"
+IF worker_number =	"X127EL5" 	THEN email_address = 	"hsph.es.team.255@hennepin.us"
+IF worker_number =	"X127EL6" 	THEN email_address = 	"hsph.es.team.255@hennepin.us"
+IF worker_number =	"X127EL7" 	THEN email_address = 	"hsph.es.team.255@hennepin.us"
+IF worker_number =	"X127EH6" 	THEN email_address = 	"hsph.es.team.256@hennepin.us"
+IF worker_number =	"X127EM1" 	THEN email_address = 	"hsph.es.team.256@hennepin.us"
+IF worker_number =	"X127FI7" 	THEN email_address = 	"hsph.es.team.256@hennepin.us"
+IF worker_number =	"X127EM7" 	THEN email_address = 	"hsph.es.team.257@hennepin.us"
+IF worker_number =	"X127FI2" 	THEN email_address = 	"hsph.es.team.257@hennepin.us"
+IF worker_number =	"X127FG3" 	THEN email_address = 	"hsph.es.team.257@hennepin.us"
+IF worker_number =	"X127EM8" 	THEN email_address = 	"hsph.es.team.257@hennepin.us"
+IF worker_number =	"X127EM9" 	THEN email_address = 	"hsph.es.team.257@hennepin.us"
+IF worker_number =	"X127EJ4" 	THEN email_address = 	"hsph.es.team.257@hennepin.us"
+IF worker_number =	"X127EK4" 	THEN email_address = 	"hsph.es.team.258@hennepin.us"
+IF worker_number =	"X127EK5" 	THEN email_address = 	"hsph.es.team.258@hennepin.us"
+IF worker_number =	"X127FH5" 	THEN email_address = 	"hsph.es.team.258@hennepin.us"
+IF worker_number =	"X127EN7"	THEN email_address = 	"hsph.es.team.258@hennepin.us"
+IF worker_number =	"X127EK6" 	THEN email_address = 	"hsph.es.team.258@hennepin.us"
+IF worker_number =	"X127EK9" 	THEN email_address = 	"hsph.es.team.258@hennepin.us"
+IF worker_number =	"X127EN6" 	THEN email_address = 	"hsph.es.team.258@hennepin.us"
+IF worker_number =	"X127EP3" 	THEN email_address = 	"hsph.es.team.259@hennepin.us"
+IF worker_number =	"X127EP4" 	THEN email_address = 	"hsph.es.team.259@hennepin.us"
+IF worker_number =	"X127EP5" 	THEN email_address = 	"hsph.es.team.259@hennepin.us"
+IF worker_number =	"X127EP9" 	THEN email_address = 	"hsph.es.team.259@hennepin.us"
+IF worker_number =	"X127F3U"	THEN email_address = 	"hsph.es.team.259@hennepin.us"
+IF worker_number =	"X127F3V" 	THEN email_address = 	"hsph.es.team.259@hennepin.us"
+IF worker_number =	"X127EF7" 	THEN email_address = 	"hsph.es.team.260@hennepin.us"
+IF worker_number =	"X127EN5" 	THEN email_address = 	"hsph.es.team.260@hennepin.us"
+IF worker_number =	"X127EF5" 	THEN email_address = 	"hsph.es.team.260@hennepin.us"
+IF worker_number =	"X127EK7" 	THEN email_address = 	"hsph.es.team.260@hennepin.us"
+IF worker_number =	"X127EF6" 	THEN email_address = 	"hsph.es.team.260@hennepin.us"
+IF worker_number =	"X127EQ9" 	THEN email_address = 	"hsph.es.team.261@hennepin.us"
+IF worker_number =	"X127ER2" 	THEN email_address = 	"hsph.es.team.261@hennepin.us"
+IF worker_number =	"X127ER3" 	THEN email_address = 	"hsph.es.team.261@hennepin.us"
+IF worker_number =	"X127ER4" 	THEN email_address = 	"hsph.es.team.261@hennepin.us"
+IF worker_number =	"X127ER5" 	THEN email_address = 	"hsph.es.team.261@hennepin.us"
+IF worker_number =	"X127FF6" 	THEN email_address = 	"hsph.es.team.262@hennepin.us"
+IF worker_number =	"X127FF7" 	THEN email_address = 	"hsph.es.team.262@hennepin.us"
+IF worker_number =	"X127FF8" 	THEN email_address = 	"hsph.es.team.300@hennepin.us"
+IF worker_number =	"X127FF9" 	THEN email_address = 	"hsph.es.team.300@hennepin.us"
+IF worker_number =	"X127FF3" 	THEN email_address = 	"hsph.es.team.410@hennepin.us"
+IF worker_number =	"X127EX3" 	THEN email_address = 	"hsph.es.team.410@hennepin.us"
+IF worker_number =	"X127ES7" 	THEN email_address = 	"hsph.es.team.410@hennepin.us"
+IF worker_number =	"X127EX2" 	THEN email_address = 	"hsph.es.team.410@hennepin.us"
+IF worker_number =	"X127EX1"	THEN email_address = 	"hsph.es.team.410@hennepin.us"
+IF worker_number =	"X127ET9"	THEN email_address = 	"hsph.es.team.450@hennepin.us"
+IF worker_number =	"X127EU4"	THEN email_address = 	"hsph.es.team.450@hennepin.us"
+IF worker_number =	"X127EW2"	THEN email_address = 	"hsph.es.team.450@hennepin.us"
+IF worker_number =	"X127EW3"	THEN email_address = 	"hsph.es.team.450@hennepin.us"
+IF worker_number =	"X127EU1"	THEN email_address = 	"hsph.es.team.450@hennepin.us"
+IF worker_number =	"X127EU3"	THEN email_address = 	"hsph.es.team.450@hennepin.us"
+IF worker_number =	"X127BV2"	THEN email_address = 	"hsph.es.team.450@hennepin.us"
+IF worker_number =	"X127EU2"	THEN email_address = 	"hsph.es.team.450@hennepin.us"
+IF worker_number =	"X127FH7"	THEN email_address = 	"hsph.es.team.450@hennepin.us"
+IF worker_number =	"X127FA1" 	THEN email_address = 	"hsph.es.team.451@hennepin.us"
+IF worker_number =	"X127FA4" 	THEN email_address = 	"hsph.es.team.451@hennepin.us"
+IF worker_number =	"X127BV1" 	THEN email_address = 	"hsph.es.team.451@hennepin.us"
+IF worker_number =	"X127FA2" 	THEN email_address = 	"hsph.es.team.451@hennepin.us"
+IF worker_number =	"X127F3R" 	THEN email_address = 	"hsph.es.team.451@hennepin.us"
+IF worker_number =	"X127F3Y" 	THEN email_address = 	"hsph.es.team.451@hennepin.us"
+IF worker_number =	"X127FA3"	THEN email_address = 	"hsph.es.team.451@hennepin.us"
+IF worker_number =	"X127FJ1" 	THEN email_address = 	"hsph.es.team.451@hennepin.us"
+IF worker_number =	"X127ER8" 	THEN email_address = 	"hsph.es.team.452@hennepin.us"
+IF worker_number =	"X127F3B" 	THEN email_address = 	"hsph.es.team.452@hennepin.us"
+IF worker_number =	"X127ES1" 	THEN email_address = 	"hsph.es.team.452@hennepin.us"
+IF worker_number =	"X127ES3" 	THEN email_address = 	"hsph.es.team.452@hennepin.us"
+IF worker_number =	"X127FB6" 	THEN email_address = 	"hsph.es.team.452@hennepin.us"
+IF worker_number =	"X127F3H" 	THEN email_address = 	"hsph.es.team.452@hennepin.us"
+IF worker_number =	"X127F4E" 	THEN email_address = 	"hsph.es.team.452@hennepin.us"
+IF worker_number =	"X127FB4" 	THEN email_address = 	"hsph.es.team.452@hennepin.us"
+IF worker_number =	"X127F3A" 	THEN email_address = 	"hsph.es.team.452@hennepin.us"
+IF worker_number =	"X127FB5" 	THEN email_address = 	"hsph.es.team.452@hennepin.us"
+IF worker_number =	"X127FB3" 	THEN email_address = 	"hsph.es.team.452@hennepin.us"
+IF worker_number =	"X127ER9" 	THEN email_address = 	"hsph.es.team.452@hennepin.us"
+IF worker_number =	"X127ES2" 	THEN email_address = 	"hsph.es.team.452@hennepin.us"
+IF worker_number =	"X127F3M" 	THEN email_address = 	"hsph.es.team.452@hennepin.us"
+IF worker_number =	"X127EY8"	THEN email_address = 	"hsph.es.team.455@hennepin.us"
+IF worker_number =	"X127EY9"	THEN email_address = 	"hsph.es.team.455@hennepin.us"
+IF worker_number =	"X127EZ1"	THEN email_address = 	"hsph.es.team.455@hennepin.us"
+IF worker_number =	"X127EX7" 	THEN email_address = 	"hsph.es.team.458@hennepin.us"
+IF worker_number =	"X127EY1" 	THEN email_address = 	"hsph.es.team.458@hennepin.us"
+IF worker_number =	"X127FJ5" 	THEN email_address = 	"hsph.es.team.458@hennepin.us"
+IF worker_number =	"X127F3Q" 	THEN email_address = 	"hsph.es.team.458@hennepin.us"
+IF worker_number =	"X127EX9" 	THEN email_address = 	"hsph.es.team.458@hennepin.us"
+IF worker_number =	"X127F3T" 	THEN email_address = 	"hsph.es.team.458@hennepin.us"
+IF worker_number =	"X127EX8" 	THEN email_address = 	"hsph.es.team.458@hennepin.us"
+IF worker_number =	"X127F3Z" 	THEN email_address = 	"hsph.es.team.458@hennepin.us"
+IF worker_number =	"X127EU5" 	THEN email_address = 	"hsph.es.team.459@hennepin.us"
+IF worker_number =	"X127EU6" 	THEN email_address = 	"hsph.es.team.459@hennepin.us"
+IF worker_number =	"X127EY2" 	THEN email_address = 	"hsph.es.team.459@hennepin.us"
+IF worker_number =	"X127F3W" 	THEN email_address = 	"hsph.es.team.459@hennepin.us"
+IF worker_number =	"X127EU8" 	THEN email_address = 	"hsph.es.team.459@hennepin.us"
+IF worker_number =	"X127F3X" 	THEN email_address = 	"hsph.es.team.459@hennepin.us"
+IF worker_number =	"X127EU7" 	THEN email_address = 	"hsph.es.team.459@hennepin.us"
+IF worker_number =	"X127F3S" 	THEN email_address = 	"hsph.es.team.459@hennepin.us"
+IF worker_number =	"X127EU9" 	THEN email_address = 	"hsph.es.team.459@hennepin.us"
+IF worker_number =	"X127FJ3" 	THEN email_address = 	"hsph.es.team.459@hennepin.us"
+IF worker_number =	"X127FJ4" 	THEN email_address = 	"hsph.es.team.459@hennepin.us"
+IF worker_number =	"X127ES4" 	THEN email_address = 	"hsph.es.team.460@hennepin.us"
+IF worker_number =	"X127ES8" 	THEN email_address = 	"hsph.es.team.460@hennepin.us"
+IF worker_number =	"X127EM6" 	THEN email_address = 	"hsph.es.team.460@hennepin.us"
+IF worker_number =	"X127ES5" 	THEN email_address = 	"hsph.es.team.460@hennepin.us"
+IF worker_number =	"X127ES6" 	THEN email_address = 	"hsph.es.team.460@hennepin.us"
+IF worker_number =	"X127ES9" 	THEN email_address = 	"hsph.es.team.460@hennepin.us"
+IF worker_number =	"X127EV1" 	THEN email_address = 	"hsph.es.team.461@hennepin.us"
+IF worker_number =	"X127EV5" 	THEN email_address = 	"hsph.es.team.461@hennepin.us"
+IF worker_number =	"X127EV2" 	THEN email_address = 	"hsph.es.team.461@hennepin.us"
+IF worker_number =	"X127EV4" 	THEN email_address = 	"hsph.es.team.461@hennepin.us"
+IF worker_number =	"X127EV3" 	THEN email_address = 	"hsph.es.team.461@hennepin.us"
+IF worker_number =	"X127ET2"  	THEN email_address = 	"hsph.es.team.462@hennepin.us"
+IF worker_number =	"X127ET3" 	THEN email_address = 	"hsph.es.team.462@hennepin.us"
+IF worker_number =	"X127FJ2" 	THEN email_address = 	"hsph.es.team.462@hennepin.us"
+IF worker_number =	"X127ET1" 	THEN email_address = 	"hsph.es.team.462@hennepin.us"
+IF worker_number =	"X127EM5" 	THEN email_address = 	"hsph.es.team.462@hennepin.us"
+IF worker_number =	"X127EZ2" 	THEN email_address = 	"hsph.es.team.462@hennepin.us"
+IF worker_number =	"X127EZ9" 	THEN email_address = 	"hsph.es.team.462@hennepin.us"
+IF worker_number =	"X127EZ4" 	THEN email_address = 	"hsph.es.team.462@hennepin.us"
+IF worker_number =	"X127EZ3" 	THEN email_address = 	"hsph.es.team.462@hennepin.us"
+IF worker_number =	"X127EW9"	THEN email_address = 	"hsph.es.team.462@hennepin.us"
+IF worker_number =	"X127EZ5" 	THEN email_address = 	"hsph.es.team.463@hennepin.us"
+IF worker_number =	"X127EZ8" 	THEN email_address = 	"hsph.es.team.463@hennepin.us"
+IF worker_number =	"X127FH6" 	THEN email_address = 	"hsph.es.team.463@hennepin.us"
+IF worker_number =	"X127EZ6" 	THEN email_address = 	"hsph.es.team.463@hennepin.us"
+IF worker_number =	"X127EZ7" 	THEN email_address = 	"hsph.es.team.463@hennepin.us"
+IF worker_number =	"X127EZ0" 	THEN email_address = 	"hsph.es.team.463@hennepin.us"
+IF worker_number =	"X127FA5" 	THEN email_address = 	"hsph.es.team.465@hennepin.us"
+IF worker_number =	"X127FA6" 	THEN email_address = 	"hsph.es.team.465@hennepin.us"
+IF worker_number =	"X127FA7" 	THEN email_address = 	"hsph.es.team.465@hennepin.us"
+IF worker_number =	"X127FA8" 	THEN email_address = 	"hsph.es.team.465@hennepin.us"
+IF worker_number =	"X127FB1" 	THEN email_address = 	"hsph.es.team.465@hennepin.us"
+IF worker_number =	"X127FA9" 	THEN email_address = 	"hsph.es.team.465@hennepin.us"
+IF worker_number =	"X127ET4" 	THEN email_address = 	"hsph.es.team.466@hennepin.us"
+IF worker_number =	"X127ET6" 	THEN email_address = 	"hsph.es.team.466@hennepin.us"
+IF worker_number =	"X127ET8" 	THEN email_address = 	"hsph.es.team.466@hennepin.us"
+IF worker_number =	"X127F4C" 	THEN email_address = 	"hsph.es.team.466@hennepin.us"
+IF worker_number =	"X127F4F" 	THEN email_address = 	"hsph.es.team.466@hennepin.us"
+IF worker_number =	"X127F4D" 	THEN email_address = 	"hsph.es.team.466@hennepin.us"
+IF worker_number =	"X127ET7"	THEN email_address = 	"hsph.es.team.466@hennepin.us"
+IF worker_number =	"X127ET5" 	THEN email_address = 	"hsph.es.team.466@hennepin.us"
+IF worker_number =	"X127BV3"	THEN email_address = 	"hsph.es.team.466@hennepin.us"
+IF worker_number =	"X127FB9"  	THEN email_address = 	"hsph.es.team.467@hennepin.us"
+IF worker_number =	"X127FC1" 	THEN email_address = 	"hsph.es.team.467@hennepin.us"
+IF worker_number =	"X127FC2"  	THEN email_address = 	"hsph.es.team.467@hennepin.us"
+IF worker_number =	"X127EL1"	THEN email_address = 	"hsph.es.team.466@hennepin.us"
+IF worker_number =	"X127FB8" 	THEN email_address = 	"hsph.es.team.467@hennepin.us"
+IF worker_number =	"X127FB7" 	THEN email_address = 	"hsph.es.team.467@hennepin.us"
+IF worker_number =	"X127FD4" 	THEN email_address = 	"hsph.es.team.468@hennepin.us"
+IF worker_number =	"X127FD5" 	THEN email_address = 	"hsph.es.team.468@hennepin.us"
+IF worker_number =	"X127FD8" 	THEN email_address = 	"hsph.es.team.468@hennepin.us"
+IF worker_number =	"X127FD6" 	THEN email_address = 	"hsph.es.team.468@hennepin.us"
+IF worker_number =	"X127FD9" 	THEN email_address = 	"hsph.es.team.468@hennepin.us"
+IF worker_number =	"X127FD7" 	THEN email_address = 	"hsph.es.team.468@hennepin.us"
+IF worker_number =	"X127EDD" 	THEN email_address = 	"hsph.es.team.468@hennepin.us"
+IF worker_number =	"X127FG1" 	THEN email_address = 	"hsph.es.team.469@hennepin.us"
+IF worker_number =	"X127EW6" 	THEN email_address = 	"hsph.es.team.469@hennepin.us"
+IF worker_number =	"X1274EC" 	THEN email_address = 	"hsph.es.team.469@hennepin.us"
+IF worker_number =	"X127FG2" 	THEN email_address = 	"hsph.es.team.469@hennepin.us"
+IF worker_number =	"X127EW4" 	THEN email_address = 	"hsph.es.team.469@hennepin.us"
+IF worker_number =	"X127EW5" 	THEN email_address = 	"hsph.es.team.469@hennepin.us"
+IF worker_number =	"X127FE7" 	THEN email_address = 	"hsph.es.team.470@hennepin.us"
+IF worker_number =	"X127FE8" 	THEN email_address = 	"hsph.es.team.470@hennepin.us"
+IF worker_number =	"X127FE9" 	THEN email_address = 	"hsph.es.team.470@hennepin.us"
+IF worker_number =	"X127EX4" 	THEN email_address = 	"hsph.es.team.601@hennepin.us"
+IF worker_number =	"X127EX5" 	THEN email_address = 	"hsph.es.team.601@hennepin.us"
+IF worker_number =	"X127FF1"	THEN email_address = 	"hsph.es.team.601@hennepin.us"
+IF worker_number =	"X127FF2"	THEN email_address = 	"hsph.es.team.601@hennepin.us"
+IF worker_number =	"X127EN8" 	THEN email_address = 	"hsph.es.team.602@hennepin.us"
+IF worker_number =	"X127EN9" 	THEN email_address = 	"hsph.es.team.602@hennepin.us"
+IF worker_number =	"X127FH3" 	THEN email_address = 	"hsph.es.team.602@hennepin.us"
+IF worker_number =	"X127F3E" 	THEN email_address = 	"hsph.es.team.602@hennepin.us"
+IF worker_number =	"X127F3J" 	THEN email_address = 	"hsph.es.team.602@hennepin.us"
+IF worker_number =	"X127F3N" 	THEN email_address = 	"hsph.es.team.602@hennepin.us"
+IF worker_number =	"X127FI6" 	THEN email_address = 	"hsph.es.team.602@hennepin.us"
+IF worker_number =	"X127F4A" 	THEN email_address = 	"hsph.es.team.603@hennepin.us"
+IF worker_number =	"X127F4B" 	THEN email_address = 	"hsph.es.team.603@hennepin.us"
+IF worker_number =	"X127FI1"	THEN email_address = 	"hsph.es.team.603@hennepin.us"
+IF worker_number =	"X127FI3" 	THEN email_address = 	"hsph.es.team.603@hennepin.us"
+IF worker_number =	"X127EQ6" 	THEN email_address = 	"hsph.es.team.604@hennepin.us"
+IF worker_number =	"X127EQ7" 	THEN email_address = 	"hsph.es.team.604@hennepin.us"
+IF worker_number =	"X127EP1" 	THEN email_address = 	"hsph.es.team.604@hennepin.us"
+IF worker_number =	"X127EP2" 	THEN email_address = 	"hsph.es.team.604@hennepin.us"
+IF worker_number =	"X127FE2" 	THEN email_address = 	"hsph.es.team.605@hennepin.us"
+IF worker_number =	"X127FE3" 	THEN email_address = 	"hsph.es.team.605@hennepin.us"
+IF worker_number =	"X127FG5" 	THEN email_address = 	"hsph.es.team.605@hennepin.us"
+IF worker_number =	"X127FG9" 	THEN email_address = 	"hsph.es.team.605@hennepin.us"
+IF worker_number =	"X127EW7"	THEN email_address = 	"hsph.es.team.ebenezer@hennepin.us"
+IF worker_number =	"X127EW8"	THEN email_address = 	"hsph.es.team.ebenezer@hennepin.us"
+IF worker_number =	"X127ER7" 	THEN email_address = 	"hsph.es.team.mhc@hennepin.us"
+IF worker_number =	"X127SH1" 	THEN email_address = 	"hsph.es.shelter.team@hennepin.us"
+IF worker_number =	"X127AN1" 	THEN email_address = 	"hsph.es.shelter.team@hennepin.us"
+IF worker_number =	"X127EHD" 	THEN email_address = 	"hsph.es.shelter.team@hennepin.us"
+'IF worker_number =	"X127D5X" 	THEN email_address = 	"HSPH.EWS.BlueZoneScripts@hennepin.us"
+
+'IF worker_number =	"X127EK3" THEN msgbox "Closed/Inactive Basket Unable to email"
+'IF worker_number =	"X127EG8" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
+'IF worker_number =	"X127ER5" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
+'IF worker_number =	"X127FD8" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
+'IF worker_number =	"X127EZ8" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
+'IF worker_number =	"X127ET3" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
+'IF worker_number =	"X127FH9" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
+'IF worker_number =	"X127EV5" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
+'IF worker_number =	"X127EH7" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
+'IF worker_number =	"X127EG7" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
+'IF worker_number =	"X127ES3" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
+'IF worker_number =	"X127FB6" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
+'IF worker_number =	"X127ET8" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
+'IF worker_number =	"X127EU4" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
+'IF worker_number =	"X127FE9" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
+'IF worker_number =	"X127EZ1" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
+
+IF send_email_checkbox = CHECKED THEN
+	EMWriteScreen "x", 5, 3
+	Transmit
+	note_row = 4			'Beginning of the case notes
+	Do 						'Read each line
+		EMReadScreen note_line, 76, note_row, 3
+		note_line = trim(note_line)
+		If trim(note_line) = "" Then Exit Do		'Any blank line indicates the end of the case note because there can be no blank lines in a note
+		message_array = message_array & note_line & vbcr		'putting the lines together
+		note_row = note_row + 1
+		If note_row = 18 then 									'End of a single page of the case note
+			EMReadScreen next_page, 7, note_row, 3
+			If next_page = "More: +" Then 						'This indicates there is another page of the case note
+				PF8												'goes to the next line and resets the row to read'\
+				note_row = 4
 			End If
-		Loop until next_page = "More:  " OR next_page = "       "	'No more pages
-		'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-		CALL create_outlook_email("", "","Change Reported For #" &  MAXIS_case_number & " Member # " & memb_number & " Date Change Reported " & date_received, "CASE NOTE" & vbcr & message_array,"", False)
-	END IF
+		End If
+	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
+	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+	CALL create_outlook_email(email_address, "","Change Reported For #" &  MAXIS_case_number & " Member # " & memb_number & " Date Change Reported " & date_received, "CASE NOTE" & vbcr & message_array,"", False)
+END IF
 'If we checked to TIKL out, it goes to TIKL and sends a TIKL
 IF tikl_nav_check = 1 THEN
 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
