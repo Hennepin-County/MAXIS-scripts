@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/06/2019", "Added HIRED and EMERGE ES providers. Also updated the ES provider droplist to follow the order of orientation locations on the DWP ES CHOICE SHEET.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/06/2018", "Brooklyn Center Avivo Thursday sessions discontining effective 12/31/18.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/06/2018", "Brooklyn Center Avivo Tuesday sessions discontining effective 12/31/18. Option removed from script as rest of the referral dates fall on holiday days. Also blocked Christmas Day and New Year's day as potential orientation dates.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/06/2018", "Bloomington Thrusday sessions discontinued effective 12/14/18. Option removed from script.", "Ilse Ferris, Hennepin County")
@@ -54,25 +55,45 @@ call changelog_update("07/20/2018", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+function confirm_available_dates
+    Do 
+        'msgbox appointment_date & vbcr & "Weekday: " & WeekdayName(WeekDay(appointment_date))
+        If WeekdayName(WeekDay(appointment_date)) = "Saturday" Then appointment_date = DateAdd("d", 2, appointment_date)
+        If WeekdayName(WeekDay(appointment_date)) = "Sunday" Then appointment_date = DateAdd("d", 1, appointment_date)
+        is_holiday = FALSE
+        For each holiday in HOLIDAYS_ARRAY
+            If holiday = appointment_date Then
+                'msgbox holiday
+                is_holiday = TRUE
+                If instr(interview_location, "Quick Connect:") then 
+                   appointment_date = DateAdd("d", 1, appointment_date)     'adding 1 day for quick connect/WERC referrals
+               else    
+                   appointment_date = dateadd("d", 7, appointment_date)     'adding 1 week for all others
+               End if 
+            End If
+        Next
+    Loop until is_holiday = FALSE
+End function 
+
 'DIALOG----------------------------------------------------------------------------------------------------
 BeginDialog referral_dialog, 0, 0, 291, 130, "ES Letter and Referral"
-  EditBox 90, 10, 55, 15, MAXIS_case_number
-  EditBox 210, 10, 75, 15, member_number
-  DropListBox 90, 35, 195, 15, "Select one..."+chr(9)+"Bloomington (Tuesdays @ 9:00 a.m.)"+chr(9)+"Bloomington (Wednesdays @ 1:00 p.m.)"+chr(9)+"North Mpls (Tuesdays @ 9:00 a.m.)"+chr(9)+"North Mpls (Wednesdays @ 9:00 a.m.)"+chr(9)+"South Mpls (Tuesdays @ 1:00 p.m.)"+chr(9)+"South Mpls (Wednesdays @ 9:00 a.m.)"+chr(9)+"WERC Northwest"+chr(9)+"WERC South Mpls", interview_location
-  DropListBox 65, 60, 100, 15, "Select one..."+chr(9)+"Scheduled"+chr(9)+"Rescheduled"+chr(9)+"Rescheduled from WERC", appt_type
-  EditBox 210, 60, 75, 15, vendor_num
-  EditBox 75, 85, 210, 15, other_referral_notes
-  EditBox 75, 110, 100, 15, worker_signature
+  EditBox 60, 10, 55, 15, MAXIS_case_number
+  EditBox 205, 10, 55, 15, member_number
+  DropListBox 60, 35, 125, 15, "Select one..."+chr(9)+"Quick Connect: Northwest"+chr(9)+"Quick Connect: South Mpls"+chr(9)+"Avivo: South MPLS (Tues 1 PM)"+chr(9)+"Avivo: South MPLS (Wed 9 AM)"+chr(9)+"Avivo: South Subs (Tues 9 AM)"+chr(9)+"Avivo: South Subs (Wed 1 PM)"+chr(9)+"Avivo: North MPLS (Tues 9 AM)"+chr(9)+"Avivo: North MPLS (Wed 9AM)"+chr(9)+"Emerge: South MPLS (Wed 9 AM)"+chr(9)+"Emerge: South MPLS (Fri 1PM)"+chr(9)+"Emerge: North MPLS (Wed 9 AM)"+chr(9)+"Emerge: North MPLS (Fri '1PM)"+chr(9)+"Hired: Brooklyn Park (Mon 1 PM)"+chr(9)+"Hired: Brooklyn Park (Wed 9 AM)", interview_location 
+  DropListBox 60, 55, 100, 15, "Select one..."+chr(9)+"Scheduled"+chr(9)+"Rescheduled"+chr(9)+"Rescheduled from WERC", appt_type
+  EditBox 205, 55, 75, 15, vendor_num
+  EditBox 75, 80, 205, 15, other_referral_notes
+  EditBox 75, 105, 95, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 180, 110, 50, 15
-    CancelButton 235, 110, 50, 15
-  Text 40, 15, 50, 10, "Case Number:"
-  Text 5, 90, 65, 10, "Other referral notes:"
-  Text 155, 15, 55, 10, "HH Memb # (s):"
-  Text 10, 115, 60, 10, "Worker Signature:"
-  Text 5, 40, 85, 10, "Choose location and time:"
-  Text 25, 65, 35, 10, "Appt type:"
-  Text 170, 65, 40, 10, "Vendor #'s:"
+    OkButton 175, 105, 50, 15
+    CancelButton 230, 105, 50, 15
+  Text 10, 15, 50, 10, "Case Number:"
+  Text 5, 85, 65, 10, "Other referral notes:"
+  Text 150, 15, 55, 10, "HH Memb # (s):"
+  Text 10, 110, 60, 10, "Worker Signature:"
+  Text 10, 40, 50, 10, "Location/time:"
+  Text 20, 60, 35, 10, "Appt type:"
+  Text 165, 60, 40, 10, "Vendor #'s:"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -92,7 +113,7 @@ DO
 		IF trim(member_number) = "" then err_msg = err_msg & vbNewLine & "* Enter a 2 digit member number, or more than one HH members separated by a comma."
 		If interview_location = "Select one..." then err_msg = err_msg & vbNewLine & "* Enter an interview location."
         if appt_type = "Select one..." THEN err_msg = err_msg & vbCr & "* Please enter the appointment type."
-        If appt_type <> "Scheduled" and instr(interview_location, "WERC") THEN err_msg = err_msg & vbCr & "* WERC locations cannot be selected for a reschedule."
+        If appt_type <> "Scheduled" and instr(interview_location, "Quick Connect:") THEN err_msg = err_msg & vbCr & "* WERC locations cannot be selected for a reschedule."
 		If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
@@ -100,8 +121,58 @@ DO
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 '----------------------------------------------------------------------------------------------------ES locations and times 
-'Bloomington locations        
-IF interview_location = "Bloomington (Tuesdays @ 9:00 a.m.)" then
+'WERC Northest
+IF  interview_location = "Quick Connect: Northwest" THEN
+    provider_name = "WERC Northwest Human Service Center"
+    provider_address_01 = "7051 Brooklyn Blvd"
+    provider_city = "Brooklyn Center"
+    provider_ST = "MN"
+    provider_zip = "55429"
+    provider_phone = "" 'none per project lead's request 
+    appointment_time = "8:00 - 4:30 PM"
+    appointment_date = Date
+    provider_row = 13    'WFM1 provider selection based on location
+    
+'WERC South Mpls   
+ElseIF interview_location = "Quick Connect: South Mpls" THEN
+    provider_name = "WERC South Minneapolis Human Service Center"
+    provider_address_01 = "2215 East Lake Street South"
+    provider_city = "Minneapolis"
+    provider_ST = "MN"
+    provider_zip = "55407"
+    provider_phone = "" 'none per project lead's request
+    'Date and time 
+    appointment_time = "8:00 - 4:30 PM"
+    appointment_date = Date
+    provider_row = 5    'WFM1 provider selection based on location
+     
+'Avivo South Mpls    
+ElseIf interview_location = "Avivo: South MPLS (Tues 1 PM)" THEN
+    provider_name = "Avivo South Mpls"
+    provider_address_01 = "900 20th Avenue South"
+    provider_city = "Minneapolis"
+    provider_ST = "MN"
+    provider_zip = "55404"
+    provider_phone = "612-752-8800"
+    'Date and time 
+    appointment_time = "1:00 PM"
+    appointment_date = Date + 8 - Weekday(Date, vbTuesday)
+    provider_row = 7    'WFM1 provider selection based on location
+    
+ElseIf interview_location = "Avivo: South MPLS (Wed 9 AM)" THEN
+    provider_name = "Avivo South Mpls"
+    provider_address_01 = "900 20th Avenue South"
+    provider_city = "Minneapolis"
+    provider_ST = "MN"
+    provider_zip = "55404"
+    provider_phone = "612-752-8800"
+    'Date and time 
+    appointment_time = "9:00 AM"
+    appointment_date = Date + 8 - Weekday(Date, vbWednesday)
+    provider_row = 7    'WFM1 provider selection based on location
+
+'Avivo Bloomington -South Subs
+Elseif interview_location = "Avivo: South Subs (Tues 9 AM)" then
     provider_name = "Avivo Bloomington"
     provider_address_01 = "2626 East 82nd Street, Suite 370"
     provider_city = "Bloomington"
@@ -113,7 +184,7 @@ IF interview_location = "Bloomington (Tuesdays @ 9:00 a.m.)" then
     appointment_date = Date + 8 - Weekday(Date, vbTuesday)
     provider_row = 8    'WFM1 provider selection based on location
     
-Elseif interview_location = "Bloomington (Wednesdays @ 1:00 p.m.)" THEN
+Elseif interview_location = "Avivo: South Subs (Wed 1 PM)" THEN
     provider_name = "Avivo Bloomington"
     provider_address_01 = "2626 East 82nd Street, Suite 370"
     provider_city = "Bloomington"
@@ -124,8 +195,9 @@ Elseif interview_location = "Bloomington (Wednesdays @ 1:00 p.m.)" THEN
     appointment_time = "1:00 PM"
     appointment_date = Date + 8 - Weekday(Date, vbWednesday)
     provider_row = 8    'WFM1 provider selection based on location    
-'North Mpls
-ElseIf interview_location = "North Mpls (Tuesdays @ 9:00 a.m.)" THEN
+
+'Avivo North Mpls
+ElseIf interview_location = "Avivo: North MPLS (Tues 9 AM)" THEN
     provider_name = "Avivo North Mpls"
     provider_address_01 = "2143 Lowry Avenue North"
     provider_city = "Minneapolis"
@@ -135,9 +207,9 @@ ElseIf interview_location = "North Mpls (Tuesdays @ 9:00 a.m.)" THEN
     'Date and time 
     appointment_time = "9:00 AM"
     appointment_date = Date + 8 - Weekday(Date, vbTuesday)
-    provider_row = 10    'WFM1 provider selection based on location
+    provider_row = 9    'WFM1 provider selection based on location
     
-ElseIf interview_location = "North Mpls (Wednesdays @ 9:00 a.m.)" THEN
+ElseIf interview_location = "Avivo: North MPLS (Wed 9AM)" THEN
     provider_name = "Avivo North Mpls"
     provider_address_01 = "2143 Lowry Avenue North"
     provider_city = "Minneapolis"
@@ -147,86 +219,97 @@ ElseIf interview_location = "North Mpls (Wednesdays @ 9:00 a.m.)" THEN
     'Date and time 
     appointment_time = "9:00 AM"
     appointment_date = Date + 8 - Weekday(Date, vbWednesday)
-    provider_row = 10    'WFM1 provider selection based on location
-    
-'South Mpls    
-ElseIf interview_location = "South Mpls (Tuesdays @ 1:00 p.m.)" THEN
-    provider_name = "Avivo South Mpls"
-    provider_address_01 = "900 20th Avenue South"
+    provider_row = 9    'WFM1 provider selection based on location
+
+'Emerge South MPLS 
+ElseIf interview_location = "Emerge: South MPLS (Wed 9 AM)" THEN
+    provider_name = "Emerge South Mpls"
+    provider_address_01 = "505 15th Avenue South"
     provider_city = "Minneapolis"
     provider_ST = "MN"
-    provider_zip = "55404"
-    provider_phone = "612-752-8800"
+    provider_zip = "55454"
+    provider_phone = "612-876-9301"
+    'Date and time 
+    appointment_time = "9:00 AM"
+    appointment_date = Date + 8 - Weekday(Date, vbWednesday)
+    provider_row = 12     'WFM1 provider selection based on location
+
+ElseIf interview_location = "Emerge: South MPLS (Fri 1PM)" THEN
+    provider_name = "Emerge South Mpls"
+    provider_address_01 = "505 15th Avenue South"
+    provider_city = "Minneapolis"
+    provider_ST = "MN"
+    provider_zip = "55454"
+    provider_phone = "612-876-9301"
     'Date and time 
     appointment_time = "1:00 PM"
-    appointment_date = Date + 8 - Weekday(Date, vbTuesday)
-    provider_row = 7    'WFM1 provider selection based on location
-    
-ElseIf interview_location = "South Mpls (Wednesdays @ 9:00 a.m.)" THEN
-    provider_name = "Avivo South Mpls"
-    provider_address_01 = "900 20th Avenue South"
+    appointment_date = Date + 8 - Weekday(Date, vbFriday)
+    provider_row = 12    'WFM1 provider selection based on location
+       
+'Emerge North MPLS
+ElseIf interview_location = "Emerge: North MPLS (Wed 9 AM)" THEN
+    provider_name = "Emerge North Mpls"
+    provider_address_01 = "1834 Emerson Avenue North"
     provider_city = "Minneapolis"
     provider_ST = "MN"
-    provider_zip = "55404"
-    provider_phone = "612-752-8800"
+    provider_zip = "55411"
+    provider_phone = "612-876-9301"
     'Date and time 
     appointment_time = "9:00 AM"
     appointment_date = Date + 8 - Weekday(Date, vbWednesday)
-    provider_row = 7    'WFM1 provider selection based on location
-    
-'WERC Northwest     
-ElseIF interview_location = "WERC Northwest" THEN
-    provider_name = "WERC Northwest Human Service Center"
-    provider_address_01 = "7051 Brooklyn Blvd"
-    provider_city = "Brooklyn Center"
-    provider_ST = "MN"
-    provider_zip = "55429"
-    provider_phone = "" 'none per project lead's request 
-    appointment_time = "8:00 - 4:30 PM"
-    appointment_date = Date
     provider_row = 11    'WFM1 provider selection based on location
     
-'WERC South Mpls   
-ElseIF interview_location = "WERC South Mpls" THEN
-    provider_name = "WERC South Minneapolis Human Service Center"
-    provider_address_01 = "2215 East Lake Street South"
+ElseIf interview_location = "Emerge: North MPLS (Fri 1PM)" THEN
+    provider_name = "Emerge North Mpls"
+    provider_address_01 = "1834 Emerson Avenue North"
     provider_city = "Minneapolis"
     provider_ST = "MN"
-    provider_zip = "55407"
-    provider_phone = "" 'none per project lead's request
+    provider_zip = "55411"
+    provider_phone = "612-876-9301"
     'Date and time 
-    appointment_time = "8:00 - 4:30 PM"
-    appointment_date = Date
-    provider_row = 5    'WFM1 provider selection based on location
-END IF 
+    appointment_time = "1:00 PM"
+    appointment_date = Date + 8 - Weekday(Date, vbFriday)
+    provider_row = 11    'WFM1 provider selection based on location
+
+'HIRED Brooklyn Park 
+ElseIf interview_location = "Hired: Brooklyn Park (Mon 1 PM)" THEN
+   provider_name = "Hired"
+   provider_address_01 = "7225 Northland Drive, Suite 100"
+   provider_city = "Brooklyn Park"
+   provider_ST = "MN"
+   provider_zip = "55428"
+   provider_phone = "763-210-6210"
+   'Date and time 
+   appointment_time = "1:00 PM"
+   appointment_date = Date + 8 - Weekday(Date, vbMonday)
+   provider_row = 10   'WFM1 provider selection based on location
+   
+ElseIf interview_location = "Hired: Brooklyn Park (Wed 9 AM)" THEN
+   provider_name = "Hired"
+   provider_address_01 = "7225 Northland Drive, Suite 100"
+   provider_city = "Brooklyn Park"
+   provider_ST = "MN"
+   provider_zip = "55428"
+   provider_phone = "763-210-6210"
+   'Date and time 
+   appointment_time = "9:00 AM"
+   appointment_date = Date + 8 - Weekday(Date, vbWednesday)
+   provider_row = 10     'WFM1 provider selection based on location 
+End if 
 
 'selecting the interview date 
 DO
-	DO
-        Do 
-            holidays = Join(HOLIDAYS_ARRAY, ",")     
-            If instr(holidays, appointment_date) then 
-                appointment_date = dateadd("d", 7, appointment_date) 
-                appt_date = False   'dates are identified holiday dates   
-            else 
-                appt_date = True    'date is not a holiday 
-                exit do 
-            End if 
-        Loop until appt_date = true    
-        
+	DO 
+        Call confirm_available_dates          
         orientation_date_confirmation = MsgBox("Press YES to confirm the orientation date. For the next week, press NO." & vbNewLine & vbNewLine & _
 		"                                                  " & appointment_date & " at " & appointment_time, vbYesNoCancel, "Please confirm the ES orientation referral date")
 		If orientation_date_confirmation = vbCancel then script_end_procedure ("The script has ended. An orientation letter has not been sent.")
         If orientation_date_confirmation = vbYes then exit do 
         If orientation_date_confirmation = vbNo then 
-            If instr(interview_location, "WERC") then 
-                appointment_date = DateAdd("d", 1, appointment_date)
-                weekend_check = weekday(appointment_date)
-                IF weekend_check = 7 then appointment_date = DateAdd("d", 2, appointment_date)  'Saturday handling
-                IF weekend_check = 0 then appointment_date = DateAdd("d", 1, appointment_date)  'Sunday handling
+            If instr(interview_location, "Quick Connect:") then 
+                appointment_date = DateAdd("d", 1, appointment_date)            'adding 1 day for quick connect/WERC referrals
             Else 
-                appointment_date = dateadd("d", 7, appointment_date)
-                If appointment_date = "8/16/2018" then appointment_date = dateadd("d", 7, appointment_date)
+                appointment_date = dateadd("d", 7, appointment_date)            'adding 1 week for all others
             End if 
         End if 
 	LOOP
@@ -306,7 +389,7 @@ For each member_number in member_array
         
         'Creating verbiaged based on the appt type and location 
         If appt_type = "Scheduled" Then 
-            If instr(interview_location, "WERC") then 
+            If instr(interview_location, "Quick Connect:") then 
                 num_days = "2"
             Else 
                 num_days = "10"
