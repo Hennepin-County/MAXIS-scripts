@@ -83,13 +83,16 @@ ELSE
 END IF
 
 DO
-	err_msg = ""
-	DIALOG change_reported_dialog
-	IF ButtonPressed = 0 THEN stopscript
-	IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
-	IF nature_change = "Select:" THEN err_msg = err_msg & vbCr & "* Please select the type of change reported."
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-LOOP UNTIL err_msg = ""
+	DO
+		err_msg = ""
+		DIALOG change_reported_dialog
+		IF ButtonPressed = 0 THEN stopscript
+		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
+		IF nature_change = "Select:" THEN err_msg = err_msg & vbCr & "* Please select the type of change reported."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	Loop Until err_msg = ""
+call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 'this creates the client array for baby_born_dialog dropdown list
 CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
@@ -586,22 +589,22 @@ IF worker_number =	"X127AN1" 	THEN email_address = 	"hsph.es.shelter.team@hennep
 IF worker_number =	"X127EHD" 	THEN email_address = 	"hsph.es.shelter.team@hennepin.us"
 'IF worker_number =	"X127D5X" 	THEN email_address = 	"HSPH.EWS.BlueZoneScripts@hennepin.us"
 
-'IF worker_number =	"X127EK3" THEN msgbox "Closed/Inactive Basket Unable to email"
-'IF worker_number =	"X127EG8" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
-'IF worker_number =	"X127ER5" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
-'IF worker_number =	"X127FD8" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
-'IF worker_number =	"X127EZ8" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
-'IF worker_number =	"X127ET3" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
-'IF worker_number =	"X127FH9" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
-'IF worker_number =	"X127EV5" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
-'IF worker_number =	"X127EH7" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
-'IF worker_number =	"X127EG7" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
-'IF worker_number =	"X127ES3" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
-'IF worker_number =	"X127FB6" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
-'IF worker_number =	"X127ET8" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
-'IF worker_number =	"X127EU4" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
-'IF worker_number =	"X127FE9" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
-'IF worker_number =	"X127EZ1" THEN msgbox "Closed/Inactive Basket Unable to email" 'Closed/Inactive
+'IF worker_number =	"X127EK3" THEN msgbox "Closed or Inactive Basket Unable to email"
+'IF worker_number =	"X127EG8" THEN msgbox "Closed or Inactive Basket Unable to email"
+'IF worker_number =	"X127ER5" THEN msgbox "Closed or Inactive Basket Unable to email"
+'IF worker_number =	"X127FD8" THEN msgbox "Closed or Inactive Basket Unable to email"
+'IF worker_number =	"X127EZ8" THEN msgbox "Closed or Inactive Basket Unable to email"
+'IF worker_number =	"X127ET3" THEN msgbox "Closed or Inactive Basket Unable to email"
+'IF worker_number =	"X127FH9" THEN msgbox "Closed or Inactive Basket Unable to email"
+'IF worker_number =	"X127EV5" THEN msgbox "Closed or Inactive Basket Unable to email"
+'IF worker_number =	"X127EH7" THEN msgbox "Closed or Inactive Basket Unable to email"
+'IF worker_number =	"X127EG7" THEN msgbox "Closed or Inactive Basket Unable to email"
+'IF worker_number =	"X127ES3" THEN msgbox "Closed or Inactive Basket Unable to email"
+'IF worker_number =	"X127FB6" THEN msgbox "Closed or Inactive Basket Unable to email"
+'IF worker_number =	"X127ET8" THEN msgbox "Closed or Inactive Basket Unable to email"
+'IF worker_number =	"X127EU4" THEN msgbox "Closed or Inactive Basket Unable to email"
+'IF worker_number =	"X127FE9" THEN msgbox "Closed or Inactive Basket Unable to email"
+'IF worker_number =	"X127EZ1" THEN msgbox "Closed or Inactive Basket Unable to email"
 
 IF send_email_checkbox = CHECKED THEN
 	EMWriteScreen "x", 5, 3
