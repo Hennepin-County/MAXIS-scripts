@@ -66,7 +66,7 @@ discovery_date = date & ""
 BeginDialog overpayment_dialog, 0, 0, 361, 280, "Overpayment Claim Entered"
   EditBox 60, 5, 40, 15, MAXIS_case_number
   EditBox 140, 5, 20, 15, memb_number
-  EditBox 230, 5, 20, 15, OT_resp_memb
+  'EditBox 230, 5, 20, 15, OT_resp_memb
   DropListBox 315, 5, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
   EditBox 60, 25, 40, 15, discovery_date
   CheckBox 110, 30, 175, 10, "FS OP - Claim Determination form completed in ECF", ECF_checkbox
@@ -106,7 +106,7 @@ BeginDialog overpayment_dialog, 0, 0, 361, 280, "Overpayment Claim Entered"
     CancelButton 310, 260, 45, 15
   Text 5, 10, 50, 10, "Case number: "
   Text 110, 10, 30, 10, "Memb #:"
-  Text 170, 10, 60, 10, "OT resp. Memb #:"
+  'Text 170, 10, 60, 10, "OT resp. Memb #:"
   Text 265, 10, 50, 10, "Fraud referral:"
   Text 5, 30, 55, 10, "Discovery date: "
   GroupBox 5, 45, 350, 100, "Overpayment Information"
@@ -171,7 +171,7 @@ Do
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
     LOOP UNTIL err_msg = ""
     CALL check_for_password(are_we_passworded_out)
-Loop until are_we_passworded_out = False 
+Loop until are_we_passworded_out = False
 '----------------------------------------------------------------------------------------------------STAT
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 EMwritescreen memb_number, 20, 76
@@ -252,7 +252,7 @@ CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referra
 CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_used)
 CALL write_bullet_and_variable_in_case_note("Date verification received", income_rcvd_date)
 CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
-CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
+'CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
 IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* FS OP - Claim Determination form completed in ECF")
 CALL write_variable_in_CASE_NOTE("----- ----- -----")
 CALL write_variable_in_CASE_NOTE(worker_signature)
