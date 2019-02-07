@@ -70,7 +70,7 @@ changelog_display
  current_month_and_year = current_month & "/" & current_year
  next_month_and_year = MAXIS_footer_month & "/" & MAXIS_footer_year
 
-datediff("m", updated_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year)
+'datediff("m", updated_date, MAXIS_footer_month & "/01/" & MAXIS_footer_year)
 
 'MAXIS_footer_month = right("00"&MAXIS_footer_month, 2)
 'MAXIS_footer_year = right("00"&MAXIS_footer_year, 2)
