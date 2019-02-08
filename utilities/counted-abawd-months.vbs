@@ -66,6 +66,7 @@ EndDialog
 'The script============================================================================================================================
 'Connects to MAXIS, grabbing the case MAXIS_case_number
 EMConnect ""
+back_to_SELF    'to ensure users are not in the ABAWD Tracking Record
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 HH_memb = "01"
