@@ -128,6 +128,13 @@ script_array_DEU_main(script_num).description 			= "BULK script to clear multipl
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_DEU_main(script_num).script_name 			= "EBT out of state"																'Script name
+script_array_DEU_main(script_num).file_name 			= "EBT-out-of-state.vbs"														'Script URL
+script_array_DEU_main(script_num).description 			= "Script to case note out of state matches after being reviewed."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
+Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_DEU_main(script_num).script_name			= "Match Cleared"
 script_array_DEU_main(script_num).file_name 			= "match-cleared.vbs"
 script_array_DEU_main(script_num).description			= "Action script that assists in clearing wage matches, including sending the Diff Notice."
