@@ -75,7 +75,7 @@ BeginDialog intial_review_dialog, 0, 0, 196, 105, "EBT Out of State Initial Revi
   DropListBox 160, 5, 30, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"YEAR +", months_used
   CheckBox 10, 35, 75, 10, "Request for Contact", request_contact_checkbox
   CheckBox 10, 45, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
-  CheckBox 105, 35, 70, 10, "Shelter Verification", EVF_checkbox
+  CheckBox 105, 35, 70, 10, "Shelter Verification", empl_verf_checkbox
   CheckBox 105, 45, 80, 10, "Other (please specify)", other_checkbox
   EditBox 50, 65, 140, 15, other_notes
   ButtonGroup ButtonPressed
@@ -92,7 +92,7 @@ BeginDialog response_dialog, 0, 0, 196, 105, "Client Response"
   DropListBox 160, 5, 30, 15, "Select One:"+chr(9)+"0"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"YEAR +", months_used
   CheckBox 10, 35, 75, 10, "Request for Contact", request_contact_checkbox
   CheckBox 10, 45, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
-  CheckBox 105, 35, 70, 10, "Shelter Verification", EVF_checkbox
+  CheckBox 105, 35, 70, 10, "Shelter Verification", empl_verf_checkbox
   CheckBox 105, 45, 80, 10, "Other (please specify)", other_checkbox
   EditBox 50, 65, 140, 15, other_notes
   ButtonGroup ButtonPressed
@@ -108,7 +108,7 @@ BeginDialog no_repsonse_dialog, 0, 0, 196, 120, "No response received"
   EditBox 50, 5, 50, 15, date_closed
   DropListBox 160, 5, 30, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"YEAR plus", months_used
   CheckBox 10, 35, 75, 10, "Request for Contact", request_contact_checkbox
-  CheckBox 105, 35, 70, 10, "Shelter Verification", EVF_checkbox
+  CheckBox 105, 35, 70, 10, "Shelter Verification", empl_verf_checkbox
   CheckBox 10, 45, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
   CheckBox 105, 45, 80, 10, "Other (please specify)", other_checkbox
   EditBox 65, 65, 125, 15, reason_closed
@@ -173,6 +173,16 @@ IF action_taken = "No Response Received" or action_taken = "Other" THEN
     LOOP UNTIL check_for_password(are_we_passworded_out) = False
 END IF
 
+IF request_contact_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Contact Request, "
+IF empl_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "EVF, "
+IF ATR_Verf_CheckBox = CHECKED THEN pending_verifs = pending_verifs & "ATR, "
+IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
+'-------------------------------------------------------------------trims excess spaces of pending_verifs
+pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more than one app date is found and additional app is selected
+IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
+
+
+
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 	IF action_taken = "Initial Review" THEN Call write_variable_in_CASE_NOTE("----- EBT OUT OF STATE REVIEWED -----")
 	IF action_taken = "Client Responds to Request" THEN Call write_variable_in_CASE_NOTE("----- EBT OUT OF STATE RESPONSE RECEIVED -----")
@@ -185,9 +195,12 @@ start_a_blank_case_note      'navigates to case/note and puts case/note into edi
 	Call write_bullet_and_variable_in_CASE_NOTE("Date case was closed", date_closed)
 	Call write_bullet_and_variable_in_CASE_NOTE("Explanation of action to close the case", reason_closed)
 	Call write_variable_in_CASE_NOTE("* DEU will review for possible overpayment regarding out of state usage at a later date.")
-	Call write_variable_in_CASE_NOTE("* Clients have 10 days to return requested verifications")
-	Call write_bullet_and_variable_in_CASE_NOTE("* Date due", date_due)
-	Call write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+	CALL write_variable_in_CASE_NOTE ("----- ----- -----")
+	CALL write_bullet_and_variable_in_CASE_NOTE("Verification Requested", pending_verifs)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Verification Due", Due_date)
+	CALL write_variable_in_CASE_NOTE ("* Client must be provided 10 days to return requested verifications *")
+	CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
 	Call write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 
 script_end_procedure("EBT out of state case note complete.")
