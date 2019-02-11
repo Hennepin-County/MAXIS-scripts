@@ -132,13 +132,19 @@ Do
         EMReadScreen defer_funds, 1, 8, 80
         
         If FSET_code = "30" then 
-            If (ABWAD_code = "05" and defer_funds <> "Y") then 
+            If (ABAWD_code = "05" and defer_funds = "N") then 
                 PF9
                 Call write_value_and_transmit("Y", 8, 80)       'Pregnant members need to be coded Y for Defer FSET funds. They are the only ones in this county.
+                EMReadScreen defer_funds, 1, 8, 80
+                transmit 'passing error messages 
+                transmit 
                 PF3
-            elseif defer_funds <> "N" then
+            elseif defer_funds = "Y" then
                 PF9
                 Call write_value_and_transmit("N", 8, 80)       'Coding the rest of the ABAWD's as N for Defer FSET funds. Even though voluntary, this code is still N.
+                EMReadScreen defer_funds, 1, 8, 80
+                transmit 'passing error messages 
+                transmit 
                 PF3
             End if 
         End if 
