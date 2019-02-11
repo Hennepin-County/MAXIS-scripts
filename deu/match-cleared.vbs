@@ -455,7 +455,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	  EditBox 165, 25, 20, 15, resolve_time
 	  CheckBox 210, 35, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
 	  CheckBox 210, 45, 70, 10, "Difference Notice", Diff_Notice_Checkbox
-	  CheckBox 210, 55, 90, 10, "Employment verification", EVF_checkbox
+	  CheckBox 210, 55, 90, 10, "Employment verification", empl_verf_checkbox
 	  CheckBox 210, 65, 80, 10, "Other (please specify)", other_checkbox
 	  DropListBox 70, 45, 110, 15, "Select One:"+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BE - NC Non-collectible"+chr(9)+"BE - OP Entered"+chr(9)+"BO - Other"+chr(9)+"BP - Wrong Person"+chr(9)+"CC - Claim Entered"+chr(9)+"NC - Non Cooperation", resolution_status
 	  DropListBox 120, 65, 60, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", change_response
