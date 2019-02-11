@@ -56,71 +56,76 @@ CALL MAXIS_case_number_finder (MAXIS_case_number)
 MEMB_number = "01"
 date_due = dateadd("d", 10, date)
 
-BeginDialog EBT_dialog, 0, 0, 236, 85, "EBT OUT OF STATE "
+BeginDialog EBT_dialog, 0, 0, 181, 120, "EBT OUT OF STATE "
   EditBox 90, 5, 50, 15, maxis_case_number
-  EditBox 180, 5, 50, 15, out_of_state
+  EditBox 90, 45, 50, 15, out_of_state
   EditBox 90, 25, 50, 15, bene_date
-  DropListBox 90, 45, 100, 15, "Select One:"+chr(9)+"Initial Review"+chr(9)+"Client Responds to Request"+chr(9)+"No Response Received"+chr(9)+"Other", action_taken
+  DropListBox 90, 65, 85, 15, "Select One:"+chr(9)+"Initial review"+chr(9)+"Client responds to request"+chr(9)+"No response received"+chr(9)+"Other(please specifiy)", action_taken
+  DropListBox 90, 80, 65, 15, "Select One:"+chr(9)+"Active "+chr(9)+"Inactive", case_status
   ButtonGroup ButtonPressed
-    OkButton 125, 65, 50, 15
-    CancelButton 180, 65, 50, 15
-  Text 35, 10, 50, 10, "Case number:"
-  Text 150, 10, 30, 10, "State(s):"
+    OkButton 70, 100, 50, 15
+    CancelButton 125, 100, 50, 15
+  Text 55, 50, 30, 10, "State(s):"
   Text 5, 30, 80, 10, "Date accessing benefits:"
-  Text 45, 50, 45, 10, "Action taken:"
+  Text 45, 70, 45, 10, "Action taken:"
+  Text 35, 10, 50, 10, "Case number:"
+  Text 45, 85, 45, 10, "Case status:"
 EndDialog
 
-BeginDialog intial_review_dialog, 0, 0, 196, 105, "EBT Out of State Initial Review"
-  EditBox 55, 5, 40, 15, date_due
-  DropListBox 160, 5, 30, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"YEAR +", months_used
-  CheckBox 10, 35, 75, 10, "Request for Contact", request_contact_checkbox
-  CheckBox 10, 45, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
-  CheckBox 105, 35, 70, 10, "Shelter Verification", empl_verf_checkbox
+BeginDialog intial_review_dialog, 0, 0, 196, 115, "EBT Out of State Initial Review"
+  EditBox 40, 5, 40, 15, date_due
+  DropListBox 145, 5, 45, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"YEAR +", months_used
+  CheckBox 10, 35, 75, 10, "Request for contact", request_contact_checkbox
+  CheckBox 105, 35, 70, 10, "Shelter verification", shel_verf_checkbox
+  CheckBox 10, 45, 90, 10, "Authorization to release", ATR_Verf_CheckBox
   CheckBox 105, 45, 80, 10, "Other (please specify)", other_checkbox
   EditBox 50, 65, 140, 15, other_notes
+  CheckBox 5, 85, 90, 10, "Contacted other state(s)", other_state_contact_checkbox
   ButtonGroup ButtonPressed
-    OkButton 105, 85, 40, 15
-    CancelButton 150, 85, 40, 15
-  Text 5, 10, 50, 10, "Date due:"
-  Text 105, 10, 55, 10, "# Months Used: "
+    OkButton 105, 95, 40, 15
+    CancelButton 150, 95, 40, 15
+  Text 90, 10, 55, 10, "# Months used: "
   GroupBox 5, 25, 185, 35, "Verification Requested: "
-  Text 5, 70, 45, 10, "Other Notes: "
+  Text 5, 70, 45, 10, "Other notes: "
+  Text 5, 10, 35, 10, "Date due:"
 EndDialog
 
 BeginDialog response_dialog, 0, 0, 196, 105, "Client Response"
   EditBox 55, 5, 40, 15, date_received
-  DropListBox 160, 5, 30, 15, "Select One:"+chr(9)+"0"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"YEAR +", months_used
-  CheckBox 10, 35, 75, 10, "Request for Contact", request_contact_checkbox
-  CheckBox 10, 45, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
-  CheckBox 105, 35, 70, 10, "Shelter Verification", empl_verf_checkbox
+  DropListBox 155, 5, 35, 15, "Select One:"+chr(9)+"0"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"YEAR", months_used
+  CheckBox 10, 35, 75, 10, "Request for contact", request_contact_checkbox
+  CheckBox 10, 45, 90, 10, "Authorization to release", ATR_Verf_CheckBox
+  CheckBox 105, 35, 70, 10, "Shelter verification", shel_verf_checkbox
   CheckBox 105, 45, 80, 10, "Other (please specify)", other_checkbox
   EditBox 50, 65, 140, 15, other_notes
   ButtonGroup ButtonPressed
     OkButton 105, 85, 40, 15
     CancelButton 150, 85, 40, 15
   Text 5, 10, 50, 10, "Date recieved:"
-  Text 105, 10, 55, 10, "# Months Used: "
+  Text 100, 10, 55, 10, "# Months used: "
   GroupBox 5, 25, 185, 35, "Verification Received: "
-  Text 5, 70, 45, 10, "Other Notes: "
+  Text 5, 70, 45, 10, "Other notes: "
 EndDialog
 
-BeginDialog no_repsonse_dialog, 0, 0, 196, 120, "No response received"
+BeginDialog no_repsonse_dialog, 0, 0, 196, 125, "No response received"
   EditBox 50, 5, 50, 15, date_closed
   DropListBox 160, 5, 30, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"YEAR plus", months_used
-  CheckBox 10, 35, 75, 10, "Request for Contact", request_contact_checkbox
-  CheckBox 105, 35, 70, 10, "Shelter Verification", empl_verf_checkbox
-  CheckBox 10, 45, 90, 10, "Authorization to Release", ATR_Verf_CheckBox
+  CheckBox 10, 35, 75, 10, "Request for contact", request_contact_checkbox
+  CheckBox 105, 35, 70, 10, "Shelter verification", shel_verf_checkbox
+  CheckBox 10, 45, 90, 10, "Authorization to release", ATR_Verf_CheckBox
   CheckBox 105, 45, 80, 10, "Other (please specify)", other_checkbox
   EditBox 65, 65, 125, 15, reason_closed
   CheckBox 5, 85, 180, 10, "Overpayment possible to be reviewed at a later date", overpayment_checkbox
+  CheckBox 5, 100, 90, 10, "Contacted other state(s)", other_state_contact_checkbox
   ButtonGroup ButtonPressed
-    OkButton 105, 100, 40, 15
-    CancelButton 150, 100, 40, 15
-  Text 5, 10, 45, 10, "Date Closed:"
+    OkButton 105, 105, 40, 15
+    CancelButton 150, 105, 40, 15
   Text 105, 10, 55, 10, "# Months Used: "
   GroupBox 5, 25, 185, 35, "Verification Requested: "
   Text 5, 70, 55, 10, "Closure Reason:"
+  Text 5, 10, 45, 10, "Date Closed:"
 EndDialog
+
 
 DO
 	DO
@@ -134,7 +139,7 @@ DO
 	CALL check_for_password(are_we_passworded_out)
 LOOP UNTIL are_we_passworded_out = false
 
-IF action_taken = "Initial Review" THEN
+IF action_taken = "Initial review" THEN
     Do
     	Do
             err_msg = ""
@@ -147,7 +152,7 @@ IF action_taken = "Initial Review" THEN
     LOOP UNTIL check_for_password(are_we_passworded_out) = False
 END IF
 
-IF action_taken = "Client Responds to Request" THEN
+IF action_taken = "Client responds to request" THEN
     Do
     	Do
             err_msg = ""
@@ -160,13 +165,14 @@ IF action_taken = "Client Responds to Request" THEN
     LOOP UNTIL check_for_password(are_we_passworded_out) = False
 END IF
 
-IF action_taken = "No Response Received" or action_taken = "Other" THEN
+IF action_taken = "No response received" or action_taken = "Other" THEN
     Do
     	Do
             err_msg = ""
     		Dialog no_repsonse_dialog
     		cancel_confirmation
     		IF Isdate(date_closed) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the closed date."
+			IF reason_closed = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the closure reason."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
      	Call check_for_password(are_we_passworded_out)
@@ -174,7 +180,7 @@ IF action_taken = "No Response Received" or action_taken = "Other" THEN
 END IF
 
 IF request_contact_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Contact Request, "
-IF empl_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "EVF, "
+IF shel_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "SVF, "
 IF ATR_Verf_CheckBox = CHECKED THEN pending_verifs = pending_verifs & "ATR, "
 IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
 '-------------------------------------------------------------------trims excess spaces of pending_verifs
@@ -184,14 +190,20 @@ IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len
 
 
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	IF action_taken = "Initial Review" THEN Call write_variable_in_CASE_NOTE("----- EBT OUT OF STATE REVIEWED -----")
-	IF action_taken = "Client Responds to Request" THEN Call write_variable_in_CASE_NOTE("----- EBT OUT OF STATE RESPONSE RECEIVED -----")
-	IF action_taken = "No Response Received" or action_taken = "Other" THEN Call write_variable_in_CASE_NOTE("----- EBT OUT OF STATE REQUESTED NO REPONSE RECEIVED -----")
+	IF action_taken = "Initial review" THEN Call write_variable_in_CASE_NOTE("----- EBT OUT OF STATE REVIEWED -----")
+	IF action_taken = "Client responds to request" THEN Call write_variable_in_CASE_NOTE("----- EBT OUT OF STATE RESPONSE RECEIVED -----")
+	IF action_taken = "No response received" or action_taken = "Other" THEN Call write_variable_in_CASE_NOTE("----- EBT OUT OF STATE REQUESTED NO REPONSE RECEIVED -----")
     Call write_bullet_and_variable_in_CASE_NOTE("Client has been accessing benefits out of state since:", bene_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("State(s):", out_of_state)
+	IF case_status = "Inactive" THEN
+		Call write_variable_in_CASE_NOTE("* Client will need to verify residence when reapplying.")
+		Call write_variable_in_CASE_NOTE("* Agency will need to verify benefits received in the other state prior to reopening case")
+	END IF
+	IF other_state_contact_checkbox = CHECKED THEN Call write_variable_in_CASE_NOTE("* Other state(s) have been contacted")
+	IF other_state_contact_checkbox = UNCHECKED THEN Call write_variable_in_CASE_NOTE("* Other state(s) have not been contacted")
 	Call write_variable_in_CASE_NOTE("* Request sent to client for explanation of benefits received in the other state and shelter request ")
-    IF action_taken = "No Response Received" or action_taken = "Other" THEN  Call write_variable_in_CASE_NOTE("* Client will need to verify residence when reapplying")
-    Call write_variable_in_CASE_NOTE("* Agency will need to verify benefits received in the other state prior to reopening case")
+    IF action_taken = "No response received" or action_taken = "Other" THEN  Call write_variable_in_CASE_NOTE("* Client will need to verify residence when reapplying")
+	CALL write_variable_in_CASE_NOTE ("----- ----- -----")
 	Call write_bullet_and_variable_in_CASE_NOTE("Date case was closed", date_closed)
 	Call write_bullet_and_variable_in_CASE_NOTE("Explanation of action to close the case", reason_closed)
 	Call write_variable_in_CASE_NOTE("* DEU will review for possible overpayment regarding out of state usage at a later date.")
