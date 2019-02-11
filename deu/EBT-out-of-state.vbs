@@ -60,9 +60,9 @@ BeginDialog EBT_dialog, 0, 0, 181, 120, "EBT OUT OF STATE "
   EditBox 90, 5, 50, 15, maxis_case_number
   EditBox 90, 25, 50, 15, bene_date
   EditBox 90, 45, 50, 15, out_of_state
-  DropListBox 90, 80, 85, 15, "Select One:"+chr(9)+"Initial review"+chr(9)+"Client responds to request"+chr(9)+"No response received"+chr(9)+"Other(please specifiy)", action_taken
   DropListBox 90, 65, 65, 15, "Select One:"+chr(9)+"Active"+chr(9)+"Inactive", case_status
-  ButtonGroup ButtonPressed
+  DropListBox 90, 80, 85, 15, "Select One:"+chr(9)+"Initial review"+chr(9)+"Client responds to request"+chr(9)+"No response received"+chr(9)+"Other(please specifiy)", action_taken
+   ButtonGroup ButtonPressed
     OkButton 70, 100, 50, 15
     CancelButton 125, 100, 50, 15
   Text 60, 50, 30, 10, "State(s):"
