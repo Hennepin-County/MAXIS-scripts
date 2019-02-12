@@ -264,6 +264,8 @@ For each worker in worker_array
                 instr(dail_msg, "LAST GRADE COMPLETED") OR _      
                 instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") OR _  
                 instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") OR _
+                instr(dail_msg, "RSDI UPDATED - (REF") OR _
+                instr(dail_msg, "SSI UPDATED - (REF") then
     		        add_to_excel = True	
                 'instr(dail_msg, "TPQY RESPONSE") OR _  ---removed temporarily
                 '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
