@@ -58,19 +58,13 @@ changelog_display
 
 function confirm_available_dates
     Do 
-        'msgbox appointment_date & vbcr & "Weekday: " & WeekdayName(WeekDay(appointment_date))
         If WeekdayName(WeekDay(appointment_date)) = "Saturday" Then appointment_date = DateAdd("d", 2, appointment_date)
         If WeekdayName(WeekDay(appointment_date)) = "Sunday" Then appointment_date = DateAdd("d", 1, appointment_date)
         is_holiday = FALSE
         For each holiday in HOLIDAYS_ARRAY
             If holiday = appointment_date Then
-                'msgbox holiday
                 is_holiday = TRUE
-                If instr(interview_location, "Quick Connect:") then 
-                   appointment_date = DateAdd("d", 1, appointment_date)     'adding 1 day for quick connect/WERC referrals
-               else    
-                   appointment_date = dateadd("d", 7, appointment_date)     'adding 1 week for all others
-               End if 
+                appointment_date = dateadd("d", add_days, appointment_date)     'adding the number of days specific to the orientation   
             End If
         Next
     Loop until is_holiday = FALSE
@@ -102,6 +96,7 @@ EndDialog
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 member_number = "01" 'defaults the member_number to 01
+'random_date = #3/5/19#
 
 'Main dialog
 DO
@@ -133,6 +128,7 @@ IF  interview_location = "Quick Connect: Northwest" THEN
     appointment_time = "8:00 - 4:30 PM"
     appointment_date = Date
     provider_row = 13    'WFM1 provider selection based on location
+    add_days = 1         'incrementor for DateAdding for orientation options. 
     
 'WERC South Mpls   
 ElseIF interview_location = "Quick Connect: South Mpls" THEN
@@ -146,6 +142,7 @@ ElseIF interview_location = "Quick Connect: South Mpls" THEN
     appointment_time = "8:00 - 4:30 PM"
     appointment_date = Date
     provider_row = 5    'WFM1 provider selection based on location
+    add_days = 1         'incrementor for DateAdding for orientation options. 
      
 'Avivo South Mpls    
 ElseIf interview_location = "Avivo: South MPLS (Tues 1 PM)" THEN
@@ -159,6 +156,7 @@ ElseIf interview_location = "Avivo: South MPLS (Tues 1 PM)" THEN
     appointment_time = "1:00 PM"
     appointment_date = Date + 8 - Weekday(Date, vbTuesday)
     provider_row = 7    'WFM1 provider selection based on location
+    add_days = 7         'incrementor for DateAdding for orientation options. 
     
 ElseIf interview_location = "Avivo: South MPLS (Wed 9 AM)" THEN
     provider_name = "Avivo South Mpls"
@@ -171,6 +169,7 @@ ElseIf interview_location = "Avivo: South MPLS (Wed 9 AM)" THEN
     appointment_time = "9:00 AM"
     appointment_date = Date + 8 - Weekday(Date, vbWednesday)
     provider_row = 7    'WFM1 provider selection based on location
+    add_days = 7         'incrementor for DateAdding for orientation options. 
 
 'Avivo Bloomington -South Subs
 Elseif interview_location = "Avivo: South Subs (Tues 9 AM)" then
@@ -184,6 +183,7 @@ Elseif interview_location = "Avivo: South Subs (Tues 9 AM)" then
     appointment_time = "9:00 AM"
     appointment_date = Date + 8 - Weekday(Date, vbTuesday)
     provider_row = 8    'WFM1 provider selection based on location
+    add_days = 7         'incrementor for DateAdding for orientation options. 
     
 Elseif interview_location = "Avivo: South Subs (Wed 1 PM)" THEN
     provider_name = "Avivo Bloomington"
@@ -195,7 +195,8 @@ Elseif interview_location = "Avivo: South Subs (Wed 1 PM)" THEN
     'Date and time 
     appointment_time = "1:00 PM"
     appointment_date = Date + 8 - Weekday(Date, vbWednesday)
-    provider_row = 8    'WFM1 provider selection based on location    
+    provider_row = 8    'WFM1 provider selection based on location  
+    add_days = 7         'incrementor for DateAdding for orientation options. 
 
 'Avivo North Mpls
 ElseIf interview_location = "Avivo: North MPLS (Tues 9 AM)" THEN
@@ -209,6 +210,7 @@ ElseIf interview_location = "Avivo: North MPLS (Tues 9 AM)" THEN
     appointment_time = "9:00 AM"
     appointment_date = Date + 8 - Weekday(Date, vbTuesday)
     provider_row = 9    'WFM1 provider selection based on location
+    add_days = 7         'incrementor for DateAdding for orientation options. 
     
 ElseIf interview_location = "Avivo: North MPLS (Wed 9AM)" THEN
     provider_name = "Avivo North Mpls"
@@ -221,6 +223,7 @@ ElseIf interview_location = "Avivo: North MPLS (Wed 9AM)" THEN
     appointment_time = "9:00 AM"
     appointment_date = Date + 8 - Weekday(Date, vbWednesday)
     provider_row = 9    'WFM1 provider selection based on location
+    add_days = 7         'incrementor for DateAdding for orientation options. 
 
 'Emerge South MPLS 
 ElseIf interview_location = "Emerge: South MPLS (Wed 9 AM)" THEN
@@ -234,6 +237,7 @@ ElseIf interview_location = "Emerge: South MPLS (Wed 9 AM)" THEN
     appointment_time = "9:00 AM"
     appointment_date = Date + 8 - Weekday(Date, vbWednesday)
     provider_row = 12     'WFM1 provider selection based on location
+    add_days = 7         'incrementor for DateAdding for orientation options. 
 
 ElseIf interview_location = "Emerge: South MPLS (Fri 1PM)" THEN
     provider_name = "Emerge South Mpls"
@@ -246,6 +250,7 @@ ElseIf interview_location = "Emerge: South MPLS (Fri 1PM)" THEN
     appointment_time = "1:00 PM"
     appointment_date = Date + 8 - Weekday(Date, vbFriday)
     provider_row = 12    'WFM1 provider selection based on location
+    add_days = 7         'incrementor for DateAdding for orientation options. 
 
 'Emerge North MPLS
 ElseIf interview_location = "Emerge: North MPLS (Tues 1 PM)" THEN
@@ -259,6 +264,7 @@ ElseIf interview_location = "Emerge: North MPLS (Tues 1 PM)" THEN
     appointment_time = "1:00 PM"
     appointment_date = Date + 8 - Weekday(Date, vbTuesday)
     provider_row = 11    'WFM1 provider selection based on location
+    add_days = 7         'incrementor for DateAdding for orientation options. 
     
 ElseIf interview_location = "Emerge: North MPLS (Thurs 9 AM)" THEN
     provider_name = "Emerge North Mpls"
@@ -271,6 +277,7 @@ ElseIf interview_location = "Emerge: North MPLS (Thurs 9 AM)" THEN
     appointment_time = "9:00 AM"
     appointment_date = Date + 8 - Weekday(Date, vbThursday)
     provider_row = 11    'WFM1 provider selection based on location
+    add_days = 7         'incrementor for DateAdding for orientation options. 
 
 'HIRED Brooklyn Park 
 ElseIf interview_location = "Hired: Brooklyn Park (Mon 1 PM)" THEN
@@ -284,6 +291,7 @@ ElseIf interview_location = "Hired: Brooklyn Park (Mon 1 PM)" THEN
    appointment_time = "1:00 PM"
    appointment_date = Date + 8 - Weekday(Date, vbMonday)
    provider_row = 10   'WFM1 provider selection based on location
+   add_days = 7         'incrementor for DateAdding for orientation options. 
    
 ElseIf interview_location = "Hired: Brooklyn Park (Wed 9 AM)" THEN
    provider_name = "Hired"
@@ -296,23 +304,19 @@ ElseIf interview_location = "Hired: Brooklyn Park (Wed 9 AM)" THEN
    appointment_time = "9:00 AM"
    appointment_date = Date + 8 - Weekday(Date, vbWednesday)
    provider_row = 10     'WFM1 provider selection based on location 
+   add_days = 7         'incrementor for DateAdding for orientation options. 
 End if 
 
 'selecting the interview date 
 DO
 	DO 
-        Call confirm_available_dates          
+        Call confirm_available_dates
+        If appointment_date = random_date then appointment_date = dateadd("d", add_days, appointment_date)            'adding the number of days specific to the orientation       
         orientation_date_confirmation = MsgBox("Press YES to confirm the orientation date. For the next week, press NO." & vbNewLine & vbNewLine & _
 		"                                                  " & appointment_date & " at " & appointment_time, vbYesNoCancel, "Please confirm the ES orientation referral date")
 		If orientation_date_confirmation = vbCancel then script_end_procedure ("The script has ended. An orientation letter has not been sent.")
         If orientation_date_confirmation = vbYes then exit do 
-        If orientation_date_confirmation = vbNo then 
-            If instr(interview_location, "Quick Connect:") then 
-                appointment_date = DateAdd("d", 1, appointment_date)            'adding 1 day for quick connect/WERC referrals
-            Else 
-                appointment_date = dateadd("d", 7, appointment_date)            'adding 1 week for all others
-            End if 
-        End if 
+        If orientation_date_confirmation = vbNo then appointment_date = dateadd("d", add_days, appointment_date)     'adding the number of days specific to the orientation 
 	LOOP
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -338,7 +342,6 @@ For each member_number in member_array
         position = InStr(client_name, ", ")                  'sets the position at the deliminator (in this case the comma)
         last_name = Left(client_name, position -1)           'establishes client last name as being before the deliminator
         first_name = Right(client_name, length-position)    'establishes client first name as after before the deliminator
-        'If instr(first_name, " ") then first_name = left(first_name, len(first_name) - 1)
         
         first_name = trim(first_name)
         last_name = trim(last_name)
@@ -375,8 +378,7 @@ Next
 For each member_number in member_array 
     If make_referral = True then 
         'The CASE/NOTE----------------------------------------------------------------------------------------------------
-        'Navigates to a blank case note
-        start_a_blank_CASE_NOTE
+        start_a_blank_CASE_NOTE     'Navigates to a blank case note
         CALL write_variable_in_case_note("**DWP ES referral Appt " & appt_type & " for MEMB " & member_number & "**")
         Call write_variable_in_case_note("* Member referred to ES: #" &  member_number & ", " & client_name)
         CALL write_bullet_and_variable_in_case_note("Appointment date", appointment_date)
@@ -403,7 +405,6 @@ For each member_number in member_array
         
         'The SPEC/LETR----------------------------------------------------------------------------------------------------
         Call start_a_new_spec_memo
-        
         Call write_variable_in_SPEC_MEMO("**************DWP ES Orientation Requirement**************")
         Call write_variable_in_SPEC_MEMO("")
         Call write_variable_in_SPEC_MEMO(client_name & " must attend an orientation as part of the Diversionary Work Program (DWP) Employment Services (ES) requirements. Orientation information:")
@@ -440,7 +441,7 @@ If make_referral = true then
             row = row + 1
         End if 
     Next 
-    																																
+
     row = 8
     For each member_number in member_array
         If make_referral = True then 
@@ -454,7 +455,7 @@ If make_referral = true then
         EMReadScreen ES_popup, 11, 2, 37
         IF ES_popup = "ES Provider" then Call write_value_and_transmit("X", provider_row, 9)
     Loop until ES_popup <> "ES Provider"
-        												
+    
     EMWriteScreen appointment_date & ", " & appointment_time & ", " & provider_name, 17, 6		'enters the location, date and time for Hennepin Co ES providers (per request)'
     EmWriteScreen other_referral_notes, 18,6
     PF3			

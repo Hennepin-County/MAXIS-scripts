@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/13/2019", "Added all 2019 county holidays as unavailable orientation dates to select.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/17/2018", "Added functionality to block Christmas Day and New Year's day as potential orientation dates.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/04/2018", "Updated orientation letter functionality to send SPEC/MEMO. SPEC/LETR retired on 12/01/18.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/27/2018", "Added WCOM's regarding voluntary compliance to SPEC/LETR. Updated comments in manual referrals to include 'voluntary' for 30/10 and 30/11 recipients.", "Ilse Ferris, Hennepin County")
@@ -56,8 +57,21 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+function confirm_available_dates
+    Do 
+        If WeekdayName(WeekDay(appointment_date)) = "Saturday" Then appointment_date = DateAdd("d", 2, appointment_date)
+        If WeekdayName(WeekDay(appointment_date)) = "Sunday" Then appointment_date = DateAdd("d", 1, appointment_date)
+        is_holiday = FALSE
+        For each holiday in HOLIDAYS_ARRAY
+            If holiday = appointment_date Then
+                is_holiday = TRUE
+                appointment_date = dateadd("d", 7, appointment_date)     'adding the number of days specific to the orientation   
+            End If
+        Next
+    Loop until is_holiday = FALSE
+End function 
+
 'DIALOG----------------------------------------------------------------------------------------------------
-'This is a Hennepin specific dialog, should not be used for other counties!!!!!!!!
 BeginDialog SNAPET_Hennepin_dialog, 0, 0, 456, 130, "SNAP E&T Appointment Letter"
   EditBox 100, 10, 55, 15, MAXIS_case_number
   EditBox 220, 10, 75, 15, member_number
@@ -84,8 +98,7 @@ EndDialog
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
-'defaults the member_number to 01
-member_number = "01"
+member_number = "01"    'defaults the member_number to 01
 SNAPET_contact = "the SNAP Employment and Training Team"
 SNAPET_phone = "612-596-7411"
 
@@ -190,24 +203,15 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'selecting the interview date 
 DO
-	DO
-        Do 
-            holidays = Join(HOLIDAYS_ARRAY, ",")     
-            If instr(holidays, appointment_date) then 
-                appointment_date = dateadd("d", 7, appointment_date) 
-                appt_date = False   'dates are identified holiday dates   
-            else 
-                appt_date = True    'date is not a holiday 
-                exit do 
-            End if 
-        Loop until appt_date = true   
+	DO 
+        Call confirm_available_dates 
         orientation_date_confirmation = MsgBox("Press YES to confirm the orientation date. For the next week, press NO." & vbNewLine & vbNewLine & _
 		"                                                  " & appointment_date & " at " & appointment_time_prefix_editbox & ":" & appointment_time_post_editbox & _
 		AM_PM, vbYesNoCancel, "Please confirm the SNAP E & T orientation referral date")
 		If orientation_date_confirmation = vbCancel then script_end_procedure ("The script has ended. An orientation letter has not been sent.")
 		If orientation_date_confirmation = vbYes then exit do
 		If orientation_date_confirmation = vbNo then appointment_date = dateadd("d", 7, appointment_date)
-	LOOP until orientation_date_confirmation = vbYes
+	LOOP
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
@@ -266,8 +270,7 @@ Next
         
 For each member_number in member_array 
     'The CASE/NOTE----------------------------------------------------------------------------------------------------
-    'Navigates to a blank case note
-    start_a_blank_CASE_NOTE
+    start_a_blank_CASE_NOTE         'Navigates to a blank case note
     CALL write_variable_in_case_note("***SNAP E&T Appointment Letter Sent for MEMB " & member_number & " ***")
     Call write_variable_in_case_note("* Member referred to E&T: #" &  member_number & ", " & client_name)
     CALL write_bullet_and_variable_in_case_note("Appointment date", appointment_date)
