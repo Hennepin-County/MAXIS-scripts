@@ -210,10 +210,13 @@ DO
 	PF9
 	'checking to see if we got into edit mode.
 	EMReadScreen edit_mode_check, 1, 20, 8
-	If edit_mode_check = "D" then script_end_procedure("Unable to update panel")
-	EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
-	error_check = trim(error_check)
-	If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
+	If edit_mode_check = "D" then
+		'script_end_procedure("Unable to update panel")
+		PF9
+	END IF
+	'EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
+	'error_check = trim(error_check)
+	'If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
 
 	EMWriteScreen "Y", 4, 73			'Support Coop Y/N field
 	IF gc_status = "Pending" THEN
@@ -267,7 +270,7 @@ DO
 	Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
 
 	EMReadScreen ABPS_screen, 4, 2, 50		'if inhibiting error exists, this will catch it and instruct the user to update ABPS
-	msgbox ABPS_screen
+	'msgbox ABPS_screen
 	'If ABPS_screen = "ABPS" then script_end_procedure("An error occurred on the ABPS panel. Please update the panel before using the script with the absent parent information.")
 	'seting variables for the programs included
 	If good_cause_droplist = "Change/exemption ending" then
@@ -321,7 +324,7 @@ DO
 	    		IF check_PNLP = "PNLP" THEN
 	    			EMWriteScreen "ABPS", 20, 71
 	    			TRANSMIT
-	    			MsgBox "AM I IN A NEW FOOTER MONTH?"
+	    			'MsgBox "AM I IN A NEW FOOTER MONTH?"
 	    		END IF
 	    	END IF
 	    	If MAXIS_footer_month_check = vbNo then
@@ -330,10 +333,12 @@ DO
 			END IF
 			'checking to see if we got into edit mode.
 			EMReadScreen edit_mode_check, 1, 20, 8
-			If edit_mode_check = "D" then TRANSMIT
-			EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
-			error_check = trim(error_check)
-			If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
+			If edit_mode_check = "D" then
+				PF9
+			END IF
+			'EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
+			'error_check = trim(error_check)
+			'If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
 	    Loop until MAXIS_footer_month_check = vbYes
 Loop until MAXIS_footer_month_check = vbNo
 '-----------------------------------------------------------------------------------------------------Case note & email sending
