@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("02/04/2019", "Added COLA messages for 03/19 COLA.", "Ilse Ferris, Hennepin County")
+call changelog_update("02/12/2019", "Added COLA messages for 03/19 COLA - SSI and RSDI Updated.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/17/2019", "Added total of DAIL messages left after processing.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/17/2018", "Added PEPR messages older than CM, and BENDEX and SDX messages for this month only.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/15/2018", "Added TIKL's for exempt IR process over 2 months old.", "Ilse Ferris, Hennepin County")
@@ -264,9 +264,8 @@ For each worker in worker_array
                 instr(dail_msg, "LAST GRADE COMPLETED") OR _      
                 instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") OR _  
                 instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") OR _
-                instr(dail_msg, "NEW MFIP ELIG AUTO-APPROVED") OR _
-                instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") OR _
-                instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") then
+                instr(dail_msg, "RSDI UPDATED - (REF") OR _
+                instr(dail_msg, "SSI UPDATED - (REF") then
     		        add_to_excel = True	
                 'instr(dail_msg, "TPQY RESPONSE") OR _  ---removed temporarily
                 '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
