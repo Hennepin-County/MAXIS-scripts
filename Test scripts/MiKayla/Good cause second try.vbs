@@ -81,11 +81,11 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 'Initial dialog giving the user the option to select the type of good cause action
 updated_date  = date
 MAXIS_case_number = "276348" '276348
-actual_date = "09/01/18"
+actual_date = "11/01/18"
 memb_number = "01"
-claim_date = "09/15/18"
-child_memb_number = "03, 04"
-review_date = "09/15/19"
+claim_date = "11/15/18"
+child_memb_number = "03, 04, 05, 06"
+review_date = "11/15/19"
 '----------------------------------------------------------------------------------------------------DIALOGS
 BeginDialog change_exemption_dialog, 0, 0, 216, 100, "Good cause change/exemption "
   EditBox 110, 5, 50, 15, change_reported_date
@@ -282,7 +282,7 @@ DO
 		EMReadScreen current_panel_number, 1, 2, 73
 		ABPS_check = MsgBox("Is this the right ABPS?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
 		If ABPS_check = vbYes then exit do
-		If ABPS_check = vbNo then TRANSMITm
+		If ABPS_check = vbNo then TRANSMIT
 		If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
 	Loop until current_panel_number = panel_number
 	'-------------------------------------------------------------------------Updating the ABPS panel
@@ -375,7 +375,7 @@ DO
 		msgbox  child_ref_number_II_second_round
 		EMReadScreen child_ref_number_III_second_round, 2, 17, 35
 		msgbox  child_ref_number_III_second_round
-		IF child_ref_number_III_second_round <> "" THEN
+		IF child_ref_number_III_second_round <> "" THEN 'this doesnt wor'
 			PF18 ' shift PF8 look into the function lib PF19 is shift f8' Pf20 is shift f8'
 			EMReadScreen child_ref_number_IV_second_round, 2, 15, 35
 			msgbox  child_ref_number_V_second_round
@@ -492,6 +492,7 @@ DO
 	'EMReadScreen expire_msg, 4, 24, 02
 	'IF expire_msg = "THIS" THEN
 	PF3' this takes us back to stat/wrap
+	PF3
 	'Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 	'IF MAXIS_footer_month <> CM_plus_1_mo THEN
 	    Do
