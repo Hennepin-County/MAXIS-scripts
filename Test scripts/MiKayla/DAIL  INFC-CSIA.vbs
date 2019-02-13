@@ -49,127 +49,248 @@ call changelog_update("02/12/2019", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-'Connecting to MAXIS, and grabbing the case number and footer month'
 
-EMConnect ""
-Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+'Custom function for this script----------------------------------------------------------------------------------------------------
+FUNCTION get_case_status
+	back_to_self
+	EMWriteScreen MAXIS_case_number, 18, 43
 
+	Call navigate_to_MAXIS_screen("CASE", "CURR")
+	EMReadScreen CURR_panel_check, 4, 2, 55
+	If CURR_panel_check <> "CURR" then ObjExcel.Cells(excel_row, 2).Value = ""
 
-CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
-DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
-	EMReadscreen ref_nbr, 2, 4, 33
-	EMReadscreen last_name_array, 25, 6, 30								'took out clients last name apparently may be too much characters within the form restrictions.
-	EMReadscreen first_name_array, 12, 6, 63
-	last_name_array = replace(last_name_array, "_", "")
-	last_name_array = Lcase(last_name_array)
-	last_name_array = UCase(Left(last_name_array, 1)) &  Mid(last_name_array, 2)     	'took out clients last name apparently may be too much characters within the form restrictions.
-	first_name_array = replace(first_name_array, "_", "") '& " "
-	first_name_array = Lcase(first_name_array)
-	first_name_array = UCase(Left(first_name_array, 1)) &  Mid(first_name_array, 2)
-	client_string =  "MEMB " & ref_nbr & " - " & first_name_array & " " & last_name_array
-	client_array = client_array & client_string & "|"
-	transmit
-	Emreadscreen edit_check, 7, 24, 2
-LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
-client_array = TRIM(client_array)
-test_array = split(client_array, "|")
-total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
-DIM all_client_array()
-ReDim all_clients_array(total_clients, 1)
-FOR clt_x = 0 to total_clients				'using a dummy array to build list into the array used for the dialog.
-	Interim_array = split(client_array, "|")
-	all_clients_array(clt_x, 0) = Interim_array(clt_x)
-	all_clients_array(clt_x, 1) = 1
-NEXT
-HH_member_array = ""
-FOR i = 0 to total_clients
-	IF all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts.
-		IF all_clients_array(i, 1) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
-			HH_member_array = chr(9) & HH_member_array & chr(9) & all_clients_array(i, 0)
-		END IF
-	END IF
-NEXT
-'removes all of the first 'chr(9)'
-HH_member_array_dialog = Right(HH_member_array, len(HH_member_array) - total_clients)
-	'----------------------------------------------------------------------------------------------------ABPS panel
-	Call MAXIS_footer_month_confirmation
-	Call navigate_to_MAXIS_screen("STAT", "ABPS")
-	EMReadScreen child_ref_number_I, 2, 15, 35
-	msgbox  child_ref_number_I
-	EMReadScreen child_ref_number_II, 2, 16, 35
-	msgbox  child_ref_number_II
-	EMReadScreen child_ref_number_III, 2, 17, 35
-	msgbox  child_ref_number_III
-	IF child_ref_number_III <> "" THEN
-		PF18 ' shift PF8 look into the function lib PF19 is shift f8' Pf20 is shift f8'
-		PF18
-		EMReadScreen child_ref_number_IV, 2, 15, 35
-		msgbox  child_ref_number_IV
-		EMReadScreen child_ref_number_V, 2, 16, 35
-		EMReadScreen child_ref_number_VI, 2, 17, 35
-		TRANSMIT
-		msgbox "where am i checking ref number"
-	END IF
-	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
-	IF parental_status = "2" THEN
-		client_name = "Unknown"
-	ELSEIF parental_status = "3" THEN
-		client_name = "ABPS deceased"
-	ELSEIF parental_status = "4" THEN
-		client_name = "Rights Severed"
-	ELSEIF parental_status = "7" THEN
-		client_name = "HC No Order Sup"
-	ELSEIF parental_status = "1" THEN
-		EMReadScreen custodial_status, 1, 15, 57
-		EMReadScreen first_name, 12, 10, 63
-		EMReadScreen last_name, 24, 10, 30
-		first_name = trim(first_name)
-		last_name = trim(last_name)
-		first_name = replace(first_name, "_", "")
-		last_name = replace(last_name, "_", "")
-		client_name = first_name & " " & last_name
-		Call fix_case_for_name(client_name)
-		EMReadScreen ABPS_gender, 1, 11, 80	'reading the ssn
-		EMReadScreen ABPS_SSN, 11, 11, 30	'reading the ssn
-		EMReadScreen ABPS_DOB, 10, 11, 60	'reading the DOB
-		EMReadScreen ABPS_parent_ID, 10, 13, 40	'making sure ABPS is not unknown.
-		ABPS_parent_ID = trim(ABPS_parent_ID)
-		EMReadScreen HC_ins_order, 1, 12, 44	'making sure ABPS is not unknown.
-		EMReadScreen HC_ins_compliance, 1, 12, 80
-	END IF
-	'24, 02"THIS DATA WILL EXPIRE ON --/--/--"
-DO
-	EMReadScreen panel_number, 1, 2, 78
-	If panel_number = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
+	EMReadScreen case_status, 8, 8, 9
+	case_status = trim(case_status)
+	ObjExcel.Cells(excel_row, 2).Value = case_status
+	EMReadScreen case_program, 4, 9, 3
+	case_program = trim(case_program)
+	'IF case_program = "CCAP" THEN case_status
+	ObjExcel.Cells(excel_row, 3).Value = case_program
+
+	MAXIS_case_number = ""
+	excel_row = excel_row + 1
+	'using new variable count to calculate percentages
+	IF case_status = "ACTIVE" then active_status = active_status + 1
+	IF case_status = "APP OPEN" then active_status = active_status + 1
+
+	IF case_status = "APP CLOS" then inactive_status = inactive_status + 1
+	IF case_status = "INACTIVE" then inactive_status = inactive_status + 1
+
+	If case_status = "CAF2 PEN" then pending_status = pending_status + 1
+	If case_status = "CAF1 PEN" then pending_status = pending_status + 1
+
+	IF case_status = "REIN" then rein_status = rein_status + 1
+	STATS_counter = STATS_counter + 1
+END FUNCTION
+'End of function----------------------------------------------------------------------------------------------------
+
+'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
+EMConnect ""		'Connects to BlueZone
+
+'dialog and dialog DO...Loop
+Do
 	Do
-		EMReadScreen current_panel_number, 1, 2, 73
-		ABPS_check = MsgBox("Is this the right ABPS?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
-		If ABPS_check = vbYes then exit do
-		If ABPS_check = vbNo then TRANSMIT
-		If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
-	Loop until current_panel_number = panel_number
+			'The dialog is defined in the loop as it can change as buttons are pressed
+			BeginDialog file_select_dialog, 0, 0, 226, 50, "Select the file with the auto dialer calls."
+			  ButtonGroup ButtonPressed
+			    PushButton 175, 10, 40, 15, "Browse...", select_a_file_button
+			    OkButton 110, 30, 50, 15
+			    CancelButton 165, 30, 50, 15
+			  EditBox 5, 10, 165, 15, file_selection_path
+			EndDialog
+			err_msg = ""
+			Dialog file_select_dialog
+			If ButtonPressed = 0 then stopscript
+			If ButtonPressed = select_a_file_button then
+				If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
+					objExcel.Quit 'Closing the Excel file that was opened on the first push'
+					objExcel = "" 	'Blanks out the previous file path'
+				End If
+				call file_selection_system_dialog(file_selection_path, ".xlsx") 'allows the user to select the file'
+			End If
+			If isnumeric(excel_row_to_start) = False then msgbox "Enter a valid numeric row to start."
+			If file_selection_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
+			If err_msg <> "" Then MsgBox err_msg
+		Loop until err_msg = ""
+		If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+		If err_msg <> "" Then MsgBox err_msg
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-	EMReadScreen ABPS_screen, 4, 2, 50		'if inhibiting error exists, this will catch it and instruct the user to update ABPS
-	'msgbox ABPS_screen
-	'If ABPS_screen = "ABPS" then script_end_procedure("An error occurred on the ABPS panel. Please update the panel before using the script with the absent parent information.")
-	'seting variables for the programs included
-	If good_cause_droplist = "Change/exemption ending" then
-  	Do
-  		Do
-  			err_msg = ""
-  			dialog change_exemption_dialog
-  			cancel_confirmation
-  			If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-  		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-  		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-  	Loop until are_we_passworded_out = false					'loops until user passwords back in
-	END IF
+'resets the case number and footer month/year back to the CM (REVS for current month plus two has is going to be a problem otherwise)
+back_to_self
+EMWriteScreen CM_mo, 20, 43
+EMWriteScreen CM_yr, 20, 46
+transmit
 
-	'trims excess spaces of programs
-	programs_included  = trim(programs_included )
-	'takes the last comma off of programs
-	If right(programs_included, 1) = "," THEN programs_included  = left(programs_included, len(programs_included) - 1)
+'Zeroing out variables
+STATS_counter = 1
+'Zeroing out variables
+active_status = 0
+pending_status = 0
+inactive_status = 0
+rein_status = 0
 
+excel_row = 2
+Do
+	'Grabs the case number
+	MAXIS_case_number = objExcel.cells(excel_row, 1).value
+	If MAXIS_case_number = "" then exit do
+	get_case_status
+LOOP UNTIL objExcel.Cells(excel_row, 1).value = ""	'looping until the list of cases to check for recert is complete
+STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning (because counting :p)
+
+ObjExcel.Cells(2, 4).Value = STATS_counter
+ObjExcel.Cells(3, 4).Value = active_status
+ObjExcel.Cells(4, 4).Value = inactive_status
+ObjExcel.Cells(5, 4).Value = pending_status
+ObjExcel.Cells(6, 4).Value = rein_status
+
+
+
+
+
+
+'EMConnect ""
+'Call MAXIS_case_number_finder(MAXIS_case_number)
+'Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+'footer month matters
+'
+'CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+'DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+'	EMReadscreen ref_nbr, 2, 4, 33
+'	EMReadscreen last_name_array, 25, 6, 30								'took out clients last name apparently may be too much characters within the form restrictions.
+'	EMReadscreen first_name_array, 12, 6, 63
+'	last_name_array = replace(last_name_array, "_", "")
+'	last_name_array = Lcase(last_name_array)
+'	last_name_array = UCase(Left(last_name_array, 1)) &  Mid(last_name_array, 2)     	'took out clients last name apparently may be too much characters within the form restrictions.
+'	first_name_array = replace(first_name_array, "_", "") '& " "
+'	first_name_array = Lcase(first_name_array)
+'	first_name_array = UCase(Left(first_name_array, 1)) &  Mid(first_name_array, 2)
+'	client_string =  "MEMB " & ref_nbr & " - " & first_name_array & " " & last_name_array
+'	client_array = client_array & client_string & "|"
+	'EMReadScreen rel_to_applicant, 2, 10, 42
+	'EMReadScreen MEMB_gender, 1, 9, 42
+
+'	transmit
+'	Emreadscreen edit_check, 7, 24, 2
+'LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+'client_array = TRIM(client_array)
+'test_array = split(client_array, "|")
+'total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
+'DIM all_client_array()
+'ReDim all_clients_array(total_clients, 1)
+'FOR clt_x = 0 to total_clients				'using a dummy array to build list into the array used for the dialog.
+'	Interim_array = split(client_array, "|")
+'	all_clients_array(clt_x, 0) = Interim_array(clt_x)
+'	all_clients_array(clt_x, 1) = 1
+'NEXT
+'HH_member_array = ""
+'FOR i = 0 to total_clients
+'	IF all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts.
+'		IF all_clients_array(i, 1) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
+'			HH_member_array = chr(9) & HH_member_array & chr(9) & all_clients_array(i, 0)
+'		END IF
+'	END IF
+'NEXT
+''removes all of the first 'chr(9)'
+'HH_member_array_dialog = Right(HH_member_array, len(HH_member_array) - total_clients)
+'	'----------------------------------------------------------------------------------------------------ABPS panel
+'	Call MAXIS_footer_month_confirmation
+'	Call navigate_to_MAXIS_screen("STAT", "ABPS")
+'DO
+'	EMReadScreen child_ref_numb, 2, row, 35
+Loop Until child_ref_numb = ""
+
+'	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
+'	IF parental_status = "2" THEN
+'		ABPS_client_name = "Unknown"
+'	ELSEIF parental_status = "3" THEN
+'		ABPS_client_name = "ABPS deceased"
+'	ELSEIF parental_status = "4" THEN
+'		ABPS_client_name = "Rights Severed"
+'	ELSEIF parental_status = "7" THEN
+'		ABPS_client_name = "HC No Order Sup"
+'	ELSEIF parental_status = "1" THEN
+'		EMReadScreen custodial_status, 1, 15, 57
+'		EMReadScreen first_name, 12, 10, 63
+'		EMReadScreen last_name, 24, 10, 30
+'		first_name = trim(first_name)
+'		last_name = trim(last_name)
+'		first_name = replace(first_name, "_", "")
+'		last_name = replace(last_name, "_", "")
+'		ABPS_client_name = first_name & " " & last_name
+'		Call fix_case_for_name(ABPS_client_name)
+'		EMReadScreen ABPS_gender, 1, 11, 80	'reading the ssn
+'		EMReadScreen ABPS_SSN, 11, 11, 30	'reading the ssn
+'		EMReadScreen ABPS_DOB, 10, 11, 60	'reading the DOB
+'		EMReadScreen ABPS_parent_ID, 10, 13, 40	'making sure ABPS is not unknown.
+'		ABPS_parent_ID = trim(ABPS_parent_ID)
+'		EMReadScreen HC_ins_order, 1, 12, 44	'making sure ABPS is not unknown.
+'		EMReadScreen HC_ins_compliance, 1, 12, 80
+'	END IF
+'	'24, 02"THIS DATA WILL EXPIRE ON --/--/--"
+'DO
+'	EMReadScreen panel_number, 1, 2, 78
+'	If panel_number = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
+'	Do
+'		EMReadScreen current_panel_number, 1, 2, 73
+'		ABPS_check = MsgBox("Is this the right ABPS?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
+'		If ABPS_check = vbYes then exit do
+'		If ABPS_check = vbNo then TRANSMIT
+'		If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
+'	Loop until current_panel_number = panel_number
+'
+'	EMReadScreen ABPS_screen, 4, 2, 50		'if inhibiting error exists, this will catch it and instruct the user to update ABPS
+'	'msgbox ABPS_screen
+'	'If ABPS_screen = "ABPS" then script_end_procedure("An error occurred on the ABPS panel. Please update the panel before using the script with the absent parent information.")
+'	'seting variables for the programs included
+'	If good_cause_droplist = "Change/exemption ending" then
+'  	Do
+'  		Do
+'  			err_msg = ""
+'  			dialog change_exemption_dialog
+'  			cancel_confirmation
+'  			If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+'  		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+'  		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+'  	Loop until are_we_passworded_out = false					'loops until user passwords back in
+'	END IF
+'
+'	'trims excess spaces of programs
+'	programs_included  = trim(programs_included )
+'	'takes the last comma off of programs
+'	If right(programs_included, 1) = "," THEN programs_included  = left(programs_included, len(programs_included) - 1)
+'CSIA
+
+'Making sure we have the correct CSIA
+EMReadScreen current_panel_number, 1, 2, 73
+EMReadScreen total_panel_number, 1, 2, 78
+If current_panel_number = "0" then script_end_procedure("An CSIA panel does not exist.")
+If current_panel_number = total_panel_number THEN
+Do
+	EMReadScreen current_panel_number, 1, 2, 73
+	CSIA_check = MsgBox("Is this the right CSIA?", vbYesNo + vbQuestion, "Confirmation")
+	If CSIA_check = vbYes then exit do
+	If CSIA_check = vbNo then TRANSMIT
+	If (CSIA_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
+Loop Until
+'IF rel_to_applicant = "01" and 'MEMB_gender = "F" THEN Crgvr_Rel_to_Child = "M"
+ABPS_parentage = "N"
+EmWriteScreen Crgvr_Rel_to_Child, 4, 79
+EmWriteScreen ABPS_Deceased, 11, 44
+EmWriteScreen Name_Known, 12, 44
+EmWriteScreen Mult_Alleged_Fathers, 12, 75
+Row = 14
+DO
+	EMReadScreen CSIA_child_ref, 2, row, 04
+	IF CSIA_child_ref <> "" THEN EmWriteScreen ABPS_parentage, row, 75
+	TRANSMIT 'CSIB'
+	TRANSMIT 'CSIC'
+	TRANSMIT 'CSID'
+	EMReadScreen panel_number, 1, 2, 78
+	If panel_number = "1" then exit DO
+Loop
 
 script_end_procedure("Success! CSIA has been updated.")
+'
