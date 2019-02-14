@@ -33,7 +33,203 @@ BeginDialog HHLD_Comp_Change_Dialog, 0, 0, 161, 200, "Household Comp Change"
   Text 5, 150, 40, 10, "Worker Sig:"
 EndDialog
 
+'----------------------------------------------------------------------------------------------------Pending programs
+programs_applied_for = ""   'Creates a variable that lists all pening cases.
+additional_programs_applied_for = ""
+'cash I
+IF cash1_status_check = "PEND" then
+    If cash1_app_date = application_date THEN
+        cash_pends = TRUE
+        programs_applied_for = programs_applied_for & "CASH, "
+    Else
+        additional_programs_applied_for = additional_programs_applied_for & "CASH, "
+    End if
+End if
+'cash II
+IF cash2_status_check = "PEND" then
+    if cash2_app_date = application_date THEN
+        cash2_pends = TRUE
+        programs_applied_for = programs_applied_for & "CASH, "
+    Else
+        additional_programs_applied_for = additional_programs_applied_for & "CASH, "
+    End if
+End if
+'SNAP
+IF snap_status_check  = "PEND" then
+    If snap_app_date  = application_date THEN
+        SNAP_pends = TRUE
+        programs_applied_for = programs_applied_for & "SNAP, "
+    else
+        additional_programs_applied_for = additional_programs_applied_for & "SNAP, "
+    end if
+End if
+'GRH
+IF grh_status_check = "PEND" then
+    If grh_app_date = application_date THEN
+        grh_pends = TRUE
+        programs_applied_for = programs_applied_for & "GRH, "
+    else
+        additional_programs_applied_for = additional_programs_applied_for & "GRH, "
+    End if
+End if
+'I-VE
+IF ive_status_check = "PEND" then
+    if ive_app_date = application_date THEN
+        IVE_pends = TRUE
+        programs_applied_for = programs_applied_for & "IV-E, "
+    else
+        additional_programs_applied_for = additional_programs_applied_for & "IV-E, "
+    End if
+End if
+'HC
+IF hc_status_check = "PEND" then
+    If hc_app_date = application_date THEN
+        hc_pends = TRUE
+        programs_applied_for = programs_applied_for & "HC, "
+    else
+        additional_programs_applied_for = additional_programs_applied_for & "HC, "
+    End if
+End if
+'CCA
+IF cca_status_check = "PEND" then
+    If cca_app_date = application_date THEN
+        cca_pends = TRUE
+        programs_applied_for = programs_applied_for & "CCA, "
+    else
+        additional_programs_applied_for = additional_programs_applied_for & "CCA, "
+    End if
+End if
+'EMER
+If emer_status_check = "PEND" then
+    If emer_app_date = application_date then
+        emer_pends = TRUE
+        IF emer_prog_check = "EG" THEN programs_applied_for = programs_applied_for & "EGA, "
+        IF emer_prog_check = "EA" THEN programs_applied_for = programs_applied_for & "EA, "
+    else
+        IF emer_prog_check = "EG" THEN additional_programs_applied_for = additional_programs_applied_for & "EGA, "
+        IF emer_prog_check = "EA" THEN additional_programs_applied_for = additional_programs_applied_for & "EA, "
+    End if
+End if
 
+programs_applied_for = trim(programs_applied_for)       'trims excess spaces of programs_applied_for
+If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
+
+additional_programs_applied_for = trim(additional_programs_applied_for)       'trims excess spaces of programs_applied_for
+If right(additional_programs_applied_for, 1) = "," THEN additional_programs_applied_for = left(additional_programs_applied_for, len(additional_programs_applied_for) - 1)
+CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
+EMReadScreen err_msg, 7, 24, 02
+IF err_msg = "BENEFIT" THEN	script_end_procedure ("Case must be in PEND II status for script to run, please update MAXIS panels TYPE & PROG (HCRE for HC) and run the script again.")
+
+'Reading the app date from PROG
+EMReadScreen cash1_app_date, 8, 6, 33
+cash1_app_date = replace(cash1_app_date, " ", "/")
+EMReadScreen cash2_app_date, 8, 7, 33
+cash2_app_date = replace(cash2_app_date, " ", "/")
+EMReadScreen emer_app_date, 8, 8, 33
+emer_app_date = replace(emer_app_date, " ", "/")
+EMReadScreen grh_app_date, 8, 9, 33
+grh_app_date = replace(grh_app_date, " ", "/")
+EMReadScreen snap_app_date, 8, 10, 33
+snap_app_date = replace(snap_app_date, " ", "/")
+EMReadScreen ive_app_date, 8, 11, 33
+ive_app_date = replace(ive_app_date, " ", "/")
+EMReadScreen hc_app_date, 8, 12, 33
+hc_app_date = replace(hc_app_date, " ", "/")
+EMReadScreen cca_app_date, 8, 14, 33
+cca_app_date = replace(cca_app_date, " ", "/")
+
+'Reading the program status
+EMReadScreen cash1_status_check, 4, 6, 74
+EMReadScreen cash2_status_check, 4, 7, 74
+EMReadScreen emer_status_check, 4, 8, 74
+EMReadScreen grh_status_check, 4, 9, 74
+EMReadScreen snap_status_check, 4, 10, 74
+EMReadScreen ive_status_check, 4, 11, 74
+EMReadScreen hc_status_check, 4, 12, 74
+EMReadScreen cca_status_check, 4, 14, 74
+
+'----------------------------------------------------------------------------------------------------ACTIVE program coding
+EMReadScreen cash1_prog_check, 2, 6, 67     'Reading cash 1
+EMReadScreen cash2_prog_check, 2, 7, 67     'Reading cash 2
+EMReadScreen emer_prog_check, 2, 8, 67      'EMER Program
+
+'Logic to determine if MFIP is active
+IF cash1_prog_check = "MF" or cash1_prog_check = "GA" or cash1_prog_check = "DW" or cash1_prog_check = "MS" THEN
+	IF cash1_status_check = "ACTV" THEN cash_active = TRUE
+END IF
+IF cash2_prog_check = "MF" or cash2_prog_check = "GA" or cash2_prog_check = "DW" or cash2_prog_check = "MS" THEN
+	IF cash2_status_check = "ACTV" THEN cash2_active = TRUE
+END IF
+IF emer_prog_check = "EG" and emer_status_check = "ACTV" THEN emer_active = TRUE
+IF emer_prog_check = "EA" and emer_status_check = "ACTV" THEN emer_active = TRUE
+
+IF cash1_status_check = "ACTV" THEN cash_active  = TRUE
+IF cash2_status_check = "ACTV" THEN cash2_active = TRUE
+IF snap_status_check  = "ACTV" THEN SNAP_active  = TRUE
+IF grh_status_check   = "ACTV" THEN grh_active   = TRUE
+IF ive_status_check   = "ACTV" THEN IVE_active   = TRUE
+IF hc_status_check    = "ACTV" THEN hc_active    = TRUE
+IF cca_status_check   = "ACTV" THEN cca_active   = TRUE
+
+active_programs = ""        'Creates a variable that lists all the active.
+IF cash_active = TRUE or cash2_active = TRUE THEN active_programs = active_programs & "CASH, "
+IF emer_active = TRUE THEN active_programs = active_programs & "Emergency, "
+IF grh_active  = TRUE THEN active_programs = active_programs & "GRH, "
+IF snap_active = TRUE THEN active_programs = active_programs & "SNAP, "
+IF ive_active  = TRUE THEN active_programs = active_programs & "IV-E, "
+IF hc_active   = TRUE THEN active_programs = active_programs & "HC, "
+IF cca_active  = TRUE THEN active_programs = active_programs & "CCA"
+
+active_programs = trim(active_programs)  'trims excess spaces of active_programs
+If right(active_programs, 1) = "," THEN active_programs = left(active_programs, len(active_programs) - 1)
+'----------------------------------------------------------------------------------------------------'pending & active programs information
+
+
+EMWriteScreen MAXIS_case_number, 18, 43
+Call navigate_to_MAXIS_screen("REPT", "PND2")
+
+'Ensuring that the user is in REPT/PND2
+Do
+	EMReadScreen PND2_check, 4, 2, 52
+	If PND2_check <> "PND2" then
+		back_to_SELF
+		Call navigate_to_MAXIS_screen("REPT", "PND2")
+	End if
+LOOP until PND2_check = "PND2"
+
+'checking the case to make sure there is a pending case.  If not script will end & inform the user no pending case exists in PND2
+'EMReadScreen not_pending_check, 5, 24, 2
+'If not_pending_check = "CASE " THEN script_end_procedure("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
+
+'grabs row and col number that the cursor is at
+EMGetCursor MAXIS_row, MAXIS_col
+EMReadScreen app_month, 2, MAXIS_row, 38
+EMReadScreen app_day, 2, MAXIS_row, 41
+EMReadScreen app_year, 2, MAXIS_row, 44
+EMReadScreen days_pending, 3, MAXIS_row, 50
+EMReadScreen additional_application_check, 14, MAXIS_row + 1, 17
+EMReadScreen add_app_month, 2, MAXIS_row + 1, 38
+EMReadScreen add_app_day, 2, MAXIS_row + 1, 41
+EMReadScreen add_app_year, 2, MAXIS_row + 1, 44
+
+'Creating new variable for application check date and additional application date.
+application_date = app_month & "/" & app_day & "/" & app_year
+additional_application_date = add_app_month & "/" & add_app_day & "/" & add_app_year
+
+'checking for multiple application dates.  Creates message boxes giving the user an option of which app date to choose
+If additional_application_check = "ADDITIONAL APP" THEN multiple_apps = MsgBox("Do you want this application date: " & application_date, VbYesNoCancel)
+If multiple_apps = vbCancel then stopscript
+If multiple_apps = vbYes then application_date = application_date
+IF multiple_apps = vbNo then
+	additional_apps = Msgbox("Do you want this application date: " & additional_application_date, VbYesNoCancel)
+	application_date = ""
+	If additional_apps = vbCancel then stopscript
+	If additional_apps = vbNo then script_end_procedure("No more application dates exist. Please review the case, and start the script again if applicable.")
+	If additional_apps = vbYes then
+		additional_date_found = TRUE
+		application_date = additional_application_date
+	END IF
+End if
 
 'this creates the client array for dropdown list
 CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
