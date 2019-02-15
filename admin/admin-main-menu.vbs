@@ -194,7 +194,7 @@ script_array_QI_list(script_num).description		= "Script to enter case notes in l
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
 Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_QI_list(script_num).script_name		= "BULK INACTIVE TRANSFER"													'Script name
+script_array_QI_list(script_num).script_name		= "BULK Inactive Transfer"													'Script name
 script_array_QI_list(script_num).file_name			= "bulk-inactive-transfer.vbs"												'Script URL
 script_array_QI_list(script_num).description		= "Script to transfer inactive cases via SPEC/XFER"
 
