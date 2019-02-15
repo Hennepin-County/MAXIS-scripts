@@ -211,6 +211,7 @@ For each worker in worker_array
 			dail_msg = trim(dail_msg)
             EMReadScreen dail_month, 8, dail_row, 11
             dail_month = trim(dail_month)
+            dail_month = replace(dail_month, " ", "/")
 			stats_counter = stats_counter + 1
             
             '----------------------------------------------------------------------------------------------------CSES Messages
