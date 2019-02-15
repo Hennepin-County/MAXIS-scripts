@@ -51,68 +51,90 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 '------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+'X127EK3 	 Closed/Inactive maxed out
+'X127EG8 	 Closed/Inactive maxed out
+'X127ER5 	 Closed/Inactive maxed out
+'X127FD8 	 Closed/Inactive maxed out
+'X127EZ8 	 Closed/Inactive maxed out
+'X127ET3 	 Closed/Inactive maxed out
+'X127FH9 	 Closed/Inactive done
+'X127EV5 	 Closed/Inactive maxed out
+'X127EH7	 Closed/Inactive maxed out
+'X127EG7	 Closed/Inactive maxed out
+'X127ES3	 Closed/Inactive maxed out
+'X127FB6	 Closed/Inactive maxed out
+'X127ET8	 Closed/Inactive maxed out
+'X127EU4	 Closed/Inactive maxed out
+'X127FE9 	 DWP  S Closed/Inactive maxed out
+'X127EZ1	 DWP N Closed/Inactive done
+'x127ej6 maxed out
+'x127fd4 done
+'X127FE5 done
+'X127ek1 done
+'X127ek12 done
 
-check_for_MAXIS(True)
+current_worker = ""
+new_worker = "x127CCL"
+MAXIS_case_number = "2335052"
 
-BeginDialog transfer_dialog, 0, 0, 171, 70, "Transfer"
-  EditBox 55, 5, 35, 15, MAXIS_case_number
+
+BeginDialog xfer_dialog, 0, 0, 131, 85, "BULK INACTIVE"
+  EditBox 60, 5, 65, 15, MAXIS_case_number
+  EditBox 60, 25, 65, 15, current_worker
+  EditBox 60, 45, 65, 15, new_worker
   ButtonGroup ButtonPressed
-    PushButton 110, 5, 50, 15, "Geocoder", Geo_coder_button
-  EditBox 55, 25, 20, 15, spec_xfer_worker
-  ButtonGroup ButtonPressed
-    OkButton 65, 50, 45, 15
-    CancelButton 115, 50, 45, 15
-  Text 5, 30, 40, 10, "Transfer to:"
-  Text 5, 10, 50, 10, "Case Number:"
-  Text 80, 30, 60, 10, " (last 3 digit of X#)"
+    OkButton 40, 65, 40, 15
+    CancelButton 85, 65, 40, 15
+  Text 5, 10, 50, 10, "Case number:"
+  Text 5, 30, 50, 10, "Current worker:"
+  Text 5, 50, 45, 10, "New worker:"
 EndDialog
 
 
-DIALOG xfer_menu_dialog
+
+DIALOG xfer_dialog
 cancel_confirmation
 
-call MAXIS_case_number_finder(MAXIS_case_number)
-
-'Transfers case
-back_to_self
-EMWriteScreen "spec", 16, 43
-EMWriteScreen "________", 18, 43
-EMWriteScreen MAXIS_case_number, 18, 43
-EMWriteScreen "xfer", 21, 70
-
-
+CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
+EMWriteScreen "2335052", 18, 43 'MAXIS_case_number'
+TRANSMIT
 'Dummy case number initially
-EMWriteScreen "X" 11, 16 'Transfer case load same county
-transmit
-Emreadscreen current_worker 7, 04, 18
-IF current_worker = "" then pf3
-EMWriteScreen inactive_case "x" 11, 13
+EMWriteScreen "X", 11, 16 'Transfer case load same county
+TRANSMIT
+'-----------------------------------------------XCLD
+'msgbox "where am I now"
+EMWriteScreen current_worker, 04, 18
+TRANSMIT
+'IF current_worker = "" then pf3
+EMWriteScreen "X127CCL", 15, 13 'new_worker'
+TRANSMIT
+EMWriteScreen "x", 11, 13 'inactive_case
 'Change the footer month
-EMWriteScreen transfer_to 15, 13
-Transmit
-Row = 7
-DO
-	EMWriteScreen "1", row, 7
-'12 1 at 7, and last row is 18
-PF8
-if row = "M"
-Emreadscreen for erorr msg  30, 24, 02
-'MAXIMUM PAGES ALLOWED IS 100
-Pf3 to save
-
-
-
+TRANSMIT 'REVIEW NEW WORKER NAME AND PRESS ENTER TO VIEW DETAILS
+TRANSMIT
+'msgbox "AM I moving"
+'-------------------------------------------XFER
+row = 7
 DO
 	DO
-		DIALOG out_of_county_dlg
-			cancel_confirmation
-			IF ButtonPressed = nav_to_xfer_button THEN
-				CALL navigate_to_MAXIS_screen("SPEC", "XFER")
-				EMWriteScreen "X", 9, 16
-				transmit
-			END IF
-	LOOP UNTIL ButtonPressed = -1
-		last_chance = MsgBox("Do you want to continue? NOTE: You will get a chance to review SPEC/XFER before transmitting to transfer.", vbYesNo)
-LOOP UNTIL last_chance = vbYes
+		EMReadScreen previous_number, 7, row, 5         'First it reads the case number, name, date they closed, and the APPL date.
+
+		IF previous_number <> "" THEN
+			case_found = TRUE
+			EMWriteScreen "1", row, 3
+			row = row + 1
+		END IF
+	Loop until row = 19
+	row = 7 'Setting the variable for when the do...loop restarts
+	PF8
+	IF previous_number = "" THEN case_found = FALSE
+	EMReadScreen last_page_check, 4, 24, 2 'checks for "THIS IS THE LAST PAGE"
+	IF last_page_check = "THIS" or last_page_check = "MAXI" THEN case_found = FALSE
+LOOP UNTIL case_found = FALSE
+	'IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "What does it say?"
+'LOOP UNTIL err_msg = ""
+PF3 'to save
+'MAXIMUM PAGES ALLOWED IS 100
+'THIS IS LAST PAGE- PF3 FOR THE NEXT CASE STATUS OR ENTER START NAME
 
 script_end_procedure("Success!")
