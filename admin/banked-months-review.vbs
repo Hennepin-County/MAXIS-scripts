@@ -1601,6 +1601,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                 fset_wreg_status = ""
                 approvable_month = FALSE
                 yes_abawd_exempt_checkbox = unchecked
+                extra_month_issued = FALSE
                 BANKED_MONTHS_CASES_ARRAY(month_indicator + 9, the_case) = ""
 
                 Do
@@ -1976,6 +1977,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                         transmit
 
                         mony_row = 6
+                        from_day = "  "
                         Do
                             EmReadscreen from_mo, 2, mony_row, 62
                             If from_mo = MAXIS_footer_month Then
@@ -2026,7 +2028,12 @@ If process_option = "Ongoing Banked Months Cases" Then
                             If approvable_month = FALSE Then BANKED_MONTHS_CASES_ARRAY(month_indicator + 27, the_case) = FALSE       'SNAP approval to be made
                             If approvable_month = TRUE Then BANKED_MONTHS_CASES_ARRAY(month_indicator + 27, the_case) = TRUE       'SNAP approval to be made
                         End If
-                        month_tracker_nbr = month_indicator - 5 & ""
+                        month_tracker_nbr = month_indicator - 5
+                        If month_tracker_nbr > 9 Then
+                            month_tracker_nbr = 9
+                            extra_month_issued = TRUE
+                        End If
+                        month_tracker_nbr = month_tracker_nbr & ""
 
                         EMWriteScreen BANKED_MONTHS_CASES_ARRAY(memb_ref_nbr, the_case), 20, 76 'go to the panel for the correct member
                         transmit
@@ -2308,8 +2315,11 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                         If BANKED_MONTHS_CASES_ARRAY(month_indicator + 18, the_case) = TRUE Then
                             If BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case) = "BANKED MONTH" Then
-                                other_notes = other_notes & MAXIS_footer_month & "/" & MAXIS_footer_year & " for " & HH_memb & " is " & BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case) & " - Banked Month: " & month_tracker_nbr & ".; "
-
+                                If extra_month_issued = TRUE Then
+                                    other_notes = other_notes & MAXIS_footer_month & "/" & MAXIS_footer_year & " for " & HH_memb & " is " & BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case) & " - EXTRA BANKED MONTH ISSUED.; "
+                                Else
+                                    other_notes = other_notes & MAXIS_footer_month & "/" & MAXIS_footer_year & " for " & HH_memb & " is " & BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case) & " - Banked Month: " & month_tracker_nbr & ".; "
+                                End If
                             Else
                                 other_notes = other_notes & MAXIS_footer_month & "/" & MAXIS_footer_year & " for " & HH_memb & " is " & BANKED_MONTHS_CASES_ARRAY(month_indicator +9, the_case) & "; "
                             End If
