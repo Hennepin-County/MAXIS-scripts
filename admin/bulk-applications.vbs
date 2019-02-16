@@ -2172,6 +2172,7 @@ Next
 For case_removed = 0 to UBOUND(CASES_NO_LONGER_WORKING, 2)      'looping through each of the cases in the ARRAY from the beginning of cases that were taken off of the Working Excel
     If CASES_NO_LONGER_WORKING(worker_name_one, case_removed) <> "" OR CASES_NO_LONGER_WORKING(issue_item_one, case_removed) <> "" OR CASES_NO_LONGER_WORKING(qi_worker_one, case_removed) <> "" Then
         ObjStatsExcel.Cells(stats_excel_email_row, 8).Value = CASES_NO_LONGER_WORKING(case_number, case_removed)        'Adding all information to the stats excel
+        ObjStatsExcel.Cells(stats_excel_email_row, 9).Value = CASES_NO_LONGER_WORKING(worker_name_one, case_removed)
         ObjStatsExcel.Cells(stats_excel_email_row, 10).Value = CASES_NO_LONGER_WORKING(sup_name_one, case_removed)
         ObjStatsExcel.Cells(stats_excel_email_row, 11).Value = CASES_NO_LONGER_WORKING(issue_item_one, case_removed)
         ObjStatsExcel.Cells(stats_excel_email_row, 12).Value = CASES_NO_LONGER_WORKING(email_ym_one, case_removed)
