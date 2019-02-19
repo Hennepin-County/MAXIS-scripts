@@ -250,7 +250,7 @@ For each worker in worker_array
 				EMWriteScreen "T", dail_row + 1, 3
 				transmit
 			END IF
-		LOOP UNTIL new_case = "CASE NBR" OR (dail_type = "    " AND dail_month = "     " AND trim(dail_msg = ""))
+		LOOP UNTIL new_case = "CASE NBR" OR (dail_type = "    " AND dail_month = "" AND trim(dail_msg = ""))
 		IF all_done = true THEN exit do
 	LOOP
 
