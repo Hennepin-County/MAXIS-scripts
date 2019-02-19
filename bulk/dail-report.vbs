@@ -211,7 +211,7 @@ For each worker in worker_array
 				EMReadScreen dail_type,  4, dail_row, 6
 				EMReadScreen dail_month, 8, dail_row, 11
 				dail_month = trim(dail_month)
-				dail_month = replace(dail_month, " ", "/")
+				dail_month = replace(dail_month, " ", "/1/")
 				EMReadScreen dail_msg, 	61, dail_row, 20
                 dail_msg = replace(dail_msg, "=", "")       'This is an Excel no-no
                 dail_msg = trim(dail_msg)
