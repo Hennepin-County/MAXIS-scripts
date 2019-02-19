@@ -1111,6 +1111,8 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
 
                         End Select
 
+                        PF4 'Submit the MEMO'
+
                     End If
 
                     start_a_blank_case_note
