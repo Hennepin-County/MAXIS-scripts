@@ -51,52 +51,18 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 '------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-'X127EK3 	 Closed/Inactive maxed out
-'X127EG8 	 Closed/Inactive maxed out
-'X127ER5 	 Closed/Inactive maxed out
-'X127FD8 	 Closed/Inactive maxed out
-'X127EZ8 	 Closed/Inactive maxed out
-'X127ET3 	 Closed/Inactive maxed out
-'X127FH9 	 Closed/Inactive done
-'X127EV5 	 Closed/Inactive maxed out
-'X127EH7	 Closed/Inactive maxed out
-'X127EG7	 Closed/Inactive maxed out
-'X127ES3	 Closed/Inactive maxed out
-'X127FB6	 Closed/Inactive maxed out
-'X127ET8	 Closed/Inactive maxed out
-'X127EU4	 Closed/Inactive maxed out
-'X127FE9 	 DWP  S Closed/Inactive maxed out
-'X127EZ1	 DWP N Closed/Inactive done
-'x127ej6 maxed out
-'x127fd4 done
-'X127FE5 done
-'X127ek1 done
-'X127ek12 done
 
 worker = ""
 new_worker = "x127CCL"
 MAXIS_case_number = "2335052"
+excluded_array = array("X127CCL", "P927079X", "P927091X", "P927152X", "P927161X", "P927252X", "PW35DI01", "PWAT072", "PWAT075", "PWAT231", "PWAT352", "PWPCT01", "PWPCT02", "PWPCT03", "PWTST40", "PWTST41", "PWTST49", "PWTST58", "PWTST64", "PWTST92", "X127EN8", "X127EN9", "X127EP1", "X127EP2", "X127EQ6", "X127EQ7", "X127EX4", "X127EX5", "X127F3E", "X127F3J", "X127F3N", "X127F4A", "X127F4B", "X127FE2", "X127FE3", "X127FF1", "X127FF2", "X127FG5", "X127FG9", "X127FH3", "X127FI1", "X127FI3", "X127FI6")
 
-
-'BeginDialog xfer_dialog, 0, 0, 131, 85, "BULK INACTIVE"
-'  EditBox 60, 5, 65, 15, MAXIS_case_number
-'  EditBox 60, 25, 65, 15, worker
-'  EditBox 60, 45, 65, 15, new_worker
-'  ButtonGroup ButtonPressed
-'    OkButton 40, 65, 40, 15
-'    CancelButton 85, 65, 40, 15
-'  Text 5, 10, 50, 10, "Case number:"
-'  Text 5, 30, 50, 10, "Current worker:"
-'  Text 5, 50, 45, 10, "New worker:"
-'EndDialog
-
-
-
-'DIALOG xfer_dialog
-'cancel_confirmation
 Call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
-
-
+FOR EACH worker in excluded_array	'This will remove any counted month that was actually a banked month'
+	Filter_array = Filter(worker_array, worker, FALSE)
+	worker_array = Filter_array
+NEXT
+'navigating to start the transfer'
 CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
 EMWriteScreen "2335052", 18, 43 'MAXIS_case_number'
 TRANSMIT
@@ -104,7 +70,6 @@ TRANSMIT
 EMWriteScreen "X", 11, 16 'Transfer case load same county
 TRANSMIT
 '-----------------------------------------------XCLD
-IF worker <> "X127CCL" THEN
     For each worker in worker_array
         'msgbox "where am I now"
         EMWriteScreen worker, 04, 18
@@ -141,5 +106,5 @@ IF worker <> "X127CCL" THEN
         'LOOP UNTIL err_msg = ""
         PF3 'to save
     Next
-END IF
+
 script_end_procedure("Success!")
