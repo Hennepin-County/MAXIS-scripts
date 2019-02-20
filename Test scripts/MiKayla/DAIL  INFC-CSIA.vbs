@@ -63,7 +63,9 @@ FUNCTION get_case_status
 	EMReadScreen county_check, 2, 21, 16    'Looking to see if case has Hennepin COunty worker
 	IF priv_check = "PRIV" THEN
 		case_status = "PRIV"
+		ObjExcel.Cells(excel_row, 2).Value = case_status
 		EMReadScreen priv_worker, 7, 24,  65
+		ObjExcel.Cells(excel_row, 3).Value = case_program
 		IF priv_worker <> "" THEN case_program = priv_worker
 	END IF
 	IF county_check <> "27" THEN case_status = "out of county"
