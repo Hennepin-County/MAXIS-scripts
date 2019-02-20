@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/20/2019", "Adjusted wording to fit ABAWD Voluntary E&T with Homeless Exemption on a single WCOM.", "Casey Love, Hennepin County")
 call changelog_update("01/18/2019", "Reorganized and renamed WCOM options in user dialog for ease of use.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/16/2019", "Updated Banked months homeless WCOM to be used for all ABAWD cases. This option allows users to notify a client of the potential for the homeless ABAWD exemption.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/01/2018", "Removed 'Failure to Comply' WCOM and added WCOM for Voluntary SNAP E&T..", "Casey Love, Hennepin County")
@@ -795,7 +796,33 @@ Do      'Just made this  loop - this needs sever testing.
         CALL add_words_to_message("You are exempt from the ABAWD work provision because you are unable to work for " & numb_disa_mos & " months per your Doctor statement.")
     End If
 
-    If abawd_homeless_wcom_checkbox = checked OR banked_mos_avail_wcom_checkbox = checked OR banked_mos_vol_e_t_wcom_checkbox = checked OR banked_mos_used_wcom_checkbox = checked THen
+    If voluntary_e_t_wcom_checkbox = checked Then
+
+        CALL Generate_Client_List(client_dropdown)
+
+        BeginDialog wcom_details_dlg, 0, 0, 171, 60, "WCOM Details"
+          DropListBox 30, 20, 130, 45, "Select One..."+chr(9)+client_dropdown, abawd_memb_name
+          ButtonGroup ButtonPressed
+            OkButton 115, 40, 50, 15
+          Text 5, 5, 160, 10, "ABAWD Client to advise about Voluntary E and T"
+          Text 5, 25, 25, 10, "Client:"
+        EndDialog
+
+        Do                          'displaying the dialog and ensuring that all required information is entered
+            err_msg = ""
+
+            Dialog wcom_details_dlg
+
+            If abawd_memb_name = "Select One..." Then err_msg = err_msg & vbNewLine & "* Choose the ABAWD Client."
+            If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
+        Loop until err_msg = ""
+
+        abawd_memb_name = right(abawd_memb_name, len(abawd_memb_name)-5)
+
+        CALL add_words_to_message("Minnesota has changed the rules for time-limited SNAP recipients. " & abawd_memb_name & " is not required to participate in SNAP Employment and Training (SNAP E&T), but may choose to. Participation in SNAP E&T may extend your SNAP benefits and offer you support as you seek employment. Ask your worker about SNAP E&T.")
+    End If
+
+    If (abawd_homeless_wcom_checkbox = checked OR banked_mos_avail_wcom_checkbox = checked OR banked_mos_vol_e_t_wcom_checkbox = checked OR banked_mos_used_wcom_checkbox = checked) AND voluntary_e_t_wcom_checkbox = unchecked THen
         CALL add_words_to_message("You receive time-limited SNAP as you are an ABAWD (Able-bodied adult without dependents).")
     End If
 
@@ -845,32 +872,6 @@ Do      'Just made this  loop - this needs sever testing.
     '
     '     CALL add_words_to_message("What to do next:; * You must meet the SNAP E&T rules by the end of the month. If you want to meet the rules, contact your team at 612-596-1300, or your SNAP E&T provider at 612-596-7411.; * You can tell us why you did not meet the rules. If you had a good reason for not meeting the SNAP E&T rules, contact your SNAP E&T provider right away.")
     ' End If
-
-    If voluntary_e_t_wcom_checkbox = checked Then
-
-        CALL Generate_Client_List(client_dropdown)
-
-        BeginDialog wcom_details_dlg, 0, 0, 171, 60, "WCOM Details"
-          DropListBox 30, 20, 130, 45, "Select One..."+chr(9)+client_dropdown, abawd_memb_name
-          ButtonGroup ButtonPressed
-            OkButton 115, 40, 50, 15
-          Text 5, 5, 160, 10, "ABAWD Client to advise about Voluntary E and T"
-          Text 5, 25, 25, 10, "Client:"
-        EndDialog
-
-        Do                          'displaying the dialog and ensuring that all required information is entered
-            err_msg = ""
-
-            Dialog wcom_details_dlg
-
-            If abawd_memb_name = "Select One..." Then err_msg = err_msg & vbNewLine & "* Choose the ABAWD Client."
-            If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
-        Loop until err_msg = ""
-
-        abawd_memb_name = right(abawd_memb_name, len(abawd_memb_name)-5)
-
-        CALL add_words_to_message("Minnesota has changed the rules for time-limited SNAP recipients. " & abawd_memb_name & " is not required to participate in SNAP Employment and Training (SNAP E&T), but may choose to. Participation in SNAP E&T may extend your SNAP benefits and offer you support as you seek employment. Ask your worker about SNAP E&T.")
-    End If
 
     If cash_denied_checkbox = checked Then              'Information to add to CASH denial
 
@@ -1037,12 +1038,12 @@ If signature_postponed_verif_wcom_checkbox = checked Then CALL write_variable_in
 If wreg_postponed_verif_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & abawd_name & " has used their 3 ABAWD months. Postponed WREG verification: " & wreg_verifs_needed & " is due: " & wreg_verifs_due_date & ".")
 If abawd_child_coded_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & exempt_abawd_name & " is ABAWD and WREG exempt due to a child(ren) under the age of 18 in the SNAP unit.")
 If temp_disa_abawd_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Client meets ABAWD exemption of temporary inability to work for " & numb_disa_mos & " months per Doctor statement.")
+If voluntary_e_t_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Voluntary SNAP E&T offered to " & abawd_memb_name & ".")
 If abawd_homeless_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Information about ABAWD Exemption for homelessness.")
 If banked_mos_avail_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* ABAWD months have been used, explained Banked Months may be available.")
 If banked_mos_vol_e_t_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* E&T is voluntary with Banked Months.")
 If banked_mos_non_coop_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & banked_abawd_name & " was receiving Banked Months and fail cooperation with E & T. Explained requesting Good Cause, and future banked months ineligibility.")
 If banked_mos_used_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Banked Months were being used are now all used. Advised to review other WREG/ABAWD exemptions.")
-If voluntary_e_t_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Voluntary SNAP E&T offered to " & abawd_memb_name & ".")
 ' If fset_fail_to_comply_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* SNAP is closing due to FSET requirements not being met. Reasons for not meeting the rules: " & fset_fail_reason & ". Advised of good cause and contact information.")
 If cash_denied_checkbox = checked Then
     CALL write_variable_in_CASE_NOTE("* " & cash_one_program & " denied because " & cash_one_reason & ".")
