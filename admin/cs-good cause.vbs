@@ -89,7 +89,7 @@ BeginDialog good_cause_dialog, 0, 0, 386, 285, "Good Cause"
   CheckBox 305, 45, 70, 10, "Med Sup Svc Only", med_sup_check
   DropListBox 30, 65, 55, 15, "Select One:"+chr(9)+"Denied"+chr(9)+"Granted"+chr(9)+"Not Claimed"+chr(9)+"Pending", gc_status
   DropListBox 115, 65, 115, 15, "Select One:"+chr(9)+"Application Review-Complete"+chr(9)+"Application Review-Incomplete"+chr(9)+"Change/exemption ending"+chr(9)+"Determination"+chr(9)+"Recertification", good_cause_droplist
-  DropListBox 265, 65, 115, 15, "Select One:"+chr(9)+"Potential phys harm/child"+chr(9)+"Potential phys harm/child"+chr(9)+"Potential phys harm/caregiver"+chr(9)+"Potential emotnl harm/caregiver"+chr(9)+"Cncptn incest/forced rape"+chr(9)+"Legal adoption before court"+chr(9)+"Parent gets preadoptn svc"+chr(9)+"No Longer Claiming", reason_droplist
+  DropListBox 265, 65, 115, 15, "Select One:"+chr(9)+"Potential phys harm/child"+chr(9)+"Potential phys harm/caregiver"+chr(9)+"Cncptn incest/forced rape"+chr(9)+"Legal adoption before court"+chr(9)+"Parent gets preadoptn svc"+chr(9)+"No Longer Claiming", reason_droplist
   CheckBox 10, 95, 145, 10, "ABPS name not written on the correct line", ABPS_CHECKBOX
   CheckBox 10, 105, 140, 10, "Reason for requesting GC not selected", REASON_CHECKBOX
   CheckBox 165, 95, 120, 10, "All of the questions not answered", QUESTIONS_CHECKBOX
@@ -394,4 +394,5 @@ IF memo_started = TRUE THEN
 	Call write_variable_in_SPEC_MEMO("************************************************************")
 	PF4
 END IF
+PF3
 script_end_procedure("Success! MAXIS has been updated, and the Good Cause results case noted.")
