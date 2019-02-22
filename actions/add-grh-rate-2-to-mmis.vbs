@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/22/2019", "Added additional handling around the PPOP - provider selection screen. NPI numbers may have muliple facilities and addresses. Worker will need to select the faci option.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/12/2018", "Added handling to ensure that service agreement dates are not more than 365 days. MMIS does not support agreements over a year old.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/24/2018", "Added check to the script to ensure it is started in MAXIS", "Casey Love, Hennepin County")
 call changelog_update("08/10/2018", "Updated to support a variety of start and end dates, includes navigation, and extra data validation to ensure cases are input correctly into MMIS.", "Ilse Ferris, Hennepin County")
@@ -106,7 +107,7 @@ function navigate_to_MAXIS_test(maxis_mode)
     END IF
 end function
 
-'----------------------------------------------------------------------------------------------------DIALOG
+'----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 216, 170, "Add GRH Rate 2 to MMIS"
   EditBox 110, 10, 50, 15, MAXIS_case_number
   EditBox 110, 30, 20, 15, MAXIS_footer_month
@@ -666,22 +667,22 @@ If duplicate_agreement = False then
         '----------------------------------------------------------------------------------------------------PPOP screen handling
         EMReadScreen PPOP_check, 4, 1, 52
         If PPOP_check = "PPOP" then
-        	'needs to serach for the facility that is associated with GRH facilities
-        	Do
-        	    row = 1
-        	    col = 1
-        	    EMSearch "SPEC: GR", row, col		'Checking for "SPEC: GR"
-        	    If row <> 0 Then
-        	    	EMWriteScreen "x", row -1, 2	'Selects the correct facility found on the previous row.
-        			exit do
-        	    Else
-        	    	PF8		'going to the next screen if not found on the 1st screen
-        	    End if
-        	Loop
-        	transmit							'To select match
-    		transmit 							'to ACF1. No action required on ACF3.
-    	End if
-
+            BeginDialog PPOP_dialog, 0, 0, 180, 90, "PPOP screen - Choose Facility"
+                ButtonGroup ButtonPressed
+                OkButton 65, 70, 50, 15
+                CancelButton 120, 70, 50, 15
+                Text 5, 5, 170, 35, "Please select the correct facility name/address from the list in PPOP by putting a 'X' next to the name. DO NOT TRANSMIT. Press OK when ready. Press CANCEL to stop the script."
+                Text 5, 45, 175, 20, "* Provider types for GRH must be '18/H COMM PRV' and the status must be '1 ACTIVE1.'"
+            EndDialog
+            Do
+                dialog PPOP_dialog
+                cancel_confirmation
+            Loop until ButtonPressed = -1
+			EMReadScreen PPOP_check, 4, 1, 52 
+            If PPOP_check = "PPOP" then transmit     'to exit PPOP
+            If PPOP_check = "SA3 " then transmit    'to navigate to ACF1 - this is the partial screen check for ASA3
+        End if     
+        
         '----------------------------------------------------------------------------------------------------ACF1 screen
         Call MMIS_panel_check("ACF1")		'ensuring we are on the right MMIS screen
         EmWriteScreen addr_line_01, 5, 8	'enters the clients address
