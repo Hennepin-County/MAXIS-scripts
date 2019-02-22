@@ -76,7 +76,7 @@ BeginDialog good_cause_dialog, 0, 0, 386, 285, "Good Cause"
   EditBox 55, 25, 20, 15, MAXIS_footer_month
   EditBox 80, 25, 20, 15, MAXIS_footer_year
   EditBox 170, 25, 40, 15, review_date
-  EditBox 80, 45, 20, 15, child_ref_number
+  EditBox 80, 45, 20, 15, child_ref_number'todo make a drop list
   EditBox 170, 45, 40, 15, actual_date
   CheckBox 225, 15, 25, 10, "CCA", CCA_CHECKBOX
   CheckBox 225, 30, 30, 10, "DWP", DWP_CHECKBOX
@@ -89,7 +89,7 @@ BeginDialog good_cause_dialog, 0, 0, 386, 285, "Good Cause"
   CheckBox 305, 45, 70, 10, "Med Sup Svc Only", med_sup_check
   DropListBox 30, 65, 55, 15, "Select One:"+chr(9)+"Denied"+chr(9)+"Granted"+chr(9)+"Not Claimed"+chr(9)+"Pending", gc_status
   DropListBox 115, 65, 115, 15, "Select One:"+chr(9)+"Application Review-Complete"+chr(9)+"Application Review-Incomplete"+chr(9)+"Change/exemption ending"+chr(9)+"Determination"+chr(9)+"Recertification", good_cause_droplist
-  DropListBox 265, 65, 115, 15, "Select One:"+chr(9)+"Potential phys harm/child"+chr(9)+"Potential phys harm/child"+chr(9)+"Potential phys harm/caregiver"+chr(9)+"Potential emotnl harm/caregiver"+chr(9)+"Cncptn incest/forced rape"+chr(9)+"Legal adoption before court"+chr(9)+"Parent gets preadoptn svc"+chr(9)+"No Longer Claiming", reason_droplist
+  DropListBox 265, 65, 115, 15, "Select One:"+chr(9)+"Potential phys harm/child"+chr(9)+"Potential emotnl harm/child"+chr(9)+"Potential phys harm/caregiver"+chr(9)+"Potential emotnl harm/caregiver"+chr(9)+"Cncptn incest/forced rape"+chr(9)+"Legal adoption before court"+chr(9)+"Parent gets preadoptn svc"+chr(9)+"No longer claiming", reason_droplist
   CheckBox 10, 95, 145, 10, "ABPS name not written on the correct line", ABPS_CHECKBOX
   CheckBox 10, 105, 140, 10, "Reason for requesting GC not selected", REASON_CHECKBOX
   CheckBox 165, 95, 120, 10, "All of the questions not answered", QUESTIONS_CHECKBOX
@@ -163,6 +163,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 
 	'----------------------------------------------------------------------------------------------------ABPS panel
+	'try to '
 	Call MAXIS_footer_month_confirmation
 	Call navigate_to_MAXIS_screen("STAT", "ABPS")
 
@@ -252,7 +253,7 @@ DO
 
 	'converting the good cause reason from reason_droplist to the applicable MAXIS coding
 	If reason_droplist = "Potential phys harm/child"		then claim_reason = "1"
-	If reason_droplist = "Potential phys harm/child"	 	then claim_reason = "2"
+	If reason_droplist = "Potential emotnl harm/child"	 	then claim_reason = "2"
 	If reason_droplist = "Potential phys harm/caregiver" 	then claim_reason = "3"
 	If reason_droplist = "Potential emotnl harm/caregiver" 	then claim_reason = "4"
 	If reason_droplist = "Cncptn incest/forced rape" 		then claim_reason = "5"
@@ -305,14 +306,13 @@ DO
 	If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
 
 	TRANSMIT'to add information
-
 	TRANSMIT'to move past non-inhibiting warning messages on ABPS
-	'EMReadScreen expire_msg, 4, 24, 02
-	'IF expire_msg = "THIS" THEN
-	PF3' this takes us back to stat/wrap
-	'PF3
-	'Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-	'IF MAXIS_footer_month <> CM_plus_1_mo THEN
+	EMWriteScreen "BGTX", 20, 71
+	'PF3' this takes us back to stat/wrap
+	'THE COMMAND 'BGTX' NOT ALLOWED WHEN AN UPDATE HAS OCCURRED.
+
+
+
 	CM_plus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", 1, date)            ), 2)
 	    Do
 	    	EMReadScreen MAXIS_footer_month, 2, 20, 55
@@ -332,6 +332,7 @@ DO
 	    	If MAXIS_footer_month_check = vbNo then
 				TRANSMIT
 				exit do
+				'if the exit do = true then exit the big do'
 			END IF
 			'checking to see if we got into edit mode.
 			EMReadScreen edit_mode_check, 1, 20, 8
@@ -343,6 +344,8 @@ DO
 			'If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
 	    Loop until MAXIS_footer_month = CM_plus_1_mo
 Loop until MAXIS_footer_month = CM_plus_1_mo
+
+
 '-----------------------------------------------------------------------------------------------------Case note & email sending
 start_a_blank_case_note
 IF good_cause_droplist = "Application Review-Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
@@ -394,4 +397,5 @@ IF memo_started = TRUE THEN
 	Call write_variable_in_SPEC_MEMO("************************************************************")
 	PF4
 END IF
+PF3
 script_end_procedure("Success! MAXIS has been updated, and the Good Cause results case noted.")
