@@ -52,6 +52,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("02/19/2019", "Script will now automatically save the Daily List.", "Casey Love, Hennepin County")
 CALL changelog_update("01/30/2019", "Adding tracking of statistics, particularly around NOMIs and Correction Emails.", "Casey Love, Hennepin County")
 CALL changelog_update("10/23/2018", "Bug Fixes: Next Action Needed update, Daily List Detail, Cases with Only a Face to Face interview required.", "Casey Love, Hennepin County")
 CALL changelog_update("10/22/2018", "Removed denial memo.", "MiKayla Handley, Hennepin County")
@@ -431,7 +432,7 @@ objExcel.quit       'Once the array is created - we no longer need this Excel sh
 working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Working Excel.xlsx"     'THIS IS THE REAL ONE
 
 'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
-call excel_open(working_excel_file_path, True, True, ObjWorkExcel, objWorkbook)
+call excel_open(working_excel_file_path, True, True, ObjWorkExcel, objWorkWorkbook)
 
 
 'ARRAY of all the cases that are on the working spreadsheet (this is essentially the spreadsheet doumped into a script array for use)
@@ -2105,6 +2106,9 @@ For col_to_autofit =1 to  correct_need_col      'formatting the sheet
     ObjExcel.Columns(col_to_autofit).AutoFit()
 Next
 
+'Saving the Daily List
+objWorkbook.Save
+
 statistics_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Applications Statistics\2019 Statistics Tracking.xlsx"
 call excel_open(statistics_excel_file_path, False,  False, ObjStatsExcel, objStatsWorkbook)
 
@@ -2172,6 +2176,7 @@ Next
 For case_removed = 0 to UBOUND(CASES_NO_LONGER_WORKING, 2)      'looping through each of the cases in the ARRAY from the beginning of cases that were taken off of the Working Excel
     If CASES_NO_LONGER_WORKING(worker_name_one, case_removed) <> "" OR CASES_NO_LONGER_WORKING(issue_item_one, case_removed) <> "" OR CASES_NO_LONGER_WORKING(qi_worker_one, case_removed) <> "" Then
         ObjStatsExcel.Cells(stats_excel_email_row, 8).Value = CASES_NO_LONGER_WORKING(case_number, case_removed)        'Adding all information to the stats excel
+        ObjStatsExcel.Cells(stats_excel_email_row, 9).Value = CASES_NO_LONGER_WORKING(worker_name_one, case_removed)
         ObjStatsExcel.Cells(stats_excel_email_row, 10).Value = CASES_NO_LONGER_WORKING(sup_name_one, case_removed)
         ObjStatsExcel.Cells(stats_excel_email_row, 11).Value = CASES_NO_LONGER_WORKING(issue_item_one, case_removed)
         ObjStatsExcel.Cells(stats_excel_email_row, 12).Value = CASES_NO_LONGER_WORKING(email_ym_one, case_removed)

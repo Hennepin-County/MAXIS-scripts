@@ -1,5 +1,5 @@
 '===========================================================================================STATS
-name_of_script = "CA - MIPPA.vbs"
+name_of_script = "Quick Transfer.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 500

@@ -92,16 +92,16 @@ all_workers_check = 1
 
 'Shows the dialog. Doesn't need to loop since we already looked at MAXIS.
 DO
-	Do 
+	Do
         err_msg = ""
         dialog bulk_dail_report_dialog
 	    cancel_confirmation
-	    If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."	
-	    If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."	
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine										
-    LOOP until err_msg = ""		
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in	
+	    If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
+	    If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    LOOP until err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -151,7 +151,7 @@ back_to_self
 CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 
 'This for...next contains each worker indicated above
-For each worker in worker_array	
+For each worker in worker_array
 	EMWriteScreen worker, 21, 6
 	transmit
 	transmit 'transmit past 'not your dail message'
@@ -178,7 +178,7 @@ For each worker in worker_array
 	EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
 	DO
 		If number_of_dails = " " Then exit do 			'if this space is blank the rest of the DAIL reading is skipped
-		
+
 		'Reading and trimming the MAXIS case number and dumping it in Excel
 		EMReadScreen maxis_case_number, 8, 5, 73
 		maxis_case_number = trim(maxis_case_number)
@@ -210,10 +210,12 @@ For each worker in worker_array
 				'...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
 				EMReadScreen dail_type,  4, dail_row, 6
 				EMReadScreen dail_month, 8, dail_row, 11
+				dail_month = trim(dail_month)
+				dail_month = replace(dail_month, " ", "/1/")
 				EMReadScreen dail_msg, 	61, dail_row, 20
                 dail_msg = replace(dail_msg, "=", "")       'This is an Excel no-no
                 dail_msg = trim(dail_msg)
-				
+
 				IF trim(dail_msg) <> "" AND dail_type <> "    " and trim(dail_month) <> "" THEN
 					'...and put that in Excel.
 					objExcel.Cells(excel_row, 1).Value = worker
@@ -228,18 +230,18 @@ For each worker in worker_array
 
 				'...going to the next ding dang row...
 				dail_row = dail_row + 1
-				
+
 				'...going to the next page if necessary
 				EMReadScreen next_dail_check, 4, dail_row, 4
-				If trim(next_dail_check) = "" then 
+				If trim(next_dail_check) = "" then
 					PF8
 					EMReadScreen last_page_check, 21, 24, 2
-					If last_page_check = "THIS IS THE LAST PAGE" then 
+					If last_page_check = "THIS IS THE LAST PAGE" then
 						all_done = true
-						exit do 
-					Else 
+						exit do
+					Else
 						dail_row = 6
-					End if 
+					End if
 				End if
 			ELSEIF new_case = "CASE NBR" THEN
 				'...if the script does find that there is a new case number (indicated by the presence
@@ -248,7 +250,7 @@ For each worker in worker_array
 				EMWriteScreen "T", dail_row + 1, 3
 				transmit
 			END IF
-		LOOP UNTIL new_case = "CASE NBR" OR (dail_type = "    " AND dail_month = "     " AND trim(dail_msg = ""))
+		LOOP UNTIL new_case = "CASE NBR" OR (dail_type = "    " AND dail_month = "" AND trim(dail_msg = ""))
 		IF all_done = true THEN exit do
 	LOOP
 

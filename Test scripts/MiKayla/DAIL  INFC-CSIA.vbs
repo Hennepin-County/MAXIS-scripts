@@ -58,33 +58,34 @@ FUNCTION get_case_status
 	Call navigate_to_MAXIS_screen("CASE", "CURR")
 	EMReadScreen CURR_panel_check, 4, 2, 55
 	If CURR_panel_check <> "CURR" then ObjExcel.Cells(excel_row, 2).Value = ""
-
-	EMReadScreen case_status, 8, 8, 9
-	case_status = trim(case_status)
-	ObjExcel.Cells(excel_row, 2).Value = case_status
-	EMReadScreen case_program, 4, 9, 3
-	case_program = trim(case_program)
-	'IF case_program = "CCAP" THEN case_status
-	ObjExcel.Cells(excel_row, 3).Value = case_program
-
-	MAXIS_case_number = ""
-	excel_row = excel_row + 1
-	'using new variable count to calculate percentages
-	IF case_status = "ACTIVE" then active_status = active_status + 1
-	IF case_status = "APP OPEN" then active_status = active_status + 1
-
-	IF case_status = "APP CLOS" then inactive_status = inactive_status + 1
-	IF case_status = "INACTIVE" then inactive_status = inactive_status + 1
-
-	If case_status = "CAF2 PEN" then pending_status = pending_status + 1
-	If case_status = "CAF1 PEN" then pending_status = pending_status + 1
-
-	IF case_status = "REIN" then rein_status = rein_status + 1
-	STATS_counter = STATS_counter + 1
+	'Checking for PRIV cases.
+	EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip
+	EMReadScreen county_check, 2, 21, 16    'Looking to see if case has Hennepin COunty worker
+	IF priv_check = "PRIV" THEN
+		case_status = "PRIV"
+		ObjExcel.Cells(excel_row, 2).Value = case_status
+		EMReadScreen priv_worker, 7, 24,  65
+		ObjExcel.Cells(excel_row, 3).Value = case_program
+		IF priv_worker <> "" THEN case_program = priv_worker
+	END IF
+	IF county_check <> "27" THEN case_status = "out of county"
+	IF county_check = "27" and priv_check <> "PRIV" THEN
+		EMReadScreen case_status, 8, 8, 9
+		case_status = trim(case_status)
+		ObjExcel.Cells(excel_row, 2).Value = case_status
+		EMReadScreen case_program, 4, 9, 3
+		case_program = trim(case_program)
+		IF case_program = "" THEN case_program = "MA"
+		ObjExcel.Cells(excel_row, 3).Value = case_program
+	END IF
+		MAXIS_case_number = ""
+		excel_row = excel_row + 1
 END FUNCTION
 'End of function----------------------------------------------------------------------------------------------------
 
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
+
+
 EMConnect ""		'Connects to BlueZone
 
 'dialog and dialog DO...Loop
@@ -111,7 +112,7 @@ Do
 			If isnumeric(excel_row_to_start) = False then msgbox "Enter a valid numeric row to start."
 			If file_selection_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
 			If err_msg <> "" Then MsgBox err_msg
-		Loop until err_msg = ""
+	Loop until err_msg = ""
 		If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
 		If err_msg <> "" Then MsgBox err_msg
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -122,15 +123,6 @@ back_to_self
 EMWriteScreen CM_mo, 20, 43
 EMWriteScreen CM_yr, 20, 46
 transmit
-
-'Zeroing out variables
-STATS_counter = 1
-'Zeroing out variables
-active_status = 0
-pending_status = 0
-inactive_status = 0
-rein_status = 0
-
 excel_row = 2
 Do
 	'Grabs the case number
@@ -138,17 +130,13 @@ Do
 	If MAXIS_case_number = "" then exit do
 	get_case_status
 LOOP UNTIL objExcel.Cells(excel_row, 1).value = ""	'looping until the list of cases to check for recert is complete
-STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning (because counting :p)
 
-ObjExcel.Cells(2, 4).Value = STATS_counter
-ObjExcel.Cells(3, 4).Value = active_status
-ObjExcel.Cells(4, 4).Value = inactive_status
-ObjExcel.Cells(5, 4).Value = pending_status
-ObjExcel.Cells(6, 4).Value = rein_status
-
-
-
-
+objExcel.Cells(1, 1).Value     = "CASE NUMBER" 'maxis_case_number
+objExcel.Cells(1, 2).Value     = "CASE STATUS"
+objExcel.Cells(1, 3).Value     = "PROGRAM" 'client_name
+For excel_row = 1 to 3
+	objExcel.Cells(excel_row).Font.Bold = True
+Next
 
 
 'EMConnect ""
@@ -200,7 +188,7 @@ ObjExcel.Cells(6, 4).Value = rein_status
 '	Call navigate_to_MAXIS_screen("STAT", "ABPS")
 'DO
 '	EMReadScreen child_ref_numb, 2, row, 35
-Loop Until child_ref_numb = ""
+'Loop Until child_ref_numb = ""
 
 '	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
 '	IF parental_status = "2" THEN
@@ -263,34 +251,34 @@ Loop Until child_ref_numb = ""
 '	If right(programs_included, 1) = "," THEN programs_included  = left(programs_included, len(programs_included) - 1)
 'CSIA
 
-'Making sure we have the correct CSIA
-EMReadScreen current_panel_number, 1, 2, 73
-EMReadScreen total_panel_number, 1, 2, 78
-If current_panel_number = "0" then script_end_procedure("An CSIA panel does not exist.")
-If current_panel_number = total_panel_number THEN
-Do
-	EMReadScreen current_panel_number, 1, 2, 73
-	CSIA_check = MsgBox("Is this the right CSIA?", vbYesNo + vbQuestion, "Confirmation")
-	If CSIA_check = vbYes then exit do
-	If CSIA_check = vbNo then TRANSMIT
-	If (CSIA_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
-Loop Until
-'IF rel_to_applicant = "01" and 'MEMB_gender = "F" THEN Crgvr_Rel_to_Child = "M"
-ABPS_parentage = "N"
-EmWriteScreen Crgvr_Rel_to_Child, 4, 79
-EmWriteScreen ABPS_Deceased, 11, 44
-EmWriteScreen Name_Known, 12, 44
-EmWriteScreen Mult_Alleged_Fathers, 12, 75
-Row = 14
-DO
-	EMReadScreen CSIA_child_ref, 2, row, 04
-	IF CSIA_child_ref <> "" THEN EmWriteScreen ABPS_parentage, row, 75
-	TRANSMIT 'CSIB'
-	TRANSMIT 'CSIC'
-	TRANSMIT 'CSID'
-	EMReadScreen panel_number, 1, 2, 78
-	If panel_number = "1" then exit DO
-Loop
-
+''Making sure we have the correct CSIA
+'EMReadScreen current_panel_number, 1, 2, 73
+'EMReadScreen total_panel_number, 1, 2, 78
+'If current_panel_number = "0" then script_end_procedure("An CSIA panel does not exist.")
+'If current_panel_number = total_panel_number THEN
+'Do
+'	EMReadScreen current_panel_number, 1, 2, 73
+'	CSIA_check = MsgBox("Is this the right CSIA?", vbYesNo + vbQuestion, "Confirmation")
+'	If CSIA_check = vbYes then exit do
+'	If CSIA_check = vbNo then TRANSMIT
+'	If (CSIA_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
+'Loop Until
+''IF rel_to_applicant = "01" and 'MEMB_gender = "F" THEN Crgvr_Rel_to_Child = "M"
+'ABPS_parentage = "N"
+'EmWriteScreen Crgvr_Rel_to_Child, 4, 79
+'EmWriteScreen ABPS_Deceased, 11, 44
+'EmWriteScreen Name_Known, 12, 44
+'EmWriteScreen Mult_Alleged_Fathers, 12, 75
+'Row = 14
+'DO
+'	EMReadScreen CSIA_child_ref, 2, row, 04
+'	IF CSIA_child_ref <> "" THEN EmWriteScreen ABPS_parentage, row, 75
+'	TRANSMIT 'CSIB'
+'	TRANSMIT 'CSIC'
+'	TRANSMIT 'CSID'
+'	EMReadScreen panel_number, 1, 2, 78
+'	If panel_number = "1" then exit DO
+'Loop
+'
 script_end_procedure("Success! CSIA has been updated.")
 '

@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/19/2019", "Changed Medicare savings amounts to $135.50.", "Casey Love, Hennepin County")
 call changelog_update("11/21/2018", "Removed custom function navigate_to_spec_MMIS_region(group_security_selection). Added test function navigate_to_MAXIS_test. Updated function 'keep_MMIS_passworded_in()' that calls these functions.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/21/2018", "Initial version.", "Casey Love, Hennepin County")
 
@@ -152,9 +153,9 @@ capitation_21_49    = 794.03
 capitation_50_64    = 1058.51
 capitation_65       = 2354.34
 
-capitation_QMB      = 104.90
-capitation_SLMB     = 104.90
-capitation_QI1      = 104.90
+capitation_QMB      = 135.50
+capitation_SLMB     = 135.50
+capitation_QI1      = 135.50
 
 'Constants
 Const basket_nbr            = 0

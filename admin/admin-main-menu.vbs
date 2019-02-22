@@ -194,6 +194,13 @@ script_array_QI_list(script_num).description		= "Script to enter case notes in l
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
 Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_QI_list(script_num).script_name		= "Inactive Transfer"													'Script name
+script_array_QI_list(script_num).file_name			= "bulk-inactive-transfer.vbs"												'Script URL
+script_array_QI_list(script_num).description		= "Script to transfer inactive cases via SPEC/XFER"
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
+Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_QI_list(script_num).script_name		= "FSET Sanctions - BULK"													'Script name
 script_array_QI_list(script_num).file_name			= "fset-sanctions-bulk.vbs"												'Script URL
 script_array_QI_list(script_num).description		= "BULK script to assist in reviewing, applying, case noting and adding WCOM's for FSET sanction cases."
