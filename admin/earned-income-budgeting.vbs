@@ -275,7 +275,6 @@ Call back_to_SELF
 developer_mode = FALSE
 EMReadScreen MX_region, 12, 22, 48
 MX_region = trim(MX_region)
-MsgBox MX_region
 If MX_region = "INQUIRY DB" Then
     continue_in_inquiry = MsgBox("It appears you are in INQUIRY. Income information cannot be saved to STAT and a CASE/NOTE cannot be created." & vbNewLine & vbNewLine & "Do you wish to continue?", vbQuestion + vbYesNo, "Continue in Inquiry?")
     If continue_in_inquiry = vbNo Then script_end_procedure("Script ended since it was started in Inquiry.")
