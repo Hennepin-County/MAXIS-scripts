@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/22/2019", "Updated coding to support agreements that include the leap year date of 02/29/2020.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/22/2019", "Added additional handling around the PPOP - provider selection screen. NPI numbers may have muliple facilities and addresses. Worker will need to select the faci option.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/12/2018", "Added handling to ensure that service agreement dates are not more than 365 days. MMIS does not support agreements over a year old.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/24/2018", "Added check to the script to ensure it is started in MAXIS", "Casey Love, Hennepin County")
@@ -539,14 +540,12 @@ DO
                 end_date = end_date & custom_end
                 custom_date = true
             End if
-            
-            total_units = datediff("d", start_date, end_date) + 1   'Determining the total units to enter into MMIS.
         Loop until ButtonPressed = -1
 
         err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
         If trim(start_date) = "" or IsDate(start_date) = false THEN err_msg = err_msg & vbCr & "Select/enter one valid start date."		'mandatory field
         IF trim(end_date) = "" or IsDate(end_date) = false THEN err_msg = err_msg & vbCr & "Select/enter one valid end date."		'mandatory field
-        If total_units > 365 THEN err_msg = err_msg & vbCr & "You cannot enter an agreement for more than 365 days. Select a new start and/or end dates."   ' Cannot be over 365 days. 
+        'If total_units > 365 THEN err_msg = err_msg & vbCr & "You cannot enter an agreement for more than 365 days. Select a new start and/or end dates."   ' Cannot be over 365 days. 
         If (custom_date = True and trim(custom_dates_explained) = "") THEN err_msg = err_msg & vbCr & "Explain the reason for selecting custom dates."		'mandatory field
         If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "Enter your worker signature."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -555,6 +554,7 @@ DO
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 '------------------------------------------------------------------------------------------------------calcuationas and conversion for MMIS
+total_units = datediff("d", start_date, end_date) + 1   'Determining the total units to enter into MMIS.
 MAXIS_agree_period = start_date & "-" & end_date
 
 start_mo =  right("0" &  DatePart("m",    start_date), 2)
