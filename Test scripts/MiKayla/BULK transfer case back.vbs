@@ -53,51 +53,63 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 '----------------------------------------------------------------------------------------------Dialog
-BeginDialog stats_dialog, 0, 0, 266, 85, "Transfer case back"
+BeginDialog info_dialog, 0, 0, 266, 115, "BULK - TRANSFER BACK"
   ButtonGroup ButtonPressed
-    OkButton 150, 65, 50, 15
-    CancelButton 205, 65, 50, 15
-  Text 15, 25, 135, 10, "This script will gather match information."
-  GroupBox 10, 10, 245, 50, "About this script:"
-  Text 20, 40, 225, 10, " Please shut down your VGO (not pause it), and press OK to continue."
+    PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
+    OkButton 150, 95, 50, 15
+    CancelButton 205, 95, 50, 15
+  EditBox 15, 50, 180, 15, file_selection_path
+  Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
+  GroupBox 10, 5, 250, 85, "Using this script:"
 EndDialog
-
 'Connects to MAXIS
 EMConnect ""
+back_to_self
+EMWriteScreen "________", 18, 43
 
+'dialog and dialog DO...Loop
 Do
-	dialog stats_dialog
-    cancel_confirmation
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
+    'Show initial dialog
+    Do
+    	Dialog info_dialog
+    	If ButtonPressed = cancel then stopscript
+    	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
+    Loop until ButtonPressed = OK and file_selection_path <> ""
+    If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-'Starting the query start time (for the query runtime at the end)
-query_start_time = timer
-Call check_for_MAXIS(False)
-back_to_SELF
-Call navigate_to_MAXIS_screen("REPT", "IEVC")
 
-'Opening the Excel file
-Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add()
-objExcel.DisplayAlerts = True
+'Call check_for_MAXIS(False)
+'back_to_SELF
+'Call navigate_to_MAXIS_screen("SPEC", "XFER")
 
-'Name for the current sheet'
-ObjExcel.ActiveSheet.Name = "Case information"
+''Opening the Excel file
+'Set objExcel = CreateObject("Excel.Application")
+'objExcel.Visible = True
+'Set objWorkbook = objExcel.Workbooks.Add()
+'objExcel.DisplayAlerts = True
+'
+''Name for the current sheet'
+'ObjExcel.ActiveSheet.Name = "Case information"
 
 'Excel headers and formatting the columns
 '------------------------------------------------------IEVC'
-objExcel.Cells(1, 1).Value     = "X1 NUMBER" 'x_number
-objExcel.Cells(1, 2).Value     = "CASE NUMBER" 'maxis_case_number
-objExcel.Cells(1, 3).Value     = "CLIENT NAME" 'client_name
-objExcel.Cells(1, 4).Value     = "APPL DATE" 'appl_date
-objExcel.Cells(1, 5).Value     = "INAC DATE" 'inac_date
-objExcel.Cells(1, 6).Value     = "TRANSFERED TO"  'spec_xfer_worker
 
-For excel_row = 1 to 6
-	objExcel.Cells(excel_row).Font.Bold = True
-Next
+objExcel.Cells(1, 1).Value     = "CASE NUMBER" 'maxis_case_number
+objExcel.Cells(1, 2).Value     = "CLIENT NAME" 'client_name
+objExcel.Cells(1, 3).Value     = "APPL DATE" 'appl_date
+objExcel.Cells(1, 4).Value     = "INAC DATE" 'inac_date
+objExcel.Cells(1, 5).Value     = "TRANSFERED TO"  'spec_xfer_worker
+objExcel.Cells(1, 6).Value     = "ACTION COMPLETED"
+objExcel.Cells(1, 7).Value     = "PRIV"
+FOR i = 1 to 8		'formatting the cells'
+	objExcel.Cells(1, i).Font.Bold = True		'bold font'
+	'ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+	objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
+
 'This bit freezes the top row of the Excel sheet for better use ability when there is a lot of information
 ObjExcel.ActiveSheet.Range("A2").Select
 objExcel.ActiveWindow.FreezePanes = True
@@ -106,32 +118,56 @@ objExcel.ActiveWindow.FreezePanes = True
 excel_row = 2
 
 DO
+	MAXIS_case_number = ObjExcel.Cells(excel_row, 1).Value
+	MAXIS_case_number = trim(MAXIS_case_number)
+	IF MAXIS_case_number = "" THEN EXIT DO
+
     CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
-    EMWriteScreen "x", 7, 16
-    TRANSMIT
-    PF9
-    EMReadScreen spec_xfer_worker, 7, 18, 28
-    EMWriteScreen spec_xfer_worker 18, 61
-    TRANSMIT
-    EMReadScreen worker_check, 9, 24, 2
-    IF worker_check = "SERVICING" THEN
-    	action_completed = False
-    	PF10
-    END IF
-    EMReadScreen transfer_confirmation, 16, 24, 2
-    IF transfer_confirmation = "CASE XFER'D FROM" then
-    	action_completed = True
-    Else
-    	action_completed = False
-    End if
-    PF3
-	objExcel.Cells(excel_row, 6).Value = spec_xfer_worker	'Adds worker number to Excel
+	EMWriteScreen maxis_case_number, 18, 43 'MAXIS_case_number'
+	TRANSMIT
+	EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
+	If PRIV_check = "PRIV" then
+		ObjExcel.Cells(excel_row, 7).Value = "PRIV"
+	Else
+   		Call write_value_and_transmit("x", 7, 16)
+		'This should have us in SPEC/XWKR'
+		EMReadScreen panel_check, 4, 2, 55
+		'MsgBox panel_check
+       	PF9
+       	EMReadScreen spec_xfer_worker, 7, 18, 28
+		IF spec_xfer_worker <> "X127CCL" THEN
+   		    'MsgBox spec_xfer_worker
+       	    EMWriteScreen spec_xfer_worker, 18, 61
+        ELSE
+			spec_xfer_worker = ObjExcel.Cells(excel_row, 5).Value
+			spec_xfer_worker = trim(spec_xfer_worker)
+		    EMWriteScreen spec_xfer_worker, 18, 61
+		END IF
+		TRANSMIT
+		EMReadScreen worker_check, 9, 24, 2
+		IF worker_check = "SERVICING" THEN
+			action_completed = False
+			PF10
+		END IF
+       	EMReadScreen transfer_confirmation, 16, 24, 2
+       	IF transfer_confirmation = "CASE XFER'D FROM" then
+       		action_completed = True
+       	Else
+       		action_completed = False
+       	End if
+       	PF3
+	END IF
+	If PRIV_check = "PRIV" then action_completed = FALSE
+	objExcel.Cells(excel_row, 5).Value = spec_xfer_worker	'Adds worker number to Excel
+	objExcel.Cells(excel_row, 6).Value = action_completed	'Adds worker number to Excel
+
 	excel_row = excel_row + 1	'increments the excel row so we don't overwrite our data
 
-
-Loop until x_number = ""
+	'blanking out variables
+	'maxis_case_number = "" TRANSFERRING AND SERVICING WORKERS MUST BE FROM SAME COUNTY
+Loop until 	maxis_case_number = ""
 'Formatting the column width.
-FOR i = 1 to 23
+FOR i = 1 to 9
 	objExcel.Columns(i).AutoFit()
 NEXT
 
