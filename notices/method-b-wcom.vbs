@@ -44,6 +44,7 @@
 
  'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
  'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+ CALL changelog_update("02/26/2019", "Bug fixed that was entering the wrong Recipient Amount.", "Casey Love, Hennepin County")
  CALL changelog_update("12/07/2018", "Update Recipient Amount to truncate instead of round.", "Casey Love, Hennepin County")
  CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
  call changelog_update("04/04/2017", "Added handling for multiple recipient changes to SPEC/WCOM", "David Courtright, St Louis County")
@@ -168,41 +169,47 @@ SD = Ltrim(spenddown)
 medi_part_a = Ltrim(medi_part_a)
 medi_part_b = Ltrim(medi_part_b)
 
+function truncate_dollar_amount(money_amount)
+    dec_place = InStr(recipient_amt, ".")
+    If dec_place <> 0 Then recipient_amt = Left(recipient_amt, dec_place - 1)
+
+    recipient_amt = Round(recipient_amt)  'rounds variable to nearest decimal point to clean up for memo'
+    recipient_amt = recipient_amt & ".00"
+end function
+
 'Shows the dialog
 Do
-  err_msg = ""
-  Do
-		Dialog MEMOS_LTC_METHOD_B_dialog
-    cancel_confirmation
-    MAXIS_Dialog_navigation
-		If ButtonPressed = CALC_button THEN
-			'makes the deduction amounts = 0 so the Abs(number) function work
-			If medi_part_a = "" THEN medi_part_a = "0"
-			If medi_part_b = "" THEN medi_part_b = "0"
-			If medi_part_d = "" THEN medi_part_d = "0"
-			If health_insa = "" THEN health_insa = "0"
-			If remedial_care = "" THEN remedial_care = "0"
-			If other_deductions = "" THEN other_deductions = "0"
-			recipient_amt = Abs(SD) - Abs(medi_part_a) - Abs(medi_part_b) - Abs(medi_part_d) - Abs(health_insa) - Abs(remedial_care) - Abs(other_deductions) & ""
-      If medi_part_a = "0" THEN medi_part_a = ""
-      If medi_part_b = "0" THEN medi_part_b = ""
-      If medi_part_d = "0" THEN medi_part_d = ""
-      If health_insa = "0" THEN health_insa = ""
-      If remedial_care = "0" THEN remedial_care = ""
-      If other_deductions = "0" THEN other_deductions = ""
-	  End if
+    err_msg = ""
+    Do
+        Dialog MEMOS_LTC_METHOD_B_dialog
+        cancel_confirmation
+        MAXIS_Dialog_navigation
+        If ButtonPressed = CALC_button THEN
+        	'makes the deduction amounts = 0 so the Abs(number) function work
+        	If medi_part_a = "" THEN medi_part_a = "0"
+        	If medi_part_b = "" THEN medi_part_b = "0"
+        	If medi_part_d = "" THEN medi_part_d = "0"
+        	If health_insa = "" THEN health_insa = "0"
+        	If remedial_care = "" THEN remedial_care = "0"
+        	If other_deductions = "" THEN other_deductions = "0"
+        	recipient_amt = Abs(SD) - Abs(medi_part_a) - Abs(medi_part_b) - Abs(medi_part_d) - Abs(health_insa) - Abs(remedial_care) - Abs(other_deductions) & ""
+            Call truncate_dollar_amount(recipient_amt)
+            If medi_part_a = "0" THEN medi_part_a = ""
+            If medi_part_b = "0" THEN medi_part_b = ""
+            If medi_part_d = "0" THEN medi_part_d = ""
+            If health_insa = "0" THEN health_insa = ""
+            If remedial_care = "0" THEN remedial_care = ""
+            If other_deductions = "0" THEN other_deductions = ""
+        End if
     Loop until ButtonPressed = -1
-  IF IsNumeric(recipient_amt) = False then err_msg = err_msg & vbNewLine & "* Enter the recipient amount."
-  IF IsNumeric(income_standard) = False then err_msg = err_msg & vbNewLine & "* Enter the MA income standard."
-  IF IsNumeric(income) = False then err_msg = err_msg & vbNewLine & "* Enter the budgeted income."
-  IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-  Loop until err_msg = ""
+    IF IsNumeric(recipient_amt) = False then err_msg = err_msg & vbNewLine & "* Enter the recipient amount."
+    IF IsNumeric(income_standard) = False then err_msg = err_msg & vbNewLine & "* Enter the MA income standard."
+    IF IsNumeric(income) = False then err_msg = err_msg & vbNewLine & "* Enter the budgeted income."
+    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+Loop until err_msg = ""
 
-dec_place = InStr(recipient_amt, ".")
-If dec_place <> 0 Then recipient_amt = Left(recipient_amt, len(recipient_amt) - dec_place + 1)
+If right(recipient_amt, 3) <> ".00" Then Call truncate_dollar_amount(recipient_amt)
 
-recipient_amt = Round(recipient_amt)  'rounds variable to nearest decimal point to clean up for memo'
-recipient_amt = recipient_amt & ".00"
 'This section will check for whether forms go to AREP and SWKR
 call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
 EMReadscreen forms_to_arep, 1, 10, 45
