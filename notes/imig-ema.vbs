@@ -51,16 +51,16 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog EMA_dialog, 0, 0, 311, 305, "EMA "
+BeginDialog EMA_dialog, 0, 0, 311, 305, "EMMA"
   EditBox 85, 5, 75, 15, MAXIS_case_number
   EditBox 110, 30, 95, 15, date_received
   EditBox 55, 50, 45, 15, HH_COMP
   EditBox 55, 70, 115, 15, CIT_ID
   EditBox 75, 95, 80, 15, EMMA_Begin_date
   EditBox 75, 120, 80, 15, EMMA_End_Date
-  DropListBox 75, 155, 125, 15, "SELECT ONE..."+chr(9)+"Health Jeopardy"+chr(9)+"Serious Impairment"+chr(9)+"Serious Dysfunction", CONSEQUENCE
+  DropListBox 75, 155, 125, 15, "Select One:"+chr(9)+"Health Jeopardy"+chr(9)+"Serious Impairment"+chr(9)+"Serious Dysfunction", CONSEQUENCE
   EditBox 80, 185, 195, 15, NOTES_ON_INCOME
-  DropListBox 80, 220, 125, 15, "SELECT ONE..."+chr(9)+"APPROVED"+chr(9)+"DENIED"+chr(9)+"INCOMPLETE", ACTION_TAKEN
+  DropListBox 80, 220, 125, 15, "Select One:"+chr(9)+"APPROVED"+chr(9)+"DENIED"+chr(9)+"INCOMPLETE", ACTION_TAKEN
   EditBox 85, 250, 135, 15, Worker_signature
   ButtonGroup ButtonPressed
     OkButton 160, 285, 50, 15
@@ -111,18 +111,15 @@ PF9
 
 'Writes the case note
 CALL write_variable_in_case_note ("***EMA***")													'writes title in case note
-CALL write_bullet_and_variable_in_case_note("Ema mnsure app received", date_receive)						' writes the date application was received
-CALL write_bullet_and_variable_in_case_note("hh comp", HH_comp)										' writes the number of people in HH
-CALL write_bullet_and_variable_in_case_note("cit/id", cit_id)										' writes whether or no client is a citizen
-CALL write_bullet_and_variable_in_case_note("emma begin date", emma_begin_date)							' writes the date the EMA began
-CALL write_bullet_and_variable_in_case_note("emma end date", emma_end_date)
-IF CONSEQUENCE <> "Select One..." THEN CALL write_bullet_and_variable_in_case_note("consequence", CONSEQUENCE)		' writes how EMA affects clients health
-CALL write_bullet_and_variable_in_case_note("notes on income", notes_on_income)							' writes what type of income client has
-IF ACTION_TAKEN <> "SELECT ONE..." THEN CALL write_bullet_and_variable_in_case_note("action taken", ACTION_TAKEN)		' writes outcome of application
+CALL write_bullet_and_variable_in_case_note("EMA mnsure app received", date_receive)						' writes the date application was received
+CALL write_bullet_and_variable_in_case_note("HH Comp", HH_comp)										' writes the number of people in HH
+CALL write_bullet_and_variable_in_case_note("Citizenship/Identification", cit_id)										' writes whether or no client is a citizen
+CALL write_bullet_and_variable_in_case_note("EMMA begin date", emma_begin_date)							' writes the date the EMA began
+CALL write_bullet_and_variable_in_case_note("EMMA end date", emma_end_date)
+IF CONSEQUENCE <> "Select One:" THEN CALL write_bullet_and_variable_in_case_note("Consequence", CONSEQUENCE)		' writes how EMA affects clients health
+CALL write_bullet_and_variable_in_case_note("Notes on income", notes_on_income)							' writes what type of income client has
+IF ACTION_TAKEN <> "Select One:" THEN CALL write_bullet_and_variable_in_case_note("Action taken", ACTION_TAKEN)		' writes outcome of application
 CALL write_variable_in_case_note ("---")
 CALL write_variable_in_case_note (worker_signature)
-
-
-
 
 CALL script_end_procedure("")
