@@ -114,6 +114,8 @@ NEXT
 ObjExcel.ActiveSheet.Range("A2").Select
 objExcel.ActiveWindow.FreezePanes = True
 
+excluded_array = array("P927079X", "P927091X", "P927152X", "P927161X", "P927252X", "PW35DI01", "PWAT072", "PWAT075", "PWAT231", "PWAT352", "PWPCT01", "PWPCT02", "PWPCT03", "PWTST40", "PWTST41", "PWTST49", "PWTST58", "PWTST64", "PWTST92", "X1274EC", "X127966", "X127AN1", "X127AP7", "X127CCA", "X127CCR", "X127CSS", "X127EF8", "X127EF9", "X127EM3", "X127EM4", "X127EN8", "X127EN9", "X127EP1", "X127EP2","X127EQ6", "X127EQ7", "X127EW4", "X127EW6 ", "X127EX4", "X127EX5", "X127F3E", "X127F3F", "X127F3J", "X127F3K", "X127F3N", "X127F3P", "X127F4A", "X127F4B", "X127FB1", "X127FE2", "X127FE3", "X127FF1", "X127FF2", "X127FF4", "X127FF5", "X127FF6", "X127FF9", "X127FG1", "X127FG2", "X127FG5", "X127FG6", "X127FG7", "X127FG9", "X127FH3", "X127FI1", "X127FI3", "X127FI6", "X127GF5", "X127LE1", "X127NP0", "X127NPC", "X127NPC", "X127Q95")
+
 'Sets variable for all of the Excel stuff
 excel_row = 2
 
@@ -133,29 +135,35 @@ DO
 		'This should have us in SPEC/XWKR'
 		EMReadScreen panel_check, 4, 2, 55
 		'MsgBox panel_check
-       	PF9
+
        	EMReadScreen spec_xfer_worker, 7, 18, 28
-		IF spec_xfer_worker <> "X127CCL" THEN
-   		    'MsgBox spec_xfer_worker
-       	    EMWriteScreen spec_xfer_worker, 18, 61
-        ELSE
+		'MsgBox spec_xfer_worker
+
+		IF spec_xfer_worker = excluded_array(worker) THEN
+			PF9
 			spec_xfer_worker = ObjExcel.Cells(excel_row, 5).Value
 			spec_xfer_worker = trim(spec_xfer_worker)
 		    EMWriteScreen spec_xfer_worker, 18, 61
+			TRANSMIT
+		ELSEIF spec_xfer_worker = "X127CCL" THEN
+			MsgBox spec_xfer_worker & "where to go"
+			spec_xfer_worker = ObjExcel.Cells(excel_row, 5).Value
+			spec_xfer_worker = trim(spec_xfer_worker)
 		END IF
-		TRANSMIT
-		EMReadScreen worker_check, 9, 24, 2
-		IF worker_check = "SERVICING" THEN
-			action_completed = False
-			PF10
-		END IF
-       	EMReadScreen transfer_confirmation, 16, 24, 2
-       	IF transfer_confirmation = "CASE XFER'D FROM" then
-       		action_completed = True
-       	Else
-       		action_completed = False
-       	End if
-       	PF3
+
+		    EMReadScreen worker_check, 9, 24, 2
+
+		    IF worker_check = "SERVICING" or worker_check = "LAST" THEN
+		    	action_completed = False
+		    	PF10
+		    END IF
+       	    EMReadScreen transfer_confirmation, 16, 24, 2
+       	    IF transfer_confirmation = "CASE XFER'D FROM" then
+       	    	action_completed = True
+       	    Else
+       	    	action_completed = False
+       	    End if
+       	    PF3
 	END IF
 	If PRIV_check = "PRIV" then action_completed = FALSE
 	objExcel.Cells(excel_row, 5).Value = spec_xfer_worker	'Adds worker number to Excel
