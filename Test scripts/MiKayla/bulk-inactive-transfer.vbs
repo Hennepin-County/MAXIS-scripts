@@ -55,10 +55,10 @@ EMConnect ""
 worker = ""
 new_worker = "x127CCL"
 MAXIS_case_number = "2335052"
-excluded_array = array("X127CCL", "P927079X", "P927091X", "P927152X", "P927161X", "P927252X", "PW35DI01", "PWAT072", "PWAT075", "PWAT231", "PWAT352", "PWPCT01", "PWPCT02", "PWPCT03", "PWTST40", "PWTST41", "PWTST49", "PWTST58", "PWTST64", "PWTST92", "X127EN8", "X127EN9", "X127EP1", "X127EP2", "X127EQ6", "X127EQ7", "X127EX4", "X127EX5", "X127F3E", "X127F3J", "X127F3N", "X127F4A", "X127F4B", "X127FE2", "X127FE3", "X127FF1", "X127FF2", "X127FG5", "X127FG9", "X127FH3", "X127FI1", "X127FI3", "X127FI6", "X127EJ6", "X127FE5", "X127EK3", "X127EK1", "X127EK2", "X127EJ7", "X127EJ8", "X127EJ5", "X127EH6", "X127EM1", "X127FE1", "X127FI7", "X127FH3","X127F3E", "X127F3J", "X127F3N", "X127FI6", "X127EK9", "X127FH5", "X127EK5", "X127EN7", "X127EK6", "X127EK4", "X127EN6", "X127EL1", "X127ER6", "X127EP8", "X127EQ3", "X127FG9", "X127FI3", "X127EM7", "X127FI2", "X127FG3", "X127EM8", "X127EM9", "X127EJ4", "X127EH1", "X127EH7", "X127EH2", "X127EH3", "X127FH4", "X127FI1", "X127EP3", "X127EP4", "X127EP5", "X127EP9", "X127F3P", "X127F3K", "X127F3F", "X127EM3",  "X127EM4", "X127FG6",  "X127FG7", "X127LE1", "X127NP0", "X127NPC", "X127FF4", "X127FF5")
+excluded_array = array("P927079X", "P927091X", "P927152X", "P927161X", "P927252X", "PW35DI01", "PWAT072", "PWAT075", "PWAT231", "PWAT352", "PWPCT01", "PWPCT02", "PWPCT03", "PWTST40", "PWTST41", "PWTST49", "PWTST58", "PWTST64", "PWTST92", "X1274EC ", "X127966", "X127AN1 ", "X127AP7", "X127CCA", "X127CCL", "X127CCR", "X127CSS", "X127EF8", "X127EF9", "X127EM3", "X127EM4", "X127EN8", "X127EN9", "X127EP1", "X127EP2","X127EQ6", "X127EQ7", "X127EW4", "X127EW6 ","X127EX4", "X127EX5", "X127F3E", "X127F3F", "X127F3J", "X127F3K", "X127F3N", "X127F3P", "X127F4A", "X127F4B", "X127FB1 ", "X127FE2", "X127FE3", "X127FF1", "X127FF2", "X127FF4", "X127FF5", "X127FF6 ", "X127FF9 ", "X127FG1", "X127FG2", "X127FG5", "X127FG6", "X127FG7", "X127FG9", "X127FH3", "X127FI1", "X127FI3", "X127FI6", "X127GF5", "X127LE1", "X127NP0", "X127NPC", "X127NPC ", "X127Q95"))
 
 Call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
-FOR EACH worker in excluded_array	'This will remove any counted month that was actually a banked month'
+FOR EACH worker in excluded_array	
 	Filter_array = Filter(worker_array, worker, FALSE)
 	worker_array = Filter_array
 NEXT
@@ -86,7 +86,7 @@ TRANSMIT
         row = 7
         DO
         	DO
-        		EMReadScreen previous_number, 7, row, 5         'First it reads the case number, name, date they closed, and the APPL date.
+        		EMReadScreen previous_number, 7, row, 5
         		IF previous_number <> "" THEN
         			case_found = TRUE
         			EMWriteScreen "1", row, 3
