@@ -1104,6 +1104,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                       For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
                                           If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
                                               LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = LIST_OF_INCOME_ARRAY(exclude_amount, all_income) & ""
+                                              If LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = "0" Then LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = ""
                                               LIST_OF_INCOME_ARRAY(pay_date, all_income) = LIST_OF_INCOME_ARRAY(pay_date, all_income) & ""
                                               EditBox 5, (y_pos * 20) + 95, 65, 15, LIST_OF_INCOME_ARRAY(pay_date, all_income) 'pay_date
                                               EditBox 90, (y_pos * 20) + 95, 45, 15, LIST_OF_INCOME_ARRAY(gross_amount, all_income) 'gross_amount
