@@ -58,7 +58,7 @@ BeginDialog EMA_dialog, 0, 0, 311, 305, "EMA "
   EditBox 55, 70, 115, 15, CIT_ID
   EditBox 75, 95, 80, 15, EMMA_Begin_date
   EditBox 75, 120, 80, 15, EMMA_End_Date
-  DropListBox 75, 155, 125, 15, "SELECT ONE..."+chr(9)+"Healthy Jeopardy"+chr(9)+"Serious Impairment"+chr(9)+"Serious Dysfunction", CONSEQUENCE
+  DropListBox 75, 155, 125, 15, "SELECT ONE..."+chr(9)+"Health Jeopardy"+chr(9)+"Serious Impairment"+chr(9)+"Serious Dysfunction", CONSEQUENCE
   EditBox 80, 185, 195, 15, NOTES_ON_INCOME
   DropListBox 80, 220, 125, 15, "SELECT ONE..."+chr(9)+"APPROVED"+chr(9)+"DENIED"+chr(9)+"INCOMPLETE", ACTION_TAKEN
   EditBox 85, 250, 135, 15, Worker_signature
