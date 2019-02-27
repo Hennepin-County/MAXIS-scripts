@@ -165,6 +165,25 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 	'----------------------------------------------------------------------------------------------------ABPS panel
 	Call MAXIS_footer_month_confirmation
 	Call navigate_to_MAXIS_screen("STAT", "ABPS")
+DO
+	EMReadScreen panel_number, 1, 2, 78
+	If panel_number = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
+	'If there is more than one panel, this part will grab employer info off of them and present it to the worker to decide which one to use.
+	Do
+		EMReadScreen current_panel_number, 1, 2, 73
+		ABPS_check = MsgBox("Is this the right ABPS?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
+		If ABPS_check = vbYes then exit do
+		If ABPS_check = vbNo then TRANSMIT
+		If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
+	Loop until current_panel_number = panel_number
+	'-------------------------------------------------------------------------Updating the ABPS panel
+	PF9
+	'checking to see if we got into edit mode.
+	EMReadScreen edit_mode_check, 1, 20, 8
+	If edit_mode_check = "D" then
+		'script_end_procedure("Unable to update panel")
+		PF9
+	END IF
 
 	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
 	IF parental_status = "2" THEN
@@ -193,27 +212,8 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 		EMReadScreen HC_ins_order, 1, 12, 44	'making sure ABPS is not unknown.
 		EMReadScreen HC_ins_compliance, 1, 12, 80
 	END IF
-	'24, 02"THIS DATA WILL EXPIRE ON --/--/--"
-DO
-	EMReadScreen panel_number, 1, 2, 78
-	If panel_number = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
-	'If there is more than one panel, this part will grab employer info off of them and present it to the worker to decide which one to use.
-	Do
-		EMReadScreen current_panel_number, 1, 2, 73
-		ABPS_check = MsgBox("Is this the right ABPS?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
-		If ABPS_check = vbYes then exit do
-		If ABPS_check = vbNo then TRANSMIT
-		If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
-	Loop until current_panel_number = panel_number
+		'24, 02"THIS DATA WILL EXPIRE ON --/--/--"
 
-	'-------------------------------------------------------------------------Updating the ABPS panel
-	PF9
-	'checking to see if we got into edit mode.
-	EMReadScreen edit_mode_check, 1, 20, 8
-	If edit_mode_check = "D" then
-		'script_end_procedure("Unable to update panel")
-		PF9
-	END IF
 	'EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
 	'error_check = trim(error_check)
 	'If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
