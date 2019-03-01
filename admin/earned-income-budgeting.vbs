@@ -839,7 +839,7 @@ Do
                 Call navigate_to_MAXIS_screen("STAT", "SUMM")
 
                 Do                          'this loop is to update future months with the JOB information
-                    STATS_manualtime = STATS_manualtime + 110
+                    STATS_manualtime = STATS_manualtime + 85
                     If info_saved = FALSE Then          'If the information has not yet been saved to the array it means we are in the first month
                         EMWriteScreen "JOBS", 20, 71                    'go to JOBS
                         EMWriteScreen enter_JOBS_clt_ref_nbr, 20, 76    'go to the right member
@@ -2890,7 +2890,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                         End If          'If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked THen'
 
                         If EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, ei_panel) = checked Then            'now for GRH
-                            STATS_manualtime = STATS_manualtime + 165
+                            STATS_manualtime = STATS_manualtime + 145
                             updates_to_display = updates_to_display & vbNewLine & vbNewLine & "*** GRH Budget Update ***" & vbNewLine & "---- PIC ----"
                             EMWriteScreen "X", 19, 71               'opening the GRH PIC
                             transmit
@@ -2995,7 +2995,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                         End If              'If EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, ei_panel) = checked Then
 
                         If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel) = checked Then         'now on to the health care
-                            STATS_manualtime = STATS_manualtime + 165
+                            STATS_manualtime = STATS_manualtime + 140
                             updates_to_display = updates_to_display & vbNewLine & vbNewLine & "*** HC Budget Update ***"
 
                             For jobs_row = 12 to 16                             'blanking out the income information from the main JOBS panel'
@@ -3236,6 +3236,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'each panel will
             Call start_a_blank_CASE_NOTE        'now we start the case note
 
             If EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE Then        'if we have income verification - the note is more detailed
+                STATS_manualtime = STATS_manualtime + 120
                 If EARNED_INCOME_PANELS_ARRAY(income_verif, ei_panel) = "? - EXPEDITED SNAP ONLY" Then      'special header for if '?' is used as verification so they are easy to find
                     Call write_variable_in_CASE_NOTE("XFS INCOME DETAIL: M" & EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel) & " - JOBS - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel) & " - PROG: " & prog_list)
                 Else
