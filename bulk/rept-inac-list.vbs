@@ -57,17 +57,11 @@ changelog_display
 FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
 	'Getting to REPT/USER
 	CALL navigate_to_MAXIS_screen("REPT", "USER")
-
-
 	'Sorting by supervisor
 	PF5
 	PF5
-
-
 	'Reseting array_name
 	array_name = ""
-
-
 	'Splitting the list of inputted supervisors...
 	supervisor_array = replace(supervisor_array, " ", "")
 	supervisor_array = split(supervisor_array, ",")
@@ -75,8 +69,6 @@ FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 		IF unit_supervisor <> "" THEN
 			'Entering the supervisor number and sending a transmit
 			CALL write_value_and_transmit(unit_supervisor, 21, 12)
-
-
 			MAXIS_row = 7
 			DO
 				EMReadScreen worker_ID, 8, MAXIS_row, 5
@@ -85,7 +77,7 @@ FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 				array_name = trim(array_name & " " & worker_ID)
 				MAXIS_row = MAXIS_row + 1
 				IF MAXIS_row = 19 THEN
-					transmit
+					PF8
 					EMReadScreen end_check, 9, 24,14
 					If end_check = "LAST PAGE" Then Exit Do
 					MAXIS_row = 7
@@ -121,7 +113,7 @@ inac_month = datepart("m", dateadd("m", -1, date))
 inac_year = right(dateadd("m", -1, date), 2)
 If len(inac_month) = 1 then inac_month = "0" & inac_month
 
-get_county_code
+'get_county_code
 
 'Connects to BlueZone
 EMConnect ""
@@ -212,7 +204,6 @@ For each worker in worker_array
 	'Skips workers with no info
 	EMReadScreen has_content_check, 1, 7, 10
 	If has_content_check <> " " then
-
 		'Grabbing each case number on screen
 		Do
 			'Set variable for next do...loop
@@ -222,7 +213,6 @@ For each worker in worker_array
 				EMReadScreen client_name, 25, MAXIS_row, 14		'Reading client name
 				EMReadScreen appl_date, 8, MAXIS_row, 39		'Reading appl date
 				EMReadScreen inac_date, 8, MAXIS_row, 49		'Reading inactive date
-
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
 				MAXIS_case_number = trim(MAXIS_case_number)
 				If MAXIS_case_number <> "" and instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") <> 0 then exit do
@@ -243,10 +233,13 @@ For each worker in worker_array
 				add_case_info_to_Excel = ""	'Blanking out variable
 				MAXIS_case_number = ""			'Blanking out variable
 			Loop until MAXIS_row = 19
-			TRANSMIT
-			'EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
-		Loop until MAXIS_case_number = "" 			'Exits do if we reach the end
-		'Loop until last_page_check = "THIS IS THE LAST PAGE"
+		 	PF8
+			'EMReadScreen more_check, 4, 19, 3	'checking to see if we're at the end
+		'Loop until MAXIS_case_number = "" 			'Exits do if we reach the end
+		'Loop until more_check <> "MORE"
+		EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
+		''Loop until MAXIS_case_number = "" 			'Exits do if we reach the end
+		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 next
