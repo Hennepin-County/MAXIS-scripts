@@ -85,7 +85,7 @@ FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 				array_name = trim(array_name & " " & worker_ID)
 				MAXIS_row = MAXIS_row + 1
 				IF MAXIS_row = 19 THEN
-					PF8
+					transmit
 					EMReadScreen end_check, 9, 24,14
 					If end_check = "LAST PAGE" Then Exit Do
 					MAXIS_row = 7
@@ -243,9 +243,10 @@ For each worker in worker_array
 				add_case_info_to_Excel = ""	'Blanking out variable
 				MAXIS_case_number = ""			'Blanking out variable
 			Loop until MAXIS_row = 19
-			PF8
-			EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
-		Loop until last_page_check = "THIS IS THE LAST PAGE"
+			TRANSMIT
+			'EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
+		Loop until MAXIS_case_number = "" 			'Exits do if we reach the end
+		'Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 next
