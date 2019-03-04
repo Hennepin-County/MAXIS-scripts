@@ -138,7 +138,7 @@ CM_plus_1_mo =  right("0" & DatePart("m", DateAdd("m", 1, date)), 2)
 DO
 	DO
 	    EMReadScreen panel_check, 4, 2, 50
-	    If panel_number <> "ABPS" then Call navigate_to_MAXIS_screen("STAT", "ABPS")
+	    If panel_check <> "ABPS" then Call navigate_to_MAXIS_screen("STAT", "ABPS")
 	    EMReadScreen panel_number, 1, 2, 78
 	    If panel_number = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
 
@@ -151,10 +151,10 @@ DO
 	    Loop until current_panel_number = panel_number
 	    '-------------------------------------------------------------------------Updating the ABPS panel
 	    PF9
-	    EMReadScreen active_confirmation, 5, 24, 2
-		update_maxis_panel = TRUE
+
 		EmReadscreen error_check, 74, 24, 02
 		error_check = trim(error_check)
+		IF error_check = "" THEN update_maxis_panel = TRUE
 		IF error_check <> "" THEN
 			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
 			If maxis_error_check = vbYes THEN
@@ -226,94 +226,128 @@ DO
 		EMReadScreen HC_ins_compliance, 1, 12, 80
 	END IF
 
-	IF update_maxis_panel = TRUE THEN
-	    EMWriteScreen "Y", 4, 73			'Support Coop Y/N field
-	    IF gc_status = "Pending" THEN
-	    	'Msgbox gc_status
-	    	EMWriteScreen "P", 5, 47			'Good Cause status field
-	    	EMWriteScreen "  ", 6, 73'next review date'
-	    	EMWriteScreen "  ", 6, 76'next review date'
-	    	EMWriteScreen "  ", 6, 79'next review date'
-	    ELSEIF gc_status = "Granted" THEN
-	    	'Msgbox gc_status
-	    	EMWriteScreen "G", 5, 47
-	    	Call create_MAXIS_friendly_date(datevalue(review_date), 0, 6, 73)
-	    ELSEIF gc_status = "Denied" THEN
-	    	'Msgbox gc_status
-	    	EMWriteScreen "D", 5, 47
-	    	EMWriteScreen "  ", 6, 73'next review date'
-	    	EMWriteScreen "  ", 6, 76'next review date'
-	    	EMWriteScreen "  ", 6, 79'next review date'
-	    ELSEIF gc_status = "Not Claimed" THEN
-	    	'Msgbox gc_status
-	    	EMWriteScreen "N", 5, 47
-	    	EMWriteScreen "  ", 5, 73'good cause claim date'
-	    	EMWriteScreen "  ", 5, 76'good cause claim date'
-	    	EMWriteScreen "  ", 5, 79'good cause claim date'
-	    	EMWriteScreen " ", 6, 47'reason good cause claimed'
-	    	EMWriteScreen "  ", 6, 73'next review date'
-	    	EMWriteScreen "  ", 6, 76'next review date'
-	    	EMWriteScreen "  ", 6, 79'next review date'
-	    	EMWriteScreen " ", 7, 47'Sup Evidence'
-	    	EMWriteScreen " ", 7, 73 'Investigation'
-	    	EMWriteScreen " ", 8, 48 'Med Sup Svc Only'
-	    END IF
+	'IF update_maxis_panel = TRUE THEN
+		EmReadscreen edit_mode_check, 1, 20, 08
+		IF edit_mode_check = "D" THEN
+			PF9
+			'msgbox "are we in the edit mode"
+		END IF
+		IF edit_mode_check = "E" THEN
+	        EMWriteScreen "Y", 4, 73			'Support Coop Y/N field
+	        IF gc_status = "Pending" THEN
+	        	'Msgbox gc_status
+	        	EMWriteScreen "P", 5, 47			'Good Cause status field
+	        	EMWriteScreen "  ", 6, 73'next review date'
+	        	EMWriteScreen "  ", 6, 76'next review date'
+	        	EMWriteScreen "  ", 6, 79'next review date'
+	        ELSEIF gc_status = "Granted" THEN
+	        	'Msgbox gc_status
+	        	EMWriteScreen "G", 5, 47
+	        	Call create_MAXIS_friendly_date(datevalue(review_date), 0, 6, 73)
+	        ELSEIF gc_status = "Denied" THEN
+	        	'Msgbox gc_status
+	        	EMWriteScreen "D", 5, 47
+	        	EMWriteScreen "  ", 6, 73'next review date'
+	        	EMWriteScreen "  ", 6, 76'next review date'
+	        	EMWriteScreen "  ", 6, 79'next review date'
+	        ELSEIF gc_status = "Not Claimed" THEN
+	        	'Msgbox gc_status
+	        	EMWriteScreen "N", 5, 47
+	        	EMWriteScreen "  ", 5, 73'good cause claim date'
+	        	EMWriteScreen "  ", 5, 76'good cause claim date'
+	        	EMWriteScreen "  ", 5, 79'good cause claim date'
+	        	EMWriteScreen " ", 6, 47'reason good cause claimed'
+	        	EMWriteScreen "  ", 6, 73'next review date'
+	        	EMWriteScreen "  ", 6, 76'next review date'
+	        	EMWriteScreen "  ", 6, 79'next review date'
+	        	EMWriteScreen " ", 7, 47'Sup Evidence'
+	        	EMWriteScreen " ", 7, 73 'Investigation'
+	        	EMWriteScreen " ", 8, 48 'Med Sup Svc Only'
+	        END IF
 
-	    'converting the good cause reason from reason_droplist to the applicable MAXIS coding
-	    If reason_droplist = "Potential phys harm/child"		then claim_reason = "1"
-	    If reason_droplist = "Potential emotnl harm/child"	 	then claim_reason = "2"
-	    If reason_droplist = "Potential phys harm/caregiver" 	then claim_reason = "3"
-	    If reason_droplist = "Potential emotnl harm/caregiver" 	then claim_reason = "4"
-	    If reason_droplist = "Cncptn incest/forced rape" 		then claim_reason = "5"
-	    If reason_droplist = "Legal adoption before court" 		then claim_reason = "6"
-	    If reason_droplist = "Parent gets preadoptn svc" 		then claim_reason = "7"
+	        'converting the good cause reason from reason_droplist to the applicable MAXIS coding
+	        If reason_droplist = "Potential phys harm/child"		then claim_reason = "1"
+	        If reason_droplist = "Potential emotnl harm/child"	 	then claim_reason = "2"
+	        If reason_droplist = "Potential phys harm/caregiver" 	then claim_reason = "3"
+	        If reason_droplist = "Potential emotnl harm/caregiver" 	then claim_reason = "4"
+	        If reason_droplist = "Cncptn incest/forced rape" 		then claim_reason = "5"
+	        If reason_droplist = "Legal adoption before court" 		then claim_reason = "6"
+	        If reason_droplist = "Parent gets preadoptn svc" 		then claim_reason = "7"
 
-	    IF gc_status <> "Not Claimed" THEN
-	    	Call create_MAXIS_friendly_date(datevalue(claim_date), 0, 5, 73)
-	    	IF sup_evidence_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 47 ELSE EMWriteScreen "N", 7, 47
-	    	IF investigation_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 73 ELSE EMWriteScreen "N", 7, 73
-	    	IF med_sup_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 8, 48 ELSE EMWriteScreen "N", 8, 48
-	    	EMWriteScreen claim_reason, 6, 47
-	    	'Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
-	    END IF
-	    Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
-
+	        IF gc_status <> "Not Claimed" THEN
+	        	Call create_MAXIS_friendly_date(datevalue(claim_date), 0, 5, 73)
+	        	IF sup_evidence_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 47 ELSE EMWriteScreen "N", 7, 47
+	        	IF investigation_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 73 ELSE EMWriteScreen "N", 7, 73
+	        	IF med_sup_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 8, 48 ELSE EMWriteScreen "N", 8, 48
+	        	EMWriteScreen claim_reason, 6, 47
+	        	'Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
+	        END IF
+	        Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
+		END IF
+		TRANSMIT'to add information
 	    EMReadScreen ABPS_screen, 4, 2, 50		'if inhibiting error exists, this will catch it and instruct the user to update ABPS
 	    If ABPS_screen = "ABPS" then
-	     	TRANSMIT'to add information
-			TRANSMIT'to move past non-inhibiting warning messages on ABPS
-			PF3' this takes us back to stat/wrap
+			EmReadscreen edit_mode_check, 1, 20, 08
+			IF edit_mode_check = "E" THEN
+				TRANSMIT'to move past non-inhibiting warning messages on ABPS
+				back_to_self
+			END IF
+	     	'PF3' this takes us back to stat/wrap here i need to transmit for each abps panel on the case
 		ELSE
 			msgbox "Please follow up with MiKayla on BGTX process for this case"
 		END IF
+		EmReadscreen back_to_self_check, 4, 2, 50
+			IF back_to_self_check = "SELF" THEN
+				Do
+					EMReadScreen MAXIS_footer_month, 2, 20, 55
+					IF MAXIS_footer_month = CM_plus_1_mo  THEN
+						EXIT DO
+					ELSE
+						Call navigate_to_MAXIS_screen("STAT", "ABPS")
+						EMWriteScreen "0", 20, 80
+						EMWriteScreen current_panel_number, 20, 80
+						TRANSMIT
+						Do
+							EMReadScreen current_panel_number, 1, 2, 73
+							ABPS_check = MsgBox("Is this the right ABPS?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
+							If ABPS_check = vbYes then exit do
+							If ABPS_check = vbNo then TRANSMIT
+							If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
+						Loop until current_panel_number = panel_number
+					END IF
+					Loop until MAXIS_footer_month = CM_plus_1_mo
+			END IF
 		EmReadscreen current_panel_check, 4, 2, 46
 		IF current_panel_check <> "WRAP" THEN
 			Call navigate_to_MAXIS_screen("STAT", "BGTX")
 		END IF
-	END IF
+	'END IF
 	IF current_panel_check = "WRAP" THEN
 	    Do
 	      	EMReadScreen MAXIS_footer_month, 2, 20, 55
 	    	'msgbox MAXIS_footer_month & CM_plus_1_mo
-	    	IF MAXIS_footer_month = CM_plus_1_mo  THEN EXIT DO
-	      	MAXIS_footer_month_check = MsgBox("Do you need to run through background?", vbYesNoCancel + vbQuestion, "Maxis footer month")
-	      	If MAXIS_footer_month_check = vbYes THEN
-	      		EMWriteScreen "Y", 16, 54
-	      		TRANSMIT
-	      		EMReadScreen check_PNLP, 4, 2,53
-	      		IF check_PNLP = "PNLP" THEN
-	      			EMWriteScreen "ABPS", 20, 71
-	      			TRANSMIT
-	      			'MsgBox "AM I IN A NEW FOOTER MONTH?"
-	      		END IF
-	      	END IF
-	      	IF MAXIS_footer_month_check = vbNo then
-	    		TRANSMIT
-	    		exit do
-	    	END IF
-	    	IF MAXIS_footer_month_check = vbCancel THEN
-	    		EXIT DO
-	    	END IF
+	    	IF MAXIS_footer_month = CM_plus_1_mo  THEN
+				EXIT DO
+			ELSE
+	      		MAXIS_footer_month_check = MsgBox("Do you need to run through background?", vbYesNoCancel + vbQuestion, "Maxis footer month")
+	      	    If MAXIS_footer_month_check = vbYes THEN
+	      	    	EMWriteScreen "Y", 16, 54
+	      	    	TRANSMIT
+	      	    	EMReadScreen check_PNLP, 4, 2,53
+	      	    	IF check_PNLP = "PNLP" THEN
+	      	    		EMWriteScreen "ABPS", 20, 71
+	      	    		TRANSMIT
+	      	    		'MsgBox "AM I IN A NEW FOOTER MONTH?"
+	      	    	END IF
+	      	    END IF
+	      	    IF MAXIS_footer_month_check = vbNo then
+	    	    	TRANSMIT
+	    	    	exit do
+	    	    END IF
+	    	    IF MAXIS_footer_month_check = vbCancel THEN
+	    	    	EXIT DO
+	    	    END IF
+			END IF
 	    'checking to see if we got into edit mode.
 	    Loop until MAXIS_footer_month = CM_plus_1_mo or ButtonPressed = vbYesNoCancel
 	END IF
