@@ -1694,8 +1694,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                         If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "1 - One Time Per Month" Then EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel) = EARNED_INCOME_PANELS_ARRAY(snap_ave_hrs_per_pay, ei_panel)/4.3
                         If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "2 - Two Times Per Month" Then EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel) = (EARNED_INCOME_PANELS_ARRAY(snap_ave_hrs_per_pay, ei_panel)*2)/4.3
                         If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "3 - Every Other Week" Then EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel) = EARNED_INCOME_PANELS_ARRAY(snap_ave_hrs_per_pay, ei_panel)/2
-                        If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "4 - Every Week" Then EARNED_INCOME_PANELS_ARRAY(snap_hrs_per_wk, ei_panel) = EARNED_INCOME_PANELS_ARRAY(snap_ave_hrs_per_pay, ei_panel)
-                        EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(snap_hrs_per_wk, ei_panel), 2,,0)
+                        If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "4 - Every Week" Then EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel) = EARNED_INCOME_PANELS_ARRAY(snap_ave_hrs_per_pay, ei_panel)
+                        EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel), 2,,0)
 
                         If list_of_excluded_pay_dates <> "" Then list_of_excluded_pay_dates = right(list_of_excluded_pay_dates, len(list_of_excluded_pay_dates) - 2)        'formatting this list to remove the leading ", "
                         If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) <> "" Then            'identifying the multiplier to determine monthly anticipated pay
@@ -1724,6 +1724,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                         the_initial_month = DateValue(EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) & "/1/" & EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel))
 
                         EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) = EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel)        'there are 2 positions for this. I've left it as is for now
+                        EARNED_INCOME_PANELS_ARRAY(snap_hrs_per_wk, ei_panel) =  EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel)
 
                         days_to_add = 0     'this is for counting one check to the next
                         months_to_add = 0
