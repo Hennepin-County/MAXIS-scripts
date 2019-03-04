@@ -52,6 +52,8 @@ call changelog_update("03/27/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 'Connecting to MAXIS, and grabbing the case number and footer month'
+CM_plus_1_mo =  right("0" & DatePart("m", DateAdd("m", 1, date)), 2)
+
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
@@ -133,40 +135,46 @@ EndDialog
 '----------------------------------------------------------------------------------------------------ABPS panel
 Call MAXIS_footer_month_confirmation
 Call navigate_to_MAXIS_screen("STAT", "ABPS")
-CM_plus_1_mo =  right("0" & DatePart("m", DateAdd("m", 1, date)), 2)
+
+EMReadScreen SELF_check, 4, 2, 50
+If SELF_check = "SELF" then stopscript
 
 DO
 	DO
 	    EMReadScreen panel_check, 4, 2, 50
-	    If panel_check <> "ABPS" then Call navigate_to_MAXIS_screen("STAT", "ABPS")
-	    EMReadScreen panel_number, 1, 2, 78
-	    If panel_number = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
-
-	    Do
-	    	EMReadScreen current_panel_number, 1, 2, 73
-	    	ABPS_check = MsgBox("Is this the right ABPS?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
-	    	If ABPS_check = vbYes then exit do
-	    	If ABPS_check = vbNo then TRANSMIT
-	    	If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
-	    Loop until current_panel_number = panel_number
-	    '-------------------------------------------------------------------------Updating the ABPS panel
-	    PF9
-
-		EmReadscreen error_check, 74, 24, 02
-		error_check = trim(error_check)
-		IF error_check = "" THEN update_maxis_panel = TRUE
-		IF error_check <> "" THEN
-			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
-			If maxis_error_check = vbYes THEN
-				update_maxis_panel = FALSE
-				EXIT DO
-			END IF
-			If maxis_error_check= vbNo THEN
-				update_maxis_panel = TRUE
-				EXIT DO
-			END IF
+	    If panel_check = "ABPS" then
+	    	EMReadScreen panel_number, 1, 2, 78
+	    	If panel_number = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
+	        Do
+	        	EMReadScreen current_panel_number, 1, 2, 73
+	        	ABPS_check = MsgBox("Is this the right ABPS?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
+	        	If ABPS_check = vbYes then exit do
+	        	If ABPS_check = vbNo then TRANSMIT
+	        	If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
+	        Loop until current_panel_number = panel_number
+	        '-------------------------------------------------------------------------Updating the ABPS panel
+	        PF9'edit mode
+			EmReadscreen edit_mode_check, 1, 20, 08
+	    	IF edit_mode_check = "D" THEN
+	    		PF9
+	    		msgbox "are we in the edit mode"
+	    	END IF
+	    	EmReadscreen error_check, 74, 24, 02
+	    	error_check = trim(error_check)
+	    	IF error_check = "" THEN update_maxis_panel = TRUE
+	    	IF error_check <> "" THEN
+	    		maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
+	    		If maxis_error_check = vbYes THEN
+	    			update_maxis_panel = FALSE 'this will case note only'
+	    			EXIT DO
+	    		END IF
+	    		If maxis_error_check= vbNo THEN
+	    			update_maxis_panel = TRUE 'this will update the panels and case note'
+	    			EXIT DO
+	    		END IF
+	    	END IF
 		END IF
-	LOOP UNTIL error_check = ""
+	LOOP UNTIL panel_check = "ABPS"
 
 	'Initial dialog giving the user the option to select the type of good cause action
 	Do
@@ -226,7 +234,7 @@ DO
 		EMReadScreen HC_ins_compliance, 1, 12, 80
 	END IF
 
-	'IF update_maxis_panel = TRUE THEN
+	IF update_maxis_panel <> FALSE THEN
 		EmReadscreen edit_mode_check, 1, 20, 08
 		IF edit_mode_check = "D" THEN
 			PF9
@@ -285,71 +293,72 @@ DO
 	        Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
 		END IF
 		TRANSMIT'to add information
+		'this is where i pf3'
+		EMReadScreen panel_number, 1, 2, 78
+
 	    EMReadScreen ABPS_screen, 4, 2, 50		'if inhibiting error exists, this will catch it and instruct the user to update ABPS
 	    If ABPS_screen = "ABPS" then
 			EmReadscreen edit_mode_check, 1, 20, 08
 			IF edit_mode_check = "E" THEN
 				TRANSMIT'to move past non-inhibiting warning messages on ABPS
 				back_to_self
+				EmReadscreen back_to_self_check, 4, 2, 50
+				IF back_to_self_check = "SELF" THEN
+					Do
+						EMReadScreen MAXIS_footer_month, 2, 20, 55
+						IF MAXIS_footer_month = CM_plus_1_mo  THEN
+							EXIT DO
+						ELSE
+							Call navigate_to_MAXIS_screen("STAT", "ABPS")
+							EMWriteScreen "0", 20, 80
+							EMWriteScreen current_panel_number, 20, 80
+							TRANSMIT
+							Do
+								EMReadScreen current_panel_number, 1, 2, 73
+								ABPS_check = MsgBox("Is this the right ABPS?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
+								If ABPS_check = vbYes then exit do
+								If ABPS_check = vbNo then TRANSMIT
+								If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
+							Loop until current_panel_number = panel_number
+						END IF
+						Loop until MAXIS_footer_month = CM_plus_1_mo
+				END IF
 			END IF
-	     	'PF3' this takes us back to stat/wrap here i need to transmit for each abps panel on the case
-		ELSE
-			msgbox "Please follow up with MiKayla on BGTX process for this case"
-		END IF
-		EmReadscreen back_to_self_check, 4, 2, 50
-			IF back_to_self_check = "SELF" THEN
-				Do
-					EMReadScreen MAXIS_footer_month, 2, 20, 55
-					IF MAXIS_footer_month = CM_plus_1_mo  THEN
-						EXIT DO
-					ELSE
-						Call navigate_to_MAXIS_screen("STAT", "ABPS")
-						EMWriteScreen "0", 20, 80
-						EMWriteScreen current_panel_number, 20, 80
-						TRANSMIT
-						Do
-							EMReadScreen current_panel_number, 1, 2, 73
-							ABPS_check = MsgBox("Is this the right ABPS?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
-							If ABPS_check = vbYes then exit do
-							If ABPS_check = vbNo then TRANSMIT
-							If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
-						Loop until current_panel_number = panel_number
-					END IF
-					Loop until MAXIS_footer_month = CM_plus_1_mo
-			END IF
+	   	END IF
 		EmReadscreen current_panel_check, 4, 2, 46
 		IF current_panel_check <> "WRAP" THEN
 			Call navigate_to_MAXIS_screen("STAT", "BGTX")
 		END IF
-	'END IF
-	IF current_panel_check = "WRAP" THEN
-	    Do
-	      	EMReadScreen MAXIS_footer_month, 2, 20, 55
-	    	'msgbox MAXIS_footer_month & CM_plus_1_mo
-	    	IF MAXIS_footer_month = CM_plus_1_mo  THEN
-				EXIT DO
-			ELSE
-	      		MAXIS_footer_month_check = MsgBox("Do you need to run through background?", vbYesNoCancel + vbQuestion, "Maxis footer month")
-	      	    If MAXIS_footer_month_check = vbYes THEN
-	      	    	EMWriteScreen "Y", 16, 54
-	      	    	TRANSMIT
-	      	    	EMReadScreen check_PNLP, 4, 2,53
-	      	    	IF check_PNLP = "PNLP" THEN
-	      	    		EMWriteScreen "ABPS", 20, 71
-	      	    		TRANSMIT
-	      	    		'MsgBox "AM I IN A NEW FOOTER MONTH?"
-	      	    	END IF
-	      	    END IF
-	      	    IF MAXIS_footer_month_check = vbNo then
-	    	    	TRANSMIT
-	    	    	exit do
-	    	    END IF
-	    	    IF MAXIS_footer_month_check = vbCancel THEN
-	    	    	EXIT DO
-	    	    END IF
-			END IF
-	    'checking to see if we got into edit mode.
-	    Loop until MAXIS_footer_month = CM_plus_1_mo or ButtonPressed = vbYesNoCancel
+
+	    IF current_panel_check = "WRAP" THEN
+	        Do
+	          	EMReadScreen MAXIS_footer_month, 2, 20, 55
+	        	'msgbox MAXIS_footer_month & CM_plus_1_mo
+	        	IF MAXIS_footer_month = CM_plus_1_mo  THEN
+	    			EXIT DO
+	    		ELSE
+	          		MAXIS_footer_month_check = MsgBox("Do you need to run through background?", vbYesNoCancel + vbQuestion, "Maxis footer month")
+	          	    If MAXIS_footer_month_check = vbYes THEN
+	          	    	EMWriteScreen "Y", 16, 54
+	          	    	TRANSMIT
+	          	    	EMReadScreen check_PNLP, 4, 2,53
+	          	    	IF check_PNLP = "PNLP" THEN
+	          	    		EMWriteScreen "ABPS", 20, 71
+	          	    		TRANSMIT
+	          	    		'MsgBox "AM I IN A NEW FOOTER MONTH?"
+	          	    	END IF
+	          	    END IF
+	          	    IF MAXIS_footer_month_check = vbNo then
+	        	    	TRANSMIT
+	        	    	exit do
+	        	    END IF
+	        	    IF MAXIS_footer_month_check = vbCancel THEN
+	        	    	EXIT DO
+	        	    END IF
+	    		END IF
+	        'checking to see if we got into edit mode.
+	        Loop until MAXIS_footer_month = CM_plus_1_mo or ButtonPressed = vbYesNoCancel
+	    END IF
 	END IF
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false
