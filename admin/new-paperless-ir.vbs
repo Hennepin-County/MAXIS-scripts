@@ -687,6 +687,14 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
                     EMReadScreen failure_check, 78, 24, 2
                     failure_check = trim(failure_check)
 
+                    If failure_check = "IF NEXT REVIEW DATE IS CHANGED, CHANGE REVIEW STATUS TO U" Then
+                        ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "Other current reviews"
+                        ALL_HC_REVS_ARRAY(revw_updated, hc_reviews) = FALSE
+                        ALL_HC_REVS_ARRAY(membs_updated, hc_reviews) = ""
+                        ALL_HC_REVS_ARRAY(case_notes, hc_reviews) = ALL_HC_REVS_ARRAY(case_notes, hc_reviews) & " - " & failure_check
+                        PF10
+                    End If
+
                     If failure_check = "FS REVIEW DATES MUST ALSO BE UPDATED" Then
                         ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "Other current reviews"
                         ALL_HC_REVS_ARRAY(revw_updated, hc_reviews) = FALSE
