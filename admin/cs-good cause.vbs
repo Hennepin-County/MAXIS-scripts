@@ -152,7 +152,7 @@ DO
 	    '-------------------------------------------------------------------------Updating the ABPS panel
 	    PF9
 	    EMReadScreen active_confirmation, 5, 24, 2
-
+		update_maxis_panel = TRUE
 		EmReadscreen error_check, 74, 24, 02
 		error_check = trim(error_check)
 		IF error_check <> "" THEN
