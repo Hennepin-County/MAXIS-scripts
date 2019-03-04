@@ -130,60 +130,73 @@ BeginDialog good_cause_dialog, 0, 0, 386, 285, "Good Cause"
   GroupBox 5, 165, 250, 115, "Verifications"
   GroupBox 220, 5, 65, 55, "Programs"
 EndDialog
+'----------------------------------------------------------------------------------------------------ABPS panel
+Call MAXIS_footer_month_confirmation
+Call navigate_to_MAXIS_screen("STAT", "ABPS")
+CM_plus_1_mo =  right("0" & DatePart("m", DateAdd("m", 1, date)), 2)
 
-'Initial dialog giving the user the option to select the type of good cause action
-Do
-	Do
-		err_msg = ""
-		dialog good_cause_dialog
-		cancel_confirmation
-		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
-		If isnumeric(MAXIS_footer_month) = false then err_msg = err_msg & vbnewline & "* You must enter the footer month to begin good cause."
-		If isnumeric(MAXIS_footer_year) = false then err_msg = err_msg & vbnewline & "* You must enter the footer year to begin good cause."
-		IF child_ref_number = "" THEN err_msg = err_msg & vbnewline & "* Please enter the child(s) member number."
-		If good_cause_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the Good Cause Application Status."
-		IF gc_status = "Select One:" THEN err_msg = err_msg & vbnewline & "* Select the Good Cause Case Status."
-		If reason_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the Good Cause reason."
-		If gc_status = "Granted" THEN
-			If isdate(review_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause review date."
-		ELSEIF gc_status = "Denied" THEN
-			If denial_reason = "" then err_msg = err_msg & vbnewline & "* You must enter a denial reason."
-		END IF
-		If isdate(actual_date) = FALSE then err_msg = err_msg & vbnewline & "* You must enter an actual date in the footer month that you are working in."
-		IF gc_status <> "Not Claimed" THEN
-			If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
-		END IF
-		If good_cause_droplist = "Application Review-Incomplete" then
-			If other_notes = "" and OTHER_CHECKBOX = CHECKED then err_msg = err_msg & vbnewline & "* You must enter a reason that application is incomplete."
-		END IF
-		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-
-	'----------------------------------------------------------------------------------------------------ABPS panel
-	Call MAXIS_footer_month_confirmation
-	Call navigate_to_MAXIS_screen("STAT", "ABPS")
 DO
-	EMReadScreen panel_number, 1, 2, 78
-	If panel_number = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
-	'If there is more than one panel, this part will grab employer info off of them and present it to the worker to decide which one to use.
+	DO
+	    EMReadScreen panel_check, 4, 2, 50
+	    If panel_number <> "ABPS" then Call navigate_to_MAXIS_screen("STAT", "ABPS")
+	    EMReadScreen panel_number, 1, 2, 78
+	    If panel_number = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
+
+	    Do
+	    	EMReadScreen current_panel_number, 1, 2, 73
+	    	ABPS_check = MsgBox("Is this the right ABPS?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
+	    	If ABPS_check = vbYes then exit do
+	    	If ABPS_check = vbNo then TRANSMIT
+	    	If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
+	    Loop until current_panel_number = panel_number
+	    '-------------------------------------------------------------------------Updating the ABPS panel
+	    PF9
+	    EMReadScreen active_confirmation, 5, 24, 2
+
+		EmReadscreen error_check, 74, 24, 02
+		error_check = trim(error_check)
+		IF error_check <> "" THEN
+			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
+			If maxis_error_check = vbYes THEN
+				update_maxis_panel = FALSE
+				EXIT DO
+			END IF
+			If maxis_error_check= vbNo THEN
+				update_maxis_panel = TRUE
+				EXIT DO
+			END IF
+		END IF
+	LOOP UNTIL error_check = ""
+
+	'Initial dialog giving the user the option to select the type of good cause action
 	Do
-		EMReadScreen current_panel_number, 1, 2, 73
-		ABPS_check = MsgBox("Is this the right ABPS?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
-		If ABPS_check = vbYes then exit do
-		If ABPS_check = vbNo then TRANSMIT
-		If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
-	Loop until current_panel_number = panel_number
-	'-------------------------------------------------------------------------Updating the ABPS panel
-	PF9
-	'checking to see if we got into edit mode.
-	EMReadScreen edit_mode_check, 1, 20, 8
-	If edit_mode_check = "D" then
-		'script_end_procedure("Unable to update panel")
-		PF9
-	END IF
+		Do
+			err_msg = ""
+			dialog good_cause_dialog
+			cancel_confirmation
+			If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
+			If isnumeric(MAXIS_footer_month) = false then err_msg = err_msg & vbnewline & "* You must enter the footer month to begin good cause."
+			If isnumeric(MAXIS_footer_year) = false then err_msg = err_msg & vbnewline & "* You must enter the footer year to begin good cause."
+			IF child_ref_number = "" THEN err_msg = err_msg & vbnewline & "* Please enter the child(s) member number."
+			If good_cause_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the Good Cause Application Status."
+			IF gc_status = "Select One:" THEN err_msg = err_msg & vbnewline & "* Select the Good Cause Case Status."
+			If reason_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the Good Cause reason."
+			If gc_status = "Granted" THEN
+				If isdate(review_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause review date."
+			ELSEIF gc_status = "Denied" THEN
+				If denial_reason = "" then err_msg = err_msg & vbnewline & "* You must enter a denial reason."
+			END IF
+			If isdate(actual_date) = FALSE then err_msg = err_msg & vbnewline & "* You must enter an actual date in the footer month that you are working in."
+			IF gc_status <> "Not Claimed" THEN
+				If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
+			END IF
+			If good_cause_droplist = "Application Review-Incomplete" then
+				If other_notes = "" and OTHER_CHECKBOX = CHECKED then err_msg = err_msg & vbnewline & "* You must enter a reason that application is incomplete."
+			END IF
+			If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
 	IF parental_status = "2" THEN
@@ -212,113 +225,87 @@ DO
 		EMReadScreen HC_ins_order, 1, 12, 44	'making sure ABPS is not unknown.
 		EMReadScreen HC_ins_compliance, 1, 12, 80
 	END IF
-		'24, 02"THIS DATA WILL EXPIRE ON --/--/--"
 
-	'EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
-	'error_check = trim(error_check)
-	'If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
+	IF update_maxis_panel = TRUE THEN
+	    EMWriteScreen "Y", 4, 73			'Support Coop Y/N field
+	    IF gc_status = "Pending" THEN
+	    	'Msgbox gc_status
+	    	EMWriteScreen "P", 5, 47			'Good Cause status field
+	    	EMWriteScreen "  ", 6, 73'next review date'
+	    	EMWriteScreen "  ", 6, 76'next review date'
+	    	EMWriteScreen "  ", 6, 79'next review date'
+	    ELSEIF gc_status = "Granted" THEN
+	    	'Msgbox gc_status
+	    	EMWriteScreen "G", 5, 47
+	    	Call create_MAXIS_friendly_date(datevalue(review_date), 0, 6, 73)
+	    ELSEIF gc_status = "Denied" THEN
+	    	'Msgbox gc_status
+	    	EMWriteScreen "D", 5, 47
+	    	EMWriteScreen "  ", 6, 73'next review date'
+	    	EMWriteScreen "  ", 6, 76'next review date'
+	    	EMWriteScreen "  ", 6, 79'next review date'
+	    ELSEIF gc_status = "Not Claimed" THEN
+	    	'Msgbox gc_status
+	    	EMWriteScreen "N", 5, 47
+	    	EMWriteScreen "  ", 5, 73'good cause claim date'
+	    	EMWriteScreen "  ", 5, 76'good cause claim date'
+	    	EMWriteScreen "  ", 5, 79'good cause claim date'
+	    	EMWriteScreen " ", 6, 47'reason good cause claimed'
+	    	EMWriteScreen "  ", 6, 73'next review date'
+	    	EMWriteScreen "  ", 6, 76'next review date'
+	    	EMWriteScreen "  ", 6, 79'next review date'
+	    	EMWriteScreen " ", 7, 47'Sup Evidence'
+	    	EMWriteScreen " ", 7, 73 'Investigation'
+	    	EMWriteScreen " ", 8, 48 'Med Sup Svc Only'
+	    END IF
 
-	EMWriteScreen "Y", 4, 73			'Support Coop Y/N field
-	IF gc_status = "Pending" THEN
-		'Msgbox gc_status
-		EMWriteScreen "P", 5, 47			'Good Cause status field
-		EMWriteScreen "  ", 6, 73'next review date'
-		EMWriteScreen "  ", 6, 76'next review date'
-		EMWriteScreen "  ", 6, 79'next review date'
-	ELSEIF gc_status = "Granted" THEN
-		'Msgbox gc_status
-		EMWriteScreen "G", 5, 47
-		Call create_MAXIS_friendly_date(datevalue(review_date), 0, 6, 73)
-	ELSEIF gc_status = "Denied" THEN
-		'Msgbox gc_status
-		EMWriteScreen "D", 5, 47
-		EMWriteScreen "  ", 6, 73'next review date'
-		EMWriteScreen "  ", 6, 76'next review date'
-		EMWriteScreen "  ", 6, 79'next review date'
-	ELSEIF gc_status = "Not Claimed" THEN
-		'Msgbox gc_status
-		EMWriteScreen "N", 5, 47
-		EMWriteScreen "  ", 5, 73'good cause claim date'
-		EMWriteScreen "  ", 5, 76'good cause claim date'
-		EMWriteScreen "  ", 5, 79'good cause claim date'
-		EMWriteScreen " ", 6, 47'reason good cause claimed'
-		EMWriteScreen "  ", 6, 73'next review date'
-		EMWriteScreen "  ", 6, 76'next review date'
-		EMWriteScreen "  ", 6, 79'next review date'
-		EMWriteScreen " ", 7, 47'Sup Evidence'
-		EMWriteScreen " ", 7, 73 'Investigation'
-		EMWriteScreen " ", 8, 48 'Med Sup Svc Only'
+	    'converting the good cause reason from reason_droplist to the applicable MAXIS coding
+	    If reason_droplist = "Potential phys harm/child"		then claim_reason = "1"
+	    If reason_droplist = "Potential emotnl harm/child"	 	then claim_reason = "2"
+	    If reason_droplist = "Potential phys harm/caregiver" 	then claim_reason = "3"
+	    If reason_droplist = "Potential emotnl harm/caregiver" 	then claim_reason = "4"
+	    If reason_droplist = "Cncptn incest/forced rape" 		then claim_reason = "5"
+	    If reason_droplist = "Legal adoption before court" 		then claim_reason = "6"
+	    If reason_droplist = "Parent gets preadoptn svc" 		then claim_reason = "7"
+
+	    IF gc_status <> "Not Claimed" THEN
+	    	Call create_MAXIS_friendly_date(datevalue(claim_date), 0, 5, 73)
+	    	IF sup_evidence_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 47 ELSE EMWriteScreen "N", 7, 47
+	    	IF investigation_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 73 ELSE EMWriteScreen "N", 7, 73
+	    	IF med_sup_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 8, 48 ELSE EMWriteScreen "N", 8, 48
+	    	EMWriteScreen claim_reason, 6, 47
+	    	'Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
+	    END IF
+	    Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
+
+	    EMReadScreen ABPS_screen, 4, 2, 50		'if inhibiting error exists, this will catch it and instruct the user to update ABPS
+	    'msgbox ABPS_screen
+	    'If ABPS_screen = "ABPS" then script_end_procedure("An error occurred on the ABPS panel. Please update the panel before using the script with the absent parent information.")
+	    'seting variables for the programs included
+	    If good_cause_droplist = "Change/exemption ending" then
+  	        Do
+  	        	Do
+  	        		err_msg = ""
+  	        		dialog change_exemption_dialog
+  	        		cancel_confirmation
+  	        		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+  	        	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+  	        	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+  	        Loop until are_we_passworded_out = false					'loops until user passwords back in
+	    END IF
+		TRANSMIT'to add information
+
+		TRANSMIT'to move past non-inhibiting warning messages on ABPS
+		'EMReadScreen expire_msg, 4, 24, 02
+		'IF expire_msg = "THIS" THEN
+		PF3' this takes us back to stat/wrap
 	END IF
 
-	'converting the good cause reason from reason_droplist to the applicable MAXIS coding
-	If reason_droplist = "Potential phys harm/child"		then claim_reason = "1"
-	If reason_droplist = "Potential emotnl harm/child"	 	then claim_reason = "2"
-	If reason_droplist = "Potential phys harm/caregiver" 	then claim_reason = "3"
-	If reason_droplist = "Potential emotnl harm/caregiver" 	then claim_reason = "4"
-	If reason_droplist = "Cncptn incest/forced rape" 		then claim_reason = "5"
-	If reason_droplist = "Legal adoption before court" 		then claim_reason = "6"
-	If reason_droplist = "Parent gets preadoptn svc" 		then claim_reason = "7"
-
-	IF gc_status <> "Not Claimed" THEN
-		Call create_MAXIS_friendly_date(datevalue(claim_date), 0, 5, 73)
-		IF sup_evidence_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 47 ELSE EMWriteScreen "N", 7, 47
-		IF investigation_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 7, 73 ELSE EMWriteScreen "N", 7, 73
-		IF med_sup_CHECKBOX = CHECKED THEN EMWriteScreen "Y", 8, 48 ELSE EMWriteScreen "N", 8, 48
-		EMWriteScreen claim_reason, 6, 47
-		'Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
-	END IF
-	Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
-
-	EMReadScreen ABPS_screen, 4, 2, 50		'if inhibiting error exists, this will catch it and instruct the user to update ABPS
-	'msgbox ABPS_screen
-	'If ABPS_screen = "ABPS" then script_end_procedure("An error occurred on the ABPS panel. Please update the panel before using the script with the absent parent information.")
-	'seting variables for the programs included
-	If good_cause_droplist = "Change/exemption ending" then
-  	Do
-  		Do
-  			err_msg = ""
-  			dialog change_exemption_dialog
-  			cancel_confirmation
-  			If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-  		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-  		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-  	Loop until are_we_passworded_out = false					'loops until user passwords back in
-	END IF
-
-	IF CCA_CHECKBOX = CHECKED THEN programs_included = programs_included & "CCAP, "
-	IF DWP_CHECKBOX = CHECKED THEN programs_included = programs_included & "DWP, "
-	IF HC_CHECKBOX = CHECKED THEN programs_included = programs_included & "Healthcare, "
-	IF FS_CHECKBOX = CHECKED THEN programs_included = programs_included & "Food Support, "
-	IF MFIP_CHECKBOX = CHECKED THEN programs_included = programs_included & "MFIP, "
-	IF METS_CHECKBOX = CHECKED THEN programs_included = programs_included & "MNSURE, "
-	'trims excess spaces of programs
-	programs_included  = trim(programs_included )
-	'takes the last comma off of programs
-	If right(programs_included, 1) = "," THEN programs_included  = left(programs_included, len(programs_included) - 1)
-
-	IF ABPS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "ABPS name not written on the correct line,"
-	IF REASON_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " reason for requesting GC not selected,"
-	IF QUESTIONS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " all of the questions not answered,"
-	IF NOSIG_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " no signature and/or date,"
-	IF OTHER_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " other (see additional information),"
-	incomplete_form  = trim(incomplete_form)
-	If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
-
-	TRANSMIT'to add information
-
-	TRANSMIT'to move past non-inhibiting warning messages on ABPS
-	'EMReadScreen expire_msg, 4, 24, 02
-	'IF expire_msg = "THIS" THEN
-	PF3' this takes us back to stat/wrap
-	'PF3
-	'Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-	'IF MAXIS_footer_month <> CM_plus_1_mo THEN
-	CM_plus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", 1, date)            ), 2)
 	    Do
 	    	EMReadScreen MAXIS_footer_month, 2, 20, 55
 			'msgbox MAXIS_footer_month & CM_plus_1_mo
 			IF MAXIS_footer_month = CM_plus_1_mo  THEN EXIT DO
-	    	MAXIS_footer_month_check = MsgBox("Do you need to run through background?", vbYesNo + vbQuestion, "Maxis footer month")
+	    	MAXIS_footer_month_check = MsgBox("Do you need to run through background?", vbYesNoCancel + vbQuestion, "Maxis footer month")
 	    	If MAXIS_footer_month_check = vbYes THEN
 	    		EMWriteScreen "Y", 16, 54
 	    		TRANSMIT
@@ -333,16 +320,34 @@ DO
 				TRANSMIT
 				exit do
 			END IF
-			'checking to see if we got into edit mode.
-			EMReadScreen edit_mode_check, 1, 20, 8
-			If edit_mode_check = "D" then
-				PF9
+			If MAXIS_footer_month_check = vbCancel THEN
+				EXIT DO
 			END IF
-			'EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
-			'error_check = trim(error_check)
-			'If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
-	    Loop until MAXIS_footer_month = CM_plus_1_mo
-Loop until MAXIS_footer_month = CM_plus_1_mo
+			'checking to see if we got into edit mode.
+		Loop until MAXIS_footer_month = CM_plus_1_mo or ButtonPressed = vbYesNoCancel
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false
+
+'For case note'
+IF CCA_CHECKBOX = CHECKED THEN programs_included = programs_included & "CCAP, "
+IF DWP_CHECKBOX = CHECKED THEN programs_included = programs_included & "DWP, "
+IF HC_CHECKBOX = CHECKED THEN programs_included = programs_included & "Healthcare, "
+IF FS_CHECKBOX = CHECKED THEN programs_included = programs_included & "Food Support, "
+IF MFIP_CHECKBOX = CHECKED THEN programs_included = programs_included & "MFIP, "
+IF METS_CHECKBOX = CHECKED THEN programs_included = programs_included & "MNSURE, "
+'trims excess spaces of programs
+programs_included  = trim(programs_included )
+'takes the last comma off of programs
+If right(programs_included, 1) = "," THEN programs_included  = left(programs_included, len(programs_included) - 1)
+
+IF ABPS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & "ABPS name not written on the correct line,"
+IF REASON_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " reason for requesting GC not selected,"
+IF QUESTIONS_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " all of the questions not answered,"
+IF NOSIG_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " no signature and/or date,"
+IF OTHER_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " other (see additional information),"
+incomplete_form  = trim(incomplete_form)
+If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
+
 '-----------------------------------------------------------------------------------------------------Case note & email sending
 start_a_blank_case_note
 IF good_cause_droplist = "Application Review-Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
@@ -359,7 +364,7 @@ IF good_cause_droplist = "Recertification" THEN Call write_variable_in_case_note
 Call write_bullet_and_variable_in_case_note("Good cause status", gc_status)
 If claim_date <> "" THEN Call write_bullet_and_variable_in_case_note("Good cause claim date", claim_date)
 If review_date <> "" THEN Call write_bullet_and_variable_in_case_note("Next review date", review_date)
-Call write_variable_in_case_note("* Child(ren) member number(s)" & child_ref_number)
+Call write_variable_in_case_note("* Child(ren) member number(s): " & child_ref_number)
 Call write_bullet_and_variable_in_case_note("ABPS name", client_name)
 CALL write_bullet_and_variable_in_case_note("Applicable programs", programs_included)
 IF reason_droplist <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Reason for claiming good cause", reason_droplist)
