@@ -193,7 +193,6 @@ For each worker in worker_array
 			dail_type = ""
 			dail_msg = ""
 
-
 		    'Determining if there is a new case number...
 		    EMReadScreen new_case, 8, dail_row, 63
 		    new_case = trim(new_case)
@@ -210,8 +209,7 @@ For each worker in worker_array
 			EMReadScreen dail_msg, 61, dail_row, 20
 			dail_msg = trim(dail_msg)
             EMReadScreen dail_month, 8, dail_row, 11
-            dail_month = trim(dail_month)
-            dail_month = replace(dail_month, " ", "/1/")
+            dail_month = trim(dail_month)            
 			stats_counter = stats_counter + 1
 
             '----------------------------------------------------------------------------------------------------CSES Messages
@@ -264,9 +262,7 @@ For each worker in worker_array
                 instr(dail_msg, "MEMBER HAS TURNED 60 - FSET:WORK REG HAS BEEN UPDATED") OR _
                 instr(dail_msg, "LAST GRADE COMPLETED") OR _
                 instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") OR _
-                instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") OR _
-                instr(dail_msg, "RSDI UPDATED - (REF") OR _
-                instr(dail_msg, "SSI UPDATED - (REF") then
+                instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then
     		        add_to_excel = True
                 'instr(dail_msg, "TPQY RESPONSE") OR _  ---removed temporarily
                 '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
@@ -333,6 +329,7 @@ For each worker in worker_array
 				objExcel.Cells(excel_row, 1).Value = worker
 				objExcel.Cells(excel_row, 2).Value = trim(maxis_case_number)
 				objExcel.Cells(excel_row, 3).Value = trim(dail_type)
+                If len(dail_month) = 5 then dail_month = replace(dail_month, " ", "/1/")
 				objExcel.Cells(excel_row, 4).Value = trim(dail_month)
 				objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
 				excel_row = excel_row + 1
@@ -379,7 +376,7 @@ objExcel.Cells(3, 7).Value = "Average time to find/select/copy/paste one line (i
 objExcel.Cells(4, 7).Value = "Estimated manual processing time (lines x average):"
 objExcel.Cells(5, 7).Value = "Script run time (in seconds):"
 objExcel.Cells(6, 7).Value = "Estimated time savings by using script (in minutes):"
-objExcel.Cells(7, 7).Value = "Number of "" messages reviewed"
+objExcel.Cells(7, 7).Value = "Number of messages reviewed/DAIL messages remaining:"
 objExcel.Columns(7).Font.Bold = true
 objExcel.Cells(2, 8).Value = deleted_dails
 objExcel.Cells(3, 8).Value = STATS_manualtime
@@ -390,22 +387,8 @@ objExcel.Cells(7, 8).Value = STATS_counter
 objExcel.Cells(7, 9).Value = STATS_counter - deleted_dails
 
 'Formatting the column width.
-FOR i = 1 to 8
+FOR i = 1 to 7
 	objExcel.Columns(i).AutoFit()
 NEXT
 
 script_end_procedure("Success! Please review the list created for accuracy.")
-
-'instr(dail_msg, "CHECK FOR COLA") OR _
-'instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") OR _
-'instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO-APPROVED") OR _
-'instr(dail_msg, "MSA RECERT DUE - NOT AUTO-APPROVED") OR _
-'instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO-APPROVED") OR _
-'instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO-APPROVED") OR _
-'instr(dail_msg, "APPROVED MSA VERSION EXISTS - NOT AUTO-APPROVED") OR _
-'instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") OR _
-'instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO-APPROVED") OR _
-'instr(dail_msg, "GRH: APPROVED VERSION EXISTS FOR JANUARY - NOT AUTO-APPROVED") OR _
-'instr(dail_msg, "GRH: STATUS IS REIN, PENDING OR SUSPEND - NOT AUTO-APPROVED") OR _
-'instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO-APPROVED") OR _
-'instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE - REVIEW FOR MEDI UPDATES") OR _
