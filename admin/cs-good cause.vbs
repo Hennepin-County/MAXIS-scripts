@@ -279,55 +279,58 @@ DO
 	    Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
 
 	    EMReadScreen ABPS_screen, 4, 2, 50		'if inhibiting error exists, this will catch it and instruct the user to update ABPS
-	    'msgbox ABPS_screen
-	    'If ABPS_screen = "ABPS" then script_end_procedure("An error occurred on the ABPS panel. Please update the panel before using the script with the absent parent information.")
-	    'seting variables for the programs included
-	    If good_cause_droplist = "Change/exemption ending" then
-  	        Do
-  	        	Do
-  	        		err_msg = ""
-  	        		dialog change_exemption_dialog
-  	        		cancel_confirmation
-  	        		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-  	        	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-  	        	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-  	        Loop until are_we_passworded_out = false					'loops until user passwords back in
-	    END IF
-		TRANSMIT'to add information
-
-		TRANSMIT'to move past non-inhibiting warning messages on ABPS
-		'EMReadScreen expire_msg, 4, 24, 02
-		'IF expire_msg = "THIS" THEN
-		PF3' this takes us back to stat/wrap
+	    If ABPS_screen = "ABPS" then
+	     	TRANSMIT'to add information
+			TRANSMIT'to move past non-inhibiting warning messages on ABPS
+			PF3' this takes us back to stat/wrap
+		ELSE
+			msgbox "Please follow up with MiKayla on BGTX process for this case"
+		END IF
+		EmReadscreen current_panel_check, 4, 2, 46
+		IF current_panel_check <> "WRAP" THEN
+			Call navigate_to_MAXIS_screen("STAT", "BGTX")
+		END IF
 	END IF
-
+	IF current_panel_check = "WRAP" THEN
 	    Do
-	    	EMReadScreen MAXIS_footer_month, 2, 20, 55
-			'msgbox MAXIS_footer_month & CM_plus_1_mo
-			IF MAXIS_footer_month = CM_plus_1_mo  THEN EXIT DO
-	    	MAXIS_footer_month_check = MsgBox("Do you need to run through background?", vbYesNoCancel + vbQuestion, "Maxis footer month")
-	    	If MAXIS_footer_month_check = vbYes THEN
-	    		EMWriteScreen "Y", 16, 54
+	      	EMReadScreen MAXIS_footer_month, 2, 20, 55
+	    	'msgbox MAXIS_footer_month & CM_plus_1_mo
+	    	IF MAXIS_footer_month = CM_plus_1_mo  THEN EXIT DO
+	      	MAXIS_footer_month_check = MsgBox("Do you need to run through background?", vbYesNoCancel + vbQuestion, "Maxis footer month")
+	      	If MAXIS_footer_month_check = vbYes THEN
+	      		EMWriteScreen "Y", 16, 54
+	      		TRANSMIT
+	      		EMReadScreen check_PNLP, 4, 2,53
+	      		IF check_PNLP = "PNLP" THEN
+	      			EMWriteScreen "ABPS", 20, 71
+	      			TRANSMIT
+	      			'MsgBox "AM I IN A NEW FOOTER MONTH?"
+	      		END IF
+	      	END IF
+	      	IF MAXIS_footer_month_check = vbNo then
 	    		TRANSMIT
-	    		EMReadScreen check_PNLP, 4, 2,53
-	    		IF check_PNLP = "PNLP" THEN
-	    			EMWriteScreen "ABPS", 20, 71
-	    			TRANSMIT
-	    			'MsgBox "AM I IN A NEW FOOTER MONTH?"
-	    		END IF
+	    		exit do
 	    	END IF
-	    	If MAXIS_footer_month_check = vbNo then
-				TRANSMIT
-				exit do
-			END IF
-			If MAXIS_footer_month_check = vbCancel THEN
-				EXIT DO
-			END IF
-			'checking to see if we got into edit mode.
-		Loop until MAXIS_footer_month = CM_plus_1_mo or ButtonPressed = vbYesNoCancel
+	    	IF MAXIS_footer_month_check = vbCancel THEN
+	    		EXIT DO
+	    	END IF
+	    'checking to see if we got into edit mode.
+	    Loop until MAXIS_footer_month = CM_plus_1_mo or ButtonPressed = vbYesNoCancel
+	END IF
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false
 
+If good_cause_droplist = "Change/exemption ending" then
+	Do
+		Do
+			err_msg = ""
+			dialog change_exemption_dialog
+			cancel_confirmation
+			If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
+END IF
 'For case note'
 IF CCA_CHECKBOX = CHECKED THEN programs_included = programs_included & "CCAP, "
 IF DWP_CHECKBOX = CHECKED THEN programs_included = programs_included & "DWP, "
