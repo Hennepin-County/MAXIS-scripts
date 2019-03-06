@@ -136,9 +136,6 @@ EndDialog
 Call MAXIS_footer_month_confirmation
 Call navigate_to_MAXIS_screen("STAT", "ABPS")
 
-EMReadScreen SELF_check, 4, 2, 50
-If SELF_check = "SELF" then stopscript
-
 DO
 	DO
 	    EMReadScreen panel_check, 4, 2, 50
@@ -146,6 +143,8 @@ DO
 	    	EMReadScreen panel_number, 1, 2, 78
 	    	If panel_number = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
 	        Do
+				EMReadScreen ABPS_parent_ID, 10, 13, 40	'making sure ABPS is not unknown.
+				ABPS_parent_ID = trim(ABPS_parent_ID)
 	        	EMReadScreen current_panel_number, 1, 2, 73
 	        	ABPS_check = MsgBox("Is this the right ABPS?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
 	        	If ABPS_check = vbYes then exit do
@@ -161,15 +160,15 @@ DO
 	    	END IF
 	    	EmReadscreen error_check, 74, 24, 02
 	    	error_check = trim(error_check)
-	    	IF error_check = "" THEN update_maxis_panel = TRUE
+	    	IF error_check = "" THEN case_note_only = FALSE
 	    	IF error_check <> "" THEN
 	    		maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
 	    		If maxis_error_check = vbYes THEN
-	    			update_maxis_panel = FALSE 'this will case note only'
+	    			case_note_only = TRUE 'this will case note only'
 	    			EXIT DO
 	    		END IF
 	    		If maxis_error_check= vbNo THEN
-	    			update_maxis_panel = TRUE 'this will update the panels and case note'
+	    			case_note_only = FALSE 'this will update the panels and case note'
 	    			EXIT DO
 	    		END IF
 	    	END IF
@@ -206,6 +205,10 @@ DO
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+	EMReadScreen ABPS_parent_ID_check, 10, 13, 40	'making sure ABPS is not unknown.
+	ABPS_parent_ID_check = trim(ABPS_parent_ID_check)
+	IF ABPS_parent_ID_check <> ABPS_parent_ID THEN msgbox "ABPS does not match"
+
 	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
 	IF parental_status = "2" THEN
 		client_name = "Unknown"
@@ -228,13 +231,11 @@ DO
 		EMReadScreen ABPS_gender, 1, 11, 80	'reading the ssn
 		EMReadScreen ABPS_SSN, 11, 11, 30	'reading the ssn
 		EMReadScreen ABPS_DOB, 10, 11, 60	'reading the DOB
-		EMReadScreen ABPS_parent_ID, 10, 13, 40	'making sure ABPS is not unknown.
-		ABPS_parent_ID = trim(ABPS_parent_ID)
 		EMReadScreen HC_ins_order, 1, 12, 44	'making sure ABPS is not unknown.
 		EMReadScreen HC_ins_compliance, 1, 12, 80
 	END IF
 
-	IF update_maxis_panel <> FALSE THEN
+	IF case_note_only <> FALSE THEN
 		EmReadscreen edit_mode_check, 1, 20, 08
 		IF edit_mode_check = "D" THEN
 			PF9
@@ -291,44 +292,10 @@ DO
 	        	'Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
 	        END IF
 	        Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
+			TRANSMIT'to add information
 		END IF
-		TRANSMIT'to add information
-		'this is where i pf3'
-		EMReadScreen panel_number, 1, 2, 78
 
-	    EMReadScreen ABPS_screen, 4, 2, 50		'if inhibiting error exists, this will catch it and instruct the user to update ABPS
-	    If ABPS_screen = "ABPS" then
-			EmReadscreen edit_mode_check, 1, 20, 08
-			IF edit_mode_check = "E" THEN
-				TRANSMIT'to move past non-inhibiting warning messages on ABPS
-				back_to_self
-				EmReadscreen back_to_self_check, 4, 2, 50
-				IF back_to_self_check = "SELF" THEN
-					Do
-						EMReadScreen MAXIS_footer_month, 2, 20, 55
-						IF MAXIS_footer_month = CM_plus_1_mo  THEN
-							EXIT DO
-						ELSE
-							Call navigate_to_MAXIS_screen("STAT", "ABPS")
-							EMWriteScreen "0", 20, 80
-							EMWriteScreen current_panel_number, 20, 80
-							TRANSMIT
-							Do
-								EMReadScreen current_panel_number, 1, 2, 73
-								ABPS_check = MsgBox("Is this the right ABPS?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
-								If ABPS_check = vbYes then exit do
-								If ABPS_check = vbNo then TRANSMIT
-								If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
-							Loop until current_panel_number = panel_number
-						END IF
-						Loop until MAXIS_footer_month = CM_plus_1_mo
-				END IF
-			END IF
-	   	END IF
-		EmReadscreen current_panel_check, 4, 2, 46
-		IF current_panel_check <> "WRAP" THEN
-			Call navigate_to_MAXIS_screen("STAT", "BGTX")
-		END IF
+		'this is where i pf3'
 
 	    IF current_panel_check = "WRAP" THEN
 	        Do
