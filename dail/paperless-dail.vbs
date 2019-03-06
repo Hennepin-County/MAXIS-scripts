@@ -80,6 +80,7 @@ EMConnect ""
 'Everything above this line is a part of the DAIL Scrubber Script if this becomes state supported. Just change the last line to the correct call from github
 
 If run_from_DAIL = TRUE Then
+    EMReadScreen Paperless_tikl_check, 49, 6, 20
     'DATE CALCULATIONS'
     next_month = DateAdd("m", 1, date)
     approval_month = DatePart("m", next_month)
