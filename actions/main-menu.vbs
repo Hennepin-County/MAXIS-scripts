@@ -62,7 +62,7 @@ ELSE
 	text_from_the_other_script = fso_command.ReadAll
 	fso_command.Close
 	Execute text_from_the_other_script
-End if 
+End if
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'CHANGELOG BLOCK ===========================================================================================================
@@ -71,6 +71,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/05/2019", "Added EARNED INCOME BUDGETING Script.", "Casey Love, Hennepin County")
 call changelog_update("12/12/2018", "Added COUNTED ABAWD MONTHS script under ABAWD sub-menu.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/29/2018", "Removed FSET SANCTION script. Cases no longer require FSET sanctions (voluntary compliance).", "Ilse Ferris, Hennepin County")
 call changelog_update("02/09/2018", "Added ADD GRH RATE 2 TO MMIS script for GRH Rate 2 case.", "Ilse Ferris, Hennepin County")

@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("03/06/2019", "Added 2 new options to the Notes on Income button to support referencing CASE/NOTE made by Earned Income Budgeting.", "Casey Love, Hennepin County")
 call changelog_update("04/23/2018", "Added NOTES on INCOME field and some preselected options to input on NOTES on INCOME field for more detailed case notes.", "Casey Love, Hennepin County")
 call changelog_update("02/23/2018", "Added closing message to reminder to workers to accept all work items upon processing HRF's.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/01/2016", "Added seperate functionality for LTC HRF cases.", "Casey Love, Ramsey County")
@@ -208,24 +209,27 @@ BeginDialog LTC_HRF_dialog, 0, 0, 451, 295, "HRF dialog for LTC Cases"
   Text 100, 280, 60, 10, "Worker signature:"
 EndDialog
 
-BeginDialog income_notes_dialog, 0, 0, 351, 205, "Explanation of Income"
+BeginDialog income_notes_dialog, 0, 0, 351, 225, "Explanation of Income"
   CheckBox 10, 25, 300, 10, "NO INCOME - All income previously ended, but case has not yet fallen off of the HRF run. ", no_income_checkbox
-  CheckBox 10, 50, 285, 10, "VERIFS RECEIVED - All pay verification provided for the report month and budgeted.", jobs_all_verified_checkbox
-  CheckBox 10, 60, 260, 10, "PARTIAL MONTH - Job ended in the report month, all pay has been budgeted.", jobs_partial_month_checkbox
-  CheckBox 10, 70, 305, 10, "YEAR TO DATE USED - Not all pay dates verified, check amount was calculated using YTD.", jobs_ytd_used_checkbox
-  CheckBox 10, 100, 320, 10, "SELF EMP REPORT FORM - DHS 3336 submitted as proof of monthly self employment income.", busi_rept_form_checkbox
-  CheckBox 10, 110, 310, 10, "EXPENSES - 50% - Budgeted self emp. income - allowing 50% of gross income as expenses.", busi_fifty_percent_checkbox
-  CheckBox 10, 120, 235, 10, "TAX METHOD - Self employment income budgeted using tax method.", busi_tax_method_checkbox
-  CheckBox 10, 155, 270, 10, "VERIFS RECEIVED - All verification of unearned income in report month received.", unea_all_verified_checkbox
-  CheckBox 10, 165, 320, 10, "UNCHANGING - Unearned income does not vary and no change reported for this report month.", unea_unvarying_checkbox
+  CheckBox 10, 35, 225, 10, "SEE PREVIOUS NOTE - Income detail is listed on previous note(s)", see_other_note_checkbox
+  CheckBox 10, 45, 280, 10, "NOT VERIFIED - Income has not been fully verified, detail will be entered in future.", not_verified_checkbox
+  CheckBox 10, 70, 285, 10, "VERIFS RECEIVED - All pay verification provided for the report month and budgeted.", jobs_all_verified_checkbox
+  CheckBox 10, 80, 260, 10, "PARTIAL MONTH - Job ended in the report month, all pay has been budgeted.", jobs_partial_month_checkbox
+  CheckBox 10, 90, 305, 10, "YEAR TO DATE USED - Not all pay dates verified, check amount was calculated using YTD.", jobs_ytd_used_checkbox
+  CheckBox 10, 120, 320, 10, "SELF EMP REPORT FORM - DHS 3336 submitted as proof of monthly self employment income.", busi_rept_form_checkbox
+  CheckBox 10, 130, 310, 10, "EXPENSES - 50% - Budgeted self emp. income - allowing 50% of gross income as expenses.", busi_fifty_percent_checkbox
+  CheckBox 10, 140, 235, 10, "TAX METHOD - Self employment income budgeted using tax method.", busi_tax_method_checkbox
+  CheckBox 10, 175, 270, 10, "VERIFS RECEIVED - All verification of unearned income in report month received.", unea_all_verified_checkbox
+  CheckBox 10, 185, 320, 10, "UNCHANGING - Unearned income does not vary and no change reported for this report month.", unea_unvarying_checkbox
   ButtonGroup ButtonPressed
-    PushButton 240, 185, 50, 15, "Insert", add_to_notes_button
-    CancelButton 295, 185, 50, 15
+    PushButton 240, 205, 50, 15, "Insert", add_to_notes_button
+    CancelButton 295, 205, 50, 15
   Text 5, 10, 180, 10, "Check as many explanations of income that apply to this case."
-  GroupBox 5, 40, 340, 45, "JOBS Income"
-  GroupBox 5, 90, 340, 45, "BUSI Income"
-  GroupBox 5, 140, 340, 40, "UNEA Income"
+  GroupBox 5, 60, 340, 45, "JOBS Income"
+  GroupBox 5, 110, 340, 45, "BUSI Income"
+  GroupBox 5, 160, 340, 40, "UNEA Income"
 EndDialog
+
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
@@ -509,6 +513,8 @@ If LTC_case = vbYes then
                     Dialog income_notes_dialog
                     If ButtonPressed = add_to_notes_button Then
                         If no_income_checkbox = checked Then notes_on_income = notes_on_income & "; All income ended prior to " & retro_month_name & " - no income budgeted."
+                        If see_other_note_checkbox Then notes_on_income = notes_on_income & "; Full detail about income can be found in previous note(s)."
+                        If not_verified_checkbox Then notes_on_income = notes_on_income & "; This income has not been fully verified and information about income for budget will be noted when the verification is received."
                         If jobs_all_verified_checkbox = checked Then notes_on_income = notes_on_income & "; Client provided verification of all pay dates in " & retro_month_name & "."
                         If jobs_partial_month_checkbox = checked Then notes_on_income = notes_on_income & "; Job ended in " & retro_month_name & " and pay was not received on every pay date. All income received has been budgeted."
                         If jobs_ytd_used_checkbox = checked Then notes_on_income = notes_on_income & "; Not all pay date amounts were verified, able to use year to date amounts to calculate missing pay date amounts."
@@ -724,6 +730,8 @@ ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
                     Dialog income_notes_dialog
                     If ButtonPressed = add_to_notes_button Then
                         If no_income_checkbox = checked Then notes_on_income = notes_on_income & "; All income ended prior to " & retro_month_name & " - no income budgeted."
+                        If see_other_note_checkbox Then notes_on_income = notes_on_income & "; Full detail about income can be found in previous note(s)."
+                        If not_verified_checkbox Then notes_on_income = notes_on_income & "; This income has not been fully verified and information about income for budget will be noted when the verification is received."
                         If jobs_all_verified_checkbox = checked Then notes_on_income = notes_on_income & "; Client provided verification of all pay dates in " & retro_month_name & "."
                         If jobs_partial_month_checkbox = checked Then notes_on_income = notes_on_income & "; Job ended in " & retro_month_name & " and pay was not received on every pay date. All income received has been budgeted."
                         If jobs_ytd_used_checkbox = checked Then notes_on_income = notes_on_income & "; Not all pay date amounts were verified, able to use year to date amounts to calculate missing pay date amounts."

@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("03/06/2019", "Added 2 new options to the Notes on Income button to support referencing CASE/NOTE made by Earned Income Budgeting.", "Casey Love, Hennepin County")
 CALL changelog_update("10/17/2018", "Updated dialog box to reflect currecnt application process.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/05/2018", "Added autofill functionality for the DIET panel. NAT errors have been resolved.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/04/2018", "Removed autofill functionality for the DIET panel temporarily until MAXIS help desk can resolve NAT errors.", "Ilse Ferris, Hennepin County")
@@ -267,21 +268,23 @@ BeginDialog CAF_dialog_03, 0, 0, 451, 405, "CAF dialog part 3"
     PushButton 215, 90, 25, 10, "BILS:", BILS_button
 EndDialog
 
-BeginDialog income_notes_dialog, 0, 0, 351, 185, "Explanation of Income"
-  CheckBox 10, 30, 325, 10, "JOBS - Client has confirmed that JOBS income is expected to continue at this rate and hours.", jobs_anticipated_checkbox
-  CheckBox 10, 45, 330, 10, "JOBS - This is a new job and actual check stubs are not available, advised client that if actual pay", new_jobs_checkbox
-  CheckBox 10, 70, 325, 10, "BUSI - Client has confirmed that BUSI income is expected to continue at this rate and hours.", busi_anticipated_checkbox
-  CheckBox 10, 85, 250, 10, "BUSI - Client has agreed to the self-employment budgeting method used.", busi_method_agree_checkbox
-  CheckBox 10, 100, 325, 10, "RBIC - Client has confirmed that RBIC income is expected to continue at this rate and hours.", rbic_anticipated_checkbox
-  CheckBox 10, 115, 325, 10, "UNEA - Client has confirmed that UNEA income is expected to continue at this rate and hours.", unea_anticipated_checkbox
-  CheckBox 10, 130, 315, 10, "UNEA - Client has applied for unemployment benefits but no determination made at this time.", ui_pending_checkbox
-  CheckBox 45, 140, 225, 10, "Check here to have the script set a TIKL to check UI in two weeks.", tikl_for_ui
-  CheckBox 10, 155, 150, 10, "NONE - This case has no income reported.", no_income_checkbox
+BeginDialog income_notes_dialog, 0, 0, 351, 215, "Explanation of Income"
+  CheckBox 10, 30, 325, 10, "JOBS - Income detail on previous note(s)", see_other_note_checkbox
+  CheckBox 10, 45, 325, 10, "JOBS - Income has not been verified and detail will be entered when received.", not_verified_checkbox
+  CheckBox 10, 60, 325, 10, "JOBS - Client has confirmed that JOBS income is expected to continue at this rate and hours.", jobs_anticipated_checkbox
+  CheckBox 10, 85, 330, 10, "JOBS - This is a new job and actual check stubs are not available, advised client that if actual pay", new_jobs_checkbox
+  CheckBox 10, 100, 325, 10, "BUSI - Client has confirmed that BUSI income is expected to continue at this rate and hours.", busi_anticipated_checkbox
+  CheckBox 10, 115, 250, 10, "BUSI - Client has agreed to the self-employment budgeting method used.", busi_method_agree_checkbox
+  CheckBox 10, 130, 325, 10, "RBIC - Client has confirmed that RBIC income is expected to continue at this rate and hours.", rbic_anticipated_checkbox
+  CheckBox 10, 145, 325, 10, "UNEA - Client has confirmed that UNEA income is expected to continue at this rate and hours.", unea_anticipated_checkbox
+  CheckBox 10, 160, 315, 10, "UNEA - Client has applied for unemployment benefits but no determination made at this time.", ui_pending_checkbox
+  CheckBox 45, 170, 225, 10, "Check here to have the script set a TIKL to check UI in two weeks.", tikl_for_ui
+  CheckBox 10, 185, 150, 10, "NONE - This case has no income reported.", no_income_checkbox
   ButtonGroup ButtonPressed
-    PushButton 240, 165, 50, 15, "Insert", add_to_notes_button
-    CancelButton 295, 165, 50, 15
+    PushButton 240, 195, 50, 15, "Insert", add_to_notes_button
+    CancelButton 295, 195, 50, 15
   Text 5, 10, 180, 10, "Check as many explanations of income that apply to this case."
-  Text 45, 55, 315, 10, "varies significantly, client should provide proof of this difference to have benefits adjusted."
+  Text 45, 70, 315, 10, "varies significantly, client should provide proof of this difference to have benefits adjusted."
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -414,6 +417,8 @@ Do
 					If ButtonPressed = income_notes_button Then
 						Dialog income_notes_dialog
 						If ButtonPressed = add_to_notes_button Then
+                            If see_other_note_checkbox Then notes_on_income = notes_on_income & "; Full detail about income can be found in previous note(s)."
+                            If not_verified_checkbox Then notes_on_income = notes_on_income & "; This income has not been fully verified and information about income for budget will be noted when the verification is received."
 							If jobs_anticipated_checkbox = checked Then notes_on_income = notes_on_income & "; Client expects all income from jobs to continue at this amount."
 							If new_jobs_checkbox = checked Then notes_on_income = notes_on_income & "; This is a new job and actual check stubs have not been received, advised client to provide proof once pay is received if the income received differs significantly."
 							If busi_anticipated_checkbox = checked Then notes_on_income = notes_on_income & "; Client expects all income from self employment to continue at this amount."
