@@ -258,6 +258,7 @@ Call write_variable_in_CASE_NOTE ("* Case processing assisted by a script")
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
+MAXIS_case_number = trim(MAXIS_case_number)
 If run_from_DAIL = TRUE Then
     DIALOG delete_message_dialog
     IF ButtonPressed = delete_button THEN
@@ -268,7 +269,10 @@ If run_from_DAIL = TRUE Then
     		DO
     			EMReadScreen double_check, 49, dail_read_row, 20
     			IF double_check = Paperless_tikl_check THEN
-    				EMWriteScreen "D", dail_read_row, 3
+                    EMWriteScreen "T", dail_read_row, 3
+                    EMReadScreen dail_case_number, 8, 5, 73
+                    dail_case_number = trim(dail_case_number)
+                    If dail_case_number = MAXIS_case_number Then EMWriteScreen "D", 6, 3
     				transmit
     				EXIT DO
     			ELSE
