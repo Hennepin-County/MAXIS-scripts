@@ -144,14 +144,16 @@ mmis_last_day_date = last_day_mo & "/" & last_day_day & "/" & last_day_yr
 
 'Setting amounts
 total_savings = 0                   'setting this at zero so that we can add up what we save
-capitation_11x      = 864.45        'capitation amounts set annually by DHS - eventually we need to move this to FuncLib
-capitation_PW       = 1174.15
-capitation_1        = 243.67
-capitation_2_15     = 244.00
-capitation_16_20    = 267.10
-capitation_21_49    = 794.03
-capitation_50_64    = 1058.51
-capitation_65       = 2354.34
+capitation_11x      = 938.14        'capitation amounts set annually by DHS - eventually we need to move this to FuncLib
+capitation_PW       = 1241.53
+capitation_1        = 235.68
+capitation_2_15     = 236.03
+capitation_16_20    = 261.67
+capitation_21_49    = 808.96
+capitation_21_49_ax = 800.89
+capitation_50_64    = 1118.34
+capitation_50_64_ax = 801.27
+capitation_65       = 2681.89
 
 capitation_QMB      = 135.50
 capitation_SLMB     = 135.50
@@ -1042,8 +1044,20 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                                         If EOMC_CLIENT_ARRAY(clt_age, hc_clt) = 1 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_1
                                         If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 1 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 16 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_2_15
                                         If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 15 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 21 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_16_20
-                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 20 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 50 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_21_49
-                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 49 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_50_64
+                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 20 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 50 Then
+                                            If EOMC_CLIENT_ARRAY(elig_type_one, hc_clt) = "AX" Then
+                                                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_21_49_ax
+                                            Else
+                                                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_21_49
+                                            End If
+                                        End If
+                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 49 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 65 Then
+                                            If EOMC_CLIENT_ARRAY(elig_type_one, hc_clt) = "AX" Then
+                                                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_50_64_ax
+                                            Else
+                                                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_50_64
+                                            End If
+                                        End If
                                         If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_65
                                     ENd If
 
@@ -1133,8 +1147,20 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                                         If EOMC_CLIENT_ARRAY(clt_age, hc_clt) = 1 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_1
                                         If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 1 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 16 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_2_15
                                         If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 15 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 21 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_16_20
-                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 20 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 50 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_21_49
-                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 49 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_50_64
+                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 20 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 50 Then
+                                            If EOMC_CLIENT_ARRAY(elig_type_one, hc_clt) = "AX" Then
+                                                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_21_49_ax
+                                            Else
+                                                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_21_49
+                                            End If
+                                        End If
+                                        If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 49 AND EOMC_CLIENT_ARRAY(clt_age, hc_clt) < 65 Then
+                                            If EOMC_CLIENT_ARRAY(elig_type_one, hc_clt) = "AX" Then
+                                                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_50_64_ax
+                                            Else
+                                                EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_50_64
+                                            End If
+                                        End If
                                         If EOMC_CLIENT_ARRAY(clt_age, hc_clt) > 65 Then EOMC_CLIENT_ARRAY(clt_savings, hc_clt) = EOMC_CLIENT_ARRAY(clt_savings, hc_clt) + capitation_65
                                     ENd If
 
