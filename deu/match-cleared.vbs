@@ -200,11 +200,9 @@ ELSE
 	ELSEIF IEVS_type = "UBEN" THEN
 		EMReadScreen IEVS_month, 2, 5, 68
 		EMReadScreen IEVS_year, 4, 8, 71
-	ELSEIF IEVS_type = "BEER" THEN
+	ELSEIF IEVS_type = "BEER" or IEVS_type = "UNVI" THEN
 		EMReadScreen IEVS_year, 2, 8, 15
 		IEVS_year = "20" & IEVS_year
-	ELSEIF IEVS_type = "UNVI" THEN
-		EMReadScreen IEVS_year, 4, 8, 15
 	END IF
 END IF
 
@@ -428,9 +426,8 @@ IF send_notice_checkbox = CHECKED THEN
 	'---------------------------------------------------------------------DIFF NOTC case note
   	start_a_blank_case_note
 	    IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH(" & first_name & ") DIFF NOTICE SENT-----")
-	    IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
-	    IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
-		IF IEVS_type = "UNVI" THEN CALL write_variable_in_CASE_NOTE ("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name &  ") DIFF NOTICE SENT-----")
+	    IF IEVS_type = "BEER" or IEVS_type = "UNVI" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
+	    IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
 		CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", client_name)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
   	    CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
@@ -559,10 +556,9 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
    '----------------------------------------------------------------the case match CLEARED note
 	start_a_blank_CASE_NOTE
 	IF resolution_status <> "NC - Non Cooperation" THEN
-		IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & "(" & first_name & ") CLEARED " & rez_status & "-----")
-		IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
-		IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
-		IF IEVS_type = "UNVI" THEN CALL write_variable_in_CASE_NOTE ("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name &  ") CLEARED " & rez_status & "-----")
+		IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") CLEARED " & rez_status & "-----")
+		IF IEVS_type = "BEER" or IEVS_type = "UNVI" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & match_type & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
+		IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH (" & match_type & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
 		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
@@ -581,9 +577,9 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
   		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
   		CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 	ELSEIF resolution_status = "NC - Non Cooperation" THEN   'Navigates to TIKL
-		IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & "(" & first_name & ") NON-COOPERATION-----")
-		IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") NON-COOPERATION-----")
-		IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH(" & type_match & ") " & "(" & first_name & ") NON-COOPERATION-----")
+		IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") NON-COOPERATION-----")
+		IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & match_type & ") " & "(" & first_name & ") NON-COOPERATION-----")
+		IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH (" & match_type & ") " & "(" & first_name & ") NON-COOPERATION-----")
 		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
