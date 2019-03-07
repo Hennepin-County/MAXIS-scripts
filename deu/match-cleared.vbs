@@ -202,7 +202,7 @@ ELSE
 		EMReadScreen IEVS_year, 4, 8, 71
 	ELSEIF IEVS_type = "BEER" or IEVS_type = "UNVI" THEN
 		EMReadScreen IEVS_year, 2, 8, 15
-		IEVS_year = "20" & IEVS_year
+		IEVS_year = replace("", "20" & IEVS_year)
 	END IF
 END IF
 
