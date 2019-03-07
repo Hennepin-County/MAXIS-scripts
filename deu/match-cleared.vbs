@@ -264,7 +264,7 @@ IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 IF IEVS_type = "UBEN" THEN income_source = "Unemployment"
 IF IEVS_type = "UNVI" THEN income_source = "NON-WAGE"
 IF IEVS_type = "WAGE" or IEVS_type = "BEER" THEN
-	EMReadScreen income_source, 75, 8, 37
+	EMReadScreen income_source, 75, 8, 28 'was 37'
     income_source = trim(income_source)
     length = len(income_source)		'establishing the length of the variable
     'should be to the right of emplyer and the left of amount '
@@ -578,7 +578,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
   		CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 	ELSEIF resolution_status = "NC - Non Cooperation" THEN   'Navigates to TIKL
 		IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") NON-COOPERATION-----")
-		IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & match_type & ") " & "(" & first_name & ") NON-COOPERATION-----")
+		IF IEVS_type = "BEER" or IEVS_type = "UNVI" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & match_type & ") " & "(" & first_name & ") NON-COOPERATION-----")
 		IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH (" & match_type & ") " & "(" & first_name & ") NON-COOPERATION-----")
 		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
