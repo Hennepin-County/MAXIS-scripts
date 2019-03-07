@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("03/07/2019", "Removed WCOMs for duplicate assistance (in MN and Out of State) and client death as notices have been updated to include details of these changes.", "Casey Love, Hennepin County")
 call changelog_update("02/20/2019", "Adjusted wording to fit ABAWD Voluntary E&T with Homeless Exemption on a single WCOM.", "Casey Love, Hennepin County")
 call changelog_update("01/18/2019", "Reorganized and renamed WCOM options in user dialog for ease of use.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/16/2019", "Updated Banked months homeless WCOM to be used for all ABAWD cases. This option allows users to notify a client of the potential for the homeless ABAWD exemption.", "Ilse Ferris, Hennepin County")
@@ -406,7 +407,7 @@ For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
 Next
 
 'DIALOG to select the WCOM to add
-BeginDialog wcom_selection_dlg, 0, 0, 241, 395, "Check the WCOM needed"
+BeginDialog wcom_selection_dlg, 0, 0, 241, 355, "Check the WCOM needed"
   CheckBox 20, 25, 195, 10, "ABAWD - E and T Voluntary", voluntary_e_t_wcom_checkbox
   CheckBox 20, 40, 160, 10, "ABAWD - Homeless exemption information", abawd_homeless_wcom_checkbox
   CheckBox 20, 55, 190, 10, "ABAWD - Postponed WREG verifs for EXP SNAP", wreg_postponed_verif_wcom_checkbox
@@ -415,25 +416,22 @@ BeginDialog wcom_selection_dlg, 0, 0, 241, 395, "Check the WCOM needed"
   CheckBox 20, 125, 180, 10, "Banked Months - E and T voluntary", banked_mos_vol_e_t_wcom_checkbox
   CheckBox 20, 140, 190, 10, "Banked Months - Closing for all 9 months used", banked_mos_used_wcom_checkbox
   CheckBox 20, 155, 160, 10, "Banked Months -  Possibly available", banked_mos_avail_wcom_checkbox
-  CheckBox 20, 185, 85, 10, "Applicant Death", client_death_wcom_checkbox
-  CheckBox 20, 200, 150, 10, "Closed/denied with PACT", snap_pact_wcom_checkbox
-  CheckBox 20, 215, 155, 10, "Closed via PACT for new HH Member", pact_fraud_wcom_checkbox
-  CheckBox 20, 230, 145, 10, "Closing due to Returned Mail", snap_returned_mail_wcom_checkbox
-  CheckBox 20, 245, 115, 10, "Closing SNAP and MFIP opening", snap_to_mfip_wcom_checkbox
-  CheckBox 20, 260, 190, 10, "Duplicate Assistance in another state", duplicate_assistance_wcom_checkbox
-  CheckBox 20, 275, 190, 10, "Duplicate Assistance on another case in MN", dup_assistance_in_MN_wcom_checkbox
-  CheckBox 20, 290, 185, 10, "EXP SNAP - Postponed verif of CAF page 9 Signature", signature_postponed_verif_wcom_checkbox
-  CheckBox 20, 325, 55, 10, "CASH Denied", cash_denied_checkbox
-  CheckBox 20, 340, 125, 10, "CASH closing due to Returned Mail", mfip_returned_mail_wcom_checkbox
-  CheckBox 20, 355, 125, 10, "MFIP Closing and SNAP opening", mfip_to_snap_wcom_checkbox
+  CheckBox 20, 190, 150, 10, "Closed/denied with PACT", snap_pact_wcom_checkbox
+  CheckBox 20, 205, 155, 10, "Closed via PACT for new HH Member", pact_fraud_wcom_checkbox
+  CheckBox 20, 220, 145, 10, "Closing due to Returned Mail", snap_returned_mail_wcom_checkbox
+  CheckBox 20, 235, 115, 10, "Closing SNAP and MFIP opening", snap_to_mfip_wcom_checkbox
+  CheckBox 20, 250, 185, 10, "EXP SNAP - Postponed verif of CAF page 9 Signature", signature_postponed_verif_wcom_checkbox
+  CheckBox 20, 285, 55, 10, "CASH Denied", cash_denied_checkbox
+  CheckBox 20, 300, 125, 10, "CASH closing due to Returned Mail", mfip_returned_mail_wcom_checkbox
+  CheckBox 20, 315, 125, 10, "MFIP Closing and SNAP opening", mfip_to_snap_wcom_checkbox
   ButtonGroup ButtonPressed
-    OkButton 135, 375, 50, 15
-    CancelButton 185, 375, 50, 15
-  GroupBox 5, 315, 230, 55, "Cash"
-  GroupBox 5, 5, 230, 305, "SNAP"
+    OkButton 135, 335, 50, 15
+    CancelButton 185, 335, 50, 15
+  GroupBox 5, 275, 230, 55, "Cash"
+  GroupBox 5, 5, 230, 265, "SNAP"
   GroupBox 15, 15, 210, 90, "ABAWD's"
   GroupBox 15, 110, 210, 60, "Banked Months"
-  GroupBox 15, 175, 215, 130, "Other SNAP"
+  GroupBox 15, 175, 215, 90, "Other SNAP"
 EndDialog
 
 ' Dim myBtn
@@ -540,163 +538,6 @@ Do      'Just made this  loop - this needs sever testing.
 
     If snap_to_mfip_wcom_checkbox = checked then        'SNAP closing for MFIP opening - no input needed
         CALL add_words_to_message("Your SNAP case is closing because food benefits will be included in the MFIP benefit.")
-    End If
-
-    If duplicate_assistance_wcom_checkbox = checked Then        'Duplicate assistance in another state
-        If dup_state = "" Then                                  'If this is blank the script will look for it on MEMI - but if we are looping and the worker has already filled it in, the script will let that value stand
-            Call navigate_to_MAXIS_screen ("STAT", "MEMI")
-            EMReadScreen dup_state, 2, 14, 78
-        End If
-        If dup_state = "__" Then dup_state = ""                 'formatting state to not have underscores
-
-        If dup_month = "" Then dup_month = MAXIS_footer_month   'setting the month and year as a default
-        If dup_year = "" Then dup_year = MAXIS_footer_year
-
-        'code for the dialog for dup assistance (this dialog has the same name in each IF to prevent the over 7 dialog error)
-        BeginDialog wcom_details_dlg, 0, 0, 121, 90, "WCOM Details"
-          EditBox 70, 20, 25, 15, dup_state
-          EditBox 70, 40, 15, 15, dup_month
-          EditBox 90, 40, 15, 15, dup_year
-          ButtonGroup ButtonPressed
-            OkButton 60, 65, 50, 15
-          Text 5, 10, 110, 10, "Duplicate SNAP in another state"
-          Text 5, 25, 50, 10, "Previous State:"
-          Text 5, 45, 60, 10, "In (Month/Year)"
-        EndDialog
-
-        Do                          'displaying the dialog and ensuring that all required information is entered
-            err_msg = ""
-
-            Dialog wcom_details_dlg
-
-            If trim(dup_state) = "" Then err_msg = err_msg & vbNewLine & "* Enter the state in which client already received SNAP."
-            If trim(dup_month) = "" or trim(dup_year) = "" Then err_msg = err_msg & vbNewLine & "* Enter the month and year for which SNAP in MN is being denied due to receipt of benefits in another state."
-            If err_msg <> "" Then MsgBox "Please resolve before continuing:" & vbNewLine & err_msg
-        Loop until err_msg = ""
-        'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
-        CALL add_words_to_message("You received SNAP benefits from the state of: " & dup_state & " during the month of " & dup_month & "/" & dup_year & ". You cannot recceive SNAP benefits from two states at the same time.")
-    End If
-
-    If dup_assistance_in_MN_wcom_checkbox = checked Then        'Duplicate assistance in MN
-
-        BeginDialog wcom_details_dlg, 0, 0, 116, 70, "WCOM Details"
-          EditBox 70, 25, 15, 15, mn_dup_month
-          EditBox 90, 25, 15, 15, mn_dup_year
-          ButtonGroup ButtonPressed
-            OkButton 60, 50, 50, 15
-          Text 5, 10, 110, 10, "Duplicate SNAP in this state"
-          Text 5, 30, 60, 10, "In (Month/Year)"
-        EndDialog
-
-        Do                          'displaying the dialog and ensuring that all required information is entered
-            err_msg = ""
-
-            Dialog wcom_details_dlg
-
-            If trim(mn_dup_month) = "" or trim(mn_dup_year) = "" Then err_msg = err_msg & vbNewLine & "* Enter the month and year for which SNAP in MN is being denied due to receipt of benefits in another state."
-            If err_msg <> "" Then MsgBox "Please resolve before continuing:" & vbNewLine & err_msg
-        Loop until err_msg = ""
-
-        CALL add_words_to_message("You will not be eligible for SNAP benefits this month since you have received SNAP benefits on another case in the month of " & mn_dup_month & "/" & mn_dup_year & ".; Per program rules SNAP participants are not eligible for duplicate benefits in the same benefit month.")
-    End If
-
-    If client_death_wcom_checkbox = checked Then      'Client death
-        single_person = FALSE
-
-        Call navigate_to_MAXIS_screen("STAT", "MEMB")
-
-        EmWriteScreen "01", 20, 76
-        transmit
-
-        EMReadScreen second_member, 2, 6, 3
-        If second_member = "  " Then single_person = TRUE
-
-
-        Do
-            EMReadScreen date_of_death, 10, 19, 42
-            date_of_death = replace(date_of_death, " ", "/")
-
-            If date_of_death <> "__/__/____" Then
-                EMReadScreen first_name, 12, 6, 63
-                EMReadScreen last_name, 25, 6, 30
-                EMReadScreen middle_initial, 1, 6, 79
-
-                first_name = replace(first_name, "_", "")
-                last_name = replace(last_name, "_", "")
-                middle_initial = replace(middle_initial, "_", "")
-
-                If middle_initial = "" Then
-                    deceased_client = first_name & " " & last_name
-                Else
-                    deceased_client = first_name & " " & middle_initial & ". " & last_name
-                End If
-
-                EMReadScreen client_ref_nbr, 2, 4, 33
-
-                Exit Do
-            Else
-                date_of_death = ""
-                transmit
-            ENd If
-
-            EMReadScreen check_for_last_memb, 13, 24, 2
-        Loop Until check_for_last_memb = "ENTER A VALID"
-
-        others_on_eats = FALSE
-
-        If single_person = TRUE then
-            only_elig_checkbox = checked
-        Else
-            Call navigate_to_MAXIS_screen("STAT", "EATS")
-            EMReadScreen check_for_eats, 14, 24, 7
-            If check_for_eats <> "DOES NOT EXIST" Then
-                EMReadScreen all_eat_together, 1, 4, 72
-                If all_eat_together = "Y" Then
-                    others_on_eats = TRUE
-                Else
-                    row = 1
-                    col = 1
-                    EMSearch client_ref_nbr, row, col
-
-                    If col <> 39 Then
-                        others_on_eats = TRUE
-                    Else
-                        EMReadScreen next_in_group, row, 43
-                        If next_in_group <> "__" Then others_on_eats = TRUE
-                    End If
-                ENd If
-            End If
-            If others_on_eats = FALSE Then only_elig_checkbox = checked
-        End If
-        'MsgBox "single person - " & single_person & vbNewLine & "others on eats - " & others_on_eats
-
-        BeginDialog wcom_details_dlg, 0, 0, 236, 60, "WCOM Details"
-          EditBox 95, 5, 135, 15, deceased_client
-          CheckBox 5, 25, 220, 10, "Check here if client was only eligible SNAP member on this case.", only_elig_checkbox
-          EditBox 95, 40, 55, 15, date_of_death
-          ButtonGroup ButtonPressed
-            OkButton 180, 40, 50, 15
-          Text 5, 10, 85, 10, "Name of deceased client:"
-          Text 25, 45, 60, 10, "Date of death:"
-        EndDialog
-
-        Do                          'displaying the dialog and ensuring that all required information is entered
-            err_msg = ""
-
-            Dialog wcom_details_dlg
-
-            If trim(deceased_client) = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the client who died."
-            If IsDate(date_of_death) = "" Then err_msg = err_msg & vbNewLine & "* Enter a valid date for date of death."
-
-            If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
-        Loop until err_msg = ""
-
-        'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
-        If only_elig_checkbox = unchecked Then
-            CALL add_words_to_message("This SNAP case has closed because the applicant " & deceased_client & " has died.; To continue to receive SNAP benefits, you must reapply for a new case.")
-        Else
-            CALL add_words_to_message("This SNAP case has closed because the applicant " & deceased_client & " has died.")
-        End If
     End If
 
     If signature_postponed_verif_wcom_checkbox = checked Then       'postponed signature of CAF for XFS
@@ -1043,7 +884,7 @@ If abawd_homeless_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE(
 If banked_mos_avail_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* ABAWD months have been used, explained Banked Months may be available.")
 If banked_mos_vol_e_t_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* E&T is voluntary with Banked Months.")
 If banked_mos_non_coop_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & banked_abawd_name & " was receiving Banked Months and fail cooperation with E & T. Explained requesting Good Cause, and future banked months ineligibility.")
-If banked_mos_used_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Banked Months were being used are now all used. Advised to review other WREG/ABAWD exemptions.")
+If banked_mos_used_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Client has exhausted all available Banked Months. Advised to review other WREG/ABAWD exemptions.")
 ' If fset_fail_to_comply_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* SNAP is closing due to FSET requirements not being met. Reasons for not meeting the rules: " & fset_fail_reason & ". Advised of good cause and contact information.")
 If cash_denied_checkbox = checked Then
     CALL write_variable_in_CASE_NOTE("* " & cash_one_program & " denied because " & cash_one_reason & ".")
