@@ -194,6 +194,14 @@ EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" then
 	script_end_procedure("Out-of-county case. Cannot update.")
 ELSE
+    EMReadScreen number_IEVS_type, 3, 7, 12 'read the DAIL msg'
+    IF number_IEVS_type = "A30" THEN IEVS_type = "BNDX"
+    'IF number_IEVS_type = "A40" THEN IEVS_type = "SDXS/I"
+    IF number_IEVS_type = "A70" THEN IEVS_type = "BEER"
+    IF number_IEVS_type = "A80" THEN IEVS_type = "UNVI"
+    IF number_IEVS_type = "A60" THEN IEVS_type = "UBEN"
+    IF number_IEVS_type = "A50" or number_IEVS_type = "A51"  THEN IEVS_type = "WAGE"
+
 	IF IEVS_type = "WAGE" then
 		EMReadScreen select_quarter, 1, 8, 14
 		EMReadScreen IEVS_year, 4, 8, 22
@@ -206,19 +214,10 @@ ELSE
 	END IF
 END IF
 
-EMReadScreen number_IEVS_type, 3, 7, 12 'read the DAIL msg'
-IF number_IEVS_type = "A30" THEN IEVS_type = "BNDX"
-IF number_IEVS_type = "A40" THEN IEVS_type = "SDXS/I"
-IF number_IEVS_type = "A70" THEN IEVS_type = "BEER"
-IF number_IEVS_type = "A80" THEN IEVS_type = "UNVI"
-IF number_IEVS_type = "A60" THEN IEVS_type = "UBEN"
-IF number_IEVS_type = "A50" or number_IEVS_type = "A51"  THEN IEVS_type = "WAGE"
 '------------------------------------------setting up case note header'
 IF IEVS_type = "BEER" THEN match_type = "B"
 IF IEVS_type = "UBEN" THEN match_type = "U"
-IF IEVS_type = "WAGE" THEN match_type = "U"
 IF IEVS_type = "UNVI" THEN match_type = "U"
-IF IEVS_type = "WAGE" THEN EMreadscreen select_quarter, 1, 8, 14
 
 '--------------------------------------------------------------------Client name
 EmReadScreen panel_name, 4, 02, 52
@@ -264,7 +263,7 @@ IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 IF IEVS_type = "UBEN" THEN income_source = "Unemployment"
 IF IEVS_type = "UNVI" THEN income_source = "NON-WAGE"
 IF IEVS_type = "WAGE" or IEVS_type = "BEER" THEN
-	EMReadScreen income_source, 75, 8, 28 'was 37'
+	EMReadScreen income_source, 75, 8, 28 'was 37' should be to the right of emplyer and the left of amount
     income_source = trim(income_source)
     length = len(income_source)		'establishing the length of the variable
     'should be to the right of emplyer and the left of amount '
