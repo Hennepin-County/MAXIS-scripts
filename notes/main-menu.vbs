@@ -409,6 +409,13 @@ script_array_G_to_L(script_num).description				= "Template for case noting a cli
 script_num = 0											'establishing count as 0
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
 Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_M_to_Q(script_num).script_name 			= "MAXIS to METS Migration"
+script_array_M_to_Q(script_num).file_name				= "maxis-to-mets-migration.vbs"
+script_array_M_to_Q(script_num).description				= "Case note and SPEC/MEMO for DHS-identified MAXIS to METS Migration cases."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
+Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_M_to_Q(script_num).script_name 			= "Medical Opinion Form Received"
 script_array_M_to_Q(script_num).file_name				= "medical-opinion-form-received.vbs"
 script_array_M_to_Q(script_num).description				= "Template for case noting information about a Medical Opinion Form."
