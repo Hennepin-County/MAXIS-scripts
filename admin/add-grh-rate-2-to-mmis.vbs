@@ -440,46 +440,54 @@ End if
 
 Call Navigate_to_MAXIS_screen("ELIG", "GRH ")
 EMReadScreen no_grh, 10, 24, 2		'NO GRH version means no conversion to MMIS will take place
-If no_grh = "NO VERSION" then script_end_procedure("There are no GRH eligibility results. Please review. The script will now end.")
+If no_grh = "NO VERSION" then 
+    confirmation_needed = MsgBox("GRH elig results do not exist. Press YES if you have confirmed GRH was open during the SSR dates. Press NO to stop the script.", vbYesNo, "Please confirm GRH active date.")
+    'If confirmation_needed = vbYes then grh_actv = True
+    If confirmation_needed = vbNo then script_end_procedure("GRH case status is " & grh_status & ". The script will now end.")
+    Do 
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+else 
 
-Call write_value_and_transmit("99", 20, 79)
-'This brings up the FS versions of eligibility results to search for approved versions
-status_row = 7
-Do
-	EMReadScreen app_status, 8, status_row, 50
-	If trim(app_status) = "" then script_end_procedure("There are no GRH eligibility results for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". The script will now end.")
-	If app_status = "UNAPPROV" Then status_row = status_row + 1
-	IF app_status = "APPROVED" then
-		EMReadScreen vers_number, 1, status_row, 23
-		Call write_value_and_transmit(vers_number, 18, 54)
-		exit do
- 	End if
-Loop until app_status = "APPROVED" or trim(app_status) = ""
-
-If app_status <> "APPROVED" then script_end_procedure("There are no approved GRH eligibility results for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". The script will now end.")
-
-'----------------------------------------------------------------------------------------------------ELIG/GRFB
-Call write_value_and_transmit("GRFB", 20, 71)
-Call write_value_and_transmit("x", 11, 3)
-'Ensuring a rate 2 is found. If none or more than one are found, MMIS will not be updated.
-row = 15
-Do
-    EMReadScreen rate_two_check, 8, row, 8
-    rate_two_check = Trim(rate_two_check)
-    If rate_two_check = SSRT_vendor_number then
-        exit do
-    else
-        row = row + 1
-    End if
-Loop until row = 20
-
-If rate_two_check = "" then 
-    continue_msg = msgbox("GRH eligibility doesn't reflect Rate 2 vendor information, or the SSRT vendor number did not match ELIG/GRFB vendor number. Do you wish to continue loading the agreement into MMIS?", vbYesNo, "Please confirm adding the SSR to MMIS.")
-    If continue_msg = vbNo then script_end_procedure("The script has ended.")
-    If continue_msg = vbYes then update_case = True
+    Call write_value_and_transmit("99", 20, 79)
+    'This brings up the FS versions of eligibility results to search for approved versions
+    status_row = 7
+    Do
+    	EMReadScreen app_status, 8, status_row, 50
+    	If trim(app_status) = "" then script_end_procedure("There are no GRH eligibility results for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". The script will now end.")
+    	If app_status = "UNAPPROV" Then status_row = status_row + 1
+    	IF app_status = "APPROVED" then
+    		EMReadScreen vers_number, 1, status_row, 23
+    		Call write_value_and_transmit(vers_number, 18, 54)
+    		exit do
+     	End if
+    Loop until app_status = "APPROVED" or trim(app_status) = ""
+    
+    If app_status <> "APPROVED" then script_end_procedure("There are no approved GRH eligibility results for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". The script will now end.")
+    
+    '----------------------------------------------------------------------------------------------------ELIG/GRFB
+    Call write_value_and_transmit("GRFB", 20, 71)
+    Call write_value_and_transmit("x", 11, 3)
+    'Ensuring a rate 2 is found. If none or more than one are found, MMIS will not be updated.
+    row = 15
+    Do
+        EMReadScreen rate_two_check, 8, row, 8
+        rate_two_check = Trim(rate_two_check)
+        If rate_two_check = SSRT_vendor_number then
+            exit do
+        else
+            row = row + 1
+        End if
+    Loop until row = 20
+    
+    If rate_two_check = "" then 
+        continue_msg = msgbox("GRH eligibility doesn't reflect Rate 2 vendor information, or the SSRT vendor number did not match ELIG/GRFB vendor number. Do you wish to continue loading the agreement into MMIS?", vbYesNo, "Please confirm adding the SSR to MMIS.")
+        If continue_msg = vbNo then script_end_procedure("The script has ended.")
+        If continue_msg = vbYes then update_case = True
+    End if 
+    
+    PF3' out of ELIG/GRFB
 End if 
-
-PF3' out of ELIG/GRFB
 
 '----------------------------------------------------------------------------------------------------Main selection dialog
 BeginDialog date_dialog, 0, 0, 281, 170, "Select the SSR start and end dates for "  & SSRT_vendor_name
