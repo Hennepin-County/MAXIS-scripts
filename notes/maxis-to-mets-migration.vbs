@@ -52,7 +52,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOG
-BeginDialog initial_dialog, 0, 0, 196, 145, "MAXIS to METS Migration"
+BeginDialog main_dialog, 0, 0, 196, 145, "MAXIS to METS Migration"
   EditBox 85, 65, 50, 15, MAXIS_case_number
   EditBox 85, 85, 20, 15, member_number
   EditBox 85, 105, 85, 15, worker_signature
@@ -76,7 +76,7 @@ member_number = "01"
 DO
 	DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-		dialog ABAWD_dialog				'main dialog
+		dialog main_dialog				'main dialog
 		If buttonpressed = 0 THEN stopscript	'script ends if cancel is selected
 		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "* Enter a valid case number."		'mandatory field
 		IF len(member_number) <> 2 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "* Enter a valid 2-digit member number."		'mandatory field
