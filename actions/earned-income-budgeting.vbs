@@ -317,6 +317,7 @@ If MX_region = "INQUIRY DB" Then
     developer_mode = TRUE
 End If
 If developer_mode = TRUE then MsgBox "Developer Mode ACTIVATED!"        'developer mode difference is that the MAXIS update detail is shown in a messagebox instead of updating the panel
+If developer_mode = TRUE Then script_run_lowdown = "Run in INQUIRY"
 
 Call navigate_to_MAXIS_screen("CASE", "CURR")                           'Going to find the FS Application Date
 curr_row = 1
@@ -354,7 +355,6 @@ If cash_two_status = "ACTV" OR cash_two_status = "PEND" Then CASH_case = TRUE
 If grh_status = "ACTV" OR grh_status = "PEND" Then GRH_case = TRUE
 If snap_status = "ACTV" OR snap_status = "PEND" Then SNAP_case = TRUE
 If hc_status = "ACTV" OR hc_status = "PEND" Then HC_case = TRUE
-
 
                             '----------------------------------------------------------'
                     '---------------------------------------------------------------------------------'
@@ -615,6 +615,7 @@ Next        'For each member in HH_member_array
                             '----------------------------------------------------------'
 
 'Here we are allowing the user to add a new panel if needed. It is on a loop so as many as desired can be added
+add_panel_button_pushed_count = 0
 Do
     panels_exist = TRUE     'default to panels existing - this is also reset on each loop so that if a panel is added this statement is reassessed.
     'THIS VARIABLE SET TO FALSE WILL CAUSE THE SCRIPT TO END AFTER THIS LOOP
@@ -669,6 +670,7 @@ Do
         original_month = MAXIS_footer_month     'saving the MAXIS footer month and year because we may move around as the panels are added in the month the income started OR application month
         original_year = MAXIS_footer_year
         panel_to_add = "JOBS"                   'defaulting this to JOBS because that is actually the only option right now
+        add_panel_button_pushed_count = add_panel_button_pushed_count + 1
 
         'TYPE OF PANEL TO ADD Dialog - Select panel type
         'FUTURE FUNCTIONALITY - add BUSI back as an option to select here
@@ -982,6 +984,7 @@ Do
 'this loop until functionality allows for as many JOBS/BUSI panels to be added as needed.
 'Also, note that the new panel will be in the array and so will be added to the dialog asking about adding a new panel
 Loop until buttonpressed = continue_to_update_button
+script_run_lowdown = script_run_lowdown & vbCr & "Add job button pressed " & add_panel_button_pushed_count & " times."
 
 'If there were no panels and noe were added, the script will stop, alerting the worker that there are no panels to take action on.
 'BUGGY CODE - we might have an issue if ONLY BUSI panels exist. We may not get a script end here but no other code would be enacted.
@@ -1013,6 +1016,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
         'This is where the worker indicates if they have income information to budget for this panel.
         'If they click 'No' here, there is no way to go back to this question for that panel.
         employer_check = MsgBox("Do you have income verification for this job? Employer name: " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel), vbYesNo + vbQuestion, "Select Income Panel")
+        If employer_check = vbYes Then script_run_lowdown = script_run_lowdown & vbCr & "Income received for - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel) & " button pressed - YES"
+        If employer_check = vbNo Then script_run_lowdown = script_run_lowdown & vbCr & "Income received for - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel) & " button pressed - NO"
 
         'Some panels will have this defaulted  already but if not, this will defalt to the footer month and year inidicated in the initial dialog
         If EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) = "" Then EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) = MAXIS_footer_month
@@ -1956,7 +1961,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                               If list_pos < 3 Then list_pos = 3
 
                               Text 185, y_pos + 10, 200, 10, "Average hourly rate of pay: $" & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel)
-                              Text 185, y_pos + 25, 200, 10, "Average " & word_for_freq & " hours: " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)
+                              Text 185, y_pos + 25, 200, 10, "Average " & word_for_freq & " hours: " & EARNED_INCOME_PANELS_ARRAY(snap_ave_hrs_per_pay, ei_panel)
                               Text 185, y_pos + 40, 200, 10, "Average paycheck amount: $" & EARNED_INCOME_PANELS_ARRAY(snap_ave_inc_per_pay, ei_panel)
                               Text 185, y_pos + 55, 200, 10, "Monthly Budgeted Income: $" & EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel)
                               If EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = "?" Then       'REMOVE CODE - this should not be coming up any more - need to confirm
@@ -2208,6 +2213,41 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 
             'FUTURE FUNCTIONALITY - Add handling to check WREG for correct coding based upon this income information
             'FUTURE FUNCTIONALITY - Add handling for future/current changes - start or stop work - get policy on this from SNAP refresher - talk to Melissa.
+
+            script_run_lowdown = script_run_lowdown & vbCr & vbCr & "Information about JOBS entered into dialog"
+            script_run_lowdown = script_run_lowdown & vbCr & "Employer - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel) & "MEMB " & EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel)
+
+            For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
+                For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+                    'conditional if it is the right panel AND the order matches - then do the thing you need to do
+                    If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
+                        If LIST_OF_INCOME_ARRAY(budget_in_SNAP_yes, all_income) = unchecked Then
+                            script_run_lowdown = script_run_lowdown & vbCr & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs. CHECK EXCLUDED."
+                        ElseIf LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = 0 Then
+                            script_run_lowdown = script_run_lowdown & vbCr & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs."
+                        ElseIf LIST_OF_INCOME_ARRAY(exclude_amount, all_income) <> 0 Then
+                            script_run_lowdown = script_run_lowdown & vbCr & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & LIST_OF_INCOME_ARRAY(gross_amount, all_income) & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & "hrs. - $" & LIST_OF_INCOME_ARRAY(exclude_amount, all_income) & " not included."
+                        End If
+                    End If
+                next
+            next
+            script_run_lowdown = script_run_lowdown & vbCr & "Programs Applied to: "
+            If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then script_run_lowdown = script_run_lowdown & "/SNAP"       'setting the header programs
+            If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then script_run_lowdown = script_run_lowdown & "/CASH"
+            If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel) = checked Then script_run_lowdown = script_run_lowdown & "/HC"
+            If EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, ei_panel) = checked Then script_run_lowdown = script_run_lowdown & "/GRH"
+
+            script_run_lowdown = script_run_lowdown & vbCr & "SNAP Detail"
+            script_run_lowdown = script_run_lowdown & vbCr & "Average hourly rate of pay: $" & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel)
+            script_run_lowdown = script_run_lowdown & vbCr & "Average " & word_for_freq & " hours: " & EARNED_INCOME_PANELS_ARRAY(snap_ave_hrs_per_pay, ei_panel)
+            script_run_lowdown = script_run_lowdown & vbCr & "Average paycheck amount: $" & EARNED_INCOME_PANELS_ARRAY(snap_ave_inc_per_pay, ei_panel)
+            script_run_lowdown = script_run_lowdown & vbCr & "Monthly Budgeted Income: $" & EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel)
+            script_run_lowdown = script_run_lowdown & vbCr & "All other Program detail"
+            script_run_lowdown = script_run_lowdown & vbCr & "Average hourly rate of pay: $" & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel)
+            script_run_lowdown = script_run_lowdown & vbCr & "Average " & word_for_freq & " hours: " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)
+            script_run_lowdown = script_run_lowdown & vbCr & "Average paycheck amount: $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel)
+            script_run_lowdown = script_run_lowdown & vbCr & "-----------------------------"
+
         ElseIf EARNED_INCOME_PANELS_ARRAY(this_is_a_new_panel, ei_panel) = TRUE Then
             'FUTURE FUNCTIONALITY - may need some specialized functionality to handle for new panels that do NOT have income detail provided.
         End If
@@ -2447,6 +2487,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
     Else
         update_months_array = array(list_of_all_months_to_update)
     End If
+    script_run_lowdown = script_run_lowdown & vbCr & "The months to update - " & list_of_all_months_to_update
 
     Call back_to_SELF       'reset
 
@@ -2480,6 +2521,8 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                 'BUGGY CODE - this may miss the first check(s) in a month if they are not listed or the pay date is after the first one for the first month
                 'ALL THE JUICY BITS GO HERE
                 top_of_order = EARNED_INCOME_PANELS_ARRAY(order_ubound, ei_panel)   'defining the position of the last check for this panel
+
+                script_run_lowdown = script_run_lowdown & vbCr & "Updated JOBS - MEMB " & EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) & " -- MONTH - " & MAXIS_footer_month & "/" & MAXIS_footer_year
 
                 this_month_checks_array = ""        'have to plank these out at each panel/month loop
                 checks_list = ""
@@ -3186,7 +3229,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                     End If          'If EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel) = "JOBS" Then
                 End If          'If confirm_same_employer <> UCase(EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)) Then
                 If updates_to_display <> "" AND developer_mode = TRUE Then MsgBox updates_to_display            'this shows the information that WOULD have been updated if we were not in INQUIRY
-
+                script_run_lowdown = script_run_lowdown & vbCr & updates_to_display
                 'If this panel is should to update months after the initial month, this is saved for the next loop to have it updated
                 'FUTURE FUNCTIONALITY - if we need to change how we handle the future month updates thing or dealing with STWK - this would be here
                 If EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel) = unchecked Then EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel) = FALSE
@@ -3221,6 +3264,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'each panel will
     If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then prog_list = prog_list & "/SNAP"       'setting the header programs
     If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked Then prog_list = prog_list & "/CASH"
     If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel) = checked Then prog_list = prog_list & "/HC"
+    If EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, ei_panel) = checked Then prog_list = prog_list & "/GRH"
 
     If left(prog_list, 1) = "/" Then prog_list = right(prog_list, len(prog_list)-1)
 
@@ -3397,4 +3441,4 @@ Next
 
 If end_msg = "" Then end_msg = "Script ended with no action taken, panels not updated, no case note created. No new panels were indicated and no income verification was entered to be budgeted."
 
-script_end_procedure(end_msg)
+script_end_procedure_with_error_report(end_msg)
