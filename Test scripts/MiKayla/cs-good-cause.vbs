@@ -57,10 +57,7 @@ changelog_display
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
-Do
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
+MAXIS_background_check
 
 MAXIS_case_number = "281646"
 claim_date = "11/01/18"
@@ -256,46 +253,50 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 '----------------------------------------------------------------------------------------------------ABPS panel
+MAXIS_background_check
 Call MAXIS_footer_month_confirmation
 Call navigate_to_MAXIS_screen("STAT", "ABPS")
 'Initial dialog giving the user the option to select the type of good cause action
-DO
-	'Checks to make sure there are ABPS panels for this member. If none exist the script will close
-	EMReadScreen total_amt_of_panels, 1, 2, 78
-	If total_amt_of_panels = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again. ")
-	EMReadScreen panel_check, 4, 2, 50
-	'If panel_check = "ABPS" and current_panel_number = total_amt_of_panels then
-	IF panel_check = "ABPS" THEN
-		MsgBox panel_check
-	       Do
-			EMReadScreen ABPS_parent_ID, 10, 13, 40	'making sure ABPS is not unknown.
-			ABPS_parent_ID = trim(ABPS_parent_ID)
-	       	EMReadScreen current_panel_number, 1, 2, 73
-			MsgBox current_panel_number
-	       	ABPS_check = MsgBox("Is this the right ABPS to update?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
-	       	If ABPS_check = vbYes then
-				ABPS_found = TRUE
-				exit do
-			END IF
-	       	If ABPS_check = vbNo then
-				ABPS_found = FALSE
-				TRANSMIT
-			END IF
-			If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
-	       Loop until ABPS_found = TRUE
-	       '-------------------------------------------------------------------------Updating the ABPS panel
-	END IF
 
-	PF9'edit mode
+'Checks to make sure there are ABPS panels for this member. If none exist the script will close
+EMReadScreen total_amt_of_panels, 1, 2, 78
+If total_amt_of_panels = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again.")
+EMReadScreen panel_check, 4, 2, 50
+'If panel_check = "ABPS" and current_panel_number = total_amt_of_panels then
+IF panel_check = "ABPS" THEN
+	MsgBox panel_check
+    Do
+		EMReadScreen ABPS_parent_ID, 10, 13, 40	'making sure ABPS is not unknown.
+		ABPS_parent_ID = trim(ABPS_parent_ID)
+       	EMReadScreen current_panel_number, 1, 2, 73
+		MsgBox current_panel_number
+       	ABPS_check = MsgBox("Is this the right ABPS to update?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
+       	If ABPS_check = vbYes then
+			ABPS_found = TRUE
+			exit do
+		END IF
+       	If ABPS_check = vbNo then
+			ABPS_found = FALSE
+			TRANSMIT
+		END IF
+		If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
+    Loop until ABPS_found = TRUE
+END IF
+
+Do     
+    '-------------------------------------------------------------------------Updating the ABPS panel
+	MAXIS_background_check
+    PF9'edit mode
 	EmReadscreen edit_mode_check, 1, 20, 08
 	IF edit_mode_check = "D" THEN
-		PF9
+        PF9
 		msgbox "are we in the edit mode"
-	END IF
+	End if 
+    
 	EmReadscreen error_check, 74, 24, 02
-	error_check = trim(error_check)
-	IF error_check = "" THEN case_note_only = FALSE
-	IF error_check <> "" THEN
+	IF trim(error_check) = "" THEN 
+        case_note_only = FALSE
+	else 
 		maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
 		IF maxis_error_check = vbYes THEN
 			case_note_only = TRUE 'this will case note only'
@@ -314,15 +315,7 @@ DO
 	msgbox edit_mode_check
 
 	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
-	IF parental_status = "2" THEN
-		client_name = "Unknown"
-	ELSEIF parental_status = "3" THEN
-		client_name = "ABPS deceased"
-	ELSEIF parental_status = "4" THEN
-		client_name = "Rights Severed"
-	ELSEIF parental_status = "7" THEN
-		client_name = "HC No Order Sup"
-	ELSEIF parental_status = "1" THEN
+	IF parental_status = "1" THEN
 		EMReadScreen custodial_status, 1, 15, 57
 		EMReadScreen first_name, 12, 10, 63
 		EMReadScreen last_name, 24, 10, 30
@@ -338,9 +331,14 @@ DO
 		EMReadScreen HC_ins_order, 1, 12, 44	'making sure ABPS is not unknown.
 		EMReadScreen HC_ins_compliance, 1, 12, 80
 	END IF
-	MsgBox case_note_only
+    IF parental_status = "2" THEN client_name = "Unknown"
+	IF parental_status = "3" THEN client_name = "ABPS deceased"
+	IF parental_status = "4" THEN client_name = "Rights Severed"
+	IF parental_status = "7" THEN client_name = "HC No Order Sup"
+    
+	MsgBox "Case Note Only: " & case_note_only
 	IF case_note_only = FALSE and edit_mode_check = "E" THEN
-	msgbox "what are we doing"
+	   msgbox "what are we doing"
 	    EMWriteScreen "Y", 4, 73			'Support Coop Y/N field
 		msgbox "should be writing"
 	    IF gc_status = "Pending" THEN
@@ -393,50 +391,36 @@ DO
 	    END IF
 		msgbox "did we make it to actual date"
 	    Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
-		TRANSMIT'to add information
-		If error_check <> "" THEN TRANSMIT 'this will get passed inhibiting errors'
-		msgbox "THIS should save the information"
-	'END IF
+		TRANSMIT  'to add information
+        EmReadscreen ABPS_error_check, 30, 24, 2        
+		If trim(ABPS_error_check) <> "" THEN TRANSMIT 'this will get passed inhibiting errors'
+		msgbox "THIS should save the information"     
+
 		EMReadScreen panel_check, 4, 2, 50
 		'If panel_check = "ABPS" and current_panel_number = total_amt_of_panels then
 		IF panel_check = "ABPS" THEN
 			CALL write_value_and_transmit("BGTX", 20, 71)
-			'this is where i pf3'
     		msgbox "now i want to be at wrap"
     		EMReadScreen WRAP_panel_check, 4, 2, 46
-    	    IF WRAP_panel_check = "WRAP" THEN
-	            Do
-	              	EMReadScreen MAXIS_footer_month, 2, 20, 55
-	            	'msgbox MAXIS_footer_month & CM_plus_1_mo
-	            	IF MAXIS_footer_month = CM_plus_1_mo  THEN
-	    	    		EXIT DO
-	    	    	ELSE
-	              		run_through_bgtx = MsgBox("Do you need to run through background?", vbYesNoCancel + vbQuestion, "Maxis footer month")
-	              	    If run_through_bgtx = vbYes THEN
-	              	    	EMWriteScreen "Y", 16, 54
-	              	    	TRANSMIT
-	              	    	EMReadScreen check_PNLP, 4, 2, 53
-	              	    	IF check_PNLP = "PNLP" THEN
-			    				CALL write_value_and_transmit("ABPS", 20, 71)
-			    				CALL write_value_and_transmit("0" & current_panel_number, 20, 79)
-	              	    		MsgBox "AM I IN A NEW FOOTER MONTH?"
-	              	    	END IF
-	              	    END IF
-	              	    IF run_through_bgtx = vbNo then
-	            	    	TRANSMIT
-	            	    	exit do
-	            	    END IF
-	            	    IF run_through_bgtx = vbCancel THEN
-	            	    	EXIT DO
-	            	    END IF
-	    	    	END IF
-	            Loop until MAXIS_footer_month = CM_plus_1_mo or ButtonPressed = vbYesNoCancel
+    	    IF WRAP_panel_check = "WRAP" THEN EMReadScreen MAXIS_footer_month, 2, 20, 55
+            msgbox "Footer month: " & MAXIS_footer_month & vbcr & "CM Plus one" & CM_plus_1_mo
+            IF MAXIS_footer_month = CM_plus_1_mo THEN
+                EXIT DO
+            else 
+                Call write_value_and_transmit("Y", 16, 54)
+                EMReadScreen check_PNLP, 4, 2, 53
+                msgbox "check PNLP: " & check_PNLP
+                IF check_PNLP = "PNLP" THEN
+                    CALL write_value_and_transmit("ABPS", 20, 71)
+                    CALL write_value_and_transmit("0" & current_panel_number, 20, 79)
+                    MsgBox "AM I IN A NEW FOOTER MONTH?"
+                END IF
 			END IF
 	    END IF
 	END IF
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-LOOP UNTIL are_we_passworded_out = false
+LOOP
 
+'?? What's the deal here?
 If good_cause_droplist = "Change/exemption ending" then
 	Do
 		Do
@@ -448,7 +432,8 @@ If good_cause_droplist = "Change/exemption ending" then
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
 END IF
-'For case note'
+
+'-----------------------------------------------------------------------------------------For case note'
 IF CCA_CHECKBOX = CHECKED THEN programs_included = programs_included & "CCAP, "
 IF DWP_CHECKBOX = CHECKED THEN programs_included = programs_included & "DWP, "
 IF HC_CHECKBOX = CHECKED THEN programs_included = programs_included & "Healthcare, "
@@ -469,7 +454,9 @@ incomplete_form  = trim(incomplete_form)
 If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
 
 '-----------------------------------------------------------------------------------------------------Case note & email sending
+Call MAXIS_footer_month_confirmation    'Footer month & year could get wonky and not go into case note. This prevents that from happening. 
 start_a_blank_case_note
+
 IF good_cause_droplist = "Application Review-Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
 IF good_cause_droplist = "Application Review-Incomplete" THEN Call write_variable_in_case_note("Good Cause Application Review - Incomplete")
 IF good_cause_droplist = "Change/exemption ending" THEN
@@ -506,6 +493,7 @@ IF DHS_3633_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Goo
 Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)
 IF FS_CHECKBOX = CHECKED and CCA_CHECKBOX = UNCHECKED and DWP_CHECKBOX = UNCHECKED and MFIP_CHECKBOX = UNCHECKED and HC_CHECKBOX = UNCHECKED and METS_CHECKBOX = UNCHECKED THEN memo_started = TRUE
+
 IF memo_started = TRUE THEN
 	Call start_a_new_spec_memo
 	EMsendkey("************************************************************")
