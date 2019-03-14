@@ -56,14 +56,33 @@ changelog_display
 
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-MAXIS_background_check
+'Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-MAXIS_case_number = "281646"
-claim_date = "11/01/18"
-child_ref_number = "03, 04"
-actual_date = "11/01/18"
+BeginDialog case_number, 0, 0, 116, 65, "Case number"
+  EditBox 60, 5, 50, 15, MAXIS_case_number
+  EditBox 65, 25, 20, 15, footer_month
+  EditBox 90, 25, 20, 15, footer_year
+  ButtonGroup ButtonPressed
+    OkButton 5, 45, 50, 15
+    CancelButton 60, 45, 50, 15
+  Text 5, 10, 50, 10, "Case Number:"
+  Text 5, 30, 45, 10, "Footer Month:"
+EndDialog
 
+DO
+	DO
+	    err_msg = ""
+	    Dialog fraud_dialog
+	    cancel_confirmation
+	    IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number to continue."
+	    IF footer_month = "" THEN err_msg = "Please enter a footer month to continue."
+	    IF footer_month = "" THEN err_msg = "Please enter a footer year to continue."
+	    IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
+		LOOP until err_msg = ""
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+Call MAXIS_footer_month_confirmation
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 'Checking for PRIV cases.
 EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip
@@ -165,12 +184,9 @@ BeginDialog change_exemption_dialog, 0, 0, 216, 100, "Good cause change/exemptio
 EndDialog
 
 BeginDialog good_cause_dialog, 0, 0, 386, 285, "Good Cause"
-  EditBox 55, 5, 45, 15, MAXIS_case_number
   EditBox 170, 5, 40, 15, claim_date
-  EditBox 55, 25, 20, 15, MAXIS_footer_month
-  EditBox 80, 25, 20, 15, MAXIS_footer_year
   EditBox 170, 25, 40, 15, review_date
-  EditBox 80, 45, 20, 15, child_ref_number
+  EditBox 70, 45, 30, 15, child_ref_number
   EditBox 170, 45, 40, 15, actual_date
   CheckBox 225, 15, 25, 10, "CCA", CCA_CHECKBOX
   CheckBox 225, 30, 30, 10, "DWP", DWP_CHECKBOX
@@ -217,13 +233,14 @@ BeginDialog good_cause_dialog, 0, 0, 386, 285, "Good Cause"
   Text 120, 30, 45, 10, "Next review:"
   GroupBox 300, 5, 80, 55, "Follow up"
   GroupBox 5, 85, 375, 35, "Incomplete Form:"
-  Text 5, 10, 45, 10, "Case number:"
+  Text 5, 10, 115, 10, "Case number: " & MAXIS_case_number
   Text 125, 10, 40, 10, "Claim date:"
   Text 5, 50, 65, 10, "Child's MEMB #(s):"
-  Text 5, 30, 50, 10, "Footer MM/YY:"
+  Text 5, 30, 105, 10, "Footer MM/YY: " & footer_month & "/" & footer_year
   GroupBox 5, 165, 250, 115, "Verifications"
   GroupBox 220, 5, 65, 55, "Programs"
 EndDialog
+
 Do
 	Do
 		err_msg = ""
@@ -284,20 +301,20 @@ IF panel_check = "ABPS" THEN
     Loop until ABPS_found = TRUE
 END IF
 
-Do     
+Do
     '-------------------------------------------------------------------------Updating the ABPS panel
-	MAXIS_background_check
+	'MAXIS_background_check
     PF9'edit mode
 	EmReadscreen edit_mode_check, 1, 20, 08
 	IF edit_mode_check = "D" THEN
         PF9
-		msgbox "are we in the edit mode"
-	End if 
-    
+		'msgbox "are we in the edit mode"
+	End if
+
 	EmReadscreen error_check, 74, 24, 02
-	IF trim(error_check) = "" THEN 
+	IF trim(error_check) = "" THEN
         case_note_only = FALSE
-	else 
+	else
 		maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
 		IF maxis_error_check = vbYes THEN
 			case_note_only = TRUE 'this will case note only'
@@ -313,7 +330,7 @@ Do
 	ABPS_parent_ID_check = trim(ABPS_parent_ID_check)
 	IF ABPS_parent_ID_check <> ABPS_parent_ID THEN msgbox "ABPS does not match"
 
-	msgbox edit_mode_check
+	'msgbox edit_mode_check
 
 	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
 	IF parental_status = "1" THEN
@@ -336,12 +353,12 @@ Do
 	IF parental_status = "3" THEN client_name = "ABPS deceased"
 	IF parental_status = "4" THEN client_name = "Rights Severed"
 	IF parental_status = "7" THEN client_name = "HC No Order Sup"
-    
-	MsgBox "Case Note Only: " & case_note_only
+
+	'MsgBox "Case Note Only: " & case_note_only
 	IF case_note_only = FALSE and edit_mode_check = "E" THEN
-	   msgbox "what are we doing"
+	   'msgbox "what are we doing"
 	    EMWriteScreen "Y", 4, 73			'Support Coop Y/N field
-		msgbox "should be writing"
+		'msgbox "should be writing"
 	    IF gc_status = "Pending" THEN
 	    	'Msgbox gc_status
 	    	EMWriteScreen "P", 5, 47			'Good Cause status field
@@ -390,31 +407,45 @@ Do
 	    	EMWriteScreen claim_reason, 6, 47
 	    	'Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
 	    END IF
-		msgbox "did we make it to actual date"
+		'msgbox "did we make it to actual date"
 	    Call create_MAXIS_friendly_date_with_YYYY(datevalue(actual_date), 0, 18, 38) 'creates and writes the date entered in dialog'
 		TRANSMIT  'to add information
-        EmReadscreen ABPS_error_check, 30, 24, 2        
-		If trim(ABPS_error_check) <> "" THEN TRANSMIT 'this will get passed inhibiting errors'
-		msgbox "THIS should save the information"     
+        EmReadscreen ABPS_error_check, 50, 24, 2
+		IF trim(ABPS_error_check) <> "" THEN
+			TRANSMIT 'this will get passed inhibiting errors''
+		ELSE
+			IF ABPS_error_check <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & ABPS_error_check & vbNewLine
+			'If ABPS_error_check = "GOOD CAUSE CLAIM DATE CANNOT BE IN THE FUTURE" THEN script_end_procedure(ABPS_error_check & vbNewLine & "Please run the script again.")
+		END IF
 
 		EMReadScreen panel_check, 4, 2, 50
 		'If panel_check = "ABPS" and current_panel_number = total_amt_of_panels then
 		IF panel_check = "ABPS" THEN
 			CALL write_value_and_transmit("BGTX", 20, 71)
-    		msgbox "now i want to be at wrap"
+    		'msgbox "now i want to be at wrap"
     		EMReadScreen WRAP_panel_check, 4, 2, 46
     	    IF WRAP_panel_check = "WRAP" THEN EMReadScreen MAXIS_footer_month, 2, 20, 55
-            msgbox "Footer month: " & MAXIS_footer_month & vbcr & "CM Plus one" & CM_plus_1_mo
+            'msgbox "Footer month: " & MAXIS_footer_month & vbcr & "CM Plus one" & CM_plus_1_mo
             IF MAXIS_footer_month = CM_plus_1_mo THEN
                 EXIT DO
-            else 
+            else
                 Call write_value_and_transmit("Y", 16, 54)
                 EMReadScreen check_PNLP, 4, 2, 53
-                msgbox "check PNLP: " & check_PNLP
+                'msgbox "check PNLP: " & check_PNLP
                 IF check_PNLP = "PNLP" THEN
                     CALL write_value_and_transmit("ABPS", 20, 71)
-                    CALL write_value_and_transmit("0" & current_panel_number, 20, 79)
-                    MsgBox "AM I IN A NEW FOOTER MONTH?"
+					DO
+						EMReadScreen ABPS_parent_ID_check, 10, 13, 40
+						ABPS_parent_ID_CHECK = trim(ABPS_parent_ID_CHECK)
+						IF ABPS_parent_ID = ABPS_parent_ID_CHECK THEN
+							match_found = TRUE
+							EXIT DO
+						Else
+							match_found = FALSE
+						 	TRANSMIT
+						END IF
+					LOOP until match_found = TRUE
+                    'MsgBox "AM I IN A NEW FOOTER MONTH?"
                 END IF
 			END IF
 	    END IF
@@ -454,7 +485,7 @@ incomplete_form  = trim(incomplete_form)
 If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
 
 '-----------------------------------------------------------------------------------------------------Case note & email sending
-Call MAXIS_footer_month_confirmation    'Footer month & year could get wonky and not go into case note. This prevents that from happening. 
+Call MAXIS_footer_month_confirmation    'Footer month & year could get wonky and not go into case note. This prevents that from happening.
 start_a_blank_case_note
 
 IF good_cause_droplist = "Application Review-Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
