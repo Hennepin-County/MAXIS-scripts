@@ -257,6 +257,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 '----------------------------------------------------------------------------------------------------ABPS panel
 Call MAXIS_footer_month_confirmation
+'build in something to confimr claim date vs footer month'
 Call navigate_to_MAXIS_screen("STAT", "ABPS")
 'Initial dialog giving the user the option to select the type of good cause action
 DO
@@ -434,8 +435,29 @@ DO
 			END IF
 	    END IF
 	END IF
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-LOOP UNTIL are_we_passworded_out = false
+	'CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	'LOOP UNTIL are_we_passworded_out = false
+
+
+	If datediff("m", date, MAXIS_footer_month & "/01/" & MAXIS_footer_year) = 1 then in_future_month = True
+
+
+	If in_future_month = True then exit do
+
+	'Navigates to the current month + 1 footer month, then back into the ABPS panel
+	CALL write_value_and_transmit("BGTX", 20, 71)
+	CALL write_value_and_transmit("y", 16, 54)
+	EMReadScreen MAXIS_footer_month, 2, 20, 55
+	EMReadScreen MAXIS_footer_year, 2, 20, 58
+	EMWriteScreen "ABPS", 20, 71
+
+	If len(current_panel_number) = 1 then current_panel_number = "0" & current_panel_number
+	EMWriteScreen current_panel_number, 20, 79
+	transmit
+	PF9
+Loop until in_future_month = True
+
+
 
 If good_cause_droplist = "Change/exemption ending" then
 	Do
