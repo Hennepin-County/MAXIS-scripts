@@ -413,4 +413,4 @@ IF memo_started = TRUE THEN
 	PF4
 END IF
 PF3
-script_end_procedure("Success! MAXIS has been updated, and the Good Cause results case noted.")
+script_end_procedure_with_error_report("Success! MAXIS has been updated, and the Good Cause results case noted.")

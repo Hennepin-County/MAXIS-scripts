@@ -236,4 +236,4 @@ ObjStatsExcel.Cells(stats_excel_nomi_row, 4).Value = 1                      'Nee
 objStatsWorkbook.Save
 ObjStatsExcel.Quit
 
-script_end_procedure("Success! The NOMI has been sent.")
+script_end_procedure_with_error_report("Success! The NOMI has been sent.")
