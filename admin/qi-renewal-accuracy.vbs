@@ -68,7 +68,7 @@ END FUNCTION
 
 function ONLY_create_MAXIS_friendly_date(date_variable)
 '--- This function creates a MM DD YY date.
-'~~~~~ date_variable: the name of the variable to output 
+'~~~~~ date_variable: the name of the variable to output
 	var_month = datepart("m", date_variable)
 	If len(var_month) = 1 then var_month = "0" & var_month
 	var_day = datepart("d", date_variable)
@@ -91,11 +91,11 @@ Function updated_panel_member_array(stat_panel, output_variable)
     		IF updated_date = current_date THEN HH_member_array = HH_member_array & HH_member & " "
     	END IF
     Next
-    
+
     HH_member_array = trim(HH_member_array)
 	If HH_member_array <> "" then panels_updated = panels_updated & stat_panel & ","
     HH_member_array = Split(HH_member_array, " ") 	'declaring & splitting the array
-	
+
 	call autofill_editbox_from_MAXIS(HH_member_array, stat_panel, output_variable)
 End Function
 
@@ -130,8 +130,8 @@ Do
 		'If IsNumeric(member_number) = False or len(member_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
   		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in		
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 MAXIS_background_check
 MAXIS_footer_month_confirmation
@@ -150,7 +150,7 @@ Call updated_panel_member_array("DCEX", CC_deductions)
 Call updated_panel_member_array("SHEL", housing_costs)
 Call updated_panel_member_array("ACUT", housing_costs)
 
-'Special coding for HEST as this is a case based panel 
+'Special coding for HEST as this is a case based panel
 CALL navigate_to_MAXIS_screen("STAT", "HEST")
 EMReadScreen updated_date, 8, 21, 55
 updated_date = replace(updated_date, " ", "/")
@@ -159,9 +159,9 @@ IF updated_date = current_date THEN
 	STATS_COUNTER = STATS_counter + 1                      'adds one instance to the stats counter
 	call autofill_editbox_from_MAXIS("", "HEST", housing_costs)
 	panels_updated = panels_updated & "HEST,"
-End if 
+End if
 
-'Other changes 
+'Other changes
 Call updated_panel_member_array("DISA", DISA_PBEN)
 Call updated_panel_member_array("PBEN", DISA_PBEN)
 Call updated_panel_member_array("IMIG", imig_info)
@@ -203,14 +203,14 @@ Do
   		If worker_signature = "" then err_msg = err_msg & vbnewline & "* Enter your worker signature."
   		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in		
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 '----------------------------------------------------------------------------------------------------THE CASE NOTE
 renewal_period = MAXIS_footer_month & "/" & MAXIS_footer_year		'establishing the renewal period for the header of the case note
 
 panels_updated = trim(panels_updated)								'DO loop removes the excess spaces and commas at the end of the string
-Do 
+Do
 	If right(panels_updated, 1) = "," then panels_updated = left(panels_updated, len(panels_updated) - 1)
 	panels_updated = trim(panels_updated)
 Loop until right(panels_updated, 1) <> ","
@@ -218,17 +218,17 @@ Loop until right(panels_updated, 1) <> ","
 start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("*" & renewal_period & " recert accuracy update for: " & panels_updated & "*")
 Call write_variable_in_CASE_NOTE("This case info has been reviewed and updated by the Quality Improvement team. Do not update the following info unless a new change has been reported:")
-If earned_income <> "" or unearned_income <> "" then 
+If earned_income <> "" or unearned_income <> "" then
 	Call write_variable_in_CASE_NOTE("--Income--")
 	Call write_bullet_and_variable_in_CASE_NOTE("JOBS/BUSI/RBIC", earned_income)
 	Call write_bullet_and_variable_in_CASE_NOTE("UNEA", unearned_income)
-End if 
-If housing_costs <> "" or CC_deductions <> "" then 
+End if
+If housing_costs <> "" or CC_deductions <> "" then
 	Call write_variable_in_CASE_NOTE("--Deductions--")
 	Call write_bullet_and_variable_in_CASE_NOTE("COEX/DCEX", CC_deductions)
 	Call write_bullet_and_variable_in_CASE_NOTE("SHEL/HEST/ACUT", housing_costs)
-End if 
-If DISA_PBEN <> "" or imig_info <> "" or WREG_info <> "" then 
+End if
+If DISA_PBEN <> "" or imig_info <> "" or WREG_info <> "" then
 	Call write_variable_in_CASE_NOTE("--Other updates--")
 	Call write_bullet_and_variable_in_CASE_NOTE("DISA/PBEN", DISA_PBEN)
 	Call write_bullet_and_variable_in_CASE_NOTE("IMIG", imig_info)
@@ -238,4 +238,4 @@ Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure("")
+script_end_procedure_with_error_report("Success! Script run complete.")

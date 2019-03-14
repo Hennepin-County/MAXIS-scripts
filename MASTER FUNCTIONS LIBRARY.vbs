@@ -16,7 +16,7 @@ cancel = 0			'Value for cancel button in dialogs
 OK = -1			'Value for OK button in dialogs
 blank = ""
 
-Dim STATS_counter, STATS_manualtime, STATS_denomination
+Dim STATS_counter, STATS_manualtime, STATS_denomination, script_run_lowdown
 
 'Time arrays which can be used to fill an editbox with the convert_array_to_droplist_items function
 time_array_15_min = array("7:00 AM", "7:15 AM", "7:30 AM", "7:45 AM", "8:00 AM", "8:15 AM", "8:30 AM", "8:45 AM", "9:00 AM", "9:15 AM", "9:30 AM", "9:45 AM", "10:00 AM", "10:15 AM", "10:30 AM", "10:45 AM", "11:00 AM", "11:15 AM", "11:30 AM", "11:45 AM", "12:00 PM", "12:15 PM", "12:30 PM", "12:45 PM", "1:00 PM", "1:15 PM", "1:30 PM", "1:45 PM", "2:00 PM", "2:15 PM", "2:30 PM", "2:45 PM", "3:00 PM", "3:15 PM", "3:30 PM", "3:45 PM", "4:00 PM", "4:15 PM", "4:30 PM", "4:45 PM", "5:00 PM", "5:15 PM", "5:30 PM", "5:45 PM", "6:00 PM")
@@ -4795,6 +4795,136 @@ function script_end_procedure(closing_message)
 end function
 
 
+function script_end_procedure_with_error_report(closing_message)
+'--- This function is how all user stats are collected when a script ends.
+'~~~~~ closing_message: message to user in a MsgBox that appears once the script is complete. Example: "Success! Your actions are complete."
+'===== Keywords: MAXIS, MMIS, PRISM, end, script, statistics, stopscript
+	stop_time = timer
+    send_error_message = ""
+	If closing_message <> "" AND left(closing_message, 3) <> "~PT" then        '"~PT" forces the message to "pass through", i.e. not create a pop-up, but to continue without further diversion to the database, where it will write a record with the message
+        send_error_message = MsgBox(closing_message & vbNewLine & vbNewLine & "Do you need to send an error report about this script run?", vbSystemModal + vbDefaultButton2 + vbYesNo, "Script Run Completed")
+    End If
+    script_run_time = stop_time - start_time
+	If is_county_collecting_stats  = True then
+		'Getting user name
+		Set objNet = CreateObject("WScript.NetWork")
+		user_ID = objNet.UserName
+
+		'Setting constants
+		Const adOpenStatic = 3
+		Const adLockOptimistic = 3
+
+        'Determining if the script was successful
+        If closing_message = "" or left(ucase(closing_message), 7) = "SUCCESS" THEN
+            SCRIPT_success = -1
+        else
+            SCRIPT_success = 0
+        end if
+
+		'Determines if the value of the MAXIS case number - BULK and UTILITIES scripts will not have case number informaiton input into the database
+		IF left(name_of_script, 4) = "BULK" or left(name_of_script, 4) = "UTIL" then
+			MAXIS_CASE_NUMBER = ""
+		End if
+
+		'Creating objects for Access
+		Set objConnection = CreateObject("ADODB.Connection")
+		Set objRecordSet = CreateObject("ADODB.Recordset")
+
+		'Fixing a bug when the script_end_procedure has an apostrophe (this interferes with Access)
+		closing_message = replace(closing_message, "'", "")
+
+		'Opening DB
+		IF using_SQL_database = TRUE then
+    		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" & stats_database_path & ""
+		ELSE
+			objConnection.Open "Provider = Microsoft.ACE.OLEDB.12.0; Data Source = " & "" & stats_database_path & ""
+		END IF
+
+        'Adds some data for users of the old database, but adds lots more data for users of the new.
+        If STATS_enhanced_db = false or STATS_enhanced_db = "" then     'For users of the old db
+    		'Opening usage_log and adding a record
+    		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
+    		"VALUES ('" & user_ID & "', '" & date & "', '" & time & "', '" & name_of_script & "', " & script_run_time & ", '" & closing_message & "')", objConnection, adOpenStatic, adLockOptimistic
+		'collecting case numbers counties
+		Elseif collect_MAXIS_case_number = true then
+			objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX, STATS_COUNTER, STATS_MANUALTIME, STATS_DENOMINATION, WORKER_COUNTY_CODE, SCRIPT_SUCCESS, CASE_NUMBER)" &  _
+			"VALUES ('" & user_ID & "', '" & date & "', '" & time & "', '" & name_of_script & "', " & abs(script_run_time) & ", '" & closing_message & "', " & abs(STATS_counter) & ", " & abs(STATS_manualtime) & ", '" & STATS_denomination & "', '" & worker_county_code & "', " & SCRIPT_success & ", '" & MAXIS_CASE_NUMBER & "')", objConnection, adOpenStatic, adLockOptimistic
+		 'for users of the new db
+		Else
+            objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX, STATS_COUNTER, STATS_MANUALTIME, STATS_DENOMINATION, WORKER_COUNTY_CODE, SCRIPT_SUCCESS)" &  _
+            "VALUES ('" & user_ID & "', '" & date & "', '" & time & "', '" & name_of_script & "', " & abs(script_run_time) & ", '" & closing_message & "', " & abs(STATS_counter) & ", " & abs(STATS_manualtime) & ", '" & STATS_denomination & "', '" & worker_county_code & "', " & SCRIPT_success & ")", objConnection, adOpenStatic, adLockOptimistic
+        End if
+
+		'Closing the connection
+		objConnection.Close
+	End if
+
+    If send_error_message = vbYes Then
+        'dialog here to gather more detail
+        BeginDialog Dialog1, 0, 0, 401, 175, "Report Error Detail"
+          Text 60, 35, 55, 10, MAXIS_case_number
+          ComboBox 220, 30, 175, 45, ""+chr(9)+"BUG - somethng happened that was wrong"+chr(9)+"ENHANCEMENT - somthing could be done better"+chr(9)+"TYPO - gramatical/spelling type errors", error_type
+          EditBox 65, 50, 330, 15, error_detail
+          CheckBox 20, 100, 65, 10, "CASE/NOTE", case_note_checkbox
+          CheckBox 95, 100, 65, 10, "Update in STAT", stat_update_checkbox
+          CheckBox 170, 100, 75, 10, "Problems with Dates", date_checkbox
+          CheckBox 265, 100, 65, 10, "Math is incorrect", math_checkbox
+          CheckBox 20, 115, 65, 10, "TIKL is incorrect", tikl_checkbox
+          CheckBox 95, 115, 65, 10, "MEMO or WCOM", memo_wcom_checkbox
+          CheckBox 170, 115, 75, 10, "Created Document", document_checkbox
+          CheckBox 265, 115, 115, 10, "Missing a place for Information", missing_spot_checkbox
+          EditBox 60, 140, 165, 15, worker_signature
+          ButtonGroup ButtonPressed
+            OkButton 290, 140, 50, 15
+            CancelButton 345, 140, 50, 15
+          Text 10, 10, 300, 10, "Information is needed about the error for our scriptwriters to review and resolve the issue. "
+          Text 5, 35, 50, 10, "Case Number:"
+          Text 125, 35, 95, 10, "What type of error occured?"
+          Text 5, 55, 60, 10, "Explain in detail:"
+          GroupBox 10, 75, 380, 60, "Common areas of issue"
+          Text 20, 85, 200, 10, "Check any that were impacted by the error you are reporting."
+          Text 10, 145, 50, 10, "Worker Name:"
+          Text 25, 160, 335, 10, "*** Remember to leave the case as is if possible. We can resolve error better when in a live case. ***"
+        EndDialog
+
+        Dialog Dialog1
+
+        'sent email here
+        If ButtonPressed = -1 Then
+            bzt_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
+            subject_of_email = "Script Error -- " & name_of_script & " (Automated Report)"
+
+            full_text = "Error occured on " & date & " at " & time
+            full_text = full_text & vbCr & "Error type - " & error_type
+            full_text = full_text & vbCr & "Script name - " & name_of_script & " was run on Case #" & MAXIS_case_number & " with a runtime of " & script_run_time & " seconds."
+            full_text = full_text & vbCr & "Information: " & error_detail
+            If case_note_checkbox = checked OR stat_update_checkbox = checked OR date_checkbox = checked OR math_checkbox = checked OR tikl_checkbox = checked OR memo_wcom_checkbox = checked OR document_checkbox = checked OR missing_spot_checkbox = checked Then full_text = full_text & vbCr & vbCr & "Script has issues/concerns in the following areas:"
+
+            If case_note_checkbox = checked Then full_text = full_text & vbCr & " - CASE/NOTE"
+            If stat_update_checkbox = checked Then full_text = full_text & vbCr & " - Update in STAT"
+            If date_checkbox = checked Then full_text = full_text & vbCr & " - Dates are incorrect"
+            If math_checkbox = checked Then full_text = full_text & vbCr & " - Math is incorrect"
+            If tikl_checkbox = checked Then full_text = full_text & vbCr & " - TIKL"
+            If memo_wcom_checkbox = checked Then full_text = full_text & vbCr & " - NOTICES (WCOM/MEMO)"
+            If document_checkbox = checked Then full_text = full_text & vbCr & " - The Excel or Word Document"
+            If missing_spot_checkbox = checked Then full_text = full_text & vbCr & " - There is no space to enter particular information"
+
+            full_text = full_text & vbCr & "Closing message: " & closing_message
+            full_text = full_text & vbCr & vbCr & "Sent by: " & worker_signature
+
+            If script_run_lowdown <> "" Then full_text = full_text & vbCr & vbCr & "All Script Run Details:" & vbCr & script_run_lowdown
+
+            Call create_outlook_email(bzt_email, "", subject_of_email, full_text, "", true)
+
+            MsgBox "Error Report completed!" & vbNewLine & vbNewLine & "Thank you for working with us for Continuous Improvement."
+        Else
+            MsgBox "Your error report has been cancelled and has NOT been sent to the BlueZone Script Team"
+        End If
+    End If
+	If disable_StopScript = FALSE or disable_StopScript = "" then stopscript
+end function
+
+
 function select_cso_caseload(ButtonPressed, cso_id, cso_name)
 '--- This function is helpful for bulk scripts. This script is used to select the caseload by the 8 digit worker ID code entered in the dialog.
 '~~~~~ ButtonPressed: should be 'ButtonPressed
@@ -5021,14 +5151,18 @@ function write_bullet_and_variable_in_CASE_NOTE(bullet, variable)
 		noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
 		'The following figures out if we need a new page, or if we need a new case note entirely as well.
 		Do
-			EMReadScreen character_test, 1, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
-			If character_test <> " " or noting_row >= 18 then
+			EMReadScreen character_test, 40, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+            character_test = trim(character_test)
+			If character_test <> "" or noting_row >= 18 then
 				noting_row = noting_row + 1
 
 				'If we get to row 18 (which can't be read here), it will go to the next panel (PF8).
 				If noting_row >= 18 then
 					EMSendKey "<PF8>"
 					EMWaitReady 0, 0
+
+                    EMReadScreen check_we_went_to_next_page, 75, 24, 2
+                    check_we_went_to_next_page = trim(check_we_went_to_next_page)
 
 					'Checks to see if we've reached the end of available case notes. If we are, it will get us to a new case note.
 					EMReadScreen end_of_case_note_check, 1, 24, 2
@@ -5040,12 +5174,19 @@ function write_bullet_and_variable_in_CASE_NOTE(bullet, variable)
 						EMWriteScreen "~~~continued from previous note~~~", 4, 	3		'enters a header
 						EMSetCursor 5, 3												'Sets cursor in a good place to start noting.
 						noting_row = 5													'Resets this variable to work in the new locale
-					Else
+                    ElseIf check_we_went_to_next_page = "PLEASE PRESS PF3 TO EXIT OR FILL PAGE BEFORE SCROLLING TO NEXT PAGE" Then
+                        noting_row = 4
+                        Do
+                            EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+                            character_test = trim(character_test)
+                            If character_test <> "" then noting_row = noting_row + 1
+                        Loop until character_test = ""
+                    Else
 						noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
-					End if
+                    End If
 				End if
 			End if
-		Loop until character_test = " "
+		Loop until character_test = ""
 
 		'Looks at the length of the bullet. This determines the indent for the rest of the info. Going with a maximum indent of 18.
 		If len(bullet) >= 14 then
@@ -5075,19 +5216,29 @@ function write_bullet_and_variable_in_CASE_NOTE(bullet, variable)
 				EMSendKey "<PF8>"
 				EMWaitReady 0, 0
 
-				'Checks to see if we've reached the end of available case notes. If we are, it will get us to a new case note.
-				EMReadScreen end_of_case_note_check, 1, 24, 2
-				If end_of_case_note_check = "A" then
-					EMSendKey "<PF3>"												'PF3s
-					EMWaitReady 0, 0
-					EMSendKey "<PF9>"												'PF9s (opens new note)
-					EMWaitReady 0, 0
-					EMWriteScreen "~~~continued from previous note~~~", 4, 	3		'enters a header
-					EMSetCursor 5, 3												'Sets cursor in a good place to start noting.
-					noting_row = 5													'Resets this variable to work in the new locale
-				Else
-					noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
-				End if
+                EMReadScreen check_we_went_to_next_page, 75, 24, 2
+                check_we_went_to_next_page = trim(check_we_went_to_next_page)
+
+                'Checks to see if we've reached the end of available case notes. If we are, it will get us to a new case note.
+                EMReadScreen end_of_case_note_check, 1, 24, 2
+                If end_of_case_note_check = "A" then
+                    EMSendKey "<PF3>"												'PF3s
+                    EMWaitReady 0, 0
+                    EMSendKey "<PF9>"												'PF9s (opens new note)
+                    EMWaitReady 0, 0
+                    EMWriteScreen "~~~continued from previous note~~~", 4, 	3		'enters a header
+                    EMSetCursor 5, 3												'Sets cursor in a good place to start noting.
+                    noting_row = 5													'Resets this variable to work in the new locale
+                ElseIf check_we_went_to_next_page = "PLEASE PRESS PF3 TO EXIT OR FILL PAGE BEFORE SCROLLING TO NEXT PAGE" Then
+                    noting_row = 4
+                    Do
+                        EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+                        character_test = trim(character_test)
+                        If character_test <> "" then noting_row = noting_row + 1
+                    Loop until character_test = ""
+                Else
+                    noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
+                End If
 			End if
 
 			'Adds spaces (indent) if we're on col 3 since it's the beginning of a line. We also have to increase the noting col in these instances (so it doesn't overwrite the indent).
@@ -5505,22 +5656,28 @@ function write_variable_in_CASE_NOTE(variable)
 					EMSendKey "<PF8>"
 					EMWaitReady 0, 0
 
-                    EMReadScreen page_move, 9, 24, 30
-                    If page_move <> "FILL PAGE" Then
+                    EMReadScreen check_we_went_to_next_page, 75, 24, 2
+                    check_we_went_to_next_page = trim(check_we_went_to_next_page)
 
-    					'Checks to see if we've reached the end of available case notes. If we are, it will get us to a new case note.
-    					EMReadScreen end_of_case_note_check, 1, 24, 2
-    					If end_of_case_note_check = "A" then
-    						EMSendKey "<PF3>"												'PF3s
-    						EMWaitReady 0, 0
-    						EMSendKey "<PF9>"												'PF9s (opens new note)
-    						EMWaitReady 0, 0
-    						EMWriteScreen "~~~continued from previous note~~~", 4, 	3		'enters a header
-    						EMSetCursor 5, 3												'Sets cursor in a good place to start noting.
-    						noting_row = 5													'Resets this variable to work in the new locale
-    					Else
-    						noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
-    					End if
+					'Checks to see if we've reached the end of available case notes. If we are, it will get us to a new case note.
+					EMReadScreen end_of_case_note_check, 1, 24, 2
+					If end_of_case_note_check = "A" then
+						EMSendKey "<PF3>"												'PF3s
+						EMWaitReady 0, 0
+						EMSendKey "<PF9>"												'PF9s (opens new note)
+						EMWaitReady 0, 0
+						EMWriteScreen "~~~continued from previous note~~~", 4, 	3		'enters a header
+						EMSetCursor 5, 3												'Sets cursor in a good place to start noting.
+						noting_row = 5													'Resets this variable to work in the new locale
+                    ElseIf check_we_went_to_next_page = "PLEASE PRESS PF3 TO EXIT OR FILL PAGE BEFORE SCROLLING TO NEXT PAGE" Then
+                        noting_row = 4
+                        Do
+                            EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+                            character_test = trim(character_test)
+                            If character_test <> "" then noting_row = noting_row + 1
+                        Loop until character_test = ""
+                    Else
+						noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
                     End If
                 Else
                     noting_row = noting_row + 1
@@ -5544,6 +5701,9 @@ function write_variable_in_CASE_NOTE(variable)
 				EMSendKey "<PF8>"
 				EMWaitReady 0, 0
 
+                EMReadScreen check_we_went_to_next_page, 75, 24, 2
+                check_we_went_to_next_page = trim(check_we_went_to_next_page)
+
 				'Checks to see if we've reached the end of available case notes. If we are, it will get us to a new case note.
 				EMReadScreen end_of_case_note_check, 1, 24, 2
 				If end_of_case_note_check = "A" then
@@ -5554,6 +5714,13 @@ function write_variable_in_CASE_NOTE(variable)
 					EMWriteScreen "~~~continued from previous note~~~", 4, 	3		'enters a header
 					EMSetCursor 5, 3												'Sets cursor in a good place to start noting.
 					noting_row = 5													'Resets this variable to work in the new locale
+                ElseIf check_we_went_to_next_page = "PLEASE PRESS PF3 TO EXIT OR FILL PAGE BEFORE SCROLLING TO NEXT PAGE" Then
+                    noting_row = 4
+                    Do
+                        EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+                        character_test = trim(character_test)
+                        If character_test <> "" then noting_row = noting_row + 1
+                    Loop until character_test = ""
 				Else
 					noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
 				End if

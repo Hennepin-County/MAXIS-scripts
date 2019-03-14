@@ -355,4 +355,4 @@ If note_to_make = "Approval Done" Then
 
 End If
 
-script_end_procedure("ALl done")
+script_end_procedure_with_error_report("ALl done")

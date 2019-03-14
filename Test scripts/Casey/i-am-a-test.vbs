@@ -172,6 +172,9 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 
 Call start_a_blank_CASE_NOTE
 notes_variable = "03/19 for 01 is BANKED MONTH - Banked Month: 3.; 04/19 for 01 is BANKED MONTH - Banked Month: 4.;"
+bullet_variable = "This is where the bullet would be all the things."
+time_variable = "Now is the time and this is the place."
+order_variable = "Everything in it's place."
 
 Call write_variable_in_CASE_NOTE("*** SNAP approved starting in 03/19 ***")
 Call write_variable_in_CASE_NOTE("* SNAP approved for 03/19")
@@ -185,6 +188,16 @@ Call write_variable_in_CASE_NOTE("    Income: Earned: $522.00 Unearned: $0.00")
 Call write_variable_in_CASE_NOTE("    Shelter Costs: $0.00")
 Call write_variable_in_CASE_NOTE("    SNAP BENEFTIT: $115.00 Reporting Status: NON-HRF")
 Call write_bullet_and_variable_in_CASE_NOTE("Notes", notes_variable)
+Call write_variable_in_CASE_NOTE("This is a thing")
+Call write_variable_in_CASE_NOTE("   this is another thing")
+Call write_variable_in_CASE_NOTE("How now brown cow")
+Call write_variable_in_CASE_NOTE("the thing and thing and stuff")
+Call write_variable_in_CASE_NOTE("all the writing")
+Call write_variable_in_CASE_NOTE("blah blah blah")
+Call write_bullet_and_variable_in_CASE_NOTE("BULLET", bullet_variable)
+Call write_bullet_and_variable_in_CASE_NOTE("Time", time_variable)
+Call write_bullet_and_variable_in_CASE_NOTE("Order", order_variable)
+
 Call write_variable_in_CASE_NOTE("H.Lamb/QI")
 
 Call script_end_procedure_with_error_report("The End")

@@ -326,6 +326,13 @@ script_array_BZ_list(script_num).file_name			 = "bulk-recertifications.vbs"					
 script_array_BZ_list(script_num).description		 = "BULK script to send notices for cases at recertification that require an interview for the On Demand Waiver."
 
 script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array_BZ_list(script_num)		 'Resets the array to add one more element to it
+Set script_array_BZ_list(script_num) = new script	 'Set this array element to be a new script. Script details below...
+script_array_BZ_list(script_num).script_name		 = " Resolve HC EOMC in MMIS "													'Script name
+script_array_BZ_list(script_num).file_name			 = "resolve-hc-eomc-in-mmis.vbs"												'Script URL
+script_array_BZ_list(script_num).description		 = "BULK script that checks MMIS for all cases on EOMC for HC to ensure MMIS is set to close."
+
+script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_BZ_list(script_num).script_name		= "Send CBO Manual Referrals"										'Script name

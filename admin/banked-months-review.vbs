@@ -3888,4 +3888,4 @@ End If
 
 'NEED another spreadsheet for all cases that WERE banked months cases but are no longer - so that we can save the case information
 
-script_end_procedure(end_msg)
+script_end_procedure_with_error_report(end_msg)
