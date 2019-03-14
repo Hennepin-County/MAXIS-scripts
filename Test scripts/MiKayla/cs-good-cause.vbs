@@ -255,6 +255,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 '----------------------------------------------------------------------------------------------------ABPS panel
 MAXIS_background_check
 Call MAXIS_footer_month_confirmation
+'build in something to confimr claim date vs footer month'
 Call navigate_to_MAXIS_screen("STAT", "ABPS")
 'Initial dialog giving the user the option to select the type of good cause action
 
@@ -420,7 +421,6 @@ Do
 	END IF
 LOOP
 
-'?? What's the deal here?
 If good_cause_droplist = "Change/exemption ending" then
 	Do
 		Do
