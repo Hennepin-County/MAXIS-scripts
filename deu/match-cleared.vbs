@@ -535,11 +535,11 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	END IF
 	TRANSMIT 'IULB
 	'----------------------------------------------------------------------------------------writing the note on IULB
-	err_msg = ""
-	EMReadScreen err_msg, 50, 24, 2
-	err_msg = trim(err_msg)
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	If err_msg = "ACTION CODE" THEN script_end_procedure(err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
+	IULB_error_msg = ""
+	EMReadScreen IULB_error_msg, 50, 24, 2
+	IULB_error_msg = trim(IULB_error_msg)
+	IF IULB_error_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & IULB_error_msg & vbNewLine
+	If IULB_error_msg = "ACTION CODE" THEN script_end_procedure(IULB_error_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
 	IF resolution_status = "BC - Case Closed" 	THEN EMWriteScreen "Case closed. " & other_notes, 8, 6   							'BC
 	IF resolution_status = "BE - No Change" THEN EMWriteScreen "No change. " & other_notes, 8, 6 									'BE
 	IF resolution_status = "BE - Child" THEN EMWriteScreen "No change, minor child income excluded. " & other_notes, 8, 6 			'BE - child
