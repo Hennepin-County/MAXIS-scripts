@@ -215,6 +215,7 @@ EndDialog
 'Showing the dialog
 Do
     Dialog EOMC_dialog
+    If ButtonPressed = 0 then script_end_procedure("~PT User pressed Cancel.")
 
     call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false

@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/13/2019", "Two scripts have been removed. Explanation of Income Budgeted and EVF Received are no longer available. Use Documents Received in place of EVF Received. ACTIONS - Earned Income whould be used in place of Explanation of Income Budgeted.", "Casey Love, Hennepin County")
 call changelog_update("07/25/2018", "Removed Good Cause Scripts, now located in ADMIN.", "MiKayla Handley, Hennepin County")
 call changelog_update("10/20/2017", "Added the following NOTES scripts: ABAWD Tracking record, Application Check, GA Basis of Eligibility, QI Renewal Accuracy, and Vendor. Changed LEP titled scripts (EMA, Sponsor Income and SAVE) to IMIG titled scripts.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/19/2017", "Added ASSET REDUCTION case note script.", "Ilse Ferris, Hennepin County")
@@ -286,13 +287,6 @@ script_array_D_to_F(script_num).description 			= "Template for case noting an em
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
 Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_D_to_F(script_num).script_name 			= "Employment Verif Recv'd"
-script_array_D_to_F(script_num).file_name				= "evf-received.vbs"
-script_array_D_to_F(script_num).description 			= "Template for noting information about an employment verification received by the agency."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
-Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_D_to_F(script_num).script_name 			= "ES Referral"
 script_array_D_to_F(script_num).file_name				= "es-referral.vbs"
 script_array_D_to_F(script_num).description 			= "Template for sending an MFIP or DWP referral to employment services."
@@ -310,13 +304,6 @@ Set script_array_D_to_F(script_num) = new script		'Set this array element to be 
 script_array_D_to_F(script_num).script_name 			= "Expedited screening"
 script_array_D_to_F(script_num).file_name				= "expedited-screening.vbs"
 script_array_D_to_F(script_num).description 			= "Template for screening a client for expedited status."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
-Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_D_to_F(script_num).script_name 			= "Explanation of Income Budgeted"
-script_array_D_to_F(script_num).file_name				= "explanation-of-income-budgeted.vbs"
-script_array_D_to_F(script_num).description 			= "Template for explaining the income budgeted for a case."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
@@ -407,6 +394,13 @@ script_array_G_to_L(script_num).description				= "Template for case noting a cli
 '-------------------------------------------------------------------------------------------------------------------------M through Q
 'Resetting the variable
 script_num = 0											'establishing count as 0
+ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
+Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_M_to_Q(script_num).script_name 			= "MAXIS to METS Migration"
+script_array_M_to_Q(script_num).file_name				= "maxis-to-mets-migration.vbs"
+script_array_M_to_Q(script_num).description				= "Case note and SPEC/MEMO for DHS-identified MAXIS to METS Migration cases."
+
+script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
 Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_M_to_Q(script_num).script_name 			= "Medical Opinion Form Received"

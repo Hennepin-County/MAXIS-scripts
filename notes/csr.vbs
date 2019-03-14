@@ -189,7 +189,7 @@ BeginDialog income_notes_dialog, 0, 0, 351, 215, "Explanation of Income"
   CheckBox 10, 30, 325, 10, "JOBS - Income detail on previous note(s)", see_other_note_checkbox
   CheckBox 10, 45, 325, 10, "JOBS - Income has not been verified and detail will be entered when received.", not_verified_checkbox
   CheckBox 10, 60, 325, 10, "JOBS - Client has confirmed that JOBS income is expected to continue at this rate and hours.", jobs_anticipated_checkbox
-  CheckBox 10, 85, 330, 10, "JOBS - This is a new job and actual check stubs are not available, advised client that if actual pay", new_jobs_checkbox
+  CheckBox 10, 75, 330, 10, "JOBS - This is a new job and actual check stubs are not available, advised client that if actual pay", new_jobs_checkbox
   CheckBox 10, 100, 325, 10, "BUSI - Client has confirmed that BUSI income is expected to continue at this rate and hours.", busi_anticipated_checkbox
   CheckBox 10, 115, 250, 10, "BUSI - Client has agreed to the self-employment budgeting method used.", busi_method_agree_checkbox
   CheckBox 10, 130, 325, 10, "RBIC - Client has confirmed that RBIC income is expected to continue at this rate and hours.", rbic_anticipated_checkbox
@@ -201,7 +201,7 @@ BeginDialog income_notes_dialog, 0, 0, 351, 215, "Explanation of Income"
     PushButton 240, 195, 50, 15, "Insert", add_to_notes_button
     CancelButton 295, 195, 50, 15
   Text 5, 10, 180, 10, "Check as many explanations of income that apply to this case."
-  Text 45, 70, 315, 10, "varies significantly, client should provide proof of this difference to have benefits adjusted."
+  Text 45, 85, 315, 10, "varies significantly, client should provide proof of this difference to have benefits adjusted."
 EndDialog
 
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

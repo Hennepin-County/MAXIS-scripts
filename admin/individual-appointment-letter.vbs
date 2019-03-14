@@ -183,7 +183,7 @@ Call write_variable_in_CASE_NOTE("A link to the domestic violence brochure sent 
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature & " via bulk on demand waiver script")
 PF3
-script_end_procedure("Success! The Appointment Letter has been sent.")
+script_end_procedure_with_error_report("Success! The Appointment Letter has been sent.")
 'IF action_completed = False then 'build handling'
 '    script_end_procedure ("Warning! Appointment letter was not sent. Check the case manually.")
 'Else

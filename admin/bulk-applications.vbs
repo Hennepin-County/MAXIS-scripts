@@ -2198,4 +2198,4 @@ Next
 objStatsWorkbook.Save
 ObjStatsExcel.Quit
 
-script_end_procedure("It worked!")  'WE'RE DONE!
+script_end_procedure_with_error_report("It worked!")  'WE'RE DONE!
