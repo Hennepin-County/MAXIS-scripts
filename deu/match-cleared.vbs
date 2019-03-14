@@ -262,21 +262,33 @@ IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 '----------------------------------------------------------------------------------------------------Employer info & difference notice info
 IF match_type = "UBEN" THEN income_source = "Unemployment"
 IF match_type = "UNVI" THEN income_source = "NON-WAGE"
-IF match_type = "WAGE" or match_type = "BEER" THEN
-	EMReadScreen income_source, 75, 8, 28 'was 37' should be to the right of emplyer and the left of amount
+IF match_type = "WAGE" THEN
+	EMReadScreen income_source, 50, 8, 37 'was 37' should be to the right of emplyer and the left of amount
     income_source = trim(income_source)
     length = len(income_source)		'establishing the length of the variable
     'should be to the right of employer and the left of amount '
     IF instr(income_source, " AMOUNT: $") THEN
-        position = InStr(income_source, " AMOUNT: $")    		      'sets the position at the deliminator
-        income_source = Left(income_source, position)  'establishes employer as being before the deliminator
-    Elseif instr(income_source, " AMT: $") THEN 					  'establishing the length of the variable
+	    position = InStr(income_source, " AMOUNT: $")    		      'sets the position at the deliminator
+	    income_source = Left(income_source, position)  'establishes employer as being before the deliminator
+	Elseif instr(income_source, " AMT: $") THEN 					  'establishing the length of the variable
         position = InStr(income_source, " AMT: $")    		      'sets the position at the deliminator
         income_source = Left(income_source, position)  'establishes employer as being before the deliminator
-ELSE
-        income_source = income_source	'catch all variable
 	END IF
 END IF
+IF match_type = "BEER" THEN
+	EMReadScreen income_source, 50, 8, 28 'was 37' should be to the right of emplyer and the left of amount
+	income_source = trim(income_source)
+	length = len(income_source)		'establishing the length of the variable
+	'should be to the right of employer and the left of amount '
+    IF instr(income_source, " AMOUNT: $") THEN
+	    position = InStr(income_source, " AMOUNT: $")    		      'sets the position at the deliminator
+	    income_source = Left(income_source, position)  'establishes employer as being before the deliminator
+	Elseif instr(income_source, " AMT: $") THEN 					  'establishing the length of the variable
+        position = InStr(income_source, " AMT: $")    		      'sets the position at the deliminator
+        income_source = Left(income_source, position)  'establishes employer as being before the deliminator
+	END IF
+END IF
+
 
 '----------------------------------------------------------------------------------------------------notice sent
 EMReadScreen notice_sent, 1, 14, 37

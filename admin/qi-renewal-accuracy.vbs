@@ -118,41 +118,20 @@ MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
 panels_updated = ""
 
-'Grabbing user ID to validate user of script. Only some users are allowed to use this script.
-Set objNet = CreateObject("WScript.NetWork") 
-user_ID_for_validation = ucase(objNet.UserName)
-
-'Validating user ID
-If user_ID_for_validation = "ILFE001" OR _		
-	user_ID_for_validation = "WF7638" OR _		
-	user_ID_for_validation = "WF1875" OR _ 		
-	user_ID_for_validation = "WFQ898" OR _ 		
-	user_ID_for_validation = "WFP803" OR _		
-	user_ID_for_validation = "WFP106" OR _		
-	user_ID_for_validation = "WFK093" OR _ 		
-	user_ID_for_validation = "WF1373" OR _ 		
-	user_ID_for_validation = "WFU161" OR _ 		
-	user_ID_for_validation = "WFS395" OR _ 		
-	user_ID_for_validation = "WFU851" OR _ 		
-	user_ID_for_validation = "WFX901" OR _ 		
-	user_ID_for_validation = "WFI021" then 		
-    'the dialog
-    Do
-    	Do
-      		err_msg = ""
-      		Dialog case_number_dialog
-      		If ButtonPressed = 0 then stopscript
-      		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-      		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
-      		If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
-    		'If IsNumeric(member_number) = False or len(member_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
-      		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-    	LOOP UNTIL err_msg = ""
-    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-    Loop until are_we_passworded_out = false					'loops until user passwords back in		
-Else 
-	script_end_procedure("This script is for Quality Improvement staff only. You do not have access to use this script.")
-End if 
+'the dialog
+Do
+	Do
+  		err_msg = ""
+  		Dialog case_number_dialog
+  		If ButtonPressed = 0 then stopscript
+  		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+  		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
+  		If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
+		'If IsNumeric(member_number) = False or len(member_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
+  		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP UNTIL err_msg = ""
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in		
 
 MAXIS_background_check
 MAXIS_footer_month_confirmation
