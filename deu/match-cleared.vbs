@@ -350,12 +350,12 @@ EndDialog
 
 IF notice_sent = "N" THEN
 	DO
-    err_msg = ""
-    Dialog notice_action_dialog
-    IF ButtonPressed = 0 THEN StopScript
-    IF send_notice_checkbox = UNCHECKED AND clear_action_checkbox = UNCHECKED THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
-    IF send_notice_checkbox = CHECKED AND clear_action_checkbox = CHECKED THEN err_msg = err_msg & vbNewLine & "* Please select only one answer to continue."
-    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	err_msg = ""
+    	Dialog notice_action_dialog
+    	IF ButtonPressed = 0 THEN StopScript
+    	IF send_notice_checkbox = UNCHECKED AND clear_action_checkbox = UNCHECKED THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
+    	IF send_notice_checkbox = CHECKED AND clear_action_checkbox = CHECKED THEN err_msg = err_msg & vbNewLine & "* Please select only one answer to continue."
+    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 END IF
 CALL check_for_password_without_transmit(are_we_passworded_out)
@@ -410,7 +410,7 @@ IF send_notice_checkbox = CHECKED THEN
     PF3
 
     'The case note-------------------------------------------------------------------------------------------------
-    start_a_blank_CASE_NOTE
+    start_a_blank_case_note
     Call write_variable_in_case_note("-----Claim Referral Tracking - Initial Claim Referral-----")
     Call write_bullet_and_variable_in_case_note("Action Date", action_date)
     Call write_bullet_and_variable_in_case_note("Active Program(s)", programs)
@@ -441,20 +441,20 @@ IF send_notice_checkbox = CHECKED THEN
 
 	'---------------------------------------------------------------------DIFF NOTC case note
   	start_a_blank_case_note
-	    IF match_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH(" & first_name & ") DIFF NOTICE SENT-----")
-	    IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
-	    IF match_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
-		CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", client_name)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
-  	    CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
-	    CALL write_variable_in_CASE_NOTE ("----- ----- -----")
-  	    CALL write_bullet_and_variable_in_CASE_NOTE("Verification Requested", pending_verifs)
-  	    CALL write_bullet_and_variable_in_CASE_NOTE("Verification Due", Due_date)
-	    CALL write_variable_in_CASE_NOTE ("* Client must be provided 10 days to return requested verifications *")
-  	    CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-  	    CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
-  	    CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
+	IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH(" & first_name & ") DIFF NOTICE SENT-----")
+	IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
+	IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
+	CALL write_bullet_and_variable_in_case_note("Client Name", client_name)
+	CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
+  	CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
+	CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
+	CALL write_variable_in_case_note ("----- ----- -----")
+  	CALL write_bullet_and_variable_in_case_note("Verification Requested", pending_verifs)
+  	CALL write_bullet_and_variable_in_case_note("Verification Due", Due_date)
+	CALL write_variable_in_case_note ("* Client must be provided 10 days to return requested verifications *")
+  	CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
+  	CALL write_variable_in_case_note("----- ----- ----- ----- ----- ----- -----")
+  	CALL write_variable_in_case_note ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 END IF
 
 IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
@@ -535,7 +535,9 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	END IF
 	TRANSMIT 'IULB
 	'----------------------------------------------------------------------------------------writing the note on IULB
+	err_msg = ""
 	EMReadScreen err_msg, 50, 24, 2
+	err_msg = trim(err_msg)
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	If err_msg = "ACTION CODE" THEN script_end_procedure(err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
 	IF resolution_status = "BC - Case Closed" 	THEN EMWriteScreen "Case closed. " & other_notes, 8, 6   							'BC
@@ -572,50 +574,50 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 	PF3 'back to the DAIL'
    '----------------------------------------------------------------the case match CLEARED note
-	start_a_blank_CASE_NOTE
+	start_a_blank_case_note
 	IF resolution_status <> "NC - Non Cooperation" THEN
-		IF match_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") CLEARED " & rez_status & "-----")
-		IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & match_type & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
-		IF match_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH (" & match_type & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
-		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
-		CALL write_variable_in_CASE_NOTE ("----- ----- -----")
-		CALL write_bullet_and_variable_in_CASE_NOTE("Date verification received in ECF", date_received)
-		IF resolution_status = "BC - Case Closed" THEN CALL write_variable_in_CASE_NOTE("* Case closed. ")
+		IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") CLEARED " & rez_status & "-----")
+		IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH (" & match_type & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
+		IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH (" & match_type & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
+		CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
+		CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
+		CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
+		CALL write_variable_in_case_note ("----- ----- -----")
+		CALL write_bullet_and_variable_in_case_note("Date verification received in ECF", date_received)
+		IF resolution_status = "BC - Case Closed" THEN CALL write_variable_in_case_note("* Case closed. ")
 		IF resolution_status = "BE - Child" THEN
-			CALL write_variable_in_CASE_NOTE("* Income is excluded for minor child in school.")
+			CALL write_variable_in_case_note("* Income is excluded for minor child in school.")
 			CALL write_bullet_and_variable_in_case_note("Expected graduation date", exp_grad_date)
 		END IF
-		IF resolution_status = "BE - OP Entered" THEN CALL write_variable_in_CASE_NOTE("* Overpayments or savings were found related to this match.")
-		IF resolution_status = "BE - No Change" THEN CALL write_variable_in_CASE_NOTE("* No Overpayments or savings were found related to this match.")
-		IF resolution_status = "BE - NC Non-collectible" THEN CALL write_variable_in_CASE_NOTE("* No collectible overpayments or savings were found related to this match. Client is still non-coop.")
-		IF resolution_status = "BN - Already known, No Savings" THEN CALL write_variable_in_CASE_NOTE("* Client reported income. Correct income is in JOBS/BUSI and budgeted.")
-		IF resolution_status = "BO - Other" THEN CALL write_variable_in_CASE_NOTE("* HC Claim entered. ")
-		IF resolution_status = "BP - Wrong Person" THEN CALL write_variable_in_CASE_NOTE("* Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
-		IF resolution_status = "CC - Claim Entered" THEN CALL write_variable_in_CASE_NOTE("* Claim entered.")
-  		IF change_response <> "N/A" THEN CALL write_bullet_and_variable_in_CASE_NOTE("Responded to Difference Notice", change_response)
-  		CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-  		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
-  		CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
+		IF resolution_status = "BE - OP Entered" THEN CALL write_variable_in_case_note("* Overpayments or savings were found related to this match.")
+		IF resolution_status = "BE - No Change" THEN CALL write_variable_in_case_note("* No Overpayments or savings were found related to this match.")
+		IF resolution_status = "BE - NC Non-collectible" THEN CALL write_variable_in_case_note("* No collectible overpayments or savings were found related to this match. Client is still non-coop.")
+		IF resolution_status = "BN - Already known, No Savings" THEN CALL write_variable_in_case_note("* Client reported income. Correct income is in JOBS/BUSI and budgeted.")
+		IF resolution_status = "BO - Other" THEN CALL write_variable_in_case_note("* HC Claim entered. ")
+		IF resolution_status = "BP - Wrong Person" THEN CALL write_variable_in_case_note("* Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
+		IF resolution_status = "CC - Claim Entered" THEN CALL write_variable_in_case_note("* Claim entered.")
+  		IF change_response <> "N/A" THEN CALL write_bullet_and_variable_in_case_note("Responded to Difference Notice", change_response)
+  		CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
+  		CALL write_variable_in_case_note("----- ----- ----- ----- -----")
+  		CALL write_variable_in_case_note ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 		'PF3
 	ELSEIF resolution_status = "NC - Non Cooperation" THEN   'Navigates to TIKL
-		IF match_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") NON-COOPERATION-----")
-		IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH (" & match_type & ") " & "(" & first_name & ") NON-COOPERATION-----")
-		IF match_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH (" & match_type & ") " & "(" & first_name & ") NON-COOPERATION-----")
-		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
-		CALL write_variable_in_CASE_NOTE ("----- ----- -----")
-		CALL write_variable_in_CASE_NOTE("* Client failed to cooperate wth wage match.")
-		CALL write_bullet_and_variable_in_CASE_NOTE("STAT/DISQ addressed for each program", DISQ_action)
+		IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") NON-COOPERATION-----")
+		IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH (" & match_type & ") " & "(" & first_name & ") NON-COOPERATION-----")
+		IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH (" & match_type & ") " & "(" & first_name & ") NON-COOPERATION-----")
+		CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
+		CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
+		CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
+		CALL write_variable_in_case_note ("----- ----- -----")
+		CALL write_variable_in_case_note("* Client failed to cooperate wth wage match.")
+		CALL write_bullet_and_variable_in_case_note("STAT/DISQ addressed for each program", DISQ_action)
 		CALL write_bullet_and_variable_in_case_note("* Date Diff notice sent", sent_date)
 		CALL write_variable_in_case_note("* Case approved to close.")
 		CALL write_variable_in_case_note("* Client needs to provide: ATR, Income Verification, Difference Notice.")
-		IF change_response <> "N/A" THEN CALL write_bullet_and_variable_in_CASE_NOTE("* Responded to Difference Notice", change_response)
-		CALL write_bullet_and_variable_in_CASE_NOTE("* Other notes", other_notes)
-		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
-		CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
+		IF change_response <> "N/A" THEN CALL write_bullet_and_variable_in_case_note("* Responded to Difference Notice", change_response)
+		CALL write_bullet_and_variable_in_case_note("* Other notes", other_notes)
+		CALL write_variable_in_case_note("----- ----- ----- ----- -----")
+		CALL write_variable_in_case_note ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 		'PF3
 
 		'-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
