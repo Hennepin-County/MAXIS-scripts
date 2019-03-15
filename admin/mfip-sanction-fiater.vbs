@@ -1211,4 +1211,4 @@ If sanction_vendor = "No" Then end_message = "Success! A MFIP Sanction version w
  	"The sanction was " & percent_sanction & "% deduction and the vendor was set to: '" & sanction_vendor & "." & vbNewLine &_
 	"Please review your results and run the NOTES - MFIP SANCTION/DWP Disqualification script if needed."
 
-script_end_procedure(end_message)
+script_end_procedure_with_error_report(end_message)
