@@ -113,12 +113,6 @@ script_array_NOTICES_main(script_num).script_name 			= "12 Month Contact"							
 script_array_NOTICES_main(script_num).file_name 			= "12-month-contact.vbs"															'Script URL
 script_array_NOTICES_main(script_num).description 			= "Sends a MEMO to the client of their reporting responsibilities (required for SNAP 2-yr certifications, per POLI/TEMP TE02.08.165)."
 script_array_NOTICES_main(script_num).subcategory           = "SNAP"
-'script_num = script_num + 1									'Increment by one
-'ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-'Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-'script_array_NOTICES_main(script_num).script_name 			= "Appointment Letter"																'Script name
-'script_array_NOTICES_main(script_num).file_name 			= "appointment-letter.vbs"															'Script URL
-'script_array_NOTICES_main(script_num).description 			= "Sends a MEMO containing the appointment letter (with text from POLI/TEMP TE02.05.15)."
 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
@@ -200,12 +194,13 @@ script_array_NOTICES_main(script_num).file_name				= "mnsure-memo.vbs"
 script_array_NOTICES_main(script_num).description			= "Sends a MEMO to a client regarding MNsure."
 script_array_NOTICES_main(script_num).subcategory           = "HC"
 
-'script_num = script_num + 1									'Increment by one
-'ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-'Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-'script_array_NOTICES_main(script_num).script_name			= "NOMI"
-'script_array_NOTICES_main(script_num).file_name				= "nomi.vbs"
-'script_array_NOTICES_main(script_num).description			= "Sends the SNAP notice of missed interview (NOMI) letter, following rules set out in POLI/TEMP TE02.05.15."
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
+Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_NOTICES_main(script_num).script_name			= "Out Of State"
+script_array_NOTICES_main(script_num).file_name				= "out-of-state.vbs"
+script_array_NOTICES_main(script_num).description			= "Generates out of state inquiry-Microsoft word document notice that can be use to fax."
+script_array_NOTICES_main(script_num).subcategory           = "WORD"
 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
@@ -214,14 +209,6 @@ script_array_NOTICES_main(script_num).script_name			= "Overdue Baby"
 script_array_NOTICES_main(script_num).file_name				= "overdue-baby.vbs"
 script_array_NOTICES_main(script_num).description			= "Sends a MEMO informing client that they need to report information regarding the status of pregnancy, within 10 days or their case may close."
 script_array_NOTICES_main(script_num).subcategory           = "CASH~HC"
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name			= "Out Of State"
-script_array_NOTICES_main(script_num).file_name				= "out-of-state.vbs"
-script_array_NOTICES_main(script_num).description			= "Generates out of state inquiry-Microsoft word document notice that can be use to fax."
-script_array_NOTICES_main(script_num).subcategory           = "WORD"
 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
