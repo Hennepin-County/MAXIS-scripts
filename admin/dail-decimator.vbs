@@ -217,7 +217,8 @@ For each worker in worker_array
 				dail_row = 6
 			End if
 
-			EMReadScreen dail_type, 4, dail_row, 6
+			EMReadScreen maxis_case_number, 8, dail_row - 1, 73
+            EMReadScreen dail_type, 4, dail_row, 6
 			EMReadScreen dail_msg, 61, dail_row, 20
 			dail_msg = trim(dail_msg)
             EMReadScreen dail_month, 8, dail_row, 11
@@ -336,12 +337,10 @@ For each worker in worker_array
             End if
 
             IF add_to_excel = True then
-				EMReadScreen maxis_case_number, 8, dail_row - 1, 73
 				'--------------------------------------------------------------------...and put that in Excel.
 				objExcel.Cells(excel_row, 1).Value = worker
-				objExcel.Cells(excel_row, 2).Value = trim(maxis_case_number)
+				objExcel.Cells(excel_row, 2).Value = trim(MAXIS_case_number)
 				objExcel.Cells(excel_row, 3).Value = trim(dail_type)
-                If len(dail_month) = 5 then dail_month = replace(dail_month, " ", "/1/")
 				objExcel.Cells(excel_row, 4).Value = trim(dail_month)
 				objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
 				excel_row = excel_row + 1
@@ -357,6 +356,7 @@ For each worker in worker_array
             	DAIL_array(worker_const,	           DAIL_count) = worker
             	DAIL_array(maxis_case_number_const,    DAIL_count) = MAXIS_case_number
             	DAIL_array(dail_type_const, 	       DAIL_count) = dail_type
+                If len(dail_month) = 5 then dail_month = replace(dail_month, " ", "/1/")
             	DAIL_array(dail_month_const, 		   DAIL_count) = dail_month
             	DAIL_array(dail_msg_const, 		       DAIL_count) = dail_msg
                 Dail_count = DAIL_count + 1
@@ -444,7 +444,5 @@ objExcel.Cells(1, 8).Value = DAIL_count
 FOR i = 1 to 8
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
-
-
 
 script_end_procedure("Success! Please review the list created for accuracy.")
