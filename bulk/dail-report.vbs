@@ -132,17 +132,17 @@ ObjExcel.ActiveSheet.Name = "DAIL List"
 
 'Excel headers and formatting the columns
 objExcel.Cells(1, 1).Value = "X1 NUMBER"
-objExcel.Cells(1, 1).Font.Bold = True
 objExcel.Cells(1, 2).Value = "CASE NBR"
-objExcel.Cells(1, 2).Font.Bold = True
 objExcel.Cells(1, 3).Value = "CLIENT NAME"
-objExcel.Cells(1, 3).Font.Bold = True
 objExcel.Cells(1, 4).Value = "DAIL TYPE"
-objExcel.Cells(1, 4).Font.Bold = True
 objExcel.Cells(1, 5).Value = "DAIL MONTH"
-objExcel.Cells(1, 5).Font.Bold = True
 objExcel.Cells(1, 6).Value = "DAIL MESSAGE"
-objExcel.Cells(1, 6).Font.Bold = True
+
+FOR i = 1 to 6		'formatting the cells'
+	objExcel.Cells(1, i).Font.Bold = True		'bold font'
+	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+	objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
 
 'Sets variable for all of the Excel stuff
 excel_row = 2

@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "BULK - DAIL CASE NOTE CAPTURE.vbs"
+name_of_script = "ADMIN - DAIL CASE NOTE CAPTURE.vbs"
 start_time = timer
 STATS_counter = 1                       'sets the stats counter at one
 STATS_manualtime = 30
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/16/2019", "Added output of all actionable DAIL messages to end of script run.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/14/2018", "Updated DAIL selection to INFO only to reduce run time.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/31/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -136,6 +137,17 @@ FOR i = 1 to 5		'formatting the cells'
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
+DIM DAIL_array()
+ReDim DAIL_array(4, 0)
+Dail_count = 0              'Incremental for the array
+
+'constants for array
+const worker_const	            = 0
+const maxis_case_number_const   = 1
+const dail_type_const 	        = 2
+const dail_month_const		    = 3
+const dail_msg_const		    = 4
+
 'Sets variable for all of the Excel stuff
 excel_row = 2
 deleted_dails = 0	'establishing the value of the count for deleted deleted_dails
@@ -180,7 +192,9 @@ For each worker in worker_array
 			    Call write_value_and_transmit("T", dail_row + 1, 3)
 				dail_row = 6
 			End if 
-			
+            
+            EMReadScreen maxis_case_number, 8, dail_row - 1, 73
+            EMReadScreen dail_month, 8, dail_row, 11
 			EMReadScreen dail_type, 4, dail_row, 6
 			EMReadScreen dail_msg, 61, dail_row, 20
             dail_msg = trim(dail_msg)
@@ -209,8 +223,6 @@ For each worker in worker_array
             'instr(dail_msg, "HC AUTOCLOSED FOR RENEWAL AND ELIGIBILITY FOR METS") OR _ ---removed for now. Unable to find current messages 12/14/2018
             
 			IF add_to_excel = True then 
-				EMReadScreen maxis_case_number, 8, dail_row - 1, 73
-				EMReadScreen dail_month, 8, dail_row, 11
 				'--------------------------------------------------------------------...and put that in Excel.
 				objExcel.Cells(excel_row, 1).Value = worker
 				objExcel.Cells(excel_row, 2).Value = trim(maxis_case_number)
@@ -226,6 +238,14 @@ For each worker in worker_array
 			else
 				add_to_excel = False
 				dail_row = dail_row + 1
+                ReDim Preserve DAIL_array(4, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
+            	DAIL_array(worker_const,	           DAIL_count) = worker
+            	DAIL_array(maxis_case_number_const,    DAIL_count) = MAXIS_case_number
+            	DAIL_array(dail_type_const, 	       DAIL_count) = dail_type
+                If len(dail_month) = 5 then dail_month = replace(dail_month, " ", "/1/")
+            	DAIL_array(dail_month_const, 		   DAIL_count) = dail_month
+            	DAIL_array(dail_msg_const, 		       DAIL_count) = dail_msg
+                Dail_count = DAIL_count + 1
 			End if
 			
 			EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
@@ -309,6 +329,42 @@ objExcel.Cells(7, 8).Value = STATS_counter
 'Formatting the column width.
 FOR i = 1 to 8
 	objExcel.Columns(i).AutoFit()
+NEXT
+
+'Adding another sheet
+ObjExcel.Worksheets.Add().Name = "Remaining DAIL messages"
+
+excel_row = 2
+'Excel headers and formatting the columns
+objExcel.Cells(1, 1).Value = "X NUMBER"
+objExcel.Cells(1, 2).Value = "CASE #"
+objExcel.Cells(1, 3).Value = "DAIL TYPE"
+objExcel.Cells(1, 4).Value = "DAIL MO."
+objExcel.Cells(1, 5).Value = "DAIL MESSAGE"
+
+FOR i = 1 to 5		'formatting the cells'
+	objExcel.Cells(1, i).Font.Bold = True		'bold font'
+	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+	objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
+
+'Export informaiton to Excel re: case status
+For item = 0 to UBound(DAIL_array, 2)
+	objExcel.Cells(excel_row, 1).Value = DAIL_array(worker_const, item)
+	objExcel.Cells(excel_row, 2).Value = DAIL_array(maxis_case_number_const, item)
+    objExcel.Cells(excel_row, 3).Value = DAIL_array(dail_type_const, item)
+	objExcel.Cells(excel_row, 4).Value = DAIL_array(dail_month_const, item)
+    objExcel.Cells(excel_row, 5).Value = DAIL_array(dail_msg_const, item)
+	excel_row = excel_row + 1
+Next 
+
+objExcel.Cells(1, 7).Value = "Remaning DAIL messages:"
+objExcel.Columns(7).Font.Bold = true
+objExcel.Cells(1, 8).Value = DAIL_count
+
+'formatting the cells
+FOR i = 1 to 8
+	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
 
 script_end_procedure("Success! Please review the list created for accuracy.")
