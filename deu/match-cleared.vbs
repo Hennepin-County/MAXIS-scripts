@@ -502,8 +502,10 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		cancel_confirmation
 		IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "* Enter a valid numeric resolved time, ie 005."
 		IF resolve_time = "" THEN err_msg = err_msg & vbNewLine & "Please complete resolve time."
-		'IF (date_received = "" and resolution_status <> "BN - Already known, No Savings") THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was recieved in ECF."
-		IF (date_received = "" and resolution_status <> "NC - Non Cooperation") THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was recieved in ECF."
+		IF date_received = "" THEN
+			IF resolution_status <> "BN - Already known, No Savings" THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was recieved in ECF."
+			IF resolution_status <> "NC - Non Cooperation" THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was recieved in ECF."
+		END IF
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other verification was used to clear the match."
 		IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the client respond to Difference Notice?"
 		IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
