@@ -133,7 +133,7 @@ IF dail_check = "DAIL" THEN
 		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
 		TRANSMIT
 	    EMReadScreen err_msg, 7, 24, 2
-	    IF err_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
+	    IF err_msg = "NO IEVS" THEN script_end_procedure_with_error_report("An error occurred in IEVP, please process manually.")'checking for error msg'
 	END IF
 END IF
 
@@ -171,13 +171,13 @@ IF dail_check <> "DAIL" or match_type <> "WAGE" or match_type <> "BEER" or match
 	EmReadscreen err_msg, 50, 24, 02
 	err_msg = trim(err_msg)
 	'NO IEVS MATCHES FOUND FOR SSN'
-	If err_msg <> "" THEN script_end_procedure("*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine)
+	If err_msg <> "" THEN script_end_procedure_with_error_report("*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine)
 END IF
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 7
 DO
 	EMReadScreen IEVS_period, 11, row, 47
-	IF trim(IEVS_period) = "" THEN script_end_procedure("A match for the selected period could not be found. The script will now end.")
+	IF trim(IEVS_period) = "" THEN script_end_procedure_with_error_report("A match for the selected period could not be found. The script will now end.")
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
 	"   " & IEVS_period, vbYesNoCancel, "Please confirm this match")
 	'msgbox IEVS_period
@@ -189,7 +189,7 @@ DO
 			row = 7
 		END IF
 	END IF
-	IF ievp_info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
+	IF ievp_info_confirmation = vbCancel THEN script_end_procedure_with_error_report ("The script has ended. The match has not been acted on.")
 	IF ievp_info_confirmation = vbYes THEN 	EXIT DO
 LOOP UNTIL ievp_info_confirmation = vbYes
 
@@ -197,7 +197,7 @@ LOOP UNTIL ievp_info_confirmation = vbYes
 CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" then
-	script_end_procedure("Out-of-county case. Cannot update.")
+	script_end_procedure_with_error_report("Out-of-county case. Cannot update.")
 ELSE
     EMReadScreen number_IEVS_type, 3, 7, 12 'read the DAIL msg'
     IF number_IEVS_type = "A30" THEN match_type = "BNDX"
@@ -226,7 +226,7 @@ IF match_type = "UNVI" THEN match_type_letter = "U"
 
 '--------------------------------------------------------------------Client name
 EmReadScreen panel_name, 4, 02, 52
-IF panel_name <> "IULA" THEN script_end_procedure("Script did not find IULA.")
+IF panel_name <> "IULA" THEN script_end_procedure_with_error_report("Script did not find IULA.")
 EMReadScreen client_name, 35, 5, 24
 client_name = trim(client_name)                         'trimming the client name
 IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This separates the two names
@@ -542,7 +542,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	EMReadScreen IULB_error_msg, 50, 24, 2
 	IULB_error_msg = trim(IULB_error_msg)
 	IF IULB_error_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & IULB_error_msg & vbNewLine
-	If IULB_error_msg = "ACTION CODE" THEN script_end_procedure(IULB_error_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
+	If IULB_error_msg = "ACTION CODE" THEN script_end_procedure_with_error_report(IULB_error_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
 	IF resolution_status = "BC - Case Closed" 	THEN EMWriteScreen "Case closed. " & other_notes, 8, 6   							'BC
 	IF resolution_status = "BE - No Change" THEN EMWriteScreen "No change. " & other_notes, 8, 6 									'BE
 	IF resolution_status = "BE - Child" THEN EMWriteScreen "No change, minor child income excluded. " & other_notes, 8, 6 			'BE - child
@@ -560,7 +560,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	days_pending = trim(days_pending)
 	IF IsNumeric(days_pending) = TRUE THEN
 		match_cleared = FALSE
-		script_end_procedure("This match did not appear to clear. Please check case, and try again.")
+		script_end_procedure_with_error_report("This match did not appear to clear. Please check case, and try again.")
 	ELSE
 	  match_cleared = TRUE
 	END IF
@@ -621,14 +621,15 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		CALL write_bullet_and_variable_in_case_note("* Other notes", other_notes)
 		CALL write_variable_in_case_note("----- ----- ----- ----- -----")
 		CALL write_variable_in_case_note ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
-		'PF3
+		PF3
 
 		'-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
 		Call navigate_to_MAXIS_screen("DAIL", "WRIT")
 	  	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
 	 	CALL write_variable_in_TIKL("CLOSE FOR NON-COOP, CREATE DISQ(S) FOR " & first_name)
 	 	PF3		'Exits and saves TIKL
-		script_end_procedure("Success! Updated match, and a TIKL created.")
+		'script_end_procedure("Success! Updated match, and a TIKL created.")
+		script_end_procedure_with_error_report("Success! Updated match, and a TIKL created.")
 	END IF
-	script_end_procedure("Match has been acted on. Please take any additional action needed for your case.")
+	script_end_procedure_with_error_report("Match has been acted on. Please take any additional action needed for your case.")
 END IF
