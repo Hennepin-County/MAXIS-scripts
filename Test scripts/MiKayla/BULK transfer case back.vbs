@@ -139,19 +139,18 @@ DO
 
        	EMReadScreen spec_xfer_worker, 7, 18, 28
 		'MsgBox spec_xfer_worker
-		If instr(workers, spec_xfer_worker) then
-			worker = ObjExcel.Cells(excel_row, 5).Value
-
+		'If instr(workers, spec_xfer_worker) then
+			'worker = ObjExcel.Cells(excel_row, 5).Value
 			'MsgBox spec_xfer_worker & worker
-			PF9
+		PF9
 			'MsgBox "PF9"
-
-		    EMWriteScreen spec_xfer_worker, 18, 61
+		EMWriteScreen spec_xfer_worker, 18, 61
 			'MsgBox "writing"
-			TRANSMIT
+		TRANSMIT
 			'msgbox "where am I"
 
-		ELSEIF spec_xfer_worker = "X127CCL" THEN
+		'ELSE
+		IF spec_xfer_worker = "X127CCL" THEN
 			'MsgBox spec_xfer_worker & " where to go"
 			spec_xfer_worker = ObjExcel.Cells(excel_row, 5).Value
 			spec_xfer_worker = trim(spec_xfer_worker)
