@@ -77,7 +77,7 @@ DO
 	    IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number to continue."
 	    IF MAXIS_footer_month = "" THEN err_msg = "Please enter a footer month to continue."
 	    IF MAXIS_footer_year = "" THEN err_msg = "Please enter a footer year to continue."
-	    IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
+	    IF err_msg <> "" THEN msgbox "*** Error Check ***" & vbNewLine & err_msg
 		LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -298,12 +298,12 @@ If total_amt_of_panels = "0" then script_end_procedure_with_error_report("An ABP
 EMReadScreen panel_check, 4, 2, 50
 'If panel_check = "ABPS" and current_panel_number = total_amt_of_panels then
 IF panel_check = "ABPS" THEN
-	MsgBox panel_check
+	'MsgBox panel_check
     Do
 		EMReadScreen ABPS_parent_ID, 10, 13, 40	'making sure ABPS is not unknown.
 		ABPS_parent_ID = trim(ABPS_parent_ID)
        	EMReadScreen current_panel_number, 1, 2, 73
-		MsgBox current_panel_number
+		'MsgBox current_panel_number
        	ABPS_check = MsgBox("Is this the right ABPS to update?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
        	If ABPS_check = vbYes then
 			ABPS_found = TRUE
@@ -430,7 +430,7 @@ Do
 		IF trim(ABPS_error_check) <> "" THEN
 			TRANSMIT 'this will get passed inhibiting errors''
 		ELSE
-			IF ABPS_error_check <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & ABPS_error_check & vbNewLine
+			IF ABPS_error_check <> "" THEN MsgBox "*** Error Check ***" & vbNewLine & ABPS_error_check & vbNewLine
 			'If ABPS_error_check = "GOOD CAUSE CLAIM DATE CANNOT BE IN THE FUTURE" THEN script_end_procedure_with_error_report(ABPS_error_check & vbNewLine & "Please run the script again.")
 		END IF
 
