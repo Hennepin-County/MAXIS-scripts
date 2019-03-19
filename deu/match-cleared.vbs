@@ -384,27 +384,46 @@ IF send_notice_checkbox = CHECKED THEN
     action_date = date & ""
 
     '-----------------------------------------------------------------Going to the MISC panel
+	'Going to the MISC panel to add claim referral tracking information
     Call navigate_to_MAXIS_screen ("STAT", "MISC")
     Row = 6
-    EmReadScreen panel_number, 1, 02, 78
+    EmReadScreen panel_number, 1, 02, 73
     If panel_number = "0" then
     	EMWriteScreen "NN", 20,79
     	TRANSMIT
+		'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
+		EmReadScreen MISC_error_msg,  74, 24, 02
+		IF trim(MISC_error_msg) = "" THEN
+	        case_note_only = FALSE
+		else
+			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_msg & vbNewLine, vbYesNo + vbQuestion, "Message handling")
+			IF maxis_error_check = vbYes THEN
+				case_note_only = TRUE 'this will case note only'
+			END IF
+			IF maxis_error_check= vbNo THEN
+				case_note_only = FALSE 'this will update the panels and case note'
+			END IF
+		END IF
     ELSE
-    	Do
-        	'Checking to see if the MISC panel is empty, if not it will find a new line'
-        	EmReadScreen MISC_description, 25, row, 30
-        	MISC_description = replace(MISC_description, "_", "")
-        	If trim(MISC_description) = "" then
-    			PF9
-        		EXIT DO
-        	Else
-                row = row + 1
-        	End if
-    	Loop Until row = 17
-    	If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-    End if
-
+		IF case_note_only = FALSE THEN
+			Do
+    			'Checking to see if the MISC panel is empty, if not it will find a new line'
+    			EmReadScreen MISC_description, 25, row, 30
+    			MISC_description = replace(MISC_description, "_", "")
+    			If trim(MISC_description) = "" then
+    				PF9
+    				EXIT DO
+    			Else
+    				row = row + 1
+    			End if
+    		Loop Until row = 17
+    		If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+    	End if
+		'writing in the action taken and date to the MISC panel
+		EMWriteScreen "Claim Determination", Row, 30
+		EMWriteScreen date, Row, 66
+		PF3
+	END IF 'checking to make sure maxis case is active
 	EMWriteScreen "Initial Claim Referral", Row, 30
     EMWriteScreen date, Row, 66
     PF3
@@ -412,6 +431,7 @@ IF send_notice_checkbox = CHECKED THEN
     'The case note-------------------------------------------------------------------------------------------------
     start_a_blank_case_note
     Call write_variable_in_case_note("-----Claim Referral Tracking - Initial Claim Referral-----")
+	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
     Call write_bullet_and_variable_in_case_note("Action Date", action_date)
     Call write_bullet_and_variable_in_case_note("Active Program(s)", programs)
     IF next_action = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note("* Additional verifications requested, TIKL set for 10 day return.")
