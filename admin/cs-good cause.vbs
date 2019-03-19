@@ -338,7 +338,7 @@ Do
 		END IF
 		IF maxis_error_check= vbNo THEN
 			case_note_only = FALSE 'this will update the panels and case note'
-			EXIT DO
+			'EXIT DO
 		END IF
 	END IF
 
