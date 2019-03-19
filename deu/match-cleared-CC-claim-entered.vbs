@@ -53,56 +53,7 @@ CALL changelog_update("11/14/2017", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-'Fun with dates! --Creating variables for the rolling 12 calendar months
-'current month -1
-CM_minus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", -1, date)            ), 2)
-CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
-'current month -2'
-CM_minus_2_mo =  right("0" &             DatePart("m",           DateAdd("m", -2, date)            ), 2)
-CM_minus_2_yr =  right(                  DatePart("yyyy",        DateAdd("m", -2, date)            ), 2)
-'current month -3'
-CM_minus_3_mo =  right("0" &             DatePart("m",           DateAdd("m", -3, date)            ), 2)
-CM_minus_3_yr =  right(                  DatePart("yyyy",        DateAdd("m", -3, date)            ), 2)
-'current month -4'
-CM_minus_4_mo =  right("0" &             DatePart("m",           DateAdd("m", -4, date)            ), 2)
-CM_minus_4_yr =  right(                  DatePart("yyyy",        DateAdd("m", -4, date)            ), 2)
-'current month -5'
-CM_minus_5_mo =  right("0" &             DatePart("m",           DateAdd("m", -5, date)            ), 2)
-CM_minus_5_yr =  right(                  DatePart("yyyy",        DateAdd("m", -5, date)            ), 2)
-'current month -6'
-CM_minus_6_mo =  right("0" &             DatePart("m",           DateAdd("m", -6, date)            ), 2)
-CM_minus_6_yr =  right(                  DatePart("yyyy",        DateAdd("m", -6, date)            ), 2)
-'current month -7'
-CM_minus_7_mo =  right("0" &             DatePart("m",           DateAdd("m", -7, date)            ), 2)
-CM_minus_7_yr =  right(                  DatePart("yyyy",        DateAdd("m", -7, date)            ), 2)
-'current month -8'
-CM_minus_8_mo =  right("0" &             DatePart("m",           DateAdd("m", -8, date)            ), 2)
-CM_minus_8_yr =  right(                  DatePart("yyyy",        DateAdd("m", -8, date)            ), 2)
-'current month -9'
-CM_minus_9_mo =  right("0" &             DatePart("m",           DateAdd("m", -9, date)            ), 2)
-CM_minus_9_yr =  right(                  DatePart("yyyy",        DateAdd("m", -9, date)            ), 2)
-'current month -10'
-CM_minus_10_mo =  right("0" &            DatePart("m",           DateAdd("m", -10, date)           ), 2)
-CM_minus_10_yr =  right(                 DatePart("yyyy",        DateAdd("m", -10, date)           ), 2)
-'current month -11'
-CM_minus_11_mo =  right("0" &            DatePart("m",           DateAdd("m", -11, date)           ), 2)
-CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -11, date)           ), 2)
 
-'Establishing value of variables for the rolling 12 months
-current_month = CM_mo & "/" & CM_yr
-current_month_minus_one = CM_minus_1_mo & "/" & CM_minus_1_yr
-current_month_minus_two = CM_minus_2_mo & "/" & CM_minus_2_yr
-current_month_minus_three = CM_minus_3_mo & "/" & CM_minus_3_yr
-current_month_minus_four = CM_minus_4_mo & "/" & CM_minus_4_yr
-current_month_minus_five = CM_minus_5_mo & "/" & CM_minus_5_yr
-current_month_minus_six = CM_minus_6_mo & "/" & CM_minus_6_yr
-current_month_minus_seven = CM_minus_7_mo & "/" & CM_minus_7_yr
-current_month_minus_eight = CM_minus_8_mo & "/" & CM_minus_8_yr
-current_month_minus_nine = CM_minus_9_mo & "/" & CM_minus_9_yr
-current_month_minus_ten = CM_minus_10_mo & "/" & CM_minus_10_yr
-current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
-
-'---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 
 MAXIS_footer_month = CM_mo
@@ -116,7 +67,7 @@ IF dail_check = "DAIL" THEN
     IF IEVS_type = "WAGE" or IEVS_type = "BEER" or IEVS_type = "UBEN" or IEVS_type = "UNVI" THEN
     	match_found = TRUE
     ELSE
-    	script_end_procedure("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
+    	script_end_procedure_with_error_report("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
     END IF
 	IF match_found = TRUE THEN
     	EMReadScreen MAXIS_case_number, 8, 5, 73
@@ -127,7 +78,7 @@ IF dail_check = "DAIL" THEN
 		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
 		TRANSMIT
 	    EMReadScreen err_msg, 7, 24, 2
-	    IF err_msg = "NO IEVS" THEN script_end_procedure("An error occurred in IEVP, please process manually.")'checking for error msg'
+	    IF err_msg = "NO IEVS" THEN script_end_procedure_with_error_report("An error occurred in IEVP, please process manually.")'checking for error msg'
 	END IF
 END IF
 
@@ -165,7 +116,7 @@ END IF
 Row = 7
 DO
 	EMReadScreen IEVS_period, 11, row, 47
-	IF trim(IEVS_period) = "" THEN script_end_procedure("A match for the selected period could not be found. The script will now end.")
+	IF trim(IEVS_period) = "" THEN script_end_procedure_with_error_report("A match for the selected period could not be found. The script will now end.")
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
 	"   " & IEVS_period, vbYesNoCancel, "Please confirm this match")
 	'msgbox IEVS_period
@@ -177,7 +128,7 @@ DO
 			row = 7
 		END IF
 	END IF
-	IF ievp_info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
+	IF ievp_info_confirmation = vbCancel THEN script_end_procedure_with_error_report ("The script has ended. The match has not been acted on.")
 	IF ievp_info_confirmation = vbYes THEN 	EXIT DO
 LOOP UNTIL ievp_info_confirmation = vbYes
 
@@ -185,7 +136,7 @@ LOOP UNTIL ievp_info_confirmation = vbYes
 CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" then
-	script_end_procedure("Out-of-county case. Cannot update.")
+	script_end_procedure_with_error_report("Out-of-county case. Cannot update.")
 Else
 	IF IEVS_type = "WAGE" then
 		EMReadScreen select_quarter, 1, 8, 14
@@ -209,15 +160,13 @@ IF number_IEVS_type = "A80" THEN IEVS_type = "UNVI"
 IF number_IEVS_type = "A60" THEN IEVS_type = "UBEN"
 IF number_IEVS_type = "A50" or number_IEVS_type = "A51"  THEN IEVS_type = "WAGE"
 '------------------------------------------setting up case note header'
-IF IEVS_type = "BEER" THEN match_type = "B"
-IF IEVS_type = "UBEN" THEN match_type = "U"
-IF IEVS_type = "WAGE" THEN match_type = "U"
-IF IEVS_type = "UNVI" THEN match_type = "U"
-IF IEVS_type = "WAGE" THEN EMreadscreen select_quarter, 1, 8, 14
+IF IEVS_type = "BEER" THEN match_type_letter = "B"
+IF IEVS_type = "UBEN" THEN match_type_letter = "U"
+IF IEVS_type = "UNVI" THEN match_type_letter = "U"
 
 '--------------------------------------------------------------------Client name
 EmReadScreen panel_name, 4, 02, 52
-IF panel_name <> "IULA" THEN script_end_procedure("Script did not find IULA.")
+IF panel_name <> "IULA" THEN script_end_procedure_with_error_report("Script did not find IULA.")
 EMReadScreen client_name, 35, 5, 24
 client_name = trim(client_name)                         'trimming the client name
 IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This separates the two names
@@ -434,7 +383,7 @@ EndDialog
     EMReadScreen err_msg, 11, 24, 2
     err_msg = trim(err_msg)
     IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-    If err_msg = "ACTION CODE" THEN script_end_procedure(err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
+    If err_msg = "ACTION CODE" THEN script_end_procedure_with_error_report(err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
     EMWriteScreen "Claim entered. See Case Note. ", 8, 6
     Call clear_line_of_text(17, 9)
     IF OP_program <> "HC" THEN  EMWriteScreen Claim_number, 17, 9
@@ -457,7 +406,11 @@ EndDialog
 	IF IsNumeric(days_pending) = TRUE THEN match_cleared = FALSE
 	If match_cleared = FALSE Then
     	confirm_cleared = MsgBox ("The script cannot identify that this match has cleared." & vbNewLine & vbNewLine & "Review IEVP and find the match that is being cleared with this run." &vbNewLine & " ** HAS THE MATCH BEEN CLEARED? **", vbQuestion + vbYesNo, "Confirm Match Cleared")
-    	if confirm_cleared = vbYes Then match_cleared = TRUE
+    	IF confirm_cleared = vbYes Then match_cleared = TRUE
+		IF confirm_cleared = vbno Then
+			match_cleared = FALSE
+			script_end_procedure_with_error_report("This match did not clear in IEVP, please advise what may have happened.")
+		END IF
 	End If
 
     IF IEVS_type = "WAGE" THEN
@@ -470,34 +423,51 @@ EndDialog
     Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
     PF3 'back to the DAIL'
     PF3
+
     'Going to the MISC panel to add claim referral tracking information
     Call navigate_to_MAXIS_screen ("STAT", "MISC")
     Row = 6
-
-    EmReadScreen panel_number, 1, 02, 78
+    EmReadScreen panel_number, 1, 02, 73
     If panel_number = "0" then
     	EMWriteScreen "NN", 20,79
     	TRANSMIT
+		'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
+		EmReadScreen MISC_error_msg,  74, 24, 02
+		IF trim(MISC_error_msg) = "" THEN
+	        case_note_only = FALSE
+		else
+			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_msg & vbNewLine, vbYesNo + vbQuestion, "Message handling")
+			IF maxis_error_check = vbYes THEN
+				case_note_only = TRUE 'this will case note only'
+			END IF
+			IF maxis_error_check= vbNo THEN
+				case_note_only = FALSE 'this will update the panels and case note'
+			END IF
+		END IF
     ELSE
-    	Do
-    		'Checking to see if the MISC panel is empty, if not it will find a new line'
-    		EmReadScreen MISC_description, 25, row, 30
-    		MISC_description = replace(MISC_description, "_", "")
-    		If trim(MISC_description) = "" then
-    			PF9
-    			EXIT DO
-    		Else
-    			row = row + 1
-    		End if
-    	Loop Until row = 17
-    	If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-    End if
-    'writing in the action taken and date to the MISC panel
-    EMWriteScreen "Claim Determination", Row, 30
-    EMWriteScreen date, Row, 66
-    PF3
-    start_a_blank_CASE_NOTE
+		IF case_note_only = FALSE THEN
+			Do
+    			'Checking to see if the MISC panel is empty, if not it will find a new line'
+    			EmReadScreen MISC_description, 25, row, 30
+    			MISC_description = replace(MISC_description, "_", "")
+    			If trim(MISC_description) = "" then
+    				PF9
+    				EXIT DO
+    			Else
+    				row = row + 1
+    			End if
+    		Loop Until row = 17
+    		If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+    	End if
+		'writing in the action taken and date to the MISC panel
+		EMWriteScreen "Claim Determination", Row, 30
+		EMWriteScreen date, Row, 66
+		PF3
+	END IF 'checking to make sure maxis case is active'
+
+    start_a_blank_case_note
     Call write_variable_in_case_note("-----Claim Referral Tracking-----")
+	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
     Call write_bullet_and_variable_in_case_note("Program(s)", programs)
     Call write_bullet_and_variable_in_case_note("Action Date", date)
     Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
@@ -505,39 +475,39 @@ EndDialog
     Call write_variable_in_case_note(worker_signature)
 
 '-----------------------------------------------------------------------------------------CASENOTE
-    start_a_blank_CASE_NOTE
-    IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-    IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-    IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-    IF IEVS_type = "UNVI" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-    CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
-    Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
-    Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+    start_a_blank_case_note
+    IF IEVS_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+    IF IEVS_type = "BEER" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+    IF IEVS_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+    IF IEVS_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+    CALL write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
+    CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
+    CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
+    CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
+    Call write_variable_in_case_note("----- ----- ----- ----- -----")
+    Call write_variable_in_case_note(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
     IF OP_program_II <> "Select:" then
-    	Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-    	Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+    	Call write_variable_in_case_note(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+    	Call write_variable_in_case_note("----- ----- ----- ----- -----")
     END IF
     IF OP_program_III <> "Select:" then
-    	Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-    	Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+    	Call write_variable_in_case_note(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+    	Call write_variable_in_case_note("----- ----- ----- ----- -----")
     END IF
     IF OP_program_IV <> "Select:" then
-    	Call write_variable_in_CASE_NOTE(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
-    	Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+    	Call write_variable_in_case_note(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
+    	Call write_variable_in_case_note("----- ----- ----- ----- -----")
     END IF
 
     IF HC_claim_number <> "" THEN
-    	Call write_variable_in_CASE_NOTE("HC OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & HC_from & " through " & HC_to)
-    	Call write_variable_in_CASE_NOTE("* HC Claim # " & HC_claim_number & " Amt $" & HC_Claim_amount)
-    	Call write_bullet_and_variable_in_CASE_NOTE("Health Care responsible members", HC_resp_memb)
-    	Call write_bullet_and_variable_in_CASE_NOTE("Total Federal Health Care amount", Fed_HC_AMT)
-    	CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
-    	CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
-    	Call write_variable_in_CASE_NOTE("Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-    	Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+    	Call write_variable_in_case_note("HC OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & HC_from & " through " & HC_to)
+    	Call write_variable_in_case_note("* HC Claim # " & HC_claim_number & " Amt $" & HC_Claim_amount)
+    	Call write_bullet_and_variable_in_case_note("Health Care responsible members", HC_resp_memb)
+    	Call write_bullet_and_variable_in_case_note("Total Federal Health Care amount", Fed_HC_AMT)
+    	CALL write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
+    	CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
+    	Call write_variable_in_case_note("Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+    	Call write_variable_in_case_note("----- ----- ----- ----- -----")
     END IF
     IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
     IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Not Allowed")
@@ -546,8 +516,8 @@ EndDialog
     CALL write_bullet_and_variable_in_case_note("Date verification received", income_rcvd_date)
     CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
     CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
-    CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
-    CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+    CALL write_variable_in_case_note("----- ----- ----- ----- ----- ----- -----")
+    CALL write_variable_in_case_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
     PF3 'to save casenote'
     IF HC_claim_number <> "" THEN
     	EmWriteScreen "x", 5, 3
@@ -571,4 +541,4 @@ EndDialog
     CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
 END IF
 
-script_end_procedure("Overpayment case note entered please review case note to ensure accuracy and copy case note to CCOL.")
+script_end_procedure_with_error_report("Overpayment case note entered please review case note to ensure accuracy and copy case note to CCOL.")
