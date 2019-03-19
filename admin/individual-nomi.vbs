@@ -73,7 +73,7 @@ Do
     err_msg = ""
 
     Dialog case_number_dlg
-    If buttonpressed = Cancel Then script_end_procedure("")
+    If buttonpressed = Cancel Then script_end_procedure_with_error_report("")
 
     If len(MAXIS_case_number) >8 Then err_msg = err_msg & vbNewLine & "* Case numbers should not be more than 8 numbers long."
     If IsNumeric(MAXIS_case_number) = FALSE Then err_msg = err_msg & vbNewLine & "* Check the case number, it appears to be invalid."

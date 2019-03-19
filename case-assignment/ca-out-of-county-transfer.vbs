@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("03/19/2019", "Added an error reporting option at the end of the script run.", "Casey Love, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -296,7 +297,7 @@ IF XFERRadioGroup = 0 THEN
 	EMWriteScreen worker_to_transfer_to, 18, 61
 	transmit
 
-	script_end_procedure("")
+	script_end_procedure_with_error_report("")
 	'END OF IN COUNTY TRANSFER-------------------------------------------------------------------------------------------------------------------------------------
 	ELSEIF XFERRadioGroup = 1 THEN
 	'BEGINNING OF OUT OF COUNTY TRANSFER----------------------------------------------------------------------------------------------------
@@ -415,7 +416,7 @@ IF XFERRadioGroup = 0 THEN
 		'Creates a new MEMO. If it's unable the script will stop.
 		PF5
 		EMReadScreen memo_display_check, 12, 2, 33
-		If memo_display_check = "Memo Display" then script_end_procedure("You are not able to go into update mode. You may not have the proper authorization to send a Spec/Memo or you may be in inquiry by mistake. Please try again in production first then contact your supervisor about obtaining permissions if still unable to access.")
+		If memo_display_check = "Memo Display" then script_end_procedure_with_error_report("You are not able to go into update mode. You may not have the proper authorization to send a Spec/Memo or you may be in inquiry by mistake. Please try again in production first then contact your supervisor about obtaining permissions if still unable to access.")
 
 		'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
 		row = 4                             'Defining row and col for the search feature.
@@ -591,6 +592,6 @@ IF XFERRadioGroup = 0 THEN
 	EMWriteScreen transfer_to, 18, 61
 
 
-	script_end_procedure("Success! The script has added a case note, created any requested memos, and has updated SPEC/XFER. Please review the information on SPEC/XFER, send the case file to the next county, and transfer the case.")
+	script_end_procedure_with_error_report("Success! The script has added a case note, created any requested memos, and has updated SPEC/XFER. Please review the information on SPEC/XFER, send the case file to the next county, and transfer the case.")
 
 END IF

@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("03/19/2019", "Added an error reporting option at the end of the script run.", "Casey Love, Hennepin County")
 CALL changelog_update("02/05/2019", "Updated case correction handling.", "Casey Love, Hennepin County")
 CALL changelog_update("11/15/2018", "Enhanced functionality for SameDay interview cases.", "Casey Love, Hennepin County")
 CALL changelog_update("11/06/2018", "Updated handling for HC only applications.", "MiKayla Handley, Hennepin County")
@@ -108,7 +109,7 @@ LOOP until PND2_check = "PND2"
 
 'checking the case to make sure there is a pending case.  If not script will end & inform the user no pending case exists in PND2
 EMReadScreen not_pending_check, 5, 24, 2
-If not_pending_check = "CASE " THEN script_end_procedure("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
+If not_pending_check = "CASE " THEN script_end_procedure_with_error_report("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
 
 'grabs row and col number that the cursor is at
 EMGetCursor MAXIS_row, MAXIS_col
@@ -133,7 +134,7 @@ IF multiple_apps = vbNo then
 	additional_apps = Msgbox("Do you want this application date: " & additional_application_date, VbYesNoCancel)
 	application_date = ""
 	If additional_apps = vbCancel then stopscript
-	If additional_apps = vbNo then script_end_procedure("No more application dates exist. Please review the case, and start the script again if applicable.")
+	If additional_apps = vbNo then script_end_procedure_with_error_report("No more application dates exist. Please review the case, and start the script again if applicable.")
 	If additional_apps = vbYes then
 		additional_date_found = TRUE
 		application_date = additional_application_date
@@ -147,7 +148,7 @@ CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 'EMReadScreen application_date, 8, 6, 33
 
 EMReadScreen err_msg, 7, 24, 02
-IF err_msg = "BENEFIT" THEN	script_end_procedure ("Case must be in PEND II status for script to run, please update MAXIS panels TYPE & PROG (HCRE for HC) and run the script again.")
+IF err_msg = "BENEFIT" THEN	script_end_procedure_with_error_report ("Case must be in PEND II status for script to run, please update MAXIS panels TYPE & PROG (HCRE for HC) and run the script again.")
 
 'Reading the app date from PROG
 EMReadScreen cash1_app_date, 8, 6, 33
@@ -353,7 +354,7 @@ IF how_app_rcvd = "Office" and HC_applied_for = FALSE THEN
 	"Application was received in " & how_app_rcvd, vbYesNoCancel, "Application received - same-day interview completed?")
 	IF same_day_confirmation = vbNo THEN interview_completed = FALSE
 	IF same_day_confirmation = vbYes THEN interview_completed = TRUE
-	IF same_day_confirmation = vbCancel THEN script_end_procedure ("The script has ended.")
+	IF same_day_confirmation = vbCancel THEN script_end_procedure_with_error_report ("The script has ended.")
 END IF
 
 If interview_completed = TRUE Then
@@ -679,7 +680,7 @@ IF same_day_offered = TRUE and how_app_rcvd = "Office" THEN
 END IF
 
 IF action_completed = False then
-    script_end_procedure ("Warning! Case did not transfer. Transfer the case manually. Script was able to complete all other steps.")
+    script_end_procedure_with_error_report ("Warning! Case did not transfer. Transfer the case manually. Script was able to complete all other steps.")
 Else
-    script_end_procedure ("Case has been updated please review to ensure it was processed correctly.")
+    script_end_procedure_with_error_report ("Case has been updated please review to ensure it was processed correctly.")
 End if

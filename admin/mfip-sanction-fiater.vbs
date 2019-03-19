@@ -193,7 +193,7 @@ Do
 Loop until mx_row = 20
 
 'DETERMINE HOW THIS WORKS FOR NON Included HH Memb who are sanctioned'
-If case_ready_for_sanction = FALSE Then script_end_procedure("The ELIG version of MFIP does not appear ready to FIAT due to Sanction. Please ensure that a sanction is indicated on EMPS or ABPS and that there are no inhibiting edits in STAT.")
+If case_ready_for_sanction = FALSE Then script_end_procedure_with_error_report("The ELIG version of MFIP does not appear ready to FIAT due to Sanction. Please ensure that a sanction is indicated on EMPS or ABPS and that there are no inhibiting edits in STAT.")
 
 'CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
 
@@ -1057,7 +1057,7 @@ If sanction_vendor = "Y" Then
 			If room_no_radio = 1 Then shelter_not_verified = "Room, "
 		End If
 
-		If shelter_not_verified <> "" Then script_end_procedure ("FIAT Cancelled. The script will now end. This sanction requires Mandatory Vendoring. Shelter Costs must be verified or a Mandatory Vendor Form (DHS 3365) completed.")
+		If shelter_not_verified <> "" Then script_end_procedure_with_error_report ("FIAT Cancelled. The script will now end. This sanction requires Mandatory Vendoring. Shelter Costs must be verified or a Mandatory Vendor Form (DHS 3365) completed.")
 		If total_vendor_amount = 0 Then
 			expense_exists = FALSE
 			vendor_confirmation_needed = MsgBox ("It appears no expenses are listed on SHEL for Rent, Lot Rent, Morgage, or Room expense." & vbNewLine & "This will mean that no cash beneift will allocated to pay client's shelter expense." & vbNewLine & "Do you confirm that there is no shelter expense on this case?", vbYesNo + vbQuestion, "Zero Shelter Expense")
@@ -1066,7 +1066,7 @@ If sanction_vendor = "Y" Then
 		End if
 	End If
 
-	If expense_exists = FALSE AND vendor_confirmation_needed = vbNo Then script_end_procedure ("FIAT cancelled. Shelter expense appears to be Zero." & vbNewLine & "Worker did not confirm this to be correct." & vbNewLine & "Script cannot continue as this case has Mandatory Vendoring and the shelter expense is not confirmed.")
+	If expense_exists = FALSE AND vendor_confirmation_needed = vbNo Then script_end_procedure_with_error_report ("FIAT cancelled. Shelter expense appears to be Zero." & vbNewLine & "Worker did not confirm this to be correct." & vbNewLine & "Script cannot continue as this case has Mandatory Vendoring and the shelter expense is not confirmed.")
 End If
 
 'MsgBox "Vendor Amount: " & total_vendor_amount
