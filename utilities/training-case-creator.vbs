@@ -53,6 +53,32 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+function write_panel_to_MAXIS_WREG_test(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs, wreg_fset_orientation_date, wreg_fset_sanction_date, wreg_num_sanctions, wreg_sanction_reason, wreg_abawd_status, wreg_ga_basis)
+'--- This function writes to MAXIS in Krabappel only
+'~~~~~ wreg_fs_pwe, wreg_fset_status, wreg_defer_fs, wreg_fset_orientation_date, wreg_fset_sanction_date, wreg_num_sanctions, wreg_abawd_status, wreg_ga_basis: parameters for the training case creator to work
+'===== Keywords: MAXIS, Krabappel, traning, case, creator
+	call navigate_to_MAXIS_screen("STAT", "WREG")
+	call create_panel_if_nonexistent
+
+	EMWriteScreen wreg_fs_pwe, 6, 68
+	EMWriteScreen wreg_fset_status, 8, 50
+	EMWriteScreen wreg_defer_fs, 8, 80
+	IF wreg_fset_orientation_date <> "" THEN call create_MAXIS_friendly_date(wreg_fset_orientation_date, 0, 9, 50)
+    IF wreg_fset_sanction_date <> "" then 
+        sanc_mo = right("0" & DatePart("m",    wreg_fset_sanction_date), 2)
+        sanc_yr = right(      DatePart("yyyy", wreg_fset_sanction_date), 2)
+        msgbox sanc_mo & vbcr & sanc_yr
+        EmWriteScreen sanc_mo, 10, 50
+        EmWriteScreen sanc_yr, 10, 56
+    End if 
+    
+	IF wreg_num_sanctions <> "" THEN EMWriteScreen wreg_num_sanctions, 11, 50
+    If wreg_sanction_reason <> "" THEN EmWriteScreen wreg_sanction_reason, 12, 50
+	EMWriteScreen wreg_abawd_status, 13, 50
+	EMWriteScreen wreg_ga_basis, 15, 50
+	transmit
+end function
+
 '========================================================================TRANSFER CASES========================================================================
 Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
 	'Creates an array of the workers selected in the dialog
@@ -1525,10 +1551,12 @@ For each MAXIS_case_number in case_number_array
 		WREG_defer_fs = ObjExcel.Cells(WREG_starting_excel_row + 2, current_excel_col).Value
 		WREG_fset_orientation_date = ObjExcel.Cells(WREG_starting_excel_row + 3, current_excel_col).Value
 		WREG_fset_sanction_date = ObjExcel.Cells(WREG_starting_excel_row + 4, current_excel_col).Value
-		WREG_num_sanctions = ObjExcel.Cells(WREG_starting_excel_row + 5, current_excel_col).Value
-		WREG_abawd_status = left(ObjExcel.Cells(WREG_starting_excel_row + 6, current_excel_col).Value, 2)
-		WREG_ga_basis = left(ObjExcel.Cells(WREG_starting_excel_row + 7, current_excel_col).Value, 2)
-        starting_row = starting_row + 8
+        msgbox wreg_fset_sanction_date
+        wreg_sanction_reason = ObjExcel.Cells(WREG_starting_excel_row + 5, current_excel_col).Value
+		WREG_num_sanctions = ObjExcel.Cells(WREG_starting_excel_row + 6, current_excel_col).Value
+		WREG_abawd_status = left(ObjExcel.Cells(WREG_starting_excel_row + 7, current_excel_col).Value, 2)
+		WREG_ga_basis = left(ObjExcel.Cells(WREG_starting_excel_row + 8, current_excel_col).Value, 2)
+        starting_row = starting_row + 9
 
 		'-------------------------------ACTUALLY FILLING OUT MAXIS
 
@@ -1812,7 +1840,7 @@ For each MAXIS_case_number in case_number_array
 		END IF
 		'WREG
 		If WREG_fs_pwe <> "" OR WREG_ga_basis <> "" then
-			call write_panel_to_MAXIS_WREG(WREG_fs_pwe, WREG_fset_status, WREG_defer_fs, WREG_fset_orientation_date, WREG_fset_sanction_date, WREG_num_sanctions, WREG_abawd_status, WREG_ga_basis)
+			call write_panel_to_MAXIS_WREG_test(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs, wreg_fset_orientation_date, wreg_fset_sanction_date, wreg_num_sanctions, wreg_sanction_reason, wreg_abawd_status, wreg_ga_basis)
 			STATS_manualtime = STATS_manualtime + 15
 		END IF
 	Next
