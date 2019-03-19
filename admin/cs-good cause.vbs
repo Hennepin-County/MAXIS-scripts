@@ -72,7 +72,7 @@ EndDialog
 DO
 	DO
 	    err_msg = ""
-	    Dialog fraud_dialog
+	    Dialog case_number
 	    cancel_confirmation
 	    IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number to continue."
 	    IF MAXIS_footer_month = "" THEN err_msg = "Please enter a footer month to continue."
