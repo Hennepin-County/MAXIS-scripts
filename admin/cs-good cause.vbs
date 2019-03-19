@@ -86,7 +86,7 @@ Call MAXIS_footer_month_confirmation
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 'Checking for PRIV cases.
 EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip
-IF priv_check = "PRIV" THEN script_end_procedure("This case is privileged. Please request access before running the script again. ")
+IF priv_check = "PRIV" THEN script_end_procedure_with_error_report("This case is privileged. Please request access before running the script again. ")
 CASH_STATUS = FALSE 'overall variable'
 CCA_STATUS = FALSE
 DWP_STATUS = FALSE 'Diversionary Work Program'
@@ -294,7 +294,7 @@ Call navigate_to_MAXIS_screen("STAT", "ABPS")
 
 'Checks to make sure there are ABPS panels for this member. If none exist the script will close
 EMReadScreen total_amt_of_panels, 1, 2, 78
-If total_amt_of_panels = "0" then script_end_procedure("An ABPS panel does not exist. Please create the panel before running the script again.")
+If total_amt_of_panels = "0" then script_end_procedure_with_error_report("An ABPS panel does not exist. Please create the panel before running the script again.")
 EMReadScreen panel_check, 4, 2, 50
 'If panel_check = "ABPS" and current_panel_number = total_amt_of_panels then
 IF panel_check = "ABPS" THEN
@@ -313,7 +313,7 @@ IF panel_check = "ABPS" THEN
 			ABPS_found = FALSE
 			TRANSMIT
 		END IF
-		If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
+		If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure_with_error_report("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
     Loop until ABPS_found = TRUE
 END IF
 
@@ -431,7 +431,7 @@ Do
 			TRANSMIT 'this will get passed inhibiting errors''
 		ELSE
 			IF ABPS_error_check <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & ABPS_error_check & vbNewLine
-			'If ABPS_error_check = "GOOD CAUSE CLAIM DATE CANNOT BE IN THE FUTURE" THEN script_end_procedure(ABPS_error_check & vbNewLine & "Please run the script again.")
+			'If ABPS_error_check = "GOOD CAUSE CLAIM DATE CANNOT BE IN THE FUTURE" THEN script_end_procedure_with_error_report(ABPS_error_check & vbNewLine & "Please run the script again.")
 		END IF
 
 		EMReadScreen panel_check, 4, 2, 50
@@ -555,4 +555,4 @@ IF memo_started = TRUE THEN
 	PF4
 END IF
 PF3
-script_end_procedure("Success! MAXIS has been updated, and the Good Cause results case noted.")
+script_end_procedure_with_error_report("Success! MAXIS has been updated, and the Good Cause results case noted.")
