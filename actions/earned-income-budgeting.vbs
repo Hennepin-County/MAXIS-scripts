@@ -2422,16 +2422,22 @@ Next
 'If there is SNAP - we need to see if the SNAP is UH - this can be found in ELIG/FS
 UH_SNAP = FALSE
 IF check_SNAP_for_UH = TRUE then
-    MAXIS_footer_month = CM_mo
-    MAXIS_footer_year = CM_yr
 
-    CALL navigate_to_approved_SNAP_eligibility
+    If snap_status = "ACTV" Then
+        MAXIS_footer_month = CM_mo
+        MAXIS_footer_year = CM_yr
 
-    EMReadScreen type_of_SNAP, 13, 4, 3
-    IF type_of_SNAP = "'UNCLE HARRY'" then
-        UH_SNAP = TRUE
+        CALL navigate_to_approved_SNAP_eligibility
+
+        EMReadScreen type_of_SNAP, 13, 4, 3
+        IF type_of_SNAP = "'UNCLE HARRY'" then
+            UH_SNAP = TRUE
+        Else
+            UH_SNAP = FALSE
+        End If
     Else
-        UH_SNAP = FALSE
+        ask_about_uncle_harry = MsgBox("It appears SNAP is not yet active on this case. Is this UNCLE HARRY SNAP?", vbQuestion + vbYesNo, "Check for UHFS")
+        If ask_about_uncle_harry = vbYes then UH_SNAP = TRUE
     End If
 
 End If
