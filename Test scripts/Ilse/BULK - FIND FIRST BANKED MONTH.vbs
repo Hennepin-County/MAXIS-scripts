@@ -74,7 +74,7 @@ EndDialog
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
 EMConnect ""
-file_selection_path = "C:\Users\ilfe001\Desktop\Banked months first month.xlsx"
+file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"
 
 starting_month = "05/01/18"
 month_plus_one = CM_plus_1_mo & "/" & CM_plus_1_yr
@@ -118,7 +118,7 @@ Do
     If MAXIS_case_number = "" then exit do 
     
     member_number = ObjExcel.Cells(excel_row, 2).Value
-    member_number = "0" & right(member_number, 2)
+    member_number = right("0" & member_number, 2)
 
     first_month = ObjExcel.Cells(excel_row, 6).Value
     first_month = trim(first_month)
@@ -139,9 +139,6 @@ Do
                     footer_mo = left(footer_month, 2)
                     footer_yr = right(footer_month, 2)
                     back_to_SELF
-            
-                    'msgbox footer_mo & "/" & footer_yr
-                    
                     EmWriteScreen footer_mo, 20, 43
                     EmWriteScreen footer_yr, 20, 46
                     transmit 
@@ -151,7 +148,7 @@ Do
 	                EMReadScreen ABAWD_code, 2, 13, 50
                     If ABAWD_code = "13" then 
                         first_mo_found = TRUE
-                        ObjExcel.Cells(excel_row, 7).Value = footer_month
+                        ObjExcel.Cells(excel_row, 6).Value = footer_month
                         exit for
                     else 
                         first_mo_found = false 
