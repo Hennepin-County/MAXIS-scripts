@@ -192,6 +192,13 @@ script_array_QI_list(script_num).file_name			= "individual-banked-note.vbs"					
 script_array_QI_list(script_num).description		= "Script to enter case notes in line with BULK Processing script."
 
 script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_QI_list(script_num)
+Set script_array_QI_list(script_num) = new script
+script_array_QI_list(script_num).script_name 		= "Budget Estimator"											'Script name
+script_array_QI_list(script_num).file_name 			= "budget-estimator.vbs"										'Script URL
+script_array_QI_list(script_num).description 		= "UTILITIES script that can be used to calculate an expected budget outside of MAXIS."
+
+script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
 Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_QI_list(script_num).script_name		= "Inactive Transfer"													'Script name
