@@ -74,6 +74,7 @@ Do
     err_msg = ""
 
     Dialog case_number_dialog
+    If ButtonPressed = 0 Then script_end_procedure("")
 
     MAXIS_case_number = trim(MAXIS_case_number)
     If MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "* Enter a case number."
