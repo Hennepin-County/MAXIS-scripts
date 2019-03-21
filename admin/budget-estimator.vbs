@@ -1669,9 +1669,9 @@ snap_hh_size = 0
 family_cash_hh_size = 0
 adult_cash_hh_size = 0
 
-heat_AC_amt = 532
-electric_amt = 141
-phone_amt = 38
+heat_AC_amt = 493
+electric_amt = 126
+phone_amt = 47
 
 DISA_Case = False
 
