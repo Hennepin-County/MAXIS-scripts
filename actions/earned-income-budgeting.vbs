@@ -1598,10 +1598,14 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                                 LIST_OF_INCOME_ARRAY(pay_date, all_income) = DateAdd("m", 1, prev_date)
                                             End If
                                         ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "2 - Two Times Per Month" Then
-                                            If days_between_checks < 14 or days_between_checks > 17 Then
+
+                                            If DatePart("d", LIST_OF_INCOME_ARRAY(pay_date, all_income)) <> EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) AND DatePart("d", LIST_OF_INCOME_ARRAY(pay_date, all_income)) <> EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) Then
                                                 issues_with_frequency = TRUE
                                                 LIST_OF_INCOME_ARRAY(frequency_issue, all_income) = TRUE
-                                                LIST_OF_INCOME_ARRAY(pay_date, all_income) = DateAdd("d", 15, prev_date)
+                                                month_to_use = DatePart("m", LIST_OF_INCOME_ARRAY(pay_date, all_income))
+                                                year_to_use = DatePart("yyyy", LIST_OF_INCOME_ARRAY(pay_date, all_income))
+                                                If DatePart("d", prev_date) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) Then LIST_OF_INCOME_ARRAY(pay_date, all_income) = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & "/" & year_to_use
+                                                If DatePart("d", prev_date) = EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) Then LIST_OF_INCOME_ARRAY(pay_date, all_income) = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & "/" & year_to_use
                                             End If
                                         ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "3 - Every Other Week" Then
                                             If days_between_checks <> 14 Then
@@ -1816,8 +1820,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                 EARNED_INCOME_PANELS_ARRAY(snap_ave_inc_per_pay, ei_panel) = EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel) * EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel) * 4.3 / 2
                                 EARNED_INCOME_PANELS_ARRAY(SNAP_mo_inc, ei_panel) = EARNED_INCOME_PANELS_ARRAY(snap_ave_inc_per_pay, ei_panel) * 2
                                 EARNED_INCOME_PANELS_ARRAY(snap_ave_hrs_per_pay, ei_panel) = (EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel) * 4.3)/2
-                                days_to_add = 15
-                                months_to_add = 1
+                                days_to_add = 0
+                                months_to_add = 0
                                 default_start_date = the_initial_month
                             Case "3 - Every Other Week"
                                 EARNED_INCOME_PANELS_ARRAY(snap_ave_inc_per_pay, ei_panel) = EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel) * EARNED_INCOME_PANELS_ARRAY(hrs_per_wk, ei_panel) * 2
@@ -2493,16 +2497,22 @@ Next
 'If there is SNAP - we need to see if the SNAP is UH - this can be found in ELIG/FS
 UH_SNAP = FALSE
 IF check_SNAP_for_UH = TRUE then
-    MAXIS_footer_month = CM_mo
-    MAXIS_footer_year = CM_yr
 
-    CALL navigate_to_approved_SNAP_eligibility
+    If snap_status = "ACTV" Then
+        MAXIS_footer_month = CM_mo
+        MAXIS_footer_year = CM_yr
 
-    EMReadScreen type_of_SNAP, 13, 4, 3
-    IF type_of_SNAP = "'UNCLE HARRY'" then
-        UH_SNAP = TRUE
+        CALL navigate_to_approved_SNAP_eligibility
+
+        EMReadScreen type_of_SNAP, 13, 4, 3
+        IF type_of_SNAP = "'UNCLE HARRY'" then
+            UH_SNAP = TRUE
+        Else
+            UH_SNAP = FALSE
+        End If
     Else
-        UH_SNAP = FALSE
+        ask_about_uncle_harry = MsgBox("It appears SNAP is not yet active on this case. Is this UNCLE HARRY SNAP?", vbQuestion + vbYesNo, "Check for UHFS")
+        If ask_about_uncle_harry = vbYes then UH_SNAP = TRUE
     End If
 
 End If
