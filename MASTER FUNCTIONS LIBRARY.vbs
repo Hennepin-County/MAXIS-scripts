@@ -8268,7 +8268,7 @@ function write_panel_to_MAXIS_WKEX(program, fed_tax_retro, fed_tax_prosp, fed_ta
 	transmit
 end function
 
-function write_panel_to_MAXIS_WREG(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs, wreg_fset_orientation_date, wreg_fset_sanction_date, wreg_num_sanctions, wreg_abawd_status, wreg_ga_basis)
+function write_panel_to_MAXIS_WREG(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs, wreg_fset_orientation_date, wreg_fset_sanction_date, wreg_num_sanctions, wreg_sanction_reason, wreg_abawd_status, wreg_ga_basis)
 '--- This function writes to MAXIS in Krabappel only
 '~~~~~ wreg_fs_pwe, wreg_fset_status, wreg_defer_fs, wreg_fset_orientation_date, wreg_fset_sanction_date, wreg_num_sanctions, wreg_abawd_status, wreg_ga_basis: parameters for the training case creator to work
 '===== Keywords: MAXIS, Krabappel, traning, case, creator
@@ -8279,8 +8279,15 @@ function write_panel_to_MAXIS_WREG(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs,
 	EMWriteScreen wreg_fset_status, 8, 50
 	EMWriteScreen wreg_defer_fs, 8, 80
 	IF wreg_fset_orientation_date <> "" THEN call create_MAXIS_friendly_date(wreg_fset_orientation_date, 0, 9, 50)
-	IF wreg_fset_sanction_date <> "" THEN call create_MAXIS_friendly_date(wreg_fset_orientation_date, 0, 10, 50)
+    IF wreg_fset_sanction_date <> "" then 
+        sanc_mo = right("0" & DatePart("m",    wreg_fset_sanction_date), 2)
+        sanc_yr = right(      DatePart("yyyy", wreg_fset_sanction_date), 2)
+        EmWriteScreen sanc_mo, 10, 50
+        EmWriteScreen sanc_yr, 10, 56
+    End if 
+    
 	IF wreg_num_sanctions <> "" THEN EMWriteScreen wreg_num_sanctions, 11, 50
+    If wreg_sanction_reason <> "" THEN EmWriteScreen wreg_sanction_reason, 12, 50
 	EMWriteScreen wreg_abawd_status, 13, 50
 	EMWriteScreen wreg_ga_basis, 15, 50
 	transmit
