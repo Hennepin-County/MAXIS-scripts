@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/22/2019", "Added handling for FSET sanction reasons, updated input for sanction dates and updated dialog with current contact info.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/2/2018", "Fixed bug with creating MEDI panel. Added functionality to add waiver or 1619 status to DISA.", "Casey Love, Hennepin County")
 call changelog_update("03/28/2018", "Added handling to send the HRF, and updated REI handling for MFIP cases.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/06/2018", "Updated WF1M handling for MFIP cases that require a referral.", "Ilse Ferris, Hennepin County")
@@ -52,32 +53,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-function write_panel_to_MAXIS_WREG_test(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs, wreg_fset_orientation_date, wreg_fset_sanction_date, wreg_num_sanctions, wreg_sanction_reason, wreg_abawd_status, wreg_ga_basis)
-'--- This function writes to MAXIS in Krabappel only
-'~~~~~ wreg_fs_pwe, wreg_fset_status, wreg_defer_fs, wreg_fset_orientation_date, wreg_fset_sanction_date, wreg_num_sanctions, wreg_abawd_status, wreg_ga_basis: parameters for the training case creator to work
-'===== Keywords: MAXIS, Krabappel, traning, case, creator
-	call navigate_to_MAXIS_screen("STAT", "WREG")
-	call create_panel_if_nonexistent
-
-	EMWriteScreen wreg_fs_pwe, 6, 68
-	EMWriteScreen wreg_fset_status, 8, 50
-	EMWriteScreen wreg_defer_fs, 8, 80
-	IF wreg_fset_orientation_date <> "" THEN call create_MAXIS_friendly_date(wreg_fset_orientation_date, 0, 9, 50)
-    IF wreg_fset_sanction_date <> "" then 
-        sanc_mo = right("0" & DatePart("m",    wreg_fset_sanction_date), 2)
-        sanc_yr = right(      DatePart("yyyy", wreg_fset_sanction_date), 2)
-        msgbox sanc_mo & vbcr & sanc_yr
-        EmWriteScreen sanc_mo, 10, 50
-        EmWriteScreen sanc_yr, 10, 56
-    End if 
-    
-	IF wreg_num_sanctions <> "" THEN EMWriteScreen wreg_num_sanctions, 11, 50
-    If wreg_sanction_reason <> "" THEN EmWriteScreen wreg_sanction_reason, 12, 50
-	EMWriteScreen wreg_abawd_status, 13, 50
-	EMWriteScreen wreg_ga_basis, 15, 50
-	transmit
-end function
 
 '========================================================================TRANSFER CASES========================================================================
 Function transfer_cases(workers_to_XFER_cases_to, case_number_array)
@@ -234,31 +209,18 @@ FUNCTION create_dialog(training_case_creator_excel_file_path, scenario_list, sce
 
 END FUNCTION
 
-
 'DIALOGS------------------------------------------------------------------------------------------------------------------
-BeginDialog Dialog1, 0, 0, 381, 265, "Training case creator"
-  Text 10, 10, 170, 10, "Hello! Thanks for clicking the training case creator!"
-  Text 10, 25, 365, 20, "This script is very new, and was put together with a lot of hard work from seven scriptwriters, using bits and pieces from various scripts written over the last few years."
-  Text 10, 50, 365, 20, "We're very proud of the work we've done, but it's a very new concept, and there's bound to be issues here and there. Please keep this in mind as you use this exciting new tool!"
-  Text 10, 75, 365, 20, "If you run into any issues, or have any questions, please join the discussion on our GitHub page. One of the scriptwriters involved will be more than happy to assist you."
-  Text 10, 100, 350, 20, "NOTE: Due to system limitations MSA/SNAP cases may not have MSA budgeted into the SNAP budget for the initial month."
-  Text 10, 125, 90, 10, "Good luck and have fun!"
-  Text 20, 140, 90, 10, "- Veronica Cary, DHS"
-  Text 20, 150, 120, 10, "- Robert Fewins-Kalb, Anoka County"
-  Text 20, 160, 120, 10, "- Charles Potter, Anoka County"
-  Text 20, 170, 120, 10, "- Ilse Ferris, Hennepin County"
-  Text 20, 180, 120, 10, "- Casey Love, Ramsey County"
-  Text 20, 190, 120, 10, "- David Courtright, St. Louis County"
-  Text 20, 200, 120, 10, "- Lucas Shanley, St. Louis County"
-  Text 10, 220, 140, 10, "Select an Excel file for training scenarios:"
-  EditBox 150, 215, 175, 15, training_case_creator_excel_file_path
+BeginDialog Dialog1, 0, 0, 381, 125, "Training case creator"
+  Text 10, 10, 350, 20, "Hello! Thanks for clicking the training case creator! This script will create training cases in the training region for testing purposes. This script uses an Excel template with already built scenarions. "
+  Text 10, 35, 350, 20, "NOTE: Due to system limitations MSA/SNAP cases may not have MSA budgeted into the SNAP budget for the initial month."
+  Text 10, 60, 365, 10, "Good luck and have fun! Questions about this script can be sent to: HSPH.EWS.BlueZoneScripts@Hennepin.us"
+  Text 10, 80, 140, 10, "Select an Excel file for training scenarios:"
+  EditBox 150, 75, 175, 15, training_case_creator_excel_file_path
   ButtonGroup ButtonPressed
-    PushButton 330, 215, 45, 15, "Browse...", select_a_file_button
-    OkButton 270, 245, 50, 15
-    CancelButton 325, 245, 50, 15
+    PushButton 330, 75, 45, 15, "Browse...", select_a_file_button
+    OkButton 270, 105, 50, 15
+    CancelButton 325, 105, 50, 15
 EndDialog
-
-
 
 'VARIABLES TO DECLARE-----------------------------------------------------------------------
 how_many_cases_to_make = "1"		'Defaults to 1, but users can modify this.
@@ -274,7 +236,6 @@ Do
     Loop until ButtonPressed = OK and training_case_creator_excel_file_path <> ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
-
 
 'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
 call excel_open(training_case_creator_excel_file_path, True, True, ObjExcel, objWorkbook)
@@ -327,7 +288,6 @@ Do
     LOOP UNTIL final_check_before_running = vbYes
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
-
 
 'Activates worksheet based on user selection
 objExcel.worksheets(scenario_dropdown).Activate
@@ -1551,7 +1511,6 @@ For each MAXIS_case_number in case_number_array
 		WREG_defer_fs = ObjExcel.Cells(WREG_starting_excel_row + 2, current_excel_col).Value
 		WREG_fset_orientation_date = ObjExcel.Cells(WREG_starting_excel_row + 3, current_excel_col).Value
 		WREG_fset_sanction_date = ObjExcel.Cells(WREG_starting_excel_row + 4, current_excel_col).Value
-        msgbox wreg_fset_sanction_date
         wreg_sanction_reason = ObjExcel.Cells(WREG_starting_excel_row + 5, current_excel_col).Value
 		WREG_num_sanctions = ObjExcel.Cells(WREG_starting_excel_row + 6, current_excel_col).Value
 		WREG_abawd_status = left(ObjExcel.Cells(WREG_starting_excel_row + 7, current_excel_col).Value, 2)
@@ -1840,7 +1799,7 @@ For each MAXIS_case_number in case_number_array
 		END IF
 		'WREG
 		If WREG_fs_pwe <> "" OR WREG_ga_basis <> "" then
-			call write_panel_to_MAXIS_WREG_test(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs, wreg_fset_orientation_date, wreg_fset_sanction_date, wreg_num_sanctions, wreg_sanction_reason, wreg_abawd_status, wreg_ga_basis)
+			call write_panel_to_MAXIS_WREG(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs, wreg_fset_orientation_date, wreg_fset_sanction_date, wreg_num_sanctions, wreg_sanction_reason, wreg_abawd_status, wreg_ga_basis)
 			STATS_manualtime = STATS_manualtime + 15
 		END IF
 	Next
@@ -2166,10 +2125,8 @@ FOR EACH MAXIS_case_number IN case_number_array
 
                 Do
                     EMReadscreen send_HRF, 3, 11, 50
-                    'msgbox "did HRF come up?"
                     If send_HRF = "HRF" then Call write_value_and_transmit("Y", 12, 54)
                 Loop until send_HRF <> "HRF"
-                'msgbox "What's happening?"
                 row = 13
                 Do
                     EMReadscreen REI_issue, 1, row, 60
@@ -2185,7 +2142,6 @@ FOR EACH MAXIS_case_number IN case_number_array
 
 					MFIP_rei_screen = ""
 					CALL find_variable("(Y/", MFIP_rei_screen, 1)
-                    'msgbox MFIP_rei_screen
 					IF MFIP_rei_screen = "N" THEN
 						EMSendKey "Y"
 						transmit
@@ -2201,17 +2157,13 @@ FOR EACH MAXIS_case_number IN case_number_array
                         EMReadScreen package_approved, 8, 4, 39
                     End if
 				LOOP Until package_approved = "approved"
-                'msgbox "how about now?"
 				transmit
 				'======= This handles the WF1 referral =========
-				'msgbox "are we at the referral?"
                 EMReadScreen work_screen_check, 4, 2, 51
-				'msgbox work_screen_check
 					IF work_screen_check = "WORK" Then
 						work_row = 7
 						DO
 							EMReadScreen WORK_ref_nbr, 2, work_row, 3
-							'msgbox WORK_ref_nbr
 							EMWriteScreen "x", work_row, 47
 							work_row = work_row + 1
 						LOOP UNTIL WORK_ref_nbr = "  "
