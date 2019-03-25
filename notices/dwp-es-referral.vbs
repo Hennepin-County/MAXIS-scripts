@@ -75,7 +75,7 @@ End function
 BeginDialog referral_dialog, 0, 0, 291, 130, "ES Letter and Referral"
   EditBox 60, 10, 55, 15, MAXIS_case_number
   EditBox 205, 10, 55, 15, member_number
-  DropListBox 60, 35, 125, 15, "Select one..."+chr(9)+"Quick Connect: Northwest"+chr(9)+"Quick Connect: South Mpls"+chr(9)+"Avivo: South MPLS (Tues 1 PM)"+chr(9)+"Avivo: South MPLS (Wed 9 AM)"+chr(9)+"Avivo: South Subs (Tues 9 AM)"+chr(9)+"Avivo: South Subs (Wed 1 PM)"+chr(9)+"Avivo: North MPLS (Tues 9 AM)"+chr(9)+"Avivo: North MPLS (Wed 9AM)"+chr(9)+"Emerge: South MPLS (Wed 9 AM)"+chr(9)+"Emerge: South MPLS (Fri 1PM)"+chr(9)+"Emerge: North MPLS (Tues 1 PM)"+chr(9)+"Emerge: North MPLS (Thurs 9 AM)"+chr(9)+"Hired: Brooklyn Park (Mon 1 PM)"+chr(9)+"Hired: Brooklyn Park (Wed 9 AM)", interview_location
+  DropListBox 60, 35, 125, 15, "Select one..."+chr(9)+"Quick Connect: Northwest"+chr(9)+"Quick Connect: South Mpls"+chr(9)+"Avivo: South MPLS (Tues 1PM)"+chr(9)+"Avivo: South MPLS (Wed 9AM)"+chr(9)+"Avivo: South Subs (Tues 9AM)"+chr(9)+"Avivo: South Subs (Wed 1PM)"+chr(9)+"Avivo: North MPLS (Tues 9AM)"+chr(9)+"Avivo: North MPLS (Wed 9AM)"+chr(9)+"Emerge: South MPLS (Tues 9AM)"+chr(9)+"Emerge: South MPLS (Thurs 9AM)"+chr(9)+"Emerge: North MPLS (Tues 1PM)"+chr(9)+"Emerge: North MPLS (Thurs 9AM)"+chr(9)+"Hired: Brooklyn Park (Mon 1PM)"+chr(9)+"Hired: Brooklyn Park (Wed 9AM)", interview_location
   DropListBox 60, 55, 100, 15, "Select one..."+chr(9)+"Scheduled"+chr(9)+"Rescheduled"+chr(9)+"Rescheduled from WERC", appt_type
   EditBox 205, 55, 75, 15, vendor_num
   EditBox 75, 80, 205, 15, other_referral_notes
@@ -146,7 +146,7 @@ ElseIF interview_location = "Quick Connect: South Mpls" THEN
     add_days = 1         'incrementor for DateAdding for orientation options.
 
 'Avivo South Mpls
-ElseIf interview_location = "Avivo: South MPLS (Tues 1 PM)" THEN
+ElseIf interview_location = "Avivo: South MPLS (Tues 1PM)" THEN
     provider_name = "Avivo South Mpls"
     provider_address_01 = "900 20th Avenue South"
     provider_city = "Minneapolis"
@@ -159,7 +159,7 @@ ElseIf interview_location = "Avivo: South MPLS (Tues 1 PM)" THEN
     provider_row = 7    'WFM1 provider selection based on location
     add_days = 7         'incrementor for DateAdding for orientation options.
 
-ElseIf interview_location = "Avivo: South MPLS (Wed 9 AM)" THEN
+ElseIf interview_location = "Avivo: South MPLS (Wed 9AM)" THEN
     provider_name = "Avivo South Mpls"
     provider_address_01 = "900 20th Avenue South"
     provider_city = "Minneapolis"
@@ -173,7 +173,7 @@ ElseIf interview_location = "Avivo: South MPLS (Wed 9 AM)" THEN
     add_days = 7         'incrementor for DateAdding for orientation options.
 
 'Avivo Bloomington -South Subs
-Elseif interview_location = "Avivo: South Subs (Tues 9 AM)" then
+Elseif interview_location = "Avivo: South Subs (Tues 9AM)" then
     provider_name = "Avivo Bloomington"
     provider_address_01 = "2626 East 82nd Street, Suite 370"
     provider_city = "Bloomington"
@@ -186,7 +186,7 @@ Elseif interview_location = "Avivo: South Subs (Tues 9 AM)" then
     provider_row = 8    'WFM1 provider selection based on location
     add_days = 7         'incrementor for DateAdding for orientation options.
 
-Elseif interview_location = "Avivo: South Subs (Wed 1 PM)" THEN
+Elseif interview_location = "Avivo: South Subs (Wed 1PM)" THEN
     provider_name = "Avivo Bloomington"
     provider_address_01 = "2626 East 82nd Street, Suite 370"
     provider_city = "Bloomington"
@@ -200,7 +200,7 @@ Elseif interview_location = "Avivo: South Subs (Wed 1 PM)" THEN
     add_days = 7         'incrementor for DateAdding for orientation options.
 
 'Avivo North Mpls
-ElseIf interview_location = "Avivo: North MPLS (Tues 9 AM)" THEN
+ElseIf interview_location = "Avivo: North MPLS (Tues 9AM)" THEN
     provider_name = "Avivo North Mpls"
     provider_address_01 = "2143 Lowry Avenue North"
     provider_city = "Minneapolis"
@@ -227,7 +227,7 @@ ElseIf interview_location = "Avivo: North MPLS (Wed 9AM)" THEN
     add_days = 7         'incrementor for DateAdding for orientation options.
 
 'Emerge South MPLS
-ElseIf interview_location = "Emerge: South MPLS (Tues 9 AM)" THEN
+ElseIf interview_location = "Emerge: South MPLS (Tues 9AM)" THEN
     provider_name = "Emerge South Mpls"
     provider_address_01 = "505 15th Avenue South"
     provider_city = "Minneapolis"
@@ -254,7 +254,7 @@ ElseIf interview_location = "Emerge: South MPLS (Thurs 9AM)" THEN
     add_days = 7         'incrementor for DateAdding for orientation options.
 
 'Emerge North MPLS
-ElseIf interview_location = "Emerge: North MPLS (Tues 1 PM)" THEN
+ElseIf interview_location = "Emerge: North MPLS (Tues 1PM)" THEN
     provider_name = "Emerge North Mpls"
     provider_address_01 = "1834 Emerson Avenue North"
     provider_city = "Minneapolis"
@@ -267,7 +267,7 @@ ElseIf interview_location = "Emerge: North MPLS (Tues 1 PM)" THEN
     provider_row = 11    'WFM1 provider selection based on location
     add_days = 7         'incrementor for DateAdding for orientation options.
 
-ElseIf interview_location = "Emerge: North MPLS (Thurs 9 AM)" THEN
+ElseIf interview_location = "Emerge: North MPLS (Thurs 9AM)" THEN
     provider_name = "Emerge North Mpls"
     provider_address_01 = "1834 Emerson Avenue North"
     provider_city = "Minneapolis"
@@ -281,7 +281,7 @@ ElseIf interview_location = "Emerge: North MPLS (Thurs 9 AM)" THEN
     add_days = 7         'incrementor for DateAdding for orientation options.
 
 'HIRED Brooklyn Park
-ElseIf interview_location = "Hired: Brooklyn Park (Mon 1 PM)" THEN
+ElseIf interview_location = "Hired: Brooklyn Park (Mon 1PM)" THEN
    provider_name = "Hired"
    provider_address_01 = "7225 Northland Drive, Suite 100"
    provider_city = "Brooklyn Park"
@@ -294,7 +294,7 @@ ElseIf interview_location = "Hired: Brooklyn Park (Mon 1 PM)" THEN
    provider_row = 10   'WFM1 provider selection based on location
    add_days = 7         'incrementor for DateAdding for orientation options.
 
-ElseIf interview_location = "Hired: Brooklyn Park (Wed 9 AM)" THEN
+ElseIf interview_location = "Hired: Brooklyn Park (Wed 9AM)" THEN
    provider_name = "Hired"
    provider_address_01 = "7225 Northland Drive, Suite 100"
    provider_city = "Brooklyn Park"
