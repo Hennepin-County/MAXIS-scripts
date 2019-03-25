@@ -505,7 +505,7 @@ ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one mo
 Set script_array_R_to_Z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_R_to_Z(script_num).script_name 			= "Vendor"
 script_array_R_to_Z(script_num).file_name				= "vendor.vbs"
-script_array_R_to_Z(script_num).description				= "Template for documenting vendor inforamtion.."
+script_array_R_to_Z(script_num).description				= "Template for documenting vendor information."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one more element to it
