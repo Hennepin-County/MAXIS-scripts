@@ -2634,7 +2634,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                         the_day_of_pay = RETRO_footer_month & "/" & day_of_month & "/" & RETRO_footer_year
                         the_day_of_pay = DateValue(the_day_of_pay)
                     End If
-
+                    checks_list = checks_list & "~" & the_day_of_pay
 
                 ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "2 - Two Times Per Month" Then
                     checks_in_month = 0
