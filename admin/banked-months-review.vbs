@@ -3657,6 +3657,8 @@ If process_option = "Ongoing Banked Months Cases" Then
                    BANKED_MONTHS_CASES_ARRAY(clt_mo_five, the_case) <> "" AND BANKED_MONTHS_CASES_ARRAY(clt_mo_six, the_case) <> "" &_
                    BANKED_MONTHS_CASES_ARRAY(clt_mo_svn, the_case) <> "" AND BANKED_MONTHS_CASES_ARRAY(clt_mo_eight, the_case) <> "" Then
 
+                   MAXIS_footer_month = CM_plus_1_mo
+                   MAXIS_footer_year = CM_plus_1_yr
                     Call back_to_SELF
 
                     Call navigate_to_MAXIS_screen("CASE", "NOTE")
