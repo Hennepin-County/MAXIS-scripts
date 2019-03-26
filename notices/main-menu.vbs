@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/26/2019", "Retired 'NOTICES - MNSURE MEMO'. Verbiage has been updated and added to the 'NOTES - METS to MAXIS TRANSITION' script.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/30/2018", "Consolidated WCOMs to one script. New submenus of script categories.", "Casey Love, Hennepin County")
 call changelog_update("03/01/2018", "Removed NOTICES scripts APPOINTMENT LETTER and NOMI. This process has been automated through the On Demand Waiver process.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/25/2017", "Added new script: SNAP WCOM - Failure to Comply WCOM.", "Ilse Ferris, Hennepin County")
@@ -185,14 +186,6 @@ script_array_NOTICES_main(script_num).script_name			= "MFIP Orientation"
 script_array_NOTICES_main(script_num).file_name				= "mfip-orientation.vbs"
 script_array_NOTICES_main(script_num).description			= "Sends a MEMO to a client regarding MFIP orientation."
 script_array_NOTICES_main(script_num).subcategory           = "CASH"
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name			= " MNsure Memo"													'needs spaces to generate button width properly.
-script_array_NOTICES_main(script_num).file_name				= "mnsure-memo.vbs"
-script_array_NOTICES_main(script_num).description			= "Sends a MEMO to a client regarding MNsure."
-script_array_NOTICES_main(script_num).subcategory           = "HC"
 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
