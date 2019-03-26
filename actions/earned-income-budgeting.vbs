@@ -2548,7 +2548,6 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                         the_day_of_pay = MAXIS_footer_month & "/" & day_of_month & "/" & MAXIS_footer_year
                         the_day_of_pay = DateValue(the_day_of_pay)
                     End If
-                    MsgBox the_day_of_pay
                     If EARNED_INCOME_PANELS_ARRAY(income_end_dt, ei_panel) <> "" Then
                         If DateDiff("d", the_day_of_pay, EARNED_INCOME_PANELS_ARRAY(income_end_dt, ei_panel)) >= 0 Then checks_list = checks_list & "~" & the_day_of_pay
                     Else
