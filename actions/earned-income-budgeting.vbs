@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("03/26/2019", "Fixed errors when pay is twice monthly. Added better handling for reading the employer name.", "Casey Love, Hennepin County")
 call changelog_update("03/05/2019", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -1386,7 +1387,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                         If EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = "" Then
                                             EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = each_day
                                         ElseIf EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "" Then
-                                            If each_day = 28 OR each_day = 30 OR each_day = 31 Then
+                                            If each_day = 28 OR each_day = 29 OR each_day = 30 OR each_day = 31 Then
                                                 EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST"
                                             Else
                                                 EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = each_day
@@ -1396,18 +1397,27 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                         End If
                                     End If
                                 Next
+                                If EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = 28 OR EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = 29 OR EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = 30 OR EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = 31 Then
+                                    EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = ""
+                                    EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST"
+                                End If
 
                                 If third_paydate = TRUE OR EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "" OR EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = "" Then
                                     EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & ""
                                     EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & ""
-                                    BeginDialog Dialog1, 0, 0, 106, 95, "Days of Pay for Bimonthly"
-                                      EditBox 70, 35, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel)
-                                      EditBox 70, 55, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel)
+                                    If EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST" Then
+                                        last_day_checkbox = checked
+                                        EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = ""
+                                    End If
+                                    BeginDialog Dialog1, 0, 0, 106, 115, "Days of Pay for Bimonthly"
+                                      EditBox 55, 35, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel)
+                                      EditBox 55, 55, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel)
                                       ButtonGroup ButtonPressed
-                                        OkButton 50, 75, 50, 15
+                                        OkButton 50, 95, 50, 15
                                       Text 10, 10, 95, 20, "Dates of Pay for BiMonthly Pay Frequency"
-                                      Text 20, 40, 35, 10, "First Day"
-                                      Text 20, 60, 45, 10, "Second Day"
+                                      Text 10, 40, 35, 10, "First Day"
+                                      Text 10, 60, 45, 10, "Second Day"
+                                      CheckBox 10, 80, 95, 10, "Second Day is LAST Day", last_day_checkbox
                                     EndDialog
 
                                     Do
@@ -1418,14 +1428,19 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                         EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = trim(EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel))
                                         EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = trim(EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel))
                                         If EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = "" Then the_err = the_err & vbNewLine & "* Enter the DAY of the month the first paycheck comes on."
-                                        If EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "" Then the_err = the_err & vbNewLine & "* Enter the DAY of the month the second paycheck comes on."
-
+                                        If EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "" Then
+                                            If last_day_checkbox = unchecked Then the_err = the_err & vbNewLine & "* Enter the DAY of the month the second paycheck comes on. Or check the box indicating the second check falls on the last day of the month."
+                                        End If
                                         If the_err <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & the_err
                                     Loop until the_err = ""
 
                                     EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) * 1
-                                    EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) * 1
-
+                                    If IsNumeric(EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel)) = TRUE Then EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) * 1
+                                    If last_day_checkbox = checked Then
+                                        EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST"
+                                    ElseIf EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = 28 OR EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = 29 OR EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = 30 OR EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = 31 Then
+                                        EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST"
+                                    End If
                                 End If
 
                             End If
@@ -1443,14 +1458,19 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                         next_pay_month = DatePart("m", next_paydate)
                                         next_pay_year = DatePart("yyyy", next_paydate)
 
-                                        next_paydate = next_pay_month & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & "/" & next_pay_year
-                                    ElseIf DatePart("d", next_paydate) = EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) Then        'if we are at the second check of the month
+                                        If EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST" Then
+                                            month_after = next_pay_month & "/1/" & next_pay_year
+                                            month_after = DateAdd("m", 1, month_after)
+                                            next_paydate = DateAdd("d", -1, month_after)
+                                        Else
+                                            next_paydate = next_pay_month & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & "/" & next_pay_year
+                                        End If
+                                    Else
                                         next_pay = DateAdd("m", 1, next_paydate)                                                            'go to the next month
                                         next_pay_month = DatePart("m", next_pay)
                                         next_pay_year = DatePart("yyyy", next_pay)
                                         next_paydate = next_pay_month & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & "/" & next_pay_year   'then go to the second pay date
                                     End If
-                                    MsgBox next_paydate
                                 ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "3 - Every Other Week" Then
                                     next_paydate = DateAdd("d", 14, next_paydate)
                                 ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "4 - Every Week" Then
@@ -1601,14 +1621,29 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                                 LIST_OF_INCOME_ARRAY(pay_date, all_income) = DateAdd("m", 1, prev_date)
                                             End If
                                         ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "2 - Two Times Per Month" Then
+                                            If EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST" Then
+                                                If DatePart("d", LIST_OF_INCOME_ARRAY(pay_date, all_income)) <> EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) Then
+                                                    day_after_pay = DateAdd("d", 1, LIST_OF_INCOME_ARRAY(pay_date, all_income))
+                                                    If DatePart("d", day_after_pay) <> 1 Then
+                                                        issues_with_frequency = TRUE
+                                                        LIST_OF_INCOME_ARRAY(frequency_issue, all_income) = TRUE
+                                                        month_to_use = DatePart("m", LIST_OF_INCOME_ARRAY(pay_date, all_income))
+                                                        year_to_use = DatePart("yyyy", LIST_OF_INCOME_ARRAY(pay_date, all_income))
+                                                        first_of_payMonth = month_to_use & "/1/" & year_to_use
+                                                        first_of_nextMonth = DateAdd("m", 1, first_of_payMonth)
+                                                        LIST_OF_INCOME_ARRAY(pay_date, all_income) = DateAdd("d", -1, first_of_nextMonth)
+                                                    End If
+                                                End If
 
-                                            If DatePart("d", LIST_OF_INCOME_ARRAY(pay_date, all_income)) <> EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) AND DatePart("d", LIST_OF_INCOME_ARRAY(pay_date, all_income)) <> EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) Then
-                                                issues_with_frequency = TRUE
-                                                LIST_OF_INCOME_ARRAY(frequency_issue, all_income) = TRUE
-                                                month_to_use = DatePart("m", LIST_OF_INCOME_ARRAY(pay_date, all_income))
-                                                year_to_use = DatePart("yyyy", LIST_OF_INCOME_ARRAY(pay_date, all_income))
-                                                If DatePart("d", prev_date) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) Then LIST_OF_INCOME_ARRAY(pay_date, all_income) = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & "/" & year_to_use
-                                                If DatePart("d", prev_date) = EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) Then LIST_OF_INCOME_ARRAY(pay_date, all_income) = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & "/" & year_to_use
+                                            Else
+                                                If DatePart("d", LIST_OF_INCOME_ARRAY(pay_date, all_income)) <> EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) AND DatePart("d", LIST_OF_INCOME_ARRAY(pay_date, all_income)) <> EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) Then
+                                                    issues_with_frequency = TRUE
+                                                    LIST_OF_INCOME_ARRAY(frequency_issue, all_income) = TRUE
+                                                    month_to_use = DatePart("m", LIST_OF_INCOME_ARRAY(pay_date, all_income))
+                                                    year_to_use = DatePart("yyyy", LIST_OF_INCOME_ARRAY(pay_date, all_income))
+                                                    If DatePart("d", prev_date) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) Then LIST_OF_INCOME_ARRAY(pay_date, all_income) = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & "/" & year_to_use
+                                                    If DatePart("d", prev_date) = EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) Then LIST_OF_INCOME_ARRAY(pay_date, all_income) = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & "/" & year_to_use
+                                                End If
                                             End If
                                         ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "3 - Every Other Week" Then
                                             If days_between_checks <> 14 Then
@@ -1924,15 +1959,27 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                             ElseIf days_to_add = 0 Then
                                 this_pay_date = DateAdd("m", months_to_add, this_pay_date)
                             Else
-                                If DatePart("d", this_pay_date) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) Then
-                                    month_to_use = DatePart("m", this_pay_date)
-                                    year_to_use = DatePart("yyyy", this_pay_date)
-                                    this_pay_date = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & "/" & year_to_use
-                                ElseIf DatePart("d", this_pay_date) = EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) Then
+                                If EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST" Then
                                     month_ahead = DateAdd("m", 1, this_pay_date)
                                     month_to_use = DatePart("m", month_ahead)
                                     year_to_use = DatePart("yyyy", month_ahead)
-                                    this_pay_date = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & "/" & year_to_use
+                                    If DatePart("d", this_pay_date) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) Then
+                                        first_of_nextMonth = month_to_use & "/1/" & year_to_use
+                                        this_pay_date = DateAdd("d", -1, first_of_nextMonth)
+                                    Else
+                                        this_pay_date = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & "/" & year_to_use
+                                    End If
+                                Else
+                                    If DatePart("d", this_pay_date) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) Then
+                                        month_to_use = DatePart("m", this_pay_date)
+                                        year_to_use = DatePart("yyyy", this_pay_date)
+                                        this_pay_date = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & "/" & year_to_use
+                                    ElseIf DatePart("d", this_pay_date) = EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) Then
+                                        month_ahead = DateAdd("m", 1, this_pay_date)
+                                        month_to_use = DatePart("m", month_ahead)
+                                        year_to_use = DatePart("yyyy", month_ahead)
+                                        this_pay_date = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & "/" & year_to_use
+                                    End If
                                 End If
                             End If
                         Loop until DatePart("m", this_pay_date) = CM_2_mo AND DatePart("yyyy", this_pay_date) = CM_2_yr     'stop at current month plus 2
@@ -2654,18 +2701,35 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                         year_to_use = DatePart("yyyy", this_month)
 
                         checks_list = checks_list & "~" & DateValue(month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & "/" & year_to_use)
-                        checks_list = checks_list & "~" & DateValue(month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & "/" & year_to_use)
+                        If EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST" Then
+                            first_of_payMonth = month_to_use & "/1/" & year_to_use
+                            first_of_nextMonth = DateAdd("m", 1, first_of_payMonth)
+                            checks_list = checks_list & "~" & DateAdd("d", -1, first_of_nextMonth)
+                        Else
+                            checks_list = checks_list & "~" & DateValue(month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & "/" & year_to_use)
+                        End If
 
                     ElseIf checks_in_month = 1 Then
                         the_check = replace(checks_list, "~", "")
                         month_to_use = DatePart("m", this_month)
                         year_to_use = DatePart("yyyy", this_month)
-                        If DatePart("d", the_check) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) Then
-                            the_other_check = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & "/" & year_to_use
-                            checks_list = checks_list & "~" & the_other_check
-                        ElseIf DatePart("d", the_check) = EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) Then
-                            the_other_check = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & "/" & year_to_use
-                            checks_list = the_other_check & "~" & the_check
+                        If EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST" Then
+                            first_of_payMonth = month_to_use & "/1/" & year_to_use
+                            first_of_nextMonth = DateAdd("m", 1, first_of_payMonth)
+                            If DatePart("d", the_check) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) Then
+                                checks_list = checks_list & "~" & DateAdd("d", -1, first_of_nextMonth)
+                            Else
+                                the_other_check = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & "/" & year_to_use
+                                checks_list = the_other_check & "~" & the_check
+                            End If
+                        Else
+                            If DatePart("d", the_check) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) Then
+                                the_other_check = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & "/" & year_to_use
+                                checks_list = checks_list & "~" & the_other_check
+                            ElseIf DatePart("d", the_check) = EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) Then
+                                the_other_check = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & "/" & year_to_use
+                                checks_list = the_other_check & "~" & the_check
+                            End If
                         End If
                     End If
 
@@ -2740,18 +2804,35 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                         year_to_use = DatePart("yyyy", RETRO_month)
 
                         checks_list = checks_list & "~" & DateValue(month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & "/" & year_to_use)
-                        checks_list = checks_list & "~" & DateValue(month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & "/" & year_to_use)
+                        If EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST" Then
+                            first_of_payMonth = month_to_use & "/1/" & year_to_use
+                            first_of_nextMonth = DateAdd("m", 1, first_of_payMonth)
+                            checks_list = checks_list & "~" & DateAdd("d", -1, first_of_nextMonth)
+                        Else
+                            checks_list = checks_list & "~" & DateValue(month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & "/" & year_to_use)
+                        End If
 
                     ElseIf checks_in_month = 1 Then
                         the_check = replace(checks_list, "~", "")
                         month_to_use = DatePart("m", RETRO_month)
                         year_to_use = DatePart("yyyy", RETRO_month)
-                        If DatePart("d", the_check) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) Then
-                            the_other_check = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & "/" & year_to_use
-                            checks_list = checks_list & "~" & the_other_check
-                        ElseIf DatePart("d", the_check) = EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) Then
-                            the_other_check = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & "/" & year_to_use
-                            checks_list = the_other_check & "~" & the_check
+                        If EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST" Then
+                            first_of_payMonth = month_to_use & "/1/" & year_to_use
+                            first_of_nextMonth = DateAdd("m", 1, first_of_payMonth)
+                            If DatePart("d", the_check) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) Then
+                                checks_list = checks_list & "~" & DateAdd("d", -1, first_of_nextMonth)
+                            Else
+                                the_other_check = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & "/" & year_to_use
+                                checks_list = the_other_check & "~" & the_check
+                            End If
+                        Else
+                            If DatePart("d", the_check) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) Then
+                                the_other_check = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & "/" & year_to_use
+                                checks_list = checks_list & "~" & the_other_check
+                            ElseIf DatePart("d", the_check) = EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) Then
+                                the_other_check = month_to_use & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & "/" & year_to_use
+                                checks_list = the_other_check & "~" & the_check
+                            End If
                         End If
                     End If
 
