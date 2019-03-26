@@ -2622,15 +2622,23 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 
                 'Here we are making a list of all the checks that we expect for the active month - we will then make that an array
                 If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "1 - One Time Per Month" Then
-                    day_of_month = DatePart("d", EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel))
+                    next_date = DateAdd("d", 1, EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel))
+                    If DatePart("d", next_date) = 1 Then
+                        first_of_mx_month = MAXIS_footer_month & "/1/" & MAXIS_footer_year
+                        first_of_next_month = DateAdd("m", 1, first_of_mx_month)
+                        the_day_of_pay = DateAdd("d", -1, first_of_next_month)
+                    Else
+                        day_of_month = DatePart("d", EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel))
 
-                    the_day_of_pay = MAXIS_footer_month & "/" & day_of_month & "/" & MAXIS_footer_year
-                    the_day_of_pay = DateValue(the_day_of_pay)
+                        the_day_of_pay = MAXIS_footer_month & "/" & day_of_month & "/" & MAXIS_footer_year
+                        the_day_of_pay = DateValue(the_day_of_pay)
+                    End If
                     If EARNED_INCOME_PANELS_ARRAY(income_end_dt, ei_panel) <> "" Then
                         If DateDiff("d", the_day_of_pay, EARNED_INCOME_PANELS_ARRAY(income_end_dt, ei_panel)) >= 0 Then checks_list = checks_list & "~" & the_day_of_pay
                     Else
                         checks_list = checks_list & "~" & the_day_of_pay
                     End If
+
 
                 ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "2 - Two Times Per Month" Then
                     checks_in_month = 0
@@ -2705,12 +2713,18 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                 checks_list = ""
 
                 If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "1 - One Time Per Month" Then
-                    day_of_month = DatePart("d", EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel))
+                    next_date = DateAdd("d", 1, EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel))
+                    If DatePart("d", next_date) = 1 Then
+                        first_of_mx_month = RETRO_footer_month & "/1/" & RETRO_footer_year
+                        first_of_next_month = DateAdd("m", 1, first_of_mx_month)
+                        the_day_of_pay = DateAdd("d", -1, first_of_next_month)
+                    Else
+                        day_of_month = DatePart("d", EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel))
 
-                    the_day_of_pay = RETRO_footer_month & "/" & day_of_month & "/" & RETRO_footer_year
-                    the_day_of_pay = DateValue(the_day_of_pay)
+                        the_day_of_pay = RETRO_footer_month & "/" & day_of_month & "/" & RETRO_footer_year
+                        the_day_of_pay = DateValue(the_day_of_pay)
+                    End If
                     checks_list = checks_list & "~" & the_day_of_pay
-
 
                 ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "2 - Two Times Per Month" Then
                     checks_in_month = 0
