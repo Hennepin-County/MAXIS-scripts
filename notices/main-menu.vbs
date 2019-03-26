@@ -242,59 +242,6 @@ script_array_NOTICES_main(script_num).file_name				= "verifications-still-needed
 script_array_NOTICES_main(script_num).description			= "Creates a Word document informing client of a list of verifications that are still required."
 script_array_NOTICES_main(script_num).subcategory           = "WORD"
 
-'-------------------------------------------------------------------------------------------------------------------------SNAP WCOMS LISTS
-'Resetting the variable
-script_num = 0												'establishes value of scripts at 0
-ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_list(script_num).script_name 			= " ABAWD with Child in HH WCOM "'needs spaces to generate button width properly.																'Script name
-script_array_NOTICES_list(script_num).file_name				= "abawd-with-child-in-hh-wcom.vbs"
-script_array_NOTICES_list(script_num).description 			= "Adds a WCOM to a notice for an ABAWD adult receiving child under 18 exemption."
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_list(script_num).script_name 			= "  Banked Month WCOMS "
-script_array_NOTICES_list(script_num).file_name				= "banked-months-wcoms.vbs"
-script_array_NOTICES_list(script_num).description 			= "Adds various WCOMS to a notice regarding banked month approvals/closure."
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_list(script_num).script_name 			= "  Client Death WCOM "
-script_array_NOTICES_list(script_num).file_name				= "client-death-wcom.vbs"
-script_array_NOTICES_list(script_num).description 			= "Adds a WCOM to a notice regarding SNAP closure due to death of last HH member."
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_list(script_num).script_name 			= " Failure to Comply WCOM "
-script_array_NOTICES_list(script_num).file_name				= "failure-to-comply-wcom.vbs"
-script_array_NOTICES_list(script_num).description 			= "Adds a WCOM to a SNAP notice regarding good cause to be used when approving a FSET sanction."
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_list(script_num).script_name 			= "Duplicate assistance WCOM"
-script_array_NOTICES_list(script_num).file_name				= "duplicate-assistance-wcom.vbs"
-script_array_NOTICES_list(script_num).description 			= "Adds a WCOM to a notice for duplicate assistance explaining why the client was ineligible."
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_list(script_num).script_name 			= " Postponed WREG Verif "
-script_array_NOTICES_list(script_num).file_name				= "postponed-wreg-verifs.vbs"
-script_array_NOTICES_list(script_num).description 			= "Sends a WCOM informing the client of postponed verifications that MAXIS won't add to notice correctly by itself."
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_list(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_list(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_list(script_num).script_name 			= " Returned Mail WCOM "
-script_array_NOTICES_list(script_num).file_name				= "returned-mail-wcom.vbs"
-script_array_NOTICES_list(script_num).description 			= "Adds a WCOM to a notice for SNAP returned mail closure."
-
-
-
 'Starting these with a very high number, higher than the normal possible amount of buttons.
 '	We're doing this because we want to assign a value to each button pressed, and we want
 '	that value to change with each button. The button_placeholder will be placed in the .button
