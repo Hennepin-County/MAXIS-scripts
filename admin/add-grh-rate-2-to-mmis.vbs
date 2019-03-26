@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/31/2018", "Added inhibiting functionality to ensure the 'approval cty' field is filled in on the FACI panel.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/31/2018", "Added version of script to ADMIN menu that does not require ELIG results to reflect Rate 2. This is meant for GRH staff working on clean up lists.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/12/2018", "Added handling to ensure that service agreement dates are not more than 365 days. MMIS does not support agreements over a year old.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/24/2018", "Added check to the script to ensure it is started in MAXIS", "Casey Love, Hennepin County")
@@ -417,6 +418,7 @@ Do
     EMReadScreen last_panel, 5, 24, 2
 Loop until last_panel = "ENTER"	'This means that there are no other faci panels
 
+If (faci_found = true and approval_county = "__") then script_end_procedure("Please fill in the 'Approval Cty' field on the FACI panel.")
 If faci_found = False then script_end_procedure("FACI panel could not be found for the SSRT panel vendor. The script will now end.")
 
 '----------------------------------------------------------------------------------------------------VNDS/VND2

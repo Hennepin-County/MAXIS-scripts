@@ -98,10 +98,10 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 '------------------------------------------------------IEVC'
 
 objExcel.Cells(1, 1).Value     = "CASE NUMBER" 'maxis_case_number
-objExcel.Cells(1, 2).Value     = "CLIENT NAME" 'client_name
+objExcel.Cells(1, 2).Value     = "PREVIOUS XWKR"  'prev_worker
 objExcel.Cells(1, 3).Value     = "APPL DATE" 'appl_date
 objExcel.Cells(1, 4).Value     = "INAC DATE" 'inac_date
-objExcel.Cells(1, 5).Value     = "TRANSFERED TO"  'spec_xfer_worker
+
 objExcel.Cells(1, 6).Value     = "ACTION COMPLETED"
 objExcel.Cells(1, 7).Value     = "PRIV"
 FOR i = 1 to 8		'formatting the cells'
@@ -114,9 +114,13 @@ NEXT
 ObjExcel.ActiveSheet.Range("A2").Select
 objExcel.ActiveWindow.FreezePanes = True
 
-excluded_array = array("P927079X", "P927091X", "P927152X", "P927161X", "P927252X", "PW35DI01", "PWAT072", "PWAT075", "PWAT231", "PWAT352", "PWPCT01", "PWPCT02", "PWPCT03", "PWTST40", "PWTST41", "PWTST49", "PWTST58", "PWTST64", "PWTST92", "X1274EC", "X127966", "X127AN1", "X127AP7", "X127CCA", "X127CCR", "X127CSS", "X127EF8", "X127EF9", "X127EM3", "X127EM4", "X127EN8", "X127EN9", "X127EP1", "X127EP2","X127EQ6", "X127EQ7", "X127EW4", "X127EW6 ", "X127EX4", "X127EX5", "X127F3E", "X127F3F", "X127F3J", "X127F3K", "X127F3N", "X127F3P", "X127F4A", "X127F4B", "X127FB1", "X127FE2", "X127FE3", "X127FF1", "X127FF2", "X127FF4", "X127FF5", "X127FF6", "X127FF9", "X127FG1", "X127FG2", "X127FG5", "X127FG6", "X127FG7", "X127FG9", "X127FH3", "X127FI1", "X127FI3", "X127FI6", "X127GF5", "X127LE1", "X127NP0", "X127NPC", "X127NPC", "X127Q95")
-Workers = Join(excluded_array, ",")
+excluded_array = array("P927079X", "P927091X", "P927152X", "P927161X", "P927252X", "PW35DI01", "PWAT072", "PWAT075", "PWAT231", "PWAT352", "PWPCT01", "PWPCT02", "PWPCT03", "PWTST40", "PWTST41", "PWTST49", "PWTST58", "PWTST64", "PWTST92", "X1274EC", "X127966", "X127AP7", "X127CCA", "X127CBH", "X127CHC", "X127CCR", "X127CSS", "X127EF8", "X127EF9", "X127EM3", "X127EM4", "X127EN8", "X127EN9", "X127EP1", "X127EP2","X127EQ6", "X127EQ7", "X127EW4", "X127EW6 ", "X127EX4", "X127EX5", "X127F3E", "X127F3J", "X127F3N", "X127F4A", "X127F4B", "X127FE2", "X127FE3", "X127FF1", "X127FF2", "X127FF4", "X127FF5", "X127FF9", "X127FG1", "X127FG2", "X127FG5", "X127FG6", "X127FG7", "X127FG9", "X127FH3", "X127FI1", "X127FI3", "X127FI6", "X127GF5", "X127LE1", "X127NP0", "X127NPC", "X127NPC", "X127Q95")
+Worker = Join(excluded_array, ",")
 
+'FOR EACH worker in excluded_array
+'	Filter_array = Filter(excluded_array, worker, FALSE)
+'	excluded_array = Filter_array
+'NEXT
 'Sets variable for all of the Excel stuff
 excel_row = 2
 
@@ -125,60 +129,63 @@ DO
 	MAXIS_case_number = trim(MAXIS_case_number)
 	IF MAXIS_case_number = "" THEN EXIT DO
 
-    CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
-	EMWriteScreen maxis_case_number, 18, 43 'MAXIS_case_number'
-	TRANSMIT
-	EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
-	If PRIV_check = "PRIV" then
-		ObjExcel.Cells(excel_row, 7).Value = "PRIV"
-	Else
-   		Call write_value_and_transmit("x", 7, 16)
-		'This should have us in SPEC/XWKR'
-		EMReadScreen panel_check, 4, 2, 55
-		'MsgBox panel_check
+	prev_worker = ObjExcel.Cells(excel_row, 2).Value
+	prev_worker = trim(prev_worker)
+	if instr(worker, prev_worker) THEN
+		transfer_case = FALSE
+		action_completed = False
+	ELSE
+		transfer_case = True
+	END IF
+	'msgbox transfer_case & vbcr & maxis_case_number
 
-       	EMReadScreen spec_xfer_worker, 7, 18, 28
-		'MsgBox spec_xfer_worker
-		'If instr(workers, spec_xfer_worker) then
-			'worker = ObjExcel.Cells(excel_row, 5).Value
-			'MsgBox spec_xfer_worker & worker
-		PF9
-			'MsgBox "PF9"
-		EMWriteScreen spec_xfer_worker, 18, 61
-			'MsgBox "writing"
-		TRANSMIT
-			'msgbox "where am I"
 
-		'ELSE
-		IF spec_xfer_worker = "X127CCL" THEN
-			'MsgBox spec_xfer_worker & " where to go"
-			spec_xfer_worker = ObjExcel.Cells(excel_row, 5).Value
-			spec_xfer_worker = trim(spec_xfer_worker)
-		END IF
-		    EMReadScreen worker_check, 9, 24, 2
-		    IF worker_check = "SERVICING" or worker_check = "LAST" THEN
-		    	action_completed = False
-		    	PF10
-		    END IF
-       	    EMReadScreen transfer_confirmation, 16, 24, 2
-       	    IF transfer_confirmation = "CASE XFER'D FROM" then
-       	    	action_completed = True
-       	    Else
-       	    	action_completed = False
-       	    End if
-       	    PF3
+	IF transfer_case = TRUE THEN
+        CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
+	    EMWriteScreen maxis_case_number, 18, 43 'MAXIS_case_number'
+	    TRANSMIT
+	    EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
+	    If PRIV_check = "PRIV" then
+	    	ObjExcel.Cells(excel_row, 7).Value = "PRIV"
+	    Else
+   	    	Call write_value_and_transmit("x", 7, 16)
+	    	'This should have us in SPEC/XWKR'
+	    	EMReadScreen panel_check, 4, 2, 55
+	    	'MsgBox panel_check
+	    	EMReadScreen prev_worker, 7, 18, 28
+	    	'MsgBox prev_worker
+
+	    	PF9
+	    	'MsgBox "PF9"
+
+	    	EMWriteScreen "X127CCL", 18, 61
+	    	'MsgBox "writing"
+	    	TRANSMIT
+	    	'msgbox "where am I"
+	    END IF
+
+		EMReadScreen worker_check, 9, 24, 2
+	    IF worker_check = "SERVICING" or worker_check = "LAST" THEN
+	      	action_completed = False
+	       	PF10
+	    END IF
+        EMReadScreen transfer_confirmation, 16, 24, 2
+        IF transfer_confirmation = "CASE XFER'D FROM" then
+        	action_completed = True
+        Else
+        	action_completed = False
+        End if
+        PF3
 	END IF
 	If PRIV_check = "PRIV" then action_completed = FALSE
-	objExcel.Cells(excel_row, 5).Value = spec_xfer_worker	'Adds worker number to Excel
+	transfer_case = ObjExcel.Cells(excel_row, 5).Value
 	objExcel.Cells(excel_row, 6).Value = action_completed	'Adds worker number to Excel
-
 	excel_row = excel_row + 1	'increments the excel row so we don't overwrite our data
-
 	'blanking out variables
 	'maxis_case_number = "" TRANSFERRING AND SERVICING WORKERS MUST BE FROM SAME COUNTY
-Loop until 	maxis_case_number = ""
+Loop
 'Formatting the column width.
-FOR i = 1 to 9
+FOR i = 1 to 8
 	objExcel.Columns(i).AutoFit()
 NEXT
 

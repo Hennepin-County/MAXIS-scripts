@@ -4861,35 +4861,75 @@ function script_end_procedure_with_error_report(closing_message)
 
     If send_error_message = vbYes Then
         'dialog here to gather more detail
-        BeginDialog Dialog1, 0, 0, 401, 175, "Report Error Detail"
-          Text 60, 35, 55, 10, MAXIS_case_number
-          ComboBox 220, 30, 175, 45, ""+chr(9)+"BUG - somethng happened that was wrong"+chr(9)+"ENHANCEMENT - somthing could be done better"+chr(9)+"TYPO - gramatical/spelling type errors", error_type
-          EditBox 65, 50, 330, 15, error_detail
-          CheckBox 20, 100, 65, 10, "CASE/NOTE", case_note_checkbox
-          CheckBox 95, 100, 65, 10, "Update in STAT", stat_update_checkbox
-          CheckBox 170, 100, 75, 10, "Problems with Dates", date_checkbox
-          CheckBox 265, 100, 65, 10, "Math is incorrect", math_checkbox
-          CheckBox 20, 115, 65, 10, "TIKL is incorrect", tikl_checkbox
-          CheckBox 95, 115, 65, 10, "MEMO or WCOM", memo_wcom_checkbox
-          CheckBox 170, 115, 75, 10, "Created Document", document_checkbox
-          CheckBox 265, 115, 115, 10, "Missing a place for Information", missing_spot_checkbox
-          EditBox 60, 140, 165, 15, worker_signature
-          ButtonGroup ButtonPressed
-            OkButton 290, 140, 50, 15
-            CancelButton 345, 140, 50, 15
-          Text 10, 10, 300, 10, "Information is needed about the error for our scriptwriters to review and resolve the issue. "
-          Text 5, 35, 50, 10, "Case Number:"
-          Text 125, 35, 95, 10, "What type of error occured?"
-          Text 5, 55, 60, 10, "Explain in detail:"
-          GroupBox 10, 75, 380, 60, "Common areas of issue"
-          Text 20, 85, 200, 10, "Check any that were impacted by the error you are reporting."
-          Text 10, 145, 50, 10, "Worker Name:"
-          Text 25, 160, 335, 10, "*** Remember to leave the case as is if possible. We can resolve error better when in a live case. ***"
-        EndDialog
+        error_type = ""
 
-        Dialog Dialog1
+        Do
+            Do
+                confirm_err = ""
 
+                BeginDialog Dialog1, 0, 0, 401, 175, "Report Error Detail"
+                  Text 60, 35, 55, 10, MAXIS_case_number
+                  ComboBox 220, 30, 175, 45, error_type+chr(9)+"BUG - somethng happened that was wrong"+chr(9)+"ENHANCEMENT - somthing could be done better"+chr(9)+"TYPO - gramatical/spelling type errors", error_type
+                  EditBox 65, 50, 330, 15, error_detail
+                  CheckBox 20, 100, 65, 10, "CASE/NOTE", case_note_checkbox
+                  CheckBox 95, 100, 65, 10, "Update in STAT", stat_update_checkbox
+                  CheckBox 170, 100, 75, 10, "Problems with Dates", date_checkbox
+                  CheckBox 265, 100, 65, 10, "Math is incorrect", math_checkbox
+                  CheckBox 20, 115, 65, 10, "TIKL is incorrect", tikl_checkbox
+                  CheckBox 95, 115, 65, 10, "MEMO or WCOM", memo_wcom_checkbox
+                  CheckBox 170, 115, 75, 10, "Created Document", document_checkbox
+                  CheckBox 265, 115, 115, 10, "Missing a place for Information", missing_spot_checkbox
+                  EditBox 60, 140, 165, 15, worker_signature
+                  ButtonGroup ButtonPressed
+                    OkButton 290, 140, 50, 15
+                    CancelButton 345, 140, 50, 15
+                  Text 10, 10, 300, 10, "Information is needed about the error for our scriptwriters to review and resolve the issue. "
+                  Text 5, 35, 50, 10, "Case Number:"
+                  Text 125, 35, 95, 10, "What type of error occured?"
+                  Text 5, 55, 60, 10, "Explain in detail:"
+                  GroupBox 10, 75, 380, 60, "Common areas of issue"
+                  Text 20, 85, 200, 10, "Check any that were impacted by the error you are reporting."
+                  Text 10, 145, 50, 10, "Worker Name:"
+                  Text 25, 160, 335, 10, "*** Remember to leave the case as is if possible. We can resolve error better when in a live case. ***"
+                EndDialog
+
+                Dialog Dialog1
+
+                If ButtonPressed = 0 Then
+                    cancel_confirm_msg = MsgBox("An Error Report will NOT be sent as you pressed 'Cancel'." & vbNewLine & vbNewLine & "Is this what you would like to do?", vbQuestion + vbYesNo, "Confirm Cancel")
+                    If cancel_confirm_msg = vbYes Then confirm_err = ""
+                    If cancel_confirm_msg = vbNo Then confirm_err = "LOOP" & vbNewLine & confirm_err
+                End If
+
+                If ButtonPressed = -1 Then
+                    full_text = "Error occured on " & date & " at " & time
+                    full_text = full_text & vbCr & "Error type - " & error_type
+                    full_text = full_text & vbCr & "Script name - " & name_of_script & " was run on Case #" & MAXIS_case_number & " with a runtime of " & script_run_time & " seconds."
+                    full_text = full_text & vbCr & "Information: " & error_detail
+                    If case_note_checkbox = checked OR stat_update_checkbox = checked OR date_checkbox = checked OR math_checkbox = checked OR tikl_checkbox = checked OR memo_wcom_checkbox = checked OR document_checkbox = checked OR missing_spot_checkbox = checked Then full_text = full_text & vbCr & vbCr & "Script has issues/concerns in the following areas:"
+
+                    If case_note_checkbox = checked Then full_text = full_text & vbCr & " - CASE/NOTE"
+                    If stat_update_checkbox = checked Then full_text = full_text & vbCr & " - Update in STAT"
+                    If date_checkbox = checked Then full_text = full_text & vbCr & " - Dates are incorrect"
+                    If math_checkbox = checked Then full_text = full_text & vbCr & " - Math is incorrect"
+                    If tikl_checkbox = checked Then full_text = full_text & vbCr & " - TIKL"
+                    If memo_wcom_checkbox = checked Then full_text = full_text & vbCr & " - NOTICES (WCOM/MEMO)"
+                    If document_checkbox = checked Then full_text = full_text & vbCr & " - The Excel or Word Document"
+                    If missing_spot_checkbox = checked Then full_text = full_text & vbCr & " - There is no space to enter particular information"
+
+                    full_text = full_text & vbCr & "Closing message: " & closing_message
+                    full_text = full_text & vbCr & vbCr & "Sent by: " & worker_signature
+
+                    send_confirm_msg = MsgBox("** This is what will be sent as an email to the BlueZone Script team:" & vbNewLine & vbNewLine & full_text & vbNewLine & vbNewLine & "*** Is this what you want to send? ***", vbQuestion + vbYesNo, "Confirm Error Report")
+
+                    If send_confirm_msg = vbYes Then confirm_err = ""
+                    If send_confirm_msg = vbNo Then confirm_err = "LOOP" & vbNewLine & confirm_err
+                End If
+            Loop until confirm_err = ""
+            call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+        LOOP UNTIL are_we_passworded_out = false
         'sent email here
+        full_text = ""
         If ButtonPressed = -1 Then
             bzt_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
             subject_of_email = "Script Error -- " & name_of_script & " (Automated Report)"
@@ -8228,7 +8268,7 @@ function write_panel_to_MAXIS_WKEX(program, fed_tax_retro, fed_tax_prosp, fed_ta
 	transmit
 end function
 
-function write_panel_to_MAXIS_WREG(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs, wreg_fset_orientation_date, wreg_fset_sanction_date, wreg_num_sanctions, wreg_abawd_status, wreg_ga_basis)
+function write_panel_to_MAXIS_WREG(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs, wreg_fset_orientation_date, wreg_fset_sanction_date, wreg_num_sanctions, wreg_sanction_reason, wreg_abawd_status, wreg_ga_basis)
 '--- This function writes to MAXIS in Krabappel only
 '~~~~~ wreg_fs_pwe, wreg_fset_status, wreg_defer_fs, wreg_fset_orientation_date, wreg_fset_sanction_date, wreg_num_sanctions, wreg_abawd_status, wreg_ga_basis: parameters for the training case creator to work
 '===== Keywords: MAXIS, Krabappel, traning, case, creator
@@ -8239,8 +8279,15 @@ function write_panel_to_MAXIS_WREG(wreg_fs_pwe, wreg_fset_status, wreg_defer_fs,
 	EMWriteScreen wreg_fset_status, 8, 50
 	EMWriteScreen wreg_defer_fs, 8, 80
 	IF wreg_fset_orientation_date <> "" THEN call create_MAXIS_friendly_date(wreg_fset_orientation_date, 0, 9, 50)
-	IF wreg_fset_sanction_date <> "" THEN call create_MAXIS_friendly_date(wreg_fset_orientation_date, 0, 10, 50)
+    IF wreg_fset_sanction_date <> "" then 
+        sanc_mo = right("0" & DatePart("m",    wreg_fset_sanction_date), 2)
+        sanc_yr = right(      DatePart("yyyy", wreg_fset_sanction_date), 2)
+        EmWriteScreen sanc_mo, 10, 50
+        EmWriteScreen sanc_yr, 10, 56
+    End if 
+    
 	IF wreg_num_sanctions <> "" THEN EMWriteScreen wreg_num_sanctions, 11, 50
+    If wreg_sanction_reason <> "" THEN EmWriteScreen wreg_sanction_reason, 12, 50
 	EMWriteScreen wreg_abawd_status, 13, 50
 	EMWriteScreen wreg_ga_basis, 15, 50
 	transmit

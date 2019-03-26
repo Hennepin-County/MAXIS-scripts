@@ -56,12 +56,12 @@ changelog_display
 
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-'Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 BeginDialog case_number, 0, 0, 116, 65, "Case number"
   EditBox 60, 5, 50, 15, MAXIS_case_number
-  EditBox 65, 25, 20, 15, footer_month
-  EditBox 90, 25, 20, 15, footer_year
+  EditBox 65, 25, 20, 15, MAXIS_footer_month
+  EditBox 90, 25, 20, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
     OkButton 5, 45, 50, 15
     CancelButton 60, 45, 50, 15
@@ -75,8 +75,8 @@ DO
 	    Dialog fraud_dialog
 	    cancel_confirmation
 	    IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number to continue."
-	    IF footer_month = "" THEN err_msg = "Please enter a footer month to continue."
-	    IF footer_month = "" THEN err_msg = "Please enter a footer year to continue."
+	    IF MAXIS_footer_month = "" THEN err_msg = "Please enter a footer month to continue."
+	    IF MAXIS_footer_year = "" THEN err_msg = "Please enter a footer year to continue."
 	    IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
 		LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -148,7 +148,7 @@ If cash1_prog_check = "DW" THEN
 	If cash1_status_check = "DENY" Then DWP_STATUS = FALSE
 	If cash1_status_check = ""     Then DWP_STATUS = FALSE
 END IF
-If cash1_prog_check = "DW" THEN
+If cash2_prog_check = "DW" THEN
 	If cash2_status_check = "ACTV" Then DWP_STATUS = TRUE
 	If cash2_status_check = "PEND" Then DWP_STATUS = TRUE
 	If cash2_status_check = "INAC" Then DWP_STATUS = FALSE
@@ -157,18 +157,36 @@ If cash1_prog_check = "DW" THEN
 	If cash2_status_check = ""     Then DWP_STATUS = FALSE
 END IF
 
+If cash1_prog_check = "" THEN
+	If cash1_status_check = "ACTV" Then CASH_STATUS = TRUE
+	If cash1_status_check = "PEND" Then CASH_STATUS = TRUE
+	If cash1_status_check = "INAC" Then CASH_STATUS = FALSE
+	If cash1_status_check = "SUSP" Then CASH_STATUS = FALSE
+	If cash1_status_check = "DENY" Then CASH_STATUS = FALSE
+	If cash1_status_check = ""     Then CASH_STATUS = FALSE
+END IF
+
+If cash2_prog_check = "" THEN
+	If cash2_status_check = "ACTV" Then CASH_STATUS = TRUE
+	If cash2_status_check = "PEND" Then CASH_STATUS = TRUE
+	If cash2_status_check = "INAC" Then CASH_STATUS = FALSE
+	If cash2_status_check = "SUSP" Then CASH_STATUS = FALSE
+	If cash2_status_check = "DENY" Then CASH_STATUS = FALSE
+	If cash2_status_check = ""     Then CASH_STATUS = FALSE
+END IF
+
 'can you say and or
-IF MF_STATUS = FALSE and FS_STATUS = FALSE and HC_STATUS = FALSE and DWP_STATUS = FALSE THEN
+IF MF_STATUS = FALSE and FS_STATUS = FALSE and HC_STATUS = FALSE and DWP_STATUS = FALSE and CASH_STATUS = FALSE THEN
 	case_note_only = TRUE
 	msgbox "It appears no HC, FS, or Cash are open on this case."
 END IF
 
-IF CCA_STATUS = TRUE THEN CCA_CHECKBOX  = CHECKED
-IF DWP_STATUS = TRUE THEN DWP_CHECKBOX  = CHECKED
-IF FS_STATUS  = TRUE THEN FS_CHECKBOX   = CHECKED
-IF HC_STATUS  = TRUE THEN HC_CHECKBOX   = CHECKED
-IF MF_STATUS  = TRUE THEN MFIP_CHECKBOX = CHECKED
-
+IF CCA_STATUS   = TRUE THEN CCA_CHECKBOX  = CHECKED
+IF DWP_STATUS   = TRUE THEN DWP_CHECKBOX  = CHECKED
+IF FS_STATUS    = TRUE THEN FS_CHECKBOX   = CHECKED
+IF HC_STATUS    = TRUE THEN HC_CHECKBOX   = CHECKED
+IF MF_STATUS    = TRUE THEN MFIP_CHECKBOX = CHECKED
+IF CASH_STATUS  = TRUE THEN CASH_CHECKBOX = CHECKED
 '----------------------------------------------------------------------------------------------------DIALOGS
 BeginDialog change_exemption_dialog, 0, 0, 216, 100, "Good cause change/exemption "
   EditBox 110, 5, 50, 15, change_reported_date
@@ -183,62 +201,60 @@ BeginDialog change_exemption_dialog, 0, 0, 216, 100, "Good cause change/exemptio
   Text 10, 50, 95, 10, "What was updated in MAXIS:"
 EndDialog
 
-BeginDialog good_cause_dialog, 0, 0, 386, 285, "Good Cause"
-  EditBox 170, 5, 40, 15, claim_date
-  EditBox 170, 25, 40, 15, review_date
-  EditBox 70, 45, 30, 15, child_ref_number
-  EditBox 170, 45, 40, 15, actual_date
-  CheckBox 225, 15, 25, 10, "CCA", CCA_CHECKBOX
-  CheckBox 225, 30, 30, 10, "DWP", DWP_CHECKBOX
-  CheckBox 225, 45, 30, 10, "METS", METS_CHECKBOX
-  CheckBox 260, 15, 25, 10, "HC", HC_CHECKBOX
-  CheckBox 260, 30, 20, 10, "FS", FS_CHECKBOX
-  CheckBox 260, 45, 20, 10, "MF", MFIP_CHECKBOX
-  CheckBox 305, 15, 60, 10, "Sup Evidence", sup_evidence_check
-  CheckBox 305, 30, 55, 10, "Investigation", investigation_check
-  CheckBox 305, 45, 70, 10, "Med Sup Svc Only", med_sup_check
-  DropListBox 30, 65, 55, 15, "Select One:"+chr(9)+"Denied"+chr(9)+"Granted"+chr(9)+"Not Claimed"+chr(9)+"Pending", gc_status
-  DropListBox 115, 65, 115, 15, "Select One:"+chr(9)+"Application Review-Complete"+chr(9)+"Application Review-Incomplete"+chr(9)+"Change/exemption ending"+chr(9)+"Determination"+chr(9)+"Recertification", good_cause_droplist
-  DropListBox 265, 65, 115, 15, "Select One:"+chr(9)+"Potential phys harm/child"+chr(9)+"Potential emotnl harm/child"+chr(9)+"Potential phys harm/caregiver"+chr(9)+"Potential emotnl harm/caregiver"+chr(9)+"Cncptn incest/forced rape"+chr(9)+"Legal adoption before court"+chr(9)+"Parent gets preadoptn svc"+chr(9)+"No longer claiming", reason_droplist
+BeginDialog good_cause_dialog, 0, 0, 376, 285, "Good Cause"
+  EditBox 70, 5, 30, 15, child_ref_number
+  EditBox 70, 25, 40, 15, actual_date
+  EditBox 70, 45, 40, 15, claim_date
+  EditBox 70, 65, 40, 15, review_date
+  DropListBox 165, 5, 70, 15, "Select One:"+chr(9)+"Denied"+chr(9)+"Granted"+chr(9)+"Not Claimed"+chr(9)+"Pending", gc_status
+  DropListBox 165, 25, 115, 15, "Select One:"+chr(9)+"Application Review-Complete"+chr(9)+"Application Review-Incomplete"+chr(9)+"Change/exemption ending"+chr(9)+"Determination"+chr(9)+"Recertification", good_cause_droplist
+  DropListBox 165, 45, 115, 15, "Select One:"+chr(9)+"Potential phys harm/child"+chr(9)+"Potential emotnl harm/child"+chr(9)+"Potential phys harm/caregiver"+chr(9)+"Potential emotnl harm/caregiver"+chr(9)+"Cncptn incest/forced rape"+chr(9)+"Legal adoption before court"+chr(9)+"Parent gets preadoptn svc"+chr(9)+"No longer claiming", reason_droplist
+  EditBox 165, 65, 205, 15, denial_reason
+  CheckBox 295, 15, 25, 10, "CCA", CCA_CHECKBOX
+  CheckBox 335, 15, 25, 10, "HC", HC_CHECKBOX
+  CheckBox 295, 30, 30, 10, "DWP", DWP_CHECKBOX
+  CheckBox 335, 30, 20, 10, "MF", MFIP_CHECKBOX
+  CheckBox 295, 45, 20, 10, "FS", FS_CHECKBOX
+  CheckBox 335, 45, 30, 10, "METS", METS_CHECKBOX
   CheckBox 10, 95, 145, 10, "ABPS name not written on the correct line", ABPS_CHECKBOX
+  CheckBox 160, 95, 120, 10, "All of the questions not answered", QUESTIONS_CHECKBOX
+  CheckBox 285, 95, 80, 10, "Other (please specify)", OTHER_CHECKBOX
   CheckBox 10, 105, 140, 10, "Reason for requesting GC not selected", REASON_CHECKBOX
-  CheckBox 165, 95, 120, 10, "All of the questions not answered", QUESTIONS_CHECKBOX
-  CheckBox 165, 105, 90, 10, "No signature and/or date ", NOSIG_CHECKBOX
-  CheckBox 290, 105, 80, 10, "Other (please specify)", OTHER_CHECKBOX
+  CheckBox 160, 105, 90, 10, "No signature and/or date ", NOSIG_CHECKBOX
   EditBox 65, 125, 85, 15, mets_info
-  EditBox 65, 145, 85, 15, verifs_req
-  EditBox 210, 125, 170, 15, denial_reason
-  EditBox 210, 145, 170, 15, other_notes
-  CheckBox 10, 175, 185, 10, "Sent Request for Proof to Support Good Cause Claim", SUP_CHECKBOX
-  CheckBox 10, 185, 160, 10, "Sent Good Cause Client Statement (DHS-2338)", DHS_2338_CHECKBOX
-  CheckBox 10, 195, 220, 10, "Sent Imp Information about Your Request Exemption (DHS-3627) ", DHS_3627_CHECKBOX
-  CheckBox 10, 205, 205, 10, "Sent Notice of Denial of Good Cause Exemption (DHS-3628) ", DHS_3628_CHECKBOX
-  CheckBox 10, 215, 165, 10, "Sent Notice of Good Cause Approval (DHS-3629) ", DHS_3629_CHECKBOX
-  CheckBox 10, 225, 195, 10, "Sent Request to End Good Cause Exemption  (DHS-3631 )", DHS_3631_CHECKBOX
-  CheckBox 10, 235, 180, 10, "Sent Request for Additional Information (DHS 3632)", DHS_3632_CHECKBOX
-  CheckBox 10, 245, 165, 10, "Sent Good Cause Yearly Determination Packet", Recert_CHECKBOX
-  CheckBox 10, 265, 240, 10, "Good Cause Client Statement (DHS-2338) is in ECF and completed in full", DHS_2338_complete_CHECKBOX
-  CheckBox 10, 255, 195, 10, "Sent Good Cause Redetermination Approval ( DHS 3633)", DHS_3633_CHECKBOX
+  EditBox 220, 125, 150, 15, verifs_req
+  EditBox 65, 145, 305, 15, other_notes
+  CheckBox 295, 175, 55, 10, "Investigation", investigation_check
+  CheckBox 295, 185, 60, 10, "Sup Evidence", sup_evidence_check
+  CheckBox 295, 195, 70, 10, "Med Sup Svc Only", med_sup_check
+  CheckBox 10, 175, 185, 10, "Request for Proof to Support Good Cause Claim", SUP_CHECKBOX
+  CheckBox 10, 185, 160, 10, "Good Cause Client Statement (DHS-2338)", DHS_2338_CHECKBOX
+  CheckBox 10, 195, 220, 10, "Imp Information about Your Request Exemption (DHS-3627) ", DHS_3627_CHECKBOX
+  CheckBox 10, 205, 205, 10, "Notice of Denial of Good Cause Exemption (DHS-3628) ", DHS_3628_CHECKBOX
+  CheckBox 10, 215, 165, 10, "Notice of Good Cause Approval (DHS-3629) ", DHS_3629_CHECKBOX
+  CheckBox 10, 225, 195, 10, "Request to End Good Cause Exemption  (DHS-3631 )", DHS_3631_CHECKBOX
+  CheckBox 10, 235, 180, 10, "Request for Additional Information (DHS 3632)", DHS_3632_CHECKBOX
+  CheckBox 10, 245, 165, 10, "Good Cause Yearly Determination Packet", Recert_CHECKBOX
+  CheckBox 10, 255, 195, 10, "Good Cause Redetermination Approval ( DHS 3633)", DHS_3633_CHECKBOX
+  CheckBox 10, 265, 245, 10, "Good Cause Client Statement (DHS-2338) is in ECF and completed in full", DHS_2338_complete_CHECKBOX
   ButtonGroup ButtonPressed
-    OkButton 270, 265, 50, 15
-    CancelButton 325, 265, 50, 15
-  Text 125, 50, 40, 10, "Actual date:"
-  Text 90, 70, 25, 10, "Action:"
-  Text 235, 70, 30, 10, "Reason:"
-  Text 5, 70, 25, 10, "Status:"
+    OkButton 265, 265, 50, 15
+    CancelButton 320, 265, 50, 15
+  Text 25, 30, 40, 10, "Actual date:"
+  Text 140, 30, 25, 10, "Action:"
+  Text 135, 50, 30, 10, "Reason:"
+  Text 140, 10, 25, 10, "Status:"
   Text 5, 130, 60, 10, "Mets information:"
-  Text 5, 150, 60, 10, "Verifs requested:"
-  Text 155, 130, 50, 10, "Denial reason:"
-  Text 165, 150, 45, 10, "Other notes:"
-  Text 120, 30, 45, 10, "Next review:"
-  GroupBox 300, 5, 80, 55, "Follow up"
-  GroupBox 5, 85, 375, 35, "Incomplete Form:"
-  Text 5, 10, 115, 10, "Case number: " & MAXIS_case_number
-  Text 125, 10, 40, 10, "Claim date:"
-  Text 5, 50, 65, 10, "Child's MEMB #(s):"
-  Text 5, 30, 105, 10, "Footer MM/YY: " & footer_month & "/" & footer_year
-  GroupBox 5, 165, 250, 115, "Verifications"
-  GroupBox 220, 5, 65, 55, "Programs"
+  Text 160, 130, 60, 10, "Verifs requested:"
+  Text 115, 70, 50, 10, "Denial reason:"
+  Text 20, 150, 45, 10, "Other notes:"
+  Text 25, 70, 45, 10, "Next review:"
+  GroupBox 285, 165, 85, 45, "Follow up"
+  GroupBox 5, 85, 365, 35, "Incomplete Form:"
+  Text 25, 50, 40, 10, "Claim date:"
+  Text 5, 10, 65, 10, "Child's MEMB #(s):"
+  GroupBox 5, 165, 255, 115, "Verifications"
+  GroupBox 290, 5, 80, 55, "Programs"
 EndDialog
 
 Do
@@ -247,8 +263,8 @@ Do
 		dialog good_cause_dialog
 		cancel_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
-		If isnumeric(MAXIS_footer_month) = false then err_msg = err_msg & vbnewline & "* You must enter the footer month to begin good cause."
-		If isnumeric(MAXIS_footer_year) = false then err_msg = err_msg & vbnewline & "* You must enter the footer year to begin good cause."
+		'If isnumeric(MAXIS_footer_month) = false then err_msg = err_msg & vbnewline & "* You must enter the footer month to begin good cause."
+		'If isnumeric(MAXIS_footer_year) = false then err_msg = err_msg & vbnewline & "* You must enter the footer year to begin good cause."
 		IF child_ref_number = "" THEN err_msg = err_msg & vbnewline & "* Please enter the child(s) member number."
 		If good_cause_droplist = "Select One:" then err_msg = err_msg & vbnewline & "* Select the Good Cause Application Status."
 		IF gc_status = "Select One:" THEN err_msg = err_msg & vbnewline & "* Select the Good Cause Case Status."
@@ -487,7 +503,6 @@ If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form,
 '-----------------------------------------------------------------------------------------------------Case note & email sending
 Call MAXIS_footer_month_confirmation    'Footer month & year could get wonky and not go into case note. This prevents that from happening.
 start_a_blank_case_note
-
 IF good_cause_droplist = "Application Review-Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
 IF good_cause_droplist = "Application Review-Incomplete" THEN Call write_variable_in_case_note("Good Cause Application Review - Incomplete")
 IF good_cause_droplist = "Change/exemption ending" THEN
@@ -519,11 +534,12 @@ IF DHS_3629_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Not
 IF DHS_3632_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Request for Additional Information (DHS 3632)")
 IF DHS_3631_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause End Exemption (DHS-3631)")
 IF DHS_3627_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Imp Information about Your Request Exemption (DHS-3627)")
-IF Recert_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Yearly Determination Packet")
+IF Recert_CHECKBOX   = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Yearly Determination Packet")
 IF DHS_3633_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Redetermination Approval (DHS 3633)")
 Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)
-IF FS_CHECKBOX = CHECKED and CCA_CHECKBOX = UNCHECKED and DWP_CHECKBOX = UNCHECKED and MFIP_CHECKBOX = UNCHECKED and HC_CHECKBOX = UNCHECKED and METS_CHECKBOX = UNCHECKED THEN memo_started = TRUE
+
+IF FS_CHECKBOX = CHECKED and CASH_CHECKBOX = CHECKED and CCA_CHECKBOX = UNCHECKED and DWP_CHECKBOX = UNCHECKED and MFIP_CHECKBOX = UNCHECKED and HC_CHECKBOX = UNCHECKED and METS_CHECKBOX = UNCHECKED THEN memo_started = TRUE
 
 IF memo_started = TRUE THEN
 	Call start_a_new_spec_memo

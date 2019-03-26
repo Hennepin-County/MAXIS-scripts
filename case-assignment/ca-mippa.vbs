@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("03/19/2019", "Added an error reporting option at the end of the script run.", "Casey Love, Hennepin County")
 call changelog_update("11/06/2017", "Updates to handle when there are multiple PMI associated with the same client.", "MiKayla Handley, Hennepin County")
 call changelog_update("10/10/2017", "Updates to correct dialog box error message and ensure the correct case number pulls through the whole script.", "MiKayla Handley, Hennepin County")
 call changelog_update("10/10/2017", "Updates to correct action when case noting and updating REPT/MLAR.", "MiKayla Handley, Hennepin County")
@@ -60,7 +61,7 @@ EMConnect ""
 'Navigates to MIPPA Lis Application-Medicare Improvement for Patients and Providers (MIPPA)
 CALL navigate_to_MAXIS_screen("REPT", "MLAR")
 EMReadscreen current_panel_check, 4, 2, 51
-IF current_panel_check = "MLAR" THEN script_end_procedure ("You are not on a MIPPA message. This script will stop")
+IF current_panel_check = "MLAR" THEN script_end_procedure_with_error_report ("You are not on a MIPPA message. This script will stop")
 EMReadscreen appl_status, 2, 5, 17
 IF appl_status <> "NO" THEN
  EMWriteScreen "NO", 5, 17
@@ -81,7 +82,7 @@ DO
 					row = 7
 				END IF
 			END IF
-			IF MLAR_info_confirmation = vbCancel THEN script_end_procedure ("It appears you have not made a selection please run the script again.")
+			IF MLAR_info_confirmation = vbCancel THEN script_end_procedure_with_error_report ("It appears you have not made a selection please run the script again.")
 			IF MLAR_info_confirmation = vbYes THEN 	EXIT DO
 LOOP UNTIL MLAR_info_confirmation = vbYes
 
@@ -122,16 +123,16 @@ TRANSMIT
 'msgbox " appl: " & appl_date & " rcvd: " & rcvd_date
 EMReadScreen error_msg, 18, 24, 2
 error_msg = trim(error_msg)
-IF error_msg = "SSN DOES NOT EXIST" THEN script_end_procedure ("Unable to find person in SSN search." & vbNewLine & "Please do a PERS search using the client's name." & vbNewLine & "Case may need to be APPLd.")
+IF error_msg = "SSN DOES NOT EXIST" THEN script_end_procedure_with_error_report ("Unable to find person in SSN search." & vbNewLine & "Please do a PERS search using the client's name." & vbNewLine & "Case may need to be APPLd.")
 'This will take us to certain places based on PERS search'
 EMReadscreen current_panel_check, 4, 2, 51
-IF current_panel_check = "PERS" THEN script_end_procedure ("Please search by person name and run script again.")
+IF current_panel_check = "PERS" THEN script_end_procedure_with_error_report ("Please search by person name and run script again.")
 
 Row = 8
 IF current_panel_check = "MTCH" THEN
 	DO
 		EMReadScreen PMI_number, 7, row, 71
-		IF trim(PMI_number) = "" THEN script_end_procedure("A PMI could not be found. The script will now end.")
+		IF trim(PMI_number) = "" THEN script_end_procedure_with_error_report("A PMI could not be found. The script will now end.")
 		PERS_check = MsgBox("Multiple matches found. Ensure duplicate PMIs have been reported, APPL using oldest PMI." & vbNewLine & "Press YES to confirm this is the PERS match you wish to act on." & vbNewLine & "For the next PERS match, press NO." & vbNewLine & vbNewLine & _
 		"   " & PMI_number, vbYesNoCancel, "Please confirm this PERS match")
 		If PERS_check = vbYes THEN
@@ -153,7 +154,7 @@ IF current_panel_check = "MTCH" THEN
 				row = 8
 			END IF
 		END IF
-		IF PERS_check = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
+		IF PERS_check = vbCancel THEN script_end_procedure_with_error_report ("The script has ended. The match has not been acted on.")
 	LOOP UNTIL PERS_check = vbYes
 'ELSE
 END IF
@@ -195,7 +196,7 @@ IF current_panel_check = "DSPL" THEN
 		    		row = 7
 		    	END IF
     	    END IF
-		    IF MLAR_case_number_check = vbCancel THEN script_end_procedure ("The script has ended. The case has not been acted on.")
+		    IF MLAR_case_number_check = vbCancel THEN script_end_procedure_with_error_report ("The script has ended. The case has not been acted on.")
 		ELSE
 			MLAR_case_number_check = MsgBox("The client is known to MAXIS but is not the primary applicant, please review to ensure case accurancy. Ensure duplicate PMIs have been reported, APPL or update using current or pending case." & vbNewLine & "Press YES to confirm this is the case you wish to act on." & vbNewLine & "For the next case, press NO." & vbNewLine & vbNewLine & _
 			"   " & MAXIS_case_number, vbYesNoCancel, "Please confirm this case.")
@@ -211,18 +212,18 @@ IF current_panel_check = "DSPL" THEN
 					row = 7
 				END IF
 			END IF
-			IF MLAR_case_number_check = vbCancel THEN script_end_procedure ("The script has ended. The case has not been acted on.")
+			IF MLAR_case_number_check = vbCancel THEN script_end_procedure_with_error_report ("The script has ended. The case has not been acted on.")
 		END IF
 	LOOP UNTIL MLAR_case_number_check = vbYes
 
     IF case_status = "CURRENT" THEN
     	EMReadScreen appl_date, 8, row, 25
     	APPL_box = MsgBox("This information is read from REPT/MLAR:" & vbcr & MLAD_maxis_name & vbcr & appl_date & vbcr & maxis_name & vbcr & client_dob & vbcr & gender_ask & vbcr & MLAR_addr_street & MLAR_addr_street & MLAR_addr_city & MLAR_addr_state & "" & MLAR_addr_zip & vbcr & MLAR_addr_phone & vbcr & "APPL case and click OK if you wish to continue running the script and CANCEL if you want to exit." & vbcr & "HCRE must be updated when adding HC", vbOKCancel)
-    	IF APPL_box = vbCancel then script_end_procedure("The script has ended. Please review the REPT/MLAR as you indicated that you wish to exit the script")
+    	IF APPL_box = vbCancel then script_end_procedure_with_error_report("The script has ended. Please review the REPT/MLAR as you indicated that you wish to exit the script")
     ELSEIF case_status = "PEND" THEN
     	EMReadScreen pend_date, 5, row, 47
     	PEND_box = MsgBox("This information is read from REPT/MLAR:" & vbcr & MLAD_maxis_name & vbcr & appl_date & vbcr & maxis_name & vbcr & client_dob & vbcr & gender_ask & vbcr & MLAR_addr_street & MLAR_addr_street & MLAR_addr_city & MLAR_addr_state & "" & MLAR_addr_zip & vbcr & MLAR_addr_phone & vbcr & "APPL case and click OK if you wish to continue running the script and CANCEL if you want to exit." & vbcr & "HCRE must be updated when adding HC", vbOKCancel)
-    	IF PEND_box = vbCancel then script_end_procedure("The script has ended. Please review the REPT/MLAR as you indicated that you wish to exit the script")
+    	IF PEND_box = vbCancel then script_end_procedure_with_error_report("The script has ended. Please review the REPT/MLAR as you indicated that you wish to exit the script")
     ELSEIF case_status = "CAF " THEN
     	MsgBox "Please ensure case is in a PEND II status"
     	EMReadScreen end_date, 5, row, 53
@@ -369,7 +370,7 @@ PF3
 CALL navigate_to_MAXIS_screen("REPT", "MLAR")
 row = 11 'this part should be a for next?' can we jsut do a cursor read for now?
 EMReadscreen msg_check, 1, row, 03
-IF msg_check <> "_" THEN script_end_procedure("You are not on a MIPPA message. This script will stop.")
+IF msg_check <> "_" THEN script_end_procedure_with_error_report("You are not on a MIPPA message. This script will stop.")
 DO
 	EMReadScreen MLAR_maxis_name, 21, row, 5
 	MLAR_maxis_name = TRIM(MLAR_maxis_name)
@@ -383,7 +384,7 @@ DO
 			row = 7
 		END IF
 	END IF
-	IF END_info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
+	IF END_info_confirmation = vbCancel THEN script_end_procedure_with_error_report ("The script has ended. The match has not been acted on.")
 	IF END_info_confirmation = vbYes THEN
 		EMwritescreen "X", row, 03
 		TRANSMIT
@@ -403,4 +404,4 @@ LOOP UNTIL END_info_confirmation = vbYes
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 'CALL create_outlook_email("pahoua.vang@hennepin.us;", "", maxis_name & maxis_case_number & " MIPPA case need Application sent EOM.", "", "", TRUE)
 'msgbox "where am i ending?"
-script_end_procedure("MIPPA CASE NOTE HAS BEEN UPDATED. PLEASE ENSURE THE CASE IS CLEARED on REPT/MLAR & THE FORMS HAVE BEEN MAILED. ")
+script_end_procedure_with_error_report("MIPPA CASE NOTE HAS BEEN UPDATED. PLEASE ENSURE THE CASE IS CLEARED on REPT/MLAR & THE FORMS HAVE BEEN MAILED. ")

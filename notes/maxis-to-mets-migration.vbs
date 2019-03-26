@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-
+Call changelog_update("03/15/2019", "Updated MEMO to allow for length of client name.", "MiKayla Handley, Hennepin County")
 Call changelog_update("03/11/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -72,7 +72,7 @@ EMConnect ""
 call maxis_case_number_finder(MAXIS_case_number)
 member_number = "01"
 
-'Main dialog: user will input case number and member number 
+'Main dialog: user will input case number and member number
 DO
 	DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
@@ -86,44 +86,44 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-'Gathering member information for notice, sending the memo & case noting 
+'Gathering member information for notice, sending the memo & case noting
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
 EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
-If PRIV_check = "PRIV" then 
+If PRIV_check = "PRIV" then
     script_end_procedure("PRIV case, cannot access/update. The script will now end.")
-Else 
+Else
     Call write_value_and_transmit(member_number, 20, 76)
     EmReadscreen first_name, 12, 6, 63
     EMReadScreen last_name, 24, 6, 30
-        
+
     first_name = trim(replace(first_name, "_", ""))
     last_name = trim(replace(last_name, "_", ""))
     Call fix_case(first_name, 0)
     Call fix_case(last_name, 0)
-    
+
     Client_name = trim(first_name) & " " & trim(last_name)
 
-    'logic to add closing date in the SPEC/MEMO for the client 
+    'logic to add closing date in the SPEC/MEMO for the client
     next_month = DateAdd("M", 1, date)
     next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)
     last_day_of_month = dateadd("d", -1, next_month) & "" 	'blank space added to make 'last_day_for_recert' a string
-    
+
     'THE MEMO----------------------------------------------------------------------------------------------------
     Call start_a_new_spec_memo
-    
+
     Call write_variable_in_SPEC_MEMO (Client_name & "'s Medical Assistance will end at the end of the day on " & last_day_of_month & ". It will end because our records show that you need to complete application in MNsure so we can redetermine your eligibility for health care coverage.")
     Call write_variable_in_SPEC_MEMO ("(Code of Federal Regulations, title 42, section 435.916, and Minnesota Statutes, section 256B.056, subdivision 7a)")
-    Call write_variable_in_SPEC_MEMO ("")
+    'Call write_variable_in_SPEC_MEMO ("")
     Call write_variable_in_SPEC_MEMO ("You can still apply for health care coverage. To apply, you must go to http://www.mnsure.org and complete an online application. If you cannot apply online, you can complete a paper application.")
-    Call write_variable_in_SPEC_MEMO ("")
+    'Call write_variable_in_SPEC_MEMO ("")
     Call write_variable_in_SPEC_MEMO ("NOTE: If you already applied for coverage for this person through MNsure or your county human services agency and got an approval notice, you do not have to apply again.")
-    'page 2 of MEMO 
+    'page 2 of MEMO
     Call write_variable_in_SPEC_MEMO ("If you have questions or want to ask for a paper application, call your county human services agency at 612-596-1300. You can also call the DHS Minnesota Health Care Programs (MHCP) Member Help Desk at 651-431-2670 or 800-657-3739. Or call using your preferred relay service.")
-    Call write_variable_in_SPEC_MEMO ("")
+    'Call write_variable_in_SPEC_MEMO ("")
     Call write_variable_in_SPEC_MEMO ("You can also get help through a navigator. To find one, go to http://www.mnsure.org. Click the ""Get Help"" tab on the home page. Then click the ""Find an assister"" link and use the assister directory to find a navigator near you. Your county human services agency can also help you find a navigator in your area.")
     Call write_variable_in_SPEC_MEMO ("You have the right to appeal. Visit this website for more information: https://www.hennepin.us/residents/health-medical/health-care-assistance")
     PF4
-    
+
     'THE CASE NOTE----------------------------------------------------------------------------------------------------
     Call start_a_blank_CASE_NOTE
     Call write_variable_in_CASE_NOTE("---Closed HC " & CM_plus_1_mo & "/" & CM_plus_1_yr & " for MEMB " & member_number & "---")
@@ -132,6 +132,7 @@ Else
     Call write_variable_in_CASE_NOTE("* Informational notice generated via SPEC/MEMO to client regarding applying through mnsure.org.")
     Call write_variable_in_CASE_NOTE("---")
     Call write_variable_in_CASE_NOTE(worker_signature)
-End if 
+	PF3
+End if
 
 script_end_procedure("")

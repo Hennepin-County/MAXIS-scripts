@@ -253,8 +253,6 @@ For array_item = 0 to UBound(Elig_Info_array)
     If elig_checkbox_array(array_item) = checked Then Call write_variable_in_CASE_NOTE ("* " & Elig_Info_array(array_item))
 Next
 Call write_bullet_and_variable_in_CASE_NOTE ("Notes", other_notes)
-Call write_variable_in_CASE_NOTE ("* Case processing assisted by a script")
-
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
