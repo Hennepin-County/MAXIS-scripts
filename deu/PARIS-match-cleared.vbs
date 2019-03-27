@@ -65,7 +65,6 @@ BeginDialog notice_action_dialog, 0, 0, 166, 85, "SEND DIFFERENCE NOTICE?"
 EndDialog
 
 '---------------------------------------------------------------------THE SCRIPT
-'Connecting to MAXIS
 EMConnect ""
 
 'warning_box = MsgBox("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again, or press ""cancel"" to exit the script.", vbOKCancel)
@@ -93,28 +92,35 @@ IF error_msg <> "" THEN script_end_procedure("An error occured in INFC, please p
 
 Row = 8
 DO
-	EMReadScreen IEVS_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
-	EMReadScreen IEVS_match, 5, row, 59
-	IF IEVS_match_status <> "RV" THEN
-	    ievp_info = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-        "   " & IEVS_match, vbYesNoCancel, "Please confirm this match")
-		IF ievp_info = vbNo THEN
+	EMReadScreen INTM_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
+	'UR Unresolved, System Entered Only
+	'PR Person Removed From Household
+	'HM Household Moved Out Of State
+	'RV Residency Verified, Person in MN
+	'FR Failed Residency Verification Request
+	'PC Person Closed, Not PARIS Interstate
+	'CC Case Closed, Not PARIS Interstate
+	EMReadScreen INTM_period, 5, row, 59
+	IF INTM_match_status = "" THEN script_end_procedure_with_error_report("A pending PARIS match could not be found. The script will now end.")
+	'IF INTM_match_status <> "RV" THEN
+	    INTM_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+        "   " & INTM_period, vbYesNoCancel, "Please confirm this match")
+		IF INTM_info_confirmation = vbNo THEN
             row = row + 1
             'msgbox "row: " & row
             IF row = 18 THEN
+				msgbox "this should transmit"
                 PF8
-                row = 7
-            END IF
+				row = 8
+				EMReadScreen INTM_match_status, 2, row, 73
+				EMReadScreen INTM_period, 5, row, 59
+			END IF
         END IF
-		IF IEVS_match_status = "" THEN script_end_procedure("A PARIS match could not be found. The script will now end.")
-		IF ievp_info = vbYes THEN EXIT DO
-    	IF ievp_info = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
-	Else
-		row = row + 1
-	END IF
-LOOP UNTIL ievp_info = vbYes
+		IF INTM_info_confirmation = vbYes THEN EXIT DO
+    	IF INTM_info_confirmation = vbCancel THEN script_end_procedure_with_error_report("The script has ended. The match has not been acted on.")
+LOOP UNTIL INTM_info_confirmation = vbYes
 '-----------------------------------------------------navigating into the match'
-'MsgBox row
+'msgbox "row: " & row
 CALL write_value_and_transmit("X", row, 3) 'navigating to insm'
 
 'Ensuring that the client has not already had a difference notice sent
