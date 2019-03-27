@@ -138,6 +138,7 @@ DO
 		IF row = 17 THEN
 			PF8
 			row = 7
+			EMReadScreen IEVS_period, 11, row, 47
 		END IF
 	END IF
 	IF ievp_info_confirmation = vbCancel THEN script_end_procedure_with_error_report ("The script has ended. The match has not been acted on.")
