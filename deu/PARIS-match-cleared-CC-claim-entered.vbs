@@ -186,7 +186,7 @@ Row = 8
 	Const state_name		= 2
 	Const match_case_num 	= 3
 	Const contact_info		= 4
-	Const progs 			= 5
+	Const match_prog			= 5
 
 	row = 13
 	DO
@@ -224,22 +224,23 @@ Row = 8
 			Match_contact_info = phone_number & " " & fax_number
 			state_array(contact_info, add_state) = Match_contact_info
 
-			'-------------------------------------------------------------------trims excess spaces of Match_Active_Programs
-	   		Match_Active_Programs = "" 'sometimes blanking over information will clear the value of the variable'
+			'-------------------------------------------------------------------trims excess spaces of match_active_programs
+	   		match_active_programs = "" 'sometimes blanking over information will clear the value of the variable'
 			'match_row = row           'establishing match row the same as the current state row. Needs another variables since we are only incrementing the match row in the loop. Row needs to stay the same for larger loop/next state.
 			DO
-				IF Match_Active_Programs = "" THEN EXIT DO
-				EMReadScreen Match_Prog, 22, row, 60
-	   			Match_Prog = TRIM(Match_Prog)
-				IF Match_Prog = "FOOD SUPPORT" THEN  Match_Prog = "FS"
-				IF Match_Prog = "HEALTH CARE" THEN Match_Prog = "HC"
-	    		IF Match_Prog <> "" THEN Match_Active_Programs = Match_Active_Programs & Match_Prog & ", "
+				IF match_active_programs = "" THEN EXIT DO
+				EMReadScreen match_active_programs, 22, row, 60
+	   			match_active_programs = TRIM(match_active_programs)
+				IF match_active_programs = "FOOD SUPPORT" THEN  progs = "FS"
+				IF match_active_programs = "HEALTH CARE" THEN progs = "HC"
+				IF match_active_programs = "CASH" THEN progs = "CASH"
+				IF match_active_programs = "NONE IDICATED" THEN progs = "HC"
+	    		IF match_active_programs <> "" THEN match_active_programs = match_active_programs & progs & ", "
 				row = row + 1
 			LOOP
-			Match_Active_Programs = trim(Match_Active_Programs)
-			'takes the last comma off of Match_Active_Programs when autofilled into dialog if more more than one app date is found and additional app is selected
-			IF right(Match_Active_Programs, 1) = "," THEN Match_Active_Programs = left(Match_Active_Programs, len(Match_Active_Programs) - 1)
-			state_array(progs, add_state) = Match_Active_Programs
+			match_active_programs = trim(match_active_programs)
+			IF right(match_active_programs, 1) = "," THEN match_active_programs = left(match_active_programs, len(match_active_programs) - 1)
+			state_array(progs, add_state) = match_active_programs
 			row = state_array(row_num, add_state)		're-establish the value of row to read phone and fax info
 			Match_contact_info = ""
 			phone_number = ""
@@ -329,95 +330,7 @@ Row = 8
 	  CheckBox 235, 195, 120, 10, "Earned Income disregard allowed", EI_checkbox
 	EndDialog
 
-	BeginDialog overpayment_dialog, 0, 0, 361, 280, "Match Cleared CC Claim Entered"
-	  EditBox 60, 5, 40, 15, MAXIS_case_number
-	  EditBox 140, 5, 20, 15, memb_number
-	  EditBox 230, 5, 20, 15, OT_resp_memb
-	  DropListBox 310, 5, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
-	  EditBox 60, 25, 40, 15, discovery_date
-	  DropListBox 210, 25, 40, 15, "Select:"+chr(9)+"BEER"+chr(9)+"NONE"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", IEVS_type
-	  DropListBox 310, 25, 45, 15, "Select:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"LAST YEAR"+chr(9)+"OTHER", select_quarter
-	  DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
-	  EditBox 130, 65, 30, 15, OP_from
-	  EditBox 180, 65, 30, 15, OP_to
-	  EditBox 245, 65, 35, 15, Claim_number
-	  EditBox 305, 65, 45, 15, Claim_amount
-	  DropListBox 50, 85, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_II
-	  EditBox 130, 85, 30, 15, OP_from_II
-	  EditBox 180, 85, 30, 15, OP_to_II
-	  EditBox 245, 85, 35, 15, Claim_number_II
-	  EditBox 305, 85, 45, 15, Claim_amount_II
-	  DropListBox 50, 105, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_III
-	  EditBox 130, 105, 30, 15, OP_from_III
-	  EditBox 180, 105, 30, 15, OP_to_III
-	  EditBox 245, 105, 35, 15, claim_number_III
-	  EditBox 305, 105, 45, 15, Claim_amount_III
-	  DropListBox 50, 125, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_IV
-	  EditBox 130, 125, 30, 15, OP_from_IV
-	  EditBox 180, 125, 30, 15, OP_to_IV
-	  EditBox 245, 125, 35, 15, claim_number_IV
-	  EditBox 305, 125, 45, 15, Claim_amount_IV
-	  EditBox 40, 155, 30, 15, HC_from
-	  EditBox 90, 155, 30, 15, HC_to
-	  EditBox 160, 155, 50, 15, HC_claim_number
-	  EditBox 235, 155, 45, 15, HC_claim_amount
-	  EditBox 100, 175, 20, 15, HC_resp_memb
-	  EditBox 235, 175, 45, 15, Fed_HC_AMT
-	  EditBox 70, 200, 160, 15, income_source
-	  CheckBox 235, 205, 120, 10, "Earned income disregard allowed", EI_checkbox
-	  EditBox 70, 220, 160, 15, EVF_used
-	  EditBox 310, 220, 45, 15, income_rcvd_date
-	  EditBox 70, 240, 285, 15, Reason_OP
-	  ButtonGroup ButtonPressed
-	    OkButton 260, 260, 45, 15
-	    CancelButton 310, 260, 45, 15
-	  Text 5, 10, 50, 10, "Case number: "
-	  Text 110, 10, 30, 10, "Memb #:"
-	  Text 170, 10, 60, 10, "OT resp. Memb #:"
-	  Text 260, 10, 50, 10, "Fraud referral:"
-	  Text 5, 30, 55, 10, "Discovery date: "
-	  Text 170, 30, 40, 10, "Match type:"
-	  Text 260, 30, 45, 10, "Match period:"
-	  GroupBox 5, 45, 350, 100, "Overpayment Information"
-	  Text 15, 70, 30, 10, "Program:"
-	  Text 105, 70, 20, 10, "From:"
-	  Text 165, 70, 10, 10, "To:"
-	  Text 215, 70, 25, 10, "Claim #"
-	  Text 285, 70, 20, 10, "AMT:"
-	  Text 130, 55, 30, 10, "(MM/YY)"
-	  Text 180, 55, 30, 10, "(MM/YY)"
-	  Text 15, 90, 30, 10, "Program:"
-	  Text 105, 90, 20, 10, "From:"
-	  Text 165, 90, 10, 10, "To:"
-	  Text 215, 90, 25, 10, "Claim #"
-	  Text 285, 90, 20, 10, "AMT:"
-	  Text 15, 110, 30, 10, "Program:"
-	  Text 105, 110, 20, 10, "From:"
-	  Text 165, 110, 10, 10, "To:"
-	  Text 215, 110, 25, 10, "Claim #"
-	  Text 285, 110, 20, 10, "AMT:"
-	  Text 15, 90, 30, 10, "Program:"
-	  Text 15, 130, 30, 10, "Program:"
-	  Text 105, 130, 20, 10, "From:"
-	  Text 165, 130, 10, 10, "To:"
-	  Text 215, 130, 25, 10, "Claim #"
-	  Text 285, 130, 20, 10, "AMT:"
-	  Text 5, 225, 65, 10, "Income verif used:"
-	  Text 15, 180, 80, 10, "HC OT resp. Memb(s) #:"
-	  Text 160, 180, 75, 10, "Total federal HC AMT:"
-	  Text 30, 245, 40, 10, "OP reason:"
-	  Text 245, 225, 60, 10, "Date income rcvd: "
-	  Text 215, 160, 20, 10, "AMT:"
-	  Text 15, 205, 50, 10, "Income source:"
-	  Text 15, 160, 20, 10, "From:"
-	  Text 130, 160, 25, 10, "Claim #"
-	  Text 75, 160, 10, 10, "To:"
-	  GroupBox 5, 145, 350, 50, "HC Programs Only"
-	  Text 15, 70, 30, 10, "Program:"
-	  Text 165, 70, 10, 10, "To:"
-	  GroupBox 5, 45, 350, 100, "Overpayment Information"
-	  Text 105, 70, 20, 10, "From:"
-	EndDialog
+
 
 	Do
 		err_msg = ""
@@ -510,7 +423,6 @@ Row = 8
 		CALL write_variable_in_CASE_NOTE("----- Match State: " & state_array(state_name, paris_match) & " -----")
 		Call write_bullet_and_variable_in_case_note("Match State Active Programs", state_array(progs, paris_match))
 		Call write_bullet_and_variable_in_case_note("Match State Contact Info", state_array(contact_info, paris_match))
-		Call write_bullet_and_variable_in_case_note("Match State Active Programs", state_array(progs, paris_match))
 	NEXT
 		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 		CALL write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
