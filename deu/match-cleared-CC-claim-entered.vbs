@@ -473,6 +473,7 @@ EndDialog
     Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
     Call write_variable_in_case_note("-----")
     Call write_variable_in_case_note(worker_signature)
+	PF3
 
 '-----------------------------------------------------------------------------------------CASENOTE
     start_a_blank_case_note
