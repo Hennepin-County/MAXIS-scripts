@@ -186,7 +186,7 @@ Row = 8
 	Const state_name		= 2
 	Const match_case_num 	= 3
 	Const contact_info		= 4
-	Const match_prog			= 5
+	Const progs			= 5
 
 	row = 13
 	DO
@@ -234,7 +234,7 @@ Row = 8
 				IF match_active_programs = "FOOD SUPPORT" THEN  progs = "FS"
 				IF match_active_programs = "HEALTH CARE" THEN progs = "HC"
 				IF match_active_programs = "CASH" THEN progs = "CASH"
-				IF match_active_programs = "NONE IDICATED" THEN progs = "HC"
+				IF match_active_programs = "NONE IDICATED" THEN progs = "NONE INDICATED"
 	    		IF match_active_programs <> "" THEN match_active_programs = match_active_programs & progs & ", "
 				row = row + 1
 			LOOP
