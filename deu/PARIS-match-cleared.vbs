@@ -109,7 +109,7 @@ DO
             row = row + 1
             'msgbox "row: " & row
             IF row = 18 THEN
-				msgbox "this should transmit"
+				'msgbox "this should transmit"
                 PF8
 				row = 8
 				EMReadScreen INTM_match_status, 2, row, 73
@@ -208,30 +208,36 @@ DO
 
 		'-------------------------------------------------------------------trims excess spaces of Match_Active_Programs
 	   	Match_Active_Programs = "" 'sometimes blanking over information will clear the value of the variable'
-		match_row = row           'establishing match row the same as the current state row. Needs another variables since we are only incrementing the match row in the loop. Row needs to stay the same for larger loop/next state.
+		'match_row = row           'establishing match row the same as the current state row. Needs another variables since we are only incrementing the match row in the loop. Row needs to stay the same for larger loop/next state.
         DO
-			EMReadScreen Match_Prog, 22, match_row, 60
+			IF Match_Active_Programs = "" THEN EXIT DO
+			EMReadScreen Match_Prog, 22, row, 60
 	   		Match_Prog = TRIM(Match_Prog)
-			IF Match_Prog = "" THEN EXIT DO
 			IF Match_Prog = "FOOD SUPPORT" THEN  Match_Prog = "FS"
 			IF Match_Prog = "HEALTH CARE" THEN Match_Prog = "HC"
 	    	IF Match_Prog <> "" THEN Match_Active_Programs = Match_Active_Programs & Match_Prog & ", "
-			match_row = match_row + 1        'incrementing to look for another match program
+			row = row + 1
 		LOOP
 
 		Match_Active_Programs = trim(Match_Active_Programs)
 		'takes the last comma off of Match_Active_Programs when autofilled into dialog if more more than one app date is found and additional app is selected
 		IF right(Match_Active_Programs, 1) = "," THEN Match_Active_Programs = left(Match_Active_Programs, len(Match_Active_Programs) - 1)
 		state_array(progs, add_state) = Match_Active_Programs
-
+			row = state_array(row_num, add_state)		're-establish the value of row to read phone and fax info
+			Match_contact_info = ""
+			phone_number = ""
+			fax_number = ""
 		'-----------------------------------------------add_state allows for the next state to gather all the information for array'
 		add_state = add_state + 1
+			'MsgBox add_state
         row = row + 3
 		IF row = 19 THEN
-            PF8                                         'moves to next page of matches or forces
 			EMReadScreen last_page_check, 21, 24, 2
 			last_page_check = trim(last_page_check)
-			IF last_page_check = "" THEN row = 13       'next page was found. looping to gather the rest of the cases on the additional page.
+				IF last_page_check = ""  THEN
+					PF8
+					row = 13
+				END IF
 		END IF
 	END IF
 LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
