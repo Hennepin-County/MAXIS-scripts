@@ -78,7 +78,8 @@ IF dail_check = "DAIL" THEN
 	   CALL write_value_and_transmit("INTM", 20, 71)   'navigates to IEVP
 	   TRANSMIT
     END IF
-ELSEIF dail_check <> "DAIL" THEN
+END IF
+IF dail_check <> "DAIL" THEN
  	CALL MAXIS_case_number_finder (MAXIS_case_number)
     MEMB_number = "01"
     BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
@@ -186,7 +187,7 @@ Row = 8
 	Const state_name		= 2
 	Const match_case_num 	= 3
 	Const contact_info		= 4
-	Const progs			= 5
+	Const progs		     	= 5
 
 	row = 13
 	DO
@@ -261,80 +262,96 @@ Row = 8
 	LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 
 	'--------------------------------------------------------------------Dialog
-	BeginDialog OP_Cleared_dialog, 0, 0, 361, 255, "PARIS Match Claim Entered"
-	  EditBox 55, 5, 40, 15, MAXIS_case_number
-	  EditBox 170, 5, 20, 15, MEMB_number
-	  EditBox 260, 5, 45, 15, INTM_period
-	  DropListBox 55, 25, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
-	  EditBox 170, 25, 20, 15, OT_resp_memb
-	  EditBox 260, 25, 45, 15, discovery_date
-	  DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS"+chr(9)+"SSI", OP_program
+	discovery_date = date
+	BeginDialog overpayment_dialog, 0, 0, 361, 285, "PARIS Match Claim Entered"
+	  EditBox 60, 5, 40, 15, MAXIS_case_number
+	  EditBox 200, 5, 20, 15, memb_number
+	  DropListBox 315, 5, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
+	  EditBox 60, 25, 40, 15, discovery_date
+	  EditBox 200, 25, 20, 15, OT_resp_memb
+	  EditBox 315, 25, 40, 15, INTM_match_period
+	  DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
 	  EditBox 130, 65, 30, 15, OP_from
 	  EditBox 180, 65, 30, 15, OP_to
 	  EditBox 245, 65, 35, 15, Claim_number
 	  EditBox 305, 65, 45, 15, Claim_amount
-	  DropListBox 50, 85, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS"+chr(9)+"SSI", OP_program_II
-	  EditBox 130, 85, 30, 15, OP_from_II
-	  EditBox 180, 85, 30, 15, OP_to_II
-	  EditBox 245, 85, 35, 15, Claim_number_II
-	  EditBox 305, 85, 45, 15, Claim_amount_II
-	  DropListBox 50, 105, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS"+chr(9)+"SSI", OP_program_III
-	  EditBox 130, 105, 30, 15, OP_from_III
-	  EditBox 180, 105, 30, 15, OP_to_III
-	  EditBox 245, 105, 35, 15, Claim_number_III
-	  EditBox 305, 105, 45, 15, Claim_amount_III
-	  DropListBox 85, 135, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", Contact_other_state
-	  DropListBox 265, 135, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", bene_other_state
-	  DropListBox 185, 155, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", collectible_dropdown
-	  DropListBox 265, 155, 90, 15, "Agency Error"+chr(9)+"Household"+chr(9)+"Non-Collect--Agency Error"+chr(9)+"GRH Vendor"+chr(9)+"Fraud"+chr(9)+"Admit Fraud", collectible_reason
-	  EditBox 50, 175, 45, 15, hc_claim_number
-	  EditBox 185, 175, 40, 15, Fed_HC_AMT
-	  EditBox 310, 175, 45, 15, HC_resp_memb
-	  EditBox 50, 195, 150, 15, Reason_OP
-	  EditBox 50, 215, 305, 15, other_notes
+	  DropListBox 50, 85, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_II
+ 	  EditBox 130, 85, 30, 15, OP_from_II
+ 	  EditBox 180, 85, 30, 15, OP_to_II
+ 	  EditBox 245, 85, 35, 15, Claim_number_II
+ 	  EditBox 305, 85, 45, 15, Claim_amount_II
+ 	  DropListBox 50, 105, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS"+chr(9)+"SSI", OP_program_III
+ 	  EditBox 130, 105, 30, 15, OP_from_III
+ 	  EditBox 180, 105, 30, 15, OP_to_III
+ 	  EditBox 245, 105, 35, 15, Claim_number_III
+ 	  EditBox 305, 105, 45, 15, Claim_amount_III
+ 	  DropListBox 50, 125, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"HC"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS"+chr(9)+"SSI", OP_program_IV
+ 	  EditBox 130, 125, 30, 15, OP_from_IV
+ 	  EditBox 180, 125, 30, 15, OP_to_IV
+ 	  EditBox 245, 125, 35, 15, Claim_number_IV
+ 	  EditBox 305, 125, 45, 15, Claim_amount_IV
+ 	  EditBox 40, 155, 30, 15, HC_from
+ 	  EditBox 90, 155, 30, 15, HC_to
+ 	  EditBox 160, 155, 50, 15, HC_claim_number
+ 	  EditBox 235, 155, 45, 15, HC_claim_amount
+ 	  EditBox 100, 175, 20, 15, HC_resp_memb
+ 	  EditBox 235, 175, 45, 15, Fed_HC_AMT
+	  CheckBox 10, 205, 50, 10, "Collectable?", collectible_checkbox
+	  DropListBox 100, 200, 100, 15, "Select:"+chr(9)+"Agency Error"+chr(9)+"Household"+chr(9)+"Non-Collect--Agency Error"+chr(9)+"GRH Vendor"+chr(9)+"Fraud"+chr(9)+"Admit Fraud", collectible_reason
+	  CheckBox 10, 220, 120, 10, "Accessing benefits in other state?", bene_other_state_checkbox
+	  CheckBox 10, 235, 85, 10, "Contacted other state?", contact_other_state_checkbox
+	  CheckBox 230, 200, 120, 10, "Out of state verification received?", out_of_state_checkbox
+	  EditBox 305, 215, 45, 15, verif_rcvd_date
+	  CheckBox 230, 235, 125, 10, "Earned income disregard allowed?", EI_checkbox
+	  EditBox 50, 250, 305, 15, Reason_OP
 	  ButtonGroup ButtonPressed
-	    OkButton 265, 235, 45, 15
-	    CancelButton 310, 235, 45, 15
-	  Text 5, 10, 50, 10, "Case Number: "
-	  Text 130, 10, 30, 10, "MEMB #:"
-	  Text 210, 10, 45, 10, "Match Period:"
-	  Text 5, 30, 50, 10, "Fraud Referral:"
-	  Text 110, 30, 55, 10, "OT Resp. Memb:"
-	  Text 205, 30, 55, 10, "Discovery Date: "
-	  GroupBox 5, 45, 350, 85, "Overpayment Information"
+	    OkButton 260, 270, 45, 15
+	    CancelButton 310, 270, 45, 15
+		GroupBox 5, 45, 350, 100, "Overpayment Information"
+	  Text 130, 55, 30, 10, "(MM/YY)"
+	  Text 180, 55, 30, 10, "(MM/YY)"
 	  Text 15, 70, 30, 10, "Program:"
 	  Text 105, 70, 20, 10, "From:"
 	  Text 165, 70, 10, 10, "To:"
 	  Text 215, 70, 25, 10, "Claim #"
 	  Text 285, 70, 20, 10, "AMT:"
+	  Text 15, 90, 30, 10, "Program:"
+	  Text 105, 90, 20, 10, "From:"
+	  Text 165, 90, 10, 10, "To:"
+	  Text 215, 90, 25, 10, "Claim #"
 	  Text 285, 90, 20, 10, "AMT:"
 	  Text 15, 110, 30, 10, "Program:"
 	  Text 105, 110, 20, 10, "From:"
 	  Text 165, 110, 10, 10, "To:"
 	  Text 215, 110, 25, 10, "Claim #"
 	  Text 285, 110, 20, 10, "AMT:"
-	  Text 235, 160, 30, 10, "Reason:"
-	  Text 145, 160, 40, 10, "Collectible?"
-	  Text 150, 140, 115, 10, "Accessing benefits in other state?:"
-	  Text 250, 180, 55, 10, "HC Resp. Memb:"
-	  Text 5, 140, 75, 10, "Contacted other state?: "
-	  Text 140, 180, 45, 10, "Fed HC AMT:"
-	  Text 5, 200, 40, 10, "OP Reason:"
-	  Text 5, 180, 40, 10, "HC Claim #:"
-	  Text 105, 90, 20, 10, "From:"
-	  Text 165, 90, 10, 10, "To:"
-	  Text 215, 90, 25, 10, "Claim #"
 	  Text 15, 90, 30, 10, "Program:"
-	  Text 5, 220, 45, 10, "Other Notes:"
-	  CheckBox 5, 160, 115, 10, "Out of state verification received", out_state_checkbox
-	  CheckBox 235, 195, 120, 10, "Earned Income disregard allowed", EI_checkbox
+	  Text 15, 130, 30, 10, "Program:"
+	  Text 105, 130, 20, 10, "From:"
+	  Text 165, 130, 10, 10, "To:"
+	  Text 215, 130, 25, 10, "Claim #"
+	  Text 285, 130, 20, 10, "AMT:"
+	  Text 15, 180, 80, 10, "HC OT resp. Memb(s) #:"
+	  Text 160, 180, 75, 10, "Total federal HC AMT:"
+	  Text 10, 255, 40, 10, "OP reason:"
+	  Text 250, 220, 50, 10, "Date verif rcvd: "
+	  Text 215, 160, 20, 10, "AMT:"
+	  Text 15, 160, 20, 10, "From:"
+	  Text 130, 160, 25, 10, "Claim #"
+	  Text 75, 160, 10, 10, "To:"
+	  GroupBox 5, 145, 350, 50, "HC Programs Only"
+	  Text 265, 30, 45, 10, "Match period:"
+	  Text 135, 30, 60, 10, "OT resp. Memb #:"
+	  GroupBox 5, 45, 350, 100, "Overpayment Information"
+	  Text 5, 30, 55, 10, "Discovery date: "
+	  Text 165, 10, 30, 10, "Memb #:"
+	  Text 5, 10, 50, 10, "Case number: "
+	  Text 260, 10, 50, 10, "Fraud referral:"
+	  Text 70, 205, 30, 10, "Reason:"
 	EndDialog
-
-
-
 	Do
 		err_msg = ""
-		dialog OP_Cleared_dialog
+		dialog overpayment_dialog
 		cancel_confirmation
 		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
 		IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
@@ -350,12 +367,7 @@ Row = 8
 			IF Claim_number_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
 			IF Claim_amount_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
 		END IF
-		IF IEVS_type = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match type entry."
-		IF EI_allowed_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if Earned Income disregard was allowed."
-	  	IF collectible_dropdown = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if claim is collectible."
-		IF collectible_dropdown = "YES" and collectible_reason = "" THEN err_msg = err_msg & vbnewline & "* Please advise why claim is collectible."
-		IF contact_other_state = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if other state(s) have been contacted."
-		IF bene_other_state = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise if client received benefits in other state(s)."
+		IF collectible_checkbox = CHECKED and collectible_reason = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise why claim is collectible."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
@@ -404,7 +416,7 @@ Row = 8
     start_a_blank_case_note
     Call write_variable_in_case_note("-----Claim Referral Tracking-----")
 	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
-    Call write_bullet_and_variable_in_case_note("Program(s)", programs)
+    Call write_bullet_and_variable_in_case_note("Program(s)", MN_Active_Programs)
 	Call write_bullet_and_variable_in_case_note("Action Date", date)
 	Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
     Call write_variable_in_case_note("-----")
@@ -424,31 +436,31 @@ Row = 8
 		Call write_bullet_and_variable_in_case_note("Match State Active Programs", state_array(progs, paris_match))
 		Call write_bullet_and_variable_in_case_note("Match State Contact Info", state_array(contact_info, paris_match))
 	NEXT
-		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
-		CALL write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-		IF OP_program_II <> "Select:" then CALL write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-		IF OP_program_III <> "Select:" then CALL write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-		IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
-		Call write_bullet_and_variable_in_case_note("Client accessing benefits in other state", bene_other_state)
-		Call write_bullet_and_variable_in_case_note("Contacted other state", contact_other_state)
-		IF programs = "Health Care" or programs = "Medical Assistance" THEN
-			Call write_bullet_and_variable_in_case_note("HC responsible members", HC_resp_memb)
-			Call write_bullet_and_variable_in_case_note("HC claim number", hc_claim_number)
-			Call write_bullet_and_variable_in_case_note("Total federal Health Care amount", Fed_HC_AMT)
-			CALL write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-		END IF
-		If out_state_checkbox = CHECKED THEN Call write_variable_in_case_note("Out of state verification received.")
-		Call write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
-		Call write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
-		Call write_bullet_and_variable_in_case_note("Collectible claim", collectible_dropdown)
-		Call write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
-		Call write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
-		IF other_notes <> "" THEN Call write_bullet_and_variable_in_case_note("Other notes", other_notes)
-		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
-		CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+	CALL write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+	IF OP_program_II <> "Select:" then CALL write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+	IF OP_program_III <> "Select:" then CALL write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+	IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
+	IF collectible_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Collectible claim")
+	IF collectible_checkbox = UNCHECKED THEN CALL write_variable_in_case_note("* Non-Collectible claim")
+	Call write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
+	IF bene_other_state_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Client accessing benefits in other state")
+	IF contact_other_state_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Contacted other state")
+	If out_state_checkbox = CHECKED THEN Call write_variable_in_case_note("Out of state verification received.")
+	IF HC_claim_number <> "" THEN
+		Call write_bullet_and_variable_in_case_note("HC responsible members", HC_resp_memb)
+		Call write_bullet_and_variable_in_case_note("HC claim number", hc_claim_number)
+		Call write_bullet_and_variable_in_case_note("Total federal Health Care amount", Fed_HC_AMT)
+		CALL write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+	END IF
+	Call write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
+	Call write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
+	Call write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
+	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+	CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 	PF3
 	'gathering the case note for the email'
-	IF programs = "Health Care" or programs = "Medical Assistance" THEN
+	IF HC_claim_number <> "" THEN
 		EMWriteScreen "x", 5, 3
 		Transmit
 		note_row = 4			'Beginning of the case notes
@@ -481,42 +493,38 @@ Row = 8
 	'ELSE
 	'	PF9
 	'END IF
-	'	CALL write_variable_in_CCOL_NOTE ("-----" & INTM_period & " PARIS MATCH " & "(" & first_name &  ") OVERPAYMENT CLAIM ENTERED-----")
-	'	CALL write_bullet_and_variable_in_CCOL_note("Client Name", Client_Name)
-	'	CALL write_bullet_and_variable_in_CCOL_note("MN Active Programs", MN_active_programs)
-	'	CALL write_bullet_and_variable_in_CCOL_note("Discovery date", discovery_date)
-	'	CALL write_bullet_and_variable_in_CCOL_note("Period", INTM_period)
-	'	write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
-	'	'formatting for multiple states
-	'	FOR paris_match = 0 to Ubound(state_array, 2)
-	'		write_variable_in_CCOL_NOTE("----- Match State: " & state_array(state_name, paris_match) & " -----")
-	'		CALL write_bullet_and_variable_in_CCOL_note("Match State Active Programs", state_array(progs, paris_match))
-	'		CALL write_bullet_and_variable_in_CCOL_note("Match State Contact Info", state_array(contact_info, paris_match))
-	'		CALL write_bullet_and_variable_in_CCOL_note("Match State Active Programs", state_array(progs, paris_match))
-	'	NEXT
-	'	write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
-	'	write_variable_in_CCOL_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-	'	IF OP_program_II <> "Select:" then write_variable_in_CCOL_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-	'	IF OP_program_III <> "Select:" then write_variable_in_CCOL_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-	'	IF EI_checkbox = CHECKED THEN write_variable_in_CCOL_NOTE("* Earned Income Disregard Allowed")
-	'	write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
-	'	CALL write_bullet_and_variable_in_CCOL_note("Client accessing benefits in other state", bene_other_state)
-	'	CALL write_bullet_and_variable_in_CCOL_note("Contacted other state", contact_other_state)
-	'	IF programs = "Health Care" or programs = "Medical Assistance" THEN
-	'		CALL write_bullet_and_variable_in_CCOL_note("HC responsible members", HC_resp_memb)
-	'		CALL write_bullet_and_variable_in_CCOL_note("HC claim number", hc_claim_number)
-	'		CALL write_bullet_and_variable_in_CCOL_note("Total federal Health Care amount", Fed_HC_AMT)
-	'		write_variable_in_CCOL_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-	'	END IF
-	'	If out_state_checkbox = CHECKED THEN Call write_variable_in_CCOL_note("Out of state verification received.")
-	'	CALL write_bullet_and_variable_in_CCOL_note("Other responsible member(s)", OT_resp_memb)
-	'	CALL write_bullet_and_variable_in_CCOL_note("Fraud referral made", fraud_referral)
-	'	CALL write_bullet_and_variable_in_CCOL_note("Collectible claim", collectible_dropdown)
-	'	CALL write_bullet_and_variable_in_CCOL_note("Reason that claim is collectible or not", collectible_reason)
-	'	CALL write_bullet_and_variable_in_CCOL_note("Reason for overpayment", Reason_OP)
-	'	IF other_notes <> "" THEN CALL write_bullet_and_variable_in_CCOL_note("Other notes", other_notes)
-	'	write_variable_in_CCOL_NOTE("----- ----- ----- ----- ----- ----- -----")
-	'	write_variable_in_CCOL_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+	'CALL write_variable_in_CASE_NOTE ("-----" & INTM_period & " PARIS MATCH " & "(" & first_name &  ") OVERPAYMENT CLAIM ENTERED-----")
+	'Call write_bullet_and_variable_in_case_note("Client Name", Client_Name)
+	'Call write_bullet_and_variable_in_case_note("MN Active Programs", MN_active_programs)
+	'Call write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
+	'Call write_bullet_and_variable_in_case_note("Period", INTM_period)
+	''formatting for multiple states
+	'FOR paris_match = 0 to Ubound(state_array, 2)
+	'	CALL write_variable_in_CASE_NOTE("----- Match State: " & state_array(state_name, paris_match) & " -----")
+	'	Call write_bullet_and_variable_in_case_note("Match State Active Programs", state_array(progs, paris_match))
+	'	Call write_bullet_and_variable_in_case_note("Match State Contact Info", state_array(contact_info, paris_match))
+	'NEXT
+	'CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+	'CALL write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+	'IF OP_program_II <> "Select:" then CALL write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+	'IF OP_program_III <> "Select:" then CALL write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+	'IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
+	'IF collectible_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Collectible claim")
+	'Call write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
+	'IF bene_other_state_checkbox = CHECKED CALL write_variable_in_case_note("* Client accessing benefits in other state")
+	'IF contact_other_state_checkbox = CHECKED CALL write_variable_in_case_note("* Contacted other state")
+	'If out_state_checkbox = CHECKED THEN Call write_variable_in_case_note("Out of state verification received.")
+	'IF HC_claim_number <> "" THEN
+	'	Call write_bullet_and_variable_in_case_note("HC responsible members", HC_resp_memb)
+	'	Call write_bullet_and_variable_in_case_note("HC claim number", hc_claim_number)
+	'	Call write_bullet_and_variable_in_case_note("Total federal Health Care amount", Fed_HC_AMT)
+	'	CALL write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+	'END IF
+	'Call write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
+	'Call write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
+	'Call write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
+	'CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+	'CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 	'PF3 'exit the case note'
 	'PF3 'back to dail'
 script_end_procedure("Success PARIS match updated and please copy case note to CCOL.")

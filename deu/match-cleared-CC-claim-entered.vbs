@@ -81,7 +81,6 @@ IF dail_check = "DAIL" THEN
 	    IF err_msg = "NO IEVS" THEN script_end_procedure_with_error_report("An error occurred in IEVP, please process manually.")'checking for error msg'
 	END IF
 END IF
-
 IF dail_check <> "DAIL" or IEVS_type <> "WAGE" or IEVS_type <> "BEER" or IEVS_type <> "UBEN" or IEVS_type <> "UNVI" THEN
  	CALL MAXIS_case_number_finder (MAXIS_case_number)
     MEMB_number = "01"
@@ -451,7 +450,7 @@ EndDialog
     			EmReadScreen MISC_description, 25, row, 30
     			MISC_description = replace(MISC_description, "_", "")
     			If trim(MISC_description) = "" then
-    				PF9
+    				'PF9
     				EXIT DO
     			Else
     				row = row + 1
@@ -460,6 +459,7 @@ EndDialog
     		If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
     	End if
 		'writing in the action taken and date to the MISC panel
+		PF9
 		EMWriteScreen "Claim Determination", Row, 30
 		EMWriteScreen date, Row, 66
 		PF3
