@@ -102,132 +102,35 @@ IF dail_check = "PARI" THEN
 
 	Row = 8
 	DO
-		EMReadScreen IEVS_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
-		IF IEVS_match_status = "" THEN
-			EMReadScreen error_msg, 2, 24, 2
-			error_msg = TRIM(error_msg)
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		END IF
-		EMReadScreen IEVS_period, 5, row, 59
-		IF IEVS_match_status <> "  x" THEN
-	    	ievp_info = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-        	"   " & IEVS_period, vbYesNoCancel, "Please confirm this match")
-			IF ievp_info = vbNo THEN
+	EMReadScreen INTM_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
+	'UR Unresolved, System Entered Only
+	'PR Person Removed From Household
+	'HM Household Moved Out Of State
+	'RV Residency Verified, Person in MN
+	'FR Failed Residency Verification Request
+	'PC Person Closed, Not PARIS Interstate
+	'CC Case Closed, Not PARIS Interstate
+	EMReadScreen INTM_period, 5, row, 59
+	IF INTM_match_status = "" THEN script_end_procedure_with_error_report("A pending PARIS match could not be found. The script will now end.")
+	'IF INTM_match_status <> "RV" THEN
+	    INTM_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+        "   " & INTM_period, vbYesNoCancel, "Please confirm this match")
+		IF INTM_info_confirmation = vbNo THEN
             	row = row + 1
             	'msgbox "row: " & row
             	IF row = 18 THEN
                 	PF8
-                	row = 7
+				row = 8
+				EMReadScreen INTM_match_status, 2, row, 73
+				EMReadScreen INTM_period, 5, row, 59
             	END IF
         	END IF
-			IF IEVS_match_status = "" THEN script_end_procedure("A PARIS match could not be found. The script will now end.")
-			IF ievp_info = vbYes THEN EXIT DO
-    		IF ievp_info = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
-		Else
-			row = row + 1
-		END IF
-	LOOP UNTIL ievp_info = vbYes
+		IF INTM_info_confirmation = vbYes THEN EXIT DO
+    	IF INTM_info_confirmation = vbCancel THEN script_end_procedure_with_error_report("The script has ended. The match has not been acted on.")
+LOOP UNTIL INTM_info_confirmation = vbYes
 
-ELSEIF dail_check <> "DAIL" THEN
-		CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-		EMwritescreen MEMB_number, 20, 76
-		transmit
-		EMReadscreen worker_number, 7, 21, 21
-		EMReadscreen PMI_number, 9, 4, 46
-		PMI_number = trim(PMI_number)
-		EMReadscreen SSN_number, 11, 7, 42
-		SSN_number = replace(SSN_number, " ", "")
-		back_to_self
-		CALL navigate_to_MAXIS_screen("INFC" , "____")
-		CALL write_value_and_transmit("INTM", 20, 71)
-		CALL write_value_and_transmit(SSN_number, 3, 63) '
-		Row = 8
-		DO
-			EMReadScreen IEVS_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
-			msgbox IEVS_match_status
-			IF IEVS_match_status = "" THEN
-				EMReadScreen error_msg, 2, 24, 2
-				error_msg = TRIM(error_msg)
-				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-				EXIT DO
-			ELSE
-				EMReadScreen IEVS_period, 5, row, 59
-				IF IEVS_period <> "" THEN
-			    	ievp_info = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-		        	"   " & IEVS_period, vbYesNoCancel, "Please confirm this match")
-					IF ievp_info = vbNo THEN
-		            	row = row + 1
-		            	'msgbox "row: " & row
-		            	IF row = 18 THEN
-		                	PF8
-		                	row = 7
-		            	END IF
-		        	END IF
-				END IF
-				'IF IEVS_match_status = "" THEN script_end_procedure("A PARIS match could not be found. The script will now end.")
-				IF ievp_info = vbYes THEN EXIT DO
-		    	IF ievp_info = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
-			'Else
-				'row = row + 1
-			END IF
-		LOOP UNTIL ievp_info = vbYes
-
-		'----------------------------------------clearing the case number
-'ELSEIF dail_check <> "DAIL" THEN 'and No PMI is found going into report intr
-'		CALL clear_line_of_text(18, 43)
-'		CALL navigate_to_MAXIS_screen("REPT" , "INTR")
-'		CALL write_value_and_transmit(worker_number, 5, 15)
-'		Row = 11
-		'EMReadScreen MAXIS_case_number_intr, 8, row, 6
-		'IF MAXIS_case_number_intr = MAXIS_case_number THEN
-			'EMReadScreen PMI_number_intr, 7, row, 23
-			'PMI_number_intr = trim(PMI_number_intr)
-			'IF PMI_number = PMI_number_intr Then
-				'ievp_info = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-				'"   " & PMI_number_intr, vbYesNoCancel, "Please confirm this match")
-				'IF ievp_info = vbNo THEN
-					'row = row + 1
-					''msgbox "row: " & row
-					'IF row = 18 THEN
-						'PF8
-						'row = 11
-						'END IF
-						'END IF
-						'IF IEVS_match_status = "" THEN script_end_procedure("A PARIS match could not be found. The script will now end.")
-						'IF ievp_info = vbYes THEN EXIT DO
-						'IF ievp_info = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
-						'END IF
-						'Else
-						'row = row + 1
-						'END IF
-						'LOOP UNTIL ievp_info = vbYes
-'		Row = 8
-'		DO
-'			EMReadScreen MAXIS_case_number_intm, 8 row, 3
-'			IF MAXIS_case_number_intr = MAXIS_case_number THEN
-'				EMReadScreen PMI_number_intr, 7, row, 23
-'				PMI_number_intr = trim(PMI_number_intr)
-'				IF PMI_number = PMI_number_intr Then
-'	    			ievp_info = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-'        			"   " & PMI_number_intr, vbYesNoCancel, "Please confirm this match")
-'					IF ievp_info = vbNo THEN
-'            			row = row + 1
-'            			'msgbox "row: " & row
-'            			IF row = 18 THEN
-'                			PF8
-'                			row = 11
-'            			END IF
-'        		END IF
-'				IF IEVS_match_status = "" THEN script_end_procedure("A PARIS match could not be found. The script will now end.")
-'				IF ievp_info = vbYes THEN EXIT DO
-'    			IF ievp_info = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
-'				END IF
-'			Else
-'				row = row + 1
-'			END IF
-'		LOOP UNTIL ievp_info = vbYes
-''-----------------------------------------------------navigating into the match'
-		'MsgBox row
+'-----------------------------------------------------navigating into the match'
+'msgbox "row: " & row
 		CALL write_value_and_transmit("X", row, 3) 'navigating to insm'
 		'Ensuring that the client has not already had a difference notice sent
 		EMReadScreen notice_sent, 1, 8, 73
@@ -310,10 +213,11 @@ ELSEIF dail_check <> "DAIL" THEN
 
 			'-------------------------------------------------------------------trims excess spaces of Match_Active_Programs
 	   		Match_Active_Programs = "" 'sometimes blanking over information will clear the value of the variable'
+			'match_row = row           'establishing match row the same as the current state row. Needs another variables since we are only incrementing the match row in the loop. Row needs to stay the same for larger loop/next state.
 			DO
+				IF Match_Active_Programs = "" THEN EXIT DO
 				EMReadScreen Match_Prog, 22, row, 60
 	   			Match_Prog = TRIM(Match_Prog)
-				IF Match_Active_Programs = "" THEN EXIT DO
 				IF Match_Prog = "FOOD SUPPORT" THEN  Match_Prog = "FS"
 				IF Match_Prog = "HEALTH CARE" THEN Match_Prog = "HC"
 	    		IF Match_Prog <> "" THEN Match_Active_Programs = Match_Active_Programs & Match_Prog & ", "
@@ -346,7 +250,7 @@ ELSEIF dail_check <> "DAIL" THEN
 	BeginDialog OP_Cleared_dialog, 0, 0, 361, 255, "PARIS Match Claim Entered"
 	  EditBox 55, 5, 40, 15, MAXIS_case_number
 	  EditBox 170, 5, 20, 15, MEMB_number
-	  EditBox 260, 5, 45, 15, IEVS_period
+	  EditBox 260, 5, 45, 15, INTM_period
 	  DropListBox 55, 25, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
 	  EditBox 170, 25, 20, 15, OT_resp_memb
 	  EditBox 260, 25, 45, 15, discovery_date
@@ -443,52 +347,68 @@ ELSEIF dail_check <> "DAIL" THEN
 	'Going to the MISC panel to add claim referral tracking information
 	Call navigate_to_MAXIS_screen ("STAT", "MISC")
 	Row = 6
-	EmReadScreen panel_number, 1, 02, 78
+    EmReadScreen panel_number, 1, 02, 73
 	If panel_number = "0" then
 		EMWriteScreen "NN", 20,79
 		TRANSMIT
+		'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
+		EmReadScreen MISC_error_msg,  74, 24, 02
+		IF trim(MISC_error_msg) = "" THEN
+	        case_note_only = FALSE
+		ELSE
+			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_msg & vbNewLine, vbYesNo + vbQuestion, "Message handling")
+			IF maxis_error_check = vbYes THEN
+				case_note_only = TRUE 'this will case note only'
+			END IF
+			IF maxis_error_check= vbNo THEN
+				case_note_only = FALSE 'this will update the panels and case note'
+			END IF
+		END IF
 	ELSE
-		Do
-			'Checking to see if the MISC panel is empty, if not it will find a new line'
-			EmReadScreen MISC_description, 25, row, 30
-			MISC_description = replace(MISC_description, "_", "")
-			If trim(MISC_description) = "" then
-				PF9
-				EXIT DO
-			Else
-				row = row + 1
-			End if
-		Loop Until row = 17
-		If row = 17 then script_end_procedure("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-	End if
-	'writing in the action taken and date to the MISC panel
-	EMWriteScreen "Claim Determination", Row, 30
-	EMWriteScreen date, Row, 66
-	PF3
-	'-----------------------------------------------------------------------------------------CASENOTE
-	start_a_blank_CASE_NOTE
-		Call write_variable_in_case_note("-----Claim Referral Tracking - Claim Determination-----")
-		Call write_bullet_and_variable_in_case_note("Program(s)", MN_active_programs)
-		Call write_bullet_and_variable_in_case_note("Action Date", date)
-		Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
-		Call write_variable_in_case_note("* Overpayment exists, collection process to follow.")
-		Call write_variable_in_case_note("---")
-		Call write_variable_in_case_note(worker_signature)
+		IF case_note_only = FALSE THEN
+			Do
+				'Checking to see if the MISC panel is empty, if not it will find a new line'
+				EmReadScreen MISC_description, 25, row, 30
+				MISC_description = replace(MISC_description, "_", "")
+				If trim(MISC_description) = "" then
+					PF9
+					EXIT DO
+				Else
+					row = row + 1
+				End if
+			Loop Until row = 17
+    		If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+		END IF
+		'writing in the action taken and date to the MISC panel
+		EMWriteScreen "Claim Determination", Row, 30
+		EMWriteScreen date, Row, 66
+		PF3
+	END IF 'checking to make sure maxis case is active'
+
+    start_a_blank_case_note
+    Call write_variable_in_case_note("-----Claim Referral Tracking-----")
+	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
+    Call write_bullet_and_variable_in_case_note("Program(s)", programs)
+	Call write_bullet_and_variable_in_case_note("Action Date", date)
+	Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
+    Call write_variable_in_case_note("-----")
+	Call write_variable_in_case_note(worker_signature)
 	PF3
 
+'-----------------------------------------------------------------------------------------CASENOTE
 	start_a_blank_case_note
-		CALL write_variable_in_CASE_NOTE ("-----" & IEVS_period & " PARIS MATCH " & "(" & first_name &  ") OVERPAYMENT CLAIM ENTERED-----")
-		Call write_bullet_and_variable_in_case_note("Client Name", Client_Name)
-		Call write_bullet_and_variable_in_case_note("MN Active Programs", MN_active_programs)
-		Call write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
-		Call write_bullet_and_variable_in_case_note("Period", IEVS_period)
+	CALL write_variable_in_CASE_NOTE ("-----" & INTM_period & " PARIS MATCH " & "(" & first_name &  ") OVERPAYMENT CLAIM ENTERED-----")
+	Call write_bullet_and_variable_in_case_note("Client Name", Client_Name)
+	Call write_bullet_and_variable_in_case_note("MN Active Programs", MN_active_programs)
+	Call write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
+	Call write_bullet_and_variable_in_case_note("Period", INTM_period)
 	'formatting for multiple states
-		FOR paris_match = 0 to Ubound(state_array, 2)
-			CALL write_variable_in_CASE_NOTE("----- Match State: " & state_array(state_name, paris_match) & " -----")
-			Call write_bullet_and_variable_in_case_note("Match State Active Programs", state_array(progs, paris_match))
-			Call write_bullet_and_variable_in_case_note("Match State Contact Info", state_array(contact_info, paris_match))
-			Call write_bullet_and_variable_in_case_note("Match State Active Programs", state_array(progs, paris_match))
-		NEXT
+	FOR paris_match = 0 to Ubound(state_array, 2)
+		CALL write_variable_in_CASE_NOTE("----- Match State: " & state_array(state_name, paris_match) & " -----")
+		Call write_bullet_and_variable_in_case_note("Match State Active Programs", state_array(progs, paris_match))
+		Call write_bullet_and_variable_in_case_note("Match State Contact Info", state_array(contact_info, paris_match))
+		Call write_bullet_and_variable_in_case_note("Match State Active Programs", state_array(progs, paris_match))
+	NEXT
 		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 		CALL write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
 		IF OP_program_II <> "Select:" then CALL write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
@@ -512,6 +432,7 @@ ELSEIF dail_check <> "DAIL" THEN
 		CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
 		CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 	PF3
+	'gathering the case note for the email'
 	IF programs = "Health Care" or programs = "Medical Assistance" THEN
 		EMWriteScreen "x", 5, 3
 		Transmit
@@ -545,11 +466,11 @@ ELSEIF dail_check <> "DAIL" THEN
 	'ELSE
 	'	PF9
 	'END IF
-	'	CALL write_variable_in_CCOL_NOTE ("-----" & IEVS_period & " PARIS MATCH " & "(" & first_name &  ") OVERPAYMENT CLAIM ENTERED-----")
+	'	CALL write_variable_in_CCOL_NOTE ("-----" & INTM_period & " PARIS MATCH " & "(" & first_name &  ") OVERPAYMENT CLAIM ENTERED-----")
 	'	CALL write_bullet_and_variable_in_CCOL_note("Client Name", Client_Name)
 	'	CALL write_bullet_and_variable_in_CCOL_note("MN Active Programs", MN_active_programs)
 	'	CALL write_bullet_and_variable_in_CCOL_note("Discovery date", discovery_date)
-	'	CALL write_bullet_and_variable_in_CCOL_note("Period", IEVS_period)
+	'	CALL write_bullet_and_variable_in_CCOL_note("Period", INTM_period)
 	'	write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
 	'	'formatting for multiple states
 	'	FOR paris_match = 0 to Ubound(state_array, 2)
