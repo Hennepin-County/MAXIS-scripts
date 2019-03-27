@@ -1235,6 +1235,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 
                                     'the income needs to apply to at least one program
                                     If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = unchecked AND EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = unchecked AND EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel) = unchecked AND EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, ei_panel) = unchecked Then sm_err_msg = sm_err_msg & vbNewLine & "* No programs have been selected that this icnome applies to. Chose at least one program that this income is budgeted for."
+                                    EARNED_INCOME_PANELS_ARRAY(verif_date, ei_panel) = trim(EARNED_INCOME_PANELS_ARRAY(verif_date, ei_panel))
+                                    If EARNED_INCOME_PANELS_ARRAY(verif_date, ei_panel) = "" Then sm_err_msg = sm_err_msg & "* Enter the date the pay information was received in the agency."
 
                                     If ButtonPressed = add_another_check Then       'functionality to add another check to the dialog using the '+' button
                                         pay_item = pay_item + 1     'incrementing the counter
@@ -2919,11 +2921,13 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                         EMWriteScreen EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel), 18, 35
                         updates_to_display = updates_to_display & vbNewLine & "Income type: " & EARNED_INCOME_PANELS_ARRAY(income_type, ei_panel) & " - Verification: " & EARNED_INCOME_PANELS_ARRAY(income_verif, ei_panel) & vbNewLine & "Hourly wage: $" & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) & "/hr. Pay Frequency: " & EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
 
-                        job_start_month = DatePart("m", EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel))      'entering the start date - BUGGY CODE - this isn't buggy per se but I should change this to the function for this
-                        job_start_year = DatePart("yyyy", EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel))
-                        job_start_month = right("00" & job_start_month, 2)
-                        job_start_year = right(job_start_year, 2)
-                        updates_to_display = updates_to_display & vbNewLine & "Income Start Date: " & EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)
+                        If IsDate(income_start_dt) = TRUE Then
+                            job_start_month = DatePart("m", EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel))      'entering the start date - BUGGY CODE - this isn't buggy per se but I should change this to the function for this
+                            job_start_year = DatePart("yyyy", EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel))
+                            job_start_month = right("00" & job_start_month, 2)
+                            job_start_year = right(job_start_year, 2)
+                            updates_to_display = updates_to_display & vbNewLine & "Income Start Date: " & EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)
+                        End If
 
                         'Here we update the panel with process and information that is specific to the program the income applies to
                         'The order is important here as some will take precedent. Currenly the order iw SNAP-GRH-HC-Cash
@@ -3483,7 +3487,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'each panel will
             If EARNED_INCOME_PANELS_ARRAY(this_is_a_new_panel, ei_panel) = TRUE Then end_msg = end_msg & " panel added eff with start date " & EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)
             If EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE Then end_msg = end_msg & " income budgeted, panel updated."
 
-            Call start_a_blank_CASE_NOTE        'now we start the case note
+            If developer_mode = FALSE Then Call start_a_blank_CASE_NOTE        'now we start the case note
 
             If EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE Then        'if we have income verification - the note is more detailed
                 STATS_manualtime = STATS_manualtime + 120
