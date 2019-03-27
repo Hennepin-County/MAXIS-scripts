@@ -61,61 +61,74 @@ EndDialog
 'Connecting to MAXIS
 EMConnect ""
 
-'warning_box = MsgBox("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again, or press ""cancel"" to exit the script.", vbOKCancel)
-'If warning_box = vbCancel THEN stopscript
-
-EMReadscreen dail_check, 4, 2, 48
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-IF MAXIS_case_number = "" THEN
-    DO
-    	DO
-    		err_msg = ""
-    		Dialog case_number_dialog
-    		IF ButtonPressed = 0 THEN StopScript
-	  		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-	  		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
-    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP UNTIL err_msg = ""
-		CALL check_for_password(are_we_passworded_out)
-	LOOP UNTIL are_we_passworded_out = false
-END IF
-MEMB_number = "01"
-discovery_date = date & ""
-'--------------------------------------------------If a DAIL is present'
-IF dail_check = "PARI" THEN
-	'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
-	EMSendKey "t"
-	transmit
-
-	EMReadScreen DAIL_message, 4, 6, 6 'read the DAIL msg'
-	IF DAIL_message <> "PARI" THEN script_end_procedure("This is not a Paris match. Please select a Paris match, and run the script again.")
-
-	EMReadScreen MAXIS_case_number, 8, 5, 73
-	MAXIS_case_number= TRIM(MAXIS_case_number)
-	'msgbox "did i make it"
-	'Navigating deeper into the match interface
-	CALL write_value_and_transmit("I", 6, 3)   'navigates to INFC
-	CALL write_value_and_transmit("INTM", 20, 71)   'navigates to INTM
-	EMReadScreen error_msg, 2, 24, 2
-	error_msg = TRIM(error_msg)
-	IF error_msg <> "" THEN script_end_procedure("An error occured in INFC, please process manually.")'-------option to read from REPT need to checking for error msg'
-
-	Row = 8
+MAXIS_footer_month = CM_mo
+MAXIS_footer_year = CM_yr
+'----------------------------------------------------------------------------------------------------DAIL
+EMReadscreen dail_check, 4, 2, 48 'changed from DAIL to view to ensure we are in DAIL/DAIL'
+IF dail_check = "DAIL" THEN
+	EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
+	IF IEVS_type = "PARI" THEN
+		EMSendKey "t"
+		match_found = TRUE
+		EMReadScreen MAXIS_case_number, 8, 5, 73
+		MAXIS_case_number= TRIM(MAXIS_case_number)
+		'----------------------------------------------------------------------------------------------------IEVP
+	   'Navigating deeper into the match interface
+	   CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
+	   CALL write_value_and_transmit("INTM", 20, 71)   'navigates to IEVP
+	   TRANSMIT
+    END IF
+ELSEIF dail_check <> "DAIL" THEN
+ 	CALL MAXIS_case_number_finder (MAXIS_case_number)
+    MEMB_number = "01"
+    BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
+      EditBox 60, 5, 65, 15, MAXIS_case_number
+      EditBox 60, 25, 30, 15, MEMB_number
+      ButtonGroup ButtonPressed
+        OkButton 20, 45, 50, 15
+        CancelButton 75, 45, 50, 15
+      Text 5, 30, 55, 10, "MEMB Number:"
+      Text 5, 10, 50, 10, "Case Number:"
+    EndDialog
 	DO
-	EMReadScreen INTM_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
-	'UR Unresolved, System Entered Only
-	'PR Person Removed From Household
-	'HM Household Moved Out Of State
-	'RV Residency Verified, Person in MN
-	'FR Failed Residency Verification Request
-	'PC Person Closed, Not PARIS Interstate
-	'CC Case Closed, Not PARIS Interstate
-	EMReadScreen INTM_period, 5, row, 59
-	IF INTM_match_status = "" THEN script_end_procedure_with_error_report("A pending PARIS match could not be found. The script will now end.")
-	'IF INTM_match_status <> "RV" THEN
-	    INTM_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-        "   " & INTM_period, vbYesNoCancel, "Please confirm this match")
-		IF INTM_info_confirmation = vbNo THEN
+		err_msg = ""
+		Dialog case_number_dialog
+		IF ButtonPressed = 0 THEN StopScript
+			If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+			If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP UNTIL err_msg = ""
+'----------------------------------------------------------------------------------------------------STAT
+	CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+	EMwritescreen MEMB_number, 20, 76
+	TRANSMIT
+	EMReadscreen SSN_number_read, 11, 7, 42
+	SSN_number_read = replace(SSN_number_read, " ", "")
+	CALL navigate_to_MAXIS_screen("INFC" , "____")
+	CALL write_value_and_transmit("INTM", 20, 71)
+	CALL write_value_and_transmit(SSN_number_read, 3, 63)
+END IF
+
+EMReadScreen err_msg, 7, 24, 2
+IF err_msg = "NO IEVS" THEN script_end_procedure_with_error_report("An error occurred in IEVP, please process manually.")'checking for error msg'
+
+'----------------------------------------------------------------------------------------------------selecting the correct wage match
+Row = 8
+	DO
+		EMReadScreen INTM_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
+		'UR Unresolved, System Entered Only
+		'PR Person Removed From Household
+		'HM Household Moved Out Of State
+		'RV Residency Verified, Person in MN
+		'FR Failed Residency Verification Request
+		'PC Person Closed, Not PARIS Interstate
+		'CC Case Closed, Not PARIS Interstate
+		EMReadScreen INTM_period, 5, row, 59
+		IF INTM_match_status = "" THEN script_end_procedure_with_error_report("A pending PARIS match could not be found. The script will now end.")
+		'IF INTM_match_status <> "RV" THEN
+	    	INTM_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+        	"   " & INTM_period, vbYesNoCancel, "Please confirm this match")
+			IF INTM_info_confirmation = vbNo THEN
             	row = row + 1
             	'msgbox "row: " & row
             	IF row = 18 THEN
@@ -127,7 +140,7 @@ IF dail_check = "PARI" THEN
         	END IF
 		IF INTM_info_confirmation = vbYes THEN EXIT DO
     	IF INTM_info_confirmation = vbCancel THEN script_end_procedure_with_error_report("The script has ended. The match has not been acted on.")
-LOOP UNTIL INTM_info_confirmation = vbYes
+	LOOP UNTIL INTM_info_confirmation = vbYes
 
 '-----------------------------------------------------navigating into the match'
 'msgbox "row: " & row
@@ -504,6 +517,4 @@ LOOP UNTIL INTM_info_confirmation = vbYes
 	'	write_variable_in_CCOL_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 	'PF3 'exit the case note'
 	'PF3 'back to dail'
-END IF
-
 script_end_procedure("Success PARIS match updated and please copy case note to CCOL.")
