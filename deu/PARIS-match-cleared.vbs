@@ -203,30 +203,30 @@ DO
 			fax_number = TRIM(fax_number)
 		End if
 		If fax_number = "Fax: (     )" then fax_number = ""
-		Match_contact_info = phone_number & " " & fax_number
-		state_array(contact_info, add_state) = Match_contact_info
+		match_contact_info = phone_number & " " & fax_number
+		state_array(contact_info, add_state) = match_contact_info
 
-		'-------------------------------------------------------------------trims excess spaces of Match_Active_Programs
-	   	Match_Active_Programs = "" 'sometimes blanking over information will clear the value of the variable'
+		'-------------------------------------------------------------------trims excess spaces of match_active_programs
+		match_active_programs = "" 'sometimes blanking over information will clear the value of the variable'
 		'match_row = row           'establishing match row the same as the current state row. Needs another variables since we are only incrementing the match row in the loop. Row needs to stay the same for larger loop/next state.
-        DO
-			IF Match_Active_Programs = "" THEN EXIT DO
-			EMReadScreen Match_Prog, 22, row, 60
-	   		Match_Prog = TRIM(Match_Prog)
-			IF Match_Prog = "FOOD SUPPORT" THEN  Match_Prog = "FS"
-			IF Match_Prog = "HEALTH CARE" THEN Match_Prog = "HC"
-	    	IF Match_Prog <> "" THEN Match_Active_Programs = Match_Active_Programs & Match_Prog & ", "
+		DO
+
+			EMReadScreen other_state_active_programs, 22, row, 60
+			other_state_active_programs = TRIM(other_state_active_programs)
+			IF other_state_active_programs = "" THEN EXIT DO
+			IF other_state_active_programs = "FOOD SUPPORT" THEN match_active_programs = match_active_programs & "FS, "
+			IF other_state_active_programs = "HEALTH CARE" THEN match_active_programs = match_active_programs &  "HC, "
+			IF other_state_active_programs = "CASH" THEN match_active_programs = match_active_programs & "CASH, "
+			IF other_state_active_programs = "NONE IDICATED" THEN match_active_programs = match_active_programs &  "NONE INDICATED"
 			row = row + 1
 		LOOP
-
-		Match_Active_Programs = trim(Match_Active_Programs)
-		'takes the last comma off of Match_Active_Programs when autofilled into dialog if more more than one app date is found and additional app is selected
-		IF right(Match_Active_Programs, 1) = "," THEN Match_Active_Programs = left(Match_Active_Programs, len(Match_Active_Programs) - 1)
-		state_array(progs, add_state) = Match_Active_Programs
-			row = state_array(row_num, add_state)		're-establish the value of row to read phone and fax info
-			Match_contact_info = ""
-			phone_number = ""
-			fax_number = ""
+		match_active_programs = trim(match_active_programs)
+		IF right(match_active_programs, 1) = "," THEN match_active_programs = left(match_active_programs, len(match_active_programs) - 1)
+		state_array(progs, add_state) = match_active_programs
+		row = state_array(row_num, add_state)		're-establish the value of row to read phone and fax info
+		match_contact_info = ""
+		phone_number = ""
+		fax_number = ""
 		'-----------------------------------------------add_state allows for the next state to gather all the information for array'
 		add_state = add_state + 1
 			'MsgBox add_state
@@ -271,7 +271,7 @@ IF send_notice_checkbox = CHECKED THEN
 		For item = 0 to Ubound(state_array, 2)
 		    Text 10, 60, 75, 10, "Match State: "   & state_array(state_name, item)
 		    Text 10, 75, 135, 10, "Match State Case Number: "   & state_array(match_case_num, item)
-		    Text 10, 90, 155, 10, "Match State Active Programs:" & state_array(progs, item)
+		    Text 10, 90, 155, 10, "Match State Active Programs: " & state_array(progs, item)
 		    Text 10, 105, 360, 15, "Match State Contact Info: " & state_array(contact_info, item)
 		Next
 		   'For item = 1 to Ubound(state_array, 2)
