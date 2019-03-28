@@ -66,23 +66,23 @@ changelog_display
     'TYPE OF PANEL TO ADD Dialog.   .   .   .   .   . Line 683
     'NEW JOB PANEL Dialog   .   .   .   .   .   .   . Line 730
     'CONFIRM ADD PANEL MONTH Dialog .   .   .   .   . Line 815
-'GATHERING PAY INFORMATION FOR EACH PANEL   .   .   . Line 1001
-    'vbYesNo MsgBox - employer_check.   .   .   .   . Line 1025
-    'ENTER PAY Dialog   .   .   .   .   .   .   .   . Line 1091
-    'CHOOSE CORRECT METHOD Dialog   .   .   .   .   . Line 1290
-    'Order checks chronological .   .   .   .   .   . Line 1359
-    'Find dates for bimonthly Dialog.   .   .   .   . Line 1379
-    'Looking for missing checks .   .   .   .   .   . Line 1535
-    'FREQUENCY ISSUE Dialog .   .   .   .   .   .   . Line 1695
-    'Use Estimate functionality .   .   .   .   .   . Line 1841
-    'CONFIRM BUDGET Dialog  .   .   .   .   .   .   . Line 2054
-'DETERMINING WHICH MONTHS TO UPDATE .   .   .   .   . Line 2593
-'GOING TO UPDATE THE PANEL  .   .   .   .   .   .   . Line 2630
-    'Updating for SNAP  .   .   .   .   .   .   .   . Line 2957
-    'Updating for GRH   .   .   .   .   .   .   .   . Line 3166
-    'Updating for HC.   .   .   .   .   .   .   .   . Line 3271
-    'Updating for Cash  .   .   .   .   .   .   .   . Line 3334
-'CASE NOTING.   .   .   .   .   .   .   .   .   .   . Line 3481
+'GATHERING PAY INFORMATION FOR EACH PANEL   .   .   . Line 1014
+    'vbYesNo MsgBox - employer_check.   .   .   .   . Line 1038
+    'ENTER PAY Dialog   .   .   .   .   .   .   .   . Line 1104
+    'CHOOSE CORRECT METHOD Dialog   .   .   .   .   . Line 1303
+    'Order checks chronological .   .   .   .   .   . Line 1372
+    'Find dates for bimonthly Dialog.   .   .   .   . Line 1392
+    'Looking for missing checks .   .   .   .   .   . Line 1548
+    'FREQUENCY ISSUE Dialog .   .   .   .   .   .   . Line 1708
+    'Use Estimate functionality .   .   .   .   .   . Line 1854
+    'CONFIRM BUDGET Dialog  .   .   .   .   .   .   . Line 2067
+'DETERMINING WHICH MONTHS TO UPDATE .   .   .   .   . Line 2606
+'GOING TO UPDATE THE PANEL  .   .   .   .   .   .   . Line 2643
+    'Updating for SNAP  .   .   .   .   .   .   .   . Line 2970
+    'Updating for GRH   .   .   .   .   .   .   .   . Line 3179
+    'Updating for HC.   .   .   .   .   .   .   .   . Line 3284
+    'Updating for Cash  .   .   .   .   .   .   .   . Line 3347
+'CASE NOTING.   .   .   .   .   .   .   .   .   .   . Line 3494
 
 'SEARCH TAGS--------------------------------------------------------------------
 'FUTURE FUNCTIONALITY        - ideas/code to be added at a future time.
@@ -984,6 +984,19 @@ Do
 
         End Select
 
+        enter_JOBS_clt_ref_nbr = ""
+        enter_JOBS_inc_type_code = ""
+        enter_JOBS_subsdzd_inc_type = ""
+        enter_JOBS_verif_code = ""
+        enter_JOBS_hrly_wage = ""
+        enter_JOBS_employer = ""
+        enter_JOBS_start_date = ""
+        enter_JOBS_end_date = ""
+        snap_checkbox = ""
+        cash_checkbox = ""
+        hc_checkbox = ""
+        grh_checkbox = ""
+
         MAXIS_footer_month = original_month     'resetting the footer month and year to what was indicated in the initial dialog
         MAXIS_footer_year = original_year
         Call back_to_SELF
@@ -1042,7 +1055,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
             not_30_explanation = ""                                             'blanking out for each loop of panels
             est_weekly_hrs = ""                                                 'Blaning out variables used for math
             list_of_excluded_pay_dates = ""
-
+            known_pay_date = ""
             'HOW the LIST_OF_INCOME_ARRAY(panel_indct, pay_item) position of the array works"
                 'Basically there are 2 arrays, one of all the panels and one of all the income/paychecks
                 'In order to connect these two arrays - this position in the LIST_OF_INCOME_ARRAY tells you which position in the EARNED_INCOME_PANELS_ARRAY it belongs to
