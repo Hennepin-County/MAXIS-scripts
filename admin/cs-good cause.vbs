@@ -82,13 +82,10 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-back_to_self
 EMWriteScreen MAXIS_case_number, 18, 43
-
 Call navigate_to_MAXIS_screen("CASE", "CURR")
 EMReadScreen CURR_panel_check, 4, 2, 55
 If CURR_panel_check <> "CURR" then ObjExcel.Cells(excel_row, 5).Value = ""
-
 EMReadScreen case_status, 8, 8, 9
 case_status = trim(case_status)
 
@@ -147,11 +144,12 @@ IF FS_status_check = "ACTV" or FS_status_check = "PEND" THEN
 	FS_CHECKBOX = CHECKED
 END IF
 
-IF hc_status_check = "ACTV" or hc_status_check = "PEND"  THEN
+IF hc_status_check = "ACTV" or hc_status_check = "PEND" THEN
 	HC_STATUS = TRUE
 	HC_CHECKBOX   = CHECKED
 END IF
-IF cca_status_check = "ACTV" or cca_status_check = "PEND"  THEN
+
+IF cca_status_check = "ACTV" or cca_status_check = "PEND" THEN
 	CCA_STATUS = TRUE
 	CCA_CHECKBOX  = CHECKED
 END IF
@@ -192,7 +190,7 @@ If cash1_prog_check = "" THEN
 END IF
 
 If cash2_prog_check = "" THEN
-	If cash2_status_check = "INAC" or cash2_status_check = "SUSP" or cash2_status_check = "DENY" or cash2_status_check = ""     THEN CASH_STATUS = FALSE
+	If cash2_status_check = "INAC" or cash2_status_check = "SUSP" or cash2_status_check = "DENY" or cash2_status_check = "" THEN CASH_STATUS = FALSE
 END IF
 
 IF emer_status_check = "ACTV" or emer_status_check = "PEND"  THEN ER_STATUS = TRUE
