@@ -52,37 +52,37 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'SCRIPT TABLE OF CONTENTS-------------------------------------------------------
-'FUNCTIONS  .   .   .   .   .   .   .   .   .   .   . Line 92
-    'sort_dates .   .   .   .   .   .   .   .   .   . Line 94
-    'navigate_to_approved_SNAP_eligibility  .   .   . Line 131
-'CONSTANTS  .   .   .   .   .   .   .   .   .   .   . Line 152
-'SCRIPT START   .   .   .   .   .   .   .   .   .   . Line 257
-    'INITIAL Dialog .   .   .   .   .   .   .   .   . Line 268
-'FINDING ALL CURRENT EI PANELS  .   .   .   .   .   . Line 361
-    'JOBS   .   .   .   .   .   .   .   .   .   .   . Line 370
-    'BUSI   .   .   .   .   .   .   .   .   .   .   . Line 533
-'ADDING NEW EI PANELS   .   .   .   .   .   .   .   . Line 613
-    'ASK TO ADD NEW PANEL Dailog.   .   .   .   .   . Line 625
-    'TYPE OF PANEL TO ADD Dialog.   .   .   .   .   . Line 673
-    'NEW JOB PANEL Dialog   .   .   .   .   .   .   . Line 720
-    'CONFIRM ADD PANEL MONTH Dialog .   .   .   .   . Line 805
-'GATHERING PAY INFORMATION FOR EACH PANEL   .   .   . Line 991
-    'vbYesNo MsgBox - employer_check.   .   .   .   . Line 1015
-    'ENTER PAY Dialog   .   .   .   .   .   .   .   . Line 1077
-    'CHOOSE CORRECT METHOD Dialog   .   .   .   .   . Line 1269
-    'Order checks chronological .   .   .   .   .   . Line 1339
-    'Find dates for bimonthly Dialog.   .   .   .   . Line
-    'Looking for missing checks .   .   .   .   .   . Line 1427
-    'FREQUENCY ISSUE Dialog .   .   .   .   .   .   . Line 1568
-    'Use Estimate functionality .   .   .   .   .   . Line 1714
-    'CONFIRM BUDGET Dialog  .   .   .   .   .   .   . Line 1907
-'DETERMINING WHICH MONTHS TO UPDATE .   .   .   .   . Line 2396
-'GOING TO UPDATE THE PANEL  .   .   .   .   .   .   . Line 2433
-    'Updating for SNAP  .   .   .   .   .   .   .   . Line 2683
-    'Updating for GRH   .   .   .   .   .   .   .   . Line 2892
-    'Updating for HC.   .   .   .   .   .   .   .   . Line 2997
-    'Updating for Cash  .   .   .   .   .   .   .   . Line 3060
-'CASE NOTING.   .   .   .   .   .   .   .   .   .   . Line 3209
+'FUNCTIONS  .   .   .   .   .   .   .   .   .   .   . Line 96
+    'sort_dates .   .   .   .   .   .   .   .   .   . Line 98
+    'navigate_to_approved_SNAP_eligibility  .   .   . Line 135
+'CONSTANTS  .   .   .   .   .   .   .   .   .   .   . Line 156
+'SCRIPT START   .   .   .   .   .   .   .   .   .   . Line 264
+    'INITIAL Dialog .   .   .   .   .   .   .   .   . Line 275
+'FINDING ALL CURRENT EI PANELS  .   .   .   .   .   . Line 366
+    'JOBS   .   .   .   .   .   .   .   .   .   .   . Line 377
+    'BUSI   .   .   .   .   .   .   .   .   .   .   . Line 539
+'ADDING NEW EI PANELS   .   .   .   .   .   .   .   . Line 619
+    'ASK TO ADD NEW PANEL Dailog.   .   .   .   .   . Line 634
+    'TYPE OF PANEL TO ADD Dialog.   .   .   .   .   . Line 683
+    'NEW JOB PANEL Dialog   .   .   .   .   .   .   . Line 730
+    'CONFIRM ADD PANEL MONTH Dialog .   .   .   .   . Line 815
+'GATHERING PAY INFORMATION FOR EACH PANEL   .   .   . Line 1001
+    'vbYesNo MsgBox - employer_check.   .   .   .   . Line 1025
+    'ENTER PAY Dialog   .   .   .   .   .   .   .   . Line 1091
+    'CHOOSE CORRECT METHOD Dialog   .   .   .   .   . Line 1290
+    'Order checks chronological .   .   .   .   .   . Line 1359
+    'Find dates for bimonthly Dialog.   .   .   .   . Line 1379
+    'Looking for missing checks .   .   .   .   .   . Line 1535
+    'FREQUENCY ISSUE Dialog .   .   .   .   .   .   . Line 1695
+    'Use Estimate functionality .   .   .   .   .   . Line 1841
+    'CONFIRM BUDGET Dialog  .   .   .   .   .   .   . Line 2054
+'DETERMINING WHICH MONTHS TO UPDATE .   .   .   .   . Line 2593
+'GOING TO UPDATE THE PANEL  .   .   .   .   .   .   . Line 2630
+    'Updating for SNAP  .   .   .   .   .   .   .   . Line 2957
+    'Updating for GRH   .   .   .   .   .   .   .   . Line 3166
+    'Updating for HC.   .   .   .   .   .   .   .   . Line 3271
+    'Updating for Cash  .   .   .   .   .   .   .   . Line 3334
+'CASE NOTING.   .   .   .   .   .   .   .   .   .   . Line 3481
 
 'SEARCH TAGS--------------------------------------------------------------------
 'FUTURE FUNCTIONALITY        - ideas/code to be added at a future time.
@@ -217,7 +217,9 @@ const spoke_to              = 59
 const employer_with_underscores = 60
 const bimonthly_first       = 61
 const bimonthly_second      = 62
-const convo_detail          = 63
+const hc_budg_notes         = 63
+const hc_retro              = 64
+const convo_detail          = 65
 
 'Constants to make an option selection easier to read.
 const use_actual        = 1
@@ -1199,6 +1201,9 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                                     End If
 
                                                 End If
+                                                If IsDate(EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)) = TRUE Then
+                                                    If DateDiff("d", LIST_OF_INCOME_ARRAY(pay_date, all_income), EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)) > 0 Then sm_err_msg = sm_err_msg & vbNewLine & "* Pay date (" & LIST_OF_INCOME_ARRAY(pay_date, all_income) & ") is listed before the income start date."
+                                                End If
                                             End If
                                             If IsNumeric(LIST_OF_INCOME_ARRAY(gross_amount, all_income)) = FALSE Then sm_err_msg = sm_err_msg & vbNewLine & "* Enter the Gross Amount of the check as a number."            'pay amount should be a number
                                             If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = 1 AND trim(LIST_OF_INCOME_ARRAY(reason_to_exclude, all_income)) = "" Then sm_err_msg = sm_err_msg & vbNewLine & "* The check on " & LIST_OF_INCOME_ARRAY(pay_date, all_income) & " is to be excluded, list a reason for excluding this check."     'need to explain excluding a check
@@ -2028,9 +2033,9 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                         End If
                         If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel) = checked Then         'resizing the dialog and the HC Groupbox if income applies to HC
                             dlg_len = dlg_len + 20
-                            hc_grp_len = 40
+                            hc_grp_len = 60
                             length_of_checks_list = cash_checks*10
-                            If length_of_checks_list < 20 Then length_of_checks_list = 20
+                            If length_of_checks_list < 60 Then length_of_checks_list = 60
 
                             hc_grp_len = hc_grp_len + length_of_checks_list
                             dlg_len = dlg_len + hc_grp_len
@@ -2169,7 +2174,11 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 
                               y_pos = y_pos + 10
                               Text 150, y_pos, 250, 10, "Average amount per pay period: $" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) & " - for HC Inc Est Pop-up."
-                              CheckBox 150, y_pos + 10, 250, 10, "Check here if these checks and estimated pay amount are accurate.", hc_confirm_checks_checkbox
+
+                              Text 150, y_pos + 15, 200,10, "Notes about HC Budget:"
+                              EditBox 150, y_pos + 25, 250, 15, EARNED_INCOME_PANELS_ARRAY(hc_budg_notes, ei_panel)
+
+                              CheckBox 150, y_pos + 45, 200, 10, "Check here if HC needs a Retrospective Budget.", hc_retro_budget_checkbox
 
                               list_pos = 0
                               ' 'this part actually looks at the income information IN ORDER
@@ -2185,8 +2194,11 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                               next
 
                               bottom_of_checks = y_pos + (list_pos * 10)
-                              If list_pos < 2 Then bottom_of_checks = y_pos + 20
-                              y_pos = bottom_of_checks + 10
+                              If list_pos < 6 Then bottom_of_checks = y_pos + 60
+                              y_pos = bottom_of_checks + 5
+
+                              CheckBox 10, y_pos, 250, 10, "Check here if these checks and estimated pay amount are accurate.", hc_confirm_checks_checkbox
+                              y_pos = y_pos + 25
                           Else
                             hc_confirm_checks_checkbox = checked        'default if income does not apply to HC
                           End If
@@ -2326,6 +2338,9 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                             End If
                         End If
                     End If
+
+                    If hc_retro_budget_checkbox = checked Then EARNED_INCOME_PANELS_ARRAY(hc_retro, ei_panel) = TRUE
+                    If hc_retro_budget_checkbox = unchecked Then EARNED_INCOME_PANELS_ARRAY(hc_retro, ei_panel) = FALSE
 
                 Loop until big_err_msg = ""
                 call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
@@ -2921,12 +2936,18 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                         EMWriteScreen EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel), 18, 35
                         updates_to_display = updates_to_display & vbNewLine & "Income type: " & EARNED_INCOME_PANELS_ARRAY(income_type, ei_panel) & " - Verification: " & EARNED_INCOME_PANELS_ARRAY(income_verif, ei_panel) & vbNewLine & "Hourly wage: $" & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) & "/hr. Pay Frequency: " & EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
 
-                        If IsDate(income_start_dt) = TRUE Then
+                        If IsDate(EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)) = TRUE Then
                             job_start_month = DatePart("m", EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel))      'entering the start date - BUGGY CODE - this isn't buggy per se but I should change this to the function for this
+                            job_start_day = DatePart("d", EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel))
                             job_start_year = DatePart("yyyy", EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel))
                             job_start_month = right("00" & job_start_month, 2)
+                            job_start_day = right("00" & job_start_day, 2)
                             job_start_year = right(job_start_year, 2)
                             updates_to_display = updates_to_display & vbNewLine & "Income Start Date: " & EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)
+
+                            EMWriteScreen job_start_month, 9, 35
+                            EMWriteScreen job_start_day, 9, 38
+                            EMWriteScreen job_start_year, 9, 41
                         End If
 
                         'Here we update the panel with process and information that is specific to the program the income applies to
@@ -3310,7 +3331,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                             End If
                         End If      'If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel) = checked Then
 
-                        If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked OR UH_SNAP = TRUE Then         'now on to cash
+                        If EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = checked OR UH_SNAP = TRUE OR EARNED_INCOME_PANELS_ARRAY(hc_retro, ei_panel) = TRUE Then         'now on to cash
                             STATS_manualtime = STATS_manualtime + 185
                             updates_to_display = updates_to_display & vbNewLine & vbNewLine & "*** Cash Budget Update (or Uncle Harry SNAP) ***"
 
@@ -3559,7 +3580,12 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'each panel will
                     Call write_variable_in_CASE_NOTE("Income Budget for HEALTH CARE ----------------------------------")
                     Call write_bullet_and_variable_in_CASE_NOTE("Average per Pay Period", "$" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel))
                     Call write_bullet_and_variable_in_CASE_NOTE("Pay Frequency", EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel))
-
+                    If EARNED_INCOME_PANELS_ARRAY(hc_retro, ei_panel) = TRUE Then
+                        Call write_variable_in_CASE_NOTE("* Income updated in " & CASH_MONTHS_ARRAY(cash_mo_yr, each_cash_month))
+                        If CASH_MONTHS_ARRAY(retro_updtd, each_cash_month) = TRUE Then Call write_variable_in_CASE_NOTE("* --RETRO Income updated: $" & CASH_MONTHS_ARRAY(mo_retro_pay, each_cash_month) & " total income for " & CASH_MONTHS_ARRAY(retro_mo_yr, each_cash_month) & " with " & CASH_MONTHS_ARRAY(mo_retro_hrs, each_cash_month) & " total hours.")
+                        If CASH_MONTHS_ARRAY(prosp_updtd, each_cash_month) = TRUE Then Call write_variable_in_CASE_NOTE("* --Prosp Income updated: $" & CASH_MONTHS_ARRAY(mo_prosp_pay, each_cash_month) & " total income for " & CASH_MONTHS_ARRAY(cash_mo_yr, each_cash_month) & " with " & CASH_MONTHS_ARRAY(mo_prosp_hrs, each_cash_month) & " total hours.")
+                    End If
+                    Call write_bullet_and_variable_in_CASE_NOTE("Notes on HC Budget", EARNED_INCOME_PANELS_ARRAY(hc_budg_notes, ei_panel))
                 End If
 
                 If EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, ei_panel) = checked Then            'GRH budget detail
