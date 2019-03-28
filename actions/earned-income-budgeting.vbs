@@ -1334,7 +1334,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                         list_of_excluded_pay_dates = list_of_excluded_pay_dates & ", " & LIST_OF_INCOME_ARRAY(pay_date, all_income)
                                     End If
                                 Next
-                                list_of_actual_paydates = right(list_of_actual_paydates, len(list_of_actual_paydates) - 1)
+                                If left(list_of_actual_paydates, 1) = "~" Then list_of_actual_paydates = right(list_of_actual_paydates, len(list_of_actual_paydates) - 1)
                                 If list_of_excluded_pay_dates <> "" Then list_of_excluded_pay_dates = right(list_of_excluded_pay_dates, len(list_of_excluded_pay_dates) - 2)
                             End If
 
