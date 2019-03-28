@@ -4023,7 +4023,27 @@ If process_option = "Return Banked Months to Active" Then
         End If
 
     Next
-    end_msg = "Success! Script is completed. The run finished at row " & list_row & "." & vbCr & vbCr & "CASES CHANGED:" & cases_changed & vbNewLine & vbNewLine & end_msg
+    end_msg = "Success! Script is completed. The run finished at row " & list_row & "." & vbNewLine & vbNewLine & end_msg
+
+    '****writing the word document
+    Set objWord = CreateObject("Word.Application")
+    Const wdDialogFilePrint = 88
+    Const end_of_doc = 6
+    objWord.Caption = "Cases Changed"
+    objWord.Visible = True
+
+    Set objDoc = objWord.Documents.Add()
+    Set objSelection = objWord.Selection
+
+    objSelection.Font.Name = "Arial"
+    objSelection.Font.Size = "14"
+    objSelection.TypeText "CASES CHANGED:"
+    objSelection.Font.Size = "11"
+    objSelection.TypeText cases_changed
+    objSelection.TypeParagraph()
+    run_time = timer - start_time
+    objSelection.TypeText "Script run time - " & run_time
+
 End If
 
 'NEED another spreadsheet for all cases that WERE banked months cases but are no longer - so that we can save the case information
