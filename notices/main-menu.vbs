@@ -134,14 +134,6 @@ script_array_NOTICES_main(script_num).subcategory           = "SNAP~HC~CASH"
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name			= " GRH Overpayment"													'needs spaces to generate button width properly.
-script_array_NOTICES_main(script_num).file_name				= "grh-op-cl-left-faci.vbs"
-script_array_NOTICES_main(script_num).description			= "Sends a MEMO to a facility indicating that an overpayment is due because a client left."
-script_array_NOTICES_main(script_num).subcategory           = "CASH"
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= "LTC Asset Transfer"
 script_array_NOTICES_main(script_num).file_name				= "ltc-asset-transfer.vbs"
 script_array_NOTICES_main(script_num).description			= "Sends a MEMO to a LTC client regarding asset transfers. "
