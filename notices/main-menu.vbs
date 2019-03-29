@@ -182,14 +182,6 @@ script_array_NOTICES_main(script_num).subcategory           = "HC"
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name			= "MFIP Orientation"
-script_array_NOTICES_main(script_num).file_name				= "mfip-orientation.vbs"
-script_array_NOTICES_main(script_num).description			= "Sends a MEMO to a client regarding MFIP orientation."
-script_array_NOTICES_main(script_num).subcategory           = "CASH"
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= "Out Of State"
 script_array_NOTICES_main(script_num).file_name				= "out-of-state.vbs"
 script_array_NOTICES_main(script_num).description			= "Generates out of state inquiry-Microsoft word document notice that can be use to fax."
