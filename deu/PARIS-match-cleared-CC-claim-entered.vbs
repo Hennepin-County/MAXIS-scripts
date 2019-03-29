@@ -378,62 +378,28 @@ Row = 8
 	'Going to the MISC panel to add claim referral tracking information
 	Call navigate_to_MAXIS_screen ("STAT", "MISC")
 	Row = 6
-    EmReadScreen panel_number, 1, 02, 78
+	EmReadScreen panel_number, 1, 02, 78
 	If panel_number = "0" then
 		EMWriteScreen "NN", 20,79
 		TRANSMIT
-		'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
-		EmReadScreen MISC_error_msg,  74, 24, 02
-		IF trim(MISC_error_msg) = "" THEN
-		    Do
-		    	'Checking to see if the MISC panel is empty, if not it will find a new line'
-		    	EmReadScreen MISC_description, 25, row, 30
-		    	MISC_description = replace(MISC_description, "_", "")
-		    	If trim(MISC_description) = "" then
-		    		'PF9
-		    		EXIT DO
-		    	Else
-		    		row = row + 1
-		    	End if
-		    Loop Until row = 17
-		    If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-			PF9'writing in the action taken and date to the MISC panel
-			EMWriteScreen "Claim Determination", Row, 30
-			EMWriteScreen date, Row, 66
-			PF3
-		ELSE
-			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_msg & vbNewLine, vbYesNo + vbQuestion, "Message handling")
-			IF maxis_error_check = vbYes THEN
-				case_note_only = TRUE 'this will case note only'
-				'should have step to take'
-			END IF
-			IF maxis_error_check= vbNo THEN
-				case_note_only = FALSE 'this will update the panels and case note'
-				PF9'writing in the action taken and date to the MISC panel
-				EMWriteScreen "Claim Determination", Row, 30
-				EMWriteScreen date, Row, 66
-				PF3
-			END IF
-		END IF
 	ELSE
-	    Do
+		Do
 	    	'Checking to see if the MISC panel is empty, if not it will find a new line'
 	    	EmReadScreen MISC_description, 25, row, 30
 	    	MISC_description = replace(MISC_description, "_", "")
 	    	If trim(MISC_description) = "" then
-	    		'PF9
+				PF9
 	    		EXIT DO
 	    	Else
-	    		row = row + 1
+	            row = row + 1
 	    	End if
-	    Loop Until row = 17
-	    If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-	    PF9'writing in the action taken and date to the MISC panel
-	    EMWriteScreen "Claim Determination", Row, 30
-	    EMWriteScreen date, Row, 66
-	    PF3
+		Loop Until row = 17
+	    If row = 17 then script_end_procedure("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
 	END IF
-
+	PF9'writing in the action taken and date to the MISC panel
+	EMWriteScreen "Claim Determination", Row, 30
+	EMWriteScreen date, Row, 66
+	PF3
 
     start_a_blank_case_note
     Call write_variable_in_case_note("-----Claim Referral Tracking-----")
