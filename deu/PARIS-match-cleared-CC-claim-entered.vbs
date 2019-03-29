@@ -125,18 +125,19 @@ Row = 8
 		'PC Person Closed, Not PARIS Interstate
 		'CC Case Closed, Not PARIS Interstate
 		EMReadScreen INTM_period, 5, row, 59
-		IF INTM_match_status = "" THEN script_end_procedure_with_error_report("A pending PARIS match could not be found. The script will now end.")
+		IF trim(INTM_match_status) = "" THEN script_end_procedure_with_error_report("A pending PARIS match could not be found. The script will now end.")
 		'IF INTM_match_status <> "RV" THEN
 	    	INTM_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
         	"   " & INTM_period, vbYesNoCancel, "Please confirm this match")
 			IF INTM_info_confirmation = vbNo THEN
             	row = row + 1
-            	'msgbox "row: " & row
+				IF INTM_match_status = "" THEN script_end_procedure_with_error_report("A pending PARIS match could not be found. The script will now end.")
             	IF row = 18 THEN
                 	PF8
-				row = 8
-				EMReadScreen INTM_match_status, 2, row, 73
-				EMReadScreen INTM_period, 5, row, 59
+					row = 8
+					'EMReadScreen INTM_match_status, 2, row, 73
+					'EMReadScreen INTM_period, 5, row, 59
+				IF INTM_match_status = "" THEN script_end_procedure_with_error_report("A pending PARIS match could not be found. The script will now end.")
             	END IF
         	END IF
 		IF INTM_info_confirmation = vbYes THEN EXIT DO
@@ -196,7 +197,7 @@ Row = 8
 		IF trim(state) = "" THEN
 			EXIT DO
 		ELSE
-			'-------------------------------------------------------------------Case number for match state (if exists)
+		'-------------------------------------------------------------------Case number for match state (if exists)
 			EMReadScreen Match_State_Case_Number, 13, row, 9
 			Match_State_Case_Number = trim(Match_State_Case_Number)
 			IF Match_State_Case_Number = "" THEN Match_State_Case_Number = "N/A"
@@ -227,16 +228,18 @@ Row = 8
 
 			'-------------------------------------------------------------------trims excess spaces of match_active_programs
 	   		match_active_programs = "" 'sometimes blanking over information will clear the value of the variable'
-			'match_row = row           'establishing match row the same as the current state row. Needs another variables since we are only incrementing the match row in the loop. Row needs to stay the same for larger loop/next state.
+			match_row = row           'establishing match row the same as the current state row. Needs another variables since we are only incrementing the match row in the loop. Row needs to stay the same for larger loop/next state.
 			DO
-
 				EMReadScreen other_state_active_programs, 22, row, 60
 	   			other_state_active_programs = TRIM(other_state_active_programs)
 				IF other_state_active_programs = "" THEN EXIT DO
 				IF other_state_active_programs = "FOOD SUPPORT" THEN match_active_programs = match_active_programs & "FS, "
 				IF other_state_active_programs = "HEALTH CARE" THEN match_active_programs = match_active_programs &  "HC, "
-				IF other_state_active_programs = "CASH" THEN match_active_programs = match_active_programs & "CASH, "
+				IF other_state_active_programs = "STATE SSI" THEN match_active_programs = match_active_programs & "SSI, "
 				IF other_state_active_programs = "NONE IDICATED" THEN match_active_programs = match_active_programs &  "NONE INDICATED"
+				IF other_state_active_programs = "CASH" THEN match_active_programs = match_active_programs &  "CASH"
+				IF other_state_active_programs = "CHILD CARE" THEN match_active_programs = match_active_programs &  "CCA"
+				IF other_state_active_programs = "STATE WORKERS COMP" THEN match_active_programs = match_active_programs &  "WORKERS COMP"
 	    		row = row + 1
 			LOOP
 			match_active_programs = trim(match_active_programs)
@@ -251,18 +254,17 @@ Row = 8
 			'MsgBox add_state
 			row = row + 3
 			IF row = 19 THEN
+				PF8
 				EMReadScreen last_page_check, 21, 24, 2
 				last_page_check = trim(last_page_check)
-				IF last_page_check = ""  THEN
-					PF8
-					row = 13
-				END IF
+				IF last_page_check = ""  THEN row = 13
 			END IF
 		END IF
 	LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 
 	'--------------------------------------------------------------------Dialog
 	discovery_date = date
+
 	BeginDialog overpayment_dialog, 0, 0, 361, 285, "PARIS Match Claim Entered"
 	  EditBox 60, 5, 40, 15, MAXIS_case_number
 	  EditBox 200, 5, 20, 15, memb_number
@@ -296,7 +298,7 @@ Row = 8
  	  EditBox 235, 155, 45, 15, HC_claim_amount
  	  EditBox 100, 175, 20, 15, HC_resp_memb
  	  EditBox 235, 175, 45, 15, Fed_HC_AMT
-	  CheckBox 10, 205, 50, 10, "Collectable?", collectible_checkbox
+	  CheckBox 10, 205, 50, 10, "Collectible?", collectible_checkbox
 	  DropListBox 100, 200, 100, 15, "Select:"+chr(9)+"Agency Error"+chr(9)+"Household"+chr(9)+"Non-Collect--Agency Error"+chr(9)+"GRH Vendor"+chr(9)+"Fraud"+chr(9)+"Admit Fraud", collectible_reason
 	  CheckBox 10, 220, 120, 10, "Accessing benefits in other state?", bene_other_state_checkbox
 	  CheckBox 10, 235, 85, 10, "Contacted other state?", contact_other_state_checkbox
@@ -368,6 +370,7 @@ Row = 8
 			IF Claim_amount_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
 		END IF
 		IF collectible_checkbox = CHECKED and collectible_reason = "Select:" THEN err_msg = err_msg & vbnewline & "* Please advise why claim is collectible."
+		IF out_of_state_checkbox = CHECKED and verif_rcvd_date = "" THEN err_msg = err_msg & vbnewline & "* Please enter the date verification was received."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
@@ -382,36 +385,55 @@ Row = 8
 		'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
 		EmReadScreen MISC_error_msg,  74, 24, 02
 		IF trim(MISC_error_msg) = "" THEN
-	        case_note_only = FALSE
+		    Do
+		    	'Checking to see if the MISC panel is empty, if not it will find a new line'
+		    	EmReadScreen MISC_description, 25, row, 30
+		    	MISC_description = replace(MISC_description, "_", "")
+		    	If trim(MISC_description) = "" then
+		    		'PF9
+		    		EXIT DO
+		    	Else
+		    		row = row + 1
+		    	End if
+		    Loop Until row = 17
+		    If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+			PF9'writing in the action taken and date to the MISC panel
+			EMWriteScreen "Claim Determination", Row, 30
+			EMWriteScreen date, Row, 66
+			PF3
 		ELSE
 			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_msg & vbNewLine, vbYesNo + vbQuestion, "Message handling")
 			IF maxis_error_check = vbYes THEN
 				case_note_only = TRUE 'this will case note only'
+				'should have step to take'
 			END IF
 			IF maxis_error_check= vbNo THEN
 				case_note_only = FALSE 'this will update the panels and case note'
+				PF9'writing in the action taken and date to the MISC panel
+				EMWriteScreen "Claim Determination", Row, 30
+				EMWriteScreen date, Row, 66
+				PF3
 			END IF
 		END IF
 	ELSE
-		IF case_note_only = FALSE THEN
-			Do
-				'Checking to see if the MISC panel is empty, if not it will find a new line'
-				EmReadScreen MISC_description, 25, row, 30
-				MISC_description = replace(MISC_description, "_", "")
-				If trim(MISC_description) = "" then
-					'PF9
-					EXIT DO
-				Else
-					row = row + 1
-				End if
-			Loop Until row = 17
-    		If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-		END IF
-		PF9'writing in the action taken and date to the MISC panel
-		EMWriteScreen "Claim Determination", Row, 30
-		EMWriteScreen date, Row, 66
-		PF3
-	END IF 'checking to make sure maxis case is active'
+	    Do
+	    	'Checking to see if the MISC panel is empty, if not it will find a new line'
+	    	EmReadScreen MISC_description, 25, row, 30
+	    	MISC_description = replace(MISC_description, "_", "")
+	    	If trim(MISC_description) = "" then
+	    		'PF9
+	    		EXIT DO
+	    	Else
+	    		row = row + 1
+	    	End if
+	    Loop Until row = 17
+	    If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+	    PF9'writing in the action taken and date to the MISC panel
+	    EMWriteScreen "Claim Determination", Row, 30
+	    EMWriteScreen date, Row, 66
+	    PF3
+	END IF
+
 
     start_a_blank_case_note
     Call write_variable_in_case_note("-----Claim Referral Tracking-----")
@@ -443,7 +465,7 @@ Row = 8
 	IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
 	IF collectible_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Collectible claim")
 	IF collectible_checkbox = UNCHECKED THEN CALL write_variable_in_case_note("* Non-Collectible claim")
-	Call write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
+	IF collectible_reason <> "Select:" THEN Call write_bullet_and_variable_in_case_note("Reason that claim is collectible or not", collectible_reason)
 	IF bene_other_state_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Client accessing benefits in other state")
 	IF contact_other_state_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Contacted other state")
 	If out_state_checkbox = CHECKED THEN Call write_variable_in_case_note("Out of state verification received.")
@@ -458,7 +480,7 @@ Row = 8
 	Call write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
 	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
 	CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-	PF3
+	'PF3
 	'gathering the case note for the email'
 	IF HC_claim_number <> "" THEN
 		EMWriteScreen "x", 5, 3
