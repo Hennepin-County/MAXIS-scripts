@@ -181,9 +181,6 @@ DO
 		state_array(row_num, 			add_state) = row
 		state_array(state_name, 		add_state) = state
 		state_array(match_case_num, 	add_state) = Match_State_Case_Number
-
-
-
 		'-------------------------------------------------------------------PARIS match contact information
 		EMReadScreen phone_number, 23, row, 22
 		phone_number = TRIM(phone_number)
@@ -216,8 +213,11 @@ DO
 			IF other_state_active_programs = "" THEN EXIT DO
 			IF other_state_active_programs = "FOOD SUPPORT" THEN match_active_programs = match_active_programs & "FS, "
 			IF other_state_active_programs = "HEALTH CARE" THEN match_active_programs = match_active_programs &  "HC, "
-			IF other_state_active_programs = "CASH" THEN match_active_programs = match_active_programs & "CASH, "
+			IF other_state_active_programs = "STATE SSI" THEN match_active_programs = match_active_programs & "SSI, "
 			IF other_state_active_programs = "NONE IDICATED" THEN match_active_programs = match_active_programs &  "NONE INDICATED"
+			IF other_state_active_programs = "CASH" THEN match_active_programs = match_active_programs &  "CASH"
+			IF other_state_active_programs = "CHILD CARE" THEN match_active_programs = match_active_programs &  "CCA"
+			IF other_state_active_programs = "STATE WORKERS COMP" THEN match_active_programs = match_active_programs &  "WORKERS COMP"
 			row = row + 1
 		LOOP
 		match_active_programs = trim(match_active_programs)
@@ -232,12 +232,10 @@ DO
 			'MsgBox add_state
         row = row + 3
 		IF row = 19 THEN
+			PF8
 			EMReadScreen last_page_check, 21, 24, 2
 			last_page_check = trim(last_page_check)
-				IF last_page_check = ""  THEN
-					PF8
-					row = 13
-				END IF
+			IF last_page_check = ""  THEN row = 13
 		END IF
 	END IF
 LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
@@ -452,12 +450,15 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	PF3
     PF3
 	'CALL MAXIS_case_number
+
     '----------------------------------------------------------------the case match note
     start_a_blank_CASE_NOTE
     CALL write_variable_in_CASE_NOTE ("-----" & Match_month & " PARIS MATCH " & "(" & first_name &  ") CLEARED " & rez_status & "-----")
     CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
     CALL write_bullet_and_variable_in_CASE_NOTE("MN Active Programs", MN_active_programs)
-    'formatting for multiple states
+	Call write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
+	Call write_bullet_and_variable_in_case_note("Period", INTM_period)
+	'formatting for multiple states
     For item = 0 to Ubound(state_array, 2)
     	CALL write_variable_in_CASE_NOTE("----- Match State: " & state_array(state_name, item) & " -----")
     	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Active Programs", state_array(progs, item))
