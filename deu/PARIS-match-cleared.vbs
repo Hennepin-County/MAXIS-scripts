@@ -65,7 +65,6 @@ BeginDialog notice_action_dialog, 0, 0, 166, 85, "SEND DIFFERENCE NOTICE?"
 EndDialog
 
 '---------------------------------------------------------------------THE SCRIPT
-'Connecting to MAXIS
 EMConnect ""
 
 'warning_box = MsgBox("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again, or press ""cancel"" to exit the script.", vbOKCancel)
@@ -93,28 +92,35 @@ IF error_msg <> "" THEN script_end_procedure("An error occured in INFC, please p
 
 Row = 8
 DO
-	EMReadScreen IEVS_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
-	EMReadScreen IEVS_match, 5, row, 59
-	IF IEVS_match_status <> "RV" THEN
-	    ievp_info = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-        "   " & IEVS_match, vbYesNoCancel, "Please confirm this match")
-		IF ievp_info = vbNo THEN
+	EMReadScreen INTM_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
+	'UR Unresolved, System Entered Only
+	'PR Person Removed From Household
+	'HM Household Moved Out Of State
+	'RV Residency Verified, Person in MN
+	'FR Failed Residency Verification Request
+	'PC Person Closed, Not PARIS Interstate
+	'CC Case Closed, Not PARIS Interstate
+	EMReadScreen INTM_period, 5, row, 59
+	IF INTM_match_status = "" THEN script_end_procedure_with_error_report("A pending PARIS match could not be found. The script will now end.")
+	'IF INTM_match_status <> "RV" THEN
+	    INTM_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+        "   " & INTM_period, vbYesNoCancel, "Please confirm this match")
+		IF INTM_info_confirmation = vbNo THEN
             row = row + 1
             'msgbox "row: " & row
             IF row = 18 THEN
+				'msgbox "this should transmit"
                 PF8
-                row = 7
-            END IF
+				row = 8
+				EMReadScreen INTM_match_status, 2, row, 73
+				EMReadScreen INTM_period, 5, row, 59
+			END IF
         END IF
-		IF IEVS_match_status = "" THEN script_end_procedure("A PARIS match could not be found. The script will now end.")
-		IF ievp_info = vbYes THEN EXIT DO
-    	IF ievp_info = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
-	Else
-		row = row + 1
-	END IF
-LOOP UNTIL ievp_info = vbYes
+		IF INTM_info_confirmation = vbYes THEN EXIT DO
+    	IF INTM_info_confirmation = vbCancel THEN script_end_procedure_with_error_report("The script has ended. The match has not been acted on.")
+LOOP UNTIL INTM_info_confirmation = vbYes
 '-----------------------------------------------------navigating into the match'
-'MsgBox row
+'msgbox "row: " & row
 CALL write_value_and_transmit("X", row, 3) 'navigating to insm'
 
 'Ensuring that the client has not already had a difference notice sent
@@ -197,35 +203,41 @@ DO
 			fax_number = TRIM(fax_number)
 		End if
 		If fax_number = "Fax: (     )" then fax_number = ""
-		Match_contact_info = phone_number & " " & fax_number
-		state_array(contact_info, add_state) = Match_contact_info
+		match_contact_info = phone_number & " " & fax_number
+		state_array(contact_info, add_state) = match_contact_info
 
-		'-------------------------------------------------------------------trims excess spaces of Match_Active_Programs
-	   	Match_Active_Programs = "" 'sometimes blanking over information will clear the value of the variable'
-		match_row = row           'establishing match row the same as the current state row. Needs another variables since we are only incrementing the match row in the loop. Row needs to stay the same for larger loop/next state.
-        DO
-			EMReadScreen Match_Prog, 22, match_row, 60
-	   		Match_Prog = TRIM(Match_Prog)
-			IF Match_Prog = "" THEN EXIT DO
-			IF Match_Prog = "FOOD SUPPORT" THEN  Match_Prog = "FS"
-			IF Match_Prog = "HEALTH CARE" THEN Match_Prog = "HC"
-	    	IF Match_Prog <> "" THEN Match_Active_Programs = Match_Active_Programs & Match_Prog & ", "
-			match_row = match_row + 1        'incrementing to look for another match program
+		'-------------------------------------------------------------------trims excess spaces of match_active_programs
+		match_active_programs = "" 'sometimes blanking over information will clear the value of the variable'
+		'match_row = row           'establishing match row the same as the current state row. Needs another variables since we are only incrementing the match row in the loop. Row needs to stay the same for larger loop/next state.
+		DO
+
+			EMReadScreen other_state_active_programs, 22, row, 60
+			other_state_active_programs = TRIM(other_state_active_programs)
+			IF other_state_active_programs = "" THEN EXIT DO
+			IF other_state_active_programs = "FOOD SUPPORT" THEN match_active_programs = match_active_programs & "FS, "
+			IF other_state_active_programs = "HEALTH CARE" THEN match_active_programs = match_active_programs &  "HC, "
+			IF other_state_active_programs = "CASH" THEN match_active_programs = match_active_programs & "CASH, "
+			IF other_state_active_programs = "NONE IDICATED" THEN match_active_programs = match_active_programs &  "NONE INDICATED"
+			row = row + 1
 		LOOP
-
-		Match_Active_Programs = trim(Match_Active_Programs)
-		'takes the last comma off of Match_Active_Programs when autofilled into dialog if more more than one app date is found and additional app is selected
-		IF right(Match_Active_Programs, 1) = "," THEN Match_Active_Programs = left(Match_Active_Programs, len(Match_Active_Programs) - 1)
-		state_array(progs, add_state) = Match_Active_Programs
-
+		match_active_programs = trim(match_active_programs)
+		IF right(match_active_programs, 1) = "," THEN match_active_programs = left(match_active_programs, len(match_active_programs) - 1)
+		state_array(progs, add_state) = match_active_programs
+		row = state_array(row_num, add_state)		're-establish the value of row to read phone and fax info
+		match_contact_info = ""
+		phone_number = ""
+		fax_number = ""
 		'-----------------------------------------------add_state allows for the next state to gather all the information for array'
 		add_state = add_state + 1
+			'MsgBox add_state
         row = row + 3
 		IF row = 19 THEN
-            PF8                                         'moves to next page of matches or forces
 			EMReadScreen last_page_check, 21, 24, 2
 			last_page_check = trim(last_page_check)
-			IF last_page_check = "" THEN row = 13       'next page was found. looping to gather the rest of the cases on the additional page.
+				IF last_page_check = ""  THEN
+					PF8
+					row = 13
+				END IF
 		END IF
 	END IF
 LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
@@ -259,7 +271,7 @@ IF send_notice_checkbox = CHECKED THEN
 		For item = 0 to Ubound(state_array, 2)
 		    Text 10, 60, 75, 10, "Match State: "   & state_array(state_name, item)
 		    Text 10, 75, 135, 10, "Match State Case Number: "   & state_array(match_case_num, item)
-		    Text 10, 90, 155, 10, "Match State Active Programs:" & state_array(progs, item)
+		    Text 10, 90, 155, 10, "Match State Active Programs: " & state_array(progs, item)
 		    Text 10, 105, 360, 15, "Match State Contact Info: " & state_array(contact_info, item)
 		Next
 		   'For item = 1 to Ubound(state_array, 2)

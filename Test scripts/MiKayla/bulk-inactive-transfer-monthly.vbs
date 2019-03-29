@@ -128,7 +128,6 @@ DO
 	MAXIS_case_number = ObjExcel.Cells(excel_row, 1).Value
 	MAXIS_case_number = trim(MAXIS_case_number)
 	IF MAXIS_case_number = "" THEN EXIT DO
-
 	prev_worker = ObjExcel.Cells(excel_row, 2).Value
 	prev_worker = trim(prev_worker)
 	if instr(worker, prev_worker) THEN
@@ -159,6 +158,7 @@ DO
 	    	'MsgBox "PF9"
 
 	    	EMWriteScreen "X127CCL", 18, 61
+			CALL clear_line_of_text(18, 74)
 	    	'MsgBox "writing"
 	    	TRANSMIT
 	    	'msgbox "where am I"

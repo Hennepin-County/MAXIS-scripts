@@ -973,6 +973,9 @@ ReDim BANKED_MONTHS_CASES_ARRAY (months_to_approve, 0)
 Dim CASE_ABAWD_TO_COUNT_ARRAY ()
 ReDim CASE_ABAWD_TO_COUNT_ARRAY (months_to_approve, 0)
 
+Dim RETURN_TO_BANKED_ARRAY ()
+ReDim RETURN_TO_BANKED_ARRAY (months_to_approve, 0)
+
 CALL back_to_SELF
 EmReadscreen MX_region, 10, 22, 48
 MX_region = trim(MX_region)
@@ -1031,6 +1034,12 @@ If process_option = "Ongoing Banked Months Cases" Then
 
     ObjExcel.Worksheets("Ongoing banked months").Activate
 ElseIf process_option = "Find ABAWD Months" Then
+    working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"     'THIS IS THE REAL ONE
+    call excel_open(working_excel_file_path, True, False, ObjExcel, objWorkbook)
+    ObjExcel.Worksheets("Ongoing banked months").Activate
+ElseIf process_option = "Return Banked Months to Active" Then
+
+    ' working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list - Copy (2).xlsx"     'THIS IS THE TEST ONE
     working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"     'THIS IS THE REAL ONE
     call excel_open(working_excel_file_path, True, False, ObjExcel, objWorkbook)
     ObjExcel.Worksheets("Ongoing banked months").Activate
@@ -3886,6 +3895,155 @@ If process_option = "Return Banked Months to Active" Then
     'Check WREG for member to see if coded 30/13 - if not - leave as NOT BANKED
 
     'Only return to active on this list if case is in Henn, client is active SNAP and WREG is 30/13
+
+    list_row = excel_row_to_start           'script will allow the user to set where the script will start in taking case information from the excel row
+    the_case = 0                            'setting the incrementer for adding to the array
+    Do
+        If trim(ObjExcel.Cells(list_row, NOT_BANKED_col).Value) = "TRUE" Then
+            ReDim Preserve RETURN_TO_BANKED_ARRAY(months_to_approve, the_case)
+            RETURN_TO_BANKED_ARRAY(case_nbr, the_case)           = trim(ObjExcel.Cells(list_row, case_nbr_col).Value)
+            RETURN_TO_BANKED_ARRAY(clt_excel_row, the_case)      = list_row
+            RETURN_TO_BANKED_ARRAY(memb_ref_nbr, the_case)       = trim(ObjExcel.Cells(list_row, memb_nrb_col).Value)
+
+            RETURN_TO_BANKED_ARRAY(clt_last_name, the_case)      = trim(ObjExcel.Cells(list_row, last_name_col).Value)
+            RETURN_TO_BANKED_ARRAY(clt_first_name, the_case)     = trim(ObjExcel.Cells(list_row, first_name_col).Value)
+            RETURN_TO_BANKED_ARRAY(clt_notes, the_case)          = trim(ObjExcel.Cells(list_row, notes_col).Value)
+            RETURN_TO_BANKED_ARRAY(clt_mo_one, the_case)         = trim(ObjExcel.Cells(list_row, first_mo_col).Value)
+            RETURN_TO_BANKED_ARRAY(clt_mo_two, the_case)         = trim(ObjExcel.Cells(list_row, scnd_mo_col).Value)
+            RETURN_TO_BANKED_ARRAY(clt_mo_three, the_case)       = trim(ObjExcel.Cells(list_row, third_mo_col).Value)
+            RETURN_TO_BANKED_ARRAY(clt_mo_four, the_case)        = trim(ObjExcel.Cells(list_row, fourth_mo_col).Value)
+            RETURN_TO_BANKED_ARRAY(clt_mo_five, the_case)        = trim(ObjExcel.Cells(list_row, fifth_mo_col).Value)
+            RETURN_TO_BANKED_ARRAY(clt_mo_six, the_case)         = trim(ObjExcel.Cells(list_row, sixth_mo_col).Value)
+            RETURN_TO_BANKED_ARRAY(clt_mo_svn, the_case)         = trim(ObjExcel.Cells(list_row, svnth_mo_col).Value)
+            RETURN_TO_BANKED_ARRAY(clt_mo_eight, the_case)       = trim(ObjExcel.Cells(list_row, eighth_mo_col).Value)
+            RETURN_TO_BANKED_ARRAY(clt_mo_nine, the_case)        = trim(ObjExcel.Cells(list_row, ninth_mo_col).Value)
+            RETURN_TO_BANKED_ARRAY(clt_curr_mo_stat, the_case)   = trim(ObjExcel.Cells(list_row, curr_mo_stat_col).Value)
+            RETURN_TO_BANKED_ARRAY(remove_case, the_case)        = trim(ObjExcel.Cells(list_row, NOT_BANKED_col).Value)
+            RETURN_TO_BANKED_ARRAY(months_to_approve, the_case)  = ""    'set this to zero at every run as it should be handled prior to the script run
+
+            If excel_row_to_end = list_row Then Exit DO
+
+            list_row = list_row + 1     'incrementing the excel row and the array
+            the_case = the_case + 1
+        Else
+            If excel_row_to_end = list_row Then Exit DO
+            list_row = list_row + 1
+        End If
+    Loop Until trim(ObjExcel.Cells(list_row, case_nbr_col).Value) = ""  'end of the list has case number as blank
+
+    MAXIS_footer_month 	= CM_mo
+    MAXIS_footer_year 	= CM_yr
+
+    ' MAXIS_footer_month 	= CM_plus_1_mo
+    ' MAXIS_footer_year 	= CM_plus_1_yr
+
+    cases_changed = ""
+
+    'Loop through each item in the array to review the case.
+    For the_case = 0 to UBOUND(RETURN_TO_BANKED_ARRAY, 2)
+        MAXIS_case_number = RETURN_TO_BANKED_ARRAY(case_nbr, the_case)
+        HH_memb = RETURN_TO_BANKED_ARRAY(memb_ref_nbr, the_case)
+        list_row = RETURN_TO_BANKED_ARRAY(clt_excel_row, the_case)
+
+        fset_wreg_status = ""
+        abawd_status = ""
+
+        Call back_to_SELF
+
+        Do
+            Call navigate_to_MAXIS_screen("STAT", "    ")
+            EmReadscreen summ_check, 4, 2, 46
+
+            EMReadScreen pnd1_check, 11, 24, 2
+            If pnd1_check = "CAF II DATA" Then Exit Do
+
+            EMReadScreen span_check, 4, 2, 50
+            If span_check = "SPAN" Then Exit Do
+
+        Loop until summ_check = "SUMM"
+
+        EMReadScreen county_code, 2, 21, 19
+
+        If county_code <> "27" Then
+            RETURN_TO_BANKED_ARRAY(remove_case, the_case) = TRUE
+            RETURN_TO_BANKED_ARRAY(removal_reason, the_case) = "Out of County"
+        ElseIf pnd1_check = "CAF II DATA" OR span_check = "SPAN" Then
+            RETURN_TO_BANKED_ARRAY(remove_case, the_case) = TRUE
+            RETURN_TO_BANKED_ARRAY(removal_reason, the_case) = "Case in PND1"
+        Else
+            ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 18)).Interior.ColorIndex = 6
+            Call navigate_to_MAXIS_screen("CASE", "PERS")       'go to CASE/PERS - which is month specific
+            pers_row = 10                                       'the first member number starts at row 10
+            clt_SNAP_status = ""                                'blanking out this variable for each loop through the array
+            Do
+                EMReadScreen pers_ref_numb, 2, pers_row, 3      'reading the member number
+                If pers_ref_numb = RETURN_TO_BANKED_ARRAY(memb_ref_nbr, the_case) Then   'compaing it to the member number in the array
+                    EMReadScreen clt_SNAP_status, 1, pers_row, 54       'if it matches then read the SNAP status
+                    Exit Do
+                Else                                            'if it doesn't match
+                    pers_row = pers_row + 3                     'go to the next member number - which is 3 rows down
+                    If pers_row = 19 Then                       'if it reaches 19 - this is further down from the last member
+                        PF8                                     'go to the next page and reset to line 10
+                        pers_row = 10
+                    End If
+                End If
+                EMReadScreen check_for_end, 9, 24, 14
+                If check_for_end = "LAST PAGE" THen Exit Do
+            Loop until pers_ref_numb = "  "                     'this is the end of the list
+
+            If clt_SNAP_status = "A" Then                       'If the member number was listed as ACTIVE on CASE/PERS then the script will check STAT
+
+                Call navigate_to_MAXIS_screen("STAT", "WREG")
+                EMWriteScreen RETURN_TO_BANKED_ARRAY(memb_ref_nbr, the_case), 20, 76
+                transmit
+
+                EMReadScreen fset_wreg_status, 2, 8, 50     'Reading the FSET Status and ABAWD status
+                EMReadScreen abawd_status, 2, 13, 50
+
+                If fset_wreg_status = "30" AND abawd_status = "13" Then
+                    RETURN_TO_BANKED_ARRAY(remove_case, the_case) = ""
+                    ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 18)).Interior.ColorIndex = 0
+                    cases_changed = cases_changed & vbCr & MAXIS_case_number
+                Else
+                    ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 18)).Interior.ColorIndex = 16
+                End If
+            Else
+                ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 18)).Interior.ColorIndex = 16
+            End If
+
+            ObjExcel.Cells(list_row, NOT_BANKED_col).Value = RETURN_TO_BANKED_ARRAY(remove_case, the_case)
+        End If
+
+        'This will cause the script to end if there was a timer set and the script needs to end
+        If timer > end_time Then
+            end_msg = "Script has run for " & stop_time/60/60 & " hours and has finished for the time being."
+            Exit For
+        Else
+            end_msg = "Last case was " & MAXIS_case_number      'this is reset for testing so that I know where the script ends
+        End If
+
+    Next
+    end_msg = "Success! Script is completed. The run finished at row " & list_row & "." & vbNewLine & vbNewLine & end_msg
+
+    '****writing the word document
+    Set objWord = CreateObject("Word.Application")
+    Const wdDialogFilePrint = 88
+    Const end_of_doc = 6
+    objWord.Caption = "Cases Changed"
+    objWord.Visible = True
+
+    Set objDoc = objWord.Documents.Add()
+    Set objSelection = objWord.Selection
+
+    objSelection.Font.Name = "Arial"
+    objSelection.Font.Size = "14"
+    objSelection.TypeText "CASES CHANGED:"
+    objSelection.Font.Size = "11"
+    objSelection.TypeText cases_changed
+    objSelection.TypeParagraph()
+    run_time = timer - start_time
+    objSelection.TypeText "Script run time - " & run_time
+
 End If
 
 'NEED another spreadsheet for all cases that WERE banked months cases but are no longer - so that we can save the case information

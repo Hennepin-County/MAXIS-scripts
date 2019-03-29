@@ -61,55 +61,6 @@ CALL changelog_update("11/14/2017", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'Fun with dates! --Creating variables for the rolling 12 calendar months
-'current month -1
-CM_minus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", -1, date)            ), 2)
-CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
-'current month -2'
-CM_minus_2_mo =  right("0" &             DatePart("m",           DateAdd("m", -2, date)            ), 2)
-CM_minus_2_yr =  right(                  DatePart("yyyy",        DateAdd("m", -2, date)            ), 2)
-'current month -3'
-CM_minus_3_mo =  right("0" &             DatePart("m",           DateAdd("m", -3, date)            ), 2)
-CM_minus_3_yr =  right(                  DatePart("yyyy",        DateAdd("m", -3, date)            ), 2)
-'current month -4'
-CM_minus_4_mo =  right("0" &             DatePart("m",           DateAdd("m", -4, date)            ), 2)
-CM_minus_4_yr =  right(                  DatePart("yyyy",        DateAdd("m", -4, date)            ), 2)
-'current month -5'
-CM_minus_5_mo =  right("0" &             DatePart("m",           DateAdd("m", -5, date)            ), 2)
-CM_minus_5_yr =  right(                  DatePart("yyyy",        DateAdd("m", -5, date)            ), 2)
-'current month -6'
-CM_minus_6_mo =  right("0" &             DatePart("m",           DateAdd("m", -6, date)            ), 2)
-CM_minus_6_yr =  right(                  DatePart("yyyy",        DateAdd("m", -6, date)            ), 2)
-'current month -7'
-CM_minus_7_mo =  right("0" &             DatePart("m",           DateAdd("m", -7, date)            ), 2)
-CM_minus_7_yr =  right(                  DatePart("yyyy",        DateAdd("m", -7, date)            ), 2)
-'current month -8'
-CM_minus_8_mo =  right("0" &             DatePart("m",           DateAdd("m", -8, date)            ), 2)
-CM_minus_8_yr =  right(                  DatePart("yyyy",        DateAdd("m", -8, date)            ), 2)
-'current month -9'
-CM_minus_9_mo =  right("0" &             DatePart("m",           DateAdd("m", -9, date)            ), 2)
-CM_minus_9_yr =  right(                  DatePart("yyyy",        DateAdd("m", -9, date)            ), 2)
-'current month -10'
-CM_minus_10_mo =  right("0" &            DatePart("m",           DateAdd("m", -10, date)           ), 2)
-CM_minus_10_yr =  right(                 DatePart("yyyy",        DateAdd("m", -10, date)           ), 2)
-'current month -11'
-CM_minus_11_mo =  right("0" &            DatePart("m",           DateAdd("m", -11, date)           ), 2)
-CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -11, date)           ), 2)
-
-'Establishing value of variables for the rolling 12 months
-current_month = CM_mo & "/" & CM_yr
-current_month_minus_one = CM_minus_1_mo & "/" & CM_minus_1_yr
-current_month_minus_two = CM_minus_2_mo & "/" & CM_minus_2_yr
-current_month_minus_three = CM_minus_3_mo & "/" & CM_minus_3_yr
-current_month_minus_four = CM_minus_4_mo & "/" & CM_minus_4_yr
-current_month_minus_five = CM_minus_5_mo & "/" & CM_minus_5_yr
-current_month_minus_six = CM_minus_6_mo & "/" & CM_minus_6_yr
-current_month_minus_seven = CM_minus_7_mo & "/" & CM_minus_7_yr
-current_month_minus_eight = CM_minus_8_mo & "/" & CM_minus_8_yr
-current_month_minus_nine = CM_minus_9_mo & "/" & CM_minus_9_yr
-current_month_minus_ten = CM_minus_10_mo & "/" & CM_minus_10_yr
-current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
-
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 '----------------------------------------------------------------------------------------------------DAIL
@@ -187,6 +138,7 @@ DO
 		IF row = 17 THEN
 			PF8
 			row = 7
+			EMReadScreen IEVS_period, 11, row, 47
 		END IF
 	END IF
 	IF ievp_info_confirmation = vbCancel THEN script_end_procedure_with_error_report ("The script has ended. The match has not been acted on.")

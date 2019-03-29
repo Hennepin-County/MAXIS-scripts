@@ -82,6 +82,22 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+EMWriteScreen MAXIS_case_number, 18, 43
+Call navigate_to_MAXIS_screen("CASE", "CURR")
+EMReadScreen CURR_panel_check, 4, 2, 55
+If CURR_panel_check <> "CURR" then ObjExcel.Cells(excel_row, 5).Value = ""
+EMReadScreen case_status, 8, 8, 9
+case_status = trim(case_status)
+
+IF case_status = "ACTIVE" THEN active_status = TRUE
+IF case_status = "APP OPEN" THEN active_status = TRUE
+IF case_status = "APP CLOS" THEN active_status = TRUE
+IF case_status = "INACTIVE" THEN active_status = FALSE
+If case_status = "CAF2 PEN" THEN active_status = TRUE
+If case_status = "CAF1 PEN" THEN active_status = TRUE
+IF case_status = "REIN" THEN active_status = TRUE
+
+
 Call MAXIS_footer_month_confirmation
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 'Checking for PRIV cases.
@@ -101,92 +117,92 @@ RC_STATUS = FALSE 'Refugee Cash Assistance'
 
 'Reading the status and program
 EMReadScreen cash1_status_check, 4, 6, 74
+'MsgBox  cash1_status_check
 EMReadScreen cash2_status_check, 4, 7, 74
+'MsgBox cash2_status_check
 EMReadScreen emer_status_check, 4, 8, 74
+'MsgBox emer_status_check
 EMReadScreen grh_status_check, 4, 9, 74
+'MsgBox grh_status_check
 EMReadScreen fs_status_check, 4, 10, 74
 EMReadScreen ive_status_check, 4, 11, 74
 EMReadScreen hc_status_check, 4, 12, 74
 EMReadScreen cca_status_check, 4, 14, 74
+'MsgBox cca_status_check
 EMReadScreen cash1_prog_check, 2, 6, 67
+'MsgBox cash1_prog_check
 EMReadScreen cash2_prog_check, 2, 7, 67
+'MsgBox cash2_prog_check
 EMReadScreen emer_prog_check, 2, 8, 67
 EMReadScreen grh_prog_check, 2, 9, 67
 EMReadScreen fs_prog_check, 2, 10, 67
 EMReadScreen ive_prog_check, 2, 11, 67
 EMReadScreen hc_prog_check, 2, 12, 67
-EMReadScreen cca_prog_check, 2, 14, 67
 
-IF FS_status_check = "ACTV" or FS_status_check = "PEND"  THEN FS_STATUS = TRUE
-IF emer_status_check = "ACTV" or emer_status_check = "PEND"  THEN ER_STATUS = TRUE
-IF grh_status_check = "ACTV" or grh_status_check = "PEND"  THEN GRH_STATUS = TRUE
-IF hc_status_check = "ACTV" or hc_status_check = "PEND"  THEN HC_STATUS = TRUE
-IF cca_status_check = "ACTV" or cca_status_check = "PEND"  THEN CCA_STATUS = TRUE
+IF FS_status_check = "ACTV" or FS_status_check = "PEND" THEN
+	FS_STATUS = TRUE
+	FS_CHECKBOX = CHECKED
+END IF
+
+IF hc_status_check = "ACTV" or hc_status_check = "PEND" THEN
+	HC_STATUS = TRUE
+	HC_CHECKBOX   = CHECKED
+END IF
+
+IF cca_status_check = "ACTV" or cca_status_check = "PEND" THEN
+	CCA_STATUS = TRUE
+	CCA_CHECKBOX  = CHECKED
+END IF
 'Logic to determine if MFIP is active
-If cash1_prog_check = "MF" THEN
-	If cash1_status_check = "ACTV" Then MF_STATUS = TRUE
-	If cash1_status_check = "PEND" Then MF_STATUS = TRUE
-	If cash1_status_check = "INAC" Then MF_STATUS = FALSE
-	If cash1_status_check = "SUSP" Then MF_STATUS = FALSE
-	If cash1_status_check = "DENY" Then MF_STATUS = FALSE
-	If cash1_status_check = ""     Then MF_STATUS = FALSE
-END IF
-If cash1_prog_check = "MF" THEN
-	If cash2_status_check = "ACTV" Then MF_STATUS = TRUE
-	If cash2_status_check = "PEND" Then MF_STATUS = TRUE
-	If cash2_status_check = "INAC" Then MF_STATUS = FALSE
-	If cash2_status_check = "SUSP" Then MF_STATUS = FALSE
-	If cash2_status_check = "DENY" Then MF_STATUS = FALSE
-	If cash2_status_check = ""     Then MF_STATUS = FALSE
+IF cash1_prog_check = "MF" THEN
+	IF cash1_status_check = "ACTV" or cash1_status_check = "PEND" THEN
+		MF_STATUS = TRUE
+		'MsgBox MF_STATUS
+		MFIP_CHECKBOX = CHECKED
+		'MsgBox MFIP_CHECKBOX
+	END IF
+	If cash1_status_check = "INAC" or cash1_status_check = "SUSP" or cash1_status_check = "DENY" or cash1_status_check = "" THEN MF_STATUS = FALSE
 END IF
 
-If cash1_prog_check = "DW" THEN
-	If cash1_status_check = "ACTV" Then DWP_STATUS = TRUE
-	If cash1_status_check = "PEND" Then DWP_STATUS = TRUE
-	If cash1_status_check = "INAC" Then DWP_STATUS = FALSE
-	If cash1_status_check = "SUSP" Then DWP_STATUS = FALSE
-	If cash1_status_check = "DENY" Then DWP_STATUS = FALSE
-	If cash1_status_check = ""     Then DWP_STATUS = FALSE
+IF cash1_prog_check = "MF" THEN
+	IF cash2_status_check = "ACTV" or cash2_status_check = "PEND" THEN
+		MF_STATUS = TRUE
+		MFIP_CHECKBOX = CHECKED
+	END IF
+	IF cash2_status_check = "INAC" or cash2_status_check = "SUSP" or cash2_status_check = "DENY" or cash2_status_check = "" THEN MF_STATUS = FALSE
 END IF
-If cash2_prog_check = "DW" THEN
-	If cash2_status_check = "ACTV" Then DWP_STATUS = TRUE
-	If cash2_status_check = "PEND" Then DWP_STATUS = TRUE
-	If cash2_status_check = "INAC" Then DWP_STATUS = FALSE
-	If cash2_status_check = "SUSP" Then DWP_STATUS = FALSE
-	If cash2_status_check = "DENY" Then DWP_STATUS = FALSE
-	If cash2_status_check = ""     Then DWP_STATUS = FALSE
+
+IF cash1_prog_check = "DW" THEN
+	IF cash1_status_check = "ACTV" or cash1_status_check = "PEND" or cash2_status_check = "ACTV" or cash2_status_check = "PEND" THEN
+		DWP_STATUS = TRUE
+		DWP_CHECKBOX  = CHECKED
+	END IF
+	If cash1_status_check = "INAC" or cash1_status_check = "SUSP" or cash1_status_check = "DENY" or cash1_status_check = "" THEN DWP_STATUS = FALSE
+	If cash2_status_check = "INAC" or cash2_status_check = "SUSP" or cash2_status_check = "DENY" or cash2_status_check = "" THEN DWP_STATUS = FALSE
 END IF
 
 If cash1_prog_check = "" THEN
-	If cash1_status_check = "ACTV" Then CASH_STATUS = TRUE
-	If cash1_status_check = "PEND" Then CASH_STATUS = TRUE
-	If cash1_status_check = "INAC" Then CASH_STATUS = FALSE
-	If cash1_status_check = "SUSP" Then CASH_STATUS = FALSE
-	If cash1_status_check = "DENY" Then CASH_STATUS = FALSE
-	If cash1_status_check = ""     Then CASH_STATUS = FALSE
+	If cash1_status_check = "PEND" or cash2_status_check = "PEND" THEN
+		CASH_STATUS = TRUE
+		CASH_CHECKBOX = CHECKED
+	END IF
+	If cash1_status_check = "INAC" or cash1_status_check = "SUSP" or cash1_status_check = "DENY" or cash1_status_check = "" THEN CASH_STATUS = FALSE
 END IF
 
 If cash2_prog_check = "" THEN
-	If cash2_status_check = "ACTV" Then CASH_STATUS = TRUE
-	If cash2_status_check = "PEND" Then CASH_STATUS = TRUE
-	If cash2_status_check = "INAC" Then CASH_STATUS = FALSE
-	If cash2_status_check = "SUSP" Then CASH_STATUS = FALSE
-	If cash2_status_check = "DENY" Then CASH_STATUS = FALSE
-	If cash2_status_check = ""     Then CASH_STATUS = FALSE
+	If cash2_status_check = "INAC" or cash2_status_check = "SUSP" or cash2_status_check = "DENY" or cash2_status_check = "" THEN CASH_STATUS = FALSE
 END IF
 
+IF emer_status_check = "ACTV" or emer_status_check = "PEND"  THEN ER_STATUS = TRUE
+IF grh_status_check = "ACTV" or grh_status_check = "PEND"  THEN GRH_STATUS = TRUE
 'can you say and or
-IF MF_STATUS = FALSE and FS_STATUS = FALSE and HC_STATUS = FALSE and DWP_STATUS = FALSE and CASH_STATUS = FALSE THEN
-	case_note_only = TRUE
-	msgbox "It appears no HC, FS, or Cash are open on this case."
+IF active_status = FALSE THEN
+ 	IF MF_STATUS = FALSE and FS_STATUS = FALSE and HC_STATUS = FALSE and DWP_STATUS = FALSE and CASH_STATUS = FALSE THEN
+		case_note_only = TRUE
+		msgbox "It appears no HC, FS, or Cash are open on this case."
+	END IF
 END IF
 
-IF CCA_STATUS   = TRUE THEN CCA_CHECKBOX  = CHECKED
-IF DWP_STATUS   = TRUE THEN DWP_CHECKBOX  = CHECKED
-IF FS_STATUS    = TRUE THEN FS_CHECKBOX   = CHECKED
-IF HC_STATUS    = TRUE THEN HC_CHECKBOX   = CHECKED
-IF MF_STATUS    = TRUE THEN MFIP_CHECKBOX = CHECKED
-IF CASH_STATUS  = TRUE THEN CASH_CHECKBOX = CHECKED
 '----------------------------------------------------------------------------------------------------DIALOGS
 BeginDialog change_exemption_dialog, 0, 0, 216, 100, "Good cause change/exemption "
   EditBox 110, 5, 50, 15, change_reported_date
@@ -344,8 +360,21 @@ Do
 
 	EMReadScreen ABPS_parent_ID_check, 10, 13, 40	'making sure ABPS is not unknown.
 	ABPS_parent_ID_check = trim(ABPS_parent_ID_check)
-	IF ABPS_parent_ID_check <> ABPS_parent_ID THEN msgbox "ABPS does not match"
-
+	IF ABPS_parent_ID_check <> ABPS_parent_ID THEN
+		msgbox "ABPS ID # and panel sequence does not match, please confirm the correct panel is updated after hitting okay."
+		Do
+	       	ABPS_check = MsgBox("Is this the right ABPS to update?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
+	       	If ABPS_check = vbYes then
+				ABPS_found = TRUE
+				exit do
+			END IF
+	       	If ABPS_check = vbNo then
+				ABPS_found = FALSE
+				TRANSMIT
+			END IF
+			If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure_with_error_report("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
+	    Loop until ABPS_found = TRUE
+	END IF
 	'msgbox edit_mode_check
 
 	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
