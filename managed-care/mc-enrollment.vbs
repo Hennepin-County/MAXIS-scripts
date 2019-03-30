@@ -311,7 +311,7 @@ BeginDialog Dialog1, 0, 0, 161, 170, "Enrollment Information"
   DropListBox 55, 75, 95, 15, "Select one..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Hennepin Health SNBC"+chr(9)+"Ucare", Health_plan
   CheckBox 120, 95, 25, 10, "Yes", Insurance_yes
   CheckBox 120, 105, 25, 10, "Yes", foster_care_yes
-  DropListBox 60, 130, 90, 45, "Select One..."+chr(9)+"Phone"+chr(9)+"Paper Enrollment Form", enrollment_source
+  DropListBox 60, 130, 90, 45, "Select One..."+chr(9)+"Phone"+chr(9)+"Paper Enrollment Form"+chr(9)+"Morning Letters", enrollment_source
   ButtonGroup ButtonPressed
     OkButton 50, 150, 50, 15
     CancelButton 105, 150, 50, 15
@@ -621,6 +621,7 @@ BeginDialog Dialog1, 0, 0, 750, dlg_len, "Enrollment Information"
   Text 695, 5, 55, 10, "Interpreter Code"
 
   For person = 0 to Ubound(MMIS_clients_array, 2)
+    if enrollment_source = "Morning Letters" Then MMIS_clients_array(change_rsn, person) = "Reenrollment"
   	Text 5, (x * 20) + 25, 95, 10, MMIS_clients_array(client_name, person)
   	Text 100, (x * 20) + 25, 35, 10, MMIS_clients_array(client_pmi, person)
   	Text 145, (x * 20) + 25, 95, 10, MMIS_clients_array(current_plan, person)
@@ -1290,13 +1291,21 @@ pf4
 pf11		'Starts a new case note'
 
 ' CALL write_variable_in_MMIS_NOTE ("***Hennepin MHC note*** Household enrollment updated for " & Enrollment_date & " per enrollment form")
-CALL write_variable_in_MMIS_NOTE ("Enrollment effective: " & enrollment_date & " requested by " & caller_rela & " via " & enrollment_source)
-
+If enrollment_source = "Morning Letters" Then
+    CALL write_variable_in_MMIS_NOTE ("Re-enrollment processed effective: " & enrollment_date)
+    CALL write_variable_in_MMIS_NOTE ("Following clients had PMAP under duplicate PMI(s) in the last 12 months:")
+Else
+    CALL write_variable_in_MMIS_NOTE ("Enrollment effective: " & enrollment_date & " requested by " & caller_rela & " via " & enrollment_source)
+End If
 If enrollment_source = "Phone" Then CALL write_variable_in_MMIS_NOTE("Call completed " & now & " with " & caller_name)
 If used_interpreter_checkbox = checked then CALL write_variable_in_MMIS_NOTE("Interpreter used for phone call.")
 For member = 0 to Ubound(MMIS_clients_array, 2)
 	If MMIS_clients_array(enrol_sucs, member) = TRUE Then
-		CALL write_variable_in_MMIS_NOTE ("- " & MMIS_clients_array(client_name, member) & " enrolled into " & MMIS_clients_array(new_plan, member))
+        If enrollment_source = "Morning Letters" Then
+            CALL write_variable_in_MMIS_NOTE ("- Re-enrolled " & MMIS_clients_array(client_name, member) & " in " & MMIS_clients_array(new_plan, member))
+        Else
+		    CALL write_variable_in_MMIS_NOTE ("- " & MMIS_clients_array(client_name, member) & " enrolled into " & MMIS_clients_array(new_plan, member))
+        End If
 	End If
 Next
 CALL write_bullet_and_variable_in_MMIS_NOTE ("Notes", other_notes)
