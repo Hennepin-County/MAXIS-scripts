@@ -622,7 +622,8 @@ BeginDialog Dialog1, 0, 0, 750, dlg_len, "Enrollment Information"
   Text 695, 5, 55, 10, "Interpreter Code"
 
   For person = 0 to Ubound(MMIS_clients_array, 2)
-    if enrollment_source = "Morning Letters" Then MMIS_clients_array(change_rsn, person) = "Reenrollment"
+    If enrollment_source = "Morning Letters" Then MMIS_clients_array(change_rsn, person) = "Reenrollment"
+    If MMIS_clients_array(new_plan, person) = "Medica" Then MMIS_clients_array(contr_code, person) = "MA 30"
   	Text 5, (x * 20) + 25, 95, 10, MMIS_clients_array(client_name, person)
   	Text 100, (x * 20) + 25, 35, 10, MMIS_clients_array(client_pmi, person)
   	Text 145, (x * 20) + 25, 95, 10, MMIS_clients_array(current_plan, person)
