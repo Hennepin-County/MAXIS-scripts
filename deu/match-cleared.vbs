@@ -281,25 +281,6 @@ BeginDialog send_notice_dialog, 0, 0, 296, 160, "WAGE MATCH SEND DIFFERENCE NOTI
   Text 5, 125, 40, 10, "Other notes: "
 EndDialog
 
-BeginDialog Claim_Referral_Tracking, 0, 0, 216, 155, "Claim Referral Tracking"
-  EditBox 65, 30, 45, 15, MAXIS_case_number
-  EditBox 165, 30, 45, 15, action_date
-  DropListBox 65, 50, 145, 15, "Select One:"+chr(9)+"Sent Request for Additional Info"+chr(9)+"Overpayment Exists", next_action
-  EditBox 65, 95, 145, 15, other_notes
-  EditBox 110, 115, 100, 15, worker_signature
-  ButtonGroup ButtonPressed
-    PushButton 5, 135, 85, 15, "Claims Procedures", claims_procedures
-    OkButton 115, 135, 45, 15
-    CancelButton 165, 135, 45, 15
-  Text 5, 5, 205, 20, "Federal regulations require tracking the date it is first suspected there may be a SNAP or MFIP Federal Food claim. "
-  Text 65, 120, 40, 10, "Worker Sig:"
-  Text 15, 35, 50, 10, "Case Number: "
-  Text 20, 100, 45, 10, "Other Notes:"
-  Text 15, 55, 45, 10, "Action Taken:"
-  Text 120, 35, 40, 10, "Action Date: "
-  Text 5, 70, 205, 20, "Verif Requested:" & pending_verifs
-EndDialog
-
 IF notice_sent = "N" THEN
 	DO
     	err_msg = ""
@@ -476,6 +457,8 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		IF resolve_time = "" THEN err_msg = err_msg & vbNewLine & "Please complete resolve time."
 		IF date_received = "" THEN
 			IF resolution_status <> "BN - Already known, No Savings" THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was recieved in ECF."
+		END IF
+		IF date_received = "" THEN
 			IF resolution_status <> "NC - Non Cooperation" THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was recieved in ECF."
 		END IF
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other verification was used to clear the match."
