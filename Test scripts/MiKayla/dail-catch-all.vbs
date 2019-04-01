@@ -51,47 +51,39 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
-BeginDialog client_contact_dialog, 0, 0, 386, 245, "Client contact"
-  ComboBox 50, 5, 60, 15, "Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Office visit"+chr(9)+"Letter", contact_type
-  DropListBox 115, 5, 45, 10, "from"+chr(9)+"to", contact_direction
-  ComboBox 165, 5, 85, 15, "client"+chr(9)+"AREP"+chr(9)+"Non-AREP"+chr(9)+"SWKR", who_contacted
-  EditBox 280, 5, 100, 15, regarding
-  EditBox 70, 25, 65, 15, phone_number
-  EditBox 280, 25, 100, 15, when_contact_was_made
-  EditBox 70, 45, 65, 15, MAXIS_case_number
-  CheckBox 145, 50, 65, 10, "Used Interpreter", used_interpreter_checkbox
-  EditBox 280, 45, 65, 15, METS_IC_number
-  EditBox 70, 70, 310, 15, contact_reason
-  EditBox 70, 90, 310, 15, actions_taken
-  EditBox 65, 125, 310, 15, verifs_needed
-  EditBox 65, 145, 310, 15, case_status
-  EditBox 85, 165, 290, 15, cl_instructions
-  CheckBox 5, 190, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
-  CheckBox 5, 205, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
-  CheckBox 260, 190, 95, 10, "Forms were sent to AREP.", Sent_arep_checkbox
-  CheckBox 260, 205, 120, 10, "Follow up is needed on this case.", follow_up_needed_checkbox
-  EditBox 70, 225, 195, 15, worker_signature
+BeginDialog catch_all_dialog, 0, 0, 376, 140, "DAIL CATCH ALL"
+  EditBox 60, 5, 65, 15, MAXIS_case_number
+  EditBox 305, 5, 65, 15, METS_IC_number
+  EditBox 60, 25, 100, 15, when_contact_was_made
+  EditBox 270, 25, 100, 15, DAIL_read
+  EditBox 60, 45, 310, 15, actions_taken
+  EditBox 60, 65, 310, 15, verifs_needed
+  EditBox 60, 85, 310, 15, cl_instructions
+  EditBox 65, 120, 195, 15, worker_signature
+  CheckBox 5, 105, 110, 10, "Check here if you want to TIKL.", TIKL_check
   ButtonGroup ButtonPressed
-    OkButton 275, 225, 50, 15
-    CancelButton 330, 225, 50, 15
-  Text 260, 10, 15, 10, "Re:"
-  Text 5, 30, 50, 10, "Phone number: "
-  Text 200, 30, 75, 10, "Date/Time of Contact:"
-  Text 5, 50, 50, 10, "Case number: "
-  Text 5, 75, 65, 10, "Reason for contact:"
-  Text 5, 95, 50, 10, "Actions taken: "
-  GroupBox 5, 110, 375, 75, "Helpful info for call centers (or front desks) to pass on to clients:"
-  Text 10, 130, 50, 10, "Verifs needed: "
-  Text 10, 150, 45, 10, "Case status: "
-  Text 10, 170, 75, 10, "Instructions/message:"
-  Text 5, 230, 60, 10, "Worker signature:"
-  Text 5, 10, 45, 10, "Contact type:"
-  Text 215, 50, 60, 10, "METS IC number:"
+    OkButton 275, 120, 45, 15
+    CancelButton 325, 120, 45, 15
+  Text 5, 10, 50, 10, "Case number: "
+  Text 245, 10, 60, 10, "METS IC number:"
+  Text 5, 30, 40, 10, "Date/Time:"
+  Text 255, 30, 15, 10, "Re:"
+  Text 5, 50, 50, 10, "Actions taken: "
+  Text 5, 70, 50, 10, "Verifs needed: "
+  Text 5, 90, 45, 10, "Other notes:"
+  Text 5, 125, 60, 10, "Worker signature:"
 EndDialog
+
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------
 'CONNECTING TO MAXIS & GRABBING THE CASE NUMBER
 EMConnect ""
+EMSendKey "T"
+transmit
+'Making sure that the user is on an acceptable DAIL message
+EMReadScreen DAIL_type, 4, 6, 6
+IF DAIL_type <> "WAGE" THEN script_end_procedure("Your cursor is not set on a message type. Please select an appropriate DAIL message and try again.")
+
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'updates the "when contact was made" variable to show the current date & time
@@ -100,11 +92,11 @@ when_contact_was_made = date & ", " & time
 Do
     Do
         err_msg = ""
-		Dialog client_contact_dialog
+		Dialog catch_all_dialog
 		cancel_confirmation
         If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid case number."
-		If trim(contact_reason) = "" then err_msg = err_msg & vbcr & "* Enter a reason for contact."
-        If trim(contact_type) = "" then err_msg = err_msg & vbcr & "* Enter the contact type (phone, etc.)."
+		If trim(actions_taken) = "" then err_msg = err_msg & vbcr & "* Please enter the action taken."
+        If trim(DAIL_read) = "" then err_msg = err_msg & vbcr & "* Please enter the DAIL."
 		If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
