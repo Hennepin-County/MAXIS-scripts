@@ -1204,6 +1204,7 @@ If process_option = "Find ABAWD Months" Then
             end_msg = "Script run completed. The script processed the rows "  & CASE_ABAWD_TO_COUNT_ARRAY(clt_excel_row, 0) & " through " & CASE_ABAWD_TO_COUNT_ARRAY(clt_excel_row, Ubound(CASE_ABAWD_TO_COUNT_ARRAY, 2))
         End If
 
+
     Next
 End If
 
@@ -3674,6 +3675,9 @@ If process_option = "Return Banked Months to Active" Then
             EMReadScreen span_check, 4, 2, 50
             If span_check = "SPAN" Then Exit Do
 
+            EMReadScreen cant_get_in_check, 10, 24, 50
+            If cant_get_in_check = "CAF I CASE" Then Exit Do
+
         Loop until summ_check = "SUMM"
 
         EMReadScreen county_code, 2, 21, 19
@@ -3682,6 +3686,9 @@ If process_option = "Return Banked Months to Active" Then
             RETURN_TO_BANKED_ARRAY(remove_case, the_case) = TRUE
             RETURN_TO_BANKED_ARRAY(removal_reason, the_case) = "Out of County"
         ElseIf pnd1_check = "CAF II DATA" OR span_check = "SPAN" Then
+            RETURN_TO_BANKED_ARRAY(remove_case, the_case) = TRUE
+            RETURN_TO_BANKED_ARRAY(removal_reason, the_case) = "Case in PND1"
+        ElseIf cant_get_in_check = "CAF I CASE" Then
             RETURN_TO_BANKED_ARRAY(remove_case, the_case) = TRUE
             RETURN_TO_BANKED_ARRAY(removal_reason, the_case) = "Case in PND1"
         Else
