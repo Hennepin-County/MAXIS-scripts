@@ -597,7 +597,7 @@ Next
 
 x = 0
 max = Ubound(MMIS_clients_array, 2)
-dlg_len = 80
+dlg_len = 60
 If enrollment_source = "Phone" Then
     dlg_len = dlg_len + 20
 End If
@@ -605,6 +605,7 @@ End If
 name_list = ""
 For person = 0 to Ubound(MMIS_clients_array, 2)
     name_list = name_list & +chr(9)+MMIS_clients_array(first_name_ini, person)
+    dlg_len = dlg_len + 20
 Next
 
 BeginDialog Dialog1, 0, 0, 750, dlg_len, "Enrollment Information"
