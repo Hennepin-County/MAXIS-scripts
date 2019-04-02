@@ -51,23 +51,23 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
-BeginDialog catch_all_dialog, 0, 0, 376, 140, "DAIL CATCH ALL"
+BeginDialog catch_all_dialog, 0, 0, 281, 140, "DAIL CATCH ALL"
   EditBox 60, 5, 65, 15, MAXIS_case_number
-  EditBox 305, 5, 65, 15, METS_IC_number
+  EditBox 210, 5, 65, 15, METS_IC_number
   EditBox 60, 25, 100, 15, when_contact_was_made
-  EditBox 270, 25, 100, 15, DAIL_read
-  EditBox 60, 45, 310, 15, actions_taken
-  EditBox 60, 65, 310, 15, verifs_needed
-  EditBox 60, 85, 310, 15, cl_instructions
-  EditBox 65, 120, 195, 15, worker_signature
+  EditBox 210, 25, 65, 15, DAIL_type
+  EditBox 60, 45, 215, 15, actions_taken
+  EditBox 60, 65, 215, 15, verifs_needed
+  EditBox 60, 85, 215, 15, cl_instructions
+  EditBox 65, 120, 95, 15, worker_signature
   CheckBox 5, 105, 110, 10, "Check here if you want to TIKL.", TIKL_check
   ButtonGroup ButtonPressed
-    OkButton 275, 120, 45, 15
-    CancelButton 325, 120, 45, 15
+    OkButton 180, 120, 45, 15
+    CancelButton 230, 120, 45, 15
   Text 5, 10, 50, 10, "Case number: "
-  Text 245, 10, 60, 10, "METS IC number:"
+  Text 150, 10, 60, 10, "METS IC number:"
   Text 5, 30, 40, 10, "Date/Time:"
-  Text 255, 30, 15, 10, "Re:"
+  Text 195, 30, 15, 10, "Re:"
   Text 5, 50, 50, 10, "Actions taken: "
   Text 5, 70, 50, 10, "Verifs needed: "
   Text 5, 90, 45, 10, "Other notes:"
@@ -82,15 +82,44 @@ EMReadscreen dail_check, 4, 2, 48 'changed from DAIL to view to ensure we are in
 IF dail_check <> "DAIL" THEN script_end_procedure("Your cursor is not set on a message type. Please select an appropriate DAIL message and try again.")
 IF dail_check = "DAIL" THEN
 	EMSendKey "T"
-	transmit
-	'Making sure that the user is on an acceptable DAIL message
-	EMReadScreen DAIL_type, 4, 6, 6
-	EMReadScreen MAXIS_case_number, 8, 5, 73
-	MAXIS_case_number= TRIM(MAXIS_case_number)
-	EMSendKey "X"
-	'THE ENTIRE MESSAGE TEXT IS DISPLAYED'
-	EmReadScreen error_msg 37, 24, 02
-	EmReadScreen DAIL_read 50, 6, 20
+	TRANSMIT
+	EMReadScreen DAIL_type, 4, 6, 6 'read the DAIL msg'
+	DAIL_type = trim(DAIL_type)
+	IF DAIL_type = "TIKL" or DAIL_type = "PEPR"  or DAIL_type = "SSN" or DAIL_type = "INFO" THEN
+		match_found = TRUE
+	ELSE
+		match_found = FALSE
+		script_end_procedure("This is not an supported DAIL currently.Please select a WAGE match DAIL, and run the script again.")
+	END IF
+	IF match_found = TRUE THEN
+		EMReadScreen MAXIS_case_number, 8, 5, 73
+		MAXIS_case_number= TRIM(MAXIS_case_number)
+		EMReadScreen extra_info, 1, 06, 80
+		If extra_info = "+" or extra_info = "&" THEN
+	    EMSendKey "X"
+		TRANSMIT
+	    'THE ENTIRE MESSAGE TEXT IS DISPLAYED'
+	    EmReadScreen error_msg, 37, 24, 02
+		row = 1
+		col = 1
+		EMSearch "Case Number", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
+		'If row = 0 then script_end_procedure("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
+		EMReadScreen first_line, 61, row + 3, col - 40 'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
+			'first_line = replace(first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
+			first_line = trim(first_line)
+		EMReadScreen second_line, 61, row + 4, col - 40
+			second_line = trim(second_line)
+		EMReadScreen third_line, 61, row + 5, col - 40 'maxis name'
+			third_line = trim(third_line)
+			'third_line = replace(third_line, ",", ", ")
+		EMReadScreen fourth_line, 61, row + 6, col - 40'new hire name'
+			fourth_line = trim(fourth_line)
+			'fourth_line = replace(fourth_line, ",", ", ")
+		EMReadScreen fifth_line, 61, row + 7, col - 40'new hire name'
+			fifth_line = trim(fifth_line)
+		EmReadScreen DAIL_read, 50, 6, 20
+		DAIL_read = trim(DAIL_read)
+	END IF
 END IF
 
 'updates the "when contact was made" variable to show the current date & time
@@ -115,20 +144,25 @@ Call check_for_MAXIS(False)
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 start_a_blank_case_note
-CALL write_variable_in_CASE_NOTE("Action Taken: " & " re: " & regarding)
-CALL write_bullet_and_variable_in_CASE_NOTE("Action was taken: ", when_contact_was_made)
-CALL write_bullet_and_variable_in_CASE_NOTE("Phone number", phone_number)
-CALL write_bullet_and_variable_in_CASE_NOTE("METS/IC number", METS_IC_number)
-
-CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)
-CALL write_bullet_and_variable_in_CASE_NOTE("Verifs Needed", verifs_needed)
-CALL write_bullet_and_variable_in_CASE_NOTE("Instructions/Message for CL", cl_instructions)
-CALL write_bullet_and_variable_in_CASE_NOTE("Case Status", case_status)
+CALL write_variable_in_CASE_NOTE("Action taken re: " & DAIL_type)
+CALL write_variable_in_case_note(first_line)
+CALL write_variable_in_case_note(second_line)
+CALL write_variable_in_case_note(third_line)
+CALL write_variable_in_case_note(fourth_line)
+CALL write_variable_in_case_note(fifth_line)
+CALL write_variable_in_case_note("---")
+CALL write_bullet_and_variable_in_case_note("Actions Taken", actions_taken)
+CALL write_bullet_and_variable_in_case_note("Action was taken: ", when_contact_was_made)
+CALL write_bullet_and_variable_in_case_note("Phone number", phone_number)
+CALL write_bullet_and_variable_in_case_note("METS/IC number", METS_IC_number)
+CALL write_bullet_and_variable_in_case_note("Verifs Needed", verifs_needed)
+CALL write_bullet_and_variable_in_case_note("Instructions/Message for CL", cl_instructions)
+CALL write_bullet_and_variable_in_case_note("Case Status", case_status)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
 'TIKLING
-IF TIKL_check = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")
+'IF TIKL_check = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")
 
-script_end_procedure_with_error_reporting("DAIL has been case noted")
+script_end_procedure_with_error_report("DAIL has been case noted")
 End if
