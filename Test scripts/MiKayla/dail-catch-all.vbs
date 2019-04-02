@@ -78,13 +78,20 @@ EndDialog
 'THE SCRIPT--------------------------------------------------------------------------------------------------
 'CONNECTING TO MAXIS & GRABBING THE CASE NUMBER
 EMConnect ""
-EMSendKey "T"
-transmit
-'Making sure that the user is on an acceptable DAIL message
-EMReadScreen DAIL_type, 4, 6, 6
-IF DAIL_type <> "WAGE" THEN script_end_procedure("Your cursor is not set on a message type. Please select an appropriate DAIL message and try again.")
-
-CALL MAXIS_case_number_finder(MAXIS_case_number)
+EMReadscreen dail_check, 4, 2, 48 'changed from DAIL to view to ensure we are in DAIL/DAIL'
+IF dail_check <> "DAIL" THEN script_end_procedure("Your cursor is not set on a message type. Please select an appropriate DAIL message and try again.")
+IF dail_check = "DAIL" THEN
+	EMSendKey "T"
+	transmit
+	'Making sure that the user is on an acceptable DAIL message
+	EMReadScreen DAIL_type, 4, 6, 6
+	EMReadScreen MAXIS_case_number, 8, 5, 73
+	MAXIS_case_number= TRIM(MAXIS_case_number)
+	EMSendKey "X"
+	'THE ENTIRE MESSAGE TEXT IS DISPLAYED'
+	EmReadScreen error_msg 37, 24, 02
+	EmReadScreen DAIL_read 50, 6, 20
+END IF
 
 'updates the "when contact was made" variable to show the current date & time
 when_contact_was_made = date & ", " & time
@@ -108,35 +115,20 @@ Call check_for_MAXIS(False)
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 start_a_blank_case_note
-CALL write_variable_in_CASE_NOTE(contact_type & " " & contact_direction & " " & who_contacted & " re: " & regarding)
-If Used_interpreter_checkbox = checked THEN
-	CALL write_variable_in_CASE_NOTE("* Contact was made: " & when_contact_was_made & " w/ interpreter")
-Else
-	CALL write_bullet_and_variable_in_CASE_NOTE("Contact was made", when_contact_was_made)
-End if
+CALL write_variable_in_CASE_NOTE("Action Taken: " & " re: " & regarding)
+CALL write_bullet_and_variable_in_CASE_NOTE("Action was taken: ", when_contact_was_made)
 CALL write_bullet_and_variable_in_CASE_NOTE("Phone number", phone_number)
 CALL write_bullet_and_variable_in_CASE_NOTE("METS/IC number", METS_IC_number)
-CALL write_bullet_and_variable_in_CASE_NOTE("Reason for contact", contact_reason)
+
 CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)
 CALL write_bullet_and_variable_in_CASE_NOTE("Verifs Needed", verifs_needed)
 CALL write_bullet_and_variable_in_CASE_NOTE("Instructions/Message for CL", cl_instructions)
 CALL write_bullet_and_variable_in_CASE_NOTE("Case Status", case_status)
-
-'checkbox results
-IF caf_1_check = checked THEN CALL write_variable_in_CASE_NOTE("* Reminded client about the importance of submitting the CAF 1.")
-IF Sent_arep_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent form(s) to AREP.")
-IF call_center_answer_check = checked THEN CALL write_variable_in_CASE_NOTE("* Call center answered caller's question.")
-IF call_center_transfer_check = checked THEN CALL write_variable_in_CASE_NOTE("* Call center transferred call to a worker.")
-IF follow_up_needed_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Follow-up is needed.")
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
 'TIKLING
 IF TIKL_check = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")
 
-'If case requires followup, it will create a MsgBox (via script_end_procedure) explaining that followup is needed. This MsgBox gets inserted into the statistics database for counties using that function. This will allow counties to "pull statistics" on follow-up, including case numbers, which can be used to track outcomes.
-If follow_up_needed_checkbox = checked then
-	script_end_procedure("Success! Follow-up is needed for case number: " & MAXIS_case_number)
-Else
-	script_end_procedure("")
+script_end_procedure_with_error_reporting("DAIL has been case noted")
 End if
