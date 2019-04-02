@@ -387,7 +387,9 @@ Row = 8
 	    	'Checking to see if the MISC panel is empty, if not it will find a new line'
 	    	EmReadScreen MISC_description, 25, row, 30
 	    	'MISC_description = replace(MISC_description, "_", "")
-	    	If trim(MISC_description) = "" THEN	EXIT DO
+	    	If trim(MISC_description) = "" THEN
+				EXIT DO
+				PF9
 	    	Else
 	            row = row + 1
 	    	End if
