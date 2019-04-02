@@ -35,6 +35,19 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/02/2019", "Initial version.", "Casey Love, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
+
 Function get_to_RKEY()
     EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
     IF MMIS_panel_check <> "RKEY" THEN
@@ -527,12 +540,28 @@ For each member in HH_member_array
 	'making sure script got to right panel
 	EMReadScreen RPOL_check, 4, 1, 52
 	If RPOL_check <> "RPOL" then script_end_procedure_with_error_report("The script was unable to navigate to RPOL process manually if needed.")
-    'Taking this out to test using the PMI specific RPOL check functionlity.
-	' EMreadscreen policy_number, 1, 7, 8
-	' if policy_number <> " " then
-	' 	PF6
-	' 	script_end_procedure_with_error_report ("This case has spans on RPOL. Please evaluate manually at this time.")
-	' end if
+
+	EMreadscreen policy_number, 1, 7, 8
+    If policy_number <> " " then
+
+        BeginDialog Dialog1, 0, 0, 161, 145, "RPOL Updated"
+          CheckBox 20, 100, 125, 10, "RPOL ended/ ready for enrollment", rpol_ended_checkbox
+          ButtonGroup ButtonPressed
+            OkButton 105, 125, 50, 15
+          Text 10, 10, 145, 25, "The script has found information on RPOL. The script cannot review RPOL to determine if enrollment information can be changed. "
+          GroupBox 10, 45, 145, 70, "REVIEW RPOL"
+          Text 50, 60, 65, 10, "*** Check RPOL ***"
+          Text 30, 75, 105, 15, "Review to see if the enrollment being attempted can be added."
+        EndDialog
+
+        dialog Dialog1
+
+        If rpol_ended_checkbox = unchecked Then
+            PF6
+    		script_end_procedure_with_error_report ("This case has spans on RPOL. Please evaluate manually at this time.")
+        End If
+    End If
+
 	PF6
 
 	EMWriteScreen "RPPH", 1, 8
@@ -812,82 +841,84 @@ If MNSURE_Case = TRUE Then
 			Contract_code_part_one = left(contract_code, 2)
 			Contract_code_part_two = right(contract_code, 2)
 
-			'enter disenrollment reason
-			If change_reason <> "" Then
-				EMWriteScreen disenrollment_reason, 14, 75
-			Else
-				EMWriteScreen disenrollment_reason, 13, 75
-			End If
+            If process_manually_message = "" Then
+    			'enter disenrollment reason
+    			If change_reason <> "" Then
+    				EMWriteScreen disenrollment_reason, 14, 75
+    			Else
+    				EMWriteScreen disenrollment_reason, 13, 75
+    			End If
 
-			'resets to bottom of the span list.
-			pf11
+    			'resets to bottom of the span list.
+    			pf11
 
-			'enter enrollment date
-			EMWriteScreen enrollment_date, 13, 5
-			'enter managed care plan code
-			EMWriteScreen health_plan_code, 13, 23
-			'enter contract code
-			EMWriteScreen contract_code_part_one, 13, 34
-			EMWriteScreen contract_code_part_two, 13, 37
-			'enter change reason
-			EMWriteScreen change_reason, 13, 71
+    			'enter enrollment date
+    			EMWriteScreen enrollment_date, 13, 5
+    			'enter managed care plan code
+    			EMWriteScreen health_plan_code, 13, 23
+    			'enter contract code
+    			EMWriteScreen contract_code_part_one, 13, 34
+    			EMWriteScreen contract_code_part_two, 13, 37
+    			'enter change reason
+    			EMWriteScreen change_reason, 13, 71
 
-			EMWaitReady 0, 0
+    			EMWaitReady 0, 0
 
-			EMReadScreen false_end, 8, 14, 14
-			If false_end = "99/99/99" Then
-				EMReadScreen double_check, 2, 14, 5
-				If double_check = "  " Then EMWriteScreen "...", 14, 5
-			End If
+    			EMReadScreen false_end, 8, 14, 14
+    			If false_end = "99/99/99" Then
+    				EMReadScreen double_check, 2, 14, 5
+    				If double_check = "  " Then EMWriteScreen "...", 14, 5
+    			End If
 
-			' msgbox "RPPH updated"
+    			' msgbox "RPPH updated"
 
-			'REFM screen
-			EMWriteScreen "refm", 1, 8
-			transmit
-			EMReadScreen RPPH_error_check, 10, 24, 2
-			If trim(RPPH_error_check) = "EXCLSN END" then
-				Do
-                    BeginDialog Dialog1, 0, 0, 191, 45, "Exclusion Code Error"
+    			'REFM screen
+    			EMWriteScreen "refm", 1, 8
+    			transmit
+    			EMReadScreen RPPH_error_check, 10, 24, 2
+    			If trim(RPPH_error_check) = "EXCLSN END" then
+    				Do
+                        BeginDialog Dialog1, 0, 0, 191, 45, "Exclusion Code Error"
+                          ButtonGroup ButtonPressed
+                            OkButton 85, 25, 50, 15
+                            CancelButton 135, 25, 50, 15
+                          Text 15, 10, 155, 10, "Update the exclusion code field, then press OK."
+                        EndDialog
+
+    					Dialog Dialog1
+    					cancel_confirmation
+    					transmit
+    					EMReadScreen RPPH_error_check, 10, 24, 2
+    				Loop until trim(RPPH_error_check) <> "EXCLSN END"
+    				' Msgbox "Updated the exclusion code field, then press OK."
+    				' transmit
+    			ELSEIF trim(RPPH_error_check) <> "" then
+
+                    BeginDialog Dialog1, 0, 0, 236, 110, "RPPH error detected"
+                      DropListBox 70, 50, 160, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", change_reason
+                      DropListBox 70, 65, 160, 15, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary", disenrollment_reason
                       ButtonGroup ButtonPressed
-                        OkButton 85, 25, 50, 15
-                        CancelButton 135, 25, 50, 15
-                      Text 15, 10, 155, 10, "Update the exclusion code field, then press OK."
+                        OkButton 125, 85, 50, 15
+                        CancelButton 180, 85, 50, 15
+                      Text 10, 55, 55, 10, "Change reason:"
+                      Text 10, 70, 60, 10, "Disenroll reason:"
+                      ButtonGroup ButtonPressed
+                        OkButton 155, 330, 50, 15
+                      Text 15, 20, 210, 10, "* Initial enrollment is selected, but has been enrolled previously"
+                      GroupBox 5, 5, 225, 40, "An error occurred on in RPPH. Typical errors include:"
+                      Text 15, 30, 210, 10, "* Exclusion code may be the same as the enrollment date"
                     EndDialog
 
-					Dialog Dialog1
-					cancel_confirmation
-					transmit
-					EMReadScreen RPPH_error_check, 10, 24, 2
-				Loop until trim(RPPH_error_check) <> "EXCLSN END"
-				' Msgbox "Updated the exclusion code field, then press OK."
-				' transmit
-			ELSEIF trim(RPPH_error_check) <> "" then
-
-                BeginDialog Dialog1, 0, 0, 236, 110, "RPPH error detected"
-                  DropListBox 70, 50, 160, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", change_reason
-                  DropListBox 70, 65, 160, 15, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary", disenrollment_reason
-                  ButtonGroup ButtonPressed
-                    OkButton 125, 85, 50, 15
-                    CancelButton 180, 85, 50, 15
-                  Text 10, 55, 55, 10, "Change reason:"
-                  Text 10, 70, 60, 10, "Disenroll reason:"
-                  ButtonGroup ButtonPressed
-                    OkButton 155, 330, 50, 15
-                  Text 15, 20, 210, 10, "* Initial enrollment is selected, but has been enrolled previously"
-                  GroupBox 5, 5, 225, 40, "An error occurred on in RPPH. Typical errors include:"
-                  Text 15, 30, 210, 10, "* Exclusion code may be the same as the enrollment date"
-                EndDialog
-
-				dialog Dialog1
-				If buttonpressed = 0 then script_end_procedure_with_error_report("Error message was not resolved. Please review enrollment information before trying the script again.")
-				EMWriteScreen "...", 13, 5
-				EMReadScreen false_end, 8, 14, 14
-				If false_end = "99/99/99" Then
-					EMReadScreen double_check, 2, 14, 5
-					If double_check = "??" Then EMWriteScreen "...", 14, 5
-				End If
-			END IF
+    				dialog Dialog1
+    				If buttonpressed = 0 then script_end_procedure_with_error_report("Error message was not resolved. Please review enrollment information before trying the script again.")
+    				EMWriteScreen "...", 13, 5
+    				EMReadScreen false_end, 8, 14, 14
+    				If false_end = "99/99/99" Then
+    					EMReadScreen double_check, 2, 14, 5
+    					If double_check = "??" Then EMWriteScreen "...", 14, 5
+    				End If
+    			END IF
+            End If
 
 	        'blanking out varibles if the other option is selected
 	        If change_reason = "Select one..." then change_reason = ""
@@ -1118,75 +1149,77 @@ Else
 			Contract_code_part_one = left(contract_code, 2)
 			Contract_code_part_two = right(contract_code, 2)
 
-			'enter disenrollment reason
-			If change_reason <> "" Then
-				EMWriteScreen disenrollment_reason, 14, 75
-			Else
-				EMWriteScreen disenrollment_reason, 13, 75
-			End If
+            If process_manually_message = "" Then
+    			'enter disenrollment reason
+    			If change_reason <> "" Then
+    				EMWriteScreen disenrollment_reason, 14, 75
+    			Else
+    				EMWriteScreen disenrollment_reason, 13, 75
+    			End If
 
-			'resets to bottom of the span list.
-			pf11
+    			'resets to bottom of the span list.
+    			pf11
 
-			'enter enrollment date
-			EMWriteScreen enrollment_date, 13, 5
-			'enter managed care plan code
-			EMWriteScreen health_plan_code, 13, 23
-			'enter contract code
-			EMWriteScreen contract_code_part_one, 13, 34
-			EMWriteScreen contract_code_part_two, 13, 37
-			'enter change reason
-			EMWriteScreen change_reason, 13, 71
+    			'enter enrollment date
+    			EMWriteScreen enrollment_date, 13, 5
+    			'enter managed care plan code
+    			EMWriteScreen health_plan_code, 13, 23
+    			'enter contract code
+    			EMWriteScreen contract_code_part_one, 13, 34
+    			EMWriteScreen contract_code_part_two, 13, 37
+    			'enter change reason
+    			EMWriteScreen change_reason, 13, 71
 
-			EMWaitReady 0, 0
+    			EMWaitReady 0, 0
 
-			EMReadScreen false_end, 8, 14, 14
-			If false_end = "99/99/99" Then
-				EMReadScreen double_check, 2, 14, 5
-				If double_check = "  " Then EMWriteScreen "...", 14, 5
-			End If
-			'msgbox "RPPH updated"
+    			EMReadScreen false_end, 8, 14, 14
+    			If false_end = "99/99/99" Then
+    				EMReadScreen double_check, 2, 14, 5
+    				If double_check = "  " Then EMWriteScreen "...", 14, 5
+    			End If
+    			'msgbox "RPPH updated"
 
-			'REFM screen
-			EMWriteScreen "refm", 1, 8
-			transmit
-			EMReadScreen RPPH_error_check, 10, 24, 2
-			If trim(RPPH_error_check) = "EXCLSN END" then
-				Do
-                    BeginDialog Dialog1, 0, 0, 191, 45, "Exclusion Code Error"
+    			'REFM screen
+    			EMWriteScreen "refm", 1, 8
+    			transmit
+    			EMReadScreen RPPH_error_check, 10, 24, 2
+    			If trim(RPPH_error_check) = "EXCLSN END" then
+    				Do
+                        BeginDialog Dialog1, 0, 0, 191, 45, "Exclusion Code Error"
+                          ButtonGroup ButtonPressed
+                            OkButton 85, 25, 50, 15
+                            CancelButton 135, 25, 50, 15
+                          Text 15, 10, 155, 10, "Update the exclusion code field, then press OK."
+                        EndDialog
+
+    					Dialog Dialog1
+    					cancel_confirmation
+    					transmit
+    					EMReadScreen RPPH_error_check, 10, 24, 2
+    				Loop until trim(RPPH_error_check) <> "EXCLSN END"
+    				' Msgbox "Updated the exclusion code field, then press OK."
+    				' transmit
+    			ELSEIF trim(RPPH_error_check) <> "" then
+                    BeginDialog Dialog1, 0, 0, 236, 110, "RPPH error detected"
+                      DropListBox 70, 50, 160, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", change_reason
+                      DropListBox 70, 65, 160, 15, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary", disenrollment_reason
                       ButtonGroup ButtonPressed
-                        OkButton 85, 25, 50, 15
-                        CancelButton 135, 25, 50, 15
-                      Text 15, 10, 155, 10, "Update the exclusion code field, then press OK."
+                        OkButton 125, 85, 50, 15
+                        CancelButton 180, 85, 50, 15
+                      Text 10, 55, 55, 10, "Change reason:"
+                      Text 10, 70, 60, 10, "Disenroll reason:"
+                      ButtonGroup ButtonPressed
+                        OkButton 155, 330, 50, 15
+                      Text 15, 20, 210, 10, "* Initial enrollment is selected, but has been enrolled previously"
+                      GroupBox 5, 5, 225, 40, "An error occurred on in RPPH. Typical errors include:"
+                      Text 15, 30, 210, 10, "* Exclusion code may be the same as the enrollment date"
                     EndDialog
 
-					Dialog Dialog1
-					cancel_confirmation
-					transmit
-					EMReadScreen RPPH_error_check, 10, 24, 2
-				Loop until trim(RPPH_error_check) <> "EXCLSN END"
-				' Msgbox "Updated the exclusion code field, then press OK."
-				' transmit
-			ELSEIF trim(RPPH_error_check) <> "" then
-                BeginDialog Dialog1, 0, 0, 236, 110, "RPPH error detected"
-                  DropListBox 70, 50, 160, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", change_reason
-                  DropListBox 70, 65, 160, 15, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary", disenrollment_reason
-                  ButtonGroup ButtonPressed
-                    OkButton 125, 85, 50, 15
-                    CancelButton 180, 85, 50, 15
-                  Text 10, 55, 55, 10, "Change reason:"
-                  Text 10, 70, 60, 10, "Disenroll reason:"
-                  ButtonGroup ButtonPressed
-                    OkButton 155, 330, 50, 15
-                  Text 15, 20, 210, 10, "* Initial enrollment is selected, but has been enrolled previously"
-                  GroupBox 5, 5, 225, 40, "An error occurred on in RPPH. Typical errors include:"
-                  Text 15, 30, 210, 10, "* Exclusion code may be the same as the enrollment date"
-                EndDialog
-
-				dialog Dialog1
-				If buttonpressed = 0 then script_end_procedure_with_error_report("Error message was not resolved. Please review enrollment information before trying the script again.")
-				EMWriteScreen "...", 13, 5
-			END IF
+    				dialog Dialog1
+    				If buttonpressed = 0 then script_end_procedure_with_error_report("Error message was not resolved. Please review enrollment information before trying the script again.")
+    				EMWriteScreen "...", 13, 5
+    			END IF
+            End If
 
 			'blanking out varibles if the other option is selected
 			If change_reason = "Select one..." then change_reason = ""
