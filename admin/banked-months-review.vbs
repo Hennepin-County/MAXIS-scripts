@@ -2572,7 +2572,10 @@ If process_option = "Ongoing Banked Months Cases" Then
                         PushButton 265, y_pos + 45, 70, 15, "Process manually", process_manually_button
                     EndDialog
 
-                    dialog Dialog1
+                    Do
+                        dialog Dialog1
+                        Call check_for_password(are_we_passworded_out)
+                    Loop until are_we_passworded_out = FALSE
 
                     For month_counter = 0 to UBound(months_in_gap)
                         ' MsgBox months_in_gap(month_counter) & " - " & month_notes(month_counter)
@@ -2857,7 +2860,6 @@ If process_option = "Ongoing Banked Months Cases" Then
                         Else                                    'If we are in production, then we should actually update
 
                             need_tracking = FALSE
-                            If approvable_month = FALSE then need_tracking = TRUE
                             CALL update_WREG_coding("30", "10", "N", "", need_tracking, "M")
 
                         End If
@@ -2875,7 +2877,6 @@ If process_option = "Ongoing Banked Months Cases" Then
                         Else                                    'If we are in production, then we should actually update
 
                             need_tracking = FALSE
-                            If approvable_month = FALSE then need_tracking = TRUE
                             CALL update_WREG_coding("30", "10", "N", "", need_tracking, "M")
 
                         End If
