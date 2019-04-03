@@ -1383,7 +1383,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                 Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
                 Call write_variable_in_CASE_NOTE("* A link to the domestic violence brochure sent to client in SPEC/MEMO as a part of interview notice.")
                 Call write_variable_in_CASE_NOTE("---")
-                Call write_variable_in_CASE_NOTE(worker_signature & " via bulk on demand waiver script")
+                Call write_variable_in_CASE_NOTE(worker_signature)
                 'MsgBox "What casenote was sent?"
                 PF3
 
@@ -1602,7 +1602,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                 Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
                 Call write_variable_in_CASE_NOTE("* A link to the domestic violence brochure sent to client in SPEC/MEMO as a part of interview notice.")
                 Call write_variable_in_CASE_NOTE("---")
-                Call write_variable_in_CASE_NOTE(worker_signature & " via bulk on demand waiver script")
+                Call write_variable_in_CASE_NOTE(worker_signature)
                 'MsgBox "What casenote was sent?"
                 PF3
 
@@ -1744,7 +1744,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                                     Call write_variable_in_case_note("* Confirmed client was provided sufficient 10 day notice.")
                                     Call write_bullet_and_variable_in_case_note("NOMI sent to client on ", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry))
                                     Call write_variable_in_case_note("---")
-                                    Call write_variable_in_CASE_NOTE(worker_signature & " via bulk on demand waiver script")
+                                    Call write_variable_in_CASE_NOTE(worker_signature)
                                     'MsgBox "What casenote was sent?"
                                     PF3
                                 End If
