@@ -5798,80 +5798,102 @@ function write_variable_in_CASE_NOTE(variable)
 end function
 
 function write_variable_in_CCOL_NOTE(variable)
-'--- This function writes a variable in CCOL note
-'~~~~~ variable: information to be entered into CCOL note from script/edit box
-'===== Keywords: MAXIS, CCOL note
-	If trim(variable) <> "" then
-	    EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
-	    noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
-	    'The following figures out if we need a new page, or if we need a new case note entirely as well.
-	    Do
-	    	EMReadScreen character_test, 1, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
-	    	If character_test <> " " or noting_row >= 18 then
-	    		noting_row = noting_row + 1
+''--- This function writes a variable in CCOL note
+'~~~~~ variable: information to be entered into CASE note from script/edit box
+'===== Keywords: MAXIS, CASE note
+	If trim(variable) <> "" THEN
+		EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
+		noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
+		'The following figures out if we need a new page, or if we need a new case note entirely as well.
+		Do
+			EMReadScreen character_test, 40, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+            character_test = trim(character_test)
+            If character_test <> "" or noting_row >= 18 then
 
-				'If we get to row 19 (which can't be read here), it will go to the next panel (PF8).
-	    		If noting_row >= 19 then
-	    			EMSendKey "<PF8>"
-	    			EMWaitReady 0, 0
+				'If we get to row 18 (which can't be read here), it will go to the next panel (PF8).
+				If noting_row >= 18 then
+					EMSendKey "<PF8>"
+					EMWaitReady 0, 0
 
-	    			'Checks to see if we've reached the end of available case notes. If we are, it will get us to a new case note.
-	    			EMReadScreen end_of_case_note_check, 1, 24, 2
-	    			If end_of_case_note_check = "A" then
-	    				EMSendKey "<PF3>"												'PF3s
-	    				EMWaitReady 0, 0
-	    				EMSendKey "<PF9>"												'PF9s (opens new note)
-	    				EMWaitReady 0, 0
-	    				EMWriteScreen "~~~continued from previous note~~~", 4, 	3		'enters a header
-	    				EMSetCursor 5, 3												'Sets cursor in a good place to start noting.
+                    EMReadScreen check_we_went_to_next_page, 75, 24, 2
+                    check_we_went_to_next_page = trim(check_we_went_to_next_page)
+
+					'Checks to see if we've reached the end of available case notes. If we are, it will get us to a new case note.
+					EMReadScreen end_of_case_note_check, 1, 24, 2
+					If end_of_case_note_check = "A" then
+						EMSendKey "<PF3>"												'PF3s
+						EMWaitReady 0, 0
+						EMSendKey "<PF9>"												'PF9s (opens new note)
+						EMWaitReady 0, 0
+						EMWriteScreen "~~~continued from previous note~~~", 4, 	3		'enters a header
+						EMSetCursor 5, 3												'Sets cursor in a good place to start noting.
 						noting_row = 5													'Resets this variable to work in the new locale
-	    			Else
+                    ElseIf check_we_went_to_next_page = "PLEASE PRESS PF3 TO EXIT OR FILL PAGE BEFORE SCROLLING TO NEXT PAGE" Then
+                        noting_row = 4
+                        Do
+                            EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+                            character_test = trim(character_test)
+                            If character_test <> "" then noting_row = noting_row + 1
+                        Loop until character_test = ""
+                    Else
 						noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
-	    			End if
-	    		End if
-	    	End if
-	    Loop until character_test = " "
+                    End If
+                Else
+                    noting_row = noting_row + 1
+				End if
+			End if
+		Loop until character_test = ""
 
-	    'Splits the contents of the variable into an array of words
-	    variable_array = split(variable, " ")
+		'Splits the contents of the variable into an array of words
+		variable_array = split(variable, " ")
 
-	    For each word in variable_array
+		For each word in variable_array
 
-	    	'If the length of the word would go past col 80 (you can't write to col 80), it will kick it to the next line and indent the length of the bullet
-	    	If len(word) + noting_col > 80 then
-	    		noting_row = noting_row + 1
-	    		noting_col = 3
-	    	End if
+			'If the length of the word would go past col 80 (you can't write to col 80), it will kick it to the next line and indent the length of the bullet
+			If len(word) + noting_col > 80 then
+				noting_row = noting_row + 1
+				noting_col = 3
+			End if
 
 			'If the next line is row 18 (you can't write to row 18), it will PF8 to get to the next page
-	    	If noting_row >= 19 then
-	    		EMSendKey "<PF8>"
-	    		EMWaitReady 0, 0
+			If noting_row >= 18 then
+				EMSendKey "<PF8>"
+				EMWaitReady 0, 0
 
-	    		'Checks to see if we've reached the end of available case notes. If we are, it will get us to a new case note.
-	    		EMReadScreen end_of_case_note_check, 1, 24, 2
-	    		If end_of_case_note_check = "A" then
-	    			EMSendKey "<PF3>"												'PF3s
-	    			EMWaitReady 0, 0
-	    			EMSendKey "<PF9>"												'PF9s (opens new note)
-	    			EMWaitReady 0, 0
-	    			EMWriteScreen "~~~continued from previous note~~~", 4, 	3		'enters a header
-	    			EMSetCursor 5, 3												'Sets cursor in a good place to start noting.
+                EMReadScreen check_we_went_to_next_page, 75, 24, 2
+                check_we_went_to_next_page = trim(check_we_went_to_next_page)
+
+				'Checks to see if we've reached the end of available case notes. If we are, it will get us to a new case note.
+				EMReadScreen end_of_case_note_check, 1, 24, 2
+				If end_of_case_note_check = "A" then
+					EMSendKey "<PF3>"												'PF3s
+					EMWaitReady 0, 0
+					EMSendKey "<PF9>"												'PF9s (opens new note)
+					EMWaitReady 0, 0
+					EMWriteScreen "~~~continued from previous note~~~", 4, 	3		'enters a header
+					EMSetCursor 5, 3												'Sets cursor in a good place to start noting.
 					noting_row = 5													'Resets this variable to work in the new locale
-	    		Else
+                ElseIf check_we_went_to_next_page = "PLEASE PRESS PF3 TO EXIT OR FILL PAGE BEFORE SCROLLING TO NEXT PAGE" Then
+                    noting_row = 4
+                    Do
+                        EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+                        character_test = trim(character_test)
+                        If character_test <> "" then noting_row = noting_row + 1
+                    Loop until character_test = ""
+				Else
 					noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
-	    		End if
-	    	End if
+				End if
+			End if
 
-	    	'Writes the word and a space using EMWriteScreen
-	    	EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
+			'Writes the word and a space using EMWriteScreen
+			EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
 
-	    	'Increases noting_col the length of the word + 1 (for the space)
-	    	noting_col = noting_col + (len(word) + 1)
-	    Next
+			'Increases noting_col the length of the word + 1 (for the space)
+			noting_col = noting_col + (len(word) + 1)
+		Next
 
-	    'After the array is processed, set the cursor on the following row, in col 3, so that the user can enter in information here (just like writing by hand). If you're on row 18 (which isn't writeable), hit a PF8. If the panel is at the very end (page 5), it will back out and go into another case note, as we did above.
-	    EMSetCursor noting_row + 1, 3
+		'After the array is processed, set the cursor on the following row, in col 3, so that the user can enter in information here (just like writing by hand). If you're on row 18 (which isn't writeable), hit a PF8. If the panel is at the very end (page 5), it will back out and go into another case note, as we did above.
+		EMSetCursor noting_row + 1, 3
 	End if
 end function
 
