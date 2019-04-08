@@ -1,5 +1,5 @@
 'GATHERING STATS===========================================================================================
-name_of_script = "NOTES - ABAWD EXEMPTION.vbs"
+name_of_script = "ACTIONS - ABAWD EXEMPTION.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 120
