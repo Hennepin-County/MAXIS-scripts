@@ -625,6 +625,9 @@ IF send_appt_ltr = TRUE THEN
     		Pause 2
     	End if
     Loop until SELF_check <> "SELF"
+
+    last_contact_day = DateAdd("d", 30, application_date)
+    If DateDiff("d", interview_date, last_contact_day) < 0 Then last_contact_day = interview_date
 	'Navigating to SPEC/MEMO
 	Call start_a_new_spec_memo		'Writes the appt letter into the MEMO.
     Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & application_date & "")
