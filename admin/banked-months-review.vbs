@@ -947,7 +947,8 @@ Const cm_approval_type  = 45    'This month the type of ABAWD/exclusion
 Const nm_approval_type  = 46    'The next month the type of ABAWD/exclusion
 Const remove_case       = 47
 Const removal_reason    = 48
-Const months_to_approve = 49
+Const need_close        = 49
+Const months_to_approve = 50
 
 'TYPES OF SNAP/ABAWD months
   ' "INACTIVE"
@@ -1204,6 +1205,7 @@ If process_option = "Find ABAWD Months" Then
             end_msg = "Script run completed. The script processed the rows "  & CASE_ABAWD_TO_COUNT_ARRAY(clt_excel_row, 0) & " through " & CASE_ABAWD_TO_COUNT_ARRAY(clt_excel_row, Ubound(CASE_ABAWD_TO_COUNT_ARRAY, 2))
         End If
 
+
     Next
 End If
 
@@ -1233,6 +1235,7 @@ If process_option = "Ongoing Banked Months Cases" Then
             BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case)        = trim(ObjExcel.Cells(list_row, ninth_mo_col).Value)
             BANKED_MONTHS_CASES_ARRAY(clt_curr_mo_stat, the_case)   = trim(ObjExcel.Cells(list_row, curr_mo_stat_col).Value)
             BANKED_MONTHS_CASES_ARRAY(used_ABAWD_mos, the_case)     = trim(ObjExcel.Cells(list_row, counted_ABAWD_col).Value)
+            BANKED_MONTHS_CASES_ARRAY(need_close, the_case)         = FALSE
             BANKED_MONTHS_CASES_ARRAY(months_to_approve, the_case)  = ""    'set this to zero at every run as it should be handled prior to the script run
 
             the_case = the_case + 1
@@ -1314,7 +1317,10 @@ If process_option = "Ongoing Banked Months Cases" Then
             BANKED_MONTHS_CASES_ARRAY(remove_case, the_case) = TRUE
             BANKED_MONTHS_CASES_ARRAY(removal_reason, the_case) = "Case in PND1"
         Else
-
+            ' exit_early = FALSE
+            If left(BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case), 2) = CM_mo AND right(BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case), 2) = CM_yr Then
+                BANKED_MONTHS_CASES_ARRAY(need_close, the_case) = TRUE
+            End If
 
             Do
                 Call back_to_SELF                               'need to go to SELF so we can go to a different month
@@ -1338,6 +1344,7 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                     month_tracked = TRUE            'if the month was listed on the spreadsheet - it was already tracked
                 Else
+                    'Setting the footer month and year
                     If month_indicator = clt_mo_one Then
                         If MAXIS_footer_month = CM_mo AND MAXIS_footer_year = CM_yr Then
                             MAXIS_footer_month = CM_plus_1_mo
@@ -1414,8 +1421,6 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                 If MAXIS_footer_month = CM_mo AND MAXIS_footer_year = CM_yr Then approvable_month = TRUE
                 If MAXIS_footer_month = CM_plus_1_mo AND MAXIS_footer_year = CM_plus_1_yr Then approvable_month = TRUE
-
-
 
                 client_not_in_HH = FALSE
                 If HH_memb <> "01" Then
@@ -1754,7 +1759,12 @@ If process_option = "Ongoing Banked Months Cases" Then
                         month_tracker_nbr = month_indicator - 5
                         If month_tracker_nbr > 9 Then
                             month_tracker_nbr = 9
-                            extra_month_issued = TRUE
+                            BANKED_MONTHS_CASES_ARRAY(need_close, the_case) = TRUE
+                            If MAXIS_footer_month = CM_plus_1_mo AND MAXIS_footer_year = CM_plus_1_yr Then
+
+                            Else
+                                extra_month_issued = TRUE
+                            End If
                         End If
                         month_tracker_nbr = month_tracker_nbr & ""
 
@@ -1763,6 +1773,8 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                         EMReadScreen fset_wreg_status, 2, 8, 50     'Reading the FSET Status and ABAWD status
                         EMReadScreen abawd_status, 2, 13, 50
+
+                        ' If exit_early = TRUE Then Exit Do
 
                         If fset_wreg_status = "30" AND abawd_status = "13" Then
                             EmReadscreen banked_counter, 1, 14, 50
@@ -2401,6 +2413,7 @@ If process_option = "Ongoing Banked Months Cases" Then
 
                     Else            'These cases are where the member is NOT active SNAP in the specified month
                         'If the month was tracked on the Excel spreadsheet
+                        ' If exit_early = TRUE Then Exit Do
                         If month_tracked = TRUE Then
 
                             'This dialog will allow the worker to determine if this should not be tracked as a banked month '
@@ -2446,7 +2459,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                           ButtonGroup ButtonPressed
                             OkButton 385, 175, 50, 15
                           Text 10, 10, 100, 10, "This will be the CASE/NOTE"
-                          Text 25, 30, 160, 10, "WREG Updated for ABAWD Information for M"
+                          Text 25, 30, 160, 10, "WREG Updated for ABAWD Information for MEMB " & HH_memb
                           Text 25, 50, 25, 10, "Detail"
                           Text 10, 85, 85, 10, "Other Detail script found"
                           Text 20, 105, 350, 80, BANKED_MONTHS_CASES_ARRAY(clt_notes, the_case)
@@ -2494,15 +2507,91 @@ If process_option = "Ongoing Banked Months Cases" Then
             'TODO need to create a multidimensional array to maintain the information about these months.
             'TODO ALSO need to add another excel column and array to identify WHY the case is no longer BANKED - because Reg ABAWD will need to convert back.
 
+            ' If exit_early = TRUE Then
+            '
+            ' End If
+
+            continue_approval = TRUE
+            closure_approval = TRUE
+            comnplete_approval = TRUE
+            months_in_gap = ""
             If BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case) <> "" Then
                 Month_nine_mo = left(BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case), 2)
                 Month_nine_yr = right(BANKED_MONTHS_CASES_ARRAY(clt_mo_nine, the_case), 2)
-
-                If Month_nine_mo = CM_mo AND Month_nine_yr = CM_yr Then closure_needed = TRUE
+                BANKED_MONTHS_CASES_ARRAY(need_close, the_case) = TRUE
             End If
 
-            closure_approval = TRUE
-            comnplete_approval = TRUE
+            If BANKED_MONTHS_CASES_ARRAY(need_close, the_case) = TRUE Then
+                If Month_nine_mo = CM_plus_1_mo AND Month_nine_yr = CM_plus_1_yr Then
+                    closure_needed = FALSE
+                ElseIf Month_nine_mo = CM_mo AND Month_nine_yr = CM_yr Then
+                    closure_needed = TRUE
+                Else
+                    closure_needed = TRUE
+                    the_month = Month_nine_mo
+                    the_year = Month_nine_yr
+                    Do
+                        first_of_month = the_month & "/1/" & the_year
+                        first_of_next_month = DateAdd("m", 1, first_of_month)
+
+                        the_month = DatePart("m", first_of_next_month)
+                        the_year = DatePart("yyyy", first_of_next_month)
+
+                        the_month = right("0" & the_month, 2)
+                        the_year = right(the_year, 2)
+
+                        months_in_gap = months_in_gap & "~" & the_month & "/" & the_year
+
+                    Loop until the_month = CM_mo AND the_year = CM_yr
+
+                    If left(months_in_gap, 1) = "~" Then months_in_gap = right(months_in_gap, len(months_in_gap) -1 )
+
+                    If len(months_in_gap) > 5 Then
+                        months_in_gap = split(months_in_gap, "~")
+                    Else
+                        months_in_gap = Array(months_in_gap)
+                    End If
+
+                    top_months = UBound(months_in_gap)
+                    Dim month_notes()
+                    ReDim month_notes(top_months)
+                    y_pos = 55
+
+                    BeginDialog Dialog1, 0, 0, 340, 140 + (Ubound(months_in_gap) * 20), "Gap Months"
+                      Text 10, 10, 325, 20, "There are months between the last banked month and Current Month + 1. The script will assess CM + 1 for ABAWD or exemptions. Review the months listed to add information to a case note here."
+                      Text 10, 35, 85, 10, Month_nine_mo & "/" & Month_nine_yr & " - 9th Banked Month"
+                      For month_counter = 0 to Ubound(months_in_gap)
+                        Text 10, y_pos, 25, 10, months_in_gap(month_counter)
+                        EditBox 35, y_pos - 5, 300, 15, month_notes(month_counter)
+                        y_pos = y_pos + 20
+                      Next
+                      Text 10, y_pos, 55, 10, CM_plus_1_mo & "/" & CM_plus_1_yr & " - CM + 1"
+                      Text 10, y_pos + 20, 290, 20, "** If the case needs seperate handling (coding and potential approval of gap months) select process manually. The script will move on to the next case after review of CM + 1."
+                      ButtonGroup ButtonPressed
+                        PushButton 210, y_pos + 45, 50, 15, "Continue", continue_button
+                        PushButton 265, y_pos + 45, 70, 15, "Process manually", process_manually_button
+                    EndDialog
+
+                    Do
+                        dialog Dialog1
+                        Call check_for_password(are_we_passworded_out)
+                    Loop until are_we_passworded_out = FALSE
+
+                    For month_counter = 0 to UBound(months_in_gap)
+                        ' MsgBox months_in_gap(month_counter) & " - " & month_notes(month_counter)
+                        other_notes = other_notes & months_in_gap(month_counter) & " - " & month_notes(month_counter) & "; "
+                    Next
+
+                    If buttonpressed = process_manually_button Then
+                        continue_approval = FALSE
+                        closure_approval = FALSE
+                        comnplete_approval = FALSE
+                        CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case) = "PROCESS MANUALLY " & CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
+                    End If
+                End If
+            End If
+
+
             If closure_needed = TRUE Then
 
                 MAXIS_footer_month = CM_plus_1_mo
@@ -2771,7 +2860,6 @@ If process_option = "Ongoing Banked Months Cases" Then
                         Else                                    'If we are in production, then we should actually update
 
                             need_tracking = FALSE
-                            If approvable_month = FALSE then need_tracking = TRUE
                             CALL update_WREG_coding("30", "10", "N", "", need_tracking, "M")
 
                         End If
@@ -2789,7 +2877,6 @@ If process_option = "Ongoing Banked Months Cases" Then
                         Else                                    'If we are in production, then we should actually update
 
                             need_tracking = FALSE
-                            If approvable_month = FALSE then need_tracking = TRUE
                             CALL update_WREG_coding("30", "10", "N", "", need_tracking, "M")
 
                         End If
@@ -2817,7 +2904,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                     '276651 - Family
                     '276898 - single
 
-                    continue_approval = TRUE
+                    ' If continue_approval = FALSE
                     If closure_approval = TRUE Then
                         elig_row = 7
                         Do
@@ -3674,6 +3761,9 @@ If process_option = "Return Banked Months to Active" Then
             EMReadScreen span_check, 4, 2, 50
             If span_check = "SPAN" Then Exit Do
 
+            EMReadScreen cant_get_in_check, 10, 24, 50
+            If cant_get_in_check = "CAF I CASE" Then Exit Do
+
         Loop until summ_check = "SUMM"
 
         EMReadScreen county_code, 2, 21, 19
@@ -3682,6 +3772,9 @@ If process_option = "Return Banked Months to Active" Then
             RETURN_TO_BANKED_ARRAY(remove_case, the_case) = TRUE
             RETURN_TO_BANKED_ARRAY(removal_reason, the_case) = "Out of County"
         ElseIf pnd1_check = "CAF II DATA" OR span_check = "SPAN" Then
+            RETURN_TO_BANKED_ARRAY(remove_case, the_case) = TRUE
+            RETURN_TO_BANKED_ARRAY(removal_reason, the_case) = "Case in PND1"
+        ElseIf cant_get_in_check = "CAF I CASE" Then
             RETURN_TO_BANKED_ARRAY(remove_case, the_case) = TRUE
             RETURN_TO_BANKED_ARRAY(removal_reason, the_case) = "Case in PND1"
         Else
