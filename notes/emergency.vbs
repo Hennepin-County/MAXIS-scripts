@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/08/2019", "Updated 200% FPG for 2019.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/22/2018", "Updated EGA eligibilty period to a year and a day after the start of the eligibilty period, per EGA group.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/01/2018", "FPG standards updated.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/06/2018", "FPG standards updated.", "Ilse Ferris, Hennepin County")
@@ -203,19 +204,20 @@ application_signed_check = 1 'The script should default to having the applicatio
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number & footer month/year
 EMConnect ""
-get_county_code
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing the case number dialog
 DO
 	Do
+        err_msg = ""
 		Dialog case_number_dialog
 		If ButtonPressed = 0 then stopscript
-		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
-	Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbcr & "* You need to type a valid case number."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    LOOP UNTIL err_msg = ""
+CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in	
 
 'EMER screnning code----------------------------------------------------------------------------------------------------
 If EGA_screening_check = 1 then
@@ -301,74 +303,44 @@ If EGA_screening_check = 1 then
       crisis = left(crisis, len(crisis) - 1)
     End if
 
-    'determining  200% FPG (using last year's amounts) per HH member---handles up to 20 members. Updated with 2018's FPG
-    If worker_county_code = "x127" then
-		If HH_members = "1"  then monthly_standard = "2023"
-    	If HH_members = "2"  then monthly_standard = "2743"
-    	If HH_members = "3"  then monthly_standard = "3463"
-    	If HH_members = "4"  then monthly_standard = "4183"
-    	If HH_members = "5"  then monthly_standard = "4903"
-    	If HH_members = "6"  then monthly_standard = "5623"
-    	If HH_members = "7"  then monthly_standard = "6343"
-    	If HH_members = "8"  then monthly_standard = "7063"
-    	If HH_members = "9"  then monthly_standard = "7783"
-    	If HH_members = "10" then monthly_standard = "8503"
-    	If HH_members = "11" then monthly_standard = "9223"
-    	If HH_members = "12" then monthly_standard = "9943"
-    	If HH_members = "13" then monthly_standard = "10663"
-    	If HH_members = "14" then monthly_standard = "11383"
-    	If HH_members = "15" then monthly_standard = "12103"
-    	If HH_members = "16" then monthly_standard = "12823"
-    	If HH_members = "17" then monthly_standard = "13543"
-    	If HH_members = "18" then monthly_standard = "14263"
-    	If HH_members = "19" then monthly_standard = "14983"
-    	If HH_members = "20" then monthly_standard = "15703"    
-	Elseif worker_county_code = "x162" then
-		If HH_members = "1" then monthly_standard = "1962"
-		If HH_members = "2" then monthly_standard = "2655"
-		If HH_members = "3" then monthly_standard = "3348"
-		If HH_members = "4" then monthly_standard = "4042"
-		If HH_members = "5" then monthly_standard = "4735"
-		If HH_members = "6" then monthly_standard = "5428"
-		If HH_members = "7" then monthly_standard = "6122"
-		If HH_members = "8" then monthly_standard = "6815"
-		If HH_members = "9" then monthly_standard = "7508"
-		If HH_members = "10" then monthly_standard = "8202"
-		If HH_members = "11" then monthly_standard = "8895"
-		If HH_members = "12" then monthly_standard = "9588"
-		If HH_members = "13" then monthly_standard = "9955"
-		If HH_members = "14" then monthly_standard = "10281"
-		If HH_members = "15" then monthly_standard = "10974"
-		If HH_members = "16" then monthly_standard = "11667"
-		If HH_members = "17" then monthly_standard = "12360"
-		If HH_members = "18" then monthly_standard = "13053"
-		If HH_members = "19" then monthly_standard = "13746"
-		If HH_members = "20" then monthly_standard = "14439"
-	End if
-
-	If worker_county_code = "x127" then seventy_percent_income = net_income * .70
+    'determining  200% FPG (using last year's amounts) per HH member---handles up to 20 members. Updated with 2019's FPG. Changes April 1 every year.
+	If HH_members = "1"  then monthly_standard = "2082"
+    If HH_members = "2"  then monthly_standard = "2818"
+    If HH_members = "3"  then monthly_standard = "3555"
+    If HH_members = "4"  then monthly_standard = "4292"
+    If HH_members = "5"  then monthly_standard = "5028"
+    If HH_members = "6"  then monthly_standard = "5765"
+    If HH_members = "7"  then monthly_standard = "6502"
+    If HH_members = "8"  then monthly_standard = "7238"
+    If HH_members = "9"  then monthly_standard = "7975"
+    If HH_members = "10" then monthly_standard = "8712"
+    If HH_members = "11" then monthly_standard = "9449"
+    If HH_members = "12" then monthly_standard = "10186"
+    If HH_members = "13" then monthly_standard = "10923"
+    If HH_members = "14" then monthly_standard = "11660"
+    If HH_members = "15" then monthly_standard = "12397"
+    If HH_members = "16" then monthly_standard = "13134"
+    If HH_members = "17" then monthly_standard = "13871"
+    If HH_members = "18" then monthly_standard = "14608"
+    If HH_members = "19" then monthly_standard = "15345"
+    If HH_members = "20" then monthly_standard = "16082"
+    
+    monthly_standard = monthly_standard - 65    'This for the $65 income disregard 
+    seventy_percent_income = net_income * .70   'This is to determine if shel costs exceed 70% of the HH's income 
 
     'determining if client is potentially elig for EMER or not'
-    If worker_county_code = "x127" then
-		If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) < abs(monthly_standard) AND net_income <> "0" AND EMER_last_used_dates = "n/a" AND abs(seventy_percent_income) > abs(shelter_costs) then
-			screening_determination = "potentially eligible for emergency programs."
-		END IF
-	Elseif worker_county_code = "x162" then
-		If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) < abs(monthly_standard) AND net_income <> "0" AND EMER_last_used_dates = "n/a" AND abs(net_income) > abs(shelter_costs) then
-			screening_determination = "potentially eligible for emergency programs."
-		END IF
-	Else
-    	screening_determination = "NOT be eligible for emergency programs because: "
-    END IF
-
-    'if client is not elig, reason(s) for not being elig will be listed in the msgbox
-    If crisis = "no crisis given" then screening_determination = screening_determination & vbNewLine & "* No crisis meeting program requirements."
-    If worker_county_code = "x127" and abs(seventy_percent_income) < abs(shelter_costs) then screening_determination = screening_determination & vbNewLine & "* The HH's shelter costs are more than 70% of the HH's net income."
-	If worker_county_code = "x162" and abs(net_income) < abs(shelter_costs) then screening_determination = screening_determination & vbNewLine & "* The HH's shelter costs are more than the HH's net income."
-	IF meets_residency = "No" then screening_determination = screening_determination & vbNewLine & "* No one in the household has met 30 day residency requirements."
-    If abs(net_income) > abs(monthly_standard)then screening_determination = screening_determination & vbNewLine & "* Net income exceeds program guidelines."
-    IF net_income = "0" then screening_determination = screening_determination & vbNewLine & "* Household does not have current/ongoing income."
-    If EMER_last_used_dates <> "n/a" then screening_determination = screening_determination & vbNewLine & "* Emergency funds were used within the last year from the eligibility period."
+	If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) < abs(monthly_standard) AND net_income <> "0" AND EMER_last_used_dates = "n/a" AND abs(seventy_percent_income) > abs(shelter_costs) then 
+        screening_determination = "potentially eligible for EGA."
+	Else 
+        screening_determination = "NOT eligible for EGA for the following reasons:" & vbcr
+        'if client is not elig, reason(s) for not being elig will be listed in the msgbox
+        If crisis = "no crisis given" then screening_determination = screening_determination & vbNewLine & "* No crisis meeting program requirements."
+        If abs(seventy_percent_income) < abs(shelter_costs) then screening_determination = screening_determination & vbNewLine & "* The HH's shelter costs are more than 70% of the HH's net income."
+	    IF meets_residency = "No" then screening_determination = screening_determination & vbNewLine & "* No one in the household has met 30 day residency requirements."
+        If abs(net_income) > abs(monthly_standard)then screening_determination = screening_determination & vbNewLine & "* Net income exceeds program guidelines."
+        IF net_income = "0" then screening_determination = screening_determination & vbNewLine & "* Household does not have current/ongoing income."
+        If EMER_last_used_dates <> "n/a" then screening_determination = screening_determination & vbNewLine & "* Emergency funds were used within the last year from the eligibility period."
+    End if 
 
     'Msgbox with screening results. Will give the user the option to cancel the script, case note the results, or use the EMER notes script
     Screening_options = MsgBox ("Based on the information provided, this HH appears to " & screening_determination & vbNewLine & vbNewLine &"The last date emergency funds were used was: " & EMER_last_used_dates & "." & _
