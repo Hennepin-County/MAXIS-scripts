@@ -103,8 +103,8 @@ IF ADH_option = "ADH waiver signed" THEN
     BeginDialog adh_dialog, 0, 0, 326, 100, "ADH waiver signed"
       EditBox 100, 5, 40, 15, date_waiver_signed
       DropListBox 250, 5, 65, 15, "Select One:"+chr(9)+"CASH"+chr(9)+"SNAP"+chr(9)+"CASH & SNAP", Program_droplist
-      EditBox 30, 35, 40, 15, end_date
-      EditBox 30, 55, 40, 15, start_date
+      EditBox 30, 35, 40, 15, start_date
+      EditBox 30, 55, 40, 15, end_date
       EditBox 135, 35, 20, 15, months_disq
       EditBox 135, 55, 40, 15, DISQ_begin_date
       EditBox 250, 35, 65, 15, fraud_claim_number
@@ -134,7 +134,7 @@ IF ADH_option = "ADH waiver signed" THEN
     		IF program_droplist = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select the program."
     		IF isdate(start_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter start date."
     		IF isdate(end_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter end date."
-    		IF IsNumeric(months_disq) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the amount of disqualification months."
+    		'IF IsNumeric(months_disq) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the amount of disqualification months."
     		IF isdate(DISQ_begin_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter DISQ beign date."
     		IF trim(fraud_claim_number) = "" and Fraud_investigator <> "Select One:" THEN err_msg = err_msg & vbNewLine & "* Enter both the fraud case number AND the Fraud Investigator's name, or clear the non-applicable info."
     		IF trim(fraud_claim_number) <> "" and Fraud_investigator = "Select One:"  THEN err_msg = err_msg & vbNewLine & "* Enter both the fraud case number AND the Fraud Investigator's name, or clear the non-applicable info."
