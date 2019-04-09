@@ -1109,9 +1109,9 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                 IF left(UCase(note_title), 19) = "----DENIED SNAP----" then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", DENY SNAP case note"       'possible enhancement to only note this if SNAP status is active or pending
                 IF left(UCase(note_title), 19) = "----DENIED CASH----" then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", DENY CASH case note"       'possible enhancement to only note this if Cash status is active or pending
                 IF left(UCase(note_title), 24) = "----DENIED SNAP/CASH----" then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", DENY SNAP/CASH"   'possible enhancement to only note this if Cash and SNAP status is active or pending
-        		IF left(note_title, 31) = "~ Denied CASH/SNAP via script ~" then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", SCRIPT DENIAL ALREADY NOTED"
-                IF left(note_title, 31) = "~ Denied CASH via script ~" then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", SCRIPT DENIAL ALREADY NOTED"
-                IF left(note_title, 26) = "~ Denied SNAP via script ~" then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", SCRIPT DENIAL ALREADY NOTED"
+        		IF left(note_title, 31) = "~ Denied CASH/SNAP ~" then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", SCRIPT DENIAL ALREADY NOTED"
+                IF left(note_title, 31) = "~ Denied CASH ~" then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", SCRIPT DENIAL ALREADY NOTED"
+                IF left(note_title, 26) = "~ Denied SNAP ~" then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", SCRIPT DENIAL ALREADY NOTED"
 
                 IF note_date = "        " then Exit Do      'for newer cases we might meet the end of the case notes before the date is prior to the app date - this accounts for that
                 note_row = note_row + 1                     'go to the next row
@@ -1594,9 +1594,9 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                 ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "DENY AT DAY 30"
                 Call start_a_blank_case_note
                 If ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) <> "Pending" OR ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry) = "Y" Then
-                    Call write_variable_in_CASE_NOTE("~ Client has not completed CASH APP interview, NOMI sent via script ~ ")
+                    Call write_variable_in_CASE_NOTE("~ Client has not completed CASH APP interview, NOMI sent ~ ")
                 Else
-                    Call write_variable_in_CASE_NOTE("~ Client has not completed application interview, NOMI sent via script ~ ")
+                    Call write_variable_in_CASE_NOTE("~ Client has not completed application interview, NOMI sent ~ ")
                 End If
                 Call write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about completing an interview. ")
                 Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
@@ -1725,6 +1725,10 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                                         Need_NOTE = FALSE
                                         Exit Do
                                     End If
+									If left(note_title, 8) = "~ Denied" Then
+                                        Need_NOTE = FALSE
+                                        Exit Do
+                                    End If
                                     IF note_date = "        " then Exit Do      'if the case is new, we will hit blank note dates and we don't need to read any further
                                     note_row = note_row + 1                     'going to the next row to look at the next notws
                                     IF note_row = 19 THEN                       'if we have reached the end of the list of case notes then we will go to the enxt page of notes
@@ -1738,7 +1742,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
 
                                 If Need_NOTE = TRUE Then
                                     Call start_a_blank_case_note
-                                    Call write_variable_in_case_note("~ Denied " & programs & " via script ~")
+                                    Call write_variable_in_case_note("~ Denied " & programs & " ~")
                                 	Call write_bullet_and_variable_in_case_note("Application date", ALL_PENDING_CASES_ARRAY(application_date, case_entry))
                                     Call write_variable_in_case_note("* Reason for denial: interview was not completed timely.")
                                     Call write_variable_in_case_note("* Confirmed client was provided sufficient 10 day notice.")
