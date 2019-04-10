@@ -128,9 +128,10 @@ END IF
 Row = 7
 DO
 	EMReadScreen IEVS_period, 11, row, 47
+	EmReadScreen number_IEVS_type, 3, row, 41
 	IF trim(IEVS_period) = "" THEN script_end_procedure_with_error_report("A match for the selected period could not be found. The script will now end.")
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-	"   " & IEVS_period, vbYesNoCancel, "Please confirm this match")
+	" " & "Period: " & IEVS_period & " Type: " & number_IEVS_type, vbYesNoCancel, "Please confirm this match")
 	'msgbox IEVS_period
 	IF ievp_info_confirmation = vbNo THEN
 		row = row + 1
@@ -168,6 +169,7 @@ ELSE
 	ELSEIF match_type = "BEER" or match_type = "UNVI" THEN
 		EMReadScreen IEVS_year, 2, 8, 15
 		IEVS_year = "20" & IEVS_year
+		select_quarter = "YEAR"
 	END IF
 END IF
 
@@ -558,7 +560,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
   		CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
   		CALL write_variable_in_case_note("----- ----- ----- ----- -----")
   		CALL write_variable_in_case_note ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
-		'PF3
+		PF3
 	ELSEIF resolution_status = "NC - Non Cooperation" THEN   'Navigates to TIKL
 		IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") NON-COOPERATION-----")
 		IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH (" & match_type_letter & ") " & "(" & first_name & ") NON-COOPERATION-----")
