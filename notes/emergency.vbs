@@ -38,12 +38,15 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+
+
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/11/2019", "Updated backend processing.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/08/2019", "Updated 200% FPG for 2019.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/22/2018", "Updated EGA eligibilty period to a year and a day after the start of the eligibilty period, per EGA group.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/01/2018", "FPG standards updated.", "Ilse Ferris, Hennepin County")
@@ -56,11 +59,6 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-MAXIS_footer_month = datepart("m", date) & ""
-If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month & ""
-MAXIS_footer_year = datepart("yyyy", date)
-MAXIS_footer_year = "" & MAXIS_footer_year - 2000
-
 'creating month variable 13 months prior to current footer month/year to search for EMER programs issued (for EMER SCREENING portion of the script)
 begin_search_month = dateadd("m", -13, date)
 begin_search_year = datepart("yyyy", begin_search_month)
@@ -70,42 +68,6 @@ If len(begin_search_month) = 1 then begin_search_month = "0" & begin_search_mont
 'End of date calculations----------------------------------------------------------------------------------------------
 
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'EGA screening dialog for x162 and x127 users only
-BeginDialog emergency_screening_dialog, 0, 0, 286, 170, "Emergency Screening dialog"
-  EditBox 60, 5, 55, 15, MAXIS_case_number
-  ComboBox 255, 5, 25, 15, "1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"13"+chr(9)+"14"+chr(9)+"15"+chr(9)+"16"+chr(9)+"17"+chr(9)+"18"+chr(9)+"19"+chr(9)+"20", HH_members
-  CheckBox 15, 45, 40, 10, "Eviction", eviction_check
-  CheckBox 65, 45, 70, 10, "Utility disconnect", utility_disconnect_check
-  CheckBox 140, 45, 60, 10, "Homelessness", homelessness_check
-  CheckBox 210, 45, 65, 10, "Security deposit", security_deposit_check
-  ComboBox 230, 65, 50, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", meets_residency
-  EditBox 230, 85, 50, 15, shelter_costs
-  EditBox 230, 105, 50, 15, net_income
-  EditBox 155, 125, 125, 15, worker_signature
-  ButtonGroup ButtonPressed
-    PushButton 85, 145, 90, 15, "HSR Manual EMER page ", EMER_HSR_manual_button
-    OkButton 180, 145, 50, 15
-    CancelButton 230, 145, 50, 15
-    PushButton 10, 95, 30, 10, "ADDR", ADDR_button
-    PushButton 40, 95, 30, 10, "BUSI", BUSI_button
-    PushButton 10, 105, 30, 10, "JOBS", JOBS_button
-    PushButton 40, 105, 30, 10, "MEMB", MEMB_button
-    PushButton 10, 115, 30, 10, "PROG", PROG_button
-    PushButton 40, 115, 30, 10, "SHEL", SHEL_button
-    PushButton 10, 125, 30, 10, "TYPE", TYPE_button
-    PushButton 40, 125, 30, 10, "UNEA", UNEA_button
-    PushButton 15, 135, 50, 10, "CASE/CURR", CURR_button
-    PushButton 15, 145, 50, 10, "MONY/INQX", MONY_button
-  Text 145, 10, 105, 10, "Number of EMER HH members:"
-  Text 100, 110, 125, 10, "What is the household's NET income?"
-  Text 10, 10, 45, 10, "Case number:"
-  GroupBox 5, 30, 275, 30, "Crisis (Check all that apply. If none, do not check any):"
-  Text 5, 70, 220, 10, "Has anyone in the HH been residing in MN for more than 30 days?"
-  Text 100, 90, 125, 10, "What is the household's shelter cost?"
-  Text 90, 130, 60, 10, "Worker signature:"
-  GroupBox 0, 85, 80, 75, "STAT navigation"
-EndDialog
-
 BeginDialog case_number_dialog, 0, 0, 141, 115, "Case number dialog"
   EditBox 75, 5, 55, 15, MAXIS_case_number
   EditBox 75, 25, 25, 15, MAXIS_footer_month
@@ -123,7 +85,7 @@ BeginDialog case_number_dialog, 0, 0, 141, 115, "Case number dialog"
 EndDialog
 
 'This dialog contains a customized "percent rule" variable, as well as a customized "income days" variable. As such, it can't directly be edited in the dialog editor.
-BeginDialog emergency_dialog, 0, 0, 321, 395, "Emergency Dialog"
+BeginDialog emergency_dialog, 0, 0, 326, 395, "Emergency Dialog"
   EditBox 60, 45, 65, 15, interview_date
   EditBox 170, 45, 150, 15, HH_comp
   CheckBox 25, 75, 40, 10, "Eviction", eviction_check
@@ -132,20 +94,20 @@ BeginDialog emergency_dialog, 0, 0, 321, 395, "Emergency Dialog"
   CheckBox 230, 75, 65, 10, "Security deposit", security_deposit_check
   EditBox 65, 100, 255, 15, cause_of_crisis
   EditBox 85, 160, 235, 15, income
-  EditBox 110, 180, 210, 15, income_under_200_FPG
+  EditBox 105, 180, 215, 15, income_under_200_FPG
   EditBox 60, 200, 260, 15, percent_rule_notes
-  EditBox 75, 220, 245, 15, monthly_expense
-  EditBox 40, 240, 280, 15, assets
-  EditBox 60, 260, 260, 15, verifs_needed
-  EditBox 75, 280, 245, 15, crisis_resolvable
+  EditBox 70, 220, 250, 15, monthly_expense
+  EditBox 55, 240, 265, 15, assets
+  EditBox 55, 260, 265, 15, verifs_needed
+  EditBox 80, 280, 240, 15, crisis_resolvable
   EditBox 80, 300, 240, 15, discussion_of_crisis
-  EditBox 60, 320, 260, 15, actions_taken
-  EditBox 50, 340, 270, 15, referrals
+  EditBox 55, 320, 265, 15, actions_taken
+  EditBox 55, 340, 265, 15, referrals
   CheckBox 5, 360, 90, 10, "Sent forms to AREP?", sent_arep_checkbox
-  EditBox 75, 375, 90, 15, worker_signature
+  EditBox 70, 375, 140, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 195, 375, 50, 15
-    CancelButton 255, 375, 50, 15
+    OkButton 215, 375, 50, 15
+    CancelButton 270, 375, 50, 15
     PushButton 10, 15, 25, 10, "ADDR", ADDR_button
     PushButton 35, 15, 25, 10, "MEMB", MEMB_button
     PushButton 60, 15, 25, 10, "MEMI", MEMI_button
@@ -179,12 +141,12 @@ BeginDialog emergency_dialog, 0, 0, 321, 395, "Emergency Dialog"
   Text 5, 185, 100, 10, "Is income under 200% FPG?:"
   Text 5, 205, 55, 10, emer_percent_rule_amt & "% rule notes:"
   Text 5, 225, 60, 10, "Monthly expense:"
-  Text 5, 245, 30, 10, "Assets:"
+  Text 25, 245, 25, 10, "Assets:"
   Text 5, 265, 50, 10, "Verifs needed:"
   Text 5, 285, 65, 10, "Crisis resolvable?:"
-  Text 5, 305, 75, 10, "Discussion of Crisis:"
+  Text 5, 305, 70, 10, "Discussion of Crisis:"
   Text 5, 325, 50, 10, "Actions taken:"
-  Text 5, 345, 40, 10, "Referrals:"
+  Text 15, 345, 35, 10, "Referrals:"
   Text 5, 380, 65, 10, "Worker signature:"
 EndDialog
 
@@ -194,12 +156,6 @@ BeginDialog case_note_dialog, 0, 0, 136, 51, "Case note dialog"
     PushButton 5, 35, 125, 10, "No, take me back to the script dialog.", no_case_note_button
   Text 10, 5, 125, 10, "Are you sure you want to case note?"
 EndDialog
-
-'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-HH_memb_row = 5
-Dim row
-Dim col
-application_signed_check = 1 'The script should default to having the application signed.
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number & footer month/year
@@ -212,8 +168,10 @@ DO
 	Do
         err_msg = ""
 		Dialog case_number_dialog
-		If ButtonPressed = 0 then stopscript
-		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbcr & "* You need to type a valid case number."
+		cancel_without_confirmation
+        Call validate_MAXIS_case_number(err_msg, "*")
+        If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
+        If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     LOOP UNTIL err_msg = ""
 CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
@@ -221,34 +179,60 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'EMER screnning code----------------------------------------------------------------------------------------------------
 If EGA_screening_check = 1 then
+    'EGA screening dialog 
+    BeginDialog emergency_screening_dialog, 0, 0, 286, 170, "Emergency Screening dialog"
+      ComboBox 255, 5, 25, 15, "1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"13"+chr(9)+"14"+chr(9)+"15"+chr(9)+"16"+chr(9)+"17"+chr(9)+"18"+chr(9)+"19"+chr(9)+"20", HH_members
+      CheckBox 15, 45, 40, 10, "Eviction", eviction_check
+      CheckBox 65, 45, 70, 10, "Utility disconnect", utility_disconnect_check
+      CheckBox 140, 45, 60, 10, "Homelessness", homelessness_check
+      CheckBox 210, 45, 65, 10, "Security deposit", security_deposit_check
+      ComboBox 230, 65, 50, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", meets_residency
+      EditBox 230, 85, 50, 15, shelter_costs
+      EditBox 230, 105, 50, 15, net_income
+      EditBox 155, 125, 125, 15, worker_signature
+      ButtonGroup ButtonPressed
+        PushButton 85, 145, 90, 15, "HSR Manual EMER page ", EMER_HSR_manual_button
+        OkButton 180, 145, 50, 15
+        CancelButton 230, 145, 50, 15
+        PushButton 10, 95, 30, 10, "ADDR", ADDR_button
+        PushButton 40, 95, 30, 10, "BUSI", BUSI_button
+        PushButton 10, 105, 30, 10, "JOBS", JOBS_button
+        PushButton 40, 105, 30, 10, "MEMB", MEMB_button
+        PushButton 10, 115, 30, 10, "PROG", PROG_button
+        PushButton 40, 115, 30, 10, "SHEL", SHEL_button
+        PushButton 10, 125, 30, 10, "TYPE", TYPE_button
+        PushButton 40, 125, 30, 10, "UNEA", UNEA_button
+        PushButton 15, 135, 50, 10, "CASE/CURR", CURR_button
+        PushButton 15, 145, 50, 10, "MONY/INQX", MONY_button
+      Text 145, 10, 105, 10, "Number of EMER HH members:"
+      Text 100, 110, 125, 10, "What is the household's NET income?"
+      Text 10, 10, 120, 10, "Case number: " & MAXIS_case_number
+      GroupBox 5, 30, 275, 30, "Crisis (Check all that apply. If none, do not check any):"
+      Text 5, 70, 220, 10, "Has anyone in the HH been residing in MN for more than 30 days?"
+      Text 100, 90, 125, 10, "What is the household's shelter cost?"
+      Text 90, 130, 60, 10, "Worker signature:"
+      GroupBox 0, 85, 80, 75, "STAT navigation"
+    EndDialog
+    
     'Running the initial dialog
     DO
     	DO
+            err_msg = ""
     		DO
-    			err_msg = ""
     			Dialog emergency_screening_dialog
-    			cancel_confirmation
+    			cancel_without_confirmation
 				MAXIS_dialog_navigation
-    			'Opening the the HSR manual to the NOMI page
-    			IF buttonpressed = EMER_HSR_manual_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Emergency_Assistance_Policy.aspx")
-    			If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-    			If HH_members = "" or IsNumeric(HH_members) = False then err_msg = err_msg & vbNewLine & "* Enter the number of household members."
-    			If meets_residency = "Select one..." then err_msg = err_msg & vbNewLine & "* Answer the MN residency question."
-    			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
-				If IsNumeric(shelter_costs) = false then err_msg = err_msg & vbNewLine & "* Enter a numeric shelter cost amount."
-    			If net_income = "" or IsNumeric(net_income) = False then err_msg = err_msg & vbNewLine & "* Enter the household's net income."
-    			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-    		LOOP until err_msg = ""
-    	LOOP until ButtonPressed = -1
+                IF buttonpressed = EMER_HSR_manual_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Emergency_Assistance_Policy.aspx") 'HSR manual policy page
+            LOOP until ButtonPressed = -1
+    		If HH_members = "" or IsNumeric(HH_members) = False then err_msg = err_msg & vbNewLine & "* Enter the number of household members."
+    		If meets_residency = "Select one..." then err_msg = err_msg & vbNewLine & "* Answer the MN residency question."
+    		If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
+			If IsNumeric(shelter_costs) = false then err_msg = err_msg & vbNewLine & "* Enter a numeric shelter cost amount."
+    		If net_income = "" or IsNumeric(net_income) = False then err_msg = err_msg & vbNewLine & "* Enter the household's net income."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	LOOP until err_msg = ""
     	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-    'navigating to INQX'
-    back_to_self
-    EMWriteScreen "________", 18, 43
-    EMWriteScreen MAXIS_case_number, 18, 43
-    EMWriteScreen CM_mo, 20, 43	'entering current footer month/year
-    EMWriteScreen CM_yr, 20, 46
 
     Call navigate_to_MAXIS_screen("MONY", "INQX")
     EMWriteScreen begin_search_month, 6, 38		'entering footer month/year 13 months prior to current footer month/year'
@@ -275,9 +259,9 @@ If EGA_screening_check = 1 then
     			row = row + 1
     		END IF
     	Loop until row = 18				'repeats until the end of the page
-    		PF8
-    		EMReadScreen last_page_check, 21, 24, 2
-    		If last_page_check <> "THIS IS THE LAST PAGE" then row = 6		're-establishes row for the new page
+    	PF8
+    	EMReadScreen last_page_check, 21, 24, 2
+    	If last_page_check <> "THIS IS THE LAST PAGE" then row = 6		're-establishes row for the new page
     LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 
     'creating variables and conditions for EMER screening
@@ -397,16 +381,20 @@ call autofill_editbox_from_MAXIS(HH_member_array, "HEST", monthly_expense) 'Does
 'Showing the case note
 DO
 	Do
+        err_msg = ""
 		Do
 			Dialog emergency_dialog
 			cancel_confirmation
 			MAXIS_dialog_navigation
 		Loop until ButtonPressed = -1
 		If ButtonPressed = -1 then dialog case_note_dialog
-	    If income = "" or actions_taken = "" or worker_signature = "" then MsgBox "You need to fill in the income and actions taken sections, as well as sign your case note. Check these items after pressing ''OK''."
-	 Loop until income <> "" and actions_taken <> "" and worker_signature <> ""
-	 call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
- LOOP UNTIL are_we_passworded_out = false
+	    If trim(income) = "" then err_msg = err_msg & vbcr & "* Enter income information."
+        If trim(actions_taken) = "" then err_msg = err_msg & vbcr & "* Enter your actions taken."
+        If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Sign your case note."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    LOOP until err_msg = ""
+    Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+LOOP UNTIL are_we_passworded_out = false
 
 crisis = ""
 'Logic to enter what the "crisis" variable is from the checkboxes indicated
