@@ -4802,7 +4802,7 @@ function script_end_procedure_with_error_report(closing_message)
 	stop_time = timer
     send_error_message = ""
 	If closing_message <> "" AND left(closing_message, 3) <> "~PT" then        '"~PT" forces the message to "pass through", i.e. not create a pop-up, but to continue without further diversion to the database, where it will write a record with the message
-        send_error_message = MsgBox(closing_message & vbNewLine & vbNewLine & "Do you need to send an error report about this script run?", vbSystemModal + vbDefaultButton2 + vbYesNo, "Script Run Completed")
+        send_error_message = MsgBox(closing_message & vbNewLine & vbNewLine & "Do you need to send an error report about this script run?", vbSystemModal + vbQuestion + vbDefaultButton2 + vbYesNo, "Script Run Completed")
     End If
     script_run_time = stop_time - start_time
 	If is_county_collecting_stats  = True then
@@ -4863,13 +4863,17 @@ function script_end_procedure_with_error_report(closing_message)
         'dialog here to gather more detail
         error_type = ""
 
+        If trim(MAXIS_case_number) = "" Then
+            If trim(MMIS_case_number) <> "" Then MAXIS_case_number = MMIS_case_number
+        End If
+
         Do
             Do
                 confirm_err = ""
 
                 BeginDialog Dialog1, 0, 0, 401, 175, "Report Error Detail"
                   Text 60, 35, 55, 10, MAXIS_case_number
-                  ComboBox 220, 30, 175, 45, error_type+chr(9)+"BUG - somethng happened that was wrong"+chr(9)+"ENHANCEMENT - somthing could be done better"+chr(9)+"TYPO - gramatical/spelling type errors", error_type
+                  ComboBox 220, 30, 175, 45, error_type+chr(9)+"BUG - something happened that was wrong"+chr(9)+"ENHANCEMENT - something could be done better"+chr(9)+"TYPO - grammatical/spelling type errors", error_type
                   EditBox 65, 50, 330, 15, error_detail
                   CheckBox 20, 100, 65, 10, "CASE/NOTE", case_note_checkbox
                   CheckBox 95, 100, 65, 10, "Update in STAT", stat_update_checkbox
@@ -4902,7 +4906,7 @@ function script_end_procedure_with_error_report(closing_message)
                 End If
 
                 If ButtonPressed = -1 Then
-                    full_text = "Error occured on " & date & " at " & time
+                    full_text = "Error occurred on " & date & " at " & time
                     full_text = full_text & vbCr & "Error type - " & error_type
                     full_text = full_text & vbCr & "Script name - " & name_of_script & " was run on Case #" & MAXIS_case_number & " with a runtime of " & script_run_time & " seconds."
                     full_text = full_text & vbCr & "Information: " & error_detail
@@ -4934,7 +4938,7 @@ function script_end_procedure_with_error_report(closing_message)
             bzt_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
             subject_of_email = "Script Error -- " & name_of_script & " (Automated Report)"
 
-            full_text = "Error occured on " & date & " at " & time
+            full_text = "Error occurred on " & date & " at " & time
             full_text = full_text & vbCr & "Error type - " & error_type
             full_text = full_text & vbCr & "Script name - " & name_of_script & " was run on Case #" & MAXIS_case_number & " with a runtime of " & script_run_time & " seconds."
             full_text = full_text & vbCr & "Information: " & error_detail
