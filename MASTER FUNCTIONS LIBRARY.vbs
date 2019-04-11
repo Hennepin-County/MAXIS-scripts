@@ -2527,6 +2527,16 @@ function cancel_confirmation()
 	End if
 end function
 
+function cancel_without_confirmation()
+'--- This function ends a script after a user presses cancel. There is no confirmation message box but the end message for statistical information that cancel was pressed.
+'===== Keywords: MAXIS, PRISM, MMIS, cancel, script_end_procedure
+	If ButtonPressed = 0 then
+        script_end_procedure("~PT: user pressed cancel")
+        'script_end_procedure text added for statistical purposes. If script was canceled prior to completion, the statistics will reflect this.
+        'Left the If...End If in the tier in case we want more stats or error handling, or if we need specialty processing for workflows
+    End if
+end function
+
 function change_client_name_to_FML(client_name)
 '--- This function changes the format of a participant name. client's name formatted like "Levesseur, Wendy K", and will change it to "Wendy K LeVesseur".
 '~~~~~ client_name: variable used within the script for name to be converted
