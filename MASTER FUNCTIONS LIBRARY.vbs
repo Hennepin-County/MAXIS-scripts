@@ -5111,6 +5111,20 @@ function transmit()
   EMWaitReady 0, 0
 end function
 
+function validate_MAXIS_case_number(err_msg_variable, list_delimiter)
+'--- This function checks the MAXIS_case_number variable to ensure it is present and valid
+'~~~~~ err_msg_variable: the variable used in error handling within a dialog's do - loop
+'~~~~~ list_delimiter: a single character to put in front of any error message to add to the err_msg_variable
+'===== Keywords: MAXIS, PRISM, MMIS, dialogs
+    MAXIS_case_number = trim(MAXIS_case_number)
+    If MAXIS_case_number = "" Then
+        err_msg_variable = err_msg_variable & vbNewLine & list_delimiter & " A case number is required, enter a case number."
+    Else
+        If IsNumeric(MAXIS_case_number) = FALSE Then err_msg_variable = err_msg_variable & vbNewLine & list_delimiter & " The case number appears invalid, review the case number and update."
+        If len(MAXIS_case_number) > 7 Then err_msg_variable = err_msg_variable & vbNewLine & list_delimiter & " The case number entered is too long, review the case number and update."
+    End If
+end function
+
 function word_doc_open(doc_location, objWord, objDoc)
 '--- This function opens a specific word document.
 '~~~~~ doc_location: location of word document
