@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("04/10/2019", "There was a bug that sometimes made the dialogs write over each other and be illegible, updated the script to keep this from happening.", "Casey Love, Hennepin County")
 Call changelog_update("03/06/2019", "Added 2 new options to the Notes on Income button to support referencing CASE/NOTE made by Earned Income Budgeting.", "Casey Love, Hennepin County")
 CALL changelog_update("10/17/2018", "Updated dialog box to reflect currecnt application process.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/05/2018", "Added autofill functionality for the DIET panel. NAT errors have been resolved.", "Ilse Ferris, Hennepin County")
@@ -56,8 +57,19 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
+'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+HH_memb_row = 5 'This helps the navigation buttons work!
+Dim row
+Dim col
+application_signed_checkbox = checked 'The script should default to having the application signed.
+
+'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
+EMConnect ""
+get_county_code				'since there is a county specific checkbox, this makes the the county clear
+Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
+BeginDialog Dialog1, 0, 0, 181, 120, "Case number dialog"
   EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 80, 25, 30, 15, MAXIS_footer_month
   EditBox 110, 25, 30, 15, MAXIS_footer_year
@@ -75,235 +87,11 @@ BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   Text 30, 85, 35, 10, "CAF type:"
 EndDialog
 
-BeginDialog CAF_dialog_01, 0, 0, 451, 290, "CAF dialog part 1"
-  EditBox 60, 5, 50, 15, CAF_datestamp
-  ComboBox 175, 5, 70, 15, " "+chr(9)+"phone"+chr(9)+"office", interview_type
-  CheckBox 255, 5, 65, 10, "Used Interpreter", Used_Interpreter_checkbox
-  EditBox 60, 25, 50, 15, interview_date
-  ComboBox 230, 25, 95, 15,  " "+chr(9)+"Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
-  ComboBox 220, 45, 105, 15, " "+chr(9)+"DHS-2128 (LTC Renewal)"+chr(9)+"DHS-3417B (Req. to Apply...)"+chr(9)+"DHS-3418 (HC Renewal)"+chr(9)+"DHS-3531 (LTC Application)"+chr(9)+"DHS-3876 (Certain Pops App)"+chr(9)+"DHS-6696(MNsure HC App)", HC_document_received
-  EditBox 390, 45, 50, 15, HC_datestamp
-  EditBox 75, 70, 370, 15, HH_comp
-  EditBox 35, 90, 200, 15, cit_id
-  EditBox 265, 90, 180, 15, IMIG
-  EditBox 60, 110, 120, 15, AREP
-  EditBox 270, 110, 175, 15, SCHL
-  EditBox 60, 130, 210, 15, DISA
-  EditBox 310, 130, 135, 15, FACI
-  EditBox 35, 160, 410, 15, PREG
-  EditBox 35, 180, 410, 15, ABPS
-  EditBox 35, 200, 410, 15, EMPS
-  If worker_county_code = "x127" or worker_county_code = "x162" then CheckBox 35, 220, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
-  EditBox 55, 235, 390, 15, verifs_needed
-  ButtonGroup ButtonPressed
-    PushButton 340, 270, 50, 15, "NEXT", next_to_page_02_button
-    CancelButton 395, 270, 50, 15
-    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 335, 25, 45, 10, "next panel", next_panel_button
-    PushButton 395, 25, 45, 10, "next memb", next_memb_button
-    PushButton 5, 75, 60, 10, "HH comp/EATS:", EATS_button
-    PushButton 240, 95, 20, 10, "IMIG:", IMIG_button
-    PushButton 5, 115, 25, 10, "AREP/", AREP_button
-    PushButton 30, 115, 25, 10, "ALTP:", ALTP_button
-    PushButton 190, 115, 25, 10, "SCHL/", SCHL_button
-    PushButton 215, 115, 25, 10, "STIN/", STIN_button
-    PushButton 240, 115, 25, 10, "STEC:", STEC_button
-    PushButton 5, 135, 25, 10, "DISA/", DISA_button
-    PushButton 30, 135, 25, 10, "PDED:", PDED_button
-    PushButton 280, 135, 25, 10, "FACI:", FACI_button
-    PushButton 5, 165, 25, 10, "PREG:", PREG_button
-    PushButton 5, 185, 25, 10, "ABPS:", ABPS_button
-    PushButton 5, 205, 25, 10, "EMPS", EMPS_button
-    PushButton 10, 270, 20, 10, "DWP", ELIG_DWP_button
-    PushButton 30, 270, 15, 10, "FS", ELIG_FS_button
-    PushButton 45, 270, 15, 10, "GA", ELIG_GA_button
-    PushButton 60, 270, 15, 10, "HC", ELIG_HC_button
-    PushButton 75, 270, 20, 10, "MFIP", ELIG_MFIP_button
-    PushButton 95, 270, 20, 10, "MSA", ELIG_MSA_button
-    PushButton 130, 270, 25, 10, "ADDR", ADDR_button
-    PushButton 155, 270, 25, 10, "MEMB", MEMB_button
-    PushButton 180, 270, 25, 10, "MEMI", MEMI_button
-    PushButton 205, 270, 25, 10, "PROG", PROG_button
-    PushButton 230, 270, 25, 10, "REVW", REVW_button
-    PushButton 255, 270, 25, 10, "SANC", SANC_button
-    PushButton 280, 270, 25, 10, "TIME", TIME_button
-    PushButton 305, 270, 25, 10, "TYPE", TYPE_button
-  Text 335, 50, 55, 10, "HC datestamp:"
-  Text 5, 95, 25, 10, "CIT/ID:"
-  Text 5, 240, 50, 10, "Verifs needed:"
-  GroupBox 5, 260, 115, 25, "ELIG panels:"
-  GroupBox 125, 260, 210, 25, "other STAT panels:"
-  GroupBox 330, 5, 115, 35, "STAT-based navigation"
-  Text 5, 10, 55, 10, "CAF datestamp:"
-  Text 5, 30, 55, 10, "Interview date:"
-  Text 120, 10, 50, 10, "Interview type:"
-  Text 5, 50, 210, 10, "If HC applied for (or recertifying): what document was received?:"
-  Text 120, 30, 110, 10, "How was application received?:"
-EndDialog
-
-BeginDialog CAF_dialog_02, 0, 0, 451, 305, "CAF dialog part 2"
-  EditBox 70, 55, 370, 15, earned_income
-  EditBox 80, 75, 360, 15, unearned_income
-  EditBox 115, 95, 325, 15, notes_on_income
-  EditBox 85, 115, 355, 15, income_changes
-  EditBox 160, 135, 280, 15, is_any_work_temporary
-  EditBox 65, 160, 375, 15, notes_on_abawd
-  EditBox 65, 180, 375, 15, SHEL_HEST
-  EditBox 65, 200, 250, 15, COEX_DCEX
-  EditBox 65, 220, 375, 15, CASH_ACCTs
-  EditBox 155, 240, 285, 15, other_assets
-  EditBox 55, 265, 385, 15, verifs_needed
-  ButtonGroup ButtonPressed
-    PushButton 270, 290, 60, 10, "previous page", previous_to_page_01_button
-    PushButton 335, 285, 50, 15, "NEXT", next_to_page_03_button
-    CancelButton 390, 285, 50, 15
-    PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
-    PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
-    PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
-    PushButton 60, 15, 15, 10, "HC", ELIG_HC_button
-    PushButton 75, 15, 20, 10, "MFIP", ELIG_MFIP_button
-    PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
-    PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
-    PushButton 150, 15, 25, 10, "BUSI", BUSI_button
-    PushButton 175, 15, 25, 10, "JOBS", JOBS_button
-    PushButton 200, 15, 25, 10, "PBEN", PBEN_button
-    PushButton 225, 15, 25, 10, "RBIC", RBIC_button
-    PushButton 250, 15, 25, 10, "UNEA", UNEA_button
-    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 335, 25, 45, 10, "next panel", next_panel_button
-    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 395, 25, 45, 10, "next memb", next_memb_button
-    PushButton 10, 100, 100, 10, "Notes on Income and Budget", income_notes_button
-    PushButton 10, 120, 70, 10, "STWK/inc. changes:", STWK_button
-    PushButton 5, 165, 60, 10, "ABAWD/WREG:", WREG_button
-    PushButton 5, 185, 25, 10, "SHEL/", SHEL_button
-    PushButton 30, 185, 25, 10, "HEST:", HEST_button
-    PushButton 5, 205, 25, 10, "COEX/", COEX_button
-    PushButton 30, 205, 25, 10, "DCEX:", DCEX_button
-    PushButton 5, 225, 25, 10, "CASH/", CASH_button
-    PushButton 30, 225, 30, 10, "ACCTs:", ACCT_button
-    PushButton 5, 245, 25, 10, "CARS/", CARS_button
-    PushButton 30, 245, 25, 10, "REST/", REST_button
-    PushButton 55, 245, 25, 10, "SECU/", SECU_button
-    PushButton 80, 245, 25, 10, "TRAN/", TRAN_button
-    PushButton 105, 245, 45, 10, "other assets:", OTHR_button
-  GroupBox 145, 5, 135, 25, "Income panels"
-  GroupBox 330, 5, 115, 35, "STAT-based navigation"
-  Text 15, 60, 55, 10, "Earned income:"
-  Text 15, 80, 60, 10, "Unearned income:"
-  Text 10, 140, 150, 10, "Is any work temporary? If so, explain details:"
-  Text 5, 270, 50, 10, "Verifs needed:"
-  GroupBox 5, 5, 130, 25, "ELIG panels:"
-  GroupBox 5, 40, 440, 115, "Income info: Please explain budged/excluded income for the case. If income has ended, case note the info and remove old panel(s)."
-EndDialog
-
-'CAF_status needs to have the " "+chr(9)+ manually added each time.
-BeginDialog CAF_dialog_03, 0, 0, 451, 405, "CAF dialog part 3"
-  EditBox 60, 45, 385, 15, INSA
-  EditBox 35, 65, 410, 15, ACCI
-  EditBox 35, 85, 175, 15, DIET
-  EditBox 245, 85, 200, 15, BILS
-  EditBox 35, 105, 285, 15, FMED
-  EditBox 390, 105, 55, 15, retro_request
-  EditBox 180, 130, 265, 15, reason_expedited_wasnt_processed
-  EditBox 100, 150, 345, 15, FIAT_reasons
-  CheckBox 15, 190, 80, 10, "Application signed?", application_signed_checkbox
-  CheckBox 15, 205, 65, 10, "Appt letter sent?", appt_letter_sent_checkbox
-  CheckBox 15, 220, 150, 10, "Client willing to participate with E and T", E_and_T_checkbox
-  CheckBox 15, 235, 70, 10, "EBT referral sent?", EBT_referral_checkbox
-  CheckBox 115, 190, 50, 10, "eDRS sent?", eDRS_sent_checkbox
-  CheckBox 115, 205, 50, 10, "Expedited?", expedited_checkbox
-  CheckBox 115, 235, 70, 10, "IAAs/OMB given?", IAA_checkbox
-  CheckBox 200, 190, 115, 10, "Informed client of recert period?", recert_period_checkbox
-  CheckBox 200, 205, 80, 10, "Intake packet given?", intake_packet_checkbox
-  CheckBox 200, 220, 105, 10, "Managed care packet sent?", managed_care_packet_checkbox
-  CheckBox 200, 235, 105, 10, "Managed care referral made?", managed_care_referral_checkbox
-  CheckBox 345, 190, 65, 10, "R/R explained?", R_R_checkbox
-  CheckBox 345, 205, 85, 10, "Sent forms to AREP?", Sent_arep_checkbox
-  CheckBox 345, 220, 65, 10, "Updated MMIS?", updated_MMIS_checkbox
-  CheckBox 345, 235, 95, 10, "Workforce referral made?", WF1_checkbox
-  EditBox 55, 260, 230, 15, other_notes
-  EditBox 55, 280, 390, 15, verifs_needed
-  EditBox 55, 300, 390, 15, actions_taken
-  ComboBox 330, 260, 115, 15, " "+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
-  CheckBox 15, 335, 240, 10, "Check here to update PND2 to show client delay (pending cases only).", client_delay_checkbox
-  CheckBox 15, 350, 200, 10, "Check here to create a TIKL to deny at the 30/45 day mark.", TIKL_checkbox
-  CheckBox 15, 365, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_checkbox
-  EditBox 395, 345, 50, 15, worker_signature
-  ButtonGroup ButtonPressed
-    PushButton 290, 370, 45, 10, "prev. page", previous_to_page_02_button
-    OkButton 340, 365, 50, 15
-    CancelButton 395, 365, 50, 15
-    PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
-    PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
-    PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
-    PushButton 60, 15, 15, 10, "HC", ELIG_HC_button
-    PushButton 75, 15, 20, 10, "MFIP", ELIG_MFIP_button
-    PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
-    PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
-    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 335, 25, 45, 10, "next panel", next_panel_button
-    PushButton 395, 25, 45, 10, "next memb", next_memb_button
-  GroupBox 5, 5, 130, 25, "ELIG panels:"
-  GroupBox 330, 5, 115, 35, "STAT-based navigation"
-  ButtonGroup ButtonPressed
-    PushButton 5, 50, 25, 10, "INSA/", INSA_button
-    PushButton 30, 50, 25, 10, "MEDI:", MEDI_button
-    PushButton 5, 70, 25, 10, "ACCI:", ACCI_button
-    PushButton 5, 90, 25, 10, "DIET:", DIET_button
-    PushButton 5, 110, 25, 10, "FMED:", FMED_button
-  Text 5, 135, 170, 10, "Reason expedited wasn't processed (if applicable):"
-  Text 5, 155, 95, 10, "FIAT reasons (if applicable):"
-  GroupBox 5, 175, 440, 75, "Common elements workers should case note:"
-  Text 5, 265, 50, 10, "Other notes:"
-  Text 290, 265, 40, 10, "CAF status:"
-  Text 5, 285, 50, 10, "Verifs needed:"
-  Text 5, 305, 50, 10, "Actions taken:"
-  GroupBox 5, 320, 280, 60, "Actions the script can do:"
-  Text 330, 350, 60, 10, "Worker signature:"
-  ButtonGroup ButtonPressed
-    PushButton 325, 110, 60, 10, "Retro Req. date:", HCRE_button
-    PushButton 215, 90, 25, 10, "BILS:", BILS_button
-EndDialog
-
-BeginDialog income_notes_dialog, 0, 0, 351, 215, "Explanation of Income"
-  CheckBox 10, 30, 325, 10, "JOBS - Income detail on previous note(s)", see_other_note_checkbox
-  CheckBox 10, 45, 325, 10, "JOBS - Income has not been verified and detail will be entered when received.", not_verified_checkbox
-  CheckBox 10, 60, 325, 10, "JOBS - Client has confirmed that JOBS income is expected to continue at this rate and hours.", jobs_anticipated_checkbox
-  CheckBox 10, 75, 330, 10, "JOBS - This is a new job and actual check stubs are not available, advised client that if actual pay", new_jobs_checkbox
-  CheckBox 10, 100, 325, 10, "BUSI - Client has confirmed that BUSI income is expected to continue at this rate and hours.", busi_anticipated_checkbox
-  CheckBox 10, 115, 250, 10, "BUSI - Client has agreed to the self-employment budgeting method used.", busi_method_agree_checkbox
-  CheckBox 10, 130, 325, 10, "RBIC - Client has confirmed that RBIC income is expected to continue at this rate and hours.", rbic_anticipated_checkbox
-  CheckBox 10, 145, 325, 10, "UNEA - Client has confirmed that UNEA income is expected to continue at this rate and hours.", unea_anticipated_checkbox
-  CheckBox 10, 160, 315, 10, "UNEA - Client has applied for unemployment benefits but no determination made at this time.", ui_pending_checkbox
-  CheckBox 45, 170, 225, 10, "Check here to have the script set a TIKL to check UI in two weeks.", tikl_for_ui
-  CheckBox 10, 185, 150, 10, "NONE - This case has no income reported.", no_income_checkbox
-  ButtonGroup ButtonPressed
-    PushButton 240, 195, 50, 15, "Insert", add_to_notes_button
-    CancelButton 295, 195, 50, 15
-  Text 5, 10, 180, 10, "Check as many explanations of income that apply to this case."
-  Text 45, 85, 315, 10, "varies significantly, client should provide proof of this difference to have benefits adjusted."
-EndDialog
-
-'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-HH_memb_row = 5 'This helps the navigation buttons work!
-Dim row
-Dim col
-application_signed_checkbox = checked 'The script should default to having the application signed.
-
-'GRABBING THE CASE NUMBER, THE MEMB NUMBERS, AND THE FOOTER MONTH------------------------------------------------------------------------------------------------------------------------------------------------
-EMConnect ""
-get_county_code				'since there is a county specific checkbox, this makes the the county clear
-Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
 'initial dialog
 Do
 	DO
 		err_msg = ""
-		Dialog case_number_dialog
+		Dialog Dialog1
 		cancel_confirmation
 		If CAF_type = "Select One:" then err_msg = err_msg & vbnewline & "* You must select the CAF type."
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* You need to type a valid case number."
@@ -400,8 +188,76 @@ Do
 	Do
 		Do
 			Do
+
+                BeginDialog Dialog1, 0, 0, 451, 290, "CAF dialog part 1"
+                  EditBox 60, 5, 50, 15, CAF_datestamp
+                  ComboBox 175, 5, 70, 15, " "+chr(9)+"phone"+chr(9)+"office", interview_type
+                  CheckBox 255, 5, 65, 10, "Used Interpreter", Used_Interpreter_checkbox
+                  EditBox 60, 25, 50, 15, interview_date
+                  ComboBox 230, 25, 95, 15,  " "+chr(9)+"Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
+                  ComboBox 220, 45, 105, 15, " "+chr(9)+"DHS-2128 (LTC Renewal)"+chr(9)+"DHS-3417B (Req. to Apply...)"+chr(9)+"DHS-3418 (HC Renewal)"+chr(9)+"DHS-3531 (LTC Application)"+chr(9)+"DHS-3876 (Certain Pops App)"+chr(9)+"DHS-6696(MNsure HC App)", HC_document_received
+                  EditBox 390, 45, 50, 15, HC_datestamp
+                  EditBox 75, 70, 370, 15, HH_comp
+                  EditBox 35, 90, 200, 15, cit_id
+                  EditBox 265, 90, 180, 15, IMIG
+                  EditBox 60, 110, 120, 15, AREP
+                  EditBox 270, 110, 175, 15, SCHL
+                  EditBox 60, 130, 210, 15, DISA
+                  EditBox 310, 130, 135, 15, FACI
+                  EditBox 35, 160, 410, 15, PREG
+                  EditBox 35, 180, 410, 15, ABPS
+                  EditBox 35, 200, 410, 15, EMPS
+                  If worker_county_code = "x127" or worker_county_code = "x162" then CheckBox 35, 220, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
+                  EditBox 55, 235, 390, 15, verifs_needed
+                  ButtonGroup ButtonPressed
+                    PushButton 340, 270, 50, 15, "NEXT", next_to_page_02_button
+                    CancelButton 395, 270, 50, 15
+                    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+                    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+                    PushButton 335, 25, 45, 10, "next panel", next_panel_button
+                    PushButton 395, 25, 45, 10, "next memb", next_memb_button
+                    PushButton 5, 75, 60, 10, "HH comp/EATS:", EATS_button
+                    PushButton 240, 95, 20, 10, "IMIG:", IMIG_button
+                    PushButton 5, 115, 25, 10, "AREP/", AREP_button
+                    PushButton 30, 115, 25, 10, "ALTP:", ALTP_button
+                    PushButton 190, 115, 25, 10, "SCHL/", SCHL_button
+                    PushButton 215, 115, 25, 10, "STIN/", STIN_button
+                    PushButton 240, 115, 25, 10, "STEC:", STEC_button
+                    PushButton 5, 135, 25, 10, "DISA/", DISA_button
+                    PushButton 30, 135, 25, 10, "PDED:", PDED_button
+                    PushButton 280, 135, 25, 10, "FACI:", FACI_button
+                    PushButton 5, 165, 25, 10, "PREG:", PREG_button
+                    PushButton 5, 185, 25, 10, "ABPS:", ABPS_button
+                    PushButton 5, 205, 25, 10, "EMPS", EMPS_button
+                    PushButton 10, 270, 20, 10, "DWP", ELIG_DWP_button
+                    PushButton 30, 270, 15, 10, "FS", ELIG_FS_button
+                    PushButton 45, 270, 15, 10, "GA", ELIG_GA_button
+                    PushButton 60, 270, 15, 10, "HC", ELIG_HC_button
+                    PushButton 75, 270, 20, 10, "MFIP", ELIG_MFIP_button
+                    PushButton 95, 270, 20, 10, "MSA", ELIG_MSA_button
+                    PushButton 130, 270, 25, 10, "ADDR", ADDR_button
+                    PushButton 155, 270, 25, 10, "MEMB", MEMB_button
+                    PushButton 180, 270, 25, 10, "MEMI", MEMI_button
+                    PushButton 205, 270, 25, 10, "PROG", PROG_button
+                    PushButton 230, 270, 25, 10, "REVW", REVW_button
+                    PushButton 255, 270, 25, 10, "SANC", SANC_button
+                    PushButton 280, 270, 25, 10, "TIME", TIME_button
+                    PushButton 305, 270, 25, 10, "TYPE", TYPE_button
+                  Text 335, 50, 55, 10, "HC datestamp:"
+                  Text 5, 95, 25, 10, "CIT/ID:"
+                  Text 5, 240, 50, 10, "Verifs needed:"
+                  GroupBox 5, 260, 115, 25, "ELIG panels:"
+                  GroupBox 125, 260, 210, 25, "other STAT panels:"
+                  GroupBox 330, 5, 115, 35, "STAT-based navigation"
+                  Text 5, 10, 55, 10, "CAF datestamp:"
+                  Text 5, 30, 55, 10, "Interview date:"
+                  Text 120, 10, 50, 10, "Interview type:"
+                  Text 5, 50, 210, 10, "If HC applied for (or recertifying): what document was received?:"
+                  Text 120, 30, 110, 10, "How was application received?:"
+                EndDialog
+
 				err_msg = ""
-				Dialog CAF_dialog_01			'Displays the first dialog
+				Dialog Dialog1			'Displays the first dialog
 				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
 				MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 				If CAF_datestamp = "" or len(CAF_datestamp) > 10 THEN err_msg = "Please enter a valid application datestamp."
@@ -409,13 +265,88 @@ Do
 			Loop until ButtonPressed = next_to_page_02_button and err_msg = ""
 			Do
 				Do
+                    BeginDialog Dialog1, 0, 0, 451, 305, "CAF dialog part 2"
+                      EditBox 70, 55, 370, 15, earned_income
+                      EditBox 80, 75, 360, 15, unearned_income
+                      EditBox 115, 95, 325, 15, notes_on_income
+                      EditBox 85, 115, 355, 15, income_changes
+                      EditBox 160, 135, 280, 15, is_any_work_temporary
+                      EditBox 65, 160, 375, 15, notes_on_abawd
+                      EditBox 65, 180, 375, 15, SHEL_HEST
+                      EditBox 65, 200, 250, 15, COEX_DCEX
+                      EditBox 65, 220, 375, 15, CASH_ACCTs
+                      EditBox 155, 240, 285, 15, other_assets
+                      EditBox 55, 265, 385, 15, verifs_needed
+                      ButtonGroup ButtonPressed
+                        PushButton 270, 290, 60, 10, "previous page", previous_to_page_01_button
+                        PushButton 335, 285, 50, 15, "NEXT", next_to_page_03_button
+                        CancelButton 390, 285, 50, 15
+                        PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
+                        PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
+                        PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
+                        PushButton 60, 15, 15, 10, "HC", ELIG_HC_button
+                        PushButton 75, 15, 20, 10, "MFIP", ELIG_MFIP_button
+                        PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
+                        PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
+                        PushButton 150, 15, 25, 10, "BUSI", BUSI_button
+                        PushButton 175, 15, 25, 10, "JOBS", JOBS_button
+                        PushButton 200, 15, 25, 10, "PBEN", PBEN_button
+                        PushButton 225, 15, 25, 10, "RBIC", RBIC_button
+                        PushButton 250, 15, 25, 10, "UNEA", UNEA_button
+                        PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+                        PushButton 335, 25, 45, 10, "next panel", next_panel_button
+                        PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+                        PushButton 395, 25, 45, 10, "next memb", next_memb_button
+                        PushButton 10, 100, 100, 10, "Notes on Income and Budget", income_notes_button
+                        PushButton 10, 120, 70, 10, "STWK/inc. changes:", STWK_button
+                        PushButton 5, 165, 60, 10, "ABAWD/WREG:", WREG_button
+                        PushButton 5, 185, 25, 10, "SHEL/", SHEL_button
+                        PushButton 30, 185, 25, 10, "HEST:", HEST_button
+                        PushButton 5, 205, 25, 10, "COEX/", COEX_button
+                        PushButton 30, 205, 25, 10, "DCEX:", DCEX_button
+                        PushButton 5, 225, 25, 10, "CASH/", CASH_button
+                        PushButton 30, 225, 30, 10, "ACCTs:", ACCT_button
+                        PushButton 5, 245, 25, 10, "CARS/", CARS_button
+                        PushButton 30, 245, 25, 10, "REST/", REST_button
+                        PushButton 55, 245, 25, 10, "SECU/", SECU_button
+                        PushButton 80, 245, 25, 10, "TRAN/", TRAN_button
+                        PushButton 105, 245, 45, 10, "other assets:", OTHR_button
+                      GroupBox 145, 5, 135, 25, "Income panels"
+                      GroupBox 330, 5, 115, 35, "STAT-based navigation"
+                      Text 15, 60, 55, 10, "Earned income:"
+                      Text 15, 80, 60, 10, "Unearned income:"
+                      Text 10, 140, 150, 10, "Is any work temporary? If so, explain details:"
+                      Text 5, 270, 50, 10, "Verifs needed:"
+                      GroupBox 5, 5, 130, 25, "ELIG panels:"
+                      GroupBox 5, 40, 440, 115, "Income info: Please explain budged/excluded income for the case. If income has ended, case note the info and remove old panel(s)."
+                    EndDialog
+
 					err_msg = ""
 					income_note_error_msg = ""
-					Dialog CAF_dialog_02			'Displays the second dialog
+					Dialog Dialog1			'Displays the second dialog
 					cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
 					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 					If ButtonPressed = income_notes_button Then
-						Dialog income_notes_dialog
+                        BeginDialog Dialog1, 0, 0, 351, 215, "Explanation of Income"
+                          CheckBox 10, 30, 325, 10, "JOBS - Income detail on previous note(s)", see_other_note_checkbox
+                          CheckBox 10, 45, 325, 10, "JOBS - Income has not been verified and detail will be entered when received.", not_verified_checkbox
+                          CheckBox 10, 60, 325, 10, "JOBS - Client has confirmed that JOBS income is expected to continue at this rate and hours.", jobs_anticipated_checkbox
+                          CheckBox 10, 75, 330, 10, "JOBS - This is a new job and actual check stubs are not available, advised client that if actual pay", new_jobs_checkbox
+                          CheckBox 10, 100, 325, 10, "BUSI - Client has confirmed that BUSI income is expected to continue at this rate and hours.", busi_anticipated_checkbox
+                          CheckBox 10, 115, 250, 10, "BUSI - Client has agreed to the self-employment budgeting method used.", busi_method_agree_checkbox
+                          CheckBox 10, 130, 325, 10, "RBIC - Client has confirmed that RBIC income is expected to continue at this rate and hours.", rbic_anticipated_checkbox
+                          CheckBox 10, 145, 325, 10, "UNEA - Client has confirmed that UNEA income is expected to continue at this rate and hours.", unea_anticipated_checkbox
+                          CheckBox 10, 160, 315, 10, "UNEA - Client has applied for unemployment benefits but no determination made at this time.", ui_pending_checkbox
+                          CheckBox 45, 170, 225, 10, "Check here to have the script set a TIKL to check UI in two weeks.", tikl_for_ui
+                          CheckBox 10, 185, 150, 10, "NONE - This case has no income reported.", no_income_checkbox
+                          ButtonGroup ButtonPressed
+                            PushButton 240, 195, 50, 15, "Insert", add_to_notes_button
+                            CancelButton 295, 195, 50, 15
+                          Text 5, 10, 180, 10, "Check as many explanations of income that apply to this case."
+                          Text 45, 85, 315, 10, "varies significantly, client should provide proof of this difference to have benefits adjusted."
+                        EndDialog
+
+						Dialog Dialog1
 						If ButtonPressed = add_to_notes_button Then
                             If see_other_note_checkbox Then notes_on_income = notes_on_income & "; Full detail about income can be found in previous note(s)."
                             If not_verified_checkbox Then notes_on_income = notes_on_income & "; This income has not been fully verified and information about income for budget will be noted when the verification is received."
@@ -436,8 +367,77 @@ Do
 				Loop until ButtonPressed = (next_to_page_03_button AND err_msg = "") or (ButtonPressed = previous_to_page_01_button AND err_msg = "")		'If you press either the next or previous button, this loop ends
 				If ButtonPressed = previous_to_page_01_button then exit do		'If the button was previous, it exits this do loop and is caught in the next one, which sends you back to Dialog 1 because of the "If ButtonPressed = previous_to_page_01_button then exit do" later on
 				Do
+                    BeginDialog Dialog1, 0, 0, 451, 405, "CAF dialog part 3"
+                      EditBox 60, 45, 385, 15, INSA
+                      EditBox 35, 65, 410, 15, ACCI
+                      EditBox 35, 85, 175, 15, DIET
+                      EditBox 245, 85, 200, 15, BILS
+                      EditBox 35, 105, 285, 15, FMED
+                      EditBox 390, 105, 55, 15, retro_request
+                      EditBox 180, 130, 265, 15, reason_expedited_wasnt_processed
+                      EditBox 100, 150, 345, 15, FIAT_reasons
+                      CheckBox 15, 190, 80, 10, "Application signed?", application_signed_checkbox
+                      CheckBox 15, 205, 65, 10, "Appt letter sent?", appt_letter_sent_checkbox
+                      CheckBox 15, 220, 150, 10, "Client willing to participate with E and T", E_and_T_checkbox
+                      CheckBox 15, 235, 70, 10, "EBT referral sent?", EBT_referral_checkbox
+                      CheckBox 115, 190, 50, 10, "eDRS sent?", eDRS_sent_checkbox
+                      CheckBox 115, 205, 50, 10, "Expedited?", expedited_checkbox
+                      CheckBox 115, 235, 70, 10, "IAAs/OMB given?", IAA_checkbox
+                      CheckBox 200, 190, 115, 10, "Informed client of recert period?", recert_period_checkbox
+                      CheckBox 200, 205, 80, 10, "Intake packet given?", intake_packet_checkbox
+                      CheckBox 200, 220, 105, 10, "Managed care packet sent?", managed_care_packet_checkbox
+                      CheckBox 200, 235, 105, 10, "Managed care referral made?", managed_care_referral_checkbox
+                      CheckBox 345, 190, 65, 10, "R/R explained?", R_R_checkbox
+                      CheckBox 345, 205, 85, 10, "Sent forms to AREP?", Sent_arep_checkbox
+                      CheckBox 345, 220, 65, 10, "Updated MMIS?", updated_MMIS_checkbox
+                      CheckBox 345, 235, 95, 10, "Workforce referral made?", WF1_checkbox
+                      EditBox 55, 260, 230, 15, other_notes
+                      EditBox 55, 280, 390, 15, verifs_needed
+                      EditBox 55, 300, 390, 15, actions_taken
+                      ComboBox 330, 260, 115, 15, " "+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
+                      CheckBox 15, 335, 240, 10, "Check here to update PND2 to show client delay (pending cases only).", client_delay_checkbox
+                      CheckBox 15, 350, 200, 10, "Check here to create a TIKL to deny at the 30/45 day mark.", TIKL_checkbox
+                      CheckBox 15, 365, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_checkbox
+                      EditBox 395, 345, 50, 15, worker_signature
+                      ButtonGroup ButtonPressed
+                        PushButton 290, 370, 45, 10, "prev. page", previous_to_page_02_button
+                        OkButton 340, 365, 50, 15
+                        CancelButton 395, 365, 50, 15
+                        PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
+                        PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
+                        PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
+                        PushButton 60, 15, 15, 10, "HC", ELIG_HC_button
+                        PushButton 75, 15, 20, 10, "MFIP", ELIG_MFIP_button
+                        PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
+                        PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
+                        PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+                        PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+                        PushButton 335, 25, 45, 10, "next panel", next_panel_button
+                        PushButton 395, 25, 45, 10, "next memb", next_memb_button
+                      GroupBox 5, 5, 130, 25, "ELIG panels:"
+                      GroupBox 330, 5, 115, 35, "STAT-based navigation"
+                      ButtonGroup ButtonPressed
+                        PushButton 5, 50, 25, 10, "INSA/", INSA_button
+                        PushButton 30, 50, 25, 10, "MEDI:", MEDI_button
+                        PushButton 5, 70, 25, 10, "ACCI:", ACCI_button
+                        PushButton 5, 90, 25, 10, "DIET:", DIET_button
+                        PushButton 5, 110, 25, 10, "FMED:", FMED_button
+                      Text 5, 135, 170, 10, "Reason expedited wasn't processed (if applicable):"
+                      Text 5, 155, 95, 10, "FIAT reasons (if applicable):"
+                      GroupBox 5, 175, 440, 75, "Common elements workers should case note:"
+                      Text 5, 265, 50, 10, "Other notes:"
+                      Text 290, 265, 40, 10, "CAF status:"
+                      Text 5, 285, 50, 10, "Verifs needed:"
+                      Text 5, 305, 50, 10, "Actions taken:"
+                      GroupBox 5, 320, 280, 60, "Actions the script can do:"
+                      Text 330, 350, 60, 10, "Worker signature:"
+                      ButtonGroup ButtonPressed
+                        PushButton 325, 110, 60, 10, "Retro Req. date:", HCRE_button
+                        PushButton 215, 90, 25, 10, "BILS:", BILS_button
+                    EndDialog
+
 					err_msg = ""
-					Dialog CAF_dialog_03			'Displays the third dialog
+					Dialog Dialog1			'Displays the third dialog
 					cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
 					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 					If ButtonPressed = previous_to_page_02_button then exit do		'Exits this do...loop here if you press previous. The second ""loop until ButtonPressed = -1" gets caught, and it loops back to the "Do" after "Loop until ButtonPressed = next_to_page_02_button"
@@ -499,7 +499,7 @@ If CAF_type <> "Recertification" AND CAF_type <> "Addendum" Then        'Intervi
             If cash_checkbox = checked Then prog_update_cash_checkbox = checked
 
             'Dialog code
-            BeginDialog CAF_dialog_03, 0, 0, 231, 130, "Update PROG?"
+            BeginDialog Dialog1, 0, 0, 231, 130, "Update PROG?"
               OptionGroup RadioGroup1
                 RadioButton 10, 10, 155, 10, "YES! Update PROG with the Interview Date", confirm_update_prog
                 RadioButton 10, 60, 90, 10, "No, do not update PROG", do_not_update_prog
@@ -515,7 +515,7 @@ If CAF_type <> "Recertification" AND CAF_type <> "Addendum" Then        'Intervi
             'Running the dialog
             Do
                 err_msg = ""
-                Dialog CAF_dialog_03
+                Dialog Dialog1
                 'Requiring a reason for not updating PROG and making sure if confirm is updated that a program is selected.
                 If do_not_update_prog = 1 AND no_update_reason = "" Then err_msg = err_msg & vbNewLine & "* If PROG is not to be updated, please explain why PROG should not be updated."
                 IF confirm_update_prog = 1 AND prog_update_SNAP_checkbox = unchecked AND prog_update_cash_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* Select either CASH or SNAP to have updated on PROG."

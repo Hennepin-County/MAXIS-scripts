@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("4/9/2019", "The DAIL message for Student Income ending has changed. Updated the script to know the new message.", "Casey Love, Hennepin County")
 call changelog_update("10/18/2018", "Updated to support updated ABAWD message 'SNAP ABAWD ELIGIBILITY HAS EXPIR'.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -153,8 +154,8 @@ EMReadScreen SDX_check, 44, 6, 30
 If SDX_check = "SDX INFORMATION HAS BEEN STORED - CHECK INFC" then call run_from_GitHub(script_repository & "dail/sdx-info-has-been-stored.vbs")
 
 'Student income is ending (loads STUDENT INCOME)
-EMReadScreen SCHL_check, 58, 6, 20
-If SCHL_check = "STUDENT INCOME HAS ENDED - REVIEW FS AND/OR HC RESULTS/APP" then call run_from_GitHub(script_repository & "dail/student-income.vbs")
+EMReadScreen SCHL_check, 24, 6, 20
+If SCHL_check = "STUDENT INCOME HAS ENDED" then call run_from_GitHub(script_repository & "dail/student-income.vbs")
 
 'SSA info received by agency (loads TPQY RESPONSE)
 EMReadScreen TPQY_check, 31, 6, 30

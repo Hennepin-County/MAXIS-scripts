@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("04/10/2019", "Updated the default for running the script in Data Only.", "Casey Love, Hennepin County")
 CALL changelog_update("07/20/2018", "Updated verbiage for Appointment Notices and NOMIs", "Casey Love, Hennepin County")
 call changelog_update("06/01/2018", "Initial version.", "Casey Love, Hennepin County")
 
@@ -298,6 +299,9 @@ MAXIS_footer_year = CM_plus_1_yr
 
 if notice_type = "Data Only" then
 
+    MAXIS_footer_month = CM_mo
+    MAXIS_footer_year = CM_yr
+
     'Creating an array of letters to loop through
     col_hdr = "A~B~C~D~E~F~G~H~I~J~K~L~M~N~O~P~Q~R~S~T~U~V~W~X~Y~Z"
     header_array = split(col_hdr, "~")
@@ -320,12 +324,14 @@ if notice_type = "Data Only" then
     Next
 
     interview_deadline_checkbox = checked
-    interview_deadline = date & ""
+    beg_of_recert_pd = MAXIS_footer_month & "/1/" & MAXIS_footer_year
+    interview_deadline = DateAdd("d", -1, beg_of_recert_pd)
+    interview_deadline = interview_deadline & ""
     verify_appointment_notices_checkbox  = checked
     interview_frequency_checkbox = checked
     recvd_appl_frequency_checkbox = checked
     worker_interview_checkbox = checked
-    worker_recert_status_checkbox = checked
+    worker_recert_status_checkbox = unchecked
 
     BeginDialog stats_dlg, 0, 0, 311, 110, "On Demand Recertifications"
       CheckBox 15, 30, 95, 10, "Interviews completed by ", interview_deadline_checkbox
