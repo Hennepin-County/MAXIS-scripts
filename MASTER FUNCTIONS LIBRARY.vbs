@@ -3637,11 +3637,11 @@ function HH_member_custom_dialog(HH_member_array)
 
 	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
 		EMReadscreen ref_nbr, 3, 4, 33
-		EMReadscreen last_name, 5, 6, 30
-		EMReadscreen first_name, 7, 6, 63
+		EMReadscreen last_name, 25, 6, 30
+		EMReadscreen first_name, 12, 6, 63
 		EMReadscreen Mid_intial, 1, 6, 79
-		last_name = replace(last_name, "_", "") & " "
-		first_name = replace(first_name, "_", "") & " "
+		last_name = trim(replace(last_name, "_", "")) & " "
+		first_name = trim(replace(first_name, "_", "")) & " "
 		mid_initial = replace(mid_initial, "_", "")
 		client_string = ref_nbr & last_name & first_name & mid_intial
 		client_array = client_array & client_string & "|"
@@ -3662,14 +3662,14 @@ function HH_member_custom_dialog(HH_member_array)
 		all_clients_array(x, 1) = 1
 	NEXT
 
-	BEGINDIALOG HH_memb_dialog, 0, 0, 191, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+	BEGINDIALOG HH_memb_dialog, 0, 0, 241, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
 		Text 10, 5, 105, 10, "Household members to look at:"
 		FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-			IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 120, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+			IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
 		NEXT
 		ButtonGroup ButtonPressed
-		OkButton 135, 10, 50, 15
-		CancelButton 135, 30, 50, 15
+		OkButton 185, 10, 50, 15
+		CancelButton 185, 30, 50, 15
 	ENDDIALOG
 													'runs the dialog that has been dynamically created. Streamlined with new functions.
 	Dialog HH_memb_dialog
