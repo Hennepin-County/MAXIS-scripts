@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("04/12/2019", "Updated text for case note re: veterans services.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("01/04/2019", "Updated column numbers. New information is being pulled into the report.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("06/08/2018", "Removed custom function. This is now in the HC Functions Library. Updated back end dialog functionality and updated ", "Ilse Ferris, Hennepin County")
 CALL changelog_update("02/05/2018", "Added additional handling for SPEC/MEMO sending, data validation and comments.", "Ilse Ferris, Hennepin County")
@@ -384,7 +385,7 @@ For i = 0 to Ubound(UNEA_array, 2)
 	    Call write_variable_in_CASE_NOTE("Do not update the following info unless a new change has been reported.")
 	    Call write_variable_in_CASE_NOTE("* VA income: $" & UNEA_array(unea_amt, i) & " monthly grant.")
 		Call write_variable_in_CASE_NOTE("* VA income has been verified via phone by Hennepin County Veterans Service Office staff.")
-		call write_variable_in_case_note("* SPEC/MEMO sent to client re: questions about Veteran's benefits.")
+		call write_variable_in_case_note("* SPEC/MEMO sent to promote Hennepin County Veterans Service Office.")
 	
 		call write_variable_in_case_note("---")
 		call write_variable_in_case_note(worker_signature)
