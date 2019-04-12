@@ -3639,11 +3639,11 @@ function HH_member_custom_dialog(HH_member_array)
 		EMReadscreen ref_nbr, 3, 4, 33
 		EMReadscreen last_name, 25, 6, 30
 		EMReadscreen first_name, 12, 6, 63
-		EMReadscreen Mid_intial, 1, 6, 79
+		EMReadscreen mid_initial, 1, 6, 79
 		last_name = trim(replace(last_name, "_", "")) & " "
 		first_name = trim(replace(first_name, "_", "")) & " "
 		mid_initial = replace(mid_initial, "_", "")
-		client_string = ref_nbr & last_name & first_name & mid_intial
+		client_string = ref_nbr & last_name & first_name & mid_initial
 		client_array = client_array & client_string & "|"
 		transmit
 		Emreadscreen edit_check, 7, 24, 2

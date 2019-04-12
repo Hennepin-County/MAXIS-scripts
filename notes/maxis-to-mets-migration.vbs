@@ -52,18 +52,15 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOG
-BeginDialog main_dialog, 0, 0, 196, 145, "MAXIS to METS Migration"
-  EditBox 85, 65, 50, 15, MAXIS_case_number
-  EditBox 85, 85, 20, 15, member_number
-  EditBox 85, 105, 85, 15, worker_signature
+BeginDialog MAXIS_to_METS_dialog, 0, 0, 196, 120, "MAXIS to METS Migration"
+  EditBox 70, 80, 120, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 40, 125, 50, 15
-    CancelButton 95, 125, 50, 15
+    OkButton 85, 100, 50, 15
+    CancelButton 140, 100, 50, 15
   Text 15, 20, 170, 35, "This script will case note and send a SPEC/MEMO to the selected member with specific verbiage about how to apply in METS for continued health care coverage."
   GroupBox 10, 5, 180, 55, "Using this script:"
-  Text 45, 90, 35, 10, "Member #:"
-  Text 35, 70, 50, 10, "Case Number:"
-  Text 25, 110, 60, 10, "Worker Signature:"
+  Text 35, 65, 120, 10, "Case Number:"
+  Text 5, 85, 60, 10, "Worker Signature:"
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
