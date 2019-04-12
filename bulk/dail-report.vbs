@@ -257,6 +257,8 @@ For each worker in worker_array
 	if worker <> worker_array(ubound(worker_array)) then all_done = false
 Next
 
+STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
+
 'Enters info about runtime for the benefit of folks using the script
 objExcel.Cells(2, 8).Value = "Lines added to Excel sheet:"
 objExcel.Cells(3, 8).Value = "Average time to find/select/copy/paste one line (in seconds):"
@@ -423,5 +425,4 @@ For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
 
-STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! The workers' DAILs are now entered.")

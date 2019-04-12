@@ -2527,6 +2527,16 @@ function cancel_confirmation()
 	End if
 end function
 
+function cancel_without_confirmation()
+'--- This function ends a script after a user presses cancel. There is no confirmation message box but the end message for statistical information that cancel was pressed.
+'===== Keywords: MAXIS, PRISM, MMIS, cancel, script_end_procedure
+	If ButtonPressed = 0 then
+        script_end_procedure("~PT: user pressed cancel")
+        'script_end_procedure text added for statistical purposes. If script was canceled prior to completion, the statistics will reflect this.
+        'Left the If...End If in the tier in case we want more stats or error handling, or if we need specialty processing for workflows
+    End if
+end function
+
 function change_client_name_to_FML(client_name)
 '--- This function changes the format of a participant name. client's name formatted like "Levesseur, Wendy K", and will change it to "Wendy K LeVesseur".
 '~~~~~ client_name: variable used within the script for name to be converted
@@ -3627,11 +3637,11 @@ function HH_member_custom_dialog(HH_member_array)
 
 	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
 		EMReadscreen ref_nbr, 3, 4, 33
-		EMReadscreen last_name, 5, 6, 30
-		EMReadscreen first_name, 7, 6, 63
+		EMReadscreen last_name, 25, 6, 30
+		EMReadscreen first_name, 12, 6, 63
 		EMReadscreen Mid_intial, 1, 6, 79
-		last_name = replace(last_name, "_", "") & " "
-		first_name = replace(first_name, "_", "") & " "
+		last_name = trim(replace(last_name, "_", "")) & " "
+		first_name = trim(replace(first_name, "_", "")) & " "
 		mid_initial = replace(mid_initial, "_", "")
 		client_string = ref_nbr & last_name & first_name & mid_intial
 		client_array = client_array & client_string & "|"
@@ -3652,14 +3662,14 @@ function HH_member_custom_dialog(HH_member_array)
 		all_clients_array(x, 1) = 1
 	NEXT
 
-	BEGINDIALOG HH_memb_dialog, 0, 0, 191, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+	BEGINDIALOG HH_memb_dialog, 0, 0, 241, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
 		Text 10, 5, 105, 10, "Household members to look at:"
 		FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-			IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 120, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+			IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
 		NEXT
 		ButtonGroup ButtonPressed
-		OkButton 135, 10, 50, 15
-		CancelButton 135, 30, 50, 15
+		OkButton 185, 10, 50, 15
+		CancelButton 185, 30, 50, 15
 	ENDDIALOG
 													'runs the dialog that has been dynamically created. Streamlined with new functions.
 	Dialog HH_memb_dialog
@@ -4802,7 +4812,7 @@ function script_end_procedure_with_error_report(closing_message)
 	stop_time = timer
     send_error_message = ""
 	If closing_message <> "" AND left(closing_message, 3) <> "~PT" then        '"~PT" forces the message to "pass through", i.e. not create a pop-up, but to continue without further diversion to the database, where it will write a record with the message
-        send_error_message = MsgBox(closing_message & vbNewLine & vbNewLine & "Do you need to send an error report about this script run?", vbSystemModal + vbDefaultButton2 + vbYesNo, "Script Run Completed")
+        send_error_message = MsgBox(closing_message & vbNewLine & vbNewLine & "Do you need to send an error report about this script run?", vbSystemModal + vbQuestion + vbDefaultButton2 + vbYesNo, "Script Run Completed")
     End If
     script_run_time = stop_time - start_time
 	If is_county_collecting_stats  = True then
@@ -4863,13 +4873,17 @@ function script_end_procedure_with_error_report(closing_message)
         'dialog here to gather more detail
         error_type = ""
 
+        If trim(MAXIS_case_number) = "" Then
+            If trim(MMIS_case_number) <> "" Then MAXIS_case_number = MMIS_case_number
+        End If
+
         Do
             Do
                 confirm_err = ""
 
                 BeginDialog Dialog1, 0, 0, 401, 175, "Report Error Detail"
                   Text 60, 35, 55, 10, MAXIS_case_number
-                  ComboBox 220, 30, 175, 45, error_type+chr(9)+"BUG - somethng happened that was wrong"+chr(9)+"ENHANCEMENT - somthing could be done better"+chr(9)+"TYPO - gramatical/spelling type errors", error_type
+                  ComboBox 220, 30, 175, 45, error_type+chr(9)+"BUG - something happened that was wrong"+chr(9)+"ENHANCEMENT - something could be done better"+chr(9)+"TYPO - grammatical/spelling type errors", error_type
                   EditBox 65, 50, 330, 15, error_detail
                   CheckBox 20, 100, 65, 10, "CASE/NOTE", case_note_checkbox
                   CheckBox 95, 100, 65, 10, "Update in STAT", stat_update_checkbox
@@ -4902,7 +4916,7 @@ function script_end_procedure_with_error_report(closing_message)
                 End If
 
                 If ButtonPressed = -1 Then
-                    full_text = "Error occured on " & date & " at " & time
+                    full_text = "Error occurred on " & date & " at " & time
                     full_text = full_text & vbCr & "Error type - " & error_type
                     full_text = full_text & vbCr & "Script name - " & name_of_script & " was run on Case #" & MAXIS_case_number & " with a runtime of " & script_run_time & " seconds."
                     full_text = full_text & vbCr & "Information: " & error_detail
@@ -4934,7 +4948,7 @@ function script_end_procedure_with_error_report(closing_message)
             bzt_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
             subject_of_email = "Script Error -- " & name_of_script & " (Automated Report)"
 
-            full_text = "Error occured on " & date & " at " & time
+            full_text = "Error occurred on " & date & " at " & time
             full_text = full_text & vbCr & "Error type - " & error_type
             full_text = full_text & vbCr & "Script name - " & name_of_script & " was run on Case #" & MAXIS_case_number & " with a runtime of " & script_run_time & " seconds."
             full_text = full_text & vbCr & "Information: " & error_detail
@@ -5095,6 +5109,20 @@ function transmit()
  '===== Keywords: MAXIS, MMIS, PRISM, transmit
   EMSendKey "<enter>"
   EMWaitReady 0, 0
+end function
+
+function validate_MAXIS_case_number(err_msg_variable, list_delimiter)
+'--- This function checks the MAXIS_case_number variable to ensure it is present and valid
+'~~~~~ err_msg_variable: the variable used in error handling within a dialog's do - loop
+'~~~~~ list_delimiter: a single character to put in front of any error message to add to the err_msg_variable
+'===== Keywords: MAXIS, PRISM, MMIS, dialogs
+    MAXIS_case_number = trim(MAXIS_case_number)
+    If MAXIS_case_number = "" Then
+        err_msg_variable = err_msg_variable & vbNewLine & list_delimiter & " A case number is required, enter a case number."
+    Else
+        If IsNumeric(MAXIS_case_number) = FALSE Then err_msg_variable = err_msg_variable & vbNewLine & list_delimiter & " The case number appears invalid, review the case number and update."
+        If len(MAXIS_case_number) > 7 Then err_msg_variable = err_msg_variable & vbNewLine & list_delimiter & " The case number entered is too long, review the case number and update."
+    End If
 end function
 
 function word_doc_open(doc_location, objWord, objDoc)

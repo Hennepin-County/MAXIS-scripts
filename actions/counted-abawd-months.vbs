@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "UTILITIES - COUNTED ABAWD MONTHS.vbs"
+name_of_script = "ACTIONS - COUNTED ABAWD MONTHS.vbs"
 start_time = timer
 STATS_counter = 1              'sets the stats counter at one
 STATS_manualtime = 600         'manual run time in seconds
