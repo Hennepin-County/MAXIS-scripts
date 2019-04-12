@@ -3,17 +3,22 @@ name_of_script = "ADMIN - MAIN MENU.vbs"
 start_time = timer
 
 '=====User ID's======
-'ILFE001 = Ilse
-'WFS395 = MiKayla
-'CALO001 = Casey
-'WFX901 = Faughn
-'WFU851 = Jennifer
-'WFG492 = Melissa F.
-'WFV701 = Darcy
-'WFX490 = Molly
-'WFM207 = Mandora
-
-
+'Faughn	    WFX901
+'Jennifer	WFU851
+'Ilse       ILFE001
+'MiKayla	WFS395
+'Casey	    CALO001
+'Brenda	    WFI021
+'Brooke	    WFU161
+'Charles	WF7638
+'Deb	    WFP106
+'Hannah	    WFQ898
+'Jessica	WFK093
+'Louise	    WF1875
+'Mandora	WFM207
+'Melissa F.	WFG492
+'Melissa M	WFP803
+'Molly  	WFX490 
 
 'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
 'This is used in arrays that specify functionality to specific workers
@@ -59,7 +64,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-
+call changelog_update("04/12/2019", "Updated backend fuctionality. If you are on the QI team, and cannot access the QI scripts, contact me right away.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/21/2018", "Added QI specific scripts and sub menu.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/12/2018", "Added ODW Application.", "MiKayla Handley, Hennepin County")
 call changelog_update("03/12/2018", "Removed DAIL report. BULK DAIL REPORT was updated in its place.", "Ilse Ferris, Hennepin County")
@@ -75,7 +80,7 @@ Function declare_admin_menu_dialog(script_array)
     Text 5, 5, 516, 300, "Admin scripts main menu: select the script to run from the choices below."
     ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 30, 15, "ADMIN", 			admin_main_button
-		 	PushButton 045, 35, 30, 15, "QI", 				QI_button
+		 	If show_QI_button = True then PushButton 045, 35, 30, 15, "QI", 			  QI_button
             If show_BZ_button = TRUE Then PushButton 075, 35, 30, 15, "BZ",               BZ_button
 		'This starts here, but it shouldn't end here :)
 		vert_button_position = 70
@@ -370,41 +375,21 @@ show_BZ_button = FALSE
 
 'Displays the dialog
 Do
-    If user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "WFS395" OR user_ID_for_validation = "CALO001" OR user_ID_for_validation = "WFX901" OR user_ID_for_validation = "WFU851" then show_BZ_button = TRUE
-
+    'BZST scripts menu authorization
+    If user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "WFS395" OR user_ID_for_validation = "CALO001" OR user_ID_for_validation = "WFX901" OR user_ID_for_validation = "WFU851" then 
+        show_BZ_button = TRUE
+        show_QI_button = True 
+    End if 
+    'QI scripts menu authorization    
+    If user_ID_for_validation = "WFI021" OR user_ID_for_validation = "WFU161" OR user_ID_for_validation = "WF7638" OR user_ID_for_validation = "WFP106" OR user_ID_for_validation = "WFQ898" OR user_ID_for_validation = "WFK093" OR _
+    user_ID_for_validation = "WF1875" OR user_ID_for_validation = "WFM207" OR user_ID_for_validation = "WFG492" OR user_ID_for_validation = "WFP803" OR user_ID_for_validation = "WFX490" then show_QI_button = TRUE
+        
 	If ButtonPressed = "" or ButtonPressed = admin_main_button then
         declare_admin_menu_dialog(script_array_admin_main)
-	elseif ButtonPressed = QI_button then
-        If user_ID_for_validation = "ILFE001" OR _
-        user_ID_for_validation = "WF7638" OR _
-        user_ID_for_validation = "WF1875" OR _
-        user_ID_for_validation = "WFQ898" OR _
-        user_ID_for_validation = "WFP803" OR _
-        user_ID_for_validation = "WFP106" OR _
-        user_ID_for_validation = "WFK093" OR _
-        user_ID_for_validation = "WF1373" OR _
-        user_ID_for_validation = "WFU161" OR _
-        user_ID_for_validation = "WFS395" OR _
-        user_ID_for_validation = "WFU851" OR _
-        user_ID_for_validation = "WFX901" OR _
-        user_ID_for_validation = "CALO001" OR _
-        user_ID_for_validation = "WFI021" OR _
-        user_ID_for_validation = "WFG492" OR _
-        user_ID_for_validation = "WFX490" OR _
-        user_ID_for_validation = "WFM207" OR _
-        user_ID_for_validation = "WFV701" then
-		    declare_admin_menu_dialog(script_array_QI_list)
-        Else
-            Msgbox "These scripts are for Quality Improvement staff only. You do not have access to access this menu."
-            stopscript
-        End if
+	elseif ButtonPressed = QI_button then        
+        If show_BZ_button = True then declare_admin_menu_dialog(script_array_QI_list)
     elseif ButtonPressed = BZ_button then
-        If show_BZ_button = True then
-		    declare_admin_menu_dialog(script_array_BZ_list)
-        Else
-            Msgbox "These scripts are for Scriptwriters only. You do not have access to access this menu."
-            stopscript
-        End if
+        If show_BZ_button = True then declare_admin_menu_dialog(script_array_BZ_list)
     end if
 
     dialog admin_dialog
