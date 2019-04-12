@@ -387,7 +387,7 @@ Do
 	If ButtonPressed = "" or ButtonPressed = admin_main_button then
         declare_admin_menu_dialog(script_array_admin_main)
 	elseif ButtonPressed = QI_button then        
-        If show_BZ_button = True then declare_admin_menu_dialog(script_array_QI_list)
+        If show_QI_button = True then declare_admin_menu_dialog(script_array_QI_list)
     elseif ButtonPressed = BZ_button then
         If show_BZ_button = True then declare_admin_menu_dialog(script_array_BZ_list)
     end if
