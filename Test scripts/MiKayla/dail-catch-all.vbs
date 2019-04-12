@@ -53,7 +53,7 @@ changelog_display
 'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
 BeginDialog catch_all_dialog, 0, 0, 281, 140, "DAIL CATCH ALL"
   EditBox 60, 5, 65, 15, MAXIS_case_number
-  EditBox 210, 5, 65, 15, METS_IC_number
+  EditBox 210, 5, 65, 15, METS_IC_number 'do we need the mets number?'
   EditBox 60, 25, 100, 15, when_contact_was_made
   EditBox 210, 25, 65, 15, DAIL_type
   EditBox 60, 45, 215, 15, actions_taken
@@ -73,7 +73,7 @@ BeginDialog catch_all_dialog, 0, 0, 281, 140, "DAIL CATCH ALL"
   Text 5, 90, 45, 10, "Other notes:"
   Text 5, 125, 60, 10, "Worker signature:"
 EndDialog
-
+'do we need a date rcvd or save that for docs rcvd'
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------
 'CONNECTING TO MAXIS & GRABBING THE CASE NUMBER
@@ -92,8 +92,11 @@ IF dail_check = "DAIL" THEN
 		script_end_procedure("This is not an supported DAIL currently.Please select a WAGE match DAIL, and run the script again.")
 	END IF
 	IF match_found = TRUE THEN
-		EMReadScreen MAXIS_case_number, 8, 5, 73
-		MAXIS_case_number= TRIM(MAXIS_case_number)
+		'The following reads the message in full for the end part (which tells the worker which message was selected)
+		EMReadScreen full_message, 58, 6, 20
+		EmReadScreen MAXIS_case_number, 8, 5, 73
+		MAXIS_case_number = trim(MAXIS_case_number)
+
 		EMReadScreen extra_info, 1, 06, 80
 		If extra_info = "+" or extra_info = "&" THEN
 	    EMSendKey "X"
@@ -164,5 +167,5 @@ CALL write_variable_in_CASE_NOTE(worker_signature)
 'TIKLING
 'IF TIKL_check = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")
 
-script_end_procedure_with_error_report("DAIL has been case noted")
+script_end_procedure_with_error_report(DAIL_type & "DAIL has been case noted")
 End if
