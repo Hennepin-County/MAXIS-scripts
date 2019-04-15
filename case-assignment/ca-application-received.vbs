@@ -131,7 +131,7 @@ If additional_application_check = "ADDITIONAL APP" THEN multiple_apps = MsgBox("
 If multiple_apps = vbCancel then stopscript
 If multiple_apps = vbYes then application_date = application_date
 IF multiple_apps = vbNo then
-	additional_apps = Msgbox("Do you want this application date: " & additional_application_date, VbYesNoCancel)
+	additional_apps = Msgbox("Per CM 0005.09.06 - if a case is pending and a new app is received you should use the original application date." & vbcr & "Do you want this application date: " & additional_application_date, VbYesNoCancel)
 	application_date = ""
 	If additional_apps = vbCancel then stopscript
 	If additional_apps = vbNo then script_end_procedure_with_error_report("No more application dates exist. Please review the case, and start the script again if applicable.")
@@ -354,7 +354,7 @@ IF how_app_rcvd = "Office" and HC_applied_for = FALSE THEN
 	"Application was received in " & how_app_rcvd, vbYesNoCancel, "Application received - same-day interview completed?")
 	IF same_day_confirmation = vbNo THEN interview_completed = FALSE
 	IF same_day_confirmation = vbYes THEN interview_completed = TRUE
-	IF same_day_confirmation = vbCancel THEN script_end_procedure_with_error_report ("The script has ended.")
+	IF same_day_confirmation = vbCancel THEN script_end_procedure_with_error_report("The script has ended.")
 END IF
 
 If interview_completed = TRUE Then
@@ -486,6 +486,7 @@ IF snap_pends = TRUE THEN
     IF income = "" THEN income = 0
     IF assets = "" THEN assets = 0
     IF rent   = "" THEN rent   = 0
+
     'Calculates expedited status based on above numbers
     IF (int(income) < 150 and int(assets) <= 100) or ((int(income) + int(assets)) < (int(rent) + cint(utilities))) THEN expedited_status = "Client Appears Expedited"
     IF (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >= 150 or int(assets) > 100) THEN expedited_status = "Client Does Not Appear Expedited"
