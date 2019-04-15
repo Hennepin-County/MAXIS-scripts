@@ -214,4 +214,4 @@ start_a_blank_case_note      'navigates to case/note and puts case/note into edi
 	CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
 	Call write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-script_end_procedure("EBT out of state case note complete.")
+script_end_procedure_with_error_report("EBT out of state case note complete.")
