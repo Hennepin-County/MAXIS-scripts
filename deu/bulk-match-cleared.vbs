@@ -60,7 +60,7 @@ EMConnect ""
 'dialog and dialog DO...Loop
 Do
 	Do
-			'The dialog is defined in the loop as it can change as buttons are pressed
+		'The dialog is defined in the loop as it can change as buttons are pressed
 			BeginDialog IEVS_match_dialog, 0, 0, 266, 140, "BULK IEVS Match"
   				DropListBox 200, 50, 50, 15, "Select one..."+chr(9)+"BEER"+chr(9)+"WAGE", IEVS_type
            		ButtonGroup ButtonPressed
@@ -352,4 +352,4 @@ FOR i = 1 to 9
 NEXT
 
 STATS_counter = STATS_counter - 1		'removes 1 to correct the count
-script_end_procedure("Success! The IEVS match cases have now been updated. Please review the NOTES section to review the cases/follow up work to be completed.")
+script_end_procedure_with_error_report("Success! The IEVS match cases have now been updated. Please review the NOTES section to review the cases/follow up work to be completed.")
