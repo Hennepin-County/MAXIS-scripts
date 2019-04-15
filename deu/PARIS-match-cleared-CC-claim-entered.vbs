@@ -638,10 +638,10 @@ Row = 8
 		CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & MEMB_number & " Date Overpayment Created: " & discovery_date & " Programs: " & programs, "CASE NOTE" & vbcr & message_array,"", False)
 	END IF
 '---------------------------------------------------------------writing the CCOL case note'
-	msgbox "Navigating to CCOL to add case note, please contact MiKayla with any concerns."
+	msgbox "Navigating to CCOL to add case note, please contact the BlueZoneScript team with any concerns."
 	Call navigate_to_MAXIS_screen("CCOL", "CLSM")
 	EMWriteScreen Claim_number, 4, 9
-	Transmit
+	TRANSMIT
 	'NO CLAIMS WERE FOUND FOR THIS CASE, PROGRAM, AND STATUS
 	EMReadScreen error_check, 75, 24, 2	'making sure we can actually update this case.
 	error_check = trim(error_check)

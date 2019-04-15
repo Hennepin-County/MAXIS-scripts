@@ -37,7 +37,154 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+FUNCTION write_variable_in_CCOL_note_test(variable)
+    ''--- This function writes a variable in CCOL note
+    '~~~~~ variable: information to be entered into CASE note from script/edit box
+    '===== Keywords: MAXIS, CASE note
+    If trim(variable) <> "" THEN
+    	EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
+    	noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
+    	'The following figures out if we need a new page, or if we need a new case note entirely as well.
+    	Do
+    		EMReadScreen character_test, 40, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+    		character_test = trim(character_test)
+    		If character_test <> "" or noting_row >= 19 then
+    		'If we get to row 19 (which can't be read here), it will go to the next panel (PF8).
+    			If noting_row = 19 then
+    				EMSendKey "<PF8>"
+    				EMWaitReady 0, 0
+    				EMReadScreen next_page_confirmation, 4, 19, 3
+    				IF next_page_confirmation = "MORE" THEN
+    					next_page = TRUE
+						msgbox next_page
+    				'ELSE
+    					Do
+    						EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+    						character_test = trim(character_test)
+    						If character_test <> "" then noting_row = noting_row + 1
+    					Loop until character_test = ""
+    					'EMReadScreen check_next_page, 75, 24, 2
+    					'check_we_went_to_next_page = trim(check_we_went_to_next_page)
+    					'If check_we_went_to_next_page = "PLEASE PRESS PF3 TO EXIT OR PF7/PF8 TO SCROLLWHEN PAGE IS FILLED" Then
+    						'noting_row = 4
+    					Do
+    						EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+    						character_test = trim(character_test)
+    						If character_test <> "" then noting_row = noting_row + 1
+    					Loop until character_test = ""
+    				Else
+						next_page = FALSE
+						msgbox next_page
+						noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
+    				End If
+    			Else
+    				noting_row = noting_row + 1
+    			End if
+    		End if
+    	Loop until character_test = ""
 
+    	'Splits the contents of the variable into an array of words
+    	variable_array = split(variable, " ")
+
+    	For each word in variable_array
+    		'If the length of the word would go past col 80 (you can't write to col 80), it will kick it to the next line and indent the length of the bullet
+    		If len(word) + noting_col > 80 then
+    			noting_row = noting_row + 1
+    			noting_col = 3
+    		End if
+    		'Writes the word and a space using EMWriteScreen
+    		EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
+    		'Increases noting_col the length of the word + 1 (for the space)
+    		noting_col = noting_col + (len(word) + 1)
+    	Next
+    	'After the array is processed, set the cursor on the following row, in col 3, so that the user can enter in information here (just like writing by hand). If you're on row 18 (which isn't writeable), hit a PF8. If the panel is at the very end (page 5), it will back out and go into another case note, as we did above.
+    	EMSetCursor noting_row + 1, 3
+    End if
+END FUNCTION
+
+function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
+'--- This function creates an asterisk, a bullet, a colon then a variable to style CCOL notes
+'~~~~~ bullet: name of the field to update. Put bullet in "".
+'~~~~~ variable: variable from script to be written into CCOL note
+'===== Keywords: MAXIS, bullet, CCOL note
+    If trim(variable) <> "" THEN
+    	EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
+    	noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
+    	'The following figures out if we need a new page, or if we need a new case note entirely as well.
+    	Do
+    		EMReadScreen character_test, 40, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+    		character_test = trim(character_test)
+    		If character_test <> "" or noting_row >= 19 then
+    			'If we get to row 18 (which can't be read here), it will go to the next panel (PF8).
+    			If noting_row >= 19 then
+    				EMSendKey "<PF8>"
+    				EMWaitReady 0, 0
+    				EMReadScreen next_page_confirmation, 4, 19, 3
+					IF next_page_confirmation = "MORE" THEN
+						next_page = TRUE
+						msgbox next_page
+					'ELSE
+						Do
+							EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+							character_test = trim(character_test)
+							If character_test <> "" then noting_row = noting_row + 1
+						Loop until character_test = ""
+						'EMReadScreen check_next_page, 75, 24, 2
+						'check_we_went_to_next_page = trim(check_we_went_to_next_page)
+						'If check_we_went_to_next_page = "PLEASE PRESS PF3 TO EXIT OR PF7/PF8 TO SCROLLWHEN PAGE IS FILLED" Then
+							'noting_row = 4
+						'END IF
+						Do
+							EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+							character_test = trim(character_test)
+							If character_test <> "" then noting_row = noting_row + 1
+						Loop until character_test = ""
+    				Else
+						next_page = FALSE
+						msgbox next_page
+						noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
+    				End If
+    			Else
+    				noting_row = noting_row + 1
+    			End if
+    		End if
+    	Loop until character_test = ""
+
+		'Looks at the length of the bullet. This determines the indent for the rest of the info. Going with a maximum indent of 18.
+		If len(bullet) >= 14 then
+			indent_length = 18	'It's four more than the bullet text to account for the asterisk, the colon, and the spaces.
+		Else
+			indent_length = len(bullet) + 4 'It's four more for the reason explained above.
+		End if
+
+	'Writes the bullet
+		EMWriteScreen "* " & bullet & ": ", noting_row, noting_col
+
+	'Determines new noting_col based on length of the bullet length (bullet + 4 to account for asterisk, colon, and spaces).
+		noting_col = noting_col + (len(bullet) + 4)
+
+	'Splits the contents of the variable into an array of words
+		variable_array = split(variable, " ")
+
+    	For each word in variable_array
+
+    		'If the length of the word would go past col 80 (you can't write to col 80), it will kick it to the next line and indent the length of the bullet
+    		If len(word) + noting_col > 80 then
+    			noting_row = noting_row + 1
+    			noting_col = 3
+    		End if
+
+    		'Writes the word and a space using EMWriteScreen
+    		EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
+
+    		'Increases noting_col the length of the word + 1 (for the space)
+    		noting_col = noting_col + (len(word) + 1)
+    	Next
+    	'After the array is processed, set the cursor on the following row, in col 3, so that the user can enter in information here (just like writing by hand). If you're on row 18 (which isn't writeable), hit a PF8. If the panel is at the very end (page 5), it will back out and go into another case note, as we did above.
+    	EMSetCursor noting_row + 1, 3
+    End if
+end function
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
@@ -54,54 +201,6 @@ CALL changelog_update("12/11/2017", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-'Fun with dates! --Creating variables for the rolling 12 calendar months
-'current month -1
-CM_minus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", -1, date)            ), 2)
-CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
-'current month -2'
-CM_minus_2_mo =  right("0" &             DatePart("m",           DateAdd("m", -2, date)            ), 2)
-CM_minus_2_yr =  right(                  DatePart("yyyy",        DateAdd("m", -2, date)            ), 2)
-'current month -3'
-CM_minus_3_mo =  right("0" &             DatePart("m",           DateAdd("m", -3, date)            ), 2)
-CM_minus_3_yr =  right(                  DatePart("yyyy",        DateAdd("m", -3, date)            ), 2)
-'current month -4'
-CM_minus_4_mo =  right("0" &             DatePart("m",           DateAdd("m", -4, date)            ), 2)
-CM_minus_4_yr =  right(                  DatePart("yyyy",        DateAdd("m", -4, date)            ), 2)
-'current month -5'
-CM_minus_5_mo =  right("0" &             DatePart("m",           DateAdd("m", -5, date)            ), 2)
-CM_minus_5_yr =  right(                  DatePart("yyyy",        DateAdd("m", -5, date)            ), 2)
-'current month -6'
-CM_minus_6_mo =  right("0" &             DatePart("m",           DateAdd("m", -6, date)            ), 2)
-CM_minus_6_yr =  right(                  DatePart("yyyy",        DateAdd("m", -6, date)            ), 2)
-'current month -7'
-CM_minus_7_mo =  right("0" &             DatePart("m",           DateAdd("m", -7, date)            ), 2)
-CM_minus_7_yr =  right(                  DatePart("yyyy",        DateAdd("m", -7, date)            ), 2)
-'current month -8'
-CM_minus_8_mo =  right("0" &             DatePart("m",           DateAdd("m", -8, date)            ), 2)
-CM_minus_8_yr =  right(                  DatePart("yyyy",        DateAdd("m", -8, date)            ), 2)
-'current month -9'
-CM_minus_9_mo =  right("0" &             DatePart("m",           DateAdd("m", -9, date)            ), 2)
-CM_minus_9_yr =  right(                  DatePart("yyyy",        DateAdd("m", -9, date)            ), 2)
-'current month -10'
-CM_minus_10_mo =  right("0" &            DatePart("m",           DateAdd("m", -10, date)           ), 2)
-CM_minus_10_yr =  right(                 DatePart("yyyy",        DateAdd("m", -10, date)           ), 2)
-'current month -11'
-CM_minus_11_mo =  right("0" &            DatePart("m",           DateAdd("m", -11, date)           ), 2)
-CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -11, date)           ), 2)
-
-'Establishing value of variables for the rolling 12 months
-current_month = CM_mo & "/" & CM_yr
-current_month_minus_one = CM_minus_1_mo & "/" & CM_minus_1_yr
-current_month_minus_two = CM_minus_2_mo & "/" & CM_minus_2_yr
-current_month_minus_three = CM_minus_3_mo & "/" & CM_minus_3_yr
-current_month_minus_four = CM_minus_4_mo & "/" & CM_minus_4_yr
-current_month_minus_five = CM_minus_5_mo & "/" & CM_minus_5_yr
-current_month_minus_six = CM_minus_6_mo & "/" & CM_minus_6_yr
-current_month_minus_seven = CM_minus_7_mo & "/" & CM_minus_7_yr
-current_month_minus_eight = CM_minus_8_mo & "/" & CM_minus_8_yr
-current_month_minus_nine = CM_minus_9_mo & "/" & CM_minus_9_yr
-current_month_minus_ten = CM_minus_10_mo & "/" & CM_minus_10_yr
-current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
 
 EMConnect ""
 
@@ -251,12 +350,12 @@ CALL write_value_and_transmit("IEVP", 20, 71)
 CALL write_value_and_transmit(SSN_number_read, 3, 63) '
 EMReadScreen edit_error, 2, 24, 2
 edit_error = trim(edit_error)
-IF edit_error <> "" THEN script_end_procedure("No IEVS matches and/ or could not access IEVP.")
+IF edit_error <> "" THEN script_end_procedure_with_error_report("No IEVS matches and/ or could not access IEVP.")
 '---------------------------------------------------------------------------------------------Chosing the match to clear'
 Row = 7
 DO
 	EMReadScreen IEVS_match, 11, row, 47
-	IF trim(IEVS_match) = "" THEN script_end_procedure("IEVS match for the selected period could not be found. The script will now end.")
+	IF trim(IEVS_match) = "" THEN script_end_procedure_with_error_report("IEVS match for the selected period could not be found. The script will now end.")
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
 	"   " & IEVS_match, vbYesNoCancel, "Please confirm this match")
 	'msgbox IEVS_match
@@ -268,7 +367,7 @@ DO
 			row = 7
 		END IF
 	END IF
-	IF ievp_info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
+	IF ievp_info_confirmation = vbCancel THEN script_end_procedure_with_error_report("The script has ended. The match has not been acted on.")
 	IF ievp_info_confirmation = vbYes THEN 	EXIT DO
 LOOP UNTIL ievp_info_confirmation = vbYes
 
@@ -286,12 +385,12 @@ END IF
 'Reading potential errors for out-of-county cases
 EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" then
-	script_end_procedure("Out-of-county case. Cannot update.")
+	script_end_procedure_with_error_report("Out-of-county case. Cannot update.")
 Else
 	IF IEVS_type = "WAGE" then
 		EMReadScreen quarter, 1, 8, 14
 		EMReadScreen IEVS_year, 4, 8, 22
-		If quarter <> select_quarter then script_end_procedure("Match period does not match the selected match period. The script will now end.")
+		If quarter <> select_quarter then script_end_procedure_with_error_report("Match period does not match the selected match period. The script will now end.")
 	Elseif IEVS_type <> "WAGE" THEN
 		EMReadScreen IEVS_year, 4, 8, 15
 	End if
@@ -447,6 +546,7 @@ END IF
 	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
 	CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 PF3 'to save casenote'
+
 IF HC_claim_number <> "" THEN
 	EmWriteScreen "x", 5, 3
 	Transmit
@@ -466,7 +566,67 @@ IF HC_claim_number <> "" THEN
 		End If
 	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
 	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
+	CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
 END IF
 
-script_end_procedure("Overpayment case note entered please review case note to ensure accuracy and copy case note to CCOL.")
+'---------------------------------------------------------------writing the CCOL case note'
+msgbox "Navigating to CCOL to add case note, please contact the BlueZoneScript team with any concerns."
+Call navigate_to_MAXIS_screen("CCOL", "CLSM")
+EMWriteScreen Claim_number, 4, 9
+TRANSMIT
+'NO CLAIMS WERE FOUND FOR THIS CASE, PROGRAM, AND STATUS
+EMReadScreen error_check, 75, 24, 2	'making sure we can actually update this case.
+error_check = trim(error_check)
+If error_check <> "" then script_end_procedure_with_error_report(error_check & "Unable to update this case. Please review case, and run the script again if applicable.")
+PF4
+EMReadScreen existing_case_note, 1, 5, 6
+IF existing_case_note = "" THEN
+	PF4
+ELSE
+	PF9
+END IF
+'-----------------------------------------------------------------------------------------CCOL CASENOTE
+IF IEVS_type = "WAGE" THEN CALL write_variable_in_CCOL_note_test("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+IF IEVS_type = "BEER" THEN CALL write_variable_in_CCOL_note_test("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+IF IEVS_type = "UBEN" THEN CALL write_variable_in_CCOL_note_test("-----" & IEVS_month & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+IF IEVS_type = "UNVI" THEN CALL write_variable_in_CCOL_note_test("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+CALL write_bullet_and_variable_in_CCOL_note_test("Discovery date", discovery_date)
+'CALL write_bullet_and_variable_in_CCOL_note_test("Period", IEVS_period)
+CALL write_bullet_and_variable_in_CCOL_note_test("Active Programs", programs)
+CALL write_bullet_and_variable_in_CCOL_note_test("Source of income", income_source)
+Call write_variable_in_CCOL_note_test("----- ----- ----- ----- -----")
+Call write_variable_in_CCOL_note_test(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+IF OP_program_II <> "Select:" then
+	Call write_variable_in_CCOL_note_test(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+	Call write_variable_in_CCOL_note_test("----- ----- ----- ----- -----")
+END IF
+	IF OP_program_III <> "Select:" then
+		Call write_variable_in_CCOL_note_test(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+		Call write_variable_in_CCOL_note_test("----- ----- ----- ----- -----")
+	END IF
+	IF OP_program_IV <> "Select:" then
+		Call write_variable_in_CCOL_note_test(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
+		Call write_variable_in_CCOL_note_test("----- ----- ----- ----- -----")
+	END IF
+
+	IF HC_claim_number <> "" THEN
+		Call write_variable_in_CCOL_note_test("HC OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & HC_from & " through " & HC_to)
+		Call write_variable_in_CCOL_note_test("* HC Claim # " & HC_claim_number & " Amt $" & HC_Claim_amount)
+		Call write_bullet_and_variable_in_CCOL_note_test("Health Care responsible members", HC_resp_memb)
+		Call write_bullet_and_variable_in_CCOL_note_test("Total Federal Health Care amount", Fed_HC_AMT)
+		CALL write_bullet_and_variable_in_CCOL_note_test("Discovery date", discovery_date)
+		CALL write_bullet_and_variable_in_CCOL_note_test("Source of income", income_source)
+		Call write_variable_in_CCOL_note_test("Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+		Call write_variable_in_CCOL_note_test("----- ----- ----- ----- -----")
+	END IF
+	IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note_test("* Earned Income Disregard Allowed")
+	IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_CCOL_note_test("* Earned Income Disregard Not Allowed")
+	CALL write_bullet_and_variable_in_CCOL_note_test("Fraud referral made", fraud_referral)
+	CALL write_bullet_and_variable_in_CCOL_note_test("Income verification received", EVF_used)
+	CALL write_bullet_and_variable_in_CCOL_note_test("Date verification received", income_rcvd_date)
+	CALL write_bullet_and_variable_in_CCOL_note_test("Reason for overpayment", Reason_OP)
+	CALL write_bullet_and_variable_in_CCOL_note_test("Other responsible member(s)", OT_resp_memb)
+	CALL write_variable_in_CCOL_note_test("----- ----- ----- ----- ----- ----- -----")
+	CALL write_variable_in_CCOL_note_test("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+
+script_end_procedure_with_error_report("Overpayment case note entered and copied to CCOL please review case note to ensure accuracy.")
