@@ -121,9 +121,9 @@ EMwritescreen SSN_mid, 14, 40
 EMwritescreen SSN_last, 14, 43
 TRANSMIT
 'msgbox " appl: " & appl_date & " rcvd: " & rcvd_date
-EMReadScreen error_msg, 18, 24, 2
-error_msg = trim(error_msg)
-IF error_msg = "SSN DOES NOT EXIST" THEN script_end_procedure_with_error_report ("Unable to find person in SSN search." & vbNewLine & "Please do a PERS search using the client's name." & vbNewLine & "Case may need to be APPLd.")
+EMReadScreen error_check, 18, 24, 2
+error_check = trim(error_check)
+IF error_check = "SSN DOES NOT EXIST" THEN script_end_procedure_with_error_report ("Unable to find person in SSN search." & vbNewLine & "Please do a PERS search using the client's name." & vbNewLine & "Case may need to be APPLd.")
 'This will take us to certain places based on PERS search'
 EMReadscreen current_panel_check, 4, 2, 51
 IF current_panel_check = "PERS" THEN script_end_procedure_with_error_report ("Please search by person name and run script again.")
@@ -365,7 +365,6 @@ TRANSMIT
 PF3
 'MsgBox "checking for where i end after TILK"
 '------------------------------------------------------------------------Naviagetes to REPT/MLAR'
-
 'Navigates back to MIPPA to clear the match
 CALL navigate_to_MAXIS_screen("REPT", "MLAR")
 row = 11 'this part should be a for next?' can we jsut do a cursor read for now?
