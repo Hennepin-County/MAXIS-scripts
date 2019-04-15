@@ -191,7 +191,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("04/15/2019", "Updated script to copy case note to CCOL and clear matches at FR.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("04/15/2019", "Updated script to copy case note to CCOL.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("08/17/2018", "Updated coding which reads active programs.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("07/23/2018", "Updated script to correct version and added case note to email for HC matches and CCOL.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/02/2018", "Corrected IEVS match error due to new year.", "MiKayla Handley, Hennepin County")
@@ -241,15 +241,19 @@ IF dail_check <> "DAIL" or IEVS_type <> "WAGE" or IEVS_type <> "BEER" or IEVS_ty
       Text 5, 30, 55, 10, "MEMB Number:"
       Text 5, 10, 50, 10, "Case Number:"
     EndDialog
-    DO
-    	err_msg = ""
-    	Dialog case_number_dialog
-    	IF ButtonPressed = 0 THEN StopScript
-     		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-     		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
-    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-    LOOP UNTIL err_msg = ""
-'----------------------------------------------------------------------------------------------------STAT
+
+	DO
+	    DO
+        	err_msg = ""
+        	Dialog case_number_dialog
+        	IF ButtonPressed = 0 THEN StopScript
+         		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+         		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
+        	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+        LOOP UNTIL err_msg = ""
+		CALL check_for_password_without_transmit(are_we_passworded_out)
+	Loop until are_we_passworded_out = false
+	'----------------------------------------------------------------------------------------------------STAT
     CALL navigate_to_MAXIS_screen("STAT", "MEMB")
     EMwritescreen MEMB_number, 20, 76
     TRANSMIT
@@ -258,6 +262,11 @@ IF dail_check <> "DAIL" or IEVS_type <> "WAGE" or IEVS_type <> "BEER" or IEVS_ty
 	CALL navigate_to_MAXIS_screen("INFC" , "____")
 	CALL write_value_and_transmit("IEVP", 20, 71)
 	CALL write_value_and_transmit(SSN_number_read, 3, 63)
+	'NO IEVS MATCHES FOUND FOR SSN'
+	EMReadScreen error_check, 75, 24, 2
+	error_check = TRIM(error_check)
+	IF error_check <> "" THEN script_end_procedure(error_check & vbcr & "An error occurred, please process manually.") '-------option to read from REPT need to checking for error msg'
+
 END IF
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 7
@@ -276,7 +285,7 @@ DO
 		END IF
 	END IF
 	IF ievp_info_confirmation = vbCancel THEN script_end_procedure_with_error_report ("The script has ended. The match has not been acted on.")
-	IF ievp_info_confirmation = vbYes THEN 	EXIT DO
+	IF ievp_info_confirmation = vbYes THEN EXIT DO
 LOOP UNTIL ievp_info_confirmation = vbYes
 
 ''---------------------------------------------------------------------Reading potential errors for out-of-county cases
@@ -459,7 +468,7 @@ BeginDialog overpayment_dialog, 0, 0, 361, 280, "Match Cleared CC Claim Entered"
   GroupBox 5, 45, 350, 100, "Overpayment Information"
   Text 105, 70, 20, 10, "From:"
 EndDialog
-'Do
+Do
     Do
     	err_msg = ""
     	dialog overpayment_dialog
@@ -495,7 +504,7 @@ EndDialog
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
     LOOP UNTIL err_msg = ""
     CALL check_for_password_without_transmit(are_we_passworded_out)
-'Loop Until check_for_password_without_transmit(are_we_passworded_out) = false
+Loop until are_we_passworded_out = false
 	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
     EmReadScreen panel_name, 4, 02, 52
     IF panel_name <> "IULA" THEN
@@ -579,11 +588,11 @@ EndDialog
     	EMWriteScreen "NN", 20,79
     	TRANSMIT
 		'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
-		EmReadScreen MISC_error_msg,  74, 24, 02
-		IF trim(MISC_error_msg) = "" THEN
+		EmReadScreen MISC_error_check,  74, 24, 02
+		IF trim(MISC_error_check) = "" THEN
 	        case_note_only = FALSE
 		else
-			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_msg & vbNewLine, vbYesNo + vbQuestion, "Message handling")
+			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
 			IF maxis_error_check = vbYes THEN
 				case_note_only = TRUE 'this will case note only'
 			END IF
@@ -698,7 +707,7 @@ EndDialog
 	'NO CLAIMS WERE FOUND FOR THIS CASE, PROGRAM, AND STATUS
 	EMReadScreen error_check, 75, 24, 2	'making sure we can actually update this case.
 	error_check = trim(error_check)
-	If error_check <> "" then script_end_procedure_with_error_report(error_check & "Unable to update this case. Please review case, and run the script again if applicable.")
+	If error_check <> "" then script_end_procedure_with_error_report(error_check & vbcr & "Unable to update this case. Please review case, and run the script again if applicable.")
 
 	PF4
 	EMReadScreen existing_case_note, 1, 5, 6
@@ -730,7 +739,6 @@ EndDialog
     	Call write_variable_in_CCOL_NOTE(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
     	Call write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
     END IF
-
     IF HC_claim_number <> "" THEN
     	Call write_variable_in_CCOL_NOTE("HC OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & HC_from & " through " & HC_to)
     	Call write_variable_in_CCOL_NOTE("* HC Claim # " & HC_claim_number & " Amt $" & HC_Claim_amount)
@@ -752,7 +760,6 @@ EndDialog
     CALL write_variable_in_CCOL_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 	PF3
 	PF3
-
 END IF
 
 script_end_procedure_with_error_report("Overpayment case note entered please review the case to make sure the notes updated correctly.")

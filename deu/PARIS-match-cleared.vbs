@@ -43,7 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("04/15/2019", "Updated script to copy case note to CCOL and clear matches at FR.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("04/15/2019", "Updated script to copy case note to CCOL and clear matches FR.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/03/2018", "Updated coding for multiple states on INSM panel.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/28/2018", "Added handling for more than two states of PARIS matches on INSM.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("09/21/2018", "Added handling for more than one page of PARIS matches on INTM.", "Ilse Ferris, Hennepin County")
@@ -75,8 +75,8 @@ EMReadscreen dail_check, 4, 2, 48
 IF dail_check <> "DAIL" THEN script_end_procedure("You are not in your dail. This script will stop.")
 
 'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
-EMSendKey "t"
-transmit
+EMSendKey "T"
+TRANSMIT
 
 EMReadScreen DAIL_message, 4, 6, 6 'read the DAIL msg'
 IF DAIL_message <> "PARI" THEN script_end_procedure("This is not a Paris match. Please select a Paris match, and run the script again.")
@@ -87,9 +87,9 @@ MAXIS_case_number= TRIM(MAXIS_case_number)
 'Navigating deeper into the match interface
 CALL write_value_and_transmit("I", 6, 3)   'navigates to INFC
 CALL write_value_and_transmit("INTM", 20, 71)   'navigates to INTM
-EMReadScreen error_msg, 2, 24, 2
-error_msg = TRIM(error_msg)
-IF error_msg <> "" THEN script_end_procedure("An error occured in INFC, please process manually.")'-------option to read from REPT need to checking for error msg'
+EMReadScreen error_check, 75, 24, 2
+error_check = TRIM(error_check)
+IF error_check <> "" THEN script_end_procedure(error_check & vbcr & "An error occurred, please process manually.")'-------option to read from REPT need to checking for error msg'
 
 Row = 8
 DO
@@ -251,7 +251,7 @@ IF notice_sent = "N" THEN
     		IF send_notice_checkbox = CHECKED AND clear_action_checkbox = CHECKED THEN err_msg = err_msg & vbNewLine & "* Please select only one answer to continue."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
-		CALL check_for_password(are_we_passworded_out)
+		CALL check_for_password_without_transmit(are_we_passworded_out)
 	LOOP UNTIL are_we_passworded_out = false
 END IF
 
@@ -318,7 +318,8 @@ IF send_notice_checkbox = CHECKED THEN
     				IF warning_box = vbCancel THEN stopscript
     			END IF
     		END IF
-    	LOOP UNTIL MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+			CALL check_for_password_without_transmit(are_we_passworded_out)
+		LOOP UNTIL are_we_passworded_out = false
 
     	'sending the notice
     	PF9	'edit mode'
@@ -326,7 +327,7 @@ IF send_notice_checkbox = CHECKED THEN
     	edit_error = trim (edit_error)
     	IF edit_error <> "" THEN script_end_procedure ("Unable to send difference notice please review case")
     	EMwritescreen "Y", 8, 73 'send Notice
-    	transmit
+    	TRANSMIT
 
     	'--------------------------------------------------------------------The case note & case note related code
     	'creating new variable for case note for programs appealing that is incremential
@@ -416,7 +417,8 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
     			IF warning_box = vbCancel THEN stopscript
     		END IF
     	END IF
-    LOOP UNTIL MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
+		CALL check_for_password_without_transmit(are_we_passworded_out)
+	LOOP UNTIL are_we_passworded_out = false
 
     '--------------------------------------------------------------------The case note
     pending_verifs = ""
