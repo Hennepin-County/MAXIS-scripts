@@ -52,73 +52,6 @@ CALL changelog_update("11/07/2017", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 '=================================================================================================END CHANGELOG BLOCK
-'Fun with dates! --Creating variables for the rolling 12 calendar months
-'current month -1
-CM_minus_1_mo =  right("0" &          	 DatePart("m",           DateAdd("m", -1, date)            ), 2)
-CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
-'current month -2'
-CM_minus_2_mo =  right("0" &             DatePart("m",           DateAdd("m", -2, date)            ), 2)
-CM_minus_2_yr =  right(                  DatePart("yyyy",        DateAdd("m", -2, date)            ), 2)
-'current month -3'
-CM_minus_3_mo =  right("0" &             DatePart("m",           DateAdd("m", -3, date)            ), 2)
-CM_minus_3_yr =  right(                  DatePart("yyyy",        DateAdd("m", -3, date)            ), 2)
-'current month -4'
-CM_minus_4_mo =  right("0" &             DatePart("m",           DateAdd("m", -4, date)            ), 2)
-CM_minus_4_yr =  right(                  DatePart("yyyy",        DateAdd("m", -4, date)            ), 2)
-'current month -5'
-CM_minus_5_mo =  right("0" &             DatePart("m",           DateAdd("m", -5, date)            ), 2)
-CM_minus_5_yr =  right(                  DatePart("yyyy",        DateAdd("m", -5, date)            ), 2)
-'current month -6'
-CM_minus_6_mo =  right("0" &             DatePart("m",           DateAdd("m", -6, date)            ), 2)
-CM_minus_6_yr =  right(                  DatePart("yyyy",        DateAdd("m", -6, date)            ), 2)
-'current month -7'
-CM_minus_7_mo =  right("0" &             DatePart("m",           DateAdd("m", -7, date)            ), 2)
-CM_minus_7_yr =  right(                  DatePart("yyyy",        DateAdd("m", -7, date)            ), 2)
-'current month -8'
-CM_minus_8_mo =  right("0" &             DatePart("m",           DateAdd("m", -8, date)            ), 2)
-CM_minus_8_yr =  right(                  DatePart("yyyy",        DateAdd("m", -8, date)            ), 2)
-'current month -9'
-CM_minus_9_mo =  right("0" &             DatePart("m",           DateAdd("m", -9, date)            ), 2)
-CM_minus_9_yr =  right(                  DatePart("yyyy",        DateAdd("m", -9, date)            ), 2)
-'current month -10'
-CM_minus_10_mo =  right("0" &            DatePart("m",           DateAdd("m", -10, date)           ), 2)
-CM_minus_10_yr =  right(                 DatePart("yyyy",        DateAdd("m", -10, date)           ), 2)
-'current month -11'
-CM_minus_11_mo =  right("0" &            DatePart("m",           DateAdd("m", -11, date)           ), 2)
-CM_minus_11_yr =  right(                 DatePart("yyyy",        DateAdd("m", -11, date)           ), 2)
-
-'Establishing value of variables for the rolling 12 months
-current_month = CM_mo & "/" & CM_yr
-current_month_minus_one = CM_minus_1_mo & "/" & CM_minus_1_yr
-current_month_minus_two = CM_minus_2_mo & "/" & CM_minus_2_yr
-current_month_minus_three = CM_minus_3_mo & "/" & CM_minus_3_yr
-current_month_minus_four = CM_minus_4_mo & "/" & CM_minus_4_yr
-current_month_minus_five = CM_minus_5_mo & "/" & CM_minus_5_yr
-current_month_minus_six = CM_minus_6_mo & "/" & CM_minus_6_yr
-current_month_minus_seven = CM_minus_7_mo & "/" & CM_minus_7_yr
-current_month_minus_eight = CM_minus_8_mo & "/" & CM_minus_8_yr
-current_month_minus_nine = CM_minus_9_mo & "/" & CM_minus_9_yr
-current_month_minus_ten = CM_minus_10_mo & "/" & CM_minus_10_yr
-current_month_minus_eleven = CM_minus_11_mo & "/" & CM_minus_11_yr
-
-
-function DEU_password_check(end_script)
-'--- This function checks to ensure the user is in a MAXIS panel
-'~~~~~ end_script: If end_script = TRUE the script will end. If end_script = FALSE, the user will be given the option to cancel the script, or manually navigate to a MAXIS screen.
-'===== Keywords: MAXIS, production, script_end_procedure
-	Do
-		EMReadScreen MAXIS_check, 5, 1, 39
-		If MAXIS_check <> "MAXIS"  and MAXIS_check <> "AXIS " then
-			If end_script = True then
-				script_end_procedure("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again.")
-			Else
-				warning_box = MsgBox("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again, or press ""cancel"" to exit the script.", vbOKCancel)
-				If warning_box = vbCancel then stopscript
-			End if
-		End if
-	Loop until MAXIS_check = "MAXIS" or MAXIS_check = "AXIS "
-end function
-
 
 EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
@@ -154,21 +87,20 @@ BeginDialog ATR_action_dialog, 0, 0, 181, 240, "ATR Received"
   Text 20, 195, 45, 10, "Other Notes:"
 EndDialog
 
-
-
-
 DO
-    err_msg = ""
-	Dialog ATR_action_dialog
-	IF ButtonPressed = 0 THEN StopScript
-	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
-	IF select_quarter = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a quarter for the match"
-	IF match_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a match type"
-	IF ATR_sent = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select how ATR was sent"
-	IF DISQ_action = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please advise if DISQ panel was updated"
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-LOOP UNTIL err_msg = ""
-CALL DEU_password_check(False)
+    DO
+        err_msg = ""
+    	Dialog ATR_action_dialog
+    	IF ButtonPressed = 0 THEN StopScript
+    	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+    	IF select_quarter = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a quarter for the match"
+    	IF match_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a match type"
+    	IF ATR_sent = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select how ATR was sent"
+    	IF DISQ_action = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please advise if DISQ panel was updated"
+    	IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    LOOP UNTIL err_msg = ""
+    CALL check_for_password_without_transmit(are_we_passworded_out)
+LOOP UNTIL are_we_passworded_out = false
 
 '-------------------------------------------------------------------------------------------Defaulting the quarters
 IF select_quarter = "1" THEN
@@ -183,14 +115,12 @@ ELSEIF select_quarter = "YEAR" THEN
 				IEVS_period = right(DatePart("yyyy",DateAdd("yyyy", -1, date)), 2)
 END IF
 
-msgbox IEVS_period
+'msgbox IEVS_period
 
 '----------------------------------------------------------------------------------------------------IEVS
-
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 EMwritescreen memb_number, 20, 76
-transmit
-
+TRANSMIT
 EMReadscreen SSN_number_read, 11, 7, 42
 SSN_number_read = replace(SSN_number_read, " ", "")
 
@@ -198,9 +128,9 @@ CALL navigate_to_MAXIS_screen("INFC" , "____")
 CALL write_value_and_transmit("IEVP", 20, 71)
 CALL write_value_and_transmit(SSN_number_read, 3, 63) '
 
-EMReadScreen edit_error, 2, 24, 2
-edit_error = trim(edit_error)
-IF edit_error <> "" THEN script_end_procedure("No IEVS matches and/or could not access IEVP.")
+EMReadScreen error_check, 75, 24, 2	'making sure we can actually update this case.
+error_check = trim(error_check)
+If error_check <> "" then script_end_procedure_with_error_report(error_check & "Unable to update this case. Please review case, and run the script again if applicable.")
 
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 7
@@ -226,7 +156,6 @@ LOOP UNTIL ievp_info_confirmation = vbYes
 'Reading potential errors for out-of-county cases
 
 CALL write_value_and_transmit("U", row, 3)
-
 EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" THEN
 	script_end_procedure("Out-of-county case. Cannot update.")
@@ -242,7 +171,6 @@ ELSE
 END IF
 
 '-----------------------------------------------------------------------------------------------Client name
-
 EMReadScreen client_name, 35, 5, 24
 client_name = trim(client_name)                         'trimming the client name
 IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This seperates the two names
@@ -274,7 +202,6 @@ IF instr(Active_Programs, "S") THEN programs = programs & "MFIP, "
 programs = trim(programs)
 'takes the last comma off of programs when autofilled into dialog
 IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
-
 '----------------------------------------------------------------------------------------------------Income info & differnce notice info
 EMReadScreen source_income, 44, 8, 37
 source_income = trim(source_income)
@@ -295,7 +222,6 @@ EMReadScreen sent_date, 8, 14, 68
 sent_date = trim(sent_date)
 IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
 
-
 '--------------------------------------------------------------------sending the notice in IULA
 EMwritescreen "005", 12, 46 'writing the resolve time to read for later
 EMwritescreen "Y", 15, 37 'send Notice
@@ -310,13 +236,10 @@ ELSE
 	EMwritescreen "ATR RECEIVED " & date_received, row, 6
 END IF
 
-msgbox "Responded to difference notice has been updated"
-transmit 'exiting IULA, helps prevent errors when going to the case note
-
-'--------------------------------------------------------------------The case note & case note related code
-
+'msgbox "Responded to difference notice has been updated"
+TRANSMIT 'exiting IULA, helps prevent errors when going to the case note
+''--------------------------------------------------------------------The case note & case note related code
 Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
-
 'Updated IEVS_period to write into case note
 IF select_quarter = "1" THEN IEVS_quarter = "1ST"
 IF select_quarter = "2" THEN IEVS_quarter = "2ND"
@@ -340,28 +263,27 @@ IEVS_period = replace(IEVS_period, "/", " to ")
 dIFf_date = replace(dIFf_date, " ", "/")
 
 start_a_blank_CASE_NOTE
-	IF IEVS_quarter <> "YEAR" THEN
-		CALL write_variable_in_CASE_NOTE ("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH (" & first_name & ") ATR RECEIVED-----")
-	ELSE
-		CALL write_variable_in_CASE_NOTE ("-----" & IEVS_year & " WAGE MATCH (" & first_name & ") ATR received-----")
-	END IF
-	CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
-	CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
-	CALL write_variable_in_CASE_NOTE("* Source information: " & source_income & income_source & "  " & source_address)
-	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
-	CALL write_variable_in_CASE_NOTE("* Date ATR received: " & date_received)
-	IF DISQ_action = "DELETED DISQ" THEN CALL write_variable_in_CASE_NOTE("* Updated DISQ panel")
-	IF DISQ_action = "PENDING VERF" THEN CALL write_variable_in_CASE_NOTE("* Pending verification of income or asset")
-	CALL write_variable_in_CASE_NOTE("* IEVP updated as responded to difference notice - YES ")
-	IF ATR_sent <> "RCVD VERIFICATION" THEN
-		CALL write_variable_in_CASE_NOTE("* Sent via: " & ATR_sent & " " & source_phone)
-		CALL write_bullet_and_variable_in_case_note("Due Date", Due_date)
-		CALL write_variable_in_CASE_NOTE("---DEU WILL PROCESS WHEN EMPLOYMENT VERIFICATION IS RETURNED. TEAM CAN REINSTATE CASE IF ALL NECESSARY PAPERWORK TO REINSTATE HAS BEEN RECEIVED---")
-    ELSE
-		CALL write_variable_in_CASE_NOTE("---TEAM CAN REIN CASE IF ALL NECESSARY PAPERWORK TO REIN HAS BEEN RCVD---")
-	END IF
-	CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
-	CALL write_variable_in_CASE_NOTE ("----- ----- ----- ----- -----")
-	CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
-
-script_end_procedure("ATR case note updated successfully." & vbNewLine & "Please remember to update/delete the DISQ panel")
+IF IEVS_quarter <> "YEAR" THEN
+	CALL write_variable_in_CASE_NOTE ("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH (" & first_name & ") ATR RECEIVED-----")
+ELSE
+	CALL write_variable_in_CASE_NOTE ("-----" & IEVS_year & " WAGE MATCH (" & first_name & ") ATR received-----")
+END IF
+CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
+CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
+CALL write_variable_in_CASE_NOTE("* Source information: " & source_income & income_source & "  " & source_address)
+CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+CALL write_variable_in_CASE_NOTE("* Date ATR received: " & date_received)
+IF DISQ_action = "DELETED DISQ" THEN CALL write_variable_in_CASE_NOTE("* Updated DISQ panel")
+IF DISQ_action = "PENDING VERF" THEN CALL write_variable_in_CASE_NOTE("* Pending verification of income or asset")
+CALL write_variable_in_CASE_NOTE("* IEVP updated as responded to difference notice - YES ")
+IF ATR_sent <> "RCVD VERIFICATION" THEN
+	CALL write_variable_in_CASE_NOTE("* Sent via: " & ATR_sent & " " & source_phone)
+	CALL write_bullet_and_variable_in_case_note("Due Date", Due_date)
+	CALL write_variable_in_CASE_NOTE("---DEU WILL PROCESS WHEN EMPLOYMENT VERIFICATION IS RETURNED. TEAM CAN REINSTATE CASE IF ALL NECESSARY PAPERWORK TO REINSTATE HAS BEEN RECEIVED---")
+ELSE
+	CALL write_variable_in_CASE_NOTE("---TEAM CAN REIN CASE IF ALL NECESSARY PAPERWORK TO REIN HAS BEEN RCVD---")
+END IF
+CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
+CALL write_variable_in_CASE_NOTE ("----- ----- ----- ----- -----")
+CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
+script_end_procedure_with_error_report("ATR case note updated successfully." & vbNewLine & "Please remember to update/delete the DISQ panel")
