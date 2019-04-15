@@ -259,4 +259,4 @@ IF ADH_option = "Hearing Held" THEN
 	 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 	 CALL create_outlook_email("Lea.Bloomquist@hennepin.us", "HSPH.ES.TEAM.TTL@hennepin.us;" & "HSPH.FSSDataTeam@hennepin.us;" & fraud_email, "1st Fraud DISQ/Claims--ADH Hearing Held for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Administrative Disqualification Hearing for Wrongfully Obtaining Public Assistance was held on: " & hearing_date & vbcr & "Order was signed: " & date_order_signed & vbcr & "Programs: " & program_droplist & vbcr & "Period of Offense: " & start_date & " - " & end_date & vbcr & "See case notes for further details.", "", False)
 END IF
-script_end_procedure("Please select the applicable team in the drafted email, any additional notes required and send the email regarding ADH information.")
+script_end_procedure_with_error_report("Please select the applicable team in the drafted email, any additional notes required and send the email regarding ADH information.")
