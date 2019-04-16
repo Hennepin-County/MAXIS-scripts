@@ -69,23 +69,13 @@ FUNCTION write_variable_in_CCOL_note_test(variable)
     		character_test = trim(character_test)
     		If character_test <> "" or noting_row >= 19 then
     		'If we get to row 19 (which can't be read here), it will go to the next panel (PF8).
-    			If noting_row = 19 then
+    			If noting_row >= 19 then
     				EMSendKey "<PF8>"
     				EMWaitReady 0, 0
     				EMReadScreen next_page_confirmation, 4, 19, 3
     				IF next_page_confirmation = "MORE" THEN
     					next_page = TRUE
 						'msgbox next_page
-    				'ELSE
-    					Do
-    						EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
-    						character_test = trim(character_test)
-    						If character_test <> "" then noting_row = noting_row + 1
-    					Loop until character_test = ""
-    					'EMReadScreen check_next_page, 75, 24, 2
-    					'check_we_went_to_next_page = trim(check_we_went_to_next_page)
-    					'If check_we_went_to_next_page = "PLEASE PRESS PF3 TO EXIT OR PF7/PF8 TO SCROLLWHEN PAGE IS FILLED" Then
-    						'noting_row = 4
     					Do
     						EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
     						character_test = trim(character_test)
@@ -142,17 +132,6 @@ function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
 					IF next_page_confirmation = "MORE" THEN
 						next_page = TRUE
 						'msgbox next_page
-					'ELSE
-						Do
-							EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
-							character_test = trim(character_test)
-							If character_test <> "" then noting_row = noting_row + 1
-						Loop until character_test = ""
-						'EMReadScreen check_next_page, 75, 24, 2
-						'check_we_went_to_next_page = trim(check_we_went_to_next_page)
-						'If check_we_went_to_next_page = "PLEASE PRESS PF3 TO EXIT OR PF7/PF8 TO SCROLLWHEN PAGE IS FILLED" Then
-							'noting_row = 4
-						'END IF
 						Do
 							EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
 							character_test = trim(character_test)
