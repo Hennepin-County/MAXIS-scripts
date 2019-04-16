@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/16/2019", "BUG when disenrolling and reenrolling in a different plan. Functionality should work to disenroll and renroll in the same run - specific to issues discovered with NT option.", "Casey Love, Hennepin County")
 call changelog_update("04/02/2019", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -694,6 +695,13 @@ Do
 	Dialog Dialog1
 	cancel_confirmation
 
+    For person = 0 to Ubound(MMIS_clients_array, 2)
+        If left(MMIS_clients_array(current_plan, person), 3) <> "XCL" Then
+            If MMIS_clients_array(disenrol_rsn, person) = "Select one..." Then err_msg = err_msg & vbNewLine & "* Since " & MMIS_clients_array(client_name, person) & " is currently on a health plan, please select a disenrollment reason for the " & MMIS_clients_array(current_plan, person) & " plan."
+        End If
+        If MMIS_clients_array(change_rsn, person) = "Select one..." Then err_msg = err_msg & vbNewLine & "* Select a reason to enroll  " & MMIS_clients_array(client_name, person) & " into a new plan."
+    Next
+
     If enrollment_source = "Phone" Then
 
         If trim(caller_name) = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the caller."
@@ -843,11 +851,10 @@ If MNSURE_Case = TRUE Then
 
             If process_manually_message = "" Then
     			'enter disenrollment reason
-    			If change_reason <> "" Then
-    				EMWriteScreen disenrollment_reason, 14, 75
-    			Else
-    				EMWriteScreen disenrollment_reason, 13, 75
-    			End If
+                If disenrollment_reason <> "" Then
+                    EMWriteScreen xcl_end_date, 13, 14
+                    EMWriteScreen disenrollment_reason, 13, 75
+                End If
 
     			'resets to bottom of the span list.
     			pf11
@@ -1151,11 +1158,10 @@ Else
 
             If process_manually_message = "" Then
     			'enter disenrollment reason
-    			If change_reason <> "" Then
-    				EMWriteScreen disenrollment_reason, 14, 75
-    			Else
-    				EMWriteScreen disenrollment_reason, 13, 75
-    			End If
+                If disenrollment_reason <> "" Then
+                    EMWriteScreen xcl_end_date, 13, 14
+                    EMWriteScreen disenrollment_reason, 13, 75
+                End If
 
     			'resets to bottom of the span list.
     			pf11
