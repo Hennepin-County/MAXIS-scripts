@@ -427,7 +427,7 @@ IF HC_claim_number <> "" THEN
 CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
 END IF
 
-msgbox "Navigating to CCOL to add case note, please contact the BlueZone Script team with any concerns."
+msgbox "Navigating to CCOL to add case note, please contact the BlueZone Scripts team with any concerns."
 Call navigate_to_MAXIS_screen("CCOL", "CLSM")
 EMWriteScreen Claim_number, 4, 9
 TRANSMIT
