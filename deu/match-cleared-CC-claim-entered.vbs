@@ -762,4 +762,4 @@ Loop until are_we_passworded_out = false
 	PF3
 END IF
 
-script_end_procedure_with_error_report("Overpayment case note entered please review the case to make sure the notes updated correctly.")
+script_end_procedure_with_error_report("Overpayment case note entered please review the case to make sure the notes updated correctly." & vbcr & next_page)
