@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("04/16/2019", "Added requested language for denial dates and extra help.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/19/2019", "Added an error reporting option at the end of the script run.", "Casey Love, Hennepin County")
 call changelog_update("11/06/2017", "Updates to handle when there are multiple PMI associated with the same client.", "MiKayla Handley, Hennepin County")
 call changelog_update("10/10/2017", "Updates to correct dialog box error message and ensure the correct case number pulls through the whole script.", "MiKayla Handley, Hennepin County")
@@ -332,9 +333,12 @@ IF spec_xfer_worker <> "" THEN
     	action_completed = False
     End if
 END IF
+
+denial_date = DateAdd("d", 45, date)
 '----------------------------------------------------------------------------------case note
 start_a_blank_case_note
-CALL write_variable_in_case_note("~ MIPPA received via REPT/MLAR on " & rcvd_date & " ~")
+CALL write_variable_in_case_note("~ MIPPA/Extra Help Application received via REPT/MLAR on " & rcvd_date & " ~")
+CALL write_variable_in_case_note("* Case APPL'd based on the intent to apply date.  Application mailed out by the Case Assignment team on " & date)
 IF select_answer = "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Please review the MIPPArecord and case information for consistency and follow-up with any inconsistent information, as appropriate. Case is currently active on HC.")
 IF select_answer = "NO - APPL (Known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPArecord and case information applicant is known to MAXIS.")
 IF select_answer = "NO - APPL (Not known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPArecord and case information applicant is not known to MAXIS.")
@@ -344,9 +348,9 @@ IF select_answer = "NO - ADD A PROGRAM" THEN
 END IF
 CALL write_variable_in_case_note ("* REPT/MLAR APPL Date: " & appl_date)
 IF select_answer <> "YES - Update MLAD" THEN
-	CALL write_variable_in_case_note ("* Pended on: " & date)
-	CALL write_variable_in_case_note("* Application mailed.")
-	'CALL write_variable_in_case_note ("* Case transferred to basket " & spec_xfer_worker & ".")
+	CALL write_variable_in_case_note ("* Application mailed & pended on: " & date)
+	CALL write_variable_in_case_note("* The case should not be denied until:" & denial_date)
+	CALL write_variable_in_case_note ("* TIKL set for " & denial_date & " to review for eligibility 45 days after the application was mailed out.")
 END IF
 IF spec_xfer_worker <> "" THEN CALL write_variable_in_case_note ("* Case transferred to basket " & spec_xfer_worker & ".")
 CALL write_variable_in_case_note ("* MIPPA rcvd and acted on per: TE 02.07.459")
@@ -355,11 +359,11 @@ CALL write_variable_in_case_note (worker_signature)
 
 'writing the TIKL'
 CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-CALL create_MAXIS_friendly_date(date, 0, 5, 18)
+CALL create_MAXIS_friendly_date(denial_date, 0, 5, 18)
 IF select_answer = "YES - Update MLAD" or select_answer = "NO - ADD A PROGRAM" THEN
-	CALL write_variable_in_TIKL("~ A MIPPA record was recieved please check case information for consistency and follow-up with any inconsistent information, as appropriate.")
+	CALL write_variable_in_TIKL("~ Client submitted intent to apply for MA/MSP on " & appl_date & " Certain Populations App mailed on " & date & " If application has not been received by Hennepin County HC request should be denied.  If client is disabled, please give an additional 15 days for the application to be returned.")
 ELSE
-	CALL write_variable_in_TIKL("~ Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate.")
+	CALL write_variable_in_TIKL("~ Client submitted intent to apply for MA/MSP.  Case already pending or active on HC.  Please ensure that the Date of Application is aligned and review for MA/MSP eligibility.")
 END IF
 TRANSMIT
 PF3
