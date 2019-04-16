@@ -56,7 +56,7 @@ FUNCTION write_variable_in_CCOL_note_test(variable)
     				EMReadScreen next_page_confirmation, 4, 19, 3
     				IF next_page_confirmation = "MORE" THEN
     					next_page = TRUE
-						msgbox next_page
+						'msgbox next_page
     				'ELSE
     					Do
     						EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
@@ -74,7 +74,7 @@ FUNCTION write_variable_in_CCOL_note_test(variable)
     					Loop until character_test = ""
     				Else
 						next_page = FALSE
-						msgbox next_page
+						'msgbox next_page
 						noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
     				End If
     			Else
@@ -122,7 +122,7 @@ function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
     				EMReadScreen next_page_confirmation, 4, 19, 3
 					IF next_page_confirmation = "MORE" THEN
 						next_page = TRUE
-						msgbox next_page
+						'msgbox next_page
 					'ELSE
 						Do
 							EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
@@ -141,7 +141,7 @@ function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
 						Loop until character_test = ""
     				Else
 						next_page = FALSE
-						msgbox next_page
+						'msgbox next_page
 						noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
     				End If
     			Else
@@ -700,7 +700,7 @@ Loop until are_we_passworded_out = false
 		'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 	CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
 '---------------------------------------------------------------writing the CCOL case note'
-	msgbox "Navigating to CCOL to add case note, please contact the BlueZoneScript team with any concerns."
+	msgbox "Navigating to CCOL to add case note, please contact the BlueZone Scripts team with any concerns."
 	Call navigate_to_MAXIS_screen("CCOL", "CLSM")
 	EMWriteScreen Claim_number, 4, 9
 	TRANSMIT
