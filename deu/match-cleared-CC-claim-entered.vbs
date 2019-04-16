@@ -50,7 +50,7 @@ FUNCTION write_variable_in_CCOL_note_test(variable)
     		character_test = trim(character_test)
     		If character_test <> "" or noting_row >= 19 then
     		'If we get to row 19 (which can't be read here), it will go to the next panel (PF8).
-    			If noting_row = 19 then
+    			If noting_row >= 19 then
     				EMSendKey "<PF8>"
     				EMWaitReady 0, 0
     				EMReadScreen next_page_confirmation, 4, 19, 3
@@ -73,9 +73,9 @@ FUNCTION write_variable_in_CCOL_note_test(variable)
     						If character_test <> "" then noting_row = noting_row + 1
     					Loop until character_test = ""
     				Else
-						next_page = FALSE
+						next_page = TRUE
 						'msgbox next_page
-						noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
+						noting_row = 5													'Resets this variable to 4 if we did not need a brand new note.
     				End If
     			Else
     				noting_row = noting_row + 1
@@ -142,7 +142,7 @@ function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
     				Else
 						next_page = FALSE
 						'msgbox next_page
-						noting_row = 4													'Resets this variable to 4 if we did not need a brand new note.
+						noting_row = 5												'Resets this variable to 4 if we did not need a brand new note.
     				End If
     			Else
     				noting_row = noting_row + 1
