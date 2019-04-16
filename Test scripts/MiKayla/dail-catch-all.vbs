@@ -51,11 +51,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
-BeginDialog catch_all_dialog, 0, 0, 281, 140, "DAIL CATCH ALL"
-  EditBox 60, 5, 65, 15, MAXIS_case_number
-  EditBox 210, 5, 65, 15, METS_IC_number 'do we need the mets number?'
-  EditBox 60, 25, 100, 15, when_contact_was_made
-  EditBox 210, 25, 65, 15, DAIL_type
+BeginDialog catch_all_dialog, 0, 0, 361, 140, "DAIL_type   DAIL CATCH ALL   & MAXIS_case_number"
   EditBox 60, 45, 215, 15, actions_taken
   EditBox 60, 65, 215, 15, verifs_needed
   EditBox 60, 85, 215, 15, cl_instructions
@@ -64,14 +60,12 @@ BeginDialog catch_all_dialog, 0, 0, 281, 140, "DAIL CATCH ALL"
   ButtonGroup ButtonPressed
     OkButton 180, 120, 45, 15
     CancelButton 230, 120, 45, 15
-  Text 5, 10, 50, 10, "Case number: "
-  Text 150, 10, 60, 10, "METS IC number:"
-  Text 5, 30, 40, 10, "Date/Time:"
-  Text 195, 30, 15, 10, "Re:"
   Text 5, 50, 50, 10, "Actions taken: "
   Text 5, 70, 50, 10, "Verifs needed: "
   Text 5, 90, 45, 10, "Other notes:"
   Text 5, 125, 60, 10, "Worker signature:"
+  CheckBox 135, 105, 140, 10, "Check here that ECF has been reviewed ", ECF_reviewed
+  GroupBox 5, 5, 345, 45, ""DAIL for case # " MAXIS_case_number"
 EndDialog
 'do we need a date rcvd or save that for docs rcvd'
 
@@ -154,8 +148,9 @@ CALL write_variable_in_case_note(third_line)
 CALL write_variable_in_case_note(fourth_line)
 CALL write_variable_in_case_note(fifth_line)
 CALL write_variable_in_case_note("---")
-CALL write_bullet_and_variable_in_case_note("Actions Taken", actions_taken)
 CALL write_bullet_and_variable_in_case_note("Action was taken: ", when_contact_was_made)
+CALL write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+CALL write_bullet_and_variable_in_case_note("Action was taken ", when_contact_was_made)
 CALL write_bullet_and_variable_in_case_note("Phone number", phone_number)
 CALL write_bullet_and_variable_in_case_note("METS/IC number", METS_IC_number)
 CALL write_bullet_and_variable_in_case_note("Verifs Needed", verifs_needed)
@@ -167,5 +162,5 @@ CALL write_variable_in_CASE_NOTE(worker_signature)
 'TIKLING
 'IF TIKL_check = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")
 
-script_end_procedure_with_error_report(DAIL_type & "DAIL has been case noted")
+script_end_procedure_with_error_report(DAIL_type & vbcr &  first_line & vbcr & " DAIL has been case noted")
 End if
