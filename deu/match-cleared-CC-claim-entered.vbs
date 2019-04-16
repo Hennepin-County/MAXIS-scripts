@@ -67,13 +67,8 @@ FUNCTION write_variable_in_CCOL_note_test(variable)
     					'check_we_went_to_next_page = trim(check_we_went_to_next_page)
     					'If check_we_went_to_next_page = "PLEASE PRESS PF3 TO EXIT OR PF7/PF8 TO SCROLLWHEN PAGE IS FILLED" Then
     						'noting_row = 4
-    					Do
-    						EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
-    						character_test = trim(character_test)
-    						If character_test <> "" then noting_row = noting_row + 1
-    					Loop until character_test = ""
     				Else
-						next_page = TRUE
+						next_page = FALSE
 						'msgbox next_page
 						noting_row = 5													'Resets this variable to 4 if we did not need a brand new note.
     				End If
@@ -134,12 +129,7 @@ function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
 						'If check_we_went_to_next_page = "PLEASE PRESS PF3 TO EXIT OR PF7/PF8 TO SCROLLWHEN PAGE IS FILLED" Then
 							'noting_row = 4
 						'END IF
-						Do
-							EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
-							character_test = trim(character_test)
-							If character_test <> "" then noting_row = noting_row + 1
-						Loop until character_test = ""
-    				Else
+					Else
 						next_page = FALSE
 						'msgbox next_page
 						noting_row = 5												'Resets this variable to 4 if we did not need a brand new note.
