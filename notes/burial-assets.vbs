@@ -51,7 +51,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'SECTION 01 -- Dialogs
-BeginDialog opening_dialog_01, 0, 0, 311, 420, "LTC Burial Assets"
+BeginDialog opening_dialog_01, 0, 0, 311, 420, "Burial Assets"
   EditBox 95, 25, 60, 15, MAXIS_case_number
   EditBox 225, 25, 30, 15, hh_member
   DropListBox 165, 45, 90, 15, "Select one..."+chr(9)+"GA"+chr(9)+"Health Care"+chr(9)+"MFIP/DWP"+chr(9)+"MSA/GRH", programs
