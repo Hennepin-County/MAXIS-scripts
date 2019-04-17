@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("04/17/2019", "Added an option to send an Interview Notice.", "Casey Love, Hennepin County")
 CALL changelog_update("03/21/2019", "Updated script to align with the On Demand process. Now for walk-ins only. Removed NOMI options.", "Casey Love, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -85,7 +86,7 @@ Do
 
 Loop Until err_msg = ""
 
-BeginDialog same_day_dialog, 0, 0, 191, 290, "Enter No Show Information"
+BeginDialog same_day_dialog, 0, 0, 191, 315, "Enter No Show Information"
   Text 70, 25, 60, 15, MAXIS_case_number
   EditBox 70, 75, 90, 15, interview_date
   EditBox 70, 95, 90, 15, first_page
@@ -94,11 +95,12 @@ BeginDialog same_day_dialog, 0, 0, 191, 290, "Enter No Show Information"
   EditBox 75, 170, 95, 15, time_called
   EditBox 75, 190, 95, 15, phone_number
   CheckBox 75, 210, 90, 15, "Left Message for Client", left_vm
-  CheckBox 10, 235, 70, 15, "Potential XFS", potential_xfs
-  EditBox 70, 250, 115, 15, worker_signature
+  CheckBox 10, 235, 135, 15, "Check here if case is Potentially XFS", potential_xfs
+  CheckBox 10, 255, 140, 10, "Check here to send an Interview Notice", send_appt_notice_checkbox
+  EditBox 70, 275, 115, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 105, 270, 40, 15
-    CancelButton 145, 270, 40, 15
+    OkButton 105, 295, 40, 15
+    CancelButton 145, 295, 40, 15
   Text 10, 5, 170, 10, "Client did not respond to page for in-office interview"
   Text 15, 25, 45, 10, "Case Number"
   GroupBox 5, 60, 175, 75, "Client was Paged in the Lobby"
@@ -108,7 +110,7 @@ BeginDialog same_day_dialog, 0, 0, 191, 290, "Enter No Show Information"
   GroupBox 5, 140, 175, 90, "Phone Call to Client"
   Text 35, 175, 35, 10, "Called at:"
   Text 15, 195, 50, 15, "Phone Number"
-  Text 10, 255, 60, 10, "Worker Signature"
+  Text 10, 280, 60, 10, "Worker Signature"
   Text 5, 45, 60, 10, "Application Date:"
   EditBox 70, 40, 90, 15, application_date
 EndDialog
@@ -232,9 +234,129 @@ If grh_pend = 1 THEN programs_applied_for = programs_applied_for & "GRH, "
 If fs_pend = 1 THEN programs_applied_for = programs_applied_for & "SNAP, "
 If hc_pend = 1 THEN programs_applied_for = programs_applied_for & "HC, "
 
-If programs_applied_for = "" Then programs_applied_for = "None pending in MAXIS at this time"
-programs_applied_for = left(programs_applied_for, len(programs_applied_for) -2)
+If programs_applied_for = "" Then
+    programs_applied_for = "None pending in MAXIS at this time"
+Else
+    programs_applied_for = left(programs_applied_for, len(programs_applied_for) -2)
+End If
 
+If programs_applied_for = "None pending in MAXIS at this time" Then
+    send_appt_notice_checkbox = unchecked
+    MsgBox "An appointment notice could not be sent at this time as it appears no programs are currently pending. Update the case to PND2 status and run NOTES - Application Received to case note the pended programs and send and appointment notice."
+End If
+
+If send_appt_notice_checkbox = checked Then
+
+    'grabs CAF date, turns CAF date into string for variable
+    call autofill_editbox_from_MAXIS(HH_member_array, "PROG", application_date)
+
+    IF potential_xfs = checked THEN
+        'creates interview date for 7 calendar days from the CAF date
+        interview_date = dateadd("d", 7, application_date)
+        If interview_date <= date then interview_date = dateadd("d", 7, date)
+    ELSE
+        'creates interview date for 7 calendar days from the CAF date
+        interview_date = dateadd("d", 10, application_date)
+        If interview_date <= date then interview_date = dateadd("d", 10, date)
+
+    END IF
+
+    Call change_date_to_soonest_working_day(interview_date)
+
+    application_date = application_date & ""
+    interview_date = interview_date & ""
+
+    BeginDialog appt_dialog, 0, 0, 121, 75, "APPOINTMENT LETTER"
+      EditBox 65, 5, 50, 15, application_date
+      EditBox 65, 25, 50, 15, interview_date
+      ButtonGroup ButtonPressed
+        OkButton 10, 50, 50, 15
+        CancelButton 65, 50, 50, 15
+      Text 10, 30, 50, 10, "Interview date:"
+      Text 5, 10, 55, 10, "Application date:"
+    EndDialog
+
+
+
+     'need to handle for if we dont need an appt letter, which would be...'
+
+    Do
+    	Do
+    		err_msg = ""
+    		dialog appt_dialog
+    		cancel_confirmation
+
+            If isdate(application_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid application date."
+    		If isdate(interview_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid interview date."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+        Loop until err_msg = ""
+        call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+    LOOP UNTIL are_we_passworded_out = false
+
+    'Figuring out the last contact day
+    last_contact_day = dateadd("d", 30, application_date)
+    If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date
+
+    'This checks to make sure the case is not in background and is in the correct footer month for PND1 cases.
+    Do
+    	call navigate_to_MAXIS_screen("STAT", "SUMM")
+    	EMReadScreen month_check, 11, 24, 56 'checking for the error message when PND1 cases are not in APPL month
+    	IF left(month_check, 5) = "CASES" THEN 'this means the case can't get into stat in current month
+    		EMWriteScreen mid(month_check, 7, 2), 20, 43 'writing the correct footer month (taken from the error message)
+    		EMWriteScreen mid(month_check, 10, 2), 20, 46 'writing footer year
+    		EMWriteScreen "STAT", 16, 43
+    		EMWriteScreen "SUMM", 21, 70
+    		transmit 'This transmit should take us to STAT / SUMM now
+    	END IF
+    	'This section makes sure the case isn't locked by background, if it is it will loop and try again
+    	EMReadScreen SELF_check, 4, 2, 50
+    	If SELF_check = "SELF" then
+    		PF3
+    		Pause 2
+    	End if
+    Loop until SELF_check <> "SELF"
+
+    'Navigating to SPEC/MEMO
+    call start_a_new_spec_memo                                                   'Transmits to start the memo writing process
+
+    Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & application_date & "")
+    Call write_variable_in_SPEC_MEMO("and an interview is required to process your application.")
+    Call write_variable_in_SPEC_MEMO(" ")
+    Call write_variable_in_SPEC_MEMO("** The interview must be completed by " & interview_date & ". **")
+    Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+    Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 4:00pm Monday thru Friday.")
+    Call write_variable_in_SPEC_MEMO(" ")
+    Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
+    Call write_variable_in_SPEC_MEMO(" ")
+    Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
+    Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+    Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+    Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
+    Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+    Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+    Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
+    Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
+    Call write_variable_in_SPEC_MEMO(" ")
+    Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
+    Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
+    Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
+    Call write_variable_in_SPEC_MEMO(" ")
+    Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
+    Call write_variable_in_SPEC_MEMO("You can also request a paper copy.  Auth: 7CFR 273.2(e)(3).")
+
+    PF4
+    'msgbox "should be all memoed out"
+
+    start_a_blank_CASE_NOTE
+    Call write_variable_in_CASE_NOTE("~ Appointment letter sent in MEMO for " & interview_date & " ~")
+    Call write_variable_in_CASE_NOTE("A notice has been sent via SPEC/MEMO informing the client of needed interview.")
+    Call write_variable_in_CASE_NOTE("Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
+    Call write_variable_in_CASE_NOTE("A link to the domestic violence brochure sent to client in SPEC/MEMO as a part of interview notice.")
+    Call write_variable_in_CASE_NOTE("---")
+    Call write_variable_in_CASE_NOTE(worker_signature)
+    PF3
+
+End If
 'Starts a Case Note
 Call start_a_blank_case_note
 
