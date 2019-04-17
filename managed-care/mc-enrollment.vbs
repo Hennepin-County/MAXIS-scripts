@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/17/2019", "Resolving a BUG for METS cases enrolling for the first time, no exclusion code is defaulted.", "Casey Love, Hennepin County")
 call changelog_update("04/16/2019", "BUG when disenrolling and reenrolling in a different plan. Functionality should work to disenroll and renroll in the same run - specific to issues discovered with NT option.", "Casey Love, Hennepin County")
 call changelog_update("04/02/2019", "Initial version.", "Casey Love, Hennepin County")
 
@@ -696,7 +697,7 @@ Do
 	cancel_confirmation
 
     For person = 0 to Ubound(MMIS_clients_array, 2)
-        If left(MMIS_clients_array(current_plan, person), 3) <> "XCL" Then
+        If left(MMIS_clients_array(current_plan, person), 3) <> "XCL" AND trim(MMIS_clients_array(current_plan, person)) <> "" Then
             If MMIS_clients_array(disenrol_rsn, person) = "Select one..." Then err_msg = err_msg & vbNewLine & "* Since " & MMIS_clients_array(client_name, person) & " is currently on a health plan, please select a disenrollment reason for the " & MMIS_clients_array(current_plan, person) & " plan."
         End If
         If MMIS_clients_array(change_rsn, person) = "Select one..." Then err_msg = err_msg & vbNewLine & "* Select a reason to enroll  " & MMIS_clients_array(client_name, person) & " into a new plan."
