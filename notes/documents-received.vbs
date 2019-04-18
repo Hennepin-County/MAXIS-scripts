@@ -95,7 +95,12 @@ DO
               EditBox 75, 90, 275, 15, SCHL
               EditBox 35, 110, 315, 15, DISA
               EditBox 35, 130, 315, 15, JOBS
+              CheckBox 370, 115, 30, 10, "MOF", mof_form_checkbox
               CheckBox 370, 135, 30, 10, "EVF", evf_form_received_checkbox
+              CheckBox 370, 195, 30, 10, "Asset", asset_form_checkbox
+              Text 370, 205, 35, 10, "Statement"
+              CheckBox 370, 220, 30, 10, "AREP", arep_form_checkbox
+              'CheckBox 365, 260, 40, 10, "LTC1503", ltc_1503_form_checkbox
               EditBox 35, 150, 315, 15, BUSI
               EditBox 35, 170, 315, 15, UNEA
               EditBox 35, 190, 315, 15, ACCT
@@ -132,7 +137,7 @@ DO
               GroupBox 5, 295, 405, 75, "Additional information"
               Text 10, 95, 65, 10, "SCHL/STIN/STEC:"
               GroupBox 360, 55, 50, 235, "FORMS"
-              Text 365, 235, 35, 45, "Watch for more form options - coming soon!"
+              Text 370, 65, 35, 45, "Watch for more form options - coming soon!"
             EndDialog
 
         ElseIf LTC_case = vbYes then
@@ -144,7 +149,12 @@ DO
               EditBox 35, 65, 315, 15, FACI
               EditBox 35, 85, 135, 15, JOBS
               EditBox 215, 85, 135, 15, BUSI_RBIC
-              CheckBox 370, 90, 25, 10, "EVF", evf_form_received_checkbox
+              CheckBox 370, 90, 30, 10, "EVF", evf_form_received_checkbox
+              CheckBox 370, 130, 30, 10, "Asset", asset_form_checkbox
+              Text 370, 140, 35, 10, "Statement"
+              'CheckBox 370, 115, 30, 10, "MOF", mof_form_checkbox
+              CheckBox 370, 280, 30, 10, "AREP", arep_form_checkbox
+              CheckBox 365, 295, 40, 10, "LTC1503", ltc_1503_form_checkbox
               EditBox 35, 105, 315, 15, UNEA
               EditBox 35, 125, 315, 15, ACCT
               EditBox 35, 145, 315, 15, SECU
@@ -188,7 +198,7 @@ DO
               GroupBox 5, 330, 410, 70, "Additional information"
               Text 10, 150, 20, 10, "SECU:"
               GroupBox 360, 55, 50, 275, "FORMS"
-              Text 365, 280, 35, 45, "Watch for more form options - coming soon!"
+              Text 370, 165, 35, 45, "Watch for more form options - coming soon!"
             EndDialog
         End If
 
