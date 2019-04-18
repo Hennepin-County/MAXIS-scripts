@@ -362,7 +362,7 @@ ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one mo
 Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_G_to_L(script_num).script_name 			= "IMIG - Status"
 script_array_G_to_L(script_num).file_name				= "imig-save.vbs"
-script_array_G_to_L(script_num).description				= "Template for the SAVE system for verifying immigration status."
+script_array_G_to_L(script_num).description				= "Updates and case notes IMIG panel information."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
