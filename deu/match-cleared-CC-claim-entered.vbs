@@ -707,49 +707,49 @@ Loop until are_we_passworded_out = false
 		PF9
 	END IF
 
-	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CCOL_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-    IF IEVS_type = "BEER" THEN CALL write_variable_in_CCOL_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-    IF IEVS_type = "UBEN" THEN CALL write_variable_in_CCOL_NOTE("-----" & IEVS_month & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-    IF IEVS_type = "UNVI" THEN CALL write_variable_in_CCOL_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Discovery date", discovery_date)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Period", IEVS_period)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Active Programs", programs)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Source of income", income_source)
-    Call write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
-    Call write_variable_in_CCOL_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CCOL_note_test("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+    IF IEVS_type = "BEER" THEN CALL write_variable_in_CCOL_NOTE_test("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+    IF IEVS_type = "UBEN" THEN CALL write_variable_in_CCOL_NOTE_test("-----" & IEVS_month & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+    IF IEVS_type = "UNVI" THEN CALL write_variable_in_CCOL_NOTE_test("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Discovery date", discovery_date)
+    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Period", IEVS_period)
+    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Active Programs", programs)
+    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Source of income", income_source)
+    Call write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- -----")
+    Call write_variable_in_CCOL_NOTE_test(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
     IF OP_program_II <> "Select:" then
-    	Call write_variable_in_CCOL_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-    	Call write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
+    	Call write_variable_in_CCOL_NOTE_test(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+    	Call write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- -----")
     END IF
     IF OP_program_III <> "Select:" then
-    	Call write_variable_in_CCOL_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-    	Call write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
+    	Call write_variable_in_CCOL_NOTE_test(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+    	Call write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- -----")
     END IF
     IF OP_program_IV <> "Select:" then
-    	Call write_variable_in_CCOL_NOTE(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
-    	Call write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
+    	Call write_variable_in_CCOL_NOTE_test(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
+    	Call write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- -----")
     END IF
     IF HC_claim_number <> "" THEN
-    	Call write_variable_in_CCOL_NOTE("HC OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & HC_from & " through " & HC_to)
-    	Call write_variable_in_CCOL_NOTE("* HC Claim # " & HC_claim_number & " Amt $" & HC_Claim_amount)
-    	Call write_bullet_and_variable_in_CCOL_NOTE("Health Care responsible members", HC_resp_memb)
-    	Call write_bullet_and_variable_in_CCOL_NOTE("Total Federal Health Care amount", Fed_HC_AMT)
-    	CALL write_bullet_and_variable_in_CCOL_NOTE("Discovery date", discovery_date)
-    	CALL write_bullet_and_variable_in_CCOL_NOTE("Source of income", income_source)
-    	Call write_variable_in_CCOL_NOTE("Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-    	Call write_variable_in_CCOL_NOTE("----- ----- ----- ----- -----")
+    	Call write_variable_in_CCOL_NOTE_test("HC OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & HC_from & " through " & HC_to)
+    	Call write_variable_in_CCOL_NOTE_test("* HC Claim # " & HC_claim_number & " Amt $" & HC_Claim_amount)
+    	Call write_bullet_and_variable_in_CCOL_NOTE_test("Health Care responsible members", HC_resp_memb)
+    	Call write_bullet_and_variable_in_CCOL_NOTE_test("Total Federal Health Care amount", Fed_HC_AMT)
+    	CALL write_bullet_and_variable_in_CCOL_NOTE_test("Discovery date", discovery_date)
+    	CALL write_bullet_and_variable_in_CCOL_NOTE_test("Source of income", income_source)
+    	Call write_variable_in_CCOL_NOTE_test("Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+    	Call write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- -----")
     END IF
-    IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_NOTE("* Earned Income Disregard Allowed")
-    IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_CCOL_NOTE("* Earned Income Disregard Not Allowed")
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Fraud referral made", fraud_referral)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Income verification received", EVF_used)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Date verification received", income_rcvd_date)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Reason for overpayment", Reason_OP)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Other responsible member(s)", OT_resp_memb)
-    CALL write_variable_in_CCOL_NOTE("----- ----- ----- ----- ----- ----- -----")
-    CALL write_variable_in_CCOL_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+    IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_NOTE_test("* Earned Income Disregard Allowed")
+    IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_CCOL_NOTE_test("* Earned Income Disregard Not Allowed")
+    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Fraud referral made", fraud_referral)
+    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Income verification received", EVF_used)
+    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Date verification received", income_rcvd_date)
+    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Reason for overpayment", Reason_OP)
+    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Other responsible member(s)", OT_resp_memb)
+    CALL write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- ----- ----- -----")
+    CALL write_variable_in_CCOL_NOTE_test("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 	PF3
 	PF3
 END IF
 
-script_end_procedure_with_error_report("Overpayment case note entered please review the case to make sure the notes updated correctly." & vbcr & next_page)
+script_end_procedure_with_error_report("Overpayment case note entered and copied to CCOL, please review the case to make sure the notes updated correctly." & vbcr & next_page)
