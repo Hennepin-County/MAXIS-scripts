@@ -337,7 +337,7 @@ END IF
 denial_date = DateAdd("d", 45, date)
 '----------------------------------------------------------------------------------case note
 start_a_blank_case_note
-CALL write_variable_in_case_note("~ MIPPA/Extra Help Application received via REPT/MLAR on " & rcvd_date & " ~")
+CALL write_variable_in_case_note("~ MIPPA/Extra Help request received via REPT/MLAR on " & rcvd_date & " ~")
 CALL write_variable_in_case_note("* Case APPL'd based on the intent to apply date.  Application mailed out by the Case Assignment team on " & date)
 IF select_answer = "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Please review the MIPPArecord and case information for consistency and follow-up with any inconsistent information, as appropriate. Case is currently active on HC.")
 IF select_answer = "NO - APPL (Known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPArecord and case information applicant is known to MAXIS.")
