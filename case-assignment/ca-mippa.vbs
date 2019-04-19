@@ -69,6 +69,12 @@ IF appl_status <> "NO" THEN
  TRANSMIT
 END IF
 
+'THERE ARE NO RECORDS THAT MATCH THE CRITERIA
+EMReadScreen error_check, 75, 24, 2
+error_check = TRIM(error_check)
+IF error_check = "THERE ARE NO RECORDS THAT MATCH THE CRITERIA" THEN script_end_procedure(error_check & vbcr & "The script will now end.") '-------option to read from REPT need to checking for error msg'
+
+
 row = 11 'this part should be a for next?' can we jsut do a cursor read for now?
 DO
 	EMReadScreen MLAR_maxis_name, 21, row, 5
@@ -338,18 +344,19 @@ denial_date = DateAdd("d", 45, date)
 '----------------------------------------------------------------------------------case note
 start_a_blank_case_note
 CALL write_variable_in_case_note("~ MIPPA/Extra Help request received via REPT/MLAR on " & rcvd_date & " ~")
-CALL write_variable_in_case_note("* Case APPL'd based on the intent to apply date.  Application mailed out by the Case Assignment team on " & date)
-IF select_answer = "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Please review the MIPPArecord and case information for consistency and follow-up with any inconsistent information, as appropriate. Case is currently active on HC.")
-IF select_answer = "NO - APPL (Known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPArecord and case information applicant is known to MAXIS.")
-IF select_answer = "NO - APPL (Not known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPArecord and case information applicant is not known to MAXIS.")
+'IF select_answer <> "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Case APPL'd based on the intent to apply date.  Application mailed out by the Case Assignment team on " & date)
+IF select_answer <> "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Applicant is not active on Health Care in MAXIS.  Case APPLed based on the intent to apply date of " & appl_date & ". ")
+IF select_answer = "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate. Case is currently active on HC.")
+IF select_answer = "NO - APPL (Known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS.")
+IF select_answer = "NO - APPL (Not known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is not known to MAXIS.")
 IF select_answer = "NO - ADD A PROGRAM" THEN
-	CALL write_variable_in_case_note("* APPL'd case using the MIPPArecord and case information applicant is known to MAXIS and may be active on other programs.")
+	CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS and may be active on other programs.")
 	CALL write_variable_in_case_note ("* HC Ended on: " & end_date)
 END IF
 CALL write_variable_in_case_note ("* REPT/MLAR APPL Date: " & appl_date)
 IF select_answer <> "YES - Update MLAD" THEN
-	CALL write_variable_in_case_note ("* Application mailed & pended on: " & date)
-	CALL write_variable_in_case_note("* The case should not be denied until:" & denial_date)
+	CALL write_variable_in_case_note ("*  Application mailed out by the Case Assignment team & pended on: " & date)
+	CALL write_variable_in_case_note("* The case should not be denied until: " & denial_date & " If client is disabled, please give an additional 15 days for the application to be returned.")
 	CALL write_variable_in_case_note ("* TIKL set for " & denial_date & " to review for eligibility 45 days after the application was mailed out.")
 END IF
 IF spec_xfer_worker <> "" THEN CALL write_variable_in_case_note ("* Case transferred to basket " & spec_xfer_worker & ".")
