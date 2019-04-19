@@ -51,6 +51,20 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
+'FUNCTIONS BLOCK ===========================================================================================================
+
+function get_footer_month_from_date(footer_month_variable, footer_year_variable, date_variable)
+
+    footer_month_variable = DatePart("m", date_variable)
+    footer_month_variable = Right("00" & footer_month_variable, 2)
+
+    footer_year_variable = DatePart("yyyy", date_variable)
+    footer_year_variable = Right(footer_year_variable, 2)
+
+end function
+
+'===========================================================================================================================
 'Specific Forms Handled For
 
 'EVF HANDLING
@@ -205,11 +219,11 @@ DO
         dialog Dialog1
 		cancel_confirmation																'quits if cancel is pressed
 
+        Call validate_MAXIS_case_number(err_msg, "*")
 		If worker_signature = "" Then err_msg = err_msg & vbNewLine & "* You must sign your case note."
         If HSR_scanner_checkbox = unchecked and actions_taken = "" Then
             If evf_form_received_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* You must case note your actions taken."
         End If
-        If MAXIS_case_number = "" then err_msg = err_msg & vbNewLine & "You must have a case number to continue!"
 
         If err_msg <> "" Then MsgBox "Please Resolve to Continue:" & vbNewLine & err_msg
 
@@ -304,6 +318,224 @@ End If
 
 If arep_form_checkbox = checked Then
 
+    Call navigate_to_MAXIS_screen("STAT", "AREP")
+
+    update_AREP_panel_checkbox = checked
+    AREP_recvd_date = doc_date_stamp
+
+    EMReadScreen arep_name, 37, 4, 32
+    arep_name = replace(arep_name, "_", "")
+    If arep_name <> "" Then
+        EMReadScreen arep_street_one, 22, 5, 32
+        EMReadScreen arep_street_two, 22, 6, 32
+        EMReadScreen arep_city, 15, 7, 32
+        EMReadScreen arep_state, 2, 7, 55
+        EMReadScreen arep_zip, 5, 7, 64
+
+        arep_street_one = replace(arep_street_one, "_", "")
+        arep_street_two = replace(arep_street_two, "_", "")
+        arep_street = arep_street_one & " " & arep_street_two
+        arep_street = trim( arep_street)
+        arep_city = replace(arep_city, "_", "")
+        arep_state = replace(arep_state, "_", "")
+        arep_zip = replace(arep_zip, "_", "")
+
+        EMReadScreen arep_phone_one, 14, 8, 34
+        EMReadScreen arep_ext_one, 3, 8, 55
+        EMReadScreen arep_phone_two, 14, 9, 34
+        EMReadScreen arep_ext_two, 3, 8, 55
+
+        arep_phone_one = replace(arep_phone_one, ")", "")
+        arep_phone_one = replace(arep_phone_one, "  ", "-")
+        arep_phone_one = replace(arep_phone_one, " ", "-")
+        If arep_phone_one = "___-___-____" Then arep_phone_one = ""
+
+        arep_phone_two = replace(arep_phone_two, ")", "")
+        arep_phone_two = replace(arep_phone_two, "  ", "-")
+        arep_phone_two = replace(arep_phone_two, " ", "-")
+        If arep_phone_two = "___-___-____" Then arep_phone_two = ""
+
+        arep_ext_one = replace(arep_ext_one, "_", "")
+        arep_ext_two = replace(arep_ext_two, "_", "")
+
+        EMReadScreen forms_to_arep, 1, 10, 45
+        EMReadScreen mmis_mail_to_arep, 1, 10, 77
+
+        If forms_to_arep = "Y" Then forms_to_arep_checkbox = checked
+        If mmis_mail_to_arep = "Y" Then mmis_mail_to_arep_checkbox = checked
+
+        update_AREP_panel_checkbox = unchecked
+    End If
+
+    BeginDialog Dialog1, 0, 0, 266, 230, "AREP for Case # " & MAXIS_case_number
+      EditBox 40, 20, 215, 15, arep_name
+      EditBox 40, 40, 215, 15, arep_street
+      EditBox 40, 60, 85, 15, arep_city
+      EditBox 160, 60, 20, 15, arep_state
+      EditBox 215, 60, 40, 15, arep_zip
+      EditBox 40, 80, 50, 15, arep_phone_one
+      EditBox 110, 80, 20, 15, arep_ext_one
+      EditBox 165, 80, 50, 15, arep_phone_two
+      EditBox 235, 80, 20, 15, arep_ext_two
+      CheckBox 15, 105, 60, 10, "Forms to AREP", forms_to_arep_checkbox
+      CheckBox 90, 105, 75, 10, "MMIS Mail to AREP", mmis_mail_to_arep_checkbox
+      CheckBox 15, 120, 185, 10, "Check here to have the script update the AREP Panel", update_AREP_panel_checkbox
+      EditBox 110, 140, 50, 15, AREP_recvd_date
+      CheckBox 10, 160, 75, 10, "ID on file for AREP?", AREP_ID_check
+      CheckBox 10, 175, 215, 10, "TIKL to get new HC form 12 months after date form was signed?", TIKL_check
+      EditBox 130, 190, 65, 15, arep_signature_date
+      CheckBox 70, 215, 35, 10, "SNAP", SNAP_AREP_check
+      CheckBox 110, 215, 50, 10, "Health Care", HC_AREP_check
+      CheckBox 165, 215, 30, 10, "Cash", CASH_AREP_check
+      ButtonGroup ButtonPressed
+        OkButton 210, 190, 50, 15
+        CancelButton 210, 210, 50, 15
+      GroupBox 5, 5, 255, 130, "Panel Information"
+      Text 15, 25, 25, 10, "Name:"
+      Text 15, 45, 25, 10, "Street:"
+      Text 15, 65, 20, 10, "City:"
+      Text 135, 65, 20, 10, "State:"
+      Text 195, 65, 20, 10, "Zip:"
+      Text 10, 85, 25, 10, "Phone:"
+      Text 95, 85, 15, 10, "Ext."
+      Text 140, 85, 25, 10, "Phone:"
+      Text 220, 85, 15, 10, "Ext."
+      Text 10, 145, 95, 10, "Date of AREP Form Recieved"
+      Text 10, 195, 115, 10, "Date form was signed (MM/DD/YY):"
+      Text 10, 210, 55, 20, "Programs Authorized for:"
+    EndDialog
+
+    Do
+        Do
+        	err_msg = ""
+        	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+        	cancel_confirmation
+
+            If trim(arep_name) = "" Then err_msg = err_msg & vbNewLine & "* Enter the AREP's name."
+            If update_AREP_panel_checkbox = checked Then
+                If trim(arep_street) = "" OR trim(arep_city) = "" OR trim(arep_zip) = "" Then err_msg = err_msg & vbNewLine & "* Enter the street address of the AREP."
+                If len(arep_name) > 37 Then err_msg = err_msg & vbNewLine & "* The AREP name is too long for MAXIS."
+                If len(arep_street) > 44 Then err_msg = err_msg & vbNewLine & "* The AREP street is too long for MAXIS."
+                If len(arep_city) > 15 Then err_msg = err_msg & vbNewLine & "* The AREP City is too long for MAXIS."
+                If len(arep_state) > 2 Then err_msg = err_msg & vbNewLine & "* The AREP state is too long for MAXIS."
+                If len(arep_zip) > 5 Then err_msg = err_msg & vbNewLine & "* The AREP zip is too long for MAXIS."
+            End If
+            If IsDate(AREP_recvd_date) = False Then err_msg = err_msg & vbNewLine & "* Enter the date the form was received."
+        	IF SNAP_AREP_check <> checked AND HC_AREP_check <> checked AND CASH_AREP_check <> checked THEN err_msg = err_msg & vbNewLine &"* Select a program"
+        	IF isdate(arep_signature_date) = false THEN err_msg = err_msg & vbNewLine & "* Enter a valid date for the date the form was signed/valid from."
+        	IF (TIKL_check = checked AND arep_signature_date = "") THEN err_msg = err_msg & vbNewLine & "* You have requested the script to TIKL based on the signature date but you did not enter the signature date."
+
+        	IF err_msg <> "" THEN MsgBox "Plese resolve the following to continue:" & vbNewLine & err_msg
+        Loop until err_msg = ""
+        call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+    LOOP UNTIL are_we_passworded_out = false
+
+    'formatting programs into one variable to write in case note
+    IF SNAP_AREP_checkbox = checked THEN AREP_programs = "SNAP"
+    IF HC_AREP_checkbox = checked THEN AREP_programs = AREP_programs & ", HC"
+    IF CASH_AREP_checkbox = checked THEN AREP_programs = AREP_programs & ", CASH"
+    If left(AREP_programs, 1) = "," Then AREP_programs = right(AREP_programs, len(AREP_programs)-2)
+
+    docs_rec = docs_rec & ", AREP Form"
+
+    If update_AREP_panel_checkbox = checked Then
+
+        If IsDate(arep_signature_date) = TRUE Then
+            Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, arep_signature_date)
+        Else
+            Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, doc_date_stamp)
+        End If
+
+        Call back_to_SELF
+        Do
+            Call navigate_to_MAXIS_screen("STAT", "AREP")
+            EMReadScreen panel_check, 4, 2, 53
+        Loop until panel_check = "AREP"
+
+        EMReadScreen arep_version, 1, 2, 73
+        If arep_version = "1" Then PF9
+        If arep_version = "0" Then Call write_value_and_transmit("NN", 20, 79)
+
+        'Writing to the panel
+        EMWriteScreen "                                     ", 4, 32
+        EMWriteScreen "                      ", 5, 32
+        EMWriteScreen "                      ", 6, 32
+        EMWriteScreen "               ", 7, 32
+        EMWriteScreen "  ", 7, 55
+        EMWriteScreen "     ", 7, 64
+
+        EMWriteScreen arep_name, 4, 32
+        arep_sreet = trim(arep_street)
+        If len(arep_street) > 22 Then
+            arep_street_one = ""
+            arep_street_two = ""
+            street_array = split(arep_street, " ")
+            For each word in street_array
+                If len(arep_street_one & word) > 22 Then
+                    arep_street_two = arep_street_two & word & " "
+                Else
+                    arep_street_one = arep_street_one & word & " "
+                End If
+            Next
+        Else
+            arep_street_one = arep_street
+        End If
+        EMWriteScreen arep_street_one, 5, 32
+        EMWriteScreen arep_street_two, 6, 32
+        EMWriteScreen arep_city, 7, 32
+        EMWriteScreen arep_state, 7, 55
+        EMWriteScreen arep_zip, 7, 64
+        EMWriteScreen "N", 5, 77
+
+        If arep_phone_one <> "" Then
+            write_phone_one = replace(arep_phone_one, "(", "")
+            write_phone_one = replace(write_phone_one, ")", "")
+            write_phone_one = replace(write_phone_one, "-", "")
+            write_phone_one = trim(write_phone_one)
+
+            EMWriteScreen left(write_phone_one, 3), 8, 34
+            EMwriteScreen right(left(write_phone_one, 6), 3), 8, 40
+            EMWriteScreen right(write_phone_one, 4), 8, 44
+
+            If arep_ext_one = "" Then
+                EMWriteScreen "   ", 8, 55
+            Else
+                EMWriteScreen arep_ext_one, 8, 55
+            End If
+        End If
+
+        If arep_phone_two <> "" Then
+            write_phone_two = replace(arep_phone_two, "(", "")
+            write_phone_two = replace(write_phone_two, ")", "")
+            write_phone_two = replace(write_phone_two, "-", "")
+            write_phone_two = trim(write_phone_two)
+
+            EMWriteScreen left(write_phone_two, 3), 8, 34
+            EMwriteScreen right(left(write_phone_two, 6), 3), 8, 40
+            EMWriteScreen right(write_phone_two, 4), 8, 44
+
+            If arep_ext_two = "" Then
+                EMWriteScreen "   ", 8, 55
+            Else
+                EMWriteScreen arep_ext_two, 8, 55
+            End If
+        End If
+
+        If forms_to_arep_checkbox = checked Then EMWriteScreen "Y", 10, 45
+        If forms_to_arep_checkbox = unchecked Then EMWriteScreen "N", 10, 45
+        If mmis_mail_to_arep_checkbox = checked Then EMWriteScreen "Y", 10, 77
+        If mmis_mail_to_arep_checkbox = unchecked Then EMWriteScreen "N", 10, 77
+
+        transmit
+
+    End If
+
+    If TIKL_check = checked then
+    	call navigate_to_MAXIS_screen("dail", "writ")
+    	call create_MAXIS_friendly_date(dateadd("m", 12, arep_signature_date), 0, 5, 18)
+    	call write_variable_in_TIKL("Client's AREP release for HC is now 12 months old and no longer valid. Take appropriate action.")
+    End If
+
 End If
 
 If ltc_1503_form_checkbox = checked Then
@@ -327,7 +559,13 @@ else
 END IF
 call write_bullet_and_variable_in_case_note("Document date stamp", doc_date_stamp)
 If arep_form_checkbox = checked Then
-
+    call write_variable_in_CASE_NOTE("* AREP FORM received on " & AREP_recvd_date & ". AREP: " & arep_name)
+    If AREP_programs <> "" then call write_variable_in_CASE_NOTE("  - Programs Authorized for: " & AREP_programs)
+    If arep_signature_date <> "" Then call write_variable_in_CASE_NOTE("  - AREP valid start date: " & arep_signature_date)
+    call write_variable_in_CASE_NOTE("  - Client and AREP signed AREP form.")
+    IF AREP_ID_check = checked THEN write_variable_in_CASE_NOTE("  - AREP ID on file.")
+    IF TIKL_check = checked THEN write_variable_in_CASE_NOTE("  - TIKL'd for 12 months to get new HC AREP form.")
+    If update_AREP_panel_checkbox = checked Then write_variable_in_CASE_NOTE("  - AREP panel updated.")
 End If
 call write_bullet_and_variable_in_case_note("ADDR", ADDR)
 call write_bullet_and_variable_in_case_note("FACI", FACI)
