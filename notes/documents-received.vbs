@@ -293,7 +293,29 @@ If evf_form_received_checkbox = checked Then
     End If
 End If
 
+If mof_form_checkbox = checked Then
+
+End If
+
+
+If asset_form_checkbox = checked Then
+
+End If
+
+If arep_form_checkbox = checked Then
+
+End If
+
+If ltc_1503_form_checkbox = checked Then
+
+
+    'LTC 1503 gets it's own case note
+    ' call start_a_blank_CASE_NOTE
+
+End If
+
 If left(docs_rec, 2) = ", " Then docs_rec = right(docs_rec, len(docs_rec)-2)        'trimming the ',' off of the list of docs
+
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 'Writes a new line, then writes each additional line if there's data in the dialog's edit box (uses if/then statement to decide).
@@ -304,10 +326,16 @@ else
     Call write_variable_in_case_note("Docs Rec'd: " & docs_rec)
 END IF
 call write_bullet_and_variable_in_case_note("Document date stamp", doc_date_stamp)
+If arep_form_checkbox = checked Then
+
+End If
 call write_bullet_and_variable_in_case_note("ADDR", ADDR)
 call write_bullet_and_variable_in_case_note("FACI", FACI)
 call write_bullet_and_variable_in_case_note("SCHL/STIN/STEC", SCHL)
 call write_bullet_and_variable_in_case_note("DISA", DISA)
+If mof_form_checkbox = checked Then
+
+End If
 call write_bullet_and_variable_in_case_note("JOBS", JOBS)
 If evf_form_received_checkbox = checked Then
     call write_variable_in_CASE_NOTE("* EVF received " & date_received & ": " & EVF_status_dropdown & "*")
@@ -324,6 +352,9 @@ End If
 call write_bullet_and_variable_in_case_note("BUSI", BUSI)
 call write_bullet_and_variable_in_case_note("BUSI/RBIC", BUSI_RBIC)
 call write_bullet_and_variable_in_case_note("UNEA", UNEA)
+If asset_form_checkbox = checked Then
+
+End If
 call write_bullet_and_variable_in_case_note("ACCT", ACCT)
 call write_bullet_and_variable_in_case_note("SECU", SECU)
 call write_bullet_and_variable_in_case_note("CARS", CARS)
