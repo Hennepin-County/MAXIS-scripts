@@ -64,6 +64,48 @@ function get_footer_month_from_date(footer_month_variable, footer_year_variable,
 
 end function
 
+'This function creates the HH Member dropdown for a number of different dialogs
+function Generate_Client_List(list_for_dropdown)
+
+	memb_row = 5       'setting the row to look at the list of members on the left hand side of the panel
+
+	Call navigate_to_MAXIS_screen ("STAT", "MEMB")         'go to MEMB
+	Do                                                     'this loop transmits to each MEMB panel to read information for each member
+		EMReadScreen ref_numb, 2, memb_row, 3
+		If ref_numb = "  " Then Exit Do           'this is the end of the list of members
+		EMWriteScreen ref_numb, 20, 76            'writing the reference number in the command line to go to each MEMB panel
+		transmit
+		EMReadScreen first_name, 12, 6, 63        'reading the name on the panel
+		EMReadScreen last_name, 25, 6, 30
+		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")     'adding each client information to a string
+		memb_row = memb_row + 1                   'going to the next member
+	Loop until memb_row = 20
+
+    If memb_row = 6 Then        'If the row is only 6, then there is only one person in the HH
+        list_for_dropdown = right(client_info, len(client_info) - 1)    'taking the '~' off of the string
+    Else
+    	client_info = right(client_info, len(client_info) - 1)             'taking the left most '~' off
+    	client_list_array = split(client_info, "~")                        'making this an array
+
+    	For each person in client_list_array                               'creating the string to be added to the dialog code to fill the dropdown
+    		list_for_dropdown = list_for_dropdown & chr(9) & person
+    	Next
+    End If
+
+end function
+
+function cancel_continue_confirmation(skip_functionality)
+
+    skip_functionality = FALSE
+    If ButtonPressed = 0 then       'this is the cancel button
+        cancel_clarify = MsgBox("Do you want to stop the script entirely?" & vbNewLine & vbNewLine & "If the script is stopped no information provided so far will be updated or noted. If you choose 'No' the update for THIS FORM will be cancelled and rest of the script will continue." & vbNewLine & vbNewLine & "YES - Stop the script entirely." & vbNewLine & "NO - Do not stop the script entrirely, just cancel the entry of this form information."& vbNewLine & "CANCEL - I didn't mean to cancel at all. (Cancel my cancel)", vbQuestion + vbYesNoCancel, "Clarify Cancel")
+        If cancel_clarify = vbYes Then script_end_procedure("~PT: user pressed cancel")     'ends the script entirely
+        If cancel_clarify = vbNo Then skip_functionality = TRUE
+        'script_end_procedure text added for statistical purposes. If script was canceled prior to completion, the statistics will reflect this.
+    End if
+
+end function
+
 '===========================================================================================================================
 'Specific Forms Handled For
 
@@ -231,24 +273,26 @@ DO
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
+CALL Generate_Client_List(client_dropdown)
+
 If LTC_case = vbNo then end_msg = "Sucess! Documents received noted for case."
 If LTC_case = vbYes then end_msg = "Sucess! Documents received noted for LTC case."
 
 'EVF HANDLING =======================================================================================
 If evf_form_received_checkbox = checked Then
-    Tikl_checkbox = checked 'defaulting the TIKL checkbox to be checked initially in the dialog.
-    date_received = doc_date_stamp
+    EVF_TIKL_checkbox = checked 'defaulting the TIKL checkbox to be checked initially in the dialog.
+    evf_date_recvd = doc_date_stamp
 
     BeginDialog Dialog1, 0, 0, 291, 205, "Employment Verification Form Received"
       Text 70, 10, 60, 10, MAXIS_case_number
-      EditBox 220, 5, 60, 15, date_received
+      EditBox 220, 5, 60, 15, evf_date_recvd
       ComboBox 70, 30, 210, 15, "Select one..."+chr(9)+"Signed by Client & Completed by Employer"+chr(9)+"Signed by Client"+chr(9)+"Completed by Employer", EVF_status_dropdown
       EditBox 70, 50, 210, 15, employer
-      EditBox 70, 70, 210, 15, client
+      DropListBox 70, 75, 210, 45, "Select One..."+chr(9)+client_dropdown, evf_client
       DropListBox 75, 110, 60, 15, "Select one..."+chr(9)+"yes"+chr(9)+"no", info
       EditBox 220, 110, 60, 15, info_date
       EditBox 75, 130, 60, 15, request_info
-      CheckBox 160, 135, 105, 10, "10 day TIKL for additional info", Tikl_checkbox
+      CheckBox 160, 135, 105, 10, "10 day TIKL for additional info", EVF_TIKL_checkbox
       EditBox 70, 160, 210, 15, actions_taken
       EditBox 70, 180, 100, 15, worker_signature
       ButtonGroup ButtonPressed
@@ -272,29 +316,37 @@ If evf_form_received_checkbox = checked Then
     	Do
     		err_msg = ""
     		Dialog Dialog1       	'starts the EVF dialog
-    		cancel_confirmation 		'asks if you want to cancel and if "yes" is selected sends StopScript
+            Call cancel_continue_confirmation(skip_evf)
     		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* You need to type a valid case number."
-    		IF IsDate(date_received) = FALSE THEN err_msg = err_msg & vbCr & "* You must enter a valid date for date the EVF was received."
+    		IF IsDate(evf_date_recvd) = FALSE THEN err_msg = err_msg & vbCr & "* You must enter a valid date for date the EVF was received."
     		If EVF_status_dropdown = "Select one..." THEN err_msg = err_msg & vbCr & "* You must select the status of the EVF on the dropdown menu"		'checks that there is a date in the date received box
     		IF employer = "" THEN err_msg = err_msg & vbCr & "* You must enter the employers name."  'checks if the employer name has been entered
-    		IF client = "" THEN err_msg = err_msg & vbCr & "* You must enter the MEMB information."  'checks if the client name has been entered
+    		IF evf_client = "Select One..." THEN err_msg = err_msg & vbCr & "* You must enter the MEMB information."  'checks if the client name has been entered
     		IF info = "Select one..." THEN err_msg = err_msg & vbCr & "* You must select if additional info was requested."  'checks if completed by employer was selected
     		IF info = "yes" and IsDate(info_date) = FALSE THEN err_msg = err_msg & vbCr & "* You must enter a valid date that additional info was requested."  'checks that there is a info request date entered if the it was requested
     		IF info = "yes" and request_info = "" THEN err_msg = err_msg & vbCr & "* You must enter the method used to request additional info."		'checks that there is a method of inquiry entered if additional info was requested
     		If info = "no" and request_info <> "" then err_msg = err_msg & vbCr & "* You cannot mark additional info as 'no' and have information requested."
     		If info = "no" and info_date <> "" then err_msg = err_msg & vbCr & "* You cannot mark additional info as 'no' and have a date requested."
-    		If Tikl_checkbox = 1 and info <> "yes" then err_msg = err_msg & vbCr & "* Additional informaiton was not requested, uncheck the TIKL checkbox."
+    		If EVF_TIKL_checkbox = 1 and info <> "yes" then err_msg = err_msg & vbCr & "* Additional informaiton was not requested, uncheck the TIKL checkbox."
     		IF actions_taken = "" THEN err_msg = err_msg & vbCr & "* You must enter your actions taken."		'checks that notes were entered
     		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* You must sign your case note!" 		'checks that the case note was signed
+            If skip_evf = TRUE Then
+                evf_form_received_checkbox = unchecked
+                err_msg = ""
+                EVF_TIKL_checkbox = unchecked
+            End If
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "* Please resolve for the script to continue."
     	LOOP UNTIL err_msg = ""
     	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
     LOOP UNTIL are_we_passworded_out = false
+End If
 
-    docs_rec = docs_rec & ", EVF for M" & client
+if evf_form_received_checkbox = checked Then
+    evf_ref_numb = left(evf_client, 2)
+    docs_rec = docs_rec & ", EVF for M" & evf_ref_numb
 
     'Checks if additional info is yes and the TIKL is checked, sets a TIKL for the return of the info
-    If Tikl_checkbox = checked Then
+    If EVF_TIKL_checkbox = checked Then
     	call navigate_to_MAXIS_screen("dail", "writ")
     	call create_MAXIS_friendly_date(date, 10, 5, 18)		'The following will generate a TIKL formatted date for 10 days from now.
     	call write_variable_in_TIKL("Additional info requested after an EVF being rec'd should have returned by now. If not received, take appropriate action. (TIKL auto-generated from script)." )
@@ -308,7 +360,53 @@ If evf_form_received_checkbox = checked Then
 End If
 
 If mof_form_checkbox = checked Then
+    mof_date_recd = doc_date_stamp
 
+    BeginDialog Dialog1, 0, 0, 216, 185, "Medical Opinion Form Received for Case #" & MAXIS_case_number
+      EditBox 55, 5, 50, 15, mof_date_recd
+      CheckBox 125, 10, 85, 10, "Client signed release?", mof_clt_release_checkbox
+      DropListBox 80, 25, 130, 45, "Select One..."+chr(9)+client_dropdown, mof_hh_memb
+      EditBox 90, 45, 55, 15, last_exam_date
+      EditBox 90, 65, 55, 15, doctor_date
+      ComboBox 70, 85, 140, 45, " "+chr(9)+"Less than 30 Days"+chr(9)+"Between 30 - 45 Days"+chr(9)+"More than 45 Days"+chr(9)+"No End Date Listed", mof_time_condition_will_last
+      EditBox 85, 105, 125, 15, ability_to_work
+      EditBox 55, 125, 155, 15, mof_other_notes
+      EditBox 55, 145, 155, 15, actions_taken
+      ButtonGroup ButtonPressed
+        OkButton 105, 165, 50, 15
+        CancelButton 160, 165, 50, 15
+      Text 5, 10, 50, 10, "Date received: "
+      Text 5, 30, 70, 10, "HHLD Member name"
+      Text 5, 50, 60, 10, "Date of last exam: "
+      Text 5, 70, 80, 10, "Date doctor signed form: "
+      Text 5, 90, 60, 10, "Condition will last:"
+      Text 5, 110, 75, 10, "Client's ability to work: "
+      Text 5, 130, 40, 10, "Other notes: "
+      Text 5, 150, 45, 10, "Action taken: "
+      Text 155, 45, 50, 35, "Do not enter diagnosis in case notes per PQ #16506."
+    EndDialog
+
+    Do
+        DO
+        	Err_msg = ""
+        	Dialog Dialog1
+        	Call cancel_continue_confirmation(skip_MOF)
+            Call validate_MAXIS_case_number(err_msg, "*")
+            If mof_hh_memb = "Select One..." Then err_msg = err_ms & vbNewLine & "* Select the household member."
+            If skip_MOF= TRUE Then
+                err_msg = ""
+                mof_form_checkbox = unchecked
+            End If
+        	If err_msg <> "" Then msgbox "Please resolve the following for the script to continue:" & vbNewLine & err_msg
+        LOOP until err_msg = ""
+        Call check_for_password(are_we_passworded_out)
+    Loop until are_we_passworded_out = FALSE
+
+End If
+
+If mof_form_checkbox = checked Then
+    mof_ref_numb = left(mof_hh_memb, 2)
+    docs_rec = docs_rec & ", MOF for M" & mof_ref_numb
 End If
 
 
@@ -572,17 +670,23 @@ call write_bullet_and_variable_in_case_note("FACI", FACI)
 call write_bullet_and_variable_in_case_note("SCHL/STIN/STEC", SCHL)
 call write_bullet_and_variable_in_case_note("DISA", DISA)
 If mof_form_checkbox = checked Then
-
+    CALL write_variable_in_CASE_NOTE("* Medical Opinion Form Rec'd " & date_recd & " for M" & mof_hh_memb)
+    IF mof_clt_release_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("  - *Client signed release on MOF.*")
+    CALL write_variable_in_CASE_NOTE("  - Date of last examination: " & last_exam_date)
+    CALL write_variable_in_CASE_NOTE("  - Doctor signed form: " & doctor_date)
+    CALL write_variable_in_CASE_NOTE("  - Condition will last: " & mof_time_condition_will_last)
+    CALL write_variable_in_CASE_NOTE("  - Ability to work: " & ability_to_work)
+    CALL write_variable_in_CASE_NOTE("  - Other notes: " & mof_other_notes)
 End If
 call write_bullet_and_variable_in_case_note("JOBS", JOBS)
 If evf_form_received_checkbox = checked Then
-    call write_variable_in_CASE_NOTE("* EVF received " & date_received & ": " & EVF_status_dropdown & "*")
+    call write_variable_in_CASE_NOTE("* EVF received " & evf_date_recvd & ": " & EVF_status_dropdown & "*")
     Call write_variable_in_CASE_NOTE("  - Employer Name: " & employer)
-    Call write_variable_in_CASE_NOTE("  - EVF for HH member: " & client)
+    Call write_variable_in_CASE_NOTE("  - EVF for HH member: " & evf_ref_numb)
     'for additional information needed
     IF info = "yes" then
         Call write_variable_in_CASE_NOTE("  - Additional Info requested: " & info & " on " & info_date & " by " & request_info)
-    	If Tikl_checkbox = 1 then call write_variable_in_CASE_NOTE ("  ***TIKLed for 10 day return.***")
+    	If EVF_TIKL_checkbox = 1 then call write_variable_in_CASE_NOTE ("  ***TIKLed for 10 day return.***")
     Else
         Call write_variable_in_CASE_NOTE("  - No additional information is needed/requested.")
     END IF
