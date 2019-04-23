@@ -412,6 +412,99 @@ End If
 
 If asset_form_checkbox = checked Then
 
+    If LTC_case = vbNo then
+
+
+BeginDialog Dialog1, 0, 0, 631, 265, "Signed Personal Statement about Assest for Case #"
+  Text 10, 10, 270, 10, "Assets for SNAP/Cash are self attested and are reported on this form (DHS 6054). "
+
+  GroupBox 5, 25, 620, 65, "Bank accounts, debit accounts, CDs"
+  Text 15, 40, 25, 10, "Owner"
+  Text 110, 40, 20, 10, "Type"
+  Text 180, 40, 30, 10, "Location"
+  Text 255, 40, 30, 10, "Balance"
+  Text 305, 40, 70, 10, "Withdrawl Peanalty"
+  Text 390, 40, 45, 10, "Progream(s)"
+  Text 520, 40, 50, 10, "Joint Owner"
+  DropListBox 15, 55, 80, 45, "", account_owner
+  DropListBox 105, 55, 60, 45, "SV - Savings"+chr(9)+"CK - Checking"+chr(9)+"CD - Cert of Deposit"+chr(9)+"MM - Money market"+chr(9)+"DC - Debit Card"+chr(9)+"KO - Keogh Account"+chr(9)+"FT - Federatl Thrift SV plan"+chr(9)+"SL - Stat/Local Govt Ret"+chr(9)+"RA - Employee Ret Annuities"+chr(9)+"NP - Non-Profit Employer Ret Plan"+chr(9)+"IR - Indiv Ret Acct"+chr(9)+"RH - Roth IRA"+chr(9)+"FR - Ret Plans for Employers"+chr(9)+"CT - Corp Ret Trust "+chr(9)+"RT - Other Ret Fund"+chr(9)+"QT - Qualified Tuition (529)"+chr(9)+"CA - Coverdell SV (530)"+chr(9)+"OE - Other Educational "+chr(9)+"OT - Other", account_type
+  Text 570, 40, 50, 10, "Update panel?"
+  EditBox 180, 55, 70, 15, account_location
+  EditBox 255, 55, 50, 15, account_balance
+  DropListBox 315, 55, 35, 45, "No"+chr(9)+"Yes", account_withdraw_penalty_YN
+  CheckBox 365, 55, 30, 10, "Cash", acct_cash_checkbox
+  CheckBox 400, 55, 20, 10, "FS", acct_snap_checkbox
+  CheckBox 425, 55, 20, 10, "HC", acct_health_care_checkbox
+  CheckBox 455, 55, 25, 10, "GRH", acct_grh_checkbox
+  CheckBox 490, 55, 25, 10, "IV-E", acct_ive_checkbox
+  DropListBox 520, 55, 35, 45, "No"+chr(9)+"Yes", account_joint_owner_YN
+  CheckBox 580, 55, 30, 10, "YES", update_panel
+  ButtonGroup ButtonPressed
+    PushButton 530, 75, 85, 10, "ADD another Account", add_another_account
+
+  GroupBox 5, 100, 620, 65, "Stocks, Bods, Pensions, Retirement Accounts"
+  Text 15, 115, 25, 10, "Owner"
+  Text 110, 115, 20, 10, "Type"
+  Text 180, 115, 30, 10, "Location"
+  Text 255, 115, 50, 10, "Balance (CSV)"
+  Text 305, 115, 70, 10, "Withdrawl Peanalty"
+  Text 390, 115, 45, 10, "Progream(s)"
+  Text 520, 115, 50, 10, "Joint Owner"
+  DropListBox 15, 130, 80, 45, "", security_owner
+  DropListBox 105, 130, 60, 45, "SV - Savings"+chr(9)+"CK - Checking"+chr(9)+"CD - Cert of Deposit"+chr(9)+"MM - Money market"+chr(9)+"DC - Debit Card"+chr(9)+"KO - Keogh Account"+chr(9)+"FT - Federatl Thrift SV plan"+chr(9)+"SL - Stat/Local Govt Ret"+chr(9)+"RA - Employee Ret Annuities"+chr(9)+"NP - Non-Profit Employer Ret Plan"+chr(9)+"IR - Indiv Ret Acct"+chr(9)+"RH - Roth IRA"+chr(9)+"FR - Ret Plans for Employers"+chr(9)+"CT - Corp Ret Trust "+chr(9)+"RT - Other Ret Fund"+chr(9)+"QT - Qualified Tuition (529)"+chr(9)+"CA - Coverdell SV (530)"+chr(9)+"OE - Other Educational "+chr(9)+"OT - Other", security_type
+  Text 570, 115, 50, 10, "Update panel?"
+  EditBox 180, 130, 70, 15, security_name
+  EditBox 255, 130, 50, 15, security_balance
+  DropListBox 315, 130, 35, 45, "No"+chr(9)+"Yes", security_withdraw_penalty
+  CheckBox 365, 130, 30, 10, "Cash", secu_cash_checkbox
+  CheckBox 400, 130, 20, 10, "FS", secu_snap_checkbox
+  CheckBox 425, 130, 20, 10, "HC", secu_health_care_checkbox
+  CheckBox 455, 130, 25, 10, "GRH", secu_grh_checkbox
+  CheckBox 490, 130, 25, 10, "IV-E", secu_ive_checkbox
+  DropListBox 520, 130, 35, 45, "No"+chr(9)+"Yes", security_joint_owner_YN
+  CheckBox 580, 130, 30, 10, "YES", secu_update_panel
+  ButtonGroup ButtonPressed
+    PushButton 530, 150, 85, 10, "ADD Another Security", add_another_security
+
+  GroupBox 5, 175, 620, 65, "Vehicles"
+  Text 15, 190, 25, 10, "Owner"
+  DropListBox 15, 205, 80, 45, "", vehicle_owner_name
+  Text 155, 190, 25, 10, "Make"
+  Text 215, 190, 25, 10, "Model"
+  ComboBox 155, 205, 50, 45, "", vehicle_make
+  EditBox 215, 205, 80, 15, vehicle_model
+  Text 300, 190, 25, 10, "Year"
+  EditBox 300, 205, 30, 15, vehicle_year
+  Text 105, 190, 20, 10, "Type"
+  DropListBox 105, 205, 45, 45, "", vehicle_type
+  Text 340, 190, 90, 10, "Trade-In Value and Source"
+  EditBox 340, 205, 45, 15, vehicle_trade_in_value
+  DropListBox 390, 205, 45, 45, "", vehicle_value_source
+  Text 440, 185, 30, 15, "Owed Amount"
+  DropListBox 440, 205, 25, 45, "No"+chr(9)+"Yes", vehicle_owed_YN
+  DropListBox 470, 205, 25, 45, "No"+chr(9)+"Yes", joint_onwer_YN
+  Text 470, 185, 20, 15, "Joint Owner"
+  Text 505, 190, 15, 10,  "Use"
+  DropListBox 505, 205, 75, 45, "", vehicle_use
+  Text 590. 185. 25. 20. "HC Clt Benefit"
+  DropListBox 590, 205, 25, 45, "No"+chr(9)+"Yes", hc_clt_benefit_YN
+  ButtonGroup ButtonPressed
+    PushButton 530, 225, 85, 10, "ADD Another Vehicle", add_another_vehicle
+
+  Text 10, 250, 40, 10, "Signed by:"
+  ComboBox 50, 245, 105, 45, "", signed_by_one
+  ComboBox 165, 245, 105, 45, "", signed_by_two
+  ComboBox 280, 245, 105, 45, "", signed_by_three
+  ButtonGroup ButtonPressed
+    OkButton 525, 245, 50, 15
+    CancelButton 575, 245, 50, 15
+EndDialog
+
+
+    Else
+
+    End If
+
 End If
 
 If arep_form_checkbox = checked Then
