@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/23/2019", "Removed MAXIS TO METS MIGRATION script. Added HEALTH CARE TRANSITION script.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/26/2019", "Retired 'NOTES - MNsure - Documents requested' script. Please use NOTES - VERIFICATIONS NEEDED.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/13/2019", "Two scripts have been removed. Explanation of Income Budgeted and EVF Received are no longer available. Use Documents Received in place of EVF Received. ACTIONS - Earned Income whould be used in place of Explanation of Income Budgeted.", "Casey Love, Hennepin County")
 call changelog_update("07/25/2018", "Removed Good Cause Scripts, now located in ADMIN.", "MiKayla Handley, Hennepin County")
@@ -346,6 +347,13 @@ script_array_G_to_L(script_num).description				= "Template for HCAPPs.*"
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
 Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_G_to_L(script_num).script_name 			= "Health Care Transition"
+script_array_G_to_L(script_num).file_name				= "health-care-transition.vbs"
+script_array_G_to_L(script_num).description				= "Template for the METS to MAXIS and MAXIS to METS transition process."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
+Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_G_to_L(script_num).script_name 			= "HRF"
 script_array_G_to_L(script_num).file_name				= "hrf.vbs"
 script_array_G_to_L(script_num).description				= "Template for HRFs (for GRH, use the ''GRH - HRF'' script).*"
@@ -395,13 +403,6 @@ script_array_G_to_L(script_num).description				= "Template for case noting a cli
 '-------------------------------------------------------------------------------------------------------------------------M through Q
 'Resetting the variable
 script_num = 0											'establishing count as 0
-ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
-Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_M_to_Q(script_num).script_name 			= "MAXIS to METS Migration"
-script_array_M_to_Q(script_num).file_name				= "maxis-to-mets-migration.vbs"
-script_array_M_to_Q(script_num).description				= "Case note and SPEC/MEMO for DHS-identified MAXIS to METS Migration cases."
-
-script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
 Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_M_to_Q(script_num).script_name 			= "Medical Opinion Form Received"
