@@ -309,7 +309,6 @@ If EGA_screening_check = 1 then
     If HH_members = "19" then monthly_standard = "15345"
     If HH_members = "20" then monthly_standard = "16082"
     
-    monthly_standard = monthly_standard - 65    'This for the $65 income disregard 
     seventy_percent_income = net_income * .70   'This is to determine if shel costs exceed 70% of the HH's income 
 
     'determining if client is potentially elig for EMER or not'
@@ -321,7 +320,7 @@ If EGA_screening_check = 1 then
         If crisis = "no crisis given" then screening_determination = screening_determination & vbNewLine & "* No crisis meeting program requirements."
         If abs(seventy_percent_income) < abs(shelter_costs) then screening_determination = screening_determination & vbNewLine & "* The HH's shelter costs are more than 70% of the HH's net income."
 	    IF meets_residency = "No" then screening_determination = screening_determination & vbNewLine & "* No one in the household has met 30 day residency requirements."
-        If abs(net_income) > abs(monthly_standard)then screening_determination = screening_determination & vbNewLine & "* Net income exceeds program guidelines."
+        If abs(net_income) > abs(monthly_standard) then screening_determination = screening_determination & vbNewLine & "* Net income exceeds program guidelines."
         IF net_income = "0" then screening_determination = screening_determination & vbNewLine & "* Household does not have current/ongoing income."
         If EMER_last_used_dates <> "n/a" then screening_determination = screening_determination & vbNewLine & "* Emergency funds were used within the last year from the eligibility period."
     End if 
