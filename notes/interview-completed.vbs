@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/30/2019", "Updated CAF type options to 'Application', 'Recertification' and 'Addendum'", "Ilse Ferris, Hennepin County")
 call changelog_update("03/12/2018", "Added Outlook reminder for the 1st of the next month if case is unable to be updated for recerts due to renewal month being CM plus one.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/02/2018", "Interview header updated for on demand waiver handling.", "MiKayla Handley, Hennepin County")
 call changelog_update("09/25/2017", "Updated to allow for cases that do not have CAF date listed on STAT/REVW.", "Ilse Ferris, Hennepin County")
@@ -62,7 +63,7 @@ BeginDialog case_number_dialog, 0, 0, 181, 120, "Case number dialog"
   CheckBox 50, 60, 30, 10, "HC", HC_checkbox
   CheckBox 90, 60, 35, 10, "SNAP", SNAP_checkbox
   CheckBox 135, 60, 35, 10, "EMER", EMER_checkbox
-  DropListBox 70, 80, 75, 15, "Select One..."+chr(9)+"Intake"+chr(9)+"Reapplication"+chr(9)+"Recertification"+chr(9)+"Add program"+chr(9)+"Addendum", CAF_type
+  DropListBox 70, 80, 75, 15, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification"+chr(9)+"Addendum", CAF_type
   ButtonGroup ButtonPressed
     OkButton 35, 100, 50, 15
     CancelButton 95, 100, 50, 15
