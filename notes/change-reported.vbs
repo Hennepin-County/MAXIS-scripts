@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/23/2019", "Updated other notes field to update to case note. Moved initial informational message box to intial dialog box.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/16/2019", "Updated dialog boxes to prepare for enhancements to script.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -52,76 +53,63 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 'Connecting to BlueZone
 EMConnect ""
-
-'Finds the case number
-Call MAXIS_case_number_finder(MAXIS_case_number)
-
+Call MAXIS_case_number_finder(MAXIS_case_number) 'Finds the case number
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Initial Dialog Box
-BeginDialog change_reported_dialog, 0, 0, 136, 105, "Change Reported"
-  EditBox 70, 5, 35, 15, MAXIS_case_number
-  EditBox 70, 25, 15, 15, MAXIS_footer_month
-  EditBox 90, 25, 15, 15, MAXIS_footer_year
-  DropListBox 5, 65, 125, 15, "Select One:"+chr(9)+"Baby Born"+chr(9)+"HHLD Comp Change", nature_change
+BeginDialog change_reported_dialog, 0, 0, 161, 150, "Change Reported"
+  EditBox 90, 55, 35, 15, MAXIS_case_number
+  EditBox 90, 75, 15, 15, MAXIS_footer_month
+  EditBox 110, 75, 15, 15, MAXIS_footer_year
+  DropListBox 20, 110, 125, 15, "Select One:"+chr(9)+"Baby Born"+chr(9)+"HH Comp Change", nature_change
   ButtonGroup ButtonPressed
-    OkButton 45, 85, 40, 15
-    CancelButton 90, 85, 40, 15
-  Text 5, 10, 50, 10, "Case number:"
-  Text 5, 30, 65, 10, "Footer month/year: "
-  Text 5, 50, 130, 10, "Please select the nature of the change."
+    OkButton 60, 130, 40, 15
+    CancelButton 105, 130, 40, 15
+  Text 30, 60, 50, 10, "Case number:"
+  Text 20, 80, 65, 10, "Footer month/year: "
+  Text 20, 95, 130, 10, "Please select the nature of the change."
+  Text 10, 20, 140, 25, "This script currently only covers HH Comp Changes or a Baby Born. Other reported changes will be added  in the future."
+  GroupBox 5, 5, 145, 45, "Change Reported script information"
 EndDialog
 
-BeginDialog HHLD_Comp_Change_Dialog, 0, 0, 161, 200, "Household Comp Change"
+BeginDialog HH_Comp_Change_Dialog, 0, 0, 161, 200, "Household Comp Change"
   EditBox 80, 5, 20, 15, HH_member
-  EditBox 80, 25, 35, 15, date_reported
-  EditBox 80, 45, 35, 15, effective_date
+  EditBox 80, 25, 50, 15, date_reported
+  EditBox 80, 45, 50, 15, effective_date
   CheckBox 15, 75, 90, 10, "Verifications sent to ECF", Verif_checkbox
   CheckBox 15, 85, 80, 10, "Updated STAT panels", STAT_checkbox
   CheckBox 15, 95, 80, 10, "Approved new results", APP_checkbox
   CheckBox 15, 105, 80, 10, "Notified other agency", notify_checkbox
-  EditBox 50, 125, 100, 15, additional_notes
+  EditBox 50, 125, 100, 15, other_notes
   EditBox 50, 145, 100, 15, worker_signature
   CheckBox 5, 165, 125, 10, "Check if the change is temporary", temporary_change_checkbox
   ButtonGroup ButtonPressed
     OkButton 65, 180, 40, 15
     CancelButton 110, 180, 40, 15
   Text 5, 10, 75, 10, "Member # HH change:"
-  Text 30, 50, 50, 10, "Effective date:"
+  Text 25, 50, 50, 10, "Effective date:"
   Text 5, 130, 45, 10, "Other Notes:"
   GroupBox 5, 65, 145, 55, "Action Taken"
-  Text 30, 30, 50, 10, "Date reported:"
+  Text 25, 30, 50, 10, "Date reported:"
   Text 5, 150, 40, 10, "Worker Sig:"
 EndDialog
 
-
-
-'Finds the benefit month
-EMReadScreen on_SELF, 4, 2, 50
-IF on_SELF = "SELF" THEN
-	CALL find_variable("Benefit Period (MM YY): ", MAXIS_footer_month, 2)
-	IF MAXIS_footer_month <> "" THEN CALL find_variable("Benefit Period (MM YY): " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
-ELSE
-	CALL find_variable("Month: ", MAXIS_footer_month, 2)
-	IF MAXIS_footer_month <> "" THEN CALL find_variable("Month: " & MAXIS_footer_month & " ", MAXIS_footer_year, 2)
-END IF
-
-
 'Info to the user of what this script currently covers
-MsgBox "This script currently only covers if there is a HHLD Comp Change or a Baby Born. Other reported changes will be covered here in the future."
-
-check_for_maxis(False)
-
-DO
-	err_msg = ""
-	DIALOG change_reported_dialog
-		IF ButtonPressed = 0 THEN stopscript
-		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
-		IF nature_change = "Select One:" THEN err_msg = err_msg & vbCr & "* Please select the type of change reported."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-LOOP UNTIL err_msg = ""
+Do 
+    Do
+	    err_msg = ""
+	    DIALOG change_reported_dialog
+	    IF ButtonPressed = 0 THEN stopscript
+	    IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
+	    IF nature_change = "Select One:" THEN err_msg = err_msg & vbCr & "* Please select the type of change reported."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'this creates the client array for baby_born_dialog dropdown list
 CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+
 DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
 	EMReadscreen ref_nbr, 2, 4, 33
 	EMReadscreen last_name_array, 25, 6, 30								'took out clients last name apparently may be too much characters within the form restrictions.
@@ -137,6 +125,7 @@ DO								'reads the reference number, last name, first name, and then puts it i
 	transmit
 	Emreadscreen edit_check, 7, 24, 2
 LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+
 client_array = TRIM(client_array)
 test_array = split(client_array, "|")
 total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
@@ -155,6 +144,7 @@ FOR i = 0 to total_clients
 		END IF
 	END IF
 NEXT
+
 'removes all of the first 'chr(9)'
 HH_member_array_dialog = Right(HH_member_array, len(HH_member_array) - total_clients)
 
@@ -190,49 +180,41 @@ BeginDialog baby_born_dialog, 0, 0, 186, 265, "BABY BORN"
   GroupBox 5, 65, 175, 50, "Mother's Information"
 EndDialog
 
-
 IF nature_change = "Baby Born" THEN
-
-'Do loop for Baby Born Dialogbox
-DO
-	DO
-		err_msg = ""
-		DIALOG Baby_Born_Dialog
-		cancel_confirmation
-		IF mothers_name = "Select One:" THEN err_msg = err_msg & vbNewLine & "You must choose newborn's mother"
-		IF babys_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter the babys name"
-		IF date_of_birth = "" THEN err_msg = err_msg & vbNewLine &  "You must enter a birth date"
-		If parent_in_household = "Select One:" then err_msg = err_msg & vbNewLine &  "You must answer 'Yes' or 'No' if father is listed in the household."
-		If parent_in_household = "Yes" and fathers_name = "" then err_msg = err_msg & vbNewLine &  "You must enter Father's name, since he is listed in household."
-		IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
-	Loop Until err_msg = ""
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
-
+    'Do loop for Baby Born Dialogbox
+    DO
+    	DO
+    		err_msg = ""
+    		DIALOG Baby_Born_Dialog
+    		cancel_confirmation
+    		IF mothers_name = "Select One:" THEN err_msg = err_msg & vbNewLine & "You must choose newborn's mother"
+    		IF babys_name = "" THEN err_msg = err_msg & vbNewLine &  "You must enter the babys name"
+    		IF date_of_birth = "" THEN err_msg = err_msg & vbNewLine &  "You must enter a birth date"
+    		If parent_in_household = "Select One:" then err_msg = err_msg & vbNewLine &  "You must answer 'Yes' or 'No' if father is listed in the household."
+    		If parent_in_household = "Yes" and fathers_name = "" then err_msg = err_msg & vbNewLine &  "You must enter Father's name, since he is listed in household."
+    		IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
+    	Loop Until err_msg = ""
+    	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+    LOOP UNTIL are_we_passworded_out = false
 END IF
 
-IF nature_change = "HHLD Comp Change" THEN
-
-'Do loop for HHLD Comp Change Dialogbox
-DO
-	DO
-		err_msg = ""
-		DIALOG HHLD_Comp_Change_Dialog
-		cancel_confirmation
-		IF HH_Member = "" THEN err_msg = err_msg & vbNewLine & "You must enter a HH Member"
-		IF date_reported = "" THEN err_msg = err_msg & vbNewLine & "You must enter date reported"
-		IF effective_date = "" THEN err_msg = err_msg & vbNewLine & "You must enter effective date"
-		IF notify_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise in other notes the name of the agencyt notified"
-		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "Please sign your note"
-		IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
-	LOOP UNTIL err_msg = ""
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
+IF nature_change = "HH Comp Change" THEN
+    'Do loop for HH Comp Change Dialogbox
+    DO
+    	DO
+    		err_msg = ""
+    		DIALOG HH_Comp_Change_Dialog
+    		cancel_confirmation
+    		IF HH_Member = "" THEN err_msg = err_msg & vbNewLine & "You must enter a HH Member"
+    		IF date_reported = "" THEN err_msg = err_msg & vbNewLine & "You must enter date reported"
+    		IF effective_date = "" THEN err_msg = err_msg & vbNewLine & "You must enter effective date"
+    		IF notify_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Enter the name of the agency notified in the 'other notes' section."
+    		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "Please sign your note"
+    		IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
+    	LOOP UNTIL err_msg = ""
+    	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+    LOOP UNTIL are_we_passworded_out = false
 END IF
-
-
-'Checks MAXIS for password prompt
-CALL check_for_MAXIS(false)
 
 actions_taken = ""
 IF Verif_checkbox = CHECKED THEN actions_taken = actions_taken & "Verifications sent to ECF,"
@@ -263,14 +245,14 @@ IF nature_change = "Baby Born" THEN
 	CALL write_bullet_and_variable_in_Case_Note("Other Notes", other_notes)
 END IF
 
-'writes case note for HHLD Comp Change
-IF nature_change = "HHLD Comp Change" THEN
+'writes case note for HH Comp Change
+IF nature_change = "HH Comp Change" THEN
 	CALL write_variable_in_case_note("--CHANGE REPORTED - HH Comp Change--")
 	CALL write_bullet_and_variable_in_Case_Note("Unit member HH Member", HH_Member)
 	CALL write_bullet_and_variable_in_Case_Note("Date Reported/Addendum", date_reported)
 	CALL write_bullet_and_variable_in_Case_Note("Date Effective", effective_date)
 	CALL write_bullet_and_variable_in_Case_Note("Actions Taken", actions_taken)
-	CALL write_bullet_and_variable_in_Case_Note("Additional Notes", other_notes)
+	CALL write_bullet_and_variable_in_Case_Note("Other notes", other_notes)
 	'case notes if the change is temporary
 	IF Temporary_Change_Checkbox = CHECKED THEN CALL write_variable_in_Case_Note("***Change is temporary***")
 	IF Temporary_Change_Checkbox = UNCHECKED THEN CALL write_variable_in_Case_Note("***Change is NOT temporary***")
