@@ -107,6 +107,47 @@ function cancel_continue_confirmation(skip_functionality)
 end function
 
 '===========================================================================================================================
+
+'DECLARATIONS ==============================================================================================================
+
+Dim ASSETS_ARRAY()
+ReDim ASSETS_ARRAY(update_panel, 0)
+
+Const ast_panel         = 0
+Const ast_owner         = 1
+Const ast_ref_nbr       = 2
+Const ast_instance      = 3
+Const ast_type          = 4
+Const ast_balance       = 5
+Const ast_verif         = 6
+Const ast_number        = 7
+Const ast_wthdr_YN      = 8
+Const ast_wdrw_penlty   = 9
+Const ast_wthdr_verif   = 10
+Const ast_jnt_owner_YN  = 11
+Const ast_own_rtio      = 12
+Const ast_othr_ownr     = 13
+Const ast_owner_signed  = 14
+Const apply_to_CASH     = 15
+Const apply_to_SNAP     = 16
+Const apply_to_HC       = 17
+Const apply_to_GRH      = 18
+Const apply_to_IVE      = 19
+Const ast_location      = 20
+Const ast_model         = 21
+Const ast_make          = 22
+Const ast_year          = 23
+Const ast_ast_trd_in    = 24
+Const ast_loan_value    = 25
+Const ast_value_srce    = 26
+Const ast_amt_owed      = 27
+Const ast_ast_owe_verif = 28
+Const ast_owed_date     = 29
+Const ast_hc_ben        = 30
+
+Const update_panel      = 31
+
+'===========================================================================================================================
 'Specific Forms Handled For
 
 'EVF HANDLING
@@ -412,9 +453,12 @@ End If
 
 If asset_form_checkbox = checked Then
 
+    Call navigate_to_MAXIS_screen("STAT", "ACCT")
+
+
     If LTC_case = vbNo then
 
-
+dlg_len = 265
 BeginDialog Dialog1, 0, 0, 631, 265, "Signed Personal Statement about Assest for Case #"
   Text 10, 10, 270, 10, "Assets for SNAP/Cash are self attested and are reported on this form (DHS 6054). "
 
@@ -468,26 +512,32 @@ BeginDialog Dialog1, 0, 0, 631, 265, "Signed Personal Statement about Assest for
 
   GroupBox 5, 175, 620, 65, "Vehicles"
   Text 15, 190, 25, 10, "Owner"
-  DropListBox 15, 205, 80, 45, "", vehicle_owner_name
   Text 155, 190, 25, 10, "Make"
-  Text 215, 190, 25, 10, "Model"
-  ComboBox 155, 205, 50, 45, "", vehicle_make
-  EditBox 215, 205, 80, 15, vehicle_model
-  Text 300, 190, 25, 10, "Year"
-  EditBox 300, 205, 30, 15, vehicle_year
+  Text 210, 190, 25, 10, "Model"
+  Text 280, 190, 25, 10, "Year"
   Text 105, 190, 20, 10, "Type"
-  DropListBox 105, 205, 45, 45, "", vehicle_type
-  Text 340, 190, 90, 10, "Trade-In Value and Source"
-  EditBox 340, 205, 45, 15, vehicle_trade_in_value
-  DropListBox 390, 205, 45, 45, "", vehicle_value_source
-  Text 440, 185, 30, 15, "Owed Amount"
-  DropListBox 440, 205, 25, 45, "No"+chr(9)+"Yes", vehicle_owed_YN
-  DropListBox 470, 205, 25, 45, "No"+chr(9)+"Yes", joint_onwer_YN
-  Text 470, 185, 20, 15, "Joint Owner"
-  Text 505, 190, 15, 10,  "Use"
-  DropListBox 505, 205, 75, 45, "", vehicle_use
-  Text 590. 185. 25. 20. "HC Clt Benefit"
-  DropListBox 590, 205, 25, 45, "No"+chr(9)+"Yes", hc_clt_benefit_YN
+  Text 315, 190, 90, 10, "Trade-In Value and Source"
+  Text 415, 185, 30, 15, "Owed Amount"
+  Text 445, 185, 20, 15, "Joint Owner"
+  Text 475, 190, 15, 10, "Use"
+  Text 555, 185, 25, 15, "HC Clt Benefit"
+  Text 590, 185, 25, 15, "Update panel?"
+  DropListBox 15, 205, 80, 45, "", vehicle_owner
+  ComboBox 155, 205, 50, 45," "+chr(9)+"Acura"+chr(9)+"Audi"+chr(9)+"BMW"+chr(9)+"Buick"+chr(9)+"Cadillac"+chr(9)+"Chevrolet"+chr(9)+"Chrysler"+chr(9)+"Dodge"+chr(9)+"Ford"+chr(9)+_
+                                       "GMC"+chr(9)+"Honda"+chr(9)+"Hummer"+chr(9)+"Hyundai"+chr(9)+"Isuzu"+chr(9)+"Jeep"+chr(9)+"Kia"+chr(9)+"Lexus"+chr(9)+"Lincoln"+chr(9)+"Mazda"+chr(9)+_
+                                       "Mercury"+chr(9)+"Mitsubishi"+chr(9)+"Nissan"+chr(9)+"Oldsmobile"+chr(9)+"Plymouth"+chr(9)+"Pontiac"+chr(9)+"Saturn"+chr(9)+"Subaru"+chr(9)+"Suzuki"+chr(9)+_
+                                       "Toyota"+chr(9)+"Volkswagen"+chr(9)+"Volvo", vehicle_make
+  EditBox 210, 205, 65, 15, vehicle_model
+  EditBox 280, 205, 30, 15, vehicle_year
+  DropListBox 105, 205, 45, 45, "Select ..."+chr(9)+"Car - 1"+chr(9)+"Truck - 2"+chr(9)+"Van - 3"+chr(9)+"Camper - 4"+chr(9)+"Motorcycle - 5"+chr(9)+"Trailer - 6"+chr(9)+"Other - 7", vehicle_type
+  EditBox 315, 205, 45, 15, vehicle_trade_in_value
+  DropListBox 365, 205, 45, 45, "Select ..."+chr(9)+"NADA - 1"+chr(9)+"Appraisal - 2"+chr(9)+"Clt Stmt - 3"+chr(9)+"Other - 4", vehicle_value_source
+  DropListBox 415, 205, 25, 45, "No"+chr(9)+"Yes", vehicle_owed_YN
+  DropListBox 445, 205, 25, 45, "No"+chr(9)+"Yes", joint_onwer_YN
+  DropListBox 475, 205, 75, 45, "Select ..."+chr(9)+"Primary - 1"+chr(9)+"Emp/Trgn Trans - 2"+chr(9)+"Disa Trans - 3"+chr(9)+"Inc Productin - 4"+chr(9)+"Used as Home - 5"+chr(9)+"Unlicensed - 7"+chr(9)+"Other Count - 8"+chr(9)+"Unavailable - 9"+chr(9)+"Long Dist Emp - 0"+chr(9)+"Carry fuel/water - A", vehicle_use
+  DropListBox 555, 205, 25, 45, "No"+chr(9)+"Yes", hc_clt_benefit_YN  ButtonGroup ButtonPressed
+  CheckBox 590, 205, 25, 10, "YES", cars_update_panel
+
   ButtonGroup ButtonPressed
     PushButton 530, 225, 85, 10, "ADD Another Vehicle", add_another_vehicle
 
