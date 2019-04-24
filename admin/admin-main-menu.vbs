@@ -18,7 +18,7 @@ start_time = timer
 'Mandora	WFM207
 'Melissa F.	WFG492
 'Melissa M	WFP803
-'Molly  	WFX490 
+'Molly  	WFX490
 
 'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
 'This is used in arrays that specify functionality to specific workers
@@ -137,6 +137,14 @@ Set script_array_admin_main(script_num) = new script
 script_array_admin_main(script_num).script_name 		= "CS Good Cause "											'Script name
 script_array_admin_main(script_num).file_name 			= "cs-good cause.vbs"										'Script URL
 script_array_admin_main(script_num).description 		= "Completes updates to ABPS and case notes actions taken."
+
+script_num = script_num + 1
+ReDim Preserve script_array_admin_main(script_num)
+Set script_array_admin_main(script_num) = new script
+script_array_admin_main(script_num).script_name 		= "DAIL processing"											'Script name
+script_array_admin_main(script_num).file_name 			= "dail-catch-all.vbs"										'Script URL
+script_array_admin_main(script_num).description 		= "Assists with case noting and deleting DAIL processing."
+
 
 script_num = script_num + 1
 ReDim Preserve script_array_admin_main(script_num)
@@ -376,17 +384,17 @@ show_BZ_button = FALSE
 'Displays the dialog
 Do
     'BZST scripts menu authorization
-    If user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "WFS395" OR user_ID_for_validation = "CALO001" OR user_ID_for_validation = "WFX901" OR user_ID_for_validation = "WFU851" then 
+    If user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "WFS395" OR user_ID_for_validation = "CALO001" OR user_ID_for_validation = "WFX901" OR user_ID_for_validation = "WFU851" then
         show_BZ_button = TRUE
-        show_QI_button = True 
-    End if 
-    'QI scripts menu authorization    
+        show_QI_button = True
+    End if
+    'QI scripts menu authorization
     If user_ID_for_validation = "WFI021" OR user_ID_for_validation = "WFU161" OR user_ID_for_validation = "WF7638" OR user_ID_for_validation = "WFP106" OR user_ID_for_validation = "WFQ898" OR user_ID_for_validation = "WFK093" OR _
     user_ID_for_validation = "WF1875" OR user_ID_for_validation = "WFM207" OR user_ID_for_validation = "WFG492" OR user_ID_for_validation = "WFP803" OR user_ID_for_validation = "WFX490" then show_QI_button = TRUE
-        
+
 	If ButtonPressed = "" or ButtonPressed = admin_main_button then
         declare_admin_menu_dialog(script_array_admin_main)
-	elseif ButtonPressed = QI_button then        
+	elseif ButtonPressed = QI_button then
         If show_QI_button = True then declare_admin_menu_dialog(script_array_QI_list)
     elseif ButtonPressed = BZ_button then
         If show_BZ_button = True then declare_admin_menu_dialog(script_array_BZ_list)
