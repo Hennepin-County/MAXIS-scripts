@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("04/24/2019", "Added wording to the Confirm Budget Dialog that explains the functionality of the script. The script will return to the enter pay dialog if the budgets are not indicated as correct on the confirm budget dialog. This functionality is not new, it was built to go back when the budget is not confirmed.", "Casey Love, Hennepin County")
 Call changelog_update("03/26/2019", "Fixed errors when pay is twice monthly. Added better handling for reading the employer name.", "Casey Love, Hennepin County")
 call changelog_update("03/05/2019", "Initial version.", "Casey Love, Hennepin County")
 
@@ -2021,7 +2022,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                         If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "3 - Every Other Week" Then word_for_freq = "biweekly"
                         If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "4 - Every Week" Then word_for_freq = "weekly"
 
-                        dlg_len = 35        'starting with this dialog
+                        dlg_len = 50        'starting with this dialog
                         'FUTURE FUNCTIONALITY - maybe we add some information that summarizes what was entered on ENTER PAY Dialog - but we might not have reoom
 
                         If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked Then       'resizing the dialog and the SNAP Groupbox if income applies to SNAP
@@ -2172,7 +2173,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 
                               if list_pos < 3 Then list_pos = 3
                               bottom_of_checks = y_pos + (list_pos * 10)
-                              y_pos = bottom_of_checks + 10
+                              y_pos = bottom_of_checks + 15
 
                           Else
                             confirm_checks_checkbox = checked       'defaulting to this if not Cash
@@ -2242,6 +2243,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                           End If
                                       next
                                   next
+                                  if list_pos < 3 Then list_pos = 3
                                   y_pos = y_pos + (list_pos * 10) + 10
                               ElseIf EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_estimate Then
                                   Text 10, y_pos, 150, 10, "Income Estimate Enter on GRH PIC"
@@ -2253,7 +2255,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                       Text 20, (list_pos * 10) + y_pos + 30, 90, 10, money_day
                                       list_pos = list_pos + 1
                                   Next
-                                  y_pos = y_pos + 15
+                                  if list_pos < 3 Then list_pos = 3
+                                  y_pos = y_pos + (list_pos * 10) + 10
                               End If
                               'FUTURE FUNCTIONALITY - add an EditBox for entering an amount for the application month ONLY that is not counted (there is a field on JOBS)
                               CheckBox 10, y_pos, 330, 10, "Check here if you confirm that this budget is correct and is the best estimate of anticipated income.", GRH_confirm_budget_checkbox
@@ -2262,6 +2265,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                               GRH_confirm_budget_checkbox = checked     'default if income does not apply to GRH
                           End If
 
+                          Text 10, y_pos, 290, 25, "       *** If the budget is incorrect, press 'OK' but leave the above boxes UNCHECKED.***     If the boxes are NOT checked, the script will bring you BACK to change the pay information on the previous dialog."
+                          y_pos = y_pos + 10
                           ButtonGroup ButtonPressed
                             OkButton 315, y_pos, 50, 15
                             CancelButton 365, y_pos, 50, 15
