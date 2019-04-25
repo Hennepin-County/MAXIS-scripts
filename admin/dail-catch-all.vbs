@@ -67,7 +67,7 @@ IF dail_check = "DAIL" THEN
 	TRANSMIT
 	EMReadScreen DAIL_type, 4, 6, 6 'read the DAIL msg'
 	DAIL_type = trim(DAIL_type)
-	IF DAIL_type = "TIKL" or DAIL_type = "PEPR"  or DAIL_type = "SSN" or DAIL_type = "INFO" THEN
+	IF DAIL_type = "TIKL" or DAIL_type = "PEPR"  or DAIL_type = "INFO" THEN
 		match_found = TRUE
 	ELSE
 		match_found = FALSE
