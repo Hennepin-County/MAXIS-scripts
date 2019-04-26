@@ -61,7 +61,7 @@ changelog_display
 
 'CONNECTS TO DEFAULT SCREEN
 EMConnect ""
-
+match_found = FALSE 
 'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
 EMReadscreen dail_check, 4, 2, 48
 If dail_check <> "DAIL" then script_end_procedure("You are not in your dail. This script will stop.")
