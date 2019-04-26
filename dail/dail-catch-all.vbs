@@ -59,27 +59,27 @@ EndDialog
 
 '-------------------------------------------------------------------------------------------------------THE SCRIPT
 'CONNECTING TO MAXIS & GRABBING THE CASE NUMBER
-EMConnect ""
-EMReadscreen dail_check, 4, 2, 48 'changed from DAIL to view to ensure we are in DAIL/DAIL'
-IF dail_check <> "DAIL" THEN script_end_procedure("Your cursor is not set on a message type. Please select an appropriate DAIL message and try again.")
-IF dail_check = "DAIL" THEN
-	EMSendKey "T"
-	TRANSMIT
-	EMReadScreen DAIL_type, 4, 6, 6 'read the DAIL msg'
-	DAIL_type = trim(DAIL_type)
-	IF DAIL_type = "TIKL" or DAIL_type = "PEPR"  or DAIL_type = "INFO" THEN
-		match_found = TRUE
-	ELSE
-		match_found = FALSE
-		script_end_procedure("This is not an supported DAIL currently. Please select TIKL, PEPR, SSN, or INFO DAIL, and run the script again.")
-	END IF
-	IF match_found = TRUE THEN
+'EMConnect ""
+'EMReadscreen dail_check, 4, 2, 48 'changed from DAIL to view to ensure we are in DAIL/DAIL'
+'IF dail_check <> "DAIL" THEN script_end_procedure("Your cursor is not set on a message type. Please select an appropriate DAIL message and try again.")
+'IF dail_check = "DAIL" THEN
+'	EMSendKey "T"
+'	TRANSMIT
+'	EMReadScreen DAIL_type, 4, 6, 6 'read the DAIL msg'
+'	DAIL_type = trim(DAIL_type)
+'	IF DAIL_type = "TIKL" or DAIL_type = "PEPR"  or DAIL_type = "INFO" THEN
+'		match_found = TRUE
+'	ELSE
+'		match_found = FALSE
+'		script_end_procedure("This is not an supported DAIL currently. Please select TIKL, PEPR, SSN, or INFO DAIL, and run the script again.")
+'	END IF
+'	IF match_found = TRUE THEN
 	    'do we need a date rcvd or save that for docs rcvd'
 	    'The following reads the message in full for the end part (which tells the worker which message was selected)
-	    EMReadScreen full_message, 59, 6, 20
-		full_message = trim(full_message)
-	    EmReadScreen MAXIS_case_number, 8, 5, 73
-	    MAXIS_case_number = trim(MAXIS_case_number)
+	   ' EMReadScreen full_message, 59, 6, 20
+		'full_message = trim(full_message)
+	   ' EmReadScreen MAXIS_case_number, 8, 5, 73
+	   ' MAXIS_case_number = trim(MAXIS_case_number)
 
 	    'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
 
@@ -153,8 +153,8 @@ IF dail_check = "DAIL" THEN
 
 		'checking for an active MAXIS session
 		Call check_for_MAXIS(False)
-	END IF
-END IF
+	'END IF
+'END IF
 
 
 
