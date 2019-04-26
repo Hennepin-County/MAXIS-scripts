@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("4/26/2019", "The DAIL messages for Over Due Baby, Incarceration, and additional enhancements to handle for other messages has been added.", "MiKayla Handley, Hennepin County")
 call changelog_update("4/9/2019", "The DAIL message for Student Income ending has changed. Updated the script to know the new message.", "Casey Love, Hennepin County")
 call changelog_update("10/18/2018", "Updated to support updated ABAWD message 'SNAP ABAWD ELIGIBILITY HAS EXPIR'.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -69,7 +70,7 @@ EMGetCursor dail_row, dail_col
 
 'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
 EMSendKey "t"
-transmit
+TRANSMIT
 
 'The following reads the message in full for the end part (which tells the worker which message was selected)
 EMReadScreen full_message, 58, 6, 20
@@ -83,6 +84,7 @@ MAXIS_case_number = trim(MAXIS_case_number)
 EMReadScreen stat_check, 4, 6, 6
 If stat_check = "FS  " or stat_check = "HC  " or stat_check = "GA  " or stat_check = "MSA " or stat_check = "STAT" then
 	'now it checks if you are acctually running from a XFS Autoclosed DAIL. These messages don't have an affiliated case attached - so there will be no overlap
+	match_found = TRUE
 	EMReadScreen xfs_check, 49, 6, 20
 	If xfs_check = "CASE AUTO-CLOSED FOR FAILURE TO PROVIDE POSTPONED" then
 		call run_from_GitHub(script_repository & "dail/postponed-expedited-snap-verifications.vbs")
@@ -91,91 +93,165 @@ If stat_check = "FS  " or stat_check = "HC  " or stat_check = "GA  " or stat_che
 	End If
 End If
 
+
 'Checking for 12 month contact TIKL from CAF and CAR scripts(loads NOTICES - 12 month contact)
 EMReadScreen twelve_mo_contact_check, 57, 6, 20
-IF twelve_mo_contact_check = "IF SNAP IS OPEN, REVIEW TO SEE IF 12 MONTH CONTACT LETTER" THEN run_from_GitHub(script_repository & "notices/12-month-contact.vbs")
+IF twelve_mo_contact_check = "IF SNAP IS OPEN, REVIEW TO SEE IF 12 MONTH CONTACT LETTER" THEN
+	match_found = TRUE
+	run_from_GitHub(script_repository & "notices/12-month-contact.vbs")
+END IF
 
 'RSDI/BENDEX info received by agency (loads BNDX SCRUBBER)
 EMReadScreen BENDEX_check, 47, 6, 30
-If BENDEX_check = "BENDEX INFORMATION HAS BEEN STORED - CHECK INFC" then call run_from_GitHub(script_repository & "dail/bndx-scrubber.vbs")
+If BENDEX_check = "BENDEX INFORMATION HAS BEEN STORED - CHECK INFC" then
+    match_found = TRUE
+    call run_from_GitHub(script_repository & "dail/bndx-scrubber.vbs")
+END IF
 
 'CIT/ID has been verified through the SSA (loads CITIZENSHIP VERIFIED)
 EMReadScreen CIT_check, 46, 6, 20
-If CIT_check = "MEMI:CITIZENSHIP HAS BEEN VERIFIED THROUGH SSA" then call run_from_GitHub(script_repository & "dail/citizenship-verified.vbs")
+If CIT_check = "MEMI:CITIZENSHIP HAS BEEN VERIFIED THROUGH SSA" then
+    match_found = TRUE
+    call run_from_GitHub(script_repository & "dail/citizenship-verified.vbs")
+END IF
 
 'CS reports a new employer to the worker (loads CS REPORTED NEW EMPLOYER)
 EMReadScreen CS_new_emp_check, 25, 6, 20
-If CS_new_emp_check = "CS REPORTED: NEW EMPLOYER" then call run_from_GitHub(script_repository & "dail/cs-reported-new-employer.vbs")
-
-'Child support messages (loads CSES PROCESSING)
-EMReadScreen CSES_check, 4, 6, 6
-If CSES_check = "CSES" or CSES_check = "TIKL" then		'TIKLs are used for fake cases and testing
-	EMReadScreen CSES_DISB_check, 4, 6, 20				'Checks for the DISB string, verifying this as a disbursement message
-	If CSES_DISB_check = "DISB" then call run_from_GitHub(script_repository & "dail/cses-scrubber.vbs") 'If it's a disbursement message...
-End if
+If CS_new_emp_check = "CS REPORTED: NEW EMPLOYER" then
+    match_found = TRUE
+    call run_from_GitHub(script_repository & "dail/cs-reported-new-employer.vbs")
+END IF
 
 'Disability certification ends in 60 days (loads DISA MESSAGE)
 EMReadScreen DISA_check, 58, 6, 20
-If DISA_check = "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS" then call run_from_GitHub(script_repository & "dail/disa-message.vbs")
+If DISA_check = "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS" then
+    match_found = TRUE
+    call run_from_GitHub(script_repository & "dail/disa-message.vbs")
+END IF
 
 'EMPS - ES Referral missing
 EMReadScreen EMPS_ES_check, 52, 6, 20
-If EMPS_ES_check = "EMPS:ES REFERRAL DATE IS BLANK FOR NON-EXEMPT PERSON" then call run_from_GitHub(script_repository & "dail/es-referral-missing.vbs")
+If EMPS_ES_check = "EMPS:ES REFERRAL DATE IS BLANK FOR NON-EXEMPT PERSON" then
+    match_found = TRUE
+    call run_from_GitHub(script_repository & "dail/es-referral-missing.vbs")
+END IF
 
 'EMPS - Financial Orientation date needed
 EMReadScreen EMPS_Fin_Ori_check, 57, 6, 20
-If EMPS_Fin_Ori_check = "REVIEW EMPS PANEL FOR FINANCIAL ORIENT DATE OR GOOD CAUSE" then call run_from_GitHub(script_repository & "dail/financial-orientation-missing.vbs")
+If EMPS_Fin_Ori_check = "REVIEW EMPS PANEL FOR FINANCIAL ORIENT DATE OR GOOD CAUSE" then
+    match_found = TRUE
+    call run_from_GitHub(script_repository & "dail/financial-orientation-missing.vbs")
+END IF
 
 'Client can receive an FMED deduction for SNAP (loads FMED DEDUCTION)
 EMReadScreen FMED_check, 59, 6, 20
-If FMED_check = "MEMBER HAS TURNED 60 - NOTIFY ABOUT POSSIBLE FMED DEDUCTION" then call run_from_GitHub(script_repository & "dail/fmed-deduction.vbs")
+If FMED_check = "MEMBER HAS TURNED 60 - NOTIFY ABOUT POSSIBLE FMED DEDUCTION" then
+    match_found = TRUE
+    call run_from_GitHub(script_repository & "dail/fmed-deduction.vbs")
+END IF
 
 'Remedial care messages. May only happen at COLA (loads LTC - REMEDIAL CARE)
 EMReadScreen remedial_care_check, 41, 6, 20
-If remedial_care_check = "REF 01 PERSON HAS REMEDIAL CARE DEDUCTION" then call run_from_GitHub(script_repository & "dail/ltc-remedial-care.vbs")
-
+If remedial_care_check = "REF 01 PERSON HAS REMEDIAL CARE DEDUCTION" then
+	match_found = TRUE
+	CALL run_from_GitHub(script_repository & "dail/ltc-remedial-care.vbs")
+END IF
 'New HIRE messages, client started a new job (loads NEW HIRE)
 EMReadScreen HIRE_check, 15, 6, 20
-If HIRE_check = "NEW JOB DETAILS" then call run_from_GitHub(script_repository & "dail/new-hire.vbs")
-
+If HIRE_check = "NEW JOB DETAILS" then
+    match_found = TRUE
+	call run_from_GitHub(script_repository & "dail/new-hire.vbs")
+END IF
 'New HIRE messages, client started a new job (loads NEW HIRE)
 EMReadScreen HIRE_check, 11, 6, 37
-If HIRE_check = "JOB DETAILS" then call run_from_GitHub(script_repository & "dail/new-hire-ndnh.vbs")
+If HIRE_check = "JOB DETAILS" then
+	match_found = TRUE
+    call run_from_GitHub(script_repository & "dail/new-hire-ndnh.vbs")
+END IF
+'federal prisoner register support messages
+EMReadScreen ISPI_check, 4, 6, 6
+If ISPI_check = "ISPI" then
+    match_found = TRUE
+    call run_from_GitHub(script_repository & "dail/incarceration.vbs")
+END IF
 
 'Sends NOMI is DAIL generated by the REVS scrubber (loads SEND NOMI)
 EMReadScreen paperless_check, 8, 6, 20
 If paperless_check = "%^% SENT" then
-    run_from_DAIL = TRUE
+	match_found = TRUE
+	run_from_DAIL = TRUE
     call run_from_GitHub(script_repository &  "dail/paperless-dail.vbs")
 End If
 
 'SSI info received by agency (loads SDX INFO HAS BEEN STORED)
 EMReadScreen SDX_check, 44, 6, 30
-If SDX_check = "SDX INFORMATION HAS BEEN STORED - CHECK INFC" then call run_from_GitHub(script_repository & "dail/sdx-info-has-been-stored.vbs")
-
+If SDX_check = "SDX INFORMATION HAS BEEN STORED - CHECK INFC" then
+    match_found = TRUE
+	call run_from_GitHub(script_repository & "dail/sdx-info-has-been-stored.vbs")
+END IF
 'Student income is ending (loads STUDENT INCOME)
 EMReadScreen SCHL_check, 24, 6, 20
-If SCHL_check = "STUDENT INCOME HAS ENDED" then call run_from_GitHub(script_repository & "dail/student-income.vbs")
-
+If SCHL_check = "STUDENT INCOME HAS ENDED" then
+    match_found = TRUE
+	call run_from_GitHub(script_repository & "dail/student-income.vbs")
+END IF
 'SSA info received by agency (loads TPQY RESPONSE)
 EMReadScreen TPQY_check, 31, 6, 30
-If TPQY_check = "TPQY RESPONSE RECEIVED FROM SSA" then call run_from_GitHub(script_repository & "dail/tpqy-response.vbs")
+If TPQY_check = "TPQY RESPONSE RECEIVED FROM SSA" then
+    match_found = TRUE
+    call run_from_GitHub(script_repository & "dail/tpqy-response.vbs")
+END IF
 
 'TYMA scrubber for agencies TIKLING TYMA as you go (loads TYMA Scrubber)
 EMReadScreen TYMA_check, 23, 6, 20
-IF TYMA_check = "~*~CONSIDER SENDING 1ST" THEN call run_from_GitHub(script_repository & "dail/tyma-scrubber.vbs")
-IF TYMA_check = "~*~CONSIDER SENDING 2ND" THEN Call run_from_GitHub(script_repository & "dail/tyma-scrubber.vbs")
-IF TYMA_check = "~*~2ND QUARTERLY REPORT" THEN call run_from_GitHub(script_repository & "dail/tyma-scrubber.vbs")
-IF TYMA_check = "~*~CONSIDER SENDING 3RD" THEN call run_from_GitHub(script_repository & "dail/tyma-scrubber.vbs")
-IF TYMA_check = "~*~3RD QUARTERLY REPORT" THEN call run_from_GitHub(script_repository & "dail/tyma-scrubber.vbs")
+IF TYMA_check = "~*~CONSIDER SENDING 1ST" THEN
+    match_found = TRUE
+    call run_from_GitHub(script_repository & "dail/tyma-scrubber.vbs")
+END IF
+IF TYMA_check = "~*~CONSIDER SENDING 2ND" THEN
+    match_found = TRUE
+    Call run_from_GitHub(script_repository & "dail/tyma-scrubber.vbs")
+END IF
+IF TYMA_check = "~*~2ND QUARTERLY REPORT" THEN
+    match_found = TRUE
+    call run_from_GitHub(script_repository & "dail/tyma-scrubber.vbs")
+END IF
+IF TYMA_check = "~*~CONSIDER SENDING 3RD" THEN
+    match_found = TRUE
+    call run_from_GitHub(script_repository & "dail/tyma-scrubber.vbs")
+END IF
+IF TYMA_check = "~*~3RD QUARTERLY REPORT" THEN
+    match_found = TRUE
+    call run_from_GitHub(script_repository & "dail/tyma-scrubber.vbs")
+END IF
 
 'FS Eligibility Ending for ABAWD
 EMReadScreen ABAWD_elig_end, 32, 6, 20
-IF ABAWD_elig_end = "SNAP ABAWD ELIGIBILITY HAS EXPIR" THEN CALL run_from_GitHub(script_repository & "dail/abawd-fset-exemption-check.vbs")
+IF ABAWD_elig_end = "SNAP ABAWD ELIGIBILITY HAS EXPIR" THEN
+	match_found = TRUE
+	CALL run_from_GitHub(script_repository & "dail/abawd-fset-exemption-check.vbs")
+END IF
 
-'WAGE MATCH Scrubber
-EMReadScreen wage_match, 4, 6, 6
-IF wage_match = "WAGE" THEN CALL run_from_GitHub(script_repository & "dail/wage-match-scrubber.vbs")
+'UNBORN CHILD IS OVERDUE
+EMReadScreen overdue_baby, 23, 6, 20
+IF overdue_baby = "UNBORN CHILD IS OVERDUE" THEN
+ 	match_found = TRUE
+	CALL run_from_GitHub(script_repository & "dail/overdue-baby.vbs")
+END IF
 
+IF match_found = FALSE THEN
+    'WAGE MATCH Scrubber
+    EMReadScreen DAIL_type, 4, 6, 6
+    IF DAIL_type = "WAGE" THEN CALL run_from_GitHub(script_repository & "dail/wage-match-scrubber.vbs")
+
+    'ALL other DAIL messages
+    IF DAIL_type = "TIKL" or DAIL_type = "PEPR"  or DAIL_type = "INFO" THEN run_from_GitHub(script_repository & "dail/catch-all.vbs")
+
+    'Child support messages (loads CSES PROCESSING)
+    IF DAIL_type = "CSES" THEN
+    	EMReadScreen CSES_DISB_check, 4, 6, 20				'Checks for the DISB string, verifying this as a disbursement message
+    	If CSES_DISB_check = "DISB" then call run_from_GitHub(script_repository & "dail/cses-scrubber.vbs") 'If it's a disbursement message...
+    END IF
+END IF
 'NOW IF NO SCRIPT HAS BEEN WRITTEN FOR IT, THE DAIL SCRUBBER STOPS AND GENERATES A MESSAGE TO THE WORKER.----------------------------------------------------------------------------------------------------
-script_end_procedure("You are not on a supported DAIL message. The script will now stop. " & vbNewLine & vbNewLine & "The message reads: " & full_message)
+script_end_procedure("You are not on a supported DAIL message. The script will now stop. " & vbNewLine & vbNewLine & "The message reads: " & full_message & vbNewLine & "Please send an error report if you would you like this DAIL to be supported.")
