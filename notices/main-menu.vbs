@@ -182,14 +182,6 @@ script_array_NOTICES_main(script_num).subcategory           = "WORD"
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
 Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_NOTICES_main(script_num).script_name			= "Overdue Baby"
-script_array_NOTICES_main(script_num).file_name				= "overdue-baby.vbs"
-script_array_NOTICES_main(script_num).description			= "Sends a MEMO informing client that they need to report information regarding the status of pregnancy, within 10 days or their case may close."
-script_array_NOTICES_main(script_num).subcategory           = "CASH~HC"
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_NOTICES_main(script_num)		'Resets the array to add one more element to it
-Set script_array_NOTICES_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_NOTICES_main(script_num).script_name			= "PA Verif Request"
 script_array_NOTICES_main(script_num).file_name				= "pa-verif-request.vbs"
 script_array_NOTICES_main(script_num).description			= "Creates a Word document with PA benefit totals for other agencies to determine client benefits."

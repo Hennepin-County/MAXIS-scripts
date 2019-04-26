@@ -83,7 +83,7 @@ IF dail_check = "DAIL" THEN
 
 	    'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
 
-        BeginDialog catch_all_dialog, 0, 0, 281, 150,  DAIL_type & "MESSAGE ACTED ON"
+        BeginDialog catch_all_dialog, 0, 0, 281, 150,  DAIL_type & "MESSAGE PROCESSED"
           EditBox 225, 35, 50, 15, docs_rcvd_date
           EditBox 65, 55, 210, 15, actions_taken
           EditBox 65, 75, 210, 15, verifs_needed
@@ -160,7 +160,7 @@ END IF
 
 'THE CASENOTE----------------------------------------------------------------------------------------------------
 'start_a_blank_case_note
-CALL write_variable_in_CASE_NOTE("=== " & DAIL_type & " - MESSAGE ACTED ON " & "===")
+CALL write_variable_in_CASE_NOTE("=== " & DAIL_type & " - MESSAGE PROCESSED " & "===")
 CALL write_variable_in_case_note("* " & full_message)
 CALL write_variable_in_case_note(first_line)
 CALL write_variable_in_case_note(second_line)
