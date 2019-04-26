@@ -245,7 +245,7 @@ IF match_found = FALSE THEN
     IF DAIL_type = "WAGE" THEN CALL run_from_GitHub(script_repository & "dail/wage-match-scrubber.vbs")
 
     'ALL other DAIL messages
-    IF DAIL_type = "TIKL" or DAIL_type = "PEPR"  or DAIL_type = "INFO" THEN run_from_GitHub(script_repository & "dail/catch-all.vbs")
+    IF DAIL_type = "TIKL" or DAIL_type = "PEPR"  or DAIL_type = "INFO" THEN CALL run_from_GitHub(script_repository & "dail/catch-all.vbs")
 
     'Child support messages (loads CSES PROCESSING)
     IF DAIL_type = "CSES" THEN
