@@ -137,15 +137,22 @@ Const ast_location      = 20
 Const ast_model         = 21
 Const ast_make          = 22
 Const ast_year          = 23
-Const ast_ast_trd_in    = 24
+Const ast_trd_in        = 24
 Const ast_loan_value    = 25
 Const ast_value_srce    = 26
 Const ast_amt_owed      = 27
 Const ast_ast_owe_verif = 28
 Const ast_owed_date     = 29
-Const ast_hc_ben        = 30
+Const ast_hc_benefit    = 30
+Const ast_bal_date      = 31
+Const ast_verif_date    = 32
+Const ast_next_inrst_date = 33
+Const ast_owe_YN        = 34
+Const ast_use           = 35
 
-Const update_panel      = 31
+Const update_panel      = 36
+
+Dim client_list_array
 
 '===========================================================================================================================
 'Specific Forms Handled For
@@ -319,6 +326,11 @@ CALL Generate_Client_List(client_dropdown)
 If LTC_case = vbNo then end_msg = "Sucess! Documents received noted for case."
 If LTC_case = vbYes then end_msg = "Sucess! Documents received noted for LTC case."
 
+'This will be for any functionality that needs the HH Member array
+If asset_form_checkbox = checked Then
+    call HH_member_custom_dialog(HH_member_array)
+End If
+
 'EVF HANDLING =======================================================================================
 If evf_form_received_checkbox = checked Then
     EVF_TIKL_checkbox = checked 'defaulting the TIKL checkbox to be checked initially in the dialog.
@@ -432,7 +444,7 @@ If mof_form_checkbox = checked Then
         	Err_msg = ""
         	Dialog Dialog1
         	Call cancel_continue_confirmation(skip_MOF)
-            Call validate_MAXIS_case_number(err_msg, "*")
+            'Call validate_MAXIS_case_number(err_msg, "*")
             If mof_hh_memb = "Select One..." Then err_msg = err_ms & vbNewLine & "* Select the household member."
             If skip_MOF= TRUE Then
                 err_msg = ""
@@ -452,104 +464,356 @@ End If
 
 
 If asset_form_checkbox = checked Then
-
+    asset_counter = 0
     Call navigate_to_MAXIS_screen("STAT", "ACCT")
+    For each member in HH_member_array
+        Call write_value_and_transmit(member, 20, 76)
 
+        EMReadScreen acct_versions, 1, 2, 78
+        If acct_versions <> "0" Then
+            EMWriteScreen "01", 20, 79
+            transmit
+            Do
+                EMReadScreen ACCT_instance, 1, 2, 73
+                EMReadScreen ACCT_type, 2, 6, 44
+                EMReadScreen ACCT_nbr, 20, 7, 44
+                EMReadScreen ACCT_location, 20, 8, 44
+                EMReadScreen ACCT_balance, 8, 10, 46
+                EMReadScreen ACCT_bal_verif, 1, 10, 64
+                EMReadScreen ACCT_bal_date, 8, 11, 44
+                EMReadScreen ACCT_withdraw_pen, 8, 12, 46
+                EMReadScreen ACCT_withdraw_YN, 1, 12, 64
+                EMReadScreen ACCT_withdraw_verif, 1, 12, 72
+                EMReadScreen ACCT_cash, 1, 14, 50
+                EMReadScreen ACCT_snap, 1, 14, 57
+                EMReadScreen ACCT_hc, 1, 14, 64
+                EMReadScreen ACCT_grh, 1, 14, 72
+                EMReadScreen ACCT_ive, 1, 14, 80
+                EMReadScreen ACCT_joint_owner_YN, 1, 15, 44
+                EMReadScreen ACCT_share_ratio, 5, 15, 76
+                EMReadScreen ACCT_next_interest, 5, 17, 57
+
+                ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
+
+                ASSETS_ARRAY(ast_panel, asset_counter) = "ACCT"
+                ASSETS_ARRAY(ast_ref_nbr, asset_counter) = member
+                For each person in client_list_array
+                    If left(person, 2) = member then
+                        ASSETS_ARRAY(ast_owner, asset_counter) = person
+                        Exit For
+                    End If
+                Next
+                ASSETS_ARRAY(ast_instance, asset_counter) = "0" & ACCT_instance
+                If ACCT_type = "SV" Then ASSETS_ARRAY(ast_type, asset_counter) = "SV - Savings"
+                If ACCT_type = "CK" Then ASSETS_ARRAY(ast_type, asset_counter) = "CK - Checking"
+                If ACCT_type = "CD" Then ASSETS_ARRAY(ast_type, asset_counter) = "CD - Cert of Deposit"
+                If ACCT_type = "MM" Then ASSETS_ARRAY(ast_type, asset_counter) = "MM - Money market"
+                If ACCT_type = "DC" Then ASSETS_ARRAY(ast_type, asset_counter) = "DC - Debit Card"
+                If ACCT_type = "KO" Then ASSETS_ARRAY(ast_type, asset_counter) = "KO - Keogh Account"
+                If ACCT_type = "FT" Then ASSETS_ARRAY(ast_type, asset_counter) = "FT - Federatl Thrift SV plan"
+                If ACCT_type = "SL" Then ASSETS_ARRAY(ast_type, asset_counter) = "SL - Stat/Local Govt Ret"
+                If ACCT_type = "RA" Then ASSETS_ARRAY(ast_type, asset_counter) = "RA - Employee Ret Annuities"
+                If ACCT_type = "NP" Then ASSETS_ARRAY(ast_type, asset_counter) = "NP - Non-Profit Employer Ret Plan"
+                If ACCT_type = "IR" Then ASSETS_ARRAY(ast_type, asset_counter) = "IR - Indiv Ret Acct"
+                If ACCT_type = "RH" Then ASSETS_ARRAY(ast_type, asset_counter) = "RH - Roth IRA"
+                If ACCT_type = "FR" Then ASSETS_ARRAY(ast_type, asset_counter) = "FR - Ret Plans for Employers"
+                If ACCT_type = "CT" Then ASSETS_ARRAY(ast_type, asset_counter) = "CT - Corp Ret Trust"
+                If ACCT_type = "RT" Then ASSETS_ARRAY(ast_type, asset_counter) = "RT - Other Ret Fund"
+                If ACCT_type = "QT" Then ASSETS_ARRAY(ast_type, asset_counter) = "QT - Qualified Tuition (529)"
+                If ACCT_type = "CA" Then ASSETS_ARRAY(ast_type, asset_counter) = "CA - Coverdell SV (530)"
+                If ACCT_type = "OE" Then ASSETS_ARRAY(ast_type, asset_counter) = "OE - Other Educational "
+                If ACCT_type = "OT" Then ASSETS_ARRAY(ast_type, asset_counter) = "OT - Other"
+                ASSETS_ARRAY(ast_number, asset_counter) = replace(ACCT_nbr, "_", "")
+                ASSETS_ARRAY(ast_location, asset_counter) = replace(ACCT_location, "_", "")
+                ASSETS_ARRAY(ast_balance, asset_counter) = trim(ACCT_balance)
+                If ACCT_bal_verif = "1" Then ASSETS_ARRAY(ast_verif, asset_counter) = "1 - Bank Statement"
+                If ACCT_bal_verif = "2" Then ASSETS_ARRAY(ast_verif, asset_counter) = "2 - Agcy Ver Form"
+                If ACCT_bal_verif = "3" Then ASSETS_ARRAY(ast_verif, asset_counter) = "3 - Coltrl Document"
+                If ACCT_bal_verif = "5" Then ASSETS_ARRAY(ast_verif, asset_counter) = "5 - Other Document"
+                If ACCT_bal_verif = "6" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
+                If ACCT_bal_verif = "N" Then ASSETS_ARRAY(ast_verif, asset_counter) = "N - No Ver Prvd"
+                ASSETS_ARRAY(ast_bal_date, asset_counter) = replace(ACCT_bal_date, " ", "/")
+                If ASSETS_ARRAY(ast_bal_date, asset_counter) = "__/__/__" Then ASSETS_ARRAY(ast_bal_date, asset_counter) = ""
+                ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = trim(replace(ACCT_withdraw_pen, "_", ""))
+                ASSETS_ARRAY(ast_wthdr_YN, asset_counter) = replace(ACCT_withdraw_YN, "_", "")
+                ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = replace(ACCT_withdraw_verif, "_", "")
+                ASSETS_ARRAY(apply_to_CASH, asset_counter) = replace(ACCT_cash, "_", "")
+                ASSETS_ARRAY(apply_to_SNAP, asset_counter) = replace(ACCT_snap, "_", "")
+                ASSETS_ARRAY(apply_to_HC, asset_counter) = replace(ACCT_hc, "_", "")
+                ASSETS_ARRAY(apply_to_GRH, asset_counter) = replace(ACCT_grh, "_", "")
+                ASSETS_ARRAY(apply_to_IVE, asset_counter) = replace(ACCT_ive, "_", "")
+                ASSETS_ARRAY(ast_jnt_owner_YN, asset_counter) = replace(ACCT_joint_owner_YN, "_", "")
+                ASSETS_ARRAY(ast_own_rtio, asset_counter) = replace(ACCT_share_ratio, " ", "")
+                ASSETS_ARRAY(ast_next_inrst_date, asset_counter) = replace(ACCT_next_interest, " ", "/")
+                If ASSETS_ARRAY(ast_next_inrst_date, asset_counter) = "__/__" Then ASSETS_ARRAY(ast_next_inrst_date, asset_counter) = ""
+                ASSETS_ARRAY(update_panel, asset_counter) = unchecked
+
+                transmit
+                asset_counter = asset_counter + 1
+                MsgBox asset_counter
+                EMReadScreen reached_last_ACCT_panel, 13, 24, 2
+            Loop until reached_last_ACCT_panel = "ENTER A VALID"
+        End If
+    Next
+
+    Call navigate_to_MAXIS_screen("STAT", "SECU")
+    For each member in HH_member_array
+        Call write_value_and_transmit(member, 20, 76)
+
+        EMReadScreen secu_versions, 1, 2, 78
+        If secu_versions <> "0" Then
+            Do
+
+                EMReadScreen SECU_instance, 1, 2, 73
+
+
+                ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
+
+                ASSETS_ARRAY(ast_panel, asset_counter) = "SECU"
+                ASSETS_ARRAY(ast_ref_nbr, asset_counter) = member
+                For each person in client_list_array
+                    If left(person, 2) = member then
+                        ASSETS_ARRAY(ast_owner, asset_counter) = person
+                        Exit For
+                    End If
+                Next
+                ASSETS_ARRAY(ast_instance, asset_counter) = "0" & SECU_instance
+
+
+                ASSETS_ARRAY(update_panel, asset_counter) = Unchecked
+
+                transmit
+                asset_counter = asset_counter + 1
+                EMReadScreen reached_last_SECU_panel, 13, 24, 2
+            Loop until reached_last_SECU_panel = "ENTER A VALID"
+        End If
+    Next
+
+    Call navigate_to_MAXIS_screen("STAT", "CARS")
+    For each member in HH_member_array
+        Call write_value_and_transmit(member, 20, 76)
+
+        EMReadScreen cars_versions, 1, 2, 78
+        If cars_versions <> "0" Then
+            Do
+
+                EMReadScreen CARS_instance, 1, 2, 73
+
+
+                ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
+
+                ASSETS_ARRAY(ast_panel, asset_counter) = "SECU"
+                ASSETS_ARRAY(ast_ref_nbr, asset_counter) = member
+                For each person in client_list_array
+                    If left(person, 2) = member then
+                        ASSETS_ARRAY(ast_owner, asset_counter) = person
+                        Exit For
+                    End If
+                Next
+                ASSETS_ARRAY(ast_instance, asset_counter) = "0" & CARS_instance
+
+
+                ASSETS_ARRAY(update_panel, asset_counter) = unchecked
+
+                transmit
+                asset_counter = asset_counter + 1
+                EMReadScreen reached_last_CARS_panel, 13, 24, 2
+            Loop until reached_last_CARS_panel = "ENTER A VALID"
+        End If
+    Next
 
     If LTC_case = vbNo then
 
-dlg_len = 265
-BeginDialog Dialog1, 0, 0, 631, 265, "Signed Personal Statement about Assest for Case #"
-  Text 10, 10, 270, 10, "Assets for SNAP/Cash are self attested and are reported on this form (DHS 6054). "
+        asset_counter = asset_counter + 2
+        ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
+        ASSETS_ARRAY(ast_panel, asset_counter - 2) = "ACCT"
+        ASSETS_ARRAY(ast_panel, asset_counter - 1) = "SECU"
+        ASSETS_ARRAY(ast_panel, asset_counter) = "CARS"
 
-  GroupBox 5, 25, 620, 65, "Bank accounts, debit accounts, CDs"
-  Text 15, 40, 25, 10, "Owner"
-  Text 110, 40, 20, 10, "Type"
-  Text 180, 40, 30, 10, "Location"
-  Text 255, 40, 30, 10, "Balance"
-  Text 305, 40, 70, 10, "Withdrawl Peanalty"
-  Text 390, 40, 45, 10, "Progream(s)"
-  Text 520, 40, 50, 10, "Joint Owner"
-  DropListBox 15, 55, 80, 45, "", account_owner
-  DropListBox 105, 55, 60, 45, "SV - Savings"+chr(9)+"CK - Checking"+chr(9)+"CD - Cert of Deposit"+chr(9)+"MM - Money market"+chr(9)+"DC - Debit Card"+chr(9)+"KO - Keogh Account"+chr(9)+"FT - Federatl Thrift SV plan"+chr(9)+"SL - Stat/Local Govt Ret"+chr(9)+"RA - Employee Ret Annuities"+chr(9)+"NP - Non-Profit Employer Ret Plan"+chr(9)+"IR - Indiv Ret Acct"+chr(9)+"RH - Roth IRA"+chr(9)+"FR - Ret Plans for Employers"+chr(9)+"CT - Corp Ret Trust "+chr(9)+"RT - Other Ret Fund"+chr(9)+"QT - Qualified Tuition (529)"+chr(9)+"CA - Coverdell SV (530)"+chr(9)+"OE - Other Educational "+chr(9)+"OT - Other", account_type
-  Text 570, 40, 50, 10, "Update panel?"
-  EditBox 180, 55, 70, 15, account_location
-  EditBox 255, 55, 50, 15, account_balance
-  DropListBox 315, 55, 35, 45, "No"+chr(9)+"Yes", account_withdraw_penalty_YN
-  CheckBox 365, 55, 30, 10, "Cash", acct_cash_checkbox
-  CheckBox 400, 55, 20, 10, "FS", acct_snap_checkbox
-  CheckBox 425, 55, 20, 10, "HC", acct_health_care_checkbox
-  CheckBox 455, 55, 25, 10, "GRH", acct_grh_checkbox
-  CheckBox 490, 55, 25, 10, "IV-E", acct_ive_checkbox
-  DropListBox 520, 55, 35, 45, "No"+chr(9)+"Yes", account_joint_owner_YN
-  CheckBox 580, 55, 30, 10, "YES", update_panel
-  ButtonGroup ButtonPressed
-    PushButton 530, 75, 85, 10, "ADD another Account", add_another_account
+        Do
 
-  GroupBox 5, 100, 620, 65, "Stocks, Bods, Pensions, Retirement Accounts"
-  Text 15, 115, 25, 10, "Owner"
-  Text 110, 115, 20, 10, "Type"
-  Text 180, 115, 30, 10, "Location"
-  Text 255, 115, 50, 10, "Balance (CSV)"
-  Text 305, 115, 70, 10, "Withdrawl Peanalty"
-  Text 390, 115, 45, 10, "Progream(s)"
-  Text 520, 115, 50, 10, "Joint Owner"
-  DropListBox 15, 130, 80, 45, "", security_owner
-  DropListBox 105, 130, 60, 45, "SV - Savings"+chr(9)+"CK - Checking"+chr(9)+"CD - Cert of Deposit"+chr(9)+"MM - Money market"+chr(9)+"DC - Debit Card"+chr(9)+"KO - Keogh Account"+chr(9)+"FT - Federatl Thrift SV plan"+chr(9)+"SL - Stat/Local Govt Ret"+chr(9)+"RA - Employee Ret Annuities"+chr(9)+"NP - Non-Profit Employer Ret Plan"+chr(9)+"IR - Indiv Ret Acct"+chr(9)+"RH - Roth IRA"+chr(9)+"FR - Ret Plans for Employers"+chr(9)+"CT - Corp Ret Trust "+chr(9)+"RT - Other Ret Fund"+chr(9)+"QT - Qualified Tuition (529)"+chr(9)+"CA - Coverdell SV (530)"+chr(9)+"OE - Other Educational "+chr(9)+"OT - Other", security_type
-  Text 570, 115, 50, 10, "Update panel?"
-  EditBox 180, 130, 70, 15, security_name
-  EditBox 255, 130, 50, 15, security_balance
-  DropListBox 315, 130, 35, 45, "No"+chr(9)+"Yes", security_withdraw_penalty
-  CheckBox 365, 130, 30, 10, "Cash", secu_cash_checkbox
-  CheckBox 400, 130, 20, 10, "FS", secu_snap_checkbox
-  CheckBox 425, 130, 20, 10, "HC", secu_health_care_checkbox
-  CheckBox 455, 130, 25, 10, "GRH", secu_grh_checkbox
-  CheckBox 490, 130, 25, 10, "IV-E", secu_ive_checkbox
-  DropListBox 520, 130, 35, 45, "No"+chr(9)+"Yes", security_joint_owner_YN
-  CheckBox 580, 130, 30, 10, "YES", secu_update_panel
-  ButtonGroup ButtonPressed
-    PushButton 530, 150, 85, 10, "ADD Another Security", add_another_security
+            asset_display = "ASSETS ON CASE" & vbNewLine
+            For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+                If ASSETS_ARRAY(ast_panel, the_asset) = "ACCT" Then
+                    asset_display = asset_display & vbNewLine & "ACCT - " & the_asset
+                ElseIf ASSETS_ARRAY(ast_panel, the_asset) = "SECU" Then
+                    asset_display = asset_display & vbNewLine & "SECU - " & the_asset
+                ElseIf ASSETS_ARRAY(ast_panel, the_asset) = "CARS" Then
+                    asset_display = asset_display & vbNewLine & "CARS - " & the_asset
+                Else
+                    asset_display = asset_display & vbNewLine & ASSETS_ARRAY(ast_panel, the_asset) & " - " & the_asset
+                End If
+            Next
 
-  GroupBox 5, 175, 620, 65, "Vehicles"
-  Text 15, 190, 25, 10, "Owner"
-  Text 155, 190, 25, 10, "Make"
-  Text 210, 190, 25, 10, "Model"
-  Text 280, 190, 25, 10, "Year"
-  Text 105, 190, 20, 10, "Type"
-  Text 315, 190, 90, 10, "Trade-In Value and Source"
-  Text 415, 185, 30, 15, "Owed Amount"
-  Text 445, 185, 20, 15, "Joint Owner"
-  Text 475, 190, 15, 10, "Use"
-  Text 555, 185, 25, 15, "HC Clt Benefit"
-  Text 590, 185, 25, 15, "Update panel?"
-  DropListBox 15, 205, 80, 45, "", vehicle_owner
-  ComboBox 155, 205, 50, 45," "+chr(9)+"Acura"+chr(9)+"Audi"+chr(9)+"BMW"+chr(9)+"Buick"+chr(9)+"Cadillac"+chr(9)+"Chevrolet"+chr(9)+"Chrysler"+chr(9)+"Dodge"+chr(9)+"Ford"+chr(9)+_
-                                       "GMC"+chr(9)+"Honda"+chr(9)+"Hummer"+chr(9)+"Hyundai"+chr(9)+"Isuzu"+chr(9)+"Jeep"+chr(9)+"Kia"+chr(9)+"Lexus"+chr(9)+"Lincoln"+chr(9)+"Mazda"+chr(9)+_
-                                       "Mercury"+chr(9)+"Mitsubishi"+chr(9)+"Nissan"+chr(9)+"Oldsmobile"+chr(9)+"Plymouth"+chr(9)+"Pontiac"+chr(9)+"Saturn"+chr(9)+"Subaru"+chr(9)+"Suzuki"+chr(9)+_
-                                       "Toyota"+chr(9)+"Volkswagen"+chr(9)+"Volvo", vehicle_make
-  EditBox 210, 205, 65, 15, vehicle_model
-  EditBox 280, 205, 30, 15, vehicle_year
-  DropListBox 105, 205, 45, 45, "Select ..."+chr(9)+"Car - 1"+chr(9)+"Truck - 2"+chr(9)+"Van - 3"+chr(9)+"Camper - 4"+chr(9)+"Motorcycle - 5"+chr(9)+"Trailer - 6"+chr(9)+"Other - 7", vehicle_type
-  EditBox 315, 205, 45, 15, vehicle_trade_in_value
-  DropListBox 365, 205, 45, 45, "Select ..."+chr(9)+"NADA - 1"+chr(9)+"Appraisal - 2"+chr(9)+"Clt Stmt - 3"+chr(9)+"Other - 4", vehicle_value_source
-  DropListBox 415, 205, 25, 45, "No"+chr(9)+"Yes", vehicle_owed_YN
-  DropListBox 445, 205, 25, 45, "No"+chr(9)+"Yes", joint_onwer_YN
-  DropListBox 475, 205, 75, 45, "Select ..."+chr(9)+"Primary - 1"+chr(9)+"Emp/Trgn Trans - 2"+chr(9)+"Disa Trans - 3"+chr(9)+"Inc Productin - 4"+chr(9)+"Used as Home - 5"+chr(9)+"Unlicensed - 7"+chr(9)+"Other Count - 8"+chr(9)+"Unavailable - 9"+chr(9)+"Long Dist Emp - 0"+chr(9)+"Carry fuel/water - A", vehicle_use
-  DropListBox 555, 205, 25, 45, "No"+chr(9)+"Yes", hc_clt_benefit_YN  ButtonGroup ButtonPressed
-  CheckBox 590, 205, 25, 10, "YES", cars_update_panel
+            MsgBox asset_display
 
-  ButtonGroup ButtonPressed
-    PushButton 530, 225, 85, 10, "ADD Another Vehicle", add_another_vehicle
+            dlg_len = 225
+            dlg_len = dlg_len + (asset_counter * 20)
 
-  Text 10, 250, 40, 10, "Signed by:"
-  ComboBox 50, 245, 105, 45, "", signed_by_one
-  ComboBox 165, 245, 105, 45, "", signed_by_two
-  ComboBox 280, 245, 105, 45, "", signed_by_three
-  ButtonGroup ButtonPressed
-    OkButton 525, 245, 50, 15
-    CancelButton 575, 245, 50, 15
-EndDialog
+            acct_grp_box_len = 45
+            secu_grp_box_len = 45
+            cars_grp_box_len = 45
 
+            y_pos = 55
+
+            For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+                If ASSETS_ARRAY(ast_panel, the_asset) = "ACCT" Then acct_grp_box_len = acct_grp_box_len + 20
+                If ASSETS_ARRAY(ast_panel, the_asset) = "SECU" Then secu_grp_box_len = secu_grp_box_len + 20
+                If ASSETS_ARRAY(ast_panel, the_asset) = "CARS" Then cars_grp_box_len = cars_grp_box_len + 20
+            Next
+
+            BeginDialog Dialog1, 0, 0, 631, dlg_len, "Signed Personal Statement about Assest for Case #"
+              Text 10, 10, 270, 10, "Assets for SNAP/Cash are self attested and are reported on this form (DHS 6054). "
+
+              GroupBox 5, 25, 620, acct_grp_box_len, "Bank accounts, debit accounts, CDs"
+              Text 15, 40, 25, 10, "Owner"
+              Text 110, 40, 20, 10, "Type"
+              Text 180, 40, 30, 10, "Location"
+              Text 255, 40, 30, 10, "Balance"
+              Text 305, 40, 70, 10, "Withdrawl Peanalty"
+              Text 390, 40, 45, 10, "Progream(s)"
+              Text 520, 40, 50, 10, "Joint Owner"
+              Text 570, 40, 50, 10, "Update panel?"
+              For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+                  If ASSETS_ARRAY(ast_panel, the_asset) = "ACCT" Then
+                      DropListBox 15, y_pos, 80, 45, "Select One..."+chr(9)+client_dropdown, ASSETS_ARRAY(ast_owner, the_asset)
+                      DropListBox 105, y_pos, 60, 45, "SV - Savings"+chr(9)+"CK - Checking"+chr(9)+"CD - Cert of Deposit"+chr(9)+"MM - Money market"+chr(9)+"DC - Debit Card"+chr(9)+"KO - Keogh Account"+chr(9)+"FT - Federatl Thrift SV plan"+chr(9)+"SL - Stat/Local Govt Ret"+chr(9)+"RA - Employee Ret Annuities"+chr(9)+"NP - Non-Profit Employer Ret Plan"+chr(9)+"IR - Indiv Ret Acct"+chr(9)+"RH - Roth IRA"+chr(9)+"FR - Ret Plans for Employers"+chr(9)+"CT - Corp Ret Trust"+chr(9)+"RT - Other Ret Fund"+chr(9)+"QT - Qualified Tuition (529)"+chr(9)+"CA - Coverdell SV (530)"+chr(9)+"OE - Other Educational "+chr(9)+"OT - Other", ASSETS_ARRAY(ast_type, the_asset)
+                      EditBox 180, y_pos, 70, 15, ASSETS_ARRAY(ast_location, the_asset)
+                      EditBox 255, y_pos, 50, 15,  ASSETS_ARRAY(ast_balance, the_asset)
+                      DropListBox 315, y_pos, 35, 45, "No"+chr(9)+"Yes", ASSETS_ARRAY(ast_wthdr_YN, the_asset)
+                      CheckBox 365, y_pos, 30, 10, "Cash", ASSETS_ARRAY(apply_to_CASH, the_asset)
+                      CheckBox 400, y_pos, 20, 10, "FS", ASSETS_ARRAY(apply_to_SNAP, the_asset)
+                      CheckBox 425, y_pos, 20, 10, "HC", ASSETS_ARRAY(apply_to_HC, the_asset)
+                      CheckBox 455, y_pos, 25, 10, "GRH", ASSETS_ARRAY(apply_to_GRH, the_asset)
+                      CheckBox 490, y_pos, 25, 10, "IV-E", ASSETS_ARRAY(apply_to_IVE, the_asset)
+                      DropListBox 520, y_pos, 35, 45, "No"+chr(9)+"Yes", ASSETS_ARRAY(ast_jnt_owner_YN, the_asset)
+                      CheckBox 580, y_pos, 30, 10, "YES", ASSETS_ARRAY(update_panel, the_asset)
+                      y_pos = y_pos + 20
+                  End If
+              Next
+              ButtonGroup ButtonPressed
+                PushButton 530, y_pos, 85, 10, "ADD another Account", add_another_account
+              y_pos = y_pos + 25
+
+              GroupBox 5, y_pos, 620, secu_grp_box_len, "Stocks, Bods, Pensions, Retirement Accounts"
+              y_pos = y_pos + 15
+              Text 15, y_pos, 25, 10, "Owner"
+              Text 110, y_pos, 20, 10, "Type"
+              Text 180, y_pos, 30, 10, "Location"
+              Text 255, y_pos, 50, 10, "Balance (CSV)"
+              Text 305, y_pos, 70, 10, "Withdrawl Peanalty"
+              Text 390, y_pos, 45, 10, "Progream(s)"
+              Text 520, y_pos, 50, 10, "Joint Owner"
+              Text 570, y_pos, 50, 10, "Update panel?"
+              y_pos = y_pos + 15
+              For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+                  If ASSETS_ARRAY(ast_panel, the_asset) = "SECU" Then
+                      DropListBox 15, y_pos, 80, 45, "Select One..."+chr(9)+client_dropdown, ASSETS_ARRAY(ast_owner, the_asset)
+                      DropListBox 105, y_pos, 60, 45, "LI - Life Insurance"+chr(9)+"ST - Stocks"+chr(9)+"BO - Bonds"+chr(9)+"CD - Ctrct for Deed"+chr(9)+"MO - Mortgage Note"+chr(9)+"AN - Annuity"+chr(9)+"OT - Other", ASSETS_ARRAY(ast_type, the_asset)
+                      EditBox 180, y_pos, 70, 15, ASSETS_ARRAY(ast_location, the_asset)
+                      EditBox 255, y_pos, 50, 15, ASSETS_ARRAY(ast_balance, the_asset)
+                      DropListBox 315, y_pos, 35, 45, "No"+chr(9)+"Yes", ASSETS_ARRAY(ast_wthdr_YN, the_asset)
+                      CheckBox 365, y_pos, 30, 10, "Cash", ASSETS_ARRAY(apply_to_CASH, the_asset)
+                      CheckBox 400, y_pos, 20, 10, "FS", ASSETS_ARRAY(apply_to_SNAP, the_asset)
+                      CheckBox 425, y_pos, 20, 10, "HC", ASSETS_ARRAY(apply_to_HC, the_asset)
+                      CheckBox 455, y_pos, 25, 10, "GRH", ASSETS_ARRAY(apply_toGRH, the_asset)
+                      CheckBox 490, y_pos, 25, 10, "IV-E", ASSETS_ARRAY(apply_to_IVE, the_asset)
+                      DropListBox 520, y_pos, 35, 45, "No"+chr(9)+"Yes", ASSETS_ARRAY(ast_jnt_owner_YN, the_asset)
+                      CheckBox 580, y_pos, 30, 10, "YES", ASSETS_ARRAY(update_panel, the_asset)
+                      ASSETS_ARRAY(ast_panel, the_asset) = "SECU"
+                      y_pos = y_pos + 20
+                  End If
+              Next
+              ButtonGroup ButtonPressed
+                PushButton 530, y_pos, 85, 10, "ADD Another Security", add_another_security
+
+              y_pos = y_pos + 25
+              GroupBox 5, y_pos, 620, cars_grp_box_len, "Vehicles"
+              y_pos = y_pos +15
+              Text 15, y_pos, 25, 10, "Owner"
+              Text 155, y_pos, 25, 10, "Make"
+              Text 210, y_pos, 25, 10, "Model"
+              Text 280, y_pos, 25, 10, "Year"
+              Text 105, y_pos, 20, 10, "Type"
+              Text 315, y_pos, 90, 10, "Trade-In Value and Source"
+              'Text 415, y_pos - 5, 35, 15, "Owed Amount"
+              Text 415, y_pos - 5, 30, 15, "Owed Amount"
+              Text 445, y_pos - 5, 20, 15, "Joint Owner"
+              Text 475, y_pos, 15, 10, "Use"
+              Text 555, y_pos - 5, 25, 15, "HC Clt Benefit"
+              Text 590, y_pos - 5, 25, 15, "Update panel?"
+              y_pos = y_pos +15
+              For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+                  If ASSETS_ARRAY(ast_panel, the_asset) = "CARS" Then
+                      DropListBox 15, y_pos, 80, 45, "Select One..."+chr(9)+client_dropdown, ASSETS_ARRAY(ast_owner, the_asset)
+                      ComboBox 155, y_pos, 50, 45," "+chr(9)+"Acura"+chr(9)+"Audi"+chr(9)+"BMW"+chr(9)+"Buick"+chr(9)+"Cadillac"+chr(9)+"Chevrolet"+chr(9)+"Chrysler"+chr(9)+"Dodge"+chr(9)+"Ford"+chr(9)+_
+                                                           "GMC"+chr(9)+"Honda"+chr(9)+"Hummer"+chr(9)+"Hyundai"+chr(9)+"Isuzu"+chr(9)+"Jeep"+chr(9)+"Kia"+chr(9)+"Lexus"+chr(9)+"Lincoln"+chr(9)+"Mazda"+chr(9)+_
+                                                           "Mercury"+chr(9)+"Mitsubishi"+chr(9)+"Nissan"+chr(9)+"Oldsmobile"+chr(9)+"Plymouth"+chr(9)+"Pontiac"+chr(9)+"Saturn"+chr(9)+"Subaru"+chr(9)+"Suzuki"+chr(9)+_
+                                                           "Toyota"+chr(9)+"Volkswagen"+chr(9)+"Volvo", ASSETS_ARRAY(ast_make, the_asset)
+                      EditBox 210, y_pos, 65, 15, ASSETS_ARRAY(ast_model, the_asset)
+                      EditBox 280, y_pos, 30, 15, ASSETS_ARRAY(ast_year, the_asset)
+                      DropListBox 105, y_pos, 45, 45, "Select ..."+chr(9)+"Car - 1"+chr(9)+"Truck - 2"+chr(9)+"Van - 3"+chr(9)+"Camper - 4"+chr(9)+"Motorcycle - 5"+chr(9)+"Trailer - 6"+chr(9)+"Other - 7", ASSETS_ARRAY(ast_type, the_asset)
+                      EditBox 315, y_pos, 45, 15, ASSETS_ARRAY(ast_trd_in, the_asset)
+                      DropListBox 365, y_pos, 45, 45, "Select ..."+chr(9)+"NADA - 1"+chr(9)+"Appraisal - 2"+chr(9)+"Clt Stmt - 3"+chr(9)+"Other - 4", ASSETS_ARRAY(ast_value_srce, the_assets)
+                      DropListBox 415, y_pos, 25, 45, "No"+chr(9)+"Yes", ASSETS_ARRAY(ast_owe_YN, the_asset)
+                      DropListBox 445, y_pos, 25, 45, "No"+chr(9)+"Yes", ASSETS_ARRAY(ast_jnt_owner_YN, the_asset)
+                      DropListBox 475, y_pos, 75, 45, "Select ..."+chr(9)+"Primary - 1"+chr(9)+"Emp/Trgn Trans - 2"+chr(9)+"Disa Trans - 3"+chr(9)+"Inc Productin - 4"+chr(9)+"Used as Home - 5"+chr(9)+"Unlicensed - 7"+chr(9)+"Other Count - 8"+chr(9)+"Unavailable - 9"+chr(9)+"Long Dist Emp - 0"+chr(9)+"Carry fuel/water - A", ASSETS_ARRAY(ast_use, the_asset)
+                      DropListBox 555, y_pos, 25, 45, "No"+chr(9)+"Yes", ASSETS_ARRAY(ast_hc_benefit, the_asset)
+                      CheckBox 590, y_pos, 25, 10, "YES", ASSETS_ARRAY(update_panel, the_asset)
+                      y_pos = y_pos + 20
+                  End If
+              Next
+              ButtonGroup ButtonPressed
+                PushButton 530, y_pos, 85, 10, "ADD Another Vehicle", add_another_vehicle
+
+              y_pos = y_pos + 20
+              Text 10, y_pos + 5, 40, 10, "Signed by:"
+              ComboBox 50, y_pos, 105, 45, "", signed_by_one
+              ComboBox 165, y_pos, 105, 45, "", signed_by_two
+              ComboBox 280, y_pos, 105, 45, "", signed_by_three
+              ButtonGroup ButtonPressed
+                OkButton 525, y_pos, 50, 15
+                CancelButton 575, y_pos, 50, 15
+            EndDialog
+
+            dialog Dialog1
+
+            For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+                If ASSETS_ARRAY(ast_panel, the_asset) = "0" Then  ASSETS_ARRAY(ast_panel, the_asset) = "SECU"
+            Next
+
+            Call cancel_continue_confirmation(skip_asset)
+            'Call validate_MAXIS_case_number(err_msg, "*")
+            If mof_hh_memb = "Select One..." Then err_msg = err_ms & vbNewLine & "* Select the household member."
+            If skip_asset= TRUE Then
+                err_msg = ""
+                asset_form_checkbox = unchecked
+            End If
+
+            If ButtonPressed = add_another_account Then
+                asset_counter = asset_counter + 1
+                ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
+                ASSETS_ARRAY(ast_panel, asset_counter) = "ACCT"
+                err_msg = "LOOP" & err_msg
+            End If
+
+            If ButtonPressed = add_another_security Then
+                asset_counter = asset_counter + 1
+                ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
+                ASSETS_ARRAY(ast_panel, asset_counter) = "SECU"
+                err_msg = "LOOP" & err_msg
+            End If
+
+            If ButtonPressed = add_another_vehicle Then
+                asset_counter = asset_counter + 1
+                ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
+                ASSETS_ARRAY(ast_panel, asset_counter) = "CARS"
+                err_msg = "LOOP" & err_msg
+            End If
+
+
+
+        Loop until err_msg = ""
 
     Else
 
