@@ -4883,7 +4883,7 @@ function script_end_procedure_with_error_report(closing_message)
 
                 BeginDialog Dialog1, 0, 0, 401, 175, "Report Error Detail"
                   Text 60, 35, 55, 10, MAXIS_case_number
-                  ComboBox 220, 30, 175, 45, error_type+chr(9)+"BUG - something happened that was wrong"+chr(9)+"ENHANCEMENT - something could be done better"+chr(9)+"TYPO - grammatical/spelling type errors", error_type
+                  ComboBox 220, 30, 175, 45, error_type+chr(9)+"BUG - something happened that was wrong"+chr(9)+"ENHANCEMENT - something could be done better"+chr(9)+"TYPO - grammatical/spelling type errors"+chr(9)+"DAIL - add support for this DAIL message.", error_type
                   EditBox 65, 50, 330, 15, error_detail
                   CheckBox 20, 100, 65, 10, "CASE/NOTE", case_note_checkbox
                   CheckBox 95, 100, 65, 10, "Update in STAT", stat_update_checkbox
