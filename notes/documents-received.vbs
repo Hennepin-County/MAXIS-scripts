@@ -677,7 +677,7 @@ If asset_form_checkbox = checked Then
               For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
                   If ASSETS_ARRAY(ast_panel, the_asset) = "ACCT" Then
                       DropListBox 15, y_pos, 80, 45, "Select One..."+chr(9)+client_dropdown, ASSETS_ARRAY(ast_owner, the_asset)
-                      DropListBox 105, y_pos, 60, 45, "SV - Savings"+chr(9)+"CK - Checking"+chr(9)+"CD - Cert of Deposit"+chr(9)+"MM - Money market"+chr(9)+"DC - Debit Card"+chr(9)+"KO - Keogh Account"+chr(9)+"FT - Federatl Thrift SV plan"+chr(9)+"SL - Stat/Local Govt Ret"+chr(9)+"RA - Employee Ret Annuities"+chr(9)+"NP - Non-Profit Employer Ret Plan"+chr(9)+"IR - Indiv Ret Acct"+chr(9)+"RH - Roth IRA"+chr(9)+"FR - Ret Plans for Employers"+chr(9)+"CT - Corp Ret Trust"+chr(9)+"RT - Other Ret Fund"+chr(9)+"QT - Qualified Tuition (529)"+chr(9)+"CA - Coverdell SV (530)"+chr(9)+"OE - Other Educational "+chr(9)+"OT - Other", ASSETS_ARRAY(ast_type, the_asset)
+                      DropListBox 105, y_pos, 60, 45, "Select ..."+chr(9)+"SV - Savings"+chr(9)+"CK - Checking"+chr(9)+"CD - Cert of Deposit"+chr(9)+"MM - Money market"+chr(9)+"DC - Debit Card"+chr(9)+"KO - Keogh Account"+chr(9)+"FT - Federatl Thrift SV plan"+chr(9)+"SL - Stat/Local Govt Ret"+chr(9)+"RA - Employee Ret Annuities"+chr(9)+"NP - Non-Profit Employer Ret Plan"+chr(9)+"IR - Indiv Ret Acct"+chr(9)+"RH - Roth IRA"+chr(9)+"FR - Ret Plans for Employers"+chr(9)+"CT - Corp Ret Trust"+chr(9)+"RT - Other Ret Fund"+chr(9)+"QT - Qualified Tuition (529)"+chr(9)+"CA - Coverdell SV (530)"+chr(9)+"OE - Other Educational "+chr(9)+"OT - Other", ASSETS_ARRAY(ast_type, the_asset)
                       EditBox 180, y_pos, 70, 15, ASSETS_ARRAY(ast_location, the_asset)
                       EditBox 255, y_pos, 50, 15,  ASSETS_ARRAY(ast_balance, the_asset)
                       DropListBox 315, y_pos, 35, 45, "No"+chr(9)+"Yes", ASSETS_ARRAY(ast_wthdr_YN, the_asset)
@@ -709,7 +709,7 @@ If asset_form_checkbox = checked Then
               For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
                   If ASSETS_ARRAY(ast_panel, the_asset) = "SECU" Then
                       DropListBox 15, y_pos, 80, 45, "Select One..."+chr(9)+client_dropdown, ASSETS_ARRAY(ast_owner, the_asset)
-                      DropListBox 105, y_pos, 60, 45, "LI - Life Insurance"+chr(9)+"ST - Stocks"+chr(9)+"BO - Bonds"+chr(9)+"CD - Ctrct for Deed"+chr(9)+"MO - Mortgage Note"+chr(9)+"AN - Annuity"+chr(9)+"OT - Other", ASSETS_ARRAY(ast_type, the_asset)
+                      DropListBox 105, y_pos, 60, 45, "Select ..."+chr(9)+"LI - Life Insurance"+chr(9)+"ST - Stocks"+chr(9)+"BO - Bonds"+chr(9)+"CD - Ctrct for Deed"+chr(9)+"MO - Mortgage Note"+chr(9)+"AN - Annuity"+chr(9)+"OT - Other", ASSETS_ARRAY(ast_type, the_asset)
                       EditBox 180, y_pos, 70, 15, ASSETS_ARRAY(ast_location, the_asset)
                       EditBox 255, y_pos, 50, 15, ASSETS_ARRAY(ast_balance, the_asset)
                       DropListBox 315, y_pos, 35, 45, "No"+chr(9)+"Yes", ASSETS_ARRAY(ast_wthdr_YN, the_asset)
