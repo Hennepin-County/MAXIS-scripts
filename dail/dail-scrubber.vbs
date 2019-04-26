@@ -254,4 +254,4 @@ IF match_found = FALSE THEN
     END IF
 END IF
 'NOW IF NO SCRIPT HAS BEEN WRITTEN FOR IT, THE DAIL SCRUBBER STOPS AND GENERATES A MESSAGE TO THE WORKER.----------------------------------------------------------------------------------------------------
-script_end_procedure("You are not on a supported DAIL message. The script will now stop. " & vbNewLine & vbNewLine & "The message reads: " & full_message & vbNewLine & "Please send an error report if you would you like this DAIL to be supported.")
+script_end_procedure_with_error_report("You are not on a supported DAIL message. The script will now stop. " & vbNewLine & vbNewLine & "The message reads: " & full_message & vbNewLine & "Please send an error report if you would you like this DAIL to be supported.")
