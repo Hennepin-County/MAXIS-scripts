@@ -131,6 +131,27 @@ script_array_admin_main(script_num).script_name 		= "Add GRH Rate 2 to MMIS"				
 script_array_admin_main(script_num).file_name 			= "add-grh-rate-2-to-mmis.vbs"										'Script URL
 script_array_admin_main(script_num).description 		= "ACTION script adds GRH Rate 2 SSR's to MMIS. This version without Rate 2 in elig results for error cases."
 
+script_num = script_num + 1							   'Increment by one
+ReDim Preserve script_array_admin_main(script_num)	    'Resets the array to add one more element to it
+Set script_array_admin_main(script_num) = new script    'Set this array element to be a new script. Script details below...
+script_array_admin_main(script_num).script_name		    = "Copy Case Data for Training"
+script_array_admin_main(script_num).file_name			= "copy-case-data-for-training.vbs"
+script_array_admin_main(script_num).description		    = "Copies data from a case to a spreadsheet to be run on the Training Case Generator."
+
+script_num = script_num + 1							   'Increment by one
+ReDim Preserve script_array_admin_main(script_num)	    'Resets the array to add one more element to it
+Set script_array_admin_main(script_num) = new script    'Set this array element to be a new script. Script details below...
+script_array_admin_main(script_num).script_name		    = "Copy Panels to Word"
+script_array_admin_main(script_num).file_name			= "copy-panels-to-word.vbs"
+script_array_admin_main(script_num).description		    = "Copies MAXIS panels to Word en masse for a case for easier review."
+
+script_num = script_num + 1							   'Increment by one
+ReDim Preserve script_array_admin_main(script_num)	    'Resets the array to add one more element to it
+Set script_array_admin_main(script_num) = new script    'Set this array element to be a new script. Script details below...
+script_array_admin_main(script_num).script_name		    = "Drug Felon list"
+script_array_admin_main(script_num).file_name			= "drug-felon-list.vbs"
+script_array_admin_main(script_num).description		    = "Reviews the Drug Felon list from DHS to update these cases."
+
 script_num = script_num + 1
 ReDim Preserve script_array_admin_main(script_num)
 Set script_array_admin_main(script_num) = new script
@@ -144,6 +165,13 @@ Set script_array_admin_main(script_num) = new script
 script_array_admin_main(script_num).script_name 		= "DAIL processing"											'Script name
 script_array_admin_main(script_num).file_name 			= "dail-catch-all.vbs"										'Script URL
 script_array_admin_main(script_num).description 		= "Assists with case noting and deleting the DAIL."
+
+script_num = script_num + 1							   'Increment by one
+ReDim Preserve script_array_admin_main(script_num)	    'Resets the array to add one more element to it
+Set script_array_admin_main(script_num) = new script    'Set this array element to be a new script. Script details below...
+script_array_admin_main(script_num).script_name		    = "Drug Felon list"
+script_array_admin_main(script_num).file_name			= "drug-felon-list.vbs"
+script_array_admin_main(script_num).description		    = "Reviews the Drug Felon list from DHS to update these cases."
 
 script_num = script_num + 1
 ReDim Preserve script_array_admin_main(script_num)
@@ -166,6 +194,13 @@ script_array_admin_main(script_num).script_name			= "Language Stats"												
 script_array_admin_main(script_num).file_name			= "language-stats.vbs"												'Script URL
 script_array_admin_main(script_num).description			= "Collects language statistics by language and region. Take approximately 10 hours to run."
 
+script_num = script_num + 1							   'Increment by one
+ReDim Preserve script_array_admin_main(script_num)	   'Resets the array to add one more element to it
+Set script_array_admin_main(script_num) = new script   'Set this array element to be a new script. Script details below...
+script_array_admin_main(script_num).script_name		   = "MEMO from List"
+script_array_admin_main(script_num).file_name		   = "memo-from-list.vbs"
+script_array_admin_main(script_num).description		   = "Creates the same MEMO on cases listed in REPT/ACTV, manually entered, or from an Excel spreadsheet of your choice."
+
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
 Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
@@ -176,16 +211,16 @@ script_array_admin_main(script_num).description			= "FIATs MFIP sanction actions
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
 Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_admin_main(script_num).script_name			= "Pull Cases Into Excel"											'Script name
-script_array_admin_main(script_num).file_name			= "pull-cases-into-excel.vbs"										'Script URL
-script_array_admin_main(script_num).description			= "Creates a list of information not available in other BULK scripts."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
-Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_admin_main(script_num).script_name			= "Sanction Member Info"										'Script name
 script_array_admin_main(script_num).file_name			= "sanction-member-info.vbs"									'Script URL
 script_array_admin_main(script_num).description			= "BULK script to gather information for for MFIP participants on REPT/MFCM."
+
+script_num = script_num + 1							   'Increment by one
+ReDim Preserve script_array_admin_main(script_num)	    'Resets the array to add one more element to it
+Set script_array_admin_main(script_num) = new script    'Set this array element to be a new script. Script details below...
+script_array_admin_main(script_num).script_name		    = "Training Case Creator"
+script_array_admin_main(script_num).file_name			= "training-case-creator.vbs"
+script_array_admin_main(script_num).description		    = "Creates training case scenarios en masse and XFERs them to workers."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
@@ -271,6 +306,13 @@ Set script_array_QI_list(script_num) = new script	'Set this array element to be 
 script_array_QI_list(script_num).script_name		= "QI Renewal Accuracy"                                              'Script name
 script_array_QI_list(script_num).file_name			= "qi-renewal-accuracy.vbs"                                          'Script URL
 script_array_QI_list(script_num).description		= "Template for documenting specific renewal information that has been reviewed by policy experts."
+
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
+Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_QI_list(script_num).script_name		= "Targeted SNAP Review Selection"
+script_array_QI_list(script_num).file_name			= "targeted-snap-review-selection.vbs"
+script_array_QI_list(script_num).description		= "Creates a list of SNAP cases meeting review criteria and selects a random sample for review."
 
 '----------------------------------------------------------------------------------------------------BZ array
 script_num = 0
@@ -372,6 +414,15 @@ script_array_BZ_list(script_num).file_name			= "unea-updater.vbs"									'Scrip
 script_array_BZ_list(script_num).description		= "BULK script that updates UNEA information and sends SPEC/MEMO for VA cases at ER."
 
 
+
+
+
+'script_num = script_num + 1								'Increment by one
+'ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
+'Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
+'script_array_admin_main(script_num).script_name			= "Pull Cases Into Excel"											'Script name
+'script_array_admin_main(script_num).file_name			= "pull-cases-into-excel.vbs"										'Script URL
+'script_array_admin_main(script_num).description			= "Creates a list of information not available in other BULK scripts."
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
 '	We're doing this because we want to assign a value to each button pressed, and we want
