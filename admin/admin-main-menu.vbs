@@ -261,20 +261,6 @@ script_array_QI_list(script_num).description		= "Script to transfer inactive cas
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
 Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_QI_list(script_num).script_name		= "FSET Sanctions - BULK"													'Script name
-script_array_QI_list(script_num).file_name			= "fset-sanctions-bulk.vbs"												'Script URL
-script_array_QI_list(script_num).description		= "BULK script to assist in reviewing, applying, case noting and adding WCOM's for FSET sanction cases."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
-Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_QI_list(script_num).script_name		= "FSET Sanctions - CASE"													'Script name
-script_array_QI_list(script_num).file_name			= "fset-sanctions.vbs"												'Script URL
-script_array_QI_list(script_num).description		= "BULK script to assist in reviewing, applying, case noting and adding WCOM's for FSET sanction cases."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
-Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_QI_list(script_num).script_name		= "Individual Appointment Notice"													'Script name
 script_array_QI_list(script_num).file_name			= "individual-appointment-letter.vbs"												'Script URL
 script_array_QI_list(script_num).description		= "Sends an appointment letter for a single case, with the same wording as On Demand Applications"
@@ -342,6 +328,13 @@ Set script_array_BZ_list(script_num) = new script	'Set this array element to be 
 script_array_BZ_list(script_num).script_name		= "COLA Decimator"													'Script name
 script_array_BZ_list(script_num).file_name			= "cola-decimator.vbs"												'Script URL
 script_array_BZ_list(script_num).description		= "BULK script that deletes and case notes auto-approval COLA messages."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BZ_list(script_num).script_name		= "DAIL CCD"													'Script name
+script_array_BZ_list(script_num).file_name			= "dail-case-note-capture.vbs"												'Script URL
+script_array_BZ_list(script_num).description		= "BULK script that captures, case notes and deletes specific DAILS based on content, and collects them into an Excel spreadsheet."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
