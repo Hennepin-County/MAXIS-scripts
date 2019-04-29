@@ -369,12 +369,13 @@ CALL write_variable_in_case_note (worker_signature)
 CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 CALL create_MAXIS_friendly_date(denial_date, 0, 5, 18)
 IF select_answer = "YES - Update MLAD" or select_answer = "NO - ADD A PROGRAM" THEN
-	CALL write_variable_in_TIKL("~ Client submitted intent to apply for MA/MSP on " & appl_date & " Certain Populations App mailed on " & date & " If client has not responded, HC request should be denied. If client is disabled, please give an additional 15 days.")
+	'Client submitted intent to apply for MA/MSP on 1/22/2019 via MIPPA.  Certain Pops App mailed on 1/24/2019.  If client has not responded, HC should be denied.  If client is disabled, give an additional 15 days.  '
+	CALL write_variable_in_TIKL("~ Client submitted intent to apply for MA/MSP on " & appl_date & " Certain Populations App mailed on " & date & " If client has not responded, HC request should be denied. If client is disabled, give an additional 15 days.")
 ELSE
 	'Client submitted intent to apply for MA/MSP on 1/22/2019 via MIPPA. Certain Populations App mailed on 1/24/2019. If client has not responded, HC request should be denied. If client is
-
+	'Client submitted intent to apply for MA/MSP.  Case is pending or active on HC. Ensure the Date of Application is 1/22/2019 or according to the HC app on file, whichever is oldest.
 	'Client submitted intent to apply for MA/MSP. Case is already pending or active on Health Care in MAXIS. Please ensure that the Date of Application is 1/22/2019 or according to the Health Care Application on file, whichever is oldest.
-	CALL write_variable_in_TIKL("~ Client submitted intent to apply for MA/MSP.  Case already pending or active on HC.  Please ensure that the Date of Application is aligned and review for MA/MSP eligibility.")
+	CALL write_variable_in_TIKL("~ Client submitted intent to apply for MA/MSP.  Case is pending or active on HC. Ensure the Date of Application is " & appl_date & " or according to the HC app on file, whichever is oldest.  .")
 END IF
 TRANSMIT
 PF3
