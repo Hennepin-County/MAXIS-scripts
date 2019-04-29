@@ -275,32 +275,13 @@ Row = 8
 
 '-----------------------------------------------------navigating into the match'
 'msgbox "row: " & row
-		CALL write_value_and_transmit("X", row, 3) 'navigating to insm'
-		'Ensuring that the client has not already had a difference notice sent
-		EMReadScreen notice_sent, 1, 8, 73
-		EMReadScreen sent_date, 8, 9, 73
-		sent_date = trim(sent_date)
-		If trim(sent_date) <> "" then sent_date= replace(sent_date, " ", "/")
-
-		'------------------------------------------------------------------'still need to be on PARIS Interstate Match Display (INSM)'
-
-	'	'IF resolution_status = "PR - Person Removed From Household" THEN rez_status = "PR"
-	'	''IF resolution_status = "HM - Household Moved Out Of State" THEN rez_status = "HM"
-	'	'IF resolution_status = "RV - Residency Verified, Person in MN" THEN rez_status = "RV"
-	'	''IF resolution_status = "FR - Failed Residency Verification Request" THEN rez_status = "FR"
-	'	'IF resolution_status = "PC - Person Closed, Not PARIS Interstate" THEN rez_status = "PC"
-	'	'IF resolution_status = "CC - Case Closed, Not PARIS Interstate" THEN rez_status = "CC"
-
-		PF9 'to edit the case'
-		'EMwritescreen rez_status, 9, 27
-		EMwritescreen "FR", 9, 27
-		IF fraud_referral = "YES" THEN
-			EMwritescreen "Y", 10, 27
-			ELSE
-			TRANSMIT
-		END IF
-
-	'--------------------------------------------------------------------Client name
+	CALL write_value_and_transmit("X", row, 3) 'navigating to insm'
+	'Ensuring that the client has not already had a difference notice sent
+	EMReadScreen notice_sent, 1, 8, 73
+	EMReadScreen sent_date, 8, 9, 73
+	sent_date = trim(sent_date)
+	If trim(sent_date) <> "" then sent_date= replace(sent_date, " ", "/")
+'--------------------------------------------------------------------Client name
 		EMReadScreen client_Name, 26, 5, 27
 		client_name = trim(client_name)                         'trimming the client name
 		IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This seperates the two names
@@ -317,7 +298,7 @@ Row = 8
 			last_name = client_name
 		END IF
 		first_name = trim(first_name)
-	'----------------------------------------------------------------------Minnesota active programs
+'----------------------------------------------------------------------Minnesota active programs
 	EMReadScreen MN_Active_Programs, 15, 6, 59
 	MN_active_programs = Trim(MN_active_programs)
 	MN_active_programs = Trim(MN_active_programs)
@@ -410,11 +391,29 @@ Row = 8
 		END IF
 	LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 
+	'------------------------------------------------------------------'still need to be on PARIS Interstate Match Display (INSM)'
+
+	IF resolution_status = "PR - Person Removed From Household" THEN rez_status = "PR"
+	IF resolution_status = "HM - Household Moved Out Of State" THEN rez_status = "HM"
+	IF resolution_status = "RV - Residency Verified, Person in MN" THEN rez_status = "RV"
+	IF resolution_status = "FR - Failed Residency Verification Request" THEN rez_status = "FR"
+	IF resolution_status = "PC - Person Closed, Not PARIS Interstate" THEN rez_status = "PC"
+	IF resolution_status = "CC - Case Closed, Not PARIS Interstate" THEN rez_status = "CC"
+
+	PF9 'to edit the case'
+	'msgbox rez_status & "This update may cause issues, please let MiKayla know right away to assist with testing."
+	EMwritescreen rez_status, 9, 27
+	IF fraud_referral = "YES" THEN
+		EMwritescreen "Y", 10, 27
+		ELSE
+		TRANSMIT
+	END IF
+	TRANSMIT
 
 	'--------------------------------------------------------------------Dialog
 	discovery_date = date
 
-	BeginDialog overpayment_dialog, 0, 0, 361, 285, "PARIS Match Claim Entered"
+	BeginDialog overpayment_dialog, 0, 0, 361, 290, "PARIS Match Claim Entered"
 	  EditBox 60, 5, 40, 15, MAXIS_case_number
 	  EditBox 200, 5, 20, 15, memb_number
 	  DropListBox 315, 5, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
@@ -448,13 +447,14 @@ Row = 8
  	  EditBox 100, 175, 20, 15, HC_resp_memb
  	  EditBox 235, 175, 45, 15, Fed_HC_AMT
 	  CheckBox 10, 205, 50, 10, "Collectible?", collectible_checkbox
-	  DropListBox 100, 200, 100, 15, "Select:"+chr(9)+"Agency Error"+chr(9)+"Household"+chr(9)+"Non-Collect--Agency Error"+chr(9)+"GRH Vendor"+chr(9)+"Fraud"+chr(9)+"Admit Fraud", collectible_reason
+	  DropListBox 100, 200, 100, 15, "Select:"+chr(9)+"Agency Error"+chr(9)+"Household"+chr(9)+"Non-Collect Agency Error"+chr(9)+"GRH Vendor"+chr(9)+"Fraud"+chr(9)+"Admit Fraud", collectible_reason
 	  CheckBox 10, 220, 120, 10, "Accessing benefits in other state?", bene_other_state_checkbox
 	  CheckBox 10, 235, 85, 10, "Contacted other state?", contact_other_state_checkbox
 	  CheckBox 230, 200, 120, 10, "Out of state verification received?", out_of_state_checkbox
 	  EditBox 305, 215, 45, 15, verif_rcvd_date
 	  CheckBox 230, 235, 125, 10, "Earned income disregard allowed?", EI_checkbox
 	  EditBox 50, 250, 305, 15, Reason_OP
+	  DropListBox 75, 270, 140, 15, "Select One:"+chr(9)+"PR - Person Removed From Household"+chr(9)+"HM - Household Moved Out Of State"+chr(9)+"RV - Residency Verified, Person in MN"+chr(9)+"FR - Failed Residency Verification Request"+chr(9)+"PC - Person Closed, Not PARIS Interstate"+chr(9)+"CC - Case Closed, Not PARIS Interstate", resolution_status
 	  ButtonGroup ButtonPressed
 	    OkButton 260, 270, 45, 15
 	    CancelButton 310, 270, 45, 15
@@ -499,6 +499,8 @@ Row = 8
 	  Text 5, 10, 50, 10, "Case number: "
 	  Text 260, 10, 50, 10, "Fraud referral:"
 	  Text 70, 205, 30, 10, "Reason:"
+	  Text 10, 275, 65, 10, "Resolution Status:"
+
 	EndDialog
 	Do
 		err_msg = ""
@@ -562,7 +564,7 @@ Row = 8
 
 '-----------------------------------------------------------------------------------------CASENOTE
 	start_a_blank_case_note
-	CALL write_variable_in_CASE_NOTE ("-----" & INTM_period & " PARIS MATCH " & "(" & first_name &  ") OVERPAYMENT CLAIM ENTERED-----")
+	CALL write_variable_in_CASE_NOTE ("-----" & INTM_period & " PARIS MATCH " & "(" & first_name &  ") CLEARED " & rez_status & " CLAIM ENTERED-----")
 	Call write_bullet_and_variable_in_case_note("Client Name", Client_Name)
 	Call write_bullet_and_variable_in_case_note("MN Active Programs", MN_active_programs)
 	Call write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
