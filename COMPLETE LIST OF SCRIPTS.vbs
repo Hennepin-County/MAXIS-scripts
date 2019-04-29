@@ -2163,28 +2163,8 @@ script_array(script_num).release_date           = #10/03/2016#
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "Copy Case Note Elsewhere"
-script_array(script_num).description 			= "Copies a CASE/NOTE to either a claims note or a SPEC/MEMO."
-script_array(script_num).category               = "UTILITIES"
-script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("")
-script_array(script_num).release_date           = #06/27/2016#
-
-script_num = script_num + 1						'Increment by one
-ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "Copy Panels to Word"
 script_array(script_num).description			= "Copies MAXIS panels to Word en masse for a case for easier review."
-script_array(script_num).category               = "UTILITIES"
-script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("")
-script_array(script_num).release_date           = #10/01/2000#
-
-script_num = script_num + 1						'Increment by one
-ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "Phone Number or Name Look Up"
-script_array(script_num).description 			= "Checks every case on REPT screens to find a case number when you have a phone number. *OR* Searches for a specific case on multiple REPT screens by last name."
 script_array(script_num).category               = "UTILITIES"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("")
