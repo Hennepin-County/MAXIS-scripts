@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/29/2019", "Added BULK scripts REPT - IEVC and REPT - INTR to DEU menu.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/01/2018", "Updated for naming conventions.", "MiKayla Handley, Hennepin County")
 call changelog_update("12/29/2017", "Added all up-to-date DEU script to speciality power pad/DEU.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/22/2017", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -174,12 +175,28 @@ script_array_DEU_main(script_num).script_name			= "PARIS Match Cleared-CC Claim 
 script_array_DEU_main(script_num).file_name				= "PARIS-match-cleared-CC-claim-entered.vbs"
 script_array_DEU_main(script_num).description			= "Notes script that assists in entering a case note for claims entered on PARIS matches."
 
+script_num = script_num + 1									'Increment by one
+ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
+Set script_array_DEU_main(script_num) = new script	    'Set this array element to be a new script. Script details below...
+script_array_DEU_main(script_num).script_name 		    = "REPT - IEVC"
+script_array_DEU_main(script_num).file_name			    = "rept-ievc-list.vbs"
+script_array_DEU_main(script_num).description 		    = "Pulls a list of cases in REPT/IEVC into an Excel spreadsheet."
+
+script_num = script_num + 1							    		'Increment by one
+ReDim Preserve script_array_DEU_main(script_num)	    	'Resets the array to add one more element to it
+Set script_array_DEU_main(script_num) = new script	    'Set this array element to be a new script. Script details below...
+script_array_DEU_main(script_num).script_name 		    = "REPT - INTR"
+script_array_DEU_main(script_num).file_name			    = "rept-intr-list.vbs"
+script_array_DEU_main(script_num).description 		    = "Pulls a list of cases in REPT/INTR into an Excel spreadsheet."
+
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
 Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_DEU_main(script_num).script_name			= "UNVI Match Cleared"
 script_array_DEU_main(script_num).file_name				= "UNVI-match-cleared.vbs"
 script_array_DEU_main(script_num).description			= "Action script that assists in clearing UNVI matches."
+
+
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
 '	We're doing this because we want to assign a value to each button pressed, and we want
