@@ -48,9 +48,8 @@ call changelog_update("02/12/2019", "Initial version.", "MiKayla Handley, Hennep
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
-'END CHANGELOG BLOCK =======================================================================================================
-
-REFERRAL/AB PARENT
+'END CHANGELOG BLOCK ======================================================================================================
+'For the dail scrubber REFERRAL/AB PARENT
 
 'Custom function for this script----------------------------------------------------------------------------------------------------
 FUNCTION get_case_status
