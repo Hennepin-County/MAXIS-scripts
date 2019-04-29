@@ -457,6 +457,7 @@ BeginDialog overpayment_dialog, 0, 0, 361, 280, "Match Cleared CC Claim Entered"
   Text 165, 70, 10, 10, "To:"
   GroupBox 5, 45, 350, 100, "Overpayment Information"
   Text 105, 70, 20, 10, "From:"
+  CheckBox 70, 265, 125, 10, "Check if the EVF/ATR is still needed", ATR_needed_checkbox
 EndDialog
 Do
     Do
@@ -621,13 +622,13 @@ Loop until are_we_passworded_out = false
     Call write_variable_in_case_note("-----")
     Call write_variable_in_case_note(worker_signature)
 	PF3
-
+	IF ATR_needed_checkbox= CHECKED THEN header_note = "ATR/EVF STILL REQUIRED"
 '-----------------------------------------------------------------------------------------CASENOTE
     start_a_blank_case_note
-    IF IEVS_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-    IF IEVS_type = "BEER" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-    IF IEVS_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-    IF IEVS_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+    IF IEVS_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
+    IF IEVS_type = "BEER" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
+    IF IEVS_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
+    IF IEVS_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
     CALL write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
     CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
     CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
