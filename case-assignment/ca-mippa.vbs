@@ -343,10 +343,11 @@ END IF
 denial_date = DateAdd("d", 45, date)
 '----------------------------------------------------------------------------------case note
 start_a_blank_case_note
+'Client submitted intent to apply for MA/MSP. Case is already pending or active on Health Care in MAXIS. Please ensure that the Date of Application is 1/22/2019 or according to the Health Care Application on file, whichever is oldest.
 CALL write_variable_in_case_note("~ MIPPA/Extra Help request received via REPT/MLAR on " & rcvd_date & " ~")
 'IF select_answer <> "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Case APPL'd based on the intent to apply date.  Application mailed out by the Case Assignment team on " & date)
 IF select_answer <> "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Applicant is not active on Health Care in MAXIS.  Case APPLed based on the intent to apply date of " & appl_date & ". ")
-IF select_answer = "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Please review the MIPPA record and case information for consistency and follow-up with any inconsistent information, as appropriate. Case is currently active on HC.")
+IF select_answer = "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Client submitted intent to apply for MA/MSP. Case is already pending or active on Health Care in MAXIS. Please ensure that the Date of Application is " & appl_date & "or according to the Health Care Application on file, whichever is oldest.")
 IF select_answer = "NO - APPL (Known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS.")
 IF select_answer = "NO - APPL (Not known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is not known to MAXIS.")
 IF select_answer = "NO - ADD A PROGRAM" THEN
@@ -368,8 +369,11 @@ CALL write_variable_in_case_note (worker_signature)
 CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
 CALL create_MAXIS_friendly_date(denial_date, 0, 5, 18)
 IF select_answer = "YES - Update MLAD" or select_answer = "NO - ADD A PROGRAM" THEN
-	CALL write_variable_in_TIKL("~ Client submitted intent to apply for MA/MSP on " & appl_date & " Certain Populations App mailed on " & date & " If application has not been received by Hennepin County HC request should be denied.  If client is disabled, please give an additional 15 days for the application to be returned.")
+	CALL write_variable_in_TIKL("~ Client submitted intent to apply for MA/MSP on " & appl_date & " Certain Populations App mailed on " & date & " If client has not responded, HC request should be denied. If client is disabled, please give an additional 15 days.")
 ELSE
+	'Client submitted intent to apply for MA/MSP on 1/22/2019 via MIPPA. Certain Populations App mailed on 1/24/2019. If client has not responded, HC request should be denied. If client is
+
+	'Client submitted intent to apply for MA/MSP. Case is already pending or active on Health Care in MAXIS. Please ensure that the Date of Application is 1/22/2019 or according to the Health Care Application on file, whichever is oldest.
 	CALL write_variable_in_TIKL("~ Client submitted intent to apply for MA/MSP.  Case already pending or active on HC.  Please ensure that the Date of Application is aligned and review for MA/MSP eligibility.")
 END IF
 TRANSMIT
