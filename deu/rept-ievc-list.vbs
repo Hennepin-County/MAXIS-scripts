@@ -1,5 +1,5 @@
 'Required for statistical purposes===============================================================================
-name_of_script = "BULK - REPT IEVC LIST.vbs"
+name_of_script = "BULK - REPT-IEVC LIST.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 300                               'manual run time, per line, in seconds
@@ -294,6 +294,8 @@ DO
 	STATS_counter = STATS_counter + 1		'Counts 1 item for every Match found and entered into excel.			diff_notc_date = ""			'blanks this out so that the information is not carried over in the do-loop'
 	maxis_case_number = ""
 Loop until last_page_check = "THIS IS THE LAST PAGE"
+
+STATS_counter = STATS_counter - 1 'removed increment from the start of the script for an accurate count
 
 'Centers the text for the columns with days remaining and difference notice
 objExcel.Columns(6).HorizontalAlignment = -4108

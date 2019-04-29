@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/29/2019", "Moved the following scripts to specialty menu DEU: REPT - IEVC and REPT - INTR.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/29/2019", "Retired the following BULK scripts: CEI premium noter, Housing Grant Exemption Finder, INAC scrubber, NON-MAGI HC Info, REPT-ARST, Returned Mail, Spenddown Report, SWKR List Generator, TIKL From List and Update EOMC List. ", "Ilse Ferris, Hennepin County")
 call changelog_update("09/25/2017", "Added the following BULK scripts: 7th Sanction Identifier, EMPS, FSS Info, GA Advanced Age Identifier, GRH Professional Need, Homesless Discrepancy, MFIP Sanction and Paperless IR. Removed REPT GRMR, this is no longer a report option in MAXIS.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -253,23 +254,9 @@ script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases i
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_BULK_stat_list(script_num).script_name 		= "IEVC"
-script_array_BULK_stat_list(script_num).file_name			= "rept-ievc-list.vbs"
-script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/IEVC into an Excel spreadsheet."
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_BULK_stat_list(script_num).script_name 		= "INAC"
 script_array_BULK_stat_list(script_num).file_name			= "rept-inac-list.vbs"
 script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/INAC into an Excel spreadsheet."
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_stat_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_BULK_stat_list(script_num).script_name 		= "INTR"
-script_array_BULK_stat_list(script_num).file_name			= "rept-intr-list.vbs"
-script_array_BULK_stat_list(script_num).description 		= "Pulls a list of cases in REPT/INTR into an Excel spreadsheet."
 
 script_num = script_num + 1									'Increment by one
 ReDim Preserve script_array_BULK_stat_list(script_num)		'Resets the array to add one more element to it
