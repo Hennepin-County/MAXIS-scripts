@@ -1,5 +1,5 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "NOTICES - OVERDUE BABY.vbs"
+name_of_script = "DAIL - OVERDUE BABY.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 120                               'manual run time in seconds
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("04/26/2019", "Updated for DAIL function.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -51,68 +52,75 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+
+'PEPR UNBORN CHILD IS OVERDUE
+
 'DIALOG---------------------------------------------------------------------------------------------------------------------
-BeginDialog NOTICES_overdue_baby_dialog, 0, 0, 141, 85, "NOTICES - OVERDUE BABY"
-  EditBox 60, 5, 60, 15, MAXIS_case_number
-  EditBox 70, 25, 60, 15, worker_signature
-  CheckBox 5, 45, 100, 15, "TIKL for ten day follow up?", tikl_for_ten_day_follow_up_checkbox
+
+BeginDialog overdue_baby_dialog, 0, 0, 166, 155, "DAIL_type & MESSAGE PROCESSED"
+  CheckBox 5, 35, 90, 10, "ECF has been reviewed ", ECF_reviewed
+  CheckBox 5, 50, 90, 10, "Updated PREG panel", update_preg_CHECKBOX
+  CheckBox 5, 65, 75, 10, "Send SPEC/MEMO", spec_memo_CHECKBOX
+  CheckBox 5, 80, 90, 10, "TIKL for ten day review", tikl_CHECKBOX
+  EditBox 50, 95, 110, 15, other_notes
+  EditBox 50, 115, 110, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 30, 65, 50, 15
-    CancelButton 80, 65, 50, 15
-  Text 5, 5, 50, 15, "Case Number:"
-  Text 5, 25, 60, 15, "Worker Signature:"
+    OkButton 75, 135, 40, 15
+    CancelButton 120, 135, 40, 15
+  Text 5, 100, 40, 10, "Other notes:"
+  Text 10, 15, 160, 10, full_message
+  GroupBox 5, 5, 155, 25, "DAIL for case #  &  MAXIS_case_number"
+  Text 5, 120, 35, 10, "Signature:"
 EndDialog
 
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------
 'Connects to BlueZone default screen
 EMConnect ""
 
-'Searches for a case number
-call MAXIS_case_number_finder(MAXIS_case_number)
-
 Do
-	Dialog NOTICES_overdue_baby_dialog
-	If ButtonPressed = 0 then stopscript
-	If MAXIS_case_number = ""  or isnumeric(MAXIS_case_number) = false then MsgBox "You did not enter a valid case number. Please try again."
-	If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
-Loop until MAXIS_case_number <> "" and isnumeric(MAXIS_case_number) = true and worker_signature <> ""
-transmit
-call check_for_MAXIS(True)
-
-Call start_a_new_spec_memo
-
-'Writes the info into the MEMO
-call write_variable_in_SPEC_MEMO("Our records indicate your due date has passed and you did not report the birth of your child or the pregnancy end date. Please contact us within 10 days of this notice with the following information or your case may close:")
-call write_variable_in_SPEC_MEMO("")
-call write_variable_in_SPEC_MEMO("* Date of the birth or pregnancy end date.")
-call write_variable_in_SPEC_MEMO("* Baby's sex and full name.")
-call write_variable_in_SPEC_MEMO("* Baby's social security number.")
-call write_variable_in_SPEC_MEMO("* Full name of the baby's father.")
-call write_variable_in_SPEC_MEMO("* Does the baby's father live in your home?")
-call write_variable_in_SPEC_MEMO("* If so, does the father have a source of income?")
-call write_variable_in_SPEC_MEMO("  (If so, what is the source of income?)")
-call write_variable_in_SPEC_MEMO("* Is there other health insurance available through any       household member's employer, or privately?")
-call write_variable_in_SPEC_MEMO("")
-call write_variable_in_SPEC_MEMO("Thank you,")
-PF4
+	Do
+		err_msg = ""
+        	Dialog overdue_baby_dialog
+        	If ButtonPressed = 0 then stopscript
+        	If worker_signature = "" then MsgBox "You did not sign your case note. Please try again."
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Navigates to blank case note
 Call start_a_blank_CASE_NOTE
 'Writes the case note
-call write_variable_in_CASE_NOTE("***Overdue Baby***")
-call write_variable_in_CASE_NOTE("* SPEC/MEMO sent this date informing client that they need to report ")
-call write_variable_in_CASE_NOTE("      information regarding the birth of their child, and/or pregnancy end ")
-call write_variable_in_CASE_NOTE("      date, within 10 days or their case may close.")
-call write_variable_in_CASE_NOTE("---")
-call write_variable_in_CASE_NOTE(worker_signature)
+call write_variable_in_CASE_NOTE("=== OVERDUE BABY DAIL PROCESSED ===")
+IF update_preg_CHECKBOX = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Updated PREG panel, child has been added to case. No further action taken.")
+IF spec_memo_CHECKBOX = CHECKED THEN CALL write_variable_in_CASE_NOTE("* SPEC/MEMO sent informing client that they need to report information regarding the birth of their child, and/or pregnancy end date, within 10 days or their case may close.")
+CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
+CALL write_variable_in_CASE_NOTE("---")
+CALL write_variable_in_CASE_NOTE(worker_signature)
 
 'Navigates to TIKL (if selected)
-If tikl_for_ten_day_follow_up_checkbox = checked then
-	call navigate_to_MAXIS_screen("DAIL", "WRIT")
-	call create_MAXIS_friendly_date(date, 10, 5, 18)
-	call write_variable_in_TIKL("Has information on new baby/end of pregnancy been received? If not, consider case closure/take appropriate action.")
-	transmit
+If tikl_checkbox = CHECKED then
+	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
+	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
+	CALL write_variable_in_TIKL("Has information on new baby/end of pregnancy been received? If not, consider case closure/take appropriate action.")
+	TRANSMIT
 	PF3
 End If
 
-script_end_procedure("Success! The script has case noted the overdue baby info, sent a SPEC/MEMO to the client, and TIKLed for 10-day return of information.")
+IF spec_memo_CHECKBOX = CHECKED THEN
+	CALL start_a_new_spec_memo
+	CALL write_variable_in_SPEC_MEMO("Our records indicate your due date has passed and you did not report the birth of your child or the pregnancy end date. Please contact us within 10 days of this notice with the following information or your case may close:")
+    CALL write_variable_in_SPEC_MEMO("")
+    CALL write_variable_in_SPEC_MEMO("* Date of the birth or pregnancy end date.")
+    CALL write_variable_in_SPEC_MEMO("* Baby's sex and full name.")
+    CALL write_variable_in_SPEC_MEMO("* Baby's social security number.")
+    CALL write_variable_in_SPEC_MEMO("* Full name of the baby's father.")
+    CALL write_variable_in_SPEC_MEMO("* Does the baby's father live in your home?")
+    CALL write_variable_in_SPEC_MEMO("* If so, does the father have a source of income?")
+    CALL write_variable_in_SPEC_MEMO("  (If so, what is the source of income?)")
+    CALL write_variable_in_SPEC_MEMO("* Is there other health insurance available through any       household member's employer, or privately?")
+    CALL write_variable_in_SPEC_MEMO("")
+    CALL write_variable_in_SPEC_MEMO("Thank you,")
+    PF4
+END IF
+
+script_end_procedure_with_error_report("Success! The script has case noted the overdue baby info.")

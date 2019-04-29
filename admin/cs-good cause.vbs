@@ -528,7 +528,6 @@ IF NOSIG_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " no signat
 IF OTHER_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " other (see additional information),"
 incomplete_form  = trim(incomplete_form)
 If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
-
 '-----------------------------------------------------------------------------------------------------Case note & email sending
 Call MAXIS_footer_month_confirmation    'Footer month & year could get wonky and not go into case note. This prevents that from happening.
 start_a_blank_case_note
@@ -567,8 +566,9 @@ IF Recert_CHECKBOX   = CHECKED THEN Call write_variable_in_case_note("* Sent Goo
 IF DHS_3633_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Redetermination Approval (DHS 3633)")
 Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)
+PF3
 
-IF FS_CHECKBOX = CHECKED and CASH_CHECKBOX = CHECKED and CCA_CHECKBOX = UNCHECKED and DWP_CHECKBOX = UNCHECKED and MFIP_CHECKBOX = UNCHECKED and HC_CHECKBOX = UNCHECKED and METS_CHECKBOX = UNCHECKED THEN memo_started = TRUE
+IF FS_CHECKBOX = CHECKED and CASH_CHECKBOX = UNCHECKED and CCA_CHECKBOX = UNCHECKED and DWP_CHECKBOX = UNCHECKED and MFIP_CHECKBOX = UNCHECKED and HC_CHECKBOX = UNCHECKED and METS_CHECKBOX = UNCHECKED THEN memo_started = TRUE
 
 IF memo_started = TRUE THEN
 	Call start_a_new_spec_memo
