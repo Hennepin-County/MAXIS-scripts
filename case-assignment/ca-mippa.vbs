@@ -347,7 +347,7 @@ start_a_blank_case_note
 CALL write_variable_in_case_note("~ MIPPA/Extra Help request received via REPT/MLAR on " & rcvd_date & " ~")
 'IF select_answer <> "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Case APPL'd based on the intent to apply date.  Application mailed out by the Case Assignment team on " & date)
 IF select_answer <> "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Applicant is not active on Health Care in MAXIS.  Case APPLed based on the intent to apply date of " & appl_date & ". ")
-IF select_answer = "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Client submitted intent to apply for MA/MSP. Case is already pending or active on Health Care in MAXIS. Please ensure that the Date of Application is " & appl_date & "or according to the Health Care Application on file, whichever is oldest.")
+IF select_answer = "YES - Update MLAD" THEN CALL write_variable_in_case_note("* Client submitted intent to apply for MA/MSP. Case is already pending or active on Health Care in MAXIS. Please ensure that the Date of Application is " & appl_date & " or according to the Health Care Application on file, whichever is oldest.")
 IF select_answer = "NO - APPL (Known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is known to MAXIS.")
 IF select_answer = "NO - APPL (Not known to MAXIS)" THEN CALL write_variable_in_case_note("* APPL'd case using the MIPPA record and case information applicant is not known to MAXIS.")
 IF select_answer = "NO - ADD A PROGRAM" THEN
