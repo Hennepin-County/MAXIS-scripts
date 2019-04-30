@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/30/2019", "Retired NOTES - REIN PROGS script. Please use applicable application or approval case notes.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/23/2019", "Removed MAXIS TO METS MIGRATION script. Added HEALTH CARE TRANSITION script.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/26/2019", "Retired 'NOTES - MNsure - Documents requested' script. Please use NOTES - VERIFICATIONS NEEDED.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/13/2019", "Two scripts have been removed. Explanation of Income Budgeted and EVF Received are no longer available. Use Documents Received in place of EVF Received. ACTIONS - Earned Income whould be used in place of Explanation of Income Budgeted.", "Casey Love, Hennepin County")
@@ -468,13 +469,6 @@ script_array_M_to_Q(script_num).description				= "Template for documenting proof
 '-------------------------------------------------------------------------------------------------------------------------R through Z
 'Resetting the variable
 script_num = 0											'establishing count as 0
-ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one more element to it
-Set script_array_R_to_Z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_R_to_Z(script_num).script_name 			= "REIN Progs"
-script_array_R_to_Z(script_num).file_name				= "rein-progs.vbs"
-script_array_R_to_Z(script_num).description				= "Template for noting program reinstatement information."
-
-script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_R_to_Z(script_num)			'Resets the array to add one more element to it
 Set script_array_R_to_Z(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_R_to_Z(script_num).script_name 			= "Returned Mail"
