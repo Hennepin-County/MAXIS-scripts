@@ -1125,6 +1125,50 @@ If asset_form_checkbox = checked Then
             ElseIf panel_type = "SECU" Then
                 ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
                 'Dialog to fill the SECU panel
+
+                BeginDialog Dialog1, 0, 0, 271, 235, "New SECU panel for Case #" & MAXIS_case_number
+                  DropListBox 75, 10, 135, 45, "Select One...", ast_owner
+                  DropListBox 75, 30, 135, 45, "Select ..."+chr(9)+"SV - Savings"+chr(9)+"CK - Checking", ast_type
+                  EditBox 75, 50, 105, 15, ast_number
+                  EditBox 75, 70, 105, 15, ast_location
+                  EditBox 75, 90, 50, 15, ast_balance
+                  EditBox 160, 90, 50, 15, ast_bal_date
+                  DropListBox 75, 110, 80, 45, "Select..."+chr(9)+"1 - Bank Statement"+chr(9)+"2 - Agcy Ver Form"+chr(9)+"3 - Coltrl Contact"+chr(9)+"5 - Other Document"+chr(9)+"6 - Personal Statement"+chr(9)+"N - No Ver Prvd", ast_verif
+                  EditBox 95, 130, 60, 15, ast_face_value_LI
+                  CheckBox 230, 25, 30, 10, "CASH", count_cash_checkbox
+                  CheckBox 230, 40, 30, 10, "SNAP", count_snap_checkbox
+                  CheckBox 230, 55, 20, 10, "HC", count_hc_checkbox
+                  CheckBox 230, 70, 25, 10, "GRH", count_grh_checkbox
+                  CheckBox 230, 85, 20, 10, "IVE", count_ive_checkbox
+                  EditBox 75, 170, 50, 15, ast_wdrw_penlty
+                  DropListBox 75, 190, 80, 45, "Select..."+chr(9)+"1 - Bank Statement"+chr(9)+"2 - Agcy Ver Form"+chr(9)+"3 - Coltrl Contact"+chr(9)+"5 - Other Document"+chr(9)+"6 - Personal Statement"+chr(9)+"N - No Ver Prvd", ast_wthdr_verif
+                  EditBox 215, 125, 15, 15, share_ratio_num
+                  EditBox 240, 125, 15, 15, share_ratio_denom
+                  ComboBox 170, 160, 90, 45, "Type or Select", ast_othr_ownr_one
+                  ComboBox 170, 175, 90, 45, "Type or Select", ast_othr_ownr_two
+                  ComboBox 170, 190, 90, 45, "Type or Select", ast_othr_ownr_thr
+                  ButtonGroup ButtonPressed
+                    OkButton 160, 215, 50, 15
+                    CancelButton 215, 215, 50, 15
+                  Text 10, 15, 60, 10, "Owner of Account:"
+                  Text 20, 35, 50, 10, "Security Type:"
+                  Text 10, 55, 60, 10, "Security Number:"
+                  Text 15, 75, 55, 10, "Security Name:"
+                  Text 10, 95, 60, 10, "Cash Value (CSV):"
+                  Text 25, 115, 40, 10, "Verification:"
+                  Text 130, 95, 25, 10, "As of:"
+                  GroupBox 225, 10, 40, 90, "Count:"
+                  Text 10, 135, 75, 10, "Face Value of Life Ins:"
+                  GroupBox 20, 155, 140, 55, "Withdrawal Penalty"
+                  Text 40, 175, 30, 10, "Amount:"
+                  Text 30, 195, 40, 10, "Verification:"
+                  GroupBox 165, 110, 100, 100, "Additional Owner(s)"
+                  Text 170, 130, 40, 10, "Share Ratio:"
+                  Text 170, 145, 50, 10, "Other owners:"
+                  Text 235, 125, 5, 10, "/"
+                EndDialog
+
+
             ElseIf panel_type = "CARS" Then
                 ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
                 'Dialog to fill the CARS panel.
