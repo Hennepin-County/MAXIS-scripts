@@ -458,7 +458,7 @@ BeginDialog overpayment_dialog, 0, 0, 361, 280, "Match Cleared CC Claim Entered"
   Text 165, 70, 10, 10, "To:"
   GroupBox 5, 45, 350, 100, "Overpayment Information"
   Text 105, 70, 20, 10, "From:"
-  CheckBox 70, 265, 125, 10, "Check if the EVF/ATR is still needed", ATR_needed_checkbox
+  CheckBox 70, 265, 130, 10, "Check if the EVF/ATR is still needed", ATR_needed_checkbox
 EndDialog
 Do
     Do
