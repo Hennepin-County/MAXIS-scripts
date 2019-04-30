@@ -170,6 +170,22 @@ END IF
 
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
+BeginDialog Dialog1, 0, 0, 126, 55, "Dialog"
+  ButtonGroup ButtonPressed
+    OkButton 70, 30, 50, 15
+  Text 10, 15, 50, 10, "Case Number"
+  EditBox 60, 10, 60, 15, MAXIS_case_number
+EndDialog
+
+Do
+    err_msg = ""
+
+    dialog Dialog1
+    Call validate_MAXIS_case_number(err_msg, "-")
+    If err_msg <> "" Then MsgBox("Please review the foloowing in order for the script to continue:" & vbNewLine & err_msg)
+
+Loop until err_msg = ""
+
 Call start_a_blank_CASE_NOTE
 notes_variable = "03/19 for 01 is BANKED MONTH - Banked Month: 3.; 04/19 for 01 is BANKED MONTH - Banked Month: 4.;"
 bullet_variable = "This is where the bullet would be all the things."
