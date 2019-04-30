@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/29/2019", "Moved the following scripts to speciality menu ADMIN: Drug Felon List, MEMO From List and Targeted SNAP Review Selection.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/29/2019", "Moved the following scripts to specialty menu DEU: REPT - IEVC and REPT - INTR.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/29/2019", "Retired the following BULK scripts: CEI premium noter, Housing Grant Exemption Finder, INAC scrubber, NON-MAGI HC Info, REPT-ARST, Returned Mail, Spenddown Report, SWKR List Generator, TIKL From List and Update EOMC List. ", "Ilse Ferris, Hennepin County")
 call changelog_update("09/25/2017", "Added the following BULK scripts: 7th Sanction Identifier, EMPS, FSS Info, GA Advanced Age Identifier, GRH Professional Need, Homesless Discrepancy, MFIP Sanction and Paperless IR. Removed REPT GRMR, this is no longer a report option in MAXIS.", "Ilse Ferris, Hennepin County")
@@ -51,7 +52,7 @@ changelog_display
 
 'CUSTOM FUNCTIONS===========================================================================================================
 Function declare_BULK_menu_dialog(script_array)
-	BeginDialog BULK_dialog, 0, 0, 545, 380, "BULK Scripts"
+	BeginDialog BULK_dialog, 0, 0, 545, 300, "BULK Scripts"
 	 	Text 5, 5, 435, 10, "Bulk scripts main menu: select the script to run from the choices below."
 	  	ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 60, 15, "BULK ACTIONS", 		BULK_main_button
@@ -74,7 +75,7 @@ Function declare_BULK_menu_dialog(script_array)
 			button_placeholder = button_placeholder + 1
 		next
 
-		CancelButton 480, 360, 50, 15
+		CancelButton 480, 280, 50, 15
 		GroupBox 5, 20, 205, 35, "BULK Sub-Menus"
 	EndDialog
 End function
@@ -116,30 +117,9 @@ script_array_BULK_main(script_num).description 			= "Searches caseload(s) by sel
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BULK_main(script_num)		'Resets the array to add one more element to it
 Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_main(script_num).script_name			= "Drug Felon list"
-script_array_BULK_main(script_num).file_name			= "drug-felon-list.vbs"
-script_array_BULK_main(script_num).description			= "Reviews the Drug Felon list from DHS to update these cases."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_main(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_main(script_num).script_name			= "MEMO from List"
-script_array_BULK_main(script_num).file_name			= "memo-from-list.vbs"
-script_array_BULK_main(script_num).description			= "Creates the same MEMO on cases listed in REPT/ACTV, manually entered, or from an Excel spreadsheet of your choice."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_main(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_BULK_main(script_num).script_name			= " REVW/MONT Closures "													'needs spaces to generate button width properly.
 script_array_BULK_main(script_num).file_name			= "revw-mont-closures.vbs"
 script_array_BULK_main(script_num).description			= "Case notes all cases on REPT/REVW or REPT/MONT that are closing for missing or incomplete CAF/HRF/CSR/HC ER."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_main(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_main(script_num).script_name			= "Targeted SNAP Review Selection"
-script_array_BULK_main(script_num).file_name			= "targeted-snap-review-selection.vbs"
-script_array_BULK_main(script_num).description			= "Creates a list of SNAP cases meeting review criteria and selects a random sample for review."
 
 '-------------------------------------------------------------------------------------------------------------------------ENHANCED LISTS
 'Resetting the variable
