@@ -110,7 +110,7 @@ End If
 Do
 	err_msg = ""
 	'Dialog defined here so the dropdown can be changed
-	BeginDialog select_person_dialog, 0, 0, 191, 65, "Update FSS Information from the Status Update"
+	BeginDialog select_person_dialog, 0, 0, 191, 65, "Select Caregiver"
 	  EditBox 55, 5, 50, 15, MAXIS_case_number
 	  ButtonGroup ButtonPressed
 	    PushButton 135, 5, 50, 15, "search", search_button
@@ -220,7 +220,7 @@ Do
 	IF Remove_FSS = TRUE Then dialog_length = dialog_length + 20
 
 	y_pos = 25
-	BeginDialog fss_code_detail, 0, 0, 370, dialog_length, "Update FSS Information from the Status Update"
+	BeginDialog fss_code_detail, 0, 0, 370, dialog_length, "EMPS Update functions available"
 	  Text 5, 10, 195, 10, "This script can update EMPS for the following proceedures:"
 
 	  IF ES_referral_Missing = TRUE Then
@@ -238,7 +238,7 @@ Do
 
 	  ButtonGroup ButtonPressed
 	    PushButton 10, y_pos, 185, 10, "Code EMPS to get MFIP results instead of DWP", Intake_MFIP_Button
-	  Text 205, y_pos, 105, 10, "Workaround process for Intake"
+	  Text 205, y_pos, 120, 10, "Workaround process for Application"
 	  y_pos = y_pos + 15
 	  IF EMPS_Workaround = TRUE Then
 		  y_pos = y_pos + 5
