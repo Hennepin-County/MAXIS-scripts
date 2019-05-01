@@ -77,13 +77,12 @@ EMReadScreen full_message, 58, 6, 20
 EmReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number = trim(MAXIS_case_number)
 
-EMReadScreen extra_info, 1, 06, 80
+EMReadScreen extra_info, 1, 6, 80
 IF extra_info = "+" or extra_info = "&" THEN
 	EMSendKey "X"
 	TRANSMIT
 	'THE ENTIRE MESSAGE TEXT IS DISPLAYED'
 	EmReadScreen error_msg, 37, 24, 02
-
 	row = 1
 	col = 1
 	EMSearch "Case Number", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
@@ -119,7 +118,6 @@ If stat_check = "FS  " or stat_check = "HC  " or stat_check = "GA  " or stat_che
 		call run_from_GitHub(script_repository & "dail/affiliated-case-lookup.vbs")
 	End If
 End If
-
 
 'Checking for 12 month contact TIKL from CAF and CAR scripts(loads NOTICES - 12 month contact)
 EMReadScreen twelve_mo_contact_check, 57, 6, 20

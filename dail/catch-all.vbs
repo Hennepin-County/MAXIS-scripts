@@ -76,10 +76,10 @@ EMConnect ""
 '	IF match_found = TRUE THEN
 	    'do we need a date rcvd or save that for docs rcvd'
 	    'The following reads the message in full for the end part (which tells the worker which message was selected)
-	   ' EMReadScreen full_message, 59, 6, 20
-		'full_message = trim(full_message)
-	   ' EmReadScreen MAXIS_case_number, 8, 5, 73
-	   ' MAXIS_case_number = trim(MAXIS_case_number)
+	   EMReadScreen full_message, 59, 6, 20
+		full_message = trim(full_message)
+	    EmReadScreen MAXIS_case_number, 8, 5, 73
+	    MAXIS_case_number = trim(MAXIS_case_number)
 
 	    'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
 
@@ -154,8 +154,8 @@ CALL write_variable_in_CASE_NOTE(worker_signature)
 
 DIALOG delete_message_dialog
     IF ButtonPressed = delete_button THEN
-    	PF3 
-    	PF3
+    	PF3 'holds the case note'
+    	PF3 'takes you back to DAIL/DAIL'
     	DO
     		dail_read_row = 6
     		DO
@@ -163,10 +163,11 @@ DIALOG delete_message_dialog
 				double_check = trim(double_check)
     			IF double_check = full_message THEN
                     EMWriteScreen "T", dail_read_row, 3
+					msgbox double_check & " " & full_message
 					TRANSMIT
                     EMReadScreen dail_case_number, 8, 5, 73
                     dail_case_number = trim(dail_case_number)
-                    If dail_case_number = MAXIS_case_number Then EMWriteScreen "D", 6, 3
+                    If dail_case_number = MAXIS_case_number Then EMWriteScreen "D", dail_read_row, 3
     				TRANSMIT
     				EXIT DO
     			ELSE
