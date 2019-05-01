@@ -703,6 +703,15 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
                         PF10
                     End If
 
+                    If failure_check = "FS PHONE INTERVIEW (Y/N) IS MISSING" Then
+                        ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "Other current reviews"
+                        ALL_HC_REVS_ARRAY(revw_updated, hc_reviews) = FALSE
+                        ALL_HC_REVS_ARRAY(membs_updated, hc_reviews) = ""
+                        ALL_HC_REVS_ARRAY(case_notes, hc_reviews) = ALL_HC_REVS_ARRAY(case_notes, hc_reviews) & " - " & failure_check
+                        PF10
+                    End If
+
+
                     If failure_check = "CA REVIEW DATES MUST ALSO BE UPDATED" Then
                         ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "Other current reviews"
                         ALL_HC_REVS_ARRAY(revw_updated, hc_reviews) = FALSE
