@@ -59,7 +59,7 @@ EndDialog
 
 '-------------------------------------------------------------------------------------------------------THE SCRIPT
 'CONNECTING TO MAXIS & GRABBING THE CASE NUMBER
-'EMConnect ""
+EMConnect ""
 'EMReadscreen dail_check, 4, 2, 48 'changed from DAIL to view to ensure we are in DAIL/DAIL'
 'IF dail_check <> "DAIL" THEN script_end_procedure("Your cursor is not set on a message type. Please select an appropriate DAIL message and try again.")
 'IF dail_check = "DAIL" THEN
@@ -103,32 +103,6 @@ EndDialog
           Text 120, 40, 100, 10, "If applicable - date doc(s) rcvd:"
         EndDialog
 
-		EMReadScreen extra_info, 1, 06, 80
-		IF extra_info = "+" or extra_info = "&" THEN
-	        EMSendKey "X"
-		    TRANSMIT
-	        'THE ENTIRE MESSAGE TEXT IS DISPLAYED'
-	        EmReadScreen error_msg, 37, 24, 02
-
-		    row = 1
-		    col = 1
-		    EMSearch "Case Number", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
-		    'If row = 0 then script_end_procedure("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
-		    EMReadScreen first_line, 61, row + 3, col - 40 'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
-		    	'first_line = replace(first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
-		    	first_line = trim(first_line)
-		    EMReadScreen second_line, 61, row + 4, col - 40
-		    	second_line = trim(second_line)
-		    EMReadScreen third_line, 61, row + 5, col - 40 'maxis name'
-		    	third_line = trim(third_line)
-		    	'third_line = replace(third_line, ",", ", ")
-		    EMReadScreen fourth_line, 61, row + 6, col - 40'new hire name'
-		    	fourth_line = trim(fourth_line)
-		    	'fourth_line = replace(fourth_line, ",", ", ")
-		    EMReadScreen fifth_line, 61, row + 7, col - 40'new hire name'
-		    	fifth_line = trim(fifth_line)
-			TRANSMIT
-		END IF
 		EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
 		TRANSMIT
 		'Starts a blank case note
@@ -177,20 +151,11 @@ IF tikl_checkbox = checked THEN CALL write_variable_in_case_note("* TIKL'd to ch
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
-'TIKLING
-IF TIKL_checkbox = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")
-'If worker checked to TIKL out, it goes to DAIL WRIT
-IF TIKL_checkbox = checked THEN
-	CALL navigate_to_MAXIS_screen("DAIL","WRIT")
-	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
-	EMSetCursor 9, 3
-	EMSendKey "DAIL recieved " & DAIL_type & " " & verifs_needed & "."
-END IF
 
-    DIALOG delete_message_dialog
+DIALOG delete_message_dialog
     IF ButtonPressed = delete_button THEN
-    	PF3 ' only need one for TIKL'
-    	IF tikl_checkbox = UNCHECKED THEN PF3
+    	PF3 
+    	PF3
     	DO
     		dail_read_row = 6
     		DO
@@ -213,5 +178,15 @@ END IF
     		If others_dail = "** WARNING **" Then transmit
     	LOOP UNTIL double_check = full_message
     END IF
+
+	'TIKLING
+	IF TIKL_checkbox = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")
+	'If worker checked to TIKL out, it goes to DAIL WRIT
+	IF TIKL_checkbox = checked THEN
+		CALL navigate_to_MAXIS_screen("DAIL","WRIT")
+		CALL create_MAXIS_friendly_date(date, 10, 5, 18)
+		EMSetCursor 9, 3
+		EMSendKey "DAIL recieved " & DAIL_type & " " & verifs_needed & "."
+	END IF
 
 script_end_procedure_with_error_report(DAIL_type & vbcr &  first_line & vbcr & " DAIL has been case noted")
