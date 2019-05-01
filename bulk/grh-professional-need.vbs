@@ -74,11 +74,11 @@ Do
 	Do 	
 		err_msg = ""
 		Dialog GRH_Prof_Need_dialog
-		If buttonpressed = cancel then stopscript
+		cancel_without_confirmation
 		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbnewline & "* Enter at least one worker number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine		
 	Loop until err_msg = ""	
-Call check_for_password(are_we_passworded_out)
+    Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
 'Starting the query start time (for the query runtime at the end)
