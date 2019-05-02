@@ -144,38 +144,34 @@ end function
 
 function update_SECU_panel_from_dialog()
 
-    EMWriteScreen "                    ", 7, 44
-    EMWriteScreen "                    ", 8, 44
-    EMWriteScreen "        ", 10, 46
-    EMWriteScreen "  ", 11, 44
-    EMWriteScreen "  ", 11, 47
-    EMWriteScreen "  ", 11, 50
-    EMWriteScreen "        ", 12, 46
+    EMWriteScreen "            ", 7, 50
+    EMWriteScreen "                    ", 8, 50
+    EMWriteScreen "        ", 10, 52
+    EMWriteScreen "  ", 11, 35
+    EMWriteScreen "  ", 11, 38
+    EMWriteScreen "  ", 11, 41
+    EMWriteScreen "        ", 12, 52
+    EMWriteScreen "        ", 13, 52
 
-    EMWriteScreen left(ASSETS_ARRAY(ast_type, asset_counter), 2), 6, 44
-    EMWriteScreen ASSETS_ARRAY(ast_number, asset_counter), 7, 44
-    EMWriteScreen ASSETS_ARRAY(ast_location, asset_counter), 8, 44
-    EMWriteScreen ASSETS_ARRAY(ast_balance, asset_counter), 10, 46
-    EMWriteScreen left(ASSETS_ARRAY(ast_verif, asset_counter), 1), 10, 64
-    Call create_MAXIS_friendly_date(ASSETS_ARRAY(ast_bal_date, asset_counter), 0, 11, 44)
-    EMWriteScreen ASSETS_ARRAY(ast_wthdr_YN, asset_counter), 12, 64
-    EMWriteScreen ASSETS_ARRAY(ast_wthdr_verif, asset_counter), 12, 72
-    EMWriteScreen ASSETS_ARRAY(ast_wdrw_penlty, asset_counter), 12, 46
-    EMWriteScreen ASSETS_ARRAY(apply_to_CASH, asset_counter), 14, 50
-    EMWriteScreen ASSETS_ARRAY(apply_to_SNAP, asset_counter), 14, 57
-    EMWriteScreen ASSETS_ARRAY(apply_to_HC, asset_counter), 14, 64
-    EMWriteScreen ASSETS_ARRAY(apply_to_GRH, asset_counter), 14, 72
-    EMWriteScreen ASSETS_ARRAY(apply_to_IVE, asset_counter), 14, 80
-    EMWriteScreen ASSETS_ARRAY(ast_jnt_owner_YN, asset_counter), 15, 44
-    EMWriteScreen left(ASSETS_ARRAY(ast_own_ratio, asset_counter), 1), 15, 76
-    EMWriteScreen right(ASSETS_ARRAY(ast_own_ratio, asset_counter), 1), 15, 80
-    If ASSETS_ARRAY(ast_next_inrst_date, asset_counter) <> "" Then
-        EMWriteScreen left(ASSETS_ARRAY(ast_next_inrst_date, asset_counter), 2), 17, 57
-        EMWriteScreen right(ASSETS_ARRAY(ast_next_inrst_date, asset_counter), 2), 17, 60
-    Else
-        EMWriteScreen "  ", 17, 57
-        EMWriteScreen "  ", 17, 60
-    End If
+    EMWriteScreen left(ASSETS_ARRAY(ast_type, asset_counter), 2), 6, 50
+    EMWriteScreen ASSETS_ARRAY(ast_number, asset_counter), 7, 50
+    EMWriteScreen ASSETS_ARRAY(ast_location, asset_counter), 8, 50
+    EMWriteScreen ASSETS_ARRAY(ast_csv, asset_counter), 10, 52
+    EMWriteScreen left(ASSETS_ARRAY(ast_verif, asset_counter), 1), 11, 50
+    Call create_MAXIS_friendly_date(ASSETS_ARRAY(ast_bal_date, asset_counter), 0, 11, 35)
+    EMWriteScreen ASSETS_ARRAY(ast_face_value, asset_counter), 12, 52
+    EMWriteScreen ASSETS_ARRAY(ast_wthdr_YN, asset_counter), 13, 72
+    EMWriteScreen ASSETS_ARRAY(ast_wthdr_verif, asset_counter), 13, 80
+    EMWriteScreen ASSETS_ARRAY(ast_wdrw_penlty, asset_counter), 13, 52
+    EMWriteScreen ASSETS_ARRAY(apply_to_CASH, asset_counter), 15, 50
+    EMWriteScreen ASSETS_ARRAY(apply_to_SNAP, asset_counter), 15, 57
+    EMWriteScreen ASSETS_ARRAY(apply_to_HC, asset_counter), 15, 64
+    EMWriteScreen ASSETS_ARRAY(apply_to_GRH, asset_counter), 15, 72
+    EMWriteScreen ASSETS_ARRAY(apply_to_IVE, asset_counter), 15, 80
+    EMWriteScreen ASSETS_ARRAY(ast_jnt_owner_YN, asset_counter), 16, 44
+    EMWriteScreen left(ASSETS_ARRAY(ast_own_ratio, asset_counter), 1), 16, 76
+    EMWriteScreen right(ASSETS_ARRAY(ast_own_ratio, asset_counter), 1), 16, 80
+
 end function
 
 '===========================================================================================================================
@@ -391,7 +387,7 @@ DO
         Call validate_MAXIS_case_number(err_msg, "*")
 		If worker_signature = "" Then err_msg = err_msg & vbNewLine & "* You must sign your case note."
         If HSR_scanner_checkbox = unchecked and actions_taken = "" Then
-            If evf_form_received_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* You must case note your actions taken."
+            If evf_form_received_checkbox = unchecked AND asset_form_checkbox = unchecked AND mof_form_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* You must case note your actions taken."
         End If
 
         If err_msg <> "" Then MsgBox "Please Resolve to Continue:" & vbNewLine & err_msg
@@ -525,6 +521,7 @@ If mof_form_checkbox = checked Then
         	Call cancel_continue_confirmation(skip_MOF)
             'Call validate_MAXIS_case_number(err_msg, "*")
             If mof_hh_memb = "Select One..." Then err_msg = err_ms & vbNewLine & "* Select the household member."
+            IF actions_taken = "" THEN err_msg = err_msg & vbCr & "* You must enter your actions taken."		'checks that notes were entered
             If skip_MOF= TRUE Then
                 err_msg = ""
                 mof_form_checkbox = unchecked
@@ -544,6 +541,7 @@ End If
 
 If asset_form_checkbox = checked Then
     asset_counter = 0
+    skip_asset = FALSE
     Call navigate_to_MAXIS_screen("STAT", "ACCT")
     For each member in HH_member_array
         Call write_value_and_transmit(member, 20, 76)
@@ -643,6 +641,8 @@ If asset_form_checkbox = checked Then
 
         EMReadScreen secu_versions, 1, 2, 78
         If secu_versions <> "0" Then
+            EMWriteScreen "01", 20, 79
+            transmit
             Do
 
                 EMReadScreen SECU_instance, 1, 2, 73
@@ -694,7 +694,7 @@ If asset_form_checkbox = checked Then
                 If SECU_verif = "5" Then ASSETS_ARRAY(ast_verif, asset_counter) = "Other Document - 5"
                 If SECU_verif = "6" Then ASSETS_ARRAY(ast_verif, asset_counter) = "Personal Stmt - 6"
                 If SECU_verif = "N" Then ASSETS_ARRAY(ast_verif, asset_counter) = "No Ver Prov - N"
-                ASSETS_ARRAY(ast_face_value, asset_counter) = trim(SECU_face_value)
+                ASSETS_ARRAY(ast_face_value, asset_counter) = replace(trim(SECU_face_value), "_", "")
                 ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = trim(replace(SECU_withdraw_amount, "_", ""))
                 ASSETS_ARRAY(ast_wthdr_YN, asset_counter) = replace(SECU_wthdrw_YN, "_", "")
                 ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = replace(SECU_wthdrw_verif, "_", "")
@@ -721,6 +721,8 @@ If asset_form_checkbox = checked Then
 
         EMReadScreen cars_versions, 1, 2, 78
         If cars_versions <> "0" Then
+            EMWriteScreen "01", 20, 79
+            transmit
             Do
 
                 EMReadScreen CARS_instance, 1, 2, 73
@@ -929,6 +931,9 @@ If asset_form_checkbox = checked Then
                 dialog Dialog1
 
                 Call cancel_continue_confirmation(skip_asset)
+
+                IF actions_taken = "" THEN err_msg = err_msg & vbCr & "* You must enter your actions taken."		'checks that notes were entered
+
                 If skip_asset= TRUE Then
                     err_msg = ""
                     asset_form_checkbox = unchecked
@@ -936,7 +941,7 @@ If asset_form_checkbox = checked Then
 
                 If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
 
-            Loop Until err_mag = ""
+            Loop Until err_msg = ""
             Call check_for_password(are_we_passworded_out)
         Loop until are_we_passworded_out = FALSE
 
@@ -957,6 +962,7 @@ If asset_form_checkbox = checked Then
         MAXIS_footer_year = CM_yr
 
         Do
+            Call back_to_SELF
             found_the_panel = FALSE
             asset_counter = highest_asset_count
             update_panel_type = "NONE - I'm all done"
@@ -1017,7 +1023,7 @@ If asset_form_checkbox = checked Then
                     current_instance = "0" & current_instance
                     For the_asset  = 0 to UBound(ASSETS_ARRAY, 2)
                         'MsgBox "Current member: " & current_member & vbNewLine & "Array member: " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & vbNewLine & "Current instance: " & current_instance & vbNewLine & "Array instance: " & ASSETS_ARRAY(ast_instance, the_asset)
-                        If current_member = ASSETS_ARRAY(ast_ref_nbr, the_asset) AND current_instance = ASSETS_ARRAY(ast_instance, the_asset) Then
+                        If ASSETS_ARRAY(ast_panel, the_asset) = "ACCT" AND current_member = ASSETS_ARRAY(ast_ref_nbr, the_asset) AND current_instance = ASSETS_ARRAY(ast_instance, the_asset) Then
                             asset_counter = the_asset
                             If ASSETS_ARRAY(apply_to_CASH, asset_counter) = "Y" Then count_cash_checkbox = checked
                             If ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y" Then count_snap_checkbox = checked
@@ -1343,7 +1349,7 @@ If asset_form_checkbox = checked Then
                     current_instance = "0" & current_instance
                     For the_asset  = 0 to UBound(ASSETS_ARRAY, 2)
                         'MsgBox "Current member: " & current_member & vbNewLine & "Array member: " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & vbNewLine & "Current instance: " & current_instance & vbNewLine & "Array instance: " & ASSETS_ARRAY(ast_instance, the_asset)
-                        If current_member = ASSETS_ARRAY(ast_ref_nbr, the_asset) AND current_instance = ASSETS_ARRAY(ast_instance, the_asset) Then
+                        If ASSETS_ARRAY(ast_panel, the_asset) = "SECU" AND current_member = ASSETS_ARRAY(ast_ref_nbr, the_asset) AND current_instance = ASSETS_ARRAY(ast_instance, the_asset) Then
                             asset_counter = the_asset
                             If ASSETS_ARRAY(apply_to_CASH, asset_counter) = "Y" Then count_cash_checkbox = checked
                             If ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y" Then count_snap_checkbox = checked
@@ -1364,6 +1370,8 @@ If asset_form_checkbox = checked Then
                 If share_ratio_num = "" Then share_ratio_num = "1"
                 If share_ratio_denom = "" Then share_ratio_denom = "1"
                 If LTC_case = vbNo AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
+
+                MsgBox ASSETS_ARRAY(ast_type, asset_counter)
                 'Dialog to fill the SECU panel
 
                 BeginDialog Dialog1, 0, 0, 271, 235, "New SECU panel for Case #" & MAXIS_case_number
