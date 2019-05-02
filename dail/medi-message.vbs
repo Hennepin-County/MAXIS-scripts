@@ -52,13 +52,6 @@ changelog_display
 
 EMConnect ""
 
-BeginDialog worker_sig_dialog, 0, 0, 141, 46, "Worker signature"
-  EditBox 15, 25, 50, 15, worker_signature
-  ButtonGroup ButtonPressed_worker_sig_dialog
-    OkButton 85, 5, 50, 15
-    CancelButton 85, 25, 50, 15
-  Text 5, 10, 75, 10, "Sign your case note."
-EndDialog
 
 Do
 	Dialog worker_sig_dialog
@@ -68,18 +61,16 @@ LOOP UNTIL are_we_passworded_out = false
 
 
 start_a_blank_CASE_NOTE
-Call write_variable_in_case_note("MEMBER HAS TURNED 60 - NOTIFY ABOUT POSSIBLE FMED DEDUCTION")
-Call write_variable_in_case_note("* Sent MEMO to client about FMED deductions.")
-Call write_variable_in_case_note("---")
-Call write_variable_in_case_note(worker_signature & ", using automated script.")
-** Medicare Buy-in Referral mailed **
-Client is eligible for the Medicare buy-in as of (date). Proof due by (date) (should be 30 days from the
-requested date to apply). Tkl set to follow up.
+Call write_variable_in_case_note("MEMBER HAS BEEN DISABLED 2 YEARS - REFER TO MEDICARE")
+Call write_variable_in_case_note("** Medicare Buy-in Referral mailed **")
+Call write_variable_in_case_note("Client is eligible for the Medicare buy-in as of " ELIG_date & ". Proof due by " & plus 30 date & "to apply.")
+Call write_variable_in_case_note("TIKL set to follow up.")
 
 ** Medicare Referral **
 Client is not eligible for the Medicare buy-in. Enrollment is not until January (year), unable
 to apply until the enrollment time. Tkl set to mail the Medicare Referral for November (year).
-
+Call write_variable_in_case_note("---")
+Call write_variable_in_case_note(worker_signature & ", using automated script.")
 
 call start_a_new_spec_memo
 
