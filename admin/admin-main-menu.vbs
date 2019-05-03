@@ -159,13 +159,6 @@ script_array_admin_main(script_num).script_name 		= "CS Good Cause "											'
 script_array_admin_main(script_num).file_name 			= "cs-good cause.vbs"										'Script URL
 script_array_admin_main(script_num).description 		= "Completes updates to ABPS and case notes actions taken."
 
-script_num = script_num + 1
-ReDim Preserve script_array_admin_main(script_num)
-Set script_array_admin_main(script_num) = new script
-script_array_admin_main(script_num).script_name 		= "DAIL processing"											'Script name
-script_array_admin_main(script_num).file_name 			= "dail-catch-all.vbs"										'Script URL
-script_array_admin_main(script_num).description 		= "Assists with case noting and deleting the DAIL."
-
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array_admin_main(script_num)	    'Resets the array to add one more element to it
 Set script_array_admin_main(script_num) = new script    'Set this array element to be a new script. Script details below...
