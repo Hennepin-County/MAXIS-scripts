@@ -67,6 +67,7 @@ BeginDialog medi_dialog, 0, 0, 266, 150, "DAIL_type & MESSAGE PROCESSED"
   Text 5, 115, 60, 10, "Worker signature:"
   Text 175, 40, 35, 10, "ELIG date"
 EndDialog
+
 EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
 TRANSMIT
 'Starts a blank case note
