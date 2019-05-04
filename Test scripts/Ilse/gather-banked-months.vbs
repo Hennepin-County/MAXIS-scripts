@@ -67,7 +67,7 @@ EndDialog
 'CONNECTS TO BlueZone
 EMConnect ""
 
-file_selection_path = "C:\Users\ilfe001\Desktop\Test array.xlsx"
+file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"
 
 Do
     err_msg = ""
@@ -120,7 +120,7 @@ BeginDialog , 0, 0, 266, 115, "Current Month Banked Months List"
   GroupBox 10, 5, 250, 85, "Using this script:"
 EndDialog
 
-file_selection = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\ABAWD\Active SNAP 04-2019.xlsx"
+file_selection = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\ABAWD\Active SNAP "& CM_mo & "-20" & CM_yr & ".xlsx"
 
 Do
     err_msg = ""
@@ -149,6 +149,8 @@ DO
     If MAXIS_case_number = "" then exit do 
     member_number = ObjExcel.Cells(excel_row, 2).Value
     member_number = right("0" & member_number, 2)
+    client_name = ObjExcel.Cells(excel_row, 3).Value
+    client_name = trim(client_name)
     
     For item = 0 to UBound(ongoing_array, 2)
         banked_month_case_number = ongoing_array(case_number, item)  
@@ -189,6 +191,7 @@ ObjExcel.Cells(1, 4).Value = "First Name"
 'formatting the cells
 FOR i = 1 to 4
 	objExcel.Cells(1, i).Font.Bold = True		'bold font
+    ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
 
@@ -209,44 +212,3 @@ NEXT
     
 STATS_counter = STATS_counter - 1 'since we start with 1
 script_end_procedure("Success! Please review your Banked months list.")
-
-'excel_row = 2
-'entry_record = 0
-
-'DIM banked_months_array()
-'ReDim banked_months_array(3,0)
-'
-'const case_number_const     = 0
-'const member_number_const   = 1
-'const client_name_const     = 2
-'
-'Do 
-'	MAXIS_case_number = ObjExcel.Cells(excel_row, 1).Value
-'	MAXIS_case_number = trim(MAXIS_case_number)
-'    If MAXIS_case_number = "" then exit do 
-'    member_number = ObjExcel.Cells(excel_row, 7).Value
-'    member_number = right("0" & member_number, 7)
-'    
-'    client_name = ObjExcel.Cells(excel_row, 5).Value
-'    ABAWD_code = ObjExcel.Cells(excel_row, 9).Value
-'
-'    If trim(ABAWD_code) = "13" then 
-'        ReDim Preserve banked_months_array(3,   entry_record)	'This resizes the array based on the number of rows in the Excel File'
-'        banked_months_array(case_number_const,	 entry_record) = MAXIS_case_number		
-'        banked_months_array(member_number_const, entry_record) = member_number				
-'        banked_months_array(client_name_const, 	 entry_record) = trim(client_name)	
-'        
-'        entry_record = entry_record + 1			'This increments to the next entry in the array'
-'        stats_counter = stats_counter + 1
-'    End if 
-'    excel_row = excel_row + 1
-'LOOP
-
-'for each case number in the all cases array 
-'if a match is found then check the member number
-'if a match is found DO NOT add to new_cases_array
-
-'For each PNOTE in PNOTE_array	'This will remove any counted month that was actually a banked month'
-'	Filter_array = Filter(abawd_months_array, PNOTE, False, 1) 'The value of 1 is vbTextCompare - which will perform a textual comparison between the PNOTE month and the elements in the abawd_months_array
-'	
-'NEXT
