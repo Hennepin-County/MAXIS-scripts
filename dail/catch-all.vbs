@@ -44,18 +44,19 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/01/2019", "Removed the automated DAIL deletion. Workers must go back and delete manually once the DAIL has been acted on.", "MiKayla Handley, Hennepin County")
 call changelog_update("04/01/2019", "Initial version.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 '=======================================================================================================END CHANGELOG BLOCK
 'DIALOG
-BeginDialog delete_message_dialog, 0, 0, 126, 45, "Double-Check the Computer's Work..."
-  ButtonGroup ButtonPressed
-    PushButton 10, 25, 50, 15, "YES", delete_button
-    PushButton 60, 25, 50, 15, "NO", do_not_delete
-  Text 30, 10, 65, 10, "Delete the DAIL??"
-EndDialog
+'BeginDialog delete_message_dialog, 0, 0, 126, 45, "Double-Check the Computer's Work..."
+'  ButtonGroup ButtonPressed
+'    PushButton 10, 25, 50, 15, "YES", delete_button
+'    PushButton 60, 25, 50, 15, "NO", do_not_delete
+'  Text 30, 10, 65, 10, "Delete the DAIL??"
+'EndDialog
 
 '-------------------------------------------------------------------------------------------------------THE SCRIPT
 'CONNECTING TO MAXIS & GRABBING THE CASE NUMBER
@@ -76,10 +77,10 @@ EMConnect ""
 '	IF match_found = TRUE THEN
 	    'do we need a date rcvd or save that for docs rcvd'
 	    'The following reads the message in full for the end part (which tells the worker which message was selected)
-	   EMReadScreen full_message, 59, 6, 20
-		full_message = trim(full_message)
-	    EmReadScreen MAXIS_case_number, 8, 5, 73
-	    MAXIS_case_number = trim(MAXIS_case_number)
+	    'EMReadScreen full_message, 59, 6, 20
+		'full_message = trim(full_message)
+	    'EmReadScreen MAXIS_case_number, 8, 5, 73
+	    'MAXIS_case_number = trim(MAXIS_case_number)
 
 	    'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
 
@@ -150,35 +151,37 @@ CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
 IF tikl_checkbox = checked THEN CALL write_variable_in_case_note("* TIKL'd to check for requested verifications")
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
+PF3
 
-
-DIALOG delete_message_dialog
-    IF ButtonPressed = delete_button THEN
-    	PF3 'holds the case note'
-    	PF3 'takes you back to DAIL/DAIL'
-    	DO
-    		dail_read_row = 6
-    		DO
-    			EMReadScreen double_check, 59, dail_read_row, 20
-				double_check = trim(double_check)
-    			IF double_check = full_message THEN
-                    EMWriteScreen "T", dail_read_row, 3
-					msgbox double_check & " " & full_message
-					TRANSMIT
-                    EMReadScreen dail_case_number, 8, 5, 73
-                    dail_case_number = trim(dail_case_number)
-                    If dail_case_number = MAXIS_case_number Then EMWriteScreen "D", dail_read_row, 3
-    				TRANSMIT
-    				EXIT DO
-    			ELSE
-    				dail_read_row = dail_read_row + 1
-    			END IF
-    			IF dail_read_row = 19 THEN PF8
-    		LOOP UNTIL dail_read_row = 19
-    		EMReadScreen others_dail, 13, 24, 2
-    		If others_dail = "** WARNING **" Then transmit
-    	LOOP UNTIL double_check = full_message
-    END IF
+'DIALOG delete_message_dialog
+'    IF ButtonPressed = delete_button THEN
+'    	PF3 'holds the case note'
+'    	PF3 'takes you back to DAIL/DAIL'
+'    	DO
+'    		dail_read_row = 6
+'    		DO
+'    			EMReadScreen double_check, 59, dail_read_row, 20
+'				double_check = trim(double_check)
+'    			IF double_check = full_message THEN
+'                    'EMWriteScreen "T", dail_read_row, 3
+'					'TRANSMIT
+'					msgbox double_check & vbcr & full_message
+'                    EMReadScreen dail_case_number, 8, 5, 73
+'                    dail_case_number = trim(dail_case_number)
+'                    IF dail_case_number = trim(MAXIS_case_number) Then
+'						EMWriteScreen "D", dail_read_row, 3
+'    					TRANSMIT
+'					END IF
+'    				EXIT DO
+'    			ELSE
+'    				dail_read_row = dail_read_row + 1
+'    			END IF
+'    			IF dail_read_row = 19 THEN PF8
+'    		LOOP UNTIL dail_read_row = 19
+'    		EMReadScreen others_dail, 13, 24, 2
+'    		If others_dail = "** WARNING **" Then transmit
+'    	LOOP UNTIL double_check = full_message
+'    END IF
 
 	'TIKLING
 	IF TIKL_checkbox = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")

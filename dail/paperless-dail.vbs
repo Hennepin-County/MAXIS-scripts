@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/01/2019", "Removed the option to delete the dail as there may be issues with it. Will review an return it once rewrite/testing completed.", "Casey Love, Hennepin County")
 call changelog_update("09/12/2018", "Bug fixed that was preventing LTC scripts from erroring out.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/19/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -257,31 +258,31 @@ call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
 MAXIS_case_number = trim(MAXIS_case_number)
-If run_from_DAIL = TRUE Then
-    DIALOG delete_message_dialog
-    IF ButtonPressed = delete_button THEN
-    	PF3
-    	PF3
-    	DO
-    		dail_read_row = 6
-    		DO
-    			EMReadScreen double_check, 49, dail_read_row, 20
-    			IF double_check = Paperless_tikl_check THEN
-                    EMWriteScreen "T", dail_read_row, 3
-                    EMReadScreen dail_case_number, 8, 5, 73
-                    dail_case_number = trim(dail_case_number)
-                    If dail_case_number = MAXIS_case_number Then EMWriteScreen "D", 6, 3
-    				transmit
-    				EXIT DO
-    			ELSE
-    				dail_read_row = dail_read_row + 1
-    			END IF
-    			IF dail_read_row = 19 THEN PF8
-    		LOOP UNTIL dail_read_row = 19
-    		EMReadScreen others_dail, 13, 24, 2
-    		If others_dail = "** WARNING **" Then transmit
-    	LOOP UNTIL double_check = Paperless_tikl_check
-    END IF
-End If
+' If run_from_DAIL = TRUE Then
+'     DIALOG delete_message_dialog
+'     IF ButtonPressed = delete_button THEN
+'     	PF3
+'     	PF3
+'     	DO
+'     		dail_read_row = 6
+'     		DO
+'     			EMReadScreen double_check, 49, dail_read_row, 20
+'     			IF double_check = Paperless_tikl_check THEN
+'                     EMWriteScreen "T", dail_read_row, 3
+'                     EMReadScreen dail_case_number, 8, 5, 73
+'                     dail_case_number = trim(dail_case_number)
+'                     If dail_case_number = MAXIS_case_number Then EMWriteScreen "D", 6, 3
+'     				transmit
+'     				EXIT DO
+'     			ELSE
+'     				dail_read_row = dail_read_row + 1
+'     			END IF
+'     			IF dail_read_row = 19 THEN PF8
+'     		LOOP UNTIL dail_read_row = 19
+'     		EMReadScreen others_dail, 13, 24, 2
+'     		If others_dail = "** WARNING **" Then transmit
+'     	LOOP UNTIL double_check = Paperless_tikl_check
+'     END IF
+' End If
 
 script_end_procedure("")

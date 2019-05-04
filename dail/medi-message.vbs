@@ -38,59 +38,90 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'CHANGELOG BLOCK ===========================================================================================================
+'===========================================================================================================CHANGELOG BLOCK
 'Starts by defining a changelog array
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("04/29/2019", "Initial version.", "MiKayla Handley, Hennepin County")
+call changelog_update("05/01/2019", "Initial version.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
-'END CHANGELOG BLOCK =======================================================================================================
-
-EMConnect ""
-
-BeginDialog worker_sig_dialog, 0, 0, 141, 46, "Worker signature"
-  EditBox 15, 25, 50, 15, worker_signature
-  ButtonGroup ButtonPressed_worker_sig_dialog
-    OkButton 85, 5, 50, 15
-    CancelButton 85, 25, 50, 15
-  Text 5, 10, 75, 10, "Sign your case note."
+'=======================================================================================================END CHANGELOG BLOCK
+'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
+BeginDialog catch_all_dialog, 0, 0, 266, 150, "DAIL_type & MESSAGE PROCESSED"
+  CheckBox 5, 40, 140, 10, "Client is eligible for the Medicare buy-in", medi_checkbox
+  EditBox 210, 35, 50, 15, ELIG_date
+  Text 5, 60, 195, 10, "If INELIG year that client will be eligible for Medicare Buy-In"
+  EditBox 210, 55, 50, 15, ELIG_year
+  CheckBox 5, 75, 110, 10, "Forms have been sent in ECF", ECF_sent
+  EditBox 50, 90, 210, 15, other_notes
+  EditBox 70, 110, 95, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 175, 130, 40, 15
+    CancelButton 220, 130, 40, 15
+  GroupBox 5, 5, 270, 25, "DAIL for case #  &  MAXIS_case_number"
+  Text 10, 15, 260, 10, "full_message"
+  Text 5, 95, 45, 10, "Other notes:"
+  Text 5, 115, 60, 10, "Worker signature:"
+  Text 175, 40, 35, 10, "ELIG date"
 EndDialog
+EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
+TRANSMIT
+'Starts a blank case note
+PF9
+EMReadScreen case_note_mode_check, 7, 20, 3
+If case_note_mode_check <> "Mode: A" then script_end_procedure("You are not in a case note on edit mode. You might be in inquiry. Try the script again in production.")
 
 Do
-	Dialog worker_sig_dialog
-	If ButtonPressed_worker_sig_dialog = 0 then stopscript
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
+    Do
+        err_msg = ""
+		Dialog catch_all_dialog
+		cancel_confirmation
+        If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid case number."
+		If trim(actions_taken) = "" then err_msg = err_msg & vbcr & "* Please enter the action taken."
+    	If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Please ensure your case note is signed."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+due_date = dateadd("d", 30, ELIG_date)
 
-start_a_blank_CASE_NOTE
-Call write_variable_in_case_note("MEMBER HAS TURNED 60 - NOTIFY ABOUT POSSIBLE FMED DEDUCTION")
-Call write_variable_in_case_note("* Sent MEMO to client about FMED deductions.")
-Call write_variable_in_case_note("---")
-Call write_variable_in_case_note(worker_signature & ", using automated script.")
-** Medicare Buy-in Referral mailed **
-Client is eligible for the Medicare buy-in as of (date). Proof due by (date) (should be 30 days from the
-requested date to apply). Tkl set to follow up.
+'start_a_blank_case_note
+CALL write_variable_in_CASE_NOTE("=== " & DAIL_type & " - MESSAGE PROCESSED " & "===")
+CALL write_variable_in_case_note("* " & full_message)
+CALL write_variable_in_case_note(first_line)
+CALL write_variable_in_case_note(second_line)
+CALL write_variable_in_case_note(third_line)
+CALL write_variable_in_case_note(fourth_line)
+CALL write_variable_in_case_note(fifth_line)
+CALL write_variable_in_case_note("---")
+IF medi_checkbox = CHEKED THEN
+	Call write_variable_in_case_note("** Medicare Buy-in Referral mailed **")
+	Call write_variable_in_case_note("Client is eligible for the Medicare buy-in as of " ELIG_date & ". Proof due by " & due_date & "to apply.")
+	Call write_variable_in_case_note("Mailed DHS-3439-ENG MHCP Medicare Buy-In Referral Letter - TIKL set to follow up.")
+ELSE
+	Call write_variable_in_case_note("** Medicare Referral **")
+	Call write_variable_in_case_note("Client is not eligible for the Medicare buy-in. Enrollment is not until January " & ELIG_year & ", unable
+	to apply until the enrollment time.")
+	Call write_variable_in_case_note("TIKL set to mail the Medicare Referral for November " & ELIG_year & ".")
+END IF
+IF ECF_reviewed = CHECKED THEN CALL write_variable_in_case_note("* ECF reviewed and appropriate action taken")
+CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
+CALL write_variable_in_CASE_NOTE("---")
+CALL write_variable_in_CASE_NOTE(worker_signature)
+PF3
 
-** Medicare Referral **
-Client is not eligible for the Medicare buy-in. Enrollment is not until January (year), unable
-to apply until the enrollment time. Tkl set to mail the Medicare Referral for November (year).
+'TIKLING
+	IF TIKL_checkbox = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")
+	'If worker checked to TIKL out, it goes to DAIL WRIT
+	IF TIKL_checkbox = checked THEN
+		CALL navigate_to_MAXIS_screen("DAIL","WRIT")
+		CALL create_MAXIS_friendly_date(date, 10, 5, 18)
+		EMSetCursor 9, 3
+		EMSendKey "DAIL recieved " & DAIL_type & " " & verifs_needed & "."
+	END IF
 
-
-call start_a_new_spec_memo
-
-'Writes the info into the MEMO.
-Call write_variable_in_SPEC_MEMO("************************************************************")
-Call write_variable_in_SPEC_MEMO("You are turning 60 next month, so you may be eligible for a new deduction for SNAP. Clients who are over 60 years old may receive increased SNAP benefits if they have recurring medical bills over $35 each month.")
-
-Call write_variable_in_SPEC_MEMO("If you have medical bills over $35 each month, please contact your worker to discuss adjusting your benefits. You will need to send in proof of the medical bills, such as pharmacy receipts, an explanation of benefits, or premium notices.")
-Call write_variable_in_SPEC_MEMO("Please call your worker with questions.")
-Call write_variable_in_SPEC_MEMO("************************************************************")
-PF4
-
-
-script_end_procedure("The script has sent a MEMO to the client about the possible FMED deduction, and has case noted the action.")
+script_end_procedure_with_error_report(DAIL_type & vbcr &  first_line & vbcr & " DAIL has been case noted")
