@@ -1,5 +1,5 @@
 'Required for statistical purposes===============================================================================
-name_of_script = "DAIL - MEDI REFERALL.vbs"
+name_of_script = "DAIL - MEDI MESSAGE.vbs"
 start_time = timer
 STATS_counter = 1              'sets the stats counter at one
 STATS_manualtime = 127         'manual run time in seconds
@@ -62,7 +62,7 @@ BeginDialog medi_dialog, 0, 0, 266, 150, "DAIL_type & MESSAGE PROCESSED"
     OkButton 175, 130, 40, 15
     CancelButton 220, 130, 40, 15
   GroupBox 5, 5, 270, 25, "DAIL for case #  &  MAXIS_case_number"
-  Text 10, 15, 260, 10, "full_message"
+  Text 10, 15, 260, 10, full_message
   Text 5, 95, 45, 10, "Other notes:"
   Text 5, 115, 60, 10, "Worker signature:"
   Text 175, 40, 35, 10, "ELIG date"
@@ -81,8 +81,7 @@ Do
 		Dialog medi_dialog
 		cancel_confirmation
         If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid case number."
-		If trim(actions_taken) = "" then err_msg = err_msg & vbcr & "* Please enter the action taken."
-    	If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Please ensure your case note is signed."
+		If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Please ensure your case note is signed."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -101,12 +100,11 @@ CALL write_variable_in_case_note(fifth_line)
 CALL write_variable_in_case_note("---")
 IF medi_checkbox = CHEKED THEN
 	Call write_variable_in_case_note("** Medicare Buy-in Referral mailed **")
-	Call write_variable_in_case_note("Client is eligible for the Medicare buy-in as of " ELIG_date & ". Proof due by " & due_date & "to apply.")
+	Call write_variable_in_case_note("Client is eligible for the Medicare buy-in as of " & ELIG_date & ". Proof due by " & due_date & "to apply.")
 	Call write_variable_in_case_note("Mailed DHS-3439-ENG MHCP Medicare Buy-In Referral Letter - TIKL set to follow up.")
 ELSE
 	Call write_variable_in_case_note("** Medicare Referral **")
-	Call write_variable_in_case_note("Client is not eligible for the Medicare buy-in. Enrollment is not until January " & ELIG_year & ", unable
-	to apply until the enrollment time.")
+	Call write_variable_in_case_note("Client is not eligible for the Medicare buy-in. Enrollment is not until January " & ELIG_year & ", unable	to apply until the enrollment time.")
 	Call write_variable_in_case_note("TIKL set to mail the Medicare Referral for November " & ELIG_year & ".")
 END IF
 IF ECF_sent = CHECKED THEN CALL write_variable_in_case_note("* ECF reviewed and appropriate action taken")
