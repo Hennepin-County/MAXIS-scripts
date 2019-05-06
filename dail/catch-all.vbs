@@ -84,7 +84,7 @@ EMConnect ""
 
 	    'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
 
-        BeginDialog catch_all_dialog, 0, 0, 281, 150,  DAIL_type & "MESSAGE PROCESSED"
+        BeginDialog catch_all_dialog, 0, 0, 281, 150,  DAIL_type & " MESSAGE PROCESSED"
           EditBox 225, 35, 50, 15, docs_rcvd_date
           EditBox 65, 55, 210, 15, actions_taken
           EditBox 65, 75, 210, 15, verifs_needed

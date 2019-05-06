@@ -50,7 +50,7 @@ call changelog_update("05/01/2019", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 '=======================================================================================================END CHANGELOG BLOCK
 'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
-BeginDialog catch_all_dialog, 0, 0, 266, 150, "DAIL_type & MESSAGE PROCESSED"
+BeginDialog medi_dialog, 0, 0, 266, 150, "DAIL_type & MESSAGE PROCESSED"
   CheckBox 5, 40, 140, 10, "Client is eligible for the Medicare buy-in", medi_checkbox
   EditBox 210, 35, 50, 15, ELIG_date
   Text 5, 60, 195, 10, "If INELIG year that client will be eligible for Medicare Buy-In"
@@ -67,6 +67,7 @@ BeginDialog catch_all_dialog, 0, 0, 266, 150, "DAIL_type & MESSAGE PROCESSED"
   Text 5, 115, 60, 10, "Worker signature:"
   Text 175, 40, 35, 10, "ELIG date"
 EndDialog
+
 EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
 TRANSMIT
 'Starts a blank case note
@@ -77,7 +78,7 @@ If case_note_mode_check <> "Mode: A" then script_end_procedure("You are not in a
 Do
     Do
         err_msg = ""
-		Dialog catch_all_dialog
+		Dialog medi_dialog
 		cancel_confirmation
         If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid case number."
 		If trim(actions_taken) = "" then err_msg = err_msg & vbcr & "* Please enter the action taken."
@@ -108,7 +109,7 @@ ELSE
 	to apply until the enrollment time.")
 	Call write_variable_in_case_note("TIKL set to mail the Medicare Referral for November " & ELIG_year & ".")
 END IF
-IF ECF_reviewed = CHECKED THEN CALL write_variable_in_case_note("* ECF reviewed and appropriate action taken")
+IF ECF_sent = CHECKED THEN CALL write_variable_in_case_note("* ECF reviewed and appropriate action taken")
 CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
