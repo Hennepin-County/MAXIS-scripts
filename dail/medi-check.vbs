@@ -100,7 +100,7 @@ CALL write_variable_in_case_note(third_line)
 CALL write_variable_in_case_note(fourth_line)
 CALL write_variable_in_case_note(fifth_line)
 CALL write_variable_in_case_note("---")
-IF medi_checkbox = CHEKED THEN
+IF medi_checkbox = CHECKED THEN
 	Call write_variable_in_case_note("** Medicare Buy-in Referral mailed **")
 	Call write_variable_in_case_note("Client is eligible for the Medicare buy-in as of " & ELIG_date & ". Proof due by " & due_date & "to apply.")
 	Call write_variable_in_case_note("Mailed DHS-3439-ENG MHCP Medicare Buy-In Referral Letter - TIKL set to follow up.")
@@ -122,7 +122,11 @@ PF3
 		CALL navigate_to_MAXIS_screen("DAIL","WRIT")
 		CALL create_MAXIS_friendly_date(date, 10, 5, 18)
 		EMSetCursor 9, 3
-		EMSendKey "DAIL recieved " & DAIL_type & " " & verifs_needed & "."
+		IF medi_checkbox = CHECKED THEN
+			EMSendKey "Medicare Referral made, please check on proof of application filed."
+		ELSE
+			EMSendKey "TIKL set to mail the Medicare Referral for November " & ELIG_year & "."
+		END IF
 	END IF
 
 script_end_procedure_with_error_report(DAIL_type & vbcr &  first_line & vbcr & " DAIL has been case noted. Please remember to send forms out of ECF.")
