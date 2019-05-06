@@ -202,9 +202,8 @@ If ISPI_check = "ISPI" then
 END IF
 
 'MEMBER HAS BEEN DISABLED 2 YEARS - REFER TO MEDICARE
-'EMReadScreen MEDI_check, 17, 6, 55
 EMReadScreen MEDI_check, 52, 6, 20
-If DISA_check = "MEMBER HAS BEEN DISABLED 2 YEARS - REFER TO MEDICARE" then
+If MEDI_check = "MEMBER HAS BEEN DISABLED 2 YEARS - REFER TO MEDICARE" then
     match_found = TRUE
     call run_from_GitHub(script_repository & "dail/medi-message.vbs")
 END IF
