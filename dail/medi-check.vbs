@@ -50,24 +50,26 @@ call changelog_update("05/01/2019", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 '=======================================================================================================END CHANGELOG BLOCK
 'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
-BeginDialog medi_dialog, 0, 0, 266, 150, "DAIL_type & MESSAGE PROCESSED"
+BeginDialog medi_dialog, 0, 0, 266, 130, DAIL_type & " MESSAGE PROCESSED"
   CheckBox 5, 40, 140, 10, "Client is eligible for the Medicare buy-in", medi_checkbox
   EditBox 210, 35, 50, 15, ELIG_date
   Text 5, 60, 195, 10, "If INELIG year that client will be eligible for Medicare Buy-In"
   EditBox 210, 55, 50, 15, ELIG_year
-  CheckBox 5, 75, 110, 10, "Forms have been sent in ECF", ECF_sent
+  CheckBox 5, 75, 110, 10, "Forms have been sent in ECF", ECF_sent_checkbox
   EditBox 50, 90, 210, 15, other_notes
   EditBox 70, 110, 95, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 175, 130, 40, 15
-    CancelButton 220, 130, 40, 15
-  GroupBox 5, 5, 270, 25, "DAIL for case #  &  MAXIS_case_number"
+    OkButton 175, 110, 40, 15
+    CancelButton 220, 110, 40, 15
+  GroupBox 5, 5, 270, 25, "DAIL for case # " &  MAXIS_case_number
   Text 10, 15, 260, 10, full_message
   Text 5, 95, 45, 10, "Other notes:"
   Text 5, 115, 60, 10, "Worker signature:"
   Text 175, 40, 35, 10, "ELIG date"
 EndDialog
 
+
+EMConnect ""
 EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
 TRANSMIT
 'Starts a blank case note
@@ -107,7 +109,7 @@ ELSE
 	Call write_variable_in_case_note("Client is not eligible for the Medicare buy-in. Enrollment is not until January " & ELIG_year & ", unable	to apply until the enrollment time.")
 	Call write_variable_in_case_note("TIKL set to mail the Medicare Referral for November " & ELIG_year & ".")
 END IF
-IF ECF_sent = CHECKED THEN CALL write_variable_in_case_note("* ECF reviewed and appropriate action taken")
+IF ECF_sent_checkbox = CHECKED THEN CALL write_variable_in_case_note("* ECF reviewed and appropriate action taken")
 CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
@@ -123,4 +125,4 @@ PF3
 		EMSendKey "DAIL recieved " & DAIL_type & " " & verifs_needed & "."
 	END IF
 
-script_end_procedure_with_error_report(DAIL_type & vbcr &  first_line & vbcr & " DAIL has been case noted")
+script_end_procedure_with_error_report(DAIL_type & vbcr &  first_line & vbcr & " DAIL has been case noted. Please remember to send forms out of ECF.")
