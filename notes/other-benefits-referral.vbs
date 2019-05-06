@@ -60,24 +60,7 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 '--------------------------------------------------------------------------------------------------THE MAIN DIALOG
 'DHS-2116-ENG Notice to Apply for Other Maintenance Benefits
 
-B. When not to refer
-Applicants/participants who do not appear eligible to apply for Social Security benefits should not be referred to apply. For example:
- If an applicant/participant has a medical condition that will only last for three months and no other medical conditions, do not require them to apply for Social Security benefits.
- If an applicant’s/participants disability makes cooperation with the Social Security application process impossible. In this case, refer applicant/participant to a skilled Social Security advocate or to your county or tribal social worker for assistance.
- Do not require applicants/participants to reapply for Social Security benefits, which were previously denied unless there has
-'Notice to clients informing them of the requirement to apply for other maintenance benefits for which they may be eligible.
-The agency believes that you may be able to get cash benefits from the programs checked below:
-Railroad Retirement
-Supplemental Security Income (SSI)
-Worker's Compensation
-Unemployment Insurance
-Retirement, Survivors, and Disability Income (RSDI)
-Veterans' Disability Benefits (VA)
-Other (describe)
-You
-will
-will not
-need to fill out an Interim Assistance Agreement (DHS-1795 or DHS-1795A).
+
 BeginDialog other_bene_dialog, 0, 0, 311, 190, "Other Maintenance Benefits" & maxis_case_number
   CheckBox 15, 20, 65, 10, "Medicare Buy-in", medi_checkbox
   CheckBox 125, 20, 180, 10, "Retirement, Survivors, and Disability Income (RSDI)", RSDI_checkbox
@@ -89,7 +72,7 @@ BeginDialog other_bene_dialog, 0, 0, 311, 190, "Other Maintenance Benefits" & ma
   CheckBox 125, 50, 95, 10, "Unemployment Insurance", unemployment_insurance_checkbox
   EditBox 65, 70, 50, 15, ELIG_date
   EditBox 250, 70, 50, 15, ELIG_year
-  CheckBox 10, 95, 235, 10, "Sent Notice to Apply for Other Maintenance Benefits - DHS-2116-ENG", ECF_sent_checkbox
+  CheckBox 10, 95, 235, 10, "Sent Notice to Apply for Other Maintenance Benefits DHS-2116-ENG", ECF_sent_checkbox
   CheckBox 10, 110, 285, 10, "Client will need to fill out an Interim Assistance Agreement DHS-1795 or DHS-1795A", IAA_needed
   EditBox 70, 125, 230, 15, action_taken
   EditBox 70, 145, 230, 15, other_notes
@@ -124,6 +107,13 @@ Do
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+
+Applicants/participants who do not appear eligible to apply for Social Security benefits should not be referred to apply. For example:
+ If an applicant/participant has a medical condition that will only last for three months and no other medical conditions, do not require them to apply for Social Security benefits.
+ If an applicant’s/participants disability makes cooperation with the Social Security application process impossible. In this case, refer applicant/participant to a skilled Social Security advocate or to your county or tribal social worker for assistance.
+ Do not require applicants/participants to reapply for Social Security benefits, which were previously denied unless there has been a change in their circumstances or the eligibility requirements of the benefit program.
+
 
 due_date = dateadd("d", 30, ELIG_date)
 
