@@ -116,17 +116,13 @@ CALL write_variable_in_CASE_NOTE(worker_signature)
 PF3
 
 'TIKLING
-	IF TIKL_checkbox = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")
-	'If worker checked to TIKL out, it goes to DAIL WRIT
-	IF TIKL_checkbox = checked THEN
-		CALL navigate_to_MAXIS_screen("DAIL","WRIT")
-		CALL create_MAXIS_friendly_date(date, 10, 5, 18)
-		EMSetCursor 9, 3
-		IF medi_checkbox = CHECKED THEN
-			EMSendKey "Medicare Referral made, please check on proof of application filed."
-		ELSE
-			EMSendKey "TIKL set to mail the Medicare Referral for November " & ELIG_year & "."
-		END IF
-	END IF
-
+CALL navigate_to_MAXIS_screen("DAIL","WRIT")
+CALL create_MAXIS_friendly_date(date, 10, 5, 18)
+EMSetCursor 9, 3
+IF medi_checkbox = CHECKED THEN
+	EMSendKey "Medicare Referral made, please check on proof of application filed."
+ELSE
+    EMSendKey "TIKL set to mail the Medicare Referral for November " & ELIG_year & "."
+END IF
+	
 script_end_procedure_with_error_report(DAIL_type & vbcr &  first_line & vbcr & " DAIL has been case noted. Please remember to send forms out of ECF.")
