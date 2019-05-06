@@ -62,7 +62,7 @@ BeginDialog medi_dialog, 0, 0, 266, 150, "DAIL_type & MESSAGE PROCESSED"
     OkButton 175, 130, 40, 15
     CancelButton 220, 130, 40, 15
   GroupBox 5, 5, 270, 25, "DAIL for case #  &  MAXIS_case_number"
-  Text 10, 15, 260, 10, "full_message"
+  Text 10, 15, 260, 10, full_message
   Text 5, 95, 45, 10, "Other notes:"
   Text 5, 115, 60, 10, "Worker signature:"
   Text 175, 40, 35, 10, "ELIG date"
