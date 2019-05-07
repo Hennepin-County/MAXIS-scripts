@@ -92,7 +92,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 due_date = dateadd("d", 30, ELIG_date)
 
 'start_a_blank_case_note
-CALL write_variable_in_CASE_NOTE("=== " & DAIL_type & " - MESSAGE PROCESSED " & "===")
+CALL write_variable_in_CASE_NOTE("=== PEPR - MESSAGE PROCESSED ===")
 CALL write_variable_in_case_note("* " & full_message)
 CALL write_variable_in_case_note(first_line)
 CALL write_variable_in_case_note(second_line)
@@ -124,5 +124,5 @@ IF medi_checkbox = CHECKED THEN
 ELSE
     EMSendKey "TIKL set to mail the Medicare Referral for November " & ELIG_year & "."
 END IF
-	
+
 script_end_procedure_with_error_report(DAIL_type & vbcr &  first_line & vbcr & " DAIL has been case noted. Please remember to send forms out of ECF.")
