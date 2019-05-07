@@ -82,6 +82,7 @@ Do
         err_msg = ""
 		Dialog medi_dialog
 		cancel_confirmation
+		IF medi_checkbox = CHECKED THEN If isdate(ELIG_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid date of eligibility."
         If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid case number."
 		If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Please ensure your case note is signed."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -89,7 +90,6 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-due_date = dateadd("d", 30, ELIG_date)
 
 'start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE("=== PEPR - MESSAGE PROCESSED ===")
@@ -101,6 +101,7 @@ CALL write_variable_in_case_note(fourth_line)
 CALL write_variable_in_case_note(fifth_line)
 CALL write_variable_in_case_note("---")
 IF medi_checkbox = CHECKED THEN
+	due_date = dateadd("d", 30, ELIG_date)
 	Call write_variable_in_case_note("** Medicare Buy-in Referral mailed **")
 	Call write_variable_in_case_note("Client is eligible for the Medicare buy-in as of " & ELIG_date & ". Proof due by " & due_date & "to apply.")
 	Call write_variable_in_case_note("Mailed DHS-3439-ENG MHCP Medicare Buy-In Referral Letter - TIKL set to follow up.")
