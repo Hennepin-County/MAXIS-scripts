@@ -92,14 +92,14 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 
 'start_a_blank_case_note
-CALL write_variable_in_CASE_NOTE("=== PEPR - MESSAGE PROCESSED ===")
-CALL write_variable_in_case_note("* " & full_message)
-CALL write_variable_in_case_note(first_line)
-CALL write_variable_in_case_note(second_line)
-CALL write_variable_in_case_note(third_line)
-CALL write_variable_in_case_note(fourth_line)
-CALL write_variable_in_case_note(fifth_line)
-CALL write_variable_in_case_note("---")
+'CALL write_variable_in_CASE_NOTE("=== PEPR - MESSAGE PROCESSED ===")
+'CALL write_variable_in_case_note("* " & full_message)
+'CALL write_variable_in_case_note(first_line)
+'CALL write_variable_in_case_note(second_line)
+'CALL write_variable_in_case_note(third_line)
+'CALL write_variable_in_case_note(fourth_line)
+'CALL write_variable_in_case_note(fifth_line)
+'CALL write_variable_in_case_note("---")
 IF medi_checkbox = CHECKED THEN
 	due_date = dateadd("d", 30, ELIG_date)
 	Call write_variable_in_case_note("** Medicare Buy-in Referral mailed **")
@@ -117,13 +117,17 @@ CALL write_variable_in_CASE_NOTE(worker_signature)
 PF3
 
 'TIKLING
-CALL navigate_to_MAXIS_screen("DAIL","WRIT")
-CALL create_MAXIS_friendly_date(date, 10, 5, 18)
-EMSetCursor 9, 3
+
 IF medi_checkbox = CHECKED THEN
+	CALL navigate_to_MAXIS_screen("DAIL","WRIT")
+	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
+	EMSetCursor 9, 3
 	EMSendKey "Medicare Referral made, please check on proof of application filed."
 ELSE
-    EMSendKey "TIKL set to mail the Medicare Referral for November " & ELIG_year & "."
+	CALL navigate_to_MAXIS_screen("DAIL","WRIT")
+	CALL create_MAXIS_friendly_date(date, 10, 5, 18) 'needs to be in November
+	EMSetCursor 9, 3
+    EMSendKey "Reminder to mail the Medicare Referral for November " & ELIG_year & "."
 END IF
 
 script_end_procedure_with_error_report(DAIL_type & vbcr &  first_line & vbcr & " DAIL has been case noted. Please remember to send forms out of ECF.")
