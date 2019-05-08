@@ -121,7 +121,7 @@ IF SSI_checkbox = CHECKED THEN
 END IF
 
 
-due_date = dateadd("d", 30, ELIG_date)
+
 
 start_a_blank_case_note
 
@@ -141,6 +141,7 @@ IF medi_checkbox <> CHECKED and ELIG_year = "" THEN
 END IF
 
 IF medi_checkbox = CHECKED THEN
+	due_date = dateadd("d", 30, ELIG_date)
 	Call write_variable_in_case_note("** Medicare Buy-in Referral mailed **")
 	Call write_variable_in_case_note("Client is eligible for the Medicare buy-in as of " & ELIG_date & ". Proof due by " & due_date & "to apply.")
 	Call write_variable_in_case_note("Mailed DHS-3439-ENG MHCP Medicare Buy-In Referral Letter - TIKL set to follow up.")
