@@ -91,7 +91,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 
-'start_a_blank_case_note
+start_a_blank_case_note
 'CALL write_variable_in_CASE_NOTE("=== PEPR - MESSAGE PROCESSED ===")
 'CALL write_variable_in_case_note("* " & full_message)
 'CALL write_variable_in_case_note(first_line)
