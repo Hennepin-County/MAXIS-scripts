@@ -107,7 +107,7 @@ IF medi_checkbox = CHECKED THEN
 	Call write_variable_in_case_note("Mailed DHS-3439-ENG MHCP Medicare Buy-In Referral Letter - TIKL set to follow up.")
 ELSE
 	Call write_variable_in_case_note("** Medicare Referral **")
-	Call write_variable_in_case_note("Client is not eligible for the Medicare buy-in. Enrollment is not until January " & ELIG_year & ", unable	to apply until the enrollment time.")
+	Call write_variable_in_case_note("Client is not eligible for the Medicare buy-in. Enrollment is not until January " & ELIG_year & ", unable to apply until the enrollment time.")
 	Call write_variable_in_case_note("TIKL set to mail the Medicare Referral for November " & ELIG_year & ".")
 END IF
 IF ECF_sent_checkbox = CHECKED THEN CALL write_variable_in_case_note("* ECF reviewed and appropriate action taken")
