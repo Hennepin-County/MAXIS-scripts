@@ -1043,12 +1043,13 @@ If asset_form_checkbox = checked Then
           Text 20, 30, 350, 20, "                  *** To include any of these asset panel information in the CASE/NOTE ***                                   Enter detail about the asset/verification in the 'Verification  detail' field next  to the  panel information."
           If acct_panels > 0 Then
               Text 10, y_pos, 95, 10, "Current ACCT panel details."
-              Text 260, y_pos, 120, 10, "Verification detail:"
+              Text 220, y_pos, 120, 10, "Verification date and note:"
               y_pos = y_pos + 15
               For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
                   If ASSETS_ARRAY(ast_panel, the_asset) = "ACCT" Then
                       Text 15, y_pos, 275, 10,  "* ACCT " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " " & ASSETS_ARRAY(ast_instance, the_asset) & " - " & ASSETS_ARRAY(ast_type, the_asset) & " @ " & ASSETS_ARRAY(ast_location, the_asset) & " - Balance: $" & ASSETS_ARRAY(ast_balance, the_asset)
-                      EditBox 260, y_pos - 5, 125, 15, ASSETS_ARRAY(ast_note, the_asset)
+                      EditBox 220, y_pos - 5, 80, 15, ASSETS_ARRAY(ast_verif_date, the_asset)
+                      EditBox 270, y_pos - 5, 125, 15, ASSETS_ARRAY(ast_note, the_asset)
                       y_pos = y_pos + 20
                   End If
               Next
@@ -1057,12 +1058,13 @@ If asset_form_checkbox = checked Then
 
           If secu_panels > 0 Then
               Text 10, y_pos, 95, 10, "Current SECU panel details."
-              Text 260, y_pos, 120, 10, "Verification detail:"
+              Text 220, y_pos, 120, 10, "Verification date and note:"
               y_pos = y_pos + 15
               For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
                   If ASSETS_ARRAY(ast_panel, the_asset) = "SECU" Then
                       Text 15, y_pos, 275, 10, "* SECU " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " " & ASSETS_ARRAY(ast_instance, the_asset) & " - " & ASSETS_ARRAY(ast_type, the_asset) & " @ " & ASSETS_ARRAY(ast_location, the_asset)
-                      EditBox 260, y_pos - 5, 125, 15, ASSETS_ARRAY(ast_note, the_asset)
+                      EditBox 220, y_pos - 5, 80, 15, ASSETS_ARRAY(ast_verif_date, the_asset)
+                      EditBox 270, y_pos - 5, 125, 15, ASSETS_ARRAY(ast_note, the_asset)
                       y_pos = y_pos + 20
                   End If
               Next
@@ -1071,12 +1073,13 @@ If asset_form_checkbox = checked Then
 
           If cars_panels > 0 Then
               Text 10, y_pos, 95, 10, "Current CARS panel details."
-              Text 260, y_pos, 120, 10, "Verification detail:"
+              Text 220, y_pos, 120, 10, "Verification date and note:"
               y_pos = y_pos + 15
               For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
                   If ASSETS_ARRAY(ast_panel, the_asset) = "CARS" Then
                       Text 15, y_pos, 275, 10, "* CARS " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " " & ASSETS_ARRAY(ast_instance, the_asset) & " - " & ASSETS_ARRAY(ast_year, the_asset) & " " & ASSETS_ARRAY(ast_make, the_asset) & " " & ASSETS_ARRAY(ast_model, the_asset)
-                      EditBox 260, y_pos - 5, 125, 15, ASSETS_ARRAY(ast_note, the_asset)
+                      EditBox 220, y_pos - 5, 80, 15, ASSETS_ARRAY(ast_verif_date, the_asset)
+                      EditBox 270, y_pos - 5, 125, 15, ASSETS_ARRAY(ast_note, the_asset)
                       y_pos = y_pos + 20
                   End If
               Next
