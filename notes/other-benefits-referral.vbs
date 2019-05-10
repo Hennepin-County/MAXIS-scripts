@@ -54,38 +54,44 @@ changelog_display
 EMConnect ""
 call maxis_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+memb_number = "01"
 
-'--------------------------------------------------------------------------------------------------THE MAIN DIALOG
+'------------------------------------------------------------------------------------------------------------Initial dialog
+
 'DHS-2116-ENG Notice to Apply for Other Maintenance Benefits
-BeginDialog other_bene_dialog, 0, 0, 311, 195, "Other Maintenance Benefits" & maxis_case_number
-  CheckBox 10, 20, 80, 10, "Railroad Retirement", railroad_retirement_checkbox
-  CheckBox 10, 30, 90, 10, "Worker's Compensation", worker_compensation_checkbox
-  CheckBox 10, 40, 95, 10, "Unemployment Insurance", unemployment_insurance_checkbox
-  CheckBox 125, 20, 180, 10, "Retirement, Survivors, and Disability Income (RSDI)", RSDI_checkbox
-  CheckBox 125, 30, 125, 10, "Supplemental Security Income (SSI)", SSI_checkbox
-  CheckBox 125, 40, 120, 10, "Veterans' Disability Benefits (VA)", VA_checkbox
-  CheckBox 125, 50, 130, 10, "Other (please specify in other notes)", other_checkbox
-  EditBox 65, 50, 50, 15, other_elig_date
-  CheckBox 10, 80, 65, 10, "Medicare Buy-In", medi_checkbox
-  EditBox 65, 90, 50, 15, ELIG_date
-  EditBox 285, 90, 15, 15, ELIG_year
-  CheckBox 10, 110, 235, 10, "Sent Notice to Apply for Other Maintenance Benefits DHS-2116-ENG", ECF_sent_checkbox
-  CheckBox 10, 120, 285, 10, "Client will need to fill out an Interim Assistance Agreement DHS-1795 or DHS-1795A", IAA_needed
-  EditBox 65, 135, 235, 15, action_taken
-  EditBox 65, 155, 235, 15, other_notes
-  EditBox 65, 175, 145, 15, worker_signature
+BeginDialog other_bene_dialog, 0, 0, 311, 205, "Other Maintenance Benefits"
+  EditBox 60, 5, 45, 15, maxis_case_number
+  EditBox 175, 5, 15, 15, memb_number
+  EditBox 260, 5, 45, 15, other_elig_date
+  CheckBox 15, 35, 80, 10, "Railroad Retirement", railroad_retirement_checkbox
+  CheckBox 15, 45, 95, 10, "Unemployment Insurance", unemployment_insurance_checkbox
+  CheckBox 15, 55, 125, 10, "Supplemental Security Income (SSI)", SSI_checkbox
+  CheckBox 15, 65, 180, 10, "Retirement, Survivors, and Disability Income (RSDI)", RSDI_checkbox
+  CheckBox 175, 35, 90, 10, "Worker's Compensation", worker_compensation_checkbox
+  CheckBox 175, 45, 120, 10, "Veterans' Disability Benefits (VA)", VA_checkbox
+  CheckBox 175, 55, 130, 10, "Other (please specify in other notes)", other_checkbox
+  CheckBox 15, 90, 65, 10, "Medicare Buy-In", medi_checkbox
+  EditBox 70, 100, 50, 15, ELIG_date
+  EditBox 285, 100, 15, 15, ELIG_year
+  CheckBox 10, 120, 235, 10, "Sent Notice to Apply for Other Maintenance Benefits DHS-2116-ENG", ECF_sent_checkbox
+  CheckBox 10, 130, 285, 10, "Client will need to fill out an Interim Assistance Agreement DHS-1795 or DHS-1795A", IAA_needed
+  EditBox 65, 145, 240, 15, action_taken
+  EditBox 65, 165, 240, 15, other_notes
+  EditBox 65, 185, 150, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 215, 175, 40, 15
-    CancelButton 260, 175, 40, 15
-  GroupBox 5, 5, 300, 65, "Client may be able to get  benefits from the programs checked below:"
-  Text 10, 55, 50, 10, "Eligibility Date:"
-  GroupBox 5, 70, 300, 40, "Medicare Buy-In only **   "
-  Text 10, 95, 50, 10, "Eligibility Date:"
-  Text 130, 95, 150, 10, "If ineligible the year that the client will be elig:"
-  Text 10, 140, 50, 10, "Actions Taken:"
-  Text 10, 160, 45, 10, "Other Notes:"
-  Text 5, 180, 60, 10, "Worker signature:"
-  Text 285, 80, 15, 10, "(YY)"
+    OkButton 220, 185, 40, 15
+    CancelButton 265, 185, 40, 15
+  GroupBox 5, 80, 300, 40, "Medicare Buy-In only **   "
+  Text 15, 105, 50, 10, "Eligibility Date:"
+  Text 135, 105, 150, 10, "If ineligible the year that the client will be elig:"
+  Text 15, 150, 50, 10, "Actions Taken:"
+  Text 20, 170, 45, 10, "Other Notes:"
+  Text 5, 190, 60, 10, "Worker signature:"
+  Text 285, 90, 15, 10, "(YY)"
+  Text 205, 10, 50, 10, "Eligibility Date:"
+  Text 120, 10, 50, 10, "Memb Number:"
+  GroupBox 5, 25, 300, 55, "Client may be able to get  benefits from the programs checked below:"
+  Text 10, 10, 50, 10, "Case Number:"
 EndDialog
 
 Do
@@ -93,7 +99,8 @@ Do
         err_msg = ""
 		Dialog medi_dialog
 		cancel_confirmation
-        If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid case number."
+		IF (IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+		If (isnumeric(memb_number) = False and len(MAXIS_case_number) > 2) then err_msg = err_msg & vbcr & "* Please enter a valid member number."
 		If (ELIG_year <> "" and isnumeric(ELIG_year) = False and len(MAXIS_case_number) > 2) then err_msg = err_msg & vbcr & "* Enter a valid 2 digit year for eligibility."
 		IF medi_checkbox = CHECKED and ELIG_date = "" THEN err_msg = err_msg & vbcr & "* Please advise of Medicare Buy-In eligibility date."
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbcr & "* Please describe what benefits the client may be eligible for."
