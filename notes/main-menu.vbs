@@ -448,6 +448,13 @@ script_array_M_to_Q(script_num).description				= "Template for the MN Transition
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
 Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_M_to_Q(script_num).script_name 			= "Other Benefits Referral"
+script_array_M_to_Q(script_num).file_name				= "other-benefits-referral.vbs"
+script_array_M_to_Q(script_num).description				= "Template for case noting information about sending a notice."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
+Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_M_to_Q(script_num).script_name 			= "Overpayment"
 script_array_M_to_Q(script_num).file_name				= "overpayment.vbs"
 script_array_M_to_Q(script_num).description				= "Template for noting basic information about overpayments."
