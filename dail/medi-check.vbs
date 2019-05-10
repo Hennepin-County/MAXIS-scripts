@@ -50,23 +50,39 @@ call changelog_update("05/01/2019", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 '=======================================================================================================END CHANGELOG BLOCK
 'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
-BeginDialog medi_dialog, 0, 0, 266, 130, DAIL_type & " MESSAGE PROCESSED"
-  CheckBox 5, 40, 140, 10, "Client is eligible for the Medicare buy-in", medi_checkbox
-  EditBox 210, 35, 50, 15, ELIG_date
-  Text 5, 60, 195, 10, "If INELIG year that client will be eligible for Medicare Buy-In"
-  EditBox 210, 55, 50, 15, ELIG_year
-  CheckBox 5, 75, 110, 10, "Forms have been sent in ECF", ECF_sent_checkbox
-  EditBox 50, 90, 210, 15, other_notes
-  EditBox 70, 110, 95, 15, worker_signature
+BeginDialog other_bene_dialog, 0, 0, 316, 215, "Other Maintenance Benefits" & maxis_case_number
+  EditBox 70, 15, 15, 15, memb_number
+  EditBox 185, 15, 50, 15, other_elig_date
+  CheckBox 15, 30, 80, 10, "Railroad Retirement", railroad_retirement_checkbox
+  CheckBox 15, 40, 90, 10, "Worker's Compensation", worker_compensation_checkbox
+  CheckBox 15, 50, 95, 10, "Unemployment Insurance", unemployment_insurance_checkbox
+  CheckBox 15, 60, 130, 10, "Other (please specify in other notes)", other_checkbox
+  CheckBox 130, 30, 180, 10, "Retirement, Survivors, and Disability Income (RSDI)", RSDI_checkbox
+  CheckBox 130, 40, 125, 10, "Supplemental Security Income (SSI)", SSI_checkbox
+  CheckBox 130, 50, 120, 10, "Veterans' Disability Benefits (VA)", VA_checkbox
+  CheckBox 15, 85, 65, 10, "Medicare Buy-In", medi_checkbox
+  EditBox 70, 95, 50, 15, ELIG_date
+  EditBox 290, 95, 15, 15, ELIG_year
+  CheckBox 10, 115, 235, 10, "Sent Notice to Apply for Other Maintenance Benefits DHS-2116-ENG", ECF_sent_checkbox
+  CheckBox 10, 125, 285, 10, "Client will need to fill out an Interim Assistance Agreement DHS-1795 or DHS-1795A", IAA_needed
+  EditBox 65, 140, 240, 15, action_taken
+  EditBox 65, 160, 240, 15, other_notes
+  EditBox 65, 180, 150, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 175, 110, 40, 15
-    CancelButton 220, 110, 40, 15
-  GroupBox 5, 5, 255, 25, "DAIL for case # " &  MAXIS_case_number
-  Text 10, 15, 250, 10, full_message
-  Text 5, 95, 45, 10, "Other notes:"
-  Text 5, 115, 60, 10, "Worker signature:"
-  Text 175, 40, 35, 10, "ELIG date"
+    OkButton 220, 180, 40, 15
+    CancelButton 265, 180, 40, 15
+  GroupBox 5, 5, 305, 70, "Client may be able to get  benefits from the programs checked below:"
+  GroupBox 5, 75, 305, 40, "Medicare Buy-In only **   "
+  Text 15, 100, 50, 10, "Eligibility Date:"
+  Text 140, 100, 150, 10, "If ineligible the year that the client will be elig:"
+  Text 15, 145, 50, 10, "Actions Taken:"
+  Text 20, 165, 45, 10, "Other Notes:"
+  Text 5, 185, 60, 10, "Worker signature:"
+  Text 290, 85, 15, 10, "(YY)"
+  Text 130, 20, 50, 10, "Eligibility Date:"
+  Text 15, 20, 50, 10, "Memb Number:"
 EndDialog
+
 
 
 EMConnect ""
@@ -83,6 +99,7 @@ Do
         err_msg = ""
 		Dialog medi_dialog
 		cancel_confirmation
+		IF (isnumeric(memb_number) = False and len(memb_number) > 2) then err_msg = err_msg & vbcr & "* Enter a valid member number."
 		IF medi_checkbox = CHECKED THEN If isdate(ELIG_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid date of eligibility."
         If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid case number."
 		If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Please ensure your case note is signed."
@@ -102,11 +119,11 @@ PF9
 'CALL write_variable_in_case_note("---")
 IF medi_checkbox = CHECKED THEN
 	due_date = dateadd("d", 30, date)
-	Call write_variable_in_case_note("** Medicare Buy-in Referral mailed **")
-	Call write_variable_in_case_note("Client is eligible for the Medicare buy-in as of " & ELIG_date & ". Proof due by " & due_date & "to apply.")
+	Call write_variable_in_case_note("** Medicare Buy-in Referral mailed for M" & memb_number & " **")
+	Call write_variable_in_case_note("Client is eligible for the Medicare buy-in as of " & ELIG_date & ". Proof due by " & due_date & " to apply.")
 	Call write_variable_in_case_note("Mailed DHS-3439-ENG MHCP Medicare Buy-In Referral Letter - TIKL set to follow up.")
 ELSE
-	Call write_variable_in_case_note("** Medicare Referral **")
+	Call write_variable_in_case_note("** Medicare Referral for M" & memb_number & " **")
 	Call write_variable_in_case_note("Client is not eligible for the Medicare buy-in. Enrollment is not until January " & ELIG_year & ", unable to apply until the enrollment time.")
 	Call write_variable_in_case_note("TIKL set to mail the Medicare Referral for November " & ELIG_year & ".")
 END IF

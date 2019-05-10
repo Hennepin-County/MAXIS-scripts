@@ -128,7 +128,7 @@ END IF
 
 start_a_blank_case_note
 IF medi_checkbox <> CHECKED and ELIG_year = "" THEN
-	CALL write_variable_in_CASE_NOTE("Sent Notice to Apply for Other Maintenance Benefits - DHS-2116-ENG ")
+	CALL write_variable_in_CASE_NOTE("Sent Notice to M" & memb_number & " to apply for Other Maintenance Benefits")
 	IF ECF_sent_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Mailed DHS-2116-ENG Notice to Apply for Other Maintenance Benefits.")
 	CALL write_variable_in_case_note("* Client may be eligible for the following benefits as of: " & other_elig_date & ".")
     IF RSDI_checkbox = CHECKED THEN CALL write_variable_in_case_note("Retirement, Survivors, and Disability Income-RSDI")
@@ -143,12 +143,12 @@ IF medi_checkbox <> CHECKED and ELIG_year = "" THEN
 END IF
 
 IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
-	due_date = dateadd("d", 30, ELIG_date)
-	Call write_variable_in_case_note("** Medicare Buy-in Referral mailed **")
-	Call write_variable_in_case_note("Client is eligible for the Medicare buy-in as of " & ELIG_date & ". Proof due by " & due_date & "to apply.")
+	due_date = dateadd("d", 30, date)
+	Call write_variable_in_case_note("** Medicare Buy-in Referral mailed for M" & memb_number & " **")
+	Call write_variable_in_case_note("Client is eligible for the Medicare buy-in as of " & ELIG_date & ". Proof due by " & due_date & " to apply.")
 	Call write_variable_in_case_note("Mailed DHS-3439-ENG MHCP Medicare Buy-In Referral Letter - TIKL set to follow up.")
 ELSEIF ELIG_year <> "" THEN
-	Call write_variable_in_case_note("** Medicare Referral **")
+	Call write_variable_in_case_note("** Medicare Referral for M" & memb_number & " **")
 	Call write_variable_in_case_note("Client is not eligible for the Medicare buy-in. Enrollment is not until January " & ELIG_year & ", unable	to apply until the enrollment time.")
 	Call write_variable_in_case_note("TIKL set to mail the Medicare Referral for November " & ELIG_year & ".")
 END IF
@@ -162,15 +162,17 @@ PF3
 'TIKLING
 IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
 	CALL navigate_to_MAXIS_screen("DAIL","WRIT")
-	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
+	call create_MAXIS_friendly_date(Due_date, 10, 5, 18)
 	CALL write_variable_in_TIKL("Referral made for medicare, please check on proof of application filed. Due " & due_date & ".")
+	PF3
 END IF
 IF ELIG_year <> "" THEN
 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-	CALL EMWriteScreen "11", 5, 18
-	CALL EMWriteScreen "01", 5, 21
-	CALL EMWriteScreen ELIG_year, 5, 24
+	EMWriteScreen "11", 5, 18
+	EMWriteScreen "01", 5, 21
+	EMWriteScreen ELIG_year, 5, 24
 	CALL write_variable_in_TIKL("Reminder to mail the Medicare Referral for November 20" & ELIG_year & ".")
+	PF3
 END IF
 
 
