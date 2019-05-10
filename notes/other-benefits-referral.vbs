@@ -57,31 +57,35 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 '--------------------------------------------------------------------------------------------------THE MAIN DIALOG
 'DHS-2116-ENG Notice to Apply for Other Maintenance Benefits
-BeginDialog other_bene_dialog, 0, 0, 311, 190, "Other Maintenance Benefits" & maxis_case_number
-  CheckBox 15, 20, 65, 10, "Medicare Buy-in", medi_checkbox
+BeginDialog other_bene_dialog, 0, 0, 311, 195, "Other Maintenance Benefits" & maxis_case_number
+  CheckBox 10, 20, 80, 10, "Railroad Retirement", railroad_retirement_checkbox
+  CheckBox 10, 30, 90, 10, "Worker's Compensation", worker_compensation_checkbox
+  CheckBox 10, 40, 95, 10, "Unemployment Insurance", unemployment_insurance_checkbox
   CheckBox 125, 20, 180, 10, "Retirement, Survivors, and Disability Income (RSDI)", RSDI_checkbox
-  CheckBox 15, 30, 80, 10, "Railroad Retirement", railroad_retirement_checkbox
   CheckBox 125, 30, 125, 10, "Supplemental Security Income (SSI)", SSI_checkbox
-  CheckBox 15, 40, 90, 10, "Worker's Compensation", worker_compensation_checkbox
   CheckBox 125, 40, 120, 10, "Veterans' Disability Benefits (VA)", VA_checkbox
-  CheckBox 15, 50, 85, 10, "Other(please specify)", other_checkbox
-  CheckBox 125, 50, 95, 10, "Unemployment Insurance", unemployment_insurance_checkbox
-  EditBox 65, 70, 50, 15, ELIG_date
-  EditBox 250, 70, 50, 15, ELIG_year
-  CheckBox 10, 95, 235, 10, "Sent Notice to Apply for Other Maintenance Benefits DHS-2116-ENG", ECF_sent_checkbox
-  CheckBox 10, 110, 285, 10, "Client will need to fill out an Interim Assistance Agreement DHS-1795 or DHS-1795A", IAA_needed
-  EditBox 70, 125, 230, 15, action_taken
-  EditBox 70, 145, 230, 15, other_notes
-  EditBox 70, 165, 140, 15, worker_signature
+  CheckBox 125, 50, 130, 10, "Other (please specify in other notes)", other_checkbox
+  EditBox 65, 50, 50, 15, other_elig_date
+  CheckBox 10, 80, 65, 10, "Medicare Buy-In", medi_checkbox
+  EditBox 65, 90, 50, 15, ELIG_date
+  EditBox 285, 90, 15, 15, ELIG_year
+  CheckBox 10, 110, 235, 10, "Sent Notice to Apply for Other Maintenance Benefits DHS-2116-ENG", ECF_sent_checkbox
+  CheckBox 10, 120, 285, 10, "Client will need to fill out an Interim Assistance Agreement DHS-1795 or DHS-1795A", IAA_needed
+  EditBox 65, 135, 235, 15, action_taken
+  EditBox 65, 155, 235, 15, other_notes
+  EditBox 65, 175, 145, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 215, 165, 40, 15
-    CancelButton 260, 165, 40, 15
-  GroupBox 5, 5, 300, 60, "Client may be able to get  benefits from the programs checked below:"
-  Text 10, 75, 50, 10, "Eligibility Date:"
-  Text 140, 70, 105, 20, "Medicare Buy-In only - If INELIG the year that client will be ELIG"
-  Text 10, 130, 50, 10, "Actions Taken:"
-  Text 10, 150, 45, 10, "Other Notes:"
-  Text 5, 170, 60, 10, "Worker signature:"
+    OkButton 215, 175, 40, 15
+    CancelButton 260, 175, 40, 15
+  GroupBox 5, 5, 300, 65, "Client may be able to get  benefits from the programs checked below:"
+  Text 10, 55, 50, 10, "Eligibility Date:"
+  GroupBox 5, 70, 300, 40, "Medicare Buy-In only **   "
+  Text 10, 95, 50, 10, "Eligibility Date:"
+  Text 130, 95, 150, 10, "If ineligible the year that the client will be elig:"
+  Text 10, 140, 50, 10, "Actions Taken:"
+  Text 10, 160, 45, 10, "Other Notes:"
+  Text 5, 180, 60, 10, "Worker signature:"
+  Text 285, 80, 15, 10, "(YY)"
 EndDialog
 
 Do
@@ -90,6 +94,7 @@ Do
 		Dialog medi_dialog
 		cancel_confirmation
         If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid case number."
+		If (ELIG_year <> "" and isnumeric(ELIG_year) = False and len(MAXIS_case_number) > 2) then err_msg = err_msg & vbcr & "* Enter a valid 2 digit year for eligibility."
 		IF medi_checkbox = CHECKED and ELIG_date = "" THEN err_msg = err_msg & vbcr & "* Please advise of Medicare Buy-In eligibility date."
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbcr & "* Please describe what benefits the client may be eligible for."
 		If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Please ensure your case note is signed."
@@ -121,14 +126,11 @@ IF SSI_checkbox = CHECKED THEN
 END IF
 
 
-
-
 start_a_blank_case_note
-
 IF medi_checkbox <> CHECKED and ELIG_year = "" THEN
 	CALL write_variable_in_CASE_NOTE("Sent Notice to Apply for Other Maintenance Benefits - DHS-2116-ENG ")
-	CALL write_variable_in_case_note("* Mailed DHS-2116-ENG Notice to Apply for Other Maintenance Benefits.")
-	CALL write_variable_in_case_note("* Client may be eligible for the following benefits:")
+	IF ECF_sent_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Mailed DHS-2116-ENG Notice to Apply for Other Maintenance Benefits.")
+	CALL write_variable_in_case_note("* Client may be eligible for the following benefits as of: " & other_elig_date & ".")
     IF RSDI_checkbox = CHECKED THEN CALL write_variable_in_case_note("Retirement, Survivors, and Disability Income-RSDI")
     IF railroad_retirement_checkbox  = CHECKED THEN CALL write_variable_in_case_note("Supplemental Security Income-SSI")
     IF SSI_checkbox = CHECKED THEN CALL write_variable_in_case_note("Supplemental Security Income-SSI")
@@ -140,7 +142,7 @@ IF medi_checkbox <> CHECKED and ELIG_year = "" THEN
     IF IAA_needed = UNCHECKED THEN CALL write_variable_in_case_note("* The client will not need to fill out an Interim Assistance Agreement DHS-1795 or DHS-1795A.")
 END IF
 
-IF medi_checkbox = CHECKED THEN
+IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
 	due_date = dateadd("d", 30, ELIG_date)
 	Call write_variable_in_case_note("** Medicare Buy-in Referral mailed **")
 	Call write_variable_in_case_note("Client is eligible for the Medicare buy-in as of " & ELIG_date & ". Proof due by " & due_date & "to apply.")
@@ -150,7 +152,7 @@ ELSEIF ELIG_year <> "" THEN
 	Call write_variable_in_case_note("Client is not eligible for the Medicare buy-in. Enrollment is not until January " & ELIG_year & ", unable	to apply until the enrollment time.")
 	Call write_variable_in_case_note("TIKL set to mail the Medicare Referral for November " & ELIG_year & ".")
 END IF
-IF ECF_sent_checkbox = CHECKED THEN CALL write_variable_in_case_note("* ECF reviewed and appropriate action taken")
+
 CALL write_bullet_and_variable_in_case_note("Action Taken", action_taken)
 CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 CALL write_variable_in_CASE_NOTE("---")
@@ -158,12 +160,18 @@ CALL write_variable_in_CASE_NOTE(worker_signature)
 PF3
 
 'TIKLING
+IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
+	CALL navigate_to_MAXIS_screen("DAIL","WRIT")
+	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
+	CALL write_variable_in_TIKL("Referral made for medicare, please check on proof of application filed. Due " & due_date & ".")
+END IF
+IF ELIG_year <> "" THEN
+	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
+	CALL EMWriteScreen "11", 0, 5, 18
+	CALL EMWriteScreen "01", 0, 5, 21
+	CALL EMWriteScreen ELIG_year, 0, 5, 24
+	CALL write_variable_in_TIKL("Reminder to mail the Medicare Referral for November 20" & ELIG_year & ".")
+END IF
 
-CALL navigate_to_MAXIS_screen("DAIL","WRIT")
-CALL create_MAXIS_friendly_date(date, 10, 5, 18)
-EMSetCursor 9, 3
-
-IF ELIG_year = "" THEN EMSendKey "Referral made for other benefits, please check on proof of application filed. Due " & due_date & "."
-IF ELIG_year <> "" THEN EMSendKey "TIKL set to mail the Medicare Referral for November " & ELIG_year & "."
 
 script_end_procedure_with_error_report("Case has been noted. Please remember to send forms out of ECF.")
