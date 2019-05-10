@@ -70,6 +70,7 @@ EndDialog
 
 
 EMConnect ""
+
 EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
 TRANSMIT
 'Starts a blank case note
@@ -90,8 +91,7 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-
-start_a_blank_case_note
+PF9
 'CALL write_variable_in_CASE_NOTE("=== PEPR - MESSAGE PROCESSED ===")
 'CALL write_variable_in_case_note("* " & full_message)
 'CALL write_variable_in_case_note(first_line)
@@ -101,7 +101,7 @@ start_a_blank_case_note
 'CALL write_variable_in_case_note(fifth_line)
 'CALL write_variable_in_case_note("---")
 IF medi_checkbox = CHECKED THEN
-	due_date = dateadd("d", 30, ELIG_date)
+	due_date = dateadd("d", 30, date)
 	Call write_variable_in_case_note("** Medicare Buy-in Referral mailed **")
 	Call write_variable_in_case_note("Client is eligible for the Medicare buy-in as of " & ELIG_date & ". Proof due by " & due_date & "to apply.")
 	Call write_variable_in_case_note("Mailed DHS-3439-ENG MHCP Medicare Buy-In Referral Letter - TIKL set to follow up.")
@@ -120,8 +120,7 @@ PF3
 'TIKLING
 IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
 	CALL navigate_to_MAXIS_screen("DAIL","WRIT")
-	TIKL_date = dateadd("m", "1", MAXIS_footer_month & " 01 " & MAXIS_footer_year)
-	EMWriteScreen TIKL_date, 5, 18
+	call create_MAXIS_friendly_date(Due_date, 10, 5, 18)
 	CALL write_variable_in_TIKL("Referral made for medicare, please check on proof of application filed. Due " & due_date & ".")
 	PF3
 END IF
