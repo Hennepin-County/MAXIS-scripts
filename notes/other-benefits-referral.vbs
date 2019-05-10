@@ -167,9 +167,9 @@ IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
 END IF
 IF ELIG_year <> "" THEN
 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-	CALL EMWriteScreen "11", 0, 5, 18
-	CALL EMWriteScreen "01", 0, 5, 21
-	CALL EMWriteScreen ELIG_year, 0, 5, 24
+	CALL EMWriteScreen "11", 5, 18
+	CALL EMWriteScreen "01", 5, 21
+	CALL EMWriteScreen ELIG_year, 5, 24
 	CALL write_variable_in_TIKL("Reminder to mail the Medicare Referral for November 20" & ELIG_year & ".")
 END IF
 
