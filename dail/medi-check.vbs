@@ -120,15 +120,16 @@ PF3
 'TIKLING
 IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
 	CALL navigate_to_MAXIS_screen("DAIL","WRIT")
-	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
+	TIKL_date = dateadd("m", "1", MAXIS_footer_month & " 01 " & MAXIS_footer_year)
+	EMWriteScreen TIKL_date, 5, 18
 	CALL write_variable_in_TIKL("Referral made for medicare, please check on proof of application filed. Due " & due_date & ".")
 	PF3
 END IF
 IF ELIG_year <> "" THEN
 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-	CALL EMWriteScreen "11", 0, 5, 18
-	CALL EMWriteScreen "01", 0, 5, 21
-	CALL EMWriteScreen ELIG_year, 0, 5, 24
+	EMWriteScreen "11", 5, 18
+	EMWriteScreen "01", 5, 21
+	EMWriteScreen ELIG_year, 5, 24
 	CALL write_variable_in_TIKL("Reminder to mail the Medicare Referral for November 20" & ELIG_year & ".")
 	PF3
 END IF
