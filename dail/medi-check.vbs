@@ -122,6 +122,7 @@ IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
 	CALL navigate_to_MAXIS_screen("DAIL","WRIT")
 	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
 	CALL write_variable_in_TIKL("Referral made for medicare, please check on proof of application filed. Due " & due_date & ".")
+	PF3
 END IF
 IF ELIG_year <> "" THEN
 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
@@ -129,6 +130,8 @@ IF ELIG_year <> "" THEN
 	CALL EMWriteScreen "01", 0, 5, 21
 	CALL EMWriteScreen ELIG_year, 0, 5, 24
 	CALL write_variable_in_TIKL("Reminder to mail the Medicare Referral for November 20" & ELIG_year & ".")
+	PF3
 END IF
+
 
 script_end_procedure_with_error_report("DAIL has been case noted. Please remember to send forms out of ECF and delete the PEPR.")
