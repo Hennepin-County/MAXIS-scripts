@@ -102,17 +102,19 @@ PF9
 'CALL write_variable_in_case_note(fourth_line)
 'CALL write_variable_in_case_note(fifth_line)
 'CALL write_variable_in_case_note("---")
-IF medi_checkbox = CHECKED THEN
+IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
 	due_date = dateadd("d", 30, date)
 	Call write_variable_in_case_note("** Medicare Buy-in Referral mailed for M" & memb_number & " **")
-	Call write_variable_in_case_note("Client is eligible for the Medicare buy-in as of " & ELIG_date & ". Proof due by " & due_date & " to apply.")
-	Call write_variable_in_case_note("Mailed DHS-3439-ENG MHCP Medicare Buy-In Referral Letter - TIKL set to follow up.")
-ELSE
+	Call write_variable_in_case_note("* Client is eligible for the Medicare buy-in as of " & ELIG_date & ".")
+	Call write_variable_in_case_note("* Proof due by " & due_date & " to apply.")
+	Call write_variable_in_case_note("* Mailed DHS-3439-ENG MHCP Medicare Buy-In Referral Letter")
+	Call write_variable_in_case_note("* TIKL set to follow up.")
+ELSEIF ELIG_year <> "" THEN
 	Call write_variable_in_case_note("** Medicare Referral for M" & memb_number & " **")
-	Call write_variable_in_case_note("Client is not eligible for the Medicare buy-in. Enrollment is not until January " & ELIG_year & ", unable to apply until the enrollment time.")
-	Call write_variable_in_case_note("TIKL set to mail the Medicare Referral for November " & ELIG_year & ".")
+	Call write_variable_in_case_note("* Client is not eligible for the Medicare buy-in. Enrollment is not until January 20" & ELIG_year & ", unable to apply until the enrollment time.")
+	Call write_variable_in_case_note("* TIKL set to mail the Medicare Referral for November " & ELIG_year & ".")
 END IF
-IF ECF_sent_checkbox = CHECKED THEN CALL write_variable_in_case_note("* ECF reviewed and appropriate action taken")
+IF ECF_sent_checkbox = CHECKED THEN CALL write_variable_in_case_note("* ECF reviewed.")
 CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
