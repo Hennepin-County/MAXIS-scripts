@@ -116,18 +116,19 @@ CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 PF3
 
-'TIKLING
 
-IF medi_checkbox = CHECKED THEN
+'TIKLING
+IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
 	CALL navigate_to_MAXIS_screen("DAIL","WRIT")
 	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
-	EMSetCursor 9, 3
-	EMSendKey "Medicare Referral made, please check on proof of application filed."
-ELSE
-	CALL navigate_to_MAXIS_screen("DAIL","WRIT")
-	CALL create_MAXIS_friendly_date(date, 10, 5, 18) 'needs to be in November
-	EMSetCursor 9, 3
-    EMSendKey "Reminder to mail the Medicare Referral for November " & ELIG_year & "."
+	CALL write_variable_in_TIKL("Referral made for medicare, please check on proof of application filed. Due " & due_date & ".")
+END IF
+IF ELIG_year <> "" THEN
+	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
+	CALL EMWriteScreen "11", 0, 5, 18
+	CALL EMWriteScreen "01", 0, 5, 21
+	CALL EMWriteScreen ELIG_year, 0, 5, 24
+	CALL write_variable_in_TIKL("Reminder to mail the Medicare Referral for November 20" & ELIG_year & ".")
 END IF
 
-script_end_procedure_with_error_report(DAIL_type & vbcr &  first_line & vbcr & " DAIL has been case noted. Please remember to send forms out of ECF.")
+script_end_procedure_with_error_report("DAIL has been case noted. Please remember to send forms out of ECF and delete the PEPR.")
