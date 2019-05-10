@@ -99,11 +99,11 @@ Do
         err_msg = ""
 		Dialog medi_dialog
 		cancel_confirmation
-		IF (IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+		IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		If (isnumeric(memb_number) = False and len(MAXIS_case_number) > 2) then err_msg = err_msg & vbcr & "* Please enter a valid member number."
-		If (ELIG_year <> "" and isnumeric(ELIG_year) = False and len(MAXIS_case_number) > 2) then err_msg = err_msg & vbcr & "* Enter a valid 2 digit year for eligibility."
-		IF medi_checkbox = CHECKED and ELIG_date = "" THEN err_msg = err_msg & vbcr & "* Please advise of Medicare Buy-In eligibility date."
-		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbcr & "* Please describe what benefits the client may be eligible for."
+		If (ELIG_year <> "" and isnumeric(ELIG_year) = False and len(ELIG_year) > 2) then err_msg = err_msg & vbcr & "* Enter a valid 2 digit year for eligibility."
+		IF (medi_checkbox = CHECKED and ELIG_date = "" and ELIG_year = "") THEN err_msg = err_msg & vbcr & "* Please advise of Medicare Buy-In eligibility date or the year the client will be eligible."
+		IF (other_checkbox = CHECKED and other_notes = "") THEN err_msg = err_msg & vbcr & "* Please describe what benefits the client may be eligible for."
 		If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Please ensure your case note is signed."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
@@ -137,14 +137,14 @@ start_a_blank_case_note
 IF medi_checkbox <> CHECKED and ELIG_year = "" THEN
 	CALL write_variable_in_CASE_NOTE("Sent Notice to M" & memb_number & " to apply for Other Maintenance Benefits")
 	IF ECF_sent_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Mailed DHS-2116-ENG Notice to Apply for Other Maintenance Benefits.")
-	CALL write_variable_in_case_note("* Client may be eligible for the following benefits as of: " & other_elig_date & ".")
-    IF RSDI_checkbox = CHECKED THEN CALL write_variable_in_case_note("Retirement, Survivors, and Disability Income-RSDI")
-    IF railroad_retirement_checkbox  = CHECKED THEN CALL write_variable_in_case_note("Supplemental Security Income-SSI")
-    IF SSI_checkbox = CHECKED THEN CALL write_variable_in_case_note("Supplemental Security Income-SSI")
-    IF worker_compensation_checkbox = CHECKED THEN CALL write_variable_in_case_note("Worker's Compensation")
-    IF VA_checkbox = CHECKED THEN CALL write_variable_in_case_note("Veterans' Disability Benefits (VA)")
-    IF unemployment_insurance_checkbox = CHECKED THEN CALL write_variable_in_case_note("Unemployment Insurance")
-    IF other_checkbox = CHECKED THEN CALL write_variable_in_case_note("Other")
+	CALL write_variable_in_case_note("* Client may be eligible for the following benefits as of " & other_elig_date & ":")
+    IF RSDI_checkbox = CHECKED THEN CALL write_variable_in_case_note("-Retirement, Survivors, and Disability Income-RSDI")
+    IF railroad_retirement_checkbox  = CHECKED THEN CALL write_variable_in_case_note("-Supplemental Security Income-SSI")
+    IF SSI_checkbox = CHECKED THEN CALL write_variable_in_case_note("-Supplemental Security Income-SSI")
+    IF worker_compensation_checkbox = CHECKED THEN CALL write_variable_in_case_note("-Worker's Compensation")
+    IF VA_checkbox = CHECKED THEN CALL write_variable_in_case_note("-Veterans' Disability Benefits (VA)")
+    IF unemployment_insurance_checkbox = CHECKED THEN CALL write_variable_in_case_note("-Unemployment Insurance")
+    IF other_checkbox = CHECKED THEN CALL write_variable_in_case_note("-Other")
     IF IAA_needed = CHECKED THEN CALL write_variable_in_case_note("* The client will need to fill out an Interim Assistance Agreement DHS-1795 or DHS-1795A.")
     IF IAA_needed = UNCHECKED THEN CALL write_variable_in_case_note("* The client will not need to fill out an Interim Assistance Agreement DHS-1795 or DHS-1795A.")
 END IF
@@ -152,12 +152,14 @@ END IF
 IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
 	due_date = dateadd("d", 30, date)
 	Call write_variable_in_case_note("** Medicare Buy-in Referral mailed for M" & memb_number & " **")
-	Call write_variable_in_case_note("Client is eligible for the Medicare buy-in as of " & ELIG_date & ". Proof due by " & due_date & " to apply.")
-	Call write_variable_in_case_note("Mailed DHS-3439-ENG MHCP Medicare Buy-In Referral Letter - TIKL set to follow up.")
+	Call write_variable_in_case_note("* Client is eligible for the Medicare buy-in as of " & ELIG_date & ".")
+	Call write_variable_in_case_note("* Proof due by " & due_date & " to apply.")
+	Call write_variable_in_case_note("* Mailed DHS-3439-ENG MHCP Medicare Buy-In Referral Letter")
+	Call write_variable_in_case_note("* TIKL set to follow up.")
 ELSEIF ELIG_year <> "" THEN
 	Call write_variable_in_case_note("** Medicare Referral for M" & memb_number & " **")
-	Call write_variable_in_case_note("Client is not eligible for the Medicare buy-in. Enrollment is not until January " & ELIG_year & ", unable	to apply until the enrollment time.")
-	Call write_variable_in_case_note("TIKL set to mail the Medicare Referral for November " & ELIG_year & ".")
+	Call write_variable_in_case_note("* Client is not eligible for the Medicare buy-in. Enrollment is not until January 20" & ELIG_year & ", unable to apply until the enrollment time.")
+	Call write_variable_in_case_note("* TIKL set to mail the Medicare Referral for November " & ELIG_year & ".")
 END IF
 
 CALL write_bullet_and_variable_in_case_note("Action Taken", action_taken)
