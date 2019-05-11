@@ -1563,6 +1563,7 @@ If asset_form_checkbox = checked Then
                 If share_ratio_num = "" Then share_ratio_num = "1"
                 If share_ratio_denom = "" Then share_ratio_denom = "1"
                 If LTC_case = vbNo AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
+                ASSETS_ARRAY(ast_verif_date, asset_counter) = doc_date_stamp
 
                 ' MsgBox ASSETS_ARRAY(ast_type, asset_counter)
                 'Dialog to fill the SECU panel
@@ -1908,6 +1909,7 @@ If asset_form_checkbox = checked Then
                 If share_ratio_num = "" Then share_ratio_num = "1"
                 If share_ratio_denom = "" Then share_ratio_denom = "1"
                 If LTC_case = vbNo AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "5 - Other Document"
+                ASSETS_ARRAY(ast_verif_date, asset_counter) = doc_date_stamp
 
                 'Dialog to fill the CARS panel.
                 BeginDialog Dialog1, 0, 0, 270, 255, "New CARS panel for Case # & MAXIS_case_number" & MAXIS_case_number
