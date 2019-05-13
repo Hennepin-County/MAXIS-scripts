@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/30/2019", "Added Other Maintanence Benefit case note.", "MiKayla Handley, Hennepin County")
 call changelog_update("04/30/2019", "Retired NOTES - REIN PROGS script. Please use applicable application or approval case notes.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/23/2019", "Removed MAXIS TO METS MIGRATION script. Added HEALTH CARE TRANSITION script.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/26/2019", "Retired 'NOTES - MNsure - Documents requested' script. Please use NOTES - VERIFICATIONS NEEDED.", "Ilse Ferris, Hennepin County")
