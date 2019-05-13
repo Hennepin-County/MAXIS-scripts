@@ -57,13 +57,10 @@ changelog_display
 Set objNet = CreateObject("WScript.NetWork")
 
 'Determines user to enable debugging features. Add individuals to this if...then to include them with developer mode.
-If ucase(objNet.UserName) = "PWVKC45" or _
-  ucase(objNet.UserName) = "ILFE001" or _
-  ucase(objNet.UserName) = "RAKALB" or _
-  ucase(objNet.UserName) = "CDPOTTER" or _
-  ucase(objNet.UserName) = "COURTRIGHTD" or _
-  ucase(objNet.UserName) = "VKC" then
-	inquiry_testing = MsgBox("Developer " & ucase(objNet.UserName) & " detected. Enable inquiry testing and bypass date restrictions?", vbYesNoCancel)
+If ucase(objNet.UserName) = "ILFE001" or _
+  ucase(objNet.UserName) = "CALO001" or _
+  ucase(objNet.UserName) = "WFS395" then
+  inquiry_testing = MsgBox("Developer " & ucase(objNet.UserName) & " detected. Enable inquiry testing and bypass date restrictions?", vbYesNoCancel)
 End if
 
 'If cancelled...
