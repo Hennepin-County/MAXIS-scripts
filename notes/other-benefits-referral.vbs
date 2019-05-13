@@ -97,7 +97,7 @@ EndDialog
 Do
     Do
         err_msg = ""
-		Dialog medi_dialog
+		Dialog other_bene_dialog
 		cancel_confirmation
 		IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		If (isnumeric(memb_number) = False and len(MAXIS_case_number) > 2) then err_msg = err_msg & vbcr & "* Please enter a valid member number."
