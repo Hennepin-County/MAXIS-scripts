@@ -308,17 +308,17 @@ DO
               EditBox 35, 70, 315, 15, ADDR
               EditBox 75, 90, 275, 15, SCHL
               EditBox 35, 110, 315, 15, DISA
-              EditBox 35, 130, 315, 15, JOBS
               CheckBox 370, 115, 30, 10, "MOF", mof_form_checkbox
+              EditBox 35, 130, 315, 15, JOBS
               CheckBox 370, 135, 30, 10, "EVF", evf_form_received_checkbox
-              CheckBox 370, 195, 30, 10, "Asset", asset_form_checkbox
-              Text 370, 205, 35, 10, "Statement"
-              CheckBox 370, 220, 30, 10, "AREP", arep_form_checkbox
               'CheckBox 365, 260, 40, 10, "LTC1503", ltc_1503_form_checkbox
               EditBox 35, 150, 315, 15, BUSI
               EditBox 35, 170, 315, 15, UNEA
               EditBox 35, 190, 315, 15, ACCT
+              CheckBox 370, 195, 30, 10, "Asset", asset_form_checkbox
+              Text 370, 205, 35, 10, "Statement"
               EditBox 60, 210, 290, 15, other_assets
+              CheckBox 370, 220, 30, 10, "AREP", arep_form_checkbox
               EditBox 35, 230, 315, 15, SHEL
               EditBox 35, 250, 315, 15, INSA
               EditBox 55, 270, 295, 15, other_verifs
@@ -2462,4 +2462,4 @@ call write_bullet_and_variable_in_case_note("Verifications still needed", verifs
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
-script_end_procedure(end_msg)
+script_end_procedure_with_error_report(end_msg)
