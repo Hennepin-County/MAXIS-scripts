@@ -1137,6 +1137,7 @@ If asset_form_checkbox = checked Then
         Do
             Call back_to_SELF
             found_the_panel = FALSE
+            panel_found = FALSE
             update_panel_type = "NONE - I'm all done"
             snap_is_yes = FALSE
             'Dialog to chose the panel type'
@@ -1379,6 +1380,7 @@ If asset_form_checkbox = checked Then
                         If total_panels = "0" Then
                             EMWriteScreen "NN", 20, 79
                             transmit
+                            panel_found = TRUE
                         Else
                             panel_found = FALSE
                             Do
@@ -1406,7 +1408,7 @@ If asset_form_checkbox = checked Then
 
                         IF ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y" Then
                             snap_is_yes = TRUE
-                            ASSETS_ARRAY(apply_to_SNAP, asset_counter) = ""
+                            ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "N"
                         End If
 
                         Call update_ACCT_panel_from_dialog
@@ -1424,6 +1426,7 @@ If asset_form_checkbox = checked Then
                         If total_panels = "0" Then
                             EMWriteScreen "NN", 20, 79
                             transmit
+                            panel_found = TRUE
                         Else
                             panel_found = FALSE
                             Do
@@ -1451,7 +1454,7 @@ If asset_form_checkbox = checked Then
 
                         IF ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y" Then
                             snap_is_yes = TRUE
-                            ASSETS_ARRAY(apply_to_SNAP, asset_counter) = ""
+                            ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "N"
                         End If
 
                         Call update_ACCT_panel_from_dialog
@@ -1469,6 +1472,7 @@ If asset_form_checkbox = checked Then
                         If total_panels = "0" Then
                             EMWriteScreen "NN", 20, 79
                             transmit
+                            panel_found = TRUE
                         Else
                             panel_found = FALSE
                             Do
@@ -1496,7 +1500,7 @@ If asset_form_checkbox = checked Then
 
                         IF ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y" Then
                             snap_is_yes = TRUE
-                            ASSETS_ARRAY(apply_to_SNAP, asset_counter) = ""
+                            ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "N"
                         End If
 
                         Call update_ACCT_panel_from_dialog
@@ -1730,6 +1734,7 @@ If asset_form_checkbox = checked Then
                         If total_panels = "0" Then
                             EMWriteScreen "NN", 20, 79
                             transmit
+                            panel_found = TRUE
                         Else
                             Do
                                 EMReadScreen this_account_type, 2, 6, 44
@@ -1756,7 +1761,7 @@ If asset_form_checkbox = checked Then
 
                         IF ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y" Then
                             snap_is_yes = TRUE
-                            ASSETS_ARRAY(apply_to_SNAP, asset_counter) = ""
+                            ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "N"
                         End If
 
                         Call update_SECU_panel_from_dialog
@@ -1774,6 +1779,7 @@ If asset_form_checkbox = checked Then
                         If total_panels = "0" Then
                             EMWriteScreen "NN", 20, 79
                             transmit
+                            panel_found = TRUE
                         Else
                             panel_found = FALSE
                             Do
@@ -1801,7 +1807,7 @@ If asset_form_checkbox = checked Then
 
                         IF ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y" Then
                             snap_is_yes = TRUE
-                            ASSETS_ARRAY(apply_to_SNAP, asset_counter) = ""
+                            ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "N"
                         End If
 
                         Call update_SECU_panel_from_dialog
@@ -1819,6 +1825,7 @@ If asset_form_checkbox = checked Then
                         If total_panels = "0" Then
                             EMWriteScreen "NN", 20, 79
                             transmit
+                            panel_found = TRUE
                         Else
                             panel_found = FALSE
                             Do
@@ -1846,7 +1853,7 @@ If asset_form_checkbox = checked Then
 
                         IF ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y" Then
                             snap_is_yes = TRUE
-                            ASSETS_ARRAY(apply_to_SNAP, asset_counter) = ""
+                            ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "N"
                         End If
 
                         Call update_ACCT_panel_from_dialog
@@ -2387,7 +2394,7 @@ If asset_form_checkbox = checked Then
             If ASSETS_ARRAY(cnote_panel, the_asset) = checked AND  ASSETS_ARRAY(ast_panel, the_asset) = "ACCT" Then
                 Call write_variable_in_CASE_NOTE("  - Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " " & right(ASSETS_ARRAY(ast_type, the_asset), len(ASSETS_ARRAY(ast_type, the_asset)) - 5) & " account. At: " & ASSETS_ARRAY(ast_location, the_asset))
                 Call write_variable_in_CASE_NOTE("      Balance: $" & ASSETS_ARRAY(ast_balance, the_asset) & " - Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4))
-                If ASSETS_ARRAY(ast_jnt_owner_YN, the_asset) = "Y" Then Call write_variable_in_CASE_NOTE("      " & ASSETS_ARRAY(ast_share_note, asset_counter))
+                If ASSETS_ARRAY(ast_jnt_owner_YN, the_asset) = "Y" Then Call write_variable_in_CASE_NOTE("      " & ASSETS_ARRAY(ast_share_note, the_asset))
             End If
         Next
         If box_two_info <> "" Then Call write_variable_in_CASE_NOTE("  - Securities detail from form: " & box_two_info)
@@ -2412,7 +2419,7 @@ If asset_form_checkbox = checked Then
                 Call write_variable_in_CASE_NOTE("  - Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & ": " & right(ASSETS_ARRAY(ast_type, the_asset), len(ASSETS_ARRAY(ast_type, the_asset)) - 5) & " account. At: " & ASSETS_ARRAY(ast_location, the_asset))
                 Call write_variable_in_CASE_NOTE("      Balance: $" & ASSETS_ARRAY(ast_balance, the_asset) & " - Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4) & " - Rec'vd On: " & ASSETS_ARRAY(ast_verif_date, the_asset))
                 If ASSETS_ARRAY(ast_note, the_asset) <> "" Then Call write_variable_in_CASE_NOTE("      Notes: " & ASSETS_ARRAY(ast_note, the_asset))
-                If ASSETS_ARRAY(ast_jnt_owner_YN, the_asset) = "Y" Then Call write_variable_in_CASE_NOTE("      " & ASSETS_ARRAY(ast_share_note, asset_counter))
+                If ASSETS_ARRAY(ast_jnt_owner_YN, the_asset) = "Y" Then Call write_variable_in_CASE_NOTE("      " & ASSETS_ARRAY(ast_share_note, the_asset))
             End If
         Next
 
