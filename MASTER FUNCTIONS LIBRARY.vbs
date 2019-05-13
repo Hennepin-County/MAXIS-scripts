@@ -4812,7 +4812,12 @@ function script_end_procedure_with_error_report(closing_message)
 	stop_time = timer
     send_error_message = ""
 	If closing_message <> "" AND left(closing_message, 3) <> "~PT" then        '"~PT" forces the message to "pass through", i.e. not create a pop-up, but to continue without further diversion to the database, where it will write a record with the message
-        send_error_message = MsgBox(closing_message & vbNewLine & vbNewLine & "Do you need to send an error report about this script run?", vbSystemModal + vbQuestion + vbDefaultButton2 + vbYesNo, "Script Run Completed")
+        If testing_run = TRUE Then
+            MsgBox(closing_message & vbNewLine & vbNewLine & "Since this script is in testing, please provide feedback")
+            send_error_message = vbYes
+        Else
+            send_error_message = MsgBox(closing_message & vbNewLine & vbNewLine & "Do you need to send an error report about this script run?", vbSystemModal + vbQuestion + vbDefaultButton2 + vbYesNo, "Script Run Completed")
+        End If
     End If
     script_run_time = stop_time - start_time
 	If is_county_collecting_stats  = True then
@@ -4872,6 +4877,7 @@ function script_end_procedure_with_error_report(closing_message)
     If send_error_message = vbYes Then
         'dialog here to gather more detail
         error_type = ""
+        If testing_run = TRUE Then error_type = "TESTING RESPONSE"
 
         If trim(MAXIS_case_number) = "" Then
             If trim(MMIS_case_number) <> "" Then MAXIS_case_number = MMIS_case_number
