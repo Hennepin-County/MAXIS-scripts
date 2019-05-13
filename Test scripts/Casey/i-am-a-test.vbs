@@ -168,6 +168,17 @@ END IF
 ' end function
 
 
+MsgBox " $$$$$$$      $$$$$$$$$$$  $$$$$$$$$$$$" & vbNewLine &_
+       " $       $             $$       $$     " & vbNewLine &_
+       " $         $          $$        $$     " & vbNewLine &_
+       " $        $          $$         $$     " & vbNewLine &_
+       " $$$$$$$$           $$          $$     " & vbNewLine &_
+       " $       $$        $$           $$     " & vbNewLine &_
+       " $         $$     $$            $$     " & vbNewLine &_
+       " $         $$    $$             $$     " & vbNewLine &_
+       " $        $$    $$              $$     " & vbNewLine &_
+       " $$$$$$$$$     $$$$$$$$$$       $$     "
+
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
 BeginDialog Dialog1, 0, 0, 126, 55, "Dialog"
