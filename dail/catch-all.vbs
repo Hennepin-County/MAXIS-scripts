@@ -84,7 +84,7 @@ EMConnect ""
 '
 	    'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
 
-		BeginDialog catch_all_dialog, 0, 0, 281, 150, "DAIL_type &  MESSAGE PROCESSED"
+		BeginDialog catch_all_dialog, 0, 0, 281, 150, DAIL_type &  " MESSAGE PROCESSED"
 		  EditBox 65, 35, 20, 15, memb_number
 		  EditBox 225, 35, 50, 15, docs_rcvd_date
 		  EditBox 65, 55, 210, 15, actions_taken
@@ -96,13 +96,13 @@ EMConnect ""
 		  ButtonGroup ButtonPressed
 		    OkButton 180, 130, 45, 15
 		    CancelButton 230, 130, 45, 15
-		  Text 10, 15, 260, 10, "full_message"
+		  Text 10, 15, 260, 10, full_message
 		  Text 5, 60, 50, 10, "Actions taken:"
 		  Text 5, 80, 50, 10, "Verifs needed:"
 		  Text 5, 100, 45, 10, "Other notes:"
 		  Text 5, 135, 60, 10, "Worker signature:"
 		  Text 120, 40, 100, 10, "If applicable - date doc(s) rcvd:"
-		  GroupBox 5, 5, 270, 25, "DAIL for case #  &  MAXIS_case_number"
+		  GroupBox 5, 5, 270, 25, "DAIL for case #"  &  MAXIS_case_number
 		  Text 5, 40, 55, 10, "MEMB Number:"
 		EndDialog
 
@@ -122,8 +122,10 @@ EMConnect ""
 		        err_msg = ""
 				Dialog catch_all_dialog
 				cancel_confirmation
-		        If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid case number."
+		        'If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid case number."
 				If trim(actions_taken) = "" then err_msg = err_msg & vbcr & "* Please enter the action taken."
+				IF elig_date <> "" THEN IF isdate(ELIG_date) = False then err_msg = err_msg & vbnewline & "* Please Enter a valid date that forms were received."
+				If (isnumeric(memb_number) = False and len(memb_number) > 2) then err_msg = err_msg & vbcr & "* Please Enter a valid member number."
 		    	If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Please ensure your case note is signed."
 				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 			LOOP UNTIL err_msg = ""									'loops until all errors are resolved

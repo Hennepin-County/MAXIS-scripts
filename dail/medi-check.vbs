@@ -50,6 +50,16 @@ call changelog_update("05/01/2019", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 '=======================================================================================================END CHANGELOG BLOCK
 'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
+EMConnect ""
+
+EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
+TRANSMIT
+
+PF9 'Starts a blank case note
+
+EMReadScreen case_note_mode_check, 7, 20, 3
+If case_note_mode_check <> "Mode: A" then script_end_procedure("You are not in a case note on edit mode. You might be in inquiry. Try the script again in production.")
+
 BeginDialog medi_dialog, 0, 0, 266, 130, DAIL_type & " MESSAGE PROCESSED"
   EditBox 60, 35, 15, 15, memb_number
   CheckBox 185, 35, 75, 10, "Referral sent in ECF", ECF_sent_checkbox
@@ -61,8 +71,8 @@ BeginDialog medi_dialog, 0, 0, 266, 130, DAIL_type & " MESSAGE PROCESSED"
   ButtonGroup ButtonPressed
     OkButton 175, 110, 40, 15
     CancelButton 220, 110, 40, 15
-  GroupBox 5, 5, 255, 25, "DAIL for case #  &  MAXIS_case_number"
-  Text 10, 15, 250, 10, "full_message"
+  GroupBox 5, 5, 255, 25, "DAIL for case #"  &  MAXIS_case_number
+  Text 10, 15, 250, 10, full_message
   Text 5, 95, 40, 10, "Other notes:"
   Text 5, 115, 60, 10, "Worker signature:"
   Text 170, 55, 35, 10, "ELIG date"
@@ -71,21 +81,12 @@ BeginDialog medi_dialog, 0, 0, 266, 130, DAIL_type & " MESSAGE PROCESSED"
 EndDialog
 
 
-EMConnect ""
-
-EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
-TRANSMIT
-'Starts a blank case note
-PF9
-EMReadScreen case_note_mode_check, 7, 20, 3
-If case_note_mode_check <> "Mode: A" then script_end_procedure("You are not in a case note on edit mode. You might be in inquiry. Try the script again in production.")
-
 Do
     Do
         err_msg = ""
 		Dialog medi_dialog
 		cancel_confirmation
-		IF medi_checkbox = CHECKED THEN If isdate(ELIG_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid date of eligibility."
+		IF medi_checkbox = CHECKED THEN IF isdate(ELIG_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid date of eligibility."
         If (isnumeric(memb_number) = False and len(memb_number) > 2) then err_msg = err_msg & vbcr & "* Enter a valid member number."
 		If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Please ensure your case note is signed."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
@@ -93,15 +94,28 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-PF9
-'CALL write_variable_in_CASE_NOTE("=== PEPR - MESSAGE PROCESSED ===")
-'CALL write_variable_in_case_note("* " & full_message)
-'CALL write_variable_in_case_note(first_line)
-'CALL write_variable_in_case_note(second_line)
-'CALL write_variable_in_case_note(third_line)
-'CALL write_variable_in_case_note(fourth_line)
-'CALL write_variable_in_case_note(fifth_line)
-'CALL write_variable_in_case_note("---")
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
+EmReadScreen panel_check, 04, 02, 45
+DO
+	'before we write checking for casenote'
+	IF panel_check =  "NOTE" THEN EXIT DO
+	IF panel_check <> "NOTE" THEN
+		case_note_confirmation = MsgBox("Press YES to confirm that you are back to case notes and ready write." & vbNewLine & "To navigate to CASE/NOTE, press NO." & vbNewLine & vbNewLine & _
+    	"Panel Check -" & panel_check, vbYesNoCancel, "Case note confirmation")
+	 	IF case_note_confirmation = vbNo THEN
+			Call navigate_to_MAXIS_screen("CASE", "NOTE")
+			PF9
+			EmReadScreen write_mode_casenote, 06, 03, 03
+			If write_mode_casenote <> "Please" THEN msgbox script_end_procedure_with_error_report("The script has ended. Unable to access case note.")
+			IF write_mode_casenote = "Please" THEN EXIT DO
+		END IF
+		IF case_note_confirmation = vbYes THEN EXIT DO
+		IF case_note_confirmation = vbCancel THEN script_end_procedure_with_error_report("The script has ended. The DAIL has not been acted on.")
+	END IF
+LOOP UNTIL case_note_confirmation = vbYes
+
+'----------------------------------------------------------------------------the casenote
 IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
 	due_date = dateadd("d", 30, date)
 	Call write_variable_in_case_note("** Medicare Buy-in Referral mailed for M" & memb_number & " **")
