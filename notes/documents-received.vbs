@@ -5,7 +5,7 @@ STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 180          'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
-
+' run_locally = FALSE
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -37,6 +37,30 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
+'This is used in arrays that specify functionality to specific workers
+' Set objNet = CreateObject("WScript.NetWork")
+' windows_user_ID = objNet.UserName
+' user_ID_for_validation= ucase(windows_user_ID)
+' name_for_validation = ""
+'
+' If user_ID_for_validation = "CALO001" Then name_for_validation = "Casey"
+' If user_ID_for_validation = "ILFE001" Then name_for_validation = "Ilse"
+' If user_ID_for_validation = "WFS395" Then name_for_validation = "MiKayla"
+' If user_ID_for_validation = "WFQ898" Then name_for_validation = "Hannah"
+' If user_ID_for_validation = "WFK093" Then name_for_validation = "Jessica"
+' If user_ID_for_validation = "WFM207" Then name_for_validation = "Mandora"
+' If user_ID_for_validation = "WFP803" Then name_for_validation = "Melissa"
+' If user_ID_for_validation = "WFC041" Then name_for_validation = "Kerry"
+' If user_ID_for_validation = "AAGA001" Then name_for_validation = "Aaron"
+'
+' If name_for_validation <> "" Then
+'     MsgBox "Hello " & name_for_validation &  ", you have been selected to test the script NOTES - Documents Received."  & vbNewLine & vbNewLine & "A testing version of the script will now run.  Thank you for taking your time to review our new scripts and functionality as we strive for Continuous Improvement." & vbNewLine & vbNewLine  & "                                                                                    - BlueZone Script Team"
+'     testing_run = TRUE
+'     testing_script_url = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/testing_trial/notes/documents-received.vbs"
+'     Call run_from_GitHub(testing_script_url)
+' End if
 
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array

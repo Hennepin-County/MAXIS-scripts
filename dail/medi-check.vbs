@@ -51,25 +51,28 @@ changelog_display
 '=======================================================================================================END CHANGELOG BLOCK
 'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
 BeginDialog medi_dialog, 0, 0, 266, 130, DAIL_type & " MESSAGE PROCESSED"
-  CheckBox 5, 40, 140, 10, "Client is eligible for the Medicare buy-in", medi_checkbox
-  EditBox 210, 35, 50, 15, ELIG_date
-  Text 5, 60, 195, 10, "If INELIG year that client will be eligible for Medicare Buy-In"
-  EditBox 210, 55, 50, 15, ELIG_year
-  CheckBox 5, 75, 110, 10, "Forms have been sent in ECF", ECF_sent_checkbox
+  EditBox 60, 35, 15, 15, memb_number
+  CheckBox 185, 35, 75, 10, "Referral sent in ECF", ECF_sent_checkbox
+  CheckBox 5, 55, 140, 10, "Client is eligible for the Medicare buy-in", medi_checkbox
+  EditBox 210, 50, 50, 15, ELIG_date
+  EditBox 210, 70, 50, 15, ELIG_year
   EditBox 50, 90, 210, 15, other_notes
-  EditBox 70, 110, 95, 15, worker_signature
+  EditBox 65, 110, 105, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 175, 110, 40, 15
     CancelButton 220, 110, 40, 15
-  GroupBox 5, 5, 255, 25, "DAIL for case # " &  MAXIS_case_number
-  Text 10, 15, 250, 10, full_message
-  Text 5, 95, 45, 10, "Other notes:"
+  GroupBox 5, 5, 255, 25, "DAIL for case #  &  MAXIS_case_number"
+  Text 10, 15, 250, 10, "full_message"
+  Text 5, 95, 40, 10, "Other notes:"
   Text 5, 115, 60, 10, "Worker signature:"
-  Text 175, 40, 35, 10, "ELIG date"
+  Text 170, 55, 35, 10, "ELIG date"
+  Text 5, 75, 195, 10, "If INELIG year that client will be eligible for Medicare Buy-In"
+  Text 5, 40, 50, 10, "Memb number:"
 EndDialog
 
 
 EMConnect ""
+
 EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
 TRANSMIT
 'Starts a blank case note
@@ -83,15 +86,14 @@ Do
 		Dialog medi_dialog
 		cancel_confirmation
 		IF medi_checkbox = CHECKED THEN If isdate(ELIG_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid date of eligibility."
-        If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid case number."
+        If (isnumeric(memb_number) = False and len(memb_number) > 2) then err_msg = err_msg & vbcr & "* Enter a valid member number."
 		If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Please ensure your case note is signed."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-
-start_a_blank_case_note
+PF9
 'CALL write_variable_in_CASE_NOTE("=== PEPR - MESSAGE PROCESSED ===")
 'CALL write_variable_in_case_note("* " & full_message)
 'CALL write_variable_in_case_note(first_line)
@@ -100,34 +102,40 @@ start_a_blank_case_note
 'CALL write_variable_in_case_note(fourth_line)
 'CALL write_variable_in_case_note(fifth_line)
 'CALL write_variable_in_case_note("---")
-IF medi_checkbox = CHECKED THEN
-	due_date = dateadd("d", 30, ELIG_date)
-	Call write_variable_in_case_note("** Medicare Buy-in Referral mailed **")
-	Call write_variable_in_case_note("Client is eligible for the Medicare buy-in as of " & ELIG_date & ". Proof due by " & due_date & "to apply.")
-	Call write_variable_in_case_note("Mailed DHS-3439-ENG MHCP Medicare Buy-In Referral Letter - TIKL set to follow up.")
-ELSE
-	Call write_variable_in_case_note("** Medicare Referral **")
-	Call write_variable_in_case_note("Client is not eligible for the Medicare buy-in. Enrollment is not until January " & ELIG_year & ", unable to apply until the enrollment time.")
-	Call write_variable_in_case_note("TIKL set to mail the Medicare Referral for November " & ELIG_year & ".")
+IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
+	due_date = dateadd("d", 30, date)
+	Call write_variable_in_case_note("** Medicare Buy-in Referral mailed for M" & memb_number & " **")
+	Call write_variable_in_case_note("* Client is eligible for the Medicare buy-in as of " & ELIG_date & ".")
+	Call write_variable_in_case_note("* Proof due by " & due_date & " to apply.")
+	Call write_variable_in_case_note("* Mailed DHS-3439-ENG MHCP Medicare Buy-In Referral Letter")
+	Call write_variable_in_case_note("* TIKL set to follow up.")
+ELSEIF ELIG_year <> "" THEN
+	Call write_variable_in_case_note("** Medicare Referral for M" & memb_number & " **")
+	Call write_variable_in_case_note("* Client is not eligible for the Medicare buy-in. Enrollment is not until January 20" & ELIG_year & ", unable to apply until the enrollment time.")
+	Call write_variable_in_case_note("* TIKL set to mail the Medicare Referral for November " & ELIG_year & ".")
 END IF
-IF ECF_sent_checkbox = CHECKED THEN CALL write_variable_in_case_note("* ECF reviewed and appropriate action taken")
+IF ECF_sent_checkbox = CHECKED THEN CALL write_variable_in_case_note("* ECF reviewed.")
 CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 PF3
 
-'TIKLING
 
-IF medi_checkbox = CHECKED THEN
+'TIKLING
+IF medi_checkbox = CHECKED and ELIG_date <> "" THEN
 	CALL navigate_to_MAXIS_screen("DAIL","WRIT")
-	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
-	EMSetCursor 9, 3
-	EMSendKey "Medicare Referral made, please check on proof of application filed."
-ELSE
-	CALL navigate_to_MAXIS_screen("DAIL","WRIT")
-	CALL create_MAXIS_friendly_date(date, 10, 5, 18) 'needs to be in November
-	EMSetCursor 9, 3
-    EMSendKey "Reminder to mail the Medicare Referral for November " & ELIG_year & "."
+	call create_MAXIS_friendly_date(Due_date, 10, 5, 18)
+	CALL write_variable_in_TIKL("Referral made for medicare, please check on proof of application filed. Due " & due_date & ".")
+	PF3
+END IF
+IF ELIG_year <> "" THEN
+	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
+	EMWriteScreen "11", 5, 18
+	EMWriteScreen "01", 5, 21
+	EMWriteScreen ELIG_year, 5, 24
+	CALL write_variable_in_TIKL("Reminder to mail the Medicare Referral for November 20" & ELIG_year & ".")
+	PF3
 END IF
 
-script_end_procedure_with_error_report(DAIL_type & vbcr &  first_line & vbcr & " DAIL has been case noted. Please remember to send forms out of ECF.")
+
+script_end_procedure_with_error_report("DAIL has been case noted. Please remember to send forms out of ECF and delete the PEPR.")
