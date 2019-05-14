@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/13/2019", "Updated backend process handling. Added additional mandatory fields to main dialog.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/12/2017", "Changed ICF-MR to ICF-DD. Updated password handling on back end.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -61,30 +62,33 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'The initial dialog------defined and displayed------------------------------------------------------------------------
-BeginDialog , 0, 0, 141, 80, "Case number dialog"
-  EditBox 65, 10, 65, 15, MAXIS_case_number
-  EditBox 65, 30, 30, 15, MAXIS_footer_month
-  EditBox 100, 30, 30, 15, MAXIS_footer_year
+BeginDialog , 0, 0, 116, 70, "Case number dialog"
+  EditBox 60, 10, 50, 15, MAXIS_case_number
+  EditBox 60, 30, 20, 15, MAXIS_footer_month
+  EditBox 90, 30, 20, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
-    OkButton 25, 55, 50, 15
-    CancelButton 80, 55, 50, 15
-  Text 10, 30, 50, 15, "Footer month:"
-  Text 10, 10, 50, 15, "Case number: "
+    OkButton 25, 50, 40, 15
+    CancelButton 70, 50, 40, 15
+  Text 10, 35, 45, 10, "Footer month:"
+  Text 10, 15, 45, 10, "Case number: "
 EndDialog
+
 Do 
 	DO
+        err_msg = ""
 		Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-		cancel_confirmation
-		IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid case number."
-		IF IsNumeric(MAXIS_footer_month) = FALSE THEN MsgBox "You must type a valid footer month."
-		IF IsNumeric(MAXIS_footer_year) = FALSE THEN MsgBox "You must type a valid footer year."
-	LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE and IsNumeric(MAXIS_footer_month) = TRUE and IsNumeric(MAXIS_footer_year) = True
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+		cancel_without_confirmation
+        IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "Enter a valid case number."		'mandatory field
+		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
+        If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    LOOP UNTIL err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in		
 
 'THE 1503 MAIN DIALOG---------defined and displayed-----------------------------------------------------------------------
 BeginDialog , 0, 0, 366, 285, "1503 Dialog"
-  EditBox 55, 5, 135, 15, FACI
+  EditBox 55, 5, 135, 15, facility_name
   DropListBox 255, 5, 95, 15, "30 days or less"+chr(9)+"31 to 90 days"+chr(9)+"91 to 180 days"+chr(9)+"over 180 days", length_of_stay
   DropListBox 105, 25, 45, 15, "SNF"+chr(9)+"NF"+chr(9)+"ICF-DD"+chr(9)+"RTC", level_of_care
   DropListBox 215, 25, 135, 15, "acute-care hospital"+chr(9)+"home"+chr(9)+"RTC"+chr(9)+"other SNF or NF"+chr(9)+"ICF-DD", admitted_from
@@ -126,21 +130,21 @@ EndDialog
 
 Do 
 	Do
+        err_msg = ""
 		Dialog  					'Calling a dialog without a assigned variable will call the most recently defined dialog
 		cancel_confirmation
-		IF worker_signature = "" THEN MsgBox "You must sign your case note."
-	LOOP UNTIL worker_signature <> ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+		If trim(facility_name) = "" then err_msg = err_msg & vbNewLine & "* Enter the name of the facility." 
+        If isdate(admit_date) = false then err_msg = err_msg & vbNewLine & "* Enter a valid date of admission." 
+        If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature." 
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    LOOP UNTIL err_msg = ""
+    Call check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in		
 
 'Checks for an active MAXIS session
-call check_for_MAXIS(False)
-
-'navigating the script to the correct footer month
-back_to_self
-EMWriteScreen MAXIS_footer_month, 20, 43
-EMWriteScreen MAXIS_footer_year, 20, 46
-call navigate_to_MAXIS_screen("STAT", "FACI")
+Call check_for_MAXIS(False)
+Call MAXIS_footer_month_confirmation
+Call navigate_to_MAXIS_screen("STAT", "FACI")
 
 'THE TIKL----------------------------------------------------------------------------------------------------
 If TIKL_check = 1 then
@@ -167,7 +171,7 @@ If FACI_update_check = 1 then
 		EMWriteScreen "nn", 20, 79
 		transmit
 	END IF
-	EMWriteScreen FACI, 6, 43
+	EMWriteScreen facility_name, 6, 43
 	If level_of_care = "NF" then EMWriteScreen "42", 7, 43
 	If level_of_care = "RTC" THEN EMWriteScreen "47", 7, 43
 	If length_of_stay = "30 days or less" and level_of_care = "SNF" then EMWriteScreen "44", 7, 43
@@ -209,7 +213,7 @@ If TIKL_check = 1 then
 	EMWriteScreen TIKL_date_DD, 5, 21
 	EMWriteScreen TIKL_date_YY, 5, 24
 	EMSetCursor 9, 3
-	write_variable_in_TIKL("Have " & worker_signature & " call " & FACI & " re: length of stay. " & TIKL_multiplier & " days expired.")
+	write_variable_in_TIKL("Have " & worker_signature & " call " & facility_name & " re: length of stay. " & TIKL_multiplier & " days expired.")
 	transmit
 	PF3
 End if
@@ -218,9 +222,9 @@ End if
 Call start_a_blank_CASE_NOTE
 
 If processed_1503_check = 1 then
-  	call write_variable_in_CASE_NOTE("***Processed 1503 from " & FACI & "***")
+  	call write_variable_in_CASE_NOTE("***Processed 1503 from " & facility_name & "***")
 Else
-  	call write_variable_in_CASE_NOTE("***Rec'd 1503 from " & FACI & ", DID NOT PROCESS***")
+  	call write_variable_in_CASE_NOTE("***Rec'd 1503 from " & facility_name & ", DID NOT PROCESS***")
 End if
 Call write_bullet_and_variable_in_case_note("Length of stay", length_of_stay)
 Call write_bullet_and_variable_in_case_note("Recommended level of care", level_of_care)
