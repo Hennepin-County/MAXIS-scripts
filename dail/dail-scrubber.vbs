@@ -73,7 +73,7 @@ EMSendKey "t"
 TRANSMIT
 
 'The following reads the message in full for the end part (which tells the worker which message was selected)
-EMReadScreen full_message, 58, 6, 20
+EMReadScreen full_message, 60, 6, 20
 full_message = trim(full_message)
 EmReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number = trim(MAXIS_case_number)

@@ -156,7 +156,7 @@ EMConnect ""
 '----------------------------------------------------------------------------------------------------THE CASENOTE
 'start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE("=== " & DAIL_type & " - MESSAGE PROCESSED FOR M" & memb_number & " ===")
-CALL write_variable_in_case_note("* " & full_message)
+IF first_line = "" THEN CALL write_variable_in_case_note("* " & full_message)
 CALL write_variable_in_case_note(first_line)
 CALL write_variable_in_case_note(second_line)
 CALL write_variable_in_case_note(third_line)
