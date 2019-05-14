@@ -132,9 +132,9 @@ EMConnect ""
 
 		'checking for an active MAXIS session
 		Call check_for_MAXIS(False)
+		EmReadScreen panel_check, 04, 02, 45
 		DO
 			'before we write checking for casenote'
-			EmReadScreen panel_check, 04, 02, 45
 			IF panel_check =  "NOTE" THEN EXIT DO
 			IF panel_check <> "NOTE" THEN
 				case_note_confirmation = MsgBox("Press YES to confirm that you are back to case notes and ready write." & vbNewLine & "To navigate to CASE/NOTE, press NO." & vbNewLine & vbNewLine & _
