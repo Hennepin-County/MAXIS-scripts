@@ -67,16 +67,6 @@ end class
 'INSTRUCTIONS: simply add your new script below. Scripts are listed in alphabetical order first by category, then by script name. Copy a block of code from above and paste your script info in. The function does the rest.
 'ACTIONS SCRIPTS=====================================================================================================================================
 
-'script_num = 0
-'ReDim Preserve script_array(script_num)
-'Set script_array(script_num) = new script_bowie
-'script_array(script_num).script_name 			= "ABAWD Banked Months FIATer"																		'Script name
-'script_array(script_num).description 			= "FIATS SNAP eligibility, income, and deductions for HH members using banked months."
-'script_array(script_num).category               = "ACTIONS"
-'script_array(script_num).workflows              = ""
-'script_array(script_num).subcategory            = array("ABAWD")
-'script_array(script_num).release_date           = #10/01/2000#
-
 script_num = 0
 ReDim Preserve script_array(script_num)
 Set script_array(script_num) = new script_bowie
@@ -580,16 +570,6 @@ script_array(script_num).description 			= "Pulls a list of cases in REPT/REVW in
 script_array(script_num).category               = "BULK"
 script_array(script_num).workflows              = ""
 script_array(script_num).subcategory            = array("REPORTS")
-script_array(script_num).release_date           = #10/01/2000#
-
-script_num = script_num + 1						'Increment by one
-ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name			= "REVW-MONT Closures"
-script_array(script_num).description			= "Case notes all cases on REPT/REVW or REPT/MONT that are closing for missing or incomplete CAF/HRF/CSR/HC ER."
-script_array(script_num).category               = "BULK"
-script_array(script_num).workflows              = ""
-script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 
 'DAIL SCRIPTS=====================================================================================================================================
