@@ -417,7 +417,6 @@ END IF
 IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	IF sent_date <> "" THEN MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The script will now navigate to clear the match.")
 	'date_received = date & ""
-
 	BeginDialog cleared_match_dialog, 0, 0, 316, 175, "MATCH CLEARED"
 	  EditBox 55, 5, 40, 15, MAXIS_case_number
 	  EditBox 165, 5, 20, 15, MEMB_number
@@ -461,7 +460,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "* Enter a valid numeric resolved time, ie 005."
 		IF resolve_time = "" THEN err_msg = err_msg & vbNewLine & "Please complete resolve time."
 		IF date_received = "" THEN
-			IF resolution_status <> "BN Already known, No Savings" THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was recieved in ECF."
+			IF resolution_status <> "BN Already Knew No Savings" THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was recieved in ECF."
 		END IF
 		IF date_received = "" THEN
 			IF resolution_status <> "NC Non Cooperation" THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was recieved in ECF."
