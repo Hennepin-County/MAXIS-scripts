@@ -391,14 +391,16 @@ IF send_notice_checkbox = CHECKED THEN
 		IF select_quarter = 3 THEN IEVS_quarter = "3RD"
 		IF select_quarter = 4 THEN IEVS_quarter = "4TH"
 	END IF
-	IEVS_period = replace(IEVS_period, "/", " to ")
+
+
+	IF <> UBEN THEN IEVS_period = replace(IEVS_period, "/", " to ")
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
 	'---------------------------------------------------------------------DIFF NOTC case note
   	start_a_blank_case_note
 	IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH(" & first_name & ") DIFF NOTICE SENT-----")
 	IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
-	IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH(" & match_type_letter & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
+	IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
 	CALL write_bullet_and_variable_in_case_note("Client Name", client_name)
 	CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
   	CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
@@ -549,16 +551,15 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	ELSE
 	  match_cleared = TRUE
 	END IF
-
+	'Updated IEVS_period to write into case note
   	IF match_type = "WAGE" THEN
-  	'Updated IEVS_periodto write into case note
   		IF select_quarter = 1 THEN IEVS_quarter = "1ST"
   		IF select_quarter = 2 THEN IEVS_quarter = "2ND"
   		IF select_quarter = 3 THEN IEVS_quarter = "3RD"
   		IF select_quarter = 4 THEN IEVS_quarter = "4TH"
   	END IF
 
-	IEVS_period = replace(IEVS_period, "/", " to ")
+	IF match_type <> UBEN THEN IEVS_period = replace(IEVS_period, "/", " to ")
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 	PF3 'back to the DAIL'
    '----------------------------------------------------------------the case match CLEARED note
@@ -566,7 +567,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	IF resolution_status <> "NC Non Cooperation" THEN
 		IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") CLEARED " & rez_status & "-----")
 		IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH (" & match_type_letter & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
-		IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH (" & match_type_letter & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
+		IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH (" & match_type_letter & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
 		CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
 		CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
 		CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
@@ -600,7 +601,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	ELSEIF resolution_status = "NC Non Cooperation" THEN   'Navigates to TIKL
 		IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") NON-COOPERATION-----")
 		IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH (" & match_type_letter & ") " & "(" & first_name & ") NON-COOPERATION-----")
-		IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH (" & match_type_letter & ") " & "(" & first_name & ") NON-COOPERATION-----")
+		IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH (" & match_type_letter & ") " & "(" & first_name & ") NON-COOPERATION-----")
 		CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
 		CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
 		CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
