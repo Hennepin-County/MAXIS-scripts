@@ -393,7 +393,7 @@ IF send_notice_checkbox = CHECKED THEN
 	END IF
 
 
-	IF <> UBEN THEN IEVS_period = replace(IEVS_period, "/", " to ")
+	IF match_type <> "UBEN" THEN IEVS_period = replace(IEVS_period, "/", " to ")
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
 	'---------------------------------------------------------------------DIFF NOTC case note
@@ -558,7 +558,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
   		IF select_quarter = 4 THEN IEVS_quarter = "4TH"
   	END IF
 
-	IF match_type <> UBEN THEN IEVS_period = replace(IEVS_period, "/", " to ")
+	IF match_type <> "UBEN" THEN IEVS_period = replace(IEVS_period, "/", " to ")
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 	PF3 'back to the DAIL'
    '----------------------------------------------------------------the case match CLEARED note
