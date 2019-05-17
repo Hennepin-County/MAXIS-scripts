@@ -1239,14 +1239,14 @@ If asset_form_checkbox = checked Then
                   CheckBox 230, 55, 20, 10, "HC", count_hc_checkbox
                   CheckBox 230, 70, 30, 10, "GRH", count_grh_checkbox
                   CheckBox 230, 85, 20, 10, "IVE", count_ive_checkbox
-                  EditBox 75, 145, 50, 15, ASSETS_ARRAY(ast_wdrw_penlty, asset_counter)
-                  DropListBox 75, 165, 80, 45, "Select..."+chr(9)+"1 - Bank Statement"+chr(9)+"2 - Agcy Ver Form"+chr(9)+"3 - Coltrl Contact"+chr(9)+"5 - Other Document"+chr(9)+"6 - Personal Statement"+chr(9)+"N - No Ver Prvd", ASSETS_ARRAY(ast_wthdr_verif, asset_counter)
+                  EditBox 75, 165, 50, 15, ASSETS_ARRAY(ast_wdrw_penlty, asset_counter)
+                  DropListBox 75, 185, 80, 45, "Select..."+chr(9)+"1 - Bank Statement"+chr(9)+"2 - Agcy Ver Form"+chr(9)+"3 - Coltrl Contact"+chr(9)+"5 - Other Document"+chr(9)+"6 - Personal Statement"+chr(9)+"N - No Ver Prvd", ASSETS_ARRAY(ast_wthdr_verif, asset_counter)
                   EditBox 215, 125, 15, 15, share_ratio_num
                   EditBox 240, 125, 15, 15, share_ratio_denom
                   ComboBox 170, 160, 90, 45, "Type or Select"+chr(9)+client_dropdown, ASSETS_ARRAY(ast_othr_ownr_one, asset_counter)
                   ComboBox 170, 175, 90, 45, "Type or Select"+chr(9)+client_dropdown, ASSETS_ARRAY(ast_othr_ownr_two, asset_counter)
                   ComboBox 170, 190, 90, 45, "Type or Select"+chr(9)+client_dropdown, ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter)
-                  EditBox 75, 190, 50, 15, ASSETS_ARRAY(ast_next_inrst_date, asset_counter)
+                  EditBox 75, 210, 50, 15, ASSETS_ARRAY(ast_next_inrst_date, asset_counter)
                   ButtonGroup ButtonPressed
                     OkButton 160, 215, 50, 15
                     CancelButton 215, 215, 50, 15
@@ -1258,14 +1258,14 @@ If asset_form_checkbox = checked Then
                   Text 130, 95, 25, 10, "As of:"
                   Text 30, 115, 40, 10, "Verification:"
                   GroupBox 225, 10, 40, 90, "Count:"
-                  GroupBox 20, 130, 140, 55, "Withdrawal Penalty"
-                  Text 40, 150, 30, 10, "Amount:"
-                  Text 30, 170, 40, 10, "Verification:"
+                  GroupBox 20, 150, 140, 55, "Withdrawal Penalty"
+                  Text 40, 170, 30, 10, "Amount:"
+                  Text 30, 190, 40, 10, "Verification:"
                   If LTC_case = vbYes Then Text 35, 135, 35, 10, "Verif Date:"
                   GroupBox 165, 110, 100, 100, "Additional Owner(s)"
                   Text 170, 130, 40, 10, "Share Ratio:"
                   Text 170, 145, 50, 10, "Other owners:"
-                  Text 5, 195, 65, 10, "Next Interest Date:"
+                  Text 5, 215, 65, 10, "Next Interest Date:"
                   Text 235, 125, 5, 10, "/"
                 EndDialog
 
