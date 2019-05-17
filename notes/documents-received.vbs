@@ -348,6 +348,7 @@ DO
               EditBox 35, 210, 315, 15, SHEL
               EditBox 35, 230, 315, 15, INSA
               EditBox 55, 250, 295, 15, other_verifs
+              CheckBox 370, 255, 30, 10, "MTAF", mtaf_form_checkbox
               EditBox 80, 290, 320, 15, notes
               EditBox 80, 310, 320, 15, actions_taken
               EditBox 80, 330, 320, 15, verifs_needed
@@ -438,9 +439,9 @@ DO
 		cancel_confirmation																'quits if cancel is pressed
 
 		If worker_signature = "" Then err_msg = err_msg & vbNewLine & "* You must sign your case note."
-        If HSR_scanner_checkbox = unchecked and actions_taken = "" Then
-            If ltc_1503_form_checkbox = unchecked AND evf_form_received_checkbox = unchecked AND asset_form_checkbox = unchecked AND mof_form_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* You must case note your actions taken."
-        End If
+        ' If HSR_scanner_checkbox = unchecked and actions_taken = "" Then
+        '     If ltc_1503_form_checkbox = unchecked AND evf_form_received_checkbox = unchecked AND asset_form_checkbox = unchecked AND mof_form_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* You must case note your actions taken."
+        ' End If
 
         If err_msg <> "" Then MsgBox "Please Resolve to Continue:" & vbNewLine & err_msg
 
@@ -2318,6 +2319,291 @@ If arep_form_checkbox = checked Then
 
 End If
 
+If LTC_case = vbNo Then
+
+    If ADDR = "" AND SCHL = "" AND DISA = "" AND mof_form_checkbox = unchecked AND  JOBS = "" AND BUSI = "" AND evf_form_received_checkbox = unchecked AND UNEA = "" AND ACCT = "" AND asset_form_checkbox = unchecked AND other_assets = "" AND arep_form_checkbox = unchecked AND other_verifs = ""AND notes = "" Then need_final_note = FALSE
+
+End If
+
+If LTC_case = vbYes Then
+
+    If FACI = "" AND JOBS = "" AND BUSI_RBIC = "" AND evf_form_received_checkbox = unchecked AND UNEA = "" AND ACCT = "" AND asset_form_checkbox = unchecked AND SECU = "" AND CARS = "" AND REST = "" AND OTHR = "" AND SHEL = "" AND INSA = "" AND medical_expenses = "" AND arep_form_checkbox = unchecked AND veterans_info = "" AND other_verifs = ""AND notes = "" Then need_final_note = FALSE
+
+End If
+
+If mtaf_form_checkbox = checked Then
+
+    BeginDialog Dialog1, 0, 0, 186, 265, "MTAF dialog"
+      EditBox 55, 5, 60, 15, MTAF_date
+      DropListBox 55, 25, 60, 15, "Select one..."+chr(9)+"complete"+chr(9)+"incomplete", MTAF_status_dropdown
+      EditBox 55, 45, 60, 15, MFIP_elig_date
+      CheckBox 5, 65, 55, 10, "MTAF signed.", mtaf_signed_checkbox
+      CheckBox 5, 80, 140, 10, "MFIP/financial orientation completed.", mfip_financial_orientation_checkbox
+      CheckBox 5, 95, 150, 10, "Client exempt from cooperation with ES.", ES_exemption_checkbox
+      CheckBox 5, 110, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
+      EditBox 55, 125, 60, 15, interview_date
+      CheckBox 5, 145, 135, 10, "Rights and responsibilities explained.", RR_explained_checkbox
+      ButtonGroup ButtonPressed
+        OkButton 80, 245, 50, 15
+        CancelButton 130, 245, 50, 15
+      Text 5, 10, 40, 10, "MTAF date:"
+      Text 5, 30, 45, 10, "MTAF status:"
+      Text 5, 50, 50, 10, "MFIP elig date:"
+      Text 5, 130, 50, 10, "Interview date:"
+      GroupBox 5, 155, 175, 85, ""
+      Text 15, 165, 155, 25, "*STOP WORK - Verification only necessary to verify income in the month of application/eligibility. (CM 0010.18.01)"
+      Text 15, 200, 160, 35, "**SUBSIDY - Verification of housing subsidy is a mandatory verification for MFIP. STAT must be appropriately updated to ensure accurate approval of housing grant. (CM 0010.18.01)"
+    EndDialog
+
+    Do
+        Do
+            err_msg = ""
+
+            dialog Dialog1
+            cancel_continue_confirmation(skip_mtaf)
+
+            If IsDate(MTAF_date) = False Then err_msg = err_msg & vbNewLine & "* Enter the date the MTAF was received."
+            If MTAF_status_dropdown = "Select one..." Then err_msg = err_msg & vbNewLine & "* Indicate the status of the MTAF."
+            'If  Then err_msg = err_msg & vbNewLine & "* "
+
+            If skip_mtaf = TRUE Then
+                err_msg = ""
+                mtaf_form_checkbox = unchecked
+            End If
+
+            If err_msg <> "" Then MsgBox ("Please resolve to continue:" & vbNewLine & err_msg)
+
+        Loop until err_msg = ""
+        Call check_for_password(are_we_passworded_out)
+    Loop until are_we_passworded_out = FALSE
+End If
+
+
+If mtaf_form_checkbox = checked Then
+    BeginDialog Dialog1, 0, 0, 341, 335, "MTAF dialog"
+      CheckBox 5, 10, 225, 10, "Check here if all other docs rec'vd are associated with this MTAF.", MTAF_note_only_checkbox
+      EditBox 75, 40, 260, 15, ADDR_change
+      EditBox 75, 60, 260, 15, HHcomp_change
+      EditBox 75, 80, 260, 15, asset_change
+      EditBox 105, 100, 230, 15, earned_income_change
+      EditBox 105, 120, 230, 15, unearned_income_change
+      EditBox 105, 140, 230, 15, shelter_costs_change
+      EditBox 175, 160, 160, 15, subsidized_housing
+      DropListBox 175, 180, 160, 15, "Select one..."+chr(9)+"Not subsidized"+chr(9)+"Verification provided"+chr(9)+"Verification pending", sub_housing_droplist
+      EditBox 110, 195, 225, 15, child_adult_care_costs
+      EditBox 110, 215, 225, 15, relationship_proof
+      EditBox 175, 235, 160, 15, referred_to_OMB_PBEN
+      EditBox 125, 255, 210, 15, elig_results_fiated
+      EditBox 75, 275, 260, 15, other_notes
+      EditBox 75, 295, 260, 15, verifications_needed
+      ButtonGroup ButtonPressed
+        OkButton 230, 315, 50, 15
+        CancelButton 285, 315, 50, 15
+      Text 5, 25, 210, 10, "**Changes reported on MTAF**  (Complete boxes as applicable.)"
+      Text 5, 45, 70, 10, "Change in address:"
+      Text 5, 65, 70, 10, "Change in HH comp:"
+      Text 5, 85, 70, 10, "Change in assets:"
+      Text 5, 105, 90, 10, "*Change in earned income:"
+      Text 5, 125, 95, 10, "Change in unearned income:"
+      Text 5, 145, 95, 10, "Change in shelter costs:"
+      Text 5, 165, 170, 10, "Is housing subsidized? If so, what is the amount?"
+      Text 75, 180, 100, 10, "**Subsidized housing status:"
+      Text 5, 200, 85, 10, "Child or adult care costs:"
+      Text 5, 220, 95, 10, "Proof of relationship on file:"
+      Text 5, 240, 160, 10, "Client has been referred to apply for OMB/PBEN:"
+      Text 5, 260, 115, 10, "Eligibility results fiated? If so, why:"
+      Text 5, 280, 45, 10, "Other notes:"
+      Text 5, 300, 70, 10, "Verifications needed:"
+    EndDialog
+
+    Do
+        Do
+            err_msg = ""
+
+            dialog Dialog1
+            cancel_continue_confirmation(skip_mtaf)
+
+            If skip_mtaf = TRUE Then
+                err_msg = ""
+                mtaf_form_checkbox = unchecked
+            End If
+
+            If sub_housing_droplist = "Select one..." Then err_msg = err_msg & vbNewLine & "* Indicate if housind is subsidized or not."
+
+            If err_msg <> "" Then MsgBox ("Please resolve to continue:" & vbNewLine & err_msg)
+
+        Loop until err_msg = ""
+        Call check_for_password(are_we_passworded_out)
+    Loop until are_we_passworded_out = FALSE
+
+
+End If
+
+If mtaf_form_checkbox = checked Then
+
+    If MTAF_note_only_checkbox = checked Then
+        need_final_note = FALSE
+    End If
+
+
+    'Takes script to a blank case note.
+    Call start_a_blank_case_note
+
+    'THE CASE NOTE===========================================================================
+    CALL write_variable_in_CASE_NOTE("***MTAF Processed: " & MTAF_status_dropdown & "***")
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Date received", MTAF_date)
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Date of eligibility", MFIP_elig_date)
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Date of interview", interview_date)
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Address change", ADDR_change)
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Household composition change", HHcomp_change)
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Change in assets", asset_change)
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Change in earned income", earned_income_change)
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Change in unearned income", unearned_income_change)
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Change in shelter costs", shelter_costs_change)
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Is housing subsidized? If so, what is the amount", subsidized_housing)
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Subsidized housing status", sub_housing_droplist)
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Child or adult care costs", child_adult_care_costs)
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Proof of relationship on file", relationship_proof)
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Referred to apply for OMB/PBEN", referred_to_OMB_PBEN)
+    CALL write_bullet_and_variable_in_CASE_NOTE ("ELIG results fiated", elig_results_fiated)
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Other notes", other_notes)
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Verifications Needed", verifications_needed)
+    IF MFIP_DVD_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent MFIP orientation DVD to participant(s).")
+    If RR_explained_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("* Rights & responsibilities explained.")
+    If mtaf_signed_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("* MTAF was signed.")
+    If mfip_financial_orientation_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("* MFIP orientation information reviewed/completed.")
+    If ES_exemption_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("* Client is exempt from cooperation with ES at this time.")
+    CALL write_bullet_and_variable_in_CASE_NOTE ("MTAF Status", MTAF_status_dropdown)
+    If MTAF_note_only_checkbox = checked Then
+        Call write_variable_in_CASE_NOTE("---")
+        If HSR_scanner_checkbox = checked then
+            Call write_variable_in_case_note("Docs Rec'd & scanned: " & docs_rec)
+        else
+            Call write_variable_in_case_note("Docs Rec'd: " & docs_rec)
+        END IF
+        call write_bullet_and_variable_in_case_note("Document date stamp", doc_date_stamp)
+        If arep_form_checkbox = checked Then
+            call write_variable_in_CASE_NOTE("* AREP FORM received on " & AREP_recvd_date & ". AREP: " & arep_name)
+            If AREP_programs <> "" then call write_variable_in_CASE_NOTE("  - Programs Authorized for: " & AREP_programs)
+            If arep_signature_date <> "" Then call write_variable_in_CASE_NOTE("  - AREP valid start date: " & arep_signature_date)
+            call write_variable_in_CASE_NOTE("  - Client and AREP signed AREP form.")
+            IF AREP_ID_check = checked THEN write_variable_in_CASE_NOTE("  - AREP ID on file.")
+            IF TIKL_check = checked THEN write_variable_in_CASE_NOTE("  - TIKL'd for 12 months to get new HC AREP form.")
+            If update_AREP_panel_checkbox = checked Then write_variable_in_CASE_NOTE("  - AREP panel updated.")
+        End If
+        call write_bullet_and_variable_in_case_note("ADDR", ADDR)
+        call write_bullet_and_variable_in_case_note("FACI", FACI)
+        call write_bullet_and_variable_in_case_note("SCHL/STIN/STEC", SCHL)
+        call write_bullet_and_variable_in_case_note("DISA", DISA)
+        If mof_form_checkbox = checked Then
+            CALL write_variable_in_CASE_NOTE("* Medical Opinion Form Rec'd " & date_recd & " for M" & mof_hh_memb)
+            IF mof_clt_release_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("  - *Client signed release on MOF.*")
+            CALL write_variable_in_CASE_NOTE("  - Date of last examination: " & last_exam_date)
+            CALL write_variable_in_CASE_NOTE("  - Doctor signed form: " & doctor_date)
+            CALL write_variable_in_CASE_NOTE("  - Condition will last: " & mof_time_condition_will_last)
+            CALL write_variable_in_CASE_NOTE("  - Ability to work: " & ability_to_work)
+            CALL write_variable_in_CASE_NOTE("  - Other notes: " & mof_other_notes)
+        End If
+        call write_bullet_and_variable_in_case_note("JOBS", JOBS)
+        If evf_form_received_checkbox = checked Then
+            call write_variable_in_CASE_NOTE("* EVF received " & evf_date_recvd & ": " & EVF_status_dropdown & "*")
+            Call write_variable_in_CASE_NOTE("  - Employer Name: " & employer)
+            Call write_variable_in_CASE_NOTE("  - EVF for HH member: " & evf_ref_numb)
+            'for additional information needed
+            IF info = "yes" then
+                Call write_variable_in_CASE_NOTE("  - Additional Info requested: " & info & " on " & info_date & " by " & request_info)
+            	If EVF_TIKL_checkbox = checked then call write_variable_in_CASE_NOTE ("  ***TIKLed for 10 day return.***")
+            Else
+                Call write_variable_in_CASE_NOTE("  - No additional information is needed/requested.")
+            END IF
+        End If
+        call write_bullet_and_variable_in_case_note("BUSI", BUSI)
+        call write_bullet_and_variable_in_case_note("BUSI/RBIC", BUSI_RBIC)
+        call write_bullet_and_variable_in_case_note("UNEA", UNEA)
+        If asset_form_checkbox = checked Then
+            If LTC_case = vbNo Then
+                Call write_variable_in_CASE_NOTE("* Signed Personal Statement about Assets for Cash Received (DHS 6054)")
+                Call write_variable_in_CASE_NOTE("  - Received on: " & asset_form_doc_date)
+                If signed_by_one <> "Select or Type" Then Call write_variable_in_CASE_NOTE("  - Signed by: " & signed_by_one & " on: " & signed_one_date)
+                If signed_by_two <> "Select or Type" Then Call write_variable_in_CASE_NOTE("  - Signed by: " & signed_by_two & " on: " & signed_two_date)
+                If signed_by_three <> "Select or Type" Then Call write_variable_in_CASE_NOTE("  - Signed by: " & signed_by_three & " on: " & signed_three_date)
+                If box_one_info <> "" Then Call write_variable_in_CASE_NOTE("  - Account detail from form: " & box_one_info)
+                For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+                    If ASSETS_ARRAY(cnote_panel, the_asset) = checked AND  ASSETS_ARRAY(ast_panel, the_asset) = "ACCT" Then
+                        Call write_variable_in_CASE_NOTE("  - Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " " & right(ASSETS_ARRAY(ast_type, the_asset), len(ASSETS_ARRAY(ast_type, the_asset)) - 5) & " account. At: " & ASSETS_ARRAY(ast_location, the_asset))
+                        Call write_variable_in_CASE_NOTE("      Balance: $" & ASSETS_ARRAY(ast_balance, the_asset) & " - Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4))
+                        If ASSETS_ARRAY(ast_jnt_owner_YN, the_asset) = "Y" Then Call write_variable_in_CASE_NOTE("      " & ASSETS_ARRAY(ast_share_note, the_asset))
+                    End If
+                Next
+                If box_two_info <> "" Then Call write_variable_in_CASE_NOTE("  - Securities detail from form: " & box_two_info)
+                For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+                    If ASSETS_ARRAY(cnote_panel, the_asset) = checked AND  ASSETS_ARRAY(ast_panel, the_asset) = "SECU" Then
+                        Call write_variable_in_CASE_NOTE("  - Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " " & right(ASSETS_ARRAY(ast_type, the_asset), len(ASSETS_ARRAY(ast_type, the_asset)) - 5) & " Value: $" & ASSETS_ARRAY(ast_csv, the_asset) & " - Verif: " & left(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4))
+                        If ASSETS_ARRAY(ast_jnt_owner_YN, the_asset) = "Y" Then Call write_variable_in_CASE_NOTE("    * Security is shared. Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " owns " & ASSETS_ARRAY(ast_own_ratio, the_asset) & " of the security.")
+                    End If
+                Next
+                If box_three_info <> "" Then Call write_variable_in_CASE_NOTE("  - Vehicle detail from form: " & box_three_info)
+                For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+                    If ASSETS_ARRAY(cnote_panel, the_asset) = checked AND  ASSETS_ARRAY(ast_panel, the_asset) = "CARS" Then
+                        Call write_variable_in_CASE_NOTE("  - Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " - " & ASSETS_ARRAY(ast_year, the_asset) & " " & ASSETS_ARRAY(ast_make, the_asset) & " " & ASSETS_ARRAY(ast_model, the_asset) & " - Trade-In Value: $" & ASSETS_ARRAY(ast_trd_in, the_asset) & " - Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4))
+                        If ASSETS_ARRAY(ast_owe_YN, the_asset) = "Y" Then Call write_variable_in_CASE_NOTE("    * $" & ASSETS_ARRAY(ast_amt_owed, the_asset) & " owed as of " & ASSETS_ARRAY(ast_owed_date, the_asset) & " - Verif: " & ASSETS_ARRAY(ast_owe_verif, the_asset))
+                    End If
+                Next
+            End If
+
+            If LTC_case = vbYes Then
+                For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+                    If ASSETS_ARRAY(cnote_panel, the_asset) = checked AND  ASSETS_ARRAY(ast_panel, the_asset) = "ACCT" Then
+                        Call write_variable_in_CASE_NOTE("  - Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & ": " & right(ASSETS_ARRAY(ast_type, the_asset), len(ASSETS_ARRAY(ast_type, the_asset)) - 5) & " account. At: " & ASSETS_ARRAY(ast_location, the_asset))
+                        Call write_variable_in_CASE_NOTE("      Balance: $" & ASSETS_ARRAY(ast_balance, the_asset) & " - Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4) & " - Rec'vd On: " & ASSETS_ARRAY(ast_verif_date, the_asset))
+                        If ASSETS_ARRAY(ast_note, the_asset) <> "" Then Call write_variable_in_CASE_NOTE("      Notes: " & ASSETS_ARRAY(ast_note, the_asset))
+                        If ASSETS_ARRAY(ast_jnt_owner_YN, the_asset) = "Y" Then Call write_variable_in_CASE_NOTE("      " & ASSETS_ARRAY(ast_share_note, the_asset))
+                    End If
+                Next
+
+                For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+                    If ASSETS_ARRAY(cnote_panel, the_asset) = checked AND  ASSETS_ARRAY(ast_panel, the_asset) = "SECU" Then
+                        If left(ASSETS_ARRAY(ast_type, the_asset), 2) <> "LI" Then Call write_variable_in_CASE_NOTE("  - Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & ": " & right(ASSETS_ARRAY(ast_type, the_asset), len(ASSETS_ARRAY(ast_type, the_asset)) - 5) & " CSV: $" & ASSETS_ARRAY(ast_csv, the_asset))
+                        If left(ASSETS_ARRAY(ast_type, the_asset), 2) = "LI" Then Call write_variable_in_CASE_NOTE("  - Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & ": " & right(ASSETS_ARRAY(ast_type, the_asset), len(ASSETS_ARRAY(ast_type, the_asset)) - 5) & " CSV: $" & ASSETS_ARRAY(ast_csv, the_asset) & " LI Face Value: $" & ASSETS_ARRAY(ast_face_value, the_asset))
+                        Call write_variable_in_CASE_NOTE("      Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4) & " - Rec'vd On: " & ASSETS_ARRAY(ast_verif_date, the_asset))
+                        If ASSETS_ARRAY(ast_jnt_owner_YN, the_asset) = "Y" Then Call write_variable_in_CASE_NOTE("    * Security is shared. Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " owns " & ASSETS_ARRAY(ast_own_ratio, the_asset) & " of the security.")
+                        If ASSETS_ARRAY(ast_note, the_asset) <> "" Then Call write_variable_in_CASE_NOTE("      Notes: " & ASSETS_ARRAY(ast_note, the_asset))
+                    End If
+                Next
+
+                For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+                    If ASSETS_ARRAY(cnote_panel, the_asset) = checked AND  ASSETS_ARRAY(ast_panel, the_asset) = "CARS" Then
+                        Call write_variable_in_CASE_NOTE("  - Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & ": " & ASSETS_ARRAY(ast_year, the_asset) & " " & ASSETS_ARRAY(ast_make, the_asset) & " " & ASSETS_ARRAY(ast_model, the_asset) & " - Trade-In Value: $" & ASSETS_ARRAY(ast_trd_in, the_asset))
+                        Call write_variable_in_CASE_NOTE("      Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4) & " - Rec'vd On: " & ASSETS_ARRAY(ast_verif_date, the_asset))
+                        If ASSETS_ARRAY(ast_owe_YN, the_asset) = "Y" Then Call write_variable_in_CASE_NOTE("    * $" & ASSETS_ARRAY(ast_amt_owed, the_asset) & " owed as of " & ASSETS_ARRAY(ast_owed_date, the_asset) & " - Verif: " & right(ASSETS_ARRAY(ast_owe_verif, the_asset), len(ASSETS_ARRAY(ast_owe_verif, the_asset)) - 4))
+                        If ASSETS_ARRAY(ast_note, the_asset) <> "" Then Call write_variable_in_CASE_NOTE("      Notes: " & ASSETS_ARRAY(ast_note, the_asset))
+                    End If
+                Next
+            End If
+        End If
+        call write_bullet_and_variable_in_case_note("ACCT", ACCT)
+        call write_bullet_and_variable_in_case_note("SECU", SECU)
+        call write_bullet_and_variable_in_case_note("CARS", CARS)
+        call write_bullet_and_variable_in_case_note("REST", REST)
+        call write_bullet_and_variable_in_case_note("Burial/OTHR", OTHR)
+        call write_bullet_and_variable_in_case_note("Other assets", other_assets)
+        call write_bullet_and_variable_in_case_note("SHEL", SHEL)
+        call write_bullet_and_variable_in_case_note("INSA", INSA)
+        call write_bullet_and_variable_in_case_note("Medical expenses", medical_expenses)
+        call write_bullet_and_variable_in_case_note("Veteran's info", veterans_info)
+        call write_bullet_and_variable_in_case_note("Other verifications", other_verifs)
+        Call write_variable_in_case_note("---")
+        call write_bullet_and_variable_in_case_note("Notes on your doc's", notes)
+        call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+        IF HSR_scanner_checkbox = checked then Call write_variable_in_case_note("* Documents imaged to ECF.")
+        call write_bullet_and_variable_in_case_note("Verifications still needed", verifs_needed)
+    End If
+    CALL write_variable_in_CASE_NOTE ("---")
+    CALL write_variable_in_CASE_NOTE (worker_signature)
+
+
+End If
+
 If ltc_1503_form_checkbox = checked Then
     faci_footer_month = MAXIS_footer_month
     faci_footer_year = MAXIS_footer_year
@@ -2514,19 +2800,12 @@ If ltc_1503_form_checkbox = checked Then
 End If
 
 If left(docs_rec, 2) = ", " Then docs_rec = right(docs_rec, len(docs_rec)-2)        'trimming the ',' off of the list of docs
-If LTC_case = vbNo Then
 
-    If ADDR = "" AND SCHL = "" AND DISA = "" AND mof_form_checkbox = unchecked AND  JOBS = "" AND BUSI = "" AND evf_form_received_checkbox = unchecked AND UNEA = "" AND ACCT = "" AND asset_form_checkbox = unchecked AND other_assets = "" AND arep_form_checkbox = unchecked AND other_verifs = ""AND notes = "" Then need_final_note = FALSE
-
+If need_final_note = FALSE Then
+    If ltc_1503_form_checkbox = checked Then script_end_procedure_with_error_report("The script run is complete, a case note for the LTC 1503 form has been entered. There are no additional documents indicated in the initial dialog and so the final note will not be entered as it would be blank.")
+    If mtaf_form_checkbox = checked Then script_end_procedure_with_error_report("The script run is complete, a case note for the MTACF has been entered. The documents are either noted with the MTAF or there are no additional documents to be noted and the note would be blank.")
+    script_end_procedure_with_error_report("The script run is complete, but no detail about documents has been added and the final case note will not be entered as it would be blank.")
 End If
-
-If LTC_case = vbYes Then
-
-    If FACI = "" AND JOBS = "" AND BUSI_RBIC = "" AND evf_form_received_checkbox = unchecked AND UNEA = "" AND ACCT = "" AND asset_form_checkbox = unchecked AND SECU = "" AND CARS = "" AND REST = "" AND OTHR = "" AND SHEL = "" AND INSA = "" AND medical_expenses = "" AND arep_form_checkbox = unchecked AND veterans_info = "" AND other_verifs = ""AND notes = "" Then need_final_note = FALSE
-
-End If
-
-If need_final_note = FALSE Then script_end_procedure_with_error_report("The script run is complete, but no detail about documents has been added and the final case note will not be entered as it would be blank.")
 
 If actions_taken = "" Then
     BeginDialog Dialog1, 0, 0, 251, 70, "Actions Taken Dialog"
