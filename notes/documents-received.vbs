@@ -475,7 +475,6 @@ If evf_form_received_checkbox = checked Then
       EditBox 75, 130, 60, 15, request_info
       CheckBox 160, 135, 105, 10, "10 day TIKL for additional info", EVF_TIKL_checkbox
       EditBox 70, 160, 210, 15, actions_taken
-      EditBox 70, 180, 100, 15, worker_signature
       ButtonGroup ButtonPressed
         OkButton 175, 180, 50, 15
         CancelButton 230, 180, 50, 15
@@ -484,7 +483,6 @@ If evf_form_received_checkbox = checked Then
       Text 5, 75, 60, 10, "Household Memb:"
       Text 10, 55, 55, 10, "Employer name:"
       Text 15, 165, 50, 10, "Actions taken:"
-      Text 5, 185, 60, 10, "Worker Signature:"
       Text 25, 35, 40, 10, "EVF Status:"
       Text 150, 10, 65, 10, "Date EVF received:"
       Text 15, 10, 50, 10, "Case Number:"
@@ -509,8 +507,6 @@ If evf_form_received_checkbox = checked Then
     		If info = "no" and request_info <> "" then err_msg = err_msg & vbCr & "* You cannot mark additional info as 'no' and have information requested."
     		If info = "no" and info_date <> "" then err_msg = err_msg & vbCr & "* You cannot mark additional info as 'no' and have a date requested."
     		If EVF_TIKL_checkbox = 1 and info <> "yes" then err_msg = err_msg & vbCr & "* Additional informaiton was not requested, uncheck the TIKL checkbox."
-    		IF actions_taken = "" THEN err_msg = err_msg & vbCr & "* You must enter your actions taken."		'checks that notes were entered
-    		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* You must sign your case note!" 		'checks that the case note was signed
             If skip_evf = TRUE Then
                 evf_form_received_checkbox = unchecked
                 err_msg = ""
