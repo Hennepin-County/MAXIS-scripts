@@ -378,7 +378,7 @@ DO
               EditBox 80, 265, 270, 15, medical_expenses
               CheckBox 370, 280, 30, 10, "AREP", arep_form_checkbox
               EditBox 55, 285, 295, 15, veterans_info
-              CheckBox 365, 295, 40, 10, "LTC1503", ltc_1503_form_checkbox
+              ' CheckBox 365, 295, 40, 10, "LTC1503", ltc_1503_form_checkbox
               EditBox 55, 305, 295, 15, other_verifs
               EditBox 80, 340, 330, 15, notes
               EditBox 80, 360, 330, 15, actions_taken
