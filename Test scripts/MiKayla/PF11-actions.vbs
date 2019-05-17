@@ -51,15 +51,35 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'intial dialog for user to select a SMRT action
-BeginDialog , 0, 0, 186, 65, "SMRT initial dialog"
-  EditBox 85, 5, 60, 15, maxis_case_number
-  DropListBox 85, 25, 95, 15, "Select one..."+chr(9)+"Initial request"+chr(9)+"ISDS referral completed"+chr(9)+"Determination received", SMRT_actions
+BeginDialog , 0, 0, 361, 80, "PF11 Action"
+  EditBox 70, 20, 40, 15, maxis_case_number
+  EditBox 70, 40, 15, 15, MEMB_number
+  DropListBox 205, 40, 95, 15, "Select One:"+chr(9)+"PMI merge request"+chr(9)+"Non-actionable DAIL removal"+chr(9)+"Case note removal request"+chr(9)+"MFIP New Spouse Income"+chr(9)+"Other", PF11_actions
+  EditBox 70, 60, 170, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 75, 45, 50, 15
-    CancelButton 130, 45, 50, 15
-  Text 5, 30, 75, 10, "Select a SMRT action:"
-  Text 30, 10, 45, 10, "Case number:"
+    OkButton 250, 60, 50, 15
+    CancelButton 305, 60, 50, 15
+  Text 5, 5, 355, 10, "The system being down, issuance problems, or any type of emergency SHOULD NOT be reported via a PF11."
+  Text 115, 25, 245, 10, "** MAXIS takes a snapshot of the screen you choose to do your PF11 from."
+  Text 135, 45, 65, 10, "Select PF11 action:"
+  Text 5, 45, 50, 10, "MEMB number:"
+  Text 5, 65, 60, 10, "Worker Signature:"
+  Text 5, 25, 45, 10, "Case number:"
 EndDialog
+
+
+BeginDialog , 0, 0, 326, 90, "Other"
+  EditBox 70, 10, 240, 15, referral_reason
+  EditBox 70, 30, 240, 15, other_notes
+  EditBox 70, 50, 240, 15, action_taken
+  ButtonGroup ButtonPressed
+    OkButton 205, 70, 50, 15
+    CancelButton 260, 70, 50, 15
+  Text 25, 35, 45, 10, "Other Notes:"
+  Text 15, 55, 50, 10, " Actions Taken:"
+  Text 5, 15, 60, 10, "Describe Problem:"
+EndDialog
+
 
 Do
 	Do
@@ -67,7 +87,7 @@ Do
 		Dialog
 		if ButtonPressed = 0 then StopScript
 		if IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		If SMRT_actions = "Select one..." THEN err_msg = err_msg & vbNewLine & "* Select a SMRT action."
+		If SMRT_actions = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Select a PF11 action."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
  Call check_for_password(are_we_passworded_out)
@@ -78,28 +98,12 @@ EMConnect ""
 
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
-'Error proof functions
-Call check_for_MAXIS(true)
-
-DO
-	dialog EDRS_dialog
-	IF buttonpressed = 0 THEN stopscript
-	IF MAXIS_case_number = "" THEN MSGBOX "Please enter a case number"
-
-LOOP UNTIL MAXIS_case_number <> ""
-
-'Error proof functions
-Call check_for_MAXIS(False)
-
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
 
-'Error proof functions
-Call check_for_MAXIS(False)
-
 'changing footer dates to current month to avoid invalid months.
 MAXIS_footer_month = datepart("M", date)
-	IF Len(MAXIS_footer_month) <> 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
+IF Len(MAXIS_footer_month) <> 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
 MAXIS_footer_year = right(datepart("YYYY", date), 2)
 
 Dim Member_Info_Array()
@@ -140,22 +144,10 @@ For i = 0 to Ubound(HH_member_array)
 	Member_Info_Array(i, 4) = SSN_number
 Next
 
-BeginDialog , 0, 0, 361, 75, "PF11 Action"
-  EditBox 55, 20, 40, 15, maxis_case_number
-  DropListBox 175, 20, 95, 15, "Select one:"+chr(9)+"PMI merge request"+chr(9)+"Non-actionable DAIL removal"+chr(9)+"Case note removal request", PF11_actions
-  ButtonGroup ButtonPressed
-    OkButton 250, 55, 50, 15
-    CancelButton 305, 55, 50, 15
-  Text 110, 25, 65, 10, "Select PF11 action:"
-  Text 5, 25, 45, 10, "Case number:"
-  Text 5, 5, 355, 10, "The system being down, issuance problems, or any type of emergency SHOULD NOT be reported via a PF11."
-  Text 30, 40, 245, 10, "MAXIS takes a "snapshot" of the screen you choose to do your PF11 from.  "
-  EditBox 335, 20, 20, 15, MEMB_number
-  Text 280, 25, 50, 10, "MEMB number:"
-EndDialog
 
 
-If SMRT_actions = "Initial request" then
+
+If PF11_actions = "PMI merge request" then
     BeginDialog , 0, 0, 326, 180, "Initial SMRT referral dialog"
       EditBox 80, 10, 75, 15, SMRT_member
       EditBox 270, 10, 50, 15, referral_date
@@ -213,60 +205,5 @@ If SMRT_actions = "Initial request" then
 	Call write_variable_in_CASE_NOTE ("---")
 	call write_variable_in_CASE_NOTE(worker_signature)
 END If
-Please delete DAIL - case is inactive and cant be resolved
-
-
-***PF11 SENT RE: DAIL REMOVAL***
-TASK #438668
-----
-Could not remove PARI DAIL, case inactive, PF11 sent for removal.
----
-M. Handley Quality Improvement
-
-Describe the problem:
-QTIP #108 - PF11 BASICS                       TE19.108             3 of
-In the DESCRIBE PROBLEM field:
-
-   >  Explain exactly what you are trying to do.
-
-   >  Explain what MAXIS is doing and what results you are
-   expecting.
-
->  Enter your direct dial telephone number.
-expecting.
-If the screen you have chosen is DAIL/DAIL, REPT/PND2, or any
-screen that displays a list of cases please identify the case
-number you are having problems with as it will not automatically
-display in the CASE ID field.
-
-When you have finished describing the problem and wish to complete
-the PF11, transmit.  If for some reason you have decided not to
-send the PF11 hit the PF11 key to cancel.
-
-Once you have completed the PF11 a task number will appear.  Keep
-the task number for future reference.
-
-To check on a PF11's progress go to the SELF menu and type TASK.
-If you have the task number enter it and it will take you directly
-QTIP #108 - PF11 BASICS                       TE19.108             3 of
-into the PF11.  If you do not have the task number or wish to look
-at a list of all the PF11s you have created, change the Option in
-TASK from "T" (task) to a "C" (creator).  By placing an "X" next to
-a PF11 listed you will be able to view it.
-
-PF11s are printed twice a day:  7:00 a.m. and noon.  They are
-reviewed as soon as possible and distributed to the appropriate
-group for action.
-
-For more information on PF11s see the TEMP Manual TE05.02 (TSS Help
-Desk Procedures), TE05.04 (PF11's), and TE19.037 (QTIP #37 - PF11
-Assignment Process).
-
-If you have questions about this QTIP or suggestions for future
-QTIPS please e-mail QTIP.
-
-
-
-please delete duplicate case note
 
 script_end_procedure("It worked!")

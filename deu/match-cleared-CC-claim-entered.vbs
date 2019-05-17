@@ -631,6 +631,10 @@ Loop until are_we_passworded_out = false
     IF IEVS_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
     IF IEVS_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
     CALL write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
+
+
+	
+	CALL write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
     CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
     CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
     CALL write_bullet_and_variable_in_case_note("Source of income", income_source)

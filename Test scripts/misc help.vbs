@@ -265,3 +265,33 @@ If trim(variable) <> "" THEN
 	EMSetCursor noting_row + 1, 3
 End if
 end function
+
+
+'changing the formating of the SSN from 123456789 to 123 45 6789 for STAT/MEMB
+				If len(client_SSN) < 9 then
+								CBO_array(make_referral, item) = False
+								CBO_array(ref_status, item) = "Error"
+								CBO_array(error_reason, item) = "SSN not valid."                              'Explanation for the rejected report'
+				Elseif len(client_SSN) = 9 then
+								left_SSN = Left(client_SSN, 3)
+								mid_SSN = mid(client_SSN, 4, 2)
+								right_SSN = Right(client_SSN, 4)
+								client_SSN = left_SSN & " " & mid_SSN & " " & right_SSN
+				END IF
+
+
+				Do
+				                                               EMReadscreen member_SSN, 11, 7, 42
+				                                                                member_SSN = replace(member_SSN, " ", "")
+				                                               If member_SSN = CBO_array(clt_SSN, item) then
+				                                                               EMReadscreen member_number, 2, 4, 33
+				                                                               CBO_array(memb_number, item) = member_number
+				                                                               CBO_array(make_referral, item) = True
+				                                                               exit do
+				                                               Else
+				                                                               transmit
+				                                                                                                                CBO_array(make_referral, item) = False
+				                                                                END IF
+				                        EMReadScreen MEMB_error, 5, 24, 2
+				                                   Loop until member_SSN = CBO_array(clt_SSN, item) or MEMB_error = "ENTER"
+				                                                                End if
