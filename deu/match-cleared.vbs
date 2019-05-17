@@ -83,8 +83,8 @@ IF dail_check = "DAIL" THEN
 		CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
 		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
 		TRANSMIT
-	    EMReadScreen err_msg, 7, 24, 2
-	    IF err_msg = "NO IEVS" THEN script_end_procedure_with_error_report("An error occurred in IEVP, please process manually.")'checking for error msg'
+	    'EMReadScreen err_msg, 7, 24, 2
+	    'IF err_msg = "NO IEVS" THEN script_end_procedure_with_error_report("An error occurred in IEVP, please process manually.")'checking for error msg'
 	END IF
 END IF
 
@@ -129,7 +129,7 @@ Row = 7
 DO
 	EMReadScreen IEVS_period, 11, row, 47
 	EmReadScreen number_IEVS_type, 3, row, 41
-	IF trim(IEVS_period) = "" THEN script_end_procedure_with_error_report("A match for the selected period could not be found. The script will now end.")
+	IF IEVS_period = "" THEN script_end_procedure_with_error_report("A match for the selected period could not be found. The script will now end.")
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
 	" " & "Period: " & IEVS_period & " Type: " & number_IEVS_type, vbYesNoCancel, "Please confirm this match")
 	'msgbox IEVS_period
@@ -163,9 +163,9 @@ ELSE
 	IF match_type = "WAGE" then
 		EMReadScreen select_quarter, 1, 8, 14
 		EMReadScreen IEVS_year, 4, 8, 22
-	ELSEIF match_type = "UBEN" THEN
-		EMReadScreen IEVS_month, 2, 5, 68
-		EMReadScreen IEVS_year, 4, 8, 71
+	'ELSEIF match_type = "UBEN" THEN
+	'	EMReadScreen IEVS_month, 2, 5, 68
+	'	EMReadScreen IEVS_year, 4, 8, 71
 	ELSEIF match_type = "BEER" or match_type = "UNVI" THEN
 		EMReadScreen IEVS_year, 2, 8, 15
 		IEVS_year = "20" & IEVS_year
@@ -391,14 +391,17 @@ IF send_notice_checkbox = CHECKED THEN
 		IF select_quarter = 3 THEN IEVS_quarter = "3RD"
 		IF select_quarter = 4 THEN IEVS_quarter = "4TH"
 	END IF
-	IEVS_period = replace(IEVS_period, "/", " to ")
+
+	IEVS_period = trim(IEVS_period)
+	IF match_type <> "UBEN" THEN IEVS_period = replace(IEVS_period, "/", " to ")
+	IF match_type = "UBEN" THEN IEVS_period = replace(IEVS_period, "-", "/")
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
 	'---------------------------------------------------------------------DIFF NOTC case note
   	start_a_blank_case_note
-	IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH(" & first_name & ") DIFF NOTICE SENT-----")
-	IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
-	IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH(" & match_type_letter & ") " & "(" & first_name & ") DIFF NOTICE SENT-----")
+	IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") DIFF NOTICE SENT-----")
+	IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") DIFF NOTICE SENT-----")
+	IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") DIFF NOTICE SENT-----")
 	CALL write_bullet_and_variable_in_case_note("Client Name", client_name)
 	CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
   	CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
@@ -415,7 +418,6 @@ END IF
 IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	IF sent_date <> "" THEN MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The script will now navigate to clear the match.")
 	'date_received = date & ""
-
 	BeginDialog cleared_match_dialog, 0, 0, 316, 175, "MATCH CLEARED"
 	  EditBox 55, 5, 40, 15, MAXIS_case_number
 	  EditBox 165, 5, 20, 15, MEMB_number
@@ -427,7 +429,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	  CheckBox 205, 55, 90, 10, "Employment verification", empl_verf_checkbox
 	  CheckBox 205, 65, 70, 10, "School verification", school_verf_checkbox
 	  CheckBox 205, 75, 80, 10, "Other (please specify)", other_checkbox
-	  DropListBox 70, 45, 115, 15, "Select One:"+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BE - NC Non-collectible"+chr(9)+"BE - OP Entered"+chr(9)+"BO - Other"+chr(9)+"BP - Wrong Person"+chr(9)+"CC - Claim Entered"+chr(9)+"NC - Non Cooperation", resolution_status
+	  DropListBox 70, 45, 115, 15, "Select One:"+chr(9)+"CB Ovrpmt And Future Save"+chr(9)+"CC Ovrpmt Only"+chr(9)+"CF Future Save"+chr(9)+"CA Excess Assets"+chr(9)+"CI Benefit Increase"+chr(9)+"CP Applicant Only Savings"+chr(9)+"BC Case Closed"+chr(9)+"BE Child"+chr(9)+"BE No Change"+chr(9)+"BE NC Non-collectible"+chr(9)+"BE OP Entered"+chr(9)+"BN Already Knew No Savings"+chr(9)+"BI Interface Prob"+chr(9)+"BP Wrong Person"+chr(9)+"BU Unable To Verify"+chr(9)+"BO Other"+chr(9)+"NC Non Cooperation", resolution_status
 	  DropListBox 120, 65, 65, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"N/A", change_response
 	  DropListBox 120, 85, 65, 15, "Select One:"+chr(9)+"DISQ Deleted"+chr(9)+"Pending Verif"+chr(9)+"No"+chr(9)+"N/A", DISQ_action
 	  EditBox 270, 95, 40, 15, date_received
@@ -458,34 +460,80 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "* Enter a valid numeric resolved time, ie 005."
 		IF resolve_time = "" THEN err_msg = err_msg & vbNewLine & "Please complete resolve time."
 		IF date_received = "" THEN
-			IF resolution_status <> "BN - Already known, No Savings" THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was recieved in ECF."
+			IF resolution_status <> "BN Already Knew No Savings" THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was recieved in ECF."
 		END IF
 		IF date_received = "" THEN
-			IF resolution_status <> "NC - Non Cooperation" THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was recieved in ECF."
+			IF resolution_status <> "NC Non Cooperation" THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was recieved in ECF."
 		END IF
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other verification was used to clear the match."
 		IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the client respond to Difference Notice?"
 		IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
-		IF resolution_status = "BE - No Change" AND other_notes = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE other notes must be completed."
-		IF resolution_status = "BE - Child" AND exp_grad_date = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE - Child graduation date and date rcvd must be completed."
-		If resolution_status = "CC - Claim Entered" AND programs = "Health Care" or programs = "Medical Assistance" THEN err_msg = err_msg & vbNewLine & "* System does not allow HC or MA cases to be cleared with the code 'CC - Claim Entered'."
+		IF resolution_status = "BE No Change" AND other_notes = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE other notes must be completed."
+		IF resolution_status = "BE Child" AND exp_grad_date = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE - Child graduation date and date rcvd must be completed."
+		If resolution_status = "CC Ovrpmt Only" AND programs = "Health Care" or programs = "Medical Assistance" THEN err_msg = err_msg & vbNewLine & "* System does not allow HC or MA cases to be cleared with the code 'CC - Claim Entered'."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
 
+
+	IF resolution_status = "CF Future Save" THEN
+    	BeginDialog CF_future_savings_dialog, 0, 0, 161, 130, "Cleared CF Future Savings"
+    	  DropListBox 65, 5, 90, 15, "Select One:"+chr(9)+"Case Became Ineligible"+chr(9)+"Person Removed"+chr(9)+"Benefit Increased"+chr(9)+"Benefit Decreased", IULB_result_dropdown
+    	  DropListBox 65, 25, 90, 15, "One Time Only"+chr(9)+"Per Month For Nbr of Months", IULB_method_dropdown
+    	  EditBox 65, 45, 40, 15, IULB_savings_amount
+    	  EditBox 65, 70, 15, 15, IULB_start_month
+    	  EditBox 90, 70, 15, 15, IULB_start_year
+    	  EditBox 90, 90, 15, 15, IULB_months
+    	  ButtonGroup ButtonPressed
+    	    OkButton 50, 110, 50, 15
+    	    CancelButton 105, 110, 50, 15
+    	  Text 5, 10, 60, 10, "Results for IULB:"
+    	  Text 5, 30, 55, 10, "Method for IULB:"
+    	  Text 5, 50, 55, 10, "Savings Amount:"
+    	  Text 65, 60, 15, 10, "MM"
+    	  Text 90, 60, 10, 10, "YY"
+    	  Text 5, 75, 35, 10, "Start Date:"
+    	  Text 5, 95, 70, 10, "Months for Method R:"
+    	EndDialog
+
+	    DO
+	    	err_msg = ""
+	    	Dialog CF_future_savings_dialog
+	    	cancel_confirmation
+	    	IF IsNumeric(IULB_savings_amount) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid numeric amount no decimal."
+	    	IF IULB_result = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please enter the IULB result."
+	    	IF IULB_method = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please enter the IULB method."
+	    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	    LOOP UNTIL err_msg = ""
+	    CALL check_for_password_without_transmit(are_we_passworded_out)
+
+ 	    IF IULB_result_dropdown = "Case Became Ineligible" THEN IULB_result = "I"
+	    IF IULB_result_dropdown = "Person Removed" THEN IULB_result = "R"
+	    IF IULB_result_dropdown = "Benefit Increased" THEN IULB_result = "P"
+	    IF IULB_result_dropdown = "Benefit Decreased" THEN IULB_result = "N"
+		IF IULB_method_dropdown = "One Time Only" THEN IULB_method = "O"
+		IF IULB_method_dropdown = "Per Month For Nbr of Months" THEN IULB_method = "O"
+	END IF
 	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
 	EMWriteScreen resolve_time, 12, 46	    'resolved notes depending on the resolution_status
-	IF resolution_status = "BC - Case Closed" THEN rez_status = "BC"
-	IF resolution_status = "BE - Child" THEN rez_status = "BE"
-	IF resolution_status = "BE - No Change" THEN rez_status = "BE"
-	IF resolution_status = "BE - OP Entered" THEN rez_status = "BE"
-	IF resolution_status = "BE - NC Non-collectible" THEN rez_status = "BE"
-	IF resolution_status = "BN - Already known, No Savings" THEN rez_status = "BN"
-	IF resolution_status = "BO - Other" THEN rez_status = "BO"
-	IF resolution_status = "BP - Wrong Person"  THEN rez_status = "BP"
-	IF resolution_status = "CC - Claim Entered" THEN rez_status = "CC"
-	IF resolution_status = "NC - Non Cooperation" THEN rez_status = "NC"
-	'CC cannot be used - ACTION CODE FOR ACTH OR ACTM IS INVALID
+	IF resolution_status = "CB Ovrpmt And Future Save" THEN rez_status = "CB"
+	IF resolution_status = "CC Ovrpmt Only" THEN rez_status = "CC" 'Claim Entered" CC cannot be used - ACTION CODE FOR ACTH OR ACTM IS INVALID
+	IF resolution_status = "CF Future Save" THEN rez_status = "CF"
+	IF resolution_status = "CA Excess Assets" THEN rez_status = "CA"
+	IF resolution_status = "CI Benefit Increase" THEN rez_status = "CI"
+	IF resolution_status = "CP Applicant Only Savings" THEN rez_status = "CP"
+	IF resolution_status = "BC Case Closed" THEN rez_status = "BC"
+	IF resolution_status = "BE Child" THEN rez_status = "BE"
+	IF resolution_status = "BE No Change" THEN rez_status = "BE"
+	IF resolution_status = "BE OP Entered" THEN rez_status = "BE"
+	IF resolution_status = "BE NC Non-collectible" THEN rez_status = "BE"
+	IF resolution_status = "BI Interface Prob" THEN rez_status = "BI"
+	IF resolution_status = "BN Already Knew No Savings" THEN rez_status = "BN"
+	IF resolution_status = "BP Wrong Person" THEN rez_status = "BP"
+	IF resolution_status = "BU Unable To Verify" THEN rez_status = "BU"
+	IF resolution_status = "BO Other" THEN rez_status = "BO"
+	IF resolution_status = "NC Non Cooperation" THEN rez_status = "NC"
+
 	'checked these all to programS'
 	EMwritescreen rez_status, 12, 58
 	IF change_response = "YES" THEN
@@ -500,16 +548,34 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	IULB_error_msg = trim(IULB_error_msg)
 	IF IULB_error_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & IULB_error_msg & vbNewLine
 	If IULB_error_msg = "ACTION CODE" THEN script_end_procedure_with_error_report(IULB_error_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
-	IF resolution_status = "BC - Case Closed" 	THEN EMWriteScreen "Case closed. " & other_notes, 8, 6   							'BC
-	IF resolution_status = "BE - No Change" THEN EMWriteScreen "No change. " & other_notes, 8, 6 									'BE
-	IF resolution_status = "BE - Child" THEN EMWriteScreen "No change, minor child income excluded. " & other_notes, 8, 6 			'BE - child
-	IF resolution_status = "BE - OP Entered" THEN EMWriteScreen "OP entered other programs" & other_notes, 8, 6
-	IF resolution_status = "BE - NC Non-collectible" THEN EMWriteScreen "Non-Coop remains, but claim is non-collectible ", 8, 6
-	IF resolution_status = "BN - Already known, No Savings" THEN EMWriteScreen "Already known - No savings. " & other_notes, 8, 6 	'BN
-	IF resolution_status = "BO - Other" THEN EMWriteScreen "HC Claim entered. " & other_notes, 8, 6 								'BO
-	IF resolution_status = "BP - Wrong Person" THEN EMWriteScreen "Client name and wage earner name are different. " & other_notes, 8, 6
-	IF resolution_status = "CC - Claim Entered" THEN EMWriteScreen "Claim entered. " & other_notes, 8, 6 						 	'CC
-	IF resolution_status = "NC - Non Cooperation" THEN EMWriteScreen "Non-coop, requested verf not in ECF, " & other_notes, 8, 6 	'NC
+	IF resolution_status = "CB Ovrpmt And Future Save" THEN EMWriteScreen "OP Claim entered and future savings." & other_notes, 8, 6
+	IF resolution_status = "CC Ovrpmt Only" THEN EMWriteScreen "OP Claim entered." & other_notes, 8, 6
+	IF resolution_status = "CF Future Save" THEN
+		EMWriteScreen "Future Savings. " & other_notes, 8, 6
+		EMwritescreen active_programs, 12, 37
+		EMwritescreen IULB_results, 12, 42
+		EMwritescreen IULB_method, 12, 49
+		EMwritescreen IULB_savings_amount, 12, 54
+		EMwritescreen IULB_start_month, 12, 65
+		EMwritescreen IULB_start_year, 12, 68
+		EMwritescreen IULB_months, 12, 74
+		TRANSMIT
+	END IF
+	IF resolution_status = "CA Excess Assets" THEN EMWriteScreen "Excess Assets. " & other_notes, 8, 6
+	IF resolution_status = "CI Benefit Increase" THEN EMWriteScreen "Benefit Increase. " & other_notes, 8, 6
+	IF resolution_status = "CP Applicant Only Savings" THEN EMWriteScreen "Applicant Only Savings. " & other_notes, 8, 6
+	IF resolution_status = "BC Case Closed" THEN EMWriteScreen "Case closed. " & other_notes, 8, 6
+	IF resolution_status = "BE Child" THEN EMWriteScreen "No change, minor child income excluded. " & other_notes, 8, 6
+	IF resolution_status = "BE No Change" THEN EMWriteScreen "No change. " & other_notes, 8, 6
+	IF resolution_status = "BE OP Entered" THEN EMWriteScreen "OP entered other programs. " & other_notes, 8, 6
+	IF resolution_status = "BE NC Non-collectible" THEN EMWriteScreen "Non-Coop remains, but claim is non-collectible. ", 8, 6
+	IF resolution_status = "BI Interface Prob" THEN EMWriteScreen "Interface Problem. " & other_notes, 8, 6
+	IF resolution_status = "BN Already Knew No Savings" THEN EMWriteScreen "Already known - No savings. " & other_notes, 8, 6
+	IF resolution_status = "BP Wrong Person" THEN EMWriteScreen "Client name and wage earner name are different. " & other_notes, 8, 6
+	IF resolution_status = "BU Unable To Verify" THEN EMWriteScreen "Unable To Verify. " & other_notes, 8, 6
+	IF resolution_status = "BO Other" THEN EMWriteScreen "HC Claim entered. " & other_notes, 8, 6
+	IF resolution_status = "NC Non Cooperation" THEN EMWriteScreen "Non-coop, requested verf not in ECF, " & other_notes, 8, 6
+
 	'msgbox "did the notes input?"
 	TRANSMIT 'this will take us back to IEVP main menu'
 	'------------------------------------------------------------------back on the IEVP menu, making sure that the match cleared
@@ -521,50 +587,59 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	ELSE
 	  match_cleared = TRUE
 	END IF
-
+	'Updated IEVS_period to write into case note
   	IF match_type = "WAGE" THEN
-  	'Updated IEVS_periodto write into case note
   		IF select_quarter = 1 THEN IEVS_quarter = "1ST"
   		IF select_quarter = 2 THEN IEVS_quarter = "2ND"
   		IF select_quarter = 3 THEN IEVS_quarter = "3RD"
   		IF select_quarter = 4 THEN IEVS_quarter = "4TH"
   	END IF
 
-	IEVS_period = replace(IEVS_period, "/", " to ")
+	IEVS_period = trim(IEVS_period)
+	IF match_type <> "UBEN" THEN IEVS_period = replace(IEVS_period, "/", " to ")
+	IF match_type = "UBEN" THEN IEVS_period = replace(IEVS_period, "-", "/")
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 	PF3 'back to the DAIL'
    '----------------------------------------------------------------the case match CLEARED note
 	start_a_blank_case_note
-	IF resolution_status <> "NC - Non Cooperation" THEN
+	IF resolution_status <> "NC Non Cooperation" THEN
 		IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") CLEARED " & rez_status & "-----")
-		IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH (" & match_type_letter & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
-		IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH (" & match_type_letter & ") " & "(" & first_name & ") CLEARED " & rez_status & "-----")
+		IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") CLEARED " & rez_status & "-----")
+		IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") CLEARED " & rez_status & "-----")
 		CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
 		CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
 		CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
 		CALL write_variable_in_case_note ("----- ----- -----")
 		CALL write_bullet_and_variable_in_case_note("Date verification received in ECF", date_received)
-		IF resolution_status = "BC - Case Closed" THEN CALL write_variable_in_case_note("* Case closed. ")
-		IF resolution_status = "BE - Child" THEN
+		IF resolution_status = "CB Ovrpmt And Future Save" THEN CALL write_variable_in_case_note("* OP Claim entered and future savings.")
+		IF resolution_status = "CC Ovrpmt Only" THEN CALL write_variable_in_case_note("* OP Claim entered.")
+		IF resolution_status = "CF Future Save" THEN CALL write_variable_in_case_note("* Future Savings.")
+		IF resolution_status = "CA Excess Assets" THEN CALL write_variable_in_case_note("* Excess Assets.")
+		IF resolution_status = "CI Benefit Increase" THEN CALL write_variable_in_case_note("* Benefit Increase.")
+		IF resolution_status = "CP Applicant Only Savings" THEN CALL write_variable_in_case_note("* pplicant Only Savings.")
+		IF resolution_status = "BC Case Closed" THEN CALL write_variable_in_case_note("* Case closed.")
+		IF resolution_status = "BE Child" THEN
 			CALL write_variable_in_case_note("* Income is excluded for minor child in school.")
 			CALL write_bullet_and_variable_in_case_note("Expected graduation date", exp_grad_date)
 		END IF
-		IF resolution_status = "BE - OP Entered" THEN CALL write_variable_in_case_note("* Overpayments or savings were found related to this match.")
-		IF resolution_status = "BE - No Change" THEN CALL write_variable_in_case_note("* No Overpayments or savings were found related to this match.")
-		IF resolution_status = "BE - NC Non-collectible" THEN CALL write_variable_in_case_note("* No collectible overpayments or savings were found related to this match. Client is still non-coop.")
-		IF resolution_status = "BN - Already known, No Savings" THEN CALL write_variable_in_case_note("* Client reported income. Correct income is in JOBS/BUSI and budgeted.")
-		IF resolution_status = "BO - Other" THEN CALL write_variable_in_case_note("* HC Claim entered. ")
-		IF resolution_status = "BP - Wrong Person" THEN CALL write_variable_in_case_note("* Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
-		IF resolution_status = "CC - Claim Entered" THEN CALL write_variable_in_case_note("* Claim entered.")
+		IF resolution_status = "BE No Change" THEN CALL write_variable_in_case_note("* No Overpayments or savings were found related to this match.")
+		IF resolution_status = "BE OP Entered" THEN CALL write_variable_in_case_note("* Overpayments or savings were found related to this match.")
+		IF resolution_status = "BE NC Non-collectible" THEN CALL write_variable_in_case_note("* No collectible overpayments or savings were found related to this match. Client is still non-coop.")
+		IF resolution_status = "BI Interface Prob" THEN CALL write_variable_in_case_note("* Interface Problem.")
+		IF resolution_status = "BN Already Knew No Savings" THEN CALL write_variable_in_case_note("* Client reported income. Correct income is in JOBS/BUSI and budgeted.")
+		IF resolution_status = "BP Wrong Person" THEN CALL write_variable_in_case_note("* Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
+		IF resolution_status = "BU Unable To Verify" THEN CALL write_variable_in_case_note("* Unable to verify, due to:")
+		IF resolution_status = "BO Other" THEN CALL write_variable_in_case_note("* HC Claim entered.")
+
   		IF change_response <> "N/A" THEN CALL write_bullet_and_variable_in_case_note("Responded to Difference Notice", change_response)
   		CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
   		CALL write_variable_in_case_note("----- ----- ----- ----- -----")
   		CALL write_variable_in_case_note ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 		PF3
-	ELSEIF resolution_status = "NC - Non Cooperation" THEN   'Navigates to TIKL
+	ELSEIF resolution_status = "NC Non Cooperation" THEN   'Navigates to TIKL
 		IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") NON-COOPERATION-----")
-		IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH (" & match_type_letter & ") " & "(" & first_name & ") NON-COOPERATION-----")
-		IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH (" & match_type_letter & ") " & "(" & first_name & ") NON-COOPERATION-----")
+		IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") NON-COOPERATION-----")
+		IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") NON-COOPERATION-----")
 		CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
 		CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
 		CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
