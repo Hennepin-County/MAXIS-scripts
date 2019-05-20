@@ -56,8 +56,8 @@ FUNCTION write_variable_in_CCOL_note_test(variable)
     				EMReadScreen next_page_confirmation, 4, 19, 3
     				IF next_page_confirmation = "MORE" THEN
     					next_page = TRUE
-						'msgbox next_page
-    				'ELSE
+					'msgbox next_page
+    				ELSE
     					Do
     						EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
     						character_test = trim(character_test)
@@ -67,7 +67,7 @@ FUNCTION write_variable_in_CCOL_note_test(variable)
     					'check_we_went_to_next_page = trim(check_we_went_to_next_page)
     					'If check_we_went_to_next_page = "PLEASE PRESS PF3 TO EXIT OR PF7/PF8 TO SCROLLWHEN PAGE IS FILLED" Then
     						'noting_row = 4
-    				Else
+    				ELSE
 						next_page = FALSE
 						'msgbox next_page
 						noting_row = 5													'Resets this variable to 4 if we did not need a brand new note.
@@ -88,7 +88,7 @@ FUNCTION write_variable_in_CCOL_note_test(variable)
     			noting_col = 3
     		End if
     		'Writes the word and a space using EMWriteScreen
-    		EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
+    		'EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
     		'Increases noting_col the length of the word + 1 (for the space)
     		noting_col = noting_col + (len(word) + 1)
     	Next
@@ -117,8 +117,8 @@ function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
     				EMReadScreen next_page_confirmation, 4, 19, 3
 					IF next_page_confirmation = "MORE" THEN
 						next_page = TRUE
-						'msgbox next_page
-					'ELSE
+					'msgbox next_page
+					ELSE
 						Do
 							EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
 							character_test = trim(character_test)
@@ -129,7 +129,7 @@ function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
 						'If check_we_went_to_next_page = "PLEASE PRESS PF3 TO EXIT OR PF7/PF8 TO SCROLLWHEN PAGE IS FILLED" Then
 							'noting_row = 4
 						'END IF
-					Else
+					ELSE
 						next_page = FALSE
 						'msgbox next_page
 						noting_row = 5												'Resets this variable to 4 if we did not need a brand new note.
@@ -165,8 +165,7 @@ function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
     		End if
 
     		'Writes the word and a space using EMWriteScreen
-    		EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
-
+    		'EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
     		'Increases noting_col the length of the word + 1 (for the space)
     		noting_col = noting_col + (len(word) + 1)
     	Next
@@ -368,11 +367,10 @@ IF IEVS_type = "WAGE" or IEVS_type = "BEER" THEN
         income_source = income_source	'catch all variable
     END IF
 END IF
-
 discovery_date = date
 BeginDialog overpayment_dialog, 0, 0, 361, 280, "Match Cleared CC Claim Entered"
-  EditBox 60, 5, 40, 15, MAXIS_case_number
-  EditBox 140, 5, 20, 15, memb_number
+ EditBox 60, 5, 40, 15, MAXIS_case_number
+ EditBox 140, 5, 20, 15, memb_number
   EditBox 230, 5, 20, 15, OT_resp_memb
   DropListBox 310, 5, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
   EditBox 60, 25, 40, 15, discovery_date
@@ -497,137 +495,137 @@ Do
     LOOP UNTIL err_msg = ""
     CALL check_for_password_without_transmit(are_we_passworded_out)
 Loop until are_we_passworded_out = false
-	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
-    EmReadScreen panel_name, 4, 02, 52
-    IF panel_name <> "IULA" THEN
-        EmReadScreen back_panel_name, 4, 2, 52
-        If back_panel_name <> "IEVP" Then
-            CALL back_to_SELF
-            CALL navigate_to_MAXIS_screen("INFC" , "____")
-            CALL write_value_and_transmit("IEVP", 20, 71)
-            CALL write_value_and_transmit(SSN_number_read, 3, 63)
-        End If
-        CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
-    End If
-
-    EMWriteScreen "030", 12, 46
-
-    col = 57
-    Do
-        EMReadscreen action_header, 4, 11, col
-        If action_header <> "    " Then
-            If action_header = "ACTH" Then
-                EMWriteScreen "BE", 12, col+1
-            Else
-                EMWriteScreen "CC", 12, col+1
-            End If
-        End If
-            col = col + 6
-    Loop until action_header = "    "
-
-    TRANSMIT
-    '----------------------------------------------------------------------------------------writing the note on IULB
-    Call clear_line_of_text(8, 6)
-    EMReadScreen err_msg, 11, 24, 2
-    err_msg = trim(err_msg)
-    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-    If err_msg = "ACTION CODE" THEN script_end_procedure_with_error_report(err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
-    EMWriteScreen "Claim entered. See Case Note. ", 8, 6
-    Call clear_line_of_text(17, 9)
-    IF OP_program <> "HC" THEN  EMWriteScreen Claim_number, 17, 9
-    'need to check about adding for multiple claims'
-    'msgbox "did the notes input?"
-    TRANSMIT 'this will take us back to IEVP main menu'
-
-    EMReadScreen panel_name, 4, 02, 52
-    IF panel_name <> "IEVP" THEN 'msgbox "Script did not find IEVP."
-        CALL back_to_SELF
-        CALL navigate_to_MAXIS_screen("INFC" , "____")
-        CALL write_value_and_transmit("IEVP", 20, 71)
-        CALL write_value_and_transmit(SSN_number_read, 3, 63)
-    End If
-'------------------------------------------------------------------back on the IEVP menu, making sure that the match cleared
-    'msgbox panel_name
-    EMReadScreen days_pending, 5, row, 72
-    days_pending = trim(days_pending)
-    match_cleared = TRUE
-	IF IsNumeric(days_pending) = TRUE THEN match_cleared = FALSE
-	If match_cleared = FALSE Then
-    	confirm_cleared = MsgBox ("The script cannot identify that this match has cleared." & vbNewLine & vbNewLine & "Review IEVP and find the match that is being cleared with this run." &vbNewLine & " ** HAS THE MATCH BEEN CLEARED? **", vbQuestion + vbYesNo, "Confirm Match Cleared")
-    	IF confirm_cleared = vbYes Then match_cleared = TRUE
-		IF confirm_cleared = vbno Then
-			match_cleared = FALSE
-			script_end_procedure_with_error_report("This match did not clear in IEVP, please advise what may have happened.")
-		END IF
-	End If
-
-    IF IEVS_type = "WAGE" THEN
-    	IF select_quarter = 1 THEN IEVS_quarter = "1ST"
-    	IF select_quarter = 2 THEN IEVS_quarter = "2ND"
-     	IF select_quarter = 3 THEN IEVS_quarter = "3RD"
-     	IF select_quarter = 4 THEN IEVS_quarter = "4TH"
-    END IF
-    IEVS_period = replace(IEVS_period, "/", " to ")
-    Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
-    PF3 'back to the DAIL'
-    PF3
-
-    'Going to the MISC panel to add claim referral tracking information
-    Call navigate_to_MAXIS_screen ("STAT", "MISC")
-    Row = 6
-    EmReadScreen panel_number, 1, 02, 73
-    If panel_number = "0" then
-    	EMWriteScreen "NN", 20,79
-    	TRANSMIT
-		'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
-		EmReadScreen MISC_error_check,  74, 24, 02
-		IF trim(MISC_error_check) = "" THEN
-	        case_note_only = FALSE
-		else
-			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
-			IF maxis_error_check = vbYes THEN
-				case_note_only = TRUE 'this will case note only'
-			END IF
-			IF maxis_error_check= vbNo THEN
-				case_note_only = FALSE 'this will update the panels and case note'
-			END IF
-		END IF
-    ELSE
-		IF case_note_only = FALSE THEN
-			Do
-    			'Checking to see if the MISC panel is empty, if not it will find a new line'
-    			EmReadScreen MISC_description, 25, row, 30
-    			MISC_description = replace(MISC_description, "_", "")
-    			If trim(MISC_description) = "" then
-    				'PF9
-    				EXIT DO
-    			Else
-    				row = row + 1
-    			End if
-    		Loop Until row = 17
-    		If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-    	End if
-		'writing in the action taken and date to the MISC panel
-		PF9
-		EMWriteScreen "Claim Determination", Row, 30
-		EMWriteScreen date, Row, 66
-		PF3
-	END IF 'checking to make sure maxis case is active'
-
-    start_a_blank_case_note
-    Call write_variable_in_case_note("-----Claim Referral Tracking-----")
-	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
-    Call write_bullet_and_variable_in_case_note("Program(s)", programs)
-    Call write_bullet_and_variable_in_case_note("Action Date", date)
-    Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
-    Call write_variable_in_case_note("-----")
-    Call write_variable_in_case_note(worker_signature)
-	PF3
-	IF ATR_needed_checkbox= CHECKED THEN header_note = "ATR/EVF STILL REQUIRED"
+'	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
+'    EmReadScreen panel_name, 4, 02, 52
+'    IF panel_name <> "IULA" THEN
+'        EmReadScreen back_panel_name, 4, 2, 52
+'        If back_panel_name <> "IEVP" Then
+'            CALL back_to_SELF
+'            CALL navigate_to_MAXIS_screen("INFC" , "____")
+'            CALL write_value_and_transmit("IEVP", 20, 71)
+'            CALL write_value_and_transmit(SSN_number_read, 3, 63)
+'        End If
+'        CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
+'    End If
+'
+'    EMWriteScreen "030", 12, 46
+'
+'    col = 57
+'    Do
+'        EMReadscreen action_header, 4, 11, col
+'        If action_header <> "    " Then
+'            If action_header = "ACTH" Then
+'                EMWriteScreen "BE", 12, col+1
+'            Else
+'                EMWriteScreen "CC", 12, col+1
+'            End If
+'        End If
+'            col = col + 6
+'    Loop until action_header = "    "
+'
+'    TRANSMIT
+'    '----------------------------------------------------------------------------------------writing the note on IULB
+'    Call clear_line_of_text(8, 6)
+'    EMReadScreen err_msg, 11, 24, 2
+'    err_msg = trim(err_msg)
+'    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+'    If err_msg = "ACTION CODE" THEN script_end_procedure_with_error_report(err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
+'    EMWriteScreen "Claim entered. See Case Note. ", 8, 6
+'    Call clear_line_of_text(17, 9)
+'    IF OP_program <> "HC" THEN  EMWriteScreen Claim_number, 17, 9
+'    'need to check about adding for multiple claims'
+'    'msgbox "did the notes input?"
+'    TRANSMIT 'this will take us back to IEVP main menu'
+'
+'    EMReadScreen panel_name, 4, 02, 52
+'    IF panel_name <> "IEVP" THEN 'msgbox "Script did not find IEVP."
+'        CALL back_to_SELF
+'        CALL navigate_to_MAXIS_screen("INFC" , "____")
+'        CALL write_value_and_transmit("IEVP", 20, 71)
+'        CALL write_value_and_transmit(SSN_number_read, 3, 63)
+'    End If
+''------------------------------------------------------------------back on the IEVP menu, making sure that the match cleared
+'    'msgbox panel_name
+'    EMReadScreen days_pending, 5, row, 72
+'    days_pending = trim(days_pending)
+'    match_cleared = TRUE
+'	IF IsNumeric(days_pending) = TRUE THEN match_cleared = FALSE
+'	If match_cleared = FALSE Then
+'    	confirm_cleared = MsgBox ("The script cannot identify that this match has cleared." & vbNewLine & vbNewLine & "Review IEVP and find the match that is being cleared with this run." &vbNewLine & " ** HAS THE MATCH BEEN CLEARED? **", vbQuestion + vbYesNo, "Confirm Match Cleared")
+'    	IF confirm_cleared = vbYes Then match_cleared = TRUE
+'		IF confirm_cleared = vbno Then
+'			match_cleared = FALSE
+'			script_end_procedure_with_error_report("This match did not clear in IEVP, please advise what may have happened.")
+'		END IF
+'	End If
+'
+'    IF IEVS_type = "WAGE" THEN
+'    	IF select_quarter = 1 THEN IEVS_quarter = "1ST"
+'    	IF select_quarter = 2 THEN IEVS_quarter = "2ND"
+'     	IF select_quarter = 3 THEN IEVS_quarter = "3RD"
+'     	IF select_quarter = 4 THEN IEVS_quarter = "4TH"
+'    END IF
+'    IEVS_period = replace(IEVS_period, "/", " to ")
+'    Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
+'    PF3 'back to the DAIL'
+'    PF3
+'
+'    'Going to the MISC panel to add claim referral tracking information
+'    Call navigate_to_MAXIS_screen ("STAT", "MISC")
+'    Row = 6
+'    EmReadScreen panel_number, 1, 02, 73
+'    If panel_number = "0" then
+'    	EMWriteScreen "NN", 20,79
+'    	TRANSMIT
+'		'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
+'		EmReadScreen MISC_error_check,  74, 24, 02
+'		IF trim(MISC_error_check) = "" THEN
+'	        case_note_only = FALSE
+'		else
+'			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
+'			IF maxis_error_check = vbYes THEN
+'				case_note_only = TRUE 'this will case note only'
+'			END IF
+'			IF maxis_error_check= vbNo THEN
+'				case_note_only = FALSE 'this will update the panels and case note'
+'			END IF
+'		END IF
+'    ELSE
+'		IF case_note_only = FALSE THEN
+'			Do
+'    			'Checking to see if the MISC panel is empty, if not it will find a new line'
+'    			EmReadScreen MISC_description, 25, row, 30
+'    			MISC_description = replace(MISC_description, "_", "")
+'    			If trim(MISC_description) = "" then
+'    				'PF9
+'    				EXIT DO
+'    			Else
+'    				row = row + 1
+'    			End if
+'    		Loop Until row = 17
+'    		If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+'    	End if
+'		'writing in the action taken and date to the MISC panel
+'		PF9
+'		EMWriteScreen "Claim Determination", Row, 30
+'		EMWriteScreen date, Row, 66
+'		PF3
+'	END IF 'checking to make sure maxis case is active'
+'
+'    start_a_blank_case_note
+'    Call write_variable_in_case_note("-----Claim Referral Tracking-----")
+'	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
+'    Call write_bullet_and_variable_in_case_note("Program(s)", programs)
+'    Call write_bullet_and_variable_in_case_note("Action Date", date)
+'    Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
+'    Call write_variable_in_case_note("-----")
+'    Call write_variable_in_case_note(worker_signature)
+'	PF3
+'	IF ATR_needed_checkbox= CHECKED THEN header_note = "ATR/EVF STILL REQUIRED"
 '-----------------------------------------------------------------------------------------CASENOTE
     start_a_blank_case_note
     IF IEVS_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
-    IF IEVS_type = "BEER" IEVS_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
+    IF IEVS_type = "BEER" or IEVS_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
     IF IEVS_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
     'IF IEVS_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
     CALL write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
@@ -670,7 +668,6 @@ Loop until are_we_passworded_out = false
     CALL write_variable_in_case_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
     PF3 'to save casenote'
 
-
 	IF HC_claim_number <> "" THEN
 		EmWriteScreen "x", 5, 3
 		Transmit
@@ -710,10 +707,9 @@ Loop until are_we_passworded_out = false
 		PF9
 	END IF
 
-	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CCOL_note_test("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+    IF IEVS_type = "WAGE" THEN CALL write_variable_in_CCOL_note_test("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
     IF IEVS_type = "BEER" or IEVS_type = "UNVI" THEN CALL write_variable_in_CCOL_NOTE_test("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
     IF IEVS_type = "UBEN" THEN CALL write_variable_in_CCOL_NOTE_test("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-    'IF IEVS_type = "UNVI" THEN CALL write_variable_in_CCOL_NOTE_test("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
     CALL write_bullet_and_variable_in_CCOL_NOTE_test("Discovery date", discovery_date)
     CALL write_bullet_and_variable_in_CCOL_NOTE_test("Period", IEVS_period)
     CALL write_bullet_and_variable_in_CCOL_NOTE_test("Active Programs", programs)
@@ -751,8 +747,6 @@ Loop until are_we_passworded_out = false
     CALL write_bullet_and_variable_in_CCOL_NOTE_test("Other responsible member(s)", OT_resp_memb)
     CALL write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- ----- ----- -----")
     CALL write_variable_in_CCOL_NOTE_test("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-	PF3
-	PF3
-'END IF
-
+    PF3
+	'PF3
 script_end_procedure_with_error_report("Overpayment case note entered and copied to CCOL, please review the case to make sure the notes updated correctly." & vbcr & next_page)
