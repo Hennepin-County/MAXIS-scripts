@@ -308,20 +308,6 @@ script_array_BZ_list(script_num).script_name		= "Get basket number"													
 script_array_BZ_list(script_num).file_name			= "get-basket-number.vbs"												'Script URL
 script_array_BZ_list(script_num).description		= "BULK script that will obtain the basket number and population."
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_BZ_list(script_num).script_name		= "Individual Recertification Notices"													'Script name
-script_array_BZ_list(script_num).file_name			= "individual-recertification-notices.vbs"												'Script URL
-script_array_BZ_list(script_num).description		= "NOTICES Script that will send ODW Recert Appointment Letter or NOMI on a single case."
-
-script_num = script_num + 1							'Increment by one
-ReDim Preserve script_array_BZ_list(script_num)		 'Resets the array to add one more element to it
-Set script_array_BZ_list(script_num) = new script	 'Set this array element to be a new script. Script details below...
-script_array_BZ_list(script_num).script_name		 = "On Demand Waiver - Recertifications"													'Script name
-script_array_BZ_list(script_num).file_name			 = "bulk-recertifications.vbs"												'Script URL
-script_array_BZ_list(script_num).description		 = "BULK script to send notices for cases at recertification that require an interview for the On Demand Waiver."
-
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
@@ -371,6 +357,10 @@ Set script_array_task_list(script_num) = new script	'Set this array element to b
 script_array_task_list(script_num).script_name		= "MAXIS to METS Conversion"													'Script name
 script_array_task_list(script_num).file_name		= "maxis-to-mets-conversion.vbs"												'Script URL
 script_array_task_list(script_num).description		= "BULK script to collect case information for cases that may need to convert from MAXIS to METS."
+
+script_num = script_num + 1							'Increment by one
+script_array_task_list(script_num).script_name		 = "On Demand Waiver - Recertifications"													'Script name
+script_array_task_list(script_num).description		 = "BULK script to send notices for cases at recertification that require an interview for the On Demand Waiver."
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_task_list(script_num)	'Resets the array to add one more element to it
