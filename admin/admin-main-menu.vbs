@@ -80,8 +80,9 @@ Function declare_admin_menu_dialog(script_array)
     Text 5, 5, 516, 300, "Admin scripts main menu: select the script to run from the choices below."
     ButtonGroup ButtonPressed
 		 	PushButton 015, 35, 30, 15, "ADMIN", 			admin_main_button
-		 	If show_QI_button = True then PushButton 045, 35, 30, 15, "QI", 			  QI_button
-            If show_BZ_button = TRUE Then PushButton 075, 35, 30, 15, "BZ",               BZ_button
+		 	If show_QI_button = True then PushButton 045, 35, 30, 15, "QI", 			    QI_button
+            If show_BZ_button = TRUE Then PushButton 075, 35, 30, 15, "BZ",                 BZ_button
+            If show_tasks_button = TRUE Then PushButton 105, 35, 50, 15, " Monthly Tasks ", tasks_button
 		'This starts here, but it shouldn't end here :)
 		vert_button_position = 70
 
@@ -99,7 +100,7 @@ Function declare_admin_menu_dialog(script_array)
 
 		CancelButton 455, 300, 50, 15
         If show_BZ_button = TRUE Then
-		    GroupBox 5, 20, 115, 35, "Admin Sub-Menus"
+		    GroupBox 5, 20, 155, 35, "Admin Sub-Menus"
         Else
             GroupBox 5, 20, 100, 35, "Admin Sub-Menus"
         End If
@@ -112,17 +113,23 @@ End function
 'Declaring the variable names to cut down on the number of arguments that need to be passed through the function.
 DIM ButtonPressed
 'DIM SIR_instructions_button
-dim admin_dialog
+Dim admin_dialog
+'Dim script_array_admin_main
+'Dim script_array_QI_list
+'Dim script_array_BZ_list 
+'Dim script_array_task_list 
 
 script_array_admin_main = array()
 script_array_QI_list = array()
 script_array_BZ_list = array()
+script_array_task_list = array()
+
 'END VARIABLES TO DECLARE===================================================================================================
 
 'LIST OF SCRIPTS================================================================================================================
 'INSTRUCTIONS: simply add your new script below. Scripts are listed in alphabetical order. Copy a block of code from above and paste your script info in. The function does the rest.
-'-------------------------------------------------------------------------------------------------------------------------admin MAIN MENU
 
+'ADMIN scripts-------------------------------------------------------------------------------------------------------------------------
 'Resetting the variable
 script_num = 0
 ReDim Preserve script_array_admin_main(script_num)
@@ -215,7 +222,7 @@ script_array_admin_main(script_num).script_name			= "WF1 Case Status"											
 script_array_admin_main(script_num).file_name			= "wf1-case-status.vbs"												'Script URL
 script_array_admin_main(script_num).description			= "Updates a list of cases from Excel with current case and ABAWD status information."
 
-'----------------------------------------------------------------------------------------------------QI array
+'QI scripts----------------------------------------------------------------------------------------------------
 script_num = 0
 ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
 Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
@@ -236,13 +243,6 @@ Set script_array_QI_list(script_num) = new script
 script_array_QI_list(script_num).script_name 		= "Budget Estimator"											'Script name
 script_array_QI_list(script_num).file_name 			= "budget-estimator.vbs"										'Script URL
 script_array_QI_list(script_num).description 		= "UTILITIES script that can be used to calculate an expected budget outside of MAXIS."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
-Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_QI_list(script_num).script_name		= "Inactive Transfer"													'Script name
-script_array_QI_list(script_num).file_name			= "bulk-inactive-transfer.vbs"												'Script URL
-script_array_QI_list(script_num).description		= "Script to transfer inactive cases via SPEC/XFER"
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
@@ -268,13 +268,6 @@ script_array_QI_list(script_num).description		 = "BULK script to collect informa
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
 Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_QI_list(script_num).script_name		= "Paperless IR"                                                       'Script name
-script_array_QI_list(script_num).file_name			= "new-paperless-ir.vbs"                                                     'Script URL
-script_array_QI_list(script_num).description		= "Updates cases on a caseload(s) that require paperless IR processing. Does not approve cases."
-
-script_num = script_num + 1							'Increment by one
-ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
-Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_QI_list(script_num).script_name		= "QI Renewal Accuracy"                                              'Script name
 script_array_QI_list(script_num).file_name			= "qi-renewal-accuracy.vbs"                                          'Script URL
 script_array_QI_list(script_num).description		= "Template for documenting specific renewal information that has been reviewed by policy experts."
@@ -286,29 +279,8 @@ script_array_QI_list(script_num).script_name		= "Targeted SNAP Review Selection"
 script_array_QI_list(script_num).file_name			= "targeted-snap-review-selection.vbs"
 script_array_QI_list(script_num).description		= "Creates a list of SNAP cases meeting review criteria and selects a random sample for review."
 
-'----------------------------------------------------------------------------------------------------BZ array
+'BZST scripts----------------------------------------------------------------------------------------------------
 script_num = 0
-ReDim Preserve script_array_BZ_list(script_num)
-Set script_array_BZ_list(script_num) = new script
-script_array_BZ_list(script_num).script_name 		= " ABAWD Report "											'Script name
-script_array_BZ_list(script_num).file_name 			= "abawd-report.vbs"										'Script URL
-script_array_BZ_list(script_num).description 		= "BULK script that gathers ABAWD/FSET codes for members on SNAP/MFIP active cases."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BZ_list(script_num)
-Set script_array_BZ_list(script_num) = new script
-script_array_BZ_list(script_num).script_name 		= "Auto-Dialer Case Status"											'Script name
-script_array_BZ_list(script_num).file_name 			= "auto-dialer-case-status.vbs"										'Script URL
-script_array_BZ_list(script_num).description 		= "BULK script that gathers case status for cases with recerts for SNAP/MFIP the previous month."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_BZ_list(script_num).script_name		= "Close GRH Rate 2 in MMIS"													'Script name
-script_array_BZ_list(script_num).file_name			= "close-GRH-rate-2-in-MMIS.vbs"												'Script URL
-script_array_BZ_list(script_num).description		= "Script to assist in closing SSR agreements in MMIS for GRH Rate 2 cases."
-
-script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_BZ_list(script_num).script_name		= "COLA Decimator"													'Script name
@@ -332,13 +304,6 @@ script_array_BZ_list(script_num).description		= "BULK script that deletes specif
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_BZ_list(script_num).script_name		= "DISA Dr. PEPR"													'Script name
-script_array_BZ_list(script_num).file_name			= "disa-dr-pepr.vbs"												'Script URL
-script_array_BZ_list(script_num).description		= "Adds additional information to an existing list of cases applicable to DAIL PEPR DAILS."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_BZ_list(script_num).script_name		= "Get basket number"													'Script name
 script_array_BZ_list(script_num).file_name			= "get-basket-number.vbs"												'Script URL
 script_array_BZ_list(script_num).description		= "BULK script that will obtain the basket number and population."
@@ -350,20 +315,6 @@ script_array_BZ_list(script_num).script_name		= "Individual Recertification Noti
 script_array_BZ_list(script_num).file_name			= "individual-recertification-notices.vbs"												'Script URL
 script_array_BZ_list(script_num).description		= "NOTICES Script that will send ODW Recert Appointment Letter or NOMI on a single case."
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_BZ_list(script_num).script_name		= "Interview Required"													'Script name
-script_array_BZ_list(script_num).file_name			= "interview-required.vbs"												'Script URL
-script_array_BZ_list(script_num).description		= "BULK script to collect case information for cases that require an interview for SNAP/MFIP."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_BZ_list(script_num).script_name		= "MAXIS to METS Conversion"													'Script name
-script_array_BZ_list(script_num).file_name			= "maxis-to-mets-conversion.vbs"												'Script URL
-script_array_BZ_list(script_num).description		= "BULK script to collect case information for cases that may need to convert from MAXIS to METS."
-
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_BZ_list(script_num)		 'Resets the array to add one more element to it
 Set script_array_BZ_list(script_num) = new script	 'Set this array element to be a new script. Script details below...
@@ -372,56 +323,107 @@ script_array_BZ_list(script_num).file_name			 = "bulk-recertifications.vbs"					
 script_array_BZ_list(script_num).description		 = "BULK script to send notices for cases at recertification that require an interview for the On Demand Waiver."
 
 script_num = script_num + 1							'Increment by one
-ReDim Preserve script_array_BZ_list(script_num)		 'Resets the array to add one more element to it
-Set script_array_BZ_list(script_num) = new script	 'Set this array element to be a new script. Script details below...
-script_array_BZ_list(script_num).script_name		 = " Resolve HC EOMC in MMIS "													'Script name
-script_array_BZ_list(script_num).file_name			 = "resolve-hc-eomc-in-mmis.vbs"												'Script URL
-script_array_BZ_list(script_num).description		 = "BULK script that checks MMIS for all cases on EOMC for HC to ensure MMIS is set to close."
-
-script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_BZ_list(script_num).script_name		= "Send CBO Manual Referrals"										'Script name
 script_array_BZ_list(script_num).file_name			= "send-cbo-manual-referrals.vbs"									'Script URL
 script_array_BZ_list(script_num).description		= "Sends manual referrals for a list of cases provided by Employment and Training."
 
+'MONTHLY TASKS scripts----------------------------------------------------------------------------------------------------
+script_num = 0                                     
+ReDim Preserve script_array_task_list(script_num)   'Resets the array to add one more element to it
+Set script_array_task_list(script_num) = new script 'Set this array element to be a new script. Script details below...
+script_array_task_list(script_num).script_name 		= " ABAWD Report "											'Script name
+script_array_task_list(script_num).file_name 		= "abawd-report.vbs"										'Script URL
+script_array_task_list(script_num).description 		= "BULK script that gathers ABAWD/FSET codes for members on SNAP/MFIP active cases."
+
 script_num = script_num + 1							'Increment by one
-ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
-Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_BZ_list(script_num).script_name		= "UNEA Updater"										'Script name
-script_array_BZ_list(script_num).file_name			= "unea-updater.vbs"									'Script URL
-script_array_BZ_list(script_num).description		= "BULK script that updates UNEA information and sends SPEC/MEMO for VA cases at ER."
+ReDim Preserve script_array_task_list(script_num)   'Resets the array to add one more element to it
+Set script_array_task_list(script_num) = new script 'Set this array element to be a new script. Script details below...
+script_array_task_list(script_num).script_name 		= "Auto-Dialer Case Status"											'Script name
+script_array_task_list(script_num).file_name 		= "auto-dialer-case-status.vbs"										'Script URL
+script_array_task_list(script_num).description 		= "BULK script that gathers case status for cases with recerts for SNAP/MFIP the previous month."
 
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array_task_list(script_num)	'Resets the array to add one more element to it
+Set script_array_task_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_task_list(script_num).script_name		= "Close GRH Rate 2 in MMIS"													'Script name
+script_array_task_list(script_num).file_name		= "close-GRH-rate-2-in-MMIS.vbs"												'Script URL
+script_array_task_list(script_num).description		= "Script to assist in closing SSR agreements in MMIS for GRH Rate 2 cases."
 
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array_task_list(script_num)	'Resets the array to add one more element to it
+Set script_array_task_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_task_list(script_num).script_name		= "Inactive Transfer"													'Script name
+script_array_task_list(script_num).file_name		= "bulk-inactive-transfer.vbs"												'Script URL
+script_array_task_list(script_num).description		= "Script to transfer inactive cases via SPEC/XFER"
 
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array_task_list(script_num)	'Resets the array to add one more element to it
+Set script_array_task_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_task_list(script_num).script_name		= "Interview Required"													'Script name
+script_array_task_list(script_num).file_name		= "interview-required.vbs"												'Script URL
+script_array_task_list(script_num).description		= "BULK script to collect case information for cases that require an interview for SNAP/MFIP."
 
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array_task_list(script_num)	'Resets the array to add one more element to it
+Set script_array_task_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_task_list(script_num).script_name		= "MAXIS to METS Conversion"													'Script name
+script_array_task_list(script_num).file_name		= "maxis-to-mets-conversion.vbs"												'Script URL
+script_array_task_list(script_num).description		= "BULK script to collect case information for cases that may need to convert from MAXIS to METS."
 
-'script_num = script_num + 1								'Increment by one
-'ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
-'Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
-'script_array_admin_main(script_num).script_name			= "Pull Cases Into Excel"											'Script name
-'script_array_admin_main(script_num).file_name			= "pull-cases-into-excel.vbs"										'Script URL
-'script_array_admin_main(script_num).description			= "Creates a list of information not available in other BULK scripts."
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array_task_list(script_num)	'Resets the array to add one more element to it
+Set script_array_task_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_task_list(script_num).script_name		= "Paperless IR"                                                       'Script name
+script_array_task_list(script_num).file_name		= "new-paperless-ir.vbs"                                                     'Script URL
+script_array_task_list(script_num).description		= "Updates cases on a caseload(s) that require paperless IR processing. Does not approve cases."
+
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array_task_list(script_num)   'Resets the array to add one more element to it
+Set script_array_task_list(script_num) = new script	 'Set this array element to be a new script. Script details below...
+script_array_task_list(script_num).script_name		 = " Resolve HC EOMC in MMIS "													'Script name
+script_array_task_list(script_num).file_name		 = "resolve-hc-eomc-in-mmis.vbs"												'Script URL
+script_array_task_list(script_num).description		 = "BULK script that checks MMIS for all cases on EOMC for HC to ensure MMIS is set to close."
+
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array_task_list(script_num)	'Resets the array to add one more element to it
+Set script_array_task_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_task_list(script_num).script_name		= " REVW/MONT Closures "													'Script name
+script_array_task_list(script_num).file_name		= "revw-mont-closures.vbs"												'Script URL
+script_array_task_list(script_num).description		= "Case notes all cases on REPT/REVW or REPT/MONT that are closing for missing or incomplete CAF/HRF/CSR/HC ER."
+
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array_task_list(script_num)	'Resets the array to add one more element to it
+Set script_array_task_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_task_list(script_num).script_name		= "UNEA Updater"										'Script name
+script_array_task_list(script_num).file_name		= "unea-updater.vbs"									'Script URL
+script_array_task_list(script_num).description		= "BULK script that updates UNEA information and sends SPEC/MEMO for VA cases at ER."
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
-'	We're doing this because we want to assign a value to each button pressed, and we want
-'	that value to change with each button. The button_placeholder will be placed in the .button
-'	property for each script item. This allows it to both escape the Function and resize
-'	near infinitely. We use dummy numbers for the other selector buttons for much the same reason,
-'	to force the value of ButtonPressed to hold in near infinite iterations.
+'We're doing this because we want to assign a value to each button pressed, and we want
+'that value to change with each button. The button_placeholder will be placed in the .button
+'property for each script item. This allows it to both escape the Function and resize
+'near infinitely. We use dummy numbers for the other selector buttons for much the same reason,
+'to force the value of ButtonPressed to hold in near infinite iterations.
+
 button_placeholder 	= 24601
 admin_main_button	= 1000
 QI_button	        = 2000
 BZ_button           = 3000
+tasks_button        = 4000
 
-show_BZ_button = FALSE
+show_QI_button = False 
+show_BZ_button = False 
+show_tasks_button = False 
 
 'Displays the dialog
 Do
     'BZST scripts menu authorization
     If user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "WFS395" OR user_ID_for_validation = "CALO001" OR user_ID_for_validation = "WFX901" OR user_ID_for_validation = "WFU851" then
-        show_BZ_button = TRUE
+        show_BZ_button = True 
         show_QI_button = True
+        show_tasks_button = True 
     End if
     'QI scripts menu authorization
     If user_ID_for_validation = "WFI021" OR user_ID_for_validation = "WFU161" OR user_ID_for_validation = "WF7638" OR user_ID_for_validation = "WFP106" OR user_ID_for_validation = "WFQ898" OR user_ID_for_validation = "WFK093" OR _
@@ -433,6 +435,8 @@ Do
         If show_QI_button = True then declare_admin_menu_dialog(script_array_QI_list)
     elseif ButtonPressed = BZ_button then
         If show_BZ_button = True then declare_admin_menu_dialog(script_array_BZ_list)
+    elseif ButtonPressed = tasks_button then
+        If show_tasks_button = True then declare_admin_menu_dialog(script_array_task_list) 
     end if
 
     dialog admin_dialog
@@ -442,7 +446,8 @@ Do
 	'IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notices%20scripts.aspx")
 Loop until ButtonPressed <> admin_main_button and _
 			ButtonPressed <> QI_button and _
-            ButtonPressed <> BZ_button
+            ButtonPressed <> BZ_button and _
+            ButtonPressed <> tasks_button
 
 'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
 For i = 0 to ubound(script_array_admin_main)
@@ -455,6 +460,10 @@ Next
 
 For i = 0 to ubound(script_array_BZ_list)
 	If ButtonPressed = script_array_BZ_list(i).button then call run_from_GitHub(script_repository & "admin/" & script_array_BZ_list(i).file_name)
+Next
+
+For i = 0 to ubound(script_array_task_list)
+	If ButtonPressed = script_array_task_list(i).button then call run_from_GitHub(script_repository & "admin/" & script_array_task_list(i).file_name)
 Next
 
 stopscript
