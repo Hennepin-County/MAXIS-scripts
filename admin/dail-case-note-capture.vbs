@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/20/2019", "Removed output of all actionable DAIL messages to end of script run. Default all workers checkbox to checked.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/16/2019", "Added output of all actionable DAIL messages to end of script run.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/14/2018", "Updated DAIL selection to INFO only to reduce run time.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/31/2018", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -82,6 +83,7 @@ EndDialog
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 dail_to_decimate = "INFO"    'defaults to all. Some x-numbers don't select the DAIL hence the default. 
+all_workers_check = 1   'checked 
 
 'the dialog
 Do
@@ -121,7 +123,7 @@ Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Changes name of Excel sheet to "DAIL List"
-ObjExcel.ActiveSheet.Name = "Deleted DAILS - COLA and INFO"
+ObjExcel.ActiveSheet.Name = "Deleted DAILS - INFO"
 
 'Excel headers and formatting the columns
 objExcel.Cells(1, 1).Value = "X NUMBER"
@@ -131,7 +133,7 @@ objExcel.Cells(1, 4).Value = "DAIL MO."
 objExcel.Cells(1, 5).Value = "DAIL MESSAGE" 
 objExcel.Cells(1, 6).Value = "DAIL NOTES" 
 
-FOR i = 1 to 5		'formatting the cells'
+FOR i = 1 to 6		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -331,40 +333,40 @@ FOR i = 1 to 8
 	objExcel.Columns(i).AutoFit()
 NEXT
 
-'Adding another sheet
-ObjExcel.Worksheets.Add().Name = "Remaining DAIL messages"
-
-excel_row = 2
-'Excel headers and formatting the columns
-objExcel.Cells(1, 1).Value = "X NUMBER"
-objExcel.Cells(1, 2).Value = "CASE #"
-objExcel.Cells(1, 3).Value = "DAIL TYPE"
-objExcel.Cells(1, 4).Value = "DAIL MO."
-objExcel.Cells(1, 5).Value = "DAIL MESSAGE"
-
-FOR i = 1 to 5		'formatting the cells'
-	objExcel.Cells(1, i).Font.Bold = True		'bold font'
-	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
-	objExcel.Columns(i).AutoFit()				'sizing the columns'
-NEXT
-
-'Export informaiton to Excel re: case status
-For item = 0 to UBound(DAIL_array, 2)
-	objExcel.Cells(excel_row, 1).Value = DAIL_array(worker_const, item)
-	objExcel.Cells(excel_row, 2).Value = DAIL_array(maxis_case_number_const, item)
-    objExcel.Cells(excel_row, 3).Value = DAIL_array(dail_type_const, item)
-	objExcel.Cells(excel_row, 4).Value = DAIL_array(dail_month_const, item)
-    objExcel.Cells(excel_row, 5).Value = DAIL_array(dail_msg_const, item)
-	excel_row = excel_row + 1
-Next 
-
-objExcel.Cells(1, 7).Value = "Remaning DAIL messages:"
-objExcel.Columns(7).Font.Bold = true
-objExcel.Cells(1, 8).Value = DAIL_count
-
-'formatting the cells
-FOR i = 1 to 8
-	objExcel.Columns(i).AutoFit()				'sizing the columns
-NEXT
+''Adding another sheet
+'ObjExcel.Worksheets.Add().Name = "Remaining DAIL messages"
+'
+'excel_row = 2
+''Excel headers and formatting the columns
+'objExcel.Cells(1, 1).Value = "X NUMBER"
+'objExcel.Cells(1, 2).Value = "CASE #"
+'objExcel.Cells(1, 3).Value = "DAIL TYPE"
+'objExcel.Cells(1, 4).Value = "DAIL MO."
+'objExcel.Cells(1, 5).Value = "DAIL MESSAGE"
+'
+'FOR i = 1 to 6		'formatting the cells'
+'	objExcel.Cells(1, i).Font.Bold = True		'bold font'
+'	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+'	objExcel.Columns(i).AutoFit()				'sizing the columns'
+'NEXT
+'
+''Export informaiton to Excel re: case status
+'For item = 0 to UBound(DAIL_array, 2)
+'	objExcel.Cells(excel_row, 1).Value = DAIL_array(worker_const, item)
+'	objExcel.Cells(excel_row, 2).Value = DAIL_array(maxis_case_number_const, item)
+'    objExcel.Cells(excel_row, 3).Value = DAIL_array(dail_type_const, item)
+'	objExcel.Cells(excel_row, 4).Value = DAIL_array(dail_month_const, item)
+'    objExcel.Cells(excel_row, 5).Value = DAIL_array(dail_msg_const, item)
+'	excel_row = excel_row + 1
+'Next 
+'
+'objExcel.Cells(1, 7).Value = "Remaning DAIL messages:"
+'objExcel.Columns(7).Font.Bold = true
+'objExcel.Cells(1, 8).Value = DAIL_count
+'
+''formatting the cells
+'FOR i = 1 to 8
+'	objExcel.Columns(i).AutoFit()				'sizing the columns
+'NEXT
 
 script_end_procedure("Success! Please review the list created for accuracy.")
