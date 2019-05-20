@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/06/2019", "Moved the following scripts to speciality menu ADMIN: REVW-MONT CLOSURE. This script will be run by the QI team on a monthly basis for the whole agency.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/29/2019", "Moved the following scripts to speciality menu ADMIN: Drug Felon List, MEMO From List and Targeted SNAP Review Selection.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/29/2019", "Moved the following scripts to specialty menu DEU: REPT - IEVC and REPT - INTR.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/29/2019", "Retired the following BULK scripts: CEI premium noter, Housing Grant Exemption Finder, INAC scrubber, NON-MAGI HC Info, REPT-ARST, Returned Mail, Spenddown Report, SWKR List Generator, TIKL From List and Update EOMC List. ", "Ilse Ferris, Hennepin County")
@@ -113,13 +114,6 @@ Set script_array_BULK_main(script_num) = new script		'Set this array element to 
 script_array_BULK_main(script_num).script_name 			= "Case Transfer"																		'Script name
 script_array_BULK_main(script_num).file_name 			= "case-transfer.vbs"																	'Script URL
 script_array_BULK_main(script_num).description 			= "Searches caseload(s) by selected parameters. Transfers a specified number of those cases to another worker. Creates list of these cases."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_BULK_main(script_num)		'Resets the array to add one more element to it
-Set script_array_BULK_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_BULK_main(script_num).script_name			= " REVW/MONT Closures "													'needs spaces to generate button width properly.
-script_array_BULK_main(script_num).file_name			= "revw-mont-closures.vbs"
-script_array_BULK_main(script_num).description			= "Case notes all cases on REPT/REVW or REPT/MONT that are closing for missing or incomplete CAF/HRF/CSR/HC ER."
 
 '-------------------------------------------------------------------------------------------------------------------------ENHANCED LISTS
 'Resetting the variable
