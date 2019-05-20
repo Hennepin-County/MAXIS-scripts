@@ -631,10 +631,6 @@ Loop until are_we_passworded_out = false
     IF IEVS_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_month & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
     IF IEVS_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
     CALL write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
-
-
-	
-	CALL write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
     CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
     CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
     CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
@@ -694,7 +690,8 @@ Loop until are_we_passworded_out = false
 				End If
 		Loop until next_page = "More:  " OR next_page = "       "	'No more pages
 		'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-	CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
+		CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
+	END IF
 '---------------------------------------------------------------writing the CCOL case note'
 	msgbox "Navigating to CCOL to add case note, please contact the BlueZone Scripts team with any concerns."
 	Call navigate_to_MAXIS_screen("CCOL", "CLSM")
@@ -756,6 +753,6 @@ Loop until are_we_passworded_out = false
     CALL write_variable_in_CCOL_NOTE_test("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 	PF3
 	PF3
-END IF
+'END IF
 
 script_end_procedure_with_error_report("Overpayment case note entered and copied to CCOL, please review the case to make sure the notes updated correctly." & vbcr & next_page)
