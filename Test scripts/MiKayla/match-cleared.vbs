@@ -788,6 +788,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		EMWriteScreen "030", 12, 46
 		col = 57
 		Do
+			'action headers ACTS = SNAP'
 			EMReadscreen action_header, 4, 11, col
 			If action_header <> "    " Then
 				If action_header = "ACTH" Then
