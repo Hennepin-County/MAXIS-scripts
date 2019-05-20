@@ -66,8 +66,8 @@ EMConnect ""
 'IF dail_check = "DAIL" THEN
 '	EMSendKey "T"
 '	TRANSMIT
-'	EMReadScreen DAIL_type, 4, 6, 6 'read the DAIL msg'
-'	DAIL_type = trim(DAIL_type)
+	EMReadScreen DAIL_type, 4, 6, 6 'read the DAIL msg'
+	DAIL_type = trim(DAIL_type)
 '	IF DAIL_type = "TIKL" or DAIL_type = "PEPR"  or DAIL_type = "INFO" THEN
 '		match_found = TRUE
 '	ELSE
@@ -75,51 +75,57 @@ EMConnect ""
 '		script_end_procedure("This is not an supported DAIL currently. Please select TIKL, PEPR, SSN, or INFO DAIL, and run the script again.")
 '	END IF
 '	IF match_found = TRUE THEN
-	    'do we need a date rcvd or save that for docs rcvd'
-	    'The following reads the message in full for the end part (which tells the worker which message was selected)
-	    'EMReadScreen full_message, 59, 6, 20
-		'full_message = trim(full_message)
-	    'EmReadScreen MAXIS_case_number, 8, 5, 73
-	    'MAXIS_case_number = trim(MAXIS_case_number)
-
+'	    'do we need a date rcvd or save that for docs rcvd'
+'	    'The following reads the message in full for the end part (which tells the worker which message was selected)
+'	    EMReadScreen full_message, 59, 6, 20
+'		full_message = trim(full_message)
+'	    EmReadScreen MAXIS_case_number, 8, 5, 73
+'	    MAXIS_case_number = trim(MAXIS_case_number)
+'
 	    'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
 
-        BeginDialog catch_all_dialog, 0, 0, 281, 150,  DAIL_type & " MESSAGE PROCESSED"
-          EditBox 225, 35, 50, 15, docs_rcvd_date
-          EditBox 65, 55, 210, 15, actions_taken
-          EditBox 65, 75, 210, 15, verifs_needed
-          EditBox 65, 95, 210, 15, other_notes
-          EditBox 65, 130, 95, 15, worker_signature
-          CheckBox 5, 40, 90, 10, "ECF has been reviewed ", ECF_reviewed
-          CheckBox 5, 115, 110, 10, "Check here if you want to TIKL", TIKL_check
-          ButtonGroup ButtonPressed
-            OkButton 180, 130, 45, 15
-            CancelButton 230, 130, 45, 15
-          GroupBox 5, 5, 270, 25, "DAIL for case # " &  MAXIS_case_number
-          Text 10, 15, 260, 10, full_message
-          Text 5, 60, 50, 10, "Actions taken:"
-          Text 5, 80, 50, 10, "Verifs needed:"
-          Text 5, 100, 45, 10, "Other notes:"
-          Text 5, 135, 60, 10, "Worker signature:"
-          Text 120, 40, 100, 10, "If applicable - date doc(s) rcvd:"
-        EndDialog
+		BeginDialog catch_all_dialog, 0, 0, 281, 150, DAIL_type &  " MESSAGE PROCESSED"
+		  EditBox 65, 35, 20, 15, memb_number
+		  EditBox 225, 35, 50, 15, docs_rcvd_date
+		  EditBox 65, 55, 210, 15, actions_taken
+		  EditBox 65, 75, 210, 15, verifs_needed
+		  EditBox 65, 95, 210, 15, other_notes
+		  CheckBox 5, 115, 90, 10, "ECF has been reviewed ", ECF_reviewed
+		  CheckBox 165, 115, 110, 10, "Check here if you want to TIKL", TIKL_check
+		  EditBox 65, 130, 95, 15, worker_signature
+		  ButtonGroup ButtonPressed
+		    OkButton 180, 130, 45, 15
+		    CancelButton 230, 130, 45, 15
+		  Text 10, 15, 260, 10, full_message
+		  Text 5, 60, 50, 10, "Actions taken:"
+		  Text 5, 80, 50, 10, "Verifs needed:"
+		  Text 5, 100, 45, 10, "Other notes:"
+		  Text 5, 135, 60, 10, "Worker signature:"
+		  Text 120, 40, 100, 10, "If applicable - date doc(s) rcvd:"
+		  GroupBox 5, 5, 270, 25, "DAIL for case #"  &  MAXIS_case_number
+		  Text 5, 40, 55, 10, "MEMB Number:"
+		EndDialog
+
+		when_contact_was_made = date & ", " & time
 
 		EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
 		TRANSMIT
-		'Starts a blank case note
-		PF9
+
+		PF9 'Starts a blank case note
+
 		EMReadScreen case_note_mode_check, 7, 20, 3
 		If case_note_mode_check <> "Mode: A" then script_end_procedure("You are not in a case note on edit mode. You might be in inquiry. Try the script again in production.")
 		'updates the "when contact was made" variable to show the current date & time
-		when_contact_was_made = date & ", " & time
 
 		Do
 		    Do
 		        err_msg = ""
 				Dialog catch_all_dialog
 				cancel_confirmation
-		        If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid case number."
+		        'If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid case number."
 				If trim(actions_taken) = "" then err_msg = err_msg & vbcr & "* Please enter the action taken."
+				IF elig_date <> "" THEN IF isdate(ELIG_date) = False then err_msg = err_msg & vbnewline & "* Please Enter a valid date that forms were received."
+				If (isnumeric(memb_number) = False and len(memb_number) > 2) then err_msg = err_msg & vbcr & "* Please Enter a valid member number."
 		    	If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Please ensure your case note is signed."
 				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 			LOOP UNTIL err_msg = ""									'loops until all errors are resolved
@@ -128,27 +134,43 @@ EMConnect ""
 
 		'checking for an active MAXIS session
 		Call check_for_MAXIS(False)
+		EmReadScreen panel_check, 04, 02, 45
+		DO
+			'before we write checking for casenote'
+			IF panel_check =  "NOTE" THEN EXIT DO
+			IF panel_check <> "NOTE" THEN
+				case_note_confirmation = MsgBox("Press YES to confirm that you are back to case notes and ready write." & vbNewLine & "To navigate to CASE/NOTE, press NO." & vbNewLine & vbNewLine & _
+		    	"Panel Check -" & panel_check, vbYesNoCancel, "Case note confirmation")
+			 	IF case_note_confirmation = vbNo THEN
+					Call navigate_to_MAXIS_screen("CASE", "NOTE")
+		            PF9
+					EmReadScreen write_mode_casenote, 06, 03, 03
+					If write_mode_casenote <> "Please" THEN msgbox script_end_procedure_with_error_report("The script has ended. Unable to access case note.")
+					IF write_mode_casenote = "Please" THEN EXIT DO
+				END IF
+				IF case_note_confirmation = vbYes THEN EXIT DO
+		    	IF case_note_confirmation = vbCancel THEN script_end_procedure_with_error_report("The script has ended. The DAIL has not been acted on.")
+			END IF
+		LOOP UNTIL case_note_confirmation = vbYes
 	'END IF
 'END IF
 
-
-
-'THE CASENOTE----------------------------------------------------------------------------------------------------
+'----------------------------------------------------------------------------------------------------THE CASENOTE
 'start_a_blank_case_note
-CALL write_variable_in_CASE_NOTE("=== " & DAIL_type & " - MESSAGE PROCESSED " & "===")
-CALL write_variable_in_case_note("* " & full_message)
+CALL write_variable_in_CASE_NOTE("=== " & DAIL_type & " - MESSAGE PROCESSED FOR M" & memb_number & " ===")
+IF first_line = "" THEN CALL write_variable_in_case_note("* " & full_message)
 CALL write_variable_in_case_note(first_line)
 CALL write_variable_in_case_note(second_line)
 CALL write_variable_in_case_note(third_line)
 CALL write_variable_in_case_note(fourth_line)
 CALL write_variable_in_case_note(fifth_line)
 CALL write_variable_in_case_note("---")
-IF ECF_reviewed = CHECKED THEN CALL write_variable_in_case_note("* ECF reviewed and appropriate action taken")
+IF ECF_reviewed = CHECKED THEN CALL write_variable_in_case_note("* ECF has been reviewed.")
 CALL write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 CALL write_bullet_and_variable_in_case_note("Action taken on", when_contact_was_made)
 CALL write_bullet_and_variable_in_case_note("Verifications needed", verifs_needed)
 CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
-IF tikl_checkbox = checked THEN CALL write_variable_in_case_note("* TIKL'd to check for requested verifications")
+IF tikl_checkbox = checked THEN CALL write_variable_in_case_note("* TIKL'd to check for requested verifications or case review.")
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 PF3
