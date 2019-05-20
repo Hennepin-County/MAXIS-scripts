@@ -56,8 +56,8 @@ FUNCTION write_variable_in_CCOL_note_test(variable)
     				EMReadScreen next_page_confirmation, 4, 19, 3
     				IF next_page_confirmation = "MORE" THEN
     					next_page = TRUE
-						'msgbox next_page
-    				'ELSE
+					'msgbox next_page
+    				ELSE
     					Do
     						EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
     						character_test = trim(character_test)
@@ -67,7 +67,7 @@ FUNCTION write_variable_in_CCOL_note_test(variable)
     					'check_we_went_to_next_page = trim(check_we_went_to_next_page)
     					'If check_we_went_to_next_page = "PLEASE PRESS PF3 TO EXIT OR PF7/PF8 TO SCROLLWHEN PAGE IS FILLED" Then
     						'noting_row = 4
-    				Else
+    				'ELSE
 						next_page = FALSE
 						'msgbox next_page
 						noting_row = 5													'Resets this variable to 4 if we did not need a brand new note.
@@ -88,7 +88,7 @@ FUNCTION write_variable_in_CCOL_note_test(variable)
     			noting_col = 3
     		End if
     		'Writes the word and a space using EMWriteScreen
-    		EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
+    		'EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
     		'Increases noting_col the length of the word + 1 (for the space)
     		noting_col = noting_col + (len(word) + 1)
     	Next
@@ -117,8 +117,8 @@ function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
     				EMReadScreen next_page_confirmation, 4, 19, 3
 					IF next_page_confirmation = "MORE" THEN
 						next_page = TRUE
-						'msgbox next_page
-					'ELSE
+					'msgbox next_page
+					ELSE
 						Do
 							EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
 							character_test = trim(character_test)
@@ -129,7 +129,7 @@ function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
 						'If check_we_went_to_next_page = "PLEASE PRESS PF3 TO EXIT OR PF7/PF8 TO SCROLLWHEN PAGE IS FILLED" Then
 							'noting_row = 4
 						'END IF
-					Else
+					'ELSE
 						next_page = FALSE
 						'msgbox next_page
 						noting_row = 5												'Resets this variable to 4 if we did not need a brand new note.
@@ -165,8 +165,7 @@ function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
     		End if
 
     		'Writes the word and a space using EMWriteScreen
-    		EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
-
+    		'EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
     		'Increases noting_col the length of the word + 1 (for the space)
     		noting_col = noting_col + (len(word) + 1)
     	Next
@@ -368,11 +367,10 @@ IF IEVS_type = "WAGE" or IEVS_type = "BEER" THEN
         income_source = income_source	'catch all variable
     END IF
 END IF
-
 discovery_date = date
 BeginDialog overpayment_dialog, 0, 0, 361, 280, "Match Cleared CC Claim Entered"
-  EditBox 60, 5, 40, 15, MAXIS_case_number
-  EditBox 140, 5, 20, 15, memb_number
+ EditBox 60, 5, 40, 15, MAXIS_case_number
+ EditBox 140, 5, 20, 15, memb_number
   EditBox 230, 5, 20, 15, OT_resp_memb
   DropListBox 310, 5, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
   EditBox 60, 25, 40, 15, discovery_date
@@ -497,7 +495,7 @@ Do
     LOOP UNTIL err_msg = ""
     CALL check_for_password_without_transmit(are_we_passworded_out)
 Loop until are_we_passworded_out = false
-	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
+'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
     EmReadScreen panel_name, 4, 02, 52
     IF panel_name <> "IULA" THEN
         EmReadScreen back_panel_name, 4, 2, 52
@@ -627,7 +625,7 @@ Loop until are_we_passworded_out = false
 '-----------------------------------------------------------------------------------------CASENOTE
     start_a_blank_case_note
     IF IEVS_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
-    IF IEVS_type = "BEER" IEVS_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
+    IF IEVS_type = "BEER" or IEVS_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
     IF IEVS_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
     'IF IEVS_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
     CALL write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
@@ -670,7 +668,6 @@ Loop until are_we_passworded_out = false
     CALL write_variable_in_case_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
     PF3 'to save casenote'
 
-
 	IF HC_claim_number <> "" THEN
 		EmWriteScreen "x", 5, 3
 		Transmit
@@ -693,66 +690,63 @@ Loop until are_we_passworded_out = false
 		CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
 	END IF
 '---------------------------------------------------------------writing the CCOL case note'
-	msgbox "Navigating to CCOL to add case note, please contact the BlueZone Scripts team with any concerns."
-	Call navigate_to_MAXIS_screen("CCOL", "CLSM")
-	EMWriteScreen Claim_number, 4, 9
-	TRANSMIT
-	'NO CLAIMS WERE FOUND FOR THIS CASE, PROGRAM, AND STATUS
-	EMReadScreen error_check, 75, 24, 2	'making sure we can actually update this case.
-	error_check = trim(error_check)
-	If error_check <> "" then script_end_procedure_with_error_report(error_check & vbcr & "Unable to update this case. Please review case, and run the script again if applicable.")
-
-	PF4
-	EMReadScreen existing_case_note, 1, 5, 6
-	IF existing_case_note = "" THEN
-		PF4
-	ELSE
-		PF9
-	END IF
-
-	IF IEVS_type = "WAGE" THEN CALL write_variable_in_CCOL_note_test("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-    IF IEVS_type = "BEER" or IEVS_type = "UNVI" THEN CALL write_variable_in_CCOL_NOTE_test("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-    IF IEVS_type = "UBEN" THEN CALL write_variable_in_CCOL_NOTE_test("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-    'IF IEVS_type = "UNVI" THEN CALL write_variable_in_CCOL_NOTE_test("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Discovery date", discovery_date)
-    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Period", IEVS_period)
-    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Active Programs", programs)
-    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Source of income", income_source)
-    Call write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- -----")
-    Call write_variable_in_CCOL_NOTE_test(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-    IF OP_program_II <> "Select:" then
-    	Call write_variable_in_CCOL_NOTE_test(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-    	Call write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- -----")
-    END IF
-    IF OP_program_III <> "Select:" then
-    	Call write_variable_in_CCOL_NOTE_test(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-    	Call write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- -----")
-    END IF
-    IF OP_program_IV <> "Select:" then
-    	Call write_variable_in_CCOL_NOTE_test(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
-    	Call write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- -----")
-    END IF
-    IF HC_claim_number <> "" THEN
-    	Call write_variable_in_CCOL_NOTE_test("HC OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & HC_from & " through " & HC_to)
-    	Call write_variable_in_CCOL_NOTE_test("* HC Claim # " & HC_claim_number & " Amt $" & HC_Claim_amount)
-    	Call write_bullet_and_variable_in_CCOL_NOTE_test("Health Care responsible members", HC_resp_memb)
-    	Call write_bullet_and_variable_in_CCOL_NOTE_test("Total Federal Health Care amount", Fed_HC_AMT)
-    	CALL write_bullet_and_variable_in_CCOL_NOTE_test("Discovery date", discovery_date)
-    	CALL write_bullet_and_variable_in_CCOL_NOTE_test("Source of income", income_source)
-    	Call write_variable_in_CCOL_NOTE_test("Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-    	Call write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- -----")
-    END IF
-    IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_NOTE_test("* Earned Income Disregard Allowed")
-    IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_CCOL_NOTE_test("* Earned Income Disregard Not Allowed")
-    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Fraud referral made", fraud_referral)
-    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Income verification received", EVF_used)
-    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Date verification received", income_rcvd_date)
-    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Reason for overpayment", Reason_OP)
-    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Other responsible member(s)", OT_resp_memb)
-    CALL write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- ----- ----- -----")
-    CALL write_variable_in_CCOL_NOTE_test("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-	PF3
-	PF3
-'END IF
-
-script_end_procedure_with_error_report("Overpayment case note entered and copied to CCOL, please review the case to make sure the notes updated correctly." & vbcr & next_page)
+'	msgbox "Navigating to CCOL to add case note, please contact the BlueZone Scripts team with any concerns."
+'	Call navigate_to_MAXIS_screen("CCOL", "CLSM")
+'	EMWriteScreen Claim_number, 4, 9
+'	TRANSMIT
+'	'NO CLAIMS WERE FOUND FOR THIS CASE, PROGRAM, AND STATUS
+'	EMReadScreen error_check, 75, 24, 2	'making sure we can actually update this case.
+'	error_check = trim(error_check)
+'	If error_check <> "" then script_end_procedure_with_error_report(error_check & vbcr & "Unable to update this case. Please review case, and run the script again if applicable.")
+'
+'	PF4
+'	EMReadScreen existing_case_note, 1, 5, 6
+'	IF existing_case_note = "" THEN
+'		PF4
+'	ELSE
+'		PF9
+'	END IF
+'
+'    IF IEVS_type = "WAGE" THEN CALL write_variable_in_CCOL_note_test("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+'    IF IEVS_type = "BEER" or IEVS_type = "UNVI" THEN CALL write_variable_in_CCOL_NOTE_test("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+'    IF IEVS_type = "UBEN" THEN CALL write_variable_in_CCOL_NOTE_test("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+'    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Discovery date", discovery_date)
+'    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Period", IEVS_period)
+'    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Active Programs", programs)
+'    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Source of income", income_source)
+'    Call write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- -----")
+'    Call write_variable_in_CCOL_NOTE_test(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+'    IF OP_program_II <> "Select:" then
+'    	Call write_variable_in_CCOL_NOTE_test(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+'    	Call write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- -----")
+'    END IF
+'    IF OP_program_III <> "Select:" then
+'    	Call write_variable_in_CCOL_NOTE_test(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+'    	Call write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- -----")
+'    END IF
+'    IF OP_program_IV <> "Select:" then
+'    	Call write_variable_in_CCOL_NOTE_test(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
+'    	Call write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- -----")
+'    END IF
+'    IF HC_claim_number <> "" THEN
+'    	Call write_variable_in_CCOL_NOTE_test("HC OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & HC_from & " through " & HC_to)
+'    	Call write_variable_in_CCOL_NOTE_test("* HC Claim # " & HC_claim_number & " Amt $" & HC_Claim_amount)
+'    	Call write_bullet_and_variable_in_CCOL_NOTE_test("Health Care responsible members", HC_resp_memb)
+'    	Call write_bullet_and_variable_in_CCOL_NOTE_test("Total Federal Health Care amount", Fed_HC_AMT)
+'    	CALL write_bullet_and_variable_in_CCOL_NOTE_test("Discovery date", discovery_date)
+'    	CALL write_bullet_and_variable_in_CCOL_NOTE_test("Source of income", income_source)
+'    	Call write_variable_in_CCOL_NOTE_test("Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+'    	Call write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- -----")
+'    END IF
+'    IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_NOTE_test("* Earned Income Disregard Allowed")
+'    IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_CCOL_NOTE_test("* Earned Income Disregard Not Allowed")
+'    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Fraud referral made", fraud_referral)
+'    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Income verification received", EVF_used)
+'    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Date verification received", income_rcvd_date)
+'    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Reason for overpayment", Reason_OP)
+'    CALL write_bullet_and_variable_in_CCOL_NOTE_test("Other responsible member(s)", OT_resp_memb)
+'    CALL write_variable_in_CCOL_NOTE_test("----- ----- ----- ----- ----- ----- -----")
+'    CALL write_variable_in_CCOL_NOTE_test("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+'    PF3
+	'PF3
+script_end_procedure_with_error_report("Overpayment case note entered please copy to CCOL, please review the case to make sure the notes updated correctly." & vbcr & next_page)
