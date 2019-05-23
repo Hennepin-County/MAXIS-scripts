@@ -49,6 +49,75 @@ call changelog_update("05/13/2019", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+'FUNCTIONS==================================================================================================================
+Function Generate_Client_List(list_for_dropdown)
+
+	memb_row = 5
+
+	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
+	Do
+		EMReadScreen ref_numb, 2, memb_row, 3
+		If ref_numb = "  " Then Exit Do
+		EMWriteScreen ref_numb, 20, 76
+		transmit
+		EMReadScreen first_name, 12, 6, 63
+		EMReadScreen last_name, 25, 6, 30
+		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")
+		memb_row = memb_row + 1
+	Loop until memb_row = 20
+
+	client_info = right(client_info, len(client_info) - 1)
+	client_list_array = split(client_info, "~")
+
+	For each person in client_list_array
+		list_for_dropdown = list_for_dropdown & chr(9) & person
+	Next
+
+End Function
+'THE SCRIPT=================================================================================================================
+Connecting to MAXIS, and grabbing the case number and footer month'
+EMConnect ""
+Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
+
+If MAXIS_case_number <> "" Then 		'If a case number is found the script will get the list of
+	Call Generate_Client_List(HH_Memb_DropDown)
+End If
+
+'Running the dialog for case number and client
+Do
+	err_msg = ""
+	'Dialog defined here so the dropdown can be changed
+	BeginDialog select_person_dialog, 0, 0, 191, 65, "Select Caregiver"
+	  EditBox 55, 5, 50, 15, MAXIS_case_number
+	  ButtonGroup ButtonPressed
+	    PushButton 135, 5, 50, 15, "search", search_button
+	  DropListBox 80, 25, 105, 45, "Select One..." & HH_Memb_DropDown, clt_to_update
+	  ButtonGroup ButtonPressed
+	    OkButton 115, 45, 35, 15
+	    CancelButton 155, 45, 30, 15
+	  Text 5, 10, 45, 10, "Case Number"
+	  Text 5, 30, 70, 10, "Household member"
+	EndDialog
+
+	Dialog select_person_dialog
+	If ButtonPressed = cancel Then StopScript
+	If ButtonPressed = search_button Then
+		If MAXIS_case_number = "" Then
+			MsgBox "Cannot search without a case number, please try again."
+		Else
+			HH_Memb_DropDown = ""
+			Call Generate_Client_List(HH_Memb_DropDown)
+			err_msg = err_msg & "Start Over"
+		End If
+	End If
+	If MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "You must enter a valid case number."
+	If clt_to_update = "Select One..." Then err_msg = err_msg & vbNewLine & "Please pick a client whose EMPS panel you need to update."
+	If err_msg <> "" AND left(err_msg, 10) <> "Start Over" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+Loop until err_msg = ""
+
+
 
 'intial dialog for user to select a SMRT action
 BeginDialog , 0, 0, 361, 80, "PF11 Action"
@@ -92,60 +161,6 @@ Do
 	Loop until err_msg = ""
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-EMConnect ""
-
-Call MAXIS_case_number_finder(MAXIS_case_number)
-
-'Creating a custom dialog for determining who the HH members are
-call HH_member_custom_dialog(HH_member_array)
-
-'changing footer dates to current month to avoid invalid months.
-MAXIS_footer_month = datepart("M", date)
-IF Len(MAXIS_footer_month) <> 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
-MAXIS_footer_year = right(datepart("YYYY", date), 2)
-
-Dim Member_Info_Array()
-Redim Member_Info_Array(UBound(HH_member_array), 4)
-
-
-'Navigate to stat/memb and check for ERRR message
-CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-For i = 0 to Ubound(HH_member_array)
-
-	Member_Info_Array(i, 0) = HH_member_array(i)
-	'Navigating to selected memb panel
-	EMwritescreen HH_member_array(i), 20, 76
-	transmit
-
-	EMReadScreen no_MEMB, 13, 8, 22 'If this member does not exist, this will stop the script from continuing.
-	IF no_MEMB = "Arrival Date:" THEN script_end_procedure("This HH member does not exist.")
-
-
-	'Reading info and removing spaces
-	EMReadscreen First_name, 12, 6, 63
-	First_name = replace(First_name, "_", "")
-	Member_Info_Array(i, 1) = First_name
-
-	'Reading Last name and removing spaces
-	EMReadscreen Last_name, 25, 6, 30
-	Last_name = replace(Last_name, "_", "")
-	Member_Info_Array(i, 2) = Last_name
-
-	'Reading Middle initial and replacing _ with a blank if empty.
-	EMReadscreen Middle_initial, 1, 6, 79
-	Middle_initial = replace(Middle_initial, "_", "")
-	Member_Info_Array(i, 3) = Middle_initial
-
-	'Reads SSN
-	Emreadscreen SSN_number, 11, 7, 42
-	SSN_number = replace(SSN_number, " ", "")
-	Member_Info_Array(i, 4) = SSN_number
-Next
-
-
-
 
 If PF11_actions = "PMI merge request" then
     BeginDialog , 0, 0, 326, 180, "Initial SMRT referral dialog"
