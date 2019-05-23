@@ -141,6 +141,12 @@ If CIT_check = "MEMI:CITIZENSHIP HAS BEEN VERIFIED THROUGH SSA" then
     call run_from_GitHub(script_repository & "dail/citizenship-verified.vbs")
 END IF
 
+'COLA SVES RESPONSE 
+If instr(full_message, "REVIEW SVES RESPONSE") then
+    match_found = TRUE
+    call run_from_GitHub(script_repository & "dail/cola-sves-response.vbs")
+END IF
+
 'CS reports a new employer to the worker (loads CS REPORTED NEW EMPLOYER)
 EMReadScreen CS_new_emp_check, 25, 6, 20
 If CS_new_emp_check = "CS REPORTED: NEW EMPLOYER" then
