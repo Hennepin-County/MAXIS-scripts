@@ -585,6 +585,7 @@ End If
 If mof_form_checkbox = checked Then
     mof_ref_numb = left(mof_hh_memb, 2)
     docs_rec = docs_rec & ", MOF for M" & mof_ref_numb
+    end_msg = end_msg & vbNewLine & "Additional detail about MOF."
 End If
 
 
@@ -1142,6 +1143,7 @@ End If
 
 highest_asset = asset_counter
 If asset_form_checkbox = checked Then
+    end_msg = end_msg & vbNewLine & "Asset detail entered."
     If LTC_case = vbNo Then docs_rec = docs_rec & ", Personal Statement (DHS 6054)"
     If LTC_case = vbYes Then docs_rec = docs_rec & ", Asset documents"
     If run_updater_checkbox = checked Then
@@ -2187,6 +2189,7 @@ If arep_form_checkbox = checked Then
         	err_msg = ""
         	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
         	cancel_confirmation
+            cancel_continue_confirmation(skip_arep)
 
             If trim(arep_name) = "" Then err_msg = err_msg & vbNewLine & "* Enter the AREP's name."
             If update_AREP_panel_checkbox = checked Then
@@ -2202,11 +2205,19 @@ If arep_form_checkbox = checked Then
         	IF isdate(arep_signature_date) = false THEN err_msg = err_msg & vbNewLine & "* Enter a valid date for the date the form was signed/valid from."
         	IF (TIKL_check = checked AND arep_signature_date = "") THEN err_msg = err_msg & vbNewLine & "* You have requested the script to TIKL based on the signature date but you did not enter the signature date."
 
+            If skip_arep = TRUE Then
+                err_msg = ""
+                arep_form_checkbox = unchecked
+            End If
+
         	IF err_msg <> "" THEN MsgBox "Plese resolve the following to continue:" & vbNewLine & err_msg
         Loop until err_msg = ""
         call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
     LOOP UNTIL are_we_passworded_out = false
+End If
 
+If arep_form_checkbox = checked Then
+    end_msg = end_msg & vbNewLine & "AREP Information entered."
     'formatting programs into one variable to write in case note
     IF SNAP_AREP_checkbox = checked THEN AREP_programs = "SNAP"
     IF HC_AREP_checkbox = checked THEN AREP_programs = AREP_programs & ", HC"
@@ -2436,6 +2447,7 @@ If mtaf_form_checkbox = checked Then
 End If
 
 If mtaf_form_checkbox = checked Then
+    end_msg = end_msg & vbNewLine & "MTAF Information entered."
 
     If MTAF_note_only_checkbox = checked Then
         need_final_note = FALSE
@@ -2663,6 +2675,7 @@ If ltc_1503_form_checkbox = checked Then
 End If
 
 If ltc_1503_form_checkbox = checked Then
+    end_msg = end_msg & vbNewLine & "LTC 1503 Form information entered."
 
     Original_footer_month = MAXIS_footer_month
     Original_footer_year = MAXIS_footer_year
