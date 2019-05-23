@@ -78,6 +78,8 @@ IF dail_check = "DAIL" THEN
 	IF match_found = TRUE THEN
     	EMReadScreen MAXIS_case_number, 8, 5, 73
 		MAXIS_case_number= TRIM(MAXIS_case_number)
+		EMReadscreen SSN_number_read, 9, 6, 20
+	    
 		 '----------------------------------------------------------------------------------------------------IEVP
 		'Navigating deeper into the match interface
 		CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
@@ -88,7 +90,7 @@ IF dail_check = "DAIL" THEN
 	END IF
 END IF
 
-IF dail_check <> "DAIL" or match_type <> "WAGE" or match_type <> "BEER" or match_type <> "UBEN" or match_type <> "UNVI" or match_found = FALSE THEN
+IF dail_check <> "DAIL" or match_found = FALSE THEN
     CALL MAXIS_case_number_finder (MAXIS_case_number)
     MEMB_number = "01"
     BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
