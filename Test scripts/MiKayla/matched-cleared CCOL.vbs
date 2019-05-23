@@ -36,14 +36,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
-'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'FUNCTIONS LIBRARY BLOCK================================================================================================
 FUNCTION write_variable_in_CCOL_note_test(variable)
     ''--- This function writes a variable in CCOL note
     '~~~~~ variable: information to be entered into CASE note from script/edit box
     '===== Keywords: MAXIS, CASE note
     If trim(variable) <> "" THEN
     	EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
-    	'msgbox varible & vbcr & "noting_row " & noting_row 
+    	'msgbox varible & vbcr & "noting_row " & noting_row
         noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
     	'The following figures out if we need a new page, or if we need a new case note entirely as well.
     	Do
@@ -82,9 +82,9 @@ FUNCTION write_variable_in_CCOL_note_test(variable)
 
             'If the next line is row 18 (you can't write to row 18), it will PF8 to get to the next page
             If noting_row >= 19 then
-                PF8 
+                PF8
                 noting_row = 5
-                'Msgbox "what's Happening? Noting row: " & noting_row  
+                'Msgbox "what's Happening? Noting row: " & noting_row
             End if
 
             'Adds spaces (indent) if we're on col 3 since it's the beginning of a line. We also have to increase the noting col in these instances (so it doesn't overwrite the indent).
@@ -118,7 +118,7 @@ function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
 '===== Keywords: MAXIS, bullet, CCOL note
     If trim(variable) <> "" THEN
         EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
-        'msgbox varible & vbcr & "noting_row " & noting_row 
+        'msgbox varible & vbcr & "noting_row " & noting_row
         noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
         'The following figures out if we need a new page, or if we need a new case note entirely as well.
         Do
@@ -168,9 +168,9 @@ function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
 
             'If the next line is row 18 (you can't write to row 18), it will PF8 to get to the next page
             If noting_row >= 19 then
-                PF8 
+                PF8
                 noting_row = 5
-                'Msgbox "what's Happening? Noting row: " & noting_row  
+                'Msgbox "what's Happening? Noting row: " & noting_row
             End if
 
             'Adds spaces (indent) if we're on col 3 since it's the beginning of a line. We also have to increase the noting col in these instances (so it doesn't overwrite the indent).
@@ -194,7 +194,7 @@ function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
         Next
         'After the array is processed, set the cursor on the following row, in col 3, so that the user can enter in information here (just like writing by hand). If you're on row 18 (which isn't writeable), hit a PF8. If the panel is at the very end (page 5), it will back out and go into another case note, as we did above.
     	EMSetCursor noting_row + 1, 3
-    End if 
+    End if
 end function
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 'CHANGELOG BLOCK ===========================================================================================================
@@ -220,7 +220,7 @@ EMConnect ""
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 
-'testing variables 
+'testing variables
 MAXIS_case_number = "276348"
 memb_number = "01"
 fraud_referral = "NO"
@@ -238,7 +238,7 @@ income_rcvd_date = "05/20/19"
 EVF_used = "Beeswax, none of yours Inc."
 Reason_OP = "Now, this is a story all about how, My life got flipped-turned upside down, And I'd like to take a minute, Just sit right there, I'll tell you how I became the prince of a town called Bel Air. " & _
 "In west Philadelphia born and raised, On the playground was where I spent most of my days, Chillin' out maxin' relaxin' all cool, And all shootin some b-ball outside of the school. When a couple of guys who were up to no good. " & _
-"Started making trouble in my neighborhood, I got in one little fight and my mom got scared, She said 'You're movin' with your auntie and uncle in Bel Air'. I whistled for a cab and when it came near, The license plate said fresh and it had dice in the mirror. " & _ 
+"Started making trouble in my neighborhood, I got in one little fight and my mom got scared, She said 'You're movin' with your auntie and uncle in Bel Air'. I whistled for a cab and when it came near, The license plate said fresh and it had dice in the mirror. " & _
 "If anything I could say that this cab was rare, But I thought 'Nah, forget it' - 'Yo, homes to Bel Air'. I pulled up to the house about seven or eigth, And I yelled to the cabbie 'Yo homes smell ya later'. I looked at my kingdom, I was finally there. To sit on my throne as the Prince of Bel Air."
 
 '----------------------------------------------------------------------------------------------------DAIL
@@ -758,7 +758,7 @@ Loop until are_we_passworded_out = false
     IF IEVS_type = "BEER" or IEVS_type = "UNVI" THEN CALL write_variable_in_CCOL_NOTE_test("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
     IF IEVS_type = "UBEN" THEN CALL write_variable_in_CCOL_NOTE_test("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
     'IF IEVS_type = "UNVI" THEN CALL write_variable_in_CCOL_NOTE_test("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-    
+
     Call write_variable_in_CCOL_NOTE_test(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
     IF OP_program_II <> "Select:" then
     	Call write_variable_in_CCOL_NOTE_test(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
