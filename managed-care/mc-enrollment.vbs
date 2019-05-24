@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/24/2019", "Added the ability for the script to delete the current enrollment plan if the beginning date for the current plan is the same as the new enrollment date.", "Casey Love, Hennepin County")
 call changelog_update("05/24/2019", "Added the ability for the script to delete the Delayed Decision exclusion if the start date is the same as the enrollment date.", "Casey Love, Hennepin County")
 call changelog_update("05/24/2019", "Changed the script coding on REFM screen to enter 'N' if enrollment information source was NOT the Paper Enrollment Form.", "Casey Love, Hennepin County")
 call changelog_update("04/17/2019", "Resolving a BUG for METS cases enrolling for the first time, no exclusion code is defaulted.", "Casey Love, Hennepin County")
@@ -348,7 +349,7 @@ Do
     err_msg = ""
 
 	Dialog Dialog1
-	cancel_confirmation
+	cancel_without_confirmation
 
     MMIS_case_number = trim(MMIS_case_number)
 
@@ -861,8 +862,13 @@ If MNSURE_Case = TRUE Then
             If process_manually_message = "" Then
     			'enter disenrollment reason
                 If disenrollment_reason <> "" Then
-                    EMWriteScreen xcl_end_date, 13, 14
-                    EMWriteScreen disenrollment_reason, 13, 75
+                    EMReadScreen beg_of_curr_span, 8, 13, 5
+                    If beg_of_curr_span = enrollment_date Then
+                        EMWriteScreen "...", 13, 5
+                    Else
+                        EMWriteScreen xcl_end_date, 13, 14
+                        EMWriteScreen disenrollment_reason, 13, 75
+                    End If
                 End If
 
     			'resets to bottom of the span list.
@@ -1180,8 +1186,13 @@ Else
             If process_manually_message = "" Then
     			'enter disenrollment reason
                 If disenrollment_reason <> "" Then
-                    EMWriteScreen xcl_end_date, 13, 14
-                    EMWriteScreen disenrollment_reason, 13, 75
+                    EMReadScreen beg_of_curr_span, 8, 13, 5
+                    If beg_of_curr_span = enrollment_date Then
+                        EMWriteScreen "...", 13, 5
+                    Else
+                        EMWriteScreen xcl_end_date, 13, 14
+                        EMWriteScreen disenrollment_reason, 13, 75
+                    End If
                 End If
 
     			'resets to bottom of the span list.
