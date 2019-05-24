@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/24/2019", "Added statistics detail to final script run when MMIS is updated.", "Casey Love, Hennepin County")
 call changelog_update("02/19/2019", "Changed Medicare savings amounts to $135.50.", "Casey Love, Hennepin County")
 call changelog_update("11/21/2018", "Removed custom function navigate_to_spec_MMIS_region(group_security_selection). Added test function navigate_to_MAXIS_test. Updated function 'keep_MMIS_passworded_in()' that calls these functions.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/21/2018", "Initial version.", "Casey Love, Hennepin County")
@@ -1256,6 +1257,7 @@ col_to_use = col_to_use + 1
 If make_changes = TRUE Then
     ObjExcel.Cells(1, col_to_use).Value = "NEW MMIS End Date"
     new_mmis_one_col = col_to_use
+    new_mmis_one_col_letter_col = convert_digit_to_excel_column(new_mmis_one_col)
     col_to_use = col_to_use + 1
 
     ObjExcel.Cells(1, col_to_use).Value = "PPH Cap"
@@ -1267,25 +1269,28 @@ ObjExcel.Cells(1, col_to_use).Value = "2nd PROG"
 prog_two_col = col_to_use
 col_to_use = col_to_use + 1
 
-ObjExcel.Cells(1, col_to_use).Value = "ELIG TYPE"
+ObjExcel.Cells(1, col_to_use).Value = "ELIG TYPE - 2"
 elig_two_col = col_to_use
 col_to_use = col_to_use + 1
 
-ObjExcel.Cells(1, col_to_use).Value = "MAXIS End Date"
+ObjExcel.Cells(1, col_to_use).Value = "MAXIS End Date - 2"
 MAXIS_end_two_col = col_to_use
 col_to_use = col_to_use + 1
 
-ObjExcel.Cells(1, col_to_use).Value = "CURR MMIS End Date"
+ObjExcel.Cells(1, col_to_use).Value = "CURR MMIS End Date - 2"
 mmis_two_col = col_to_use
+mmis_two_letter_col = convert_digit_to_excel_column(mmis_two_col)
 col_to_use = col_to_use + 1
 
 If make_changes = TRUE Then
-    ObjExcel.Cells(1, col_to_use).Value = "NEW MMIS End Date"
+    ObjExcel.Cells(1, col_to_use).Value = "NEW MMIS End Date - 2"
     new_mmis_two_col = col_to_use
+    new_mmis_two_col_letter_col = convert_digit_to_excel_column(new_mmis_two_col)
     col_to_use = col_to_use + 1
 
     ObjExcel.Cells(1, col_to_use).Value = "SAVINGS"
     savings_col = col_to_use
+    savings_letter_col = convert_digit_to_excel_column(savings_col)
     col_to_use = col_to_use + 1
 End If
 
@@ -1328,6 +1333,7 @@ For hc_clt = 0 to UBound(EOMC_CLIENT_ARRAY, 2)
 	excel_row = excel_row + 1      'next row
 Next
 
+excel_row = excel_row - 1
 col_to_use = col_to_use + 1     'moving over one extra for script run details.
 
 'Query date/time/runtime info
@@ -1337,9 +1343,26 @@ ObjExcel.Cells(1, col_to_use+1).Value = now
 ObjExcel.Cells(1, col_to_use+1).Font.Bold = FALSE
 ObjExcel.Cells(2, col_to_use).Value = "Query runtime (in seconds):"
 ObjExcel.Cells(2, col_to_use+1).Value = timer - query_start_time
-ObjExcel.Cells(3, col_to_use).Value = "Total Savings:"
-ObjExcel.Cells(3, col_to_use+1).Value = total_savings
-ObjExcel.Cells(3, col_to_use+1).NumberFormat = "$#,##0.00"
+
+If make_changes = TRUE Then
+    ObjExcel.Cells(3, col_to_use).Value = "Total Savings:"
+    ObjExcel.Cells(4, col_to_use).Value = "Total PMIs:"
+    ObjExcel.Cells(5, col_to_use).Value = "Manyally Closed PMIs:"
+    ObjExcel.Cells(6, col_to_use).Value = "MMIS Span Not Updated:"
+    ObjExcel.Cells(7, col_to_use).Value = "PMIs with savings:"
+    ObjExcel.Cells(8, col_to_use).Value = "PMIs Updated MMIS by script:"
+
+    is_not_blank_excel_string = chr(34) & "<>" & chr(34)
+
+    ObjExcel.Cells(3, col_to_use+1).Value = "=SUM(" & savings_letter_col & "2:" & savings_letter_col & excel_row & ")"
+    ObjExcel.Cells(3, col_to_use+1).NumberFormat = "$#,##0.00"
+    ObjExcel.Cells(4, col_to_use+1).Value = "=COUNTIF(B2:B" & excel_row & ", " & is_not_blank_excel_string & ")"
+    ObjExcel.Cells(5, col_to_use+1).Value = "=COUNTIF(C2:C" & excel_row & ", " & chr(34) & "HC" & chr(34) &")"
+    ObjExcel.Cells(6, col_to_use+1).Value = "=COUNTIFS(C2:C" & excel_row & ", " & chr(34) & "HC" & chr(34) & ", J2:J" & excel_row & ", " & chr(34) & "99/99/99" & chr(34) &_
+     ")+COUNTIFS(C2:C" & excel_row & ", " & chr(34) & "HC" & chr(34) & ", " & mmis_two_letter_col & "2:" & mmis_two_letter_col & excel_row & ", " & chr(34) & "99/99/99" & chr(34) & ", J2:J" & excel_row & ", " & is_not_blank_excel_string & chr(38) & chr(34) & "99/99/99" & chr(34) & ")"
+    ObjExcel.Cells(7, col_to_use+1).Value = "=COUNTIF(" & savings_letter_col & "2:" & savings_letter_col & excel_row & ", " & is_not_blank_excel_string & chr(38) & "0)"
+    ObjExcel.Cells(8, col_to_use+1).Value = "=COUNTIF(" & new_mmis_one_col_letter_col & "2:" & new_mmis_one_col_letter_col & excel_row & ", " & is_not_blank_excel_string & ")+COUNTIFS(" & new_mmis_two_col_letter_col & "2:" & new_mmis_two_col_letter_col & excel_row & ", " & is_not_blank_excel_string & ", " & new_mmis_one_col_letter_col & "2:" & new_mmis_one_col_letter_col & excel_row & ", " & chr(34) & chr(34) & ")"
+End If
 
 'Autofitting columns
 For col_to_autofit = 1 to col_to_use+1
