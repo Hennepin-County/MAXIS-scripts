@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/24/2019", "Changed the script coding on REFM screen to enter 'N' if enrollment information source was NOT the Paper Enrollment Form.", "Casey Love, Hennepin County")
 call changelog_update("04/17/2019", "Resolving a BUG for METS cases enrolling for the first time, no exclusion code is defaulted.", "Casey Love, Hennepin County")
 call changelog_update("04/16/2019", "BUG when disenrolling and reenrolling in a different plan. Functionality should work to disenroll and renroll in the same run - specific to issues discovered with NT option.", "Casey Love, Hennepin County")
 call changelog_update("04/02/2019", "Initial version.", "Casey Love, Hennepin County")
@@ -936,33 +937,39 @@ If MNSURE_Case = TRUE Then
 			If REFM_check <> "REFM" then process_manually_message = process_manually_message & "The script was unable to navigate to REFM for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
 		Loop until REFM_check = "REFM"
 
-		'form rec'd
-		EMsetcursor 10, 16
-		EMSendkey "y"
-		'other insurance y/n
-		EMsetcursor 11, 18
-		EMsendkey insurance_yn
-		'preg y/n
-		EMsetcursor 12, 19
-		EMsendkey pregnant_yn
-		'interpreter y/n
-		EMsetcursor 13, 29
-		EMsendkey interpreter_yn
-		'interpreter type
-		if MMIS_clients_array(interp_code, member) <> "" then
-			EMsetcursor 13, 52
-			EMsendKey MMIS_clients_array(interp_code, member)
-		end if
-		'medical clinic code
-		EMsetcursor 19, 4
-		EMsendkey MMIS_clients_array(med_code, member)
-		'dental clinic code if applicable
-		EMsetcursor 19, 24
-		EMsendkey MMIS_clients_array(dent_code, member)
-		'foster care y/n
-		EMsetcursor 21, 15
-		EMsendkey foster_care_yn
-		' msgbox "REFM updated"
+        If enrollment_source = "Paper Enrollment Form" Then
+    		'form rec'd
+    		EMsetcursor 10, 16
+    		EMSendkey "y"
+    		'other insurance y/n
+    		EMsetcursor 11, 18
+    		EMsendkey insurance_yn
+    		'preg y/n
+    		EMsetcursor 12, 19
+    		EMsendkey pregnant_yn
+    		'interpreter y/n
+    		EMsetcursor 13, 29
+    		EMsendkey interpreter_yn
+    		'interpreter type
+    		if MMIS_clients_array(interp_code, member) <> "" then
+    			EMsetcursor 13, 52
+    			EMsendKey MMIS_clients_array(interp_code, member)
+    		end if
+    		'medical clinic code
+    		EMsetcursor 19, 4
+    		EMsendkey MMIS_clients_array(med_code, member)
+    		'dental clinic code if applicable
+    		EMsetcursor 19, 24
+    		EMsendkey MMIS_clients_array(dent_code, member)
+    		'foster care y/n
+    		EMsetcursor 21, 15
+    		EMsendkey foster_care_yn
+		    ' msgbox "REFM updated"
+        Else
+            'form rec'd
+            EMsetcursor 10, 16
+            EMSendkey "n"
+        End If
 		PF9
 
 		'error handling to ensure that enrollment date and exclusion dates don't conflict
@@ -1236,33 +1243,39 @@ Else
 			If REFM_check <> "REFM" then process_manually_message = process_manually_message & "The script was unable to navigate to REFM for PMI " & MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & "needs to be processed manually." & vbNewLine & vbNewLine
 		Loop until REFM_check = "REFM"
 
-		'form rec'd
-		EMsetcursor 10, 16
-		EMSendkey "y"
-		'other insurance y/n
-		EMsetcursor 11, 18
-		EMsendkey insurance_yn
-		'preg y/n
-		EMsetcursor 12, 19
-		EMsendkey pregnant_yn
-		'interpreter y/n
-		EMsetcursor 13, 29
-		EMsendkey interpreter_yn
-		'interpreter type
-		if MMIS_clients_array(interp_code, member) <> "" then
-			EMsetcursor 13, 52
-			EMsendKey MMIS_clients_array(interp_code, member)
-		end if
-		'medical clinic code
-		EMsetcursor 19, 4
-		EMsendkey MMIS_clients_array(med_code, member)
-		'dental clinic code if applicable
-		EMsetcursor 19, 24
-		EMsendkey MMIS_clients_array(dent_code, member)
-		'foster care y/n
-		EMsetcursor 21, 15
-		EMsendkey foster_care_yn
-		' msgbox "REFM updated"
+        If enrollment_source = "Paper Enrollment Form" Then
+    		'form rec'd
+    		EMsetcursor 10, 16
+    		EMSendkey "y"
+    		'other insurance y/n
+    		EMsetcursor 11, 18
+    		EMsendkey insurance_yn
+    		'preg y/n
+    		EMsetcursor 12, 19
+    		EMsendkey pregnant_yn
+    		'interpreter y/n
+    		EMsetcursor 13, 29
+    		EMsendkey interpreter_yn
+    		'interpreter type
+    		if MMIS_clients_array(interp_code, member) <> "" then
+    			EMsetcursor 13, 52
+    			EMsendKey MMIS_clients_array(interp_code, member)
+    		end if
+    		'medical clinic code
+    		EMsetcursor 19, 4
+    		EMsendkey MMIS_clients_array(med_code, member)
+    		'dental clinic code if applicable
+    		EMsetcursor 19, 24
+    		EMsendkey MMIS_clients_array(dent_code, member)
+    		'foster care y/n
+    		EMsetcursor 21, 15
+    		EMsendkey foster_care_yn
+		    ' msgbox "REFM updated"
+        Else
+            'form rec'd
+            EMsetcursor 10, 16
+            EMSendkey "n"
+        End If
 		PF9
 
 		'error handling to ensure that enrollment date and exclusion dates don't conflict
