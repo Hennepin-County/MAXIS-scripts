@@ -2829,6 +2829,7 @@ If actions_taken = "" Then
             err_msg = ""
 
             dialog Dialog1
+            cancel_confirmation
 
             actions_taken = trim(actions_taken)
             If actions_taken = "" Then err_msg = err_msg & vbNewLine & "* Enter the actions taken."
