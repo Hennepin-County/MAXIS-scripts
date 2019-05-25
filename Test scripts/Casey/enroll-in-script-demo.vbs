@@ -224,13 +224,14 @@ Do
 
 Loop until err_msg = ""
 
+end_msg = "Success! The following demo(s) have been added to your calendar and your enrollment has been sent to the BlueZone Script team:" & vbNewLine
 checkbox_counter = 0
 For each scheduled_script in SCRIPT_DEMO_ARRAY
     For array_counter = 0 to UBound(scheduled_script.demo_dates)
-        MsgBox array_counter & vbNewLine & CHECKBOX_ARRAY(checkbox_counter)
+        'MsgBox array_counter & vbNewLine & CHECKBOX_ARRAY(checkbox_counter)
         If CHECKBOX_ARRAY(checkbox_counter) = checked Then
         ' If scheduled_script.demo_checkbox(array_counter) = checked Then
-            MsgBox "EMAIL TO SEND" & vbNewLine & scheduled_script.category & " - " & scheduled_script.script_name & vbNewLine & scheduled_script.demo_dates(array_counter)
+            'MsgBox "EMAIL TO SEND" & vbNewLine & scheduled_script.category & " - " & scheduled_script.script_name & vbNewLine & scheduled_script.demo_dates(array_counter)
 
             'create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, reminder_in_minutes, appt_category)
 
@@ -244,6 +245,7 @@ For each scheduled_script in SCRIPT_DEMO_ARRAY
                 bzt_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
                 email_text = worker_name & " has enrolled in a DEMO for " & scheduled_script.category & " - " & scheduled_script.script_name & vbCr & "On: " & scheduled_script.demo_dates(array_counter)
                 Call create_outlook_email(bzt_email, "", "DEMO Enrollment", email_text, "", TRUE)
+                end_msg = end_msg & vbNewLine & "* " & scheduled_script.category & " - " & scheduled_script.script_name & vbNewLine & "  On: " & scheduled_script.demo_dates(array_counter) & vbNewLine
             End If
 
         End If
@@ -252,4 +254,4 @@ For each scheduled_script in SCRIPT_DEMO_ARRAY
 Next
 
 
-script_end_procedure("Demo Scheduled")
+script_end_procedure(end_msg)
