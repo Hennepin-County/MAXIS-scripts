@@ -92,11 +92,23 @@ class script_demo
     public demo_dates
     public demo_length
     public future_dates
-    public demo_checkbox
+    public group_len
 
 end class
 
 script_num = 0
+ReDim Preserve SCRIPT_DEMO_ARRAY(script_num)
+Set SCRIPT_DEMO_ARRAY(script_num) = new script_demo
+SCRIPT_DEMO_ARRAY(script_num).script_name   = "Counted ABAWD Months"
+SCRIPT_DEMO_ARRAY(script_num).category      = "ACTIONS"
+SCRIPT_DEMO_ARRAY(script_num).tags          = ""
+SCRIPT_DEMO_ARRAY(script_num).instructions  = "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/ACTIONS/ACTIONS%20-%20COUNTED%20ABAWD%20MONTHS.docx"
+SCRIPT_DEMO_ARRAY(script_num).demo_dates    = ARRAY(#5/14/19 3:00 PM#, #5/25/19 9:00 AM#, #5/28/19 10:00 AM#)
+SCRIPT_DEMO_ARRAY(script_num).demo_length    = 45
+SCRIPT_DEMO_ARRAY(script_num).future_dates  = FALSE
+SCRIPT_DEMO_ARRAY(script_num).group_len     = 0
+
+script_num = script_num + 1
 ReDim Preserve SCRIPT_DEMO_ARRAY(script_num)
 Set SCRIPT_DEMO_ARRAY(script_num) = new script_demo
 SCRIPT_DEMO_ARRAY(script_num).script_name   = "Earned Income Budgeting"
@@ -106,7 +118,7 @@ SCRIPT_DEMO_ARRAY(script_num).instructions  = "https://dept.hennepin.us/hsphd/sa
 SCRIPT_DEMO_ARRAY(script_num).demo_dates    = ARRAY(#7/10/19 3:00 PM#, #7/16/19 8:30 AM#, #7/25/19 10:00 AM#, #7/31/19 2:00 PM#)
 SCRIPT_DEMO_ARRAY(script_num).demo_length    = 45
 SCRIPT_DEMO_ARRAY(script_num).future_dates  = FALSE
-SCRIPT_DEMO_ARRAY(script_num).demo_checkbox = ARRAY(unchecked, unchecked, unchecked, unchecked)
+SCRIPT_DEMO_ARRAY(script_num).group_len     = 0
 
 script_num = script_num + 1
 ReDim Preserve SCRIPT_DEMO_ARRAY(script_num)
@@ -118,7 +130,7 @@ SCRIPT_DEMO_ARRAY(script_num).instructions  = "https://dept.hennepin.us/hsphd/sa
 SCRIPT_DEMO_ARRAY(script_num).demo_dates    = ARRAY(#8/7/19 3:00 PM#, #8/13/19 8:30 AM#, #8/22/19 10:00 AM#)
 SCRIPT_DEMO_ARRAY(script_num).demo_length    = 45
 SCRIPT_DEMO_ARRAY(script_num).future_dates  = FALSE
-SCRIPT_DEMO_ARRAY(script_num).demo_checkbox = ARRAY(unchecked, unchecked, unchecked)
+SCRIPT_DEMO_ARRAY(script_num).group_len     = 0
 
 ' script_num = 0
 ' ReDim Preserve script_array(script_num)
@@ -142,19 +154,21 @@ For each scheduled_script in SCRIPT_DEMO_ARRAY
     no_future_dates = TRUE
     For each scheduled_date in scheduled_script.demo_dates
         ReDim Preserve CHECKBOX_ARRAY(checkbox_counter)
-        If DateDiff("d", date, scheduled_date) > -1 Then
+        'MsgBox "Scheduled date: " & scheduled_date & vbNewLine & "Diff: " & DateDiff("n", now, scheduled_date)
+        If DateDiff("n", now, scheduled_date) > -1 Then
             no_future_dates = FALSE
             total_dates = total_dates + 1
             scheduled_script.future_dates  = TRUE
+            scheduled_script.group_len = scheduled_script.group_len + 15
         End If
         checkbox_counter = checkbox_counter + 1
     Next
     If no-no_future_dates = FALSE Then unique_scripts = unique_scripts + 1
 Next
-dlg_len = 170 + (unique_scripts * 20) + (total_dates * 20)
+dlg_len = 160 + (unique_scripts * 20) + (total_dates * 20)
 y_pos = 165
 
-BeginDialog Dialog1, 0, 0, 391, dlg_len, "Dialog"
+BeginDialog Dialog1, 0, 0, 391, dlg_len, "Select DEMOs to Enroll"
   Text 95, 10, 145, 10, "Welcome to the BlueZone Script Roadshow!"
   GroupBox 5, 25, 380, 90, "About Script Demos"
   Text 15, 40, 350, 15, "As our project is constantly growing and changing, we want to show you how best to use the tools we create."
@@ -165,13 +179,14 @@ BeginDialog Dialog1, 0, 0, 391, dlg_len, "Dialog"
 
   checkbox_counter = 0
   For each scheduled_script in SCRIPT_DEMO_ARRAY
-      If scheduled_script.future_dates = TRUE Then GroupBox 10, y_pos, 375, 20 + UBound(scheduled_script.demo_dates) *20, scheduled_script.category & " - " & scheduled_script.script_name
-      'checkbox_counter = 0
-      y_pos = y_pos + 15
+      If scheduled_script.future_dates = TRUE Then
+        GroupBox 10, y_pos, 375, 20 + scheduled_script.group_len, scheduled_script.category & " - " & scheduled_script.script_name
+        y_pos = y_pos + 15
+      End If
       'For each scheduled_date in scheduled_script.demo_dates
       For array_counter = 0 to UBound(scheduled_script.demo_dates)
           scheduled_date = scheduled_script.demo_dates(array_counter)
-          If DateDiff("d", date, scheduled_date) > -1 Then
+          If DateDiff("n", now, scheduled_date) > -1 Then
 
               CheckBox 25, y_pos, 345, 10, FormatDateTime(scheduled_date, 1) & " at " & FormatDateTime(scheduled_date, 3) & " - " & scheduled_script.script_name & "(" & scheduled_script.demo_length & " minutes)", CHECKBOX_ARRAY(checkbox_counter)
               y_pos = y_pos + 15
@@ -179,7 +194,7 @@ BeginDialog Dialog1, 0, 0, 391, dlg_len, "Dialog"
           End If
           checkbox_counter = checkbox_counter + 1
       Next
-      y_pos = y_pos + 10
+      If scheduled_script.future_dates = TRUE Then y_pos = y_pos + 10
   Next
   'y_pos = y_pos + 10
 
