@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/28/2019", "Updates to read the Expedited Screening case note.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -106,8 +107,9 @@ EMSearch "Received", row, col
 IF row <> 0 THEN
 	XFS_Screening_CNote = TRUE
 	For look_for_right_note = 57 to 72
-		EMReadScreen xfs_screen_note, 8, row, look_for_right_note
-		IF xfs_screen_note = "expedite" THEN
+		EMReadScreen xfs_screen_note, 18, row, look_for_right_note
+        xfs_screen_note = UCase(xfs_screen_note)
+		IF xfs_screen_note = "CLIENT APPEARS EXP" or xfs_screen_note = "CLIENT DOES NOT AP" THEN
 			XFS_Screening_CNote = TRUE	'IF the script found a case note with the NOTES - Expedited Screening format - it can find the information used
 			IF look_for_right_note = 57 or look_for_right_note = 65 THEN
 				EMReadScreen xfs_screening, 32, row, 42
@@ -125,8 +127,13 @@ END IF
 
 'Script is gathering the income/asset/expense information from the XFS Screening note
 IF XFS_Screening_CNote = TRUE THEN
+    EMReadScreen xfs_screening, 40, 4, 36
+    xfs_screening = replace(xfs_screening, "~", "")
+    xfs_screening = trim(xfs_screening)
 	xfs_screening = UCase(xfs_screening)
 	xfs_screening_display = xfs_screening & ""
+
+
 
 	row = 1
 	col = 1
@@ -162,7 +169,7 @@ IF XFS_Screening_CNote = TRUE THEN
 
 	row = 1
 	col = 1
-	EMSearch "Utilities (amt", row, col
+	EMSearch "Utilities (AMT", row, col
 	EMReadScreen caf_one_utilities, 8, row, 42
 	If IsNumeric(caf_one_utilities) = True Then 	'If a worker alters this note, we need to default to a number so that the script does not break
 		caf_one_utilities = abs(caf_one_utilities)
