@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("05/29/2019", "Updated to support expedited SNAP screening in NOTES - APPLICATION RECEIVED script.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("01/12/2018", "Cases with multiple applications pending will be indicated with an asterisks (*) by the client name in the spreadsheet.", "Casey Love, Hennepin County")
 CALL changelog_update("01/12/2018", "Entering a supervisor X-Number in the Workers to Check will pull all X-Numbers listed under that supervisor in MAXIS. Addiional bug fix where script was missing cases.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -83,80 +84,28 @@ FUNCTION EXP_case_note_determination(appears_exp, pending_array)
 		MAXIS_row = 5
 		Do
 			EMReadScreen case_note_date, 8, MAXIS_row, 6
-			If case_note_date = "        " then
+			If trim(case_note_date) = "" then
 				pending_array(appears_exp, item) = true 'if no case note exists, the case is added to the Excel list
-				pending_array(case_notes, item) = "EXPEDITED SNAP SCREENING NEEDED!"		'adds case notes to Excel re: screening is needed
+				pending_array(case_notes, item) = "Expedited SNAP screening required"		'adds case notes to Excel re: screening is needed
 				exit do
-			End if
-			If case_note_date => appl_date then          'if the case note date is equal to or greater than the application date then the case note header is read
+			else 
 				EMReadScreen case_note_header, 55, MAXIS_row, 25
-				case_note_header = trim(case_note_header)
-				IF instr(case_note_header, "client appears expedited") then
+				case_note_header = lcase(trim(case_note_header))
+				IF instr(case_note_header, "appears expedited") or instr(case_note_header, "appears expedit") then
 					pending_array(appears_exp, item) = true            'if client appears exp is found, then case added to the Excel list
-					pending_array(case_notes, item) = "EXP screening ran, SNAP appears expedited"		'adds case notes to Excel re: screening was completed
+					pending_array(case_notes, item) = "EXP SNAP screened - appears expedited"		'adds case notes to Excel re: screening was completed
 					exit do
-				Elseif instr(case_note_header, "Expedited Determination: SNAP appears expedited") then
-					pending_array(appears_exp, item) = true            'if client appears exp is found, then case added to the Excel list
-					pending_array(case_notes, item) = "EXP determination made, SNAP appears expedited"		'adds case notes to Excel re: determination has been made
-					exit do
-				Elseif instr(case_note_header, "client does not appear expedited") then
+				Elseif instr(case_note_header, "does not appear") then
                     pending_array(appears_exp, item) = false            'if client does not appear exp is found, then case will not be added to the Excel list
-					exit do
-				Elseif instr(case_note_header, "Expedited Determination: SNAP does not appear expedited") then
-					pending_array(appears_exp, item) = false            'if client does not appear exp is found, then case will not be added to the Excel list
 					exit do
 				Else
 					pending_array(appears_exp, item) = true			'defaults all other cases to true, to be addded to the Excel list
-					pending_array(case_notes, item) = "EXPEDITED SNAP SCREENING NEEDED!"		'adds case notes to Excel re: screening is needed
+					pending_array(case_notes, item) = "Expedited SNAP screening required"		'adds case notes to Excel re: screening is needed
 				END IF
 			END IF
 			MAXIS_row = MAXIS_row + 1
-		LOOP until case_note_date < appl_date                        'repeats until the case note date is less than the application date
+		LOOP until cdate(case_note_date) < cdate(appl_date)                        'repeats until the case note date is less than the application date
 	END If
-END FUNCTION
-
-'This function is used to grab all active X numbers according to the supervisor X number(s) inputted
-FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
-	'Getting to REPT/USER
-	CALL navigate_to_MAXIS_screen("REPT", "USER")
-
-
-	'Sorting by supervisor
-	PF5
-	PF5
-
-
-	'Reseting array_name
-	array_name = ""
-
-
-	'Splitting the list of inputted supervisors...
-	supervisor_array = replace(supervisor_array, " ", "")
-	supervisor_array = split(supervisor_array, ",")
-	FOR EACH unit_supervisor IN supervisor_array
-		IF unit_supervisor <> "" THEN
-			'Entering the supervisor number and sending a transmit
-			CALL write_value_and_transmit(unit_supervisor, 21, 12)
-
-
-			MAXIS_row = 7
-			DO
-				EMReadScreen worker_ID, 8, MAXIS_row, 5
-				worker_ID = trim(worker_ID)
-				IF worker_ID = "" THEN EXIT DO
-				array_name = trim(array_name & " " & worker_ID)
-				MAXIS_row = MAXIS_row + 1
-				IF MAXIS_row = 19 THEN
-					PF8
-					EMReadScreen end_check, 9, 24,14
-					If end_check = "LAST PAGE" Then Exit Do
-					MAXIS_row = 7
-				END IF
-			LOOP
-		END IF
-	NEXT
-	'Preparing array_name for use...
-	array_name = split(array_name)
 END FUNCTION
 
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------
@@ -257,7 +206,7 @@ For each worker in worker_array
 				client_name = trim(client_name)
 				EMReadScreen appl_date, 8, MAXIS_row, 41		     'Reading application date
 				appl_date = replace(appl_date, " ", "/")
-				EMReadScreen nbr_days_pending, 4, MAXIS_row, 54		 'Reading nbr days pending
+                EMReadScreen nbr_days_pending, 4, MAXIS_row, 54		 'Reading nbr days pending
 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
 				MAXIS_case_number = trim(MAXIS_case_number)
@@ -293,7 +242,6 @@ For item = 0 to UBound(PND1_array, 2)
 	appl_date = PND1_array(app_date, item)			'appl date for each loop from the array
 
 	back_to_self
-	EMWriteScreen "________", 18, 43
 	EMWriteScreen MAXIS_case_number, 18, 43
 
 	'if cases are pending for MFIP or SNAP and appear to be EXP based on not having a EXP screening, or EXP screening shows they appear exp, then the cases will be added to Excel.
@@ -446,7 +394,6 @@ For item = 0 to UBound(PND2_array, 2)
 	appl_date = PND2_array(app_date, item)			'appl date for each loop from the array
 
 	back_to_self
-	EMWriteScreen "________", 18, 43
 	EMWriteScreen MAXIS_case_number, 18, 43
     Call navigate_to_MAXIS_screen("STAT", "PROG")
 
