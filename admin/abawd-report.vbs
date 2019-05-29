@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/29/2019", "Updated script to work with new BOBI query.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/31/2019", "Added functionality to change Defer FSET funds field if coded incorrectly on STAT/WREG.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/23/2018", "Added code to write in client name if presenting as a PRIV case on initial spreadsheet.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/30/2018", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -78,6 +79,9 @@ EndDialog
 EMConnect ""
 MAXIS_footer_month = CM_mo 
 MAXIS_footer_year = CM_yr 
+file_date = CM_mo & "-" & CM_yr
+
+file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\ABAWD\Active SNAP " & file_date & ".xlsx"
 
 'dialog and dialog DO...Loop	
 Do
@@ -92,12 +96,12 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-objExcel.Cells(1, 8).Value = "FSET"
-objExcel.Cells(1, 9).Value = "ABAWD"
-objExcel.Cells(1, 10).Value = "BM Field"
-objExcel.Cells(1, 11).Value = "Defer Funds"
+objExcel.Cells(1, 4).Value = "FSET"
+objExcel.Cells(1, 5).Value = "ABAWD"
+objExcel.Cells(1, 6).Value = "BM Field"
+objExcel.Cells(1, 7).Value = "Defer Funds"
 
-FOR i = 1 to 11		'formatting the cells'
+FOR i = 1 to 7		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -115,10 +119,13 @@ Do
 	MAXIS_case_number = ObjExcel.Cells(excel_row, 1).Value
 	MAXIS_case_number = trim(MAXIS_case_number)
     If MAXIS_case_number = "" then exit do 
-    client_name = ObjExcel.Cells(excel_row, 5).Value
+    
+    member_number = ObjExcel.Cells(excel_row, 2).Value
+    member_number = right(member_number, 2)    
+    
+    client_name = ObjExcel.Cells(excel_row, 3).Value
     client_name = trim(client_name)
-    member_number = ObjExcel.Cells(excel_row, 7).Value
-    member_number = right(member_number, 2)    		
+    		
 	call navigate_to_MAXIS_screen("STAT", "WREG")
     EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
     If PRIV_check = "PRIV" then
@@ -149,11 +156,11 @@ Do
             End if
         End if 
 	    
-        ObjExcel.Cells(excel_row, 7).Value = member_number                      'writing in the member number with initial 0 trimmed.
-        ObjExcel.Cells(excel_row, 8).Value = replace(FSET_code, "_", "")
-	    ObjExcel.Cells(excel_row, 9).Value = replace(ABAWD_code, "_", "")
-        ObjExcel.Cells(excel_row, 10).Value = replace(banked_months, "_", "")
-        ObjExcel.Cells(excel_row, 11).Value = replace(defer_funds, "_", "")
+        ObjExcel.Cells(excel_row, 2).Value = member_number                      'writing in the member number with initial 0 trimmed.
+        ObjExcel.Cells(excel_row, 4).Value = replace(FSET_code, "_", "")
+	    ObjExcel.Cells(excel_row, 5).Value = replace(ABAWD_code, "_", "")
+        ObjExcel.Cells(excel_row, 6).Value = replace(banked_months, "_", "")
+        ObjExcel.Cells(excel_row, 7).Value = replace(defer_funds, "_", "")
         
         If left(client_name, 2) = "XX" then
             Call navigate_to_MAXIS_screen("STAT", "MEMB")
@@ -163,7 +170,7 @@ Do
             last_name = replace(last_name, "_", "")
             first_name = replace(first_name, "_", "")
             new_client_name = last_name & "," & first_name
-            ObjExcel.Cells(excel_row, 5).Value = new_client_name
+            ObjExcel.Cells(excel_row, 3).Value = new_client_name
         End if     
     End if 
 	
