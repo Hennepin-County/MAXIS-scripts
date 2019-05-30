@@ -79,8 +79,6 @@ If inquiry_testing = vbCancel then cancel_without_confirmation   'If cancelled..
 'Because of that, I've included "if inquiry_testing <> vbYes" at the beginning of my date restriction.
 If inquiry_testing <> vbYes and datepart("m", dateadd("d", 8, date)) = datepart("m", date) then script_end_procedure("This script cannot be run until the last week of the month.")
 
-
-
 '----------------------THIS IS THE DIALOG FOR THE SCRIPT
 BeginDialog REVW_MONT_closures_dialog, 0, 0, 206, 90, "REVW/MONT closures"
   EditBox 160, 5, 40, 15, worker_number
@@ -99,6 +97,8 @@ EMConnect ""
 
 MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year  = CM_plus_1_yr
+
+next_month = CM_plus_1_mo & "/" & CM_plus_1_yr
 
 all_workers_check = 1
 MONT_check = 1
@@ -135,11 +135,12 @@ Else
 End if
 
 'THIS PART DOES THE REPT REVW----------------------------------------------------------------------------------------------------
+priv_case_list = ""
 Call MAXIS_footer_month_confirmation
 
 If REVW_check = 1 then
     For each worker in worker_array
-        msgbox worker
+        'msgbox worker
 	    Call navigate_to_MAXIS_screen("rept", "revw")
         Call write_value_and_transmit(worker, 21, 6)
 	    
@@ -271,19 +272,19 @@ If REVW_check = 1 then
 	    		If inquiry_testing <> vbYes then
 	    			Call start_a_blank_CASE_NOTE
 	    			If HC_review_code = "I" or FS_review_code = "I" or cash_review_code = "I" then
-	    				call write_variable_in_case_note("---Programs closing for incomplete review---")
+	    				call write_variable_in_case_note("-Programs closing for " & next_month & ": Incomplete review-")
 	    			Else
-	    				call write_variable_in_case_note("---Programs closing for no review---")
+	    				call write_variable_in_case_note("-Programs closing for " & next_month & ": No review-")
 	    			End if
 	    			call write_bullet_and_variable_in_case_note("Cash", cash_review_status)
 	    			call write_bullet_and_variable_in_case_note("SNAP", FS_review_status)
 	    			call write_bullet_and_variable_in_case_note("HC", HC_review_status)
 	    			
-	    			last_day_to_turn_in_cash_docs = trim(last_day_to_turn_in_cash_docs)
-	    			IF last_day_to_turn_in_cash_docs <> "" THEN call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_cash_docs & " to turn in CAF/CSR and/or proofs for cash.")
-	    			
-                    last_day_to_turn_in_SNAP_docs = trim(last_day_to_turn_in_SNAP_docs)
-	    			IF last_day_to_turn_in_SNAP_docs <> "" THEN call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_SNAP_docs & " to turn in CAF/CSR and/or proofs for SNAP.")
+	    			'last_day_to_turn_in_cash_docs = trim(last_day_to_turn_in_cash_docs)
+	    			'IF last_day_to_turn_in_cash_docs <> "" THEN call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_cash_docs & " to turn in CAF/CSR and/or proofs for cash.")
+	    			'
+                    'last_day_to_turn_in_SNAP_docs = trim(last_day_to_turn_in_SNAP_docs)
+	    			'IF last_day_to_turn_in_SNAP_docs <> "" THEN call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_SNAP_docs & " to turn in CAF/CSR and/or proofs for SNAP.")
 	    			
                     last_day_to_turn_in_HC_docs = trim(last_day_to_turn_in_HC_docs)
 	    			IF last_day_to_turn_in_HC_docs <> "" THEN call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_HC_docs & " to turn in HC review doc and/or proofs.")
@@ -335,7 +336,7 @@ case_number_list = ""
 'THIS PART DOES THE REPT MONT----------------------------------------------------------------------------------------------------
 If MONT_check = 1 then
     For each worker in worker_array
-        msgbox worker
+        'msgbox worker
         Call navigate_to_MAXIS_screen("rept", "mont")           'Navigating to MONT
         Call write_value_and_transmit(worker, 21, 6)
 
@@ -373,16 +374,15 @@ If MONT_check = 1 then
         
         		If inquiry_testing <> vbYes then
                     If FS_review_code = "I" and cash_review_code = "I" then 
-                        header = "SNAP & CASH "
                     elseif FS_review_code = "I" then 
-                        header = "SNAP "
+                        header = "--SNAP Closing for " & next_month
                     elseif cash_review_code = "I" then 
-                        header = "CASH "
+                        header = "--Cash Closing for " & next_month
                     End if 
                     If FS_review_code = "I" or cash_review_code = "I" then
-        		      call write_variable_in_CASE_NOTE("---" & header & "Incomplete HRF---")
+        		      call write_variable_in_CASE_NOTE("-" & header & ": Incomplete HRF--")
         		    Else
-        		      call write_variable_in_CASE_NOTE("---" & header & "HRF not provided---")
+        		      call write_variable_in_CASE_NOTE("-" & header & ": HRF not provided--")
         		    End if
         		else 'special handling for inquiry_testing (developers testing scenarios)
 	    			string_for_msgbox = 	"Cash: " & cash_review_status & chr(10) & _
