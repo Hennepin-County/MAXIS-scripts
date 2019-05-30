@@ -266,6 +266,22 @@ If trim(variable) <> "" THEN
 End if
 end function
 
+check_for_password_without_transmit
+
+	CALL check_for_password_without_transmit(are_we_passworded_out)
+	LOOP UNTIL are_we_passworded_out = false
+
+script_end_procedure_with_error_report
+
+EMReadScreen error_msg, 75, 24, 2
+error_msg = TRIM(error_msg)
+IF error_msg <> "" THEN script_end_procedure(error_msg & vbcr & "An error occurred, please process manually.") '-------option to read from REPT need to checking for error msg'
+
+EMReadScreen error_check, 75, 24, 2	'making sure we can actually update this case.
+error_check = trim(error_check)
+If error_check <> "" then script_end_procedure_with_error_report(error_check & "Unable to update this case. Please review case, and run the script again if applicable.")
+
+
 
 'changing the formating of the SSN from 123456789 to 123 45 6789 for STAT/MEMB
 				If len(client_SSN) < 9 then
