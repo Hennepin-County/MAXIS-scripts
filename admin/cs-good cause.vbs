@@ -337,11 +337,16 @@ Do
     '-------------------------------------------------------------------------Updating the ABPS panel
 	'MAXIS_background_check
     PF9'edit mode
-	EmReadscreen edit_mode_check, 1, 20, 08
-	IF edit_mode_check = "D" THEN
-        PF9
-		'msgbox "are we in the edit mode"
-	End if
+	DO
+		EmReadscreen edit_mode_check, 1, 20, 08
+		IF edit_mode_check = "D" THEN
+        	PF9
+			msgbox "are we in the edit mode"
+		ElseIF edit_mode_check = "E" THEN
+			EXIT DO
+			msgbox edit_mode_check & "why are we not in edit mode?"
+		END IF
+	Loop
 
 	EmReadscreen error_check, 74, 24, 02
 	IF trim(error_check) = "" THEN
@@ -358,24 +363,24 @@ Do
 		END IF
 	END IF
 
-	EMReadScreen ABPS_parent_ID_check, 10, 13, 40	'making sure ABPS is not unknown.
-	ABPS_parent_ID_check = trim(ABPS_parent_ID_check)
-	IF ABPS_parent_ID_check <> ABPS_parent_ID THEN
-		msgbox "ABPS ID # and panel sequence does not match, please confirm the correct panel is updated after hitting okay."
-		Do
-	       	ABPS_check = MsgBox("Is this the right ABPS to update?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
-	       	If ABPS_check = vbYes then
-				ABPS_found = TRUE
-				exit do
-			END IF
-	       	If ABPS_check = vbNo then
-				ABPS_found = FALSE
-				TRANSMIT
-			END IF
-			If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure_with_error_report("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
-	    Loop until ABPS_found = TRUE
-	END IF
-	'msgbox edit_mode_check
+    Do
+		EMReadScreen ABPS_parent_ID_second_check, 10, 13, 40	'making sure ABPS is not unknown.
+		ABPS_parent_ID_second_check = trim(ABPS_parent_ID_second_check)
+      	EMReadScreen current_panel_number, 1, 2, 73
+		IF ABPS_parent_ID_second_check <> ABPS_parent_ID THEN
+			ABPS_check = MsgBox("Is this the right ABPS to update? Sometimes a new ID is created for the same ABPS." & ABPS_parent_ID_second_check, vbYesNo + vbQuestion, "Confirmation")
+		    IF ABPS_check = vbYes THEN
+		    	ABPS_found = TRUE
+		    	EXIT DO
+		    END IF
+	        IF ABPS_check = vbNo then
+		    	ABPS_found = FALSE
+		    	TRANSMIT
+		    	EMReadScreen current_panel_number, 1, 2, 73
+		    END IF
+		END IF
+		If (ABPS_check = vbNo AND current_panel_number = total_amt_of_panels) THEN script_end_procedure_with_error_report("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
+	Loop until ABPS_found = TRUE
 
 	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
 	IF parental_status = "1" THEN
@@ -488,6 +493,7 @@ Do
 						Else
 							match_found = FALSE
 						 	TRANSMIT
+							msgbox
 						END IF
 					LOOP until match_found = TRUE
                     'MsgBox "AM I IN A NEW FOOTER MONTH?"
@@ -584,4 +590,4 @@ IF memo_started = TRUE THEN
 	PF4
 END IF
 PF3
-script_end_procedure_with_error_report("Success! MAXIS has been updated, and the Good Cause results case noted.")
+Script_end_procedure_with_error_report("Success! MAXIS has been updated, and the Good Cause results case noted.")
