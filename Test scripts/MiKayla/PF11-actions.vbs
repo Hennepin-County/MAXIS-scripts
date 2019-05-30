@@ -174,7 +174,7 @@ END If
 		client_first_name = replace(client_first_name, "_", "")
 		MsgBox client_first_name
 		TRANSMIT
-''--REMEMBER TO SET AN OUTLOOK REMINDER!!
+
 	msgbox "where are we"
 	'' PMI NBR ASSIGNED THRU SMI OR PMIN - NO MAXIS CASE EXISTS
 	If PF11_actions = "PMI merge request" then
@@ -244,9 +244,12 @@ END If
 	CALL write_bullet_and_variable_in_CASE_NOTE("Associated case number", second_case_number)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Other SMRT notes", other_notes)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Actions taken", action_taken)
-
 	CALL write_variable_in_CASE_NOTE ("---")
 	CALL write_variable_in_CASE_NOTE(worker_signature)
 
+	'Outlook appointment is created in prior to the case note being created
+	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
+	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "PF11 check: " & PF11_actions & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
+	Outlook_remider = True
 
 script_end_procedure("It worked!")
