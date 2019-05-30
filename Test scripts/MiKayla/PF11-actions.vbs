@@ -59,7 +59,7 @@ Function Generate_Client_List(list_for_dropdown)
 		EMReadScreen ref_numb, 2, memb_row, 3
 		If ref_numb = "  " Then Exit Do
 		EMWriteScreen ref_numb, 20, 76
-		transmit
+		TRANSMIT
 		EMReadScreen first_name, 12, 6, 63
 		EMReadScreen last_name, 25, 6, 30
 		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")
@@ -67,7 +67,7 @@ Function Generate_Client_List(list_for_dropdown)
 	Loop until memb_row = 20
 
 	client_info = right(client_info, len(client_info) - 1)
-	client_list_array = split(client_info, "~")
+	client_list_array = split(client_info, "~") 'this is where the tilday goeas away'
 
 	For each person in client_list_array
 		list_for_dropdown = list_for_dropdown & chr(9) & person
@@ -75,8 +75,9 @@ Function Generate_Client_List(list_for_dropdown)
 
 End Function
 'THE SCRIPT=================================================================================================================
-Connecting to MAXIS, and grabbing the case number and footer month'
+'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
+Call check_for_maxis(FALSE) 'checking for passord out, brings up dialog'
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
@@ -88,20 +89,25 @@ End If
 'Running the dialog for case number and client
 Do
 	err_msg = ""
-	'Dialog defined here so the dropdown can be changed
-	BeginDialog select_person_dialog, 0, 0, 191, 65, "Select Caregiver"
-	  EditBox 55, 5, 50, 15, MAXIS_case_number
+	'intial dialog for user to select a SMRT action
+	BeginDialog PF11_actions_dialog, 0, 0, 196, 130, "PF11 Action"
+	  EditBox 55, 5, 40, 15, maxis_case_number
+	  DropListBox 75, 25, 115, 15, "Select One:" & HH_Memb_DropDown, clt_to_update
+	  DropListBox 75, 45, 115, 15, "Select One:"+chr(9)+"PMI merge request"+chr(9)+"Non-actionable DAIL removal"+chr(9)+"Case note removal request"+chr(9)+"MFIP New Spouse Income"+chr(9)+"Other", PF11_actions
+	  Text 5, 85, 185, 20, "The system being down, issuance problems, or any type     of emergency should NOT be reported via a PF11."
+	  EditBox 75, 65, 115, 15, worker_signature
 	  ButtonGroup ButtonPressed
-	    PushButton 135, 5, 50, 15, "search", search_button
-	  DropListBox 80, 25, 105, 45, "Select One..." & HH_Memb_DropDown, clt_to_update
-	  ButtonGroup ButtonPressed
-	    OkButton 115, 45, 35, 15
-	    CancelButton 155, 45, 30, 15
-	  Text 5, 10, 45, 10, "Case Number"
-	  Text 5, 30, 70, 10, "Household member"
+	    OkButton 85, 110, 50, 15
+	    CancelButton 140, 110, 50, 15
+	    PushButton 105, 5, 85, 15, "HH MEMB SEARCH", search_button
+	  Text 5, 10, 45, 10, "Case number:"
+	  Text 5, 30, 70, 10, "Household member:"
+	  Text 5, 50, 65, 10, "Select PF11 action:"
+	  Text 5, 70, 60, 10, "Worker signature:"
 	EndDialog
 
-	Dialog select_person_dialog
+
+	Dialog PF11_actions_dialog
 	If ButtonPressed = cancel Then StopScript
 	If ButtonPressed = search_button Then
 		If MAXIS_case_number = "" Then
@@ -113,112 +119,134 @@ Do
 		End If
 	End If
 	If MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "You must enter a valid case number."
-	If clt_to_update = "Select One..." Then err_msg = err_msg & vbNewLine & "Please pick a client whose EMPS panel you need to update."
+	If clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "Please pick a client whose EMPS panel you need to update."
 	If err_msg <> "" AND left(err_msg, 10) <> "Start Over" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
 Loop until err_msg = ""
 
-
-
-'intial dialog for user to select a SMRT action
-BeginDialog , 0, 0, 361, 80, "PF11 Action"
-  EditBox 70, 20, 40, 15, maxis_case_number
-  EditBox 70, 40, 15, 15, MEMB_number
-  DropListBox 205, 40, 95, 15, "Select One:"+chr(9)+"PMI merge request"+chr(9)+"Non-actionable DAIL removal"+chr(9)+"Case note removal request"+chr(9)+"MFIP New Spouse Income"+chr(9)+"Other", PF11_actions
-  EditBox 70, 60, 170, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 250, 60, 50, 15
-    CancelButton 305, 60, 50, 15
-  Text 5, 5, 355, 10, "The system being down, issuance problems, or any type of emergency SHOULD NOT be reported via a PF11."
-  Text 115, 25, 245, 10, "** MAXIS takes a snapshot of the screen you choose to do your PF11 from."
-  Text 135, 45, 65, 10, "Select PF11 action:"
-  Text 5, 45, 50, 10, "MEMB number:"
-  Text 5, 65, 60, 10, "Worker Signature:"
-  Text 5, 25, 45, 10, "Case number:"
-EndDialog
-
-
-BeginDialog , 0, 0, 326, 90, "Other"
-  EditBox 70, 10, 240, 15, referral_reason
-  EditBox 70, 30, 240, 15, other_notes
-  EditBox 70, 50, 240, 15, action_taken
-  ButtonGroup ButtonPressed
-    OkButton 205, 70, 50, 15
-    CancelButton 260, 70, 50, 15
-  Text 25, 35, 45, 10, "Other Notes:"
-  Text 15, 55, 50, 10, " Actions Taken:"
-  Text 5, 15, 60, 10, "Describe Problem:"
-EndDialog
-
-
-Do
-	Do
-		err_msg = ""
-		Dialog
-		if ButtonPressed = 0 then StopScript
-		if IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		If SMRT_actions = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Select a PF11 action."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-	Loop until err_msg = ""
- Call check_for_password(are_we_passworded_out)
-LOOP UNTIL check_for_password(are_we_passworded_out) = False
-
-If PF11_actions = "PMI merge request" then
-    BeginDialog , 0, 0, 326, 180, "Initial SMRT referral dialog"
-      EditBox 80, 10, 75, 15, SMRT_member
-      EditBox 270, 10, 50, 15, referral_date
-      DropListBox 80, 35, 60, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", referred_exp
-      EditBox 200, 35, 120, 15, expedited_reason
-      EditBox 80, 60, 240, 15, referral_reason
-      EditBox 80, 85, 50, 15, SMRT_start_date
-      If worker_county_code = "x127" then CheckBox 140, 90, 180, 10, "Check here if the ECF workflow has been completed.", ECF_workflow_checkbox
-      EditBox 80, 110, 240, 15, other_notes
-      EditBox 80, 135, 240, 15, action_taken
-      EditBox 80, 160, 130, 15, worker_signature
+IF PF11_actions = "Other" THEN
+    BeginDialog other_dialog, 0, 0, 326, 90, "Other"
+      EditBox 70, 10, 240, 15, request_reason
+      EditBox 70, 30, 240, 15, other_notes
+      EditBox 70, 50, 240, 15, action_taken
       ButtonGroup ButtonPressed
-        OkButton 215, 160, 50, 15
-        CancelButton 270, 160, 50, 15
-      Text 15, 115, 65, 10, "Other SMRT notes:"
-      Text 5, 40, 70, 10, "Is referral expedited?"
-      Text 25, 140, 50, 10, " Actions taken:"
-      Text 165, 15, 100, 10, "Date SMRT referral completed:"
-      Text 5, 15, 70, 10, "SMRT requested for: "
-      Text 20, 90, 60, 10, "SMRT start date:"
-      Text 15, 165, 60, 10, "Worker Signature:"
-      Text 155, 40, 45, 10, "If yes, why?:"
-      Text 10, 65, 65, 10, "Reason for referral:"
+    	OkButton 205, 70, 50, 15
+    	CancelButton 260, 70, 50, 15
+      Text 25, 35, 45, 10, "Other Notes:"
+      Text 15, 55, 50, 10, " Actions Taken:"
+      Text 5, 15, 60, 10, "Describe Problem:"
     EndDialog
 
     Do
     	Do
     		err_msg = ""
-    		Dialog
-    		cancel_confirmation
-    		If SMRT_member = "" THEN err_msg = err_msg & vbNewLine & "* Enter the member info the SMRT referral."
-    		If isdate(referral_date) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid referral date."
-			If referred_exp = "Select one..." THEN err_msg = err_msg & vbNewLine & "* Is the referral expedited?"
-			If (referred_exp = "Yes" and trim(expedited_reason) = "") THEN err_msg = err_msg & vbNewLine & "* Enter the expedited reason."
-			If trim(referral_reason) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the reason for the referral."
-			If isdate(SMRT_start_date) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid SMRT start date."
-			If trim(action_taken) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the actions taken."
-			If trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    		Dialog other_dialog
+    		if ButtonPressed = 0 then StopScript
+    		if IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+    		If SMRT_actions = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Select a PF11 action."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     	Loop until err_msg = ""
-    Call check_for_password(are_we_passworded_out)
+     Call check_for_password(are_we_passworded_out)
     LOOP UNTIL check_for_password(are_we_passworded_out) = False
-
-	start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	Call write_variable_in_CASE_NOTE("---Initial SMRT referral requested---")
-	call write_bullet_and_variable_in_CASE_NOTE("SMRT requested for", SMRT_member)
-	Call write_bullet_and_variable_in_CASE_NOTE("SMRT referral completed on", referral_date)
-	Call write_bullet_and_variable_in_CASE_NOTE("Is referral expedited", referred_exp)
-	If referred_exp = "Yes" then Call write_bullet_and_variable_in_CASE_NOTE("Expedited reason", expedited_reason)
-	Call write_bullet_and_variable_in_CASE_NOTE("Reason for referral", referral_reason)
-	Call write_bullet_and_variable_in_CASE_NOTE("SMRT start date", SMRT_start_date)
-	Call write_bullet_and_variable_in_CASE_NOTE("Other SMRT notes", other_notes)
-	Call write_bullet_and_variable_in_CASE_NOTE("Actions taken", action_taken)
-	If ECF_workflow_checkbox = 1 then call write_variable_in_CASE_NOTE("* ECF workflow has been completed in ECF.")
-	Call write_variable_in_CASE_NOTE ("---")
-	call write_variable_in_CASE_NOTE(worker_signature)
 END If
+
+	'Do
+		Call Navigate_to_MAXIS_screen ("STAT", "MEMB")
+		'redefine ref_numb'
+		'MEMB_number = left(ref_numb, len(client_info) - 2)
+		MEMB_number = left(clt_to_update, 2)	'Settin the reference number
+		msgbox MEMB_number
+		EMWriteScreen MEMB_number, 20, 76
+		TRANSMIT
+		EMReadScreen client_first_name, 12, 6, 63
+		'replace(client_first_name, "_", "")
+		EMReadScreen client_last_name, 25, 6, 30
+		'replace(client_last_name, "_", "")
+
+		PF2 'going to PERS'
+		EMReadScreen nav_check, 4, 2, 47
+		msgbox nav_check
+		EMWriteScreen client_last_name, 04, 36
+		client_last_name = trim(client_last_name)
+		client_last_name = replace(client_last_name, "_", "")
+		msgbox client_last_name
+		EMWriteScreen client_first_name, 10, 36
+		client_first_name = trim(client_first_name)
+		client_first_name = replace(client_first_name, "_", "")
+		MsgBox client_first_name
+		TRANSMIT
+''--REMEMBER TO SET AN OUTLOOK REMINDER!!
+	msgbox "where are we"
+	'' PMI NBR ASSIGNED THRU SMI OR PMIN - NO MAXIS CASE EXISTS
+	If PF11_actions = "PMI merge request" then
+	BeginDialog PMI_merge_dialog, 0, 0, 276, 125, "PMI merge requested"
+	  EditBox 80, 5, 50, 15, PMI_number
+	  EditBox 80, 25, 50, 15, PMI_number_two
+	  DropListBox 80, 45, 190, 15, "Select One:"+chr(9)+"METS case opened"+chr(9)+"PMI created no case attached"+chr(9)+"Incorrect information on case", reason_request_dropdown
+	  EditBox 220, 25, 50, 15, second_case_number
+	  EditBox 80, 65, 190, 15, action_taken
+	  EditBox 80, 85, 190, 15, other_notes
+	  ButtonGroup ButtonPressed
+	    OkButton 165, 105, 50, 15
+	    CancelButton 220, 105, 50, 15
+	  Text 5, 70, 50, 10, " Actions taken:"
+	  Text 5, 10, 65, 10, "PMI on this case:"
+	  Text 5, 110, 160, 10, "**If additional PMI(s) are found add to other notes"
+	  Text 5, 90, 45, 10, "Other notes:"
+	  Text 5, 30, 60, 10, "Duplicate PMI(s):"
+	  Text 5, 50, 65, 10, "Reason for request:"
+	  Text 150, 30, 65, 10, "Other case number:"
+	EndDialog
+		Do
+			Do
+				err_msg = ""
+				Dialog PMI_merge_dialog
+				cancel_confirmation
+				If PMI_number = "" THEN err_msg = err_msg & vbNewLine & "* Enter the PMI on this case."
+				If trim(second_case_number) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the second case number, if none enter N/A."
+				'If trim(action_taken) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the actions taken."
+				If trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature."
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+			Loop until err_msg = ""
+		Call check_for_password(are_we_passworded_out)
+		LOOP UNTIL check_for_password(are_we_passworded_out) = False
+	END IF
+
+	'Loop until nav_check = "PERS"
+	'now we are at PERS shoing all the names'
+	PF11
+
+	'Problem.Reporting
+	EMReadScreen nav_check, 4, 1, 27
+ 	IF nav_check = "Prob" THEN
+		EMWriteScreen "PMI merge request", 05, 07
+		msgbox "are we writing"
+		'EMWriteScreen client_SSN, 06, 07
+		EMWriteScreen PMI_number, 06, 07
+		EMWriteScreen PMI_number_two, 07, 07
+		EMWriteScreen reason_request_dropdown, 08, 07
+		TRANSMIT
+		EMReadScreen task_number, 7, 3, 27
+		TRANSMIT
+		'back_to_self
+		PF3 ''-self'
+		PF3 '- MEMB'
+	ELSE
+		MsgBox "Could not reach PF11."
+	END IF
+
+
+	CALL start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
+	CALL write_variable_in_case_note("---PF11 requested---")
+	CALL write_bullet_and_variable_in_CASE_NOTE("Reason for request", PF11_actions)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Requested for", client_info)
+	If PMI_number <> "" then Call write_bullet_and_variable_in_CASE_NOTE("PMI number", PMI_number)
+	If PMI_number_two <> "" then Call write_bullet_and_variable_in_CASE_NOTE("Second PMI number", PMI_number_two)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Associated case number", second_case_number)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Other SMRT notes", other_notes)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Actions taken", action_taken)
+
+	CALL write_variable_in_CASE_NOTE ("---")
+	CALL write_variable_in_CASE_NOTE(worker_signature)
+
 
 script_end_procedure("It worked!")
