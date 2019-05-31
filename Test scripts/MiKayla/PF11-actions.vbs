@@ -346,7 +346,7 @@ END IF
 		    IF PF11_actions = "Case note removal request" THEN EMWriteScreen "Case Note: " & dail_message, 07, 07
 		    IF PF11_actions = "Non-actionable DAIL removal" THEN EMWriteScreen "DAIL: " & dail_message, 07, 07
 		    EMWriteScreen "Reason for request: " & request_reason, 08, 07
-			EMWriteScreen "Worker number: " & worker_xnumber , 09, 07
+			EMWriteScreen "Worker number: X127" & worker_xnumber , 09, 07
 		END IF
 		IF PF11_actions = "PMI merge request" THEN
 			EMWriteScreen "PMI merge request for case number: " & maxis_case_number, 05, 07
@@ -403,4 +403,4 @@ IF PF11_actions <> "Case note removal request" THEN
 	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "PF11 check: " & PF11_actions & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
 	outlook_reminder = True
 END IF
-script_end_procedure("It worked! " & PF11_actions & " Has been sent.")
+script_end_procedure("It worked! " & PF11_actions & " has been sent.")
