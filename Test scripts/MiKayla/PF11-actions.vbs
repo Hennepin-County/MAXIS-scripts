@@ -154,35 +154,42 @@ END If
 		'redefine ref_numb'
 		'MEMB_number = left(ref_numb, len(client_info) - 2)
 		MEMB_number = left(clt_to_update, 2)	'Settin the reference number
-		msgbox MEMB_number
+		'msgbox MEMB_number
 		EMWriteScreen MEMB_number, 20, 76
 		TRANSMIT
 		EMReadScreen client_first_name, 12, 6, 63
 		'replace(client_first_name, "_", "")
 		EMReadScreen client_last_name, 25, 6, 30
 		'replace(client_last_name, "_", "")
+		EMReadScreen client_DOB_month, 02, 08, 42
+		EMReadScreen client_DOB_date, 02, 08, 45
+		EMReadScreen client_DOB_year, 04, 08, 48
 
 		PF2 'going to PERS'
 		EMReadScreen nav_check, 4, 2, 47
-		msgbox nav_check
+		'msgbox nav_check
 		EMWriteScreen client_last_name, 04, 36
 		client_last_name = trim(client_last_name)
 		client_last_name = replace(client_last_name, "_", "")
-		msgbox client_last_name
+		'msgbox client_last_name
 		EMWriteScreen client_first_name, 10, 36
 		client_first_name = trim(client_first_name)
 		client_first_name = replace(client_first_name, "_", "")
-		MsgBox client_first_name
+		'MsgBox client_first_name
+		EMWriteScreen client_DOB_month, 11, 53
+		EMWriteScreen client_DOB_date, 11, 56
+		EMWriteScreen client_DOB_year, 11, 59
+
 		TRANSMIT
 
-	msgbox "where are we"
+	'msgbox "where are we"
 	'' PMI NBR ASSIGNED THRU SMI OR PMIN - NO MAXIS CASE EXISTS
 	If PF11_actions = "PMI merge request" then
 	BeginDialog PMI_merge_dialog, 0, 0, 276, 125, "PMI merge requested"
 	  EditBox 80, 5, 50, 15, PMI_number
 	  EditBox 80, 25, 50, 15, PMI_number_two
-	  DropListBox 80, 45, 190, 15, "Select One:"+chr(9)+"METS case opened"+chr(9)+"PMI created no case attached"+chr(9)+"Incorrect information on case", reason_request_dropdown
 	  EditBox 220, 25, 50, 15, second_case_number
+	  DropListBox 80, 45, 190, 15, "Select One:"+chr(9)+"METS case opened"+chr(9)+"PMI number assigned thru SMI or PMIN"+chr(9)+"Incorrect information on case", reason_request_dropdown
 	  EditBox 80, 65, 190, 15, action_taken
 	  EditBox 80, 85, 190, 15, other_notes
 	  ButtonGroup ButtonPressed
@@ -218,14 +225,18 @@ END If
 	'Problem.Reporting
 	EMReadScreen nav_check, 4, 1, 27
  	IF nav_check = "Prob" THEN
-		EMWriteScreen "PMI merge request", 05, 07
-		msgbox "are we writing"
+		EMWriteScreen "PMI merge request for case number: " & maxis_case_number, 05, 07
+		'msgbox "are we writing"
 		'EMWriteScreen client_SSN, 06, 07
-		EMWriteScreen PMI_number, 06, 07
-		EMWriteScreen PMI_number_two, 07, 07
-		EMWriteScreen reason_request_dropdown, 08, 07
+		EMWriteScreen "Current case PMI number: " & PMI_number, 06, 07
+		IF PMI_number_two <> "" THEN EMWriteScreen "Duplicate PMI number: " & PMI_number_two, 07, 07
+		'msgbox PMI_number
+		EMWriteScreen "Reason for request: " & reason_request_dropdown, 08, 07
+		'msgbox reason_request_dropdown
+		IF second_case_number <> "" THEN EMWriteScreen "Other case number: " & second_case_number, 08, 07
 		TRANSMIT
 		EMReadScreen task_number, 7, 3, 27
+		'msgbox task_number
 		TRANSMIT
 		'back_to_self
 		PF3 ''-self'
@@ -234,22 +245,26 @@ END If
 		MsgBox "Could not reach PF11."
 	END IF
 
+	reminder_date = dateadd("d", 5, date)
 
 	CALL start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	CALL write_variable_in_case_note("---PF11 requested---")
-	CALL write_bullet_and_variable_in_CASE_NOTE("Reason for request", PF11_actions)
+	CALL write_variable_in_case_note("---PF11 requested " & PF11_actions & "---")
+	CALL write_bullet_and_variable_in_CASE_NOTE("Reason for request", reason_request_dropdown)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Task number", task_number)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Requested for", client_info)
-	If PMI_number <> "" then Call write_bullet_and_variable_in_CASE_NOTE("PMI number", PMI_number)
-	If PMI_number_two <> "" then Call write_bullet_and_variable_in_CASE_NOTE("Second PMI number", PMI_number_two)
+	If PMI_number <> "" THEN Call write_bullet_and_variable_in_CASE_NOTE("PMI number", PMI_number)
+	If PMI_number_two <> "" then Call write_bullet_and_variable_in_CASE_NOTE("Duplicate PMI number", PMI_number_two)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Associated case number", second_case_number)
-	CALL write_bullet_and_variable_in_CASE_NOTE("Other SMRT notes", other_notes)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Actions taken", action_taken)
+	If outlook_reminder = True then call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
 	CALL write_variable_in_CASE_NOTE ("---")
 	CALL write_variable_in_CASE_NOTE(worker_signature)
+	PF3
 
 	'Outlook appointment is created in prior to the case note being created
 	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
 	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "PF11 check: " & PF11_actions & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
-	Outlook_remider = True
+	outlook_reminder = True
 
 script_end_procedure("It worked!")
