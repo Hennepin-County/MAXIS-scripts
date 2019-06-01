@@ -548,17 +548,23 @@ Loop until are_we_passworded_out = false
 
     TRANSMIT
     '----------------------------------------------------------------------------------------writing the note on IULB
-    Call clear_line_of_text(8, 6)
-    EMReadScreen err_msg, 11, 24, 2
-    err_msg = trim(err_msg)
-    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-    If err_msg = "ACTION CODE" THEN script_end_procedure_with_error_report(err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
-    EMWriteScreen "Claim entered. See Case Note. ", 8, 6
-    Call clear_line_of_text(17, 9)
-    IF OP_program <> "HC" THEN  EMWriteScreen Claim_number, 17, 9
-    'need to check about adding for multiple claims'
-    'msgbox "did the notes input?"
-    TRANSMIT 'this will take us back to IEVP main menu'
+	EMReadScreen action_code_err_msg, 11, 24, 2
+	action_code_err_msg = trim(action_code_err_msg)
+	IF action_code_err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	If action_code_err_msg = "ACTION CODE" THEN script_end_procedure_with_error_report(action_code_err_msg & vbNewLine & "Please ensure you are selecting the correct code for resolve. PF10 to ensure the match can be resolved using the script.")'checking for error msg'
+	Call clear_line_of_text(8, 6)
+	EMWriteScreen "Claim entered. See Case Note. ", 8, 6
+	Call clear_line_of_text(17, 9)
+	If action_header <> "ACTH" THEN EMWriteScreen Claim_number, 17, 9
+	'need to check about adding for multiple claims'
+	'msgbox "did the notes input?"
+	TRANSMIT 'this will take us back to IEVP main menu'
+	EMReadScreen err_msg, 75, 24, 2
+	err_msg = trim(err_msg)
+	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	'ENTER COMMENTS TO EXPLAIN ACTION/S TAKEN
+	'PERSON IS NOT ASSOCIATED WITH THIS CLAIM '
+	'CLAIM MAY NOT EXIST FOR THE SELECTED ACTION - this is ACTH
 
     EMReadScreen panel_name, 4, 02, 52
     IF panel_name <> "IEVP" THEN 'msgbox "Script did not find IEVP."
