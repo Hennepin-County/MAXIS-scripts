@@ -90,22 +90,6 @@ End If
 Do
 	err_msg = ""
 	'intial dialog for user to select a SMRT action
-	BeginDialog PF11_actions_dialog, 0, 0, 196, 130, "PF11 Action"
-	  EditBox 55, 5, 40, 15, maxis_case_number
-	  DropListBox 75, 25, 115, 15, "Select One:" & HH_Memb_DropDown, clt_to_update
-	  DropListBox 75, 45, 115, 15, "Select One:"+chr(9)+"PMI merge request"+chr(9)+"Non-actionable DAIL removal"+chr(9)+"Case note removal request"+chr(9)+"MFIP New Spouse Income"+chr(9)+"Other", PF11_actions
-	  Text 5, 85, 185, 20, "The system being down, issuance problems, or any type     of emergency should NOT be reported via a PF11."
-	  EditBox 75, 65, 115, 15, worker_signature
-	  ButtonGroup ButtonPressed
-	    OkButton 85, 110, 50, 15
-	    CancelButton 140, 110, 50, 15
-	    PushButton 105, 5, 85, 15, "HH MEMB SEARCH", search_button
-	  Text 5, 10, 45, 10, "Case number:"
-	  Text 5, 30, 70, 10, "Household member:"
-	  Text 5, 50, 65, 10, "Select PF11 action:"
-	  Text 5, 70, 60, 10, "Worker signature:"
-	EndDialog
-
 
 	Dialog PF11_actions_dialog
 	If ButtonPressed = cancel Then StopScript
