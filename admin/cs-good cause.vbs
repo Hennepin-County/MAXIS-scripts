@@ -316,11 +316,16 @@ EMReadScreen panel_check, 4, 2, 50
 IF panel_check = "ABPS" THEN
 	'MsgBox panel_check
     Do
+		EMReadScreen ABPS_last_name, 24, 10, 30	'reading last name
+		ABPS_last_name = replace(ABPS_last_name, "_", "")
+		'MsgBox ABPS_last_name
+		EMReadScreen ABPS_first_name, 12, 10, 63	'reading first name
+		ABPS_first_name = replace(ABPS_first_name, "_", "")
 		EMReadScreen ABPS_parent_ID, 10, 13, 40	'making sure ABPS is not unknown.
 		ABPS_parent_ID = trim(ABPS_parent_ID)
        	EMReadScreen current_panel_number, 1, 2, 73
 		'MsgBox current_panel_number
-       	ABPS_check = MsgBox("Is this the right ABPS to update?  " & ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
+       	ABPS_check = MsgBox("Is this the right ABPS to update?  " & ABPS_first_name & " " & ABPS_last_name & ", " &  ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
        	If ABPS_check = vbYes then
 			ABPS_found = TRUE
 			exit do
@@ -363,24 +368,28 @@ Do
 		END IF
 	END IF
 
-    Do
-		EMReadScreen ABPS_parent_ID_second_check, 10, 13, 40	'making sure ABPS is not unknown.
-		ABPS_parent_ID_second_check = trim(ABPS_parent_ID_second_check)
-      	EMReadScreen current_panel_number, 1, 2, 73
-		IF ABPS_parent_ID_second_check <> ABPS_parent_ID THEN
-			ABPS_check = MsgBox("Is this the right ABPS to update? Sometimes a new ID is created for the same ABPS. " & ABPS_parent_ID_second_check, vbYesNo + vbQuestion, "Confirmation")
-		    IF ABPS_check = vbYes THEN
-		    	ABPS_found = TRUE
-		    	EXIT DO
-		    END IF
-	        IF ABPS_check = vbNo then
-		    	ABPS_found = FALSE
-		    	TRANSMIT
-		    	EMReadScreen current_panel_number, 1, 2, 73
-		    END IF
-		END IF
-		If (ABPS_check = vbNo AND current_panel_number = total_amt_of_panels) THEN script_end_procedure_with_error_report("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
-	Loop until ABPS_found = TRUE
+
+	'Do
+	'	EMReadScreen ABPS_last_name, 24, 10, 30	'reading last name
+	'	ABPS_last_name = replace(ABPS_last_name, "_", "")
+	'	MsgBox ABPS_last_name & "second run"
+	'	EMReadScreen ABPS_first_name, 12, 10, 63	'reading first name
+	'	ABPS_first_name = replace(ABPS_first_name, "_", "")
+	'	EMReadScreen ABPS_parent_ID, 10, 13, 40	'making sure ABPS is not unknown.
+	'	ABPS_parent_ID = trim(ABPS_parent_ID)
+    '   	EMReadScreen current_panel_number, 1, 2, 73
+	'	'MsgBox current_panel_number
+    '   	ABPS_check = MsgBox("Is this the right ABPS to update? Sometimes a new ID is created for the same ABPS. " & ABPS_first_name & " " & ABPS_last_name & ", " &  ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
+    '   	If ABPS_check = vbYes then
+	'		ABPS_found = TRUE
+	'		exit do
+	'	END IF
+    '   	If ABPS_check = vbNo then
+	'		ABPS_found = FALSE
+	'		TRANSMIT
+	'	END IF
+	'	If (ABPS_check = vbNo AND current_panel_number = total_amt_of_panels) THEN script_end_procedure_with_error_report("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
+	'Loop until ABPS_found = TRUE
 
 	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
 	IF parental_status = "1" THEN
@@ -483,20 +492,29 @@ Do
                 EMReadScreen check_PNLP, 4, 2, 53
                 'msgbox "check PNLP: " & check_PNLP
                 IF check_PNLP = "PNLP" THEN
-                    CALL write_value_and_transmit("ABPS", 20, 71)
-					DO
-						EMReadScreen ABPS_parent_ID_check, 10, 13, 40
-						ABPS_parent_ID_CHECK = trim(ABPS_parent_ID_CHECK)
-						IF ABPS_parent_ID = ABPS_parent_ID_CHECK THEN
-							match_found = TRUE
-							EXIT DO
-						Else
-							match_found = FALSE
-						 	TRANSMIT
-							'msgbox
-						END IF
-					LOOP until match_found = TRUE
-                    'MsgBox "AM I IN A NEW FOOTER MONTH?"
+					CALL write_value_and_transmit("ABPS", 20, 71)
+					Do
+                        'CALL write_value_and_transmit("ABPS", 20, 71)
+					    EMReadScreen ABPS_last_name_check, 24, 10, 30	'reading last name
+					    ABPS_last_name_check = replace(ABPS_last_name_check, "_", "")
+					    'MsgBox ABPS_last_name_check & "second run"
+					    EMReadScreen ABPS_first_name_check, 12, 10, 63	'reading first name
+					    ABPS_first_name_check = replace(ABPS_first_name_check, "_", "")
+					    EMReadScreen ABPS_parent_ID, 10, 13, 40	'making sure ABPS is not unknown.
+					    ABPS_parent_ID = trim(ABPS_parent_ID)
+			       	    EMReadScreen current_panel_number, 1, 2, 73
+					    'MsgBox current_panel_number
+			       	    ABPS_check = MsgBox("Is this the right ABPS to update? Sometimes a new ID is created for the same ABPS.  " & ABPS_first_name_check & " " & ABPS_last_name_check & ", " &  ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
+			       	    If ABPS_check = vbYes then
+					    	ABPS_found = TRUE
+					    	exit do
+					    END IF
+			       	    If ABPS_check = vbNo then
+					    	ABPS_found = FALSE
+					    	TRANSMIT
+					    END IF
+					    If (ABPS_check = vbNo AND current_panel_number = panel_number) then	script_end_procedure_with_error_report("Unable to find another ABPS. Please review the case, and run the script again if applicable.")
+			    	Loop until ABPS_found = TRUE
                 END IF
 			END IF
 	    END IF
