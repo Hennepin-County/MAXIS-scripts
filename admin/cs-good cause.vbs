@@ -344,7 +344,7 @@ Do
 			msgbox "are we in the edit mode"
 		ElseIF edit_mode_check = "E" THEN
 			EXIT DO
-			msgbox edit_mode_check & "why are we not in edit mode?"
+			msgbox edit_mode_check & " why are we not in edit mode?"
 		END IF
 	Loop
 
@@ -368,7 +368,7 @@ Do
 		ABPS_parent_ID_second_check = trim(ABPS_parent_ID_second_check)
       	EMReadScreen current_panel_number, 1, 2, 73
 		IF ABPS_parent_ID_second_check <> ABPS_parent_ID THEN
-			ABPS_check = MsgBox("Is this the right ABPS to update? Sometimes a new ID is created for the same ABPS." & ABPS_parent_ID_second_check, vbYesNo + vbQuestion, "Confirmation")
+			ABPS_check = MsgBox("Is this the right ABPS to update? Sometimes a new ID is created for the same ABPS. " & ABPS_parent_ID_second_check, vbYesNo + vbQuestion, "Confirmation")
 		    IF ABPS_check = vbYes THEN
 		    	ABPS_found = TRUE
 		    	EXIT DO
@@ -493,7 +493,7 @@ Do
 						Else
 							match_found = FALSE
 						 	TRANSMIT
-							msgbox
+							'msgbox
 						END IF
 					LOOP until match_found = TRUE
                     'MsgBox "AM I IN A NEW FOOTER MONTH?"
