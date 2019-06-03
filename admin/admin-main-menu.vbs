@@ -116,8 +116,8 @@ DIM ButtonPressed
 Dim admin_dialog
 'Dim script_array_admin_main
 'Dim script_array_QI_list
-'Dim script_array_BZ_list 
-'Dim script_array_task_list 
+'Dim script_array_BZ_list
+'Dim script_array_task_list
 
 script_array_admin_main = array()
 script_array_QI_list = array()
@@ -200,6 +200,13 @@ Set script_array_admin_main(script_num) = new script	'Set this array element to 
 script_array_admin_main(script_num).script_name			= "MFIP Sanction FIATer"											'Script name
 script_array_admin_main(script_num).file_name			= "mfip-sanction-fiater.vbs"										'Script URL
 script_array_admin_main(script_num).description			= "FIATs MFIP sanction actions for CS, ES and both types of sanctions."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
+Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_admin_main(script_num).script_name			= "PF11"											'Script name
+script_array_admin_main(script_num).file_name			= "PF11-actions.vbs"										'Script URL
+script_array_admin_main(script_num).description			= "PF11 actions for PMI merge, unactionable DAILS, duplicate case note, and MFIP spouse."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
@@ -316,7 +323,7 @@ script_array_BZ_list(script_num).file_name			= "send-cbo-manual-referrals.vbs"		
 script_array_BZ_list(script_num).description		= "Sends manual referrals for a list of cases provided by Employment and Training."
 
 'MONTHLY TASKS scripts----------------------------------------------------------------------------------------------------
-script_num = 0                                     
+script_num = 0
 ReDim Preserve script_array_task_list(script_num)   'Resets the array to add one more element to it
 Set script_array_task_list(script_num) = new script 'Set this array element to be a new script. Script details below...
 script_array_task_list(script_num).script_name 		= " ABAWD Report "											'Script name
@@ -413,17 +420,17 @@ QI_button	        = 2000
 BZ_button           = 3000
 tasks_button        = 4000
 
-show_QI_button = False 
-show_BZ_button = False 
-show_tasks_button = False 
+show_QI_button = False
+show_BZ_button = False
+show_tasks_button = False
 
 'Displays the dialog
 Do
     'BZST scripts menu authorization
     If user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "WFS395" OR user_ID_for_validation = "CALO001" OR user_ID_for_validation = "WFX901" OR user_ID_for_validation = "WFU851" then
-        show_BZ_button = True 
+        show_BZ_button = True
         show_QI_button = True
-        show_tasks_button = True 
+        show_tasks_button = True
     End if
     'QI scripts menu authorization
     If user_ID_for_validation = "WFI021" OR user_ID_for_validation = "WFU161" OR user_ID_for_validation = "WF7638" OR user_ID_for_validation = "WFP106" OR user_ID_for_validation = "WFQ898" OR user_ID_for_validation = "WFK093" OR _
@@ -436,7 +443,7 @@ Do
     elseif ButtonPressed = BZ_button then
         If show_BZ_button = True then declare_admin_menu_dialog(script_array_BZ_list)
     elseif ButtonPressed = tasks_button then
-        If show_tasks_button = True then declare_admin_menu_dialog(script_array_task_list) 
+        If show_tasks_button = True then declare_admin_menu_dialog(script_array_task_list)
     end if
 
     dialog admin_dialog
