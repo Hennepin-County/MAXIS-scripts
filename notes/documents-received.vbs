@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("06/03/2019", "Added MTAF and LTC 1503 forms to testing.", "Casey Love, Hennepin County")
 call changelog_update("03/08/2019", "EVF received functionality added. This used to be a seperate script and will now be a part of documents received.", "Casey Love, Hennepin County")
 call changelog_update("01/03/2017", "Added HSR scanner option for Hennepin County users only.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -317,6 +318,8 @@ Do
         Call validate_MAXIS_case_number(err_msg, "*")
 		IF IsNumeric(MAXIS_footer_month) = FALSE OR IsNumeric(MAXIS_footer_year) = FALSE THEN err_msg = err_msg & vbNewLine &  "* You must type a valid footer month and year."
         If IsDate(doc_date_stamp) = FALSE Then err_msg = err_msg & vbNewLine & "* Please enter a valid document date."
+
+        If err_msg <> "" Then MsgBox "Please Resolve to Continue:" & vbNewLine & err_msg
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -507,12 +510,14 @@ If evf_form_received_checkbox = checked Then
     		If info = "no" and request_info <> "" then err_msg = err_msg & vbCr & "* You cannot mark additional info as 'no' and have information requested."
     		If info = "no" and info_date <> "" then err_msg = err_msg & vbCr & "* You cannot mark additional info as 'no' and have a date requested."
     		If EVF_TIKL_checkbox = 1 and info <> "yes" then err_msg = err_msg & vbCr & "* Additional informaiton was not requested, uncheck the TIKL checkbox."
+            If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
             If skip_evf = TRUE Then
                 evf_form_received_checkbox = unchecked
                 err_msg = ""
                 EVF_TIKL_checkbox = unchecked
             End If
-    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "* Please resolve for the script to continue."
+
+    		IF err_msg <> "" AND left(err_msg,4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "* Please resolve for the script to continue."
     	LOOP UNTIL err_msg = ""
     	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
     LOOP UNTIL are_we_passworded_out = false
@@ -571,11 +576,13 @@ If mof_form_checkbox = checked Then
             'Call validate_MAXIS_case_number(err_msg, "*")
             If mof_hh_memb = "Select One..." Then err_msg = err_ms & vbNewLine & "* Select the household member."
             IF actions_taken = "" THEN err_msg = err_msg & vbCr & "* You must enter your actions taken."		'checks that notes were entered
+            If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
             If skip_MOF= TRUE Then
                 err_msg = ""
                 mof_form_checkbox = unchecked
             End If
-        	If err_msg <> "" Then msgbox "Please resolve the following for the script to continue:" & vbNewLine & err_msg
+
+        	If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then msgbox "Please resolve the following for the script to continue:" & vbNewLine & err_msg
         LOOP until err_msg = ""
         Call check_for_password(are_we_passworded_out)
     Loop until are_we_passworded_out = FALSE
@@ -984,13 +991,13 @@ If asset_form_checkbox = checked Then
                 Call cancel_continue_confirmation(skip_asset)
 
                 IF actions_taken = "" THEN err_msg = err_msg & vbCr & "* You must enter your actions taken."		'checks that notes were entered
-
+                If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
                 If skip_asset= TRUE Then
                     err_msg = ""
                     asset_form_checkbox = unchecked
                 End If
 
-                If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+                If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
 
             Loop Until err_msg = ""
             Call check_for_password(are_we_passworded_out)
@@ -1122,13 +1129,13 @@ If asset_form_checkbox = checked Then
                 Call cancel_continue_confirmation(skip_asset)
 
                 IF actions_taken = "" AND run_updater_checkbox = unchecked THEN err_msg = err_msg & vbCr & "* You must enter your actions taken."		'checks that notes were entered
-
+                If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
                 If skip_asset= TRUE Then
                     err_msg = ""
                     asset_form_checkbox = unchecked
                 End If
 
-                If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+                If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
 
             Loop Until err_msg = ""
             Call check_for_password(are_we_passworded_out)
@@ -1327,13 +1334,13 @@ If asset_form_checkbox = checked Then
                             ASSETS_ARRAY(ast_wthdr_YN, asset_counter) = "Y"
                             If ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = "Select..." Then err_msg = err_msg & vbNewLine & "* If there is a withdraw penalty amount listed, this amount needs a verification selected."
                         End If
-
+                        If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
                         If skip_this_panel = TRUE Then
                             err_msg = ""
                             If update_panel_type = "New ACCT" Then ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter - 1)
                         End If
 
-                        If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+                        If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
 
                     Loop until err_msg = ""
                     Call check_for_password(are_we_passworded_out)
@@ -1679,13 +1686,13 @@ If asset_form_checkbox = checked Then
                             ASSETS_ARRAY(ast_wthdr_YN, asset_counter) = "Y"
                             If ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = "Select..." Then err_msg = err_msg & vbNewLine & "* If there is a withdraw penalty amount listed, this amount needs a verification selected."
                         End If
-
+                        If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
                         If skip_this_panel = TRUE Then
                             err_msg = ""
                             If update_panel_type = "New SECU" Then ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter - 1)
                         End If
 
-                        If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+                        If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
 
                     Loop until err_msg = ""
                     Call check_for_password(are_we_passworded_out)
@@ -2025,13 +2032,13 @@ If asset_form_checkbox = checked Then
                             ASSETS_ARRAY(ast_wthdr_YN, asset_counter) = "Y"
                             If ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = "Select..." Then err_msg = err_msg & vbNewLine & "* If there is a withdraw penalty amount listed, this amount needs a verification selected."
                         End If
-
+                        If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
                         If skip_this_panel = TRUE Then
                             err_msg = ""
                             If update_panel_type = "New SECU" Then ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter - 1)
                         End If
 
-                        If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+                        If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
 
                     Loop until err_msg = ""
                     Call check_for_password(are_we_passworded_out)
@@ -2204,13 +2211,13 @@ If arep_form_checkbox = checked Then
         	IF SNAP_AREP_check <> checked AND HC_AREP_check <> checked AND CASH_AREP_check <> checked THEN err_msg = err_msg & vbNewLine &"* Select a program"
         	IF isdate(arep_signature_date) = false THEN err_msg = err_msg & vbNewLine & "* Enter a valid date for the date the form was signed/valid from."
         	IF (TIKL_check = checked AND arep_signature_date = "") THEN err_msg = err_msg & vbNewLine & "* You have requested the script to TIKL based on the signature date but you did not enter the signature date."
-
+            If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
             If skip_arep = TRUE Then
                 err_msg = ""
                 arep_form_checkbox = unchecked
             End If
 
-        	IF err_msg <> "" THEN MsgBox "Plese resolve the following to continue:" & vbNewLine & err_msg
+        	IF err_msg <> ""  AND left(err_msg,4) <> "LOOP" THEN MsgBox "Plese resolve the following to continue:" & vbNewLine & err_msg
         Loop until err_msg = ""
         call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
     LOOP UNTIL are_we_passworded_out = false
@@ -2339,31 +2346,33 @@ If LTC_case = vbYes Then
 End If
 
 If mtaf_form_checkbox = checked Then
-
-    BeginDialog Dialog1, 0, 0, 186, 265, "MTAF dialog"
-      EditBox 55, 5, 60, 15, MTAF_date
-      DropListBox 55, 25, 60, 15, "Select one..."+chr(9)+"complete"+chr(9)+"incomplete", MTAF_status_dropdown
-      EditBox 55, 45, 60, 15, MFIP_elig_date
-      CheckBox 5, 65, 55, 10, "MTAF signed.", mtaf_signed_checkbox
-      CheckBox 5, 80, 140, 10, "MFIP/financial orientation completed.", mfip_financial_orientation_checkbox
-      CheckBox 5, 95, 150, 10, "Client exempt from cooperation with ES.", ES_exemption_checkbox
-      CheckBox 5, 110, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
-      EditBox 55, 125, 60, 15, interview_date
-      CheckBox 5, 145, 135, 10, "Rights and responsibilities explained.", RR_explained_checkbox
-      ButtonGroup ButtonPressed
-        OkButton 80, 245, 50, 15
-        CancelButton 130, 245, 50, 15
-      Text 5, 10, 40, 10, "MTAF date:"
-      Text 5, 30, 45, 10, "MTAF status:"
-      Text 5, 50, 50, 10, "MFIP elig date:"
-      Text 5, 130, 50, 10, "Interview date:"
-      GroupBox 5, 155, 175, 85, ""
-      Text 15, 165, 155, 25, "*STOP WORK - Verification only necessary to verify income in the month of application/eligibility. (CM 0010.18.01)"
-      Text 15, 200, 160, 35, "**SUBSIDY - Verification of housing subsidy is a mandatory verification for MFIP. STAT must be appropriately updated to ensure accurate approval of housing grant. (CM 0010.18.01)"
-    EndDialog
+    MTAF_date = doc_date_stamp
 
     Do
         Do
+
+            BeginDialog Dialog1, 0, 0, 186, 265, "MTAF dialog"
+              EditBox 55, 5, 60, 15, MTAF_date
+              DropListBox 55, 25, 60, 15, "Select one..."+chr(9)+"complete"+chr(9)+"incomplete", MTAF_status_dropdown
+              EditBox 55, 45, 60, 15, MFIP_elig_date
+              CheckBox 5, 65, 55, 10, "MTAF signed.", mtaf_signed_checkbox
+              CheckBox 5, 80, 140, 10, "MFIP/financial orientation completed.", mfip_financial_orientation_checkbox
+              CheckBox 5, 95, 150, 10, "Client exempt from cooperation with ES.", ES_exemption_checkbox
+              CheckBox 5, 110, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
+              EditBox 55, 125, 60, 15, interview_date
+              CheckBox 5, 145, 135, 10, "Rights and responsibilities explained.", RR_explained_checkbox
+              ButtonGroup ButtonPressed
+                OkButton 80, 245, 50, 15
+                CancelButton 130, 245, 50, 15
+              Text 5, 10, 40, 10, "MTAF date:"
+              Text 5, 30, 45, 10, "MTAF status:"
+              Text 5, 50, 50, 10, "MFIP elig date:"
+              Text 5, 130, 50, 10, "Interview date:"
+              GroupBox 5, 155, 175, 85, ""
+              Text 15, 165, 155, 25, "*STOP WORK - Verification only necessary to verify income in the month of application/eligibility. (CM 0010.18.01)"
+              Text 15, 200, 160, 35, "**SUBSIDY - Verification of housing subsidy is a mandatory verification for MFIP. STAT must be appropriately updated to ensure accurate approval of housing grant. (CM 0010.18.01)"
+            EndDialog
+
             err_msg = ""
 
             dialog Dialog1
@@ -2372,13 +2381,13 @@ If mtaf_form_checkbox = checked Then
             If IsDate(MTAF_date) = False Then err_msg = err_msg & vbNewLine & "* Enter the date the MTAF was received."
             If MTAF_status_dropdown = "Select one..." Then err_msg = err_msg & vbNewLine & "* Indicate the status of the MTAF."
             'If  Then err_msg = err_msg & vbNewLine & "* "
-
+            If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
             If skip_mtaf = TRUE Then
                 err_msg = ""
                 mtaf_form_checkbox = unchecked
             End If
 
-            If err_msg <> "" Then MsgBox ("Please resolve to continue:" & vbNewLine & err_msg)
+            If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox ("Please resolve to continue:" & vbNewLine & err_msg)
 
         Loop until err_msg = ""
         Call check_for_password(are_we_passworded_out)
@@ -2387,40 +2396,41 @@ End If
 
 
 If mtaf_form_checkbox = checked Then
-    BeginDialog Dialog1, 0, 0, 341, 335, "MTAF dialog"
-      CheckBox 5, 10, 225, 10, "Check here if all other docs rec'vd are associated with this MTAF.", MTAF_note_only_checkbox
-      EditBox 75, 40, 260, 15, ADDR_change
-      EditBox 75, 60, 260, 15, HHcomp_change
-      EditBox 75, 80, 260, 15, asset_change
-      EditBox 105, 100, 230, 15, earned_income_change
-      EditBox 105, 120, 230, 15, unearned_income_change
-      EditBox 105, 140, 230, 15, shelter_costs_change
-      EditBox 175, 160, 160, 15, subsidized_housing
-      DropListBox 175, 180, 160, 15, "Select one..."+chr(9)+"Not subsidized"+chr(9)+"Verification provided"+chr(9)+"Verification pending", sub_housing_droplist
-      EditBox 110, 195, 225, 15, child_adult_care_costs
-      EditBox 110, 215, 225, 15, relationship_proof
-      EditBox 175, 235, 160, 15, referred_to_OMB_PBEN
-      EditBox 125, 255, 210, 15, elig_results_fiated
-      EditBox 75, 275, 260, 15, other_notes
-      EditBox 75, 295, 260, 15, verifications_needed
+    BeginDialog Dialog1, 0, 0, 345, 350, "MTAF dialog"
+      CheckBox 10, 10, 225, 10, "Check here if all other docs rec'vd are associated with this MTAF.", MTAF_note_only_checkbox
+      EditBox 75, 50, 260, 15, ADDR_change
+      EditBox 75, 70, 260, 15, HHcomp_change
+      EditBox 75, 90, 260, 15, asset_change
+      EditBox 105, 110, 230, 15, earned_income_change
+      EditBox 105, 130, 230, 15, unearned_income_change
+      EditBox 105, 150, 230, 15, shelter_costs_change
+      EditBox 175, 170, 160, 15, subsidized_housing
+      DropListBox 175, 190, 160, 15, "Select one..."+chr(9)+"Not subsidized"+chr(9)+"Verification provided"+chr(9)+"Verification pending", sub_housing_droplist
+      EditBox 110, 205, 225, 15, child_adult_care_costs
+      EditBox 110, 225, 225, 15, relationship_proof
+      EditBox 175, 245, 160, 15, referred_to_OMB_PBEN
+      EditBox 125, 265, 210, 15, elig_results_fiated
+      EditBox 75, 285, 260, 15, other_notes
+      EditBox 75, 305, 260, 15, verifications_needed
       ButtonGroup ButtonPressed
-        OkButton 230, 315, 50, 15
-        CancelButton 285, 315, 50, 15
-      Text 5, 25, 210, 10, "**Changes reported on MTAF**  (Complete boxes as applicable.)"
-      Text 5, 45, 70, 10, "Change in address:"
-      Text 5, 65, 70, 10, "Change in HH comp:"
-      Text 5, 85, 70, 10, "Change in assets:"
-      Text 5, 105, 90, 10, "*Change in earned income:"
-      Text 5, 125, 95, 10, "Change in unearned income:"
-      Text 5, 145, 95, 10, "Change in shelter costs:"
-      Text 5, 165, 170, 10, "Is housing subsidized? If so, what is the amount?"
-      Text 75, 180, 100, 10, "**Subsidized housing status:"
-      Text 5, 200, 85, 10, "Child or adult care costs:"
-      Text 5, 220, 95, 10, "Proof of relationship on file:"
-      Text 5, 240, 160, 10, "Client has been referred to apply for OMB/PBEN:"
-      Text 5, 260, 115, 10, "Eligibility results fiated? If so, why:"
-      Text 5, 280, 45, 10, "Other notes:"
-      Text 5, 300, 70, 10, "Verifications needed:"
+        OkButton 235, 330, 50, 15
+        CancelButton 290, 330, 50, 15
+      Text 20, 20, 225, 10, "Checking this box creates a MTAF CASE/NOTE ONLY."
+      GroupBox 5, 35, 335, 290, "**Changes reported on MTAF**  (Complete boxes as applicable.)"
+      Text 10, 55, 65, 10, "Address changes:"
+      Text 10, 75, 65, 10, "HH comp changes:"
+      Text 10, 95, 65, 10, "Assets changes:"
+      Text 10, 115, 90, 10, "*Change in earned income:"
+      Text 10, 135, 95, 10, "Change in unearned income:"
+      Text 10, 155, 95, 10, "Change in shelter costs:"
+      Text 10, 175, 165, 10, "Is housing subsidized? If so, what is the amount?"
+      Text 80, 190, 95, 10, "**Subsidized housing status:"
+      Text 10, 210, 85, 10, "Child or adult care costs:"
+      Text 10, 230, 95, 10, "Proof of relationship on file:"
+      Text 10, 250, 160, 10, "Client has been referred to apply for OMB/PBEN:"
+      Text 10, 270, 115, 10, "Eligibility results fiated? If so, why:"
+      Text 10, 290, 45, 10, "Other notes:"
+      Text 10, 310, 65, 10, "Verifs needed:"
     EndDialog
 
     Do
@@ -2430,14 +2440,15 @@ If mtaf_form_checkbox = checked Then
             dialog Dialog1
             cancel_continue_confirmation(skip_mtaf)
 
+            If sub_housing_droplist = "Select one..." Then err_msg = err_msg & vbNewLine & "* Indicate if housind is subsidized or not."
+
+            If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
             If skip_mtaf = TRUE Then
                 err_msg = ""
                 mtaf_form_checkbox = unchecked
             End If
 
-            If sub_housing_droplist = "Select one..." Then err_msg = err_msg & vbNewLine & "* Indicate if housind is subsidized or not."
-
-            If err_msg <> "" Then MsgBox ("Please resolve to continue:" & vbNewLine & err_msg)
+            If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox ("Please resolve to continue:" & vbNewLine & err_msg)
 
         Loop until err_msg = ""
         Call check_for_password(are_we_passworded_out)
@@ -2664,11 +2675,12 @@ If ltc_1503_form_checkbox = checked Then
 
     		dialog Dialog1  					'Calling a dialog without a assigned variable will call the most recently defined dialog
     		Call cancel_continue_confirmation(skip_1503)
-
+            If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
             If skip_1503= TRUE Then
                 err_msg = ""
                 ltc_1503_form_checkbox = unchecked
             End If
+
     	LOOP UNTIL err_msg = ""        'currently there are no elements to review or mandate
     	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -2812,7 +2824,7 @@ If left(docs_rec, 2) = ", " Then docs_rec = right(docs_rec, len(docs_rec)-2)    
 
 If need_final_note = FALSE Then
     If ltc_1503_form_checkbox = checked Then script_end_procedure_with_error_report("The script run is complete, a case note for the LTC 1503 form has been entered. There are no additional documents indicated in the initial dialog and so the final note will not be entered as it would be blank.")
-    If mtaf_form_checkbox = checked Then script_end_procedure_with_error_report("The script run is complete, a case note for the MTACF has been entered. The documents are either noted with the MTAF or there are no additional documents to be noted and the note would be blank.")
+    If mtaf_form_checkbox = checked Then script_end_procedure_with_error_report("The script run is complete, a case note for the MTAF has been entered. The documents are either noted with the MTAF or there are no additional documents to be noted and the note would be blank.")
     script_end_procedure_with_error_report("The script run is complete, but no detail about documents has been added and the final case note will not be entered as it would be blank.")
 End If
 
