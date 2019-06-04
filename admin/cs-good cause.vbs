@@ -571,60 +571,60 @@ IF OTHER_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " other (se
 incomplete_form  = trim(incomplete_form)
 If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
 '-----------------------------------------------------------------------------------------------------Case note & email sending
-'Call MAXIS_footer_month_confirmation    'Footer month & year could get wonky and not go into case note. This prevents that from happening.
-'start_a_blank_case_note
-'IF good_cause_droplist = "Application Review-Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
-'IF good_cause_droplist = "Application Review-Incomplete" THEN Call write_variable_in_case_note("Good Cause Application Review - Incomplete")
-'IF good_cause_droplist = "Change/exemption ending" THEN
-'	Call write_variable_in_case_note("Good Cause Application Change/exemption ending")
-'	Call write_bullet_and_variable_in_case_note("Date of change reported", change_reported_date)
-'	Call write_bullet_and_variable_in_case_note("What change was reported", change_reported)
-'	Call write_bullet_and_variable_in_case_note("What was updated in MAXIS", maxis_updates)
-'	IF no_longer_claiming_checkbox = CHECKED THEN Call write_variable_in_case_note("* Client is no longer claiming good cause")
-'END IF
-'IF good_cause_droplist = "Determination" THEN Call write_variable_in_case_note("Good Cause Application - Determination")
-'IF good_cause_droplist = "Recertification" THEN Call write_variable_in_case_note("Good Cause Application Review - Recertification")
-'Call write_bullet_and_variable_in_case_note("Good cause status", gc_status)
-'If claim_date <> "" THEN Call write_bullet_and_variable_in_case_note("Good cause claim date", claim_date)
-'If review_date <> "" THEN Call write_bullet_and_variable_in_case_note("Next review date", review_date)
-'Call write_variable_in_case_note("* Child(ren) member number(s): " & child_ref_number)
-'Call write_bullet_and_variable_in_case_note("ABPS name", client_name)
- 'Call write_bullet_and_variable_in_case_note("Parental status", client_name)
-'CALL write_bullet_and_variable_in_case_note("Applicable programs", programs_included)
-'IF reason_droplist <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Reason for claiming good cause", reason_droplist)
-'IF incomplete_form <> "Select One" THEN Call write_bullet_and_variable_in_case_note("What is GC form incomplete for", incomplete_form)
-'If denial_reason <> "" THEN Call write_bullet_and_variable_in_case_note("Reason for denial", denial_reason)
-'IF mets_info <> "" THEN Call write_bullet_and_variable_in_case_note("METS information", mets_info )
-'IF verfis_req <> "" THEN Call write_bullet_and_variable_in_case_note("Requested Verifcation(s)", verifs_req)
-'IF other_notes <> "" THEN Call write_bullet_and_variable_in_case_note("Additional information", other_notes)
-'IF DHS_2338_complete_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* DHS-2338 is in ECF, and fully completed by parent/caregiver.")
-'IF SUP_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent request of proof to support a good cause claim")
-'IF DHS_2338_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Client Statement (DHS-2338)")
-'IF DHS_3628_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Notice of Denial of Good Cause Exemption (DHS-3628)")
-'IF DHS_3629_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Notice of Good Cause Approval (DHS-3629)")
-'IF DHS_3632_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Request for Additional Information (DHS 3632)")
-'IF DHS_3631_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause End Exemption (DHS-3631)")
-'IF DHS_3627_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Imp Information about Your Request Exemption (DHS-3627)")
-'IF Recert_CHECKBOX   = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Yearly Determination Packet")
-'IF DHS_3633_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Redetermination Approval (DHS 3633)")
-'Call write_variable_in_case_note("---")
-'Call write_variable_in_case_note(worker_signature)
-'PF3
-'
-'IF FS_CHECKBOX = CHECKED and CASH_CHECKBOX = UNCHECKED and CCA_CHECKBOX = UNCHECKED and DWP_CHECKBOX = UNCHECKED and MFIP_CHECKBOX = UNCHECKED and HC_CHECKBOX = UNCHECKED and METS_CHECKBOX = UNCHECKED THEN memo_started = TRUE
-'
-'IF memo_started = TRUE THEN
-'	Call start_a_new_spec_memo
-'	EMsendkey("************************************************************")
-'	Call write_variable_in_SPEC_MEMO("You recently applied for Food Support assistance and")
-'	Call write_variable_in_SPEC_MEMO("requested Good Cause for Child Support.")
-'	Call write_variable_in_SPEC_MEMO("You do not need to cooperate with Child Support for Food")
-'	Call write_variable_in_SPEC_MEMO("Support applications, therefore you do not need to request")
-'	Call write_variable_in_SPEC_MEMO("good cause at this time.")
-'	Call write_variable_in_SPEC_MEMO("If you apply for Cash or Health Care programs in the future")
-'	Call write_variable_in_SPEC_MEMO("you will need to resubmit the application for Good Cause.")
-'	Call write_variable_in_SPEC_MEMO("************************************************************")
-'	PF4
-'END IF
+Call MAXIS_footer_month_confirmation    'Footer month & year could get wonky and not go into case note. This prevents that from happening.
+start_a_blank_case_note
+IF good_cause_droplist = "Application Review-Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
+IF good_cause_droplist = "Application Review-Incomplete" THEN Call write_variable_in_case_note("Good Cause Application Review - Incomplete")
+IF good_cause_droplist = "Change/exemption ending" THEN
+	Call write_variable_in_case_note("Good Cause Application Change/exemption ending")
+	Call write_bullet_and_variable_in_case_note("Date of change reported", change_reported_date)
+	Call write_bullet_and_variable_in_case_note("What change was reported", change_reported)
+	Call write_bullet_and_variable_in_case_note("What was updated in MAXIS", maxis_updates)
+	IF no_longer_claiming_checkbox = CHECKED THEN Call write_variable_in_case_note("* Client is no longer claiming good cause")
+END IF
+IF good_cause_droplist = "Determination" THEN Call write_variable_in_case_note("Good Cause Application - Determination")
+IF good_cause_droplist = "Recertification" THEN Call write_variable_in_case_note("Good Cause Application Review - Recertification")
+Call write_bullet_and_variable_in_case_note("Good cause status", gc_status)
+If claim_date <> "" THEN Call write_bullet_and_variable_in_case_note("Good cause claim date", claim_date)
+If review_date <> "" THEN Call write_bullet_and_variable_in_case_note("Next review date", review_date)
+Call write_variable_in_case_note("* Child(ren) member number(s): " & child_ref_number)
+Call write_bullet_and_variable_in_case_note("ABPS name", client_name)
+Call write_bullet_and_variable_in_case_note("Parental status", client_name)
+CALL write_bullet_and_variable_in_case_note("Applicable programs", programs_included)
+IF reason_droplist <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Reason for claiming good cause", reason_droplist)
+IF incomplete_form <> "Select One" THEN Call write_bullet_and_variable_in_case_note("What is GC form incomplete for", incomplete_form)
+If denial_reason <> "" THEN Call write_bullet_and_variable_in_case_note("Reason for denial", denial_reason)
+IF mets_info <> "" THEN Call write_bullet_and_variable_in_case_note("METS information", mets_info )
+IF verfis_req <> "" THEN Call write_bullet_and_variable_in_case_note("Requested Verifcation(s)", verifs_req)
+IF other_notes <> "" THEN Call write_bullet_and_variable_in_case_note("Additional information", other_notes)
+IF DHS_2338_complete_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* DHS-2338 is in ECF, and fully completed by parent/caregiver.")
+IF SUP_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent request of proof to support a good cause claim")
+IF DHS_2338_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Client Statement (DHS-2338)")
+IF DHS_3628_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Notice of Denial of Good Cause Exemption (DHS-3628)")
+IF DHS_3629_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Notice of Good Cause Approval (DHS-3629)")
+IF DHS_3632_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Request for Additional Information (DHS 3632)")
+IF DHS_3631_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause End Exemption (DHS-3631)")
+IF DHS_3627_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Imp Information about Your Request Exemption (DHS-3627)")
+IF Recert_CHECKBOX   = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Yearly Determination Packet")
+IF DHS_3633_CHECKBOX = CHECKED THEN Call write_variable_in_case_note("* Sent Good Cause Redetermination Approval (DHS 3633)")
+Call write_variable_in_case_note("---")
+Call write_variable_in_case_note(worker_signature)
+PF3
+
+IF FS_CHECKBOX = CHECKED and CASH_CHECKBOX = UNCHECKED and CCA_CHECKBOX = UNCHECKED and DWP_CHECKBOX = UNCHECKED and MFIP_CHECKBOX = UNCHECKED and HC_CHECKBOX = UNCHECKED and METS_CHECKBOX = UNCHECKED THEN memo_started = TRUE
+
+IF memo_started = TRUE THEN
+	Call start_a_new_spec_memo
+	EMsendkey("************************************************************")
+	Call write_variable_in_SPEC_MEMO("You recently applied for Food Support assistance and")
+	Call write_variable_in_SPEC_MEMO("requested Good Cause for Child Support.")
+	Call write_variable_in_SPEC_MEMO("You do not need to cooperate with Child Support for Food")
+	Call write_variable_in_SPEC_MEMO("Support applications, therefore you do not need to request")
+	Call write_variable_in_SPEC_MEMO("good cause at this time.")
+	Call write_variable_in_SPEC_MEMO("If you apply for Cash or Health Care programs in the future")
+	Call write_variable_in_SPEC_MEMO("you will need to resubmit the application for Good Cause.")
+	Call write_variable_in_SPEC_MEMO("************************************************************")
+	PF4
+END IF
 PF3
 Script_end_procedure_with_error_report("Success! MAXIS has been updated, and the Good Cause results case noted.")
