@@ -408,31 +408,61 @@ For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
 Next
 
 'DIALOG to select the WCOM to add
-BeginDialog wcom_selection_dlg, 0, 0, 241, 385, "Check the WCOM needed"
-  CheckBox 20, 55, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
-  CheckBox 20, 70, 160, 10, "Homeless exemption information", abawd_homeless_wcom_checkbox
-  CheckBox 20, 85, 190, 10, "Postponed WREG verifs for EXP SNAP *", wreg_postponed_verif_wcom_checkbox
-  CheckBox 20, 100, 130, 10, "Temporarily disabled *", temp_disa_abawd_wcom_checkbox
-  CheckBox 20, 115, 155, 10, "WREG coded for Child under 18 *", abawd_child_coded_wcom_checkbox
-  CheckBox 25, 150, 140, 10, "Banked Months - E and T voluntary *", banked_mos_vol_e_t_wcom_checkbox
-  CheckBox 25, 165, 175, 10, "Banked Months - Closing for all 9 months used", banked_mos_used_wcom_checkbox
-  CheckBox 25, 180, 145, 10, "Banked Months -  Possibly available", banked_mos_avail_wcom_checkbox
-  CheckBox 20, 220, 150, 10, "Closed/denied with PACT *", snap_pact_wcom_checkbox
-  CheckBox 20, 235, 155, 10, "Closed via PACT for new HH Member *", pact_fraud_wcom_checkbox
-  CheckBox 20, 250, 145, 10, "Closing due to Returned Mail *", snap_returned_mail_wcom_checkbox
-  CheckBox 20, 265, 115, 10, "Closing SNAP and MFIP opening *", snap_to_mfip_wcom_checkbox
-  CheckBox 20, 280, 185, 10, "EXP SNAP - Postponed verif of CAF page 9 Signature *", signature_postponed_verif_wcom_checkbox
-  CheckBox 20, 315, 60, 10, "CASH Denied *", cash_denied_checkbox
-  CheckBox 20, 330, 130, 10, "CASH closing due to Returned Mail*", mfip_returned_mail_wcom_checkbox
-  CheckBox 20, 345, 125, 10, "MFIP Closing and SNAP opening *", mfip_to_snap_wcom_checkbox
+'Commented out as we have a TEMP WCOM in place for COLAs'
+' BeginDialog wcom_selection_dlg, 0, 0, 241, 385, "Check the WCOM needed"
+'   CheckBox 20, 55, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
+'   CheckBox 20, 70, 160, 10, "Homeless exemption information", abawd_homeless_wcom_checkbox
+'   CheckBox 20, 85, 190, 10, "Postponed WREG verifs for EXP SNAP *", wreg_postponed_verif_wcom_checkbox
+'   CheckBox 20, 100, 130, 10, "Temporarily disabled *", temp_disa_abawd_wcom_checkbox
+'   CheckBox 20, 115, 155, 10, "WREG coded for Child under 18 *", abawd_child_coded_wcom_checkbox
+'   CheckBox 25, 150, 140, 10, "Banked Months - E and T voluntary *", banked_mos_vol_e_t_wcom_checkbox
+'   CheckBox 25, 165, 175, 10, "Banked Months - Closing for all 9 months used", banked_mos_used_wcom_checkbox
+'   CheckBox 25, 180, 145, 10, "Banked Months -  Possibly available", banked_mos_avail_wcom_checkbox
+'   CheckBox 20, 220, 150, 10, "Closed/denied with PACT *", snap_pact_wcom_checkbox
+'   CheckBox 20, 235, 155, 10, "Closed via PACT for new HH Member *", pact_fraud_wcom_checkbox
+'   CheckBox 20, 250, 145, 10, "Closing due to Returned Mail *", snap_returned_mail_wcom_checkbox
+'   CheckBox 20, 265, 115, 10, "Closing SNAP and MFIP opening *", snap_to_mfip_wcom_checkbox
+'   CheckBox 20, 280, 185, 10, "EXP SNAP - Postponed verif of CAF page 9 Signature *", signature_postponed_verif_wcom_checkbox
+'   CheckBox 20, 315, 60, 10, "CASH Denied *", cash_denied_checkbox
+'   CheckBox 20, 330, 130, 10, "CASH closing due to Returned Mail*", mfip_returned_mail_wcom_checkbox
+'   CheckBox 20, 345, 125, 10, "MFIP Closing and SNAP opening *", mfip_to_snap_wcom_checkbox
+'   ButtonGroup ButtonPressed
+'     OkButton 135, 365, 50, 15
+'     CancelButton 185, 365, 50, 15
+'   GroupBox 5, 305, 230, 55, "Cash"
+'   GroupBox 5, 35, 230, 265, "SNAP"
+'   GroupBox 15, 45, 210, 155, "ABAWD's"
+'   GroupBox 20, 135, 195, 60, "Banked Months"
+'   GroupBox 15, 205, 215, 90, "Other SNAP"
+'   Text 20, 5, 210, 25, "Select WCOM(s) to add to the notice. Reminder: you can select more than one as required for the case, use multiple categories if necessary. "
+' EndDialog
+
+BeginDialog wcom_selection_dlg, 0, 0, 241, 405, "Check the WCOM needed"
+  CheckBox 10, 35, 220, 10, "HC - July COLA Income Change Explanation", july_cola_wcom          'this is a TEMP WCOM - need to redesign based on notice type and adding HC WCOMs.
+  CheckBox 20, 75, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
+  CheckBox 20, 90, 160, 10, "Homeless exemption information", abawd_homeless_wcom_checkbox
+  CheckBox 20, 105, 190, 10, "Postponed WREG verifs for EXP SNAP *", wreg_postponed_verif_wcom_checkbox
+  CheckBox 20, 120, 130, 10, "Temporarily disabled *", temp_disa_abawd_wcom_checkbox
+  CheckBox 20, 135, 155, 10, "WREG coded for Child under 18 *", abawd_child_coded_wcom_checkbox
+  CheckBox 25, 170, 140, 10, "Banked Months - E and T voluntary *", banked_mos_vol_e_t_wcom_checkbox
+  CheckBox 25, 185, 175, 10, "Banked Months - Closing for all 9 months used", banked_mos_used_wcom_checkbox
+  CheckBox 25, 200, 145, 10, "Banked Months -  Possibly available", banked_mos_avail_wcom_checkbox
+  CheckBox 20, 240, 150, 10, "Closed/denied with PACT *", snap_pact_wcom_checkbox
+  CheckBox 20, 255, 155, 10, "Closed via PACT for new HH Member *", pact_fraud_wcom_checkbox
+  CheckBox 20, 270, 145, 10, "Closing due to Returned Mail *", snap_returned_mail_wcom_checkbox
+  CheckBox 20, 285, 115, 10, "Closing SNAP and MFIP opening *", snap_to_mfip_wcom_checkbox
+  CheckBox 20, 300, 185, 10, "EXP SNAP - Postponed verif of CAF page 9 Signature *", signature_postponed_verif_wcom_checkbox
+  CheckBox 20, 335, 60, 10, "CASH Denied *", cash_denied_checkbox
+  CheckBox 20, 350, 130, 10, "CASH closing due to Returned Mail*", mfip_returned_mail_wcom_checkbox
+  CheckBox 20, 365, 125, 10, "MFIP Closing and SNAP opening *", mfip_to_snap_wcom_checkbox
   ButtonGroup ButtonPressed
-    OkButton 135, 365, 50, 15
-    CancelButton 185, 365, 50, 15
-  GroupBox 5, 305, 230, 55, "Cash"
-  GroupBox 5, 35, 230, 265, "SNAP"
-  GroupBox 15, 45, 210, 155, "ABAWD's"
-  GroupBox 20, 135, 195, 60, "Banked Months"
-  GroupBox 15, 205, 215, 90, "Other SNAP"
+    OkButton 135, 385, 50, 15
+    CancelButton 185, 385, 50, 15
+  GroupBox 5, 325, 230, 55, "Cash"
+  GroupBox 5, 55, 230, 265, "SNAP"
+  GroupBox 15, 65, 210, 155, "ABAWD's"
+  GroupBox 20, 155, 195, 60, "Banked Months"
+  GroupBox 15, 225, 215, 90, "Other SNAP"
   Text 20, 5, 210, 25, "Select WCOM(s) to add to the notice. Reminder: you can select more than one as required for the case, use multiple categories if necessary. "
 EndDialog
 ' Dim myBtn
@@ -457,6 +487,31 @@ Do      'Just made this  loop - this needs sever testing.
     'setting the arrays to blank for each loop - they will be refilled once the checkboxes are selected again
     ReDim array_of_msg_lines(0)
     ReDim WCOM_TO_WRITE_ARRAY (0)
+
+    If july_cola_wcom = checked Then
+        'code for the dialog for PACT closure (this dialog has the same name in each IF to prevent the over 7 dialog error)
+        BeginDialog wcom_details_dlg, 0, 0, 206, 75, "WCOM Details"
+          DropListBox 125, 35, 75, 45, "Select One..."+chr(9)+"RSDI"+chr(9)+"SSI"+chr(9)+"RSDI & SSI", HC_Income_with_COLA
+          ButtonGroup ButtonPressed
+            OkButton 150, 55, 50, 15
+          Text 5, 10, 195, 20, "This WCOM explains that income was increased in January but that changes was disregarded until July."
+          Text 5, 35, 115, 10, "Income that increased in January:"
+        EndDialog
+
+        Do                          'displaying the dialog and ensuring that all required information is entered
+            err_msg = ""
+
+            Dialog wcom_details_dlg
+
+            If HC_Income_with_COLA = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select which income has a COLA that is now being counted."
+            If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
+        Loop until err_msg = ""
+        'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
+        'CALL add_words_to_message("EXPLANATION OF CHANGE OF INCOME:")
+        CALL add_words_to_message("EXPLANATION OF CHANGE OF INCOME:; The change of income listed in this notice is due to " & HC_Income_with_COLA & " increase that went into effect in January. This income increase is disregarded for 6 months and only counted starting in July. The change is only in how income is counted for Health Care and not in the income you receive from " & HC_Income_with_COLA & ".; If you have additional questions please contact us at 612-596-1300.")
+        'CALL add_words_to_message("If you have additional questions please contact us at 612-596-1300.")
+
+    End If
 
     'Here there is an IF statement for each checkbox - each WCOM may have it's own dialog and the verbiage will be added to the array for the WCOM lines
     If snap_pact_wcom_checkbox = checked Then             'SNAP closed with PACT
@@ -869,6 +924,7 @@ Next
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE("Detail added to each notice:")
 
+If july_cola_wcom = checked Then CALL write_variable_in_CASE_NOTE("* HC income budgeted increase as COLA disregards has ended for " & HC_Income_with_COLA & ".")
 If snap_pact_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* SNAP case was " & SNAP_close_or_deny & " because " & pact_close_reason & ".")
 If pact_fraud_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Request to add: " & new_hh_memb & ". Verification needed: " & new_memb_verifs & ". Verification not received causing closure.")
 If snap_returned_mail_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Returned mail was received. Verification request sent: " & rm_sent_date_snap & " and Due: " & rm_due_date_snap & " with no response caused SNAP case closure.")
