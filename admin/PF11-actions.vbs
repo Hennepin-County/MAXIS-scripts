@@ -86,6 +86,23 @@ If MAXIS_case_number <> "" Then 		'If a case number is found the script will get
 	Call Generate_Client_List(HH_Memb_DropDown)
 End If
 
+
+BeginDialog PF11_actions_dialog, 0, 0, 196, 130, "PF11 Action"
+  EditBox 55, 5, 40, 15, maxis_case_number
+  DropListBox 75, 25, 115, 15, "Select One:" & HH_Memb_DropDown, clt_to_update
+  DropListBox 75, 45, 115, 15, "Select One:"+chr(9)+"PMI merge request"+chr(9)+"Non-actionable DAIL removal"+chr(9)+"Case note removal request"+chr(9)+"MFIP New Spouse Income"+chr(9)+"Other", PF11_actions
+  Text 5, 85, 185, 20, "The system being down, issuance problems, or any type     of emergency should NOT be reported via a PF11."
+  EditBox 75, 65, 115, 15, worker_signature
+  ButtonGroup ButtonPressed
+	OkButton 85, 110, 50, 15
+	CancelButton 140, 110, 50, 15
+	PushButton 105, 5, 85, 15, "HH MEMB SEARCH", search_button
+  Text 5, 10, 45, 10, "Case number:"
+  Text 5, 30, 70, 10, "Household member:"
+  Text 5, 50, 65, 10, "Select PF11 action:"
+  Text 5, 70, 60, 10, "Worker signature:"
+EndDialog
+
 'Running the dialog for case number and client
 Do
 	err_msg = ""
@@ -350,7 +367,7 @@ END IF
 			EMWriteScreen "Worker number: " & worker_xnumber , 08, 07
 		END IF
 		IF other_notes <> "" THEN EMWriteScreen "Other notes: " & other_notes, 10, 07
-		msgbox "test"
+		'msgbox "test"
 		TRANSMIT
 		EMReadScreen task_number, 7, 3, 27
 		'msgbox task_number
