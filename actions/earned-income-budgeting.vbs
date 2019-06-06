@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("06/05/2019", "Bug fix for SNAP cases that are currently set to close, a date error was preventing the script from running.", "Casey Love, Hennepin County")
 Call changelog_update("04/24/2019", "Added wording to the Confirm Budget Dialog that explains the functionality of the script. The script will return to the enter pay dialog if the budgets are not indicated as correct on the confirm budget dialog. This functionality is not new, it was built to go back when the budget is not confirmed.", "Casey Love, Hennepin County")
 Call changelog_update("03/26/2019", "Fixed errors when pay is twice monthly. Added better handling for reading the employer name.", "Casey Love, Hennepin County")
 call changelog_update("03/05/2019", "Initial version.", "Casey Love, Hennepin County")
@@ -334,7 +335,7 @@ EMSearch " FS:", curr_row, curr_col
 If curr_row <> 0 Then
     EMReadScreen fs_prog_status, 7, curr_row, curr_col + 5
     fs_prog_status = trim(fs_prog_status)
-    If fs_prog_status = "ACTIVE" OR fs_prog_status = "PENDING" Then
+    If fs_prog_status = "ACTIVE" OR fs_prog_status = "PENDING" OR fs_prog_status = "APP CLO"Then
         EMReadScreen fs_appl_date, 8, curr_row, curr_col + 25
     End If
 End If
