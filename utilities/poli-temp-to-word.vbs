@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/06/2019", "Bug fixed when the POLI//TEMP reference is more than 9 pages long.", "Casey Love, Hennepin County")
 call changelog_update("01/09/2019", "Added date created to bottom of Word Document.", "Casey Love, Hennepin County")
 call changelog_update("01/08/2019", "Initial version.", "Casey Love, Hennepin County")
 
@@ -181,7 +182,8 @@ objWord.Visible = True
 notice_length = 0
 page_nbr = 2
 
-EMReadScreen end_of_poli, 1, 3, 80
+EMReadScreen end_of_poli, 2, 3, 79
+end_of_poli = trim(end_of_poli)
 Do
     For notice_row = 4 to 21
         EMReadScreen poli_line, 74, notice_row, 6
@@ -197,7 +199,8 @@ Do
         If left(trim(poli_line), 7) = "WORKER:" Then Exit For
         poli_line = ""
     Next
-    EMReadScreen current_page, 1, 3, 73
+    EMReadScreen current_page, 2, 3, 72
+    current_page = trim(current_page)
     PF8
     ' EMReadScreen notice_end, 9, 24,14
     ' If notice_end = "LAST PAGE" Then
