@@ -198,21 +198,26 @@ IF PF11_actions = "Other" THEN
       EditBox 70, 10, 240, 15, request_reason
       EditBox 70, 30, 240, 15, other_notes
       EditBox 70, 50, 240, 15, action_taken
-      ButtonGroup ButtonPressed
-    	OkButton 205, 70, 50, 15
-    	CancelButton 260, 70, 50, 15
+      EditBox 70, 70, 60, 15, worker_xnumber
+    ButtonGroup ButtonPressed
+     OkButton 205, 70, 50, 15
+     CancelButton 260, 70, 50, 15
+      Text 5, 15, 60, 10, "Describe Problem:"
       Text 25, 35, 45, 10, "Other Notes:"
       Text 15, 55, 50, 10, " Actions Taken:"
-      Text 5, 15, 60, 10, "Describe Problem:"
+      Text 10, 75, 55, 10, "Worker Number:"
     EndDialog
+
 
     Do
     	Do
     		err_msg = ""
     		Dialog other_dialog
     		if ButtonPressed = 0 then StopScript
-    		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-    	Loop until err_msg = ""
+			IF request_reason = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a request reason."
+    		IF worker_xnumber = "" or len(worker_xnumber) > 3 then err_msg = err_msg & vbNewLine & "* Please enter the worker X127 number. Must be last 3 digits."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+		Loop until err_msg = ""
      Call check_for_password(are_we_passworded_out)
     LOOP UNTIL check_for_password(are_we_passworded_out) = False
 END If
@@ -346,6 +351,7 @@ END IF
 		    EMWriteScreen "Date: " & dail_date, 06, 07
 		    IF PF11_actions = "Case note removal request" THEN EMWriteScreen "Case Note: " & dail_message, 07, 07
 		    IF PF11_actions = "Non-actionable DAIL removal" THEN EMWriteScreen "DAIL: " & dail_message, 07, 07
+			IF PF11_actions = "Non-actionable DAIL removal" THEN EMWriteScreen "Other error to report:", 07, 07
 		    EMWriteScreen "Reason for request: " & request_reason, 08, 07
 			EMWriteScreen "Worker number: X127" & worker_xnumber , 09, 07
 		END IF
@@ -364,7 +370,7 @@ END IF
 			EMWriteScreen PF11_actions & " for case number: " & maxis_case_number, 05, 07
 			EMWriteScreen "Date: " & dail_date, 06, 07
 			EMWriteScreen "Designated Spouse" & client_info, 07, 07
-			EMWriteScreen "Worker number: " & worker_xnumber , 08, 07
+			EMWriteScreen "Worker Number: " & worker_xnumber , 08, 07
 		END IF
 		IF other_notes <> "" THEN EMWriteScreen "Other notes: " & other_notes, 10, 07
 		'msgbox "test"
@@ -385,6 +391,7 @@ IF PF11_actions <> "Case note removal request" THEN
 	IF PF11_actions = "PMI merge request"  or PF11_actions = "MFIP New Spouse Income" THEN CALL write_variable_in_case_note("---PF11 requested " & PF11_actions & " for M" & MEMB_number & "---")
 	IF PF11_actions = "Non-actionable DAIL removal" or PF11_actions = "Other" THEN CALL write_variable_in_case_note("---PF11 requested " & PF11_actions & "---")
 	CALL write_bullet_and_variable_in_CASE_NOTE("Reason for request", reason_request_dropdown)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Reason for request", request_reason)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Task number", task_number)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Requested for", client_info)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Date", dail_date)
