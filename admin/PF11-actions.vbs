@@ -194,20 +194,20 @@ IF PF11_actions = "Case note removal request" THEN
 END If
 
 IF PF11_actions = "Other" THEN
-    BeginDialog other_dialog, 0, 0, 326, 90, "Other"
+    BeginDialog other_dialog, 0, 0, 326, 110, "Other"
       EditBox 70, 10, 240, 15, request_reason
       EditBox 70, 30, 240, 15, other_notes
       EditBox 70, 50, 240, 15, action_taken
       EditBox 70, 70, 60, 15, worker_xnumber
-    ButtonGroup ButtonPressed
-     OkButton 205, 70, 50, 15
-     CancelButton 260, 70, 50, 15
+      ButtonGroup ButtonPressed
+        OkButton 205, 70, 50, 15
+        CancelButton 260, 70, 50, 15
       Text 5, 15, 60, 10, "Describe Problem:"
       Text 25, 35, 45, 10, "Other Notes:"
       Text 15, 55, 50, 10, " Actions Taken:"
       Text 10, 75, 55, 10, "Worker Number:"
+      Text 5, 95, 230, 10, "While the dialog box is open navigate to the panel you wish to report."
     EndDialog
-
 
     Do
     	Do
