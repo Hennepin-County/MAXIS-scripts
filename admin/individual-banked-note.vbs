@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/05/2019", "Added a 'NOTES' section to add additional detail about action taken to the CASE//NOTE.", "Casey Love, Hennepin County")
 call changelog_update("12/14/2018", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -58,27 +59,30 @@ call check_for_MAXIS(True)
 Call MAXIS_case_number_finder(MAXIS_case_number)
 CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-BeginDialog Dialog1, 0, 0, 181, 120, "Dialog"
+BeginDialog Dialog1, 0, 0, 281, 100, "Dialog"
   EditBox 70, 10, 60, 15, MAXIS_case_number
+  EditBox 240, 10, 15, 15, MAXIS_footer_month
+  EditBox 260, 10, 15, 15, MAXIS_footer_year
   EditBox 70, 30, 35, 15, HH_member_number
-  EditBox 90, 55, 15, 15, MAXIS_footer_month
-  EditBox 110, 55, 15, 15, MAXIS_footer_year
-  DropListBox 60, 80, 115, 45, "Select One ..."+chr(9)+"WREG Updated - NO APPROVAL"+chr(9)+"Approval Done", note_to_make
+  DropListBox 160, 30, 115, 45, "Select One ..."+chr(9)+"WREG Updated - NO APPROVAL"+chr(9)+"Approval Done", note_to_make
+  EditBox 40, 55, 235, 15, other_details
   ButtonGroup ButtonPressed
-    OkButton 70, 100, 50, 15
-    CancelButton 125, 100, 50, 15
+    OkButton 170, 80, 50, 15
+    CancelButton 225, 80, 50, 15
   Text 15, 15, 50, 10, "Case Number:"
-  Text 35, 35, 30, 10, "Member"
-  Text 15, 60, 75, 10, "Initial Month Updated"
-  Text 15, 85, 40, 10, "Note Type:"
+  Text 165, 15, 75, 10, "Initial Month Updated"
+  Text 30, 35, 30, 10, "Member"
+  Text 120, 35, 40, 10, "Note Type:"
+  Text 10, 60, 30, 10, "Details:"
 EndDialog
+
 
 Do
     err_msg = ""
 
     Dialog Dialog1
 
-    cancel_confirmation
+    cancel_without_confirmation
 
     If MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "* Enter a case number."
     If HH_member_number = "" Then err_msg = err_msg & vbNewLine & "* Enter the HH Member Number"
@@ -232,6 +236,7 @@ If note_to_make = "WREG Updated - NO APPROVAL" Then
     For each detail_item in UPDATED_ARRAY
         Call write_variable_in_CASE_NOTE(detail_item)
     Next
+    Call write_bullet_and_variable_in_CASE_NOTE("Notes", other_details)
     ' Call write_bullet_and_variable_in_CASE_NOTE("Detail", other_notes)
     Call write_variable_in_CASE_NOTE("---")
     Call write_variable_in_CASE_NOTE(worker_signature)
@@ -350,6 +355,7 @@ If note_to_make = "Approval Done" Then
     For each detail_item in UPDATED_ARRAY
         Call write_variable_in_CASE_NOTE(detail_item)
     Next
+    Call write_bullet_and_variable_in_CASE_NOTE("Notes", other_details)
     Call write_variable_in_CASE_NOTE("---")
     Call write_variable_in_CASE_NOTE(worker_signature)
 
