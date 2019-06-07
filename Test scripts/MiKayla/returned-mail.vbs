@@ -390,11 +390,9 @@ call check_for_MAXIS (false)
 
 'starts a blank case note
 call start_a_blank_case_note
+call write_variable_in_CASE_NOTE("***Returned Mail received on: " & date_received & ".")
+call write_bullet_and_variable_in_CASE_NOTE("Previous ADDR", maxis_addr)
 
-'this enters the actual case note info
-call write_variable_in_CASE_NOTE("***Returned Mail received " & date_received & " with " & ADDR_status & "*** " & MNsure)
-call write_bullet_and_variable_in_CASE_NOTE("From ADDR", from_ADDR)
-call write_variable_in_CASE_NOTE("             " & from_CITY & ", " & from_STATE & " " & from_ZIP)
 IF forwarding_ADDR = "Yes" THEN call write_variable_in_CASE_NOTE("* Address updated to: " & new_addr_line_one)
 IF forwarding_ADDR = "Yes" THEN call write_variable_in_CASE_NOTE("                      " & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
 IF forwarding_ADDR = "Yes" THEN call write_variable_in_CASE_NOTE("* New ADDR is in " & new_COUNTY & " COUNTY.")
