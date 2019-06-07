@@ -115,38 +115,37 @@ LOOP UNTIL are_we_passworded_out = false
 start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE("### Partner Calls ###")
 CALL write_bullet_and_variable_in_CASE_NOTE("Contact was made", when_contact_was_made)
-IF ESP_name <> "" THEN 
+IF ESP_name <> "" THEN
     CALL write_variable_in_CASE_NOTE("* ESP/FSS Organization/Name: " & ESP_name)
     CALL write_variable_in_CASE_NOTE("* ESP/FSS Phone number: " & ESP_Phone_number)
     CALL write_variable_in_CASE_NOTE("* Comments: " & ESP_FSS_comments)
 	Call write_variable_in_CASE_NOTE("---")
 END IF
-IF CP_name <> "" THEN 
+IF CP_name <> "" THEN
     CALL write_variable_in_CASE_NOTE("* CP Organization/Name: " & CP_name)
     CALL write_variable_in_CASE_NOTE("* CP Phone number: " & CP_Phone_number)
     CALL write_variable_in_CASE_NOTE("* Comments: " & CP_comments)
 	Call write_variable_in_CASE_NOTE("---")
 END IF
-IF PO_name <> "" THEN 
+IF PO_name <> "" THEN
     CALL write_variable_in_CASE_NOTE("* PO Organization/Name: " & PO_name)
     CALL write_variable_in_CASE_NOTE("* PO Phone number: " & PO_Phone_number)
     CALL write_variable_in_CASE_NOTE("* Comments: " & PO_comments)
 	Call write_variable_in_CASE_NOTE("---")
 END IF
-IF RRH_name <> "" THEN 
+IF RRH_name <> "" THEN
     CALL write_variable_in_CASE_NOTE("* Rapid Re-Housing Organization/Name: " & RRH_name)
     CALL write_variable_in_CASE_NOTE("* RRH Phone number: " & RRH_Phone_number)
     CALL write_variable_in_CASE_NOTE("* Comments: " & RRH_comments)
 	Call write_variable_in_CASE_NOTE("---")
 END IF
-IF OTHER_name <> "" THEN 
+IF OTHER_name <> "" THEN
     CALL write_variable_in_CASE_NOTE("* Organization/Name: " & OTHER_name)
     CALL write_variable_in_CASE_NOTE("* Phone number: " & Other_Phone_number)
-    CALL write_variable_in_CASE_NOTE("* Comments: " & Other_comments)
-Call write_variable_in_CASE_NOTE("---")
+	Call write_variable_in_CASE_NOTE("---")
 END IF
+CALL write_variable_in_CASE_NOTE("* Comments: " & Other_comments)
 Call write_variable_in_CASE_NOTE(worker_signature)
 Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
-
-script_end_procedure("")
+script_end_procedure_with_error_report("Case note has been created. Please take any additional action needed for your case.")
