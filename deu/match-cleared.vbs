@@ -79,7 +79,7 @@ IF dail_check = "DAIL" THEN
     	EMReadScreen MAXIS_case_number, 8, 5, 73
 		MAXIS_case_number= TRIM(MAXIS_case_number)
 		EMReadscreen SSN_number_read, 9, 6, 20
-	    
+
 		 '----------------------------------------------------------------------------------------------------IEVP
 		'Navigating deeper into the match interface
 		CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
@@ -371,7 +371,7 @@ IF send_notice_checkbox = CHECKED THEN
 	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
     Call write_bullet_and_variable_in_case_note("Action Date", action_date)
     Call write_bullet_and_variable_in_case_note("Active Program(s)", programs)
-    IF next_action = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note("* Additional verifications requested, TIKL set for 10 day return.")
+    IF next_action = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note("* Additional verifications requested, follow up set for 10 day return.")
     Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
     Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
     Call write_variable_in_case_note("-----")
@@ -658,12 +658,12 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		PF3
 
 		'-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-		Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-	  	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
-	 	CALL write_variable_in_TIKL("CLOSE FOR NON-COOP, CREATE DISQ(S) FOR " & first_name)
-	 	PF3		'Exits and saves TIKL
-		'script_end_procedure("Success! Updated match, and a TIKL created.")
-		script_end_procedure_with_error_report("Success! Updated match, and a TIKL created.")
+		'Call navigate_to_MAXIS_screen("DAIL", "WRIT")
+	  	'CALL create_MAXIS_friendly_date(date, 10, 5, 18)
+	 	'CALL write_variable_in_TIKL("CLOSE FOR NON-COOP, CREATE DISQ(S) FOR " & first_name)
+	 	'PF3		'Exits and saves TIKL
+		''script_end_procedure("Success! Updated match, and a TIKL created.")
+		'script_end_procedure_with_error_report("Success! Updated match, and a TIKL created.")
 	END IF
 	script_end_procedure_with_error_report("Match has been acted on. Please take any additional action needed for your case.")
 END IF
