@@ -53,15 +53,20 @@ changelog_display
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
-BeginDialog case_number_dlg, 0, 0, 150, 80, "CASE NUMBER DIALOG"
-  EditBox 75, 10, 70, 15, MAXIS_case_number
-  EditBox 75, 30, 40, 15, worker_signature
+BeginDialog case_number_dlg, 0, 0, 251, 85, "Returned Mail"
+  EditBox 55, 5, 40, 15, maxis_case_number
+  EditBox 205, 5, 40, 15, date_received
+  DropListBox 55, 25, 190, 15, "Select One:"+chr(9)+"Mail has been returned NO forwarding address"+chr(9)+"Mail has been returned with forwarding address in MN"+chr(9)+"Mail has been returned with forwarding address outside MN"+chr(9)+"Client has not responded to request for SVF", ADDR_actions
+  EditBox 130, 45, 115, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 10, 55, 50, 15
-    CancelButton 95, 55, 50, 15
-  Text 20, 15, 50, 10, "Case Number:"
-  Text 10, 35, 65, 10, "Worker Signature:"
+    OkButton 145, 65, 50, 15
+    CancelButton 195, 65, 50, 15
+  Text 5, 30, 45, 10, "Select action:"
+  Text 65, 50, 60, 10, "Worker signature:"
+  Text 5, 10, 45, 10, "Case number:"
+  Text 150, 10, 50, 10, "Date received:"
 EndDialog
+
 
 DO
     DO
@@ -69,8 +74,9 @@ DO
     	DIALOG case_number_dlg
     		IF ButtonPressed = 0 THEN stopscript
     		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
-    		'checks that the case note was signed
-    		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must sign your case note!"
+			If isdate(date_received) = FALSE then err_msg = err_msg & vbnewline & "* Please enter a date (--/--/--) in the footer month that you are working in."
+			IF ADDR_actions = "Select One:" THEN err_msg = err_msg & vbCr & "Please chose an action for the returned mail."
+    		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please sign your case note."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
     	LOOP UNTIL err_msg = ""
     	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -140,48 +146,72 @@ If cash2_prog_check = "MF" or cash2_prog_check = "GA" or cash2_prog_check = "DW"
 	If cash2_status_check = ""     Then CASH_STATUS = FALSE
 END IF
 
-MsgBox "Do NOT make any changes to STAT/ADDR. Do NOT enter a ? or unknown or other county codes on the ADDR panel. The ADDR panel is used to mail notices; the post office requires an address. "
-CALL navigate_to_MAXIS_screen("STAT", "ADDR")
-EMreadu
+IF ADDR_actions = "Mail has been returned NO forwarding address" THEN
+    BeginDialog RETURNED_MAIL, 0, 0, 181, 185, "Mail has been returned NO forwarding address"
+    CheckBox 10, 70, 70, 10, "Sent DHS-2919A", verifA_sent_checkbox
+    CheckBox 85, 70, 65, 10, "Sent DHS-2952", SHEL_form_sent_checkbox
+    CheckBox 10, 85, 65, 10, "Sent DHS-2402", CRF_sent_checkbox
+    EditBox 110, 105, 65, 15, METS_case_number
+    DropListBox 110, 125, 65, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", MNsure_ADDR
+    EditBox 50, 145, 125, 15, other_notes
+    ButtonGroup ButtonPressed
+    OkButton 70, 165, 50, 15
+    CancelButton 125, 165, 50, 15
+    Text 5, 130, 95, 10, "METS correspondence sent:"
+    Text 5, 150, 40, 10, "Other notes:"
+    GroupBox 5, 5, 170, 50, "NOTE:"
+    GroupBox 5, 60, 170, 40, "Verification Request Form"
+    Text 5, 110, 70, 10, "METS case number:"
+    Text 10, 15, 160, 35, "Do not make any changes to STAT/ADDR.  Do NOT enter a ? or unknown or other county codes on the ADDR panel.  The ADDR panel is used to mail notices; the post office requires an address. "
+    EndDialog
+
+	DO
+	    DO
+	    	err_msg = ""
+	    	DIALOG case_number_dlg
+	    		IF ButtonPressed = 0 THEN stopscript
+	    		IF MNsure_ADDR = "YES" THEN
+					IF METS_case_number = "" OR (METS_case_number <> "" AND len(METS_case_number) > 10) OR (METS_case_number <> "" AND IsNumeric(METS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
+				END IF
+				IF MNsure_ADDR = "Select One:" THEN err_msg = err_msg & vbCr & "Please select if correspondence has been sent to METS."
+
+	    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	    	LOOP UNTIL err_msg = ""
+	    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+		LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+	CALL check_for_MAXIS(False)
+END IF
+
+IF ADDR_actions = "Mail has been returned with forwarding address in MN" THEN
+    CALL navigate_to_MAXIS_screen("STAT", "ADDR")
+    'Writes spreadsheet info to ADDR
+    EMreadscreen ADDR_line_one, 20, 6, 43
+    EMreadscreen ADDR_line_two, 20, 7, 43
+    EMreadscreen ADDR_city, 15, 8, 43
+    'EMreadscreen "MN", 8, 66		'Defaults to MN for all cases at this time
+    EMreadscreen ADDR_zip, 5, 9, 43
+    EMreadscreen ADDR_county, 2, 9, 66
+    EMreadscreen ADDR_addr_verif, 2, 9, 74
+    EMreadscreen ADDR_homeless, 1, 10, 43
+    'EMreadscreen ADDR_reservation, 1, 10, 74
+    EMreadscreen ADDR_mailing_addr_line_one, 20, 13, 43
+    EMreadscreen ADDR_mailing_addr_line_two, 20, 14, 43
+    EMreadscreen ADDR_mailing_addr_city, 15, 15, 43
+    EMreadscreen 2, 16, 43	'Only writes if the user indicated a mailing address. Defaults to MN at this time.
+    EMreadscreen ADDR_mailing_addr_zip, 5, 16, 52
+    EMreadscreen ADDR_phone_1A, 3, 17, 45						'Has to split phone numbers up into three parts each
+    EMreadscreen ADDR_phone_2B, 3, 17, 51
+    EMreadscreen ADDR_phone_3C, 4, 17, 55
+    EMreadscreen ADDR_phone_2A, 3, 18, 45
+    EMreadscreen ADDR_phone_2B, 3, 18, 51
+    EMreadscreen ADDR_phone_2C, 4, 18, 55
+    EMreadscreen ADDR_phone_3A, 3, 19, 45
+    EMreadscreen ADDR_phone_3B, 3, 19, 51
+    EMreadscreen ADDR_phone_3C, 4, 19, 55
 
 
-
-
-'Writes spreadsheet info to ADDR
-EMWriteScreen ADDR_line_one, 6, 43
-EMWriteScreen ADDR_line_two, 7, 43
-EMWriteScreen ADDR_city, 8, 43
-'EMWriteScreen "MN", 8, 66		'Defaults to MN for all cases at this time
-EMWriteScreen ADDR_zip, 9, 43
-EMWriteScreen ADDR_county, 9, 66
-EMWriteScreen ADDR_addr_verif, 9, 74
-EMWriteScreen ADDR_homeless, 10, 43
-EMWriteScreen ADDR_reservation, 10, 74
-EMWriteScreen ADDR_mailing_addr_line_one, 13, 43
-EMWriteScreen ADDR_mailing_addr_line_two, 14, 43
-EMWriteScreen ADDR_mailing_addr_city, 15, 43
-If ADDR_mailing_addr_line_one <> "" then EMWriteScreen "MN", 16, 43	'Only writes if the user indicated a mailing address. Defaults to MN at this time.
-EMWriteScreen ADDR_mailing_addr_zip, 16, 52
-EMWriteScreen left(ADDR_phone_1, 3), 17, 45						'Has to split phone numbers up into three parts each
-EMWriteScreen mid(ADDR_phone_1, 5, 3), 17, 51
-EMWriteScreen right(ADDR_phone_1, 4), 17, 55
-EMWriteScreen left(ADDR_phone_2, 3), 18, 45
-EMWriteScreen mid(ADDR_phone_2, 5, 3), 18, 51
-EMWriteScreen right(ADDR_phone_2, 4), 18, 55
-EMWriteScreen left(ADDR_phone_3, 3), 19, 45
-EMWriteScreen mid(ADDR_phone_3, 5, 3), 19, 51
-EMWriteScreen right(ADDR_phone_3, 4), 19, 55
-
-'Reads the case number and adds to an array before exiting
-EMReadScreen current_case_number, 8, 20, 37
-case_number_array = case_number_array & replace(current_case_number, "_", "") & "|"
-
-transmit
-EMReadScreen addr_warning, 7, 3, 6
-IF addr_warning = "Warning" THEN transmit
-transmit
-PF3
-
+IF ADDR_actions = "Mail has been returned with forwarding address outside MN" THEN
+IF ADDR_actions = "Client has not responded to request for SVF" THEN
 BeginDialog RETURNED_MAIL, 0, 0, 185, 335, "RETURNED MAIL DIALOG"
   EditBox 110, 5, 65, 15, date_received
   EditBox 55, 25, 120, 15, from_ADDR
@@ -224,6 +254,197 @@ BeginDialog RETURNED_MAIL, 0, 0, 185, 335, "RETURNED MAIL DIALOG"
   Text 20, 265, 75, 10, "MNsure case number:"
   Text 20, 280, 75, 10, "MNsure ADDR correct:"
 EndDialog
+
+01 Aitkin
+02 Anoka
+03 Becker
+04 Beltrami
+05 Benton
+06 Big Stone
+07 Blue Earth
+08 Brown
+09 Carlton
+10 Carver
+11 Cass
+12 Chippewa
+13 Chisago
+14 Clay
+15 Clearwater
+16 Cook
+17 Cottonwood
+18 Crow Wing
+19 Dakota
+20 Dodge
+21 Douglas
+22 Faribault
+23 Fillmore
+24 Freeborn
+25 Goodhue
+26 Grant
+27 Hennepin
+28 Houston
+29 Hubbard
+30 Isanti
+31 Itasca
+32 Jackson
+33 Kanabec
+34 Kandiyohi
+35 Kittson
+36 Koochiching
+37 Lac Qui Parle
+38 Lake
+39 Lake Of Woods
+40 Le Sueur
+41 Lincoln
+42 Lyon
+43 Mcleod
+44 Mahnomen
+45 Marshall
+46 Martin
+47 Meeker
+48 Mille Lacs
+49 Morrison
+50 Mower
+51 Murray
+52 Nicollet
+53 Nobles
+54 Norman
+55 Olmsted
+56 Otter Tail
+57 Pennington
+58 Pine
+59 Pipestone
+60 Polk
+61 Pope
+62 Ramsey
+63 Red Lake
+64 Redwood
+65 Renville
+66 Rice
+67 Rock
+68 Roseau
+69 St. Louis
+70 Scott
+71 Sherburne
+72 Sibley
+73 Stearns
+74 Steele
+75 Stevens
+76 Swift
+77 Todd
+78 Traverse
+79 Wabasha
+80 Wadena
+81 Waseca
+82 Washington
+83 Watonwan
+84 Wilkin
+85 Winona
+86 Wright
+87 Yellow Medicine
+89 Out-of-State
+
+
+01 Own Housing:
+   Lease,
+   Mortgage or
+   Roommate
+02 Family/Friends
+   Due to
+   Economic
+   Hardship
+03 Service
+   Provider-
+   Foster Care
+   Group Home
+   04 Hospital/
+   Treatment/
+   Detox/
+   Nursing Home
+05 Jail/Prison/
+   Juvenile
+   Detention
+   Center
+06 Hotel/Motel
+07 Emergency
+   Shelter
+08 Place Not
+   Meant for
+   08 Place Not
+   Meant for
+   Housing
+09 Declined
+10 Unknown
+
+
+BD Bois Forte -
+   Deer Creek
+BN Bois Forte -
+   Nett Lake
+BV Bois Forte -
+   Vermillion Lk
+FL Fond du Lac
+GP Grand Portage
+LL Leach Lake
+LS Lower Sioux
+ML Mille Lacs
+PL Prairie Island
+   Community
+   RL Red Lake
+SM Shakopee
+   Mdewakanton
+US Upper Sioux
+WE White Earth
+
+BeginDialog RETURNED_MAIL, 0, 0, 201, 280, "Mail has been returned with forwarding address in MN"
+  Text 10, 15, 180, 35, maxis_addr
+  CheckBox 10, 70, 70, 10, "Sent DHS-2919A", verifA_sent_checkbox
+  CheckBox 85, 70, 65, 10, "Sent DHS-2952", SHEL_form_sent_checkbox
+  CheckBox 10, 80, 65, 10, "Sent DHS-2402", CRF_sent_checkbox
+  DropListBox 140, 105, 35, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", update_ADDR
+  EditBox 55, 125, 135, 15, new_ADDR
+  EditBox 55, 145, 135, 15, new_CITY
+  EditBox 55, 165, 35, 15, new_ZIP
+  EditBox 165, 165, 25, 15, new_STATE
+  DropListBox 55, 185, 35, 15, "Select One:"+chr(9)+"Aitkin"+chr(9)+"Anoka"+chr(9)+"Becker"+chr(9)+"Beltrami"+chr(9)+"Benton"+chr(9)+"Big Stone"+chr(9)+"Blue Earth"+chr(9)+"Brown"+chr(9)+"Carlton"+chr(9)+"Carver", county_code
+  DropListBox 155, 185, 35, 15, "Select One:"+chr(9)+"Residence"+chr(9)+"Mailing"+chr(9)+"Both"+chr(9)+"Unknown", residence_addr
+  DropListBox 55, 200, 35, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", homeless_addr
+  DropListBox 155, 200, 35, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", living_situation
+  DropListBox 55, 215, 35, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", reservation_addr
+  DropListBox 125, 215, 65, 15, "Select One:"+chr(9)+"Bois Forte - Deer Creek   "+chr(9)+"Bois Forte - Nett Lake    "+chr(9)+"Bois Forte - Vermillion Lk"+chr(9)+"Fond du Lac  ", reservation_name
+  DropListBox 125, 240, 65, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", METS_ADDR
+  EditBox 135, 255, 55, 15, MNsure_number
+  EditBox 50, 275, 140, 15, other_notes
+  ButtonGroup ButtonPressed
+    OkButton 75, 275, 50, 15
+    CancelButton 140, 275, 50, 15
+  Text 35, 150, 20, 10, "City:"
+  Text 140, 170, 20, 10, "State:"
+  Text 50, 110, 85, 10, "Script to update address?"
+  Text 10, 190, 30, 10, "County:"
+  Text 20, 170, 35, 10, "Zip code:"
+  GroupBox 5, 95, 190, 140, "New Address:"
+  Text 30, 130, 20, 10, "Street:"
+  Text 5, 275, 40, 10, "Other notes:"
+  Text 100, 220, 25, 10, "Name:"
+  GroupBox 5, 5, 190, 50, "Address in MAXIS:"
+  Text 10, 220, 45, 10, "Reservation:"
+  Text 5, 240, 95, 10, "METS correspondence sent:"
+  Text 10, 205, 35, 10, "Homeless:"
+  GroupBox 5, 55, 190, 40, "Verification Request Form"
+  Text 100, 190, 40, 10, "Is address:"
+  Text 100, 205, 55, 10, "Living situation:"
+  Text 5, 260, 70, 10, "METS case number:"
+EndDialog
+
+Dim myBtn
+
+myBtn = Dialog(RETURNED_MAIL)
+MsgBox "The user pressed button " & myBtn
+
+
+
+
 
 'starts the EVF received case note dialog
 DO
