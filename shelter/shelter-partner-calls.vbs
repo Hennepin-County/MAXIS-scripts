@@ -65,7 +65,7 @@ BeginDialog partner_calls_dialog, 0, 0, 306, 235, "Partner Calls"
   EditBox 230, 60, 65, 15, PO_comments
   EditBox 230, 95, 65, 15, RRH_name
   EditBox 230, 115, 65, 15, RRH_phone_number
-  EditBox 230, 135, 65, 15, RRH_comment
+  EditBox 230, 135, 65, 15, RRH_comments
   EditBox 80, 170, 65, 15, OTHER_name
   EditBox 80, 190, 65, 15, Other_phone_number
   EditBox 80, 210, 65, 15, Other_comments
@@ -115,38 +115,27 @@ LOOP UNTIL are_we_passworded_out = false
 start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE("### Partner Calls ###")
 CALL write_bullet_and_variable_in_CASE_NOTE("Contact was made", when_contact_was_made)
-IF ESP_name <> "" THEN 
-    CALL write_variable_in_CASE_NOTE("* ESP/FSS Organization/Name: " & ESP_name)
-    CALL write_variable_in_CASE_NOTE("* ESP/FSS Phone number: " & ESP_Phone_number)
-    CALL write_variable_in_CASE_NOTE("* Comments: " & ESP_FSS_comments)
-	Call write_variable_in_CASE_NOTE("---")
-END IF
-IF CP_name <> "" THEN 
-    CALL write_variable_in_CASE_NOTE("* CP Organization/Name: " & CP_name)
-    CALL write_variable_in_CASE_NOTE("* CP Phone number: " & CP_Phone_number)
-    CALL write_variable_in_CASE_NOTE("* Comments: " & CP_comments)
-	Call write_variable_in_CASE_NOTE("---")
-END IF
-IF PO_name <> "" THEN 
-    CALL write_variable_in_CASE_NOTE("* PO Organization/Name: " & PO_name)
-    CALL write_variable_in_CASE_NOTE("* PO Phone number: " & PO_Phone_number)
-    CALL write_variable_in_CASE_NOTE("* Comments: " & PO_comments)
-	Call write_variable_in_CASE_NOTE("---")
-END IF
-IF RRH_name <> "" THEN 
-    CALL write_variable_in_CASE_NOTE("* Rapid Re-Housing Organization/Name: " & RRH_name)
-    CALL write_variable_in_CASE_NOTE("* RRH Phone number: " & RRH_Phone_number)
-    CALL write_variable_in_CASE_NOTE("* Comments: " & RRH_comments)
-	Call write_variable_in_CASE_NOTE("---")
-END IF
-IF OTHER_name <> "" THEN 
-    CALL write_variable_in_CASE_NOTE("* Organization/Name: " & OTHER_name)
-    CALL write_variable_in_CASE_NOTE("* Phone number: " & Other_Phone_number)
-    CALL write_variable_in_CASE_NOTE("* Comments: " & Other_comments)
-Call write_variable_in_CASE_NOTE("---")
-END IF
+CALL write_bullet_and_variable_in_case_note("ESP/FSS Organization/Name", ESP_name)
+CALL write_bullet_and_variable_in_case_note("ESP/FSS Phone number", ESP_Phone_number)
+CALL write_bullet_and_variable_in_case_note("Comments", ESP_FSS_comments)
+IF ESP_name <> "" THEN Call write_variable_in_CASE_NOTE("---")
+CALL write_bullet_and_variable_in_case_note("CP Organization/Name", CP_name)
+CALL write_bullet_and_variable_in_case_note("CP Phone number", CP_Phone_number)
+CALL write_bullet_and_variable_in_case_note("Comments", CP_comments)
+IF CP_name <> "" THEN Call write_variable_in_CASE_NOTE("---")
+CALL write_bullet_and_variable_in_case_note("PO Organization/Name", PO_name)
+CALL write_bullet_and_variable_in_case_note("PO Phone number", PO_Phone_number)
+CALL write_bullet_and_variable_in_case_note("Comments", PO_comments)
+IF PO_name <> "" THEN Call write_variable_in_CASE_NOTE("---")
+CALL write_bullet_and_variable_in_case_note("Rapid Re-Housing Organization/Name", RRH_name)
+CALL write_bullet_and_variable_in_case_note("RRH Phone number", RRH_Phone_number)
+CALL write_bullet_and_variable_in_case_note("Comments", RRH_comments)
+IF RRH_name <> "" THEN Call write_variable_in_CASE_NOTE("---")
+CALL write_bullet_and_variable_in_case_note("Organization/Name", OTHER_name)
+CALL write_bullet_and_variable_in_case_note("Phone number", Other_Phone_number)
+CALL write_bullet_and_variable_in_case_note("Comments",  Other_comments)
+IF OTHER_name <> "" THEN Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
-
-script_end_procedure("")
+script_end_procedure_with_error_report("Case note has been created. Please take any additional action needed for your case.")
