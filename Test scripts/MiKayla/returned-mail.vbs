@@ -152,14 +152,15 @@ END IF
 IF ADDR_actions = "Mail has been returned with forwarding address in MN" or ADDR_actions = "Mail has been returned with forwarding address outside MN" THEN
 	BeginDialog returned_mail_update_addr, 0, 0, 201, 280, "Mail has been returned with forwarding address"
 	  Text 10, 15, 180, 35, maxis_addr
-	  CheckBox 10, 70, 70, 10, "Sent DHS-2919A", verifA_sent_checkbox
-	  CheckBox 85, 70, 65, 10, "Sent DHS-2952", SHEL_form_sent_checkbox
-	  CheckBox 10, 80, 65, 10, "Sent DHS-2402", CRF_sent_checkbox
-	  DropListBox 140, 105, 35, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", update_ADDR
-	  EditBox 55, 125, 135, 15, new_addr_line_one
-	  EditBox 55, 145, 135, 15, new_addr_city
-	  EditBox 55, 165, 35, 15, new_addr_zip
-	  EditBox 165, 165, 25, 15, new_addr_state
+      CheckBox 10, 65, 50, 10, "DHS-2919A", verifA_sent_checkbox
+      CheckBox 70, 65, 45, 10, "DHS-2952", SHEL_form_sent_checkbox
+      CheckBox 125, 65, 45, 10, "DHS-2402", CRF_sent_checkbox
+      DropListBox 135, 90, 35, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", update_ADDR
+      EditBox 55, 105, 135, 15, new_ADDR_line_1
+      EditBox 55, 125, 135, 15, new_ADDR_line_2
+      EditBox 55, 145, 135, 15, new_addr_city
+      EditBox 55, 165, 35, 15, new_addr_zip
+      EditBox 165, 165, 25, 15, new_addr_state
 	  DropListBox 55, 185, 35, 15, "Select One:"+chr(9)+"Aitkin"+chr(9)+"Anoka"+chr(9)+"Becker"+chr(9)+"Beltrami"+chr(9)+"Benton"+chr(9)+"Big Stone"+chr(9)+"Blue Earth"+chr(9)+"Brown"+chr(9)+"Carlton"+chr(9)+"Carver"+chr(9)+"Cass"+chr(9)+"Chippewa"+chr(9)+"Chisago"+chr(9)+"Clay"+chr(9)+"Clearwater"+chr(9)+"Cook"+chr(9)+"Cottonwood"+chr(9)+"Crow Wing"+chr(9)+"Dakota"+chr(9)+"Dodge"+chr(9)+"Douglas"+chr(9)+"Faribault"+chr(9)+"Fillmore"+chr(9)+"Freeborn"+chr(9)+"Goodhue"+chr(9)+"Grant"+chr(9)+"Hennepin"+chr(9)+"Houston"+chr(9)+"Hubbard"+chr(9)+"Isanti"+chr(9)+"Itasca"+chr(9)+"Jackson"+chr(9)+"Kanabec"+chr(9)+"Kandiyohi"+chr(9)+"Kittson"+chr(9)+"Koochiching"+chr(9)+"Lac Qui Parle"+chr(9)+"Lake"+chr(9)+"Lake Of Woods"+chr(9)+"Le Sueur"+chr(9)+"Lincoln"+chr(9)+"Lyon"+chr(9)+"Mcleod"+chr(9)+"Mahnomen"+chr(9)+"Marshall"+chr(9)+"Martin"+chr(9)+"Meeker"+chr(9)+"Mille Lacs"+chr(9)+"Morrison"+chr(9)+"Mower"+chr(9)+"Murray"+chr(9)+"Nicollet"+chr(9)+"Nobles"+chr(9)+"Norman"+chr(9)+"Olmsted"+chr(9)+"Otter Tail"+chr(9)+"Pennington"+chr(9)+"Pine"+chr(9)+"Pipestone"+chr(9)+"Polk"+chr(9)+"Pope"+chr(9)+"Ramsey"+chr(9)+"Red Lake"+chr(9)+"Redwood"+chr(9)+"Renville"+chr(9)+"Rice"+chr(9)+"Rock"+chr(9)+"Roseau"+chr(9)+"St. Louis"+chr(9)+"Scott"+chr(9)+"Sherburne"+chr(9)+"Sibley"+chr(9)+"Stearns"+chr(9)+"Steele"+chr(9)+"Stevens"+chr(9)+"Swift"+chr(9)+"Todd"+chr(9)+"Traverse"+chr(9)+"Wabasha"+chr(9)+"Wadena"+chr(9)+"Waseca"+chr(9)+"Washington"+chr(9)+"Watonwan"+chr(9)+"Wilkin"+chr(9)+"Winona"+chr(9)+"Wright"+chr(9)+"Yellow Medicine"+chr(9)+"Out-of-State", county_code
 	  DropListBox 155, 185, 35, 15, "Select One:"+chr(9)+"Residence"+chr(9)+"Mailing"+chr(9)+"Both"+chr(9)+"Unknown", residence_addr
 	  DropListBox 55, 200, 35, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", homeless_addr
@@ -174,22 +175,24 @@ IF ADDR_actions = "Mail has been returned with forwarding address in MN" or ADDR
 	    CancelButton 140, 275, 50, 15
 	  Text 35, 150, 20, 10, "City:"
 	  Text 140, 170, 20, 10, "State:"
-	  Text 50, 110, 85, 10, "Script to update address?"
+	  Text 50, 95, 85, 10, "Script to update address:"
 	  Text 10, 190, 30, 10, "County:"
 	  Text 20, 170, 35, 10, "Zip code:"
-	  GroupBox 5, 95, 190, 140, "New Address:"
-	  Text 30, 130, 20, 10, "Street:"
+	  GroupBox 5, 80, 190, 155, "New Address:"
+	  Text 30, 110, 20, 10, "Street:"
+	  Text 15, 130, 35, 10, "Apt/Room:"
 	  Text 5, 275, 40, 10, "Other notes:"
 	  Text 100, 220, 25, 10, "Name:"
 	  GroupBox 5, 5, 190, 50, "Address in MAXIS:"
 	  Text 10, 220, 45, 10, "Reservation:"
 	  Text 5, 240, 95, 10, "METS correspondence sent:"
 	  Text 10, 205, 35, 10, "Homeless:"
-	  GroupBox 5, 55, 190, 40, "Verification Request Form"
+	  GroupBox 5, 55, 190, 25, "Verification Request Form(s) Sent:"
 	  Text 100, 190, 40, 10, "Is address:"
 	  Text 100, 205, 55, 10, "Living situation:"
 	  Text 5, 260, 70, 10, "METS case number:"
 	EndDialog
+
     DO
     	DO
     		err_msg = ""
