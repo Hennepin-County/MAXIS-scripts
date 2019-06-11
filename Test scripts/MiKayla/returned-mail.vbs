@@ -355,22 +355,97 @@ END IF
 
 IF ADDR_actions = "Client has not responded to request for verif" THEN
 
-DO
-	DO
-		err_msg = ""
-		DIALOG case_number_dlg
-			IF ButtonPressed = 0 THEN stopscript
-			IF MNsure_ADDR = "YES" THEN
-				IF METS_case_number = "" OR (METS_case_number <> "" AND len(METS_case_number) > 10) OR (METS_case_number <> "" AND IsNumeric(METS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
+CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
+
+'Setting some variables for the loop
+CASH_STATUS = FALSE 'overall variable'
+CCA_STATUS = FALSE
+DW_STATUS = FALSE 'Diversionary Work Program'
+ER_STATUS = FALSE
+SNAP_STATUS = FALSE
+GA_STATUS = FALSE 'General Assistance'
+GRH_STATUS = FALSE
+HC_STATUS = FALSE
+MS_STATUS = FALSE 'Mn Suppl Aid '
+MF_STATUS = FALSE 'Mn Family Invest Program '
+RC_STATUS = FALSE 'Refugee Cash Assistance'
+
+'Reading the status and program
+EMReadScreen cash1_status_check, 4, 6, 74
+EMReadScreen cash2_status_check, 4, 7, 74
+EMReadScreen emer_status_check, 4, 8, 74
+EMReadScreen grh_status_check, 4, 9, 74
+EMReadScreen fs_status_check, 4, 10, 74
+EMReadScreen ive_status_check, 4, 11, 74
+EMReadScreen hc_status_check, 4, 12, 74
+EMReadScreen cca_status_check, 4, 14, 74
+EMReadScreen cash1_prog_check, 2, 6, 67
+EMReadScreen cash2_prog_check, 2, 7, 67
+EMReadScreen emer_prog_check, 2, 8, 67
+EMReadScreen grh_prog_check, 2, 9, 67
+EMReadScreen fs_prog_check, 2, 10, 67
+EMReadScreen ive_prog_check, 2, 11, 67
+EMReadScreen hc_prog_check, 2, 12, 67
+EMReadScreen cca_prog_check, 2, 14, 67
+
+IF FS_status_check = "ACTV" or FS_status_check = "PEND"  THEN SNAP_STATUS = TRUE
+IF emer_status_check = "ACTV" or emer_status_check = "PEND"  THEN ER_STATUS = TRUE
+IF grh_status_check = "ACTV" or grh_status_check = "PEND"  THEN GRH_STATUS = TRUE
+IF hc_status_check = "ACTV" or hc_status_check = "PEND"  THEN HC_STATUS = TRUE
+IF cca_status_check = "ACTV" or cca_status_check = "PEND"  THEN CCA_STATUS = TRUE
+'Logic to determine if Cash is active
+If cash1_prog_check = "MF" or cash1_prog_check = "GA" or cash1_prog_check = "DW" or cash1_prog_check = "RC" or cash1_prog_check = "MS" THEN
+	IF cash1_status_check = "ACTV" THEN CASH_STATUS = TRUE
+	IF cash1_status_check = "PEND" THEN CASH_STATUS = TRUE
+	IF cash1_status_check = "INAC" THEN CASH_STATUS = FALSE
+	IF cash1_status_check = "SUSP" THEN CASH_STATUS = FALSE
+	IF cash1_status_check = "DENY" THEN CASH_STATUS = FALSE
+	IF cash1_status_check = ""     THEN CASH_STATUS = FALSE
+END IF
+If cash2_prog_check = "MF" or cash2_prog_check = "GA" or cash2_prog_check = "DW" or cash2_prog_check = "RC" or cash2_prog_check = "MS" THEN
+	IF cash2_status_check = "ACTV" THEN CASH_STATUS = TRUE
+	IF cash2_status_check = "PEND" THEN CASH_STATUS = TRUE
+	IF cash2_status_check = "INAC" THEN CASH_STATUS = FALSE
+	IF cash2_status_check = "SUSP" THEN CASH_STATUS = FALSE
+	IF cash2_status_check = "DENY" THEN CASH_STATUS = FALSE
+	IF cash2_status_check = ""     THEN CASH_STATUS = FALSE
+END IF
+'per POLI/TEM this only pretains to cash and snap '
+IF CASH_STATUS = TRUE or SNAP_STATUS = TRUE THEN
+	CALL navigate_to_MAXIS_screen("STAT", "PACT")
+	'Checking to see if the PACT panel is empty, if not it create a new panel'
+    EmReadScreen panel_number, 1, 02, 73
+    If panel_number = "0" then
+    	EMWriteScreen "NN", 20,79 'cursor is automatically set to 06, 58'
+    	TRANSMIT
+		'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
+		EmReadScreen MISC_error_msg,  74, 24, 02
+		IF trim(MISC_error_msg) = "" THEN
+	        case_note_only = FALSE
+		else
+			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_msg & vbNewLine, vbYesNo + vbQuestion, "Message handling")
+			IF maxis_error_check = vbNO THEN
+				case_note_only = FALSE 'this will case note only'
 			END IF
-			IF MNsure_ADDR = "Select One:" THEN err_msg = err_msg & vbCr & "Please select if correspondence has been sent to METS."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		LOOP UNTIL err_msg = ""
-		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-CALL check_for_MAXIS(False)
+			IF maxis_error_check= vbYES THEN
+				case_note_only = TRUE 'this will update the panels and case note'
+			END IF
+		END IF
+    ELSE
+		IF case_note_only = FALSE THEN
 
 
+    			EmReadScreen open_cash1, 2, 6, 43
+				EmReadScreen open_cash2, 2, 8, 43
+				EmReadScreen open_grh, 2, 10, 43
+				EmReadScreen open_snap, 2, 12, 43
+				IF open_cash1 <> "" THEN EMWriteScreen "3", 6, 58
+				IF open_cash2 <> "" THEN EMWriteScreen "3", 8, 58
+				IF open_grh <> "" THEN EMWriteScreen "3", 10, 58
+				IF open_snap <> "" THEN EMWriteScreen "3", 12, 58
+				TRANSMIT
+   		END IF
+	END IF
 'assigns a value to the ADDR_status variable based on the value of the complete variable
 IF forwarding_ADDR = "Yes" THEN ADDR_status = "a forwarding ADDR."
 IF forwarding_ADDR = "No" THEN ADDR_status = "no forwarding ADDR."
@@ -379,20 +454,54 @@ IF forwarding_ADDR = "No" THEN ADDR_status = "no forwarding ADDR."
 IF MNsure_active = "Yes" THEN MNsure = "MNsure case"
 IF MNsure_active = "No" THEN MNsure = "Non-MNsure"
 
-'converts the old and new ADDR to all CAPS
-from_ADDR = UCase(from_ADDR)
-from_CITY = UCase(from_CITY)
-from_STATE = UCase(from_STATE)
-new_addr_line_one = UCase(new_addr_line_one)
-new_addr_city = UCase(new_addr_city)
-new_addr_state = UCase(new_addr_state)
-new_COUNTY = UCase(new_COUNTY)
 
 'checks that the worker is in MAXIS - allows them to get in MAXIS without ending the script
 call check_for_MAXIS (false)
 
 'starts a blank case note
 call start_a_blank_case_note
+
+BeginDialog returned_mail_update_addr, 0, 0, 201, 280, "Mail has been returned with forwarding address"
+  Text 10, 15, 180, 35, maxis_addr
+  CheckBox 10, 65, 50, 10, "DHS-2919A", verifA_sent_checkbox
+  CheckBox 70, 65, 45, 10, "DHS-2952", SHEL_form_sent_checkbox
+  CheckBox 125, 65, 45, 10, "DHS-2402", CRF_sent_checkbox
+  DropListBox 135, 90, 35, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", update_ADDR
+  EditBox 55, 105, 135, 15, new_ADDR_line_1
+  EditBox 55, 125, 135, 15, new_ADDR_line_2
+  EditBox 55, 145, 135, 15, new_addr_city
+ new_addr_zip
+new_addr_state
+county_code
+"Select One:"
+residence_addr
+homeless_addr
+living_situation
+reservation_name
+reservation_addr
+METS_ADDR
+
+
+"New Address:",
+"Street:",
+"Apt/Room:",
+"City:",
+"State:",
+"County:",
+"Zip code:",
+
+"Previous address in MAXIS:",
+"Reservation:",
+"METS correspondence sent:",
+"Homeless:",
+"Verification Request Form(s) Sent:",
+"Is address:",
+"Living situation:",
+"METS case number:", MNsure_number
+
+
+
+
 call write_variable_in_CASE_NOTE("***Returned Mail received on: " & date_received & ".")
 call write_bullet_and_variable_in_CASE_NOTE("Previous ADDR", maxis_addr)
 
