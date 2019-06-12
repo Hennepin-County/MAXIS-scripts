@@ -75,20 +75,47 @@ End function
 Dim ALL_APPROVALS_ARRAY()
 ReDim ALL_APPROVALS_ARRAY(app_notes, 0)
 'Constants
-Const app_prog      = 0
-Const app_mo        = 1
-Const app_yr        = 2
-Const app_nav       = 3
-Const app_done      = 4
-Const elig_memb     = 5
+Const app_prog                  = 0
+Const app_mo                    = 1
+Const app_yr                    = 2
+Const app_nav                   = 3
+Const app_done                  = 4
+Const elig_memb                 = 5
+Const app_version               = 6
 
-Const hc_maj_prog   = 6
-Const hc_elig_type  = 7
-Const hc_elig_stnd  = 8
-Const hc_elig_mthd  = 9
-Const hc_waiv_type  = 10
+Const hc_maj_prog               = 7
+Const hc_elig_type              = 8
+Const hc_elig_stnd              = 9
+Const hc_elig_mthd              = 10
+Const hc_waiv_type              = 11
 
-Const app_notes     = 11
+Const app_type                  = 12
+Const app_benefit               = 13
+Const app_mf_mf                 = 14
+Const app_mf_fs                 = 15
+Const app_mf_hg                 = 16
+Const app_recoup                = 17
+
+Const app_vendor_amt_one        = 18
+Const app_vendor_info_one       = 19
+Const app_vendor_amt_two        = 20
+Const app_vendor_info_two       = 21
+Const app_vendor_amt_three      = 22
+Const app_vendor_info_three     = 23
+Const app_budg_type             = 24
+Const app_rept_status           = 25
+
+Const total_budgeted_income     = 26
+Const earned_income             = 27
+Const ei_disregard              = 28
+Const unearned_income           = 29
+Const total_deductions          = 30
+Const shelter_expense           = 31
+Const utility_expense           = 32
+
+Const app_memb_detail           = 33
+
+Const app_notes     = 34
 
 '===========================================================================================================================
 
@@ -133,6 +160,18 @@ Loop until are_we_passworded_out = FALSE
 
 initial_footer_month = right("00" & initial_footer_month, 2)
 initial_footer_year = right(initial_footer_year, 2)
+
+Call back_to_SELF                       'need to gather some detail to have the correct script run
+
+developer_mode = FALSE                  'allowing worker to exit if started in Inquiry on accident
+EMReadScreen MX_region, 12, 22, 48
+MX_region = trim(MX_region)
+If MX_region = "INQUIRY DB" Then
+    continue_in_inquiry = MsgBox("It appears you are in INQUIRY. Income information cannot be saved to STAT and a CASE/NOTE cannot be created." & vbNewLine & vbNewLine & "Do you wish to continue?", vbQuestion + vbYesNo, "Continue in Inquiry?")
+    If continue_in_inquiry = vbNo Then script_end_procedure("Script ended since it was started in Inquiry.")
+    developer_mode = TRUE
+End If
+If developer_mode = TRUE then MsgBox "Developer Mode ACTIVATED!"        'developer mode difference is that the MAXIS update detail is shown in a messagebox instead of updating the panel
 
 'creates an array of all months from initial to CM+1
 CALL date_array_generator(initial_footer_month, initial_footer_year, APPROVAL_MONTHS_ARRAY)
@@ -203,10 +242,16 @@ For the_approval = 0 to UBOUND(ALL_APPROVALS_ARRAY, 2)
 
     vers_row = 7
     Do
+        version_number = ""
         EMReadScreen version_status, 8, vers_row, 50
         If version_status = "APPROVED" Then
             EMReadScreen process_date, 8, vers_row, 26
-            If DateDiff("d", process_date, date) = 0 Then ALL_APPROVALS_ARRAY(app_done, the_approval) = TRUE
+            If DateDiff("d", process_date, date) = 0 Then
+                ALL_APPROVALS_ARRAY(app_done, the_approval) = TRUE
+                EMReadScreen version_number, 2, vers_row, 22
+                version_number = trim(version_number)
+                ALL_APPROVALS_ARRAY(app_version, the_approval) = right("00" & version_number, 2)
+            End If
         End If
 
         vers_row = vers_row + 1
@@ -347,10 +392,151 @@ For the_approval = 0 to UBOUND(ALL_APPROVALS_ARRAY, 2)
 Next
 
 
-
 'gather additional information for each array item (program and month)
 'Need to be able to indicate if there is a change from the previous month to this month
 'Need to determine if this ia approval, denial or closure
+For the_approval = 0 to UBOUND(ALL_APPROVALS_ARRAY, 2)
+    Call back_to_SELF
+
+    If ALL_APPROVALS_ARRAY(app_done, the_approval) = TRUE Then
+        MAXIS_footer_month = ALL_APPROVALS_ARRAY(app_mo, the_approval)
+        MAXIS_footer_year = ALL_APPROVALS_ARRAY(app_yr, the_approval)
+
+        Call navigate_to_MAXIS_screen("ELIG", ALL_APPROVALS_ARRAY(app_nav, the_approval))
+
+        row = 1
+        col = 1
+        EMSearch "Command:", row, col
+        EMWriteScreen ALL_APPROVALS_ARRAY(app_version, the_approval), row, col + 17
+        transmit
+
+        Select Case ALL_APPROVALS_ARRAY(app_prog, the_approval)
+
+            Case "DWP"
+
+            Case "MFIP"
+
+            Case "MSA"
+
+            Case "GA"
+
+            Case "CASH"
+
+            Case "GRH"
+
+            Case "IVE"
+
+            Case "EMER"
+
+            Case "SNAP"
+
+                'Read for the Eligibile Members and if their income is counted.
+                elig_row = 7
+                Do
+                    EMReadScreen elig_ref_number, 2, elig_row, 10
+                    EMReadScreen elig_memb_code, 12, elig_row, 35
+                    EMReadScreen elig_status, 10, elig_row, 57
+
+                    elig_memb_code = trim(elig_memb_code)
+                    elig_status = trim(elig_status)
+
+                    If elig_status = "ELIGIBLE" Then
+                        ALL_APPROVALS_ARRAY(app_memb_detail, the_approval) = ALL_APPROVALS_ARRAY(app_memb_detail, the_approval) & "~" & elig_ref_number & " - " & elig_memb_code & " - " & elig_status
+                        If ALL_APPROVALS_ARRAY(elig_memb, the_approval) = "" Then
+                            ALL_APPROVALS_ARRAY(elig_memb, the_approval) = elig_ref_nbr
+                        Else
+                            ALL_APPROVALS_ARRAY(elig_memb, the_approval) = ALL_APPROVALS_ARRAY(elig_memb, the_approval) & ", " & elig_ref_nbr
+                        End If
+                    ElseIf elig_status = "INELIGIBLE" Then
+
+                        ALL_APPROVALS_ARRAY(app_memb_detail, the_approval) = ALL_APPROVALS_ARRAY(app_memb_detail, the_approval) & "~" & elig_ref_number & " - " & elig_memb_code & " - " & elig_status
+
+                        EMWriteScreen "X", elig_row, 5              'opening the person tests for ineligible members
+                        transmit
+
+                        EMReadScreen abawd_test, 6, 6, 20
+                        EMReadScreen absence_test, 6, 7, 20
+                        EMReadScreen roomer_test, 6, 8, 20
+                        EMReadScreen boarder_test, 6, 9, 20
+                        EMReadScreen citizenship_test, 6, 10, 20
+                        EMReadScreen ctzn_coop_test, 6, 11, 20
+                        EMReadScreen cmdty_test, 6, 12, 20
+                        EMReadScreen disq_test, 6, 13, 20
+                        EMReadScreen dupl_asst_test, 6, 14, 20
+
+                        EMReadScreen fraud_test, 6, 6, 54
+                        EMReadScreen student_test, 6, 7, 54
+                        EMReadScreen institution_test, 6, 8, 54
+                        EMReadScreen mfip_elig_test, 6, 9, 54
+                        EMReadScreen non_applcnt_test, 6, 10, 54
+                        EMReadScreen resi_test, 6, 11, 54
+                        EMReadScreen ssn_coop_test, 6, 12, 54
+                        EMReadScreen unit_mbr_test, 6, 13, 54
+                        EMReadScreen work_reg_test, 6, 14, 54
+
+                        If abawd_test = "FAILED" Then
+                        If absence_test = "FAILED" Then
+                        If roomer_test = "FAILED" Then
+                        If boarder_test = "FAILED" Then
+                        If citizenship_test = "FAILED" Then
+                        If ctzn_coop_test = "FAILED" Then
+                        If cmdty_test = "FAILED" Then
+                        If disq_test = "FAILED" Then
+                        If dupl_asst_test = "FAILED" Then
+
+                        If fraud_test = "FAILED" Then
+                        If student_test = "FAILED" Then
+                        If institution_test = "FAILED" Then
+                        If mfip_elig_test = "FAILED" Then
+                        If non_applcnt_test = "FAILED" Then
+                        If resi_test = "FAILED" Then
+                        If ssn_coop_test = "FAILED" Then
+                        If unit_mbr_test = "FAILED" Then
+                        If work_reg_test = "FAILED" Then
+
+                        transmit
+                    End If
+
+                    elig_row = elig_row + 1
+                    If elig_row = 18 Then
+                        PF8
+                        elig_row = 7
+                    End If
+
+                Loop until elig_ref_number = "  " AND elig_memb_code = "" AND elig_status = ""
+
+                transmit        'Now we are at 'Case Results'
+
+                EMReadScreen appl_wthdrwn_clsd_test, 6, 7, 9
+                EMReadScreen applcnt_elig_test, 6, 8, 9
+                EMReadScreen comdty_test, 6, 9, 9
+                EMReadScreen disq_test, 6, 10, 9
+                EMReadScreen dupl_asst_test, 6, 11, 9
+                EMReadScreen elig_prsn_test, 6, 12, 9
+                EMReadScreen fail_coop_test, 6, 13, 9
+                EMReadScreen fail_file_test, 6, 14, 9
+                EMReadScreen prosp_gross_test, 6, 15, 9
+                EMReadScreen prosp_net_test, 6, 16, 9
+
+                EMReadScreen recert_test, 6, 7, 49
+                EMReadScreen resi_test, 6, 8, 49
+                EMReadScreen resource_test, 6, 9, 49
+                EMReadScreen retro_gross_test, 6, 10, 49
+                EMReadScreen retro_net_test, 6, 11, 49
+                EMReadScreen strike_test, 6, 12, 49
+                EMReadScreen transfer_resource_test, 6, 13, 49
+                EMReadScreen verif_test, 6, 14, 49
+                EMReadScreen vol_quit_test, 6, 15, 49
+                EMReadScreen work_reg_test, 6, 16, 49
+
+
+            Case "HC"
+
+
+        End Select
+    End If
+Next
+
 
 
 'Create a seperate case note for each program action
