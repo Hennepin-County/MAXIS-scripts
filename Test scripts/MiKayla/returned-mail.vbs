@@ -454,23 +454,17 @@ IF forwarding_ADDR = "No" THEN ADDR_status = "no forwarding ADDR."
 IF MNsure_active = "Yes" THEN MNsure = "MNsure case"
 IF MNsure_active = "No" THEN MNsure = "Non-MNsure"
 
-
+pending_verifs = ""
+IF verifA_sent_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Verification Request, "
+IF SHEL_form_sent_checkbox = CHECKED THEN pending_verifs = pending_verifs & "SVF, "
+IF CRF_sent_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Change Request Form, "
+IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
 'checks that the worker is in MAXIS - allows them to get in MAXIS without ending the script
 call check_for_MAXIS (false)
 
 'starts a blank case note
 call start_a_blank_case_note
-
-case_note_header = "Mail has been returned with forwarding address"
-
-  CheckBox 10, 65, 50, 10, "DHS-2919A", verifA_sent_checkbox
-  CheckBox 70, 65, 45, 10, "DHS-2952", SHEL_form_sent_checkbox
-  CheckBox 125, 65, 45, 10, "DHS-2402", CRF_sent_checkbox
-
-
-"New Address:",
-
-call write_variable_in_CASE_NOTE("***Returned Mail received on: " & date_received & ".")
+call write_variable_in_CASE_NOTE("***" & ADDR_actions & " received on " & date_received & ".")
 call write_bullet_and_variable_in_CASE_NOTE("Street:", new_ADDR_line_1)
 call write_bullet_and_variable_in_CASE_NOTE("Apt/Room:", new_ADDR_line_2)
 call write_bullet_and_variable_in_CASE_NOTE("City:", new_addr_city)
@@ -490,22 +484,13 @@ call write_bullet_and_variable_in_CASE_NOTE("METS case number:", MNsure_number)
 If verifA_sent_checkbox = CHECKED then call write_variable_in_CASE_NOTE("* Verification Request Form sent.")
 If SHEL_form_sent_checkbox = CHECKED then call write_variable_in_CASE_NOTE("* Shelter Verification Form sent.")
 If CRF_sent_checkbox = CHECKED then call write_variable_in_CASE_NOTE("* Change Report Form sent.")
-
-
-
-
-
-
-call write_variable_in_CASE_NOTE("* Address updated to: " & new_addr_line_one)
-THEN call write_variable_in_CASE_NOTE("                      " & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
-THEN call write_variable_in_CASE_NOTE("* New ADDR is in " & new_COUNTY & " COUNTY.")
+'call write_variable_in_CASE_NOTE("* Address updated to: " & new_addr_line_one)
+'THEN call write_variable_in_CASE_NOTE("                      " & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
+'THEN call write_variable_in_CASE_NOTE("* New ADDR is in " & new_COUNTY & " COUNTY.")
 
 call write_bullet_and_variable_in_CASE_NOTE("Returned Mail resent", mail_resent)
 If returned_mail_resent_list = "Yes" then call write_variable_in_CASE_NOTE("* Returned Mail resent to client.")
 If returned_mail_resent_list = "No" then call write_variable_in_CASE_NOTE("* Returned Mail not resent to client.")
-
-
-
 call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
 call write_variable_in_CASE_NOTE ("---")
 call write_variable_in_CASE_NOTE(worker_signature)
