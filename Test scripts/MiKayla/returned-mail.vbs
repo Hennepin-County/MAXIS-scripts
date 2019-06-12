@@ -461,60 +461,51 @@ call check_for_MAXIS (false)
 'starts a blank case note
 call start_a_blank_case_note
 
-BeginDialog returned_mail_update_addr, 0, 0, 201, 280, "Mail has been returned with forwarding address"
-  Text 10, 15, 180, 35, maxis_addr
+case_note_header = "Mail has been returned with forwarding address"
+
   CheckBox 10, 65, 50, 10, "DHS-2919A", verifA_sent_checkbox
   CheckBox 70, 65, 45, 10, "DHS-2952", SHEL_form_sent_checkbox
   CheckBox 125, 65, 45, 10, "DHS-2402", CRF_sent_checkbox
-  DropListBox 135, 90, 35, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", update_ADDR
-  EditBox 55, 105, 135, 15, new_ADDR_line_1
-  EditBox 55, 125, 135, 15, new_ADDR_line_2
-  EditBox 55, 145, 135, 15, new_addr_city
- new_addr_zip
-new_addr_state
-county_code
-"Select One:"
-residence_addr
-homeless_addr
-living_situation
-reservation_name
-reservation_addr
-METS_ADDR
 
 
 "New Address:",
-"Street:",
-"Apt/Room:",
-"City:",
-"State:",
-"County:",
-"Zip code:",
-
-"Previous address in MAXIS:",
-"Reservation:",
-"METS correspondence sent:",
-"Homeless:",
-"Verification Request Form(s) Sent:",
-"Is address:",
-"Living situation:",
-"METS case number:", MNsure_number
-
-
-
 
 call write_variable_in_CASE_NOTE("***Returned Mail received on: " & date_received & ".")
-call write_bullet_and_variable_in_CASE_NOTE("Previous ADDR", maxis_addr)
+call write_bullet_and_variable_in_CASE_NOTE("Street:", new_ADDR_line_1)
+call write_bullet_and_variable_in_CASE_NOTE("Apt/Room:", new_ADDR_line_2)
+call write_bullet_and_variable_in_CASE_NOTE("City:", new_addr_city)
+call write_bullet_and_variable_in_CASE_NOTE("State:", new_addr_state)
+call write_bullet_and_variable_in_CASE_NOTE("County:", county_code)
+call write_bullet_and_variable_in_CASE_NOTE("Zip code:", new_addr_zip)
+call write_bullet_and_variable_in_CASE_NOTE()
+call write_bullet_and_variable_in_CASE_NOTE("Previous address in MAXIS:", maxis_addr)
+call write_bullet_and_variable_in_CASE_NOTE("Reservation:", reservation_addr)
+call write_bullet_and_variable_in_CASE_NOTE("METS correspondence sent:", METS_ADDR)
+call write_bullet_and_variable_in_CASE_NOTE("Homeless:", homeless_addr)
+call write_bullet_and_variable_in_CASE_NOTE("Verification Request Form(s) Sent:",)
+call write_bullet_and_variable_in_CASE_NOTE("Is address:", reservation_name)
+call write_bullet_and_variable_in_CASE_NOTE("Living situation:", living_situation)
+call write_variable_in_CASE_NOTE ("---")
+call write_bullet_and_variable_in_CASE_NOTE("METS case number:", MNsure_number)
+If verifA_sent_checkbox = CHECKED then call write_variable_in_CASE_NOTE("* Verification Request Form sent.")
+If SHEL_form_sent_checkbox = CHECKED then call write_variable_in_CASE_NOTE("* Shelter Verification Form sent.")
+If CRF_sent_checkbox = CHECKED then call write_variable_in_CASE_NOTE("* Change Report Form sent.")
 
-IF forwarding_ADDR = "Yes" THEN call write_variable_in_CASE_NOTE("* Address updated to: " & new_addr_line_one)
-IF forwarding_ADDR = "Yes" THEN call write_variable_in_CASE_NOTE("                      " & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
-IF forwarding_ADDR = "Yes" THEN call write_variable_in_CASE_NOTE("* New ADDR is in " & new_COUNTY & " COUNTY.")
-If verifA_sent_checkbox = 1 then call write_variable_in_CASE_NOTE("* Verification Request Form A sent. **Auto TIKL set**")
-If SHEL_form_sent_checkbox = 1 then call write_variable_in_CASE_NOTE("* Shelter Verification Form sent.")
-If CRF_sent_checkbox = 1 then call write_variable_in_CASE_NOTE("* Change Report Form sent.")
+
+
+
+
+
+call write_variable_in_CASE_NOTE("* Address updated to: " & new_addr_line_one)
+THEN call write_variable_in_CASE_NOTE("                      " & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
+THEN call write_variable_in_CASE_NOTE("* New ADDR is in " & new_COUNTY & " COUNTY.")
+
 call write_bullet_and_variable_in_CASE_NOTE("Returned Mail resent", mail_resent)
 If returned_mail_resent_list = "Yes" then call write_variable_in_CASE_NOTE("* Returned Mail resent to client.")
 If returned_mail_resent_list = "No" then call write_variable_in_CASE_NOTE("* Returned Mail not resent to client.")
-call write_variable_in_CASE_NOTE("* " & MNsure & " " & MNsure_number)
+
+
+
 call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
 call write_variable_in_CASE_NOTE ("---")
 call write_variable_in_CASE_NOTE(worker_signature)
@@ -522,11 +513,9 @@ call write_variable_in_CASE_NOTE(worker_signature)
 'Checks if this is a MNsure case and pops up a message box with instructions if the ADDR is incorrect.
 IF MNsure_active = "Yes" and MNsure_ADDR = "No" THEN MsgBox "Please update the MNsure ADDR if you are able to. If unable, please forward the new ADDR information to the correct area (i.e. HPU Case Manitenance - Action Needed Log)"
 
-'creates a message box reminding the worker to review their case note prior to Auto-TIKLing.
-IF verifA_sent_checkbox = 1 THEN MsgBox "Please review your case note for accuracy. When you click OK or press enter the script will enter an Auto-TIKL for you."
 
 'Checks if a DHS2919A mailed and sets a TIKL for the return of the info.
-IF verifA_sent_checkbox = 1 THEN
+IF verifA_sent_checkbox = CHECKED THEN
 	call navigate_to_MAXIS_screen("dail", "writ")
 
 	'The following will generate a TIKL formatted date for 10 days from now.
