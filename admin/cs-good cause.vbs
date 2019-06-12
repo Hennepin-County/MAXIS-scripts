@@ -346,10 +346,9 @@ Do
 		EmReadscreen edit_mode_check, 1, 20, 08
 		IF edit_mode_check = "D" THEN
         	PF9
-			msgbox "are we in the edit mode"
+			'msgbox "are we in the edit mode"
 		ElseIF edit_mode_check = "E" THEN
 			EXIT DO
-			msgbox edit_mode_check & " why are we not in edit mode?"
 		END IF
 	Loop
 
@@ -357,14 +356,14 @@ Do
 	IF trim(error_check) = "" THEN
         case_note_only = FALSE
 	else
-		maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
+		maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only? This will bypass updating this panel." & vbNewLine & error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
 		IF maxis_error_check = vbYes THEN
 			case_note_only = TRUE 'this will case note only'
-			EXIT DO
+			'EXIT DO
 		END IF
 		IF maxis_error_check= vbNo THEN
 			case_note_only = FALSE 'this will update the panels and case note'
-			'EXIT DO
+			EXIT DO
 		END IF
 	END IF
 
