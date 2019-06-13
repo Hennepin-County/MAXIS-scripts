@@ -202,15 +202,15 @@ IF active_status = FALSE THEN
 	END IF
 END IF
 
-maxis_case_number = "1976494"
-child_ref_number = "04"
-other_notes = "reason application incomplete"
-SUP_CHECKBOX = CHECKED
-actual_date = "05/01/19"
-claim_date = "05/28/19"
-gc_status = "Pending"
-good_cause_droplist = "Application Review-Incomplete"
-reason_droplist = "Potential phys harm/child"
+'maxis_case_number = "1976494"
+'child_ref_number = "04"
+'other_notes = "reason application incomplete"
+'SUP_CHECKBOX = CHECKED
+'actual_date = "05/01/19"
+'claim_date = "05/28/19"
+'gc_status = "Pending"
+'good_cause_droplist = "Application Review-Incomplete"
+'reason_droplist = "Potential phys harm/child"
 
 '----------------------------------------------------------------------------------------------------DIALOGS
 BeginDialog change_exemption_dialog, 0, 0, 216, 100, "Good cause change/exemption "
@@ -355,7 +355,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
     '-------------------------------------------------------------------------Updating the ABPS panel
 	EMReadScreen MAXIS_footer_month, 2, 20, 55
-	MsgBox MAXIS_footer_month
+	'MsgBox MAXIS_footer_month
 DO
     PF9'edit mode
 	DO
@@ -503,7 +503,7 @@ DO
 							IF ABPS_last_name = ABPS_last_name_check and ABPS_first_name = ABPS_first_name_check THEN
 								ABPS_found = TRUE
 								'MsgBox ABPS_found
-								exit do
+								'exit do
 							ELSE
 								ABPS_found = FALSE
 								TRANSMIT
