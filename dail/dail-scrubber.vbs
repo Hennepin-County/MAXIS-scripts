@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("06/13/2019", "Added DAIL messages for JULY COLA to run the COLA Review and Approve option. See instructions for full detail of messages now handled.", "Casey Love, Hennepin County")
 call changelog_update("5/31/2019", "The DAIL message for COLA Review and Approve now has specific handling to either review or approve Health Care eligibility. (Additional programs to be added at a later date.)", "Casey Love, Hennepin County")
 call changelog_update("4/26/2019", "The DAIL messages for Over Due Baby, Incarceration, and additional enhancements to handle for other messages has been added.", "MiKayla Handley, Hennepin County")
 call changelog_update("4/9/2019", "The DAIL message for Student Income ending has changed. Updated the script to know the new message.", "Casey Love, Hennepin County")
@@ -143,7 +144,15 @@ If CIT_check = "MEMI:CITIZENSHIP HAS BEEN VERIFIED THROUGH SSA" then
 END IF
 
 'COLA REVIEW AND APPROVE RESPONSE
-If right(full_message, 50) = "COLA UPDATES IN STAT COMPLETED. REVIEW AND APPROVE" Then
+If InStr(full_message, "COLA UPDATES IN STAT COMPLETED. REVIEW AND APPROVE") <> 0 Then review_and_approve_from_COLA = TRUE
+If InStr(full_message, "REVIEW MEDICARE SAVINGS PROGRAM ELIGIBILITY FOR POSSIBLE") <> 0 Then review_and_approve_from_COLA = TRUE
+If InStr(full_message, "REVIEW HEALTH CARE ELIGIBILITY FOR POSSIBLE CHANGES DUE TO") <> 0 Then review_and_approve_from_COLA = TRUE
+If InStr(full_message, "PERSON DOES NOT HAVE AN APPROVED HEALTH CARE BUDGET") <> 0 Then review_and_approve_from_COLA = TRUE
+If InStr(full_message, "PERSON HAS MAINTENANCE NEEDS ALLOWANCE - REVIEW MEDICAL") <> 0 Then review_and_approve_from_COLA = TRUE
+If InStr(full_message, "REVIEW MA-EPD FOR POSSIBLE PREMIUM CHANGES DUE TO") <> 0 Then review_and_approve_from_COLA = TRUE
+If InStr(full_message, "HEALTH CARE IS IN REINSTATE OR PENDING STATUS - REVIEW") <> 0 Then review_and_approve_from_COLA = TRUE
+
+If review_and_approve_from_COLA = TRUE Then
     match_found = TRUE
     Call run_from_GitHub(script_repository & "dail/cola-review-and-approve.vbs")
 End If

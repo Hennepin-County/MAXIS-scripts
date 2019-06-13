@@ -278,7 +278,13 @@ If approval_exists = FALSE Then
             Exit Do
         End If
 
-        If right(full_message, 50) = "COLA UPDATES IN STAT COMPLETED. REVIEW AND APPROVE" Then msg_found = TRUE
+        If InStr(full_message, "COLA UPDATES IN STAT COMPLETED. REVIEW AND APPROVE") Then msg_found = TRUE
+        If InStr(full_message, "REVIEW MEDICARE SAVINGS PROGRAM ELIGIBILITY FOR POSSIBLE") Then msg_found = TRUE
+        If InStr(full_message, "REVIEW HEALTH CARE ELIGIBILITY FOR POSSIBLE CHANGES DUE TO") Then msg_found = TRUE
+        If InStr(full_message, "PERSON DOES NOT HAVE AN APPROVED HEALTH CARE BUDGET") Then msg_found = TRUE
+        If InStr(full_message, "PERSON HAS MAINTENANCE NEEDS ALLOWANCE - REVIEW MEDICAL") Then msg_found = TRUE
+        If InStr(full_message, "REVIEW MA-EPD FOR POSSIBLE PREMIUM CHANGES DUE TO") Then msg_found = TRUE
+        If InStr(full_message, "HEALTH CARE IS IN REINSTATE OR PENDING STATUS - REVIEW") Then msg_found = TRUE
 
     Loop until msg_found = TRUE
 
