@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("06/12/2019", "Enhanced MOF functionality to have TTL Interaction checkboxes.", "Casey Love, Hennepin County")
 Call changelog_update("06/03/2019", "Added MTAF and LTC 1503 forms to testing.", "Casey Love, Hennepin County")
 call changelog_update("03/08/2019", "EVF received functionality added. This used to be a seperate script and will now be a part of documents received.", "Casey Love, Hennepin County")
 call changelog_update("01/03/2017", "Added HSR scanner option for Hennepin County users only.", "Ilse Ferris, Hennepin County")
@@ -282,9 +283,7 @@ Dim client_list_array
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------
 'dialogs on this script are embeded because there are going to be MANY dialogs
-'Asks if this is a LTC case or not. LTC has a different dialog. The if...then logic will be put in the do...loop.
-LTC_case = MsgBox("Is this a Long Term Care case? LTC cases have a few more options on their dialog.", vbYesNoCancel or VbDefaultButton2) 'defaults to no since that is most commonly chosen option
-If LTC_case = vbCancel then stopscript
+
 
 'Connects to BlueZone
 EMConnect ""
@@ -325,6 +324,10 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 need_final_note = TRUE
+
+'Asks if this is a LTC case or not. LTC has a different dialog. The if...then logic will be put in the do...loop.
+LTC_case = MsgBox("Is this a Long Term Care case? LTC cases have a few more options on their dialog.", vbYesNoCancel or VbDefaultButton2) 'defaults to no since that is most commonly chosen option
+If LTC_case = vbCancel then stopscript
 
 'Displays the dialog and navigates to case note
 'Shows dialog. Requires a case number, checks for an active MAXIS session, and checks that it can add/update a case note before proceeding.
@@ -544,49 +547,63 @@ End If
 If mof_form_checkbox = checked Then
     mof_date_recd = doc_date_stamp
 
-    BeginDialog Dialog1, 0, 0, 216, 185, "Medical Opinion Form Received for Case #" & MAXIS_case_number
+    BeginDialog Dialog1, 0, 0, 226, 255, "Medical Opinion Form Received for Case # " & MAXIS_case_number
       EditBox 55, 5, 50, 15, mof_date_recd
       CheckBox 125, 10, 85, 10, "Client signed release?", mof_clt_release_checkbox
-      DropListBox 80, 25, 130, 45, "Select One..."+chr(9)+client_dropdown, mof_hh_memb
+      DropListBox 80, 25, 140, 45, "Select One..."+chr(9)+client_dropdown, mof_hh_memb
       EditBox 90, 45, 55, 15, last_exam_date
       EditBox 90, 65, 55, 15, doctor_date
-      ComboBox 70, 85, 140, 45, " "+chr(9)+"Less than 30 Days"+chr(9)+"Between 30 - 45 Days"+chr(9)+"More than 45 Days"+chr(9)+"No End Date Listed", mof_time_condition_will_last
-      EditBox 85, 105, 125, 15, ability_to_work
-      EditBox 55, 125, 155, 15, mof_other_notes
-      EditBox 55, 145, 155, 15, actions_taken
+      ComboBox 70, 85, 150, 45, "Select or Type"+chr(9)+"Less than 30 Days"+chr(9)+"Between 30 - 45 Days"+chr(9)+"More than 45 Days"+chr(9)+"No End Date Listed", mof_time_condition_will_last
+      EditBox 85, 105, 135, 15, ability_to_work
+      EditBox 55, 125, 165, 15, mof_other_notes
+      EditBox 55, 145, 165, 15, actions_taken
+      CheckBox 10, 170, 215, 10, "Check here if the MOF indicates an SSA application is needed.", SSA_application_indicated_checkbox
+      CheckBox 10, 185, 185, 10, "Check here if DISA will be updated as needed by TTL", TTL_to_update_checkbox
+      CheckBox 10, 200, 190, 10, "Check here if you sent an email to TTL/FSS DataTeam.", TTL_email_checkbox
+      EditBox 90, 215, 65, 15, TTL_email_date
       ButtonGroup ButtonPressed
-        OkButton 105, 165, 50, 15
-        CancelButton 160, 165, 50, 15
+        OkButton 115, 235, 50, 15
+        CancelButton 170, 235, 50, 15
       Text 5, 10, 50, 10, "Date received: "
       Text 5, 30, 70, 10, "HHLD Member name"
       Text 5, 50, 60, 10, "Date of last exam: "
       Text 5, 70, 80, 10, "Date doctor signed form: "
+      Text 155, 45, 50, 35, "Do not enter diagnosis in case notes per PQ #16506."
       Text 5, 90, 60, 10, "Condition will last:"
       Text 5, 110, 75, 10, "Client's ability to work: "
       Text 5, 130, 40, 10, "Other notes: "
       Text 5, 150, 45, 10, "Action taken: "
-      Text 155, 45, 50, 35, "Do not enter diagnosis in case notes per PQ #16506."
+      Text 30, 220, 55, 10, "Date email sent:"
     EndDialog
 
     Do
         DO
-        	Err_msg = ""
-        	Dialog Dialog1
-        	Call cancel_continue_confirmation(skip_MOF)
+            Err_msg = ""
+            Dialog Dialog1
+            Call cancel_continue_confirmation(skip_MOF)
             'Call validate_MAXIS_case_number(err_msg, "*")
+            If IsDate(mof_date_recd) = FALSE Then err_msg = err_ms & vbNewLine & "* Enter a valid date the document was received."
             If mof_hh_memb = "Select One..." Then err_msg = err_ms & vbNewLine & "* Select the household member."
             IF actions_taken = "" THEN err_msg = err_msg & vbCr & "* You must enter your actions taken."		'checks that notes were entered
+            If TTL_email_checkbox = checked Then
+                If IsDate(TTL_email_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the date an email about this MOF was sent to TTL."
+            End If
             If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
             If skip_MOF= TRUE Then
                 err_msg = ""
                 mof_form_checkbox = unchecked
             End If
-
-        	If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then msgbox "Please resolve the following for the script to continue:" & vbNewLine & err_msg
+            If err_msg <> "" Then msgbox "Please resolve the following for the script to continue:" & vbNewLine & err_msg
         LOOP until err_msg = ""
         Call check_for_password(are_we_passworded_out)
     Loop until are_we_passworded_out = FALSE
 
+    last_exam_date = trim(last_exam_date)
+    doctor_date = trim(doctor_date)
+    If mof_time_condition_will_last = "Select or Type" Then mof_time_condition_will_last = ""
+    mof_time_condition_will_last = trim(mof_time_condition_will_last)
+    ability_to_work = trim(ability_to_work)
+    mof_other_notes = trim(mof_other_notes)
 End If
 
 If mof_form_checkbox = checked Then
@@ -2516,12 +2533,16 @@ If mtaf_form_checkbox = checked Then
         call write_bullet_and_variable_in_case_note("DISA", DISA)
         If mof_form_checkbox = checked Then
             CALL write_variable_in_CASE_NOTE("* Medical Opinion Form Rec'd " & date_recd & " for M" & mof_hh_memb)
-            IF mof_clt_release_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("  - *Client signed release on MOF.*")
-            CALL write_variable_in_CASE_NOTE("  - Date of last examination: " & last_exam_date)
-            CALL write_variable_in_CASE_NOTE("  - Doctor signed form: " & doctor_date)
-            CALL write_variable_in_CASE_NOTE("  - Condition will last: " & mof_time_condition_will_last)
-            CALL write_variable_in_CASE_NOTE("  - Ability to work: " & ability_to_work)
-            CALL write_variable_in_CASE_NOTE("  - Other notes: " & mof_other_notes)
+            IF mof_clt_release_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("  * Client signed release on MOF.")
+            If last_exam_date <> "" Then CALL write_variable_in_CASE_NOTE("  - Date of last examination: " & last_exam_date)
+            If doctor_date <> "" Then CALL write_variable_in_CASE_NOTE("  - Doctor signed form: " & doctor_date)
+            If mof_time_condition_will_last <> "" Then  CALL write_variable_in_CASE_NOTE("  - Condition will last: " & mof_time_condition_will_last)
+            If ability_to_work <> "" Then  CALL write_variable_in_CASE_NOTE("  - Ability to work: " & ability_to_work)
+            If mof_other_notes <> "" Then  CALL write_variable_in_CASE_NOTE("  - Other notes: " & mof_other_notes)
+
+            If SSA_application_indicated_checkbox = checked Then Call write_variable_in_CASE_NOTE("  * The MOF indicates the client needs to apply for SSA.")
+            If TTL_to_update_checkbox = checked Then Call write_variable_in_CASE_NOTE("  * Specialized TTL team will review MOF and update the DISA panel as needed.")
+            If TTL_email_checkbox = checked Then Call write_variable_in_CASE_NOTE("  * An email regarding this MOF was sent to the TTL/FSSDataTeam for review on " & TTL_email_date & " by " & worker_signature & ".")
         End If
         call write_bullet_and_variable_in_case_note("JOBS", JOBS)
         If evf_form_received_checkbox = checked Then
