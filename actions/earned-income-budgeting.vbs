@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("06/13/2019", "Bug fix for semi-monthly pay frequency when no actual checks are listed (only anticipated income schedule and hours).", "Casey Love, Hennepin County")
 Call changelog_update("06/05/2019", "Bug fix for SNAP cases that are currently set to close, a date error was preventing the script from running.", "Casey Love, Hennepin County")
 Call changelog_update("04/24/2019", "Added wording to the Confirm Budget Dialog that explains the functionality of the script. The script will return to the enter pay dialog if the budgets are not indicated as correct on the confirm budget dialog. This functionality is not new, it was built to go back when the budget is not confirmed.", "Casey Love, Hennepin County")
 Call changelog_update("03/26/2019", "Fixed errors when pay is twice monthly. Added better handling for reading the employer name.", "Casey Love, Hennepin County")
@@ -1205,8 +1206,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                                     If DateDiff("d", date, LIST_OF_INCOME_ARRAY(pay_date, all_income)) > 0 Then LIST_OF_INCOME_ARRAY(future_check, all_income) = TRUE   'this is a future check
                                                 Else        'if the paydate is NOT in the application  month
                                                     If DateDiff("d", date, LIST_OF_INCOME_ARRAY(pay_date, all_income)) > 0 Then             'if the pay date is in the future we have to error
-                                                        LIST_OF_INCOME_ARRAY(pay_date, all_income) = "**" & LIST_OF_INCOME_ARRAY(pay_date, all_income)
-                                                        sm_err_msg = sm_err_msg & vbNewLine & "* Paydates cannot be in the future."
+                                                        'LIST_OF_INCOME_ARRAY(pay_date, all_income) = "**" & LIST_OF_INCOME_ARRAY(pay_date, all_income)
+                                                        sm_err_msg = sm_err_msg & vbNewLine & "* Paydates cannot be in the future. (" & LIST_OF_INCOME_ARRAY(pay_date, all_income) & ")"
                                                     End If
                                                 End If
                                                 If EARNED_INCOME_PANELS_ARRAY(income_verif, ei_panel) = "? - EXPEDITED SNAP ONLY" Then      'if the verifi is '?' Then the pay dates must ALL be in the application month
@@ -1419,6 +1420,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                         End If
                                     End If
                                 Next
+
                                 If EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = 28 OR EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = 29 OR EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = 30 OR EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = 31 Then
                                     EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = ""
                                     EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST"
@@ -1615,6 +1617,56 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                 MsgBox "*** It appears there are checks missing ***" & vbNewLine & vbNewLine & "All checks need to be entered to have a correct budget. If there are pay dates between the first and last date entered that were not included, include them now. If the pay was $0, list $0 income."
                             End If
                         End If      'If actual_checks_provided = TRUE Then
+
+                        If actual_checks_provided = FALSE AND EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "2 - Two Times Per Month" Then
+                            If IsDate(known_pay_date) = TRUE Then
+                                known_day_of_month = DatePart("d", known_pay_date)
+                                If known_day_of_month < 16 Then
+                                    EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = known_day_of_month
+                                Else
+                                    EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = known_day_of_month
+                                End If
+                            End If
+
+                            EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & ""
+                            EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & ""
+                            If EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST" Then
+                                last_day_checkbox = checked
+                                EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = ""
+                            End If
+                            BeginDialog Dialog1, 0, 0, 106, 115, "Days of Pay for Bimonthly"
+                              EditBox 55, 35, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel)
+                              EditBox 55, 55, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel)
+                              ButtonGroup ButtonPressed
+                                OkButton 50, 95, 50, 15
+                              Text 10, 10, 95, 20, "Dates of Pay for BiMonthly Pay Frequency"
+                              Text 10, 40, 35, 10, "First Day"
+                              Text 10, 60, 45, 10, "Second Day"
+                              CheckBox 10, 80, 95, 10, "Second Day is LAST Day", last_day_checkbox
+                            EndDialog
+
+                            Do
+                                the_err = ""
+
+                                dialog Dialog1
+
+                                EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = trim(EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel))
+                                EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = trim(EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel))
+                                If EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = "" Then the_err = the_err & vbNewLine & "* Enter the DAY of the month the first paycheck comes on."
+                                If EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "" Then
+                                    If last_day_checkbox = unchecked Then the_err = the_err & vbNewLine & "* Enter the DAY of the month the second paycheck comes on. Or check the box indicating the second check falls on the last day of the month."
+                                End If
+                                If the_err <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & the_err
+                            Loop until the_err = ""
+
+                            EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) * 1
+                            If IsNumeric(EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel)) = TRUE Then EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) * 1
+                            If last_day_checkbox = checked Then
+                                EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST"
+                            ElseIf EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = 28 OR EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = 29 OR EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = 30 OR EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = 31 Then
+                                EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST"
+                            End If
+                        End If
                     Loop Until loop_to_add_missing_checks = FALSE
 
                     prev_date = ""              'setting some variables for the loop
@@ -2725,11 +2777,16 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 
                 ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "2 - Two Times Per Month" Then
                     checks_in_month = 0
-                    For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
-                        If DatePart("m", LIST_OF_INCOME_ARRAY(pay_date, all_income)) = DatePart("m", this_month) AND DatePart("yyyy", LIST_OF_INCOME_ARRAY(pay_date, all_income)) = DatePart("yyyy", this_month) Then
-                            checks_in_month = checks_in_month + 1
-                            checks_list = checks_list & "~" & LIST_OF_INCOME_ARRAY(view_pay_date, all_income)
-                        End If
+                    For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
+                        For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+                            'conditional if it is the right panel AND the order matches - then do the thing you need to do
+                            If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
+                                If DatePart("m", LIST_OF_INCOME_ARRAY(pay_date, all_income)) = DatePart("m", this_month) AND DatePart("yyyy", LIST_OF_INCOME_ARRAY(pay_date, all_income)) = DatePart("yyyy", this_month) Then
+                                    checks_in_month = checks_in_month + 1
+                                    checks_list = checks_list & "~" & LIST_OF_INCOME_ARRAY(view_pay_date, all_income)
+                                End If
+                            End If
+                        Next
                     Next
 
                     If checks_in_month = 0 Then
@@ -2828,11 +2885,16 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 
                 ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "2 - Two Times Per Month" Then
                     checks_in_month = 0
-                    For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
-                        If DatePart("m", LIST_OF_INCOME_ARRAY(pay_date, all_income)) = DatePart("m", RETRO_month) AND DatePart("yyyy", LIST_OF_INCOME_ARRAY(pay_date, all_income)) = DatePart("yyyy", RETRO_month) Then
-                            checks_in_month = checks_in_month + 1
-                            checks_list = checks_list & "~" & LIST_OF_INCOME_ARRAY(view_pay_date, all_income)
-                        End If
+                    For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
+                        For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+                            'conditional if it is the right panel AND the order matches - then do the thing you need to do
+                            If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
+                                If DatePart("m", LIST_OF_INCOME_ARRAY(pay_date, all_income)) = DatePart("m", RETRO_month) AND DatePart("yyyy", LIST_OF_INCOME_ARRAY(pay_date, all_income)) = DatePart("yyyy", RETRO_month) Then
+                                    checks_in_month = checks_in_month + 1
+                                    checks_list = checks_list & "~" & LIST_OF_INCOME_ARRAY(view_pay_date, all_income)
+                                End If
+                            End If
+                        Next
                     Next
 
                     If checks_in_month = 0 Then
