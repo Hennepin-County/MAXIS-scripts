@@ -459,6 +459,9 @@ IF verifA_sent_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Verifi
 IF SHEL_form_sent_checkbox = CHECKED THEN pending_verifs = pending_verifs & "SVF, "
 IF CRF_sent_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Change Request Form, "
 IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
+'-------------------------------------------------------------------trims excess spaces of pending_verifs
+pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more than one app date is found and additional app is selected
+IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 'checks that the worker is in MAXIS - allows them to get in MAXIS without ending the script
 call check_for_MAXIS (false)
 
@@ -476,7 +479,7 @@ call write_bullet_and_variable_in_CASE_NOTE("Previous address in MAXIS:", maxis_
 call write_bullet_and_variable_in_CASE_NOTE("Reservation:", reservation_addr)
 call write_bullet_and_variable_in_CASE_NOTE("METS correspondence sent:", METS_ADDR)
 call write_bullet_and_variable_in_CASE_NOTE("Homeless:", homeless_addr)
-call write_bullet_and_variable_in_CASE_NOTE("Verification Request Form(s) Sent:",)
+CALL write_bullet_and_variable_in_case_note("Verification(s) Requested", pending_verifs)
 call write_bullet_and_variable_in_CASE_NOTE("Is address:", reservation_name)
 call write_bullet_and_variable_in_CASE_NOTE("Living situation:", living_situation)
 call write_variable_in_CASE_NOTE ("---")
