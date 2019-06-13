@@ -54,6 +54,12 @@ If user_ID_for_validation = "WFM207" Then name_for_validation = "Mandora"
 If user_ID_for_validation = "WFP803" Then name_for_validation = "Melissa"
 If user_ID_for_validation = "WFC041" Then name_for_validation = "Kerry"
 If user_ID_for_validation = "AAGA001" Then name_for_validation = "Aaron"
+If user_ID_for_validation = "WFJ454" Then name_for_validation = "True"
+If user_ID_for_validation = "WFC719" Then name_for_validation = "Kristen"
+If user_ID_for_validation = "WFE269" Then name_for_validation = "Carrie"
+If user_ID_for_validation = "WFW682" Then name_for_validation = "Osman"
+If user_ID_for_validation = "WFC804" Then name_for_validation = "Shanna"
+If user_ID_for_validation = "WFA168" Then name_for_validation = "Michelle"
 
 If name_for_validation <> "" Then
     MsgBox "Hello " & name_for_validation &  ", you have been selected to test the script NOTES - Documents Received."  & vbNewLine & vbNewLine & "A testing version of the script will now run.  Thank you for taking your time to review our new scripts and functionality as we strive for Continuous Improvement." & vbNewLine & vbNewLine  & "                                                                                    - BlueZone Script Team"
