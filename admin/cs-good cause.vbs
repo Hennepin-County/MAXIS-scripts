@@ -300,7 +300,7 @@ Do
 			If denial_reason = "" then err_msg = err_msg & vbnewline & "* You must enter a denial reason."
 		END IF
 
-		If isdate(actual_date) = FALSE and Cdate(actual_date) > cdate(date) = TRUE THEN  err_msg = err_msg & vbnewline & "* You must enter an actual date that is not in the furute and is in the footer month that you are working in."
+		If isdate(actual_date) = FALSE and Cdate(actual_date) > cdate(date) = TRUE THEN  err_msg = err_msg & vbnewline & "* You must enter an actual date that is not in the future and is in the footer month that you are working in."
 		IF gc_status <> "Not Claimed" THEN
 			If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
 		END IF
