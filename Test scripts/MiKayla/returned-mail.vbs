@@ -53,8 +53,8 @@ MAXIS_case_number = "282689"
 date_received = "06/13/19"
 ADDR_actions = "Mail has been returned with forwarding address in MN"
 
-EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 BeginDialog case_number_dlg, 0, 0, 251, 85, "Returned Mail"
   EditBox 55, 5, 40, 15, maxis_case_number
@@ -77,7 +77,8 @@ DO
     	DIALOG case_number_dlg
     		IF ButtonPressed = 0 THEN stopscript
     		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
-			If isdate(date_received) = FALSE then err_msg = err_msg & vbnewline & "* Please enter a date (--/--/--) in the footer month that you are working in."
+			If isdate(date_received) = FALSE and Cdate(date_received) > cdate(date) = TRUE THEN  err_msg = err_msg & vbnewline & "* You must enter an actual date that is not in the future and is in the footer month that you are working in."
+			'If isdate(date_received) = FALSE then err_msg = err_msg & vbnewline & "* Please enter a date (--/--/--) in the footer month that you are working in."
 			IF ADDR_actions = "Select One:" THEN err_msg = err_msg & vbCr & "Please chose an action for the returned mail."
     		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please sign your case note."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
@@ -158,49 +159,46 @@ IF ADDR_actions = "Mail has been returned NO forwarding address" THEN
 END IF
 
 IF ADDR_actions = "Mail has been returned with forwarding address in MN" or ADDR_actions = "Mail has been returned with forwarding address outside MN" THEN
-    BeginDialog returned_mail_update_addr, 0, 0, 201, 300, "Mail has been returned with forwarding address"
-	  Text 10, 15, 180, 20, "maxis_addr"
-	  CheckBox 10, 50, 50, 10, "DHS-2919A", verifA_sent_checkbox
-      CheckBox 65, 50, 45, 10, "DHS-2952", SHEL_form_sent_checkbox
-      CheckBox 115, 50, 45, 10, "DHS-2402", CRF_form_sent_checkbox
-      CheckBox 165, 50, 25, 10, "MAIL", return_mail_checkbox
-	  DropListBox 155, 75, 35, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", update_ADDR
-	  EditBox 40, 95, 150, 15, new_addr_line_one
-	  EditBox 40, 115, 150, 15, new_addr_line_two
-	  EditBox 40, 135, 150, 15, new_addr_city
-	  EditBox 40, 155, 20, 15, new_addr_state
-	  EditBox 155, 155, 35, 15, new_addr_zip
-      DropListBox 40, 175, 60, 15, "Select One:"+chr(9)+"Aitkin"+chr(9)+"Anoka"+chr(9)+"Becker"+chr(9)+"Beltrami"+chr(9)+"Benton"+chr(9)+"Big Stone"+chr(9)+"Blue Earth"+chr(9)+"Brown"+chr(9)+"Carlton"+chr(9)+"Carver"+chr(9)+"Cass"+chr(9)+"Chippewa"+chr(9)+"Chisago"+chr(9)+"Clay"+chr(9)+"Clearwater"+chr(9)+"Cook"+chr(9)+"Cottonwood"+chr(9)+"Crow     Wing"+chr(9)+"Dakota"+chr(9)+"Dodge"+chr(9)+"Douglas"+chr(9)+"Faribault"+chr(9)+"Fillmore"+chr(9)+"Freeborn"+chr(9)+"Goodhue"+chr(9)+"Grant"+chr(9)+"Hennepin"+chr(9)+"Houston"+chr(9)+"Hubbard"+chr(9)+"Isanti"+chr(9)+"Itasca"+chr(9)+"Jackson"+chr(9)+"Kanabec"+chr(9)+"Kandiyohi"+chr(9)+"Kittson"+chr(9)+"Koochiching"+chr(9)+"Lac Qui Parle"+chr(9)+"Lake"+chr(9)+"Lake Of Woods"+chr(9)+"Le     Sueur"+chr(9)+"Lincoln"+chr(9)+"Lyon"+chr(9)+"Mcleod"+chr(9)+"Mahnomen"+chr(9)+"Marshall"+chr(9)+"Martin"+chr(9)+"Meeker"+chr(9)+"Mille Lacs"+chr(9)+"Morrison"+chr(9)+"Mower"+chr(9)+"Murray"+chr(9)+"Nicollet"+chr(9)+"Nobles"+chr(9)+"Norman"+chr(9)+"Olmsted"+chr(9)+"Otter Tail"+chr(9)+"Pennington"+chr(9)+"Pine"+chr(9)+"Pipestone"+chr(9)+"Polk"+chr(9)+"Pope"+chr(9)+"Ramsey"+chr(9)+"Red Lake"+chr(9)+"Redwood"+chr(9)+"Renville"+chr(9)+"Rice"+chr(9)+"Rock"+chr(9)+"Roseau"+chr(9)+"St.     Louis"+chr(9)+"Scott"+chr(9)+"Sherburne"+chr(9)+"Sibley"+chr(9)+"Stearns"+chr(9)+"Steele"+chr(9)+"Stevens"+chr(9)+"Swift"+chr(9)+"Todd"+chr(9)+"Traverse"+chr(9)+"Wabasha"+chr(9)+"Wadena"+chr(9)+"Waseca"+chr(9)+"Washington"+chr(9)+"Watonwan"+chr(9)+"Wilkin"+chr(9)+"Winona"+chr(9)+"Wright"+chr(9)+"Yellow Medicine"+chr(9)+"Out-of-State", county_code
-      DropListBox 150, 175, 40, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", homeless_addr
-      DropListBox 65, 195, 35, 15, "Select One:"+chr(9)+"Own Housing: Lease, Mortgage or Roommate"+chr(9)+"Family/Friends Due to Economic Hardship"+chr(9)+"Service Provider-Foster Care Group Home"+chr(9)+"Hospital/Treatment/Detox/Nursing Home"+chr(9)+"Jail/Prison/Juvenile Detention Center"+chr(9)+"Hotel/Motel"+chr(9)+"Emergency Shelter"+chr(9)+"Place Not Meant for housing"+chr(9)+"Declined"+chr(9)+"Unknown", living_situation
-      DropListBox 150, 195, 40, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", reservation_addr
-      DropListBox 40, 215, 150, 15, "Select One:"+chr(9)+"Bois Forte-Deer Creek"+chr(9)+"Bois Forte-Nett Lake"+chr(9)+"Bois Forte-Vermillion Lk"+chr(9)+"Fond du Lac"+chr(9)+"Grand Portage"+chr(9)+"Leach Lake"+chr(9)+"Lower Sioux"+chr(9)+"Mille Lacs"+chr(9)+"Prairie Island Community"+chr(9)+"Red Lake"+chr(9)+"Shakopee Mdewakanton"+chr(9)+"Upper Sioux"+chr(9)+"White Earth", reservation_name
-      DropListBox 135, 235, 55, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", METS_ADDR_correspondence
-      EditBox 135, 250, 55, 15, METS_case_number
-      EditBox 50, 270, 140, 15, other_notes
-      ButtonGroup ButtonPressed
-        CancelButton 140, 285, 50, 15
-        OkButton 75, 285, 50, 15
-      Text 35, 145, 15, 10, "City:"
-      Text 35, 165, 20, 10, "State:"
-      Text 65, 85, 85, 10, "Script to update address?"
-      Text 10, 185, 30, 10, "County:"
-      Text 120, 165, 30, 10, "Zip code:"
-      Text 30, 105, 20, 10, "Street:"
-      Text 5, 275, 40, 10, "Other notes:"
-      Text 100, 215, 25, 10, "Name:"
-      GroupBox 5, 5, 190, 40, "Address in MAXIS:"
-      Text 10, 215, 45, 10, "Reservation:"
-      Text 5, 240, 95, 10, "METS correspondence sent:"
-      Text 15, 200, 35, 10, "Homeless:"
-      GroupBox 5, 45, 190, 25, "Verification Request Form(s) Received:"
-      Text 115, 185, 40, 10, "Is address:"
-      Text 100, 200, 55, 10, "Living situation:"
-      Text 5, 255, 70, 10, "METS case number:"
-      GroupBox 5, 70, 190, 160, "New Address:"
-      Text 15, 125, 35, 10, "Apt/Room:"
-    EndDialog
-
+	  BeginDialog returned_mail_update_addr, 0, 0, 201, 310, "Mail has been returned with forwarding address"
+	    Text 10, 15, 180, 15, maxis_addr
+	    CheckBox 10, 45, 50, 10, "DHS-2919A", verifA_sent_checkbox
+	    CheckBox 60, 45, 45, 10, "DHS-2952", SHEL_form_sent_checkbox
+	    CheckBox 110, 45, 45, 10, "DHS-2402", Check4
+	    CheckBox 160, 45, 30, 10, "MAIL", return_mail_checkbox
+	    DropListBox 155, 75, 35, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", update_ADDR
+	    EditBox 40, 95, 150, 15, new_addr_line_one
+	    EditBox 40, 115, 150, 15, new_addr_line_two
+	    EditBox 40, 135, 150, 15, new_addr_city
+	    EditBox 40, 155, 20, 15, new_addr_state
+	    EditBox 155, 155, 35, 15, new_addr_zip
+	    DropListBox 40, 175, 60, 15, "Select One:"+chr(9)+"Aitkin"+chr(9)+"Anoka"+chr(9)+"Becker"+chr(9)+"Beltrami"+chr(9)+"Benton"+chr(9)+"Big Stone"+chr(9)+"Blue Earth"+chr(9)+"Brown"+chr(9)+"Carlton"+chr(9)+"Carver"+chr(9)+"Cass"+chr(9)+"Chippewa"+chr(9)+"Chisago"+chr(9)+"Clay"+chr(9)+"Clearwater"+chr(9)+"Cook"+chr(9)+"Cottonwood"+chr(9)+"Crow Wing"+chr(9)+"Dakota"+chr(9)+"Dodge"+chr(9)+"Douglas"+chr(9)+"Faribault"+chr(9)+"Fillmore"+chr(9)+"Freeborn"+chr(9)+"Goodhue"+chr(9)+"Grant"+chr(9)+"Hennepin"+chr(9)+"Houston"+chr(9)+"Hubbard"+chr(9)+"Isanti"+chr(9)+"Itasca"+chr(9)+"Jackson"+chr(9)+"Kanabec"+chr(9)+"Kandiyohi"+chr(9)+"Kittson"+chr(9)+"Koochiching"+chr(9)+"Lac Qui Parle"+chr(9)+"Lake"+chr(9)+"Lake Of Woods"+chr(9)+"Le Sueur"+chr(9)+"Lincoln"+chr(9)+"Lyon"+chr(9)+"Mcleod"+chr(9)+"Mahnomen"+chr(9)+"Marshall"+chr(9)+"Martin"+chr(9)+"Meeker"+chr(9)+"Mille Lacs"+chr(9)+"Morrison"+chr(9)+"Mower"+chr(9)+"Murray"+chr(9)+"Nicollet"+chr(9)+"Nobles"+chr(9)+"Norman"+chr(9)+"Olmsted"+chr(9)+"Otter Tail"+chr(9)+"Pennington"+chr(9)+"Pine"+chr(9)+"Pipestone"+chr(9)+"Polk"+chr(9)+"Pope"+chr(9)+"Ramsey"+chr(9)+"Red Lake"+chr(9)+"Redwood"+chr(9)+"Renville"+chr(9)+"Rice"+chr(9)+"Rock"+chr(9)+"Roseau"+chr(9)+"St. Louis"+chr(9)+"Scott"+chr(9)+"Sherburne"+chr(9)+"Sibley"+chr(9)+"Stearns"+chr(9)+"Steele"+chr(9)+"Stevens"+chr(9)+"Swift"+chr(9)+"Todd"+chr(9)+"Traverse"+chr(9)+"Wabasha"+chr(9)+"Wadena"+chr(9)+"Waseca"+chr(9)+"Washington"+chr(9)+"Watonwan"+chr(9)+"Wilkin"+chr(9)+"Winona"+chr(9)+"Wright"+chr(9)+"Yellow Medicine"+chr(9)+"Out-of-State", county_code
+	    DropListBox 150, 175, 40, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", homeless_addr
+	    DropListBox 65, 190, 35, 15, "Select One:"+chr(9)+"Own Housing: Lease, Mortgage or Roommate"+chr(9)+"Family/Friends Due to Economic Hardship"+chr(9)+"Service Provider-Foster Care Group Home"+chr(9)+"Hospital/Treatment/Detox/Nursing Home"+chr(9)+"Jail/Prison/Juvenile Detention Center"+chr(9)+"Hotel/Motel"+chr(9)+"Emergency Shelter"+chr(9)+"Place Not Meant for housing"+chr(9)+"Declined"+chr(9)+"Unknown", living_situation
+	    DropListBox 150, 190, 40, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", reservation_addr
+	    DropListBox 40, 210, 150, 15, "Select One:"+chr(9)+"Bois Forte-Deer Creek"+chr(9)+"Bois Forte-Nett Lake"+chr(9)+"Bois Forte-Vermillion Lk"+chr(9)+"Fond du Lac"+chr(9)+"Grand Portage"+chr(9)+"Leach Lake"+chr(9)+"Lower Sioux"+chr(9)+"Mille Lacs"+chr(9)+"Prairie Island Community"+chr(9)+"Red Lake"+chr(9)+"Shakopee Mdewakanton"+chr(9)+"Upper Sioux"+chr(9)+"White Earth", reservation_name
+	    DropListBox 135, 235, 55, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", METS_ADDR_correspondence
+	    EditBox 135, 250, 55, 15, METS_case_number
+	    EditBox 50, 270, 140, 15, other_notes
+	    ButtonGroup ButtonPressed
+	      OkButton 85, 290, 50, 15
+	      CancelButton 140, 290, 50, 15
+	    GroupBox 5, 5, 190, 30, "Address in MAXIS:"
+	    GroupBox 5, 35, 190, 25, "Verification Request Form(s) Sent:"
+	    GroupBox 5, 65, 190, 165, "New Address:"
+	    Text 65, 80, 85, 10, "Script to update address?"
+	    Text 15, 100, 20, 10, "Street:"
+	    Text 20, 140, 15, 10, "City:"
+	    Text 20, 160, 20, 10, "State:"
+	    Text 120, 160, 30, 10, "Zip code:"
+	    Text 10, 180, 30, 10, "County:"
+	    Text 110, 180, 35, 10, "Homeless:"
+	    Text 10, 195, 55, 10, "Living situation:"
+	    Text 105, 195, 45, 10, "Reservation:"
+	    Text 10, 215, 25, 10, "Name:"
+	    Text 5, 240, 95, 10, "METS correspondence sent:"
+	    Text 5, 255, 70, 10, "METS case number:"
+	    Text 5, 275, 40, 10, "Other notes:"
+	  EndDialog
 
     DO
     	DO
@@ -229,10 +227,12 @@ IF ADDR_actions = "Mail has been returned with forwarding address in MN" or ADDR
     CALL check_for_MAXIS(False)
 END IF
 
+'PANEL EFFECTIVE DATE MUST EQUAL BENEFIT MONTH/YEAR
+
 IF homeless_addr = "Yes" THEN homeless_addr_code = "Y"
 IF homeless_addr = "No" THEN homeless_addr_code = "N"
-IF reservation_name = "Yes" THEN reservation_name = "Y"
-IF reservation_name = "No" THEN reservation_name = "N"
+IF reservation_addr = "Yes" THEN reservation_addr = "Y"
+IF reservation_addr = "No" THEN reservation_addr = "N"
 
 IF county_code = "Aitkin" THEN county_code_number = "01"
 IF county_code = "Anoka" THEN county_code_number = "02"
@@ -350,7 +350,10 @@ IF reservation_addr = "White Earth" THEN rez_code = "WE"
 
 
 IF update_ADDR = "Yes" THEN
+	Call MAXIS_footer_month_confirmation
 	PF9
+	Call create_MAXIS_friendly_date_with_YY(datevalue(date_received), 0, 4, 43) 'creates and writes the date entered in dialog'
+	
 	IF residence_addr = "Residence" THEN
 	    EMwritescreen new_addr_line_one, 6, 43
 	    EMwritescreen ADDR_line_two, 7, 43
@@ -372,6 +375,7 @@ IF update_ADDR = "Yes" THEN
 END IF
 
 IF ADDR_actions = "Client has not responded to request for verif" THEN
+	Call MAXIS_footer_month_confirmation
 	CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 
     'Setting some variables for the loop
