@@ -471,7 +471,7 @@ ELSE
 	If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
 End if
 'writing in the action taken and date to the MISC panel
-EMWriteScreen "Claim Determination", Row, 30
+EMWriteScreen "Claim Referral", Row, 30
 EMWriteScreen date, Row, 66
 PF3
 start_a_blank_CASE_NOTE
@@ -558,7 +558,7 @@ TRANSMIT
 'NO CLAIMS WERE FOUND FOR THIS CASE, PROGRAM, AND STATUS
 EMReadScreen error_check, 75, 24, 2	'making sure we can actually update this case.
 error_check = trim(error_check)
-If error_check <> "" then script_end_procedure_with_error_report(error_check & "Unable to update this case. Please review case, and run the script again if applicable.")
+If error_check <> "" then script_end_procedure_with_error_report(error_check & ". Unable to update this case. Please review case, and run the script again if applicable.")
 PF4
 EMReadScreen existing_case_note, 1, 5, 6
 IF existing_case_note = "" THEN
