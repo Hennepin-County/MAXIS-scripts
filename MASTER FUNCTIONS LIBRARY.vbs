@@ -8164,16 +8164,18 @@ function write_panel_to_MAXIS_UNEA(unea_number, unea_inc_type, unea_inc_verif, u
 		EMWriteScreen unea_pay_freq, 5, 64
 		EMWriteScreen unea_inc_amount, 8, 66
 		calc_month = datepart("M", date)
-			IF len(calc_month) = 1 THEN calc_month = "0" & calc_month
+		IF len(calc_month) = 1 THEN calc_month = "0" & calc_month
 		calc_day = datepart("D", date)
-			IF len(calc_day) = 1 THEN calc_day = "0" & calc_day
-		calc_year = datepart("YYYY", date)
+		IF len(calc_day) = 1 THEN calc_day = "0" & calc_day
+        calc_year = right( DatePart("yyyy",date), 2)
 		EMWriteScreen calc_month, 5, 34
 		EMWriteScreen calc_day, 5, 37
 		EMWriteScreen calc_year, 5, 40
-		transmit
-		transmit
-		transmit		'<=====navigates out of the PIC
+        Do              '<=====navigates out of the PIC
+            transmit
+            EmReadscreen PIC_Check, 16, 3, 28
+            IF PIC_check <> "SNAP Prospective" then exit do
+        Loop
 	ELSE
 		PF3
 	END IF
