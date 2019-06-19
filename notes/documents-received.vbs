@@ -294,18 +294,18 @@ call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 'Call get_county_code()
 end_msg = ""
 
-BeginDialog Dialog1, 0, 0, 136, 110, "Case number dialog"
+BeginDialog Dialog1, 0, 0, 136, 95, "Case number dialog"
   EditBox 65, 10, 65, 15, MAXIS_case_number
   EditBox 65, 30, 30, 15, MAXIS_footer_month
   EditBox 100, 30, 30, 15, MAXIS_footer_year
   EditBox 85, 50, 45, 15, doc_date_stamp
   ButtonGroup ButtonPressed
-    OkButton 25, 90, 50, 15
-    CancelButton 80, 90, 50, 15
+    OkButton 25, 75, 50, 15
+    CancelButton 80, 75, 50, 15
   Text 10, 15, 50, 10, "Case number: "
   Text 10, 35, 50, 10, "Footer month:"
   Text 10, 55, 75, 10, "Document date stamp:"
-  CheckBox 10, 75, 60, 10, "OTS scanning", HSR_scanner_checkbox
+  'CheckBox 10, 75, 60, 10, "OTS scanning", HSR_scanner_checkbox        'This is commented out BUT if replacing this, the dialog needs to be resized and buttons moved.'
 EndDialog
 
 Do
