@@ -38,6 +38,36 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
+'This is used in arrays that specify functionality to specific workers
+Set objNet = CreateObject("WScript.NetWork")
+windows_user_ID = objNet.UserName
+user_ID_for_validation= ucase(windows_user_ID)
+name_for_validation = ""
+
+If user_ID_for_validation = "CALO001" Then name_for_validation = "Casey"
+If user_ID_for_validation = "ILFE001" Then name_for_validation = "Ilse"
+If user_ID_for_validation = "WFS395" Then name_for_validation = "MiKayla"
+If user_ID_for_validation = "WFQ898" Then name_for_validation = "Hannah"
+If user_ID_for_validation = "WFK093" Then name_for_validation = "Jessica"
+If user_ID_for_validation = "WFM207" Then name_for_validation = "Mandora"
+If user_ID_for_validation = "WFP803" Then name_for_validation = "Melissa"
+If user_ID_for_validation = "WFC041" Then name_for_validation = "Kerry"
+If user_ID_for_validation = "AAGA001" Then name_for_validation = "Aaron"
+If user_ID_for_validation = "WFJ454" Then name_for_validation = "True"
+If user_ID_for_validation = "WFC719" Then name_for_validation = "Kristen"
+If user_ID_for_validation = "WFE269" Then name_for_validation = "Carrie"
+If user_ID_for_validation = "WFW682" Then name_for_validation = "Osman"
+If user_ID_for_validation = "WFC804" Then name_for_validation = "Shanna"
+If user_ID_for_validation = "WFA168" Then name_for_validation = "Michelle"
+
+If name_for_validation <> "" Then
+    MsgBox "Hello " & name_for_validation &  ", you have been selected to test the script NOTES - Documents Received. The functionality to run NOTES - LTC - 1503 Script is now added to NOTES - Documents Received. When the script runs, inditate that this is an LTC case and check the box for the 1503 form."  & vbNewLine & vbNewLine & "A testing version of the script will now run.  Thank you for taking your time to review our new scripts and functionality as we strive for Continuous Improvement." & vbNewLine & vbNewLine  & "                                                                                    - BlueZone Script Team"
+    testing_run = TRUE
+    testing_script_url = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/testing_trial/notes/documents-received.vbs"
+    Call run_from_GitHub(testing_script_url)
+End if
+
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
@@ -73,7 +103,7 @@ BeginDialog , 0, 0, 116, 70, "Case number dialog"
   Text 10, 15, 45, 10, "Case number: "
 EndDialog
 
-Do 
+Do
 	DO
         err_msg = ""
 		Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
@@ -83,8 +113,8 @@ Do
         If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     LOOP UNTIL err_msg = ""
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in		
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'THE 1503 MAIN DIALOG---------defined and displayed-----------------------------------------------------------------------
 BeginDialog , 0, 0, 366, 285, "1503 Dialog"
@@ -128,18 +158,18 @@ BeginDialog , 0, 0, 366, 285, "1503 Dialog"
   Text 50, 270, 60, 10, "Worker signature:"
 EndDialog
 
-Do 
+Do
 	Do
         err_msg = ""
 		Dialog  					'Calling a dialog without a assigned variable will call the most recently defined dialog
 		cancel_confirmation
-		If trim(facility_name) = "" then err_msg = err_msg & vbNewLine & "* Enter the name of the facility." 
-        If isdate(admit_date) = false then err_msg = err_msg & vbNewLine & "* Enter a valid date of admission." 
-        If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature." 
+		If trim(facility_name) = "" then err_msg = err_msg & vbNewLine & "* Enter the name of the facility."
+        If isdate(admit_date) = false then err_msg = err_msg & vbNewLine & "* Enter a valid date of admission."
+        If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     LOOP UNTIL err_msg = ""
-    Call check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in		
+    Call check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Checks for an active MAXIS session
 Call check_for_MAXIS(False)
