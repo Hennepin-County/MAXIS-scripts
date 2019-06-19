@@ -600,7 +600,7 @@ Row = 8
 	END IF 'checking to make sure maxis case is active'
 
     start_a_blank_case_note
-    Call write_variable_in_case_note("-----Claim Referral Tracking-----")
+    Call write_variable_in_case_note("-----Claim Referral Tracking - Claim Determination-----")
 	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
     Call write_bullet_and_variable_in_case_note("Program(s)", MN_Active_Programs)
 	Call write_bullet_and_variable_in_case_note("Action Date", date)

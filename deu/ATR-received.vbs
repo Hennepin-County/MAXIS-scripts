@@ -64,7 +64,7 @@ BeginDialog ATR_action_dialog, 0, 0, 181, 240, "ATR Received"
   EditBox 155, 5, 20, 15, MEMB_Number
   EditBox 55, 25, 55, 15, date_received
   DropListBox 85, 45, 55, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR", select_quarter
-  DropListBox 85, 65, 55, 15, "Select One:"+chr(9)+"WAGE"+chr(9)+"NON-WAGE", IEVS_period
+  DropListBox 85, 65, 55, 15, "Select One:"+chr(9)+"WAGE"+chr(9)+"NON-WAGE", match_type
   DropListBox 85, 85, 90, 15, "Select One:"+chr(9)+"MAIL"+chr(9)+"FAX"+chr(9)+"RCVD VERIFICATION", ATR_sent
   DropListBox 85, 105, 90, 15, "Select One:"+chr(9)+"DELETED DISQ"+chr(9)+"PENDING VERF"+chr(9)+"N/A", DISQ_action
   EditBox 65, 130, 110, 15, income_source
@@ -102,21 +102,6 @@ DO
     CALL check_for_password_without_transmit(are_we_passworded_out)
 LOOP UNTIL are_we_passworded_out = false
 
-'-------------------------------------------------------------------------------------------Defaulting the quarters
-IF select_quarter = "1" THEN
-                IEVS_period = "01-" & CM_minus_1_yr & "/03-" & CM_minus_1_yr
-ELSEIF select_quarter = "2" THEN
-                IEVS_period = "04-" & CM_minus_1_yr & "/06-" & CM_minus_1_yr
-ELSEIF select_quarter = "3" THEN
-                IEVS_period = "07-" & CM_minus_1_yr  & "/09-" & CM_minus_1_yr
-ELSEIF select_quarter = "4" THEN
-                IEVS_period = "10-" & CM_minus_6_yr & "/12-" & CM_minus_6_yr
-ELSEIF select_quarter = "YEAR" THEN
-				IEVS_period = right(DatePart("yyyy",DateAdd("yyyy", -1, date)), 2)
-END IF
-
-'msgbox IEVS_period
-
 '----------------------------------------------------------------------------------------------------IEVS
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 EMwritescreen memb_number, 20, 76
@@ -135,41 +120,61 @@ If error_check <> "" then script_end_procedure_with_error_report(error_check & "
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 7
 DO
-	EMReadScreen IEVS_match, 11, row, 47
-	IF trim(IEVS_match) = "" THEN script_end_procedure("IEVS match for the selected period could not be found. The script will now end.")
+	EMReadScreen IEVS_period, 11, row, 47
+	EmReadScreen number_IEVS_type, 3, row, 41
+	IF IEVS_period = "" THEN script_end_procedure_with_error_report("A match for the selected period could not be found. The script will now end.")
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-	"   " & IEVS_match, vbYesNoCancel, "Please confirm this match")
+	" " & "Period: " & IEVS_period & " Type: " & number_IEVS_type, vbYesNoCancel, "Please confirm this match")
+	'msgbox IEVS_period
 	IF ievp_info_confirmation = vbNo THEN
 		row = row + 1
-		'msgbox "row: " & row
+	'msgbox "row: " & row
 		IF row = 17 THEN
 			PF8
 			row = 7
+			EMReadScreen IEVS_period, 11, row, 47
 		END IF
 	END IF
-	IF ievp_info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
+	IF ievp_info_confirmation = vbCancel THEN script_end_procedure_with_error_report ("The script has ended. The match has not been acted on.")
 	IF ievp_info_confirmation = vbYes THEN 	EXIT DO
 LOOP UNTIL ievp_info_confirmation = vbYes
 
-'----------------------------------------------------------------------------------------------------IULA
-'Entering the IEVS match & reading the difference notice to ensure this has been sent
-'Reading potential errors for out-of-county cases
+'---------------------------------------------------------------------Reading potential errors for out-of-county cases
+'checking for an active MAXIS session
+Call check_for_MAXIS(False)
 
-CALL write_value_and_transmit("U", row, 3)
+'checking to make sure case is out of background & gets to STAT/BUDG
+Call MAXIS_background_check
+CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 EMReadScreen OutOfCounty_error, 12, 24, 2
-IF OutOfCounty_error = "MATCH IS NOT" THEN
-	script_end_procedure("Out-of-county case. Cannot update.")
+IF OutOfCounty_error = "MATCH IS NOT" then
+	script_end_procedure_with_error_report("Out-of-county case. Cannot update.")
 ELSE
-	IF IEVS_type = "WAGE" THEN
-		EMReadScreen quarter, 1, 8, 14
+    EMReadScreen number_IEVS_type, 3, 7, 12 'read the DAIL msg'
+    IF number_IEVS_type = "A30" THEN match_type = "BNDX"
+    'IF number_IEVS_type = "A40" THEN match_type = "SDXS/I"
+    IF number_IEVS_type = "A70" THEN match_type = "BEER"
+    IF number_IEVS_type = "A80" THEN match_type = "UNVI"
+    IF number_IEVS_type = "A60" THEN match_type = "UBEN"
+    IF number_IEVS_type = "A50" or number_IEVS_type = "A51"  THEN match_type = "WAGE"
+
+	IF match_type = "WAGE" then
+		EMReadScreen select_quarter, 1, 8, 14
 		EMReadScreen IEVS_year, 4, 8, 22
-		IF quarter <> select_quarter THEN script_end_procedure("Match period does not match the selected match period. The script will now end.")
-	ELSEIF IEVS_type = "NON-WAGE" THEN
-		EMReadScreen Nonwage_year , 2, 8, 15
-		Nonwage_year = "20" & Nonwage_year
+	'ELSEIF match_type = "UBEN" THEN
+	'	EMReadScreen IEVS_month, 2, 5, 68
+	'	EMReadScreen IEVS_year, 4, 8, 71
+	ELSEIF match_type = "BEER" or match_type = "UNVI" THEN
+		EMReadScreen IEVS_year, 2, 8, 15
+		IEVS_year = "20" & IEVS_year
+		select_quarter = "YEAR"
 	END IF
 END IF
 
+'------------------------------------------setting up case note header'
+IF match_type = "BEER" THEN match_type_letter = "B"
+IF match_type = "UBEN" THEN match_type_letter = "U"
+IF match_type = "UNVI" THEN match_type_letter = "U"
 '-----------------------------------------------------------------------------------------------Client name
 EMReadScreen client_name, 35, 5, 24
 client_name = trim(client_name)                         'trimming the client name
@@ -202,25 +207,35 @@ IF instr(Active_Programs, "S") THEN programs = programs & "MFIP, "
 programs = trim(programs)
 'takes the last comma off of programs when autofilled into dialog
 IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
-'----------------------------------------------------------------------------------------------------Income info & differnce notice info
-EMReadScreen source_income, 44, 8, 37
-source_income = trim(source_income)
-length = len(source_income)		'establishing the length of the variable
-
-IF instr(source_income, " AMOUNT: $") THEN
-    position = InStr(source_income, " AMOUNT: $")    		      'sets the position at the deliminator
-    source_income = Left(source_income, position)  'establishes employer as being before the deliminator
-Elseif instr(source_income, " AMT: $") THEN 					  'establishing the length of the variable
-    position = InStr(source_income, " AMT: $")    		      'sets the position at the deliminator
-    source_income = Left(source_income, position)  'establishes employer as being before the deliminator
-Else
-    source_income = source_income	'catch all variable
+'----------------------------------------------------------------------------------------------------Employer info & difference notice info
+IF match_type = "UBEN" THEN income_source = "Unemployment"
+IF match_type = "UNVI" THEN income_source = "NON-WAGE"
+IF match_type = "WAGE" THEN
+	EMReadScreen income_source, 50, 8, 37 'was 37' should be to the right of emplyer and the left of amount
+    income_source = trim(income_source)
+    length = len(income_source)		'establishing the length of the variable
+    'should be to the right of employer and the left of amount '
+    IF instr(income_source, " AMOUNT: $") THEN
+	    position = InStr(income_source, " AMOUNT: $")    		      'sets the position at the deliminator
+	    income_source = Left(income_source, position)  'establishes employer as being before the deliminator
+	Elseif instr(income_source, " AMT: $") THEN 					  'establishing the length of the variable
+        position = InStr(income_source, " AMT: $")    		      'sets the position at the deliminator
+        income_source = Left(income_source, position)  'establishes employer as being before the deliminator
+	END IF
 END IF
-
-EMReadScreen notice_sent, 1, 14, 37
-EMReadScreen sent_date, 8, 14, 68
-sent_date = trim(sent_date)
-IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
+IF match_type = "BEER" THEN
+	EMReadScreen income_source, 50, 8, 28 'was 37' should be to the right of emplyer and the left of amount
+	income_source = trim(income_source)
+	length = len(income_source)		'establishing the length of the variable
+	'should be to the right of employer and the left of amount '
+    IF instr(income_source, " AMOUNT: $") THEN
+	    position = InStr(income_source, " AMOUNT: $")    		      'sets the position at the deliminator
+	    income_source = Left(income_source, position)  'establishes employer as being before the deliminator
+	Elseif instr(income_source, " AMT: $") THEN 					  'establishing the length of the variable
+        position = InStr(income_source, " AMT: $")    		      'sets the position at the deliminator
+        income_source = Left(income_source, position)  'establishes employer as being before the deliminator
+	END IF
+END IF
 
 '--------------------------------------------------------------------sending the notice in IULA
 EMwritescreen "005", 12, 46 'writing the resolve time to read for later
@@ -258,12 +273,13 @@ programs = trim(programs)
 'takes the last comma off of programs when autofilled into dialog
 IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 
-Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
-IEVS_period = replace(IEVS_period, "/", " to ")
-dIFf_date = replace(dIFf_date, " ", "/")
-
-start_a_blank_CASE_NOTE
-IF IEVS_quarter <> "YEAR" THEN
+diFf_date = replace(dIFf_date, " ", "/")
+IEVS_period = trim(IEVS_period)
+IF match_type <> "UBEN" THEN IEVS_period = replace(IEVS_period, "/", " to ")
+IF match_type = "UBEN" THEN IEVS_period = replace(IEVS_period, "-", "/")
+Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
+PF3 'back to the DAIL'
+IF
 	CALL write_variable_in_CASE_NOTE ("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH (" & first_name & ") ATR RECEIVED-----")
 ELSE
 	CALL write_variable_in_CASE_NOTE ("-----" & IEVS_year & " WAGE MATCH (" & first_name & ") ATR received-----")
