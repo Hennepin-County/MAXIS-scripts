@@ -636,7 +636,7 @@ Loop until are_we_passworded_out = false
     	End if
 		'writing in the action taken and date to the MISC panel
 		PF9
-		EMWriteScreen "Claim Determination", Row, 30
+		EMWriteScreen "Claim Referral", Row, 30
 		EMWriteScreen date, Row, 66
 		PF3
 	END IF 'checking to make sure maxis case is active'

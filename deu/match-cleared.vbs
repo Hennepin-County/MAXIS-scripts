@@ -356,12 +356,8 @@ IF send_notice_checkbox = CHECKED THEN
     		Loop Until row = 17
     		If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
     	End if
-		'writing in the action taken and date to the MISC panel
-		EMWriteScreen "Claim Determination", Row, 30
-		EMWriteScreen date, Row, 66
-		PF3
-	END IF 'checking to make sure maxis case is active
-	EMWriteScreen "Initial Claim Referral", Row, 30
+	END IF
+	EMWriteScreen "Claim Referral", Row, 30
     EMWriteScreen date, Row, 66
     PF3
 

@@ -49,9 +49,12 @@ call changelog_update("06/06/2019", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+MAXIS_case_number = "282689"
+date_received = "06/13/19"
+ADDR_actions = "Mail has been returned with forwarding address in MN"
 
-EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 BeginDialog case_number_dlg, 0, 0, 251, 85, "Returned Mail"
   EditBox 55, 5, 40, 15, maxis_case_number
@@ -74,7 +77,8 @@ DO
     	DIALOG case_number_dlg
     		IF ButtonPressed = 0 THEN stopscript
     		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
-			If isdate(date_received) = FALSE then err_msg = err_msg & vbnewline & "* Please enter a date (--/--/--) in the footer month that you are working in."
+			If isdate(date_received) = FALSE and Cdate(date_received) > cdate(date) = TRUE THEN  err_msg = err_msg & vbnewline & "* You must enter an actual date that is not in the future and is in the footer month that you are working in."
+			'If isdate(date_received) = FALSE then err_msg = err_msg & vbnewline & "* Please enter a date (--/--/--) in the footer month that you are working in."
 			IF ADDR_actions = "Select One:" THEN err_msg = err_msg & vbCr & "Please chose an action for the returned mail."
     		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please sign your case note."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
@@ -83,24 +87,29 @@ DO
 	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 CALL check_for_MAXIS(False)
 
-
-
 CALL navigate_to_MAXIS_screen("STAT", "ADDR")
 'Writes spreadsheet info to ADDR
 EMreadscreen ADDR_line_one, 20, 6, 43
+ADDR_line_one = replace(ADDR_line_one, "_", "")
 EMreadscreen ADDR_line_two, 20, 7, 43
+ADDR_line_two = replace(ADDR_line_two, "_", "")
 EMreadscreen ADDR_city, 15, 8, 43
+ADDR_city = replace(ADDR_city, "_", "")
 EMreadscreen ADDR_state, 2, 8, 66
 EMreadscreen ADDR_zip, 5, 9, 43
+ADDR_zip = replace(ADDR_zip, "_", "")
 EMreadscreen ADDR_county, 2, 9, 66
 EMreadscreen ADDR_addr_verif, 2, 9, 74
 EMreadscreen ADDR_homeless, 1, 10, 43
 'EMreadscreen ADDR_reservation, 1, 10, 74
 EMreadscreen ADDR_mailing_addr_line_one, 20, 13, 43
+ADDR_mailing_addr_line_one = replace(ADDR_mailing_addr_line_one, "_", "")
 EMreadscreen ADDR_mailing_addr_line_two, 20, 14, 43
+ADDR_mailing_addr_line_two = replace(ADDR_mailing_addr_line_two, "_", "")
 EMreadscreen ADDR_mailing_addr_city, 15, 15, 43
-EMreadscreen 2, 16, 43	'Only writes if the user indicated a mailing address. Defaults to MN at this time.
+ADDR_mailing_addr_city = replace(ADDR_mailing_addr_city, "_", "")
 EMreadscreen ADDR_mailing_addr_zip, 5, 16, 52
+ADDR_mailing_addr_zip = replace(ADDR_mailing_addr_zip, "_", "")
 EMreadscreen ADDR_phone_1A, 3, 17, 45						'Has to split phone numbers up into three parts each
 EMreadscreen ADDR_phone_2B, 3, 17, 51
 EMreadscreen ADDR_phone_3C, 4, 17, 55
@@ -120,7 +129,7 @@ IF ADDR_actions = "Mail has been returned NO forwarding address" THEN
     CheckBox 85, 70, 65, 10, "Sent DHS-2952", SHEL_form_sent_checkbox
     CheckBox 10, 85, 65, 10, "Sent DHS-2402", CRF_sent_checkbox
     EditBox 110, 105, 65, 15, METS_case_number
-    DropListBox 110, 125, 65, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", MNsure_ADDR
+    DropListBox 110, 125, 65, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", METS_ADDR_correspondence
     EditBox 50, 145, 125, 15, other_notes
     ButtonGroup ButtonPressed
     OkButton 70, 165, 50, 15
@@ -138,10 +147,10 @@ IF ADDR_actions = "Mail has been returned NO forwarding address" THEN
 	    	err_msg = ""
 	    	DIALOG case_number_dlg
 	    		IF ButtonPressed = 0 THEN stopscript
-	    		IF MNsure_ADDR = "YES" THEN
+	    		IF METS_ADDR_correspondence = "Yes" THEN
 					IF METS_case_number = "" OR (METS_case_number <> "" AND len(METS_case_number) > 10) OR (METS_case_number <> "" AND IsNumeric(METS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
 				END IF
-				IF MNsure_ADDR = "Select One:" THEN err_msg = err_msg & vbCr & "Please select if correspondence has been sent to METS."
+				IF METS_ADDR_correspondence = "Select One:" THEN err_msg = err_msg & vbCr & "Please select if correspondence has been sent to METS."
 	    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	    	LOOP UNTIL err_msg = ""
 	    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -150,58 +159,67 @@ IF ADDR_actions = "Mail has been returned NO forwarding address" THEN
 END IF
 
 IF ADDR_actions = "Mail has been returned with forwarding address in MN" or ADDR_actions = "Mail has been returned with forwarding address outside MN" THEN
-	BeginDialog returned_mail_update_addr, 0, 0, 201, 280, "Mail has been returned with forwarding address"
-	  Text 10, 15, 180, 35, maxis_addr
-      CheckBox 10, 65, 50, 10, "DHS-2919A", verifA_sent_checkbox
-      CheckBox 70, 65, 45, 10, "DHS-2952", SHEL_form_sent_checkbox
-      CheckBox 125, 65, 45, 10, "DHS-2402", CRF_sent_checkbox
-      DropListBox 135, 90, 35, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", update_ADDR
-      EditBox 55, 105, 135, 15, new_ADDR_line_1
-      EditBox 55, 125, 135, 15, new_ADDR_line_2
-      EditBox 55, 145, 135, 15, new_addr_city
-      EditBox 55, 165, 35, 15, new_addr_zip
-      EditBox 165, 165, 25, 15, new_addr_state
-	  DropListBox 55, 185, 35, 15, "Select One:"+chr(9)+"Aitkin"+chr(9)+"Anoka"+chr(9)+"Becker"+chr(9)+"Beltrami"+chr(9)+"Benton"+chr(9)+"Big Stone"+chr(9)+"Blue Earth"+chr(9)+"Brown"+chr(9)+"Carlton"+chr(9)+"Carver"+chr(9)+"Cass"+chr(9)+"Chippewa"+chr(9)+"Chisago"+chr(9)+"Clay"+chr(9)+"Clearwater"+chr(9)+"Cook"+chr(9)+"Cottonwood"+chr(9)+"Crow Wing"+chr(9)+"Dakota"+chr(9)+"Dodge"+chr(9)+"Douglas"+chr(9)+"Faribault"+chr(9)+"Fillmore"+chr(9)+"Freeborn"+chr(9)+"Goodhue"+chr(9)+"Grant"+chr(9)+"Hennepin"+chr(9)+"Houston"+chr(9)+"Hubbard"+chr(9)+"Isanti"+chr(9)+"Itasca"+chr(9)+"Jackson"+chr(9)+"Kanabec"+chr(9)+"Kandiyohi"+chr(9)+"Kittson"+chr(9)+"Koochiching"+chr(9)+"Lac Qui Parle"+chr(9)+"Lake"+chr(9)+"Lake Of Woods"+chr(9)+"Le Sueur"+chr(9)+"Lincoln"+chr(9)+"Lyon"+chr(9)+"Mcleod"+chr(9)+"Mahnomen"+chr(9)+"Marshall"+chr(9)+"Martin"+chr(9)+"Meeker"+chr(9)+"Mille Lacs"+chr(9)+"Morrison"+chr(9)+"Mower"+chr(9)+"Murray"+chr(9)+"Nicollet"+chr(9)+"Nobles"+chr(9)+"Norman"+chr(9)+"Olmsted"+chr(9)+"Otter Tail"+chr(9)+"Pennington"+chr(9)+"Pine"+chr(9)+"Pipestone"+chr(9)+"Polk"+chr(9)+"Pope"+chr(9)+"Ramsey"+chr(9)+"Red Lake"+chr(9)+"Redwood"+chr(9)+"Renville"+chr(9)+"Rice"+chr(9)+"Rock"+chr(9)+"Roseau"+chr(9)+"St. Louis"+chr(9)+"Scott"+chr(9)+"Sherburne"+chr(9)+"Sibley"+chr(9)+"Stearns"+chr(9)+"Steele"+chr(9)+"Stevens"+chr(9)+"Swift"+chr(9)+"Todd"+chr(9)+"Traverse"+chr(9)+"Wabasha"+chr(9)+"Wadena"+chr(9)+"Waseca"+chr(9)+"Washington"+chr(9)+"Watonwan"+chr(9)+"Wilkin"+chr(9)+"Winona"+chr(9)+"Wright"+chr(9)+"Yellow Medicine"+chr(9)+"Out-of-State", county_code
-	  DropListBox 155, 185, 35, 15, "Select One:"+chr(9)+"Residence"+chr(9)+"Mailing"+chr(9)+"Both"+chr(9)+"Unknown", residence_addr
-	  DropListBox 55, 200, 35, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", homeless_addr
-	  DropListBox 155, 200, 35, 15, "Select One:"+chr(9)+"Own Housing: Lease, Mortgage or Roommate"+chr(9)+"Family/Friends Due to Economic Hardship"+chr(9)+"Service Provider-Foster Care Group Home"+chr(9)+"Hospital/Treatment/Detox/Nursing Home"+chr(9)+"Jail/Prison/Juvenile Detention Center"+chr(9)+"Hotel/Motel"+chr(9)+"Emergency Shelter"+chr(9)+"Place Not Meant for housing"+chr(9)+"Declined"+chr(9)+"Unknown", living_situation
-	  DropListBox 125, 215, 65, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", reservation_name
-	  DropListBox 55, 215, 35, 15, "Select One:"+chr(9)+"Bois Forte-Deer Creek"+chr(9)+"Bois Forte-Nett Lake"+chr(9)+"Bois Forte-Vermillion Lk"+chr(9)+"Fond du Lac"+chr(9)+"Grand Portage"+chr(9)+"Leach Lake"+chr(9)+"Lower Sioux"+chr(9)+"Mille Lacs"+chr(9)+"Prairie Island Community"+chr(9)+"Red Lake"+chr(9)+"Shakopee Mdewakanton"+chr(9)+"Upper Sioux"+chr(9)+"White Earth", reservation_addr
-	  DropListBox 125, 240, 65, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", METS_ADDR
-	  EditBox 135, 255, 55, 15, MNsure_number
-	  EditBox 50, 275, 140, 15, other_notes
-	  ButtonGroup ButtonPressed
-	    OkButton 75, 275, 50, 15
-	    CancelButton 140, 275, 50, 15
-	  Text 35, 150, 20, 10, "City:"
-	  Text 140, 170, 20, 10, "State:"
-	  Text 50, 95, 85, 10, "Script to update address:"
-	  Text 10, 190, 30, 10, "County:"
-	  Text 20, 170, 35, 10, "Zip code:"
-	  GroupBox 5, 80, 190, 155, "New Address:"
-	  Text 30, 110, 20, 10, "Street:"
-	  Text 15, 130, 35, 10, "Apt/Room:"
-	  Text 5, 275, 40, 10, "Other notes:"
-	  Text 100, 220, 25, 10, "Name:"
-	  GroupBox 5, 5, 190, 50, "Address in MAXIS:"
-	  Text 10, 220, 45, 10, "Reservation:"
-	  Text 5, 240, 95, 10, "METS correspondence sent:"
-	  Text 10, 205, 35, 10, "Homeless:"
-	  GroupBox 5, 55, 190, 25, "Verification Request Form(s) Sent:"
-	  Text 100, 190, 40, 10, "Is address:"
-	  Text 100, 205, 55, 10, "Living situation:"
-	  Text 5, 260, 70, 10, "METS case number:"
-	EndDialog
+	  BeginDialog returned_mail_update_addr, 0, 0, 201, 310, "Mail has been returned with forwarding address"
+	    Text 10, 15, 180, 15, maxis_addr
+	    CheckBox 10, 45, 50, 10, "DHS-2919A", verifA_sent_checkbox
+	    CheckBox 60, 45, 45, 10, "DHS-2952", SHEL_form_sent_checkbox
+	    CheckBox 110, 45, 45, 10, "DHS-2402", Check4
+	    CheckBox 160, 45, 30, 10, "MAIL", return_mail_checkbox
+	    DropListBox 155, 75, 35, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", update_ADDR
+	    EditBox 40, 95, 150, 15, new_addr_line_one
+	    EditBox 40, 115, 150, 15, new_addr_line_two
+	    EditBox 40, 135, 150, 15, new_addr_city
+	    EditBox 40, 155, 20, 15, new_addr_state
+	    EditBox 155, 155, 35, 15, new_addr_zip
+	    DropListBox 40, 175, 60, 15, "Select One:"+chr(9)+"Aitkin"+chr(9)+"Anoka"+chr(9)+"Becker"+chr(9)+"Beltrami"+chr(9)+"Benton"+chr(9)+"Big Stone"+chr(9)+"Blue Earth"+chr(9)+"Brown"+chr(9)+"Carlton"+chr(9)+"Carver"+chr(9)+"Cass"+chr(9)+"Chippewa"+chr(9)+"Chisago"+chr(9)+"Clay"+chr(9)+"Clearwater"+chr(9)+"Cook"+chr(9)+"Cottonwood"+chr(9)+"Crow Wing"+chr(9)+"Dakota"+chr(9)+"Dodge"+chr(9)+"Douglas"+chr(9)+"Faribault"+chr(9)+"Fillmore"+chr(9)+"Freeborn"+chr(9)+"Goodhue"+chr(9)+"Grant"+chr(9)+"Hennepin"+chr(9)+"Houston"+chr(9)+"Hubbard"+chr(9)+"Isanti"+chr(9)+"Itasca"+chr(9)+"Jackson"+chr(9)+"Kanabec"+chr(9)+"Kandiyohi"+chr(9)+"Kittson"+chr(9)+"Koochiching"+chr(9)+"Lac Qui Parle"+chr(9)+"Lake"+chr(9)+"Lake Of Woods"+chr(9)+"Le Sueur"+chr(9)+"Lincoln"+chr(9)+"Lyon"+chr(9)+"Mcleod"+chr(9)+"Mahnomen"+chr(9)+"Marshall"+chr(9)+"Martin"+chr(9)+"Meeker"+chr(9)+"Mille Lacs"+chr(9)+"Morrison"+chr(9)+"Mower"+chr(9)+"Murray"+chr(9)+"Nicollet"+chr(9)+"Nobles"+chr(9)+"Norman"+chr(9)+"Olmsted"+chr(9)+"Otter Tail"+chr(9)+"Pennington"+chr(9)+"Pine"+chr(9)+"Pipestone"+chr(9)+"Polk"+chr(9)+"Pope"+chr(9)+"Ramsey"+chr(9)+"Red Lake"+chr(9)+"Redwood"+chr(9)+"Renville"+chr(9)+"Rice"+chr(9)+"Rock"+chr(9)+"Roseau"+chr(9)+"St. Louis"+chr(9)+"Scott"+chr(9)+"Sherburne"+chr(9)+"Sibley"+chr(9)+"Stearns"+chr(9)+"Steele"+chr(9)+"Stevens"+chr(9)+"Swift"+chr(9)+"Todd"+chr(9)+"Traverse"+chr(9)+"Wabasha"+chr(9)+"Wadena"+chr(9)+"Waseca"+chr(9)+"Washington"+chr(9)+"Watonwan"+chr(9)+"Wilkin"+chr(9)+"Winona"+chr(9)+"Wright"+chr(9)+"Yellow Medicine"+chr(9)+"Out-of-State", county_code
+	    DropListBox 150, 175, 40, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", homeless_addr
+	    DropListBox 65, 190, 35, 15, "Select One:"+chr(9)+"Own Housing: Lease, Mortgage or Roommate"+chr(9)+"Family/Friends Due to Economic Hardship"+chr(9)+"Service Provider-Foster Care Group Home"+chr(9)+"Hospital/Treatment/Detox/Nursing Home"+chr(9)+"Jail/Prison/Juvenile Detention Center"+chr(9)+"Hotel/Motel"+chr(9)+"Emergency Shelter"+chr(9)+"Place Not Meant for housing"+chr(9)+"Declined"+chr(9)+"Unknown", living_situation
+	    DropListBox 150, 190, 40, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", reservation_addr
+	    DropListBox 40, 210, 150, 15, "Select One:"+chr(9)+"Bois Forte-Deer Creek"+chr(9)+"Bois Forte-Nett Lake"+chr(9)+"Bois Forte-Vermillion Lk"+chr(9)+"Fond du Lac"+chr(9)+"Grand Portage"+chr(9)+"Leach Lake"+chr(9)+"Lower Sioux"+chr(9)+"Mille Lacs"+chr(9)+"Prairie Island Community"+chr(9)+"Red Lake"+chr(9)+"Shakopee Mdewakanton"+chr(9)+"Upper Sioux"+chr(9)+"White Earth", reservation_name
+	    DropListBox 135, 235, 55, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", METS_ADDR_correspondence
+	    EditBox 135, 250, 55, 15, METS_case_number
+	    EditBox 50, 270, 140, 15, other_notes
+	    ButtonGroup ButtonPressed
+	      OkButton 85, 290, 50, 15
+	      CancelButton 140, 290, 50, 15
+	    GroupBox 5, 5, 190, 30, "Address in MAXIS:"
+	    GroupBox 5, 35, 190, 25, "Verification Request Form(s) Sent:"
+	    GroupBox 5, 65, 190, 165, "New Address:"
+	    Text 65, 80, 85, 10, "Script to update address?"
+	    Text 15, 100, 20, 10, "Street:"
+	    Text 20, 140, 15, 10, "City:"
+	    Text 20, 160, 20, 10, "State:"
+	    Text 120, 160, 30, 10, "Zip code:"
+	    Text 10, 180, 30, 10, "County:"
+	    Text 110, 180, 35, 10, "Homeless:"
+	    Text 10, 195, 55, 10, "Living situation:"
+	    Text 105, 195, 45, 10, "Reservation:"
+	    Text 10, 215, 25, 10, "Name:"
+	    Text 5, 240, 95, 10, "METS correspondence sent:"
+	    Text 5, 255, 70, 10, "METS case number:"
+	    Text 5, 275, 40, 10, "Other notes:"
+	  EndDialog
 
     DO
     	DO
     		err_msg = ""
     		DIALOG returned_mail_update_addr
     			IF ButtonPressed = 0 THEN stopscript
-    			IF MNsure_ADDR = "YES" THEN
+				IF update_ADDR = "Select One:" THEN err_msg = err_msg & vbCr & "Please select if you wish to have the script update ADDR."
+				IF new_addr_line_one = "" THEN err_msg = err_msg & vbCr & "Please complete the street address the client in now living at."
+				IF new_addr_city = "" THEN err_msg = err_msg & vbCr & "Please complete the city in which the client in now living."
+				IF new_addr_state = "" THEN err_msg = err_msg & vbCr & "Please complete the state in which the client in now living."
+				IF new_addr_zip = "" THEN err_msg = err_msg & vbCr & "Please complete the city in which the client in now living."
+				IF homeless_addr = "Select One:" THEN err_msg = err_msg & vbCr & "Please advise whether the client has reported homlessness."
+			 	IF living_situation = "Select One:" THEN err_msg = err_msg & vbCr & "Please select the client's living situation - Unknown should not be selected as this should be covered in the interview."
+			 	IF reservation_addr = "Select One:" THEN err_msg = err_msg & vbCr & "Please select if client is living on the reservation."
+				IF reservation_addr = "Yes" THEN
+					IF reservation_name = "" THEN err_msg = err_msg & vbCr & "Please select the name of the reservation the client is living in."
+				END IF
+    			IF METS_ADDR_correspondence = "Yes" THEN
     				IF METS_case_number = "" OR (METS_case_number <> "" AND len(METS_case_number) > 10) OR (METS_case_number <> "" AND IsNumeric(METS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
     			END IF
-    			IF MNsure_ADDR = "Select One:" THEN err_msg = err_msg & vbCr & "Please select if correspondence has been sent to METS."
+    			IF METS_ADDR_correspondence = "Select One:" THEN err_msg = err_msg & vbCr & "Please select if correspondence has been sent to METS."
     			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
     		LOOP UNTIL err_msg = ""
     		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -209,10 +227,12 @@ IF ADDR_actions = "Mail has been returned with forwarding address in MN" or ADDR
     CALL check_for_MAXIS(False)
 END IF
 
-IF homeless_addr = "YES" THEN homeless_addr_code = "Y"
-IF homeless_addr = "NO" THEN homeless_addr_code = "N"
-IF reservation_name = "YES" THEN reservation_name = "Y"
-IF reservation_name = "NO" THEN reservation_name = "N"
+'PANEL EFFECTIVE DATE MUST EQUAL BENEFIT MONTH/YEAR
+
+IF homeless_addr = "Yes" THEN homeless_addr_code = "Y"
+IF homeless_addr = "No" THEN homeless_addr_code = "N"
+IF reservation_addr = "Yes" THEN reservation_addr = "Y"
+IF reservation_addr = "No" THEN reservation_addr = "N"
 
 IF county_code = "Aitkin" THEN county_code_number = "01"
 IF county_code = "Anoka" THEN county_code_number = "02"
@@ -329,130 +349,125 @@ IF reservation_addr = "Upper Sioux" THEN rez_code = "US"
 IF reservation_addr = "White Earth" THEN rez_code = "WE"
 
 
-IF update_ADDR = "YES" THEN
+IF update_ADDR = "Yes" THEN
+	Call MAXIS_footer_month_confirmation
 	PF9
+	Call create_MAXIS_friendly_date_with_YY(datevalue(date_received), 0, 4, 43) 'creates and writes the date entered in dialog'
+	MsgBox date_received
 	IF residence_addr = "Residence" THEN
-	    EMwritescreen new_addr_line_one, 20, 6, 43
-	    EMwritescreen ADDR_line_two, 20, 7, 43
-	    EMwritescreen new_addr_city, 15, 8, 43
+	    EMwritescreen new_addr_line_one, 6, 43
+	    EMwritescreen ADDR_line_two, 7, 43
+	    EMwritescreen new_addr_city, 8, 43
 	    EMwritescreen new_addr_state, 8, 66		'Defaults to MN for all cases at this time
-	    EMwritescreen new_addr_zip, 5, 9, 43
+	    EMwritescreen new_addr_zip, 9, 43
 	END IF
 	EMwritescreen county_code_number, 9, 66
 	EMwritescreen "OT", 9, 74
 	EMwritescreen homeless_addr_code, 10, 43
-
 	EMwritescreen reservation_name, 10, 74
 	EMwritescreen rez_code, 11, 74
 	EMwritescreen living_situation_code, 11, 43
-
 	EMwritescreen new_addr_line_one, 13, 43
 	EMwritescreen ADDR_mailing_addr_line_two, 14, 43
 	EMwritescreen new_addr_city, 15, 43
 	EMwritescreen new_addr_state, 16, 43	'Only writes if the user indicated a mailing address. Defaults to MN at this time.
-	EMwritescreen new_addr_zip, 5, 16, 52
+	EMwritescreen new_addr_zip, 16, 52
 END IF
 
 IF ADDR_actions = "Client has not responded to request for verif" THEN
+	Call MAXIS_footer_month_confirmation
+	CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 
-CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
+    'Setting some variables for the loop
+    CASH_STATUS = FALSE 'overall variable'
+    CCA_STATUS = FALSE
+    DW_STATUS = FALSE 'Diversionary Work Program'
+    ER_STATUS = FALSE
+    SNAP_STATUS = FALSE
+    GA_STATUS = FALSE 'General Assistance'
+    GRH_STATUS = FALSE
+    HC_STATUS = FALSE
+    MS_STATUS = FALSE 'Mn Suppl Aid '
+    MF_STATUS = FALSE 'Mn Family Invest Program '
+    RC_STATUS = FALSE 'Refugee Cash Assistance'
 
-'Setting some variables for the loop
-CASH_STATUS = FALSE 'overall variable'
-CCA_STATUS = FALSE
-DW_STATUS = FALSE 'Diversionary Work Program'
-ER_STATUS = FALSE
-SNAP_STATUS = FALSE
-GA_STATUS = FALSE 'General Assistance'
-GRH_STATUS = FALSE
-HC_STATUS = FALSE
-MS_STATUS = FALSE 'Mn Suppl Aid '
-MF_STATUS = FALSE 'Mn Family Invest Program '
-RC_STATUS = FALSE 'Refugee Cash Assistance'
+    'Reading the status and program
+    EMReadScreen cash1_status_check, 4, 6, 74
+    EMReadScreen cash2_status_check, 4, 7, 74
+    EMReadScreen emer_status_check, 4, 8, 74
+    EMReadScreen grh_status_check, 4, 9, 74
+    EMReadScreen fs_status_check, 4, 10, 74
+    EMReadScreen ive_status_check, 4, 11, 74
+    EMReadScreen hc_status_check, 4, 12, 74
+    EMReadScreen cca_status_check, 4, 14, 74
+    EMReadScreen cash1_prog_check, 2, 6, 67
+    EMReadScreen cash2_prog_check, 2, 7, 67
+    EMReadScreen emer_prog_check, 2, 8, 67
+    EMReadScreen grh_prog_check, 2, 9, 67
+    EMReadScreen fs_prog_check, 2, 10, 67
+    EMReadScreen ive_prog_check, 2, 11, 67
+    EMReadScreen hc_prog_check, 2, 12, 67
+    EMReadScreen cca_prog_check, 2, 14, 67
 
-'Reading the status and program
-EMReadScreen cash1_status_check, 4, 6, 74
-EMReadScreen cash2_status_check, 4, 7, 74
-EMReadScreen emer_status_check, 4, 8, 74
-EMReadScreen grh_status_check, 4, 9, 74
-EMReadScreen fs_status_check, 4, 10, 74
-EMReadScreen ive_status_check, 4, 11, 74
-EMReadScreen hc_status_check, 4, 12, 74
-EMReadScreen cca_status_check, 4, 14, 74
-EMReadScreen cash1_prog_check, 2, 6, 67
-EMReadScreen cash2_prog_check, 2, 7, 67
-EMReadScreen emer_prog_check, 2, 8, 67
-EMReadScreen grh_prog_check, 2, 9, 67
-EMReadScreen fs_prog_check, 2, 10, 67
-EMReadScreen ive_prog_check, 2, 11, 67
-EMReadScreen hc_prog_check, 2, 12, 67
-EMReadScreen cca_prog_check, 2, 14, 67
-
-IF FS_status_check = "ACTV" or FS_status_check = "PEND"  THEN SNAP_STATUS = TRUE
-IF emer_status_check = "ACTV" or emer_status_check = "PEND"  THEN ER_STATUS = TRUE
-IF grh_status_check = "ACTV" or grh_status_check = "PEND"  THEN GRH_STATUS = TRUE
-IF hc_status_check = "ACTV" or hc_status_check = "PEND"  THEN HC_STATUS = TRUE
-IF cca_status_check = "ACTV" or cca_status_check = "PEND"  THEN CCA_STATUS = TRUE
-'Logic to determine if Cash is active
-If cash1_prog_check = "MF" or cash1_prog_check = "GA" or cash1_prog_check = "DW" or cash1_prog_check = "RC" or cash1_prog_check = "MS" THEN
-	IF cash1_status_check = "ACTV" THEN CASH_STATUS = TRUE
-	IF cash1_status_check = "PEND" THEN CASH_STATUS = TRUE
-	IF cash1_status_check = "INAC" THEN CASH_STATUS = FALSE
-	IF cash1_status_check = "SUSP" THEN CASH_STATUS = FALSE
-	IF cash1_status_check = "DENY" THEN CASH_STATUS = FALSE
-	IF cash1_status_check = ""     THEN CASH_STATUS = FALSE
+    IF FS_status_check = "ACTV" or FS_status_check = "PEND"  THEN SNAP_STATUS = TRUE
+    IF emer_status_check = "ACTV" or emer_status_check = "PEND"  THEN ER_STATUS = TRUE
+    IF grh_status_check = "ACTV" or grh_status_check = "PEND"  THEN GRH_STATUS = TRUE
+    IF hc_status_check = "ACTV" or hc_status_check = "PEND"  THEN HC_STATUS = TRUE
+    IF cca_status_check = "ACTV" or cca_status_check = "PEND"  THEN CCA_STATUS = TRUE
+    'Logic to determine if Cash is active
+    If cash1_prog_check = "MF" or cash1_prog_check = "GA" or cash1_prog_check = "DW" or cash1_prog_check = "RC" or cash1_prog_check = "MS" THEN
+    	IF cash1_status_check = "ACTV" THEN CASH_STATUS = TRUE
+    	IF cash1_status_check = "PEND" THEN CASH_STATUS = TRUE
+    	IF cash1_status_check = "INAC" THEN CASH_STATUS = FALSE
+    	IF cash1_status_check = "SUSP" THEN CASH_STATUS = FALSE
+    	IF cash1_status_check = "DENY" THEN CASH_STATUS = FALSE
+    	IF cash1_status_check = ""     THEN CASH_STATUS = FALSE
+    END IF
+    If cash2_prog_check = "MF" or cash2_prog_check = "GA" or cash2_prog_check = "DW" or cash2_prog_check = "RC" or cash2_prog_check = "MS" THEN
+    	IF cash2_status_check = "ACTV" THEN CASH_STATUS = TRUE
+    	IF cash2_status_check = "PEND" THEN CASH_STATUS = TRUE
+    	IF cash2_status_check = "INAC" THEN CASH_STATUS = FALSE
+    	IF cash2_status_check = "SUSP" THEN CASH_STATUS = FALSE
+    	IF cash2_status_check = "DENY" THEN CASH_STATUS = FALSE
+    	IF cash2_status_check = ""     THEN CASH_STATUS = FALSE
+    END IF
+    'per POLI/TEM this only pretains to cash and snap '
+    IF CASH_STATUS = TRUE or SNAP_STATUS = TRUE THEN
+    	CALL navigate_to_MAXIS_screen("STAT", "PACT")
+    	'Checking to see if the PACT panel is empty, if not it create a new panel'
+        EmReadScreen panel_number, 1, 02, 73
+        If panel_number = "0" then
+        	EMWriteScreen "NN", 20,79 'cursor is automatically set to 06, 58'
+        	TRANSMIT
+    		'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
+    		EmReadScreen MISC_error_msg,  74, 24, 02
+    		IF trim(MISC_error_msg) = "" THEN
+    	        case_note_only = FALSE
+    		else
+    			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_msg & vbNewLine, vbYesNo + vbQuestion, "Message handling")
+    			IF maxis_error_check = vbNO THEN
+    				case_note_only = FALSE 'this will case note only'
+    			END IF
+    			IF maxis_error_check= vbYES THEN
+    				case_note_only = TRUE 'this will update the panels and case note'
+    			END IF
+    		END IF
+        ELSE
+    		'IF case_note_only = FALSE THEN
+        		EmReadScreen open_cash1, 2, 6, 43
+    			EmReadScreen open_cash2, 2, 8, 43
+    			EmReadScreen open_grh, 2, 10, 43
+    			EmReadScreen open_snap, 2, 12, 43
+    			IF open_cash1 <> "" THEN EMWriteScreen "3", 6, 58
+    			IF open_cash2 <> "" THEN EMWriteScreen "3", 8, 58
+    			IF open_grh <> "" THEN EMWriteScreen "3", 10, 58
+    			IF open_snap <> "" THEN EMWriteScreen "3", 12, 58
+    			TRANSMIT
+       		'END IF
+    	END IF
+    END IF
 END IF
-If cash2_prog_check = "MF" or cash2_prog_check = "GA" or cash2_prog_check = "DW" or cash2_prog_check = "RC" or cash2_prog_check = "MS" THEN
-	IF cash2_status_check = "ACTV" THEN CASH_STATUS = TRUE
-	IF cash2_status_check = "PEND" THEN CASH_STATUS = TRUE
-	IF cash2_status_check = "INAC" THEN CASH_STATUS = FALSE
-	IF cash2_status_check = "SUSP" THEN CASH_STATUS = FALSE
-	IF cash2_status_check = "DENY" THEN CASH_STATUS = FALSE
-	IF cash2_status_check = ""     THEN CASH_STATUS = FALSE
-END IF
-'per POLI/TEM this only pretains to cash and snap '
-IF CASH_STATUS = TRUE or SNAP_STATUS = TRUE THEN
-	CALL navigate_to_MAXIS_screen("STAT", "PACT")
-	'Checking to see if the PACT panel is empty, if not it create a new panel'
-    EmReadScreen panel_number, 1, 02, 73
-    If panel_number = "0" then
-    	EMWriteScreen "NN", 20,79 'cursor is automatically set to 06, 58'
-    	TRANSMIT
-		'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
-		EmReadScreen MISC_error_msg,  74, 24, 02
-		IF trim(MISC_error_msg) = "" THEN
-	        case_note_only = FALSE
-		else
-			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_msg & vbNewLine, vbYesNo + vbQuestion, "Message handling")
-			IF maxis_error_check = vbNO THEN
-				case_note_only = FALSE 'this will case note only'
-			END IF
-			IF maxis_error_check= vbYES THEN
-				case_note_only = TRUE 'this will update the panels and case note'
-			END IF
-		END IF
-    ELSE
-		IF case_note_only = FALSE THEN
 
-
-    			EmReadScreen open_cash1, 2, 6, 43
-				EmReadScreen open_cash2, 2, 8, 43
-				EmReadScreen open_grh, 2, 10, 43
-				EmReadScreen open_snap, 2, 12, 43
-				IF open_cash1 <> "" THEN EMWriteScreen "3", 6, 58
-				IF open_cash2 <> "" THEN EMWriteScreen "3", 8, 58
-				IF open_grh <> "" THEN EMWriteScreen "3", 10, 58
-				IF open_snap <> "" THEN EMWriteScreen "3", 12, 58
-				TRANSMIT
-   		END IF
-	END IF
-'assigns a value to the ADDR_status variable based on the value of the complete variable
-IF forwarding_ADDR = "Yes" THEN ADDR_status = "a forwarding ADDR."
-IF forwarding_ADDR = "No" THEN ADDR_status = "no forwarding ADDR."
-
-'assigns a value to the MNsure variable based on the value of MNsure_active
-IF MNsure_active = "Yes" THEN MNsure = "MNsure case"
-IF MNsure_active = "No" THEN MNsure = "Non-MNsure"
 
 pending_verifs = ""
 IF verifA_sent_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Verification Request, "
@@ -463,30 +478,32 @@ IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
 pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more than one app date is found and additional app is selected
 IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 'checks that the worker is in MAXIS - allows them to get in MAXIS without ending the script
-call check_for_MAXIS (false)
+
+Call check_for_MAXIS(False)
+
+'checking to make sure case is out of background & gets to STAT/BUDG
+Call MAXIS_background_check
 
 'starts a blank case note
 call start_a_blank_case_note
 call write_variable_in_CASE_NOTE("***" & ADDR_actions & " received on " & date_received & ".")
-call write_bullet_and_variable_in_CASE_NOTE("Street:", new_ADDR_line_1)
-call write_bullet_and_variable_in_CASE_NOTE("Apt/Room:", new_ADDR_line_2)
-call write_bullet_and_variable_in_CASE_NOTE("City:", new_addr_city)
-call write_bullet_and_variable_in_CASE_NOTE("State:", new_addr_state)
-call write_bullet_and_variable_in_CASE_NOTE("County:", county_code)
-call write_bullet_and_variable_in_CASE_NOTE("Zip code:", new_addr_zip)
-call write_bullet_and_variable_in_CASE_NOTE()
-call write_bullet_and_variable_in_CASE_NOTE("Previous address in MAXIS:", maxis_addr)
-call write_bullet_and_variable_in_CASE_NOTE("Reservation:", reservation_addr)
-call write_bullet_and_variable_in_CASE_NOTE("METS correspondence sent:", METS_ADDR)
-call write_bullet_and_variable_in_CASE_NOTE("Homeless:", homeless_addr)
+call write_bullet_and_variable_in_CASE_NOTE("Street", new_addr_line_one)
+call write_bullet_and_variable_in_CASE_NOTE("", new_addr_line_two)
+call write_bullet_and_variable_in_CASE_NOTE("City", new_addr_city)
+call write_bullet_and_variable_in_CASE_NOTE("State", new_addr_state)
+call write_bullet_and_variable_in_CASE_NOTE("County", county_code)
+call write_bullet_and_variable_in_CASE_NOTE("Zip code", new_addr_zip)
+'call write_bullet_and_variable_in_CASE_NOTE()
+call write_bullet_and_variable_in_CASE_NOTE("Previous address in MAXIS", maxis_addr)
+call write_bullet_and_variable_in_CASE_NOTE("Reservation", reservation_addr)
+call write_bullet_and_variable_in_CASE_NOTE("METS correspondence sent", METS_ADDR)
+call write_bullet_and_variable_in_CASE_NOTE("Homeless", homeless_addr)
 CALL write_bullet_and_variable_in_case_note("Verification(s) Requested", pending_verifs)
-call write_bullet_and_variable_in_CASE_NOTE("Is address:", reservation_name)
-call write_bullet_and_variable_in_CASE_NOTE("Living situation:", living_situation)
+call write_bullet_and_variable_in_CASE_NOTE("Is address", reservation_name)
+call write_bullet_and_variable_in_CASE_NOTE("Living situation", living_situation)
 call write_variable_in_CASE_NOTE ("---")
-call write_bullet_and_variable_in_CASE_NOTE("METS case number:", MNsure_number)
-If verifA_sent_checkbox = CHECKED then call write_variable_in_CASE_NOTE("* Verification Request Form sent.")
-If SHEL_form_sent_checkbox = CHECKED then call write_variable_in_CASE_NOTE("* Shelter Verification Form sent.")
-If CRF_sent_checkbox = CHECKED then call write_variable_in_CASE_NOTE("* Change Report Form sent.")
+call write_bullet_and_variable_in_CASE_NOTE("METS case number", MNsure_number)
+
 'call write_variable_in_CASE_NOTE("* Address updated to: " & new_addr_line_one)
 'THEN call write_variable_in_CASE_NOTE("                      " & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
 'THEN call write_variable_in_CASE_NOTE("* New ADDR is in " & new_COUNTY & " COUNTY.")
@@ -499,24 +516,17 @@ call write_variable_in_CASE_NOTE ("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
 'Checks if this is a MNsure case and pops up a message box with instructions if the ADDR is incorrect.
-IF MNsure_active = "Yes" and MNsure_ADDR = "No" THEN MsgBox "Please update the MNsure ADDR if you are able to. If unable, please forward the new ADDR information to the correct area (i.e. HPU Case Manitenance - Action Needed Log)"
-
+IF METS_case_number <> "" and METS_ADDR_correspondence = "No" THEN MsgBox "Please update the MNsure ADDR if you are able to. If unable, please forward the new ADDR information to the correct area (i.e. Change In Circumstance)"
 
 'Checks if a DHS2919A mailed and sets a TIKL for the return of the info.
-IF verifA_sent_checkbox = CHECKED THEN
+IF verifA_sent_checkbox = CHECKED and ADDR_actions <> "Client has not responded to request for verif" THEN
 	call navigate_to_MAXIS_screen("dail", "writ")
-
 	'The following will generate a TIKL formatted date for 10 days from now.
 	call create_MAXIS_friendly_date(date, 10, 5, 18)
-
 	'Writing in the rest of the TIKL.
 	call write_variable_in_TIKL("ADDR verification requested via 2919A after returned mail being rec'd should have returned by now. If not received, take appropriate action." )
-	transmit
+	TRANSMIT
 	PF3
-
-	'Success message
-	MsgBox "Success! TIKL has been sent for 10 days from now for the ADDR verification requested via 2919A."
-
 End if
 
-script_end_procedure("")
+script_end_procedure_with_error_report("Success! TIKL has been sent for 10 days from now for the ADDR verification requested via 2919A.")

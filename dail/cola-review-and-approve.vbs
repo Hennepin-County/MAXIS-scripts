@@ -120,18 +120,26 @@ Do
                 EMReadScreen process_date, 8, 2, 73
                 If DateDiff("d", process_date, date) > 3 Then error_processing_msg =  error_processing_msg & vbNewLine & "HC Eligibility was not created and approved recently."
 
+                EMReadScreen bdgt_month, 2, 6, 14
+                EMReadScreen bdgt_year, 2, 6, 17
+
                 elig_col = 19
-                Do
-                    EMReadScreen elig_mo, 2, 6, elig_col
-                    EMReadScreen elig_yr, 2, 6, elig_col + 3
 
-                    If elig_mo = MAXIS_footer_month AND elig_yr = MAXIS_footer_year Then
-                        Exit Do
-                    Else
-                        elig_col = elig_col + 11
-                    End If
+                If bdgt_month = MAXIS_footer_month AND bdgt_year = MAXIS_footer_year Then
+                    approval_exists = TRUE
+                Else
+                    Do
+                        EMReadScreen elig_mo, 2, 6, elig_col
+                        EMReadScreen elig_yr, 2, 6, elig_col + 3
 
-                Loop Until elig_col = 85
+                        If elig_mo = MAXIS_footer_month AND elig_yr = MAXIS_footer_year Then
+                            Exit Do
+                        Else
+                            elig_col = elig_col + 11
+                        End If
+
+                    Loop Until elig_col = 85
+                End If
 
                 If elig_col < 85 Then
                     EMReadScreen waiver_check, 1, 14, elig_col + 2        'Checking to see if case may be LTC or Waiver'
@@ -182,7 +190,6 @@ If run_LTC_Approval = vbYes Then call run_from_GitHub( script_repository & "note
 
 'MsgBox approval_exists
 PF3             'Back to DAIL
-
 If error_processing_msg <> "" Then approval_exists = FALSE
 
 If approval_exists = TRUE Then

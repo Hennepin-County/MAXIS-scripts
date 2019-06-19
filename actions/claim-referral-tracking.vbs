@@ -152,10 +152,6 @@ programs = ""
 IF SNAP_STATUS = TRUE THEN programs = programs & "Food Support, "
 IF CASH_STATUS = TRUE THEN programs = programs & "MFIP, "
 
-'IF instr(Active_Programs, "D") then programs = programs & "DWP, "
-'IF instr(Active_Programs, "H") then programs = programs & "Health Care, "
-'IF instr(Active_Programs, "M") then programs = programs & "Medical Assistance, "
-'trims excess spaces of programs
 programs = trim(programs)
 'takes the last comma off of programs when autofilled into dialog
 If right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
@@ -185,20 +181,10 @@ End if
 'writing in the action taken and date to the MISC panel
 IF next_action = "Sent Request for Additional Info" THEN action_taken = "Initial Claim Referral"
 IF next_action = "Overpayment Exists" THEN action_taken = "Claim Determination"
-EMWriteScreen action_taken, Row, 30
+EMWriteScreen "Claim Referral", Row, 30
 EMWriteScreen date, Row, 66
 PF3
-
-'set TIKL------------------------------------------------------------------------------------------------------
-If next_action = "Overpayment Exists" THEN
-	Msgbox "You identified your case is ready to process for overpayment follow procedures for claim entry.  A TIKL will NOT be made."
-ELSE
-	Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-	call create_MAXIS_friendly_date(action_date, 10, 5, 18)
-	Call write_variable_in_TIKL("Potential overpayment exists on case. Please review case for receipt of additional requested information.")
-	PF3
-END IF
-
+due_date = dateadd("d", 10, date)
 'The case note-------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
 Call write_variable_in_case_note("***Claim Referral Tracking - " & action_taken & "***")
@@ -215,6 +201,11 @@ Call write_variable_in_case_note(worker_signature)
 PF3
 
 IF next_action = "Sent Request for Additional Info" THEN
+'set TIKL------------------------------------------------------------------------------------------------------
+    Call navigate_to_MAXIS_screen("DAIL", "WRIT")
+    call create_MAXIS_friendly_date(due_date, 10, 5, 18)
+    Call write_variable_in_TIKL("Potential overpayment exists on case. Please review case for receipt of additional requested information.")
+    PF3
 	script_end_procedure("You have indicated that you sent a request for additional information. Please follow the agency's procedure(s) for claim entry once received.")
 Else
 	script_end_procedure("You have indicated that an overpayment exists. Please follow the agency's procedure(s) for claim entry.")
