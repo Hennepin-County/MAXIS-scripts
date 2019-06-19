@@ -353,7 +353,7 @@ IF update_ADDR = "Yes" THEN
 	Call MAXIS_footer_month_confirmation
 	PF9
 	Call create_MAXIS_friendly_date_with_YY(datevalue(date_received), 0, 4, 43) 'creates and writes the date entered in dialog'
-	
+	MsgBox date_received
 	IF residence_addr = "Residence" THEN
 	    EMwritescreen new_addr_line_one, 6, 43
 	    EMwritescreen ADDR_line_two, 7, 43
@@ -478,7 +478,11 @@ IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
 pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more than one app date is found and additional app is selected
 IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 'checks that the worker is in MAXIS - allows them to get in MAXIS without ending the script
-call check_for_MAXIS (false)
+
+Call check_for_MAXIS(False)
+
+'checking to make sure case is out of background & gets to STAT/BUDG
+Call MAXIS_background_check
 
 'starts a blank case note
 call start_a_blank_case_note
@@ -512,7 +516,7 @@ call write_variable_in_CASE_NOTE ("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
 'Checks if this is a MNsure case and pops up a message box with instructions if the ADDR is incorrect.
-IF METS_case_number <> "" and METS_ADDR_correspondence = "No" THEN MsgBox "Please update the MNsure ADDR if you are able to. If unable, please forward the new ADDR information to the correct area (i.e. Change reported form)"
+IF METS_case_number <> "" and METS_ADDR_correspondence = "No" THEN MsgBox "Please update the MNsure ADDR if you are able to. If unable, please forward the new ADDR information to the correct area (i.e. Change In Circumstance)"
 
 'Checks if a DHS2919A mailed and sets a TIKL for the return of the info.
 IF verifA_sent_checkbox = CHECKED and ADDR_actions <> "Client has not responded to request for verif" THEN
