@@ -9,7 +9,7 @@
 default_directory = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\"
 
 'Run locally: if this is set to "True", the scripts will run locally and bypass GitHub entirely. This is great for debugging or developing scripts.
-run_locally = true
+run_locally = false
 
 '========================================================================================================================================
 
