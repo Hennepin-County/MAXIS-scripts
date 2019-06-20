@@ -1,4 +1,4 @@
-'STATS GATHERING----------------------------------------------------------------------------------------------------
+dd'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "BULK - COLA DECIMATOR.vbs"
 start_time = timer
 STATS_counter = 1                       'sets the stats counter at one
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/10/2019", "Updated for 07/19 GRH COLA messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/04/2019", "Updated for 03/19 COLA messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/10/2018", "Updated for 01/19 COLA messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/11/2018", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -56,7 +57,7 @@ Function dail_selection
 	EMWriteScreen "x", 4, 12		'transmits to the PICK screen
 	transmit
 	EMWriteScreen "_", 7, 39		'clears the all selection
-    EmWriteScreen "X", 8, 39        'Selects COLA
+    'EmWriteScreen "X", 8, 39        'Selects COLA
     EmWriteScreen "X", 13, 39       'Selects INFO as some COLA messages are there. 
     transmit
 End Function
@@ -81,7 +82,7 @@ Do
 	Do
   		err_msg = ""
   		dialog dail_dialog
-  		If ButtonPressed = 0 then StopScript
+  		cancel_without_confirmation
   		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."	
   		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."							
   	  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine										
@@ -181,9 +182,9 @@ For each worker in worker_array
 			dail_msg = trim(dail_msg)
 			stats_counter = stats_counter + 1
 	
-			If instr(dail_msg, "NEW MFIP ELIG AUTO-APPROVED") OR _ 
-                instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") OR _ 
-                instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") then
+			If instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") then
+                'instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") OR _ 
+                'instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") then
         		add_to_excel = TRUE
             Else	
 			    add_to_excel = False 
@@ -308,6 +309,8 @@ Do
     Else 
         PF9
         CALL write_variable_in_case_note(dail_msg)
+        CALL write_variable_in_case_note("")
+        CALL write_variable_in_case_note("This DAIL message regarding DHS action/auto-approval process has been case noted. No action taken at county level for this approval.")
         PF3 ' save message
         objExcel.Cells(excel_row, 6).Value = "Case note created."
     End If 
