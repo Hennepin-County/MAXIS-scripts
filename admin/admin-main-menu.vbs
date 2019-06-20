@@ -347,6 +347,13 @@ script_array_task_list(script_num).description		= "Script to assist in closing S
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_task_list(script_num)	'Resets the array to add one more element to it
 Set script_array_task_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_task_list(script_num).script_name		= "Gather Banked Months Cases"													'Script name
+script_array_task_list(script_num).file_name		= "gather-banked-months-cases.vbs"												'Script URL
+script_array_task_list(script_num).description		= "Script to determine which cases are new banked months cases to be reviewed by QI."
+
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array_task_list(script_num)	'Resets the array to add one more element to it
+Set script_array_task_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_task_list(script_num).script_name		= "Inactive Transfer"													'Script name
 script_array_task_list(script_num).file_name		= "bulk-inactive-transfer.vbs"												'Script URL
 script_array_task_list(script_num).description		= "Script to transfer inactive cases via SPEC/XFER"
