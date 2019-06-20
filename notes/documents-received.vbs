@@ -2170,7 +2170,7 @@ If arep_form_checkbox = checked Then
         update_AREP_panel_checkbox = unchecked
     End If
 
-    BeginDialog Dialog1, 0, 0, 266, 230, "AREP for Case # " & MAXIS_case_number
+    BeginDialog Dialog1, 0, 0, 396, 210, "AREP for Case #  & MAXIS_case_number"
       EditBox 40, 20, 215, 15, arep_name
       EditBox 40, 40, 215, 15, arep_street
       EditBox 40, 60, 85, 15, arep_city
@@ -2187,12 +2187,12 @@ If arep_form_checkbox = checked Then
       CheckBox 10, 160, 75, 10, "ID on file for AREP?", AREP_ID_check
       CheckBox 10, 175, 215, 10, "TIKL to get new HC form 12 months after date form was signed?", TIKL_check
       EditBox 130, 190, 65, 15, arep_signature_date
-      CheckBox 70, 215, 35, 10, "SNAP", SNAP_AREP_check
-      CheckBox 110, 215, 50, 10, "Health Care", HC_AREP_check
-      CheckBox 165, 215, 30, 10, "Cash", CASH_AREP_check
+      CheckBox 260, 175, 35, 10, "SNAP", SNAP_AREP_checkbox
+      CheckBox 300, 175, 50, 10, "Health Care", HC_AREP_checkbox
+      CheckBox 355, 175, 30, 10, "Cash", CASH_AREP_checkbox
       ButtonGroup ButtonPressed
-        OkButton 210, 190, 50, 15
-        CancelButton 210, 210, 50, 15
+        OkButton 285, 190, 50, 15
+        CancelButton 340, 190, 50, 15
       GroupBox 5, 5, 255, 130, "Panel Information"
       Text 15, 25, 25, 10, "Name:"
       Text 15, 45, 25, 10, "Street:"
@@ -2205,7 +2205,21 @@ If arep_form_checkbox = checked Then
       Text 220, 85, 15, 10, "Ext."
       Text 10, 145, 95, 10, "Date of AREP Form Recieved"
       Text 10, 195, 115, 10, "Date form was signed (MM/DD/YY):"
-      Text 10, 210, 55, 20, "Programs Authorized for:"
+      Text 255, 160, 85, 10, "Programs Authorized for:"
+      GroupBox 265, 5, 125, 150, "Specific FORM Received"
+      CheckBox 275, 15, 115, 10, "AREP Req - MHCP - DHS-3437", dhs_3437_checkbox
+      CheckBox 275, 35, 105, 10, "AREP Req - HC12729", HC_12729_checkbox
+      CheckBox 275, 55, 100, 10, "SNAP AREP Choice - D405", D405_checkbox
+      CheckBox 275, 75, 105, 10, "AREP on CAF", CAF_AREP_page_checkbox
+      CheckBox 275, 95, 100, 10, "AREP on any HC App", HCAPP_AREP_checkbox
+      CheckBox 275, 115, 75, 10, "Power of Attorney", power_of_attorney_checkbox
+      Text 295, 25, 50, 10, "(HC)"
+      Text 295, 45, 60, 10, "(Cash and SNAP)"
+      Text 295, 65, 75, 10, "(SNAP and EBT Card)"
+      Text 295, 85, 60, 10, "(Cash and SNAP)"
+      Text 295, 105, 50, 10, "(HC)"
+      Text 295, 125, 60, 10, "(HC, SNAP, Cash)"
+      Text 270, 135, 110, 15, "Checking the FORM will indicate the programs in the CASE/NOTE"
     EndDialog
 
     Do
@@ -2224,8 +2238,24 @@ If arep_form_checkbox = checked Then
                 If len(arep_state) > 2 Then err_msg = err_msg & vbNewLine & "* The AREP state is too long for MAXIS."
                 If len(arep_zip) > 5 Then err_msg = err_msg & vbNewLine & "* The AREP zip is too long for MAXIS."
             End If
+            If dhs_3437_checkbox = Checked Then HC_AREP_checkbox = checked
+            If HC_12729_checkbox = checked Then
+                SNAP_AREP_checkbox = checked
+                CASH_AREP_checkbox = checked
+            End If
+            If D405_checkbox = checked Then SNAP_AREP_checkbox = checked
+            If CAF_AREP_page_checkbox = checked Then
+                SNAP_AREP_checkbox = checked
+                CASH_AREP_checkbox = Checked
+            End If
+            If HCAPP_AREP_checkbox = checked Then HC_AREP_checkbox = checked
+            If power_of_attorney_checkbox = checked Then
+                SNAP_AREP_checkbox = checked
+                CASH_AREP_checkbox = Checked
+                HC_AREP_checkbox = checked
+            End If
             If IsDate(AREP_recvd_date) = False Then err_msg = err_msg & vbNewLine & "* Enter the date the form was received."
-        	IF SNAP_AREP_check <> checked AND HC_AREP_check <> checked AND CASH_AREP_check <> checked THEN err_msg = err_msg & vbNewLine &"* Select a program"
+        	IF SNAP_AREP_checkbox <> checked AND HC_AREP_checkbox <> checked AND CASH_AREP_checkbox <> checked THEN err_msg = err_msg & vbNewLine &"* Select a program"
         	IF isdate(arep_signature_date) = false THEN err_msg = err_msg & vbNewLine & "* Enter a valid date for the date the form was signed/valid from."
         	IF (TIKL_check = checked AND arep_signature_date = "") THEN err_msg = err_msg & vbNewLine & "* You have requested the script to TIKL based on the signature date but you did not enter the signature date."
             If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
@@ -2520,6 +2550,15 @@ If mtaf_form_checkbox = checked Then
         call write_bullet_and_variable_in_case_note("Document date stamp", doc_date_stamp)
         If arep_form_checkbox = checked Then
             call write_variable_in_CASE_NOTE("* AREP FORM received on " & AREP_recvd_date & ". AREP: " & arep_name)
+            If dhs_3437_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named on the DHS 3437 - MHCP AUTHORIZED REPRESENTATIVE REQUEST Form.")
+            If HC_12729_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named on the HC 12729 - AUTHORIZED REPRESENTATIVE REQUEST Form.")
+            If D405_checkbox = checked Then
+                Call write_variable_in_CASE_NOTE("  - AREP name on the SNAP AUTHORIZED REPRESENTATIVE CHOICE D405 Form.")
+                Call write_variable_in_CASE_NOTE("  - AREP also authorixed to get and use EBT Card.")
+            End If
+            If CAF_AREP_page_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named in the CAF.")
+            If HCAPP_AREP_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named in a Health Care Application.")
+            If power_of_attorney_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP has Power of Attorney Designation.")
             If AREP_programs <> "" then call write_variable_in_CASE_NOTE("  - Programs Authorized for: " & AREP_programs)
             If arep_signature_date <> "" Then call write_variable_in_CASE_NOTE("  - AREP valid start date: " & arep_signature_date)
             call write_variable_in_CASE_NOTE("  - Client and AREP signed AREP form.")
@@ -2886,6 +2925,15 @@ END IF
 call write_bullet_and_variable_in_case_note("Document date stamp", doc_date_stamp)
 If arep_form_checkbox = checked Then
     call write_variable_in_CASE_NOTE("* AREP FORM received on " & AREP_recvd_date & ". AREP: " & arep_name)
+    If dhs_3437_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named on the DHS 3437 - MHCP AUTHORIZED REPRESENTATIVE REQUEST Form.")
+    If HC_12729_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named on the HC 12729 - AUTHORIZED REPRESENTATIVE REQUEST Form.")
+    If D405_checkbox = checked Then
+        Call write_variable_in_CASE_NOTE("  - AREP name on the SNAP AUTHORIZED REPRESENTATIVE CHOICE D405 Form.")
+        Call write_variable_in_CASE_NOTE("  - AREP also authorixed to get and use EBT Card.")
+    End If
+    If CAF_AREP_page_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named in the CAF.")
+    If HCAPP_AREP_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named in a Health Care Application.")
+    If power_of_attorney_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP has Power of Attorney Designation.")
     If AREP_programs <> "" then call write_variable_in_CASE_NOTE("  - Programs Authorized for: " & AREP_programs)
     If arep_signature_date <> "" Then call write_variable_in_CASE_NOTE("  - AREP valid start date: " & arep_signature_date)
     call write_variable_in_CASE_NOTE("  - Client and AREP signed AREP form.")
