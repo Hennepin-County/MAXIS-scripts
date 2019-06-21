@@ -322,6 +322,8 @@ Row = 8
 			last_name = client_name
 		END IF
 		first_name = trim(first_name)
+		'converts the name to all CAPS
+		client_name = UCase(client_name)
 '----------------------------------------------------------------------Minnesota active programs
 	EMReadScreen MN_Active_Programs, 15, 6, 59
 	MN_active_programs = Trim(MN_active_programs)
