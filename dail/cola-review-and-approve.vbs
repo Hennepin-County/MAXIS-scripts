@@ -118,7 +118,7 @@ Do
                 transmit
 
                 EMReadScreen process_date, 8, 2, 73
-                If DateDiff("d", process_date, date) > 3 Then error_processing_msg =  error_processing_msg & vbNewLine & "HC Eligibility was not created and approved recently."
+                If DateDiff("d", process_date, date) > 7 Then error_processing_msg =  error_processing_msg & vbNewLine & "HC Eligibility was not created and approved recently."
 
                 EMReadScreen bdgt_month, 2, 6, 14
                 EMReadScreen bdgt_year, 2, 6, 17

@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("05/01/2019", "Initial version.", "Ilse Ferris, Hennepin County")
+call changelog_update("06/20/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -103,7 +103,6 @@ Do
     excel_row = excel_row + 1
 LOOP
 
-msgbox entry_record
 objExcel.Quit   'Closes the initial spreadsheet 
 objExcel = ""
 
@@ -120,7 +119,7 @@ BeginDialog , 0, 0, 266, 115, "Current Month Banked Months List"
   GroupBox 10, 5, 250, 85, "Using this script:"
 EndDialog
 
-file_selection = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\ABAWD\Active SNAP "& CM_mo & "-20" & CM_yr & ".xlsx"
+file_selection = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\ABAWD\Active SNAP "& CM_mo & "-" & CM_yr & ".xlsx"
 
 Do
     err_msg = ""
@@ -195,9 +194,7 @@ FOR i = 1 to 4
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
 
-'Addded the potentially EXP SNAP cases to Excel starting at row 2
 excel_row = 2
-
 For item = 0 to UBound(new_cases_array, 2)
 	objExcel.Cells(excel_row, 1).Value = new_cases_array(case_number_const, item)	
 	objExcel.Cells(excel_row, 2).Value = new_cases_array(member_number_const, item)	

@@ -135,7 +135,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 DIM case_array()
-ReDim case_array(19, 0)
+ReDim case_array(21, 0)
 
 'constants for array
 const case_number_const     	= 0
@@ -157,13 +157,18 @@ const second_elig_const 	  	= 15
 const third_case_number_const   = 16
 const third_type_const      	= 17
 const third_elig_const      	= 18	
-const case_status               = 19           
+const case_status               = 19       
+const basket_number_const       = 20  
+const rsum_PMI_const            = 21  
 
 'Now the script adds all the clients on the excel list into an array
 excel_row = 2 're-establishing the row to start checking the members for
 entry_record = 0
 Do   
     'Loops until there are no more cases in the Excel list
+    basket_number = objExcel.cells(excel_row, 2).Value   'reading the case number from Excel   
+    basket_number = Trim(basket_number)
+    
     MAXIS_case_number = objExcel.cells(excel_row, 3).Value   'reading the case number from Excel   
     MAXIS_case_number = Trim(MAXIS_case_number)
 
@@ -175,7 +180,7 @@ Do
     clients_DOB = trim(clients_DOB)
     Call client_age(clients_DOB, clients_age)
     
-    ReDim Preserve case_array(19, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+    ReDim Preserve case_array(21, entry_record)	'This resizes the array based on the number of rows in the Excel File'
     case_array(case_number_const,           entry_record) = MAXIS_case_number	'The client information is added to the array'
     case_array(clt_PMI_const,               entry_record) = Client_PMI			
     case_array(last_name_const,             entry_record) = ""             
@@ -195,7 +200,10 @@ Do
     case_array(third_case_number_const, 	entry_record) = ""
     case_array(third_type_const,      	    entry_record) = ""				
     case_array(third_elig_const,            entry_record) = ""	
-    case_array(case_status,                 entry_record) = False 		
+    case_array(case_status,                 entry_record) = False 	
+    case_array(basket_number_const,         entry_record) =	basket_number
+    case_array(rsum_PMI_const,              entry_record) =	""
+    
 
     entry_record = entry_record + 1			'This increments to the next entry in the array'
     stats_counter = stats_counter + 1
@@ -279,26 +287,28 @@ Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'adding column header information to the Excel list
-ObjExcel.Cells(1,  1).Value = "PMI"
-ObjExcel.Cells(1,  2).Value = "Last Name"
-ObjExcel.Cells(1,  3).Value = "First Name"
-ObjExcel.Cells(1,  4).Value = "Client Age"
-ObjExcel.Cells(1,  5).Value = "MAXIS HC"
-ObjExcel.Cells(1,  6).Value = "Next REVW"
-ObjExcel.Cells(1,  7).Value = "Waiver"
-ObjExcel.Cells(1,  8).Value = "Medicare"
-ObjExcel.Cells(1,  9).Value = "1st case"
-ObjExcel.Cells(1, 10).Value = "1st type/prog"
-ObjExcel.Cells(1, 11).Value = "1st elig dates"
-ObjExcel.Cells(1, 12).Value = "2nd case"
-ObjExcel.Cells(1, 13).Value = "2nd type/prog"
-ObjExcel.Cells(1, 14).Value = "2nd elig dates"
-ObjExcel.Cells(1, 15).Value = "3rd case"
-ObjExcel.Cells(1, 16).Value = "3rd type/prog"
-ObjExcel.Cells(1, 17).Value = "3rd elig dates"
-ObjExcel.Cells(1, 18).Value = "Convert?"
+ObjExcel.Cells(1,  1).Value = "Basket"
+ObjExcel.Cells(1,  2).Value = "PMI"
+ObjExcel.Cells(1,  3).Value = "RSUM PMI"
+ObjExcel.Cells(1,  4).Value = "Last Name"
+ObjExcel.Cells(1,  5).Value = "First Name"
+ObjExcel.Cells(1,  6).Value = "Client Age"
+ObjExcel.Cells(1,  7).Value = "MAXIS HC"
+ObjExcel.Cells(1,  8).Value = "Next REVW"
+ObjExcel.Cells(1,  9).Value = "Waiver"
+ObjExcel.Cells(1, 10).Value = "Medicare"
+ObjExcel.Cells(1, 11).Value = "1st case"
+ObjExcel.Cells(1, 12).Value = "1st type/prog"
+ObjExcel.Cells(1, 13).Value = "1st elig dates"
+ObjExcel.Cells(1, 14).Value = "2nd case"
+ObjExcel.Cells(1, 15).Value = "2nd type/prog"
+ObjExcel.Cells(1, 16).Value = "2nd elig dates"
+ObjExcel.Cells(1, 17).Value = "3rd case"
+ObjExcel.Cells(1, 18).Value = "3rd type/prog"
+ObjExcel.Cells(1, 19).Value = "3rd elig dates"
+ObjExcel.Cells(1, 20).Value = "Convert?"
 
-FOR i = 1 to 18 	'formatting the cells'
+FOR i = 1 to 20 	'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -309,7 +319,6 @@ For item = 0 to UBound(case_array, 2)
     Client_SSN = case_array(client_SSN_const, item) 
     Client_PMI = case_array(clt_PMI_const, item)
     client_PMI = right("00000000" & client_pmi, 8)
-    'msgbox Client_PMI
     
     If case_array(case_status, item) = True then
         'msgbox Client_SSN
@@ -339,6 +348,9 @@ For item = 0 to UBound(case_array, 2)
             End if     
             
             If panel_check = "RSUM" then 
+                'RSUM panel PMI
+                EmReadscreen RSUM_PMI, 8, 2, 2
+                Case_array(rsum_PMI_const, item) = trim(RSUM_PMI)
                 'Waiver info
                 EmReadscreen waiver_info, 39, 15, 15
                 waiver_info = trim(waiver_info)
@@ -405,23 +417,25 @@ For item = 0 to UBound(case_array, 2)
                 'outputting to Excel 
                 
                 If first_case_number <> "" then 
-                    objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            item)
-                    objExcel.Cells(excel_row,  2).Value = case_array (last_name_const,          item)
-                    objExcel.Cells(excel_row,  3).Value = case_array (first_name_const,         item)
-                    objExcel.Cells(excel_row,  4).Value = case_array (client_age_const,         item)
-                    objExcel.Cells(excel_row,  5).Value = case_array (HC_status_const,          item)
-                    objExcel.Cells(excel_row,  6).Value = case_array (revw_date_const,          item)
-                    objExcel.Cells(excel_row,  7).Value = case_array (waiver_info_const,	    item)
-                    objExcel.Cells(excel_row,  8).Value = case_array (medicare_info_const,      item)
-                    objExcel.Cells(excel_row,  9).Value = case_array (first_case_number_const,  item)
-                    objExcel.Cells(excel_row, 10).Value = case_array (first_type_const, 	    item)
-                    objExcel.Cells(excel_row, 11).Value = case_array (first_elig_const, 	    item)
-                    objExcel.Cells(excel_row, 12).Value = case_array (second_case_number_const, item)
-                    objExcel.Cells(excel_row, 13).Value = case_array (second_type_const, 	    item)
-                    objExcel.Cells(excel_row, 14).Value = case_array (second_elig_const, 	    item)
-                    objExcel.Cells(excel_row, 15).Value = case_array (third_case_number_const,  item)
-                    objExcel.Cells(excel_row, 16).Value = case_array (third_type_const,      	item)
-                    objExcel.Cells(excel_row, 17).Value = case_array (third_elig_const,         item) 
+                    objExcel.Cells(excel_row,  1).Value = case_array (basket_number_const,      item) 
+                    objExcel.Cells(excel_row,  2).Value = case_array (clt_PMI_const,            item)
+                    objExcel.Cells(excel_row,  3).Value = case_array (rsum_PMI_const,           item)
+                    objExcel.Cells(excel_row,  4).Value = case_array (last_name_const,          item)
+                    objExcel.Cells(excel_row,  5).Value = case_array (first_name_const,         item)
+                    objExcel.Cells(excel_row,  6).Value = case_array (client_age_const,         item)
+                    objExcel.Cells(excel_row,  7).Value = case_array (HC_status_const,          item)
+                    objExcel.Cells(excel_row,  8).Value = case_array (revw_date_const,          item)
+                    objExcel.Cells(excel_row,  9).Value = case_array (waiver_info_const,	    item)
+                    objExcel.Cells(excel_row, 10).Value = case_array (medicare_info_const,      item)
+                    objExcel.Cells(excel_row, 11).Value = case_array (first_case_number_const,  item)
+                    objExcel.Cells(excel_row, 12).Value = case_array (first_type_const, 	    item)
+                    objExcel.Cells(excel_row, 13).Value = case_array (first_elig_const, 	    item)
+                    objExcel.Cells(excel_row, 14).Value = case_array (second_case_number_const, item)
+                    objExcel.Cells(excel_row, 15).Value = case_array (second_type_const, 	    item)
+                    objExcel.Cells(excel_row, 16).Value = case_array (second_elig_const, 	    item)
+                    objExcel.Cells(excel_row, 17).Value = case_array (third_case_number_const,  item)
+                    objExcel.Cells(excel_row, 18).Value = case_array (third_type_const,      	item)
+                    objExcel.Cells(excel_row, 19).Value = case_array (third_elig_const,         item)   
                     
                     'conditions for converting a case
                     convert_case = ""
@@ -478,8 +492,8 @@ For item = 0 to UBound(case_array, 2)
                         End if 
                     End if 
                     
-                    If convert_case = False then objExcel.Cells(excel_row, 18).Value = "No"
-                    If convert_case = True then objExcel.Cells(excel_row, 18).Value = "Yes"
+                    If convert_case = False then objExcel.Cells(excel_row, 20).Value = "No"
+                    If convert_case = True then objExcel.Cells(excel_row, 20).Value = "Yes"
                     excel_row = excel_row + 1
                 End if 
                 
