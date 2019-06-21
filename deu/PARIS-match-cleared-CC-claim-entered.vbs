@@ -207,15 +207,6 @@ CALL changelog_update("12/11/2017", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My DOcuments folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-BeginDialog case_number_dialog, 0, 0, 131, 65, "Dialog"
-  EditBox 60, 5, 65, 15, MAXIS_case_number
-  EditBox 60, 25, 30, 15, MEMB_number
-  ButtonGroup ButtonPressed
-    OkButton 20, 45, 50, 15
-    CancelButton 75, 45, 50, 15
-  Text 5, 30, 55, 10, "MEMB Number:"
-  Text 5, 10, 50, 10, "Case Number:"
-EndDialog
 
 '---------------------------------------------------------------------THE SCRIPT
 'Connecting to MAXIS
@@ -225,21 +216,23 @@ MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 '----------------------------------------------------------------------------------------------------DAIL
 EMReadscreen dail_check, 4, 2, 48 'changed from DAIL to view to ensure we are in DAIL/DAIL'
-IF dail_check = "DAIL" THEN
-	EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
-	IF IEVS_type = "PARI" THEN
-		EMSendKey "t"
-		match_found = TRUE
-		EMReadScreen MAXIS_case_number, 8, 5, 73
-		MAXIS_case_number= TRIM(MAXIS_case_number)
-		'----------------------------------------------------------------------------------------------------IEVP
-	   'Navigating deeper into the match interface
-	   CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
-	   CALL write_value_and_transmit("INTM", 20, 71)   'navigates to IEVP
-	   TRANSMIT
-    END IF
-END IF
-IF dail_check <> "DAIL" THEN
+msgbox dail_check
+'IF dail_check = "DAIL" THEN
+'	EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
+'	IF IEVS_type = "PARI" THEN
+'		EMSendKey "t"
+'		match_found = TRUE
+'		EMReadScreen MAXIS_case_number, 8, 5, 73
+'		MAXIS_case_number= TRIM(MAXIS_case_number)
+'		'----------------------------------------------------------------------------------------------------IEVP
+'	   'Navigating deeper into the match interface
+'	   CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
+'	   CALL write_value_and_transmit("INTM", 20, 71)   'navigates to IEVP
+'	   TRANSMIT
+'    END IF
+'
+'
+'ELSE
  	CALL MAXIS_case_number_finder (MAXIS_case_number)
     MEMB_number = "01"
     BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
@@ -268,7 +261,7 @@ IF dail_check <> "DAIL" THEN
 	CALL navigate_to_MAXIS_screen("INFC" , "____")
 	CALL write_value_and_transmit("INTM", 20, 71)
 	CALL write_value_and_transmit(SSN_number_read, 3, 63)
-END IF
+'END IF
 
 EMReadScreen err_msg, 7, 24, 2
 IF err_msg = "NO IEVS" THEN script_end_procedure_with_error_report("An error occurred in IEVP, please process manually.")'checking for error msg'
