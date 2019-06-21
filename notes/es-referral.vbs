@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/18/2019", "This script will be retired effective 06/30/19. DWP staff should use DWP Referral for scheduling and rescheduling.", "MiKayla Handley, Hennepin County")
 call changelog_update("01/17/2017", "Added program type (DWP or MFIP) into case note header.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -154,11 +155,11 @@ If appt_type = "Rescheduled" then case_note_header = "**" & select_program & " E
 'The case note --------- -------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
 call write_variable_in_CASE_NOTE(case_note_header)
-If appt_type = "Select one..." then 
+If appt_type = "Select one..." then
 	call write_variable_in_CASE_NOTE("* Referral sent to " & ES_provider & " on " & referral_date & ".")
-Else 
+Else
 	call write_bullet_and_variable_in_CASE_NOTE("ES provider", ES_provider)
-End if 
+End if
 call write_bullet_and_variable_in_CASE_NOTE("Members referred", hh_member_list)
 IF select_program = "DWP" THEN call write_bullet_and_variable_in_CASE_NOTE("Employment plan due back on", plan_deadline)
 IF dwp_referral_check = 1 THEN CALL write_variable_in_CASE_NOTE("* DHS 4161 sent to client.")
