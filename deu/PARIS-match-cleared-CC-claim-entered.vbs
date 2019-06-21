@@ -599,7 +599,7 @@ Row = 8
 	Call write_bullet_and_variable_in_case_note("Action Date", date)
 	Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
     Call write_variable_in_case_note("-----")
-	Call write_variable_in_case_note(worker_signature)
+	CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 	PF3
 
 '-----------------------------------------------------------------------------------------CASENOTE
