@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/24/2019", "Moved the Excel update to within the change loop in case of a script run failure.", "Casey Love, Hennepin County")
 call changelog_update("05/24/2019", "Added statistics detail to final script run when MMIS is updated.", "Casey Love, Hennepin County")
 call changelog_update("02/19/2019", "Changed Medicare savings amounts to $135.50.", "Casey Love, Hennepin County")
 call changelog_update("11/21/2018", "Removed custom function navigate_to_spec_MMIS_region(group_security_selection). Added test function navigate_to_MAXIS_test. Updated function 'keep_MMIS_passworded_in()' that calls these functions.", "Ilse Ferris, Hennepin County")
@@ -664,6 +665,101 @@ Next
 Call back_to_SELF
 Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")      'Going to MMIS'
 
+'Opening a new Excel file
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = True
+Set objWorkbook = objExcel.Workbooks.Add()
+objExcel.DisplayAlerts = True
+
+col_to_use = 1
+'Setting the column headers and defining the column numbers for entry of client information
+ObjExcel.Cells(1, col_to_use).Value = "WORKER"
+worker_col = col_to_use
+col_to_use = col_to_use + 1
+
+ObjExcel.Cells(1, col_to_use).Value = "CASE NUMBER"
+case_numb_col = col_to_use
+col_to_use = col_to_use + 1
+
+ObjExcel.Cells(1, col_to_use).Value = "EOMC Status"
+eomc_stat_col = col_to_use
+col_to_use = col_to_use + 1
+
+ObjExcel.Cells(1, col_to_use).Value = "REF NO"
+ref_numb_col = col_to_use
+col_to_use = col_to_use + 1
+
+ObjExcel.Cells(1, col_to_use).Value = "NAME"
+name_col = col_to_use
+col_to_use = col_to_use + 1
+
+ObjExcel.Cells(1, col_to_use).Value = "PMI"
+pmi_col = col_to_use
+col_to_use = col_to_use + 1
+
+ObjExcel.Cells(1, col_to_use).Value = "1st Prog"
+prog_one_col = col_to_use
+col_to_use = col_to_use + 1
+
+ObjExcel.Cells(1, col_to_use).Value = "ELIG TYPE"
+elig_one_col = col_to_use
+col_to_use = col_to_use + 1
+
+ObjExcel.Cells(1, col_to_use).Value = "MAXIS End Date"
+MAXIS_end_one_col = col_to_use
+col_to_use = col_to_use + 1
+
+ObjExcel.Cells(1, col_to_use).Value = "CURR MMIS End Date"
+mmis_one_col = col_to_use
+col_to_use = col_to_use + 1
+
+If make_changes = TRUE Then
+    ObjExcel.Cells(1, col_to_use).Value = "NEW MMIS End Date"
+    new_mmis_one_col = col_to_use
+    new_mmis_one_col_letter_col = convert_digit_to_excel_column(new_mmis_one_col)
+    col_to_use = col_to_use + 1
+
+    ObjExcel.Cells(1, col_to_use).Value = "PPH Cap"
+    cap_col = col_to_use
+    col_to_use = col_to_use + 1
+End If
+
+ObjExcel.Cells(1, col_to_use).Value = "2nd PROG"
+prog_two_col = col_to_use
+col_to_use = col_to_use + 1
+
+ObjExcel.Cells(1, col_to_use).Value = "ELIG TYPE - 2"
+elig_two_col = col_to_use
+col_to_use = col_to_use + 1
+
+ObjExcel.Cells(1, col_to_use).Value = "MAXIS End Date - 2"
+MAXIS_end_two_col = col_to_use
+col_to_use = col_to_use + 1
+
+ObjExcel.Cells(1, col_to_use).Value = "CURR MMIS End Date - 2"
+mmis_two_col = col_to_use
+mmis_two_letter_col = convert_digit_to_excel_column(mmis_two_col)
+col_to_use = col_to_use + 1
+
+If make_changes = TRUE Then
+    ObjExcel.Cells(1, col_to_use).Value = "NEW MMIS End Date - 2"
+    new_mmis_two_col = col_to_use
+    new_mmis_two_col_letter_col = convert_digit_to_excel_column(new_mmis_two_col)
+    col_to_use = col_to_use + 1
+
+    ObjExcel.Cells(1, col_to_use).Value = "SAVINGS"
+    savings_col = col_to_use
+    savings_letter_col = convert_digit_to_excel_column(savings_col)
+    col_to_use = col_to_use + 1
+End If
+
+ObjExcel.Cells(1, col_to_use).Value = "ERRORS"
+errors_col = col_to_use
+col_to_use = col_to_use + 1
+
+ObjExcel.Rows(1).Font.Bold = TRUE
+excel_row = 2
+
 'Looping through each of the HC clients while in MMIS
 For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
     STATS_counter = STATS_counter + 1       'incrementing for each client HC reviewed - it is here because this is the part that the timer will cut out on
@@ -1203,107 +1299,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
         PF6
     End If
 
-    total_savings = total_savings + EOMC_CLIENT_ARRAY(clt_savings, hc_clt)      'adding client savings to the total savings for the script run.
-Next
-
-'Opening a new Excel file
-Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add()
-objExcel.DisplayAlerts = True
-
-col_to_use = 1
-'Setting the column headers and defining the column numbers for entry of client information
-ObjExcel.Cells(1, col_to_use).Value = "WORKER"
-worker_col = col_to_use
-col_to_use = col_to_use + 1
-
-ObjExcel.Cells(1, col_to_use).Value = "CASE NUMBER"
-case_numb_col = col_to_use
-col_to_use = col_to_use + 1
-
-ObjExcel.Cells(1, col_to_use).Value = "EOMC Status"
-eomc_stat_col = col_to_use
-col_to_use = col_to_use + 1
-
-ObjExcel.Cells(1, col_to_use).Value = "REF NO"
-ref_numb_col = col_to_use
-col_to_use = col_to_use + 1
-
-ObjExcel.Cells(1, col_to_use).Value = "NAME"
-name_col = col_to_use
-col_to_use = col_to_use + 1
-
-ObjExcel.Cells(1, col_to_use).Value = "PMI"
-pmi_col = col_to_use
-col_to_use = col_to_use + 1
-
-ObjExcel.Cells(1, col_to_use).Value = "1st Prog"
-prog_one_col = col_to_use
-col_to_use = col_to_use + 1
-
-ObjExcel.Cells(1, col_to_use).Value = "ELIG TYPE"
-elig_one_col = col_to_use
-col_to_use = col_to_use + 1
-
-ObjExcel.Cells(1, col_to_use).Value = "MAXIS End Date"
-MAXIS_end_one_col = col_to_use
-col_to_use = col_to_use + 1
-
-ObjExcel.Cells(1, col_to_use).Value = "CURR MMIS End Date"
-mmis_one_col = col_to_use
-col_to_use = col_to_use + 1
-
-If make_changes = TRUE Then
-    ObjExcel.Cells(1, col_to_use).Value = "NEW MMIS End Date"
-    new_mmis_one_col = col_to_use
-    new_mmis_one_col_letter_col = convert_digit_to_excel_column(new_mmis_one_col)
-    col_to_use = col_to_use + 1
-
-    ObjExcel.Cells(1, col_to_use).Value = "PPH Cap"
-    cap_col = col_to_use
-    col_to_use = col_to_use + 1
-End If
-
-ObjExcel.Cells(1, col_to_use).Value = "2nd PROG"
-prog_two_col = col_to_use
-col_to_use = col_to_use + 1
-
-ObjExcel.Cells(1, col_to_use).Value = "ELIG TYPE - 2"
-elig_two_col = col_to_use
-col_to_use = col_to_use + 1
-
-ObjExcel.Cells(1, col_to_use).Value = "MAXIS End Date - 2"
-MAXIS_end_two_col = col_to_use
-col_to_use = col_to_use + 1
-
-ObjExcel.Cells(1, col_to_use).Value = "CURR MMIS End Date - 2"
-mmis_two_col = col_to_use
-mmis_two_letter_col = convert_digit_to_excel_column(mmis_two_col)
-col_to_use = col_to_use + 1
-
-If make_changes = TRUE Then
-    ObjExcel.Cells(1, col_to_use).Value = "NEW MMIS End Date - 2"
-    new_mmis_two_col = col_to_use
-    new_mmis_two_col_letter_col = convert_digit_to_excel_column(new_mmis_two_col)
-    col_to_use = col_to_use + 1
-
-    ObjExcel.Cells(1, col_to_use).Value = "SAVINGS"
-    savings_col = col_to_use
-    savings_letter_col = convert_digit_to_excel_column(savings_col)
-    col_to_use = col_to_use + 1
-End If
-
-ObjExcel.Cells(1, col_to_use).Value = "ERRORS"
-errors_col = col_to_use
-col_to_use = col_to_use + 1
-
-ObjExcel.Rows(1).Font.Bold = TRUE
-excel_row = 2
-
-'Adding all client information to a spreadsheet for your viewing pleasure
-For hc_clt = 0 to UBound(EOMC_CLIENT_ARRAY, 2)
-	ObjExcel.Cells(excel_row, worker_col).Value        = EOMC_CLIENT_ARRAY (basket_nbr,   hc_clt)
+    ObjExcel.Cells(excel_row, worker_col).Value        = EOMC_CLIENT_ARRAY (basket_nbr,   hc_clt)
 	ObjExcel.Cells(excel_row, case_numb_col).Value     = EOMC_CLIENT_ARRAY (case_nbr,  hc_clt)
     ObjExcel.Cells(excel_row, eomc_stat_col).Value     = EOMC_CLIENT_ARRAY (hc_close_stat, hc_clt)
 	ObjExcel.Cells(excel_row, ref_numb_col).Value      = "Memb " & EOMC_CLIENT_ARRAY(clt_ref_nbr, hc_clt)
@@ -1331,7 +1327,10 @@ For hc_clt = 0 to UBound(EOMC_CLIENT_ARRAY, 2)
         ObjExcel.Cells(excel_row, savings_col).NumberFormat = "$#,##0.00"
     End If
 	excel_row = excel_row + 1      'next row
+
+    total_savings = total_savings + EOMC_CLIENT_ARRAY(clt_savings, hc_clt)      'adding client savings to the total savings for the script run.
 Next
+
 
 excel_row = excel_row - 1
 col_to_use = col_to_use + 1     'moving over one extra for script run details.

@@ -7,6 +7,21 @@
 '
 '============THAT MEANS THAT IF YOU BREAK THIS SCRIPT, ALL OTHER SCRIPTS ****STATEWIDE**** WILL NOT WORK! MODIFY WITH CARE!!!!!============
 
+'CHANGELOG BLOCK ===========================================================================================================
+actual_script_name = name_of_script
+name_of_script = "Functions Library"
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/21/2019", "Initial version.", "Casey Love, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+name_of_script = actual_script_name
+'END CHANGELOG BLOCK =======================================================================================================
+
 'GLOBAL CONSTANTS----------------------------------------------------------------------------------------------------
 Dim checked, unchecked, cancel, OK, blank		'Declares this for Option Explicit users
 
@@ -2685,13 +2700,23 @@ function changelog_display()
 					if trim(text_of_change) = trim(local_changelog_text_of_change) then
 					 	exit for
 					else
-						changelog_msgbox = changelog_msgbox & "-----" & cdate(date_of_change) & "-----" & vbNewLine & text_of_change & vbNewLine & "Completed by " & scriptwriter_of_change & vbNewLine & vbNewLine
+                        If name_of_script = "Functions Library" Then
+                            changelog_msgbox = changelog_msgbox & "-----" & cdate(date_of_change) & "-----" & vbNewLine & text_of_change & vbNewLine & vbNewLine & "Thank you!" & vbNewLine & "The BlueZone Script Team" & vbNewLine & vbNewLine
+                        Else
+                            changelog_msgbox = changelog_msgbox & "-----" & cdate(date_of_change) & "-----" & vbNewLine & text_of_change & vbNewLine & "Completed by " & scriptwriter_of_change & vbNewLine & vbNewLine
+                        End If
 					end if
 
 				Next
 
 				If changelog_msgbox <> "" then
-					MsgBox "Recent changes in this script: " & vbNewLine & vbNewLine & changelog_msgbox
+                    If name_of_script = "Functions Library" Then
+                        message_of_change = MsgBox("Script Announcement: " & vbNewLine & vbNewLine & changelog_msgbox, vbSystemModal, "BZST Communication")
+                        'MsgBox "Script Announcement: " & vbNewLine & vbNewLine & changelog_msgbox
+                    Else
+                        message_of_change = MsgBox("Recent changes in this script: " & vbNewLine & vbNewLine & changelog_msgbox, vbSystemModal, "BZST Changes to Script")
+                        'MsgBox "Recent changes in this script: " & vbNewLine & vbNewLine & changelog_msgbox
+                    End If
 				End if
 
 				'Now we need to determine what the most recent change is, in order to add this to our text file
