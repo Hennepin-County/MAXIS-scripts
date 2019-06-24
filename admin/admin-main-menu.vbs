@@ -273,6 +273,13 @@ script_array_QI_list(script_num).file_name			 = "bulk-applications.vbs"									
 script_array_QI_list(script_num).description		 = "BULK script to collect information for cases that require an interview for the On Demand Waiver."
 
 script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array_QI_list(script_num)		 'Resets the array to add one more element to it
+Set script_array_QI_list(script_num) = new script	 'Set this array element to be a new script. Script details below...
+script_array_QI_list(script_num).script_name		 = "QC Review"									'Script name
+script_array_QI_list(script_num).file_name			 = "qc-review.vbs"												'Script URL
+script_array_QI_list(script_num).description		 = "Case note and WCOM script to support the DHS QC process."
+
+script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array_QI_list(script_num)		'Resets the array to add one more element to it
 Set script_array_QI_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_QI_list(script_num).script_name		= "QI Renewal Accuracy"                                              'Script name
