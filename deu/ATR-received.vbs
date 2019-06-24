@@ -52,71 +52,74 @@ CALL changelog_update("11/07/2017", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 '=================================================================================================END CHANGELOG BLOCK
-
+'---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 memb_number = "01"
 date_received = date & ""
+'----------------------------------------------------------------------------------------------------DAIL
+EMReadscreen dail_check, 4, 2, 48 'changed from DAIL to view to ensure we are in DAIL/DAIL'
+IF dail_check = "DAIL" THEN
+	EMSendKey "t"
+    EMReadScreen match_type, 4, 6, 6 'read the DAIL msg'
+	'msgbox match_type
+    IF match_type = "WAGE" or match_type = "BEER" or match_type = "UBEN" or match_type = "UNVI" THEN
+    	match_found = TRUE
+    ELSE
+		match_found = FALSE
+		'script_end_procedure("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
+    END IF
+	IF match_found = TRUE THEN
+    	EMReadScreen MAXIS_case_number, 8, 5, 73
+		MAXIS_case_number= TRIM(MAXIS_case_number)
+		EMReadscreen SSN_number_read, 9, 6, 20
 
-'-----------------------------------------------------------------------------------------Initial dialog and do...loop
-BeginDialog ATR_action_dialog, 0, 0, 181, 240, "ATR Received"
-  EditBox 55, 5, 55, 15, MAXIS_case_number
-  EditBox 155, 5, 20, 15, MEMB_Number
-  EditBox 55, 25, 55, 15, date_received
-  DropListBox 85, 45, 55, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR", select_quarter
-  DropListBox 85, 65, 55, 15, "Select One:"+chr(9)+"WAGE"+chr(9)+"NON-WAGE", match_type
-  DropListBox 85, 85, 90, 15, "Select One:"+chr(9)+"MAIL"+chr(9)+"FAX"+chr(9)+"RCVD VERIFICATION", ATR_sent
-  DropListBox 85, 105, 90, 15, "Select One:"+chr(9)+"DELETED DISQ"+chr(9)+"PENDING VERF"+chr(9)+"N/A", DISQ_action
-  EditBox 65, 130, 110, 15, income_source
-  EditBox 65, 150, 110, 15, source_address
-  EditBox 65, 170, 110, 15, source_phone
-  EditBox 65, 190, 110, 15, other_notes
-  ButtonGroup ButtonPressed
-    OkButton 65, 220, 50, 15
-    CancelButton 125, 220, 50, 15
-  Text 5, 10, 50, 10, "Case Number: "
-  Text 120, 10, 30, 10, "MEMB #"
-  Text 5, 30, 50, 10, "Date received:"
-  Text 5, 50, 75, 10, "Match Period (quarter)"
-  Text 5, 70, 65, 10, "Wage or Non-Wage"
-  Text 45, 90, 30, 10, "ATR sent"
-  Text 5, 110, 75, 10, "DISQ panel addressed"
-  Text 10, 135, 50, 10, "Source Name:"
-  Text 30, 155, 30, 10, "Address:"
-  Text 15, 175, 45, 10, "Fax or Phone:"
-  Text 20, 195, 45, 10, "Other Notes:"
-EndDialog
+		 '----------------------------------------------------------------------------------------------------IEVP
+		'Navigating deeper into the match interface
+		CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
+		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
+		TRANSMIT
+	    'EMReadScreen err_msg, 7, 24, 2
+	    'IF err_msg = "NO IEVS" THEN script_end_procedure_with_error_report("An error occurred in IEVP, please process manually.")'checking for error msg'
+	END IF
+END IF
 
-DO
+IF dail_check <> "DAIL" or match_found = FALSE THEN
+    CALL MAXIS_case_number_finder (MAXIS_case_number)
+    MEMB_number = "01"
+    BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
+      EditBox 60, 5, 65, 15, MAXIS_case_number
+      EditBox 60, 25, 30, 15, MEMB_number
+      ButtonGroup ButtonPressed
+        OkButton 20, 45, 50, 15
+        CancelButton 75, 45, 50, 15
+      Text 5, 30, 55, 10, "MEMB Number:"
+      Text 5, 10, 50, 10, "Case Number:"
+    EndDialog
     DO
-        err_msg = ""
-    	Dialog ATR_action_dialog
-    	IF ButtonPressed = 0 THEN StopScript
-    	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
-    	IF select_quarter = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a quarter for the match"
-    	IF match_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a match type"
-    	IF ATR_sent = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select how ATR was sent"
-    	IF DISQ_action = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please advise if DISQ panel was updated"
-    	IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-    LOOP UNTIL err_msg = ""
-    CALL check_for_password_without_transmit(are_we_passworded_out)
-LOOP UNTIL are_we_passworded_out = false
-
-'----------------------------------------------------------------------------------------------------IEVS
-CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-EMwritescreen memb_number, 20, 76
-TRANSMIT
-EMReadscreen SSN_number_read, 11, 7, 42
-SSN_number_read = replace(SSN_number_read, " ", "")
-
-CALL navigate_to_MAXIS_screen("INFC" , "____")
-CALL write_value_and_transmit("IEVP", 20, 71)
-CALL write_value_and_transmit(SSN_number_read, 3, 63) '
-
-EMReadScreen error_check, 75, 24, 2	'making sure we can actually update this case.
-error_check = trim(error_check)
-If error_check <> "" then script_end_procedure_with_error_report(error_check & "Unable to update this case. Please review case, and run the script again if applicable.")
-
+    	DO
+    		err_msg = ""
+    		Dialog case_number_dialog
+    		IF ButtonPressed = 0 THEN StopScript
+      		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+      		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	LOOP UNTIL err_msg = ""
+    	CALL check_for_password(are_we_passworded_out)
+    LOOP UNTIL are_we_passworded_out = false
+    CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+    EMwritescreen MEMB_number, 20, 76
+    TRANSMIT
+    EMReadscreen SSN_number_read, 11, 7, 42
+    SSN_number_read = replace(SSN_number_read, " ", "")
+	CALL navigate_to_MAXIS_screen("INFC" , "____")
+	CALL write_value_and_transmit("IEVP", 20, 71)
+	CALL write_value_and_transmit(SSN_number_read, 3, 63)
+	EmReadscreen err_msg, 50, 24, 02
+	err_msg = trim(err_msg)
+	'NO IEVS MATCHES FOUND FOR SSN'
+	If err_msg <> "" THEN script_end_procedure_with_error_report("*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine)
+END IF
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 7
 DO
@@ -139,12 +142,7 @@ DO
 	IF ievp_info_confirmation = vbYes THEN 	EXIT DO
 LOOP UNTIL ievp_info_confirmation = vbYes
 
-'---------------------------------------------------------------------Reading potential errors for out-of-county cases
-'checking for an active MAXIS session
-Call check_for_MAXIS(False)
-
-'checking to make sure case is out of background & gets to STAT/BUDG
-Call MAXIS_background_check
+''---------------------------------------------------------------------Reading potential errors for out-of-county cases
 CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" then
@@ -175,27 +173,35 @@ END IF
 IF match_type = "BEER" THEN match_type_letter = "B"
 IF match_type = "UBEN" THEN match_type_letter = "U"
 IF match_type = "UNVI" THEN match_type_letter = "U"
-'-----------------------------------------------------------------------------------------------Client name
+
+'--------------------------------------------------------------------Client name
+EmReadScreen panel_name, 4, 02, 52
+IF panel_name <> "IULA" THEN script_end_procedure_with_error_report("Script did not find IULA.")
 EMReadScreen client_name, 35, 5, 24
 client_name = trim(client_name)                         'trimming the client name
-IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This seperates the two names
+IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This separates the two names
 	length = len(client_name)                           'establishing the length of the variable
 	position = InStr(client_name, ",")                  'sets the position at the deliminator (in this case the comma)
 	last_name = Left(client_name, position-1)           'establishes client last name as being before the deliminator
 	first_name = Right(client_name, length-position)    'establishes client first name as after before the deliminator
+ELSEIF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
+	length = len(first_name)                        	'trimming the 1st name
+	position = InStr(first_name, " ")               	'establishing the length of the variable
+	first_name = Left(first_name, position-1)       	'trims the middle initial off of the first name
 ELSE                                'In cases where the last name takes up the entire space, THEN the client name becomes the last name
 	first_name = ""
 	last_name = client_name
-
 END IF
+first_name = trim(first_name)
 IF instr(first_name, " ") THEN   						'If there is a middle initial in the first name, THEN it removes it
 	length = len(first_name)                        	'trimming the 1st name
 	position = InStr(first_name, " ")               	'establishing the length of the variable
 	first_name = Left(first_name, position-1)       	'trims the middle initial off of the first name
 END IF
-'--------------------------------------------------------------------------ACTIVE PROGRAMS
+
+'----------------------------------------------------------------------------------------------------ACTIVE PROGRAMS
 EMReadScreen Active_Programs, 13, 6, 68
-Active_Programs =trim(Active_Programs)
+Active_Programs = trim(Active_Programs)
 
 programs = ""
 IF instr(Active_Programs, "D") THEN programs = programs & "DWP, "
@@ -207,6 +213,7 @@ IF instr(Active_Programs, "S") THEN programs = programs & "MFIP, "
 programs = trim(programs)
 'takes the last comma off of programs when autofilled into dialog
 IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
+
 '----------------------------------------------------------------------------------------------------Employer info & difference notice info
 IF match_type = "UBEN" THEN income_source = "Unemployment"
 IF match_type = "UNVI" THEN income_source = "NON-WAGE"
@@ -237,6 +244,58 @@ IF match_type = "BEER" THEN
 	END IF
 END IF
 
+
+'----------------------------------------------------------------------------------------------------notice sent
+EMReadScreen notice_sent, 1, 14, 37
+EMReadScreen sent_date, 8, 14, 68
+sent_date = trim(sent_date)
+'IF sent_date = "" THEN sent_date = replace(sent_date, " ", "/")
+IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
+
+'-----------------------------------------------------------------------------------------Initial dialog and do...loop
+BeginDialog ATR_action_dialog, 0, 0, 181, 240, "ATR Received"
+  EditBox 55, 5, 55, 15, MAXIS_case_number
+  EditBox 155, 5, 20, 15, MEMB_Number
+  EditBox 55, 25, 55, 15, date_received
+  DropListBox 85, 45, 55, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR", select_quarter
+  DropListBox 85, 65, 55, 15, "Select One:"+chr(9)+"WAGE"+chr(9)+"BEER"+chr(9)+"UBEN"+chr(9)+"UNVI", match_type
+  DropListBox 85, 85, 90, 15, "Select One:"+chr(9)+"MAIL"+chr(9)+"FAX"+chr(9)+"RCVD VERIFICATION", ATR_sent
+  DropListBox 85, 105, 90, 15, "Select One:"+chr(9)+"DELETED DISQ"+chr(9)+"PENDING VERF"+chr(9)+"N/A", DISQ_action
+  EditBox 65, 130, 110, 15, income_source
+  EditBox 65, 150, 110, 15, source_address
+  EditBox 65, 170, 110, 15, source_phone
+  EditBox 65, 190, 110, 15, other_notes
+  ButtonGroup ButtonPressed
+    OkButton 65, 220, 50, 15
+    CancelButton 125, 220, 50, 15
+  Text 5, 10, 50, 10, "Case Number: "
+  Text 120, 10, 30, 10, "MEMB #"
+  Text 5, 30, 50, 10, "Date received:"
+  Text 5, 50, 75, 10, "Match Period (quarter)"
+  Text 5, 70, 65, 10, "Wage or Non-Wage"
+  Text 45, 90, 30, 10, "ATR status"
+  Text 5, 110, 75, 10, "DISQ panel addressed"
+  Text 10, 135, 50, 10, "Source Name:"
+  Text 30, 155, 30, 10, "Address:"
+  Text 15, 175, 45, 10, "Fax or Phone:"
+  Text 20, 195, 45, 10, "Other Notes:"
+EndDialog
+
+DO
+    DO
+        err_msg = ""
+    	Dialog ATR_action_dialog
+    	IF ButtonPressed = 0 THEN StopScript
+    	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+    	IF select_quarter = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a quarter for the match"
+    	IF match_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a match type"
+    	IF ATR_sent = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select how ATR was sent"
+    	IF DISQ_action = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please advise if DISQ panel was updated"
+    	IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    LOOP UNTIL err_msg = ""
+    CALL check_for_password_without_transmit(are_we_passworded_out)
+LOOP UNTIL are_we_passworded_out = false
+
 '--------------------------------------------------------------------sending the notice in IULA
 EMwritescreen "005", 12, 46 'writing the resolve time to read for later
 EMwritescreen "Y", 15, 37 'send Notice
@@ -254,36 +313,26 @@ END IF
 'msgbox "Responded to difference notice has been updated"
 TRANSMIT 'exiting IULA, helps prevent errors when going to the case note
 ''--------------------------------------------------------------------The case note & case note related code
-Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
-'Updated IEVS_period to write into case note
-IF select_quarter = "1" THEN IEVS_quarter = "1ST"
-IF select_quarter = "2" THEN IEVS_quarter = "2ND"
-IF select_quarter = "3" THEN IEVS_quarter = "3RD"
-IF select_quarter = "4" THEN IEVS_quarter = "4TH"
-IF select_quarter = "YEAR" THEN IEVS_quarter = Nonwage_year
 
-programs = ""
-IF instr(Active_Programs, "D") THEN programs = programs & "DWP, "
-IF instr(Active_Programs, "F") THEN programs = programs & "Food Support, "
-IF instr(Active_Programs, "H") THEN programs = programs & "Health Care, "
-IF instr(Active_Programs, "M") THEN programs = programs & "Medical Assistance, "
-IF instr(Active_Programs, "S") THEN programs = programs & "MFIP, "
-'trims excess spaces of programs
-programs = trim(programs)
-'takes the last comma off of programs when autofilled into dialog
-IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
+diff_date = replace(diff_date, " ", "/")
+IEVS_period = trim(IEVS_period)
+IF match_type = "WAGE" THEN
+	IF select_quarter = 1 THEN IEVS_quarter = "1ST"
+	IF select_quarter = 2 THEN IEVS_quarter = "2ND"
+	IF select_quarter = 3 THEN IEVS_quarter = "3RD"
+	IF select_quarter = 4 THEN IEVS_quarter = "4TH"
+END IF
 
-diFf_date = replace(dIFf_date, " ", "/")
 IEVS_period = trim(IEVS_period)
 IF match_type <> "UBEN" THEN IEVS_period = replace(IEVS_period, "/", " to ")
 IF match_type = "UBEN" THEN IEVS_period = replace(IEVS_period, "-", "/")
-Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
-PF3 'back to the DAIL'
-IF
-	CALL write_variable_in_CASE_NOTE ("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH (" & first_name & ") ATR RECEIVED-----")
-ELSE
-	CALL write_variable_in_CASE_NOTE ("-----" & IEVS_year & " WAGE MATCH (" & first_name & ") ATR received-----")
-END IF
+Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
+
+'----------------------------------------------------------------the case note
+CALL start_a_blank_case_note
+IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH (" & first_name & ") ATR RECEIVED-----")
+IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") ATR RECEIVED-----")
+IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") ATR RECEIVED-----")
 CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
 CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
 CALL write_variable_in_CASE_NOTE("* Source information: " & source_income & income_source & "  " & source_address)
