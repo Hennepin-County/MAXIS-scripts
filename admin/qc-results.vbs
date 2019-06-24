@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/21/2019", "Added program selection to initial dialog. Added search for MFIP in notices for WCOM only option.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/21/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -53,6 +54,7 @@ changelog_display
 'DIALOGS FOR THE SCRIPT======================================================================================================
 BeginDialog case_number_dialog, 0, 0, 236, 70, "Enter the initial case information"
   EditBox 70, 5, 45, 15, MAXIS_case_number
+  DropListBox 175, 5, 55, 15, "Select One..."+chr(9)+"MF - FS"+chr(9)+"SNAP "+chr(9)+"UHFS", program_droplist
   EditBox 70, 25, 20, 15, MAXIS_footer_month
   EditBox 95, 25, 20, 15, MAXIS_footer_year
   DropListBox 175, 25, 55, 15, "Select One..."+chr(9)+"CAPER"+chr(9)+"QC"+chr(9)+"QC < $38"+chr(9)+"WCOM only", error_selection
@@ -60,10 +62,11 @@ BeginDialog case_number_dialog, 0, 0, 236, 70, "Enter the initial case informati
   ButtonGroup ButtonPressed
     OkButton 150, 50, 40, 15
     CancelButton 190, 50, 40, 15
-  Text 5, 30, 65, 10, "Footer month/year:"
   Text 130, 30, 40, 10, "Error Type:"
   Text 20, 10, 50, 10, "Case Number: "
   Text 5, 55, 60, 10, "Worker Signature:"
+  Text 5, 30, 65, 10, "Footer month/year:"
+  Text 135, 10, 35, 10, "Program:"
 EndDialog
 
 BeginDialog WCOM_dialog, 0, 0, 186, 50, "Select the DHS QC Contact"
@@ -100,7 +103,8 @@ Do
         Call validate_MAXIS_case_number(err_msg, "*")
   		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
   		If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
-		If error_selection = "Select One..." then err_msg = err_msg & vbNewLine & "* Select the error type."
+		If program_droplist = "Select One..." then err_msg = err_msg & vbNewLine & "* Select the program."
+        If error_selection = "Select One..." then err_msg = err_msg & vbNewLine & "* Select the error type."
         If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
@@ -139,29 +143,34 @@ If error_selection = "WCOM only" then
     Emwritescreen MAXIS_footer_year, 19, 57
     transmit
     
+    'prog_type based on program selected in initial dialog
+    If program_droplist = "MF - FS" then 
+        prog_type = "MF"
+    else 
+        prog_type = "FS"
+    End if 
+    
     'Searching for waiting SNAP notice
     wcom_row = 6
     Do
     	wcom_row = wcom_row + 1
     	Emreadscreen program_type, 2, wcom_row, 26
     	Emreadscreen print_status, 7, wcom_row, 71
-    	If program_type = "FS" then
+    	If program_type = prog_type then 
     		If print_status = "Waiting" then
     			Emwritescreen "x", wcom_row, 13
     			Transmit
     			PF9
     			Emreadscreen fs_wcom_exists, 3, 3, 15
     			If fs_wcom_exists <> "   " then script_end_procedure ("It appears you already have a WCOM added to this notice. The script will now end.")
-    			If program_type = "FS" AND print_status = "Waiting" then
-    				fs_wcom_writen = true
-    				'This will write if the notice is for SNAP only
-    				CALL write_variable_in_SPEC_MEMO("******************************************************")
-    				CALL write_variable_in_SPEC_MEMO("What to do next:")
-    				CALL write_variable_in_SPEC_MEMO("You will need to contact " & QC_contact & " at the State Quality Control Office to find out what you need to do to cooperate. The phone number is " & phone_number & ".")
-    				CALL write_variable_in_SPEC_MEMO("******************************************************")
-    				PF4
-    				PF3
-    			End if
+    			fs_wcom_writen = true
+    			'Writing in the SPEC/WCOM verbiage
+    			CALL write_variable_in_SPEC_MEMO("******************************************************")
+    			CALL write_variable_in_SPEC_MEMO("What to do next:")
+    			CALL write_variable_in_SPEC_MEMO("You will need to contact " & QC_contact & " at the State Quality Control Office to find out what you need to do to cooperate. The phone number is " & phone_number & ".")
+    			CALL write_variable_in_SPEC_MEMO("******************************************************")
+    			PF4
+    			PF3
     		End If
     	End If
     	If fs_wcom_writen = true then Exit Do
@@ -258,10 +267,11 @@ Else
     
     reminder_date = dateadd("d", 20, contact_date)  'Setting the reminder date & Outlook appointment is created in prior to the case note
 	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
-	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "QC case due back for " & MAXIS_case_number, "Has " & HSR_name & " returned this case?", "", TRUE, 5, "")
+	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "QC case due for " & MAXIS_case_number, "Has " & HSR_name & " returned this case?", "", TRUE, 5, "")
     
     Call start_a_blank_case_note
     Call write_variable_in_case_note("***State Quality Control " & error_selection & " Error for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "***")
+    CALL write_bullet_and_variable_in_case_note("Progam", program_droplist)
     CALL write_bullet_and_variable_in_case_note("Combined Manual reference", CM_reference)
     CALL write_bullet_and_variable_in_case_note("Sent error to ", HSR_name)
     CALL write_bullet_and_variable_in_case_note("Due Date for resolution", reminder_date)
