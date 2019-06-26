@@ -60,109 +60,340 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'FUNCTIONS==================================================================================================================
+function HH_comp_dialog(HH_member_array)
+'--- This function creates an array of all household members in a MAXIS case, and allows users to select which members to seek/add information to add to edit boxes in dialogs.
+'~~~~~ HH_member_array: should be HH_member_array for function to work
+'===== Keywords: MAXIS, member, array, dialog
+	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+
+    member_count = 0
+    adult_cash_count = 0
+    child_cash_count = 0
+    adult_snap_count = 0
+    child_snap_count = 0
+    adult_emer_count = 0
+    child_emer_count = 0
+	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+		EMReadscreen ref_nbr, 3, 4, 33
+		EMReadscreen last_name, 25, 6, 30
+		EMReadscreen first_name, 12, 6, 63
+		EMReadscreen mid_initial, 1, 6, 79
+        EMReadScreen memb_age, 3, 8, 76
+        memb_age = trim(memb_age)
+        If memb_age = "" Then memb_age = 0
+        memb_age = memb_age * 1
+		last_name = trim(replace(last_name, "_", ""))
+		first_name = trim(replace(first_name, "_", ""))
+		mid_initial = replace(mid_initial, "_", "")
+
+        ReDim Preserve ALL_MEMBERS_ARRAY(clt_notes, member_count)
+
+        ALL_MEMBERS_ARRAY(memb_numb, member_count) = ref_nbr
+        ALL_MEMBERS_ARRAY(clt_name, member_count) = last_name & ", " & first_name & " " & mid_initial
+
+        If cash_checkbox = checked Then
+            ALL_MEMBERS_ARRAY(include_cash_checkbox, member_count) = checked
+            ALL_MEMBERS_ARRAY(count_cash_checkbox, member_count) = checked
+            If memb_age > 18 then
+                adult_cash_count = adult_cash_count + 1
+            Else
+                child_cash_count = child_cash_count + 1
+            End If
+        End If
+        If SNAP_checkbox = checked Then
+            ALL_MEMBERS_ARRAY(include_snap_checkbox, member_count) = checked
+            ALL_MEMBERS_ARRAY(count_snap_checkbox, member_count) = checked
+            If memb_age > 21 then
+                adult_snap_count = adult_snap_count + 1
+            Else
+                child_snap_count = child_snap_count + 1
+            End If
+        End If
+        If EMER_checkbox = checked Then
+            ALL_MEMBERS_ARRAY(include_emer_checkbox, member_count) = checked
+            ALL_MEMBERS_ARRAY(count_emer_checkbox, member_count) = checked
+            If memb_age > 18 then
+                adult_emer_count = adult_emer_count + 1
+            Else
+                child_emer_count = child_emer_count + 1
+            End If
+        End If
+
+		client_string = ref_nbr & last_name & first_name & mid_initial
+		client_array = client_array & client_string & "|"
+		transmit
+		Emreadscreen edit_check, 7, 24, 2
+        member_count = member_count + 1
+	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+
+    Call navigate_to_MAXIS_screen("STAT", "PARE")
+    For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+        EMWriteScreen ALL_MEMBERS_ARRAY(memb_numb, each_member), 20, 76
+        transmit
+
+        EMReadScreen panel_check, 14, 24, 13
+        If panel_check <> "DOES NOT EXIST" Then
+            pare_row = 8
+            Do
+                EMReadScreen child_ref_nbr, 2, pare_row, 24
+                EMReadScreen rela_type, 1, pare_row, 53
+                EMReadScreen rela_verif, 2, pare_row, 71
+
+                If rela_type = "1" then relationship_type = "Parent"
+                If rela_type = "2" then relationship_type = "Stepparent"
+                If rela_type = "3" then relationship_type = "Grandparent"
+                If rela_type = "4" then relationship_type = "Relative Caregiver"
+                If rela_type = "5" then relationship_type = "Foster parent"
+                If rela_type = "6" then relationship_type = "Caregiver"
+                If rela_type = "7" then relationship_type = "Guardian"
+                If rela_type = "8" then relationship_type = "Relative"
+
+                If rela_verif = "BC" Then relationship_verif = "Birth Certificate"
+                If rela_verif = "AR" Then relationship_verif = "Adoption Records"
+                If rela_verif = "LG" Then relationship_verif = "Legal Guardian"
+                If rela_verif = "RE" Then relationship_verif = "Religious Records"
+                If rela_verif = "HR" Then relationship_verif = "Hospital Records"
+                If rela_verif = "RP" Then relationship_verif = "Recognition of Parantage"
+                If rela_verif = "OT" Then relationship_verif = "Other"
+                If rela_verif = "NO" Then relationship_verif = "NONE"
+
+                If child_ref_nbr <> "__" Then relationship_detail = relationship_detail & "Memb " & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " is the " & relationship_type & " of Memb " & child_ref_nbr & " - Verif: " & relationship_verif & "; "
+                pare_row = pare_row + 1
+            Loop Until child_ref_nbr = "__"
+        End If
+    Next
+
+    If SNAP_checkbox = checked then call autofill_editbox_from_MAXIS(HH_member_array, "EATS", EATS)
+
+	' client_array = TRIM(client_array)
+	' test_array = split(client_array, "|")
+	' total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
+    '
+	' DIM all_client_array()
+	' ReDim all_clients_array(total_clients, 1)
+    '
+	' FOR x = 0 to total_clients				'using a dummy array to build in the autofilled check boxes into the array used for the dialog.
+	' 	Interim_array = split(client_array, "|")
+	' 	all_clients_array(x, 0) = Interim_array(x)
+	' 	all_clients_array(x, 1) = 1
+	' NEXT
+
+
+
+
+    Do
+        Do
+            err_msg = ""
+            adult_cash_count = adult_cash_count & ""
+            child_cash_count = child_cash_count & ""
+            adult_snap_count = adult_snap_count & ""
+            child_snap_count = child_snap_count & ""
+            adult_emer_count = adult_emer_count & ""
+            child_emer_count = child_emer_count & ""
+
+            dlg_len = 115 + (15 * UBound(ALL_MEMBERS_ARRAY, 2))
+            if dlg_len < 130 Then dlg_len = 130
+            BeginDialog Dialog1, 0, 0, 446, dlg_len, "HH Composition Dialog"
+              Text 10, 10, 250, 10, "This dialog will clarify the household relationships and details for the case."
+              Text 105, 25, 100, 10, "Included and Counted  in Grant"
+              Text 110, 40, 20, 10, "Cash"
+              Text 145, 40, 20, 10, "SNAP"
+              Text 180, 40, 20, 10, "EMER"
+              Text 230, 25, 90, 10, "Income Counted - Deeming"
+              Text 230, 40, 20, 10, "Cash"
+              Text 265, 40, 20, 10, "SNAP"
+              Text 300, 40, 20, 10, "EMER"
+              GroupBox 330, 5, 110, 100, "HH Count by program"
+              Text 335, 15, 100, 20, "Enter the number of adults and children for each program"
+              Text 370, 35, 20, 10, "Adults"
+              Text 400, 35, 30, 10, "Children"
+              Text 345, 50, 20, 10, "Cash"
+              EditBox 370, 45, 20, 15, adult_cash_count
+              EditBox 405, 45, 20, 15, child_cash_count
+              Text 345, 70, 20, 10, "SNAP"
+              EditBox 370, 65, 20, 15, adult_snap_count
+              EditBox 405, 65, 20, 15, child_snap_count
+              Text 345, 90, 25, 10, "EMER"
+              EditBox 370, 85, 20, 15, adult_emer_count
+              EditBox 405, 85, 20, 15, child_emer_count
+              y_pos = 55
+              For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+                  Text 10, y_pos, 100, 10, ALL_MEMBERS_ARRAY(clt_name, each_member)
+                  CheckBox 115, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(include_cash_checkbox, each_member)
+                  CheckBox 150, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member)
+                  CheckBox 185, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(include_emer_checkbox, each_member)
+                  CheckBox 235, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(count_cash_checkbox, each_member)
+                  CheckBox 270, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(count_snap_checkbox, each_member)
+                  CheckBox 305, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(count_emer_checkbox, each_member)
+                  y_pos = y_pos + 15
+              Next
+              y_pos = y_pos + 5
+              Text 10, y_pos + 5, 25, 10, "EATS:"
+              EditBox 35, y_pos, 290, 15, EATS
+              Text 10, y_pos + 25, 90, 10, "Household Relationships:"
+              EditBox 105, y_pos + 20, 220, 15, relationship_detail
+              ButtonGroup ButtonPressed
+                OkButton 335, y_pos + 20, 50, 15
+                CancelButton 390, y_pos + 20, 50, 15
+            EndDialog
+
+            dialog Dialog1
+            cancel_without_confirmation
+
+            adult_cash_count = adult_cash_count * 1
+            child_cash_count = child_cash_count * 1
+            adult_snap_count = adult_snap_count * 1
+            child_snap_count = child_snap_count * 1
+            adult_emer_count = adult_emer_count * 1
+            child_emer_count = child_emer_count * 1
+
+        Loop until err_msg = ""
+        Call check_for_password(are_we_passworded_out)
+    Loop until are_we_passworded_out = FALSE
+
+    HH_member_array = ""
+
+    For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+        If ALL_MEMBERS_ARRAY(include_cash_checkbox, each_member) = checked Then HH_member_array = HH_member_array & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " "
+        If ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member) = checked Then HH_member_array = HH_member_array & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " "
+        If ALL_MEMBERS_ARRAY(include_emer_checkbox, each_member) = checked Then HH_member_array = HH_member_array & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " "
+        If ALL_MEMBERS_ARRAY(count_cash_checkbox, each_member) = checked Then HH_member_array = HH_member_array & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " "
+        If ALL_MEMBERS_ARRAY(count_snap_checkbox, each_member) = checked Then HH_member_array = HH_member_array & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " "
+        If ALL_MEMBERS_ARRAY(count_emer_checkbox, each_member) = checked Then HH_member_array = HH_member_array & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " "
+    Next
+	' BEGINDIALOG HH_memb_dialog, 0, 0, 241, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+	' 	Text 10, 5, 105, 10, "Household members to look at:"
+	' 	FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+	' 		IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+	' 	NEXT
+	' 	ButtonGroup ButtonPressed
+	' 	OkButton 185, 10, 50, 15
+	' 	CancelButton 185, 30, 50, 15
+	' ENDDIALOG
+	' 												'runs the dialog that has been dynamically created. Streamlined with new functions.
+	' Dialog HH_memb_dialog
+	' If buttonpressed = 0 then stopscript
+	' check_for_maxis(True)
+    '
+	' HH_member_array = ""
+    '
+	' FOR i = 0 to total_clients
+	' 	IF all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts.
+	' 		IF all_clients_array(i, 1) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
+	' 			'msgbox all_clients_
+	' 			HH_member_array = HH_member_array & left(all_clients_array(i, 0), 2) & " "
+	' 		END IF
+	' 	END IF
+	' NEXT
+
+	HH_member_array = TRIM(HH_member_array)							'Cleaning up array for ease of use.
+	HH_member_array = SPLIT(HH_member_array, " ")
+end function
+
 function read_JOBS_panel()
 '--- This function adds STAT/JOBS data to a variable, which can then be displayed in a dialog. See autofill_editbox_from_MAXIS.
 '~~~~~ JOBS_variable: the variable used by the editbox you wish to autofill.
 '===== Keywords: MAXIS, autofill, JOBS
-  EMReadScreen JOBS_month, 5, 20, 55									'reads Footer month
-  JOBS_month = replace(JOBS_month, " ", "/")					'Cleans up the read number by putting a / in place of the blank space between MM YY
-  EMReadScreen JOBS_type, 30, 7, 42										'Reads up name of the employer and then cleans it up
-  JOBS_type = replace(JOBS_type, "_", ""	)
-  JOBS_type = trim(JOBS_type)
-  JOBS_type = split(JOBS_type)
-  For each JOBS_part in JOBS_type											'Correcting case on the name of the employer as it reads in all CAPS
+    EMReadScreen JOBS_month, 5, 20, 55									'reads Footer month
+    JOBS_month = replace(JOBS_month, " ", "/")					'Cleans up the read number by putting a / in place of the blank space between MM YY
+    EMReadScreen JOBS_type, 30, 7, 42										'Reads up name of the employer and then cleans it up
+    JOBS_type = replace(JOBS_type, "_", ""	)
+    JOBS_type = trim(JOBS_type)
+    JOBS_type = split(JOBS_type)
+    For each JOBS_part in JOBS_type											'Correcting case on the name of the employer as it reads in all CAPS
     If JOBS_part <> "" then
-      first_letter = ucase(left(JOBS_part, 1))
-      other_letters = LCase(right(JOBS_part, len(JOBS_part) -1))
-      new_JOBS_type = new_JOBS_type & first_letter & other_letters & " "
+        first_letter = ucase(left(JOBS_part, 1))
+        other_letters = LCase(right(JOBS_part, len(JOBS_part) -1))
+        new_JOBS_type = new_JOBS_type & first_letter & other_letters & " "
     End if
-  Next
-  ALL_JOBS_PANELS_ARRAY(employer_name, job_count) = new_JOBS_type
-  EMReadScreen jobs_hourly_wage, 6, 6, 75   'reading hourly wage field
-  ALL_JOBS_PANELS_ARRAY(hrly_wage, job_count) = replace(jobs_hourly_wage, "_", "")   'trimming any underscores
+    Next
+    ALL_JOBS_PANELS_ARRAY(employer_name, job_count) = new_JOBS_type
+    EMReadScreen jobs_hourly_wage, 6, 6, 75   'reading hourly wage field
+    ALL_JOBS_PANELS_ARRAY(hrly_wage, job_count) = replace(jobs_hourly_wage, "_", "")   'trimming any underscores
 
-' Navigates to the FS PIC
+    ' Navigates to the FS PIC
     EMWriteScreen "x", 19, 38
     transmit
     EMReadScreen SNAP_JOBS_amt, 8, 17, 56
     ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, job_count) = trim(SNAP_JOBS_amt)
-	EMReadScreen jobs_SNAP_prospective_amt, 8, 18, 56
-	ALL_JOBS_PANELS_ARRAY(pic_prosp_income, job_count) = trim(jobs_SNAP_prospective_amt)  'prospective amount from PIC screen
+    EMReadScreen jobs_SNAP_prospective_amt, 8, 18, 56
+    ALL_JOBS_PANELS_ARRAY(pic_prosp_income, job_count) = trim(jobs_SNAP_prospective_amt)  'prospective amount from PIC screen
     EMReadScreen snap_pay_frequency, 1, 5, 64
     ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = snap_pay_frequency
-	EMReadScreen date_of_pic_calc, 8, 5, 34
-	ALL_JOBS_PANELS_ARRAY(pic_calc_date, job_count) = replace(date_of_pic_calc, " ", "/")
+    EMReadScreen date_of_pic_calc, 8, 5, 34
+    ALL_JOBS_PANELS_ARRAY(pic_calc_date, job_count) = replace(date_of_pic_calc, " ", "/")
     transmit
-'Navigats to GRH PIC
-	EMReadscreen GRH_PIC_check, 3, 19, 73 	'This must check to see if the GRH PIC is there or not. If fun on months 06/16 and before it will cause an error if it pf3s on the home panel.
-	IF GRH_PIC_check = "GRH" THEN
-		EMWriteScreen "x", 19, 71
-		transmit
-		EMReadScreen GRH_JOBS_amt, 8, 16, 69
-		GRH_JOBS_amt = trim(GRH_JOBS_amt)
-		EMReadScreen GRH_pay_frequency, 1, 3, 63
-		EMReadScreen GRH_date_of_pic_calc, 8, 3, 30
-		GRH_date_of_pic_calc = replace(GRH_date_of_pic_calc, " ", "/")
-		PF3
-	END IF
-'  Reads the information on the retro side of JOBS
+    'Navigats to GRH PIC
+    EMReadscreen GRH_PIC_check, 3, 19, 73 	'This must check to see if the GRH PIC is there or not. If fun on months 06/16 and before it will cause an error if it pf3s on the home panel.
+    IF GRH_PIC_check = "GRH" THEN
+    	EMWriteScreen "x", 19, 71
+    	transmit
+    	EMReadScreen GRH_JOBS_amt, 8, 16, 69
+    	GRH_JOBS_amt = trim(GRH_JOBS_amt)
+    	EMReadScreen GRH_pay_frequency, 1, 3, 63
+    	EMReadScreen GRH_date_of_pic_calc, 8, 3, 30
+    	GRH_date_of_pic_calc = replace(GRH_date_of_pic_calc, " ", "/")
+    	PF3
+    END IF
+    '  Reads the information on the retro side of JOBS
     EMReadScreen retro_JOBS_amt, 8, 17, 38
     ALL_JOBS_PANELS_ARRAY(job_retro_income, job_count) = trim(retro_JOBS_amt)
 
-'  Reads the information on the prospective side of JOBS
-	EMReadScreen prospective_JOBS_amt, 8, 17, 67
-	ALL_JOBS_PANELS_ARRAY(job_prosp_income, job_count) = trim(prospective_JOBS_amt)
-'  Reads the information about health care off of HC Income Estimator
+    '  Reads the information on the prospective side of JOBS
+    EMReadScreen prospective_JOBS_amt, 8, 17, 67
+    ALL_JOBS_PANELS_ARRAY(job_prosp_income, job_count) = trim(prospective_JOBS_amt)
+    '  Reads the information about health care off of HC Income Estimator
     EMReadScreen pay_frequency, 1, 18, 35
-	EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
-	IF HC_income_est_check = "Est" Then 'this is the old position
-		EMWriteScreen "x", 19, 54
-	ELSE								'this is the new position
-		EMWriteScreen "x", 19, 48
-	END IF
+    EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
+    IF HC_income_est_check = "Est" Then 'this is the old position
+    	EMWriteScreen "x", 19, 54
+    ELSE								'this is the new position
+    	EMWriteScreen "x", 19, 48
+    END IF
     transmit
     EMReadScreen HC_JOBS_amt, 8, 11, 63
     HC_JOBS_amt = trim(HC_JOBS_amt)
     transmit
 
-  EMReadScreen JOBS_ver, 25, 6, 36
-  ALL_JOBS_PANELS_ARRAY(verif_code, job_count) = trim(JOBS_ver)
-  EMReadScreen JOBS_income_end_date, 8, 9, 49
-	'This now cleans up the variables converting codes read from the panel into words for the final variable to be used in the output.
-  If JOBS_income_end_date <> "__ __ __" then JOBS_income_end_date = replace(JOBS_income_end_date, " ", "/")
-  If IsDate(JOBS_income_end_date) = True then
-    variable_name_for_JOBS = variable_name_for_JOBS & new_JOBS_type & "(ended " & JOBS_income_end_date & "); "
-  Else
-    If pay_frequency = "1" then pay_frequency = "monthly"
-    If pay_frequency = "2" then pay_frequency = "semimonthly"
-    If pay_frequency = "3" then pay_frequency = "biweekly"
-    If pay_frequency = "4" then pay_frequency = "weekly"
-    If pay_frequency = "_" or pay_frequency = "5" then pay_frequency = "non-monthly"
-    IF snap_pay_frequency = "1" THEN snap_pay_frequency = "monthly"
-    IF snap_pay_frequency = "2" THEN snap_pay_frequency = "semimonthly"
-    IF snap_pay_frequency = "3" THEN snap_pay_frequency = "biweekly"
-    IF snap_pay_frequency = "4" THEN snap_pay_frequency = "weekly"
-    IF snap_pay_frequency = "5" THEN snap_pay_frequency = "non-monthly"
-	If GRH_pay_frequency = "1" then GRH_pay_frequency = "monthly"
-    If GRH_pay_frequency = "2" then GRH_pay_frequency = "semimonthly"
-    If GRH_pay_frequency = "3" then GRH_pay_frequency = "biweekly"
-    If GRH_pay_frequency = "4" then GRH_pay_frequency = "weekly"
-    variable_name_for_JOBS = variable_name_for_JOBS & "EI from " & trim(new_JOBS_type) & ", " & JOBS_month  & " amts:; "
-    If SNAP_JOBS_amt <> "" then variable_name_for_JOBS = variable_name_for_JOBS & "- SNAP PIC: $" & SNAP_JOBS_amt & "/" & snap_pay_frequency & ", SNAP PIC Prospective: $" & jobs_SNAP_prospective_amt & ", calculated " & date_of_pic_calc & "; "
-    If GRH_JOBS_amt <> "" then variable_name_for_JOBS = variable_name_for_JOBS & "- GRH PIC: $" & GRH_JOBS_amt & "/" & GRH_pay_frequency & ", calculated " & GRH_date_of_pic_calc & "; "
-	If retro_JOBS_amt <> "" then variable_name_for_JOBS = variable_name_for_JOBS & "- Retrospective: $" & retro_JOBS_amt & " total; "
-    IF prospective_JOBS_amt <> "" THEN variable_name_for_JOBS = variable_name_for_JOBS & "- Prospective: $" & prospective_JOBS_amt & " total; "
-    IF isnumeric(jobs_hourly_wage) THEN variable_name_for_JOBS = variable_name_for_JOBS & "- Hourly Wage: $" & jobs_hourly_wage & "; "
-    'Leaving out HC income estimator if footer month is not Current month + 1
-    current_month_for_hc_est = dateadd("m", "1", date)
-    current_month_for_hc_est = datepart("m", current_month_for_hc_est)
-    IF len(current_month_for_hc_est) = 1 THEN current_month_for_hc_est = "0" & current_month_for_hc_est
-    IF MAXIS_footer_month = current_month_for_hc_est THEN
-	IF HC_JOBS_amt <> "________" THEN variable_name_for_JOBS = variable_name_for_JOBS & "- HC Inc Est: $" & HC_JOBS_amt & "/" & pay_frequency & "; "
-    END IF
-	If JOBS_ver = "N" or JOBS_ver = "?" then variable_name_for_JOBS = variable_name_for_JOBS & "- No proof provided for this panel; "
-  End if
+    EMReadScreen JOBS_ver, 25, 6, 36
+    ALL_JOBS_PANELS_ARRAY(verif_code, job_count) = trim(JOBS_ver)
+    EMReadScreen JOBS_income_end_date, 8, 9, 49
+    'This now cleans up the variables converting codes read from the panel into words for the final variable to be used in the output.
+    If JOBS_income_end_date <> "__ __ __" then JOBS_income_end_date = replace(JOBS_income_end_date, " ", "/")
+    If IsDate(JOBS_income_end_date) = True then
+        variable_name_for_JOBS = variable_name_for_JOBS & new_JOBS_type & "(ended " & JOBS_income_end_date & "); "
+    Else
+        If pay_frequency = "1" then pay_frequency = "monthly"
+        If pay_frequency = "2" then pay_frequency = "semimonthly"
+        If pay_frequency = "3" then pay_frequency = "biweekly"
+        If pay_frequency = "4" then pay_frequency = "weekly"
+        If pay_frequency = "_" or pay_frequency = "5" then pay_frequency = "non-monthly"
+        IF snap_pay_frequency = "1" THEN snap_pay_frequency = "monthly"
+        IF snap_pay_frequency = "2" THEN snap_pay_frequency = "semimonthly"
+        IF snap_pay_frequency = "3" THEN snap_pay_frequency = "biweekly"
+        IF snap_pay_frequency = "4" THEN snap_pay_frequency = "weekly"
+        IF snap_pay_frequency = "5" THEN snap_pay_frequency = "non-monthly"
+        If GRH_pay_frequency = "1" then GRH_pay_frequency = "monthly"
+        If GRH_pay_frequency = "2" then GRH_pay_frequency = "semimonthly"
+        If GRH_pay_frequency = "3" then GRH_pay_frequency = "biweekly"
+        If GRH_pay_frequency = "4" then GRH_pay_frequency = "weekly"
+        variable_name_for_JOBS = variable_name_for_JOBS & "EI from " & trim(new_JOBS_type) & ", " & JOBS_month  & " amts:; "
+        If SNAP_JOBS_amt <> "" then variable_name_for_JOBS = variable_name_for_JOBS & "- SNAP PIC: $" & SNAP_JOBS_amt & "/" & snap_pay_frequency & ", SNAP PIC Prospective: $" & jobs_SNAP_prospective_amt & ", calculated " & date_of_pic_calc & "; "
+        If GRH_JOBS_amt <> "" then variable_name_for_JOBS = variable_name_for_JOBS & "- GRH PIC: $" & GRH_JOBS_amt & "/" & GRH_pay_frequency & ", calculated " & GRH_date_of_pic_calc & "; "
+        If retro_JOBS_amt <> "" then variable_name_for_JOBS = variable_name_for_JOBS & "- Retrospective: $" & retro_JOBS_amt & " total; "
+        IF prospective_JOBS_amt <> "" THEN variable_name_for_JOBS = variable_name_for_JOBS & "- Prospective: $" & prospective_JOBS_amt & " total; "
+        IF isnumeric(jobs_hourly_wage) THEN variable_name_for_JOBS = variable_name_for_JOBS & "- Hourly Wage: $" & jobs_hourly_wage & "; "
+        'Leaving out HC income estimator if footer month is not Current month + 1
+        current_month_for_hc_est = dateadd("m", "1", date)
+        current_month_for_hc_est = datepart("m", current_month_for_hc_est)
+        IF len(current_month_for_hc_est) = 1 THEN current_month_for_hc_est = "0" & current_month_for_hc_est
+        IF MAXIS_footer_month = current_month_for_hc_est THEN
+            IF HC_JOBS_amt <> "________" THEN variable_name_for_JOBS = variable_name_for_JOBS & "- HC Inc Est: $" & HC_JOBS_amt & "/" & pay_frequency & "; "
+        END IF
+        If JOBS_ver = "N" or JOBS_ver = "?" then variable_name_for_JOBS = variable_name_for_JOBS & "- No proof provided for this panel; "
+    End if
 end function
+
 '===========================================================================================================================
 
 'JOBS ARRAY CONSTANTS
@@ -185,6 +416,19 @@ const budget_explain        = 15
 
 Dim ALL_JOBS_PANELS_ARRAY()
 ReDim ALL_JOBS_PANELS_ARRAY(budget_explain, 0)
+
+const clt_name      = 1
+const clt_age       = 2
+const include_cash_checkbox     = 3
+const include_snap_checkbox     = 4
+const include_emer_checkbox     = 5
+const count_cash_checkbox       = 6
+const count_snap_checkbox       = 7
+const count_emer_checkbox       = 8
+const clt_notes                 = 9
+
+Dim ALL_MEMBERS_ARRAY()
+ReDim ALL_MEMBERS_ARRAY(clt_notes, 0)
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5 'This helps the navigation buttons work!
 Dim row
@@ -197,22 +441,31 @@ get_county_code				'since there is a county specific checkbox, this makes the th
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-BeginDialog Dialog1, 0, 0, 181, 120, "Case number dialog"
-  EditBox 80, 5, 60, 15, MAXIS_case_number
-  EditBox 80, 25, 30, 15, MAXIS_footer_month
-  EditBox 110, 25, 30, 15, MAXIS_footer_year
-  CheckBox 10, 60, 30, 10, "CASH", cash_checkbox
-  CheckBox 50, 60, 30, 10, "HC", HC_checkbox
-  CheckBox 90, 60, 35, 10, "SNAP", SNAP_checkbox
-  CheckBox 135, 60, 35, 10, "EMER", EMER_checkbox
-  DropListBox 70, 80, 75, 15, "Select One:"+chr(9)+"Application"+chr(9)+"Recertification"+chr(9)+"Addendum", CAF_type
+BeginDialog Dialog1, 0, 0, 281, 215, "Case number dialog"
+  EditBox 65, 50, 60, 15, MAXIS_case_number
+  EditBox 210, 50, 15, 15, MAXIS_footer_month
+  EditBox 230, 50, 15, 15, MAXIS_footer_year
+  CheckBox 10, 85, 30, 10, "CASH", CASH_on_CAF_checkbox
+  CheckBox 50, 85, 35, 10, "SNAP", SNAP_on_CAF_checkbox
+  CheckBox 90, 85, 35, 10, "EMER", EMER_on_CAF_checkbox
+  DropListBox 185, 80, 75, 15, "Select One:"+chr(9)+"Application"+chr(9)+"Recertification"+chr(9)+"Addendum", CAF_type
+  EditBox 40, 130, 220, 15, cash_other_req_detail
+  EditBox 40, 150, 220, 15, snap_other_req_detail
+  EditBox 40, 170, 220, 15, emer_other_req_detail
   ButtonGroup ButtonPressed
-    OkButton 35, 100, 50, 15
-    CancelButton 95, 100, 50, 15
-  Text 25, 10, 50, 10, "Case number:"
-  Text 10, 30, 65, 10, "Footer month/year: "
-  GroupBox 5, 45, 170, 30, "Programs applied for"
-  Text 30, 85, 35, 10, "CAF type:"
+    OkButton 170, 195, 50, 15
+    CancelButton 225, 195, 50, 15
+    PushButton 10, 30, 105, 10, "NOTES - Interview Completed", interview_completed_button
+  Text 10, 10, 265, 20, "This script works best when run AFTER all STAT panels have been updated. If STAT panels have not been updated but you need to case note the interview use "
+  Text 10, 55, 50, 10, "Case number:"
+  Text 140, 55, 65, 10, "Footer month/year: "
+  GroupBox 5, 70, 125, 30, "Programs marked on CAF"
+  Text 145, 85, 35, 10, "CAF type:"
+  GroupBox 5, 105, 265, 85, "OTHER Program Requests (not marked on CAF)"
+  Text 40, 120, 130, 10, "Explain how the program was reuested."
+  Text 15, 135, 20, 10, "Cash:"
+  Text 15, 155, 20, 10, "SNAP:"
+  Text 15, 175, 25, 10, "EMER:"
 EndDialog
 
 'initial dialog
@@ -221,13 +474,35 @@ Do
 		err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
-		If CAF_type = "Select One:" then err_msg = err_msg & vbnewline & "* You must select the CAF type."
-		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* You need to type a valid case number."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+
+		If buttonpressed = interview_completed_button Then
+            confirm_run_another_script = MsgBox("You have selected the 'NOTES - Interview completed' option. This will stop the NOTES - CAF script and run the script NOTES - Interview Completed." & vbNewLine & vbNewLine &_
+                                                "This option is best for when the STAT panels have not been updated when running the script. We recommend runing NOTES - CAF once STAT panels are updated to capture the correct case information in CASE/NOTE." & vbNewLine & vbNewLine &_
+                                                "Would you like to continue to NOTES - Interview Completed?", vbQuestion + vbYesNo, "Stop CAF Script?")
+            If confirm_run_another_script = vbYes Then Call run_from_GitHub(script_repository & "notes/interview-completed.vbs")
+            If confirm_run_another_script = vbNo Then err_msg = "LOOP" & err_msg
+        End If
+
+        If CAF_type = "Select One:" then err_msg = err_msg & vbnewline & "* You must select the CAF type."
+        Call validate_MAXIS_case_number(err_msg, "*")
+        If IsNumeric(MAXIS_footer_month) = FALSE OR len(MAXIS_footer_month) > 2 Then err_msg = err_msg & vbNewLine & "* Enter a valid Footer Month."
+        If IsNumeric(MAXIS_footer_year) = FALSE OR len(MAXIS_footer_year) > 2 Then err_msg = err_msg & vbNewLine & "* Enter a valid Footer Year."
+        If CASH_on_CAF_checkbox = unchecked AND SNAP_on_CAF_checkbox = unchecked AND EMER_on_CAF_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* At least one program should be marked on the CAF."
+        If CASH_on_CAF_checkbox = checked AND trim(cash_other_req_detail) <> "" Then err_msg = err_msg & vbNewLine & "* If CASH was marked on the CAF, then another way of requesting does not need to be indicated."
+        If SNAP_on_CAF_checkbox = checked AND trim(snap_other_req_detail) <> "" Then err_msg = err_msg & vbNewLine & "* If CASH was marked on the CAF, then another way of requesting does not need to be indicated."
+        If EMER_on_CAF_checkbox = checked AND trim(emer_other_req_detail) <> "" Then err_msg = err_msg & vbNewLine & "* If CASH was marked on the CAF, then another way of requesting does not need to be indicated."
+
+        IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+If CASH_on_CAF_checkbox = checked or trim(cash_other_req_detail) <> "" Then cash_checkbox = checked
+If SNAP_on_CAF_checkbox = checked or trim(snap_other_req_detail) <> "" Then SNAP_checkbox = checked
+If EMER_on_CAF_checkbox = checked or trim(emer_other_req_detail) <> "" Then EMER_checkbox = checked
+
+MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
+MAXIS_footer_year = right("00" & MAXIS_footer_year, 2)
 call check_for_MAXIS(False)	'checking for an active MAXIS session
 MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
 
@@ -237,7 +512,7 @@ EMReadScreen STAT_check, 4, 20, 21
 If STAT_check <> "STAT" then script_end_procedure("Can't get in to STAT. This case may be in background. Wait a few seconds and try again. If the case is not in background contact an alpha user for your agency.")
 
 'Creating a custom dialog for determining who the HH members are
-call HH_member_custom_dialog(HH_member_array)
+call HH_comp_dialog(HH_member_array)
 
 'GRABBING THE INFO FOR THE CASE NOTE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 If CAF_type = "Recertification" then                                                          'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
