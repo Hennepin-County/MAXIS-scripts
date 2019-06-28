@@ -194,8 +194,8 @@ start_a_blank_case_note      'navigates to case/note and puts case/note into edi
 	IF action_taken = "Initial review" THEN Call write_variable_in_CASE_NOTE("-----EBT OUT OF STATE REVIEWED FOR M" & MEMB_number & "-----")
 	IF action_taken = "Client responds to request" THEN Call write_variable_in_CASE_NOTE("-----EBT OUT OF STATE RESPONSE RECEIVED FOR M" & MEMB_number & "-----")
 	IF action_taken = "No response received" or action_taken = "Other" THEN Call write_variable_in_CASE_NOTE("-----EBT OUT OF STATE REQUESTED NO REPONSE RECEIVED FOR M" & MEMB_number & "-----")
-    Call write_bullet_and_variable_in_CASE_NOTE("Client has been accessing benefits out of state since:", bene_date)
-	Call write_bullet_and_variable_in_CASE_NOTE("State(s):", out_of_state)
+    Call write_bullet_and_variable_in_CASE_NOTE("Client has been accessing benefits out of state since", bene_date)
+	Call write_bullet_and_variable_in_CASE_NOTE("State(s)", out_of_state)
 	IF case_status = "Inactive" THEN
 		Call write_variable_in_CASE_NOTE("* Client will need to verify residence when reapplying.")
 		Call write_variable_in_CASE_NOTE("* Agency will need to verify benefits received in the other state prior to reopening case")
