@@ -57,7 +57,7 @@ EMConnect ""
 'Grabs case number
 call MAXIS_case_number_finder(MAXIS_case_number)
 'Defaults member number to 01
-If MEMB_number = "" then MEMB_number = "01"
+'If MEMB_number = "" then MEMB_number = "01"
 
 'DIALOGS FOR THE SCRIPT======================================================================================================
 BeginDialog client_dialog, 0, 0, 226, 255, "OUT OF STATE INQUIRY"
