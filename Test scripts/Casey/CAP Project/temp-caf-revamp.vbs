@@ -163,7 +163,10 @@ function HH_comp_dialog(HH_member_array)
         End If
     Next
 
-    If SNAP_checkbox = checked then call autofill_editbox_from_MAXIS(HH_member_array, "EATS", EATS)
+    client_array = TRIM(client_array)
+    client_array = split(client_array, "|")
+
+    If SNAP_checkbox = checked then call autofill_editbox_from_MAXIS(client_array, "EATS", EATS)
 
 	' client_array = TRIM(client_array)
 	' test_array = split(client_array, "|")
@@ -178,7 +181,52 @@ function HH_comp_dialog(HH_member_array)
 	' 	all_clients_array(x, 1) = 1
 	' NEXT
 
-
+    ' 'THIS IS THE BASE FOR THE DIALOG'
+    ' BeginDialog Dialog1, 0, 0, 446, 130, "HH Composition Dialog"
+    '   Text 10, 10, 250, 10, "This dialog will clarify the household relationships and details for the case."
+    '   Text 105, 25, 100, 10, "Included and Counted  in Grant"
+    '   Text 110, 40, 20, 10, "Cash"
+    '   Text 145, 40, 20, 10, "SNAP"
+    '   Text 180, 40, 20, 10, "EMER"
+    '   Text 230, 25, 90, 10, "Income Counted - Deeming"
+    '   Text 230, 40, 20, 10, "Cash"
+    '   Text 265, 40, 20, 10, "SNAP"
+    '   Text 300, 40, 20, 10, "EMER"
+    '   GroupBox 330, 5, 110, 100, "HH Count by program"
+    '   Text 335, 15, 100, 20, "Enter the number of adults and children for each program"
+    '   Text 370, 35, 20, 10, "Adults"
+    '   Text 400, 35, 30, 10, "Children"
+    '   Text 345, 50, 20, 10, "Cash"
+    '   EditBox 370, 45, 20, 15, adult_cash_count
+    '   EditBox 405, 45, 20, 15, child_cash_count
+    '   Text 345, 70, 20, 10, "SNAP"
+    '   EditBox 370, 65, 20, 15, adult_snap_count
+    '   EditBox 405, 65, 20, 15, child_snap_count
+    '   Text 345, 90, 25, 10, "EMER"
+    '   EditBox 370, 85, 20, 15, adult_emer_count
+    '   EditBox 405, 85, 20, 15, child_emer_count
+    '   Text 10, 55, 100, 10, "CLIENT NAME"
+    '   CheckBox 115, 55, 10, 10, "", include_checkbox
+    '   CheckBox 150, 55, 10, 10, "", include_snap_checkbox
+    '   CheckBox 185, 55, 10, 10, "", include_emer_checkbox
+    '   CheckBox 235, 55, 10, 10, "", count_cash_checkbox
+    '   CheckBox 270, 55, 10, 10, "", count_snap_checkbox
+    '   CheckBox 305, 55, 10, 10, "", count_emer_checkbox
+    '   Text 10, 95, 25, 10, "EATS:"
+    '   EditBox 35, 90, 290, 15, eats_detail
+    '   Text 10, 115, 90, 10, "Household Relationships:"
+    '   EditBox 105, 110, 220, 15, relationship_detail
+    '   ButtonGroup ButtonPressed
+    '     OkButton 335, 110, 50, 15
+    '     CancelButton 390, 110, 50, 15
+    '   Text 10, 70, 100, 10, "CLIENT NAME"
+    '   CheckBox 115, 70, 10, 10, "", Check7
+    '   CheckBox 150, 70, 10, 10, "", Check8
+    '   CheckBox 185, 70, 10, 10, "", Check9
+    '   CheckBox 235, 70, 10, 10, "", Check10
+    '   CheckBox 270, 70, 10, 10, "", Check11
+    '   CheckBox 305, 70, 10, 10, "", Check12
+    ' EndDialog
 
 
     Do
@@ -240,6 +288,22 @@ function HH_comp_dialog(HH_member_array)
             dialog Dialog1
             cancel_without_confirmation
 
+            If cash_checkbox = checked Then
+                If trim(adult_cash_count) = "" Then adult_cash_count = 0
+                If trim(child_cash_count) = "" Then child_cash_count = 0
+                If IsNumeric(adult_cash_count) = False and IsNumeric(child_cash_count) = False Then err_msg = err_msg & vbNewLine & "* Enter a valid count for the number of adults and children for the Cash program."
+            End If
+            If SNAP_checkbox = checked then
+                If trim(adult_snap_count) = "" Then adult_snap_count = 0
+                If trim(child_snap_count) = "" Then child_snap_count = 0
+                If IsNumeric(adult_snap_count) = False and IsNumeric(child_snap_count) = False Then err_msg = err_msg & vbNewLine & "* Enter a valid count for the number of adults and children for the SNAP program."
+                If trim(EATS) = "" Then err_msg = err_msg & vbNewLine & "* Clarify who purchases and prepares together since SNAP is being considered."
+            End If
+            If EMER_checkbox = checked Then
+                If trim(adult_emer_count) = "" Then adult_emer_count = 0
+                If trim(child_emer_count) = "" Then child_emer_count = 0
+                If IsNumeric(adult_emer_count) = False and IsNumeric(child_emer_count) = False Then err_msg = err_msg & vbNewLine & "* Enter a valid count for the number of adults and children for the EMER program."
+            End If
             adult_cash_count = adult_cash_count * 1
             child_cash_count = child_cash_count * 1
             adult_snap_count = adult_snap_count * 1
@@ -620,71 +684,67 @@ Do
 		Do
 			Do
 
-                BeginDialog Dialog1, 0, 0, 451, 290, "CAF dialog part 1"
+                BeginDialog Dialog1, 0, 0, 451, 285, "CAF dialog part 1"
                   EditBox 60, 5, 50, 15, CAF_datestamp
-                  ComboBox 175, 5, 70, 15, " "+chr(9)+"phone"+chr(9)+"office", interview_type
+                  ComboBox 175, 5, 70, 15, "phone"+chr(9)+"office", interview_type
                   CheckBox 255, 5, 65, 10, "Used Interpreter", Used_Interpreter_checkbox
                   EditBox 60, 25, 50, 15, interview_date
-                  ComboBox 230, 25, 95, 15,  " "+chr(9)+"Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
-                  ComboBox 220, 45, 105, 15, " "+chr(9)+"DHS-2128 (LTC Renewal)"+chr(9)+"DHS-3417B (Req. to Apply...)"+chr(9)+"DHS-3418 (HC Renewal)"+chr(9)+"DHS-3531 (LTC Application)"+chr(9)+"DHS-3876 (Certain Pops App)"+chr(9)+"DHS-6696(MNsure HC App)", HC_document_received
-                  EditBox 390, 45, 50, 15, HC_datestamp
-                  EditBox 75, 70, 370, 15, HH_comp
-                  EditBox 35, 90, 200, 15, cit_id
-                  EditBox 265, 90, 180, 15, IMIG
-                  EditBox 60, 110, 120, 15, AREP
-                  EditBox 270, 110, 175, 15, SCHL
-                  EditBox 60, 130, 210, 15, DISA
-                  EditBox 310, 130, 135, 15, FACI
-                  EditBox 35, 160, 410, 15, PREG
-                  EditBox 35, 180, 410, 15, ABPS
-                  EditBox 35, 200, 410, 15, EMPS
-                  If worker_county_code = "x127" or worker_county_code = "x162" then CheckBox 35, 220, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
-                  EditBox 55, 235, 390, 15, verifs_needed
+                  ComboBox 230, 25, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
+                  ComboBox 90, 45, 150, 45, "", interview_with
+                  EditBox 35, 65, 410, 15, cit_id
+                  EditBox 35, 85, 410, 15, IMIG
+                  EditBox 60, 105, 120, 15, AREP
+                  EditBox 270, 105, 175, 15, SCHL
+                  EditBox 60, 125, 210, 15, DISA
+                  EditBox 310, 125, 135, 15, FACI
+                  EditBox 35, 155, 410, 15, PREG
+                  EditBox 35, 175, 410, 15, ABPS
+                  EditBox 35, 195, 410, 15, EMPS
+                  CheckBox 35, 215, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
+                  EditBox 55, 230, 390, 15, verifs_needed
                   ButtonGroup ButtonPressed
-                    PushButton 340, 270, 50, 15, "NEXT", next_to_page_02_button
-                    CancelButton 395, 270, 50, 15
+                    PushButton 340, 265, 50, 15, "NEXT", next_to_page_02_button
+                    CancelButton 395, 265, 50, 15
                     PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
                     PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
                     PushButton 335, 25, 45, 10, "next panel", next_panel_button
                     PushButton 395, 25, 45, 10, "next memb", next_memb_button
-                    PushButton 5, 75, 60, 10, "HH comp/EATS:", EATS_button
-                    PushButton 240, 95, 20, 10, "IMIG:", IMIG_button
-                    PushButton 5, 115, 25, 10, "AREP/", AREP_button
-                    PushButton 30, 115, 25, 10, "ALTP:", ALTP_button
-                    PushButton 190, 115, 25, 10, "SCHL/", SCHL_button
-                    PushButton 215, 115, 25, 10, "STIN/", STIN_button
-                    PushButton 240, 115, 25, 10, "STEC:", STEC_button
-                    PushButton 5, 135, 25, 10, "DISA/", DISA_button
-                    PushButton 30, 135, 25, 10, "PDED:", PDED_button
-                    PushButton 280, 135, 25, 10, "FACI:", FACI_button
-                    PushButton 5, 165, 25, 10, "PREG:", PREG_button
-                    PushButton 5, 185, 25, 10, "ABPS:", ABPS_button
-                    PushButton 5, 205, 25, 10, "EMPS", EMPS_button
-                    PushButton 10, 270, 20, 10, "DWP", ELIG_DWP_button
-                    PushButton 30, 270, 15, 10, "FS", ELIG_FS_button
-                    PushButton 45, 270, 15, 10, "GA", ELIG_GA_button
-                    PushButton 60, 270, 15, 10, "HC", ELIG_HC_button
-                    PushButton 75, 270, 20, 10, "MFIP", ELIG_MFIP_button
-                    PushButton 95, 270, 20, 10, "MSA", ELIG_MSA_button
-                    PushButton 130, 270, 25, 10, "ADDR", ADDR_button
-                    PushButton 155, 270, 25, 10, "MEMB", MEMB_button
-                    PushButton 180, 270, 25, 10, "MEMI", MEMI_button
-                    PushButton 205, 270, 25, 10, "PROG", PROG_button
-                    PushButton 230, 270, 25, 10, "REVW", REVW_button
-                    PushButton 255, 270, 25, 10, "SANC", SANC_button
-                    PushButton 280, 270, 25, 10, "TIME", TIME_button
-                    PushButton 305, 270, 25, 10, "TYPE", TYPE_button
-                  Text 335, 50, 55, 10, "HC datestamp:"
-                  Text 5, 95, 25, 10, "CIT/ID:"
-                  Text 5, 240, 50, 10, "Verifs needed:"
-                  GroupBox 5, 260, 115, 25, "ELIG panels:"
-                  GroupBox 125, 260, 210, 25, "other STAT panels:"
+                    PushButton 5, 90, 20, 10, "IMIG:", IMIG_button
+                    PushButton 5, 110, 25, 10, "AREP/", AREP_button
+                    PushButton 30, 110, 25, 10, "ALTP:", ALTP_button
+                    PushButton 190, 110, 25, 10, "SCHL/", SCHL_button
+                    PushButton 215, 110, 25, 10, "STIN/", STIN_button
+                    PushButton 240, 110, 25, 10, "STEC:", STEC_button
+                    PushButton 5, 130, 25, 10, "DISA/", DISA_button
+                    PushButton 30, 130, 25, 10, "PDED:", PDED_button
+                    PushButton 280, 130, 25, 10, "FACI:", FACI_button
+                    PushButton 5, 160, 25, 10, "PREG:", PREG_button
+                    PushButton 5, 180, 25, 10, "ABPS:", ABPS_button
+                    PushButton 5, 200, 25, 10, "EMPS", EMPS_button
+                    PushButton 10, 265, 20, 10, "DWP", ELIG_DWP_button
+                    PushButton 30, 265, 15, 10, "FS", ELIG_FS_button
+                    PushButton 45, 265, 15, 10, "GA", ELIG_GA_button
+                    PushButton 60, 265, 15, 10, "HC", ELIG_HC_button
+                    PushButton 75, 265, 20, 10, "MFIP", ELIG_MFIP_button
+                    PushButton 95, 265, 20, 10, "MSA", ELIG_MSA_button
+                    PushButton 130, 265, 25, 10, "ADDR", ADDR_button
+                    PushButton 155, 265, 25, 10, "MEMB", MEMB_button
+                    PushButton 180, 265, 25, 10, "MEMI", MEMI_button
+                    PushButton 205, 265, 25, 10, "PROG", PROG_button
+                    PushButton 230, 265, 25, 10, "REVW", REVW_button
+                    PushButton 255, 265, 25, 10, "SANC", SANC_button
+                    PushButton 280, 265, 25, 10, "TIME", TIME_button
+                    PushButton 305, 265, 25, 10, "TYPE", TYPE_button
+                  Text 5, 70, 25, 10, "CIT/ID:"
+                  Text 5, 235, 50, 10, "Verifs needed:"
+                  GroupBox 5, 255, 115, 25, "ELIG panels:"
+                  GroupBox 125, 255, 210, 25, "other STAT panels:"
                   GroupBox 330, 5, 115, 35, "STAT-based navigation"
                   Text 5, 10, 55, 10, "CAF datestamp:"
                   Text 5, 30, 55, 10, "Interview date:"
                   Text 120, 10, 50, 10, "Interview type:"
-                  Text 5, 50, 210, 10, "If HC applied for (or recertifying): what document was received?:"
                   Text 120, 30, 110, 10, "How was application received?:"
+                  Text 5, 50, 85, 10, "Interview completed with:"
                 EndDialog
 
 				err_msg = ""
@@ -870,11 +930,18 @@ Do
 
 			Do
 				Do      'THIS NEEDS TO BE WORKED ON'
-                    BeginDialog Dialog1, 0, 0, 451, 305, "CAF dialog part 2"
-                      EditBox 65, 35, 375, 15, notes_on_abawd
-                      EditBox 65, 95, 375, 15, SHEL_HEST
-                      EditBox 65, 135, 375, 15, COEX_DCEX
-                      EditBox 65, 175, 375, 15, CASH_ACCTs
+                            BeginDialog Dialog1, 0, 0, 451, 305, "CAF dialog part 2"        'SEPERATE THIS OUT MORE TO CREATE A BETTER VISUAL FLOW FOR THE DIALOG
+                      EditBox 65, 35, 375, 15, notes_on_wreg
+                      EditBox 65, 55, 375, 15, notes_on_abawd       'Make this a text box
+                      EditBox 65, 75, 375, 15, notes_on_shel
+                      EditBox 65, 95, 375, 15, notes_on_hest        'Make this a dropdown/checkbox or something for HEST then add an ACUT box in the case of DWP
+                      EditBox 65, 115, 375, 15, notes_on_coex
+                      EditBox 65, 135, 375, 15, notes_on_dcex
+                      EditBox 65, 155, 260, 15, notes_on_other_deductions
+                      EditBox 370, 155, 70, 15, notes_on_cash
+                      EditBox 65, 175, 375, 15, notes_on_acct
+                      EditBox 65, 195, 375, 15, notes_on_cars
+                      EditBox 65, 215, 375, 15, notes_on_rest
                       EditBox 105, 235, 335, 15, other_assets
                       EditBox 55, 265, 385, 15, verifs_needed
                       ButtonGroup ButtonPressed
@@ -889,10 +956,11 @@ Do
                         PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
                         PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
                         PushButton 240, 15, 45, 10, "prev. panel", prev_panel_button
-                        PushButton 345, 15, 45, 10, "next panel", next_panel_button
                         PushButton 290, 15, 45, 10, "prev. memb", prev_memb_button
+                        PushButton 345, 15, 45, 10, "next panel", next_panel_button
                         PushButton 395, 15, 45, 10, "next memb", next_memb_button
                         PushButton 20, 40, 35, 10, "WREG:", WREG_button
+                        PushButton 20, 60, 35, 10, "ABAWD:", ABAWD_button   'Make this button open a dashboard to detail ABAWD information for client(s)
                         PushButton 25, 80, 25, 10, "SHEL:", SHEL_button
                         PushButton 25, 100, 25, 10, "HEST:", HEST_button
                         PushButton 25, 120, 25, 10, "COEX:", COEX_button
@@ -905,18 +973,9 @@ Do
                         PushButton 30, 240, 25, 10, "TRAN/", TRAN_button
                         PushButton 55, 240, 45, 10, "other assets:", OTHR_button
                       GroupBox 235, 5, 205, 25, "STAT-based navigation"
-                      Text 5, 270, 50, 10, "Verifs needed:"
                       GroupBox 5, 5, 130, 25, "ELIG panels:"
-                      ButtonGroup ButtonPressed
-                        PushButton 20, 60, 35, 10, "ABAWD:", ABAWD_button
-                      EditBox 65, 55, 375, 15, Edit12
-                      EditBox 65, 75, 375, 15, Edit13
                       Text 5, 160, 60, 10, "Other Deductions:"
-                      EditBox 65, 155, 260, 15, Edit14
-                      EditBox 65, 115, 375, 15, Edit15
-                      EditBox 370, 155, 70, 15, Edit16
-                      EditBox 65, 195, 375, 15, Edit17
-                      EditBox 65, 215, 375, 15, Edit18
+                      Text 5, 270, 50, 10, "Verifs needed:"
                     EndDialog
 
 
