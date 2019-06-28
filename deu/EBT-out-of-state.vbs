@@ -53,24 +53,27 @@ changelog_display
 'connecting to BlueZone and grabbing the case number
 EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
-MEMB_number = "01"
+'MEMB_number = "01"
 date_due = dateadd("d", 10, date)
 
-BeginDialog EBT_dialog, 0, 0, 181, 120, "EBT OUT OF STATE "
-  EditBox 90, 5, 50, 15, maxis_case_number
-  EditBox 90, 25, 50, 15, bene_date
-  EditBox 90, 45, 50, 15, out_of_state
-  DropListBox 90, 65, 65, 15, "Select One:"+chr(9)+"Active"+chr(9)+"Inactive", case_status
-  DropListBox 90, 80, 85, 15, "Select One:"+chr(9)+"Initial review"+chr(9)+"Client responds to request"+chr(9)+"No response received"+chr(9)+"Other(please specifiy)", action_taken
-   ButtonGroup ButtonPressed
-    OkButton 70, 100, 50, 15
-    CancelButton 125, 100, 50, 15
-  Text 60, 50, 30, 10, "State(s):"
-  Text 5, 30, 80, 10, "Date accessing benefits:"
-  Text 45, 85, 45, 10, "Action taken:"
-  Text 40, 10, 50, 10, "Case number:"
-  Text 45, 70, 45, 10, "Case status:"
+BeginDialog EBT_dialog, 0, 0, 281, 85, "EBT OUT OF STATE "
+  EditBox 60, 5, 40, 15, maxis_case_number
+  EditBox 190, 5, 50, 15, bene_date
+  EditBox 60, 25, 40, 15, MEMB_number
+  EditBox 190, 25, 25, 15, out_of_state
+  DropListBox 60, 45, 65, 15, "Select One:"+chr(9)+"Active"+chr(9)+"Inactive", case_status
+  DropListBox 190, 45, 85, 15, "Select One:"+chr(9)+"Initial review"+chr(9)+"Client responds to request"+chr(9)+"No response received"+chr(9)+"Other(please specifiy)", action_taken
+  ButtonGroup ButtonPressed
+    OkButton 170, 65, 50, 15
+    CancelButton 225, 65, 50, 15
+  Text 105, 10, 80, 10, "Date accessing benefits:"
+  Text 145, 50, 45, 10, "Action taken:"
+  Text 5, 10, 50, 10, "Case number:"
+  Text 15, 50, 45, 10, "Case status:"
+  Text 160, 30, 30, 10, "State(s):"
+  Text 5, 30, 50, 10, "MEMB number:"
 EndDialog
+
 
 BeginDialog intial_review_dialog, 0, 0, 196, 115, "EBT Out of State Initial Review"
   EditBox 40, 5, 40, 15, date_due
@@ -188,9 +191,9 @@ pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_veri
 IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	IF action_taken = "Initial review" THEN Call write_variable_in_CASE_NOTE("----- EBT OUT OF STATE REVIEWED -----")
-	IF action_taken = "Client responds to request" THEN Call write_variable_in_CASE_NOTE("----- EBT OUT OF STATE RESPONSE RECEIVED -----")
-	IF action_taken = "No response received" or action_taken = "Other" THEN Call write_variable_in_CASE_NOTE("----- EBT OUT OF STATE REQUESTED NO REPONSE RECEIVED -----")
+	IF action_taken = "Initial review" THEN Call write_variable_in_CASE_NOTE("-----EBT OUT OF STATE REVIEWED FOR M" & MEMB_number & "-----")
+	IF action_taken = "Client responds to request" THEN Call write_variable_in_CASE_NOTE("-----EBT OUT OF STATE RESPONSE RECEIVED FOR M" & MEMB_number & "-----")
+	IF action_taken = "No response received" or action_taken = "Other" THEN Call write_variable_in_CASE_NOTE("-----EBT OUT OF STATE REQUESTED NO REPONSE RECEIVED FOR M" & MEMB_number & "-----")
     Call write_bullet_and_variable_in_CASE_NOTE("Client has been accessing benefits out of state since:", bene_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("State(s):", out_of_state)
 	IF case_status = "Inactive" THEN
@@ -200,8 +203,7 @@ start_a_blank_case_note      'navigates to case/note and puts case/note into edi
 	IF other_state_contact_checkbox = CHECKED THEN Call write_variable_in_CASE_NOTE("* Other state(s) have been contacted")
 	IF other_state_contact_checkbox = UNCHECKED THEN Call write_variable_in_CASE_NOTE("* Other state(s) have not been contacted")
 	Call write_variable_in_CASE_NOTE("* Request sent to client for explanation of benefits received in the other state and shelter request ")
-	Call write_bullet_and_variable_in_CASE_NOTE("Due date", date_due)
-    IF action_taken = "No response received" or action_taken = "Other" THEN  Call write_variable_in_CASE_NOTE("* Client will need to verify residence when reapplying")
+	IF action_taken = "No response received" or action_taken = "Other" THEN  Call write_variable_in_CASE_NOTE("* Client will need to verify residence when reapplying")
 	CALL write_variable_in_CASE_NOTE ("----- ----- -----")
 	Call write_bullet_and_variable_in_CASE_NOTE("Date case was closed", date_closed)
 	Call write_bullet_and_variable_in_CASE_NOTE("Explanation of action to close the case", reason_closed)
@@ -209,7 +211,7 @@ start_a_blank_case_note      'navigates to case/note and puts case/note into edi
 	CALL write_variable_in_CASE_NOTE ("----- ----- -----")
 	IF action_taken = "Client responds to request" THEN Call write_bullet_and_variable_in_CASE_NOTE("Verification received", pending_verifs)
 	IF action_taken <> "Client responds to request" THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verification requested", pending_verifs)
-	CALL write_bullet_and_variable_in_CASE_NOTE("Verification due", Due_date)
+	Call write_bullet_and_variable_in_CASE_NOTE("Verification due", date_due)
 	CALL write_variable_in_CASE_NOTE ("* Client must be provided 10 days to return requested verifications.")
 	CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
