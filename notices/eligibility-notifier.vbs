@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("06/25/2019", "Updated the verbiage in the notice to be more informative and clear.", "Casey Love, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -102,24 +103,44 @@ IF MSP_checkbox = checked THEN progs_to_apply_in_maxis = progs_to_apply_in_maxis
 progs_to_apply_in_maxis = left(progs_to_apply_in_maxis,(len(progs_to_apply_in_maxis) - "3"))
 
 'Writes the MEMO.
-call write_variable_in_SPEC_MEMO("***********************************************************")
-IF SNAP_checkbox = checked THEN call write_variable_in_SPEC_MEMO("You appear to be eligible for the Supplemental Nutritional Assistance Program (SNAP).")
-IF CASH_checkbox = checked THEN call write_variable_in_SPEC_MEMO("You appear to be eligible for CASH assistance.")
-IF MA_checkbox = checked THEN call write_variable_in_SPEC_MEMO("You appear to be eligible for Medical assistance(MA).")
-IF MSP_checkbox = checked THEN call write_variable_in_SPEC_MEMO("You appear to be eligible for the Medicare Savings Program (MSP).")
+'call write_variable_in_SPEC_MEMO("***********************************************************")
+IF SNAP_checkbox = checked THEN call write_variable_in_SPEC_MEMO("You may be eligible for the Supplemental Nutritional Assistance Program (SNAP).")
+IF CASH_checkbox = checked THEN call write_variable_in_SPEC_MEMO("You may be eligible for CASH assistance.")
+IF MA_checkbox = checked THEN call write_variable_in_SPEC_MEMO("You may be eligible for Medical assistance(MA).")
+IF MSP_checkbox = checked THEN call write_variable_in_SPEC_MEMO("You may be eligible for the Medicare Savings Program (MSP).")
 call write_variable_in_SPEC_MEMO("")
-IF SNAP_checkbox = checked or CASH_checkbox = checked or HC_apply_method = "Apply in MAXIS" THEN call write_variable_in_SPEC_MEMO("To apply for " & progs_to_apply_in_maxis & "apply online at applymn.org, contact your worker to request an application, or complete an application at your local County or Tribal agency.")
+IF HC_apply_method = "Apply in MNSure" THEN
+	call write_variable_in_SPEC_MEMO("To apply for MA you can apply online at MNSURE.ORG.")
+	call write_variable_in_SPEC_MEMO("")
+END IF
+IF SNAP_checkbox = checked or CASH_checkbox = checked or HC_apply_method = "Apply in MAXIS" THEN
+
+    IF SNAP_checkbox = checked THEN these_progs = "SNAP or "
+    IF CASH_checkbox = checked THEN these_progs = these_progs & "CASH or "
+    IF MA_checkbox = checked AND HC_apply_method = "Apply in MAXIS" THEN these_progs = these_progs & "MA or "
+    these_progs = left(these_progs,(len(these_progs) - "3"))
+
+    call write_variable_in_SPEC_MEMO("To apply for " & these_progs & "apply online at APPLYMN.ORG.")
+    call write_variable_in_SPEC_MEMO("")
+End If
+call write_variable_in_SPEC_MEMO("You can always apply for any program by contacting Hennepin County at 612-596-1300 to request a paper application, or complete an application at any of the Human Service Centers:")
+Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
+Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
+Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420")
+Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
+Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
+Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
 call write_variable_in_SPEC_MEMO("")
 IF SNAP_checkbox = checked or CASH_checkbox = checked THEN
-	call write_variable_in_SPEC_MEMO("When applying for SNAP and/or CASH you can submit the first page of the paper application to set your date of application. Your first month's benefit will be determined based on your application date.")
+	call write_variable_in_SPEC_MEMO("When applying for SNAP and/or CASH you can submit the first page of the paper application to set your date of application. Your first month's benefit amount will be prorated based on your application date.")
 	call write_variable_in_SPEC_MEMO("")
 END IF
-IF HC_apply_method = "Apply in MNSure" THEN
-	call write_variable_in_SPEC_MEMO("To apply for MA you can apply online at MNsure.org, you can contact your worker to request an application, or complete an application at your local County or Tribal Agency.")
-	call write_variable_in_SPEC_MEMO("")
-END IF
-call write_variable_in_SPEC_MEMO("This is a notice to inform you of programs you might have eligibility for. Elibility will be determined during the application process.")
-call write_variable_in_SPEC_MEMO("***********************************************************")
+' If SNAP_checkbox = checked Then
+'     Call write_variable_in_SPEC_MEMO("If your income and assets are less than your monthly shelter expenses or your income and assets are very low, you may quality to have your SNAP application processing expedited, come in right away to complete your application and interview.")
+'     Call write_variable_in_SPEC_MEMO("")
+' End If
+call write_variable_in_SPEC_MEMO("This is a notice to inform you of programs you might have eligibility for. An application must be submitted and elibility will be determined during the application process.")
+'call write_variable_in_SPEC_MEMO("***********************************************************")
 'Exits the MEMO
 PF4
 

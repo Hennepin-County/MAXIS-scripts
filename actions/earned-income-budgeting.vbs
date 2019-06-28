@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/27/2019", "Bug fix on Case Noting Retro HC Income.", "Casey Love, Hennepin County")
 Call changelog_update("06/13/2019", "Bug fix for semi-monthly pay frequency when no actual checks are listed (only anticipated income schedule and hours).", "Casey Love, Hennepin County")
 Call changelog_update("06/05/2019", "Bug fix for SNAP cases that are currently set to close, a date error was preventing the script from running.", "Casey Love, Hennepin County")
 Call changelog_update("04/24/2019", "Added wording to the Confirm Budget Dialog that explains the functionality of the script. The script will return to the enter pay dialog if the budgets are not indicated as correct on the confirm budget dialog. This functionality is not new, it was built to go back when the budget is not confirmed.", "Casey Love, Hennepin County")
@@ -3662,9 +3663,13 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'each panel will
                     Call write_bullet_and_variable_in_CASE_NOTE("Average per Pay Period", "$" & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel))
                     Call write_bullet_and_variable_in_CASE_NOTE("Pay Frequency", EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel))
                     If EARNED_INCOME_PANELS_ARRAY(hc_retro, ei_panel) = TRUE Then
-                        Call write_variable_in_CASE_NOTE("* Income updated in " & CASH_MONTHS_ARRAY(cash_mo_yr, each_cash_month))
-                        If CASH_MONTHS_ARRAY(retro_updtd, each_cash_month) = TRUE Then Call write_variable_in_CASE_NOTE("* --RETRO Income updated: $" & CASH_MONTHS_ARRAY(mo_retro_pay, each_cash_month) & " total income for " & CASH_MONTHS_ARRAY(retro_mo_yr, each_cash_month) & " with " & CASH_MONTHS_ARRAY(mo_retro_hrs, each_cash_month) & " total hours.")
-                        If CASH_MONTHS_ARRAY(prosp_updtd, each_cash_month) = TRUE Then Call write_variable_in_CASE_NOTE("* --Prosp Income updated: $" & CASH_MONTHS_ARRAY(mo_prosp_pay, each_cash_month) & " total income for " & CASH_MONTHS_ARRAY(cash_mo_yr, each_cash_month) & " with " & CASH_MONTHS_ARRAY(mo_prosp_hrs, each_cash_month) & " total hours.")
+                        For each_cash_month = 0 to UBOUND(CASH_MONTHS_ARRAY, 2)
+                            If CASH_MONTHS_ARRAY(panel_indct, each_cash_month) = ei_panel Then
+                                Call write_variable_in_CASE_NOTE("* Income updated in " & CASH_MONTHS_ARRAY(cash_mo_yr, each_cash_month))
+                                If CASH_MONTHS_ARRAY(retro_updtd, each_cash_month) = TRUE Then Call write_variable_in_CASE_NOTE("* --RETRO Income updated: $" & CASH_MONTHS_ARRAY(mo_retro_pay, each_cash_month) & " total income for " & CASH_MONTHS_ARRAY(retro_mo_yr, each_cash_month) & " with " & CASH_MONTHS_ARRAY(mo_retro_hrs, each_cash_month) & " total hours.")
+                                If CASH_MONTHS_ARRAY(prosp_updtd, each_cash_month) = TRUE Then Call write_variable_in_CASE_NOTE("* --Prosp Income updated: $" & CASH_MONTHS_ARRAY(mo_prosp_pay, each_cash_month) & " total income for " & CASH_MONTHS_ARRAY(cash_mo_yr, each_cash_month) & " with " & CASH_MONTHS_ARRAY(mo_prosp_hrs, each_cash_month) & " total hours.")
+                            End If
+                        Next
                     End If
                     Call write_bullet_and_variable_in_CASE_NOTE("Notes on HC Budget", EARNED_INCOME_PANELS_ARRAY(hc_budg_notes, ei_panel))
                 End If
