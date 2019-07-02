@@ -91,7 +91,7 @@ EMConnect ""
 		  EditBox 65, 75, 210, 15, verifs_needed
 		  EditBox 65, 95, 210, 15, other_notes
 		  CheckBox 5, 115, 90, 10, "ECF has been reviewed ", ECF_reviewed
-		  CheckBox 165, 115, 110, 10, "Check here if you want to TIKL", TIKL_check
+		  CheckBox 165, 115, 110, 10, "Check here if you want to TIKL", TIKL_checkbox
 		  EditBox 65, 130, 95, 15, worker_signature
 		  ButtonGroup ButtonPressed
 		    OkButton 180, 130, 45, 15
@@ -170,7 +170,7 @@ CALL write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 CALL write_bullet_and_variable_in_case_note("Action taken on", when_contact_was_made)
 CALL write_bullet_and_variable_in_case_note("Verifications needed", verifs_needed)
 CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
-IF tikl_checkbox = checked THEN CALL write_variable_in_case_note("* TIKL'd to check for requested verifications or case review.")
+IF TIKL_checkbox = CHECKED THEN CALL write_variable_in_case_note("* TIKL'd to check for requested verifications or case review.")
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 PF3
