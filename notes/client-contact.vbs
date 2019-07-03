@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/19/2018", "Added TEXT OPT OUT checkbox to be used for cases that wish to opt out of receiving text messages recertification reminders.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/19/2018", "Added FAX to contact type, changed MNSURE IC # to METS IC #, updated look of dialog and back end mandatory field handling. Also removed message box prior to navigating to DAIL/WRIT.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/28/2017", "Removed call center information from bottom of dialog.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -53,7 +54,8 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'THE MAIN DIALOG--------------------------------------------------------------------------------------------------
-BeginDialog client_contact_dialog, 0, 0, 386, 245, "Client contact"
+
+BeginDialog client_contact_dialog, 0, 0, 386, 255, "Client contact"
   ComboBox 50, 5, 60, 15, "Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Office visit"+chr(9)+"Letter", contact_type
   DropListBox 115, 5, 45, 10, "from"+chr(9)+"to", contact_direction
   ComboBox 165, 5, 85, 15, "client"+chr(9)+"AREP"+chr(9)+"Non-AREP"+chr(9)+"SWKR", who_contacted
@@ -70,13 +72,13 @@ BeginDialog client_contact_dialog, 0, 0, 386, 245, "Client contact"
   EditBox 85, 165, 290, 15, cl_instructions
   CheckBox 5, 190, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
   CheckBox 5, 205, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
+  CheckBox 5, 220, 260, 10, "TEXT OPT OUT - Client wishes to opt out renewal text message notifications.", Opt_out_checkbox
   CheckBox 260, 190, 95, 10, "Forms were sent to AREP.", Sent_arep_checkbox
   CheckBox 260, 205, 120, 10, "Follow up is needed on this case.", follow_up_needed_checkbox
-  EditBox 70, 225, 195, 15, worker_signature
+  EditBox 70, 235, 195, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 275, 225, 50, 15
-    CancelButton 330, 225, 50, 15
-  Text 260, 10, 15, 10, "Re:"
+    OkButton 275, 235, 50, 15
+    CancelButton 330, 235, 50, 15
   Text 5, 30, 50, 10, "Phone number: "
   Text 200, 30, 75, 10, "Date/Time of Contact:"
   Text 5, 50, 50, 10, "Case number: "
@@ -86,9 +88,10 @@ BeginDialog client_contact_dialog, 0, 0, 386, 245, "Client contact"
   Text 10, 130, 50, 10, "Verifs needed: "
   Text 10, 150, 45, 10, "Case status: "
   Text 10, 170, 75, 10, "Instructions/message:"
-  Text 5, 230, 60, 10, "Worker signature:"
+  Text 5, 240, 60, 10, "Worker signature:"
   Text 5, 10, 45, 10, "Contact type:"
   Text 215, 50, 60, 10, "METS IC number:"
+  Text 260, 10, 15, 10, "Re:"
 EndDialog
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------
@@ -135,11 +138,13 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Case Status", case_status)
 'checkbox results
 IF caf_1_check = checked THEN CALL write_variable_in_CASE_NOTE("* Reminded client about the importance of submitting the CAF 1.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent form(s) to AREP.")
-IF call_center_answer_check = checked THEN CALL write_variable_in_CASE_NOTE("* Call center answered caller's question.")
-IF call_center_transfer_check = checked THEN CALL write_variable_in_CASE_NOTE("* Call center transferred call to a worker.")
+IF Opt_out_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Case has opted out of recert text message notifications.")
 IF follow_up_needed_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Follow-up is needed.")
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
+
+'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+If Opt_out_checkbox = checked then Call create_outlook_email("xlab@maxwell.syr.edu","Ilse.Ferris@hennepin.us","Renewal text message opt out for case #" & MAXIS_case_number,"","",true)
 
 'TIKLING
 IF TIKL_check = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")
@@ -147,6 +152,8 @@ IF TIKL_check = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")
 'If case requires followup, it will create a MsgBox (via script_end_procedure) explaining that followup is needed. This MsgBox gets inserted into the statistics database for counties using that function. This will allow counties to "pull statistics" on follow-up, including case numbers, which can be used to track outcomes.
 If follow_up_needed_checkbox = checked then
 	script_end_procedure("Success! Follow-up is needed for case number: " & MAXIS_case_number)
+elseif Opt_out_checkbox = checked then 
+    script_end_procedure("The case has been updated to OPT OUT of recert text notifications. #" & MAXIS_case_number)
 Else
 	script_end_procedure("")
 End if
