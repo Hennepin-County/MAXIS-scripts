@@ -2,7 +2,7 @@
 name_of_script = "NOTES - LTC - INTAKE APPROVAL.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 1020         'manual run time in seconds
+STATS_manualtime = 840         'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
@@ -21,8 +21,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message
-			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
-                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbCr & vbCr &_
+                                            "FuncLib URL: " & FuncLib_URL & vbCr & vbCr &_
                                             "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
                                             vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
             StopScript
@@ -51,24 +51,17 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-next_month = dateadd("m", + 1, date)
-MAXIS_footer_month = datepart("m", next_month)
-If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
-MAXIS_footer_year = datepart("yyyy", next_month)
-MAXIS_footer_year = "" & MAXIS_footer_year - 2000
-
 'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 181, 72, "Case number dialog"
-  EditBox 80, 5, 70, 15, MAXIS_case_number
-  EditBox 65, 25, 30, 15, MAXIS_footer_month
-  EditBox 140, 25, 30, 15, MAXIS_footer_year
+'The initial dialog------defined and displayed------------------------------------------------------------------------
+BeginDialog case_number_dialog, 0, 0, 116, 70, "Case number dialog"
+  EditBox 60, 10, 50, 15, MAXIS_case_number
+  EditBox 60, 30, 20, 15, MAXIS_footer_month
+  EditBox 90, 30, 20, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
-    OkButton 35, 50, 50, 15
-    CancelButton 95, 50, 50, 15
-  Text 25, 10, 50, 10, "Case number:"
-  Text 10, 30, 50, 10, "Footer month:"
-  Text 110, 30, 25, 10, "Year:"
+    OkButton 25, 50, 40, 15
+    CancelButton 70, 50, 40, 15
+  Text 10, 35, 45, 10, "Footer month:"
+  Text 10, 15, 45, 10, "Case number: "
 EndDialog
 
 BeginDialog intake_approval_dialog, 0, 0, 386, 435, "Intake Approval Dialog"
@@ -135,11 +128,11 @@ BeginDialog intake_approval_dialog, 0, 0, 386, 435, "Intake Approval Dialog"
   Text 5, 290, 40, 10, "Other notes:"
   Text 5, 310, 50, 10, "Actions taken:"
   Text 125, 410, 60, 10, "Worker signature:"
-  Text 15, 355, 345, 40, "The baseline date is the date in which both of the following conditions are met:  1. A person is residing in an LTCF or, for a person requesting services through a home and community-based waiver program, the date a screening occurred that indicated a need for services provided through a home and community-based services waiver program AND 2. The person’s initial request month for MA payment of LTC services."
+  Text 15, 355, 345, 40, "The baseline date is the date in which both of the following conditions are met:  1. A person is residing in an LTCF or, for a person requesting services through a home and community-based waiver program, the date a screening occurred that indicated a need for services provided through a home and community-based services waiver program AND 2. The persons initial request month for MA payment of LTC services."
   GroupBox 5, 345, 365, 55, "*Per HCPM 19.40.15: "
 EndDialog
 
-BeginDialog type_std_dialog, 0, 0, 206, 172, "Type-Std dialog"
+BeginDialog type_std_dialog, 0, 0, 206, 172, "Type/Standard, Method & Waiver Dialog"
   EditBox 10, 25, 50, 15, elig_date_01
   EditBox 75, 25, 40, 15, elig_type_std_01
   EditBox 135, 25, 15, 15, elig_method_01
@@ -183,20 +176,25 @@ application_signed_check = 1 'The script should default to having the applicatio
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone
 EMConnect ""
+Call MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the case number & the footer month/year
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year) 
 
-'Grabbing the case number & the footer month/year
-Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
-'Showing the case number dialog
-Do
-  Dialog case_number_dialog
-  cancel_confirmation
-  If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
+Do 
+	DO
+        err_msg = ""
+		Dialog case_number_dialog					'Calling a dialog without a assigned variable will call the most recently defined dialog
+		cancel_without_confirmation
+        IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "Enter a valid case number."		'mandatory field
+		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
+        If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    LOOP UNTIL err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in		
 
 'Checking for MAXIS, NAV to HCRE
 Call check_for_MAXIS(FALSE)
+call MAXIS_footer_month_confirmation
 Call navigate_to_MAXIS_screen("stat", "hcre")
 
 'Creating a custom dialog for determining who the HH members are
@@ -223,7 +221,6 @@ call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", income)
 call autofill_editbox_from_MAXIS(HH_member_array, "REST", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", income)
-
 
 'Going to ELIG/HC for the correct footer month
 Call navigate_to_MAXIS_screen("ELIG", "HC__")
@@ -271,6 +268,12 @@ EMReadScreen elig_waiver_type_03, 1, 14, 43
 EMReadScreen elig_waiver_type_04, 1, 14, 54
 EMReadScreen elig_waiver_type_05, 1, 14, 65
 EMReadScreen elig_waiver_type_06, 1, 14, 76
+elig_waiver_type_01 = replace(elig_waiver_type_01, "_", "")
+elig_waiver_type_02 = replace(elig_waiver_type_02, "_", "")
+elig_waiver_type_03 = replace(elig_waiver_type_03, "_", "")
+elig_waiver_type_04 = replace(elig_waiver_type_04, "_", "")
+elig_waiver_type_05 = replace(elig_waiver_type_05, "_", "")
+elig_waiver_type_06 = replace(elig_waiver_type_06, "_", "")
 EMReadScreen elig_date_01, 5, 6, 19
 EMReadScreen elig_date_02, 5, 6, 30
 EMReadScreen elig_date_03, 5, 6, 41
@@ -377,8 +380,11 @@ For i = 1 to 6 'Does it several times to make sure the job gets done completely.
 Next
 
 'DISPLAYS THE TYPE/STD DIALOG AFTER GATHERING THE INFO
-Dialog type_std_dialog
-cancel_confirmation
+do 
+    Dialog type_std_dialog
+    cancel_confirmation
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in		
 
 'READS THE FOOTER MONTH ELIG TYPE AND STANDARD
 EMReadScreen elig_type, 2, 12, col - 1
@@ -455,13 +461,20 @@ EndDialog
 
 EMReadScreen BBUD_check, 4, 3, 47
 If BBUD_check = "BBUD" then
-  Dialog BBUD_dialog
-  cancel_confirmation
+  Do 
+      Dialog BBUD_Dialog
+      cancel_confirmation
+      CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+  Loop until are_we_passworded_out = false					'loops until user passwords back in		
   If ButtonPressed = BILS_button then
     PF3
     Call check_for_MAXIS(False)
-    Dialog BBUD_Dialog
-    cancel_confirmation
+    Do 
+        Dialog BBUD_Dialog
+        cancel_confirmation
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+    Loop until are_we_passworded_out = false					'loops until user passwords back in		
+    
     Call check_for_MAXIS(False)
     back_to_SELF
     EMWriteScreen "stat", 16, 43
@@ -476,19 +489,21 @@ End if
 Do
 	Do
 		Do
+            err_msg = ""
 			Dialog intake_approval_dialog
             cancel_confirmation
 			MAXIS_dialog_navigation
 			'ensures that baseline date is in full date format so that the 'lookback period' is calculated correctly
-			IF len(baseline_date) < 10 THEN MsgBox "You must enter the baseline date in format MM/DD/YYYY"
-		LOOP until len(baseline_date) >= 10
-		If actions_taken = "" THEN MsgBox "You need to complete the 'actions taken' field."
-		If application_date = "" THEN MsgBox "You need to fill in the application date."
-		IF worker_signature = "" then MsgBox "You need to sign your case note."
-	Loop until actions_taken <> "" and application_date <> "" and worker_signature <> ""
-	CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
-Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
-
+			IF isDate(baseline_date) = False then err_msg = err_msg & vbcr & "Enter a valid baseline date." 
+		    If isdate(application_date) = False then err_msg = err_msg & vbcr &  "Enter a valid application date."
+            If trim(actions_taken) = "" then err_msg = err_msg & vbcr &  "Enter your actions taken."
+		    IF worker_signature = "" then err_msg = err_msg & vbcr &  "Sign your case note."
+            IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr
+        LOOP UNTIL err_msg = ""    
+        CALL proceed_confirmation(case_note_confirm)			'Checks to make sure that we're ready to case note.
+    Loop until case_note_confirm = TRUE							'Loops until we affirm that we're ready to case note.
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
+Loop until are_we_passworded_out = false					'loops until user passwords back in		
 
 'LOGIC
 if month_MA_starts <> "" then

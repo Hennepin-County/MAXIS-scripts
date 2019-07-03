@@ -280,6 +280,11 @@ IF TYMA_check = "~*~3RD QUARTERLY REPORT" THEN
     call run_from_GitHub(script_repository & "dail/tyma-scrubber.vbs")
 END IF
 
+EmReadscreen spousal_allocation_check, 37, 6, 20
+If spousal_allocation_check = "SPOUSAL ALLOCATION CALCULATION EXISTS" then 
+    call run_from_GitHub(script_repository & "actions/ltc-spousal-allocation-fiater.vbs")
+ENd if 
+
 'FS Eligibility Ending for ABAWD
 EMReadScreen ABAWD_elig_end, 32, 6, 20
 IF ABAWD_elig_end = "SNAP ABAWD ELIGIBILITY HAS EXPIR" THEN
