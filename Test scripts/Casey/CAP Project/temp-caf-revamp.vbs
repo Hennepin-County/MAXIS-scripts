@@ -6,7 +6,7 @@ STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 720                     'manual run time in seconds
 STATS_denomination = "C"                   'C is for each CASE
 'END OF stats block=========================================================================================================
-
+run_locally = true
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -871,14 +871,15 @@ call autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST)
 'Now it grabs the rest of the info, not dependent on which programs are selected.
 call autofill_editbox_from_MAXIS(HH_member_array, "ABPS", ABPS)
 call autofill_editbox_from_MAXIS(HH_member_array, "ACCI", ACCI)
-call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", CASH_ACCTs)
+call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", notes_on_acct)
+call autofill_editbox_from_MAXIS(HH_member_array, "ACUT", notes_on_acut)
 call autofill_editbox_from_MAXIS(HH_member_array, "AREP", AREP)
 call autofill_editbox_from_MAXIS(HH_member_array, "BILS", BILS)
 call autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
-call autofill_editbox_from_MAXIS(HH_member_array, "CASH", CASH_ACCTs)
-call autofill_editbox_from_MAXIS(HH_member_array, "CARS", other_assets)
-call autofill_editbox_from_MAXIS(HH_member_array, "COEX", COEX_DCEX)
-call autofill_editbox_from_MAXIS(HH_member_array, "DCEX", COEX_DCEX)
+call autofill_editbox_from_MAXIS(HH_member_array, "CASH", notes_on_cash)
+call autofill_editbox_from_MAXIS(HH_member_array, "CARS", notes_on_cars)
+call autofill_editbox_from_MAXIS(HH_member_array, "COEX", notes_on_coex)
+call autofill_editbox_from_MAXIS(HH_member_array, "DCEX", notes_on_dcex)
 call autofill_editbox_from_MAXIS(HH_member_array, "DIET", DIET)
 call autofill_editbox_from_MAXIS(HH_member_array, "DISA", DISA)
 call autofill_editbox_from_MAXIS(HH_member_array, "EMPS", EMPS)
@@ -921,7 +922,7 @@ call autofill_editbox_from_MAXIS(HH_member_array, "OTHR", other_assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "PBEN", income_changes)
 call autofill_editbox_from_MAXIS(HH_member_array, "PREG", PREG)
 call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
-call autofill_editbox_from_MAXIS(HH_member_array, "REST", other_assets)
+call autofill_editbox_from_MAXIS(HH_member_array, "REST", notes_on_rest)
 call autofill_editbox_from_MAXIS(HH_member_array, "SCHL", SCHL)
 call autofill_editbox_from_MAXIS(HH_member_array, "SECU", other_assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "STWK", income_changes)
