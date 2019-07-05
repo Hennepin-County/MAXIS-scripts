@@ -158,7 +158,7 @@ function HH_comp_dialog(HH_member_array)
     adult_emer_count = 0
     child_emer_count = 0
 	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
-		EMReadscreen ref_nbr, 3, 4, 33
+		EMReadscreen ref_nbr, 2, 4, 33
 		EMReadscreen last_name, 25, 6, 30
 		EMReadscreen first_name, 12, 6, 63
 		EMReadscreen mid_initial, 1, 6, 79
@@ -441,7 +441,9 @@ function HH_comp_dialog(HH_member_array)
 	' NEXT
 
 	HH_member_array = TRIM(HH_member_array)							'Cleaning up array for ease of use.
+    HH_member_array = REPLACE(HH_member_array, "  ", " ")
 	HH_member_array = SPLIT(HH_member_array, " ")
+    ' MsgBox "All members ubound - " & UBound(ALL_MEMBERS_ARRAY, 2)
 end function
 
 
@@ -453,6 +455,7 @@ function read_WREG_panel()
     IF panel_total_check = "0 Of 0" THEN exit function		'Exits out if there's no panel info
     For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
         If ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member) = checked Then
+            ' MsgBox "Member number is " & ALL_MEMBERS_ARRAY(memb_numb, each_member)
             EMWriteScreen ALL_MEMBERS_ARRAY(memb_numb, each_member), 20, 76
             transmit
             EMReadScreen wreg_total, 1, 2, 78
@@ -572,6 +575,7 @@ function update_wreg_and_abawd_notes()
     notes_on_abawd = ""
     notes_on_abawd_two = ""
     For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+        ' MsgBox "Each member - " & each_member & vbNewLine & "M" & ALL_MEMBERS_ARRAY(memb_numb, each_member) & vbNewLine & "WREG info - " & ALL_MEMBERS_ARRAY(clt_wreg_status, each_member)
         If ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member) = checked Then
             If trim(ALL_MEMBERS_ARRAY(clt_wreg_status, each_member)) <> "" Then
                 notes_on_wreg = notes_on_wreg & "M" & ALL_MEMBERS_ARRAY(memb_numb, each_member) & ": WREG - " & right(ALL_MEMBERS_ARRAY(clt_wreg_status, each_member), len(ALL_MEMBERS_ARRAY(clt_wreg_status, each_member)) - 4) & " ABAWD - " & right(ALL_MEMBERS_ARRAY(clt_abawd_status, each_member), len(ALL_MEMBERS_ARRAY(clt_abawd_status, each_member)) - 4) & "; "
@@ -604,6 +608,51 @@ function update_wreg_and_abawd_notes()
     End If
 end function
 
+function read_SHEL_panel()
+    total_shelter_amount = 0
+    full_shelter_details = ""
+    shelter_details = ""
+    shelter_details_two = ""
+
+    call navigate_to_MAXIS_screen("stat", "shel")
+
+    'Now it checks for the total number of panels. If there's 0 Of 0 it'll exit the function for you so as to save oodles of time.
+    EMReadScreen panel_total_check, 6, 2, 73
+    IF panel_total_check = "0 Of 0" THEN exit function		'Exits out if there's no panel info
+
+    For each HH_member in HH_member_array
+        EMWriteScreen HH_member, 20, 76
+        EMWriteScreen "01", 20, 79
+        transmit
+        EMReadScreen SHEL_total, 1, 2, 78
+        If SHEL_total <> 0 then
+            member_number_designation = "Member " & HH_member & "- "
+            row = 11
+            Do
+                EMReadScreen SHEL_amount, 8, row, 56
+                If SHEL_amount <> "________" then
+                    EMReadScreen SHEL_type, 9, row, 24
+                    EMReadScreen SHEL_proof_check, 2, row, 67
+
+                    SHEL_amount = trim(SHEL_amount)
+                    SHEL_amount = SHEL_amount * 1
+                    total_shelter_amount = total_shelter_amount + SHEL_amount
+
+                    If SHEL_proof_check = "NO" or SHEL_proof_check = "?_" then
+                        SHEL_proof = ", no proof provided"
+                    Else
+                        SHEL_proof = ""
+                    End if
+                    SHEL_expense = SHEL_expense & "$" & trim(SHEL_amount) & "/mo " & lcase(trim(SHEL_type)) & SHEL_proof & ". ;"
+                End if
+                row = row + 1
+            Loop until row = 19
+            variable_written_to = variable_written_to & member_number_designation & SHEL_expense
+        End if
+        SHEL_expense = ""
+    Next
+end function
+
 function read_JOBS_panel()
 '--- This function adds STAT/JOBS data to a variable, which can then be displayed in a dialog. See autofill_editbox_from_MAXIS.
 '~~~~~ JOBS_variable: the variable used by the editbox you wish to autofill.
@@ -615,11 +664,11 @@ function read_JOBS_panel()
     JOBS_type = trim(JOBS_type)
     JOBS_type = split(JOBS_type)
     For each JOBS_part in JOBS_type											'Correcting case on the name of the employer as it reads in all CAPS
-    If JOBS_part <> "" then
-        first_letter = ucase(left(JOBS_part, 1))
-        other_letters = LCase(right(JOBS_part, len(JOBS_part) -1))
-        new_JOBS_type = new_JOBS_type & first_letter & other_letters & " "
-    End if
+        If JOBS_part <> "" then
+            first_letter = ucase(left(JOBS_part, 1))
+            other_letters = LCase(right(JOBS_part, len(JOBS_part) -1))
+            new_JOBS_type = new_JOBS_type & first_letter & other_letters & " "
+        End if
     Next
     ALL_JOBS_PANELS_ARRAY(employer_name, job_count) = new_JOBS_type
     EMReadScreen jobs_hourly_wage, 6, 6, 75   'reading hourly wage field
@@ -745,10 +794,46 @@ const pwe_checkbox              = 11
 const numb_abawd_used           = 12
 const list_abawd_mo             = 13
 const first_second_set          = 14
-const explain_no_second         = 15
-const numb_banked_mo            = 16
-const clt_abawd_notes           = 17
-const clt_notes                 = 18
+const list_second_set           = 15
+const explain_no_second         = 16
+const numb_banked_mo            = 17
+const clt_abawd_notes           = 18
+const shel_exists               = 19
+const shel_subsudized           = 20
+const shel_shared               = 21
+const shel_retro_rent_amt       = 22
+const shel_retro_rent_verif     = 23
+const shel_prosp_rent_amt       = 24
+const shel_prosp_rent_verif     = 25
+const shel_retro_lot_amt        = 26
+const shel_retro_lot_verif      = 27
+const shel_prosp_lot_amt        = 28
+const shel_prosp_lot_verif      = 29
+const shel_retro_mortgage_amt   = 30
+const shel_retro_mortgage_verif = 31
+const shel_prosp_mortgage_amt   = 32
+const shel_prosp_mortgage_verif = 33
+const shel_retro_ins_amt        = 34
+const shel_retro_ins_verif      = 35
+const shel_prosp_ins_amt        = 36
+const shel_prosp_ins_verif      = 37
+const shel_retro_tax_amt        = 38
+const shel_retro_tax_verif      = 39
+const shel_prosp_tax_amt        = 40
+const shel_prosp_tax_verif      = 41
+const shel_retro_room_amt       = 42
+const shel_retro_room_verif     = 43
+const shel_prosp_room_amt       = 44
+const shel_prosp_room_verif     = 45
+const shel_retro_garage_amt     = 46
+const shel_retro_garage_verif   = 47
+const shel_prosp_garage_amt     = 48
+const shel_prosp_garage_verif   = 49
+const shel_retro_subsidy_amt    = 50
+const shel_retro_subsidy_verif  = 51
+const shel_prosp_subsidy_amt    = 52
+const shel_prosp_subsidy_verif  = 53
+const clt_notes                 = 54
 
 Dim ALL_MEMBERS_ARRAY()
 ReDim ALL_MEMBERS_ARRAY(clt_notes, 0)
@@ -865,7 +950,12 @@ If SNAP_checkbox = checked then call autofill_editbox_from_MAXIS(HH_member_array
 HH_comp = replace(HH_comp, "; ", "")
 
 'I put these sections in here, just because SHEL should come before HEST, it just looks cleaner.
-call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST)
+total_shelter_amount = ""
+full_shelter_details = ""
+shelter_details = ""
+shelter_details_two = ""
+call read_SHEL_panel
+' call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST)
 call autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST)
 
 'Now it grabs the rest of the info, not dependent on which programs are selected.
@@ -931,7 +1021,7 @@ notes_on_wreg = ""
 full_abawd_info = ""
 call read_WREG_panel
 call update_wreg_and_abawd_notes
-call autofill_editbox_from_MAXIS(HH_member_array, "WREG", notes_on_abawd)
+'call autofill_editbox_from_MAXIS(HH_member_array, "WREG", notes_on_abawd)
 
 'MAKING THE GATHERED INFORMATION LOOK BETTER FOR THE CASE NOTE
 If cash_checkbox = checked then programs_applied_for = programs_applied_for & "CASH, "
@@ -1324,6 +1414,64 @@ Do
 					End If
 
                     If ButtonPressed = update_shel_button Then
+
+
+
+                        BeginDialog Dialog1, 0, 0, 340, 240, "SHEL Detail Dialog"
+                          DropListBox 60, 10, 125, 45, HH_memb_list, clt_SHEL_is_for
+                          Text 5, 15, 55, 10, "SHEL for Memb"
+                          ButtonGroup ButtonPressed
+                            PushButton 200, 10, 40, 10, "Load", load_button
+                        'ADD an IF here to determine the right HH member or if one is not yet selected AND preselect the one that has a SHEL'
+                          DropListBox 85, 30, 30, 45, "Yes"+chr(9)+"No", subsidized_yn
+                          DropListBox 175, 30, 30, 45, "Yes"+chr(9)+"No", shared_yn
+                          EditBox 45, 60, 35, 15, retro_rent_amount
+                          DropListBox 85, 60, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_rent_verif
+                          EditBox 195, 60, 35, 15, prosp_rent_amount
+                          DropListBox 235, 60, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_rent_verif
+                          EditBox 45, 80, 35, 15, retro_lot_amount
+                          DropListBox 85, 80, 100, 45, "Select one"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_lot_verif
+                          EditBox 195, 80, 35, 15, prosp_lot_amount
+                          DropListBox 235, 80, 100, 45, "Select one"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_lot_verif
+                          EditBox 45, 100, 35, 15, retro_mortgage_amount
+                          DropListBox 85, 100, 100, 45, "Select one"+chr(9)+"MO - Mort Pmt Book"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_mortgage_verif
+                          EditBox 195, 100, 35, 15, prosp_mortgage_amount
+                          DropListBox 235, 100, 100, 45, "Select one"+chr(9)+"MO - Mort Pmt Book"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_mortgage_verif
+                          EditBox 45, 120, 35, 15, retro_ins_amount
+                          DropListBox 85, 120, 100, 45, "Select one"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_ins_verif
+                          EditBox 195, 120, 35, 15, prosp_ins_amount
+                          DropListBox 235, 120, 100, 45, "Select one"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_ins_verif
+                          EditBox 45, 140, 35, 15, retro_tax_amount
+                          DropListBox 85, 140, 100, 45, "Select one"+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_tax_verif
+                          EditBox 195, 140, 35, 15, prosp_tax_amount
+                          DropListBox 235, 140, 100, 45, "Select one"+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_tax_verif
+                          EditBox 45, 160, 35, 15, retro_room_amount
+                          DropListBox 85, 160, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_room_verif
+                          EditBox 195, 160, 35, 15, prosp_room_amount
+                          DropListBox 235, 160, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_room_verif
+                          EditBox 45, 180, 35, 15, retro_garage_amount
+                          DropListBox 85, 180, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_garage_verif
+                          EditBox 195, 180, 35, 15, prosp_garage_amount
+                          DropListBox 235, 180, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_garage_verif
+                          EditBox 45, 200, 35, 15, retro_subsidy_amount
+                          DropListBox 85, 200, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_subsidy_verif
+                          EditBox 195, 200, 35, 15, prosp_subsidy_amount
+                          DropListBox 235, 200, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_subsidy_verif
+                          ButtonGroup ButtonPressed
+                            PushButton 245, 220, 90, 15, "Return to Main Dialog", return_button
+                          Text 15, 35, 60, 10, "HUD Subsidized:"
+                          Text 140, 35, 30, 10, "Shared:"
+                          Text 45, 50, 50, 10, "Retrospective"
+                          Text 195, 50, 50, 10, "Prospective"
+                          Text 20, 65, 20, 10, "Rent:"
+                          Text 10, 85, 30, 10, "Lot Rent:"
+                          Text 5, 105, 35, 10, "Mortgage:"
+                          Text 5, 125, 35, 10, "Insurance:"
+                          Text 15, 145, 25, 10, "Taxes:"
+                          Text 15, 165, 25, 10, "Room:"
+                          Text 10, 185, 30, 10, "Garage:"
+                          Text 10, 205, 30, 10, "Subsidy:"
+                        EndDialog
 
                     End If
 					IF (earned_income <> "" AND trim(notes_on_income) = "") OR (unearned_income <> "" AND notes_on_income = "") THEN income_note_error_msg = True

@@ -244,6 +244,63 @@ BeginDialog Dialog1, 0, 0, 551, 260, "Dialog"
   Text 170, 185, 45, 10, "Other Notes:"
   EditBox 220, 180, 315, 15, Edit12
 EndDialog
+
+BeginDialog Dialog1, 0, 0, 340, 240, "SHEL Detail Dialog"
+  DropListBox 60, 10, 125, 45, HH_memb_list, clt_SHEL_is_for
+  Text 5, 15, 55, 10, "SHEL for Memb"
+  ButtonGroup ButtonPressed
+    PushButton 200, 10, 40, 10, "Load", load_button
+
+  DropListBox 85, 30, 30, 45, "Yes"+chr(9)+"No", subsidized_yn
+  DropListBox 175, 30, 30, 45, "Yes"+chr(9)+"No", shared_yn
+  EditBox 45, 60, 35, 15, retro_rent_amount
+  DropListBox 85, 60, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_rent_verif
+  EditBox 195, 60, 35, 15, prosp_rent_amount
+  DropListBox 235, 60, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_rent_verif
+  EditBox 45, 80, 35, 15, retro_lot_amount
+  DropListBox 85, 80, 100, 45, "Select one"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_lot_verif
+  EditBox 195, 80, 35, 15, prosp_lot_amount
+  DropListBox 235, 80, 100, 45, "Select one"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_lot_verif
+  EditBox 45, 100, 35, 15, retro_mortgage_amount
+  DropListBox 85, 100, 100, 45, "Select one"+chr(9)+"MO - Mort Pmt Book"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_mortgage_verif
+  EditBox 195, 100, 35, 15, prosp_mortgage_amount
+  DropListBox 235, 100, 100, 45, "Select one"+chr(9)+"MO - Mort Pmt Book"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_mortgage_verif
+  EditBox 45, 120, 35, 15, retro_ins_amount
+  DropListBox 85, 120, 100, 45, "Select one"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_ins_verif
+  EditBox 195, 120, 35, 15, prosp_ins_amount
+  DropListBox 235, 120, 100, 45, "Select one"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_ins_verif
+  EditBox 45, 140, 35, 15, retro_tax_amount
+  DropListBox 85, 140, 100, 45, "Select one"+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_tax_verif
+  EditBox 195, 140, 35, 15, prosp_tax_amount
+  DropListBox 235, 140, 100, 45, "Select one"+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_tax_verif
+  EditBox 45, 160, 35, 15, retro_room_amount
+  DropListBox 85, 160, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_room_verif
+  EditBox 195, 160, 35, 15, prosp_room_amount
+  DropListBox 235, 160, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_room_verif
+  EditBox 45, 180, 35, 15, retro_garage_amount
+  DropListBox 85, 180, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_garage_verif
+  EditBox 195, 180, 35, 15, prosp_garage_amount
+  DropListBox 235, 180, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_garage_verif
+  EditBox 45, 200, 35, 15, retro_subsity_amount
+  DropListBox 85, 200, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_subsidy_verif
+  EditBox 195, 200, 35, 15, prosp_subsidy_amount
+  DropListBox 235, 200, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_subsidy_verif
+  ButtonGroup ButtonPressed
+    PushButton 245, 220, 90, 15, "Return to Main Dialog", return_button
+  Text 15, 35, 60, 10, "HUD Subsidized:"
+  Text 140, 35, 30, 10, "Shared:"
+  Text 45, 50, 50, 10, "Retrospective"
+  Text 195, 50, 50, 10, "Prospective"
+  Text 20, 65, 20, 10, "Rent:"
+  Text 10, 85, 30, 10, "Lot Rent:"
+  Text 5, 105, 35, 10, "Mortgage:"
+  Text 5, 125, 35, 10, "Insurance:"
+  Text 15, 145, 25, 10, "Taxes:"
+  Text 15, 165, 25, 10, "Room:"
+  Text 10, 185, 30, 10, "Garage:"
+  Text 10, 205, 30, 10, "Subsidy:"
+EndDialog
+
 ' BeginDialog Dialog1, 0, 0, 451, 305, "CAF dialog part 2"
 '   EditBox 65, 5, 375, 15, notes_on_wreg
 '   Text 65, 30, 375, 10, "notes_on_abawd"
