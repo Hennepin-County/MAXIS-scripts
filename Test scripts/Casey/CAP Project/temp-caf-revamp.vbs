@@ -63,7 +63,7 @@ changelog_display
 Function Generate_Client_List(list_for_dropdown)
 
 	memb_row = 5
-    list_for_dropdown = "Select or Type"
+    list_for_dropdown = "Select"
 
 	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
 	Do
@@ -174,6 +174,7 @@ function HH_comp_dialog(HH_member_array)
 
         ALL_MEMBERS_ARRAY(memb_numb, member_count) = ref_nbr
         ALL_MEMBERS_ARRAY(clt_name, member_count) = last_name & ", " & first_name & " " & mid_initial
+        ALL_MEMBERS_ARRAY(full_clt, member_count) = ref_nbr & " - " & first_name & " " & last_name
 
         If cash_checkbox = checked Then
             ALL_MEMBERS_ARRAY(include_cash_checkbox, member_count) = checked
@@ -609,10 +610,6 @@ function update_wreg_and_abawd_notes()
 end function
 
 function read_SHEL_panel()
-    total_shelter_amount = 0
-    full_shelter_details = ""
-    shelter_details = ""
-    shelter_details_two = ""
 
     call navigate_to_MAXIS_screen("stat", "shel")
 
@@ -620,37 +617,297 @@ function read_SHEL_panel()
     EMReadScreen panel_total_check, 6, 2, 73
     IF panel_total_check = "0 Of 0" THEN exit function		'Exits out if there's no panel info
 
-    For each HH_member in HH_member_array
-        EMWriteScreen HH_member, 20, 76
+    For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+        EMWriteScreen ALL_MEMBERS_ARRAY(memb_numb, each_member), 20, 76
         EMWriteScreen "01", 20, 79
         transmit
         EMReadScreen SHEL_total, 1, 2, 78
         If SHEL_total <> 0 then
             member_number_designation = "Member " & HH_member & "- "
             row = 11
+            ALL_MEMBERS_ARRAY(shel_exists, each_member) = TRUE
             Do
-                EMReadScreen SHEL_amount, 8, row, 56
-                If SHEL_amount <> "________" then
-                    EMReadScreen SHEL_type, 9, row, 24
-                    EMReadScreen SHEL_proof_check, 2, row, 67
+                EMReadScreen SHEL_HUD_code, 1, 6, 46
+                EMReadScreen SHEL_share_code, 1, 6, 64
 
-                    SHEL_amount = trim(SHEL_amount)
-                    SHEL_amount = SHEL_amount * 1
-                    total_shelter_amount = total_shelter_amount + SHEL_amount
+                If SHEL_HUD_code = "Y" Then ALL_MEMBERS_ARRAY(shel_subsudized, each_member) = "Yes"
+                If SHEL_HUD_code = "N" Then ALL_MEMBERS_ARRAY(shel_subsudized, each_member) = "No"
+                If SHEL_share_code = "Y" Then ALL_MEMBERS_ARRAY(shel_shared, each_member) = "Yes"
+                If SHEL_share_code = "N" Then ALL_MEMBERS_ARRAY(shel_shared, each_member) = "No"
 
-                    If SHEL_proof_check = "NO" or SHEL_proof_check = "?_" then
-                        SHEL_proof = ", no proof provided"
-                    Else
-                        SHEL_proof = ""
-                    End if
-                    SHEL_expense = SHEL_expense & "$" & trim(SHEL_amount) & "/mo " & lcase(trim(SHEL_type)) & SHEL_proof & ". ;"
+                EmReadScreen SHEL_retro_amount, 8, row, 37
+                EMReadScreen SHEL_prosp_amount, 8, row, 56
+                If SHEL_retro_amount <> "________" OR SHEL_prosp_amount <> "________" then
+                    EMReadScreen SHEL_retro_proof, 2, row, 48
+                    EMReadScreen SHEL_prosp_proof, 2, row, 67
+
+                    If SHEL_prosp_amount = "________" Then SHEL_prosp_amount = 0
+                    SHEL_prosp_amount = trim(SHEL_prosp_amount)
+                    SHEL_prosp_amount = SHEL_prosp_amount * 1
+
+                    If SHEL_retro_amount = "________" Then SHEL_retro_amount = 0
+                    SHEL_retro_amount = trim(SHEL_retro_amount)
+                    SHEL_retro_amount = SHEL_retro_amount * 1
+
+                    If SHEL_retro_proof = "__" Then SHEL_retro_proof = "Blank"
+                    If SHEL_prosp_proof = "__" Then SHEL_prosp_proof = "Blank"
+
+                    If SHEL_retro_proof = "SF" Then SHEL_retro_proof = "SF - Shelter Form"
+                    If SHEL_prosp_proof = "SF" Then SHEL_prosp_proof = "SF - Shelter Form"
+                    If SHEL_retro_proof = "LE" Then SHEL_retro_proof = "LE - Lease"
+                    If SHEL_prosp_proof = "LE" Then SHEL_prosp_proof = "LE - Lease"
+                    If SHEL_retro_proof = "RE" Then SHEL_retro_proof = "RE - Rent Receipt"
+                    If SHEL_prosp_proof = "RE" Then SHEL_prosp_proof = "RE - Rent Receipt"
+                    If SHEL_retro_proof = "BI" Then SHEL_retro_proof = "BI - Billing Stmt"
+                    If SHEL_prosp_proof = "BI" Then SHEL_prosp_proof = "BI - Billing Stmt"
+                    If SHEL_retro_proof = "MO" Then SHEL_retro_proof = "MO - Mort Pmt Book"
+                    If SHEL_prosp_proof = "MO" Then SHEL_prosp_proof = "MO - Mort Pmt Book"
+                    If SHEL_retro_proof = "CD" Then SHEL_retro_proof = "CD - Ctrct For Deed"
+                    If SHEL_prosp_proof = "CD" Then SHEL_prosp_proof = "CD - Ctrct For Deed"
+                    If SHEL_retro_proof = "TX" Then SHEL_retro_proof = "TX - Prop Tax Stmt"
+                    If SHEL_prosp_proof = "TX" Then SHEL_prosp_proof = "TX - Prop Tax Stmt"
+                    If SHEL_retro_proof = "OT" Then SHEL_retro_proof = "OT - Other Doc"
+                    If SHEL_prosp_proof = "OT" Then SHEL_prosp_proof = "OT - Other Doc"
+                    If SHEL_retro_proof = "NC" Then SHEL_retro_proof = "NC - Change - Neg Impact"
+                    If SHEL_prosp_proof = "NC" Then SHEL_prosp_proof = "NC - Change - Neg Impact"
+                    If SHEL_retro_proof = "PC" Then SHEL_retro_proof = "PC - Change - Pos Impact"
+                    If SHEL_prosp_proof = "PC" Then SHEL_prosp_proof = "PC - Change - Pos Impact"
+                    If SHEL_retro_proof = "NO" Then SHEL_retro_proof = "NO - No Verif"
+                    If SHEL_prosp_proof = "NO" Then SHEL_prosp_proof = "NO - No Verif"
+                    If SHEL_retro_proof = "?_" Then SHEL_retro_proof = "? - Delayed Verif"
+                    If SHEL_prosp_proof = "?_" Then SHEL_prosp_proof = "? - Delayed Verif"
+
+                    If row = 11 Then
+                        ALL_MEMBERS_ARRAY(shel_retro_rent_amt, each_member) = SHEL_retro_amount
+                        ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member) = SHEL_retro_proof
+                        ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, each_member) = SHEL_prosp_amount
+                        ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member) = SHEL_prosp_proof
+                    ElseIf row = 12 Then
+                        ALL_MEMBERS_ARRAY(shel_retro_lot_amt, each_member) = SHEL_retro_amount
+                        ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member) = SHEL_retro_proof
+                        ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, each_member) = SHEL_prosp_amount
+                        ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member) = SHEL_prosp_proof
+                    ElseIf row = 13 Then
+                        ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, each_member) = SHEL_retro_amount
+                        ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member) = SHEL_retro_proof
+                        ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, each_member) = SHEL_prosp_amount
+                        ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member) = SHEL_prosp_proof
+                    ElseIf row = 14 Then
+                        ALL_MEMBERS_ARRAY(shel_retro_ins_amt, each_member) = SHEL_retro_amount
+                        ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member) = SHEL_retro_proof
+                        ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, each_member) = SHEL_prosp_amount
+                        ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member) = SHEL_prosp_proof
+                    ElseIf row = 15 Then
+                        ALL_MEMBERS_ARRAY(shel_retro_tax_amt, each_member) = SHEL_retro_amount
+                        ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member) = SHEL_retro_proof
+                        ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, each_member) = SHEL_prosp_amount
+                        ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member) = SHEL_prosp_proof
+                    ElseIf row = 16 Then
+                        ALL_MEMBERS_ARRAY(shel_retro_room_amt, each_member) = SHEL_retro_amount
+                        ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member) = SHEL_retro_proof
+                        ALL_MEMBERS_ARRAY(shel_prosp_room_amt, each_member) = SHEL_prosp_amount
+                        ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member) = SHEL_prosp_proof
+                    ElseIf row = 17 Then
+                        ALL_MEMBERS_ARRAY(shel_retro_garage_amt, each_member) = SHEL_retro_amount
+                        ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member) = SHEL_retro_proof
+                        ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, each_member) = SHEL_prosp_amount
+                        ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member) = SHEL_prosp_proof
+                    ElseIf row = 18 Then
+                        ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt, each_member) = SHEL_retro_amount
+                        ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member) = SHEL_retro_proof
+                        ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, each_member) = SHEL_prosp_amount
+                        ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member) = SHEL_prosp_proof
+                    End If
+
+                    'ADD Reading of panel and saving to the array here'
                 End if
                 row = row + 1
             Loop until row = 19
-            variable_written_to = variable_written_to & member_number_designation & SHEL_expense
+        Else
+            ALL_MEMBERS_ARRAY(shel_exists, each_member) = False
         End if
         SHEL_expense = ""
     Next
+end function
+
+function update_shel_notes()
+    total_shelter_amount = 0
+    full_shelter_details = ""
+    shelter_details = ""
+    shelter_details_two = ""
+
+    For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+        If ALL_MEMBERS_ARRAY(shel_exists, each_member) = TRUE Then
+            full_shelter_details = full_shelter_details & "; M" & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " shelter expense(s): "
+            If ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member) <> "Select one" Then
+                If ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member) <> "Select one" Then
+                    If ALL_MEMBERS_ARRAY(shel_retro_rent_amt, each_member) = ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, each_member) Then
+                        full_shelter_details = full_shelter_details & "Rent $" & ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member)) - 4) & ". "
+                    Else
+                        full_shelter_details = full_shelter_details & "change in Rent retro - $" & ALL_MEMBERS_ARRAY(shel_retro_rent_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member)) - 4) & ". "
+                    End If
+                    total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, each_member)
+                Else
+                    full_shelter_details = full_shelter_details & "Rent (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_rent_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member)) - 4) & ". "
+                End If
+            ElseIf ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member) <> "Select one" Then
+                full_shelter_details = full_shelter_details & "Rent (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member)) - 4) & ". "
+                total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, each_member)
+            End If
+
+            If ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member) <> "Select one" Then
+                If ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member) <> "Select one" Then
+                    If ALL_MEMBERS_ARRAY(shel_retro_lot_amt, each_member) = ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, each_member) Then
+                        full_shelter_details = full_shelter_details & "Lot Rent $" & ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member)) - 4) & ". "
+                    Else
+                        full_shelter_details = full_shelter_details & "change in Lot Rent retro - $" & ALL_MEMBERS_ARRAY(shel_retro_lot_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member)) - 4) & ". "
+                    End If
+                    total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, each_member)
+                Else
+                    full_shelter_details = full_shelter_details & "Lot Rent (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_lot_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member)) - 4) & ". "
+                End If
+            ElseIf ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member) <> "Select one" Then
+                full_shelter_details = full_shelter_details & "Lot Rent (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member)) - 4) & ". "
+                total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, each_member)
+            End If
+
+            If ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member) <> "Select one" Then
+                If ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member) <> "Select one" Then
+                    If ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, each_member) = ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, each_member) Then
+                        full_shelter_details = full_shelter_details & "Mortgage $" & ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member)) - 4) & ". "
+                    Else
+                        full_shelter_details = full_shelter_details & "change in Mortgage retro - $" & ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member)) - 4) & ". "
+                    End If
+                    total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, each_member)
+                Else
+                    full_shelter_details = full_shelter_details & "Mortgage (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member)) - 4) & ". "
+                End If
+            ElseIf ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member) <> "Select one" Then
+                full_shelter_details = full_shelter_details & "Mortgage (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member)) - 4) & ". "
+                total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, each_member)
+            End If
+
+            If ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member) <> "Select one" Then
+                If ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member) <> "Select one" Then
+                    If ALL_MEMBERS_ARRAY(shel_retro_ins_amt, each_member) = ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, each_member) Then
+                        full_shelter_details = full_shelter_details & "Home Insurance $" & ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member)) - 4) & ". "
+                    Else
+                        full_shelter_details = full_shelter_details & "change in Home Insurance retro - $" & ALL_MEMBERS_ARRAY(shel_retro_ins_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member)) - 4) & ". "
+                    End If
+                    total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, each_member)
+                Else
+                    full_shelter_details = full_shelter_details & "Home Insurance (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_ins_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member)) - 4) & ". "
+                End If
+            ElseIf ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member) <> "Select one" Then
+                full_shelter_details = full_shelter_details & "Home Insurance (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member)) - 4) & ". "
+                total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, each_member)
+            End If
+
+            If ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member) <> "Select one" Then
+                If ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member) <> "Select one" Then
+                    If ALL_MEMBERS_ARRAY(shel_retro_tax_amt, each_member) = ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, each_member) Then
+                        full_shelter_details = full_shelter_details & "Property Tax $" & ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member)) - 4) & ". "
+                    Else
+                        full_shelter_details = full_shelter_details & "change in Property Tax retro - $" & ALL_MEMBERS_ARRAY(shel_retro_tax_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member)) - 4) & ". "
+                    End If
+                    total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, each_member)
+                Else
+                    full_shelter_details = full_shelter_details & "Property Tax (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_tax_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member)) - 4) & ". "
+                End If
+            ElseIf ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member) <> "Select one" Then
+                full_shelter_details = full_shelter_details & "Property Tax (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member)) - 4) & ". "
+                total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, each_member)
+            End If
+
+            If ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member) <> "Select one" Then
+                If ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member) <> "Select one" Then
+                    If ALL_MEMBERS_ARRAY(shel_retro_room_amt, each_member) = ALL_MEMBERS_ARRAY(shel_prosp_room_amt, each_member) Then
+                        full_shelter_details = full_shelter_details & "Room $" & ALL_MEMBERS_ARRAY(shel_prosp_room_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member)) - 4) & ". "
+                    Else
+                        full_shelter_details = full_shelter_details & "change in Room retro - $" & ALL_MEMBERS_ARRAY(shel_retro_room_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_room_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member)) - 4) & ". "
+                    End If
+                    total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_room_amt, each_member)
+                Else
+                    full_shelter_details = full_shelter_details & "Room (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_room_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member)) - 4) & ". "
+                End If
+            ElseIf ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member) <> "Select one" Then
+                full_shelter_details = full_shelter_details & "Room (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_room_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member)) - 4) & ". "
+                total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_room_amt, each_member)
+            End If
+
+            If ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member) <> "Select one" Then
+                If ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member) <> "Select one" Then
+                    If ALL_MEMBERS_ARRAY(shel_retro_garage_amt, each_member) = ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, each_member) Then
+                        full_shelter_details = full_shelter_details & "Garage $" & ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member)) - 4) & ". "
+                    Else
+                        full_shelter_details = full_shelter_details & "change in Garage retro - $" & ALL_MEMBERS_ARRAY(shel_retro_garage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member)) - 4) & ". "
+                    End If
+                    total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, each_member)
+                Else
+                    full_shelter_details = full_shelter_details & "Garage (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_garage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member)) - 4) & ". "
+                End If
+            ElseIf ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member) <> "Select one" Then
+                full_shelter_details = full_shelter_details & "Garage (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member)) - 4) & ". "
+                total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, each_member)
+            End If
+
+            If ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member) <> "Select one" Then
+                If ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member) <> "Select one" Then
+                    If ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt, each_member) = ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, each_member) Then
+                        full_shelter_details = full_shelter_details & "Subsidy $" & ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member)) - 4) & ". "
+                    Else
+                        full_shelter_details = full_shelter_details & "change in Subsidy retro - $" & ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member)) - 4) & ". "
+                    End If
+                    total_shelter_amount = total_shelter_amount - ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, each_member)
+                Else
+                    full_shelter_details = full_shelter_details & "Subsidy (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member)) - 4) & ". "
+                End If
+            ElseIf ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member) <> "Select one" Then
+                full_shelter_details = full_shelter_details & "Subsidy (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member)) - 4) & ". "
+                total_shelter_amount = total_shelter_amount - ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, each_member)
+            End If
+            If ALL_MEMBERS_ARRAY(shel_shared, each_member) = "Yes" Then full_shelter_details = full_shelter_details & "Shelter expense is SHARED. "
+            If ALL_MEMBERS_ARRAY(shel_subsudized, each_member) = "Yes" Then full_shelter_details = full_shelter_details & "Shelter expense is subsidized. "
+        End If
+    Next
+
+    total_shelter_amount = FormatCurrency(total_shelter_amount)
+
+    MsgBOx "Length of full_shelter_details is " & len(full_shelter_details)
+    if left(full_shelter_details, 2) = "; " Then full_shelter_details = right(full_shelter_details, len(full_shelter_details) - 2)
+    If len(full_shelter_details) > 90 Then
+        shelter_details = left(full_shelter_details, 90)
+        shelter_details_two = right(full_shelter_details, len(full_shelter_details) - 90)
+    Else
+        shelter_details = full_shelter_details
+    End If
+end function
+
+function read_HEST_panel()
+    hest_information = ""
+    call navigate_to_MAXIS_screen("stat", "HEST")
+
+    'Now it checks for the total number of panels. If there's 0 Of 0 it'll exit the function for you so as to save oodles of time.
+    EMReadScreen panel_total_check, 6, 2, 73
+    IF panel_total_check = "0 Of 0" THEN
+        hest_information = "NONE - $0"
+    ELSE
+        EMReadScreen prosp_heat_air, 1, 13, 60
+        EMReadScreen prosp_electric, 1, 14, 60
+        EMReadScreen prosp_phone, 1, 15, 60
+
+        If prosp_heat_air = "Y" Then
+            hest_information = "AC/Heat - Full $493"
+        ElseIf prosp_electric = "Y" Then
+            If prosp_phone = "Y" Then
+                hest_information = "Electric and Phone - $173"
+            Else
+                hest_information = "Electric ONLY - $126"
+            End If
+        ElseIf prosp_phone = "Y" Then
+            hest_information = "Phone ONLY - $47"
+        End If
+    END IF
 end function
 
 function read_JOBS_panel()
@@ -782,58 +1039,59 @@ ReDim ALL_JOBS_PANELS_ARRAY(budget_explain, 0)
 
 const clt_name                  = 1
 const clt_age                   = 2
-const include_cash_checkbox     = 3
-const include_snap_checkbox     = 4
-const include_emer_checkbox     = 5
-const count_cash_checkbox       = 6
-const count_snap_checkbox       = 7
-const count_emer_checkbox       = 8
-const clt_wreg_status           = 9
-const clt_abawd_status          = 10
-const pwe_checkbox              = 11
-const numb_abawd_used           = 12
-const list_abawd_mo             = 13
-const first_second_set          = 14
-const list_second_set           = 15
-const explain_no_second         = 16
-const numb_banked_mo            = 17
-const clt_abawd_notes           = 18
-const shel_exists               = 19
-const shel_subsudized           = 20
-const shel_shared               = 21
-const shel_retro_rent_amt       = 22
-const shel_retro_rent_verif     = 23
-const shel_prosp_rent_amt       = 24
-const shel_prosp_rent_verif     = 25
-const shel_retro_lot_amt        = 26
-const shel_retro_lot_verif      = 27
-const shel_prosp_lot_amt        = 28
-const shel_prosp_lot_verif      = 29
-const shel_retro_mortgage_amt   = 30
-const shel_retro_mortgage_verif = 31
-const shel_prosp_mortgage_amt   = 32
-const shel_prosp_mortgage_verif = 33
-const shel_retro_ins_amt        = 34
-const shel_retro_ins_verif      = 35
-const shel_prosp_ins_amt        = 36
-const shel_prosp_ins_verif      = 37
-const shel_retro_tax_amt        = 38
-const shel_retro_tax_verif      = 39
-const shel_prosp_tax_amt        = 40
-const shel_prosp_tax_verif      = 41
-const shel_retro_room_amt       = 42
-const shel_retro_room_verif     = 43
-const shel_prosp_room_amt       = 44
-const shel_prosp_room_verif     = 45
-const shel_retro_garage_amt     = 46
-const shel_retro_garage_verif   = 47
-const shel_prosp_garage_amt     = 48
-const shel_prosp_garage_verif   = 49
-const shel_retro_subsidy_amt    = 50
-const shel_retro_subsidy_verif  = 51
-const shel_prosp_subsidy_amt    = 52
-const shel_prosp_subsidy_verif  = 53
-const clt_notes                 = 54
+const full_clt                  = 3
+const include_cash_checkbox     = 4
+const include_snap_checkbox     = 5
+const include_emer_checkbox     = 6
+const count_cash_checkbox       = 7
+const count_snap_checkbox       = 8
+const count_emer_checkbox       = 9
+const clt_wreg_status           = 10
+const clt_abawd_status          = 11
+const pwe_checkbox              = 12
+const numb_abawd_used           = 13
+const list_abawd_mo             = 14
+const first_second_set          = 15
+const list_second_set           = 16
+const explain_no_second         = 17
+const numb_banked_mo            = 18
+const clt_abawd_notes           = 19
+const shel_exists               = 20
+const shel_subsudized           = 21
+const shel_shared               = 22
+const shel_retro_rent_amt       = 23
+const shel_retro_rent_verif     = 24
+const shel_prosp_rent_amt       = 25
+const shel_prosp_rent_verif     = 26
+const shel_retro_lot_amt        = 27
+const shel_retro_lot_verif      = 28
+const shel_prosp_lot_amt        = 29
+const shel_prosp_lot_verif      = 30
+const shel_retro_mortgage_amt   = 31
+const shel_retro_mortgage_verif = 32
+const shel_prosp_mortgage_amt   = 33
+const shel_prosp_mortgage_verif = 34
+const shel_retro_ins_amt        = 35
+const shel_retro_ins_verif      = 36
+const shel_prosp_ins_amt        = 37
+const shel_prosp_ins_verif      = 38
+const shel_retro_tax_amt        = 39
+const shel_retro_tax_verif      = 40
+const shel_prosp_tax_amt        = 41
+const shel_prosp_tax_verif      = 42
+const shel_retro_room_amt       = 43
+const shel_retro_room_verif     = 44
+const shel_prosp_room_amt       = 45
+const shel_prosp_room_verif     = 46
+const shel_retro_garage_amt     = 47
+const shel_retro_garage_verif   = 48
+const shel_prosp_garage_amt     = 49
+const shel_prosp_garage_verif   = 50
+const shel_retro_subsidy_amt    = 51
+const shel_retro_subsidy_verif  = 52
+const shel_prosp_subsidy_amt    = 53
+const shel_prosp_subsidy_verif  = 54
+const clt_notes                 = 55
 
 Dim ALL_MEMBERS_ARRAY()
 ReDim ALL_MEMBERS_ARRAY(clt_notes, 0)
@@ -954,9 +1212,12 @@ total_shelter_amount = ""
 full_shelter_details = ""
 shelter_details = ""
 shelter_details_two = ""
-call read_SHEL_panel
+hest_information = ""
 ' call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST)
-call autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST)
+call read_SHEL_panel
+call update_shel_notes
+call read_HEST_panel
+' call autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST)
 
 'Now it grabs the rest of the info, not dependent on which programs are selected.
 call autofill_editbox_from_MAXIS(HH_member_array, "ABPS", ABPS)
@@ -1259,6 +1520,7 @@ Do
                       EditBox 90, y_pos - 5, 505, 15, ALL_JOBS_PANELS_ARRAY(budget_explain, each_job)
                       y_pos = y_pos + 25
                   Next
+                  y_pos = y_pos - 5
                   ButtonGroup ButtonPressed
                     PushButton 430, y_pos, 60, 10, "previous page", previous_to_page_01_button
                     PushButton 495, y_pos - 5, 50, 15, "NEXT", next_to_page_03_button
@@ -1363,116 +1625,201 @@ Do
 					cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
 					MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 					If ButtonPressed = abawd_button Then
-                        notes_on_wreg = ""
-                        notes_on_abawd = ""
-                        notes_on_abawd_two = ""
-                        dlg_len = 40
-                        For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
-                          If ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member) = checked Then
-                            dlg_len = dlg_len + 95
-                          End If
-                        Next
-                        y_pos = 10
-                        BeginDialog Dialog1, 0, 0, 551, dlg_len, "ABAWD Detail"
-                          For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
-                            If ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member) = checked Then
-                              GroupBox 5, y_pos, 540, 95, "Member " & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " - " & ALL_MEMBERS_ARRAY(clt_name, each_member)
-                              y_pos = y_pos + 20
-                              Text 15, y_pos, 70, 10, "FSET WREG Status:"
-                              DropListBox 90, y_pos - 5, 130, 45, " "+chr(9)+"03  Unfit for Employment"+chr(9)+"04  Responsible for Care of Another"+chr(9)+"05  Age 60+"+chr(9)+"06  Under Age 16"+chr(9)+"07  Age 16-17, live w/ parent"+chr(9)+"08  Care of Child <6"+chr(9)+"09  Employed 30+ hrs/wk"+chr(9)+"10  Matching Grant"+chr(9)+"11  Unemployment Insurance"+chr(9)+"12  Enrolled in School/Training"+chr(9)+"13  CD Program"+chr(9)+"14  Receiving MFIP"+chr(9)+"20  Pend/Receiving DWP"+chr(9)+"15  Age 16-17 not live w/ Parent"+chr(9)+"16  50-59 Years Old"+chr(9)+"21  Care child < 18"+chr(9)+"17  Receiving RCA or GA"+chr(9)+"30  FSET Participant"+chr(9)+"02  Fail FSET Coop"+chr(9)+"33  Non-coop being referred"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(clt_wreg_status, each_member)
-                              Text 230, y_pos, 55, 10, "ABAWD Status:"
-                              DropListBox 285, y_pos - 5, 110, 45, " "+chr(9)+"01  WREG Exempt"+chr(9)+"02  Under Age 18"+chr(9)+"03  Age 50+"+chr(9)+"04  Caregiver of Minor Child"+chr(9)+"05  Pregnant"+chr(9)+"06  Employed 20+ hrs/wk"+chr(9)+"07  Work Experience"+chr(9)+"08  Other E and T"+chr(9)+"09  Waivered Area"+chr(9)+"10  ABAWD Counted"+chr(9)+"11  Second Set"+chr(9)+"12  RCA or GA Participant"+chr(9)+"13  ABAWD Banked Months"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(clt_abawd_status, each_member)
-                              CheckBox 405, y_pos - 5, 130, 10, "Check here if this person is the PWE", ALL_MEMBERS_ARRAY(pwe_checkbox, each_member)
-                              y_pos = y_pos + 20
-                              Text 15, y_pos, 145, 10, "Number of ABAWD months used in past 36:"
-                              EditBox 160, y_pos - 5, 25, 15, ALL_MEMBERS_ARRAY(numb_abawd_used, each_member)
-                              Text 200, y_pos, 95, 10, "List all ABAWD months used:"
-                              EditBox 300, y_pos - 5, 135, 15, ALL_MEMBERS_ARRAY(list_abawd_mo, each_member)
-                              y_pos = y_pos + 20
-                              Text 15, y_pos, 135, 10, "If used, list the first month of Second Set:"
-                              EditBox 155, y_pos - 5, 40, 15, ALL_MEMBERS_ARRAY(first_second_set, each_member)
-                              Text 205, y_pos, 130, 10, "If NOT Eligible for Second Set, Explain:"
-                              EditBox 335, y_pos - 5, 200, 15, ALL_MEMBERS_ARRAY(explain_no_second, each_member)
-                              y_pos = y_pos + 20
-                              Text 15, y_pos, 115, 10, "Number of BANKED months used:"
-                              EditBox 130, y_pos - 5, 25, 15, ALL_MEMBERS_ARRAY(numb_banked_mo, each_member)
-                              Text 170, y_pos, 45, 10, "Other Notes:"
-                              EditBox 220, y_pos - 5, 315, 15, ALL_MEMBERS_ARRAY(clt_abawd_notes, each_member)
+                        Do
+                            abawd_err_msg = ""
 
-                              y_pos = y_pos + 15
-                            End If
-                          Next
-                          y_pos = y_pos + 10
-                          ButtonGroup ButtonPressed
-                            PushButton 455, y_pos, 90, 15, "Return to Main Dialog", return_button
-                        EndDialog
+                            notes_on_wreg = ""
+                            notes_on_abawd = ""
+                            notes_on_abawd_two = ""
+                            dlg_len = 40
+                            For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+                              If ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member) = checked Then
+                                dlg_len = dlg_len + 95
+                              End If
+                            Next
+                            y_pos = 10
+                            BeginDialog Dialog1, 0, 0, 551, dlg_len, "ABAWD Detail"
+                              For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+                                If ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member) = checked Then
+                                  GroupBox 5, y_pos, 540, 95, "Member " & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " - " & ALL_MEMBERS_ARRAY(clt_name, each_member)
+                                  y_pos = y_pos + 20
+                                  Text 15, y_pos, 70, 10, "FSET WREG Status:"
+                                  DropListBox 90, y_pos - 5, 130, 45, " "+chr(9)+"03  Unfit for Employment"+chr(9)+"04  Responsible for Care of Another"+chr(9)+"05  Age 60+"+chr(9)+"06  Under Age 16"+chr(9)+"07  Age 16-17, live w/ parent"+chr(9)+"08  Care of Child <6"+chr(9)+"09  Employed 30+ hrs/wk"+chr(9)+"10  Matching Grant"+chr(9)+"11  Unemployment Insurance"+chr(9)+"12  Enrolled in School/Training"+chr(9)+"13  CD Program"+chr(9)+"14  Receiving MFIP"+chr(9)+"20  Pend/Receiving DWP"+chr(9)+"15  Age 16-17 not live w/ Parent"+chr(9)+"16  50-59 Years Old"+chr(9)+"21  Care child < 18"+chr(9)+"17  Receiving RCA or GA"+chr(9)+"30  FSET Participant"+chr(9)+"02  Fail FSET Coop"+chr(9)+"33  Non-coop being referred"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(clt_wreg_status, each_member)
+                                  Text 230, y_pos, 55, 10, "ABAWD Status:"
+                                  DropListBox 285, y_pos - 5, 110, 45, " "+chr(9)+"01  WREG Exempt"+chr(9)+"02  Under Age 18"+chr(9)+"03  Age 50+"+chr(9)+"04  Caregiver of Minor Child"+chr(9)+"05  Pregnant"+chr(9)+"06  Employed 20+ hrs/wk"+chr(9)+"07  Work Experience"+chr(9)+"08  Other E and T"+chr(9)+"09  Waivered Area"+chr(9)+"10  ABAWD Counted"+chr(9)+"11  Second Set"+chr(9)+"12  RCA or GA Participant"+chr(9)+"13  ABAWD Banked Months"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(clt_abawd_status, each_member)
+                                  CheckBox 405, y_pos - 5, 130, 10, "Check here if this person is the PWE", ALL_MEMBERS_ARRAY(pwe_checkbox, each_member)
+                                  y_pos = y_pos + 20
+                                  Text 15, y_pos, 145, 10, "Number of ABAWD months used in past 36:"
+                                  EditBox 160, y_pos - 5, 25, 15, ALL_MEMBERS_ARRAY(numb_abawd_used, each_member)
+                                  Text 200, y_pos, 95, 10, "List all ABAWD months used:"
+                                  EditBox 300, y_pos - 5, 135, 15, ALL_MEMBERS_ARRAY(list_abawd_mo, each_member)
+                                  y_pos = y_pos + 20
+                                  Text 15, y_pos, 135, 10, "If used, list the first month of Second Set:"
+                                  EditBox 155, y_pos - 5, 40, 15, ALL_MEMBERS_ARRAY(first_second_set, each_member)
+                                  Text 205, y_pos, 130, 10, "If NOT Eligible for Second Set, Explain:"
+                                  EditBox 335, y_pos - 5, 200, 15, ALL_MEMBERS_ARRAY(explain_no_second, each_member)
+                                  y_pos = y_pos + 20
+                                  Text 15, y_pos, 115, 10, "Number of BANKED months used:"
+                                  EditBox 130, y_pos - 5, 25, 15, ALL_MEMBERS_ARRAY(numb_banked_mo, each_member)
+                                  Text 170, y_pos, 45, 10, "Other Notes:"
+                                  EditBox 220, y_pos - 5, 315, 15, ALL_MEMBERS_ARRAY(clt_abawd_notes, each_member)
 
-						Dialog Dialog1
+                                  y_pos = y_pos + 15
+                                End If
+                              Next
+                              y_pos = y_pos + 10
+                              ButtonGroup ButtonPressed
+                                PushButton 455, y_pos, 90, 15, "Return to Main Dialog", return_button
+                            EndDialog
 
-                        call update_wreg_and_abawd_notes
+    						Dialog Dialog1
 
+                            call update_wreg_and_abawd_notes
+
+                        Loop until abawd_err_msg = ""
 					End If
 
                     If ButtonPressed = update_shel_button Then
-
-
-
-                        BeginDialog Dialog1, 0, 0, 340, 240, "SHEL Detail Dialog"
-                          DropListBox 60, 10, 125, 45, HH_memb_list, clt_SHEL_is_for
-                          Text 5, 15, 55, 10, "SHEL for Memb"
-                          ButtonGroup ButtonPressed
-                            PushButton 200, 10, 40, 10, "Load", load_button
+                        shel_client = ""
+                        For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+                            If ALL_MEMBERS_ARRAY(shel_exists, each_member) = TRUE Then
+                                shel_client = each_member
+                            End If
+                        Next
+                        If shel_client <> "" Then clt_shel_is_for = ALL_MEMBERS_ARRAY(full_clt, shel_client)
                         'ADD an IF here to determine the right HH member or if one is not yet selected AND preselect the one that has a SHEL'
-                          DropListBox 85, 30, 30, 45, "Yes"+chr(9)+"No", subsidized_yn
-                          DropListBox 175, 30, 30, 45, "Yes"+chr(9)+"No", shared_yn
-                          EditBox 45, 60, 35, 15, retro_rent_amount
-                          DropListBox 85, 60, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_rent_verif
-                          EditBox 195, 60, 35, 15, prosp_rent_amount
-                          DropListBox 235, 60, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_rent_verif
-                          EditBox 45, 80, 35, 15, retro_lot_amount
-                          DropListBox 85, 80, 100, 45, "Select one"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_lot_verif
-                          EditBox 195, 80, 35, 15, prosp_lot_amount
-                          DropListBox 235, 80, 100, 45, "Select one"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_lot_verif
-                          EditBox 45, 100, 35, 15, retro_mortgage_amount
-                          DropListBox 85, 100, 100, 45, "Select one"+chr(9)+"MO - Mort Pmt Book"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_mortgage_verif
-                          EditBox 195, 100, 35, 15, prosp_mortgage_amount
-                          DropListBox 235, 100, 100, 45, "Select one"+chr(9)+"MO - Mort Pmt Book"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_mortgage_verif
-                          EditBox 45, 120, 35, 15, retro_ins_amount
-                          DropListBox 85, 120, 100, 45, "Select one"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_ins_verif
-                          EditBox 195, 120, 35, 15, prosp_ins_amount
-                          DropListBox 235, 120, 100, 45, "Select one"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_ins_verif
-                          EditBox 45, 140, 35, 15, retro_tax_amount
-                          DropListBox 85, 140, 100, 45, "Select one"+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_tax_verif
-                          EditBox 195, 140, 35, 15, prosp_tax_amount
-                          DropListBox 235, 140, 100, 45, "Select one"+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_tax_verif
-                          EditBox 45, 160, 35, 15, retro_room_amount
-                          DropListBox 85, 160, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_room_verif
-                          EditBox 195, 160, 35, 15, prosp_room_amount
-                          DropListBox 235, 160, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_room_verif
-                          EditBox 45, 180, 35, 15, retro_garage_amount
-                          DropListBox 85, 180, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_garage_verif
-                          EditBox 195, 180, 35, 15, prosp_garage_amount
-                          DropListBox 235, 180, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_garage_verif
-                          EditBox 45, 200, 35, 15, retro_subsidy_amount
-                          DropListBox 85, 200, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", retro_subsidy_verif
-                          EditBox 195, 200, 35, 15, prosp_subsidy_amount
-                          DropListBox 235, 200, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", prosp_subsidy_verif
-                          ButtonGroup ButtonPressed
-                            PushButton 245, 220, 90, 15, "Return to Main Dialog", return_button
-                          Text 15, 35, 60, 10, "HUD Subsidized:"
-                          Text 140, 35, 30, 10, "Shared:"
-                          Text 45, 50, 50, 10, "Retrospective"
-                          Text 195, 50, 50, 10, "Prospective"
-                          Text 20, 65, 20, 10, "Rent:"
-                          Text 10, 85, 30, 10, "Lot Rent:"
-                          Text 5, 105, 35, 10, "Mortgage:"
-                          Text 5, 125, 35, 10, "Insurance:"
-                          Text 15, 145, 25, 10, "Taxes:"
-                          Text 15, 165, 25, 10, "Room:"
-                          Text 10, 185, 30, 10, "Garage:"
-                          Text 10, 205, 30, 10, "Subsidy:"
-                        EndDialog
+                        Do
+                            shel_err_msg = ""
 
+                            If clt_SHEL_is_for = "Select" Then
+                                dlg_len = 30
+                            Else
+                                dlg_len = 240
+                                For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+                                    If clt_shel_is_for = ALL_MEMBERS_ARRAY(full_clt, each_member) Then
+                                        shel_client = each_member
+                                        ALL_MEMBERS_ARRAY(shel_exists, each_member) = TRUE
+                                    End If
+                                Next
+                            End If
+
+                            BeginDialog Dialog1, 0, 0, 340, dlg_len, "SHEL Detail Dialog"
+                              DropListBox 60, 10, 125, 45, HH_memb_list, clt_SHEL_is_for
+                              Text 5, 15, 55, 10, "SHEL for Memb"
+                              ButtonGroup ButtonPressed
+                                PushButton 200, 10, 40, 10, "Load", load_button
+                              If clt_shel_is_for <> "Select" Then
+                                  ALL_MEMBERS_ARRAY
+                                  ALL_MEMBERS_ARRAY(shel_retro_rent_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_retro_rent_amt, shel_client) & ""
+                                  ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, shel_client) & ""
+                                  ALL_MEMBERS_ARRAY(shel_retro_lot_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_retro_lot_amt, shel_client) & ""
+                                  ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, shel_client) & ""
+                                  ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, shel_client) & ""
+                                  ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, shel_client) & ""
+                                  ALL_MEMBERS_ARRAY(shel_retro_ins_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_retro_ins_amt, shel_client) & ""
+                                  ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, shel_client) & ""
+                                  ALL_MEMBERS_ARRAY(shel_retro_tax_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_retro_tax_amt, shel_client) & ""
+                                  ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, shel_client) & ""
+                                  ALL_MEMBERS_ARRAY(shel_retro_room_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_retro_room_amt, shel_client) & ""
+                                  ALL_MEMBERS_ARRAY(shel_prosp_room_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_prosp_room_amt, shel_client) & ""
+                                  ALL_MEMBERS_ARRAY(shel_retro_garage_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_retro_garage_amt, shel_client) & ""
+                                  ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, shel_client) & ""
+                                  ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt, shel_client) & ""
+                                  ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, shel_client) & ""
+
+                                  DropListBox 85, 30, 30, 45, "Yes"+chr(9)+"No", ALL_MEMBERS_ARRAY(shel_subsudized, shel_client)
+                                  DropListBox 175, 30, 30, 45, "Yes"+chr(9)+"No", ALL_MEMBERS_ARRAY(shel_shared, shel_client)
+                                  EditBox 45, 60, 35, 15, ALL_MEMBERS_ARRAY(shel_retro_rent_amt, shel_client)
+                                  DropListBox 85, 60, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_retro_rent_verif, shel_client)
+                                  EditBox 195, 60, 35, 15, ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, shel_client)
+                                  DropListBox 235, 60, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, shel_client)
+                                  EditBox 45, 80, 35, 15, ALL_MEMBERS_ARRAY(shel_retro_lot_amt, shel_client)
+                                  DropListBox 85, 80, 100, 45, "Select one"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_retro_lot_verif, shel_client)
+                                  EditBox 195, 80, 35, 15, ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, shel_client)
+                                  DropListBox 235, 80, 100, 45, "Select one"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, shel_client)
+                                  EditBox 45, 100, 35, 15, ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, shel_client)
+                                  DropListBox 85, 100, 100, 45, "Select one"+chr(9)+"MO - Mort Pmt Book"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, shel_client)
+                                  EditBox 195, 100, 35, 15, ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, shel_client)
+                                  DropListBox 235, 100, 100, 45, "Select one"+chr(9)+"MO - Mort Pmt Book"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, shel_client)
+                                  EditBox 45, 120, 35, 15, ALL_MEMBERS_ARRAY(shel_retro_ins_amt, shel_client)
+                                  DropListBox 85, 120, 100, 45, "Select one"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_retro_ins_verif, shel_client)
+                                  EditBox 195, 120, 35, 15, ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, shel_client)
+                                  DropListBox 235, 120, 100, 45, "Select one"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, shel_client)
+                                  EditBox 45, 140, 35, 15, ALL_MEMBERS_ARRAY(shel_retro_tax_amt, shel_client)
+                                  DropListBox 85, 140, 100, 45, "Select one"+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_retro_tax_verif, shel_client)
+                                  EditBox 195, 140, 35, 15, ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, shel_client)
+                                  DropListBox 235, 140, 100, 45, "Select one"+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, shel_client)
+                                  EditBox 45, 160, 35, 15, ALL_MEMBERS_ARRAY(shel_retro_room_amt, shel_client)
+                                  DropListBox 85, 160, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_retro_room_verif, shel_client)
+                                  EditBox 195, 160, 35, 15, ALL_MEMBERS_ARRAY(shel_prosp_room_amt, shel_client)
+                                  DropListBox 235, 160, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_prosp_room_verif, shel_client)
+                                  EditBox 45, 180, 35, 15, ALL_MEMBERS_ARRAY(shel_retro_garage_amt, shel_client)
+                                  DropListBox 85, 180, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_retro_garage_verif, shel_client)
+                                  EditBox 195, 180, 35, 15, ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, shel_client)
+                                  DropListBox 235, 180, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Change - Neg Impact"+chr(9)+"PC - Change - Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, shel_client)
+                                  EditBox 45, 200, 35, 15, ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt, shel_client)
+                                  DropListBox 85, 200, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, shel_client)
+                                  EditBox 195, 200, 35, 15, ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, shel_client)
+                                  DropListBox 235, 200, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, shel_client)
+                                  ButtonGroup ButtonPressed
+                                    PushButton 245, 220, 90, 15, "Return to Main Dialog", return_button
+                                  Text 15, 35, 60, 10, "HUD Subsidized:"
+                                  Text 140, 35, 30, 10, "Shared:"
+                                  Text 45, 50, 50, 10, "Retrospective"
+                                  Text 195, 50, 50, 10, "Prospective"
+                                  Text 20, 65, 20, 10, "Rent:"
+                                  Text 10, 85, 30, 10, "Lot Rent:"
+                                  Text 5, 105, 35, 10, "Mortgage:"
+                                  Text 5, 125, 35, 10, "Insurance:"
+                                  Text 15, 145, 25, 10, "Taxes:"
+                                  Text 15, 165, 25, 10, "Room:"
+                                  Text 10, 185, 30, 10, "Garage:"
+                                  Text 10, 205, 30, 10, "Subsidy:"
+                              End If
+                            EndDialog
+
+                            dialog Dialog1
+
+                            If ALL_MEMBERS_ARRAY(shel_retro_rent_amt, each_member) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_retro_rent_amt, each_member)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Retro Rent Expense."
+                            If ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, each_member) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, each_member)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Prospective Rent Expense."
+                            If ALL_MEMBERS_ARRAY(shel_retro_lot_amt, each_member) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_retro_lot_amt, each_member)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Retro Lot Rent Expense."
+                            If ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, each_member) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, each_member)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Prospective Lot Rent Expense."
+                            If ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, each_member) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, each_member)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Retro Morgage Expense."
+                            If ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, each_member) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, each_member)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Prospective ortgage Expense."
+                            If ALL_MEMBERS_ARRAY(shel_retro_ins_amt, each_member) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_retro_ins_amt, each_member)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Retro Insurance Expense."
+                            If ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, each_member) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, each_member)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Prospective Insurance Expense."
+                            If ALL_MEMBERS_ARRAY(shel_retro_tax_amt, each_member) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_retro_tax_amt, each_member)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Retro Tax Expense."
+                            If ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, each_member) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, each_member)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Prospective Tax Expense."
+                            If ALL_MEMBERS_ARRAY(shel_retro_room_amt, each_member) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_retro_room_amt, each_member)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Retro Room Expense."
+                            If ALL_MEMBERS_ARRAY(shel_prosp_room_amt, each_member) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_prosp_room_amt, each_member)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Prospective Room Expense."
+                            If ALL_MEMBERS_ARRAY(shel_retro_garage_amt, each_member) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_retro_garage_amt, each_member)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Retro Garage Expense."
+                            If ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, each_member) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, each_member)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Prospective Garage Expense."
+                            If ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt, each_member) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt, each_member)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Retro Subsidy Amount."
+                            If ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, each_member) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, each_member)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Prospective Subsidy Amount."
+
+                            If button_pressed = load_button Then shel_err_msg = "LOOP" & shel_err_msg
+
+                            If left(shel_err_msg, 4) <> "LOOP" AND shel_err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & shel_err_msg
+
+                            ALL_MEMBERS_ARRAY(shel_retro_rent_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_retro_rent_amt, shel_client) * 1
+                            ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, shel_client) * 1
+                            ALL_MEMBERS_ARRAY(shel_retro_lot_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_retro_lot_amt, shel_client) * 1
+                            ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, shel_client) * 1
+                            ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, shel_client) * 1
+                            ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, shel_client) * 1
+                            ALL_MEMBERS_ARRAY(shel_retro_ins_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_retro_ins_amt, shel_client) * 1
+                            ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, shel_client) * 1
+                            ALL_MEMBERS_ARRAY(shel_retro_tax_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_retro_tax_amt, shel_client) * 1
+                            ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, shel_client) * 1
+                            ALL_MEMBERS_ARRAY(shel_retro_room_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_retro_room_amt, shel_client) * 1
+                            ALL_MEMBERS_ARRAY(shel_prosp_room_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_prosp_room_amt, shel_client) * 1
+                            ALL_MEMBERS_ARRAY(shel_retro_garage_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_retro_garage_amt, shel_client) * 1
+                            ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, shel_client) * 1
+                            ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt, shel_client) * 1
+                            ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, shel_client) * 1
+
+                            call update_shel_notes
+                        Loop until shel_err_msg = ""
                     End If
 					IF (earned_income <> "" AND trim(notes_on_income) = "") OR (unearned_income <> "" AND notes_on_income = "") THEN income_note_error_msg = True
 					If err_msg <> "" THEN Msgbox err_msg
