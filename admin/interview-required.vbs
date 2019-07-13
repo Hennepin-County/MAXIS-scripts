@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/13/2019", "Added support for cases that have a ER and CSR in the same report month.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/16/2019", "Updated conditional handling and output of MFIP only cases.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/18/2018", "Updated to output two worksheets. One with ER case info, one with CSR case info.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/09/2018", "Added handling to export information about CSR's.", "Ilse Ferris, Hennepin County")
@@ -267,9 +268,8 @@ For each reviews_total in REVS_array
         'Going to STAT/REVW to to check for ER vs CSR for SNAP cases
 		CALL navigate_to_MAXIS_screen("STAT", "REVW")
         
-		If MFIP_ACTIVE = TRUE Then 
-            recert_status = "YES"	'MFIP will only have an ER - so if listed on REVS - will be an ER - don't need to check dates
-        Elseif SNAP_ACTIVE = TRUE Then
+		If MFIP_ACTIVE = TRUE Then recert_status = "YES"	'MFIP will only have an ER - so if listed on REVS - will be an ER - don't need to check dates
+        If SNAP_ACTIVE = TRUE Then
 			EMReadScreen SNAP_review_check, 8, 9, 57
 			If SNAP_review_check = "__ 01 __" then 		'If this is blank there are big issues
 				recert_status = "NO"
@@ -288,12 +288,11 @@ For each reviews_total in REVS_array
 
 				'Comparing CSR and ER daates to the month of REVS review
 				IF CSR_mo = left(REPT_month, 2) and CSR_yr = right(REPT_year, 2) THEN 
-                    recert_status = "NO"
                     CSR_month = True 
                 else 
                     CSR_month = False
                 End if 
-				If recert_mo = left(REPT_month, 2) and recert_yr <> right(REPT_year, 2) THEN recert_status = "NO"
+				'If recert_mo = left(REPT_month, 2) and recert_yr <> right(REPT_year, 2) THEN recert_status = "NO"
 				IF recert_mo = left(REPT_month, 2) and recert_yr = right(REPT_year, 2) THEN recert_status = "YES"
 			End If
 		elseif (SNAP_ACTIVE = FALSE and GRH_ACTIVE = TRUE) then
@@ -348,8 +347,9 @@ For each reviews_total in REVS_array
 			Required_appt_array (case_lang,    recert_cases) = language_coded
 			recert_cases = recert_cases + 1
 			STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
+        End if 
             '----------------------------------------------------------------------------------------------------Gathering case info for CSR cases 
-		Elseif CSR_month = true then 
+		If CSR_month = true then 
             Redim Preserve CSR_array(8, CSR_count)
             CSR_array (case_number, 	CSR_count) = MAXIS_case_number
             CSR_array (x1number, 		CSR_count) = wrkr_numb
