@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/05/2019", "MAXIS to METS Transition option updated to support METS Affliated cases.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/23/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -152,22 +153,28 @@ FOR i = 0 to total_clients
 NEXT
 '----------------------------------------------------------------------------------------------------MAXIS TO METS MIGRATION OPTION
 If initial_option = "MAXIS to METS Migration" then 
-    BeginDialog MAXIS_to_METS_dialog, 0, 0, 196, 120, "MAXIS to METS Migration"
-      EditBox 70, 80, 120, 15, worker_signature
-      ButtonGroup ButtonPressed
-        OkButton 85, 100, 50, 15
-        CancelButton 140, 100, 50, 15
-      Text 15, 20, 170, 35, "This script will case note and send a SPEC/MEMO to the selected member with specific verbiage about how to apply in METS for continued health care coverage."
-      GroupBox 10, 5, 180, 55, "Using this script:"
-      Text 35, 65, 120, 10, "Case Number: " & MAXIS_case_number
-      Text 5, 85, 60, 10, "Worker Signature:"
+    BeginDialog MAXIS_to_METS_dialog, 0, 0, 211, 135, "MAXIS to METS Migration"
+    CheckBox 20, 80, 120, 10, "Has affliated METS case? Case #:", affliated_case_checkbox
+    EditBox 145, 75, 60, 15, METS_case_number
+    Text 5, 100, 60, 10, "Worker Signature:"
+    EditBox 70, 95, 135, 15, worker_signature
+    ButtonGroup ButtonPressed
+    OkButton 100, 115, 50, 15
+    CancelButton 155, 115, 50, 15
+    Text 15, 20, 185, 25, "This script will case note and send a SPEC/MEMO to the selected member with specific verbiage about how to get continued health care coverage."
+    Text 40, 60, 130, 10, "Case Number: " & MAXIS_case_number
+    GroupBox 10, 5, 195, 45, "Using this script:"
     EndDialog
-    
+
     DO
     	DO
     		err_msg = ""					'establishing value of variable, this is necessary for the Do...LOOP
     		dialog MAXIS_to_METS_dialog		'main dialog
     		cancel_without_confirmation
+            If affliated_case_checkbox = 1 then 
+                If IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbNewLine & "* Enter a valid METS case number."
+            End if 
+            If affliated_case_checkbox = 0 and trim(METS_case_number) <> "" then err_msg = err_msg & vbNewLine & "*If case has an affliated METS case, check the checkbox and enter the METS case number."
             IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
     	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
@@ -293,13 +300,27 @@ If initial_option = "MAXIS to METS Migration" then
 
     'THE MEMO----------------------------------------------------------------------------------------------------
     Call start_a_new_spec_memo
-    Call write_variable_in_SPEC_MEMO (Client_name_list & "'s Medical Assistance will end at the end of the day on " & last_day_of_month & ". It will end because our records show that you need to complete application in MNsure so we can redetermine your eligibility for health care coverage.")
-    Call write_variable_in_SPEC_MEMO ("(Code of Federal Regulations, title 42, section 435.916, and Minnesota Statutes, section 256B.056, subdivision 7a)")
-    Call write_variable_in_SPEC_MEMO ("You can still apply for health care coverage. To apply, you must go to http://www.mnsure.org and complete an online application. If you cannot apply online, you can complete a paper application.")
-    Call write_variable_in_SPEC_MEMO ("NOTE: If you already applied for coverage for this person through MNsure or your county human services agency and got an approval notice, you do not have to apply again.")
-    Call write_variable_in_SPEC_MEMO ("If you have questions or want to ask for a paper application, call your county human services agency at 612-596-1300. You can also call the DHS Minnesota Health Care Programs (MHCP) Member Help Desk at 651-431-2670 or 800-657-3739. Or call using your preferred relay service.")
-    Call write_variable_in_SPEC_MEMO ("You can also get help through a navigator. To find one, go to http://www.mnsure.org. Click the ""Get Help"" tab on the home page. Then click the ""Find an assister"" link and use the assister directory to find a navigator near you. Your county human services agency can also help you find a navigator in your area.")
-    Call write_variable_in_SPEC_MEMO ("You have the right to appeal. Visit this website for more information: https://www.hennepin.us/residents/health-medical/health-care-assistance")
+    If METS_case_number = "" then 
+        Call write_variable_in_SPEC_MEMO (trim(client_name_list) & "'s Medical Assistance will end at the end of the day on " & last_day_of_month & ". It will end because our records show that you need to complete application in MNsure so we can redetermine your eligibility for health care coverage.")
+        Call write_variable_in_SPEC_MEMO ("(Code of Federal Regulations, title 42, section 435.916, and Minnesota Statutes, section 256B.056, subdivision 7a)")
+        Call write_variable_in_SPEC_MEMO ("You can still apply for health care coverage. To apply, you must go to http://www.mnsure.org and complete an online application. If you cannot apply online, you can complete a paper application.")
+        Call write_variable_in_SPEC_MEMO ("NOTE: If you already applied for coverage for this person through MNsure or your county human services agency and got an approval notice, you do not have to apply again.")
+        Call write_variable_in_SPEC_MEMO ("If you have questions or want to ask for a paper application, call your county human services agency at 612-596-1300. You can also call the DHS Minnesota Health Care Programs (MHCP) Member Help Desk at 651-431-2670 or 800-657-3739. Or call using your preferred relay service.")
+        Call write_variable_in_SPEC_MEMO ("You can also get help through a navigator. To find one, go to http://www.mnsure.org. Click the ""Get Help"" tab on the home page. Then click the ""Find an assister"" link and use the assister directory to find a navigator near you. Your county human services agency can also help you find a navigator in your area.")
+        Call write_variable_in_SPEC_MEMO ("You have the right to appeal. Visit this website for more information: https://www.hennepin.us/residents/health-medical/health-care-assistance")
+    Else 
+        'has METS affliated case 
+        Call write_variable_in_SPEC_MEMO (trim(client_name_list) & "'s Medical Assistance will end at the end of the day on " & last_day_of_month & ". Your eligibility for health care coverage needs to be redetermined. We are redetermining your eligibility under a new process using the MNsure system.")
+        Call write_variable_in_SPEC_MEMO ("")
+        Call write_variable_in_SPEC_MEMO ("MNsure is the system that determines health care eligibility. Our records indicate that you are a member of an active case on the MNsure system. Your coverage will be redetermined on that active case.")
+        Call write_variable_in_SPEC_MEMO ("(Code of Federal Regulations, title 42, section 435.916, and Minnesota Statutes, section 256B.056, subdivision 7a)")
+        Call write_variable_in_SPEC_MEMO ("")
+        Call write_variable_in_SPEC_MEMO ("If we have all the information we need, you will get another health care notice. It will tell you which health care program you are eligible for. If you have already received this notice, no further action is needed. If we need more information, we will contact you.") 
+        Call write_variable_in_SPEC_MEMO ("If you have questions, call your worker at 612-596-1300. You can also call the DHS Minnesota Health Care Programs (MHCP) Member Help Desk at 651-431-2670 or 800-657-3739. Or call using your preferred relay service.")
+        Call write_variable_in_SPEC_MEMO ("")
+        Call write_variable_in_SPEC_MEMO ("You have the right to appeal. Visit this website for more information: https://www.hennepin.us/residents/health-medical/health-care-assistance")
+    End if 
+
     PF4
     stats_counter = stats_counter + 1
 End if 
@@ -333,8 +354,13 @@ If PMI_checkbox = 1  then Call write_variable_in_CASE_NOTE("* Case has known dup
 'METS to MAXIS case note only 
 If initial_option = "MAXIS to METS Migration" then 
     Call write_variable_in_CASE_NOTE("* This case was identified by DHS as requiring conversion to the METS system.")
-    Call write_variable_in_CASE_NOTE("* No associated METS case exists for the listed members.")
-    Call write_variable_in_CASE_NOTE("* Informational notice generated via SPEC/MEMO to client regarding applying through mnsure.org.")
+    If METS_case_number = "" then 
+        Call write_variable_in_CASE_NOTE("* No associated METS case exists for the listed members.")
+        Call write_variable_in_CASE_NOTE("* Informational notice generated via SPEC/MEMO to client regarding applying through mnsure.org.")
+    Else 
+        'For cases with affliated METS cases 
+        Call write_variable_in_CASE_NOTE("* Informational notice generated via SPEC/MEMO to client. The METS team will contact the client if any additional information is needed to make a determination.")
+    End if 
 End if 
 
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes) 
