@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("07/10/2019", "Bug Fix - script would complete if the SPEC/WCOM navigation button was used, preventing the full dialog from being cmompleted.", "Casey Love, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/04/2017", "Added handling for multiple recipient changes to SPEC/WCOM", "David Courtright, St Louis County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -253,51 +254,62 @@ HC_check = 0
 updated_MMIS_check = 0
 WCOM_check = 0
 
+Do
+    DO
+    	err_msg = ""
+        SNAP_pnd2_code = ""
+        cash_pnd2_code = ""
+        emer_pnd2_code = ""
+    	Dialog denied_dialog
+    	cancel_confirmation
+    	If buttonpressed = SPEC_WCOM_button then
+            call navigate_to_MAXIS_screen("spec", "wcom")
+            err_msg = "LOOP" & err_msg
+        ElseIf buttonpressed = autofill_previous_info_button then
+            call autofill_previous_denied_progs_note_info
+            err_msg = "LOOP" & err_msg
+        Else
+            coded_denial = "" 			'Reseting this value to make sure we are not duplicating the case note.
+            call check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, emer_pnd2_code)
+        End If
+    	If MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "Please enter a case number."
+    	If application_date = "" THEN err_msg = err_msg & vbCr & "Please enter an application date."
+    	If (SNAP_check = checked and SNAP_denial_date = "") or (SNAP_check = unchecked and SNAP_denial_date <> "") THEN err_msg = err_msg & vbCr & "You have checked SNAP but not added a denial date, or vice versa."
+    	If (HC_check = checked and HC_denial_date = "") or (HC_check = unchecked and HC_denial_date <> "") THEN err_msg = err_msg & vbCr & "You have checked HC but not added a denial date, or vice versa."
+    	If (cash_check = checked and cash_denial_date = "") or (cash_check = unchecked and cash_denial_date <> "") THEN err_msg = err_msg & vbCr & "You have checked cash but not added a denial date, or vice versa."
+    	If (emer_check = checked and emer_denial_date = "") or (emer_check = unchecked and emer_denial_date <> "") THEN err_msg = err_msg & vbCr & "You have checked emer but not added a denial date, or vice versa."
+    	If isdate(SNAP_denial_date) = FALSE and SNAP_check = checked THEN err_msg = err_msg & vbCr & "The date you entered for SNAP denial is not a valid date."
+    	If isdate(HC_denial_date) = FALSE and HC_check = checked THEN err_msg = err_msg & vbCr & "The date you entered for HC denial is not a valid date."
+    	If isdate(cash_denial_date) = FALSE and cash_check = checked THEN err_msg = err_msg & vbCr & "The date you entered for CASH denial is not a valid date."
+    	If isdate(emer_denial_date) = FALSE and emer_check = checked THEN err_msg = err_msg & vbCr & "The date you entered for emer denial is not a valid date."
+    	If SNAP_check = checked and missing_verifs_SNAP_checkbox = unchecked and denied_pnd2_SNAP_checkbox = unchecked and withdraw_pnd2_SNAP_checkbox = unchecked and reason_for_denial = "" THEN err_msg = err_msg & vbCr & "You selected the SNAP checkbox but did not check a reason or write a reason in other reasons."
+    	If HC_check = checked and missing_verifs_HC_checkbox = unchecked and withdraw_pact_HC_checkbox = unchecked and reason_for_denial = "" THEN err_msg = err_msg & vbCr & "You selected the HC checkbox but did not check a reason or write a reason in other reasons."
+    	If cash_check = checked and missing_verifs_cash_checkbox = unchecked and denied_pnd2_cash_checkbox = unchecked and withdraw_pnd2_cash_checkbox = unchecked and reason_for_denial = "" THEN err_msg = err_msg & vbCr & "You selected the CASH checkbox but did not check a reason or write a reason in other reasons."
+    	If emer_check = checked and missing_verifs_emer_checkbox = unchecked and denied_pnd2_emer_checkbox = unchecked and withdraw_pnd2_emer_checkbox = unchecked and reason_for_denial = "" THEN err_msg = err_msg & vbCr & "You selected the EMER checkbox but did not check a reason or write a reason in other reasons."
+    	If missing_verifs_SNAP_checkbox = checked and verifs_needed = "" THEN err_msg = err_msg & vbCr & "You checked SNAP missings verifs as a reason but didn't enter verifs needed."
+    	If missing_verifs_HC_checkbox = checked and verifs_needed = "" THEN err_msg = err_msg & vbCr & "You checked HC missings verifs as a reason but didn't enter verifs needed, or vice versa."
+    	If missing_verifs_CASH_checkbox = checked and verifs_needed = "" THEN err_msg = err_msg & vbCr & "You checked CASH missings verifs as a reason but didn't enter verifs needed, or vice versa."
+    	If missing_verifs_EMER_checkbox = checked and verifs_needed = "" THEN err_msg = err_msg & vbCr & "You checked EMER missings verifs as a reason but didn't enter verifs needed, or vice versa."
+    	If (open_prog_check = checked and open_progs = "") and (open_prog_check = unchecked and open_progs <> "") THEN err_msg = err_msg & vbCr & "You checked that there are open/pending progs but didn't list them, or vice versa."
+    	If (HH_membs_on_HC_check = checked and HH_membs_on_HC = "") and (HH_membs_on_HC_check = unchecked and HH_membs_on_HC <> "") THEN err_msg = err_msg & vbCr & "You checked that there are members open on HC but didn't list them, or vice versa."
+    	If worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a worker signature."
 
-DO
-	err_msg = ""
-	Dialog denied_dialog
-	cancel_confirmation
-	If buttonpressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")
-	If buttonpressed = autofill_previous_info_button then call autofill_previous_denied_progs_note_info
-	If MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "Please enter a case number."
-	If application_date = "" THEN err_msg = err_msg & vbCr & "Please enter an application date."
-	If (SNAP_check = checked and SNAP_denial_date = "") or (SNAP_check = unchecked and SNAP_denial_date <> "") THEN err_msg = err_msg & vbCr & "You have checked SNAP but not added a denial date, or vice versa."
-	If (HC_check = checked and HC_denial_date = "") or (HC_check = unchecked and HC_denial_date <> "") THEN err_msg = err_msg & vbCr & "You have checked HC but not added a denial date, or vice versa."
-	If (cash_check = checked and cash_denial_date = "") or (cash_check = unchecked and cash_denial_date <> "") THEN err_msg = err_msg & vbCr & "You have checked cash but not added a denial date, or vice versa."
-	If (emer_check = checked and emer_denial_date = "") or (emer_check = unchecked and emer_denial_date <> "") THEN err_msg = err_msg & vbCr & "You have checked emer but not added a denial date, or vice versa."
-	If isdate(SNAP_denial_date) = FALSE and SNAP_check = checked THEN err_msg = err_msg & vbCr & "The date you entered for SNAP denial is not a valid date."
-	If isdate(HC_denial_date) = FALSE and HC_check = checked THEN err_msg = err_msg & vbCr & "The date you entered for HC denial is not a valid date."
-	If isdate(cash_denial_date) = FALSE and cash_check = checked THEN err_msg = err_msg & vbCr & "The date you entered for CASH denial is not a valid date."
-	If isdate(emer_denial_date) = FALSE and emer_check = checked THEN err_msg = err_msg & vbCr & "The date you entered for emer denial is not a valid date."
-	If SNAP_check = checked and missing_verifs_SNAP_checkbox = unchecked and denied_pnd2_SNAP_checkbox = unchecked and withdraw_pnd2_SNAP_checkbox = unchecked and reason_for_denial = "" THEN err_msg = err_msg & vbCr & "You selected the SNAP checkbox but did not check a reason or write a reason in other reasons."
-	If HC_check = checked and missing_verifs_HC_checkbox = unchecked and withdraw_pact_HC_checkbox = unchecked and reason_for_denial = "" THEN err_msg = err_msg & vbCr & "You selected the HC checkbox but did not check a reason or write a reason in other reasons."
-	If cash_check = checked and missing_verifs_cash_checkbox = unchecked and denied_pnd2_cash_checkbox = unchecked and withdraw_pnd2_cash_checkbox = unchecked and reason_for_denial = "" THEN err_msg = err_msg & vbCr & "You selected the CASH checkbox but did not check a reason or write a reason in other reasons."
-	If emer_check = checked and missing_verifs_emer_checkbox = unchecked and denied_pnd2_emer_checkbox = unchecked and withdraw_pnd2_emer_checkbox = unchecked and reason_for_denial = "" THEN err_msg = err_msg & vbCr & "You selected the EMER checkbox but did not check a reason or write a reason in other reasons."
-	If missing_verifs_SNAP_checkbox = checked and verifs_needed = "" THEN err_msg = err_msg & vbCr & "You checked SNAP missings verifs as a reason but didn't enter verifs needed."
-	If missing_verifs_HC_checkbox = checked and verifs_needed = "" THEN err_msg = err_msg & vbCr & "You checked HC missings verifs as a reason but didn't enter verifs needed, or vice versa."
-	If missing_verifs_CASH_checkbox = checked and verifs_needed = "" THEN err_msg = err_msg & vbCr & "You checked CASH missings verifs as a reason but didn't enter verifs needed, or vice versa."
-	If missing_verifs_EMER_checkbox = checked and verifs_needed = "" THEN err_msg = err_msg & vbCr & "You checked EMER missings verifs as a reason but didn't enter verifs needed, or vice versa."
-	If (open_prog_check = checked and open_progs = "") and (open_prog_check = unchecked and open_progs <> "") THEN err_msg = err_msg & vbCr & "You checked that there are open/pending progs but didn't list them, or vice versa."
-	If (HH_membs_on_HC_check = checked and HH_membs_on_HC = "") and (HH_membs_on_HC_check = unchecked and HH_membs_on_HC <> "") THEN err_msg = err_msg & vbCr & "You checked that there are members open on HC but didn't list them, or vice versa."
-	If worker_signature = "" THEN err_msg = err_msg & vbCr & "Please enter a worker signature."
-	coded_denial = "" 			'Reseting this value to make sure we are not duplicating the case note.
-	call check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, emer_pnd2_code)
-	If SNAP_pnd2_code = "R" and withdraw_pnd2_SNAP_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has SNAP coded as R. Please select withdraw checkbox."
-	If SNAP_pnd2_code = "I" and denied_pnd2_SNAP_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has SNAP coded as I. Please select deny from PND2 checkbox."
-	If SNAP_pnd2_code <> "R" and withdraw_pnd2_SNAP_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating SNAP was withdraw but your PND2 is not coded as such Please correct your PND2."
-	If SNAP_pnd2_code <> "I" and denied_pnd2_SNAP_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating SNAP was incomplete and denied but your PND2 is not coded as such Please correct your PND2."
-	If cash_pnd2_code = "R" and withdraw_pnd2_cash_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has CASH coded as R. Please select withdraw checkbox."
-	If cash_pnd2_code = "I" and denied_pnd2_cash_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has CASH coded as I. Please select deny from PND2 checkbox."
-	If cash_pnd2_code <> "R" and withdraw_pnd2_cash_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating CASH was withdraw but your PND2 is not coded as such Please correct your PND2."
-	If cash_pnd2_code <> "I" and denied_pnd2_cash_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating CASH was incomplete and denied but your PND2 is not coded as such Please correct your PND2."
-	If emer_pnd2_code = "R" and withdraw_pnd2_emer_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has EMER coded as R. Please select withdraw checkbox."
-	If emer_pnd2_code = "I" and denied_pnd2_emer_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has EMER coded as I. Please select deny from PND2 checkbox."
-	If emer_pnd2_code <> "R" and withdraw_pnd2_emer_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating EMER was withdraw but your PND2 is not coded as such Please correct your PND2."
-	If emer_pnd2_code <> "I" and denied_pnd2_emer_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating EMER was incomplete and denied but your PND2 is not coded as such Please correct your PND2."
-	IF err_msg <> "" THEN msgbox err_msg
-LOOP until err_msg = ""
-
+    	If SNAP_pnd2_code = "R" and withdraw_pnd2_SNAP_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has SNAP coded as R. Please select withdraw checkbox."
+    	If SNAP_pnd2_code = "I" and denied_pnd2_SNAP_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has SNAP coded as I. Please select deny from PND2 checkbox."
+    	If SNAP_pnd2_code <> "R" and withdraw_pnd2_SNAP_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating SNAP was withdraw but your PND2 is not coded as such Please correct your PND2."
+    	If SNAP_pnd2_code <> "I" and denied_pnd2_SNAP_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating SNAP was incomplete and denied but your PND2 is not coded as such Please correct your PND2."
+    	If cash_pnd2_code = "R" and withdraw_pnd2_cash_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has CASH coded as R. Please select withdraw checkbox."
+    	If cash_pnd2_code = "I" and denied_pnd2_cash_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has CASH coded as I. Please select deny from PND2 checkbox."
+    	If cash_pnd2_code <> "R" and withdraw_pnd2_cash_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating CASH was withdraw but your PND2 is not coded as such Please correct your PND2."
+    	If cash_pnd2_code <> "I" and denied_pnd2_cash_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating CASH was incomplete and denied but your PND2 is not coded as such Please correct your PND2."
+    	If emer_pnd2_code = "R" and withdraw_pnd2_emer_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has EMER coded as R. Please select withdraw checkbox."
+    	If emer_pnd2_code = "I" and denied_pnd2_emer_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has EMER coded as I. Please select deny from PND2 checkbox."
+    	If emer_pnd2_code <> "R" and withdraw_pnd2_emer_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating EMER was withdraw but your PND2 is not coded as such Please correct your PND2."
+    	If emer_pnd2_code <> "I" and denied_pnd2_emer_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating EMER was incomplete and denied but your PND2 is not coded as such Please correct your PND2."
+    	IF err_msg <> "" and left(err_msg, 4) <> "LOOP" THEN msgbox err_msg
+    LOOP until err_msg = ""
+    Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)

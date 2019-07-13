@@ -1438,6 +1438,71 @@ function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
         Loop until cint(ACCT_panel_current) = cint(ACCT_total)
       End if
     Next
+  ElseIf panel_read_from = "ACUT" Then '----------------------------------------------------------------------------------------------------ACUT
+    For each HH_member in HH_member_array
+        EMWriteScreen HH_member, 20, 76
+        transmit
+        EMReadScreen ACUT_total, 1, 2, 78
+        If ACUT_total <> 0 then
+            EMReadScreen share_yn, 1, 6, 42
+            EMReadScreen retro_heat_verif, 1, 10, 35
+            EMReadScreen retro_heat_amount, 8, 10, 41
+            EMReadScreen retro_air_verif, 1, 11, 35
+            EMReadScreen retro_air_amount, 8, 11, 41
+            EMReadScreen retro_elec_verif, 1, 12, 35
+            EMReadScreen retro_elec_amount, 8, 12, 41
+            EMReadScreen retro_fuel_verif, 1, 13, 35
+            EMReadScreen retro_fuel_amount, 8, 13, 41
+            EMReadScreen retro_garbage_verif, 1, 14, 35
+            EMReadScreen retro_garbage_amount, 8, 14, 41
+            EMReadScreen retro_water_verif, 1, 15, 35
+            EMReadScreen retro_water_amount, 8, 15, 41
+            EMReadScreen retro_sewer_verif, 1, 16, 35
+            EMReadScreen retro_sewer_amount, 8, 16, 41
+            EMReadScreen retro_other_verif, 1, 17, 35
+            EMReadScreen retro_other_amount, 8, 17, 41
+
+            EMReadScreen prosp_heat_verif, 1, 10, 55
+            EMReadScreen prosp_heat_amount, 8, 10, 61
+            EMReadScreen prosp_air_verif, 1, 11, 55
+            EMReadScreen prosp_air_amount, 8, 11, 61
+            EMReadScreen prosp_elec_verif, 1, 12, 55
+            EMReadScreen prosp_elec_amount, 8, 12, 61
+            EMReadScreen prosp_fuel_verif, 1, 13, 55
+            EMReadScreen prosp_fuel_amount, 8, 13, 61
+            EMReadScreen prosp_garbage_verif, 1, 14, 55
+            EMReadScreen prosp_garbage_amount, 8, 14, 61
+            EMReadScreen prosp_water_verif, 1, 15, 55
+            EMReadScreen prosp_water_amount, 8, 15, 61
+            EMReadScreen prosp_sewer_verif, 1, 16, 55
+            EMReadScreen prosp_sewer_amount, 8, 16, 61
+            EMReadScreen prosp_other_verif, 1, 17, 55
+            EMReadScreen prosp_other_amount, 8, 17, 61
+
+            EMReadScreen dwp_phone_yn, 1, 18, 55
+
+            variable_written_to = "Actutal Utilitiy Expense for M" & HH_member
+            If share_yn = "Y" Then variable_written_to = variable_written_to & " - this expense is shared."
+            If retro_heat_verif <> "_" Then variable_written_to = variable_written_to & " Heat (retro) $" & trim(retro_heat_amount) & " - Verif: " & retro_heat_verif & "."
+            If prosp_heat_verif <> "_" Then variable_written_to = variable_written_to & " Heat (prosp) $" & trim(prosp_heat_amount) & " - Verif: " & prosp_heat_verif & "."
+            If retro_air_verif <> "_" Then variable_written_to = variable_written_to & " Air (retro) $" & trim(retro_air_amount) & " - Verif: " & retro_air_verif & "."
+            If prosp_air_verif <> "_" Then variable_written_to = variable_written_to & " Air (prosp) $" & trim(prosp_air_amount) & " - Verif: " & prosp_air_verif & "."
+            If retro_elec_verif <> "_" Then variable_written_to = variable_written_to & " Electric (retro) $" & trim(retro_elec_amount) & " - Verif: " & retro_elec_verif & "."
+            If prosp_elec_verif <> "_" Then variable_written_to = variable_written_to & " Electric (prosp) $" & trim(prosp_elec_amount) & " - Verif: " & prosp_elec_verif & "."
+            If retro_fuel_verif <> "_" Then variable_written_to = variable_written_to & " Fuel (retro) $" & trim(retro_fuel_amount) & " - Verif: " & retro_fuel_verif & "."
+            If prosp_fuel_verif <> "_" Then variable_written_to = variable_written_to & " Fuel (prosp) $" & trim(prosp_fuel_amount) & " - Verif: " & prosp_fuel_verif & "."
+            If retro_garbage_verif <> "_" Then variable_written_to = variable_written_to & " Garbage (retro) $" & trim(retro_garbage_amount) & " - Verif: " & retro_garbage_verif & "."
+            If prosp_garbage_verif <> "_" Then variable_written_to = variable_written_to & " Garbage (prosp) $" & trim(prosp_garbage_amount) & " - Verif: " & prosp_garbage_verif & "."
+            If retro_water_verif <> "_" Then variable_written_to = variable_written_to & " Water (retro) $" & trim(retro_water_amount) & " - Verif: " & retro_water_verif & "."
+            If prosp_water_verif <> "_" Then variable_written_to = variable_written_to & " Water (prosp) $" & trim(prosp_water_amount) & " - Verif: " & prosp_water_verif & "."
+            If retro_sewer_verif <> "_" Then variable_written_to = variable_written_to & " Sewer (retro) $" & trim(retro_sewer_amount) & " - Verif: " & retro_sewer_verif & "."
+            If prosp_sewer_verif <> "_" Then variable_written_to = variable_written_to & " Sewer (prosp) $" & trim(prosp_sewer_amount) & " - Verif: " & prosp_sewer_verif & "."
+            If retro_other_verif <> "_" Then variable_written_to = variable_written_to & " Other (retro) $" & trim(retro_other_amount) & " - Verif: " & retro_other_verif & "."
+            If prosp_other_verif <> "_" Then variable_written_to = variable_written_to & " Other (prosp) $" & trim(prosp_other_amount) & " - Verif: " & prosp_other_verif & "."
+            If dwp_phone_yn = "Y" Then variable_written_to = variable_written_to & " Standard DWP Phone allowance of $35."
+
+        End If
+    Next
   Elseif panel_read_from = "ADDR" then '----------------------------------------------------------------------------------------------------ADDR
     EMReadScreen addr_line_01, 22, 6, 43
     EMReadScreen addr_line_02, 22, 7, 43

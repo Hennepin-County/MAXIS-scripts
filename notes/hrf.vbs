@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("07/10/2019", "Fixed a bug that prevented the script from reading the grant amount if Significant Change was applied on MFIP. Additionally added functionality to copy significant change information into the casenote if ELIG/MF is read.", "Casey Love, Hennepin County")
 Call changelog_update("03/06/2019", "Added 2 new options to the Notes on Income button to support referencing CASE/NOTE made by Earned Income Budgeting.", "Casey Love, Hennepin County")
 call changelog_update("04/23/2018", "Added NOTES on INCOME field and some preselected options to input on NOTES on INCOME field for more detailed case notes.", "Casey Love, Hennepin County")
 call changelog_update("02/23/2018", "Added closing message to reminder to workers to accept all work items upon processing HRF's.", "Ilse Ferris, Hennepin County")
@@ -759,13 +760,21 @@ ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
 	'grabbing info from elig----------------------------------------------------------------------------------------------------------------------
 	If grab_MFIP_info_check = 1 then
 		call navigate_to_MAXIS_screen("elig", "mfip")
+        EMReadScreen sig_change_check, 4, 3, 38
+        If sig_change_check = "MFSC" Then
+            EMReadScreen budeget_month_income, 8, 9, 35
+            budeget_month_income = trim(budeget_month_income)
+            EMReadScreen payment_month_income, 8, 9, 54
+            payment_month_income = trim(payment_month_income)
+            transmit
+        End If
 		EMReadScreen MFPR_check, 4, 3, 47
 		If MFPR_check <> "MFPR" then
 			MsgBox "The script couldn't find ELIG/MFIP. It will now jump to case note."
 		Else
 			EMWriteScreen "MFSM", 20, 71
 			transmit
-			EMReadScreen MSSM_line_01, 37, 12, 44
+			EMReadScreen MFSM_line_01, 37, 13, 44
 			EMReadScreen MFSM_line_02, 37, 14, 44
 			EMReadScreen MFSM_line_03, 37, 15, 44
 			EMReadScreen MFSM_line_04, 37, 16, 44
@@ -819,6 +828,9 @@ ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
 	call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 	call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 	call write_variable_in_CASE_NOTE("---")
+    If sig_change_check = "MFSC" Then
+        call write_variable_in_CASE_NOTE("   Significant Change used: Total income decreased from $" & budeget_month_income & " to $" & payment_month_income & ".")
+    End If
 	If MFPR_check = "MFPR" then
 	  call write_variable_in_CASE_NOTE("   " & MFSM_line_01)
 	  call write_variable_in_CASE_NOTE("   " & MFSM_line_02)
