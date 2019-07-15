@@ -39,8 +39,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
-
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
@@ -60,10 +58,10 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'FUNCTIONS==================================================================================================================
-Function Generate_Client_List(list_for_dropdown)
+Function Generate_Client_List(list_for_dropdown, initial_text)
 
 	memb_row = 5
-    list_for_dropdown = "Select"
+    list_for_dropdown = initital_text
 
 	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
 	Do
@@ -873,11 +871,11 @@ function update_shel_notes()
 
     total_shelter_amount = FormatCurrency(total_shelter_amount)
 
-    MsgBOx "Length of full_shelter_details is " & len(full_shelter_details)
+    ' MsgBOx "Length of full_shelter_details is " & len(full_shelter_details)
     if left(full_shelter_details, 2) = "; " Then full_shelter_details = right(full_shelter_details, len(full_shelter_details) - 2)
-    If len(full_shelter_details) > 90 Then
-        shelter_details = left(full_shelter_details, 90)
-        shelter_details_two = right(full_shelter_details, len(full_shelter_details) - 90)
+    If len(full_shelter_details) > 85 Then
+        shelter_details = left(full_shelter_details, 85)
+        shelter_details_two = right(full_shelter_details, len(full_shelter_details) - 85)
     Else
         shelter_details = full_shelter_details
     End If
@@ -908,6 +906,171 @@ function read_HEST_panel()
             hest_information = "Phone ONLY - $47"
         End If
     END IF
+end function
+
+function read_ADDR_panel()
+    Call navigate_to_MAXIS_screen("STAT", "ADDR")
+
+    EMReadScreen line_one, 22, 6, 43
+    EMReadScreen line_two, 22, 7, 43
+    EMReadScreen city_line, 15, 8, 43
+    EMReadScreen state_line, 2, 8, 66
+    EMReadScreen zip_line, 7, 9, 43
+    EMReadScreen county_line, 2, 9, 66
+    EMReadScreen verif_line, 2, 9, 74
+    EMReadScreen homeless_line, 1, 10, 43
+    EMReadScreen reservation_line, 1, 10, 74
+    EMReadScreen living_sit_line, 2, 11, 43
+
+    addr_line_one = replace(line_one, "_", "")
+    addr_line_two = replace(line_two, "_", "")
+    city = replace(city_line, "_", "")
+    state = state_line
+    zip = replace(zip_line, "_", "")
+
+    If county_line = "01" Then addr_county = "01 Aitkin"
+    If county_line = "02" Then addr_county = "02 Anoka"
+    If county_line = "03" Then addr_county = "03 Becker"
+    If county_line = "04" Then addr_county = "04 Beltrami"
+    If county_line = "05" Then addr_county = "05 Benton"
+    If county_line = "06" Then addr_county = "06 Big Stone"
+    If county_line = "07" Then addr_county = "07 Blue Earth"
+    If county_line = "08" Then addr_county = "08 Brown"
+    If county_line = "09" Then addr_county = "09 Carlton"
+    If county_line = "10" Then addr_county = "10 Carver"
+    If county_line = "11" Then addr_county = "11 Cass"
+    If county_line = "12" Then addr_county = "12 Chippewa"
+    If county_line = "13" Then addr_county = "13 Chisago"
+    If county_line = "14" Then addr_county = "14 Clay"
+    If county_line = "15" Then addr_county = "15 Clearwater"
+    If county_line = "16" Then addr_county = "16 Cook"
+    If county_line = "17" Then addr_county = "17 Cottonwood"
+    If county_line = "18" Then addr_county = "18 Crow Wing"
+    If county_line = "19" Then addr_county = "19 Dakota"
+    If county_line = "20" Then addr_county = "20 Dodge"
+    If county_line = "21" Then addr_county = "21 Douglas"
+    If county_line = "22" Then addr_county = "22 Faribault"
+    If county_line = "23" Then addr_county = "23 Fillmore"
+    If county_line = "24" Then addr_county = "24 Freeborn"
+    If county_line = "25" Then addr_county = "25 Goodhue"
+    If county_line = "26" Then addr_county = "26 Grant"
+    If county_line = "27" Then addr_county = "27 Hennepin"
+    If county_line = "28" Then addr_county = "28 Houston"
+    If county_line = "29" Then addr_county = "29 Hubbard"
+    If county_line = "30" Then addr_county = "30 Isanti"
+    If county_line = "31" Then addr_county = "31 Itasca"
+    If county_line = "32" Then addr_county = "32 Jackson"
+    If county_line = "33" Then addr_county = "33 Kanabec"
+    If county_line = "34" Then addr_county = "34 Kandiyohi"
+    If county_line = "35" Then addr_county = "35 Kittson"
+    If county_line = "36" Then addr_county = "36 Koochiching"
+    If county_line = "37" Then addr_county = "37 Lac Qui Parle"
+    If county_line = "38" Then addr_county = "38 Lake"
+    If county_line = "39" Then addr_county = "39 Lake Of Woods"
+    If county_line = "40" Then addr_county = "40 Le Sueur"
+    If county_line = "41" Then addr_county = "41 Lincoln"
+    If county_line = "42" Then addr_county = "42 Lyon"
+    If county_line = "43" Then addr_county = "43 Mcleod"
+    If county_line = "44" Then addr_county = "44 Mahnomen"
+    If county_line = "45" Then addr_county = "45 Marshall"
+    If county_line = "46" Then addr_county = "46 Martin"
+    If county_line = "47" Then addr_county = "47 Meeker"
+    If county_line = "48" Then addr_county = "48 Mille Lacs"
+    If county_line = "49" Then addr_county = "49 Morrison"
+    If county_line = "50" Then addr_county = "50 Mower"
+    If county_line = "51" Then addr_county = "51 Murray"
+    If county_line = "52" Then addr_county = "52 Nicollet"
+    If county_line = "53" Then addr_county = "53 Nobles"
+    If county_line = "54" Then addr_county = "54 Norman"
+    If county_line = "55" Then addr_county = "55 Olmsted"
+    If county_line = "56" Then addr_county = "56 Otter Tail"
+    If county_line = "57" Then addr_county = "57 Pennington"
+    If county_line = "58" Then addr_county = "58 Pine"
+    If county_line = "59" Then addr_county = "59 Pipestone"
+    If county_line = "60" Then addr_county = "60 Polk"
+    If county_line = "61" Then addr_county = "61 Pope"
+    If county_line = "62" Then addr_county = "62 Ramsey"
+    If county_line = "63" Then addr_county = "63 Red Lake"
+    If county_line = "64" Then addr_county = "64 Redwood"
+    If county_line = "65" Then addr_county = "65 Renville"
+    If county_line = "66" Then addr_county = "66 Rice"
+    If county_line = "67" Then addr_county = "67 Rock"
+    If county_line = "68" Then addr_county = "68 Roseau"
+    If county_line = "69" Then addr_county = "69 St. Louis"
+    If county_line = "70" Then addr_county = "70 Scott"
+    If county_line = "71" Then addr_county = "71 Sherburne"
+    If county_line = "72" Then addr_county = "72 Sibley"
+    If county_line = "73" Then addr_county = "73 Stearns"
+    If county_line = "74" Then addr_county = "74 Steele"
+    If county_line = "75" Then addr_county = "75 Stevens"
+    If county_line = "76" Then addr_county = "76 Swift"
+    If county_line = "77" Then addr_county = "77 Todd"
+    If county_line = "78" Then addr_county = "78 Traverse"
+    If county_line = "79" Then addr_county = "79 Wabasha"
+    If county_line = "80" Then addr_county = "80 Wadena"
+    If county_line = "81" Then addr_county = "81 Waseca"
+    If county_line = "82" Then addr_county = "82 Washington"
+    If county_line = "83" Then addr_county = "83 Watonwan"
+    If county_line = "84" Then addr_county = "84 Wilkin"
+    If county_line = "85" Then addr_county = "85 Winona"
+    If county_line = "86" Then addr_county = "86 Wright"
+    If county_line = "87" Then addr_county = "87 Yellow Medicine"
+    If county_line = "89" Then addr_county = "89 Out-of-State"
+
+    If homeless_line = "Y" Then homeless_yn = "Yes"
+    If homeless_line = "N" Then homeless_yn = "No"
+    If reservation_line = "Y" Then reservation_yn = "Yes"
+    If reservation_line = "N" Then reservation_yn = "No"
+
+    If verif_line = "SF" Then addr_verif = "SF - Shelter Form"
+    If verif_line = "Co" Then addr_verif = "CO - Coltrl Stmt"
+    If verif_line = "MO" Then addr_verif = "MO - Mortgage Papers"
+    If verif_line = "TX" Then addr_verif = "TX - Prop Tax Stmt"
+    If verif_line = "CD" Then addr_verif = "CD - Contrct for Deed"
+    If verif_line = "UT" Then addr_verif = "UT - Utility Stmt"
+    If verif_line = "DL" Then addr_verif = "DL - Driver Lic/State ID"
+    If verif_line = "OT" Then addr_verif = "OT - Other Document"
+    If verif_line = "NO" Then addr_verif = "NO - No Ver Prvd"
+    If verif_line = "?_" Then addr_verif = "? - Delayed"
+    If verif_line = "__" Then addr_verif = "Blank"
+
+
+    If living_sit_line = "__" Then living_situation = "Blank"
+    If living_sit_line = "01" Then living_situation = "01 - Own home, lease or roomate"
+    If living_sit_line = "02" Then living_situation = "02 - Family/Friends - economic hardship"
+    If living_sit_line = "03" Then living_situation = "03 -  servc prvdr- foster/group home"
+    If living_sit_line = "04" Then living_situation = "04 - Hospital/Treatment/Detox/Nursing Home"
+    If living_sit_line = "05" Then living_situation = "05 - Jail/Prison//Juvenile Det."
+    If living_sit_line = "06" Then living_situation = "06 - Hotel/Motel"
+    If living_sit_line = "07" Then living_situation = "07 - Emergency Shelter"
+    If living_sit_line = "08" Then living_situation = "08 - Place not meant for Housing"
+    If living_sit_line = "09" Then living_situation = "09 - Declined"
+    If living_sit_line = "10" Then living_situation = "10 - Unknown"
+
+    EMReadScreen addr_eff_date, 8, 4, 43
+    EMReadScreen addr_future_date, 8, 4, 66
+    EMReadScreen mail_line_one, 22, 13, 43
+    EMReadScreen mail_line_two, 22, 14, 43
+    EMReadScreen mail_city_line, 15, 15, 43
+    EMReadScreen mail_state_line, 2, 16, 43
+    EMReadScreen mail_zip_line, 7, 16, 52
+
+    addr_eff_date = replace(addr_eff_date, "' ", "/")
+    addr_future_date = trim(addr_future_date)
+    addr_future_date = replace(addr_future_date, " ", "/")
+    mail_line_one = replace(mail_line_one, "_", "")
+    mail_line_two = replace(mail_line_two, "_", "")
+    mail_city_line = replace(mail_city_line, "_", "")
+    mail_state_line = replace(mail_state_line, "_", "")
+    mail_zip_line = replace(mail_zip_line, "_", "")
+
+    notes_on_address = "Address effective: " & addr_eff_date & "."
+    If mail_line_one <> "" Then
+        If mail_line_two = "" Then notes_on_address = notes_on_address & " Mailing address: " & mail_line_one & " " & mail_city_line & ", " & mail_state_line & " " & mail_zip_line
+        If mail_line_two <> "" Then notes_on_address = notes_on_address & " Mailing address: " & mail_line_one & " " & mail_line_two & " " & mail_city_line & ", " & mail_state_line & " " & mail_zip_line
+    End If
+    If addr_future_date <> "" Then notes_on_address = notes_on_address & "; ** Address will update effective " & addr_future_date & "."
+
 end function
 
 function read_JOBS_panel()
@@ -948,22 +1111,34 @@ function read_JOBS_panel()
     IF GRH_PIC_check = "GRH" THEN
     	EMWriteScreen "x", 19, 71
     	transmit
-    	EMReadScreen GRH_JOBS_amt, 8, 16, 69
-    	GRH_JOBS_amt = trim(GRH_JOBS_amt)
+    	EMReadScreen GRH_JOBS_pay_amt, 8, 16, 69
+    	GRH_JOBS_pay_amt = trim(GRH_JOBS_pay_amt)
+        EMReadScreen GRH_JOBS_total_amt, 8, 17, 69
+        GRH_JOBS_total_amt = trim(GRH_JOBS_total_amt)
     	EMReadScreen GRH_pay_frequency, 1, 3, 63
     	EMReadScreen GRH_date_of_pic_calc, 8, 3, 30
     	GRH_date_of_pic_calc = replace(GRH_date_of_pic_calc, " ", "/")
+        ALL_JOBS_PANELS_ARRAY(grh_calc_date, job_count) = GRH_date_of_pic_calc
+        ALL_JOBS_PANELS_ARRAY(grh_pay_freq, job_count) = GRH_pay_frequency
+        ALL_JOBS_PANELS_ARRAY(grh_pay_day_income, job_count) = GRH_JOBS_pay_amt
+        ALL_JOBS_PANELS_ARRAY(grh_prosp_income, job_count) = GRH_JOBS_total_amt
     	PF3
     END IF
     '  Reads the information on the retro side of JOBS
     EMReadScreen retro_JOBS_amt, 8, 17, 38
+    EMReadScreen retro_JOBS_hrs, 3, 18, 43
     ALL_JOBS_PANELS_ARRAY(job_retro_income, job_count) = trim(retro_JOBS_amt)
+    ALL_JOBS_PANELS_ARRAY(retro_hours, job_count) = trim(retro_JOBS_hrs)
 
     '  Reads the information on the prospective side of JOBS
     EMReadScreen prospective_JOBS_amt, 8, 17, 67
+    EMReadScreen prosp_JOBS_hrs, 3, 18, 72
     ALL_JOBS_PANELS_ARRAY(job_prosp_income, job_count) = trim(prospective_JOBS_amt)
+    ALL_JOBS_PANELS_ARRAY(prosp_hours, job_count) = trim(prosp_JOBS_hrs)
+
     '  Reads the information about health care off of HC Income Estimator
     EMReadScreen pay_frequency, 1, 18, 35
+    ALL_JOBS_PANELS_ARRAY(main_pay_freq, job_count) = pay_frequency
     EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
     IF HC_income_est_check = "Est" Then 'this is the old position
     	EMWriteScreen "x", 19, 54
@@ -980,62 +1155,196 @@ function read_JOBS_panel()
     EMReadScreen JOBS_income_end_date, 8, 9, 49
     'This now cleans up the variables converting codes read from the panel into words for the final variable to be used in the output.
     If JOBS_income_end_date <> "__ __ __" then JOBS_income_end_date = replace(JOBS_income_end_date, " ", "/")
-    If IsDate(JOBS_income_end_date) = True then
-        variable_name_for_JOBS = variable_name_for_JOBS & new_JOBS_type & "(ended " & JOBS_income_end_date & "); "
-    Else
-        If pay_frequency = "1" then pay_frequency = "monthly"
-        If pay_frequency = "2" then pay_frequency = "semimonthly"
-        If pay_frequency = "3" then pay_frequency = "biweekly"
-        If pay_frequency = "4" then pay_frequency = "weekly"
-        If pay_frequency = "_" or pay_frequency = "5" then pay_frequency = "non-monthly"
-        IF snap_pay_frequency = "1" THEN snap_pay_frequency = "monthly"
-        IF snap_pay_frequency = "2" THEN snap_pay_frequency = "semimonthly"
-        IF snap_pay_frequency = "3" THEN snap_pay_frequency = "biweekly"
-        IF snap_pay_frequency = "4" THEN snap_pay_frequency = "weekly"
-        IF snap_pay_frequency = "5" THEN snap_pay_frequency = "non-monthly"
-        If GRH_pay_frequency = "1" then GRH_pay_frequency = "monthly"
-        If GRH_pay_frequency = "2" then GRH_pay_frequency = "semimonthly"
-        If GRH_pay_frequency = "3" then GRH_pay_frequency = "biweekly"
-        If GRH_pay_frequency = "4" then GRH_pay_frequency = "weekly"
-        variable_name_for_JOBS = variable_name_for_JOBS & "EI from " & trim(new_JOBS_type) & ", " & JOBS_month  & " amts:; "
-        If SNAP_JOBS_amt <> "" then variable_name_for_JOBS = variable_name_for_JOBS & "- SNAP PIC: $" & SNAP_JOBS_amt & "/" & snap_pay_frequency & ", SNAP PIC Prospective: $" & jobs_SNAP_prospective_amt & ", calculated " & date_of_pic_calc & "; "
-        If GRH_JOBS_amt <> "" then variable_name_for_JOBS = variable_name_for_JOBS & "- GRH PIC: $" & GRH_JOBS_amt & "/" & GRH_pay_frequency & ", calculated " & GRH_date_of_pic_calc & "; "
-        If retro_JOBS_amt <> "" then variable_name_for_JOBS = variable_name_for_JOBS & "- Retrospective: $" & retro_JOBS_amt & " total; "
-        IF prospective_JOBS_amt <> "" THEN variable_name_for_JOBS = variable_name_for_JOBS & "- Prospective: $" & prospective_JOBS_amt & " total; "
-        IF isnumeric(jobs_hourly_wage) THEN variable_name_for_JOBS = variable_name_for_JOBS & "- Hourly Wage: $" & jobs_hourly_wage & "; "
-        'Leaving out HC income estimator if footer month is not Current month + 1
-        current_month_for_hc_est = dateadd("m", "1", date)
-        current_month_for_hc_est = datepart("m", current_month_for_hc_est)
-        IF len(current_month_for_hc_est) = 1 THEN current_month_for_hc_est = "0" & current_month_for_hc_est
-        IF MAXIS_footer_month = current_month_for_hc_est THEN
-            IF HC_JOBS_amt <> "________" THEN variable_name_for_JOBS = variable_name_for_JOBS & "- HC Inc Est: $" & HC_JOBS_amt & "/" & pay_frequency & "; "
-        END IF
-        If JOBS_ver = "N" or JOBS_ver = "?" then variable_name_for_JOBS = variable_name_for_JOBS & "- No proof provided for this panel; "
-    End if
+    If IsDate(JOBS_income_end_date) = True then ALL_JOBS_PANELS_ARRAY(budget_explain, job_count) = "Income ended " & JOBS_income_end_date & ".; "
+
+    If ALL_JOBS_PANELS_ARRAY(main_pay_freq, job_count) = "4" Then ALL_JOBS_PANELS_ARRAY(main_pay_freq, job_count) = "Weekly"
+    If ALL_JOBS_PANELS_ARRAY(main_pay_freq, job_count) = "3" Then ALL_JOBS_PANELS_ARRAY(main_pay_freq, job_count) = "Biweekly"
+    If ALL_JOBS_PANELS_ARRAY(main_pay_freq, job_count) = "2" Then ALL_JOBS_PANELS_ARRAY(main_pay_freq, job_count) = "Semi-Monthly"
+    If ALL_JOBS_PANELS_ARRAY(main_pay_freq, job_count) = "1" Then ALL_JOBS_PANELS_ARRAY(main_pay_freq, job_count) = "Monthly"
+
+    If ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "4" Then ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "Weekly"
+    If ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "3" Then ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "Biweekly"
+    If ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "2" Then ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "Semi-Monthly"
+    If ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "1" Then ALL_JOBS_PANELS_ARRAY(pic_pay_freq, job_count) = "Monthly"
+
+    If ALL_JOBS_PANELS_ARRAY(grh_pay_freq, job_count) = "4" Then ALL_JOBS_PANELS_ARRAY(grh_pay_freq, job_count) = "Weekly"
+    If ALL_JOBS_PANELS_ARRAY(grh_pay_freq, job_count) = "3" Then ALL_JOBS_PANELS_ARRAY(grh_pay_freq, job_count) = "Biweekly"
+    If ALL_JOBS_PANELS_ARRAY(grh_pay_freq, job_count) = "2" Then ALL_JOBS_PANELS_ARRAY(grh_pay_freq, job_count) = "Semi-Monthly"
+    If ALL_JOBS_PANELS_ARRAY(grh_pay_freq, job_count) = "1" Then ALL_JOBS_PANELS_ARRAY(grh_pay_freq, job_count) = "Monthly"
+
+end function
+
+function read_BUSI_panel()
+    EMReadScreen income_type, 2, 5, 37
+    EMReadScreen retro_rpt_hrs, 3, 13, 60
+    EMReadScreen prosp_rpt_hrs, 3, 13, 74
+    EMReadScreen retro_min_wg_hrs, 3, 14, 60
+    EMReadScreen prosp_min_wg_hrs, 3, 14, 74
+    EMReadScreen self_emp_method, 2, 16, 53
+    EMReadScreen method_date, 8, 16, 63
+    EMReadScreen income_start, 8, 5, 55
+    EMReadScreen income_end, 8, 5, 72
+
+    If income_type = "01" Then ALL_BUSI_PANELS_ARRAY(busi_type, job_count) = "01 - Farming"
+    If income_type = "02" Then ALL_BUSI_PANELS_ARRAY(busi_type, job_count) = "02 - Real Estate"
+    If income_type = "03" Then ALL_BUSI_PANELS_ARRAY(busi_type, job_count) = "03 - Home Product Sales"
+    If income_type = "04" Then ALL_BUSI_PANELS_ARRAY(busi_type, job_count) = "04 - Other Sales"
+    If income_type = "05" Then ALL_BUSI_PANELS_ARRAY(busi_type, job_count) = "05 - Personal Services"
+    If income_type = "06" Then ALL_BUSI_PANELS_ARRAY(busi_type, job_count) = "06 - Paper Route"
+    If income_type = "07" Then ALL_BUSI_PANELS_ARRAY(busi_type, job_count) = "07 - In Home Daycare"
+    If income_type = "08" Then ALL_BUSI_PANELS_ARRAY(busi_type, job_count) = "08 - Rental Income"
+    If income_type = "09" Then ALL_BUSI_PANELS_ARRAY(busi_type, job_count) = "09 - Other"
+    ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, job_count) = trim(retro_rpt_hrs)
+    ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, job_count) = trim(prosp_rpt_hrs)
+    ALL_BUSI_PANELS_ARRAY(min_wg_retro_hrs, job_count) = trim(retro_min_wg_hrs)
+    ALL_BUSI_PANELS_ARRAY(min_wg_prosp_hrs, job_count) = trim(prosp_min_wg_hrs)
+    If self_emp_method = "01" Then ALL_BUSI_PANELS_ARRAY(calc_method, job_count) = "50% Gross Inc"
+    If self_emp_method = "02" Then ALL_BUSI_PANELS_ARRAY(calc_method, job_count) = "Tax Forms"
+    ALL_BUSI_PANELS_ARRAY(mthd_date, job_count) = replace(method_date, " ", "/")
+    If ALL_BUSI_PANELS_ARRAY(mthd_date, job_count) = "__/__/__" Then ALL_BUSI_PANELS_ARRAY(mthd_date, job_count) = ""
+    ALL_BUSI_PANELS_ARRAY(start_date, job_count) = replace(income_start, " ", "/")
+    ALL_BUSI_PANELS_ARRAY(end_date, job_count) = replace(income_end, " ", "/")
+    If ALL_BUSI_PANELS_ARRAY(end_date, job_count) = "__/__/__" Then ALL_BUSI_PANELS_ARRAY(end_date, job_count) = ""
+
+    EMWriteScreen "X", 6, 26
+    transmit
+
+    EMReadScreen retro_cash_inc, 8, 9, 43
+    EMReadScreen prosp_cash_inc, 8, 9, 59
+    EMReadScreen cash_inc_verif, 1, 9, 73
+    EMReadScreen retro_cash_exp, 8, 15, 43
+    EMReadScreen prosp_cash_exp, 8, 15, 59
+    EMReadScreen cash_exp_verif, 1, 15, 73
+    ALL_BUSI_PANELS_ARRAY(income_ret_cash, job_count) = trim(retro_cash_inc)
+    If ALL_BUSI_PANELS_ARRAY(income_ret_cash, job_count) = "________" Then ALL_BUSI_PANELS_ARRAY(income_ret_cash, job_count) = "0"
+    ALL_BUSI_PANELS_ARRAY(income_pro_cash, job_count) = trim(prosp_cash_inc)
+    If ALL_BUSI_PANELS_ARRAY(income_pro_cash, job_count) = "________" Then ALL_BUSI_PANELS_ARRAY(income_pro_cash, job_count) = "0"
+    If cash_inc_verif = "1" Then ALL_BUSI_PANELS_ARRAY(cash_income_verif, job_count) = "Income Tax Returns"
+    If cash_inc_verif = "2" Then ALL_BUSI_PANELS_ARRAY(cash_income_verif, job_count) = "Receipts of Sales/Purch"
+    If cash_inc_verif = "3" Then ALL_BUSI_PANELS_ARRAY(cash_income_verif, job_count) = "Busi Records/Ledger"
+    If cash_inc_verif = "6" Then ALL_BUSI_PANELS_ARRAY(cash_income_verif, job_count) = "Other Document"
+    If cash_inc_verif = "N" Then ALL_BUSI_PANELS_ARRAY(cash_income_verif, job_count) = "No Verif Provided"
+    If cash_inc_verif = "?" Then ALL_BUSI_PANELS_ARRAY(cash_income_verif, job_count) = "Delayed Verif"
+    If cash_inc_verif = "_" Then ALL_BUSI_PANELS_ARRAY(cash_income_verif, job_count) = "Blank"
+    ALL_BUSI_PANELS_ARRAY(expense_ret_cash, job_count) = trim(retro_cash_exp)
+    If ALL_BUSI_PANELS_ARRAY(expense_ret_cash, job_count) = "________" Then ALL_BUSI_PANELS_ARRAY(expense_ret_cash, job_count) = "0"
+    ALL_BUSI_PANELS_ARRAY(expense_pro_cash, job_count) = trim(prosp_cash_exp)
+    If ALL_BUSI_PANELS_ARRAY(expense_pro_cash, job_count) = "________" Then ALL_BUSI_PANELS_ARRAY(expense_pro_cash, job_count) = "0"
+    If cash_exp_verif = "1" Then ALL_BUSI_PANELS_ARRAY(cash_expense_verif, job_count) = "Income Tax Returns"
+    If cash_exp_verif = "2" Then ALL_BUSI_PANELS_ARRAY(cash_expense_verif, job_count) = "Receipts of Sales/Purch"
+    If cash_exp_verif = "3" Then ALL_BUSI_PANELS_ARRAY(cash_expense_verif, job_count) = "Busi Records/Ledger"
+    If cash_exp_verif = "6" Then ALL_BUSI_PANELS_ARRAY(cash_expense_verif, job_count) = "Other Document"
+    If cash_exp_verif = "N" Then ALL_BUSI_PANELS_ARRAY(cash_expense_verif, job_count) = "No Verif Provided"
+    If cash_exp_verif = "?" Then ALL_BUSI_PANELS_ARRAY(cash_expense_verif, job_count) = "Delayed Verif"
+    If cash_exp_verif = "_" Then ALL_BUSI_PANELS_ARRAY(cash_expense_verif, job_count) = "Blank"
+
+    EMReadScreen prosp_ive_inc, 8, 10, 59
+    EMReadScreen ive_inc_verif, 1, 10, 73
+    EMReadScreen prosp_ive_exp, 8, 16, 59
+    EMReadScreen ive_exp_verif, 1, 16, 73
+
+    EMReadScreen retro_snap_inc, 8, 11, 43
+    EMReadScreen prosp_snap_inc, 8, 11, 59
+    EMReadScreen snap_inc_verif, 1, 11, 73
+    EMReadScreen retro_snap_exp, 8, 17, 43
+    EMReadScreen prosp_snap_exp, 8, 17, 59
+    EMReadScreen snap_exp_verif, 1, 17, 73
+    ALL_BUSI_PANELS_ARRAY(income_ret_snap, job_count) = trim(retro_snap_inc)
+    If ALL_BUSI_PANELS_ARRAY(income_ret_snap, job_count) = "________" Then ALL_BUSI_PANELS_ARRAY(income_ret_snap, job_count) = "0"
+    ALL_BUSI_PANELS_ARRAY(income_pro_snap, job_count) = trim(prosp_snap_inc)
+    If ALL_BUSI_PANELS_ARRAY(income_pro_snap, job_count) = "________" Then ALL_BUSI_PANELS_ARRAY(income_pro_snap, job_count) = "0"
+    If snap_inc_verif = "1" Then ALL_BUSI_PANELS_ARRAY(snap_income_verif, job_count) = "Income Tax Returns"
+    If snap_inc_verif = "2" Then ALL_BUSI_PANELS_ARRAY(snap_income_verif, job_count) = "Receipts of Sales/Purch"
+    If snap_inc_verif = "3" Then ALL_BUSI_PANELS_ARRAY(snap_income_verif, job_count) = "Busi Records/Ledger"
+    If snap_inc_verif = "4" Then ALL_BUSI_PANELS_ARRAY(snap_income_verif, job_count) = "Pend Out State Verif"
+    If snap_inc_verif = "6" Then ALL_BUSI_PANELS_ARRAY(snap_income_verif, job_count) = "Other Document"
+    If snap_inc_verif = "N" Then ALL_BUSI_PANELS_ARRAY(snap_income_verif, job_count) = "No Verif Provided"
+    If snap_inc_verif = "?" Then ALL_BUSI_PANELS_ARRAY(snap_income_verif, job_count) = "Delayed Verif"
+    If snap_inc_verif = "_" Then ALL_BUSI_PANELS_ARRAY(snap_income_verif, job_count) = "Blank"
+
+    ALL_BUSI_PANELS_ARRAY(expense_ret_snap, job_count) = trim(retro_snap_exp)
+    If ALL_BUSI_PANELS_ARRAY(expense_ret_snap, job_count) = "________" Then ALL_BUSI_PANELS_ARRAY(expense_ret_snap, job_count) = "0"
+    ALL_BUSI_PANELS_ARRAY(expense_pro_snap, job_count) = trim(prosp_snap_exp)
+    If ALL_BUSI_PANELS_ARRAY(expense_pro_snap, job_count) = "________" Then ALL_BUSI_PANELS_ARRAY(expense_pro_snap, job_count) = "0"
+    If snap_exp_verif = "1" Then ALL_BUSI_PANELS_ARRAY(snap_expense_verif, job_count) = "Income Tax Returns"
+    If snap_exp_verif = "2" Then ALL_BUSI_PANELS_ARRAY(snap_expense_verif, job_count) = "Receipts of Sales/Purch"
+    If snap_exp_verif = "3" Then ALL_BUSI_PANELS_ARRAY(snap_expense_verif, job_count) = "Busi Records/Ledger"
+    If snap_exp_verif = "4" Then ALL_BUSI_PANELS_ARRAY(snap_expense_verif, job_count) = "Pend Out State Verif"
+    If snap_exp_verif = "6" Then ALL_BUSI_PANELS_ARRAY(snap_expense_verif, job_count) = "Other Document"
+    If snap_exp_verif = "N" Then ALL_BUSI_PANELS_ARRAY(snap_expense_verif, job_count) = "No Verif Provided"
+    If snap_exp_verif = "?" Then ALL_BUSI_PANELS_ARRAY(snap_expense_verif, job_count) = "Delayed Verif"
+    If snap_exp_verif = "_" Then ALL_BUSI_PANELS_ARRAY(snap_expense_verif, job_count) = "Blank"
+
+    EMReadScreen prosp_hca_inc, 8, 12, 59
+    EMReadScreen hca_inc_verif, 1, 12, 73
+    EMReadScreen prosp_hca_exp, 8, 18, 59
+    EMReadScreen hca_exp_verif, 1, 18, 73
+
+    EMReadScreen prosp_hcb_inc, 8, 13, 59
+    EMReadScreen hcb_inc_verif, 1, 13, 73
+    EMReadScreen prosp_hcb_exp, 8, 19, 59
+    EMReadScreen hcb_exp_verif, 1, 19, 73
+
+    PF3
+
+    EMReadScreen
+    EMReadScreen
 end function
 
 '===========================================================================================================================
 
 'JOBS ARRAY CONSTANTS
 const memb_numb     = 0
-const job_instance  = 1
+const panel_instance  = 1
 const employer_name = 2
+const busi_type     = 2         'for BUSI Array
 Const estimate_only = 3
 const verif_explain = 4
 const verif_code    = 5
+const calc_method   = 5         'for BUSI Array
 const info_month    = 6
 const hrly_wage     = 7
-const job_retro_income      = 8
-const job_prosp_income      = 9
-const pic_pay_date_income   = 10
-const pic_pay_freq          = 11
-const pic_prosp_income      = 12
-const pic_calc_date         = 13
-const EI_case_note          = 14
-const budget_explain        = 15
+const mthd_date     = 7          'for BUSI Array'
+const main_pay_freq         = 8
+const rept_retro_hrs        = 8          'for BUSI Array'
+const job_retro_income      = 9
+const rept_prosp_hrs        = 9          'for BUSI Array'
+const job_prosp_income      = 10
+const min_wg_retro_hrs      = 10         'for BUSI Array'
+const retro_hours           = 11
+const min_wg_prosp_hrs      = 11         'for BUSI Array'
+const prosp_hours           = 12
+const income_ret_cash       = 12         'for BUSI Array'
+const pic_pay_date_income   = 13
+const income_pro_cash       = 13         'for BUSI Array'
+const pic_pay_freq          = 14
+const cash_income_verif     = 14         'for BUSI Array'
+const pic_prosp_income      = 15
+const expense_ret_cash      = 15         'for BUSI Array'
+const pic_calc_date         = 16
+const expense_pro_cash      = 16         'for BUSI Array'
+const EI_case_note          = 17
+const cash_expense_verif    = 17         'for BUSI Array'
+const grh_calc_date         = 18
+const income_ret_snap       = 18         'for BUSI Array'
+const grh_pay_freq          = 19
+const income_pro_snap       = 19         'for BUSI Array'
+const grh_pay_day_income    = 20
+const snap_income_verif     = 20         'for BUSI Array'
+const grh_prosp_income      = 21
+const expense_ret_snap      = 21         'for BUSI Array'
+const expense_pro_snap      = 22         'for BUSI Array'
+const snap_expense_verif    = 23         'for BUSI Array'
+const start_date            = 24
+const end_date              = 25
+const budget_explain        = 26
 
 Dim ALL_JOBS_PANELS_ARRAY()
 ReDim ALL_JOBS_PANELS_ARRAY(budget_explain, 0)
+
+
+Dim ALL_BUSI_PANELS_ARRAY()
+ReDim ALL_BUSI_PANELS_ARRAY(budget_explain, 0)
 
 const clt_name                  = 1
 const clt_age                   = 2
@@ -1097,6 +1406,96 @@ Dim ALL_MEMBERS_ARRAY()
 ReDim ALL_MEMBERS_ARRAY(clt_notes, 0)
 
 EATS = ""
+
+county_list = "01 Aitkin"
+county_list = county_list+chr(9)+"02 Anoka"
+county_list = county_list+chr(9)+"03 Becker"
+county_list = county_list+chr(9)+"04 Beltrami"
+county_list = county_list+chr(9)+"05 Benton"
+county_list = county_list+chr(9)+"06 Big Stone"
+county_list = county_list+chr(9)+"07 Blue Earth"
+county_list = county_list+chr(9)+"08 Brown"
+county_list = county_list+chr(9)+"09 Carlton"
+county_list = county_list+chr(9)+"10 Carver"
+county_list = county_list+chr(9)+"11 Cass"
+county_list = county_list+chr(9)+"12 Chippewa"
+county_list = county_list+chr(9)+"13 Chisago"
+county_list = county_list+chr(9)+"14 Clay"
+county_list = county_list+chr(9)+"15 Clearwater"
+county_list = county_list+chr(9)+"16 Cook"
+county_list = county_list+chr(9)+"17 Cottonwood"
+county_list = county_list+chr(9)+"18 Crow Wing"
+county_list = county_list+chr(9)+"19 Dakota"
+county_list = county_list+chr(9)+"20 Dodge"
+county_list = county_list+chr(9)+"21 Douglas"
+county_list = county_list+chr(9)+"22 Faribault"
+county_list = county_list+chr(9)+"23 Fillmore"
+county_list = county_list+chr(9)+"24 Freeborn"
+county_list = county_list+chr(9)+"25 Goodhue"
+county_list = county_list+chr(9)+"26 Grant"
+county_list = county_list+chr(9)+"27 Hennepin"
+county_list = county_list+chr(9)+"28 Houston"
+county_list = county_list+chr(9)+"29 Hubbard"
+county_list = county_list+chr(9)+"30 Isanti"
+county_list = county_list+chr(9)+"31 Itasca"
+county_list = county_list+chr(9)+"32 Jackson"
+county_list = county_list+chr(9)+"33 Kanabec"
+county_list = county_list+chr(9)+"34 Kandiyohi"
+county_list = county_list+chr(9)+"35 Kittson"
+county_list = county_list+chr(9)+"36 Koochiching"
+county_list = county_list+chr(9)+"37 Lac Qui Parle"
+county_list = county_list+chr(9)+"38 Lake"
+county_list = county_list+chr(9)+"39 Lake Of Woods"
+county_list = county_list+chr(9)+"40 Le Sueur"
+county_list = county_list+chr(9)+"41 Lincoln"
+county_list = county_list+chr(9)+"42 Lyon"
+county_list = county_list+chr(9)+"43 Mcleod"
+county_list = county_list+chr(9)+"44 Mahnomen"
+county_list = county_list+chr(9)+"45 Marshall"
+county_list = county_list+chr(9)+"46 Martin"
+county_list = county_list+chr(9)+"47 Meeker"
+county_list = county_list+chr(9)+"48 Mille Lacs"
+county_list = county_list+chr(9)+"49 Morrison"
+county_list = county_list+chr(9)+"50 Mower"
+county_list = county_list+chr(9)+"51 Murray"
+county_list = county_list+chr(9)+"52 Nicollet"
+county_list = county_list+chr(9)+"53 Nobles"
+county_list = county_list+chr(9)+"54 Norman"
+county_list = county_list+chr(9)+"55 Olmsted"
+county_list = county_list+chr(9)+"56 Otter Tail"
+county_list = county_list+chr(9)+"57 Pennington"
+county_list = county_list+chr(9)+"58 Pine"
+county_list = county_list+chr(9)+"59 Pipestone"
+county_list = county_list+chr(9)+"60 Polk"
+county_list = county_list+chr(9)+"61 Pope"
+county_list = county_list+chr(9)+"62 Ramsey"
+county_list = county_list+chr(9)+"63 Red Lake"
+county_list = county_list+chr(9)+"64 Redwood"
+county_list = county_list+chr(9)+"65 Renville"
+county_list = county_list+chr(9)+"66 Rice"
+county_list = county_list+chr(9)+"67 Rock"
+county_list = county_list+chr(9)+"68 Roseau"
+county_list = county_list+chr(9)+"69 St. Louis"
+county_list = county_list+chr(9)+"70 Scott"
+county_list = county_list+chr(9)+"71 Sherburne"
+county_list = county_list+chr(9)+"72 Sibley"
+county_list = county_list+chr(9)+"73 Stearns"
+county_list = county_list+chr(9)+"74 Steele"
+county_list = county_list+chr(9)+"75 Stevens"
+county_list = county_list+chr(9)+"76 Swift"
+county_list = county_list+chr(9)+"77 Todd"
+county_list = county_list+chr(9)+"78 Traverse"
+county_list = county_list+chr(9)+"79 Wabasha"
+county_list = county_list+chr(9)+"80 Wadena"
+county_list = county_list+chr(9)+"81 Waseca"
+county_list = county_list+chr(9)+"82 Washington"
+county_list = county_list+chr(9)+"83 Watonwan"
+county_list = county_list+chr(9)+"84 Wilkin"
+county_list = county_list+chr(9)+"85 Winona"
+county_list = county_list+chr(9)+"86 Wright"
+county_list = county_list+chr(9)+"87 Yellow Medicine"
+county_list = county_list+chr(9)+"89 Out-of-State"
+
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5 'This helps the navigation buttons work!
 Dim row
@@ -1168,6 +1567,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 If CASH_on_CAF_checkbox = checked or trim(cash_other_req_detail) <> "" Then cash_checkbox = checked
 If SNAP_on_CAF_checkbox = checked or trim(snap_other_req_detail) <> "" Then SNAP_checkbox = checked
 If EMER_on_CAF_checkbox = checked or trim(emer_other_req_detail) <> "" Then EMER_checkbox = checked
+'grh_checkbox = checked
 
 MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
 MAXIS_footer_year = right("00" & MAXIS_footer_year, 2)
@@ -1213,7 +1613,22 @@ full_shelter_details = ""
 shelter_details = ""
 shelter_details_two = ""
 hest_information = ""
+
+addr_line_one = ""
+addr_line_two = ""
+city = ""
+state = ""
+zip = ""
+address_confirmation_checkbox = ""
+addr_county = ""
+homeless_yn = ""
+addr_verif = ""
+reservation_yn = ""
+living_situation = ""
+notes_on_address = ""
+
 ' call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST)
+call read_ADDR_panel
 call read_SHEL_panel
 call update_shel_notes
 call read_HEST_panel
@@ -1250,22 +1665,53 @@ IF panel_total_check <> "0 Of 0" Then
         transmit
         EMReadScreen JOBS_total, 1, 2, 78
         If JOBS_total <> 0 then
-          variable_written_to = variable_written_to & "Member " & HH_member & "- "
-          Do
-            ReDim Preserve ALL_JOBS_PANELS_ARRAY(budget_explain, job_count)
-            ALL_JOBS_PANELS_ARRAY(memb_numb, job_count) = HH_member
-            ALL_JOBS_PANELS_ARRAY(info_month, job_count) = MAXIS_footer_month & "/" & MAXIS_footer_year
-            call read_JOBS_panel
+            Do
+                ReDim Preserve ALL_JOBS_PANELS_ARRAY(budget_explain, job_count)
+                ALL_JOBS_PANELS_ARRAY(memb_numb, job_count) = HH_member
+                ALL_JOBS_PANELS_ARRAY(info_month, job_count) = MAXIS_footer_month & "/" & MAXIS_footer_year
+                call read_JOBS_panel
 
-            EMReadScreen JOBS_panel_current, 1, 2, 73
-            ALL_JOBS_PANELS_ARRAY(job_instance, job_count) = "0" & JOBS_panel_current
+                EMReadScreen JOBS_panel_current, 1, 2, 73
+                ALL_JOBS_PANELS_ARRAY(panel_instance, job_count) = "0" & JOBS_panel_current
 
-            If cint(JOBS_panel_current) < cint(JOBS_total) then transmit
-            job_count = job_count + 1
-          Loop until cint(JOBS_panel_current) = cint(JOBS_total)
+                If cint(JOBS_panel_current) < cint(JOBS_total) then transmit
+                job_count = job_count + 1
+            Loop until cint(JOBS_panel_current) = cint(JOBS_total)
         End if
     Next
+Else
+
 End If
+busi_count = 0
+call navigate_to_MAXIS_screen("STAT", "BUSI")
+EMReadScreen panel_total_check, 6, 2, 73
+IF panel_total_check <> "0 Of 0" Then
+    For each HH_member in HH_member_array
+        EMWriteScreen HH_member, 20, 76
+        EMWriteScreen "01", 20, 79
+        transmit
+        EMReadScreen BUSI_total, 1, 2, 78
+        If BUSI_total <> 0 then
+
+            Do
+                ReDim Preserve ALL_BUSI_PANELS_ARRAY(budget_explain, busi_count)
+                ALL_BUSI_PANELS_ARRAY(memb_numb, job_count) = HH_member
+                ALL_BUSI_PANELS_ARRAY(info_month, busi_count) = MAXIS_footer_month & "/" & MAXIS_footer_year
+                call read_BUSI_panel
+
+                EMReadScreen BUSI_panel_current, 1, 2, 73
+                ALL_JOBS_PANELS_ARRAY(panel_instance, job_count) = "0" & BUSI_panel_current
+
+                If cint(BUSI_panel_current) < cint(BUSI_total) then transmit
+                job_count = job_count + 1
+            Loop until cint(BUSI_panel_current) = cint(BUSI_total)
+
+        End if
+    Next
+Else
+
+End If
+
 'FOR EACH JOB PANEL GO LOOK FOR A RECENT EI CASE NOTE'
 call autofill_editbox_from_MAXIS(HH_member_array, "MEDI", INSA)
 call autofill_editbox_from_MAXIS(HH_member_array, "MEMI", cit_id)
@@ -1295,7 +1741,8 @@ if right(programs_applied_for, 1) = "," then programs_applied_for = left(program
 'SHOULD DEFAULT TO TIKLING FOR APPLICATIONS THAT AREN'T RECERTS.
 If CAF_type <> "Recertification" then TIKL_checkbox = checked
 
-Call Generate_Client_List(HH_memb_list)
+Call generage_client_list(inteview_memb_list, "Select or Type")
+Call generage_client_list(shel_memb_list, "Select")
 
 'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Do
@@ -1303,13 +1750,13 @@ Do
 		Do
 			Do
 
-                BeginDialog Dialog1, 0, 0, 451, 285, "CAF dialog part 1"
+                BeginDialog Dialog1, 0, 0, 451, 285, "CAF Dialog 1 - Personal Information"
                   EditBox 60, 5, 50, 15, CAF_datestamp
                   ComboBox 175, 5, 70, 15, "phone"+chr(9)+"office", interview_type
                   CheckBox 255, 5, 65, 10, "Used Interpreter", Used_Interpreter_checkbox
                   EditBox 60, 25, 50, 15, interview_date
                   ComboBox 230, 25, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
-                  ComboBox 90, 45, 150, 45, HH_memb_list, interview_with
+                  ComboBox 90, 45, 150, 45, inteview_memb_list, interview_with
                   EditBox 35, 65, 410, 15, cit_id
                   EditBox 35, 85, 410, 15, IMIG
                   EditBox 60, 105, 120, 15, AREP
@@ -1318,6 +1765,7 @@ Do
                   EditBox 310, 125, 135, 15, FACI
                   EditBox 35, 155, 410, 15, PREG
                   EditBox 35, 175, 410, 15, ABPS
+                  'Add editbox for date GC Form Sent to clt - check with Melissa Flores
                   EditBox 35, 195, 410, 15, EMPS
                   CheckBox 35, 215, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
                   EditBox 55, 230, 390, 15, verifs_needed
@@ -1477,80 +1925,137 @@ Do
 
 
             Do
-                err_msg = ""
+                each_job = 0
+                loop_start = 0
+                last_job_reviewed = FALSE
+                job_limit = 2
+                Do
+                    Do
+                        jobs_err_msg = ""
 
-                dlg_len = 45
-                jobs_grp_len = 15
-                'NEED HANDLING FOR IF NO JOBS'
-                For each_job = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
-                    dlg_len = dlg_len + 100
-                    jobs_grp_len = jobs_grp_len + 100
-                Next
-                y_pos = 20
+                        dlg_len = 45
+                        jobs_grp_len = 80
+                        length_factor = 80
+                        If snap_checkbox = checked Then length_factor = length_factor + 20
+                        If grh_checkbox = checked Then length_factor = length_factor + 20
+                        'NEED HANDLING FOR IF NO JOBS'
+                        If UBound(ALL_JOBS_PANELS_ARRAY, 2) >= job_limit Then
+                            dlg_len = 285
+                            If snap_checkbox = checked Then dlg_len = dlg_len + 60
+                            If grh_checkbox = checked Then dlg_len = dlg_len + 60
+                            'jobs_grp_len = 315
+                        Else
+                            dlg_len = length_factor * (UBound(ALL_JOBS_PANELS_ARRAY, 2) - loop_start + 1) + 45
+                            'jobs_grp_len = 100 * (UBound(ALL_JOBS_PANELS_ARRAY, 2) - loop_start + 1) + 15
+                        End If
+                        If snap_checkbox = checked Then jobs_grp_len = jobs_grp_len + 20
+                        If grh_checkbox = checked Then jobs_grp_len = jobs_grp_len + 20
+                        ' each_job = loop_start
+                        ' Do
+                        '     dlg_len = dlg_len + 100
+                        '     jobs_grp_len = jobs_grp_len + 100
+                        '     if each_job = job_limit Then Exit Do
+                        '     each_job = each_job + 1
+                        ' Loop until each_job = UBound(ALL_JOBS_PANELS_ARRAY, 2)
+                        y_pos = 10
+                        'MsgBox dlg_len
 
-                BeginDialog Dialog1, 0, 0, 606, dlg_len, "CAF Income Information"
-                  GroupBox 5, 5, 595, jobs_grp_len, "Earned Income"
-                  For each_job = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
-                      Text 15, y_pos, 150, 10, "Member " & ALL_JOBS_PANELS_ARRAY(memb_numb, each_job) & " - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job)
-                      Text 170, y_pos, 200, 10, "Verif: " & ALL_JOBS_PANELS_ARRAY(verif_code, each_job)
-                      CheckBox 375, y_pos, 220, 10, "Check here if this income is not verified and is only an estimate.", ALL_JOBS_PANELS_ARRAY(estimate_only, each_job)
-                      y_pos = y_pos + 20
-                      Text 35, y_pos, 40, 10, "Verification:"
-                      EditBox 85, y_pos - 5, 240, 15, ALL_JOBS_PANELS_ARRAY(verif_explain, each_job)
-                      Text 340, y_pos, 75, 10, "Footer Month: " & ALL_JOBS_PANELS_ARRAY(info_month, each_job)
-                      IF ALL_JOBS_PANELS_ARRAY(EI_case_note, each_job) = TRUE Then Text 425, y_pos, 175, 10, "EARNED INCOME BUDGETING CASE NOTE FOUND"
-                      y_pos = y_pos + 20
-                      Text 35, y_pos, 45, 10, "Hourly Wage:"
-                      EditBox 85, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(hrly_wage, each_job)
-                      Text 150, y_pos, 75, 10, "Retrospective Income:"
-                      EditBox 230, y_pos - 5, 125, 15, ALL_JOBS_PANELS_ARRAY(job_retro_income, each_job)
-                      Text 360, y_pos, 70, 10, "Prospective Income:"
-                      EditBox 430, y_pos - 5, 165, 15, ALL_JOBS_PANELS_ARRAY(job_prosp_income, each_job)
-                      y_pos = y_pos + 20
-                      Text 35, y_pos, 35, 10, "SNAP PIC:"
-                      Text 75, y_pos, 60, 10, "Pay Date Amount: "
-                      EditBox 135, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)
-                      ComboBox 195, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job)
-                      Text 285, y_pos, 70, 10, "Prospective Amount:"
-                      EditBox 360, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job)
-                      Text 440, y_pos, 40, 10, "Calculated:"
-                      EditBox 490, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(pic_calc_date, each_job)
-                      y_pos = y_pos + 20
-                      Text 35, y_pos, 55, 10, "Explain Budget:"
-                      EditBox 90, y_pos - 5, 505, 15, ALL_JOBS_PANELS_ARRAY(budget_explain, each_job)
-                      y_pos = y_pos + 25
-                  Next
-                  y_pos = y_pos - 5
-                  ButtonGroup ButtonPressed
-                    PushButton 430, y_pos, 60, 10, "previous page", previous_to_page_01_button
-                    PushButton 495, y_pos - 5, 50, 15, "NEXT", next_to_page_03_button
-                    CancelButton 550, y_pos - 5, 50, 15
-                    PushButton 15, y_pos, 25, 10, "BUSI", BUSI_button
-                    PushButton 45, y_pos, 25, 10, "JOBS", JOBS_button
-                    PushButton 75, y_pos, 25, 10, "PBEN", PBEN_button
-                    PushButton 105, y_pos, 25, 10, "RBIC", RBIC_button
-                    PushButton 135, y_pos, 25, 10, "UNEA", UNEA_button
-                    PushButton 175, y_pos, 45, 10, "prev. panel", prev_panel_button
-                    PushButton 225, y_pos, 45, 10, "next panel", next_panel_button
-                    PushButton 275, y_pos, 45, 10, "prev. memb", prev_memb_button
-                    PushButton 325, y_pos, 45, 10, "next memb", next_memb_button
-                EndDialog
+                        BeginDialog Dialog1, 0, 0, 606, dlg_len, "CAF Dialog 2 - JOBS Information"
+                          'GroupBox 5, 5, 595, jobs_grp_len, "Earned Income"
+                          each_job = loop_start
+                          Do
+                              GroupBox 5, y_pos, 595, jobs_grp_len, "Member " & ALL_JOBS_PANELS_ARRAY(memb_numb, each_job) & " - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job)
+                              Text 160, y_pos, 200, 10, "Verif: " & ALL_JOBS_PANELS_ARRAY(verif_code, each_job)
+                              CheckBox 365, y_pos, 220, 10, "Check here if this income is not verified and is only an estimate.", ALL_JOBS_PANELS_ARRAY(estimate_only, each_job)
+                              y_pos = y_pos + 20
+                              Text 15, y_pos, 40, 10, "Verification:"
+                              EditBox 65, y_pos - 5, 260, 15, ALL_JOBS_PANELS_ARRAY(verif_explain, each_job)
+                              Text 340, y_pos, 75, 10, "Footer Month: " & ALL_JOBS_PANELS_ARRAY(info_month, each_job)
+                              IF ALL_JOBS_PANELS_ARRAY(EI_case_note, each_job) = TRUE Then Text 420, y_pos, 175, 10, "EARNED INCOME BUDGETING CASE NOTE FOUND"
+                              ' Text 420, y_pos, 175, 10, "EARNED INCOME BUDGETING CASE NOTE FOUND"
+                              y_pos = y_pos + 20
+                              Text 15, y_pos, 45, 10, "Hourly Wage:"
+                              EditBox 65, y_pos - 5, 40, 15, ALL_JOBS_PANELS_ARRAY(hrly_wage, each_job)
+                              Text 115, y_pos, 55, 10, "Retro - Income:"
+                              EditBox 170, y_pos - 5, 45, 15, ALL_JOBS_PANELS_ARRAY(job_retro_income, each_job)
+                              Text 225, y_pos, 25, 10, "Hours:"
+                              EditBox 250, y_pos - 5, 20, 15, ALL_JOBS_PANELS_ARRAY(retro_hours, each_job)
+                              Text 305, y_pos, 55, 10, "Prosp - Income:"
+                              EditBox 365, y_pos - 5, 45, 15, ALL_JOBS_PANELS_ARRAY(job_prosp_income, each_job)
+                              Text 415, y_pos, 25, 10, "Hours:"
+                              EditBox 440, y_pos - 5, 20, 15, ALL_JOBS_PANELS_ARRAY(prosp_hours, each_job)
+                              Text 480, y_pos, 40, 10, "Pay Freq:"
+                              ComboBox 525, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job)
+                              y_pos = y_pos + 20
+                              If snap_checkbox = checked Then
+                                  Text 15, y_pos, 35, 10, "SNAP PIC:"
+                                  Text 65, y_pos, 60, 10, "Pay Date Amount: "
+                                  EditBox 125, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)
+                                  ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job)
+                                  Text 265, y_pos, 70, 10, "Prospective Amount:"
+                                  EditBox 340, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job)
+                                  Text 420, y_pos, 40, 10, "Calculated:"
+                                  EditBox 470, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(pic_calc_date, each_job)
+                                  y_pos = y_pos + 20
+                              End If
+                              If grh_checkbox = checked Then
+                                  Text 15, y_pos, 35, 10, "GRH PIC:"
+                                  Text 65, y_pos, 60, 10, "Pay Date Amount: "
+                                  EditBox 125, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(grh_pay_day_income, each_job)
+                                  ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", ALL_JOBS_PANELS_ARRAY(grh_pay_freq, each_job)
+                                  Text 265, y_pos, 70, 10, "Prospective Amount:"
+                                  EditBox 340, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(grh_prosp_income, each_job)
+                                  Text 420, y_pos, 40, 10, "Calculated:"
+                                  EditBox 470, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(grh_calc_date, each_job)
+                                  y_pos = y_pos + 20
+                              End If
+                              Text 15, y_pos, 55, 10, "Explain Budget:"
+                              EditBox 70, y_pos - 5, 515, 15, ALL_JOBS_PANELS_ARRAY(budget_explain, each_job)
+                              y_pos = y_pos + 25
+                              if each_job = job_limit Then Exit Do
+                              each_job = each_job + 1
+                          Loop until each_job = UBound(ALL_JOBS_PANELS_ARRAY, 2) + 1
+                          y_pos = y_pos + 5
+                          ButtonGroup ButtonPressed
+                            PushButton 430, y_pos, 60, 10, "previous page", previous_to_page_01_button
+                            PushButton 495, y_pos - 5, 50, 15, "NEXT", next_to_page_03_button
+                            CancelButton 550, y_pos - 5, 50, 15
+                            PushButton 15, y_pos, 25, 10, "BUSI", BUSI_button
+                            PushButton 45, y_pos, 25, 10, "JOBS", JOBS_button
+                            PushButton 75, y_pos, 25, 10, "PBEN", PBEN_button
+                            PushButton 105, y_pos, 25, 10, "RBIC", RBIC_button
+                            PushButton 135, y_pos, 25, 10, "UNEA", UNEA_button
+                            PushButton 175, y_pos, 45, 10, "prev. panel", prev_panel_button
+                            PushButton 225, y_pos, 45, 10, "next panel", next_panel_button
+                            PushButton 275, y_pos, 45, 10, "prev. memb", prev_memb_button
+                            PushButton 325, y_pos, 45, 10, "next memb", next_memb_button
+                        EndDialog
 
-                dialog Dialog1
-                cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
-                MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+                        dialog Dialog1
+                        cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
+                        MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 
-                For each_job = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
-                    'err_msg'
-                    'IF THERE IS AN EI CASE NOTE - DON'T WORRY ABOUT MUCH ERR HANDLING
-                Next
-
+                        each_job = loop_start
+                        Do
+                            'jobs_err_msg'
+                            'IF THERE IS AN EI CASE NOTE - DON'T WORRY ABOUT MUCH ERR HANDLING
+                            if each_job = job_limit Then Exit Do
+                            each_job = each_job + 1
+                        Loop until each_job = UBound(ALL_JOBS_PANELS_ARRAY, 2)
+                        If each_job = UBound(ALL_JOBS_PANELS_ARRAY, 2) Then last_job_reviewed = TRUE
+                    Loop until jobs_err_msg = ""
+                    job_limit = job_limit + 3
+                    loop_start = loop_start + 3
+                Loop until last_job_reviewed = TRUE
 
             Loop until ButtonPressed = next_to_page_03_button and err_msg = ""
+            'CAF Dialog 3 - Self Employment
+            'CAF Dialog 4 - Child Support Income
+            'CAF Dialog 5 - Unearned Income and RBIC
 
 			Do
 				Do      'THIS NEEDS TO BE WORKED ON'
-                    BeginDialog Dialog1, 0, 0, 556, 360, "CAF dialog part 2"
+                    BeginDialog Dialog1, 0, 0, 556, 360, "CAF Dialog 6 - WREG, Expenses, Assets"
                       ButtonGroup ButtonPressed
                         PushButton 480, 30, 65, 15, "Update ABAWD", abawd_button
                       EditBox 40, 50, 505, 15, notes_on_wreg
@@ -1565,9 +2070,9 @@ Do
                       CheckBox 320, 85, 125, 10, "Check here to confirm the address.", address_confirmation_checkbox
                       DropListBox 345, 150, 85, 45, county_list, addr_county
                       DropListBox 480, 150, 30, 45, "No"+chr(9)+"Yes", homeless_yn
-                      DropListBox 335, 170, 95, 45, "SF - Shelter Form"+chr(9)+"CO - Coltrl Stmt"+chr(9)+"LE - Lease/Rent Doc"+chr(9)+"MO - Mortgage Papers"+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"CD - Contrct for Deed"+chr(9)+"UT - Utility Stmt"+chr(9)+"DL - Driver Lic/State ID"+chr(9)+"OT - Other Document"+chr(9)+"NO - No Ver Prvd"+chr(9)+"? - Delayed", shel_verif
+                      DropListBox 335, 170, 95, 45, "SF - Shelter Form"+chr(9)+"CO - Coltrl Stmt"+chr(9)+"LE - Lease/Rent Doc"+chr(9)+"MO - Mortgage Papers"+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"CD - Contrct for Deed"+chr(9)+"UT - Utility Stmt"+chr(9)+"DL - Driver Lic/State ID"+chr(9)+"OT - Other Document"+chr(9)+"NO - No Ver Prvd"+chr(9)+"? - Delayed"+chr(9)+"Blank", addr_verif
                       DropListBox 480, 170, 30, 45, "No"+chr(9)+"Yes", reservation_yn
-                      DropListBox 375, 190, 165, 45, " "+chr(9)+"01 - Own home, lease or roomate"+chr(9)+"02 - Family/Friends - economic hardship"+chr(9)+"03 -  servc prvdr- foster/group home"+chr(9)+"04 - Hospital/Treatment/Detox/Nursing Home"+chr(9)+"05 - Jail/Prison//Juvenile Det."+chr(9)+"06 - Hotel/Motel"+chr(9)+"07 - Emergency Shelter"+chr(9)+"08 - Place not meant for Housing"+chr(9)+"09 - Declined"+chr(9)+"10 - Unknown", List6
+                      DropListBox 375, 190, 165, 45, " "+chr(9)+"01 - Own home, lease or roomate"+chr(9)+"02 - Family/Friends - economic hardship"+chr(9)+"03 -  servc prvdr- foster/group home"+chr(9)+"04 - Hospital/Treatment/Detox/Nursing Home"+chr(9)+"05 - Jail/Prison//Juvenile Det."+chr(9)+"06 - Hotel/Motel"+chr(9)+"07 - Emergency Shelter"+chr(9)+"08 - Place not meant for Housing"+chr(9)+"09 - Declined"+chr(9)+"10 - Unknown"+chr(9)+"Blank", living_situation
                       EditBox 315, 220, 230, 15, notes_on_address
                       EditBox 35, 255, 405, 15, notes_on_acct
                       EditBox 470, 255, 75, 15, notes_on_cash
@@ -1588,8 +2093,12 @@ Do
                       Text 20, 225, 25, 10, "Notes:"
                       GroupBox 305, 75, 245, 165, "Address"
                       Text 350, 100, 175, 10, addr_line_one
-                      Text 350, 115, 175, 10, addr_line_two
-                      Text 350, 130, 175, 10, city & state & zip
+                      If addr_line_two = "" Then
+                        Text 350, 115, 175, 10, city & ", " & state & " " & zip
+                      Else
+                        Text 350, 115, 175, 10, addr_line_two
+                        Text 350, 130, 175, 10, city & ", " & state & " " & zip
+                      End If
                       Text 315, 155, 25, 10, "County:"
                       Text 440, 155, 35, 10, "Homeless:"
                       Text 315, 175, 20, 10, "Verif:"
@@ -1616,8 +2125,6 @@ Do
                         PushButton 35, 300, 25, 10, "TRAN", tran_button
                         PushButton 60, 300, 45, 10, "other assets", other_asset_button
                     EndDialog
-
-
 
 					err_msg = ""
 					income_note_error_msg = ""
@@ -1704,7 +2211,7 @@ Do
                             End If
 
                             BeginDialog Dialog1, 0, 0, 340, dlg_len, "SHEL Detail Dialog"
-                              DropListBox 60, 10, 125, 45, HH_memb_list, clt_SHEL_is_for
+                              DropListBox 60, 10, 125, 45, shel_memb_list, clt_SHEL_is_for
                               Text 5, 15, 55, 10, "SHEL for Memb"
                               ButtonGroup ButtonPressed
                                 PushButton 200, 10, 40, 10, "Load", load_button
@@ -1826,74 +2333,74 @@ Do
 				Loop until ButtonPressed = (next_to_page_04_button AND err_msg = "") or (ButtonPressed = previous_to_page_02_button AND err_msg = "")		'If you press either the next or previous button, this loop ends
 				If ButtonPressed = previous_to_page_01_button then exit do		'If the button was previous, it exits this do loop and is caught in the next one, which sends you back to Dialog 1 because of the "If ButtonPressed = previous_to_page_01_button then exit do" later on
 				Do
-                    BeginDialog Dialog1, 0, 0, 451, 405, "CAF dialog part 3"
-                      EditBox 60, 45, 385, 15, INSA
-                      EditBox 35, 65, 410, 15, ACCI
-                      EditBox 35, 85, 175, 15, DIET
-                      EditBox 245, 85, 200, 15, BILS
-                      EditBox 35, 105, 285, 15, FMED
-                      EditBox 390, 105, 55, 15, retro_request
-                      EditBox 180, 130, 265, 15, reason_expedited_wasnt_processed
-                      EditBox 100, 150, 345, 15, FIAT_reasons
-                      CheckBox 15, 190, 80, 10, "Application signed?", application_signed_checkbox
-                      CheckBox 15, 205, 65, 10, "Appt letter sent?", appt_letter_sent_checkbox
-                      CheckBox 15, 220, 150, 10, "Client willing to participate with E and T", E_and_T_checkbox
-                      CheckBox 15, 235, 70, 10, "EBT referral sent?", EBT_referral_checkbox
-                      CheckBox 115, 190, 50, 10, "eDRS sent?", eDRS_sent_checkbox
-                      CheckBox 115, 205, 50, 10, "Expedited?", expedited_checkbox
-                      CheckBox 115, 235, 70, 10, "IAAs/OMB given?", IAA_checkbox
-                      CheckBox 200, 190, 115, 10, "Informed client of recert period?", recert_period_checkbox
-                      CheckBox 200, 205, 80, 10, "Intake packet given?", intake_packet_checkbox
-                      CheckBox 200, 220, 105, 10, "Managed care packet sent?", managed_care_packet_checkbox
-                      CheckBox 200, 235, 105, 10, "Managed care referral made?", managed_care_referral_checkbox
-                      CheckBox 345, 190, 65, 10, "R/R explained?", R_R_checkbox
-                      CheckBox 345, 205, 85, 10, "Sent forms to AREP?", Sent_arep_checkbox
-                      CheckBox 345, 220, 65, 10, "Updated MMIS?", updated_MMIS_checkbox
-                      CheckBox 345, 235, 95, 10, "Workforce referral made?", WF1_checkbox
-                      EditBox 55, 260, 230, 15, other_notes
-                      EditBox 55, 280, 390, 15, verifs_needed
-                      EditBox 55, 300, 390, 15, actions_taken
-                      ComboBox 330, 260, 115, 15, " "+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
-                      CheckBox 15, 335, 240, 10, "Check here to update PND2 to show client delay (pending cases only).", client_delay_checkbox
-                      CheckBox 15, 350, 200, 10, "Check here to create a TIKL to deny at the 30/45 day mark.", TIKL_checkbox
-                      CheckBox 15, 365, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_checkbox
-                      EditBox 395, 345, 50, 15, worker_signature
-                      ButtonGroup ButtonPressed
-                        PushButton 290, 370, 45, 10, "prev. page", previous_to_page_03_button
-                        OkButton 340, 365, 50, 15
-                        CancelButton 395, 365, 50, 15
-                        PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
-                        PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
-                        PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
-                        PushButton 60, 15, 15, 10, "HC", ELIG_HC_button
-                        PushButton 75, 15, 20, 10, "MFIP", ELIG_MFIP_button
-                        PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
-                        PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
-                        PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
-                        PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
-                        PushButton 335, 25, 45, 10, "next panel", next_panel_button
-                        PushButton 395, 25, 45, 10, "next memb", next_memb_button
-                      GroupBox 5, 5, 130, 25, "ELIG panels:"
-                      GroupBox 330, 5, 115, 35, "STAT-based navigation"
-                      ButtonGroup ButtonPressed
-                        PushButton 5, 50, 25, 10, "INSA/", INSA_button
-                        PushButton 30, 50, 25, 10, "MEDI:", MEDI_button
-                        PushButton 5, 70, 25, 10, "ACCI:", ACCI_button
-                        PushButton 5, 90, 25, 10, "DIET:", DIET_button
-                        PushButton 5, 110, 25, 10, "FMED:", FMED_button
-                      Text 5, 135, 170, 10, "Reason expedited wasn't processed (if applicable):"
-                      Text 5, 155, 95, 10, "FIAT reasons (if applicable):"
-                      GroupBox 5, 175, 440, 75, "Common elements workers should case note:"
-                      Text 5, 265, 50, 10, "Other notes:"
-                      Text 290, 265, 40, 10, "CAF status:"
-                      Text 5, 285, 50, 10, "Verifs needed:"
-                      Text 5, 305, 50, 10, "Actions taken:"
-                      GroupBox 5, 320, 280, 60, "Actions the script can do:"
-                      Text 330, 350, 60, 10, "Worker signature:"
-                      ButtonGroup ButtonPressed
-                        PushButton 325, 110, 60, 10, "Retro Req. date:", HCRE_button
-                        PushButton 215, 90, 25, 10, "BILS:", BILS_button
-                    EndDialog
+BeginDialog Dialog1, 0, 0, 451, 405, "CAF Dialog 7 - Interview Info"
+  EditBox 60, 45, 385, 15, INSA
+  EditBox 35, 65, 410, 15, ACCI
+  EditBox 35, 85, 175, 15, DIET
+  EditBox 245, 85, 200, 15, BILS
+  EditBox 35, 105, 285, 15, FMED
+  EditBox 390, 105, 55, 15, retro_request
+  EditBox 180, 130, 265, 15, reason_expedited_wasnt_processed
+  EditBox 100, 150, 345, 15, FIAT_reasons
+  CheckBox 15, 190, 80, 10, "Application signed?", application_signed_checkbox
+  CheckBox 15, 205, 65, 10, "Appt letter sent?", appt_letter_sent_checkbox
+  CheckBox 15, 220, 150, 10, "Client willing to participate with E and T", E_and_T_checkbox
+  CheckBox 15, 235, 70, 10, "EBT referral sent?", EBT_referral_checkbox
+  CheckBox 115, 190, 50, 10, "eDRS sent?", eDRS_sent_checkbox
+  CheckBox 115, 205, 50, 10, "Expedited?", expedited_checkbox
+  CheckBox 115, 235, 70, 10, "IAAs/OMB given?", IAA_checkbox
+  CheckBox 200, 190, 115, 10, "Informed client of recert period?", recert_period_checkbox
+  CheckBox 200, 205, 80, 10, "Intake packet given?", intake_packet_checkbox
+  CheckBox 200, 220, 105, 10, "Managed care packet sent?", managed_care_packet_checkbox
+  CheckBox 200, 235, 105, 10, "Managed care referral made?", managed_care_referral_checkbox
+  CheckBox 345, 190, 65, 10, "R/R explained?", R_R_checkbox
+  CheckBox 345, 205, 85, 10, "Sent forms to AREP?", Sent_arep_checkbox
+  CheckBox 345, 220, 65, 10, "Updated MMIS?", updated_MMIS_checkbox
+  CheckBox 345, 235, 95, 10, "Workforce referral made?", WF1_checkbox
+  EditBox 55, 260, 230, 15, other_notes
+  EditBox 55, 280, 390, 15, verifs_needed
+  EditBox 55, 300, 390, 15, actions_taken
+  ComboBox 330, 260, 115, 15, " "+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
+  CheckBox 15, 335, 240, 10, "Check here to update PND2 to show client delay (pending cases only).", client_delay_checkbox
+  CheckBox 15, 350, 200, 10, "Check here to create a TIKL to deny at the 30/45 day mark.", TIKL_checkbox
+  CheckBox 15, 365, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_checkbox
+  EditBox 395, 345, 50, 15, worker_signature
+  ButtonGroup ButtonPressed
+    PushButton 290, 370, 45, 10, "prev. page", previous_to_page_03_button
+    OkButton 340, 365, 50, 15
+    CancelButton 395, 365, 50, 15
+    PushButton 10, 15, 20, 10, "DWP", ELIG_DWP_button
+    PushButton 30, 15, 15, 10, "FS", ELIG_FS_button
+    PushButton 45, 15, 15, 10, "GA", ELIG_GA_button
+    PushButton 60, 15, 15, 10, "HC", ELIG_HC_button
+    PushButton 75, 15, 20, 10, "MFIP", ELIG_MFIP_button
+    PushButton 95, 15, 20, 10, "MSA", ELIG_MSA_button
+    PushButton 115, 15, 15, 10, "WB", ELIG_WB_button
+    PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
+    PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 335, 25, 45, 10, "next panel", next_panel_button
+    PushButton 395, 25, 45, 10, "next memb", next_memb_button
+  GroupBox 5, 5, 130, 25, "ELIG panels:"
+  GroupBox 330, 5, 115, 35, "STAT-based navigation"
+  ButtonGroup ButtonPressed
+    PushButton 5, 50, 25, 10, "INSA/", INSA_button
+    PushButton 30, 50, 25, 10, "MEDI:", MEDI_button
+    PushButton 5, 70, 25, 10, "ACCI:", ACCI_button
+    PushButton 5, 90, 25, 10, "DIET:", DIET_button
+    PushButton 5, 110, 25, 10, "FMED:", FMED_button
+  Text 5, 135, 170, 10, "Reason expedited wasn't processed (if applicable):"
+  Text 5, 155, 95, 10, "FIAT reasons (if applicable):"
+  GroupBox 5, 175, 440, 75, "Common elements workers should case note:"
+  Text 5, 265, 50, 10, "Other notes:"
+  Text 290, 265, 40, 10, "CAF status:"
+  Text 5, 285, 50, 10, "Verifs needed:"
+  Text 5, 305, 50, 10, "Actions taken:"
+  GroupBox 5, 320, 280, 60, "Actions the script can do:"
+  Text 330, 350, 60, 10, "Worker signature:"
+  ButtonGroup ButtonPressed
+    PushButton 325, 110, 60, 10, "Retro Req. date:", HCRE_button
+    PushButton 215, 90, 25, 10, "BILS:", BILS_button
+EndDialog
 
 					err_msg = ""
 					Dialog Dialog1			'Displays the third dialog
