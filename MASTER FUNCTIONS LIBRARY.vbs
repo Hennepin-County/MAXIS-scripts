@@ -58,6 +58,31 @@ IF PRISM_script <> true then county_name = ""		'VKC NOTE 08/12/2016: ADDED IF...
 
 If ButtonPressed <> "" then ButtonPressed = ""		'Defines ButtonPressed if not previously defined, allowing scripts the benefit of not having to declare ButtonPressed all the time
 
+'preloading boolean variables for tabbing dialogs
+pass_one = False
+pass_two = False
+pass_three = False
+pass_four = False
+pass_five = False
+pass_six = False
+pass_seven = False
+pass_eight = False
+pass_nine = False
+pass_ten = False
+
+show_one = True
+show_two = True
+show_three = True
+show_four = True
+show_five = True
+show_six = True
+show_seven = True
+show_eight = True
+show_nine = True
+show_ten = True
+
+tab_button = False
+
 'Preloading worker_signature, as a constant to be used in scripts---------------------------------------------------------------------------------------------------------
 
 'Needs to determine MyDocs directory before proceeding.
@@ -1310,6 +1335,262 @@ function add_UNEA_to_variable(variable_name_for_UNEA)
     If UNEA_ver = "N" or UNEA_ver = "?" then variable_name_for_UNEA = variable_name_for_UNEA & "- No proof provided for this panel; "
   End if
 end function
+
+function assess_button_pressed()
+'--- This fuction will review the button pressed on a dialog with tabs to go to the correct dialog if the do loop structure is used.
+'===== Keywords: DIALOGS, NAVIGATES
+    If ButtonPressed = dlg_one_button Then
+        pass_one = false
+        pass_two = False
+        pass_three = false
+        pass_four = false
+        pass_five = false
+        pass_six = false
+        pass_seven = false
+        pass_eight = false
+        pass_nine = false
+        pass_ten = false
+
+        show_one = true
+        show_two = true
+        show_three = true
+        show_four = true
+        show_five = true
+        show_six = true
+        show_seven = true
+        show_eight = true
+        show_nine = true
+        show_ten = true
+
+        tab_button = True
+    End If
+    If ButtonPressed = dlg_two_button Then
+        pass_one = true
+        pass_two = False
+        pass_three = false
+        pass_four = false
+        pass_five = false
+        pass_six = false
+        pass_seven = false
+        pass_eight = false
+        pass_nine = false
+        pass_ten = false
+
+        show_one = false
+        show_two = true
+        show_three = true
+        show_four = true
+        show_five = true
+        show_six = true
+        show_seven = true
+        show_eight = true
+        show_nine = true
+        show_ten = true
+
+        tab_button = True
+    End If
+    If ButtonPressed = dlg_three_button Then
+        pass_one = true
+        pass_two = true
+        pass_three = false
+        pass_four = false
+        pass_five = false
+        pass_six = false
+        pass_seven = false
+        pass_eight = false
+        pass_nine = false
+        pass_ten = false
+
+        show_one = false
+        show_two = false
+        show_three = true
+        show_four = true
+        show_five = true
+        show_six = true
+        show_seven = true
+        show_eight = true
+        show_nine = true
+        show_ten = true
+
+        tab_button = True
+    End If
+    If ButtonPressed = dlg_four_button Then
+        pass_one = true
+        pass_two = true
+        pass_three = true
+        pass_four = false
+        pass_five = false
+        pass_six = false
+        pass_seven = false
+        pass_eight = false
+        pass_nine = false
+        pass_ten = false
+
+        show_one = false
+        show_two = false
+        show_three = false
+        show_four = true
+        show_five = true
+        show_six = true
+        show_seven = true
+        show_eight = true
+        show_nine = true
+        show_ten = true
+
+        tab_button = True
+    End If
+    If ButtonPressed = dlg_five_button Then
+        pass_one = true
+        pass_two = true
+        pass_three = true
+        pass_four = true
+        pass_five = false
+        pass_six = false
+        pass_seven = false
+        pass_eight = false
+        pass_nine = false
+        pass_ten = false
+
+        show_one = false
+        show_two = false
+        show_three = false
+        show_four = false
+        show_five = true
+        show_six = true
+        show_seven = true
+        show_eight = true
+        show_nine = true
+        show_ten = true
+
+        tab_button = True
+    End If
+    If ButtonPressed = dlg_six_button Then
+        pass_one = true
+        pass_two = true
+        pass_three = true
+        pass_four = true
+        pass_five = true
+        pass_six = false
+        pass_seven = false
+        pass_eight = false
+        pass_nine = false
+        pass_ten = false
+
+        show_one = false
+        show_two = false
+        show_three = false
+        show_four = false
+        show_five = false
+        show_six = true
+        show_seven = true
+        show_eight = true
+        show_nine = true
+        show_ten = true
+
+        tab_button = True
+    End If
+    If ButtonPressed = dlg_seven_button Then
+        pass_one = true
+        pass_two = true
+        pass_three = true
+        pass_four = true
+        pass_five = true
+        pass_six = true
+        pass_seven = false
+        pass_eight = false
+        pass_nine = false
+        pass_ten = false
+
+        show_one = false
+        show_two = false
+        show_three = false
+        show_four = false
+        show_five = false
+        show_six = false
+        show_seven = true
+        show_eight = true
+        show_nine = true
+        show_ten = true
+
+        tab_button = True
+    End If
+    If ButtonPressed = dlg_eight_button Then
+        pass_one = true
+        pass_two = true
+        pass_three = true
+        pass_four = true
+        pass_five = true
+        pass_six = true
+        pass_seven = true
+        pass_eight = false
+        pass_nine = false
+        pass_ten = false
+
+        show_one = false
+        show_two = false
+        show_three = false
+        show_four = false
+        show_five = false
+        show_six = false
+        show_seven = false
+        show_eight = true
+        show_nine = true
+        show_ten = true
+
+        tab_button = True
+    End If
+    If ButtonPressed = dlg_nine_button Then
+        pass_one = true
+        pass_two = true
+        pass_three = true
+        pass_four = true
+        pass_five = true
+        pass_six = true
+        pass_seven = true
+        pass_eight = true
+        pass_nine = false
+        pass_ten = false
+
+        show_one = false
+        show_two = false
+        show_three = false
+        show_four = false
+        show_five = false
+        show_six = false
+        show_seven = false
+        show_eight = false
+        show_nine = true
+        show_ten = true
+
+        tab_button = True
+    End If
+    If ButtonPressed = dlg_ten_button Then
+        pass_one = true
+        pass_two = true
+        pass_three = true
+        pass_four = true
+        pass_five = true
+        pass_six = true
+        pass_seven = true
+        pass_eight = true
+        pass_nine = true
+        pass_ten = false
+
+        show_one = false
+        show_two = false
+        show_three = false
+        show_four = false
+        show_five = false
+        show_six = false
+        show_seven = false
+        show_eight = false
+        show_nine = false
+        show_ten = true
+
+        tab_button = True
+    End If
+end function
+
 
 function assign_county_address_variables(address_line_01, address_line_02)
 '--- This function will assign an address to a variable selected from the interview_location variable in the Appt Letter script.
@@ -3508,6 +3789,34 @@ function fix_read_data(search_string)
 	search_string = trim(search_string)
 	fix_read_data = search_string 'To make this a return function, this statement must set the value of the function name
 end function
+
+' Function generate_client_list(list_for_dropdown, initial_text)
+' '--- This function creates a variable formatted for a DropListBox or ComboBox in a dialog to have all the clients on a case as an option.
+' '~~~~~ list_for_dropdown: the variable to put in the dialog for the list
+' '~~~~~ initial_text: the words to have in the top position of the list
+' '===== Keywords: MAXIS, DIALOG, CLIENTS
+' 	memb_row = 5
+'     list_for_dropdown = initital_text
+'
+' 	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
+' 	Do
+' 		EMReadScreen ref_numb, 2, memb_row, 3
+' 		If ref_numb = "  " Then Exit Do
+' 		EMWriteScreen ref_numb, 20, 76
+' 		transmit
+' 		EMReadScreen first_name, 12, 6, 63
+' 		EMReadScreen last_name, 25, 6, 30
+' 		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")
+' 		memb_row = memb_row + 1
+' 	Loop until memb_row = 20
+'
+' 	client_info = right(client_info, len(client_info) - 1)
+' 	client_list_array = split(client_info, "~")
+'
+' 	For each person in client_list_array
+' 		list_for_dropdown = list_for_dropdown & chr(9) & person
+' 	Next
+' End Function
 
 function get_county_code()
 '--- This function determines county_name from worker_county_code, and asks for it if it's blank
