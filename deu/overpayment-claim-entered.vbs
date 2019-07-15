@@ -576,7 +576,7 @@ CALL write_bullet_and_variable_in_CCOL_note_test("Discovery date", discovery_dat
 CALL write_bullet_and_variable_in_CCOL_note_test("Active Programs", programs)
 CALL write_bullet_and_variable_in_CCOL_note_test("Source of income", income_source)
 Call write_variable_in_CCOL_note_test("----- ----- ----- ----- -----")
-Call write_variable_in_CCOL_note_test(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+IF OP_program <> "Select:" then Call write_variable_in_CCOL_note_test(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
 IF OP_program_II <> "Select:" then
 	Call write_variable_in_CCOL_note_test(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
 	Call write_variable_in_CCOL_note_test("----- ----- ----- ----- -----")
