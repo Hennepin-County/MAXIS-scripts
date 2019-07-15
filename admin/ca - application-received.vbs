@@ -300,13 +300,13 @@ If right(additional_programs_applied_for, 1) = "," THEN additional_programs_appl
 '----------------------------------------------------------------------------------------------------dialogs
 BeginDialog appl_detail_dialog, 0, 0, 296, 205, "Application Received for: "  & programs_applied_for
   DropListBox 85, 10, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
-  Text 175, 15, 110, 10, "Application Date:"   & application_date
+  Text 175, 15, 110, 10, "Application Date: "  & application_date
   DropListBox 85, 30, 65, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
   EditBox 230, 30, 55, 15, confirmation_number
   CheckBox 10, 65, 70, 10, "Request to APPL", appl_request_checkbox
   EditBox 230, 60, 55, 15, requested_person
-  CheckBox 10, 75, 80, 10, "Mets retro coverage", Mets_retro_checkbox
-  CheckBox 10, 85, 105, 10, "Mets to Maxis transition case", mets_to_maxis_checkbox
+  CheckBox 10, 75, 85, 10, "METS Retro Coverage ", Mets_retro_checkbox
+  CheckBox 10, 85, 120, 10, "METS to MAXIS Transitional Case", mets_to_maxis_checkbox
   EditBox 245, 80, 40, 15, retro_coverage_start_date
   EditBox 70, 100, 215, 15, request_reason
   EditBox 50, 130, 20, 15, transfer_case_number
@@ -327,7 +327,7 @@ BeginDialog appl_detail_dialog, 0, 0, 296, 205, "Application Received for: "  & 
   Text 10, 35, 65, 10, "Type of Application:"
   GroupBox 5, 120, 285, 40, "Transfer Information"
   Text 5, 170, 45, 10, "Other Notes:"
-  Text 155, 85, 85, 10, "Retro coverage start date:"
+  Text 155, 85, 90, 10, "Retro Coverage Start Date: "
   Text 10, 135, 40, 10, "Transfer to:"
   Text 75, 135, 60, 10, "(last 3 digit of X#)"
   Text 10, 105, 60, 10, "Request Reason:"
