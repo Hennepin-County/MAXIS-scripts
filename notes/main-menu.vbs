@@ -414,6 +414,13 @@ script_array_M_to_Q(script_num).description				= "Template for case noting infor
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
 Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_M_to_Q(script_num).script_name 			= "METS Retro Health Care"
+script_array_M_to_Q(script_num).file_name				= "mets-retro-health-care.vbs"
+script_array_M_to_Q(script_num).description				= "Template and email support for when METS retro coverage has been requested."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
+Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_M_to_Q(script_num).script_name 			= "MFIP Sanction/DWP Disqualification"
 script_array_M_to_Q(script_num).file_name				= "mfip-sanction-and-dwp-disqualification.vbs"
 script_array_M_to_Q(script_num).description				= "Template for MFIP sanctions and DWP disqualifications, both CS and ES."
