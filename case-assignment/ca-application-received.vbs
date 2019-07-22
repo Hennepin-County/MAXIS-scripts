@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("07/22/2019", "Updated the script to automatically email Team 603 for METS cases.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/19/2019", "Added an error reporting option at the end of the script run.", "Casey Love, Hennepin County")
 CALL changelog_update("02/05/2019", "Updated case correction handling.", "Casey Love, Hennepin County")
 CALL changelog_update("11/15/2018", "Enhanced functionality for SameDay interview cases.", "Casey Love, Hennepin County")
@@ -305,7 +306,7 @@ BeginDialog appl_detail_dialog, 0, 0, 296, 170, "Application Received for: " & p
   EditBox 230, 30, 55, 15, confirmation_number
   CheckBox 10, 55, 115, 10, "Check if this is a case correction", case_correction
   EditBox 230, 50, 55, 15, requested_person
-  CheckBox 10, 65, 150, 10, "Check if this is a MNSURE Retro Request", mnsure_retro_checkbox
+  CheckBox 10, 65, 150, 10, "Check if this is a METS Retro Request", mnsure_retro_checkbox
   EditBox 50, 90, 20, 15, transfer_case_number
   CheckBox 10, 110, 155, 10, "Check if the case does not require a transfer ", no_transfer_check
   EditBox 55, 130, 235, 15, other_notes
@@ -402,7 +403,7 @@ IF case_correction = CHECKED THEN
 	CALL write_variable_in_CASE_NOTE("* Case Correction requested by " & requested_person & " on " & pended_date & ".")
 END IF
 IF confirmation_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
-IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("* Form Received: MNsure Application for Health Coverage and Help Paying Costs (DHS-6696) ")
+IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("* Form Received: METS Application for Health Coverage and Help Paying Costs (DHS-6696) ")
 IF app_type = "HCAPP" THEN write_variable_in_CASE_NOTE ("* Form Received: Health Care Application (HCAPP) (DHS-3417) ")
 IF app_type = "HC-Certain Pop" THEN write_variable_in_CASE_NOTE ("* Form Received: MHC Programs Application for Certain Populations (DHS-3876) ")
 IF app_type = "LTC" THEN write_variable_in_CASE_NOTE ("* Form Received: Application for Medical Assistance for Long Term Care Services (DHS-3531) ")
@@ -567,9 +568,9 @@ ELSE
 END IF
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-If run_locally = TRUE Then send_email = FALSE
-IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
-IF mnsure_retro_checkbox = CHECKED THEN CALL create_outlook_email("", "", MAXIS_case_name & maxis_case_number & " Retro Request for MNSURE ready to be processed. " & worker_number & "  EOM.", "", "", FALSE)
+'If run_locally = TRUE Then send_email = FALSE
+IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case number #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
+IF mnsure_retro_checkbox = CHECKED THEN CALL create_outlook_email("HSPH.EWS.TEAM.603@hennepin.us", "", "Case number #" & maxis_case_number &  " Retro Request APPL'd in Maxis - ACTION REQUIRED.", "", "", TRUE)
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE
 if interview_completed = TRUE Then send_appt_ltr = FALSE
