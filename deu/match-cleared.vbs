@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("07/17/2019", "Updated script to no longer run off DAIL, it will ask for a case number to ensure all the matches pull correctly.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/14/2019", "Updated dialog and case note to reflect BE-Child requirements.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("04/23/2018", "Updated case note to reflect standard dialog and case note.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/26/2018", "Merged the claim referral tracking back into the script.", "MiKayla Handley, Hennepin County")
@@ -64,33 +65,33 @@ changelog_display
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 '----------------------------------------------------------------------------------------------------DAIL
-EMReadscreen dail_check, 4, 2, 48 'changed from DAIL to view to ensure we are in DAIL/DAIL'
-IF dail_check = "DAIL" THEN
-	EMSendKey "t"
-    EMReadScreen match_type, 4, 6, 6 'read the DAIL msg'
-	'msgbox match_type
-    IF match_type = "WAGE" or match_type = "BEER" or match_type = "UBEN" or match_type = "UNVI" THEN
-    	match_found = TRUE
-    ELSE
-		match_found = FALSE
-		'script_end_procedure("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
-    END IF
-	IF match_found = TRUE THEN
-    	EMReadScreen MAXIS_case_number, 8, 5, 73
-		MAXIS_case_number= TRIM(MAXIS_case_number)
-		EMReadscreen SSN_number_read, 9, 6, 20
+'EMReadscreen dail_check, 4, 2, 48 'changed from DAIL to view to ensure we are in DAIL/DAIL'
+'IF dail_check = "DAIL" THEN
+'	EMSendKey "t"
+'    EMReadScreen match_type, 4, 6, 6 'read the DAIL msg'
+'	'msgbox match_type
+'    IF match_type = "WAGE" or match_type = "BEER" or match_type = "UBEN" or match_type = "UNVI" THEN
+'    	match_found = TRUE
+'    ELSE
+'		match_found = FALSE
+'		'script_end_procedure("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
+'    END IF
+'	IF match_found = TRUE THEN
+'    	EMReadScreen MAXIS_case_number, 8, 5, 73
+'		MAXIS_case_number= TRIM(MAXIS_case_number)
+'		EMReadscreen SSN_number_read, 9, 6, 20
+'
+'		 '----------------------------------------------------------------------------------------------------IEVP
+'		'Navigating deeper into the match interface
+'		CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
+'		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
+'		TRANSMIT
+'	    'EMReadScreen err_msg, 7, 24, 2
+'	    'IF err_msg = "NO IEVS" THEN script_end_procedure_with_error_report("An error occurred in IEVP, please process manually.")'checking for error msg'
+'	END IF
+'END IF
 
-		 '----------------------------------------------------------------------------------------------------IEVP
-		'Navigating deeper into the match interface
-		CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
-		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
-		TRANSMIT
-	    'EMReadScreen err_msg, 7, 24, 2
-	    'IF err_msg = "NO IEVS" THEN script_end_procedure_with_error_report("An error occurred in IEVP, please process manually.")'checking for error msg'
-	END IF
-END IF
-
-IF dail_check <> "DAIL" or match_found = FALSE THEN
+'IF dail_check <> "DAIL" or match_found = FALSE THEN
     CALL MAXIS_case_number_finder (MAXIS_case_number)
     MEMB_number = "01"
     BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
@@ -125,7 +126,7 @@ IF dail_check <> "DAIL" or match_found = FALSE THEN
 	err_msg = trim(err_msg)
 	'NO IEVS MATCHES FOUND FOR SSN'
 	If err_msg <> "" THEN script_end_procedure_with_error_report("*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine)
-END IF
+'END IF
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 7
 DO
