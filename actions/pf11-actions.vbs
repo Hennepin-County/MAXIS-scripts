@@ -396,16 +396,18 @@ IF PF11_actions = "New Spouse Income Determination" THEN
     LOOP UNTIL check_for_password(are_we_passworded_out) = False
 END If
 
-'Still to find the calculation of 275%'
-'IF household_size = 1 THEN income_limit = 1634
-'IF household_size = 2 THEN income_limit = 2203
-'IF household_size = 3 THEN income_limit = 2772
-'IF household_size = 4 THEN income_limit = 5752 'per DHS'
-'IF household_size = 5 THEN income_limit = 3911
-'IF household_size = 6 THEN income_limit = 4480
-'IF household_size = 7 THEN income_limit = 5051
-'IF household_size = 8 THEN income_limit = 5623
-'IF household_size > 8 THEN income_limit = 5623 + (572 * (household_size- 8))
+'Found in CM 17.11 calculation of 275%'
+'IF household_size = 1 THEN income_limit = $2,782
+'IF household_size = 2 THEN income_limit = $3,772
+'IF household_size = 3 THEN income_limit = $4,762
+'IF household_size = 4 THEN income_limit = $5,752
+'IF household_size = 5 THEN income_limit = $6,742
+'IF household_size = 6 THEN income_limit = $7,731
+'IF household_size = 7 THEN income_limit = $8,722
+'IF household_size = 8 THEN income_limit = $9,712
+'IF household_size = 9 THEN income_limit = $10,702
+'IF household_size = 10 THEN income_limit = $11,692
+'IF household_size > 10 THEN income_limit = 11,692 + (990 * (household_size- 8))
 'valid_through_date = #10/01/2019#
 
 IF PF11_actions <> "New Spouse Income Determination" THEN
