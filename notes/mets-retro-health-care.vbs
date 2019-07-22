@@ -69,7 +69,7 @@ EndDialog
 '-------------------------------------------------------------------------------------------------------script
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
-email_checkbox = checked 'defaulting to checked 
+'email_checkbox = checked 'defaulting to checked 
 
 'Main dialog: user will input case number and member number
 DO
@@ -177,7 +177,7 @@ If initial_option = "Initial Request" then
     Text 40, 60, 45, 10, "Other Notes:"
     EditBox 85, 55, 220, 15, other_notes
     CheckBox 10, 80, 140, 10, "METS DOA is 11 months prior to today.", DOA_checkbox
-    CheckBox 195, 80, 115, 10, "Check here to email METS team.", email_checkbox
+    'CheckBox 195, 80, 115, 10, "Check here to email METS team.", email_checkbox
     CheckBox 10, 95, 185, 10, "Case Correction and Transfer Use Form created/sent.", useform_checkbox
     CheckBox 195, 95, 110, 10, "Task created for retro request.", task_checkbox
     ButtonGroup ButtonPressed
@@ -246,7 +246,7 @@ If initial_option = "Proofs Received" then
     EditBox 70, (60 + (x * 15)), 220, 15, other_notes
     CheckBox 5, (85 + (x * 15)), 140, 10, "METS DOA is 11 months prior to today.", DOA_checkbox
     CheckBox 5, (100 + (x * 15)), 140, 10, "All verifications and/or forms received.", verifs_checkbox
-    CheckBox 175, (85 + (x * 15)), 115, 10, "Check here to email METS team.", email_checkbox
+    'CheckBox 175, (85 + (x * 15)), 115, 10, "Check here to email METS team.", email_checkbox
     Text 5, (120 + (x * 15)), 60, 10, "Worker Signature:"
     EditBox 70, (115 + (x * 15)), 130, 15, worker_signature
     ButtonGroup ButtonPressed
@@ -292,7 +292,7 @@ If initial_option = "Retro Determination" then
     Text 30, (65 + (x * 15)), 45, 10, "Other Notes:"
     EditBox 75, (60 + (x * 15)), 220, 15, other_notes
     CheckBox 10, (80 + (x * 15)), 140, 10, "METS DOA is 11 months prior to today.", DOA_checkbox
-    CheckBox 160, (80 + (x * 15)), 115, 10, "Check here to email METS team.", email_checkbox
+    'CheckBox 160, (80 + (x * 15)), 115, 10, "Check here to email METS team.", email_checkbox
     Text 5, (100 + (x * 15)), 60, 10, "Worker Signature:"
     EditBox 70, (95 + (x * 15)), 130, 15, worker_signature
     ButtonGroup ButtonPressed
@@ -338,26 +338,25 @@ If right(member_numbers, 1) = "," THEN member_numbers = left(member_numbers, len
 
 memb_info = " for Memb " & member_numbers ' for the case note
 
-'Outlook: If DOA checkbox is NOT selected, email
+'Outlook's time to shine 
 email_content = ""
+
 If DOA_checkbox = checked then 
     send_email = True 
-    email_content = "* METS DOA (Date of Application) was 11 months prior to today." & vbcr
-elseif email_checkbox = checked then 
-    If initial_option = "Retro Determination" then 
+    email_content = "* METS DOA (Date of Application) was 11 months prior to today." & vbcr & vbcr & 
+    team_email = "601"
+elseif initial_option = "Retro Determination" then 
+    send_email = False
+    team_email = "" 
+else 
+    If HC_array(retro_scenario_const, 0) = "C" or HC_array(retro_scenario_const, 0) = "D" or HC_array(retro_scenario_const, 0) = "E" then 
         send_email = True 
-    else 
-        If HC_array(retro_scenario_const, 0) = "A" or HC_array(retro_scenario_const, 0) = "B" then 
-            team_email = "603"
-            send_email = True 
-            email_content = "FYI: Retro requested for Scenario A/B"
-        Else 
-            send_email = True 
-        End if 
-    End if 
+        team_email = "601"
+    Elseif HC_array(retro_scenario_const, 0) = "A" or HC_array(retro_scenario_const, 0) = "B" then 
+        send_email = True 
+        team_email = "603"
+    End if     
 End if 
-
-If team_email <> "603" then team_email = "601"
 
 For i = 0 to ubound(HC_array, 2)
     If HC_array(member_name_const, i) <> "" then 
@@ -399,12 +398,16 @@ For i = 0 to ubound(HC_array, 2)
 Next 
 
 IF DOA_checkbox = 1 then Call write_variable_in_case_note("* Team 601 emailed re: DOA over 11 months prior to current date.")
-If email_checkbox = 1 then Call write_variable_in_case_note("* Email notification sent to " & team_email & ".")
 IF useform_checkbox = 1 then CALL write_variable_in_case_note("* Case Correction and Transfer Use form created and sent.")     
 If task_checkbox = 1 then Call write_variable_in_case_note("* Task created in METS for retro request.")
 If verifs_checkbox = 1 then Call write_variable_in_case_note("* All verification and/or forms received for retro determination.")
+If send_email = True then Call write_variable_in_case_note("* Email notification sent to " & team_email & ".")
 CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure ("")
+If send_email = True then 
+    script_end_procedure_with_error_report("An email notification was sent to " & team_email & ". Thank you!")
+else 
+    script_end_procedure_with_error_report("")
+End if 
