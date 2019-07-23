@@ -2699,7 +2699,7 @@ If ltc_1503_form_checkbox = checked Then
     faci_footer_month = MAXIS_footer_month
     faci_footer_year = MAXIS_footer_year
 
-    BeginDialog Dialog1, 0, 0, 366, 285, "1503 Dialog"
+    BeginDialog Dialog1, 0, 0, 365, 305, "1503 Dialog"
       EditBox 55, 5, 135, 15, FACI_1503
       DropListBox 255, 5, 95, 15, "30 days or less"+chr(9)+"31 to 90 days"+chr(9)+"91 to 180 days"+chr(9)+"over 180 days", length_of_stay
       DropListBox 105, 25, 45, 15, "SNF"+chr(9)+"NF"+chr(9)+"ICF-DD"+chr(9)+"RTC", level_of_care
@@ -2722,9 +2722,12 @@ If ltc_1503_form_checkbox = checked Then
       CheckBox 15, 215, 255, 10, "Check here to have the script TIKL out to contact the FACI re: length of stay.", TIKL_checkbox
       CheckBox 15, 230, 155, 10, "Check here to have the script update HCMI.", HCMI_update_checkbox
       CheckBox 15, 245, 150, 10, "Check here to have the script update FACI.", FACI_update_checkbox
+      EditBox 105, 265, 25, 15, faci_footer_month
+      EditBox 135, 265, 25, 15, faci_footer_year
+      EditBox 85, 285, 75, 15, mets_case_number
       ButtonGroup ButtonPressed
-        OkButton 255, 265, 50, 15
-        CancelButton 310, 265, 50, 15
+        OkButton 255, 285, 50, 15
+        CancelButton 310, 285, 50, 15
       Text 5, 10, 50, 10, "Facility name:"
       Text 200, 10, 50, 10, "Length of stay:"
       Text 5, 30, 95, 10, "Recommended level of care:"
@@ -2737,8 +2740,7 @@ If ltc_1503_form_checkbox = checked Then
       Text 5, 190, 25, 10, "Notes:"
       GroupBox 5, 205, 355, 55, "Script actions"
       Text 5, 270, 95, 10, "Facility Update Month/Year:"
-      EditBox 105, 265, 25, 15, faci_footer_month
-      EditBox 135, 265, 25, 15, faci_footer_year
+      Text 5, 290, 75, 10, "METS Case Number:"
     EndDialog
 
     Do
@@ -2883,6 +2885,7 @@ If ltc_1503_form_checkbox = checked Then
     If sent_verif_request_checkbox = checked then Call write_variable_in_case_note("* Sent verif request to " & sent_request_to)
     If processed_1503_checkbox = checked then Call write_variable_in_case_note("* Completed & Returned 1503 to LTCF.")
     If TIKL_checkbox = checked then Call write_variable_in_case_note("* TIKLed to recheck length of stay on " & TIKL_date & ".")
+    Call write_bullet_and_variable_in_CASE_NOTE("METS Case Number", mets_case_number)
     Call write_bullet_and_variable_in_case_note("Notes", notes)
     Call write_variable_in_case_note("---")
     Call write_variable_in_case_note(worker_signature)
