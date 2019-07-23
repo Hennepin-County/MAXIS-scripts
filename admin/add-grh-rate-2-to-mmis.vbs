@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/23/2019", "Updated with enhanced navigation around the PPOP panel.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/31/2018", "Added inhibiting functionality to ensure the 'approval cty' field is filled in on the FACI panel.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/31/2018", "Added version of script to ADMIN menu that does not require ELIG results to reflect Rate 2. This is meant for GRH staff working on clean up lists.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/12/2018", "Added handling to ensure that service agreement dates are not more than 365 days. MMIS does not support agreements over a year old.", "Ilse Ferris, Hennepin County")
@@ -691,7 +692,7 @@ If duplicate_agreement = False then
                 OkButton 65, 70, 50, 15
                 CancelButton 120, 70, 50, 15
                 Text 5, 5, 170, 35, "Please select the correct facility name/address from the list in PPOP by putting a 'X' next to the name. DO NOT TRANSMIT. Press OK when ready. Press CANCEL to stop the script."
-                Text 5, 45, 175, 20, "* Provider types for GRH must be '18/H COMM PRV' and the status must be '1 ACTIVE1.'"
+                Text 5, 45, 175, 20, "* Provider types for GRH must be '18/H COMM PRV' and the status must be '1 ACTIVE.'"
             EndDialog
             Do
                 dialog PPOP_dialog
@@ -700,6 +701,8 @@ If duplicate_agreement = False then
 			EMReadScreen PPOP_check, 4, 1, 52 
             If PPOP_check = "PPOP" then transmit     'to exit PPOP
             If PPOP_check = "SA3 " then transmit    'to navigate to ACF1 - this is the partial screen check for ASA3
+            transmit ' to next available screen (does not need to be updated)
+            Call write_value_and_transmit("ACF1", 1, 51)
         End if     
 
         '----------------------------------------------------------------------------------------------------ACF1 screen

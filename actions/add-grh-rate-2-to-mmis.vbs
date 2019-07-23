@@ -7,7 +7,7 @@ STATS_denomination = "C"       				'C is for each CASE
 'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
-IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
+IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once706743
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/23/2019", "Updated with enhanced navigation around the PPOP panel.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/19/2019", "Added inhibiting functionality to ensure the 'approval cty' field is filled in on the FACI panel.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/22/2019", "Updated coding to support agreements that include the leap year date of 02/29/2020.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/22/2019", "Added additional handling around the PPOP - provider selection screen. NPI numbers may have muliple facilities and addresses. Worker will need to select the faci option.", "Ilse Ferris, Hennepin County")
@@ -674,7 +675,7 @@ If duplicate_agreement = False then
                 OkButton 65, 70, 50, 15
                 CancelButton 120, 70, 50, 15
                 Text 5, 5, 170, 35, "Please select the correct facility name/address from the list in PPOP by putting a 'X' next to the name. DO NOT TRANSMIT. Press OK when ready. Press CANCEL to stop the script."
-                Text 5, 45, 175, 20, "* Provider types for GRH must be '18/H COMM PRV' and the status must be '1 ACTIVE1.'"
+                Text 5, 45, 175, 20, "* Provider types for GRH must be '18/H COMM PRV' and the status must be '1 ACTIVE.'"
             EndDialog
             Do
                 dialog PPOP_dialog
@@ -683,6 +684,8 @@ If duplicate_agreement = False then
 			EMReadScreen PPOP_check, 4, 1, 52 
             If PPOP_check = "PPOP" then transmit     'to exit PPOP
             If PPOP_check = "SA3 " then transmit    'to navigate to ACF1 - this is the partial screen check for ASA3
+            transmit ' to next available screen (does not need to be updated)
+            Call write_value_and_transmit("ACF1", 1, 51)
         End if     
         
         '----------------------------------------------------------------------------------------------------ACF1 screen
