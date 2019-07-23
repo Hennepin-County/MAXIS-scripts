@@ -343,7 +343,7 @@ email_content = ""
 
 If DOA_checkbox = checked then 
     send_email = True 
-    email_content = "* METS DOA (Date of Application) was 11 months prior to today." & vbcr & vbcr & 
+    email_content = "* METS DOA (Date of Application) was 11 months prior to today." & vbcr & vbcr 
     team_email = "601"
 elseif initial_option = "Retro Determination" then 
     send_email = False
@@ -409,5 +409,5 @@ CALL write_variable_in_CASE_NOTE(worker_signature)
 If send_email = True then 
     script_end_procedure_with_error_report("An email notification was sent to " & team_email & ". Thank you!")
 else 
-    script_end_procedure_with_error_report("")
+    script_end_procedure_with_error_report("Success, your case note has been created.")
 End if 
