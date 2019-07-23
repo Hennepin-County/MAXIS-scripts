@@ -51,7 +51,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 MAXIS_case_number = "282689"
 date_received = "06/13/19"
-ADDR_actions = "Mail has been returned w/ forwarding address in MN"
+'ADDR_actions = "No forwarding ADDR"
 
 'new_addr_line_two
 new_addr_line_one = "4329 Humboldt Ave N"
@@ -69,18 +69,18 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_month_confirmation
 'Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-BeginDialog case_number_dlg, 0, 0, 251, 85, "Returned Mail"
+BeginDialog case_number_dlg, 0, 0, 211, 85, "Returned Mail"
   EditBox 55, 5, 40, 15, maxis_case_number
-  EditBox 205, 5, 40, 15, date_received
-  DropListBox 55, 25, 190, 15, "Select One:"+chr(9)+"Mail has been returned NO forwarding address"+chr(9)+"Mail has been returned w/ forwarding address in MN"+chr(9)+"Mail has been returned w/ forwarding address outside MN"+chr(9)+"Client has not responded to request for verif", ADDR_actions
-  EditBox 130, 45, 115, 15, worker_signature
+  EditBox 165, 5, 40, 15, date_received
+  DropListBox 90, 25, 115, 15, "Select One:"+chr(9)+"Forwarding address in MN"+chr(9)+"Forwarding address outside MN"+chr(9)+"No forwarding address provided"+chr(9)+"Client has not responded to request for verif", ADDR_actions
+  EditBox 90, 45, 115, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 145, 65, 50, 15
-    CancelButton 195, 65, 50, 15
-  Text 5, 30, 45, 10, "Select action:"
-  Text 65, 50, 60, 10, "Worker signature:"
-  Text 5, 10, 45, 10, "Case number:"
-  Text 150, 10, 50, 10, "Date received:"
+    OkButton 110, 65, 45, 15
+    CancelButton 160, 65, 45, 15
+  Text 5, 30, 85, 10, "Mail Has Been Returned:"
+  Text 5, 50, 60, 10, "Worker Signature:"
+  Text 5, 10, 50, 10, "Case Number:"
+  Text 105, 10, 50, 10, "Date Received:"
 EndDialog
 
 
@@ -190,30 +190,33 @@ EMreadscreen ADDR_phone_3C, 4, 19, 55
 
 maxis_addr = ADDR_line_one & " " & ADDR_line_two & " " & ADDR_city & " " & ADDR_state & " " & ADDR_zip
 
-IF ADDR_actions = "Mail has been returned NO forwarding address" THEN
-    BeginDialog RETURNED_MAIL, 0, 0, 181, 185, "Mail has been returned NO forwarding address"
-    CheckBox 10, 70, 70, 10, "Sent DHS-2919A", verifA_sent_checkbox
-    CheckBox 85, 70, 65, 10, "Sent DHS-2952", SHEL_form_sent_checkbox
-    CheckBox 10, 85, 65, 10, "Sent DHS-2402", CRF_sent_checkbox
-    EditBox 110, 105, 65, 15, METS_case_number
-    DropListBox 110, 125, 65, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", mets_addr_correspondence
-    EditBox 50, 145, 125, 15, other_notes
-    ButtonGroup ButtonPressed
-    OkButton 70, 165, 50, 15
-    CancelButton 125, 165, 50, 15
-    Text 5, 130, 95, 10, "METS correspondence sent:"
-    Text 5, 150, 40, 10, "Other notes:"
-    GroupBox 5, 5, 170, 50, "NOTE:"
-    GroupBox 5, 60, 170, 40, "Verification Request Form"
-    Text 5, 110, 70, 10, "METS case number:"
-    Text 10, 15, 160, 35, "Do not make any changes to STAT/ADDR.  Do NOT enter a ? or unknown or other county codes on the ADDR panel.  The ADDR panel is used to mail notices; the post office requires an address. "
+IF ADDR_actions = "No forwarding ADDR" THEN
+    BeginDialog no_forward_addr, 0, 0, 186, 215, "No forwarding ADDR"
+      CheckBox 10, 95, 165, 10, "Verif Request (DHS-2919A) - Request for Contact ", verifA_sent_checkbox
+      CheckBox 10, 105, 100, 10, "Change Report (DHS-2402)", CRF_sent_checkbox
+      CheckBox 10, 115, 70, 10, "SVF (DHS-2952)", SHEL_form_sent_checkbox
+      DropListBox 110, 135, 65, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", mets_addr_correspondence
+      EditBox 110, 155, 65, 15, METS_case_number
+      EditBox 50, 175, 130, 15, other_notes
+      ButtonGroup ButtonPressed
+        OkButton 75, 195, 50, 15
+        CancelButton 130, 195, 50, 15
+      GroupBox 5, 5, 175, 75, "NOTE:"
+      Text 10, 15, 160, 10, "Do not make any changes to STAT/ADDR."
+      Text 10, 25, 165, 15, "Do not enter a ? or unknown or other county codes on the ADDR panel."
+      Text 10, 45, 160, 35, "* When a change reporting unit reports a change over the telephone or in person, the unit is not required to also report the change on a Change Report from. "
+      GroupBox 5, 85, 175, 45, "Verification Requested:"
+      Text 5, 140, 95, 10, "METS Correspondence Sent:"
+      Text 5, 160, 70, 10, "METS Case Number:"
+      Text 5, 180, 45, 10, "Other Notes:"
     EndDialog
 
 	DO
 	    DO
 	    	err_msg = ""
-	    	DIALOG case_number_dlg
+	    	DIALOG no_forward_addr
 	    		IF ButtonPressed = 0 THEN stopscript
+				IF verifA_sent_checkbox = UNCHECKED and CRF_sent_checkbox = UNCHECKED and SHEL_form_sent_checkbox= UNCHECKED THEN err_msg = err_msg & vbCr & "Please select the verifcation requested and ensure forms are sent in ECF."
 	    		IF mets_addr_correspondence = "YES" THEN
 					IF METS_case_number = "" OR (METS_case_number <> "" AND len(METS_case_number) > 10) OR (METS_case_number <> "" AND IsNumeric(METS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
 				END IF
@@ -225,7 +228,9 @@ IF ADDR_actions = "Mail has been returned NO forwarding address" THEN
 	CALL check_for_MAXIS(False)
 END IF
 
-IF ADDR_actions = "Mail has been returned w/ forwarding address in MN" or ADDR_actions = "Mail has been returned w/ forwarding address outside MN" THEN
+IF ADDR_actions = "Forwarding address outside MN" THEN county_code = "Out of State"
+
+IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding address outside MN" THEN
     BeginDialog returned_mail_update_addr, 0, 0, 206, 305, "Mail has been returned with forwarding address"
       Text 10, 15, 185, 10, maxis_addr
 	  CheckBox 10, 35, 100, 10, "Verif Request (DHS-2919A)", verifA_sent_checkbox
@@ -239,10 +244,10 @@ IF ADDR_actions = "Mail has been returned w/ forwarding address in MN" or ADDR_a
       EditBox 40, 155, 20, 15, new_addr_state
       EditBox 155, 155, 40, 15, new_addr_zip
       DropListBox 55, 175, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", homeless_addr
-      DropListBox 130, 175, 65, 15, "Select:"+chr(9)+"Aitkin"+chr(9)+"Anoka"+chr(9)+"Becker"+chr(9)+"Beltrami"+chr(9)+"Benton"+chr(9)+"Big Stone"+chr(9)+"Blue Earth"+chr(9)+"Brown"+chr(9)+"Carlton"+chr(9)+"Carver"+chr(9)+"Cass"+chr(9)+"Chippewa"+chr(9)+"Chisago"+chr(9)+"Clay"+chr(9)+"Clearwater"+chr(9)+"Cook"+chr(9)+"Cottonwood"+chr(9)+"Crow     Wing"+chr(9)+"Dakota"+chr(9)+"Dodge"+chr(9)+"Douglas"+chr(9)+"Faribault"+chr(9)+"Fillmore"+chr(9)+"Freeborn"+chr(9)+"Goodhue"+chr(9)+"Grant"+chr(9)+"Hennepin"+chr(9)+"Houston"+chr(9)+"Hubbard"+chr(9)+"Isanti"+chr(9)+"Itasca"+chr(9)+"Jackson"+chr(9)+"Kanabec"+chr(9)+"Kandiyohi"+chr(9)+"Kittson"+chr(9)+"Koochiching"+chr(9)+"Lac Qui Parle"+chr(9)+"Lake"+chr(9)+"Lake Of Woods"+chr(9)+"Le     Sueur"+chr(9)+"Lincoln"+chr(9)+"Lyon"+chr(9)+"Mcleod"+chr(9)+"Mahnomen"+chr(9)+"Marshall"+chr(9)+"Martin"+chr(9)+"Meeker"+chr(9)+"Mille Lacs"+chr(9)+"Morrison"+chr(9)+"Mower"+chr(9)+"Murray"+chr(9)+"Nicollet"+chr(9)+"Nobles"+chr(9)+"Norman"+chr(9)+"Olmsted"+chr(9)+"Otter Tail"+chr(9)+"Pennington"+chr(9)+"Pine"+chr(9)+"Pipestone"+chr(9)+"Polk"+chr(9)+"Pope"+chr(9)+"Ramsey"+chr(9)+"Red Lake"+chr(9)+"Redwood"+chr(9)+"Renville"+chr(9)+"Rice"+chr(9)+"Rock"+chr(9)+"Roseau"+chr(9)+"St.     Louis"+chr(9)+"Scott"+chr(9)+"Sherburne"+chr(9)+"Sibley"+chr(9)+"Stearns"+chr(9)+"Steele"+chr(9)+"Stevens"+chr(9)+"Swift"+chr(9)+"Todd"+chr(9)+"Traverse"+chr(9)+"Wabasha"+chr(9)+"Wadena"+chr(9)+"Waseca"+chr(9)+"Washington"+chr(9)+"Watonwan"+chr(9)+"Wilkin"+chr(9)+"Winona"+chr(9)+"Wright"+chr(9)+"Yellow Medicine"+chr(9)+"Out-of-State", county_code
+      DropListBox 130, 175, 65, 15, "Select:"+chr(9)+"Aitkin"+chr(9)+"Anoka"+chr(9)+"Becker"+chr(9)+"Beltrami"+chr(9)+"Benton"+chr(9)+"Big Stone"+chr(9)+"Blue Earth"+chr(9)+"Brown"+chr(9)+"Carlton"+chr(9)+"Carver"+chr(9)+"Cass"+chr(9)+"Chippewa"+chr(9)+"Chisago"+chr(9)+"Clay"+chr(9)+"Clearwater"+chr(9)+"Cook"+chr(9)+"Cottonwood"+chr(9)+"Crow     Wing"+chr(9)+"Dakota"+chr(9)+"Dodge"+chr(9)+"Douglas"+chr(9)+"Faribault"+chr(9)+"Fillmore"+chr(9)+"Freeborn"+chr(9)+"Goodhue"+chr(9)+"Grant"+chr(9)+"Hennepin"+chr(9)+"Houston"+chr(9)+"Hubbard"+chr(9)+"Isanti"+chr(9)+"Itasca"+chr(9)+"Jackson"+chr(9)+"Kanabec"+chr(9)+"Kandiyohi"+chr(9)+"Kittson"+chr(9)+"Koochiching"+chr(9)+"Lac Qui Parle"+chr(9)+"Lake"+chr(9)+"Lake Of Woods"+chr(9)+"Le     Sueur"+chr(9)+"Lincoln"+chr(9)+"Lyon"+chr(9)+"Mcleod"+chr(9)+"Mahnomen"+chr(9)+"Marshall"+chr(9)+"Martin"+chr(9)+"Meeker"+chr(9)+"Mille Lacs"+chr(9)+"Morrison"+chr(9)+"Mower"+chr(9)+"Murray"+chr(9)+"Nicollet"+chr(9)+"Nobles"+chr(9)+"Norman"+chr(9)+"Olmsted"+chr(9)+"Otter Tail"+chr(9)+"Pennington"+chr(9)+"Pine"+chr(9)+"Pipestone"+chr(9)+"Polk"+chr(9)+"Pope"+chr(9)+"Ramsey"+chr(9)+"Red Lake"+chr(9)+"Redwood"+chr(9)+"Renville"+chr(9)+"Rice"+chr(9)+"Rock"+chr(9)+"Roseau"+chr(9)+"St.     Louis"+chr(9)+"Scott"+chr(9)+"Sherburne"+chr(9)+"Sibley"+chr(9)+"Stearns"+chr(9)+"Steele"+chr(9)+"Stevens"+chr(9)+"Swift"+chr(9)+"Todd"+chr(9)+"Traverse"+chr(9)+"Wabasha"+chr(9)+"Wadena"+chr(9)+"Waseca"+chr(9)+"Washington"+chr(9)+"Watonwan"+chr(9)+"Wilkin"+chr(9)+"Winona"+chr(9)+"Wright"+chr(9)+"Yellow Medicine"+chr(9)+"Out of State", county_code
       DropListBox 55, 190, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", reservation_addr
       DropListBox 55, 205, 140, 15, "Select One:"+chr(9)+"Bois Forte-Deer Creek"+chr(9)+"Bois Forte-Nett Lake"+chr(9)+"Bois Forte-Vermillion Lk"+chr(9)+"Fond du Lac"+chr(9)+"Grand Portage"+chr(9)+"Leach Lake"+chr(9)+"Lower Sioux"+chr(9)+"Mille Lacs"+chr(9)+"Prairie Island Community"+chr(9)+"Red Lake"+chr(9)+"Shakopee Mdewakanton"+chr(9)+"Upper Sioux"+chr(9)+"White Earth", reservation_name
-      DropListBox 140, 230, 55, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", mets_addr
+      DropListBox 140, 230, 55, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", mets_addr
       EditBox 140, 245, 55, 15, METS_case_number
       EditBox 55, 265, 140, 15, other_notes
       ButtonGroup ButtonPressed
@@ -280,11 +285,11 @@ IF ADDR_actions = "Mail has been returned w/ forwarding address in MN" or ADDR_a
 				IF reservation_addr = "YES" THEN
 					IF reservation_name = "Select One:" THEN err_msg = err_msg & vbCr & "Please select the name of the reservation the client is living on."
 				END IF
-    			IF mets_addr_correspondence = "YES" THEN
-    				IF METS_case_number = "" OR (METS_case_number <> "" AND len(METS_case_number) > 10) OR (METS_case_number <> "" AND IsNumeric(METS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
-    			END IF
-    			IF mets_addr_correspondence = "Select One:" THEN err_msg = err_msg & vbCr & "Please select if correspondence has been sent to METS."
-    			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+      			IF mets_addr = "Select One:" THEN err_msg = err_msg & vbCr & "Please select if correspondence has been sent to METS."
+				IF mets_addr = "YES" THEN
+					IF METS_case_number = "" OR (METS_case_number <> "" AND len(METS_case_number) > 10) OR (METS_case_number <> "" AND IsNumeric(METS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
+				END IF
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
     		LOOP UNTIL err_msg = ""
     		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
@@ -385,7 +390,7 @@ IF county_code = "Wilkin" THEN county_code_number = "84"
 IF county_code = "Winona" THEN county_code_number = "85"
 IF county_code = "Wright" THEN county_code_number = "86"
 IF county_code = "YellowMedine" THEN county_code_number = "87"
-IF county_code = "Out-ofState" THEN county_code_number = "89"
+IF county_code = "Out of State" THEN county_code_number = "89"
 
 IF living_situation = "Own Housing: Lease, Mortgage or Roommate" THEN living_situation_code = "01"
 IF living_situation = "Family/Friends Due to Economic Hardship" THEN living_situation_code = "02"
@@ -424,7 +429,7 @@ new_addr_state = UCASE(new_addr_state)
 county_code = UCASE(county_code)
 
 
-IF ADDR_actions = "Mail has been returned w/ forwarding address in MN" or ADDR_actions = "Mail has been returned w/ forwarding address outside MN" THEN
+IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding address outside MN" THEN
 	Call MAXIS_footer_month_confirmation
 	PF9
 
@@ -582,27 +587,28 @@ Call MAXIS_background_check
 
 'starts a blank case note
 call start_a_blank_case_note
-call write_variable_in_CASE_NOTE(ADDR_actions & " for " & active_programs & " received on " & date_received & ".")
-IF ADDR_actions = "Mail has been returned w/ forwarding address in MN" or ADDR_actions = "Mail has been returned w/ forwarding address outside MN" THEN
+call write_variable_in_CASE_NOTE("Returned Mail Received-" & ADDR_actions & " for " & active_programs & ".")
+CALL write_bullet_and_variable_in_CASE_NOTE("Received on", date_received)
+IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding address outside MN" THEN
     CALL write_bullet_and_variable_in_CASE_NOTE("Living situation", living_situation)
     CALL write_bullet_and_variable_in_CASE_NOTE("Homeless", homeless_addr)
-    CALL write_variable_in_CASE_NOTE("* Address updated: " & new_addr_line_one)
-    CALL write_variable_in_CASE_NOTE("                   " & new_addr_line_two & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
-    CALL write_variable_in_CASE_NOTE("                   " & county_code & " COUNTY.")
+    CALL write_variable_in_CASE_NOTE("* Address updated:  " & new_addr_line_one)
+    CALL write_variable_in_CASE_NOTE("                    " & new_addr_line_two & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
+    CALL write_variable_in_CASE_NOTE("                    " & county_code & " COUNTY.")
 	IF reservation_name <> "Select One:" THEN CALL write_variable_in_CASE_NOTE("                      " & "Reservation " & reservation_name)
     'CALL write_variable_in_CASE_NOTE("---")
-    CALL write_variable_in_CASE_NOTE("* Previous address: ", ADDR_line_one)
-	CALL write_variable_in_CASE_NOTE("                      " & ADDR_line_two & " " & ADDR_city & " " & ADDR_state & " " & ADDR_zip)
-    CALL write_bullet_and_variable_in_case_note("Verification(s) Received", pending_verifs)
 ELSE
 	CALL write_bullet_and_variable_in_case_note("Verification(s) Requested", pending_verifs)
 END IF
-'CALL write_variable_in_CASE_NOTE ("---")
+CALL write_variable_in_CASE_NOTE ("---")
+CALL write_variable_in_CASE_NOTE("* Previous address: " & ADDR_line_one)
+CALL write_variable_in_CASE_NOTE("                   " & ADDR_line_two & " " & ADDR_city & " " & ADDR_state & " " & ADDR_zip)
+CALL write_bullet_and_variable_in_case_note("Verification(s) Received", pending_verifs)
 CALL write_bullet_and_variable_in_CASE_NOTE("METS correspondence sent", mets_addr)
 CALL write_bullet_and_variable_in_CASE_NOTE("METS case number", MNsure_number)
-CALL write_bullet_and_variable_in_CASE_NOTE("Returned Mail resent", mail_resent)
-If returned_mail_resent_list = "YES" then call write_variable_in_CASE_NOTE("* Returned Mail resent to client.")
-If returned_mail_resent_list = "NO" then call write_variable_in_CASE_NOTE("* Returned Mail not resent to client.")
+'CALL write_bullet_and_variable_in_CASE_NOTE("Returned Mail resent", mail_resent)
+'If returned_mail_resent_list = "YES" then call write_variable_in_CASE_NOTE("* Returned Mail resent to client.")
+'If returned_mail_resent_list = "NO" then call write_variable_in_CASE_NOTE("* Returned Mail not resent to client.")
 call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
 call write_variable_in_CASE_NOTE ("---")
 call write_variable_in_CASE_NOTE(worker_signature)
@@ -611,14 +617,14 @@ call write_variable_in_CASE_NOTE(worker_signature)
 IF METS_case_number <> "" and mets_addr_correspondence = "NO" THEN MsgBox "Please update the MNsure ADDR if you are able to. If unable, please forward the new ADDR information to the correct area (i.e. Change In Circumstance)"
 
 'Checks if a DHS2919A mailed and sets a TIKL for the return of the info.
-IF verifA_sent_checkbox = CHECKED and ADDR_actions <> "Client has not responded to request for verif" THEN
+IF ADDR_actions <> "Client has not responded to request for verif" THEN
 	call navigate_to_MAXIS_screen("dail", "writ")
 	'The following will generate a TIKL formatted date for 10 days from now.
 	call create_MAXIS_friendly_date(date, 10, 5, 18)
 	'Writing in the rest of the TIKL.
-	call write_variable_in_TIKL("ADDR verification requested via 2919A after returned mail being rec'd should have returned by now. If not received, take appropriate action." )
+	call write_variable_in_TIKL("Returned mail rec'd contact from the client should have occured regarding address change. If no response-verbal or written, please take appropriate action." )
 	TRANSMIT
 	PF3
 End if
 
-script_end_procedure_with_error_report("Success! TIKL has been sent for 10 days from now for the ADDR verification requested via 2919A.")
+script_end_procedure_with_error_report("Success! TIKL has been set for 10 days for the ADDR verification requested. Reminder:  When a change reporting unit reports a change over the telephone or in person, the unit is not required to also report the change on a Change Report from. ")
