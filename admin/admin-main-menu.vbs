@@ -135,7 +135,7 @@ script_num = 0
 ReDim Preserve script_array_admin_main(script_num)
 Set script_array_admin_main(script_num) = new script
 script_array_admin_main(script_num).script_name 		= "Application Received"											'Script name
-script_array_admin_main(script_num).file_name 			= "ca - application-received.vbs"										'Script URL
+script_array_admin_main(script_num).file_name 			= "ca-application-received.vbs"										'Script URL
 script_array_admin_main(script_num).description 		= "ACTION script that will case note application received. This version was created for the Request for APPL process."
 
 script_num = 0
