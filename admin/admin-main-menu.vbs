@@ -131,12 +131,6 @@ script_array_task_list = array()
 
 'ADMIN scripts-------------------------------------------------------------------------------------------------------------------------
 'Resetting the variable
-script_num = 0
-ReDim Preserve script_array_admin_main(script_num)
-Set script_array_admin_main(script_num) = new script
-script_array_admin_main(script_num).script_name 		= "Application Received"											'Script name
-script_array_admin_main(script_num).file_name 			= "ca-application-received.vbs"										'Script URL
-script_array_admin_main(script_num).description 		= "ACTION script that will case note application received. This version was created for the Request for APPL process."
 
 script_num = 0
 ReDim Preserve script_array_admin_main(script_num)
@@ -144,6 +138,14 @@ Set script_array_admin_main(script_num) = new script
 script_array_admin_main(script_num).script_name 		= "Add GRH Rate 2 to MMIS"											'Script name
 script_array_admin_main(script_num).file_name 			= "add-grh-rate-2-to-mmis.vbs"										'Script URL
 script_array_admin_main(script_num).description 		= "ACTION script adds GRH Rate 2 SSR's to MMIS. This version without Rate 2 in elig results for error cases."
+
+script_num = script_num + 1		
+ReDim Preserve script_array_admin_main(script_num)
+Set script_array_admin_main(script_num) = new script
+script_array_admin_main(script_num).script_name 		= "Application Received"											'Script name
+script_array_admin_main(script_num).file_name 			= "ca-application-received.vbs"										'Script URL
+script_array_admin_main(script_num).description 		= "ACTION script that will case note application received. This version was created for the Request for APPL process."
+
 
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array_admin_main(script_num)	    'Resets the array to add one more element to it
