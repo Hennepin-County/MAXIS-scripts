@@ -1589,28 +1589,30 @@ const UNEA_UC_retro_amt         = 16
 const UNEA_UC_prosp_amt         = 17
 const UNEA_UC_notes             = 18
 const UNEA_UC_tikl_date         = 19
+const UNEA_UC_account_balance   = 20
 
-const direct_CS_amt             = 20
-const disb_CS_amt               = 21
-const disb_CS_arrears_amt       = 22
-const direct_CS_notes           = 23
-const disb_CS_notes             = 24
-const disb_CS_arrears_notes     = 25
-const disb_CS_months            = 26
-const disb_CS_prosp_budg        = 27
-const disb_CS_arrears_months    = 28
-const disb_CS_arrears_budg      = 29
+const direct_CS_amt             = 21
+const disb_CS_amt               = 22
+const disb_CS_arrears_amt       = 23
+const direct_CS_notes           = 24
+const disb_CS_notes             = 25
+const disb_CS_arrears_notes     = 26
+const disb_CS_months            = 27
+const disb_CS_prosp_budg        = 28
+const disb_CS_arrears_months    = 29
+const disb_CS_arrears_budg      = 30
 
-const UNEA_RSDI_amt             = 30
-const UNEA_RSDI_notes           = 31
-const UNEA_SSI_amt              = 32
-const UNEA_SSI_notes            = 33
+const UNEA_RSDI_amt             = 31
+const UNEA_RSDI_notes           = 32
+const UNEA_SSI_amt              = 33
+const UNEA_SSI_notes            = 34
 
-const UC_exists                 = 34
-const CS_exists                 = 35
-const SSA_exists                = 36
+const UC_exists                 = 35
+const CS_exists                 = 36
+const SSA_exists                = 37
+const calc_button               = 38
 
-const budget_notes              = 37
+const budget_notes              = 39
 
 'Arrays
 Dim ALL_JOBS_PANELS_ARRAY()
@@ -2682,11 +2684,12 @@ Do
                         If show_five = true Then
                             dlg_five_len = 180
                             ssa_group_len = 30
-                            uc_group_len = 30
+                            uc_group_len = 40
                             For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
                                 If UNEA_INCOME_ARRAY(UC_exists, each_unea_memb) = TRUE Then
                                     dlg_five_len = dlg_five_len + 70
                                     uc_group_len = uc_group_len + 70
+                                    UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb) = UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb) & ""
                                 End If
                                 If UNEA_INCOME_ARRAY(SSA_exists, each_unea_memb) = TRUE Then
                                     dlg_five_len = dlg_five_len + 40
@@ -2727,10 +2730,11 @@ Do
                               For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
                                   If UNEA_INCOME_ARRAY(UC_exists, each_unea_memb) = TRUE Then
                                       Text 15, y_pos, 40, 10, "Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb)
-                                      Text 95, y_pos, 120, 10, "Unemployment Start Date: " & UNEA_INCOME_ARRAY(UNEA_UC_start_date, each_unea_memb)
-                                      Text 230, y_pos, 90, 10, "Budgeted Weekly Amount: $"
-                                      EditBox 320, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb)
-                                      Text 370, y_pos - 5, 85, 25, "To have the script TIKL to check if UC has ended, enter a date for the TIKL."
+                                      Text 65, y_pos, 120, 10, "Unemployment Start Date: " & UNEA_INCOME_ARRAY(UNEA_UC_start_date, each_unea_memb)
+                                      Text 200, y_pos, 90, 10, "Budgeted Weekly Amount:"
+                                      EditBox 290, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb)
+                                      Text 345, y_pos, 70, 10, "UC Acct Bal:"
+                                      EditBox 395, y_pos - 5, 50, 15, UNEA_INCOME_ARRAY(UNEA_UC_account_balance, each_unea_memb)
                                       y_pos = y_pos + 20
                                       Text 30, y_pos, 50, 10, "Weekly Gross:"
                                       EditBox 85, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, each_unea_memb)
@@ -2738,17 +2742,20 @@ Do
                                       EditBox 200, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, each_unea_memb)
                                       Text 245, y_pos, 75, 10, "Excluded Deductions:"
                                       EditBox 320, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(UNEA_UC_exclude_ded, each_unea_memb)
+                                      Text 375, y_pos - 5, 80, 15, "Enter a TIKL date to check if UC has ended:"
                                       y_pos = y_pos + 20
                                       Text 30, y_pos, 50, 10, "Retro Income:"
                                       EditBox 80, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(UNEA_UC_retro_amt, each_unea_memb)
                                       Text 130, y_pos, 50, 10, "Prosp Income:"
                                       EditBox 185, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(UNEA_UC_prosp_amt, each_unea_memb)
-                                      Text 255, y_pos, 65, 10, "SNAP Prosp Amt: $"
-                                      EditBox 320, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, each_unea_memb)
+                                      Text 250, y_pos, 65, 10, "SNAP Prosp Amt: $"
+                                      EditBox 315, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, each_unea_memb)
+                                      ButtonGroup ButtonPressed
+                                        PushButton 365, y_pos, 35, 10, "Calc", calc_button
+                                      EditBox 405, y_pos - 5, 50, 15, UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb)
                                       y_pos = y_pos + 20
                                       Text 30, y_pos, 25, 10, "Notes:"
                                       EditBox 60, y_pos - 5, 395, 15, UNEA_INCOME_ARRAY(UNEA_UC_notes, each_unea_memb)
-                                      EditBox 405, y_pos - 35, 50, 15, UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb)
                                       y_pos = y_pos + 20
                                   End If
                               Next
@@ -2806,13 +2813,29 @@ Do
                             cancel_confirmation
                             If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
 
+                            If ButtonPressed = calc_button Then
+                                For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
+                                    If UNEA_INCOME_ARRAY(UC_exists, each_unea_memb) = TRUE Then
+                                        If IsNumeric(UNEA_INCOME_ARRAY(UNEA_UC_account_balance, each_unea_memb)) = TRUE Then
+                                            If IsNumeric(UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, each_unea_memb)) = TRUE Then
+                                                weeks_of_UC_benefits = Int(UNEA_INCOME_ARRAY(UNEA_UC_account_balance, each_unea_memb)/UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, each_unea_memb))
+                                                'MsgBox weeks_of_UC_benefits
+                                                UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb) = DateAdd("ww", weeks_of_UC_benefits, date)
+                                            Else
+                                                MsgBox "The scriupt cannot calculate the potential date of UC account balance depletion for Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " without the UC account balance and UC Weekly Gross income. Enter these amounts as numbers and the script will enter a date for the TIKL into the dialog. The TIKL date can also be entered or changed manually."
+                                            End If
+                                        End If
+                                    End If
+                                Next
+                                ButtonPressed = dlg_five_button
+                            End If
                             Call assess_button_pressed
                             If ButtonPressed = go_to_next_page Then pass_five = true
                         End If
                     Loop Until pass_five = true
                     If show_six = true Then
                         'BeginDialog Dialog1, 0, 0, 466, 310, "Dialog 6 - Other"
-                        BeginDialog Dialog1, 0, 0, 556, 290, "CAF Dialog 6 - WREG, Expenses, Assets"
+                        BeginDialog Dialog1, 0, 0, 556, 290, "CAF Dialog 6 - WREG, Expenses, Address"
                           EditBox 40, 50, 505, 15, notes_on_wreg
                           ButtonGroup ButtonPressed
                             PushButton 480, 30, 65, 15, "Update ABAWD", abawd_button
@@ -3116,60 +3139,61 @@ Do
                     End If
                 Loop Until pass_six = true
                 If show_seven = true Then
-                    BeginDialog Dialog1, 0, 0, 561, 320, "CAF Dialog 7 - Asset and Miscellaneous Info"
+                    BeginDialog Dialog1, 0, 0, 561, 340, "CAF Dialog 7 - Asset and Miscellaneous Info"
                       EditBox 435, 20, 115, 15, sum_liquid_assets
                       EditBox 45, 40, 395, 15, notes_on_acct
                       EditBox 475, 40, 75, 15, notes_on_cash
-                      EditBox 45, 60, 235, 15, notes_on_cars
-                      EditBox 315, 60, 235, 15, notes_on_rest
-                      EditBox 115, 80, 435, 15, notes_on_other_assets
-                      EditBox 40, 110, 275, 15, MEDI
-                      EditBox 360, 110, 195, 15, DIET
-                      EditBox 40, 130, 515, 15, FMED
-                      EditBox 40, 150, 515, 15, DISQ
-                      EditBox 40, 185, 510, 15, notes_on_time
-                      EditBox 60, 205, 490, 15, notes_on_sanction
-                      EditBox 50, 225, 500, 15, EMPS
-                      CheckBox 50, 250, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
-                      EditBox 55, 270, 500, 15, verifs_needed
+                      CheckBox 45, 60, 350, 10, "Check here to confirm NO account panels and all income was reviewed for direct deposit payments.", confirm_no_account_panel_checkbox
+                      EditBox 45, 80, 235, 15, notes_on_cars
+                      EditBox 315, 80, 235, 15, notes_on_rest
+                      EditBox 115, 100, 435, 15, notes_on_other_assets
+                      EditBox 40, 130, 275, 15, MEDI
+                      EditBox 360, 130, 195, 15, DIET
+                      EditBox 40, 150, 515, 15, FMED
+                      EditBox 40, 170, 515, 15, DISQ
+                      EditBox 40, 205, 510, 15, notes_on_time
+                      EditBox 60, 225, 490, 15, notes_on_sanction
+                      EditBox 50, 245, 500, 15, EMPS
+                      CheckBox 50, 270, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
+                      EditBox 55, 290, 500, 15, verifs_needed
                       ButtonGroup ButtonPressed
-                        PushButton 10, 115, 25, 10, "MEDI:", MEDI_button
-                        PushButton 325, 115, 25, 10, "DIET:", DIET_button
-                        PushButton 10, 135, 25, 10, "FMED:", FMED_button
                         PushButton 15, 45, 25, 10, "ACCT", acct_button
                         PushButton 445, 45, 25, 10, "CASH", cash_button
-                        PushButton 15, 65, 25, 10, "CARS", cars_button
-                        PushButton 285, 65, 25, 10, "REST", rest_button
-                        PushButton 15, 85, 25, 10, "SECU", secu_button
-                        PushButton 40, 85, 25, 10, "TRAN", tran_button
-                        PushButton 65, 85, 45, 10, "other assets", other_asset_button
-                        PushButton 10, 155, 25, 10, "DISQ:", disq_button
-                        PushButton 20, 230, 25, 10, "EMPS:", emps_button
-                        PushButton 110, 300, 45, 10, "1 - Personal", dlg_one_button
-                        PushButton 160, 300, 35, 10, "2 - JOBS", dlg_two_button
-                        PushButton 200, 300, 35, 10, "3 - BUSI", dlg_three_button
-                        PushButton 240, 300, 35, 10, "4 - CSES", dlg_four_button
-                        PushButton 280, 300, 35, 10, "5 - UNEA", dlg_five_button
-                        PushButton 320, 300, 35, 10, "6 - Other", dlg_six_button
-                        PushButton 405, 300, 50, 10, "8 - Interview", dlg_eight_button
-                        PushButton 465, 295, 35, 15, "NEXT", go_to_next_page
-                        CancelButton 505, 295, 50, 15
+                        PushButton 10, 135, 25, 10, "MEDI:", MEDI_button
+                        PushButton 325, 135, 25, 10, "DIET:", DIET_button
+                        PushButton 10, 155, 25, 10, "FMED:", FMED_button
+                        PushButton 15, 85, 25, 10, "CARS", cars_button
+                        PushButton 285, 85, 25, 10, "REST", rest_button
+                        PushButton 15, 105, 25, 10, "SECU", secu_button
+                        PushButton 40, 105, 25, 10, "TRAN", tran_button
+                        PushButton 65, 105, 45, 10, "other assets", other_asset_button
+                        PushButton 10, 175, 25, 10, "DISQ:", disq_button
+                        PushButton 20, 250, 25, 10, "EMPS:", emps_button
+                        PushButton 110, 320, 45, 10, "1 - Personal", dlg_one_button
+                        PushButton 160, 320, 35, 10, "2 - JOBS", dlg_two_button
+                        PushButton 200, 320, 35, 10, "3 - BUSI", dlg_three_button
+                        PushButton 240, 320, 35, 10, "4 - CSES", dlg_four_button
+                        PushButton 280, 320, 35, 10, "5 - UNEA", dlg_five_button
+                        PushButton 320, 320, 35, 10, "6 - Other", dlg_six_button
+                        PushButton 405, 320, 50, 10, "8 - Interview", dlg_eight_button
+                        PushButton 465, 315, 35, 15, "NEXT", go_to_next_page
+                        CancelButton 505, 315, 50, 15
                         OkButton 600, 500, 50, 15
-                      Text 360, 300, 40, 10, "7 - Assets"
-                      Text 5, 275, 50, 10, "Verifs needed:"
-                      GroupBox 10, 10, 545, 95, "Assets"
+                      Text 360, 320, 40, 10, "7 - Assets"
+                      Text 5, 295, 50, 10, "Verifs needed:"
+                      GroupBox 10, 10, 545, 115, "Assets"
                       Text 310, 25, 110, 10, "Total Liquid Assets in App Month:"
-                      GroupBox 105, 290, 355, 25, "Dialog Tabs"
-                      Text 155, 300, 5, 10, "|"
-                      Text 195, 300, 5, 10, "|"
-                      Text 235, 300, 5, 10, "|"
-                      Text 275, 300, 5, 10, "|"
-                      Text 315, 300, 5, 10, "|"
-                      Text 355, 300, 5, 10, "|"
-                      Text 400, 300, 5, 10, "|"
-                      GroupBox 10, 170, 545, 95, "MFIP/DWP"
-                      Text 20, 190, 20, 10, "Time:"
-                      Text 20, 210, 30, 10, "Sanction:"
+                      GroupBox 105, 310, 355, 25, "Dialog Tabs"
+                      Text 155, 320, 5, 10, "|"
+                      Text 195, 320, 5, 10, "|"
+                      Text 235, 320, 5, 10, "|"
+                      Text 275, 320, 5, 10, "|"
+                      Text 315, 320, 5, 10, "|"
+                      Text 355, 320, 5, 10, "|"
+                      Text 400, 320, 5, 10, "|"
+                      GroupBox 10, 190, 545, 95, "MFIP/DWP"
+                      Text 20, 210, 20, 10, "Time:"
+                      Text 20, 230, 30, 10, "Sanction:"
                     EndDialog
 
                     Dialog Dialog1
@@ -3183,6 +3207,8 @@ Do
             If show_eight = true Then
 
                 BeginDialog Dialog1, 0, 0, 451, 370, "CAF Dialog 8 - Interview Info"
+                  EditBox 60, 10, 20, 15, next_er_month
+                  EditBox 85, 10, 20, 15, next_er_year
                   ComboBox 330, 10, 115, 15, "Select or Type"+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
                   EditBox 55, 30, 390, 15, actions_taken
                   DropListBox 140, 60, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", snap_exp_yn
@@ -3206,7 +3232,7 @@ Do
                   EditBox 55, 240, 390, 15, other_notes
                   EditBox 55, 260, 390, 15, verifs_needed
                   CheckBox 15, 295, 240, 10, "Check here to update PND2 to show client delay (pending cases only).", client_delay_checkbox
-                  CheckBox 15, 310, 200, 10, "Check here to create a TIKL to deny at the 30/45 day mark.", TIKL_checkbox
+                  CheckBox 15, 310, 200, 10, "Check here to create a TIKL to deny at the 30 day mark.", TIKL_checkbox
                   CheckBox 15, 325, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_checkbox
                   EditBox 295, 325, 150, 15, worker_signature
                   ButtonGroup ButtonPressed
@@ -3220,6 +3246,7 @@ Do
                     PushButton 355, 350, 35, 15, "Done", finish_dlgs_button
                     CancelButton 395, 350, 50, 15
                     OkButton 600, 500, 50, 15
+                  Text 5, 15, 55, 10, "Next ER REVW:"
                   Text 290, 15, 40, 10, "CAF status:"
                   Text 5, 35, 50, 10, "Actions taken:"
                   GroupBox 5, 50, 440, 70, "SNAP Expedited"
@@ -3326,7 +3353,7 @@ Do
 
                     'DIALOG 6
                     If SNAP_checkbox = checked and trim(notes_on_wreg) = "" Then full_err_msg = full_err_msg & "~!~6^* Update WREG detail as this is a SNAP case."
-                    If living_situation = "Blank" Then full_err_msg = full_err_msg & "~!~6^* Living situation needs to be entered for each case. 'Blank' is not valid."
+                    If living_situation = "Blank" or living_situation = "  " Then full_err_msg = full_err_msg & "~!~6^* Living situation needs to be entered for each case. 'Blank' is not valid."
                     'We are not erroring for if ADDR verification is 'NO' or '?' - if we get additional policy information that this is necessary - add it here
 
                     'DIALOG 7
@@ -3415,5 +3442,339 @@ Do
 Loop until are_we_passworded_out = False
 
 'Go to ADDR to update living situation
+Call navigate_to_MAXIS_screen("STAT", "ADDR")
+EMReadScreen panel_living_sit, 2, 11, 43
+If living_situation = "Blank" or living_situation = "  " Then
+    dialog_liv_sit_code = "__"
+Else
+    dialog_liv_sit_code = left(living_situation, 2)
+End If
 
-script_end_procedure("Done")
+If dialog_liv_sit_code <> panel_living_sit OR dialog_liv_sit_code = "__" Then
+    FP9
+    EMWriteScreen dialog_liv_sit_code, 11, 43
+    transmit
+End If
+
+
+'This code will update the interview date in PROG.
+If CAF_type = "Application" Then        'Interview date is not on PROG for recertifications or addendums
+    If SNAP_checkbox = checked OR cash_checkbox = checked Then          'Interviews are only required for Cash and SNAP
+        intv_date_needed = FALSE
+        Call navigate_to_MAXIS_screen("STAT", "PROG")                   'Going to STAT to check to see if there is already an interview indicated.
+
+        If SNAP_checkbox = checked Then                                 'If the script is being run for a SNAP interview
+            EMReadScreen entered_intv_date, 8, 10, 55                   'REading what is entered in the SNAP interview
+            'MsgBox "SNAP interview date - " & entered_intv_date
+            If entered_intv_date = "__ __ __" Then intv_date_needed = TRUE  'If this is blank - the script needs to prompt worker to update it
+        End If
+
+        If cash_checkbox = checked THen                             'If the script is bring run for a Cash interview
+            EMReadScreen cash_one_app, 8, 6, 33                     'First the script needs to identify if it is cash 1 or cash 2 that has the application information
+            EMReadScreen cash_two_app, 8, 7, 33
+            EMReadScreen grh_cash_app, 8, 9, 33
+
+            cash_one_app = replace(cash_one_app, " ", "/")          'Turning this in to a date format
+            cash_two_app = replace(cash_two_app, " ", "/")
+            grh_cash_app = replace(grh_cash_app, " ", "/")
+
+            If cash_one_app <> "__/__/__" Then      'Error handling - VB doesn't like date comparisons with non-dates
+                if DateDiff("d", cash_one_app, CAF_datestamp) = 0 then prog_row = 6     'If date of application on PROG matches script date of applicaton
+            End If
+            If cash_two_app <> "__/__/__" Then
+                if DateDiff("d", cash_two_app, CAF_datestamp) = 0 then prog_row = 7
+            End If
+
+            If grh_cash_app <> "__/__/__" Then
+                if DateDiff("d", grh_cash_app, CAF_datestamp) = 0 then prog_row = 9
+            End If
+
+            EMReadScreen entered_intv_date, 8, prog_row, 55                     'Reading the right interview date with row defined above
+            'MsgBox "Cash interview date - " & entered_intv_date
+            If entered_intv_date = "__ __ __" Then intv_date_needed = TRUE      'If this is blank - script needs to prompt worker to have it updated
+        End If
+
+        If intv_date_needed = TRUE Then         'If previous code has determined that PROG needs to be updated
+            If SNAP_checkbox = checked Then prog_update_SNAP_checkbox = checked     'Auto checking based on the programs the script is being run for.
+            If cash_checkbox = checked Then prog_update_cash_checkbox = checked
+
+            'Dialog code
+            BeginDialog Dialog1, 0, 0, 231, 130, "Update PROG?"
+              OptionGroup RadioGroup1
+                RadioButton 10, 10, 155, 10, "YES! Update PROG with the Interview Date", confirm_update_prog
+                RadioButton 10, 60, 90, 10, "No, do not update PROG", do_not_update_prog
+              EditBox 165, 5, 50, 15, interview_date
+              CheckBox 25, 25, 30, 10, "SNAP", prog_update_SNAP_checkbox
+              CheckBox 25, 40, 30, 10, "CASH", prog_update_cash_checkbox
+              Text 20, 75, 200, 10, "Reason PROG should not be updated with the Interview Date:"
+              EditBox 20, 90, 195, 15, no_update_reason
+              ButtonGroup ButtonPressed
+                OkButton 175, 110, 50, 15
+            EndDialog
+
+            'Running the dialog
+            Do
+                err_msg = ""
+                Dialog Dialog1
+                'Requiring a reason for not updating PROG and making sure if confirm is updated that a program is selected.
+                If do_not_update_prog = 1 AND no_update_reason = "" Then err_msg = err_msg & vbNewLine & "* If PROG is not to be updated, please explain why PROG should not be updated."
+                IF confirm_update_prog = 1 AND prog_update_SNAP_checkbox = unchecked AND prog_update_cash_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* Select either CASH or SNAP to have updated on PROG."
+
+                If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+            Loop until err_msg = ""
+
+            If confirm_update_prog = 1 Then     'If the dialog selects to have PROG updated
+                CALL back_to_SELF               'Need to do this because we need to go to the footer month of the application and we may be in a different month
+
+                keep_footer_month = MAXIS_footer_month      'Saving the footer month and year that was determined earlier in the script. It needs t obe changed for nav functions to work correctly
+                keep_footer_year = MAXIS_footer_year
+
+                app_month = DatePart("m", CAF_datestamp)    'Setting the footer month and year to the app month.
+                app_year = DatePart("yyyy", CAF_datestamp)
+
+                MAXIS_footer_month = right("00" & app_month, 2)
+                MAXIS_footer_year = right(app_year, 2)
+
+                CALL navigate_to_MAXIS_screen ("STAT", "PROG")  'Now we can navigate to PROG in the application footer month and year
+                PF9                                             'Edit
+
+                intv_mo = DatePart("m", interview_date)     'Setting the date parts to individual variables for ease of writing
+                intv_day = DatePart("d", interview_date)
+                intv_yr = DatePart("yyyy", interview_date)
+
+                intv_mo = right("00"&intv_mo, 2)            'formatting variables in to 2 digit strings - because MAXIS
+                intv_day = right("00"&intv_day, 2)
+                intv_yr = right(intv_yr, 2)
+
+                If prog_update_SNAP_checkbox = checked Then     'If it was selected to SNAP interview to be updated
+                    programs_w_interview = "SNAP"               'Setting a variable for case noting
+
+                    EMWriteScreen intv_mo, 10, 55               'SNAP is easy because there is only one area for interview - the variables go there
+                    EMWriteScreen intv_day, 10, 58
+                    EMWriteScreen intv_yr, 10, 61
+                End If
+
+                If prog_update_cash_checkbox = checked Then     'If it was selected to update for Cash
+                    If programs_w_interview = "" Then programs_w_interview = "CASH"     'variable for the case note
+                    If programs_w_interview <> "" Then programs_w_interview = "SNAP and CASH"
+                    EMReadScreen cash_one_app, 8, 6, 33     'Reading app dates of both cash lines
+                    EMReadScreen cash_two_app, 8, 7, 33
+                    EMReadScreen grh_cash_app, 8, 9, 33
+
+                    cash_one_app = replace(cash_one_app, " ", "/")      'Formatting as dates
+                    cash_two_app = replace(cash_two_app, " ", "/")
+                    grh_cash_app = replace(grh_cash_app, " ", "/")
+
+                    If cash_one_app <> "__/__/__" Then              'Comparing them to the date of application to determine which row to use
+                        if DateDiff("d", cash_one_app, CAF_datestamp) = 0 then prog_row = 6
+                    End If
+                    If cash_two_app <> "__/__/__" Then
+                        if DateDiff("d", cash_two_app, CAF_datestamp) = 0 then prog_row = 7
+                    End If
+
+                    If grh_cash_app <> "__/__/__" Then
+                        if DateDiff("d", grh_cash_app, CAF_datestamp) = 0 then prog_row = 9
+                    End If
+
+                    EMWriteScreen intv_mo, prog_row, 55     'Writing the interview date in
+                    EMWriteScreen intv_day, prog_row, 58
+                    EMWriteScreen intv_yr, prog_row, 61
+                End If
+
+                transmit                                    'Saving the panel
+
+                MAXIS_footer_month = keep_footer_month      'resetting the footer month and year so the rest of the script uses the worker identified footer month and year.
+                MAXIS_footer_year = keep_footer_year
+            End If
+        ENd If
+    End If
+End If
+
+
+'Now, the client_delay_checkbox business. It'll update client delay if the box is checked and it isn't a recert.
+If client_delay_checkbox = checked and CAF_type <> "Recertification" then
+	call navigate_to_MAXIS_screen("rept", "pnd2")
+	EMGetCursor PND2_row, PND2_col
+	for i = 0 to 1 'This is put in a for...next statement so that it will check for "additional app" situations, where the case could be on multiple lines in REPT/PND2. It exits after one if it can't find an additional app.
+		EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
+		If PND2_SNAP_status_check = "P" then EMWriteScreen "C", PND2_row, 62
+		EMReadScreen PND2_HC_status_check, 1, PND2_row, 65
+		If PND2_HC_status_check = "P" then
+			EMWriteScreen "x", PND2_row, 3
+			transmit
+			person_delay_row = 7
+			Do
+				EMReadScreen person_delay_check, 1, person_delay_row, 39
+				If person_delay_check <> " " then EMWriteScreen "c", person_delay_row, 39
+				person_delay_row = person_delay_row + 2
+			Loop until person_delay_check = " " or person_delay_row > 20
+			PF3
+		End if
+		EMReadScreen additional_app_check, 14, PND2_row + 1, 17
+		If additional_app_check <> "ADDITIONAL APP" then exit for
+		PND2_row = PND2_row + 1
+	next
+	PF3
+	EMReadScreen PND2_check, 4, 2, 52
+	If PND2_check = "PND2" then
+		MsgBox "PND2 might not have been updated for client delay. There may have been a MAXIS error. Check this manually after case noting."
+		PF10
+		client_delay_checkbox = unchecked		'Probably unnecessary except that it changes the case note parameters
+	End if
+End if
+
+'Going to TIKL. Now using the write TIKL function
+If TIKL_checkbox = checked and CAF_type <> "Recertification" then
+	If DateDiff ("d", CAF_datestamp, date) > 30 Then 'Error handling to prevent script from attempting to write a TIKL in the past
+		MsgBox "Cannot set TIKL as CAF Date is over 30 days old and TIKL would be in the past. You must manually track."
+        TIKL_checkbox = unchecked
+	Else
+		call navigate_to_MAXIS_screen("dail", "writ")
+		call create_MAXIS_friendly_date(CAF_datestamp, 30, 5, 18)
+		If cash_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "Cash/"
+		If SNAP_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "SNAP/"
+		If EMER_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "EMER/"
+		TIKL_msg_one = Left(TIKL_msg_one, (len(TIKL_msg_one) - 1))
+		TIKL_msg_one = TIKL_msg_one & " has been pending for 30 days. Evaluate for possible denial."
+		Call write_variable_in_TIKL (TIKL_msg_one)
+		PF3
+	End If
+End if
+If client_delay_TIKL_checkbox = checked then
+	call navigate_to_MAXIS_screen("dail", "writ")
+	call create_MAXIS_friendly_date(date, 10, 5, 18)
+	Call write_variable_in_TIKL (">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<")
+	PF3
+End if
+'----Here's the new bit to TIKL to APPL the CAF for CAF_datestamp if the CL fails to complete the CASH/SNAP reinstate and then TIKL again for DateAdd("D", 30, CAF_datestamp) to evaluate for possible denial.
+'----IF the DatePart("M", CAF_datestamp) = MAXIS_footer_month (DatePart("M", CAF_datestamp) is converted to footer_comparo_month for the sake of comparison) and the CAF_status <> "Approved" and CAF_type is a recertification AND cash or snap is checked, then
+'---------the script generates a TIKL.
+footer_comparison_month = DatePart("M", CAF_datestamp)
+IF len(footer_comparison_month) <> 2 THEN footer_comparison_month = "0" & footer_comparison_month
+IF CAF_type = "Recertification" AND MAXIS_footer_month = footer_comparison_month AND CAF_status <> "approved" AND (cash_checkbox = checked OR SNAP_checkbox = checked) THEN
+	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
+	start_of_next_month = DatePart("M", DateAdd("M", 1, CAF_datestamp)) & "/01/" & DatePart("YYYY", DateAdd("M", 1, CAF_datestamp))
+	denial_consider_date = DateAdd("D", 30, CAF_datestamp)
+	CALL create_MAXIS_friendly_date(start_of_next_month, 0, 5, 18)
+	EMWriteScreen ("IF CLIENT HAS NOT COMPLETED RECERT, APPL CAF FOR " & CAF_datestamp), 9, 3
+	EMWriteScreen ("AND TIKL FOR " & denial_consider_date & " TO EVALUATE FOR POSSIBLE DENIAL."), 10, 3
+	transmit
+	PF3
+END IF
+
+For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
+    If UNEA_INCOME_ARRAY(UC_exists, each_unea_memb) = TRUE Then
+        If IsDate(UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb)) = TRUE Then
+            Call navigate_to_MAXIS_screen ("DAIL", "WRIT")
+        	call create_MAXIS_friendly_date(UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb), 10, 5, 18)
+            tikl_msg = "Review UC Income for Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " as it may have ended or be near ending."
+        	call write_variable_in_TIKL (tikl_msg)
+        	PF3
+        End If
+    End If
+Next
+'--------------------END OF TIKL BUSINESS
+
+
+'Navigates to case note, and checks to make sure we aren't in inquiry.
+Call start_a_blank_CASE_NOTE
+
+'Adding a colon to the beginning of the CAF status variable if it isn't blank (simplifies writing the header of the case note)
+If CAF_status <> "" then CAF_status = ": " & CAF_status
+
+'Adding footer month to the recertification case notes
+If CAF_type = "Recertification" then CAF_type = MAXIS_footer_month & "/" & MAXIS_footer_year & " recert"
+
+'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CALL write_variable_in_CASE_NOTE("***" & CAF_datestamp & " CAF - " & CAF_type & CAF_status & "***")
+IF move_verifs_needed = TRUE THEN
+	CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
+	CALL write_variable_in_CASE_NOTE("------------------------------")
+End if
+'Intherview detail
+intv_note_entry = "* Interview completed"
+If trim(interview_type) <> "" AND interivew_type <> "Select or Type" Then intv_note_entry = intv_note_entry & " via " & interview_type
+If trim(interview_date) <> "" Then intv_note_entry = intv_note_entry & " on: " & interview_date
+If trim(interview_with) <> "" AND interview_with <> "Select or Type" Then intv_note_entry = intv_note_entry & " with: " & interview_list
+If Used_Interpreter_checkbox = checked Then intv_note_entry = intv_note_entry & " w/ interpreter"
+Call write_variable_in_CASE_NOTE(intv_note_entry)
+
+'EXPEDITED
+If CAF_type = "Application" and SNAP_checkbox = checked Then
+    If snap_exp_yn = "Yes" Then
+        Call write_variable_in_CASE_NOTE("* Case is eligible for Expedited SNAP.")
+        Call write_variable_in_CASE_NOTE("* SNAP EXP approved on " & exp_snap_approval_date & " - " & DateDiff("d", CAF_datestamp, exp_snap_approval_date) & " days after the date of application.")
+        Call write_bullet_and_variable_in_CASE_NOTE("Reason for delay", exp_snap_delays)
+    End If
+    If snap_exp_yn = "No" Then Call write_variable_in_CASE_NOTE("* Case is NOT eligible for Expedited SNAP.")
+    Call write_variable_in_CASE_NOTE("* In the month of application - Income $" & app_month_income & " - Assets $" & app_month_assets & " - Expenses $" & app_month_expenses & ".")
+End If
+
+'Household and personal information
+If SNAP_checkbox = checked Then
+
+End If
+If cash_checkbox = checked Then
+
+End If
+If EMER_checkbox = checked Then
+
+End If 
+'Address Detail
+'DISQ
+'INCOME
+
+'JOBS
+'BUSI
+'CSES
+'UNEA
+'WREG and ABAWD
+'SHEL
+'HEST/ACUT
+'Expenses
+'Assets
+'MEDI/DIET/FMED
+'MFIP-DWP information
+'Next review
+
+
+IF application_signed_checkbox = checked THEN
+	CALL write_variable_in_CASE_NOTE("* Application was signed.")
+Else
+	CALL write_variable_in_CASE_NOTE("* Application was not signed.")
+END IF
+IF eDRS_sent_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* eDRS sent.")
+IF updated_MMIS_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Updated MMIS.")
+IF WF1_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Workforce referral made.")
+
+IF Sent_arep_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent form(s) to AREP.")
+IF intake_packet_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Client received intake packet.")
+IF IAA_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* IAAs/OMB given to client.")
+
+IF recert_period_checkbox = checked THEN call write_variable_in_CASE_NOTE("* Informed client of recert period.")
+IF R_R_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Rights and Responsibilities explained to client.")
+IF E_and_T_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Client requests to participate with E&T.")
+If elig_req_explained_checkbox Then CALL write_variable_in_CASE_NOTE("* Explained eligbility requirements to client.")
+If benefit_payment_explained_checkbox Then CALL write_variable_in_CASE_NOTE("* Benefits and Payment information explained to client")
+
+IF client_delay_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* PND2 updated to show client delay.")
+If TIKL_checkbox Then CALL write_variable_in_CASE_NOTE("* TIKL set to take action on " & DateAdd("d", 30, CAF_datestamp))
+If client_delay_TIKL_checkbox Then CALL write_variable_in_CASE_NOTE("* TIKL set to update PND2 for Client Delay on " & DateAdd("d", 10, CAF_datestamp))
+
+IF move_verifs_needed = False THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
+CALL write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
+CALL write_variable_in_CASE_NOTE("---")
+CALL write_variable_in_CASE_NOTE(worker_signature)
+
+IF SNAP_recert_is_likely_24_months = TRUE THEN					'if we determined on stat/revw that the next SNAP recert date isn't 12 months beyond the entered footer month/year
+	TIKL_for_24_month = msgbox("Your SNAP recertification date is listed as " & SNAP_recert_date & " on STAT/REVW. Do you want set a TIKL on " & dateadd("m", "-1", SNAP_recert_compare_date) & " for 12 month contact?" & vbCR & vbCR & "NOTE: Clicking yes will navigate away from CASE/NOTE saving your case note.", VBYesNo)
+	IF TIKL_for_24_month = vbYes THEN 												'if the select YES then we TIKL using our custom functions.
+		CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
+		CALL create_MAXIS_friendly_date(dateadd("m", "-1", SNAP_recert_compare_date), 0, 5, 18)
+		CALL write_variable_in_TIKL("If SNAP is open, review to see if 12 month contact letter is needed. DAIL scrubber can send 12 Month Contact Letter if used on this TIKL.")
+	END IF
+END IF
+
+end_msg = "Success! CAF has been successfully noted. Please remember to run the Approved Programs, Closed Programs, or Denied Programs scripts if  results have been APP'd."
+If do_not_update_prog = 1 Then end_msg = end_msg & vbNewLine & vbNewLine & "It was selected that PROG would NOT be updated because " & no_update_reason
+script_end_procedure(end_msg)
