@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("07/22/2019", "Removed Mail & Fax option and added MDQ per request.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("07/22/2019", "Updated the script to automatically email Team 603 for METS cases.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/19/2019", "Added an error reporting option at the end of the script run.", "Casey Love, Hennepin County")
 CALL changelog_update("02/05/2019", "Updated case correction handling.", "Casey Love, Hennepin County")
@@ -300,7 +301,7 @@ If right(additional_programs_applied_for, 1) = "," THEN additional_programs_appl
 
 '----------------------------------------------------------------------------------------------------dialogs
 BeginDialog appl_detail_dialog, 0, 0, 296, 170, "Application Received for: " & programs_applied_for
-  DropListBox 90, 10, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
+  DropListBox 90, 10, 65, 15, "Select One:"+chr(9)+"MDQ"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
   Text 175, 15, 110, 10, "Application Date: "  & application_date
   DropListBox 90, 30, 65, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
   EditBox 230, 30, 55, 15, confirmation_number
