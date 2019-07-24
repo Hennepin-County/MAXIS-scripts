@@ -44,6 +44,9 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+
+CALL changelog_update("07/24/2019", "Removed Mail & Fax option, added MDQ per request, made revisions for to the dialog and case note.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("07/22/2019", "Updated the script to automatically email Team 603 for METS cases.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/19/2019", "Added an error reporting option at the end of the script run.", "Casey Love, Hennepin County")
 CALL changelog_update("02/05/2019", "Updated case correction handling.", "Casey Love, Hennepin County")
 CALL changelog_update("11/15/2018", "Enhanced functionality for SameDay interview cases.", "Casey Love, Hennepin County")
@@ -298,42 +301,37 @@ additional_programs_applied_for = trim(additional_programs_applied_for)       't
 If right(additional_programs_applied_for, 1) = "," THEN additional_programs_applied_for = left(additional_programs_applied_for, len(additional_programs_applied_for) - 1)
 
 '----------------------------------------------------------------------------------------------------dialogs
-BeginDialog appl_detail_dialog, 0, 0, 296, 205, "Application Received for: "  & programs_applied_for
-  DropListBox 85, 10, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
-  Text 175, 15, 110, 10, "Application Date: "  & application_date
-  DropListBox 85, 30, 65, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
-  EditBox 230, 30, 55, 15, confirmation_number
-  CheckBox 10, 65, 70, 10, "Request to APPL", appl_request_checkbox
-  EditBox 230, 60, 55, 15, requested_person
-  CheckBox 10, 75, 85, 10, "METS Retro Coverage ", Mets_retro_checkbox
-  CheckBox 10, 85, 120, 10, "METS to MAXIS Transitional Case", mets_to_maxis_checkbox
-  EditBox 245, 80, 40, 15, retro_coverage_start_date
-  EditBox 70, 100, 215, 15, request_reason
+BeginDialog appl_detail_dialog, 0, 0, 291, 195, "Application Received for: "   & programs_applied_for
+  DropListBox 85, 10, 65, 15, "Select One:"+chr(9)+"MDQ"+chr(9)+"Office"+chr(9)+"Online"+chr(9)+"Request to APPL", how_app_rcvd
+  Text 170, 15, 110, 10, "Application Date: "  & application_date
+  DropListBox 85, 30, 65, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MA Transition"+chr(9)+"METS Retro", app_type
+  EditBox 225, 30, 55, 15, confirmation_number
+  EditBox 80, 60, 55, 15, METS_case_number
+  EditBox 225, 60, 20, 15, MEMB_number
+  CheckBox 10, 80, 125, 10, "Check if this is a Request to APPL", appl_request_checkbox
+  CheckBox 10, 95, 170, 10, "Check if Team 603 will be processing the Retro", mnsure_retro_checkbox
+  CheckBox 10, 120, 155, 10, "Check if the case does not require a transfer ", no_transfer_check
   EditBox 50, 130, 20, 15, transfer_case_number
   ButtonGroup ButtonPressed
-    PushButton 230, 135, 55, 15, "GeoCoder", geocoder_button
-  CheckBox 10, 150, 155, 10, "Check if the case does not require a transfer ", no_transfer_check
-  EditBox 55, 165, 235, 15, other_notes
-  EditBox 70, 185, 120, 15, worker_signature
+    PushButton 210, 125, 55, 15, "GeoCoder", geocoder_button
+  EditBox 55, 155, 230, 15, other_notes
+  EditBox 70, 175, 120, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 195, 185, 45, 15
-    CancelButton 245, 185, 45, 15
-  Text 5, 190, 60, 10, "Worker Signature:"
-  GroupBox 5, 50, 285, 70, "Request Information"
+    OkButton 200, 175, 40, 15
+    CancelButton 245, 175, 40, 15
+  GroupBox 5, 0, 280, 50, "Application Information"
   Text 10, 15, 70, 10, "Application Received:"
-  GroupBox 5, 0, 285, 50, "Application Information"
-  Text 175, 35, 50, 10, "Confirmation #:"
-  Text 155, 65, 65, 10, "Requesting person:"
   Text 10, 35, 65, 10, "Type of Application:"
-  GroupBox 5, 120, 285, 40, "Transfer Information"
-  Text 5, 170, 45, 10, "Other Notes:"
-  Text 155, 85, 90, 10, "Retro Coverage Start Date: "
+  Text 170, 35, 50, 10, "Confirmation #:"
+  Text 5, 180, 60, 10, "Worker Signature:"
+  Text 10, 65, 70, 10, "METS Case Number:"
+  GroupBox 5, 50, 280, 55, "Request Information"
+  GroupBox 5, 110, 280, 40, "Transfer Information"
+  Text 5, 160, 45, 10, "Other Notes:"
   Text 10, 135, 40, 10, "Transfer to:"
   Text 75, 135, 60, 10, "(last 3 digit of X#)"
-  Text 10, 105, 60, 10, "Request Reason:"
+  Text 170, 65, 55, 10, "MEMB Number:"
 EndDialog
-
-
 '------------------------------------------------------------------------------------DIALOG APPL
     Do
     	Do
@@ -355,25 +353,23 @@ EndDialog
 	LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
 
 HC_applied_for = FALSE
-IF app_type = "6696" or app_type = "HCAPP" or app_type = "HC-Certain Pop" or app_type = "LTC" or app_type = "MHCP B/C Cancer"  THEN HC_applied_for = TRUE
+IF app_type = "6696" or app_type = "HCAPP" or app_type = "HC-Certain Pop" or app_type = "LTC" or app_type = "MHCP B/C Cancer" or app_type = "MA Transition" or app_type = "METS Retro"  THEN HC_applied_for = TRUE
 
-IF how_app_rcvd = "Office" and HC_applied_for = FALSE THEN
-	same_day_confirmation = MsgBox("Press YES to confirm a same-day interview was completed?." & vbNewLine & "If no interview was offered, press NO." & vbNewLine & vbNewLine & _
-	"Application was received in " & how_app_rcvd, vbYesNoCancel, "Application received - same-day interview completed?")
-	IF same_day_confirmation = vbNo THEN interview_completed = FALSE
-	IF same_day_confirmation = vbYes THEN interview_completed = TRUE
-	IF same_day_confirmation = vbCancel THEN script_end_procedure_with_error_report("The script has ended.")
-END IF
+'IF how_app_rcvd = "Office" and HC_applied_for = FALSE THEN
+'	same_day_confirmation = MsgBox("Press YES to confirm a same-day interview was completed?." & vbNewLine & "If no interview was offered, press NO." & vbNewLine & vbNewLine & _
+'	"Application was received in " & how_app_rcvd, vbYesNoCancel, "Application received - same-day interview completed?")
+'	IF same_day_confirmation = vbNo THEN interview_completed = FALSE
+'	IF same_day_confirmation = vbYes THEN interview_completed = TRUE
+'	IF same_day_confirmation = vbCancel THEN script_end_procedure_with_error_report("The script has ended.")
+'END IF
 
 If interview_completed = TRUE Then
     Call back_to_SELF
     Call Navigate_to_MAXIS_screen("STAT", "PROG")
     PF9
-
     intv_day = right("00" & DatePart("d", date), 2)
     Intv_mo  = right("00" & DatePart("m", date), 2)
     intv_yr  = right(DatePart("yyyy", date), 2)
-
     If cash_pends = TRUE Then
         EmReadscreen interview_date, 8, 6, 55
         If interview_date = "__ __ __" Then
@@ -407,10 +403,10 @@ pended_date = date
 start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
 IF appl_request_checkbox = CHECKED THEN
-	CALL write_variable_in_CASE_NOTE("* Request to APPL requested by " & requested_person & " on " & pended_date & ".")
+	CALL write_variable_in_CASE_NOTE("Request to APPL form received on " & pended_date & ".")
 END IF
 IF confirmation_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
-IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("* Form Received: Mets Application for Health Coverage and Help Paying Costs (DHS-6696) ")
+IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("* Form Received: METS Application for Health Coverage and Help Paying Costs (DHS-6696) ")
 IF app_type = "HCAPP" THEN write_variable_in_CASE_NOTE ("* Form Received: Health Care Application (HCAPP) (DHS-3417) ")
 IF app_type = "HC-Certain Pop" THEN write_variable_in_CASE_NOTE ("* Form Received: MHC Programs Application for Certain Populations (DHS-3876) ")
 IF app_type = "LTC" THEN write_variable_in_CASE_NOTE ("* Form Received: Application for Medical Assistance for Long Term Care Services (DHS-3531) ")
@@ -420,9 +416,9 @@ CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", additional_programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
 If transfer_case_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Application assigned to", transfer_case_number)
-CALL write_bullet_and_variable_in_CASE_NOTE ("Reason for APPL Request", request_reason)
+'CALL write_bullet_and_variable_in_CASE_NOTE ("Reason for APPL Request", request_reason)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
-'IF Mets_retro_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Emailed " & requested_person & " to let them know the retro request is ready to be processed.")
+IF mnsure_retro_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Emailed team 603 to let them know the retro request is ready to be processed.")
 If interview_completed = TRUE Then
     CALL write_variable_in_CASE_NOTE ("---")
     CALL write_variable_in_CASE_NOTE("* This case had an interview completed sameday. Interview Date on PROG was checked and updated if needed.")
@@ -576,9 +572,9 @@ ELSE
 END IF
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-If run_locally = TRUE Then send_email = FALSE
-IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
-IF Mets_retro_checkbox = CHECKED THEN CALL create_outlook_email("", "", MAXIS_case_name & maxis_case_number & " Retro Request for Mets ready to be processed. " & worker_number & "  EOM.", "", "", FALSE)
+'If run_locally = TRUE Then send_email = FALSE
+IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case number #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
+IF mnsure_retro_checkbox = CHECKED THEN CALL create_outlook_email("HSPH.EWS.TEAM.603@hennepin.us", "", "Maxis case number #" & maxis_case_number & "Mets case number #" & METS_case_number & " Retro Request APPL'd in Maxis-ACTION REQUIRED.", "", "", TRUE)
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE
 if interview_completed = TRUE Then send_appt_ltr = FALSE
