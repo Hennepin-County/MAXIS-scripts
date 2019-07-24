@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("07/22/2019", "Removed Mail & Fax option and added MDQ per request.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("07/24/2019", "Removed Mail & Fax option and added MDQ per request.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("07/22/2019", "Updated the script to automatically email Team 603 for METS cases.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/19/2019", "Added an error reporting option at the end of the script run.", "Casey Love, Hennepin County")
 CALL changelog_update("02/05/2019", "Updated case correction handling.", "Casey Love, Hennepin County")
@@ -414,8 +414,9 @@ CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", additional_programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
 If transfer_case_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Application assigned to", transfer_case_number)
+
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
-IF mnsure_retro_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Emailed " & requested_person & " to let them know the retro request is ready to be processed.")
+IF mnsure_retro_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Emailed team 603 to let them know the retro request is ready to be processed.")
 If interview_completed = TRUE Then
     CALL write_variable_in_CASE_NOTE ("---")
     CALL write_variable_in_CASE_NOTE("* This case had an interview completed sameday. Interview Date on PROG was checked and updated if needed.")
