@@ -60,9 +60,10 @@ new_addr_state = "MN"
 new_addr_zip = "55412"
 county_code = "Hennepin"
 homeless_addr = "NO"
-reservation_addr = "N"
+reservation_addr = "NO"
 mets_addr = "NO"
 other_notes = "TEST"
+
 
 
 MAXIS_footer_month = right("00" & DatePart("m", date_received), 2)
@@ -447,25 +448,25 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
 	error_check = trim(error_check)
 	If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
 
+	MsgBox "did we clear the line"
+	IF ADDR_actions = "Forwarding address outside MN" THEN' the reason we are changing ADDR here is because we get an inhibiting message  COUNTY OF RESIDENCE MUST BE 89 WHEN STATE IS NOT MN
+	    Call clear_line_of_text(6, 43)'Residence street'
+	    Call clear_line_of_text(7, 43)'Residence street line two'
+	    Call clear_line_of_text(8, 43)'Residence City'
+	    Call clear_line_of_text(9, 43)'Residence zip'
+		EMwritescreen new_addr_line_one, 6, 43
+		EMwritescreen new_addr_line_two, 7, 43
+		IF new_addr_line_two = "" THEN Call clear_line_of_text(7, 43)
+	    EMwritescreen new_addr_city, 8, 43 'Residence City'
+	    EMwritescreen new_addr_state, 8, 66	'Defaults to MN for all cases at this time
+	    EMwritescreen new_addr_zip, 9, 43
+	MsgBox " Residence -how did we do"
+	END IF
+
 	Call clear_line_of_text(13, 43)'Mailing Street'
 	Call clear_line_of_text(14, 43)'Mailing street line two'
 	Call clear_line_of_text(15, 43)'Mailing City'
 	Call clear_line_of_text(16, 43)'Mailing Zip'
-
-	MsgBox "did we clear the line"
-	'IF living_situation_code = "01" or living_situation_code = "02" THEN 'we will update the residence if te lviing sit is verified'
-	'    Call clear_line_of_text(6, 43)'Residence street'
-	'    Call clear_line_of_text(7, 43)'Residence street line two'
-	'    Call clear_line_of_text(8, 43)'Residence City'
-	'    Call clear_line_of_text(9, 43)'Residence zip'
-	'	EMwritescreen new_addr_line_one, 6, 43
-	'	EMwritescreen new_addr_line_two, 7, 43
-	'	IF new_addr_line_two = "" THEN Call clear_line_of_text(7, 43)
-	'    EMwritescreen new_addr_city, 8, 43 'Residence City'
-	'    EMwritescreen new_addr_state, 8, 66		'Defaults to MN for all cases at this time
-	'    EMwritescreen new_addr_zip, 9, 43
-	'		MsgBox"how did we do"
-	'END IF
 
 	EMwritescreen county_code_number, 9, 66
 	EMwritescreen "OT", 9, 74
@@ -475,7 +476,7 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
 	EMwritescreen rez_code, 11, 74
 	EMwritescreen living_situation_code, 11, 43
 	EMwritescreen new_addr_line_one, 13, 43 'Mailing Street'
-	EMwritescreen new_addr_line_two, 14, 43 Mailing street line two'
+	EMwritescreen new_addr_line_two, 14, 43 'Mailing street line two'
 	IF new_addr_line_two = "" THEN Call clear_line_of_text(14, 43)
 	EMwritescreen new_addr_city, 15, 43 'Mailing City'
 	EMwritescreen new_addr_state, 16, 43	'Only writes if the user indicated a mailing address. Defaults to MN at this time.
