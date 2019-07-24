@@ -59,6 +59,11 @@ new_addr_city = "Minneapolis"
 new_addr_state = "MN"
 new_addr_zip = "55412"
 county_code = "Hennepin"
+homeless_addr = "NO"
+reservation_addr = "N"
+mets_addr = "NO"
+other_notes = "TEST"
+
 
 MAXIS_footer_month = right("00" & DatePart("m", date_received), 2)
 MAXIS_footer_year = right(DatePart("yyyy", date_received), 2)
@@ -229,6 +234,7 @@ IF ADDR_actions = "No forwarding ADDR" THEN
 END IF
 
 IF ADDR_actions = "Forwarding address outside MN" THEN county_code = "Out of State"
+IF ADDR_actions = "Forwarding address in MN"  then new_addr_state = "MN"
 
 IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding address outside MN" THEN
     BeginDialog returned_mail_update_addr, 0, 0, 206, 305, "Mail has been returned with forwarding address"
@@ -236,7 +242,7 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
 	  CheckBox 10, 35, 100, 10, "Verif Request (DHS-2919A)", verifA_sent_checkbox
    	  CheckBox 120, 35, 70, 10, "SVF (DHS-2952)", SHEL_form_sent_checkbox
       CheckBox 10, 45, 100, 10, "Change Report (DHS-2402)", CRF_sent_checkbox
-      CheckBox 120, 45, 75, 10, "Returned Mail/Other", return_mail_checkbox
+      CheckBox 120, 45, 75, 15, "Returned Mail/Other", return_mail_checkbox
       DropListBox 45, 75, 150, 15, "Select One:"+chr(9)+"Own Housing: Lease, Mortgage, or Roommate"+chr(9)+"Family/Friends Due to Economic Hardship"+chr(9)+"Service Provider-Foster Care Group Home"+chr(9)+"Hospital/Treatment/Detox/Nursing Home"+chr(9)+"Jail/Prison/Juvenile Detention Center"+chr(9)+"Hotel/Motel"+chr(9)+"Emergency Shelter"+chr(9)+"Place Not Meant for housing"+chr(9)+"Declined"+chr(9)+"Unknown", living_situation
       EditBox 40, 95, 155, 15, new_addr_line_one
       EditBox 40, 115, 155, 15, new_addr_line_two
@@ -246,7 +252,7 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
       DropListBox 55, 175, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", homeless_addr
       DropListBox 130, 175, 65, 15, "Select:"+chr(9)+"Aitkin"+chr(9)+"Anoka"+chr(9)+"Becker"+chr(9)+"Beltrami"+chr(9)+"Benton"+chr(9)+"Big Stone"+chr(9)+"Blue Earth"+chr(9)+"Brown"+chr(9)+"Carlton"+chr(9)+"Carver"+chr(9)+"Cass"+chr(9)+"Chippewa"+chr(9)+"Chisago"+chr(9)+"Clay"+chr(9)+"Clearwater"+chr(9)+"Cook"+chr(9)+"Cottonwood"+chr(9)+"Crow     Wing"+chr(9)+"Dakota"+chr(9)+"Dodge"+chr(9)+"Douglas"+chr(9)+"Faribault"+chr(9)+"Fillmore"+chr(9)+"Freeborn"+chr(9)+"Goodhue"+chr(9)+"Grant"+chr(9)+"Hennepin"+chr(9)+"Houston"+chr(9)+"Hubbard"+chr(9)+"Isanti"+chr(9)+"Itasca"+chr(9)+"Jackson"+chr(9)+"Kanabec"+chr(9)+"Kandiyohi"+chr(9)+"Kittson"+chr(9)+"Koochiching"+chr(9)+"Lac Qui Parle"+chr(9)+"Lake"+chr(9)+"Lake Of Woods"+chr(9)+"Le     Sueur"+chr(9)+"Lincoln"+chr(9)+"Lyon"+chr(9)+"Mcleod"+chr(9)+"Mahnomen"+chr(9)+"Marshall"+chr(9)+"Martin"+chr(9)+"Meeker"+chr(9)+"Mille Lacs"+chr(9)+"Morrison"+chr(9)+"Mower"+chr(9)+"Murray"+chr(9)+"Nicollet"+chr(9)+"Nobles"+chr(9)+"Norman"+chr(9)+"Olmsted"+chr(9)+"Otter Tail"+chr(9)+"Pennington"+chr(9)+"Pine"+chr(9)+"Pipestone"+chr(9)+"Polk"+chr(9)+"Pope"+chr(9)+"Ramsey"+chr(9)+"Red Lake"+chr(9)+"Redwood"+chr(9)+"Renville"+chr(9)+"Rice"+chr(9)+"Rock"+chr(9)+"Roseau"+chr(9)+"St.     Louis"+chr(9)+"Scott"+chr(9)+"Sherburne"+chr(9)+"Sibley"+chr(9)+"Stearns"+chr(9)+"Steele"+chr(9)+"Stevens"+chr(9)+"Swift"+chr(9)+"Todd"+chr(9)+"Traverse"+chr(9)+"Wabasha"+chr(9)+"Wadena"+chr(9)+"Waseca"+chr(9)+"Washington"+chr(9)+"Watonwan"+chr(9)+"Wilkin"+chr(9)+"Winona"+chr(9)+"Wright"+chr(9)+"Yellow Medicine"+chr(9)+"Out of State", county_code
       DropListBox 55, 190, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", reservation_addr
-      DropListBox 55, 205, 140, 15, "Select One:"+chr(9)+"Bois Forte-Deer Creek"+chr(9)+"Bois Forte-Nett Lake"+chr(9)+"Bois Forte-Vermillion Lk"+chr(9)+"Fond du Lac"+chr(9)+"Grand Portage"+chr(9)+"Leach Lake"+chr(9)+"Lower Sioux"+chr(9)+"Mille Lacs"+chr(9)+"Prairie Island Community"+chr(9)+"Red Lake"+chr(9)+"Shakopee Mdewakanton"+chr(9)+"Upper Sioux"+chr(9)+"White Earth", reservation_name
+      DropListBox 55, 205, 140, 15, "Select One:"+chr(9)+"N/A"+chr(9)+"Bois Forte-Nett Lake"+chr(9)+"Bois Forte-Vermillion Lk"+chr(9)+"Fond du Lac"+chr(9)+"Grand Portage"+chr(9)+"Leach Lake"+chr(9)+"Lower Sioux"+chr(9)+"Mille Lacs"+chr(9)+"Prairie Island Community"+chr(9)+"Red Lake"+chr(9)+"Shakopee Mdewakanton"+chr(9)+"Upper Sioux"+chr(9)+"White Earth", reservation_name
       DropListBox 140, 230, 55, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", mets_addr
       EditBox 140, 245, 55, 15, METS_case_number
       EditBox 55, 265, 140, 15, other_notes
@@ -441,38 +447,51 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
 	error_check = trim(error_check)
 	If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
 
-	IF living_situation_code = "01" or living_situation_code = "02" THEN
-	    EMwritescreen new_addr_line_one, 6, 43
-		EMwritescreen new_addr_line_two, 7, 43
-		IF new_addr_line_two = "" THEN Call clear_line_of_text(7, 43)
-	    EMwritescreen new_addr_city, 8, 43
-	    EMwritescreen new_addr_state, 8, 66		'Defaults to MN for all cases at this time
-	    EMwritescreen new_addr_zip, 9, 43
-	END IF
+	Call clear_line_of_text(13, 43)'Mailing Street'
+	Call clear_line_of_text(14, 43)'Mailing street line two'
+	Call clear_line_of_text(15, 43)'Mailing City'
+	Call clear_line_of_text(16, 43)'Mailing Zip'
+
+	MsgBox "did we clear the line"
+	'IF living_situation_code = "01" or living_situation_code = "02" THEN 'we will update the residence if te lviing sit is verified'
+	'    Call clear_line_of_text(6, 43)'Residence street'
+	'    Call clear_line_of_text(7, 43)'Residence street line two'
+	'    Call clear_line_of_text(8, 43)'Residence City'
+	'    Call clear_line_of_text(9, 43)'Residence zip'
+	'	EMwritescreen new_addr_line_one, 6, 43
+	'	EMwritescreen new_addr_line_two, 7, 43
+	'	IF new_addr_line_two = "" THEN Call clear_line_of_text(7, 43)
+	'    EMwritescreen new_addr_city, 8, 43 'Residence City'
+	'    EMwritescreen new_addr_state, 8, 66		'Defaults to MN for all cases at this time
+	'    EMwritescreen new_addr_zip, 9, 43
+	'		MsgBox"how did we do"
+	'END IF
+
 	EMwritescreen county_code_number, 9, 66
 	EMwritescreen "OT", 9, 74
 	EMwritescreen homeless_addr_code, 10, 43
-	EMwritescreen reservation_addr, 10, 74
-	IF reservation_addr = "NO" THEN Call clear_line_of_text(11, 74)
+	EMwritescreen reservation_addr_code, 10, 74
+	IF reservation_addr = "NO" THEN Call clear_line_of_text(11, 74) 'removing the reseervation name'
 	EMwritescreen rez_code, 11, 74
 	EMwritescreen living_situation_code, 11, 43
-	EMwritescreen new_addr_line_one, 13, 43
-	EMwritescreen new_addr_line_two, 14, 43
+	EMwritescreen new_addr_line_one, 13, 43 'Mailing Street'
+	EMwritescreen new_addr_line_two, 14, 43 Mailing street line two'
 	IF new_addr_line_two = "" THEN Call clear_line_of_text(14, 43)
-	EMwritescreen new_addr_city, 15, 43
+	EMwritescreen new_addr_city, 15, 43 'Mailing City'
 	EMwritescreen new_addr_state, 16, 43	'Only writes if the user indicated a mailing address. Defaults to MN at this time.
 	EMwritescreen new_addr_zip, 16, 52
-
+	MsgBox"how did we do"
 	'PANEL EFFECTIVE DATE MUST EQUAL BENEFIT MONTH/YEAR
 	'WARNING: EFFECTIVE DATE HAS CHANGED - REVIEW LIVING SITUATION
 	' TYPE NOT ALLOWED WHEN PHONE ONE IS MISSING'
 	'NAME OF RESERVATION IS MISSING'
+	'COUNTY OF RESIDENCE MUST BE 89 WHEN STATE IS NOT MN'
 
 	EMReadScreen error_msg, 75, 24, 2
 	error_msg = TRIM(error_msg)
 	IF err_msg <> "" THEN
 		MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		TRANSMIT
+		'TRANSMIT
 	END IF
 END IF
 
@@ -575,7 +594,7 @@ pending_verifs = ""
 IF verifA_sent_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Verification Request, "
 IF SHEL_form_sent_checkbox = CHECKED THEN pending_verifs = pending_verifs & "SVF, "
 IF CRF_sent_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Change Request Form, "
-IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
+IF return_mail_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Returned Mail/Other, "
 '-------------------------------------------------------------------trims excess spaces of pending_verifs
 pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_verifs when autofilled into dialog if more than one app date is found and additional app is selected
 IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
