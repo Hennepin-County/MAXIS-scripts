@@ -439,16 +439,13 @@ county_code = UCASE(county_code)
 IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding address outside MN" THEN
 	Call MAXIS_footer_month_confirmation
 	PF9
-
 	EmWriteScreen actual_date, 04, 46
 	EmWriteScreen footer_month, 04, 43
 	EmWriteScreen footer_year, 04, 49
-
 	EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
 	error_check = trim(error_check)
 	If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
 
-	MsgBox "did we clear the line"
 	IF ADDR_actions = "Forwarding address outside MN" THEN' the reason we are changing ADDR here is because we get an inhibiting message  COUNTY OF RESIDENCE MUST BE 89 WHEN STATE IS NOT MN
 	    Call clear_line_of_text(6, 43)'Residence street'
 	    Call clear_line_of_text(7, 43)'Residence street line two'
@@ -460,6 +457,20 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
 	    EMwritescreen new_addr_city, 8, 43 'Residence City'
 	    EMwritescreen new_addr_state, 8, 66	'Defaults to MN for all cases at this time
 	    EMwritescreen new_addr_zip, 9, 43
+	MsgBox " Residence -how did we do"
+	END IF
+
+	IF ADDR_actions = "Forwarding address in MN" and ADDR_county = "89" THEN' the reason we are changing ADDR here is because we get an inhibiting message  COUNTY OF RESIDENCE MUST BE 89 WHEN STATE IS NOT MN
+		Call clear_line_of_text(6, 43)'Residence street'
+		Call clear_line_of_text(7, 43)'Residence street line two'
+		Call clear_line_of_text(8, 43)'Residence City'
+		Call clear_line_of_text(9, 43)'Residence zip'
+		EMwritescreen new_addr_line_one, 6, 43
+		EMwritescreen new_addr_line_two, 7, 43
+		IF new_addr_line_two = "" THEN Call clear_line_of_text(7, 43)
+		EMwritescreen new_addr_city, 8, 43 'Residence City'
+		EMwritescreen new_addr_state, 8, 66	'Defaults to MN for all cases at this time
+		EMwritescreen new_addr_zip, 9, 43
 	MsgBox " Residence -how did we do"
 	END IF
 
@@ -481,17 +492,17 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
 	EMwritescreen new_addr_city, 15, 43 'Mailing City'
 	EMwritescreen new_addr_state, 16, 43	'Only writes if the user indicated a mailing address. Defaults to MN at this time.
 	EMwritescreen new_addr_zip, 16, 52
-	MsgBox"how did we do"
+	'MsgBox"how did we do"
 	'PANEL EFFECTIVE DATE MUST EQUAL BENEFIT MONTH/YEAR
 	'WARNING: EFFECTIVE DATE HAS CHANGED - REVIEW LIVING SITUATION
 	' TYPE NOT ALLOWED WHEN PHONE ONE IS MISSING'
 	'NAME OF RESERVATION IS MISSING'
-	'COUNTY OF RESIDENCE MUST BE 89 WHEN STATE IS NOT MN'
-
+	'COUNTY OF RESIDENCE MUST BE 89 WHEN STATE IS NOT MN' if the clien was previously out of state this will cause issue
+	TRANSMIT
 	EMReadScreen error_msg, 75, 24, 2
 	error_msg = TRIM(error_msg)
-	IF err_msg <> "" THEN
-		MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	IF error_msg <> "" THEN
+		MsgBox "*** NOTICE!!! ***" & vbNewLine & error_msg & vbNewLine
 		'TRANSMIT
 	END IF
 END IF
