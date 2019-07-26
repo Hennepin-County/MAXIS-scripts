@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/26/2019", "Enhanced 'Find ABAWD Months' option to highlight the current row and reduce input required.", "Casey Love, Hennepin County")
 call changelog_update("07/11/2018", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -533,6 +534,8 @@ function find_three_ABAWD_months(all_counted_months)
     Call navigate_to_MAXIS_screen("STAT", "WREG")
     Call write_value_and_transmit(HH_memb, 20, 76)
 
+    extra_month = FALSE
+
     'Opening the Excel file
     Set objABAWDExcel = CreateObject("Excel.Application")
     objABAWDExcel.Visible = True
@@ -607,6 +610,8 @@ function find_three_ABAWD_months(all_counted_months)
                 counted_month_two = abawd_counted_months_string
             ElseIf counted_month_three = "" Then
                 counted_month_three = abawd_counted_months_string
+            Else
+                extra_month = TRUE
             End If
         End If
         excel_row = excel_row + 1
@@ -620,138 +625,142 @@ function find_three_ABAWD_months(all_counted_months)
 
     PF3 	'to exit the ABAWD tracking record
 
-    '--------------------------------------------------------------------------------------------------------------------------------------------------INQX
-    INQX_yr = right(DatePart("yyyy", DateAdd("yyyy", -3, date)), 2)
+    If extra_month = TRUE OR counted_month_three = "" OR process_option <> "Find ABAWD Months" Then
 
-    Call navigate_to_MAXIS_screen("MONY", "INQX")
-    EMWritescreen "01", 6, 38
-    EMWritescreen INQX_yr, 6, 41
-    EMWritescreen CM_mo, 6, 53
-    EMwritescreen CM_yr, 6, 56
-    EMWritescreen "X", 9, 5		'Snap
-    EMWritescreen "X", 10, 5	'MFIP
-    EMWritescreen "X", 11, 5 	'GA
-    EMWritescreen "X", 15, 5	'RCA
-    EMWritescreen "X", 13, 50	'MSA
-    EMWritescreen "X", 17, 50 	'DWP
-    transmit
+        '--------------------------------------------------------------------------------------------------------------------------------------------------INQX
+        INQX_yr = right(DatePart("yyyy", DateAdd("yyyy", -3, date)), 2)
 
-    EMReadScreen no_issuance, 11, 24, 2
-    If no_issuance = "NO ISSUANCE" then abawd_gather_error = abawd_gather_error & vbNewLine & HH_memb & " does not have any issuance during this period. The script will now end."
-    one_page = FALSE        'Reset for the loop
+        Call navigate_to_MAXIS_screen("MONY", "INQX")
+        EMWritescreen "01", 6, 38
+        EMWritescreen INQX_yr, 6, 41
+        EMWritescreen CM_mo, 6, 53
+        EMwritescreen CM_yr, 6, 56
+        EMWritescreen "X", 9, 5		'Snap
+        EMWritescreen "X", 10, 5	'MFIP
+        EMWritescreen "X", 11, 5 	'GA
+        EMWritescreen "X", 15, 5	'RCA
+        EMWritescreen "X", 13, 50	'MSA
+        EMWritescreen "X", 17, 50 	'DWP
+        transmit
 
-    EMReadScreen single_page, 8, 17, 73
-    If trim(single_page) = "" then
-        one_page = True
-    Else
-        PF8
-        EMReadScreen single_page_again, 8, 17, 73
-        If trim(single_page) = trim(single_page_again) then one_page = True
-    End if
+        EMReadScreen no_issuance, 11, 24, 2
+        If no_issuance = "NO ISSUANCE" then abawd_gather_error = abawd_gather_error & vbNewLine & HH_memb & " does not have any issuance during this period. The script will now end."
+        one_page = FALSE        'Reset for the loop
 
-    'this do...loop gets the user back to the 1st page on the INQD screen to check the next issuance_month
-    Do
-        PF7
-        EMReadScreen first_page_check, 20, 24, 2
-    LOOP until first_page_check = "THIS IS THE 1ST PAGE"	'keeps hitting PF7 until user is back at the 1st page
-
-    Excel_row = 2
-    DO
-        row = 6				'establishing the row to start searching for issuance
-        tracking_month = objABAWDExcel.cells(excel_row, 1).Value	're-establishing the case number to use for the case
-        If trim(tracking_month) = "" then exit do
-
-        Do
-            Do
-                EMReadScreen issuance_month, 2, row, 73
-                EMReadScreen issuance_year, 2, row, 79
-                EMReadScreen issuance_day, 2, row, 65
-                INQX_issuance = issuance_month & "/" & issuance_year
-                If trim(INQX_issuance) = "" then exit do
-
-                If tracking_month = INQX_issuance then
-                    EMReadScreen prog_type, 5, row, 16
-                    prog_type = trim(prog_type)
-                    EMReadScreen amt_issued, 7, row, 40
-                    If issuance_day <> "01" then amt_issued = amt_issued & "*"
-                    If prog_type = "FS" 	then fs_issued = fs_issued + amt_issued
-                    If prog_type = "GA" 	then ga_issued = ga_issued + amt_issued
-                    If prog_type = "MF-MF" 	then mfip_issued = mfip_issued + amt_issued
-                    If prog_type = "MF-FS" 	then mffs_issued = mffs_issued + amt_issued
-                    If prog_type = "DW" 	then dw_issued = dw_issued + amt_issued
-                    If prog_type = "RC" 	then rc_issued = rc_issued + amt_issued
-                    If prog_type = "MS" 	then ms_issued = ms_issued + amt_issued
-                End if
-                row = row + 1
-            Loop until row = 18
-
-            If one_page = True then exit do
+        EMReadScreen single_page, 8, 17, 73
+        If trim(single_page) = "" then
+            one_page = True
+        Else
             PF8
-            EMReadScreen last_page_check, 21, 24, 2
-            If last_page_check = "CAN NOT PAGE THROUGH " then
-                review_required = True
-                last_page = True
-            elseIf last_page_check = "THIS IS THE LAST PAGE" then
-                last_page = True
-            Else
-                last_page = False
-                row = 6		're-establishes row for the new page
-            End if
-        Loop until last_page = True
-
-        objABAWDExcel.Cells(excel_row, 3).Value = fs_issued
-        objABAWDExcel.Cells(excel_row, 4).Value = ga_issued
-        objABAWDExcel.Cells(excel_row, 5).Value = mfip_issued
-        objABAWDExcel.Cells(excel_row, 6).Value = mffs_issued
-        objABAWDExcel.Cells(excel_row, 7).Value = dw_issued
-        objABAWDExcel.Cells(excel_row, 8).Value = rc_issued
-        objABAWDExcel.Cells(excel_row, 9).Value = ms_issued
-
-        amt_issued = ""
-        fs_issued = ""
-        ga_issued = ""
-        mfip_issued = ""
-        mffs_issued = ""
-        dw_issued = ""
-        rc_issued = ""
-        ms_issued = ""
-
-        If one_page <> True then
-            'this do...loop gets the user back to the 1st page on the INQD screen to check the next issuance_month
-            Do
-                PF7
-                EMReadScreen first_page_check, 20, 24, 2
-            LOOP until first_page_check = "THIS IS THE 1ST PAGE"	'keeps hitting PF7 until user is back at the 1st page
+            EMReadScreen single_page_again, 8, 17, 73
+            If trim(single_page) = trim(single_page_again) then one_page = True
         End if
 
-        excel_row = excel_row + 1
-    Loop
-
-    FOR i = 1 to 9
-        objABAWDExcel.Columns(i).AutoFit()				'sizing the columns
-    NEXT
-
-    BeginDialog Dialog1, 0, 0, 141, 90, "Confirm Counted ABAWD Months"
-      EditBox 30, 30, 30, 15, counted_month_one
-      EditBox 30, 50, 30, 15, counted_month_two
-      EditBox 30, 70, 30, 15, counted_month_three
-      ButtonGroup ButtonPressed
-        OkButton 85, 70, 50, 15
-      Text 10, 5, 135, 20, "The script has determined that the counted ABAWD months appear to be:"
-    EndDialog
-
-    Do
+        'this do...loop gets the user back to the 1st page on the INQD screen to check the next issuance_month
         Do
-            err_msg = ""
+            PF7
+            EMReadScreen first_page_check, 20, 24, 2
+        LOOP until first_page_check = "THIS IS THE 1ST PAGE"	'keeps hitting PF7 until user is back at the 1st page
 
-            dialog Dialog1
+        Excel_row = 2
+        DO
+            row = 6				'establishing the row to start searching for issuance
+            tracking_month = objABAWDExcel.cells(excel_row, 1).Value	're-establishing the case number to use for the case
+            If trim(tracking_month) = "" then exit do
 
-        Loop until err_msg = ""
-        call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-    LOOP UNTIL are_we_passworded_out = false
+            Do
+                Do
+                    EMReadScreen issuance_month, 2, row, 73
+                    EMReadScreen issuance_year, 2, row, 79
+                    EMReadScreen issuance_day, 2, row, 65
+                    INQX_issuance = issuance_month & "/" & issuance_year
+                    If trim(INQX_issuance) = "" then exit do
 
-    If counted_month_one = "" OR counted_month_two = "" OR counted_month_three = "" Then
-        ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 3
+                    If tracking_month = INQX_issuance then
+                        EMReadScreen prog_type, 5, row, 16
+                        prog_type = trim(prog_type)
+                        EMReadScreen amt_issued, 7, row, 40
+                        If issuance_day <> "01" then amt_issued = amt_issued & "*"
+                        If prog_type = "FS" 	then fs_issued = fs_issued + amt_issued
+                        If prog_type = "GA" 	then ga_issued = ga_issued + amt_issued
+                        If prog_type = "MF-MF" 	then mfip_issued = mfip_issued + amt_issued
+                        If prog_type = "MF-FS" 	then mffs_issued = mffs_issued + amt_issued
+                        If prog_type = "DW" 	then dw_issued = dw_issued + amt_issued
+                        If prog_type = "RC" 	then rc_issued = rc_issued + amt_issued
+                        If prog_type = "MS" 	then ms_issued = ms_issued + amt_issued
+                    End if
+                    row = row + 1
+                Loop until row = 18
+
+                If one_page = True then exit do
+                PF8
+                EMReadScreen last_page_check, 21, 24, 2
+                If last_page_check = "CAN NOT PAGE THROUGH " then
+                    review_required = True
+                    last_page = True
+                elseIf last_page_check = "THIS IS THE LAST PAGE" then
+                    last_page = True
+                Else
+                    last_page = False
+                    row = 6		're-establishes row for the new page
+                End if
+            Loop until last_page = True
+
+            objABAWDExcel.Cells(excel_row, 3).Value = fs_issued
+            objABAWDExcel.Cells(excel_row, 4).Value = ga_issued
+            objABAWDExcel.Cells(excel_row, 5).Value = mfip_issued
+            objABAWDExcel.Cells(excel_row, 6).Value = mffs_issued
+            objABAWDExcel.Cells(excel_row, 7).Value = dw_issued
+            objABAWDExcel.Cells(excel_row, 8).Value = rc_issued
+            objABAWDExcel.Cells(excel_row, 9).Value = ms_issued
+
+            amt_issued = ""
+            fs_issued = ""
+            ga_issued = ""
+            mfip_issued = ""
+            mffs_issued = ""
+            dw_issued = ""
+            rc_issued = ""
+            ms_issued = ""
+
+            If one_page <> True then
+                'this do...loop gets the user back to the 1st page on the INQD screen to check the next issuance_month
+                Do
+                    PF7
+                    EMReadScreen first_page_check, 20, 24, 2
+                LOOP until first_page_check = "THIS IS THE 1ST PAGE"	'keeps hitting PF7 until user is back at the 1st page
+            End if
+
+            excel_row = excel_row + 1
+        Loop
+
+        FOR i = 1 to 9
+            objABAWDExcel.Columns(i).AutoFit()				'sizing the columns
+        NEXT
+
+        BeginDialog Dialog1, 0, 0, 141, 90, "Confirm Counted ABAWD Months"
+          EditBox 30, 30, 30, 15, counted_month_one
+          EditBox 30, 50, 30, 15, counted_month_two
+          EditBox 30, 70, 30, 15, counted_month_three
+          ButtonGroup ButtonPressed
+            OkButton 85, 70, 50, 15
+          Text 10, 5, 135, 20, "The script has determined that the counted ABAWD months appear to be:"
+        EndDialog
+
+        Do
+            Do
+                err_msg = ""
+
+                dialog Dialog1
+
+            Loop until err_msg = ""
+            call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+        LOOP UNTIL are_we_passworded_out = false
+
+        If counted_month_one = "" OR counted_month_two = "" OR counted_month_three = "" Then
+            turn_red = TRUE
+            ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 3
+        End If
     End If
 
     all_counted_months = ""
@@ -1049,6 +1058,7 @@ If process_option = "Ongoing Banked Months Cases" Then
 
 ElseIf process_option = "Find ABAWD Months" Then
     working_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\SNAP\Banked months data\Ongoing banked months list.xlsx"     'THIS IS THE REAL ONE
+
     call excel_open(working_excel_file_path, True, False, ObjExcel, objWorkbook)
     ObjExcel.Worksheets("Ongoing banked months").Activate
 
@@ -1120,12 +1130,20 @@ End If
 If process_option = "Find ABAWD Months" Then
     list_row = excel_row_to_start           'script will allow the user to set where the script will start in taking case information from the excel row
     the_case = 0                            'setting the incrementer for adding to the array
+    ObjExcel.columns(memb_nrb_col).NumberFormat = "@" 		'formatting as text
+    ObjExcel.columns(counted_ABAWD_col).NumberFormat = "@" 		'formatting as text
+
     Do                                      'Gathering the array
-        If trim(ObjExcel.Cells(list_row, counted_ABAWD_col).Value) = "" Then            'We only look at the rows where the counted ABAWD months have not been filled in
+        ' If trim(ObjExcel.Cells(list_row, counted_ABAWD_col).Value) = "" AND trim(ObjExcel.Cells(list_row, NOT_BANKED_col).Value) <> "TRUE" Then            'We only look at the rows where the counted ABAWD months have not been filled in
+        If trim(ObjExcel.Cells(list_row, NOT_BANKED_col).Value) <> "TRUE" Then
             ReDim Preserve CASE_ABAWD_TO_COUNT_ARRAY(months_to_approve, the_case)
             CASE_ABAWD_TO_COUNT_ARRAY(case_nbr, the_case)           = trim(ObjExcel.Cells(list_row, case_nbr_col).Value)
             CASE_ABAWD_TO_COUNT_ARRAY(clt_excel_row, the_case)      = list_row
             CASE_ABAWD_TO_COUNT_ARRAY(memb_ref_nbr, the_case)       = trim(ObjExcel.Cells(list_row, memb_nrb_col).Value)
+            If len(CASE_ABAWD_TO_COUNT_ARRAY(memb_ref_nbr, the_case)) <> 2 Then
+                CASE_ABAWD_TO_COUNT_ARRAY(memb_ref_nbr, the_case) = right("00" & CASE_ABAWD_TO_COUNT_ARRAY(memb_ref_nbr, the_case), 2)
+                ObjExcel.Cells(list_row, memb_nrb_col).Value = CASE_ABAWD_TO_COUNT_ARRAY(memb_ref_nbr, the_case)
+            End If
 
             CASE_ABAWD_TO_COUNT_ARRAY(clt_last_name, the_case)      = trim(ObjExcel.Cells(list_row, last_name_col).Value)
             CASE_ABAWD_TO_COUNT_ARRAY(clt_first_name, the_case)     = trim(ObjExcel.Cells(list_row, first_name_col).Value)
@@ -1140,6 +1158,7 @@ If process_option = "Find ABAWD Months" Then
             CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_eight, the_case)       = trim(ObjExcel.Cells(list_row, eighth_mo_col).Value)
             CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_nine, the_case)        = trim(ObjExcel.Cells(list_row, ninth_mo_col).Value)
             CASE_ABAWD_TO_COUNT_ARRAY(clt_curr_mo_stat, the_case)   = trim(ObjExcel.Cells(list_row, curr_mo_stat_col).Value)
+            CASE_ABAWD_TO_COUNT_ARRAY(used_ABAWD_mos, the_case)     = trim(ObjExcel.Cells(list_row, counted_ABAWD_col).Value)
             CASE_ABAWD_TO_COUNT_ARRAY(months_to_approve, the_case)  = ""    'set this to zero at every run as it should be handled prior to the script run
 
             If excel_row_to_end = list_row Then Exit DO         'if we reach the last row indicated by the user, the array will stop filling the array
@@ -1152,40 +1171,51 @@ If process_option = "Find ABAWD Months" Then
         End If
     Loop Until trim(ObjExcel.Cells(list_row, case_nbr_col).Value) = ""  'end of the list has case number as blank
 
+    If UBound(CASE_ABAWD_TO_COUNT_ARRAY, 2) = 0 AND CASE_ABAWD_TO_COUNT_ARRAY(clt_excel_row, 0) = "" Then script_end_procedure("No cases that need ABAWD months found could be identified on the list between rows " & excel_row_to_start & " and " & list_row)
     'Loop through each item in the array to review the case.
     For the_case = 0 to UBOUND(CASE_ABAWD_TO_COUNT_ARRAY, 2)
         MAXIS_case_number = CASE_ABAWD_TO_COUNT_ARRAY(case_nbr, the_case)       'these are set for ease of use and nav functions
         HH_memb = CASE_ABAWD_TO_COUNT_ARRAY(memb_ref_nbr, the_case)
         list_row = CASE_ABAWD_TO_COUNT_ARRAY(clt_excel_row, the_case)
+        ' MsgBox "List row - " & list_row
+        ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 18)).Interior.ColorIndex = 6
 
         counted_month_one = ""      'blanking variables and resetting for each loop
         counted_month_two = ""
         counted_month_three = ""
         Updates_made = FALSE
         continue_search = TRUE
+        turn_red = FALSE
 
         'establishing what MAXIS_footer_month and year are for WREG panel/ATR months determination
         MAXIS_footer_month 	= CM_mo
         MAXIS_footer_year 	= CM_yr
 
-        Call navigate_to_MAXIS_screen("STAT", "WREG")       'this is where we need to go to find this information.'
-
-        'Checking for PRIV cases.
-        EMReadScreen priv_check, 6, 24, 14 'If it can't get into the case, script will end.
-        IF priv_check = "PRIVIL" THEN
-            CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case) = "PRIV " & CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
-            ObjExcel.Cells(list_row, notes_col).Value = CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
+        If len(CASE_ABAWD_TO_COUNT_ARRAY(used_ABAWD_mos, the_case)) = 17 Then
             continue_search = FALSE
-        ELSE
-            Call write_value_and_transmit(HH_memb, 20, 76)      'going to the WREG for the HH Member listed on the Banked Months List
+        End If
 
-            EMReadScreen wreg_total, 1, 2, 78                   'looking to see if WREG is missing.
-            If wreg_total = "0" then
-                CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case) = "NO WREG " & CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
+        If continue_search = TRUE Then
+            Call navigate_to_MAXIS_screen("STAT", "WREG")       'this is where we need to go to find this information.'
+
+            'Checking for PRIV cases.
+            EMReadScreen priv_check, 6, 24, 14 'If it can't get into the case, script will end.
+            IF priv_check = "PRIVIL" THEN
+                CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case) = "PRIV " & CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
                 ObjExcel.Cells(list_row, notes_col).Value = CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
                 continue_search = FALSE
-            End If
-        END IF
+            ELSE
+                Call write_value_and_transmit(HH_memb, 20, 76)      'going to the WREG for the HH Member listed on the Banked Months List
+
+                EMReadScreen wreg_total, 1, 2, 78                   'looking to see if WREG is missing.
+                If wreg_total = "0" then
+                    CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case) = "NO WREG " & CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
+                    ObjExcel.Cells(list_row, notes_col).Value = CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
+                    continue_search = FALSE
+                    turn_red = TRUE
+                End If
+            END IF
+        End If
 
         If continue_search = TRUE THen              'this variable allows the sript to know if there is ne information that needs to be added.
 
@@ -1194,9 +1224,14 @@ If process_option = "Find ABAWD Months" Then
             If abawd_gather_error <> "" Then
                 MsgBox "Review this case as script could not gather Information to assist in ABAWD months determination." & vbNewLine & abawd_gather_error
                 CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case) = "FIND ABAWD MONTHS MANUALLY " & CASE_ABAWD_TO_COUNT_ARRAY(clt_notes, the_case)
-                ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 3
+                turn_red = TRUE
             End If
         END IF
+        ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 18)).Interior.ColorIndex = 0
+        If turn_red = TRUE Then ObjExcel.Range(ObjExcel.Cells(list_row, 1), ObjExcel.Cells(list_row, 17)).Interior.ColorIndex = 3
+
+        Call back_to_SELF
+
         'This will cause the script to end if there was a timer set and the script needs to end
         If timer > end_time Then
             end_msg = "Success! Script has run for " & stop_time/60/60 & " hours and has finished." & vbNewLine & "The script processed the rows " & CASE_ABAWD_TO_COUNT_ARRAY(clt_excel_row, 0) & " through " & CASE_ABAWD_TO_COUNT_ARRAY(clt_excel_row, Ubound(CASE_ABAWD_TO_COUNT_ARRAY, 2))
@@ -1204,8 +1239,6 @@ If process_option = "Find ABAWD Months" Then
         Else
             end_msg = "Script run completed. The script processed the rows "  & CASE_ABAWD_TO_COUNT_ARRAY(clt_excel_row, 0) & " through " & CASE_ABAWD_TO_COUNT_ARRAY(clt_excel_row, Ubound(CASE_ABAWD_TO_COUNT_ARRAY, 2))
         End If
-
-
     Next
 End If
 
@@ -1214,6 +1247,9 @@ If process_option = "Ongoing Banked Months Cases" Then
     Dim ABAWD_MONTHS_ARRAY
     list_row = excel_row_to_start           'script will allow the user to set where the script will start in taking case information from the excel row
     the_case = 0                            'setting the incrementer for adding to the array
+    ObjExcel.columns(memb_nrb_col).NumberFormat = "@" 		'formatting as text
+    ObjExcel.columns(counted_ABAWD_col).NumberFormat = "@" 		'formatting as text
+
     Do
         If ObjExcel.Cells(list_row, NOT_BANKED_col).Value <> "TRUE" Then
             ReDim Preserve BANKED_MONTHS_CASES_ARRAY(months_to_approve, the_case)
