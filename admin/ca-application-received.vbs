@@ -407,6 +407,7 @@ END IF
 IF MA_transition_request_checkbox = CHECKED THEN
 	CALL write_variable_in_CASE_NOTE ("~ Application Received(MA Transition)via " & how_app_rcvd & " for " & application_date & " ~")
 	''~ Application Received (MA Transition) via Request to APPL form on 7/16/2019 ~
+	CALL write_variable_in_CASE_NOTE("* Requesting HC for " &  "M" & MEMB_number)
 	CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & pended_date & ".")
 END IF
 IF confirmation_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
