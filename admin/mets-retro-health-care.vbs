@@ -1,5 +1,5 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "NOTES - MNSURE RETRO HC APPLICATION.vbs"
+name_of_script = "NOTES - METS RETRO HEALTH CARE.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 230          'manual run time in seconds
@@ -44,9 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("07/22/2019", "Updated script to support new retro request process. Changed name to METS RETRO HEALTH CARE.", "Ilse Ferris, Hennepin County")
-call changelog_update("09/25/2017", "Enhancements requested by MNSURE team include: Updated navigation and standarization, removed setting a TIKL, and added functionality that sends an email to the specified team with applicable case information.", "MiKayla Handley, Hennepin County")
-call changelog_update("08/08/17", "Initial version.", "Ilse Ferris, Hennepin County")
+call changelog_update("07/26/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
