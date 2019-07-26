@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("07/26/2019", "Reverted the script to not email Team 603 for METS cases. CA workers will need to manually complete the email to: field.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("07/24/2019", "Removed Mail & Fax option and added MDQ per request.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("07/22/2019", "Updated the script to automatically email Team 603 for METS cases.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/19/2019", "Added an error reporting option at the end of the script run.", "Casey Love, Hennepin County")
@@ -572,7 +573,7 @@ END IF
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 'If run_locally = TRUE Then send_email = FALSE
 IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case number #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
-IF mnsure_retro_checkbox = CHECKED THEN CALL create_outlook_email("HSPH.EWS.TEAM.603@hennepin.us", "", "Case number #" & maxis_case_number &  " Retro Request APPL'd in Maxis - ACTION REQUIRED.", "", "", TRUE)
+IF mnsure_retro_checkbox = CHECKED THEN CALL create_outlook_email("", "", "Case number #" & maxis_case_number &  " Retro Request APPL'd in Maxis - ACTION REQUIRED.", "", "", FALSE)
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE
 if interview_completed = TRUE Then send_appt_ltr = FALSE
