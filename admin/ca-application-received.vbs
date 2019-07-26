@@ -399,13 +399,13 @@ IF how_app_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and
 	CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & pended_date & ".")
 END IF
 IF METS_retro_checkbox = CHECKED THEN
-	CALL write_variable_in_CASE_NOTE ("~ Application Received (METS Retro) via " & how_app_rcvd & " for " & application_date & " ~")
+	CALL write_variable_in_CASE_NOTE ("~ Application Received(METS Retro)via " & how_app_rcvd & " for " & application_date & " ~")
 	'~ Application Received (METS Retro) via Request to APPL form on 7/16/2019 ~
 	CALL write_variable_in_CASE_NOTE("* Requesting HC for " &  "M" & MEMB_number)
 	CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & pended_date & ".")
 END IF
 IF MA_transition_request_checkbox = CHECKED THEN
-	CALL write_variable_in_CASE_NOTE ("~ Application Received (MA Transition) via " & how_app_rcvd & " for " & application_date & " ~")
+	CALL write_variable_in_CASE_NOTE ("~ Application Received(MA Transition)via " & how_app_rcvd & " for " & application_date & " ~")
 	''~ Application Received (MA Transition) via Request to APPL form on 7/16/2019 ~
 	CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & pended_date & ".")
 END IF
