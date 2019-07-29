@@ -49,14 +49,12 @@ call changelog_update("06/06/2019", "Initial version. Rewitten per POLI/TEMP.", 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+'------------------------------------------------------------------------------------------------------------------------------THE SCRIPT
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-MAXIS_footer_month = right("00" & DatePart("m", date_received), 2)
-MAXIS_footer_year = right(DatePart("yyyy", date_received), 2)
-
-Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_month_confirmation
-
-
+'Running the initial dialog
 BeginDialog case_number_dlg, 0, 0, 211, 85, "Returned Mail"
   EditBox 55, 5, 40, 15, maxis_case_number
   EditBox 165, 5, 40, 15, date_received
@@ -87,9 +85,19 @@ DO
 	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 CALL check_for_MAXIS(False)
 
-Call MAXIS_footer_month_confirmation
-CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 
+MAXIS_footer_month = right("00" & DatePart("m", date_received), 2)
+MAXIS_footer_year = right(DatePart("yyyy", date_received), 2)
+
+CALL navigate_to_MAXIS_screen("STAT", "SELF")		'Goes to STAT/PROG
+EMReadScreen SELF_check, 4, 2, 50
+If SELF_check = "SELF" THEN
+	EmWriteScreen footer_month, 04, 43
+	EmWriteScreen footer_year, 04, 49
+	TRANSMIT
+END IF
+
+CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 EMReadScreen err_msg, 7, 24, 02
 IF err_msg = "BENEFIT" THEN	script_end_procedure_with_error_report ("Case must be in PEND II status for script to run, please update MAXIS panels TYPE & PROG (HCRE for HC) and run the script again.")
 
@@ -138,29 +146,30 @@ active_programs = trim(active_programs)  'trims excess spaces of active_programs
 If right(active_programs, 1) = "," THEN active_programs = left(active_programs, len(active_programs) - 1)
 
 CALL navigate_to_MAXIS_screen("STAT", "ADDR")
-EMReadScreen footer_month, 2, 20, 55
-EMReadScreen footer_year, 2, 20, 58
-EMreadscreen ADDR_line_one, 20, 6, 43
-ADDR_line_one = replace(ADDR_line_one, "_", "")
-EMreadscreen ADDR_line_two, 20, 7, 43
-ADDR_line_two = replace(ADDR_line_two, "_", "")
-EMreadscreen ADDR_city, 15, 8, 43
-ADDR_city = replace(ADDR_city, "_", "")
-EMreadscreen ADDR_state, 2, 8, 66
-EMreadscreen ADDR_zip, 5, 9, 43
-ADDR_zip = replace(ADDR_zip, "_", "")
-EMreadscreen ADDR_county, 2, 9, 66
-EMreadscreen ADDR_addr_verif, 2, 9, 74
-EMreadscreen ADDR_homeless, 1, 10, 43
+'EMReadScreen footer_month, 2, 20, 55
+'EMReadScreen footer_year, 2, 20, 58
+EMreadscreen resi_addr_line_one, 20, 6, 43
+resi_addr_line_one = replace(resi_addr_line_one, "_", "")
+EMreadscreen resi_addr_line_two, 20, 7, 43
+resi_addr_line_two = replace(resi_addr_line_two, "_", "")
+EMreadscreen resi_addr_city, 15, 8, 43
+resi_addr_city = replace(resi_addr_city, "_", "")
+EMreadscreen resi_addr_state, 2, 8, 66
+EMreadscreen resi_addr_zip, 5, 9, 43
+resi_addr_zip = replace(resi_addr_zip, "_", "")
+EMreadscreen addr_county, 2, 9, 66
+EMreadscreen addr_verif, 2, 9, 74
+EMreadscreen addr_homeless, 1, 10, 43
 'EMreadscreen ADDR_reservation, 1, 10, 74
-EMreadscreen ADDR_mailing_addr_line_one, 20, 13, 43
-ADDR_mailing_addr_line_one = replace(ADDR_mailing_addr_line_one, "_", "")
-EMreadscreen ADDR_mailing_addr_line_two, 20, 14, 43
-ADDR_mailing_addr_line_two = replace(ADDR_mailing_addr_line_two, "_", "")
-EMreadscreen ADDR_mailing_addr_city, 15, 15, 43
-ADDR_mailing_addr_city = replace(ADDR_mailing_addr_city, "_", "")
-EMreadscreen ADDR_mailing_addr_zip, 5, 16, 52
-ADDR_mailing_addr_zip = replace(ADDR_mailing_addr_zip, "_", "")
+EMreadscreen mailing_addr_line_one, 20, 13, 43
+mailing_addr_line_one = replace(mailing_addr_line_one, "_", "")
+EMreadscreen mailing_addr_line_two, 20, 14, 43
+mailing_addr_line_two = replace(mailing_addr_line_two, "_", "")
+EMreadscreen mailing_addr_city, 15, 15, 43
+mailing_addr_city = replace(mailing_addr_city, "_", "")
+EmReadScreen mailing_addr_state, 2, 16, 43
+EMreadscreen mailing_addr_zip, 5, 16, 52
+mailing_addr_zip = replace(mailing_addr_zip, "_", "")
 EMreadscreen ADDR_phone_1A, 3, 17, 45						'Has to split phone numbers up into three parts each
 EMreadscreen ADDR_phone_2B, 3, 17, 51
 EMreadscreen ADDR_phone_3C, 4, 17, 55
@@ -170,7 +179,11 @@ EMreadscreen ADDR_phone_2C, 4, 18, 55
 EMreadscreen ADDR_phone_3A, 3, 19, 45
 EMreadscreen ADDR_phone_3B, 3, 19, 51
 EMreadscreen ADDR_phone_3C, 4, 19, 55
-maxis_addr = ADDR_line_one & " " & ADDR_line_two & " " & ADDR_city & " " & ADDR_state & " " & ADDR_zip
+IF mailing_addr_line_one <> "" THEN
+	maxis_addr = mailing_addr_line_one & " " & mailing_addr_line_two & " " & mailing_addr_city & " " & mailing_addr_state & " " & mailing_addr_zip
+ELSE
+    maxis_addr = resi_addr_line_one & " " & resi_addr_line_two & " " & resi_addr_city & " " & resi_addr_state & " " & resi_addr_zip
+END IF
 
 IF ADDR_actions = "No forwarding address provided" THEN
     BeginDialog no_forward_addr, 0, 0, 186, 215, "No forwarding address provided"
@@ -410,7 +423,6 @@ new_addr_state = UCASE(new_addr_state)
 county_code = UCASE(county_code)
 
 IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding address outside MN" THEN
-	'Call MAXIS_footer_month_confirmation
 	PF9
 	EmWriteScreen "01", 04, 46
 	EmWriteScreen footer_month, 04, 43
@@ -507,14 +519,12 @@ IF ADDR_actions = "Client has not responded to request" THEN
     	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
     CALL check_for_MAXIS(False)
 
-	Call MAXIS_footer_month_confirmation
-
     'per POLI/TEMP this only pretains to active cash and snap '
 	IF cash_active  = TRUE or cash2_active = TRUE or SNAP_active  = TRUE THEN
 		CALL MAXIS_background_check
     	CALL navigate_to_MAXIS_screen("STAT", "PACT")
     	'Checking to see if the PACT panel is empty, if not it create a new panel'
-        EmReadScreen panel_number, 1, 02, 73
+		EmReadScreen panel_number, 1, 02, 73
         If panel_number = "0" then
         	EMWriteScreen "NN", 20,79 'cursor is automatically set to 06, 58'
         	TRANSMIT
@@ -592,17 +602,22 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
     CALL write_bullet_and_variable_in_CASE_NOTE("Living situation", living_situation)
     CALL write_bullet_and_variable_in_CASE_NOTE("Homeless", homeless_addr)
 	CALL write_bullet_and_variable_in_case_note("Verification(s) Received", pending_verifs)
-    CALL write_variable_in_CASE_NOTE("* Address updated:  " & new_addr_line_one)
-    CALL write_variable_in_CASE_NOTE("                    " & new_addr_line_two & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
-    CALL write_variable_in_CASE_NOTE("                    " & county_code & " COUNTY.")
+    CALL write_variable_in_CASE_NOTE("* Mailing Address Updated:  " & new_addr_line_one)
+    CALL write_variable_in_CASE_NOTE("                            " & new_addr_line_two & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
+    CALL write_variable_in_CASE_NOTE("                            " & county_code & " COUNTY.")
 	IF reservation_name <> "Select One:" THEN CALL write_variable_in_CASE_NOTE("                      " & "Reservation " & reservation_name)
     'CALL write_variable_in_CASE_NOTE("---")
 ELSE
 	CALL write_bullet_and_variable_in_case_note("Verification(s) Requested", pending_verifs)
 END IF
 CALL write_variable_in_CASE_NOTE ("---")
-CALL write_variable_in_CASE_NOTE("* Previous address: " & ADDR_line_one)
-CALL write_variable_in_CASE_NOTE("                   " & ADDR_line_two & " " & ADDR_city & " " & ADDR_state & " " & ADDR_zip)
+IF mailing_addr_line_one <> "" THEN
+	CALL write_variable_in_CASE_NOTE("* Previous Mailing Address: " & mailing_addr_line_one)
+	CALL write_variable_in_CASE_NOTE("                           " & mailing_addr_line_two & " " & mailing_addr_city & " " & mailing_addr_state & " " & mailing_addr_zip)
+ELSE
+	CALL write_variable_in_CASE_NOTE("* Previous Residential Address: " & resi_addr_line_one)
+	CALL write_variable_in_CASE_NOTE("                               " & resi_addr_line_two & " " & resi_addr_city & " " & resi_addr_state & " " & resi_addr_zip)
+END IF
 CALL write_bullet_and_variable_in_CASE_NOTE("METS correspondence sent", mets_addr)
 CALL write_bullet_and_variable_in_CASE_NOTE("METS case number", MNsure_number)
 IF ADDR_actions = "Client has not responded to request" THEN
