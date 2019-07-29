@@ -484,6 +484,9 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
 	'TYPE NOT ALLOWED WHEN PHONE ONE IS MISSING'
 	'NAME OF RESERVATION IS MISSING'
 	'COUNTY OF RESIDENCE MUST BE 89 WHEN STATE IS NOT MN' if the clien was previously out of state this will cause issue
+	'Errors on the PACT'
+	'CASH II IS INACTIVE'
+	'CASE IS PENDING, USE '1' OR '3' TO DENY '
 	TRANSMIT
 	EMReadScreen error_msg, 75, 24, 2
 	error_msg = TRIM(error_msg)
@@ -577,9 +580,6 @@ IF ADDR_actions = "Client has not responded to request" THEN
 END IF
 'msgbox"what did we do?"
 
-'CASH II IS INACTIVE'
-'CASE IS PENDING, USE '1' OR '3' TO DENY '
-
 pending_verifs = ""
 IF verifA_sent_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Verification Request, "
 IF SHEL_form_sent_checkbox = CHECKED THEN pending_verifs = pending_verifs & "SVF, "
@@ -596,32 +596,33 @@ Call MAXIS_background_check
 
 'starts a blank case note
 call start_a_blank_case_note
-call write_variable_in_CASE_NOTE("Returned Mail Received-" & ADDR_actions & " for " & active_programs & "")
+call write_variable_in_CASE_NOTE("Returned mail received-" & ADDR_actions & " for " & active_programs & "")
 IF ADDR_actions <> "Client has not responded to request" THEN CALL write_bullet_and_variable_in_CASE_NOTE("Received on", date_received)
 IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding address outside MN" THEN
     CALL write_bullet_and_variable_in_CASE_NOTE("Living situation", living_situation)
     CALL write_bullet_and_variable_in_CASE_NOTE("Homeless", homeless_addr)
-	CALL write_bullet_and_variable_in_case_note("Verification(s) Received", pending_verifs)
-    CALL write_variable_in_CASE_NOTE("* Mailing Address Updated:  " & new_addr_line_one)
+	CALL write_bullet_and_variable_in_case_note("Verification(s) received", pending_verifs)
+    CALL write_variable_in_CASE_NOTE("* Mailing address updated:  " & new_addr_line_one)
     CALL write_variable_in_CASE_NOTE("                            " & new_addr_line_two & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
     CALL write_variable_in_CASE_NOTE("                            " & county_code & " COUNTY.")
 	IF reservation_name <> "Select One:" THEN CALL write_variable_in_CASE_NOTE("                      " & "Reservation " & reservation_name)
     'CALL write_variable_in_CASE_NOTE("---")
 ELSE
-	CALL write_bullet_and_variable_in_case_note("Verification(s) Requested", pending_verifs)
+	CALL write_bullet_and_variable_in_case_note("Verification(s) requested", pending_verifs)
 END IF
 CALL write_variable_in_CASE_NOTE ("---")
+IF mailing_addr_line_one <> "" THEN CALL write_variable_in_CASE_NOTE("* No mailing address entered in Maxis: "
 IF mailing_addr_line_one <> "" THEN
-	CALL write_variable_in_CASE_NOTE("* Previous Mailing Address: " & mailing_addr_line_one)
+	CALL write_variable_in_CASE_NOTE("* Previous mailing address: " & mailing_addr_line_one)
 	CALL write_variable_in_CASE_NOTE("                           " & mailing_addr_line_two & " " & mailing_addr_city & " " & mailing_addr_state & " " & mailing_addr_zip)
 ELSE
-	CALL write_variable_in_CASE_NOTE("* Previous Residential Address: " & resi_addr_line_one)
+	CALL write_variable_in_CASE_NOTE("* Previous residential address: " & resi_addr_line_one)
 	CALL write_variable_in_CASE_NOTE("                               " & resi_addr_line_two & " " & resi_addr_city & " " & resi_addr_state & " " & resi_addr_zip)
 END IF
 CALL write_bullet_and_variable_in_CASE_NOTE("METS correspondence sent", mets_addr)
 CALL write_bullet_and_variable_in_CASE_NOTE("METS case number", MNsure_number)
 IF ADDR_actions = "Client has not responded to request" THEN
-	CALL write_bullet_and_variable_in_case_note("Verification(s) Request Date", verif_requested_date)
+	CALL write_bullet_and_variable_in_case_note("Verification(s) request date", verif_requested_date)
 	CALL write_variable_in_CASE_NOTE ("* ECF reviewed for requested verifications")
 	CALL write_variable_in_CASE_NOTE ("* PACT panel entered per POLI/TEMP TE02.13.10")
 END IF
