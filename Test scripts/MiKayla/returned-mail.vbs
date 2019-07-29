@@ -49,9 +49,9 @@ call changelog_update("06/06/2019", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-MAXIS_case_number = "282689"
+MAXIS_case_number = "282722"
 date_received = "06/13/19"
-'ADDR_actions = "No forwarding ADDR"
+'ADDR_actions = "No forwarding address provided
 
 'new_addr_line_two
 new_addr_line_one = "4329 Humboldt Ave N"
@@ -69,16 +69,19 @@ other_notes = "TEST"
 MAXIS_footer_month = right("00" & DatePart("m", date_received), 2)
 MAXIS_footer_year = right(DatePart("yyyy", date_received), 2)
 
+'MsgBox MAXIS_footer_month
+'msgbox MAXIS_footer_year
 'create_MAXIS_friendly_date_three_spaces_between(date_variable, variable_length, screen_row, screen_col)
 
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_month_confirmation
 'Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
+
 BeginDialog case_number_dlg, 0, 0, 211, 85, "Returned Mail"
   EditBox 55, 5, 40, 15, maxis_case_number
   EditBox 165, 5, 40, 15, date_received
-  DropListBox 90, 25, 115, 15, "Select One:"+chr(9)+"Forwarding address in MN"+chr(9)+"Forwarding address outside MN"+chr(9)+"No forwarding address provided"+chr(9)+"Client has not responded to request for verif", ADDR_actions
+  DropListBox 90, 25, 115, 15, "Select One:"+chr(9)+"Forwarding address in MN"+chr(9)+"Forwarding address outside MN"+chr(9)+"No forwarding address provided"+chr(9)+"Client has not responded to request", ADDR_actions
   EditBox 90, 45, 115, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 110, 65, 45, 15
@@ -109,7 +112,6 @@ CALL check_for_MAXIS(False)
 
 Call MAXIS_footer_month_confirmation
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
-'EMReadScreen application_date, 8, 6, 33
 
 EMReadScreen err_msg, 7, 24, 02
 IF err_msg = "BENEFIT" THEN	script_end_procedure_with_error_report ("Case must be in PEND II status for script to run, please update MAXIS panels TYPE & PROG (HCRE for HC) and run the script again.")
@@ -123,10 +125,9 @@ EMReadScreen snap_status_check, 4, 10, 74
 EMReadScreen ive_status_check, 4, 11, 74
 EMReadScreen hc_status_check, 4, 12, 74
 EMReadScreen cca_status_check, 4, 14, 74
-
 '----------------------------------------------------------------------------------------------------ACTIVE program coding
 EMReadScreen cash1_prog_check, 2, 6, 67     'Reading cash 1
-EMReadScreen cash2_prog_check, 2, 7, 67     'Reading cash 2
+EMReadScreen cash2_prog_check, 2, 7, 67     'Reading cash 2 this is funky if inac they program will show up on pact but not on prog
 EMReadScreen emer_prog_check, 2, 8, 67      'EMER Program
 
 'Logic to determine if MFIP is active
@@ -161,7 +162,8 @@ If right(active_programs, 1) = "," THEN active_programs = left(active_programs, 
 
 
 CALL navigate_to_MAXIS_screen("STAT", "ADDR")
-'Writes spreadsheet info to ADDR
+EMReadScreen footer_month, 2, 20, 55
+EMReadScreen footer_year, 2, 20, 58
 EMreadscreen ADDR_line_one, 20, 6, 43
 ADDR_line_one = replace(ADDR_line_one, "_", "")
 EMreadscreen ADDR_line_two, 20, 7, 43
@@ -196,9 +198,9 @@ EMreadscreen ADDR_phone_3C, 4, 19, 55
 
 maxis_addr = ADDR_line_one & " " & ADDR_line_two & " " & ADDR_city & " " & ADDR_state & " " & ADDR_zip
 
-IF ADDR_actions = "No forwarding ADDR" THEN
-    BeginDialog no_forward_addr, 0, 0, 186, 215, "No forwarding ADDR"
-      CheckBox 10, 95, 165, 10, "Verif Request (DHS-2919A) - Request for Contact ", verifA_sent_checkbox
+IF ADDR_actions = "No forwarding address provided" THEN
+    BeginDialog no_forward_addr, 0, 0, 186, 215, "No forwarding address provided"
+      CheckBox 10, 95, 165, 10, "Verif Request (DHS-2919A)-Request for Contact ", verifA_sent_checkbox
       CheckBox 10, 105, 100, 10, "Change Report (DHS-2402)", CRF_sent_checkbox
       CheckBox 10, 115, 70, 10, "SVF (DHS-2952)", SHEL_form_sent_checkbox
       DropListBox 110, 135, 65, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", mets_addr_correspondence
@@ -437,11 +439,12 @@ county_code = UCASE(county_code)
 
 
 IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding address outside MN" THEN
-	Call MAXIS_footer_month_confirmation
+	'Call MAXIS_footer_month_confirmation
 	PF9
-	EmWriteScreen actual_date, 04, 46
+	EmWriteScreen "01", 04, 46
 	EmWriteScreen footer_month, 04, 43
 	EmWriteScreen footer_year, 04, 49
+	'MsgBox footer_month & " " & footer_year
 	EMReadScreen error_check, 2, 24, 2	'making sure we can actually update this case.
 	error_check = trim(error_check)
 	If error_check <> "" then script_end_procedure("Unable to update this case. Please review case, and run the script again if applicable.")
@@ -457,7 +460,7 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
 	    EMwritescreen new_addr_city, 8, 43 'Residence City'
 	    EMwritescreen new_addr_state, 8, 66	'Defaults to MN for all cases at this time
 	    EMwritescreen new_addr_zip, 9, 43
-	MsgBox " Residence -how did we do"
+	'MsgBox " Residence -how did we do"
 	END IF
 
 	IF ADDR_actions = "Forwarding address in MN" and ADDR_county = "89" THEN' the reason we are changing ADDR here is because we get an inhibiting message  COUNTY OF RESIDENCE MUST BE 89 WHEN STATE IS NOT MN
@@ -471,14 +474,14 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
 		EMwritescreen new_addr_city, 8, 43 'Residence City'
 		EMwritescreen new_addr_state, 8, 66	'Defaults to MN for all cases at this time
 		EMwritescreen new_addr_zip, 9, 43
-	MsgBox " Residence -how did we do"
+	'MsgBox " Residence -how did we do"
 	END IF
 
 	Call clear_line_of_text(13, 43)'Mailing Street'
 	Call clear_line_of_text(14, 43)'Mailing street line two'
 	Call clear_line_of_text(15, 43)'Mailing City'
 	Call clear_line_of_text(16, 43)'Mailing Zip'
-
+	IF ADDR_phone_1A = "___" THEN Call clear_line_of_text(17, 67)'removing phone code if no number is provided'
 	EMwritescreen county_code_number, 9, 66
 	EMwritescreen "OT", 9, 74
 	EMwritescreen homeless_addr_code, 10, 43
@@ -507,65 +510,37 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
 	END IF
 END IF
 
-IF ADDR_actions = "Client has not responded to request for verif" THEN
+IF ADDR_actions = "Client has not responded to request" THEN
+    BeginDialog date_rcvd_dialog, 0, 0, 151, 100, "Client has not responded to request"
+      EditBox 100, 5, 45, 15, verif_requested_date
+      CheckBox 20, 25, 110, 10, "ECF reviewed for verifications", ECF_review_checkbox
+      EditBox 50, 60, 95, 15, other_notes
+      ButtonGroup ButtonPressed
+        OkButton 60, 80, 40, 15
+        CancelButton 105, 80, 40, 15
+      Text 5, 40, 145, 20, "Allow the household 10 days to respond before proceeding with a termination notice."
+      Text 5, 10, 75, 10, "Date verif requested:"
+      Text 5, 65, 45, 10, "Other Notes:"
+    EndDialog
+
+    DO
+    	DO
+    		err_msg = ""
+    		DIALOG date_rcvd_dialog
+    			IF ButtonPressed = 0 THEN stopscript
+    			If isdate(date_received) = FALSE and Cdate(date_received) > cdate(date) = TRUE THEN  err_msg = err_msg & vbnewline & "* Please enter the date verifcations were requested."
+    			IF ECF_review_checkbox <> CHECKED THEN  err_msg = err_msg & vbnewline & "* Please review ECF to ensure the requested verifications are not on file."
+    			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+    		LOOP UNTIL err_msg = ""
+    		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+    CALL check_for_MAXIS(False)
+
 	Call MAXIS_footer_month_confirmation
-	CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 
-    'Setting some variables for the loop
-    CASH_STATUS = FALSE 'overall variable'
-    CCA_STATUS = FALSE
-    DW_STATUS = FALSE 'Diversionary Work Program'
-    ER_STATUS = FALSE
-    SNAP_STATUS = FALSE
-    GA_STATUS = FALSE 'General Assistance'
-    GRH_STATUS = FALSE
-    HC_STATUS = FALSE
-    MS_STATUS = FALSE 'Mn Suppl Aid '
-    MF_STATUS = FALSE 'Mn Family Invest Program '
-    RC_STATUS = FALSE 'Refugee Cash Assistance'
-
-    'Reading the status and program
-    EMReadScreen cash1_status_check, 4, 6, 74
-    EMReadScreen cash2_status_check, 4, 7, 74
-    EMReadScreen emer_status_check, 4, 8, 74
-    EMReadScreen grh_status_check, 4, 9, 74
-    EMReadScreen fs_status_check, 4, 10, 74
-    EMReadScreen ive_status_check, 4, 11, 74
-    EMReadScreen hc_status_check, 4, 12, 74
-    EMReadScreen cca_status_check, 4, 14, 74
-    EMReadScreen cash1_prog_check, 2, 6, 67
-    EMReadScreen cash2_prog_check, 2, 7, 67
-    EMReadScreen emer_prog_check, 2, 8, 67
-    EMReadScreen grh_prog_check, 2, 9, 67
-    EMReadScreen fs_prog_check, 2, 10, 67
-    EMReadScreen ive_prog_check, 2, 11, 67
-    EMReadScreen hc_prog_check, 2, 12, 67
-    EMReadScreen cca_prog_check, 2, 14, 67
-
-    IF FS_status_check = "ACTV" or FS_status_check = "PEND"  THEN SNAP_STATUS = TRUE
-    IF emer_status_check = "ACTV" or emer_status_check = "PEND"  THEN ER_STATUS = TRUE
-    IF grh_status_check = "ACTV" or grh_status_check = "PEND"  THEN GRH_STATUS = TRUE
-    IF hc_status_check = "ACTV" or hc_status_check = "PEND"  THEN HC_STATUS = TRUE
-    IF cca_status_check = "ACTV" or cca_status_check = "PEND"  THEN CCA_STATUS = TRUE
-    'Logic to determine if Cash is active
-    If cash1_prog_check = "MF" or cash1_prog_check = "GA" or cash1_prog_check = "DW" or cash1_prog_check = "RC" or cash1_prog_check = "MS" THEN
-    	IF cash1_status_check = "ACTV" THEN CASH_STATUS = TRUE
-    	IF cash1_status_check = "PEND" THEN CASH_STATUS = TRUE
-    	IF cash1_status_check = "INAC" THEN CASH_STATUS = FALSE
-    	IF cash1_status_check = "SUSP" THEN CASH_STATUS = FALSE
-    	IF cash1_status_check = "DENY" THEN CASH_STATUS = FALSE
-    	IF cash1_status_check = ""     THEN CASH_STATUS = FALSE
-    END IF
-    If cash2_prog_check = "MF" or cash2_prog_check = "GA" or cash2_prog_check = "DW" or cash2_prog_check = "RC" or cash2_prog_check = "MS" THEN
-    	IF cash2_status_check = "ACTV" THEN CASH_STATUS = TRUE
-    	IF cash2_status_check = "PEND" THEN CASH_STATUS = TRUE
-    	IF cash2_status_check = "INAC" THEN CASH_STATUS = FALSE
-    	IF cash2_status_check = "SUSP" THEN CASH_STATUS = FALSE
-    	IF cash2_status_check = "DENY" THEN CASH_STATUS = FALSE
-    	IF cash2_status_check = ""     THEN CASH_STATUS = FALSE
-    END IF
-    'per POLI/TEM this only pretains to cash and snap '
-    IF CASH_STATUS = TRUE or SNAP_STATUS = TRUE THEN
+    'per POLI/TEMP this only pretains to active cash and snap '
+	IF cash_active  = TRUE or cash2_active = TRUE or SNAP_active  = TRUE THEN
+		CALL MAXIS_background_check
     	CALL navigate_to_MAXIS_screen("STAT", "PACT")
     	'Checking to see if the PACT panel is empty, if not it create a new panel'
         EmReadScreen panel_number, 1, 02, 73
@@ -585,22 +560,44 @@ IF ADDR_actions = "Client has not responded to request for verif" THEN
     				case_note_only = TRUE 'this will update the panels and case note'
     			END IF
     		END IF
-        ELSE
-    		'IF case_note_only = FALSE THEN
-        		EmReadScreen open_cash1, 2, 6, 43
-    			EmReadScreen open_cash2, 2, 8, 43
-    			EmReadScreen open_grh, 2, 10, 43
-    			EmReadScreen open_snap, 2, 12, 43
-    			IF open_cash1 <> "" THEN EMWriteScreen "3", 6, 58
-    			IF open_cash2 <> "" THEN EMWriteScreen "3", 8, 58
-    			IF open_grh <> "" THEN EMWriteScreen "3", 10, 58
-    			IF open_snap <> "" THEN EMWriteScreen "3", 12, 58
-    			TRANSMIT
-       		'END IF
-    	END IF
+		ELSE
+			PF9
+			'MsgBox "did we edit PACT"
+		    EmReadScreen open_cash1, 2, 6, 43
+		    EmReadScreen open_cash2, 2, 8, 43
+		    EmReadScreen open_grh, 2, 10, 43
+		    EmReadScreen open_snap, 2, 12, 43
+			IF cash_active  = TRUE THEN EMWriteScreen "3", 6, 58
+			IF cash2_active = TRUE THEN EMWriteScreen "3", 8, 58
+			IF SNAP_active  = TRUE THEN EMWriteScreen "4", 12, 58
+			IF grh_active = TRUE THEN EMWriteScreen "3", 10, 58
+			TRANSMIT
+			EMReadScreen pop_upmsg, 7, 11, 08
+			IF pop_upmsg = "WARNING" THEN
+				EmWriteScreen "Y", 13, 64 ' this is a pop up box asking if the selection is correct per poli/temp SEE TEMP TE02.13.10'
+				TRANSMIT
+			END IF
+		END IF
+
+		IF case_note_only = FALSE THEN
+		    IF cash_active  = TRUE THEN EMWriteScreen "3", 6, 58
+		    IF cash2_active = TRUE THEN EMWriteScreen "3", 8, 58
+		    IF SNAP_active  = TRUE THEN EMWriteScreen "4", 12, 58
+		    IF grh_active = TRUE THEN EMWriteScreen "3", 10, 58
+		    TRANSMIT
+			EMReadScreen pop_upmsg, 7, 11, 08
+			IF pop_upmsg = "WARNING" THEN
+				EmWriteScreen "Y", 13, 64 ' this is a pop up box asking if the selection is correct per poli/temp SEE TEMP TE02.13.10'
+				TRANSMIT
+			END IF
+       	END IF
+    	'END IF
     END IF
 END IF
+'msgbox"what did we do?"
 
+'CASH II IS INACTIVE'
+'CASE IS PENDING, USE '1' OR '3' TO DENY '
 
 pending_verifs = ""
 IF verifA_sent_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Verification Request, "
@@ -618,11 +615,12 @@ Call MAXIS_background_check
 
 'starts a blank case note
 call start_a_blank_case_note
-call write_variable_in_CASE_NOTE("Returned Mail Received-" & ADDR_actions & " for " & active_programs & ".")
-CALL write_bullet_and_variable_in_CASE_NOTE("Received on", date_received)
+call write_variable_in_CASE_NOTE("Returned Mail Received-" & ADDR_actions & " for " & active_programs & "")
+IF ADDR_actions <> "Client has not responded to request" THEN CALL write_bullet_and_variable_in_CASE_NOTE("Received on", date_received)
 IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding address outside MN" THEN
     CALL write_bullet_and_variable_in_CASE_NOTE("Living situation", living_situation)
     CALL write_bullet_and_variable_in_CASE_NOTE("Homeless", homeless_addr)
+	CALL write_bullet_and_variable_in_case_note("Verification(s) Received", pending_verifs)
     CALL write_variable_in_CASE_NOTE("* Address updated:  " & new_addr_line_one)
     CALL write_variable_in_CASE_NOTE("                    " & new_addr_line_two & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
     CALL write_variable_in_CASE_NOTE("                    " & county_code & " COUNTY.")
@@ -634,21 +632,22 @@ END IF
 CALL write_variable_in_CASE_NOTE ("---")
 CALL write_variable_in_CASE_NOTE("* Previous address: " & ADDR_line_one)
 CALL write_variable_in_CASE_NOTE("                   " & ADDR_line_two & " " & ADDR_city & " " & ADDR_state & " " & ADDR_zip)
-CALL write_bullet_and_variable_in_case_note("Verification(s) Received", pending_verifs)
 CALL write_bullet_and_variable_in_CASE_NOTE("METS correspondence sent", mets_addr)
 CALL write_bullet_and_variable_in_CASE_NOTE("METS case number", MNsure_number)
-'CALL write_bullet_and_variable_in_CASE_NOTE("Returned Mail resent", mail_resent)
-'If returned_mail_resent_list = "YES" then call write_variable_in_CASE_NOTE("* Returned Mail resent to client.")
-'If returned_mail_resent_list = "NO" then call write_variable_in_CASE_NOTE("* Returned Mail not resent to client.")
-call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
-call write_variable_in_CASE_NOTE ("---")
-call write_variable_in_CASE_NOTE(worker_signature)
+IF ADDR_actions = "Client has not responded to request" THEN
+	CALL write_bullet_and_variable_in_case_note("Verification(s) Request Date", verif_requested_date)
+	CALL write_variable_in_CASE_NOTE ("* ECF reviewed for requested verifications")
+	CALL write_variable_in_CASE_NOTE ("* PACT panel entered per POLI/TEMP TE02.13.10")
+END IF
+CALL write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
+CALL write_variable_in_CASE_NOTE ("---")
+CALL write_variable_in_CASE_NOTE(worker_signature)
 
 'Checks if this is a MNsure case and pops up a message box with instructions if the ADDR is incorrect.
 IF METS_case_number <> "" and mets_addr_correspondence = "NO" THEN MsgBox "Please update the MNsure ADDR if you are able to. If unable, please forward the new ADDR information to the correct area (i.e. Change In Circumstance)"
 
 'Checks if a DHS2919A mailed and sets a TIKL for the return of the info.
-IF ADDR_actions <> "Client has not responded to request for verif" THEN
+IF ADDR_actions <> "Client has not responded to request" THEN
 	call navigate_to_MAXIS_screen("dail", "writ")
 	'The following will generate a TIKL formatted date for 10 days from now.
 	call create_MAXIS_friendly_date(date, 10, 5, 18)
@@ -658,4 +657,5 @@ IF ADDR_actions <> "Client has not responded to request for verif" THEN
 	PF3
 End if
 
-script_end_procedure_with_error_report("Success! TIKL has been set for 10 days for the ADDR verification requested. Reminder:  When a change reporting unit reports a change over the telephone or in person, the unit is not required to also report the change on a Change Report from. ")
+IF ADDR_actions <> "Client has not responded to request" THEN script_end_procedure_with_error_report("Success! TIKL has been set for 10 days for the ADDR verification requested. Reminder:  When a change reporting unit reports a change over the telephone or in person, the unit is not required to also report the change on a Change Report from. ")
+IF ADDR_actions = "Client has not responded to request" THEN script_end_procedure_with_error_report("Success! The PACT panel and case note have been entered, please approve ineligible results in ELIG & enter a worker comment in SPEC/WCOM.")
