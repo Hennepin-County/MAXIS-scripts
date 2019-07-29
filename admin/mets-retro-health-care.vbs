@@ -209,7 +209,9 @@ If initial_option = "Initial Request" then
                 If ButtonPressed = scenario_button then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/MNsure%20Documents/Hennepin%20Retro%20Instructions%20for%20MAXIS%20Processing.docx.pdf")
             Loop until ButtonPressed = -1
             If isdate(application_date) = false  then err_msg = err_msg & vbcr & "* Enter a valid application date."
-            If isdate(due_date) = false  then err_msg = err_msg & vbcr & "* Enter a valid verificaiton due date."
+            If forms_needed <> "Client verbally attested - No changes" then 
+                If isdate(due_date) = false then err_msg = err_msg & vbcr & "* Enter a valid verificaiton due date."
+            End if 
             IF trim(forms_needed) = "SELECT OR TYPE" then err_msg = err_msg & vbcr & "* Enter or select the verifications and/or forms needed."
             'retro scenario
             For item = 0 to ubound(HC_array, 2)	
@@ -336,7 +338,7 @@ If right(member_numbers, 1) = "," THEN member_numbers = left(member_numbers, len
 
 memb_info = " for Memb " & member_numbers ' for the case note
 
-'Outlook's time to shine 
+'----------------------------------------------------------------------------------------------------Outlook's time to shine 
 email_content = ""
 
 If DOA_checkbox = checked then 
@@ -350,7 +352,10 @@ else
     If HC_array(retro_scenario_const, 0) = "C" or HC_array(retro_scenario_const, 0) = "D" or HC_array(retro_scenario_const, 0) = "E" then 
         send_email = True 
         team_email = "601"
-    Elseif HC_array(retro_scenario_const, 0) = "A" or HC_array(retro_scenario_const, 0) = "B" then 
+    Elseif HC_array(retro_scenario_const, 0) = "A" then 
+        send_email = False 
+        team_email = ""
+    Elseif HC_array(retro_scenario_const, 0) = "B" then 
         send_email = True 
         team_email = "603"
     End if     
@@ -368,18 +373,27 @@ For i = 0 to ubound(HC_array, 2)
     End if 
 Next 
 
+additional_content = ""
+If trim(other_notes) <> "" then additional_content = additional_content & vbcr & "Other Notes: " & other_notes
+If trim(forms_needed) <> "" then additional_content = additional_content & vbcr & "Verifs/forms needed: " & forms_needed
+If verifs_checkbox = 1 then additional_content = additional_content & vbcr & "* All verifications and/or forms received."
+
 email_header = initial_option & " for " & MAXIS_CASE_NUMBER & " - Action Required"
-body_of_email = email_content & "---Health Care Member Information---" & household_info 
+body_of_email = email_content & "---Health Care Member Information---" & household_info & vbcr & additional_content
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Team." & team_email, "Ilse.Ferris@hennepin.us", email_header, body_of_email, "", TRUE)
+'IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Team." & team_email, "Ilse.Ferris@hennepin.us", email_header, body_of_email, "", TRUE)
+IF send_email = True THEN CALL create_outlook_email("De.Vang@hennepin.us", "Ilse.Ferris@hennepin.us", email_header, body_of_email, "", TRUE)
+'IF send_email = True THEN CALL create_outlook_email("Ilse.Ferris@hennepin.us", "", email_header, body_of_email, "", TRUE)
+'msgbox send_email & vbcr & body_of_email
 
 '------------------------------------------------------------------------------------Case Note					
 start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE(case_note_header & memb_info) 
 Call write_bullet_and_variable_in_CASE_NOTE("METS Case Number", METS_case_number)
 Call write_bullet_and_variable_in_CASE_NOTE("Date of Application", application_date)
-Call write_bullet_and_variable_in_CASE_NOTE("Verfication Due Date", due_date)
+'doesn't add due date if no changes are reported. This case can be worked on now. 
+If forms_needed <> "Client verbally attested - No changes" and trim(due_date) <> "" then Call write_bullet_and_variable_in_CASE_NOTE("Verfication Due Date", due_date)
 Call write_bullet_and_variable_in_CASE_NOTE("Verifs/Froms Requested", forms_needed)
 Call write_variable_in_CASE_NOTE("---Health Care Member Information---") 
 'HH member array output 
@@ -403,6 +417,12 @@ If send_email = True then Call write_variable_in_case_note("* Email notification
 CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
+
+If initial_option = "Initial Request" then 
+    navigate_decision = Msgbox("Do you want to open a Case Correction and Transfer Use Form?", vbQuestion + vbYesNo, "Navigate to Use Form?")
+    If navigate_decision = vbYes then CreateObject("WScript.Shell").Run("https://aem.hennepin.us/DocumentManager/docm1564402537635/690aa5b75a5d076dc65195707ccfdcdd?type=YXBwbGljYXRpb24vcGRm")
+    If navigate_decision = vbNo then navigate_to_form = False 
+End if 
 
 If send_email = True then 
     script_end_procedure_with_error_report("An email notification was sent to " & team_email & ". Thank you!")
