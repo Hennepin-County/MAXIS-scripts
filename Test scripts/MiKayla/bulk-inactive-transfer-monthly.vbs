@@ -55,11 +55,11 @@ changelog_display
 '----------------------------------------------------------------------------------------------Dialog
 BeginDialog info_dialog, 0, 0, 266, 115, "BULK - TRANSFER BACK"
   ButtonGroup ButtonPressed
-    PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
+    PushButton 200, 50, 50, 15, "Browse:", select_a_file_button
     OkButton 150, 95, 50, 15
     CancelButton 205, 95, 50, 15
   EditBox 15, 50, 180, 15, file_selection_path
-  Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
+  Text 15, 70, 230, 15, "Select the Excel file that contains your information by selecting the 'Browse' button, and finding the file."
   GroupBox 10, 5, 250, 85, "Using this script:"
 EndDialog
 'Connects to MAXIS
@@ -189,4 +189,4 @@ FOR i = 1 to 8
 	objExcel.Columns(i).AutoFit()
 NEXT
 
-script_end_procedure("Success! The spreadsheet has all requested information.")
+script_end_procedure("Success!")
