@@ -74,6 +74,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("07/29/2019", "Bug fix - script was not identifying document information as complete when only SHEL editbox was filled.", "Casey Love, Hennepin County")
 Call changelog_update("07/27/2019", "Functionality for specific forms:  Assets, MOF, AREP, LTC 1503, and MTAF. Form functionality can be accessed by checkboxes on the main dialog though all document detail can still be added in theeditboxes on the main dialog.", "Casey Love, Hennepin County")
 call changelog_update("03/08/2019", "EVF received functionality added. This used to be a seperate script and will now be a part of documents received.", "Casey Love, Hennepin County")
 call changelog_update("01/03/2017", "Added HSR scanner option for Hennepin County users only.", "Ilse Ferris, Hennepin County")
@@ -2423,13 +2424,13 @@ End If
 
 If LTC_case = vbNo Then
 
-    If ADDR = "" AND SCHL = "" AND DISA = "" AND mof_form_checkbox = unchecked AND  JOBS = "" AND BUSI = "" AND evf_form_received_checkbox = unchecked AND UNEA = "" AND ACCT = "" AND asset_form_checkbox = unchecked AND other_assets = "" AND arep_form_checkbox = unchecked AND other_verifs = ""AND notes = "" Then need_final_note = FALSE
+    If ADDR = "" AND SCHL = "" AND DISA = "" AND mof_form_checkbox = unchecked AND  JOBS = "" AND BUSI = "" AND evf_form_received_checkbox = unchecked AND UNEA = "" AND ACCT = "" AND asset_form_checkbox = unchecked AND SHEL = "" AND INSA = "" AND other_assets = "" AND arep_form_checkbox = unchecked AND other_verifs = "" AND notes = "" Then need_final_note = FALSE
 
 End If
 
 If LTC_case = vbYes Then
 
-    If FACI = "" AND JOBS = "" AND BUSI_RBIC = "" AND evf_form_received_checkbox = unchecked AND UNEA = "" AND ACCT = "" AND asset_form_checkbox = unchecked AND SECU = "" AND CARS = "" AND REST = "" AND OTHR = "" AND SHEL = "" AND INSA = "" AND medical_expenses = "" AND arep_form_checkbox = unchecked AND veterans_info = "" AND other_verifs = ""AND notes = "" Then need_final_note = FALSE
+    If FACI = "" AND JOBS = "" AND BUSI_RBIC = "" AND evf_form_received_checkbox = unchecked AND UNEA = "" AND ACCT = "" AND asset_form_checkbox = unchecked AND SECU = "" AND CARS = "" AND REST = "" AND OTHR = "" AND SHEL = "" AND INSA = "" AND medical_expenses = "" AND arep_form_checkbox = unchecked AND veterans_info = "" AND other_verifs = "" AND notes = "" Then need_final_note = FALSE
 
 End If
 
