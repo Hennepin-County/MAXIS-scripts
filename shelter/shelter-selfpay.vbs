@@ -43,10 +43,10 @@ BeginDialog selfpay_dialog, 0, 0, 306, 130, "Self Pay"
   EditBox 60, 5, 60, 15, MAXIS_case_number
   EditBox 205, 5, 30, 15, dollar_amount1
   EditBox 255, 5, 45, 15, date1
-  DropListBox 65, 30, 60, 45, "Select One..."+chr(9)+"MFIP"+chr(9)+"DWP"+chr(9)+"SSI"+chr(9)+"RSDI"+chr(9)+"CS"+chr(9)+"JOB"+chr(9)+"OTHER", clt_income_source
+  DropListBox 65, 30, 60, 45, "Select One:"+chr(9)+"MFIP"+chr(9)+"DWP"+chr(9)+"SSI"+chr(9)+"RSDI"+chr(9)+"CS"+chr(9)+"JOB"+chr(9)+"OTHER", clt_income_source
   EditBox 195, 30, 105, 15, other_source
   EditBox 110, 55, 30, 15, dollar_amount2
-  DropListBox 155, 55, 80, 15, "Select One..."+chr(9)+"FMF"+chr(9)+"PSP"+chr(9)+"St. Anne's"+chr(9)+"The Drake", shelter_droplist
+  DropListBox 155, 55, 80, 15, "Select One:"+chr(9)+"FMF"+chr(9)+"PSP"+chr(9)+"St. Anne's"+chr(9)+"The Drake", shelter_droplist
   EditBox 255, 55, 20, 15, number_of_days
   EditBox 195, 80, 45, 15, voucher_date_start
   EditBox 260, 80, 40, 15, voucher_date_end
@@ -82,10 +82,10 @@ DO
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		If isnumeric(dollar_amount1) = false then err_msg = err_msg & vbNewLine & "* Enter a numeric dollar amount."
 		If date1 = "" then err_msg = err_msg & vbNewLine & "* Enter a date."
-        If clt_income_source = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate the source of the income."
+        If clt_income_source = "Select One:" Then err_msg = err_msg & vbNewLine & "* Indicate the source of the income."
         If clt_income_source = "OTHER" AND other_source = "" Then err_msg = err_msg & vbNewLine & "* Since the income source is 'Other', explain the source of the income."
 		If isnumeric(dollar_amount2) = False then err_msg = err_msg & vbNewLine & "* Enter a numeric dollar amount."
-		If shelter_droplist = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the facility name"
+		If shelter_droplist = "Select One:" then err_msg = err_msg & vbNewLine & "* Select the facility name"
 		If number_of_days = "" then err_msg = err_msg & vbNewLine & "* Enter the number of days of stay."
 		If voucher_date_start = "" then err_msg = err_msg & vbNewLine & "* Enter a voucher start date or 'n/a'."
 		If voucher_date_end = "" then err_msg = err_msg & vbNewLine & "* Enter a voucher end date or 'n/a'."
