@@ -74,31 +74,6 @@ FUNCTION create_mainframe_friendly_date(date_variable, screen_row, screen_col, y
 	EMWriteScreen var_year, screen_row, screen_col + 6
 END FUNCTION
 
-Function Generate_Client_List(list_for_dropdown)
-
-	memb_row = 5
-
-	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
-	Do
-		EMReadScreen ref_numb, 2, memb_row, 3
-		If ref_numb = "  " Then Exit Do
-		EMWriteScreen ref_numb, 20, 76
-		transmit
-		EMReadScreen first_name, 12, 6, 63
-		EMReadScreen last_name, 25, 6, 30
-		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")
-		memb_row = memb_row + 1
-	Loop until memb_row = 20
-
-	client_info = right(client_info, len(client_info) - 1)
-	client_list_array = split(client_info, "~")
-
-	For each person in client_list_array
-		list_for_dropdown = list_for_dropdown & chr(9) & person
-	Next
-
-End Function
-
 'END FUNCTIONS=============================================================================================================
 
 'DIALOGS===================================================================================================================
@@ -430,7 +405,7 @@ Do
 	If ObjExcel.Cells(excel_row, col_HH_memb_number) = "" Then
 
 		'Creates a dropdown list to select a client from the case
-		Call Generate_Client_List(HH_Memb_DropDown)
+		Call Generate_Client_List(HH_Memb_DropDown, "Select One...")
 
 		'Asking the worker to select who this income should be listed under.
 		Do
@@ -440,7 +415,7 @@ Do
 			  OptionGroup RadioGroup1
 				RadioButton 20, 35, 50, 10, "Yes", radio_yes
 				RadioButton 20, 50, 50, 10, "No", radio_no
-			  DropListBox 85, 85, 105, 45, "Select One..." & HH_Memb_DropDown, memb_w_unea
+			  DropListBox 85, 85, 105, 45, HH_Memb_DropDown, memb_w_unea
 			  ButtonGroup ButtonPressed
 				OkButton 200, 85, 35, 15
 				CancelButton 240, 85, 30, 15

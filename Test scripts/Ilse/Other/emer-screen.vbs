@@ -59,34 +59,9 @@ const clt_other_unea_1_amt = 16
 const clt_other_unea_1_verif = 17
 const clt_other_unea_2_type = 18
 const clt_other_unea_2_amt = 19
-const clt_other_unea_2_verif = 20 
+const clt_other_unea_2_verif = 20
 
 'FUNCTIONS==============================================================================================
-
-function Generate_Client_List(list_for_dropdown)
-
-	memb_row = 5
-
-	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
-	Do
-		EMReadScreen ref_numb, 2, memb_row, 3
-		If ref_numb = "  " Then Exit Do
-		EMWriteScreen ref_numb, 20, 76
-		transmit
-		EMReadScreen first_name, 12, 6, 63
-		EMReadScreen last_name, 25, 6, 30
-		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")
-		memb_row = memb_row + 1
-	Loop until memb_row = 20
-
-	client_info = right(client_info, len(client_info) - 1)
-	client_list_array = split(client_info, "~")
-
-	For each person in client_list_array
-		list_for_dropdown = list_for_dropdown & chr(9) & person
-	Next
-
-end function
 
 function MEMB_NUMBER_BUTTON_PRESSED
 	MEMB_function
@@ -104,7 +79,7 @@ function MEMB_NUMBER_BUTTON_PRESSED
 end function
 
 function SELECT_EMERGENCY_BUTTON_PRESSED
-	
+
 	BeginDialog btn_dialog, 0, 0, 256, 140, "Shelter Information Calc"
 	  CheckBox 25, 25, 145, 10, "Eviction - past due rent", eviction_type
 	  DropListBox 175, 25, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", eviction_verification
@@ -119,16 +94,16 @@ function SELECT_EMERGENCY_BUTTON_PRESSED
 	  GroupBox 15, 40, 225, 30, ""
 	  GroupBox 15, 65, 225, 30, ""
 	EndDialog
-	Do 
+	Do
 		err_msg = ""
 		MsgBox "Select Emergency Dialog"
 		Dialog btn_dialog + vbSystemModal
 		If eviction_type = unchecked AND damage_deposit_type = unchecked AND utility_type = unchecked Then err_msg = err_msg & vbnewLine & "You must pick and emergency type. Please select at least 1."
 		If err_msg <> "" Then msgbox "*** What is the emergency for? ***" & vbnewLine & err_msg
 	Loop Until err_msg = ""
-	
+
 	EMERGENCY_NEED_BUTTON_PRESSED
-	
+
 end function
 
 function EMERGENCY_NEED_BUTTON_PRESSED
@@ -155,7 +130,7 @@ function EMERGENCY_NEED_BUTTON_PRESSED
 
 	MsgBox "Emergency Need dialog - 2"
 	Dialog btn_dialog + vbSystemModal
-	
+
 	rent_due = rent_due * 1
 	late_fees = late_fees * 1
 	damage_dep = damage_dep * 1
@@ -186,30 +161,30 @@ function EARNED_INCOME_BUTTON_PRESSED
 	const check_5_net   = 17
 	const job_gross     = 18
 	const job_net       = 19
-	const job_verif     = 20 
-	
+	const job_verif     = 20
+
 	For all_clts = 0 to UBOUND(FULL_EMER_ARRAY, 2)
 		FULL_EMER_ARRAY(clt_ei_gross, all_clts) = 0
 		FULL_EMER_ARRAY(clt_ei_net, all_clts) = 0
 	Next
-	
-	Do 
+
+	Do
 		add_to_len = 0
 		For every_one = 0 to UBound(EI_ARRAY, 2)
-			add_to_len = add_to_len + 20 
+			add_to_len = add_to_len + 20
 			add_to_len = add_to_len + (20 * EI_ARRAY(how_many_chck, every_one))
 		Next
 
 		BeginDialog btn_dialog, 0, 0, 340, 40 + add_to_len, "Earned Income"
 			y_pos = 0
 			For job_in_case = 0 to UBound(EI_ARRAY, 2)
-				DropListBox 5, 20 + y_pos, 105, 45, "Select One..." & HH_Memb_DropDown, EI_ARRAY(employee, job_in_case)
+				DropListBox 5, 20 + y_pos, 105, 45, HH_Memb_DropDown, EI_ARRAY(employee, job_in_case)
 				EditBox 120, 20 + y_pos, 130, 15, EI_ARRAY(employer, job_in_case)
 				DropListBox 260, 20 + y_pos, 35, 45, " "+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5", EI_ARRAY(how_many_chck, job_in_case)
 				ButtonGroup ButtonPressed
 			  	  PushButton 310, 20 + y_pos, 25, 15, "Enter", job_enter
 				array_counter = 3
-				If EI_ARRAY(how_many_chck, job_in_case) <> "" AND EI_ARRAY(how_many_chck, job_in_case) <> " " Then 
+				If EI_ARRAY(how_many_chck, job_in_case) <> "" AND EI_ARRAY(how_many_chck, job_in_case) <> " " Then
 					'If EI_ARRAY(job_verif, job_in_case) = "" Then EI_ARRAY(job_verif, job_in_case) = "Verifications?"
 					Text 35, 40 + y_pos, 20, 10, "Date"
 					Text 120, 40 + y_pos, 50, 10, "Gross Amount"
@@ -223,9 +198,9 @@ function EARNED_INCOME_BUTTON_PRESSED
 						y_pos = y_pos + 15
 					Next
 					y_pos = y_pos + 10
-				Else 
+				Else
 					y_pos = y_pos + 0
-				End If 
+				End If
 			Next
 			ButtonGroup ButtonPressed
 			  PushButton 5, 40 + y_pos, 10, 15, "+", plus_button
@@ -235,12 +210,12 @@ function EARNED_INCOME_BUTTON_PRESSED
 			Text 120, 5, 40, 10, "Employer"
 			Text 260, 5, 40, 10, "# of Checks"
 		EndDialog
-		
+
 		Dialog btn_dialog
 		If ButtonPressed = plus_button Then
 		 	add_another = Ubound(EI_ARRAY, 2) + 1
 			ReDim Preserve EI_ARRAY (19, add_another)
-		End If 
+		End If
 	Loop Until ButtonPressed = -1
 
 	case_ei_gross = 0
@@ -248,17 +223,17 @@ function EARNED_INCOME_BUTTON_PRESSED
 	For each_job = 0 to UBOUND(EI_ARRAY, 2)
 		EI_ARRAY(job_gross, each_job) = EI_ARRAY(check_1_gross, each_job) + EI_ARRAY(check_2_gross, each_job) + EI_ARRAY(check_3_gross, each_job) + EI_ARRAY(check_4_gross, each_job) + EI_ARRAY(check_5_gross, each_job)
 		EI_ARRAY(job_net, each_job)   = EI_ARRAY(check_1_net, each_job) + EI_ARRAY(check_2_net, each_job) + EI_ARRAY(check_3_net, each_job) + EI_ARRAY(check_4_net, each_job) + EI_ARRAY(check_5_net, each_job)
-		
+
 		For all_clts = 0 to UBOUND(FULL_EMER_ARRAY, 2)
-			If Left(EI_ARRAY(employee, each_job), 2) = FULL_EMER_ARRAY(clt_ref, all_clts) Then 
+			If Left(EI_ARRAY(employee, each_job), 2) = FULL_EMER_ARRAY(clt_ref, all_clts) Then
 				FULL_EMER_ARRAY(clt_ei_gross, all_clts) = FULL_EMER_ARRAY(clt_ei_gross, all_clts) + EI_ARRAY(job_gross, each_job)
 				FULL_EMER_ARRAY(clt_ei_net, all_clts) = FULL_EMER_ARRAY(clt_ei_net, all_clts) + EI_ARRAY(job_net, each_job)
-			End If 
+			End If
 		Next
-		
+
 		case_ei_gross = case_ei_gross + EI_ARRAY(job_gross, each_job)
 		case_ei_net = case_ei_net + EI_ARRAY(job_net, each_job)
-	Next 
+	Next
 	case_ei_gross = case_ei_gross *1
 	case_ei_net = case_ei_net *1
 end function
@@ -270,15 +245,15 @@ function ASSETS_BUTTON_PRESSED
 	  Text 110, 5, 35, 10, "Checking"
 	  Text 165, 5, 30, 10, "Savings"
 	  Text 220, 5, 50, 10, "Other"
-	  For all_clts = 0 to UBOUND(FULL_EMER_ARRAY, 2) 
-	  	If FULL_EMER_ARRAY(include_clt, all_clts) = checked Then 
+	  For all_clts = 0 to UBOUND(FULL_EMER_ARRAY, 2)
+	  	If FULL_EMER_ARRAY(include_clt, all_clts) = checked Then
 		  	Text 5, 20 + (20 * all_clts), 90, 10, FULL_EMER_ARRAY(clt_ref, all_clts) & " - " & FULL_EMER_ARRAY(clt_name, all_clts)
 		  	EditBox 110, 20 + (20 * all_clts), 40, 15, FULL_EMER_ARRAY(clt_chk_acct, all_clts)
 		  	EditBox 165, 20 + (20 * all_clts), 40, 15, FULL_EMER_ARRAY(clt_sav_acct, all_clts)
 		  	ComboBox 220, 20 + (20 * all_clts), 60, 45, ""+chr(9)+"Debit Card"+chr(9)+"Cash", FULL_EMER_ARRAY(clt_asset_other_type, all_clts)
 		  	EditBox 285, 20 + (20 * all_clts), 40, 15, FULL_EMER_ARRAY(clt_asset_other_bal, all_clts)
 		  	DropListBox 335, 20 + (20 * all_clts), 60, 45, "Verification?"+chr(9)+"Requested"+chr(9)+"Received", FULL_EMER_ARRAY(asset_verif, all_clts)
-		End If 
+		End If
 	  Next
 	  ButtonGroup ButtonPressed
 	    OkButton 345, 40 + (20 * UBOUND(FULL_EMER_ARRAY, 2)), 50, 15
@@ -287,11 +262,11 @@ function ASSETS_BUTTON_PRESSED
 	Dialog btn_dialog
 
 	total_case_assets = 0
-	For all_clts = 0 to UBOUND(FULL_EMER_ARRAY, 2) 
+	For all_clts = 0 to UBOUND(FULL_EMER_ARRAY, 2)
 		If FULL_EMER_ARRAY(clt_chk_acct, all_clts)        = "" Then FULL_EMER_ARRAY(clt_chk_acct, all_clts) = 0
 		If FULL_EMER_ARRAY(clt_sav_acct, all_clts)        = "" Then FULL_EMER_ARRAY(clt_sav_acct, all_clts) = 0
 		If FULL_EMER_ARRAY(clt_asset_other_bal, all_clts) = "" Then FULL_EMER_ARRAY(clt_asset_other_bal, all_clts) = 0
-		
+
 		FULL_EMER_ARRAY(clt_asset_total, all_clts) = FULL_EMER_ARRAY(clt_chk_acct, all_clts) + FULL_EMER_ARRAY(clt_sav_acct, all_clts) + FULL_EMER_ARRAY(clt_asset_other_bal, all_clts)
 		total_case_assets = total_case_assets + FULL_EMER_ARRAY(clt_asset_total, all_clts)
 	Next
@@ -306,21 +281,21 @@ function UNEA_BUTTON_PRESSED
 	  Text 145, 5, 30, 10, "SSI"
 	  Text 235, 5, 50, 10, "Other - 1"
 	  Text 395, 5, 50, 10, "Other - 2"
-	  For all_clts = 0 to UBOUND(FULL_EMER_ARRAY, 2) 
-	  	  If FULL_EMER_ARRAY(include_clt, all_clts) = checked Then 
+	  For all_clts = 0 to UBOUND(FULL_EMER_ARRAY, 2)
+	  	  If FULL_EMER_ARRAY(include_clt, all_clts) = checked Then
 		  	  Text 5, 20 + (20 * all_clts), 90, 10, FULL_EMER_ARRAY(clt_ref, all_clts) & " - " & FULL_EMER_ARRAY(clt_name, all_clts)
 			  EditBox 110, 20 + (20 * all_clts), 25, 15, FULL_EMER_ARRAY(clt_rsdi_income, all_clts)
 			  EditBox 145, 20 + (20 * all_clts), 25, 15, FULL_EMER_ARRAY(clt_ssi_income, all_clts)
 			  DropListBox 175, 20 + (20 * all_clts), 45, 45, "Verification?"+chr(9)+"Requested"+chr(9)+"Received", FULL_EMER_ARRAY(clt_ssa_verif, all_clts)
 			  ComboBox 235, 20 + (20 * all_clts), 60, 45, ""+chr(9)+"Other"+chr(9)+"Child Support"+chr(9)+"SSI"+chr(9)+"RSDI"+chr(9)+"Non-MN PA"+chr(9)+"VA Disability Benefit"+chr(9)+"VA Pension"+chr(9)+"VA Other"+chr(9)+"VA Aid & Attendance"+chr(9)+"Unemployment Insurance"+chr(9)+"Worker's Comp"+chr(9)+"Railroad Retirement"+chr(9)+"Other Retirement"+chr(9)+"Military Allotment"+chr(9)+"FC Child Requesting FS"+chr(9)+"FC Child Not Req FS"+chr(9)+"FC Adult Requesting FS"+chr(9)+"FC Adult Not Req FS"+chr(9)+"Dividends"+chr(9)+"Interest"+chr(9)+"Cnt Gifts Or Prizes"+chr(9)+"Strike Benefit 27 Contract For Deed"+chr(9)+"Illegal Income"+chr(9)+"Infrequent <30 Not Counted"+chr(9)+"Other FS Only"+chr(9)+"Infreq <= $20 MSA Exclusion"+chr(9)+"Direct Spousal Support"+chr(9)+"Disbursed Spousal Sup"+chr(9)+"Disbursed Spsl Sup Arrears"+chr(9)+"County 88 Gaming", FULL_EMER_ARRAY(clt_other_unea_1_type, all_clts)
-			  
+
 			  EditBox 300, 20 + (20 * all_clts), 40, 15, FULL_EMER_ARRAY(clt_other_unea_1_amt, all_clts)
 			  DropListBox 345, 20 + (20 * all_clts), 45, 45, "Verification?"+chr(9)+"Requested"+chr(9)+"Received", FULL_EMER_ARRAY(clt_other_unea_1_verif, all_clts)
 			  ComboBox 395, 20 + (20 * all_clts), 60, 45, ""+chr(9)+"Other"+chr(9)+"Child Support"+chr(9)+"SSI"+chr(9)+"RSDI"+chr(9)+"Non-MN PA"+chr(9)+"VA Disability Benefit"+chr(9)+"VA Pension"+chr(9)+"VA Other"+chr(9)+"VA Aid & Attendance"+chr(9)+"Unemployment Insurance"+chr(9)+"Worker's Comp"+chr(9)+"Railroad Retirement"+chr(9)+"Other Retirement"+chr(9)+"Military Allotment"+chr(9)+"FC Child Requesting FS"+chr(9)+"FC Child Not Req FS"+chr(9)+"FC Adult Requesting FS"+chr(9)+"FC Adult Not Req FS"+chr(9)+"Dividends"+chr(9)+"Interest"+chr(9)+"Cnt Gifts Or Prizes"+chr(9)+"Strike Benefit 27 Contract For Deed"+chr(9)+"Illegal Income"+chr(9)+"Infrequent <30 Not Counted"+chr(9)+"Other FS Only"+chr(9)+"Infreq <= $20 MSA Exclusion"+chr(9)+"Direct Spousal Support"+chr(9)+"Disbursed Spousal Sup"+chr(9)+"Disbursed Spsl Sup Arrears"+chr(9)+"County 88 Gaming", FULL_EMER_ARRAY(clt_other_unea_2_type, all_clts)
-			  
+
 			  EditBox 460, 20 + (20 * all_clts), 40, 15, FULL_EMER_ARRAY(clt_other_unea_2_amt, all_clts)
 			  DropListBox 505, 20 + (20 * all_clts), 45, 45, "Verification?"+chr(9)+"Requested"+chr(9)+"Received", FULL_EMER_ARRAY(clt_other_unea_2_verif, all_clts)
-		  End If 
+		  End If
 	  Next
 	  ButtonGroup ButtonPressed
 	    OkButton 500, 40 + (20 * UBOUND(FULL_EMER_ARRAY, 2)), 50, 15
@@ -329,12 +304,12 @@ function UNEA_BUTTON_PRESSED
 	Dialog btn_dialog
 
 	total_case_unea = 0
-	For all_clts = 0 to UBOUND(FULL_EMER_ARRAY, 2) 
+	For all_clts = 0 to UBOUND(FULL_EMER_ARRAY, 2)
 		If FULL_EMER_ARRAY(clt_rsdi_income, all_clts)      = "" Then FULL_EMER_ARRAY(clt_rsdi_income, all_clts) = 0
 		If FULL_EMER_ARRAY(clt_ssi_income, all_clts)       = "" Then FULL_EMER_ARRAY(clt_ssi_income, all_clts) = 0
 		If FULL_EMER_ARRAY(clt_other_unea_1_amt, all_clts) = "" Then FULL_EMER_ARRAY(clt_other_unea_1_amt, all_clts) = 0
 		If FULL_EMER_ARRAY(clt_other_unea_2_amt, all_clts) = "" Then FULL_EMER_ARRAY(clt_other_unea_2_amt, all_clts) = 0
-		
+
 		total_case_unea = total_case_unea + FULL_EMER_ARRAY(clt_rsdi_income, all_clts) + FULL_EMER_ARRAY(clt_ssi_income, all_clts) + FULL_EMER_ARRAY(clt_other_unea_1_amt, all_clts) + FULL_EMER_ARRAY(clt_other_unea_2_amt, all_clts)
 	Next
 
@@ -353,7 +328,7 @@ function SHELTER_BUTTON_PRESSED
 	EndDialog
 
 	Dialog btn_dialog
-	
+
 	rent_portion = rent_portion * 1
 	other_fees = other_fees * 1
 end function
@@ -363,7 +338,7 @@ function EXPENSE_BUTTON_PRESSED
 		err_msg = ""
 
 		food_allotment_expense = "Food Allotment($" & thrifty_food & ") - FS/MF-FS issued ($" & fs_mf_total & ") = $" & fs_expense
-		
+
 		BeginDialog btn_dialog, 0, 0, 261, 195, "Living Expense Paid from:" & chr(9) & dateadd("d", -30, app_date) & chr(9) & " To:" & chr(9) & dateadd("d", -1, app_date) & chr(9)
 		  EditBox 120, 45, 50, 15, shel_paid
 		  DropListBox 175, 45, 60, 45, "Verifications?"+chr(9)+"Requested"+chr(9)+"Received", shel_verification
@@ -384,7 +359,7 @@ function EXPENSE_BUTTON_PRESSED
 		  Text 30, 30, 205, 10, food_allotment_expense
 		  GroupBox 5, 10, 250, 135, "Living Expense Paid from:" & chr(9) & dateadd("d", -30, app_date) & chr(9) & " To:" & chr(9) & dateadd("d", -1, app_date) & chr(9)
 		EndDialog
-		
+
 		Dialog btn_dialog
 		If shel_paid = "" then shel_paid = "0"
 		If hest_paid = "" then hest_paid = "0"
@@ -420,17 +395,17 @@ function CLT_PYMT_BUTTON_PRESSED
 	If clt_portion_hest = "" then clt_portion_hest = 0
 	client_payment = clt_portion_assets + clt_portion_percent + clt_portion_shel + clt_portion_hest
 
-	If clt_portion_percent <> 0 Then 
+	If clt_portion_percent <> 0 Then
 	percent_test = ":: 50% test: PASSED! *pending other payment of $" & clt_portion_percent
 	test_pass3 = true
-	End If 
+	End If
 
-	If clt_portion_shel <> 0 Then 
+	If clt_portion_shel <> 0 Then
 	shel_max_test = ":: Under Shelter Max: PASSED! *pending other payment of $" & clt_portion_shel
 	test_pass5 = true
-	End if 
+	End if
 
-	If clt_portion_hest <> 0 Then 
+	If clt_portion_hest <> 0 Then
 	hest_due_test = ":: Under Utilities Max: PASSED! *pending other payment of $" & clt_portion_hest
 	test_pass6 = true
 	End if
@@ -504,14 +479,14 @@ function MEMB_function
 	  ButtonGroup ButtonPressed
 	  OkButton 200, 20, 50, 15
 	EndDialog
-	
+
 	Dialog btn_dialog
-	
+
 	HH_size = 0
 	For all_clts = 0 to UBOUND(FULL_EMER_ARRAY, 2)
 		If FULL_EMER_ARRAY(include_clt, all_clts) = checked Then HH_size = HH_size + 1
 	Next
-	
+
 	FIND_FPG_THRIFTY_FOOD
 end function
 
@@ -676,7 +651,7 @@ If len(begin_search_month) = 1 then begin_search_month = "0" & begin_search_mont
 'End of date calculations----------------------------------------------------------------------------------------------
 
 'Creating the dropdown of HH Members for use in dialogs
-Call Generate_Client_List(HH_Memb_DropDown)
+Call Generate_Client_List(HH_Memb_DropDown, "Select One...")
 
 Call navigate_to_MAXIS_screen("MONY", "INQX")
 EMWriteScreen begin_search_month, 6, 38		'entering footer month/year 13 months prior to current footer month/year'
@@ -777,7 +752,7 @@ For maxis_row = 6 to 18
             	mf_amt_total = mf_amt_total + mf_mf_amt
 				mf_prog = true
 			End If
-			
+
 			If prog_type = "MF-FS" then
 				EMReadScreen mf_fs_amt_issued, 6, maxis_row, 39
 				mf_fs_amt_issued = replace(mf_fs_amt_issued, " ","")
@@ -785,7 +760,7 @@ For maxis_row = 6 to 18
 				mf_fs_amt_total = mf_fs_amt_issued
 				mf_fs_prog = true
 			End If
-			
+
 			If prog_type = "MF-HG" then
 				EMReadScreen mf_hg_amt_issued, 6, maxis_row, 39
 				mf_hg_amt_issued = replace(mf_hg_amt_issued, " ","")
@@ -818,10 +793,10 @@ Do
 	Else
 		client_is = "(CHILD)"
 	End If
-	
+
 	FULL_EMER_ARRAY (clt_name, people_counter) = ref_numb
 	FULL_EMER_ARRAY (clt_ref, people_counter) = replace(first_name, "_", "") & " " & replace(last_name, "_", "")
-	FULL_EMER_ARRAY (include_clt, people_counter) = unchecked 
+	FULL_EMER_ARRAY (include_clt, people_counter) = unchecked
 	FULL_EMER_ARRAY (clt_a_c, people_counter) = client_is
 
 	memb_row = memb_row + 1
@@ -830,14 +805,14 @@ Loop until memb_row = 20
 
 HH_size = people_counter
 
-If quick_screen_checkbox = checked Then 
+If quick_screen_checkbox = checked Then
 
-Else 
+Else
 
 	'THis is for the EA Dialog'
 	If prog_type_case_dialog = "EA" then
 		MEMB_function
-		
+
 		Do
 			err_msg = ""
 			HH_size = 0
@@ -845,7 +820,7 @@ Else
 				If FULL_EMER_ARRAY(include_clt, all_clts) = checked Then HH_size = HH_size + 1
 			Next
 			FIND_FPG_THRIFTY_FOOD
-			
+
 			'Program type'
 			Item_Counter = 1
 			eviction_msg = ""
@@ -879,7 +854,7 @@ Else
 			If damage_dep = "" then damage_dep = "0"
 			rent_mo = rent_portion + other_fees
 			shel_due = rent_due + late_fees + court_fees + hest_due + damage_dep
-			
+
 			'generating verif request list'
 			verif_counter = 1
 			Verif_request_list = ""
@@ -936,38 +911,38 @@ Else
 				Verif_request_list = Verif_request_list & verif_counter & ") other expenses paid, "
 				verif_counter = verif_counter + 1
 			End If
-			
+
 			For all_clts = 0 to UBOUND(FULL_EMER_ARRAY, 2)
 				If FULL_EMER_ARRAY(asset_verif, all_clts) = "Requested" then
 					Verif_request_list = Verif_request_list & verif_counter &  ") Asset balance/bank statements belonging to: " & FULL_EMER_ARRAY(clt_name, all_clts) & ", "
 					verif_counter = verif_counter + 1
-				End If 
-				
+				End If
+
 				If FULL_EMER_ARRAY(clt_ssa_verif, all_clts) = "Requested" then
 					Verif_request_list = Verif_request_list & verif_counter &  ") Social Security Income for : " & FULL_EMER_ARRAY(clt_name, all_clts) & ", "
 					verif_counter = verif_counter + 1
-				End If 
-				
+				End If
+
 				If FULL_EMER_ARRAY(clt_other_unea_1_verif, all_clts) = "Requested" then
 					Verif_request_list = Verif_request_list & verif_counter &  ") " & FULL_EMER_ARRAY(clt_other_unea_1_type, all_clts) & " income for: " & FULL_EMER_ARRAY(clt_name, all_clts) & ", "
 					verif_counter = verif_counter + 1
-				End If 
-				
+				End If
+
 				If FULL_EMER_ARRAY(clt_other_unea_2_verif, all_clts) = "Requested" then
 					Verif_request_list = Verif_request_list & verif_counter &  ") " & FULL_EMER_ARRAY(clt_other_unea_2_type, all_clts) & " income for: " & FULL_EMER_ARRAY(clt_name, all_clts) & ", "
 					verif_counter = verif_counter + 1
-				End If 
+				End If
 			Next
-			
+
 			For each_job = 0 to UBound(EI_ARRAY, 2)
-				If EI_ARRAY(job_verif, each_job) = "Requested" Then 
+				If EI_ARRAY(job_verif, each_job) = "Requested" Then
 					Verif_request_list = Verif_request_list & verif_counter & ") Paystubs for: " & right(EI_ARRAY(employee, each_job), len(EI_ARRAY(employee, each_job)-2))
 					If EI_ARRAY(employer, each_job) <> "" OR UCASE(EI_ARRAY(employer, each_job)) <> "UNKNOWN" Then Verif_request_list = Verif_request_list & " from: " & EI_ARRAY(employer, each_job)
 					verif_counter = verif_counter + 1
-				End If 
+				End If
 			Next
-			
-			
+
+
 			'generating verif received list'
 			docs_counter = 1
 			docs_received_list = ""
@@ -1024,35 +999,35 @@ Else
 				docs_received_list = docs_received_list & docs_counter & ") other expenses paid, "
 				docs_counter = docs_counter + 1
 			End If
-			
+
 			For all_clts = 0 to UBOUND(FULL_EMER_ARRAY, 2)
 				If FULL_EMER_ARRAY(asset_verif, all_clts) = "Received" then
 					docs_received_list = docs_received_list & docs_counter &  ") Asset balance/bank statements belonging to: " & FULL_EMER_ARRAY(clt_name, all_clts) & ", "
 					docs_counter = docs_counter + 1
-				End If 
-				
+				End If
+
 				If FULL_EMER_ARRAY(clt_ssa_verif, all_clts) = "Received" then
 					docs_received_list = docs_received_list & docs_counter &  ") Social Security Income for : " & FULL_EMER_ARRAY(clt_name, all_clts) & ", "
 					docs_counter = docs_counter + 1
-				End If 
-				
+				End If
+
 				If FULL_EMER_ARRAY(clt_other_unea_1_verif, all_clts) = "Received" then
 					docs_received_list = docs_received_list & docs_counter &  ") " & FULL_EMER_ARRAY(clt_other_unea_1_type, all_clts) & " income for: " & FULL_EMER_ARRAY(clt_name, all_clts) & ", "
 					docs_counter = docs_counter + 1
-				End If 
-				
+				End If
+
 				If FULL_EMER_ARRAY(clt_other_unea_2_verif, all_clts) = "Received" then
 					docs_received_list = docs_received_list & docs_counter &  ") " & FULL_EMER_ARRAY(clt_other_unea_2_type, all_clts) & " income for: " & FULL_EMER_ARRAY(clt_name, all_clts) & ", "
 					docs_counter = docs_counter + 1
-				End If 
+				End If
 			Next
-			
+
 			For each_job = 0 to UBound(EI_ARRAY, 2)
-				If EI_ARRAY(job_verif, each_job) = "Received" Then 
+				If EI_ARRAY(job_verif, each_job) = "Received" Then
 					docs_received_list = docs_received_list & docs_counter & ") Paystubs for: " & right(EI_ARRAY(employee, each_job), len(EI_ARRAY(employee, each_job)-2))
 					If EI_ARRAY(employer, each_job) <> "" OR UCASE(EI_ARRAY(employer, each_job)) <> "UNKNOWN" Then docs_received_list = docs_received_list & " from: " & EI_ARRAY(employer, each_job)
 					docs_counter = docs_counter + 1
-				End If 
+				End If
 			Next
 
 			'Getting total of adults and ratio responsibility
@@ -1062,14 +1037,14 @@ Else
 			clt_not_applying = 0
 			not_applying_adults_list = ""
 			For all_clts = 0 to UBOUND(FULL_EMER_ARRAY, 2)
-				If FULL_EMER_ARRAY(include_clt, all_clts) = checked Then 		
+				If FULL_EMER_ARRAY(include_clt, all_clts) = checked Then
 					If FULL_EMER_ARRAY(clt_a_c, all_clts) = "(ADULT)" Then adults_applying = adults_applying + 1
-				ElseIf FULL_EMER_ARRAY(include_clt, all_clts) = unchecked Then 
+				ElseIf FULL_EMER_ARRAY(include_clt, all_clts) = unchecked Then
 					If FULL_EMER_ARRAY(clt_a_c, all_clts) = "(ADULT)" Then adults_not_applying = adults_not_applying + 1
 					not_applying_adults_list = not_applying_adults_list & "MEMB " & FULL_EMER_ARRAY(clt_ref, all_clts) & " - " & FULL_EMER_ARRAY(clt_name, all_clts) & ", "
 				End If
 			Next
-			
+
 			number_of_adults_hh = adults_applying + adults_not_applying
 			ratio_responsibility = adults_not_applying/number_of_adults_hh
 			adult_not_applying_portion_of_due = Left((shel_due * ratio_responsibility), 7)
@@ -1083,18 +1058,18 @@ Else
 				hh_msg = ""
 				'test_pass7 = true
 			End If
-			
+
 			'Programs into dialog'
 			fs_results = ""
 			mf_results = ""
 			mf_fs_results = ""
 			mf_hg_results = ""
-			
+
 			If fs_prog = true then fs_results = "FS: $" & fs_amt_total & "   "
 			If mf_prog = true then mf_results = "MFIP: $" & mf_amt_total & "   "
 			If mf_fs_prog = true then mf_fs_results = "MF-FS: $" & mf_fs_amt_total & "   "
 			If mf_hg_prog = true then mf_hg_results = "MF-HG: $" & mf_hg_amt_total & "   "
-			
+
 			'Food allotment - fs grant received'
 			fs_mf_total = mf_fs_amt_total + fs_amt_total
 			fs_expense = thrifty_food - fs_mf_total
@@ -1108,15 +1083,15 @@ Else
 			End If
 
 			total_expense = shel_paid + hest_paid + actual_paid + other_paid + fs_expense + flat_living_expense_amt
-			
+
 			'%50 test'
 			pa_grants_total = mf_hg_amt_total + mf_amt_total
 			total_net_income_for_test = case_ei_net + total_case_unea + pa_grants_total
 			half_total_net_income = total_net_income_for_test/2
-			
+
 			shel_max = (rent_mo * 2) + court_fees + late_fees
 			shel_max_allowed = rent_due + late_fees + court_fees + damage_dep
-			
+
 			'EA Tests'
 			'12 months
 			If EMER_available_date = "Currently available" then
@@ -1175,12 +1150,12 @@ Else
 			  Potential_Elig =  "Potential Eligibility?:  ::NO::" & vbNewLine & "Please resolve the 'FAILED!' tests above to be eligible"
 			End If
 
-			If client_payment <> 0 Then 
+			If client_payment <> 0 Then
 				other_payment_test = "***Payment required prior to EA Approval in the amount of $" & client_payment
-			Else 
+			Else
 				other_payment_test = ""
-			End If 
-			
+			End If
+
 			BeginDialog MAIN_dialog, 0, 0, 470, 435, "Emergency Assistance Screening"
 			  'Case Information Section
 			  GroupBox 5, 5, 315, 110, "Case Information"
@@ -1222,7 +1197,7 @@ Else
 			  EditBox 190, 195, 125, 15, land_lord_info
 			  ButtonGroup ButtonPressed
 			    PushButton 190, 170, 125, 15, "Enter Client Portion Responsibility", clt_pymt_button
-				
+
 			  'info from eval pd
 			  GroupBox 5, 220, 315, 135, "Information from 30 Day Eval Period (mm/dd/yy to mm/dd/yy)"
 			  GroupBox 10, 230, 165, 40, "Earned Income"
@@ -1246,21 +1221,21 @@ Else
 			  Text 235, 295, 50, 10, "Total: $" & total_case_assets
 			  GroupBox 10, 320, 305, 30, "Benefits Issued in Eval Period"
 			  Text 20, 335, 285, 10, fs_results & mf_results & mf_hg_results & mf_fs_results
-			  
+
 			  Text 330, 10, 120, 10, Potential_Elig
-			  
+
 			  GroupBox 325, 25, 140, 155, "EA TESTS"
 			  Text 335, 40, 125, 150, month_test & vbNewLine & "  EMER Last Used: " & EMER_last_used_dates & vbNewLine & FPG_test & vbNewLine & "  200% FPG: " & FPG_size & ", Total Gross: " & (case_ei_gross + total_case_unea) & vbNewLine & percent_test & vbNewLine & "  50% of Net Income: $" & half_total_net_income & ", Expenses Paid: $" & total_expense & vbNewLine & cost_eff_test & vbNewLine & " Net Income: $" & (case_ei_net + total_case_unea) & ", Ongoing Expense: $" & vbNewLine & shel_max_test & vbNewLine & hest_due_test & vbNewLine & hh_msg & vbNewLine &  other_payment_test
 
 			  ButtonGroup ButtonPressed
 				PushButton 5, 360, 65, 15, "Monthly Expenses", monthly_expenses_button
 			  Text 80, 365, 90, 10, "Monthly Expenses: $" & total_expense
-			  
+
 			  GroupBox 325, 180, 140, 90, "Verification Received"
 			  Text 330, 190, 130, 75, Verif_received_list
 			  GroupBox 325, 265, 140, 100, "Verification Requested"
 			  Text 330, 275, 130, 85, Verif_request_list
-			  
+
 			  CheckBox 175, 360, 140, 10, "Application Completed and Signed", apllication_complete_checkbox
 			  Text 5, 400, 40, 10, "Other notes:"
 			  Text 5, 380, 105, 10, "Additional Verification Request:"
@@ -1285,7 +1260,7 @@ Else
 				CancelButton 415, 410, 50, 15
 				OkButton 365, 410, 50, 15
 			EndDialog
-			
+
 			Dialog MAIN_dialog
 			cancel_confirmation
 
@@ -1294,7 +1269,7 @@ Else
 			clt_portion_shel = clt_portion_shel
 			clt_portion_hest = clt_portion_hest
 			client_payment = client_payment
-			
+
 			STAT_NAV
 			If ButtonPressed = HH_memb_button				Then MEMB_function
 			If ButtonPressed = select_emergency_button		Then SELECT_EMERGENCY_BUTTON_PRESSED
@@ -1306,20 +1281,18 @@ Else
 			If ButtonPressed = assets_button				Then ASSETS_BUTTON_PRESSED
 			If ButtonPressed = monthly_expenses_button		Then SHELTER_BUTTON_PRESSED
 		Loop Until ButtonPressed = ok_button
-		
-		
+
+
 
 
 	ElseIf prog_type_case_dialog = "EGA" then
 		MEMB_function
-		
-		
-		
-		
-	End If 
-		
-		
-
-End If 
 
 
+
+
+	End If
+
+
+
+End If

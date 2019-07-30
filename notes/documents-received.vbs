@@ -96,40 +96,6 @@ function get_footer_month_from_date(footer_month_variable, footer_year_variable,
 
 end function
 
-'This function creates the HH Member dropdown for a number of different dialogs
-function Generate_Client_List(list_for_dropdown)
-
-	memb_row = 5       'setting the row to look at the list of members on the left hand side of the panel
-
-	Call navigate_to_MAXIS_screen ("STAT", "MEMB")         'go to MEMB
-	Do                                                     'this loop transmits to each MEMB panel to read information for each member
-		EMReadScreen ref_numb, 2, memb_row, 3
-		If ref_numb = "  " Then Exit Do           'this is the end of the list of members
-		EMWriteScreen ref_numb, 20, 76            'writing the reference number in the command line to go to each MEMB panel
-		transmit
-		EMReadScreen first_name, 12, 6, 63        'reading the name on the panel
-		EMReadScreen last_name, 25, 6, 30
-		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")     'adding each client information to a string
-		memb_row = memb_row + 1                   'going to the next member
-	Loop until memb_row = 20
-
-    If memb_row = 6 Then        'If the row is only 6, then there is only one person in the HH
-        list_for_dropdown = right(client_info, len(client_info) - 1)    'taking the '~' off of the string
-    Else
-    	client_info = right(client_info, len(client_info) - 1)             'taking the left most '~' off
-    	client_list_array = split(client_info, "~")                        'making this an array
-
-    	For each person in client_list_array                               'creating the string to be added to the dialog code to fill the dropdown
-    		If list_for_dropdown = "" Then
-                list_for_dropdown = person
-            Else
-                list_for_dropdown = list_for_dropdown & chr(9) & person
-            End If
-    	Next
-    End If
-
-end function
-
 function cancel_continue_confirmation(skip_functionality)
 
     skip_functionality = FALSE
@@ -497,7 +463,8 @@ DO
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
-CALL Generate_Client_List(client_dropdown)
+CALL Generate_Client_List(client_dropdown, "Select One...")
+CALL Generate_Client_List(client_dropdown_CB, "Select or Type")
 
 If LTC_case = vbNo then end_msg = "Sucess! Documents received noted for case."
 If LTC_case = vbYes then end_msg = "Sucess! Documents received noted for LTC case."
@@ -517,7 +484,7 @@ If evf_form_received_checkbox = checked Then
       EditBox 220, 5, 60, 15, evf_date_recvd
       ComboBox 70, 30, 210, 15, "Select one..."+chr(9)+"Signed by Client & Completed by Employer"+chr(9)+"Signed by Client"+chr(9)+"Completed by Employer", EVF_status_dropdown
       EditBox 70, 50, 210, 15, employer
-      DropListBox 70, 75, 210, 45, "Select One..."+chr(9)+client_dropdown, evf_client
+      DropListBox 70, 75, 210, 45, client_dropdown, evf_client
       DropListBox 75, 110, 60, 15, "Select one..."+chr(9)+"yes"+chr(9)+"no", info
       EditBox 220, 110, 60, 15, info_date
       EditBox 75, 130, 60, 15, request_info
@@ -592,7 +559,7 @@ If mof_form_checkbox = checked Then
     BeginDialog Dialog1, 0, 0, 226, 255, "Medical Opinion Form Received for Case # " & MAXIS_case_number
       EditBox 55, 5, 50, 15, mof_date_recd
       CheckBox 125, 10, 85, 10, "Client signed release?", mof_clt_release_checkbox
-      DropListBox 80, 25, 140, 45, "Select One..."+chr(9)+client_dropdown, mof_hh_memb
+      DropListBox 80, 25, 140, 45, client_dropdown, mof_hh_memb
       EditBox 90, 45, 55, 15, last_exam_date
       EditBox 90, 65, 55, 15, doctor_date
       ComboBox 70, 85, 150, 45, "Select or Type"+chr(9)+"Less than 30 Days"+chr(9)+"Between 30 - 45 Days"+chr(9)+"More than 45 Days"+chr(9)+"No End Date Listed", mof_time_condition_will_last
@@ -1024,13 +991,13 @@ If asset_form_checkbox = checked Then
           Text 10, y_pos, 40, 10, "Signed by:"
           Text 135, y_pos, 35, 10, "On (date):"
           y_pos = y_pos + 15
-          ComboBox 10, y_pos, 105, 45, "Select or Type"+chr(9)+client_dropdown, signed_by_one
+          ComboBox 10, y_pos, 105, 45, client_dropdown_CB, signed_by_one
           EditBox 130, y_pos, 50, 15, signed_one_date
           y_pos = y_pos + 20
-          ComboBox 10, y_pos, 105, 45, "Select or Type"+chr(9)+client_dropdown, signed_by_two
+          ComboBox 10, y_pos, 105, 45, client_dropdown_CB, signed_by_two
           EditBox 130, y_pos, 50, 15, signed_two_date
           y_pos = y_pos + 20
-          ComboBox 10, y_pos, 105, 45, "Select or Type"+chr(9)+client_dropdown, signed_by_three
+          ComboBox 10, y_pos, 105, 45, client_dropdown_CB, signed_by_three
           EditBox 130, y_pos, 50, 15, signed_three_date
 
           CheckBox 240, y_pos_over, 130, 10, "Check here to have the script update", run_updater_checkbox
@@ -1311,7 +1278,7 @@ If asset_form_checkbox = checked Then
                 ASSETS_ARRAY(ast_verif_date, asset_counter) = doc_date_stamp
                 'Dialog to fill the ACCT panel
                 BeginDialog Dialog1, 0, 0, 271, 235, "New ACCT panel for Case #" & MAXIS_case_number
-                  DropListBox 75, 10, 135, 45, "Select One..."+chr(9)+client_dropdown, ASSETS_ARRAY(ast_owner, asset_counter)
+                  DropListBox 75, 10, 135, 45, client_dropdown, ASSETS_ARRAY(ast_owner, asset_counter)
                   DropListBox 75, 30, 135, 45, "Select ..."+chr(9)+"SV - Savings"+chr(9)+"CK - Checking"+chr(9)+"CE - Certificate of Deposit"+chr(9)+"MM - Money Market"+chr(9)+"DC - Debit Card"+chr(9)+"KO - Keogh Account"+chr(9)+"FT - Federal Thrift Savings Plan"+chr(9)+"SL - State and Local Govt Ret"+chr(9)+"RA - Employee Ret Annuities"+chr(9)+"NP - Non-Profit Employer Ret Plans"+chr(9)+"IR - Indiv Ret Acct"+chr(9)+"RH - Roth IRA"+chr(9)+"FR - Ret Plans for Certain Employees"+chr(9)+"CT - Corp Ret Trust (before 1959)"+chr(9)+"RT - Other Ret Fund"+chr(9)+"QT - Qualified Tuition (529)"+chr(9)+"CA - Coverdell SV (530)"+chr(9)+"OE - Other Educationsal"+chr(9)+"OT - Other Account Type", ASSETS_ARRAY(ast_type, asset_counter)
                   EditBox 75, 50, 105, 15, ASSETS_ARRAY(ast_number, asset_counter)
                   EditBox 75, 70, 105, 15, ASSETS_ARRAY(ast_location, asset_counter)
@@ -1328,9 +1295,9 @@ If asset_form_checkbox = checked Then
                   DropListBox 75, 185, 80, 45, "Select..."+chr(9)+"1 - Bank Statement"+chr(9)+"2 - Agcy Ver Form"+chr(9)+"3 - Coltrl Contact"+chr(9)+"5 - Other Document"+chr(9)+"6 - Personal Statement"+chr(9)+"N - No Ver Prvd", ASSETS_ARRAY(ast_wthdr_verif, asset_counter)
                   EditBox 215, 125, 15, 15, share_ratio_num
                   EditBox 240, 125, 15, 15, share_ratio_denom
-                  ComboBox 170, 160, 90, 45, "Type or Select"+chr(9)+client_dropdown, ASSETS_ARRAY(ast_othr_ownr_one, asset_counter)
-                  ComboBox 170, 175, 90, 45, "Type or Select"+chr(9)+client_dropdown, ASSETS_ARRAY(ast_othr_ownr_two, asset_counter)
-                  ComboBox 170, 190, 90, 45, "Type or Select"+chr(9)+client_dropdown, ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter)
+                  ComboBox 170, 160, 90, 45, client_dropdown_CB, ASSETS_ARRAY(ast_othr_ownr_one, asset_counter)
+                  ComboBox 170, 175, 90, 45, client_dropdown_CB, ASSETS_ARRAY(ast_othr_ownr_two, asset_counter)
+                  ComboBox 170, 190, 90, 45, client_dropdown_CB, ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter)
                   EditBox 75, 210, 50, 15, ASSETS_ARRAY(ast_next_inrst_date, asset_counter)
                   ButtonGroup ButtonPressed
                     OkButton 160, 215, 50, 15
@@ -1655,7 +1622,7 @@ If asset_form_checkbox = checked Then
                 'Dialog to fill the SECU panel
 
                 BeginDialog Dialog1, 0, 0, 271, 235, "New SECU panel for Case #" & MAXIS_case_number
-                  DropListBox 75, 10, 135, 45, "Select One..."+chr(9)+client_dropdown, ASSETS_ARRAY(ast_owner, asset_counter)
+                  DropListBox 75, 10, 135, 45, client_dropdown, ASSETS_ARRAY(ast_owner, asset_counter)
                   DropListBox 75, 30, 135, 45, "Select ..."+chr(9)+"LI - Life Insurance"+chr(9)+"ST - Stocks"+chr(9)+"BO - Bonds"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"MO - Mortgage Note"+chr(9)+"AN - Annuity"+chr(9)+"OT - Other", ASSETS_ARRAY(ast_type, asset_counter)
                   EditBox 75, 50, 105, 15, ASSETS_ARRAY(ast_number, asset_counter)
                   EditBox 75, 70, 105, 15, ASSETS_ARRAY(ast_location, asset_counter)
@@ -2002,7 +1969,7 @@ If asset_form_checkbox = checked Then
 
                 'Dialog to fill the CARS panel.
                 BeginDialog Dialog1, 0, 0, 270, 255, "New CARS panel for Case # & MAXIS_case_number" & MAXIS_case_number
-                  DropListBox 75, 10, 135, 45, "Select One..."+chr(9)+client_dropdown, ASSETS_ARRAY(ast_owner, asset_counter)
+                  DropListBox 75, 10, 135, 45, client_dropdown, ASSETS_ARRAY(ast_owner, asset_counter)
                   DropListBox 75, 30, 90, 45, "Select..."+chr(9)+"1 - Car"+chr(9)+"2 - Truck"+chr(9)+"3 - Van"+chr(9)+"4 - Camper"+chr(9)+"5 - Motorcycle"+chr(9)+"6 - Trailer"+chr(9)+"7 - Other", ASSETS_ARRAY(ast_type, asset_counter)
                   EditBox 220, 30, 40, 15, ASSETS_ARRAY(ast_year, asset_counter)
                   ComboBox 75, 50, 185, 45, "Type or Select"+chr(9)+"Acura"+chr(9)+"Audi"+chr(9)+"BMW"+chr(9)+"Buick"+chr(9)+"Cadillac"+chr(9)+"Chevrolet"+chr(9)+"Chrysler"+chr(9)+"Dodge"+chr(9)+"Ford"+chr(9)+"GMC"+chr(9)+"Honda"+chr(9)+"Hummer"+chr(9)+"Hyundai"+chr(9)+"Infiniti"+chr(9)+"Isuzu"+chr(9)+"Jeep"+chr(9)+"Kia"+chr(9)+"Lincoln"+chr(9)+"Mazda"+chr(9)+"Mercedes-Benz"+chr(9)+"Mercury"+chr(9)+"Mitsubishi"+chr(9)+"Nissan"+chr(9)+"Oldsmobile"+chr(9)+"Plymouth"+chr(9)+"Pontiac"+chr(9)+"Saab"+chr(9)+"Saturn"+chr(9)+"Scion"+chr(9)+"Subaru"+chr(9)+"Suzuki"+chr(9)+"Toyota"+chr(9)+"Volkswagen"+chr(9)+"Volvo", ASSETS_ARRAY(ast_make, asset_counter)

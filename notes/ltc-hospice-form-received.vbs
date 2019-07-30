@@ -49,35 +49,7 @@ call changelog_update("06/14/2018", "Initial version.", "Casey Love, Hennepin Co
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-'This function creates the HH Member dropdown for a number of different dialogs
-function Generate_Client_List(list_for_dropdown)
 
-	memb_row = 5       'setting the row to look at the list of members on the left hand side of the panel
-
-	Call navigate_to_MAXIS_screen ("STAT", "MEMB")         'go to MEMB
-	Do                                                     'this loop transmits to each MEMB panel to read information for each member
-		EMReadScreen ref_numb, 2, memb_row, 3
-		If ref_numb = "  " Then Exit Do           'this is the end of the list of members
-		EMWriteScreen ref_numb, 20, 76            'writing the reference number in the command line to go to each MEMB panel
-		transmit
-		EMReadScreen first_name, 12, 6, 63        'reading the name on the panel
-		EMReadScreen last_name, 25, 6, 30
-		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")     'adding each client information to a string
-		memb_row = memb_row + 1                   'going to the next member
-	Loop until memb_row = 20
-
-    If memb_row = 6 Then        'If the row is only 6, then there is only one person in the HH
-        list_for_dropdown = right(client_info, len(client_info) - 1)    'taking the '~' off of the string
-    Else
-    	client_info = right(client_info, len(client_info) - 1)             'taking the left most '~' off
-    	client_list_array = split(client_info, "~")                        'making this an array
-
-    	For each person in client_list_array                               'creating the string to be added to the dialog code to fill the dropdown
-    		list_for_dropdown = list_for_dropdown & chr(9) & person
-    	Next
-    End If
-
-end function
 'DIALOGS----------------------------------------------------------------------------------------------------
 'Dialog to gather the case number and footer month and year
 BeginDialog case_number_dialog, 0, 0, 156, 70, "Case number dialog"
@@ -193,7 +165,7 @@ EMReadScreen date_of_death, 10, 19, 42
 date_of_death = replace(date_of_death, " ", "/")
 If IsDate(date_of_death) = TRUE Then hospice_exit_date = date_of_death
 
-Call Generate_Client_List(HH_Memb_DropDown)         'filling the dropdown with ALL of the household members
+Call Generate_Client_List(HH_Memb_DropDown, "Select")         'filling the dropdown with ALL of the household members
 
 'Next dialog - here so that the dropdown can be filled with case information
 BeginDialog hospice_info_dlg, 0, 0, 291, 240, "Hospice Form Received"
@@ -256,6 +228,7 @@ Do
     Dialog hospice_info_dlg
     cancel_confirmation
 
+    If client_in_hospice = "Select" Then err_msg = err_msg & vbNewLine & "* Select the client that is in hospice."
     If trim(hospice_name) = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the Hospice the client entered."       'hospice name required
     If IsDate(hospice_entry_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valide date for the Hospice Entry."   'entry date also required
 

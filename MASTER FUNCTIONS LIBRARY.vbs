@@ -3790,33 +3790,33 @@ function fix_read_data(search_string)
 	fix_read_data = search_string 'To make this a return function, this statement must set the value of the function name
 end function
 
-' Function generate_client_list(list_for_dropdown, initial_text)
-' '--- This function creates a variable formatted for a DropListBox or ComboBox in a dialog to have all the clients on a case as an option.
-' '~~~~~ list_for_dropdown: the variable to put in the dialog for the list
-' '~~~~~ initial_text: the words to have in the top position of the list
-' '===== Keywords: MAXIS, DIALOG, CLIENTS
-' 	memb_row = 5
-'     list_for_dropdown = initital_text
-'
-' 	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
-' 	Do
-' 		EMReadScreen ref_numb, 2, memb_row, 3
-' 		If ref_numb = "  " Then Exit Do
-' 		EMWriteScreen ref_numb, 20, 76
-' 		transmit
-' 		EMReadScreen first_name, 12, 6, 63
-' 		EMReadScreen last_name, 25, 6, 30
-' 		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")
-' 		memb_row = memb_row + 1
-' 	Loop until memb_row = 20
-'
-' 	client_info = right(client_info, len(client_info) - 1)
-' 	client_list_array = split(client_info, "~")
-'
-' 	For each person in client_list_array
-' 		list_for_dropdown = list_for_dropdown & chr(9) & person
-' 	Next
-' End Function
+Function generate_client_list(list_for_dropdown, initial_text)
+'--- This function creates a variable formatted for a DropListBox or ComboBox in a dialog to have all the clients on a case as an option.
+'~~~~~ list_for_dropdown: the variable to put in the dialog for the list
+'~~~~~ initial_text: the words to have in the top position of the list
+'===== Keywords: MAXIS, DIALOG, CLIENTS
+	memb_row = 5
+    list_for_dropdown = initial_text
+
+	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
+	Do
+		EMReadScreen ref_numb, 2, memb_row, 3
+		If ref_numb = "  " Then Exit Do
+		EMWriteScreen ref_numb, 20, 76
+		transmit
+		EMReadScreen first_name, 12, 6, 63
+		EMReadScreen last_name, 25, 6, 30
+		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")
+		memb_row = memb_row + 1
+	Loop until memb_row = 20
+
+	client_info = right(client_info, len(client_info) - 1)
+	client_list_array = split(client_info, "~")
+
+	For each person in client_list_array
+		list_for_dropdown = list_for_dropdown & chr(9) & person
+	Next
+End Function
 
 function get_county_code()
 '--- This function determines county_name from worker_county_code, and asks for it if it's blank

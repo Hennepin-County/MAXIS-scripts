@@ -50,31 +50,7 @@ call changelog_update("05/13/2019", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-'FUNCTIONS==================================================================================================================
-Function Generate_Client_List(list_for_dropdown)
 
-	memb_row = 5
-
-	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
-	Do
-		EMReadScreen ref_numb, 2, memb_row, 3
-		If ref_numb = "  " Then Exit Do
-		EMWriteScreen ref_numb, 20, 76
-		TRANSMIT
-		EMReadScreen first_name, 12, 6, 63
-		EMReadScreen last_name, 25, 6, 30
-		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")
-		memb_row = memb_row + 1
-	Loop until memb_row = 20
-
-	client_info = right(client_info, len(client_info) - 1)
-	client_list_array = split(client_info, "~") 'this is where the tilday goeas away'
-
-	For each person in client_list_array
-		list_for_dropdown = list_for_dropdown & chr(9) & person
-	Next
-
-End Function
 'THE SCRIPT=================================================================================================================
 'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
@@ -83,29 +59,30 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 If MAXIS_case_number <> "" Then 		'If a case number is found the script will get the list of
-	Call Generate_Client_List(HH_Memb_DropDown)
+	Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
 End If
-
-BeginDialog PF11_actions_dialog, 0, 0, 196, 130, "PF11 Action"
-  EditBox 55, 5, 40, 15, maxis_case_number
-  DropListBox 75, 25, 115, 15, "Select One:" & HH_Memb_DropDown, clt_to_update
-  DropListBox 75, 45, 115, 15, "Select One:"+chr(9)+"PMI Merge Request"+chr(9)+"Non-Actionable DAIL Removal"+chr(9)+"Case Note Removal Request"+chr(9)+"MFIP New Spouse Income"+chr(9)+"New Spouse Income Determination"+chr(9)+"Other", PF11_actions
-  Text 5, 85, 185, 20, "The system being down, issuance problems, or any type     of emergency should NOT be reported via a PF11."
-  EditBox 75, 65, 115, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 85, 110, 50, 15
-    CancelButton 140, 110, 50, 15
-    PushButton 105, 5, 85, 15, "HH MEMB SEARCH", search_button
-  Text 5, 10, 45, 10, "Case number:"
-  Text 5, 30, 70, 10, "Household member:"
-  Text 5, 50, 65, 10, "Select PF11 action:"
-  Text 5, 70, 60, 10, "Worker signature:"
-EndDialog
 
 'Running the dialog for case number and client
 Do
 	err_msg = ""
 	'intial dialog for user to select a SMRT action
+
+    BeginDialog PF11_actions_dialog, 0, 0, 196, 130, "PF11 Action"
+      EditBox 55, 5, 40, 15, maxis_case_number
+      DropListBox 75, 25, 115, 15, HH_Memb_DropDown, clt_to_update
+      DropListBox 75, 45, 115, 15, "Select One:"+chr(9)+"PMI Merge Request"+chr(9)+"Non-Actionable DAIL Removal"+chr(9)+"Case Note Removal Request"+chr(9)+"MFIP New Spouse Income"+chr(9)+"New Spouse Income Determination"+chr(9)+"Other", PF11_actions
+      Text 5, 85, 185, 20, "The system being down, issuance problems, or any type     of emergency should NOT be reported via a PF11."
+      EditBox 75, 65, 115, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 85, 110, 50, 15
+        CancelButton 140, 110, 50, 15
+        PushButton 105, 5, 85, 15, "HH MEMB SEARCH", search_button
+      Text 5, 10, 45, 10, "Case number:"
+      Text 5, 30, 70, 10, "Household member:"
+      Text 5, 50, 65, 10, "Select PF11 action:"
+      Text 5, 70, 60, 10, "Worker signature:"
+    EndDialog
+
 
 	Dialog PF11_actions_dialog
 	If ButtonPressed = cancel Then StopScript
@@ -114,7 +91,7 @@ Do
 			MsgBox "Cannot search without a case number, please try again."
 		Else
 			HH_Memb_DropDown = ""
-			Call Generate_Client_List(HH_Memb_DropDown)
+			Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
 			err_msg = err_msg & "Start Over"
 		End If
 	End If

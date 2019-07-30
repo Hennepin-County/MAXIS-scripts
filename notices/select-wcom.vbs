@@ -188,36 +188,6 @@ Function add_words_to_message(message_to_add)
 
 End Function
 
-'This function creates the HH Member dropdown for a number of different dialogs
-function Generate_Client_List(list_for_dropdown)
-
-	memb_row = 5       'setting the row to look at the list of members on the left hand side of the panel
-
-	Call navigate_to_MAXIS_screen ("STAT", "MEMB")         'go to MEMB
-	Do                                                     'this loop transmits to each MEMB panel to read information for each member
-		EMReadScreen ref_numb, 2, memb_row, 3
-		If ref_numb = "  " Then Exit Do           'this is the end of the list of members
-		EMWriteScreen ref_numb, 20, 76            'writing the reference number in the command line to go to each MEMB panel
-		transmit
-		EMReadScreen first_name, 12, 6, 63        'reading the name on the panel
-		EMReadScreen last_name, 25, 6, 30
-		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")     'adding each client information to a string
-		memb_row = memb_row + 1                   'going to the next member
-	Loop until memb_row = 20
-
-    If memb_row = 6 Then        'If the row is only 6, then there is only one person in the HH
-        list_for_dropdown = right(client_info, len(client_info) - 1)    'taking the '~' off of the string
-    Else
-    	client_info = right(client_info, len(client_info) - 1)             'taking the left most '~' off
-    	client_list_array = split(client_info, "~")                        'making this an array
-
-    	For each person in client_list_array                               'creating the string to be added to the dialog code to fill the dropdown
-    		list_for_dropdown = list_for_dropdown & chr(9) & person
-    	Next
-    End If
-
-end function
-
 'THE SCRIPT=====================================================================================================================
 EMConnect ""            'Connect to BlueZone
 
@@ -695,10 +665,10 @@ Do      'Just made this  loop - this needs sever testing.
 
     If voluntary_e_t_wcom_checkbox = checked Then
 
-        CALL Generate_Client_List(client_dropdown)
+        CALL Generate_Client_List(client_dropdown, "Select One...")
 
         BeginDialog wcom_details_dlg, 0, 0, 171, 60, "WCOM Details"
-          DropListBox 30, 20, 130, 45, "Select One..."+chr(9)+client_dropdown, abawd_memb_name
+          DropListBox 30, 20, 130, 45, client_dropdown, abawd_memb_name
           ButtonGroup ButtonPressed
             OkButton 115, 40, 50, 15
           Text 5, 5, 160, 10, "ABAWD Client to advise about Voluntary E and T"
