@@ -54,7 +54,7 @@ EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 '-------------------------------------------------------------------------------------------------------------------DIALOGS
-BeginDialog pers_needs, 0, 0, 156, 105, "Personal Needs for " & CM_plus_1_m & "/" & MAXIS_footer_year
+BeginDialog pers_needs_dialog, 0, 0, 156, 105, "Personal Needs for " & CM_plus_1_m & "/" & MAXIS_footer_year
   EditBox 60, 5, 40, 15, MAXIS_case_number
   EditBox 135, 5, 15, 15, HH_size
   EditBox 60, 25, 40, 15, amt_issued
@@ -74,7 +74,7 @@ EndDialog
 DO
 	DO
 		err_msg = ""
-		Dialog pers_needs
+		Dialog  pers_needs_dialog
         cancel_confirmation
 		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF HH_size = "" then err_msg = err_msg & vbNewLine & "* Please enter the HH size."
