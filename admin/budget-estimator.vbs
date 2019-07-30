@@ -124,32 +124,6 @@ Const other_2_amt = 6
 
 'All the buttons will need Functions
 
-'This function creates the HH Member dropdown for a number of different dialogs
-function Generate_Client_List(list_for_dropdown)
-
-	memb_row = 5
-
-	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
-	Do
-		EMReadScreen ref_numb, 2, memb_row, 3
-		If ref_numb = "  " Then Exit Do
-		EMWriteScreen ref_numb, 20, 76
-		transmit
-		EMReadScreen first_name, 12, 6, 63
-		EMReadScreen last_name, 25, 6, 30
-		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")
-		memb_row = memb_row + 1
-	Loop until memb_row = 20
-
-	client_info = right(client_info, len(client_info) - 1)
-	client_list_array = split(client_info, "~")
-
-	For each person in client_list_array
-		list_for_dropdown = list_for_dropdown & chr(9) & person
-	Next
-
-end function
-
 'SELECT MEMBERS BUTTON
 'This function calls the HH Member Function on queue so the selection can be changed.
 function MEMB_NUMBER_BUTTON_PRESSED
@@ -294,7 +268,7 @@ function EARNED_INCOME_BUTTON_PRESSED
 		BeginDialog budg_est_dlg, 0, 0, 340, 60 + add_to_len, "Earned Income"
 			y_pos = 0
 			For job_in_case = 0 to UBound(EI_ARRAY, 2)
-				If no_case_number_checkbox = unchecked Then DropListBox 5, 20 + y_pos, 105, 45, "Select One..." & HH_Memb_DropDown, EI_ARRAY(employee, job_in_case)
+				If no_case_number_checkbox = unchecked Then DropListBox 5, 20 + y_pos, 105, 45, HH_Memb_DropDown, EI_ARRAY(employee, job_in_case)
 				If no_case_number_checkbox = checked Then EditBox 5, 20 + y_pos, 105, 15, EI_ARRAY(employee, job_in_case)
 				EditBox 120, 20 + y_pos, 130, 15, EI_ARRAY(employer, job_in_case)
 				DropListBox 260, 20 + y_pos, 35, 45, " "+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5", EI_ARRAY(how_many_chck, job_in_case)
@@ -1710,7 +1684,7 @@ Loop until err_msg = ""
 If no_case_number_checkbox = unchecked Then
 
 	'Creating the dropdown of HH Members for use in dialogs
-	Call Generate_Client_List(HH_Memb_DropDown)
+	Call Generate_Client_List(HH_Memb_DropDown, "Select One...")
 
 	Call Navigate_to_MAXIS_screen ("CASE", "CURR")
 
@@ -1971,7 +1945,7 @@ If no_case_number_checkbox = unchecked Then
 				pic_total = trim(pic_total)
 
 				EMReadScreen antic_hour, 6, 8, 64
-				EMReadScreen antic_rate, 8, 9, 67
+				EMReadScreen antic_rate, 8, 9, 66
 				antic_hour = trim(antic_hour)
 				antic_rate = trim(antic_rate)
 				If antic_hour = "______" Then antic_hour = 0

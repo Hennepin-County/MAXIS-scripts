@@ -109,31 +109,6 @@ ENDDIALOG
 Dialog sanction_dialog + vbSystemModal
 End Function
 
-'This function creates the HH Member dropdown for a number of different dialogs
-function Generate_Client_List(list_for_dropdown)
-
-	memb_row = 5
-
-	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
-	Do
-		EMReadScreen ref_numb, 2, memb_row, 3
-		If ref_numb = "  " Then Exit Do
-		EMWriteScreen ref_numb, 20, 76
-		transmit
-		EMReadScreen first_name, 12, 6, 63
-		EMReadScreen last_name, 25, 6, 30
-		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")
-		memb_row = memb_row + 1
-	Loop until memb_row = 20
-
-	client_info = right(client_info, len(client_info) - 1)
-	client_list_array = split(client_info, "~")
-
-	For each person in client_list_array
-		list_for_dropdown = list_for_dropdown & chr(9) & person
-	Next
-
-end function
 'end of Function block===========================================================================================================
 
 'first dialog'

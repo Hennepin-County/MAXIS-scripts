@@ -51,31 +51,6 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'FUNCTIONS==================================================================================================================
-Function Generate_Client_List(list_for_dropdown)
-
-	memb_row = 5
-
-	Call navigate_to_MAXIS_screen ("STAT", "MEMB")
-	Do
-		EMReadScreen ref_numb, 2, memb_row, 3
-		If ref_numb = "  " Then Exit Do
-		EMWriteScreen ref_numb, 20, 76
-		transmit
-		EMReadScreen first_name, 12, 6, 63
-		EMReadScreen last_name, 25, 6, 30
-		client_info = client_info & "~" & ref_numb & " - " & replace(first_name, "_", "") & " " & replace(last_name, "_", "")
-		memb_row = memb_row + 1
-	Loop until memb_row = 20
-
-	client_info = right(client_info, len(client_info) - 1)
-	client_list_array = split(client_info, "~")
-
-	For each person in client_list_array
-		list_for_dropdown = list_for_dropdown & chr(9) & person
-	Next
-
-End Function
-
 FUNCTION date_array_generator(initial_month, initial_year, date_array)
 	'defines an intial date from the initial_month and initial_year parameters
 	initial_date = initial_month & "/1/" & initial_year
@@ -103,7 +78,7 @@ ExtensionCase = FALSE
 FSSCase = FALSE
 
 If MAXIS_case_number <> "" Then 		'If a case number is found the script will get the list of
-	Call Generate_Client_List(HH_Memb_DropDown)
+	Call Generate_Client_List(HH_Memb_DropDown, "Select One...")
 End If
 
 'Running the dialog for case number and client
@@ -114,7 +89,7 @@ Do
 	  EditBox 55, 5, 50, 15, MAXIS_case_number
 	  ButtonGroup ButtonPressed
 	    PushButton 135, 5, 50, 15, "search", search_button
-	  DropListBox 80, 25, 105, 45, "Select One..." & HH_Memb_DropDown, clt_to_update
+	  DropListBox 80, 25, 105, 45, HH_Memb_DropDown, clt_to_update
 	  ButtonGroup ButtonPressed
 	    OkButton 115, 45, 35, 15
 	    CancelButton 155, 45, 30, 15
@@ -128,7 +103,7 @@ Do
 			MsgBox "Cannot search without a case number, please try again."
 		Else
 			HH_Memb_DropDown = ""
-			Call Generate_Client_List(HH_Memb_DropDown)
+			Call Generate_Client_List(HH_Memb_DropDown, "Select One...")
 			err_msg = err_msg & "Start Over"
 		End If
 	End If
