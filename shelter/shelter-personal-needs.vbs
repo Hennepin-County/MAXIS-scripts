@@ -5,7 +5,17 @@ STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 0         	'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
 
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("07/29/2019", "Updated script per request. Removed ELIG vs INELIG and updated case note.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("11/14/2017", "Initial version.", "Ilse Ferris, Hennepin County")
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -38,45 +48,28 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog personal_needs_dialog, 0, 0, 171, 85, "Select a personal needs status"
-  EditBox 85, 10, 55, 15, MAXIS_case_number
-  DropListBox 85, 35, 70, 12, "Select one..."+chr(9)+"Approved client"+chr(9)+"Client ineligible", pers_needs_status
-  ButtonGroup ButtonPressed
-    OkButton 60, 60, 50, 15
-    CancelButton 115, 60, 50, 15
-  Text 5, 40, 75, 10, "Personal needs status:"
-  Text 35, 15, 45, 10, "Case number:"
-EndDialog
-
-BeginDialog pers_needs_recd_dialog, 0, 0, 296, 70, "Personal needs received"
-  EditBox 70, 20, 55, 15, amt_issued
-  EditBox 225, 20, 55, 15, date_issued
-  EditBox 55, 45, 115, 15, other_notes
-  ButtonGroup ButtonPressed
-    OkButton 175, 45, 50, 15
-    CancelButton 230, 45, 50, 15
-  Text 175, 25, 45, 10, "Date issued:"
-  Text 10, 50, 40, 10, "Other notes: "
-  Text 20, 25, 45, 10, "Amt issued:"
-  GroupBox 5, 5, 280, 35, "Client received 10% + $20 personal needs:"
-EndDialog
-
-BeginDialog pers_needs_inelig_dialog, 0, 0, 296, 75, "Personal needs ineligible"
-  EditBox 90, 25, 190, 15, inelig_reason
-  ButtonGroup ButtonPressed
-    OkButton 175, 55, 50, 15
-    CancelButton 230, 55, 50, 15
-  Text 10, 30, 80, 10, "Reason for ineligibility:"
-  GroupBox 5, 10, 285, 35, "Client is ineligible for personal needs:"
-EndDialog
-
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+'-------------------------------------------------------------------------------------------------------------------DIALOGS
 
-date_issued = date & ""
+BeginDialog pers_needs_recd_dialog, 0, 0, 156, 105, "Personal Needs for " & CM_plus_1_m & "/" & MAXIS_footer_year
+  EditBox 60, 5, 40, 15, MAXIS_case_number
+  EditBox 135, 5, 15, 15, HH_size
+  EditBox 60, 25, 40, 15, amt_issued
+  DropListBox 60, 45, 90, 15, "Select One:"+chr(9)+"CS"+chr(9)+"DWP"+chr(9)+"Earned Income"+chr(9)+"MFIP"+chr(9)+"Per Capita"+chr(9)+"RSDI"+chr(9)+"SSI"+chr(9)+"Other(please explain)", income_source
+  EditBox 60, 65, 90, 15, other_notes
+  ButtonGroup ButtonPressed
+    OkButton 70, 85, 40, 15
+    CancelButton 115, 85, 35, 15
+  Text 5, 30, 55, 10, "Amount Eligible: "
+  Text 15, 70, 45, 10, "Other Notes: "
+  Text 105, 10, 30, 10, "HH Size: "
+  Text 5, 50, 50, 10, "Income Source: "
+  Text 5, 10, 50, 10, "Case Number: "
+EndDialog
 
 'Running the initial dialog
 DO
@@ -84,44 +77,17 @@ DO
 		err_msg = ""
 		Dialog personal_needs_dialog
         cancel_confirmation
-		IF len(case_number) > 8 or IsNumeric(case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		IF pers_needs_status = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a personal needs status."
+		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+		IF HH_size = "" then err_msg = err_msg & vbNewLine & "* Please enter the HH size."
+		IF amt_issued = "" then err_msg = err_msg & vbNewLine & "* Please enter the amount issued."
+		IF income_source = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select the client's source of income."
+		IF income_source = "Other" Then
+			If other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please complete the other notes section to explain the income source."
+		END IF
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
-
-If pers_needs_status = "Approved client" then 
-	case_note_header = "received"
-	DO
-		DO
-			err_msg = ""
-			Dialog pers_needs_recd_dialog
-			cancel_confirmation
-			IF IsNumeric(amt_issued) = False THEN err_msg = err_msg & vbNewLine & "* Enter the amount issued."
-			IF IsDate(date_issued) = False then err_msg = err_msg & vbNewLine & "* Enter the date issued."
-			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP UNTIL err_msg = ""
- 	Call check_for_password(are_we_passworded_out)
-	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-END IF 
-
-If pers_needs_status = "Client ineligible" then 
-	case_note_header = "ineligible"
-	DO
-		DO
-			err_msg = ""
-			Dialog pers_needs_inelig_dialog
-			cancel_confirmation
-			IF len(case_number) > 8 or IsNumeric(case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-			IF inelig_reason = "" then err_msg = err_msg & vbNewLine & "* Enter the personal needs ineligibility reason."
-			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP UNTIL err_msg = ""
- 		Call check_for_password(are_we_passworded_out)
-	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-END IF 
 
 back_to_SELF
 EMWriteScreen "________", 18, 43
@@ -133,17 +99,13 @@ amt_issued = "$" & amt_issued
 
 'The case note---------------------------------------------------------------------------------------
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-Call write_variable_in_CASE_NOTE("### Personal needs " & case_note_header & " ###")
-If case_note_header = "received" then 
-	Call write_variable_in_CASE_NOTE("* Client received 10% + $20 in personal needs funds. ")
-	Call write_bullet_and_variable_in_CASE_NOTE("Amt issued", amt_issued)
-	Call write_bullet_and_variable_in_CASE_NOTE("Date issued", date_issued)
-ELSEIF case_note_header = "ineligible" then 
-	Call write_bullet_and_variable_in_CASE_NOTE("Reason for ineligibility", inelig_reason)
-END IF
+Call write_variable_in_CASE_NOTE("### Personal needs " & CM_plus_1_mo & "/" & MAXIS_footer_year & " ###")
+Call write_bullet_and_variable_in_CASE_NOTE("HH size", HH_size)
+Call write_bullet_and_variable_in_CASE_NOTE("Amount eligible", amt_issued)
+Call write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE ("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
-script_end_procedure ("")
+script_end_procedure_with_error_report("Success! The case note has been entered.")
