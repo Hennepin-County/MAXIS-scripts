@@ -5,17 +5,7 @@ STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 0         	'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
-'CHANGELOG BLOCK ===========================================================================================================
-'Starts by defining a changelog array
-changelog = array()
 
-'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
-'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("07/29/2019", "Updated script per request. Removed ELIG vs INELIG and updated case note.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("11/14/2017", "Initial version.", "Ilse Ferris, Hennepin County")
-'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
-changelog_display
-'END CHANGELOG BLOCK =======================================================================================================
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -47,15 +37,24 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
 
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("07/29/2019", "Updated script per request. Removed ELIG vs INELIG and updated case note.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("11/14/2017", "Initial version.", "Ilse Ferris, Hennepin County")
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 '-------------------------------------------------------------------------------------------------------------------DIALOGS
-
-BeginDialog pers_needs_recd_dialog, 0, 0, 156, 105, "Personal Needs for " & CM_plus_1_m & "/" & MAXIS_footer_year
+BeginDialog pers_needs, 0, 0, 156, 105, "Personal Needs for " & CM_plus_1_m & "/" & MAXIS_footer_year
   EditBox 60, 5, 40, 15, MAXIS_case_number
   EditBox 135, 5, 15, 15, HH_size
   EditBox 60, 25, 40, 15, amt_issued
@@ -75,7 +74,7 @@ EndDialog
 DO
 	DO
 		err_msg = ""
-		Dialog personal_needs_dialog
+		Dialog pers_needs
         cancel_confirmation
 		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF HH_size = "" then err_msg = err_msg & vbNewLine & "* Please enter the HH size."
