@@ -399,7 +399,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE ("Application Requesting", programs_
 CALL write_bullet_and_variable_in_CASE_NOTE ("Pended On", pended_date)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", additional_programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
-If transfer_to_worker <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Application assigned to", transfer_to_worker)
+If transfer_to_worker <> "" THEN CALL write_variable_in_CASE_NOTE ("Application assigned to X127" & transfer_to_worker)
 'CALL write_bullet_and_variable_in_CASE_NOTE ("Reason for APPL Request", request_reason)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
 'IF how_app_rcvd = "Request to APPL Form" THEN CALL write_variable_in_CASE_NOTE("* Emailed worker to let them know the request to APPL has been completed.")
@@ -563,10 +563,10 @@ ELSE
         IF transfer_confirmation = "CASE XFER'D FROM" then
 
         	action_completed = True
-			msgbox action_completed
+			'msgbox action_completed
         Else
             action_completed = False
-			msgbox action_completed
+			'msgbox action_completed
         End if
 	END IF
 END IF
