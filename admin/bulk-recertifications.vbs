@@ -215,7 +215,7 @@ Loop until scenario_dropdown <> "Select One..."
 objExcel.worksheets(scenario_dropdown).Activate
 
 'Creating an array of letters to loop through
-col_ind = "A~B~C~D~E~F~G~H~I~J~K~L~M~N~O~P~Q~R~S~T~U~V~W~X~Y~Z"
+col_ind = "A~B~C~D~E~F~G~H~I~J~K~L~M~N~O~P~Q~R~S~T~U~V~W~X~Y~Z~AA~AB~AC~AD~AE~AF~AG~AH~AI~AJ~AK~AL~AM~AN~AO~AP~AQ~AR~AS~AT~AU~AV~AW~AX~AY~AZ"
 col_array = split(col_ind, "~")
 'setting the start of the list of column options
 column_list = "Select One..."
@@ -612,7 +612,6 @@ for case_entry = 0 to UBound(ALL_CASES_ARRAY, 2)
 next
 'All information has been gathered
 'MsgBox "We are going back to EXCEL!"
-
 'Insert columns in excel for additional information to be added
 column_end = last_col & "1"
 
