@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/31/2019", "Bug fix where occasionally the script fails at navigating to the JOBS panel for update.", "Casey Love, Hennepin County")
 call changelog_update("06/27/2019", "Bug fix on Case Noting Retro HC Income.", "Casey Love, Hennepin County")
 Call changelog_update("06/13/2019", "Bug fix for semi-monthly pay frequency when no actual checks are listed (only anticipated income schedule and hours).", "Casey Love, Hennepin County")
 Call changelog_update("06/05/2019", "Bug fix for SNAP cases that are currently set to close, a date error was preventing the script from running.", "Casey Love, Hennepin County")
@@ -2732,18 +2733,19 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
         RETRO_footer_year = DatePart("yyyy", RETRO_month)
         RETRO_footer_year = right(RETRO_footer_year, 2)
 
-        EMReadScreen summ_check, 4, 2, 46                       'Making sure we start at SUMM
-        'BUGGY CODE - need to make sure we are also in the right footer month here
-        If summ_check <> "SUMM" Then                            'at the end of the loop we go to summ so we should be already there
-            Call back_to_SELF
-            Do
-                Call navigate_to_MAXIS_screen("STAT", "SUMM")
-                EMReadScreen summ_check, 4, 2, 46
-            Loop until summ_check = "SUMM"
-        End If
-
         For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)               'Now we look at each panel
             updates_to_display = ""
+
+            EMReadScreen summ_check, 4, 2, 46                       'Making sure we start at SUMM
+            'BUGGY CODE - need to make sure we are also in the right footer month here
+            If summ_check <> "SUMM" Then                            'at the end of the loop we go to summ so we should be already there
+                Call back_to_SELF
+                Do
+                    Call navigate_to_MAXIS_screen("STAT", "SUMM")
+                    EMReadScreen summ_check, 4, 2, 46
+                Loop until summ_check = "SUMM"
+            End If
+
             If EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE Then    'If we got income for this panel
                 'BUGGY CODE - this may miss the first check(s) in a month if they are not listed or the pay date is after the first one for the first month
                 'ALL THE JUICY BITS GO HERE
@@ -2968,7 +2970,14 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                 'if the active_month is this panel's initial month - then we indicate this month needs to be updated for this panel
                 If EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) = MAXIS_footer_month AND EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel) = MAXIS_footer_year Then EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel) = TRUE
 
-                If EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel) = "JOBS" Then Call Navigate_to_MAXIS_screen("STAT", "JOBS") 'navigate to JOBS for the right member and instance
+                If EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel) = "JOBS" Then
+                    EMWriteScreen "JOBS", 20, 71
+                    transmit
+
+                    EMReadScreen JOBS_check, 4, 2, 45
+
+                    If JOBS_check <> "JOBS" Then Call Navigate_to_MAXIS_screen("STAT", "JOBS") 'navigate to JOBS for the right member and instance
+                End If
                 EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel), 20, 76
                 EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel), 20, 79
                 transmit
@@ -3543,6 +3552,8 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                 'FUTURE FUNCTIONALITY - if we need to change how we handle the future month updates thing or dealing with STWK - this would be here
                 If EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel) = unchecked Then EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel) = FALSE
             End If          'If EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE Then
+            EMWriteScreen "SUMM", 20, 71        'go back to SUMM'
+            transmit
         Next            'For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
         transmit        'after all of the panels have been reviewed we are going to STAT/WRAP to get to the next month without sending through background if possible
