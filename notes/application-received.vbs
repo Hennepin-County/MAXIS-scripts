@@ -45,7 +45,6 @@ changelog = array()
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
 CALL changelog_update("04/15/2019", "Added an error reporting option at the end of the script run.", "MiKayla Handley, Hennepin County")
-
 CALL changelog_update("11/15/2018", "Enhanced functionality for SameDay interview cases.", "Casey Love, Hennepin County")
 CALL changelog_update("11/06/2018", "Updated handling for HC only applications.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/17/2018", "Updated appointment letter to address EGA programs.", "MiKayla Handley, Hennepin County")
@@ -398,7 +397,7 @@ pended_date = date
 start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
 IF confirmation_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
-IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("* Form Received: MNsure Application for Health Coverage and Help Paying Costs (DHS-6696) ")
+IF app_type = "6696" THEN write_variable_in_CASE_NOTE ("* Form Received: METS Application for Health Coverage and Help Paying Costs (DHS-6696) ")
 IF app_type = "HCAPP" THEN write_variable_in_CASE_NOTE ("* Form Received: Health Care Application (HCAPP) (DHS-3417) ")
 IF app_type = "HC-Certain Pop" THEN write_variable_in_CASE_NOTE ("* Form Received: MHC Programs Application for Certain Populations (DHS-3876) ")
 IF app_type = "LTC" THEN write_variable_in_CASE_NOTE ("* Form Received: Application for Medical Assistance for Long Term Care Services (DHS-3531) ")
@@ -409,7 +408,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", additiona
 CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
 If transfer_case_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Application assigned to", transfer_case_number)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
-'IF mnsure_retro_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Emailed " & requested_person & " to let them know the retro request is ready to be processed.")
+'IF METS_retro_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Emailed team 603 to let them know the retro request is ready to be processed.")
 If interview_completed = TRUE Then
 CALL write_variable_in_CASE_NOTE ("---")
     CALL write_variable_in_CASE_NOTE("* This case had an interview completed sameday. Interview Date on PROG was checked and updated if needed.")
@@ -498,6 +497,8 @@ IF snap_pends = TRUE THEN
    		has_DISQ = True
     END IF
 
+	'expedited_status = "Client Appears Expedited"
+	'expedited_status = "Client Does Not Appear Expedited"
 	'Reads MONY/DISB to see if EBT account is open
 	IF expedited_status = "Client Appears Expedited" THEN
    		CALL navigate_to_MAXIS_screen("MONY", "DISB")
@@ -510,9 +511,9 @@ IF snap_pends = TRUE THEN
         End If
   		'MsgBox "This Client Appears EXPEDITED. A same-day interview needs to be offered."
 		'same_day_interview = TRUE
-		'Send_email = TRUE
+		Send_email = TRUE
 	END IF
-	IF expedited_status = "Client does not appear expedited" THEN MsgBox "This client does NOT appear expedited. A same-day interview does not need to be offered."
+	IF expedited_status = "Client Does Not Appear Expedited" THEN MsgBox "This client does NOT appear expedited. A same-day interview does not need to be offered."
 	'-----------------------------------------------------------------------------------------------EXPCASENOTE
 	start_a_blank_CASE_NOTE
 	CALL write_variable_in_CASE_NOTE("~ Received Application for SNAP, " & expedited_status & " ~")
@@ -524,11 +525,10 @@ IF snap_pends = TRUE THEN
 	CALL write_variable_in_CASE_NOTE("---")
 	IF has_DISQ = TRUE THEN CALL write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
 	IF has_DISQ = FALSE THEN CALL write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
-	IF expedited_status = "Client appears expedited" AND EBT_account_status = "Y" THEN CALL write_variable_in_CASE_NOTE("* EBT Account IS open.  Recipient will NOT be able to get a replacement card in the agency.  Rapid Electronic Issuance (REI) with caution.")
-	IF expedited_status = "Client appears expedited" AND EBT_account_status = "N" THEN CALL write_variable_in_CASE_NOTE("* EBT Account is NOT open.  Recipient is able to get initial card in the agency.  Rapid Electronic Issuance (REI) can be used, but only to avoid an emergency issuance or to meet EXP criteria.")
-	CALL write_variable_in_CASE_NOTE("---")
-	IF expedited_status = "Client does not appear expedited" THEN CALL write_variable_in_CASE_NOTE("Client does not appear expedited. Application sent to ECF.")
-	IF expedited_status = "Client appears expedited" THEN CALL write_variable_in_CASE_NOTE("Client appears expedited. Application sent to ECF.")
+	IF expedited_status = "Client Appears Expedited" AND EBT_account_status = "Y" THEN CALL write_variable_in_CASE_NOTE("* EBT Account IS open.  Recipient will NOT be able to get a replacement card in the agency.  Rapid Electronic Issuance (REI) with caution.")
+	IF expedited_status = "Client Appears Expedited" AND EBT_account_status = "N" THEN CALL write_variable_in_CASE_NOTE("* EBT Account is NOT open.  Recipient is able to get initial card in the agency.  Rapid Electronic Issuance (REI) can be used, but only to avoid an emergency issuance or to meet EXP criteria.")
+	IF expedited_status = "Client Does Not Appear Expedited" THEN CALL write_variable_in_CASE_NOTE("Client does not appear expedited. Application sent to ECF.")
+	IF expedited_status = "Client Appears Expedited" THEN CALL write_variable_in_CASE_NOTE("Client appears expedited. Application sent to ECF.")
 	CALL write_variable_in_CASE_NOTE("---")
 	CALL write_variable_in_CASE_NOTE(worker_signature)
 END IF
@@ -563,8 +563,12 @@ ELSE
 END IF
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-'IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", MAXIS_case_name & maxis_case_number & " Expedited case to be assigned, transferred to team. " & transfer_case & "  EOM.", "", "", TRUE)
-
+'If run_locally = TRUE Then send_email = FALSE
+IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case number #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
+'IF how_app_rcvd = "Request to APPL Form" and METS_case_number <> "" THEN CALL create_outlook_email("", "", "Maxis case number #" & maxis_case_number & " Mets case number #" & METS_case_number & "Request to APPL form received-APPL'd in Maxis-ACTION REQUIRED.", "", "", FALSE)
+'IF how_app_rcvd = "Request to APPL Form" and METS_case_number = "" THEN CALL create_outlook_email("", "", "Maxis case number #" & maxis_case_number & "Request to APPL form received-APPL'd in Maxis-ACTION REQUIRED.", "", "", FALSE)
+'IF METS_retro_checkbox = CHECKED THEN CALL create_outlook_email("HSPH.EWS.TEAM.603@hennepin.us", "", "Maxis case number #" & maxis_case_number & " Mets case number #" & METS_case_number & " Retro Request APPL'd in Maxis-ACTION REQUIRED.", "", "", FALSE)
+'IF MA_transition_request_checkbox = CHECKED THEN CALL create_outlook_email("", "", "Maxis case number #" & maxis_case_number & " Mets case number #" & METS_case_number & " MA Transition Request APPL'd in Maxis-ACTION REQUIRED.", "", "", FALSE)
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE
 if interview_completed = TRUE Then send_appt_ltr = FALSE
