@@ -605,13 +605,13 @@ IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding addre
     CALL write_variable_in_CASE_NOTE("* Mailing address updated:  " & new_addr_line_one)
     CALL write_variable_in_CASE_NOTE("                            " & new_addr_line_two & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
     CALL write_variable_in_CASE_NOTE("                            " & county_code & " COUNTY.")
-	IF reservation_name <> "Select One:" THEN CALL write_variable_in_CASE_NOTE("                      " & "Reservation " & reservation_name)
+	IF reservation_name <> "Select One:" or reservation_name <> "N/A" THEN CALL write_variable_in_CASE_NOTE("                      " & "Reservation " & reservation_name)
     'CALL write_variable_in_CASE_NOTE("---")
 ELSE
 	CALL write_bullet_and_variable_in_case_note("Verification(s) requested", pending_verifs)
 END IF
 CALL write_variable_in_CASE_NOTE ("---")
-IF mailing_addr_line_one <> "" THEN CALL write_variable_in_CASE_NOTE("* No mailing address entered in Maxis: "
+'IF mailing_addr_line_one <> "" THEN CALL write_variable_in_CASE_NOTE("* No mailing address entered in Maxis")
 IF mailing_addr_line_one <> "" THEN
 	CALL write_variable_in_CASE_NOTE("* Previous mailing address: " & mailing_addr_line_one)
 	CALL write_variable_in_CASE_NOTE("                           " & mailing_addr_line_two & " " & mailing_addr_city & " " & mailing_addr_state & " " & mailing_addr_zip)
