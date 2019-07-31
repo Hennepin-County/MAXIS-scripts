@@ -377,6 +377,7 @@ EndDialog
 			If ButtonPressed = geocoder_button then CreateObject("WScript.Shell").Run("https://hcgis.hennepin.us/agsinteractivegeocoder/default.aspx")
 		Loop until ButtonPressed = -1
     	IF how_app_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
+		IF how_app_rcvd <> "Request to APPL Form" and request_date <> "" THEN err_msg = err_msg & vbNewLine & "* The APPL form request date does not need to be completed if this is not a request to APPL form."
 		IF how_app_rcvd = "Online" and app_type <> "ApplyMN" then err_msg = err_msg & vbNewLine & "* You selected that the application was received online please select ApplyMN from the drop down."
 		IF app_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
 		IF no_transfer_check = UNCHECKED AND transfer_case_number = "" then err_msg = err_msg & vbNewLine & "* You must enter the basket number the case to be transfered by the script or check that no transfer is needed."
@@ -391,6 +392,42 @@ EndDialog
 HC_applied_for = FALSE
 IF app_type = "6696" or app_type = "HCAPP" or app_type = "HC-Certain Pop" or app_type = "LTC" or app_type = "MHCP B/C Cancer" or app_type = "N/A" THEN HC_applied_for = TRUE
 IF app_type = "N/A" THEN app_type = ""
+If interview_completed = TRUE Then
+    Call back_to_SELF
+    Call Navigate_to_MAXIS_screen("STAT", "PROG")
+    PF9
+
+    intv_day = right("00" & DatePart("d", date), 2)
+    Intv_mo  = right("00" & DatePart("m", date), 2)
+    intv_yr  = right(DatePart("yyyy", date), 2)
+
+    If cash_pends = TRUE Then
+        EmReadscreen interview_date, 8, 6, 55
+        If interview_date = "__ __ __" Then
+            EmWriteScreen intv_mo, 6, 55
+            EmWriteScreen intv_day, 6, 58
+            EmWriteScreen intv_yr, 6, 61
+        End If
+    End If
+    If cash2_pends = TRUE Then
+        EmReadscreen interview_date, 8, 7, 55
+        If interview_date = "__ __ __" Then
+            EmWriteScreen intv_mo, 7, 55
+            EmWriteScreen intv_day, 7, 58
+            EmWriteScreen intv_yr, 7, 61
+        End If
+    End If
+    If SNAP_pends = TRUE Then
+        EmReadscreen interview_date, 8, 10, 55
+        If interview_date = "__ __ __" Then
+            EmWriteScreen intv_mo, 10, 55
+            EmWriteScreen intv_day, 10, 58
+            EmWriteScreen intv_yr, 10, 61
+        End If
+    End If
+    TRANSMIT
+    Call back_to_SELF
+End If
 pended_date = date
 '--------------------------------------------------------------------------------initial case note
 start_a_blank_case_note
@@ -399,6 +436,7 @@ IF how_app_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and
 	CALL write_variable_in_CASE_NOTE ("~ Application Received via " & how_app_rcvd & " for " & application_date & " ~")
 	'~ Application Received (METS Retro) via Request to APPL Form form on 7/16/2019 ~'
 	CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & request_date & "")
+	CALL write_variable_in_CASE_NOTE("* Emailed worker to let them know the request was processed.")
 END IF
 IF METS_retro_checkbox = CHECKED THEN
 	CALL write_variable_in_CASE_NOTE ("~ Application Received(METS Retro)via " & how_app_rcvd & " for " & application_date & " ~")
@@ -515,6 +553,8 @@ IF snap_pends = TRUE THEN
       	has_DISQ = True
     END IF
 
+	'expedited_status = "Client Appears Expedited"
+	'expedited_status = "Client Does Not Appear Expedited"
     'Reads MONY/DISB to see if EBT account is open
     IF expedited_status = "Client Appears Expedited" THEN
   		CALL navigate_to_MAXIS_screen("MONY", "DISB")
@@ -529,7 +569,7 @@ IF snap_pends = TRUE THEN
 		'same_day_interview = TRUE
 		Send_email = TRUE
     END IF
-	IF expedited_status = "Client does not appear expedited" THEN MsgBox "This client does NOT appear expedited. A same-day interview does not need to be offered."
+	IF expedited_status = "Client Does Not Appear Expedited" THEN MsgBox "This client does NOT appear expedited. A same-day interview does not need to be offered."
     '-----------------------------------------------------------------------------------------------EXPCASENOTE
     start_a_blank_CASE_NOTE
     CALL write_variable_in_CASE_NOTE("~ Received Application for SNAP, " & expedited_status & " ~")
@@ -541,16 +581,15 @@ IF snap_pends = TRUE THEN
     CALL write_variable_in_CASE_NOTE("---")
     IF has_DISQ = TRUE THEN CALL write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
     IF has_DISQ = FALSE THEN CALL write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
-    IF expedited_status = "Client appears expedited" AND EBT_account_status = "Y" THEN CALL write_variable_in_CASE_NOTE("* EBT Account IS open.  Recipient will NOT be able to get a replacement card in the agency.  Rapid Electronic Issuance (REI) with caution.")
-    IF expedited_status = "Client appears expedited" AND EBT_account_status = "N" THEN CALL write_variable_in_CASE_NOTE("* EBT Account is NOT open.  Recipient is able to get initial card in the agency.  Rapid Electronic Issuance (REI) can be used, but only to avoid an emergency issuance or to meet EXP criteria.")
-    CALL write_variable_in_CASE_NOTE("---")
-    IF expedited_status = "Client does not appear expedited" THEN CALL write_variable_in_CASE_NOTE("Client does not appear expedited. Application sent to ECF.")
-    IF expedited_status = "Client appears expedited" THEN CALL write_variable_in_CASE_NOTE("Client appears expedited. Application sent to ECF. Emailed Triagers.")
+    IF expedited_status = "Client Appears Expedited" AND EBT_account_status = "Y" THEN CALL write_variable_in_CASE_NOTE("* EBT Account IS open.  Recipient will NOT be able to get a replacement card in the agency.  Rapid Electronic Issuance (REI) with caution.")
+    IF expedited_status = "Client Appears Expedited" AND EBT_account_status = "N" THEN CALL write_variable_in_CASE_NOTE("* EBT Account is NOT open.  Recipient is able to get initial card in the agency.  Rapid Electronic Issuance (REI) can be used, but only to avoid an emergency issuance or to meet EXP criteria.")
+    IF expedited_status = "Client Does Not Appear Expedited" THEN CALL write_variable_in_CASE_NOTE("Client does not appear expedited. Application sent to ECF.")
+	IF expedited_status = "Client Appears Expedited" THEN CALL write_variable_in_CASE_NOTE("Client appears expedited. Application sent to ECF.")
 	CALL write_variable_in_CASE_NOTE("---")
 	CALL write_variable_in_CASE_NOTE(worker_signature)
 END IF
 
-'IF expedited_status = "Client appears expedited" THEN same_day_interview = TRUE
+'IF expedited_status = "Client Appears Expedited" THEN same_day_interview = TRUE
 '-------------------------------------------------------------------------------------Transfers the case to the assigned worker if this was selected in the second dialog box
 'Determining if a case will be transferred or not. All cases will be transferred except addendum app types. THIS IS NOT CORRECT AND NEEDS TO BE DISCUSSED WITH QI
 IF transfer_case_number = "" and no_transfer_check = CHECKED THEN
@@ -579,9 +618,13 @@ ELSE
     End if
 END IF
 
+
+'IF METS_case_number = "" then METS_case_number = "N/A "
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 'If run_locally = TRUE Then send_email = FALSE
 IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case number #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
+IF how_app_rcvd = "Request to APPL Form" and METS_case_number <> "" THEN CALL create_outlook_email("", "", "Maxis case number #" & maxis_case_number & " Mets case number #" & METS_case_number & "Request to APPL form received-APPL'd in Maxis-ACTION REQUIRED.", "", "", FALSE)
+IF how_app_rcvd = "Request to APPL Form" and METS_case_number = "" THEN CALL create_outlook_email("", "", "Maxis case number #" & maxis_case_number & "Request to APPL form received-APPL'd in Maxis-ACTION REQUIRED.", "", "", FALSE)
 IF METS_retro_checkbox = CHECKED THEN CALL create_outlook_email("HSPH.EWS.TEAM.603@hennepin.us", "", "Maxis case number #" & maxis_case_number & " Mets case number #" & METS_case_number & " Retro Request APPL'd in Maxis-ACTION REQUIRED.", "", "", FALSE)
 IF MA_transition_request_checkbox = CHECKED THEN CALL create_outlook_email("", "", "Maxis case number #" & maxis_case_number & " Mets case number #" & METS_case_number & " MA Transition Request APPL'd in Maxis-ACTION REQUIRED.", "", "", FALSE)
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
