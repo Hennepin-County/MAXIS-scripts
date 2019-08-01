@@ -71,6 +71,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/31/2019", "Removed the script ACCT Panel Updater. This functionality is now available in the script NOTES - Docs Received.", "Casey Love, Hennepin County")
 call changelog_update("03/13/2019", "Removed Paystubs Received. Use EARNED INCOME BUDGETING instead to update a case with paystubs received.", "Casey Love, Hennepin County")
 call changelog_update("03/05/2019", "Added EARNED INCOME BUDGETING Script.", "Casey Love, Hennepin County")
 call changelog_update("12/12/2018", "Added COUNTED ABAWD MONTHS script under ABAWD sub-menu.", "Ilse Ferris, Hennepin County")

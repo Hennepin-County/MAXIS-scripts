@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/31/2019", "Removed the following scripts: AREP Form Received, Medical Opinion Form, MTAF, and LTC-1503. The functionality from this script has been added to NOTES - Docs Received.", "Casey Love, Hennepin County")
 call changelog_update("04/30/2019", "Added Other Maintanence Benefit case note.", "MiKayla Handley, Hennepin County")
 call changelog_update("04/30/2019", "Retired NOTES - REIN PROGS script. Please use applicable application or approval case notes.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/23/2019", "Removed MAXIS TO METS MIGRATION script. Added HEALTH CARE TRANSITION script.", "Ilse Ferris, Hennepin County")
@@ -145,13 +146,6 @@ Set script_array_0_to_C(script_num) = new script		'Set this array element to be 
 script_array_0_to_C(script_num).script_name 			= "Approved programs"																'Script name
 script_array_0_to_C(script_num).file_name 				= "approved-programs.vbs"															'Script URL
 script_array_0_to_C(script_num).description 			= "Template for when you approve a client's programs."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
-Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_0_to_C(script_num).script_name				= "AREP Form Received"
-script_array_0_to_C(script_num).file_name				= "arep-form-received.vbs"
-script_array_0_to_C(script_num).description				= "Template for when you receive an Authorized Representative (AREP) form."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
@@ -407,13 +401,6 @@ script_array_G_to_L(script_num).description				= "Template for case noting a cli
 script_num = 0											'establishing count as 0
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
 Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_M_to_Q(script_num).script_name 			= "Medical Opinion Form Received"
-script_array_M_to_Q(script_num).file_name				= "medical-opinion-form-received.vbs"
-script_array_M_to_Q(script_num).description				= "Template for case noting information about a Medical Opinion Form."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
-Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_M_to_Q(script_num).script_name 			= "MFIP Sanction/DWP Disqualification"
 script_array_M_to_Q(script_num).file_name				= "mfip-sanction-and-dwp-disqualification.vbs"
 script_array_M_to_Q(script_num).description				= "Template for MFIP sanctions and DWP disqualifications, both CS and ES."
@@ -438,13 +425,6 @@ Set script_array_M_to_Q(script_num) = new script		'Set this array element to be 
 script_array_M_to_Q(script_num).script_name 			= "MSQ"
 script_array_M_to_Q(script_num).file_name				= "msq.vbs"
 script_array_M_to_Q(script_num).description				= "Template for noting Medical Service Questionaires (MSQ)."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
-Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_M_to_Q(script_num).script_name 			= "MTAF"
-script_array_M_to_Q(script_num).file_name				= "mtaf.vbs"
-script_array_M_to_Q(script_num).description				= "Template for the MN Transition Application form (MTAF)."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
@@ -514,13 +494,6 @@ script_array_R_to_Z(script_num).description				= "Template for when verification
 '-------------------------------------------------------------------------------------------------------------------------LTC
 'Resetting the variable
 script_num = 0											'establishing count as 0
-ReDim Preserve script_array_LTC(script_num)				'Resets the array to add one more element to it
-Set script_array_LTC(script_num) = new script			'Set this array element to be a new script. Script details below...
-script_array_LTC(script_num).script_name 				= "LTC - 1503"
-script_array_LTC(script_num).file_name					= "ltc-1503.vbs"
-script_array_LTC(script_num).description				= "Template for processing DHS-1503."
-
-script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_LTC(script_num)				'Resets the array to add one more element to it
 Set script_array_LTC(script_num) = new script			'Set this array element to be a new script. Script details below...
 script_array_LTC(script_num).script_name 				= "LTC - 5181"
