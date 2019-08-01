@@ -3311,21 +3311,23 @@ Do
                     Next
 
                     'DIALOG 3
-                    For each_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
-                        If len(ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi)) < 20 AND ALL_BUSI_PANELS_ARRAY(estimate_only, each_busi) = unchecked Then full_err_msg = full_err_msg & "~!~3^* Additional detail about how BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & " was budgeted is required. Complete the 'Explain Budget' field for this self employment."
-                        If ALL_BUSI_PANELS_ARRAY(calc_method, each_busi) = "Select One" Then full_err_msg = full_err_msg & "~!~3^* Indicate which calculation method will be used for BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & "."
-                        If ALL_BUSI_PANELS_ARRAY(calc_method, each_busi) = "Tax Forms" Then
-                            If SNAP_checkbox = checked Then
-                                If trim(ALL_BUSI_PANELS_ARRAY(exp_not_allwd, each_busi)) = "" Then full_err_msg = full_err_msg & "~!~3^* Since the calculation method is 'Tax Forms' and this is a SNAP case, indicate what (if any) expenses on taxes have been excluded."
-                                If ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of income for SNAP should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
-                                If ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of expenses for SNAP should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
+                    If ALL_BUSI_PANELS_ARRAY(memb_numb, 0) <> "" Then
+                        For each_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
+                            If len(ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi)) < 20 AND ALL_BUSI_PANELS_ARRAY(estimate_only, each_busi) = unchecked Then full_err_msg = full_err_msg & "~!~3^* Additional detail about how BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & " was budgeted is required. Complete the 'Explain Budget' field for this self employment."
+                            If ALL_BUSI_PANELS_ARRAY(calc_method, each_busi) = "Select One" Then full_err_msg = full_err_msg & "~!~3^* Indicate which calculation method will be used for BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & "."
+                            If ALL_BUSI_PANELS_ARRAY(calc_method, each_busi) = "Tax Forms" Then
+                                If SNAP_checkbox = checked Then
+                                    If trim(ALL_BUSI_PANELS_ARRAY(exp_not_allwd, each_busi)) = "" Then full_err_msg = full_err_msg & "~!~3^* Since the calculation method is 'Tax Forms' and this is a SNAP case, indicate what (if any) expenses on taxes have been excluded."
+                                    If ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of income for SNAP should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
+                                    If ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of expenses for SNAP should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
+                                End If
+                                If cash_checkbox = checked or EMER_checkbox = checked Then
+                                    If ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of income for Cash/EMER should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
+                                    If ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of expenses for Cash/EMER should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
+                                End If
                             End If
-                            If cash_checkbox = checked or EMER_checkbox = checked Then
-                                If ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of income for Cash/EMER should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
-                                If ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of expenses for Cash/EMER should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
-                            End If
-                        End If
-                    Next
+                        Next
+                    End If
 
                     'DIALOG 4
 
@@ -3720,7 +3722,7 @@ If adult_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is fo
 intv_note_entry = "* Interview completed"
 If trim(interview_type) <> "" AND interivew_type <> "Select or Type" Then intv_note_entry = intv_note_entry & " via " & interview_type
 If trim(interview_date) <> "" Then intv_note_entry = intv_note_entry & " on: " & interview_date
-If trim(interview_with) <> "" AND interview_with <> "Select or Type" Then intv_note_entry = intv_note_entry & " with: " & interview_list
+If trim(interview_with) <> "" AND interview_with <> "Select or Type" Then intv_note_entry = intv_note_entry & " with: " & interview_with
 If Used_Interpreter_checkbox = checked Then intv_note_entry = intv_note_entry & " w/ interpreter"
 Call write_variable_in_CASE_NOTE(intv_note_entry)
 
@@ -3734,6 +3736,7 @@ If CAF_type = "Application" and SNAP_checkbox = checked Then
     End If
     If snap_exp_yn = "No" Then Call write_variable_in_CASE_NOTE("* Case is NOT eligible for Expedited SNAP.")
     Call write_variable_in_CASE_NOTE("* In the month of application - Income $" & app_month_income & " - Assets $" & app_month_assets & " - Expenses $" & app_month_expenses & ".")
+    CALL write_variable_in_CASE_NOTE("------------------------------")
 End If
 
 'Household and personal information
@@ -3749,9 +3752,9 @@ If SNAP_checkbox = checked Then
     Next
     If included_snap_members <> "" Then included_snap_members = right(included_snap_members, len(included_snap_members) - 2)
     If counted_snap_members <> "" Then counted_snap_members = right(counted_snap_members, len(counted_snap_members) - 2)
-    If included_snap_members <> "" Then Call write_variable_in_CASE_NOTE("  - Members on SNAP grant: " & included_snap_members)
-    If counted_snap_members <> "" Then Call write_variable_in_CASE_NOTE("  - Members with income counted ONLY for SNAP: " & counted_snap_members)
-    If EATS <> "" Then Call write_variable_in_CASE_NOTE("  - Information on EATS: " & EATS)
+    If included_snap_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members on SNAP grant: " & included_snap_members)
+    If counted_snap_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members with income counted ONLY for SNAP: " & counted_snap_members)
+    If EATS <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Information on EATS: " & EATS)
 End If
 If cash_checkbox = checked Then
     total_cash_count = adult_cash_count + child_cash_count
@@ -3766,8 +3769,8 @@ If cash_checkbox = checked Then
     Next
     If included_cash_members <> "" Then included_cash_members = right(included_cash_members, len(included_cash_members) - 2)
     If counted_cash_members <> "" Then counted_cash_members = right(counted_cash_members, len(counted_cash_members) - 2)
-    If included_cash_members <> "" Then Call write_variable_in_CASE_NOTE("  - Members on CASH grant: " & included_cash_members)
-    If counted_cash_members <> "" Then Call write_variable_in_CASE_NOTE("  - Members with income counted ONLY for CASH: " & counted_cash_members)
+    If included_cash_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members on CASH grant: " & included_cash_members)
+    If counted_cash_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members with income counted ONLY for CASH: " & counted_cash_members)
 End If
 If EMER_checkbox = checked Then
     total_emer_count = adult_emer_count + child_emer_count
@@ -3781,13 +3784,14 @@ If EMER_checkbox = checked Then
     Next
     If included_emer_members <> "" Then included_emer_members = right(included_emer_members, len(included_emer_members) - 2)
     If counted_emer_members <> "" Then counted_emer_members = right(counted_emer_members, len(counted_emer_members) - 2)
-    Call write_variable_in_CASE_NOTE("  - Members on EMER grant: " & included_emer_members)
-    Call write_variable_in_CASE_NOTE("  - Members with income counted ONLY for EMER: " & counted_emer_members)
+    Call write_variable_with_indent_in_CASE_NOTE("Members on EMER grant: " & included_emer_members)
+    Call write_variable_with_indent_in_CASE_NOTE("Members with income counted ONLY for EMER: " & counted_emer_members)
 End If
 Call write_bullet_and_variable_in_CASE_NOTE("Relationships", relationship_detail)
 
 'Address Detail
 If address_confirmation_checkbox = checked Then Call write_variable_in_CASE_NOTE("* The address on ADDR was reviewed and is correct.")
+If homeless_yn = "Yes" Then Call write_variable_in_CASE_NOTE("* Houeshld is homeless.")
 Call write_bullet_and_variable_in_CASE_NOTE("Living Situation", living_situation)
 Call write_bullet_and_variable_in_CASE_NOTE("Address Detail", notes_on_address)
 
@@ -3797,6 +3801,7 @@ Call write_bullet_and_variable_in_CASE_NOTE("DISQ", DISQ)
 'INCOME
 'JOBS
 If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) <> "" Then
+    ' Call write_variable_with_indent(variable_name)
     Call write_variable_in_CASE_NOTE("--- JOBS Income ---")
     For each_job = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
         Call write_variable_in_CASE_NOTE("Member " & ALL_JOBS_PANELS_ARRAY(memb_numb, each_job) & " at " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job))
@@ -3810,10 +3815,10 @@ If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) <> "" Then
             End If
         End If
         Call write_bullet_and_variable_in_CASE_NOTE("Verification", ALL_JOBS_PANELS_ARRAY(verif_explain, each_job))
-        If ALL_JOBS_PANELS_ARRAY(job_retro_income, each_job) <> "" Then Call write_variable_in_CASE_NOTE("  - Retro Income : $" & ALL_JOBS_PANELS_ARRAY(job_retro_income, each_job) & " - " & ALL_JOBS_PANELS_ARRAY(retro_hours, each_job) & " hours.")
-        If ALL_JOBS_PANELS_ARRAY(job_prosp_income, each_job) <> "" Then Call write_variable_in_CASE_NOTE("  - Prospective Income : $" & ALL_JOBS_PANELS_ARRAY(job_prosp_income, each_job) & " - " & ALL_JOBS_PANELS_ARRAY(prosp_hours, each_job) & " hours.")
-        If snap_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - SNAP Budget Detail: Monthly budgeted amount - $" & ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job) & " based on $" & ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job) & " paid " & ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job) & ". Calculated on " & ALL_JOBS_PANELS_ARRAY(pic_calc_date, each_job))
-        If ALL_JOBS_PANELS_ARRAY(budget_explain, each_job) <> "" Then Call write_variable_in_CASE_NOTE("  - About Budget: " & ALL_JOBS_PANELS_ARRAY(budget_explain, each_job))
+        If ALL_JOBS_PANELS_ARRAY(job_retro_income, each_job) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Retro Income : $" & ALL_JOBS_PANELS_ARRAY(job_retro_income, each_job) & " - " & ALL_JOBS_PANELS_ARRAY(retro_hours, each_job) & " hours.")
+        If ALL_JOBS_PANELS_ARRAY(job_prosp_income, each_job) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Prospective Income : $" & ALL_JOBS_PANELS_ARRAY(job_prosp_income, each_job) & " - " & ALL_JOBS_PANELS_ARRAY(prosp_hours, each_job) & " hours.")
+        If snap_checkbox = checked Then Call write_variable_with_indent_in_CASE_NOTE("SNAP Budget Detail: Monthly budgeted amount - $" & ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job) & " based on $" & ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job) & " paid " & ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job) & ". Calculated on " & ALL_JOBS_PANELS_ARRAY(pic_calc_date, each_job))
+        If ALL_JOBS_PANELS_ARRAY(budget_explain, each_job) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("About Budget: " & ALL_JOBS_PANELS_ARRAY(budget_explain, each_job))
     Next
 End If
 Call write_bullet_and_variable_in_CASE_NOTE("JOBS", notes_on_jobs)
@@ -3835,17 +3840,17 @@ If ALL_BUSI_PANELS_ARRAY(memb_numb, 0) <> "" Then
         Call write_variable_in_CASE_NOTE(se_method_det_msg)
 
         If cash_checkbox = checked OR EMER_checkbox = checked Then
-            If ALL_BUSI_PANELS_ARRAY(income_ret_cash, each_busi) <> "" Then Call write_variable_in_CASE_NOTE("  - Retro Income $" & ALL_BUSI_PANELS_ARRAY(income_ret_cash, each_busi) & " Expenses $" & ALL_BUSI_PANELS_ARRAY(expense_ret_cash, each_busi))
-            If ALL_BUSI_PANELS_ARRAY(income_ret_cash, each_busi) <> "" Then Call write_variable_in_CASE_NOTE("  - Prospective Income $" & ALL_BUSI_PANELS_ARRAY(income_ret_cash, each_busi) & " Expenses $" & ALL_BUSI_PANELS_ARRAY(expense_ret_cash, each_busi))
-            If ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) <> "Select or Type" and ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) <> "" Then call write_variable_in_CASE_NOTE("  - Cash Income verification: " & ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi))
-            If ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi) <> "Select or Type" and ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi) <> "" Then call write_variable_in_CASE_NOTE("  - Cash Expense verification: " & ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi))
+            If ALL_BUSI_PANELS_ARRAY(income_ret_cash, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Retro Income $" & ALL_BUSI_PANELS_ARRAY(income_ret_cash, each_busi) & " Expenses $" & ALL_BUSI_PANELS_ARRAY(expense_ret_cash, each_busi))
+            If ALL_BUSI_PANELS_ARRAY(income_ret_cash, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Prospective Income $" & ALL_BUSI_PANELS_ARRAY(income_ret_cash, each_busi) & " Expenses $" & ALL_BUSI_PANELS_ARRAY(expense_ret_cash, each_busi))
+            If ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) <> "Select or Type" and ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) <> "" Then call write_variable_with_indent_in_CASE_NOTE("Cash Income verification: " & ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi))
+            If ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi) <> "Select or Type" and ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi) <> "" Then call write_variable_with_indent_in_CASE_NOTE("Cash Expense verification: " & ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi))
         End If
         If SNAP_checkbox = checked Then
-            If ALL_BUSI_PANELS_ARRAY(income_ret_snap, each_busi) <> "" Then Call write_variable_in_CASE_NOTE("  - Retro Income $" & ALL_BUSI_PANELS_ARRAY(income_ret_snap, each_busi) & " Expenses $" & ALL_BUSI_PANELS_ARRAY(expense_ret_snap, each_busi))
-            If ALL_BUSI_PANELS_ARRAY(income_ret_snap, each_busi) <> "" Then Call write_variable_in_CASE_NOTE("  - Prospective Income $" & ALL_BUSI_PANELS_ARRAY(income_ret_snap, each_busi) & " Expenses $" & ALL_BUSI_PANELS_ARRAY(expense_ret_snap, each_busi))
-            If ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) <> "Select or Type" and ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) <> "" Then call write_variable_in_CASE_NOTE("  - SNAP Income verification: " & ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi))
-            If ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi) <> "Select or Type" and ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi) <> "" Then call write_variable_in_CASE_NOTE("  - SNAP Expense verification: " & ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi))
-            If ALL_BUSI_PANELS_ARRAY(exp_not_allwd, each_busi) <> "" Then Call write_variable_in_CASE_NOTE("  - Expenses from taxes not allowed: " & ALL_BUSI_PANELS_ARRAY(exp_not_allwd, each_busi))
+            If ALL_BUSI_PANELS_ARRAY(income_ret_snap, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Retro Income $" & ALL_BUSI_PANELS_ARRAY(income_ret_snap, each_busi) & " Expenses $" & ALL_BUSI_PANELS_ARRAY(expense_ret_snap, each_busi))
+            If ALL_BUSI_PANELS_ARRAY(income_ret_snap, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Prospective Income $" & ALL_BUSI_PANELS_ARRAY(income_ret_snap, each_busi) & " Expenses $" & ALL_BUSI_PANELS_ARRAY(expense_ret_snap, each_busi))
+            If ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) <> "Select or Type" and ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) <> "" Then call write_variable_with_indent_in_CASE_NOTE("SNAP Income verification: " & ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi))
+            If ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi) <> "Select or Type" and ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi) <> "" Then call write_variable_with_indent_in_CASE_NOTE("SNAP Expense verification: " & ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi))
+            If ALL_BUSI_PANELS_ARRAY(exp_not_allwd, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Expenses from taxes not allowed: " & ALL_BUSI_PANELS_ARRAY(exp_not_allwd, each_busi))
         End If
         hours_det_msg = ""
         If ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, each_busi) <> "" OR ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, each_busi) <> "" Then
@@ -3860,23 +3865,142 @@ If ALL_BUSI_PANELS_ARRAY(memb_numb, 0) <> "" Then
             If ALL_BUSI_PANELS_ARRAY(min_wg_prosp_hrs, each_busi) <> "" Then hours_det_msg = hours_det_msg & ALL_BUSI_PANELS_ARRAY(min_wg_prosp_hrs, each_busi) & " prospective"
             hours_det_msg = hours_det_msg & ". "
         End If
-        If ALL_BUSI_PANELS_ARRAY(verif_explain, each_busi) <> "" Then Call write_variable_in_CASE_NOTE("  - Veification Detail: " & ALL_BUSI_PANELS_ARRAY(verif_explain, each_busi))
-        If ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi) <> "" Then Call write_variable_in_CASE_NOTE("  - Budget Detail: " & ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi))
+        If ALL_BUSI_PANELS_ARRAY(verif_explain, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Veification Detail: " & ALL_BUSI_PANELS_ARRAY(verif_explain, each_busi))
+        If ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Budget Detail: " & ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi))
     Next
 End If
 Call write_bullet_and_variable_in_CASE_NOTE("BUSI", notes_on_busi)
 
 'CSES
-'UNEA
-'WREG and ABAWD
-'SHEL
-'HEST/ACUT
-'Expenses
-'Assets
-'MEDI/DIET/FMED
-'MFIP-DWP information
-'Next review
+If show_cses_detail = TRUE Then
+    Call write_variable_in_CASE_NOTE("--- Child Support Income ---")
+    For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
+        If UNEA_INCOME_ARRAY(CS_exists, each_unea_memb) = TRUE Then
+            total_cs = 0
+            If IsNumeric(UNEA_INCOME_ARRAY(direct_CS_amt, each_unea_memb)) = TRUE Then total_cs = total_cs + UNEA_INCOME_ARRAY(direct_CS_amt, each_unea_memb)
+            If IsNumeric(UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb)) = TRUE Then total_cs = total_cs + UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb)
+            If IsNumeric(UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb)) = TRUE Then total_cs = total_cs + UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb)
 
+            Call write_variable_in_CASE_NOTE("* Total child support income for Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb))
+            If UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb) <> "" Then
+                cs_disb_inc_det = "Disbursed child support: $" & UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb)
+                If trim(UNEA_INCOME_ARRAY(disb_CS_notes, each_unea_memb)) <> "" Then cs_disb_inc_det = cs_disb_inc_det & ". Notes: " & UNEA_INCOME_ARRAY(disb_CS_notes, each_unea_memb)
+                If trim(UNEA_INCOME_ARRAY(disb_CS_months, each_unea_memb)) <> "" Then cs_disb_inc_det = cs_disb_inc_det & " Income was determined using " & UNEA_INCOME_ARRAY(disb_CS_months, each_unea_memb) & " month(s) of disbursement income."
+                If trim(UNEA_INCOME_ARRAY(disb_CS_prosp_budg, each_unea_memb)) <> "" Then cs_disb_inc_det = cs_disb_inc_det & " SNAP prospective budget details: " & UNEA_INCOME_ARRAY(disb_CS_prosp_budg, each_unea_memb)
+
+                Call write_variable_with_indent_in_CASE_NOTE(cs_disb_inc_det)
+            End If
+
+            If UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb) <> "" Then
+                cs_arrears_inc_det = "Disbursed child support arrears: $" & UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb)
+                If trim(UNEA_INCOME_ARRAY(disb_CS_arrears_notes, each_unea_memb)) <> "" Then cs_arrears_inc_det = cs_arrears_inc_det & ". Notes: " & UNEA_INCOME_ARRAY(disb_CS_arrears_notes, each_unea_memb)
+                If trim(UNEA_INCOME_ARRAY(disb_CS_arrears_months, each_unea_memb)) <> "" Then cs_arrears_inc_det = cs_arrears_inc_det & " Income was determined using " & UNEA_INCOME_ARRAY(disb_CS_arrears_months, each_unea_memb) & " month(s) of disbursement income."
+                If trim(UNEA_INCOME_ARRAY(disb_CS_arrears_budg, each_unea_memb)) <> "" Then cs_arrears_inc_det = cs_arrears_inc_det & " SNAP prospective budget details: " & UNEA_INCOME_ARRAY(disb_CS_arrears_budg, each_unea_memb)
+
+                Call write_variable_with_indent_in_CASE_NOTE(cs_arrears_inc_det)
+            End If
+
+            If UNEA_INCOME_ARRAY(direct_CS_amt, each_unea_memb) <> "" Then
+                direct_cs_inc_det = "Direct child support: $" & UNEA_INCOME_ARRAY(direct_CS_amt, each_unea_memb)
+                If trim(UNEA_INCOME_ARRAY(direct_CS_notes, each_unea_memb)) <> "" Then direct_cs_inc_det = direct_cs_inc_det & ". Notes: " & UNEA_INCOME_ARRAY(direct_CS_notes, each_unea_memb)
+
+                Call write_variable_with_indent_in_CASE_NOTE(direct_cs_inc_det)
+            End if
+        End If
+    Next
+End If
+Call write_bullet_and_variable_in_CASE_NOTE("Other Child Support Income", noites_on_cses)
+
+'UNEA
+For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
+    If UNEA_INCOME_ARRAY(SSA_exists, each_unea_memb) = TRUE Then
+        rsdi_income_det = ""
+        If trim(UNEA_INCOME_ARRAY(UNEA_RSDI_amt, each_unea_memb)) <> "" Then rsdi_income_det = rsdi_income_det & "RSDI; $" & UNEA_INCOME_ARRAY(UNEA_RSDI_amt, each_unea_memb)
+        If trim(UNEA_INCOME_ARRAY(UNEA_RSDI_notes, each_unea_memb)) <> "" Then rsdi_income_det = rsdi_income_det & ". Notes: " & UNEA_INCOME_ARRAY(UNEA_RSDI_notes, each_unea_memb)
+
+        ssi_income_det = ""
+        If trim(UNEA_INCOME_ARRAY(UNEA_SSI_amt, each_unea_memb)) <> "" Then ssi_income_det = ssi_income_det & "SSI: $" & UNEA_INCOME_ARRAY(UNEA_SSI_amt, each_unea_memb)
+        If trim(UNEA_INCOME_ARRAY(UNEA_SSI_notes, each_unea_memb)) <> "" Then ssi_income_det = ssi_income_det & ". Notes: " & UNEA_INCOME_ARRAY(UNEA_SSI_notes, each_unea_memb)
+
+        Call write_variable_in_CASE_NOTE("* Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " SSA income:")
+        If rsdi_income_det <>> "" Then Call write_variable_with_indent_in_CASE_NOTE(rsdi_income_det)
+        If ssi_income_det <> "" Then Call write_variable_with_indent_in_CASE_NOTE(ssi_income_det)
+    End If
+Next
+Call write_bullet_and_variable_in_CASE_NOTE("Other SSA Income", notes_on_ssa_income)
+Call write_bullet_and_variable_in_CASE_NOTE("VA Income", notes_on_VA_income)
+Call write_bullet_and_variable_in_CASE_NOTE("Workers Comp Income", notes_on_WC_income)
+
+For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
+    If UNEA_INCOME_ARRAY(UC_exists, each_unea_memb) = TRUE Then
+        uc_income_det_one = ""
+        uc_income_det_two = ""
+        If trim(UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, each_unea_memb)) <> "" Then
+            uc_income_det_one = uc_income_det_one & "UC weekly gross income: $" & UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, each_unea_memb) & ". "
+            If trim(UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, each_unea_memb)) <> "" Then uc_income_det_one = uc_income_det_one & "Deduction amount allowed: $" & UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, each_unea_memb) & ". "
+            If trim(UNEA_INCOME_ARRAY(UNEA_UC_exclude_ded, each_unea_memb)) <> "" Then uc_income_det_one = uc_income_det_one & "Deduction amount excluded: $" & UNEA_INCOME_ARRAY(UNEA_UC_exclude_ded, each_unea_memb) & ". "
+            uc_income_det_one = uc_income_det_one & "Budgeted UC weekly amount: $" & UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb)
+        Else
+            uc_income_det_one = uc_income_det_one & "Budgeted UC weekly amount: $" & UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb)
+            If trim(UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, each_unea_memb)) <> "" Then uc_income_det_one = uc_income_det_one & "Deduction amount allowed: $" & UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, each_unea_memb) & ". "
+            If trim(UNEA_INCOME_ARRAY(UNEA_UC_exclude_ded, each_unea_memb)) <> "" Then uc_income_det_one = uc_income_det_one & "Deduction amount excluded: $" & UNEA_INCOME_ARRAY(UNEA_UC_exclude_ded, each_unea_memb) & ". "
+        End If
+        If trim(UNEA_INCOME_ARRAY(UNEA_UC_account_balance, each_unea_memb)) <> "" Then uc_income_det_one = uc_income_det_one & "Current UC account balance: $" & UNEA_INCOME_ARRAY(UNEA_UC_account_balance, each_unea_memb) & ". "
+        If trim(UNEA_INCOME_ARRAY(UNEA_UC_retro_amt, each_unea_memb)) <> "" Then uc_income_det_two = uc_income_det_two & "UC Retro Income: $" & UNEA_INCOME_ARRAY(UNEA_UC_retro_amt, each_unea_memb) & ". "
+        If trim(UNEA_INCOME_ARRAY(UNEA_UC_prosp_amt, each_unea_memb)) <> "" Then uc_income_det_two = uc_income_det_two & "UC Prosp Income: $" UNEA_INCOME_ARRAY(UNEA_UC_prosp_amt, each_unea_memb) & ". "
+        If trim(UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, each_unea_memb)) <> "" Then uc_income_det_two = uc_income_det_two & "UC SNAP budgeted Income: $" UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, each_unea_memb) & ". "
+
+        Call write_variable_in_CASE_NOTE("* Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " Unemployment Income:")
+        If trim(UNEA_INCOME_ARRAY(UNEA_UC_start_date, each_unea_memb)) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("UC Income started on:; " & UNEA_INCOME_ARRAY(UNEA_UC_start_date, each_unea_memb) & ". ")
+        If uc_income_det_one <> "" Then Call write_variable_with_indent_in_CASE_NOTE(uc_income_det_one)
+        If uc_income_det_two <> "" Then Call write_variable_with_indent_in_CASE_NOTE(uc_income_det_two)
+        If IsDate(UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb)) = TRUE Then Call write_variable_with_indent_in_CASE_NOTE("TIKL set to check for end of UC on: " & UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb))
+        If trim(UNEA_INCOME_ARRAY(UNEA_UC_notes, each_unea_memb)) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Notes: " & UNEA_INCOME_ARRAY(UNEA_UC_notes, each_unea_memb))
+    End If
+Next
+Call write_bullet_and_variable_in_CASE_NOTE("Other UC Income", other_uc_income_notes)
+Call write_bullet_and_variable_in_CASE_NOTE("Unearned Income", notes_on_other_UNEA)
+
+'WREG and ABAWD
+Call write_bullet_and_variable_in_CASE_NOTE("WREG", notes_on_wreg)
+all_abawd_notes = notes_on_abawd & notes_on_abawd_two
+Call write_bullet_and_variable_in_CASE_NOTE("ABAWD", all_abawd_notes)
+
+'SHEL
+Call write_bullet_and_variable_in_CASE_NOTE("Shelter Expense", "$" & total_shelter_amount)
+If shelter_details <> "" Then Call write_variable_with_indent_in_CASE_NOTE(shelter_details & shelter_details_two)
+
+'HEST/ACUT
+Call write_bullet_and_variable_in_CASE_NOTE("Actual Utility Expenses", notes_on_acct)
+If hest_information <> "Select ALLOWED HEST" Then Call write_variable_in_CASE_NOTE("* Standard Utility expenses: " & hest_information)
+
+'Expenses
+Call write_bullet_and_variable_in_CASE_NOTE("Court Ordered Expenses", notes_on_coex)
+Call write_bullet_and_variable_in_CASE_NOTE("Dependent Care Expenses", notes_on_dcex)
+Call write_bullet_and_variable_in_CASE_NOTE("Other Expenses", notes_on_other_deduction)
+Call write_bullet_and_variable_in_CASE_NOTE("Expense Detail", expense_notes)
+
+'Assets
+Call write_bullet_and_variable_in_CASE_NOTE("Accounts", notes_on_acct)
+Call write_bullet_and_variable_in_CASE_NOTE("Cash", notes_on_cash)
+Call write_bullet_and_variable_in_CASE_NOTE("Cars", notes_on_cars)
+Call write_bullet_and_variable_in_CASE_NOTE("Real Estate", notes_on_rest)
+Call write_bullet_and_variable_in_CASE_NOTE("Other Assets", notes_on_other_assets)
+Call write_bullet_and_variable_in_CASE_NOTE("", )
+
+'MEDI/DIET/FMED
+Call write_bullet_and_variable_in_CASE_NOTE("Medicare", MEDI)
+Call write_bullet_and_variable_in_CASE_NOTE("Diet", DIET)
+Call write_bullet_and_variable_in_CASE_NOTE("FS Medical Expenses", FMED)
+
+'MFIP-DWP information
+Call write_bullet_and_variable_in_CASE_NOTE("Time Tracking (MFIP)", notes_on_time)
+Call write_bullet_and_variable_in_CASE_NOTE("MFIP Sanction", notes_on_sanction)
+Call write_bullet_and_variable_in_CASE_NOTE("MF/DWP Employment Services", EMPS)
+If MFIP_DVD_checkbox = checked Then Call write_variable_in_CASE_NOTE("* MFIP financial orientation DVD sent to participant(s).")
+
+'Next review
+If trim(next_er_month) <> "" Then Call write_bullet_and_variable_in_CASE_NOTE("Next ER", next_er_month & "/" & next_er_year)
 
 IF application_signed_checkbox = checked THEN
 	CALL write_variable_in_CASE_NOTE("* Application was signed.")
