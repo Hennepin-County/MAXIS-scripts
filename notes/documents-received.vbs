@@ -446,7 +446,7 @@ DO
         no_detail_added = False
         If LTC_case = vbNo then
             If mof_form_checkbox = unchecked AND evf_form_received_checkbox = unchecked AND asset_form_checkbox = unchecked AND arep_form_checkbox = uncehecked AND mtaf_form_checkbox = unchecked Then no_checkboxes_checked = TRUE
-            If trim(ADDR) = "" AND trim(SCHL) = "" AND trim(DISA) = "" AND trim(JOBS) = "" AND trim(BUSI) = "" AND trim(UNEA) = "" AND trim(other_assets) = "" AND trim(SHEL) = "" AND trim(INSA) = "" AND trim(other_verifs) = "" Then no_detail_added = TRUE
+            If trim(ADDR) = "" AND trim(SCHL) = "" AND trim(DISA) = "" AND trim(JOBS) = "" AND trim(BUSI) = "" AND trim(UNEA) = "" AND trim(ACCT) = "" AND trim(other_assets) = "" AND trim(SHEL) = "" AND trim(INSA) = "" AND trim(other_verifs) = "" Then no_detail_added = TRUE
         ElseIf LTC_case = vbYes then
             If evf_form_received_checkbox = unchecked AND asset_form_checkbox = unchecked AND arep_form_checkbox = uncehecked AND ltc_1503_form_checkbox = unchecked Then no_checkboxes_checked = TRUE
             If trim(FACI) = "" AND trim(JOBS) = "" AND trim(BUSI_RBIC) = "" AND trim(UNEA) = "" AND trim(ACCT) = "" AND trim(SECU) = "" AND trim(CARS) = "" AND trim(REST) = "" AND trim(OTHR) = "" AND trim(SHEL) = "" AND trim(INSA) = "" AND trim(medical_expenses) = "" AND trim(veterans_info) = "" AND trim(other_verifs) = "" Then no_detail_added = TRUE
