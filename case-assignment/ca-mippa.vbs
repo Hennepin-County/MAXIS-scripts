@@ -43,7 +43,8 @@ END IF
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
-'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")CALL changelog_update("04/16/2019", "Added requested language for denial dates and extra help.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("08/02/2019", "Removed error reporting, due to system limitations.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("04/16/2019", "Added requested language for denial dates and extra help.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/19/2019", "Added an error reporting option at the end of the script run.", "Casey Love, Hennepin County")
 call changelog_update("11/06/2017", "Updates to handle when there are multiple PMI associated with the same client.", "MiKayla Handley, Hennepin County")
@@ -419,4 +420,4 @@ LOOP UNTIL END_info_confirmation = vbYes
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 'CALL create_outlook_email("pahoua.vang@hennepin.us;", "", maxis_name & maxis_case_number & " MIPPA case need Application sent EOM.", "", "", TRUE)
 'msgbox "where am i ending?"
-script_end_procedure_with_error_report("MIPPA CASE NOTE HAS BEEN UPDATED. PLEASE ENSURE THE CASE IS CLEARED on REPT/MLAR & THE FORMS HAVE BEEN MAILED. ")
+script_end_procedure("MIPPA CASE NOTE HAS BEEN UPDATED. PLEASE ENSURE THE CASE IS CLEARED on REPT/MLAR & THE FORMS HAVE BEEN MAILED. ")
