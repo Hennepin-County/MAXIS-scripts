@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/02/2019", "Bug in script when 2 checks with the same date are entered, script would get stuck and be unable to continue. Script will now continue but confirmation of the paydate will be required as the script reads it as an unexpected pay date.", "Casey Love, Hennepin County")
 call changelog_update("07/31/2019", "Bug fix where occasionally the script fails at navigating to the JOBS panel for update.", "Casey Love, Hennepin County")
 call changelog_update("06/27/2019", "Bug fix on Case Noting Retro HC Income.", "Casey Love, Hennepin County")
 Call changelog_update("06/13/2019", "Bug fix for semi-monthly pay frequency when no actual checks are listed (only anticipated income schedule and hours).", "Casey Love, Hennepin County")
@@ -106,32 +107,53 @@ function sort_dates(dates_array)
 '===== Keywords: MAXIS, date, order, list, array
     dim ordered_dates ()
     redim ordered_dates(0)
-
+    original_array_items_used = "~"
     days =  0
     do
 
         prev_date = ""
+        original_array_index = 0
         for each thing in dates_array
             check_this_date = TRUE
+            new_array_index = 0
             For each known_date in ordered_dates
                 if known_date = thing Then check_this_date = FALSE
-                'MsgBox "known dates is " & known_date & vbNewLine & "thing is " & thing & vbNewLine & "match - " & check_this_date
+                new_array_index = new_array_index + 1
+                ' MsgBox "known dates is " & known_date & vbNewLine & "thing is " & thing & vbNewLine & "match - " & check_this_date
             next
+            ' MsgBox "known dates is " & known_date & vbNewLine & "thing is " & thing & vbNewLine & "check this date - " & check_this_date
             if check_this_date = TRUE Then
                 if prev_date = "" Then
                     prev_date = thing
+                    index_used = original_array_index
                 Else
-                    if DateDiff("d", prev_date, thing) <0 then
+                    if DateDiff("d", prev_date, thing) < 0 then
                         prev_date = thing
+                        index_used = original_array_index
                     end if
                 end if
             end if
+            original_array_index = original_array_index + 1
         next
         if prev_date <> "" Then
             redim preserve ordered_dates(days)
             ordered_dates(days) = prev_date
+            original_array_items_used = original_array_items_used & index_used & "~"
             days = days + 1
         end if
+        counter = 0
+        For each thing in dates_array
+            If InStr(original_array_items_used, "~" & counter & "~") = 0 Then
+                For each new_date_thing in ordered_dates
+                    If thing = new_date_thing Then
+                        original_array_items_used = original_array_items_used & counter & "~"
+                        days = days + 1
+                    End If
+                Next
+            End If
+            counter = counter + 1
+        Next
+        ' MsgBox "Ordered Dates array - " & join(ordered_dates, ", ") & vbCR & "days - " & days & vbCR & "Ubound - " & UBOUND(dates_array) & vbCR & "used list - " & original_array_items_used
     loop until days > UBOUND(dates_array)
 
     dates_array = ordered_dates
@@ -1380,7 +1402,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                             array_of_pay_dates = ""
                             For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)                                   'look at each entry inthe income array
                                 If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then                    'find the ones for the current panel
-                                    'MsgBox "Look at each date: " & LIST_OF_INCOME_ARRAY(pay_date, all_income)
+                                    ' MsgBox "Look at each date: " & LIST_OF_INCOME_ARRAY(pay_date, all_income)
                                     all_pay_dates = all_pay_dates & "~" & LIST_OF_INCOME_ARRAY(pay_date, all_income)'create a list of just the pay dates
                                 End If
                             Next
@@ -1390,7 +1412,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                             Call sort_dates(array_of_pay_dates)                             'use the function to re order that array into chronological order.
                             first_date = array_of_pay_dates(0)                              'setting the first and last check dates
                             last_date = array_of_pay_dates(UBOUND(array_of_pay_dates))
-
+                            ' MsgBox Join(array_of_pay_dates, ", ")
                             list_of_days_of_checks = "~"
                             the_day_of_month = ""
                             third_paydate = FALSE
@@ -1470,7 +1492,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                 End If
 
                             End If
-
+                            ' MsgBox "Stop 1"
                             list_of_all_paydates_start_to_finish = ""   'Here we loop through to create a list of all the paychcks that we should see from the first listed to the last
                             next_paydate = first_date
                             dates_index = 0
@@ -1513,7 +1535,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                 list_of_all_paydates_start_to_finish = list_of_all_paydates_start_to_finish & "~" & next_paydate
                                 expected_check_array = split(list_of_all_paydates_start_to_finish, "~")
                             End If
-
+                            ' MsgBox "Stop 2"
                             EARNED_INCOME_PANELS_ARRAY(last_paycheck, ei_panel) = last_date     'saving this for the panel information
                             spread_of_pay_dates = DateDiff("d", first_date, last_date)          'this is how many days are between the 1st and last check - because 30 days of verif is still a thing
                             If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked THen   'though it is only a thing for SNAP so we are going to check the spread IF SNAP is a concern
@@ -1550,7 +1572,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                 End If
                             Next
                             EARNED_INCOME_PANELS_ARRAY(order_ubound, ei_panel) = top_of_order   'setting the number of unique pay dates within the panel array because we need it for sorting correctly
-
+                            ' MsgBox "Stop 3"
                             expected_check_index = 0        'setting up for another loop to see if all the expected checks have in fact been provided.
                             missing_checks_list = ""
                             order_number = 1
@@ -1595,7 +1617,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                 If expected_check_index > UBound(expected_check_array) Then Exit Do     'if we have reached the end of the entered checks OR the end of the expected checks, we need to leave the loop
                                 If order_number > top_of_order Then Exit Do
                             Loop until order_number = top_of_order
-
+                            ' MsgBox "Stop 4"
                             If missing_checks_list <> "" Then       'if there were any missing checks found
                                 if left(missing_checks_list, 1) = "~" Then missing_checks_list = right(missing_checks_list, len(missing_checks_list) - 1)       'create an array of the missing checks
                                 missing_checks_list = split(missing_checks_list, "~")
@@ -1670,7 +1692,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                             End If
                         End If
                     Loop Until loop_to_add_missing_checks = FALSE
-
+                    ' MsgBox "Stop 5"
                     prev_date = ""              'setting some variables for the loop
                     days_between_checks = ""
                     'here we are going to see if there are checks out of line with the expected frequency.
@@ -1774,7 +1796,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                       'conditional if it is the right panel AND the order matches - then do the thing you need to do
                                       If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
                                           If LIST_OF_INCOME_ARRAY(frequency_issue, all_income) = TRUE Then
-                                              If LIST_OF_INCOME_ARRAY(view_pay_date, all_income) = "" Then LIST_OF_INCOME_ARRAY(view_pay_date, all_income) = LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & ""
+                                              If LIST_OF_INCOME_ARRAY(view_pay_date, all_income) <> "" Then LIST_OF_INCOME_ARRAY(view_pay_date, all_income) = LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & ""
                                               Text 10, y_pos, 10, 10, "**"
                                               EditBox 25, y_pos, 50, 15, LIST_OF_INCOME_ARRAY(view_pay_date, all_income)
                                               Text 95, y_pos + 5, 50, 10, LIST_OF_INCOME_ARRAY(pay_date, all_income)            'this cannot be changed here
