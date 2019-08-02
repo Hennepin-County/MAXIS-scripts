@@ -80,6 +80,15 @@ function HH_comp_dialog(HH_member_array)
 		first_name = trim(replace(first_name, "_", ""))
 		mid_initial = replace(mid_initial, "_", "")
 
+        EMReadScreen rel_to_applcnt, 2, 10, 42
+        If rel_to_applcnt = "02" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Spouse of Memb 01.; "
+        If rel_to_applcnt = "04" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Parent of Memb 01.; "
+        If rel_to_applcnt = "05" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Sibling of Memb 01.; "
+        If rel_to_applcnt = "12" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Niece of Memb 01.; "
+        If rel_to_applcnt = "13" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Nephew of Memb 01.; "
+        If rel_to_applcnt = "15" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Grandparent of Memb 01.; "
+        If rel_to_applcnt = "16" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Grandchild of Memb 01.; "
+
         ReDim Preserve ALL_MEMBERS_ARRAY(clt_notes, member_count)
 
         ALL_MEMBERS_ARRAY(memb_numb, member_count) = ref_nbr
@@ -1640,6 +1649,14 @@ Dim notes_on_address, notes_on_wreg, full_abawd_info, notes_on_busi
 HH_memb_row = 5 'This helps the navigation buttons work!
 application_signed_checkbox = checked 'The script should default to having the application signed.
 
+member_count = 0
+adult_cash_count = 0
+child_cash_count = 0
+adult_snap_count = 0
+child_snap_count = 0
+adult_emer_count = 0
+child_emer_count = 0
+
 county_list = "01 Aitkin"
 county_list = county_list+chr(9)+"02 Anoka"
 county_list = county_list+chr(9)+"03 Becker"
@@ -2733,6 +2750,12 @@ Do
                               y_pos = y_pos + 15
                               For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
                                   If UNEA_INCOME_ARRAY(UC_exists, each_unea_memb) = TRUE Then
+                                      UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb) = UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb) & ""
+                                      UNEA_INCOME_ARRAY(UNEA_UC_account_balance, each_unea_memb) = UNEA_INCOME_ARRAY(UNEA_UC_account_balance, each_unea_memb) & ""
+                                      UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, each_unea_memb) = UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, each_unea_memb) & ""
+                                      UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, each_unea_memb) = UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, each_unea_memb) & ""
+                                      UNEA_INCOME_ARRAY(UNEA_UC_exclude_ded, each_unea_memb) = UNEA_INCOME_ARRAY(UNEA_UC_exclude_ded, each_unea_memb) & ""
+
                                       Text 15, y_pos, 40, 10, "Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb)
                                       Text 65, y_pos, 120, 10, "Unemployment Start Date: " & UNEA_INCOME_ARRAY(UNEA_UC_start_date, each_unea_memb)
                                       Text 200, y_pos, 90, 10, "Budgeted Weekly Amount:"
@@ -2839,6 +2862,8 @@ Do
                     Loop Until pass_five = true
                     If show_six = true Then
                         'BeginDialog Dialog1, 0, 0, 466, 310, "Dialog 6 - Other"
+                        If left(total_shelter_amount, 1) <> "$" Then total_shelter_amount = "$" & total_shelter_amount
+
                         BeginDialog Dialog1, 0, 0, 556, 290, "CAF Dialog 6 - WREG, Expenses, Address"
                           EditBox 40, 50, 505, 15, notes_on_wreg
                           ButtonGroup ButtonPressed
@@ -3209,6 +3234,24 @@ Do
                 End If
             Loop Until pass_seven = true
             If show_eight = true Then
+                If app_month_expenses = "" Then
+                    app_month_expenses = 0
+                    total_shelter_amount = replace(total_shelter_amount, "$", "")
+                    total_shelter_amount = total_shelter_amount * 1
+                    app_month_expenses = total_shelter_amount
+                    slide = 3
+                    Do
+                        hest_amount = right(hest_information, slide)
+                        If IsNumeric(hest_amount) = True Then Exit Do
+                        slide = slide - 1
+                    Loop until slide = 0
+                    if IsNumeric(hest_amount) = TRUE Then app_month_expenses = app_month_expenses + hest_amount
+
+                    app_month_expenses = app_month_expenses & ""
+                End If
+                app_month_income = app_month_income & ""
+                app_month_assets = app_month_assets & ""
+                app_month_expenses = app_month_expenses & ""
 
                 BeginDialog Dialog1, 0, 0, 451, 370, "CAF Dialog 8 - Interview Info"
                   EditBox 60, 10, 20, 15, next_er_month
@@ -3350,6 +3393,8 @@ Do
                                         If IsNumeric(UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, each_unea_memb)) = FALSE Then full_err_msg = full_err_msg & "~!~5^* Enter the weekly allowed deductions for UC as a number."
                                     Else
                                         calculated_net_weekly = UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, each_unea_memb) - UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, each_unea_memb)
+                                        UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb) = UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb) * 1
+                                        'MsgBox "Calc Net Weekly - " & calculated_net_weekly & vbCR & "Entered Net Weekly - " & UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb)
                                         If calculated_net_weekly <> UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb) Then full_err_msg = full_err_msg & "~!~5^* Review your UC weekly gross, net and counted deductions. The net amount is not equal to the gross amount less counted deductions."
                                     End If
                                 End If
@@ -3383,14 +3428,30 @@ Do
                             If IsNumeric(app_month_assets) = FALSE Then full_err_msg = full_err_msg & "~!~8^* Enter the liquid assets for the application month as a number."
                             If IsNumeric(app_month_expenses) = FALSE Then full_err_msg = full_err_msg & "~!~8^* Enter the expenses (shelter and utilities) for the application month as a number."
 
-                            If snap_exp_yn = "Yes" Then
-                                If IsNumeric(app_month_income) = TRUE AND IsNumeric(app_month_assets) = TRUE AND IsNumeric(app_month_expenses) = TRUE Then
-                                    If app_month_assets > 100 Then full_err_msg = full_err_msg & "~!~8^* This is indicated as Expedited, though assets are listed as more than $100"
-                                    If app_month_income >= 150 Then full_err_msg = full_err_msg & "~!~8^* This is indicated as Expedited, though income is more than $150"
-                                    If app_month_income + app_month_assets > app_month_expenses Then full_err_msg = full_err_msg & "~!~8^* This is indicated as Expedited, though income and assets exceed expenses."
+                            case_should_be_xfs = FALSE
+                            If IsNumeric(app_month_income) = TRUE AND IsNumeric(app_month_assets) = TRUE AND IsNumeric(app_month_expenses) = TRUE Then
+                                If app_month_assets <=100 AND app_month_income < 150 Then
+                                    case_should_be_xfs = TRUE
+                                    MsgBox "low resources"
                                 End If
-                            ElseIf snap_exp_yn = "No" Then
+                                app_month_assets = app_month_assets * 1
+                                app_month_income = app_month_income * 1
+                                app_month_expenses = app_month_expenses * 1
+                                app_month_resources = app_month_assets + app_month_income
+                                If app_month_resources < app_month_expenses Then
+                                    case_should_be_xfs = TRUE
+                                    MsgBox "insufficient resources" & vbCR & "Resources - " & app_month_resources & vbCR & "Expenses - " & app_month_expenses
+                                End If
 
+                                If snap_exp_yn = "Yes" and case_should_be_xfs = FALSE Then full_err_msg = full_err_msg & "~!~8^* This is indicated as Expedited, though based on app month details it appears to be NOT Expedited. App Month: Income - $" & app_month_income & ". Assets - $" & app_month_assets & ". Expenses - $" & app_month_expenses & "."
+                                If snap_exp_yn = "No" AND case_should_be_xfs = TRUE Then full_err_msg = full_err_msg & "~!~8^* This is indicated as NOT Expedited, though based on app month details it appears to be EXPEDITED. App Month: Income - $" & app_month_income & ". Assets - $" & app_month_assets & ". Expenses - $" & app_month_expenses & "."
+                            End If
+                            If snap_exp_yn = "Yes" Then
+                                If IsDate(exp_snap_approval_date) = TRUE Then
+                                    If DateDiff("d", CAF_datestamp, exp_snap_approval_date) > 7 AND trim(exp_snap_delays) = "" Then full_err_msg = full_err_msg & "~!~8^* Since Expedited SNAP is not approved within 7 days of the date of application, pease explain the reason for the delay."
+                                Else
+                                    If trim(exp_snap_delays) = "" Then full_err_msg = full_err_msg & "~!~8^* Since the Expedited SNAP does not have an approval date yet, either explain the reason for the delay or indicate the date of Expedited SNAP Approval."
+                                End If
                             End If
                         End If
                     End If
@@ -3697,7 +3758,7 @@ If EMER_checkbox = checked Then progs_list = progs_list & ", EMER"
 If left(progs_list, 1) = "," Then progs_list = right(progs_list, len(progs_list) - 2)
 
 'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-CALL write_variable_in_CASE_NOTE("*** " & CAF_datestamp & " CAF - " & CAF_type & CAF_status & " -- Programs: " & progs_list & " ***")
+CALL write_variable_in_CASE_NOTE("*** " & CAF_datestamp & " CAF - Prog: " & progs_list & " - " & CAF_type & CAF_status & " ***")
 IF move_verifs_needed = TRUE THEN
 	CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
 	CALL write_variable_in_CASE_NOTE("------------------------------")
@@ -3731,16 +3792,18 @@ If CAF_type = "Application" and SNAP_checkbox = checked Then
     Call write_variable_in_CASE_NOTE("--- Expedited SNAP Determination ---")
     If snap_exp_yn = "Yes" Then
         Call write_variable_in_CASE_NOTE("* Case is eligible for Expedited SNAP.")
-        Call write_variable_in_CASE_NOTE("* SNAP EXP approved on " & exp_snap_approval_date & " - " & DateDiff("d", CAF_datestamp, exp_snap_approval_date) & " days after the date of application.")
+        If IsDate(exp_snap_approval_date) = TRUE Then Call write_variable_in_CASE_NOTE("* SNAP EXP approved on " & exp_snap_approval_date & " - " & DateDiff("d", CAF_datestamp, exp_snap_approval_date) & " days after the date of application.")
         Call write_bullet_and_variable_in_CASE_NOTE("Reason for delay", exp_snap_delays)
     End If
     If snap_exp_yn = "No" Then Call write_variable_in_CASE_NOTE("* Case is NOT eligible for Expedited SNAP.")
     Call write_variable_in_CASE_NOTE("* In the month of application - Income $" & app_month_income & " - Assets $" & app_month_assets & " - Expenses $" & app_month_expenses & ".")
-    CALL write_variable_in_CASE_NOTE("------------------------------")
+    CALL write_variable_in_CASE_NOTE("------------------------------------")
 End If
 
 'Household and personal information
 If SNAP_checkbox = checked Then
+    adult_snap_count = adult_snap_count * 1
+    child_snap_count = child_snap_count * 1
     total_snap_count = adult_snap_count + child_snap_count
     Call write_variable_in_CASE_NOTE("* SNAP unit consists of " & total_snap_count & " people - " & adult_snap_count & " adults and " & child_snap_count & " children.")
     For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
@@ -3757,6 +3820,8 @@ If SNAP_checkbox = checked Then
     If EATS <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Information on EATS: " & EATS)
 End If
 If cash_checkbox = checked Then
+    adult_cash_count = adult_cash_count * 1
+    child_cash_count = child_cash_count * 1
     total_cash_count = adult_cash_count + child_cash_count
     Call write_variable_in_CASE_NOTE("* CASH unit consists of " & total_cash_count & " people - " & adult_cash_count & " adults and " & child_cash_count & " children.")
     If pregnant_caregiver_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Pregnant Caregiver on Grant.")
@@ -3773,6 +3838,8 @@ If cash_checkbox = checked Then
     If counted_cash_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members with income counted ONLY for CASH: " & counted_cash_members)
 End If
 If EMER_checkbox = checked Then
+    adult_emer_count = adult_emer_count * 1
+    child_emer_count = child_emer_count * 1
     total_emer_count = adult_emer_count + child_emer_count
     Call write_variable_in_CASE_NOTE("* EMER unit consists of " & total_emer_count & " people - " & adult_emer_count & " adults and " & child_emer_count & " children.")
     For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
@@ -3806,7 +3873,7 @@ If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) <> "" Then
     For each_job = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
         Call write_variable_in_CASE_NOTE("Member " & ALL_JOBS_PANELS_ARRAY(memb_numb, each_job) & " at " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job))
         If ALL_JOBS_PANELS_ARRAY(estimate_only, each_job) = checked Then
-            Call write_variable_in_CASE_NOTE("* This job has not been varified and this is only an estimate.")
+            Call write_variable_in_CASE_NOTE("* This job has not been verified and this is only an estimate.")
         Else
             If ALL_JOBS_PANELS_ARRAY(verif_code, each_job) = "Delayed" Then
                 Call write_variable_in_CASE_NOTE("* Verification of this job has been delayed for review or approval of Expedited SNAP.")
@@ -3815,8 +3882,8 @@ If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) <> "" Then
             End If
         End If
         Call write_bullet_and_variable_in_CASE_NOTE("Verification", ALL_JOBS_PANELS_ARRAY(verif_explain, each_job))
-        If ALL_JOBS_PANELS_ARRAY(job_retro_income, each_job) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Retro Income : $" & ALL_JOBS_PANELS_ARRAY(job_retro_income, each_job) & " - " & ALL_JOBS_PANELS_ARRAY(retro_hours, each_job) & " hours.")
-        If ALL_JOBS_PANELS_ARRAY(job_prosp_income, each_job) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Prospective Income : $" & ALL_JOBS_PANELS_ARRAY(job_prosp_income, each_job) & " - " & ALL_JOBS_PANELS_ARRAY(prosp_hours, each_job) & " hours.")
+        If ALL_JOBS_PANELS_ARRAY(job_retro_income, each_job) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Retro Income: $" & ALL_JOBS_PANELS_ARRAY(job_retro_income, each_job) & " - " & ALL_JOBS_PANELS_ARRAY(retro_hours, each_job) & " hours.")
+        If ALL_JOBS_PANELS_ARRAY(job_prosp_income, each_job) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Prospective Income: $" & ALL_JOBS_PANELS_ARRAY(job_prosp_income, each_job) & " - " & ALL_JOBS_PANELS_ARRAY(prosp_hours, each_job) & " hours.")
         If snap_checkbox = checked Then Call write_variable_with_indent_in_CASE_NOTE("SNAP Budget Detail: Monthly budgeted amount - $" & ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job) & " based on $" & ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job) & " paid " & ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job) & ". Calculated on " & ALL_JOBS_PANELS_ARRAY(pic_calc_date, each_job))
         If ALL_JOBS_PANELS_ARRAY(budget_explain, each_job) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("About Budget: " & ALL_JOBS_PANELS_ARRAY(budget_explain, each_job))
     Next
@@ -3835,7 +3902,7 @@ If ALL_BUSI_PANELS_ARRAY(memb_numb, 0) <> "" Then
         Call write_variable_in_CASE_NOTE(busi_det_msg)
 
         se_method_det_msg = "* Self Employment Budgeting method selected: " & ALL_BUSI_PANELS_ARRAY(calc_method, each_busi) & "."
-        If ALL_BUSI_PANELS_ARRAY(mthd_date, each_busi) <> "" Then se_method_det_msg = se_method_det_msg & " Method selected on: " & "* Self Employment Budgeting method selected: " & ALL_BUSI_PANELS_ARRAY(mthd_date, each_busi) & "."
+        If ALL_BUSI_PANELS_ARRAY(mthd_date, each_busi) <> "" Then se_method_det_msg = se_method_det_msg & " Method selected on: " & ALL_BUSI_PANELS_ARRAY(mthd_date, each_busi) & "."
         If ALL_BUSI_PANELS_ARRAY(method_convo_checkbox, each_busi) = checked Then se_method_det_msg = se_method_det_msg & " The self employment mthod selected was discussed with the client."
         Call write_variable_in_CASE_NOTE(se_method_det_msg)
 
@@ -3915,7 +3982,7 @@ Call write_bullet_and_variable_in_CASE_NOTE("Other Child Support Income", noites
 For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
     If UNEA_INCOME_ARRAY(SSA_exists, each_unea_memb) = TRUE Then
         rsdi_income_det = ""
-        If trim(UNEA_INCOME_ARRAY(UNEA_RSDI_amt, each_unea_memb)) <> "" Then rsdi_income_det = rsdi_income_det & "RSDI; $" & UNEA_INCOME_ARRAY(UNEA_RSDI_amt, each_unea_memb)
+        If trim(UNEA_INCOME_ARRAY(UNEA_RSDI_amt, each_unea_memb)) <> "" Then rsdi_income_det = rsdi_income_det & "RSDI: $" & UNEA_INCOME_ARRAY(UNEA_RSDI_amt, each_unea_memb)
         If trim(UNEA_INCOME_ARRAY(UNEA_RSDI_notes, each_unea_memb)) <> "" Then rsdi_income_det = rsdi_income_det & ". Notes: " & UNEA_INCOME_ARRAY(UNEA_RSDI_notes, each_unea_memb)
 
         ssi_income_det = ""
@@ -3923,7 +3990,7 @@ For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
         If trim(UNEA_INCOME_ARRAY(UNEA_SSI_notes, each_unea_memb)) <> "" Then ssi_income_det = ssi_income_det & ". Notes: " & UNEA_INCOME_ARRAY(UNEA_SSI_notes, each_unea_memb)
 
         Call write_variable_in_CASE_NOTE("* Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " SSA income:")
-        If rsdi_income_det <>> "" Then Call write_variable_with_indent_in_CASE_NOTE(rsdi_income_det)
+        If rsdi_income_det <> "" Then Call write_variable_with_indent_in_CASE_NOTE(rsdi_income_det)
         If ssi_income_det <> "" Then Call write_variable_with_indent_in_CASE_NOTE(ssi_income_det)
     End If
 Next
@@ -3936,22 +4003,22 @@ For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
         uc_income_det_one = ""
         uc_income_det_two = ""
         If trim(UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, each_unea_memb)) <> "" Then
+            uc_income_det_one = uc_income_det_one & "Budgeted UC weekly amount: $" & UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb) & ".; "
             uc_income_det_one = uc_income_det_one & "UC weekly gross income: $" & UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, each_unea_memb) & ". "
             If trim(UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, each_unea_memb)) <> "" Then uc_income_det_one = uc_income_det_one & "Deduction amount allowed: $" & UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, each_unea_memb) & ". "
             If trim(UNEA_INCOME_ARRAY(UNEA_UC_exclude_ded, each_unea_memb)) <> "" Then uc_income_det_one = uc_income_det_one & "Deduction amount excluded: $" & UNEA_INCOME_ARRAY(UNEA_UC_exclude_ded, each_unea_memb) & ". "
-            uc_income_det_one = uc_income_det_one & "Budgeted UC weekly amount: $" & UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb)
         Else
-            uc_income_det_one = uc_income_det_one & "Budgeted UC weekly amount: $" & UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb)
+            uc_income_det_one = uc_income_det_one & "Budgeted UC weekly amount: $" & UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb) & ".; "
             If trim(UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, each_unea_memb)) <> "" Then uc_income_det_one = uc_income_det_one & "Deduction amount allowed: $" & UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, each_unea_memb) & ". "
             If trim(UNEA_INCOME_ARRAY(UNEA_UC_exclude_ded, each_unea_memb)) <> "" Then uc_income_det_one = uc_income_det_one & "Deduction amount excluded: $" & UNEA_INCOME_ARRAY(UNEA_UC_exclude_ded, each_unea_memb) & ". "
         End If
         If trim(UNEA_INCOME_ARRAY(UNEA_UC_account_balance, each_unea_memb)) <> "" Then uc_income_det_one = uc_income_det_one & "Current UC account balance: $" & UNEA_INCOME_ARRAY(UNEA_UC_account_balance, each_unea_memb) & ". "
         If trim(UNEA_INCOME_ARRAY(UNEA_UC_retro_amt, each_unea_memb)) <> "" Then uc_income_det_two = uc_income_det_two & "UC Retro Income: $" & UNEA_INCOME_ARRAY(UNEA_UC_retro_amt, each_unea_memb) & ". "
-        If trim(UNEA_INCOME_ARRAY(UNEA_UC_prosp_amt, each_unea_memb)) <> "" Then uc_income_det_two = uc_income_det_two & "UC Prosp Income: $" UNEA_INCOME_ARRAY(UNEA_UC_prosp_amt, each_unea_memb) & ". "
-        If trim(UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, each_unea_memb)) <> "" Then uc_income_det_two = uc_income_det_two & "UC SNAP budgeted Income: $" UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, each_unea_memb) & ". "
+        If trim(UNEA_INCOME_ARRAY(UNEA_UC_prosp_amt, each_unea_memb)) <> "" Then uc_income_det_two = uc_income_det_two & "UC Prosp Income: $" & UNEA_INCOME_ARRAY(UNEA_UC_prosp_amt, each_unea_memb) & ". "
+        If trim(UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, each_unea_memb)) <> "" Then uc_income_det_two = uc_income_det_two & "UC SNAP budgeted Income: $" & UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, each_unea_memb) & ". "
 
         Call write_variable_in_CASE_NOTE("* Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " Unemployment Income:")
-        If trim(UNEA_INCOME_ARRAY(UNEA_UC_start_date, each_unea_memb)) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("UC Income started on:; " & UNEA_INCOME_ARRAY(UNEA_UC_start_date, each_unea_memb) & ". ")
+        If trim(UNEA_INCOME_ARRAY(UNEA_UC_start_date, each_unea_memb)) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("UC Income started on: " & UNEA_INCOME_ARRAY(UNEA_UC_start_date, each_unea_memb) & ". ")
         If uc_income_det_one <> "" Then Call write_variable_with_indent_in_CASE_NOTE(uc_income_det_one)
         If uc_income_det_two <> "" Then Call write_variable_with_indent_in_CASE_NOTE(uc_income_det_two)
         If IsDate(UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb)) = TRUE Then Call write_variable_with_indent_in_CASE_NOTE("TIKL set to check for end of UC on: " & UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb))
@@ -3986,7 +4053,6 @@ Call write_bullet_and_variable_in_CASE_NOTE("Cash", notes_on_cash)
 Call write_bullet_and_variable_in_CASE_NOTE("Cars", notes_on_cars)
 Call write_bullet_and_variable_in_CASE_NOTE("Real Estate", notes_on_rest)
 Call write_bullet_and_variable_in_CASE_NOTE("Other Assets", notes_on_other_assets)
-Call write_bullet_and_variable_in_CASE_NOTE("", )
 
 'MEDI/DIET/FMED
 Call write_bullet_and_variable_in_CASE_NOTE("Medicare", MEDI)
