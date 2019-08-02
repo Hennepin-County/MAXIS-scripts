@@ -67,21 +67,22 @@ Do
 	err_msg = ""
 	'intial dialog for user to select a SMRT action
 
-    BeginDialog PF11_actions_dialog, 0, 0, 196, 130, "PF11 Action"
-      EditBox 55, 5, 40, 15, maxis_case_number
-      DropListBox 75, 25, 115, 15, HH_Memb_DropDown, clt_to_update
-      DropListBox 75, 45, 115, 15, "Select One:"+chr(9)+"PMI Merge Request"+chr(9)+"Non-Actionable DAIL Removal"+chr(9)+"Case Note Removal Request"+chr(9)+"MFIP New Spouse Income"+chr(9)+"New Spouse Income Determination"+chr(9)+"Other", PF11_actions
-      Text 5, 85, 185, 20, "The system being down, issuance problems, or any type     of emergency should NOT be reported via a PF11."
-      EditBox 75, 65, 115, 15, worker_signature
-      ButtonGroup ButtonPressed
-        OkButton 85, 110, 50, 15
-        CancelButton 140, 110, 50, 15
-        PushButton 105, 5, 85, 15, "HH MEMB SEARCH", search_button
-      Text 5, 10, 45, 10, "Case number:"
-      Text 5, 30, 70, 10, "Household member:"
-      Text 5, 50, 65, 10, "Select PF11 action:"
-      Text 5, 70, 60, 10, "Worker signature:"
-    EndDialog
+	BeginDialog PF11_actions_dialog, 0, 0, 196, 140, "PF11 Action"
+	  EditBox 55, 5, 40, 15, maxis_case_number
+	  DropListBox 75, 25, 115, 15, HH_Memb_DropDown, clt_to_update
+	  DropListBox 75, 45, 115, 15, "Select One:"+chr(9)+"PMI Merge Request"+chr(9)+"Non-Actionable DAIL Removal"+chr(9)+"Case Note Removal Request"+chr(9)+"MFIP New Spouse Income"+chr(9)+"New Spouse Income Determination"+chr(9)+"Other", PF11_actions
+	  Text 5, 85, 185, 20, "The system being down, issuance problems, or any type     of emergency should NOT be reported via a PF11."
+	  EditBox 75, 65, 115, 15, worker_signature
+	  ButtonGroup ButtonPressed
+	    OkButton 95, 120, 45, 15
+	    CancelButton 145, 120, 45, 15
+	    PushButton 105, 5, 85, 15, "HH MEMB SEARCH", search_button
+	  Text 5, 10, 45, 10, "Case number:"
+	  Text 5, 30, 70, 10, "Household member:"
+	  Text 5, 50, 50, 10, "Select Action:"
+	  Text 5, 70, 60, 10, "Worker signature:"
+	  CheckBox 15, 105, 155, 10, "Please check here if a PF11 is not required. ", no_pf11_checkbox
+	EndDialog
 
 
 	Dialog PF11_actions_dialog
@@ -387,7 +388,7 @@ END If
 'IF household_size > 10 THEN income_limit = 11,692 + (990 * (household_size- 8))
 'valid_through_date = #10/01/2019#
 
-IF PF11_actions <> "New Spouse Income Determination" THEN
+IF PF11_actions <> "New Spouse Income Determination" and no_pf11_checkbox = UNCHECKED THEN
  	PF11
 	'Problem.Reporting
 	EMReadScreen nav_check, 4, 1, 27
@@ -461,7 +462,7 @@ IF PF11_actions <> "Case Note Removal Request" or PF11_actions <> "New Spouse In
 	    CALL write_variable_in_CASE_NOTE(worker_signature)
 	    PF3
 	END IF
-	IF  PF11_actions = "MFIP New Spouse Income" THEN
+	IF  PF11_actions = "MFIP New Spouse Income" and no_pf11_checkbox = UNCHECKED THEN
 		'CALL start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 		CALL write_variable_in_case_note(PF11_actions & " for M" & MEMB_number) 	''---Determination MFIP New Spouse Income for M19---
 		CALL write_bullet_and_variable_in_CASE_NOTE("PF11 Sent - Task number", task_number)
@@ -475,6 +476,25 @@ IF PF11_actions <> "Case Note Removal Request" or PF11_actions <> "New Spouse In
 	    CALL write_bullet_and_variable_in_CASE_NOTE("275% FPG Amount", income_limit)
 	    CALL write_bullet_and_variable_in_CASE_NOTE("275% FPG New Spouse Income Test", income_test_dropdown)
 	    CALL write_bullet_and_variable_in_CASE_NOTE("DS income not counted eff", date_income_not_counted)
+		If outlook_reminder = True then call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
+		CALL write_variable_in_CASE_NOTE ("---")
+		CALL write_variable_in_CASE_NOTE(worker_signature)
+		PF3
+	END IF
+
+	IF  PF11_actions = "MFIP New Spouse Income" and no_pf11_checkbox = CHECKED THEN
+		'CALL start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
+		CALL write_variable_in_case_note(PF11_actions & " for M" & MEMB_number) 	''---Determination MFIP New Spouse Income for M19---
+		CALL write_bullet_and_variable_in_CASE_NOTE("Marriage Date", dail_date)
+		CALL write_bullet_and_variable_in_CASE_NOTE("New Spouse Income Effective", new_spouse_income)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Marriage Date", marriage_date)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Date Marriage Was Verified", marriage_date_verified)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Verification Used", verif_used)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Total Income", total_income)
+		CALL write_bullet_and_variable_in_CASE_NOTE("HH Size", household_size)
+		CALL write_bullet_and_variable_in_CASE_NOTE("275% FPG Amount", income_limit)
+		CALL write_bullet_and_variable_in_CASE_NOTE("275% FPG New Spouse Income Test", income_test_dropdown)
+		CALL write_bullet_and_variable_in_CASE_NOTE("DS income not counted eff", date_income_not_counted)
 		If outlook_reminder = True then call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
 		CALL write_variable_in_CASE_NOTE ("---")
 		CALL write_variable_in_CASE_NOTE(worker_signature)
