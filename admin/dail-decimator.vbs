@@ -111,6 +111,8 @@ EMConnect ""
 this_month = CM_mo & " " & CM_yr
 next_month = CM_plus_1_mo & " " & CM_plus_1_yr
 CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
+report_date = replace(date, "/", "-")
+msgbox report_date
 
 Do
 	Do
@@ -172,7 +174,7 @@ FOR i = 1 to 5		'formatting the cells'
 NEXT
 
 DIM DAIL_array()
-ReDim DAIL_array(4, 0)
+ReDim DAIL_array(5, 0)
 Dail_count = 0              'Incremental for the array
 
 'constants for array
@@ -181,6 +183,7 @@ const maxis_case_number_const   = 1
 const dail_type_const 	        = 2
 const dail_month_const		    = 3
 const dail_msg_const		    = 4
+const client_name_const         = 5
 
 'Sets variable for all of the Excel stuff
 excel_row = 2
@@ -233,9 +236,22 @@ For each worker in worker_array
 			EMReadScreen dail_msg, 61, dail_row, 20
 			dail_msg = trim(dail_msg)
             EMReadScreen dail_month, 8, dail_row, 11
-            dail_month = trim(dail_month)            
+            dail_month = trim(dail_month)        
+            
+            'This bit of code grabs the client name. The do/loop expands the search area until the value for
+    		'next_two equals "--" ... at which time the script determines that the cl name has ended
+    		dail_col = 6
+    		name_len = 1
+    		DO
+    			EMReadScreen client_name, name_len, 5, 5
+    			EMReadScreen next_two, 2, 5, dail_col
+    			IF next_two <> "--" THEN
+    				name_len = name_len + 1
+    				dail_col = dail_col + 1
+    			END IF
+    		LOOP UNTIL next_two = "--"    
+            
 			stats_counter = stats_counter + 1
-
             '----------------------------------------------------------------------------------------------------CSES Messages
             If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
                 instr(dail_msg, "AP OF CHILD REF NBR:") OR _
@@ -363,13 +379,14 @@ For each worker in worker_array
 			else
 				add_to_excel = False
 				dail_row = dail_row + 1
-                ReDim Preserve DAIL_array(4, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
+                ReDim Preserve DAIL_array(5, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
             	DAIL_array(worker_const,	           DAIL_count) = worker
             	DAIL_array(maxis_case_number_const,    DAIL_count) = MAXIS_case_number
             	DAIL_array(dail_type_const, 	       DAIL_count) = dail_type
                 If len(dail_month) = 5 then dail_month = replace(dail_month, " ", "/1/")
             	DAIL_array(dail_month_const, 		   DAIL_count) = dail_month
             	DAIL_array(dail_msg_const, 		       DAIL_count) = dail_msg
+                DAIL_array(client_name_const, 		   DAIL_count) = client_name
                 Dail_count = DAIL_count + 1
 			End if
 
@@ -464,7 +481,7 @@ If dail_to_decimate = "Task-based" then
     objExcel.DisplayAlerts = True
     
     'Changes name of Excel sheet to "DAIL List"
-    ObjExcel.ActiveSheet.Name = "FAD DAIL Assignments- " & Dail_count
+    ObjExcel.ActiveSheet.Name = "FAD DAIL Assignments - " & Dail_count
     
     excel_row = 2
     'Excel headers and formatting the columns
@@ -473,8 +490,9 @@ If dail_to_decimate = "Task-based" then
     objExcel.Cells(1, 3).Value = "DAIL TYPE"
     objExcel.Cells(1, 4).Value = "DAIL MO."
     objExcel.Cells(1, 5).Value = "DAIL MESSAGE"
+    objExcel.Cells(1, 6).Value = "CLIENT NAME"
     
-    FOR i = 1 to 5		'formatting the cells'
+    FOR i = 1 to 6		'formatting the cells'
     	objExcel.Cells(1, i).Font.Bold = True		'bold font'
     	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
     	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -487,16 +505,17 @@ If dail_to_decimate = "Task-based" then
         objExcel.Cells(excel_row, 3).Value = DAIL_array(dail_type_const, item)
     	objExcel.Cells(excel_row, 4).Value = DAIL_array(dail_month_const, item)
         objExcel.Cells(excel_row, 5).Value = DAIL_array(dail_msg_const, item)
+        objExcel.Cells(excel_row, 6).Value = DAIL_array(client_name_const, item)
     	excel_row = excel_row + 1
     Next 
     
     'formatting the cells
-    FOR i = 1 to 5
+    FOR i = 1 to 6
     	objExcel.Columns(i).AutoFit()				'sizing the columns
     NEXT
     
     'Saves and closes the most recent Excel workbook with the Task based cases to process. 
-    objExcel.ActiveWorkbook.SaveAs "T:\HSPH Restricted Access Workspace\EWS Work Structure\WS Data and Reports\Daily Form Reports\DAIL-DAIL.xlsx"
+    objExcel.ActiveWorkbook.SaveAs "T:\HSPH Restricted Access Workspace\EWS Work Structure\WS Data and Reports\Daily Form Reports\DAIL\" & report_date &".xlsx"
     objExcel.ActiveWorkbook.Close
     objExcel.Application.Quit
     objExcel.Quit
