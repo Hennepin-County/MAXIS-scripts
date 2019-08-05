@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/30/2019", "Reverted the term claim referral to use the action taken on MISC as well as to read for active programs.", "MiKayla Handley")
 call changelog_update("10/15/2018", "Updated claim referral dialog to read for active programs.", "MiKayla Handley")
 call changelog_update("09/20/2018", "Updated claim referral dialog to match MAXIS panel.", "MiKayla Handley")
 call changelog_update("06/26/2017", "Initial version.", "MiKayla Handley")
@@ -55,30 +56,32 @@ changelog_display
 EMCONNECT ""
 
 Call MAXIS_case_number_finder(MAXIS_case_number)
-MEMB_number = "01"
+'MEMB_number = "01"
 action_date = date & ""
+verif_requested = "TEST"
+other_notes = "TEST"
+
 
 '-----------------------------------------------------------------------------DIALOG
-BeginDialog Claim_Referral_Tracking, 0, 0, 216, 155, "Claim Referral Tracking"
+BeginDialog Claim_Referral_Tracking, 0, 0, 221, 155, "Claim Referral Tracking"
   EditBox 65, 30, 45, 15, MAXIS_case_number
   EditBox 165, 30, 45, 15, action_date
-  DropListBox 65, 50, 110, 15, "Select One:"+chr(9)+"Sent Request for Additional Info"+chr(9)+"Overpayment Exists", next_action
+  DropListBox 65, 50, 145, 15, "Select One:"+chr(9)+"Sent Request for Additional Info"+chr(9)+"Overpayment Exists"+chr(9)+"No Overpayment Exists", action_taken
   EditBox 65, 70, 145, 15, verif_requested
   EditBox 65, 90, 145, 15, other_notes
   EditBox 110, 110, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    PushButton 5, 135, 85, 15, "Claims Procedures", claims_procedures
     OkButton 115, 135, 45, 15
     CancelButton 165, 135, 45, 15
-  Text 5, 5, 205, 20, "Federal regulations require tracking the date it is first suspected there may be a SNAP or MFIP Federal Food claim. "
-  Text 65, 115, 40, 10, "Worker Sig:"
-  Text 5, 75, 55, 10, "Verif Requested:"
+    PushButton 5, 135, 85, 15, "Claims Procedures", claims_procedures
+  Text 5, 5, 210, 20, "This script will only enter a STAT/MISC panel for a SNAP or MFIP federal food claim. "
   Text 15, 35, 50, 10, "Case Number: "
-  Text 20, 95, 45, 10, "Other Notes:"
-  Text 15, 55, 45, 10, "Action Taken:"
   Text 120, 35, 40, 10, "Action Date: "
+  Text 15, 55, 45, 10, "Action Taken:"
+  Text 5, 75, 55, 10, "Verif Requested:"
+  Text 20, 95, 45, 10, "Other Notes:"
+  Text 65, 115, 40, 10, "Worker Sig:"
 EndDialog
-
 
 
 Do
@@ -92,8 +95,8 @@ Do
 		IF buttonpressed = 0 then stopscript
 		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
 		IF isdate(action_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid action date."
-		IF next_action = "Select One:" then err_msg = err_msg & vbnewline & "* Select the action taken for next step in overpayment."
-        IF next_action = "Sent Request for Additional Info" and verif_requested = "" then err_msg = err_msg & vbnewline & "* You selected that a request for additional information was sent, please advise what verifications were requested."
+		IF action_taken = "Select One:" then err_msg = err_msg & vbnewline & "* Select the action taken for next step in overpayment."
+        IF action_taken = "Sent Request for Additional Info" and verif_requested = "" then err_msg = err_msg & vbnewline & "* You selected that a request for additional information was sent, please advise what verifications were requested."
 		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
@@ -108,7 +111,7 @@ GA_STATUS = FALSE 'General Assistance'
 MS_STATUS = FALSE 'Mn Suppl Aid '
 MF_STATUS = FALSE 'Mn Family Invest Program '
 RC_STATUS = FALSE 'Refugee Cash Assistance'
-FS_STATUS = FALSE
+SNAP_STATUS = FALSE
 CASH_STATUS = FALSE
 'Reading the status and program
 EMReadScreen cash1_status_check, 4, 6, 74
@@ -156,57 +159,85 @@ programs = trim(programs)
 'takes the last comma off of programs when autofilled into dialog
 If right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 
-'Going to the MISC panel
-Call navigate_to_MAXIS_screen ("STAT", "MISC")
-Row = 6
-EmReadScreen panel_number, 1, 02, 78
-If panel_number = "0" then
-	EMWriteScreen "NN", 20,79
-	TRANSMIT
-ELSE
-	Do
-    	'Checking to see if the MISC panel is empty, if not it will find a new line'
-    	EmReadScreen MISC_description, 25, row, 30
-    	MISC_description = replace(MISC_description, "_", "")
-    	If trim(MISC_description) = "" then
-			PF9
-    		EXIT DO
-    	Else
-            row = row + 1
-    	End if
-	Loop Until row = 17
-    If row = 17 then script_end_procedure("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-End if
 
-'writing in the action taken and date to the MISC panel
-IF next_action = "Sent Request for Additional Info" THEN action_taken = "Initial Claim Referral"
-IF next_action = "Overpayment Exists" THEN action_taken = "Claim Determination"
-EMWriteScreen "Claim Referral", Row, 30
-EMWriteScreen date, Row, 66
-PF3
-due_date = dateadd("d", 10, date)
-'The case note-------------------------------------------------------------------------------------------------
-start_a_blank_CASE_NOTE
-Call write_variable_in_case_note("***Claim Referral Tracking - " & action_taken & "***")
-Call write_bullet_and_variable_in_case_note("Action Date", action_date)
-Call write_bullet_and_variable_in_case_note("Active Program(s)", programs)
-IF next_action = "Sent Request for Additional Info" THEN Call write_bullet_and_variable_in_case_note("Action taken", next_action)
-IF next_action = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note("* Additional verifications requested, TIKL set for 10 day return.")
-If next_action = "Sent Request for Additional Info" THEN  Call write_bullet_and_variable_in_case_note("Verification requested", verif_requested)
-If next_action = "Overpayment Exists" THEN  Call write_variable_in_case_note("* Overpayment exists, claims procedure to follow.")
-Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
-Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
-Call write_variable_in_case_note("---")
-Call write_variable_in_case_note(worker_signature)
-PF3
+IF SNAP_STATUS = TRUE or CASH_STATUS = TRUE THEN
+    'MsgBox programs
+    Call navigate_to_MAXIS_screen ("STAT", "MISC")
+    Row = 6
+    EmReadScreen panel_number, 1, 02, 78
+    'PF9 IS NOT PERMITTED ON A BLANK PANEL '.36'
+    If panel_number = "0" then
+    	EMWriteScreen "NN", 20,79
+    	TRANSMIT
+        'MsgBox "No panel"
+        EmReadscreen err_msg, 53, 24, 02
+        err_msg = trim(err_msg)
+        IF err_msg = "MAXIS PROGRAMS ARE INACTIVE, YOU CANNOT ADD OR UPDATE" THEN
+        'MAXIS PROGRAMS ARE INACTIVE, YOU CANNOT ADD OR UPDATE
+        'If err_msg <> "" THEN
+            Do
+                case_note_only_confirmation = MsgBox("Do you wish to case note only?" & vbNewLine & err_msg & "*** NOTICE!!! ***", vbYesNo, "Header")
+                IF case_note_only_confirmation = vbNo THEN
+                    case_note_only = FALSE
+                    EXIT DO
+                END IF
+                IF case_note_only_confirmation = vbCancel THEN script_end_procedure_with_error_report ("The script has ended. The claim referral has not been acted on.")
+                IF case_note_only_confirmation = vbYes THEN
+                    case_note_only = TRUE
+                    EXIT DO
+                END IF
+            LOOP
+        END IF
+    ELSE
+    	Do
+        	'Checking to see if the MISC panel is empty, if not it will find a new line'
+        	EmReadScreen MISC_description, 25, row, 30
+        	MISC_description = replace(MISC_description, "_", "")
+        	If trim(MISC_description) = "" then
+    			PF9
+        		EXIT DO
+        	Else
+                row = row + 1
+        	End if
+    	Loop Until row = 17
+        If row = 17 then script_end_procedure("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+        'msgbox "we should have added a new panel"
+    End if
 
-IF next_action = "Sent Request for Additional Info" THEN
-'set TIKL------------------------------------------------------------------------------------------------------
-    Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-    call create_MAXIS_friendly_date(due_date, 10, 5, 18)
-    Call write_variable_in_TIKL("Potential overpayment exists on case. Please review case for receipt of additional requested information.")
+    'writing in the action taken and date to the MISC panel
+    IF action_taken = "Sent Request for Additional Info" THEN MISC_action_taken = "Initial Claim Referral"
+    IF action_taken = "Overpayment Exists" THEN MISC_action_taken =  "Determination-OP Entered" '"Claim Determination 25 character available
+    IF action_taken = "No Overpayment Exists" THEN MISC_action_taken = "Determination-No Savings"
+    EMWriteScreen MISC_action_taken, Row, 30
+    EMWriteScreen date, Row, 66
+    TRANSMIT
+    'PF3
+
+    due_date = dateadd("d", 10, date)
+    'The case note-------------------------------------------------------------------------------------------------
+    start_a_blank_CASE_NOTE
+    Call write_variable_in_case_note("***Claim Referral Tracking-" & action_taken & "***")
+    Call write_bullet_and_variable_in_case_note("Action Date", action_date)
+    Call write_bullet_and_variable_in_case_note("Active Program(s)", programs)
+    IF action_taken = "Sent Request for Additional Info" THEN Call write_bullet_and_variable_in_case_note("Action taken", MISC_action_taken)
+    IF action_taken = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note("* Additional verifications requested, TIKL set for 10 day return.")
+    If action_taken = "Sent Request for Additional Info" THEN  Call write_bullet_and_variable_in_case_note("Verification requested", verif_requested)
+    If action_taken = "Overpayment Exists" THEN Call write_variable_in_case_note("* Overpayment exists, claims procedure to follow.")
+    IF action_taken = "No Overpayment Exists" THEN Call write_variable_in_case_note("* No overpayment exists, maxis has been updated with reported changes.")
+    Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
+    Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
+    Call write_variable_in_case_note("---")
+    Call write_variable_in_case_note(worker_signature)
     PF3
-	script_end_procedure("You have indicated that you sent a request for additional information. Please follow the agency's procedure(s) for claim entry once received.")
-Else
-	script_end_procedure("You have indicated that an overpayment exists. Please follow the agency's procedure(s) for claim entry.")
-End if
+
+    IF action_taken = "Sent Request for Additional Info" THEN
+    'set TIKL------------------------------------------------------------------------------------------------------
+        Call navigate_to_MAXIS_screen("DAIL", "WRIT")
+        call create_MAXIS_friendly_date(due_date, 10, 5, 18)
+        Call write_variable_in_TIKL("Potential overpayment exists on case. Please review case for receipt of additional requested information.")
+        PF3
+    	script_end_procedure("You have indicated that you sent a request for additional information. Please follow the agency's procedure(s) for claim entry once received.")
+    Else
+    	script_end_procedure("You have indicated that an overpayment exists. Please follow the agency's procedure(s) for claim entry.")
+    End if
+END IF
