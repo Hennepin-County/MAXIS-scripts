@@ -65,7 +65,9 @@ EndDialog
 'The script============================================================================================================================
 'Connects to MAXIS, grabbing the case MAXIS_case_number
 EMConnect ""
-back_to_SELF    'to ensure users are not in the ABAWD Tracking Record
+MsgBox "New"
+EMReadScreen check_for_tracking_record, 21, 4, 34                       'to ensure users are not in the ABAWD Tracking Record
+If check_for_tracking_record = "ABAWD Tracking Record" Then PF3
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 HH_memb = "01"
@@ -125,7 +127,7 @@ FOR i = 1 to 9
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 NEXT
-	
+
 excel_row = 2
 EmWriteScreen "x", 13, 57		'Pulls up the WREG tracker'
 transmit
@@ -147,58 +149,58 @@ DO
     If bene_mo_col = "55" then counted_date_month = "10"
     If bene_mo_col = "59" then counted_date_month = "11"
     If bene_mo_col = "63" then counted_date_month = "12"
-	
+
     'counted date year: this is found on rows 7-11. Row 11 is current year plus one, so this will be exclude this list.
     If bene_yr_row = "10" then counted_date_year = right(DatePart("yyyy", date), 2)
     If bene_yr_row = "9"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -1, date)), 2)
     If bene_yr_row = "8"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -2, date)), 2)
     If bene_yr_row = "7"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -3, date)), 2)
-    	
+
 	EMReadScreen counted_date_year, 2, bene_yr_row, 14								'reading counted year date
 	abawd_counted_months_string = counted_date_month & "/" & counted_date_year		'creating new date variable
-	
+
 	ObjExcel.Cells(excel_row, 1).Value = abawd_counted_months_string
-	
+
 	'reading to see if a month is counted month or not
 	EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
 	IF is_counted_month <> "_" then ObjExcel.Cells(excel_row, 2).Value = is_counted_month
 	excel_row = excel_row + 1
-	
+
 	bene_mo_col = bene_mo_col - 4		're-establishing serach once the end of the row is reached
 	IF bene_mo_col = 15 THEN
 		bene_yr_row = bene_yr_row - 1
 		bene_mo_col = 63
 	END IF
-LOOP until bene_yr_row = 6	
+LOOP until bene_yr_row = 6
 
-PF3 	'to exit the ABAWD tracking record	
+PF3 	'to exit the ABAWD tracking record
 '--------------------------------------------------------------------------------------------------------------------------------------------------INQX
 
 Call navigate_to_MAXIS_screen("MONY", "INQX")
 EMWritescreen "01", 6, 38
-EMWritescreen counted_date_year, 6, 41  'this is the last counted_date_year in the ABAWD tracking record 
+EMWritescreen counted_date_year, 6, 41  'this is the last counted_date_year in the ABAWD tracking record
 EMWritescreen MAXIS_footer_month, 6, 53 'Will check issuances through the footer month/year selected
 EMwritescreen MAXIS_footer_year, 6, 56
 
 EMWritescreen "X", 9, 5		'Snap
 EMWritescreen "X", 10, 5	'MFIP
-EMWritescreen "X", 11, 5 	'GA	
+EMWritescreen "X", 11, 5 	'GA
 EMWritescreen "X", 15, 5	'RCA
 EMWritescreen "X", 13, 50	'MSA
 EMWritescreen "X", 17, 50 	'DWP
 transmit
 
-EMReadScreen no_issuance, 11, 24, 2 
+EMReadScreen no_issuance, 11, 24, 2
 If no_issuance = "NO ISSUANCE" then script_end_procedure(HH_memb & " does not have any issuance during this period. The script will now end.")
 
 EMReadScreen single_page, 8, 17, 73
-If trim(single_page) = "" then 
+If trim(single_page) = "" then
 	one_page = True
-Else 
+Else
 	PF8
 	EMReadScreen single_page_again, 8, 17, 73
 	If trim(single_page) = trim(single_page_again) then one_page = True
-End if 
+End if
 
 'this do...loop gets the user back to the 1st page on the INQD screen to check the next issuance_month
 Do
@@ -209,19 +211,19 @@ LOOP until first_page_check = "THIS IS THE 1ST PAGE"	'keeps hitting PF7 until us
 Excel_row = 2
 DO
 	row = 6				'establishing the row to start searching for issuance
-	tracking_month = objExcel.cells(excel_row, 1).Value	're-establishing the case number to use for the case 
-	If trim(tracking_month) = "" then exit do 
-	
-	Do 
-	    Do    
+	tracking_month = objExcel.cells(excel_row, 1).Value	're-establishing the case number to use for the case
+	If trim(tracking_month) = "" then exit do
+
+	Do
+	    Do
 	    	EMReadScreen issuance_month, 2, row, 73
 	    	EMReadScreen issuance_year, 2, row, 79
 			EMReadScreen issuance_day, 2, row, 65
 	    	INQX_issuance = issuance_month & "/" & issuance_year
-	    	If trim(INQX_issuance) = "" then exit do 
-	    	
-	    	If tracking_month = INQX_issuance then 	
-	    		EMReadScreen prog_type, 5, row, 16		
+	    	If trim(INQX_issuance) = "" then exit do
+
+	    	If tracking_month = INQX_issuance then
+	    		EMReadScreen prog_type, 5, row, 16
 	    		prog_type = trim(prog_type)
 	    		EMReadScreen amt_issued, 7, row, 40
 				If issuance_day <> "01" then amt_issued = amt_issued & "*"
@@ -232,24 +234,24 @@ DO
 	    		If prog_type = "DW" 	then dw_issued = dw_issued + amt_issued
 	    		If prog_type = "RC" 	then rc_issued = rc_issued + amt_issued
 	    		If prog_type = "MS" 	then ms_issued = ms_issued + amt_issued
-	    	End if 
+	    	End if
 	    	row = row + 1
 	    Loop until row = 18
-		
-		If one_page = True then exit do 
+
+		If one_page = True then exit do
 		PF8
 		EMReadScreen last_page_check, 21, 24, 2
 		If last_page_check = "CAN NOT PAGE THROUGH " then
-		 	review_required = True	
+		 	review_required = True
 			last_page = True
-		elseIf last_page_check = "THIS IS THE LAST PAGE" then 
+		elseIf last_page_check = "THIS IS THE LAST PAGE" then
 			last_page = True
-		Else 	
+		Else
 			last_page = False
-			row = 6		're-establishes row for the new page	
+			row = 6		're-establishes row for the new page
 		End if
 	Loop until last_page = True
-	
+
 	ObjExcel.Cells(excel_row, 3).Value = fs_issued
 	ObjExcel.Cells(excel_row, 4).Value = ga_issued
 	ObjExcel.Cells(excel_row, 5).Value = mfip_issued
@@ -257,7 +259,7 @@ DO
 	ObjExcel.Cells(excel_row, 7).Value = dw_issued
 	ObjExcel.Cells(excel_row, 8).Value = rc_issued
 	ObjExcel.Cells(excel_row, 9).Value = ms_issued
-		
+
 	amt_issued = ""
 	fs_issued = ""
 	ga_issued = ""
@@ -266,15 +268,15 @@ DO
 	dw_issued = ""
 	rc_issued = ""
 	ms_issued = ""
-	
-	If one_page <> True then 
+
+	If one_page <> True then
 	    'this do...loop gets the user back to the 1st page on the INQD screen to check the next issuance_month
 	    Do
 	    	PF7
 	    	EMReadScreen first_page_check, 20, 24, 2
 	    LOOP until first_page_check = "THIS IS THE 1ST PAGE"	'keeps hitting PF7 until user is back at the 1st page
-	End if 
-	
+	End if
+
 	excel_row = excel_row + 1
 Loop
 
@@ -282,8 +284,8 @@ FOR i = 1 to 9
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
 
-If review_required = True then 
+If review_required = True then
 	script_end_procedure("Case has more than 9 pages of issuance. The information on this spreadsheet may be incomplete. Please review later issuances on this case manually.")
-Else 
+Else
 	script_end_procedure("Success, please review the ABAWD's information.")
-End if 
+End if
