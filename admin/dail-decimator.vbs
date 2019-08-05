@@ -112,7 +112,6 @@ this_month = CM_mo & " " & CM_yr
 next_month = CM_plus_1_mo & " " & CM_plus_1_yr
 CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
 report_date = replace(date, "/", "-")
-msgbox report_date
 
 Do
 	Do
@@ -481,7 +480,7 @@ If dail_to_decimate = "Task-based" then
     objExcel.DisplayAlerts = True
     
     'Changes name of Excel sheet to "DAIL List"
-    ObjExcel.ActiveSheet.Name = "FAD DAIL Assignments - " & Dail_count
+    ObjExcel.ActiveSheet.Name = "FAD DAIL Assignments"
     
     excel_row = 2
     'Excel headers and formatting the columns
