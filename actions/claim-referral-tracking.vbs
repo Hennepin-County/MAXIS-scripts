@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC as well as to read for active programs.", "MiKayla Handley")
 call changelog_update("07/30/2019", "Reverted the term claim referral to use the action taken on MISC as well as to read for active programs.", "MiKayla Handley")
 call changelog_update("10/15/2018", "Updated claim referral dialog to read for active programs.", "MiKayla Handley")
 call changelog_update("09/20/2018", "Updated claim referral dialog to match MAXIS panel.", "MiKayla Handley")
@@ -240,4 +241,36 @@ IF SNAP_STATUS = TRUE or CASH_STATUS = TRUE THEN
     Else
     	script_end_procedure("You have indicated that an overpayment exists. Please follow the agency's procedure(s) for claim entry.")
     End if
+ELSE
+    IF SNAP_STATUS = FALSE and CASH_STATUS = FALSE THEN
+        Do
+            case_note_only_confirmation = MsgBox(" " & vbNewLine & "*** Only enter a STAT/MISC panel for a SNAP or MFIP federal food claim. Please press no if SNAP or MFIP were not open.***", vbYesNo, "Do you wish to case note only?")
+            IF case_note_only_confirmation = vbNo THEN
+                case_note_only = FALSE
+                EXIT DO
+            END IF
+            IF case_note_only_confirmation = vbYes THEN
+                case_note_only = TRUE
+                EXIT DO
+            END IF
+        LOOP
+    END IF
+    IF case_note_only = TRUE THEN
+         start_a_blank_CASE_NOTE
+         Call write_variable_in_case_note("***Claim Referral Tracking-" & action_taken & "***")
+         Call write_bullet_and_variable_in_case_note("Action Date", action_date)
+         Call write_bullet_and_variable_in_case_note("Active Program(s)", programs)
+         IF action_taken = "Sent Request for Additional Info" THEN Call write_bullet_and_variable_in_case_note("Action taken", MISC_action_taken)
+         IF action_taken = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note("* Additional verifications requested, TIKL set for 10 day return.")
+         If action_taken = "Sent Request for Additional Info" THEN  Call write_bullet_and_variable_in_case_note("Verification requested", verif_requested)
+         If action_taken = "Overpayment Exists" THEN Call write_variable_in_case_note("* Overpayment exists, claims procedure to follow.")
+         IF action_taken = "No Overpayment Exists" THEN Call write_variable_in_case_note("* No overpayment exists, maxis has been updated with reported changes.")
+         Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
+         Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice. Case is currently inactive and the MISC panel was not entered.")
+         Call write_variable_in_case_note("---")
+         Call write_variable_in_case_note(worker_signature)
+         PF3
+    ELSE
+        script_end_procedure_with_error_report("Claim Referral Tracking is for MFIP and SNAP cases only. Please let us know if there are further considerations needed.")
+    END IF
 END IF
