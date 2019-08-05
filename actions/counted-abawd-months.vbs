@@ -65,7 +65,6 @@ EndDialog
 'The script============================================================================================================================
 'Connects to MAXIS, grabbing the case MAXIS_case_number
 EMConnect ""
-MsgBox "New"
 EMReadScreen check_for_tracking_record, 21, 4, 34                       'to ensure users are not in the ABAWD Tracking Record
 If check_for_tracking_record = "ABAWD Tracking Record" Then PF3
 Call MAXIS_case_number_finder(MAXIS_case_number)
