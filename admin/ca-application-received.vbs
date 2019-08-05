@@ -575,12 +575,12 @@ END IF
 'IF METS_case_number = "" then METS_case_number = "N/A "
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 'If run_locally = TRUE Then send_email = FALSE
-IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case number #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
-IF how_app_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and team_603_email_checkbox = UNCHECKED and MA_transition_request_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "Maxis case number #" & maxis_case_number & " Request to APPL form received-APPL'd in Maxis-ACTION REQUIRED.", "", "", FALSE)
-'IF how_app_rcvd = "Request to APPL Form" and METS_case_number = "" THEN CALL create_outlook_email("", "", "Maxis case number #" & maxis_case_number & " Request to APPL form received-APPL'd in Maxis-ACTION REQUIRED.", "", "", FALSE)
-IF METS_retro_checkbox = CHECKED and team_603_email_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "Maxis case number #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in Maxis-ACTION REQUIRED.", "", "", FALSE)
-IF METS_retro_checkbox = CHECKED and team_603_email_checkbox = CHECKED THEN CALL create_outlook_email("HSPH.EWS.TEAM.603@hennepin.us", "", "Maxis case number #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in Maxis-ACTION REQUIRED.", "", "", FALSE)
-IF MA_transition_request_checkbox = CHECKED THEN CALL create_outlook_email("", "", "Maxis case number #" & maxis_case_number & "/METS IC #" & METS_case_number & " MA Transition Request APPL'd in Maxis-ACTION REQUIRED.", "", "", FALSE)
+IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
+IF how_app_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and team_603_email_checkbox = UNCHECKED and MA_transition_request_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+'IF how_app_rcvd = "Request to APPL Form" and METS_case_number = "" THEN CALL create_outlook_email("", "", "MAXIS case number #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+IF METS_retro_checkbox = CHECKED and team_603_email_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+IF METS_retro_checkbox = CHECKED and team_603_email_checkbox = CHECKED THEN CALL create_outlook_email("HSPH.EWS.TEAM.603@hennepin.us", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+IF MA_transition_request_checkbox = CHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " MA Transition Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
 IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE
 if interview_completed = TRUE Then send_appt_ltr = FALSE
