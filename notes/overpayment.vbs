@@ -217,7 +217,7 @@ CALL changelog_update("01/04/2018", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 EMConnect ""
-CALL MAXIS_case_number_finder (MAXIS_case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 memb_number = "01"
 discovery_date = date & ""
 BeginDialog overpayment_dialog, 0, 0, 361, 280, "Overpayment Claim Entered"
@@ -384,11 +384,10 @@ IF OP_program = "FS" or OP_program_II = "FS" or OP_program_III = "FS" or OP_prog
 
 	start_a_blank_case_note
 	Call write_variable_in_case_note("-----Claim Referral Tracking - Claim Determination-----")
-	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
 	Call write_bullet_and_variable_in_case_note("Action Date", date)
 	Call write_bullet_and_variable_in_case_note("Program(s)", programs)
-
 	Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
+	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
 	Call write_variable_in_case_note("-----")
 	Call write_variable_in_case_note(worker_signature)
 	PF3
