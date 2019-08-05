@@ -55,13 +55,11 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 '----------------------------------------------------------------------------------------------------Thescript
 EMCONNECT ""
-
 Call MAXIS_case_number_finder(MAXIS_case_number)
 'MEMB_number = "01"
 action_date = date & ""
-verif_requested = "TEST"
-other_notes = "TEST"
-
+'verif_requested = "TEST"
+'other_notes = "TEST"
 
 '-----------------------------------------------------------------------------DIALOG
 BeginDialog Claim_Referral_Tracking, 0, 0, 221, 155, "Claim Referral Tracking"
