@@ -289,7 +289,7 @@ objExcel.Cells(1, 16).Font.Bold = TRUE
 objExcel.Cells(2, 16).Font.Bold = TRUE
 ObjExcel.Cells(1, 16).Value = "Query date and time:"	'Goes back one, as this is on the next row
 ObjExcel.Cells(1, 17).Value = now
-ObjExcel.Cells(2, 17).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
+ObjExcel.Cells(2, 16).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
 ObjExcel.Cells(2, 17).Value = timer - query_start_time
 
 'Autofitting columns
