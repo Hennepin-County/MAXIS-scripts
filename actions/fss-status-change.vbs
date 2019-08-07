@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/07/2019", "Updated coding to read family violence information at new location due to MEMI panel changes associated with New Spouse Income Policy.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/28/2017", "Bug fixes - dialog length, date format issue, script suspending users", "Casey Love, Ramsey County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -477,7 +478,7 @@ transmit
 EMReadScreen current_emps_status, 38, 15, 40		'Find the emps status
 current_emps_status = trim(current_emps_status)
 CALL Navigate_to_MAXIS_screen ("STAT", "MEMI")
-EMReadScreen current_fvw, 2, 17, 78					'Reads the code if there is a family violence waiver currently coded
+EMReadScreen current_fvw, 2, 18, 78					'Reads the code if there is a family violence waiver currently coded
 
 new_fvw = TRUE 										'setting the default for these variables
 new_fss = FALSE
