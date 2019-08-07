@@ -2458,11 +2458,11 @@ function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
       EMWriteScreen HH_member, 20, 76
       EMWriteScreen "01", 20, 79
       transmit
-      EMReadScreen citizen, 1, 10, 49
+      EMReadScreen citizen, 1, 11, 49
       If citizen = "Y" then citizen = "US citizen"
       If citizen = "N" then citizen = "non-citizen"
-      EMReadScreen citizenship_ver, 2, 10, 78
-      EMReadScreen SSA_MA_citizenship_ver, 1, 11, 49
+      EMReadScreen citizenship_ver, 2, 11, 78
+      EMReadScreen SSA_MA_citizenship_ver, 1, 12, 49
       If citizenship_ver = "__" or citizenship_ver = "NO" then cit_proof_indicator = ", no verifs provided"
       If SSA_MA_citizenship_ver = "R" then cit_proof_indicator = ", MEMI infc req'd"
       If (citizenship_ver <> "__" and citizenship_ver <> "NO") or (SSA_MA_citizenship_ver = "A") then cit_proof_indicator = ""
