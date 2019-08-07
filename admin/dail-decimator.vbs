@@ -44,8 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("07/31/2019", "Updated to include support for FAD task based processing.", "Ilse Ferris, Hennepin County")
-call changelog_update("03/16/2019", "Added output of all actionable DAIL messages to end of script run.", "Ilse Ferris, Hennepin County")
+call changelog_update("08/07/2019", "Added auto-save functionality to save to specified QI folders.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/12/2019", "Added COLA messages for 03/19 COLA - SSI and RSDI Updated.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/17/2019", "Added total of DAIL messages left after processing.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/17/2018", "Added PEPR messages older than CM, and BENDEX and SDX messages for this month only.", "Ilse Ferris, Hennepin County")
@@ -72,28 +71,20 @@ Function dail_selection
 	transmit
 	EMWriteScreen "_", 7, 39		'clears the all selection
 
-    If dail_to_decimate = "Task-based" then 
-        EMWriteScreen "X",  8, 39 'COLA
-        EMWriteScreen "X", 10, 39 'CSES
-        EMWriteScreen "X", 13, 39 'INFO
-        EMWriteScreen "X", 18, 39 'PEPR  
-        EMWriteScreen "X", 19, 39 'TIKL 
-        Transmit 
-    Else 
-        IF dail_to_decimate = "ALL" then selection_row = 7
-        IF dail_to_decimate = "CSES" then selection_row = 10
-	    IF dail_to_decimate = "COLA" then selection_row = 8
-	    IF dail_to_decimate = "ELIG" then selection_row = 11
-	    IF dail_to_decimate = "INFO" then selection_row = 13
-        IF dail_to_decimate = "PEPR" then selection_row = 18
-	    Call write_value_and_transmit("x", selection_row, 39)
-    End if 
+    IF dail_to_decimate = "ALL" then selection_row = 7
+    IF dail_to_decimate = "CSES" then selection_row = 10
+	IF dail_to_decimate = "COLA" then selection_row = 8
+	IF dail_to_decimate = "ELIG" then selection_row = 11
+	IF dail_to_decimate = "INFO" then selection_row = 13
+    IF dail_to_decimate = "PEPR" then selection_row = 18
+
+	Call write_value_and_transmit("x", selection_row, 39)
 End Function
 
 'END CHANGELOG BLOCK =======================================================================================================
 
 BeginDialog dail_dialog, 0, 0, 266, 110, "Dail Decimator dialog"
-  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"ALL"+chr(9)+"CSES"+chr(9)+"ELIG"+chr(9)+"INFO"+chr(9)+"PEPR"+chr(9)+"Task-based", dail_to_decimate
+  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"ALL"+chr(9)+"CSES"+chr(9)+"ELIG"+chr(9)+"INFO"+chr(9)+"PEPR", dail_to_decimate
   EditBox 80, 70, 180, 15, worker_number
   CheckBox 15, 95, 135, 10, "Check here to process for all workers.", all_workers_check
   ButtonGroup ButtonPressed
@@ -107,10 +98,16 @@ EndDialog
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+dail_to_decimate = "ALL"
+all_workers_check = 1
 
 this_month = CM_mo & " " & CM_yr
 next_month = CM_plus_1_mo & " " & CM_plus_1_yr
 CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
+
+'Finding the right folder to automatically save the file
+month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
+decimator_folder = replace(this_month, " ", "-") & " DAIL Decimator"
 report_date = replace(date, "/", "-")
 
 Do
@@ -119,16 +116,12 @@ Do
   		dialog dail_dialog
   		If ButtonPressed = 0 then StopScript
   		If dail_to_decimate = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the type of DAIL message to decimate!"
-  		If dail_to_decimate <> "Task-based" then 
-            If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
-  		    If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
-  	  	End if 
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+  		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
+  		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
+  	  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
   	LOOP until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-If dail_to_decimate = "Task-based" then worker_number = "X127FD4, X127FD5, X127EZ5, X127FD8, X127EZ8, X127FH6, X127FD6, X127EZ6, X127EZ7, X127FD7, X127EZ0, X127ES4, X127ET2, X127ES8, X127ET1, X127ES7, X127EM5, X127EM6, X127EZ2, X127EZ9, X127ES5, X127EX2, X127ES6, X127EZ4, X127EZ3, X127FF3, X127EU5, X127EX7, X127EU6, X127FJ5, X127EY2, X127F3W, X127FA1, X127EU8, X127F3Q, X127EX9, X127F3X, X127FA2, X127EU7, X127F3R, X127EX8, X127F3Z, X127EV1, X127FB9, X127FC1, X127EV2, X127EV4, X127EV3, X127FB8, X127ER8, X127ET4, X127F3B, X127ET6, X127ES1, X127FB6, X127F3A, X127F4C, X127F4F, X127ET7, X127FB3, X127ER9, X127ET5, X127ES2, X127ET9, X127EW3, X127EU1, X127EU2"
 
 back_to_SELF 'navigates back to self in case the worker is working within the DAIL. All messages for a single number may not be captured otherwise.
 
@@ -173,7 +166,7 @@ FOR i = 1 to 5		'formatting the cells'
 NEXT
 
 DIM DAIL_array()
-ReDim DAIL_array(5, 0)
+ReDim DAIL_array(4, 0)
 Dail_count = 0              'Incremental for the array
 
 'constants for array
@@ -182,7 +175,6 @@ const maxis_case_number_const   = 1
 const dail_type_const 	        = 2
 const dail_month_const		    = 3
 const dail_msg_const		    = 4
-const client_name_const         = 5
 
 'Sets variable for all of the Excel stuff
 excel_row = 2
@@ -235,22 +227,9 @@ For each worker in worker_array
 			EMReadScreen dail_msg, 61, dail_row, 20
 			dail_msg = trim(dail_msg)
             EMReadScreen dail_month, 8, dail_row, 11
-            dail_month = trim(dail_month)        
-            
-            'This bit of code grabs the client name. The do/loop expands the search area until the value for
-    		'next_two equals "--" ... at which time the script determines that the cl name has ended
-    		dail_col = 6
-    		name_len = 1
-    		DO
-    			EMReadScreen client_name, name_len, 5, 5
-    			EMReadScreen next_two, 2, 5, dail_col
-    			IF next_two <> "--" THEN
-    				name_len = name_len + 1
-    				dail_col = dail_col + 1
-    			END IF
-    		LOOP UNTIL next_two = "--"    
-            
+            dail_month = trim(dail_month)            
 			stats_counter = stats_counter + 1
+
             '----------------------------------------------------------------------------------------------------CSES Messages
             If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
                 instr(dail_msg, "AP OF CHILD REF NBR:") OR _
@@ -378,14 +357,13 @@ For each worker in worker_array
 			else
 				add_to_excel = False
 				dail_row = dail_row + 1
-                ReDim Preserve DAIL_array(5, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
+                ReDim Preserve DAIL_array(4, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
             	DAIL_array(worker_const,	           DAIL_count) = worker
             	DAIL_array(maxis_case_number_const,    DAIL_count) = MAXIS_case_number
             	DAIL_array(dail_type_const, 	       DAIL_count) = dail_type
                 If len(dail_month) = 5 then dail_month = replace(dail_month, " ", "/1/")
             	DAIL_array(dail_month_const, 		   DAIL_count) = dail_month
             	DAIL_array(dail_msg_const, 		       DAIL_count) = dail_msg
-                DAIL_array(client_name_const, 		   DAIL_count) = client_name
                 Dail_count = DAIL_count + 1
 			End if
 
@@ -462,7 +440,7 @@ For item = 0 to UBound(DAIL_array, 2)
     objExcel.Cells(excel_row, 5).Value = DAIL_array(dail_msg_const, item)
 	excel_row = excel_row + 1
 Next 
-    
+
 objExcel.Cells(1, 7).Value = "Remaning DAIL messages:"
 objExcel.Columns(7).Font.Bold = true
 objExcel.Cells(1, 8).Value = DAIL_count
@@ -471,53 +449,14 @@ objExcel.Cells(1, 8).Value = DAIL_count
 FOR i = 1 to 8
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
-    
-If dail_to_decimate = "Task-based" then 
-    'Opening the Excel file
-    Set objExcel = CreateObject("Excel.Application")
-    objExcel.Visible = True
-    Set objWorkbook = objExcel.Workbooks.Add()
-    objExcel.DisplayAlerts = True
-    
-    'Changes name of Excel sheet to "DAIL List"
-    ObjExcel.ActiveSheet.Name = "FAD DAIL Assignments"
-    
-    excel_row = 2
-    'Excel headers and formatting the columns
-    objExcel.Cells(1, 1).Value = "X NUMBER"
-    objExcel.Cells(1, 2).Value = "CASE #"
-    objExcel.Cells(1, 3).Value = "DAIL TYPE"
-    objExcel.Cells(1, 4).Value = "DAIL MO."
-    objExcel.Cells(1, 5).Value = "DAIL MESSAGE"
-    objExcel.Cells(1, 6).Value = "CLIENT NAME"
-    
-    FOR i = 1 to 6		'formatting the cells'
-    	objExcel.Cells(1, i).Font.Bold = True		'bold font'
-    	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
-    	objExcel.Columns(i).AutoFit()				'sizing the columns'
-    NEXT
-    
-    'Export informaiton to Excel re: case status
-    For item = 0 to UBound(DAIL_array, 2)
-    	objExcel.Cells(excel_row, 1).Value = DAIL_array(worker_const, item)
-    	objExcel.Cells(excel_row, 2).Value = DAIL_array(maxis_case_number_const, item)
-        objExcel.Cells(excel_row, 3).Value = DAIL_array(dail_type_const, item)
-    	objExcel.Cells(excel_row, 4).Value = DAIL_array(dail_month_const, item)
-        objExcel.Cells(excel_row, 5).Value = DAIL_array(dail_msg_const, item)
-        objExcel.Cells(excel_row, 6).Value = DAIL_array(client_name_const, item)
-    	excel_row = excel_row + 1
-    Next 
-    
-    'formatting the cells
-    FOR i = 1 to 6
-    	objExcel.Columns(i).AutoFit()				'sizing the columns
-    NEXT
-    
-    'Saves and closes the most recent Excel workbook with the Task based cases to process. 
-    objExcel.ActiveWorkbook.SaveAs "T:\HSPH Restricted Access Workspace\EWS Work Structure\WS Data and Reports\Daily Form Reports\DAIL\" & report_date &".xlsx"
-    objExcel.ActiveWorkbook.Close
-    objExcel.Application.Quit
-    objExcel.Quit
-End if 
+
+'saving the Excel file 
+file_info = month_folder & "\" & decimator_folder & "\" & report_date & " " & dail_to_decimate & " " & deleted_dails
+
+'Saves and closes the most recent Excel workbook with the Task based cases to process. 
+objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
+objExcel.ActiveWorkbook.Close
+objExcel.Application.Quit
+objExcel.Quit
 
 script_end_procedure("Success! Please review the list created for accuracy.")
