@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/07/2019", "Updated coding to read citizenship verif code at new location due to MEMI panel changes associated with New Spouse Income Policy.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/13/2017", "Updated to remove blank FSET/ABAWD codes for members that do not have a WREG panel", "Ilse Ferris, Hennepin County")
 call changelog_update("09/08/2017", "Updated to include FSET codes in addition to ABAWD codes.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/31/2017", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -141,7 +142,7 @@ Do
 	        	EMWriteScreen ref_num, 20, 76
 	        	transmit
 
-	        	EMReadScreen citizen_yn, 1, 10, 49
+	        	EMReadScreen citizen_yn, 1, 11, 49
 	        	IF citizen_yn = "Y" THEN objExcel.Cells(excel_row, 5).Value = objExcel.Cells(excel_row, 5).Value & ref_num & ";"
 	        		
 	        	EMWriteScreen "MEMB", 20, 71
