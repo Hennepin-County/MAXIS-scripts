@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/07/2019", "Updated coding to enter the citizenship verif code at new location due to MEMI panel changes associated with New Spouse Income Policy.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -135,7 +136,7 @@ For Each HH_memb in HH_member_array
 	EMWriteScreen HH_memb, 20, 76
 	Transmit
 	PF9
-	EMWriteScreen "OT", 10, 78			'writing OT verif since verif is based on automated dail message.
+	EMWriteScreen "OT", 11, 78			'writing OT verif since verif is based on automated dail message.
 	call create_MAXIS_friendly_date_with_YYYY(date, 0, 6, 35)   'writing actual date of change based on current date.
 	Transmit
 	Transmit 'second transmit to get past if you enter an actual date in another footer month
