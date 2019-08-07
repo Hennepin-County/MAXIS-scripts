@@ -3743,8 +3743,6 @@ Next
 '--------------------END OF TIKL BUSINESS
 
 
-'Navigates to case note, and checks to make sure we aren't in inquiry.
-Call start_a_blank_CASE_NOTE
 
 'Adding a colon to the beginning of the CAF status variable if it isn't blank (simplifies writing the header of the case note)
 If CAF_status <> "" then CAF_status = ": " & CAF_status
@@ -3757,7 +3755,56 @@ If SNAP_checkbox = checked Then progs_list = progs_list & ", SNAP"
 If EMER_checkbox = checked Then progs_list = progs_list & ", EMER"
 If left(progs_list, 1) = "," Then progs_list = right(progs_list, len(progs_list) - 2)
 
-'THE CASE NOTE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'THE CASE NOTES-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Expedited Determination Case Note
+'Navigates to case note, and checks to make sure we aren't in inquiry.
+Call start_a_blank_CASE_NOTE
+
+If CAF_type = "Application" and SNAP_checkbox = checked Then
+    IF snap_exp_yn = "Yes" then
+    	case_note_header_text = "Expedited Determination: SNAP appears expedited"
+    ELSEIF snap_exp_yn = "No" then
+    	case_note_header_text = "Expedited Determination: SNAP does not appear expedited"
+    END IF
+
+
+    If interview_date <> "" Then Call write_variable_in_case_note ("* Interview completed on: " & interview_date & " and full Expedited Determination Done")
+    IF snap_exp_yn = "Yes" Then Call write_variable_in_case_note ("* Case is determined to meet criteria and Expedited SNAP can be approved.")
+    IF snap_exp_yn = "No" Then Call write_variable_in_case_note ("* Expedited SNAP cannot be approved as case does not meet all criteria")
+    If snap_exp_yn = "Yes" Then
+        If IsDate(exp_snap_approval_date) = TRUE Then Call write_variable_in_CASE_NOTE("* SNAP EXP approved on " & exp_snap_approval_date & " - " & DateDiff("d", CAF_datestamp, exp_snap_approval_date) & " days after the date of application.")
+        Call write_bullet_and_variable_in_CASE_NOTE("Reason for delay", exp_snap_delays)
+    End If
+
+    Call write_variable_in_CASE_NOTE("* Expedited Determination is based on information from application month:")
+    Call write_variable_with_indent_in_CASE_NOTE("Income: $" & app_month_income & " - Assets: $" & app_month_assets)
+    Call write_variable_with_indent_in_CASE_NOTE("Expenses (Shelter & Utilities): $" & app_month_expenses)
+
+    Call write_variable_in_CASE_NOTE("---")
+    Call write_variable_in_CASE_NOTE(worker_signature)
+
+    PF3
+End If
+
+'Interview Incomfation Detail Case Note
+'Navigates to case note, and checks to make sure we aren't in inquiry.
+If SNAP_checkbox = checked OR CAF_type = "Application" then
+    Call start_a_blank_CASE_NOTE
+
+    CALL write_variable_in_CASE_NOTE("~ Interview Completed on " & interview_date & " ~")
+
+
+
+    Call write_variable_in_CASE_NOTE("---")
+    Call write_variable_in_CASE_NOTE(worker_signature)
+
+    PF3
+End If
+
+'MAIN CAF Information NOTE
+'Navigates to case note, and checks to make sure we aren't in inquiry.
+Call start_a_blank_CASE_NOTE
+
 CALL write_variable_in_CASE_NOTE("*** " & CAF_datestamp & " CAF - Prog: " & progs_list & " - " & CAF_type & CAF_status & " ***")
 IF move_verifs_needed = TRUE THEN
 	CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
@@ -3786,19 +3833,6 @@ If trim(interview_date) <> "" Then intv_note_entry = intv_note_entry & " on: " &
 If trim(interview_with) <> "" AND interview_with <> "Select or Type" Then intv_note_entry = intv_note_entry & " with: " & interview_with
 If Used_Interpreter_checkbox = checked Then intv_note_entry = intv_note_entry & " w/ interpreter"
 Call write_variable_in_CASE_NOTE(intv_note_entry)
-
-'EXPEDITED
-If CAF_type = "Application" and SNAP_checkbox = checked Then
-    Call write_variable_in_CASE_NOTE("--- Expedited SNAP Determination ---")
-    If snap_exp_yn = "Yes" Then
-        Call write_variable_in_CASE_NOTE("* Case is eligible for Expedited SNAP.")
-        If IsDate(exp_snap_approval_date) = TRUE Then Call write_variable_in_CASE_NOTE("* SNAP EXP approved on " & exp_snap_approval_date & " - " & DateDiff("d", CAF_datestamp, exp_snap_approval_date) & " days after the date of application.")
-        Call write_bullet_and_variable_in_CASE_NOTE("Reason for delay", exp_snap_delays)
-    End If
-    If snap_exp_yn = "No" Then Call write_variable_in_CASE_NOTE("* Case is NOT eligible for Expedited SNAP.")
-    Call write_variable_in_CASE_NOTE("* In the month of application - Income $" & app_month_income & " - Assets $" & app_month_assets & " - Expenses $" & app_month_expenses & ".")
-    CALL write_variable_in_CASE_NOTE("------------------------------------")
-End If
 
 'Household and personal information
 If SNAP_checkbox = checked Then
