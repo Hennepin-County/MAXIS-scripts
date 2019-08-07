@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/07/2019", "Updated coding to update citizenship status and verification at new location due to MEMI panel changes associated with New Spouse Income Policy.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/25/2019", "Added a case note only option when a case is inactive.", "MiKayla Handley")
 call changelog_update("03/28/2018", "Initial version.", "MiKayla Handley")
 
@@ -354,8 +355,8 @@ IF case_note_only_checkbox <> CHECKED THEN
     	TRANSMIT
     	PF9
     	Call create_MAXIS_friendly_date_with_YYYY(actual_date, 0, 6, 35)
-    	Emwritescreen "Y", 10, 49
-    	Emwritescreen citizen_status, 10, 78
+    	Emwritescreen "Y", 11, 49
+    	Emwritescreen citizen_status, 11, 78
     	TRANSMIT
     	'Navigates to MEMB tp update alien ID'
     	Call navigate_to_MAXIS_screen("STAT", "MEMB")
