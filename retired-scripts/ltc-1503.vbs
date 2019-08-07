@@ -10,9 +10,9 @@ STATS_denomination = "C"        'C is for each case
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else											'Everyone else should use the release branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
 		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
@@ -28,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -38,46 +38,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
-'This is used in arrays that specify functionality to specific workers
-Set objNet = CreateObject("WScript.NetWork")
-windows_user_ID = objNet.UserName
-user_ID_for_validation= ucase(windows_user_ID)
-name_for_validation = ""
-
-If user_ID_for_validation = "CALO001" Then name_for_validation = "Casey"
-If user_ID_for_validation = "ILFE001" Then name_for_validation = "Ilse"
-If user_ID_for_validation = "WFS395" Then name_for_validation = "MiKayla"
-If user_ID_for_validation = "WFQ898" Then name_for_validation = "Hannah"
-If user_ID_for_validation = "WFK093" Then name_for_validation = "Jessica"
-If user_ID_for_validation = "WFM207" Then name_for_validation = "Mandora"
-If user_ID_for_validation = "WFP803" Then name_for_validation = "Melissa"
-If user_ID_for_validation = "WFC041" Then name_for_validation = "Kerry"
-If user_ID_for_validation = "AAGA001" Then name_for_validation = "Aaron"
-If user_ID_for_validation = "WFJ454" Then name_for_validation = "True"
-If user_ID_for_validation = "WFC719" Then name_for_validation = "Kristen"
-If user_ID_for_validation = "WFE269" Then name_for_validation = "Carrie"
-If user_ID_for_validation = "WFW682" Then name_for_validation = "Osman"
-If user_ID_for_validation = "WFC804" Then name_for_validation = "Shanna"
-If user_ID_for_validation = "WFA168" Then name_for_validation = "Michelle"
-
-If name_for_validation <> "" Then
-    MsgBox "Hello " & name_for_validation &  ", you have been selected to test the script NOTES - Documents Received. The functionality to run NOTES - LTC - 1503 Script is now added to NOTES - Documents Received. When the script runs, inditate that this is an LTC case and check the box for the 1503 form."  & vbNewLine & vbNewLine & "A testing version of the script will now run.  Thank you for taking your time to review our new scripts and functionality as we strive for Continuous Improvement." & vbNewLine & vbNewLine  & "                                                                                    - BlueZone Script Team"
-    testing_run = TRUE
-    testing_script_url = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/testing_trial/notes/documents-received.vbs"
-    Call run_from_GitHub(testing_script_url)
-End if
-
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-Call changelog_update("07/23/2019", "This script will be retired soon and no longer available. Functionality to CASE/NOTE LTC 1503 Form will be added to NOTES - Docs Received.", "Casey Love, Hennepin County")
-call changelog_update("05/13/2019", "Updated backend process handling. Added additional mandatory fields to main dialog.", "Ilse Ferris, Hennepin County")
-call changelog_update("10/12/2017", "Changed ICF-MR to ICF-DD. Updated password handling on back end.", "Ilse Ferris, Hennepin County")
-call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+				call changelog_update("03/22/2017", "Fixing a type mismatch error that was ending the script.", "Robert Fewins-Kalb, Anoka County")
+				call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -93,36 +61,30 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'The initial dialog------defined and displayed------------------------------------------------------------------------
-BeginDialog , 0, 0, 116, 70, "Case number dialog"
-  EditBox 60, 10, 50, 15, MAXIS_case_number
-  EditBox 60, 30, 20, 15, MAXIS_footer_month
-  EditBox 90, 30, 20, 15, MAXIS_footer_year
+BeginDialog , 0, 0, 141, 80, "Case number dialog"
+  EditBox 65, 10, 65, 15, MAXIS_case_number
+  EditBox 65, 30, 30, 15, MAXIS_footer_month
+  EditBox 100, 30, 30, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
-    OkButton 25, 50, 40, 15
-    CancelButton 70, 50, 40, 15
-  Text 10, 35, 45, 10, "Footer month:"
-  Text 10, 15, 45, 10, "Case number: "
+    OkButton 25, 55, 50, 15
+    CancelButton 80, 55, 50, 15
+  Text 10, 30, 50, 15, "Footer month:"
+  Text 10, 10, 50, 15, "Case number: "
 EndDialog
-
-Do
-	DO
-        err_msg = ""
-		Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-		cancel_without_confirmation
-        IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "Enter a valid case number."		'mandatory field
-		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
-        If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-    LOOP UNTIL err_msg = ""
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+DO
+	Dialog 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+	cancel_confirmation
+	IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid case number."
+	IF IsNumeric(MAXIS_footer_month) = FALSE THEN MsgBox "You must type a valid footer month."
+	IF IsNumeric(MAXIS_footer_year) = FALSE THEN MsgBox "You must type a valid footer year."
+LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE and IsNumeric(MAXIS_footer_month) = TRUE and IsNumeric(MAXIS_footer_year) = True
 
 'THE 1503 MAIN DIALOG---------defined and displayed-----------------------------------------------------------------------
 BeginDialog , 0, 0, 366, 285, "1503 Dialog"
-  EditBox 55, 5, 135, 15, facility_name
+  EditBox 55, 5, 135, 15, FACI
   DropListBox 255, 5, 95, 15, "30 days or less"+chr(9)+"31 to 90 days"+chr(9)+"91 to 180 days"+chr(9)+"over 180 days", length_of_stay
-  DropListBox 105, 25, 45, 15, "SNF"+chr(9)+"NF"+chr(9)+"ICF-DD"+chr(9)+"RTC", level_of_care
-  DropListBox 215, 25, 135, 15, "acute-care hospital"+chr(9)+"home"+chr(9)+"RTC"+chr(9)+"other SNF or NF"+chr(9)+"ICF-DD", admitted_from
+  DropListBox 105, 25, 45, 15, "SNF"+chr(9)+"NF"+chr(9)+"ICF-MR"+chr(9)+"RTC", level_of_care
+  DropListBox 215, 25, 135, 15, "acute-care hospital"+chr(9)+"home"+chr(9)+"RTC"+chr(9)+"other SNF or NF"+chr(9)+"ICF-MR", admitted_from
   EditBox 145, 45, 205, 15, hospital_admitted_from
   EditBox 75, 65, 65, 15, admit_date
   EditBox 275, 65, 75, 15, discharge_date
@@ -137,11 +99,11 @@ BeginDialog , 0, 0, 366, 285, "1503 Dialog"
   CheckBox 165, 155, 100, 10, "Sent verif req? If so, to who:", sent_verif_request_check
   ComboBox 270, 150, 85, 15, "client"+chr(9)+"AREP"+chr(9)+"Client & AREP", sent_request_to
   CheckBox 15, 165, 120, 10, "Sent DHS-5181 to Case Manager", sent_5181_check
-  EditBox 30, 185, 330, 15, notes
+  EditBox 30, 185, 325, 15, notes
   CheckBox 30, 215, 260, 10, "Check here to have the script TIKL out to contact the FACI re: length of stay.", TIKL_check
   CheckBox 30, 230, 155, 10, "Check here to have the script update HCMI.", HCMI_update_check
   CheckBox 30, 245, 150, 10, "Check here to have the script update FACI.", FACI_update_check
-  EditBox 115, 265, 135, 15, worker_signature
+  EditBox 160, 265, 75, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 255, 265, 50, 15
     CancelButton 310, 265, 50, 15
@@ -155,27 +117,25 @@ BeginDialog , 0, 0, 366, 285, "1503 Dialog"
   GroupBox 0, 100, 360, 80, "Actions/Proofs"
   Text 10, 135, 115, 10, "Other proofs needed (if applicable):"
   Text 5, 190, 25, 10, "Notes:"
-  GroupBox 5, 205, 355, 55, "Script actions"
-  Text 50, 270, 60, 10, "Worker signature:"
+  GroupBox 0, 205, 335, 55, "Script actions"
+  Text 95, 270, 60, 10, "Worker signature:"
 EndDialog
-
 Do
-	Do
-        err_msg = ""
-		Dialog  					'Calling a dialog without a assigned variable will call the most recently defined dialog
-		cancel_confirmation
-		If trim(facility_name) = "" then err_msg = err_msg & vbNewLine & "* Enter the name of the facility."
-        If isdate(admit_date) = false then err_msg = err_msg & vbNewLine & "* Enter a valid date of admission."
-        If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-    LOOP UNTIL err_msg = ""
-    Call check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+	Dialog  					'Calling a dialog without a assigned variable will call the most recently defined dialog
+	cancel_confirmation
+	IF worker_signature = "" THEN MsgBox "You must sign your case note."
+LOOP UNTIL worker_signature <> ""
 
 'Checks for an active MAXIS session
-Call check_for_MAXIS(False)
-Call MAXIS_footer_month_confirmation
-Call navigate_to_MAXIS_screen("STAT", "FACI")
+call check_for_MAXIS(False)
+'checking to make sure case is out of background
+MAXIS_background_check
+
+'navigating the script to the correct footer month
+back_to_self
+EMWriteScreen MAXIS_footer_month, 20, 43
+EMWriteScreen MAXIS_footer_year, 20, 46
+call navigate_to_MAXIS_screen("STAT", "FACI")
 
 'THE TIKL----------------------------------------------------------------------------------------------------
 If TIKL_check = 1 then
@@ -202,17 +162,17 @@ If FACI_update_check = 1 then
 		EMWriteScreen "nn", 20, 79
 		transmit
 	END IF
-	EMWriteScreen facility_name, 6, 43
+	EMWriteScreen FACI, 6, 43
 	If level_of_care = "NF" then EMWriteScreen "42", 7, 43
 	If level_of_care = "RTC" THEN EMWriteScreen "47", 7, 43
 	If length_of_stay = "30 days or less" and level_of_care = "SNF" then EMWriteScreen "44", 7, 43
 	If length_of_stay = "31 to 90 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
 	If length_of_stay = "91 to 180 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
 	if length_of_stay = "over 180 days" and level_of_care = "SNF" then EMWriteScreen "41", 7, 43
-	If length_of_stay = "30 days or less" and level_of_care = "ICF-DD" then EMWriteScreen "44", 7, 43
-	If length_of_stay = "31 to 90 days" and level_of_care = "ICF-DD" then EMWriteScreen "41", 7, 43
-	If length_of_stay = "91 to 180 days" and level_of_care = "ICF-DD" then EMWriteScreen "41", 7, 43
-	If length_of_stay = "over 180 days" and level_of_care = "ICF-DD" then EMWriteScreen "41", 7, 43
+	If length_of_stay = "30 days or less" and level_of_care = "ICF-MR" then EMWriteScreen "44", 7, 43
+	If length_of_stay = "31 to 90 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
+	If length_of_stay = "91 to 180 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
+	If length_of_stay = "over 180 days" and level_of_care = "ICF-MR" then EMWriteScreen "41", 7, 43
 	EMWriteScreen "n", 8, 43
 	Call create_MAXIS_friendly_date_with_YYYY(admit_date, 0, 14, 47)
 	If discharge_date<> "" then
@@ -239,23 +199,22 @@ END IF
 
 'THE TIKL----------------------------------------------------------------------------------------------------
 If TIKL_check = 1 then
-	call navigate_to_MAXIS_screen("dail", "writ")
-	EMWriteScreen TIKL_date_MM, 5, 18
-	EMWriteScreen TIKL_date_DD, 5, 21
-	EMWriteScreen TIKL_date_YY, 5, 24
-	EMSetCursor 9, 3
-	write_variable_in_TIKL("Have " & worker_signature & " call " & facility_name & " re: length of stay. " & TIKL_multiplier & " days expired.")
-	transmit
-	PF3
+  call navigate_to_MAXIS_screen("dail", "writ")
+  EMWriteScreen TIKL_date_MM, 5, 18
+  EMWriteScreen TIKL_date_DD, 5, 21
+  EMWriteScreen TIKL_date_YY, 5, 24
+  EMSetCursor 9, 3
+  write_variable_in_TIKL("Have " & worker_signature & " call " & FACI & " re: length of stay. " & TIKL_multiplier & " days expired.")
+  transmit
+  PF3
 End if
 
 'The CASE NOTE----------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE
-
 If processed_1503_check = 1 then
-  	call write_variable_in_CASE_NOTE("***Processed 1503 from " & facility_name & "***")
+  call write_variable_in_CASE_NOTE("***Processed 1503 from " & FACI & "***")
 Else
-  	call write_variable_in_CASE_NOTE("***Rec'd 1503 from " & facility_name & ", DID NOT PROCESS***")
+  call write_variable_in_CASE_NOTE("***Rec'd 1503 from " & FACI & ", DID NOT PROCESS***")
 End if
 Call write_bullet_and_variable_in_case_note("Length of stay", length_of_stay)
 Call write_bullet_and_variable_in_case_note("Recommended level of care", level_of_care)
@@ -265,10 +224,10 @@ Call write_bullet_and_variable_in_case_note("Admit date", admit_date)
 Call write_bullet_and_variable_in_case_note("Discharge date", discharge_date)
 Call write_variable_in_CASE_NOTE("---")
 If updated_RLVA_check = 1 and updated_FACI_check = 1 then
-	Call write_variable_in_CASE_NOTE("* Updated RLVA and FACI.")
+Call write_variable_in_CASE_NOTE("* Updated RLVA and FACI.")
 Else
-  	If updated_RLVA_check = 1 then Call write_variable_in_case_note("* Updated RLVA.")
-  	If updated_FACI_check = 1 then Call write_variable_in_case_note("* Updated FACI.")
+  If updated_RLVA_check = 1 then Call write_variable_in_case_note("* Updated RLVA.")
+  If updated_FACI_check = 1 then Call write_variable_in_case_note("* Updated FACI.")
 End if
 If need_3543_check = 1 then Call write_variable_in_case_note("* A 3543 is needed for the client.")
 If need_3531_check = 1 then call write_variable_in_CASE_NOTE("* A 3531 is needed for the client.")
@@ -279,6 +238,7 @@ Call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 If sent_verif_request_check = 1 then Call write_variable_in_case_note("* Sent verif request to " & sent_request_to)
 If processed_1503_check = 1 then Call write_variable_in_case_note("* Completed & Returned 1503 to LTCF.")
 If TIKL_check = 1 then Call write_variable_in_case_note("* TIKLed to recheck length of stay on " & TIKL_date & ".")
+Call write_variable_in_case_note("---")
 Call write_bullet_and_variable_in_case_note("Notes", notes)
 Call write_variable_in_case_note("---")
 Call write_variable_in_case_note(worker_signature)

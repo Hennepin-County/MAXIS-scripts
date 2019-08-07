@@ -10,9 +10,9 @@ STATS_denomination = "C"        'C is for each case
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else											'Everyone else should use the release branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+			FuncLib_URL = "https://raw.githubusercontent.com/MN-Script-Team/BZS-FuncLib/RELEASE/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
 		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
@@ -28,7 +28,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
             StopScript
 		END IF
 	ELSE
-		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\BZS-FuncLib\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -38,49 +38,22 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
-'This is used in arrays that specify functionality to specific workers
-Set objNet = CreateObject("WScript.NetWork")
-windows_user_ID = objNet.UserName
-user_ID_for_validation= ucase(windows_user_ID)
-name_for_validation = ""
-
-If user_ID_for_validation = "CALO001" Then name_for_validation = "Casey"
-If user_ID_for_validation = "ILFE001" Then name_for_validation = "Ilse"
-If user_ID_for_validation = "WFS395" Then name_for_validation = "MiKayla"
-If user_ID_for_validation = "WFQ898" Then name_for_validation = "Hannah"
-If user_ID_for_validation = "WFK093" Then name_for_validation = "Jessica"
-If user_ID_for_validation = "WFM207" Then name_for_validation = "Mandora"
-If user_ID_for_validation = "WFP803" Then name_for_validation = "Melissa"
-If user_ID_for_validation = "WFC041" Then name_for_validation = "Kerry"
-If user_ID_for_validation = "AAGA001" Then name_for_validation = "Aaron"
-If user_ID_for_validation = "WFJ454" Then name_for_validation = "True"
-If user_ID_for_validation = "WFC719" Then name_for_validation = "Kristen"
-If user_ID_for_validation = "WFE269" Then name_for_validation = "Carrie"
-If user_ID_for_validation = "WFW682" Then name_for_validation = "Osman"
-If user_ID_for_validation = "WFC804" Then name_for_validation = "Shanna"
-If user_ID_for_validation = "WFA168" Then name_for_validation = "Michelle"
-
-If name_for_validation <> "" Then
-    MsgBox "Hello " & name_for_validation &  ", you have been selected to test the script NOTES - Documents Received. The functionality to run NOTES - MTAF Script is now added to NOTES - Documents Received. When the script runs, inditate that this is NOT an LTC case and check the box for the MTAF form."  & vbNewLine & vbNewLine & "A testing version of the script will now run.  Thank you for taking your time to review our new scripts and functionality as we strive for Continuous Improvement." & vbNewLine & vbNewLine  & "                                                                                    - BlueZone Script Team"
-    testing_run = TRUE
-    testing_script_url = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/testing_trial/notes/documents-received.vbs"
-    Call run_from_GitHub(testing_script_url)
-End if
-
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-Call changelog_update("07/23/2019", "This script will be retired soon and no longer available. Functionality to CASE/NOTE MTAF information will be added to NOTES - Docs Received.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
+ ' TODO Remove interview wording or make optional as interviews are not required for processing MTAF.
+ ' TODO Income complete/incomplete combo box for the note header
+ ' TODO add other income fields to the income autofill (UNEA, BUSI) - to more closely resemble the CAF
+ ' TODO - make this more action oriented - maybe
+ ' TODO s are brought to you by - https://github.com/MN-Script-Team/DHS-MAXIS-Scripts/issues/2594'
 'DIALOGS----------------------------------------------------------------------------------------------------
 'CASE NUMBER DIALOG
 BeginDialog case_number_dialog, 0, 0, 126, 45, "Case number dialog"
@@ -178,7 +151,7 @@ LOOP UNTIL are_we_passworded_out = false
 Call start_a_blank_case_note
 
 'THE CASE NOTE===========================================================================
-CALL write_variable_in_CASE_NOTE("***MTAF Interview " & MTAF_status_dropdown & "***")
+CALL write_variable_in_CASE_NOTE("***MTAF Interview Completed***")
 CALL write_bullet_and_variable_in_CASE_NOTE ("Date received", MTAF_date)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Date of eligibility", MFIP_elig_date)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Date of interview", interview_date)
@@ -188,7 +161,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE ("Change in assets", asset_change)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Change in earned income", earned_income_change)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Change in unearned income", unearned_income_change)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Change in shelter costs", shelter_costs_change)
-CALL write_bullet_and_variable_in_CASE_NOTE ("Is housing subsidized? If so, what is the amount", subsidized_housing)
+CALL write_bullet_and_variable_in_CASE_NOTE ("Is housing subsidized? If so, what is the amount?", subsidized_housing)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Subsidized housing status", sub_housing_droplist)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Child or adult care costs", child_adult_care_costs)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Proof of relationship on file", relationship_proof)
