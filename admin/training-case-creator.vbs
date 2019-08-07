@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/07/2019", "Updated coding to read Marital status, spouse reference number, last grade completed citizenship, citizenship verif, in MN more than 12 months and residence verif codes at new location due to MEMI panel changes associated with New Spouse Income Policy.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/22/2019", "Added handling for FSET sanction reasons, updated input for sanction dates and updated dialog with current contact info.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/2/2018", "Fixed bug with creating MEDI panel. Added functionality to add waiver or 1619 status to DISA.", "Casey Love, Hennepin County")
 call changelog_update("03/28/2018", "Added handling to send the HRF, and updated REI handling for MFIP cases.", "Ilse Ferris, Hennepin County")
@@ -489,20 +490,17 @@ For cases_to_make = 1 to how_many_cases_to_make
 		Blank_IMIG = ""		'Blanking out for the next client
 
 		'Updates MEMI with the info
-		EMWriteScreen MEMI_marital_status, 7, 49
-		EMWriteScreen MEMI_spouse, 8, 49
-		EMWriteScreen MEMI_last_grade_completed, 9, 49
-		EMWriteScreen MEMI_cit_yn, 10, 49
-		EMWriteScreen "NO", 10, 78		'Always defaulting to none for cit/ID proof right now
-		EMWriteScreen "Y", 13, 49		'Always defualting to yes for been in MN > 12 months
-		EMWriteScreen "N", 13, 78		'Always defualting to no for residence verification
+		EMWriteScreen MEMI_marital_status, 7, 40
+		EMWriteScreen MEMI_spouse, 9, 49
+		EMWriteScreen MEMI_last_grade_completed, 10, 49
+		EMWriteScreen MEMI_cit_yn, 11, 49
+		EMWriteScreen "NO", 11, 78		'Always defaulting to none for cit/ID proof right now
+		EMWriteScreen "Y", 14, 49		'Always defualting to yes for been in MN > 12 months
+		EMWriteScreen "N", 14, 78		'Always defualting to no for residence verification
 		transmit
-
-
 	Next
-
-	'This next transmit gets to the ADDR screen
-	transmit
+    
+	transmit 'This next transmit gets to the ADDR screen
 
 	'Gets ADDR info from spreadsheet, gets from column 3 because it's case based
 	ADDR_starting_excel_row = 23
