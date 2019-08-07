@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/07/2019", "Updated coding to read Marital status, spouse reference number, last grade completed and citizenship codes at new location due to MEMI panel changes associated with New Spouse Income Policy.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/05/2018", "Updated coordinates in STAT/JOBS for income type and verification codes.", "Ilse Ferris, Hennepin County")
 call changelog_update("1/5/2017", "fixing bug with a message box.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -435,11 +436,11 @@ FOR EACH client IN client_array
 	STATS_manualtime = STATS_manualtime + 11 		'<<< 11.43 seconds to write MEMI data per client
 	CALL write_value_and_transmit(client, 20, 76)
 	'reading MEMI for each peep
-	EMReadScreen marital_status, 1, 7, 49
-	EMReadScreen spouse_ref_num, 2, 8, 49
+	EMReadScreen marital_status, 1, 7, 40
+	EMReadScreen spouse_ref_num, 2, 9, 49
 		spouse_ref_num = replace(spouse_ref_num, "_", "")
-	EMReadScreen last_grade, 2, 9, 49
-	EMReadScreen citizen_yn, 1, 10, 49
+	EMReadScreen last_grade, 2, 10, 49
+	EMReadScreen citizen_yn, 1, 11, 49
 
 	'and writing it into the template
 	objExcel.Cells(memi_row, excel_col).Value = marital_status
