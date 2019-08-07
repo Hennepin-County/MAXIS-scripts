@@ -47,10 +47,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("05/07/2018", "Updated the characters to pull for the client's name.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("01/12/2018", "Entering a supervisor X-Number in the Workers to Check will pull all X-Numbers listed under that supervisor in MAXIS. Addiional bug fix where script was missing cases.", "Casey Love, Hennepin County")
-Call changelog_update("12/10/2016", "Added IV-E, Child Care and FIATed case statuses to script. Also added closing message informing user that script has ended sucessfully.", "Ilse Ferris, Hennepin County")
-call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+call changelog_update("8/6/2019", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -60,8 +57,10 @@ function get_user_information(maxis_row, excel_row)
     EMReadScreen worker_x_number, 7, maxis_row, 5
     ObjExcel.Cells(excel_row, 1).Value = worker_x_number
 
-    EMReadScreen worker_permissions, 29, maxis_row, 38
-    ObjExcel.Cells(excel_row, 14).Value = trim(worker_permissions)
+    If all_workers_check = unchecked Then
+        EMReadScreen worker_permissions, 29, maxis_row, 38
+        ObjExcel.Cells(excel_row, 14).Value = trim(worker_permissions)
+    End If
 
     EMWriteScreen "X", maxis_row, 3
     transmit
@@ -213,6 +212,57 @@ If all_workers_check = checked then
 
     Loop until last_page_check = "More:   -"
 
+    end_of_list = XL_row
+
+    XL_row = 2
+    Call back_to_SELF
+    Call navigate_to_MAXIS_screen("REPT", "USER")
+
+    PF5
+    PF5
+
+    Do
+        sup_x_numb = ObjExcel.Cells(XL_row, 13).Value
+        wrk_x_numb = ObjExcel.Cells(XL_row, 1).Value
+
+        EMWriteScreen sup_x_numb, 21, 12
+        transmit
+
+        EMReadScreen sup_found_check, 14, 24, 2
+        If sup_found_check = "NO INFORMATION" OR trim(sup_x_numb) = "" Then
+            XL_row = XL_row + 1
+        Else
+
+            MX_row = 7
+            Do
+                EMReadScreen mx_x_numb, 7, MX_row, 5
+
+                If mx_x_numb = wrk_x_numb Then
+                    EMReadScreen worker_permissions, 29, MX_row, 38
+                    ObjExcel.Cells(XL_row, 14).Value = trim(worker_permissions)
+
+                    Exit Do
+                End If
+
+                MX_row = MX_row + 1
+
+                If MX_row = 19 Then
+                    EMReadScreen last_page_check, 9, 19, 3
+
+                    If last_page_check <> "More:   -" Then
+                        PF8
+                        EMReadScreen too_many_check, 14, 24, 2
+                        If too_many_check = "MAXIMUM NUMBER" Then Exit Do
+                        MX_row = 7
+                    End If
+                End If
+
+            Loop
+        End If
+
+        XL_row = XL_row + 1
+    Loop until XL_row = end_of_list
+
 Else
 
     'Getting to REPT/USER
@@ -259,30 +309,6 @@ Else
     NEXT
 
 End If
-
-
-
-'Blanking out array_name in case this has been used already in the script
-array_name = ""
-
-Do
-    Do
-        'Reading MAXIS information for this row, adding to spreadsheet
-        EMReadScreen worker_ID, 8, MAXIS_row, 5					'worker ID
-        If worker_ID = "        " then exit do					'exiting before writing to array, in the event this is a blank (end of list)
-        array_name = trim(array_name & " " & worker_ID)				'writing to variable
-        MAXIS_row = MAXIS_row + 1
-    Loop until MAXIS_row = 19
-
-    'Seeing if there are more pages. If so it'll grab from the next page and loop around, doing so until there's no more pages.
-    EMReadScreen more_pages_check, 7, 19, 3
-    If more_pages_check = "More: +" then
-        PF8			'getting to next screen
-        MAXIS_row = 7	'redeclaring MAXIS row so as to start reading from the top of the list again
-    End if
-Loop until more_pages_check = "More:  " or more_pages_check = "       "	'The or works because for one-page only counties, this will be blank
-array_name = split(array_name)
-
 
 'Query date/time/runtime info
 objExcel.Cells(1, 16).Font.Bold = TRUE
