@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/07/2019", "Updated to output 8-digit case numbers and 8-character dates.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/07/2019", "Added auto-save functionality to save to specified QI folders.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/12/2019", "Added COLA messages for 03/19 COLA - SSI and RSDI Updated.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/17/2019", "Added total of DAIL messages left after processing.", "Ilse Ferris, Hennepin County")
@@ -180,11 +181,11 @@ const dail_msg_const		    = 4
 excel_row = 2
 deleted_dails = 0	'establishing the value of the count for deleted deleted_dails
 
-MAXIS_case_number = ""
 CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 
 'This for...next contains each worker indicated above
 For each worker in worker_array
+    MAXIS_case_number = ""
 	'msgbox worker
 	DO
 		EMReadScreen dail_check, 4, 2, 48
@@ -199,8 +200,7 @@ For each worker in worker_array
 	transmit 'transmit past 'not your dail message'
 
 	Call dail_selection
-
-	EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
+    EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
 
 	DO
 		If number_of_dails = " " Then exit do		'if this space is blank the rest of the DAIL reading is skipped
@@ -221,14 +221,23 @@ For each worker in worker_array
 			    Call write_value_and_transmit("T", dail_row + 1, 3)
 				dail_row = 6
 			End if
-
-			EMReadScreen maxis_case_number, 8, dail_row - 1, 73
+            
+            'Reading the DAIL Information 
+			EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
+            MAXIS_case_number = trim(MAXIS_case_number)
+            MAXIS_case_number = right("00000000" & MAXIS_case_number, 8) 'outputs in 8 digits format 
+            
             EMReadScreen dail_type, 4, dail_row, 6
-			EMReadScreen dail_msg, 61, dail_row, 20
+			
+            EMReadScreen dail_msg, 61, dail_row, 20
 			dail_msg = trim(dail_msg)
+            
             EMReadScreen dail_month, 8, dail_row, 11
-            dail_month = trim(dail_month)            
-			stats_counter = stats_counter + 1
+            'Reformatting DAIL month 
+            dail_month = trim(dail_month)    
+            If len(dail_month) = 5 then dail_month = replace(dail_month, " ", "/01/")       
+			
+            stats_counter = stats_counter + 1   'I increment thee 
 
             '----------------------------------------------------------------------------------------------------CSES Messages
             If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
@@ -344,10 +353,10 @@ For each worker in worker_array
             IF add_to_excel = True then
 				'--------------------------------------------------------------------...and put that in Excel.
 				objExcel.Cells(excel_row, 1).Value = worker
-				objExcel.Cells(excel_row, 2).Value = trim(MAXIS_case_number)
-				objExcel.Cells(excel_row, 3).Value = trim(dail_type)
-				objExcel.Cells(excel_row, 4).Value = trim(dail_month)
-				objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
+				objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
+				objExcel.Cells(excel_row, 3).Value = dail_type
+				objExcel.Cells(excel_row, 4).Value = dail_month
+				objExcel.Cells(excel_row, 5).Value = dail_msg
 				excel_row = excel_row + 1
 
 				Call write_value_and_transmit("D", dail_row, 3)
@@ -361,7 +370,6 @@ For each worker in worker_array
             	DAIL_array(worker_const,	           DAIL_count) = worker
             	DAIL_array(maxis_case_number_const,    DAIL_count) = MAXIS_case_number
             	DAIL_array(dail_type_const, 	       DAIL_count) = dail_type
-                If len(dail_month) = 5 then dail_month = replace(dail_month, " ", "/1/")
             	DAIL_array(dail_month_const, 		   DAIL_count) = dail_month
             	DAIL_array(dail_msg_const, 		       DAIL_count) = dail_msg
                 Dail_count = DAIL_count + 1
