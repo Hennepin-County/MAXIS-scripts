@@ -46,6 +46,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC.", "MiKayla Handley")
 call changelog_update("01/10/2019", "Added claim referral handling and checks to make sure the case is cleared in INFC.", "MiKayla Handley, Hennepin County")
 call changelog_update("01/10/2019", "Updated casenote due to formatting issue, some change to functionality.", "MiKayla Handley, Hennepin County")
 call changelog_update("10/17/2018", "Updated the dialog box, no change to functionality.", "MiKayla Handley, Hennepin County")
@@ -274,31 +275,31 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
       	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
 	END IF
     PF3 'back to DAIL
-    transmit
+    'transmit
 
     '-----------------------------------------------------------------------------------------CASENOTE
-    ' start_a_blank_case_note	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
-    Call write_value_and_transmit("n", 6, 3)
-
-    DO
-        PF9
-        EMReadScreen case_note_check, 17, 2, 33
-        EMReadScreen mode_check, 1, 20, 09
-        If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then
-            'msgbox "The script can't open a case note. Reasons may include:" & vbnewline & vbnewline & "* You may be in inquiry" & vbnewline & "* You may not have authorization to case note this case (e.g.: out-of-county case)" & vbnewline & vbnewline & "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
-            BeginDialog Inquiry_Dialog, 0, 0, 241, 115, "CASE NOTE Cannot be Started"
-              ButtonGroup ButtonPressed
-                OkButton 185, 95, 50, 15
-              Text 10, 10, 190, 10, "The script can't open a case note. Reasons may include:"
-              Text 20, 25, 80, 10, "* You may be in inquiry"
-              Text 20, 40, 185, 20, "* You may not have authorization to case note this case (e.g.: out-of-county case)"
-              Text 5, 70, 225, 20, "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
-            EndDialog
-            Do
-                Dialog Inquiry_Dialog
-            Loop until ButtonPressed = -1
-        End If
-    Loop until (mode_check = "A" or mode_check = "E")
+'    ' start_a_blank_case_note	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
+'    Call write_value_and_transmit("n", 6, 3)
+'
+'    DO
+'        PF9
+'        EMReadScreen case_note_check, 17, 2, 33
+'        EMReadScreen mode_check, 1, 20, 09
+'        If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then
+'            'msgbox "The script can't open a case note. Reasons may include:" & vbnewline & vbnewline & "* You may be in inquiry" & vbnewline & "* You may not have authorization to case note this case (e.g.: out-of-county case)" & vbnewline & vbnewline & "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
+'            BeginDialog Inquiry_Dialog, 0, 0, 241, 115, "CASE NOTE Cannot be Started"
+'              ButtonGroup ButtonPressed
+'                OkButton 185, 95, 50, 15
+'              Text 10, 10, 190, 10, "The script can't open a case note. Reasons may include:"
+'              Text 20, 25, 80, 10, "* You may be in inquiry"
+'              Text 20, 40, 185, 20, "* You may not have authorization to case note this case (e.g.: out-of-county case)"
+'              Text 5, 70, 225, 20, "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
+'            EndDialog
+'            Do
+'                Dialog Inquiry_Dialog
+'            Loop until ButtonPressed = -1
+'        End If
+'    Loop until (mode_check = "A" or mode_check = "E")
 
 	CALL write_variable_in_case_note("-NDNH JOB DETAILS FOR (M" & HH_memb & ") unreported to agency-")
     CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
@@ -340,7 +341,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
       EditBox 220, 75, 45, 15, cost_savings
       EditBox 55, 95, 210, 15, other_notes
       CheckBox 10, 125, 260, 10, "Check here if 10 day cutoff has passed - TIKL will be set for following month", tenday_checkbox
-      CheckBox 10, 150, 250, 10, "Check here if an overpayment is possible - run claim referral tracking", claim_referral_checkbox
+      CheckBox 10, 150, 185, 10, "Check to update claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
       ButtonGroup ButtonPressed
         OkButton 170, 170, 50, 15
         CancelButton 225, 170, 50, 15
@@ -350,7 +351,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
       Text 10, 80, 155, 10, "First month cost savings (enter only numbers):"
       Text 10, 100, 40, 10, "Other notes:"
       GroupBox 5, 115, 270, 25, "10 day cutoff for closure"
-      GroupBox 5, 140, 270, 25, "Possible Overpayment"
+      GroupBox 5, 140, 270, 25, "Claim Referral Tracking"
     EndDialog
 	'naviagting into INFC'
 	EMSendKey "I"
@@ -401,7 +402,6 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 			IF (Emp_known_droplist = "NO-See Next Question" AND Action_taken_droplist = "Select One:") THEN err_msg = err_msg & vbCr & "* You must select an action taken."
 			IF (Action_taken_droplist = "NA-No Action Taken" AND cost_savings <> "") THEN err_msg = err_msg & vbCr & "* Please remove Cost savings information or make another selection"
 			IF (Action_taken_droplist = "BR-Benefits Reduced" OR Action_taken_droplist = "CC-Case Closed") AND cost_savings = "" THEN err_msg = err_msg & vbCr & "* Enter the 1st month's cost savings for this case."
-			'IF (Action_taken_droplist = "BR-Benefits Reduced" OR Action_taken_droplist = "CC-Case Closed") AND claim_referral_checkbox = UNCHECKED THEN err_msg = err_msg & vbCr & "* If there are cost savings associated with this match, claim referral should be checked."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -427,7 +427,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	IF cleared_confirmation = "" THEN MsgBox "the match did not appear to clear"
 	PF3' this takes us back to DAIL/DAIL
 
-	IF claim_referral_checkbox = CHECKED Then
+	IF claim_referral_tracking_checkbox = CHECKED Then
 	    Call navigate_to_MAXIS_screen ("STAT", "MISC")
 	    Row = 6
 
@@ -449,13 +449,17 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	    	Loop Until row = 17
 	    	If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
 	    End if
-	    'writing in the action taken and date to the MISC panel
-	    EMWriteScreen "Initial Claim Referral", Row, 30
+		'writing in the action taken and date to the MISC panel
+	 	IF Action_taken_droplist = "CC-Case Closed" or  Action_taken_droplist = "BR-Benefits Reduced"  THEN MISC_action_taken =  "Determination-OP Entered" '"Claim Determination 25 character available
+		IF Action_taken_droplist = "NA-No Action Taken" THEN MISC_action_taken = "Determination-No Savings"
+		IF Emp_known_droplist = "YES-No Further Action" THEN MISC_action_taken = "Determination-No Savings"
+	    EMWriteScreen MISC_action_taken, Row, 30
 	    EMWriteScreen date, Row, 66
-	    PF3
+	    TRANSMIT
+	    'PF3
 	    start_a_blank_CASE_NOTE
 	    Call write_variable_in_case_note("-----Claim Referral Tracking-----")
-		Call write_variable_in_case_note("* NDNH new hire information received overpayment possible")
+		Call write_variable_in_case_note("* NDNH new hire information received - " & MISC_action_taken )
 	    Call write_bullet_and_variable_in_case_note("Action Date", date)
 	    Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
 	    Call write_variable_in_case_note("-----")

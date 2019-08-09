@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC as well as to read for active programs.", "MiKayla Handley")
 CALL changelog_update("07/17/2019", "Updated script to no longer run off DAIL, it will ask for a case number to ensure all the matches pull correctly.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/14/2019", "Updated dialog and case note to reflect BE-Child requirements.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("04/23/2018", "Updated case note to reflect standard dialog and case note.", "MiKayla Handley, Hennepin County")
@@ -283,7 +284,8 @@ BeginDialog send_notice_dialog, 0, 0, 296, 160, "WAGE MATCH SEND DIFFERENCE NOTI
   Text 120, 20, 165, 10, "Client name: "  & client_name
   Text 10, 40, 105, 10, "Active Programs: "  & programs
   Text 120, 40, 165, 15, "Income source: "   & income_source
-  Text 5, 125, 40, 10, "Other notes: "
+  Text 5, 125, 40, 10, "Other notes:"
+  CheckBox 5, 145, 180, 10, "Check to add claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
 EndDialog
 
 IF notice_sent = "N" THEN
@@ -322,58 +324,60 @@ IF send_notice_checkbox = CHECKED THEN
     action_date = date & ""
 
     '-----------------------------------------------------------------Going to the MISC panel
-	'Going to the MISC panel to add claim referral tracking information
-    Call navigate_to_MAXIS_screen ("STAT", "MISC")
-    Row = 6
-    EmReadScreen panel_number, 1, 02, 73
-    If panel_number = "0" then
-    	EMWriteScreen "NN", 20,79
-    	TRANSMIT
-		'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
-		EmReadScreen MISC_error_msg,  74, 24, 02
-		IF trim(MISC_error_msg) = "" THEN
-	        case_note_only = FALSE
-		else
-			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_msg & vbNewLine, vbYesNo + vbQuestion, "Message handling")
-			IF maxis_error_check = vbYes THEN
-				case_note_only = TRUE 'this will case note only'
-			END IF
-			IF maxis_error_check= vbNo THEN
-				case_note_only = FALSE 'this will update the panels and case note'
-			END IF
-		END IF
-    ELSE
-		IF case_note_only = FALSE THEN
-			Do
-    			'Checking to see if the MISC panel is empty, if not it will find a new line'
-    			EmReadScreen MISC_description, 25, row, 30
-    			MISC_description = replace(MISC_description, "_", "")
-    			If trim(MISC_description) = "" then
-    				PF9
-    				EXIT DO
-    			Else
-    				row = row + 1
-    			End if
-    		Loop Until row = 17
-    		If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-    	End if
-	END IF
-	EMWriteScreen "Claim Referral", Row, 30
-    EMWriteScreen date, Row, 66
-    PF3
+	IF claim_referral_tracking_checkbox = CHECKED THEN
+	    'Going to the MISC panel to add claim referral tracking information
+        Call navigate_to_MAXIS_screen ("STAT", "MISC")
+        Row = 6
+        EmReadScreen panel_number, 1, 02, 73
+        If panel_number = "0" then
+        	EMWriteScreen "NN", 20,79
+        	TRANSMIT
+	    	'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
+	    	EmReadScreen MISC_error_msg,  74, 24, 02
+	    	IF trim(MISC_error_msg) = "" THEN
+	            case_note_only = FALSE
+	    	else
+	    		maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_msg & vbNewLine, vbYesNo + vbQuestion, "Message handling")
+	    		IF maxis_error_check = vbYes THEN
+	    			case_note_only = TRUE 'this will case note only'
+	    		END IF
+	    		IF maxis_error_check= vbNo THEN
+	    			case_note_only = FALSE 'this will update the panels and case note'
+	    		END IF
+	    	END IF
+        ELSE
+	    	IF case_note_only = FALSE THEN
+	    		Do
+        			'Checking to see if the MISC panel is empty, if not it will find a new line'
+        			EmReadScreen MISC_description, 25, row, 30
+        			MISC_description = replace(MISC_description, "_", "")
+        			If trim(MISC_description) = "" then
+        				PF9
+        				EXIT DO
+        			Else
+        				row = row + 1
+        			End if
+        		Loop Until row = 17
+        		If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+        	End if
+	    END IF
+	    EMWriteScreen "Initial Claim Referral", Row, 30
+        EMWriteScreen date, Row, 66
+        PF3
 
-    'The case note-------------------------------------------------------------------------------------------------
-    start_a_blank_case_note
-    Call write_variable_in_case_note("-----Claim Referral Tracking - Initial Claim Referral-----")
-	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
-    Call write_bullet_and_variable_in_case_note("Action Date", action_date)
-    Call write_bullet_and_variable_in_case_note("Active Program(s)", programs)
-    IF next_action = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note("* Additional verifications requested, follow up set for 10 day return.")
-    Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
-    Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
-    Call write_variable_in_case_note("-----")
-    Call write_variable_in_case_note(worker_signature)
-    PF3
+        'The case note-------------------------------------------------------------------------------------------------
+        start_a_blank_case_note
+        Call write_variable_in_case_note("-----Claim Referral Tracking - Initial Claim Referral-----")
+	    Call write_bullet_and_variable_in_case_note("Action Date", action_date)
+        Call write_bullet_and_variable_in_case_note("Active Program(s)", programs)
+        IF next_action = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note("* Additional verifications requested, follow up set for 10 day return.")
+        Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
+        Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
+	    IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
+        Call write_variable_in_case_note("-----")
+        Call write_variable_in_case_note(worker_signature)
+        PF3
+	END IF
 	'--------------------------------------------------------------------The case note & case note related code
 	pending_verifs = ""
   	IF Diff_Notice_Checkbox = CHECKED THEN pending_verifs = pending_verifs & "Difference Notice, "
@@ -417,41 +421,43 @@ END IF
 IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	IF sent_date <> "" THEN MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The script will now navigate to clear the match.")
 	'date_received = date & ""
-	BeginDialog cleared_match_dialog, 0, 0, 316, 175, "MATCH CLEARED"
-	  EditBox 55, 5, 40, 15, MAXIS_case_number
-	  EditBox 165, 5, 20, 15, MEMB_number
-	  DropListBox 250, 5, 60, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"BNDX"+chr(9)+"SDXS/ SDXI"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", match_type
-	  DropListBox 55, 25, 40, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"N/A", select_quarter
-	  EditBox 165, 25, 20, 15, resolve_time
-	  CheckBox 205, 35, 90, 10, "Authorization to release", ATR_Verf_CheckBox
-	  CheckBox 205, 45, 70, 10, "Difference notice", Diff_Notice_Checkbox
-	  CheckBox 205, 55, 90, 10, "Employment verification", empl_verf_checkbox
-	  CheckBox 205, 65, 70, 10, "School verification", school_verf_checkbox
-	  CheckBox 205, 75, 80, 10, "Other (please specify)", other_checkbox
-	  DropListBox 70, 45, 115, 15, "Select One:"+chr(9)+"CB Ovrpmt And Future Save"+chr(9)+"CC Ovrpmt Only"+chr(9)+"CF Future Save"+chr(9)+"CA Excess Assets"+chr(9)+"CI Benefit Increase"+chr(9)+"CP Applicant Only Savings"+chr(9)+"BC Case Closed"+chr(9)+"BE Child"+chr(9)+"BE No Change"+chr(9)+"BE NC Non-collectible"+chr(9)+"BE OP Entered"+chr(9)+"BN Already Knew No Savings"+chr(9)+"BI Interface Prob"+chr(9)+"BP Wrong Person"+chr(9)+"BU Unable To Verify"+chr(9)+"BO Other"+chr(9)+"NC Non Cooperation", resolution_status
-	  DropListBox 120, 65, 65, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"N/A", change_response
-	  DropListBox 120, 85, 65, 15, "Select One:"+chr(9)+"DISQ Deleted"+chr(9)+"Pending Verif"+chr(9)+"No"+chr(9)+"N/A", DISQ_action
-	  EditBox 270, 95, 40, 15, date_received
-	  EditBox 270, 115, 40, 15, exp_grad_date
-	  EditBox 55, 135, 255, 15, other_notes
-	  ButtonGroup ButtonPressed
-	    OkButton 215, 155, 45, 15
-	    CancelButton 265, 155, 45, 15
-	  CheckBox 10, 105, 115, 10, "Check here if 10 day has passed", TIKL_checkbox
-	  CheckBox 10, 120, 150, 10, "Check here to run Claim Referral Tracking", claim_referral
-	  Text 5, 10, 50, 10, "Case number: "
-	  Text 110, 10, 50, 10, "MEMB number:"
-	  Text 200, 10, 40, 10, "Match Type: "
-	  Text 5, 30, 50, 10, "Match period: "
-	  Text 100, 30, 65, 10, "Resolve time (min): "
-	  Text 5, 50, 60, 10, "Resolution status: "
-	  Text 5, 70, 105, 10, "Responded to difference notice: "
-	  GroupBox 195, 25, 115, 65, "Verification Used to Clear: "
-	  Text 190, 100, 75, 10, "Date verif rcvd/on file:"
-	  Text 200, 120, 65, 10, "Expected grad date:"
-	  Text 10, 140, 40, 10, "Other notes: "
-	  Text 35, 90, 75, 10, "DISQ panel addressed:"
-	EndDialog
+BeginDialog cleared_match_dialog, 0, 0, 316, 205, "MATCH CLEARED"
+  EditBox 55, 5, 40, 15, MAXIS_case_number
+  EditBox 165, 5, 20, 15, MEMB_number
+  DropListBox 250, 5, 60, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"BNDX"+chr(9)+"SDXS/ SDXI"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", match_type
+  DropListBox 55, 25, 40, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"N/A", select_quarter
+  EditBox 165, 25, 20, 15, resolve_time
+  CheckBox 205, 35, 90, 10, "Authorization to release", ATR_Verf_CheckBox
+  CheckBox 205, 45, 70, 10, "Difference notice", Diff_Notice_Checkbox
+  CheckBox 205, 55, 90, 10, "Employment verification", empl_verf_checkbox
+  CheckBox 205, 65, 70, 10, "School verification", school_verf_checkbox
+  CheckBox 205, 75, 80, 10, "Other (please specify)", other_checkbox
+  DropListBox 70, 45, 115, 15, "Select One:"+chr(9)+"CB Ovrpmt And Future Save"+chr(9)+"CC Ovrpmt Only"+chr(9)+"CF Future Save"+chr(9)+"CA Excess Assets"+chr(9)+"CI Benefit Increase"+chr(9)+"CP Applicant Only Savings"+chr(9)+"BC Case Closed"+chr(9)+"BE Child"+chr(9)+"BE No Change"+chr(9)+"BE NC Non-collectible"+chr(9)+"BE OP Entered"+chr(9)+"BN Already Knew No Savings"+chr(9)+"BI Interface Prob"+chr(9)+"BP Wrong Person"+chr(9)+"BU Unable To Verify"+chr(9)+"BO Other"+chr(9)+"NC Non ooperation", resolution_status
+  DropListBox 120, 65, 65, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"N/A", change_response
+  DropListBox 120, 85, 65, 15, "Select One:"+chr(9)+"DISQ Deleted"+chr(9)+"Pending Verif"+chr(9)+"No"+chr(9)+"N/A", DISQ_action
+  EditBox 270, 95, 40, 15, date_received
+  EditBox 270, 115, 40, 15, exp_grad_date
+  EditBox 55, 135, 255, 15, other_notes
+  ButtonGroup ButtonPressed
+    OkButton 215, 185, 45, 15
+    CancelButton 265, 185, 45, 15
+  CheckBox 10, 105, 115, 10, "Check here if 10 day has passed", TIKL_checkbox
+  'CheckBox 10, 120, 175, 10, "Check to add claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
+  Text 5, 10, 50, 10, "Case number: "
+  Text 110, 10, 50, 10, "MEMB number:"
+  Text 200, 10, 40, 10, "Match Type: "
+  Text 5, 30, 50, 10, "Match period: "
+  Text 100, 30, 65, 10, "Resolve time (min): "
+  Text 5, 50, 60, 10, "Resolution status: "
+  Text 5, 70, 105, 10, "Responded to difference notice: "
+  GroupBox 195, 25, 115, 65, "Verification Used to Clear: "
+  Text 190, 100, 75, 10, "Date verif rcvd/on file:"
+  Text 200, 120, 65, 10, "Expected grad date:"
+  Text 10, 140, 40, 10, "Other notes: "
+  Text 35, 90, 75, 10, "DISQ panel addressed:"
+  CheckBox 10, 155, 255, 10, "Check to update claim referral tracking(SNAP and MF) Overpayment Exists", overpayment_exists_checkbox
+  CheckBox 10, 170, 265, 10, "Check to update claim referral tracking(SNAP and MF) No Overpayment Exists",  no_overpayment_checkbox
+EndDialog
 	DO
 		err_msg = ""
 		Dialog cleared_match_dialog
@@ -599,6 +605,63 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	IF match_type = "UBEN" THEN IEVS_period = replace(IEVS_period, "-", "/")
 	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 	PF3 'back to the DAIL'
+'------------------------------------------------------------------STAT/MISC for claim referral tracking
+	IF no_overpayment_checkbox = CHECKED or overpayment_exists_checkbox = CHECKED THEN
+	    'Going to the MISC panel to add claim referral tracking information
+        Call navigate_to_MAXIS_screen ("STAT", "MISC")
+        Row = 6
+        EmReadScreen panel_number, 1, 02, 73
+        If panel_number = "0" then
+        	EMWriteScreen "NN", 20,79
+        	TRANSMIT
+	    	'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
+	    	EmReadScreen MISC_error_msg,  74, 24, 02
+	    	IF trim(MISC_error_msg) = "" THEN
+	            case_note_only = FALSE
+	    	else
+	    		maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_msg & vbNewLine, vbYesNo + vbQuestion, "Message handling")
+	    		IF maxis_error_check = vbYes THEN
+	    			case_note_only = TRUE 'this will case note only'
+	    		END IF
+	    		IF maxis_error_check= vbNo THEN
+	    			case_note_only = FALSE 'this will update the panels and case note'
+	    		END IF
+	    	END IF
+        ELSE
+	    	IF case_note_only = FALSE THEN
+	    		Do
+        			'Checking to see if the MISC panel is empty, if not it will find a new line'
+        			EmReadScreen MISC_description, 25, row, 30
+        			MISC_description = replace(MISC_description, "_", "")
+        			If trim(MISC_description) = "" then
+        				PF9
+        				EXIT DO
+        			Else
+        				row = row + 1
+        			End if
+        		Loop Until row = 17
+        		If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+        	End if
+	    END IF
+		IF overpayment_exists_checkbox = CHECKED THEN MISC_action_taken =  "Determination-OP Entered" '"Claim Determination 25 character available
+		IF no_overpayment_checkbox = CHECKED THEN MISC_action_taken = "Determination-No Savings"
+		EMWriteScreen MISC_action_taken, Row, 30
+		EMWriteScreen date, Row, 66
+        TRANSMIT
+        'The case note-------------------------------------------------------------------------------------------------
+        start_a_blank_case_note
+        Call write_variable_in_case_note("-----Claim Referral Tracking - Initial Claim Referral-----")
+	    Call write_bullet_and_variable_in_case_note("Action Date", action_date)
+        Call write_bullet_and_variable_in_case_note("Active Program(s)", programs)
+        IF next_action = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note("* Additional verifications requested, follow up set for 10 day return.")
+        Call write_bullet_and_variable_in_case_note("Other Notes", other_notes)
+        Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
+	    IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
+        Call write_variable_in_case_note("-----")
+        Call write_variable_in_case_note(worker_signature)
+        PF3
+	END IF
+
    '----------------------------------------------------------------the case match CLEARED note
 	start_a_blank_case_note
 	IF resolution_status <> "NC Non Cooperation" THEN

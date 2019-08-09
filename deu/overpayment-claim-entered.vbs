@@ -2,7 +2,7 @@
 name_of_script = "ACTIONS - DEU-OVERPAYMENT CLAIM ENTERED.vbs"
 start_time = timer
 STATS_counter = 1
-STATS_manualtime = 180
+STATS_manualtime = 500
 STATS_denominatinon = "C"
 'END OF STATS BLOCK===========================================================================================
 'run_locally = TRUE
@@ -49,12 +49,14 @@ FUNCTION write_variable_in_CCOL_note_test(variable)
     		EMReadScreen character_test, 40, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
     		character_test = trim(character_test)
     		If character_test <> "" or noting_row >= 19 then
+                noting_row = noting_row + 1
     		'If we get to row 19 (which can't be read here), it will go to the next panel (PF8).
     			If noting_row >= 19 then
-    				EMSendKey "<PF8>"
-    				EMWaitReady 0, 0
+    				PF8
+                    'msgbox "sent PF8"
     				EMReadScreen next_page_confirmation, 4, 19, 3
-    				IF next_page_confirmation = "MORE" THEN
+                    'msgbox "next_page_confirmation " & next_page_confirmation
+    				IF next_page_confirmation = "More" THEN
     					next_page = TRUE
 						'msgbox next_page
     				'ELSE
@@ -100,31 +102,27 @@ function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
 '===== Keywords: MAXIS, bullet, CCOL note
     If trim(variable) <> "" THEN
     	EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
+        'msgbox varible & vbcr & "noting_row " & noting_row
     	noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
     	'The following figures out if we need a new page, or if we need a new case note entirely as well.
     	Do
     		EMReadScreen character_test, 40, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
     		character_test = trim(character_test)
     		If character_test <> "" or noting_row >= 19 then
-    			'If we get to row 18 (which can't be read here), it will go to the next panel (PF8).
+                noting_row = noting_row + 1
+                'If we get to row 19 (which can't be read here), it will go to the next panel (PF8).
     			If noting_row >= 19 then
-    				EMSendKey "<PF8>"
-    				EMWaitReady 0, 0
+                    PF8
+                    'msgbox "sent PF8"
     				EMReadScreen next_page_confirmation, 4, 19, 3
-					IF next_page_confirmation = "MORE" THEN
+                    'msgbox "next_page_confirmation " & next_page_confirmation
+                    IF next_page_confirmation = "More" THEN
 						next_page = TRUE
-						'msgbox next_page
-					'ELSE
-						Do
-							EMReadScreen character_test, 40, noting_row, 3 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
-							character_test = trim(character_test)
-							If character_test <> "" then noting_row = noting_row + 1
-						Loop until character_test = ""
+                        noting_row = 5
     				Else
 						next_page = FALSE
-						'msgbox next_page
-						noting_row = 5													'Resets this variable to 4 if we did not need a brand new note.
     				End If
+                    'msgbox "next_page " & next_page
     			Else
     				noting_row = noting_row + 1
     			End if
@@ -140,24 +138,41 @@ function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
 
 	'Writes the bullet
 		EMWriteScreen "* " & bullet & ": ", noting_row, noting_col
-
 	'Determines new noting_col based on length of the bullet length (bullet + 4 to account for asterisk, colon, and spaces).
 		noting_col = noting_col + (len(bullet) + 4)
-
 	'Splits the contents of the variable into an array of words
 		variable_array = split(variable, " ")
 
     	For each word in variable_array
-
     		'If the length of the word would go past col 80 (you can't write to col 80), it will kick it to the next line and indent the length of the bullet
     		If len(word) + noting_col > 80 then
     			noting_row = noting_row + 1
     			noting_col = 3
     		End if
 
+            'If the next line is row 18 (you can't write to row 18), it will PF8 to get to the next page
+            If noting_row >= 19 then
+                PF8
+                noting_row = 5
+                'Msgbox "what's Happening? Noting row: " & noting_row
+            End if
+
+            'Adds spaces (indent) if we're on col 3 since it's the beginning of a line. We also have to increase the noting col in these instances (so it doesn't overwrite the indent).
+            If noting_col = 3 then
+                EMWriteScreen space(indent_length), noting_row, noting_col
+                noting_col = noting_col + indent_length
+            End if
+
     		'Writes the word and a space using EMWriteScreen
     		EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
 
+            'If a semicolon is seen (we use this to mean "go down a row", it will kick the noting row down by one and add more indent again.
+            If right(word, 1) = ";" then
+                noting_row = noting_row + 1
+                noting_col = 3
+                EMWriteScreen space(indent_length), noting_row, noting_col
+                noting_col = noting_col + indent_length
+            End if
     		'Increases noting_col the length of the word + 1 (for the space)
     		noting_col = noting_col + (len(word) + 1)
     	Next
@@ -166,12 +181,17 @@ function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
     End if
 end function
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+
+call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC.", "MiKayla Handley")
+
+CALL changelog_update("04/15/2019", "Updated script to copy case note to CCOL.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/30/2019", "Updated script to add areas for multiple claims based on request.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("04/02/2018", "Updates to fraud referral for the case note.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("07/23/2018", "Updated script to correct version and added case note to email for HC matches.", "MiKayla Handley, Hennepin County")
@@ -184,8 +204,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 EMConnect ""
-
-CALL MAXIS_case_number_finder (MAXIS_case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 memb_number = "01"
 discovery_date = date & ""
 
@@ -449,39 +468,60 @@ IF IEVS_type = "BEER" THEN type_match = "B"
 IEVS_period = replace(IEVS_period, "/", " to ")
 Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 PF3 'back to the DAIL'
-'Going to the MISC panel to add claim referral tracking information
-Call navigate_to_MAXIS_screen ("STAT", "MISC")
-Row = 6
-EmReadScreen panel_number, 1, 02, 78
-If panel_number = "0" then
-	EMWriteScreen "NN", 20,79
-	TRANSMIT
-ELSE
-	Do
-		'Checking to see if the MISC panel is empty, if not it will find a new line'
-		EmReadScreen MISC_description, 25, row, 30
-		MISC_description = replace(MISC_description, "_", "")
-		If trim(MISC_description) = "" then
-			PF9
-			EXIT DO
-		Else
-			row = row + 1
+IF OP_program = "FS" or OP_program_II = "FS" or OP_program_III = "FS" or OP_program_IV = "FS" or OP_program = "MF" or OP_program_II = "MF" or OP_program_III = "MF" or OP_program_IV = "MF" THEN
+	'Going to the MISC panel to add claim referral tracking information
+	Call navigate_to_MAXIS_screen ("STAT", "MISC")
+	Row = 6
+	EmReadScreen panel_number, 1, 02, 73
+	If panel_number = "0" then
+		EMWriteScreen "NN", 20,79
+		TRANSMIT
+		'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
+		EmReadScreen MISC_error_check,  74, 24, 02
+		IF trim(MISC_error_check) = "" THEN
+			case_note_only = FALSE
+		else
+			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
+			IF maxis_error_check = vbYes THEN
+				case_note_only = TRUE 'this will case note only'
+			END IF
+			IF maxis_error_check= vbNo THEN
+				case_note_only = FALSE 'this will update the panels and case note'
+			END IF
+		END IF
+	ELSE
+		IF case_note_only = FALSE THEN
+			Do
+				'Checking to see if the MISC panel is empty, if not it will find a new line'
+				EmReadScreen MISC_description, 25, row, 30
+				MISC_description = replace(MISC_description, "_", "")
+				If trim(MISC_description) = "" then
+					'PF9
+					EXIT DO
+				Else
+					row = row + 1
+				End if
+			Loop Until row = 17
+			If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
 		End if
-	Loop Until row = 17
-	If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-End if
-'writing in the action taken and date to the MISC panel
-EMWriteScreen "Claim Referral", Row, 30
-EMWriteScreen date, Row, 66
-PF3
-start_a_blank_CASE_NOTE
-Call write_variable_in_case_note("-----Claim Referral Tracking-----")
-Call write_bullet_and_variable_in_case_note("Program(s)", programs)
-Call write_bullet_and_variable_in_case_note("Action Date", date)
-Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
-Call write_variable_in_case_note("-----")
-Call write_variable_in_case_note(worker_signature)
+		'writing in the action taken and date to the MISC panel
+		PF9
+		EMWriteScreen "Determination-OP Entered", Row, 30
+		EMWriteScreen date, Row, 66
+		TRANSMIT
+	END IF 'checking to make sure maxis case is active'
 
+	start_a_blank_case_note
+	Call write_variable_in_case_note("-----Claim Referral Tracking - Claim Determination-----")
+	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
+	Call write_bullet_and_variable_in_case_note("Action Date", date)
+	Call write_bullet_and_variable_in_case_note("Program(s)", programs)
+
+	Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
+	Call write_variable_in_case_note("-----")
+	Call write_variable_in_case_note(worker_signature)
+	PF3
+END IF
 '-----------------------------------------------------------------------------------------CASENOTE
 start_a_blank_CASE_NOTE
 IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")

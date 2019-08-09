@@ -204,15 +204,15 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-'CALL changelog_update("10/25/2018", "Updated script to copy case note to CCOL.", "MiKayla Handley, Hennepin County")
+
+call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC as well as to read for active programs.", "MiKayla Handley")
+
 CALL changelog_update("04/15/2019", "Updated script to copy case note to CCOL.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("07/23/2018", "Updated script to correct version and added case note to email for HC matches.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("05/01/2018", "Updated script to ensure Reason for OP is entered as it is a mandatory field.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("03/25/2018", "Updated script to add Fraud and Earned Income handling.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("02/27/2018", "Updated script to add HC handling and the income received date.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("02/01/2018", "Updated script to write amount in case note in the correct area.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("01/04/2018", "Initial version.", "MiKayla Handley, Hennepin County")
-
+CALL changelog_update("04/02/2018", "Updates to fraud referral for the case note.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("02/27/2018", "Added income received date.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("01/02/2018", "Corrected IEVS match error due to new year.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("12/11/2017", "Initial version.", "MiKayla Handley, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
@@ -226,7 +226,7 @@ BeginDialog overpayment_dialog, 0, 0, 361, 280, "Overpayment Claim Entered"
   'EditBox 230, 5, 20, 15, OT_resp_memb
   DropListBox 305, 5, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
   EditBox 155, 5, 40, 15, discovery_date
-  CheckBox 5, 30, 175, 10, "FS OP - Claim Determination form completed in ECF", ECF_checkbox
+  CheckBox 5, 25, 275, 20, "DHS 2776E Cash (agency) Error Overpayment Worksheet form completed in ECF", ECF_checkbox
   DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
   EditBox 130, 65, 30, 15, OP_from
   EditBox 180, 65, 30, 15, OP_to
@@ -324,7 +324,7 @@ Do
     	END IF
     	IF EVF_used = "" then err_msg = err_msg & vbNewLine & "* Please enter verification used for the income recieved. If no verification was received enter N/A."
     	'IF isdate(income_rcvd_date) = False or income_rcvd_date = "" then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income recieved."
-    	IF ECF_checkbox = UNCHECKED and OP_program = "FS" THEN err_msg = err_msg & vbNewLine &  "* Please ensure you are entering the FS OP Determination form in ECF and check the appropriate box."
+    	IF ECF_checkbox = UNCHECKED and OP_program = "MF" THEN err_msg = err_msg & vbNewLine &  "* Please ensure you are entering the FS OP Determination form in ECF and check the appropriate box."
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
     LOOP UNTIL err_msg = ""
     CALL check_for_password(are_we_passworded_out)
@@ -395,12 +395,11 @@ END IF
 
 start_a_blank_CASE_NOTE
 IF OP_program <> "Select:" THEN
-	Call write_variable_in_CASE_NOTE(OP_program & " OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
-	Call write_variable_in_CASE_NOTE("* Period " & OP_from & " through " & OP_to)
-	Call write_variable_in_CASE_NOTE("* Claim # " & claim_number & " Amt $" & Claim_amount)
-	CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
-	CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
-	Call write_variable_in_CASE_NOTE("----- ----- -----")
+	Call write_variable_in_CASE_NOTE("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") ")
+	IF OP_program <> "Select:" then
+		Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+		Call write_variable_in_CASE_NOTE("----- ----- -----")
+	END IF
 	IF OP_program_II <> "Select:" then
 		Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
 		Call write_variable_in_CASE_NOTE("----- ----- -----")
@@ -424,6 +423,9 @@ IF HC_claim_number <> "" THEN
 	Call write_variable_in_CASE_NOTE("Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
 	Call write_variable_in_CASE_NOTE("----- ----- -----")
 END IF
+CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
+CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
+Call write_variable_in_CASE_NOTE("----- ----- -----")
 IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
 IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Not Allowed")
 CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
@@ -431,7 +433,7 @@ CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_
 CALL write_bullet_and_variable_in_case_note("Date verification received", income_rcvd_date)
 CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
 'CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
-IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* FS OP - Claim Determination form completed in ECF")
+IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* DHS 2776E – Agency Cash Error Overpayment Worksheet form completed in ECF")
 CALL write_variable_in_CASE_NOTE("----- ----- -----")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 PF3 'to save casenote'
@@ -475,12 +477,11 @@ ELSE
 END IF
 
 IF OP_program <> "Select:" THEN
-	Call write_variable_in_CCOL_note_test(OP_program & " OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & OP_from & " through " & OP_to)
-	Call write_variable_in_CCOL_note_test("* Period " & OP_from & " through " & OP_to)
-	Call write_variable_in_CCOL_note_test("* Claim # " & claim_number & " Amt $" & Claim_amount)
-	CALL write_bullet_and_variable_in_CCOL_note_test("Discovery date", discovery_date)
-	CALL write_bullet_and_variable_in_CCOL_note_test("Source of income", income_source)
-	Call write_variable_in_CCOL_note_test("----- ----- -----")
+	Call write_variable_in_CCOL_note_test("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") ")
+	IF OP_program <> "Select:" then
+		Call write_variable_in_CCOL_note_test(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+		Call write_variable_in_CCOL_note_test("----- ----- -----")
+	END IF
 	IF OP_program_II <> "Select:" then
 		Call write_variable_in_CCOL_note_test(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
 		Call write_variable_in_CCOL_note_test("----- ----- -----")
@@ -495,6 +496,9 @@ IF OP_program <> "Select:" THEN
 		'MsgBox "Line 17 - 3 OP"
 		Call write_variable_in_CCOL_note_test("----- ----- -----")
 	END IF
+	CALL write_bullet_and_variable_in_CCOL_note_test("Discovery date", discovery_date)
+	CALL write_bullet_and_variable_in_CCOL_note_test("Source of income", income_source)
+	Call write_variable_in_CCOL_note_test("----- ----- -----")
 END IF
 IF HC_claim_number <> "" THEN
 	'MsgBox "Line 18 - HC OP"
@@ -528,7 +532,7 @@ CALL write_bullet_and_variable_in_CCOL_note_test("Date verification received", i
 CALL write_bullet_and_variable_in_CCOL_note_test("Reason for overpayment", Reason_OP)
 'CALL write_bullet_and_variable_in_CCOL_note_test("Other responsible member(s)", OT_resp_memb)
 'MsgBox "Line 25 - EARNED INC form completed"
-IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note_test("* FS OP - Claim Determination form completed in ECF")
+IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note_test("* DHS 2776E - Agency Cash Error Overpayment Worksheet form completed in ECF")
 'MsgBox "Line 26 -  Line -----"
 CALL write_variable_in_CCOL_note_test("----- ----- -----")
 'MsgBox "Line 27 - Worker signature"

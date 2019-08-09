@@ -199,6 +199,7 @@ end function
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
+call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("04/15/2019", "Updated script to copy case note to CCOL and clear matches at FR.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("09/28/2018", "Added handling for more than two states of PARIS matches on INSM.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/27/2017", "Updates made to correct error.", "MiKayla Handley, Hennepin County")
@@ -216,7 +217,7 @@ MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 '----------------------------------------------------------------------------------------------------DAIL
 EMReadscreen dail_check, 4, 2, 48 'changed from DAIL to view to ensure we are in DAIL/DAIL'
-msgbox dail_check
+'msgbox dail_check
 'IF dail_check = "DAIL" THEN
 '	EMReadScreen IEVS_type, 4, 6, 6 'read the DAIL msg'
 '	IF IEVS_type = "PARI" THEN
@@ -245,6 +246,7 @@ msgbox dail_check
       Text 5, 10, 50, 10, "Case Number:"
     EndDialog
 	DO
+	    DO
 		err_msg = ""
 		Dialog case_number_dialog
 		IF ButtonPressed = 0 THEN StopScript
@@ -252,6 +254,8 @@ msgbox dail_check
 			If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
+		CALL check_for_password_without_transmit(are_we_passworded_out)
+	Loop until are_we_passworded_out = false
 '----------------------------------------------------------------------------------------------------STAT
 	CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 	EMwritescreen MEMB_number, 20, 76
@@ -261,15 +265,19 @@ msgbox dail_check
 	CALL navigate_to_MAXIS_screen("INFC" , "____")
 	CALL write_value_and_transmit("INTM", 20, 71)
 	CALL write_value_and_transmit(SSN_number_read, 3, 63)
-'END IF
+	'NO IEVS MATCHES FOUND FOR SSN'
+	EMReadScreen error_check, 75, 24, 2
+	error_check = TRIM(error_check)
+	IF error_check <> "" THEN script_end_procedure(error_check & vbcr & "An error occurred, please process manually.") '-------option to read from REPT need to checking for error msg'
 
-EMReadScreen err_msg, 7, 24, 2
-IF err_msg = "NO IEVS" THEN script_end_procedure_with_error_report("An error occurred in IEVP, please process manually.")'checking for error msg'
+'EMReadScreen err_msg, 7, 24, 2
+'IF err_msg = "NO IEVS" THEN script_end_procedure_with_error_report("An error occurred in IEVP, please process manually.")'checking for error msg'
 
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 8
 	DO
 		EMReadScreen INTM_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
+
 		'UR Unresolved, System Entered Only
 		'PR Person Removed From Household
 		'HM Household Moved Out Of State
@@ -552,57 +560,60 @@ Row = 8
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
 
-	'Going to the MISC panel to add claim referral tracking information
-    Call navigate_to_MAXIS_screen ("STAT", "MISC")
-    Row = 6
-    EmReadScreen panel_number, 1, 02, 73
-    If panel_number = "0" then
-    	EMWriteScreen "NN", 20,79
-    	TRANSMIT
-		'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
-		EmReadScreen MISC_error_check,  74, 24, 02
-		IF trim(MISC_error_check) = "" THEN
-	        case_note_only = FALSE
-		else
-			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
-			IF maxis_error_check = vbYes THEN
-				case_note_only = TRUE 'this will case note only'
+	IF OP_program = "FS" or OP_program_II = "FS" or OP_program_III = "FS" or OP_program_IV = "FS" or OP_program = "MF" or OP_program_II = "MF" or OP_program_III = "MF" or OP_program_IV = "MF" THEN
+		'Going to the MISC panel to add claim referral tracking information
+		Call navigate_to_MAXIS_screen ("STAT", "MISC")
+		Row = 6
+		EmReadScreen panel_number, 1, 02, 73
+		If panel_number = "0" then
+			EMWriteScreen "NN", 20,79
+			TRANSMIT
+			'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
+			EmReadScreen MISC_error_check,  74, 24, 02
+			IF trim(MISC_error_check) = "" THEN
+				case_note_only = FALSE
+			else
+				maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
+				IF maxis_error_check = vbYes THEN
+					case_note_only = TRUE 'this will case note only'
+				END IF
+				IF maxis_error_check= vbNo THEN
+					case_note_only = FALSE 'this will update the panels and case note'
+				END IF
 			END IF
-			IF maxis_error_check= vbNo THEN
-				case_note_only = FALSE 'this will update the panels and case note'
-			END IF
-		END IF
-    ELSE
-		IF case_note_only = FALSE THEN
-			Do
-    			'Checking to see if the MISC panel is empty, if not it will find a new line'
-    			EmReadScreen MISC_description, 25, row, 30
-    			MISC_description = replace(MISC_description, "_", "")
-    			If trim(MISC_description) = "" then
-    				'PF9
-    				EXIT DO
-    			Else
-    				row = row + 1
-    			End if
-    		Loop Until row = 17
-    		If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-    	End if
-		'writing in the action taken and date to the MISC panel
-		PF9
-		EMWriteScreen "Claim Referral", Row, 30
-		EMWriteScreen date, Row, 66
-		PF3
-	END IF 'checking to make sure maxis case is active'
+		ELSE
+			IF case_note_only = FALSE THEN
+				Do
+					'Checking to see if the MISC panel is empty, if not it will find a new line'
+					EmReadScreen MISC_description, 25, row, 30
+					MISC_description = replace(MISC_description, "_", "")
+					If trim(MISC_description) = "" then
+						'PF9
+						EXIT DO
+					Else
+						row = row + 1
+					End if
+				Loop Until row = 17
+				If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+			End if
+			'writing in the action taken and date to the MISC panel
+			PF9
+			EMWriteScreen "Determination-OP Entered", Row, 30
+			EMWriteScreen date, Row, 66
+			TRANSMIT
+		END IF 'checking to make sure maxis case is active'
 
-    start_a_blank_case_note
-    Call write_variable_in_case_note("-----Claim Referral Tracking - Claim Determination-----")
-	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
-    Call write_bullet_and_variable_in_case_note("Program(s)", MN_Active_Programs)
-	Call write_bullet_and_variable_in_case_note("Action Date", date)
-	Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
-    Call write_variable_in_case_note("-----")
-	CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-	PF3
+		start_a_blank_case_note
+		Call write_variable_in_case_note("-----Claim Referral Tracking - Claim Determination-----")
+		IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
+		Call write_bullet_and_variable_in_case_note("Action Date", date)
+		Call write_bullet_and_variable_in_case_note("Program(s)", programs)
+
+		Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
+		Call write_variable_in_case_note("-----")
+		Call write_variable_in_case_note(worker_signature)
+		PF3
+	END IF
 
 '-----------------------------------------------------------------------------------------CASENOTE
 	start_a_blank_case_note

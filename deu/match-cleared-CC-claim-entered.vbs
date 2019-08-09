@@ -203,6 +203,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("04/29/2019", "Updated script to case note if ATR/EVF are still needed.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("04/15/2019", "Updated script to copy case note to CCOL.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("08/17/2018", "Updated coding which reads active programs.", "Ilse Ferris, Hennepin County")
@@ -285,6 +286,14 @@ END IF
 Row = 7
 DO
 	EMReadScreen IEVS_period, 11, row, 47
+	'UR Unresolved, System Entered Only
+	'PR Person Removed From Household
+	'HM Household Moved Out Of State
+	'RV Residency Verified, Person in MN
+	'FR Failed Residency Verification Request
+	'PC Person Closed, Not PARIS Interstate
+	'CC Case Closed, Not PARIS Interstate
+
 	IF trim(IEVS_period) = "" THEN script_end_procedure_with_error_report("A match for the selected period could not be found. The script will now end.")
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
 	"   " & IEVS_period, vbYesNoCancel, "Please confirm this match")
@@ -492,7 +501,7 @@ Do
     	IF trim(Reason_OP) = "" or len(Reason_OP) < 5 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 5)."
     	'IF OP_program = "Select:"THEN err_msg = err_msg & vbNewLine &  "* Please enter the program for the overpayment."
     	IF OP_program_II <> "Select:" THEN
-    		IF OP_from_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred."
+		IF OP_from_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred II."
     		IF Claim_number_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
     		IF Claim_amount_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
     	END IF
@@ -653,7 +662,7 @@ Loop until are_we_passworded_out = false
         Call write_variable_in_case_note(worker_signature)
     	PF3
 	END IF
-	
+
 	IF ATR_needed_checkbox= CHECKED THEN header_note = "ATR/EVF STILL REQUIRED"
 '-----------------------------------------------------------------------------------------CASENOTE
     start_a_blank_case_note
