@@ -162,47 +162,41 @@ If right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 IF SNAP_STATUS = TRUE or CASH_STATUS = TRUE THEN
     'MsgBox programs
     Call navigate_to_MAXIS_screen ("STAT", "MISC")
-    Row = 6
-    EmReadScreen panel_number, 1, 02, 78
-    'PF9 IS NOT PERMITTED ON A BLANK PANEL '.36'
-    If panel_number = "0" then
-    	EMWriteScreen "NN", 20,79
-    	TRANSMIT
-        'MsgBox "No panel"
-        EmReadscreen err_msg, 53, 24, 02
-        err_msg = trim(err_msg)
-        IF err_msg = "MAXIS PROGRAMS ARE INACTIVE, YOU CANNOT ADD OR UPDATE" THEN
-        'MAXIS PROGRAMS ARE INACTIVE, YOU CANNOT ADD OR UPDATE
-        'If err_msg <> "" THEN
-            Do
-                case_note_only_confirmation = MsgBox("Do you wish to case note only?" & vbNewLine & err_msg & "*** NOTICE!!! ***", vbYesNo, "Header")
-                IF case_note_only_confirmation = vbNo THEN
-                    case_note_only = FALSE
-                    EXIT DO
-                END IF
-                IF case_note_only_confirmation = vbCancel THEN script_end_procedure_with_error_report ("The script has ended. The claim referral has not been acted on.")
-                IF case_note_only_confirmation = vbYes THEN
-                    case_note_only = TRUE
-                    EXIT DO
-                END IF
-            LOOP
-        END IF
-    ELSE
-    	Do
-        	'Checking to see if the MISC panel is empty, if not it will find a new line'
-        	EmReadScreen MISC_description, 25, row, 30
-        	MISC_description = replace(MISC_description, "_", "")
-        	If trim(MISC_description) = "" then
-    			PF9
-        		EXIT DO
-        	Else
-                row = row + 1
-        	End if
-    	Loop Until row = 17
-        If row = 17 then script_end_procedure("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-        'msgbox "we should have added a new panel"
-    End if
+	Row = 6
+	EmReadScreen panel_number, 1, 02, 73
+	If panel_number = "0" then
+		EMWriteScreen "NN", 20,79
+		TRANSMIT
+		'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
+		EmReadScreen MISC_error_check,  74, 24, 02
+		IF trim(MISC_error_check) = "" THEN
+			case_note_only = FALSE
+		else
+			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
+			IF maxis_error_check = vbYes THEN
+				case_note_only = TRUE 'this will case note only'
+			END IF
+			IF maxis_error_check= vbNo THEN
+				case_note_only = FALSE 'this will update the panels and case note'
+			END IF
+		END IF
+	END IF
 
+	Do
+		'Checking to see if the MISC panel is empty, if not it will find a new line'
+		EmReadScreen MISC_description, 25, row, 30
+		MISC_description = replace(MISC_description, "_", "")
+		If trim(MISC_description) = "" then
+			'PF9
+			EXIT DO
+		Else
+			row = row + 1
+		End if
+	Loop Until row = 17
+	If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+
+	'writing in the action taken and date to the MISC panel
+	PF9
     'writing in the action taken and date to the MISC panel
     IF action_taken = "Sent Request for Additional Info" THEN MISC_action_taken = "Initial Claim Referral"
     IF action_taken = "Overpayment Exists" THEN MISC_action_taken =  "Determination-OP Entered" '"Claim Determination 25 character available

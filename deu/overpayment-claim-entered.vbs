@@ -489,30 +489,26 @@ IF OP_program = "FS" or OP_program_II = "FS" or OP_program_III = "FS" or OP_prog
 				case_note_only = FALSE 'this will update the panels and case note'
 			END IF
 		END IF
-	ELSE
-		IF case_note_only = FALSE THEN
-			Do
-				'Checking to see if the MISC panel is empty, if not it will find a new line'
-				EmReadScreen MISC_description, 25, row, 30
-				MISC_description = replace(MISC_description, "_", "")
-				If trim(MISC_description) = "" then
-					'PF9
-					EXIT DO
-				Else
-					row = row + 1
-				End if
-			Loop Until row = 17
-			If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+	END IF
 
-			'writing in the action taken and date to the MISC panel
-			PF9
-
-			EMWriteScreen "Determination-OP Entered", Row, 30
-			EMWriteScreen date, Row, 66
-			TRANSMIT
+	Do
+		'Checking to see if the MISC panel is empty, if not it will find a new line'
+		EmReadScreen MISC_description, 25, row, 30
+		MISC_description = replace(MISC_description, "_", "")
+		If trim(MISC_description) = "" then
+			'PF9
+			EXIT DO
+		Else
+			row = row + 1
 		End if
-	END IF 'checking to make sure maxis case is active'
+	Loop Until row = 17
+	If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
 
+	'writing in the action taken and date to the MISC panel
+	PF9
+	EMWriteScreen "Determination-OP Entered", Row, 30
+	EMWriteScreen date, Row, 66
+	TRANSMIT
 	start_a_blank_case_note
 	Call write_variable_in_case_note("-----Claim Referral Tracking - Claim Determination-----")
 	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
