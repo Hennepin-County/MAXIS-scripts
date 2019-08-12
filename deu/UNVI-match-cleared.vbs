@@ -246,6 +246,10 @@ ELSE
 END IF
 
 '--------------------------------------------------------------------Client name
+
+
+
+
 EMReadScreen client_name, 26, 5, 24
 client_name = trim(client_name)                         'trimming the client name
 IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This seperates the two names

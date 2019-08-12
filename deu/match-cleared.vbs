@@ -172,15 +172,10 @@ ELSE
 	'	EMReadScreen IEVS_year, 4, 8, 71
 	ELSEIF match_type = "BEER" or match_type = "UNVI" THEN
 		EMReadScreen IEVS_year, 2, 8, 15
-		IEVS_year = "20" & IEVS_year
+		'IEVS_year = replace(IEVS_year, "20" & IEVS_year)
 		select_quarter = "YEAR"
 	END IF
 END IF
-
-'------------------------------------------setting up case note header'
-IF match_type = "BEER" THEN match_type_letter = "B"
-IF match_type = "UBEN" THEN match_type_letter = "U"
-IF match_type = "UNVI" THEN match_type_letter = "U"
 
 '--------------------------------------------------------------------Client name
 EmReadScreen panel_name, 4, 02, 52
@@ -394,6 +389,10 @@ IF send_notice_checkbox = CHECKED THEN
 		IF select_quarter = 3 THEN IEVS_quarter = "3RD"
 		IF select_quarter = 4 THEN IEVS_quarter = "4TH"
 	END IF
+	'------------------------------------------setting up case note header'
+	IF match_type = "BEER" THEN match_type_letter = "B"
+	IF match_type = "UBEN" THEN match_type_letter = "U"
+	IF match_type = "UNVI" THEN match_type_letter = "U"
 
 	IEVS_period = trim(IEVS_period)
 	IF match_type <> "UBEN" THEN IEVS_period = replace(IEVS_period, "/", " to ")
@@ -403,7 +402,7 @@ IF send_notice_checkbox = CHECKED THEN
 	'---------------------------------------------------------------------DIFF NOTC case note
   	start_a_blank_case_note
 	IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") DIFF NOTICE SENT-----")
-	IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") DIFF NOTICE SENT-----")
+	IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----20" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") DIFF NOTICE SENT-----")
 	IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") DIFF NOTICE SENT-----")
 	CALL write_bullet_and_variable_in_case_note("Client Name", client_name)
 	CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
@@ -666,7 +665,7 @@ EndDialog
 	start_a_blank_case_note
 	IF resolution_status <> "NC Non Cooperation" THEN
 		IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") CLEARED " & rez_status & "-----")
-		IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") CLEARED " & rez_status & "-----")
+		IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----20" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") CLEARED " & rez_status & "-----")
 		IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") CLEARED " & rez_status & "-----")
 		CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
 		CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
@@ -700,7 +699,7 @@ EndDialog
 		PF3
 	ELSEIF resolution_status = "NC Non Cooperation" THEN   'Navigates to TIKL
 		IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") NON-COOPERATION-----")
-		IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") NON-COOPERATION-----")
+		IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----20" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") NON-COOPERATION-----")
 		IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") NON-COOPERATION-----")
 		CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
 		CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
