@@ -311,12 +311,22 @@ Do
     	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
     	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
     	IF trim(Reason_OP) = "" or len(Reason_OP) < 5 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 5)."
-    	IF OP_program = "Select:" and HC_claim_number = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the program for the overpayment."
+    	'IF OP_program = "Select:"THEN err_msg = err_msg & vbNewLine &  "* Please enter the program for the overpayment."
     	IF OP_program_II <> "Select:" THEN
-    		IF OP_from_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred."
+		IF OP_from_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred II."
     		IF Claim_number_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
     		IF Claim_amount_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
     	END IF
+	IF OP_program_III <> "Select:" THEN
+		IF OP_from_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred III."
+		IF Claim_number_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
+		IF Claim_amount_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
+	END IF
+	IF OP_program_IV <> "Select:" THEN
+		IF OP_from_IV = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred IV."
+		IF Claim_number_IV = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
+		IF Claim_amount_IV = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
+	END IF
     	IF HC_claim_number <> "" THEN
     		IF HC_from = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment started."
     		IF HC_to = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment ended."
@@ -384,48 +394,33 @@ IF OP_program = "FS" or OP_program_II = "FS" or OP_program_III = "FS" or OP_prog
 
 	start_a_blank_case_note
 	Call write_variable_in_case_note("-----Claim Referral Tracking - Claim Determination-----")
+	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
 	Call write_bullet_and_variable_in_case_note("Action Date", date)
 	Call write_bullet_and_variable_in_case_note("Program(s)", programs)
 	Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
-	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
 	Call write_variable_in_case_note("-----")
 	Call write_variable_in_case_note(worker_signature)
 	PF3
 END IF
-
+'-----------------------------------------------------------------------------------------CASENOTE
 start_a_blank_CASE_NOTE
 IF OP_program <> "Select:" THEN
 	Call write_variable_in_CASE_NOTE("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") ")
-	IF OP_program <> "Select:" then
+	CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
+	'CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
+	Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 		Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-		Call write_variable_in_CASE_NOTE("----- ----- -----")
-	END IF
-	IF OP_program_II <> "Select:" then
-		Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-		Call write_variable_in_CASE_NOTE("----- ----- -----")
-	END IF
-	IF OP_program_III <> "Select:" then
-		Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-		Call write_variable_in_CASE_NOTE("----- ----- -----")
-	END IF
-	IF OP_program_IV <> "Select:" then
-		Call write_variable_in_CASE_NOTE(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
-		Call write_variable_in_CASE_NOTE("----- ----- -----")
-	END IF
-END IF
+IF OP_program_II <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+IF OP_program_III <> "Select:" then	Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+IF OP_program_IV <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
 IF HC_claim_number <> "" THEN
-	Call write_variable_in_CASE_NOTE("HC OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & HC_from & " through " & HC_to)
-	Call write_variable_in_CASE_NOTE("* HC Claim # " & HC_claim_number & " Amt $" & HC_Claim_amount)
+	Call write_variable_in_case_note("HC OVERPAYMENT " & HC_from & " through " & HC_to & " Claim #" & HC_claim_number & " Amt $" & HC_Claim_amount)
 	Call write_bullet_and_variable_in_CASE_NOTE("Health Care responsible members", HC_resp_memb)
 	Call write_bullet_and_variable_in_CASE_NOTE("Total Federal Health Care amount", Fed_HC_AMT)
-	CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
-	CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
-	Call write_variable_in_CASE_NOTE("Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-	Call write_variable_in_CASE_NOTE("----- ----- -----")
+	Call write_variable_in_CASE_NOTE("* Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
 END IF
-CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
-CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
-Call write_variable_in_CASE_NOTE("----- ----- -----")
 IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
 IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Not Allowed")
 CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
@@ -437,6 +432,7 @@ IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* DHS 2776E –
 CALL write_variable_in_CASE_NOTE("----- ----- -----")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 PF3 'to save casenote'
+
 IF HC_claim_number <> "" THEN
 	EmWriteScreen "x", 5, 3
 	Transmit
@@ -459,6 +455,7 @@ IF HC_claim_number <> "" THEN
 CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
 END IF
 
+'---------------------------------------------------------------writing the CCOL case note'
 msgbox "Navigating to CCOL to add case note, please contact the BlueZone Scripts team with any concerns."
 Call navigate_to_MAXIS_screen("CCOL", "CLSM")
 EMWriteScreen Claim_number, 4, 9
@@ -466,11 +463,10 @@ TRANSMIT
 'NO CLAIMS WERE FOUND FOR THIS CASE, PROGRAM, AND STATUS
 EMReadScreen error_check, 75, 24, 2	'making sure we can actually update this case.
 error_check = trim(error_check)
-If error_check <> "" then script_end_procedure_with_error_report(error_check & ".  Unable to update this case. Please review case, and run the script again if applicable.")
-
+If error_check <> "" then script_end_procedure_with_error_report(error_check & ". Unable to update this case. Please review case, and run the script again if applicable.")
 PF4
-EMReadScreen existing_ccol_note, 1, 5, 6
-IF existing_CCOL_note = "" THEN
+EMReadScreen existing_case_note, 1, 5, 6
+IF existing_case_note = "" THEN
 	PF4
 ELSE
 	PF9
@@ -478,45 +474,20 @@ END IF
 
 IF OP_program <> "Select:" THEN
 	Call write_variable_in_CCOL_note_test("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") ")
-	IF OP_program <> "Select:" then
-		Call write_variable_in_CCOL_note_test(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-		Call write_variable_in_CCOL_note_test("----- ----- -----")
-	END IF
-	IF OP_program_II <> "Select:" then
-		Call write_variable_in_CCOL_note_test(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-		Call write_variable_in_CCOL_note_test("----- ----- -----")
-	END IF
-	IF OP_program_III <> "Select:" then
-		Call write_variable_in_CCOL_note_test(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-		Call write_variable_in_CCOL_note_test("----- ----- -----")
-	END IF
-	'MsgBox "Line 16 - 3 OP"
-	IF OP_program_IV <> "Select:" then
-		Call write_variable_in_CCOL_note_test(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
-		'MsgBox "Line 17 - 3 OP"
-		Call write_variable_in_CCOL_note_test("----- ----- -----")
-	END IF
 	CALL write_bullet_and_variable_in_CCOL_note_test("Discovery date", discovery_date)
+ CALL write_bullet_and_variable_in_CCOL_note_test("Active Programs", programs)
 	CALL write_bullet_and_variable_in_CCOL_note_test("Source of income", income_source)
-	Call write_variable_in_CCOL_note_test("----- ----- -----")
-END IF
+Call write_variable_in_CCOL_note_test("----- ----- ----- ----- -----")
+IF OP_program <> "Select:" then Call write_variable_in_CCOL_note_test(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+IF OP_program_II <> "Select:" then Call write_variable_in_CCOL_note_test(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+IF OP_program_III <> "Select:" then Call write_variable_in_CCOL_note_test(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+IF OP_program_IV <> "Select:" then Call write_variable_in_CCOL_note_test(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
 IF HC_claim_number <> "" THEN
-	'MsgBox "Line 18 - HC OP"
-	Call write_variable_in_CCOL_note_test("HC OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") " & HC_from & " through " & HC_to)
-	'MsgBox "Line 18a - HC OP"
-	Call write_variable_in_CCOL_note_test("* HC Claim # " & HC_claim_number & " Amt $" & HC_Claim_amount)
-	'MsgBox "Line 18b - HC OP"
+Call write_variable_in_CCOL_note_test("HC OVERPAYMENT " & HC_from & " through " & HC_to & " Claim #" & HC_claim_number & " Amt $" & HC_Claim_amount)
 	Call write_bullet_and_variable_in_CCOL_note_test("Health Care responsible members", HC_resp_memb)
 	'MsgBox "Line 18c- HC OP"
 	Call write_bullet_and_variable_in_CCOL_note_test("Total Federal Health Care amount", Fed_HC_AMT)
-	'MsgBox "Line 18d - HC OP"
-	CALL write_bullet_and_variable_in_CCOL_note_test("Discovery date", discovery_date)
-	'MsgBox "Line 18e - HC OP"
-	CALL write_bullet_and_variable_in_CCOL_note_test("Source of income", income_source)
-	'MsgBox "Line 18f - HC OP"
-	Call write_variable_in_CCOL_note_test("Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-	'MsgBox "Line 18g - HC OP"
-	Call write_variable_in_CCOL_note_test("----- ----- -----")
+	Call write_variable_in_CCOL_note_test("* Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
 END IF
 'MsgBox "Line 19 - EARNED INCOME"
 IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note_test("* Earned Income Disregard Allowed")

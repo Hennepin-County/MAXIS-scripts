@@ -632,6 +632,12 @@ Row = 8
 	CALL write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
 	IF OP_program_II <> "Select:" then CALL write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
 	IF OP_program_III <> "Select:" then CALL write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+	IF HC_claim_number <> "" THEN
+		Call write_bullet_and_variable_in_case_note("HC responsible members", HC_resp_memb)
+		Call write_bullet_and_variable_in_case_note("HC claim number", hc_claim_number)
+		Call write_bullet_and_variable_in_case_note("Total federal Health Care amount", Fed_HC_AMT)
+		CALL write_variable_in_CASE_NOTE("* Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+	END IF
 	IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
 	IF collectible_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Collectible claim")
 	IF collectible_checkbox = UNCHECKED THEN CALL write_variable_in_case_note("* Non-Collectible claim")
@@ -639,12 +645,6 @@ Row = 8
 	IF bene_other_state_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Client accessing benefits in other state")
 	IF contact_other_state_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Contacted other state")
 	If out_state_checkbox = CHECKED THEN Call write_variable_in_case_note("Out of state verification received.")
-	IF HC_claim_number <> "" THEN
-		Call write_bullet_and_variable_in_case_note("HC responsible members", HC_resp_memb)
-		Call write_bullet_and_variable_in_case_note("HC claim number", hc_claim_number)
-		Call write_bullet_and_variable_in_case_note("Total federal Health Care amount", Fed_HC_AMT)
-		CALL write_variable_in_CASE_NOTE("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-	END IF
 	Call write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
 	Call write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
 	Call write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
@@ -706,6 +706,12 @@ Row = 8
 	CALL write_variable_in_CCOL_note_test(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
 	IF OP_program_II <> "Select:" then CALL write_variable_in_CCOL_note_test(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
 	IF OP_program_III <> "Select:" then CALL write_variable_in_CCOL_note_test(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+	IF HC_claim_number <> "" THEN
+		Call write_bullet_and_variable_in_CCOL_note_test("HC responsible members", HC_resp_memb)
+		Call write_bullet_and_variable_in_CCOL_note_test("HC claim number", hc_claim_number)
+		Call write_bullet_and_variable_in_CCOL_note_test("Total federal Health Care amount", Fed_HC_AMT)
+		CALL write_variable_in_CCOL_note_test(" * Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+	END IF
 	IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note_test("* Earned Income Disregard Allowed")
 	IF collectible_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note_test("* Collectible claim")
 	IF collectible_checkbox = UNCHECKED THEN CALL write_variable_in_CCOL_note_test("* Non-Collectible claim")
@@ -713,17 +719,10 @@ Row = 8
 	IF bene_other_state_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note_test("* Client accessing benefits in other state")
 	IF contact_other_state_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note_test("* Contacted other state")
 	If out_state_checkbox = CHECKED THEN Call write_variable_in_CCOL_note_test("Out of state verification received.")
-	IF HC_claim_number <> "" THEN
-		Call write_bullet_and_variable_in_CCOL_note_test("HC responsible members", HC_resp_memb)
-		Call write_bullet_and_variable_in_CCOL_note_test("HC claim number", hc_claim_number)
-		Call write_bullet_and_variable_in_CCOL_note_test("Total federal Health Care amount", Fed_HC_AMT)
-		CALL write_variable_in_CCOL_note_test("---Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-	END IF
 	Call write_bullet_and_variable_in_CCOL_note_test("Other responsible member(s)", OT_resp_memb)
 	Call write_bullet_and_variable_in_CCOL_note_test("Fraud referral made", fraud_referral)
 	Call write_bullet_and_variable_in_CCOL_note_test("Reason for overpayment", Reason_OP)
 	CALL write_variable_in_CCOL_note_test("----- ----- ----- ----- ----- ----- -----")
 	CALL write_variable_in_CCOL_note_test("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 	PF3 'exit the case note'
-	PF3 'back to dail'
 script_end_procedure_with_error_report("Success PARIS match overpayment case note entered and copied to CCOL please review case note to ensure accuracy.")

@@ -113,8 +113,8 @@ IF dail_check = "View" THEN
 	LOOP UNTIL are_we_passworded_out_without_transmit = false					'loops until user passwords back in
 	EMwritescreen "X", row, 3
 	TRANSMIT
-	EMReadScreen source_income, 40, 15, 8
-	source_income = trim(source_income)
+	EMReadScreen income_source, 40, 15, 8
+	income_source = trim(income_source)
 	EMReadScreen summary_source, 35, 19, 3
 	summary_source = trim(summary_source)
 	IF instr(summary_source, " =") then
@@ -128,7 +128,7 @@ IF dail_check = "View" THEN
 	  GroupBox 5, 5, 205, 85, "NON-WAGE MATCH CASE NUMBER "  & MAXIS_case_number
 	  Text 10, 20, 165, 10, "Client name: "  & client_name
 	  Text 10, 65, 165, 15, "Income source: "   & summary_source
-	  Text 10, 35, 165, 15, "Name: "   & source_income
+	  Text 10, 35, 165, 15, "Name: "   & income_source
 	  Text 5, 95, 195, 15, "*PLEASE TAKE NOTE OF INFORMATION - SCRIPT WILL     NOT CASE NOTE INCOME SOURCE OR AMOUNT"
 	  Text 10, 50, 165, 10, "Total: $"   & UNVI_total
 	  ButtonGroup ButtonPressed
@@ -266,7 +266,7 @@ END IF
 'it is not putting a space in'
 '----------------------------------------------------------------------------------------------------ACTIVE PROGRAMS
 EMReadScreen Active_Programs, 13, 6, 68
-Active_Programs =trim(Active_Programs)
+Active_Programs = trim(Active_Programs)
 
 programs = ""
 IF instr(Active_Programs, "D") THEN programs = programs & "DWP, "
@@ -310,7 +310,7 @@ BeginDialog send_notice_dialog, 0, 0, 296, 160, "NON-WAGE MATCH SEND DIFFERENCE 
     Text 10, 20, 110, 10, "Case number: " & MAXIS_case_number
     Text 10, 40, 105, 10, "Active Programs: " & programs
     Text 120, 20, 165, 10, "Client name: " & client_name
-    Text 120, 40, 165, 15, "Income source: "  & source_income
+    Text 120, 40, 165, 15, "Income source: "  & income_source
     CheckBox 5, 145, 180, 10, "Check to add claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
 EndDialog
 
@@ -334,8 +334,8 @@ IF send_notice_checkbox = CHECKED THEN
 	DO
     	err_msg = ""
     	Dialog send_notice_dialog
-    	IF ButtonPressed = 0 THEN StopScript
-    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	cancel_confirmation
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
 
@@ -431,7 +431,7 @@ IF send_notice_checkbox = CHECKED THEN
     CALL write_variable_in_CASE_NOTE ("-----" & IEVS_year & "NON-WAGE MATCH " & "(" & type_match & ") " & "(" & first_name &  ") DIFF NOTICE SENT-----")
     CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
     CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
-	'CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
+	'CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
     CALL write_variable_in_CASE_NOTE ("----- ----- -----")
     CALL write_bullet_and_variable_in_CASE_NOTE("Verification Requested", pending_verifs)
     CALL write_bullet_and_variable_in_CASE_NOTE("Verification Due", Due_date)
@@ -448,7 +448,7 @@ IF sent_date <> "" THEN MsgBox("A difference notice was sent on " & sent_date & 
      Text 10, 20, 110, 10, "Case number: " & MAXIS_case_number
      Text 120, 20, 165, 10, "Client name: "  & client_name
      Text 10, 40, 105, 10, "Active Programs: "  & programs
-     Text 120, 40, 175, 15, "Income source: " & source_income
+     Text 120, 40, 175, 15, "Income source: " & income_source
      DropListBox 75, 65, 110, 15, "Select One:"+chr(9)+"BC - Case Closed"+chr(9)+"BN - Already known, No Savings"+chr(9)+"BE - Child"+chr(9)+"BE - No Change"+chr(9)+"BO - Other"+chr(9)+"CC - Claim Entered"+chr(9)+"NC - Non Cooperation", resolution_status
      DropListBox 125, 85, 60, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", change_response
      EditBox 150, 105, 35, 15, resolve_time
@@ -609,11 +609,11 @@ IF sent_date <> "" THEN MsgBox("A difference notice was sent on " & sent_date & 
 
 	   '----------------------------------------------------------------the case match CLEARED note
 		start_a_blank_CASE_NOTE
-		CALL write_variable_in_CASE_NOTE ("-----" & IEVS_year & " NON-WAGE MATCH (" & type_match & ") " & "(" & first_name &  ") CLEARED " & rez_status & "-----")
+		CALL write_variable_in_CASE_NOTE ("-----" & IEVS_year & " NON-WAGE MATCH (U) " & "(" & first_name &  ") CLEARED " & rez_status & "-----")
 		CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
 		CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", source_income)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
 		CALL write_variable_in_CASE_NOTE ("----- ----- -----")
 		IF resolution_status = "BN - Already known, No Savings" THEN CALL write_variable_in_CASE_NOTE("CLIENT REPORTED INCOME. CORRECT INCOME IS IN STAT PANELS AND BUDGETED.")
 	    IF resolution_status = "BE - Child" THEN CALL write_variable_in_CASE_NOTE("INCOME IS EXCLUDED FOR MINOR CHILD IN SCHOOL.")
