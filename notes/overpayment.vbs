@@ -404,14 +404,13 @@ IF OP_program = "FS" or OP_program_II = "FS" or OP_program_III = "FS" or OP_prog
 END IF
 '-----------------------------------------------------------------------------------------CASENOTE
 start_a_blank_CASE_NOTE
-IF OP_program <> "Select:" THEN
-	Call write_variable_in_CASE_NOTE("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") ")
-	CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
-	'CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
-	CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
-	CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
-	Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
-		Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+Call write_variable_in_CASE_NOTE("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") ")
+CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
+'CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
+CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
+CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
+Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
 IF OP_program_II <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
 IF OP_program_III <> "Select:" then	Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
 IF OP_program_IV <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
@@ -472,11 +471,10 @@ ELSE
 	PF9
 END IF
 
-IF OP_program <> "Select:" THEN
-	Call write_variable_in_CCOL_note_test("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") ")
-	CALL write_bullet_and_variable_in_CCOL_note_test("Discovery date", discovery_date)
- CALL write_bullet_and_variable_in_CCOL_note_test("Active Programs", programs)
-	CALL write_bullet_and_variable_in_CCOL_note_test("Source of income", income_source)
+Call write_variable_in_CCOL_note_test("OVERPAYMENT CLAIM ENTERED" & " (" & first_name & ") ")
+CALL write_bullet_and_variable_in_CCOL_note_test("Discovery date", discovery_date)
+CALL write_bullet_and_variable_in_CCOL_note_test("Active Programs", programs)
+CALL write_bullet_and_variable_in_CCOL_note_test("Source of income", income_source)
 Call write_variable_in_CCOL_note_test("----- ----- ----- ----- -----")
 IF OP_program <> "Select:" then Call write_variable_in_CCOL_note_test(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
 IF OP_program_II <> "Select:" then Call write_variable_in_CCOL_note_test(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
