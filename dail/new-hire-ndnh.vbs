@@ -277,30 +277,8 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
     PF3 'back to DAIL
     'transmit
 
-    '-----------------------------------------------------------------------------------------CASENOTE
-'    ' start_a_blank_case_note	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
-'    Call write_value_and_transmit("n", 6, 3)
-'
-'    DO
-'        PF9
-'        EMReadScreen case_note_check, 17, 2, 33
-'        EMReadScreen mode_check, 1, 20, 09
-'        If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then
-'            'msgbox "The script can't open a case note. Reasons may include:" & vbnewline & vbnewline & "* You may be in inquiry" & vbnewline & "* You may not have authorization to case note this case (e.g.: out-of-county case)" & vbnewline & vbnewline & "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
-'            BeginDialog Inquiry_Dialog, 0, 0, 241, 115, "CASE NOTE Cannot be Started"
-'              ButtonGroup ButtonPressed
-'                OkButton 185, 95, 50, 15
-'              Text 10, 10, 190, 10, "The script can't open a case note. Reasons may include:"
-'              Text 20, 25, 80, 10, "* You may be in inquiry"
-'              Text 20, 40, 185, 20, "* You may not have authorization to case note this case (e.g.: out-of-county case)"
-'              Text 5, 70, 225, 20, "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
-'            EndDialog
-'            Do
-'                Dialog Inquiry_Dialog
-'            Loop until ButtonPressed = -1
-'        End If
-'    Loop until (mode_check = "A" or mode_check = "E")
-
+	'-----------------------------------------------------------------------------------------CASENOTE
+	start_a_blank_case_note	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
 	CALL write_variable_in_case_note("-NDNH JOB DETAILS FOR (M" & HH_memb & ") unreported to agency-")
     CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
     CALL write_variable_in_case_note("EMPLOYER: " & employer)
@@ -316,10 +294,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
     CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
     CALL write_variable_in_case_note("---")
     CALL write_variable_in_case_note(worker_signature)
-
     PF3
-    'PF3
-
 
 	'If TIKL_checkbox is unchecked, it needs to end here.
 	IF TIKL_checkbox = UNCHECKED THEN script_end_procedure("Success! MAXIS updated for new NDNH HIRE message, and a case note made. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
