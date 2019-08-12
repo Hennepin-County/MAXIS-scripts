@@ -503,12 +503,14 @@ IF OP_program = "FS" or OP_program_II = "FS" or OP_program_III = "FS" or OP_prog
 				End if
 			Loop Until row = 17
 			If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+
+			'writing in the action taken and date to the MISC panel
+			PF9
+
+			EMWriteScreen "Determination-OP Entered", Row, 30
+			EMWriteScreen date, Row, 66
+			TRANSMIT
 		End if
-		'writing in the action taken and date to the MISC panel
-		PF9
-		EMWriteScreen "Determination-OP Entered", Row, 30
-		EMWriteScreen date, Row, 66
-		TRANSMIT
 	END IF 'checking to make sure maxis case is active'
 
 	start_a_blank_case_note
