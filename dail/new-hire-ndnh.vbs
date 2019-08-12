@@ -307,6 +307,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
     	script_end_procedure("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
 	END IF
 END IF
+
 IF match_answer_droplist = "YES-INFC clear match" THEN
 'This is a dialog asking if the job is known to the agency.
     BeginDialog Match_Info_dialog, 0, 0, 281, 190, "NDNH Match Resolution Information"
