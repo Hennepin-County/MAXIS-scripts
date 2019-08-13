@@ -420,43 +420,44 @@ END IF
 IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	IF sent_date <> "" THEN MsgBox("A difference notice was sent on " & sent_date & "." & vbNewLine & "The script will now navigate to clear the match.")
 	'date_received = date & ""
-BeginDialog cleared_match_dialog, 0, 0, 316, 205, "MATCH CLEARED"
-  EditBox 55, 5, 40, 15, MAXIS_case_number
-  EditBox 165, 5, 20, 15, MEMB_number
-  DropListBox 250, 5, 60, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"BNDX"+chr(9)+"SDXS/ SDXI"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", match_type
-  DropListBox 55, 25, 40, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"N/A", select_quarter
-  EditBox 165, 25, 20, 15, resolve_time
-  CheckBox 205, 35, 90, 10, "Authorization to release", ATR_Verf_CheckBox
-  CheckBox 205, 45, 70, 10, "Difference notice", Diff_Notice_Checkbox
-  CheckBox 205, 55, 90, 10, "Employment verification", empl_verf_checkbox
-  CheckBox 205, 65, 70, 10, "School verification", school_verf_checkbox
-  CheckBox 205, 75, 80, 10, "Other (please specify)", other_checkbox
-  DropListBox 70, 45, 115, 15, "Select One:"+chr(9)+"CB Ovrpmt And Future Save"+chr(9)+"CC Ovrpmt Only"+chr(9)+"CF Future Save"+chr(9)+"CA Excess Assets"+chr(9)+"CI Benefit Increase"+chr(9)+"CP Applicant Only Savings"+chr(9)+"BC Case Closed"+chr(9)+"BE Child"+chr(9)+"BE No Change"+chr(9)+"BE NC Non-collectible"+chr(9)+"BE OP Entered"+chr(9)+"BN Already Knew No Savings"+chr(9)+"BI Interface Prob"+chr(9)+"BP Wrong Person"+chr(9)+"BU Unable To Verify"+chr(9)+"BO Other"+chr(9)+"NC Non ooperation", resolution_status
-  DropListBox 120, 65, 65, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"N/A", change_response
-  DropListBox 120, 85, 65, 15, "Select One:"+chr(9)+"DISQ Deleted"+chr(9)+"Pending Verif"+chr(9)+"No"+chr(9)+"N/A", DISQ_action
-  EditBox 270, 95, 40, 15, date_received
-  EditBox 270, 115, 40, 15, exp_grad_date
-  EditBox 55, 135, 255, 15, other_notes
-  ButtonGroup ButtonPressed
-    OkButton 215, 185, 45, 15
-    CancelButton 265, 185, 45, 15
-  CheckBox 10, 105, 115, 10, "Check here if 10 day has passed", TIKL_checkbox
-  'CheckBox 10, 120, 175, 10, "Check to add claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
-  Text 5, 10, 50, 10, "Case number: "
-  Text 110, 10, 50, 10, "MEMB number:"
-  Text 200, 10, 40, 10, "Match Type: "
-  Text 5, 30, 50, 10, "Match period: "
-  Text 100, 30, 65, 10, "Resolve time (min): "
-  Text 5, 50, 60, 10, "Resolution status: "
-  Text 5, 70, 105, 10, "Responded to difference notice: "
-  GroupBox 195, 25, 115, 65, "Verification Used to Clear: "
-  Text 190, 100, 75, 10, "Date verif rcvd/on file:"
-  Text 200, 120, 65, 10, "Expected grad date:"
-  Text 10, 140, 40, 10, "Other notes: "
-  Text 35, 90, 75, 10, "DISQ panel addressed:"
-  CheckBox 10, 155, 255, 10, "Check to update claim referral tracking(SNAP and MF) Overpayment Exists", overpayment_exists_checkbox
-  CheckBox 10, 170, 265, 10, "Check to update claim referral tracking(SNAP and MF) No Overpayment Exists",  no_overpayment_checkbox
-EndDialog
+    BeginDialog cleared_match_dialog, 0, 0, 316, 205, "MATCH CLEARED"
+      EditBox 55, 5, 40, 15, MAXIS_case_number
+      EditBox 165, 5, 20, 15, MEMB_number
+      DropListBox 250, 5, 60, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"BNDX"+chr(9)+"SDXS/ SDXI"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", match_type
+      DropListBox 55, 25, 40, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"N/A", select_quarter
+      EditBox 165, 25, 20, 15, resolve_time
+      CheckBox 205, 35, 90, 10, "Authorization to release", ATR_Verf_CheckBox
+      CheckBox 205, 45, 70, 10, "Difference notice", Diff_Notice_Checkbox
+      CheckBox 205, 55, 90, 10, "Employment verification", empl_verf_checkbox
+      CheckBox 205, 65, 70, 10, "School verification", school_verf_checkbox
+      CheckBox 205, 75, 80, 10, "Other (please specify)", other_checkbox
+      DropListBox 70, 45, 115, 15, "Select One:"+chr(9)+"CB Ovrpmt And Future Save"+chr(9)+"CC Ovrpmt Only"+chr(9)+"CF Future Save"+chr(9)+"CA Excess Assets"+chr(9)+"CI Benefit Increase"+chr(9)+"CP Applicant Only Savings"+chr(9)+"BC Case Closed"+chr(9)+"BE Child"+chr(9)+"BE No Change"+chr(9)+"BE NC Non-collectible"+chr(9)+"BE OP Entered"+chr(9)+"BN Already Knew No Savings"+chr(9)+"BI Interface Prob"+chr(9)+"BP Wrong Person"+chr(9)+"BU Unable To Verify"+chr(9)+"BO Other"+chr(9)+"NC Non Cooperation", resolution_status
+      DropListBox 120, 65, 65, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"N/A", change_response
+      DropListBox 120, 85, 65, 15, "Select One:"+chr(9)+"DISQ Deleted"+chr(9)+"Pending Verif"+chr(9)+"No"+chr(9)+"N/A", DISQ_action
+      EditBox 270, 95, 40, 15, date_received
+      EditBox 270, 115, 40, 15, exp_grad_date
+      EditBox 55, 135, 255, 15, other_notes
+      ButtonGroup ButtonPressed
+        OkButton 215, 185, 45, 15
+        CancelButton 265, 185, 45, 15
+      CheckBox 10, 105, 115, 10, "Check here if 10 day has passed", TIKL_checkbox
+      'CheckBox 10, 120, 175, 10, "Check to add claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
+      Text 5, 10, 50, 10, "Case number: "
+      Text 110, 10, 50, 10, "MEMB number:"
+      Text 200, 10, 40, 10, "Match Type: "
+      Text 5, 30, 50, 10, "Match period: "
+      Text 100, 30, 65, 10, "Resolve time (min): "
+      Text 5, 50, 60, 10, "Resolution status: "
+      Text 5, 70, 105, 10, "Responded to difference notice: "
+      GroupBox 195, 25, 115, 65, "Verification Used to Clear: "
+      Text 190, 100, 75, 10, "Date verif rcvd/on file:"
+      Text 200, 120, 65, 10, "Expected grad date:"
+      Text 10, 140, 40, 10, "Other notes: "
+      Text 35, 90, 75, 10, "DISQ panel addressed:"
+      CheckBox 10, 155, 255, 10, "Check to update claim referral tracking(SNAP and MF) Overpayment Exists", overpayment_exists_checkbox
+      CheckBox 10, 170, 265, 10, "Check to update claim referral tracking(SNAP and MF) No Overpayment Exists",  no_overpayment_checkbox
+    EndDialog
+
 	DO
 		err_msg = ""
 		Dialog cleared_match_dialog
@@ -478,7 +479,6 @@ EndDialog
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
-
 
 	IF resolution_status = "CF Future Save" THEN
     	BeginDialog CF_future_savings_dialog, 0, 0, 161, 130, "Cleared CF Future Savings"
@@ -519,6 +519,7 @@ EndDialog
 		IF IULB_method_dropdown = "Per Month For Nbr of Months" THEN IULB_method = "O"
 	END IF
 	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
+msgbox "are we writing?"
 	EMWriteScreen resolve_time, 12, 46	    'resolved notes depending on the resolution_status
 	IF resolution_status = "CB Ovrpmt And Future Save" THEN rez_status = "CB"
 	IF resolution_status = "CC Ovrpmt Only" THEN rez_status = "CC" 'Claim Entered" CC cannot be used - ACTION CODE FOR ACTH OR ACTM IS INVALID
@@ -540,6 +541,7 @@ EndDialog
 
 	'checked these all to programS'
 	EMwritescreen rez_status, 12, 58
+	msgbox rez_status
 	IF change_response = "YES" THEN
 		EMwritescreen "Y", 15, 37
 	ELSE
