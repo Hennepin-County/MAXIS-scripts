@@ -298,8 +298,8 @@ BeginDialog overpayment_dialog, 0, 0, 361, 280, "Overpayment Claim Entered"
   Text 165, 70, 10, 10, "To:"
   GroupBox 5, 45, 350, 100, "Overpayment Information"
   Text 105, 70, 20, 10, "From:"
+  CheckBox 5, 260, 250, 15, "DHS 2776E Cash (agency) Error Overpayment Worksheet form completed", ECF_checkbox
 EndDialog
-
 
 Do
 	err_msg = ""
@@ -547,6 +547,7 @@ CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_
 CALL write_bullet_and_variable_in_case_note("Date verification received", income_rcvd_date)
 CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
 CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
+IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* DHS 2776E – Agency Cash Error Overpayment Worksheet form completed in ECF")
 CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
 CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 PF3 'to save casenote'
@@ -615,6 +616,7 @@ CALL write_bullet_and_variable_in_CCOL_note_test("Income verification received",
 CALL write_bullet_and_variable_in_CCOL_note_test("Date verification received", income_rcvd_date)
 CALL write_bullet_and_variable_in_CCOL_note_test("Reason for overpayment", Reason_OP)
 CALL write_bullet_and_variable_in_CCOL_note_test("Other responsible member(s)", OT_resp_memb)
+IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note_test("* DHS 2776E - Agency Cash Error Overpayment Worksheet form completed in ECF")
 CALL write_variable_in_CCOL_note_test("----- ----- ----- ----- ----- ----- -----")
 CALL write_variable_in_CCOL_note_test("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 PF3'
