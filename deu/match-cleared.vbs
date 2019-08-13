@@ -519,7 +519,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		IF IULB_method_dropdown = "Per Month For Nbr of Months" THEN IULB_method = "O"
 	END IF
 	'----------------------------------------------------------------------------------------------------RESOLVING THE MATCH
-msgbox "are we writing?"
+     'msgbox "are we writing?"
 	EMWriteScreen resolve_time, 12, 46	    'resolved notes depending on the resolution_status
 	IF resolution_status = "CB Ovrpmt And Future Save" THEN rez_status = "CB"
 	IF resolution_status = "CC Ovrpmt Only" THEN rez_status = "CC" 'Claim Entered" CC cannot be used - ACTION CODE FOR ACTH OR ACTM IS INVALID
@@ -541,7 +541,7 @@ msgbox "are we writing?"
 
 	'checked these all to programS'
 	EMwritescreen rez_status, 12, 58
-	msgbox rez_status
+	'msgbox rez_status
 	IF change_response = "YES" THEN
 		EMwritescreen "Y", 15, 37
 	ELSE
@@ -714,18 +714,18 @@ msgbox "are we writing?"
 		CALL write_variable_in_case_note("* Case approved to close.")
 		CALL write_variable_in_case_note("* Client needs to provide: ATR, Income Verification, Difference Notice.")
 		IF change_response <> "N/A" THEN CALL write_bullet_and_variable_in_case_note("Responded to Difference Notice", change_response)
-		CALL write_bullet_and_variable_in_case_note("* Other notes", other_notes)
+		CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
 		CALL write_variable_in_case_note("----- ----- ----- ----- -----")
 		CALL write_variable_in_case_note ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 		PF3
 
-		'-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-		'Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-	  	'CALL create_MAXIS_friendly_date(date, 10, 5, 18)
-	 	'CALL write_variable_in_TIKL("CLOSE FOR NON-COOP, CREATE DISQ(S) FOR " & first_name)
-	 	'PF3		'Exits and saves TIKL
-		''script_end_procedure("Success! Updated match, and a TIKL created.")
-		'script_end_procedure_with_error_report("Success! Updated match, and a TIKL created.")
+		''-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
+		Call navigate_to_MAXIS_screen("DAIL", "WRIT")
+	  	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
+	 	CALL write_variable_in_TIKL("CLOSE FOR NON-COOP, CREATE DISQ(S) FOR " & first_name)
+	 	PF3		'Exits and saves TIKL
+		'script_end_procedure("Success! Updated match, and a TIKL created.")
+		script_end_procedure_with_error_report("Success! Updated match, and a TIKL created.")
 	END IF
 	script_end_procedure_with_error_report("Match has been acted on. Please take any additional action needed for your case.")
 END IF
