@@ -185,37 +185,66 @@ function HH_comp_dialog(HH_member_array)
             if dlg_len < 145 Then dlg_len = 145
             BeginDialog Dialog1, 0, 0, 446, dlg_len, "HH Composition Dialog"
               Text 10, 10, 250, 10, "This dialog will clarify the household relationships and details for the case."
-              Text 105, 25, 100, 10, "Included and Counted  in Grant"
-              Text 110, 40, 20, 10, "Cash"
-              Text 145, 40, 20, 10, "SNAP"
-              Text 180, 40, 20, 10, "EMER"
+              Text 105, 25, 100, 10, "Included and Counted in Grant"
+              x_pos = 110
+              count_cash_pos = x_pos + 5
+              If cash_checkbox = checked Then
+                Text x_pos, 40, 20, 10, "Cash"
+                x_pos = x_pos + 35
+              End If
+              count_snap_pos = x_pos + 5
+              If SNAP_checkbox = checked Then
+                Text x_pos, 40, 20, 10, "SNAP"
+                x_pos = x_pos + 35
+              End If
+              count_emer_pos = x_pos + 5
+              If EMER_checkbox = checked Then Text x_pos, 40, 20, 10, "EMER"
               Text 230, 25, 90, 10, "Income Counted - Deeming"
-              Text 230, 40, 20, 10, "Cash"
-              Text 265, 40, 20, 10, "SNAP"
-              Text 300, 40, 20, 10, "EMER"
+              x_pos = 230
+              deem_cash_pos = x_pos + 5
+              If cash_checkbox = checked Then
+                Text x_pos, 40, 20, 10, "Cash"
+                x_pos = x_pos + 35
+              End If
+              deem_snap_pos = x_pos + 5
+              If SNAP_checkbox = checked Then
+                Text x_pos, 40, 20, 10, "SNAP"
+                x_pos = x_pos + 35
+              End If
+              deem_emer_pos = x_pos + 5
+              If EMER_checkbox = checked Then Text x_pos, 40, 20, 10, "EMER"
               GroupBox 330, 5, 105, 120, "HH Count by program"
               Text 335, 15, 100, 20, "Enter the number of adults and children for each program"
               Text 370, 35, 20, 10, "Adults"
               Text 400, 35, 30, 10, "Children"
-              Text 345, 50, 20, 10, "Cash"
-              EditBox 370, 45, 20, 15, adult_cash_count
-              EditBox 405, 45, 20, 15, child_cash_count
-              CheckBox 355, 65, 75, 10, "Pregnant Caregiver", pregnant_caregiver_checkbox
-              Text 345, 85, 20, 10, "SNAP"
-              EditBox 370, 80, 20, 15, adult_snap_count
-              EditBox 405, 80, 20, 15, child_snap_count
-              Text 345, 105, 25, 10, "EMER"
-              EditBox 370, 100, 20, 15, adult_emer_count
-              EditBox 405, 100, 20, 15, child_emer_count
+              hh_comp_pos = 45
+              If cash_checkbox = checked Then
+                  Text 345, hh_comp_pos + 5, 20, 10, "Cash"
+                  EditBox 370, hh_comp_pos, 20, 15, adult_cash_count
+                  EditBox 405, hh_comp_pos, 20, 15, child_cash_count
+                  CheckBox 355, hh_comp_pos + 20, 75, 10, "Pregnant Caregiver", pregnant_caregiver_checkbox
+                  hh_comp_pos = hh_comp_pos + 35
+              End If
+              If SNAP_checkbox = checked Then
+                  Text 345, hh_comp_pos + 5, 20, 10, "SNAP"
+                  EditBox 370, hh_comp_pos, 20, 15, adult_snap_count
+                  EditBox 405, hh_comp_pos, 20, 15, child_snap_count
+                  hh_comp_pos = hh_comp_pos + 20
+              End If
+              If EMER_checkbox = checked then
+                  Text 345, hh_comp_pos, 25, 10, "EMER"
+                  EditBox 370, hh_comp_pos, 20, 15, adult_emer_count
+                  EditBox 405, hh_comp_pos, 20, 15, child_emer_count
+              End If
               y_pos = 55
               For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
                   Text 10, y_pos, 100, 10, ALL_MEMBERS_ARRAY(clt_name, each_member)
-                  CheckBox 115, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(include_cash_checkbox, each_member)
-                  CheckBox 150, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member)
-                  CheckBox 185, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(include_emer_checkbox, each_member)
-                  CheckBox 235, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(count_cash_checkbox, each_member)
-                  CheckBox 270, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(count_snap_checkbox, each_member)
-                  CheckBox 305, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(count_emer_checkbox, each_member)
+                  If cash_checkbox = checked Then CheckBox count_cash_pos, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(include_cash_checkbox, each_member)
+                  If SNAP_checkbox = checked Then CheckBox count_snap_pos, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member)
+                  If EMER_checkbox = checked then CheckBox count_emer_pos, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(include_emer_checkbox, each_member)
+                  If cash_checkbox = checked Then CheckBox deem_cash_pos, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(count_cash_checkbox, each_member)
+                  If SNAP_checkbox = checked Then CheckBox deem_snap_pos, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(count_snap_checkbox, each_member)
+                  If EMER_checkbox = checked then CheckBox deem_emer_pos, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(count_emer_checkbox, each_member)
                   y_pos = y_pos + 15
               Next
               if y_pos < 100 Then Y_pos = 100
@@ -1276,140 +1305,189 @@ function read_WREG_panel()
     Next
 End function
 
+function split_string_into_parts(full_string, partial_one, partial_two, partial_three, length_one, length_two)
+    If left(full_string, 1) = "*" Then full_string = right(full_string, len(full_string) - 1)
+    full_string = trim(full_string)
+    If right(full_string, 1) = ";" Then full_string = left(full_string, len(full_string) - 1)
+    full_string = trim(full_string)
+
+    If len(full_string) =< length_one Then
+        partial_one = full_string
+        exit function
+    End If
+
+    full_string = replace(full_string, "  ", " ")
+    word_array = split(full_string, " ")
+    level = 1
+
+    For each word in word_array
+        If level = 1 Then
+            If len(partial_one & " " & word) > length_one Then level = 2
+        ElseIf level = 2 Then
+            If partial_three <> "NONE" Then
+                If len(partial_two & " " & word) > length_two Then level = 3
+            End If
+        End If
+
+        If level = 1 Then
+            partial_one = partial_one & " " & word
+        ElseIf level = 2 Then
+            partial_two = partial_two & " " & word
+        ElseIf level = 3 Then
+            partial_three = partial_three & " " & word
+        End If
+        '
+        ' If len(partial_one & " " & word) < length_one Then
+        '     partial_one = partial_one & " " & word
+        ' ElseIf partial_three = "NONE" Then
+        '     partial_two = partial_two & " " & word
+        ' Else
+        '     If len(partial_two & " " & word) < length_two Then
+        '         partial_two = partial_two & " " & word
+        '     Else
+        '
+        '         partial_three = partial_three & " " & word
+        '     End If
+        ' End If
+        ' MsgBox "Word - " & word & vbNewLine & partial_one & vbNewLine & partial_two & vbNewLine & partial_three
+    Next
+end function
+
 function update_shel_notes()
     total_shelter_amount = 0
     full_shelter_details = ""
     shelter_details = ""
     shelter_details_two = ""
+    shelter_details_three = ""
 
     For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
         If ALL_MEMBERS_ARRAY(shel_exists, each_member) = TRUE Then
-            full_shelter_details = full_shelter_details & "; M" & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " shelter expense(s): "
+            full_shelter_details = full_shelter_details & "* M" & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " shelter expense(s): "
             If ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member) <> "Select one" Then
                 If ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member) <> "Select one" Then
                     If ALL_MEMBERS_ARRAY(shel_retro_rent_amt, each_member) = ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, each_member) Then
-                        full_shelter_details = full_shelter_details & "Rent $" & ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member)) - 4) & ". "
+                        full_shelter_details = full_shelter_details & "Rent $" & ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member)) - 4) & ".; "
                     Else
-                        full_shelter_details = full_shelter_details & "change in Rent retro - $" & ALL_MEMBERS_ARRAY(shel_retro_rent_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member)) - 4) & ". "
+                        full_shelter_details = full_shelter_details & "change in Rent retro - $" & ALL_MEMBERS_ARRAY(shel_retro_rent_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member)) - 4) & ".; " & ". "
                     End If
                     total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, each_member)
                 Else
-                    full_shelter_details = full_shelter_details & "Rent (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_rent_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member)) - 4) & ". "
+                    full_shelter_details = full_shelter_details & "Rent (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_rent_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_rent_verif, each_member)) - 4) & ".; "
                 End If
             ElseIf ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member) <> "Select one" Then
-                full_shelter_details = full_shelter_details & "Rent (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member)) - 4) & ". "
+                full_shelter_details = full_shelter_details & "Rent (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, each_member)) - 4) & ".; "
                 total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, each_member)
             End If
 
             If ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member) <> "Select one" Then
                 If ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member) <> "Select one" Then
                     If ALL_MEMBERS_ARRAY(shel_retro_lot_amt, each_member) = ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, each_member) Then
-                        full_shelter_details = full_shelter_details & "Lot Rent $" & ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member)) - 4) & ". "
+                        full_shelter_details = full_shelter_details & "Lot Rent $" & ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member)) - 4) & ".; "
                     Else
-                        full_shelter_details = full_shelter_details & "change in Lot Rent retro - $" & ALL_MEMBERS_ARRAY(shel_retro_lot_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member)) - 4) & ". "
+                        full_shelter_details = full_shelter_details & "change in Lot Rent retro - $" & ALL_MEMBERS_ARRAY(shel_retro_lot_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member)) - 4) & ".; "
                     End If
                     total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, each_member)
                 Else
-                    full_shelter_details = full_shelter_details & "Lot Rent (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_lot_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member)) - 4) & ". "
+                    full_shelter_details = full_shelter_details & "Lot Rent (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_lot_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_lot_verif, each_member)) - 4) & ".; "
                 End If
             ElseIf ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member) <> "Select one" Then
-                full_shelter_details = full_shelter_details & "Lot Rent (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member)) - 4) & ". "
+                full_shelter_details = full_shelter_details & "Lot Rent (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, each_member)) - 4) & ".; "
                 total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, each_member)
             End If
 
             If ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member) <> "Select one" Then
                 If ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member) <> "Select one" Then
                     If ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, each_member) = ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, each_member) Then
-                        full_shelter_details = full_shelter_details & "Mortgage $" & ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member)) - 4) & ". "
+                        full_shelter_details = full_shelter_details & "Mortgage $" & ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member)) - 4) & ".; "
                     Else
-                        full_shelter_details = full_shelter_details & "change in Mortgage retro - $" & ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member)) - 4) & ". "
+                        full_shelter_details = full_shelter_details & "change in Mortgage retro - $" & ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member)) - 4) & ".; "
                     End If
                     total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, each_member)
                 Else
-                    full_shelter_details = full_shelter_details & "Mortgage (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member)) - 4) & ". "
+                    full_shelter_details = full_shelter_details & "Mortgage (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, each_member)) - 4) & ".; "
                 End If
             ElseIf ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member) <> "Select one" Then
-                full_shelter_details = full_shelter_details & "Mortgage (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member)) - 4) & ". "
+                full_shelter_details = full_shelter_details & "Mortgage (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, each_member)) - 4) & ".; "
                 total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, each_member)
             End If
 
             If ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member) <> "Select one" Then
                 If ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member) <> "Select one" Then
                     If ALL_MEMBERS_ARRAY(shel_retro_ins_amt, each_member) = ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, each_member) Then
-                        full_shelter_details = full_shelter_details & "Home Insurance $" & ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member)) - 4) & ". "
+                        full_shelter_details = full_shelter_details & "Home Insurance $" & ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member)) - 4) & ".; "
                     Else
-                        full_shelter_details = full_shelter_details & "change in Home Insurance retro - $" & ALL_MEMBERS_ARRAY(shel_retro_ins_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member)) - 4) & ". "
+                        full_shelter_details = full_shelter_details & "change in Home Insurance retro - $" & ALL_MEMBERS_ARRAY(shel_retro_ins_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member)) - 4) & ".; "
                     End If
                     total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, each_member)
                 Else
-                    full_shelter_details = full_shelter_details & "Home Insurance (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_ins_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member)) - 4) & ". "
+                    full_shelter_details = full_shelter_details & "Home Insurance (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_ins_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_ins_verif, each_member)) - 4) & ".; "
                 End If
             ElseIf ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member) <> "Select one" Then
-                full_shelter_details = full_shelter_details & "Home Insurance (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member)) - 4) & ". "
+                full_shelter_details = full_shelter_details & "Home Insurance (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, each_member)) - 4) & ".; "
                 total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, each_member)
             End If
 
             If ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member) <> "Select one" Then
                 If ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member) <> "Select one" Then
                     If ALL_MEMBERS_ARRAY(shel_retro_tax_amt, each_member) = ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, each_member) Then
-                        full_shelter_details = full_shelter_details & "Property Tax $" & ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member)) - 4) & ". "
+                        full_shelter_details = full_shelter_details & "Property Tax $" & ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member)) - 4) & ".; "
                     Else
-                        full_shelter_details = full_shelter_details & "change in Property Tax retro - $" & ALL_MEMBERS_ARRAY(shel_retro_tax_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member)) - 4) & ". "
+                        full_shelter_details = full_shelter_details & "change in Property Tax retro - $" & ALL_MEMBERS_ARRAY(shel_retro_tax_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member)) - 4) & ".; "
                     End If
                     total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, each_member)
                 Else
-                    full_shelter_details = full_shelter_details & "Property Tax (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_tax_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member)) - 4) & ". "
+                    full_shelter_details = full_shelter_details & "Property Tax (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_tax_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_tax_verif, each_member)) - 4) & ".; "
                 End If
             ElseIf ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member) <> "Select one" Then
-                full_shelter_details = full_shelter_details & "Property Tax (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member)) - 4) & ". "
+                full_shelter_details = full_shelter_details & "Property Tax (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, each_member)) - 4) & ".; "
                 total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, each_member)
             End If
 
             If ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member) <> "Select one" Then
                 If ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member) <> "Select one" Then
                     If ALL_MEMBERS_ARRAY(shel_retro_room_amt, each_member) = ALL_MEMBERS_ARRAY(shel_prosp_room_amt, each_member) Then
-                        full_shelter_details = full_shelter_details & "Room $" & ALL_MEMBERS_ARRAY(shel_prosp_room_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member)) - 4) & ". "
+                        full_shelter_details = full_shelter_details & "Room $" & ALL_MEMBERS_ARRAY(shel_prosp_room_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member)) - 4) & ".; "
                     Else
-                        full_shelter_details = full_shelter_details & "change in Room retro - $" & ALL_MEMBERS_ARRAY(shel_retro_room_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_room_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member)) - 4) & ". "
+                        full_shelter_details = full_shelter_details & "change in Room retro - $" & ALL_MEMBERS_ARRAY(shel_retro_room_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_room_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member)) - 4) & ".; "
                     End If
                     total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_room_amt, each_member)
                 Else
-                    full_shelter_details = full_shelter_details & "Room (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_room_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member)) - 4) & ". "
+                    full_shelter_details = full_shelter_details & "Room (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_room_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_room_verif, each_member)) - 4) & ".; "
                 End If
             ElseIf ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member) <> "Select one" Then
-                full_shelter_details = full_shelter_details & "Room (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_room_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member)) - 4) & ". "
+                full_shelter_details = full_shelter_details & "Room (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_room_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_room_verif, each_member)) - 4) & ".; "
                 total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_room_amt, each_member)
             End If
 
             If ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member) <> "Select one" Then
                 If ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member) <> "Select one" Then
                     If ALL_MEMBERS_ARRAY(shel_retro_garage_amt, each_member) = ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, each_member) Then
-                        full_shelter_details = full_shelter_details & "Garage $" & ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member)) - 4) & ". "
+                        full_shelter_details = full_shelter_details & "Garage $" & ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member)) - 4) & ".; "
                     Else
-                        full_shelter_details = full_shelter_details & "change in Garage retro - $" & ALL_MEMBERS_ARRAY(shel_retro_garage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member)) - 4) & ". "
+                        full_shelter_details = full_shelter_details & "change in Garage retro - $" & ALL_MEMBERS_ARRAY(shel_retro_garage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member)) - 4) & ".; "
                     End If
                     total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, each_member)
                 Else
-                    full_shelter_details = full_shelter_details & "Garage (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_garage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member)) - 4) & ". "
+                    full_shelter_details = full_shelter_details & "Garage (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_garage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_garage_verif, each_member)) - 4) & ".; "
                 End If
             ElseIf ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member) <> "Select one" Then
-                full_shelter_details = full_shelter_details & "Garage (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member)) - 4) & ". "
+                full_shelter_details = full_shelter_details & "Garage (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, each_member)) - 4) & ".; "
                 total_shelter_amount = total_shelter_amount + ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, each_member)
             End If
 
             If ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member) <> "Select one" Then
                 If ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member) <> "Select one" Then
                     If ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt, each_member) = ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, each_member) Then
-                        full_shelter_details = full_shelter_details & "Subsidy $" & ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member)) - 4) & ". "
+                        full_shelter_details = full_shelter_details & "Subsidy $" & ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member)) - 4) & ".; "
                     Else
-                        full_shelter_details = full_shelter_details & "change in Subsidy retro - $" & ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member)) - 4) & ". "
+                        full_shelter_details = full_shelter_details & "change in Subsidy retro - $" & ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member)) - 4) & " prosp - $" & ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member)) - 4) & ".; "
                     End If
                     total_shelter_amount = total_shelter_amount - ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, each_member)
                 Else
-                    full_shelter_details = full_shelter_details & "Subsidy (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member)) - 4) & ". "
+                    full_shelter_details = full_shelter_details & "Subsidy (retro only) $" & ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, each_member)) - 4) & ".; "
                 End If
             ElseIf ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member) <> "Blank" AND ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member) <> "" AND ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member) <> "Select one" Then
-                full_shelter_details = full_shelter_details & "Subsidy (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member)) - 4) & ". "
+                full_shelter_details = full_shelter_details & "Subsidy (prosp) $" & ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, each_member) & " verif: " & right(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member), len(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, each_member)) - 4) & ".; "
                 total_shelter_amount = total_shelter_amount - ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, each_member)
             End If
             If ALL_MEMBERS_ARRAY(shel_shared, each_member) = "Yes" Then full_shelter_details = full_shelter_details & "Shelter expense is SHARED. "
@@ -1420,13 +1498,14 @@ function update_shel_notes()
     total_shelter_amount = FormatCurrency(total_shelter_amount)
 
     ' MsgBOx "Length of full_shelter_details is " & len(full_shelter_details)
-    if left(full_shelter_details, 2) = "; " Then full_shelter_details = right(full_shelter_details, len(full_shelter_details) - 2)
-    If len(full_shelter_details) > 85 Then
-        shelter_details = left(full_shelter_details, 85)
-        shelter_details_two = right(full_shelter_details, len(full_shelter_details) - 85)
-    Else
-        shelter_details = full_shelter_details
-    End If
+    Call split_string_into_parts(full_shelter_details, shelter_details, shelter_details_two, shelter_details_three, 85, 85)
+    ' if left(full_shelter_details, 2) = "; " Then full_shelter_details = right(full_shelter_details, len(full_shelter_details) - 2)
+    ' If len(full_shelter_details) > 85 Then
+    '     shelter_details = left(full_shelter_details, 85)
+    '     shelter_details_two = right(full_shelter_details, len(full_shelter_details) - 85)
+    ' Else
+    '     shelter_details = full_shelter_details
+    ' End If
 end function
 
 function update_wreg_and_abawd_notes()
@@ -1459,13 +1538,15 @@ function update_wreg_and_abawd_notes()
         End If
     Next
     if right(notes_on_wreg, 2) = "; " Then notes_on_wreg = left(notes_on_wreg, len(notes_on_wreg) - 2)
-    if right(full_abawd_info, 2) = "; " Then full_abawd_info = left(full_abawd_info, len(full_abawd_info) - 2)
-    If len(full_abawd_info) > 400 Then
-        notes_on_abawd = left(full_abawd_info, 400)
-        notes_on_abawd_two = right(full_abawd_info, len(full_abawd_info) - 400)
-    Else
-        notes_on_abawd = full_abawd_info
-    End If
+
+    Call split_string_into_parts(full_abawd_info, notes_on_abawd, notes_on_abawd_two, "NONE", 400, 400)
+    ' if right(full_abawd_info, 2) = "; " Then full_abawd_info = left(full_abawd_info, len(full_abawd_info) - 2)
+    ' If len(full_abawd_info) > 400 Then
+    '     notes_on_abawd = left(full_abawd_info, 400)
+    '     notes_on_abawd_two = right(full_abawd_info, len(full_abawd_info) - 400)
+    ' Else
+    '     notes_on_abawd = full_abawd_info
+    ' End If
 end function
 
 '===========================================================================================================================
@@ -1642,7 +1723,7 @@ Dim UNEA_INCOME_ARRAY()
 ReDim UNEA_INCOME_ARRAY(budget_notes, 0)
 
 'variables
-Dim EATS, row, col, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, hest_information, addr_line_one
+Dim EATS, row, col, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three, hest_information, addr_line_one
 Dim addr_line_two, city, state, zip, address_confirmation_checkbox, addr_county, homeless_yn, addr_verif, reservation_yn, living_situation
 Dim notes_on_address, notes_on_wreg, full_abawd_info, notes_on_busi
 
@@ -2060,6 +2141,9 @@ If SNAP_checkbox = checked then programs_applied_for = programs_applied_for & "S
 If EMER_checkbox = checked then programs_applied_for = programs_applied_for & "emergency, "
 programs_applied_for = trim(programs_applied_for)
 if right(programs_applied_for, 1) = "," then programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
+interview_required = FALSE
+If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" then interview_required = TRUE
+
 
 'SHOULD DEFAULT TO TIKLING FOR APPLICATIONS THAT AREN'T RECERTS.
 If CAF_type <> "Recertification" then TIKL_checkbox = checked
@@ -2147,16 +2231,23 @@ Do
                                                 PushButton 305, 225, 25, 10, "TYPE", TYPE_button
                                                 OkButton 600, 500, 50, 15
                                               Text 5, 70, 25, 10, "CIT/ID:"
-                                              Text 320, 180, 75,10, "Date CS Forms Sent:"
+                                              If trim(ABPS) = "" Then
+                                                Text 320, 180, 75,10, "Date CS Forms Sent:"
+                                              Else
+                                                Text 320, 180, 75,10, "* Date CS Forms Sent:"
+                                              End If
                                               Text 5, 200, 50, 10, "Verifs needed:"
                                               GroupBox 5, 215, 115, 25, "ELIG panels:"
                                               GroupBox 125, 215, 210, 25, "other STAT panels:"
                                               GroupBox 330, 5, 115, 35, "STAT-based navigation"
-                                              Text 5, 10, 55, 10, "CAF datestamp:"
-                                              Text 5, 30, 55, 10, "Interview date:"
-                                              Text 120, 10, 50, 10, "Interview type:"
-                                              Text 120, 30, 110, 10, "How was application received?:"
-                                              Text 5, 50, 85, 10, "Interview completed with:"
+                                              Text 5, 10, 55, 10, "* CAF datestamp:"
+                                              If interview_required = TRUE Then Text 5, 30, 55, 10, "* Interview date:"
+                                              If interview_required = FALSE Then Text 5, 30, 55, 10, "Interview date:"
+                                              If interview_required = TRUE Then Text 115, 10, 55, 10, "* Interview type:"
+                                              If interview_required = FALSE Then Text 120, 10, 50, 10, "Interview type:"
+                                              Text 115, 30, 110, 10, "* How was application received?:"
+                                              If interview_required = TRUE Then Text 5, 50, 85, 10, "* Interview completed with:"
+                                              If interview_required = FALSE Then Text 5, 50, 85, 10, "Interview completed with:"
                                               GroupBox 5, 240, 355, 25, "Dialog Tabs"
                                               Text 55, 250, 5, 10, "|"
                                               Text 95, 250, 5, 10, "|"
@@ -2178,6 +2269,11 @@ Do
                                     Loop Until pass_one = TRUE
                                     If show_two = true Then
                                         Do
+                                            all_jobs = UBound(ALL_JOBS_PANELS_ARRAY, 2)
+                                            all_jobs = all_jobs + 1
+                                            jobs_pages = all_jobs/3
+                                            If jobs_pages <> Int(jobs_pages) Then jobs_pages = Int(jobs_pages) + 1
+
                                             each_job = 0
                                             loop_start = 0
                                             last_job_reviewed = FALSE
@@ -2252,10 +2348,10 @@ Do
                                                               y_pos = y_pos + 20
                                                               If snap_checkbox = checked Then
                                                                   Text 15, y_pos, 35, 10, "SNAP PIC:"
-                                                                  Text 65, y_pos, 60, 10, "Pay Date Amount: "
+                                                                  Text 55, y_pos, 65, 10, "* Pay Date Amount:"
                                                                   EditBox 125, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)
                                                                   ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job)
-                                                                  Text 265, y_pos, 70, 10, "Prospective Amount:"
+                                                                  Text 265, y_pos, 70, 10, "* Prospective Amount:"
                                                                   EditBox 340, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job)
                                                                   Text 420, y_pos, 40, 10, "Calculated:"
                                                                   EditBox 470, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(pic_calc_date, each_job)
@@ -2272,7 +2368,11 @@ Do
                                                                   EditBox 470, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(grh_calc_date, each_job)
                                                                   y_pos = y_pos + 20
                                                               End If
-                                                              Text 15, y_pos, 55, 10, "Explain Budget:"
+                                                              If ALL_JOBS_PANELS_ARRAY(EI_case_note, each_job) = FALSE Then
+                                                                Text 10, y_pos, 55, 10, "* Explain Budget:"
+                                                              Else
+                                                                Text 15, y_pos, 55, 10, "Explain Budget:"
+                                                              End If
                                                               EditBox 70, y_pos - 5, 515, 15, ALL_JOBS_PANELS_ARRAY(budget_explain, each_job)
                                                               y_pos = y_pos + 25
                                                               if each_job = job_limit Then Exit Do
@@ -2300,6 +2400,68 @@ Do
                                                         PushButton 265, y_pos, 35, 10, "6 - Other", dlg_six_button
                                                         PushButton 305, y_pos, 40, 10, "7 - Assets", dlg_seven_button
                                                         PushButton 350, y_pos, 50, 10, "8 - Interview", dlg_eight_button
+
+                                                        If jobs_pages >= 2 Then
+                                                            If jobs_pages = 2 Then
+                                                                If loop_start = 0 Then
+                                                                    Text 425, y_pos, 15, 15, "1"
+                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
+                                                                ElseIf loop_start = 3 Then
+                                                                    PushButton 420, y_pos-5, 15, 15, "1", jobs_page_one
+                                                                    Text 440, y_pos, 15, 15, "2"
+                                                                End If
+                                                            ElseIf jobs_pages = 3 Then
+                                                                If loop_start = 0 Then
+
+                                                                ElseIf loop_start = 3 Then
+
+                                                                ElseIf loop_start = 6 Then
+
+                                                                End If
+                                                            ElseIf jobs_pages = 4 Then
+                                                                If loop_start = 0 Then
+
+                                                                ElseIf loop_start = 3 Then
+
+                                                                ElseIf loop_start = 6 Then
+
+                                                                ElseIf loop_start = 9 Then
+
+                                                                End If
+                                                            ElseIf jobs_pages = 5 Then
+                                                                If loop_start = 0 Then
+
+                                                                ElseIf loop_start = 3 Then
+
+                                                                ElseIf loop_start = 6 Then
+
+                                                                ElseIf loop_start = 9 Then
+
+                                                                ElseIf loop_start = 12 Then
+
+                                                                End If
+                                                            ElseIf jobs_pages = 6 Then
+                                                                If loop_start = 0 Then
+                                                                    Text 425, y_pos, 15, 15, "1", jobs_page_one
+                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
+                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
+                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
+                                                                    PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
+                                                                    PushButton 495, y_pos-5, 15, 15, "6", jobs_page_six
+                                                                ElseIf loop_start = 3 Then
+
+                                                                ElseIf loop_start = 6 Then
+
+                                                                ElseIf loop_start = 9 Then
+
+                                                                ElseIf loop_start = 12 Then
+
+                                                                ElseIf loop_start = 15 Then
+
+                                                                End If
+                                                            End If
+                                                        End If
+
                                                         PushButton 510, y_pos - 5, 35, 15, "NEXT", go_to_next_page
                                                         CancelButton 550, y_pos - 5, 50, 15
                                                         OkButton 600, 500, 50, 15
@@ -2319,12 +2481,21 @@ Do
                                                         each_job = each_job + 1
                                                     Loop until each_job = UBound(ALL_JOBS_PANELS_ARRAY, 2)
 
+
                                                     Call assess_button_pressed
                                                     If tab_button = TRUE Then last_job_reviewed = TRUE
                                                     If ButtonPressed = go_to_next_page AND last_job_reviewed = TRUE Then pass_two = true
                                                 Loop until jobs_err_msg = ""
                                                 job_limit = job_limit + 3
                                                 loop_start = loop_start + 3
+                                                If ButtonPressed = jobs_page_one Then
+                                                    loop_start = 0
+                                                    job_limit = 2
+                                                ElseIf ButtonPressed = jobs_page_two Then
+                                                    loop_start = 3
+                                                    job_limit = 5
+                                                End If
+
                                             Loop until last_job_reviewed = TRUE
 
                                         Loop until pass_two = true
@@ -2414,7 +2585,7 @@ Do
                                                       Text 365, y_pos, 50, 10, "Partners in HH:"
                                                       EditBox 420, y_pos - 5, 105, 15, ALL_BUSI_PANELS_ARRAY(partners_in_HH, each_busi)
                                                       y_pos = y_pos + 20
-                                                      Text 15, y_pos, 90, 10, "Self Employment Method:"
+                                                      Text 15, y_pos, 90, 10, "* Self Employment Method:"
                                                       DropListBox 105, y_pos - 5, 120, 45, "Select One"+chr(9)+"50% Gross Inc"+chr(9)+"Tax Forms", ALL_BUSI_PANELS_ARRAY(calc_method, each_busi)
                                                       Text 240, y_pos, 45, 10, "Choice Date:"
                                                       EditBox 290, y_pos - 5, 50, 15, ALL_BUSI_PANELS_ARRAY(mthd_date, each_busi)
@@ -2446,7 +2617,7 @@ Do
                                                           Text 420, y_pos, 25, 10, "Prosp-"
                                                           EditBox 450, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(expense_pro_snap, each_busi)
                                                           y_pos = y_pos + 20
-                                                          Text 60, y_pos, 75, 10, "Expenses not allowed:"
+                                                          Text 50, y_pos, 85, 10, "* Expenses not allowed:"
                                                           EditBox 140, y_pos - 5, 355, 15, ALL_BUSI_PANELS_ARRAY(exp_not_allwd, each_busi)
                                                           y_pos = y_pos + 20
                                                           Text 115, y_pos, 25, 10, "Verif:"
@@ -2477,7 +2648,7 @@ Do
                                                       Text 15, y_pos, 65, 10, "Verification Detail:"
                                                       EditBox 80, y_pos - 5, 445, 15, ALL_BUSI_PANELS_ARRAY(verif_explain, each_busi)
                                                       y_pos = y_pos + 20
-                                                      Text 15, y_pos, 60, 10, "Explain Budget:"
+                                                      Text 15, y_pos, 60, 10, "* Explain Budget:"
                                                       EditBox 80, y_pos - 5, 445, 15, ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi)
                                                       y_pos = y_pos + 25
                                                       if each_busi = busi_limit Then Exit Do
@@ -2725,14 +2896,14 @@ Do
                               For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
                                   If UNEA_INCOME_ARRAY(SSA_exists, each_unea_memb) = TRUE Then
                                       Text 15, y_pos, 40, 10, "Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb)
-                                      Text 65, y_pos, 55, 10, "RSDI: Amount: $"
-                                      EditBox 125, y_pos - 5, 30, 15, UNEA_INCOME_ARRAY(UNEA_RSDI_amt, each_unea_memb)
-                                      Text 160, y_pos, 25, 10, "Notes:"
+                                      Text 60, y_pos, 55, 10, "RSDI: Amount: $"
+                                      EditBox 120, y_pos - 5, 30, 15, UNEA_INCOME_ARRAY(UNEA_RSDI_amt, each_unea_memb)
+                                      Text 155, y_pos, 30, 10, "* Notes:"
                                       EditBox 185, y_pos - 5, 270, 15, UNEA_INCOME_ARRAY(UNEA_RSDI_notes, each_unea_memb)
                                       y_pos = y_pos + 20
-                                      Text 65, y_pos, 55, 10, "SSI: Amount: $"
-                                      EditBox 125, y_pos - 5, 30, 15, UNEA_INCOME_ARRAY(UNEA_SSI_amt, each_unea_memb)
-                                      Text 160, y_pos, 25, 10, "Notes:"
+                                      Text 60, y_pos, 55, 10, "SSI: Amount: $"
+                                      EditBox 120, y_pos - 5, 30, 15, UNEA_INCOME_ARRAY(UNEA_SSI_amt, each_unea_memb)
+                                      Text 155, y_pos, 30, 10, "* Notes:"
                                       EditBox 185, y_pos - 5, 270, 15, UNEA_INCOME_ARRAY(UNEA_SSI_notes, each_unea_memb)
                                       y_pos = y_pos + 20
                                   End If
@@ -2758,7 +2929,7 @@ Do
 
                                       Text 15, y_pos, 40, 10, "Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb)
                                       Text 65, y_pos, 120, 10, "Unemployment Start Date: " & UNEA_INCOME_ARRAY(UNEA_UC_start_date, each_unea_memb)
-                                      Text 200, y_pos, 90, 10, "Budgeted Weekly Amount:"
+                                      Text 195, y_pos, 95, 10, "* Budgeted Weekly Amount:"
                                       EditBox 290, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb)
                                       Text 345, y_pos, 70, 10, "UC Acct Bal:"
                                       EditBox 395, y_pos - 5, 50, 15, UNEA_INCOME_ARRAY(UNEA_UC_account_balance, each_unea_memb)
@@ -2775,7 +2946,8 @@ Do
                                       EditBox 80, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(UNEA_UC_retro_amt, each_unea_memb)
                                       Text 130, y_pos, 50, 10, "Prosp Income:"
                                       EditBox 185, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(UNEA_UC_prosp_amt, each_unea_memb)
-                                      Text 250, y_pos, 65, 10, "SNAP Prosp Amt: $"
+                                      If SNAP_checkbox = checked Then Text 250, y_pos, 65, 10, "* SNAP Prosp Amt: $"
+                                      If SNAP_checkbox = unchecked Then Text 250, y_pos, 65, 10, "SNAP Prosp Amt: $"
                                       EditBox 315, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, each_unea_memb)
                                       ButtonGroup ButtonPressed
                                         PushButton 365, y_pos, 35, 10, "Calc", calc_button
@@ -2868,7 +3040,7 @@ Do
                           EditBox 40, 50, 505, 15, notes_on_wreg
                           ButtonGroup ButtonPressed
                             PushButton 480, 30, 65, 15, "Update ABAWD", abawd_button
-                            PushButton 235, 90, 50, 15, "Update SHEL", update_shel_button
+                            PushButton 235, 85, 50, 15, "Update SHEL", update_shel_button
                           DropListBox 45, 140, 100, 45, "Select ALLOWED HEST"+chr(9)+"AC/Heat - Full $493"+chr(9)+"Electric and Phone - $173"+chr(9)+"Electric ONLY - $126"+chr(9)+"Phone ONLY - $47"+chr(9)+"NONE - $0", hest_information
                           EditBox 180, 140, 110, 15, notes_on_acut
                           EditBox 45, 160, 245, 15, notes_on_coex
@@ -2893,10 +3065,11 @@ Do
                           Text 75, 20, 470, 10, notes_on_abawd
                           Text 15, 35, 330, 10, notes_on_abawd_two
                           GroupBox 5, 75, 290, 165, "Expenses and Deductions"
-                          Text 15, 95, 50, 10, "Total Shelter:"
-                          Text 70, 95, 155, 10, total_shelter_amount
-                          Text 15, 110, 275, 10, shelter_details
-                          Text 15, 125, 275, 10, shelter_details_two
+                          Text 15, 90, 50, 10, "Total Shelter:"
+                          Text 70, 90, 155, 10, total_shelter_amount
+                          Text 10, 105, 285, 10, shelter_details
+                          Text 10, 115, 285, 10, shelter_details_two
+                          Text 10, 125, 285, 10, shelter_details_three
                           Text 20, 205, 20, 10, "Other:"
                           Text 20, 225, 25, 10, "Notes:"
                           GroupBox 305, 75, 245, 165, "Address"
@@ -2911,7 +3084,7 @@ Do
                           Text 440, 155, 35, 10, "Homeless:"
                           Text 315, 175, 20, 10, "Verif:"
                           Text 435, 175, 45, 10, "Reservation:"
-                          Text 315, 195, 55, 10, "Living Situation:"
+                          Text 315, 195, 55, 10, "* Living Situation:"
                           Text 315, 210, 75, 10, "Notes on address:"
                           Text 5, 250, 50, 10, "Verifs needed:"
                           GroupBox 105, 265, 355, 25, "Dialog Tabs"
@@ -2933,7 +3106,8 @@ Do
                             PushButton 405, 275, 50, 10, "8 - Interview", dlg_eight_button
                             PushButton 460, 270, 35, 15, "NEXT", go_to_next_page
                             CancelButton 500, 270, 50, 15
-                            PushButton 10, 55, 25, 10, "WREG", wreg_button
+                            If SNAP_checkbox = checked Then PushButton 5, 55, 30, 10, "* WREG", wreg_button
+                            If SNAP_checkbox = unchecked Then PushButton 10, 55, 25, 10, "WREG", wreg_button
                             PushButton 315, 100, 25, 10, "ADDR", addr_button
                             PushButton 15, 145, 25, 10, "HEST", hest_button
                             PushButton 150, 145, 25, 10, "ACUT", acut_button
@@ -3192,12 +3366,14 @@ Do
                         PushButton 325, 135, 25, 10, "DIET:", DIET_button
                         PushButton 10, 155, 25, 10, "FMED:", FMED_button
                         PushButton 15, 85, 25, 10, "CARS", cars_button
-                        PushButton 285, 85, 25, 10, "REST", rest_button
+                        If InStr(shelter_details, "Mortgage") <> 0 Then PushButton 285, 85, 25, 10, "* REST", rest_button
+                        If InStr(shelter_details, "Mortgage") = 0 Then PushButton 285, 85, 25, 10, "REST", rest_button
                         PushButton 15, 105, 25, 10, "SECU", secu_button
                         PushButton 40, 105, 25, 10, "TRAN", tran_button
                         PushButton 65, 105, 45, 10, "other assets", other_asset_button
                         PushButton 10, 175, 25, 10, "DISQ:", disq_button
-                        PushButton 20, 250, 25, 10, "EMPS:", emps_button
+                        If family_cash = TRUE Then PushButton 15, 250, 30, 10, "* EMPS:", emps_button
+                        If family_cash = FALSE Then PushButton 20, 250, 25, 10, "EMPS:", emps_button
                         PushButton 110, 320, 45, 10, "1 - Personal", dlg_one_button
                         PushButton 160, 320, 35, 10, "2 - JOBS", dlg_two_button
                         PushButton 200, 320, 35, 10, "3 - BUSI", dlg_three_button
@@ -3211,7 +3387,11 @@ Do
                       Text 360, 320, 40, 10, "7 - Assets"
                       Text 5, 295, 50, 10, "Verifs needed:"
                       GroupBox 10, 10, 545, 115, "Assets"
-                      Text 310, 25, 110, 10, "Total Liquid Assets in App Month:"
+                      If SNAP_checkbox = checked and CAF_type = "Application" Then
+                        Text 310, 25, 110, 10, "* Total Liquid Assets in App Month:"
+                      Else
+                        Text 310, 25, 110, 10, "Total Liquid Assets in App Month:"
+                      End If
                       GroupBox 105, 310, 355, 25, "Dialog Tabs"
                       Text 155, 320, 5, 10, "|"
                       Text 195, 320, 5, 10, "|"
@@ -3221,8 +3401,13 @@ Do
                       Text 355, 320, 5, 10, "|"
                       Text 400, 320, 5, 10, "|"
                       GroupBox 10, 190, 545, 95, "MFIP/DWP"
-                      Text 20, 210, 20, 10, "Time:"
-                      Text 20, 230, 30, 10, "Sanction:"
+                      If family_cash = TRUE Then
+                          Text 15, 210, 25, 10, "* Time:"
+                          Text 15, 230, 35, 10, "* Sanction:"
+                      Else
+                          Text 20, 210, 20, 10, "Time:"
+                          Text 20, 230, 30, 10, "Sanction:"
+                      End If
                     EndDialog
 
                     Dialog Dialog1
@@ -3257,12 +3442,12 @@ Do
                   EditBox 60, 10, 20, 15, next_er_month
                   EditBox 85, 10, 20, 15, next_er_year
                   ComboBox 330, 10, 115, 15, "Select or Type"+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
-                  EditBox 55, 30, 390, 15, actions_taken
+                  EditBox 60, 30, 385, 15, actions_taken
                   DropListBox 140, 60, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", snap_exp_yn
-                  EditBox 85, 80, 35, 15, exp_snap_approval_date
-                  EditBox 205, 80, 40, 15, app_month_income
-                  EditBox 280, 80, 40, 15, app_month_assets
-                  EditBox 370, 80, 40, 15, app_month_expenses
+                  EditBox 90, 80, 35, 15, exp_snap_approval_date
+                  EditBox 210, 80, 40, 15, app_month_income
+                  EditBox 290, 80, 40, 15, app_month_assets
+                  EditBox 385, 80, 40, 15, app_month_expenses
                   EditBox 75, 100, 365, 15, exp_snap_delays
                   CheckBox 20, 155, 80, 10, "Application signed?", application_signed_checkbox
                   CheckBox 20, 170, 50, 10, "eDRS sent?", eDRS_sent_checkbox
@@ -3294,16 +3479,24 @@ Do
                     CancelButton 395, 350, 50, 15
                     OkButton 600, 500, 50, 15
                   Text 5, 15, 55, 10, "Next ER REVW:"
-                  Text 290, 15, 40, 10, "CAF status:"
-                  Text 5, 35, 50, 10, "Actions taken:"
+                  Text 280, 15, 50, 10, "* CAF status:"
+                  Text 5, 35, 55, 10, "* Actions taken:"
                   GroupBox 5, 50, 440, 70, "SNAP Expedited"
-                  Text 15, 65, 120, 10, "Is this SNAP Application Expedited?"
+                  If CAF_type = "Application" AND SNAP_checkbox = checked AND exp_det_case_note_found = FALSE Then
+                      Text 15, 65, 120, 10, "* Is this SNAP Application Expedited?"
+                      Text 20, 85, 75, 10, "* EXP Approval Date:"
+                      Text 135, 85, 75, 10, "* App Month - Income:"
+                      Text 260, 85, 30, 10, "* Assets:"
+                      Text 345, 85, 40, 10, "* Expenses:"
+                  Else
+                      Text 15, 65, 120, 10, "Is this SNAP Application Expedited?"
+                      Text 20, 85, 65, 10, "EXP Approval Date:"
+                      Text 135, 85, 70, 10, "App Month - Income:"
+                      Text 260, 85, 25, 10, "Assets:"
+                      Text 345, 85, 40, 10, "Expenses:"
+                  End If
                   Text 185, 65, 70, 10, "CAF Date: " & CAF_datestamp
                   If exp_det_case_note_found = TRUE Then Text 260, 65, 180, 10, "EXPEDITED DETERMINATION CASE/NOTE FOUND"
-                  Text 15, 85, 65, 10, "EXP Approval Date:"
-                  Text 130, 85, 70, 10, "App Month - Income:"
-                  Text 250, 85, 25, 10, "Assets:"
-                  Text 325, 85, 40, 10, "Expenses:"
                   Text 15, 105, 55, 10, "Explain Delays:"
                   GroupBox 5, 130, 440, 105, "Common elements workers should case note:"
                   GroupBox 15, 140, 100, 90, "Application Processing"
@@ -3334,7 +3527,7 @@ Do
                     'DIALOG 1
                     If IsDate(CAF_datestamp) = FALSE Then full_err_msg = full_err_msg & "~!~" & "1^* Enter a valid date for the CAF datestamp."
                     'QUESTION Make the interview required? - identify recerts for adult cash ONLY
-                    If SNAP_checkbox = checked OR CAF_type = "Application" then
+                    If interview_required = TRUE Then
                         If interview_type = "Select or Type" Then full_err_msg = full_err_msg & "~!~1^* This case requires and interview to process the CAF - enter the interview type."
                         If IsDate(interview_date) = False Then full_err_msg = full_err_msg & "~!~1^* This case requires and interview to process the CAF - enter the interview date"
                         If interview_with = "Select or Type" Then full_err_msg = full_err_msg & "~!~1^* This case requires and interview to process the CAF - indicate who the interview was completed with."
@@ -3409,14 +3602,14 @@ Do
 
                     'DIALOG 7
                     If SNAP_checkbox = checked and CAF_type = "Application" Then
-                        If trim(app_month_assets) = "" OR IsNumeric(app_month_assets) = FALSE Then full_err_msg = full_err_msg & "~!~7^* Indicate the total of liquid assets in the application month."
+                        If trim(app_month_assets) = "" OR IsNumeric(app_month_assets) = FALSE AND exp_det_case_note_found = FALSE Then full_err_msg = full_err_msg & "~!~7^* Indicate the total of liquid assets in the application month."
                     End If
 
                     If family_cash = TRUE and trim(notes_on_time) = "" Then full_err_msg = full_err_msg & "~!~7^* For a family cash case, detail on TIME needs to be added."
                     If family_cash = TRUE and trim(notes_on_sanction) = "" Then full_err_msg = full_err_msg & "~!~7^* This is a family cash case, sanction detail needs to be added."
                     If family_cash = TRUE and trim(EMPS) = "" Then full_err_msg = full_err_msg & "~!~7^* EMPS detail needs to be added for a family cash case. "
                     If cash_checkbox = unchecked AND trim(DIET) <> "" Then full_err_msg = full_err_msg & "~!~7^* DIET information should not be entered into a non-cash case."
-                    If InStr(shelter_details, "MORTGAGE") AND trim(notes_on_rest) = "" Then full_err_msg = full_err_msg & "~!~7^* SHEL indicates that Mortgage is being paid, but no information has been added to REST. Update Shelter information or add detail to REST."
+                    If InStr(shelter_details, "Mortgage") AND trim(notes_on_rest) = "" Then full_err_msg = full_err_msg & "~!~7^* SHEL indicates that Mortgage is being paid, but no information has been added to REST. Update Shelter information or add detail to REST."
 
                     'DIALOG 8
                     If CAF_status = "Select or Type" Then full_err_msg = full_err_msg & "~!~8^* Indicate the CAF Status."
@@ -3755,19 +3948,63 @@ If SNAP_checkbox = checked Then progs_list = progs_list & ", SNAP"
 If EMER_checkbox = checked Then progs_list = progs_list & ", EMER"
 If left(progs_list, 1) = "," Then progs_list = right(progs_list, len(progs_list) - 2)
 
+If SNAP_checkbox = checked Then
+    adult_snap_count = adult_snap_count * 1
+    child_snap_count = child_snap_count * 1
+    total_snap_count = adult_snap_count + child_snap_count
+    For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+        If ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member) = checked Then
+            included_snap_members = included_snap_members & ", M" & ALL_MEMBERS_ARRAY(memb_numb, each_member)
+        Else
+            If ALL_MEMBERS_ARRAY(count_snap_checkbox, each_member) = checked Then counted_snap_members = counted_snap_members & ", M" & ALL_MEMBERS_ARRAY(memb_numb, each_member)
+        End If
+    Next
+    If included_snap_members <> "" Then included_snap_members = right(included_snap_members, len(included_snap_members) - 2)
+    If counted_snap_members <> "" Then counted_snap_members = right(counted_snap_members, len(counted_snap_members) - 2)
+End If
+If cash_checkbox = checked Then
+    adult_cash_count = adult_cash_count * 1
+    child_cash_count = child_cash_count * 1
+    total_cash_count = adult_cash_count + child_cash_count
+    For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+        If ALL_MEMBERS_ARRAY(include_cash_checkbox, each_member) = checked Then
+            included_cash_members = included_cash_members & ", M" & ALL_MEMBERS_ARRAY(memb_numb, each_member)
+        Else
+            If ALL_MEMBERS_ARRAY(count_cash_checkbox, each_member) = checked Then counted_cash_members = counted_cash_members & ", M" & ALL_MEMBERS_ARRAY(memb_numb, each_member)
+        End If
+    Next
+    If included_cash_members <> "" Then included_cash_members = right(included_cash_members, len(included_cash_members) - 2)
+    If counted_cash_members <> "" Then counted_cash_members = right(counted_cash_members, len(counted_cash_members) - 2)
+End If
+If EMER_checkbox = checked Then
+    adult_emer_count = adult_emer_count * 1
+    child_emer_count = child_emer_count * 1
+    total_emer_count = adult_emer_count + child_emer_count
+    For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+        If ALL_MEMBERS_ARRAY(include_emer_checkbox, each_member) = checked Then
+            included_emer_members = included_emer_members & ", M" & ALL_MEMBERS_ARRAY(memb_numb, each_member)
+        Else
+            If ALL_MEMBERS_ARRAY(count_emer_checkbox, each_member) = checked Then counted_emer_members = counted_emer_members & ", M" & ALL_MEMBERS_ARRAY(memb_numb, each_member)
+        End If
+    Next
+    If included_emer_members <> "" Then included_emer_members = right(included_emer_members, len(included_emer_members) - 2)
+    If counted_emer_members <> "" Then counted_emer_members = right(counted_emer_members, len(counted_emer_members) - 2)
+End If
+
+
 'THE CASE NOTES-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Expedited Determination Case Note
 'Navigates to case note, and checks to make sure we aren't in inquiry.
 Call start_a_blank_CASE_NOTE
 
-If CAF_type = "Application" and SNAP_checkbox = checked Then
+If CAF_type = "Application" and SNAP_checkbox = checked AND exp_det_case_note_found = FALSE Then
     IF snap_exp_yn = "Yes" then
     	case_note_header_text = "Expedited Determination: SNAP appears expedited"
     ELSEIF snap_exp_yn = "No" then
     	case_note_header_text = "Expedited Determination: SNAP does not appear expedited"
     END IF
 
-
+    Call write_variable_in_CASE_NOTE(case_note_header_text)
     If interview_date <> "" Then Call write_variable_in_case_note ("* Interview completed on: " & interview_date & " and full Expedited Determination Done")
     IF snap_exp_yn = "Yes" Then Call write_variable_in_case_note ("* Case is determined to meet criteria and Expedited SNAP can be approved.")
     IF snap_exp_yn = "No" Then Call write_variable_in_case_note ("* Expedited SNAP cannot be approved as case does not meet all criteria")
@@ -3777,7 +4014,8 @@ If CAF_type = "Application" and SNAP_checkbox = checked Then
     End If
 
     Call write_variable_in_CASE_NOTE("* Expedited Determination is based on information from application month:")
-    Call write_variable_with_indent_in_CASE_NOTE("Income: $" & app_month_income & " - Assets: $" & app_month_assets)
+    Call write_variable_with_indent_in_CASE_NOTE("Income: $" & app_month_income)
+    Call write_variable_with_indent_in_CASE_NOTE("Assets: $" & app_month_assets)
     Call write_variable_with_indent_in_CASE_NOTE("Expenses (Shelter & Utilities): $" & app_month_expenses)
 
     Call write_variable_in_CASE_NOTE("---")
@@ -3785,15 +4023,72 @@ If CAF_type = "Application" and SNAP_checkbox = checked Then
 
     PF3
 End If
+interview_note = FALSE
 
 'Interview Incomfation Detail Case Note
 'Navigates to case note, and checks to make sure we aren't in inquiry.
-If SNAP_checkbox = checked OR CAF_type = "Application" then
+' If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" then
+If interview_required = TRUE Then
+    interview_note = TRUE
     Call start_a_blank_CASE_NOTE
 
     CALL write_variable_in_CASE_NOTE("~ Interview Completed on " & interview_date & " ~")
+    Call write_bullet_and_variable_in_CASE_NOTE("CAF Datestamp", caf_datestamp)
+    Call write_variable_in_CASE_NOTE("* Interview details:")
+
+    Call write_variable_with_indent_in_CASE_NOTE("Conducted via " & interview_type)
+    Call write_variable_with_indent_in_CASE_NOTE("Interview was completed with " & interview_with)
+    If Used_Interpreter_checkbox = checked Then Call write_variable_with_indent_in_CASE_NOTE("Used interpreter to complete the interview.")
+    Call write_variable_with_indent_in_CASE_NOTE("Interview completed on " & interview_date)
+
+    Call write_variable_in_CASE_NOTE("----- Programs requested " & progs_list & " -----")
+
+    If CASH_on_CAF_checkbox = checked Then CAF_progs = CAF_progs & ", Cash"
+    If SNAP_on_CAF_checkbox = checked Then CAF_progs = CAF_progs & ", SNAP"
+    If EMER_on_CAF_checkbox = checked Then CAF_progs = CAF_progs & ", EMER"
+    If CAF_progs <> "" Then
+        CAF_progs = right(CAF_progs, len(CAF_progs) - 2)
+    Else
+        CAF_progs = "None"
+    End If
+    Call write_bullet_and_variable_in_CASE_NOTE("Programs requested ON CAF", CAF_progs)
+    Call write_bullet_and_variable_in_CASE_NOTE("Cash requested", cash_other_req_detail)
+    Call write_bullet_and_variable_in_CASE_NOTE("SNAP requested", snap_other_req_detail)
+    Call write_bullet_and_variable_in_CASE_NOTE("EMER requested", emer_other_req_detail)
+    If family_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is for FAMILY programs.")
+    If adult_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is for ADULT programs.")
+
+    Call write_variable_in_CASE_NOTE("---")
+
+    If SNAP_checkbox = checked Then
+        Call write_variable_in_CASE_NOTE("* SNAP unit consists of " & total_snap_count & " people - " & adult_snap_count & " adults and " & child_snap_count & " children.")
+        If included_snap_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members on SNAP grant: " & included_snap_members)
+        If counted_snap_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members with income counted ONLY for SNAP: " & counted_snap_members)
+        If EATS <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Information on EATS: " & EATS)
+    End If
+    If cash_checkbox = checked Then
+        Call write_variable_in_CASE_NOTE("* CASH unit consists of " & total_cash_count & " people - " & adult_cash_count & " adults and " & child_cash_count & " children.")
+        If pregnant_caregiver_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Pregnant Caregiver on Grant.")
+        If included_cash_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members on CASH grant: " & included_cash_members)
+        If counted_cash_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members with income counted ONLY for CASH: " & counted_cash_members)
+    End If
+    If EMER_checkbox = checked Then
+        Call write_variable_in_CASE_NOTE("* EMER unit consists of " & total_emer_count & " people - " & adult_emer_count & " adults and " & child_emer_count & " children.")
+        Call write_variable_with_indent_in_CASE_NOTE("Members on EMER grant: " & included_emer_members)
+        If counted_emer_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members with income counted ONLY for EMER: " & counted_emer_members)
+    End If
+    Call write_bullet_and_variable_in_CASE_NOTE("Relationships", relationship_detail)
+
+    Call write_variable_in_CASE_NOTE("---")
+
+    IF recert_period_checkbox = checked THEN call write_variable_in_CASE_NOTE("* Informed client of recert period.")
+    IF R_R_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Rights and Responsibilities explained to client.")
+    IF E_and_T_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Client requests to participate with E&T.")
+    If elig_req_explained_checkbox Then CALL write_variable_in_CASE_NOTE("* Explained eligbility requirements to client.")
+    If benefit_payment_explained_checkbox Then CALL write_variable_in_CASE_NOTE("* Benefits and Payment information explained to client")
 
 
+    ' Call write_variable_with_indent_in_CASE_NOTE
 
     Call write_variable_in_CASE_NOTE("---")
     Call write_variable_in_CASE_NOTE(worker_signature)
@@ -3810,96 +4105,53 @@ IF move_verifs_needed = TRUE THEN
 	CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
 	CALL write_variable_in_CASE_NOTE("------------------------------")
 End if
-'Programs requested
-If CASH_on_CAF_checkbox = checked Then CAF_progs = CAF_progs & ", Cash"
-If SNAP_on_CAF_checkbox = checked Then CAF_progs = CAF_progs & ", SNAP"
-If EMER_on_CAF_checkbox = checked Then CAF_progs = CAF_progs & ", EMER"
-If CAF_progs <> "" Then
-    CAF_progs = right(CAF_progs, len(CAF_progs) - 2)
-Else
-    CAF_progs = "None"
-End If
-Call write_bullet_and_variable_in_CASE_NOTE("Programs requested ON CAF", CAF_progs)
-Call write_bullet_and_variable_in_CASE_NOTE("Cash requested", cash_other_req_detail)
-Call write_bullet_and_variable_in_CASE_NOTE("SNAP requested", snap_other_req_detail)
-Call write_bullet_and_variable_in_CASE_NOTE("EMER requested", emer_other_req_detail)
-If family_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is for FAMILY programs.")
-If adult_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is for ADULT programs.")
 
-'Intherview detail
-intv_note_entry = "* Interview completed"
-If trim(interview_type) <> "" AND interivew_type <> "Select or Type" Then intv_note_entry = intv_note_entry & " via " & interview_type
-If trim(interview_date) <> "" Then intv_note_entry = intv_note_entry & " on: " & interview_date
-If trim(interview_with) <> "" AND interview_with <> "Select or Type" Then intv_note_entry = intv_note_entry & " with: " & interview_with
-If Used_Interpreter_checkbox = checked Then intv_note_entry = intv_note_entry & " w/ interpreter"
-Call write_variable_in_CASE_NOTE(intv_note_entry)
+'Programs requested
+If interview_note = FALSE Then
+    If CASH_on_CAF_checkbox = checked Then CAF_progs = CAF_progs & ", Cash"
+    If SNAP_on_CAF_checkbox = checked Then CAF_progs = CAF_progs & ", SNAP"
+    If EMER_on_CAF_checkbox = checked Then CAF_progs = CAF_progs & ", EMER"
+    If CAF_progs <> "" Then
+        CAF_progs = right(CAF_progs, len(CAF_progs) - 2)
+    Else
+        CAF_progs = "None"
+    End If
+    Call write_bullet_and_variable_in_CASE_NOTE("Programs requested ON CAF", CAF_progs)
+    Call write_bullet_and_variable_in_CASE_NOTE("Cash requested", cash_other_req_detail)
+    Call write_bullet_and_variable_in_CASE_NOTE("SNAP requested", snap_other_req_detail)
+    Call write_bullet_and_variable_in_CASE_NOTE("EMER requested", emer_other_req_detail)
+    If family_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is for FAMILY programs.")
+    If adult_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is for ADULT programs.")
+Else
+    Call write_bullet_and_variable_in_CASE_NOTE("Programs information is for", progs_list)
+    If family_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is for FAMILY programs.")
+    If adult_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is for ADULT programs.")
+End If
 
 'Household and personal information
-If SNAP_checkbox = checked Then
-    adult_snap_count = adult_snap_count * 1
-    child_snap_count = child_snap_count * 1
-    total_snap_count = adult_snap_count + child_snap_count
-    Call write_variable_in_CASE_NOTE("* SNAP unit consists of " & total_snap_count & " people - " & adult_snap_count & " adults and " & child_snap_count & " children.")
-    For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
-        If ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member) = checked Then
-            included_snap_members = included_snap_members & ", M" & ALL_MEMBERS_ARRAY(memb_numb, each_member)
-        Else
-            If ALL_MEMBERS_ARRAY(count_snap_checkbox, each_member) = checked Then counted_snap_members = counted_snap_members & ", M" & ALL_MEMBERS_ARRAY(memb_numb, each_member)
-        End If
-    Next
-    If included_snap_members <> "" Then included_snap_members = right(included_snap_members, len(included_snap_members) - 2)
-    If counted_snap_members <> "" Then counted_snap_members = right(counted_snap_members, len(counted_snap_members) - 2)
-    If included_snap_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members on SNAP grant: " & included_snap_members)
-    If counted_snap_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members with income counted ONLY for SNAP: " & counted_snap_members)
-    If EATS <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Information on EATS: " & EATS)
+If interview_note = FALSE Then
+    If SNAP_checkbox = checked Then
+        Call write_variable_in_CASE_NOTE("* SNAP unit consists of " & total_snap_count & " people - " & adult_snap_count & " adults and " & child_snap_count & " children.")
+        If included_snap_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members on SNAP grant: " & included_snap_members)
+        If counted_snap_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members with income counted ONLY for SNAP: " & counted_snap_members)
+        If EATS <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Information on EATS: " & EATS)
+    End If
+    If cash_checkbox = checked Then
+        Call write_variable_in_CASE_NOTE("* CASH unit consists of " & total_cash_count & " people - " & adult_cash_count & " adults and " & child_cash_count & " children.")
+        If pregnant_caregiver_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Pregnant Caregiver on Grant.")
+        If included_cash_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members on CASH grant: " & included_cash_members)
+        If counted_cash_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members with income counted ONLY for CASH: " & counted_cash_members)
+    End If
+    If EMER_checkbox = checked Then
+        Call write_variable_in_CASE_NOTE("* EMER unit consists of " & total_emer_count & " people - " & adult_emer_count & " adults and " & child_emer_count & " children.")
+        Call write_variable_with_indent_in_CASE_NOTE("Members on EMER grant: " & included_emer_members)
+        Call write_variable_with_indent_in_CASE_NOTE("Members with income counted ONLY for EMER: " & counted_emer_members)
+    End If
+    Call write_bullet_and_variable_in_CASE_NOTE("Relationships", relationship_detail)
 End If
-If cash_checkbox = checked Then
-    adult_cash_count = adult_cash_count * 1
-    child_cash_count = child_cash_count * 1
-    total_cash_count = adult_cash_count + child_cash_count
-    Call write_variable_in_CASE_NOTE("* CASH unit consists of " & total_cash_count & " people - " & adult_cash_count & " adults and " & child_cash_count & " children.")
-    If pregnant_caregiver_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Pregnant Caregiver on Grant.")
-    For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
-        If ALL_MEMBERS_ARRAY(include_cash_checkbox, each_member) = checked Then
-            included_cash_members = included_cash_members & ", M" & ALL_MEMBERS_ARRAY(memb_numb, each_member)
-        Else
-            If ALL_MEMBERS_ARRAY(count_cash_checkbox, each_member) = checked Then counted_cash_members = counted_cash_members & ", M" & ALL_MEMBERS_ARRAY(memb_numb, each_member)
-        End If
-    Next
-    If included_cash_members <> "" Then included_cash_members = right(included_cash_members, len(included_cash_members) - 2)
-    If counted_cash_members <> "" Then counted_cash_members = right(counted_cash_members, len(counted_cash_members) - 2)
-    If included_cash_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members on CASH grant: " & included_cash_members)
-    If counted_cash_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members with income counted ONLY for CASH: " & counted_cash_members)
-End If
-If EMER_checkbox = checked Then
-    adult_emer_count = adult_emer_count * 1
-    child_emer_count = child_emer_count * 1
-    total_emer_count = adult_emer_count + child_emer_count
-    Call write_variable_in_CASE_NOTE("* EMER unit consists of " & total_emer_count & " people - " & adult_emer_count & " adults and " & child_emer_count & " children.")
-    For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
-        If ALL_MEMBERS_ARRAY(include_emer_checkbox, each_member) = checked Then
-            included_emer_members = included_emer_members & ", M" & ALL_MEMBERS_ARRAY(memb_numb, each_member)
-        Else
-            If ALL_MEMBERS_ARRAY(count_emer_checkbox, each_member) = checked Then counted_emer_members = counted_emer_members & ", M" & ALL_MEMBERS_ARRAY(memb_numb, each_member)
-        End If
-    Next
-    If included_emer_members <> "" Then included_emer_members = right(included_emer_members, len(included_emer_members) - 2)
-    If counted_emer_members <> "" Then counted_emer_members = right(counted_emer_members, len(counted_emer_members) - 2)
-    Call write_variable_with_indent_in_CASE_NOTE("Members on EMER grant: " & included_emer_members)
-    Call write_variable_with_indent_in_CASE_NOTE("Members with income counted ONLY for EMER: " & counted_emer_members)
-End If
-Call write_bullet_and_variable_in_CASE_NOTE("Relationships", relationship_detail)
-
-'Address Detail
-If address_confirmation_checkbox = checked Then Call write_variable_in_CASE_NOTE("* The address on ADDR was reviewed and is correct.")
-If homeless_yn = "Yes" Then Call write_variable_in_CASE_NOTE("* Houeshld is homeless.")
-Call write_bullet_and_variable_in_CASE_NOTE("Living Situation", living_situation)
-Call write_bullet_and_variable_in_CASE_NOTE("Address Detail", notes_on_address)
-
-'DISQ
-Call write_bullet_and_variable_in_CASE_NOTE("DISQ", DISQ)
 
 'INCOME
+Call write_variable_in_CASE_NOTE("===== INCOME =====")
 'JOBS
 If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) <> "" Then
     ' Call write_variable_with_indent(variable_name)
@@ -3928,45 +4180,80 @@ Call write_bullet_and_variable_in_CASE_NOTE("JOBS", notes_on_jobs)
 If ALL_BUSI_PANELS_ARRAY(memb_numb, 0) <> "" Then
     Call write_variable_in_CASE_NOTE("--- BUSI Income ---")
     For each_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
-        busi_det_msg = "* Self Employment for Memb " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " type of business - " & right(ALL_BUSI_PANELS_ARRAY(busi_type, each_busi), len(ALL_BUSI_PANELS_ARRAY(busi_type, each_busi)) - 4) & "."
-        If ALL_BUSI_PANELS_ARRAY(busi_desc, each_busi) <> "" Then busi_det_msg = busi_det_msg & " Description: " & ALL_BUSI_PANELS_ARRAY(busi_desc, each_busi) & "."
-        If ALL_BUSI_PANELS_ARRAY(busi_structure, each_busi) <> "Select or Type" and ALL_BUSI_PANELS_ARRAY(busi_structure, each_busi) <> "" Then busi_det_msg = busi_det_msg & " Business structure: " & ALL_BUSI_PANELS_ARRAY(busi_structure, each_busi) & "."
-        If ALL_BUSI_PANELS_ARRAY(share_denom, each_busi) <> "" Then busi_det_msg = busi_det_msg & " Clt owns " & ALL_BUSI_PANELS_ARRAY(share_num, each_busi) & "/" & ALL_BUSI_PANELS_ARRAY(share_denom, each_busi) & " of the business."
-        If ALL_BUSI_PANELS_ARRAY(partners_in_HH, each_busi) <> "" Then busi_det_msg = busi_det_msg & " Business also owned by Memb(s) " & ALL_BUSI_PANELS_ARRAY(partners_in_HH, each_busi) & "."
+        busi_det_msg = "Self Employment for Memb " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " - BUSI type:" & right(ALL_BUSI_PANELS_ARRAY(busi_type, each_busi), len(ALL_BUSI_PANELS_ARRAY(busi_type, each_busi)) - 4) & "."
         Call write_variable_in_CASE_NOTE(busi_det_msg)
 
+        If ALL_BUSI_PANELS_ARRAY(busi_desc, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Description: " & ALL_BUSI_PANELS_ARRAY(busi_desc, each_busi) & ".")
+        If ALL_BUSI_PANELS_ARRAY(busi_structure, each_busi) <> "Select or Type" and ALL_BUSI_PANELS_ARRAY(busi_structure, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Business structure: " & ALL_BUSI_PANELS_ARRAY(busi_structure, each_busi) & ".")
+        If ALL_BUSI_PANELS_ARRAY(share_denom, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Clt owns " & ALL_BUSI_PANELS_ARRAY(share_num, each_busi) & "/" & ALL_BUSI_PANELS_ARRAY(share_denom, each_busi) & " of the business.")
+        If ALL_BUSI_PANELS_ARRAY(partners_in_HH, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Business also owned by Memb(s) " & ALL_BUSI_PANELS_ARRAY(partners_in_HH, each_busi) & ".")
+
         se_method_det_msg = "* Self Employment Budgeting method selected: " & ALL_BUSI_PANELS_ARRAY(calc_method, each_busi) & "."
-        If ALL_BUSI_PANELS_ARRAY(mthd_date, each_busi) <> "" Then se_method_det_msg = se_method_det_msg & " Method selected on: " & ALL_BUSI_PANELS_ARRAY(mthd_date, each_busi) & "."
-        If ALL_BUSI_PANELS_ARRAY(method_convo_checkbox, each_busi) = checked Then se_method_det_msg = se_method_det_msg & " The self employment mthod selected was discussed with the client."
         Call write_variable_in_CASE_NOTE(se_method_det_msg)
+        If ALL_BUSI_PANELS_ARRAY(mthd_date, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Method selected on: " & ALL_BUSI_PANELS_ARRAY(mthd_date, each_busi) & ".")
+        If ALL_BUSI_PANELS_ARRAY(method_convo_checkbox, each_busi) = checked Then Call write_variable_with_indent_in_CASE_NOTE("The self employment method selected was discussed with the client.")
 
         If cash_checkbox = checked OR EMER_checkbox = checked Then
-            If ALL_BUSI_PANELS_ARRAY(income_ret_cash, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Retro Income $" & ALL_BUSI_PANELS_ARRAY(income_ret_cash, each_busi) & " Expenses $" & ALL_BUSI_PANELS_ARRAY(expense_ret_cash, each_busi))
-            If ALL_BUSI_PANELS_ARRAY(income_ret_cash, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Prospective Income $" & ALL_BUSI_PANELS_ARRAY(income_ret_cash, each_busi) & " Expenses $" & ALL_BUSI_PANELS_ARRAY(expense_ret_cash, each_busi))
-            If ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) <> "Select or Type" and ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) <> "" Then call write_variable_with_indent_in_CASE_NOTE("Cash Income verification: " & ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi))
-            If ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi) <> "Select or Type" and ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi) <> "" Then call write_variable_with_indent_in_CASE_NOTE("Cash Expense verification: " & ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi))
+            Call write_variable_in_CASE_NOTE("* Cash Income and Expense Detail:")
+            cash_income_det = ""
+            cash_expense_det = ""
+
+            If ALL_BUSI_PANELS_ARRAY(income_ret_cash, each_busi) <> "" Then
+                cash_income_det = "RETRO Income $" & ALL_BUSI_PANELS_ARRAY(income_ret_cash, each_busi) & " - "
+                cash_expense_det = "RETRO Expenses $" & ALL_BUSI_PANELS_ARRAY(expense_ret_cash, each_busi) & " - "
+            End If
+            If ALL_BUSI_PANELS_ARRAY(income_pro_cash, each_busi) <> "" Then
+                cash_income_det = cash_income_det & "PROSP Income $" & ALL_BUSI_PANELS_ARRAY(income_pro_cash, each_busi) & " - "
+                cash_expense_det = cash_expense_det & "PROSP Expenses $" & ALL_BUSI_PANELS_ARRAY(expense_pro_cash, each_busi) & " - "
+            End If
+            If ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) <> "Select or Type" and ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) <> "" Then cash_income_det = cash_income_det & "Verification: " & ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi)
+            If ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi) <> "Select or Type" and ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi) <> "" Then cash_expense_det = cash_expense_det & "Verification: " & ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi)
+
+            Call write_variable_with_indent_in_CASE_NOTE(cash_income_det)
+            Call write_variable_with_indent_in_CASE_NOTE(cash_expense_det)
         End If
         If SNAP_checkbox = checked Then
-            If ALL_BUSI_PANELS_ARRAY(income_ret_snap, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Retro Income $" & ALL_BUSI_PANELS_ARRAY(income_ret_snap, each_busi) & " Expenses $" & ALL_BUSI_PANELS_ARRAY(expense_ret_snap, each_busi))
-            If ALL_BUSI_PANELS_ARRAY(income_ret_snap, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Prospective Income $" & ALL_BUSI_PANELS_ARRAY(income_ret_snap, each_busi) & " Expenses $" & ALL_BUSI_PANELS_ARRAY(expense_ret_snap, each_busi))
-            If ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) <> "Select or Type" and ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) <> "" Then call write_variable_with_indent_in_CASE_NOTE("SNAP Income verification: " & ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi))
-            If ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi) <> "Select or Type" and ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi) <> "" Then call write_variable_with_indent_in_CASE_NOTE("SNAP Expense verification: " & ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi))
+            Call write_variable_in_CASE_NOTE("* SNAP Income and Expense Detail:")
+            snap_income_det = ""
+            snap_expense_det = ""
+
+            If ALL_BUSI_PANELS_ARRAY(income_ret_snap, each_busi) <> "" Then
+                snap_income_det = "RETRO Income $" & ALL_BUSI_PANELS_ARRAY(income_ret_snap, each_busi) & " - "
+                snap_expense_det = "RETRO Expenses $" & ALL_BUSI_PANELS_ARRAY(expense_ret_snap, each_busi) & " - "
+            End If
+            If ALL_BUSI_PANELS_ARRAY(income_pro_snap, each_busi) <> "" Then
+                snap_income_det = snap_income_det & "PROSP Income $" & ALL_BUSI_PANELS_ARRAY(income_pro_snap, each_busi) & " - "
+                snap_expense_det = snap_expense_det & "PROSP Expenses $" & ALL_BUSI_PANELS_ARRAY(expense_pro_snap, each_busi) & " - "
+            End If
+            If ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) <> "Select or Type" and ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) <> "" Then snap_income_det = snap_income_det & "Verification: " & ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi)
+            If ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi) <> "Select or Type" and ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi) <> "" Then snap_expense_det = snap_expense_det & "Verification: " & ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi)
+
+            Call write_variable_with_indent_in_CASE_NOTE(snap_income_det)
+            Call write_variable_with_indent_in_CASE_NOTE(snap_expense_det)
             If ALL_BUSI_PANELS_ARRAY(exp_not_allwd, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Expenses from taxes not allowed: " & ALL_BUSI_PANELS_ARRAY(exp_not_allwd, each_busi))
         End If
-        hours_det_msg = ""
+        rept_hours_det_msg = ""
+        min_wg_hours_det_msg = ""
+        If ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, each_busi) = "___" Then ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, each_busi) = ""
+        If ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, each_busi) = "___" Then ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, each_busi) = ""
+        If ALL_BUSI_PANELS_ARRAY(min_wg_retro_hrs, each_busi) = "___" Then ALL_BUSI_PANELS_ARRAY(min_wg_retro_hrs, each_busi) = ""
+        If ALL_BUSI_PANELS_ARRAY(min_wg_prosp_hrs, each_busi) = "___" Then ALL_BUSI_PANELS_ARRAY(min_wg_prosp_hrs, each_busi) = ""
+
         If ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, each_busi) <> "" OR ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, each_busi) <> "" Then
-            hours_det_msg = hours_det_msg & "Clt reported monthly work hours of: "
-            If ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, each_busi) <> "" Then hours_det_msg = hours_det_msg & ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, each_busi) & " retrospecive work and "
-            If ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, each_busi) <> "" Then hours_det_msg = hours_det_msg & ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, each_busi) & " prospoective work hrs"
-            hours_det_msg = hours_det_msg & ". "
+            rept_hours_det_msg = rept_hours_det_msg & "Clt reported monthly work hours of: "
+            If ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, each_busi) <> "" Then rept_hours_det_msg = rept_hours_det_msg & ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, each_busi) & " retrospecive work and "
+            If ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, each_busi) <> "" Then rept_hours_det_msg = rept_hours_det_msg & ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, each_busi) & " prospoective work hrs"
+            rept_hours_det_msg = rept_hours_det_msg & ". "
         End If
         If ALL_BUSI_PANELS_ARRAY(min_wg_retro_hrs, each_busi) <> "" OR ALL_BUSI_PANELS_ARRAY(min_wg_prosp_hrs, each_busi) <> "" Then
-            hours_det_msg = hours_det_msg & "Work earnings indicate Minumun Wage Hours of: "
-            If ALL_BUSI_PANELS_ARRAY(min_wg_retro_hrs, each_busi) <> "" Then hours_det_msg = hours_det_msg & ALL_BUSI_PANELS_ARRAY(min_wg_retro_hrs, each_busi) & " retrospective and "
-            If ALL_BUSI_PANELS_ARRAY(min_wg_prosp_hrs, each_busi) <> "" Then hours_det_msg = hours_det_msg & ALL_BUSI_PANELS_ARRAY(min_wg_prosp_hrs, each_busi) & " prospective"
-            hours_det_msg = hours_det_msg & ". "
+            min_wg_hours_det_msg = min_wg_hours_det_msg & "Work earnings indicate Minumun Wage Hours of: "
+            If ALL_BUSI_PANELS_ARRAY(min_wg_retro_hrs, each_busi) <> "" Then min_wg_hours_det_msg = min_wg_hours_det_msg & ALL_BUSI_PANELS_ARRAY(min_wg_retro_hrs, each_busi) & " retrospective and "
+            If ALL_BUSI_PANELS_ARRAY(min_wg_prosp_hrs, each_busi) <> "" Then min_wg_hours_det_msg = min_wg_hours_det_msg & ALL_BUSI_PANELS_ARRAY(min_wg_prosp_hrs, each_busi) & " prospective"
+            min_wg_hours_det_msg = min_wg_hours_det_msg & ". "
         End If
-        If ALL_BUSI_PANELS_ARRAY(verif_explain, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Veification Detail: " & ALL_BUSI_PANELS_ARRAY(verif_explain, each_busi))
+        If rept_hours_det_msg <> "" Then Call write_variable_in_CASE_NOTE("* " & rept_hours_det_msg)
+        If min_wg_hours_det_msg <> "" Then Call write_variable_in_CASE_NOTE("* " & min_wg_hours_det_msg)
+        If ALL_BUSI_PANELS_ARRAY(verif_explain, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Verif Detail: " & ALL_BUSI_PANELS_ARRAY(verif_explain, each_busi))
         If ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Budget Detail: " & ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi))
     Next
 End If
@@ -4062,15 +4349,43 @@ Next
 Call write_bullet_and_variable_in_CASE_NOTE("Other UC Income", other_uc_income_notes)
 Call write_bullet_and_variable_in_CASE_NOTE("Unearned Income", notes_on_other_UNEA)
 
+Call write_variable_in_CASE_NOTE("===== PERSONAL =====")
+'Address Detail
+If address_confirmation_checkbox = checked Then Call write_variable_in_CASE_NOTE("* The address on ADDR was reviewed and is correct.")
+If homeless_yn = "Yes" Then Call write_variable_in_CASE_NOTE("* Houeshld is homeless.")
+Call write_bullet_and_variable_in_CASE_NOTE("Living Situation", living_situation)
+Call write_bullet_and_variable_in_CASE_NOTE("Address Detail", notes_on_address)
+
+'DISQ
+Call write_bullet_and_variable_in_CASE_NOTE("DISQ", DISQ)
+
 'WREG and ABAWD
 Call write_bullet_and_variable_in_CASE_NOTE("WREG", notes_on_wreg)
 all_abawd_notes = notes_on_abawd & notes_on_abawd_two
 Call write_bullet_and_variable_in_CASE_NOTE("ABAWD", all_abawd_notes)
 
+'MFIP-DWP information
+Call write_bullet_and_variable_in_CASE_NOTE("Time Tracking (MFIP)", notes_on_time)
+Call write_bullet_and_variable_in_CASE_NOTE("MFIP Sanction", notes_on_sanction)
+Call write_bullet_and_variable_in_CASE_NOTE("MF/DWP Employment Services", EMPS)
+If MFIP_DVD_checkbox = checked Then Call write_variable_in_CASE_NOTE("* MFIP financial orientation DVD sent to participant(s).")
+
+Call write_variable_in_CASE_NOTE("===== EXPENSES =====")
+
 'SHEL
 Call write_bullet_and_variable_in_CASE_NOTE("Shelter Expense", "$" & total_shelter_amount)
-If shelter_details <> "" Then Call write_variable_with_indent_in_CASE_NOTE(shelter_details & shelter_details_two)
 
+If InStr(full_shelter_details, "*") <> 0 Then
+    shelter_detail_array = split(full_shelter_details, "*")
+Else
+    shelter_detail_array = array(full_shelter_details)
+End If
+If full_shelter_details <> "" Then
+    For each shel_info in shelter_detail_array
+        shel_info = trim(shel_info)
+        Call write_variable_with_indent_in_CASE_NOTE(shel_info)
+    Next
+End If
 'HEST/ACUT
 Call write_bullet_and_variable_in_CASE_NOTE("Actual Utility Expenses", notes_on_acct)
 If hest_information <> "Select ALLOWED HEST" Then Call write_variable_in_CASE_NOTE("* Standard Utility expenses: " & hest_information)
@@ -4081,6 +4396,7 @@ Call write_bullet_and_variable_in_CASE_NOTE("Dependent Care Expenses", notes_on_
 Call write_bullet_and_variable_in_CASE_NOTE("Other Expenses", notes_on_other_deduction)
 Call write_bullet_and_variable_in_CASE_NOTE("Expense Detail", expense_notes)
 
+Call write_variable_in_CASE_NOTE("===== RESOURCES =====")
 'Assets
 Call write_bullet_and_variable_in_CASE_NOTE("Accounts", notes_on_acct)
 Call write_bullet_and_variable_in_CASE_NOTE("Cash", notes_on_cash)
@@ -4093,12 +4409,7 @@ Call write_bullet_and_variable_in_CASE_NOTE("Medicare", MEDI)
 Call write_bullet_and_variable_in_CASE_NOTE("Diet", DIET)
 Call write_bullet_and_variable_in_CASE_NOTE("FS Medical Expenses", FMED)
 
-'MFIP-DWP information
-Call write_bullet_and_variable_in_CASE_NOTE("Time Tracking (MFIP)", notes_on_time)
-Call write_bullet_and_variable_in_CASE_NOTE("MFIP Sanction", notes_on_sanction)
-Call write_bullet_and_variable_in_CASE_NOTE("MF/DWP Employment Services", EMPS)
-If MFIP_DVD_checkbox = checked Then Call write_variable_in_CASE_NOTE("* MFIP financial orientation DVD sent to participant(s).")
-
+Call write_variable_in_CASE_NOTE("===== Case Information =====")
 'Next review
 If trim(next_er_month) <> "" Then Call write_bullet_and_variable_in_CASE_NOTE("Next ER", next_er_month & "/" & next_er_year)
 
@@ -4114,12 +4425,6 @@ IF WF1_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Workforce ref
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent form(s) to AREP.")
 IF intake_packet_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Client received intake packet.")
 IF IAA_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* IAAs/OMB given to client.")
-
-IF recert_period_checkbox = checked THEN call write_variable_in_CASE_NOTE("* Informed client of recert period.")
-IF R_R_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Rights and Responsibilities explained to client.")
-IF E_and_T_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Client requests to participate with E&T.")
-If elig_req_explained_checkbox Then CALL write_variable_in_CASE_NOTE("* Explained eligbility requirements to client.")
-If benefit_payment_explained_checkbox Then CALL write_variable_in_CASE_NOTE("* Benefits and Payment information explained to client")
 
 IF client_delay_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* PND2 updated to show client delay.")
 If TIKL_checkbox Then CALL write_variable_in_CASE_NOTE("* TIKL set to take action on " & DateAdd("d", 30, CAF_datestamp))
