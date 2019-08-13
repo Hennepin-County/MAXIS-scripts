@@ -245,7 +245,7 @@ IF dail_check = "DAIL" THEN
 END IF
 IF dail_check <> "DAIL" or IEVS_type <> "WAGE" or IEVS_type <> "BEER" or IEVS_type <> "UBEN" or IEVS_type <> "UNVI" THEN
  	CALL MAXIS_case_number_finder (MAXIS_case_number)
-    MEMB_number = "01"
+    'MEMB_number = "01"
     BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
       EditBox 60, 5, 65, 15, MAXIS_case_number
       EditBox 60, 25, 30, 15, MEMB_number
