@@ -65,69 +65,42 @@ changelog_display
 
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-'----------------------------------------------------------------------------------------------------DAIL
-'EMReadscreen dail_check, 4, 2, 48 'changed from DAIL to view to ensure we are in DAIL/DAIL'
-'IF dail_check = "DAIL" THEN
-'	EMSendKey "t"
-'    EMReadScreen match_type, 4, 6, 6 'read the DAIL msg'
-'	'msgbox match_type
-'    IF match_type = "WAGE" or match_type = "BEER" or match_type = "UBEN" or match_type = "UNVI" THEN
-'    	match_found = TRUE
-'    ELSE
-'		match_found = FALSE
-'		'script_end_procedure("This is not an supported match currently. Please select a WAGE match DAIL, and run the script again.")
-'    END IF
-'	IF match_found = TRUE THEN
-'    	EMReadScreen MAXIS_case_number, 8, 5, 73
-'		MAXIS_case_number= TRIM(MAXIS_case_number)
-'		EMReadscreen SSN_number_read, 9, 6, 20
-'
-'		 '----------------------------------------------------------------------------------------------------IEVP
-'		'Navigating deeper into the match interface
-'		CALL write_value_and_transmit("I", 6, 3)   		'navigates to INFC
-'		CALL write_value_and_transmit("IEVP", 20, 71)   'navigates to IEVP
-'		TRANSMIT
-'	    'EMReadScreen err_msg, 7, 24, 2
-'	    'IF err_msg = "NO IEVS" THEN script_end_procedure_with_error_report("An error occurred in IEVP, please process manually.")'checking for error msg'
-'	END IF
-'END IF
+CALL MAXIS_case_number_finder (MAXIS_case_number)
 
-'IF dail_check <> "DAIL" or match_found = FALSE THEN
-    CALL MAXIS_case_number_finder (MAXIS_case_number)
-    'MEMB_number = "01"
-    BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
-      EditBox 60, 5, 65, 15, MAXIS_case_number
-      EditBox 60, 25, 30, 15, MEMB_number
-      ButtonGroup ButtonPressed
-        OkButton 20, 45, 50, 15
-        CancelButton 75, 45, 50, 15
-      Text 5, 30, 55, 10, "MEMB Number:"
-      Text 5, 10, 50, 10, "Case Number:"
-    EndDialog
-    DO
-    	DO
-    		err_msg = ""
-    		Dialog case_number_dialog
-    		IF ButtonPressed = 0 THEN StopScript
-      		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-      		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
-    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-    	LOOP UNTIL err_msg = ""
-    	CALL check_for_password(are_we_passworded_out)
-    LOOP UNTIL are_we_passworded_out = false
-    CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-    EMwritescreen MEMB_number, 20, 76
-    TRANSMIT
-    EMReadscreen SSN_number_read, 11, 7, 42
-    SSN_number_read = replace(SSN_number_read, " ", "")
-	CALL navigate_to_MAXIS_screen("INFC" , "____")
-	CALL write_value_and_transmit("IEVP", 20, 71)
-	CALL write_value_and_transmit(SSN_number_read, 3, 63)
-	EmReadscreen err_msg, 50, 24, 02
-	err_msg = trim(err_msg)
-	'NO IEVS MATCHES FOUND FOR SSN'
-	If err_msg <> "" THEN script_end_procedure_with_error_report("*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine)
-'END IF
+BeginDialog case_number_dialog, 0, 0, 131, 65, "Case Number to clear match"
+  EditBox 60, 5, 65, 15, MAXIS_case_number
+  EditBox 60, 25, 30, 15, MEMB_number
+  ButtonGroup ButtonPressed
+    OkButton 20, 45, 50, 15
+    CancelButton 75, 45, 50, 15
+  Text 5, 30, 55, 10, "MEMB Number:"
+  Text 5, 10, 50, 10, "Case Number:"
+EndDialog
+
+DO
+	DO
+		err_msg = ""
+		Dialog case_number_dialog
+		IF ButtonPressed = 0 THEN StopScript
+  		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+  		If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP UNTIL err_msg = ""
+	CALL check_for_password(are_we_passworded_out)
+LOOP UNTIL are_we_passworded_out = false
+CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+EMwritescreen MEMB_number, 20, 76
+TRANSMIT
+EMReadscreen SSN_number_read, 11, 7, 42
+SSN_number_read = replace(SSN_number_read, " ", "")
+CALL navigate_to_MAXIS_screen("INFC" , "____")
+CALL write_value_and_transmit("IEVP", 20, 71)
+CALL write_value_and_transmit(SSN_number_read, 3, 63)
+EmReadscreen err_msg, 50, 24, 02
+err_msg = trim(err_msg)
+'NO IEVS MATCHES FOUND FOR SSN'
+If err_msg <> "" THEN script_end_procedure_with_error_report("*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine)
+
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 7
 DO
@@ -149,8 +122,7 @@ DO
 	IF ievp_info_confirmation = vbCancel THEN script_end_procedure_with_error_report ("The script has ended. The match has not been acted on.")
 	IF ievp_info_confirmation = vbYes THEN 	EXIT DO
 LOOP UNTIL ievp_info_confirmation = vbYes
-
-''---------------------------------------------------------------------Reading potential errors for out-of-county cases
+'---------------------------------------------------------------------Reading potential errors for out-of-county cases
 CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" then
@@ -205,7 +177,6 @@ END IF
 '----------------------------------------------------------------------------------------------------ACTIVE PROGRAMS
 EMReadScreen Active_Programs, 13, 6, 68
 Active_Programs = trim(Active_Programs)
-
 programs = ""
 IF instr(Active_Programs, "D") THEN programs = programs & "DWP, "
 IF instr(Active_Programs, "F") THEN programs = programs & "Food Support, "
@@ -216,7 +187,6 @@ IF instr(Active_Programs, "S") THEN programs = programs & "MFIP, "
 programs = trim(programs)
 'takes the last comma off of programs when autofilled into dialog
 IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
-
 '----------------------------------------------------------------------------------------------------Employer info & difference notice info
 IF match_type = "UBEN" THEN income_source = "Unemployment"
 IF match_type = "UNVI" THEN income_source = "NON-WAGE"
@@ -247,13 +217,13 @@ IF match_type = "BEER" THEN
 	END IF
 END IF
 
-
 '----------------------------------------------------------------------------------------------------notice sent
 EMReadScreen notice_sent, 1, 14, 37
 EMReadScreen sent_date, 8, 14, 68
 sent_date = trim(sent_date)
 'IF sent_date = "" THEN sent_date = replace(sent_date, " ", "/")
 IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
+
 '----------------------------------------------------------------------------dialogs
 BeginDialog notice_action_dialog, 0, 0, 166, 90, "SEND DIFFERENCE NOTICE?"
 	CheckBox 25, 35, 105, 10, "YES - Send Difference Notice", send_notice_checkbox
