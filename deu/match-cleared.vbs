@@ -441,7 +441,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
       ButtonGroup ButtonPressed
         OkButton 215, 185, 45, 15
         CancelButton 265, 185, 45, 15
-      CheckBox 10, 105, 115, 10, "Check here if 10 day has passed", TIKL_checkbox
+      CheckBox 10, 110, 115, 10, "Check here if 10 day has passed", TIKL_checkbox
       Text 5, 10, 50, 10, "Case number: "
       Text 110, 10, 50, 10, "MEMB number:"
       Text 200, 10, 40, 10, "Match Type: "
@@ -723,7 +723,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		    Call navigate_to_MAXIS_screen("DAIL", "WRIT")
 	  	    CALL create_MAXIS_friendly_date(date, 10, 5, 18)
 	 	    IF resolution_status = "NC Non Cooperation" THEN CALL write_variable_in_TIKL("CLOSE FOR NON-COOP, CREATE DISQ(S) FOR " & first_name)
-			'ELSE	
+			'ELSE
 			'	CALL write_variable_in_TIKL("CLOSE FOR NON-COOP, CREATE DISQ(S) FOR " & first_name)
 			'END IF
 	 	    PF3		'Exits and saves TIKL
