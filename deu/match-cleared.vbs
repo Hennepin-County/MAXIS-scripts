@@ -431,7 +431,8 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
       CheckBox 205, 55, 90, 10, "Employment verification", empl_verf_checkbox
       CheckBox 205, 65, 70, 10, "School verification", school_verf_checkbox
       CheckBox 205, 75, 80, 10, "Other (please specify)", other_checkbox
-      DropListBox 70, 45, 115, 15, "Select One:"+chr(9)+"CB Ovrpmt And Future Save"+chr(9)+"CC Ovrpmt Only"+chr(9)+"CF Future Save"+chr(9)+"CA Excess Assets"+chr(9)+"CI Benefit Increase"+chr(9)+"CP Applicant Only Savings"+chr(9)+"BC Case Closed"+chr(9)+"BE Child"+chr(9)+"BE No Change"+chr(9)+"BE NC Non-collectible"+chr(9)+"BE OP Entered"+chr(9)+"BN Already Knew No Savings"+chr(9)+"BI Interface Prob"+chr(9)+"BP Wrong Person"+chr(9)+"BU Unable To Verify"+chr(9)+"BO Other"+chr(9)+"NC Non Cooperation", resolution_status
+      DropListBox 70, 45, 115, 15, "Select One:"+chr(9)+"CB Ovrpmt And Future Save"+chr(9)+"CC Ovrpmt Only"+chr(9)+"CF Future Save"+chr(9)+"CA Excess Assets"+chr(9)+"CI Benefit Increase"+chr(9)+"CP Applicant Only Savings"+chr(9)+"BC Case Closed"+chr(9)+"BE Child"+chr(9)+"BE No Change"+chr(9)+"BE NC Non-collectible"+chr(9)+"BE OP Entered"+chr(9)+"BN Already Knew No Savings"+chr(9)+"BI Interface Prob"+chr(9)+"BP Wrong Person"+chr(9)+"BU Unable To Verify"+chr(9)+"BO Other"+chr(9)+
+	  "NC Non Cooperation", resolution_status
       DropListBox 120, 65, 65, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"N/A", change_response
       DropListBox 120, 85, 65, 15, "Select One:"+chr(9)+"DISQ Deleted"+chr(9)+"Pending Verif"+chr(9)+"No"+chr(9)+"N/A", DISQ_action
       EditBox 270, 95, 40, 15, date_received
