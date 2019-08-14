@@ -394,7 +394,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
     BeginDialog cleared_match_dialog, 0, 0, 316, 205, "MATCH CLEARED"
       EditBox 55, 5, 40, 15, MAXIS_case_number
       EditBox 165, 5, 20, 15, MEMB_number
-      DropListBox 250, 5, 60, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"BNDX"+chr(9)+"SDXS/ SDXI"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", match_type
+      DropListBox 250, 5, 60, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"BNDX"+chr(9)+"SDXS/SDXI"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", match_type
       DropListBox 55, 25, 40, 15, "Select One:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"N/A", select_quarter
       EditBox 165, 25, 20, 15, resolve_time
       CheckBox 205, 35, 90, 10, "Authorization to release", ATR_Verf_CheckBox
