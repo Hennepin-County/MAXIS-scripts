@@ -442,7 +442,6 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
         OkButton 215, 185, 45, 15
         CancelButton 265, 185, 45, 15
       CheckBox 10, 105, 115, 10, "Check here if 10 day has passed", TIKL_checkbox
-      'CheckBox 10, 120, 175, 10, "Check to add claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
       Text 5, 10, 50, 10, "Case number: "
       Text 110, 10, 50, 10, "MEMB number:"
       Text 200, 10, 40, 10, "Match Type: "
@@ -651,7 +650,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		EMWriteScreen MISC_action_taken, Row, 30
 		EMWriteScreen date, Row, 66
         TRANSMIT
-        'The case note-------------------------------------------------------------------------------------------------
+        '-------------------------------------------------------------------------------------------------The case note
         start_a_blank_case_note
         Call write_variable_in_case_note("-----Claim Referral Tracking - Initial Claim Referral-----")
 	    Call write_bullet_and_variable_in_case_note("Action Date", action_date)
@@ -681,7 +680,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		IF resolution_status = "CF Future Save" THEN CALL write_variable_in_case_note("* Future Savings.")
 		IF resolution_status = "CA Excess Assets" THEN CALL write_variable_in_case_note("* Excess Assets.")
 		IF resolution_status = "CI Benefit Increase" THEN CALL write_variable_in_case_note("* Benefit Increase.")
-		IF resolution_status = "CP Applicant Only Savings" THEN CALL write_variable_in_case_note("* pplicant Only Savings.")
+		IF resolution_status = "CP Applicant Only Savings" THEN CALL write_variable_in_case_note("* Applicant Only Savings.")
 		IF resolution_status = "BC Case Closed" THEN CALL write_variable_in_case_note("* Case closed.")
 		IF resolution_status = "BE Child" THEN
 			CALL write_variable_in_case_note("* Income is excluded for minor child in school.")
@@ -695,7 +694,6 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		IF resolution_status = "BP Wrong Person" THEN CALL write_variable_in_case_note("* Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
 		IF resolution_status = "BU Unable To Verify" THEN CALL write_variable_in_case_note("* Unable to verify, due to:")
 		IF resolution_status = "BO Other" THEN CALL write_variable_in_case_note("* HC Claim entered.")
-
   		IF change_response <> "N/A" THEN CALL write_bullet_and_variable_in_case_note("Responded to Difference Notice", change_response)
   		CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
   		CALL write_variable_in_case_note("----- ----- ----- ----- -----")
@@ -721,12 +719,16 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		PF3
 
 		''-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-		Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-	  	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
-	 	CALL write_variable_in_TIKL("CLOSE FOR NON-COOP, CREATE DISQ(S) FOR " & first_name)
-	 	PF3		'Exits and saves TIKL
-		'script_end_procedure("Success! Updated match, and a TIKL created.")
-		script_end_procedure_with_error_report("Success! Updated match, and a TIKL created.")
+		IF TIKL_checkbox = CHECKED THEN
+		    Call navigate_to_MAXIS_screen("DAIL", "WRIT")
+	  	    CALL create_MAXIS_friendly_date(date, 10, 5, 18)
+	 	    IF resolution_status = "NC Non Cooperation" THEN CALL write_variable_in_TIKL("CLOSE FOR NON-COOP, CREATE DISQ(S) FOR " & first_name)
+			'ELSE	
+			'	CALL write_variable_in_TIKL("CLOSE FOR NON-COOP, CREATE DISQ(S) FOR " & first_name)
+			'END IF
+	 	    PF3		'Exits and saves TIKL
+			script_end_procedure_with_error_report("Success! Updated match, and a TIKL created.")
+		END IF
 	END IF
 	script_end_procedure_with_error_report("Match has been acted on. Please take any additional action needed for your case.")
 END IF
