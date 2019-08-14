@@ -195,7 +195,7 @@ IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 EMReadScreen notice_sent, 1, 14, 37
 EMReadScreen sent_date, 8, 14, 68
 sent_date = trim(sent_date)
-IF sent_date = "" THEN sent_date = replace(sent_date, " ", "N/A")
+'IF sent_date = "" THEN sent_date = replace(sent_date, " ", "/")
 IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
 
 '----------------------------------------------------------------------------dialogs
@@ -222,22 +222,22 @@ BeginDialog send_notice_dialog, 0, 0, 296, 160, "WAGE MATCH SEND DIFFERENCE NOTI
   Text 10, 20, 110, 10, "Case number: "  & MAXIS_case_number
   Text 120, 20, 165, 10, "Client name: "  & client_name
   Text 10, 40, 105, 10, "Active Programs: "  & programs
-  Text 120, 40, 165, 15, "Income source: "   & source_income
-  Text 5, 125, 40, 10, "Other notes: "
+  Text 120, 40, 165, 15, "Income source: "   & income_source
+  Text 5, 125, 40, 10, "Other notes:"
+  CheckBox 5, 145, 180, 10, "Check to add claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
 EndDialog
 
 IF notice_sent = "N" THEN
 	DO
 	 	  err_msg = ""
       Dialog notice_action_dialog
-      cancel_confirmation
-      IF (send_notice_checkbox = UNCHECKED AND clear_action_checkbox = UNCHECKED) THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
-      IF (send_notice_checkbox = CHECKED AND clear_action_checkbox = CHECKED) THEN err_msg = err_msg & vbNewLine & "* Please select only one answer to continue."
+    	IF ButtonPressed = 0 THEN StopScript
+    	IF send_notice_checkbox = UNCHECKED AND clear_action_checkbox = UNCHECKED THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
+    	IF send_notice_checkbox = CHECKED AND clear_action_checkbox = CHECKED THEN err_msg = err_msg & vbNewLine & "* Please select only one answer to continue."
       IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 END IF
-
-CALL DEU_password_check(False)
+CALL check_for_password_without_transmit(are_we_passworded_out)
 
 IF send_notice_checkbox = CHECKED THEN
 '----------------------------------------------------------------Defaulting checkboxes to being checked (per DEU instruction)
@@ -251,8 +251,7 @@ IF send_notice_checkbox = CHECKED THEN
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please specify what other is to continue."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
-	CALL DEU_password_check(False)
-
+    CALL check_for_password_without_transmit(are_we_passworded_out)
 	'--------------------------------------------------------------------sending the notice in IULA
 	EMwritescreen "005", 12, 46 'writing the resolve time to read for later
 	EMwritescreen "Y", 14, 37 'send Notice
