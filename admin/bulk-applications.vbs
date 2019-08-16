@@ -1640,7 +1640,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                 'IDEA - add some additional error notes or information to Denial Needed to the script for cases that are at or over day 30
                 IF ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) <> "" then    'confirming a NOMI was sent
                     day_30 = dateadd("d", 30, ALL_PENDING_CASES_ARRAY(application_date, case_entry))
-					IF isdate(ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = FALSE THEN MsgBox "STOP take screen shot and contact MiKayla or Casey" & vbcr & ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
+					IF isdate(ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)) = FALSE THEN MsgBox ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
                     IF datediff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), date) >= 10 or datediff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), day_30) > 0 THEN      'cases are either at day 30 or 10 days from when the NOMI was sent
                     'MsgBox datediff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), date)
                         Call navigate_to_MAXIS_screen("REPT", "PND2")       'looking at PND2 to confirm day 30 AND look for MSA cases - which get 60 days
