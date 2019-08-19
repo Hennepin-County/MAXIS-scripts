@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/19/2019", "Updated script so that if started from the ABAWD Tracking Record pop-up on WREG, the script will read where the cursor is placed in the tracking record and if placed on a specific month, the script will autofill that footer month.", "Casey Love, Hennepin County")
 call changelog_update("05/07/2018", "Updated universal ABWAWD function.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/25/2018", "Updated SCHL exemption coding.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/16/2018", "Updated output of potential exemptions for readability.", "Ilse Ferris, Hennepin County")
@@ -72,8 +73,57 @@ EndDialog
 'The script----------------------------------------------------------------------------------------------------
 'Connecting to MAXIS, and grabbing the case number and current footer month/year
 EMConnect ""
+
+EMReadScreen are_we_at_ABAWD_tracking_record, 21, 4, 34
+If are_we_at_ABAWD_tracking_record = "ABAWD Tracking Record" Then
+    EMGetCursor tracker_row, tracker_col
+
+    If tracker_col = 19 Then
+        MAXIS_footer_month = "01"
+    ElseIf tracker_col = 23 Then
+        MAXIS_footer_month = "02"
+    ElseIf tracker_col = 27 Then
+        MAXIS_footer_month = "03"
+    ElseIf tracker_col = 31 Then
+        MAXIS_footer_month = "04"
+    ElseIf tracker_col = 35 Then
+        MAXIS_footer_month = "05"
+    ElseIf tracker_col = 39 Then
+        MAXIS_footer_month = "06"
+    ElseIf tracker_col = 43 Then
+        MAXIS_footer_month = "07"
+    ElseIf tracker_col = 47 Then
+        MAXIS_footer_month = "08"
+    ElseIf tracker_col = 51 Then
+        MAXIS_footer_month = "09"
+    ElseIf tracker_col = 55 Then
+        MAXIS_footer_month = "10"
+    ElseIf tracker_col = 59 Then
+        MAXIS_footer_month = "11"
+    ElseIf tracker_col = 63 Then
+        MAXIS_footer_month = "12"
+    End If
+
+    If MAXIS_footer_month <> "" Then EMReadScreen MAXIS_footer_year, 2, tracker_row, 14
+
+    MX_mo = MAXIS_footer_month * 1
+    MX_yr = MAXIS_footer_year * 1
+    curr_mo = CM_plus_1_mo * 1
+    curr_yr = CM_plus_1_yr * 1
+
+    If  MX_yr > curr_yr Then
+        MAXIS_footer_month = ""
+        MAXIS_footer_year = ""
+    ElseIf MX_yr = curr_yr AND MX_mo > curr_mo Then
+        MAXIS_footer_month = ""
+        MAXIS_footer_year = ""
+    End If
+
+    PF3
+End If
+
 CALL MAXIS_case_number_finder(MAXIS_case_number)
-call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+If MAXIS_footer_month = "" Then call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 Do
 	DO
