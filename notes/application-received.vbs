@@ -135,18 +135,6 @@ Else
 End If
 If MAXIS_row = 18 Then script_end_procedure("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
 
-If limit_reached = TRUE Then
-    MAXIS_row = 7
-    Do
-        EMReadScreen PND2_case_number, 8, MAXIS_row, 5
-        if trim(PND2_case_number) = MAXIS_case_number Then Exit Do
-        MAXIS_row = MAXIS_row + 1
-    Loop until MAXIS_row = 18
-Else
-    EMGetCursor MAXIS_row, MAXIS_col
-End If
-If MAXIS_row = 18 Then script_end_procedure("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
-
 'grabs row and col number that the cursor is at
 'EMGetCursor MAXIS_row, MAXIS_col
 EMReadScreen app_month, 2, MAXIS_row, 38
