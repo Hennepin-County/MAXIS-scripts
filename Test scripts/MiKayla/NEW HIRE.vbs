@@ -49,14 +49,57 @@ changelog = array()
 call changelog_update("08/16/2019", "Initial version.", "MiKayla Handley, Hennepin County")'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+'CONNECTS TO DEFAULT SCREEN
+EMConnect ""
+match_found = FALSE
+'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
+EMReadscreen dail_check, 4, 2, 48
+If dail_check <> "DAIL" then script_end_procedure("You are not in your dail. This script will stop.")
 
+EMGetCursor dail_row, dail_col
+
+'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
+EMSendKey "t"
+TRANSMIT
+
+'The following reads the message in full for the end part (which tells the worker which message was selected)
+EMReadScreen full_message, 60, 6, 20
+full_message = trim(full_message)
+EmReadScreen MAXIS_case_number, 8, 5, 73
+MAXIS_case_number = trim(MAXIS_case_number)
+
+EMReadScreen extra_info, 1, 6, 80
+IF extra_info = "+" or extra_info = "&" THEN
+	EMSendKey "X"
+	TRANSMIT
+	'THE ENTIRE MESSAGE TEXT IS DISPLAYED'
+	EmReadScreen error_msg, 37, 24, 02
+	row = 1
+	col = 1
+	EMSearch "Case Number", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
+	'If row = 0 then script_end_procedure("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
+	EMReadScreen first_line, 61, row + 3, col - 40 'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
+		'first_line = replace(first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
+		first_line = trim(first_line)
+	EMReadScreen second_line, 61, row + 4, col - 40
+		second_line = trim(second_line)
+	EMReadScreen third_line, 61, row + 5, col - 40 'maxis name'
+		third_line = trim(third_line)
+		'third_line = replace(third_line, ",", ", ")
+	EMReadScreen fourth_line, 61, row + 6, col - 40'new hire name'
+		fourth_line = trim(fourth_line)
+		'fourth_line = replace(fourth_line, ",", ", ")
+	EMReadScreen fifth_line, 61, row + 7, col - 40'new hire name'
+		fifth_line = trim(fifth_line)
+	TRANSMIT
+END IF
 'DIALOGS----------------------------------------------------------------------------------------------
 
 BeginDialog NDNH_only_dialog, 0, 0, 236, 70, "National Directory of New Hires"
   DropListBox 150, 5, 80, 15, "Select One:"+chr(9)+"NO-RUN NEW HIRE"+chr(9)+"YES-INFC clear match", match_answer_droplist
   ButtonGroup ButtonPressed
     OkButton 125, 50, 50, 15
-    CancelButton 180, 50, 50, 15g
+    CancelButton 180, 50, 50, 15
   Text 10, 10, 140, 10, "Has this match been acted on previously?"
   Text 30, 25, 190, 20, "Reminder that client must be provided 10 days to return                             requested verification(s)"
 EndDialog
@@ -106,6 +149,16 @@ BeginDialog new_HIRE_dialog, 0, 0, 281, 205, "New HIRE dialog"
   Text 5, 10, 60, 10, "Member Number:"
   GroupBox 5, 60, 270, 85, "Verification or updates"
 EndDialog
+
+
+'TE02.08.142
+'Enter the amount of the First Month Cost Savings:
+'First-month cost savings equals the difference between the
+'monthly benefit the SNAP case would have been given in the
+'absence of employment information resulting from an NDNH
+'match, and the monthly benefit the SNAP case actually received
+'after the verified employment information was used to
+'modify benefits.
 
 'The script needs to determine what the day is in a MAXIS friendly format. The following does that.
 current_month = CM_mo
