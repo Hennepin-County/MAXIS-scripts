@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/20/2019", "Bug on the script when a large PND2 list is accessed.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("07/26/2019", "Reverted the script to not email Team 603 for METS cases. CA workers will need to manually complete the email to: field.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("07/24/2019", "Removed Mail & Fax option and added MDQ per request.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("07/22/2019", "Updated the script to automatically email Team 603 for METS cases.", "MiKayla Handley, Hennepin County")
@@ -101,6 +102,15 @@ back_to_self
 EMWriteScreen MAXIS_case_number, 18, 43
 Call navigate_to_MAXIS_screen("REPT", "PND2")
 
+limit_reached = FALSE
+row = 1
+col = 1
+EMSearch "The REPT:PND2 Display Limit Has Been Reached.", row, col
+If row <> 0 Then
+    transmit
+    limit_reached = TRUE
+End If
+
 'Ensuring that the user is in REPT/PND2
 Do
 	EMReadScreen PND2_check, 4, 2, 52
@@ -114,8 +124,20 @@ LOOP until PND2_check = "PND2"
 EMReadScreen not_pending_check, 5, 24, 2
 If not_pending_check = "CASE " THEN script_end_procedure_with_error_report("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
 
+If limit_reached = TRUE Then
+    MAXIS_row = 7
+    Do
+        EMReadScreen PND2_case_number, 8, MAXIS_row, 5
+        if trim(PND2_case_number) = MAXIS_case_number Then Exit Do
+        MAXIS_row = MAXIS_row + 1
+    Loop until MAXIS_row = 18
+Else
+    EMGetCursor MAXIS_row, MAXIS_col
+End If
+If MAXIS_row = 18 Then script_end_procedure("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
+
 'grabs row and col number that the cursor is at
-EMGetCursor MAXIS_row, MAXIS_col
+'EMGetCursor MAXIS_row, MAXIS_col
 EMReadScreen app_month, 2, MAXIS_row, 38
 EMReadScreen app_day, 2, MAXIS_row, 41
 EMReadScreen app_year, 2, MAXIS_row, 44
@@ -143,6 +165,14 @@ IF multiple_apps = vbNo then
 		application_date = additional_application_date
 	END IF
 End if
+
+EMReadScreen PEND_CASH_check,	1, MAXIS_row, 54
+EMReadScreen PEND_SNAP_check, 1, MAXIS_row, 62
+EMReadScreen PEND_HC_check, 1, MAXIS_row, 65
+EMReadScreen PEND_EMER_check,	1, MAXIS_row, 68
+EMReadScreen PEND_GRH_check, 1, MAXIS_row, 72
+
+
 
 MAXIS_footer_month = right("00" & DatePart("m", application_date), 2)
 MAXIS_footer_year = right(DatePart("yyyy", application_date), 2)
