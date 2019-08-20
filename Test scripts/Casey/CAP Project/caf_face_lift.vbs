@@ -1,5 +1,5 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "NOTES - CAF.vbs"
+name_of_script = "NOTES - CAF Testing.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 720                     'manual run time in seconds
@@ -1196,6 +1196,7 @@ function read_WREG_panel()
             transmit
             EMReadScreen wreg_total, 1, 2, 78
             IF wreg_total <> "0" THEN
+                ALL_MEMBERS_ARRAY(wreg_exists, each_member) = TRUE
                 EmWriteScreen "x", 13, 57
                 transmit
                 bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))
@@ -1251,7 +1252,8 @@ function read_WREG_panel()
                     END IF
                     month_count = month_count + 1
                 LOOP until month_count = 36
-                ALL_MEMBERS_ARRAY(numb_abawd_used, each_member) = abawd_counted_months
+                ALL_MEMBERS_ARRAY(numb_abawd_used, each_member) = abawd_counted_months & ""
+                If ALL_MEMBERS_ARRAY(numb_abawd_used, each_member) = "0" Then ALL_MEMBERS_ARRAY(numb_abawd_used, each_member) = ""
                 ALL_MEMBERS_ARRAY(list_abawd_mo, each_member) = abawd_info_list
                 ALL_MEMBERS_ARRAY(list_second_set, each_member) = second_set_info_list
                 PF3
@@ -1298,8 +1300,6 @@ function read_WREG_panel()
                 EMReadScreen read_counter, 1, 14, 50
                 If read_counter = "_" Then read_counter = 0
                 ALL_MEMBERS_ARRAY(numb_banked_mo, each_member) = read_counter * 1
-
-                variable_written_to = variable_written_to & "Member " & HH_member & "- " & WREG_status & ", " & abawd_status & "; "
             End If
         END IF
     Next
@@ -1513,6 +1513,7 @@ function update_wreg_and_abawd_notes()
     full_abawd_info = ""
     notes_on_abawd = ""
     notes_on_abawd_two = ""
+    notes_on_abawd_three = ""
     For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
         ' MsgBox "Each member - " & each_member & vbNewLine & "M" & ALL_MEMBERS_ARRAY(memb_numb, each_member) & vbNewLine & "WREG info - " & ALL_MEMBERS_ARRAY(clt_wreg_status, each_member)
         If ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member) = checked Then
@@ -1528,18 +1529,19 @@ function update_wreg_and_abawd_notes()
                 If clt_currently_is <> "" Then
                     full_abawd_info = full_abawd_info & " currently using " & clt_currently_is & " months."
                 End If
-                If ALL_MEMBERS_ARRAY(numb_abawd_used, each_member) <> "" OR trim(ALL_MEMBERS_ARRAY(list_abawd_mo, each_member)) <> "" Then full_abawd_info = full_abawd_info & " ABAWD months used: " & ALL_MEMBERS_ARRAY(numb_abawd_used, each_member) & " - " & ALL_MEMBERS_ARRAY(list_abawd_mo, each_member)
-                If trim(ALL_MEMBERS_ARRAY(first_second_set, each_member)) <> "" Then full_abawd_info = full_abawd_info & " 2nd Set used starting: " & ALL_MEMBERS_ARRAY(first_second_set, each_member)
-                If trim(ALL_MEMBERS_ARRAY(explain_no_second, each_member)) <> "" Then full_abawd_info = full_abawd_info & " 2nd Set not available due to: " & ALL_MEMBERS_ARRAY(explain_no_second, each_member)
-                If trim(ALL_MEMBERS_ARRAY(numb_banked_mo, each_member)) <> "" Then full_abawd_info = full_abawd_info & " Banked months used: " & ALL_MEMBERS_ARRAY(numb_banked_mo, each_member)
-                If trim(ALL_MEMBERS_ARRAY(clt_abawd_notes, each_member)) <> "" Then full_abawd_info = full_abawd_info & " Notes: " & ALL_MEMBERS_ARRAY(clt_abawd_notes, each_member)
+                If ALL_MEMBERS_ARRAY(pwe_checkbox, each_member) = checked Then full_abawd_info = full_abawd_info & "; M" & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " is the  SNAP PWE"
+                If ALL_MEMBERS_ARRAY(numb_abawd_used, each_member) <> "" OR trim(ALL_MEMBERS_ARRAY(list_abawd_mo, each_member)) <> "" Then full_abawd_info = full_abawd_info & "; ABAWD months used: " & ALL_MEMBERS_ARRAY(numb_abawd_used, each_member) & " - " & ALL_MEMBERS_ARRAY(list_abawd_mo, each_member)
+                If trim(ALL_MEMBERS_ARRAY(first_second_set, each_member)) <> "" Then full_abawd_info = full_abawd_info & "; 2nd Set used starting: " & ALL_MEMBERS_ARRAY(first_second_set, each_member)
+                If trim(ALL_MEMBERS_ARRAY(explain_no_second, each_member)) <> "" Then full_abawd_info = full_abawd_info & "; 2nd Set not available due to: " & ALL_MEMBERS_ARRAY(explain_no_second, each_member)
+                If trim(ALL_MEMBERS_ARRAY(numb_banked_mo, each_member)) <> "" Then full_abawd_info = full_abawd_info & "; Banked months used: " & ALL_MEMBERS_ARRAY(numb_banked_mo, each_member)
+                If trim(ALL_MEMBERS_ARRAY(clt_abawd_notes, each_member)) <> "" Then full_abawd_info = full_abawd_info & "; Notes: " & ALL_MEMBERS_ARRAY(clt_abawd_notes, each_member)
                 full_abawd_info = full_abawd_info & "; "
             End If
         End If
     Next
     if right(notes_on_wreg, 2) = "; " Then notes_on_wreg = left(notes_on_wreg, len(notes_on_wreg) - 2)
 
-    Call split_string_into_parts(full_abawd_info, notes_on_abawd, notes_on_abawd_two, "NONE", 400, 400)
+    Call split_string_into_parts(full_abawd_info, notes_on_abawd, notes_on_abawd_two, notes_on_abawd_three, 135, 135)
     ' if right(full_abawd_info, 2) = "; " Then full_abawd_info = left(full_abawd_info, len(full_abawd_info) - 2)
     ' If len(full_abawd_info) > 400 Then
     '     notes_on_abawd = left(full_abawd_info, 400)
@@ -1661,7 +1663,8 @@ const shel_retro_subsidy_amt    = 51
 const shel_retro_subsidy_verif  = 52
 const shel_prosp_subsidy_amt    = 53
 const shel_prosp_subsidy_verif  = 54
-const clt_notes                 = 55
+const wreg_exists               = 55
+const clt_notes                 = 56
 
 'FOR CS Array'
 const UNEA_type                 = 2
@@ -1725,7 +1728,7 @@ ReDim UNEA_INCOME_ARRAY(budget_notes, 0)
 'variables
 Dim EATS, row, col, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three, hest_information, addr_line_one
 Dim addr_line_two, city, state, zip, address_confirmation_checkbox, addr_county, homeless_yn, addr_verif, reservation_yn, living_situation
-Dim notes_on_address, notes_on_wreg, full_abawd_info, notes_on_busi
+Dim notes_on_address, notes_on_wreg, full_abawd_info, notes_on_busi, notes_on_abawd, notes_on_abawd_two, notes_on_abawd_three
 
 HH_memb_row = 5 'This helps the navigation buttons work!
 application_signed_checkbox = checked 'The script should default to having the application signed.
@@ -1897,6 +1900,14 @@ If CASH_on_CAF_checkbox = checked or trim(cash_other_req_detail) <> "" Then cash
 If SNAP_on_CAF_checkbox = checked or trim(snap_other_req_detail) <> "" Then SNAP_checkbox = checked
 If EMER_on_CAF_checkbox = checked or trim(emer_other_req_detail) <> "" Then EMER_checkbox = checked
 'grh_checkbox = checked
+
+Call back_to_SELF
+EMReadScreen MX_region, 12, 22, 48
+MX_region = trim(MX_region)
+If MX_region = "INQUIRY DB" Then
+    continue_in_inquiry = MsgBox("It appears you are in INQUIRY. Income information cannot be saved to STAT and a CASE/NOTE cannot be created." & vbNewLine & vbNewLine & "Do you wish to continue?", vbQuestion + vbYesNo, "Continue in Inquiry?")
+    If continue_in_inquiry = vbNo Then script_end_procedure("Script ended since it was started in Inquiry.")
+End If
 
 exp_det_case_note_found = FALSE
 MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
@@ -2412,52 +2423,115 @@ Do
                                                                 End If
                                                             ElseIf jobs_pages = 3 Then
                                                                 If loop_start = 0 Then
-
+                                                                    Text 425, y_pos, 15, 15, "1"
+                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
+                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
                                                                 ElseIf loop_start = 3 Then
-
+                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
+                                                                    Text 435, y_pos-5, 15, 15, "2"
+                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
                                                                 ElseIf loop_start = 6 Then
-
+                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
+                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
+                                                                    Text 450, y_pos-5, 15, 15, "3"
                                                                 End If
                                                             ElseIf jobs_pages = 4 Then
                                                                 If loop_start = 0 Then
-
+                                                                    Text 425, y_pos, 15, 15, "1"
+                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
+                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
+                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
                                                                 ElseIf loop_start = 3 Then
-
+                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
+                                                                    Text 435, y_pos-5, 15, 15, "2"
+                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
+                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
                                                                 ElseIf loop_start = 6 Then
-
+                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
+                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
+                                                                    Text 450, y_pos-5, 15, 15, "3"
+                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
                                                                 ElseIf loop_start = 9 Then
-
+                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
+                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
+                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
+                                                                    Text 465, y_pos-5, 15, 15, "4"
                                                                 End If
                                                             ElseIf jobs_pages = 5 Then
                                                                 If loop_start = 0 Then
-
+                                                                    Text 425, y_pos, 15, 15, "1"
+                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
+                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
+                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
+                                                                    PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
                                                                 ElseIf loop_start = 3 Then
-
+                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
+                                                                    Text 435, y_pos-5, 15, 15, "2"
+                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
+                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
+                                                                    PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
                                                                 ElseIf loop_start = 6 Then
-
+                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
+                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
+                                                                    Text 450, y_pos-5, 15, 15, "3"
+                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
+                                                                    PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
                                                                 ElseIf loop_start = 9 Then
-
+                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
+                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
+                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
+                                                                    Text 465, y_pos-5, 15, 15, "4"
+                                                                    PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
                                                                 ElseIf loop_start = 12 Then
-
+                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
+                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
+                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
+                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
+                                                                    Text 480, y_pos-5, 15, 15, "5"
                                                                 End If
                                                             ElseIf jobs_pages = 6 Then
                                                                 If loop_start = 0 Then
-                                                                    Text 425, y_pos, 15, 15, "1", jobs_page_one
+                                                                    Text 425, y_pos, 15, 15, "1"
                                                                     PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
                                                                     PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
                                                                     PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
                                                                     PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
                                                                     PushButton 495, y_pos-5, 15, 15, "6", jobs_page_six
                                                                 ElseIf loop_start = 3 Then
-
+                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
+                                                                    Text 435, y_pos-5, 15, 15, "2"
+                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
+                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
+                                                                    PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
+                                                                    PushButton 495, y_pos-5, 15, 15, "6", jobs_page_six
                                                                 ElseIf loop_start = 6 Then
-
+                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
+                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
+                                                                    Text 450, y_pos-5, 15, 15, "3"
+                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
+                                                                    PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
+                                                                    PushButton 495, y_pos-5, 15, 15, "6", jobs_page_six
                                                                 ElseIf loop_start = 9 Then
-
+                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
+                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
+                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
+                                                                    Text 465, y_pos-5, 15, 15, "4"
+                                                                    PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
+                                                                    PushButton 495, y_pos-5, 15, 15, "6", jobs_page_six
                                                                 ElseIf loop_start = 12 Then
-
+                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
+                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
+                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
+                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
+                                                                    Text 480, y_pos-5, 15, 15, "5"
+                                                                    PushButton 495, y_pos-5, 15, 15, "6", jobs_page_six
                                                                 ElseIf loop_start = 15 Then
-
+                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
+                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
+                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
+                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
+                                                                    PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
+                                                                    Text 495, y_pos-5, 15, 15, "6"
                                                                 End If
                                                             End If
                                                         End If
@@ -2473,14 +2547,14 @@ Do
                                                     If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
                                                     If each_job >= UBound(ALL_JOBS_PANELS_ARRAY, 2) Then last_job_reviewed = TRUE
 
-                                                    each_job = loop_start
-                                                    Do
-                                                        'jobs_err_msg'
-                                                        'IF THERE IS AN EI CASE NOTE - DON'T WORRY ABOUT MUCH ERR HANDLING
-                                                        if each_job = job_limit Then Exit Do
-                                                        each_job = each_job + 1
-                                                    Loop until each_job = UBound(ALL_JOBS_PANELS_ARRAY, 2)
-
+                                                    ' each_job = loop_start
+                                                    ' Do
+                                                    '     'jobs_err_msg'
+                                                    '     'IF THERE IS AN EI CASE NOTE - DON'T WORRY ABOUT MUCH ERR HANDLING
+                                                    '     if each_job = job_limit Then Exit Do
+                                                    '     each_job = each_job + 1
+                                                    ' Loop until each_job = UBound(ALL_JOBS_PANELS_ARRAY, 2)
+                                                    '
 
                                                     Call assess_button_pressed
                                                     If tab_button = TRUE Then last_job_reviewed = TRUE
@@ -2712,7 +2786,8 @@ Do
                                 If SNAP_checkbox = checked Then group_len = group_len + 40
                                 For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
                                     If UNEA_INCOME_ARRAY(CS_exists, each_unea_memb) = TRUE Then
-                                        dlg_four_len = dlg_four_len + 110
+                                        dlg_four_len = dlg_four_len + 70
+                                        If SNAP_checkbox = checked Then dlg_four_len = dlg_four_len + 40
                                         show_cses_detail = TRUE
                                     End If
                                 Next
@@ -2762,11 +2837,11 @@ Do
                                               End If
                                           End If
                                       Next
-                                      y_pos = y_pos + 20
+                                      y_pos = y_pos + 5
                                   End If
                                   Text 10, y_pos, 60, 10, "Other CSES Detail:"
                                   EditBox 75, y_pos - 5, 375, 15, notes_on_cses
-                                  y_pos = y_pos + 30
+                                  y_pos = y_pos + 25
                                   ButtonGroup ButtonPressed
                                     PushButton 15, y_pos, 45, 10, "1 - Personal", dlg_one_button
                                     PushButton 65, y_pos, 35, 10, "2 - JOBS", dlg_two_button
@@ -2874,7 +2949,7 @@ Do
                             End If
                         Loop Until pass_four = true
                         If show_five = true Then
-                            dlg_five_len = 180
+                            dlg_five_len = 170
                             ssa_group_len = 30
                             uc_group_len = 40
                             For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
@@ -2963,7 +3038,7 @@ Do
                               y_pos = y_pos + 25
                               Text 10, y_pos, 45, 10, "Other UNEA:"
                               EditBox 55, y_pos - 5, 405, 15, notes_on_other_UNEA
-                              y_pos = y_pos + 30
+                              y_pos = y_pos + 25
                               ButtonGroup ButtonPressed
                                 PushButton 15, y_pos, 45, 10, "1 - Personal", dlg_one_button
                                 PushButton 65, y_pos, 35, 10, "2 - JOBS", dlg_two_button
@@ -3039,7 +3114,7 @@ Do
                         BeginDialog Dialog1, 0, 0, 556, 290, "CAF Dialog 6 - WREG, Expenses, Address"
                           EditBox 40, 50, 505, 15, notes_on_wreg
                           ButtonGroup ButtonPressed
-                            PushButton 480, 30, 65, 15, "Update ABAWD", abawd_button
+                            PushButton 440, 30, 105, 15, "Update ABAWD and WREG", abawd_button
                             PushButton 235, 85, 50, 15, "Update SHEL", update_shel_button
                           DropListBox 45, 140, 100, 45, "Select ALLOWED HEST"+chr(9)+"AC/Heat - Full $493"+chr(9)+"Electric and Phone - $173"+chr(9)+"Electric ONLY - $126"+chr(9)+"Phone ONLY - $47"+chr(9)+"NONE - $0", hest_information
                           EditBox 180, 140, 110, 15, notes_on_acut
@@ -3061,9 +3136,10 @@ Do
                           ' EditBox 110, 295, 435, 15, notes_on_other_assets
                           EditBox 55, 245, 495, 15, verifs_needed
                           GroupBox 5, 5, 545, 65, "WREG and ABAWD Information"
-                          Text 15, 20, 55, 10, "ABAWD Details:"
-                          Text 75, 20, 470, 10, notes_on_abawd
-                          Text 15, 35, 330, 10, notes_on_abawd_two
+                          Text 15, 15, 55, 10, "ABAWD Details:"
+                          Text 75, 15, 470, 10, notes_on_abawd
+                          Text 15, 25, 400, 10, notes_on_abawd_two
+                          Text 15, 35, 400, 10, notes_on_abawd_three
                           GroupBox 5, 75, 290, 165, "Expenses and Deductions"
                           Text 15, 90, 50, 10, "Total Shelter:"
                           Text 70, 90, 155, 10, total_shelter_amount
@@ -3137,16 +3213,17 @@ Do
                                 notes_on_wreg = ""
                                 notes_on_abawd = ""
                                 notes_on_abawd_two = ""
+                                notes_on_abawd_three = ""
                                 dlg_len = 40
                                 For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
-                                  If ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member) = checked Then
+                                  If ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member) = checked AND ALL_MEMBERS_ARRAY(wreg_exists, each_member) = TRUE Then
                                     dlg_len = dlg_len + 95
                                   End If
                                 Next
                                 y_pos = 10
                                 BeginDialog Dialog1, 0, 0, 551, dlg_len, "ABAWD Detail"
                                   For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
-                                    If ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member) = checked Then
+                                    If ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member) = checked AND ALL_MEMBERS_ARRAY(wreg_exists, each_member) = TRUE Then
                                       GroupBox 5, y_pos, 540, 95, "Member " & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " - " & ALL_MEMBERS_ARRAY(clt_name, each_member)
                                       y_pos = y_pos + 20
                                       Text 15, y_pos, 70, 10, "FSET WREG Status:"
@@ -3182,6 +3259,7 @@ Do
                                 Dialog Dialog1
 
                                 If ButtonPressed = -1 Then ButtonPressed = return_button
+                                If ButtonPressed = 0 Then ButtonPressed = return_button
 
                                 call update_wreg_and_abawd_notes
                                 If ButtonPressed = return_button Then ButtonPressed = dlg_six_button
@@ -3194,6 +3272,7 @@ Do
                             For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
                                 If ALL_MEMBERS_ARRAY(shel_exists, each_member) = TRUE Then
                                     shel_client = each_member
+                                    Exit For
                                 End If
                             Next
                             If shel_client <> "" Then clt_shel_is_for = ALL_MEMBERS_ARRAY(full_clt, shel_client)
@@ -3308,7 +3387,7 @@ Do
                                 If ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt, shel_client) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt, shel_client)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Retro Subsidy Amount."
                                 If ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, shel_client) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, shel_client)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Prospective Subsidy Amount."
 
-                                If button_pressed = load_button Then shel_err_msg = "LOOP" & shel_err_msg
+                                If ButtonPressed = load_button Then shel_err_msg = "LOOP" & shel_err_msg
 
                                 If left(shel_err_msg, 4) <> "LOOP" AND shel_err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & shel_err_msg
 
@@ -3332,6 +3411,7 @@ Do
                                 call update_shel_notes
 
                                 If ButtonPressed = -1 Then ButtonPressed = return_button
+                                If ButtonPressed = 0 Then ButtonPressed = return_button
 
                                 If ButtonPressed = return_button Then ButtonPressed = dlg_six_button
                             Loop until shel_err_msg = ""
@@ -3484,7 +3564,7 @@ Do
                   GroupBox 5, 50, 440, 70, "SNAP Expedited"
                   If CAF_type = "Application" AND SNAP_checkbox = checked AND exp_det_case_note_found = FALSE Then
                       Text 15, 65, 120, 10, "* Is this SNAP Application Expedited?"
-                      Text 20, 85, 75, 10, "* EXP Approval Date:"
+                      Text 15, 85, 75, 10, "* EXP Approval Date:"
                       Text 135, 85, 75, 10, "* App Month - Income:"
                       Text 260, 85, 30, 10, "* Assets:"
                       Text 345, 85, 40, 10, "* Expenses:"
@@ -3625,7 +3705,7 @@ Do
                             If IsNumeric(app_month_income) = TRUE AND IsNumeric(app_month_assets) = TRUE AND IsNumeric(app_month_expenses) = TRUE Then
                                 If app_month_assets <=100 AND app_month_income < 150 Then
                                     case_should_be_xfs = TRUE
-                                    MsgBox "low resources"
+                                    ' MsgBox "low resources"
                                 End If
                                 app_month_assets = app_month_assets * 1
                                 app_month_income = app_month_income * 1
@@ -3633,7 +3713,7 @@ Do
                                 app_month_resources = app_month_assets + app_month_income
                                 If app_month_resources < app_month_expenses Then
                                     case_should_be_xfs = TRUE
-                                    MsgBox "insufficient resources" & vbCR & "Resources - " & app_month_resources & vbCR & "Expenses - " & app_month_expenses
+                                    ' MsgBox "insufficient resources" & vbCR & "Resources - " & app_month_resources & vbCR & "Expenses - " & app_month_expenses
                                 End If
 
                                 If snap_exp_yn = "Yes" and case_should_be_xfs = FALSE Then full_err_msg = full_err_msg & "~!~8^* This is indicated as Expedited, though based on app month details it appears to be NOT Expedited. App Month: Income - $" & app_month_income & ". Assets - $" & app_month_assets & ". Expenses - $" & app_month_expenses & "."
@@ -4269,23 +4349,23 @@ If show_cses_detail = TRUE Then
             If IsNumeric(UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb)) = TRUE Then total_cs = total_cs + UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb)
             If IsNumeric(UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb)) = TRUE Then total_cs = total_cs + UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb)
 
-            Call write_variable_in_CASE_NOTE("* Total child support income for Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb))
+            Call write_variable_in_CASE_NOTE("* Total child support income for Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & ": $" & total_cs)
             If UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb) <> "" Then
                 cs_disb_inc_det = "Disbursed child support: $" & UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb)
                 If trim(UNEA_INCOME_ARRAY(disb_CS_notes, each_unea_memb)) <> "" Then cs_disb_inc_det = cs_disb_inc_det & ". Notes: " & UNEA_INCOME_ARRAY(disb_CS_notes, each_unea_memb)
-                If trim(UNEA_INCOME_ARRAY(disb_CS_months, each_unea_memb)) <> "" Then cs_disb_inc_det = cs_disb_inc_det & " Income was determined using " & UNEA_INCOME_ARRAY(disb_CS_months, each_unea_memb) & " month(s) of disbursement income."
-                If trim(UNEA_INCOME_ARRAY(disb_CS_prosp_budg, each_unea_memb)) <> "" Then cs_disb_inc_det = cs_disb_inc_det & " SNAP prospective budget details: " & UNEA_INCOME_ARRAY(disb_CS_prosp_budg, each_unea_memb)
 
                 Call write_variable_with_indent_in_CASE_NOTE(cs_disb_inc_det)
+                If trim(UNEA_INCOME_ARRAY(disb_CS_months, each_unea_memb)) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Income was determined using " & UNEA_INCOME_ARRAY(disb_CS_months, each_unea_memb) & " month(s) of disbursement income.")
+                If trim(UNEA_INCOME_ARRAY(disb_CS_prosp_budg, each_unea_memb)) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("SNAP prospective budget details: " & UNEA_INCOME_ARRAY(disb_CS_prosp_budg, each_unea_memb))
             End If
 
             If UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb) <> "" Then
                 cs_arrears_inc_det = "Disbursed child support arrears: $" & UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb)
                 If trim(UNEA_INCOME_ARRAY(disb_CS_arrears_notes, each_unea_memb)) <> "" Then cs_arrears_inc_det = cs_arrears_inc_det & ". Notes: " & UNEA_INCOME_ARRAY(disb_CS_arrears_notes, each_unea_memb)
-                If trim(UNEA_INCOME_ARRAY(disb_CS_arrears_months, each_unea_memb)) <> "" Then cs_arrears_inc_det = cs_arrears_inc_det & " Income was determined using " & UNEA_INCOME_ARRAY(disb_CS_arrears_months, each_unea_memb) & " month(s) of disbursement income."
-                If trim(UNEA_INCOME_ARRAY(disb_CS_arrears_budg, each_unea_memb)) <> "" Then cs_arrears_inc_det = cs_arrears_inc_det & " SNAP prospective budget details: " & UNEA_INCOME_ARRAY(disb_CS_arrears_budg, each_unea_memb)
 
                 Call write_variable_with_indent_in_CASE_NOTE(cs_arrears_inc_det)
+                If trim(UNEA_INCOME_ARRAY(disb_CS_arrears_months, each_unea_memb)) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Income was determined using " & UNEA_INCOME_ARRAY(disb_CS_arrears_months, each_unea_memb) & " month(s) of disbursement income.")
+                If trim(UNEA_INCOME_ARRAY(disb_CS_arrears_budg, each_unea_memb)) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("SNAP prospective budget details: " & UNEA_INCOME_ARRAY(disb_CS_arrears_budg, each_unea_memb))
             End If
 
             If UNEA_INCOME_ARRAY(direct_CS_amt, each_unea_memb) <> "" Then
@@ -4350,9 +4430,21 @@ Call write_bullet_and_variable_in_CASE_NOTE("Other UC Income", other_uc_income_n
 Call write_bullet_and_variable_in_CASE_NOTE("Unearned Income", notes_on_other_UNEA)
 
 Call write_variable_in_CASE_NOTE("===== PERSONAL =====")
+
+Call write_bullet_and_variable_in_CASE_NOTE("Citizenship/ID", cit_id)
+Call write_bullet_and_variable_in_CASE_NOTE("IMIG", IMIG)
+Call write_bullet_and_variable_in_CASE_NOTE("School", SCHL)
+Call write_bullet_and_variable_in_CASE_NOTE("DISA", DISA)
+Call write_bullet_and_variable_in_CASE_NOTE("FACI", FACI)
+Call write_bullet_and_variable_in_CASE_NOTE("PREG", PREG)
+Call write_bullet_and_variable_in_CASE_NOTE("Absent Parent", ABPS)
+If CS_forms_sent_date <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Child Support Forms given/sent to client on " & CS_forms_sent_date)
+Call write_bullet_and_variable_in_CASE_NOTE("AREP", AREP)
+
 'Address Detail
 If address_confirmation_checkbox = checked Then Call write_variable_in_CASE_NOTE("* The address on ADDR was reviewed and is correct.")
 If homeless_yn = "Yes" Then Call write_variable_in_CASE_NOTE("* Houeshld is homeless.")
+Call write_variable_in_CASE_NOTE("* Client reports living in county " & addr_county)
 Call write_bullet_and_variable_in_CASE_NOTE("Living Situation", living_situation)
 Call write_bullet_and_variable_in_CASE_NOTE("Address Detail", notes_on_address)
 
@@ -4361,7 +4453,7 @@ Call write_bullet_and_variable_in_CASE_NOTE("DISQ", DISQ)
 
 'WREG and ABAWD
 Call write_bullet_and_variable_in_CASE_NOTE("WREG", notes_on_wreg)
-all_abawd_notes = notes_on_abawd & notes_on_abawd_two
+all_abawd_notes = notes_on_abawd & notes_on_abawd_two & notes_on_abawd_three
 Call write_bullet_and_variable_in_CASE_NOTE("ABAWD", all_abawd_notes)
 
 'MFIP-DWP information
@@ -4387,7 +4479,7 @@ If full_shelter_details <> "" Then
     Next
 End If
 'HEST/ACUT
-Call write_bullet_and_variable_in_CASE_NOTE("Actual Utility Expenses", notes_on_acct)
+Call write_bullet_and_variable_in_CASE_NOTE("Actual Utility Expenses", notes_on_acut)
 If hest_information <> "Select ALLOWED HEST" Then Call write_variable_in_CASE_NOTE("* Standard Utility expenses: " & hest_information)
 
 'Expenses
@@ -4398,6 +4490,7 @@ Call write_bullet_and_variable_in_CASE_NOTE("Expense Detail", expense_notes)
 
 Call write_variable_in_CASE_NOTE("===== RESOURCES =====")
 'Assets
+If confirm_no_account_panel_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Income sources have been reviewed ")
 Call write_bullet_and_variable_in_CASE_NOTE("Accounts", notes_on_acct)
 Call write_bullet_and_variable_in_CASE_NOTE("Cash", notes_on_cash)
 Call write_bullet_and_variable_in_CASE_NOTE("Cars", notes_on_cars)
@@ -4430,6 +4523,7 @@ IF client_delay_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* PND2
 If TIKL_checkbox Then CALL write_variable_in_CASE_NOTE("* TIKL set to take action on " & DateAdd("d", 30, CAF_datestamp))
 If client_delay_TIKL_checkbox Then CALL write_variable_in_CASE_NOTE("* TIKL set to update PND2 for Client Delay on " & DateAdd("d", 10, CAF_datestamp))
 
+Call write_bullet_and_variable_in_CASE_NOTE("Notes", other_notes)
 IF move_verifs_needed = False THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
 CALL write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
 CALL write_variable_in_CASE_NOTE("---")
@@ -4446,4 +4540,5 @@ END IF
 
 end_msg = "Success! CAF has been successfully noted. Please remember to run the Approved Programs, Closed Programs, or Denied Programs scripts if  results have been APP'd."
 If do_not_update_prog = 1 Then end_msg = end_msg & vbNewLine & vbNewLine & "It was selected that PROG would NOT be updated because " & no_update_reason
-script_end_procedure(end_msg)
+
+script_end_procedure_with_error_report(end_msg)
