@@ -629,7 +629,7 @@ ELSE
 	CALL write_variable_in_CASE_NOTE("* Previous residential address: " & resi_addr_line_one)
 	CALL write_variable_in_CASE_NOTE("                               " & resi_addr_line_two & " " & resi_addr_city & " " & resi_addr_state & " " & resi_addr_zip)
 END IF
-IF mets_addr_correspondence <> "Select:" CALL write_bullet_and_variable_in_CASE_NOTE("METS correspondence sent", mets_addr_correspondence)
+IF mets_addr_correspondence <> "Select:" THEN CALL write_bullet_and_variable_in_CASE_NOTE("METS correspondence sent", mets_addr_correspondence)
 CALL write_bullet_and_variable_in_CASE_NOTE("METS case number", METS_case_number)
 IF ADDR_actions = "Client has not responded to request" THEN
 	CALL write_bullet_and_variable_in_case_note("Verification(s) request date", date_requested)
