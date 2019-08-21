@@ -1251,7 +1251,10 @@ If process_option = "Ongoing Banked Months Cases" Then
     ObjExcel.columns(counted_ABAWD_col).NumberFormat = "@" 		'formatting as text
 
     Do
-        If ObjExcel.Cells(list_row, NOT_BANKED_col).Value <> "TRUE" Then
+        not_banked_code = trim(ObjExcel.Cells(list_row, NOT_BANKED_col).Value)
+        not_banked_code = UCase(not_banked_code)
+        ObjExcel.Cells(list_row, NOT_BANKED_col).Value = not_banked_code
+        If not_banked_code <> "TRUE" Then
             ReDim Preserve BANKED_MONTHS_CASES_ARRAY(months_to_approve, the_case)
             BANKED_MONTHS_CASES_ARRAY(case_nbr, the_case)           = trim(ObjExcel.Cells(list_row, case_nbr_col).Value)
             BANKED_MONTHS_CASES_ARRAY(clt_excel_row, the_case)      = list_row
