@@ -52,6 +52,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/21/2019", "Bug on the script when a large PND2 list is accessed.", "Casey Love, Hennepin County")
 CALL changelog_update("02/19/2019", "Script will now automatically save the Daily List.", "Casey Love, Hennepin County")
 CALL changelog_update("01/30/2019", "Adding tracking of statistics, particularly around NOMIs and Correction Emails.", "Casey Love, Hennepin County")
 CALL changelog_update("10/23/2018", "Bug Fixes: Next Action Needed update, Daily List Detail, Cases with Only a Face to Face interview required.", "Casey Love, Hennepin County")
@@ -121,6 +122,13 @@ end function
 'However the script has a planned enhancement to update PND2 and checking it will be a good idea.
 Function check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, emer_pnd2_code)
   Call navigate_to_MAXIS_screen("REPT", "PND2")
+
+  'This code is for bypassing a warning box if the basket has too many cases
+  row = 1
+  col = 1
+  EMSearch "The REPT:PND2 Display Limit Has Been Reached.", row, col
+  If row <> 0 Then transmit
+
   row = 7
   col = 5
   EMSearch MAXIS_case_number, row, col      'finding correct case to check PND2 codes
@@ -1644,6 +1652,13 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                     IF datediff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), date) >= 10 or datediff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), day_30) > 0 THEN      'cases are either at day 30 or 10 days from when the NOMI was sent
                     'MsgBox datediff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), date)
                         Call navigate_to_MAXIS_screen("REPT", "PND2")       'looking at PND2 to confirm day 30 AND look for MSA cases - which get 60 days
+
+                        'This code is for bypassing a warning box if the basket has too many cases
+                        row = 1
+                        col = 1
+                        EMSearch "The REPT:PND2 Display Limit Has Been Reached.", row, col
+                        If row <> 0 Then transmit
+
                         Row = 1
                         Col = 1
                         EMSearch MAXIS_case_number, row, col
