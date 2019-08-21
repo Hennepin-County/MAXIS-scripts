@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/21/2019", "Handling added to prohibit the attempted update of months prior to the first check entered for a job.", "Casey Love, Hennepin County")
 call changelog_update("08/13/2019", "Bug fix when updating RETRO checks on occasion that causes the script to stop and error.", "Casey Love, Hennepin County")
 call changelog_update("08/05/2019", "Bug fix in script that would sometimes enter the wrong dates on the RETRO side if checks that were out of schedule are used. Additionally, added functionality to find the weekday of pay to better determine which check is out of schedule.", "Casey Love, Hennepin County")
 call changelog_update("08/02/2019", "Bug in script when 2 checks with the same date are entered, script would get stuck and be unable to continue. Script will now continue but confirmation of the paydate will be required as the script reads it as an unexpected pay date.", "Casey Love, Hennepin County")
@@ -1218,6 +1219,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                         If EARNED_INCOME_PANELS_ARRAY(verif_explain, ei_panel) = "" Then sm_err_msg = sm_err_msg & vbNewLine & "* If the verification code is '?' additional information about the verification needs to be added." 'need more explanation
                                     End If
 
+                                    first_check = ""
+
                                     actual_checks_provided = FALSE      'defaults for some logic coming up
                                     there_are_counted_checks = FALSE
                                     all_pay_in_app_month = TRUE
@@ -1232,6 +1235,11 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                             If IsDate(LIST_OF_INCOME_ARRAY(pay_date, all_income)) = FALSE Then      'this needs to be a date
                                                 sm_err_msg = sm_err_msg & vbNewLine & "* Enter a valid pay date for all checks."
                                             Else
+                                                If first_check = "" Then
+                                                    first_check = LIST_OF_INCOME_ARRAY(pay_date, all_income)
+                                                Else
+                                                    If DateDiff("d", first_check, LIST_OF_INCOME_ARRAY(pay_date, all_income)) < 0 Then first_check = LIST_OF_INCOME_ARRAY(pay_date, all_income)
+                                                End If
                                                 If DatePart("m", fs_appl_date) = DatePart("m", LIST_OF_INCOME_ARRAY(pay_date, all_income)) AND DatePart("yyyy", fs_appl_date) = DatePart("yyyy", LIST_OF_INCOME_ARRAY(pay_date, all_income)) Then   'if the paydate is in the application month
                                                     If DateDiff("d", date, LIST_OF_INCOME_ARRAY(pay_date, all_income)) > 0 Then LIST_OF_INCOME_ARRAY(future_check, all_income) = TRUE   'this is a future check
                                                 Else        'if the paydate is NOT in the application  month
@@ -1259,6 +1267,15 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                             LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = trim(LIST_OF_INCOME_ARRAY(exclude_amount, all_income))
                                         End If
                                     Next
+
+                                    If first_check <> "" Then
+                                        end_of_month = EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) & "/1/" & EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel)
+                                        end_of_month = DateAdd("m", 1, end_of_month)
+                                        end_of_month = DateAdd("d", -1, end_of_month)
+
+                                        If DateDiff("d", first_check, end_of_month) < 0 Then sm_err_msg = sm_err_msg & vbNewLine & "* The check dates should start in or before the initial month to update. If no additional checks exist, change the initial month to update to the first month for which checks have been received."
+                                    End If
+                                    first_check = ""
                                     'FUTURE FUNCTIONALITY - read the Employer name for AmeriCorps to provide detail based upon the correct coding.
                                     'FUTURE FUNCTIONALITY - from the inomce type and subsidy code determine some notes on income (excluded etc.) for noting.
                                     If all_pay_in_app_month = FALSE Then sm_err_msg = sm_err_msg & vbNewLine & "* Only income from the month of appliation should be entered when using '?' as this is only for income that is not sufficiently verified to be used to determine Expedited."    'this only happens if '?' is the verif code
