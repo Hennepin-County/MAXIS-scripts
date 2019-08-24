@@ -1587,7 +1587,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("You can also request a paper copy.  Auth: 7CFR 273.2(e)(3).")
 
                 End Select
-                ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = date
                 PF4
             Else
                 ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) = "N"   'if the MEMO didn't start then setting this for the ARRAY and Working Excel.
@@ -1598,8 +1597,11 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
             'Resetting the next action needed based on message success and writing the case note if successful
             If ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) = "N" Then
                 ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual NOMI"
+                ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = ""
             ElseIf ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) = "Y" Then
                 ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "DENY AT DAY 30"
+                ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = date
+
                 Call start_a_blank_case_note
                 If ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) <> "Pending" OR ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry) = "Y" Then
                     Call write_variable_in_CASE_NOTE("~ Client has not completed CASH APP interview, NOMI sent ~ ")
