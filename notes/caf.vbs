@@ -39,6 +39,34 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
+'This is used in arrays that specify functionality to specific workers
+Set objNet = CreateObject("WScript.NetWork")
+windows_user_ID = objNet.UserName
+user_ID_for_validation= ucase(windows_user_ID)
+name_for_validation = ""
+
+If user_ID_for_validation = "CALO001" Then name_for_validation = "Casey"
+If user_ID_for_validation = "ILFE001" Then name_for_validation = "Ilse"
+If user_ID_for_validation = "WFS395" Then name_for_validation = "MiKayla"
+' If user_ID_for_validation = "WFQ898" Then name_for_validation = "Hannah"
+' If user_ID_for_validation = "WFK093" Then name_for_validation = "Jessica"
+' If user_ID_for_validation = "WFM207" Then name_for_validation = "Mandora"
+' If user_ID_for_validation = "WFP803" Then name_for_validation = "Melissa"
+' If user_ID_for_validation = "WFC041" Then name_for_validation = "Kerry"
+' If user_ID_for_validation = "AAGA001" Then name_for_validation = "Aaron"
+
+If name_for_validation <> "" Then
+    MsgBox "Hello " & name_for_validation &  ", you have been selected to test the script NOTES - CAF."  & vbNewLine & vbNewLine & "A testing version of the script will now run.  Thank you for taking your time to review our new scripts and functionality as we strive for Continuous Improvement." & vbNewLine & vbNewLine  & "                                                                                    - BlueZone Script Team"
+    testing_run = TRUE
+    If run_locally = true then
+        testing_script_url = "C:\MAXIS-scripts\notes\caf-testing.vbs"
+    Else
+        testing_script_url = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/notes/caf-testing.vbs"
+    End If
+    Call run_from_GitHub(testing_script_url)
+End if
+
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
@@ -658,21 +686,6 @@ If client_delay_TIKL_checkbox = checked then
 	Call write_variable_in_TIKL (">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<")
 	PF3
 End if
-'----Here's the new bit to TIKL to APPL the CAF for CAF_datestamp if the CL fails to complete the CASH/SNAP reinstate and then TIKL again for DateAdd("D", 30, CAF_datestamp) to evaluate for possible denial.
-'----IF the DatePart("M", CAF_datestamp) = MAXIS_footer_month (DatePart("M", CAF_datestamp) is converted to footer_comparo_month for the sake of comparison) and the CAF_status <> "Approved" and CAF_type is a recertification AND cash or snap is checked, then
-'---------the script generates a TIKL.
-footer_comparison_month = DatePart("M", CAF_datestamp)
-IF len(footer_comparison_month) <> 2 THEN footer_comparison_month = "0" & footer_comparison_month
-IF CAF_type = "Recertification" AND MAXIS_footer_month = footer_comparison_month AND CAF_status <> "approved" AND (cash_checkbox = checked OR SNAP_checkbox = checked) THEN
-	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-	start_of_next_month = DatePart("M", DateAdd("M", 1, CAF_datestamp)) & "/01/" & DatePart("YYYY", DateAdd("M", 1, CAF_datestamp))
-	denial_consider_date = DateAdd("D", 30, CAF_datestamp)
-	CALL create_MAXIS_friendly_date(start_of_next_month, 0, 5, 18)
-	EMWriteScreen ("IF CLIENT HAS NOT COMPLETED RECERT, APPL CAF FOR " & CAF_datestamp), 9, 3
-	EMWriteScreen ("AND TIKL FOR " & denial_consider_date & " TO EVALUATE FOR POSSIBLE DENIAL."), 10, 3
-	transmit
-	PF3
-END IF
 
 IF tikl_for_ui THEN
 	Call navigate_to_MAXIS_screen ("DAIL", "WRIT")

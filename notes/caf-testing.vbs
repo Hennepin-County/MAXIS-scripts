@@ -63,25 +63,33 @@ function HH_comp_dialog(HH_member_array)
     child_emer_count = 0
 	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
 		EMReadscreen ref_nbr, 2, 4, 33
-		EMReadscreen last_name, 25, 6, 30
-		EMReadscreen first_name, 12, 6, 63
-		EMReadscreen mid_initial, 1, 6, 79
-        EMReadScreen memb_age, 3, 8, 76
-        memb_age = trim(memb_age)
-        If memb_age = "" Then memb_age = 0
-        memb_age = memb_age * 1
-		last_name = trim(replace(last_name, "_", ""))
-		first_name = trim(replace(first_name, "_", ""))
-		mid_initial = replace(mid_initial, "_", "")
+        EMReadScreen access_denied_check, 13, 24, 2
+        If access_denied_check = "ACCESS DENIED" Then
+            PF10
+            last_name = "UNABLE TO FIND"
+            first_name = " - Access Denied"
+            mid_initial = ""
+        Else
+    		EMReadscreen last_name, 25, 6, 30
+    		EMReadscreen first_name, 12, 6, 63
+    		EMReadscreen mid_initial, 1, 6, 79
+            EMReadScreen memb_age, 3, 8, 76
+            memb_age = trim(memb_age)
+            If memb_age = "" Then memb_age = 0
+            memb_age = memb_age * 1
+    		last_name = trim(replace(last_name, "_", ""))
+    		first_name = trim(replace(first_name, "_", ""))
+    		mid_initial = replace(mid_initial, "_", "")
 
-        EMReadScreen rel_to_applcnt, 2, 10, 42
-        If rel_to_applcnt = "02" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Spouse of Memb 01.; "
-        If rel_to_applcnt = "04" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Parent of Memb 01.; "
-        If rel_to_applcnt = "05" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Sibling of Memb 01.; "
-        If rel_to_applcnt = "12" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Niece of Memb 01.; "
-        If rel_to_applcnt = "13" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Nephew of Memb 01.; "
-        If rel_to_applcnt = "15" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Grandparent of Memb 01.; "
-        If rel_to_applcnt = "16" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Grandchild of Memb 01.; "
+            EMReadScreen rel_to_applcnt, 2, 10, 42
+            If rel_to_applcnt = "02" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Spouse of Memb 01.; "
+            If rel_to_applcnt = "04" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Parent of Memb 01.; "
+            If rel_to_applcnt = "05" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Sibling of Memb 01.; "
+            If rel_to_applcnt = "12" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Niece of Memb 01.; "
+            If rel_to_applcnt = "13" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Nephew of Memb 01.; "
+            If rel_to_applcnt = "15" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Grandparent of Memb 01.; "
+            If rel_to_applcnt = "16" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Grandchild of Memb 01.; "
+        End If
 
         ReDim Preserve ALL_MEMBERS_ARRAY(clt_notes, member_count)
 
@@ -3945,7 +3953,32 @@ End If
 'Now, the client_delay_checkbox business. It'll update client delay if the box is checked and it isn't a recert.
 If client_delay_checkbox = checked and CAF_type <> "Recertification" then
 	call navigate_to_MAXIS_screen("rept", "pnd2")
-	EMGetCursor PND2_row, PND2_col
+
+    limit_reached = FALSE
+    row = 1
+    col = 1
+    EMSearch "The REPT:PND2 Display Limit Has Been Reached.", row, col
+    If row <> 0 Then
+        transmit
+        limit_reached = TRUE
+    End If
+
+    If limit_reached = TRUE Then
+        PND2_row = 7
+        Do
+            EMReadScreen PND2_case_number, 8, PND2_row, 5
+            if trim(PND2_case_number) = MAXIS_case_number Then Exit Do
+            PND2_row = PND2_row + 1
+        Loop until PND2_row = 18
+    Else
+        EMGetCursor PND2_row, PND2_col
+    End If
+
+    If PND2_row = 18 Then
+        client_delay_checkbox = unchecked
+        MsgBox "The scriipt could not navigate to REPT/PND2 due to a MAXIS display limit. This case will not be updated for client delay. Please email to BlueZone Script Team with the case number and report that the Display Limit on REPT/PND2 was reached."
+    End If
+
 	for i = 0 to 1 'This is put in a for...next statement so that it will check for "additional app" situations, where the case could be on multiple lines in REPT/PND2. It exits after one if it can't find an additional app.
 		EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
 		If PND2_SNAP_status_check = "P" then EMWriteScreen "C", PND2_row, 62
@@ -4001,21 +4034,6 @@ If client_delay_TIKL_checkbox = checked then
 	Call write_variable_in_TIKL (">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<")
 	PF3
 End if
-'----Here's the new bit to TIKL to APPL the CAF for CAF_datestamp if the CL fails to complete the CASH/SNAP reinstate and then TIKL again for DateAdd("D", 30, CAF_datestamp) to evaluate for possible denial.
-'----IF the DatePart("M", CAF_datestamp) = MAXIS_footer_month (DatePart("M", CAF_datestamp) is converted to footer_comparo_month for the sake of comparison) and the CAF_status <> "Approved" and CAF_type is a recertification AND cash or snap is checked, then
-'---------the script generates a TIKL.
-footer_comparison_month = DatePart("M", CAF_datestamp)
-IF len(footer_comparison_month) <> 2 THEN footer_comparison_month = "0" & footer_comparison_month
-IF CAF_type = "Recertification" AND MAXIS_footer_month = footer_comparison_month AND CAF_status <> "approved" AND (cash_checkbox = checked OR SNAP_checkbox = checked) THEN
-	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-	start_of_next_month = DatePart("M", DateAdd("M", 1, CAF_datestamp)) & "/01/" & DatePart("YYYY", DateAdd("M", 1, CAF_datestamp))
-	denial_consider_date = DateAdd("D", 30, CAF_datestamp)
-	CALL create_MAXIS_friendly_date(start_of_next_month, 0, 5, 18)
-	EMWriteScreen ("IF CLIENT HAS NOT COMPLETED RECERT, APPL CAF FOR " & CAF_datestamp), 9, 3
-	EMWriteScreen ("AND TIKL FOR " & denial_consider_date & " TO EVALUATE FOR POSSIBLE DENIAL."), 10, 3
-	transmit
-	PF3
-END IF
 
 For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
     If UNEA_INCOME_ARRAY(UC_exists, each_unea_memb) = TRUE Then
