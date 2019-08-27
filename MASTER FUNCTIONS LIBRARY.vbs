@@ -4037,16 +4037,25 @@ function HH_member_custom_dialog(HH_member_array)
 
 	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
 		EMReadscreen ref_nbr, 3, 4, 33
-		EMReadscreen last_name, 25, 6, 30
-		EMReadscreen first_name, 12, 6, 63
-		EMReadscreen mid_initial, 1, 6, 79
-		last_name = trim(replace(last_name, "_", "")) & " "
-		first_name = trim(replace(first_name, "_", "")) & " "
-		mid_initial = replace(mid_initial, "_", "")
+        EMReadScreen access_denied_check, 13, 24, 2
+        'MsgBox access_denied_check
+        If access_denied_check = "ACCESS DENIED" Then
+            PF10
+            last_name = "UNABLE TO FIND"
+            first_name = " - Access Denied"
+            mid_initial = ""
+        Else
+    		EMReadscreen last_name, 25, 6, 30
+    		EMReadscreen first_name, 12, 6, 63
+    		EMReadscreen mid_initial, 1, 6, 79
+    		last_name = trim(replace(last_name, "_", "")) & " "
+    		first_name = trim(replace(first_name, "_", "")) & " "
+    		mid_initial = replace(mid_initial, "_", "")
+        End If
 		client_string = ref_nbr & last_name & first_name & mid_initial
 		client_array = client_array & client_string & "|"
 		transmit
-		Emreadscreen edit_check, 7, 24, 2
+	    Emreadscreen edit_check, 7, 24, 2
 	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
 
 	client_array = TRIM(client_array)
@@ -5287,6 +5296,15 @@ function script_end_procedure_with_error_report(closing_message)
             Do
                 confirm_err = ""
 
+                case_note_checkbox = unchecked
+                stat_update_checkbox = unchecked
+                date_checkbox = unchecked
+                math_checkbox = unchecked
+                tikl_checkbox = unchecked
+                memo_wcom_checkbox = unchecked
+                document_checkbox = unchecked
+                missing_spot_checkbox = unchecked
+
                 BeginDialog Dialog1, 0, 0, 401, 175, "Report Error Detail"
                   Text 60, 35, 55, 10, MAXIS_case_number
                   ComboBox 220, 30, 175, 45, error_type+chr(9)+"BUG - something happened that was wrong"+chr(9)+"ENHANCEMENT - something could be done better"+chr(9)+"TYPO - grammatical/spelling type errors"+chr(9)+"DAIL - add support for this DAIL message.", error_type
@@ -5676,6 +5694,9 @@ function write_bullet_and_variable_in_CASE_NOTE(bullet, variable)
 		noting_col = noting_col + (len(bullet) + 4)
 
 		'Splits the contents of the variable into an array of words
+        variable = trim(variable)
+        If right(variable, 1) = ";" Then variable = left(variable, len(variable) - 1)
+        If left(variable, 1) = ";" Then variable = right(variable, len(variable) - 1)
 		variable_array = split(variable, " ")
 
 		For each word in variable_array
