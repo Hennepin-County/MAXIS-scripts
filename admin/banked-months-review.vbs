@@ -860,6 +860,8 @@ end function
 
 function make_entry_string(entry_information, excel_cell)
     If IsDate(entry_information) = TRUE Then
+        If DateDiff("d", date, entry_information) > 0 Then entry_information = DateAdd("yyyy", -1, entry_information)
+
         the_month = DatePart("m", entry_information)
         the_year = DatePart("yyyy", entry_information)
         the_month = right("0" & the_month, 2)
