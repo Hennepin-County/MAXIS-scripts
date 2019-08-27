@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/28/2019", "Added cell formatting for month fields when running Find ABAWD Months option.", "Casey Love, Hennepin County")
 call changelog_update("07/26/2019", "Enhanced 'Find ABAWD Months' option to highlight the current row and reduce input required.", "Casey Love, Hennepin County")
 call changelog_update("07/11/2018", "Initial version.", "Casey Love, Hennepin County")
 
@@ -856,6 +857,27 @@ function update_WREG_coding(enter_wreg_status, enter_abawd_status, FSET_funds, e
     EMWriteScreen "BGTX", 20, 71
     transmit
 end function
+
+function make_entry_string(entry_information, excel_cell)
+    If IsDate(entry_information) = TRUE Then
+        the_month = DatePart("m", entry_information)
+        the_year = DatePart("yyyy", entry_information)
+        the_month = right("0" & the_month, 2)
+        the_year = right(the_year, 2)
+        the_entry = the_month & "/" & the_year
+    ElseIf Len(entry_information) <> 5 Then
+        If InStr("/", entry_information) <> 0 Then
+            the_pos = InStr("/", entry_information)
+            the_month = left(entry_information, the_pos - 1)
+            the_year = right(entry_information, len(entry_information) - the_pos)
+            the_month = right("0" & the_month, 2)
+            the_year = right(the_year, 2)
+            the_entry = the_month & "/" & the_year
+        End If
+    End If
+    excel_cell.Value = the_entry
+end function
+
 '===========================================================================================================================
 
 'NEED A SCRIPT THAT WILL OPERATE OFF OF THE DAIL - PEPR (this is from a list generated with BULK-Dail)
@@ -1160,6 +1182,27 @@ If process_option = "Find ABAWD Months" Then
             CASE_ABAWD_TO_COUNT_ARRAY(clt_curr_mo_stat, the_case)   = trim(ObjExcel.Cells(list_row, curr_mo_stat_col).Value)
             CASE_ABAWD_TO_COUNT_ARRAY(used_ABAWD_mos, the_case)     = trim(ObjExcel.Cells(list_row, counted_ABAWD_col).Value)
             CASE_ABAWD_TO_COUNT_ARRAY(months_to_approve, the_case)  = ""    'set this to zero at every run as it should be handled prior to the script run
+
+            ObjExcel.Cells(list_row, first_mo_col).NumberFormat = "@"
+            ObjExcel.Cells(list_row, scnd_mo_col).NumberFormat = "@"
+            ObjExcel.Cells(list_row, third_mo_col).NumberFormat = "@"
+            ObjExcel.Cells(list_row, fourth_mo_col).NumberFormat = "@"
+            ObjExcel.Cells(list_row, fifth_mo_col).NumberFormat = "@"
+            ObjExcel.Cells(list_row, sixth_mo_col).NumberFormat = "@"
+            ObjExcel.Cells(list_row, svnth_mo_col).NumberFormat = "@"
+            ObjExcel.Cells(list_row, eighth_mo_col).NumberFormat = "@"
+            ObjExcel.Cells(list_row, ninth_mo_col).NumberFormat = "@"
+
+            If CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_one, the_case) <> "" Then Call make_entry_string(CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_one, the_case), ObjExcel.Cells(list_row, first_mo_col))
+            If CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_two, the_case) <> "" Then Call make_entry_string(CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_two, the_case), ObjExcel.Cells(list_row, scnd_mo_col))
+            If CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_three, the_case) <> "" Then Call make_entry_string(CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_three, the_case), ObjExcel.Cells(list_row, third_mo_col))
+            If CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_four, the_case) <> "" Then Call make_entry_string(CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_four, the_case), ObjExcel.Cells(list_row, fourth_mo_col))
+            If CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_five, the_case) <> "" Then Call make_entry_string(CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_five, the_case), ObjExcel.Cells(list_row, fifth_mo_col))
+            If CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_six, the_case) <> "" Then Call make_entry_string(CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_six, the_case), ObjExcel.Cells(list_row, sixth_mo_col))
+            If CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_svn, the_case) <> "" Then Call make_entry_string(CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_svn, the_case), ObjExcel.Cells(list_row, svnth_mo_col))
+            If CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_eight, the_case) <> "" Then Call make_entry_string(CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_eight, the_case), ObjExcel.Cells(list_row, eighth_mo_col))
+            If CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_nine, the_case) <> "" Then Call make_entry_string(CASE_ABAWD_TO_COUNT_ARRAY(clt_mo_nine, the_case), ObjExcel.Cells(list_row, ninth_mo_col))
+
 
             If excel_row_to_end = list_row Then Exit DO         'if we reach the last row indicated by the user, the array will stop filling the array
 
