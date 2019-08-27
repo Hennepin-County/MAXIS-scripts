@@ -599,7 +599,7 @@ function read_EATS_panel()
     'Now it checks for the total number of panels. If there's 0 Of 0 it'll exit the function for you so as to save oodles of time.
     EMReadScreen panel_total_check, 6, 2, 73
     IF panel_total_check = "0 Of 0" THEN
-        If UBound(ALL_MEMBERS_ARRAY, 2) = 0 Then EATS = "Single member case, EATS us bit beeded,"
+        If UBound(ALL_MEMBERS_ARRAY, 2) = 0 Then EATS = "Single member case, EATS not needed,"
         exit function		'Exits out if there's no panel info
     End If
     EMReadScreen all_eat_together, 1, 4, 72
