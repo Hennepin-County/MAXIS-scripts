@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/27/2018", "Updated dialog and case note to address requested enhancements  (TIKL & interview still needed).", "MiKayla Handley")
 call changelog_update("08/20/2019", "Bug on the script when a large PND2 list is accessed.", "Casey Love, Hennepin County")
 call changelog_update("06/14/2018", "Updated dialog and case note to address requested enhancements.", "MiKayla Handley")
 
@@ -50,31 +51,31 @@ call changelog_update("06/14/2018", "Updated dialog and case note to address req
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 131, 50, "Case number dialog"
-  EditBox 65, 5, 60, 15, MAXIS_case_number
+'---------------------------------------------------------------------------------------The script
+'Grabs the case number
+EMConnect ""
+CALL MAXIS_case_number_finder (MAXIS_case_number)
+
+'-------------------------------------------------------------------------------------------------DIALOG
+BeginDialog initial_dialog, 0, 0, 116, 45, "Application Check"
+  EditBox 65, 5, 45, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
-    OkButton 20, 30, 50, 15
-    CancelButton 75, 30, 50, 15
-  Text 10, 10, 45, 10, "Case number:"
+    OkButton 5, 25, 50, 15
+    CancelButton 60, 25, 50, 15
+  Text 10, 10, 50, 10, "Case Number:"
 EndDialog
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connecting to MAXIS & case number
-EMConnect ""
-call maxis_case_number_finder(MAXIS_case_number)
 
-'initial case number dialog
 Do
 	DO
 		err_msg = ""
-	    dialog case_number_dialog
+	    dialog initial_dialog
       	cancel_confirmation
       	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 'information gathering to auto-populate the application date
 'pending programs information
@@ -102,7 +103,7 @@ LOOP until PND2_check = "PND2"
 
 'checking the case to make sure there is a pending case.  If not script will end & inform the user no pending case exists in PND2
 EMReadScreen not_pending_check, 5, 24, 2
-If not_pending_check = "CASE " THEN script_end_procedure("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
+If not_pending_check = "CASE " THEN script_end_procedure_with_error_report("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
 
 If limit_reached = TRUE Then
     MAXIS_row = 7
@@ -127,20 +128,21 @@ EMReadScreen add_app_day, 2, MAXIS_row + 1, 41
 EMReadScreen add_app_year, 2, MAXIS_row + 1, 44
 
 'Creating new variable for application check date and additional application date.
-application_check_date = app_month & "/" & app_day & "/" & app_year
+application_date = app_month & "/" & app_day & "/" & app_year
 additional_application_date = add_app_month & "/" & add_app_day & "/" & add_app_year
 
 'checking for multiple application dates.  Creates message boxes giving the user an option of which app date to choose
-If additional_application_check = "ADDITIONAL APP" THEN multiple_apps = MsgBox("Do you want this application date: " & application_check_date, VbYesNoCancel)
+If additional_application_check = "ADDITIONAL APP" THEN multiple_apps = MsgBox("Do you want this application date: " & application_date, VbYesNoCancel)
 If multiple_apps = vbCancel then stopscript
-If multiple_apps = vbYes then additional_date_found = False
+If multiple_apps = vbYes then application_date = application_date
 IF multiple_apps = vbNo then
-	additional_apps = Msgbox("Do you want this application date: " & additional_application_date, VbYesNoCancel)
+	additional_apps = Msgbox("Per CM 0005.09.06 - if a case is pending and a new app is received you should use the original application date." & vbcr & "Do you want this application date: " & additional_application_date, VbYesNoCancel)
+	application_date = ""
 	If additional_apps = vbCancel then stopscript
-	If additional_apps = vbNo then script_end_procedure("No more application dates exist. Please review the case, and start the script again if applicable.")
+	If additional_apps = vbNo then script_end_procedure_with_error_report("No more application dates exist. Please review the case, and start the script again if applicable.")
 	If additional_apps = vbYes then
 		additional_date_found = TRUE
-		application_check_date = additional_application_date
+		application_date = additional_application_date
 		MAXIS_row = MAXIS_row + 1
 	END IF
 End if
@@ -151,28 +153,165 @@ EMReadScreen PEND_HC_check, 1, MAXIS_row, 65
 EMReadScreen PEND_EMER_check,	1, MAXIS_row, 68
 EMReadScreen PEND_GRH_check, 1, MAXIS_row, 72
 
-'this information auto-checks programs pending into main dialog if one app date is found
-pending_progs = ""
-IF PEND_CASH_check 	= "A" or PEND_CASH_check = "P" THEN
- 	CASH_CHECKBOX = CHECKED
-	pending_progs = pending_progs & "CASH" & ", "
+CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
+'EMReadScreen application_date, 8, 6, 33
+
+EMReadScreen err_msg, 7, 24, 02
+IF err_msg = "BENEFIT" THEN	script_end_procedure_with_error_report ("Case must be in PEND II status for script to run, please update MAXIS panels TYPE & PROG (HCRE for HC) and run the script again.")
+
+'Reading the app date from PROG
+EMReadScreen cash1_app_date, 8, 6, 33
+cash1_app_date = replace(cash1_app_date, " ", "/")
+EMReadScreen cash2_app_date, 8, 7, 33
+cash2_app_date = replace(cash2_app_date, " ", "/")
+EMReadScreen emer_app_date, 8, 8, 33
+emer_app_date = replace(emer_app_date, " ", "/")
+EMReadScreen grh_app_date, 8, 9, 33
+grh_app_date = replace(grh_app_date, " ", "/")
+EMReadScreen snap_app_date, 8, 10, 33
+snap_app_date = replace(snap_app_date, " ", "/")
+EMReadScreen ive_app_date, 8, 11, 33
+ive_app_date = replace(ive_app_date, " ", "/")
+EMReadScreen hc_app_date, 8, 12, 33
+hc_app_date = replace(hc_app_date, " ", "/")
+EMReadScreen cca_app_date, 8, 14, 33
+cca_app_date = replace(cca_app_date, " ", "/")
+
+'Reading the program status
+EMReadScreen cash1_status_check, 4, 6, 74
+EMReadScreen cash2_status_check, 4, 7, 74
+EMReadScreen emer_status_check, 4, 8, 74
+EMReadScreen grh_status_check, 4, 9, 74
+EMReadScreen snap_status_check, 4, 10, 74
+EMReadScreen ive_status_check, 4, 11, 74
+EMReadScreen hc_status_check, 4, 12, 74
+EMReadScreen cca_status_check, 4, 14, 74
+
+'----------------------------------------------------------------------------------------------------ACTIVE program coding
+EMReadScreen cash1_prog_check, 2, 6, 67     'Reading cash 1
+EMReadScreen cash2_prog_check, 2, 7, 67     'Reading cash 2
+EMReadScreen emer_prog_check, 2, 8, 67      'EMER Program
+
+'Logic to determine if MFIP is active
+IF cash1_prog_check = "MF" or cash1_prog_check = "GA" or cash1_prog_check = "DW" or cash1_prog_check = "MS" THEN
+	IF cash1_status_check = "ACTV" THEN cash_active = TRUE
 END IF
-IF PEND_SNAP_check 	= "A" or PEND_SNAP_check = "P" THEN
-	FS_CHECKBOX = CHECKED
-	pending_progs = pending_progs & "SNAP" & ", "
+IF cash2_prog_check = "MF" or cash2_prog_check = "GA" or cash2_prog_check = "DW" or cash2_prog_check = "MS" THEN
+	IF cash2_status_check = "ACTV" THEN cash2_active = TRUE
 END IF
-IF PEND_HC_check 	= "P" THEN
-	HC_CHECKBOX = CHECKED
-	pending_progs = pending_progs & "HC" & ", "
-END IF
-IF PEND_EMER_check 	= "A" or PEND_EMER_check = "P" THEN
-	EA_CHECKBOX = CHECKED
-	pending_progs = pending_progs & "EMER" & ", "
-END IF
-IF PEND_GRH_check 	= "A" or PEND_GRH_check  = "P" THEN
-	GRH_CHECKBOX = CHECKED
-	pending_progs = pending_progs & "GRH"
-END IF
+IF emer_prog_check = "EG" and emer_status_check = "ACTV" THEN emer_active = TRUE
+IF emer_prog_check = "EA" and emer_status_check = "ACTV" THEN emer_active = TRUE
+
+IF cash1_status_check = "ACTV" THEN cash_active  = TRUE
+IF cash2_status_check = "ACTV" THEN cash2_active = TRUE
+IF snap_status_check  = "ACTV" THEN SNAP_active  = TRUE
+IF grh_status_check   = "ACTV" THEN grh_active   = TRUE
+IF ive_status_check   = "ACTV" THEN IVE_active   = TRUE
+IF hc_status_check    = "ACTV" THEN hc_active    = TRUE
+IF cca_status_check   = "ACTV" THEN cca_active   = TRUE
+
+active_programs = ""        'Creates a variable that lists all the active.
+IF cash_active = TRUE or cash2_active = TRUE THEN active_programs = active_programs & "CASH, "
+IF emer_active = TRUE THEN active_programs = active_programs & "Emergency, "
+IF grh_active  = TRUE THEN active_programs = active_programs & "GRH, "
+IF snap_active = TRUE THEN active_programs = active_programs & "SNAP, "
+IF ive_active  = TRUE THEN active_programs = active_programs & "IV-E, "
+IF hc_active   = TRUE THEN active_programs = active_programs & "HC, "
+IF cca_active  = TRUE THEN active_programs = active_programs & "CCA"
+
+active_programs = trim(active_programs)  'trims excess spaces of active_programs
+If right(active_programs, 1) = "," THEN active_programs = left(active_programs, len(active_programs) - 1)
+
+'----------------------------------------------------------------------------------------------------Pending programs
+programs_applied_for = ""   'Creates a variable that lists all pening cases.
+additional_programs_applied_for = ""
+'cash I
+IF cash1_status_check = "PEND" then
+    If cash1_app_date = application_date THEN
+        cash_pends = TRUE
+		CASH_CHECKBOX = CHECKED
+        programs_applied_for = programs_applied_for & "CASH, "
+    Else
+        additional_programs_applied_for = additional_programs_applied_for & "CASH, "
+	End if
+End if
+'cash II
+IF cash2_status_check = "PEND" then
+    if cash2_app_date = application_date THEN
+        cash2_pends = TRUE
+		CASH_CHECKBOX = CHECKED
+        programs_applied_for = programs_applied_for & "CASH, "
+    Else
+        additional_programs_applied_for = additional_programs_applied_for & "CASH, "
+    End if
+End if
+'SNAP
+IF snap_status_check  = "PEND" then
+    If snap_app_date  = application_date THEN
+        SNAP_pends = TRUE
+		FS_CHECKBOX = CHECKED
+        programs_applied_for = programs_applied_for & "SNAP, "
+    else
+        additional_programs_applied_for = additional_programs_applied_for & "SNAP, "
+    end if
+End if
+'GRH
+IF grh_status_check = "PEND" then
+    If grh_app_date = application_date THEN
+        grh_pends = TRUE
+		GRH_CHECKBOX = CHECKED
+        programs_applied_for = programs_applied_for & "GRH, "
+    else
+        additional_programs_applied_for = additional_programs_applied_for & "GRH, "
+    End if
+End if
+'I-VE
+IF ive_status_check = "PEND" then
+    if ive_app_date = application_date THEN
+        IVE_pends = TRUE
+        programs_applied_for = programs_applied_for & "IV-E, "
+    else
+        additional_programs_applied_for = additional_programs_applied_for & "IV-E, "
+    End if
+End if
+'HC
+IF hc_status_check = "PEND" then
+    If hc_app_date = application_date THEN
+        hc_pends = TRUE
+		HC_CHECKBOX = CHECKED
+        programs_applied_for = programs_applied_for & "HC, "
+    else
+        additional_programs_applied_for = additional_programs_applied_for & "HC, "
+    End if
+End if
+'CCA
+IF cca_status_check = "PEND" then
+    If cca_app_date = application_date THEN
+        cca_pends = TRUE
+        programs_applied_for = programs_applied_for & "CCA, "
+    else
+        additional_programs_applied_for = additional_programs_applied_for & "CCA, "
+    End if
+End if
+'EMER
+If emer_status_check = "PEND" then
+    If emer_app_date = application_date then
+        emer_pends = TRUE
+		EA_CHECKBOX = CHEKED
+        IF emer_prog_check = "EG" THEN programs_applied_for = programs_applied_for & "EGA, "
+        IF emer_prog_check = "EA" THEN programs_applied_for = programs_applied_for & "EA, "
+    else
+		EA_CHECKBOX = CHEKED
+        IF emer_prog_check = "EG" THEN additional_programs_applied_for = additional_programs_applied_for & "EGA, "
+        IF emer_prog_check = "EA" THEN additional_programs_applied_for = additional_programs_applied_for & "EA, "
+    End if
+End if
+
+programs_applied_for = trim(programs_applied_for)       'trims excess spaces of programs_applied_for
+If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
+
+additional_programs_applied_for = trim(additional_programs_applied_for)       'trims excess spaces of programs_applied_for
+If right(additional_programs_applied_for, 1) = "," THEN additional_programs_applied_for = left(additional_programs_applied_for, len(additional_programs_applied_for) - 1)
 
 'trims excess spaces of pending_progs
 pending_progs = trim(pending_progs)
@@ -180,84 +319,86 @@ pending_progs = trim(pending_progs)
 If right(pending_progs, 1) = "," THEN pending_progs = left(pending_progs, len(pending_progs) - 1)
 
 'Determines which application check the user is at----------------------------------------------------------------------------------------------------
-If DateDiff("d", application_check_date, date) = 0 then
+If DateDiff("d", application_date, date) = 0 then
 	application_check = "Day 1"
-	reminder_date = dateadd("d", 5, application_check_date)
+	reminder_date = dateadd("d", 5, application_date)
 	reminder_text = "Day 5"
-Elseif DateDiff("d", application_check_date, date) = 1 then
+Elseif DateDiff("d", application_date, date) = 1 then
 	application_check = "Day 1"
-	reminder_date = dateadd("d", 5, application_check_date)
+	reminder_date = dateadd("d", 5, application_date)
 	reminder_text = "Day 5"
-Elseif (DateDiff("d", application_check_date, date) > 1 AND DateDiff("d", application_check_date, date) < 9) then
+Elseif (DateDiff("d", application_date, date) > 1 AND DateDiff("d", application_date, date) < 9) then
 	application_check = "Day 5"
-	reminder_date = dateadd("d", 10, application_check_date)
+	reminder_date = dateadd("d", 10, application_date)
 	reminder_text = "Day 10"
-Elseif (DateDiff("d", application_check_date, date) => 10 AND DateDiff("d", application_check_date, date) < 20) then
+Elseif (DateDiff("d", application_date, date) => 10 AND DateDiff("d", application_date, date) < 20) then
 	application_check = "Day 10"
-	reminder_date = dateadd("d", 20, application_check_date)
+	reminder_date = dateadd("d", 20, application_date)
 	reminder_text = "Day 20"
-Elseif (DateDiff("d", application_check_date, date) => 20 AND DateDiff("d", application_check_date, date) < 30) then
+Elseif (DateDiff("d", application_date, date) => 20 AND DateDiff("d", application_date, date) < 30) then
 	application_check = "Day 20"
-	reminder_date = dateadd("d", 30, application_check_date)
+	reminder_date = dateadd("d", 30, application_date)
 	reminder_text = "Day 30"
-Elseif (DateDiff("d", application_check_date, date) => 30 AND DateDiff("d", application_check_date, date) < 45) then
+Elseif (DateDiff("d", application_date, date) => 30 AND DateDiff("d", application_date, date) < 45) then
 	application_check = "Day 30"
-	reminder_date = dateadd("d", 45, application_check_date)
+	reminder_date = dateadd("d", 45, application_date)
 	reminder_text = "Day 45"
-Elseif (DateDiff("d", application_check_date, date) => 45 AND DateDiff("d", application_check_date, date) < 60) then
+Elseif (DateDiff("d", application_date, date) => 45 AND DateDiff("d", application_date, date) < 60) then
 	application_check = "Day 45"
-	reminder_date = dateadd("d", 60, application_check_date)
+	reminder_date = dateadd("d", 60, application_date)
 	reminder_text = "Day 60"
-Elseif DateDiff("d", application_check_date, date) = 60 then
+Elseif DateDiff("d", application_date, date) = 60 then
 	application_check = "Day 60"
 	reminder_date = dateadd("d", 10, date)
 	reminder_text = "Post day 60"
-Elseif DateDiff("d", application_check_date, date) > 60 then
+Elseif DateDiff("d", application_date, date) > 60 then
 	application_check = "Over 60 days"
 	reminder_date = dateadd("d", 10, date)
 	reminder_text = "Post day 60"
-End if
-
-BeginDialog application_check_dialog, 0, 0, 391, 180, "Application Check:  & application_check"
-  DropListBox 75, 15, 80, 15, "Select one..."+chr(9)+"Apply MN"+chr(9)+"CAF"+chr(9)+"CAF addendum"+chr(9)+"HC - certain populations"+chr(9)+"HC - LTC"+chr(9)+"HC - EMA Mnsure ", application_type_droplist
-  DropListBox 75, 40, 155, 15, "Select One:"+chr(9)+"Case is ready to approve or deny"+chr(9)+"Requested verifications not received"+chr(9)+"Partial verfications received, more are needed"+chr(9)+"Interview still needed"+chr(9)+"Other", application_status_droplist
-  EditBox 175, 20, 50, 15, application_check_date
-  EditBox 100, 60, 170, 15, other_app_notes
-  EditBox 100, 80, 170, 15, verifs_rcvd
-  EditBox 100, 100, 280, 15, verifs_needed
-  EditBox 100, 120, 280, 15, actions_taken
-  EditBox 100, 140, 280, 15, other_notes
-  EditBox 100, 160, 125, 15, worker_signature
-  CheckBox 295, 55, 30, 10, "CASH", CASH_CHECKBOX
-  CheckBox 295, 65, 25, 10, "EA", EA_CHECKBOX
-  CheckBox 295, 75, 25, 10, "FS", FS_CHECKBOX
-  CheckBox 340, 60, 30, 10, "GRH", GRH_CHECKBOX
-  CheckBox 340, 70, 20, 10, "HC", HC_CHECKBOX
+END IF
+'----------------------------------------------------------------------------------------------------dialogs
+BeginDialog application_check_dialog, 0, 0, 386, 185, "Application Check: " & application_check
+  DropListBox 75, 15, 80, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
+  EditBox 175, 20, 50, 15, application_date
+  DropListBox 75, 45, 155, 15, "Select One:"+chr(9)+"Interview still needed"+chr(9)+"Requested verifications not received"+chr(9)+"Partial verfications received, more are needed"+chr(9)+"Case is ready to approve or deny"+chr(9)+"Other", application_status_droplist
+  CheckBox 245, 45, 135, 15, "Check to have an outlook reminder set", Outlook_reminder_checkbox
+  EditBox 95, 65, 170, 15, other_app_notes
+  EditBox 95, 85, 170, 15, verifs_rcvd
+  EditBox 95, 105, 170, 15, verifs_needed
+  EditBox 95, 125, 170, 15, actions_taken
+  EditBox 95, 145, 165, 15, other_notes
+  EditBox 95, 165, 125, 15, worker_signature
+  CheckBox 285, 125, 30, 10, "CASH", CASH_CHECKBOX
+  CheckBox 330, 125, 25, 10, "EA", EA_CHECKBOX
+  CheckBox 285, 135, 25, 10, "FS", FS_CHECKBOX
+  CheckBox 330, 135, 30, 10, "GRH", GRH_CHECKBOX
+  CheckBox 285, 145, 20, 10, "HC", HC_CHECKBOX
   ButtonGroup ButtonPressed
-    PushButton 240, 15, 30, 10, "AREP", AREP_button
-    PushButton 275, 15, 30, 10, "DISA", DISA_button
-    PushButton 310, 15, 30, 10, "HCRE", HCRE_button
+    OkButton 275, 165, 50, 15
+    CancelButton 330, 165, 50, 15
     PushButton 345, 15, 30, 10, "JOBS", JOBS_button
     PushButton 240, 25, 30, 10, "PROG", PROG_button
     PushButton 275, 25, 30, 10, "REVW", REVW_button
     PushButton 310, 25, 30, 10, "SHEL", SHEL_button
     PushButton 345, 25, 30, 10, "UNEA", UNEA_button
-    OkButton 275, 165, 50, 15
-    CancelButton 330, 165, 50, 15
+    PushButton 275, 15, 30, 10, "DISA", DISA_button
+    PushButton 310, 15, 30, 10, "HCRE", HCRE_button
   Text 10, 20, 55, 10, "Application type:"
   Text 175, 10, 55, 10, "Application date"
-  Text 10, 45, 60, 10, "Application status:"
-  Text 10, 65, 90, 10, "If status is 'other' explain:"
-  Text 20, 85, 75, 10, "Verifications Received:"
-  Text 10, 105, 85, 10, "Verifications Still Needed:"
-  Text 50, 125, 50, 10, "Actions Taken:"
-  Text 55, 145, 45, 10, "Other Notes:"
-  Text 35, 165, 60, 10, "Worker Signature:"
+  Text 5, 50, 60, 10, "Application status:"
+  Text 5, 70, 85, 10, "If status is 'other' explain:"
+  Text 5, 90, 75, 10, "Verifications received:"
+  Text 5, 110, 75, 10, "Pending verifications:"
+  Text 5, 130, 50, 10, "Actions taken:"
+  Text 5, 150, 45, 10, "Other notes:"
+  Text 5, 170, 60, 10, "Worker signature:"
   GroupBox 5, 5, 160, 30, "Day 1 application check only"
   GroupBox 235, 5, 145, 35, "MAXIS navigation"
-  GroupBox 280, 45, 100, 45, "Pending Programs"
+  GroupBox 275, 115, 100, 45, "Pending Programs"
+  ButtonGroup ButtonPressed
+    PushButton 240, 15, 30, 10, "AREP", AREP_button
+  Text 275, 65, 100, 20, "A TIKL to review the case will be created by the script"
 EndDialog
-
 
 'main dialog
 Do
@@ -266,38 +407,36 @@ Do
 		dialog application_check_dialog
 		cancel_confirmation
 		MAXIS_dialog_navigation
-		If application_status_droplist = "Select One:"  then err_msg = err_msg & vbNewLine & "* You must enter the application status."
-		IF actions_taken = ""  then err_msg = err_msg & vbNewLine & "* You must enter your case actions."
+		If application_status_droplist = "Select One:" then err_msg = err_msg & vbNewLine & "* You must choose the application status."
+		If application_status_droplist <> "Interview still needed" and actions_taken = ""  then err_msg = err_msg & vbNewLine & "* You must enter your case actions."
 		If application_status_droplist = "Other" AND other_app_notes = ""  then err_msg = err_msg & vbNewLine & "* You must enter more information about the 'other' application status."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-If application_status_droplist <> "Case is ready to approve or deny" THEN
-	'Outlook appointment is created in prior to the case note being created
-	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
-	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "Application check: " & reminder_text & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
-	Outlook_remider = True
-End if
-
 If other_app_notes <> "" Then application_status_droplist = application_status_droplist & ", " & other_app_notes
 
 'THE CASENOTE----------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE("-------------------------" & application_check & " application check")
-If application_type_droplist <> "Select One:" then Call write_bullet_and_variable_in_CASE_NOTE("Type of application rec'd", application_type_droplist)
-Call write_bullet_and_variable_in_CASE_NOTE("Program applied for", pending_progs)
-Call write_bullet_and_variable_in_CASE_NOTE("Application date", application_check_date)
-Call write_variable_in_CASE_NOTE("---")
+CALL write_variable_in_CASE_NOTE("-------------------------" & application_check & " Application Check")
+IF application_check = "Day 1" THEN CALL write_bullet_and_variable_in_CASE_NOTE("Type of application rec'd", app_type)
 Call write_bullet_and_variable_in_CASE_NOTE("Application status", application_status_droplist)
-Call write_bullet_and_variable_in_CASE_NOTE("Verification(s) received", verifs_rcvd)
-Call write_bullet_and_variable_in_CASE_NOTE("Verification(s) still needed - request sent via ECF", verifs_needed)
-Call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
-Call write_bullet_and_variable_in_CASE_NOTE("Other application notes", other_notes)
-If Outlook_remider = True then call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
-call write_variable_in_CASE_NOTE("---")
-Call write_variable_in_CASE_NOTE(worker_signature)
+CALL write_bullet_and_variable_in_CASE_NOTE("Program applied for", programs_applied_for)
+CALL write_bullet_and_variable_in_CASE_NOTE("Application date", application_date)
+'CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
+CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", additional_programs_applied_for)
+CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
+CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
+CALL write_variable_in_CASE_NOTE("---")
+CALL write_variable_in_CASE_NOTE (worker_signature)
+
+If Outlook_reminder_checkbox = CHECKED THEN
+'and application_status_droplist <> "Case is ready to approve or deny" THEN
+	'Outlook appointment is created in prior to the case note being created
+	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
+	CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "Application check: " & reminder_text & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
+End if
 
 'message boxes based on the application status chosen instructing workers which scripts to use next
 If application_status_droplist = "Case is ready to approve or deny" Then
@@ -313,4 +452,9 @@ ELSEIF application_status_droplist = "Some verifs rec'd & more verification are 
 	"Please use the ""NOTES - DOCUMENTS RECEIVED"" script and/or the ""NOTES - VERIFICATIONS REQUESTED"" as needed."
 END IF
 
-script_end_procedure("")
+
+Call navigate_to_MAXIS_screen("DAIL", "WRIT")
+CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
+CALL write_variable_in_TIKL("Application check: " & reminder_text & " Review ECF if requested have not been received and processed, take appropriate action.")
+PF3		'Exits and saves TIKL
+script_end_procedure_with_error_report("Application check completed, a case note made, and a TIKL has been set for 10 days from now.")
