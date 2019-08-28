@@ -444,23 +444,27 @@ If Outlook_reminder_checkbox = CHECKED THEN
 	CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "Application check: " & reminder_text & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
 End if
 
-'message boxes based on the application status chosen instructing workers which scripts to use next
-If application_status_droplist = "Case is ready to approve or deny" Then
-	Msgbox "Success!  You have identified that the case is either ready to approve or deny." & vbNewLine & vbNewLine & _
-	"If your case is ready to approve, please use the ""NOTES - APPROVED PROGRAMS"" script." & vbNewLine & vbNewLine & _
-	"If your case is ready to be denied, please use the ""NOTES - DENIED PROGRAMS"" script."
-ELSEIF application_status_droplist = "No verifs rec'd yet(verification request has been sent)" Then
-	Msgbox "Success!  You have identified that no verifications have been received yet, and a verification request has been sent." & vbNewLine & vbNewLine & _
-	"Please check to see that there is a verification requested case note, and if not, please use the ""NOTES - VERIFICATIONS REQUESTED"" script."
-ELSEIF application_status_droplist = "Some verifs rec'd & more verification are needed" Then
-	Msgbox "Success!  You have identified that the your case has received some verifications, but others are needed." & vbNewLine & vbNewLine & _
-	"Please check to see that the documents received have been case noted, as well as which verifications are still needed, and if a new verification request was sent." & vbNewLine & _
-	"Please use the ""NOTES - DOCUMENTS RECEIVED"" script and/or the ""NOTES - VERIFICATIONS REQUESTED"" as needed."
-END IF
-
-
 Call navigate_to_MAXIS_screen("DAIL", "WRIT")
 CALL create_MAXIS_friendly_date(reminder_date, 0, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
 CALL write_variable_in_TIKL("Application check: " & reminder_text & " Review ECF if requested have not been received and processed, take appropriate action.")
 PF3		'Exits and saves TIKL
+
+'message boxes based on the application status chosen instructing workers which scripts to use next
+'If application_status_droplist = "Case is ready to approve or deny" Then
+'	script_end_procedure_with_error_report("Success!  You have identified that the case is either ready to approve or deny." & vbNewLine & vbNewLine & _
+'	"If your case is ready to approve, please use the ""NOTES - APPROVED PROGRAMS"" script." & vbNewLine & vbNewLine & _
+'	"If your case is ready to be denied, please use the ""NOTES - DENIED PROGRAMS"" script.")
+'ELSEIF application_status_droplist = "Requested verifications not received" Then
+'	script_end_procedure_with_error_report("Success!  You have identified that no verifications have been received yet, and a verification request has been sent." & vbNewLine & vbNewLine & _
+'	"Please check to see that there is a verification requested case note, and if not, please use the ""NOTES - VERIFICATIONS REQUESTED"" script.")
+'ELSEIF application_status_droplist = "Partial verfications received, more are needed" Then
+'	script_end_procedure_with_error_report("Success!  You have identified that the your case has received some verifications, but others are needed." & vbNewLine & vbNewLine & _
+'	"Please check to see that the documents received have been case noted, as well as which verifications are still needed, and if a new verification request was sent." & vbNewLine & _
+'	"Please use the ""NOTES - DOCUMENTS RECEIVED"" script and/or the ""NOTES - VERIFICATIONS REQUESTED"" as needed.")
+'ELSEIF application_status_droplist = "Interview still needed" Then
+'	script_end_procedure_with_error_report("Success!  You have identified that the your case has not had an interview completed." & vbNewLine & vbNewLine & _
+'	"Please ensure that all attempts to contact the client have been made." & vbNewLine & _
+'	"When the interview has been completed please remember to update the interview date on STAT/PROG.")
+'END IF
+
 script_end_procedure_with_error_report("Application check completed, a case note made, and a TIKL has been set.")
