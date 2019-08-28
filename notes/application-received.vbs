@@ -172,6 +172,11 @@ EMReadScreen PEND_HC_check, 1, MAXIS_row, 65
 EMReadScreen PEND_EMER_check,	1, MAXIS_row, 68
 EMReadScreen PEND_GRH_check, 1, MAXIS_row, 72
 
+
+
+MAXIS_footer_month = right("00" & DatePart("m", application_date), 2)
+MAXIS_footer_year = right(DatePart("yyyy", application_date), 2)
+
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 'EMReadScreen application_date, 8, 6, 33
 

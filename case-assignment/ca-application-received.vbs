@@ -43,7 +43,8 @@ END IF
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
-'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("08/27/2019", "Added GRH to appointment letter handling.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/20/2019", "Bug on the script when a large PND2 list is accessed.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("07/26/2019", "Reverted the script to not email Team 603 for METS cases. CA workers will need to manually complete the email to: field.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("07/24/2019", "Removed Mail & Fax option and added MDQ per request.", "MiKayla Handley, Hennepin County")
@@ -90,9 +91,9 @@ Do
 		err_msg = ""
 		Dialog initial_dialog
 		cancel_confirmation
-		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	LOOP UNTIL err_msg = ""
+      	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+	Loop until err_msg = ""
 CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
@@ -137,7 +138,6 @@ End If
 If MAXIS_row = 18 Then script_end_procedure("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
 
 'grabs row and col number that the cursor is at
-'EMGetCursor MAXIS_row, MAXIS_col
 EMReadScreen app_month, 2, MAXIS_row, 38
 EMReadScreen app_day, 2, MAXIS_row, 41
 EMReadScreen app_year, 2, MAXIS_row, 44
@@ -163,6 +163,7 @@ IF multiple_apps = vbNo then
 	If additional_apps = vbYes then
 		additional_date_found = TRUE
 		application_date = additional_application_date
+		MAXIS_row = MAXIS_row + 1
 	END IF
 End if
 
@@ -605,7 +606,7 @@ END IF
 IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case number #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
 IF METS_retro_checkbox = CHECKED THEN CALL create_outlook_email("", "", "Case number #" & maxis_case_number &  " Retro Request APPL'd in Maxis - ACTION REQUIRED.", "", "", FALSE)
 '----------------------------------------------------------------------------------------------------NOTICE APPT LETTER Dialog
-IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE
+IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or grh_pends or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE
 if interview_completed = TRUE Then send_appt_ltr = FALSE
 IF send_appt_ltr = TRUE THEN
 	BeginDialog Hennepin_appt_dialog, 0, 0, 266, 80, "APPOINTMENT LETTER"
