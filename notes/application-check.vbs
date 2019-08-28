@@ -463,4 +463,4 @@ Call navigate_to_MAXIS_screen("DAIL", "WRIT")
 CALL create_MAXIS_friendly_date(reminder_date, 0, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
 CALL write_variable_in_TIKL("Application check: " & reminder_text & " Review ECF if requested have not been received and processed, take appropriate action.")
 PF3		'Exits and saves TIKL
-script_end_procedure_with_error_report("Application check completed, a case note made, and a TIKL has been set for 10 days from now.")
+script_end_procedure_with_error_report("Application check completed, a case note made, and a TIKL has been set.")
