@@ -3048,6 +3048,7 @@ function changelog_display()
 					if trim(text_of_change) = trim(local_changelog_text_of_change) then
 					 	exit for
 					else
+                        text_of_change = replace(text_of_change, "##~##", vbCR)
                         If name_of_script = "Functions Library" Then
                             changelog_msgbox = changelog_msgbox & "-----" & cdate(date_of_change) & "-----" & vbNewLine & text_of_change & vbNewLine & vbNewLine & "Thank you!" & vbNewLine & "The BlueZone Script Team" & vbNewLine & vbNewLine
                         Else

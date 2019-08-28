@@ -5,7 +5,7 @@ STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 720                     'manual run time in seconds
 STATS_denomination = "C"                   'C is for each CASE
 'END OF stats block=========================================================================================================
-run_locally = true
+
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/28/2019", "Testing Updates/Fixes:##~## - AREP now in 'Interview With' field.##~## - 'No Income Found' message added to Dialog 5.##~## - BUG - Liquid assets carries from Dialog 7 to Dialog 8 and back now. ##~## - If case is expedited BUT approval is not done, the date can be blank but delay must be explained. ##~## - BUG - Script correctly finds CNote from EARNED INCOME BUDGETING Script and does not require further explanation.##~## - Header has been adjusted to not cut off.", "Casey Love, Hennepin County")
 call changelog_update("08/23/2019", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -599,7 +600,7 @@ function read_EATS_panel()
     'Now it checks for the total number of panels. If there's 0 Of 0 it'll exit the function for you so as to save oodles of time.
     EMReadScreen panel_total_check, 6, 2, 73
     IF panel_total_check = "0 Of 0" THEN
-        If UBound(ALL_MEMBERS_ARRAY, 2) = 0 Then EATS = "Single member case, EATS not needed,"
+        If UBound(ALL_MEMBERS_ARRAY, 2) = 0 Then EATS = "Single member case, EATS panel is not needed,"
         exit function		'Exits out if there's no panel info
     End If
     EMReadScreen all_eat_together, 1, 4, 72
@@ -1841,6 +1842,7 @@ EMConnect ""
 get_county_code				'since there is a county specific checkbox, this makes the the county clear
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+script_run_lowdown = ""
 
 BeginDialog Dialog1, 0, 0, 281, 215, "Case number dialog"
   EditBox 65, 50, 60, 15, MAXIS_case_number
@@ -1916,6 +1918,16 @@ MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
 MAXIS_footer_year = right("00" & MAXIS_footer_year, 2)
 call check_for_MAXIS(False)	'checking for an active MAXIS session
 MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
+
+script_run_lowdown = script_run_lowdown & vbCr & "CAF Type: " & CAF_type
+script_run_lowdown = script_run_lowdown & vbCr & "Footer month:; " & MAXIS_footer_month & "/" & MAXIS_footer_year
+
+If CASH_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "CASH Checked"
+If trim(cash_other_req_detail) <> "" Then script_run_lowdown = script_run_lowdown & vbCr & "CASH: " & cash_other_req_detail
+If SNAP_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "SNAP Checked"
+If trim(snap_other_req_detail) <> "" Then script_run_lowdown = script_run_lowdown & vbCr & "SNAP: " & snap_other_req_detail
+If EMER_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "EMER Checked"
+If trim(emer_other_req_detail) <> "" Then script_run_lowdown = script_run_lowdown & vbCr & "EMER: " & emer_other_req_detail
 
 'GRABBING THE DATE RECEIVED AND THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 call navigate_to_MAXIS_screen("stat", "hcre")
@@ -2001,6 +2013,8 @@ If CAF_type = "Application" Then
     End If
 End If
 
+If exp_det_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found Expedited Case Note"
+
 ' call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST)
 call read_ADDR_panel
 call read_SHEL_panel
@@ -2053,7 +2067,7 @@ IF panel_total_check <> "0 Of 0" Then
             Loop until cint(JOBS_panel_current) = cint(JOBS_total)
         End if
     Next
-Else
+End If
 
 If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) <> "" Then
     For each_memb = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
@@ -2097,7 +2111,6 @@ If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) <> "" Then
     Next
 End If
 
-End If
 busi_count = 0
 call navigate_to_MAXIS_screen("STAT", "BUSI")
 EMReadScreen panel_total_check, 6, 2, 73
@@ -2163,6 +2176,14 @@ If CAF_type <> "Recertification" then TIKL_checkbox = checked
 
 Call generate_client_list(interview_memb_list, "Select or Type")
 Call generate_client_list(shel_memb_list, "Select")
+
+Call navigate_to_MAXIS_screen("STAT", "AREP")
+EMReadScreen version_numb, 1, 2, 73
+If version_numb = "1" Then
+    EMReadScreen arep_name, 37, 4, 32
+    arep_name = replace(arep_name, "_", "")
+    interview_memb_list = interview_memb_list+chr(9)+"AREP - " & arep_name
+End If
 
 notes_on_busi = ""
 
@@ -2322,12 +2343,13 @@ Do
                                                     '     if each_job = job_limit Then Exit Do
                                                     '     each_job = each_job + 1
                                                     ' Loop until each_job = UBound(ALL_JOBS_PANELS_ARRAY, 2)
-                                                    y_pos = 10
+                                                    y_pos = 5
                                                     'MsgBox dlg_len
 
                                                     BeginDialog Dialog1, 0, 0, 606, dlg_len, "CAF Dialog 2 - JOBS Information"
                                                       'GroupBox 5, 5, 595, jobs_grp_len, "Earned Income"
                                                       If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) = "" Then
+                                                        y_pos = y_pos + 5
                                                         Text 10, y_pos, 590, 10, "There are no JOBS panels found on this case. The script could not pull JOBS details for a case note."
                                                         Text 10, y_pos + 10, 590, 10, " ** If this case has income from job source(s) it is best to add the JOBS panels before running this script. **"
                                                         Text 10, y_pos + 30, 50, 10, "JOBS Details:"
@@ -2797,7 +2819,7 @@ Do
                                 y_pos = 5
                                 BeginDialog Dialog1, 0, 0, 465, dlg_four_len, "Dialog 4 - CSES"
                                   If show_cses_detail = FALSE Then
-                                      Text 10, y_pos, 445, 10, "There are no UNEA panels for Child Support (08, 36, 39) and the script could not pull child support detail information.."
+                                      Text 10, y_pos, 445, 10, "There are no UNEA panels for Child Support (08, 36, 39) and the script could not pull child support detail information."
                                       Text 10, y_pos + 10, 445, 10, " ** If this case has income from child support it is best to add the UNEA panels before running this script. **"
                                       y_pos = y_pos + 30
                                   Else
@@ -2953,21 +2975,33 @@ Do
                         If show_five = true Then
                             dlg_five_len = 170
                             ssa_group_len = 30
-                            uc_group_len = 40
+                            uc_group_len = 30
+                            unea_income_found = FALSE
                             For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
                                 If UNEA_INCOME_ARRAY(UC_exists, each_unea_memb) = TRUE Then
                                     dlg_five_len = dlg_five_len + 70
-                                    uc_group_len = uc_group_len + 70
+                                    uc_group_len = uc_group_len + 80
                                     UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb) = UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb) & ""
+                                    unea_income_found = TRUE
                                 End If
                                 If UNEA_INCOME_ARRAY(SSA_exists, each_unea_memb) = TRUE Then
                                     dlg_five_len = dlg_five_len + 40
                                     ssa_group_len = ssa_group_len + 40
+                                    unea_income_found = TRUE
                                 End If
                             Next
+                            If trim(notes_on_VA_income) <> "" Then unea_income_found = TRUE
+                            If trim(notes_on_WC_income) <> "" Then unea_income_found = TRUE
+                            If trim(notes_on_other_UNEA) <> "" Then unea_income_found = TRUE
+                            If unea_income_found = FALSE Then dlg_five_len = dlg_five_len + 20
 
                             y_pos = 5
                             BeginDialog Dialog1, 0, 0, 466, dlg_five_len, "Dialog 5 - UNEA"
+                              If unea_income_found = FALSE Then
+                                  Text 10, y_pos, 445, 10, "There are no UNEA panels found and the script could not pull detail about SSA/WC/VA/UC or other UNEA income."
+                                  Text 10, y_pos + 10, 445, 10, " ** If this case has income from SSI, RSDI, or Unemployment it is best to add the UNEA panels before running this script. **"
+                                  y_pos = y_pos + 25
+                              End If
                               GroupBox 5, y_pos, 455, ssa_group_len, "SSA Income"
                               y_pos = y_pos + 15
                               For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
@@ -3432,6 +3466,8 @@ Do
                     End If
                 Loop Until pass_six = true
                 If show_seven = true Then
+                    app_month_assets = app_month_assets & ""
+
                     BeginDialog Dialog1, 0, 0, 561, 340, "CAF Dialog 7 - Asset and Miscellaneous Info"
                       EditBox 435, 20, 115, 15, app_month_assets
                       EditBox 45, 40, 395, 15, notes_on_acct
@@ -3506,6 +3542,8 @@ Do
 
                     Call assess_button_pressed
                     If ButtonPressed = go_to_next_page Then pass_seven = true
+
+                    If IsNumeric(app_month_assets) = TRUE Then app_month_assets = app_month_assets * 1
                 End If
             Loop Until pass_seven = true
             If show_eight = true Then
@@ -3628,7 +3666,14 @@ Do
                     For each_job = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
                         If ALL_JOBS_PANELS_ARRAY(employer_name, each_job) <> "" THen
                             IF ALL_JOBS_PANELS_ARRAY(EI_case_note, each_job) = FALSE Then
-                                If len(ALL_JOBS_PANELS_ARRAY(budget_explain, each_job)) < 20 AND ALL_JOBS_PANELS_ARRAY(estimate_only, each_job) = unchecked Then full_err_msg = full_err_msg & "~!~" & "2^* Additional detail about how the job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " - was budgeted is required. Complete the 'Explain Budget' field for this job."
+                                If ALL_JOBS_PANELS_ARRAY(estimate_only, each_job) = unchecked Then
+                                    ALL_JOBS_PANELS_ARRAY(budget_explain, each_job) = trim(ALL_JOBS_PANELS_ARRAY(budget_explain, each_job))
+                                    If ALL_JOBS_PANELS_ARRAY(budget_explain, each_job) = "" Then
+                                        full_err_msg = full_err_msg & "~!~" & "2^* Additional detail about how the job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " - was budgeted is required. Complete the 'Explain Budget' field for this job."
+                                    ElseIf len(ALL_JOBS_PANELS_ARRAY(budget_explain, each_job)) < 20 Then
+                                        full_err_msg = full_err_msg & "~!~" & "2^* Budget detail for job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " - should be longer. Budget cannot be sufficiently explained in a short note."
+                                    End If
+                                End If
                                 If SNAP_checkbox = checked Then
                                     If IsNumeric(ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)) = FALSE Then full_err_msg = full_err_msg & "~!~" & "2^* For a SNAP case the average pay date amount must be entered as a number. Update the 'Pay Date Amount' for job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
                                     If ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job) = "Type or select" Then full_err_msg = full_err_msg & "~!~" & "2^* The pay frequency for SNAP pay date amount needs to be identified to correctly note the income. Update the frequency after 'Pay Date Amount' for the job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
@@ -3641,7 +3686,14 @@ Do
                     'DIALOG 3
                     If ALL_BUSI_PANELS_ARRAY(memb_numb, 0) <> "" Then
                         For each_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
-                            If len(ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi)) < 20 AND ALL_BUSI_PANELS_ARRAY(estimate_only, each_busi) = unchecked Then full_err_msg = full_err_msg & "~!~3^* Additional detail about how BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & " was budgeted is required. Complete the 'Explain Budget' field for this self employment."
+                            ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi) = trim(ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi))
+                            If ALL_BUSI_PANELS_ARRAY(estimate_only, each_busi) = unchecked Then
+                                If ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi) = "" Then
+                                    full_err_msg = full_err_msg & "~!~3^* Additional detail about how BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & " was budgeted is required. Complete the 'Explain Budget' field for this self employment."
+                                ElseIf len(ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi)) < 20 Then
+                                    full_err_msg = full_err_msg & "~!~3^* Additional detail about how BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & " was budgeted should be longer - the note is too short so sufficiently explain how the income was budgeted."
+                                End If
+                            End If
                             If ALL_BUSI_PANELS_ARRAY(calc_method, each_busi) = "Select One" Then full_err_msg = full_err_msg & "~!~3^* Indicate which calculation method will be used for BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & "."
                             If ALL_BUSI_PANELS_ARRAY(calc_method, each_busi) = "Tax Forms" Then
                                 If SNAP_checkbox = checked Then
@@ -4119,7 +4171,13 @@ If CAF_type = "Application" and SNAP_checkbox = checked AND exp_det_case_note_fo
 
     Call write_variable_in_CASE_NOTE(case_note_header_text)
     If interview_date <> "" Then Call write_variable_in_case_note ("* Interview completed on: " & interview_date & " and full Expedited Determination Done")
-    IF snap_exp_yn = "Yes" Then Call write_variable_in_case_note ("* Case is determined to meet criteria and Expedited SNAP can be approved.")
+    IF snap_exp_yn = "Yes" Then
+        If trim(exp_snap_approval_date) <> "" Then
+            Call write_variable_in_case_note ("* Case is determined to meet criteria and Expedited SNAP can be approved.")
+        Else
+            Call write_variable_in_case_note ("* Case is determined to meet expedited SNAP criteria, approval not yet completed.")
+        End If
+    End If
     IF snap_exp_yn = "No" Then Call write_variable_in_case_note ("* Expedited SNAP cannot be approved as case does not meet all criteria")
     If snap_exp_yn = "Yes" Then
         If IsDate(exp_snap_approval_date) = TRUE Then Call write_variable_in_CASE_NOTE("* SNAP EXP approved on " & exp_snap_approval_date & " - " & DateDiff("d", CAF_datestamp, exp_snap_approval_date) & " days after the date of application.")
@@ -4216,7 +4274,7 @@ End If
 'Navigates to case note, and checks to make sure we aren't in inquiry.
 Call start_a_blank_CASE_NOTE
 
-CALL write_variable_in_CASE_NOTE("*** " & CAF_datestamp & " CAF - Prog: " & progs_list & " - " & CAF_type & CAF_status & " ***")
+CALL write_variable_in_CASE_NOTE(CAF_datestamp & " CAF for " & progs_list & " - " & CAF_type & CAF_status)
 IF move_verifs_needed = TRUE THEN
 	CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
 	CALL write_variable_in_CASE_NOTE("------------------------------")
@@ -4274,14 +4332,12 @@ If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) <> "" Then
     Call write_variable_in_CASE_NOTE("--- JOBS Income ---")
     For each_job = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
         Call write_variable_in_CASE_NOTE("Member " & ALL_JOBS_PANELS_ARRAY(memb_numb, each_job) & " at " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job))
-        If ALL_JOBS_PANELS_ARRAY(estimate_only, each_job) = checked Then
-            Call write_variable_in_CASE_NOTE("* This job has not been verified and this is only an estimate.")
-        Else
-            If ALL_JOBS_PANELS_ARRAY(verif_code, each_job) = "Delayed" Then
-                Call write_variable_in_CASE_NOTE("* Verification of this job has been delayed for review or approval of Expedited SNAP.")
-            Else
-                Call write_variable_in_CASE_NOTE("* Verification - " & ALL_JOBS_PANELS_ARRAY(verif_code, each_job))
-            End If
+        If ALL_JOBS_PANELS_ARRAY(estimate_only, each_job) = checked Then Call write_variable_in_CASE_NOTE("* This job has not been verified and this is only an estimate.")
+        IF ALL_JOBS_PANELS_ARRAY(EI_case_note, each_job) = TRUE Then call write_variable_in_CASE_NOTE("* BUDGET DETAIL ABOUT THIS JOB IN PREVIOUS CASE NOTE.")
+        If ALL_JOBS_PANELS_ARRAY(verif_code, each_job) = "Delayed" Then
+            Call write_variable_in_CASE_NOTE("* Verification of this job has been delayed for review or approval of Expedited SNAP.")
+        ElseIf ALL_JOBS_PANELS_ARRAY(estimate_only, each_job) = unchecked Then
+            Call write_variable_in_CASE_NOTE("* Verification - " & ALL_JOBS_PANELS_ARRAY(verif_code, each_job))
         End If
         Call write_bullet_and_variable_in_CASE_NOTE("Verification", ALL_JOBS_PANELS_ARRAY(verif_explain, each_job))
         If ALL_JOBS_PANELS_ARRAY(job_retro_income, each_job) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Retro Income: $" & ALL_JOBS_PANELS_ARRAY(job_retro_income, each_job) & " - " & ALL_JOBS_PANELS_ARRAY(retro_hours, each_job) & " hours.")
