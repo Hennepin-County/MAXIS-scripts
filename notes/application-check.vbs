@@ -357,11 +357,12 @@ Elseif DateDiff("d", application_date, date) > 60 then
 	reminder_text = "Post day 60"
 END IF
 '----------------------------------------------------------------------------------------------------dialogs
-BeginDialog application_check_dialog, 0, 0, 386, 185, "Application Check: " & application_check
+BeginDialog application_check_dialog, 0, 0, 386, 185, "Application Check: "  & application_check
   DropListBox 75, 15, 80, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
   EditBox 175, 20, 50, 15, application_date
   DropListBox 75, 45, 155, 15, "Select One:"+chr(9)+"Interview still needed"+chr(9)+"Requested verifications not received"+chr(9)+"Partial verfications received, more are needed"+chr(9)+"Case is ready to approve or deny"+chr(9)+"Other", application_status_droplist
   CheckBox 245, 45, 135, 15, "Check to have an outlook reminder set", Outlook_reminder_checkbox
+  CheckBox 275, 65, 95, 10, "Check to confirm ECF has", ECF_checkbox
   EditBox 95, 65, 170, 15, other_app_notes
   EditBox 95, 85, 170, 15, verifs_rcvd
   EditBox 95, 105, 170, 15, verifs_needed
@@ -374,8 +375,10 @@ BeginDialog application_check_dialog, 0, 0, 386, 185, "Application Check: " & ap
   CheckBox 330, 135, 30, 10, "GRH", GRH_CHECKBOX
   CheckBox 285, 145, 20, 10, "HC", HC_CHECKBOX
   ButtonGroup ButtonPressed
-    OkButton 275, 165, 50, 15
-    CancelButton 330, 165, 50, 15
+    OkButton 280, 165, 45, 15
+    CancelButton 330, 165, 45, 15
+  ButtonGroup ButtonPressed
+    PushButton 240, 15, 30, 10, "AREP", AREP_button
     PushButton 345, 15, 30, 10, "JOBS", JOBS_button
     PushButton 240, 25, 30, 10, "PROG", PROG_button
     PushButton 275, 25, 30, 10, "REVW", REVW_button
@@ -394,10 +397,9 @@ BeginDialog application_check_dialog, 0, 0, 386, 185, "Application Check: " & ap
   Text 5, 170, 60, 10, "Worker signature:"
   GroupBox 5, 5, 160, 30, "Day 1 application check only"
   GroupBox 235, 5, 145, 35, "MAXIS navigation"
-  GroupBox 275, 115, 100, 45, "Pending Programs"
-  ButtonGroup ButtonPressed
-    PushButton 240, 15, 30, 10, "AREP", AREP_button
-  Text 275, 65, 100, 20, "A TIKL to review the case will be created by the script"
+  GroupBox 280, 115, 95, 45, "Pending Programs"
+  Text 275, 90, 100, 20, "**A TIKL to review the case will be created by the script"
+  Text 285, 75, 90, 10, " been reviewed"
 EndDialog
 
 'main dialog
@@ -424,9 +426,10 @@ IF application_check = "Day 1" THEN CALL write_bullet_and_variable_in_CASE_NOTE(
 Call write_bullet_and_variable_in_CASE_NOTE("Application status", application_status_droplist)
 CALL write_bullet_and_variable_in_CASE_NOTE("Program applied for", programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE("Application date", application_date)
-'CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
+'CALL write_bullet_and_variable_in_CASE_NOTE("Pended on", pended_date)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other Pending Programs", additional_programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", active_programs)
+IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* ECF reviewed and verifications have been sent")
 CALL write_bullet_and_variable_in_CASE_NOTE("Verifications Recieved", verifs_rcvd)
 CALL write_bullet_and_variable_in_CASE_NOTE("Pending Verifications", verifs_needed)
 CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)
