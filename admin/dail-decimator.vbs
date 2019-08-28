@@ -289,6 +289,7 @@ For each worker in worker_array
                 instr(dail_msg, "MEMBER HAS TURNED 60 - FSET:WORK REG HAS BEEN UPDATED") OR _
                 instr(dail_msg, "LAST GRADE COMPLETED") OR _
                 instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") OR _
+                instr(dail_msg, "IF CLIENT HAS NOT COMPLETED RECERT, APPL CAF FOR") OR _
                 instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then
     		        add_to_excel = True
                 'instr(dail_msg, "TPQY RESPONSE") OR _  ---removed temporarily
