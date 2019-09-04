@@ -221,23 +221,23 @@ For each worker in worker_array
 			    Call write_value_and_transmit("T", dail_row + 1, 3)
 				dail_row = 6
 			End if
-            
-            'Reading the DAIL Information 
+
+            'Reading the DAIL Information
 			EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
             MAXIS_case_number = trim(MAXIS_case_number)
-            MAXIS_case_number = right("00000000" & MAXIS_case_number, 8) 'outputs in 8 digits format 
-            
+            MAXIS_case_number = right("00000000" & MAXIS_case_number, 8) 'outputs in 8 digits format
+
             EMReadScreen dail_type, 4, dail_row, 6
-			
+
             EMReadScreen dail_msg, 61, dail_row, 20
 			dail_msg = trim(dail_msg)
-            
+
             EMReadScreen dail_month, 8, dail_row, 11
-            'Reformatting DAIL month 
-            dail_month = trim(dail_month)    
-            If len(dail_month) = 5 then dail_month = replace(dail_month, " ", "/01/")       
-			
-            stats_counter = stats_counter + 1   'I increment thee 
+            'Reformatting DAIL month
+            dail_month = trim(dail_month)
+            'If len(dail_month) = 5 then dail_month = replace(dail_month, " ", "/01/")
+
+            stats_counter = stats_counter + 1   'I increment thee
 
             '----------------------------------------------------------------------------------------------------CSES Messages
             If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
@@ -448,7 +448,7 @@ For item = 0 to UBound(DAIL_array, 2)
 	objExcel.Cells(excel_row, 4).Value = DAIL_array(dail_month_const, item)
     objExcel.Cells(excel_row, 5).Value = DAIL_array(dail_msg_const, item)
 	excel_row = excel_row + 1
-Next 
+Next
 
 objExcel.Cells(1, 7).Value = "Remaning DAIL messages:"
 objExcel.Columns(7).Font.Bold = true
@@ -459,10 +459,10 @@ FOR i = 1 to 8
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
 
-'saving the Excel file 
+'saving the Excel file
 file_info = month_folder & "\" & decimator_folder & "\" & report_date & " " & dail_to_decimate & " " & deleted_dails
 
-'Saves and closes the most recent Excel workbook with the Task based cases to process. 
+'Saves and closes the most recent Excel workbook with the Task based cases to process.
 objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
 objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
