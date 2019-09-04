@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/04/2019", "Reworded the TIKL.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/01/2019", "Removed the automated DAIL deletion. Workers must go back and delete manually once the DAIL has been acted on.", "MiKayla Handley, Hennepin County")
 call changelog_update("04/01/2019", "Initial version.", "MiKayla Handley, Hennepin County")
 
@@ -212,7 +213,7 @@ PF3
 		CALL navigate_to_MAXIS_screen("DAIL","WRIT")
 		CALL create_MAXIS_friendly_date(date, 10, 5, 18)
 		EMSetCursor 9, 3
-		EMSendKey "DAIL recieved " & DAIL_type & " " & verifs_needed & "."
+		EMSendKey "Review case for requested verifications or actions needed: " & verifs_needed & "."
 	END IF
 
 script_end_procedure_with_error_report(DAIL_type & vbcr &  first_line & vbcr & " DAIL has been case noted")
