@@ -74,7 +74,7 @@ If dail_check <> "DAIL" then script_end_procedure("You are not in your DAIL. Thi
 EMSendKey "t"
 transmit
 'This is a dialog asking if the job is known to the agency.
-BeginDialog new_HIRE_dialog, 0, 0, 281, 195, "New HIRE dialog"
+BeginDialog new_HIRE_dialog, 0, 0, 281, 195, "NEW HIRE INFORMATION"
   EditBox 65, 5, 20, 15, HH_memb
   EditBox 65, 25, 95, 15, employer
   CheckBox 15, 45, 190, 10, "Check here to have the script create a new JOBS panel.", create_JOBS_checkbox
@@ -96,7 +96,7 @@ BeginDialog new_HIRE_dialog, 0, 0, 281, 195, "New HIRE dialog"
     PushButton 225, 25, 45, 10, "next memb", next_memb_button
   Text 5, 180, 60, 10, "Worker signature:"
   GroupBox 170, 5, 105, 35, "STAT-based navigation"
-  Text 5, 30, 50, 10, "New HIRE Info:"
+  Text 5, 30, 50, 10, "New Hire Info:"
   Text 20, 160, 40, 10, "Other notes:"
   Text 5, 10, 60, 10, "Member Number:"
   GroupBox 5, 70, 270, 65, "Verification or updates"
