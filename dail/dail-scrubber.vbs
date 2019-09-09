@@ -208,12 +208,14 @@ END IF
 EMReadScreen HIRE_check, 15, 6, 20
 If HIRE_check = "NEW JOB DETAILS" then
     match_found = TRUE
+	SDNH_match_type = TRUE
 	call run_from_GitHub(script_repository & "dail/new-hire.vbs")
 END IF
 'New HIRE messages, client started a new job (loads NEW HIRE)
 EMReadScreen HIRE_check, 11, 6, 37
 If HIRE_check = "JOB DETAILS" then
 	match_found = TRUE
+	NDNH_match_type = TRUE
     call run_from_GitHub(script_repository & "dail/new-hire-ndnh.vbs")
 END IF
 'federal prisoner register support messages
