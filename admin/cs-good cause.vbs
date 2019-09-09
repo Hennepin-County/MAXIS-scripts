@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/09/2019", "Handling for edit mode on ABPS panel.", "MiKayla Handley, Hennepin County")
 call changelog_update("06/13/2018", "Updated incomplete forms and dialog.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/14/2018", "Updated per GC Committee requests.", "MiKayla Handley, Hennepin County")
 call changelog_update("03/27/2017", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -57,6 +58,7 @@ changelog_display
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+back_to_self 'to ensure we are not in edit mode'
 
 BeginDialog case_number, 0, 0, 116, 65, "Case number"
   EditBox 60, 5, 50, 15, MAXIS_case_number
