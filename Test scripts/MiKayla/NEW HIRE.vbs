@@ -1,7 +1,8 @@
-'------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.As such, it does NOT include protections to be ran independently.
+'------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
+'------------------As such, it does NOT include protections to be ran independently.
 
 'Required for statistical purposes===============================================================================
-name_of_script = "DAIL - NEW HIRE NDNH.vbs"
+name_of_script = "DAIL - ALL NEW HIRE.vbs"
 start_time = timer
 STATS_counter = 1              'sets the stats counter at one
 STATS_manualtime = 345         'manual run time in seconds
@@ -62,6 +63,22 @@ EMGetCursor dail_row, dail_col
 EMSendKey "t"
 TRANSMIT
 
+'New HIRE messages, client started a new job (loads NEW HIRE)
+EMReadScreen HIRE_check, 15, 6, 20
+If HIRE_check = "NEW JOB DETAILS" then
+    match_found = TRUE
+	SDNH_match_type = TRUE
+	'call run_from_GitHub(script_repository & "dail/new-hire.vbs")
+END IF
+'New HIRE messages, client started a new job (loads NEW HIRE)
+EMReadScreen HIRE_check, 11, 6, 37
+If HIRE_check = "JOB DETAILS" then
+	match_found = TRUE
+	NDNH_match_type = TRUE
+    'call run_from_GitHub(script_repository & "dail/new-hire-ndnh.vbs")
+END IF
+
+
 'The following reads the message in full for the end part (which tells the worker which message was selected)
 EMReadScreen full_message, 60, 6, 20
 full_message = trim(full_message)
@@ -93,9 +110,103 @@ IF extra_info = "+" or extra_info = "&" THEN
 		fifth_line = trim(fifth_line)
 	TRANSMIT
 END IF
-'DIALOGS----------------------------------------------------------------------------------------------
 
-BeginDialog NDNH_only_dialog, 0, 0, 236, 70, "National Directory of New Hires"
+'The script needs to determine what the day is in a MAXIS friendly format. The following does that.
+current_month = CM_mo
+If len(current_month) = 1 then current_month = "0" & current_month
+current_day = datepart("d", date)
+If len(current_day) = 1 then current_day = "0" & current_day
+current_year = CM_yr
+'SELECTS THE DAIL MESSAGE AND READS THE RESPONSE
+EMSendKey "x"
+TRANSMIT
+row = 1
+col = 1
+msgbox NDNH_match_type & " or " & SDNH_match_type
+IF NDNH_match_type = TRUE THEN
+    EMSearch "JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
+    If row = 0 then script_end_procedure_with_error_report("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
+    EMReadScreen new_hire_first_line, 61, row, col - 7 'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
+    	new_hire_first_line = replace(new_hire_first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
+    	new_hire_first_line = trim(new_hire_first_line)
+    EMReadScreen new_hire_second_line, 61, row + 1, col -15
+    	new_hire_second_line = trim(new_hire_second_line)
+    EMReadScreen new_hire_third_line, 61, row + 2, col -15 'maxis name'
+    	new_hire_third_line = trim(new_hire_third_line)
+    	new_hire_third_line = replace(new_hire_third_line, ",", ", ")
+    EMReadScreen new_hire_fourth_line, 61, row + 3, col -15'new hire name'
+    	new_hire_fourth_line = trim(new_hire_fourth_line)
+    	new_hire_fourth_line = replace(new_hire_fourth_line, ",", ", ")
+    'IF right(new_hire_third_line, 46) <> right(new_hire_fourth_line, 46) then 				'script was being run on cases where the names did not match but SSN did. This will allow users to review.
+    '	warning_box = MsgBox("The names found on the NEW HIRE message do not match exactly." & vbcr & new_hire_third_line & vbcr & new_hire_fourth_line & vbcr & "Please review and click OK if you wish to continue and CANCEL if the name is incorrect.", vbOKCancel)
+    '	If warning_box = vbCancel then script_end_procedure("The script has ended. Please review the new hire as you indicated that the name read from the NEW HIRE and the MAXIS name did not match.")
+    'END IF
+    row = 1 						'Now it's searching for info on the hire date as well as employer
+    col = 1
+    'Now it's searching for info on the hire date as well as employer
+    EMSearch "DATE HIRED", row, col
+    EMReadScreen date_hired, 10, row, col + 15
+    If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then date_hired = current_month & "-" & current_day & "-" & current_year
+    date_hired = trim(date_hired)
+    'date_hired = CDate(date_hired)
+    month_hired = Datepart("m", date_hired)
+    If len(month_hired) = 1 then month_hired = "0" & month_hired
+    day_hired = Datepart("d", date_hired)
+    If len(day_hired) = 1 then day_hired = "0" & day_hired
+    year_hired = Datepart("yyyy", date_hired)
+    year_hired = year_hired - 2000
+    EMSearch "EMPLOYER:", row, col
+    EMReadScreen employer, 25, row, col + 10
+    employer = TRIM(employer)
+    EMReadScreen new_HIRE_SSN, 9, 9, 5
+    PF3
+END IF
+IF SDNH_match_type = TRUE THEN
+    EMSearch "NEW JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
+    If row = 0 then script_end_procedure_with_error_report("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
+    EMReadScreen new_hire_first_line, 61, row, col'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
+    	new_hire_first_line = replace(new_hire_first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
+    	new_hire_first_line = trim(new_hire_first_line)
+    EMReadScreen new_hire_second_line, 61, row + 1, col
+    	new_hire_second_line = trim(new_hire_second_line)
+    EMReadScreen new_hire_third_line, 61, row + 2, col 'maxis name'
+    	new_hire_third_line = trim(new_hire_third_line)
+    	new_hire_third_line = replace(new_hire_third_line, ",", ", ")
+    EMReadScreen new_hire_fourth_line, 61, row + 3, col'new hire name'
+    	new_hire_fourth_line = trim(new_hire_fourth_line)
+    	new_hire_fourth_line = replace(new_hire_fourth_line, ",", ", ")
+    IF right(new_hire_third_line, 46) <> right(new_hire_fourth_line, 46) then 				'script was being run on cases where the names did not match but SSN did. This will allow users to review.
+    	warning_box = MsgBox("The names found on the NEW HIRE message do not match exactly." & vbcr & new_hire_third_line & vbcr & new_hire_fourth_line & vbcr & "Please review and click OK if you wish to continue and CANCEL if the name is incorrect.", vbOKCancel)
+    	If warning_box = vbCancel then script_end_procedure_with_error_report("The script has ended. Please review the new hire as you indicated that the name read from the NEW HIRE and the MAXIS name did not match.")
+    END IF
+    row = 1 						'Now it's searching for info on the hire date as well as employer
+    col = 1
+    'Now it's searching for info on the hire date as well as employer
+    EMSearch "DATE HIRED:", row, col
+    EMReadScreen date_hired, 10, row, col + 12
+    If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then date_hired = current_month & "-" & current_day & "-" & current_year
+    date_hired = trim(date_hired)
+    'date_hired = CDate(date_hired)'
+    month_hired = Datepart("m", date_hired)
+    If len(month_hired) = 1 then month_hired = "0" & month_hired
+    day_hired = Datepart("d", date_hired)
+    If len(day_hired) = 1 then day_hired = "0" & day_hired
+    year_hired = Datepart("yyyy", date_hired)
+    year_hired = year_hired - 2000
+    EMSearch "EMPLOYER:", row, col
+    EMReadScreen employer, 25, row, col + 10
+    employer = TRIM(employer)
+
+    row = 1 						'Now it's searching for the SSN
+    col = 1
+    EMSearch "SSN #", row, col
+    EMReadScreen new_HIRE_SSN, 11, row, col + 5
+    new_HIRE_SSN = TRIM(new_HIRE_SSN)
+    new_HIRE_SSN = replace(new_HIRE_SSN, "-", "") '01/10/19 it has the dashes in the match now'
+    PF3
+END IF
+
+BeginDialog NDNH_only_dialog, 0, 0, 236, 70, "New Hires Action"
   DropListBox 150, 5, 80, 15, "Select One:"+chr(9)+"NO-RUN NEW HIRE"+chr(9)+"YES-INFC clear match", match_answer_droplist
   ButtonGroup ButtonPressed
     OkButton 125, 50, 50, 15
@@ -104,14 +215,7 @@ BeginDialog NDNH_only_dialog, 0, 0, 236, 70, "National Directory of New Hires"
   Text 30, 25, 190, 20, "Reminder that client must be provided 10 days to return                             requested verification(s)"
 EndDialog
 
-'----------------------------------------------------------------------------------------------------------Script
-EMConnect ""
-'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
-EMReadscreen dail_check, 4, 2, 48
-If dail_check <> "DAIL" then script_end_procedure("You are not in your DAIL. This script will stop.")
-'TYPES "T" TO BRING THE SELECTED MESSAGE TO THE TOP
-EMSendKey "t"
-transmit
+
 Do
 	DO
 		err_msg = ""
@@ -122,162 +226,106 @@ Do
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 LOOP UNTIL err_msg = ""
 
-    'This is a dialog asking if the job is known to the agency.
-BeginDialog new_HIRE_dialog, 0, 0, 281, 205, "New HIRE dialog"
-  EditBox 65, 5, 20, 15, HH_memb
-  EditBox 65, 25, 95, 15, employer
-  CheckBox 15, 45, 190, 10, "Check here to have the script create a new JOBS panel.", create_JOBS_checkbox
-  CheckBox 15, 70, 195, 10, "Sent a request for verifications out of ECF.", TIKL_checkbox
-  CheckBox 15, 85, 190, 10, "Sent a Work Number request and submitted to ECF. ", work_number_checkbox
-  CheckBox 15, 100, 100, 10, "Requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
-  CheckBox 15, 115, 105, 10, "Sent a status update to CCA.", CCA_checkbox
-  CheckBox 15, 130, 100, 10, "Sent a status update to ES. ", ES_checkbox
-  CheckBox 15, 150, 160, 10, "Job is known to the agency (exit the script).", job_known_checkbox
-  EditBox 65, 165, 210, 15, other_notes
-  EditBox 65, 185, 110, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 190, 185, 40, 15
-    CancelButton 235, 185, 40, 15
-    PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 175, 25, 45, 10, "next panel", next_panel_button
-    PushButton 225, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 225, 25, 45, 10, "next memb", next_memb_button
-  Text 5, 190, 60, 10, "Worker signature:"
-  GroupBox 170, 5, 105, 35, "STAT-based navigation"
-  Text 5, 30, 50, 10, "New HIRE Info:"
-  Text 20, 170, 40, 10, "Other notes:"
-  Text 5, 10, 60, 10, "Member Number:"
-  GroupBox 5, 60, 270, 85, "Verification or updates"
-EndDialog
-
-
-'TE02.08.142
-'Enter the amount of the First Month Cost Savings:
-'First-month cost savings equals the difference between the
-'monthly benefit the SNAP case would have been given in the
-'absence of employment information resulting from an NDNH
-'match, and the monthly benefit the SNAP case actually received
-'after the verified employment information was used to
-'modify benefits.
-
-'The script needs to determine what the day is in a MAXIS friendly format. The following does that.
-current_month = CM_mo
-If len(current_month) = 1 then current_month = "0" & current_month
-current_day = datepart("d", date)
-If len(current_day) = 1 then current_day = "0" & current_day
-current_year = CM_yr
-'SELECTS THE DAIL MESSAGE AND READS THE RESPONSE
-EMSendKey "x"
-transmit
-row = 1
-col = 1
-EMSearch "JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
-If row = 0 then script_end_procedure_with_error_report("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
-EMReadScreen new_hire_first_line, 61, row, col - 7 'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
-	new_hire_first_line = replace(new_hire_first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
-	new_hire_first_line = trim(new_hire_first_line)
-EMReadScreen new_hire_second_line, 61, row + 1, col -15
-	new_hire_second_line = trim(new_hire_second_line)
-EMReadScreen new_hire_third_line, 61, row + 2, col -15 'maxis name'
-	new_hire_third_line = trim(new_hire_third_line)
-	new_hire_third_line = replace(new_hire_third_line, ",", ", ")
-EMReadScreen new_hire_fourth_line, 61, row + 3, col -15'new hire name'
-	new_hire_fourth_line = trim(new_hire_fourth_line)
-	new_hire_fourth_line = replace(new_hire_fourth_line, ",", ", ")
-'IF right(new_hire_third_line, 46) <> right(new_hire_fourth_line, 46) then 				'script was being run on cases where the names did not match but SSN did. This will allow users to review.
-'	warning_box = MsgBox("The names found on the NEW HIRE message do not match exactly." & vbcr & new_hire_third_line & vbcr & new_hire_fourth_line & vbcr & "Please review and click OK if you wish to continue and CANCEL if the name is incorrect.", vbOKCancel)
-'	If warning_box = vbCancel then script_end_procedure("The script has ended. Please review the new hire as you indicated that the name read from the NEW HIRE and the MAXIS name did not match.")
-'END IF
-row = 1 						'Now it's searching for info on the hire date as well as employer
-col = 1
-'Now it's searching for info on the hire date as well as employer
-EMSearch "DATE HIRED", row, col
-EMReadScreen date_hired, 10, row, col + 15
-If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then date_hired = current_month & "-" & current_day & "-" & current_year
-date_hired = trim(date_hired)
-'date_hired = CDate(date_hired)
-month_hired = Datepart("m", date_hired)
-If len(month_hired) = 1 then month_hired = "0" & month_hired
-day_hired = Datepart("d", date_hired)
-If len(day_hired) = 1 then day_hired = "0" & day_hired
-year_hired = Datepart("yyyy", date_hired)
-year_hired = year_hired - 2000
-EMSearch "EMPLOYER:", row, col
-EMReadScreen employer, 25, row, col + 10
-employer = TRIM(employer)
-EMReadScreen new_HIRE_SSN, 9, 9, 5
-PF3
-
-IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND SNAP HAVE DIFFERENT RULES.
-	EMWriteScreen "h", 6, 3
-	transmit
-	row = 1
-	col = 1
-	EMSearch "FS: ", row, col
-	If row <> 0 then FS_case = True
-	If row = 0 then FS_case = False
-	row = 1
-	col = 1
-	EMSearch "MFIP: ", row, col
-	If row <> 0 then MFIP_case = True
-	If row = 0 then MFIP_case = False
-	PF3
-
+If match_answer_droplist = "NO-RUN NEW HIRE" THEN
+    'CHECKING CASE CURR. MFIP AND SNAP HAVE DIFFERENT RULES.
+    EMWriteScreen "h", 6, 3
+    TRANSMIT
+    row = 1
+    col = 1
+    EMSearch "FS: ", row, col
+    If row <> 0 then FS_case = True
+    If row = 0 then FS_case = False
+    row = 1
+    col = 1
+    EMSearch "MFIP: ", row, col
+    If row <> 0 then MFIP_case = True
+    If row = 0 then MFIP_case = False
+    PF3
     If dail_row <> 6 Then Call write_value_and_transmit("t", dail_row, 3)       'bringing the correct message back to the top'
-
-	'GOING TO STAT
-	EMSendKey "s"
-	transmit
-	EMReadScreen stat_check, 4, 20, 21
-	If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
-	'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
-	EMWriteScreen "memb", 20, 71
-	transmit
-	Do
-		EMReadScreen MEMB_current, 1, 2, 73
-		EMReadScreen MEMB_total, 1, 2, 78
-		EMReadScreen MEMB_SSN, 11, 7, 42
-		If new_HIRE_SSN = replace(MEMB_SSN, " ", "") then
-			EMReadScreen HH_memb, 2, 4, 33
-			EMReadScreen memb_age, 2, 8, 76
-			If cint(memb_age) < 19 then MsgBox "This client is under 19, so make sure to check that school verification is on file."
-		End if
-			transmit
-	LOOP UNTIL (MEMB_current = MEMB_total) or (new_HIRE_SSN = replace(MEMB_SSN, " ", ""))
-			'GOING TO JOBS
-	EMWriteScreen "jobs", 20, 71
-	EMWriteScreen HH_memb, 20, 76
-	transmit
-'MFIP cases need to manually add the JOBS panel for ES purposes.
-	If MFIP_case = False then create_JOBS_checkbox = checked
-	'Defaulting the "set TIKL" variable to checked
-	TIKL_checkbox = CHECKED
-	'Setting the variable for the following do...loop
-	HH_memb_row = 5
-'Show dialog
-	DO
-	    DO
-	    	Dialog new_HIRE_dialog
-	    	cancel_confirmation
-	    	MAXIS_dialog_navigation
-	    LOOP UNTIL ButtonPressed = -1
-	    call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-    LOOP UNTIL are_we_passworded_out = false
-
+    'GOING TO STAT
+    EMSendKey "s"
+    TRANSMIT
+    EMReadScreen stat_check, 4, 20, 21
+    If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
+    'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
+    EMWriteScreen "memb", 20, 71
+    TRANSMIT
+    Do
+    	EMReadScreen MEMB_current, 1, 2, 73
+    	EMReadScreen MEMB_total, 1, 2, 78
+    	EMReadScreen MEMB_SSN, 11, 7, 42
+    	If new_HIRE_SSN = replace(MEMB_SSN, " ", "") then
+    		EMReadScreen HH_memb, 2, 4, 33
+    		EMReadScreen memb_age, 2, 8, 76
+    		If cint(memb_age) < 19 then MsgBox "This client is under 19, so make sure to check that school verification is on file."
+    	End if
+    		TRANSMIT
+    LOOP UNTIL (MEMB_current = MEMB_total) or (new_HIRE_SSN = replace(MEMB_SSN, " ", ""))
+    		'GOING TO JOBS
     EMWriteScreen "jobs", 20, 71
-	EMWriteScreen HH_memb, 20, 76
-	transmit
-'Checking to see if 5 jobs already exist. If so worker will need to manually delete one first.
-	EMReadScreen jobs_total_panel_count, 1, 2, 78
-	IF create_JOBS_checkbox = checked AND jobs_total_panel_count = "5" THEN script_end_procedure_with_error_report("This client has 5 jobs panels already. Please review and delete and unneeded panels if you want the script to add a new one.")
+    EMWriteScreen HH_memb, 20, 76
+    TRANSMIT
+    'MFIP cases need to manually add the JOBS panel for ES purposes.
+    If MFIP_case = False then create_JOBS_checkbox = checked
+    'Defaulting the "set TIKL" variable to checked
+    TIKL_checkbox = CHECKED
+    'Setting the variable for the following do...loop
+    HH_memb_row = 5
+    'Show dialog
 
-'If new job is known, script ends.
-	If job_known_checkbox = checked then script_end_procedure("The script will stop as this job is known.")
+    'DIALOGS----------------------------------------------------------------------------------------------
 
-'Now it will create a new JOBS panel for this case.
-	If create_JOBS_checkbox = checked then
+    'This is a dialog asking if the job is known to the agency.
+    BeginDialog new_HIRE_dialog, 0, 0, 281, 195, "NEW HIRE INFORMATION"
+      EditBox 65, 5, 20, 15, HH_memb
+      EditBox 65, 25, 95, 15, employer
+      CheckBox 15, 45, 190, 10, "Check here to have the script create a new JOBS panel.", create_JOBS_checkbox
+      CheckBox 15, 55, 160, 10, "Job is known to the agency (exit the script).", job_known_checkbox
+      CheckBox 15, 80, 195, 10, "Sent a request for verifications out of ECF.", TIKL_checkbox
+      CheckBox 15, 90, 190, 10, "Sent a Work Number request and submitted to ECF. ", work_number_checkbox
+      CheckBox 15, 100, 100, 10, "Requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
+      CheckBox 15, 110, 105, 10, "Sent a status update to CCA.", CCA_checkbox
+      CheckBox 15, 120, 100, 10, "Sent a status update to ES. ", ES_checkbox
+      CheckBox 15, 140, 135, 10, "Check to have an outlook reminder set", Outlook_reminder_checkbox
+      EditBox 65, 155, 210, 15, other_notes
+      EditBox 65, 175, 110, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 190, 175, 40, 15
+        CancelButton 235, 175, 40, 15
+        PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
+        PushButton 175, 25, 45, 10, "next panel", next_panel_button
+        PushButton 225, 15, 45, 10, "prev. memb", prev_memb_button
+        PushButton 225, 25, 45, 10, "next memb", next_memb_button
+      Text 5, 180, 60, 10, "Worker signature:"
+      GroupBox 170, 5, 105, 35, "STAT-based navigation"
+      Text 5, 30, 50, 10, "New Hire Info:"
+      Text 20, 160, 40, 10, "Other notes:"
+      Text 5, 10, 60, 10, "Member Number:"
+      GroupBox 5, 70, 270, 65, "Verification or updates"
+    EndDialog
+
+
+    DO
+        DO
+        	Dialog new_HIRE_dialog
+        	cancel_confirmation
+        	MAXIS_dialog_navigation
+        LOOP UNTIL ButtonPressed = -1
+        call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+    LOOP UNTIL are_we_passworded_out = false
+    EMWriteScreen "jobs", 20, 71
+    EMWriteScreen HH_memb, 20, 76
+    TRANSMIT
+    'Checking to see if 5 jobs already exist. If so worker will need to manually delete one first.
+    EMReadScreen jobs_total_panel_count, 1, 2, 78
+    IF create_JOBS_checkbox = checked AND jobs_total_panel_count = "5" THEN script_end_procedure_with_error_report("This client has 5 jobs panels already. Please review and delete and unneeded panels if you want the script to add a new one.")
+
+    'If new job is known, script ends.
+    If job_known_checkbox = checked then script_end_procedure("The script will stop as this job is known.")
+    'Now it will create a new JOBS panel for this case.
+    If create_JOBS_checkbox = checked then
     	EMWriteScreen "nn", 20, 79				'Creates new panel
-    	transmit
+    	TRANSMIT
     	EMReadScreen MAXIS_footer_month, 2, 20, 55	'Reads footer month for updating the panel
     	EMReadScreen MAXIS_footer_year, 2, 20, 58		'Reads footer year
     	EMWriteScreen "w", 5, 34				'Wage income is the type
@@ -297,7 +345,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
       	EMWriteScreen "0", 18, 72				'Puts 0 hours in as the worked hours
       	If FS_case = True then 					'If case is SNAP, it creates a PIC
       		EMWriteScreen "x", 19, 38
-      		transmit
+      		TRANSMIT
       		IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date.
       			EMWriteScreen month_hired, 5, 34
       			EMWriteScreen day_hired, 5, 37
@@ -310,20 +358,20 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
       		EMWriteScreen "1", 5, 64
       		EMWriteScreen "0", 8, 64
       		EMWriteScreen "0", 9, 66
-      		transmit
-      		transmit
-      		transmit
+      		TRANSMIT
+      		TRANSMIT
+      		TRANSMIT
     	END IF
-    	transmit						'Transmits to submit the panel
+    	TRANSMIT						'Transmits to submit the panel
       	EMReadScreen expired_check, 6, 24, 17 'Checks to see if the jobs panel will carry over by looking for the "This information will expire" at the bottom of the page
       	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
-	END IF
+    END IF
     PF3 'back to DAIL
-    'transmit
-
-	'-----------------------------------------------------------------------------------------CASENOTE
-	start_a_blank_case_note	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
-	CALL write_variable_in_case_note("-NDNH JOB DETAILS FOR (M" & HH_memb & ") unreported to agency-")
+    'TRANSMIT
+    '-----------------------------------------------------------------------------------------CASENOTE
+    start_a_blank_case_note	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
+    IF NDNH_match_type = TRUE THEN CALL write_variable_in_case_note("-NDNH JOB DETAILS FOR (M" & HH_memb & ") unreported to agency-")
+    IF SDNH_match_type = TRUE THEN CALL write_variable_in_case_note("-SDNH JOB DETAILS FOR (M" & HH_memb & ") unreported to agency-")
     CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
     CALL write_variable_in_case_note("EMPLOYER: " & employer)
     CALL write_variable_in_case_note(new_hire_third_line)
@@ -339,45 +387,46 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
     CALL write_variable_in_case_note("---")
     CALL write_variable_in_case_note(worker_signature)
     PF3
-
-	'If TIKL_checkbox is unchecked, it needs to end here.
-	IF TIKL_checkbox = UNCHECKED THEN script_end_procedure_with_error_report("Success! MAXIS updated for new NDNH HIRE message, and a case note made. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
+        'If TIKL_checkbox is unchecked, it needs to end here.
+    IF TIKL_checkbox = UNCHECKED THEN script_end_procedure_with_error_report("Success! MAXIS updated for new NDNH HIRE message, and a case note made. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
     'Navigates to TIKL
-	IF TIKL_checkbox = CHECKED THEN
-	Call navigate_to_MAXIS_screen("DAIL", "WRIT")
+    IF TIKL_checkbox = CHECKED THEN
+    	Call navigate_to_MAXIS_screen("DAIL", "WRIT")
     	CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
     	CALL write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action." & vbcr & "For all federal matches INFC/HIRE must be cleared please see HSR manual.")
     	PF3		'Exits and saves TIKL
     	script_end_procedure_with_error_report("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
-	END IF
+    END IF
 END IF
 
 IF match_answer_droplist = "YES-INFC clear match" THEN
 'This is a dialog asking if the job is known to the agency.
-    BeginDialog Match_Info_dialog, 0, 0, 281, 190, "NDNH Match Resolution Information"
+    BeginDialog Match_Info_dialog, 0, 0, 281, 250, "NDNH Match Resolution Information"
       CheckBox 10, 15, 265, 10, "Check here to verify that ECF has been reviewed and acted upon appropriately", ECF_checkbox
       DropListBox 170, 35, 95, 15, "Select One:"+chr(9)+"YES-No Further Action"+chr(9)+"NO-See Next Question", Emp_known_droplist
       DropListBox 170, 55, 95, 15, "Select One:"+chr(9)+"NA-No Action Taken"+chr(9)+"BR-Benefits Reduced"+chr(9)+"CC-Case Closed", Action_taken_droplist
       EditBox 220, 75, 45, 15, cost_savings
-      EditBox 55, 95, 210, 15, other_notes
-      CheckBox 10, 125, 260, 10, "Check here if 10 day cutoff has passed - TIKL will be set for following month", tenday_checkbox
-      CheckBox 10, 150, 185, 10, "Check to update claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
+      EditBox 55, 145, 210, 15, other_notes
+      CheckBox 10, 175, 260, 10, "Check here if 10 day cutoff has passed - TIKL will be set for following month", tenday_checkbox
+      CheckBox 10, 210, 185, 10, "Check to update claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
       ButtonGroup ButtonPressed
-        OkButton 170, 170, 50, 15
-        CancelButton 225, 170, 50, 15
+        OkButton 170, 230, 50, 15
+        CancelButton 225, 230, 50, 15
       GroupBox 5, 5, 270, 25, "ECF review"
       Text 10, 40, 145, 10, "Was this employment known to the agency?"
       Text 10, 60, 155, 10, "If unknown: what action was taken by agency?"
-      Text 10, 80, 155, 10, "First month cost savings (enter only numbers):"
-      Text 10, 100, 40, 10, "Other notes:"
-      GroupBox 5, 115, 270, 25, "10 day cutoff for closure"
-      GroupBox 5, 140, 270, 25, "Claim Referral Tracking"
+      Text 10, 80, 165, 10, "**First month cost savings (enter only numbers):"
+      Text 5, 150, 40, 10, "Other notes:"
+      GroupBox 5, 165, 270, 25, "10 day cutoff for closure"
+      GroupBox 5, 200, 270, 25, "Claim Referral Tracking"
+      Text 10, 95, 255, 40, "**First-month cost savings equals the difference between the monthly benefit the SNAP case would have been given in the absence of employment information resulting from an NDNH match, and the monthly benefit the SNAP case actually receive after the verified employment information was used to modify benefits. - Per TE02.08.142"
     EndDialog
+
 	'naviagting into INFC'
 	EMSendKey "I"
-	transmit
+	TRANSMIT
 	EMWriteScreen "HIRE", 20, 71
-	transmit
+	TRANSMIT
 	row = 9
 	DO
         EMReadScreen case_number, 8, row, 5
@@ -428,7 +477,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 	'entering the INFC/HIRE match '
 	EMWriteScreen "U", match_row, 3
-	transmit
+	TRANSMIT
 	EMReadscreen panel_check, 4, 2, 49
 	IF panel_check <> "NHMD" THEN msgbox "We did not enter to clear the match"
 	IF Emp_known_droplist = "NO-See Next Question" THEN EMWriteScreen "N", 16, 54
@@ -523,3 +572,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	END IF
 	script_end_procedure_with_error_report("Success! The NDNH HIRE message has been cleared. Please start overpayment process if necessary.")
 END IF
+ 'exampl of the cleared new hire 2279837
+TO DO enhancment to make employer name matches
+check box for verbal authorization to run work numbers
+work number ID add to employer addr

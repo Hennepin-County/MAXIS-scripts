@@ -151,7 +151,7 @@ DO
 
 		'ELSE
 		IF spec_xfer_worker = "X127CCL" THEN
-			'MsgBox spec_xfer_worker & " where to go"
+			MsgBox spec_xfer_worker & " where to go"
 			spec_xfer_worker = ObjExcel.Cells(excel_row, 5).Value
 			spec_xfer_worker = trim(spec_xfer_worker)
 		END IF
