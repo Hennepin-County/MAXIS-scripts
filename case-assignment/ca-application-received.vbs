@@ -44,7 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
-call changelog_update("08/27/2019", "Added GRH to appointment letter handling.", "MiKayla Handley, Hennepin County")
+call changelog_update("08/27/2019", "Added handling to push the case into background to ensure pending programs are read.", "MiKayla Handley, Hennepin County")
+call changelog_update("08/27/2019", "Added GRH to appointment letter handling for future enhancements.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/20/2019", "Bug on the script when a large PND2 list is accessed.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("07/26/2019", "Reverted the script to not email Team 603 for METS cases. CA workers will need to manually complete the email to: field.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("07/24/2019", "Removed Mail & Fax option and added MDQ per request.", "MiKayla Handley, Hennepin County")
@@ -74,7 +75,8 @@ changelog_display
 '---------------------------------------------------------------------------------------The script
 'Grabs the case number
 EMConnect ""
-CALL MAXIS_case_number_finder (MAXIS_case_number)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+back_to_SELF' added to ensure we have the time to update and send the case in the background
 
 '-------------------------------------------------------------------------------------------------DIALOG
 BeginDialog initial_dialog, 0, 0, 116, 45, "Application Received"
@@ -121,7 +123,7 @@ Do
 	End if
 LOOP until PND2_check = "PND2"
 
-'checking the case to make sure there is a pending case.  If not script will end & inform the user no pending case exists in PND2
+'checking the case to make sure there is a pending case.  If not script will end & inform the user no pending case exists in PND2 this does not tell you if it is active or pnd1
 EMReadScreen not_pending_check, 5, 24, 2
 If not_pending_check = "CASE " THEN script_end_procedure_with_error_report("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
 
@@ -137,7 +139,7 @@ Else
 End If
 If MAXIS_row = 18 Then script_end_procedure("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
 
-'grabs row and col number that the cursor is at
+'grabs row and col number that the cursor is at this is where the application date comes in
 EMReadScreen app_month, 2, MAXIS_row, 38
 EMReadScreen app_day, 2, MAXIS_row, 41
 EMReadScreen app_year, 2, MAXIS_row, 44
@@ -172,8 +174,6 @@ EMReadScreen PEND_SNAP_check, 1, MAXIS_row, 62
 EMReadScreen PEND_HC_check, 1, MAXIS_row, 65
 EMReadScreen PEND_EMER_check,	1, MAXIS_row, 68
 EMReadScreen PEND_GRH_check, 1, MAXIS_row, 72
-
-
 
 MAXIS_footer_month = right("00" & DatePart("m", application_date), 2)
 MAXIS_footer_year = right(DatePart("yyyy", application_date), 2)
@@ -330,6 +330,16 @@ If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(program
 
 additional_programs_applied_for = trim(additional_programs_applied_for)       'trims excess spaces of programs_applied_for
 If right(additional_programs_applied_for, 1) = "," THEN additional_programs_applied_for = left(additional_programs_applied_for, len(additional_programs_applied_for) - 1)
+
+IF programs_applied_for = "" THEN
+DO
+	prog_confirmation = MsgBox("Press YES to confirm this application is PND1 and has no progams selected. If this is not the case select NO and run the script again.", vbYesNo, "Program confirmation")
+	IF prog_confirmation = vbNo THEN script_end_procedure_with_error_report("The script has ended. The application has not been acted on.")
+	IF prog_confirmation = vbYes THEN
+		EXIT DO
+	END IF
+Loop
+END IF
 
 '----------------------------------------------------------------------------------------------------dialogs
 BeginDialog appl_detail_dialog, 0, 0, 296, 170, "Application Received for: " & programs_applied_for
