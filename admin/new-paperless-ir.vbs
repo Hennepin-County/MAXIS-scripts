@@ -407,59 +407,59 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
                 list_of_hc_membs = right(list_of_hc_membs, len(list_of_hc_membs) - 1)
                 HC_PERS_ARRAY = split(list_of_hc_membs, "~")
             End If
+            If IsArray(HC_PERS_ARRAY) = TRUE Then
+                For each pers_nbr in HC_PERS_ARRAY
+                    Do
+                        Call navigate_to_MAXIS_screen("STAT", "SUMM")
+                        EMReadScreen summ_check, 4, 2, 46
+                    Loop until summ_check = "SUMM"
 
-            For each pers_nbr in HC_PERS_ARRAY
-                Do
-                    Call navigate_to_MAXIS_screen("STAT", "SUMM")
-                    EMReadScreen summ_check, 4, 2, 46
-                Loop until summ_check = "SUMM"
+                    call navigate_to_MAXIS_screen ("STAT", "JOBS")
+                    EMWriteScreen pers_nbr, 20, 76
+                    transmit
+                    Do
+                        EMReadScreen panel_check, 8, 2, 72
+                        current_panel = trim(left(panel_check, 2))
+                        total_panels = trim(right(panel_check, 2))
+                        EMReadScreen date_check, 8, 9, 49
+                        If total_panels <> "0" & date_check = "__ __ __" then
+                            ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = False
+                            ALL_HC_REVS_ARRAY (case_notes, hc_reviews) = ALL_HC_REVS_ARRAY (case_notes, hc_reviews) & "; MEMB " & pers_nbr & " has an open JOBS Panel."
+                        End If
+                        if current_panel <> total_panels then transmit
+                    Loop until current_panel = total_panels
 
-                call navigate_to_MAXIS_screen ("STAT", "JOBS")
-                EMWriteScreen pers_nbr, 20, 76
-                transmit
-                Do
-                    EMReadScreen panel_check, 8, 2, 72
-                    current_panel = trim(left(panel_check, 2))
-                    total_panels = trim(right(panel_check, 2))
-                    EMReadScreen date_check, 8, 9, 49
-                    If total_panels <> "0" & date_check = "__ __ __" then
-                        ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = False
-                        ALL_HC_REVS_ARRAY (case_notes, hc_reviews) = ALL_HC_REVS_ARRAY (case_notes, hc_reviews) & "; MEMB " & pers_nbr & " has an open JOBS Panel."
-                    End If
-                    if current_panel <> total_panels then transmit
-                Loop until current_panel = total_panels
+                    call navigate_to_MAXIS_screen ("STAT", "BUSI")
+                    EMWriteScreen pers_nbr, 20, 76
+                    transmit
+                    Do
+                        current_panel = trim(left(panel_check, 2))
+                        EMReadScreen panel_check, 8, 2, 72
+                        total_panels = trim(right(panel_check, 2))
+                        EMReadScreen date_check, 8, 5, 71
+                        If total_panels <> "0" & date_check = "__ __ __" then
+                            ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = False
+                            ALL_HC_REVS_ARRAY (case_notes, hc_reviews) = ALL_HC_REVS_ARRAY (case_notes, hc_reviews) & "; MEMB " & pers_nbr & " has an open BUSI Panel."
+                        End If
+                        if current_panel <> total_panels then transmit
+                    Loop until current_panel = total_panels
 
-                call navigate_to_MAXIS_screen ("STAT", "BUSI")
-                EMWriteScreen pers_nbr, 20, 76
-                transmit
-                Do
-                    current_panel = trim(left(panel_check, 2))
-                    EMReadScreen panel_check, 8, 2, 72
-                    total_panels = trim(right(panel_check, 2))
-                    EMReadScreen date_check, 8, 5, 71
-                    If total_panels <> "0" & date_check = "__ __ __" then
-                        ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = False
-                        ALL_HC_REVS_ARRAY (case_notes, hc_reviews) = ALL_HC_REVS_ARRAY (case_notes, hc_reviews) & "; MEMB " & pers_nbr & " has an open BUSI Panel."
-                    End If
-                    if current_panel <> total_panels then transmit
-                Loop until current_panel = total_panels
-
-                call navigate_to_MAXIS_screen ("STAT", "RBIC")
-                EMWriteScreen pers_nbr, 20, 76
-                transmit
-                Do
-                    EMReadScreen panel_check, 8, 2, 72
-                    current_panel = trim(left(panel_check, 2))
-                    total_panels = trim(right(panel_check, 2))
-                    EMReadScreen date_check, 8, 6, 68
-                    If total_panels <> "0" & date_check = "__ __ __" then
-                        ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = False
-                        ALL_HC_REVS_ARRAY (case_notes, hc_reviews) = ALL_HC_REVS_ARRAY (case_notes, hc_reviews) & "; MEMB " & pers_nbr & " has an open JOBS Panel."
-                    End If
-                    if current_panel <> total_panels then transmit
-                Loop until current_panel = total_panels
-            Next
-
+                    call navigate_to_MAXIS_screen ("STAT", "RBIC")
+                    EMWriteScreen pers_nbr, 20, 76
+                    transmit
+                    Do
+                        EMReadScreen panel_check, 8, 2, 72
+                        current_panel = trim(left(panel_check, 2))
+                        total_panels = trim(right(panel_check, 2))
+                        EMReadScreen date_check, 8, 6, 68
+                        If total_panels <> "0" & date_check = "__ __ __" then
+                            ALL_HC_REVS_ARRAY (actually_paperless, hc_reviews) = False
+                            ALL_HC_REVS_ARRAY (case_notes, hc_reviews) = ALL_HC_REVS_ARRAY (case_notes, hc_reviews) & "; MEMB " & pers_nbr & " has an open JOBS Panel."
+                        End If
+                        if current_panel <> total_panels then transmit
+                    Loop until current_panel = total_panels
+                Next
+            End If
 
             Call navigate_to_MAXIS_screen ("STAT", "MEMB")
             EMReadScreen last_name, 25, 6, 30
