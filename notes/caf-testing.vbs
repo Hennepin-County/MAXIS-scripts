@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("09/10/2019", "Testing Update:##~## ##~##  - BUG FIX - when UNEA income has ended and no pay dates are listed the script was stopping. Updated functionality to capture end of UNEA information. ##~## ##~##  NOTE: I know many have asked about this same thing for JOBS income. The functionality update for this is more complicated, but I am working on it and will let you know once I have a solution.##~## ##~##", "Casey Love, Hennepin County")
 call changelog_update("09/10/2019", "Testing Update:##~## ##~##  - Added new Verification Dialog and enhanced verification handling. See details in email.##~## ##~##", "Casey Love, Hennepin County")
 call changelog_update("08/30/2019", "Testing Updates:##~## ##~## - Added functionality to have a HC form processed as a 'piggyback'. Check the box on the case number dialog (very first) at the bottom for a HC form also being processed. If this box is checked, a dialog will appear at the end for specific HC information. The script will create a seperate HC CASE/NOTE.", "Casey Love, Hennepin County")
 call changelog_update("08/28/2019", "Testing Updates/Fixes:##~## - AREP now in 'Interview With' field.##~## - 'No Income Found' message added to Dialog 5.##~## - BUG - Liquid assets carries from Dialog 7 to Dialog 8 and back now. ##~## - If case is expedited BUT approval is not done, the date can be blank but delay must be explained. ##~## - BUG - Script correctly finds CNote from EARNED INCOME BUDGETING Script and does not require further explanation.##~## - Header has been adjusted to not cut off.", "Casey Love, Hennepin County")
@@ -988,75 +989,92 @@ function read_UNEA_panel()
                 If UNEA_ver = "N" or UNEA_ver = "?" then variable_name_for_UNEA = variable_name_for_UNEA & "- No proof provided for this panel; "
 
                 If income_type = "01" or income_type = "02" or income_type = "03" or income_type = "44" Then
-                    UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) & ", SSA Income"
-                    UNEA_INCOME_ARRAY(SSA_exists, unea_array_counter) = TRUE
+                    If IsDate(UNEA_income_end_date) = TRUE Then
+                        If income_type = "01" or income_type = "02" Then ssa_type_for_note = "RSDI"
+                        If income_type = "03" Then ssa_type_for_note = "SSI"
+                        If income_type = "44" then ssa_type_for_note = "Excess Calculation of"
+                        notes_on_ssa_income = notes_on_ssa_income & ssa_type_for_note & " income for Memb " & HH_member & " ended on " & UNEA_income_end_date & ". Verification: " & UNEA_ver & "; "
+                    Else
+                        UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) & ", SSA Income"
+                        UNEA_INCOME_ARRAY(SSA_exists, unea_array_counter) = TRUE
 
-                    If income_type = "01" or income_type = "02" Then
-                        UNEA_INCOME_ARRAY(UNEA_RSDI_amt, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_RSDI_amt, unea_array_counter) + prosp_amt
-                        If income_type = "01" Then UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) & "RSDI is Disability Income.; "
-                        If SNAP_checkbox = checked and prosp_amt <> SNAP_UNEA_amt Then UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) & "SNAP budgeted Inomce =  $" & SNAP_UNEA_amt & "; "
-                       UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) & "Verif: " & UNEA_ver & "; "
-                        If IsDate(UNEA_income_start_date) = TRUE Then
-                            If DateDiff("m", UNEA_income_start_date, date) < 6 Then UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) & "Income started in the past 6 months on " & UNEA_income_start_date & "; "
+                        If income_type = "01" or income_type = "02" Then
+                            UNEA_INCOME_ARRAY(UNEA_RSDI_amt, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_RSDI_amt, unea_array_counter) + prosp_amt
+                            If income_type = "01" Then UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) & "RSDI is Disability Income.; "
+                            If SNAP_checkbox = checked and prosp_amt <> SNAP_UNEA_amt Then UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) & "SNAP budgeted Inomce =  $" & SNAP_UNEA_amt & "; "
+                           UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) & "Verif: " & UNEA_ver & "; "
+                            If IsDate(UNEA_income_start_date) = TRUE Then
+                                If DateDiff("m", UNEA_income_start_date, date) < 6 Then UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) & "Income started in the past 6 months on " & UNEA_income_start_date & "; "
+                            End If
+                            If IsDate(UNEA_income_end_date) = True then UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) & "Income ended " & UNEA_income_end_date & "; "
                         End If
-                        If IsDate(UNEA_income_end_date) = True then UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_RSDI_notes, unea_array_counter) & "Income ended " & UNEA_income_end_date & "; "
-                    End If
-                    If income_type = "03" Then
-                        UNEA_INCOME_ARRAY(UNEA_SSI_amt, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_SSI_amt, unea_array_counter) + prosp_amt
-                        If SNAP_checkbox = checked and prosp_amt <> SNAP_UNEA_amt Then UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) & "SNAP budgeted Inomce =  $" & SNAP_UNEA_amt & "; "
-                        UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) & "Verif: " & UNEA_ver & "; "
-                        If IsDate(UNEA_income_start_date) = TRUE Then
-                            If DateDiff("m", UNEA_income_start_date, date) < 6 Then UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) & "Income started in the past 6 months on " & UNEA_income_start_date & "; "
+                        If income_type = "03" Then
+                            UNEA_INCOME_ARRAY(UNEA_SSI_amt, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_SSI_amt, unea_array_counter) + prosp_amt
+                            If SNAP_checkbox = checked and prosp_amt <> SNAP_UNEA_amt Then UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) & "SNAP budgeted Inomce =  $" & SNAP_UNEA_amt & "; "
+                            UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) & "Verif: " & UNEA_ver & "; "
+                            If IsDate(UNEA_income_start_date) = TRUE Then
+                                If DateDiff("m", UNEA_income_start_date, date) < 6 Then UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) & "Income started in the past 6 months on " & UNEA_income_start_date & "; "
+                            End If
+                            If IsDate(UNEA_income_end_date) = True then UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) & "Income ended " & UNEA_income_end_date & "; "
                         End If
-                        If IsDate(UNEA_income_end_date) = True then UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_SSI_notes, unea_array_counter) & "Income ended " & UNEA_income_end_date & "; "
                     End If
                 ElseIf income_type = "14" Then
-                    UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) & ", Unemployment"
-                    UNEA_INCOME_ARRAY(UC_exists, unea_array_counter) = TRUE
+                    If IsDate(UNEA_income_end_date) = TRUE Then
+                        other_uc_income_notes = other_uc_income_notes & "Unemployment Income for Memb " & HH_member & " ended on " & UNEA_income_end_date & ". Verification: " & UNEA_ver & ".; "
+                    Else
+                        UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) & ", Unemployment"
+                        UNEA_INCOME_ARRAY(UC_exists, unea_array_counter) = TRUE
 
-                    UNEA_INCOME_ARRAY(UNEA_UC_retro_amt, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_UC_retro_amt, unea_array_counter) + retro_amt
-                    UNEA_INCOME_ARRAY(UNEA_UC_prosp_amt, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_UC_prosp_amt, unea_array_counter) + prosp_amt
-                    UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, unea_array_counter) + SNAP_UNEA_amt
+                        UNEA_INCOME_ARRAY(UNEA_UC_retro_amt, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_UC_retro_amt, unea_array_counter) + retro_amt
+                        UNEA_INCOME_ARRAY(UNEA_UC_prosp_amt, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_UC_prosp_amt, unea_array_counter) + prosp_amt
+                        UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, unea_array_counter) + SNAP_UNEA_amt
 
-                    EMReadScreen pay_day, 8, 13, 68
-                    pay_day = trim(pay_day)
-                    If pay_day = "" Then pay_day = 0
-                    pay_day = pay_day * 1
+                        EMReadScreen pay_day, 8, 13, 68
+                        pay_day = trim(pay_day)
+                        If pay_day = "" Then pay_day = 0
+                        pay_day = pay_day * 1
 
-                    UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, unea_array_counter) + pay_day
-                   UNEA_INCOME_ARRAY(UNEA_UC_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_UC_notes, unea_array_counter) & "Verif: " & UNEA_ver & "; "
-                    If IsDate(UNEA_income_start_date) = TRUE Then
-                        If DateDiff("m", UNEA_income_start_date, date) < 6 Then UNEA_INCOME_ARRAY(UNEA_UC_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_UC_notes, unea_array_counter) & "Income started in the past 6 months on " & UNEA_income_start_date & "; "
+                        UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, unea_array_counter) + pay_day
+                       UNEA_INCOME_ARRAY(UNEA_UC_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_UC_notes, unea_array_counter) & "Verif: " & UNEA_ver & "; "
+                        If IsDate(UNEA_income_start_date) = TRUE Then
+                            If DateDiff("m", UNEA_income_start_date, date) < 6 Then UNEA_INCOME_ARRAY(UNEA_UC_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_UC_notes, unea_array_counter) & "Income started in the past 6 months on " & UNEA_income_start_date & "; "
+                        End If
+                        UNEA_INCOME_ARRAY(UNEA_UC_start_date, unea_array_counter) = UNEA_income_start_date
                     End If
-                    If IsDate(UNEA_income_end_date) = True then UNEA_INCOME_ARRAY(UNEA_UC_notes, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_UC_notes, unea_array_counter) & "Income ended " & UNEA_income_end_date & "; "
-                    UNEA_INCOME_ARRAY(UNEA_UC_start_date, unea_array_counter) = UNEA_income_start_date
                 ElseIf income_type = "08" or income_type = "36" or income_type = "39" or income_type = "43" Then
-                    UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) & ", Child Support"
-                    UNEA_INCOME_ARRAY(CS_exists, unea_array_counter) = TRUE
+                    If IsDate(UNEA_income_end_date) = TRUE Then
+                        If income_type = "08" Then cs_type_for_note = "Direct Child Support"
+                        If income_type = "36" Then cs_type_for_note = "Disbursed Child Support"
+                        If income_type = "39" Then cs_type_for_note = "Disbursed Child Support Arrears"
+                        notes_on_cses = notes_on_cses & cs_type_for_note & " income for Memb " & HH_member & " ended on " & UNEA_income_end_date & ". Verification: " & UNEA_ver & ".; "
+                    Else
+                        UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) = UNEA_INCOME_ARRAY(UNEA_type, unea_array_counter) & ", Child Support"
+                        UNEA_INCOME_ARRAY(CS_exists, unea_array_counter) = TRUE
 
-                    If income_type  = "08" Then
-                        UNEA_INCOME_ARRAY(direct_CS_amt, unea_array_counter) = UNEA_INCOME_ARRAY(direct_CS_amt, unea_array_counter) + prosp_amt
-                        UNEA_INCOME_ARRAY(direct_CS_notes, unea_array_counter) = UNEA_INCOME_ARRAY(direct_CS_notes, unea_array_counter) & "Verif: " & UNEA_ver & "; "
-                        If IsDate(UNEA_income_start_date) = TRUE Then
-                            If DateDiff("m", UNEA_income_start_date, date) < 6 Then UNEA_INCOME_ARRAY(direct_CS_notes, unea_array_counter) = UNEA_INCOME_ARRAY(direct_CS_notes, unea_array_counter) & "Income started in the past 6 months on " & UNEA_income_start_date & "; "
+                        If income_type = "08" Then
+                            UNEA_INCOME_ARRAY(direct_CS_amt, unea_array_counter) = UNEA_INCOME_ARRAY(direct_CS_amt, unea_array_counter) + prosp_amt
+                            UNEA_INCOME_ARRAY(direct_CS_notes, unea_array_counter) = UNEA_INCOME_ARRAY(direct_CS_notes, unea_array_counter) & "Verif: " & UNEA_ver & "; "
+                            If IsDate(UNEA_income_start_date) = TRUE Then
+                                If DateDiff("m", UNEA_income_start_date, date) < 6 Then UNEA_INCOME_ARRAY(direct_CS_notes, unea_array_counter) = UNEA_INCOME_ARRAY(direct_CS_notes, unea_array_counter) & "Income started in the past 6 months on " & UNEA_income_start_date & "; "
+                            End If
+                            If IsDate(UNEA_income_end_date) = True then UNEA_INCOME_ARRAY(direct_CS_notes, unea_array_counter) = UNEA_INCOME_ARRAY(direct_CS_notes, unea_array_counter) & "Income ended " & UNEA_income_end_date & "; "
+                        ElseIf income_type = "36" Then
+                            UNEA_INCOME_ARRAY(disb_CS_amt, unea_array_counter) = UNEA_INCOME_ARRAY(disb_CS_amt, unea_array_counter) + prosp_amt
+                            UNEA_INCOME_ARRAY(disb_CS_prosp_budg, unea_array_counter) = UNEA_INCOME_ARRAY(disb_CS_prosp_budg, unea_array_counter) + SNAP_UNEA_amt
+                            UNEA_INCOME_ARRAY(disb_CS_notes, unea_array_counter) = UNEA_INCOME_ARRAY(disb_CS_notes, unea_array_counter) & "Verif: " & UNEA_ver & "; "
+                            If IsDate(UNEA_income_start_date) = TRUE Then
+                                If DateDiff("m", UNEA_income_start_date, date) < 6 Then UNEA_INCOME_ARRAY(disb_CS_notes, unea_array_counter) = UNEA_INCOME_ARRAY(disb_CS_notes, unea_array_counter) & "Income started in the past 6 months on " & UNEA_income_start_date & "; "
+                            End If
+                            If IsDate(UNEA_income_end_date) = True then UNEA_INCOME_ARRAY(disb_CS_notes, unea_array_counter) = UNEA_INCOME_ARRAY(disb_CS_notes, unea_array_counter) & "Income ended " & UNEA_income_end_date & "; "
+                        ElseIf income_type = "39" Then
+                            UNEA_INCOME_ARRAY(disb_CS_arrears_amt, unea_array_counter) = UNEA_INCOME_ARRAY(disb_CS_arrears_amt, unea_array_counter) + prosp_amt
+                            UNEA_INCOME_ARRAY(disb_CS_arrears_budg, unea_array_counter) = UNEA_INCOME_ARRAY(disb_CS_arrears_budg, unea_array_counter) + SNAP_UNEA_amt
+                            UNEA_INCOME_ARRAY(disb_cs_arrears_notes, unea_array_counter) = UNEA_INCOME_ARRAY(disb_cs_arrears_notes, unea_array_counter) & "Verif: " & UNEA_ver & "; "
+                            If IsDate(UNEA_income_start_date) = TRUE Then
+                                If DateDiff("m", UNEA_income_start_date, date) < 6 Then UNEA_INCOME_ARRAY(disb_cs_arrears_notes, unea_array_counter) = UNEA_INCOME_ARRAY(disb_cs_arrears_notes, unea_array_counter) & "Income started in the past 6 months on " & UNEA_income_start_date & "; "
+                            End If
+                            If IsDate(UNEA_income_end_date) = True then UNEA_INCOME_ARRAY(disb_cs_arrears_notes, unea_array_counter) = UNEA_INCOME_ARRAY(disb_cs_arrears_notes, unea_array_counter) & "Income ended " & UNEA_income_end_date & "; "
                         End If
-                        If IsDate(UNEA_income_end_date) = True then UNEA_INCOME_ARRAY(direct_CS_notes, unea_array_counter) = UNEA_INCOME_ARRAY(direct_CS_notes, unea_array_counter) & "Income ended " & UNEA_income_end_date & "; "
-                    ElseIf income_type = "36" Then
-                        UNEA_INCOME_ARRAY(disb_CS_amt, unea_array_counter) = UNEA_INCOME_ARRAY(disb_CS_amt, unea_array_counter) + prosp_amt
-                        UNEA_INCOME_ARRAY(disb_CS_prosp_budg, unea_array_counter) = UNEA_INCOME_ARRAY(disb_CS_prosp_budg, unea_array_counter) + SNAP_UNEA_amt
-                        UNEA_INCOME_ARRAY(disb_CS_notes, unea_array_counter) = UNEA_INCOME_ARRAY(disb_CS_notes, unea_array_counter) & "Verif: " & UNEA_ver & "; "
-                        If IsDate(UNEA_income_start_date) = TRUE Then
-                            If DateDiff("m", UNEA_income_start_date, date) < 6 Then UNEA_INCOME_ARRAY(disb_CS_notes, unea_array_counter) = UNEA_INCOME_ARRAY(disb_CS_notes, unea_array_counter) & "Income started in the past 6 months on " & UNEA_income_start_date & "; "
-                        End If
-                        If IsDate(UNEA_income_end_date) = True then UNEA_INCOME_ARRAY(disb_CS_notes, unea_array_counter) = UNEA_INCOME_ARRAY(disb_CS_notes, unea_array_counter) & "Income ended " & UNEA_income_end_date & "; "
-                    ElseIf income_type = "39" Then
-                        UNEA_INCOME_ARRAY(disb_CS_arrears_amt, unea_array_counter) = UNEA_INCOME_ARRAY(disb_CS_arrears_amt, unea_array_counter) + prosp_amt
-                        UNEA_INCOME_ARRAY(disb_CS_arrears_budg, unea_array_counter) = UNEA_INCOME_ARRAY(disb_CS_arrears_budg, unea_array_counter) + SNAP_UNEA_amt
-                        UNEA_INCOME_ARRAY(disb_cs_arrears_notes, unea_array_counter) = UNEA_INCOME_ARRAY(disb_cs_arrears_notes, unea_array_counter) & "Verif: " & UNEA_ver & "; "
-                        If IsDate(UNEA_income_start_date) = TRUE Then
-                            If DateDiff("m", UNEA_income_start_date, date) < 6 Then UNEA_INCOME_ARRAY(disb_cs_arrears_notes, unea_array_counter) = UNEA_INCOME_ARRAY(disb_cs_arrears_notes, unea_array_counter) & "Income started in the past 6 months on " & UNEA_income_start_date & "; "
-                        End If
-                        If IsDate(UNEA_income_end_date) = True then UNEA_INCOME_ARRAY(disb_cs_arrears_notes, unea_array_counter) = UNEA_INCOME_ARRAY(disb_cs_arrears_notes, unea_array_counter) & "Income ended " & UNEA_income_end_date & "; "
                     End If
                 ElseIf income_type = "11" or income_type = "12" or income_type = "13" or income_type = "38" Then
                     If income_type = "11" Then income_detail = "Disability Benefit"
@@ -2037,6 +2055,7 @@ ReDim UNEA_INCOME_ARRAY(budget_notes, 0)
 Dim EATS, row, col, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three, hest_information, addr_line_one
 Dim addr_line_two, city, state, zip, address_confirmation_checkbox, addr_county, homeless_yn, addr_verif, reservation_yn, living_situation, number_verifs_checkbox
 Dim notes_on_address, notes_on_wreg, full_abawd_info, notes_on_busi, notes_on_abawd, notes_on_abawd_two, notes_on_abawd_three, verifs_needed, verif_req_form_sent_date
+Dim other_uc_income_notes, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_income, notes_on_other_UNEA, notes_on_cses
 
 HH_memb_row = 5 'This helps the navigation buttons work!
 application_signed_checkbox = checked 'The script should default to having the application signed.
@@ -3773,7 +3792,7 @@ Do
                                       EditBox 195, 200, 35, 15, ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, shel_client)
                                       DropListBox 235, 200, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, shel_client)
                                       CheckBox 45, 220, 150, 10, "Check here if verification is requested.", ALL_MEMBERS_ARRAY(shel_verif_checkbox, shel_client)
-                                      CheckBox 45, 235, 185, 10, "Check here if this verification is NOT MANDAOTRY.", not_mand_checkbox
+                                      CheckBox 45, 235, 185, 10, "Check here if this verification is NOT MANDATORY.", not_mand_checkbox
                                       ButtonGroup ButtonPressed
                                         PushButton 245, 230, 90, 15, "Return to Main Dialog", return_button
                                         OkButton 600, 500, 50, 15
