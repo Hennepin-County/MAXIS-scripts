@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("09/10/2019", "Testing Update:##~## ##~##  - Added new Verification Dialog and enhanced verificatio handling. See details in email.##~## ##~##", "Casey Love, Hennepin County")
+call changelog_update("09/10/2019", "Testing Update:##~## ##~##  - Added new Verification Dialog and enhanced verification handling. See details in email.##~## ##~##", "Casey Love, Hennepin County")
 call changelog_update("08/30/2019", "Testing Updates:##~## ##~## - Added functionality to have a HC form processed as a 'piggyback'. Check the box on the case number dialog (very first) at the bottom for a HC form also being processed. If this box is checked, a dialog will appear at the end for specific HC information. The script will create a seperate HC CASE/NOTE.", "Casey Love, Hennepin County")
 call changelog_update("08/28/2019", "Testing Updates/Fixes:##~## - AREP now in 'Interview With' field.##~## - 'No Income Found' message added to Dialog 5.##~## - BUG - Liquid assets carries from Dialog 7 to Dialog 8 and back now. ##~## - If case is expedited BUT approval is not done, the date can be blank but delay must be explained. ##~## - BUG - Script correctly finds CNote from EARNED INCOME BUDGETING Script and does not require further explanation.##~## - Header has been adjusted to not cut off.", "Casey Love, Hennepin County")
 call changelog_update("08/23/2019", "Initial version.", "Casey Love, Hennepin County")
