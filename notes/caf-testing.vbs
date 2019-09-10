@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/10/2019", "Testing Update:##~## ##~##  - Added new Verification Dialog and enhanced verificatio handling. See details in email.##~## ##~##", "Casey Love, Hennepin County")
 call changelog_update("08/30/2019", "Testing Updates:##~## ##~## - Added functionality to have a HC form processed as a 'piggyback'. Check the box on the case number dialog (very first) at the bottom for a HC form also being processed. If this box is checked, a dialog will appear at the end for specific HC information. The script will create a seperate HC CASE/NOTE.", "Casey Love, Hennepin County")
 call changelog_update("08/28/2019", "Testing Updates/Fixes:##~## - AREP now in 'Interview With' field.##~## - 'No Income Found' message added to Dialog 5.##~## - BUG - Liquid assets carries from Dialog 7 to Dialog 8 and back now. ##~## - If case is expedited BUT approval is not done, the date can be blank but delay must be explained. ##~## - BUG - Script correctly finds CNote from EARNED INCOME BUDGETING Script and does not require further explanation.##~## - Header has been adjusted to not cut off.", "Casey Love, Hennepin County")
 call changelog_update("08/23/2019", "Initial version.", "Casey Love, Hennepin County")
@@ -1555,6 +1556,305 @@ function update_wreg_and_abawd_notes()
     ' End If
 end function
 
+function verification_dialog()
+    If ButtonPressed = verif_button Then
+        If second_call <> TRUE Then
+            Call generate_client_list(verification_memb_list, "Select or Type Member")
+            verification_memb_list = " "+chr(9)+verification_memb_list
+
+            income_source_list = "Select or Type Source"
+
+            For each_job = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
+                If ALL_JOBS_PANELS_ARRAY(employer_name, each_job) <> "" Then income_source_list = income_source_list+chr(9)+"JOB - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job)
+            Next
+            For each_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
+                If ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) <> "" Then
+                    If ALL_BUSI_PANELS_ARRAY(busi_desc, each_busi) <> "" Then
+                        income_source_list = income_source_list+chr(9)+"Self Emp - " & ALL_BUSI_PANELS_ARRAY(busi_desc, each_busi)
+                    Else
+                        income_source_list = income_source_list+chr(9)+"Self Employment"
+                    End If
+                End If
+            Next
+            employment_source_list = income_source_list
+            income_source_list = income_source_list+chr(9)+"Child Support"+chr(9)+"Social Security Income"+chr(9)+"Unemployment Income"+chr(9)+"VA Income"+chr(9)+"Pension"
+            income_verif_time = "[Enter Time Frame]"
+            bank_verif_time = "[Enter Time Frame]"
+            second_call = TRUE
+        End If
+
+        Do
+            verif_err_msg = ""
+
+            BeginDialog Dialog1, 0, 0, 610, 375, "Select Verifications"
+              Text 280, 10, 120, 10, "Date Verification Request Form Sent:"
+              EditBox 400, 5, 50, 15, verif_req_form_sent_date
+
+              Groupbox 5, 35, 555, 130, "Personal and Household Information"
+
+              CheckBox 10, 50, 75, 10, "Verification of ID for ", id_verif_checkbox
+              ComboBox 90, 45, 150, 45, verification_memb_list, id_verif_memb
+              CheckBox 300, 50, 100, 10, "Social Security Number for ", ssn_checkbox
+              ComboBox 405, 45, 150, 45, verification_memb_list, ssn_verif_memb
+
+              CheckBox 10, 70, 70, 10, "US Citizenship for ", us_cit_status_checkbox
+              ComboBox 85, 65, 150, 45, verification_memb_list, us_cit_verif_memb
+              CheckBox 300, 70, 85, 10, "Immigration Status for", imig_status_checkbox
+              ComboBox 390, 65, 150, 45, verification_memb_list, imig_verif_memb
+
+              CheckBox 10, 90, 90, 10, "Proof of relationship for ", relationship_checkbox
+              ComboBox 105, 85, 150, 45, verification_memb_list, relationship_one_verif_memb
+              Text 260, 90, 90, 10, "and"
+              ComboBox 280, 85, 150, 45, verification_memb_list, relationship_two_verif_memb
+
+              CheckBox 10, 110, 85, 10, "Student Information for ", student_info_checkbox
+              ComboBox 100, 105, 150, 45, verification_memb_list, student_verif_memb
+              Text 255, 110, 10, 10, "at"
+              EditBox 270, 105, 150, 15, student_verif_source
+
+              CheckBox 10, 130, 85, 10, "Proof of Pregnancy for", preg_checkbox
+              ComboBox 100, 125, 150, 45, verification_memb_list, preg_verif_memb
+
+              CheckBox 10, 150, 115, 10, "Illness/Incapacity/Disability for", illness_disability_checkbox
+              ComboBox 130, 145, 150, 45, verification_memb_list, disa_verif_memb
+              Text 285, 150, 30, 10, "verifying:"
+              EditBox 320, 145, 150, 15, disa_verif_type
+
+              GroupBox 5, 165, 555, 50, "Income Information"
+
+              CheckBox 10, 180, 45, 10, "Income for ", income_checkbox
+              ComboBox 60, 175, 150, 45, verification_memb_list, income_verif_memb
+              Text 215, 180, 15, 10, "from"
+              ComboBox 235, 175, 150, 45, income_source_list, income_verif_source
+              Text 390, 180, 10, 10, "for"
+              EditBox 405, 175, 150, 15, income_verif_time
+
+              CheckBox 10, 200, 85, 10, "Employment Status for ", employment_status_checkbox
+              ComboBox 100, 195, 150, 45, verification_memb_list, emp_status_verif_memb
+              Text 255, 200, 10, 10, "at"
+              ComboBox 270, 195, 150, 45, employment_source_list, emp_status_verif_source
+
+              GroupBox 5, 215, 555, 50, "Expense Information"
+
+              CheckBox 10, 230, 105, 10, "Educational Funds/Costs for", educational_funds_cost_checkbox
+              ComboBox 120, 225, 150, 45, verification_memb_list, stin_verif_memb
+
+              CheckBox 10, 250, 65, 10, "Shelter Costs for ", shelter_checkbox
+              ComboBox 80, 245, 150, 45, verification_memb_list, shelter_verif_memb
+              checkBox 240, 250, 175, 10, "Check here if this verif is NOT MANDATORY", shelter_not_mandatory_checkbox
+
+              GroupBox 5, 265, 600, 30, "Asset Information"
+
+              CheckBox 10, 280, 70, 10, "Bank Account for", bank_account_checkbox
+              ComboBox 80, 275, 150, 45, verification_memb_list, bank_verif_memb
+              Text 235, 280, 45, 10, "account type"
+              ComboBox 285, 275, 145, 45, "Select or Type"+chr(9)+"Checking"+chr(9)+"Savings"+chr(9)+"Certificate of Deposit (CD)"+chr(9)+"Stock"+chr(9)+"Money Market", bank_verif_type
+              Text 435, 280, 10, 10, "for"
+              EditBox 450, 275, 150, 15, bank_verif_time
+
+              Checkbox 10, 300, 200, 10, "Check here to have verifs numbered in the CASE/NOTE.", number_verifs_checkbox
+
+              ButtonGroup ButtonPressed
+                PushButton 485, 10, 50, 15, "FILL", fill_button
+                PushButton 540, 10, 60, 15, "Return to Dialog", return_to_dialog_button
+              Text 10, 320, 580, 50, verifs_needed
+              Text 10, 10, 235, 10, "Check the boxes for any verification you want to add to the CASE/NOTE."
+              Text 10, 20, 470, 10, "Note: After you press 'Fill' or 'Return to Dialog' the information from the boxes will fill in the Verification Field and the boxes will be 'unchecked'."
+            EndDialog
+
+            dialog Dialog1
+
+            If ButtonPressed = 0 Then
+                id_verif_checkbox = unchecked
+                us_cit_status_checkbox = unchecked
+                imig_status_checkbox = unchecked
+                ssn_checkbox = unchecked
+                relationship_checkbox = unchecked
+                income_checkbox = unchecked
+                employment_status_checkbox = unchecked
+                student_info_checkbox = unchecked
+                educational_funds_cost_checkbox = unchecked
+                shelter_checkbox = unchecked
+                bank_account_checkbox = unchecked
+                preg_checkbox = unchecked
+                illness_disability_checkbox = unchecked
+            End If
+            If ButtonPressed = -1 Then ButtonPressed = fill_button
+
+            If id_verif_checkbox = checked AND (id_verif_memb = "Select or Type Member" OR trim(id_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member that needs ID verified."
+            If us_cit_status_checkbox = checked AND (us_cit_verif_memb = "Select or Type Member" OR trim(us_cit_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member that needs citizenship verified."
+            If imig_status_checkbox = checked AND (imig_verif_memb = "Select or Type Member" OR trim(imig_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member that needs immigration status verified."
+            If ssn_checkbox = checked AND (ssn_verif_memb = "Select or Type Member" OR trim(ssn_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member for which we need social security number."
+            If relationship_checkbox = checked Then
+                If relationship_one_verif_memb = "Select or Type Member" OR trim(relationship_one_verif_memb) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the two household members whose relationship needs to be verified."
+                If relationship_two_verif_memb = "Select or Type Member" OR trim(relationship_two_verif_memb) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the two household members whose relationship needs to be verified."
+            End If
+            If income_checkbox = checked Then
+                If income_verif_memb = "Select or Type Member" OR trim(income_verif_memb) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member whose income needs to be verified."
+                If trim(income_verif_source) = "" OR trim(income_verif_source) = "Select or Type Source" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the source of income to be verified."
+                If trim(income_verif_time) = "[Enter Time Frame]" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the time frame of the income verification needed."
+            End If
+            If employment_status_checkbox = checked Then
+                If trim(emp_status_verif_source) = "" OR trim(emp_status_verif_source) = "Select or Type Source" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the source of the employment that needs status verified."
+                If emp_status_verif_memb = "Select or Type Member" OR trim(emp_status_verif_memb) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member whose employment status needs to be verified."
+            End If
+            If student_info_checkbox = checked Then
+                If trim(student_verif_source) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the source of school information to be verified"
+                If student_verif_memb = "Select or Type Member" OR trim(student_verif_memb) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member for which we need school verification."
+            End If
+            If educational_funds_cost_checkbox = checked AND (stin_verif_memb = "Select or Type Member" OR trim(stin_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member with educational funds and costs we need verified."
+            If shelter_checkbox = checked AND (shelter_verif_memb = "Select or Type Member" OR trim(shelter_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member whose shelter expense we need verified."
+            If bank_account_checkbox = checked Then
+                If trim(bank_verif_type) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the type of bank account to verify."
+                If bank_verif_memb = "Select or Type Member" OR trim(bank_verif_memb) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member whose bank account we need verified."
+                If trim(bank_verif_time) = "[Enter Time Frame]" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the time frame of the bank account verification needed."
+            End If
+            If preg_checkbox = checked AND (preg_verif_memb = "Select or Type Member" OR trim(preg_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member whose pregnancy needs to be verified."
+            If illness_disability_checkbox = checked Then
+                If trim(disa_verif_type) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the type (or details) of the illness/incapacity/disability that need to be verified."
+                If disa_verif_memb = "Select or Type Member" OR trim(disa_verif_memb) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member whose illness/incapacity/disability needs to be verified."
+            End If
+
+            If verif_err_msg = "" Then
+                If id_verif_checkbox = checked Then
+                    If IsNumeric(left(id_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Identity for Memb " & id_verif_memb & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "Identity for " & id_verif_memb & ".; "
+                    End If
+                    id_verif_checkbox = unchecked
+                    id_verif_memb = ""
+                End If
+                If us_cit_status_checkbox = checked Then
+                    If IsNumeric(left(us_cit_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "US Citizenship for Memb " & us_cit_verif_memb & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "US Citizenship for " & us_cit_verif_memb & ".; "
+                    End If
+                    us_cit_status_checkbox = unchecked
+                    us_cit_verif_memb = ""
+                End If
+                If imig_status_checkbox = checked Then
+                    If IsNumeric(left(imig_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Immigration documentation for Memb " & imig_verif_memb & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "Immigration documentation for " & imig_verif_memb & ".; "
+                    End If
+                    imig_status_checkbox = unchecked
+                    imig_verif_memb = ""
+                End If
+                If ssn_checkbox = checked Then
+                    If IsNumeric(left(ssn_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Social Security number for Memb " & ssn_verif_memb & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "Social Security number for " & ssn_verif_memb & ".; "
+                    End If
+                    ssn_checkbox = unchecked
+                    ssn_verif_memb = ""
+                End If
+                If relationship_checkbox = checked Then
+                    If IsNumeric(left(relationship_one_verif_memb, 2)) = TRUE AND IsNumeric(left(relationship_two_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Relationship between Memb " & relationship_one_verif_memb & " and Memb " & relationship_two_verif_memb & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "Relationship between " & relationship_one_verif_memb & " and " & relationship_two_verif_memb & ".; "
+                    End If
+                    relationship_checkbox = unchecked
+                    relationship_one_verif_memb = ""
+                    relationship_two_verif_memb = ""
+                End If
+                If income_checkbox = checked Then
+                    If IsNumeric(left(income_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Income for Memb " & income_verif_memb & " at " & income_verif_source & " for " & income_verif_time & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "Income for " & income_verif_memb & " at " & income_verif_source & " for " & income_verif_time & ".; "
+                    End If
+                    income_checkbox = unchecked
+                    income_verif_source = ""
+                    income_verif_memb = ""
+                    income_verif_time = ""
+                End If
+                If employment_status_checkbox = checked Then
+                    If IsNumeric(left(emp_status_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Employment Status for Memb " & emp_status_verif_memb & " from " & emp_status_verif_source & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "Employment Status for " & emp_status_verif_memb & " from " & emp_status_verif_source & ".; "
+                    End If
+                    employment_status_checkbox = unchecked
+                    emp_status_verif_memb = ""
+                    emp_status_verif_source = ""
+                End If
+                If student_info_checkbox = checked Then
+                    If IsNumeric(left(student_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Student information for Memb " & student_verif_memb & " at " & student_verif_source & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "Student information for " & student_verif_memb & " at " & student_verif_source & ".; "
+                    End If
+                    student_info_checkbox = unchecked
+                    student_verif_memb = ""
+                    student_verif_source = ""
+                End If
+                If educational_funds_cost_checkbox = checked Then
+                    If IsNumeric(left(stin_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Educational funds and costs for Memb " & stin_verif_memb & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "Educational funds and costs for " & stin_verif_memb & ".; "
+                    End If
+                    educational_funds_cost_checkbox = unchecked
+                    stin_verif_memb = ""
+                End If
+                If shelter_checkbox = checked Then
+                    If IsNumeric(left(shelter_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Shelter costs for Memb " & shelter_verif_memb & ". "
+                    Else
+                        verifs_needed = verifs_needed & "Shelter costs for " & shelter_verif_memb & ". "
+                    End If
+                    If shelter_not_mandatory_checkbox = checked Then verifs_needed = verifs_needed & " THIS VERIFICATION IS NOT MANDATORY."
+                    verifs_needed = verifs_needed & "; "
+                    shelter_checkbox = unchecked
+                    shelter_verif_memb = ""
+                End If
+                If bank_account_checkbox = checked Then
+                    If IsNumeric(left(bank_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & bank_verif_type & " account for Memb " & bank_verif_memb & " for " & bank_verif_time & ".; "
+                    Else
+                        verifs_needed = verifs_needed & bank_verif_type & " account for " & bank_verif_memb & " for " & bank_verif_time & ".; "
+                    End If
+                    bank_account_checkbox = unchecked
+                    bank_verif_type = ""
+                    bank_verif_memb = ""
+                    bank_verif_time = ""
+                End If
+                If preg_checkbox = checked Then
+                    If IsNumeric(left(preg_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Pregnancy for Memb " & preg_verif_memb & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "Pregnancy for " & preg_verif_memb & ".; "
+                    End If
+                    preg_checkbox = unchecked
+                    preg_verif_memb = ""
+                End If
+                If illness_disability_checkbox = checked Then
+                    If IsNumeric(left(disa_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Ill/Incap or Disability for Memb " & disa_verif_memb & " of " & disa_verif_type & ",; "
+                    Else
+                        verifs_needed = verifs_needed & "Ill/Incap or Disability for " & disa_verif_memb & " of " & disa_verif_type & ",; "
+                    End If
+                    illness_disability_checkbox = unchecked
+                    disa_verif_memb = ""
+                    disa_verif_type = ""
+                End If
+
+            Else
+                MsgBox "Additional detail about verifications to note is needed:" & vbNewLine & verif_err_msg
+            End If
+
+            If ButtonPressed = fill_button Then verif_err_msg = "LOOP" & verif_err_msg
+        Loop until verif_err_msg = ""
+        ButtonPressed = verif_button
+    End If
+
+end function
+
 '===========================================================================================================================
 
 'DECLARATIONS ==============================================================================================================
@@ -1610,7 +1910,9 @@ const share_num             = 29         'for BUSI Array'
 const share_denom           = 30         'for BUSI Array'
 const partners_in_HH        = 31         'for BUSI Array'
 const exp_not_allwd         = 32         'for BUSI Array'
-const budget_explain        = 33
+const verif_checkbox        = 33
+const verif_added           = 34
+const budget_explain        = 35
 
 'Member array constants
 const clt_name                  = 1
@@ -1668,7 +1970,9 @@ const shel_retro_subsidy_verif  = 52
 const shel_prosp_subsidy_amt    = 53
 const shel_prosp_subsidy_verif  = 54
 const wreg_exists               = 55
-const clt_notes                 = 56
+const shel_verif_checkbox       = 56
+const shel_verif_added          = 57
+const clt_notes                 = 58
 
 'FOR CS Array'
 const UNEA_type                 = 2
@@ -1731,8 +2035,8 @@ ReDim UNEA_INCOME_ARRAY(budget_notes, 0)
 
 'variables
 Dim EATS, row, col, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three, hest_information, addr_line_one
-Dim addr_line_two, city, state, zip, address_confirmation_checkbox, addr_county, homeless_yn, addr_verif, reservation_yn, living_situation
-Dim notes_on_address, notes_on_wreg, full_abawd_info, notes_on_busi, notes_on_abawd, notes_on_abawd_two, notes_on_abawd_three
+Dim addr_line_two, city, state, zip, address_confirmation_checkbox, addr_county, homeless_yn, addr_verif, reservation_yn, living_situation, number_verifs_checkbox
+Dim notes_on_address, notes_on_wreg, full_abawd_info, notes_on_busi, notes_on_abawd, notes_on_abawd_two, notes_on_abawd_three, verifs_needed, verif_req_form_sent_date
 
 HH_memb_row = 5 'This helps the navigation buttons work!
 application_signed_checkbox = checked 'The script should default to having the application signed.
@@ -2186,6 +2490,8 @@ If version_numb = "1" Then
     interview_memb_list = interview_memb_list+chr(9)+"AREP - " & arep_name
 End If
 
+' call verification_dialog
+
 notes_on_busi = ""
 
 Do
@@ -2222,8 +2528,9 @@ Do
                                               'Add editbox for date GC Form Sent to clt - check with Melissa Flores
                                               ' EditBox 35, 195, 410, 15, EMPS
                                               ' CheckBox 35, 215, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
-                                              EditBox 55, 195, 390, 15, verifs_needed
+                                              EditBox 60, 195, 385, 15, verifs_needed
                                               ButtonGroup ButtonPressed
+                                                PushButton 5, 200, 50, 10, "Verifs needed:", verif_button
                                                 Text 10, 250, 45, 10, "1 - Personal"
                                                 PushButton 60, 250, 35, 10, "2 - JOBS", dlg_two_button
                                                 PushButton 100, 250, 35, 10, "3 - BUSI", dlg_three_button
@@ -2271,7 +2578,6 @@ Do
                                               Else
                                                 Text 320, 180, 75,10, "* Date CS Forms Sent:"
                                               End If
-                                              Text 5, 200, 50, 10, "Verifs needed:"
                                               GroupBox 5, 215, 115, 25, "ELIG panels:"
                                               GroupBox 125, 215, 210, 25, "other STAT panels:"
                                               GroupBox 330, 5, 115, 35, "STAT-based navigation"
@@ -2295,342 +2601,341 @@ Do
 
                                             Dialog Dialog1
                                             cancel_confirmation
+                                            MAXIS_dialog_navigation
+                                            verification_dialog
 
                                             If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
 
                                             Call assess_button_pressed
                                             If ButtonPressed = go_to_next_page Then pass_one = true
+                                            If ButtonPressed = verif_button then
+                                                pass_one = false
+                                                show_one = true
+                                            End If
                                         End If
                                     Loop Until pass_one = TRUE
                                     If show_two = true Then
+                                        all_jobs = UBound(ALL_JOBS_PANELS_ARRAY, 2)
+                                        all_jobs = all_jobs + 1
+                                        jobs_pages = all_jobs/3
+                                        If jobs_pages <> Int(jobs_pages) Then jobs_pages = Int(jobs_pages) + 1
+
+                                        each_job = 0
+                                        loop_start = 0
+                                        job_limit = 2
                                         Do
-                                            all_jobs = UBound(ALL_JOBS_PANELS_ARRAY, 2)
-                                            all_jobs = all_jobs + 1
-                                            jobs_pages = all_jobs/3
-                                            If jobs_pages <> Int(jobs_pages) Then jobs_pages = Int(jobs_pages) + 1
-
-                                            each_job = 0
-                                            loop_start = 0
                                             last_job_reviewed = FALSE
-                                            job_limit = 2
-                                            Do
-                                                Do
-                                                    jobs_err_msg = ""
 
-                                                    dlg_len = 65
-                                                    jobs_grp_len = 80
-                                                    length_factor = 80
-                                                    If snap_checkbox = checked Then length_factor = length_factor + 20
-                                                    If grh_checkbox = checked Then length_factor = length_factor + 20
-                                                    If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) = "" Then
-                                                        dlg_len = 80
-                                                    Else
-                                                        If UBound(ALL_JOBS_PANELS_ARRAY, 2) >= job_limit Then
-                                                            dlg_len = 305
-                                                            If snap_checkbox = checked Then dlg_len = dlg_len + 60
-                                                            If grh_checkbox = checked Then dlg_len = dlg_len + 60
-                                                            'jobs_grp_len = 315
-                                                        Else
-                                                            dlg_len = length_factor * (UBound(ALL_JOBS_PANELS_ARRAY, 2) - loop_start + 1) + 65
-                                                            'jobs_grp_len = 100 * (UBound(ALL_JOBS_PANELS_ARRAY, 2) - loop_start + 1) + 15
+                                            dlg_len = 65
+                                            jobs_grp_len = 80
+                                            length_factor = 80
+                                            If snap_checkbox = checked Then length_factor = length_factor + 20
+                                            If grh_checkbox = checked Then length_factor = length_factor + 20
+                                            If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) = "" Then
+                                                dlg_len = 80
+                                            Else
+                                                If UBound(ALL_JOBS_PANELS_ARRAY, 2) >= job_limit Then
+                                                    dlg_len = 305
+                                                    If snap_checkbox = checked Then dlg_len = dlg_len + 60
+                                                    If grh_checkbox = checked Then dlg_len = dlg_len + 60
+                                                    'jobs_grp_len = 315
+                                                Else
+                                                    dlg_len = length_factor * (UBound(ALL_JOBS_PANELS_ARRAY, 2) - loop_start + 1) + 65
+                                                    'jobs_grp_len = 100 * (UBound(ALL_JOBS_PANELS_ARRAY, 2) - loop_start + 1) + 15
+                                                End If
+                                            End If
+                                            If snap_checkbox = checked Then jobs_grp_len = jobs_grp_len + 20
+                                            If grh_checkbox = checked Then jobs_grp_len = jobs_grp_len + 20
+                                            ' each_job = loop_start
+                                            ' Do
+                                            '     dlg_len = dlg_len + 100
+                                            '     jobs_grp_len = jobs_grp_len + 100
+                                            '     if each_job = job_limit Then Exit Do
+                                            '     each_job = each_job + 1
+                                            ' Loop until each_job = UBound(ALL_JOBS_PANELS_ARRAY, 2)
+                                            y_pos = 5
+                                            'MsgBox dlg_len
+
+                                            BeginDialog Dialog1, 0, 0, 705, dlg_len, "CAF Dialog 2 - JOBS Information"
+                                              'GroupBox 5, 5, 595, jobs_grp_len, "Earned Income"
+                                              If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) = "" Then
+                                                y_pos = y_pos + 5
+                                                Text 10, y_pos, 590, 10, "There are no JOBS panels found on this case. The script could not pull JOBS details for a case note."
+                                                Text 10, y_pos + 10, 590, 10, " ** If this case has income from job source(s) it is best to add the JOBS panels before running this script. **"
+                                                Text 10, y_pos + 30, 50, 10, "JOBS Details:"
+                                                EditBox 55, y_pos + 25, 545, 15, notes_on_jobs
+                                                y_pos = y_pos + 50
+                                              Else
+                                                  each_job = loop_start
+                                                  Do
+                                                      GroupBox 5, y_pos, 695, jobs_grp_len, "Member " & ALL_JOBS_PANELS_ARRAY(memb_numb, each_job) & " - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job)
+                                                      Text 180, y_pos, 200, 10, "Verif: " & ALL_JOBS_PANELS_ARRAY(verif_code, each_job)
+                                                      CheckBox 365, y_pos, 220, 10, "Check here if this income is not verified and is only an estimate.", ALL_JOBS_PANELS_ARRAY(estimate_only, each_job)
+                                                      y_pos = y_pos + 20
+                                                      Text 15, y_pos, 40, 10, "Verification:"
+                                                      EditBox 65, y_pos - 5, 250, 15, ALL_JOBS_PANELS_ARRAY(verif_explain, each_job)
+                                                      Text 325, y_pos, 75, 10, "Footer Month: " & ALL_JOBS_PANELS_ARRAY(info_month, each_job)
+                                                      IF ALL_JOBS_PANELS_ARRAY(EI_case_note, each_job) = TRUE Then Text 405, y_pos, 175, 10, "EARNED INCOME BUDGETING CASE NOTE FOUND"
+                                                      ' Text 405, y_pos, 175, 10, "EARNED INCOME BUDGETING CASE NOTE FOUND"
+                                                      CheckBox 595, y_pos-10, 100, 10, "Check here to add this JOB", ALL_JOBS_PANELS_ARRAY(verif_checkbox, each_job)
+                                                      Text 605, y_pos, 90, 10, "to list of verifs needed."
+
+                                                      y_pos = y_pos + 20
+                                                      Text 15, y_pos, 45, 10, "Hourly Wage:"
+                                                      EditBox 65, y_pos - 5, 40, 15, ALL_JOBS_PANELS_ARRAY(hrly_wage, each_job)
+                                                      Text 115, y_pos, 55, 10, "Retro - Income:"
+                                                      EditBox 170, y_pos - 5, 45, 15, ALL_JOBS_PANELS_ARRAY(job_retro_income, each_job)
+                                                      Text 220, y_pos, 25, 10, "Hours:"
+                                                      EditBox 250, y_pos - 5, 20, 15, ALL_JOBS_PANELS_ARRAY(retro_hours, each_job)
+                                                      Text 310, y_pos, 55, 10, "Prosp - Income:"
+                                                      EditBox 370, y_pos - 5, 45, 15, ALL_JOBS_PANELS_ARRAY(job_prosp_income, each_job)
+                                                      Text 420, y_pos, 25, 10, "Hours:"
+                                                      EditBox 450, y_pos - 5, 20, 15, ALL_JOBS_PANELS_ARRAY(prosp_hours, each_job)
+                                                      Text 475, y_pos, 40, 10, "Pay Freq:"
+                                                      ComboBox 520, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job)
+                                                      y_pos = y_pos + 20
+                                                      If snap_checkbox = checked Then
+                                                          Text 15, y_pos, 35, 10, "SNAP PIC:"
+                                                          Text 55, y_pos, 65, 10, "* Pay Date Amount:"
+                                                          EditBox 125, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)
+                                                          ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job)
+                                                          Text 265, y_pos, 70, 10, "* Prospective Amount:"
+                                                          EditBox 340, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job)
+                                                          Text 420, y_pos, 40, 10, "Calculated:"
+                                                          EditBox 470, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(pic_calc_date, each_job)
+                                                          y_pos = y_pos + 20
+                                                      End If
+                                                      If grh_checkbox = checked Then
+                                                          Text 15, y_pos, 35, 10, "GRH PIC:"
+                                                          Text 65, y_pos, 60, 10, "Pay Date Amount: "
+                                                          EditBox 125, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(grh_pay_day_income, each_job)
+                                                          ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", ALL_JOBS_PANELS_ARRAY(grh_pay_freq, each_job)
+                                                          Text 265, y_pos, 70, 10, "Prospective Amount:"
+                                                          EditBox 340, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(grh_prosp_income, each_job)
+                                                          Text 420, y_pos, 40, 10, "Calculated:"
+                                                          EditBox 470, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(grh_calc_date, each_job)
+                                                          y_pos = y_pos + 20
+                                                      End If
+                                                      If ALL_JOBS_PANELS_ARRAY(EI_case_note, each_job) = FALSE Then
+                                                        Text 10, y_pos, 55, 10, "* Explain Budget:"
+                                                      Else
+                                                        Text 15, y_pos, 55, 10, "Explain Budget:"
+                                                      End If
+                                                      EditBox 70, y_pos - 5, 620, 15, ALL_JOBS_PANELS_ARRAY(budget_explain, each_job)
+                                                      y_pos = y_pos + 25
+                                                      if each_job = job_limit Then Exit Do
+                                                      each_job = each_job + 1
+                                                  Loop until each_job = UBound(ALL_JOBS_PANELS_ARRAY, 2) + 1
+                                                  Text 10, y_pos + 5, 50, 10, "JOBS Details:"
+                                                  EditBox 65, y_pos, 635, 15, notes_on_jobs
+                                                  y_pos = y_pos + 25
+                                              End If
+                                              y_pos = y_pos + 5
+                                              GroupBox 150, y_pos - 10, 355, 25, "Dialog Tabs"
+                                              Text 200, y_pos, 5, 10, "|"
+                                              Text 240, y_pos, 5, 10, "|"
+                                              Text 280, y_pos, 5, 10, "|"
+                                              Text 320, y_pos, 5, 10, "|"
+                                              Text 360, y_pos, 5, 10, "|"
+                                              Text 400, y_pos, 5, 10, "|"
+                                              Text 445, y_pos, 5, 10, "|"
+                                              Text 205, y_pos, 35, 10, "2 - JOBS"
+                                              ButtonGroup ButtonPressed
+                                                PushButton 155, y_pos, 45, 10, "1 - Personal", dlg_one_button
+                                                PushButton 245, y_pos, 35, 10, "3 - BUSI", dlg_three_button
+                                                PushButton 285, y_pos, 35, 10, "4 - CSES", dlg_four_button
+                                                PushButton 325, y_pos, 35, 10, "5 - UNEA", dlg_five_button
+                                                PushButton 365, y_pos, 35, 10, "6 - Other", dlg_six_button
+                                                PushButton 405, y_pos, 40, 10, "7 - Assets", dlg_seven_button
+                                                PushButton 450, y_pos, 50, 10, "8 - Interview", dlg_eight_button
+
+                                                If jobs_pages >= 2 Then
+                                                    If jobs_pages = 2 Then
+                                                        If loop_start = 0 Then
+                                                            Text 420, y_pos, 15, 10, "1"
+                                                            PushButton 435, y_pos, 15, 10, "2", jobs_page_two
+                                                        ElseIf loop_start = 3 Then
+                                                            PushButton 420, y_pos, 15, 10, "1", jobs_page_one
+                                                            Text 440, y_pos, 15, 10, "2"
+                                                        End If
+                                                    ElseIf jobs_pages = 3 Then
+                                                        If loop_start = 0 Then
+                                                            Text 420, y_pos, 15, 10, "1"
+                                                            PushButton 435, y_pos, 15, 10, "2", jobs_page_two
+                                                            PushButton 450, y_pos, 15, 10, "3", jobs_page_three
+                                                        ElseIf loop_start = 3 Then
+                                                            PushButton 420, y_pos, 15, 10, "1", jobs_page_one
+                                                            Text 435, y_pos, 15, 10, "2"
+                                                            PushButton 450, y_pos, 15, 10, "3", jobs_page_three
+                                                        ElseIf loop_start = 6 Then
+                                                            PushButton 420, y_pos, 15, 10, "1", jobs_page_one
+                                                            PushButton 435, y_pos, 15, 10, "2", jobs_page_two
+                                                            Text 450, y_pos, 15, 10, "3"
+                                                        End If
+                                                    ElseIf jobs_pages = 4 Then
+                                                        If loop_start = 0 Then
+                                                            Text 420, y_pos, 15, 10, "1"
+                                                            PushButton 435, y_pos, 15, 10, "2", jobs_page_two
+                                                            PushButton 450, y_pos, 15, 10, "3", jobs_page_three
+                                                            PushButton 465, y_pos, 15, 10, "4", jobs_page_four
+                                                        ElseIf loop_start = 3 Then
+                                                            PushButton 420, y_pos, 15, 10, "1", jobs_page_one
+                                                            Text 435, y_pos, 15, 10, "2"
+                                                            PushButton 450, y_pos, 15, 10, "3", jobs_page_three
+                                                            PushButton 465, y_pos, 15, 10, "4", jobs_page_four
+                                                        ElseIf loop_start = 6 Then
+                                                            PushButton 420, y_pos, 15, 10, "1", jobs_page_one
+                                                            PushButton 435, y_pos, 15, 10, "2", jobs_page_two
+                                                            Text 450, y_pos, 15, 10, "3"
+                                                            PushButton 465, y_pos, 15, 10, "4", jobs_page_four
+                                                        ElseIf loop_start = 9 Then
+                                                            PushButton 420, y_pos, 15, 10, "1", jobs_page_one
+                                                            PushButton 435, y_pos, 15, 10, "2", jobs_page_two
+                                                            PushButton 450, y_pos, 15, 10, "3", jobs_page_three
+                                                            Text 465, y_pos, 15, 10, "4"
+                                                        End If
+                                                    ElseIf jobs_pages = 5 Then
+                                                        If loop_start = 0 Then
+                                                            Text 420, y_pos, 15, 10, "1"
+                                                            PushButton 435, y_pos, 15, 10, "2", jobs_page_two
+                                                            PushButton 450, y_pos, 15, 10, "3", jobs_page_three
+                                                            PushButton 465, y_pos, 15, 10, "4", jobs_page_four
+                                                            PushButton 480, y_pos, 15, 10, "5", jobs_page_five
+                                                        ElseIf loop_start = 3 Then
+                                                            PushButton 420, y_pos, 15, 10, "1", jobs_page_one
+                                                            Text 435, y_pos, 15, 10, "2"
+                                                            PushButton 450, y_pos, 15, 10, "3", jobs_page_three
+                                                            PushButton 465, y_pos, 15, 10, "4", jobs_page_four
+                                                            PushButton 480, y_pos, 15, 10, "5", jobs_page_five
+                                                        ElseIf loop_start = 6 Then
+                                                            PushButton 420, y_pos, 15, 10, "1", jobs_page_one
+                                                            PushButton 435, y_pos, 15, 10, "2", jobs_page_two
+                                                            Text 450, y_pos, 15, 10, "3"
+                                                            PushButton 465, y_pos, 15, 10, "4", jobs_page_four
+                                                            PushButton 480, y_pos, 15, 10, "5", jobs_page_five
+                                                        ElseIf loop_start = 9 Then
+                                                            PushButton 420, y_pos, 15, 10, "1", jobs_page_one
+                                                            PushButton 435, y_pos, 15, 10, "2", jobs_page_two
+                                                            PushButton 450, y_pos, 15, 10, "3", jobs_page_three
+                                                            Text 465, y_pos, 15, 10, "4"
+                                                            PushButton 480, y_pos, 15, 10, "5", jobs_page_five
+                                                        ElseIf loop_start = 12 Then
+                                                            PushButton 420, y_pos, 15, 10, "1", jobs_page_one
+                                                            PushButton 435, y_pos, 15, 10, "2", jobs_page_two
+                                                            PushButton 450, y_pos, 15, 10, "3", jobs_page_three
+                                                            PushButton 465, y_pos, 15, 10, "4", jobs_page_four
+                                                            Text 480, y_pos, 15, 10, "5"
+                                                        End If
+                                                    ElseIf jobs_pages = 6 Then
+                                                        If loop_start = 0 Then
+                                                            Text 420, y_pos, 15, 10, "1"
+                                                            PushButton 435, y_pos, 15, 10, "2", jobs_page_two
+                                                            PushButton 450, y_pos, 15, 10, "3", jobs_page_three
+                                                            PushButton 465, y_pos, 15, 10, "4", jobs_page_four
+                                                            PushButton 480, y_pos, 15, 10, "5", jobs_page_five
+                                                            PushButton 495, y_pos, 15, 10, "6", jobs_page_six
+                                                        ElseIf loop_start = 3 Then
+                                                            PushButton 420, y_pos, 15, 10, "1", jobs_page_one
+                                                            Text 435, y_pos, 15, 10, "2"
+                                                            PushButton 450, y_pos, 15, 10, "3", jobs_page_three
+                                                            PushButton 465, y_pos, 15, 10, "4", jobs_page_four
+                                                            PushButton 480, y_pos, 15, 10, "5", jobs_page_five
+                                                            PushButton 495, y_pos, 15, 10, "6", jobs_page_six
+                                                        ElseIf loop_start = 6 Then
+                                                            PushButton 420, y_pos, 15, 10, "1", jobs_page_one
+                                                            PushButton 435, y_pos, 15, 10, "2", jobs_page_two
+                                                            Text 450, y_pos, 15, 10, "3"
+                                                            PushButton 465, y_pos, 15, 10, "4", jobs_page_four
+                                                            PushButton 480, y_pos, 15, 10, "5", jobs_page_five
+                                                            PushButton 495, y_pos, 15, 10, "6", jobs_page_six
+                                                        ElseIf loop_start = 9 Then
+                                                            PushButton 420, y_pos, 15, 10, "1", jobs_page_one
+                                                            PushButton 435, y_pos, 15, 10, "2", jobs_page_two
+                                                            PushButton 450, y_pos, 15, 10, "3", jobs_page_three
+                                                            Text 465, y_pos, 15, 10, "4"
+                                                            PushButton 480, y_pos, 15, 10, "5", jobs_page_five
+                                                            PushButton 495, y_pos, 15, 10, "6", jobs_page_six
+                                                        ElseIf loop_start = 12 Then
+                                                            PushButton 420, y_pos, 15, 10, "1", jobs_page_one
+                                                            PushButton 435, y_pos, 15, 10, "2", jobs_page_two
+                                                            PushButton 450, y_pos, 15, 10, "3", jobs_page_three
+                                                            PushButton 465, y_pos, 15, 10, "4", jobs_page_four
+                                                            Text 480, y_pos, 15, 10, "5"
+                                                            PushButton 495, y_pos, 15, 10, "6", jobs_page_six
+                                                        ElseIf loop_start = 15 Then
+                                                            PushButton 420, y_pos, 15, 10, "1", jobs_page_one
+                                                            PushButton 435, y_pos, 15, 10, "2", jobs_page_two
+                                                            PushButton 450, y_pos, 15, 10, "3", jobs_page_three
+                                                            PushButton 465, y_pos, 15, 10, "4", jobs_page_four
+                                                            PushButton 480, y_pos, 15, 10, "5", jobs_page_five
+                                                            Text 495, y_pos, 15, 10, "6"
                                                         End If
                                                     End If
-                                                    If snap_checkbox = checked Then jobs_grp_len = jobs_grp_len + 20
-                                                    If grh_checkbox = checked Then jobs_grp_len = jobs_grp_len + 20
-                                                    ' each_job = loop_start
-                                                    ' Do
-                                                    '     dlg_len = dlg_len + 100
-                                                    '     jobs_grp_len = jobs_grp_len + 100
-                                                    '     if each_job = job_limit Then Exit Do
-                                                    '     each_job = each_job + 1
-                                                    ' Loop until each_job = UBound(ALL_JOBS_PANELS_ARRAY, 2)
-                                                    y_pos = 5
-                                                    'MsgBox dlg_len
-
-                                                    BeginDialog Dialog1, 0, 0, 606, dlg_len, "CAF Dialog 2 - JOBS Information"
-                                                      'GroupBox 5, 5, 595, jobs_grp_len, "Earned Income"
-                                                      If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) = "" Then
-                                                        y_pos = y_pos + 5
-                                                        Text 10, y_pos, 590, 10, "There are no JOBS panels found on this case. The script could not pull JOBS details for a case note."
-                                                        Text 10, y_pos + 10, 590, 10, " ** If this case has income from job source(s) it is best to add the JOBS panels before running this script. **"
-                                                        Text 10, y_pos + 30, 50, 10, "JOBS Details:"
-                                                        EditBox 55, y_pos + 25, 545, 15, notes_on_jobs
-                                                        y_pos = y_pos + 50
-                                                      Else
-                                                          each_job = loop_start
-                                                          Do
-                                                              GroupBox 5, y_pos, 595, jobs_grp_len, "Member " & ALL_JOBS_PANELS_ARRAY(memb_numb, each_job) & " - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job)
-                                                              Text 180, y_pos, 200, 10, "Verif: " & ALL_JOBS_PANELS_ARRAY(verif_code, each_job)
-                                                              CheckBox 365, y_pos, 220, 10, "Check here if this income is not verified and is only an estimate.", ALL_JOBS_PANELS_ARRAY(estimate_only, each_job)
-                                                              y_pos = y_pos + 20
-                                                              Text 15, y_pos, 40, 10, "Verification:"
-                                                              EditBox 65, y_pos - 5, 260, 15, ALL_JOBS_PANELS_ARRAY(verif_explain, each_job)
-                                                              Text 340, y_pos, 75, 10, "Footer Month: " & ALL_JOBS_PANELS_ARRAY(info_month, each_job)
-                                                              IF ALL_JOBS_PANELS_ARRAY(EI_case_note, each_job) = TRUE Then Text 420, y_pos, 175, 10, "EARNED INCOME BUDGETING CASE NOTE FOUND"
-                                                              ' Text 420, y_pos, 175, 10, "EARNED INCOME BUDGETING CASE NOTE FOUND"
-                                                              y_pos = y_pos + 20
-                                                              Text 15, y_pos, 45, 10, "Hourly Wage:"
-                                                              EditBox 65, y_pos - 5, 40, 15, ALL_JOBS_PANELS_ARRAY(hrly_wage, each_job)
-                                                              Text 115, y_pos, 55, 10, "Retro - Income:"
-                                                              EditBox 170, y_pos - 5, 45, 15, ALL_JOBS_PANELS_ARRAY(job_retro_income, each_job)
-                                                              Text 225, y_pos, 25, 10, "Hours:"
-                                                              EditBox 250, y_pos - 5, 20, 15, ALL_JOBS_PANELS_ARRAY(retro_hours, each_job)
-                                                              Text 305, y_pos, 55, 10, "Prosp - Income:"
-                                                              EditBox 365, y_pos - 5, 45, 15, ALL_JOBS_PANELS_ARRAY(job_prosp_income, each_job)
-                                                              Text 415, y_pos, 25, 10, "Hours:"
-                                                              EditBox 440, y_pos - 5, 20, 15, ALL_JOBS_PANELS_ARRAY(prosp_hours, each_job)
-                                                              Text 480, y_pos, 40, 10, "Pay Freq:"
-                                                              ComboBox 525, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job)
-                                                              y_pos = y_pos + 20
-                                                              If snap_checkbox = checked Then
-                                                                  Text 15, y_pos, 35, 10, "SNAP PIC:"
-                                                                  Text 55, y_pos, 65, 10, "* Pay Date Amount:"
-                                                                  EditBox 125, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)
-                                                                  ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job)
-                                                                  Text 265, y_pos, 70, 10, "* Prospective Amount:"
-                                                                  EditBox 340, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job)
-                                                                  Text 420, y_pos, 40, 10, "Calculated:"
-                                                                  EditBox 470, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(pic_calc_date, each_job)
-                                                                  y_pos = y_pos + 20
-                                                              End If
-                                                              If grh_checkbox = checked Then
-                                                                  Text 15, y_pos, 35, 10, "GRH PIC:"
-                                                                  Text 65, y_pos, 60, 10, "Pay Date Amount: "
-                                                                  EditBox 125, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(grh_pay_day_income, each_job)
-                                                                  ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", ALL_JOBS_PANELS_ARRAY(grh_pay_freq, each_job)
-                                                                  Text 265, y_pos, 70, 10, "Prospective Amount:"
-                                                                  EditBox 340, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(grh_prosp_income, each_job)
-                                                                  Text 420, y_pos, 40, 10, "Calculated:"
-                                                                  EditBox 470, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(grh_calc_date, each_job)
-                                                                  y_pos = y_pos + 20
-                                                              End If
-                                                              If ALL_JOBS_PANELS_ARRAY(EI_case_note, each_job) = FALSE Then
-                                                                Text 10, y_pos, 55, 10, "* Explain Budget:"
-                                                              Else
-                                                                Text 15, y_pos, 55, 10, "Explain Budget:"
-                                                              End If
-                                                              EditBox 70, y_pos - 5, 515, 15, ALL_JOBS_PANELS_ARRAY(budget_explain, each_job)
-                                                              y_pos = y_pos + 25
-                                                              if each_job = job_limit Then Exit Do
-                                                              each_job = each_job + 1
-                                                          Loop until each_job = UBound(ALL_JOBS_PANELS_ARRAY, 2) + 1
-                                                          Text 10, y_pos + 5, 50, 10, "JOBS Details:"
-                                                          EditBox 65, y_pos, 535, 15, notes_on_jobs
-                                                          y_pos = y_pos + 25
-                                                      End If
-                                                      y_pos = y_pos + 5
-                                                      GroupBox 50, y_pos - 10, 355, 25, "Dialog Tabs"
-                                                      Text 100, y_pos, 5, 10, "|"
-                                                      Text 140, y_pos, 5, 10, "|"
-                                                      Text 180, y_pos, 5, 10, "|"
-                                                      Text 220, y_pos, 5, 10, "|"
-                                                      Text 260, y_pos, 5, 10, "|"
-                                                      Text 300, y_pos, 5, 10, "|"
-                                                      Text 345, y_pos, 5, 10, "|"
-                                                      Text 105, y_pos, 35, 10, "2 - JOBS"
-                                                      ButtonGroup ButtonPressed
-                                                        PushButton 55, y_pos, 45, 10, "1 - Personal", dlg_one_button
-                                                        PushButton 145, y_pos, 35, 10, "3 - BUSI", dlg_three_button
-                                                        PushButton 185, y_pos, 35, 10, "4 - CSES", dlg_four_button
-                                                        PushButton 225, y_pos, 35, 10, "5 - UNEA", dlg_five_button
-                                                        PushButton 265, y_pos, 35, 10, "6 - Other", dlg_six_button
-                                                        PushButton 305, y_pos, 40, 10, "7 - Assets", dlg_seven_button
-                                                        PushButton 350, y_pos, 50, 10, "8 - Interview", dlg_eight_button
-
-                                                        If jobs_pages >= 2 Then
-                                                            If jobs_pages = 2 Then
-                                                                If loop_start = 0 Then
-                                                                    Text 425, y_pos, 15, 15, "1"
-                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
-                                                                ElseIf loop_start = 3 Then
-                                                                    PushButton 420, y_pos-5, 15, 15, "1", jobs_page_one
-                                                                    Text 440, y_pos, 15, 15, "2"
-                                                                End If
-                                                            ElseIf jobs_pages = 3 Then
-                                                                If loop_start = 0 Then
-                                                                    Text 425, y_pos, 15, 15, "1"
-                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
-                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
-                                                                ElseIf loop_start = 3 Then
-                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
-                                                                    Text 435, y_pos-5, 15, 15, "2"
-                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
-                                                                ElseIf loop_start = 6 Then
-                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
-                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
-                                                                    Text 450, y_pos-5, 15, 15, "3"
-                                                                End If
-                                                            ElseIf jobs_pages = 4 Then
-                                                                If loop_start = 0 Then
-                                                                    Text 425, y_pos, 15, 15, "1"
-                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
-                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
-                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
-                                                                ElseIf loop_start = 3 Then
-                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
-                                                                    Text 435, y_pos-5, 15, 15, "2"
-                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
-                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
-                                                                ElseIf loop_start = 6 Then
-                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
-                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
-                                                                    Text 450, y_pos-5, 15, 15, "3"
-                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
-                                                                ElseIf loop_start = 9 Then
-                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
-                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
-                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
-                                                                    Text 465, y_pos-5, 15, 15, "4"
-                                                                End If
-                                                            ElseIf jobs_pages = 5 Then
-                                                                If loop_start = 0 Then
-                                                                    Text 425, y_pos, 15, 15, "1"
-                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
-                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
-                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
-                                                                    PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
-                                                                ElseIf loop_start = 3 Then
-                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
-                                                                    Text 435, y_pos-5, 15, 15, "2"
-                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
-                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
-                                                                    PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
-                                                                ElseIf loop_start = 6 Then
-                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
-                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
-                                                                    Text 450, y_pos-5, 15, 15, "3"
-                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
-                                                                    PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
-                                                                ElseIf loop_start = 9 Then
-                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
-                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
-                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
-                                                                    Text 465, y_pos-5, 15, 15, "4"
-                                                                    PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
-                                                                ElseIf loop_start = 12 Then
-                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
-                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
-                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
-                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
-                                                                    Text 480, y_pos-5, 15, 15, "5"
-                                                                End If
-                                                            ElseIf jobs_pages = 6 Then
-                                                                If loop_start = 0 Then
-                                                                    Text 425, y_pos, 15, 15, "1"
-                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
-                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
-                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
-                                                                    PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
-                                                                    PushButton 495, y_pos-5, 15, 15, "6", jobs_page_six
-                                                                ElseIf loop_start = 3 Then
-                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
-                                                                    Text 435, y_pos-5, 15, 15, "2"
-                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
-                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
-                                                                    PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
-                                                                    PushButton 495, y_pos-5, 15, 15, "6", jobs_page_six
-                                                                ElseIf loop_start = 6 Then
-                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
-                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
-                                                                    Text 450, y_pos-5, 15, 15, "3"
-                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
-                                                                    PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
-                                                                    PushButton 495, y_pos-5, 15, 15, "6", jobs_page_six
-                                                                ElseIf loop_start = 9 Then
-                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
-                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
-                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
-                                                                    Text 465, y_pos-5, 15, 15, "4"
-                                                                    PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
-                                                                    PushButton 495, y_pos-5, 15, 15, "6", jobs_page_six
-                                                                ElseIf loop_start = 12 Then
-                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
-                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
-                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
-                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
-                                                                    Text 480, y_pos-5, 15, 15, "5"
-                                                                    PushButton 495, y_pos-5, 15, 15, "6", jobs_page_six
-                                                                ElseIf loop_start = 15 Then
-                                                                    PushButton 425, y_pos, 15, 15, "1", jobs_page_one
-                                                                    PushButton 435, y_pos-5, 15, 15, "2", jobs_page_two
-                                                                    PushButton 450, y_pos-5, 15, 15, "3", jobs_page_three
-                                                                    PushButton 465, y_pos-5, 15, 15, "4", jobs_page_four
-                                                                    PushButton 480, y_pos-5, 15, 15, "5", jobs_page_five
-                                                                    Text 495, y_pos-5, 15, 15, "6"
-                                                                End If
-                                                            End If
-                                                        End If
-
-                                                        PushButton 510, y_pos - 5, 35, 15, "NEXT", go_to_next_page
-                                                        CancelButton 550, y_pos - 5, 50, 15
-                                                        OkButton 600, 500, 50, 15
-                                                    EndDialog
-
-                                                    dialog Dialog1
-                                                    cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
-                                                    MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-                                                    If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
-                                                    If each_job >= UBound(ALL_JOBS_PANELS_ARRAY, 2) Then last_job_reviewed = TRUE
-
-                                                    ' each_job = loop_start
-                                                    ' Do
-                                                    '     'jobs_err_msg'
-                                                    '     'IF THERE IS AN EI CASE NOTE - DON'T WORRY ABOUT MUCH ERR HANDLING
-                                                    '     if each_job = job_limit Then Exit Do
-                                                    '     each_job = each_job + 1
-                                                    ' Loop until each_job = UBound(ALL_JOBS_PANELS_ARRAY, 2)
-                                                    '
-
-                                                    Call assess_button_pressed
-                                                    If tab_button = TRUE Then last_job_reviewed = TRUE
-                                                    If ButtonPressed = go_to_next_page AND last_job_reviewed = TRUE Then pass_two = true
-                                                Loop until jobs_err_msg = ""
-                                                job_limit = job_limit + 3
-                                                loop_start = loop_start + 3
-                                                If ButtonPressed = jobs_page_one Then
-                                                    loop_start = 0
-                                                    job_limit = 2
-                                                ElseIf ButtonPressed = jobs_page_two Then
-                                                    loop_start = 3
-                                                    job_limit = 5
                                                 End If
 
-                                            Loop until last_job_reviewed = TRUE
+                                                PushButton 610, y_pos - 5, 35, 15, "NEXT", go_to_next_page
+                                                CancelButton 650, y_pos - 5, 50, 15
+                                                OkButton 750, 500, 50, 15
+                                            EndDialog
 
-                                        Loop until pass_two = true
+                                            dialog Dialog1
+                                            cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
+                                            MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+                                            If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
+                                            If each_job >= UBound(ALL_JOBS_PANELS_ARRAY, 2) Then last_job_reviewed = TRUE
 
-                                        ' BeginDialog Dialog1, 0, 0, 466, 310, "Dialog 2 - JOBS"
-                                        '   ButtonGroup ButtonPressed
-                                        '     CancelButton 410, 290, 50, 15
-                                        '     PushButton 55, 295, 45, 10, "1 - Personal", dlg_one_button
-                                        '     Text 105, 295, 35, 10, "2 - JOBS"
-                                        '     PushButton 145, 295, 35, 10, "3 - BUSI", dlg_three_button
-                                        '     PushButton 185, 295, 35, 10, "4 - CSES", dlg_four_button
-                                        '     PushButton 225, 295, 35, 10, "5 - UNEA", dlg_five_button
-                                        '     PushButton 265, 295, 35, 10, "6 - Other", dlg_six_button
-                                        '     PushButton 305, 295, 50, 10, "7 - Interview", dlg_seven_button
-                                        '     PushButton 370, 290, 35, 15, "NEXT", go_to_next_page
-                                        ' EndDialog
-                                        ' Dialog Dialog1
-                                        ' cancel_confirmation
-                                        ' MAXIS_dialog_navigation
-                                        '
-                                        ' Call assess_button_pressed
-                                        ' If ButtonPressed = go_to_next_page Then pass_two = true
+                                            Call assess_button_pressed
+                                            If tab_button = TRUE Then last_job_reviewed = TRUE
+                                            If ButtonPressed = go_to_next_page AND last_job_reviewed = TRUE Then pass_two = true
+
+                                            job_limit = job_limit + 3
+                                            loop_start = loop_start + 3
+                                            If ButtonPressed = jobs_page_one Then
+                                                loop_start = 0
+                                                job_limit = 2
+                                            ElseIf ButtonPressed = jobs_page_two Then
+                                                loop_start = 3
+                                                job_limit = 5
+                                            ElseIf ButtonPressed = jobs_page_three Then
+                                                loop_start = 6
+                                                job_limit = 8
+                                            ElseIf ButtonPressed = jobs_page_four Then
+                                                loop_start = 9
+                                                job_limit = 11
+                                            ElseIf ButtonPressed = jobs_page_five Then
+                                                loop_start = 12
+                                                job_limit = 14
+                                            ElseIf ButtonPressed = jobs_page_six Then
+                                                loop_start = 15
+                                                job_limit = 17
+                                            End If
+                                        Loop until last_job_reviewed = TRUE
+
+                                        For each_job = o to UBound(ALL_JOBS_PANELS_ARRAY, 2)
+                                            If ALL_JOBS_PANELS_ARRAY(verif_checkbox, each_job) = checked Then
+                                                If ALL_JOBS_PANELS_ARRAY(verif_added, each_job) <> TRUE Then verifs_needed = verifs_needed & "Income for Memb " & ALL_JOBS_PANELS_ARRAY(memb_numb, each_job) & " at " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & ".; "
+                                                ALL_JOBS_PANELS_ARRAY(verif_added, each_job) = TRUE
+                                            End If
+                                        Next
+
                                     End If
                                 Loop Until pass_two = true
                                 If show_three = true Then
+                                    all_busi = UBound(ALL_BUSI_PANELS_ARRAY, 2)
+                                    all_busi = all_busi + 1
+                                    busi_pages = all_busi
+                                    If busi_pages <> Int(busi_pages) Then busi_pages = Int(busi_pages) + 1
 
                                     each_busi = 0
                                     loop_start = 0
                                     last_busi_reviewed = FALSE
-                                    busi_limit = 1
+                                    busi_limit = 0
                                     Do
                                         Do
                                             busi_err_msg = ""
 
                                             dlg_len = 65
-                                            busi_grp_len = 140
+                                            busi_grp_len = 145
                                             length_factor = 140
                                             If snap_checkbox = checked Then length_factor = length_factor + 60
                                             If cash_checkbox = checked OR EMER_checkbox = checked Then length_factor = length_factor + 40
@@ -2638,15 +2943,16 @@ Do
                                             If ALL_BUSI_PANELS_ARRAY(memb_numb, 0) = "" Then
                                                 dlg_len = 80
                                             Else
-                                                If UBound(ALL_busi_PANELS_ARRAY, 2) >= busi_limit Then
-                                                    dlg_len = 345
-                                                    If snap_checkbox = checked Then dlg_len = dlg_len + 120
-                                                    If cash_checkbox = checked OR EMER_checkbox = checked Then dlg_len = dlg_len + 120
-                                                    'busi_grp_len = 315
-                                                Else
-                                                    dlg_len = length_factor * (UBound(ALL_BUSI_PANELS_ARRAY, 2) - loop_start + 1) + 65
-                                                    'busi_grp_len = 100 * (UBound(ALL_BUSI_PANELS_ARRAY, 2) - loop_start + 1) + 15
-                                                End If
+                                                dlg_len = dlg_len + length_factor
+                                                ' If UBound(ALL_busi_PANELS_ARRAY, 2) >= busi_limit Then
+                                                '     dlg_len = dlg_len + 65
+                                                '     If snap_checkbox = checked Then dlg_len = dlg_len + 60
+                                                '     If cash_checkbox = checked OR EMER_checkbox = checked Then dlg_len = dlg_len + 60
+                                                '     'busi_grp_len = 315
+                                                ' Else
+                                                '     dlg_len = length_factor * (UBound(ALL_BUSI_PANELS_ARRAY, 2) - loop_start + 1) + 65
+                                                '     'busi_grp_len = 100 * (UBound(ALL_BUSI_PANELS_ARRAY, 2) - loop_start + 1) + 15
+                                                ' End If
                                             End If
                                             If snap_checkbox = checked Then busi_grp_len = busi_grp_len + 60
                                             If cash_checkbox = checked OR EMER_checkbox = checked Then busi_grp_len = busi_grp_len + 40
@@ -2657,7 +2963,6 @@ Do
                                             '     if each_busi = busi_limit Then Exit Do
                                             '     each_busi = each_busi + 1
                                             ' Loop until each_busi = UBound(ALL_BUSI_PANELS_ARRAY, 2)
-
                                             y_pos = 5
                                             BeginDialog Dialog1, 0, 0, 546, dlg_len, "CAF Dialog 3 - BUSI"
                                               If ALL_BUSI_PANELS_ARRAY(memb_numb, 0) = "" Then
@@ -2746,7 +3051,9 @@ Do
                                                       End If
                                                       Text 15, y_pos, 65, 10, "Verification Detail:"
                                                       EditBox 80, y_pos - 5, 445, 15, ALL_BUSI_PANELS_ARRAY(verif_explain, each_busi)
-                                                      y_pos = y_pos + 20
+                                                      y_pos = y_pos + 15
+                                                      CheckBox 80, y_pos, 400, 10, "Check here if verification about this Self Employment is requested.", ALL_BUSI_PANELS_ARRAY(verif_checkbox, each_busi)
+                                                      y_pos = y_pos + 15
                                                       Text 15, y_pos, 60, 10, "* Explain Budget:"
                                                       EditBox 80, y_pos - 5, 445, 15, ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi)
                                                       y_pos = y_pos + 25
@@ -2754,27 +3061,150 @@ Do
                                                       each_busi = each_busi + 1
                                                   Loop until each_busi = UBound(ALL_BUSI_PANELS_ARRAY, 2) + 1
                                                   Text 10, y_pos, 50, 10, "BUSI Details:"
-                                                  EditBox 65, y_pos, 480, 15, notes_on_busi
+                                                  EditBox 60, y_pos - 5, 480, 15, notes_on_busi
                                                   y_pos = y_pos + 20
                                               End If
                                               y_pos = y_pos + 10
-                                              GroupBox 50, y_pos - 10, 355, 25, "Dialog Tabs"
-                                              Text 100, y_pos, 5, 10, "|"
-                                              Text 140, y_pos, 5, 10, "|"
-                                              Text 180, y_pos, 5, 10, "|"
-                                              Text 220, y_pos, 5, 10, "|"
-                                              Text 260, y_pos, 5, 10, "|"
+                                              GroupBox 5, y_pos - 10, 355, 25, "Dialog Tabs"
+                                              Text 55, y_pos, 5, 10, "|"
+                                              Text 95, y_pos, 5, 10, "|"
+                                              Text 135, y_pos, 5, 10, "|"
+                                              Text 175, y_pos, 5, 10, "|"
+                                              Text 215, y_pos, 5, 10, "|"
+                                              Text 255, y_pos, 5, 10, "|"
                                               Text 300, y_pos, 5, 10, "|"
-                                              Text 345, y_pos, 5, 10, "|"
-                                              Text 145, y_pos, 35, 10, "3 - BUSI"
+                                              Text 100, y_pos, 35, 10, "3 - BUSI"
                                               ButtonGroup ButtonPressed
-                                                PushButton 55, y_pos, 45, 10, "1 - Personal", dlg_one_button
-                                                PushButton 105, y_pos, 35, 10, "2 - JOBS", dlg_two_button
-                                                PushButton 185, y_pos, 35, 10, "4 - CSES", dlg_four_button
-                                                PushButton 225, y_pos, 35, 10, "5 - UNEA", dlg_five_button
-                                                PushButton 265, y_pos, 35, 10, "6 - Other", dlg_six_button
-                                                PushButton 305, y_pos, 40, 10, "7 - Assets", dlg_seven_button
-                                                PushButton 350, y_pos, 50, 10, "8 - Interview", dlg_eight_button
+                                                PushButton 10, y_pos, 45, 10, "1 - Personal", dlg_one_button
+                                                PushButton 60, y_pos, 35, 10, "2 - JOBS", dlg_two_button
+                                                PushButton 140, y_pos, 35, 10, "4 - CSES", dlg_four_button
+                                                PushButton 180, y_pos, 35, 10, "5 - UNEA", dlg_five_button
+                                                PushButton 220, y_pos, 35, 10, "6 - Other", dlg_six_button
+                                                PushButton 260, y_pos, 40, 10, "7 - Assets", dlg_seven_button
+                                                PushButton 305, y_pos, 50, 10, "8 - Interview", dlg_eight_button
+                                                If busi_pages >= 2 Then
+                                                    If busi_pages = 2 Then
+                                                        If loop_start = 0 Then
+                                                            Text 365, y_pos, 15, 10, "1"
+                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                        ElseIf loop_start = 1 Then
+                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                            Text 380, y_pos, 15, 10, "2"
+                                                        End If
+                                                    ElseIf busi_pages = 3 Then
+                                                        If loop_start = 0 Then
+                                                            Text 365, y_pos, 15, 10, "1"
+                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                        ElseIf loop_start = 3 Then
+                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                            Text 380, y_pos, 15, 10, "2"
+                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                        ElseIf loop_start = 6 Then
+                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                            Text 395, y_pos, 15, 10, "3"
+                                                        End If
+                                                    ElseIf busi_pages = 4 Then
+                                                        If loop_start = 0 Then
+                                                            Text 365, y_pos, 15, 10, "1"
+                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                        ElseIf loop_start = 3 Then
+                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                            Text 380, y_pos, 15, 10, "2"
+                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                        ElseIf loop_start = 6 Then
+                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                            Text 395, y_pos, 15, 10, "3"
+                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                        ElseIf loop_start = 9 Then
+                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                            Text 410, y_pos, 15, 10, "4"
+                                                        End If
+                                                    ElseIf busi_pages = 5 Then
+                                                        If loop_start = 0 Then
+                                                            Text 365, y_pos, 15, 10, "1"
+                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                            PushButton 420, y_pos, 15, 10, "5", busi_page_five
+                                                        ElseIf loop_start = 3 Then
+                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                            Text 380, y_pos, 15, 10, "2"
+                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                            PushButton 420, y_pos, 15, 10, "5", busi_page_five
+                                                        ElseIf loop_start = 6 Then
+                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                            Text 395, y_pos, 15, 10, "3"
+                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                            PushButton 420, y_pos, 15, 10, "5", busi_page_five
+                                                        ElseIf loop_start = 9 Then
+                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                            Text 410, y_pos, 15, 10, "4"
+                                                            PushButton 420, y_pos, 15, 10, "5", busi_page_five
+                                                        ElseIf loop_start = 12 Then
+                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                            Text 425, y_pos, 15, 10, "5"
+                                                        End If
+                                                    ElseIf busi_pages = 6 Then
+                                                        If loop_start = 0 Then
+                                                            Text 365, y_pos, 15, 10, "1"
+                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                            PushButton 420, y_pos, 15, 10, "5", busi_page_five
+                                                            PushButton 435, y_pos, 15, 10, "6", busi_page_six
+                                                        ElseIf loop_start = 3 Then
+                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                            Text 380, y_pos, 15, 10, "2"
+                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                            PushButton 420, y_pos, 15, 10, "5", busi_page_five
+                                                            PushButton 435, y_pos, 15, 10, "6", busi_page_six
+                                                        ElseIf loop_start = 6 Then
+                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                            Text 395, y_pos, 15, 10, "3"
+                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                            PushButton 420, y_pos, 15, 10, "5", busi_page_five
+                                                            PushButton 435, y_pos, 15, 10, "6", busi_page_six
+                                                        ElseIf loop_start = 9 Then
+                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                            Text 410, y_pos, 15, 10, "4"
+                                                            PushButton 420, y_pos, 15, 10, "5", busi_page_five
+                                                            PushButton 435, y_pos, 15, 10, "6", busi_page_six
+                                                        ElseIf loop_start = 12 Then
+                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                            Text 425, y_pos, 15, 10, "5"
+                                                            PushButton 435, y_pos, 15, 10, "6", busi_page_six
+                                                        ElseIf loop_start = 15 Then
+                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                            PushButton 420, y_pos, 15, 10, "5", busi_page_five
+                                                            Text 440, y_pos, 15, 10, "6"
+                                                        End If
+                                                    End If
+                                                End If
                                                 PushButton 450, y_pos - 5, 35, 15, "NEXT", go_to_next_page
                                                 CancelButton 490, y_pos - 5, 50, 15
                                                 OkButton 600, 500, 50, 15
@@ -2799,14 +3229,43 @@ Do
                                             If tab_button = TRUE Then last_busi_reviewed = TRUE
                                             If ButtonPressed = go_to_next_page AND last_busi_reviewed = TRUE Then pass_three = true
                                         Loop until busi_err_msg = ""
-                                        busi_limit = busi_limit + 2
-                                        loop_start = loop_start + 2
+                                        busi_limit = busi_limit + 1
+                                        loop_start = loop_start + 1
+
+                                        If ButtonPressed = busi_page_one Then
+                                            loop_start = 0
+                                            job_limit = 0
+                                        ElseIf ButtonPressed = busi_page_two Then
+                                            loop_start = 1
+                                            job_limit = 1
+                                        ElseIf ButtonPressed = busi_page_three Then
+                                            loop_start = 2
+                                            job_limit = 2
+                                        ElseIf ButtonPressed = busi_page_four Then
+                                            loop_start = 3
+                                            job_limit = 3
+                                        ElseIf ButtonPressed = busi_page_five Then
+                                            loop_start = 4
+                                            job_limit = 4
+                                        ElseIf ButtonPressed = busi_page_six Then
+                                            loop_start = 5
+                                            job_limit = 5
+                                        End If
+
                                     Loop until last_busi_reviewed = TRUE
+
+                                    For each_job = o to UBound(ALL_BUSI_PANELS_ARRAY, 2)
+                                        If ALL_BUSI_PANELS_ARRAY(verif_checkbox, each_job) = checked Then
+                                            If ALL_BUSI_PANELS_ARRAY(verif_added, each_job) <> TRUE Then verifs_needed = verifs_needed & "Self Employment Income for Memb " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_job) & ".; "
+                                            ALL_BUSI_PANELS_ARRAY(verif_added, each_job) = TRUE
+                                        End If
+                                    Next
+
                                 End If
                             Loop Until pass_three = true
                             If show_four = true Then
                                 show_cses_detail = FALSE
-                                dlg_four_len = 65
+                                dlg_four_len = 85
                                 group_len = 70
                                 If SNAP_checkbox = checked Then group_len = group_len + 40
                                 For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
@@ -2816,7 +3275,7 @@ Do
                                         show_cses_detail = TRUE
                                     End If
                                 Next
-                                If show_cses_detail = FALSE Then dlg_four_len = 80
+                                If show_cses_detail = FALSE Then dlg_four_len = 100
                                 y_pos = 5
                                 BeginDialog Dialog1, 0, 0, 465, dlg_four_len, "Dialog 4 - CSES"
                                   If show_cses_detail = FALSE Then
@@ -2865,7 +3324,12 @@ Do
                                       y_pos = y_pos + 5
                                   End If
                                   Text 10, y_pos, 60, 10, "Other CSES Detail:"
-                                  EditBox 75, y_pos - 5, 375, 15, notes_on_cses
+                                  EditBox 75, y_pos - 5, 385, 15, notes_on_cses
+                                  y_pos = y_pos + 20
+                                  ButtonGroup ButtonPressed
+                                    PushButton 5, y_pos, 50, 10, "Verifs needed:", verif_button
+                                  EditBox 60, y_pos - 5, 400, 15, verifs_needed
+
                                   y_pos = y_pos + 25
                                   ButtonGroup ButtonPressed
                                     PushButton 15, y_pos, 45, 10, "1 - Personal", dlg_one_button
@@ -2889,92 +3353,18 @@ Do
                                   Text 305, y_pos, 5, 10, "|"
                                 EndDialog
 
-                                ' BeginDialog Dialog1, 0, 0, 465, 260, "Dialog 4 - CSES"
-                                '   ButtonGroup ButtonPressed
-                                '     PushButton 15, 240, 45, 10, "1 - Personal", dlg_one_button
-                                '     PushButton 65, 240, 35, 10, "2 - JOBS", dlg_two_button
-                                '     PushButton 105, 240, 35, 10, "3 - BUSI", dlg_three_button
-                                '   Text 145, 240, 35, 10, "4 - CSES"
-                                '   ButtonGroup ButtonPressed
-                                '     PushButton 185, 240, 35, 10, "5 - UNEA", dlg_five_button
-                                '     PushButton 225, 240, 35, 10, "6 - Other", dlg_six_button
-                                '     PushButton 265, 240, 40, 10, "7 - Assets", dlg_seven_button
-                                '     PushButton 310, 240, 50, 10, "8 - Interview", dlg_eight_button
-                                '     PushButton 370, 235, 35, 15, "NEXT", go_to_next_page
-                                '     CancelButton 410, 235, 50, 15
-                                '   GroupBox 10, 230, 355, 25, "Dialog Tabs"
-                                '   Text 60, 240, 5, 10, "|"
-                                '   Text 100, 240, 5, 10, "|"
-                                '   Text 140, 240, 5, 10, "|"
-                                '   Text 180, 240, 5, 10, "|"
-                                '   Text 220, 240, 5, 10, "|"
-                                '   Text 260, 240, 5, 10, "|"
-                                '   Text 305, 240, 5, 10, "|"
-                                '   GroupBox 5, 5, 455, 110, "Member Name"
-                                '   Text 10, 20, 70, 10, "Direct Child Support:"
-                                '   EditBox 80, 15, 375, 15, direct_child_support
-                                '   Text 10, 40, 65, 10, "Disb Child Support:"
-                                '   EditBox 80, 35, 375, 15, disb_child_support
-                                '   Text 80, 60, 50, 10, "Months of Disb Used:"
-                                '   EditBox 135, 55, 50, 15, months_used
-                                '   Text 200, 60, 70, 10, "Prosp Budget Detail:"
-                                '   EditBox 275, 55, 180, 15, prosp_budget_explain
-                                '   Text 10, 80, 60, 10, "Disb CS Arrears:"
-                                '   EditBox 80, 75, 375, 15, disb_cs_arrears
-                                '   Text 80, 100, 50, 10, "Months of Disb Used:"
-                                '   EditBox 135, 95, 50, 15, arrears_months_used
-                                '   Text 200, 100, 70, 10, "Prosp Budget Detail:"
-                                '   EditBox 275, 95, 180, 15, arrears_prosp_budget_explain
-                                '   GroupBox 5, 115, 455, 110, "Member Name"
-                                '   Text 10, 130, 70, 10, "Direct Child Support:"
-                                '   EditBox 80, 125, 375, 15, Edit8
-                                '   Text 10, 150, 65, 10, "Disb Child Support:"
-                                '   EditBox 80, 145, 375, 15, Edit9
-                                '   Text 80, 170, 50, 10, "Months of Disb Used:"
-                                '   EditBox 135, 165, 50, 15, Edit10
-                                '   Text 200, 170, 70, 10, "Prosp Budget Detail:"
-                                '   EditBox 275, 165, 180, 15, Edit11
-                                '   Text 10, 190, 60, 10, "Disb CS Arrears:"
-                                '   EditBox 80, 185, 375, 15, Edit12
-                                '   Text 80, 210, 50, 10, "Months of Disb Used:"
-                                '   EditBox 135, 205, 50, 15, Edit13
-                                '   Text 200, 210, 70, 10, "Prosp Budget Detail:"
-                                '   EditBox 275, 205, 180, 15, Edit14
-                                ' EndDialog
-                                '
-                                ' BeginDialog Dialog1, 0, 0, 466, 310, "Dialog 4 - CSES"
-                                '   ButtonGroup ButtonPressed
-                                '     PushButton 15, 295, 45, 10, "1 - Personal", dlg_one_button
-                                '     PushButton 65, 295, 35, 10, "2 - JOBS", dlg_two_button
-                                '     PushButton 105, 295, 35, 10, "3 - BUSI", dlg_three_button
-                                '     Text 145, 295, 35, 10, "4 - CSES"
-                                '     PushButton 185, 295, 35, 10, "5 - UNEA", dlg_five_button
-                                '     PushButton 225, 295, 35, 10, "6 - Other", dlg_six_button
-                                '     PushButton 265, 295, 40, 10, "7 - Assets", dlg_seven_button
-                                '     PushButton 310, 295, 50, 10, "8 - Interview", dlg_eight_button
-                                '     PushButton 370, 290, 35, 15, "NEXT", go_to_next_page
-                                '     CancelButton 410, 290, 50, 15
-                                '   GroupBox 10, 285, 355, 25, "Dialog Tabs"
-                                '   Text 60, 295, 5, 10, "|"
-                                '   Text 100, 295, 5, 10, "|"
-                                '   Text 140, 295, 5, 10, "|"
-                                '   Text 180, 295, 5, 10, "|"
-                                '   Text 220, 295, 5, 10, "|"
-                                '   Text 260, 295, 5, 10, "|"
-                                '   Text 305, 295, 5, 10, "|"
-                                ' EndDialog
-
                                 Dialog Dialog1
                                 cancel_confirmation
+                                verification_dialog
                                 'MsgBox ButtonPressed
                                 If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
-
+                                If ButtonPressed = verif_button Then ButtonPressed = dlg_four_button
                                 Call assess_button_pressed
                                 If ButtonPressed = go_to_next_page Then pass_four = true
                             End If
                         Loop Until pass_four = true
                         If show_five = true Then
-                            dlg_five_len = 170
+                            dlg_five_len = 190
                             ssa_group_len = 30
                             uc_group_len = 30
                             unea_income_found = FALSE
@@ -3075,6 +3465,10 @@ Do
                               y_pos = y_pos + 25
                               Text 10, y_pos, 45, 10, "Other UNEA:"
                               EditBox 55, y_pos - 5, 405, 15, notes_on_other_UNEA
+                              y_pos = y_pos + 20
+                              ButtonGroup ButtonPressed
+                                PushButton 5, y_pos, 50, 10, "Verifs needed:", verif_button
+                              EditBox 60, y_pos - 5, 400, 15, verifs_needed
                               y_pos = y_pos + 25
                               ButtonGroup ButtonPressed
                                 PushButton 15, y_pos, 45, 10, "1 - Personal", dlg_one_button
@@ -3098,30 +3492,11 @@ Do
                               Text 305, y_pos, 5, 10, "|"
                             EndDialog
 
-                            ' BeginDialog Dialog1, 0, 0, 466, 310, "Dialog 5 - UNEA"
-                            '   ButtonGroup ButtonPressed
-                            '     PushButton 15, 295, 45, 10, "1 - Personal", dlg_one_button
-                            '     PushButton 65, 295, 35, 10, "2 - JOBS", dlg_two_button
-                            '     PushButton 105, 295, 35, 10, "3 - BUSI", dlg_three_button
-                            '     PushButton 145, 295, 35, 10, "4 - CSES", dlg_four_button
-                            '     Text 185, 295, 35, 10, "5 - UNEA"
-                            '     PushButton 225, 295, 35, 10, "6 - Other", dlg_six_button
-                            '     PushButton 265, 295, 40, 10, "7 - Assets", dlg_seven_button
-                            '     PushButton 310, 295, 50, 10, "8 - Interview", dlg_eight_button
-                            '     PushButton 370, 290, 35, 15, "NEXT", go_to_next_page
-                            '     CancelButton 410, 290, 50, 15
-                            '   GroupBox 10, 285, 355, 25, "Dialog Tabs"
-                            '   Text 60, 295, 5, 10, "|"
-                            '   Text 100, 295, 5, 10, "|"
-                            '   Text 140, 295, 5, 10, "|"
-                            '   Text 180, 295, 5, 10, "|"
-                            '   Text 220, 295, 5, 10, "|"
-                            '   Text 260, 295, 5, 10, "|"
-                            '   Text 305, 295, 5, 10, "|"
-                            ' EndDialog
-
                             Dialog Dialog1
                             cancel_confirmation
+                            MAXIS_dialog_navigation
+                            verification_dialog
+
                             If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
 
                             If ButtonPressed = calc_button Then
@@ -3140,6 +3515,8 @@ Do
                                 Next
                                 ButtonPressed = dlg_five_button
                             End If
+                            If ButtonPressed = verif_button then ButtonPressed = dlg_five_button
+
                             Call assess_button_pressed
                             If ButtonPressed = go_to_next_page Then pass_five = true
                         End If
@@ -3171,7 +3548,7 @@ Do
                           ' EditBox 35, 275, 240, 15, notes_on_cars
                           ' EditBox 305, 275, 240, 15, notes_on_rest
                           ' EditBox 110, 295, 435, 15, notes_on_other_assets
-                          EditBox 55, 245, 495, 15, verifs_needed
+                          EditBox 60, 245, 490, 15, verifs_needed
                           GroupBox 5, 5, 545, 65, "WREG and ABAWD Information"
                           Text 15, 15, 55, 10, "ABAWD Details:"
                           Text 75, 15, 470, 10, notes_on_abawd
@@ -3199,7 +3576,6 @@ Do
                           Text 435, 175, 45, 10, "Reservation:"
                           Text 315, 195, 55, 10, "* Living Situation:"
                           Text 315, 210, 75, 10, "Notes on address:"
-                          Text 5, 250, 50, 10, "Verifs needed:"
                           GroupBox 105, 265, 355, 25, "Dialog Tabs"
                           Text 155, 275, 5, 10, "|"
                           Text 195, 275, 5, 10, "|"
@@ -3209,6 +3585,7 @@ Do
                           Text 355, 275, 5, 10, "|"
                           Text 400, 275, 5, 10, "|"
                           ButtonGroup ButtonPressed
+                            PushButton 5, 250, 50, 10, "Verifs needed:", verif_button
                             PushButton 110, 275, 45, 10, "1 - Personal", dlg_one_button
                             PushButton 160, 275, 35, 10, "2 - JOBS", dlg_two_button
                             PushButton 200, 275, 35, 10, "3 - BUSI", dlg_three_button
@@ -3236,11 +3613,11 @@ Do
                             ' PushButton 60, 300, 45, 10, "other assets", other_asset_button
                         EndDialog
 
-                        err_msg = ""
-                        income_note_error_msg = ""
                         Dialog Dialog1			'Displays the second dialog
                         cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
                         MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+                        verification_dialog
+
                         If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
 
                         If ButtonPressed = abawd_button Then
@@ -3320,7 +3697,7 @@ Do
                                 If clt_SHEL_is_for = "Select" Then
                                     dlg_len = 30
                                 Else
-                                    dlg_len = 240
+                                    dlg_len = 250
                                     For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
                                         If clt_shel_is_for = ALL_MEMBERS_ARRAY(full_clt, each_member) Then
                                             shel_client = each_member
@@ -3335,7 +3712,7 @@ Do
 
                                 If ALL_MEMBERS_ARRAY(shel_subsudized, shel_client) = "" Then ALL_MEMBERS_ARRAY(shel_subsudized, shel_client) = "No"
                                 If ALL_MEMBERS_ARRAY(shel_shared, shel_client) = "" Then ALL_MEMBERS_ARRAY(shel_shared, shel_client) = "No"
-
+                                shel_verif_needed_checkbox = unchecked
 
                                 BeginDialog Dialog1, 0, 0, 340, dlg_len, "SHEL Detail Dialog"
                                   DropListBox 60, 10, 125, 45, shel_memb_list, clt_SHEL_is_for
@@ -3395,8 +3772,10 @@ Do
                                       DropListBox 85, 200, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, shel_client)
                                       EditBox 195, 200, 35, 15, ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, shel_client)
                                       DropListBox 235, 200, 100, 45, "Select one"+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, shel_client)
+                                      CheckBox 45, 220, 150, 10, "Check here if verification is requested.", ALL_MEMBERS_ARRAY(shel_verif_checkbox, shel_client)
+                                      CheckBox 45, 235, 185, 10, "Check here if this verification is NOT MANDAOTRY.", not_mand_checkbox
                                       ButtonGroup ButtonPressed
-                                        PushButton 245, 220, 90, 15, "Return to Main Dialog", return_button
+                                        PushButton 245, 230, 90, 15, "Return to Main Dialog", return_button
                                         OkButton 600, 500, 50, 15
                                       Text 15, 35, 60, 10, "HUD Subsidized:"
                                       Text 140, 35, 30, 10, "Shared:"
@@ -3454,6 +3833,14 @@ Do
                                 If ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, shel_client) <> "" Then ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, shel_client) = ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, shel_client) * 1
 
                                 call update_shel_notes
+                                If ALL_MEMBERS_ARRAY(shel_verif_checkbox, shel_client) = checked Then
+                                    If ALL_MEMBERS_ARRAY(shel_verif_added, shel_client) <> TRUE Then
+                                        verifs_needed = verifs_needed & "Shelter costs for Memb " & ALL_MEMBERS_ARRAY(full_clt, shel_client) & ". "
+                                        If not_mand_checkbox = checked Then verifs_needed = verifs_needed & " THIS VERIFICATION IS NOT MANDATORY."
+                                        verifs_needed = verifs_needed & "; "
+                                    End If
+                                    ALL_MEMBERS_ARRAY(shel_verif_added, shel_client) = TRUE
+                                End If
 
                                 If ButtonPressed = -1 Then ButtonPressed = return_button
                                 If ButtonPressed = 0 Then ButtonPressed = return_button
@@ -3461,6 +3848,7 @@ Do
                                 If ButtonPressed = return_button Then ButtonPressed = dlg_six_button
                             Loop until shel_err_msg = ""
                         End If
+                        If ButtonPressed = verif_button then ButtonPressed = dlg_six_button
 
                         Call assess_button_pressed
                         If ButtonPressed = go_to_next_page Then pass_six = true
@@ -3485,7 +3873,7 @@ Do
                       EditBox 60, 225, 490, 15, notes_on_sanction
                       EditBox 50, 245, 500, 15, EMPS
                       CheckBox 50, 270, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
-                      EditBox 55, 290, 500, 15, verifs_needed
+                      EditBox 60, 290, 495, 15, verifs_needed
                       ButtonGroup ButtonPressed
                         PushButton 15, 45, 25, 10, "ACCT", acct_button
                         PushButton 445, 45, 25, 10, "CASH", cash_button
@@ -3501,6 +3889,7 @@ Do
                         PushButton 10, 175, 25, 10, "DISQ:", disq_button
                         If family_cash = TRUE Then PushButton 15, 250, 30, 10, "* EMPS:", emps_button
                         If family_cash = FALSE Then PushButton 20, 250, 25, 10, "EMPS:", emps_button
+                        PushButton 5, 295, 50, 10, "Verifs needed:", verif_button
                         PushButton 110, 320, 45, 10, "1 - Personal", dlg_one_button
                         PushButton 160, 320, 35, 10, "2 - JOBS", dlg_two_button
                         PushButton 200, 320, 35, 10, "3 - BUSI", dlg_three_button
@@ -3512,7 +3901,6 @@ Do
                         CancelButton 505, 315, 50, 15
                         OkButton 600, 500, 50, 15
                       Text 360, 320, 40, 10, "7 - Assets"
-                      Text 5, 295, 50, 10, "Verifs needed:"
                       GroupBox 10, 10, 545, 115, "Assets"
                       If SNAP_checkbox = checked and CAF_type = "Application" Then
                         Text 310, 25, 110, 10, "* Total Liquid Assets in App Month:"
@@ -3539,7 +3927,11 @@ Do
 
                     Dialog Dialog1
                     cancel_confirmation
+                    MAXIS_dialog_navigation
+                    verification_dialog
+
                     If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
+                    If ButtonPressed = verif_button then ButtonPressed = dlg_seven_button
 
                     Call assess_button_pressed
                     If ButtonPressed = go_to_next_page Then pass_seven = true
@@ -3591,12 +3983,14 @@ Do
                   CheckBox 220, 200, 125, 10, "Eligibility Requirements Explained?", elig_req_explained_checkbox
                   CheckBox 220, 215, 160, 10, "Benefits and Payment Information Explained?", benefit_payment_explained_checkbox
                   EditBox 55, 240, 390, 15, other_notes
-                  EditBox 55, 260, 390, 15, verifs_needed
+                  EditBox 60, 260, 385, 15, verifs_needed
                   CheckBox 15, 295, 240, 10, "Check here to update PND2 to show client delay (pending cases only).", client_delay_checkbox
                   CheckBox 15, 310, 200, 10, "Check here to create a TIKL to deny at the 30 day mark.", TIKL_checkbox
                   CheckBox 15, 325, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_checkbox
+                  EditBox 295, 295, 50, 15, verif_req_form_sent_date
                   EditBox 295, 325, 150, 15, worker_signature
                   ButtonGroup ButtonPressed
+                    PushButton 5, 265, 50, 10, "Verifs needed:", verif_button
                     PushButton 10, 355, 45, 10, "1 - Personal", dlg_one_button
                     PushButton 60, 355, 35, 10, "2 - JOBS", dlg_two_button
                     PushButton 100, 355, 35, 10, "3 - BUSI", dlg_three_button
@@ -3632,8 +4026,8 @@ Do
                   GroupBox 120, 140, 90, 90, "Form Actions"
                   GroupBox 215, 140, 175, 90, "Interview"
                   Text 5, 245, 50, 10, "Other notes:"
-                  Text 5, 265, 50, 10, "Verifs needed:"
                   GroupBox 5, 280, 280, 60, "Actions the script can do:"
+                  Text 295, 285, 120, 10, "Date Verification Request Form Sent:"
                   Text 295, 315, 60, 10, "Worker signature:"
                   Text 305, 355, 50, 10, "8 - Interview"
                   GroupBox 5, 345, 345, 25, "Dialog Tabs"
@@ -3648,7 +4042,11 @@ Do
 
                 Dialog Dialog1
                 cancel_confirmation
+                MAXIS_dialog_navigation
+                verification_dialog
+
                 If ButtonPressed = -1 Then ButtonPressed = finish_dlgs_button
+                If ButtonPressed = verif_button then ButtonPressed = dlg_eight_button
 
                 Call assess_button_pressed
 
@@ -3698,13 +4096,19 @@ Do
                             If ALL_BUSI_PANELS_ARRAY(calc_method, each_busi) = "Select One" Then full_err_msg = full_err_msg & "~!~3^* Indicate which calculation method will be used for BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & "."
                             If ALL_BUSI_PANELS_ARRAY(calc_method, each_busi) = "Tax Forms" Then
                                 If SNAP_checkbox = checked Then
-                                    If trim(ALL_BUSI_PANELS_ARRAY(exp_not_allwd, each_busi)) = "" Then full_err_msg = full_err_msg & "~!~3^* Since the calculation method is 'Tax Forms' and this is a SNAP case, indicate what (if any) expenses on taxes have been excluded."
-                                    If ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of income for SNAP should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
-                                    If ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of expenses for SNAP should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
+                                    If ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) = "Income Tax Returns" AND trim(ALL_BUSI_PANELS_ARRAY(exp_not_allwd, each_busi)) = "" Then full_err_msg = full_err_msg & "~!~3^* Since the calculation method is 'Tax Forms' and this is a SNAP case with Tax Forms verifying, indicate what (if any) expenses on taxes have been excluded."
+                                    If ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) = "Pend Out State Verif" OR ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) = "No Verif Provided" OR ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) = "Delayed Verif" Then
+                                    Else
+                                        If ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of income for SNAP should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
+                                        If ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of expenses for SNAP should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
+                                    End If
                                 End If
                                 If cash_checkbox = checked or EMER_checkbox = checked Then
-                                    If ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of income for Cash/EMER should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
-                                    If ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of expenses for Cash/EMER should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
+                                    If ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) = "Pend Out State Verif" OR ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) = "No Verif Provided" OR ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) = "Delayed Verif" Then
+                                    Else
+                                        If ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of income for Cash/EMER should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
+                                        If ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of expenses for Cash/EMER should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
+                                    End If
                                 End If
                             End If
                         Next
@@ -3752,9 +4156,9 @@ Do
                     'We are not erroring for if ADDR verification is 'NO' or '?' - if we get additional policy information that this is necessary - add it here
 
                     'DIALOG 7
-                    If SNAP_checkbox = checked and CAF_type = "Application" Then
-                        If trim(app_month_assets) = "" OR IsNumeric(app_month_assets) = FALSE AND exp_det_case_note_found = FALSE Then full_err_msg = full_err_msg & "~!~7^* Indicate the total of liquid assets in the application month."
-                    End If
+                    ' If SNAP_checkbox = checked and CAF_type = "Application" Then
+                    '     If trim(app_month_assets) = "" OR IsNumeric(app_month_assets) = FALSE AND exp_det_case_note_found = FALSE Then full_err_msg = full_err_msg & "~!~7^* Indicate the total of liquid assets in the application month."
+                    ' End If
 
                     If family_cash = TRUE and trim(notes_on_time) = "" Then full_err_msg = full_err_msg & "~!~7^* For a family cash case, detail on TIME needs to be added."
                     If family_cash = TRUE and trim(notes_on_sanction) = "" Then full_err_msg = full_err_msg & "~!~7^* This is a family cash case, sanction detail needs to be added."
@@ -4719,6 +5123,44 @@ If interview_required = TRUE Then
     PF3
 End If
 
+'Verification NOTE
+'
+If trim(verifs_needed) <> "" Then
+
+    verif_counter = 1
+    verifs_needed = trim(verifs_needed)
+    If right(verifs_needed, 1) = ";" Then verifs_needed = left(verifs_needed, len(verifs_needed) - 1)
+    If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed) - 1)
+    If InStr(verifs_needed, ";") <> 0 Then
+        verifs_array = split(verifs_needed, ";")
+    Else
+        verifs_array = array(verifs_needed)
+    End If
+
+    Call start_a_blank_CASE_NOTE
+
+    Call write_variable_in_CASE_NOTE("VERIFICATIONS REQUESTED")
+
+    Call write_bullet_and_variable_in_CASE_NOTE("Verif request form sent on", verif_req_form_sent_date)
+
+    Call write_variable_in_CASE_NOTE("---")
+
+    Call write_variable_in_CASE_NOTE("List of all verifications requested:")
+    For each verif_item in verifs_array
+        verif_item = trim(verif_item)
+        If number_verifs_checkbox = checked Then verif_item = verif_counter & ". " & verif_item
+        verif_counter = verif_counter + 1
+        Call write_variable_with_indent_in_CASE_NOTE(verif_item)
+    Next
+
+    Call write_variable_in_CASE_NOTE("---")
+    Call write_variable_in_CASE_NOTE(worker_signature)
+
+    PF3
+
+
+End If
+
 'MAIN CAF Information NOTE
 'Navigates to case note, and checks to make sure we aren't in inquiry.
 Call start_a_blank_CASE_NOTE
@@ -5075,7 +5517,8 @@ If TIKL_checkbox Then CALL write_variable_in_CASE_NOTE("* TIKL set to take actio
 If client_delay_TIKL_checkbox Then CALL write_variable_in_CASE_NOTE("* TIKL set to update PND2 for Client Delay on " & DateAdd("d", 10, CAF_datestamp))
 
 Call write_bullet_and_variable_in_CASE_NOTE("Notes", other_notes)
-IF move_verifs_needed = False THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
+If trim(verifs_needed) <> "" Then Call write_variable_in_CASE_NOTE("** VERIFICATIONS REQUESTED - See previous case note for detail")
+' IF move_verifs_needed = False THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
 CALL write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
