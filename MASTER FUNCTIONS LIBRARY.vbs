@@ -6553,7 +6553,8 @@ function write_variable_with_indent_in_CASE_NOTE(variable)
 '~~~~~ bullet: name of the field to update. Put bullet in "".
 '~~~~~ variable: variable from script to be written into CASE note
 '===== Keywords: MAXIS, bullet, CASE note
-	If trim(variable) <> "" then
+    variable = trim(variable)
+	If variable <> "" then
 		EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
 		noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
 		'The following figures out if we need a new page, or if we need a new case note entirely as well.
@@ -6598,8 +6599,11 @@ function write_variable_with_indent_in_CASE_NOTE(variable)
         indent_length = 5
 
 		'Writes the bullet
-		EMWriteScreen "  - ", noting_row, noting_col
-
+        If IsNumeric(left(variable, 1)) = False Then
+            EMWriteScreen "  - ", noting_row, noting_col
+        Else
+            EMWriteScreen "  ", noting_row, noting_col
+        End If
 		'Determines new noting_col based on length of the bullet length (bullet + 4 to account for asterisk, colon, and spaces).
 		noting_col = noting_col + 4
 
