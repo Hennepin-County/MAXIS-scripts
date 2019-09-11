@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/05/2018", "Updated HEST deductions when electric and phones deductions are present for community spouse.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/05/2018", "Updated coordinates in STAT/JOBS for income type and verification codes.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -189,10 +190,19 @@ If coop_condo_maint_fees = "0" then coop_condo_maint_fees = ""
 Call navigate_to_MAXIS_screen("STAT", "HEST")
 
 'Reads the info off of STAT/HEST into variables for the utility expenses. This is used to autofill the allocation dialog.
-EMReadScreen utility_allowance, 6, 13, 75
-If utility_allowance = "      " then EMReadScreen utility_allowance, 6, 14, 75
-If utility_allowance = "      " then EMReadScreen utility_allowance, 6, 15, 75
-If utility_allowance = "      " then utility_allowance = ""
+EMReadScreen heat_air, 6, 13, 75
+IF trim(heat_air) <> "" then 
+Else 
+    'electric
+    EMReadScreen elec_allow, 6, 14, 75
+    elec_allow = trim(elec_allow)
+    If elec_allow = "" then elec_allow = "0"
+    'phone
+    EMReadScreen phone_allow, 6, 15, 75
+    phone_allow = trim(phone_allow)
+    If phone_allow = "" then phone_allow = "0"
+    utility_allowance = cint(elec_allow) + cint(phone_allow) & ""
+End if 
 
 'Navigates to UNEA and grabs info on the spouse's income (if a spouse is found in MEMB).
 If spousal_reference_number <> "" then
@@ -354,15 +364,15 @@ gross_spousal_earned_income_04 = trim(gross_spousal_earned_income_04)
 'Defining the HH_memb_row variable for the navigation buttons
 HH_memb_row = 6
 
-'Shows the spousal maintenance dialog
-dialog spousal_maintenance_dialog
-
-MAXIS_dialog_navigation
-cancel_confirmation
-
-'checking for an active MAXIS session
-Call check_for_MAXIS(False)
-
+Do
+    Do 
+        'Shows the spousal maintenance dialog
+        dialog spousal_maintenance_dialog
+        cancel_confirmation
+        MAXIS_dialog_navigation
+    Loop until ButtonPressed = -1
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'changes unearned income coding types as coding from UNEA panel and spousal allocation screen are not the same
 'unearned income 01
