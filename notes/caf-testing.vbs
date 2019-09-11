@@ -2226,6 +2226,9 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+If CAF_form = "CAF Addendum (DHS-5223C)" Then
+End If
+
 If CASH_on_CAF_checkbox = checked or trim(cash_other_req_detail) <> "" Then cash_checkbox = checked
 If SNAP_on_CAF_checkbox = checked or trim(snap_other_req_detail) <> "" Then SNAP_checkbox = checked
 If EMER_on_CAF_checkbox = checked or trim(emer_other_req_detail) <> "" Then EMER_checkbox = checked
@@ -2285,109 +2288,112 @@ Else
     family_cash = FALSE
 End If
 
-Call navigate_to_MAXIS_screen("STAT", "REVW")
-EMReadScreen cash_revw_code, 1, 7, 40
-EMReadScreen snap_revw_code, 1, 7, 60
-EMReadScreen hc_revw_code, 1, 7, 73
-If cash_revw_code = "N" or cash_revw_code = "U" or cash_revw_code = "I" or cash_revw_code = "A" Then
-    the_process_for_cash = "Recertification"
-    cash_recert_mo = MAXIS_footer_month
-    cash_recert_yr = MAXIS_footer_year
+If cash_checkbox = checked OR snap_checkbox = checked OR hc_checkbox = checked Then
+    Call navigate_to_MAXIS_screen("STAT", "REVW")
+    EMReadScreen cash_revw_code, 1, 7, 40
+    EMReadScreen snap_revw_code, 1, 7, 60
+    EMReadScreen hc_revw_code, 1, 7, 73
+    If cash_revw_code = "N" or cash_revw_code = "U" or cash_revw_code = "I" or cash_revw_code = "A" Then
+        the_process_for_cash = "Recertification"
+        cash_recert_mo = MAXIS_footer_month
+        cash_recert_yr = MAXIS_footer_year
+    End If
+    If snap_revw_code = "N" or snap_revw_code = "U" or snap_revw_code = "I" or snap_revw_code = "A" Then
+        the_process_for_snap = "Recertification"
+        snap_recert_mo = MAXIS_footer_month
+        snap_recert_yr = MAXIS_footer_year
+    End If
+    If hc_revw_code = "N" or hc_revw_code = "U" or hc_revw_code = "I" or hc_revw_code = "A" Then
+        the_process_for_hc = "Recertification"
+        hc_recert_mo = MAXIS_footer_month
+        hc_recert_yr = MAXIS_footer_year
+    End If
+
+    Call navigate_to_MAXIS_screen("STAT", "PROG")
+    EMReadScreen cash_prog_code_one, 4, 6, 74
+    EMReadScreen cash_prog_code_two, 4, 6, 74
+    EMReadScreen snap_prog_code, 4, 10, 74
+    EMReadScreen hc_prog_code, 4, 12, 74
+    If cash_prog_code_one = "PEND" OR cash_prog_code_two = "PEND" Then the_process_for_cash = "Application"
+    If snap_prog_code = "PEND" Then the_process_for_snap = "Application"
+    If hc_prog_code = "PEND" Then the_process_for_hc = "Application"
+
+    If adult_cash = TRUE Then type_of_cash = "Adult"
+    If family_cash = TRUE Then type_of_cash = "Family"
+    dlg_len = 50
+    y_pos = 25
+    If cash_checkbox = checked Then dlg_len = dlg_len + 20
+    If snap_checkbox = checked Then dlg_len = dlg_len + 20
+    If HC_checkbox = checked Then dlg_len = dlg_len + 20
+
+    BeginDialog Dialog1, 0, 0, 205, dlg_len, "CAF Process"
+      Text 10, 10, 35, 10, "Program"
+      Text 80, 10, 50, 10, "CAF Process"
+      Text 155, 10, 50, 10, "Recert MM/YY"
+      If cash_checkbox = checked Then
+          Text 10, y_pos + 5, 20, 10, "Cash"
+          DropListBox 35, y_pos, 35, 45, "Family"+chr(9)+"Adult", type_of_cash
+          DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_cash
+          EditBox 155, y_pos, 20, 15, cash_recert_mo
+          EditBox 180, y_pos, 20, 15, cash_recert_yr
+          y_pos = y_pos + 20
+      End If
+      If snap_checkbox = checked Then
+          Text 10, y_pos + 5, 20, 10, "SNAP"
+          DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_snap
+          EditBox 155, y_pos, 20, 15, snap_recert_mo
+          EditBox 180, y_pos, 20, 15, snap_recert_yr
+          y_pos = y_pos + 20
+      End If
+      If HC_checkbox = checked Then
+          Text 10, y_pos + 5, 40, 10, "Health Care"
+          DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_hc
+          EditBox 155, y_pos, 20, 15, hc_recert_mo
+          EditBox 180, y_pos, 20, 15, hc_recert_yr
+          y_pos = y_pos + 20
+      End If
+      y_pos = y_pos + 5
+      ButtonGroup ButtonPressed
+        OkButton 150, y_pos, 50, 15
+    EndDialog
+
+    Do
+    	DO
+    		err_msg = ""
+    		Dialog Dialog1
+    		cancel_confirmation
+
+            If cash_checkbox = checked Then
+                If the_process_for_cash = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or recertification."
+                If the_process_for_cash = "Recertification" AND (len(cash_recert_mo) <> 2 or len(cash_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For CASH at recertification, enter the footer month and year the of the recertification."
+            End If
+            If snap_checkbox = checked Then
+                If the_process_for_snap = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the SNAP program is at application or recertification."
+                If the_process_for_snap = "Recertification" AND (len(snap_recert_mo) <> 2 or len(snap_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For SNAP at recertification, enter the footer month and year the of the recertification."
+            End If
+            If HC_checkbox = checked Then
+                If the_process_for_hc = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the Health Care program is at application or recertification."
+                If the_process_for_hc = "Recertification" AND (len(hc_recert_mo) <> 2 or len(hc_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For HC at recertification, enter the footer month and year the of the recertification."
+            End If
+
+
+            IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+    If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertification" Then CAF_type = "Recertification"
+    If the_process_for_cash = "Application" OR the_process_for_snap = "Application" Then CAF_type = "Application"
+    If type_of_cash = "Family" Then
+        adult_cash = FALSE
+        family_cash = TRUE
+    End If
+    If type_of_cash = "Adult" Then
+        adult_cash = TRUE
+        family_cash = FALSE
+    End If
 End If
-If snap_revw_code = "N" or snap_revw_code = "U" or snap_revw_code = "I" or snap_revw_code = "A" Then
-    the_process_for_snap = "Recertification"
-    snap_recert_mo = MAXIS_footer_month
-    snap_recert_yr = MAXIS_footer_year
-End If
-If hc_revw_code = "N" or hc_revw_code = "U" or hc_revw_code = "I" or hc_revw_code = "A" Then
-    the_process_for_hc = "Recertification"
-    hc_recert_mo = MAXIS_footer_month
-    hc_recert_yr = MAXIS_footer_year
-End If
-
-Call navigate_to_MAXIS_screen("STAT", "PROG")
-EMReadScreen cash_prog_code_one, 4, 6, 74
-EMReadScreen cash_prog_code_two, 4, 6, 74
-EMReadScreen snap_prog_code, 4, 10, 74
-EMReadScreen hc_prog_code, 4, 12, 74
-If cash_prog_code_one = "PEND" OR cash_prog_code_two = "PEND" Then the_process_for_cash = "Application"
-If snap_prog_code = "PEND" Then the_process_for_snap = "Application"
-If hc_prog_code = "PEND" Then the_process_for_hc = "Application"
-
-If adult_cash = TRUE Then type_of_cash = "Adult"
-If family_cash = TRUE Then type_of_cash = "Family"
-dlg_len = 50
-y_pos = 25
-If cash_checkbox = checked Then dlg_len = dlg_len + 20
-If snap_checkbox = checked Then dlg_len = dlg_len + 20
-If HC_checkbox = checked Then dlg_len = dlg_len + 20
-
-BeginDialog Dialog1, 0, 0, 205, dlg_len, "CAF Process"
-  Text 10, 10, 35, 10, "Program"
-  Text 80, 10, 50, 10, "CAF Process"
-  Text 155, 10, 50, 10, "Recert MM/YY"
-  If cash_checkbox = checked Then
-      Text 10, y_pos + 5, 20, 10, "Cash"
-      DropListBox 35, y_pos, 35, 45, "Family"+chr(9)+"Adult", type_of_cash
-      DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_cash
-      EditBox 155, y_pos, 20, 15, cash_recert_mo
-      EditBox 180, y_pos, 20, 15, cash_recert_yr
-      y_pos = y_pos + 20
-  End If
-  If snap_checkbox = checked Then
-      Text 10, y_pos + 5, 20, 10, "SNAP"
-      DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_snap
-      EditBox 155, y_pos, 20, 15, snap_recert_mo
-      EditBox 180, y_pos, 20, 15, snap_recert_yr
-      y_pos = y_pos + 20
-  End If
-  If HC_checkbox = checked Then
-      Text 10, y_pos + 5, 40, 10, "Health Care"
-      DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_hc
-      EditBox 155, y_pos, 20, 15, hc_recert_mo
-      EditBox 180, y_pos, 20, 15, hc_recert_yr
-      y_pos = y_pos + 20
-  End If
-  y_pos = y_pos + 5
-  ButtonGroup ButtonPressed
-    OkButton 150, y_pos, 50, 15
-EndDialog
-
-Do
-	DO
-		err_msg = ""
-		Dialog Dialog1
-		cancel_confirmation
-
-        If cash_checkbox = checked Then
-            If the_process_for_cash = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or recertification."
-            If the_process_for_cash = "Recertification" AND (len(cash_recert_mo) <> 2 or len(cash_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For CASH at recertification, enter the footer month and year the of the recertification."
-        End If
-        If snap_checkbox = checked Then
-            If the_process_for_snap = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the SNAP program is at application or recertification."
-            If the_process_for_snap = "Recertification" AND (len(snap_recert_mo) <> 2 or len(snap_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For SNAP at recertification, enter the footer month and year the of the recertification."
-        End If
-        If HC_checkbox = checked Then
-            If the_process_for_hc = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the Health Care program is at application or recertification."
-            If the_process_for_hc = "Recertification" AND (len(hc_recert_mo) <> 2 or len(hc_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For HC at recertification, enter the footer month and year the of the recertification."
-        End If
-
-
-        IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertification" Then CAF_type = "Recertification"
-If the_process_for_cash = "Application" OR the_process_for_snap = "Application" Then CAF_type = "Application"
-If type_of_cash = "Family" Then
-    adult_cash = FALSE
-    family_cash = TRUE
-End If
-If type_of_cash = "Adult" Then
-    adult_cash = TRUE
-    family_cash = FALSE
-End If
+If EMER_checkbox = checked Then CAF_type = "Application"
 
 If CAF_type = "Recertification" then                                                          'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
 	call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
@@ -2782,7 +2788,7 @@ Do
                                                 dlg_len = 100
                                             Else
                                                 If UBound(ALL_JOBS_PANELS_ARRAY, 2) >= job_limit Then
-                                                    dlg_len = 305
+                                                    dlg_len = 325
                                                     If snap_checkbox = checked Then dlg_len = dlg_len + 60
                                                     If grh_checkbox = checked Then dlg_len = dlg_len + 60
                                                     'jobs_grp_len = 315
@@ -2881,23 +2887,23 @@ Do
                                                   y_pos = y_pos + 25
                                               End If
                                               y_pos = y_pos + 5
-                                              GroupBox 150, y_pos - 10, 355, 25, "Dialog Tabs"
-                                              Text 200, y_pos, 5, 10, "|"
-                                              Text 240, y_pos, 5, 10, "|"
-                                              Text 280, y_pos, 5, 10, "|"
-                                              Text 320, y_pos, 5, 10, "|"
-                                              Text 360, y_pos, 5, 10, "|"
-                                              Text 400, y_pos, 5, 10, "|"
-                                              Text 445, y_pos, 5, 10, "|"
-                                              Text 205, y_pos, 35, 10, "2 - JOBS"
+                                              GroupBox 5, y_pos - 10, 355, 25, "Dialog Tabs"
+                                              Text 55, y_pos, 5, 10, "|"
+                                              Text 95, y_pos, 5, 10, "|"
+                                              Text 135, y_pos, 5, 10, "|"
+                                              Text 175, y_pos, 5, 10, "|"
+                                              Text 215, y_pos, 5, 10, "|"
+                                              Text 255, y_pos, 5, 10, "|"
+                                              Text 300, y_pos, 5, 10, "|"
+                                              Text 60, y_pos, 35, 10, "2 - JOBS"
                                               ButtonGroup ButtonPressed
-                                                PushButton 155, y_pos, 45, 10, "1 - Personal", dlg_one_button
-                                                PushButton 245, y_pos, 35, 10, "3 - BUSI", dlg_three_button
-                                                PushButton 285, y_pos, 35, 10, "4 - CSES", dlg_four_button
-                                                PushButton 325, y_pos, 35, 10, "5 - UNEA", dlg_five_button
-                                                PushButton 365, y_pos, 35, 10, "6 - Other", dlg_six_button
-                                                PushButton 405, y_pos, 40, 10, "7 - Assets", dlg_seven_button
-                                                PushButton 450, y_pos, 50, 10, "8 - Interview", dlg_eight_button
+                                                PushButton 10, y_pos, 45, 10, "1 - Personal", dlg_one_button
+                                                PushButton 100, y_pos, 35, 10, "3 - BUSI", dlg_three_button
+                                                PushButton 140, y_pos, 35, 10, "4 - CSES", dlg_four_button
+                                                PushButton 180, y_pos, 35, 10, "5 - UNEA", dlg_five_button
+                                                PushButton 220, y_pos, 35, 10, "6 - Other", dlg_six_button
+                                                PushButton 260, y_pos, 40, 10, "7 - Assets", dlg_seven_button
+                                                PushButton 305, y_pos, 50, 10, "8 - Interview", dlg_eight_button
 
                                                 If jobs_pages >= 2 Then
                                                     If jobs_pages = 2 Then
