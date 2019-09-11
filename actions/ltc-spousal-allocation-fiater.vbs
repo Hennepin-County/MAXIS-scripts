@@ -192,6 +192,7 @@ Call navigate_to_MAXIS_screen("STAT", "HEST")
 'Reads the info off of STAT/HEST into variables for the utility expenses. This is used to autofill the allocation dialog.
 EMReadScreen heat_air, 6, 13, 75
 IF trim(heat_air) <> "" then 
+    utility_allowance =  heat_air
 Else 
     'electric
     EMReadScreen elec_allow, 6, 14, 75
