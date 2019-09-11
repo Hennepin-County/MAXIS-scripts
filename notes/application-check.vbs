@@ -43,7 +43,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("08/27/2018", "Updated dialog and case note to address requested enhancements  (TIKL & interview still needed).", "MiKayla Handley")
+call changelog_update("09/06/2019," "Updated TIKL veribage", "Ilse Ferris")
+call changelog_update("08/27/2019", "Updated dialog and case note to address requested enhancements (TIKL & interview still needed).", "MiKayla Handley")
 call changelog_update("08/20/2019", "Bug on the script when a large PND2 list is accessed.", "Casey Love, Hennepin County")
 call changelog_update("06/14/2018", "Updated dialog and case note to address requested enhancements.", "MiKayla Handley")
 
@@ -446,7 +447,7 @@ End if
 
 Call navigate_to_MAXIS_screen("DAIL", "WRIT")
 CALL create_MAXIS_friendly_date(reminder_date, 0, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-CALL write_variable_in_TIKL("Application check: " & reminder_text & " Review ECF if requested have not been received and processed, take appropriate action.")
+CALL write_variable_in_TIKL("Application check: " & reminder_text & ". Review case and ECF including verification requests, and take appropriate action.")
 PF3		'Exits and saves TIKL
 
 'message boxes based on the application status chosen instructing workers which scripts to use next
