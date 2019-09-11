@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("09/11/2019", "Testing Update:##~## ##~##  - Added functionality so that you can select recert and application for different programs in the same run!!! Now you don't have to run it twice for a SNAP Recert and Cash Application. The script also only asks about expedited for SNAP at application! ##~## I am excited about this.##~## ##~##", "Casey Love, Hennepin County")
 Call changelog_update("09/10/2019", "Testing Update:##~## ##~##  - BUG FIX - when UNEA income has ended and no pay dates are listed the script was stopping. Updated functionality to capture end of UNEA information. ##~## ##~##  NOTE: I know many have asked about this same thing for JOBS income. The functionality update for this is more complicated, but I am working on it and will let you know once I have a solution.##~## ##~##", "Casey Love, Hennepin County")
 call changelog_update("09/10/2019", "Testing Update:##~## ##~##  - Added new Verification Dialog and enhanced verification handling. See details in email.##~## ##~##", "Casey Love, Hennepin County")
 call changelog_update("08/30/2019", "Testing Updates:##~## ##~## - Added functionality to have a HC form processed as a 'piggyback'. Check the box on the case number dialog (very first) at the bottom for a HC form also being processed. If this box is checked, a dialog will appear at the end for specific HC information. The script will create a seperate HC CASE/NOTE.", "Casey Love, Hennepin County")
@@ -2175,7 +2176,7 @@ BeginDialog Dialog1, 0, 0, 281, 215, "Case number dialog"
   CheckBox 10, 85, 30, 10, "CASH", CASH_on_CAF_checkbox
   CheckBox 50, 85, 35, 10, "SNAP", SNAP_on_CAF_checkbox
   CheckBox 90, 85, 35, 10, "EMER", EMER_on_CAF_checkbox
-  DropListBox 185, 80, 75, 15, "Select One:"+chr(9)+"Application"+chr(9)+"Recertification"+chr(9)+"Addendum", CAF_type
+  DropListBox 145, 85, 130, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
   EditBox 40, 130, 220, 15, cash_other_req_detail
   EditBox 40, 150, 220, 15, snap_other_req_detail
   EditBox 40, 170, 220, 15, emer_other_req_detail
@@ -2188,7 +2189,7 @@ BeginDialog Dialog1, 0, 0, 281, 215, "Case number dialog"
   Text 10, 55, 50, 10, "Case number:"
   Text 140, 55, 65, 10, "Footer month/year: "
   GroupBox 5, 70, 125, 30, "Programs marked on CAF"
-  Text 145, 85, 35, 10, "CAF type:"
+  Text 145, 75, 65, 10, "Actual CAF Form:"
   GroupBox 5, 105, 265, 85, "OTHER Program Requests (not marked on CAF)"
   Text 40, 120, 130, 10, "Explain how the program was requested."
   Text 15, 135, 20, 10, "Cash:"
@@ -2211,7 +2212,7 @@ Do
             If confirm_run_another_script = vbNo Then err_msg = "LOOP" & err_msg
         End If
 
-        If CAF_type = "Select One:" then err_msg = err_msg & vbnewline & "* You must select the CAF type."
+        If CAF_form = "Select One:" then err_msg = err_msg & vbnewline & "* You must select the CAF form received."
         Call validate_MAXIS_case_number(err_msg, "*")
         If IsNumeric(MAXIS_footer_month) = FALSE OR len(MAXIS_footer_month) > 2 Then err_msg = err_msg & vbNewLine & "* Enter a valid Footer Month."
         If IsNumeric(MAXIS_footer_year) = FALSE OR len(MAXIS_footer_year) > 2 Then err_msg = err_msg & vbNewLine & "* Enter a valid Footer Year."
@@ -2271,6 +2272,10 @@ If cash_checkbox = checked Then
         adult_cash = FALSE
         family_cash = TRUE
     End If
+    If child_cash_count = 1 AND adult_cash_count = 0 Then
+        adult_cash = TRUE
+        family_cash = FALSE
+    End If
     If pregnant_caregiver_checkbox = checked Then
         adult_cash = FALSE
         family_cash = TRUE
@@ -2279,6 +2284,111 @@ Else
     adult_cash = FALSE
     family_cash = FALSE
 End If
+
+Call navigate_to_MAXIS_screen("STAT", "REVW")
+EMReadScreen cash_revw_code, 1, 7, 40
+EMReadScreen snap_revw_code, 1, 7, 60
+EMReadScreen hc_revw_code, 1, 7, 73
+If cash_revw_code = "N" or cash_revw_code = "U" or cash_revw_code = "I" or cash_revw_code = "A" Then
+    the_process_for_cash = "Recertification"
+    cash_recert_mo = MAXIS_footer_month
+    cash_recert_yr = MAXIS_footer_year
+End If
+If snap_revw_code = "N" or snap_revw_code = "U" or snap_revw_code = "I" or snap_revw_code = "A" Then
+    the_process_for_snap = "Recertification"
+    snap_recert_mo = MAXIS_footer_month
+    snap_recert_yr = MAXIS_footer_year
+End If
+If hc_revw_code = "N" or hc_revw_code = "U" or hc_revw_code = "I" or hc_revw_code = "A" Then
+    the_process_for_hc = "Recertification"
+    hc_recert_mo = MAXIS_footer_month
+    hc_recert_yr = MAXIS_footer_year
+End If
+
+Call navigate_to_MAXIS_screen("STAT", "PROG")
+EMReadScreen cash_prog_code_one, 4, 6, 74
+EMReadScreen cash_prog_code_two, 4, 6, 74
+EMReadScreen snap_prog_code, 4, 10, 74
+EMReadScreen hc_prog_code, 4, 12, 74
+If cash_prog_code_one = "PEND" OR cash_prog_code_two = "PEND" Then the_process_for_cash = "Application"
+If snap_prog_code = "PEND" Then the_process_for_snap = "Application"
+If hc_prog_code = "PEND" Then the_process_for_hc = "Application"
+
+If adult_cash = TRUE Then type_of_cash = "Adult"
+If family_cash = TRUE Then type_of_cash = "Family"
+dlg_len = 50
+y_pos = 25
+If cash_checkbox = checked Then dlg_len = dlg_len + 20
+If snap_checkbox = checked Then dlg_len = dlg_len + 20
+If HC_checkbox = checked Then dlg_len = dlg_len + 20
+
+BeginDialog Dialog1, 0, 0, 205, dlg_len, "CAF Process"
+  Text 10, 10, 35, 10, "Program"
+  Text 80, 10, 50, 10, "CAF Process"
+  Text 155, 10, 50, 10, "Recert MM/YY"
+  If cash_checkbox = checked Then
+      Text 10, y_pos + 5, 20, 10, "Cash"
+      DropListBox 35, y_pos, 35, 45, "Family"+chr(9)+"Adult", type_of_cash
+      DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_cash
+      EditBox 155, y_pos, 20, 15, cash_recert_mo
+      EditBox 180, y_pos, 20, 15, cash_recert_yr
+      y_pos = y_pos + 20
+  End If
+  If snap_checkbox = checked Then
+      Text 10, y_pos + 5, 20, 10, "SNAP"
+      DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_snap
+      EditBox 155, y_pos, 20, 15, snap_recert_mo
+      EditBox 180, y_pos, 20, 15, snap_recert_yr
+      y_pos = y_pos + 20
+  End If
+  If HC_checkbox = checked Then
+      Text 10, y_pos + 5, 40, 10, "Health Care"
+      DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_hc
+      EditBox 155, y_pos, 20, 15, hc_recert_mo
+      EditBox 180, y_pos, 20, 15, hc_recert_yr
+      y_pos = y_pos + 20
+  End If
+  y_pos = y_pos + 5
+  ButtonGroup ButtonPressed
+    OkButton 150, y_pos, 50, 15
+EndDialog
+
+Do
+	DO
+		err_msg = ""
+		Dialog Dialog1
+		cancel_confirmation
+
+        If cash_checkbox = checked Then
+            If the_process_for_cash = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or recertification."
+            If the_process_for_cash = "Recertification" AND (len(cash_recert_mo) <> 2 or len(cash_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For CASH at recertification, enter the footer month and year the of the recertification."
+        End If
+        If snap_checkbox = checked Then
+            If the_process_for_snap = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the SNAP program is at application or recertification."
+            If the_process_for_snap = "Recertification" AND (len(snap_recert_mo) <> 2 or len(snap_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For SNAP at recertification, enter the footer month and year the of the recertification."
+        End If
+        If HC_checkbox = checked Then
+            If the_process_for_hc = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the Health Care program is at application or recertification."
+            If the_process_for_hc = "Recertification" AND (len(hc_recert_mo) <> 2 or len(hc_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For HC at recertification, enter the footer month and year the of the recertification."
+        End If
+
+
+        IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertification" Then CAF_type = "Recertification"
+If the_process_for_cash = "Application" OR the_process_for_snap = "Application" Then CAF_type = "Application"
+If type_of_cash = "Family" Then
+    adult_cash = FALSE
+    family_cash = TRUE
+End If
+If type_of_cash = "Adult" Then
+    adult_cash = TRUE
+    family_cash = FALSE
+End If
+
 If CAF_type = "Recertification" then                                                          'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
 	call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
 	IF SNAP_checkbox = checked THEN																															'checking for SNAP 24 month renewals.'
@@ -2297,6 +2407,27 @@ If CAF_type = "Recertification" then                                            
 Else
 	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_datestamp)
 End if
+If IsDate(CAF_datestamp) = False Then
+    BeginDialog Dialog1, 0, 0, 125, 45, "CAF Datestamp"
+      EditBox 75, 5, 45, 15, CAF_datestamp
+      ButtonGroup ButtonPressed
+        OkButton 5, 25, 50, 15
+        CancelButton 60, 25, 50, 15
+      Text 10, 10, 60, 10, "CAF Datestamp:"
+    EndDialog
+
+    'Runs the first dialog - which confirms the case number
+    Do
+    	Do
+    		err_msg = ""
+    		dialog Dialog1
+    		cancel_confirmation
+            If IsDate(CAF_datestamp) = False Then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the date the CAF was received."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    	Loop until err_msg = ""
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+End If
 
 If CAF_type = "Application" Then
     If SNAP_checkbox = checked Then
@@ -2470,13 +2601,13 @@ End If
 call autofill_editbox_from_MAXIS(HH_member_array, "MEDI", INSA)
 call autofill_editbox_from_MAXIS(HH_member_array, "MEMI", cit_id)
 call autofill_editbox_from_MAXIS(HH_member_array, "OTHR", other_assets)
-call autofill_editbox_from_MAXIS(HH_member_array, "PBEN", income_changes)
+call autofill_editbox_from_MAXIS(HH_member_array, "PBEN", case_changes)
 call autofill_editbox_from_MAXIS(HH_member_array, "PREG", PREG)
 call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "REST", notes_on_rest)
 call autofill_editbox_from_MAXIS(HH_member_array, "SCHL", SCHL)
 call autofill_editbox_from_MAXIS(HH_member_array, "SECU", other_assets)
-call autofill_editbox_from_MAXIS(HH_member_array, "STWK", income_changes)
+call autofill_editbox_from_MAXIS(HH_member_array, "STWK", notes_on_jobs)
 ' call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
 Call read_UNEA_panel
@@ -2496,7 +2627,7 @@ If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" the
 
 
 'SHOULD DEFAULT TO TIKLING FOR APPLICATIONS THAT AREN'T RECERTS.
-If CAF_type <> "Recertification" then TIKL_checkbox = checked
+If CAF_type = "Application" then TIKL_checkbox = checked
 
 Call generate_client_list(interview_memb_list, "Select or Type")
 Call generate_client_list(shel_memb_list, "Select")
@@ -2527,39 +2658,36 @@ Do
                                         full_err_msg = ""
                                         err_array = ""
                                         If show_one = true Then
-                                            ' BeginDialog Dialog1, 0, 0, 466, 310, "Dialog 1 - Personal"
-                                            BeginDialog Dialog1, 0, 0, 465, 265, "CAF Dialog 1 - Personal Information"
+                                            BeginDialog Dialog1, 0, 0, 465, 275, "CAF Dialog 1 - Personal Information"
                                               EditBox 60, 5, 50, 15, CAF_datestamp
                                               ComboBox 175, 5, 70, 15, "Select or Type"+chr(9)+"phone"+chr(9)+"office", interview_type
                                               CheckBox 255, 10, 65, 10, "Used Interpreter", Used_Interpreter_checkbox
                                               EditBox 60, 25, 50, 15, interview_date
                                               ComboBox 230, 25, 95, 15, "Select or Type"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
                                               ComboBox 90, 45, 150, 45, interview_memb_list, interview_with
-                                              EditBox 35, 65, 410, 15, cit_id
-                                              EditBox 35, 85, 410, 15, IMIG
+                                              EditBox 35, 65, 425, 15, cit_id
+                                              EditBox 35, 85, 425, 15, IMIG
                                               EditBox 60, 105, 120, 15, AREP
-                                              EditBox 270, 105, 175, 15, SCHL
+                                              EditBox 270, 105, 190, 15, SCHL
                                               EditBox 60, 125, 210, 15, DISA
-                                              EditBox 310, 125, 135, 15, FACI
-                                              EditBox 35, 155, 410, 15, PREG
-                                              EditBox 35, 175, 275, 15, ABPS
-                                              EditBox 395, 175, 50, 15, CS_forms_sent_date
-                                              'Add editbox for date GC Form Sent to clt - check with Melissa Flores
-                                              ' EditBox 35, 195, 410, 15, EMPS
-                                              ' CheckBox 35, 215, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
-                                              EditBox 60, 195, 385, 15, verifs_needed
+                                              EditBox 310, 125, 150, 15, FACI
+                                              EditBox 35, 145, 425, 15, PREG
+                                              EditBox 35, 165, 290, 15, ABPS
+                                              EditBox 410, 165, 50, 15, CS_forms_sent_date
+                                              EditBox 40, 185, 410, 15, case_changes
+                                              EditBox 60, 205, 400, 15, verifs_needed
                                               ButtonGroup ButtonPressed
-                                                PushButton 5, 200, 50, 10, "Verifs needed:", verif_button
-                                                Text 10, 250, 45, 10, "1 - Personal"
-                                                PushButton 60, 250, 35, 10, "2 - JOBS", dlg_two_button
-                                                PushButton 100, 250, 35, 10, "3 - BUSI", dlg_three_button
-                                                PushButton 140, 250, 35, 10, "4 - CSES", dlg_four_button
-                                                PushButton 180, 250, 35, 10, "5 - UNEA", dlg_five_button
-                                                PushButton 220, 250, 35, 10, "6 - Other", dlg_six_button
-                                                PushButton 260, 250, 40, 10, "7 - Assets", dlg_seven_button
-                                                PushButton 305, 250, 50, 10, "8 - Interview", dlg_eight_button
-                                                PushButton 370, 245, 35, 15, "NEXT", go_to_next_page
-                                                CancelButton 410, 245, 50, 15
+                                                PushButton 5, 210, 50, 10, "Verifs needed:", verif_button
+                                                Text 10, 260, 45, 10, "1 - Personal"
+                                                PushButton 60, 260, 35, 10, "2 - JOBS", dlg_two_button
+                                                PushButton 100, 260, 35, 10, "3 - BUSI", dlg_three_button
+                                                PushButton 140, 260, 35, 10, "4 - CSES", dlg_four_button
+                                                PushButton 180, 260, 35, 10, "5 - UNEA", dlg_five_button
+                                                PushButton 220, 260, 35, 10, "6 - Other", dlg_six_button
+                                                PushButton 260, 260, 40, 10, "7 - Assets", dlg_seven_button
+                                                PushButton 305, 260, 50, 10, "8 - Interview", dlg_eight_button
+                                                PushButton 370, 255, 35, 15, "NEXT", go_to_next_page
+                                                CancelButton 410, 255, 50, 15
                                                 PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
                                                 PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
                                                 PushButton 335, 25, 45, 10, "next panel", next_panel_button
@@ -2573,32 +2701,32 @@ Do
                                                 PushButton 5, 130, 25, 10, "DISA/", DISA_button
                                                 PushButton 30, 130, 25, 10, "PDED:", PDED_button
                                                 PushButton 280, 130, 25, 10, "FACI:", FACI_button
-                                                PushButton 5, 160, 25, 10, "PREG:", PREG_button
-                                                PushButton 5, 180, 25, 10, "ABPS:", ABPS_button
-                                                ' PushButton 5, 200, 25, 10, "EMPS", EMPS_button
-                                                PushButton 10, 225, 20, 10, "DWP", ELIG_DWP_button
-                                                PushButton 30, 225, 15, 10, "FS", ELIG_FS_button
-                                                PushButton 45, 225, 15, 10, "GA", ELIG_GA_button
-                                                PushButton 60, 225, 15, 10, "HC", ELIG_HC_button
-                                                PushButton 75, 225, 20, 10, "MFIP", ELIG_MFIP_button
-                                                PushButton 95, 225, 20, 10, "MSA", ELIG_MSA_button
-                                                PushButton 130, 225, 25, 10, "ADDR", ADDR_button
-                                                PushButton 155, 225, 25, 10, "MEMB", MEMB_button
-                                                PushButton 180, 225, 25, 10, "MEMI", MEMI_button
-                                                PushButton 205, 225, 25, 10, "PROG", PROG_button
-                                                PushButton 230, 225, 25, 10, "REVW", REVW_button
-                                                PushButton 255, 225, 25, 10, "SANC", SANC_button
-                                                PushButton 280, 225, 25, 10, "TIME", TIME_button
-                                                PushButton 305, 225, 25, 10, "TYPE", TYPE_button
+                                                PushButton 5, 150, 25, 10, "PREG:", PREG_button
+                                                PushButton 5, 170, 25, 10, "ABPS:", ABPS_button
+                                                PushButton 10, 235, 20, 10, "DWP", ELIG_DWP_button
+                                                PushButton 30, 235, 15, 10, "FS", ELIG_FS_button
+                                                PushButton 45, 235, 15, 10, "GA", ELIG_GA_button
+                                                PushButton 60, 235, 15, 10, "HC", ELIG_HC_button
+                                                PushButton 75, 235, 20, 10, "MFIP", ELIG_MFIP_button
+                                                PushButton 95, 235, 20, 10, "MSA", ELIG_MSA_button
+                                                PushButton 130, 235, 25, 10, "ADDR", ADDR_button
+                                                PushButton 155, 235, 25, 10, "MEMB", MEMB_button
+                                                PushButton 180, 235, 25, 10, "MEMI", MEMI_button
+                                                PushButton 205, 235, 25, 10, "PROG", PROG_button
+                                                PushButton 230, 235, 25, 10, "REVW", REVW_button
+                                                PushButton 255, 235, 25, 10, "SANC", SANC_button
+                                                PushButton 280, 235, 25, 10, "TIME", TIME_button
+                                                PushButton 305, 235, 25, 10, "TYPE", TYPE_button
                                                 OkButton 600, 500, 50, 15
                                               Text 5, 70, 25, 10, "CIT/ID:"
                                               If trim(ABPS) = "" Then
-                                                Text 320, 180, 75,10, "Date CS Forms Sent:"
+                                                Text 335, 170, 75,10, "Date CS Forms Sent:"
                                               Else
-                                                Text 320, 180, 75,10, "* Date CS Forms Sent:"
+                                                Text 335, 170, 75, 10, "* Date CS Forms Sent:"
                                               End If
-                                              GroupBox 5, 215, 115, 25, "ELIG panels:"
-                                              GroupBox 125, 215, 210, 25, "other STAT panels:"
+                                              Text 5, 190, 30, 10, "Changes:"
+                                              GroupBox 5, 225, 115, 25, "ELIG panels:"
+                                              GroupBox 125, 225, 210, 25, "other STAT panels:"
                                               GroupBox 330, 5, 115, 35, "STAT-based navigation"
                                               Text 5, 10, 55, 10, "* CAF datestamp:"
                                               If interview_required = TRUE Then Text 5, 30, 55, 10, "* Interview date:"
@@ -2608,14 +2736,14 @@ Do
                                               Text 115, 30, 110, 10, "* How was application received?:"
                                               If interview_required = TRUE Then Text 5, 50, 85, 10, "* Interview completed with:"
                                               If interview_required = FALSE Then Text 5, 50, 85, 10, "Interview completed with:"
-                                              GroupBox 5, 240, 355, 25, "Dialog Tabs"
-                                              Text 55, 250, 5, 10, "|"
-                                              Text 95, 250, 5, 10, "|"
-                                              Text 135, 250, 5, 10, "|"
-                                              Text 175, 250, 5, 10, "|"
-                                              Text 215, 250, 5, 10, "|"
-                                              Text 255, 250, 5, 10, "|"
-                                              Text 300, 250, 5, 10, "|"
+                                              GroupBox 5, 250, 355, 25, "Dialog Tabs"
+                                              Text 55, 260, 5, 10, "|"
+                                              Text 95, 260, 5, 10, "|"
+                                              Text 135, 260, 5, 10, "|"
+                                              Text 175, 260, 5, 10, "|"
+                                              Text 215, 260, 5, 10, "|"
+                                              Text 255, 260, 5, 10, "|"
+                                              Text 300, 260, 5, 10, "|"
                                             EndDialog
 
                                             Dialog Dialog1
@@ -2645,13 +2773,13 @@ Do
                                         Do
                                             last_job_reviewed = FALSE
 
-                                            dlg_len = 65
+                                            dlg_len = 85
                                             jobs_grp_len = 80
                                             length_factor = 80
                                             If snap_checkbox = checked Then length_factor = length_factor + 20
                                             If grh_checkbox = checked Then length_factor = length_factor + 20
                                             If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) = "" Then
-                                                dlg_len = 80
+                                                dlg_len = 100
                                             Else
                                                 If UBound(ALL_JOBS_PANELS_ARRAY, 2) >= job_limit Then
                                                     dlg_len = 305
@@ -2659,7 +2787,7 @@ Do
                                                     If grh_checkbox = checked Then dlg_len = dlg_len + 60
                                                     'jobs_grp_len = 315
                                                 Else
-                                                    dlg_len = length_factor * (UBound(ALL_JOBS_PANELS_ARRAY, 2) - loop_start + 1) + 65
+                                                    dlg_len = length_factor * (UBound(ALL_JOBS_PANELS_ARRAY, 2) - loop_start + 1) + dlg_len
                                                     'jobs_grp_len = 100 * (UBound(ALL_JOBS_PANELS_ARRAY, 2) - loop_start + 1) + 15
                                                 End If
                                             End If
@@ -2747,6 +2875,9 @@ Do
                                                   Loop until each_job = UBound(ALL_JOBS_PANELS_ARRAY, 2) + 1
                                                   Text 10, y_pos + 5, 50, 10, "JOBS Details:"
                                                   EditBox 65, y_pos, 635, 15, notes_on_jobs
+                                                  Y_pos = y_pos + 20
+                                                  Text 10, y_pos + 5, 70, 10, "Other Earned Income:"
+                                                  EditBox 85, y_pos, 615, 15, earned_income
                                                   y_pos = y_pos + 25
                                               End If
                                               y_pos = y_pos + 5
@@ -3921,7 +4052,7 @@ Do
                         OkButton 600, 500, 50, 15
                       Text 360, 320, 40, 10, "7 - Assets"
                       GroupBox 10, 10, 545, 115, "Assets"
-                      If SNAP_checkbox = checked and CAF_type = "Application" Then
+                      If the_process_for_snap = "Application" Then
                         Text 310, 25, 110, 10, "* Total Liquid Assets in App Month:"
                       Else
                         Text 310, 25, 110, 10, "Total Liquid Assets in App Month:"
@@ -4024,7 +4155,7 @@ Do
                   Text 280, 15, 50, 10, "* CAF status:"
                   Text 5, 35, 55, 10, "* Actions taken:"
                   GroupBox 5, 50, 440, 70, "SNAP Expedited"
-                  If CAF_type = "Application" AND SNAP_checkbox = checked AND exp_det_case_note_found = FALSE Then
+                  If the_process_for_snap = "Application" AND exp_det_case_note_found = FALSE Then
                       Text 15, 65, 120, 10, "* Is this SNAP Application Expedited?"
                       Text 15, 85, 75, 10, "* EXP Approval Date:"
                       Text 135, 85, 75, 10, "* App Month - Income:"
@@ -4078,7 +4209,7 @@ Do
                         If IsDate(interview_date) = False Then full_err_msg = full_err_msg & "~!~1^* This case requires and interview to process the CAF - enter the interview date"
                         If interview_with = "Select or Type" Then full_err_msg = full_err_msg & "~!~1^* This case requires and interview to process the CAF - indicate who the interview was completed with."
                     End If
-                    If CAF_type = "Application" AND trim(ABPS) <> "" AND IsDate(CS_forms_sent_date) = False AND cash_checkbox = checked Then full_err_msg = full_err_msg & "~!~" & "1^* Enter a valid date for the day that child support forms were sent or given to the client. This is required for Cash cases at application with absent parents."
+                    If the_process_for_cash = "Application" AND trim(ABPS) <> "" AND IsDate(CS_forms_sent_date) = False AND cash_checkbox = checked Then full_err_msg = full_err_msg & "~!~" & "1^* Enter a valid date for the day that child support forms were sent or given to the client. This is required for Cash cases at application with absent parents."
 
                     'DIALOG 2
                     For each_job = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
@@ -4187,7 +4318,7 @@ Do
 
                     'DIALOG 8
                     If CAF_status = "Select or Type" Then full_err_msg = full_err_msg & "~!~8^* Indicate the CAF Status."
-                    If CAF_type = "Application" AND SNAP_checkbox = checked AND exp_det_case_note_found = FALSE Then
+                    If the_process_for_snap = "Application" AND exp_det_case_note_found = FALSE Then
                         If snap_exp_yn = "?" Then
                             full_err_msg = full_err_msg & "~!~8^* This is a a SNAP case at application. Indicate if this case has been determined to be expedited SNAP or not."
                         Else
@@ -4222,6 +4353,7 @@ Do
                             End If
                         End If
                     End If
+                    If trim(actions_taken) = "" Then full_err_msg = full_err_msg & "~!~8^* Indicate what actions were taken when processing this CAF."
                 End If
 
                 If full_err_msg <> "" Then
@@ -4329,8 +4461,8 @@ If CAF_type = "Application" Then        'Interview date is not on PROG for recer
         End If
 
         If intv_date_needed = TRUE Then         'If previous code has determined that PROG needs to be updated
-            If SNAP_checkbox = checked Then prog_update_SNAP_checkbox = checked     'Auto checking based on the programs the script is being run for.
-            If cash_checkbox = checked Then prog_update_cash_checkbox = checked
+            If the_process_for_snap = "Application" Then prog_update_SNAP_checkbox = checked     'Auto checking based on the programs the script is being run for.
+            If the_process_for_cash = "Application" Then prog_update_cash_checkbox = checked
 
             'Dialog code
             BeginDialog Dialog1, 0, 0, 231, 130, "Update PROG?"
@@ -4501,7 +4633,7 @@ If TIKL_checkbox = checked and CAF_type <> "Recertification" then
 		Call write_variable_in_TIKL (TIKL_msg_one)
 		PF3
 	End If
-ElseIf TIKL_checkbox = checked and CAF_type <> "Recertification" then
+ElseIf TIKL_checkbox = checked and CAF_type = "Recertification" then
     TIKL_checkbox = unchecked
 End if
 If client_delay_TIKL_checkbox = checked then
@@ -4526,7 +4658,8 @@ Next
 
 If HC_checkbox = checked Then
     call autofill_editbox_from_MAXIS(HH_member_array, "HCRE-retro", retro_request)
-    call autofill_editbox_from_MAXIS(HH_member_array, "HCRE", HC_datestamp)
+    If the_process_for_hc = "Application" Then call autofill_editbox_from_MAXIS(HH_member_array, "HCRE", HC_datestamp)
+    If the_process_for_hc = "Recertification" Then call autofill_editbox_from_MAXIS(HH_member_array, "REVW", HC_datestamp)
     call autofill_editbox_from_MAXIS(HH_member_array, "ACCI", hc_acci_info)
     call autofill_editbox_from_MAXIS(HH_member_array, "BILS", hc_bils_info)
     call autofill_editbox_from_MAXIS(HH_member_array, "FACI", hc_faci_info)
@@ -4618,6 +4751,18 @@ If SNAP_checkbox = checked Then progs_list = progs_list & ", SNAP"
 If EMER_checkbox = checked Then progs_list = progs_list & ", EMER"
 If left(progs_list, 1) = "," Then progs_list = right(progs_list, len(progs_list) - 2)
 
+prog_and_type_list = ""
+If cash_checkbox = checked Then
+    If the_process_for_cash = "Application" Then prog_and_type_list = prog_and_type_list & ", Cash App"
+    If the_process_for_cash = "Recertification" Then prog_and_type_list = prog_and_type_list & ", " & cash_recert_mo & "/" & cash_recert_yr & " Cash Recert"
+End If
+If snap_checkbox = checked Then
+    If the_process_for_snap = "Application" Then prog_and_type_list = prog_and_type_list & ", SNAP App"
+    If the_process_for_snap = "Recertification" Then prog_and_type_list = prog_and_type_list & ", " & snap_recert_mo & "/" & snap_recert_yr & " SNAP Recert"
+End If
+If EMER_checkbox = checked Then prog_and_type_list = prog_and_type_list & ", EMER App"
+If left(prog_and_type_list, 1) = "," Then prog_and_type_list = right(prog_and_type_list, len(prog_and_type_list) - 2)
+
 If SNAP_checkbox = checked Then
     adult_snap_count = adult_snap_count * 1
     child_snap_count = child_snap_count * 1
@@ -4667,6 +4812,7 @@ case_has_income = FALSE
 
 If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) <> "" Then case_has_income = TRUE
 If trim(notes_on_jobs) <> "" Then case_has_income = TRUE
+If trim(earned_income) <> "" Then case_has_income = TRUE
 If ALL_BUSI_PANELS_ARRAY(memb_numb, 0) <> "" Then case_has_income = TRUE
 If trim(notes_on_busi) <> "" Then case_has_income = TRUE
 For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
@@ -4708,6 +4854,7 @@ If trim(EMPS) <> "" Then case_has_personal = TRUE
 If MFIP_DVD_checkbox = checked Then case_has_personal = TRUE
 If trim(MEDI) <> "" Then case_has_personal = TRUE
 If trim(DIET) <> "" Then case_has_personal = TRUE
+If trim(case_changes) <> "" Then case_has_personal = TRUE
 
 'Resources
 case_has_resources = FALSE
@@ -4777,6 +4924,7 @@ If HC_checkbox = checked Then
         Next
     End If
     Call write_bullet_and_variable_in_CASE_NOTE("JOBS", notes_on_jobs)
+    Call write_bullet_and_variable_in_CASE_NOTE("Other Earned Income", earned_income)
 
     'BUSI
     If ALL_BUSI_PANELS_ARRAY(memb_numb, 0) <> "" Then
@@ -4969,6 +5117,7 @@ If HC_checkbox = checked Then
 
     Call write_bullet_and_variable_in_CASE_NOTE("Citizenship/ID", cit_id)
     Call write_bullet_and_variable_in_CASE_NOTE("IMIG", IMIG)
+    Call write_bullet_and_variable_in_CASE_NOTE("Changes", case_changes)
     Call write_bullet_and_variable_in_CASE_NOTE("Accident", hc_acci_info)
 
     Call write_bullet_and_variable_in_CASE_NOTE("Facility", hc_faci_info)
@@ -5032,7 +5181,7 @@ If HC_checkbox = checked Then
 
 End If
 
-If CAF_type = "Application" and SNAP_checkbox = checked AND exp_det_case_note_found = FALSE Then
+If the_process_for_snap = "Application" AND exp_det_case_note_found = FALSE Then
     Call start_a_blank_CASE_NOTE
 
     IF snap_exp_yn = "Yes" then
@@ -5184,12 +5333,8 @@ End If
 'Navigates to case note, and checks to make sure we aren't in inquiry.
 Call start_a_blank_CASE_NOTE
 
-CALL write_variable_in_CASE_NOTE(CAF_datestamp & " CAF for " & progs_list & " - " & CAF_type & CAF_status)
-IF move_verifs_needed = TRUE THEN
-	CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = True (on FUNCTIONS FILE), it'll case note at the top.
-	CALL write_variable_in_CASE_NOTE("------------------------------")
-End if
-
+CALL write_variable_in_CASE_NOTE(CAF_datestamp & " CAF for " & prog_and_type_list & CAF_status)
+Call write_bullet_and_variable_in_CASE_NOTE("Form Received", CAF_form)
 'Programs requested
 If interview_note = FALSE Then
     If CASH_on_CAF_checkbox = checked Then CAF_progs = CAF_progs & ", Cash"
@@ -5261,6 +5406,7 @@ If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) <> "" Then
     Next
 End If
 Call write_bullet_and_variable_in_CASE_NOTE("JOBS", notes_on_jobs)
+Call write_bullet_and_variable_in_CASE_NOTE("Other Earned Income", earned_income)
 
 'BUSI
 If ALL_BUSI_PANELS_ARRAY(memb_numb, 0) <> "" Then
@@ -5440,6 +5586,7 @@ If case_has_personal = TRUE Then Call write_variable_in_CASE_NOTE("===== PERSONA
 Call write_bullet_and_variable_in_CASE_NOTE("Citizenship/ID", cit_id)
 Call write_bullet_and_variable_in_CASE_NOTE("IMIG", IMIG)
 Call write_bullet_and_variable_in_CASE_NOTE("School", SCHL)
+Call write_bullet_and_variable_in_CASE_NOTE("Changes", case_changes)
 Call write_bullet_and_variable_in_CASE_NOTE("DISA", DISA)
 Call write_bullet_and_variable_in_CASE_NOTE("FACI", FACI)
 Call write_bullet_and_variable_in_CASE_NOTE("PREG", PREG)
