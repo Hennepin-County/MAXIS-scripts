@@ -44,7 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("01/05/2018", "Updated HEST deductions when electric and phones deductions are present for community spouse.", "Ilse Ferris, Hennepin County")
+call changelog_update("09/12/2019", "Updated main dialog to only one date selection to enter the allocation start month. Added mandatory fields in case note dialog.", "Ilse Ferris, Hennepin County")
+call changelog_update("09/11/2019", "Updated HEST deductions when electric and phones deductions are present for community spouse.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/05/2018", "Updated coordinates in STAT/JOBS for income type and verification codes.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -97,25 +98,18 @@ BeginDialog spousal_maintenance_dialog, 0, 0, 256, 185, "Spousal Maintenance Dia
   Text 130, 150, 60, 10, "Utility allowance:"
 EndDialog
 
-
-BeginDialog case_number_dialog, 0, 0, 211, 140, "Case number"
-  EditBox 100, 5, 75, 15, MAXIS_case_number
-  EditBox 100, 25, 25, 15, MAXIS_footer_month
-  EditBox 150, 25, 25, 15, MAXIS_footer_year
-  EditBox 100, 45, 25, 15, spousal_allocation_footer_month
-  EditBox 150, 45, 25, 15, spousal_allocation_footer_year
+BeginDialog case_number_dialog, 0, 0, 201, 115, "Case number Dialog"
+  EditBox 110, 5, 45, 15, MAXIS_case_number
+  EditBox 110, 25, 20, 15, MAXIS_footer_month
+  EditBox 135, 25, 20, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
-    OkButton 65, 65, 50, 15
-    CancelButton 125, 65, 50, 15
-  Text 40, 10, 45, 10, "Case number:"
-  Text 20, 30, 70, 10, "MAXIS footer month:"
-  Text 130, 30, 20, 10, "Year:"
-  Text 15, 50, 80, 10, "Allocation budget month:"
-  Text 130, 50, 20, 10, "Year:"
-  GroupBox 5, 85, 200, 50, "If LTC spouse is open on CASH programs"
-  Text 10, 100, 190, 30, "You will need to process the spousal allocation manually.  The script currently does not support budgeting public assistance CASH programs into the spousal allocation."
+    OkButton 60, 45, 45, 15
+    CancelButton 110, 45, 45, 15
+  Text 60, 10, 45, 10, "Case number:"
+  Text 10, 30, 100, 10, "Allocation budget month/year:"
+  GroupBox 5, 65, 195, 45, "If LTC spouse is open on CASH programs"
+  Text 10, 80, 190, 30, "You will need to process the spousal allocation manually. The script currently does not support budgeting public assistance CASH programs into the spousal allocation."
 EndDialog
-
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connects to MAXIS, grabs case number and footer month/year
@@ -123,21 +117,22 @@ EMConnect ""
 call MAXIS_case_number_finder(MAXIS_case_number)
 call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-
-spousal_allocation_footer_month = MAXIS_footer_month
-spousal_allocation_footer_year = MAXIS_footer_year
-
-
 'Shows case number dialog
-dialog case_number_dialog
-cancel_confirmation
-
+Do 
+    Do 
+        err_msg = ""
+        dialog case_number_dialog
+        cancel_without_confirmation
+        IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "Enter a valid case number."		'mandatory field
+        If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
+        If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+    
 'Enters into STAT for the client
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
-
-'checking for an active MAXIS session
-Call check_for_MAXIS(FALSE)
-
 
 'Checks for which HH member is the spouse. The spouse is coded as "02" on STAT/MEMB.
 Do
