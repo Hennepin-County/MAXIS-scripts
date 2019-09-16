@@ -44,7 +44,6 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("07/13/2019", "Added support for cases that have a ER and CSR in the same report month.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/16/2019", "Updated conditional handling and output of MFIP only cases.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/18/2018", "Updated to output two worksheets. One with ER case info, one with CSR case info.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/09/2018", "Added handling to export information about CSR's.", "Ilse Ferris, Hennepin County")
@@ -146,11 +145,7 @@ transmit
 reviews_total = 0
 total_cases_review = 0
 DIM REVS_array()
-REDim REVS_array(2, 0)
-
-const case_number_const = 0
-const snap_const = 1
-const cash_const = 2
+REDim REVS_array(0)
 
 'start of the FOR...next loop
 For each worker in worker_array
@@ -177,47 +172,11 @@ For each worker in worker_array
 			If cash_status = "-" 	then cash_status = ""
 			If SNAP_status = "-" 	then SNAP_status = ""
 			If HC_status = "-" 		then HC_status = ""
-            
-            SNAP_revw = ""
-            CASH_revw = ""
 
 			'Using if...thens to decide if a case should be added (status isn't blank and respective box is checked)
-			If trim(SNAP_status) = "N" then 
-                SNAP_revw = True 
-                add_case = True 
-            End if 
-            
-            If trim(cash_status) = "N" then 
-                CASH_revw = True 
-                add_case = true 
-            End if 
-            
-            If (cash_status <> "N" AND snap_status <> "N") then 
-                SNAP_revw = False 
-                CASH_revw = False
-                add_case = False  
-            End if
-             
-            If add_case = True then 
-                'msgbox MAXIS_case_number & vbcr & reviews_total + 1
-				ReDim Preserve REVS_array(2, reviews_total)				        'This resizes the array based on the number of members being added to the array
-				REVS_array(case_number_const, reviews_total) = MAXIS_case_number
-                If SNAP_revw = True then 
-                    snap_program = "SNAP"
-                Else 
-                    snap_program = ""
-                End if 
-            
-                If CASH_revw = True then 
-                    cash_program = "CASH"
-                Else 
-                    cash_program = ""
-                End if 
-                
-                'msgbox MAXIS_case_number & vbcr & SNAP_program & vbcr & cash_program
-                
-                REVS_array(snap_const, reviews_total) = snap_program
-                REVS_array(cash_const, reviews_total) = cash_program
+			If ( ( trim(SNAP_status) = "N" or trim(SNAP_status) = "I" or trim(SNAP_status) = "U" ) or ( trim(cash_status) = "N" or trim(cash_status) = "I" or trim(cash_status) = "U" ) ) then
+				ReDim Preserve REVS_array(reviews_total)				        'This resizes the array based on the number of members being added to the array
+				REVS_array(reviews_total) = MAXIS_case_number
 				reviews_total = reviews_total + 1
 				total_cases_review = total_cases_review + 1
 			End if
@@ -234,108 +193,87 @@ For each worker in worker_array
         'if max reviews are reached, the goes to next worker is applicable
 	Loop until last_page_check = "THIS IS THE LAST PAGE"
 next
-'msgbox reviews_total
 
 recert_cases = 0	'value for the array
 DIM Required_appt_array()
-ReDim Required_appt_array(7, 0)
+ReDim Required_appt_array(8, 0)
 
+'establishes counts and declaring arrays for CSR cases. 
+CSR_count = 0
+DIM CSR_array()
+REDim CSR_array(8, 0)
+
+'constants for array
 const basket_number = 0
 const case_number	= 1
 const active_progs  = 2
 const case_interp	= 3
 const case_lang		= 4
-const phone_one     = 5
-const phone_two     = 6
-const phone_three   = 7
+const phone_one		= 5	
+const phone_two		= 6	
+const phone_three	= 7	
 
-'establishes counts and declaring arrays for CSR cases. 
-CSR_count = 0
-DIM CSR_array()
-REDim CSR_array(5, 0)
-
-'constants for array
-const basket_number_csr = 0
-const case_number_csr	= 1
-const active_progs_csr  = 2
-const case_interp_csr	= 3
-const case_lang_csr		= 4
-const dup_exists_csr    = 5
+worker_number = ""
+back_to_SELF
 
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr 
 Call MAXIS_footer_month_confirmation
 
-worker_number = ""
-back_to_SELF
-
 'DO 'Loops until there are no more cases in the Excel list
-For item = 0 to uBound(REVS_array, 2) 
-	MAXIS_case_number = REVS_array(case_number_const, item)
-    SNAP_program = REVS_array(snap_const, item)
-    cash_program = REVS_array(cash_const, item)
-    
-    'msgbox MAXIS_case_number & vbcr & SNAP_program & vbcr & cash_program
+For each reviews_total in REVS_array
+	MAXIS_case_number = reviews_total 
+	recert_status = "NO"	'Defaulting this to no because if SNAP or MFIP are not active - no recert will be scheduled
 	CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 	EMReadScreen wrkr_numb, 7, 21, 21
 	
-    'Checking for PRIV cases.
+	'Checking for PRIV cases.
 	EMReadScreen priv_check, 4, 24, 14 'If it can't get into the case needs to skip
-	IF priv_check = "PRIV" or instr(priv_check, "NAT") THEN 
+	IF priv_check = "PRIV" THEN 
 		priv_case_list = priv_case_list & "|" & MAXIS_case_number
 	ELSE						'For all of the cases that aren't privileged...
 		MFIP_ACTIVE = FALSE		'Setting some variables for the loop
 		SNAP_ACTIVE = FALSE	
-        GRH_ACTIVE  = FALSE 
-        
+
 		SNAP_status_check = ""
-        MFIP_prog_1_check = ""
+		MFIP_prog_1_check = ""
 		MFIP_status_1_check = ""
 		MFIP_prog_2_check = ""
 		MFIP_status_2_check = ""
         GRH_status_check = ""
-        
-        If SNAP_program = "SNAP" then 
-            SNAP_ACTIVE = TRUE
-        Else 
-            SNAP_ACTIVE = FALSE 
-        End if 
-        
-        If cash_program = "CASH" then 
-		    'Reading the status and program
-		    EMReadScreen MFIP_prog_1_check, 2, 6, 67		'checking for an active MFIP case
-		    EMReadScreen MFIP_status_1_check, 4, 6, 74
-		    EMReadScreen MFIP_prog_2_check, 2, 6, 67		'checking for an active MFIP case
-		    EMReadScreen MFIP_status_2_check, 4, 6, 74
-            EmReadscreen GRH_status_check, 4, 9, 74          'GRH cases for CSR array
-            
-            'Logic to determine if MFIP is active
-    		If MFIP_prog_1_check = "MF" Then
-    			If MFIP_status_1_check = "ACTV" Then MFIP_ACTIVE = TRUE
-    		ElseIf MFIP_prog_2_check = "MF" Then
-    			If MFIP_status_2_check = "ACTV" Then MFIP_ACTIVE = TRUE
-            Else 
-                MFIP_ACTVIE = FALSE
-    		End If
-    		
-            If GRH_status_check = "ACTV" then 
-                GRH_ACTIVE = TRUE
-            Else 
-                GRH_ACTIVE = FALSE
-            END IF 
-            
-        End if     
+
+		'Reading the status and program
+		EMReadScreen SNAP_status_check, 4, 10, 74		'checking the SNAP status
+		EMReadScreen MFIP_prog_1_check, 2, 6, 67		'checking for an active MFIP case
+		EMReadScreen MFIP_status_1_check, 4, 6, 74
+		EMReadScreen MFIP_prog_2_check, 2, 6, 67		'checking for an active MFIP case
+		EMReadScreen MFIP_status_2_check, 4, 6, 74
+        EmReadscreen GRH_status_check, 4, 9, 74          'GRH cases for CSR array
+
+		IF SNAP_status_check = "ACTV" Then SNAP_ACTIVE = TRUE
 		
-        'msgbox MAXIS_case_number & vbcr & "SNAP active: " & snap_active & vbcr & " MFIP active: " & MFIP_active  
-        'msgbox MFIP_active & vbcr & SNAP_active & vbcr & GRH_active
-		    
+		'Logic to determine if MFIP is active
+		If MFIP_prog_1_check = "MF" Then
+			If MFIP_status_1_check = "ACTV" Then MFIP_ACTIVE = TRUE
+		ElseIf MFIP_prog_2_check = "MF" Then
+			If MFIP_status_2_check = "ACTV" Then MFIP_ACTIVE = TRUE
+        Else 
+            MFIP_ACTVIE = FALSE
+		End If
+		
+        If GRH_status_check = "ACTV" then 
+            GRH_ACTIVE = TRUE
+        Else 
+            GRH_ACTIVE = FALSE
+        END IF 
+        
 		HCRE_panel_bypass	'function I created to ensure that we don't get trapped in the HCRE panel
+        'Going to STAT/REVW to to check for ER vs CSR for SNAP cases
+		CALL navigate_to_MAXIS_screen("STAT", "REVW")
         
-        recert_status = "NO"	'Defaulting this to no because if SNAP or MFIP are not active - no recert will be scheduled
-		program_list = ""
-        CALL navigate_to_MAXIS_screen("STAT", "REVW") 'Going to STAT/REVW to to check for ER vs CSR for SNAP cases
-        
-        If SNAP_ACTIVE = TRUE Then
+		If MFIP_ACTIVE = TRUE Then 
+            recert_status = "YES"	'MFIP will only have an ER - so if listed on REVS - will be an ER - don't need to check dates
+        Elseif SNAP_ACTIVE = TRUE Then
 			EMReadScreen SNAP_review_check, 8, 9, 57
 			If SNAP_review_check = "__ 01 __" then 		'If this is blank there are big issues
 				recert_status = "NO"
@@ -354,58 +292,42 @@ For item = 0 to uBound(REVS_array, 2)
 
 				'Comparing CSR and ER daates to the month of REVS review
 				IF CSR_mo = left(REPT_month, 2) and CSR_yr = right(REPT_year, 2) THEN 
+                    recert_status = "NO"
                     CSR_month = True 
-                    If CSR_mo = recert_mo then Duplicate_exists = True 
                 else 
                     CSR_month = False
                 End if 
-				'If recert_mo = left(REPT_month, 2) and recert_yr <> right(REPT_year, 2) THEN recert_status = "NO"
+				If recert_mo = left(REPT_month, 2) and recert_yr <> right(REPT_year, 2) THEN recert_status = "NO"
 				IF recert_mo = left(REPT_month, 2) and recert_yr = right(REPT_year, 2) THEN recert_status = "YES"
-                
-                If CSR_month = True or recert_status = "YES" then program_list = program_list & "SNAP & "    
 			End If
-        End if 
-        
-		If GRH_ACTIVE = TRUE then
+		elseif (SNAP_ACTIVE = FALSE and GRH_ACTIVE = TRUE) then
             EMwritescreen "x", 5, 35		'Opening the CASH pop-up
             Transmit
+            'msgbox MAXIS_case_number
             'The script will now read the CSR MO/YR and the Recert MO/YR
             EMReadScreen CSR_mo, 2, 9, 26
             EMReadScreen CSR_yr, 2, 9, 32
-            EMReadScreen recert_mo, 2, 9, 64
-            EMReadScreen recert_yr, 2, 9, 70
 
             'Comparing CSR and ER daates to the month of REVS review
             IF CSR_mo = left(REPT_month, 2) and CSR_yr = right(REPT_year, 2) THEN 
+                recert_status = "NO"
                 CSR_month = True 
-                If CSR_mo = recert_mo then Duplicate_exists = True 
-            else 
-                CSR_month = False
+            Else 
+                CSR_month = False 
             End if 
-        
-            IF recert_mo = left(REPT_month, 2) and recert_yr = right(REPT_year, 2) THEN recert_status = "YES"
-            If CSR_month = True or recert_status = "YES" then program_list = program_list & "GRH & "  
         Else 
             recert_status = "NO"    'defaulting everything else (HC, MSA, GRH only) as no interview 
             CSR_month = False       'defaulting all non GRH or SNAP as non CSR 
         End if 
-        
-        If MFIP_ACTIVE = TRUE Then 
-            recert_status = "YES"	'MFIP will only have an ER - so if listed on REVS - will be an ER - don't need to check dates
-            program_list = program_list & "MFIP & "
-            'msgbox "MFIP ACTIVE TRUE" & Vbcr & program_list
-        End if
 	    
-        program_list = trim(program_list)       'trims excess spaces of program_list
-        If right(program_list, 1) = "&" THEN program_list = left(program_list, len(program_list) - 1)
-        
-        'msgbox MAXIS_case_number & vbcr & recert_status
 		If recert_status = "YES" then 
-			Redim Preserve Required_appt_array(7, 	recert_cases)
+			Redim Preserve Required_appt_array(8, 	recert_cases)
 			Required_appt_array (case_number, 		recert_cases) = MAXIS_case_number
-			Required_appt_array (basket_number, 	recert_cases) = wrkr_numb
-			Required_appt_array (active_progs, recert_cases) = program_list
-            			
+			Required_appt_array (x1number, 			recert_cases) = wrkr_numb
+			IF MFIP_ACTIVE = TRUE AND SNAP_ACTIVE = FALSE Then Required_appt_array (active_progs, recert_cases) = "MFIP"
+			If MFIP_ACTIVE = TRUE AND SNAP_ACTIVE = TRUE  Then Required_appt_array (active_progs, recert_cases) = "MFIP & SNAP"
+			If MFIP_ACTIVE = FALSE AND SNAP_ACTIVE = TRUE Then Required_appt_array (active_progs, recert_cases) = "SNAP"
+			
 			'Gathering the phone numbers
 			call navigate_to_MAXIS_screen("STAT", "ADDR")
 			EMReadScreen phone_number_one, 16, 17, 43	' if phone numbers are blank it doesn't add them to EXCEL
@@ -430,14 +352,28 @@ For item = 0 to uBound(REVS_array, 2)
 			Required_appt_array (case_lang,    recert_cases) = language_coded
 			recert_cases = recert_cases + 1
 			STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
-        End if 
             '----------------------------------------------------------------------------------------------------Gathering case info for CSR cases 
-		If CSR_month = true then 
-            Redim Preserve CSR_array(5, CSR_count)
-            CSR_array (case_number_csr, 	CSR_count) = MAXIS_case_number
-            CSR_array (basket_number_csr, 		CSR_count) = wrkr_numb
-            CSR_array(active_progs_csr, CSR_count) = program_list
-                
+		Elseif CSR_month = true then 
+            Redim Preserve CSR_array(8, CSR_count)
+            CSR_array (case_number, 	CSR_count) = MAXIS_case_number
+            CSR_array (x1number, 		CSR_count) = wrkr_numb
+            IF MFIP_ACTIVE = TRUE AND SNAP_ACTIVE = FALSE Then CSR_array(active_progs, CSR_count) = "MFIP"
+            If MFIP_ACTIVE = TRUE AND SNAP_ACTIVE = TRUE  Then CSR_array(active_progs, CSR_count) = "MFIP & SNAP"
+            If MFIP_ACTIVE = FALSE AND SNAP_ACTIVE = TRUE Then CSR_array(active_progs, CSR_count) = "SNAP"
+            IF GRH_ACTIVE = TRUE then CSR_array(active_progs, CSR_count) = "GRH"
+            IF GRH_ACTIVE = TRUE AND SNAP_ACTIVE = TRUE then CSR_array(active_progs, CSR_count) = "SNAP & GRH"
+            IF GRH_ACTIVE = TRUE and MFIP_ACTIVE = True Then CSR_array(active_progs, CSR_count) = "MFIP & GRH"
+            If MFIP_ACTIVE = TRUE AND SNAP_ACTIVE = TRUE AND GRH_ACTIVE = True then  CSR_array(active_progs, CSR_count) = "MFIP, SNAP, GRH"
+            
+            'Gathering the phone numbers
+            call navigate_to_MAXIS_screen("STAT", "ADDR")
+            EMReadScreen phone_number_one, 16, 17, 43	' if phone numbers are blank it doesn't add them to EXCEL
+            If phone_number_one <> "( ___ ) ___ ____" then CSR_array(phone_one, CSR_count) = phone_number_one
+            EMReadScreen phone_number_two, 16, 18, 43
+            If phone_number_two <> "( ___ ) ___ ____" then CSR_array(phone_two, CSR_count) = phone_number_two
+            EMReadScreen phone_number_three, 16, 19, 43
+            If phone_number_three <> "( ___ ) ___ ____" then CSR_array(phone_three, CSR_count) = phone_number_three	
+            
             'Going to STAT/MEMB for Language Information
             CALL navigate_to_MAXIS_screen("STAT", "MEMB")
             EMReadScreen interpreter_code, 1, 14, 68
@@ -449,9 +385,8 @@ For item = 0 to uBound(REVS_array, 2)
                 language_coded = lang_ID
             End if 
             
-            CSR_array (case_interp_csr,  CSR_count) = interpreter_code
-            CSR_array (case_lang_csr,    CSR_count) = language_coded
-            CSR_array(dup_exists_csr, CSR_count) = Duplicate_exists
+            CSR_array (case_interp,  CSR_count) = interpreter_code
+            CSR_array (case_lang,    CSR_count) = language_coded
             CSR_count = CSR_count + 1
             STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
         End if 
@@ -487,7 +422,7 @@ NEXT
 'Adding the case information to Excel
 excel_row = 2
 For item = 0 to UBound(Required_appt_array, 2)
-	ObjExcel.Cells(excel_row, 1).value  = Required_appt_array (basket_number,     item)
+	ObjExcel.Cells(excel_row, 1).value  = Required_appt_array (x1number,     item)
 	ObjExcel.Cells(excel_row, 2).value  = Required_appt_array (case_number,  item)
 	ObjExcel.Cells(excel_row, 3).value  = Required_appt_array (active_progs, item)
 	ObjExcel.Cells(excel_row, 4).value  = Required_appt_array (case_lang,    item)
@@ -538,10 +473,11 @@ objExcel.cells(1, 2).value 	= "Case number"
 objExcel.cells(1, 3).value 	= "Programs"
 objExcel.cells(1, 4).value 	= "Case language"
 objExcel.Cells(1, 5).value 	= "Interpreter"
-objExcel.cells(1, 6).value 	= "Case also has ER"
-
+objExcel.cells(1, 6).value 	= "Phone # One"
+objExcel.cells(1, 7).value 	= "Phone # Two"
+objExcel.Cells(1, 8).value 	= "Phone # Three"
 	
-FOR i = 1 to 6									'formatting the cells'
+FOR i = 1 to 8									'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
@@ -549,31 +485,33 @@ NEXT
 'Adding the case information to Excel
 excel_row = 2
 For item = 0 to UBound(CSR_array, 2)
-	ObjExcel.Cells(excel_row, 1).value = CSR_array(basket_number_csr,     item)
-	ObjExcel.Cells(excel_row, 2).value = CSR_array(case_number_csr,  item)
-	ObjExcel.Cells(excel_row, 3).value = CSR_array(active_progs_csr, item)
-	ObjExcel.Cells(excel_row, 4).value = CSR_array(case_lang_csr,    item)
-	ObjExcel.Cells(excel_row, 5).value = CSR_array(case_interp_csr,  item)
-	ObjExcel.Cells(excel_row, 6).value = CSR_array(dup_exists_csr,   item)
+	ObjExcel.Cells(excel_row, 1).value = CSR_array(x1number,     item)
+	ObjExcel.Cells(excel_row, 2).value = CSR_array(case_number,  item)
+	ObjExcel.Cells(excel_row, 3).value = CSR_array(active_progs, item)
+	ObjExcel.Cells(excel_row, 4).value = CSR_array(case_lang,    item)
+	ObjExcel.Cells(excel_row, 5).value = CSR_array(case_interp,  item)
+	ObjExcel.Cells(excel_row, 6).value = CSR_array(phone_one,    item)
+	ObjExcel.Cells(excel_row, 7).value = CSR_array(phone_two,    item)
+	ObjExcel.Cells(excel_row, 8).value = CSR_array(phone_three,  item)
 	excel_row = excel_row + 1 
 Next
 
 'Query date/time/runtime info
-objExcel.Cells(1, 7).Font.Bold = TRUE
-objExcel.Cells(2, 7).Font.Bold = TRUE
-objExcel.Cells(3, 7).Font.Bold = TRUE
-objExcel.Cells(4, 7).Font.Bold = TRUE
-ObjExcel.Cells(1, 7).Value = "Query date and time:"	
-ObjExcel.Cells(2, 7).Value = "Query runtime (in seconds):"	
-ObjExcel.Cells(3, 7).Value = "Total reviews:"
-ObjExcel.Cells(4, 7).Value = "CSR cases:"
-ObjExcel.Cells(1, 8).Value = now
-ObjExcel.Cells(2, 8).Value = timer - query_start_time
-ObjExcel.Cells(3, 8).Value = total_cases_review
-ObjExcel.Cells(4, 8).Value = CSR_count
+objExcel.Cells(1, 10).Font.Bold = TRUE
+objExcel.Cells(2, 10).Font.Bold = TRUE
+objExcel.Cells(3, 10).Font.Bold = TRUE
+objExcel.Cells(4, 10).Font.Bold = TRUE
+ObjExcel.Cells(1, 10).Value = "Query date and time:"	
+ObjExcel.Cells(2, 10).Value = "Query runtime (in seconds):"	
+ObjExcel.Cells(3, 10).Value = "Total reviews:"
+ObjExcel.Cells(4, 10).Value = "CSR cases:"
+ObjExcel.Cells(1, 11).Value = now
+ObjExcel.Cells(2, 11).Value = timer - query_start_time
+ObjExcel.Cells(3, 11).Value = total_cases_review
+ObjExcel.Cells(4, 11).Value = CSR_count
 
 'Formatting the columns to autofit after they are all finished being created.
-FOR i = 1 to 8
+FOR i = 1 to 11
 	objExcel.Columns(i).autofit()
 Next
 
