@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("09/16/2019", "Testing Update:##~## ##~##  - The CAF Addendum is a special process of a CAF form and it needs its own handling. Selecting the Addendum from the initial dialog will pull brand new functionality.##~## ##~##", "Casey Love, Hennepin County")
 Call changelog_update("09/11/2019", "Testing Update:##~## ##~##  - Added functionality so that you can select recert and application for different programs in the same run!!! Now you don't have to run it twice for a SNAP Recert and Cash Application. The script also only asks about expedited for SNAP at application! ##~## I am excited about this.##~## ##~##", "Casey Love, Hennepin County")
 Call changelog_update("09/10/2019", "Testing Update:##~## ##~##  - BUG FIX - when UNEA income has ended and no pay dates are listed the script was stopping. Updated functionality to capture end of UNEA information. ##~## ##~##  NOTE: I know many have asked about this same thing for JOBS income. The functionality update for this is more complicated, but I am working on it and will let you know once I have a solution.##~## ##~##", "Casey Love, Hennepin County")
 call changelog_update("09/10/2019", "Testing Update:##~## ##~##  - Added new Verification Dialog and enhanced verification handling. See details in email.##~## ##~##", "Casey Love, Hennepin County")
@@ -1605,7 +1606,7 @@ function verification_dialog()
         Do
             verif_err_msg = ""
 
-            BeginDialog Dialog1, 0, 0, 610, 375, "Select Verifications"
+            BeginDialog Dialog1, 0, 0, 610, 395, "Select Verifications"
               Text 280, 10, 120, 10, "Date Verification Request Form Sent:"
               EditBox 400, 5, 50, 15, verif_req_form_sent_date
 
@@ -1671,12 +1672,14 @@ function verification_dialog()
               Text 435, 280, 10, 10, "for"
               EditBox 450, 275, 150, 15, bank_verif_time
 
-              Checkbox 10, 300, 200, 10, "Check here to have verifs numbered in the CASE/NOTE.", number_verifs_checkbox
+              Text 5, 305, 20, 10, "Other:"
+              EditBox 30, 300, 570, 15, other_verifs
+              Checkbox 10, 320, 200, 10, "Check here to have verifs numbered in the CASE/NOTE.", number_verifs_checkbox
 
               ButtonGroup ButtonPressed
                 PushButton 485, 10, 50, 15, "FILL", fill_button
                 PushButton 540, 10, 60, 15, "Return to Dialog", return_to_dialog_button
-              Text 10, 320, 580, 50, verifs_needed
+              Text 10, 340, 580, 50, verifs_needed
               Text 10, 10, 235, 10, "Check the boxes for any verification you want to add to the CASE/NOTE."
               Text 10, 20, 470, 10, "Note: After you press 'Fill' or 'Return to Dialog' the information from the boxes will fill in the Verification Field and the boxes will be 'unchecked'."
             EndDialog
@@ -1862,7 +1865,9 @@ function verification_dialog()
                     disa_verif_memb = ""
                     disa_verif_type = ""
                 End If
-
+                other_verifs = trim(other_verifs)
+                If other_verifs <> "" Then verifs_needed = verifs_needed & other_verifs & "; "
+                other_verifs = ""
             Else
                 MsgBox "Additional detail about verifications to note is needed:" & vbNewLine & verif_err_msg
             End If
@@ -2176,7 +2181,7 @@ BeginDialog Dialog1, 0, 0, 281, 215, "Case number dialog"
   CheckBox 10, 85, 30, 10, "CASH", CASH_on_CAF_checkbox
   CheckBox 50, 85, 35, 10, "SNAP", SNAP_on_CAF_checkbox
   CheckBox 90, 85, 35, 10, "EMER", EMER_on_CAF_checkbox
-  DropListBox 145, 85, 130, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
+  DropListBox 145, 85, 130, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"ApplyMN"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
   EditBox 40, 130, 220, 15, cash_other_req_detail
   EditBox 40, 150, 220, 15, snap_other_req_detail
   EditBox 40, 170, 220, 15, emer_other_req_detail
@@ -2227,6 +2232,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 If CAF_form = "CAF Addendum (DHS-5223C)" Then
+    Call run_from_GitHub(script_repository & "notes/caf-addendum.vbs")
 End If
 
 If CASH_on_CAF_checkbox = checked or trim(cash_other_req_detail) <> "" Then cash_checkbox = checked
@@ -5298,7 +5304,6 @@ If interview_required = TRUE Then
 End If
 
 'Verification NOTE
-'
 If trim(verifs_needed) <> "" Then
 
     verif_counter = 1
@@ -5331,8 +5336,6 @@ If trim(verifs_needed) <> "" Then
     Call write_variable_in_CASE_NOTE(worker_signature)
 
     PF3
-
-
 End If
 
 'MAIN CAF Information NOTE
