@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("09/16/2019", "Testing Update:##~## ##~##  - Added a dialog for documenting the CAF Qualifying Questions. Because we need to address these. ##~##  - Tips and Tricks! Find the '!' buttons in the Case Number Dialog and Dialog 1. These will pop-up messages about how the script works and WHY it does the things it does. I will be adding some to JOBS, BUSI, and Expedited. Pleae let me know where else clarification would be helpful!##~## ##~##", "Casey Love, Hennepin County")
 Call changelog_update("09/16/2019", "Testing Update:##~## ##~##  - The CAF Addendum is a special process of a CAF form and it needs its own handling. Selecting the Addendum from the initial dialog will pull brand new functionality.##~## ##~##", "Casey Love, Hennepin County")
 Call changelog_update("09/11/2019", "Testing Update:##~## ##~##  - Added functionality so that you can select recert and application for different programs in the same run!!! Now you don't have to run it twice for a SNAP Recert and Cash Application. The script also only asks about expedited for SNAP at application! ##~## I am excited about this.##~## ##~##", "Casey Love, Hennepin County")
 Call changelog_update("09/10/2019", "Testing Update:##~## ##~##  - BUG FIX - when UNEA income has ended and no pay dates are listed the script was stopping. Updated functionality to capture end of UNEA information. ##~## ##~##  NOTE: I know many have asked about this same thing for JOBS income. The functionality update for this is more complicated, but I am working on it and will let you know once I have a solution.##~## ##~##", "Casey Love, Hennepin County")
@@ -2061,10 +2062,11 @@ ReDim UNEA_INCOME_ARRAY(budget_notes, 0)
 Dim EATS, row, col, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three, hest_information, addr_line_one
 Dim addr_line_two, city, state, zip, address_confirmation_checkbox, addr_county, homeless_yn, addr_verif, reservation_yn, living_situation, number_verifs_checkbox
 Dim notes_on_address, notes_on_wreg, full_abawd_info, notes_on_busi, notes_on_abawd, notes_on_abawd_two, notes_on_abawd_three, verifs_needed, verif_req_form_sent_date
-Dim other_uc_income_notes, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_income, notes_on_other_UNEA, notes_on_cses
+Dim other_uc_income_notes, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_income, notes_on_other_UNEA, notes_on_cses, verification_memb_list
 
 HH_memb_row = 5 'This helps the navigation buttons work!
 application_signed_checkbox = checked 'The script should default to having the application signed.
+verifs_needed = "[Information here creates a SEPERATE CASE/NOTE.]"
 
 member_count = 0
 adult_cash_count = 0
@@ -2174,7 +2176,7 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 script_run_lowdown = ""
 
-BeginDialog Dialog1, 0, 0, 281, 215, "Case number dialog"
+BeginDialog Dialog1, 0, 0, 281, 235, "Case number dialog"
   EditBox 65, 50, 60, 15, MAXIS_case_number
   EditBox 210, 50, 15, 15, MAXIS_footer_month
   EditBox 230, 50, 15, 15, MAXIS_footer_year
@@ -2187,8 +2189,9 @@ BeginDialog Dialog1, 0, 0, 281, 215, "Case number dialog"
   EditBox 40, 170, 220, 15, emer_other_req_detail
   CheckBox 10, 195, 150, 10, "HC REVW Form is also being processed.", HC_checkbox
   ButtonGroup ButtonPressed
-    OkButton 170, 195, 50, 15
-    CancelButton 225, 195, 50, 15
+    PushButton 35, 215, 15, 15, "!", tips_and_tricks_button
+    OkButton 170, 215, 50, 15
+    CancelButton 225, 215, 50, 15
     PushButton 10, 30, 105, 10, "NOTES - Interview Completed", interview_completed_button
   Text 10, 10, 265, 20, "This script works best when run AFTER all STAT panels have been updated. If STAT panels have not been updated but you need to case note the interview use "
   Text 10, 55, 50, 10, "Case number:"
@@ -2200,6 +2203,7 @@ BeginDialog Dialog1, 0, 0, 281, 215, "Case number dialog"
   Text 15, 135, 20, 10, "Cash:"
   Text 15, 155, 20, 10, "SNAP:"
   Text 15, 175, 25, 10, "EMER:"
+  Text 55, 220, 105, 10, "Look for me for Tips and Tricks!"
 EndDialog
 
 'initial dialog
@@ -2215,6 +2219,15 @@ Do
                                                 "Would you like to continue to NOTES - Interview Completed?", vbQuestion + vbYesNo, "Stop CAF Script?")
             If confirm_run_another_script = vbYes Then Call run_from_GitHub(script_repository & "notes/interview-completed.vbs")
             If confirm_run_another_script = vbNo Then err_msg = "LOOP" & err_msg
+        End If
+        If ButtonPressed = tips_and_tricks_button Then
+            tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & "Footer month/year - Use the month with the most accurate information for the CAF being processed." & vbNewLine & "Typically: " & vbNewLine & " - Recertifications use the month of recert." & vbNewLine & " - Applications use the month of application." & vbNewLine & vbNewLine &_
+                                    "CAF Form - Select the actual form that was received. If the form is CAF Addendum (DHS-5223C) the script will call special functionality to handle specifically for an addendum." & vbNewLine & vbNewLine &_
+                                    "Programs Requested - Listing anything in the boxes for other program requests will have the script assume that program is requested. Do not write anything here if that particular program has not been requested." & vbNewLine & "** An example would be a CAF with SNAP requested and in the interview a client requests CASH." & vbNewLine & vbNewLine &_
+                                    "*** REMINDER***" & vbNewLine & "This script works best when MAXIS has been updated because it creates special dialogs with details from the MAXIS STAT panels and the most detail and specifics will be captured from an updated case." & vbNewLine &_
+                                    "** Due to the complexity of this script and the noting needs, this script can take some time to complete. Use 'Interview Completed' if STAT has not been updated OR a quick note needs to be made. Run CAF once the case is updated.", vbOk, "Tips and Tricks")
+
+            err_msg = "LOOP" & err_msg
         End If
 
         If CAF_form = "Select One:" then err_msg = err_msg & vbnewline & "* You must select the CAF form received."
@@ -2677,6 +2690,8 @@ Do
                                               EditBox 60, 25, 50, 15, interview_date
                                               ComboBox 230, 25, 95, 15, "Select or Type"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
                                               ComboBox 90, 45, 150, 45, interview_memb_list, interview_with
+                                              ButtonGroup ButtonPressed
+                                                PushButton 250, 45, 15, 15, "!", tips_and_tricks_interview_button
                                               EditBox 35, 65, 425, 15, cit_id
                                               EditBox 35, 85, 425, 15, IMIG
                                               EditBox 60, 105, 120, 15, AREP
@@ -2685,10 +2700,13 @@ Do
                                               EditBox 310, 125, 150, 15, FACI
                                               EditBox 35, 145, 425, 15, PREG
                                               EditBox 35, 165, 290, 15, ABPS
-                                              EditBox 410, 165, 50, 15, CS_forms_sent_date
-                                              EditBox 40, 185, 410, 15, case_changes
-                                              EditBox 60, 205, 400, 15, verifs_needed
+                                              EditBox 410, 165, 35, 15, CS_forms_sent_date
                                               ButtonGroup ButtonPressed
+                                                PushButton 445, 165, 15, 15, "!", tips_and_tricks_cs_forms_button
+                                              EditBox 40, 185, 420, 15, case_changes
+                                              EditBox 60, 205, 385, 15, verifs_needed
+                                              ButtonGroup ButtonPressed
+                                              PushButton 445, 205, 15, 15, "!", tips_and_tricks_verifs_button
                                                 PushButton 5, 210, 50, 10, "Verifs needed:", verif_button
                                                 Text 10, 260, 45, 10, "1 - Personal"
                                                 PushButton 60, 260, 35, 10, "2 - JOBS", dlg_two_button
@@ -2763,6 +2781,16 @@ Do
                                             MAXIS_dialog_navigation
                                             verification_dialog
 
+                                            If ButtonPressed = tips_and_tricks_interview_button Then tips_msg = MsgBox("*** Interview Detail ***" & vbNewLine & vbNewLine & "In order to actually process a CAF for all situations except one, an interview mst be completed. The CAF cannot be processed without an interview. This is why interview information is mandatory." & vbNewLine & vbNewLine &_
+                                                                                                                       "An adult cash program ONLY at recertification is the only situation where the interview is not required. Any SNAP or application processing requires an interview." & vbNewLine & vbNewLine &_
+                                                                                                                       "If an interview has not been completed, use either Client Contact to indicate the attempt to reach a client for an interview or Application Check to note information about a pending case.", vbOk, "Tips and Tricks")
+                                            If ButtonPressed = tips_and_tricks_cs_forms_button Then tips_msg = MsgBox("*** Date CS Forms Sent ***" & vbNewLine & vbNewLine & "For a Family Cash application and if there is information in the ABPS field, the script will require a date entered here." & vbNewLine & vbNewLine &_
+                                                                                                                      "For family cash cases that are being denied enter 'N/A' to have the script bypass this field. Otherwise the date is required here." & vbNewLine & vbNewLine &_
+                                                                                                                      "This field can also be used if the forms are given, instead of sent.", vbOk, "Tips and Tricks")
+                                            If ButtonPressed = tips_and_tricks_verifs_button Then tips_msg = MsgBox("*** Verifications Needed ***" & vbNewLine & vbNewLine & "This portion of the script has special functionality. Anytime this field is in a dialog, it is preceeded by a button instead of text." & vbNewLine & "** Press the button to open a special dialog to select verifications." & vbNewLine & vbNewLine &_
+                                                                                                                    "Detail about this field/functionality:" & vbNewLine & " - The text '[Information here creates a SEPERATE CASE?NOTE]' can either be deleted or left in place. The script will ignore that phrase when entering a case note. The phrase must be exactly as is for the script to ignore." & vbNewLine &_
+                                                                                                                    " - Use a '; ' - semi-colon followed by a space - to have the script go to the next line for the case note - great for formatting the case note." & vbNewLine & " - You can always type directly into the field by the button - you are not required to use the prepared checkboxes on other dialogs." & vbNewLine & vbNewLine &_
+                                                                                                                    "VERIFICATIONS ARE ENTERED IN A SEPARATE CASE/NOTE. Do not list other case information in this field. Use 'Other Notes' or fields specific to the information to add.", vbOk, "Tips and Tricks")
                                             If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
 
                                             Call assess_button_pressed
@@ -4221,7 +4249,9 @@ Do
                         If IsDate(interview_date) = False Then full_err_msg = full_err_msg & "~!~1^* This case requires and interview to process the CAF - enter the interview date"
                         If interview_with = "Select or Type" Then full_err_msg = full_err_msg & "~!~1^* This case requires and interview to process the CAF - indicate who the interview was completed with."
                     End If
-                    If the_process_for_cash = "Application" AND trim(ABPS) <> "" AND IsDate(CS_forms_sent_date) = False AND cash_checkbox = checked Then full_err_msg = full_err_msg & "~!~" & "1^* Enter a valid date for the day that child support forms were sent or given to the client. This is required for Cash cases at application with absent parents."
+                    If the_process_for_cash = "Application" AND trim(ABPS) <> "" Then
+                        If trim(CS_forms_sent_date) <> "N/A" AND IsDate(CS_forms_sent_date) = False AND cash_checkbox = checked Then full_err_msg = full_err_msg & "~!~" & "1^* Enter a valid date for the day that child support forms were sent or given to the client. This is required for Cash cases at application with absent parents."
+                    End If
 
                     'DIALOG 2
                     For each_job = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
@@ -4419,6 +4449,8 @@ Do
     Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = False
 
+If trim(CS_forms_sent_date) = "N/A" Then CS_forms_sent_date = ""
+
 'Go to ADDR to update living situation
 Call navigate_to_MAXIS_screen("STAT", "ADDR")
 EMReadScreen panel_living_sit, 2, 11, 43
@@ -4569,6 +4601,56 @@ If CAF_type = "Application" Then        'Interview date is not on PROG for recer
     End If
 End If
 
+Do
+    Do
+        qual_err_msg = ""
+
+        BeginDialog Dialog1, 0, 0, 451, 205, "Dialog"
+          DropListBox 220, 40, 25, 45, "No"+chr(9)+"Yes", qual_question_one
+          ComboBox 340, 40, 105, 45, verification_memb_list, qual_memb_one
+          DropListBox 220, 80, 25, 45, "No"+chr(9)+"Yes", qual_question_two
+          ComboBox 340, 80, 105, 45, verification_memb_list, qual_memb_two
+          DropListBox 220, 110, 25, 45, "No"+chr(9)+"Yes", qual_question_three
+          ComboBox 340, 110, 105, 45, verification_memb_list, qual_memb_there
+          DropListBox 220, 140, 25, 45, "No"+chr(9)+"Yes", qual_question_four
+          ComboBox 340, 140, 105, 45, verification_memb_list, qual_memb_four
+          DropListBox 220, 160, 25, 45, "No"+chr(9)+"Yes", qual_question_five
+          ComboBox 340, 160, 105, 45, verification_memb_list, qual_memb_five
+          ButtonGroup ButtonPressed
+            OkButton 340, 185, 50, 15
+            CancelButton 395, 185, 50, 15
+          Text 10, 10, 395, 15, "At least one qualification question was answered with 'Yes'. Enter the Household Member that was indicated on the form. "
+          Text 10, 40, 200, 40, "Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
+          Text 10, 80, 195, 30, "Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?"
+          Text 10, 110, 195, 30, "Is anyone in your householdhiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
+          Text 10, 140, 195, 20, "Has anyone in your household been convicted of a drug felony in the past 10 years?"
+          Text 10, 160, 195, 20, "Is anyone in your household currently violating a condition of parole, probation or supervised release?"
+          Text 260, 40, 70, 10, "Household Member:"
+          Text 260, 80, 70, 10, "Household Member:"
+          Text 260, 110, 70, 10, "Household Member:"
+          Text 260, 140, 70, 10, "Household Member:"
+          Text 260, 160, 70, 10, "Household Member:"
+        EndDialog
+
+        dialog Dialog1
+
+        If qual_question_one = "Yes" AND (trim(qual_memb_one) = "" OR qual_memb_one = "Select or Type") Then qual_err_msg = qual_err_msg & vbNewLine & "* For Quesion 1, yes is indicated however no member is listed - please enter the member that this question applies to."
+        If qual_question_two = "Yes" AND (trim(qual_memb_two) = "" OR qual_memb_two = "Select or Type") Then qual_err_msg = qual_err_msg & vbNewLine & "* For Quesion 2, yes is indicated however no member is listed - please enter the member that this question applies to."
+        If qual_question_three = "Yes" AND (trim(qual_memb_three) = "" OR qual_memb_three = "Select or Type") Then qual_err_msg = qual_err_msg & vbNewLine & "* For Quesion 3, yes is indicated however no member is listed - please enter the member that this question applies to."
+        If qual_question_four = "Yes" AND (trim(qual_memb_four) = "" OR qual_memb_four = "Select or Type") Then qual_err_msg = qual_err_msg & vbNewLine & "* For Quesion 4, yes is indicated however no member is listed - please enter the member that this question applies to."
+        If qual_question_five = "Yes" AND (trim(qual_memb_five) = "" OR qual_memb_five = "Select or Type") Then qual_err_msg = qual_err_msg & vbNewLine & "* For Quesion 5, yes is indicated however no member is listed - please enter the member that this question applies to."
+
+        If qual_err_msg <> "" Then MsgBox "Please Resolve to Continue:" & vbNewLine & qual_err_msg
+    Loop until qual_err_msg = ""
+    Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
+
+qual_questions_yes = FALSE
+If qual_question_one = "Yes" Then qual_questions_yes = TRUE
+If qual_question_two = "Yes" Then qual_questions_yes = TRUE
+If qual_question_three = "Yes" Then qual_questions_yes = TRUE
+If qual_question_four = "Yes" Then qual_questions_yes = TRUE
+If qual_question_five = "Yes" Then qual_questions_yes = TRUE
 
 'Now, the client_delay_checkbox business. It'll update client delay if the box is checked and it isn't a recert.
 If client_delay_checkbox = checked and CAF_type <> "Recertification" then
@@ -5294,7 +5376,6 @@ If interview_required = TRUE Then
     If elig_req_explained_checkbox Then CALL write_variable_in_CASE_NOTE("* Explained eligbility requirements to client.")
     If benefit_payment_explained_checkbox Then CALL write_variable_in_CASE_NOTE("* Benefits and Payment information explained to client")
 
-
     ' Call write_variable_with_indent_in_CASE_NOTE
 
     Call write_variable_in_CASE_NOTE("---")
@@ -5304,6 +5385,7 @@ If interview_required = TRUE Then
 End If
 
 'Verification NOTE
+verifs_needed = replace(verifs_needed, "[Information here creates a SEPERATE CASE/NOTE.]", "")
 If trim(verifs_needed) <> "" Then
 
     verif_counter = 1
@@ -5336,6 +5418,20 @@ If trim(verifs_needed) <> "" Then
     Call write_variable_in_CASE_NOTE(worker_signature)
 
     PF3
+End If
+
+If qual_questions_yes = TRUE Then
+    Call start_a_blank_CASE_NOTE
+
+    Call write_variable_in_CASE_NOTE("CAF Qualifying Questions had an answer of 'YES' for at least one question")
+    If qual_question_one = "Yes" Then Call write_bullet_and_variable_in_CASE_NOTE("Fraud/DISQ for IPV (program violation)", qual_memb_one)
+    If qual_question_two = "Yes" Then Call write_bullet_and_variable_in_CASE_NOTE("SNAP in more than One State", qual_memb_two)
+    If qual_question_three = "Yes" Then Call write_bullet_and_variable_in_CASE_NOTE("Fleeing Felon", qual_memb_three)
+    If qual_question_four = "Yes" Then Call write_bullet_and_variable_in_CASE_NOTE("Drug Felony", qual_memb_four)
+    If qual_question_five = "Yes" Then Call write_bullet_and_variable_in_CASE_NOTE("Parole/Probation Violation", qual_memb_five)
+    Call write_variable_in_CASE_NOTE("---")
+    Call write_variable_in_CASE_NOTE(worker_signature)
+
 End If
 
 'MAIN CAF Information NOTE
@@ -5691,6 +5787,7 @@ IF client_delay_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* PND2
 If TIKL_checkbox Then CALL write_variable_in_CASE_NOTE("* TIKL set to take action on " & DateAdd("d", 30, CAF_datestamp))
 If client_delay_TIKL_checkbox Then CALL write_variable_in_CASE_NOTE("* TIKL set to update PND2 for Client Delay on " & DateAdd("d", 10, CAF_datestamp))
 
+If qual_questions_yes = FALSE Then Call write_variable_in_CASE_NOTE("* All CAF Quaslifying Questions answered 'No'.")
 Call write_bullet_and_variable_in_CASE_NOTE("Notes", other_notes)
 If trim(verifs_needed) <> "" Then Call write_variable_in_CASE_NOTE("** VERIFICATIONS REQUESTED - See previous case note for detail")
 ' IF move_verifs_needed = False THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
