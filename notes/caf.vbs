@@ -72,8 +72,8 @@ If user_ID_for_validation = "WFP430" Then name_for_validation = "Amorette"
 If user_ID_for_validation = "LACH001" Then name_for_validation = "Lara"
 
 If name_for_validation <> "" Then
-    MsgBox "Hello " & name_for_validation &  ", you have been selected to test the script NOTES - CAF."  & vbNewLine & vbNewLine & "A testing version of the script will now run.  Thank you for taking your time to review our new scripts and functionality as we strive for Continuous Improvement." & vbNewLine & vbNewLine  & "                                                                                    - BlueZone Script Team"
-    testing_run = TRUE
+    ' MsgBox "Hello " & name_for_validation &  ", you have been selected to test the script NOTES - CAF."  & vbNewLine & vbNewLine & "A testing version of the script will now run.  Thank you for taking your time to review our new scripts and functionality as we strive for Continuous Improvement." & vbNewLine & vbNewLine  & "                                                                                    - BlueZone Script Team"
+    ' testing_run = TRUE
     If run_locally = true then
         testing_script_url = "C:\MAXIS-scripts\notes\caf-testing.vbs"
     Else

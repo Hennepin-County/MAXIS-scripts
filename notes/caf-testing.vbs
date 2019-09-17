@@ -2221,11 +2221,12 @@ Do
             If confirm_run_another_script = vbNo Then err_msg = "LOOP" & err_msg
         End If
         If ButtonPressed = tips_and_tricks_button Then
-            tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & "Footer month/year - Use the month with the most accurate information for the CAF being processed." & vbNewLine & "Typically: " & vbNewLine & " - Recertifications use the month of recert." & vbNewLine & " - Applications use the month of application." & vbNewLine & vbNewLine &_
+            tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & "Once the script reads the case, updates in MAXIS will not be reflected in the dialogs or case notes. This is not new, but if you run the script and realize a panel is out of date, definitely update the panel while the script is running, just don't expect the script to know that it was updated. You must also change the information IN the dialog. Or you can cancel the script, update and rerun the script with the panels correct." & vbNewLine & vbNewLine &_
+                                    "Footer month/year - Use the month with the most accurate information for the CAF being processed." & vbNewLine & "Typically: " & vbNewLine & " - Recertifications use the month of recert." & vbNewLine & " - Applications use the month of application." & vbNewLine & vbNewLine &_
                                     "CAF Form - Select the actual form that was received. If the form is CAF Addendum (DHS-5223C) the script will call special functionality to handle specifically for an addendum." & vbNewLine & vbNewLine &_
                                     "Programs Requested - Listing anything in the boxes for other program requests will have the script assume that program is requested. Do not write anything here if that particular program has not been requested." & vbNewLine & "** An example would be a CAF with SNAP requested and in the interview a client requests CASH." & vbNewLine & vbNewLine &_
                                     "*** REMINDER***" & vbNewLine & "This script works best when MAXIS has been updated because it creates special dialogs with details from the MAXIS STAT panels and the most detail and specifics will be captured from an updated case." & vbNewLine &_
-                                    "** Due to the complexity of this script and the noting needs, this script can take some time to complete. Use 'Interview Completed' if STAT has not been updated OR a quick note needs to be made. Run CAF once the case is updated.", vbOk, "Tips and Tricks")
+                                    "** Due to the complexity of this script and the noting needs, this script can take some time to complete. Use 'Interview Completed' if STAT has not been updated OR a quick note needs to be made. Run CAF once the case is updated.", vbInformation, "Tips and Tricks")
 
             err_msg = "LOOP" & err_msg
         End If
@@ -2510,7 +2511,6 @@ call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", notes_on_acct)
 call autofill_editbox_from_MAXIS(HH_member_array, "ACUT", notes_on_acut)
 call autofill_editbox_from_MAXIS(HH_member_array, "AREP", AREP)
 call autofill_editbox_from_MAXIS(HH_member_array, "BILS", BILS)
-call autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
 call autofill_editbox_from_MAXIS(HH_member_array, "CASH", notes_on_cash)
 call autofill_editbox_from_MAXIS(HH_member_array, "CARS", notes_on_cars)
 call autofill_editbox_from_MAXIS(HH_member_array, "COEX", notes_on_coex)
@@ -2783,14 +2783,17 @@ Do
 
                                             If ButtonPressed = tips_and_tricks_interview_button Then tips_msg = MsgBox("*** Interview Detail ***" & vbNewLine & vbNewLine & "In order to actually process a CAF for all situations except one, an interview mst be completed. The CAF cannot be processed without an interview. This is why interview information is mandatory." & vbNewLine & vbNewLine &_
                                                                                                                        "An adult cash program ONLY at recertification is the only situation where the interview is not required. Any SNAP or application processing requires an interview." & vbNewLine & vbNewLine &_
-                                                                                                                       "If an interview has not been completed, use either Client Contact to indicate the attempt to reach a client for an interview or Application Check to note information about a pending case.", vbOk, "Tips and Tricks")
+                                                                                                                       "If an interview has not been completed, use either Client Contact to indicate the attempt to reach a client for an interview or Application Check to note information about a pending case.", vbInformation, "Tips and Tricks")
                                             If ButtonPressed = tips_and_tricks_cs_forms_button Then tips_msg = MsgBox("*** Date CS Forms Sent ***" & vbNewLine & vbNewLine & "For a Family Cash application and if there is information in the ABPS field, the script will require a date entered here." & vbNewLine & vbNewLine &_
                                                                                                                       "For family cash cases that are being denied enter 'N/A' to have the script bypass this field. Otherwise the date is required here." & vbNewLine & vbNewLine &_
-                                                                                                                      "This field can also be used if the forms are given, instead of sent.", vbOk, "Tips and Tricks")
+                                                                                                                      "This field can also be used if the forms are given, instead of sent.", vbInformation, "Tips and Tricks")
                                             If ButtonPressed = tips_and_tricks_verifs_button Then tips_msg = MsgBox("*** Verifications Needed ***" & vbNewLine & vbNewLine & "This portion of the script has special functionality. Anytime this field is in a dialog, it is preceeded by a button instead of text." & vbNewLine & "** Press the button to open a special dialog to select verifications." & vbNewLine & vbNewLine &_
                                                                                                                     "Detail about this field/functionality:" & vbNewLine & " - The text '[Information here creates a SEPERATE CASE?NOTE]' can either be deleted or left in place. The script will ignore that phrase when entering a case note. The phrase must be exactly as is for the script to ignore." & vbNewLine &_
                                                                                                                     " - Use a '; ' - semi-colon followed by a space - to have the script go to the next line for the case note - great for formatting the case note." & vbNewLine & " - You can always type directly into the field by the button - you are not required to use the prepared checkboxes on other dialogs." & vbNewLine & vbNewLine &_
-                                                                                                                    "VERIFICATIONS ARE ENTERED IN A SEPARATE CASE/NOTE. Do not list other case information in this field. Use 'Other Notes' or fields specific to the information to add.", vbOk, "Tips and Tricks")
+                                                                                                                    "VERIFICATIONS ARE ENTERED IN A SEPARATE CASE/NOTE. Do not list other case information in this field. Use 'Other Notes' or fields specific to the information to add.", vbInformation, "Tips and Tricks")
+                                            ' If ButtonPressed = tips_and_tricks_interview_button Then ButtonPressed = dlg_one_button
+                                            ' If ButtonPressed = tips_and_tricks_cs_forms_button Then ButtonPressed = dlg_one_button
+                                            ' If ButtonPressed = tips_and_tricks_verifs_button Then ButtonPressed = dlg_one_button
                                             If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
 
                                             Call assess_button_pressed
@@ -2914,7 +2917,9 @@ Do
                                                       each_job = each_job + 1
                                                   Loop until each_job = UBound(ALL_JOBS_PANELS_ARRAY, 2) + 1
                                                   Text 10, y_pos + 5, 50, 10, "JOBS Details:"
-                                                  EditBox 65, y_pos, 635, 15, notes_on_jobs
+                                                  EditBox 65, y_pos, 620, 15, notes_on_jobs
+                                                  ButtonGroup ButtonPressed
+                                                    PushButton 685, y_pos, 15, 15, "!", tips_and_tricks_jobs_button
                                                   Y_pos = y_pos + 20
                                                   Text 10, y_pos + 5, 70, 10, "Other Earned Income:"
                                                   EditBox 85, y_pos, 615, 15, earned_income
@@ -3071,6 +3076,17 @@ Do
                                             dialog Dialog1
                                             cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
                                             MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
+
+                                            If ButtonPressed = tips_and_tricks_jobs_button Then tips_msg = MsgBox("*** Entering JOBS Information ***" & vbNewLine & vbNewLine & "* If SNAP is checked, the SNAP specific information is ALWAYS required. We need more detail of earned income information in CASE/NOTE and these fields assist with that documentation." & vbNewLine & vbNewLine &_
+                                                                                                                  "* The EXPLAIN BUDGET field is very important as it is where you can detail the conversation you had with the client about the income. This conversation is crucial to correct budgeting of JOBS income." & vbNewLine & vbNewLine &_
+                                                                                                                  "* If you run the Earned Income Budgeting for a script prior to using the CAF script. The script will find the Earned Income CASE/NOTE and indicate it on this dialog. If that note is present you do NOT need to complete 'Explain Budget' or the SNAP Information as that has been well detailed by the Earned Income Script." & vbNewLine & vbNewLine &_
+                                                                                                                  "* If you check the box at the top of the job information, indicating the information is only an estimate, additional detail in the 'Explain Budget' is not required. However, it is recommended to add additional detail if there was any conversation that occured or if there is specific detail that cannot be captured on JOBS." & vbNewLine & vbNewLine &_
+                                                                                                                  "** WHAT TO DO IF A JOB HAS ENDED **" & vbNewLine & "This has come up a lot with all the required fields in the JOBS Dialog." & vbNewLine & vbNewLine &_
+                                                                                                                  "* Income end date and STWK will be captured when the script gathers information. They will be listed in the fields in this dialog." & vbNewLine & vbNewLine &_
+                                                                                                                  "* All the same fields are still mandatory. Since this JOBS panel exists in MAXIS, we need to address it in the case note. If ongoing income is 0, you can list 0 for the SNAP income. Explain budget can detail information about the job and what the changes are." & vbNewLine & vbNewLine &_
+                                                                                                                  "* If this income is no longer budgeted - the panel can be removed. Review program specific information but typically once the job is out of the budget month and a STWK panel exists, the JOBS can be deleted. If the panel does not exist - then no detail would need to be entered about the job. (The panel must be deleted PRIOR to the script run.)" & vbNewLine & vbNewLine &_
+                                                                                                                  "Generally, we have too little information about earned income in our CASE/NOTEs, this dialog guides you through adding sufficient detail about earned inocme and how it should be budgeted. The more information - the better, so use all applicable and available fields and explain IN FULL.", vbInformation, "Tips and Tricks")
+                                            If ButtonPressed = tips_and_tricks_jobs_button Then ButtonPressed = dlg_two_button
                                             If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
                                             If each_job >= UBound(ALL_JOBS_PANELS_ARRAY, 2) Then last_job_reviewed = TRUE
 
@@ -3121,304 +3137,310 @@ Do
                                     last_busi_reviewed = FALSE
                                     busi_limit = 0
                                     Do
-                                        Do
-                                            busi_err_msg = ""
-
-                                            dlg_len = 65
-                                            busi_grp_len = 145
-                                            length_factor = 140
-                                            If snap_checkbox = checked Then length_factor = length_factor + 60
-                                            If cash_checkbox = checked OR EMER_checkbox = checked Then length_factor = length_factor + 40
-                                            'NEED HANDLING FOR IF NO JOBS'
-                                            If ALL_BUSI_PANELS_ARRAY(memb_numb, 0) = "" Then
-                                                dlg_len = 80
-                                            Else
-                                                dlg_len = dlg_len + length_factor
-                                                ' If UBound(ALL_busi_PANELS_ARRAY, 2) >= busi_limit Then
-                                                '     dlg_len = dlg_len + 65
-                                                '     If snap_checkbox = checked Then dlg_len = dlg_len + 60
-                                                '     If cash_checkbox = checked OR EMER_checkbox = checked Then dlg_len = dlg_len + 60
-                                                '     'busi_grp_len = 315
-                                                ' Else
-                                                '     dlg_len = length_factor * (UBound(ALL_BUSI_PANELS_ARRAY, 2) - loop_start + 1) + 65
-                                                '     'busi_grp_len = 100 * (UBound(ALL_BUSI_PANELS_ARRAY, 2) - loop_start + 1) + 15
-                                                ' End If
-                                            End If
-                                            If snap_checkbox = checked Then busi_grp_len = busi_grp_len + 60
-                                            If cash_checkbox = checked OR EMER_checkbox = checked Then busi_grp_len = busi_grp_len + 40
-                                            ' each_busi = loop_start
-                                            ' Do
-                                            '     dlg_len = dlg_len + 100
-                                            '     busi_grp_len = busi_grp_len + 100
-                                            '     if each_busi = busi_limit Then Exit Do
-                                            '     each_busi = each_busi + 1
-                                            ' Loop until each_busi = UBound(ALL_BUSI_PANELS_ARRAY, 2)
-                                            y_pos = 5
-                                            BeginDialog Dialog1, 0, 0, 546, dlg_len, "CAF Dialog 3 - BUSI"
-                                              If ALL_BUSI_PANELS_ARRAY(memb_numb, 0) = "" Then
-                                                Text 10, y_pos, 535, 10, "There are no BUSI panels found on this case. The script could not pull BUSI details for a case note."
-                                                Text 10, y_pos + 10, 535, 10, " ** If this case has income from self employment it is best to add the BUSI panels before running this script. **"
-                                                Text 10, y_pos + 30, 50, 10, "BUSI Details:"
-                                                EditBox 65, y_pos + 25, 475, 15, notes_on_busi
-                                                y_pos = u_pos + 50
-                                              Else
-                                                  each_busi = loop_start
-                                                  Do
-                                                      GroupBox 5, y_pos, 535, busi_grp_len, "Member " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & "    Type: " & ALL_BUSI_PANELS_ARRAY(busi_type, each_busi)
-                                                      CheckBox 290, y_pos, 220, 10, "Check here if this income is not verified and is only an estimate.", ALL_BUSI_PANELS_ARRAY(estimate_only, each_busi)
-                                                      y_pos = y_pos + 20
-                                                      Text 15, y_pos, 60, 10, "BUSI Description:"
-                                                      EditBox 80, y_pos - 5, 445, 15, ALL_BUSI_PANELS_ARRAY(busi_desc, each_busi)
-                                                      y_pos = y_pos + 20
-                                                      Text 15, y_pos, 55, 10, "BUSI Structure:"
-                                                      ComboBox 75, y_pos - 5, 150, 45, "Select or Type"+chr(9)+"Sole Proprietor"+chr(9)+"Partnership"+chr(9)+"LLC"+chr(9)+"S Corp", ALL_BUSI_PANELS_ARRAY(busi_structure, each_busi)
-                                                      Text 245, y_pos, 55, 10, "Ownership Share"
-                                                      EditBox 305, y_pos - 5, 20, 15, ALL_BUSI_PANELS_ARRAY(share_num, each_busi)
-                                                      Text 325, y_pos, 5, 10, "/"
-                                                      EditBox 330, y_pos - 5, 20, 15, ALL_BUSI_PANELS_ARRAY(share_denom, each_busi)
-                                                      Text 365, y_pos, 50, 10, "Partners in HH:"
-                                                      EditBox 420, y_pos - 5, 105, 15, ALL_BUSI_PANELS_ARRAY(partners_in_HH, each_busi)
-                                                      y_pos = y_pos + 20
-                                                      Text 15, y_pos, 90, 10, "* Self Employment Method:"
-                                                      DropListBox 105, y_pos - 5, 120, 45, "Select One"+chr(9)+"50% Gross Inc"+chr(9)+"Tax Forms", ALL_BUSI_PANELS_ARRAY(calc_method, each_busi)
-                                                      Text 240, y_pos, 45, 10, "Choice Date:"
-                                                      EditBox 290, y_pos - 5, 50, 15, ALL_BUSI_PANELS_ARRAY(mthd_date, each_busi)
-                                                      CheckBox 350, y_pos, 185, 10, "Check here if SE Method was discussed with client", ALL_BUSI_PANELS_ARRAY(method_convo_checkbox, each_busi)
-                                                      y_pos = y_pos + 20
-                                                      Text 15, y_pos, 55, 10, "Reported Hours:"
-                                                      Text 75, y_pos, 20, 10, "Retro-"
-                                                      EditBox 100, y_pos - 5, 25, 15, ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, each_busi)
-                                                      Text 135, y_pos, 25, 10, "Prosp-"
-                                                      EditBox 160, y_pos - 5, 25, 15, ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, each_busi)
-                                                      Text 205, y_pos, 80, 10, "Minimum Wage Hours:"
-                                                      Text 290, y_pos, 20, 10, "Retro-"
-                                                      EditBox 315, y_pos - 5, 25, 15, ALL_BUSI_PANELS_ARRAY(min_wg_retro_hrs, each_busi)
-                                                      Text 350, y_pos, 25, 10, "Prosp-"
-                                                      EditBox 375, y_pos - 5, 25, 15, ALL_BUSI_PANELS_ARRAY(min_wg_prosp_hrs, each_busi)
-                                                      Text 410, y_pos, 65, 10, "Income Start Date:"
-                                                      EditBox 470, y_pos - 5, 50, 15, ALL_BUSI_PANELS_ARRAY(start_date, each_busi)
-                                                      y_pos = y_pos + 20
-                                                      If SNAP_checkbox = checked Then
-                                                          Text 15, y_pos, 45, 10, "SNAP:"
-                                                          Text 60, y_pos, 50, 10, "Gross Income:"
-                                                          Text 115, y_pos, 20, 10, "Retro-"
-                                                          EditBox 140, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(income_ret_snap, each_busi)
-                                                          Text 195, y_pos, 25, 10, "Prosp-"
-                                                          EditBox 225, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(income_pro_snap, each_busi)
-                                                          Text 295, y_pos, 40, 10, "Expenses:"
-                                                          Text 340, y_pos, 20, 10, "Retro-"
-                                                          EditBox 365, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(expense_ret_snap, each_busi)
-                                                          Text 420, y_pos, 25, 10, "Prosp-"
-                                                          EditBox 450, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(expense_pro_snap, each_busi)
-                                                          y_pos = y_pos + 20
-                                                          Text 50, y_pos, 85, 10, "* Expenses not allowed:"
-                                                          EditBox 140, y_pos - 5, 355, 15, ALL_BUSI_PANELS_ARRAY(exp_not_allwd, each_busi)
-                                                          y_pos = y_pos + 20
-                                                          Text 115, y_pos, 25, 10, "Verif:"
-                                                          ComboBox 140, y_pos - 5, 130, 45, "Select or Type"+chr(9)+"Income Tax Returns"+chr(9)+"Receipts of Sales/Purch"+chr(9)+"Busi Records/Ledger"+chr(9)+"Pend Out State Verif"+chr(9)+"Other Document"+chr(9)+"No Verif Provided"+chr(9)+"Delayed Verif"+chr(9)+"Blank", ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi)
-                                                          Text 340, y_pos, 25, 10, "Verif:"
-                                                          ComboBox 365, y_pos - 5, 130, 45, "Select or Type"+chr(9)+"Income Tax Returns"+chr(9)+"Receipts of Sales/Purch"+chr(9)+"Busi Records/Ledger"+chr(9)+"Pend Out State Verif"+chr(9)+"Other Document"+chr(9)+"No Verif Provided"+chr(9)+"Delayed Verif"+chr(9)+"Blank", ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi)
-                                                          y_pos = y_pos + 20
-                                                      End If
-                                                      If cash_checkbox = checked OR EMER_checkbox = checked Then
-                                                          Text 15, y_pos, 45, 10, "Cash/Emer:"
-                                                          Text 60, y_pos, 50, 10, "Gross Income:"
-                                                          Text 115, y_pos, 20, 10, "Retro-"
-                                                          EditBox 140, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(income_ret_cash, each_busi)
-                                                          Text 195, y_pos, 25, 10, "Prosp-"
-                                                          EditBox 225, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(income_pro_cash, each_busi)
-                                                          Text 295, y_pos, 40, 10, "Expenses:"
-                                                          Text 340, y_pos, 20, 10, "Retro-"
-                                                          EditBox 365, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(expense_ret_cash, each_busi)
-                                                          Text 420, y_pos, 25, 10, "Prosp-"
-                                                          EditBox 450, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(expense_pro_cash, each_busi)
-                                                          y_pos = y_pos + 20
-                                                          Text 115, y_pos, 25, 10, "Verif:"
-                                                          ComboBox 140, y_pos - 5, 130, 45, "Select or Type"+chr(9)+"Income Tax Returns"+chr(9)+"Receipts of Sales/Purch"+chr(9)+"Busi Records/Ledger"+chr(9)+"Pend Out State Verif"+chr(9)+"Other Document"+chr(9)+"No Verif Provided"+chr(9)+"Delayed Verif"+chr(9)+"Blank", ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi)
-                                                          Text 340, y_pos, 25, 10, "Verif:"
-                                                          ComboBox 365, y_pos - 5, 130, 45, "Select or Type"+chr(9)+"Income Tax Returns"+chr(9)+"Receipts of Sales/Purch"+chr(9)+"Busi Records/Ledger"+chr(9)+"Pend Out State Verif"+chr(9)+"Other Document"+chr(9)+"No Verif Provided"+chr(9)+"Delayed Verif"+chr(9)+"Blank", ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi)
-                                                          y_pos = y_pos + 20
-                                                      End If
-                                                      Text 15, y_pos, 65, 10, "Verification Detail:"
-                                                      EditBox 80, y_pos - 5, 445, 15, ALL_BUSI_PANELS_ARRAY(verif_explain, each_busi)
-                                                      y_pos = y_pos + 15
-                                                      CheckBox 80, y_pos, 400, 10, "Check here if verification about this Self Employment is requested.", ALL_BUSI_PANELS_ARRAY(verif_checkbox, each_busi)
-                                                      y_pos = y_pos + 15
-                                                      Text 15, y_pos, 60, 10, "* Explain Budget:"
-                                                      EditBox 80, y_pos - 5, 445, 15, ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi)
-                                                      y_pos = y_pos + 25
-                                                      if each_busi = busi_limit Then Exit Do
-                                                      each_busi = each_busi + 1
-                                                  Loop until each_busi = UBound(ALL_BUSI_PANELS_ARRAY, 2) + 1
-                                                  Text 10, y_pos, 50, 10, "BUSI Details:"
-                                                  EditBox 60, y_pos - 5, 480, 15, notes_on_busi
+                                        dlg_len = 65
+                                        busi_grp_len = 145
+                                        length_factor = 140
+                                        If snap_checkbox = checked Then length_factor = length_factor + 60
+                                        If cash_checkbox = checked OR EMER_checkbox = checked Then length_factor = length_factor + 40
+                                        'NEED HANDLING FOR IF NO JOBS'
+                                        If ALL_BUSI_PANELS_ARRAY(memb_numb, 0) = "" Then
+                                            dlg_len = 80
+                                        Else
+                                            dlg_len = dlg_len + length_factor
+                                            ' If UBound(ALL_busi_PANELS_ARRAY, 2) >= busi_limit Then
+                                            '     dlg_len = dlg_len + 65
+                                            '     If snap_checkbox = checked Then dlg_len = dlg_len + 60
+                                            '     If cash_checkbox = checked OR EMER_checkbox = checked Then dlg_len = dlg_len + 60
+                                            '     'busi_grp_len = 315
+                                            ' Else
+                                            '     dlg_len = length_factor * (UBound(ALL_BUSI_PANELS_ARRAY, 2) - loop_start + 1) + 65
+                                            '     'busi_grp_len = 100 * (UBound(ALL_BUSI_PANELS_ARRAY, 2) - loop_start + 1) + 15
+                                            ' End If
+                                        End If
+                                        If snap_checkbox = checked Then busi_grp_len = busi_grp_len + 60
+                                        If cash_checkbox = checked OR EMER_checkbox = checked Then busi_grp_len = busi_grp_len + 40
+                                        ' each_busi = loop_start
+                                        ' Do
+                                        '     dlg_len = dlg_len + 100
+                                        '     busi_grp_len = busi_grp_len + 100
+                                        '     if each_busi = busi_limit Then Exit Do
+                                        '     each_busi = each_busi + 1
+                                        ' Loop until each_busi = UBound(ALL_BUSI_PANELS_ARRAY, 2)
+                                        y_pos = 5
+                                        BeginDialog Dialog1, 0, 0, 546, dlg_len, "CAF Dialog 3 - BUSI"
+                                          If ALL_BUSI_PANELS_ARRAY(memb_numb, 0) = "" Then
+                                            Text 10, y_pos, 535, 10, "There are no BUSI panels found on this case. The script could not pull BUSI details for a case note."
+                                            Text 10, y_pos + 10, 535, 10, " ** If this case has income from self employment it is best to add the BUSI panels before running this script. **"
+                                            Text 10, y_pos + 30, 50, 10, "BUSI Details:"
+                                            EditBox 65, y_pos + 25, 475, 15, notes_on_busi
+                                            y_pos = u_pos + 50
+                                          Else
+                                              each_busi = loop_start
+                                              Do
+                                                  GroupBox 5, y_pos, 535, busi_grp_len, "Member " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & "    Type: " & ALL_BUSI_PANELS_ARRAY(busi_type, each_busi)
+                                                  CheckBox 290, y_pos, 220, 10, "Check here if this income is not verified and is only an estimate.", ALL_BUSI_PANELS_ARRAY(estimate_only, each_busi)
                                                   y_pos = y_pos + 20
-                                              End If
-                                              y_pos = y_pos + 10
-                                              GroupBox 5, y_pos - 10, 355, 25, "Dialog Tabs"
-                                              Text 55, y_pos, 5, 10, "|"
-                                              Text 95, y_pos, 5, 10, "|"
-                                              Text 135, y_pos, 5, 10, "|"
-                                              Text 175, y_pos, 5, 10, "|"
-                                              Text 215, y_pos, 5, 10, "|"
-                                              Text 255, y_pos, 5, 10, "|"
-                                              Text 300, y_pos, 5, 10, "|"
-                                              Text 100, y_pos, 35, 10, "3 - BUSI"
+                                                  Text 15, y_pos, 60, 10, "BUSI Description:"
+                                                  EditBox 80, y_pos - 5, 445, 15, ALL_BUSI_PANELS_ARRAY(busi_desc, each_busi)
+                                                  y_pos = y_pos + 20
+                                                  Text 15, y_pos, 55, 10, "BUSI Structure:"
+                                                  ComboBox 75, y_pos - 5, 150, 45, "Select or Type"+chr(9)+"Sole Proprietor"+chr(9)+"Partnership"+chr(9)+"LLC"+chr(9)+"S Corp", ALL_BUSI_PANELS_ARRAY(busi_structure, each_busi)
+                                                  Text 245, y_pos, 55, 10, "Ownership Share"
+                                                  EditBox 305, y_pos - 5, 20, 15, ALL_BUSI_PANELS_ARRAY(share_num, each_busi)
+                                                  Text 325, y_pos, 5, 10, "/"
+                                                  EditBox 330, y_pos - 5, 20, 15, ALL_BUSI_PANELS_ARRAY(share_denom, each_busi)
+                                                  Text 365, y_pos, 50, 10, "Partners in HH:"
+                                                  EditBox 420, y_pos - 5, 105, 15, ALL_BUSI_PANELS_ARRAY(partners_in_HH, each_busi)
+                                                  y_pos = y_pos + 20
+                                                  Text 15, y_pos, 90, 10, "* Self Employment Method:"
+                                                  DropListBox 105, y_pos - 5, 120, 45, "Select One"+chr(9)+"50% Gross Inc"+chr(9)+"Tax Forms", ALL_BUSI_PANELS_ARRAY(calc_method, each_busi)
+                                                  Text 240, y_pos, 45, 10, "Choice Date:"
+                                                  EditBox 290, y_pos - 5, 50, 15, ALL_BUSI_PANELS_ARRAY(mthd_date, each_busi)
+                                                  CheckBox 350, y_pos, 185, 10, "Check here if SE Method was discussed with client", ALL_BUSI_PANELS_ARRAY(method_convo_checkbox, each_busi)
+                                                  y_pos = y_pos + 20
+                                                  Text 15, y_pos, 55, 10, "Reported Hours:"
+                                                  Text 75, y_pos, 20, 10, "Retro-"
+                                                  EditBox 100, y_pos - 5, 25, 15, ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, each_busi)
+                                                  Text 135, y_pos, 25, 10, "Prosp-"
+                                                  EditBox 160, y_pos - 5, 25, 15, ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, each_busi)
+                                                  Text 205, y_pos, 80, 10, "Minimum Wage Hours:"
+                                                  Text 290, y_pos, 20, 10, "Retro-"
+                                                  EditBox 315, y_pos - 5, 25, 15, ALL_BUSI_PANELS_ARRAY(min_wg_retro_hrs, each_busi)
+                                                  Text 350, y_pos, 25, 10, "Prosp-"
+                                                  EditBox 375, y_pos - 5, 25, 15, ALL_BUSI_PANELS_ARRAY(min_wg_prosp_hrs, each_busi)
+                                                  Text 410, y_pos, 65, 10, "Income Start Date:"
+                                                  EditBox 470, y_pos - 5, 50, 15, ALL_BUSI_PANELS_ARRAY(start_date, each_busi)
+                                                  y_pos = y_pos + 20
+                                                  If SNAP_checkbox = checked Then
+                                                      Text 15, y_pos, 45, 10, "SNAP:"
+                                                      Text 60, y_pos, 50, 10, "Gross Income:"
+                                                      Text 115, y_pos, 20, 10, "Retro-"
+                                                      EditBox 140, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(income_ret_snap, each_busi)
+                                                      Text 195, y_pos, 25, 10, "Prosp-"
+                                                      EditBox 225, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(income_pro_snap, each_busi)
+                                                      Text 295, y_pos, 40, 10, "Expenses:"
+                                                      Text 340, y_pos, 20, 10, "Retro-"
+                                                      EditBox 365, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(expense_ret_snap, each_busi)
+                                                      Text 420, y_pos, 25, 10, "Prosp-"
+                                                      EditBox 450, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(expense_pro_snap, each_busi)
+                                                      y_pos = y_pos + 20
+                                                      Text 50, y_pos, 85, 10, "* Expenses not allowed:"
+                                                      EditBox 140, y_pos - 5, 355, 15, ALL_BUSI_PANELS_ARRAY(exp_not_allwd, each_busi)
+                                                      y_pos = y_pos + 20
+                                                      Text 115, y_pos, 25, 10, "Verif:"
+                                                      ComboBox 140, y_pos - 5, 130, 45, "Select or Type"+chr(9)+"Income Tax Returns"+chr(9)+"Receipts of Sales/Purch"+chr(9)+"Busi Records/Ledger"+chr(9)+"Pend Out State Verif"+chr(9)+"Other Document"+chr(9)+"No Verif Provided"+chr(9)+"Delayed Verif"+chr(9)+"Blank", ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi)
+                                                      Text 340, y_pos, 25, 10, "Verif:"
+                                                      ComboBox 365, y_pos - 5, 130, 45, "Select or Type"+chr(9)+"Income Tax Returns"+chr(9)+"Receipts of Sales/Purch"+chr(9)+"Busi Records/Ledger"+chr(9)+"Pend Out State Verif"+chr(9)+"Other Document"+chr(9)+"No Verif Provided"+chr(9)+"Delayed Verif"+chr(9)+"Blank", ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi)
+                                                      y_pos = y_pos + 20
+                                                  End If
+                                                  If cash_checkbox = checked OR EMER_checkbox = checked Then
+                                                      Text 15, y_pos, 45, 10, "Cash/Emer:"
+                                                      Text 60, y_pos, 50, 10, "Gross Income:"
+                                                      Text 115, y_pos, 20, 10, "Retro-"
+                                                      EditBox 140, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(income_ret_cash, each_busi)
+                                                      Text 195, y_pos, 25, 10, "Prosp-"
+                                                      EditBox 225, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(income_pro_cash, each_busi)
+                                                      Text 295, y_pos, 40, 10, "Expenses:"
+                                                      Text 340, y_pos, 20, 10, "Retro-"
+                                                      EditBox 365, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(expense_ret_cash, each_busi)
+                                                      Text 420, y_pos, 25, 10, "Prosp-"
+                                                      EditBox 450, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(expense_pro_cash, each_busi)
+                                                      y_pos = y_pos + 20
+                                                      Text 115, y_pos, 25, 10, "Verif:"
+                                                      ComboBox 140, y_pos - 5, 130, 45, "Select or Type"+chr(9)+"Income Tax Returns"+chr(9)+"Receipts of Sales/Purch"+chr(9)+"Busi Records/Ledger"+chr(9)+"Pend Out State Verif"+chr(9)+"Other Document"+chr(9)+"No Verif Provided"+chr(9)+"Delayed Verif"+chr(9)+"Blank", ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi)
+                                                      Text 340, y_pos, 25, 10, "Verif:"
+                                                      ComboBox 365, y_pos - 5, 130, 45, "Select or Type"+chr(9)+"Income Tax Returns"+chr(9)+"Receipts of Sales/Purch"+chr(9)+"Busi Records/Ledger"+chr(9)+"Pend Out State Verif"+chr(9)+"Other Document"+chr(9)+"No Verif Provided"+chr(9)+"Delayed Verif"+chr(9)+"Blank", ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi)
+                                                      y_pos = y_pos + 20
+                                                  End If
+                                                  Text 15, y_pos, 65, 10, "Verification Detail:"
+                                                  EditBox 80, y_pos - 5, 445, 15, ALL_BUSI_PANELS_ARRAY(verif_explain, each_busi)
+                                                  y_pos = y_pos + 15
+                                                  CheckBox 80, y_pos, 400, 10, "Check here if verification about this Self Employment is requested.", ALL_BUSI_PANELS_ARRAY(verif_checkbox, each_busi)
+                                                  y_pos = y_pos + 15
+                                                  Text 15, y_pos, 60, 10, "* Explain Budget:"
+                                                  EditBox 80, y_pos - 5, 445, 15, ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi)
+                                                  y_pos = y_pos + 25
+                                                  if each_busi = busi_limit Then Exit Do
+                                                  each_busi = each_busi + 1
+                                              Loop until each_busi = UBound(ALL_BUSI_PANELS_ARRAY, 2) + 1
+                                              Text 10, y_pos, 50, 10, "BUSI Details:"
+                                              EditBox 60, y_pos - 5, 465, 15, notes_on_busi
                                               ButtonGroup ButtonPressed
-                                                PushButton 10, y_pos, 45, 10, "1 - Personal", dlg_one_button
-                                                PushButton 60, y_pos, 35, 10, "2 - JOBS", dlg_two_button
-                                                PushButton 140, y_pos, 35, 10, "4 - CSES", dlg_four_button
-                                                PushButton 180, y_pos, 35, 10, "5 - UNEA", dlg_five_button
-                                                PushButton 220, y_pos, 35, 10, "6 - Other", dlg_six_button
-                                                PushButton 260, y_pos, 40, 10, "7 - Assets", dlg_seven_button
-                                                PushButton 305, y_pos, 50, 10, "8 - Interview", dlg_eight_button
-                                                If busi_pages >= 2 Then
-                                                    If busi_pages = 2 Then
-                                                        If loop_start = 0 Then
-                                                            Text 365, y_pos, 15, 10, "1"
-                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
-                                                        ElseIf loop_start = 1 Then
-                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
-                                                            Text 380, y_pos, 15, 10, "2"
-                                                        End If
-                                                    ElseIf busi_pages = 3 Then
-                                                        If loop_start = 0 Then
-                                                            Text 365, y_pos, 15, 10, "1"
-                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
-                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
-                                                        ElseIf loop_start = 3 Then
-                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
-                                                            Text 380, y_pos, 15, 10, "2"
-                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
-                                                        ElseIf loop_start = 6 Then
-                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
-                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
-                                                            Text 395, y_pos, 15, 10, "3"
-                                                        End If
-                                                    ElseIf busi_pages = 4 Then
-                                                        If loop_start = 0 Then
-                                                            Text 365, y_pos, 15, 10, "1"
-                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
-                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
-                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
-                                                        ElseIf loop_start = 3 Then
-                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
-                                                            Text 380, y_pos, 15, 10, "2"
-                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
-                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
-                                                        ElseIf loop_start = 6 Then
-                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
-                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
-                                                            Text 395, y_pos, 15, 10, "3"
-                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
-                                                        ElseIf loop_start = 9 Then
-                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
-                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
-                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
-                                                            Text 410, y_pos, 15, 10, "4"
-                                                        End If
-                                                    ElseIf busi_pages = 5 Then
-                                                        If loop_start = 0 Then
-                                                            Text 365, y_pos, 15, 10, "1"
-                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
-                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
-                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
-                                                            PushButton 420, y_pos, 15, 10, "5", busi_page_five
-                                                        ElseIf loop_start = 3 Then
-                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
-                                                            Text 380, y_pos, 15, 10, "2"
-                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
-                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
-                                                            PushButton 420, y_pos, 15, 10, "5", busi_page_five
-                                                        ElseIf loop_start = 6 Then
-                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
-                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
-                                                            Text 395, y_pos, 15, 10, "3"
-                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
-                                                            PushButton 420, y_pos, 15, 10, "5", busi_page_five
-                                                        ElseIf loop_start = 9 Then
-                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
-                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
-                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
-                                                            Text 410, y_pos, 15, 10, "4"
-                                                            PushButton 420, y_pos, 15, 10, "5", busi_page_five
-                                                        ElseIf loop_start = 12 Then
-                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
-                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
-                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
-                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
-                                                            Text 425, y_pos, 15, 10, "5"
-                                                        End If
-                                                    ElseIf busi_pages = 6 Then
-                                                        If loop_start = 0 Then
-                                                            Text 365, y_pos, 15, 10, "1"
-                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
-                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
-                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
-                                                            PushButton 420, y_pos, 15, 10, "5", busi_page_five
-                                                            PushButton 435, y_pos, 15, 10, "6", busi_page_six
-                                                        ElseIf loop_start = 3 Then
-                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
-                                                            Text 380, y_pos, 15, 10, "2"
-                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
-                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
-                                                            PushButton 420, y_pos, 15, 10, "5", busi_page_five
-                                                            PushButton 435, y_pos, 15, 10, "6", busi_page_six
-                                                        ElseIf loop_start = 6 Then
-                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
-                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
-                                                            Text 395, y_pos, 15, 10, "3"
-                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
-                                                            PushButton 420, y_pos, 15, 10, "5", busi_page_five
-                                                            PushButton 435, y_pos, 15, 10, "6", busi_page_six
-                                                        ElseIf loop_start = 9 Then
-                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
-                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
-                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
-                                                            Text 410, y_pos, 15, 10, "4"
-                                                            PushButton 420, y_pos, 15, 10, "5", busi_page_five
-                                                            PushButton 435, y_pos, 15, 10, "6", busi_page_six
-                                                        ElseIf loop_start = 12 Then
-                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
-                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
-                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
-                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
-                                                            Text 425, y_pos, 15, 10, "5"
-                                                            PushButton 435, y_pos, 15, 10, "6", busi_page_six
-                                                        ElseIf loop_start = 15 Then
-                                                            PushButton 360, y_pos, 15, 10, "1", busi_page_one
-                                                            PushButton 375, y_pos, 15, 10, "2", busi_page_two
-                                                            PushButton 390, y_pos, 15, 10, "3", busi_page_three
-                                                            PushButton 405, y_pos, 15, 10, "4", busi_page_four
-                                                            PushButton 420, y_pos, 15, 10, "5", busi_page_five
-                                                            Text 440, y_pos, 15, 10, "6"
-                                                        End If
+                                                PushButton 525, y_pos - 5, 15, 15, "!", tips_and_tricks_busi_button
+                                              y_pos = y_pos + 20
+                                          End If
+                                          y_pos = y_pos + 10
+                                          GroupBox 5, y_pos - 10, 355, 25, "Dialog Tabs"
+                                          Text 55, y_pos, 5, 10, "|"
+                                          Text 95, y_pos, 5, 10, "|"
+                                          Text 135, y_pos, 5, 10, "|"
+                                          Text 175, y_pos, 5, 10, "|"
+                                          Text 215, y_pos, 5, 10, "|"
+                                          Text 255, y_pos, 5, 10, "|"
+                                          Text 300, y_pos, 5, 10, "|"
+                                          Text 100, y_pos, 35, 10, "3 - BUSI"
+                                          ButtonGroup ButtonPressed
+                                            PushButton 10, y_pos, 45, 10, "1 - Personal", dlg_one_button
+                                            PushButton 60, y_pos, 35, 10, "2 - JOBS", dlg_two_button
+                                            PushButton 140, y_pos, 35, 10, "4 - CSES", dlg_four_button
+                                            PushButton 180, y_pos, 35, 10, "5 - UNEA", dlg_five_button
+                                            PushButton 220, y_pos, 35, 10, "6 - Other", dlg_six_button
+                                            PushButton 260, y_pos, 40, 10, "7 - Assets", dlg_seven_button
+                                            PushButton 305, y_pos, 50, 10, "8 - Interview", dlg_eight_button
+                                            If busi_pages >= 2 Then
+                                                If busi_pages = 2 Then
+                                                    If loop_start = 0 Then
+                                                        Text 365, y_pos, 15, 10, "1"
+                                                        PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                    ElseIf loop_start = 1 Then
+                                                        PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                        Text 380, y_pos, 15, 10, "2"
+                                                    End If
+                                                ElseIf busi_pages = 3 Then
+                                                    If loop_start = 0 Then
+                                                        Text 365, y_pos, 15, 10, "1"
+                                                        PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                        PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                    ElseIf loop_start = 3 Then
+                                                        PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                        Text 380, y_pos, 15, 10, "2"
+                                                        PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                    ElseIf loop_start = 6 Then
+                                                        PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                        PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                        Text 395, y_pos, 15, 10, "3"
+                                                    End If
+                                                ElseIf busi_pages = 4 Then
+                                                    If loop_start = 0 Then
+                                                        Text 365, y_pos, 15, 10, "1"
+                                                        PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                        PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                        PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                    ElseIf loop_start = 3 Then
+                                                        PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                        Text 380, y_pos, 15, 10, "2"
+                                                        PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                        PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                    ElseIf loop_start = 6 Then
+                                                        PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                        PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                        Text 395, y_pos, 15, 10, "3"
+                                                        PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                    ElseIf loop_start = 9 Then
+                                                        PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                        PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                        PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                        Text 410, y_pos, 15, 10, "4"
+                                                    End If
+                                                ElseIf busi_pages = 5 Then
+                                                    If loop_start = 0 Then
+                                                        Text 365, y_pos, 15, 10, "1"
+                                                        PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                        PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                        PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                        PushButton 420, y_pos, 15, 10, "5", busi_page_five
+                                                    ElseIf loop_start = 3 Then
+                                                        PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                        Text 380, y_pos, 15, 10, "2"
+                                                        PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                        PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                        PushButton 420, y_pos, 15, 10, "5", busi_page_five
+                                                    ElseIf loop_start = 6 Then
+                                                        PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                        PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                        Text 395, y_pos, 15, 10, "3"
+                                                        PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                        PushButton 420, y_pos, 15, 10, "5", busi_page_five
+                                                    ElseIf loop_start = 9 Then
+                                                        PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                        PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                        PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                        Text 410, y_pos, 15, 10, "4"
+                                                        PushButton 420, y_pos, 15, 10, "5", busi_page_five
+                                                    ElseIf loop_start = 12 Then
+                                                        PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                        PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                        PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                        PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                        Text 425, y_pos, 15, 10, "5"
+                                                    End If
+                                                ElseIf busi_pages = 6 Then
+                                                    If loop_start = 0 Then
+                                                        Text 365, y_pos, 15, 10, "1"
+                                                        PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                        PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                        PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                        PushButton 420, y_pos, 15, 10, "5", busi_page_five
+                                                        PushButton 435, y_pos, 15, 10, "6", busi_page_six
+                                                    ElseIf loop_start = 3 Then
+                                                        PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                        Text 380, y_pos, 15, 10, "2"
+                                                        PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                        PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                        PushButton 420, y_pos, 15, 10, "5", busi_page_five
+                                                        PushButton 435, y_pos, 15, 10, "6", busi_page_six
+                                                    ElseIf loop_start = 6 Then
+                                                        PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                        PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                        Text 395, y_pos, 15, 10, "3"
+                                                        PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                        PushButton 420, y_pos, 15, 10, "5", busi_page_five
+                                                        PushButton 435, y_pos, 15, 10, "6", busi_page_six
+                                                    ElseIf loop_start = 9 Then
+                                                        PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                        PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                        PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                        Text 410, y_pos, 15, 10, "4"
+                                                        PushButton 420, y_pos, 15, 10, "5", busi_page_five
+                                                        PushButton 435, y_pos, 15, 10, "6", busi_page_six
+                                                    ElseIf loop_start = 12 Then
+                                                        PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                        PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                        PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                        PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                        Text 425, y_pos, 15, 10, "5"
+                                                        PushButton 435, y_pos, 15, 10, "6", busi_page_six
+                                                    ElseIf loop_start = 15 Then
+                                                        PushButton 360, y_pos, 15, 10, "1", busi_page_one
+                                                        PushButton 375, y_pos, 15, 10, "2", busi_page_two
+                                                        PushButton 390, y_pos, 15, 10, "3", busi_page_three
+                                                        PushButton 405, y_pos, 15, 10, "4", busi_page_four
+                                                        PushButton 420, y_pos, 15, 10, "5", busi_page_five
+                                                        Text 440, y_pos, 15, 10, "6"
                                                     End If
                                                 End If
-                                                PushButton 450, y_pos - 5, 35, 15, "NEXT", go_to_next_page
-                                                CancelButton 490, y_pos - 5, 50, 15
-                                                OkButton 600, 500, 50, 15
-                                            EndDialog
+                                            End If
+                                            PushButton 450, y_pos - 5, 35, 15, "NEXT", go_to_next_page
+                                            CancelButton 490, y_pos - 5, 50, 15
+                                            OkButton 600, 500, 50, 15
+                                        EndDialog
 
 
-                                            dialog Dialog1
-                                            cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
-                                            MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-                                            If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
+                                        dialog Dialog1
+                                        cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
+                                        MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 
-                                            If each_busi >= UBound(ALL_BUSI_PANELS_ARRAY, 2) Then last_busi_reviewed = TRUE
-                                            each_busi = loop_start
-                                            Do
-                                                'busi_err_msg'
-                                                'IF THERE IS AN EI CASE NOTE - DON'T WORRY ABOUT MUCH ERR HANDLING
-                                                if each_busi = busi_limit Then Exit Do
-                                                each_busi = each_busi + 1
-                                            Loop until each_busi = UBound(ALL_BUSI_PANELS_ARRAY, 2)
+                                        If ButtonPressed = tips_and_tricks_busi_button Then tips_msg = MsgBox("*** Self_Employment ***" & vbNewLine & vbNewLine & "There is a policy update around Self Employment for SNAP that was went into effect 08/2019. If you are unfamiliar, this dialog will have elements that seem incorrect. Review the new policy on SIR and in the Policy Manuals." & vbNewLine & vbNewLine &_
+                                                                                                              "* Business Description - This is not a field in MAXIS and can be used to further identify the self employment in CASE/NOTE. This can assist in the next worker understanding more about this case situation, making budgeting information clear, and make it easier to find documentation of this business in the case file." & vbNewLine & vbNewLine &_
+                                                                                                              "* Business Structure, Ownership share, and Partners in Household - these fields also hep with idetifying budgeting and the correct focumentation required and on file for the businees. These fields are not required, but very helpful in a complete documentation." & vbNewLine & vbNewLine &_
+                                                                                                              "* SNAP BUSI Budget - The new policy requires that we review TAX forms if that is the verification receivved to identify any allowed tax deductions that are not allowed as a part of SNAP budgeting. This field 'Expenses not Allowed' is required, though if all are allowed, simply use this field to indicate the review was done and all are allowed." & vbNewLine & vbNewLine &_
+                                                                                                              "Checking the box that says 'Check here if verification about this Self Employment is requested' will add a line to the 'Verifs Needed' about self employment for this HH Member. Use this instead of typing to pulling up the verification dialog.", vbInformation, "Tips and Tricks")
+                                        If ButtonPressed = tips_and_tricks_busi_button Then ButtonPressed = dlg_three_button
+                                        If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
 
-                                            Call assess_button_pressed
-                                            If tab_button = TRUE Then last_busi_reviewed = TRUE
-                                            If ButtonPressed = go_to_next_page AND last_busi_reviewed = TRUE Then pass_three = true
-                                        Loop until busi_err_msg = ""
+                                        If each_busi >= UBound(ALL_BUSI_PANELS_ARRAY, 2) Then last_busi_reviewed = TRUE
+                                        each_busi = loop_start
+                                        Do
+                                            'busi_err_msg'
+                                            'IF THERE IS AN EI CASE NOTE - DON'T WORRY ABOUT MUCH ERR HANDLING
+                                            if each_busi = busi_limit Then Exit Do
+                                            each_busi = each_busi + 1
+                                        Loop until each_busi = UBound(ALL_BUSI_PANELS_ARRAY, 2)
+
+                                        Call assess_button_pressed
+                                        If tab_button = TRUE Then last_busi_reviewed = TRUE
+                                        If ButtonPressed = go_to_next_page AND last_busi_reviewed = TRUE Then pass_three = true
+
                                         busi_limit = busi_limit + 1
                                         loop_start = loop_start + 1
 
@@ -4062,6 +4084,8 @@ Do
                       EditBox 40, 205, 510, 15, notes_on_time
                       EditBox 60, 225, 490, 15, notes_on_sanction
                       EditBox 50, 245, 500, 15, EMPS
+                      ButtonGroup ButtonPressed
+                        PushButton 25, 265, 15, 15, "!", tips_and_tricks_emps_button
                       CheckBox 50, 270, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
                       EditBox 60, 290, 495, 15, verifs_needed
                       ButtonGroup ButtonPressed
@@ -4120,6 +4144,13 @@ Do
                     MAXIS_dialog_navigation
                     verification_dialog
 
+                    If ButtonPressed = tips_and_tricks_emps_button Then tips_msg = MsgBox("*** TIME, Sanction, and EMPS ***" & vbNewLine & "Why are these now required?" & vbNewLine & vbNewLine &_
+                                                                                          "Information about TIME (TANF months used), SANC (Details about MFIP Sanctions), and EMPS (MFIP Employment Services) are now required for any case that is Family Cash when running the CAF. These elements are paramount to the MFIP program and should be addressed at least once per year. Review of these peices of a case can go here." & vbNewLine & vbNewLine &_
+                                                                                          "What if it is a new case?" & vbNewLine & "* This is a great place to indicate that there is no history of time or sanctions used, that the client reports no benefits in another state, or that you are waiting on detail from another state. This is also a good place to identify EMPS requirement was explained or DWP overview scheduled/completed." & vbNewLine & vbNewLine &_
+                                                                                          "This is a relative caregiver case, why is it needed here?" & vbNewLine & "* Since these function differently for these cases, you may not be detailing time used. Detailing that it is specifically NOT being used is extremely helpful to the new HSR or reviewer that works on this case. Add detail about how these typically mandatory elements do NOT apply in this case." & vbNewLine & vbNewLine &_
+                                                                                          "The script will try to autofill this information but additional detail is helpful as always.", vbInformation, "Tips and Tricks")
+
+                    If ButtonPressed = tips_and_tricks_emps_button Then ButtonPressed = dlg_seven_button
                     If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
                     If ButtonPressed = verif_button then ButtonPressed = dlg_seven_button
 
@@ -4154,7 +4185,9 @@ Do
                   EditBox 85, 10, 20, 15, next_er_year
                   ComboBox 330, 10, 115, 15, "Select or Type"+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
                   EditBox 60, 30, 385, 15, actions_taken
-                  DropListBox 140, 60, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", snap_exp_yn
+                  DropListBox 135, 60, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", snap_exp_yn
+                  ButtonGroup ButtonPressed
+                    PushButton 165, 60, 15, 15, "!", tips_and_tricks_xfs_button
                   EditBox 90, 80, 35, 15, exp_snap_approval_date
                   EditBox 210, 80, 40, 15, app_month_income
                   EditBox 290, 80, 40, 15, app_month_assets
@@ -4235,6 +4268,18 @@ Do
                 MAXIS_dialog_navigation
                 verification_dialog
 
+                If ButtonPressed = tips_and_tricks_xfs_button Then tips_msg = MsgBox("*** Expedited SNAP ***" & vbNewLine & "Anytime the CAF script is run for SNAP at application, expedited information is required. Since the interview is complete, you have enough information to make an EXPEDITED DETERMINATION (different from the screening already completed)." & vbNewLine & vbNewLine &_
+                                                                                     "The only time this information is NOT required is if you have run the separate script 'Expedited Determination' - this script will find the case note from that script run and allow you to skip this part of the dialog. The Expedited Determination script has more autofill specific to this process and more detail explained in the note." & vbNewLine & vbNewLine &_
+                                                                                     "* App Month Income - Enter the total amount of income received in the month of application here. This income does NOT need to be verified. The script does not caclulate this for you." & vbNewLine & vbNewLine &_
+                                                                                     "* App Month Assets - Enter the total LIQUID assets the client has available to them in the month of application. This field is also available on the Asset dialog and will carry over. The script does not calculate this for you." & vbNewLine & vbNewLine &_
+                                                                                     "* App Month Expenses - Enter the shelter expense paid/responsible in the month of application plus the standard utility for which the client can claim. If these are completed correctly in the previous dialog, the script will calculate this for you when it first displays. You can change it." & vbNewLine & vbNewLine &_
+                                                                                     "THIS INFORMATION SHOULD NOT BE FROM CAF1, but from the client's report and conversation complted during the interview along with any documentation we do have on file - though most are not required." & vbNewLine & vbNewLine &_
+                                                                                     "Based on these amounts, enter if the client is expedited or not using the dorpdown with 'Yes' or 'No'. No other consideration should be made to determine the client's eligibility for Expedited. Answering Yes here does not mean you have approved it BUT it does mean the client is eligible for expedited processing." & vbNewLine & vbNewLine &_
+                                                                                     "In most situations, the case should be approved if determined to be expedited. If the approval is done or will be done shortly, enter the date of approval." & vbNewLine & vbNewLine &_
+                                                                                     "If the approval took more than the expedited processing time (7 days) then explain the delay - this may very well be that no interview had been completed." & vbNewLine & vbNewLine &_
+                                                                                     "If the approval cannot be made - leave the date of approval blank and detail what is preventing the approval. Very few things prevent the approval of Expedited SNAP. If you are unsure, check the HSR Manual or contact Knowledge Now.", vbInformation, "Tips and Tricks")
+
+                If ButtonPressed = tips_and_tricks_xfs_button Then ButtonPressed = dlg_eight_button
                 If ButtonPressed = -1 Then ButtonPressed = finish_dlgs_button
                 If ButtonPressed = verif_button then ButtonPressed = dlg_eight_button
 
@@ -4605,7 +4650,7 @@ Do
     Do
         qual_err_msg = ""
 
-        BeginDialog Dialog1, 0, 0, 451, 205, "Dialog"
+        BeginDialog Dialog1, 0, 0, 451, 205, "CAF Qualifying Questions"
           DropListBox 220, 40, 25, 45, "No"+chr(9)+"Yes", qual_question_one
           ComboBox 340, 40, 105, 45, verification_memb_list, qual_memb_one
           DropListBox 220, 80, 25, 45, "No"+chr(9)+"Yes", qual_question_two
