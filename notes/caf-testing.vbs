@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("09/19/2019", "New functionality to support SNAP Applications that are known at the time of processing the CAF that they will be denied. ##~## ##~## This updates the gathering of Expedited Detail. If a denial date is entered no additional expedited detail is needed. The expedited note will reflect a denial will be occuring.", "Casey Love, Hennepin County")
 Call changelog_update("09/16/2019", "Testing Update:##~## ##~##  - Added a dialog for documenting the CAF Qualifying Questions. Because we need to address these. ##~##  - Tips and Tricks! Find the '!' buttons in the Case Number Dialog and Dialog 1. These will pop-up messages about how the script works and WHY it does the things it does. I will be adding some to JOBS, BUSI, and Expedited. Pleae let me know where else clarification would be helpful!##~## ##~##", "Casey Love, Hennepin County")
 Call changelog_update("09/16/2019", "Testing Update:##~## ##~##  - The CAF Addendum is a special process of a CAF form and it needs its own handling. Selecting the Addendum from the initial dialog will pull brand new functionality.##~## ##~##", "Casey Love, Hennepin County")
 Call changelog_update("09/11/2019", "Testing Update:##~## ##~##  - Added functionality so that you can select recert and application for different programs in the same run!!! Now you don't have to run it twice for a SNAP Recert and Cash Application. The script also only asks about expedited for SNAP at application! ##~## I am excited about this.##~## ##~##", "Casey Love, Hennepin County")
@@ -4181,19 +4182,21 @@ Do
                 app_month_assets = app_month_assets & ""
                 app_month_expenses = app_month_expenses & ""
 
-                BeginDialog Dialog1, 0, 0, 451, 370, "CAF Dialog 8 - Interview Info"
+                BeginDialog Dialog1, 0, 0, 500, 370, "CAF Dialog 8 - Interview Info"
                   EditBox 60, 10, 20, 15, next_er_month
                   EditBox 85, 10, 20, 15, next_er_year
-                  ComboBox 330, 10, 115, 15, "Select or Type"+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
-                  EditBox 60, 30, 385, 15, actions_taken
+                  ComboBox 330, 10, 165, 15, "Select or Type"+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
+                  EditBox 60, 30, 435, 15, actions_taken
                   DropListBox 135, 60, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", snap_exp_yn
                   ButtonGroup ButtonPressed
                     PushButton 165, 60, 15, 15, "!", tips_and_tricks_xfs_button
+                  EditBox 270, 60, 40, 15, app_month_income '210'
+                  EditBox 350, 60, 40, 15, app_month_assets '290'
+                  EditBox 445, 60, 40, 15, app_month_expenses '385'
                   EditBox 90, 80, 35, 15, exp_snap_approval_date
-                  EditBox 210, 80, 40, 15, app_month_income
-                  EditBox 290, 80, 40, 15, app_month_assets
-                  EditBox 385, 80, 40, 15, app_month_expenses
-                  EditBox 75, 100, 365, 15, exp_snap_delays
+                  EditBox 195, 80, 295, 15, exp_snap_delays
+                  EditBox 90, 100, 35, 15, snap_denial_date
+                  EditBox 195, 100, 295, 15, snap_denial_explain
                   CheckBox 20, 155, 80, 10, "Application signed?", application_signed_checkbox
                   CheckBox 20, 170, 50, 10, "eDRS sent?", eDRS_sent_checkbox
                   CheckBox 20, 185, 65, 10, "Updated MMIS?", updated_MMIS_checkbox
@@ -4206,8 +4209,8 @@ Do
                   CheckBox 220, 185, 150, 10, "Client Requests to participate with E and T", E_and_T_checkbox
                   CheckBox 220, 200, 125, 10, "Eligibility Requirements Explained?", elig_req_explained_checkbox
                   CheckBox 220, 215, 160, 10, "Benefits and Payment Information Explained?", benefit_payment_explained_checkbox
-                  EditBox 55, 240, 390, 15, other_notes
-                  EditBox 60, 260, 385, 15, verifs_needed
+                  EditBox 55, 240, 440, 15, other_notes
+                  EditBox 60, 260, 435, 15, verifs_needed
                   CheckBox 15, 295, 240, 10, "Check here to update PND2 to show client delay (pending cases only).", client_delay_checkbox
                   CheckBox 15, 310, 200, 10, "Check here to create a TIKL to deny at the 30 day mark.", TIKL_checkbox
                   CheckBox 15, 325, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_checkbox
@@ -4222,30 +4225,32 @@ Do
                     PushButton 180, 355, 35, 10, "5 - UNEA", dlg_five_button
                     PushButton 220, 355, 35, 10, "6 - Other", dlg_six_button
                     PushButton 260, 355, 40, 10, "7 - Assets", dlg_seven_button
-                    PushButton 355, 350, 35, 15, "Done", finish_dlgs_button
-                    CancelButton 395, 350, 50, 15
-                    OkButton 600, 500, 50, 15
+                    PushButton 405, 350, 35, 15, "Done", finish_dlgs_button
+                    CancelButton 445, 350, 50, 15
+                    OkButton 650, 500, 50, 15
                   Text 5, 15, 55, 10, "Next ER REVW:"
                   Text 280, 15, 50, 10, "* CAF status:"
                   Text 5, 35, 55, 10, "* Actions taken:"
-                  GroupBox 5, 50, 440, 70, "SNAP Expedited"
+                  GroupBox 5, 50, 490, 70, "SNAP Expedited"
                   If the_process_for_snap = "Application" AND exp_det_case_note_found = FALSE Then
                       Text 15, 65, 120, 10, "* Is this SNAP Application Expedited?"
                       Text 15, 85, 75, 10, "* EXP Approval Date:"
-                      Text 135, 85, 75, 10, "* App Month - Income:"
-                      Text 260, 85, 30, 10, "* Assets:"
-                      Text 345, 85, 40, 10, "* Expenses:"
+                      Text 195, 65, 75, 10, "* App Month - Income:" '135'
+                      Text 320, 65, 30, 10, "* Assets:" '260'
+                      Text 405, 65, 40, 10, "* Expenses:" '345'
                   Else
                       Text 15, 65, 120, 10, "Is this SNAP Application Expedited?"
                       Text 20, 85, 65, 10, "EXP Approval Date:"
-                      Text 135, 85, 70, 10, "App Month - Income:"
-                      Text 260, 85, 25, 10, "Assets:"
-                      Text 345, 85, 40, 10, "Expenses:"
+                      Text 195, 65, 70, 10, "App Month - Income:" '135'
+                      Text 320, 65, 25, 10, "Assets:" '260'
+                      Text 405, 65, 40, 10, "Expenses:" '345'
                   End If
-                  Text 185, 65, 70, 10, "CAF Date: " & CAF_datestamp
-                  If exp_det_case_note_found = TRUE Then Text 260, 65, 180, 10, "EXPEDITED DETERMINATION CASE/NOTE FOUND"
-                  Text 15, 105, 55, 10, "Explain Delays:"
-                  GroupBox 5, 130, 440, 105, "Common elements workers should case note:"
+                  Text 135, 50, 70, 10, "CAF Date: " & CAF_datestamp
+                  If exp_det_case_note_found = TRUE Then Text 260, 50, 180, 10, "EXPEDITED DETERMINATION CASE/NOTE FOUND"
+                  Text 135, 85, 55, 10, "Explain Delays:"
+                  Text 15, 105, 75, 10, "SNAP Denial Date:"
+                  Text 135, 105, 55, 10, "Explain denial:"
+                  GroupBox 5, 130, 490, 105, "Common elements workers should case note:"
                   GroupBox 15, 140, 100, 90, "Application Processing"
                   GroupBox 120, 140, 90, 90, "Form Actions"
                   GroupBox 215, 140, 175, 90, "Interview"
@@ -4407,36 +4412,40 @@ Do
                     'DIALOG 8
                     If CAF_status = "Select or Type" Then full_err_msg = full_err_msg & "~!~8^* Indicate the CAF Status."
                     If the_process_for_snap = "Application" AND exp_det_case_note_found = FALSE Then
-                        If snap_exp_yn = "?" Then
-                            full_err_msg = full_err_msg & "~!~8^* This is a a SNAP case at application. Indicate if this case has been determined to be expedited SNAP or not."
-                        Else
-                            If IsNumeric(app_month_income) = FALSE Then full_err_msg = full_err_msg & "~!~8^* Enter the income for the application month as a number."
-                            If IsNumeric(app_month_assets) = FALSE Then full_err_msg = full_err_msg & "~!~8^* Enter the liquid assets for the application month as a number."
-                            If IsNumeric(app_month_expenses) = FALSE Then full_err_msg = full_err_msg & "~!~8^* Enter the expenses (shelter and utilities) for the application month as a number."
+                        If trim(snap_denial_date) <> "" AND IsDate(snap_denial_date) = FALSE Then
+                            full_err_msg = full_err_msg & "~!~8^* This is a a SNAP case at application. You entered something in the SNAP denial date but it does not appear to be a date. Please list the date that SNAP will be denied if SNAP is being denied."
+                        ElseIf trim(snap_denial_date) = "" Then
+                            If snap_exp_yn = "?" Then
+                                full_err_msg = full_err_msg & "~!~8^* This is a a SNAP case at application. Indicate if this case has been determined to be expedited SNAP or not."
+                            Else
+                                If IsNumeric(app_month_income) = FALSE Then full_err_msg = full_err_msg & "~!~8^* Enter the income for the application month as a number."
+                                If IsNumeric(app_month_assets) = FALSE Then full_err_msg = full_err_msg & "~!~8^* Enter the liquid assets for the application month as a number."
+                                If IsNumeric(app_month_expenses) = FALSE Then full_err_msg = full_err_msg & "~!~8^* Enter the expenses (shelter and utilities) for the application month as a number."
 
-                            case_should_be_xfs = FALSE
-                            If IsNumeric(app_month_income) = TRUE AND IsNumeric(app_month_assets) = TRUE AND IsNumeric(app_month_expenses) = TRUE Then
-                                If app_month_assets <=100 AND app_month_income < 150 Then
-                                    case_should_be_xfs = TRUE
-                                    ' MsgBox "low resources"
-                                End If
-                                app_month_assets = app_month_assets * 1
-                                app_month_income = app_month_income * 1
-                                app_month_expenses = app_month_expenses * 1
-                                app_month_resources = app_month_assets + app_month_income
-                                If app_month_resources < app_month_expenses Then
-                                    case_should_be_xfs = TRUE
-                                    ' MsgBox "insufficient resources" & vbCR & "Resources - " & app_month_resources & vbCR & "Expenses - " & app_month_expenses
-                                End If
+                                case_should_be_xfs = FALSE
+                                If IsNumeric(app_month_income) = TRUE AND IsNumeric(app_month_assets) = TRUE AND IsNumeric(app_month_expenses) = TRUE Then
+                                    If app_month_assets <=100 AND app_month_income < 150 Then
+                                        case_should_be_xfs = TRUE
+                                        ' MsgBox "low resources"
+                                    End If
+                                    app_month_assets = app_month_assets * 1
+                                    app_month_income = app_month_income * 1
+                                    app_month_expenses = app_month_expenses * 1
+                                    app_month_resources = app_month_assets + app_month_income
+                                    If app_month_resources < app_month_expenses Then
+                                        case_should_be_xfs = TRUE
+                                        ' MsgBox "insufficient resources" & vbCR & "Resources - " & app_month_resources & vbCR & "Expenses - " & app_month_expenses
+                                    End If
 
-                                If snap_exp_yn = "Yes" and case_should_be_xfs = FALSE Then full_err_msg = full_err_msg & "~!~8^* This is indicated as Expedited, though based on app month details it appears to be NOT Expedited. App Month: Income - $" & app_month_income & ". Assets - $" & app_month_assets & ". Expenses - $" & app_month_expenses & "."
-                                If snap_exp_yn = "No" AND case_should_be_xfs = TRUE Then full_err_msg = full_err_msg & "~!~8^* This is indicated as NOT Expedited, though based on app month details it appears to be EXPEDITED. App Month: Income - $" & app_month_income & ". Assets - $" & app_month_assets & ". Expenses - $" & app_month_expenses & "."
-                            End If
-                            If snap_exp_yn = "Yes" Then
-                                If IsDate(exp_snap_approval_date) = TRUE Then
-                                    If DateDiff("d", CAF_datestamp, exp_snap_approval_date) > 7 AND trim(exp_snap_delays) = "" Then full_err_msg = full_err_msg & "~!~8^* Since Expedited SNAP is not approved within 7 days of the date of application, pease explain the reason for the delay."
-                                Else
-                                    If trim(exp_snap_delays) = "" Then full_err_msg = full_err_msg & "~!~8^* Since the Expedited SNAP does not have an approval date yet, either explain the reason for the delay or indicate the date of Expedited SNAP Approval."
+                                    If snap_exp_yn = "Yes" and case_should_be_xfs = FALSE Then full_err_msg = full_err_msg & "~!~8^* This is indicated as Expedited, though based on app month details it appears to be NOT Expedited. App Month: Income - $" & app_month_income & ". Assets - $" & app_month_assets & ". Expenses - $" & app_month_expenses & "."
+                                    If snap_exp_yn = "No" AND case_should_be_xfs = TRUE Then full_err_msg = full_err_msg & "~!~8^* This is indicated as NOT Expedited, though based on app month details it appears to be EXPEDITED. App Month: Income - $" & app_month_income & ". Assets - $" & app_month_assets & ". Expenses - $" & app_month_expenses & "."
+                                End If
+                                If snap_exp_yn = "Yes" Then
+                                    If IsDate(exp_snap_approval_date) = TRUE Then
+                                        If DateDiff("d", CAF_datestamp, exp_snap_approval_date) > 7 AND trim(exp_snap_delays) = "" Then full_err_msg = full_err_msg & "~!~8^* Since Expedited SNAP is not approved within 7 days of the date of application, pease explain the reason for the delay."
+                                    Else
+                                        If trim(exp_snap_delays) = "" Then full_err_msg = full_err_msg & "~!~8^* Since the Expedited SNAP does not have an approval date yet, either explain the reason for the delay or indicate the date of Expedited SNAP Approval."
+                                    End If
                                 End If
                             End If
                         End If
@@ -5324,31 +5333,46 @@ End If
 If the_process_for_snap = "Application" AND exp_det_case_note_found = FALSE Then
     Call start_a_blank_CASE_NOTE
 
-    IF snap_exp_yn = "Yes" then
-    	case_note_header_text = "Expedited Determination: SNAP appears expedited"
-    ELSEIF snap_exp_yn = "No" then
-    	case_note_header_text = "Expedited Determination: SNAP does not appear expedited"
-    END IF
-
+    If IsDate(snap_denial_date) = TRUE Then
+        case_note_header_text = "Expedited Determination: SNAP to be denied"
+    Else
+        IF snap_exp_yn = "Yes" then
+        	case_note_header_text = "Expedited Determination: SNAP appears expedited"
+        ELSEIF snap_exp_yn = "No" then
+        	case_note_header_text = "Expedited Determination: SNAP does not appear expedited"
+        END IF
+    End If
     Call write_variable_in_CASE_NOTE(case_note_header_text)
     If interview_date <> "" Then Call write_variable_in_case_note ("* Interview completed on: " & interview_date & " and full Expedited Determination Done")
-    IF snap_exp_yn = "Yes" Then
-        If trim(exp_snap_approval_date) <> "" Then
-            Call write_variable_in_case_note ("* Case is determined to meet criteria and Expedited SNAP can be approved.")
-        Else
-            Call write_variable_in_case_note ("* Case is determined to meet expedited SNAP criteria, approval not yet completed.")
+    If IsDate(snap_denial_date) = TRUE Then
+        Call write_variable_in_CASE_NOTE("* SNAP to be denied on " & snap_denial_date & ". Since case is not SNAP eligible, case cannot receive Expedited issuance.")
+        If snap_exp_yn = "Yes" Then
+            Call write_variable_with_indent_in_CASE_NOTE("Case is determined to meet criteria based upon income alone.")
+            Call write_variable_with_indent_in_CASE_NOTE("Expedited approval requires case to be otherwise eligble for SNAP and this does not meet this criteria.")
+        ElseIf snap_exp_yn = "No" Then
+            Call write_variable_with_indent_in_CASE_NOTE("Expedited SNAP cannot be approved as case does not meet all criteria")
+        End If
+        Call write_bullet_and_variable_in_CASE_NOTE("Explanation of Denial", snap_denial_explain)
+    Else
+        IF snap_exp_yn = "Yes" Then
+            If trim(exp_snap_approval_date) <> "" Then
+                Call write_variable_in_case_note ("* Case is determined to meet criteria and Expedited SNAP can be approved.")
+            Else
+                Call write_variable_in_case_note ("* Case is determined to meet expedited SNAP criteria, approval not yet completed.")
+            End If
+        End If
+        IF snap_exp_yn = "No" Then Call write_variable_in_case_note ("* Expedited SNAP cannot be approved as case does not meet all criteria")
+        If snap_exp_yn = "Yes" Then
+            If IsDate(exp_snap_approval_date) = TRUE Then Call write_variable_in_CASE_NOTE("* SNAP EXP approved on " & exp_snap_approval_date & " - " & DateDiff("d", CAF_datestamp, exp_snap_approval_date) & " days after the date of application.")
+            Call write_bullet_and_variable_in_CASE_NOTE("Reason for delay", exp_snap_delays)
         End If
     End If
-    IF snap_exp_yn = "No" Then Call write_variable_in_case_note ("* Expedited SNAP cannot be approved as case does not meet all criteria")
-    If snap_exp_yn = "Yes" Then
-        If IsDate(exp_snap_approval_date) = TRUE Then Call write_variable_in_CASE_NOTE("* SNAP EXP approved on " & exp_snap_approval_date & " - " & DateDiff("d", CAF_datestamp, exp_snap_approval_date) & " days after the date of application.")
-        Call write_bullet_and_variable_in_CASE_NOTE("Reason for delay", exp_snap_delays)
+    If trim(app_month_income) <> "" AND trim(app_month_assets) <> "" AND trim(app_month_expenses) <> "" Then
+        Call write_variable_in_CASE_NOTE("* Expedited Determination is based on information from application month:")
+        Call write_variable_with_indent_in_CASE_NOTE("Income: $" & app_month_income)
+        Call write_variable_with_indent_in_CASE_NOTE("Assets: $" & app_month_assets)
+        Call write_variable_with_indent_in_CASE_NOTE("Expenses (Shelter & Utilities): $" & app_month_expenses)
     End If
-
-    Call write_variable_in_CASE_NOTE("* Expedited Determination is based on information from application month:")
-    Call write_variable_with_indent_in_CASE_NOTE("Income: $" & app_month_income)
-    Call write_variable_with_indent_in_CASE_NOTE("Assets: $" & app_month_assets)
-    Call write_variable_with_indent_in_CASE_NOTE("Expenses (Shelter & Utilities): $" & app_month_expenses)
 
     Call write_variable_in_CASE_NOTE("---")
     Call write_variable_in_CASE_NOTE(worker_signature)
