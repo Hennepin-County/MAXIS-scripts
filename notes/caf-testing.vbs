@@ -5747,7 +5747,7 @@ Call write_bullet_and_variable_in_CASE_NOTE("AREP", AREP)
 
 'Address Detail
 If address_confirmation_checkbox = checked Then Call write_variable_in_CASE_NOTE("* The address on ADDR was reviewed and is correct.")
-If homeless_yn = "Yes" Then Call write_variable_in_CASE_NOTE("* Houeshld is homeless.")
+If homeless_yn = "Yes" Then Call write_variable_in_CASE_NOTE("* Household is homeless.")
 Call write_variable_in_CASE_NOTE("* Client reports living in county " & addr_county)
 Call write_bullet_and_variable_in_CASE_NOTE("Living Situation", living_situation)
 Call write_bullet_and_variable_in_CASE_NOTE("Address Detail", notes_on_address)
