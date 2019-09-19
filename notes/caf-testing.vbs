@@ -1325,7 +1325,7 @@ function read_WREG_panel()
 
                 EMReadScreen read_counter, 1, 14, 50
                 If read_counter = "_" Then read_counter = 0
-                ALL_MEMBERS_ARRAY(numb_banked_mo, each_member) = read_counter * 1
+                ALL_MEMBERS_ARRAY(numb_banked_mo, each_member) = read_counter
             End If
         END IF
     Next
