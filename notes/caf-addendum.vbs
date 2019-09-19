@@ -1468,7 +1468,7 @@ For the_member = 1 to how_many_new_members
 Next
 
 'Verification NOTE
-verifs_needed = replace(verifs_needed, "[Information here creates a SEPERATE CASE/NOTE.]", "")
+verifs_needed = replace(verifs_needed, "[Information here creates a SEPARATE CASE/NOTE.]", "")
 If trim(verifs_needed) <> "" Then
 
     verif_counter = 1

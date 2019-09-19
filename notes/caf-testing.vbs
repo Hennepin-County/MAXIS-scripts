@@ -2066,7 +2066,7 @@ Dim other_uc_income_notes, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_
 
 HH_memb_row = 5 'This helps the navigation buttons work!
 application_signed_checkbox = checked 'The script should default to having the application signed.
-verifs_needed = "[Information here creates a SEPERATE CASE/NOTE.]"
+verifs_needed = "[Information here creates a SEPARATE CASE/NOTE.]"
 
 member_count = 0
 adult_cash_count = 0
@@ -2788,7 +2788,7 @@ Do
                                                                                                                       "For family cash cases that are being denied enter 'N/A' to have the script bypass this field. Otherwise the date is required here." & vbNewLine & vbNewLine &_
                                                                                                                       "This field can also be used if the forms are given, instead of sent.", vbInformation, "Tips and Tricks")
                                             If ButtonPressed = tips_and_tricks_verifs_button Then tips_msg = MsgBox("*** Verifications Needed ***" & vbNewLine & vbNewLine & "This portion of the script has special functionality. Anytime this field is in a dialog, it is preceeded by a button instead of text." & vbNewLine & "** Press the button to open a special dialog to select verifications." & vbNewLine & vbNewLine &_
-                                                                                                                    "Detail about this field/functionality:" & vbNewLine & " - The text '[Information here creates a SEPERATE CASE?NOTE]' can either be deleted or left in place. The script will ignore that phrase when entering a case note. The phrase must be exactly as is for the script to ignore." & vbNewLine &_
+                                                                                                                    "Detail about this field/functionality:" & vbNewLine & " - The text '[Information here creates a SEPARATE CASE?NOTE]' can either be deleted or left in place. The script will ignore that phrase when entering a case note. The phrase must be exactly as is for the script to ignore." & vbNewLine &_
                                                                                                                     " - Use a '; ' - semi-colon followed by a space - to have the script go to the next line for the case note - great for formatting the case note." & vbNewLine & " - You can always type directly into the field by the button - you are not required to use the prepared checkboxes on other dialogs." & vbNewLine & vbNewLine &_
                                                                                                                     "VERIFICATIONS ARE ENTERED IN A SEPARATE CASE/NOTE. Do not list other case information in this field. Use 'Other Notes' or fields specific to the information to add.", vbInformation, "Tips and Tricks")
                                             ' If ButtonPressed = tips_and_tricks_interview_button Then ButtonPressed = dlg_one_button
@@ -2802,6 +2802,7 @@ Do
                                                 pass_one = false
                                                 show_one = true
                                             End If
+                                            Dim Dialog1
                                         End If
                                     Loop Until pass_one = TRUE
                                     If show_two = true Then
@@ -2845,7 +2846,7 @@ Do
                                             ' Loop until each_job = UBound(ALL_JOBS_PANELS_ARRAY, 2)
                                             y_pos = 5
                                             'MsgBox dlg_len
-
+                                            Dialog1 = ""
                                             BeginDialog Dialog1, 0, 0, 705, dlg_len, "CAF Dialog 2 - JOBS Information"
                                               'GroupBox 5, 5, 595, jobs_grp_len, "Earned Income"
                                               If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) = "" Then
@@ -2862,10 +2863,10 @@ Do
                                                       Text 180, y_pos, 200, 10, "Verif: " & ALL_JOBS_PANELS_ARRAY(verif_code, each_job)
                                                       CheckBox 365, y_pos, 220, 10, "Check here if this income is not verified and is only an estimate.", ALL_JOBS_PANELS_ARRAY(estimate_only, each_job)
                                                       y_pos = y_pos + 20
+                                                      IF ALL_JOBS_PANELS_ARRAY(EI_case_note, each_job) = TRUE Then Text 405, y_pos, 175, 10, "EARNED INCOME BUDGETING CASE NOTE FOUND"
                                                       Text 15, y_pos, 40, 10, "Verification:"
                                                       EditBox 65, y_pos - 5, 250, 15, ALL_JOBS_PANELS_ARRAY(verif_explain, each_job)
-                                                      Text 325, y_pos, 75, 10, "Footer Month: " & ALL_JOBS_PANELS_ARRAY(info_month, each_job)
-                                                      IF ALL_JOBS_PANELS_ARRAY(EI_case_note, each_job) = TRUE Then Text 405, y_pos, 175, 10, "EARNED INCOME BUDGETING CASE NOTE FOUND"
+                                                      ' Text 325, y_pos, 75, 10, "Footer Month: " & ALL_JOBS_PANELS_ARRAY(info_month, each_job)
                                                       ' Text 405, y_pos, 175, 10, "EARNED INCOME BUDGETING CASE NOTE FOUND"
                                                       CheckBox 595, y_pos-10, 100, 10, "Check here to add this JOB", ALL_JOBS_PANELS_ARRAY(verif_checkbox, each_job)
                                                       Text 605, y_pos, 90, 10, "to list of verifs needed."
@@ -5430,7 +5431,7 @@ If interview_required = TRUE Then
 End If
 
 'Verification NOTE
-verifs_needed = replace(verifs_needed, "[Information here creates a SEPERATE CASE/NOTE.]", "")
+verifs_needed = replace(verifs_needed, "[Information here creates a SEPARATE CASE/NOTE.]", "")
 If trim(verifs_needed) <> "" Then
 
     verif_counter = 1
@@ -5832,7 +5833,7 @@ IF client_delay_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* PND2
 If TIKL_checkbox Then CALL write_variable_in_CASE_NOTE("* TIKL set to take action on " & DateAdd("d", 30, CAF_datestamp))
 If client_delay_TIKL_checkbox Then CALL write_variable_in_CASE_NOTE("* TIKL set to update PND2 for Client Delay on " & DateAdd("d", 10, CAF_datestamp))
 
-If qual_questions_yes = FALSE Then Call write_variable_in_CASE_NOTE("* All CAF Quaslifying Questions answered 'No'.")
+If qual_questions_yes = FALSE Then Call write_variable_in_CASE_NOTE("* All CAF Qualifying Questions answered 'No'.")
 Call write_bullet_and_variable_in_CASE_NOTE("Notes", other_notes)
 If trim(verifs_needed) <> "" Then Call write_variable_in_CASE_NOTE("** VERIFICATIONS REQUESTED - See previous case note for detail")
 ' IF move_verifs_needed = False THEN CALL write_bullet_and_variable_in_CASE_NOTE("Verifs needed", verifs_needed)			'IF global variable move_verifs_needed = False (on FUNCTIONS FILE), it'll case note at the bottom.
