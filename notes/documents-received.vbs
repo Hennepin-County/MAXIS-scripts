@@ -466,8 +466,8 @@ LOOP UNTIL are_we_passworded_out = false
 CALL Generate_Client_List(client_dropdown, "Select One...")
 CALL Generate_Client_List(client_dropdown_CB, "Select or Type")
 
-If LTC_case = vbNo then end_msg = "Sucess! Documents received noted for case."
-If LTC_case = vbYes then end_msg = "Sucess! Documents received noted for LTC case."
+If LTC_case = vbNo then end_msg = "Success! Documents received noted for case."
+If LTC_case = vbYes then end_msg = "Success! Documents received noted for LTC case."
 
 'This will be for any functionality that needs the HH Member array
 If asset_form_checkbox = checked Then
