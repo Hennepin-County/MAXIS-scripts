@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("09/24/2019", "Updated functionality.##~## Script now fills the interview date if found on the PROG or REVW panels.##~## Updated wording on the qualifying questions dialog as it was incorrect.##~## Added a second look after the dialogs for to look for Inquiry one more time so the notes don't fail.##~##", "Casey Love, Hennepin County")
 Call changelog_update("09/20/2019", "Updated Total Shelter Calculation and Functionality. ##~## ##~## Sometimes the shelter claclulation was off by including non-counted members or doing weird things with the subsidy amount. ##~## ##~## Added an EditBox to the Shelter Pop-Up Dialog to be able to CHANGE the Total Shelter Amount manually. ##~##", "Casey Love, Hennepin County")
 Call changelog_update("09/19/2019", "New functionality to support SNAP Applications that are known at the time of processing the CAF that they will be denied. ##~## ##~## This updates the gathering of Expedited Detail. If a denial date is entered no additional expedited detail is needed. The expedited note will reflect a denial will be occuring.", "Casey Love, Hennepin County")
 Call changelog_update("09/16/2019", "Testing Update:##~## ##~##  - Added a dialog for documenting the CAF Qualifying Questions. Because we need to address these. ##~##  - Tips and Tricks! Find the '!' buttons in the Case Number Dialog and Dialog 1. These will pop-up messages about how the script works and WHY it does the things it does. I will be adding some to JOBS, BUSI, and Expedited. Pleae let me know where else clarification would be helpful!##~## ##~##", "Casey Love, Hennepin County")
@@ -2269,6 +2270,7 @@ If EMER_on_CAF_checkbox = checked or trim(emer_other_req_detail) <> "" Then EMER
 'grh_checkbox = checked
 
 Call back_to_SELF
+continue_in_inquiry = ""
 EMReadScreen MX_region, 12, 22, 48
 MX_region = trim(MX_region)
 If MX_region = "INQUIRY DB" Then
@@ -2430,7 +2432,24 @@ End If
 If EMER_checkbox = checked Then CAF_type = "Application"
 
 If CAF_type = "Recertification" then                                                          'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
-	call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
+	' call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
+    Call navigate_to_MAXIS_screen("STAT", "REVW")
+    EMReadScreen CAF_datestamp, 8, 13, 37                       'reading the prog date
+    CAF_datestamp = replace(CAF_datestamp, " ", "/")
+    If isdate(CAF_datestamp) = True then
+      CAF_datestamp = cdate(CAF_datestamp) & ""
+    Else
+      CAF_datestamp = ""
+    End if
+
+    EMReadScreen interview_date, 8, 15, 37                       'reading the prog date
+    interview_date = replace(interview_date, " ", "/")
+    If isdate(interview_date) = True then
+      interview_date = cdate(interview_date) & ""
+    Else
+      interview_date = ""
+    End if
+
 	IF SNAP_checkbox = checked THEN																															'checking for SNAP 24 month renewals.'
 		EMWriteScreen "X", 05, 58																																	'opening the FS revw screen.
 		transmit
@@ -2445,7 +2464,45 @@ If CAF_type = "Recertification" then                                            
 		END IF
 	END IF
 Else
-	call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_datestamp)
+	' call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_datestamp)
+    Call navigate_to_MAXIS_screen("STAT", "PROG")
+
+    row = 6
+    Do
+        EMReadScreen appl_prog_date, 8, row, 33
+        If appl_prog_date <> "__ __ __" then appl_prog_date_array = appl_prog_date_array & replace(appl_prog_date, " ", "/") & " "
+
+        EMReadScreen appl_intv_date, 8, row, 55
+        If appl_intv_date <> "__ __ __" AND appl_intv_date <> "        " then appl_intv_date_array = appl_intv_date_array & replace(appl_intv_date, " ", "/") & " "
+
+        row = row + 1
+    Loop until row = 13
+    appl_prog_date_array = split(appl_prog_date_array)
+    CAF_datestamp = CDate(appl_prog_date_array(0))
+    for i = 0 to ubound(appl_prog_date_array) - 1
+        if CDate(appl_prog_date_array(i)) > CAF_datestamp then
+            CAF_datestamp = CDate(appl_prog_date_array(i))
+        End if
+    next
+    If isdate(CAF_datestamp) = True then
+        CAF_datestamp = cdate(CAF_datestamp) & ""
+    Else
+        CAF_datestamp = ""
+    End if
+
+    appl_intv_date_array = split(appl_intv_date_array)
+    interview_date = CDate(appl_intv_date_array(0))
+    for i = 0 to ubound(appl_intv_date_array) - 1
+        if CDate(appl_intv_date_array(i)) > interview_date then
+            interview_date = CDate(appl_intv_date_array(i))
+        End if
+    next
+    If isdate(interview_date) = True then
+        interview_date = cdate(interview_date) & ""
+    Else
+        interview_date = ""
+    End if
+
 End if
 If IsDate(CAF_datestamp) = False Then
     BeginDialog Dialog1, 0, 0, 125, 45, "CAF Datestamp"
@@ -4318,11 +4375,21 @@ Do
 
                 If ButtonPressed = finish_dlgs_button Then
                     'DIALOG 1
+                    'New error message formatting for ease of reading.
+                    ' If IsDate(CAF_datestamp) = FALSE Then full_err_msg = full_err_msg & "~!~" & "1^* CAF DATESTAMP ##~##   - Enter a valid date for the CAF datestamp.##~##"
+                    ' If interview_required = TRUE Then
+                    '     If interview_type = "Select or Type" Then full_err_msg = full_err_msg & "~!~1^* INTERVIEW TYPE ##~##   - This case requires and interview to process the CAF - enter the interview type.##~##"
+                    '     If IsDate(interview_date) = False Then full_err_msg = full_err_msg & "~!~1^* INTERVIEW DATE ##~##   - This case requires and interview to process the CAF - enter the interview date.##~##"
+                    '     If interview_with = "Select or Type" Then full_err_msg = full_err_msg & "~!~1^* INTERVIEW COMPLETED WITH ##~##   - This case requires and interview to process the CAF - indicate who the interview was completed with.##~##"
+                    ' End If
+                    ' If the_process_for_cash = "Application" AND trim(ABPS) <> "" Then
+                    '     If trim(CS_forms_sent_date) <> "N/A" AND IsDate(CS_forms_sent_date) = False AND cash_checkbox = checked Then full_err_msg = full_err_msg & "~!~" & "1^* DATE CS FORMS SENT ##~##   - Enter a valid date for the day that child support forms were sent or given to the client. This is required for Cash cases at application with absent parents.##~##"
+                    ' End If
+
                     If IsDate(CAF_datestamp) = FALSE Then full_err_msg = full_err_msg & "~!~" & "1^* Enter a valid date for the CAF datestamp."
-                    'QUESTION Make the interview required? - identify recerts for adult cash ONLY
                     If interview_required = TRUE Then
                         If interview_type = "Select or Type" Then full_err_msg = full_err_msg & "~!~1^* This case requires and interview to process the CAF - enter the interview type."
-                        If IsDate(interview_date) = False Then full_err_msg = full_err_msg & "~!~1^* This case requires and interview to process the CAF - enter the interview date"
+                        If IsDate(interview_date) = False Then full_err_msg = full_err_msg & "~!~1^* This case requires and interview to process the CAF - enter the interview date."
                         If interview_with = "Select or Type" Then full_err_msg = full_err_msg & "~!~1^* This case requires and interview to process the CAF - indicate who the interview was completed with."
                     End If
                     If the_process_for_cash = "Application" AND trim(ABPS) <> "" Then
@@ -4500,6 +4567,8 @@ Do
                         if msg_header = "" Then back_to_dialog = current_listing
                         msg_header = current_listing
 
+                        message = replace(message, "##~##", vbCR)
+
                         error_message = error_message & vbNewLine & right(message, len(message) - 2)
                     Next
 
@@ -4528,6 +4597,36 @@ Do
     ' MsgBox "Now We call check for password"
     Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = False
+
+Call back_to_SELF
+If continue_in_inquiry = "" Then
+    Do
+        Call back_to_SELF
+        EMReadScreen MX_region, 12, 22, 48
+        MX_region = trim(MX_region)
+        If MX_region = "INQUIRY DB" Then
+
+            BeginDialog dialog1, 0, 0, 266, 120, "Still in Inquiry"
+              ButtonGroup ButtonPressed
+                PushButton 165, 80, 95, 15, "Stop the Script Run (ESC)", stop_script_button
+                PushButton 140, 100, 120, 15, "Continue - I have switched (Enter)", continue_script
+              Text 10, 10, 110, 20, "It appears you are now runnin in INQUIRY on this session."
+              Text 10, 40, 105, 20, "The script cannot update or CASE/NOTE in INQUIRY."
+              Text 10, 65, 255, 10, "Switch to Production now to ensure the note is entered and continue the script."
+            EndDialog
+
+            Do
+                dialog dialog1
+                If ButtonPressed = stop_script_button Then ButtonPressed = 0
+                If ButtonPressed = 0 Then script_end_procedure("Script ended since it was started in Inquiry.")
+                If ButtonPressed = -1 Then ButtonPressed = continue_script
+
+                Call check_for_password(are_we_passworded_out)
+            Loop until are_we_passworded_out = FALSE
+
+        End If
+    Loop until ButtonPressed = continue_script AND MX_region <> "INQUIRY DB"
+End If
 
 If trim(CS_forms_sent_date) = "N/A" Then CS_forms_sent_date = ""
 
@@ -4699,7 +4798,7 @@ Do
           ButtonGroup ButtonPressed
             OkButton 340, 185, 50, 15
             CancelButton 395, 185, 50, 15
-          Text 10, 10, 395, 15, "At least one qualification question was answered with 'Yes'. Enter the Household Member that was indicated on the form. "
+          Text 10, 10, 395, 15, "Qualifying Questions are listed at the end of the CAF form and are completed by the client. Indicate the answers to those questions here. If any are 'Yes' then indicate which household member to which the question refers."
           Text 10, 40, 200, 40, "Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
           Text 10, 80, 195, 30, "Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?"
           Text 10, 110, 195, 30, "Is anyone in your householdhiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
@@ -4713,6 +4812,7 @@ Do
         EndDialog
 
         dialog Dialog1
+        cancel_confirmation
 
         If qual_question_one = "Yes" AND (trim(qual_memb_one) = "" OR qual_memb_one = "Select or Type") Then qual_err_msg = qual_err_msg & vbNewLine & "* For Quesion 1, yes is indicated however no member is listed - please enter the member that this question applies to."
         If qual_question_two = "Yes" AND (trim(qual_memb_two) = "" OR qual_memb_two = "Select or Type") Then qual_err_msg = qual_err_msg & vbNewLine & "* For Quesion 2, yes is indicated however no member is listed - please enter the member that this question applies to."
