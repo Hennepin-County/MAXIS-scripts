@@ -1,4 +1,4 @@
-dd'STATS GATHERING----------------------------------------------------------------------------------------------------
+'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "BULK - COLA DECIMATOR.vbs"
 start_time = timer
 STATS_counter = 1                       'sets the stats counter at one
