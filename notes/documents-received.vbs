@@ -74,6 +74,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("09/25/2019", "Bug Fix - script would error/stop if case was stuck in background. Added a number of checks to be sure case is not in background so the script run can continue.", "Casey Love, Hennepin County")
 Call changelog_update("07/29/2019", "Bug fix - script was not identifying document information as complete when only SHEL editbox was filled.", "Casey Love, Hennepin County")
 Call changelog_update("07/27/2019", "Functionality for specific forms:  Assets, MOF, AREP, LTC 1503, and MTAF. Form functionality can be accessed by checkboxes on the main dialog though all document detail can still be added in theeditboxes on the main dialog.", "Casey Love, Hennepin County")
 call changelog_update("03/08/2019", "EVF received functionality added. This used to be a seperate script and will now be a part of documents received.", "Casey Love, Hennepin County")
@@ -462,6 +463,8 @@ DO
 	LOOP until err_msg = ""													'Loops until that case number exists
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
+
+Call MAXIS_background_check
 
 CALL Generate_Client_List(client_dropdown, "Select One...")
 CALL Generate_Client_List(client_dropdown_CB, "Select or Type")
@@ -1185,6 +1188,8 @@ If asset_form_checkbox = checked Then
 
         Do
             Call back_to_SELF
+            Call MAXIS_background_check
+
             found_the_panel = FALSE
             panel_found = FALSE
             update_panel_type = "NONE - I'm all done"
@@ -2290,6 +2295,7 @@ If arep_form_checkbox = checked Then
     docs_rec = docs_rec & ", AREP Form"
 
     If update_AREP_panel_checkbox = checked Then
+        Call MAXIS_background_check
 
         If IsDate(arep_signature_date) = TRUE Then
             Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, arep_signature_date)
