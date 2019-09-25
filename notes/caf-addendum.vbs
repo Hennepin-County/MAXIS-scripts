@@ -44,13 +44,14 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("09/25/2019", "Bug Fix - Verifs Needed was creating possible multiple case notes and noting when nothing was added. Also a typo in the case note wording.", "Casey Love, Hennepin County")
 call changelog_update("09/12/2019", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 function reset_variables()
-    new_member_to_note = "Select"
+    new_member_to_note = "New Member not in MAXIS"
     new_memb_ref_numb = ""
     new_memb_first_name = ""
     new_memb_middle_name = ""
@@ -267,7 +268,7 @@ MAXIS_footer_year = DatePart("yyyy", addendum_date)
 MAXIS_footer_year = right(MAXIS_footer_year, 2)
 
 how_many_new_members = how_many_new_members * 1
-Call generate_client_list(all_clients_list, "Select")
+Call generate_client_list(all_clients_list, "New Member not in MAXIS")
 Call generate_client_list(full_clients_list, "Select or Type")
 client_array = split(full_clients_list, chr(9))
 
@@ -275,7 +276,7 @@ For the_member = 1 to how_many_new_members
     reset_variables
 
     'Dialog to ask if there is a member number already added for this member.'
-    BeginDialog Dialog1, 0, 0, 191, 85, "Dialog"
+    BeginDialog Dialog1, 0, 0, 191, 85, "Select New HH Member"
       DropListBox 10, 45, 155, 45, all_clients_list, new_member_to_note
       ButtonGroup ButtonPressed
         OkButton 135, 65, 50, 15
@@ -289,7 +290,7 @@ For the_member = 1 to how_many_new_members
         Call check_for_password(are_we_passworded_out)
     Loop until are_we_passworded_out = FALSE
 
-    If new_member_to_note <> "Select" Then
+    If new_member_to_note <> "New Member not in MAXIS" Then
         new_memb_ref_numb = left(new_member_to_note, 2)
         Call navigate_to_MAXIS_screen("STAT", "MEMB")
         EMWriteScreen new_memb_ref_numb, 20, 76
@@ -1277,40 +1278,41 @@ For the_member = 1 to how_many_new_members
         Loop until are_we_passworded_out = FALSE
     End If
 
-    'Verification NOTE
-    If trim(verifs_needed) <> "" Then
-
-        verif_counter = 1
-        verifs_needed = trim(verifs_needed)
-        If right(verifs_needed, 1) = ";" Then verifs_needed = left(verifs_needed, len(verifs_needed) - 1)
-        If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed) - 1)
-        If InStr(verifs_needed, ";") <> 0 Then
-            verifs_array = split(verifs_needed, ";")
-        Else
-            verifs_array = array(verifs_needed)
-        End If
-
-        Call start_a_blank_CASE_NOTE
-
-        Call write_variable_in_CASE_NOTE("VERIFICATIONS REQUESTED")
-
-        Call write_bullet_and_variable_in_CASE_NOTE("Verif request form sent on", verif_req_form_sent_date)
-
-        Call write_variable_in_CASE_NOTE("---")
-
-        Call write_variable_in_CASE_NOTE("List of all verifications requested:")
-        For each verif_item in verifs_array
-            verif_item = trim(verif_item)
-            If number_verifs_checkbox = checked Then verif_item = verif_counter & ". " & verif_item
-            verif_counter = verif_counter + 1
-            Call write_variable_with_indent_in_CASE_NOTE(verif_item)
-        Next
-
-        Call write_variable_in_CASE_NOTE("---")
-        Call write_variable_in_CASE_NOTE(worker_signature)
-
-        PF3
-    End If
+    ' 'Verification NOTE
+    ' verifs_needed = replace(verifs_needed, "[Information here creates a SEPARATE CASE/NOTE.]", "")
+    ' If trim(verifs_needed) <> "" Then
+    '
+    '     verif_counter = 1
+    '     verifs_needed = trim(verifs_needed)
+    '     If right(verifs_needed, 1) = ";" Then verifs_needed = left(verifs_needed, len(verifs_needed) - 1)
+    '     If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed) - 1)
+    '     If InStr(verifs_needed, ";") <> 0 Then
+    '         verifs_array = split(verifs_needed, ";")
+    '     Else
+    '         verifs_array = array(verifs_needed)
+    '     End If
+    '
+    '     Call start_a_blank_CASE_NOTE
+    '
+    '     Call write_variable_in_CASE_NOTE("VERIFICATIONS REQUESTED")
+    '
+    '     Call write_bullet_and_variable_in_CASE_NOTE("Verif request form sent on", verif_req_form_sent_date)
+    '
+    '     Call write_variable_in_CASE_NOTE("---")
+    '
+    '     Call write_variable_in_CASE_NOTE("List of all verifications requested:")
+    '     For each verif_item in verifs_array
+    '         verif_item = trim(verif_item)
+    '         If number_verifs_checkbox = checked Then verif_item = verif_counter & ". " & verif_item
+    '         verif_counter = verif_counter + 1
+    '         Call write_variable_with_indent_in_CASE_NOTE(verif_item)
+    '     Next
+    '
+    '     Call write_variable_in_CASE_NOTE("---")
+    '     Call write_variable_in_CASE_NOTE(worker_signature)
+    '
+    '     PF3
+    ' End If
 
     'Main case note
     Call start_a_blank_CASE_NOTE
@@ -1457,7 +1459,7 @@ For the_member = 1 to how_many_new_members
     End If
 
     If qual_question_one = "No" and qual_question_two = "No" and qual_question_three = "No" and qual_question_four = "No" and qual_question_five = "No" Then
-        Call write_variable_in_CASE_NOTE("* All CAF Quaslifying Questions answered 'No'.")
+        Call write_variable_in_CASE_NOTE("* All CAF Qualifying Questions answered 'No'.")
     End If
 
     Call write_variable_in_CASE_NOTE("---")
