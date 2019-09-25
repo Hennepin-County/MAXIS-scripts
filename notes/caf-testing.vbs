@@ -4624,6 +4624,8 @@ If continue_in_inquiry = "" Then
                 Call check_for_password(are_we_passworded_out)
             Loop until are_we_passworded_out = FALSE
 
+        Else
+            ButtonPressed = continue_script
         End If
     Loop until ButtonPressed = continue_script AND MX_region <> "INQUIRY DB"
 End If
