@@ -46,6 +46,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/26/2019", "Updated message box regarding children under 19, added policy reference for SNAP/CASH programs.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC and added error reporting..", "MiKayla Handley")
 call changelog_update("01/10/2019", "Added claim referral handling and checks to make sure the case is cleared in INFC.", "MiKayla Handley, Hennepin County")
 call changelog_update("01/10/2019", "Updated casenote due to formatting issue, some change to functionality.", "MiKayla Handley, Hennepin County")
@@ -196,7 +197,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
 		If new_HIRE_SSN = replace(MEMB_SSN, " ", "") then
 			EMReadScreen HH_memb, 2, 4, 33
 			EMReadScreen memb_age, 2, 8, 76
-			If cint(memb_age) < 19 then MsgBox "This client is under 19, so make sure to check that school verification is on file."
+			If cint(memb_age) < 19 then MsgBox "This client is under 19. See CM 0017.15.15 - INCOME OF MINOR CHILD/CAREGIVER UNDER 20 for specific program information about budgeting."
 		End if
 			transmit
 	LOOP UNTIL (MEMB_current = MEMB_total) or (new_HIRE_SSN = replace(MEMB_SSN, " ", ""))
