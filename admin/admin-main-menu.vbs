@@ -335,7 +335,14 @@ script_array_BZ_list(script_num).description		= "BULK script that deletes specif
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_BZ_list(script_num).script_name		= "DAIL Task-Based Assignments"													'Script name
+script_array_BZ_list(script_num).script_name		= "DAIL Decimator - TB Edition"													'Script name
+script_array_BZ_list(script_num).file_name			= "dail-decimator-task-based-edition.vbs"												'Script URL
+script_array_BZ_list(script_num).description		= "BULK script that deletes specific DAILS for identified populations, and outputs them into a SQL Database."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BZ_list(script_num).script_name		= "DAIL FAD Task Based Assignments"													'Script name
 script_array_BZ_list(script_num).file_name			= "dail-task-based-assignments.vbs"												'Script URL
 script_array_BZ_list(script_num).description		= "BULK script completed DAIL DECIMATOR funtionality for families-population baskets and specific DAIL types for assignment."
 
