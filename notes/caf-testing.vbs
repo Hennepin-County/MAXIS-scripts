@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("09/27/2019", "Added Combined Annual Renewal for Certain Populations to form options.", "Casey Love, Hennepin County")
 Call changelog_update("09/24/2019", "Updated functionality.##~## Script now fills the interview date if found on the PROG or REVW panels.##~## Updated wording on the qualifying questions dialog as it was incorrect.##~## Added a second look after the dialogs for to look for Inquiry one more time so the notes don't fail.##~##", "Casey Love, Hennepin County")
 Call changelog_update("09/20/2019", "Updated Total Shelter Calculation and Functionality. ##~## ##~## Sometimes the shelter claclulation was off by including non-counted members or doing weird things with the subsidy amount. ##~## ##~## Added an EditBox to the Shelter Pop-Up Dialog to be able to CHANGE the Total Shelter Amount manually. ##~##", "Casey Love, Hennepin County")
 Call changelog_update("09/19/2019", "New functionality to support SNAP Applications that are known at the time of processing the CAF that they will be denied. ##~## ##~## This updates the gathering of Expedited Detail. If a denial date is entered no additional expedited detail is needed. The expedited note will reflect a denial will be occuring.", "Casey Love, Hennepin County")
@@ -2198,7 +2199,7 @@ BeginDialog Dialog1, 0, 0, 281, 235, "Case number dialog"
   CheckBox 10, 85, 30, 10, "CASH", CASH_on_CAF_checkbox
   CheckBox 50, 85, 35, 10, "SNAP", SNAP_on_CAF_checkbox
   CheckBox 90, 85, 35, 10, "EMER", EMER_on_CAF_checkbox
-  DropListBox 145, 85, 130, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"ApplyMN"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
+  DropListBox 135, 85, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
   EditBox 40, 130, 220, 15, cash_other_req_detail
   EditBox 40, 150, 220, 15, snap_other_req_detail
   EditBox 40, 170, 220, 15, emer_other_req_detail
@@ -2212,7 +2213,7 @@ BeginDialog Dialog1, 0, 0, 281, 235, "Case number dialog"
   Text 10, 55, 50, 10, "Case number:"
   Text 140, 55, 65, 10, "Footer month/year: "
   GroupBox 5, 70, 125, 30, "Programs marked on CAF"
-  Text 145, 75, 65, 10, "Actual CAF Form:"
+  Text 135, 75, 65, 10, "Actual CAF Form:"
   GroupBox 5, 105, 265, 85, "OTHER Program Requests (not marked on CAF)"
   Text 40, 120, 130, 10, "Explain how the program was requested."
   Text 15, 135, 20, 10, "Cash:"
@@ -4940,12 +4941,16 @@ If HC_checkbox = checked Then
     call autofill_editbox_from_MAXIS(HH_member_array, "BILS", hc_bils_info)
     call autofill_editbox_from_MAXIS(HH_member_array, "FACI", hc_faci_info)
     call autofill_editbox_from_MAXIS(HH_member_array, "INSA", hc_insa_info)
+    If CAF_form = "Combined AR for Certain Pops (DHS-3727)" Then
+        HC_document_received = "DHS-3727 (Combined AR for Certain Pops)"
+        HC_datestamp = CAF_datestamp & ""
+    End If
     hc_medi_info = MEDI
     hc_faci_info = FACI
 
     BeginDialog Dialog1, 0, 0, 481, 295, "HC Detail"
-      ComboBox 80, 5, 105, 15, "Select or Type"+chr(9)+"DHS-2128 (LTC Renewal)"+chr(9)+"DHS-3417B (Req. to Apply...)"+chr(9)+"DHS-3418 (HC Renewal)"+chr(9)+"DHS-3531 (LTC Application)"+chr(9)+"DHS-3876 (Certain Pops App)"+chr(9)+"DHS-6696(MNsure HC App)", HC_document_received
-      EditBox 240, 5, 50, 15, HC_datestamp
+      ComboBox 80, 5, 150, 15, "Select or Type"+chr(9)+"DHS-2128 (LTC Renewal)"+chr(9)+"DHS-3417B (Req. to Apply...)"+chr(9)+"DHS-3418 (HC Renewal)"+chr(9)+"DHS-3531 (LTC Application)"+chr(9)+"DHS-3876 (Certain Pops App)"+chr(9)+"DHS-6696 (MNsure HC App)"+chr(9)+"DHS-3727 (Combined AR for Certain Pops)", HC_document_received
+      EditBox 80, 20, 50, 15, HC_datestamp
       ComboBox 360, 5, 115, 15, "Select of Type"+chr(9)+"incomplete"+chr(9)+"approved"+chr(9)+"denied", HC_form_status
       CheckBox 310, 25, 80, 10, "Application signed?", HC_application_signed_check
       CheckBox 405, 25, 65, 10, "MMIS updated?", MMIS_updated_check
@@ -4971,7 +4976,7 @@ If HC_checkbox = checked Then
         PushButton 5, 125, 25, 10, "BILS:", BILS_button
         PushButton 5, 145, 25, 10, "FACI:", FACI_button
       Text 10, 10, 70, 10, "HC Form Received:"
-      Text 195, 10, 45, 10, "Date Stamp:"
+      Text 30, 25, 45, 10, "Date Stamp:"
       Text 300, 10, 60, 10, "HC Form status:"
       Text 10, 45, 50, 10, "Retro Request:"
       Text 240, 45, 50, 10, "HC HH Comp:"
