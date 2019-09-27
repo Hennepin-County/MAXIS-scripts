@@ -50,22 +50,6 @@ call changelog_update("09/12/2019", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 
-'Function dail_selection
-'	'selecting the type of DAIl message
-'	EMWriteScreen "x", 4, 12		'transmits to the PICK screen
-'	transmit
-'	EMWriteScreen "_", 7, 39		'clears the all selection
-'
-'    IF dail_to_decimate = "ALL" then selection_row = 7
-'    IF dail_to_decimate = "CSES" then selection_row = 10
-'	IF dail_to_decimate = "COLA" then selection_row = 8
-'	IF dail_to_decimate = "ELIG" then selection_row = 11
-'	IF dail_to_decimate = "INFO" then selection_row = 13
-'    IF dail_to_decimate = "PEPR" then selection_row = 18
-'
-'	Call write_value_and_transmit("x", selection_row, 39)
-'End Function
-
 'END CHANGELOG BLOCK =======================================================================================================
 
 BeginDialog dail_dialog, 0, 0, 266, 85, "Dail Decimator dialog"
@@ -180,7 +164,6 @@ For each worker in worker_array
 	transmit
 	transmit 'transmit past 'not your dail message'
 
-	'Call dail_selection
     EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
 
 	DO
@@ -214,10 +197,8 @@ For each worker in worker_array
 			dail_msg = trim(dail_msg)
 
             EMReadScreen dail_month, 8, dail_row, 11
-            'Reformatting DAIL month
             dail_month = trim(dail_month)
-            'If len(dail_month) = 5 then dail_month = replace(dail_month, " ", "/01/")
-
+            
             stats_counter = stats_counter + 1   'I increment thee
 
             '----------------------------------------------------------------------------------------------------CSES Messages
@@ -273,7 +254,6 @@ For each worker in worker_array
                 instr(dail_msg, "IF CLIENT HAS NOT COMPLETED RECERT, APPL CAF FOR") OR _
                 instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then
     		        add_to_excel = True
-                'instr(dail_msg, "TPQY RESPONSE") OR _  ---removed temporarily
                 '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
             Elseif instr(dail_msg, "CORRECT STAT EDITS") then
                 EmReadscreen stat_date, 8, dail_row, 39
@@ -375,7 +355,6 @@ For each worker in worker_array
 				CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 				Call write_value_and_transmit(worker, 21, 6)
 				transmit   'transmit past 'not your dail message'
-				'Call dail_selection
 				exit do
 			End if
 
@@ -467,6 +446,7 @@ Const adLockOptimistic = 3
 Set objConnection = CreateObject("ADODB.Connection")
 Set objRecordSet = CreateObject("ADODB.Recordset")
 
+'How to connect to the database
 'Provider: the type of connection you are establishing, in this case SQL Server.
 'Data Source: The server you are connecting to.
 'Initial Catalog: The name of the database.
@@ -474,6 +454,9 @@ Set objRecordSet = CreateObject("ADODB.Recordset")
 'password: um, your password. ;)
 
 objConnection.Open "Provider = SQLOLEDB.1;Data Source= HSSQLDW017;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+
+'Deleting ALL data fom DAIL table prior to loading new DAIL messages. 
+objRecordSet.Open "DELETE FROM EWS.DAILDecimator",objConnection, adOpenStatic, adLockOptimistic    
 
 'Export informaiton to Excel re: case status
 For item = 0 to UBound(DAIL_array, 2)
