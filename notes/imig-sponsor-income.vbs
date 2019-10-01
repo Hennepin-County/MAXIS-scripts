@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/01/2019", "Updated income standards for 130% FPG effective 10/19.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/01/2018", "Updated income standards for 130% FPG effective 10/18.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/25/2017", "Updated income standards for 130% FPG effective 10/17. Also updated error message handling on the back end.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -99,8 +100,18 @@ call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS 
 LOOP UNTIL are_we_passworded_out = false
 
 'Determines the income limits
-' >> Income limits from CM 19.06 - MAXIS Gross Income 130% FPG (Updated effective 10/01/17)
-If date >= cdate("10/01/2018") then
+' >> Income limits from CM 19.06 - MAXIS Gross Income 130% FPG (Updated effective 10/01/19)
+If date >= cdate("10/01/2019") then
+    If sponsor_HH_size = 1 then income_limit = 1354					
+    If sponsor_HH_size = 2 then income_limit = 1832								
+    If sponsor_HH_size = 3 then income_limit = 2311
+    If sponsor_HH_size = 4 then income_limit = 2790
+    If sponsor_HH_size = 5 then income_limit = 3269
+    If sponsor_HH_size = 6 then income_limit = 3748
+    If sponsor_HH_size = 7 then income_limit = 4227
+    If sponsor_HH_size = 8 then income_limit = 4705
+    If sponsor_HH_size > 8 then income_limit = 4705 + (479 * (sponsor_HH_size - 8))
+else 
     If sponsor_HH_size = 1 then income_limit = 1316					
     If sponsor_HH_size = 2 then income_limit = 1784								
     If sponsor_HH_size = 3 then income_limit = 2252
@@ -110,16 +121,6 @@ If date >= cdate("10/01/2018") then
     If sponsor_HH_size = 7 then income_limit = 4124
     If sponsor_HH_size = 8 then income_limit = 4592
     If sponsor_HH_size > 8 then income_limit = 4592 + (468 * (sponsor_HH_size - 8))
-else 
-    If sponsor_HH_size = 1 then income_limit = 1307
-    If sponsor_HH_size = 2 then income_limit = 1760
-    If sponsor_HH_size = 3 then income_limit = 2213
-    If sponsor_HH_size = 4 then income_limit = 2665
-    If sponsor_HH_size = 5 then income_limit = 3118
-    If sponsor_HH_size = 6 then income_limit = 3571
-    If sponsor_HH_size = 7 then income_limit = 4024
-    If sponsor_HH_size = 8 then income_limit = 4477
-    If sponsor_HH_size > 8 then income_limit = 4477 + (453 * (sponsor_HH_size - 8))
 End if 
 
 'If any income variables are not numeric, the script will convert them to a "0" for calculating
