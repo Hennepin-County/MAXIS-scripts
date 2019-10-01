@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/01/2019", "Updated the utility standards for SNAP.", "Casey Love, Hennepin County")
 Call changelog_update("09/27/2019", "Added Combined Annual Renewal for Certain Populations to form options.", "Casey Love, Hennepin County")
 Call changelog_update("09/24/2019", "Updated functionality.##~## Script now fills the interview date if found on the PROG or REVW panels.##~## Updated wording on the qualifying questions dialog as it was incorrect.##~## Added a second look after the dialogs for to look for Inquiry one more time so the notes don't fail.##~##", "Casey Love, Hennepin County")
 Call changelog_update("09/20/2019", "Updated Total Shelter Calculation and Functionality. ##~## ##~## Sometimes the shelter claclulation was off by including non-counted members or doing weird things with the subsidy amount. ##~## ##~## Added an EditBox to the Shelter Pop-Up Dialog to be able to CHANGE the Total Shelter Amount manually. ##~##", "Casey Love, Hennepin County")
@@ -685,16 +686,30 @@ function read_HEST_panel()
         EMReadScreen prosp_electric, 1, 14, 60
         EMReadScreen prosp_phone, 1, 15, 60
 
-        If prosp_heat_air = "Y" Then
-            hest_information = "AC/Heat - Full $493"
-        ElseIf prosp_electric = "Y" Then
-            If prosp_phone = "Y" Then
-                hest_information = "Electric and Phone - $173"
-            Else
-                hest_information = "Electric ONLY - $126"
+        If CAF_datestamp >= cdate("10/01/2019") then
+            If prosp_heat_air = "Y" Then
+                hest_information = "AC/Heat - Full $490"
+            ElseIf prosp_electric = "Y" Then
+                If prosp_phone = "Y" Then
+                    hest_information = "Electric and Phone - $192"
+                Else
+                    hest_information = "Electric ONLY - $143"
+                End If
+            ElseIf prosp_phone = "Y" Then
+                hest_information = "Phone ONLY - $49"
             End If
-        ElseIf prosp_phone = "Y" Then
-            hest_information = "Phone ONLY - $47"
+        Else
+            If prosp_heat_air = "Y" Then
+                hest_information = "AC/Heat - Full $493"
+            ElseIf prosp_electric = "Y" Then
+                If prosp_phone = "Y" Then
+                    hest_information = "Electric and Phone - $173"
+                Else
+                    hest_information = "Electric ONLY - $126"
+                End If
+            ElseIf prosp_phone = "Y" Then
+                hest_information = "Phone ONLY - $47"
+            End If
         End If
     END IF
 end function

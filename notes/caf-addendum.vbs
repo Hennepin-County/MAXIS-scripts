@@ -501,7 +501,7 @@ For the_member = 1 to how_many_new_members
     new_memb_race = ""
     If multiple_races = TRUE Then
         new_memb_race = "Multiple Races - ("
-        If new_memb_race_a = checked Then new_memb_race = new_memb_race & "Asian,"
+        If new_memb_race_a = checked Then new_memb_race = new_memb_race & "Asian, "
         If new_memb_race_b = checked Then new_memb_race = new_memb_race & "Black or African American, "
         If new_memb_race_p = checked Then new_memb_race = new_memb_race & "Pacific Islander, "
         If new_memb_race_n = checked Then new_memb_race = new_memb_race & "American Indian, "

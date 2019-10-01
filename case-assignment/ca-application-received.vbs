@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("10/01/2019", "Updated the utility standards for SNAP.", "Casey Love, Hennepin County")
 call changelog_update("08/27/2019", "Added handling to push the case into background to ensure pending programs are read.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/27/2019", "Added GRH to appointment letter handling for future enhancements.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/20/2019", "Bug on the script when a large PND2 list is accessed.", "MiKayla Handley, Hennepin County")
@@ -489,7 +490,11 @@ IF snap_pends = TRUE THEN
     EndDialog
 
     'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
-    If application_date >= cdate("10/01/2018") then			'these variables need to change every October
+    If application_date >= cdate("10/01/2019") then     'these variables need to change every October
+        heat_AC_amt = 490
+        electric_amt = 143
+        phone_amt = 49
+    ElseIf application_date >= cdate("10/01/2018") then
         heat_AC_amt = 493
         electric_amt = 126
         phone_amt = 47
