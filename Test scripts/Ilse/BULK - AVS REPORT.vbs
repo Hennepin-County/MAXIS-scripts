@@ -89,7 +89,7 @@ EMConnect ""
 MAXIS_footer_month = CM_mo	'establishing footer month/year 
 MAXIS_footer_year = CM_yr 
 
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\AVS\AVS Forms Distribution Master List.xlsx"
+file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\AVS\AVS Forms Distribution Master List.xlsx"
 
 'dialog and dialog DO...Loop	
 Do
