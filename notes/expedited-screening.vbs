@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/01/2019", "Updated Utility standards that go into effect for 10/01/2019. Added application date field for accurate expedited screening.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/01/2018", "Updated Utility standards that go into effect for 10/01/2018.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/25/2017", "Updated HEST standards for 10/17 standard changes.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -53,62 +54,65 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog exp_screening_dialog, 0, 0, 181, 210, "Expedited Screening Dialog"
-  EditBox 55, 5, 95, 15, MAXIS_case_number
-  EditBox 100, 25, 50, 15, income
-  EditBox 100, 45, 50, 15, assets
-  EditBox 100, 65, 50, 15, rent
-  CheckBox 15, 95, 55, 10, "Heat (or AC)", heat_AC_check
-  CheckBox 75, 95, 45, 10, "Electricity", electric_check
-  CheckBox 130, 95, 35, 10, "Phone", phone_check
-  DropListBox 70, 115, 105, 15, "intake"+chr(9)+"add-a-program", application_type
-  EditBox 70, 135, 105, 15, worker_signature
+BeginDialog exp_screening_dialog, 0, 0, 186, 195, "Expedited Screening Dialog"
+  EditBox 40, 10, 50, 15, MAXIS_case_number
+  EditBox 130, 10, 50, 15, application_date
+  EditBox 105, 35, 50, 15, income
+  EditBox 105, 55, 50, 15, assets
+  EditBox 105, 75, 50, 15, rent
+  CheckBox 20, 105, 55, 10, "Heat (or AC)", heat_AC_check
+  CheckBox 80, 105, 45, 10, "Electricity", electric_check
+  CheckBox 135, 105, 35, 10, "Phone", phone_check
+  EditBox 75, 125, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 70, 155, 50, 15
-    CancelButton 125, 155, 50, 15
-  Text 10, 180, 160, 15, "The income, assets and shelter costs fields will default to $0 if left blank. "
-  Text 5, 30, 95, 10, "Income received this month:"
-  Text 5, 50, 95, 10, "Cash, checking, or savings: "
-  Text 5, 70, 90, 10, "AMT paid for rent/mortgage:"
-  GroupBox 5, 85, 170, 25, "Utilities claimed (check below):"
-  Text 5, 120, 60, 10, "Application is for:"
-  Text 5, 140, 60, 10, "Worker signature:"
-  Text 5, 10, 50, 10, "Case number: "
-  GroupBox 0, 170, 175, 30, "**IMPORTANT**"
+    OkButton 75, 145, 50, 15
+    CancelButton 130, 145, 50, 15
+  Text 10, 40, 95, 10, "Income received this month:"
+  Text 10, 60, 95, 10, "Cash, checking, or savings: "
+  Text 10, 80, 90, 10, "AMT paid for rent/mortgage:"
+  GroupBox 10, 95, 170, 25, "Utilities claimed (check below):"
+  Text 10, 130, 60, 10, "Worker signature:"
+  Text 10, 15, 25, 10, "Case #: "
+  GroupBox 5, 160, 175, 30, "**IMPORTANT**"
+  Text 15, 170, 160, 15, "The income, assets and shelter costs fields will default to $0 if left blank. "
+  Text 95, 15, 35, 10, "App Date:"
+  GroupBox 5, 0, 180, 30, ""
 EndDialog
 
-'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
-If date >= cdate("10/01/2018") then			'these variables need to change every October
-    heat_AC_amt = 493
-    electric_amt = 126
-    phone_amt = 47
-else 
-    heat_AC_amt = 556
-    electric_amt = 172
-    phone_amt = 41
-End if
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connecting to BlueZone
-EMConnect ""
-'It will search for a case number.
-call MAXIS_case_number_finder(MAXIS_case_number)
+EMConnect ""    'Connecting to BlueZone
+call MAXIS_case_number_finder(MAXIS_case_number) 'It will search for a case number.
+application_date = date & ""
 
 'Shows the dialog
 Do
 	Do
-		Do
-			Dialog exp_screening_dialog
-			cancel_confirmation
-			If isnumeric(MAXIS_case_number) = False then MsgBox "You must enter a valid case number."
-		Loop until isnumeric(MAXIS_case_number) = True
-		If (income <> "" and isnumeric(income) = false) or (assets <> "" and isnumeric(assets) = false) or (rent <> "" and isnumeric(rent) = false) then MsgBox "The income/assets/rent fields must be numeric only. Do not put letters or symbols in these sections."
-	Loop until (income = "" or isnumeric(income) = True) and (assets = "" or isnumeric(assets) = True) and(rent = "" or isnumeric(rent) = True)
-	If worker_signature = "" then MsgBox "You must sign your case note."
-Loop until worker_signature <> ""
+        err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
+        dialog case_number_dialog				'main dialog
+        If buttonpressed = 0 THEN stopscript	'script ends if cancel is selected
+        IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false then err_msg = err_msg & vbCr & "* Enter a valid case number."		'mandatory field
+        If isdate(application_date) = False then err_msg = err_msg & vbCr & "* Enter a valid applcation date."
+        If (trim(income) <> "" and isnumeric(income) = false) then err_msg = err_msg & vbCr & "* The income fields must be numeric only. Do not put letters or symbols in these sections."
+        If (trim(assets) <> "" and isnumeric(assets) = false) then err_msg = err_msg & vbCr & "* The assets fields must be numeric only. Do not put letters or symbols in these sections."
+        If (trim(rent) <> "" and isnumeric(rent) = false) then err_msg = err_msg & vbCr & "* The rent fields must be numeric only. Do not put letters or symbols in these sections."
+        If trim(worker_signature) = "" then err_msg = err_msg & vbCr & "* Enter your worker signature."
+        If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & VbCr & err_msg & VbCr		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-'checking for an active MAXIS session
-Call check_for_MAXIS(FALSE)
+Call check_for_MAXIS(FALSE) 'checking for an active MAXIS session
+
+'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
+If application_date >= cdate("10/01/2019") then			'these variables need to change every October
+    heat_AC_amt = 493
+    electric_amt = 126
+    phone_amt = 49
+else 
+    heat_AC_amt = 493
+    electric_amt = 126
+    phone_amt = 47
+End if
 
 'LOGIC AND CALCULATIONS----------------------------------------------------------------------------------------------------
 'Logic for figuring out utils. The highest priority for the if...then is heat/AC, followed by electric and phone, followed by phone and electric separately.
@@ -126,9 +130,9 @@ End if
 If phone_check = unchecked and electric_check = unchecked and heat_AC_check = unchecked then utilities = 0
 
 'If nothing is written for income/assets/rent info, we set to zero.
-If income = "" then income = 0
-If assets = "" then assets = 0
-If rent = "" then rent = 0
+If trim(income) = "" then income = 0
+If trim(assets) = "" then assets = 0
+If trim(rent) = "" then rent = 0
 
 'Calculates expedited status based on above numbers
 If (int(income) < 150 and int(assets) <= 100) or ((int(income) + int(assets)) < (int(rent) + cint(utilities))) then expedited_status = "client appears expedited"
@@ -137,8 +141,7 @@ If (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >
 
 'Navigates to STAT/DISQ using current month as footer month. If it can't get in to the current month due to CAF received in a different month, it'll find that month and navigate to it.
 Call navigate_to_MAXIS_screen("STAT", "DISQ")
-'grabbing footer month and year
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year) 'grabbing footer month and year
 
 'Reads the DISQ info for the case note.
 EMReadScreen DISQ_member_check, 34, 24, 2
@@ -166,7 +169,7 @@ END IF
 		script_end_procedure("")
 	else
 		'Body of the case note
-		Call write_variable_in_CASE_NOTE("Received " & application_type & ", " & expedited_status)
+        Call write_variable_in_CASE_NOTE("~ Received Application for SNAP, " & expedited_status & " ~")
 		call write_variable_in_CASE_NOTE("---")
 		call write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & income)
 		call write_variable_in_CASE_NOTE("         CAF 1 liquid assets claimed: $" & assets)
@@ -175,8 +178,8 @@ END IF
 		call write_variable_in_CASE_NOTE("---")
 		If has_DISQ = True then call write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
 		If has_DISQ = False then call write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
-		If expedited_status = "client appears expedited" AND EBT_account_status = "Y" then call write_variable_in_CASE_NOTE("* EBT Account IS open.  Recipient will NOT be able to get a replacement card in the agency.  Rapid Electronic Issuance (REI) with caution.")
-		If expedited_status = "client appears expedited" AND EBT_account_status = "N" then call write_variable_in_CASE_NOTE("* EBT Account is NOT open.  Recipient is able to get initial card in the agency.  Rapid Electronic Issuance (REI) can be used, but only to avoid an emergency issuance or to meet EXP criteria.")
+		If expedited_status = "client appears expedited" AND EBT_account_status = "Y" then call write_variable_in_CASE_NOTE("* EBT Account IS open. Recipient will NOT be able to get a replacement card in the agency.  Rapid Electronic Issuance (REI) with caution.")
+		If expedited_status = "client appears expedited" AND EBT_account_status = "N" then call write_variable_in_CASE_NOTE("* EBT Account is NOT open. Recipient is able to get initial card in the agency. Rapid Electronic Issuance (REI) can be used, but only to avoid an emergency issuance or to meet EXP criteria.")
 		call write_variable_in_CASE_NOTE("---")
 		call write_variable_in_CASE_NOTE(worker_signature)
 		If expedited_status = "client appears expedited" then
