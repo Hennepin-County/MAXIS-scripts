@@ -58,7 +58,7 @@ BeginDialog , 0, 0, 266, 115, "AVS Forms Procesing"
     OkButton 150, 95, 50, 15
     CancelButton 205, 95, 50, 15
   EditBox 15, 50, 180, 15, file_selection_path
-  Text 20, 20, 235, 25, "This script should be used to determine if AVS forms have been rec'd for a recipient in ECF."
+  Text 20, 20, 235, 25, "This script should be used if AVS forms have been rec'd for a recipient in ECF."
   Text 15, 70, 230, 15, "Select the Excel file that contains the ECF info by selecting the 'Browse' button, and finding the file."
   GroupBox 10, 5, 250, 85, "Using this script:"
 EndDialog
@@ -67,7 +67,7 @@ EndDialog
 'CONNECTS TO BlueZone
 EMConnect ""
 
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\AVS\New Mail Workflow 09-23-2019 ECF.xlsx"
+'file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\AVS\New Mail Workflow 09-23-2019 ECF.xlsx"
 
 Do
     err_msg = ""
@@ -123,7 +123,7 @@ BeginDialog , 0, 0, 266, 115, "AVS Master List Selection"
   GroupBox 10, 5, 250, 85, "Using this script:"
 EndDialog
 
-file_selection = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\AVS\AVS Forms Distribution Master List.xlsx"
+file_selection = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\AVS\AVS Forms Distribution Master List.xlsx"
 
 Do
     err_msg = ""
