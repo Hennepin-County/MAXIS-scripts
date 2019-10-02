@@ -166,14 +166,14 @@ ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one mo
 Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_0_to_C(script_num).script_name				= "CAF"
 script_array_0_to_C(script_num).file_name				= "caf.vbs"
-script_array_0_to_C(script_num).description				= "This is intended to be used when the interview is complete and MAXIS has been updated*"
+script_array_0_to_C(script_num).description				= "Document actions and processing when an interview has been completed on a CAF and STAT panels are updated.*"
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
-Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_0_to_C(script_num).script_name				= "**NEW** CAF"
-script_array_0_to_C(script_num).file_name				= "caf-testing.vbs"
-script_array_0_to_C(script_num).description				= "New version of the CAF Script. This is intended to be used when the interview is complete and MAXIS has been updated*"
+' script_num = script_num + 1								'Increment by one
+' ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it
+' Set script_array_0_to_C(script_num) = new script		'Set this array element to be a new script. Script details below...
+' script_array_0_to_C(script_num).script_name				= "**NEW** CAF"
+' script_array_0_to_C(script_num).file_name				= "caf-testing.vbs"
+' script_array_0_to_C(script_num).description				= "New version of the CAF Script. This is intended to be used when the interview is complete and MAXIS has been updated*"
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_0_to_C(script_num)			'Resets the array to add one more element to it

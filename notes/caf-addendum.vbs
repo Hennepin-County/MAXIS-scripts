@@ -1,9 +1,9 @@
 'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - CAF Addendum.vbs"
 start_time = timer
-STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 720                     'manual run time in seconds
-STATS_denomination = "C"                   'C is for each CASE
+STATS_counter = 0                          'sets the stats counter at one
+STATS_manualtime = 540                     'manual run time in seconds
+STATS_denomination = "M"                   'C is for each CASE
 'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -1467,6 +1467,7 @@ For the_member = 1 to how_many_new_members
 
 
     end_msg = end_msg & vbNewLine & "Household Member - " & new_memb_full_name & " added."
+    STATS_counter = STATS_counter + 1
 Next
 
 'Verification NOTE
