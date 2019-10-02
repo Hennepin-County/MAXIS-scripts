@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("10/02/2019", "This script will be retired soon. ##~## This functionality and form is supported in the script NOTES - CAF or NOTES - HC Renewal. ##~## ##~## Please use the CAF or HC Renewal to document interview and/or actions taken from processing a Combined Annual Reneal for Certain Populations. ##~##", "'Casey Love, Hennepin County'")
 Call changelog_update("03/06/2019", "Added 2 new options to the Notes on Income button to support referencing CASE/NOTE made by Earned Income Budgeting.", "Casey Love, Hennepin County")
 call changelog_update("10/23/2018", "Added 'Notes on Income' field and button for common option entry to increase case note clarity.", "Casey Love, Hennepin County")
 call changelog_update("01/11/2017", "Adding functionality to offer a TIKL for 12 month contact on 24 month SNAP renewals.", "Charles Potter, DHS")
