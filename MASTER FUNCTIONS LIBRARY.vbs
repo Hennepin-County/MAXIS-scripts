@@ -4308,23 +4308,23 @@ function MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
     EMReadScreen MEMO_check, 4, 2, 47
     EMReadScreen casenote_check, 4, 2, 45
     Call find_variable("Function: ", MAXIS_function, 4)
-    
+
 	IF SELF_check = "SELF" THEN
 		EMReadScreen MAXIS_footer_month, 2, 20, 43
 		EMReadScreen MAXIS_footer_year, 2, 20, 46
 	ELSEIF MEMO_check = "MEMO" or MEMO_check = "WCOM" Then
 		EMReadScreen MAXIS_footer_month, 2, 19, 54
 		EMReadScreen MAXIS_footer_year, 2, 19, 57
+    ELSEIF casenote_check = "NOTE" then
+    	EMReadScreen MAXIS_footer_month, 2, 20, 54
+        EMReadScreen MAXIS_footer_year, 2, 20, 57
 	ELSEIF MAXIS_function = "STAT" or MAXIS_function = "REPT" then
 		EMReadScreen MAXIS_footer_month, 2, 20, 55
         EMReadScreen MAXIS_footer_year, 2, 20, 58
-    ELSEIF casenote_check = "NOTE" then
-    	EMReadScreen MAXIS_footer_month, 2, 20, 54
-        EMReadScreen MAXIS_footer_year, 2, 20, 57   
     Else
         MAXIS_footer_month = ""
         MAXIS_footer_year = ""
-    End if 
+    End if
 end function
 
 function MAXIS_footer_month_confirmation()
