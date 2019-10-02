@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/02/2019", "Bug fix in ELIG/HC when finding the starting HC month. Also removed outdated JOBS panel coding.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/12/2019", "Updated main dialog to only one date selection to enter the allocation start month. Added mandatory fields in case note dialog.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/11/2019", "Updated HEST deductions when electric and phones deductions are present for community spouse.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/05/2018", "Updated coordinates in STAT/JOBS for income type and verification codes.", "Ilse Ferris, Hennepin County")
@@ -124,13 +125,16 @@ Do
         dialog case_number_dialog
         cancel_without_confirmation
         IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "Enter a valid case number."		'mandatory field
-        If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
-        If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
+        If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit footer month."
+        If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit footer year."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
     LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
     
+spousal_allocation_footer_month = MAXIS_footer_month
+spousal_allocation_footer_year = MAXIS_footer_year
+   
 'Enters into STAT for the client
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
 
@@ -236,7 +240,6 @@ If spousal_reference_number <> "" then
 'changes unearned income coding types as coding from JOBS panel and spousal allocation screen are not the same
   If current_panel_number = "1" then
 	earned_income_number = 1
-
 	EMReadScreen gross_spousal_earned_income_type_01, 1, 5, 34		
 	
 	If gross_spousal_earned_income_type_01 = "J" THEN gross_spousal_earned_income_type_01 = "01"
@@ -258,11 +261,8 @@ If spousal_reference_number <> "" then
   EMReadScreen current_panel_number, 1, 2, 73
   If current_panel_number = "2" then
     earned_income_number = earned_income_number + 1
-	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
-		EMReadScreen gross_spousal_earned_income_type_02, 1, 5, 34
-	ELSE
-		EMReadScreen gross_spousal_earned_income_type_02, 1, 5, 38
-	END IF
+	EMReadScreen gross_spousal_earned_income_type_02, 1, 5, 34
+	
 	If gross_spousal_earned_income_type_02 = "J" THEN gross_spousal_earned_income_type_02 = "01"
 	If gross_spousal_earned_income_type_02 = "W" then gross_spousal_earned_income_type_02 = "02"
 	If gross_spousal_earned_income_type_02 = "E" THEN gross_spousal_earned_income_type_02 = "03"
@@ -282,11 +282,8 @@ If spousal_reference_number <> "" then
   EMReadScreen current_panel_number, 1, 2, 73
   If current_panel_number = "3" then
     earned_income_number = earned_income_number + 1
-	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
-		EMReadScreen gross_spousal_earned_income_type_03, 1, 5, 34
-	ELSE
-		EMReadScreen gross_spousal_earned_income_type_03, 1, 5, 38
-	END IF
+    EMReadScreen gross_spousal_earned_income_type_03, 1, 5, 34
+    
 	If gross_spousal_earned_income_type_03 = "J" THEN gross_spousal_earned_income_type_03 = "01"
 	If gross_spousal_earned_income_type_03 = "W" then gross_spousal_earned_income_type_03 = "02"
 	If gross_spousal_earned_income_type_03 = "E" THEN gross_spousal_earned_income_type_03 = "03"
@@ -306,11 +303,7 @@ If spousal_reference_number <> "" then
   EMReadScreen current_panel_number, 1, 2, 73
   If current_panel_number = "4" then
     earned_income_number = earned_income_number + 1
-	IF ((MAXIS_footer_month * 1) >= 10 AND (MAXIS_footer_year * 1) >= "16") OR (MAXIS_footer_year = "17") THEN  'handling for changes to jobs panel for bene month 10/16
-		EMReadScreen gross_spousal_earned_income_type_04, 1, 5, 34
-	ELSE
-		EMReadScreen gross_spousal_earned_income_type_04, 1, 5, 38
-	END IF
+	EMReadScreen gross_spousal_earned_income_type_04, 1, 5, 34
 	If gross_spousal_earned_income_type_04 = "J" THEN gross_spousal_earned_income_type_04 = "01"
 	If gross_spousal_earned_income_type_04 = "W" then gross_spousal_earned_income_type_04 = "02"
 	If gross_spousal_earned_income_type_04 = "E" THEN gross_spousal_earned_income_type_04 = "03"
@@ -507,10 +500,8 @@ IF gross_spousal_unearned_income_type_04 = "47" THEN gross_spousal_unearned_inco
 IF gross_spousal_unearned_income_type_04 = "48" THEN gross_spousal_unearned_income_type_04 = "27"
 IF gross_spousal_unearned_income_type_04 = "49" THEN gross_spousal_unearned_income_type_04 = "27"
 
-
 'Navigates to ELIG/HC.
 Call navigate_to_MAXIS_screen("ELIG", "HC")
-
 
 'Checks to see if MEMB 01 has HC, and puts an "x" there. If not it'll try MEMB 02.
 EMReadScreen person_check, 1, 8, 26
