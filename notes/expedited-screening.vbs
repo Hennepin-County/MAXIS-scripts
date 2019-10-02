@@ -82,13 +82,26 @@ EndDialog
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""    'Connecting to BlueZone
 call MAXIS_case_number_finder(MAXIS_case_number) 'It will search for a case number.
-application_date = date & ""
+' application_date = date & ""
+If MAXIS_case_number <> "" Then
+    Call navigate_to_MAXIS_screen("STAT", "PROG")
+    EMReadScreen snap_pend_check, 4, 10, 74
+    If snap_pend_check = "PEND" Then
+        EMReadScreen snap_app_date, 8, 10, 33
+        application_date = replace(snap_app_date, " ", "/")
+    End If
+    transmit
+    EMReadScreen check_for_hcre, 4, 2, 50
+    If check_for_hcre = "HCRE" Then
+        PF10
+    End If
+End If
 
 'Shows the dialog
 Do
 	Do
         err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-        dialog case_number_dialog				'main dialog
+        dialog exp_screening_dialog				'main dialog
         If buttonpressed = 0 THEN stopscript	'script ends if cancel is selected
         IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false then err_msg = err_msg & vbCr & "* Enter a valid case number."		'mandatory field
         If isdate(application_date) = False then err_msg = err_msg & vbCr & "* Enter a valid applcation date."
@@ -105,10 +118,10 @@ Call check_for_MAXIS(FALSE) 'checking for an active MAXIS session
 
 'DATE BASED LOGIC FOR UTILITY AMOUNTS------------------------------------------------------------------------------------------
 If application_date >= cdate("10/01/2019") then			'these variables need to change every October
-    heat_AC_amt = 493
-    electric_amt = 126
+    heat_AC_amt = 490
+    electric_amt = 143
     phone_amt = 49
-else 
+else
     heat_AC_amt = 493
     electric_amt = 126
     phone_amt = 47
