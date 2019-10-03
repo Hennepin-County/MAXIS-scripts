@@ -77,8 +77,8 @@ EndDialog
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
 EMConnect ""
-MAXIS_footer_month = CM_mo 
-MAXIS_footer_year = CM_yr 
+MAXIS_footer_month = CM_mo
+MAXIS_footer_year = CM_yr
 file_date = CM_mo & "-" & CM_yr
 
 file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\ABAWD\Active SNAP " & file_date & ".xlsx"
@@ -129,7 +129,7 @@ Do
 	call navigate_to_MAXIS_screen("STAT", "WREG")
     EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
     If PRIV_check = "PRIV" then
-        ObjExcel.Cells(excel_row, 8).Value = "PRIV"
+        ObjExcel.Cells(excel_row, 3).Value = "Privliged case"
     Else 
         Call write_value_and_transmit(member_number, 20, 76)
         
