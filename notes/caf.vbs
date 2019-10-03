@@ -2267,6 +2267,18 @@ Do
         If CASH_on_CAF_checkbox = checked AND trim(cash_other_req_detail) <> "" Then err_msg = err_msg & vbNewLine & "* If CASH was marked on the CAF, then another way of requesting does not need to be indicated."
         If SNAP_on_CAF_checkbox = checked AND trim(snap_other_req_detail) <> "" Then err_msg = err_msg & vbNewLine & "* If SNAP was marked on the CAF, then another way of requesting does not need to be indicated."
         If EMER_on_CAF_checkbox = checked AND trim(emer_other_req_detail) <> "" Then err_msg = err_msg & vbNewLine & "* If Emergency was marked on the CAF, then another way of requesting does not need to be indicated."
+        If CAF_form = "SNAP App for Srs (DHS-5223F)" Then
+            If CASH_on_CAF_checkbox = checked or trim(cash_other_req_detail) <> "" Then
+                err_msg = err_msg & vbNewLine & "* The SNAP Application for Seniors can only be used for SNAP, not cash programs."
+                CASH_on_CAF_checkbox = unchecked
+                cash_other_req_detail = ""
+            End If
+            If EMER_on_CAF_checkbox = checked or trim(emer_other_req_detail) <> "" Then
+                err_msg = err_msg & vbNewLine & "* The SNAP Application for Seniors can only be used for SNAP, not emergenc programs."
+                EMER_on_CAF_checkbox = unchecked
+                emer_other_req_detail = ""
+            End If
+        End If
 
         IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
