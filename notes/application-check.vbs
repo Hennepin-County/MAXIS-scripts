@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/03/2019", "Updated TIKL functionality to suppress when the case is identified to either approve or deny.", "Ilse Ferris")
 call changelog_update("09/06/2019", "Updated TIKL veribage", "Ilse Ferris")
 call changelog_update("08/27/2019", "Updated dialog and case note to address requested enhancements (TIKL & interview still needed).", "MiKayla Handley")
 call changelog_update("08/20/2019", "Bug on the script when a large PND2 list is accessed.", "Casey Love, Hennepin County")
@@ -66,12 +67,11 @@ BeginDialog initial_dialog, 0, 0, 116, 45, "Application Check"
   Text 10, 10, 50, 10, "Case Number:"
 EndDialog
 
-
 Do
 	DO
 		err_msg = ""
 	    dialog initial_dialog
-      	cancel_confirmation
+      	cancel_without_confirmation
       	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
@@ -445,10 +445,12 @@ If Outlook_reminder_checkbox = CHECKED THEN
 	CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "Application check: " & reminder_text & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
 End if
 
-Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-CALL create_MAXIS_friendly_date(reminder_date, 0, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-CALL write_variable_in_TIKL("Application check: " & reminder_text & ". Review case and ECF including verification requests, and take appropriate action.")
-PF3		'Exits and saves TIKL
+If application_status_droplist <> "Case is ready to approve or deny" then 
+   Call navigate_to_MAXIS_screen("DAIL", "WRIT")
+   CALL create_MAXIS_friendly_date(reminder_date, 0, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
+   CALL write_variable_in_TIKL("Application check: " & reminder_text & ". Review case and ECF including verification requests, and take appropriate action.")
+   PF3		'Exits and saves TIKL
+End if 
 
 'message boxes based on the application status chosen instructing workers which scripts to use next
 'If application_status_droplist = "Case is ready to approve or deny" Then
