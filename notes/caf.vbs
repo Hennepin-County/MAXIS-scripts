@@ -682,6 +682,7 @@ function read_HEST_panel()
         EMReadScreen prosp_heat_air, 1, 13, 60
         EMReadScreen prosp_electric, 1, 14, 60
         EMReadScreen prosp_phone, 1, 15, 60
+        CAF_datestamp = cdate(CAF_datestamp)
 
         If CAF_datestamp >= cdate("10/01/2019") then
             If prosp_heat_air = "Y" Then
@@ -708,6 +709,7 @@ function read_HEST_panel()
                 hest_information = "Phone ONLY - $47"
             End If
         End If
+        CAF_datestamp = CAF_datestamp & ""
     END IF
 end function
 
@@ -2515,19 +2517,22 @@ Else
         CAF_datestamp = ""
     End if
 
-    appl_intv_date_array = split(appl_intv_date_array)
-    interview_date = CDate(appl_intv_date_array(0))
-    for i = 0 to ubound(appl_intv_date_array) - 1
-        if CDate(appl_intv_date_array(i)) > interview_date then
-            interview_date = CDate(appl_intv_date_array(i))
-        End if
-    next
-    If isdate(interview_date) = True then
-        interview_date = cdate(interview_date) & ""
-    Else
-        interview_date = ""
-    End if
-
+    If trim(appl_intv_date_array) <> "" Then
+        appl_intv_date_array = split(appl_intv_date_array)
+        If IsArray(appl_intv_date_array) = TRUE AND IsDate(appl_intv_date_array(0)) = TRUE Then
+            interview_date = CDate(appl_intv_date_array(0))
+            for i = 0 to ubound(appl_intv_date_array) - 1
+                if CDate(appl_intv_date_array(i)) > interview_date then
+                    interview_date = CDate(appl_intv_date_array(i))
+                End if
+            next
+            If isdate(interview_date) = True then
+                interview_date = cdate(interview_date) & ""
+            Else
+                interview_date = ""
+            End if
+        End If
+    End If
 End if
 If IsDate(CAF_datestamp) = False Then
     BeginDialog Dialog1, 0, 0, 125, 45, "CAF Datestamp"
@@ -3839,7 +3844,7 @@ Do
                           ButtonGroup ButtonPressed
                             PushButton 440, 30, 105, 15, "Update ABAWD and WREG", abawd_button
                             PushButton 235, 85, 50, 15, "Update SHEL", update_shel_button
-                          DropListBox 45, 140, 100, 45, "Select ALLOWED HEST"+chr(9)+"AC/Heat - Full $493"+chr(9)+"Electric and Phone - $173"+chr(9)+"Electric ONLY - $126"+chr(9)+"Phone ONLY - $47"+chr(9)+"NONE - $0", hest_information
+                          DropListBox 45, 140, 100, 45, "Select ALLOWED HEST"+chr(9)+"AC/Heat - Full $493"+chr(9)+"AC/Heat - Full $490"+chr(9)+"Electric and Phone - $173"+chr(9)+"Electric and Phone - $192"+chr(9)+"Electric ONLY - $126"+chr(9)+"Electric ONLY - $143"+chr(9)+"Phone ONLY - $47"+chr(9)+"Phone ONLY - $49"+chr(9)+"NONE - $0", hest_information
                           EditBox 180, 140, 110, 15, notes_on_acut
                           EditBox 45, 160, 245, 15, notes_on_coex
                           EditBox 45, 180, 245, 15, notes_on_dcex
