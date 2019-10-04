@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("10/04/2019", "Added functionality to read cases from PND2 as well.##~## ##~## As this is new functionality and testing ability is limited, please report any issues are errors to the BlueZone Script Team.##~##", "Casey Love, Hennepin County")
 CALL changelog_update("01/24/2019", "BUG fixed that caused an error if there are no MFIP eligibility results.", "Casey Love, Hennepin County")
 CALL changelog_update("01/12/2018", "Entering a supervisor X-Number in the Workers to Check will pull all X-Numbers listed under that supervisor in MAXIS. Addiional bug fix where script was missing cases.", "Casey Love, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
@@ -504,6 +505,8 @@ For each worker in worker_array
 			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
 
 			Do
+                Redim Preserve Full_case_list_array (Ubound(Full_case_list_array,1), m)
+
 				cash_one_type = ""
 				cash_two_type = ""
 
@@ -521,6 +524,7 @@ For each worker in worker_array
 				EMReadScreen CCAP_status, 1, MAXIS_row, 80 			'Reading CCAP Status
 
 				If MAXIS_case_number = "        " then exit do			'Exits do if we reach the end
+                next_revw_date = trim(next_revw_date)
 
 				Full_case_list_array(0,m) = MAXIS_case_number
 				Full_case_list_array(1,m) = client_name
@@ -536,7 +540,7 @@ For each worker in worker_array
 				Full_case_list_array(11,m) = worker
 				Full_case_list_array(12,m) = CCAP_status
 
-				Redim Preserve Full_case_list_array (Ubound(Full_case_list_array,1), Ubound(Full_case_list_array,2)+1) 'Resize the array for the next case
+				' Redim Preserve Full_case_list_array (Ubound(Full_case_list_array,1), Ubound(Full_case_list_array,2)+1) 'Resize the array for the next case
 
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
 				MAXIS_case_number = trim(MAXIS_case_number)
@@ -550,6 +554,92 @@ For each worker in worker_array
 			PF8
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
+
+    back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
+    Call navigate_to_MAXIS_screen("rept", "pnd2")
+    EMWriteScreen worker, 21, 13
+    transmit
+    EMReadScreen user_worker, 7, 21, 71		'
+    EMReadScreen p_worker, 7, 21, 13
+    IF user_worker = p_worker THEN PF7		'If the user is checking their own REPT/ACTV, the script will back up to page 1 of the REPT/ACTV
+
+    PF5 'Changes to case number sort for a better variety of cases.
+    'Skips workers with no info
+    EMReadScreen has_content_check, 1, 7, 12
+    If has_content_check <> " " then
+        'Grabbing each case number on screen
+        Do
+            'Set variable for next do...loop
+            MAXIS_row = 7
+
+            'Checking for the last page of cases.
+            EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
+
+            Do
+                EMReadScreen MAXIS_case_number, 8, MAXIS_row, 5		'Reading case number
+
+                'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
+                MAXIS_case_number = trim(MAXIS_case_number)
+                If MAXIS_case_number <> "" and instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") = 0 then
+                    all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*")
+
+                    Redim Preserve Full_case_list_array (Ubound(Full_case_list_array,1), m)
+
+                    cash_one_type = ""
+                    cash_two_type = ""
+
+                    EMReadScreen client_name, 21, MAXIS_row, 16		'Reading client name
+                    EMReadScreen cash_status, 1, MAXIS_row, 54		'Reading cash status
+                        IF cash_status = "A" or cash_status = "P" then EMReadScreen cash_type, 2, MAXIS_row, 56
+                    EMReadScreen SNAP_status, 1, MAXIS_row, 62		'Reading SNAP status
+                    EMReadScreen HC_status, 1, MAXIS_row, 65			'Reading HC status
+                    EMReadScreen EA_status, 1, MAXIS_row, 68			'Reading EA status
+                    EMReadScreen GRH_status, 1, MAXIS_row, 72			'Reading GRH status
+                    EMReadScreen CCAP_status, 1, MAXIS_row, 80 			'Reading CCAP Status
+
+                    EMReadScreen next_line, 14, MAXIS_row + 1, 17
+                    If next_line = "ADDITIONAL APP" Then
+                        MAXIS_row = MAXIS_row + 1
+                        EMReadScreen cash_add_status, 1, MAXIS_row, 54		'Reading cash status
+                            IF cash_add_status = "A" or cash_add_status = "P" then EMReadScreen cash_add_type, 2, MAXIS_row, 56
+                        EMReadScreen SNAP_add_status, 1, MAXIS_row, 62		'Reading SNAP status
+                        EMReadScreen HC_add_status, 1, MAXIS_row, 65			'Reading HC status
+                        EMReadScreen EA_add_status, 1, MAXIS_row, 68			'Reading EA status
+                        EMReadScreen GRH_add_status, 1, MAXIS_row, 72			'Reading GRH status
+                        EMReadScreen CCAP_add_status, 1, MAXIS_row, 80 			'Reading CCAP Status
+                    End If
+
+                    Full_case_list_array(0,m) = MAXIS_case_number
+                    Full_case_list_array(1,m) = client_name
+                    If cash_status = "A" OR cash_status = "P" Then Full_case_list_array(3,m) = cash_type
+                    If cash_status = "A" OR cash_status = "P" Then Full_case_list_array(4,m) = "P"
+                    If SNAP_status = "A" OR SNAP_status = "P" Then Full_case_list_array(7,m) = "P"
+                    If HC_status = "A" OR HC_status = "P" Then Full_case_list_array(8,m) = "P"
+                    If EA_status = "A" OR EA_status = "P" Then Full_case_list_array(9,m) = "P"
+                    If GRH_status = "A" OR GRH_status = "P" Then Full_case_list_array(10,m) = "P"
+                    If CCAP_status = "A" OR CCAP_status = "P" Then Full_case_list_array(12,m) = "P"
+
+                    If cash_add_status = "A" OR cash_add_status = "P" Then Full_case_list_array(3,m) = cash_add_type
+                    If cash_add_status = "A" OR cash_add_status = "P" Then Full_case_list_array(4,m) = "P"
+                    If SNAP_add_status = "A" OR SNAP_add_status = "P" Then Full_case_list_array(7,m) = "P"
+                    If HC_add_status = "A" OR HC_add_status = "P" Then Full_case_list_array(8,m) = "P"
+                    If EA_add_status = "A" OR EA_add_status = "P" Then Full_case_list_array(9,m) = "P"
+                    If GRH_add_status = "A" OR GRH_add_status = "P" Then Full_case_list_array(10,m) = "P"
+                    If CCAP_add_status = "A" OR CCAP_add_status = "P" Then Full_case_list_array(12,m) = "P"
+
+                    Full_case_list_array(11,m) = worker
+
+                    'Redim Preserve Full_case_list_array (Ubound(Full_case_list_array,1), Ubound(Full_case_list_array,2)+1) 'Resize the array for the next case
+
+                End If
+
+                MAXIS_row = MAXIS_row + 1
+                MAXIS_case_number = ""			'Blanking out variable
+                m = m + 1
+            Loop until MAXIS_row = 19
+            PF8
+        Loop until last_page_check = "THIS IS THE LAST PAGE"
+    End if
 next
 
 k = 0	'Setting the inital value for the next array
