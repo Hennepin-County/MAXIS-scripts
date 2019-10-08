@@ -2850,10 +2850,10 @@ Do
                                                 PushButton 305, 235, 25, 10, "TYPE", TYPE_button
                                                 OkButton 600, 500, 50, 15
                                               Text 5, 70, 25, 10, "CIT/ID:"
-                                              If trim(ABPS) = "" Then
-                                                Text 335, 170, 75,10, "Date CS Forms Sent:"
-                                              Else
+                                              If trim(ABPS) <> "" AND the_process_for_cash = "Application" Then
                                                 Text 335, 170, 75, 10, "* Date CS Forms Sent:"
+                                              Else
+                                                Text 335, 170, 75,10, "Date CS Forms Sent:"
                                               End If
                                               Text 5, 190, 30, 10, "Changes:"
                                               GroupBox 5, 225, 115, 25, "ELIG panels:"
