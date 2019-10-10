@@ -285,20 +285,6 @@ script_array_D_to_F(script_num).description 			= "Template for EA/EGA applicatio
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
 Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_D_to_F(script_num).script_name 			= "Employment plan or status update"
-script_array_D_to_F(script_num).file_name				= "employment-plan-or-status-update.vbs"
-script_array_D_to_F(script_num).description 			= "Template for case noting an employment plan or status update for family cash cases."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
-Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_D_to_F(script_num).script_name 			= "ES Referral"
-script_array_D_to_F(script_num).file_name				= "es-referral.vbs"
-script_array_D_to_F(script_num).description 			= "Template for sending an MFIP or DWP referral to employment services."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_D_to_F(script_num)			'Resets the array to add one more element to it
-Set script_array_D_to_F(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_D_to_F(script_num).script_name 			= "Expedited determination"
 script_array_D_to_F(script_num).file_name				= "expedited-determination.vbs"
 script_array_D_to_F(script_num).description 			= "Template for noting detail about how expedited was determined for a case."
@@ -381,13 +367,6 @@ Set script_array_G_to_L(script_num) = new script		'Set this array element to be 
 script_array_G_to_L(script_num).script_name 			= "IMIG - Sponsor income"
 script_array_G_to_L(script_num).file_name				= "imig-sponsor-income.vbs"
 script_array_G_to_L(script_num).description				= "Template for the sponsor income deeming calculation (it will also help calculate it for you)."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
-Set script_array_G_to_L(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_G_to_L(script_num).script_name 			= "Incarceration "
-script_array_G_to_L(script_num).file_name				= "incarceration.vbs"
-script_array_G_to_L(script_num).description				= "Template to note details of an incarceration, and also updates STAT/FACI if necessary."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_G_to_L(script_num)			'Resets the array to add one more element to it
@@ -531,16 +510,16 @@ script_array_LTC(script_num).description				= "Template to summarize actions for
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_LTC(script_num)				'Resets the array to add one more element to it
 Set script_array_LTC(script_num) = new script			'Set this array element to be a new script. Script details below...
-script_array_LTC(script_num).script_name 				= "LTC - Intake approval"
-script_array_LTC(script_num).file_name					= "ltc-intake-approval.vbs"
-script_array_LTC(script_num).description				= "Template for use when approving a LTC intake.*"
+script_array_LTC(script_num).script_name 				= "LTC - Hospice Form Received"
+script_array_LTC(script_num).file_name					= "ltc-hospice-form-received.vbs"
+script_array_LTC(script_num).description				= "Template for case noting entry or exit to Hospice.*"
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_LTC(script_num)				'Resets the array to add one more element to it
 Set script_array_LTC(script_num) = new script			'Set this array element to be a new script. Script details below...
-script_array_LTC(script_num).script_name 				= "LTC - Hospice Form Received"
-script_array_LTC(script_num).file_name					= "ltc-hospice-form-received.vbs"
-script_array_LTC(script_num).description				= "Template for case noting entry or exit to Hospice.*"
+script_array_LTC(script_num).script_name 				= "LTC - Intake approval"
+script_array_LTC(script_num).file_name					= "ltc-intake-approval.vbs"
+script_array_LTC(script_num).description				= "Template for use when approving a LTC intake.*"
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_LTC(script_num)				'Resets the array to add one more element to it
