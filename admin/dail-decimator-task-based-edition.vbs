@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/09/2019", "Update DAIL server name to switch from Dev to Production.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/26/2019", "Update DAIL options from types of DAIL messages to population-based options.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/12/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -453,7 +454,7 @@ Set objRecordSet = CreateObject("ADODB.Recordset")
 'user id: your username.
 'password: um, your password. ;)
 
-objConnection.Open "Provider = SQLOLEDB.1;Data Source= HSSQLDW017;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+objConnection.Open "Provider = SQLOLEDB.1;Data Source= HSSQLPW017;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
 
 'Deleting ALL data fom DAIL table prior to loading new DAIL messages. 
 objRecordSet.Open "DELETE FROM EWS.DAILDecimator",objConnection, adOpenStatic, adLockOptimistic    
