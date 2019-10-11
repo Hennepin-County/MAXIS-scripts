@@ -2086,7 +2086,7 @@ ReDim UNEA_INCOME_ARRAY(budget_notes, 0)
 manual_amount_used = FALSE
 
 'variables
-Dim EATS, row, col, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three, hest_information, addr_line_one
+Dim EATS, row, col, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three, hest_information, addr_line_one, relationship_detail
 Dim addr_line_two, city, state, zip, address_confirmation_checkbox, addr_county, homeless_yn, addr_verif, reservation_yn, living_situation, number_verifs_checkbox
 Dim notes_on_address, notes_on_wreg, full_abawd_info, notes_on_busi, notes_on_abawd, notes_on_abawd_two, notes_on_abawd_three, verifs_needed, verif_req_form_sent_date
 Dim other_uc_income_notes, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_income, notes_on_other_UNEA, notes_on_cses, verification_memb_list
