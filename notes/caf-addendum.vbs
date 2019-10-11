@@ -381,9 +381,10 @@ For the_member = 1 to how_many_new_members
 
     End If
 
-    If new_memb_ref_numb = "" Then info_dlg_title = "CAF Addendum New Member"
-    If new_memb_ref_numb <> "" Then info_dlg_title = "CAF Addendum New Member - Memb " & new_memb_ref_numb
-    BeginDialog Dialog1, 0, 0, 541, 295, info_dlg_title
+    ' If new_memb_ref_numb = "" Then info_dlg_title = "CAF Addendum New Member"
+    ' If new_memb_ref_numb <> "" Then info_dlg_title = "CAF Addendum New Member - Memb " & new_memb_ref_numb
+    If new_memb_ref_numb = "" Then BeginDialog Dialog1, 0, 0, 541, 295, "CAF Addendum New Member"
+    If new_memb_ref_numb <> "" Then BeginDialog Dialog1, 0, 0, 541, 295, "CAF Addendum New Member - Memb " & new_memb_ref_numb
       EditBox 45, 30, 95, 15, new_memb_first_name
       EditBox 185, 30, 50, 15, new_memb_middle_name
       EditBox 280, 30, 120, 15, new_memb_last_name
@@ -1512,7 +1513,7 @@ If qual_question_one = "Yes" or qual_question_two = "Yes" or qual_question_three
     Do
         Do
             err_msg = ""
-            dlg_len = 65
+            dlg_len = 55
 
             If qual_question_one = "Yes" Then dlg_len = dlg_len + 40
             If qual_question_two = "Yes" Then dlg_len = dlg_len + 30
@@ -1521,43 +1522,43 @@ If qual_question_one = "Yes" or qual_question_two = "Yes" or qual_question_three
             If qual_question_five = "Yes" Then dlg_len = dlg_len + 20
 
 
-            y_pos = 40
-            BeginDialog Dialog1, 0, 0, 416, 205, "Qualification Questions Dialog"
+            y_pos = 30
+            BeginDialog Dialog1, 0, 0, 416, dlg_len, "Qualification Questions Dialog"
               Text 10, 10, 395, 15, "At least one qualification question was answered with 'Yes'. Enter the Household Member that was indicated on the form. "
               If qual_question_one = "Yes" Then
-                  Text 10, 40, 200, 40, "Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
-                  Text 225, 40, 70, 10, "Household Member:"
-                  ComboBox 305, 40, 105, 45, full_clients_list, qual_question_memb_one
+                  Text 10, y_pos, 200, 40, "Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
+                  Text 225, y_pos, 70, 10, "Household Member:"
+                  ComboBox 305, y_pos, 105, 45, full_clients_list, qual_question_memb_one
                   y_pos = y_pos + 40
               End If
               If qual_question_two = "Yes" Then
-                  Text 10, 80, 195, 30, "Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?"
-                  Text 225, 80, 70, 10, "Household Member:"
-                  ComboBox 305, 80, 105, 45, full_clients_list, qual_question_memb_two
+                  Text 10, y_pos, 195, 30, "Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?"
+                  Text 225, y_pos, 70, 10, "Household Member:"
+                  ComboBox 305, y_pos, 105, 45, full_clients_list, qual_question_memb_two
                   y_pos = y_pos + 30
               End If
               If qual_question_three = "Yes" Then
-                  Text 10, 110, 195, 30, "Is anyone in your householdhiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
-                  Text 225, 110, 70, 10, "Household Member:"
-                  ComboBox 305, 110, 105, 45, full_clients_list, qual_question_memb_three
+                  Text 10, y_pos, 195, 30, "Is anyone in your householdhiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
+                  Text 225, y_pos, 70, 10, "Household Member:"
+                  ComboBox 305, y_pos, 105, 45, full_clients_list, qual_question_memb_three
                   y_pos = y_pos + 30
               End If
               If qual_question_four = "Yes" Then
-                  Text 10, 140, 195, 20, "Has anyone in your household been convicted of a drug felony in the past 10 years?"
-                  Text 225, 140, 70, 10, "Household Member:"
-                  ComboBox 305, 140, 105, 45, full_clients_list, qual_question_memb_four
+                  Text 10, y_pos, 195, 20, "Has anyone in your household been convicted of a drug felony in the past 10 years?"
+                  Text 225, y_pos, 70, 10, "Household Member:"
+                  ComboBox 305, y_pos, 105, 45, full_clients_list, qual_question_memb_four
                   y_pos = y_pos + 20
               End If
               If qual_question_five = "Yes" Then
-                  Text 10, 160, 195, 20, "Is anyone in your household currently violating a condition of parole, probation or supervised release?"
-                  Text 225, 160, 70, 10, "Household Member:"
-                  ComboBox 305, 160, 105, 45, full_clients_list, qual_question_memb_five
+                  Text 10, y_pos, 195, 20, "Is anyone in your household currently violating a condition of parole, probation or supervised release?"
+                  Text 225, y_pos, 70, 10, "Household Member:"
+                  ComboBox 305, y_pos, 105, 45, full_clients_list, qual_question_memb_five
                   y_pos = y_pos + 20
               End If
               y_pos = y_pos + 5
               ButtonGroup ButtonPressed
-                OkButton 305, 185, 50, 15
-                CancelButton 360, 185, 50, 15
+                OkButton 305, y_pos, 50, 15
+                CancelButton 360, y_pos, 50, 15
             EndDialog
 
             dialog Dialog1
