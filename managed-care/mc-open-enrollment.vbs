@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("10/11/2019", "Fixed a bug that wass preventing the script from saving the enrollment for processing open enrollment.", "Casey Love, Hennepin County")
 call changelog_update("10/01/2019", "Updated to support 2020 enrollments.", "Casey Love, Hennepin County")
 Call changelog_update("11/14/2018", "Added phone enrollment information to the Case Note.", "Casey Love, Hennepin County")
 call changelog_update("10/19/2018", "Updated to support 2019 enrollments.", "Ilse Ferris, Hennepin County")
@@ -574,7 +575,7 @@ If MNSURE_Case = TRUE Then
 			script_end_procedure("This health plan is not available until 01/01/16." & vbNewLine & "Make sure you change the enrollment date when using the script again.")
 		ELSEIF REFM_error_check <> "WARNING: MA12,01/16" Then
 			IF REFM_error_check <> "                   " then
-                IF REFM_error_check <> "INVALID KEY ENTERED" then
+                IF REFM_error_check <> "INVALID KEY ENTERED" AND REFM_error_check <> "INVALID KEY PRESSED" then
                     EMReadScreen full_error_msg, 79, 24, 2
                     full_error_msg = trim(full_error_msg)
 				    process_manually_message = process_manually_message & "You have entered information that is causing a warning error, or an inhibiting error for PMI "& MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & ". Refer to the MMIS USER MANUAL to resolve if necessary. Full error message: " & full_error_msg & vbNewLine & vbNewLine
@@ -806,7 +807,7 @@ Else
 			script_end_procedure("This health plan is not available until 01/01/16." & vbNewLine & "Make sure you change the enrollment date when using the script again.")
 		ELSEIF REFM_error_check <> "WARNING: MA12,01/16" Then
 			IF REFM_error_check <> "                   " then
-                IF REFM_error_check <> "INVALID KEY ENTERED" then
+                IF REFM_error_check <> "INVALID KEY ENTERED" AND REFM_error_check <> "INVALID KEY PRESSED" then
                     EMReadScreen full_error_msg, 79, 24, 2
                     full_error_msg = trim(full_error_msg)
 				    process_manually_message = process_manually_message & "You have entered information that is causing a warning error, or an inhibiting error for PMI "& MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & ". Refer to the MMIS USER MANUAL to resolve if necessary. Full error message: " & full_error_msg & vbNewLine & vbNewLine
