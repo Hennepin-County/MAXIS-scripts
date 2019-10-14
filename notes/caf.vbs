@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("10/14/2019", "Added autofill functionality for TIME and SANC panels so the editboxes are filled if the panel is present.##~##", "Casey Love, Hennepin County")
 call changelog_update("10/10/2019", "Updated 3 bugs/issues: ##~## ##~## - Sometimmes the list of clients on the 'Qualifying Quesitons Dialog' was not filled and was blank, this is now resolved and should always have a list of clients. ##~## - The script was 'forgetting' informmation typed into a ComboBox when a dialog appears for a subsequent time. This is now resolved. ##~## - Added headers to the mmissed fields/error message after Dialog 8 for more readability.", "Casey Love, Hennepin County")
 Call changelog_update("10/01/2019", "CAF Functionality is enhanced for more complete and comprehensive documentation of CAF processing. This new functionality has been available for trial for the past 2 weeks. ##~## ##~## Live Skype Demos of this new functionality are availble this week and next. See Hot Topics for more details about the enhanceed functionality and the demo sessions. ##~##", "Casey Love, Hennepin County")
 Call changelog_update("10/01/2019", "This script will be updated at the end of the day (10/1/2019) to the new CAF functionality. Additional details and resources can be found in Hot Topics or the BlueZone Script Team Sharepoint page.", "Casey Love, Hennepin County")
@@ -815,6 +816,59 @@ function read_JOBS_panel()
 
 end function
 
+function read_SANC_panel()
+
+    call  navigate_to_MAXIS_screen("stat", "sanc")
+    'Now it checks for the total number of panels. If there's 0 Of 0 it'll exit the function for you so as to save oodles of time.
+    EMReadScreen panel_total_check, 6, 2, 73
+    IF panel_total_check = "0 Of 0" THEN exit function		'Exits out if there's no panel info
+    first_sanc_panel  = true
+
+    For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+        If ALL_MEMBERS_ARRAY(gather_detail, each_member) = TRUE Then
+            EMWriteScreen ALL_MEMBERS_ARRAY(memb_numb, each_member), 20, 76
+            EMWriteScreen "01", 20, 79
+            transmit
+            EMReadScreen SANC_total, 1, 2, 78
+            If SANC_total <> 0 then
+                EMReadScreen memb_sanc_number, 1, 16, 43
+                EMReadScreen case_sanc_number, 1, 17, 43
+                EMReadScreen case_compliance_date, 8, 17, 72
+                EMReadScreen closed_for_7_sanc, 5, 18, 43
+                EMReadScreen closed_for_post_7_sanc, 5, 19, 43
+
+
+                If closed_for_7_sanc = "     " Then
+                    If first_sanc_panel = true Then notes_on_sanction = notes_on_sanction & "Total case sanctions: " & case_sanc_number & ".; "
+
+                    notes_on_sanction = notes_on_sanction & "Memb " & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " has incurred " & memb_sanc_number & " sanctions.; "
+                Else
+                    closed_for_7_sanc = replace(closed_for_7_sanc, " ", "/")
+                    case_compliance_date = replace(case_compliance_date, " ", "/")
+                    If first_sanc_panel = true Then
+                        notes_on_sanction = notes_on_sanction & "Total case sanctions: 7. Case was closed for 7th sanction " & closed_for_7_sanc & ".; "
+                        ' MsgBox "Case compliance Date - " & case_compliance_date & vbNewLine & "Is Date - " & IsDate(case_compliance_date)
+                        If IsDate(case_compliance_date) = True Then notes_on_sanction = notes_on_sanction & "Case came into commpliance after closure for sanction on " & case_compliance_date & ".; "
+                        If closed_for_post_7_sanc <> "     " Then
+                            closed_for_post_7_sanc = replace(closed_for_post_7_sanc, " ", "/")
+                            notes_on_sanction = notes_on_sanction & "Case clossed for 2nd Post-7th saction " & closed_for_post_7_sanc & ".; "
+                        End If
+                    End If
+                    If memb_sanc_number = "6" Then
+                        notes_on_sanction = notes_on_sanction & "Memb " & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " has incurred 7 sanctions and was closed for 7th sanction " & closed_for_7_sanc & ".; "
+                    Else
+                        notes_on_sanction = notes_on_sanction & "Memb " & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " has incurred " & memb_sanc_number & " sanctions.; "
+                    End If
+
+
+                End If
+
+                first_sanc_panel = false
+            End If
+        End If
+    Next
+end function
+
 function read_SHEL_panel()
 
     call navigate_to_MAXIS_screen("stat", "shel")
@@ -933,6 +987,58 @@ function read_SHEL_panel()
             ALL_MEMBERS_ARRAY(shel_exists, each_member) = False
         End if
         SHEL_expense = ""
+    Next
+end function
+
+function read_TIME_panel()
+    call  navigate_to_MAXIS_screen("stat", "time")
+    'Now it checks for the total number of panels. If there's 0 Of 0 it'll exit the function for you so as to save oodles of time.
+    EMReadScreen panel_total_check, 6, 2, 73
+    IF panel_total_check = "0 Of 0" THEN exit function		'Exits out if there's no panel info
+
+    For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+        If ALL_MEMBERS_ARRAY(gather_detail, each_member) = TRUE Then
+            EMWriteScreen ALL_MEMBERS_ARRAY(memb_numb, each_member), 20, 76
+            EMWriteScreen "01", 20, 79
+            transmit
+            EMReadScreen TIME_total, 1, 2, 78
+            If TIME_total <> 0 then
+                EMReadScreen fed_tanf_months, 3, 17, 31
+                EMReadScreen state_tanf_months, 3, 17, 53
+                EMReadScreen total_tanf_months, 3, 17, 69
+                EMReadScreen banked_tanf_months, 3, 19, 16
+                EMReadScreen memb_ext_code, 2, 19, 31
+                EMReadScreen memb_ext_total, 3, 19, 69
+
+                fed_tanf_months = trim(fed_tanf_months)
+                state_tanf_months = trim(state_tanf_months)
+                total_tanf_months = trim(total_tanf_months)
+                banked_tanf_months = trim(banked_tanf_months)
+                memb_ext_total = trim(memb_ext_total)
+
+                used_tanf = total_tanf_months * 1
+                tanf_left = 60 - total_tanf_months
+                If tanf_left < 0 Then tanf_left = 0
+
+                If memb_ext_code = "01" Then memb_ext_info = "Ill or Incapacitated for more than 30 days"
+                If memb_ext_code = "02" Then memb_ext_info = "Care of someone who is Ill or Incapacitated"
+                If memb_ext_code = "03" Then memb_ext_info = "Care of someone with Special Medical Criteria"
+                If memb_ext_code = "05" Then memb_ext_info = "Unemployable"
+                If memb_ext_code = "06" Then memb_ext_info = "Low IQ"
+                If memb_ext_code = "07" Then memb_ext_info = "Learning Disabled"
+                If memb_ext_code = "08" Then memb_ext_info = "Employed 30+ hours per week (1 caregiver HH)"
+                If memb_ext_code = "09" Then memb_ext_info = "Employed 55+ hours per week (2 caregived HH)"
+                If memb_ext_code = "10" Then memb_ext_info = "Family Violence"
+                If memb_ext_code = "11" Then memb_ext_info = "Developmental Disabilities"
+                If memb_ext_code = "12" Then memb_ext_info = "Mental Illness"
+                If memb_ext_code = "NO" Then memb_ext_info = "NONE"
+                If memb_ext_code = "AP" Then memb_ext_info = "Appeal in Process"
+                If memb_ext_code = "__" Then memb_ext_info = ""
+
+                notes_on_time = notes_on_time & "Memb " & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " has used a total of " & total_tanf_months & " TANF months (" & fed_tanf_months & " Federal and " & state_tanf_months & "State) and has " & tanf_left & " TANF months remaining.; "
+                If banked_tanf_months <> "0" Then notes_on_time = notes_on_time & "Memb " & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " - " & banked_tanf_months & " TANF Banked Months.; "
+            End If
+        End If
     Next
 end function
 
@@ -2089,7 +2195,7 @@ manual_amount_used = FALSE
 Dim EATS, row, col, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three, hest_information, addr_line_one, relationship_detail
 Dim addr_line_two, city, state, zip, address_confirmation_checkbox, addr_county, homeless_yn, addr_verif, reservation_yn, living_situation, number_verifs_checkbox
 Dim notes_on_address, notes_on_wreg, full_abawd_info, notes_on_busi, notes_on_abawd, notes_on_abawd_two, notes_on_abawd_three, verifs_needed, verif_req_form_sent_date
-Dim other_uc_income_notes, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_income, notes_on_other_UNEA, notes_on_cses, verification_memb_list
+Dim other_uc_income_notes, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_income, notes_on_other_UNEA, notes_on_cses, verification_memb_list, notes_on_time, notes_on_sanction
 
 HH_memb_row = 5 'This helps the navigation buttons work!
 application_signed_checkbox = checked 'The script should default to having the application signed.
@@ -2731,6 +2837,8 @@ call autofill_editbox_from_MAXIS(HH_member_array, "REST", notes_on_rest)
 call autofill_editbox_from_MAXIS(HH_member_array, "SCHL", SCHL)
 call autofill_editbox_from_MAXIS(HH_member_array, "SECU", other_assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "STWK", notes_on_jobs)
+call read_TIME_panel
+call read_SANC_panel
 ' call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
 Call read_UNEA_panel
