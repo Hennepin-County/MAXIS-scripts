@@ -832,18 +832,15 @@ Else
 
 		'error handling to ensure that enrollment date and exclusion dates don't conflict
 		EMReadScreen REFM_error_check, 19, 24, 2 'checks for an inhibiting edit
-		If enrollment_year < "16" AND REFM_error_check = "WARNING: MA12,01/16" Then
-			script_end_procedure("This health plan is not available until 01/01/16." & vbNewLine & "Make sure you change the enrollment date when using the script again.")
-		ELSEIF REFM_error_check <> "WARNING: MA12,01/16" Then
-			IF REFM_error_check <> "                   " then
-                IF REFM_error_check <> "INVALID KEY ENTERED" AND REFM_error_check <> "INVALID KEY PRESSED" then
-                    EMReadScreen full_error_msg, 79, 24, 2
-                    full_error_msg = trim(full_error_msg)
-				    process_manually_message = process_manually_message & "You have entered information that is causing a warning error, or an inhibiting error for PMI "& MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & ". Refer to the MMIS USER MANUAL to resolve if necessary. Full error message: " & full_error_msg & vbNewLine & vbNewLine
-			    	pf6
-				END IF
-            END IF
-		END IF
+		IF REFM_error_check <> "                   " then
+            IF REFM_error_check <> "INVALID KEY ENTERED" AND REFM_error_check <> "INVALID KEY PRESSED" then
+                EMReadScreen full_error_msg, 79, 24, 2
+                full_error_msg = trim(full_error_msg)
+			    process_manually_message = process_manually_message & "You have entered information that is causing a warning error, or an inhibiting error for PMI "& MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & ". Refer to the MMIS USER MANUAL to resolve if necessary. Full error message: " & full_error_msg & vbNewLine & vbNewLine
+		    	pf6
+			END IF
+        END IF
+
 		'Save and case note
 		pf3
 		EMWriteScreen "c", 2, 19

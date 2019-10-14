@@ -985,21 +985,23 @@ If MNSURE_Case = TRUE Then
         End If
 		PF9
 
-		'error handling to ensure that enrollment date and exclusion dates don't conflict
-		EMReadScreen REFM_error_check, 19, 24, 2 'checks for an inhibiting edit
-		If enrollment_year < "16" AND REFM_error_check = "WARNING: MA12,01/16" Then
-			script_end_procedure_with_error_report("This health plan is not available until 01/01/16." & vbNewLine & "Make sure you change the enrollment date when using the script again.")
-		ELSEIF REFM_error_check <> "WARNING: MA12,01/16" Then
-			IF REFM_error_check <> "                   " then
-                IF REFM_error_check <> "INVALID KEY ENTERED" then
-                    EMReadScreen full_error_msg, 79, 24, 2
-                    full_error_msg = trim(full_error_msg)
-				    process_manually_message = process_manually_message & "You have entered information that is causing a warning error, or an inhibiting error for PMI "& MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & ". Refer to the MMIS USER MANUAL to resolve if necessary. Full error message: " & full_error_msg & vbNewLine & vbNewLine
-			    END if
-            END IF
-		END IF
 		'Save and case note
 		pf3
+
+        EMReadScreen look_for_RKEY, 4, 1, 52
+        ' MsgBox "Look for RKEY - " & look_for_RKEY
+        If look_for_RKEY <> "RKEY" Then
+            'We are going to try again to save the information
+            PF3
+            EMReadScreen REFM_error_check, 79, 24, 2 'checks for an inhibiting edit
+            REFM_error_check = trim(REFM_error_check)
+            ' MsgBox "REFM error - " & REFM_error_check
+            If REFM_error_check <> "ACTION COMPLETED" Then
+                process_manually_message = process_manually_message & "You have entered information that is causing a warning error, or an inhibiting error for PMI "& MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & ". Refer to the MMIS USER MANUAL to resolve if necessary. Full error message: " & REFM_error_check & vbNewLine & vbNewLine
+                PF6
+            End If
+        End If
+
 		EMWriteScreen "c", 2, 19
 		transmit
 		EMReadScreen rsum_enrollment, 8, 16, 20
@@ -1304,17 +1306,14 @@ Else
 
 		'error handling to ensure that enrollment date and exclusion dates don't conflict
 		EMReadScreen REFM_error_check, 19, 24, 2 'checks for an inhibiting edit
-		If enrollment_year < "16" AND REFM_error_check = "WARNING: MA12,01/16" Then
-			script_end_procedure_with_error_report("This health plan is not available until 01/01/16." & vbNewLine & "Make sure you change the enrollment date when using the script again.")
-		ELSEIF REFM_error_check <> "WARNING: MA12,01/16" Then
-			IF REFM_error_check <> "                   " then
-                IF REFM_error_check <> "INVALID KEY ENTERED" then
-                    EMReadScreen full_error_msg, 79, 24, 2
-                    full_error_msg = trim(full_error_msg)
-				    process_manually_message = process_manually_message & "You have entered information that is causing a warning error, or an inhibiting error for PMI "& MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & ". Refer to the MMIS USER MANUAL to resolve if necessary. Full error message: " & full_error_msg & vbNewLine & vbNewLine
-			    END IF
-            END IF
-		END IF
+		IF REFM_error_check <> "                   " then
+            IF REFM_error_check <> "INVALID KEY ENTERED" AND REFM_error_check <> "INVALID KEY PRESSED" then
+                EMReadScreen full_error_msg, 79, 24, 2
+                full_error_msg = trim(full_error_msg)
+			    process_manually_message = process_manually_message & "You have entered information that is causing a warning error, or an inhibiting error for PMI "& MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & ". Refer to the MMIS USER MANUAL to resolve if necessary. Full error message: " & full_error_msg & vbNewLine & vbNewLine
+		    END IF
+        END IF
+
 		' msgbox "all updated - see casenote code"
 		'Save and case note
 		pf3
