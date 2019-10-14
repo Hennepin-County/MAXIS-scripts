@@ -314,6 +314,13 @@ script_array_QI_list(script_num).description		= "Creates a list of SNAP cases me
 script_num = 0
 ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
 Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
+script_array_BZ_list(script_num).script_name		= "AVS Report"													'Script name
+script_array_BZ_list(script_num).file_name			= "avs-report.vbs"												'Script URL
+script_array_BZ_list(script_num).description		= "BULK script that supports the AVS processing needs for active MA recipients."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_BZ_list(script_num)		'Resets the array to add one more element to it
+Set script_array_BZ_list(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_BZ_list(script_num).script_name		= "COLA Decimator"													'Script name
 script_array_BZ_list(script_num).file_name			= "cola-decimator.vbs"												'Script URL
 script_array_BZ_list(script_num).description		= "BULK script that deletes and case notes auto-approval COLA messages."
