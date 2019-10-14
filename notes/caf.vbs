@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-
+call changelog_update("10/10/2019", "Updated 3 bugs/issues: ##~## ##~## - Sometimmes the list of clients on the 'Qualifying Quesitons Dialog' was not filled and was blank, this is now resolved and should always have a list of clients. ##~## - The script was 'forgetting' informmation typed into a ComboBox when a dialog appears for a subsequent time. This is now resolved. ##~## - Added headers to the mmissed fields/error message after Dialog 8 for more readability.", "Casey Love, Hennepin County")
 Call changelog_update("10/01/2019", "CAF Functionality is enhanced for more complete and comprehensive documentation of CAF processing. This new functionality has been available for trial for the past 2 weeks. ##~## ##~## Live Skype Demos of this new functionality are availble this week and next. See Hot Topics for more details about the enhanceed functionality and the demo sessions. ##~##", "Casey Love, Hennepin County")
 Call changelog_update("10/01/2019", "This script will be updated at the end of the day (10/1/2019) to the new CAF functionality. Additional details and resources can be found in Hot Topics or the BlueZone Script Team Sharepoint page.", "Casey Love, Hennepin County")
 Call changelog_update("04/10/2019", "There was a bug that sometimes made the dialogs write over each other and be illegible, updated the script to keep this from happening.", "Casey Love, Hennepin County")
@@ -1608,9 +1608,6 @@ end function
 function verification_dialog()
     If ButtonPressed = verif_button Then
         If second_call <> TRUE Then
-            Call generate_client_list(verification_memb_list, "Select or Type Member")
-            verification_memb_list = " "+chr(9)+verification_memb_list
-
             income_source_list = "Select or Type Source"
 
             For each_job = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
@@ -2089,7 +2086,7 @@ ReDim UNEA_INCOME_ARRAY(budget_notes, 0)
 manual_amount_used = FALSE
 
 'variables
-Dim EATS, row, col, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three, hest_information, addr_line_one
+Dim EATS, row, col, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three, hest_information, addr_line_one, relationship_detail
 Dim addr_line_two, city, state, zip, address_confirmation_checkbox, addr_county, homeless_yn, addr_verif, reservation_yn, living_situation, number_verifs_checkbox
 Dim notes_on_address, notes_on_wreg, full_abawd_info, notes_on_busi, notes_on_abawd, notes_on_abawd_two, notes_on_abawd_three, verifs_needed, verif_req_form_sent_date
 Dim other_uc_income_notes, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_income, notes_on_other_UNEA, notes_on_cses, verification_memb_list
@@ -2757,6 +2754,8 @@ If CAF_type = "Application" then TIKL_checkbox = checked
 
 Call generate_client_list(interview_memb_list, "Select or Type")
 Call generate_client_list(shel_memb_list, "Select")
+Call generate_client_list(verification_memb_list, "Select or Type Member")
+verification_memb_list = " "+chr(9)+verification_memb_list
 
 Call navigate_to_MAXIS_screen("STAT", "AREP")
 EMReadScreen version_numb, 1, 2, 73
@@ -2786,11 +2785,11 @@ Do
                                         If show_one = true Then
                                             BeginDialog Dialog1, 0, 0, 465, 275, "CAF Dialog 1 - Personal Information"
                                               EditBox 60, 5, 50, 15, CAF_datestamp
-                                              ComboBox 175, 5, 70, 15, "Select or Type"+chr(9)+"phone"+chr(9)+"office", interview_type
+                                              ComboBox 175, 5, 70, 15, "Select or Type"+chr(9)+"phone"+chr(9)+"office"+chr(9)+interview_type, interview_type
                                               CheckBox 255, 10, 65, 10, "Used Interpreter", Used_Interpreter_checkbox
                                               EditBox 60, 25, 50, 15, interview_date
-                                              ComboBox 230, 25, 95, 15, "Select or Type"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
-                                              ComboBox 90, 45, 150, 45, interview_memb_list, interview_with
+                                              ComboBox 230, 25, 95, 15, "Select or Type"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online"+chr(9)+how_app_rcvd, how_app_rcvd
+                                              ComboBox 90, 45, 150, 45, interview_memb_list+chr(9)+interview_with, interview_with
                                               ButtonGroup ButtonPressed
                                                 PushButton 250, 45, 15, 15, "!", tips_and_tricks_interview_button
                                               EditBox 35, 65, 425, 15, cit_id
@@ -2984,13 +2983,13 @@ Do
                                                       Text 420, y_pos, 25, 10, "Hours:"
                                                       EditBox 450, y_pos - 5, 20, 15, ALL_JOBS_PANELS_ARRAY(prosp_hours, each_job)
                                                       Text 475, y_pos, 40, 10, "Pay Freq:"
-                                                      ComboBox 520, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job)
+                                                      ComboBox 520, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly"+chr(9)+ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job), ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job)
                                                       y_pos = y_pos + 20
                                                       If snap_checkbox = checked Then
                                                           Text 15, y_pos, 35, 10, "SNAP PIC:"
                                                           Text 55, y_pos, 65, 10, "* Pay Date Amount:"
                                                           EditBox 125, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)
-                                                          ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job)
+                                                          ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly"+chr(9)+ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job), ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job)
                                                           Text 265, y_pos, 70, 10, "* Prospective Amount:"
                                                           EditBox 340, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job)
                                                           Text 420, y_pos, 40, 10, "Calculated:"
@@ -3001,7 +3000,7 @@ Do
                                                           Text 15, y_pos, 35, 10, "GRH PIC:"
                                                           Text 65, y_pos, 60, 10, "Pay Date Amount: "
                                                           EditBox 125, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(grh_pay_day_income, each_job)
-                                                          ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", ALL_JOBS_PANELS_ARRAY(grh_pay_freq, each_job)
+                                                          ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly"+chr(9)+chr(9)+ALL_JOBS_PANELS_ARRAY(grh_pay_freq, each_job), ALL_JOBS_PANELS_ARRAY(grh_pay_freq, each_job)
                                                           Text 265, y_pos, 70, 10, "Prospective Amount:"
                                                           EditBox 340, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(grh_prosp_income, each_job)
                                                           Text 420, y_pos, 40, 10, "Calculated:"
@@ -3286,7 +3285,7 @@ Do
                                                   EditBox 80, y_pos - 5, 445, 15, ALL_BUSI_PANELS_ARRAY(busi_desc, each_busi)
                                                   y_pos = y_pos + 20
                                                   Text 15, y_pos, 55, 10, "BUSI Structure:"
-                                                  ComboBox 75, y_pos - 5, 150, 45, "Select or Type"+chr(9)+"Sole Proprietor"+chr(9)+"Partnership"+chr(9)+"LLC"+chr(9)+"S Corp", ALL_BUSI_PANELS_ARRAY(busi_structure, each_busi)
+                                                  ComboBox 75, y_pos - 5, 150, 45, "Select or Type"+chr(9)+"Sole Proprietor"+chr(9)+"Partnership"+chr(9)+"LLC"+chr(9)+"S Corp"+chr(9)+chr(9)+ALL_BUSI_PANELS_ARRAY(busi_structure, each_busi), ALL_BUSI_PANELS_ARRAY(busi_structure, each_busi)
                                                   Text 245, y_pos, 55, 10, "Ownership Share"
                                                   EditBox 305, y_pos - 5, 20, 15, ALL_BUSI_PANELS_ARRAY(share_num, each_busi)
                                                   Text 325, y_pos, 5, 10, "/"
@@ -3330,9 +3329,9 @@ Do
                                                       EditBox 140, y_pos - 5, 355, 15, ALL_BUSI_PANELS_ARRAY(exp_not_allwd, each_busi)
                                                       y_pos = y_pos + 20
                                                       Text 115, y_pos, 25, 10, "Verif:"
-                                                      ComboBox 140, y_pos - 5, 130, 45, "Select or Type"+chr(9)+"Income Tax Returns"+chr(9)+"Receipts of Sales/Purch"+chr(9)+"Busi Records/Ledger"+chr(9)+"Pend Out State Verif"+chr(9)+"Other Document"+chr(9)+"No Verif Provided"+chr(9)+"Delayed Verif"+chr(9)+"Blank", ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi)
+                                                      ComboBox 140, y_pos - 5, 130, 45, "Select or Type"+chr(9)+"Income Tax Returns"+chr(9)+"Receipts of Sales/Purch"+chr(9)+"Busi Records/Ledger"+chr(9)+"Pend Out State Verif"+chr(9)+"Other Document"+chr(9)+"No Verif Provided"+chr(9)+"Delayed Verif"+chr(9)+"Blank"+chr(9)+ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi), ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi)
                                                       Text 340, y_pos, 25, 10, "Verif:"
-                                                      ComboBox 365, y_pos - 5, 130, 45, "Select or Type"+chr(9)+"Income Tax Returns"+chr(9)+"Receipts of Sales/Purch"+chr(9)+"Busi Records/Ledger"+chr(9)+"Pend Out State Verif"+chr(9)+"Other Document"+chr(9)+"No Verif Provided"+chr(9)+"Delayed Verif"+chr(9)+"Blank", ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi)
+                                                      ComboBox 365, y_pos - 5, 130, 45, "Select or Type"+chr(9)+"Income Tax Returns"+chr(9)+"Receipts of Sales/Purch"+chr(9)+"Busi Records/Ledger"+chr(9)+"Pend Out State Verif"+chr(9)+"Other Document"+chr(9)+"No Verif Provided"+chr(9)+"Delayed Verif"+chr(9)+"Blank"+chr(9)+ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi), ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi)
                                                       y_pos = y_pos + 20
                                                   End If
                                                   If cash_checkbox = checked OR EMER_checkbox = checked Then
@@ -3349,9 +3348,9 @@ Do
                                                       EditBox 450, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(expense_pro_cash, each_busi)
                                                       y_pos = y_pos + 20
                                                       Text 115, y_pos, 25, 10, "Verif:"
-                                                      ComboBox 140, y_pos - 5, 130, 45, "Select or Type"+chr(9)+"Income Tax Returns"+chr(9)+"Receipts of Sales/Purch"+chr(9)+"Busi Records/Ledger"+chr(9)+"Pend Out State Verif"+chr(9)+"Other Document"+chr(9)+"No Verif Provided"+chr(9)+"Delayed Verif"+chr(9)+"Blank", ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi)
+                                                      ComboBox 140, y_pos - 5, 130, 45, "Select or Type"+chr(9)+"Income Tax Returns"+chr(9)+"Receipts of Sales/Purch"+chr(9)+"Busi Records/Ledger"+chr(9)+"Pend Out State Verif"+chr(9)+"Other Document"+chr(9)+"No Verif Provided"+chr(9)+"Delayed Verif"+chr(9)+"Blank"+chr(9)+ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi), ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi)
                                                       Text 340, y_pos, 25, 10, "Verif:"
-                                                      ComboBox 365, y_pos - 5, 130, 45, "Select or Type"+chr(9)+"Income Tax Returns"+chr(9)+"Receipts of Sales/Purch"+chr(9)+"Busi Records/Ledger"+chr(9)+"Pend Out State Verif"+chr(9)+"Other Document"+chr(9)+"No Verif Provided"+chr(9)+"Delayed Verif"+chr(9)+"Blank", ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi)
+                                                      ComboBox 365, y_pos - 5, 130, 45, "Select or Type"+chr(9)+"Income Tax Returns"+chr(9)+"Receipts of Sales/Purch"+chr(9)+"Busi Records/Ledger"+chr(9)+"Pend Out State Verif"+chr(9)+"Other Document"+chr(9)+"No Verif Provided"+chr(9)+"Delayed Verif"+chr(9)+"Blank"+chr(9)+ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi), ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi)
                                                       y_pos = y_pos + 20
                                                   End If
                                                   Text 15, y_pos, 65, 10, "Verification Detail:"
@@ -4297,7 +4296,7 @@ Do
                 BeginDialog Dialog1, 0, 0, 500, 370, "CAF Dialog 8 - Interview Info"
                   EditBox 60, 10, 20, 15, next_er_month
                   EditBox 85, 10, 20, 15, next_er_year
-                  ComboBox 330, 10, 165, 15, "Select or Type"+chr(9)+"incomplete"+chr(9)+"approved", CAF_status
+                  ComboBox 330, 10, 165, 15, "Select or Type"+chr(9)+"incomplete"+chr(9)+"approved"+chr(9)+CAF_status, CAF_status
                   EditBox 60, 30, 435, 15, actions_taken
                   DropListBox 135, 60, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", snap_exp_yn
                   ButtonGroup ButtonPressed
@@ -4406,24 +4405,14 @@ Do
                 If ButtonPressed = finish_dlgs_button Then
                     'DIALOG 1
                     'New error message formatting for ease of reading.
-                    ' If IsDate(CAF_datestamp) = FALSE Then full_err_msg = full_err_msg & "~!~" & "1^* CAF DATESTAMP ##~##   - Enter a valid date for the CAF datestamp.##~##"
-                    ' If interview_required = TRUE Then
-                    '     If interview_type = "Select or Type" Then full_err_msg = full_err_msg & "~!~1^* INTERVIEW TYPE ##~##   - This case requires and interview to process the CAF - enter the interview type.##~##"
-                    '     If IsDate(interview_date) = False Then full_err_msg = full_err_msg & "~!~1^* INTERVIEW DATE ##~##   - This case requires and interview to process the CAF - enter the interview date.##~##"
-                    '     If interview_with = "Select or Type" Then full_err_msg = full_err_msg & "~!~1^* INTERVIEW COMPLETED WITH ##~##   - This case requires and interview to process the CAF - indicate who the interview was completed with.##~##"
-                    ' End If
-                    ' If the_process_for_cash = "Application" AND trim(ABPS) <> "" Then
-                    '     If trim(CS_forms_sent_date) <> "N/A" AND IsDate(CS_forms_sent_date) = False AND cash_checkbox = checked Then full_err_msg = full_err_msg & "~!~" & "1^* DATE CS FORMS SENT ##~##   - Enter a valid date for the day that child support forms were sent or given to the client. This is required for Cash cases at application with absent parents.##~##"
-                    ' End If
-
-                    If IsDate(CAF_datestamp) = FALSE Then full_err_msg = full_err_msg & "~!~" & "1^* Enter a valid date for the CAF datestamp."
+                    If IsDate(CAF_datestamp) = FALSE Then full_err_msg = full_err_msg & "~!~" & "1^* CAF DATESTAMP ##~##   - Enter a valid date for the CAF datestamp.##~##"
                     If interview_required = TRUE Then
-                        If interview_type = "Select or Type" Then full_err_msg = full_err_msg & "~!~1^* This case requires and interview to process the CAF - enter the interview type."
-                        If IsDate(interview_date) = False Then full_err_msg = full_err_msg & "~!~1^* This case requires and interview to process the CAF - enter the interview date."
-                        If interview_with = "Select or Type" Then full_err_msg = full_err_msg & "~!~1^* This case requires and interview to process the CAF - indicate who the interview was completed with."
+                        If interview_type = "Select or Type" OR trim(interview_type) = "" Then full_err_msg = full_err_msg & "~!~1^* INTERVIEW TYPE ##~##   - This case requires and interview to process the CAF - enter the interview type.##~##"
+                        If IsDate(interview_date) = False Then full_err_msg = full_err_msg & "~!~1^* INTERVIEW DATE ##~##   - This case requires and interview to process the CAF - enter the interview date.##~##"
+                        If interview_with = "Select or Type" OR trim(interview_with) = "" Then full_err_msg = full_err_msg & "~!~1^* INTERVIEW COMPLETED WITH ##~##   - This case requires and interview to process the CAF - indicate who the interview was completed with.##~##"
                     End If
                     If the_process_for_cash = "Application" AND trim(ABPS) <> "" Then
-                        If trim(CS_forms_sent_date) <> "N/A" AND IsDate(CS_forms_sent_date) = False AND cash_checkbox = checked Then full_err_msg = full_err_msg & "~!~" & "1^* Enter a valid date for the day that child support forms were sent or given to the client. This is required for Cash cases at application with absent parents."
+                        If trim(CS_forms_sent_date) <> "N/A" AND IsDate(CS_forms_sent_date) = False AND cash_checkbox = checked Then full_err_msg = full_err_msg & "~!~" & "1^* DATE CS FORMS SENT ##~##   - Enter a valid date for the day that child support forms were sent or given to the client. This is required for Cash cases at application with absent parents.##~##"
                     End If
 
                     'DIALOG 2
@@ -4433,15 +4422,15 @@ Do
                                 If ALL_JOBS_PANELS_ARRAY(estimate_only, each_job) = unchecked Then
                                     ALL_JOBS_PANELS_ARRAY(budget_explain, each_job) = trim(ALL_JOBS_PANELS_ARRAY(budget_explain, each_job))
                                     If ALL_JOBS_PANELS_ARRAY(budget_explain, each_job) = "" Then
-                                        full_err_msg = full_err_msg & "~!~" & "2^* Additional detail about how the job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " - was budgeted is required. Complete the 'Explain Budget' field for this job."
+                                        full_err_msg = full_err_msg & "~!~" & "2^* EXPLAIN BUDGET for " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " ##~##   - Additional detail about how the job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " - was budgeted is required. Complete the 'Explain Budget' field for this job."
                                     ElseIf len(ALL_JOBS_PANELS_ARRAY(budget_explain, each_job)) < 20 Then
-                                        full_err_msg = full_err_msg & "~!~" & "2^* Budget detail for job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " - should be longer. Budget cannot be sufficiently explained in a short note."
+                                        full_err_msg = full_err_msg & "~!~" & "2^* EXPLAIN BUDGET for " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " ##~##   - Budget detail for job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " - should be longer. Budget cannot be sufficiently explained in a short note."
                                     End If
                                 End If
                                 If SNAP_checkbox = checked Then
-                                    If IsNumeric(ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)) = FALSE Then full_err_msg = full_err_msg & "~!~" & "2^* For a SNAP case the average pay date amount must be entered as a number. Update the 'Pay Date Amount' for job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
-                                    If ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job) = "Type or select" Then full_err_msg = full_err_msg & "~!~" & "2^* The pay frequency for SNAP pay date amount needs to be identified to correctly note the income. Update the frequency after 'Pay Date Amount' for the job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
-                                    If IsNumeric(ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job)) = False Then full_err_msg = full_err_msg & "~!~" & "2^* For SNAP cases, the monthly prospective amount needs to be entered as a number in the 'Prospective Amount' field for jobw - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
+                                    If IsNumeric(ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)) = FALSE Then full_err_msg = full_err_msg & "~!~" & "2^* SNAP PIC - PAY DATE AMOUNT for " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " ##~##   - For a SNAP case the average pay date amount must be entered as a number. Update the 'Pay Date Amount' for job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
+                                    If ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job) = "Type or select" Then full_err_msg = full_err_msg & "~!~" & "2^* SNAP PIC - PAY FREQUENCY for " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " ##~##   - The pay frequency for SNAP pay date amount needs to be identified to correctly note the income. Update the frequency after 'Pay Date Amount' for the job - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
+                                    If IsNumeric(ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job)) = False Then full_err_msg = full_err_msg & "~!~" & "2^* SNAP PIC - PROSPECTIVE AMOUNT for " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & " ##~##   - For SNAP cases, the monthly prospective amount needs to be entered as a number in the 'Prospective Amount' field for jobw - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job) & "."
                                 End If
                             End If
                         End If
@@ -4453,26 +4442,26 @@ Do
                             ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi) = trim(ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi))
                             If ALL_BUSI_PANELS_ARRAY(estimate_only, each_busi) = unchecked Then
                                 If ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi) = "" Then
-                                    full_err_msg = full_err_msg & "~!~3^* Additional detail about how BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & " was budgeted is required. Complete the 'Explain Budget' field for this self employment."
+                                    full_err_msg = full_err_msg & "~!~3^* EXPLAIN BUDGET for BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & " ##~##   - Additional detail about how BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & " was budgeted is required. Complete the 'Explain Budget' field for this self employment."
                                 ElseIf len(ALL_BUSI_PANELS_ARRAY(budget_explain, each_busi)) < 20 Then
-                                    full_err_msg = full_err_msg & "~!~3^* Additional detail about how BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & " was budgeted should be longer - the note is too short so sufficiently explain how the income was budgeted."
+                                    full_err_msg = full_err_msg & "~!~3^* EXPLAIN BUDGET for BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & " ##~##   - Additional detail about how BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & " was budgeted should be longer - the note is too short so sufficiently explain how the income was budgeted."
                                 End If
                             End If
-                            If ALL_BUSI_PANELS_ARRAY(calc_method, each_busi) = "Select One" Then full_err_msg = full_err_msg & "~!~3^* Indicate which calculation method will be used for BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & "."
+                            If ALL_BUSI_PANELS_ARRAY(calc_method, each_busi) = "Select One" Then full_err_msg = full_err_msg & "~!~3^* SELF EMPLOYMENT METHOD for BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & " ##~##   - Indicate which calculation method will be used for BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & "."
                             If ALL_BUSI_PANELS_ARRAY(calc_method, each_busi) = "Tax Forms" Then
                                 If SNAP_checkbox = checked Then
-                                    If ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) = "Income Tax Returns" AND trim(ALL_BUSI_PANELS_ARRAY(exp_not_allwd, each_busi)) = "" Then full_err_msg = full_err_msg & "~!~3^* Since the calculation method is 'Tax Forms' and this is a SNAP case with Tax Forms verifying, indicate what (if any) expenses on taxes have been excluded."
+                                    If ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) = "Income Tax Returns" AND trim(ALL_BUSI_PANELS_ARRAY(exp_not_allwd, each_busi)) = "" Then full_err_msg = full_err_msg & "~!~3^* EXPENSES NOT ALLOWED for BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & " ##~##   - Since the calculation method is 'Tax Forms' and this is a SNAP case with Tax Forms verifying, indicate what (if any) expenses on taxes have been excluded."
                                     If ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) = "Pend Out State Verif" OR ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) = "No Verif Provided" OR ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) = "Delayed Verif" Then
                                     Else
-                                        If ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of income for SNAP should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
-                                        If ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of expenses for SNAP should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
+                                        If ALL_BUSI_PANELS_ARRAY(snap_income_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* SNAP INCOME VERIFICATION for BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & " ##~##   - Verification of income for SNAP should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
+                                        If ALL_BUSI_PANELS_ARRAY(snap_expense_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* SNAP EXPENSE VERIFICATION for BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & " ##~##   - Verification of expenses for SNAP should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
                                     End If
                                 End If
                                 If cash_checkbox = checked or EMER_checkbox = checked Then
                                     If ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) = "Pend Out State Verif" OR ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) = "No Verif Provided" OR ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) = "Delayed Verif" Then
                                     Else
-                                        If ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of income for Cash/EMER should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
-                                        If ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* Verification of expenses for Cash/EMER should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
+                                        If ALL_BUSI_PANELS_ARRAY(cash_income_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* CASH INCOMME VERIFICATION for BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & " ##~##   - Verification of income for Cash/EMER should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
+                                        If ALL_BUSI_PANELS_ARRAY(cash_expense_verif, each_busi) <> "Income Tax Returns" Then full_err_msg = full_err_msg & "~!~3^* CASH EXPENSE VERIFICATION for BUSI " & ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) & " " & ALL_BUSI_PANELS_ARRAY(panel_instance, each_busi) & " ##~##   - Verification of expenses for Cash/EMER should be 'Income Tax Returns' when calculation method is 'Tax Forms'"
                                     End If
                                 End If
                             End If
@@ -4484,31 +4473,31 @@ Do
                     'DIALOG 5
                     For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
                         If UNEA_INCOME_ARRAY(SSA_exists, each_unea_memb) = TRUE Then
-                            If trim(UNEA_INCOME_ARRAY(UNEA_RSDI_amt, each_unea_memb)) <> "" AND trim(UNEA_INCOME_ARRAY(UNEA_RSDI_notes, each_unea_memb)) = "" Then full_err_msg = full_err_msg & "~!~5^* Explain details about RSDI Income and Budgeting."
-                            If trim(UNEA_INCOME_ARRAY(UNEA_SSI_amt, each_unea_memb)) <> "" AND trim(UNEA_INCOME_ARRAY(UNEA_SSI_notes, each_unea_memb)) = "" Then full_err_msg = full_err_msg & "~!~5^* Explain details about SSI Income and Budgeting."
+                            If trim(UNEA_INCOME_ARRAY(UNEA_RSDI_amt, each_unea_memb)) <> "" AND trim(UNEA_INCOME_ARRAY(UNEA_RSDI_notes, each_unea_memb)) = "" Then full_err_msg = full_err_msg & "~!~5^* RSDI NOTES for MEMB " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " ##~##   - Explain details about RSDI Income and Budgeting."
+                            If trim(UNEA_INCOME_ARRAY(UNEA_SSI_amt, each_unea_memb)) <> "" AND trim(UNEA_INCOME_ARRAY(UNEA_SSI_notes, each_unea_memb)) = "" Then full_err_msg = full_err_msg & "~!~5^* SSI NOTES for MEMB " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " ##~##   - Explain details about SSI Income and Budgeting."
                         End If
                     Next
                     For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
                         If UNEA_INCOME_ARRAY(UC_exists, each_unea_memb) = TRUE Then
-                            If SNAP_checkbox = checked and IsNumeric(UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, each_unea_memb)) = False Then full_err_msg = full_err_msg & "~!~5^* Indicate the prospective amount of UC income that will be budgeted for SNAP."
+                            If SNAP_checkbox = checked and IsNumeric(UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, each_unea_memb)) = False Then full_err_msg = full_err_msg & "~!~5^* UC SNAP PROSP AMOUNT for MEMB " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " ##~##   - Indicate the prospective amount of UC income that will be budgeted for SNAP."
                             If UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb) <> "" Then
                                 If IsDate(UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb)) = False Then
-                                    full_err_msg = full_err_msg & "~!~5^* In order to set a TIKL, a valid date needs to be entered in the box for the UC TIKL."
+                                    full_err_msg = full_err_msg & "~!~5^* UC TIKL DATE for MEMB " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " ##~##   - In order to set a TIKL, a valid date needs to be entered in the box for the UC TIKL."
                                 Else
-                                    If DateDiff("d", date, UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb)) < 0 Then full_err_msg = full_err_msg & "~!~5^* To set a TIKL for the end of UC income, the TIKL date must be in the future."
+                                    If DateDiff("d", date, UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb)) < 0 Then full_err_msg = full_err_msg & "~!~5^* UC TIKL DATE for MEMB " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " ##~##   - To set a TIKL for the end of UC income, the TIKL date must be in the future."
                                 End If
                             End If
                             If trim(UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, each_unea_memb)) <> "" Then
-                                If IsNumeric(UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, each_unea_memb)) = False Then full_err_msg = full_err_msg & "~!~5^* The UC Gross weekly amount needs to be entered as a number."
+                                If IsNumeric(UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, each_unea_memb)) = False Then full_err_msg = full_err_msg & "~!~5^* UC WEEKLY GROSS for MEMB " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " ##~##   - The UC Gross weekly amount needs to be entered as a number."
                                 If UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, each_unea_memb) <> UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb) Then
                                     If IsNumeric(UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, each_unea_memb)) = FALSE or IsNumeric(UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb)) = FALSE or IsNumeric(UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, each_unea_memb)) = FALSE Then
-                                        If IsNumeric(UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb)) = FALSE Then full_err_msg = full_err_msg & "~!~5^* Enter the UC weekly Net Amount as a number."
-                                        If IsNumeric(UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, each_unea_memb)) = FALSE Then full_err_msg = full_err_msg & "~!~5^* Enter the weekly allowed deductions for UC as a number."
+                                        If IsNumeric(UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb)) = FALSE Then full_err_msg = full_err_msg & "~!~5^* UC BUDGETED WEEKLY AMOUNT for MEMB " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " ##~##   - Enter the UC weekly Net Amount as a number."
+                                        If IsNumeric(UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, each_unea_memb)) = FALSE Then full_err_msg = full_err_msg & "~!~5^* UC WEEKLY ALLOWED DEDUCTIONS for MEMB " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " ##~##   - Enter the weekly allowed deductions for UC as a number."
                                     Else
                                         calculated_net_weekly = UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, each_unea_memb) - UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, each_unea_memb)
                                         UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb) = UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb) * 1
                                         'MsgBox "Calc Net Weekly - " & calculated_net_weekly & vbCR & "Entered Net Weekly - " & UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb)
-                                        If calculated_net_weekly <> UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb) Then full_err_msg = full_err_msg & "~!~5^* Review your UC weekly gross, net and counted deductions. The net amount is not equal to the gross amount less counted deductions."
+                                        If calculated_net_weekly <> UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb) Then full_err_msg = full_err_msg & "~!~5^* UC WEEKLY GROSS, BUDGETED AMOUNT, ALLOWED DEDUCTIONS for MEMB " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " ##~##   - Review your UC weekly gross, net and counted deductions. The net amount is not equal to the gross amount less counted deductions. ##~## Weekly Gross ($" & UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, each_unea_memb) & ") - Allowed Deductions ($" & UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, each_unea_memb) & ") = $" & calculated_net_weekly & " ##~## Weekly Budgeted Amount $" & UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, each_unea_memb) &  " ##~## Difference between gross and allowed deductions should equal the weekly budgeted ammount."
                                     End If
                                 End If
                             End If
@@ -4516,8 +4505,8 @@ Do
                     Next
 
                     'DIALOG 6
-                    If SNAP_checkbox = checked and trim(notes_on_wreg) = "" Then full_err_msg = full_err_msg & "~!~6^* Update WREG detail as this is a SNAP case."
-                    If living_situation = "Blank" or living_situation = "  " Then full_err_msg = full_err_msg & "~!~6^* Living situation needs to be entered for each case. 'Blank' is not valid."
+                    If SNAP_checkbox = checked and trim(notes_on_wreg) = "" Then full_err_msg = full_err_msg & "~!~6^* WREG Notes ##~##   - Update WREG detail as this is a SNAP case."
+                    If living_situation = "Blank" or living_situation = "  " Then full_err_msg = full_err_msg & "~!~6^* LIVING SITUATION ##~##   - Living situation needs to be entered for each case. 'Blank' is not valid."
                     'We are not erroring for if ADDR verification is 'NO' or '?' - if we get additional policy information that this is necessary - add it here
 
                     'DIALOG 7
@@ -4525,24 +4514,24 @@ Do
                     '     If trim(app_month_assets) = "" OR IsNumeric(app_month_assets) = FALSE AND exp_det_case_note_found = FALSE Then full_err_msg = full_err_msg & "~!~7^* Indicate the total of liquid assets in the application month."
                     ' End If
 
-                    If family_cash = TRUE and trim(notes_on_time) = "" Then full_err_msg = full_err_msg & "~!~7^* For a family cash case, detail on TIME needs to be added."
-                    If family_cash = TRUE and trim(notes_on_sanction) = "" Then full_err_msg = full_err_msg & "~!~7^* This is a family cash case, sanction detail needs to be added."
-                    If family_cash = TRUE and trim(EMPS) = "" Then full_err_msg = full_err_msg & "~!~7^* EMPS detail needs to be added for a family cash case. "
-                    If cash_checkbox = unchecked AND trim(DIET) <> "" Then full_err_msg = full_err_msg & "~!~7^* DIET information should not be entered into a non-cash case."
-                    If InStr(shelter_details, "Mortgage") AND trim(notes_on_rest) = "" Then full_err_msg = full_err_msg & "~!~7^* SHEL indicates that Mortgage is being paid, but no information has been added to REST. Update Shelter information or add detail to REST."
+                    If family_cash = TRUE and trim(notes_on_time) = "" Then full_err_msg = full_err_msg & "~!~7^* TIME ##~##   - For a family cash case, detail on TIME needs to be added."
+                    If family_cash = TRUE and trim(notes_on_sanction) = "" Then full_err_msg = full_err_msg & "~!~7^* SANCTION ##~##   - This is a family cash case, sanction detail needs to be added."
+                    If family_cash = TRUE and trim(EMPS) = "" Then full_err_msg = full_err_msg & "~!~7^* EMMPS ##~##   - EMPS detail needs to be added for a family cash case. "
+                    If cash_checkbox = unchecked AND trim(DIET) <> "" Then full_err_msg = full_err_msg & "~!~7^* DIET ##~##   - DIET information should not be entered into a non-cash case."
+                    If InStr(shelter_details, "Mortgage") AND trim(notes_on_rest) = "" Then full_err_msg = full_err_msg & "~!~7^* REST ##~##   - SHEL indicates that Mortgage is being paid, but no information has been added to REST. Update Shelter information or add detail to REST."
 
                     'DIALOG 8
-                    If CAF_status = "Select or Type" Then full_err_msg = full_err_msg & "~!~8^* Indicate the CAF Status."
+                    If CAF_status = "Select or Type" Then full_err_msg = full_err_msg & "~!~8^* CAF STATUS ##~##   - Indicate the CAF Status."
                     If the_process_for_snap = "Application" AND exp_det_case_note_found = FALSE Then
                         If trim(snap_denial_date) <> "" AND IsDate(snap_denial_date) = FALSE Then
-                            full_err_msg = full_err_msg & "~!~8^* This is a a SNAP case at application. You entered something in the SNAP denial date but it does not appear to be a date. Please list the date that SNAP will be denied if SNAP is being denied."
+                            full_err_msg = full_err_msg & "~!~8^* SNAP DENIAL DATE ##~##   - This is a a SNAP case at application. You entered something in the SNAP denial date but it does not appear to be a date. Please list the date that SNAP will be denied if SNAP is being denied."
                         ElseIf trim(snap_denial_date) = "" Then
                             If snap_exp_yn = "?" Then
-                                full_err_msg = full_err_msg & "~!~8^* This is a a SNAP case at application. Indicate if this case has been determined to be expedited SNAP or not."
+                                full_err_msg = full_err_msg & "~!~8^* IS THIS SNAP APPLICATION EXPEDITED ##~##   - This is a a SNAP case at application. Indicate if this case has been determined to be expedited SNAP or not."
                             Else
-                                If IsNumeric(app_month_income) = FALSE Then full_err_msg = full_err_msg & "~!~8^* Enter the income for the application month as a number."
-                                If IsNumeric(app_month_assets) = FALSE Then full_err_msg = full_err_msg & "~!~8^* Enter the liquid assets for the application month as a number."
-                                If IsNumeric(app_month_expenses) = FALSE Then full_err_msg = full_err_msg & "~!~8^* Enter the expenses (shelter and utilities) for the application month as a number."
+                                If IsNumeric(app_month_income) = FALSE Then full_err_msg = full_err_msg & "~!~8^* APP MONTH - INCOME ##~##   - Enter the income for the application month as a number."
+                                If IsNumeric(app_month_assets) = FALSE Then full_err_msg = full_err_msg & "~!~8^* APP MONTH - ASSETS ##~##   - Enter the liquid assets for the application month as a number."
+                                If IsNumeric(app_month_expenses) = FALSE Then full_err_msg = full_err_msg & "~!~8^* APP MONTH - EXPENSES ##~##   - Enter the expenses (shelter and utilities) for the application month as a number."
 
                                 case_should_be_xfs = FALSE
                                 If IsNumeric(app_month_income) = TRUE AND IsNumeric(app_month_assets) = TRUE AND IsNumeric(app_month_expenses) = TRUE Then
@@ -4559,20 +4548,20 @@ Do
                                         ' MsgBox "insufficient resources" & vbCR & "Resources - " & app_month_resources & vbCR & "Expenses - " & app_month_expenses
                                     End If
 
-                                    If snap_exp_yn = "Yes" and case_should_be_xfs = FALSE Then full_err_msg = full_err_msg & "~!~8^* This is indicated as Expedited, though based on app month details it appears to be NOT Expedited. App Month: Income - $" & app_month_income & ". Assets - $" & app_month_assets & ". Expenses - $" & app_month_expenses & "."
-                                    If snap_exp_yn = "No" AND case_should_be_xfs = TRUE Then full_err_msg = full_err_msg & "~!~8^* This is indicated as NOT Expedited, though based on app month details it appears to be EXPEDITED. App Month: Income - $" & app_month_income & ". Assets - $" & app_month_assets & ". Expenses - $" & app_month_expenses & "."
+                                    If snap_exp_yn = "Yes" and case_should_be_xfs = FALSE Then full_err_msg = full_err_msg & "~!~8^* SNAP EXPEDITED ##~##   - This is indicated as Expedited, though based on app month details it appears to be NOT Expedited. ##~## App Month: Income - $" & app_month_income & ". Assets - $" & app_month_assets & ". Expenses - $" & app_month_expenses & "."
+                                    If snap_exp_yn = "No" AND case_should_be_xfs = TRUE Then full_err_msg = full_err_msg & "~!~8^* SNAP EXPEDITED ##~##   - This is indicated as NOT Expedited, though based on app month details it appears to be EXPEDITED. ##~## App Month: Income - $" & app_month_income & ". Assets - $" & app_month_assets & ". Expenses - $" & app_month_expenses & "."
                                 End If
                                 If snap_exp_yn = "Yes" Then
                                     If IsDate(exp_snap_approval_date) = TRUE Then
-                                        If DateDiff("d", CAF_datestamp, exp_snap_approval_date) > 7 AND trim(exp_snap_delays) = "" Then full_err_msg = full_err_msg & "~!~8^* Since Expedited SNAP is not approved within 7 days of the date of application, pease explain the reason for the delay."
+                                        If DateDiff("d", CAF_datestamp, exp_snap_approval_date) > 7 AND trim(exp_snap_delays) = "" Then full_err_msg = full_err_msg & "~!~8^* EXPLAIN DELAYS ##~##   - Since Expedited SNAP is not approved within 7 days of the date of application, pease explain the reason for the delay."
                                     Else
-                                        If trim(exp_snap_delays) = "" Then full_err_msg = full_err_msg & "~!~8^* Since the Expedited SNAP does not have an approval date yet, either explain the reason for the delay or indicate the date of Expedited SNAP Approval."
+                                        If trim(exp_snap_delays) = "" Then full_err_msg = full_err_msg & "~!~8^* EXPLAIN DELAYS ##~##   - Since the Expedited SNAP does not have an approval date yet, either explain the reason for the delay or indicate the date of Expedited SNAP Approval."
                                     End If
                                 End If
                             End If
                         End If
                     End If
-                    If trim(actions_taken) = "" Then full_err_msg = full_err_msg & "~!~8^* Indicate what actions were taken when processing this CAF."
+                    If trim(actions_taken) = "" Then full_err_msg = full_err_msg & "~!~8^* ACTIONS TAKEN ##~##   - Indicate what actions were taken when processing this CAF."
                 End If
 
                 If full_err_msg <> "" Then
@@ -4978,9 +4967,9 @@ If HC_checkbox = checked Then
     hc_faci_info = FACI
 
     BeginDialog Dialog1, 0, 0, 481, 295, "HC Detail"
-      ComboBox 80, 5, 150, 15, "Select or Type"+chr(9)+"DHS-2128 (LTC Renewal)"+chr(9)+"DHS-3417B (Req. to Apply...)"+chr(9)+"DHS-3418 (HC Renewal)"+chr(9)+"DHS-3531 (LTC Application)"+chr(9)+"DHS-3876 (Certain Pops App)"+chr(9)+"DHS-6696 (MNsure HC App)"+chr(9)+"DHS-3727 (Combined AR for Certain Pops)", HC_document_received
+      ComboBox 80, 5, 150, 15, "Select or Type"+chr(9)+"DHS-2128 (LTC Renewal)"+chr(9)+"DHS-3417B (Req. to Apply...)"+chr(9)+"DHS-3418 (HC Renewal)"+chr(9)+"DHS-3531 (LTC Application)"+chr(9)+"DHS-3876 (Certain Pops App)"+chr(9)+"DHS-6696 (MNsure HC App)"+chr(9)+"DHS-3727 (Combined AR for Certain Pops)"+chr(9)+HC_document_received, HC_document_received
       EditBox 80, 20, 50, 15, HC_datestamp
-      ComboBox 360, 5, 115, 15, "Select of Type"+chr(9)+"incomplete"+chr(9)+"approved"+chr(9)+"denied", HC_form_status
+      ComboBox 360, 5, 115, 15, "Select of Type"+chr(9)+"incomplete"+chr(9)+"approved"+chr(9)+"denied"+chr(9)+HC_form_status, HC_form_status
       CheckBox 310, 25, 80, 10, "Application signed?", HC_application_signed_check
       CheckBox 405, 25, 65, 10, "MMIS updated?", MMIS_updated_check
       EditBox 65, 40, 165, 15, retro_request
