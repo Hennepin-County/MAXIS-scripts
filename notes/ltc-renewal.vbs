@@ -158,7 +158,6 @@ Do
         cancel_without_confirmation
 
         Call validate_MAXIS_case_number(err_msg, "*")
-        ' If Trim(MAXIS_footer_month) = "" OR trim(MAXIS_footer_year) = "" Then err_msg = err_msg & vbNewLine & "* Enter a footer month and year."
         If IsNumeric(MAXIS_footer_month) = False OR IsNumeric(MAXIS_footer_year) = False Then err_msg = err_msg & vbNewLine & "* Enter a valid footer month and year."
 
         If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
