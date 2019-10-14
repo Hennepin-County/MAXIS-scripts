@@ -51,7 +51,96 @@ call changelog_update("12/01/2016", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+'FUNCTIONS-------------------------------------------------------------------------------------------------
+Function MMIS_case_number_finder(MMIS_case_number)
+    row = 1
+    col = 1
+    EMSearch "CASE NUMBER:", row, col
+    If row <> 0 Then
+        EMReadScreen MMIS_case_number, 8, row, col + 13
+        MMIS_case_number = trim(MMIS_case_number)
+    End If
+    If MMIS_case_number = "" Then
+        row = 1
+        col = 1
+        EMSearch "CASE NBR:", row, col
+        If row <> 0 Then
+            EMReadScreen MMIS_case_number, 8, row, col + 10
+            MMIS_case_number = trim(MMIS_case_number)
+        End If
+    End If
+    If MMIS_case_number = "" Then
+        row = 1
+        col = 1
+        EMSearch "CASE:", row, col
+        If row <> 0 Then
+            EMReadScreen MMIS_case_number, 8, row, col + 6
+            MMIS_case_number = trim(MMIS_case_number)
+        End If
+    End If
+End Function
 
+Function get_to_RKEY()
+    EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
+    IF MMIS_panel_check <> "RKEY" THEN
+        attempt = 1
+        DO
+            If MMIS_case_number = "" Then Call MMIS_case_number_finder(MMIS_case_number)
+            PF6
+            EMReadScreen MMIS_panel_check, 4, 1, 52
+            attempt = attempt + 1
+            If attempt = 15 Then Exit Do
+        Loop Until MMIS_panel_check = "RKEY"
+    End If
+    EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
+    IF MMIS_panel_check <> "RKEY" THEN
+    	DO
+    		PF6
+    		EMReadScreen session_terminated_check, 18, 1, 7
+    	LOOP until session_terminated_check = "SESSION TERMINATED"
+
+        'Getting back in to MMIS and trasmitting past the warning screen (workers should already have accepted the warning when they logged themselves into MMIS the first time, yo.
+        EMWriteScreen "MW00", 1, 2
+        transmit
+        transmit
+
+        EMReadScreen MMIS_menu, 24, 3, 30
+	    If MMIS_menu = "GROUP SECURITY SELECTION" Then
+            row = 1
+            col = 1
+            EMSearch " C3", row, col
+            If row <> 0 Then
+                EMWriteScreen "x", row, 4
+                transmit
+            Else
+                row = 1
+                col = 1
+                EMSearch " C4", row, col
+                If row <> 0 Then
+                    EMWriteScreen "x", row, 4
+                    transmit
+                Else
+                    script_end_procedure_with_error_report("You do not appear to have access to the County Eligibility area of MMIS, this script requires access to this region. The script will now stop.")
+                End If
+            End If
+
+            'Now it finds the recipient file application feature and selects it.
+            row = 1
+            col = 1
+            EMSearch "RECIPIENT FILE APPLICATION", row, col
+            EMWriteScreen "x", row, col - 3
+            transmit
+        Else
+            'Now it finds the recipient file application feature and selects it.
+            row = 1
+            col = 1
+            EMSearch "RECIPIENT FILE APPLICATION", row, col
+            EMWriteScreen "x", row, col - 3
+            transmit
+        End If
+    END IF
+End Function
+'----------------------------------------------------------------------------------------------------------
 'DIALOG----------------------------------------------------------------------------------------------------
 BeginDialog case_dlg, 0, 0, 161, 225, "Enrollment Information"
   EditBox 90, 25, 60, 15, MMIS_case_number
@@ -94,24 +183,9 @@ EndDialog
 
 'SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""
-'call check_for_MMIS(True) 'Sending MMIS back to the beginning screen and checking for a password prompt
-EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
-IF MMIS_panel_check <> "RKEY" THEN
-	DO
-		PF6
-		EMReadScreen session_terminated_check, 18, 1, 7
-	LOOP until session_terminated_check = "SESSION TERMINATED"
-	'Getting back in to MMIS and transmitting past the warning screen (workers should already have accepted the warning screen when they logged themselves into MMIS the first time!)
-	EMWriteScreen "mw00", 1, 2
-	transmit
-	transmit
-	EMWriteScreen "x", 8, 3
-	transmit
-END IF
+Call MMIS_case_number_finder(MMIS_case_number)
 
-'grabs the PMI number if one is listed on RKEY
-EMReadscreen MMIS_case_number, 8, 9, 19
-MMIS_case_number= trim(MMIS_case_number)
+Call get_to_RKEY
 
 'do the dialog here
 Do
@@ -143,19 +217,7 @@ disenrollment_reason = "OE"
 
 'checking for an active MMIS session
 Call check_for_MMIS(True)
-EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
-IF MMIS_panel_check <> "RKEY" THEN
-	DO
-		PF6
-		EMReadScreen session_terminated_check, 18, 1, 7
-	LOOP until session_terminated_check = "SESSION TERMINATED"
-	'Getting back in to MMIS and transmitting past the warning screen (workers should already have accepted the warning screen when they logged themselves into MMIS the first time!)
-	EMWriteScreen "mw00", 1, 2
-	transmit
-	transmit
-	EMWriteScreen "x", 8, 3
-	transmit
-END IF
+Call get_to_RKEY
 
 'formatting variables----------------------------------------------------------------------------------------------------
 Need_CNOTE = FALSE
@@ -171,6 +233,7 @@ enrollment_date = "01/01/20"
 
 'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
 EMWriteScreen "i", 2, 19
+EMWriteScreen "        ", 4, 19
 EMWriteScreen MMIS_case_number, 9, 19
 transmit
 transmit
@@ -270,19 +333,7 @@ ReDim MMIS_clients_array (6, 0)
 
 EMReadScreen RCIN_check, 4, 1, 49
 If RCIN_check = "RCIN" Then PF6
-EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
-IF MMIS_panel_check <> "RKEY" THEN
-	DO
-		PF6
-		EMReadScreen session_terminated_check, 18, 1, 7
-	LOOP until session_terminated_check = "SESSION TERMINATED"
-	'Getting back in to MMIS and transmitting past the warning screen (workers should already have accepted the warning screen when they logged themselves into MMIS the first time!)
-	EMWriteScreen "mw00", 1, 2
-	transmit
-	transmit
-	EMWriteScreen "x", 8, 3
-	transmit
-END IF
+Call get_to_RKEY
 
 item = 0
 
@@ -394,19 +445,7 @@ process_manually_message = ""
 If MNSURE_Case = TRUE Then
 	For member = 0 to Ubound(MMIS_clients_array, 2)
 
-		EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
-		IF MMIS_panel_check <> "RKEY" THEN
-			DO
-				PF6
-				EMReadScreen session_terminated_check, 18, 1, 7
-			LOOP until session_terminated_check = "SESSION TERMINATED"
-			'Getting back in to MMIS and transmitting past the warning screen (workers should already have accepted the warning screen when they logged themselves into MMIS the first time!)
-			EMWriteScreen "mw00", 1, 2
-			transmit
-			transmit
-			EMWriteScreen "x", 8, 3
-			transmit
-		END IF
+        Call get_to_RKEY
 		'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
 		EMWriteScreen "c", 2, 19
 		EMWriteScreen "        ", 9, 19
@@ -480,7 +519,7 @@ If MNSURE_Case = TRUE Then
 					Else
 						EMWriteScreen plan_end_date, 13, 14
                         pf4
-						EMWriteScreen disenrol_rsn, 13, 75
+						EMWriteScreen disenrollment_reason, 13, 75
 						pf11
 					End If
 
@@ -525,7 +564,7 @@ If MNSURE_Case = TRUE Then
 					If double_check = "  " Then EMWriteScreen "...", 14, 5
 				End If
 			End If
-
+            ' MsgBox "RPPH updated - review"
 			'REFM screen
 			EMWriteScreen "refm", 1, 8
 			transmit
@@ -558,6 +597,7 @@ If MNSURE_Case = TRUE Then
 					If double_check = "??" Then EMWriteScreen "...", 14, 5
 				End If
 			END IF
+            ' MsgBox "At REFM - review"
 
 			'making sure script got to right panel
 			EMReadScreen REFM_check, 4, 1, 52
@@ -569,21 +609,22 @@ If MNSURE_Case = TRUE Then
 		EMSendkey "n"
 		PF9
 
-		'error handling to ensure that enrollment date and exclusion dates don't conflict
-		EMReadScreen REFM_error_check, 19, 24, 2 'checks for an inhibiting edit
-		If enrollment_year < "16" AND REFM_error_check = "WARNING: MA12,01/16" Then
-			script_end_procedure("This health plan is not available until 01/01/16." & vbNewLine & "Make sure you change the enrollment date when using the script again.")
-		ELSEIF REFM_error_check <> "WARNING: MA12,01/16" Then
-			IF REFM_error_check <> "                   " then
-                IF REFM_error_check <> "INVALID KEY ENTERED" AND REFM_error_check <> "INVALID KEY PRESSED" then
-                    EMReadScreen full_error_msg, 79, 24, 2
-                    full_error_msg = trim(full_error_msg)
-				    process_manually_message = process_manually_message & "You have entered information that is causing a warning error, or an inhibiting error for PMI "& MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & ". Refer to the MMIS USER MANUAL to resolve if necessary. Full error message: " & full_error_msg & vbNewLine & vbNewLine
-			    END if
-            END IF
-		END IF
 		'Save and case note
 		pf3
+        ' MsgBox "PF3 Pressed"
+        EMReadScreen look_for_RKEY, 4, 1, 52
+        ' MsgBox "Look for RKEY - " & look_for_RKEY
+        If look_for_RKEY <> "RKEY" Then
+            'We are going to try again to save the information
+            PF3
+    		EMReadScreen REFM_error_check, 79, 24, 2 'checks for an inhibiting edit
+            REFM_error_check = trim(REFM_error_check)
+            ' MsgBox "REFM error - " & REFM_error_check
+            If REFM_error_check <> "ACTION COMPLETED" Then
+                process_manually_message = process_manually_message & "You have entered information that is causing a warning error, or an inhibiting error for PMI "& MMIS_clients_array(client_pmi, member) & ". The enrollment for " & MMIS_clients_array(client_name, member) & ". Refer to the MMIS USER MANUAL to resolve if necessary. Full error message: " & REFM_error_check & vbNewLine & vbNewLine
+                PF6
+            End If
+        End If
 		EMWriteScreen "c", 2, 19
 		transmit
 		EMReadScreen rsum_enrollment, 8, 16, 20
@@ -604,19 +645,7 @@ If MNSURE_Case = TRUE Then
 Else
 	For member = 0 to Ubound(MMIS_clients_array, 2)
 
-		EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
-		IF MMIS_panel_check <> "RKEY" THEN
-			DO
-				PF6
-				EMReadScreen session_terminated_check, 18, 1, 7
-			LOOP until session_terminated_check = "SESSION TERMINATED"
-			'Getting back in to MMIS and transmitting past the warning screen (workers should already have accepted the warning screen when they logged themselves into MMIS the first time!)
-			EMWriteScreen "mw00", 1, 2
-			transmit
-			transmit
-			EMWriteScreen "x", 8, 3
-			transmit
-		END IF
+        Call get_to_RKEY
 		'Now we are in RKEY, and it navigates into the case, transmits, and makes sure we've moved to the next screen.
 		EMWriteScreen "c", 2, 19
 		EMWriteScreen "        ", 4, 19
@@ -712,7 +741,7 @@ Else
 					Else
 						EMWriteScreen plan_end_date, 13, 14
                         pf4
-						EMWriteScreen disenrol_rsn, 13, 75
+						EMWriteScreen disenrollment_reason, 13, 75
 						pf11
 					End If
 
@@ -841,22 +870,11 @@ Else
 	Next
 End If
 
-EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
-IF MMIS_panel_check <> "RKEY" THEN
-	DO
-		PF6
-		EMReadScreen session_terminated_check, 18, 1, 7
-	LOOP until session_terminated_check = "SESSION TERMINATED"
-	'Getting back in to MMIS and transmitting past the warning screen (workers should already have accepted the warning screen when they logged themselves into MMIS the first time!)
-	EMWriteScreen "mw00", 1, 2
-	transmit
-	transmit
-	EMWriteScreen "x", 8, 3
-	transmit
-END IF
+Call get_to_RKEY
 
 'Case Noting - goes into RSUM for the first client to do the case note
 IF Need_CNOTE = TRUE Then
+    ' MsgBox "STOP HERE - THE CASE NOTE"& vbNewLine & vbNewLine & failed_enrollment_message
 	EMWriteScreen "c", 2, 19
 	EMWriteScreen "        ", 9, 19
 	EMWriteScreen MMIS_clients_array(client_pmi, 0), 4, 19
