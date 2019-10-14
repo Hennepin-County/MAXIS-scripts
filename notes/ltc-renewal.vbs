@@ -44,18 +44,12 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/14/2019", "Added field to note the date the 1503 attachment is sent to the facility. Additionally added checkboxes to indicate MMIS updates/review.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-next_month = dateadd("m", + 1, date)
-MAXIS_footer_month = datepart("m", next_month)
-If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
-MAXIS_footer_year = datepart("yyyy", next_month)
-MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 
 'DIALOGS----------------------------------------------------------------------------------------------------
 BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
@@ -69,35 +63,30 @@ BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
   Text 10, 10, 45, 10, "Case number: "
 EndDialog
 
-BeginDialog BBUD_Dialog, 0, 0, 191, 76, "BBUD"
-  Text 5, 10, 180, 10, "This is a method B budget. What would you like to do?"
-  ButtonGroup ButtonPressed
-    PushButton 20, 25, 70, 15, "Jump to STAT/BILS", BILS_button
-    PushButton 100, 25, 70, 15, "Stay in ELIG/HC", ELIG_button
-    CancelButton 135, 55, 50, 15
-EndDialog
-
-BeginDialog LTC_recert_dialog, 0, 0, 431, 260, "LTC recert dialog"
+BeginDialog LTC_recert_dialog, 0, 0, 466, 260, "LTC recert dialog"
   EditBox 75, 45, 40, 15, recert_month
-  EditBox 170, 45, 215, 15, US_citizen
+  EditBox 170, 45, 290, 15, US_citizen
   EditBox 65, 65, 50, 15, MA_type
-  EditBox 220, 65, 35, 15, MEDI_reimbursement_prog
-  EditBox 360, 65, 65, 15, net_income_amt
+  EditBox 220, 65, 65, 15, MEDI_reimbursement_prog
+  EditBox 395, 65, 65, 15, net_income_amt
   EditBox 45, 85, 115, 15, HH_comp
-  EditBox 200, 85, 165, 15, AREP
+  EditBox 200, 85, 260, 15, AREP
   EditBox 35, 105, 245, 15, FACI
-  EditBox 35, 125, 390, 15, income
-  EditBox 35, 145, 390, 15, assets
-  EditBox 60, 165, 365, 15, recipient_amt
-  EditBox 50, 185, 375, 15, deductions
-  EditBox 50, 205, 375, 15, other_notes
+  EditBox 410, 105, 50, 15, sent_date_of_1503
+  EditBox 35, 125, 425, 15, income
+  EditBox 35, 145, 425, 15, assets
+  EditBox 60, 165, 400, 15, recipient_amt
+  EditBox 50, 185, 410, 15, deductions
+  EditBox 50, 205, 410, 15, other_notes
   CheckBox 5, 225, 100, 10, "Sent forms to AREP?", sent_arep_checkbox
-  CheckBox 120, 225, 120, 10, "Sent DHS-5181 to Case Manager", sent_5181_check
+  CheckBox 130, 225, 120, 10, "Sent DHS-5181 to Case Manager", sent_5181_check
+  CheckBox 285, 225, 60, 10, "MMIS Updated", mmis_updated_checkbox
+  CheckBox 350, 225, 110, 10, "MMIS Reviewed and is Correct", mmis_reviewed_checkbox
   DropListBox 60, 240, 75, 15, "complete"+chr(9)+"incomplete", review_status
   EditBox 215, 240, 65, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 320, 240, 50, 15
-    CancelButton 375, 240, 50, 15
+    OkButton 355, 240, 50, 15
+    CancelButton 410, 240, 50, 15
   GroupBox 20, 5, 60, 35, "Income panels"
   ButtonGroup ButtonPressed
     PushButton 25, 15, 25, 10, "BUSI", BUSI_button
@@ -118,6 +107,7 @@ BeginDialog LTC_recert_dialog, 0, 0, 431, 260, "LTC recert dialog"
     PushButton 260, 15, 35, 10, "ELIG/HC", ELIG_HC_button
     PushButton 205, 25, 25, 10, "MEMB", MEMB_button
     PushButton 230, 25, 25, 10, "MEMI", MEMI_button
+    PushButton 265, 25, 25, 10, "BILS", BILS_button
     PushButton 310, 15, 45, 10, "prev. panel", prev_panel_button
     PushButton 360, 15, 45, 10, "prev. memb", prev_memb_button
     PushButton 310, 25, 45, 10, "next panel", next_panel_button
@@ -130,8 +120,9 @@ BeginDialog LTC_recert_dialog, 0, 0, 431, 260, "LTC recert dialog"
   Text 125, 50, 40, 10, "US citizen?:"
   Text 5, 70, 60, 10, "MA type (ie EX-S):"
   Text 130, 70, 90, 10, "MEDI reimbursement prog:"
-  Text 275, 70, 80, 10, "Total countable income:"
+  Text 310, 70, 80, 10, "Total countable income:"
   Text 5, 90, 40, 10, "HH Comp:"
+  Text 285, 110, 120, 10, "Date 1503 Attachment Sent to FACI:"
   Text 5, 130, 30, 10, "Income:"
   Text 5, 150, 25, 10, "Assets:"
   Text 5, 170, 50, 10, "Recipient amt:"
@@ -141,7 +132,6 @@ BeginDialog LTC_recert_dialog, 0, 0, 431, 260, "LTC recert dialog"
   Text 145, 245, 65, 10, "Sign the case note:"
   GroupBox 200, 5, 100, 35, "Other important panels:"
 EndDialog
-
 
 
 'VARIABLES WHICH NEED DECLARING----------------------------------------------------------------------------------------------------
@@ -161,10 +151,23 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Showing the case number dialog
 Do
-  Dialog case_number_dialog
-  If ButtonPressed = 0 then stopscript
-  If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
-Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
+    Do
+        err_msg = ""
+
+        Dialog case_number_dialog
+        cancel_without_confirmation
+
+        Call validate_MAXIS_case_number(err_msg, "*")
+        ' If Trim(MAXIS_footer_month) = "" OR trim(MAXIS_footer_year) = "" Then err_msg = err_msg & vbNewLine & "* Enter a footer month and year."
+        If IsNumeric(MAXIS_footer_month) = False OR IsNumeric(MAXIS_footer_year) = False Then err_msg = err_msg & vbNewLine & "* Enter a valid footer month and year."
+
+        If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+    Loop until err_msg = ""
+    Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = False
+
+MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
+MAXIS_footer_year = right("00" & MAXIS_footer_year, 2)
 
 'checking for an active MAXIS session
 Call check_for_MAXIS (FALSE)
@@ -210,18 +213,18 @@ recert_month = MAXIS_footer_month & "/" & MAXIS_footer_year
 call navigate_to_MAXIS_screen("elig", "hc")
 EMReadScreen person_check, 2, 8, 31
 If person_check = "NO" then
-  MsgBox "Person 01 does not have HC on this case. The script will attempt to execute this on person 02. Please check this for errors before approving any results."
-  EMWriteScreen "x", 9, 26
+    MsgBox "Person 01 does not have HC on this case. The script will attempt to execute this on person 02. Please check this for errors before approving any results."
+    EMWriteScreen "x", 9, 26
 Else
-  EMWriteScreen "x", 8, 26
+    EMWriteScreen "x", 8, 26
 End if
 
 
 'Scans for possible secondary programs (QMB/SLMB/QI1)
 EMReadScreen second_program_elig_result, 4, 9, 41
 If second_program_elig_result = "ELIG" then
-  EMReadScreen QMB_SLMB_check, 4, 9, 28
-  If trim(QMB_SLMB_check) = "QMB" or trim(QMB_SLMB_check) = "SLMB" or trim(QMB_SLMB_check) = "QI1" then MEDI_reimbursement_prog = trim(QMB_SLMB_check)
+    EMReadScreen QMB_SLMB_check, 4, 9, 28
+    If trim(QMB_SLMB_check) = "QMB" or trim(QMB_SLMB_check) = "SLMB" or trim(QMB_SLMB_check) = "QI1" then MEDI_reimbursement_prog = trim(QMB_SLMB_check)
 End if
 
 'Jumps into the ELIG/HC screen for MA
@@ -311,28 +314,6 @@ If EBUD_check = "EBUD" then
   other = "MA-EPD premium is $" & trim(MA_EPD_premium) & "/mo."
 End if
 
-'Checks for BBUD, then if it's a BBUD it'll read info about the budget, and offer a chance to auto-navigate to STAT/BILS to manually fill in budget info
-EMReadScreen BBUD_check, 4, 3, 47
-If BBUD_check = "BBUD" then
-  EMReadScreen net_income_amt, 10, 12, 32
-  net_income_amt = "$" & trim(net_income_amt)
-  Dialog BBUD_dialog
-  If ButtonPressed = 0 then stopscript
-  If ButtonPressed = 4 then
-    PF3
-    EMReadScreen check_for_MAXIS(True), 5, 1, 39
-    If check_for_MAXIS(True) <> "MAXIS" then
-      Do
-        Dialog BBUD_Dialog
-        If buttonpressed = 0 then stopscript
-      Loop until check_for_MAXIS(True) = "MAXIS"
-    End if
-    call navigate_to_MAXIS_screen("stat", "bils")
-    EMReadScreen BILS_check, 4, 2, 54
-    If BILS_check <> "BILS" then transmit
-  End if
-End if
-
 'Cleans up the recipient_amt variable and deductions variable
 If recipient_amt = "$" then recipient_amt = "$0"
 If right(deductions, 2) = "; " then deductions = left(deductions, len(deductions) - 2)
@@ -340,15 +321,23 @@ If right(deductions, 2) = "; " then deductions = left(deductions, len(deductions
 'Shows the recert dialog
 Do
 	DO
+        err_msg = ""
+
 		Dialog LTC_recert_dialog
 		cancel_confirmation
 		MAXIS_dialog_navigation
-	LOOP until ButtonPressed = -1
-	If worker_signature = "" then MsgBox "Please sign your case note."
-LOOP until worker_signature <> ""
+
+        If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Please sign your case note."
+        If ButtonPressed <> -1 Then err_msg = "LOOP" & err_msg
+
+        If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+    Loop until err_msg = ""
+    Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = False
 
 'Functions to confirm an active MAXIS session
 Call check_for_MAXIS(False)
+sent_date_of_1503 = trim(sent_date_of_1503)
 
 
 'Logic to fix the naming in the "recipient amt" variable (not everyone likes calling it "recipient amt"
@@ -367,6 +356,7 @@ call write_bullet_and_variable_in_case_note("HH comp", HH_comp)
 call write_bullet_and_variable_in_case_note("Citizenship", US_citizen)
 call write_bullet_and_variable_in_case_note("AREP", AREP)
 call write_bullet_and_variable_in_case_note("FACI", FACI)
+Call write_bullet_and_variable_in_CASE_NOTE("1503 Attachment Sent to Facility", sent_date_of_1503)
 call write_bullet_and_variable_in_case_note("Income", income)
 call write_bullet_and_variable_in_case_note("Total countable income", net_income_amt)
 call write_bullet_and_variable_in_case_note("Assets", assets)
@@ -375,6 +365,8 @@ call write_bullet_and_variable_in_case_note("Deducts", deductions)
 call write_bullet_and_variable_in_case_note("Notes", other_notes)
 IF Sent_arep_checkbox = 1 THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 IF sent_5181_check = 1 THEN CALL write_variable_in_case_note("* Sent DHS-5181 to Case Manager.")
+If mmis_updated_checkbox = checked Then Call write_variable_in_CASE_NOTE("* MMIS Updated.")
+If mmis_reviewed_checkbox = checked Then Call write_variable_in_CASE_NOTE("* MMIS Reviewed and is coded correctly.")
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
