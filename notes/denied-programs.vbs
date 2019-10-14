@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("10/14/2019", "Removed NOMI and TIKL for case transfer checkboxes and associated functionailty.", "Ilse Ferris, Hennepin County")
 Call changelog_update("07/10/2019", "Bug Fix - script would complete if the SPEC/WCOM navigation button was used, preventing the full dialog from being cmompleted.", "Casey Love, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/04/2017", "Added handling for multiple recipient changes to SPEC/WCOM", "David Courtright, St Louis County")
@@ -173,7 +174,7 @@ End function
 
 'THE DIALOG----------------------------------------------------------------------------------------------------
 'This dialog uses a dialog_shrink_amt variable, along with an if...then which is decided by the global variable case_noting_intake_dates.
-BeginDialog denied_dialog, 0, 0, 401, 385 - dialog_shrink_amt, "Denied progs dialog"
+BeginDialog denied_dialog, 0, 0, 401, 375 - dialog_shrink_amt, "Denied progs dialog"
   EditBox 65, 5, 55, 15, MAXIS_case_number
   EditBox 185, 5, 55, 15, application_date
   CheckBox 60, 25, 35, 10, "SNAP", SNAP_check
@@ -218,16 +219,14 @@ BeginDialog denied_dialog, 0, 0, 401, 385 - dialog_shrink_amt, "Denied progs dia
     Text 5, 195, 150, 10, "If there are any open programs, list them here: "
     Text 5, 215, 175, 10, "If there are any HH membs open on HC, list them here: "
   End if
-  CheckBox 5, 335 - dialog_shrink_amt, 65, 10, "Updated MMIS?", updated_MMIS_check
-  CheckBox 80, 335 - dialog_shrink_amt, 155, 10, "Check here if you sent a NOMI to this client.", NOMI_check
-  CheckBox 245, 335 - dialog_shrink_amt, 95, 10, "WCOM added to notice?", WCOM_check
-  CheckBox 30, 350 - dialog_shrink_amt, 125, 10, "Check here to TIKL to send to CLS.", TIKL_check
-  EditBox 75, 365 - dialog_shrink_amt, 70, 15, worker_signature
+  CheckBox 75, 335 - dialog_shrink_amt, 65, 10, "Updated MMIS?", updated_MMIS_check
+  CheckBox 150, 335 - dialog_shrink_amt, 95, 10, "WCOM added to notice?", WCOM_check
+  EditBox 75, 350 - dialog_shrink_amt, 180, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 265, 365 - dialog_shrink_amt, 50, 15
-    CancelButton 320, 365 - dialog_shrink_amt, 50, 15
+    OkButton 265, 350 - dialog_shrink_amt, 50, 15
+    CancelButton 320, 350 - dialog_shrink_amt, 50, 15
     PushButton 250, 5, 145, 15, "Autofill previous denied progs script info", autofill_previous_info_button
-    PushButton 345, 335 - dialog_shrink_amt, 50, 10, "SPEC/WCOM", SPEC_WCOM_button
+    PushButton 320, 335 - dialog_shrink_amt, 50, 10, "SPEC/WCOM", SPEC_WCOM_button
   Text 5, 25, 50, 10, "Denied Progs: "
   Text 5, 10, 50, 10, "Case number:"
   Text 125, 10, 55, 10, "Application date:"
@@ -236,7 +235,7 @@ BeginDialog denied_dialog, 0, 0, 401, 385 - dialog_shrink_amt, "Denied progs dia
   Text 5, 175, 45, 10, "Other notes:"
   Text 5, 45, 45, 10, "Denial Date: "
   Text 5, 60, 40, 10, "Reasons:"
-  Text 5, 370 - dialog_shrink_amt, 65, 10, "Worker signature: "
+  Text 5, 355 - dialog_shrink_amt, 60, 10, "Worker signature: "
 EndDialog
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
@@ -532,7 +531,6 @@ call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 If updated_MMIS_check = 1 then call write_variable_in_case_note("* Updated MMIS.")
 If disabled_client_check = 1 then call write_variable_in_case_note("* Client is disabled.")
 If WCOM_check = 1 then call write_variable_in_case_note("* Added WCOM to notice.")
-If NOMI_check = 1 then call write_variable_in_case_note("* Sent NOMI to client.")
 If case_noting_intake_dates = True then
 	call write_variable_in_case_note("---")
 	If HC_check = 1 then call write_bullet_and_variable_in_case_note("Last HC REIN date", HC_last_REIN_date)
@@ -553,40 +551,6 @@ call write_bullet_and_variable_in_case_note("Other notes", other_notes)
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
-'defining ending message without te TIKLS
-ending_message = "Success! Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly."
-
-'TIKL PORTION -------------------------------------------------------------------------------------------------------------
-If TIKL_check = 1 THEN
-	'IF PROGRAMS ARE STILL OPEN, BUT THE "TIKL TO SEND TO CLS" PARAMETER WAS SET, THE SCRIPT NEEDS TO STOP, AS THE CASE CAN'T GO TO CLS.
-	If open_prog_check = 1 then
-		MsgBox "Because you checked the open programs box, the script will not TIKL to send to CLS."
-		IF edit_notice_check = checked AND notice_edited = false THEN msgbox "WARNING: You asked the script to edit the eligibilty notices for you, but there were no waiting SNAP/CASH notices showing denied for no proofs.  Please check your denial reasons or edit manually if needed."
-		script_end_procedure("")
-	End if
-
-	'IT NAVIGATES TO DAIL/WRIT.
-	call navigate_to_MAXIS_screen("dail", "writ")
-
-	'DETERMINES THE CORRECT FORMATTING FOR THE DATE CLIENT BECOMES AN INTAKE.
-	TIKL_day = datepart("d", intake_date)
-	If len(TIKL_day) = 1 then TIKL_day = "0" & TIKL_day
-	TIKL_month = datepart("m", intake_date)
-	If len(TIKL_month) = 1 then TIKL_month = "0" & TIKL_month
-	TIKL_year = right(intake_date, 2)
-
-	'WRITES TIKL TO SEND TO CLS
-	EMWriteScreen TIKL_month, 5, 18
-	EMWriteScreen TIKL_day, 5, 21
-	EMWriteScreen TIKL_year, 5, 24
-	EMSetCursor 9, 3
-	EMSendKey "Case was denied " & denial_date & ". If required proofs have not been received, send to CLS per policy. TIKL auto-generated via script."
-	'SAVES THE TIKL
-	PF3
-	ending_message = "Success! Case noted and TIKL sent. Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly."
-END IF
-
 'SUCCESS NOTICE
 IF edit_notice_check = checked AND notice_edited = false THEN msgbox "WARNING: You asked the script to edit the eligibilty notices for you, but there were no waiting SNAP/CASH notices showing denied for no proofs.  Please check your denial reasons or edit manually if needed."
-
-script_end_procedure(ending_message) 'the ending message is determined earlier based on if a TIKL was created or not. This makes sure to include the "Success!" which is how we gather stats for scripts that ran to the end.
+script_end_procedure("Success! Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly.") 
