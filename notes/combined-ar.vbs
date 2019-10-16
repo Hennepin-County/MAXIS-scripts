@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("10/16/2019", "Since this script will be removed soon, there is now an option to run the scripts that currently cover this process from this script. This allows time to adjust to the new scripts and their workflow and requirements. These scripts are significantly larger and may take some adjustment. ##~## ##~## You can now run either NOTES - CAF or NOTES - HC Renewal from this script at the very beginning.##~##", "Casey Love, Hennepin County")
 Call changelog_update("10/15/2019", "This script will no longer be available effective 11/1/19. ##~## ##~## The functionality to process this form can be found in NOTES - CAF or NOTES - HC Renewal. ##~## ##~## This script does not provide sufficient detail in notes for the redetermination of eligibility. Please try using one of these other options prior to this script removal on 11/1/19.##~##", "Casey Love, Hennepin County")
 Call changelog_update("10/02/2019", "This script will be retired soon. ##~## This functionality and form is supported in the script NOTES - CAF or NOTES - HC Renewal. ##~## ##~## Please use the CAF or HC Renewal to document interview and/or actions taken from processing a Combined Annual Reneal for Certain Populations. ##~##", "'Casey Love, Hennepin County'")
 Call changelog_update("03/06/2019", "Added 2 new options to the Notes on Income button to support referencing CASE/NOTE made by Earned Income Budgeting.", "Casey Love, Hennepin County")
@@ -54,6 +55,27 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
+BeginDialog Dialog1, 0, 0, 236, 125, "Select Script to Run"
+  DropListBox 20, 105, 150, 45, "NOTES - Combined AR"+chr(9)+"NOTES - CAF"+chr(9)+"NOTES - HC Renewal", script_to_run
+  ButtonGroup ButtonPressed
+    OkButton 180, 105, 50, 15
+  Text 30, 10, 170, 10, "***  This script will be removed on November 1. ***"
+  Text 20, 30, 180, 20, "The processing of this form can be noted using either of the following scripts:"
+  Text 25, 55, 160, 10, "NOTES - CAF (for cases actvie CASH or SNAP)"
+  Text 25, 70, 200, 10, "NOTES - HC Renewal (for cases active HEALTH CARE only)"
+  Text 20, 90, 130, 10, "Select the script you would like to run:"
+EndDialog
+
+Do
+    dialog Dialog1
+    cancel_without_confirmation
+
+    Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
+
+If script_to_run = "NOTES - CAF" Then  Call run_from_GitHub(script_repository & "notes/caf.vbs")
+If script_to_run = "NOTES - HC Renewal" Then  Call run_from_GitHub(script_repository & "notes/hc-renewal.vbs")
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 next_month = dateadd("m", 1, date)
@@ -77,7 +99,7 @@ MAXIS_footer_month = cstr(MAXIS_footer_month)
 MAXIS_footer_year = cstr(MAXIS_footer_year)
 
 
-BeginDialog combined_AR_dialog, 0, 0, 181, 100, "Case number dialog"
+BeginDialog Dialog1, 0, 0, 181, 100, "Case number dialog"
   EditBox 80, 5, 70, 15, MAXIS_case_number
   EditBox 80, 25, 30, 15, MAXIS_footer_month
   EditBox 120, 25, 30, 15, MAXIS_footer_year
@@ -94,7 +116,7 @@ BeginDialog combined_AR_dialog, 0, 0, 181, 100, "Case number dialog"
 EndDialog
 'Shows case number dialog
 Do
-	Dialog combined_AR_dialog
+	Dialog Dialog1
 	If buttonpressed = 0 then StopScript
 	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
 Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
@@ -160,7 +182,7 @@ DO
 	Do
         err_msg = ""
 
-        BeginDialog Combined_AR_dialog, 0, 0, 441, 355, "Combined AR dialog"
+        BeginDialog Dialog1, 0, 0, 441, 355, "Combined AR dialog"
           EditBox 70, 35, 50, 15, recert_datestamp
           EditBox 200, 35, 40, 15, recert_month
           EditBox 60, 55, 50, 15, interview_date
@@ -230,12 +252,12 @@ DO
           GroupBox 330, 5, 110, 35, "STAT-based navigation"
         EndDialog
 
-		Dialog combined_AR_dialog
+		Dialog Dialog1
 		cancel_confirmation
 		MAXIS_dialog_navigation
 
         If ButtonPressed = income_notes_button Then
-            BeginDialog Combined_AR_dialog, 0, 0, 351, 215, "Explanation of Income"
+            BeginDialog Dialog1, 0, 0, 351, 215, "Explanation of Income"
               CheckBox 10, 30, 325, 10, "JOBS - Income detail on previous note(s)", see_other_note_checkbox
               CheckBox 10, 45, 325, 10, "JOBS - Income has not been verified and detail will be entered when received.", not_verified_checkbox
               CheckBox 10, 60, 325, 10, "JOBS - Client has confirmed that JOBS income is expected to continue at this rate and hours.", jobs_anticipated_checkbox
@@ -254,7 +276,7 @@ DO
               Text 45, 85, 315, 10, "varies significantly, client should provide proof of this difference to have benefits adjusted."
             EndDialog
 
-            Dialog Combined_AR_dialog
+            Dialog Dialog1
             If ButtonPressed = add_to_notes_button Then
                 If see_other_note_checkbox Then notes_on_income = notes_on_income & "; Full detail about income can be found in previous note(s)."
                 If not_verified_checkbox Then notes_on_income = notes_on_income & "; This income has not been fully verified and information about income for budget will be noted when the verification is received."
