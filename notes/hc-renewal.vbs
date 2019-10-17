@@ -50,8 +50,21 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and footer month"
+'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+HH_memb_row = 5
+Dim row
+Dim col
+HC_check = 1 'This is so the functions will work without having to select a program. It uses the same dialogs as the CSR, which can look in multiple places. This is HC only, so it doesn't need those.
+
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connecting to BlueZone
+EMConnect ""
+
+'Grabbing the case number
+call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
+BeginDialog Dialog1, 0, 0, 161, 65, "HC Renewal Script Case number"
   Text 5, 10, 85, 10, "Enter your case number:"
   EditBox 95, 5, 60, 15, MAXIS_case_number
   Text 15, 30, 50, 10, "Footer month:"
@@ -63,7 +76,47 @@ BeginDialog case_number_and_footer_month_dialog, 0, 0, 161, 65, "Case number and
     CancelButton 85, 45, 50, 15
 EndDialog
 
-BeginDialog HC_ER_dialog, 0, 0, 456, 300, "HC ER dialog"
+'Showing the case number dialog
+Do
+	err_msg = ""
+	Do
+  		Dialog Dialog1    'initial dialog
+  		If ButtonPressed = 0 then Stopscript    'if cancel is pressed then the script ends
+  		Call check_for_password(are_we_passworded_out)    'function to see if users is password-ed out
+	Loop until are_we_passworded_out = false  	'will loop until user is password-ed back in
+	If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
+	If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
+	If IsNumeric(MAXIS_case_number) = False or Len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* You must enter a valid case number."
+  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+LOOP until err_msg = ""
+
+'initial navigation
+Call MAXIS_footer_month_confirmation	'confirming that the footer month/year in the MAXIS panel and the dialog box selected by the user are the same'
+'Navigating to STAT, checks for abended cases
+call navigate_to_MAXIS_screen("stat", "memb")
+'Creating a custom dialog for determining who the HH members are
+CALL HH_member_custom_dialog(HH_member_array)
+
+'Autofilling info from STAT
+CALL autofill_editbox_from_MAXIS(HH_member_array, "ACCT", assets)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "CARS", assets)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "CASH", assets)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "COEX", COEX_DCEX)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "DCEX", COEX_DCEX)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "OTHR", assets)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "REST", assets)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "REVW", recert_datestamp)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
+CALL autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
+
+'Creating variable for recert_month
+recert_month = MAXIS_footer_month & "/" & MAXIS_footer_year
+
+BeginDialog Dialog1, 0, 0, 456, 300, "HC ER dialog"
   EditBox 75, 50, 50, 15, recert_datestamp
   DropListBox 185, 50, 75, 15, "(select one...)"+chr(9)+"complete"+chr(9)+"incomplete", recert_status
   EditBox 325, 50, 125, 15, HH_comp
@@ -130,66 +183,12 @@ BeginDialog HC_ER_dialog, 0, 0, 456, 300, "HC ER dialog"
   Text 165, 135, 100, 10, "Cost-effective insa availablity:"
 EndDialog
 
-'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-HH_memb_row = 5
-Dim row
-Dim col
-HC_check = 1 'This is so the functions will work without having to select a program. It uses the same dialogs as the CSR, which can look in multiple places. This is HC only, so it doesn't need those.
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connecting to BlueZone
-EMConnect ""
-
-'Grabbing the case number
-call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
-'Showing the case number dialog
-Do
-	err_msg = ""
-	Do
-  		Dialog case_number_and_footer_month_dialog    'initial dialog
-  		If ButtonPressed = 0 then Stopscript    'if cancel is pressed then the script ends
-  		Call check_for_password(are_we_passworded_out)    'function to see if users is password-ed out
-	Loop until are_we_passworded_out = false  	'will loop until user is password-ed back in
-	If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
-	If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
-	If IsNumeric(MAXIS_case_number) = False or Len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* You must enter a valid case number."
-  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-LOOP until err_msg = ""
-
-'initial navigation
-Call MAXIS_footer_month_confirmation	'confirming that the footer month/year in the MAXIS panel and the dialog box selected by the user are the same'
-'Navigating to STAT, checks for abended cases
-call navigate_to_MAXIS_screen("stat", "memb")
-'Creating a custom dialog for determining who the HH members are
-CALL HH_member_custom_dialog(HH_member_array)
-
-'Autofilling info from STAT
-CALL autofill_editbox_from_MAXIS(HH_member_array, "ACCT", assets)
-CALL autofill_editbox_from_MAXIS(HH_member_array, "BUSI", earned_income)
-CALL autofill_editbox_from_MAXIS(HH_member_array, "CARS", assets)
-CALL autofill_editbox_from_MAXIS(HH_member_array, "CASH", assets)
-CALL autofill_editbox_from_MAXIS(HH_member_array, "COEX", COEX_DCEX)
-CALL autofill_editbox_from_MAXIS(HH_member_array, "DCEX", COEX_DCEX)
-CALL autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
-CALL autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)
-CALL autofill_editbox_from_MAXIS(HH_member_array, "OTHR", assets)
-CALL autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
-CALL autofill_editbox_from_MAXIS(HH_member_array, "REST", assets)
-CALL autofill_editbox_from_MAXIS(HH_member_array, "REVW", recert_datestamp)
-CALL autofill_editbox_from_MAXIS(HH_member_array, "SECU", assets)
-CALL autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
-
-'Creating variable for recert_month
-recert_month = MAXIS_footer_month & "/" & MAXIS_footer_year
-
 'Showing case note dialog, with navigation and required answers logic
 DO
 	Do
 		Do
 			err_msg = ""
-			Dialog HC_ER_dialog				'Displays the dialog
+			Dialog Dialog1				'Displays the dialog
 			cancel_confirmation				'Asks if we are sure we want to cancel if the cancel button is pressed
 			MAXIS_dialog_navigation			'Custom function which contains all of the MAXIS dialog navigation possibilities
 			If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"		'Goes to SIR if button is pressed

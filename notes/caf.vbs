@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("10/16/2019", "BUG Fix - sometimes the script hit an error after leaving Dialog 8 - this should resolve that error. ##~## ##~## Added a NEW BUTTON that will display the Missing Fields Message (also called the 'Error Message') after clicking 'Done' on dialog 8 if the script needs updates. Look for the button 'Show Dialog Review Message' on each dialog after the message shows for the first time. ##~## This button will allow you to review the missing fields or updates that need to be made so that you do not have to try to remember them. The button only appears after the message was shown for the first time.##~##", "Casey Love, Hennepin County")
 Call changelog_update("10/14/2019", "Added autofill functionality for TIME and SANC panels so the editboxes are filled if the panel is present.##~##", "Casey Love, Hennepin County")
 call changelog_update("10/10/2019", "Updated 3 bugs/issues: ##~## ##~## - Sometimmes the list of clients on the 'Qualifying Quesitons Dialog' was not filled and was blank, this is now resolved and should always have a list of clients. ##~## - The script was 'forgetting' informmation typed into a ComboBox when a dialog appears for a subsequent time. This is now resolved. ##~## - Added headers to the mmissed fields/error message after Dialog 8 for more readability.", "Casey Love, Hennepin County")
 Call changelog_update("10/01/2019", "CAF Functionality is enhanced for more complete and comprehensive documentation of CAF processing. This new functionality has been available for trial for the past 2 weeks. ##~## ##~## Live Skype Demos of this new functionality are availble this week and next. See Hot Topics for more details about the enhanceed functionality and the demo sessions. ##~##", "Casey Love, Hennepin County")
@@ -61,6 +62,51 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'FUNCTIONS =================================================================================================================
+function display_errors(the_err_msg, execute_nav)
+    If the_err_msg <> "" Then
+        If left(the_err_msg, 3) = "~!~" Then the_err_msg = right(the_err_msg, len(the_err_msg) - 3)
+        err_array = split(the_err_msg, "~!~")
+
+        error_message = ""
+        msg_header = ""
+        for each message in err_array
+            current_listing = left(message, 1)
+            If current_listing <> msg_header Then
+                If current_listing = "1" Then tagline = ": Personal Information"
+                If current_listing = "2" Then tagline = ": JOBS"
+                If current_listing = "3" Then tagline = ": BUSI"
+                If current_listing = "4" Then tagline = ": Child Support"
+                If current_listing = "5" Then tagline = ": Unearned Income"
+                If current_listing = "6" Then tagline = ": WREG, Expenses, Address"
+                If current_listing = "7" Then tagline = ": Assets and Misc."
+                If current_listing = "8" Then tagline = ": Interview Detail"
+                error_message = error_message & vbNewLine & vbNewLine & "----- Dialog " & current_listing & tagline & " -------"
+            End If
+            if msg_header = "" Then back_to_dialog = current_listing
+            msg_header = current_listing
+
+            message = replace(message, "##~##", vbCR)
+
+            error_message = error_message & vbNewLine & right(message, len(message) - 2)
+        Next
+
+        view_errors = MsgBox("In order to complete the script and CASE/NOTE, additional details need to be added or refined. Please review and update." & vbNewLine & error_message, vbCritical, "Review detail required in Dialogs")
+
+        If execute_nav = TRUE Then
+            If back_to_dialog = "1" Then ButtonPressed = dlg_one_button
+            If back_to_dialog = "2" Then ButtonPressed = dlg_two_button
+            If back_to_dialog = "3" Then ButtonPressed = dlg_three_button
+            If back_to_dialog = "4" Then ButtonPressed = dlg_four_button
+            If back_to_dialog = "5" Then ButtonPressed = dlg_five_button
+            If back_to_dialog = "6" Then ButtonPressed = dlg_six_button
+            If back_to_dialog = "7" Then ButtonPressed = dlg_seven_button
+            If back_to_dialog = "8" Then ButtonPressed = dlg_eight_button
+
+            Call assess_button_pressed
+        End If
+    End If
+End Function
+
 function HH_comp_dialog(HH_member_array)
 	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
 
@@ -2309,7 +2355,7 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 script_run_lowdown = ""
 
-BeginDialog Dialog1, 0, 0, 281, 235, "Case number dialog"
+BeginDialog Dialog1, 0, 0, 281, 235, "CAF Script Case number dialog"
   EditBox 65, 50, 60, 15, MAXIS_case_number
   EditBox 210, 50, 15, 15, MAXIS_footer_month
   EditBox 230, 50, 15, 15, MAXIS_footer_year
@@ -2874,7 +2920,7 @@ If version_numb = "1" Then
 End If
 
 ' call verification_dialog
-
+prev_err_msg = ""
 notes_on_busi = ""
 
 Do
@@ -2892,6 +2938,14 @@ Do
                                         err_array = ""
                                         If show_one = true Then
                                             BeginDialog Dialog1, 0, 0, 465, 275, "CAF Dialog 1 - Personal Information"
+                                              If interview_required = TRUE Then Text 5, 10, 300, 10,  "* CAF datestamp:                             * Interview type:"
+                                              If interview_required = FALSE Then Text 5, 10, 300, 10, "* CAF datestamp:                             Interview type:"
+                                              If interview_required = TRUE Then Text 5, 30, 300, 10,  "* Interview date:                               * How was application received?:"
+                                              If interview_required = FALSE Then Text 5, 30, 300, 10, "  Interview date:                               * How was application received?:"
+                                              If interview_required = TRUE Then Text 5, 50, 85, 10, "* Interview completed with:"
+                                              If interview_required = FALSE Then Text 5, 50, 85, 10, "Interview completed with:"
+                                              Text 10, 260, 350, 10, "1 - Personal    |                    |                   |                   |                    |                   |                      |"
+
                                               EditBox 60, 5, 50, 15, CAF_datestamp
                                               ComboBox 175, 5, 70, 15, "Select or Type"+chr(9)+"phone"+chr(9)+"office"+chr(9)+interview_type, interview_type
                                               CheckBox 255, 10, 65, 10, "Used Interpreter", Used_Interpreter_checkbox
@@ -2916,7 +2970,6 @@ Do
                                               ButtonGroup ButtonPressed
                                               PushButton 445, 205, 15, 15, "!", tips_and_tricks_verifs_button
                                                 PushButton 5, 210, 50, 10, "Verifs needed:", verif_button
-                                                Text 10, 260, 45, 10, "1 - Personal"
                                                 PushButton 60, 260, 35, 10, "2 - JOBS", dlg_two_button
                                                 PushButton 100, 260, 35, 10, "3 - BUSI", dlg_three_button
                                                 PushButton 140, 260, 35, 10, "4 - CSES", dlg_four_button
@@ -2955,6 +3008,7 @@ Do
                                                 PushButton 255, 235, 25, 10, "SANC", SANC_button
                                                 PushButton 280, 235, 25, 10, "TIME", TIME_button
                                                 PushButton 305, 235, 25, 10, "TYPE", TYPE_button
+                                                If prev_err_msg <> "" Then PushButton 360, 235, 100, 15, "Show Dialog Review Message", dlg_revw_button
                                                 OkButton 600, 500, 50, 15
                                               Text 5, 70, 25, 10, "CIT/ID:"
                                               If trim(ABPS) <> "" AND the_process_for_cash = "Application" Then
@@ -2966,22 +3020,7 @@ Do
                                               GroupBox 5, 225, 115, 25, "ELIG panels:"
                                               GroupBox 125, 225, 210, 25, "other STAT panels:"
                                               GroupBox 330, 5, 115, 35, "STAT-based navigation"
-                                              Text 5, 10, 55, 10, "* CAF datestamp:"
-                                              If interview_required = TRUE Then Text 5, 30, 55, 10, "* Interview date:"
-                                              If interview_required = FALSE Then Text 5, 30, 55, 10, "Interview date:"
-                                              If interview_required = TRUE Then Text 115, 10, 55, 10, "* Interview type:"
-                                              If interview_required = FALSE Then Text 120, 10, 50, 10, "Interview type:"
-                                              Text 115, 30, 110, 10, "* How was application received?:"
-                                              If interview_required = TRUE Then Text 5, 50, 85, 10, "* Interview completed with:"
-                                              If interview_required = FALSE Then Text 5, 50, 85, 10, "Interview completed with:"
                                               GroupBox 5, 250, 355, 25, "Dialog Tabs"
-                                              Text 55, 260, 5, 10, "|"
-                                              Text 95, 260, 5, 10, "|"
-                                              Text 135, 260, 5, 10, "|"
-                                              Text 175, 260, 5, 10, "|"
-                                              Text 215, 260, 5, 10, "|"
-                                              Text 255, 260, 5, 10, "|"
-                                              Text 300, 260, 5, 10, "|"
                                             EndDialog
 
                                             Dialog Dialog1
@@ -3002,6 +3041,7 @@ Do
                                             ' If ButtonPressed = tips_and_tricks_interview_button Then ButtonPressed = dlg_one_button
                                             ' If ButtonPressed = tips_and_tricks_cs_forms_button Then ButtonPressed = dlg_one_button
                                             ' If ButtonPressed = tips_and_tricks_verifs_button Then ButtonPressed = dlg_one_button
+                                            If ButtonPressed = dlg_revw_button THen Call display_errors(prev_err_msg, FALSE)
                                             If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
 
                                             Call assess_button_pressed
@@ -3071,36 +3111,27 @@ Do
                                                       Text 180, y_pos, 200, 10, "Verif: " & ALL_JOBS_PANELS_ARRAY(verif_code, each_job)
                                                       CheckBox 365, y_pos, 220, 10, "Check here if this income is not verified and is only an estimate.", ALL_JOBS_PANELS_ARRAY(estimate_only, each_job)
                                                       y_pos = y_pos + 20
-                                                      IF ALL_JOBS_PANELS_ARRAY(EI_case_note, each_job) = TRUE Then Text 405, y_pos, 175, 10, "EARNED INCOME BUDGETING CASE NOTE FOUND"
-                                                      Text 15, y_pos, 40, 10, "Verification:"
+                                                      IF ALL_JOBS_PANELS_ARRAY(EI_case_note, each_job) = TRUE Then
+                                                        Text 15, y_pos, 690, 10, "Verification:                                                                                                                                                   EARNED INCOME BUDGETING CASE NOTE FOUND                                             to list of verifs needed."
+                                                      Else
+                                                        Text 15, y_pos, 690, 10, "Verification:                                                                                                                                                                                                                                                                                       to list of verifs needed."
+                                                      End If
                                                       EditBox 65, y_pos - 5, 250, 15, ALL_JOBS_PANELS_ARRAY(verif_explain, each_job)
-                                                      ' Text 325, y_pos, 75, 10, "Footer Month: " & ALL_JOBS_PANELS_ARRAY(info_month, each_job)
-                                                      ' Text 405, y_pos, 175, 10, "EARNED INCOME BUDGETING CASE NOTE FOUND"
                                                       CheckBox 595, y_pos-10, 100, 10, "Check here to add this JOB", ALL_JOBS_PANELS_ARRAY(verif_checkbox, each_job)
-                                                      Text 605, y_pos, 90, 10, "to list of verifs needed."
-
                                                       y_pos = y_pos + 20
-                                                      Text 15, y_pos, 45, 10, "Hourly Wage:"
+                                                      Text 15, y_pos, 600, 10, "Hourly Wage:                              Retro - Income:                              Hours:                                   Prosp - Income:                               Hours:                  Pay Freq:"
                                                       EditBox 65, y_pos - 5, 40, 15, ALL_JOBS_PANELS_ARRAY(hrly_wage, each_job)
-                                                      Text 115, y_pos, 55, 10, "Retro - Income:"
                                                       EditBox 170, y_pos - 5, 45, 15, ALL_JOBS_PANELS_ARRAY(job_retro_income, each_job)
-                                                      Text 220, y_pos, 25, 10, "Hours:"
                                                       EditBox 250, y_pos - 5, 20, 15, ALL_JOBS_PANELS_ARRAY(retro_hours, each_job)
-                                                      Text 310, y_pos, 55, 10, "Prosp - Income:"
                                                       EditBox 370, y_pos - 5, 45, 15, ALL_JOBS_PANELS_ARRAY(job_prosp_income, each_job)
-                                                      Text 420, y_pos, 25, 10, "Hours:"
                                                       EditBox 450, y_pos - 5, 20, 15, ALL_JOBS_PANELS_ARRAY(prosp_hours, each_job)
-                                                      Text 475, y_pos, 40, 10, "Pay Freq:"
                                                       ComboBox 520, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly"+chr(9)+ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job), ALL_JOBS_PANELS_ARRAY(main_pay_freq, each_job)
                                                       y_pos = y_pos + 20
                                                       If snap_checkbox = checked Then
-                                                          Text 15, y_pos, 35, 10, "SNAP PIC:"
-                                                          Text 55, y_pos, 65, 10, "* Pay Date Amount:"
+                                                          Text 15, y_pos, 600, 10, "SNAP PIC:   * Pay Date Amount:                                                                          * Prospective Amount:                                               Calculated:"
                                                           EditBox 125, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, each_job)
                                                           ComboBox 185, y_pos - 5, 60, 45, "Type or select"+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly"+chr(9)+ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job), ALL_JOBS_PANELS_ARRAY(pic_pay_freq, each_job)
-                                                          Text 265, y_pos, 70, 10, "* Prospective Amount:"
                                                           EditBox 340, y_pos - 5, 60, 15, ALL_JOBS_PANELS_ARRAY(pic_prosp_income, each_job)
-                                                          Text 420, y_pos, 40, 10, "Calculated:"
                                                           EditBox 470, y_pos - 5, 50, 15, ALL_JOBS_PANELS_ARRAY(pic_calc_date, each_job)
                                                           y_pos = y_pos + 20
                                                       End If
@@ -3125,26 +3156,23 @@ Do
                                                       if each_job = job_limit Then Exit Do
                                                       each_job = each_job + 1
                                                   Loop until each_job = UBound(ALL_JOBS_PANELS_ARRAY, 2) + 1
-                                                  Text 10, y_pos + 5, 50, 10, "JOBS Details:"
+                                                  Text 10, y_pos + 5, 70, 40, "JOBS Details:                                              Other Earned Income:"
                                                   EditBox 65, y_pos, 620, 15, notes_on_jobs
-                                                  ButtonGroup ButtonPressed
-                                                    PushButton 685, y_pos, 15, 15, "!", tips_and_tricks_jobs_button
                                                   Y_pos = y_pos + 20
-                                                  Text 10, y_pos + 5, 70, 10, "Other Earned Income:"
-                                                  EditBox 85, y_pos, 615, 15, earned_income
+                                                  If prev_err_msg <> "" Then
+                                                    EditBox 85, y_pos, 510, 15, earned_income
+                                                  Else
+                                                    EditBox 85, y_pos, 615, 15, earned_income
+                                                  End If
                                                   y_pos = y_pos + 25
                                               End If
                                               y_pos = y_pos + 5
                                               GroupBox 5, y_pos - 10, 355, 25, "Dialog Tabs"
-                                              Text 55, y_pos, 5, 10, "|"
-                                              Text 95, y_pos, 5, 10, "|"
-                                              Text 135, y_pos, 5, 10, "|"
-                                              Text 175, y_pos, 5, 10, "|"
-                                              Text 215, y_pos, 5, 10, "|"
-                                              Text 255, y_pos, 5, 10, "|"
-                                              Text 300, y_pos, 5, 10, "|"
-                                              Text 60, y_pos, 35, 10, "2 - JOBS"
+                                              Text 10, y_pos, 300, 10, "                       |   2 - JOBS   |                   |                   |                    |                   |                      |"
+
                                               ButtonGroup ButtonPressed
+                                                PushButton 685, y_pos - 50, 15, 15, "!", tips_and_tricks_jobs_button
+                                                If prev_err_msg <> "" Then PushButton 600, y_pos - 30, 100, 15, "Show Dialog Review Message", dlg_revw_button
                                                 PushButton 10, y_pos, 45, 10, "1 - Personal", dlg_one_button
                                                 PushButton 100, y_pos, 35, 10, "3 - BUSI", dlg_three_button
                                                 PushButton 140, y_pos, 35, 10, "4 - CSES", dlg_four_button
@@ -3295,6 +3323,7 @@ Do
                                                                                                                   "* All the same fields are still mandatory. Since this JOBS panel exists in MAXIS, we need to address it in the case note. If ongoing income is 0, you can list 0 for the SNAP income. Explain budget can detail information about the job and what the changes are." & vbNewLine & vbNewLine &_
                                                                                                                   "* If this income is no longer budgeted - the panel can be removed. Review program specific information but typically once the job is out of the budget month and a STWK panel exists, the JOBS can be deleted. If the panel does not exist - then no detail would need to be entered about the job. (The panel must be deleted PRIOR to the script run.)" & vbNewLine & vbNewLine &_
                                                                                                                   "Generally, we have too little information about earned income in our CASE/NOTEs, this dialog guides you through adding sufficient detail about earned inocme and how it should be budgeted. The more information - the better, so use all applicable and available fields and explain IN FULL.", vbInformation, "Tips and Tricks")
+                                            If ButtonPressed = dlg_revw_button THen Call display_errors(prev_err_msg, FALSE)
                                             If ButtonPressed = tips_and_tricks_jobs_button Then ButtonPressed = dlg_two_button
                                             If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
                                             If each_job >= UBound(ALL_JOBS_PANELS_ARRAY, 2) Then last_job_reviewed = TRUE
@@ -3376,6 +3405,7 @@ Do
                                         '     each_busi = each_busi + 1
                                         ' Loop until each_busi = UBound(ALL_BUSI_PANELS_ARRAY, 2)
                                         y_pos = 5
+
                                         BeginDialog Dialog1, 0, 0, 546, dlg_len, "CAF Dialog 3 - BUSI"
                                           If ALL_BUSI_PANELS_ARRAY(memb_numb, 0) = "" Then
                                             Text 10, y_pos, 535, 10, "There are no BUSI panels found on this case. The script could not pull BUSI details for a case note."
@@ -3407,28 +3437,20 @@ Do
                                                   EditBox 290, y_pos - 5, 50, 15, ALL_BUSI_PANELS_ARRAY(mthd_date, each_busi)
                                                   CheckBox 350, y_pos, 185, 10, "Check here if SE Method was discussed with client", ALL_BUSI_PANELS_ARRAY(method_convo_checkbox, each_busi)
                                                   y_pos = y_pos + 20
-                                                  Text 15, y_pos, 55, 10, "Reported Hours:"
-                                                  Text 75, y_pos, 20, 10, "Retro-"
+                                                  Text 15, y_pos, 200, 10, "Reported Hours:     Retro-                     Prosp-"
                                                   EditBox 100, y_pos - 5, 25, 15, ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, each_busi)
-                                                  Text 135, y_pos, 25, 10, "Prosp-"
                                                   EditBox 160, y_pos - 5, 25, 15, ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, each_busi)
-                                                  Text 205, y_pos, 80, 10, "Minimum Wage Hours:"
-                                                  Text 290, y_pos, 20, 10, "Retro-"
+                                                  Text 205, y_pos, 300, 10, "Minimum Wage Hours:      Retro-                    Prosp-                    Income Start Date:"
                                                   EditBox 315, y_pos - 5, 25, 15, ALL_BUSI_PANELS_ARRAY(min_wg_retro_hrs, each_busi)
-                                                  Text 350, y_pos, 25, 10, "Prosp-"
                                                   EditBox 375, y_pos - 5, 25, 15, ALL_BUSI_PANELS_ARRAY(min_wg_prosp_hrs, each_busi)
-                                                  Text 410, y_pos, 65, 10, "Income Start Date:"
                                                   EditBox 470, y_pos - 5, 50, 15, ALL_BUSI_PANELS_ARRAY(start_date, each_busi)
                                                   y_pos = y_pos + 20
                                                   If SNAP_checkbox = checked Then
-                                                      Text 15, y_pos, 45, 10, "SNAP:"
-                                                      Text 60, y_pos, 50, 10, "Gross Income:"
-                                                      Text 115, y_pos, 20, 10, "Retro-"
+                                                      Text 15, y_pos, 200, 10, "SNAP:          Gross Income:      Retro-"
                                                       EditBox 140, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(income_ret_snap, each_busi)
                                                       Text 195, y_pos, 25, 10, "Prosp-"
                                                       EditBox 225, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(income_pro_snap, each_busi)
-                                                      Text 295, y_pos, 40, 10, "Expenses:"
-                                                      Text 340, y_pos, 20, 10, "Retro-"
+                                                      Text 295, y_pos, 100, 10, "Expenses:      Retro-"
                                                       EditBox 365, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(expense_ret_snap, each_busi)
                                                       Text 420, y_pos, 25, 10, "Prosp-"
                                                       EditBox 450, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(expense_pro_snap, each_busi)
@@ -3443,14 +3465,11 @@ Do
                                                       y_pos = y_pos + 20
                                                   End If
                                                   If cash_checkbox = checked OR EMER_checkbox = checked Then
-                                                      Text 15, y_pos, 45, 10, "Cash/Emer:"
-                                                      Text 60, y_pos, 50, 10, "Gross Income:"
-                                                      Text 115, y_pos, 20, 10, "Retro-"
+                                                      Text 15, y_pos, 200, 10, "Cash/Emer:    Gross Income:      Retro-"
                                                       EditBox 140, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(income_ret_cash, each_busi)
                                                       Text 195, y_pos, 25, 10, "Prosp-"
                                                       EditBox 225, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(income_pro_cash, each_busi)
-                                                      Text 295, y_pos, 40, 10, "Expenses:"
-                                                      Text 340, y_pos, 20, 10, "Retro-"
+                                                      Text 295, y_pos, 100, 10, "Expenses:     Retro-"
                                                       EditBox 365, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(expense_ret_cash, each_busi)
                                                       Text 420, y_pos, 25, 10, "Prosp-"
                                                       EditBox 450, y_pos - 5, 45, 15, ALL_BUSI_PANELS_ARRAY(expense_pro_cash, each_busi)
@@ -3473,22 +3492,18 @@ Do
                                                   each_busi = each_busi + 1
                                               Loop until each_busi = UBound(ALL_BUSI_PANELS_ARRAY, 2) + 1
                                               Text 10, y_pos, 50, 10, "BUSI Details:"
-                                              EditBox 60, y_pos - 5, 465, 15, notes_on_busi
-                                              ButtonGroup ButtonPressed
-                                                PushButton 525, y_pos - 5, 15, 15, "!", tips_and_tricks_busi_button
+                                              If prev_err_msg <> "" Then
+                                                EditBox 60, y_pos - 5, 360, 15, notes_on_busi
+                                              Else
+                                                EditBox 60, y_pos - 5, 465, 15, notes_on_busi
+                                              End If
                                               y_pos = y_pos + 20
                                           End If
                                           y_pos = y_pos + 10
                                           GroupBox 5, y_pos - 10, 355, 25, "Dialog Tabs"
-                                          Text 55, y_pos, 5, 10, "|"
-                                          Text 95, y_pos, 5, 10, "|"
-                                          Text 135, y_pos, 5, 10, "|"
-                                          Text 175, y_pos, 5, 10, "|"
-                                          Text 215, y_pos, 5, 10, "|"
-                                          Text 255, y_pos, 5, 10, "|"
-                                          Text 300, y_pos, 5, 10, "|"
-                                          Text 100, y_pos, 35, 10, "3 - BUSI"
+                                          Text 10, y_pos, 300, 10, "                       |                    |   3 - BUSI   |                   |                    |                   |                      |"
                                           ButtonGroup ButtonPressed
+                                            If prev_err_msg <> "" Then PushButton 425, y_pos - 35, 100, 15, "Show Dialog Review Message", dlg_revw_button
                                             PushButton 10, y_pos, 45, 10, "1 - Personal", dlg_one_button
                                             PushButton 60, y_pos, 35, 10, "2 - JOBS", dlg_two_button
                                             PushButton 140, y_pos, 35, 10, "4 - CSES", dlg_four_button
@@ -3621,6 +3636,7 @@ Do
                                             End If
                                             PushButton 450, y_pos - 5, 35, 15, "NEXT", go_to_next_page
                                             CancelButton 490, y_pos - 5, 50, 15
+                                            PushButton 525, 5, 15, 15, "!", tips_and_tricks_busi_button
                                             OkButton 600, 500, 50, 15
                                         EndDialog
 
@@ -3634,6 +3650,7 @@ Do
                                                                                                               "* Business Structure, Ownership share, and Partners in Household - these fields also hep with idetifying budgeting and the correct focumentation required and on file for the businees. These fields are not required, but very helpful in a complete documentation." & vbNewLine & vbNewLine &_
                                                                                                               "* SNAP BUSI Budget - The new policy requires that we review TAX forms if that is the verification receivved to identify any allowed tax deductions that are not allowed as a part of SNAP budgeting. This field 'Expenses not Allowed' is required, though if all are allowed, simply use this field to indicate the review was done and all are allowed." & vbNewLine & vbNewLine &_
                                                                                                               "Checking the box that says 'Check here if verification about this Self Employment is requested' will add a line to the 'Verifs Needed' about self employment for this HH Member. Use this instead of typing to pulling up the verification dialog.", vbInformation, "Tips and Tricks")
+                                        If ButtonPressed = dlg_revw_button THen Call display_errors(prev_err_msg, FALSE)
                                         If ButtonPressed = tips_and_tricks_busi_button Then ButtonPressed = dlg_three_button
                                         If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
 
@@ -3745,13 +3762,21 @@ Do
                                       y_pos = y_pos + 5
                                   End If
                                   Text 10, y_pos, 60, 10, "Other CSES Detail:"
-                                  EditBox 75, y_pos - 5, 385, 15, notes_on_cses
+                                  If prev_err_msg <> "" Then
+                                    EditBox 75, y_pos - 5, 280, 15, notes_on_cses
+                                    ButtonGroup ButtonPressed
+                                      PushButton 360, y_pos - 5, 100, 15, "Show Dialog Review Message", dlg_revw_button
+                                  Else
+                                    EditBox 75, y_pos - 5, 385, 15, notes_on_cses
+                                  End If
                                   y_pos = y_pos + 20
                                   ButtonGroup ButtonPressed
                                     PushButton 5, y_pos, 50, 10, "Verifs needed:", verif_button
                                   EditBox 60, y_pos - 5, 400, 15, verifs_needed
 
                                   y_pos = y_pos + 25
+                                  GroupBox 10, y_pos - 10, 355, 25, "Dialog Tabs"
+                                  Text 15, y_pos, 300, 10, "                       |                    |                  |   4 - CSES   |                    |                   |                      |"
                                   ButtonGroup ButtonPressed
                                     PushButton 15, y_pos, 45, 10, "1 - Personal", dlg_one_button
                                     PushButton 65, y_pos, 35, 10, "2 - JOBS", dlg_two_button
@@ -3763,21 +3788,13 @@ Do
                                     PushButton 370, y_pos - 5, 35, 15, "NEXT", go_to_next_page
                                     CancelButton 410, y_pos - 5, 50, 15
                                     OkButton 600, 500, 50, 15
-                                  Text 145, y_pos, 35, 10, "4 - CSES"
-                                  GroupBox 10, y_pos - 10, 355, 25, "Dialog Tabs"
-                                  Text 60, y_pos, 5, 10, "|"
-                                  Text 100, y_pos, 5, 10, "|"
-                                  Text 140, y_pos, 5, 10, "|"
-                                  Text 180, y_pos, 5, 10, "|"
-                                  Text 220, y_pos, 5, 10, "|"
-                                  Text 260, y_pos, 5, 10, "|"
-                                  Text 305, y_pos, 5, 10, "|"
                                 EndDialog
 
                                 Dialog Dialog1
                                 cancel_confirmation
                                 verification_dialog
                                 'MsgBox ButtonPressed
+                                If ButtonPressed = dlg_revw_button THen Call display_errors(prev_err_msg, FALSE)
                                 If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
                                 If ButtonPressed = verif_button Then ButtonPressed = dlg_four_button
                                 Call assess_button_pressed
@@ -3885,12 +3902,20 @@ Do
                               EditBox 75, y_pos - 5, 380, 15, other_uc_income_notes
                               y_pos = y_pos + 25
                               Text 10, y_pos, 45, 10, "Other UNEA:"
-                              EditBox 55, y_pos - 5, 405, 15, notes_on_other_UNEA
+                              If prev_err_msg <> "" Then
+                                EditBox 55, y_pos - 5, 305, 15, notes_on_other_UNEA
+                                ButtonGroup ButtonPressed
+                                  PushButton 365, y_pos - 5, 100, 15, "Show Dialog Review Message", dlg_revw_button
+                              Else
+                                EditBox 55, y_pos - 5, 405, 15, notes_on_other_UNEA
+                              End If
                               y_pos = y_pos + 20
                               ButtonGroup ButtonPressed
                                 PushButton 5, y_pos, 50, 10, "Verifs needed:", verif_button
                               EditBox 60, y_pos - 5, 400, 15, verifs_needed
                               y_pos = y_pos + 25
+                              GroupBox 10, y_pos - 10, 355, 25, "Dialog Tabs"
+                              Text 15, y_pos, 300, 10, "                       |                    |                   |                   |  5 - UNEA   |                   |                      |"
                               ButtonGroup ButtonPressed
                                 PushButton 15, y_pos, 45, 10, "1 - Personal", dlg_one_button
                                 PushButton 65, y_pos, 35, 10, "2 - JOBS", dlg_two_button
@@ -3902,15 +3927,6 @@ Do
                                 PushButton 370, y_pos - 5, 35, 15, "NEXT", go_to_next_page
                                 CancelButton 410, y_pos - 5, 50, 15
                                 OkButton 600, 500, 50, 15
-                              GroupBox 10, y_pos - 10, 355, 25, "Dialog Tabs"
-                              Text 185, y_pos, 35, 10, "5 - UNEA"
-                              Text 60, y_pos, 5, 10, "|"
-                              Text 100, y_pos, 5, 10, "|"
-                              Text 140, y_pos, 5, 10, "|"
-                              Text 180, y_pos, 5, 10, "|"
-                              Text 220, y_pos, 5, 10, "|"
-                              Text 260, y_pos, 5, 10, "|"
-                              Text 305, y_pos, 5, 10, "|"
                             EndDialog
 
                             Dialog Dialog1
@@ -3918,6 +3934,7 @@ Do
                             MAXIS_dialog_navigation
                             verification_dialog
 
+                            If ButtonPressed = dlg_revw_button THen Call display_errors(prev_err_msg, FALSE)
                             If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
 
                             If ButtonPressed = calc_button Then
@@ -3943,11 +3960,10 @@ Do
                         End If
                     Loop Until pass_five = true
                     If show_six = true Then
-                        'BeginDialog Dialog1, 0, 0, 466, 310, "Dialog 6 - Other"
                         If left(total_shelter_amount, 1) <> "$" Then total_shelter_amount = "$" & total_shelter_amount
 
                         BeginDialog Dialog1, 0, 0, 556, 290, "CAF Dialog 6 - WREG, Expenses, Address"
-                          EditBox 40, 50, 505, 15, notes_on_wreg
+                          EditBox 45, 50, 500, 15, notes_on_wreg
                           ButtonGroup ButtonPressed
                             PushButton 440, 30, 105, 15, "Update ABAWD and WREG", abawd_button
                             PushButton 235, 85, 50, 15, "Update SHEL", update_shel_button
@@ -3964,11 +3980,6 @@ Do
                           DropListBox 480, 170, 30, 45, "No"+chr(9)+"Yes", reservation_yn
                           DropListBox 375, 190, 165, 45, " "+chr(9)+"01 - Own home, lease or roomate"+chr(9)+"02 - Family/Friends - economic hardship"+chr(9)+"03 -  servc prvdr- foster/group home"+chr(9)+"04 - Hospital/Treatment/Detox/Nursing Home"+chr(9)+"05 - Jail/Prison//Juvenile Det."+chr(9)+"06 - Hotel/Motel"+chr(9)+"07 - Emergency Shelter"+chr(9)+"08 - Place not meant for Housing"+chr(9)+"09 - Declined"+chr(9)+"10 - Unknown"+chr(9)+"Blank", living_situation
                           EditBox 315, 220, 230, 15, notes_on_address
-                          ' EditBox 35, 255, 405, 15, notes_on_acct
-                          ' EditBox 470, 255, 75, 15, notes_on_cash
-                          ' EditBox 35, 275, 240, 15, notes_on_cars
-                          ' EditBox 305, 275, 240, 15, notes_on_rest
-                          ' EditBox 110, 295, 435, 15, notes_on_other_assets
                           EditBox 60, 245, 490, 15, verifs_needed
                           GroupBox 5, 5, 545, 65, "WREG and ABAWD Information"
                           Text 15, 15, 55, 10, "ABAWD Details:"
@@ -3998,26 +4009,20 @@ Do
                           Text 315, 195, 55, 10, "* Living Situation:"
                           Text 315, 210, 75, 10, "Notes on address:"
                           GroupBox 105, 265, 355, 25, "Dialog Tabs"
-                          Text 155, 275, 5, 10, "|"
-                          Text 195, 275, 5, 10, "|"
-                          Text 235, 275, 5, 10, "|"
-                          Text 275, 275, 5, 10, "|"
-                          Text 315, 275, 5, 10, "|"
-                          Text 355, 275, 5, 10, "|"
-                          Text 400, 275, 5, 10, "|"
+                          Text 110, 275, 300, 10, "                       |                    |                   |                    |                    |  6 - Other   |                      |"
                           ButtonGroup ButtonPressed
                             PushButton 5, 250, 50, 10, "Verifs needed:", verif_button
+                            If prev_err_msg <> "" Then PushButton 5, 270, 100, 15, "Show Dialog Review Message", dlg_revw_button
                             PushButton 110, 275, 45, 10, "1 - Personal", dlg_one_button
                             PushButton 160, 275, 35, 10, "2 - JOBS", dlg_two_button
                             PushButton 200, 275, 35, 10, "3 - BUSI", dlg_three_button
                             PushButton 240, 275, 35, 10, "4 - CSES", dlg_four_button
                             PushButton 280, 275, 35, 10, "5 - UNEA", dlg_five_button
-                            Text 320, 275, 35, 10, "6 - Other"
                             PushButton 360, 275, 40, 10, "7 - Assets", dlg_seven_button
                             PushButton 405, 275, 50, 10, "8 - Interview", dlg_eight_button
                             PushButton 460, 270, 35, 15, "NEXT", go_to_next_page
                             CancelButton 500, 270, 50, 15
-                            If SNAP_checkbox = checked Then PushButton 5, 55, 30, 10, "* WREG", wreg_button
+                            If SNAP_checkbox = checked Then PushButton 10, 55, 30, 10, "* WREG", wreg_button
                             If SNAP_checkbox = unchecked Then PushButton 10, 55, 25, 10, "WREG", wreg_button
                             PushButton 315, 100, 25, 10, "ADDR", addr_button
                             PushButton 15, 145, 25, 10, "HEST", hest_button
@@ -4025,13 +4030,6 @@ Do
                             PushButton 15, 165, 25, 10, "COEX", coex_button
                             PushButton 15, 185, 25, 10, "DCEX", dcex_button
                             OkButton 600, 500, 50, 15
-                            ' PushButton 10, 260, 25, 10, "ACCT", acct_button
-                            ' PushButton 445, 260, 25, 10, "CASH", cash_button
-                            ' PushButton 10, 280, 25, 10, "CARS", cars_button
-                            ' PushButton 280, 280, 25, 10, "REST", rest_button
-                            ' PushButton 10, 300, 25, 10, "SECU", secu_button
-                            ' PushButton 35, 300, 25, 10, "TRAN", tran_button
-                            ' PushButton 60, 300, 45, 10, "other assets", other_asset_button
                         EndDialog
 
                         Dialog Dialog1			'Displays the second dialog
@@ -4039,6 +4037,7 @@ Do
                         MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
                         verification_dialog
 
+                        If ButtonPressed = dlg_revw_button THen Call display_errors(prev_err_msg, FALSE)
                         If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
 
                         If ButtonPressed = abawd_button Then
@@ -4309,6 +4308,8 @@ Do
                         PushButton 25, 265, 15, 15, "!", tips_and_tricks_emps_button
                       CheckBox 50, 270, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
                       EditBox 60, 290, 495, 15, verifs_needed
+                      GroupBox 105, 310, 355, 25, "Dialog Tabs"
+                      Text 110, 320, 300, 10, "                       |                    |                   |                  |                    |                    |   7 - Assets    |"
                       ButtonGroup ButtonPressed
                         PushButton 15, 45, 25, 10, "ACCT", acct_button
                         PushButton 445, 45, 25, 10, "CASH", cash_button
@@ -4325,6 +4326,7 @@ Do
                         If family_cash = TRUE Then PushButton 15, 250, 30, 10, "* EMPS:", emps_button
                         If family_cash = FALSE Then PushButton 20, 250, 25, 10, "EMPS:", emps_button
                         PushButton 5, 295, 50, 10, "Verifs needed:", verif_button
+                        If prev_err_msg <> "" Then PushButton 450, 265, 100, 15, "Show Dialog Review Message", dlg_revw_button
                         PushButton 110, 320, 45, 10, "1 - Personal", dlg_one_button
                         PushButton 160, 320, 35, 10, "2 - JOBS", dlg_two_button
                         PushButton 200, 320, 35, 10, "3 - BUSI", dlg_three_button
@@ -4335,21 +4337,12 @@ Do
                         PushButton 465, 315, 35, 15, "NEXT", go_to_next_page
                         CancelButton 505, 315, 50, 15
                         OkButton 600, 500, 50, 15
-                      Text 360, 320, 40, 10, "7 - Assets"
                       GroupBox 10, 10, 545, 115, "Assets"
                       If the_process_for_snap = "Application" Then
                         Text 310, 25, 110, 10, "* Total Liquid Assets in App Month:"
                       Else
                         Text 310, 25, 110, 10, "Total Liquid Assets in App Month:"
                       End If
-                      GroupBox 105, 310, 355, 25, "Dialog Tabs"
-                      Text 155, 320, 5, 10, "|"
-                      Text 195, 320, 5, 10, "|"
-                      Text 235, 320, 5, 10, "|"
-                      Text 275, 320, 5, 10, "|"
-                      Text 315, 320, 5, 10, "|"
-                      Text 355, 320, 5, 10, "|"
-                      Text 400, 320, 5, 10, "|"
                       GroupBox 10, 190, 545, 95, "MFIP/DWP"
                       If family_cash = TRUE Then
                           Text 15, 210, 25, 10, "* Time:"
@@ -4371,6 +4364,7 @@ Do
                                                                                           "This is a relative caregiver case, why is it needed here?" & vbNewLine & "* Since these function differently for these cases, you may not be detailing time used. Detailing that it is specifically NOT being used is extremely helpful to the new HSR or reviewer that works on this case. Add detail about how these typically mandatory elements do NOT apply in this case." & vbNewLine & vbNewLine &_
                                                                                           "The script will try to autofill this information but additional detail is helpful as always.", vbInformation, "Tips and Tricks")
 
+                    If ButtonPressed = dlg_revw_button THen Call display_errors(prev_err_msg, FALSE)
                     If ButtonPressed = tips_and_tricks_emps_button Then ButtonPressed = dlg_seven_button
                     If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
                     If ButtonPressed = verif_button then ButtonPressed = dlg_seven_button
@@ -4435,6 +4429,9 @@ Do
                   CheckBox 15, 325, 265, 10, "Check here to send a TIKL (10 days from now) to update PND2 for Client Delay.", client_delay_TIKL_checkbox
                   EditBox 295, 295, 50, 15, verif_req_form_sent_date
                   EditBox 295, 325, 150, 15, worker_signature
+                  GroupBox 5, 345, 345, 25, "Dialog Tabs"
+                  Text 10, 355, 335, 10, "                       |                    |                   |                   |                    |                    |                     | 8 - Interview"
+
                   ButtonGroup ButtonPressed
                     PushButton 5, 265, 50, 10, "Verifs needed:", verif_button
                     PushButton 10, 355, 45, 10, "1 - Personal", dlg_one_button
@@ -4464,7 +4461,7 @@ Do
                       Text 320, 65, 25, 10, "Assets:" '260'
                       Text 405, 65, 40, 10, "Expenses:" '345'
                   End If
-                  Text 135, 50, 70, 10, "CAF Date: " & CAF_datestamp
+                  Text 135, 50, 90, 10, "CAF Date: " & CAF_datestamp
                   If exp_det_case_note_found = TRUE Then Text 260, 50, 180, 10, "EXPEDITED DETERMINATION CASE/NOTE FOUND"
                   Text 135, 85, 55, 10, "Explain Delays:"
                   Text 15, 105, 75, 10, "SNAP Denial Date:"
@@ -4477,15 +4474,6 @@ Do
                   GroupBox 5, 280, 280, 60, "Actions the script can do:"
                   Text 295, 285, 120, 10, "Date Verification Request Form Sent:"
                   Text 295, 315, 60, 10, "Worker signature:"
-                  Text 305, 355, 50, 10, "8 - Interview"
-                  GroupBox 5, 345, 345, 25, "Dialog Tabs"
-                  Text 55, 355, 5, 10, "|"
-                  Text 95, 355, 5, 10, "|"
-                  Text 135, 355, 5, 10, "|"
-                  Text 175, 355, 5, 10, "|"
-                  Text 215, 355, 5, 10, "|"
-                  Text 255, 355, 5, 10, "|"
-                  Text 300, 355, 5, 10, "|"
                 EndDialog
 
                 Dialog Dialog1
@@ -4670,49 +4658,10 @@ Do
                         End If
                     End If
                     If trim(actions_taken) = "" Then full_err_msg = full_err_msg & "~!~8^* ACTIONS TAKEN ##~##   - Indicate what actions were taken when processing this CAF."
+                    prev_err_msg = full_err_msg
                 End If
 
-                If full_err_msg <> "" Then
-                    If left(full_err_msg, 3) = "~!~" Then full_err_msg = right(full_err_msg, len(full_err_msg) - 3)
-                    err_array = split(full_err_msg, "~!~")
-
-                    error_message = ""
-                    msg_header = ""
-                    for each message in err_array
-                        current_listing = left(message, 1)
-                        If current_listing <> msg_header Then
-                            If current_listing = "1" Then tagline = ": Personal Information"
-                            If current_listing = "2" Then tagline = ": JOBS"
-                            If current_listing = "3" Then tagline = ": BUSI"
-                            If current_listing = "4" Then tagline = ": Child Support"
-                            If current_listing = "5" Then tagline = ": Unearned Income"
-                            If current_listing = "6" Then tagline = ": WREG, Expenses, Address"
-                            If current_listing = "7" Then tagline = ": Assets and Misc."
-                            If current_listing = "8" Then tagline = ": Interview Detail"
-                            error_message = error_message & vbNewLine & vbNewLine & "----- Dialog " & current_listing & tagline & " -------"
-                        End If
-                        if msg_header = "" Then back_to_dialog = current_listing
-                        msg_header = current_listing
-
-                        message = replace(message, "##~##", vbCR)
-
-                        error_message = error_message & vbNewLine & right(message, len(message) - 2)
-                    Next
-
-                    view_errors = MsgBox("In order to complete the script and CASE/NOTE, additional details need to be added or refined. Please review and update." & vbNewLine & error_message, vbCritical, "Review detail required in Dialogs")
-
-
-                    If back_to_dialog = "1" Then ButtonPressed = dlg_one_button
-                    If back_to_dialog = "2" Then ButtonPressed = dlg_two_button
-                    If back_to_dialog = "3" Then ButtonPressed = dlg_three_button
-                    If back_to_dialog = "4" Then ButtonPressed = dlg_four_button
-                    If back_to_dialog = "5" Then ButtonPressed = dlg_five_button
-                    If back_to_dialog = "6" Then ButtonPressed = dlg_six_button
-                    If back_to_dialog = "7" Then ButtonPressed = dlg_seven_button
-                    If back_to_dialog = "8" Then ButtonPressed = dlg_eight_button
-
-                    Call assess_button_pressed
-                End If
+                Call display_errors(full_err_msg, TRUE)
                 If full_err_msg = "" and ButtonPressed = finish_dlgs_button Then pass_eight = true
                 If ButtonPressed = finish_dlgs_button Then ButtonPressed = -1
             End If
@@ -4737,7 +4686,7 @@ If continue_in_inquiry = "" Then
               ButtonGroup ButtonPressed
                 PushButton 165, 80, 95, 15, "Stop the Script Run (ESC)", stop_script_button
                 PushButton 140, 100, 120, 15, "Continue - I have switched (Enter)", continue_script
-              Text 10, 10, 110, 20, "It appears you are now runnin in INQUIRY on this session."
+              Text 10, 10, 110, 20, "It appears you are now running in INQUIRY on this session."
               Text 10, 40, 105, 20, "The script cannot update or CASE/NOTE in INQUIRY."
               Text 10, 65, 255, 10, "Switch to Production now to ensure the note is entered and continue the script."
             EndDialog
@@ -4797,14 +4746,20 @@ If CAF_type = "Application" Then        'Interview date is not on PROG for recer
             grh_cash_app = replace(grh_cash_app, " ", "/")
 
             If cash_one_app <> "__/__/__" Then      'Error handling - VB doesn't like date comparisons with non-dates
-                if DateDiff("d", cash_one_app, CAF_datestamp) = 0 then prog_row = 6     'If date of application on PROG matches script date of applicaton
+                If IsDate(cash_one_app) = TRUE Then
+                    if DateDiff("d", cash_one_app, CAF_datestamp) = 0 then prog_row = 6     'If date of application on PROG matches script date of applicaton
+                End If
             End If
             If cash_two_app <> "__/__/__" Then
-                if DateDiff("d", cash_two_app, CAF_datestamp) = 0 then prog_row = 7
+                If IsDate(cash_two_app) = TRUE Then
+                    if DateDiff("d", cash_two_app, CAF_datestamp) = 0 then prog_row = 7
+                End If
             End If
 
             If grh_cash_app <> "__/__/__" Then
-                if DateDiff("d", grh_cash_app, CAF_datestamp) = 0 then prog_row = 9
+                If IsDate(grh_cash_app) = TRUE THen
+                    if DateDiff("d", grh_cash_app, CAF_datestamp) = 0 then prog_row = 9
+                End If
             End If
 
             EMReadScreen entered_intv_date, 8, prog_row, 55                     'Reading the right interview date with row defined above
@@ -4885,14 +4840,20 @@ If CAF_type = "Application" Then        'Interview date is not on PROG for recer
                     grh_cash_app = replace(grh_cash_app, " ", "/")
 
                     If cash_one_app <> "__/__/__" Then              'Comparing them to the date of application to determine which row to use
-                        if DateDiff("d", cash_one_app, CAF_datestamp) = 0 then prog_row = 6
+                        If IsDate(cash_one_app) = TRUE Then
+                            if DateDiff("d", cash_one_app, CAF_datestamp) = 0 then prog_row = 6
+                        End If
                     End If
                     If cash_two_app <> "__/__/__" Then
-                        if DateDiff("d", cash_two_app, CAF_datestamp) = 0 then prog_row = 7
+                        If IsDate(cash_two_app) = TRUE Then
+                            if DateDiff("d", cash_two_app, CAF_datestamp) = 0 then prog_row = 7
+                        End If
                     End If
 
                     If grh_cash_app <> "__/__/__" Then
-                        if DateDiff("d", grh_cash_app, CAF_datestamp) = 0 then prog_row = 9
+                        If IsDate(grh_cash_app) = TRUE Then
+                            if DateDiff("d", grh_cash_app, CAF_datestamp) = 0 then prog_row = 9
+                        End If
                     End If
 
                     EMWriteScreen intv_mo, prog_row, 55     'Writing the interview date in

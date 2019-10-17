@@ -2023,6 +2023,16 @@ For case_removed = 0 to UBOUND(CASES_NO_LONGER_WORKING, 2)      'looping through
                     End If
                 End If
             End If
+
+            'HCRE bypass coding
+            PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
+            Do
+                EMReadscreen HCRE_panel_check, 4, 2, 50
+                If HCRE_panel_check = "HCRE" then
+                    PF10	'exists edit mode in cases where HCRE isn't complete for a member
+                    PF3
+                END IF
+            Loop until HCRE_panel_check <> "HCRE"
         End If
     End If
 
