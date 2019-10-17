@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/17/2019", "Added ADS as population option.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/09/2019", "Update DAIL server name to switch from Dev to Production.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/26/2019", "Update DAIL options from types of DAIL messages to population-based options.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/12/2019", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -54,7 +55,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 BeginDialog dail_dialog, 0, 0, 266, 85, "Dail Decimator dialog"
-  DropListBox 80, 50, 55, 15, "Select one..."+chr(9)+"Adults", dail_to_decimate
+  DropListBox 80, 50, 55, 15, "Select one..."+chr(9)+"Adults"+chr(9)+"ADS", dail_to_decimate
   CheckBox 15, 70, 145, 10, "OR Check here to process for all workers.", all_workers_check
   ButtonGroup ButtonPressed
     OkButton 165, 65, 45, 15
@@ -66,9 +67,6 @@ EndDialog
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-dail_to_decimate = "Adults"
-
-If dail_to_decimate = "Adults" then worker_number = "X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EQ1,X127EQ2,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EG5,X127EJ1,X127EH9,X127EM2,X127FE6,X127F3D,X127EL8,X127EL9,X127ED8,X127EH8,X127EG4,X127F3P"
 
 this_month = CM_mo & " " & CM_yr
 next_month = CM_plus_1_mo & " " & CM_plus_1_yr
@@ -97,7 +95,13 @@ back_to_SELF 'navigates back to self in case the worker is working within the DA
 If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
 Else
-	x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
+    If dail_to_decimate = "Adults" then
+        worker_number = "X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EQ1,X127EQ2,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EG5,X127EJ1,X127EH9,X127EM2,X127FE6,X127F3D,X127EL8,X127EL9,X127ED8,X127EH8,X127EG4,X127F3P"
+    Elseif dail_to_decimate = "ADS" then 
+        worker_number = "X127EH1,X127EH2,X127EH3,X127EH6,X127EJ4,X127EJ6,X127EJ7,X127EJ8,X127EK1,X127EK2,X127EK4,X127EK5,X127EK6,X127EK9,X127EM1,X127EM7,X127EM8,X127EM9,X127EN6,X127EP3,X127EP4,X127EP5,X127EP9,X127F3F,X127FE5,X127FG3,X127FH4,X127FH5,X127FI2,X127FI7,X127EJ5"
+    End if
+    msgbox worker_number
+    x1s_from_dialog = split(worker_number, ",")	'Splits the worker array based on commas
 
 	'Need to add the worker_county_code to each one
 	For each x1_number in x1s_from_dialog
