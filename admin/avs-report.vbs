@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/17/2019", "Added updated SPEC/MEMO verbiage.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/23/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -620,12 +621,12 @@ If instr(AVS_option, "Memo") then
         If AVS_option = "Initial Memo" then
             excel_col = 20
             first_line = client_name & " will soon receive a letter from the Department of Human Services with a form called Authorization to Obtain Financial Information from the AVS (Asset Validation System)."
-            second_line = "AVS will provide Hennepin County information on your accounts, such as checking accounts, savings accounts, and money market accounts. If you are married or a non-citizen with a sponsor, then it will provide information on your spouse’s, sponsor(s)’, and sponsor(s)’ spouse(s) accounts."
+            second_line = "AVS will provide Hennepin County with information on your accounts, such as checking, savings accounts, and money market accounts. If you are married or a non-citizen with a sponsor, then it will provide information on your spouse’s, sponsor(s)’, and sponsor(s)’ spouse(s) accounts."
             third_line = "You will receive this letter because we need your permission to access account information through the AVS for your Medical Assistance eligibility. We also may need permission to access account information for your spouse, sponsor(s), or sponsor(s)’ spouse(s). (If you are a US citizen, you do not have a sponsor)."
         elseif AVS_option = "Secondary Memo" then 
             excel_col = 21
             first_line =  client_name & " received a letter from the Department of Human Services with a form called Authorization to Obtain Financial Information from the AVS (Asset Validation System) in the mail."
-            second_line = "AVS will provide Hennepin County information on your account, such as checking accounts, savings accounts, and money market accounts."
+            second_line = "AVS will provide Hennepin County information on your account, such as checking, savings, and money market accounts."
             third_line = "You received this letter because we need your permission to access account information through the AVS for your Medical Assistance eligibility. We also may need permission to access account information for your spouse, sponsor(s), or sponsor(s)’ spouse(s). (If you are a US citizen, you do not have a sponsor)."
         End if
         
@@ -648,30 +649,27 @@ If instr(AVS_option, "Memo") then
                     Call write_variable_in_SPEC_MEMO("")
                     Call write_variable_in_SPEC_MEMO(third_line)
                     Call write_variable_in_SPEC_MEMO("")
-                    Call write_variable_in_SPEC_MEMO("The signed form is mandatory to determine eligibility for certain health care programs. If you do not return the form by the due date on the letter from the Department of Human Services, your health care may close.")
+                    Call write_variable_in_SPEC_MEMO("You must return the signed form for us to determine your eligibility for certain health care programs. If you do not return the form by the due date on the letter from the Department of Human Services, your Medical Assistance and/or Medicare Savings Program may close.")
                     Call write_variable_in_SPEC_MEMO("")	
                     Call write_variable_in_SPEC_MEMO("Who must sign the form?")
                     Call write_variable_in_SPEC_MEMO("-	" & first_name & " or Authorized Representative")
-                    Call write_variable_in_SPEC_MEMO("-	" & first_name & "'s spouse if married")
-                    Call write_variable_in_SPEC_MEMO("-	" & first_name & "'s sponsor(s) and sponsor(s)’ spouses, if " & first_name & " is a Lawful Permanent Resident sponsored under an Affidavit of Support (USCIS I-864).")
+                    Call write_variable_in_SPEC_MEMO("-	If you are married, your spouse must also sign the form")
+                    Call write_variable_in_SPEC_MEMO("-	If you are a Lawful Permanent Resident sponsored under an Affidavit of Support (USCIS I-864), your sponsor(s) and sponsor(s)’s spouses must also sign")
                     Call write_variable_in_SPEC_MEMO("")
-                    Call write_variable_in_SPEC_MEMO("When you get the form, you can mail, fax, or drop off in person at one our six regional offices.")
-                    Call write_variable_in_SPEC_MEMO("You can also call 612-596-1300 and get another copy of the form.")
+                    Call write_variable_in_SPEC_MEMO("How to return the signed form:")
                     Call write_variable_in_SPEC_MEMO(" ")
-                    Call write_variable_in_SPEC_MEMO("Mail to: Hennepin County Human Service Dept.")
+                    Call write_variable_in_SPEC_MEMO("By mail: Hennepin County Human Service Dept.")
                     Call write_variable_in_SPEC_MEMO("PO BOX 107 Minneapolis, MN 55440")
                     Call write_variable_in_SPEC_MEMO(" ")
-                    Call write_variable_in_SPEC_MEMO("Fax to: 612-288-2981")
+                    Call write_variable_in_SPEC_MEMO("By fax: 612-288-2981")
                     Call write_variable_in_SPEC_MEMO(" ")
-                    Call write_variable_in_SPEC_MEMO("Six Human Service center locations:")
-                    Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
-                    Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
-                    Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
-                    Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
-                    Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
-                    Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
-                    Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
-                    
+                    Call write_variable_in_SPEC_MEMO("In person: You can drop off the form at any of our regional offices:")
+                    Call write_variable_in_SPEC_MEMO("- Central/Northeast Minneapolis: 525 Portland Ave S Minneapolis 55415")
+                    Call write_variable_in_SPEC_MEMO("- North Minneapolis: 1001 Plymouth Ave N Minneapolis 55411")
+                    Call write_variable_in_SPEC_MEMO("- Northwest Suburban: 7051 Brooklyn Blvd Brooklyn Center 55429")
+                    Call write_variable_in_SPEC_MEMO("- South Minneapolis: 2215 East Lake Street Minneapolis 55407")
+                    Call write_variable_in_SPEC_MEMO("- South Suburban: 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30")
+                    Call write_variable_in_SPEC_MEMO("- West Suburban: 1011 1st St S Hopkins 55343")   
                     PF4			'Exits the MEMO
                     EMReadScreen memo_sent, 8, 24, 2
                     If memo_sent <> "NEW MEMO" then 
