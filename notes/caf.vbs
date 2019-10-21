@@ -62,17 +62,19 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'FUNCTIONS =================================================================================================================
+'This function will message box the err_msg from this script, outlining it by dialog and adding the headers.
+'This function should be added to the end of the dialogs after the review button and at the end of dialog 8 after the error message collection.
 function display_errors(the_err_msg, execute_nav)
-    If the_err_msg <> "" Then
-        If left(the_err_msg, 3) = "~!~" Then the_err_msg = right(the_err_msg, len(the_err_msg) - 3)
-        err_array = split(the_err_msg, "~!~")
+    If the_err_msg <> "" Then       'If the error message is blank - there is nothing to show.
+        If left(the_err_msg, 3) = "~!~" Then the_err_msg = right(the_err_msg, len(the_err_msg) - 3)     'Trimming the message so we don't have a blank array item
+        err_array = split(the_err_msg, "~!~")           'making the list of errors an array.
 
-        error_message = ""
+        error_message = ""                              'blanking out variables
         msg_header = ""
-        for each message in err_array
-            current_listing = left(message, 1)
-            If current_listing <> msg_header Then
-                If current_listing = "1" Then tagline = ": Personal Information"
+        for each message in err_array                   'going through each error message to order them and add headers'
+            current_listing = left(message, 1)          'This is the dialog the error came from
+            If current_listing <> msg_header Then                   'this is comparing to the dialog from the last message - if they don't match, we need a new header entered
+                If current_listing = "1" Then tagline = ": Personal Information"        'Adding a specific tagline to the header for the errors
                 If current_listing = "2" Then tagline = ": JOBS"
                 If current_listing = "3" Then tagline = ": BUSI"
                 If current_listing = "4" Then tagline = ": Child Support"
@@ -80,20 +82,22 @@ function display_errors(the_err_msg, execute_nav)
                 If current_listing = "6" Then tagline = ": WREG, Expenses, Address"
                 If current_listing = "7" Then tagline = ": Assets and Misc."
                 If current_listing = "8" Then tagline = ": Interview Detail"
-                error_message = error_message & vbNewLine & vbNewLine & "----- Dialog " & current_listing & tagline & " -------"
+                error_message = error_message & vbNewLine & vbNewLine & "----- Dialog " & current_listing & tagline & " -------"    'This is the header verbiage being added to the message text.
             End If
             if msg_header = "" Then back_to_dialog = current_listing
-            msg_header = current_listing
+            msg_header = current_listing        'setting for the next loop
 
-            message = replace(message, "##~##", vbCR)
+            message = replace(message, "##~##", vbCR)       'This is notation used in the creation of the message to indicate where we want to have a new line.'
 
-            error_message = error_message & vbNewLine & right(message, len(message) - 2)
+            error_message = error_message & vbNewLine & right(message, len(message) - 2)        'Adding the error information to the message list.
         Next
 
+        'This is the display of all of the messages.
         view_errors = MsgBox("In order to complete the script and CASE/NOTE, additional details need to be added or refined. Please review and update." & vbNewLine & error_message, vbCritical, "Review detail required in Dialogs")
 
+        'The function can be operated without moving to a different dialog or not. The only time this will be activated is at the end of dialog 8.
         If execute_nav = TRUE Then
-            If back_to_dialog = "1" Then ButtonPressed = dlg_one_button
+            If back_to_dialog = "1" Then ButtonPressed = dlg_one_button         'This calls another function to go to the first dialog that had an error
             If back_to_dialog = "2" Then ButtonPressed = dlg_two_button
             If back_to_dialog = "3" Then ButtonPressed = dlg_three_button
             If back_to_dialog = "4" Then ButtonPressed = dlg_four_button
@@ -102,15 +106,17 @@ function display_errors(the_err_msg, execute_nav)
             If back_to_dialog = "7" Then ButtonPressed = dlg_seven_button
             If back_to_dialog = "8" Then ButtonPressed = dlg_eight_button
 
-            Call assess_button_pressed
+            Call assess_button_pressed          'this is where the navigation happens
         End If
     End If
 End Function
 
+'This function calls the dialog to determine and assess the household Composition
+'This also determines the members that are including in gathering information.
 function HH_comp_dialog(HH_member_array)
 	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
 
-    member_count = 0
+    member_count = 0            'resetting these counts/variables
     adult_cash_count = 0
     child_cash_count = 0
     adult_snap_count = 0
@@ -119,7 +125,7 @@ function HH_comp_dialog(HH_member_array)
     child_emer_count = 0
 	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
 		EMReadscreen ref_nbr, 2, 4, 33
-        EMReadScreen access_denied_check, 13, 24, 2
+        EMReadScreen access_denied_check, 13, 24, 2         'Sometimes MEMB gets this access denied issue and we have to work around it.
         If access_denied_check = "ACCESS DENIED" Then
             PF10
             last_name = "UNABLE TO FIND"
@@ -137,7 +143,7 @@ function HH_comp_dialog(HH_member_array)
     		first_name = trim(replace(first_name, "_", ""))
     		mid_initial = replace(mid_initial, "_", "")
 
-            EMReadScreen rel_to_applcnt, 2, 10, 42
+            EMReadScreen rel_to_applcnt, 2, 10, 42              'reading the relationship from MEMB'
             If rel_to_applcnt = "02" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Spouse of Memb 01.; "
             If rel_to_applcnt = "04" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Parent of Memb 01.; "
             If rel_to_applcnt = "05" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Sibling of Memb 01.; "
@@ -147,61 +153,61 @@ function HH_comp_dialog(HH_member_array)
             If rel_to_applcnt = "16" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Grandchild of Memb 01.; "
         End If
 
-        ReDim Preserve ALL_MEMBERS_ARRAY(clt_notes, member_count)
+        ReDim Preserve ALL_MEMBERS_ARRAY(clt_notes, member_count)       'resizing the array to add the next household member
 
-        ALL_MEMBERS_ARRAY(memb_numb, member_count) = ref_nbr
+        ALL_MEMBERS_ARRAY(memb_numb, member_count) = ref_nbr            'adding client information to the array
         ALL_MEMBERS_ARRAY(clt_name, member_count) = last_name & ", " & first_name & " " & mid_initial
         ALL_MEMBERS_ARRAY(full_clt, member_count) = ref_nbr & " - " & first_name & " " & last_name
 
-        If cash_checkbox = checked Then
-            ALL_MEMBERS_ARRAY(include_cash_checkbox, member_count) = checked
+        If cash_checkbox = checked Then             'If Cash is selected
+            ALL_MEMBERS_ARRAY(include_cash_checkbox, member_count) = checked    'default to having the counted boxes checked for SNAP
             ALL_MEMBERS_ARRAY(count_cash_checkbox, member_count) = checked
-            If memb_age > 18 then
+            If memb_age > 18 then       'Adding to the cash count
                 adult_cash_count = adult_cash_count + 1
             Else
                 child_cash_count = child_cash_count + 1
             End If
         End If
-        If SNAP_checkbox = checked Then
-            ALL_MEMBERS_ARRAY(include_snap_checkbox, member_count) = checked
+        If SNAP_checkbox = checked Then             'If SNAP is selected
+            ALL_MEMBERS_ARRAY(include_snap_checkbox, member_count) = checked    'default to having the counted boxes checked for SNAP
             ALL_MEMBERS_ARRAY(count_snap_checkbox, member_count) = checked
-            If memb_age > 21 then
+            If memb_age > 21 then       'adding to the snap household member count
                 adult_snap_count = adult_snap_count + 1
             Else
                 child_snap_count = child_snap_count + 1
             End If
         End If
-        If EMER_checkbox = checked Then
-            ALL_MEMBERS_ARRAY(include_emer_checkbox, member_count) = checked
+        If EMER_checkbox = checked Then             'If EMER is selected
+            ALL_MEMBERS_ARRAY(include_emer_checkbox, member_count) = checked    'default to having the counted boxes checked for EMER
             ALL_MEMBERS_ARRAY(count_emer_checkbox, member_count) = checked
-            If memb_age > 18 then
+            If memb_age > 18 then       'Adding to the EMER count
                 adult_emer_count = adult_emer_count + 1
             Else
                 child_emer_count = child_emer_count + 1
             End If
         End If
 
-		client_string = ref_nbr & last_name & first_name & mid_initial
+		client_string = ref_nbr & last_name & first_name & mid_initial            'creating an array of all of the clients
 		client_array = client_array & client_string & "|"
-		transmit
-		Emreadscreen edit_check, 7, 24, 2
+		transmit      'Going to the next MEMB panel
+		Emreadscreen edit_check, 7, 24, 2 'looking to see if we are at the last member
         member_count = member_count + 1
 	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
 
-    Call navigate_to_MAXIS_screen("STAT", "PARE")
-    For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
-        EMWriteScreen ALL_MEMBERS_ARRAY(memb_numb, each_member), 20, 76
+    Call navigate_to_MAXIS_screen("STAT", "PARE")       'Going to get relationship information from PARE
+    For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2) 'looping through each member
+        EMWriteScreen ALL_MEMBERS_ARRAY(memb_numb, each_member), 20, 76     'Going to PARE for each member
         transmit
 
-        EMReadScreen panel_check, 14, 24, 13
+        EMReadScreen panel_check, 14, 24, 13        'Making sure there is a PARE panel to read from
         If panel_check <> "DOES NOT EXIST" Then
-            pare_row = 8
+            pare_row = 8                            'start of information on PARE
             Do
-                EMReadScreen child_ref_nbr, 2, pare_row, 24
+                EMReadScreen child_ref_nbr, 2, pare_row, 24     'Reading child, relationship and verif
                 EMReadScreen rela_type, 1, pare_row, 53
                 EMReadScreen rela_verif, 2, pare_row, 71
 
-                If rela_type = "1" then relationship_type = "Parent"
+                If rela_type = "1" then relationship_type = "Parent"            'Changing the code for the relationship to the words are used instead of code.
                 If rela_type = "2" then relationship_type = "Stepparent"
                 If rela_type = "3" then relationship_type = "Grandparent"
                 If rela_type = "4" then relationship_type = "Relative Caregiver"
@@ -210,7 +216,7 @@ function HH_comp_dialog(HH_member_array)
                 If rela_type = "7" then relationship_type = "Guardian"
                 If rela_type = "8" then relationship_type = "Relative"
 
-                If rela_verif = "BC" Then relationship_verif = "Birth Certificate"
+                If rela_verif = "BC" Then relationship_verif = "Birth Certificate"      'Change the code for verif to full words for readability
                 If rela_verif = "AR" Then relationship_verif = "Adoption Records"
                 If rela_verif = "LG" Then relationship_verif = "Legal Guardian"
                 If rela_verif = "RE" Then relationship_verif = "Religious Records"
@@ -219,28 +225,30 @@ function HH_comp_dialog(HH_member_array)
                 If rela_verif = "OT" Then relationship_verif = "Other"
                 If rela_verif = "NO" Then relationship_verif = "NONE"
 
+                'Here is where the relationship information is added to the field of the dialog
                 If child_ref_nbr <> "__" Then relationship_detail = relationship_detail & "Memb " & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " is the " & relationship_type & " of Memb " & child_ref_nbr & " - Verif: " & relationship_verif & "; "
-                pare_row = pare_row + 1
-            Loop Until child_ref_nbr = "__"
+                pare_row = pare_row + 1 'going to the next rwo
+            Loop Until child_ref_nbr = "__"     'end of information on PARE
         End If
     Next
 
     client_array = TRIM(client_array)
     client_array = split(client_array, "|")
-    If SNAP_checkbox = checked then call read_EATS_panel
+    If SNAP_checkbox = checked then call read_EATS_panel        'If SNAP, we need to read EATS. This is a local function.
 
     Do
         Do
             err_msg = ""
-            adult_cash_count = adult_cash_count & ""
+            adult_cash_count = adult_cash_count & ""            'Setting variables to be strings
             child_cash_count = child_cash_count & ""
             adult_snap_count = adult_snap_count & ""
             child_snap_count = child_snap_count & ""
             adult_emer_count = adult_emer_count & ""
             child_emer_count = child_emer_count & ""
 
-            dlg_len = 115 + (15 * UBound(ALL_MEMBERS_ARRAY, 2))
-            if dlg_len < 145 Then dlg_len = 145
+            'Dialog of the Household Composition
+            dlg_len = 115 + (15 * UBound(ALL_MEMBERS_ARRAY, 2))     'setting the size of the dialog based on the number of household members
+            if dlg_len < 145 Then dlg_len = 145                     'This is the minimum height of the dialog
             BeginDialog Dialog1, 0, 0, 446, dlg_len, "HH Composition Dialog"
               Text 10, 10, 250, 10, "This dialog will clarify the household relationships and details for the case."
               Text 105, 25, 100, 10, "Included and Counted in Grant"
@@ -319,7 +327,7 @@ function HH_comp_dialog(HH_member_array)
             dialog Dialog1
             cancel_without_confirmation
 
-            If trim(adult_cash_count) = "" Then adult_cash_count = 0
+            If trim(adult_cash_count) = "" Then adult_cash_count = 0            ''
             If trim(child_cash_count) = "" Then child_cash_count = 0
             If IsNumeric(adult_cash_count) = False and IsNumeric(child_cash_count) = False Then err_msg = err_msg & vbNewLine & "* Enter a valid count for the number of adults and children for the Cash program."
 
@@ -4447,20 +4455,20 @@ Do
                   Text 5, 15, 55, 10, "Next ER REVW:"
                   Text 280, 15, 50, 10, "* CAF status:"
                   Text 5, 35, 55, 10, "* Actions taken:"
-                  GroupBox 5, 50, 490, 70, "SNAP Expedited"
-                  If the_process_for_snap = "Application" AND exp_det_case_note_found = FALSE Then
-                      Text 15, 65, 120, 10, "* Is this SNAP Application Expedited?"
-                      Text 15, 85, 75, 10, "* EXP Approval Date:"
-                      Text 195, 65, 75, 10, "* App Month - Income:" '135'
-                      Text 320, 65, 30, 10, "* Assets:" '260'
-                      Text 405, 65, 40, 10, "* Expenses:" '345'
-                  Else
-                      Text 15, 65, 120, 10, "Is this SNAP Application Expedited?"
-                      Text 20, 85, 65, 10, "EXP Approval Date:"
-                      Text 195, 65, 70, 10, "App Month - Income:" '135'
-                      Text 320, 65, 25, 10, "Assets:" '260'
-                      Text 405, 65, 40, 10, "Expenses:" '345'
-                  End If
+                  ' GroupBox 5, 50, 490, 70, "SNAP Expedited"
+                  If the_process_for_snap = "Application" AND exp_det_case_note_found = FALSE Then GroupBox 5, 50, 490, 70, "*** SNAP Expedited"
+                  '     Text 15, 65, 120, 10, "* Is this SNAP Application Expedited?"
+                  '     Text 15, 85, 75, 10, "* EXP Approval Date:"
+                  '     Text 195, 65, 75, 10, "* App Month - Income:" '135'
+                  '     Text 320, 65, 30, 10, "* Assets:" '260'
+                  '     Text 405, 65, 40, 10, "* Expenses:" '345'
+                  ' Else
+                  Text 15, 65, 120, 10, "Is this SNAP Application Expedited?"
+                  Text 20, 85, 65, 10, "EXP Approval Date:"
+                  Text 195, 65, 70, 10, "App Month - Income:" '135'
+                  Text 320, 65, 25, 10, "Assets:" '260'
+                  Text 405, 65, 40, 10, "Expenses:" '345'
+                  ' End If
                   Text 135, 50, 90, 10, "CAF Date: " & CAF_datestamp
                   If exp_det_case_note_found = TRUE Then Text 260, 50, 180, 10, "EXPEDITED DETERMINATION CASE/NOTE FOUND"
                   Text 135, 85, 55, 10, "Explain Delays:"
