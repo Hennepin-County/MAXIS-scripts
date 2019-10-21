@@ -4447,20 +4447,20 @@ Do
                   Text 5, 15, 55, 10, "Next ER REVW:"
                   Text 280, 15, 50, 10, "* CAF status:"
                   Text 5, 35, 55, 10, "* Actions taken:"
-                  GroupBox 5, 50, 490, 70, "SNAP Expedited"
-                  If the_process_for_snap = "Application" AND exp_det_case_note_found = FALSE Then
-                      Text 15, 65, 120, 10, "* Is this SNAP Application Expedited?"
-                      Text 15, 85, 75, 10, "* EXP Approval Date:"
-                      Text 195, 65, 75, 10, "* App Month - Income:" '135'
-                      Text 320, 65, 30, 10, "* Assets:" '260'
-                      Text 405, 65, 40, 10, "* Expenses:" '345'
-                  Else
-                      Text 15, 65, 120, 10, "Is this SNAP Application Expedited?"
-                      Text 20, 85, 65, 10, "EXP Approval Date:"
-                      Text 195, 65, 70, 10, "App Month - Income:" '135'
-                      Text 320, 65, 25, 10, "Assets:" '260'
-                      Text 405, 65, 40, 10, "Expenses:" '345'
-                  End If
+                  ' GroupBox 5, 50, 490, 70, "SNAP Expedited"
+                  If the_process_for_snap = "Application" AND exp_det_case_note_found = FALSE Then GroupBox 5, 50, 490, 70, "*** SNAP Expedited"
+                  '     Text 15, 65, 120, 10, "* Is this SNAP Application Expedited?"
+                  '     Text 15, 85, 75, 10, "* EXP Approval Date:"
+                  '     Text 195, 65, 75, 10, "* App Month - Income:" '135'
+                  '     Text 320, 65, 30, 10, "* Assets:" '260'
+                  '     Text 405, 65, 40, 10, "* Expenses:" '345'
+                  ' Else
+                  Text 15, 65, 120, 10, "Is this SNAP Application Expedited?"
+                  Text 20, 85, 65, 10, "EXP Approval Date:"
+                  Text 195, 65, 70, 10, "App Month - Income:" '135'
+                  Text 320, 65, 25, 10, "Assets:" '260'
+                  Text 405, 65, 40, 10, "Expenses:" '345'
+                  ' End If
                   Text 135, 50, 90, 10, "CAF Date: " & CAF_datestamp
                   If exp_det_case_note_found = TRUE Then Text 260, 50, 180, 10, "EXPEDITED DETERMINATION CASE/NOTE FOUND"
                   Text 135, 85, 55, 10, "Explain Delays:"
