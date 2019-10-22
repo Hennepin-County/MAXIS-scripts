@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/22/2019", "Updated the MA-EPD wording to match the current process for submitting MA-EPD information to DHS, we no longer email, we submit a useform on SIR.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -78,17 +79,19 @@ EndDialog
 
 'Showing the case number dialog
 Do
-	err_msg = ""
 	Do
+        err_msg = ""
+
   		Dialog Dialog1    'initial dialog
-  		If ButtonPressed = 0 then Stopscript    'if cancel is pressed then the script ends
-  		Call check_for_password(are_we_passworded_out)    'function to see if users is password-ed out
-	Loop until are_we_passworded_out = false  	'will loop until user is password-ed back in
-	If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
-	If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
-	If IsNumeric(MAXIS_case_number) = False or Len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* You must enter a valid case number."
-  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-LOOP until err_msg = ""
+  		cancel_without_confirmation
+
+    	If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
+    	If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
+    	If IsNumeric(MAXIS_case_number) = False or Len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* You must enter a valid case number."
+      	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    LOOP until err_msg = ""
+    Call check_for_password(are_we_passworded_out)    'function to see if users is password-ed out
+Loop until are_we_passworded_out = false  	'will loop until user is password-ed back in
 
 'initial navigation
 Call MAXIS_footer_month_confirmation	'confirming that the footer month/year in the MAXIS panel and the dialog box selected by the user are the same'
@@ -116,7 +119,7 @@ CALL autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 'Creating variable for recert_month
 recert_month = MAXIS_footer_month & "/" & MAXIS_footer_year
 
-BeginDialog Dialog1, 0, 0, 456, 300, "HC ER dialog"
+BeginDialog Dialog1, 0, 0, 456, 315, "HC ER dialog"
   EditBox 75, 50, 50, 15, recert_datestamp
   DropListBox 185, 50, 75, 15, "(select one...)"+chr(9)+"complete"+chr(9)+"incomplete", recert_status
   EditBox 325, 50, 125, 15, HH_comp
@@ -130,16 +133,15 @@ BeginDialog Dialog1, 0, 0, 456, 300, "HC ER dialog"
   EditBox 45, 190, 405, 15, changes
   EditBox 60, 210, 390, 15, verifs_needed
   EditBox 55, 230, 395, 15, actions_taken
-  EditBox 60, 260, 90, 15, MAEPD_premium
-  CheckBox 10, 280, 65, 10, "Emailed MADE?", MADE_check
+  Text 10, 265, 80, 10, "New premium amount:"
+  EditBox 85, 260, 50, 15, MAEPD_premium
+  CheckBox 10, 280, 160, 10, "Check here if SIR useform for MADE submitted.", made_useform_checkbox
+  CheckBox 185, 280, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
+  CheckBox 185, 295, 85, 10, "MMIS updated?", MMIS_updated_checkbox
+  EditBox 295, 250, 155, 15, worker_signature
   ButtonGroup ButtonPressed
-    PushButton 85, 280, 65, 10, "SIR mail", SIR_mail_button
-  CheckBox 175, 255, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
-  CheckBox 175, 270, 85, 10, "MMIS updated?", MMIS_updated_checkbox
-  EditBox 400, 250, 50, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 345, 270, 50, 15
-    CancelButton 400, 270, 50, 15
+    OkButton 345, 295, 50, 15
+    CancelButton 400, 295, 50, 15
     PushButton 10, 20, 25, 10, "BUSI", BUSI_button
     PushButton 35, 20, 25, 10, "JOBS", JOBS_button
     PushButton 10, 30, 25, 10, "RBIC", RBIC_button
@@ -174,15 +176,15 @@ BeginDialog Dialog1, 0, 0, 456, 300, "HC ER dialog"
   Text 5, 195, 35, 10, "Changes?:"
   Text 5, 215, 50, 10, "Verifs needed:"
   Text 5, 235, 50, 10, "Actions taken:"
-  GroupBox 5, 250, 150, 45, "If MA-EPD..."
-  Text 10, 265, 50, 10, "New premium:"
+  GroupBox 5, 250, 170, 60, "If MA-EPD..."
   GroupBox 70, 5, 110, 40, "Asset panels"
-  Text 335, 255, 65, 10, "Worker signature:"
+  Text 230, 255, 65, 10, "Worker signature:"
   GroupBox 5, 5, 60, 40, "Income panels"
   GroupBox 185, 5, 85, 30, "other STAT panels:"
   Text 165, 135, 100, 10, "Cost-effective insa availablity:"
+  ButtonGroup ButtonPressed
+    PushButton 80, 295, 90, 10, "SIR Useform", SIR_mail_button
 EndDialog
-
 'Showing case note dialog, with navigation and required answers logic
 DO
 	Do
@@ -191,7 +193,7 @@ DO
 			Dialog Dialog1				'Displays the dialog
 			cancel_confirmation				'Asks if we are sure we want to cancel if the cancel button is pressed
 			MAXIS_dialog_navigation			'Custom function which contains all of the MAXIS dialog navigation possibilities
-			If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://www.dhssir.cty.dhs.state.mn.us/Pages/Default.aspx"		'Goes to SIR if button is pressed
+			If ButtonPressed = SIR_mail_button then run "C:\Program Files\Internet Explorer\iexplore.exe https://owa.dhssir.cty.dhs.state.mn.us/csedforms/ccforms/HCBillingMADERequest.aspx"		'Goes to SIR if button is pressed
 		Loop until ButtonPressed = -1 		'Loops until OK is selected
 		If recert_datestamp = "" or IsDate(recert_datestamp) = False then err_msg = err_msg & vbNewLine & "You need to fill in the datestamp."
 		If recert_status = "(select one...)" then err_msg = err_msg & vbNewLine & "* You need to select a recert status."
@@ -222,8 +224,8 @@ IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent fo
 If MMIS_updated_checkbox = 1 then Call write_variable_in_case_note("* MMIS updated.")
 call write_variable_in_case_note("---")
 call write_bullet_and_variable_in_case_note("MA-EPD premium", MAEPD_premium)
-If MADE_check = checked then call write_variable_in_case_note("* Emailed MADE.")
-If MAEPD_premium <> "" or MADE_check = checked then call write_variable_in_case_note("---")		'Does this for MAEPD <> blank because if it's blank and there's no MADE_check, it means there's nothing in this section after the ---, and we don't want two in a row now, do we?
+If made_useform_checkbox = checked Then Call write_variable_in_CASE_NOTE("* SIR useform submitted to MADE.")
+If MAEPD_premium <> "" or made_useform_checkbox = checked then call write_variable_in_case_note("---")		'Does this for MAEPD <> blank because if it's blank and there's no MADE_check, it means there's nothing in this section after the ---, and we don't want two in a row now, do we?
 call write_variable_in_case_note(worker_signature)
 
 call script_end_procedure("Success! Remember to update MMIS.")
