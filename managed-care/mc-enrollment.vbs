@@ -1,6 +1,6 @@
 '**********THIS IS A RAMSEY SPECIFIC SCRIPT.  IF YOU REVERSE ENGINEER THIS SCRIPT, JUST BE CAREFUL.************
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "ACTIONS - MANAGED CARE ENROLLMENT.vbs"
+name_of_script = "ACTIONS - MHC ENROLLMENT.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -1343,7 +1343,7 @@ Else
 	Next
 End If
 
-name_of_script = "ACTIONS - MANAGED CARE ENROLLMENT - " & left(enrollment_source, 5) & ".vbs"
+name_of_script = "ACTIONS - MHC ENROLLMENT - " & left(enrollment_source, 5) & ".vbs"
 If caller_rela = "" Then caller_rela = "Client"
 
 EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.

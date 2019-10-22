@@ -18,7 +18,7 @@
 ' END IF
 
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - Managed Care Enrollment.vbs"
+name_of_script = "NOTES - MHC NOTE ENROLLMENT.vbs"
 start_time = timer
 STATS_counter = 0			 'sets the stats counter at one
 STATS_manualtime = 60			 'manual run time in seconds
@@ -572,7 +572,7 @@ Do
 
 Loop Until err_msg = ""
 
-name_of_script = "NOTES - Managed Care Enrollment - " & left(enrollment_source, 5) & ".vbs"
+name_of_script = "NOTES - MHC NOTE ENROLLMENT - " & left(enrollment_source, 5) & ".vbs"
 If caller_rela = "" Then caller_rela = "Client"
 
 Call check_for_MMIS(False)
