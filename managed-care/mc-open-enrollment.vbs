@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("10/22/2019", "Added field to capture date enrollment form received in case note.", "Casey Love, Hennepin County")
 Call changelog_update("10/11/2019", "Fixed a bug that wass preventing the script from saving the enrollment for processing open enrollment.", "Casey Love, Hennepin County")
 call changelog_update("10/01/2019", "Updated to support 2020 enrollments.", "Casey Love, Hennepin County")
 Call changelog_update("11/14/2018", "Added phone enrollment information to the Case Note.", "Casey Love, Hennepin County")
@@ -142,21 +143,24 @@ Function get_to_RKEY()
 End Function
 '----------------------------------------------------------------------------------------------------------
 'DIALOG----------------------------------------------------------------------------------------------------
-BeginDialog case_dlg, 0, 0, 161, 225, "Enrollment Information"
+BeginDialog case_dlg, 0, 0, 161, 270, "Enrollment Information"
   EditBox 90, 25, 60, 15, MMIS_case_number
   DropListBox 70, 45, 80, 15, "Select one..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Hennepin Health SNBC"+chr(9)+"Ucare", Health_plan
   EditBox 15, 155, 130, 15, caller_name
-  EditBox 75, 175, 65, 15, phone_number
+  EditBox 80, 175, 65, 15, phone_number
+  EditBox 90, 220, 55, 15, form_received_date
   ButtonGroup ButtonPressed
-    OkButton 50, 205, 50, 15
-    CancelButton 105, 205, 50, 15
+    OkButton 50, 250, 50, 15
+    CancelButton 105, 250, 50, 15
   GroupBox 5, 10, 150, 55, "Leading zeros not needed"
   Text 10, 30, 50, 10, "Case Number:"
   Text 10, 50, 60, 10, "New Health Plan:"
-  Text 10, 70, 140, 50, "This script is for Open Enrollment Form processing ONLY. As such it will disenroll the client(s) from one plan on 12/31/16 and reenroll them to the new plan on 01/01/18. The disenrollment AND enrollment reason will be OE."
-  GroupBox 5, 125, 150, 70, "For Phone Requests"
+  Text 10, 70, 140, 50, "This script is for Open Enrollment processing ONLY. As such, it will disenroll the client(s) from one plan on December 31st and reenroll them to the new plan on January 1st. The disenrollment AND enrollment reason will be OE."
+  GroupBox 5, 125, 150, 75, "For Phone Requests"
   Text 15, 140, 50, 10, "Name of Caller:"
   Text 15, 180, 50, 10, "Phone Number"
+  GroupBox 5, 205, 150, 40, "For Enrollment Form Requests"
+  Text 15, 225, 70, 10, "Form Received Date:"
 EndDialog
 
 BeginDialog RPPH_error_dialog, 0, 0, 236, 110, "RPPH error detected"
@@ -891,8 +895,10 @@ IF Need_CNOTE = TRUE Then
         EmWriteScreen "Enrollment requested over phone by " & caller_name, row, 8
         col_pos = 35 + 8 + len(caller_name)
         If phone_number <> "" Then EmWriteScreen " at " & phone_number, row, col_pos
+    ElseIf trim(form_received_date) <> "" Then
+        EMWriteScreen "Enrollment requested via Form received on " & form_received_date & ".", row, 8
     Else
-        If phone_number <> "" Then EmWriteScreen "Enrollment requested over phone from " & phone_number
+        If phone_number <> "" Then EmWriteScreen "Enrollment requested over phone from " & phone_number, row, 8
     End If
     row = row + 1
     EMWriteScreen "Processed by " & worker_signature, row, 8
