@@ -43,117 +43,240 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/23/2019", "New functionality added to the Vendor script to pull vendor information from MAXIS.##~##", "Casey Love, Hennepin County")
 call changelog_update("10/21/2019", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'script gathers information from user regarding vendor payment(s)
-'writes case notes in maxis
+'Declarations
+const vnds_nbr          = 0
+const vnds_type         = 1
+const vnds_name         = 2
+const vnds_address      = 3
+const vnds_phone        = 4
+const vnds_grh          = 5
+const vnds_stat         = 6
+const clt_account_numb  = 7
+const vnds_amount       = 8
 
-BeginDialog vendor_dialog, 0, 0, 396, 190, "Vendor Dialog"
-  EditBox 60, 5, 55, 15, MAXIS_case_number
-  DropListBox 60, 45, 65, 15, "Vendor Type"+chr(9)+"Mandatory Utility/Shelter"+chr(9)+"Voluntary Utility/Shelter", vendor_type_1
-  EditBox 140, 45, 50, 15, vendor_number_1
-  EditBox 205, 45, 60, 15, vendor_name_1
-  EditBox 280, 45, 50, 15, phone_number_1
-  EditBox 345, 45, 45, 15, vendor_amount_1
-  DropListBox 60, 70, 65, 15, "Vendor Type"+chr(9)+"Mandatory Utility/Shelter"+chr(9)+"Voluntary Utility/Shelter", vendor_type_2
-  EditBox 140, 70, 50, 15, vendor_number_2
-  EditBox 205, 70, 60, 15, vendor_name_2
-  EditBox 280, 70, 50, 15, phone_number_2
-  EditBox 345, 70, 45, 15, vendor_amount_2
-  DropListBox 60, 95, 65, 15, "Vendor Type"+chr(9)+"Mandatory Utility/Shelter"+chr(9)+"Voluntary Utility/Shelter", vendor_type_3
-  EditBox 205, 95, 60, 15, vendor_name_3
-  EditBox 140, 95, 50, 15, vendor_number_3
-  EditBox 280, 95, 50, 15, phone_number_3
-  EditBox 345, 95, 45, 15, vendor_amount_3
-  DropListBox 60, 120, 65, 15, "Vendor Type"+chr(9)+"Mandatory Utility/Shelter"+chr(9)+"Voluntary Utility/Shelter", vendor_type_4
-  EditBox 205, 120, 60, 15, vendor_name_4
-  EditBox 140, 120, 50, 15, vendor_number_4
-  EditBox 280, 120, 50, 15, phone_number_4
-  EditBox 345, 120, 45, 15, vendor_amount_4
-  EditBox 75, 145, 315, 15, other_information
-  EditBox 75, 165, 125, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 285, 165, 50, 15
-    CancelButton 340, 165, 50, 15
-  Text 145, 30, 45, 10, "Vendor #"
-  Text 5, 10, 50, 10, "Case Number:"
-  Text 70, 30, 45, 10, "Vendor Type"
-  Text 290, 30, 45, 10, "Phone #"
-  Text 215, 30, 45, 10, "Vendor Name"
-  Text 10, 150, 60, 10, "Other Information:"
-  Text 10, 170, 60, 10, "Worker signature:"
-  Text 345, 30, 55, 10, "Vendor Amt $"
-  Text 15, 50, 40, 10, "Vendor #1:"
-  Text 15, 75, 40, 10, "Vendor #2:"
-  Text 15, 100, 40, 10, "Vendor #3:"
-  Text 15, 125, 40, 10, "Vendor #4:"
-EndDialog
+Dim VENDOR_INFO_ARRAY()
+ReDim VENDOR_INFO_ARRAY(vnds_amount, 0)
 
 'The script ----------------------------------------------------------------------------------------------------
-EMConnect ""
+EMConnect ""                    'Connect to MAXIS
 
-Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_case_number_finder(MAXIS_case_number)            'Pulling the case number from MAXIS if it can be found
 
-DO
-	DO
-		err_msg = ""
-		dialog vendor_dialog
-		cancel_confirmation
-		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
-		IF (vendor_type_1 = "Vendor Type" AND vendor_type_2 = "Vendor Type" AND vendor_type_3 = "Vendor Type" AND vendor_type_4 = "Vendor Type") THEN err_msg = err_msg & vbCr & "*At least one vendor type is needed."
-		IF (vendor_type_1 <> "Vendor Type" AND (vendor_number_1 = "" OR vendor_name_1 = "" OR phone_number_1 = "" OR vendor_amount_1 = "")) THEN err_msg = err_msg & vbCr & "*All vendor information must be completed for Vendor Number One."
-		IF (vendor_type_2 <> "Vendor Type" AND (vendor_number_2 = "" OR vendor_name_2 = "" OR phone_number_2 = "" OR vendor_amount_2 = "")) THEN err_msg = err_msg & vbCr & "*All vendor information must be completed for Vendor Number Two."
-		IF (vendor_type_3 <> "Vendor Type" AND (vendor_number_3 = "" OR vendor_name_3 = "" OR phone_number_3 = "" OR vendor_amount_3 = "")) THEN err_msg = err_msg & vbCr & "*All vendor information must be completed for Vendor Number Three."
-		IF (vendor_type_4 <> "Vendor Type" AND (vendor_number_4 = "" OR vendor_name_4 = "" OR phone_number_4 = "" OR vendor_amount_4 = "")) THEN err_msg = err_msg & vbCr & "*All vendor information must be completed for Vendor Number Four."
-		IF worker_signature = "" then err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	LOOP UNTIL err_msg = ""
- Call check_for_password(are_we_passworded_out)
-LOOP UNTIL check_for_password(are_we_passworded_out) = False
- 
+Do
+    Do
+        err_msg = ""
+
+        'Case number and Vendor Number Dialog - finding the information needed to autofill
+        'This has to be defined within the loop because there is another dialog in this loop - the search function
+        BeginDialog Dialog1, 0, 0, 331, 105, "Vendor Numbers to NOTE"
+          EditBox 275, 15, 50, 15, MAXIS_case_number
+          EditBox 110, 35, 215, 15, vendor_number_list
+          ButtonGroup ButtonPressed
+            PushButton 265, 70, 60, 10, "Vendor Search", vendor_search_button
+            OkButton 220, 85, 50, 15
+            CancelButton 275, 85, 50, 15
+          Text 10, 10, 195, 20, "This script will enter a CASE/NOTE with Vendor Information for a case. Mutiple vendors can be noted at a time."
+          Text 220, 20, 50, 10, "Case Number:"
+          Text 10, 40, 100, 10, "Established Vendor Numbers:"
+          Text 115, 55, 210, 10, "*Enter vendor numbers separated by commas if more than one."
+          Text 10, 75, 140, 25, "There will be a place to add vendor information for a vendor that does not yet have a vendor number in the next dialog."
+        EndDialog
+
+        dialog Dialog1                  'showing the dialog
+        cancel_without_confirmation     'pressing cancel
+
+        Call validate_MAXIS_case_number(err_msg, "*")       'error message for the case number
+
+        'If the search button is pressed, the functionality for searching vendors here will start
+        If ButtonPressed = vendor_search_button Then
+            err_msg = "LOOP" & err_msg              'this makes sure we loop back to the first dialog
+            vendor_search_county = "27 Hennepin"    'defaulting the parameters of the search
+            vendor_search_status = "Any"
+            vendor_search_name = ""
+
+            'this is the search dialog
+            BeginDialog Dialog1, 0, 0, 266, 85, "Vendor Search Criteria"
+              EditBox 70, 25, 190, 15, vendor_search_name
+              DropListBox 70, 45, 70, 45, "Any"+chr(9)+"Active"+chr(9)+"Merged"+chr(9)+"Pending"+chr(9)+"Terminated", vendor_search_status
+              DropListBox 70, 65, 80, 45, "Any"+chr(9)+county_list, vendor_search_county
+              ButtonGroup ButtonPressed
+                PushButton 220, 65, 40, 15, "SEARCH", execute_search
+              Text 10, 10, 160, 10, "Enter vendor information you wish to search by:"
+              Text 15, 30, 50, 10, "Vendor Name:"
+              Text 15, 50, 55, 10, "Vendor Status:"
+              Text 15, 70, 50, 10, "Vendor County:"
+            EndDialog
+
+
+            Do
+                dialog Dialog1      'showing the search dialog
+
+                Call check_for_password(are_we_passworded_out)      'password handling
+            Loop until are_we_passworded_out = False
+
+            Call navigate_to_MAXIS_screen("MONY", "VNDS")           'going to vendor search in MAXIS
+
+            EMWriteScreen vendor_search_name, 4, 15                 'entering the information from the dialog into the search in MAXIS
+            If vendor_search_status <> "Any" Then EMWriteScreen left(vendor_search_status, 1), 5, 21
+            If vendor_search_county <> "Any" Then EMWriteScreen vendor_search_county, 5, 10
+            EMWriteScreen "        ", 4, 59                         'blanking the vendor number
+            transmit                                                'submitting the search
+
+        End If
+
+        If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg       'showing the error message if anything is missing from the initial dialog
+	Loop until err_msg = ""
+    Call check_for_password(are_we_passworded_out)                  'password handling
+Loop until check_for_password(are_we_passworded_out) = False
+
+
+vendor_number_list = trim(vendor_number_list)           'formatting information from the main dialog
+If InStr(vendor_number_list, ",") = 0 Then              'making the list of vendor numbers an array
+    vendor_array = ARRAY(vendor_number_list)
+Else
+    vendor_array = split(vendor_number_list, ",")
+End If
+
+vendor_counter = 0      'setting the incrementer for the large array
+For each vendor_number in vendor_array                  'cycling through the array of numbers to gather information and fill the large array
+    vendor_number = trim(vendor_number)                 'getting rid of spaces
+    If vendor_number <> "" Then                         'making sure we don't have a blank in the array
+        ReDim Preserve VENDOR_INFO_ARRAY(vnds_amount, vendor_counter)       'resizing the large array of vendor detail information
+
+        VENDOR_INFO_ARRAY(vnds_nbr, vendor_counter) = vendor_number         'setting the vendor number into the large array
+        Call navigate_to_MAXIS_screen("MONY", "VNDS")                       'going to look for more vendor detail in MAXIS
+
+        EMWriteScreen vendor_number, 4, 59                                  'enter the vendor number into VNDS
+        transmit
+
+        EMReadScreen check_for_vndm, 4, 2, 54                               'making sure we got to the vendor file maintenance - VNDM
+        If check_for_vndm = "VNDM" Then
+            EMReadScreen vndm_name, 30, 3, 15                               'reading all the information from VNDM
+            EMReadScreen vndm_grh_yn, 1, 4, 57
+            EMREadScreen vndm_street_one, 22, 5, 15
+            EMReadScreen vndm_street_two, 22, 6, 15
+            EMReadScreen vndm_city, 15, 7, 15
+            EMReadScreen vndm_state, 2, 7, 36
+            EMReadScreen vndm_zip, 5, 7, 46
+            EMReadScreen vndm_phone, 18, 6, 52
+            EMReadScreen vndm_status, 1, 16, 15
+
+            VENDOR_INFO_ARRAY(vnds_name, vendor_counter) = replace(vndm_name, "_", "")      'fromatting the name of the vendor and save it to the large array
+
+            vndm_phone = replace(vndm_phone, " )  ", ")")                       'formatting the phone number and adding it to the large array
+            vndm_phone = replace(vndm_phone, "  ", "-")
+            vndm_phone = replace(vndm_phone, " ", "")
+            If vndm_phone = "(___)___-____" Then vndm_phone = ""
+            VENDOR_INFO_ARRAY(vnds_phone, vendor_counter) = vndm_phone
+
+            vndm_street_one = replace(vndm_street_one, "_", "")                 'formatting the address and compiling the pieces and adding it to the large array
+            vndm_street_two = replace(vndm_street_two, "_", "")
+            vndm_city = replace(vndm_city, "_", "")
+            VENDOR_INFO_ARRAY(vnds_address, vendor_counter) = vndm_street_one & " " & vndm_street_two & " " & vndm_city & ", " & vndm_state & " " & vndm_zip
+
+            VENDOR_INFO_ARRAY(vnds_grh, vendor_counter) = vndm_grh_yn           'saving the grh information to the large array
+            If vndm_status = "A" Then VENDOR_INFO_ARRAY(vnds_stat, vendor_counter) = "Active"           'Setting the vendor status in the large array with actual words
+            If vndm_status = "P" Then VENDOR_INFO_ARRAY(vnds_stat, vendor_counter) = "Pending"
+            If vndm_status = "M" Then VENDOR_INFO_ARRAY(vnds_stat, vendor_counter) = "Merged"
+            If vndm_status = "T" Then VENDOR_INFO_ARRAY(vnds_stat, vendor_counter) = "Terminated"
+        End If
+
+        Call back_to_SELF       'after gathering the vendor information, go back to self to reset all the things
+
+        vendor_counter = vendor_counter + 1     'incrementing the counter for the next vendor number
+    End If
+Next
+
+Do
+    Do
+        err_msg = ""            'resetting the error message for the next dialog
+        y_pos = 45              'variables for height of dialog as this is dynamic
+        dlg_len = 65 + ( 25 * (UBound(VENDOR_INFO_ARRAY, 2) + 1))
+
+        'This is the main information dialog
+        BeginDialog Dialog1, 0, 0, 680, dlg_len, "Vendor Detail Information"
+          ButtonGroup ButtonPressed
+            PushButton 565, 10, 105, 10, "ADD ANOTHER VENDOR", add_another_button
+          Text 10, 10, 340, 10, "Enter detail about the vendor that should be entered into the case note detailing the vendor information."
+          Text 10, 30, 30, 10, "Number"
+          Text 60, 30, 25, 10, "Name"
+          Text 150, 30, 30, 10, "Address"
+          Text 290, 30, 25, 10, "Phone"
+          Text 355, 30, 25, 10, "GRH?"
+          Text 395, 30, 25, 10, "Status"
+          Text 450, 30, 20, 10, "Type"
+          Text 565, 30, 30, 10, "Amount"
+          Text 605, 30, 60, 10, "Client Account #"
+          For each_vendor = 0 to UBound(VENDOR_INFO_ARRAY, 2)
+              EditBox 10, y_pos, 35, 15, VENDOR_INFO_ARRAY(vnds_nbr, each_vendor)
+              EditBox 60, y_pos, 85, 15, VENDOR_INFO_ARRAY(vnds_name, each_vendor)
+              EditBox 150, y_pos, 135, 15, VENDOR_INFO_ARRAY(vnds_address, each_vendor)
+              EditBox 290, y_pos, 55, 15, VENDOR_INFO_ARRAY(vnds_phone, each_vendor)
+              DropListBox 355, y_pos, 30, 45, ""+chr(9)+"Yes"+chr(9)+"No", VENDOR_INFO_ARRAY(vnds_grh, each_vendor)
+              DropListBox 395, y_pos, 45, 45, ""+chr(9)+"Active"+chr(9)+"Pending"+chr(9)+"Merged"+chr(9)+"Terminated", VENDOR_INFO_ARRAY(vnds_stat, each_vendor)
+              ComboBox 450, y_pos, 105, 45, "Select or Type"+chr(9)+"Mandatory Shelter"+chr(9)+"Mandatory Utility"+chr(9)+"Voluntary Shelter"+chr(9)+"Voluntary Utility"+chr(9)+"GRH"+chr(9)+VENDOR_INFO_ARRAY(vnds_type, each_vendor), VENDOR_INFO_ARRAY(vnds_type, each_vendor)
+              EditBox 565, y_pos, 35, 15, VENDOR_INFO_ARRAY(vnds_amount, each_vendor)
+              EditBox 605, y_pos, 70, 15, VENDOR_INFO_ARRAY(clt_account_numb, each_vendor)
+              y_pos = y_pos + 25
+          Next
+          Text 10, y_pos + 5, 25, 10, "Notes:"
+          EditBox 40, y_pos, 340, 15, other_notes
+          Text 395, y_pos + 5, 60, 10, "Worker Signature:"
+          EditBox 460, y_pos, 90, 15, worker_signature
+          ButtonGroup ButtonPressed
+            OkButton 570, y_pos, 50, 15
+            CancelButton 625, y_pos, 50, 15
+        EndDialog
+
+        dialog Dialog1                  'showing the dialog
+        cancel_confirmation             'cancel the run
+
+        If ButtonPressed = add_another_button Then      'This increases the large array and adds another line to the dialog for manual entry of vendor information if no number was listed
+            err_msg = "LOOP" & err_msg                  'making sure the dialog reappears'\
+            vendor_counter = Ubound(VENDOR_INFO_ARRAY, 2) + 1
+            ReDim Preserve VENDOR_INFO_ARRAY(vnds_amount, vendor_counter)
+        End If
+
+        For each_vendor = 0 to UBound(VENDOR_INFO_ARRAY, 2)     'Looking for mandatory fields
+            If trim(VENDOR_INFO_ARRAY(vnds_name, each_vendor)) = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the vendor."          'VENDOR NAME
+            If trim(VENDOR_INFO_ARRAY(vnds_type, each_vendor)) = "" OR trim(VENDOR_INFO_ARRAY(vnds_type, each_vendor)) = "Select or Type" Then err_msg = err_msg & vbNewLine & "* Enter the type of vendor"     'VENDOR TYPE
+        Next
+
+        If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg     'Showing the error message
+
+    Loop until err_msg = ""
+    Call check_for_password(are_we_passworded_out)          'password handling
+Loop until are_we_passworded_out = False
+
 'The case note---------------------------------------------------------------------------------------
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 Call write_variable_in_CASE_NOTE("---Vendor information---")
-IF vendor_type_1 <> "Vendor Type" then 
- Call write_bullet_and_variable_in_CASE_NOTE("Vendor type", vendor_type_1)
- Call write_bullet_and_variable_in_CASE_NOTE("Vendor #", vendor_number_1)
- Call write_bullet_and_variable_in_CASE_NOTE("Vendor name", vendor_name_1)
- Call write_bullet_and_variable_in_CASE_NOTE("Phone number", phone_number_1)
- Call write_bullet_and_variable_in_CASE_NOTE("Vendor amount", vendor_amount_1)
- Call write_variable_in_CASE_NOTE ("-")
-END IF 
-IF vendor_type_2 <> "Vendor Type" then 
- Call write_bullet_and_variable_in_CASE_NOTE("Vendor type", vendor_type_2)
- Call write_bullet_and_variable_in_CASE_NOTE("Vendor #", vendor_number_2)
- Call write_bullet_and_variable_in_CASE_NOTE("Vendor name", vendor_name_2)
- Call write_bullet_and_variable_in_CASE_NOTE("Phone number", phone_number_2)
- Call write_bullet_and_variable_in_CASE_NOTE("Vendor amount", vendor_amount_2)
- Call write_variable_in_CASE_NOTE ("-")
-END IF 
-IF vendor_type_3 <> "Vendor Type" then 
- Call write_bullet_and_variable_in_CASE_NOTE("Vendor type", vendor_type_3)
- Call write_bullet_and_variable_in_CASE_NOTE("Vendor #", vendor_number_3)
- Call write_bullet_and_variable_in_CASE_NOTE("Vendor name", vendor_name_3)
- Call write_bullet_and_variable_in_CASE_NOTE("Phone number", phone_number_3)
- Call write_bullet_and_variable_in_CASE_NOTE("Vendor amount", vendor_amount_3)
- Call write_variable_in_CASE_NOTE ("-")
-END IF 
-IF vendor_type_4 <> "Vendor Type" then 
- Call write_bullet_and_variable_in_CASE_NOTE("Vendor type", vendor_type_4)
- Call write_bullet_and_variable_in_CASE_NOTE("Vendor #", vendor_number_4)
- Call write_bullet_and_variable_in_CASE_NOTE("Vendor name", vendor_name_4)
- Call write_bullet_and_variable_in_CASE_NOTE("Phone number", phone_number_4)
- Call write_bullet_and_variable_in_CASE_NOTE("Vendor amount", vendor_amount_4)
- Call write_variable_in_CASE_NOTE ("-")
-END IF 
 
- Call write_bullet_and_variable_in_CASE_NOTE("Other Information", other_information)
+For each_vendor = 0 to UBound(VENDOR_INFO_ARRAY, 2)                     'This adds each of the vendor peices to the case note in a formatted way
+    If trim(VENDOR_INFO_ARRAY(vnds_nbr, each_vendor)) = "" Then
+        Call write_variable_in_CASE_NOTE("Vendor: " & VENDOR_INFO_ARRAY(vnds_name, each_vendor))
+    Else
+        Call write_variable_in_CASE_NOTE("Vendor #" & VENDOR_INFO_ARRAY(vnds_nbr, each_vendor) & " : " & VENDOR_INFO_ARRAY(vnds_name, each_vendor))
+    End If
+    Call write_bullet_and_variable_in_CASE_NOTE("Address", VENDOR_INFO_ARRAY(vnds_address, each_vendor))
+    Call write_bullet_and_variable_in_CASE_NOTE("Phone", VENDOR_INFO_ARRAY(vnds_phone, each_vendor))
+    Call write_bullet_and_variable_in_CASE_NOTE("Status", VENDOR_INFO_ARRAY(vnds_stat, each_vendor))
+    If VENDOR_INFO_ARRAY(vnds_grh, each_vendor) = "Yes" Then Call write_variable_in_CASE_NOTE("* This Vendor is a GRH.")
+    Call write_variable_in_CASE_NOTE("* On this case:")
+    Call write_variable_with_indent_in_CASE_NOTE("Type: " & VENDOR_INFO_ARRAY(vnds_type, each_vendor))
+    If trim(VENDOR_INFO_ARRAY(vnds_amount, each_vendor)) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Amount: $" & VENDOR_INFO_ARRAY(vnds_amount, each_vendor))
+    If trim(VENDOR_INFO_ARRAY(clt_account_numb, each_vendor)) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Account Number: " & VENDOR_INFO_ARRAY(clt_account_numb, each_vendor))
+Next
+
  Call write_variable_in_CASE_NOTE ("---")
- 
+ Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
  Call write_variable_in_CASE_NOTE (worker_signature)
 
- Call script_end_procedure("")
+ Call script_end_procedure_with_error_report("Vendor information entered into CASE/NOTE")
