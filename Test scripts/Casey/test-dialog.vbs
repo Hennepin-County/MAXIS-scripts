@@ -344,6 +344,14 @@ EndDialog
 '   Text 10, 90, 65, 10, "SHEL/HEST Notes:"
 ' EndDialog
 
+BeginDialog Dialog1, 0, 0, 376, 165, "Dialog"
+  ButtonGroup ButtonPressed
+    OkButton 320, 145, 50, 15
+  Text 15, 10, 350, 110, "What does it say?                                                                       How?                                                                                                                                                                                                                                                  The thing here:"
+  EditBox 80, 5, 105, 15, Edit1
+  EditBox 235, 5, 105, 15, Edit2
+  EditBox 80, 25, 105, 15, Edit3
+EndDialog
 
 
 dialog Dialog1
