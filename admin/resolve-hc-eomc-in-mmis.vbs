@@ -55,6 +55,34 @@ call changelog_update("09/21/2018", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+Function MMIS_case_number_finder(MMIS_case_number)
+    row = 1
+    col = 1
+    EMSearch "CASE NUMBER:", row, col
+    If row <> 0 Then
+        EMReadScreen MMIS_case_number, 8, row, col + 13
+        MMIS_case_number = trim(MMIS_case_number)
+    End If
+    If MMIS_case_number = "" Then
+        row = 1
+        col = 1
+        EMSearch "CASE NBR:", row, col
+        If row <> 0 Then
+            EMReadScreen MMIS_case_number, 8, row, col + 10
+            MMIS_case_number = trim(MMIS_case_number)
+        End If
+    End If
+    If MMIS_case_number = "" Then
+        row = 1
+        col = 1
+        EMSearch "CASE:", row, col
+        If row <> 0 Then
+            EMReadScreen MMIS_case_number, 8, row, col + 6
+            MMIS_case_number = trim(MMIS_case_number)
+        End If
+    End If
+End Function
+
 function navigate_to_MAXIS_test(maxis_mode)
 '--- This function is to be used when navigating back to MAXIS from another function in BlueZone (MMIS, PRISM, INFOPAC, etc.)
 '~~~~~ maxis_mode: This parameter needs to be "maxis_mode"
@@ -114,12 +142,76 @@ function navigate_to_MAXIS_test(maxis_mode)
     End If
 end function
 
+Function get_to_RKEY()
+    EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
+    IF MMIS_panel_check <> "RKEY" THEN
+        attempt = 1
+        DO
+            If MMIS_case_number = "" Then Call MMIS_case_number_finder(MMIS_case_number)
+            PF6
+            EMReadScreen MMIS_panel_check, 4, 1, 52
+            attempt = attempt + 1
+            If attempt = 15 Then Exit Do
+        Loop Until MMIS_panel_check = "RKEY"
+    End If
+    EMReadScreen MMIS_panel_check, 4, 1, 52	'checking to see if user is on the RKEY panel in MMIS. If not, then it will go to there.
+    IF MMIS_panel_check <> "RKEY" THEN
+    	DO
+    		PF6
+    		EMReadScreen session_terminated_check, 18, 1, 7
+    	LOOP until session_terminated_check = "SESSION TERMINATED"
+
+        'Getting back in to MMIS and trasmitting past the warning screen (workers should already have accepted the warning when they logged themselves into MMIS the first time, yo.
+        EMWriteScreen "MW00", 1, 2
+        transmit
+        transmit
+
+        EMReadScreen MMIS_menu, 24, 3, 30
+	    If MMIS_menu = "GROUP SECURITY SELECTION" Then
+            row = 1
+            col = 1
+            EMSearch " C3", row, col
+            If row <> 0 Then
+                EMWriteScreen "x", row, 4
+                transmit
+            Else
+                row = 1
+                col = 1
+                EMSearch " C4", row, col
+                If row <> 0 Then
+                    EMWriteScreen "x", row, 4
+                    transmit
+                Else
+                    script_end_procedure_with_error_report("You do not appear to have access to the County Eligibility area of MMIS, this script requires access to this region. The script will now stop.")
+                End If
+            End If
+
+            'Now it finds the recipient file application feature and selects it.
+            row = 1
+            col = 1
+            EMSearch "RECIPIENT FILE APPLICATION", row, col
+            EMWriteScreen "x", row, col - 3
+            transmit
+        Else
+            'Now it finds the recipient file application feature and selects it.
+            row = 1
+            col = 1
+            EMSearch "RECIPIENT FILE APPLICATION", row, col
+            EMWriteScreen "x", row, col - 3
+            transmit
+        End If
+    END IF
+End Function
+
 'function specific to this script - running_stopwatch and MX_environment are defined outside of this function
 'meant to keep MMIS from passwording out while this long bulk script is running
 function keep_MMIS_passworded_in(mmis_area, maxis_area)
+    ' MsgBox running_stopwatch & vbNewLine & timer
     If timer - running_stopwatch > 720 Then         'this means the script has been running for more than 12 minutes since we last popped in to MMIS
         Call navigate_to_MMIS_region(mmis_area)      'Going to MMIS'
+        'MsgBox "In MMIS"
         Call navigate_to_MAXIS_test(maxis_area)                       'going back to MAXIS'
+        'MsgBox "Back to MAXIS"
         running_stopwatch = timer                                       'resetting the stopwatch'
     End If
 end function
@@ -134,6 +226,8 @@ MAXIS_footer_month = CM_mo                      'defining footer month and year 
 MAXIS_footer_year = CM_yr
 first_of_next_month = CM_plus_1_mo & "/1/" & CM_plus_1_yr           'creating a date varibale for the first of the next month
 last_day_of_this_month = DateAdd("d", -1, first_of_next_month)      'creating a date variable with the LAST day of the current month
+first_of_month_after = CM_plus_2_mo & "/1/" & CM_plus_2_yr
+last_day_of_month_after = DateAdd("d", -1, first_of_month_after)
 
 'formatting the last day of the month in to MM/DD/YY for entry in to MMIS
 last_day_mo = DatePart("m", last_day_of_this_month)
@@ -143,6 +237,15 @@ last_day_day = right("00" & last_day_day, 2)
 last_day_yr = DatePart("yyyy", last_day_of_this_month)
 last_day_yr = right("00" & last_day_yr, 2)
 mmis_last_day_date = last_day_mo & "/" & last_day_day & "/" & last_day_yr
+
+last_day_mo = DatePart("m", last_day_of_month_after)
+last_day_mo = right("00" & last_day_mo, 2)
+last_day_day = DatePart("d", last_day_of_month_after)
+last_day_day = right("00" & last_day_day, 2)
+last_day_yr = DatePart("yyyy", last_day_of_month_after)
+last_day_yr = right("00" & last_day_yr, 2)
+mmis_last_day_after_cap = last_day_mo & "/" & last_day_day & "/" & last_day_yr
+
 
 'Setting amounts
 total_savings = 0                   'setting this at zero so that we can add up what we save
@@ -204,12 +307,13 @@ EMConnect ""
 query_start_time = timer
 
 'dialog to restrict how many baskets the script is run on AND decide if the script will be run to change or just look up information
-BeginDialog EOMC_dialog, 0, 0, 351, 65, "Workers to check EOMC"
+BeginDialog EOMC_dialog, 0, 0, 351, 75, "Workers to check EOMC"
   EditBox 90, 10, 255, 15, list_of_workers
   CheckBox 10, 45, 140, 10, "Check here to have script update MMIS", change_checkbox
+  CheckBox 10, 60, 130, 10, "Check here if it is after CAPITATION.", after_capitation_checkbox
   ButtonGroup ButtonPressed
-    OkButton 240, 45, 50, 15
-    CancelButton 295, 45, 50, 15
+    OkButton 240, 55, 50, 15
+    CancelButton 295, 55, 50, 15
   Text 5, 15, 85, 10, "List of Workers to check:"
   Text 95, 30, 125, 10, "(Leave blank to run on entrire county)"
 EndDialog
@@ -229,11 +333,12 @@ EMReadScreen MX_environment, 13, 22, 48                         'seeing which MX
 MX_environment = trim(MX_environment)
 Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")        'Going to MMIS'
 Call navigate_to_MAXIS_test(MX_environment)                          'going back to MAXIS
-
 running_stopwatch = timer               'setting the running timer so we log in to MMIS within every 15 mintues so we don't password out
 
 make_changes = FALSE                    'setting this at the start
 If change_checkbox = checked Then make_changes = TRUE   'if the dialog has indicated that changes should be changed reset this to true
+If after_capitation_checkbox = checked Then mmis_last_day_date = mmis_last_day_after_cap
+MsgBox "MMIS last day to update to - " & mmis_last_day_date
 
 list_of_workers = trim(list_of_workers)
 If list_of_workers = "" Then            'if this is blank then we are going to search the entire county
@@ -664,6 +769,27 @@ Next
 'need to get to ground zero
 Call back_to_SELF
 Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")      'Going to MMIS'
+'MsgBox "Pause"
+EMReadScreen check_in_MMIS, 18, 1, 7
+
+' BeginDialog Dialog1, 0, 0, 131, 80, "Dialog"
+'   ButtonGroup ButtonPressed
+'     OkButton 75, 60, 50, 15
+'   Text 15, 15, 65, 10, "What does it say?"
+'   Text 25, 35, 50, 10, check_in_MMIS
+' EndDialog
+'
+' dialog Dialog1
+
+If check_in_MMIS = "SESSION TERMINATED" Then
+    EMWriteScreen "MW00",1, 2
+    transmit
+    transmit
+
+    EMWriteScreen "X", 8, 3
+    transmit
+End If
+
 
 'Opening a new Excel file
 Set objExcel = CreateObject("Excel.Application")
@@ -762,6 +888,7 @@ excel_row = 2
 
 'Looping through each of the HC clients while in MMIS
 For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
+    Call get_to_RKEY
     STATS_counter = STATS_counter + 1       'incrementing for each client HC reviewed - it is here because this is the part that the timer will cut out on
     PMI_Number = right("00000000" & EOMC_CLIENT_ARRAY(clt_pmi, hc_clt), 8)    'making this 8 charactes because MMIS
     MAXIS_case_number = right("00000000" & EOMC_CLIENT_ARRAY(case_nbr, hc_clt), 8)
@@ -890,9 +1017,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
             If span_found = FALSE Then EOMC_CLIENT_ARRAY(err_notes, hc_clt) = EOMC_CLIENT_ARRAY(err_notes, hc_clt) & " ~ No MMIS SPAN for " & EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt)
         End If
 
-        EMWriteScreen "RKEY", 1, 8  'back to the beginning for the next client/loop'
-        transmit
-
+        call get_to_RKEY
     End If
     'if for some reason no HC programs were in MAXIS to begin with - adding this detail to the message
     If EOMC_CLIENT_ARRAY(hc_prog_one, hc_clt) = "" AND EOMC_CLIENT_ARRAY(hc_prog_two, hc_clt) = "" Then EOMC_CLIENT_ARRAY(err_notes, hc_clt) = EOMC_CLIENT_ARRAY(err_notes, hc_clt) & " ~ No HC Programs found in MAXIS ELIG."
@@ -1061,10 +1186,10 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                 EmReadscreen check_for_RKEY, 4, 1, 52
                 If check_for_RKEY <> "RKEY" Then PF6
 
+
                 PF3                                     'save and go back to RKEY
-                EMWriteScreen "X",8, 3
-                transmit
                 'NOW THE INFORMATION IS SAVED'
+                Call get_to_RKEY
 
                 'We are going to confirm the information
                 EMWriteScreen "I", 2, 19                    'read only
