@@ -285,14 +285,17 @@ If AVS_option = "Initial Monthly Upload" then
         MAXIS_case_number = Trim(MAXIS_case_number)
     
         Client_PMI = objExcel.cells(excel_row, 5).Value          'reading the PMI from Excel 
-        Client_PMI = trim(Client_PMI)
+        Do 
+            If left(Client_PMI, 1) = "0" then client_PMI = right(client_PMI, len(client_PMI) -1)
+        Loop until left(Client_PMI, 1) <> "0"
         
+        Client_PMI = trim(Client_PMI)        
         If Client_PMI = "" then exit do
             
         ReDim Preserve case_array(15, entry_record)	'This resizes the array based on the number of rows in the Excel File'
         case_array(case_number_const,           entry_record) = MAXIS_case_number	'The client information is added to the array'
         case_array(clt_PMI_const,               entry_record) = Client_PMI			
-        case_array(SMI_num_const,             entry_record) = ""                       
+        case_array(SMI_num_const,               entry_record) = ""                       
         case_array(waiver_info_const,	        entry_record) = ""
         case_array(medicare_info_const,         entry_record) = ""     
         case_array(first_case_number_const,   	entry_record) = ""				
