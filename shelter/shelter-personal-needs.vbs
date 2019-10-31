@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("10/31/2019", "Updated script as the footer month and year were having issues populating correctly. The script will now use current month plus one to determine footer month and year for the dialog title and case note.", "Casey Love, Hennepin County")
 CALL changelog_update("07/29/2019", "Updated script per request. Removed ELIG vs INELIG and updated case note.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("11/14/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -52,9 +53,9 @@ changelog_display
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+' Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 '-------------------------------------------------------------------------------------------------------------------DIALOGS
-BeginDialog pers_needs_dialog, 0, 0, 156, 105, "Personal Needs for " & CM_plus_1_m & "/" & MAXIS_footer_year
+BeginDialog pers_needs_dialog, 0, 0, 156, 105, "Personal Needs for " & CM_plus_1_mo & "/" & CM_plus_1_yr
   EditBox 60, 5, 40, 15, MAXIS_case_number
   EditBox 135, 5, 15, 15, HH_size
   EditBox 60, 25, 40, 15, amt_issued
@@ -98,7 +99,7 @@ amt_issued = "$" & amt_issued
 
 'The case note---------------------------------------------------------------------------------------
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-Call write_variable_in_CASE_NOTE("### Personal needs " & CM_plus_1_mo & "/" & MAXIS_footer_year & " ###")
+Call write_variable_in_CASE_NOTE("### Personal needs " & CM_plus_1_mo & "/" & CM_plus_1_yr & " ###")
 Call write_bullet_and_variable_in_CASE_NOTE("HH size", HH_size)
 Call write_bullet_and_variable_in_CASE_NOTE("Amount eligible", amt_issued)
 Call write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
