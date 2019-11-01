@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/01/2019", "BUG FIX - resolved error where script was missing the case notes. Script should now case note every time the script is run to completion.", "Casey Love, Hennepin County")
 call changelog_update("09/04/2019", "Reworded the TIKL.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/01/2019", "Removed the automated DAIL deletion. Workers must go back and delete manually once the DAIL has been acted on.", "MiKayla Handley, Hennepin County")
 call changelog_update("04/01/2019", "Initial version.", "MiKayla Handley, Hennepin County")
@@ -69,6 +70,11 @@ EMConnect ""
 '	TRANSMIT
 	EMReadScreen DAIL_type, 4, 6, 6 'read the DAIL msg'
 	DAIL_type = trim(DAIL_type)
+    EMReadScreen MAXIS_case_number, 8, 5, 73
+    MAXIS_case_number = trim(MAXIS_case_number)
+
+    EMWriteScreen "S", 6, 3         'Goes to Case Note - maintains tie with DAIL
+    TRANSMIT
 '	IF DAIL_type = "TIKL" or DAIL_type = "PEPR"  or DAIL_type = "INFO" THEN
 '		match_found = TRUE
 '	ELSE
@@ -108,14 +114,6 @@ EMConnect ""
 		EndDialog
 
 		when_contact_was_made = date & ", " & time
-
-		EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
-		TRANSMIT
-
-		PF9 'Starts a blank case note
-
-		EMReadScreen case_note_mode_check, 7, 20, 3
-		If case_note_mode_check <> "Mode: A" then script_end_procedure("You are not in a case note on edit mode. You might be in inquiry. Try the script again in production.")
 		'updates the "when contact was made" variable to show the current date & time
 
 		Do
@@ -135,29 +133,58 @@ EMConnect ""
 
 		'checking for an active MAXIS session
 		Call check_for_MAXIS(False)
-		EmReadScreen panel_check, 04, 02, 45
-		DO
-			'before we write checking for casenote'
-			IF panel_check =  "NOTE" THEN EXIT DO
-			IF panel_check <> "NOTE" THEN
-				case_note_confirmation = MsgBox("Press YES to confirm that you are back to case notes and ready write." & vbNewLine & "To navigate to CASE/NOTE, press NO." & vbNewLine & vbNewLine & _
-		    	"Panel Check -" & panel_check, vbYesNoCancel, "Case note confirmation")
-			 	IF case_note_confirmation = vbNo THEN
-					Call navigate_to_MAXIS_screen("CASE", "NOTE")
-		            PF9
-					EmReadScreen write_mode_casenote, 06, 03, 03
-					If write_mode_casenote <> "Please" THEN msgbox script_end_procedure_with_error_report("The script has ended. Unable to access case note.")
-					IF write_mode_casenote = "Please" THEN EXIT DO
-				END IF
-				IF case_note_confirmation = vbYes THEN EXIT DO
-		    	IF case_note_confirmation = vbCancel THEN script_end_procedure_with_error_report("The script has ended. The DAIL has not been acted on.")
-			END IF
-		LOOP UNTIL case_note_confirmation = vbYes
+		' EmReadScreen panel_check, 04, 02, 45
+		' DO
+		' 	'before we write checking for casenote'
+		' 	IF panel_check =  "NOTE" THEN EXIT DO
+		' 	IF panel_check <> "NOTE" THEN
+		' 		case_note_confirmation = MsgBox("Press YES to confirm that you are back to case notes and ready write." & vbNewLine & "To navigate to CASE/NOTE, press NO." & vbNewLine & vbNewLine & _
+		'     	"Panel Check -" & panel_check, vbYesNoCancel, "Case note confirmation")
+		' 	 	IF case_note_confirmation = vbNo THEN
+		' 			Call navigate_to_MAXIS_screen("CASE", "NOTE")
+		'             PF9
+		' 			EmReadScreen write_mode_casenote, 06, 03, 03
+		' 			If write_mode_casenote <> "Please" THEN msgbox script_end_procedure_with_error_report("The script has ended. Unable to access case note.")
+		' 			IF write_mode_casenote = "Please" THEN EXIT DO
+		' 		END IF
+		' 		IF case_note_confirmation = vbYes THEN EXIT DO
+		'     	IF case_note_confirmation = vbCancel THEN script_end_procedure_with_error_report("The script has ended. The DAIL has not been acted on.")
+		' 	END IF
+		' LOOP UNTIL case_note_confirmation = vbYes
 	'END IF
 'END IF
 
+EMReadScreen are_we_in_stat, 14, 20, 11
+EMReadScreen are_we_at_dail, 4, 2, 48
+If are_we_in_stat = "Function: STAT" Then
+    PF3
+
+    EMReadScreen are_we_at_dail, 4, 2, 48
+    If are_we_at_dail <> "DAIL" Then
+        Call back_to_SELF
+
+        EMWriteScreen "        ", 18, 43
+        EMWriteScreen MAXIS_case_number, 18, 43
+
+        Call navigate_to_MAXIS_screen("DAIL", "DAIL")
+    End If
+ElseIf are_we_at_dail <> "DAIL" Then
+    Call back_to_SELF
+
+    EMWriteScreen "        ", 18, 43
+    EMWriteScreen MAXIS_case_number, 18, 43
+
+    Call navigate_to_MAXIS_screen("DAIL", "DAIL")
+End If
 '----------------------------------------------------------------------------------------------------THE CASENOTE
-'start_a_blank_case_note
+EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
+TRANSMIT
+
+PF9 'Starts a blank case note
+
+EMReadScreen case_note_mode_check, 7, 20, 3
+If case_note_mode_check <> "Mode: A" then script_end_procedure("You are not in a case note on edit mode. You might be in inquiry. Try the script again in production.")
+
 CALL write_variable_in_CASE_NOTE("=== " & DAIL_type & " - MESSAGE PROCESSED FOR M" & memb_number & " ===")
 IF first_line = "" THEN CALL write_variable_in_case_note("* " & full_message)
 CALL write_variable_in_case_note(first_line)
