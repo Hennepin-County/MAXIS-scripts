@@ -3308,16 +3308,16 @@ function convert_array_to_droplist_items(array_to_convert, output_droplist_box)
 	Next
 end function
 
-function convert_date_into_MAXIS_footer_month(date_to_convert, MAXIS_footer_month, MAXIS_footer_year)
+function convert_date_into_MAXIS_footer_month(date_to_convert, footer_month_input, footer_year_input)
 '--- This function converts a date (MM/DD/YY or MM/DD/YYYY format) into a separate footer month and footer year variables.
 '~~~~~ date_to_convert: variable name of date you want to convert
-'~~~~~ MAXIS_footer_month: footer month to convert the date into
-'~~~~~ MAXIS_footer_month: footer year to convert the date into
+'~~~~~ footer_month_input: footer month to convert the date into
+'~~~~~ footer_year_input: footer year to convert the date into
 '===== Keywords: MAXIS, production, array, droplist, convert
-	MAXIS_footer_month = DatePart("m", date_to_convert)										'Uses DatePart function to copy the month from date_to_convert into the MAXIS_footer_month variable.
-	IF Len(MAXIS_footer_month) = 1 THEN MAXIS_footer_month = "0" & MAXIS_footer_month		'Uses Len function to determine if the MAXIS_footer_month is a single digit month. If so, it adds a 0, which MAXIS needs.
-	MAXIS_footer_year = DatePart("yyyy", date_to_convert)									'Uses DatePart function to copy the year from date_to_convert into the MAXIS_footer_year variable.
-	MAXIS_footer_year = Right(MAXIS_footer_year, 2)											'Uses Right function to reduce the MAXIS_footer_year variable to it's right 2 characters (allowing for a 2 digit footer year).
+	footer_month_input = DatePart("m", date_to_convert)										'Uses DatePart function to copy the month from date_to_convert into the MAXIS_footer_month variable.
+	IF Len(footer_month_input) = 1 THEN footer_month_input = "0" & footer_month_input		'Uses Len function to determine if the MAXIS_footer_month is a single digit month. If so, it adds a 0, which MAXIS needs.
+	footer_year_input = DatePart("yyyy", date_to_convert)									'Uses DatePart function to copy the year from date_to_convert into the MAXIS_footer_year variable.
+	footer_year_input = Right(footer_year_input, 2)											'Uses Right function to reduce the MAXIS_footer_year variable to it's right 2 characters (allowing for a 2 digit footer year).
 end function
 
 function convert_digit_to_excel_column(col_in_excel)
