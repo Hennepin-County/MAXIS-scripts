@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/04/2019", "Updated the script to better review if complete information has been provided for documenting relationship in the dialog. Adjusted handling to prevent blank notes.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -198,57 +199,72 @@ For pare_item = 0 to UBound(Pare_Line_Array,2) 														'checks through the
 	End If
 Next
 
-ReDim Preserve Pare_Line_Array(5, array_item)														'Adds one blank array item to the array for a manual entry since the dialog is dynamically created based on the number of array items there are. If the script could not find all the relationships, the worker needs to be able manually add one.
-array_item = array_item + 1
-
-'Dialog Box to list members and documentation received.
-'This dialog is here instead of the beginning because the dynamic thing only works if the array items are set before the dialog is defined
-BeginDialog Proof_of_Relationship_Dialog, 0, 0, 570, (75 + (20 * array_item)), "Proof of Relationship"
-  For pare_item = 0 to (array_item - 1)
-	  DropListBox 5, (20 + (pare_item * 20)), 70, 15, hh_member_dropdown, Pare_Line_Array(received_for, pare_item)
-	  DropListBox 85, (20 + (pare_item * 20)), 110, 15, "Select one..."+chr(9)+"Is Another Relative of"+chr(9)+"Is the Child of"+chr(9)+"Is the Foster Child of"+chr(9)+"Is the Grandchild of"+chr(9)+"Is the Guardian of"+chr(9)+"Is the Nephew of"+chr(9)+"Is the Niece of"+chr(9)+"Is the Parent of"+chr(9)+"Is the Sibling of"+chr(9)+"Is the Spouse of"+chr(9)+"Is the Step Child of"+chr(9)+"Is Unrelated to"+chr(9)+"Other", Pare_Line_Array(relationship_type, pare_item)
-	  EditBox 205, (20 + (pare_item * 20)), 85, 15, Pare_Line_Array(other_relationship_list, pare_item)
-	  DropListBox 295, (20 + (pare_item * 20)), 70, 15, hh_member_dropdown, Pare_Line_Array(relationship_to, pare_item)
-	  EditBox 375, (20 + (pare_item * 20)), 105, 15, Pare_Line_Array(documents_received, pare_item)
-	  CheckBox 490, (25 + (pare_item * 20)), 75, 10, "New/Updated Proof", Pare_Line_Array(new_checkbox, pare_item)
-  Next
-  EditBox 90, (55 + ((array_item - 1) * 20)), 170, 15, other_verifs_needed
-  EditBox 310, (55 + ((array_item - 1) * 20)), 235, 15, other_notes
-  CheckBox 70, (80 + ((array_item - 1) * 20)), 30, 10, "PARE", pare_checkbox
-  CheckBox 105, (80 + ((array_item - 1) * 20)), 35, 10, "MEMB", memb_checkbox
-  CheckBox 145, (80 + ((array_item - 1) * 20)), 30, 10, "ABPS", abps_checkbox
-  CheckBox 180, (80 + ((array_item - 1) * 20)), 25, 10, "SIBL", sibl_checkbox
-  CheckBox 210, (80 + ((array_item - 1) * 20)), 30, 10, "Other:", other_checkbox
-  EditBox 245, (75 + ((array_item - 1) * 20)), 30, 15, other_option
-  EditBox 340, (75 + ((array_item - 1) * 20)), 105, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 455, (75 + ((array_item - 1) * 20)), 50, 15
-    CancelButton 510, (75 + ((array_item - 1) * 20)), 50, 15
-  Text 5, 10, 75, 10, "Member received for: "
-  Text 85, 10, 50, 10, "Relationship: "
-  Text 205, 10, 90, 10, "If Other, list relationship:"
-  Text 295, 10, 50, 10, "Related to:"
-  Text 375, 10, 75, 10, "Document(s) received: "
-  Text 5, (60 + ((array_item - 1) * 20)), 80, 10, "Other verifs still needed:"
-  Text 265, (60 + ((array_item - 1) * 20)), 45, 10, "Other Notes:"
-  Text 5, (80 + ((array_item - 1) * 20)), 60, 10, "Panel(s) updated: "
-  Text 280, (80 + ((array_item - 1) * 20)), 60, 10, "Worker signature:"
-  Text 5, (35 + ((array_item - 1) * 20)), 575, 10, "  * This last line is available for entry of relationship proof that was not documented in STAT. If the Relationship is left as 'SELECT ONE...' this line will not case note."
-EndDialog
+' ReDim Preserve Pare_Line_Array(5, array_item)														'Adds one blank array item to the array for a manual entry since the dialog is dynamically created based on the number of array items there are. If the script could not find all the relationships, the worker needs to be able manually add one.
+' array_item = array_item + 1
+array_item = UBound(Pare_Line_Array, 2)
 
 'The main dialog will now run. It will error check
 Do
 	err_msg = ""
+    'Dialog Box to list members and documentation received.
+    'This dialog is here instead of the beginning because the dynamic thing only works if the array items are set before the dialog is defined
+    BeginDialog Proof_of_Relationship_Dialog, 0, 0, 570, (95 + (20 * array_item)), "Proof of Relationship"
+      For pare_item = 0 to UBound(Pare_Line_Array, 2)
+    	  DropListBox 5, (20 + (pare_item * 20)), 70, 15, hh_member_dropdown, Pare_Line_Array(received_for, pare_item)
+    	  DropListBox 85, (20 + (pare_item * 20)), 110, 15, "Select one..."+chr(9)+"Is Another Relative of"+chr(9)+"Is the Child of"+chr(9)+"Is the Foster Child of"+chr(9)+"Is the Grandchild of"+chr(9)+"Is the Guardian of"+chr(9)+"Is the Nephew of"+chr(9)+"Is the Niece of"+chr(9)+"Is the Parent of"+chr(9)+"Is the Sibling of"+chr(9)+"Is the Spouse of"+chr(9)+"Is the Step Child of"+chr(9)+"Is Unrelated to"+chr(9)+"Other", Pare_Line_Array(relationship_type, pare_item)
+    	  EditBox 205, (20 + (pare_item * 20)), 85, 15, Pare_Line_Array(other_relationship_list, pare_item)
+    	  DropListBox 295, (20 + (pare_item * 20)), 70, 15, hh_member_dropdown, Pare_Line_Array(relationship_to, pare_item)
+    	  EditBox 375, (20 + (pare_item * 20)), 105, 15, Pare_Line_Array(documents_received, pare_item)
+    	  CheckBox 490, (25 + (pare_item * 20)), 75, 10, "New/Updated Proof", Pare_Line_Array(new_checkbox, pare_item)
+      Next
+      ButtonGroup ButtonPressed
+        PushButton 365, (40 + array_item * 20), 200, 10, "Click Here to add another Relationship Line", add_another_button
+      EditBox 90, (55 + (array_item * 20)), 170, 15, other_verifs_needed
+      EditBox 310, (55 + (array_item * 20)), 235, 15, other_notes
+      CheckBox 70, (80 + (array_item * 20)), 30, 10, "PARE", pare_checkbox
+      CheckBox 105, (80 + (array_item * 20)), 35, 10, "MEMB", memb_checkbox
+      CheckBox 145, (80 + (array_item * 20)), 30, 10, "ABPS", abps_checkbox
+      CheckBox 180, (80 + (array_item * 20)), 25, 10, "SIBL", sibl_checkbox
+      CheckBox 210, (80 + (array_item * 20)), 30, 10, "Other:", other_checkbox
+      EditBox 245, (75 + (array_item * 20)), 30, 15, other_option
+      EditBox 340, (75 + (array_item * 20)), 105, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 455, (75 + (array_item * 20)), 50, 15
+        CancelButton 510, (75 + (array_item * 20)), 50, 15
+      Text 5, 10, 75, 10, "Member received for: "
+      Text 85, 10, 50, 10, "Relationship: "
+      Text 205, 10, 90, 10, "If Other, list relationship:"
+      Text 295, 10, 50, 10, "Related to:"
+      Text 375, 10, 75, 10, "Document(s) received: "
+      Text 5, (60 + (array_item * 20)), 80, 10, "Other verifs still needed:"
+      Text 265, (60 + (array_item * 20)), 45, 10, "Other Notes:"
+      Text 5, (80 + (array_item * 20)), 60, 10, "Panel(s) updated: "
+      Text 280, (80 + (array_item * 20)), 60, 10, "Worker signature:"
+      ' Text 5, (35 + (array_item * 20)), 575, 10, "  * This last line is available for entry of relationship proof that was not documented in STAT. If the Relationship is left as 'SELECT ONE...' this line will not case note."
+    EndDialog
+
+
 	Dialog Proof_of_relationship_dialog
 	cancel_confirmation
 	For relationship = 0 to UBound (Pare_Line_Array,2)
+        If Pare_Line_Array(relationship_type, relationship) = "Select one..." Then err_msg = err_msg & vbNewLine & "* Type of relationship between " & Pare_Line_Array(received_for, relationship) & " and " & Pare_Line_Array(relationship_to, relationship) & " must be explained."
 		If Pare_Line_Array(relationship_type, relationship) = "Other" AND Pare_Line_Array (other_relationship_list, relationship) = "" Then err_msg = err_msg & vbCr & _
 		  "You must define the *other* relationship between Memb " & Pare_Line_Array(received_for, relationship) & " and Memb " & Pare_Line_Array(relationship_to, relationship)			'Requires other relationship to be explained
-		If Pare_Line_Array(new_checkbox,relationship) = checked Then new_proof_exists = TRUE
+        If Pare_Line_Array(relationship_type, relationship) = "Is Another Relative of" AND Pare_Line_Array (other_relationship_list, relationship) = "" Then err_msg = err_msg & vbCr & _
+		  "You must define the *other* relationship between Memb " & Pare_Line_Array(received_for, relationship) & " and Memb " & Pare_Line_Array(relationship_to, relationship)			'Requires other relationship to be explained
+        If Pare_Line_Array(received_for, relationship) = Pare_Line_Array(relationship_to, relationship) Then err_msg = err_msg & vbNewLine & "* The 'Member Received For' and 'Related to' are the same member, you do not need to indicate a relationship to self. For Memb " & Pare_Line_Array(received_for, relationship) & "."
+        If Pare_Line_Array(new_checkbox,relationship) = checked Then new_proof_exists = TRUE
+        If Pare_Line_Array(new_checkbox,relationship) = unchecked Then old_proof_exists = TRUE
 	Next
 	IF other_checkbox = 1 AND other_option = "" THEN err_msg = err_msg & vbCr & "You must list a panel if Other is selected."			'Requires Other panel to be specified
 	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "You must enter a worker signature."										'Requires worker signgnature
-	If err_msg <> "" Then MsgBox "Please resolve to continue" & vbCr & vbCr & err_msg													'Displays the error message to the worker
+    If ButtonPressed = add_another_button Then
+        err_msg = "LOOP" & err_msg
+        array_item = array_item + 1
+        ReDim Preserve Pare_Line_Array(5, array_item)
+    End If
+
+    If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve to continue" & vbCr & vbCr & err_msg													'Displays the error message to the worker
 Loop until err_msg = ""
 
 'Statements needed for the check boxes for panels updated, defined further in case notes below.
@@ -279,27 +295,29 @@ If new_proof_exists = TRUE Then 														'Seperates the new/updated proofs 
 			End If
 		End If
 	Next
+    Call write_variable_in_CASE_NOTE("---")
 End If
-Call write_variable_in_CASE_NOTE("---")
-If new_proof_exists = TRUE Then 														'Subheading for the relationships that are not new/updated - this is slightly different depending on if any new proofs were listed
-	Call write_variable_in_CASE_NOTE("Relationships already known/verfied: ")
-Else
-	Call write_variable_in_CASE_NOTE("Household Relationships known/documented: ")
+If old_proof_exists = TRUE Then
+    If new_proof_exists = TRUE Then 														'Subheading for the relationships that are not new/updated - this is slightly different depending on if any new proofs were listed
+    	Call write_variable_in_CASE_NOTE("Relationships already known/verfied: ")
+    Else
+    	Call write_variable_in_CASE_NOTE("Household Relationships known/documented: ")
+    End If
+    For pare_item = 0 to UBound(Pare_Line_Array,2)											'Lists all the relationshps that are not marked as new/updated AND have an actual relationship type selected. - not 'select one'
+    	If Pare_Line_Array(new_checkbox,pare_item) = unchecked AND Pare_Line_Array(relationship_type, pare_item) <> "Select one..." Then
+    		If Pare_Line_Array(other_relationship_list,pare_item) <> "" Then
+    			Call write_variable_in_CASE_NOTE("* Relationship: Memb " & Pare_Line_Array(received_for,pare_item)& " & Memb " & Pare_Line_Array(relationship_to,pare_item) & " are " & Pare_Line_Array(other_relationship_list,pare_item) & ". Doc Rec'vd: " & Pare_Line_Array(documents_received,pare_item))
+    		Else
+    			Call write_variable_in_CASE_NOTE("* Relationship: Memb " & Pare_Line_Array(received_for,pare_item)& " - " & Pare_Line_Array(relationship_type,pare_item) & " - Memb " & Pare_Line_Array(relationship_to,pare_item) & ". Doc Rec'vd: " & Pare_Line_Array(documents_received,pare_item))
+    		End If
+    	End If
+    Next
+    Call write_variable_in_CASE_NOTE("---")
 End If
-For pare_item = 0 to UBound(Pare_Line_Array,2)											'Lists all the relationshps that are not marked as new/updated AND have an actual relationship type selected. - not 'select one'
-	If Pare_Line_Array(new_checkbox,pare_item) = unchecked AND Pare_Line_Array(relationship_type, pare_item) <> "Select one..." Then
-		If Pare_Line_Array(other_relationship_list,pare_item) <> "" Then
-			Call write_variable_in_CASE_NOTE("* Relationship: Memb " & Pare_Line_Array(received_for,pare_item)& " & Memb " & Pare_Line_Array(relationship_to,pare_item) & " are " & Pare_Line_Array(other_relationship_list,pare_item) & ". Doc Rec'vd: " & Pare_Line_Array(documents_received,pare_item))
-		Else
-			Call write_variable_in_CASE_NOTE("* Relationship: Memb " & Pare_Line_Array(received_for,pare_item)& " - " & Pare_Line_Array(relationship_type,pare_item) & " - Memb " & Pare_Line_Array(relationship_to,pare_item) & ". Doc Rec'vd: " & Pare_Line_Array(documents_received,pare_item))
-		End If
-	End If
-Next
-Call write_variable_in_CASE_NOTE("---")
 Call write_bullet_and_variable_in_CASE_NOTE("Verifs Needed", other_verifs_needed)		'Adding other verifs to the case note
 Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)					'Adding other notes to the case nore
 IF panels_updated = TRUE Then Call write_bullet_and_variable_in_CASE_NOTE("Panel(s) updated", memb & pare & abps & sibl & other & other_option)	'Adding list of panels updated
-Call write_variable_in_CASE_NOTE("---")
+If other_verifs_needed <> "" OR other_notes <> "" OR panels_updated = TRUE Then Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure("")
+script_end_procedure_with_error_report("Success! Relationship detail documented.")
