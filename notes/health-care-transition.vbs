@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/04/2019", "Added checkbox reminders to support Request to APPL and MA Transition Communication Form proces.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/05/2019", "MAXIS to METS Transition option updated to support METS Affliated cases.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/23/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -191,6 +192,7 @@ Elseif initial_option = "1. Non-MAGI referral" then
       DropListBox 70, 25, 195, 15, "Select one..."+chr(9)+"21+ years, no dependents and Medicare or SSI"+chr(9)+"65 years old, no dependents"+chr(9)+"Certified disabled, applying for MA-EPD"+chr(9)+"Certified disabled, Requesting waiver"+chr(9)+"Certified disabled, Requesting TEFRA"+chr(9)+"Child in Foster Care"+chr(9)+"Only Medicare Savings Programs requested"+chr(9)+"Other", service_requested
       CheckBox 5, 45, 70, 10, "SMRT approved.", SMRT_approved
       CheckBox 100, 45, 70, 10, "SMRT pending.", SMRT_pending
+      CheckBox 170, 45, 95, 10, "Sent Request to APPL.", useform_checkbox
       CheckBox 5, 60, 180, 10, "Case has known duplicate PMI's and/or PMI issues.", PMI_checkbox
       Text 5, 80, 40, 10, "Other notes:"
       EditBox 50, 75, 215, 15, other_notes
@@ -241,13 +243,14 @@ else
           x = x + 1
       NEXT
       GroupBox 5, 25, 260, (25 + (x * 10)), "Client(s) name"
-      Text 5, (65 + (x * 10)), 40, 10, "Other notes:"
-      EditBox 50, (60 + (x * 10)), 215, 15, other_notes
-      Text 5, (85 + (x * 10)), 60, 10, "Worker Signature:"
-      EditBox 70, (80 + (x * 10)), 85, 15, worker_signature
+      CheckBox 5, (55 + (x * 10)), 140, 10, "Sent MA Transition Communication Form.", MA_transition_form
+      Text 5, (70 + (x * 10)), 40, 10, "Other notes:"
+      EditBox 50, (65 + (x * 10)), 215, 15, other_notes
+      Text 5, (90 + (x * 10)), 60, 10, "Worker Signature:"
+      EditBox 70, (85 + (x * 10)), 85, 15, worker_signature
       ButtonGroup ButtonPressed
-          OkButton 160, (80 + (x * 10)), 50, 15
-          CancelButton 215, (80 + (x * 10)), 50, 15
+          OkButton 160, (85 + (x * 10)), 50, 15
+          CancelButton 215, (85 + (x * 10)), 50, 15
     EndDialog
 
     DO
@@ -351,6 +354,8 @@ Call write_bullet_and_variable_in_CASE_NOTE("MMIS eligibility end date", mmis_en
 If SMRT_approved = 1 then Call write_variable_in_CASE_NOTE("* SMRT is approved.")
 If SMRT_pending = 1 then Call write_variable_in_CASE_NOTE("* SMRT is pending.")
 If PMI_checkbox = 1  then Call write_variable_in_CASE_NOTE("* Case has known duplicate PMI/PMI issues.")
+If useform_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Sent Request to APPL Form.")
+IF MA_transition_form = 1 then Call write_variable_in_CASE_NOTE("* Sent MA Transition Communication Form in ECF.")
 'METS to MAXIS case note only 
 If initial_option = "MAXIS to METS Migration" then 
     Call write_variable_in_CASE_NOTE("* This case was identified by DHS as requiring conversion to the METS system.")
