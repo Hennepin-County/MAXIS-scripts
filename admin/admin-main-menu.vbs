@@ -213,17 +213,9 @@ script_array_admin_main(script_num).description		   = "Creates the same MEMO on 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
 Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
-script_array_admin_main(script_num).script_name			= "METS Retro Health Care"											'Script name
-script_array_admin_main(script_num).file_name			= "mets-retro-health-care.vbs"										'Script URL
-script_array_admin_main(script_num).description			= "Template and email support for when METS retro coverage has been requested."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
-Set script_array_admin_main(script_num) = new script	'Set this array element to be a new script. Script details below...
 script_array_admin_main(script_num).script_name			= "MFIP Sanction FIATer"											'Script name
 script_array_admin_main(script_num).file_name			= "mfip-sanction-fiater.vbs"										'Script URL
 script_array_admin_main(script_num).description			= "FIATs MFIP sanction actions for CS, ES and both types of sanctions."
-
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_admin_main(script_num)		'Resets the array to add one more element to it
