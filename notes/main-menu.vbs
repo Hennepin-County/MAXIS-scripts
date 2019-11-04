@@ -381,6 +381,13 @@ script_array_G_to_L(script_num).description				= "Template for case noting a cli
 script_num = 0											'establishing count as 0
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
 Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_M_to_Q(script_num).script_name 			= "METS Retro Health Care"
+script_array_M_to_Q(script_num).file_name				= "mets-retro-health-care.vbs"
+script_array_M_to_Q(script_num).description				= "Case note and email support for when METS retro coverage has been requested."
+
+script_num = script_num + 1		
+ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
+Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_M_to_Q(script_num).script_name 			= "MFIP Sanction/DWP Disqualification"
 script_array_M_to_Q(script_num).file_name				= "mfip-sanction-and-dwp-disqualification.vbs"
 script_array_M_to_Q(script_num).description				= "Template for MFIP sanctions and DWP disqualifications, both CS and ES."
@@ -391,13 +398,6 @@ Set script_array_M_to_Q(script_num) = new script		'Set this array element to be 
 script_array_M_to_Q(script_num).script_name 			= "MFIP to SNAP Transition"
 script_array_M_to_Q(script_num).file_name				= "mfip-to-snap-transition.vbs"
 script_array_M_to_Q(script_num).description				= "Template for noting when closing MFIP and opening SNAP."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
-Set script_array_M_to_Q(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_M_to_Q(script_num).script_name 			= "MNsure - Retro HC Application"
-script_array_M_to_Q(script_num).file_name				= "mnsure-retro-hc-application.vbs"
-script_array_M_to_Q(script_num).description				= "Template for when MNsure retro HC has been requested."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_M_to_Q(script_num)			'Resets the array to add one more element to it
