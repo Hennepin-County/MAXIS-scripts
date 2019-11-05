@@ -49,7 +49,7 @@ call changelog_update("08/27/2019", "Added handling to push the case into backgr
 call changelog_update("08/27/2019", "Added GRH to appointment letter handling for future enhancements.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/20/2019", "Bug on the script when a large PND2 list is accessed.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("04/15/2019", "Added an error reporting option at the end of the script run.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("11/15/2018", "Enhanced functionality for SameDay interview cases.", "Casey Love, Hennepin County")
+CALL changelog_update("11/15/2018", "Enhanced functionality for Same-Day interview cases.", "Casey Love, Hennepin County")
 CALL changelog_update("11/06/2018", "Updated handling for HC only applications.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/17/2018", "Updated appointment letter to address EGA programs.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("09/01/2018", "Updated Utility standards that go into effect for 10/01/2018.", "Ilse Ferris, Hennepin County")
@@ -346,8 +346,8 @@ BeginDialog appl_detail_dialog, 0, 0, 296, 145, "Application Received for: " & p
   DropListBox 85, 10, 65, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online", how_app_rcvd
   DropListBox 85, 30, 65, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
   EditBox 215, 30, 45, 15, confirmation_number
-  EditBox 55, 70, 20, 15, transfer_case_number
-  CheckBox 85, 85, 140, 10, "Check if case does not require a transfer ", no_transfer_check
+  EditBox 55, 70, 20, 15, transfer_to_worker
+  CheckBox 85, 85, 140, 10, "Check if case does not require a transfer ", no_transfer_checkbox
   EditBox 60, 105, 230, 15, other_notes
   EditBox 80, 125, 100, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -378,8 +378,9 @@ Do
 		IF how_app_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
 		IF how_app_rcvd = "Online" and app_type <> "ApplyMN" then err_msg = err_msg & vbNewLine & "* You selected that the application was received online please select ApplyMN from the drop down."
 		IF app_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
-		IF no_transfer_check = UNCHECKED AND transfer_case_number = "" then err_msg = err_msg & vbNewLine & "* You must enter the basket number the case to be transfered by the script or check that no transfer is needed."
-		IF no_transfer_check = CHECKED and transfer_case_number <> "" then err_msg = err_msg & vbNewLine & "* You have checked that no transfer is needed, please remove basket number from transfer field."
+		IF no_transfer_checkbox = UNCHECKED AND transfer_to_worker = "" then err_msg = err_msg & vbNewLine & "* You must enter the basket number the case to be transfered by the script or check that no transfer is needed."
+		IF no_transfer_checkbox = CHECKED and transfer_to_worker <> "" then err_msg = err_msg & vbNewLine & "* You have checked that no transfer is needed, please remove basket number from transfer field."
+		IF no_transfer_checkbox = UNCHECKED AND len(transfer_to_worker) > 3 AND isnumeric(transfer_to_worker) = FALSE then err_msg = err_msg & vbNewLine & "* Please enter the last 3 digits of the worker number for transfer."
 		IF app_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "If an ApplyMN was received, you must enter the confirmation number and time received"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
@@ -387,6 +388,13 @@ Do
 LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
 
 HC_applied_for = FALSE
+IF app_type = "6696" or app_type = "HCAPP" or app_type = "HC-Certain Pop" or app_type = "LTC" or app_type = "MHCP B/C Cancer" or app_type = "N/A" THEN HC_applied_for = TRUE
+IF app_type = "N/A" THEN app_type = ""
+transfer_to_worker = trim(transfer_to_worker)
+transfer_to_worker = Ucase(transfer_to_worker)
+'msgbox transfer_to_worker
+pended_date = date
+
 IF app_type = "6696" or app_type = "HCAPP" or app_type = "HC-Certain Pop" or app_type = "LTC" or app_type = "MHCP B/C Cancer"  THEN HC_applied_for = TRUE
 
 IF how_app_rcvd = "Office" and HC_applied_for = FALSE THEN
@@ -433,8 +441,6 @@ If interview_completed = TRUE Then
     TRANSMIT
     Call back_to_SELF
 End If
-
-pended_date = date
 '--------------------------------------------------------------------------------initial case note
 start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE ("~ Application Received (" & app_type & ") via " & how_app_rcvd & " on " & application_date & " ~")
@@ -448,7 +454,8 @@ CALL write_bullet_and_variable_in_CASE_NOTE ("Application Requesting", programs_
 CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", additional_programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
-If transfer_case_number <> "" THEN CALL write_bullet_and_variable_in_CASE_NOTE ("Application assigned to", transfer_case_number)
+If transfer_to_worker <> "" THEN CALL write_variable_in_CASE_NOTE ("Application assigned to X127" & transfer_to_worker)
+'CALL write_bullet_and_variable_in_CASE_NOTE ("Reason for APPL Request", request_reason)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
 'IF METS_retro_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Emailed team 603 to let them know the retro request is ready to be processed.")
 If interview_completed = TRUE Then
@@ -552,7 +559,7 @@ IF snap_pends = TRUE THEN
 	    same_day_offered = FALSE
         If interview_completed = TRUE Then same_day_offered = TRUE
         If interview_completed = FALSE Then
-            offer_same_date_interview = MsgBox("This client appears EXPEDITED. A same-day needs to be offered." & vbNewLine & vbNewLine & "Has the client been offered a Same Day Interview?", vbYesNo + vbQuestion, "SameDay Offered?")
+            offer_same_date_interview = MsgBox("This client appears EXPEDITED. A same-day needs to be offered." & vbNewLine & vbNewLine & "Has the client been offered a same-day Interview?", vbYesNo + vbQuestion, "SameDay Offered?")
             if offer_same_date_interview = vbYes Then same_day_offered = TRUE
         End If
   		'MsgBox "This Client Appears EXPEDITED. A same-day interview needs to be offered."
@@ -582,7 +589,7 @@ END IF
 'IF expedited_status = "Client appears expedited" THEN same_day_interview = TRUE
 '-------------------------------------------------------------------------------------Transfers the case to the assigned worker if this was selected in the second dialog box
 'Determining if a case will be transferred or not. All cases will be transferred except addendum app types. THIS IS NOT CORRECT AND NEEDS TO BE DISCUSSED WITH QI
-IF transfer_case_number = "" and no_transfer_check = CHECKED THEN
+IF transfer_to_worker = "" and no_transfer_checkbox = CHECKED THEN
 	transfer_case = False
   	action_completed = TRUE     'This is to decide if the case was successfully transferred or not
 ELSE
@@ -591,21 +598,35 @@ ELSE
 	EMWriteScreen "x", 7, 16
 	transmit
 	PF9
-	EMWriteScreen "X127" & transfer_case_number, 18, 61
-	transmit
-	EMReadScreen worker_check, 9, 24, 2
-
+	EMreadscreen servicing_worker, 3, 18, 65
+	servicing_worker = trim(servicing_worker)
+	'msgbox servicing_worker
+	IF servicing_worker = transfer_to_worker THEN
+		MsgBox "This case is already in the requested worker's number."
+		action_completed = False
+		PF10 'backout
+		PF3 'SPEC menu
+		PF3 'SELF Menu'
+	ELSE
+		EMWriteScreen "X127" & transfer_to_worker, 18, 61
+		transmit
+		'msgbox "stop"
+	    EMReadScreen worker_check, 9, 24, 2
 	IF worker_check = "SERVICING" THEN
         action_completed = False
-		PF10
+	    	PF10 'backout
+			PF3 'SPEC menu
+			PF3 'SELF Menu'
 	END IF
-
+		'msgbox "stop"
     EMReadScreen transfer_confirmation, 16, 24, 2
     IF transfer_confirmation = "CASE XFER'D FROM" then
     	action_completed = True
     Else
         action_completed = False
+			'msgbox action_completed
     End if
+END IF
 END IF
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
@@ -716,11 +737,12 @@ IF send_appt_ltr = TRUE THEN
     Call write_variable_in_CASE_NOTE("* A link to the Domestic Violence Brochure sent to client in SPEC/MEMO as part of notice.")
     Call write_variable_in_CASE_NOTE("---")
     CALL write_variable_in_CASE_NOTE (worker_signature)
+	PF3
 END IF
 
 IF same_day_offered = TRUE and how_app_rcvd = "Office" THEN
   	start_a_blank_CASE_NOTE
-  	Call write_variable_in_CASE_NOTE("~ same-day interview offered ~")
+  	Call write_variable_in_CASE_NOTE("~ Same-day interview offered ~")
   	Call write_variable_in_CASE_NOTE("* Agency informed the client of needed interview.")
   	Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
   	Call write_variable_in_CASE_NOTE("* A Domestic Violence Brochure has been offered to client as part of application packet.")
@@ -729,8 +751,10 @@ IF same_day_offered = TRUE and how_app_rcvd = "Office" THEN
   	PF3
 END IF
 
-IF action_completed = False then
+IF action_completed = False and servicing_worker <> transfer_to_worker THEN
     script_end_procedure_with_error_report ("Warning! Case did not transfer. Transfer the case manually. Script was able to complete all other steps.")
+ELSEIF action_completed = False and servicing_worker = transfer_to_worker THEN
+	script_end_procedure_with_error_report ("Warning! Case was already in requested worker's number. Script was able to complete all other steps.")
 Else
     script_end_procedure_with_error_report ("Case has been updated please review to ensure it was processed correctly.")
 End if
