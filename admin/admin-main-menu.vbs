@@ -64,6 +64,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/05/2019", "Remove CA Application Received.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/06/2019", "Added a new script to create an Excel List of MAXIS User detail.", "Casey Love, Hennepin County")
 call changelog_update("04/12/2019", "Updated backend fuctionality. If you are on the QI team, and cannot access the QI scripts, contact me right away.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/21/2018", "Added QI specific scripts and sub menu.", "Ilse Ferris, Hennepin County")
@@ -139,13 +140,6 @@ Set script_array_admin_main(script_num) = new script
 script_array_admin_main(script_num).script_name 		= "Add GRH Rate 2 to MMIS"											'Script name
 script_array_admin_main(script_num).file_name 			= "add-grh-rate-2-to-mmis.vbs"										'Script URL
 script_array_admin_main(script_num).description 		= "ACTION script adds GRH Rate 2 SSR's to MMIS. This version without Rate 2 in elig results for error cases."
-
-script_num = script_num + 1
-ReDim Preserve script_array_admin_main(script_num)
-Set script_array_admin_main(script_num) = new script
-script_array_admin_main(script_num).script_name 		= "Application Received"											'Script name
-script_array_admin_main(script_num).file_name 			= "ca-application-received.vbs"										'Script URL
-script_array_admin_main(script_num).description 		= "ACTION script that will case note application received. This version was created for the Request for APPL process."
 
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array_admin_main(script_num)	    'Resets the array to add one more element to it
