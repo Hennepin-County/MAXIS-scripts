@@ -585,7 +585,6 @@ ELSE
 	ELSE
 	    EMWriteScreen "X127" & transfer_to_worker, 18, 61
 	    transmit
-
 		'msgbox "stop"
 	    EMReadScreen worker_check, 9, 24, 2
 	    IF worker_check = "SERVICING" THEN
@@ -597,9 +596,7 @@ ELSE
 		'msgbox "stop"
         EMReadScreen transfer_confirmation, 16, 24, 2
         IF transfer_confirmation = "CASE XFER'D FROM" then
-
         	action_completed = True
-			'msgbox action_completed
         Else
             action_completed = False
 			'msgbox action_completed
