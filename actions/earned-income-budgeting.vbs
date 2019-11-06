@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/06/2019", "BUG FIX - The script was hitting an error if a 'known pay date' was entered that is after the intital month to update. Added functionality for the script to recalculate the 'known pay date' back to the beginning of the update period. This way any known pay date will work in the script.##~##", "Casey Love, Hennepin County")
 call changelog_update("08/21/2019", "Handling added to prohibit the attempted update of months prior to the first check entered for a job.", "Casey Love, Hennepin County")
 call changelog_update("08/13/2019", "Bug fix when updating RETRO checks on occasion that causes the script to stop and error.", "Casey Love, Hennepin County")
 call changelog_update("08/05/2019", "Bug fix in script that would sometimes enter the wrong dates on the RETRO side if checks that were out of schedule are used. Additionally, added functionality to find the weekday of pay to better determine which check is out of schedule.", "Casey Love, Hennepin County")
@@ -1719,6 +1720,46 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                         End If
                     Loop Until loop_to_add_missing_checks = FALSE
                     ' MsgBox "Stop 5"
+
+                    If known_pay_date <> "" Then
+                        known_pay_date = DateValue(known_pay_date)
+                        the_initial_month = DateValue(EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel) & "/1/" & EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel))
+                        If DateDiff("d", known_pay_date, the_initial_month) < 0 Then
+                            the_month_before = DateAdd("m", -1, the_initial_month)
+
+                            Do
+                                If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "1 - One Time Per Month" Then       'each next date is determined by the pay frequency
+                                    the_previous_pay = DateAdd("m", -1, known_pay_date)
+                                ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "2 - Two Times Per Month" Then
+                                    If DatePart("d", known_pay_date) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) Then         'If we are at the first check of the month, we need to go to the second
+                                        If EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST" Then
+                                            pay_month = DatePart("m", known_pay_date)
+                                            pay_year = DatePart("yyyy", known_pay_date)
+                                            this_month = DateValue(pay_month & "/1/" & pay_year)
+                                            the_previous_pay = DateAdd("d", -1, this_month)
+                                        Else
+                                            next_pay = DateAdd("m", -1, known_pay_date)                                                            'go to the next month
+                                            next_pay_month = DatePart("m", next_pay)
+                                            next_pay_year = DatePart("yyyy", next_pay)
+
+                                            the_previous_pay = next_pay_month & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & "/" & next_pay_year
+                                        End If
+                                    Else
+                                        next_pay_month = DatePart("m", known_pay_date)
+                                        next_pay_year = DatePart("yyyy", known_pay_date)
+                                        the_previous_pay = next_pay_month & "/" & EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & "/" & next_pay_year
+                                    End If
+                                ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "3 - Every Other Week" Then
+                                    the_previous_pay = DateAdd("d", -14, known_pay_date)
+                                ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "4 - Every Week" Then
+                                    the_previous_pay = DateAdd("d", -7, known_pay_date)
+                                End If
+
+                                known_pay_date = the_previous_pay
+                            Loop Until DateDiff("d", known_pay_date, the_initial_month) >= 0
+                        End If
+                        the_initial_month = ""
+                    End If
 
                     ReDim WEEKDAY_PAY_ARRAY(7)
                     pd_by_wkdy = FALSE
