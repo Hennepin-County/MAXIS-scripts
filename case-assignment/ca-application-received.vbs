@@ -387,7 +387,7 @@ EndDialog
 		IF METS_retro_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg & vbNewLine & "* You have checked that this is a METS Retro Request, please enter a METS IC #."
 		IF MA_transition_request_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg & vbNewLine & "* You have checked that this is a METS Transition Request, please enter a METS IC #."
 		IF app_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "* If an ApplyMN was received, you must enter the confirmation number and time received"
-		IF how_app_rcvd = "Request to APPL Form" and programs_applied_for = "HC" and MEMB_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the member number(s) applying for HC."
+		IF METS_retro_checkbox = CHECKED and MEMB_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the member number(s) applying for HC."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
