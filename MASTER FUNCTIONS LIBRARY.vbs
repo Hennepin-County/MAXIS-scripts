@@ -3315,7 +3315,7 @@ function convert_date_into_MAXIS_footer_month(date_to_convert, footer_month_inpu
 '~~~~~ footer_year_input: footer year to convert the date into
 '===== Keywords: MAXIS, production, array, droplist, convert
 	footer_month_input = DatePart("m", date_to_convert)										'Uses DatePart function to copy the month from date_to_convert into the MAXIS_footer_month variable.
-	IF Len(footer_month_input) = 1 THEN footer_month_input = "0" & footer_month_input		'Uses Len function to determine if the MAXIS_footer_month is a single digit month. If so, it adds a 0, which MAXIS needs.
+	footer_month_input = Right("0" & footer_month_input, 2)		                                'Uses Len function to determine if the MAXIS_footer_month is a single digit month. If so, it adds a 0, which MAXIS needs.
 	footer_year_input = DatePart("yyyy", date_to_convert)									'Uses DatePart function to copy the year from date_to_convert into the MAXIS_footer_year variable.
 	footer_year_input = Right(footer_year_input, 2)											'Uses Right function to reduce the MAXIS_footer_year variable to it's right 2 characters (allowing for a 2 digit footer year).
 end function
