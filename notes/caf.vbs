@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("11/07/2019", "BUG FIX - Dialog 4 was sometimes too short. If there are a number of people with child support income, not all of the child support detail would be viewable as it would be taller than the computer screen. Updated the script so that Dialog 4 now has tabs if there are more than four members with child support income, so there are multiple pages of Dialog 4 (like Dialog 2 and 3).##~##", "Casey Love, Hennepin County")
 Call changelog_update("10/16/2019", "BUG Fix - sometimes the script hit an error after leaving Dialog 8 - this should resolve that error. ##~## ##~## Added a NEW BUTTON that will display the Missing Fields Message (also called the 'Error Message') after clicking 'Done' on dialog 8 if the script needs updates. Look for the button 'Show Dialog Review Message' on each dialog after the message shows for the first time. ##~## This button will allow you to review the missing fields or updates that need to be made so that you do not have to try to remember them. The button only appears after the message was shown for the first time.##~##", "Casey Love, Hennepin County")
 Call changelog_update("10/14/2019", "Added autofill functionality for TIME and SANC panels so the editboxes are filled if the panel is present.##~##", "Casey Love, Hennepin County")
 call changelog_update("10/10/2019", "Updated 3 bugs/issues: ##~## ##~## - Sometimmes the list of clients on the 'Qualifying Quesitons Dialog' was not filled and was blank, this is now resolved and should always have a list of clients. ##~## - The script was 'forgetting' informmation typed into a ComboBox when a dialog appears for a subsequent time. This is now resolved. ##~## - Added headers to the mmissed fields/error message after Dialog 8 for more readability.", "Casey Love, Hennepin County")
@@ -2527,6 +2528,14 @@ If cash_checkbox = checked OR snap_checkbox = checked OR hc_checkbox = checked T
 End If
 If EMER_checkbox = checked Then CAF_type = "Application"
 
+interview_required = FALSE
+If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" then interview_required = TRUE
+
+' If interview_required = TRUE Then
+'     Interview_notice = MsgBox("Has an interview been completed?" &vbNewLine & vbNewLine & "                *~* WITHOUT AN INTERVIEW *~* " & vbNewLine & "             *~* A CAF CANNOT BE PROCESSED *~*" & vbNewLine & vbNewLine & "If you have not completed an interview, do not use this script as you cannot process a CAF without an interview.  There are a couple scripts that may be useful for noting review of a case with a CAF received before the interview has been completed:" & vbNewLine & "          NOTES - Application Check" & vbNewLine & "          NOTES - Client Contact" & vbNewLine & vbNewLine & "Press OK if you completed an interview (or are processing one of the two exceptions)." & vbNewLine & "Press Cancel if you have not interviewed yet.", vbExclamation + vbOkCancel, "Have you done an interview?")
+'     If Interview_notice = vbCancel Then script_end_procedure_with_error_report("The script has been cancelled as no interview has been completed.")
+' End If
+
 If CAF_type = "Recertification" then                                                          'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
 	' call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
     Call navigate_to_MAXIS_screen("STAT", "REVW")
@@ -2819,9 +2828,6 @@ If SNAP_checkbox = checked then programs_applied_for = programs_applied_for & "S
 If EMER_checkbox = checked then programs_applied_for = programs_applied_for & "emergency, "
 programs_applied_for = trim(programs_applied_for)
 if right(programs_applied_for, 1) = "," then programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
-interview_required = FALSE
-If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" then interview_required = TRUE
-
 
 'SHOULD DEFAULT TO TIKLING FOR APPLICATIONS THAT AREN'T RECERTS.
 If CAF_type = "Application" then TIKL_checkbox = checked
@@ -3623,102 +3629,193 @@ Do
                             Loop Until pass_three = true
                             If show_four = true Then
                                 show_cses_detail = FALSE
-                                dlg_four_len = 85
-                                group_len = 70
-                                If SNAP_checkbox = checked Then group_len = group_len + 40
+                                group_len = 75
+                                'If SNAP_checkbox = checked Then group_len = group_len + 40
+                                group_wide = 455
+                                If SNAP_checkbox = checked Then group_wide = 765
+                                number_of_cs_members = 0
                                 For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
                                     If UNEA_INCOME_ARRAY(CS_exists, each_unea_memb) = TRUE Then
-                                        dlg_four_len = dlg_four_len + 70
-                                        If SNAP_checkbox = checked Then dlg_four_len = dlg_four_len + 40
+                                        ' dlg_four_len = dlg_four_len + 70
+                                        'If SNAP_checkbox = checked Then dlg_four_len = dlg_four_len + 40
                                         show_cses_detail = TRUE
+                                        number_of_cs_members = number_of_cs_members + 1
                                     End If
                                 Next
+                                cs_pages = number_of_cs_members/4
+                                If cs_pages <> Int(cs_pages) Then cs_pages = Int(cs_pages) + 1
                                 If show_cses_detail = FALSE Then dlg_four_len = 100
-                                y_pos = 5
-                                BeginDialog Dialog1, 0, 0, 465, dlg_four_len, "Dialog 4 - CSES"
-                                  If show_cses_detail = FALSE Then
-                                      Text 10, y_pos, 445, 10, "There are no UNEA panels for Child Support (08, 36, 39) and the script could not pull child support detail information."
-                                      Text 10, y_pos + 10, 445, 10, " ** If this case has income from child support it is best to add the UNEA panels before running this script. **"
-                                      y_pos = y_pos + 30
-                                  Else
-                                      For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
-                                          If UNEA_INCOME_ARRAY(CS_exists, each_unea_memb) = TRUE Then
-                                              GroupBox 5, y_pos, 455, group_len, "Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb)
-                                              y_pos = y_pos + 15
-                                              Text 10, y_pos, 70, 10, "Direct Child Support:"
-                                              Text 85, y_pos, 35, 10, "Amt/Mo: $"
-                                              EditBox 125, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(direct_CS_amt, each_unea_memb)
-                                              Text 170, y_pos, 25, 10, "Notes:"
-                                              EditBox 195, y_pos - 5, 260, 15, UNEA_INCOME_ARRAY(direct_CS_notes, each_unea_memb)
-                                              y_pos = y_pos + 20
-                                              Text 10, y_pos, 75, 10, "Disb Child Support(36):"
-                                              Text 85, y_pos, 35, 10, "Amt/Mo: $"
-                                              EditBox 125, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb)
-                                              Text 170, y_pos, 25, 10, "Notes:"
-                                              EditBox 195, y_pos - 5, 260, 15, UNEA_INCOME_ARRAY(disb_CS_notes, each_unea_memb)
-                                              y_pos = y_pos + 20
-                                              If SNAP_checkbox = checked Then
-                                                  Text 60, y_pos, 70, 10, "Months of Disb Used:"
-                                                  EditBox 135, y_pos - 5, 50, 15, UNEA_INCOME_ARRAY(disb_CS_months, each_unea_memb)
-                                                  Text 200, y_pos, 70, 10, "Prosp Budget Detail:"
-                                                  EditBox 275, y_pos - 5, 180, 15, UNEA_INCOME_ARRAY(disb_CS_prosp_budg, each_unea_memb)
-                                                  y_pos = y_pos + 20
+                                If SNAP_checkbox = checked AND show_cses_detail = TRUE Then
+                                    dlg_wide = 775
+                                Else
+                                    dlg_wide = 465
+                                End If
+
+                                loop_start = 0
+                                last_cs_reviewed = FALSE
+                                cs_limit = 4
+
+                                Do
+                                    dlg_four_len = 85
+                                    cs_counter = 0
+                                    For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
+                                        If UNEA_INCOME_ARRAY(CS_exists, each_unea_memb) = TRUE Then
+                                            If cs_counter >= loop_start Then dlg_four_len = dlg_four_len + 70
+                                            ' MsgBox "Counter - " & cs_counter & vbNewLine & "Limit - " & cs_limit & vbNewLine & "Loop start - " & loop_start & vbNewLine & "Dlg len - " & dlg_four_len
+                                            cs_counter = cs_counter + 1
+                                        End If
+                                        If cs_counter = cs_limit Then Exit For
+                                    Next
+                                    If show_cses_detail = FALSE Then dlg_four_len = 100
+                                    y_pos = 5
+                                    ' MsgBox "Number of CS members - " & number_of_cs_members
+                                    BeginDialog Dialog1, 0, 0, dlg_wide, dlg_four_len, "Dialog 4 - CSES"
+                                      If show_cses_detail = FALSE Then
+                                          Text 10, y_pos, 445, 10, "There are no UNEA panels for Child Support (08, 36, 39) and the script could not pull child support detail information."
+                                          Text 10, y_pos + 10, 445, 10, " ** If this case has income from child support it is best to add the UNEA panels before running this script. **"
+                                          y_pos = y_pos + 30
+                                      Else
+                                          cs_counter = 0
+                                          For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
+                                              If UNEA_INCOME_ARRAY(CS_exists, each_unea_memb) = TRUE Then
+                                                  If cs_counter >= loop_start Then
+                                                      GroupBox 5, y_pos, group_wide, group_len, "Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb)
+                                                      y_pos = y_pos + 15
+                                                      Text 10, y_pos, 250, 10, "Direct Child Support:       Amt/Mo: $                        Notes:"
+                                                      EditBox 125, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(direct_CS_amt, each_unea_memb)
+                                                      EditBox 195, y_pos - 5, 200, 15, UNEA_INCOME_ARRAY(direct_CS_notes, each_unea_memb)
+                                                      y_pos = y_pos + 20
+                                                      If SNAP_checkbox = checked Then
+                                                        Text 10, y_pos, 600, 10, "Disb Child Support(36):   Amt/Mo: $                        Notes:                                                                                                        Months to Average:                            Prosp Budg Notes:"
+                                                      Else
+                                                        Text 10, y_pos, 250, 10, "Disb Child Support(36):   Amt/Mo: $                        Notes:"
+                                                      End If
+                                                      EditBox 125, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb)
+                                                      EditBox 195, y_pos - 5, 200, 15, UNEA_INCOME_ARRAY(disb_CS_notes, each_unea_memb)
+                                                      If SNAP_checkbox = checked Then
+                                                          EditBox 465, y_pos - 5, 50, 15, UNEA_INCOME_ARRAY(disb_CS_months, each_unea_memb)
+                                                          EditBox 580, y_pos - 5, 185, 15, UNEA_INCOME_ARRAY(disb_CS_prosp_budg, each_unea_memb)
+                                                          y_pos = y_pos + 20
+                                                      End If
+                                                      If SNAP_checkbox = checked Then
+                                                        Text 10, y_pos, 600, 10, "Disb CS Arrears(39):        Amt/Mo: $                        Notes:                                                                                                        Months to Average:                            Prosp Budg Notes:"
+                                                      Else
+                                                        Text 10, y_pos, 250, 10, "Disb CS Arrears(39):        Amt/Mo: $                        Notes:"
+                                                      End If
+                                                      EditBox 125, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb)
+                                                      EditBox 195, y_pos - 5, 200, 15, UNEA_INCOME_ARRAY(disb_CS_arrears_notes, each_unea_memb)
+                                                      If SNAP_checkbox = checked Then
+                                                          EditBox 465, y_pos - 5, 50, 15, UNEA_INCOME_ARRAY(disb_CS_arrears_months, each_unea_memb)
+                                                          EditBox 580, y_pos - 5, 185, 15, UNEA_INCOME_ARRAY(disb_CS_arrears_budg, each_unea_memb)
+                                                          y_pos = y_pos + 20
+                                                      End If
+                                                  End If
+                                                  cs_counter = cs_counter + 1
                                               End If
-                                              Text 10, y_pos, 70, 10, "Disb CS Arrears(39):"
-                                              Text 85, y_pos, 35, 10, "Amt/Mo: $"
-                                              EditBox 125, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb)
-                                              Text 170, y_pos, 25, 10, "Notes:"
-                                              EditBox 195, y_pos - 5, 260, 15, UNEA_INCOME_ARRAY(disb_CS_arrears_notes, each_unea_memb)
-                                              y_pos = y_pos + 20
-                                              If SNAP_checkbox = checked Then
-                                                  Text 60, y_pos, 70, 10, "Months of Disb Used:"
-                                                  EditBox 135, y_pos - 5, 50, 15, UNEA_INCOME_ARRAY(disb_CS_arrears_months, each_unea_memb)
-                                                  Text 200, y_pos, 70, 10, "Prosp Budget Detail:"
-                                                  EditBox 275, y_pos - 5, 180, 15, UNEA_INCOME_ARRAY(disb_CS_arrears_budg, each_unea_memb)
-                                                  y_pos = y_pos + 20
-                                              End If
+                                              If cs_counter = cs_limit Then Exit For
+
+                                          Next
+                                          y_pos = y_pos + 5
+                                      End If
+                                      Text 10, y_pos, 60, 10, "Other CSES Detail:"
+
+                                      If SNAP_checkbox = checked AND show_cses_detail = TRUE Then
+                                          If prev_err_msg <> "" Then
+                                            EditBox 75, y_pos - 5, 580, 15, notes_on_cses
+                                            ButtonGroup ButtonPressed
+                                              PushButton 660, y_pos - 5, 100, 15, "Show Dialog Review Message", dlg_revw_button
+                                          Else
+                                            EditBox 75, y_pos - 5, 685, 15, notes_on_cses
                                           End If
-                                      Next
-                                      y_pos = y_pos + 5
-                                  End If
-                                  Text 10, y_pos, 60, 10, "Other CSES Detail:"
-                                  If prev_err_msg <> "" Then
-                                    EditBox 75, y_pos - 5, 280, 15, notes_on_cses
-                                    ButtonGroup ButtonPressed
-                                      PushButton 360, y_pos - 5, 100, 15, "Show Dialog Review Message", dlg_revw_button
-                                  Else
-                                    EditBox 75, y_pos - 5, 385, 15, notes_on_cses
-                                  End If
-                                  y_pos = y_pos + 20
-                                  ButtonGroup ButtonPressed
-                                    PushButton 5, y_pos, 50, 10, "Verifs needed:", verif_button
-                                  EditBox 60, y_pos - 5, 400, 15, verifs_needed
+                                          y_pos = y_pos + 20
+                                          EditBox 60, y_pos - 5, 700, 15, verifs_needed
+                                      Else
+                                          If prev_err_msg <> "" Then
+                                            EditBox 75, y_pos - 5, 280, 15, notes_on_cses
+                                            ButtonGroup ButtonPressed
+                                              PushButton 360, y_pos - 5, 100, 15, "Show Dialog Review Message", dlg_revw_button
+                                          Else
+                                            EditBox 75, y_pos - 5, 385, 15, notes_on_cses
+                                          End If
+                                          y_pos = y_pos + 20
+                                          EditBox 60, y_pos - 5, 400, 15, verifs_needed
+                                      End If
 
-                                  y_pos = y_pos + 25
-                                  GroupBox 10, y_pos - 10, 355, 25, "Dialog Tabs"
-                                  Text 15, y_pos, 300, 10, "                       |                    |                  |   4 - CSES   |                    |                   |                      |"
-                                  ButtonGroup ButtonPressed
-                                    PushButton 15, y_pos, 45, 10, "1 - Personal", dlg_one_button
-                                    PushButton 65, y_pos, 35, 10, "2 - JOBS", dlg_two_button
-                                    PushButton 105, y_pos, 35, 10, "3 - BUSI", dlg_three_button
-                                    PushButton 185, y_pos, 35, 10, "5 - UNEA", dlg_five_button
-                                    PushButton 225, y_pos, 35, 10, "6 - Other", dlg_six_button
-                                    PushButton 265, y_pos, 40, 10, "7 - Assets", dlg_seven_button
-                                    PushButton 310, y_pos, 50, 10, "8 - Interview", dlg_eight_button
-                                    PushButton 370, y_pos - 5, 35, 15, "NEXT", go_to_next_page
-                                    CancelButton 410, y_pos - 5, 50, 15
-                                    OkButton 600, 500, 50, 15
-                                EndDialog
+                                      y_pos = y_pos + 25
+                                      GroupBox 10, y_pos - 10, 355, 25, "Dialog Tabs"
+                                      Text 15, y_pos, 300, 10, "                       |                    |                  |   4 - CSES   |                    |                   |                      |"
+                                      ButtonGroup ButtonPressed
+                                        PushButton 5, y_pos - 30, 50, 10, "Verifs needed:", verif_button
+                                        PushButton 15, y_pos, 45, 10, "1 - Personal", dlg_one_button
+                                        PushButton 65, y_pos, 35, 10, "2 - JOBS", dlg_two_button
+                                        PushButton 105, y_pos, 35, 10, "3 - BUSI", dlg_three_button
+                                        PushButton 185, y_pos, 35, 10, "5 - UNEA", dlg_five_button
+                                        PushButton 225, y_pos, 35, 10, "6 - Other", dlg_six_button
+                                        PushButton 265, y_pos, 40, 10, "7 - Assets", dlg_seven_button
+                                        PushButton 310, y_pos, 50, 10, "8 - Interview", dlg_eight_button
 
-                                Dialog Dialog1
-                                cancel_confirmation
-                                verification_dialog
-                                'MsgBox ButtonPressed
-                                If ButtonPressed = dlg_revw_button THen Call display_errors(prev_err_msg, FALSE)
-                                If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
-                                If ButtonPressed = verif_button Then ButtonPressed = dlg_four_button
-                                Call assess_button_pressed
-                                If ButtonPressed = go_to_next_page Then pass_four = true
+                                        If cs_pages >= 2 Then
+                                            If cs_pages = 2 Then
+                                                If loop_start = 0 Then
+                                                    Text 375, y_pos, 15, 10, "1"
+                                                    PushButton 385, y_pos, 15, 10, "2", cs_page_two
+                                                ElseIf loop_start = 4 Then
+                                                    PushButton 370, y_pos, 15, 10, "1", cs_page_one
+                                                    Text 390, y_pos, 15, 10, "2"
+                                                End If
+                                            ElseIf cs_pages = 3 Then
+                                                If loop_start = 0 Then
+                                                    Text 365, y_pos, 15, 10, "1"
+                                                    PushButton 375, y_pos, 15, 10, "2", cs_page_two
+                                                    PushButton 390, y_pos, 15, 10, "3", cs_page_three
+                                                ElseIf loop_start = 4 Then
+                                                    PushButton 360, y_pos, 15, 10, "1", cs_page_one
+                                                    Text 380, y_pos, 15, 10, "2"
+                                                    PushButton 390, y_pos, 15, 10, "3", cs_page_three
+                                                ElseIf loop_start = 8 Then
+                                                    PushButton 360, y_pos, 15, 10, "1", cs_page_one
+                                                    PushButton 375, y_pos, 15, 10, "2", cs_page_two
+                                                    Text 395, y_pos, 15, 10, "3"
+                                                End If
+                                            End If
+                                        End If
+
+                                        If SNAP_checkbox = checked AND show_cses_detail = TRUE Then
+                                            PushButton 700, y_pos - 5, 25, 15, "NEXT", go_to_next_page
+                                            CancelButton 730, y_pos - 5, 30, 15
+                                        Else
+                                            PushButton 410, y_pos - 5, 25, 15, "NEXT", go_to_next_page
+                                            CancelButton 440, y_pos - 5, 30, 15
+                                        End If
+                                        OkButton 700, 700, 50, 15
+                                    EndDialog
+
+                                    Dialog Dialog1
+                                    cancel_confirmation
+                                    verification_dialog
+                                    'MsgBox ButtonPressed
+                                    If ButtonPressed = dlg_revw_button THen Call display_errors(prev_err_msg, FALSE)
+                                    If ButtonPressed = -1 Then ButtonPressed = go_to_next_page
+                                    If ButtonPressed = verif_button Then ButtonPressed = dlg_four_button
+                                    If cs_counter >= number_of_cs_members Then last_cs_reviewed = TRUE
+
+                                    Call assess_button_pressed
+                                    If tab_button = TRUE Then last_cs_reviewed = TRUE
+                                    If ButtonPressed = go_to_next_page AND last_cs_reviewed = TRUE Then pass_four = true
+
+                                    cs_limit = cs_limit + 4
+                                    loop_start = loop_start + 4
+                                    If ButtonPressed = cs_page_one Then
+                                        loop_start = 0
+                                        cs_limit = 4
+                                    ElseIf ButtonPressed = cs_page_two Then
+                                        loop_start = 4
+                                        cs_limit = 8
+                                    ElseIf ButtonPressed = cs_page_three Then
+                                        loop_start = 9
+                                        cs_limit = 12
+                                    End If
+                                Loop until last_cs_reviewed = TRUE
                             End If
                         Loop Until pass_four = true
                         If show_five = true Then
