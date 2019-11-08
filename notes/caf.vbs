@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("11/08/2019", "Added handling for the script to change a 4 digit footer year to a 2 digit footer year (2019 becomes 19) when entering recertification month and year by program. ##~##", "Casey Love, Hennepin County")
 Call changelog_update("11/07/2019", "BUG FIX - Dialog 4 was sometimes too short. If there are a number of people with child support income, not all of the child support detail would be viewable as it would be taller than the computer screen. Updated the script so that Dialog 4 now has tabs if there are more than four members with child support income, so there are multiple pages of Dialog 4 (like Dialog 2 and 3).##~##", "Casey Love, Hennepin County")
 Call changelog_update("10/16/2019", "BUG Fix - sometimes the script hit an error after leaving Dialog 8 - this should resolve that error. ##~## ##~## Added a NEW BUTTON that will display the Missing Fields Message (also called the 'Error Message') after clicking 'Done' on dialog 8 if the script needs updates. Look for the button 'Show Dialog Review Message' on each dialog after the message shows for the first time. ##~## This button will allow you to review the missing fields or updates that need to be made so that you do not have to try to remember them. The button only appears after the message was shown for the first time.##~##", "Casey Love, Hennepin County")
 Call changelog_update("10/14/2019", "Added autofill functionality for TIME and SANC panels so the editboxes are filled if the panel is present.##~##", "Casey Love, Hennepin County")
@@ -2496,6 +2497,9 @@ If cash_checkbox = checked OR snap_checkbox = checked OR hc_checkbox = checked T
     		Dialog Dialog1
     		cancel_confirmation
 
+            If len(cash_recert_yr) = 4 AND left(cash_recert_yr, 2) = "20" Then cash_recert_yr = right(cash_recert_yr, 2)
+            If len(snap_recert_yr) = 4 AND left(snap_recert_yr, 2) = "20" Then snap_recert_yr = right(snap_recert_yr, 2)
+            If len(hc_recert_yr) = 4 AND left(hc_recert_yr, 2) = "20" Then hc_recert_yr = right(hc_recert_yr, 2)
             If cash_checkbox = checked Then
                 If the_process_for_cash = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or recertification."
                 If the_process_for_cash = "Recertification" AND (len(cash_recert_mo) <> 2 or len(cash_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For CASH at recertification, enter the footer month and year the of the recertification."
