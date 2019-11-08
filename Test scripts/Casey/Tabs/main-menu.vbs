@@ -171,35 +171,36 @@ function declare_tabbed_menu(tab_selected)
         If show_dail_scrubber = TRUE then dlg_len = dlg_len + 10
         dail_scrubber_functionality = trim(dail_scrubber_functionality)
         If dail_scrubber_functionality <> "" Then dail_scrubber_functionality = right(dail_scrubber_functionality, len(dail_scrubber_functionality)  - 2)
-        If dlg_len = 80 Then dlg_len = 220
+        If dlg_len < 220 Then dlg_len = 220
 
-        BeginDialog Dialog1, 0, 0, 700, dlg_len, "Select Script to Run"
-          Text 550, 10, 75, 30, "Selected TAGS: " & Join(tags_array, ", ")
+        BeginDialog Dialog1, 0, 0, 750, dlg_len, "Select Script to Run"
+          GroupBox 550, 5, 185, 40, "Selected TAGS"
+          Text 555, 15, 175, 25, Join(tags_array, ", ")
           ' Text 650, 10, 50, 10, "Keywords:"
           ' EditBox 650, 20, 50, 15, search_keywords
-          GroupBox 630, 10, 65, 185, "Key Codes"
-          Text 635, 20, 15, 10, "C - "
-          Text 650, 20, 42, 10, "Case Notes"
-          Text 635, 30, 15, 10, "E - "
-          Text 650, 30, 42, 10, "Excel"
-          Text 635, 40, 15, 20, "EXP-"
-          Text 650, 40, 42, 20, "Expedited SNAP"
-          Text 635, 60, 15, 10, "F - "
-          Text 650, 60, 42, 10, "FIATs"
-          Text 635, 70, 15, 20, "OA -"
-          Text 650, 70, 42, 20, "Outlook Appointment"
-          Text 635, 90, 15, 20, "OE -"
-          Text 650, 90, 42, 20, "Outlook Email"
-          Text 635, 110, 15, 10, "SM -"
-          Text 650, 110, 42, 20, "SPEC/ MEMO"
-          Text 635, 130, 15, 10, "SW -"
-          Text 650, 130, 42, 20, "SPEC/ WCOM"
-          Text 635, 150, 15, 10, "T - "
-          Text 650, 150, 42, 10, "TIKL"
-          Text 635, 160, 15, 20, "U - "
-          Text 650, 160, 42, 20, "Updates Panel"
-          Text 635, 180, 15, 10, "W - "
-          Text 650, 180, 42, 10, "Word"
+          GroupBox 630, 50, 105, 125, "Key Codes"
+          Text 635, 60, 20, 10, "Cn  - "
+          Text 655, 60, 70, 10, "Case Notes"
+          Text 635, 70, 20, 10, "Ex  - "
+          Text 655, 70, 70, 10, "Excel"
+          Text 635, 80, 20, 10, "Exp -"
+          Text 655, 80, 70, 10, "Expedited SNAP"
+          Text 635, 90, 20, 10, "Fi  - "
+          Text 655, 90, 70, 10, "FIATs"
+          Text 635, 100, 20, 10, "Oa  -"
+          Text 655, 100, 70, 10, "Outlook Appointment"
+          Text 635, 110, 20, 10, "Oe  -"
+          Text 655, 110, 70, 10, "Outlook Email"
+          Text 635, 120, 20, 10, "Sm  -"
+          Text 655, 120, 70, 20, "SPEC/ MEMO"
+          Text 635, 130, 20, 10, "Sw  -"
+          Text 655, 130, 70, 10, "SPEC/ WCOM"
+          Text 635, 140, 20, 10, "Tk  - "
+          Text 655, 140, 70, 10, "TIKL"
+          Text 635, 150, 20, 10, "Up  - "
+          Text 655, 150, 70, 10, "Updates Panel"
+          Text 635, 160, 20, 10, "Wrd - "
+          Text 655, 160, 70, 10, "Word"
 
           ButtonGroup ButtonPressed
             PushButton 5, 10, 60, 15, "SNAP", snap_btn
@@ -238,6 +239,7 @@ function declare_tabbed_menu(tab_selected)
                     '         If listed_tag <> "" Then
                     '             If UCase(listed_tag) = UCase(tab_selected) then
                                     SIR_button_placeholder = button_placeholder + 1	'We always want this to be one more than the button_placeholder
+                                    add_to_favorites_button_placeholder = button_placeholder + 2
                                     script_keys_combine = ""
                                     If script_array(current_script).dlg_keys(0) <> "" Then script_keys_combine = Join(script_array(current_script).dlg_keys, ":")
 
@@ -246,13 +248,15 @@ function declare_tabbed_menu(tab_selected)
                                     PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
                                     PushButton 		18,						vert_button_position, 	120, 		10, 			script_array(current_script).script_name, 			button_placeholder
                                     Text 			143, 				    vert_button_position, 	40, 		10, 			"-- " & script_keys_combine & " --"
+                                    PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
                                     Text            185,                    vert_button_position,   450,        10,             script_array(current_script).description
                                     '----------
                                     vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
                                     '----------
                                     script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
                                     script_array(current_script).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-                                    button_placeholder = button_placeholder + 2
+                                    script_array(current_script).fav_add_button = add_to_favorites_button_placeholder
+                                    button_placeholder = button_placeholder + 3
 
                     '             End If
                     '         End If
@@ -286,9 +290,9 @@ function declare_tabbed_menu(tab_selected)
                     Text 565, vert_button_position + 5, 5, 10, "3"
                 End If
             End If
-            If vert_button_position = 55 Then vert_button_position = 200
+            If vert_button_position < 200 Then vert_button_position = 200
             PushButton 10, vert_button_position, 100, 15, "Clear TAG Selection", clear_selection_btn
-            CancelButton 640, vert_button_position, 50, 15
+            CancelButton 690, vert_button_position, 50, 15
           ' Text 120, vert_button_position, 380, 15, "C - Case Notes ... E - Excel ... EXP - Expedited SNAP ... F - FIATs ... OA - Outlook Appointment ... OE - Outlook Email ... SM - SPEC/MEMO ... SW - SPEC/WCOM ... T - TIKL ... U - Updates Panel ... W - Word"
           Text 120, vert_button_position + 5, 40, 10, "Keywords:"
           EditBox 165, vert_button_position, 200, 15, search_keywords
@@ -298,97 +302,6 @@ function declare_tabbed_menu(tab_selected)
 
 
 end function
-
-Function declare_main_menu_dialog(script_category)
-
-	'Runs through each script in the array and generates a list of subcategories based on the category located in the function. Also modifies the script description if it's from the last two months, to include a "NEW!!!" notification.
-	For current_script = 0 to ubound(script_array)
-		'Subcategory handling (creating a second list as a string which gets converted later to an array)
-		If ucase(script_array(current_script).category) = ucase(script_category) then																								'If the script in the array is of the correct category (ACTIONS/NOTES/ETC)...
-			For each listed_subcategory in script_array(current_script).subcategory																									'...then iterate through each listed subcategory, and...
-				If listed_subcategory <> "" and InStr(subcategory_list, ucase(listed_subcategory)) = 0 then subcategory_list = subcategory_list & "|" & ucase(listed_subcategory)	'...if the listed subcategory isn't blank and isn't already in the list, then add it to our handy-dandy list.
-			Next
-		End if
-		'Adds a "NEW!!!" notification to the description if the script is from the last two months.
-		If DateDiff("m", script_array(current_script).release_date, DateAdd("m", -2, date)) <= 0 then
-			script_array(current_script).description = "NEW " & script_array(current_script).release_date & "!!! --- " & script_array(current_script).description
-			script_array(current_script).release_date = "12/12/1999" 'backs this out and makes it really old so it doesn't repeat each time the dialog loops. This prevents NEW!!!... from showing multiple times in the description.
-		End if
-
-	Next
-
-	subcategory_list = split(subcategory_list, "|")
-
-	For i = 0 to ubound(subcategory_list)
-		ReDim Preserve subcategory_array(i)
-		set subcategory_array(i) = new subcat
-		If subcategory_list(i) = "" then subcategory_list(i) = "MAIN"
-		subcategory_array(i).subcat_name = subcategory_list(i)
-	Next
-
-	BeginDialog dialog1, 0, 0, 600, 400, script_category & " scripts main menu dialog"
-	 	Text 5, 5, 435, 10, script_category & " scripts main menu: select the script to run from the choices below."
-	  	ButtonGroup ButtonPressed
-
-
-		'SUBCATEGORY HANDLING--------------------------------------------
-
-		subcat_button_position = 5
-
-		For i = 0 to ubound(subcategory_array)
-
-			'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
-			'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
-			PushButton 		subcat_button_position, 20, 					50, 		15, 			subcategory_array(i).subcat_name, 					subcat_button_placeholder
-
-			subcategory_array(i).subcat_button = subcat_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-			subcat_button_position = subcat_button_position + 50
-			subcat_button_placeholder = subcat_button_placeholder + 1
-		Next
-
-
-		'SCRIPT LIST HANDLING--------------------------------------------
-
-		'' 	PushButton 445, 10, 65, 10, "SIR instructions", 	SIR_instructions_button
-		'This starts here, but it shouldn't end here :)
-		vert_button_position = 50
-
-		For current_script = 0 to ubound(script_array)
-			If ucase(script_array(current_script).category) = ucase(script_category) then
-
-				'<<<<<<RIGHT HERE IT SHOULD ITERATE THROUGH SUBCATEGORIES AND BUTTONS PRESSED TO DETERMINE WHAT THE CURRENTLY DISPLAYED SUBCATEGORY SHOULD BE, THEN ONLY DISPLAY SCRIPTS THAT MATCH THAT CRITERIA
-				'Joins all subcategories together
-				subcategory_string = ucase(join(script_array(current_script).subcategory))
-
-				'Accounts for scripts without subcategories
-				If subcategory_string = "" then subcategory_string = "MAIN"		'<<<THIS COULD BE A PROPERTY OF THE CLASS
-
-				'If the selected subcategory is in the subcategory string, it will display those scripts
-				If InStr(subcategory_string, subcategory_selected) <> 0 then
-
-
-
-
-					SIR_button_placeholder = button_placeholder + 1	'We always want this to be one more than the button_placeholder
-
-					'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
-					'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
-					PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
-					PushButton 		18,						vert_button_position, 	120, 		10, 			script_array(current_script).script_name, 			button_placeholder
-					Text 			120 + 23, 				vert_button_position, 	500, 		10, 			"--- " & script_array(current_script).description
-					'----------
-					vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
-					'----------
-					script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-					script_array(current_script).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-					button_placeholder = button_placeholder + 2
-				End if
-			End if
-		next
-
-		CancelButton 540, vert_button_position, 50, 15
-	EndDialog
-End function
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
 '	We're doing this because we want to assign a value to each button pressed, and we want
@@ -466,6 +379,26 @@ Do
 		If ButtonPressed = script_array(i).SIR_instructions_button then
             call open_URL_in_browser(script_array(i).SharePoint_instructions_URL)
             leave_loop = FALSE
+        End If
+        If ButtonPressed = script_array(i).fav_add_button then
+            ' MsgBox "Script in favorites - " & script_array(i).script_in_favorites
+            If script_array(i).script_in_favorites = TRUE Then
+                MsgBox "The script " & script_array(i).category & "-" & script_array(i).script_name & " is already listed in favorites."
+            Else
+                new_favorite = script_array(i).category & "/" & script_array(i).script_name
+                If all_favorites = "" Then
+                    all_favorites = join(favorites_text_file_array, vbNewLine)
+                End If
+                all_favorites = all_favorites & vbNewLine & new_favorite
+
+                SET updated_fav_scripts_fso = CreateObject("Scripting.FileSystemObject")
+                SET updated_fav_scripts_command = updated_fav_scripts_fso.CreateTextFile(favorites_text_file_location, 2)
+                updated_fav_scripts_command.Write(all_favorites)
+                updated_fav_scripts_command.Close
+
+                MsgBox "The script " & script_array(i).category & "-" & script_array(i).script_name & " has been added to your list of favorites."
+
+            End If
         End If
 	Next
 

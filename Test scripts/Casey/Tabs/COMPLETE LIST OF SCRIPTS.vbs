@@ -37,6 +37,7 @@ class script_bowie
 	public description             	'The description of the script
 	public button                  	'A variable to store the actual results of ButtonPressed (used by much of the script functionality)
 	public SIR_instructions_button	'A variable to store the actual results of ButtonPressed (used by much of the script functionality)
+    public fav_add_button
     public category               	'The script category (ACTIONS/BULK/etc)
 	public workflows               	'The script workflows associated with this script (Changes Reported, Applications, etc)
     public tags                     'The tags
@@ -44,7 +45,7 @@ class script_bowie
     public subcategory				'An array of all subcategories a script might exist in, such as "LTC" or "A-F"
 	public release_date				'This allows the user to indicate when the script goes live (controls NEW!!! messaging)
     public show_script
-    public keywords 
+    public keywords
 
     'Details the menus will figure out (does not need to be explicitly declared)
     public button_plus_increment	'Workflow scripts use a special increment for buttons (adding or subtracting from total times to run). This is the add button.
@@ -66,8 +67,50 @@ class script_bowie
         ' SharePoint_instructions_URL = "https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/" & replace(ucase(script_name) & ".aspx", " ", "%20")
         SharePoint_instructions_URL = "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/" & UCase(category) & "/" & UCase(category) & "%20-%20" & replace(ucase(script_name) & ".docx", " ", "%20")
     end property
+
+    public property get script_in_favorites
+        ' MsgBox favorites_exist
+        if favorites_exist = FALSE Then
+            script_in_favorites = FALSE
+        else
+            For Each favorite_script in favorites_text_file_array
+                fav_cat = ""
+                fav_call = ""
+                favorite_script = trim(favorite_script)
+                category_end = InStr(favorite_script, "/")
+                If category_end <> 0 Then
+                    fav_cat = left(favorite_script, (category_end - 1))
+                    fav_call = right(favorite_script, (len(favorite_script) - category_end))
+                End If
+                If fav_cat = category and fav_call = script_name Then script_in_favorites = TRUE
+            Next
+            If script_in_favorites = "" Then script_in_favorites = FALSE
+        end if
+    end Property
 end class
 
+favorites_text_file_location = user_myDocs_folder & "\scripts-favorites.txt"
+hotkeys_text_file_location = user_myDocs_folder & "\scripts-hotkeys.txt"
+'Opening the favorites text
+Dim oTxtFile
+With (CreateObject("Scripting.FileSystemObject"))
+    favorites_exist = ""
+	'>>> If the file exists, we will grab the list of the user's favorite scripts and run the favorites menu.
+	If .FileExists(favorites_text_file_location) Then
+        favorites_exist = TRUE
+		Set fav_scripts = CreateObject("Scripting.FileSystemObject")
+		Set fav_scripts_command = fav_scripts.OpenTextFile(favorites_text_file_location)
+		fav_scripts_array = fav_scripts_command.ReadAll
+		IF fav_scripts_array <> "" THEN favorites_text_file_array = fav_scripts_array
+		fav_scripts_command.Close
+
+        favorites_text_file_array = trim(favorites_text_file_array)
+        favorites_text_file_array = split(favorites_text_file_array, vbNewLine)
+	ELSE
+		'>>> ...otherwise, if the file does not exist, the script will require the user to select their favorite scripts.
+		favorites_exist = FALSE
+	END IF
+END WITH
 'INSTRUCTIONS: simply add your new script below. Scripts are listed in alphabetical order first by category, then by script name. Copy a block of code from above and paste your script info in. The function does the rest.
 'ACTIONS SCRIPTS=====================================================================================================================================
 
