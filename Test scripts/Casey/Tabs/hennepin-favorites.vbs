@@ -124,12 +124,14 @@ function edit_favorites
 	'>>> and read it, storing the contents in the variable name ''favorites_text_file_array''
 	SET oTxtFile = (CreateObject("Scripting.FileSystemObject"))
 	With oTxtFile
-		If .FileExists(favorites_text_file_location) Then
-			Set fav_scripts = CreateObject("Scripting.FileSystemObject")
-			Set fav_scripts_command = fav_scripts.OpenTextFile(favorites_text_file_location)
-			fav_scripts_array = fav_scripts_command.ReadAll
-			IF fav_scripts_array <> "" THEN favorites_text_file_array = fav_scripts_array
-			fav_scripts_command.Close
+		If .FileExists(favorites_text_file_location) THEN
+            If .GetFile(favorites_text_file_location).size <> 0 Then
+    			Set fav_scripts = CreateObject("Scripting.FileSystemObject")
+    			Set fav_scripts_command = fav_scripts.OpenTextFile(favorites_text_file_location)
+    			fav_scripts_array = fav_scripts_command.ReadAll
+    			IF fav_scripts_array <> "" THEN favorites_text_file_array = fav_scripts_array
+    			fav_scripts_command.Close
+            End If
 		END IF
 	END WITH
 
@@ -140,7 +142,8 @@ function edit_favorites
 	'VKC - removed old functionality to determine dynamically the width. This will need to be redetermined based on the number of scripts, but I am holding off on this until I know all of the content I'll jam in here. -11/29/2016
 
 	'>>> Building the dialog
-	BeginDialog build_new_favorites_dialog, 0, 0, dia_width, 380, "Select your favorites"
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, dia_width, 380, "Select your favorites"
 		ButtonGroup ButtonPressed
 			OkButton 5, 5, 50, 15
 			CancelButton 55, 5, 50, 15
@@ -354,7 +357,7 @@ function edit_favorites
 	DO
 		DO
 			'>>> Running the dialog
-			Dialog build_new_favorites_dialog
+			Dialog Dialog1
 			'>>> Cancel confirmation
 			IF ButtonPressed = 0 THEN
 				confirm_cancel = MsgBox("Are you sure you want to cancel? Press YES to cancel the script. Press NO to return to the script.", vbYesNo)
@@ -379,9 +382,9 @@ function edit_favorites
 			IF scripts_edit_favs_array(i, add_checkbox) = checked THEN double_check_array = double_check_array & scripts_edit_favs_array(i, fav_script_name) & "~"
 		NEXT
 		double_check_array = split(double_check_array, "~")
-		IF ubound(double_check_array) > 29 THEN MsgBox "Your favorites menu is too large. Please limit the number of favorites to no greater than 30."
+		IF ubound(double_check_array) > 24 THEN MsgBox "Your favorites menu is too large. Please limit the number of favorites to no greater than 25."
 		'>>> Exit condition is the user having fewer than 30 scripts in their favorites menu.
-	LOOP UNTIL ubound(double_check_array) <= 29
+	LOOP UNTIL ubound(double_check_array) <= 25
 
 	'>>> Getting ready to write the user's selection to a text file and save it on a prescribed location on the network.
 	'>>> Building the content of the text file.
@@ -408,6 +411,203 @@ function edit_favorites
 end function
 
 
+'>>> Custom function that builds the Favorites Main Menu dialog.
+'>>> the array of the user's scripts
+FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
+	'>>> Splitting the array of all scripts.
+    favorites_text_file_array = split(favorites_text_file_string, vbNewLine)
+
+
+	num_of_scripts = num_of_user_scripts + num_of_new_scripts
+
+    script_counter = 0
+    for each script_data_from_complete_list in script_array
+        FOR EACH script_path IN favorites_text_file_array
+            script_path = trim(script_path)
+            divider_position = InStr(script_path, "/")
+            favorite_script_category = left(script_path, divider_position - 1)
+            favorite_script_name = right(script_path, len(script_path) - divider_position)
+
+            If favorite_script_category = script_data_from_complete_list.category AND favorite_script_name = script_data_from_complete_list.script_name Then
+                ReDim Preserve favorite_scripts_array(script_counter)
+                SET favorite_scripts_array(script_counter) = NEW script_bowie
+                favorite_scripts_array(script_counter).script_name		= script_data_from_complete_list.script_name
+                favorite_scripts_array(script_counter).category			= script_data_from_complete_list.category
+                favorite_scripts_array(script_counter).description		= script_data_from_complete_list.description
+                favorite_scripts_array(script_counter).release_date		= script_data_from_complete_list.release_date
+                favorite_scripts_array(script_counter).tags		        = script_data_from_complete_list.tags
+                favorite_scripts_array(script_counter).dlg_keys		    = script_data_from_complete_list.dlg_keys
+                favorite_scripts_array(script_counter).keywords		    = script_data_from_complete_list.keywords
+                favorite_scripts_array(script_counter).hot_topic_date   = script_data_from_complete_list.hot_topic_date
+                script_counter = script_counter + 1
+            End If
+        Next
+    Next
+
+
+	dlg_height = 0
+    dlg_height = dlg_height + 15 + ((ubound(favorite_scripts_array, 1) + 1) * 12)
+
+	'>>> Adjusting the height if the user has fewer scripts selected (in the left column) than what is "new" (in the right column).
+	dlg_height = dlg_height + 15 + (12 * (Ubound(new_scripts_array) + 1))
+    dlg_height = dlg_height + 15 + (12 * (Ubound(featured_scripts_array) + 1))
+
+	'>>> A nice decoration for the user. If they have used Update Worker Signature, then their signature is built into the dialog display.
+	IF worker_signature <> "" THEN
+		dlg_name = worker_signature & "'s Favorite Scripts"
+	ELSE
+		dlg_name = "My Favorite Scripts"
+	END IF
+
+	'>>> The dialog
+    ' MsgBox dlg_height & " - 4"
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 600, dlg_height, dlg_name & " "
+  	  ButtonGroup ButtonPressed
+
+		'>>> User's favorites
+		'>>> This iterates through an array to display the scripts from the favorites text file, in buttons which can be pressed and will run the script.
+
+		'Defining these variables before the start of the loop
+		number_of_scripts_in_this_category = 1
+		button_placeholder = 100
+        SIR_button_placeholder = 200
+        update_favorites_button = 400
+        hot_topics_button = 500
+        update_hotkeys_button = 600
+
+        vert_button_position = 10
+
+        If featured_scripts_array(1).script_name <> "" Then
+            GroupBox 5, vert_button_position, 590, 15 + (12 * num_featured_scripts), "These scripts have been recently featured in HOT TOPICS"
+            PushButton 205, vert_button_position, 50, 10, "HOT TOPICS", hot_topics_button
+            vert_button_position = vert_button_position + 12
+            for i = 1 to num_featured_scripts
+                script_keys_combine = ""
+                If featured_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(featured_scripts_array(i).dlg_keys, ":")
+                PushButton 		10, 					vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
+                PushButton 		23,						vert_button_position, 	120, 		10, 			featured_scripts_array(i).script_name, 			button_placeholder
+                Text 			152, 				    vert_button_position, 	40, 		10, 			"-- " & script_keys_combine & " --"
+                ' PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
+                Text            190,                    vert_button_position,   450,        10,             "Featured on " & featured_scripts_array(i).hot_topic_date & " --- " & featured_scripts_array(i).description
+
+                featured_scripts_array(i).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+                featured_scripts_array(i).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+
+                vert_button_position = vert_button_position + 12
+                button_placeholder = button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
+                SIR_button_placeholder = SIR_button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
+
+            NEXT
+            vert_button_position = vert_button_position + 5
+        End If
+
+        Text 5, vert_button_position, 500, 10, "---------------------------------------------------------------------- FAVORITE SCRIPTS ------------------------------------------------------------------------"
+        vert_button_position = vert_button_position + 12
+        FOR i = 0 TO (ubound(favorite_scripts_array, 1))
+            If favorite_scripts_array(i).script_name <> "" Then
+                script_keys_combine = ""
+                If favorite_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(favorite_scripts_array(i).dlg_keys, ":")
+                PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
+                PushButton 		18,						vert_button_position, 	120, 		10, 			favorite_scripts_array(i).script_name, 			button_placeholder
+                Text 			143, 				    vert_button_position, 	40, 		10, 			"-- " & script_keys_combine & " --"
+                ' PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
+                Text            185,                    vert_button_position,   450,        10,             favorite_scripts_array(i).description
+
+                favorite_scripts_array(i).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+                favorite_scripts_array(i).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+
+                vert_button_position = vert_button_position + 12
+                button_placeholder = button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
+                SIR_button_placeholder = SIR_button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
+
+            End If
+		NEXT
+        vert_button_position = vert_button_position + 5
+		'>>> Placing new scripts on the list! This happens in the right-hand column of the dialog.
+
+		right_col_y_pos = dialog_margin + (groupbox_margin * 2)
+
+        Text 5, vert_button_position, 500, 10, "------------------------------------------------------------------------------ NEW SCRIPTS --------------------------------------------------------------------------------"
+        vert_button_position = vert_button_position + 12
+		'>>> Now we increment through the new scripts, and create buttons for them
+        ' MsgBox new_scripts_array(1).script_name
+        If new_scripts_array(1).script_name = "no new scripts found." Then
+            Text 10, vert_button_position, 200, 10, "No new scripts added in the past 60 Days"
+        Else
+    		for i = 1 to num_of_new_scripts
+                script_keys_combine = ""
+                If new_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(new_scripts_array(i).dlg_keys, ":")
+                PushButton 		5, 						vert_button_position, 	10, 		10, 			"?", 												SIR_button_placeholder
+                PushButton 		18,						vert_button_position, 	120, 		10, 			new_scripts_array(i).script_name, 			button_placeholder
+                Text 			143, 				    vert_button_position, 	40, 		10, 			"-- " & script_keys_combine & " --"
+                ' PushButton      175,                    vert_button_position,   10,         10,             "+",                                                add_to_favorites_button_placeholder
+                Text            185,                    vert_button_position,   450,        10,             "NEW " & new_scripts_array(i).release_date & "!!! --- " & new_scripts_array(i).description
+
+                new_scripts_array(i).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+                new_scripts_array(i).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+
+                vert_button_position = vert_button_position + 12
+                button_placeholder = button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
+                SIR_button_placeholder = SIR_button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
+
+    		NEXT
+        End If
+		' GroupBox 210, dialog_margin, button_width + (dialog_margin * 2), 5 + (button_height * (UBound(new_scripts_array) + 1)), "NEW SCRIPTS (LAST 60 DAYS)"
+
+
+		' PushButton 210, dlg_height - 25, 60, 15, "Update Hotkeys", update_hotkeys_button						<<<<< SEE ISSUE #765
+		PushButton 475, dlg_height - 25, 65, 15, "Update Favorites", update_favorites_button
+		CancelButton 545, dlg_height - 25, 50, 15
+	EndDialog
+    Do
+    	'>>> Loading the favorites dialog
+    	DIALOG Dialog1
+    	'>>> Cancelling the script if ButtonPressed = 0
+    	IF ButtonPressed = 0 THEN stopscript
+
+        If ButtonPressed = hot_topics_button Then run "C:\Program Files\Internet Explorer\iexplore.exe https://dept.hennepin.us/hsphd/sa/ews/afepages/Adults%20and%20Families%20Eligibility.aspx#BlueZone%20Update"
+
+    	'>>> Giving user has the option of updating their favorites menu.
+    	'>>> We should try to incorporate the chainloading function of the new script_end_procedure to bring the user back to their favorites.
+    	IF buttonpressed = update_favorites_button THEN
+    		call edit_favorites
+    		StopScript
+    	ElseIf buttonpressed = update_hotkeys_button then
+    		call edit_hotkeys
+    		StopScript
+    	End if
+
+        For i = 1 to ubound(featured_scripts_array)
+            If ButtonPressed = featured_scripts_array(i).SIR_instructions_button then call open_URL_in_browser(featured_scripts_array(i).SharePoint_instructions_URL)
+            If ButtonPressed = featured_scripts_array(i).button then
+                script_to_run = featured_scripts_array(i).script_URL
+                Exit For
+            End If
+        Next
+        For i = 0 to ubound(favorite_scripts_array)
+            If ButtonPressed = favorite_scripts_array(i).SIR_instructions_button then call open_URL_in_browser(favorite_scripts_array(i).SharePoint_instructions_URL)
+            If ButtonPressed = favorite_scripts_array(i).button then
+                script_to_run = favorite_scripts_array(i).script_URL
+                Exit For
+            End If
+        Next
+        For i = 1 to ubound(new_scripts_array)
+            If ButtonPressed = new_scripts_array(i).SIR_instructions_button then call open_URL_in_browser(new_scripts_array(i).SharePoint_instructions_URL)
+            If ButtonPressed = new_scripts_array(i).button then
+                script_to_run = new_scripts_array(i).script_URL
+                Exit For
+            End If
+        Next
+
+    Loop until script_to_run <> ""
+    ' MsgBox script_URL
+END FUNCTION
+'======================================
+
+'The script starts HERE!!!-------------------------------------------------------------------------------------------------------------------------------------
+Dim Dialog1
+
 'Needs to determine MyDocs directory before proceeding.
 Set wshshell = CreateObject("WScript.Shell")
 user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
@@ -427,287 +627,133 @@ favorited_scripts_array = ""
 
 '>>> Building the array of new scripts
 num_of_new_scripts = 0
-
+ReDim Preserve featured_scripts_array(1)
 '>>> Looking through the scripts array and determining all of the new ones.
 FOR i = 0 TO Ubound(script_array)
-	IF DateDiff("D", script_array(i).release_date, date) < 60 THEN
-		num_of_new_scripts = num_of_new_scripts + 1
-		ReDim Preserve new_scripts_array(num_of_new_scripts)
-		SET new_scripts_array(num_of_new_scripts) = NEW cs_script
-		new_scripts_array(num_of_new_scripts).script_name		= script_array(i).script_name
-		new_scripts_array(num_of_new_scripts).category			= script_array(i).category
-		new_scripts_array(num_of_new_scripts).description		= script_array(i).description
-		new_scripts_array(num_of_new_scripts).release_date		= script_array(i).release_date
-        new_scripts_array(num_of_new_scripts).tags		        = script_array(i).tags
-        new_scripts_array(num_of_new_scripts).dlg_keys		    = script_array(i).dlg_keys
-        new_scripts_array(num_of_new_scripts).keywords		    = script_array(i).keywords
-	end if
+IF DateDiff("D", script_array(i).release_date, date) < 60 THEN
+num_of_new_scripts = num_of_new_scripts + 1
+ReDim Preserve new_scripts_array(num_of_new_scripts)
+SET new_scripts_array(num_of_new_scripts) = NEW script_bowie
+new_scripts_array(num_of_new_scripts).script_name		= script_array(i).script_name
+new_scripts_array(num_of_new_scripts).category			= script_array(i).category
+new_scripts_array(num_of_new_scripts).description		= script_array(i).description
+new_scripts_array(num_of_new_scripts).release_date		= script_array(i).release_date
+new_scripts_array(num_of_new_scripts).tags		        = script_array(i).tags
+new_scripts_array(num_of_new_scripts).dlg_keys		    = script_array(i).dlg_keys
+new_scripts_array(num_of_new_scripts).keywords		    = script_array(i).keywords
+end if
+If IsDate(script_array(i).hot_topic_date) = TRUE Then
+IF DateDiff("d", script_array(i).hot_topic_date, date) < 7 Then
+num_featured_scripts = num_featured_scripts + 1
+ReDim Preserve featured_scripts_array(num_featured_scripts)
+SET featured_scripts_array(num_featured_scripts) = NEW script_bowie
+featured_scripts_array(num_featured_scripts).script_name		= script_array(i).script_name
+featured_scripts_array(num_featured_scripts).category			= script_array(i).category
+featured_scripts_array(num_featured_scripts).description		= script_array(i).description
+featured_scripts_array(num_featured_scripts).release_date		= script_array(i).release_date
+featured_scripts_array(num_featured_scripts).tags		        = script_array(i).tags
+featured_scripts_array(num_featured_scripts).dlg_keys		    = script_array(i).dlg_keys
+featured_scripts_array(num_featured_scripts).keywords		    = script_array(i).keywords
+featured_scripts_array(num_featured_scripts).hot_topic_date		= script_array(i).hot_topic_date
+End If
+End If
 NEXT
 
 '>>> This handles what happens if there are no new scripts (it'll happen)
 if num_of_new_scripts = 0 then
-	num_of_new_scripts = 1
-	ReDim Preserve new_scripts_array(num_of_new_scripts)
-	SET new_scripts_array(num_of_new_scripts) = NEW script_bowie
-	new_scripts_array(num_of_new_scripts).script_name		= "no new scripts found."
-	new_scripts_array(num_of_new_scripts).category			= "none"
-	new_scripts_array(num_of_new_scripts).description		= "none"
-	new_scripts_array(num_of_new_scripts).release_date		= "none"
-    new_scripts_array(num_of_new_scripts).tags		        = "none"
-    new_scripts_array(num_of_new_scripts).dlg_keys		    = "none"
-    new_scripts_array(num_of_new_scripts).keywords		    = "none"
+num_of_new_scripts = 1
+ReDim Preserve new_scripts_array(num_of_new_scripts)
+SET new_scripts_array(num_of_new_scripts) = NEW script_bowie
+new_scripts_array(num_of_new_scripts).script_name		= "no new scripts found."
+new_scripts_array(num_of_new_scripts).category			= "none"
+new_scripts_array(num_of_new_scripts).description		= ""
+new_scripts_array(num_of_new_scripts).release_date		= "none"
+new_scripts_array(num_of_new_scripts).tags		        = "none"
+new_scripts_array(num_of_new_scripts).dlg_keys		    = ""
+new_scripts_array(num_of_new_scripts).keywords		    = "none"
 end if
 
-'>>> Custom function that builds the Favorites Main Menu dialog.
-'>>> the array of the user's scripts
-
-' const fav_script_name   = 0
-const script_directory  = 1
-const fav_script_btn    = 2
-const fav_category      = 3
-const fav_name_wo_cat   = 4
-const fav_redirect      = 5
-const display_name      = 6
-FUNCTION favorite_menu(favorites_text_file_array, script_URL)
-	'>>> Splitting the array of all scripts.
-	favorites_text_file_array = trim(favorites_text_file_array)
-	favorites_text_file_array = split(favorites_text_file_array, vbNewLine)
-
-	num_of_user_scripts = ubound(favorites_text_file_array)
 
 
-	num_of_scripts = num_of_user_scripts + num_of_new_scripts
+Dim favorites_text_file_array, num_of_user_scripts, favorites_text_file_string
+function open_favorites_file()
+    'Needs to determine MyDocs directory before proceeding.
+    Set wshshell = CreateObject("WScript.Shell")
+    user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
+    favorites_text_file_location = user_myDocs_folder & "\scripts-favorites.txt"
 
-	ReDim favorited_scripts_array(num_of_scripts, display_name)
-	'position 0 = script name
-	'position 1 = script directory
-	'position 2 = button
-	'position 3 = category
-	'position 4 = script name without category
-	'position 5 = state-supported true/false
-	'position 6 = friendly name
+    Dim oTxtFile
+    With (CreateObject("Scripting.FileSystemObject"))
+    	'>>> If the file exists, we will grab the list of the user's favorite scripts and run the favorites menu.
+    	If .FileExists(favorites_text_file_location) Then
+            If .GetFile(favorites_text_file_location).size <> 0 Then
+        		Set fav_scripts = CreateObject("Scripting.FileSystemObject")
+        		Set fav_scripts_command = fav_scripts.OpenTextFile(favorites_text_file_location)
+        		fav_scripts_array = fav_scripts_command.ReadAll
+        		IF fav_scripts_array <> "" THEN favorites_text_file_array = fav_scripts_array
+        		fav_scripts_command.Close
+            End If
+    	ELSE
+    		'>>> ...otherwise, if the file does not exist, the script will require the user to select their favorite scripts.
+    		call edit_favorites
+    	END IF
+    END WITH
 
-	scripts_pos = 0
-	FOR EACH script_path IN favorites_text_file_array
-        script_path = trim(script_path)
-        ' MsgBox script_path
-		IF script_path <> "" THEN
-			favorited_scripts_array(scripts_pos, fav_script_name) = script_path
-			'>>> Creating the correct URL for the github call
-			IF left(script_path, 5) = "NOTES" THEN
-				favorited_scripts_array(scripts_pos, script_directory)  = script_path
-				favorited_scripts_array(scripts_pos, fav_category)      = "NOTES"
-				favorited_scripts_array(scripts_pos, fav_name_wo_cat)   = right(script_path, len(script_path) - 6)
-			ELSEIF left(script_path, 7) = "ACTIONS" THEN
-				favorited_scripts_array(scripts_pos, script_directory)  = script_path
-				favorited_scripts_array(scripts_pos, fav_category)      = "ACTIONS"
-				favorited_scripts_array(scripts_pos, fav_name_wo_cat)   = right(script_path, len(script_path) - 8)
-			ELSEIF left(script_path, 4) = "BULK" THEN
-				favorited_scripts_array(scripts_pos, script_directory)  = script_path
-				favorited_scripts_array(scripts_pos, fav_category)      = "BULK"
-				favorited_scripts_array(scripts_pos, fav_name_wo_cat)   = right(script_path, len(script_path) - 5)
-			ELSEIF left(script_path, 7) = "NOTICES" THEN
-				favorited_scripts_array(scripts_pos, script_directory)  = script_path
-				favorited_scripts_array(scripts_pos, fav_category)      = "NOTICES"
-				favorited_scripts_array(scripts_pos, fav_name_wo_cat)   = right(script_path, len(script_path) - 8)
-            ELSEIF left(script_path, 9) = "UTILITIES" THEN
-    			favorited_scripts_array(scripts_pos, script_directory)   = script_path
-    			favorited_scripts_array(scripts_pos, fav_category)       = "UTILITIES"
-    			favorited_scripts_array(scripts_pos, fav_name_wo_cat)    = right(script_path, len(script_path) - 10)
-			END IF
-            ' MsgBox script_path
-			' 'This part reads the complete list of scripts, and then stores the "friendly name" as an item in the array (makes the dialog prettier down the road)
-			for each script_data_from_complete_list in script_array
-                ' favorited_scripts_array(scripts_pos, display_name) = script_data_from_complete_list.category & " - " & script_data_from_complete_list.script_name
-                ' MsgBox "fav array - " & favorited_scripts_array(scripts_pos, fav_name_wo_cat) & vbNewLine & "array name - " & script_data_from_complete_list.script_name
-				if favorited_scripts_array(scripts_pos, fav_name_wo_cat) = script_data_from_complete_list.script_name then
-                    favorited_scripts_array(scripts_pos, display_name) = script_data_from_complete_list.script_name
-                    favorited_scripts_array(scripts_pos, fav_redirect) = script_data_from_complete_list.script_URL
-                End If
-			next
+    favorites_text_file_string = trim(favorites_text_file_array)
+    favorites_text_file_array = split(favorites_text_file_string, vbNewLine)
 
-			scripts_pos = scripts_pos + 1
-		END IF
-	NEXT
+    num_of_user_scripts = ubound(favorites_text_file_array)
 
-	'>>> Determining the height parameters to enable the group boxes.
-	actions_count = 0
-	bulk_count = 0
-	notc_count = 0
-	notes_count = 0
-	utilities_count = 0
-	FOR i = 0 TO (ubound(favorites_text_file_array) - 1)
-		IF favorited_scripts_array(i, fav_category) = "ACTIONS" THEN
-			actions_count = actions_count + 1
-		ELSEIF favorited_scripts_array(i, fav_category) = "BULK" THEN
-			bulk_count = bulk_count + 1
-		ELSEIF favorited_scripts_array(i, fav_category) = "NOTICES" THEN
-			notc_count = notc_count + 1
-		ELSEIF favorited_scripts_array(i, fav_category) = "NOTES" THEN
-			notes_count = notes_count + 1
-        ELSEIF favorited_scripts_array(i, fav_category) = "UTILITIES" THEN
-    		utilities_count = utilities_count + 1
-		END IF
-	NEXT
+    review_string = "~"
+    favorites_text_file_string = replace(favorites_text_file_string, vbNewLine, "~")
+    favorites_text_file_string = "~" & favorites_text_file_string & "~"
+    count_of_favorites = 0
+    For each fav_file in favorites_text_file_array
+        fav_file = trim(fav_file)
+        If fav_file <> "" Then
+            If InStr(review_string, "~" & fav_file & "~") = 0 Then
+                review_string = review_string & fav_file & "~"
+                count_of_favorites = count_of_favorites + 1
+            End If
+        End If
+    Next
+    If count_of_favorites > 25 Then
+        MsgBox "Your favorites menu is too large. Please limit the number of favorites to no greater than 25." & vbNewLine & "The script will now run the favorites selection functionality. please choose no more than 25."
+        call edit_favorites
+    End If
+    ' MsgBox "Review String:" & vbNewLine & review_string & vbNewLine & vbNewLine & "Favorites String:" & vbNewLine & favorites_text_file_string
+    If review_string <> favorites_text_file_string Then
+        review_string = right(review_string, len(review_string) - 1)
+        review_string = left(review_string, len(review_string) - 1)
 
-	'>>> Determining the height of the dialog.
-	'>>> Each groupbox will require a minimum of 25 pixels. That is the height of the groupbox with 1 script PushButton
-	'>>> The groupboxes need to grow 10 for each script pushbutton, so the dialog also needs to grow 10 for each script push button. However,
-	'>>> 	the size of each groupbox will always be 15 plus (10 times the number of that kind of script)...
-	dlg_height = 0
-	IF actions_count <> 0 THEN dlg_height = 15 + (button_height * actions_count)
-	IF bulk_count <> 0 THEN dlg_height = dlg_height + 15 + (15 + (button_height * bulk_count))
-	IF notc_count <> 0 THEN dlg_height = dlg_height + 15 + (15 + (button_height * bulk_count))
-	IF notes_count <> 0 THEN dlg_height = dlg_height + 15 + (15 + (button_height * notes_count))
-    IF utilities_count <> 0 THEN dlg_height = dlg_height + 15 + (15 + (button_height * utilities_count))
-	dlg_height = dlg_height + 5
-	'>>> The dialog needs to be at least 185 pixels tall. If it is not...because the user has not selected a sufficient number of scripts...then
-	'>>> the dialog needs to grow to 185.
+        review_string = replace(review_string, "~", vbNewLine)
 
-	'>>> Adjusting the height if the user has fewer scripts selected (in the left column) than what is "new" (in the right column).
-	right_col_dlg_height = 60 + (button_height * (Ubound(new_scripts_array) + 1))
-	IF right_col_dlg_height > dlg_height THEN dlg_height = right_col_dlg_height
+        SET updated_fav_scripts_fso = CreateObject("Scripting.FileSystemObject")
+        SET updated_fav_scripts_command = updated_fav_scripts_fso.CreateTextFile(favorites_text_file_location, 2)
+        updated_fav_scripts_command.Write(review_string)
+        updated_fav_scripts_command.Close
 
+        favorites_text_file_string = trim(review_string)
+        favorites_text_file_array = split(favorites_text_file_string, vbNewLine)
 
+        num_of_user_scripts = ubound(favorites_text_file_array)
 
-	'>>> Defining some variables for use in the display
-	groupbox_y_pos = dialog_margin
-	left_col_y_pos = groupbox_y_pos + (groupbox_margin * 2)
-	left_col_x_pos = dialog_margin + groupbox_margin
+    Else
+        review_string = right(review_string, len(review_string) - 1)
+        review_string = left(review_string, len(review_string) - 1)
 
+        review_string = replace(review_string, "~", vbNewLine)
+        favorites_text_file_string = trim(review_string)
+        favorites_text_file_array = split(favorites_text_file_string, vbNewLine)
 
-
-	'>>> A nice decoration for the user. If they have used Update Worker Signature, then their signature is built into the dialog display.
-	IF worker_signature <> "" THEN
-		dlg_name = worker_signature & "'s Favorite Scripts"
-	ELSE
-		dlg_name = "My Favorite Scripts"
-	END IF
-
-	'>>> The dialog
-	BeginDialog favorites_dialog, 0, 0, 411, dlg_height, dlg_name & " "
-  	  ButtonGroup ButtonPressed
-
-		'>>> User's favorites
-		'>>> This iterates through an array to display the scripts from the favorites text file, in buttons which can be pressed and will run the script.
-
-		'Defining these variables before the start of the loop
-		number_of_scripts_in_this_category = 1
-		button_placeholder = 100
-
-		'The actual array (this goes through the text file and creates scripts and buttons)
-        ' MsgBox ubound(favorites_text_file_array)
-		' FOR i = 0 TO (ubound(favorites_text_file_array) - 1)
-        FOR i = 0 TO (ubound(favorites_text_file_array))
-			'Defines the current category for comparison purposes, and to write out the labels.
-			current_script_category_from_list = favorited_scripts_array(i, fav_category)
-
-			'Determines the next script category, but only if it's not at the end of the array (because then we're out and the ubound would error out)
-			if i + 1 < ubound(favorited_scripts_array) - 1 then
-				next_script_category_from_list = favorited_scripts_array(i + 1, fav_category)
-			end if
-
-			'Adding the button
-			PushButton left_col_x_pos + groupbox_margin, left_col_y_pos, button_width, button_height, favorited_scripts_array(i, display_name), button_placeholder
-			button_placeholder = button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
-
-			'If the current category differs from the next, it's time to make the groupbox
-			if current_script_category_from_list <> next_script_category_from_list OR i = (ubound(favorites_text_file_array) - 1) then
-				left_col_y_pos = groupbox_y_pos + ((groupbox_margin * 3) + (button_height * number_of_scripts_in_this_category))		'Margin x 3 because we need extra padding on the top, and half the extra on the bottom
-				GroupBox left_col_x_pos, groupbox_y_pos, button_width + (groupbox_margin * 2), (groupbox_margin * 3) + (button_height * number_of_scripts_in_this_category), current_script_category_from_list
-				number_of_scripts_in_this_category = 1
-				groupbox_y_pos = left_col_y_pos
-				left_col_y_pos = left_col_y_pos + (groupbox_margin * 2)
-			else
-				left_col_y_pos = left_col_y_pos + button_height
-				number_of_scripts_in_this_category = number_of_scripts_in_this_category + 1
-			end if
-
-		NEXT
-
-		'>>> Placing new scripts on the list! This happens in the right-hand column of the dialog.
-
-		right_col_y_pos = dialog_margin + (groupbox_margin * 2)
-
-
-		'>>> Now we increment through the new scripts, and create buttons for them
-		for i = 1 to num_of_new_scripts
-			PushButton 215, right_col_y_pos, button_width, button_height, ucase(new_scripts_array(i).category) & " - " & new_scripts_array(i).script_name, button_placeholder
-			button_placeholder = button_placeholder + 1			'This gets passed to ButtonPressed where it can be refigured as the selected item in the array by subtracting 100
-			right_col_y_pos = right_col_y_pos + button_height
-		NEXT
-
-		GroupBox 210, dialog_margin, button_width + (dialog_margin * 2), 5 + (button_height * (UBound(new_scripts_array) + 1)), "NEW SCRIPTS (LAST 60 DAYS)"
-
-
-		' PushButton 210, dlg_height - 25, 60, 15, "Update Hotkeys", update_hotkeys_button						<<<<< SEE ISSUE #765
-		PushButton 285, dlg_height - 25, 65, 15, "Update Favorites", update_favorites_button
-		CancelButton 355, dlg_height - 25, 50, 15
-	EndDialog
-
-	'>>> Loading the favorites dialog
-	DIALOG favorites_dialog
-	'>>> Cancelling the script if ButtonPressed = 0
-	IF ButtonPressed = 0 THEN stopscript
-
-
-
-	'>>> Giving user has the option of updating their favorites menu.
-	'>>> We should try to incorporate the chainloading function of the new script_end_procedure to bring the user back to their favorites.
-	IF buttonpressed = update_favorites_button THEN
-		call edit_favorites
-		StopScript
-	ElseIf buttonpressed = update_hotkeys_button then
-		call edit_hotkeys
-		StopScript
-	End if
-
-	'Determining the script that was selected, simply by subtracting 100 from the button_placeholder we'd previously defined. This corresponds with the array item selected.
-	selected_script = ButtonPressed - 100
-
-	'If it's a new script, it'll be larger than the text file array since it's displayed after, so this will create a variable for that too.
-	selected_new_script = selected_script - (ubound(favorites_text_file_array) - 1)
-
-    ' MsgBox "Button Pressed - " & ButtonPressed & vbNewLine & "Selected Script - " & selected_script & vbNewLine & "Name - " & favorited_scripts_array(selected_script, display_name)
-	'This part takes the selected script integer and determines the file path for it
-	if selected_script < ubound(favorited_scripts_array, 1) then
-		script_URL = favorited_scripts_array(selected_script, fav_redirect)  '!!!! This works in conjunction with the button_placeholder that's used and incremented for each button. It won't work otherwise.
-	else
-		script_URL = new_scripts_array(selected_new_script).category & "/" & new_scripts_array(selected_new_script).file_name
-	end if
-    ' MsgBox script_URL
-END FUNCTION
-'======================================
-
-'The script starts HERE!!!-------------------------------------------------------------------------------------------------------------------------------------
-
-'>>> The gobbins of the script that the user sees and makes do.
-'>>> Declaring the text file storing the user's favorite scripts list.
-Dim oTxtFile
-With (CreateObject("Scripting.FileSystemObject"))
-	'>>> If the file exists, we will grab the list of the user's favorite scripts and run the favorites menu.
-	If .FileExists(favorites_text_file_location) Then
-		Set fav_scripts = CreateObject("Scripting.FileSystemObject")
-		Set fav_scripts_command = fav_scripts.OpenTextFile(favorites_text_file_location)
-		fav_scripts_array = fav_scripts_command.ReadAll
-		IF fav_scripts_array <> "" THEN favorites_text_file_array = fav_scripts_array
-		fav_scripts_command.Close
-	ELSE
-		'>>> ...otherwise, if the file does not exist, the script will require the user to select their favorite scripts.
-		call edit_favorites
-	END IF
-END WITH
-
+        num_of_user_scripts = ubound(favorites_text_file_array)
+    End If
+end function
+Call open_favorites_file
 
 '>>> Calling the function that builds the favorites menu.
-CALL favorite_menu(favorites_text_file_array, script_URL)
-
-''Figuring out where the script goes...
-'if selected_script < ubound(favorites_text_file_array) then
-'	script_location = favorited_scripts_array(selected_script, 1)
-'end if
-'
-
+CALL favorite_menu(favorites_text_file_string, script_to_run)
+dialog1 = ""
 
 '>>> Running the script
-CALL run_from_GitHub(script_URL)
+CALL run_from_GitHub(script_to_run)
