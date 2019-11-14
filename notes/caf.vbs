@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("11/14/2019", "BUG FIX - Dialog 4 had some fields overlapping each other sometimes, which made it difficult to read/update. Fixed the layout of Dialog  4 (CSES).##~##", "Casey Love, Hennepin County")
 Call changelog_update("11/08/2019", "Added handling for the script to change a 4 digit footer year to a 2 digit footer year (2019 becomes 19) when entering recertification month and year by program. ##~##", "Casey Love, Hennepin County")
 Call changelog_update("11/07/2019", "BUG FIX - Dialog 4 was sometimes too short. If there are a number of people with child support income, not all of the child support detail would be viewable as it would be taller than the computer screen. Updated the script so that Dialog 4 now has tabs if there are more than four members with child support income, so there are multiple pages of Dialog 4 (like Dialog 2 and 3).##~##", "Casey Love, Hennepin County")
 Call changelog_update("10/16/2019", "BUG Fix - sometimes the script hit an error after leaving Dialog 8 - this should resolve that error. ##~## ##~## Added a NEW BUTTON that will display the Missing Fields Message (also called the 'Error Message') after clicking 'Done' on dialog 8 if the script needs updates. Look for the button 'Show Dialog Review Message' on each dialog after the message shows for the first time. ##~## This button will allow you to review the missing fields or updates that need to be made so that you do not have to try to remember them. The button only appears after the message was shown for the first time.##~##", "Casey Love, Hennepin County")
@@ -3635,7 +3636,7 @@ Do
                                 show_cses_detail = FALSE
                                 group_len = 75
                                 'If SNAP_checkbox = checked Then group_len = group_len + 40
-                                group_wide = 455
+                                group_wide = 465
                                 If SNAP_checkbox = checked Then group_wide = 765
                                 number_of_cs_members = 0
                                 For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
@@ -3652,7 +3653,7 @@ Do
                                 If SNAP_checkbox = checked AND show_cses_detail = TRUE Then
                                     dlg_wide = 775
                                 Else
-                                    dlg_wide = 465
+                                    dlg_wide = 480
                                 End If
 
                                 loop_start = 0
@@ -3685,41 +3686,43 @@ Do
                                                   If cs_counter >= loop_start Then
                                                       GroupBox 5, y_pos, group_wide, group_len, "Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb)
                                                       y_pos = y_pos + 15
-                                                      Text 10, y_pos, 250, 10, "Direct Child Support:       Amt/Mo: $                        Notes:"
+                                                      Text 10, y_pos, 260, 10, "Direct Child Support:       Amt/Mo: $                        Notes:"
                                                       EditBox 125, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(direct_CS_amt, each_unea_memb)
-                                                      EditBox 195, y_pos - 5, 200, 15, UNEA_INCOME_ARRAY(direct_CS_notes, each_unea_memb)
+                                                      If SNAP_checkbox = checked Then EditBox 195, y_pos - 5, 570, 15, UNEA_INCOME_ARRAY(direct_CS_notes, each_unea_memb)
+                                                      If SNAP_checkbox = unchecked Then EditBox 195, y_pos - 5, 270, 15, UNEA_INCOME_ARRAY(direct_CS_notes, each_unea_memb)
                                                       y_pos = y_pos + 20
                                                       If SNAP_checkbox = checked Then
                                                         Text 10, y_pos, 600, 10, "Disb Child Support(36):   Amt/Mo: $                        Notes:                                                                                                        Months to Average:                            Prosp Budg Notes:"
+                                                        EditBox 125, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb)
+                                                        EditBox 195, y_pos - 5, 200, 15, UNEA_INCOME_ARRAY(disb_CS_notes, each_unea_memb)
+                                                        EditBox 465, y_pos - 5, 50, 15, UNEA_INCOME_ARRAY(disb_CS_months, each_unea_memb)
+                                                        EditBox 580, y_pos - 5, 185, 15, UNEA_INCOME_ARRAY(disb_CS_prosp_budg, each_unea_memb)
                                                       Else
                                                         Text 10, y_pos, 250, 10, "Disb Child Support(36):   Amt/Mo: $                        Notes:"
+                                                        EditBox 125, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb)
+                                                        EditBox 195, y_pos - 5, 270, 15, UNEA_INCOME_ARRAY(disb_CS_notes, each_unea_memb)
                                                       End If
-                                                      EditBox 125, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb)
-                                                      EditBox 195, y_pos - 5, 200, 15, UNEA_INCOME_ARRAY(disb_CS_notes, each_unea_memb)
-                                                      If SNAP_checkbox = checked Then
-                                                          EditBox 465, y_pos - 5, 50, 15, UNEA_INCOME_ARRAY(disb_CS_months, each_unea_memb)
-                                                          EditBox 580, y_pos - 5, 185, 15, UNEA_INCOME_ARRAY(disb_CS_prosp_budg, each_unea_memb)
-                                                          y_pos = y_pos + 20
-                                                      End If
+                                                      y_pos = y_pos + 20
+
                                                       If SNAP_checkbox = checked Then
                                                         Text 10, y_pos, 600, 10, "Disb CS Arrears(39):        Amt/Mo: $                        Notes:                                                                                                        Months to Average:                            Prosp Budg Notes:"
+                                                        EditBox 125, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb)
+                                                        EditBox 195, y_pos - 5, 200, 15, UNEA_INCOME_ARRAY(disb_CS_arrears_notes, each_unea_memb)
+                                                        EditBox 465, y_pos - 5, 50, 15, UNEA_INCOME_ARRAY(disb_CS_arrears_months, each_unea_memb)
+                                                        EditBox 580, y_pos - 5, 185, 15, UNEA_INCOME_ARRAY(disb_CS_arrears_budg, each_unea_memb)
                                                       Else
                                                         Text 10, y_pos, 250, 10, "Disb CS Arrears(39):        Amt/Mo: $                        Notes:"
+                                                        EditBox 125, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb)
+                                                        EditBox 195, y_pos - 5, 270, 15, UNEA_INCOME_ARRAY(disb_CS_arrears_notes, each_unea_memb)
                                                       End If
-                                                      EditBox 125, y_pos - 5, 40, 15, UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb)
-                                                      EditBox 195, y_pos - 5, 200, 15, UNEA_INCOME_ARRAY(disb_CS_arrears_notes, each_unea_memb)
-                                                      If SNAP_checkbox = checked Then
-                                                          EditBox 465, y_pos - 5, 50, 15, UNEA_INCOME_ARRAY(disb_CS_arrears_months, each_unea_memb)
-                                                          EditBox 580, y_pos - 5, 185, 15, UNEA_INCOME_ARRAY(disb_CS_arrears_budg, each_unea_memb)
-                                                          y_pos = y_pos + 20
-                                                      End If
+                                                      y_pos = y_pos + 20
                                                   End If
                                                   cs_counter = cs_counter + 1
                                               End If
                                               If cs_counter = cs_limit Then Exit For
 
                                           Next
-                                          y_pos = y_pos + 5
+                                          y_pos = y_pos + 10
                                       End If
                                       Text 10, y_pos, 60, 10, "Other CSES Detail:"
 
@@ -3735,21 +3738,21 @@ Do
                                           EditBox 60, y_pos - 5, 700, 15, verifs_needed
                                       Else
                                           If prev_err_msg <> "" Then
-                                            EditBox 75, y_pos - 5, 280, 15, notes_on_cses
+                                            EditBox 75, y_pos - 5, 290, 15, notes_on_cses
                                             ButtonGroup ButtonPressed
-                                              PushButton 360, y_pos - 5, 100, 15, "Show Dialog Review Message", dlg_revw_button
+                                              PushButton 370, y_pos - 5, 100, 15, "Show Dialog Review Message", dlg_revw_button
                                           Else
-                                            EditBox 75, y_pos - 5, 385, 15, notes_on_cses
+                                            EditBox 75, y_pos - 5, 395, 15, notes_on_cses
                                           End If
                                           y_pos = y_pos + 20
-                                          EditBox 60, y_pos - 5, 400, 15, verifs_needed
+                                          EditBox 60, y_pos - 5, 410, 15, verifs_needed
                                       End If
 
                                       y_pos = y_pos + 25
                                       GroupBox 10, y_pos - 10, 355, 25, "Dialog Tabs"
                                       Text 15, y_pos, 300, 10, "                       |                    |                  |   4 - CSES   |                    |                   |                      |"
                                       ButtonGroup ButtonPressed
-                                        PushButton 5, y_pos - 30, 50, 10, "Verifs needed:", verif_button
+                                        PushButton 5, y_pos - 25, 50, 10, "Verifs needed:", verif_button
                                         PushButton 15, y_pos, 45, 10, "1 - Personal", dlg_one_button
                                         PushButton 65, y_pos, 35, 10, "2 - JOBS", dlg_two_button
                                         PushButton 105, y_pos, 35, 10, "3 - BUSI", dlg_three_button
