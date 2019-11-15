@@ -47,6 +47,7 @@ class script_bowie
     public show_script
     public keywords
     public hot_topic_date
+    public retirement_date
 
     'Details the menus will figure out (does not need to be explicitly declared)
     public button_plus_increment	'Workflow scripts use a special increment for buttons (adding or subtracting from total times to run). This is the add button.
@@ -1609,7 +1610,7 @@ script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Adult Cash", "Application", "Assets", "Deductions", "DWP", "EMER", "HS/GRH", "MFIP", "Reviews", "SNAP")
 script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
-script_array(script_num).release_date           = #10/01/2019#
+script_array(script_num).release_date           = #10/01/2000#
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it

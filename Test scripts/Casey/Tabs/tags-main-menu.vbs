@@ -302,7 +302,8 @@ function declare_tabbed_menu(tab_selected)
 
 
 end function
-
+MsgBox "Coming soon!" & vbNewLine & "We have new functionality to have a new menu type."
+script_end_procedure("")
 'Starting these with a very high number, higher than the normal possible amount of buttons.
 '	We're doing this because we want to assign a value to each button pressed, and we want
 '	that value to change with each button. The button_placeholder will be placed in the .button

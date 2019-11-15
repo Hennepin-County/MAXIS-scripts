@@ -449,8 +449,8 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
     dlg_height = dlg_height + 15 + ((ubound(favorite_scripts_array, 1) + 1) * 12)
 
 	'>>> Adjusting the height if the user has fewer scripts selected (in the left column) than what is "new" (in the right column).
-	dlg_height = dlg_height + 15 + (12 * (Ubound(new_scripts_array) + 1))
-    dlg_height = dlg_height + 15 + (12 * (Ubound(featured_scripts_array) + 1))
+	dlg_height = dlg_height + 15 + (12 * num_of_new_scripts)
+    dlg_height = dlg_height + 15 + (12 * num_featured_scripts)
 
 	'>>> A nice decoration for the user. If they have used Update Worker Signature, then their signature is built into the dialog display.
 	IF worker_signature <> "" THEN
@@ -528,13 +528,14 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 
 		right_col_y_pos = dialog_margin + (groupbox_margin * 2)
 
-        Text 5, vert_button_position, 500, 10, "------------------------------------------------------------------------------ NEW SCRIPTS --------------------------------------------------------------------------------"
-        vert_button_position = vert_button_position + 12
+
 		'>>> Now we increment through the new scripts, and create buttons for them
         ' MsgBox new_scripts_array(1).script_name
-        If new_scripts_array(1).script_name = "no new scripts found." Then
-            Text 10, vert_button_position, 200, 10, "No new scripts added in the past 60 Days"
+        If new_scripts_array(1).script_name = "" Then
+            Text 185, vert_button_position, 200, 10, "*****         No new scripts added in the past 60 Days         *****"
         Else
+            Text 5, vert_button_position, 500, 10, "------------------------------------------------------------------------------ NEW SCRIPTS --------------------------------------------------------------------------------"
+            vert_button_position = vert_button_position + 12
     		for i = 1 to num_of_new_scripts
                 script_keys_combine = ""
                 If new_scripts_array(i).dlg_keys(0) <> "" Then script_keys_combine = join(new_scripts_array(i).dlg_keys, ":")
@@ -608,6 +609,8 @@ END FUNCTION
 'The script starts HERE!!!-------------------------------------------------------------------------------------------------------------------------------------
 Dim Dialog1
 
+MsgBox "Coming soon!" & vbNewLine & "We have new functionality to have favorites saved and selected."
+script_end_procedure("")
 'Needs to determine MyDocs directory before proceeding.
 Set wshshell = CreateObject("WScript.Shell")
 user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
@@ -627,51 +630,56 @@ favorited_scripts_array = ""
 
 '>>> Building the array of new scripts
 num_of_new_scripts = 0
-ReDim Preserve featured_scripts_array(1)
+num_featured_scripts = 0
+Dim featured_scripts_array(1)
+Dim new_scripts_array(1)
 '>>> Looking through the scripts array and determining all of the new ones.
 FOR i = 0 TO Ubound(script_array)
-IF DateDiff("D", script_array(i).release_date, date) < 60 THEN
-num_of_new_scripts = num_of_new_scripts + 1
-ReDim Preserve new_scripts_array(num_of_new_scripts)
-SET new_scripts_array(num_of_new_scripts) = NEW script_bowie
-new_scripts_array(num_of_new_scripts).script_name		= script_array(i).script_name
-new_scripts_array(num_of_new_scripts).category			= script_array(i).category
-new_scripts_array(num_of_new_scripts).description		= script_array(i).description
-new_scripts_array(num_of_new_scripts).release_date		= script_array(i).release_date
-new_scripts_array(num_of_new_scripts).tags		        = script_array(i).tags
-new_scripts_array(num_of_new_scripts).dlg_keys		    = script_array(i).dlg_keys
-new_scripts_array(num_of_new_scripts).keywords		    = script_array(i).keywords
-end if
-If IsDate(script_array(i).hot_topic_date) = TRUE Then
-IF DateDiff("d", script_array(i).hot_topic_date, date) < 7 Then
-num_featured_scripts = num_featured_scripts + 1
-ReDim Preserve featured_scripts_array(num_featured_scripts)
-SET featured_scripts_array(num_featured_scripts) = NEW script_bowie
-featured_scripts_array(num_featured_scripts).script_name		= script_array(i).script_name
-featured_scripts_array(num_featured_scripts).category			= script_array(i).category
-featured_scripts_array(num_featured_scripts).description		= script_array(i).description
-featured_scripts_array(num_featured_scripts).release_date		= script_array(i).release_date
-featured_scripts_array(num_featured_scripts).tags		        = script_array(i).tags
-featured_scripts_array(num_featured_scripts).dlg_keys		    = script_array(i).dlg_keys
-featured_scripts_array(num_featured_scripts).keywords		    = script_array(i).keywords
-featured_scripts_array(num_featured_scripts).hot_topic_date		= script_array(i).hot_topic_date
-End If
-End If
+    IF DateDiff("D", script_array(i).release_date, date) < 60 THEN
+        num_of_new_scripts = num_of_new_scripts + 1
+        ReDim Preserve new_scripts_array(num_of_new_scripts)
+        SET new_scripts_array(num_of_new_scripts) = NEW script_bowie
+        new_scripts_array(num_of_new_scripts).script_name		= script_array(i).script_name
+        new_scripts_array(num_of_new_scripts).category			= script_array(i).category
+        new_scripts_array(num_of_new_scripts).description		= script_array(i).description
+        new_scripts_array(num_of_new_scripts).release_date		= script_array(i).release_date
+        new_scripts_array(num_of_new_scripts).tags		        = script_array(i).tags
+        new_scripts_array(num_of_new_scripts).dlg_keys		    = script_array(i).dlg_keys
+        new_scripts_array(num_of_new_scripts).keywords		    = script_array(i).keywords
+    end if
+
+    If IsDate(script_array(i).hot_topic_date) = TRUE Then
+        IF DateDiff("d", script_array(i).hot_topic_date, date) < 7 Then
+            num_featured_scripts = num_featured_scripts + 1
+            ReDim Preserve featured_scripts_array(num_featured_scripts)
+            SET featured_scripts_array(num_featured_scripts) = NEW script_bowie
+            featured_scripts_array(num_featured_scripts).script_name		= script_array(i).script_name
+            featured_scripts_array(num_featured_scripts).category			= script_array(i).category
+            featured_scripts_array(num_featured_scripts).description		= script_array(i).description
+            featured_scripts_array(num_featured_scripts).release_date		= script_array(i).release_date
+            featured_scripts_array(num_featured_scripts).tags		        = script_array(i).tags
+            featured_scripts_array(num_featured_scripts).dlg_keys		    = script_array(i).dlg_keys
+            featured_scripts_array(num_featured_scripts).keywords		    = script_array(i).keywords
+            featured_scripts_array(num_featured_scripts).hot_topic_date		= script_array(i).hot_topic_date
+        End If
+    End If
+    If num_featured_scripts = 0 Then SET featured_scripts_array(1) = NEW script_bowie
+    If num_of_new_scripts = 0 Then SET new_scripts_array(1) = NEW script_bowie
 NEXT
 
-'>>> This handles what happens if there are no new scripts (it'll happen)
-if num_of_new_scripts = 0 then
-num_of_new_scripts = 1
-ReDim Preserve new_scripts_array(num_of_new_scripts)
-SET new_scripts_array(num_of_new_scripts) = NEW script_bowie
-new_scripts_array(num_of_new_scripts).script_name		= "no new scripts found."
-new_scripts_array(num_of_new_scripts).category			= "none"
-new_scripts_array(num_of_new_scripts).description		= ""
-new_scripts_array(num_of_new_scripts).release_date		= "none"
-new_scripts_array(num_of_new_scripts).tags		        = "none"
-new_scripts_array(num_of_new_scripts).dlg_keys		    = ""
-new_scripts_array(num_of_new_scripts).keywords		    = "none"
-end if
+' '>>> This handles what happens if there are no new scripts (it'll happen)
+' if num_of_new_scripts = 0 then
+'     num_of_new_scripts = 1
+'     ReDim Preserve new_scripts_array(num_of_new_scripts)
+'     SET new_scripts_array(num_of_new_scripts) = NEW script_bowie
+'     new_scripts_array(num_of_new_scripts).script_name		= "no new scripts found."
+'     new_scripts_array(num_of_new_scripts).category			= "none"
+'     new_scripts_array(num_of_new_scripts).description		= ""
+'     new_scripts_array(num_of_new_scripts).release_date		= "none"
+'     new_scripts_array(num_of_new_scripts).tags		        = "none"
+'     new_scripts_array(num_of_new_scripts).dlg_keys		    = ""
+'     new_scripts_array(num_of_new_scripts).keywords		    = "none"
+' end if
 
 
 
