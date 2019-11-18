@@ -180,7 +180,7 @@ If AVS_option = "ECF Forms Received" then
     	SMI_ECF_number  = trim(SMI_ECF_number)
         If SMI_ECF_number = "" then exit do 
         
-        scan_date = ObjExcel.Cells(excel_row, 3).Value
+        scan_date = ObjExcel.Cells(excel_row, 2).Value
         scan_date = trim(scan_date)
         
         ReDim Preserve master_array(2, entry_record)	'This resizes the array based on the number of rows in the Excel File'
@@ -200,7 +200,7 @@ If AVS_option = "ECF Forms Received" then
     
     'Set objWorkSheet = objWorkbook.Worksheet
     For Each objWorkSheet In objWorkbook.Worksheets
-    	If instr(objWorkSheet.Name, "Sheet") = 0 then months_list = months_list & objWorkSheet.Name & ","
+    	If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "All AVS Forms" then months_list = months_list & objWorkSheet.Name & ","
     Next
     months_list = trim(months_list)  'trims excess spaces of months_list
     If right(months_list, 1) = "," THEN months_list = left(months_list, len(months_list) - 1) 'trimming off last comma
@@ -409,7 +409,12 @@ If AVS_option = "Initial Monthly Upload" then
                     'Waiver info
                     EmReadscreen waiver_info, 39, 15, 15
                     waiver_info = trim(waiver_info)
-                    If waiver_info = "BEG DT:          THROUGH DT:" then waiver_info = ""
+                    If waiver_info = "BEG DT:          THROUGH DT:" then 
+                        waiver_info = ""
+                    Else 
+                        EMReadscreen waiver_start_date, 8, 15, 25
+                        EmReadscreen waiver_end_date, 8, 15, 46
+                        waiver_info = waiver_start_date & " - " & waiver_end_date
                     Case_array(waiver_info_const, item) = waiver_info
                     'Medicare info
                     EmReadscreen medicare_info, 69, 21, 10
@@ -485,7 +490,7 @@ End if
 
 If AVS_option = "Person and Case Noting Forms" then 
     For Each objWorkSheet In objWorkbook.Worksheets
-        If instr(objWorkSheet.Name, "Sheet") = 0 then months_list = months_list & objWorkSheet.Name & ","
+        If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "All AVS Forms" then months_list = months_list & objWorkSheet.Name & ","
     Next
     months_list = trim(months_list)  'trims excess spaces of months_list
     If right(months_list, 1) = "," THEN months_list = left(months_list, len(months_list) - 1) 'trimming off last comma
