@@ -1,11 +1,10 @@
 CLS 
-
 @ ECHO OFF
-title Bluezone Scripts Power Pad Installer
+title EWS Bluezone Scripts Power Pad Installer
 
 REM ===================================================================================================
-REM This is a Windows command script that will install a BlueZone configuration on the user's desktop
-REM The BlueZone configurations are set up to display the appropriate power pad
+REM This is a Windows command script that will install a BlueZone application on the user's desktop.
+REM The BlueZone script configuration is et up, will display the power pad you've chosen.
 REM ===================================================================================================
 
 REM ====================================================================================================
@@ -23,9 +22,10 @@ REM MENU - SELECT AN OPTION
 REM ===================================================================================================
 
 :START
+
 ECHO.
-ECHO This installer will copy a version of BlueZone configured to support the BlueZone script tool on your desktop.
-ECHO Close any open BlueZone sessions before installing a power pad.
+ECHO This installer will copy a version of BlueZone application configured to support the BlueZone scripts on your desktop.
+ECHO Close any open BlueZone sessions before installing a power pad. Choose which power pad you wish to install.
 ECHO.
 ECHO Select 1. Install the BlueZone Scripts Power Pad
 ECHO Select 2. Install the Specialty Power Pad
@@ -47,23 +47,26 @@ REM OPTION ONE - Install the BlueZone Scripts Power Pad
 REM ===================================================================================================
 :OPTION_ONE
 @ECHO OFF
-Taskkill /F /IM bzmd.exe
-ECHO.
+Taskkill /IM bzmd.exe 2> NUL 
 
 REM ---Deleting the .bzs script files that may have been installed previously 
-REM IF EXISTS "%userprofile%\OneDrive - Hennepin County\My Documents\Documents\BlueZone\Scripts" DEL "%userprofile%\OneDrive - Hennepin County\My Documents\Documents\BlueZone\Scripts"
-REM IF EXISTS "%userprofile%\Documents\BlueZone\Scripts" DEL "%userprofile%\Documents\BlueZone\Scripts"
-REM 
-REM IF EXISTS "C:\Bluezone_HSR_Scripts" DEL "C:\Bluezone_HSR_Scripts"
+RD /S/Q "%userprofile%\OneDrive - Hennepin County\My Documents\Documents\BlueZone\Scripts"
+RD /S/Q "%userprofile%\Documents\BlueZone\Scripts"
+RD /S/Q "C:\Bluezone_HSR_Scripts" 
 
-REM REM ---Deleting any previous version of BlueZone with BlueZone Scripts from the Desktop
-REM REM Removing Hennepin .zmd
-REM IF EXISTS "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin.zmd" DEL "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin.zmd"
-REM IF EXISTS "%userprofile%\Desktop\Hennepin.zmd" DEL "%userprofile%\Desktop\Hennepin.zmd"
-REM 
-REM REM Removing Specialty .zmd
-REM IF EXISTS "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin-Specialty.zmd" DEL "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin-Specialty.zmd"
-REM IF EXISTS "%userprofile%\Desktop\Hennepin-Specialty.zmd" DEL "%userprofile%\Desktop\Hennepin-Specialty.zmd"
+REM Removing Hennepin session from desktop 
+IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" (
+    DEL /Q "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin.zmd"
+) ELSE (
+    DEL /Q "%userprofile%\Desktop\Hennepin.zmd"
+)
+
+REM Removing Hennepin-Specialty session from desktop 
+IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" (
+    DEL /Q "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin-Speciality.zmd"
+) ELSE (
+    DEL /Q "%userprofile%\Desktop\Hennepin-Speciality.zmd"
+)
 
 REM If the user's desktop is synced to OneDrive, install the shortcut file to the OneDrive-synced desktop, otherwise install the shortcut file on the normal Desktop
 IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" (
@@ -76,7 +79,7 @@ CLS
 ECHO.
 ECHO Installation successful!
 ECHO.
-ECHO A new BlueZone icon has been added to your desktop.
+ECHO A the new Hennepin icon has been added to your desktop.
 GOTO END
 
 REM ===================================================================================================
@@ -84,23 +87,26 @@ REM OPTION TWO - Install the Specialty Power Pad
 REM ===================================================================================================
 :OPTION_TWO
 @ECHO OFF
-Taskkill /F /IM bzmd.exe
-ECHO.
+Taskkill /IM bzmd.exe 2> NUL 
 
 REM ---Deleting the .bzs script files that may have been installed previously 
-REM IF EXISTS "%userprofile%\OneDrive - Hennepin County\My Documents\Documents\BlueZone\Scripts" DEL "%userprofile%\OneDrive - Hennepin County\My Documents\Documents\BlueZone\Scripts"
-REM IF EXISTS "%userprofile%\Documents\BlueZone\Scripts" DEL "%userprofile%\Documents\BlueZone\Scripts"
-REM 
-REM IF EXISTS "C:\Bluezone_HSR_Scripts" DEL "C:\Bluezone_HSR_Scripts"
-REM 
-REM REM Deleting any previous version of BlueZone with BlueZone Scripts from the Desktop
-REM REM Removing General version 
-REM IF EXISTS "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin.zmd" DEL "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin.zmd"
-REM IF EXISTS "%userprofile%\Desktop\Hennepin.zmd" DEL "%userprofile%\Desktop\Hennepin.zmd"
-REM 
-REM REM Removing Specialty version 
-REM IF EXISTS "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin-Speciality.zmd" DEL "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin-Speciality.zmd"
-REM IF EXISTS "%userprofile%\Desktop\Hennepin-Speciality.zmd" DEL "%userprofile%\Desktop\Hennepin-Speciality.zmd"
+RD /S/Q "%userprofile%\OneDrive - Hennepin County\My Documents\Documents\BlueZone\Scripts"
+RD /S/Q "%userprofile%\Documents\BlueZone\Scripts"
+RD /S/Q "C:\Bluezone_HSR_Scripts"
+    
+REM Removing Hennepin session from desktop 
+IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" (
+    DEL /Q "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin.zmd"
+) ELSE (
+    DEL /Q "%userprofile%\Desktop\Hennepin.zmd"
+)
+
+REM Removing Hennepin-Specialty session from desktop 
+IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" (
+    DEL /Q "%userprofile%\OneDrive - Hennepin County\Desktop\Hennepin-Speciality.zmd"
+) ELSE (
+    DEL /Q "%userprofile%\Desktop\Hennepin-Speciality.zmd"
+)
 
 REM If the user's desktop is synced to OneDrive, install the shortcut file to the OneDrive-synced desktop, otherwise install the shortcut file on the normal Desktop
 IF EXIST "%userprofile%\OneDrive - Hennepin County\Desktop" (
@@ -113,8 +119,8 @@ CLS
 ECHO.
 ECHO Installation successful!
 ECHO.
-ECHO A new BlueZone icon has been added to your desktop.
-GOTO 
+ECHO A the new Hennepin-Specialty icon has been added to your desktop.
+GOTO END
 
 :END
 ECHO.
