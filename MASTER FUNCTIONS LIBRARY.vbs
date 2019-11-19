@@ -29,6 +29,9 @@ changelog_display
 name_of_script = actual_script_name
 'END CHANGELOG BLOCK =======================================================================================================
 
+'Global function to actually RUN'
+Call confirm_tester_information
+
 'GLOBAL CONSTANTS----------------------------------------------------------------------------------------------------
 Dim checked, unchecked, cancel, OK, blank		'Declares this for Option Explicit users
 
@@ -3294,6 +3297,324 @@ function clear_line_of_text(row, start_column)
   EMWaitReady 0, 0
 end function
 
+function select_testing_file(selection_type, the_selection, file_path, file_branch, force_error_reporting, allow_option)
+'--- Divert the script to a testing file if run by a tester
+'~~~~~ allow_option: Boolean to select if the tester can choose the testing version or not
+'~~~~~ selection_type: this will indicate how the testers are being selected - valid options (ALL, GROUP, REGION, POPULATION, SCRIPT)
+'~~~~~ the_selection: For the selection_type selected, indicate WHICH of these options you want selected
+'~~~~~ file_path: where the testing file is located
+'~~~~~ file_branch: which branch the file is in
+'~~~~~ force_error_reporting: should the in-script error reporting automatically happen
+'===== Keywords: MAXIS, PRISM, production, clear
+
+    script_list_URL = "T:\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"
+    Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+    Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
+    text_from_the_other_script = fso_command.ReadAll
+    fso_command.Close
+    Execute text_from_the_other_script
+
+    Set objNet = CreateObject("WScript.NetWork")
+    windows_user_ID = objNet.UserName
+    user_ID_for_validation = ucase(windows_user_ID)
+
+    run_testing_file = FALSE
+    selection_type = UCase(selection_type)
+    For each tester in tester_array
+        If user_ID_for_validation = tester.tester_id_number Then
+            Select Case selection_type
+
+                Case "ALL"
+                    run_testing_file = TRUE
+                Case "GROUP" ' ADD OPTION FOR the_selection to be an array'
+                    For each group in tester.tester_groups
+                        If UCase(the_selection) = UCase(group) Then run_testing_file = TRUE
+                        selected_group = group
+                    Next
+                    selected_group = the_selection
+                Case "REGION"
+                    If UCase(the_selection) = UCase(tester.tester_region) Then run_testing_file = TRUE
+                Case "POPULATION"
+                    If UCase(the_selection) = UCase(tester.tester_population) Then run_testing_file = TRUE
+                Case "SCRIPT"
+                    For each each_script in tester.tester_scripts
+                        If name_of_script = each_script Then run_testing_file = TRUE
+                    Next
+                Case Else
+                    body_text = "The call of the function select_testing_file is using an invalid selection_type."
+                    body_text = body_text & vbCr & "On script - " & name_of_script & "."
+                    body_text = body_text & vbCr & "The selection type of - " & selection_type & " was entered into the function call"
+                    body_text = body_text & vbCr & "The only valid options are: ALL, SCRIPT, GROUP, POPULATION, or REGION"
+                    body_text = body_text & vbCr & "Review the script file particularly the call for the function select_testing_file."
+                    Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", "FUNCTION ERROR - select_testing_file for " & name_of_script, body_text, "", TRUE)
+            End Select
+
+            If tester.tester_population = "BZ" Then
+                allow_option = TRUE
+                run_testing_file = TRUE
+                selection_type = "SCRIPTWRITER"
+            End If
+
+            If run_testing_file = TRUE and allow_option = TRUE Then
+                continue_with_testing_file = MsgBox("You have been selected to test this script - " & name_of_script & "." & vbNewLine & vbNewLine & "At this time you can select if you would like to run the testing file or the original file." & vbNewLine & vbNewLine & "** Would you like to test this script now?", vbQuestion + vbYesNo, "Use Testing File")
+                If continue_with_testing_file = vbNo Then run_testing_file = FALSE
+            End If
+
+            If run_testing_file = TRUE Then
+                tester.display_testing_message selection_type, the_selection, force_error_reporting
+                ' Call tester.display_testing_message(selection_type, the_selection, force_error_reporting)
+                If force_error_reporting = TRUE Then testing_run = TRUE
+                If run_locally = true then
+                    testing_script_url = "C:\MAXIS-scripts\" & file_path
+                Else
+                    testing_script_url = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/" & file_branch & "/" & file_path
+
+                End If
+                Call run_from_GitHub(testing_script_url)
+            End If
+
+        End If
+    Next
+
+end function
+
+function add_testing_script_to_menu(selection_type, the_selection, file_path, file_branch, force_error_reporting)
+end function
+
+function confirm_tester_information()
+'--- Ask a tester to confirm the details we have for them. THIS FUNCTION IS CALLED IN THE FUNCTIONS LIBRARY
+'===== Keywords: Testing, Infrastucture
+    script_list_URL = "T:\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
+    Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+    Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
+    text_from_the_other_script = fso_command.ReadAll
+    fso_command.Close
+    Execute text_from_the_other_script
+
+    Set objNet = CreateObject("WScript.NetWork")            'Getting the script user's windows ID
+    windows_user_ID = objNet.UserName
+    user_ID_for_validation = ucase(windows_user_ID)
+
+    'Now the script will look to see if this user is a tester that needs their information confirmed.
+    Leave_Confirmation = FALSE                              'This will allow the user to cancel the update if they desire
+    For each tester in tester_array                         'looping through all of the testers
+        If user_ID_for_validation = tester.tester_id_number Then            'If the person who is running the script is a tester
+            If tester.tester_confirmed = FALSE Then                         'If the information is not saved as confirmed.
+                'Script user is asked if they can confirm their information now.
+                confirm_testing_now = MsgBox("Hello " & tester.tester_first_name & "! Thank you for agreeing to test BlueZone Scripts. You are an invaluable part of our process and the development of new tools and scripts." & vbNewLine & vbNewLine & "To be sure the testing functionality works correctly, we need to be sure we have the correct information about you. We need you to confrim a few details, this will take less than 5 minutes." & vbNewLine & vbNewLine & "Do you have time to confirm your information now?", vbQuestion + vbYesNo, "Confirm Tester Deail")
+
+                If confirm_testing_now = vbYes Then     'If they select 'Yes' the script will run the dialogs to confirm information
+                    show_initial_dialog = TRUE          'this is set to show the initial dialog because there are 2 dialogs that loop together and once we pass the first, we don't want to see it again
+                    Do
+                        Do
+                            err_msg = ""
+                            Do
+                                If show_initial_dialog = TRUE Then              'If we haven't seen the initial dialog yet
+                                    err_msg = ""                                'blanking the error message'
+                                    update_information = FALSE                  'defaulting this to false as this indicates if a change is needed.
+
+                                    'If any of these properties are blank, we need to default them to needing an update
+                                    If tester.tester_first_name = "" Then first_name_action = "Incorrect - Change"
+                                    If tester.tester_last_name = "" Then last_name_action = "Incorrect - Change"
+                                    If tester.tester_email = "" Then email_action = "Incorrect - Change"
+                                    If tester.tester_id_number = "" Then id_number_action = "Incorrect - Change"
+                                    If tester.tester_x_number = "" Then x_number_action = "Incorrect - Change"
+                                    If tester.tester_supervisor_name = "" Then supervisor_action = "Incorrect - Change"
+                                    If tester.tester_population = "" Then population_action = "Incorrect - Change"
+                                    If tester.tester_region = "" Then region_action = "Incorrect - Change"
+
+                                    Dialog1 = ""        'reset for safety
+                                    BeginDialog Dialog1, 0, 0, 370, 215, "Detailed Tester Information"      'first dialog just lists the properties we already know
+                                      ButtonGroup ButtonPressed
+                                        OkButton 310, 195, 50, 15
+                                      Text 60, 15, 40, 10, "First Name:"
+                                      Text 60, 35, 40, 10, "Last Name:"
+                                      Text 50, 55, 50, 10, "Email Address:"
+                                      Text 10, 75, 90, 10, "Hennepin County ID (WF#):"
+                                      Text 40, 95, 60, 10, "MAXIS X-Number:"
+                                      Text 40, 115, 60, 10, "Supervisor Name:"
+                                      Text 40, 135, 60, 10, "Population/Team:"
+                                      Text 70, 155, 25, 10, "Region:"
+                                      Text 70, 175, 25, 10, "Groups:"
+                                      Text 110, 15, 105, 10, tester.tester_first_name
+                                      Text 110, 35, 105, 10, tester.tester_last_name
+                                      Text 110, 55, 140, 10, tester.tester_email
+                                      Text 110, 75, 60, 10, tester.tester_id_number
+                                      Text 110, 95, 60, 10, tester.tester_x_number
+                                      Text 110, 115, 150, 10, tester.tester_supervisor_name
+                                      Text 110, 135, 60, 10, tester.tester_population
+                                      Text 110, 155, 60, 10, tester.tester_region
+                                      Text 110, 175, 150, 10, Join(tester.tester_groups, ",")
+                                      DropListBox 280, 10, 80, 45, "Correct"+chr(9)+"Incorrect - Change", first_name_action
+                                      DropListBox 280, 30, 80, 45, "Correct"+chr(9)+"Incorrect - Change", last_name_action
+                                      DropListBox 280, 50, 80, 45, "Correct"+chr(9)+"Incorrect - Change", email_action
+                                      DropListBox 280, 70, 80, 45, "Correct"+chr(9)+"Incorrect - Change", id_number_action
+                                      DropListBox 280, 90, 80, 45, "Correct"+chr(9)+"Incorrect - Change", x_number_action
+                                      DropListBox 280, 110, 80, 45, "Correct"+chr(9)+"Incorrect - Change", supervisor_action
+                                      DropListBox 280, 130, 80, 45, "Correct"+chr(9)+"Incorrect - Change", population_action
+                                      DropListBox 280, 150, 80, 45, "Correct"+chr(9)+"Incorrect - Change", region_action
+                                      DropListBox 280, 170, 80, 45, "Correct"+chr(9)+"Incorrect - Change", groups_action
+                                      Text 10, 195, 130, 15, "Please reach out to the BlueZone Script team with any questions."
+                                    EndDialog
+
+                                    Dialog Dialog1          'showing the dialog
+                                    If ButtonPressed = 0 Then       'cancelling the confirmation functionality without cancelling the script run
+                                        MsgBox "We will cancel your confirmation of information. The script you selected will continue at this time. Please confirm your information at a future time."
+                                        Leave_Confirmation = TRUE
+                                        Exit Do
+                                    End If
+
+                                    'These properties MUST be filled in and if they are blank, we need to know what they are - mandatory fields
+                                    If tester.tester_first_name = "" AND first_name_action <> "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* Since FIRST NAME is blank, this information must be updated. Select 'Incorrect - Change' for First Name."
+                                    If tester.tester_last_name = "" AND last_name_action <> "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* Since LAST NAME is blank, this information must be updated. Select 'Incorrect - Change' for Last Name."
+                                    If tester.tester_email = "" AND email_action <> "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* Since EMAIL is blank, this information must be updated. Select 'Incorrect - Change' for Email."
+                                    If tester.tester_id_number = "" AND id_number_action <> "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* Since HENNEPIN ID (WF#) is blank, this information must be updated. Select 'Incorrect - Change' for WF-Number."
+                                    If tester.tester_x_number = "" AND x_number_action <> "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* Since MAXIS ID  (X-NUMBER) is blank, this information must be updated. Select 'Incorrect - Change' for X-Number."
+                                    If tester.tester_supervisor_name = "" AND supervisor_action <> "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* Since SUPERVISOR is blank, this information must be updated. Select 'Incorrect - Change' for Supervisor."
+                                    If tester.tester_population = "" AND population_action <> "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* Since POPULATION is blank, this information must be updated. Select 'Incorrect - Change' for Population."
+                                    ' If tester.tester_region = "" AND region_action <> "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* Since  is blank, this information must be updated. Select 'Incorrect - Change' for ."
+
+                                    If err_msg <> "" Then MsgBox "Please Resolve to Continue:" & vbNewLine &  err_msg       'showing the error message
+
+                                End If
+                            Loop until err_msg = ""
+
+                            If Leave_Confirmation = TRUE Then Exit Do   'If the user pressed cancel before, this leaves this loop so we don't see another dialog
+                            If first_name_action = "Incorrect - Change" Then update_information = TRUE          'If anything was selected to change, we need to run the update dialog
+                            If last_name_action = "Incorrect - Change" Then update_information = TRUE
+                            If email_action = "Incorrect - Change" Then update_information = TRUE
+                            If id_number_action = "Incorrect - Change" Then update_information = TRUE
+                            If x_number_action = "Incorrect - Change" Then update_information = TRUE
+                            If supervisor_action = "Incorrect - Change" Then update_information = TRUE
+                            If population_action = "Incorrect - Change" Then update_information = TRUE
+                            If region_action = "Incorrect - Change" Then update_information = TRUE
+                            If groups_action = "Incorrect - Change" Then update_information = TRUE
+                            err_msg = ""
+
+                            show_initial_dialog = FALSE             'setting this to false so if we loop we don't see the first dialog again
+
+                            Dialog1 = ""        'resetting for safetly
+                            If update_information = TRUE Then                   'If a change was indicated in dialog 1, we show this  new dialog with the update fields
+                                BeginDialog Dialog1, 0, 0, 265, 215, "Detailed Tester Information"
+                                  ButtonGroup ButtonPressed
+                                    OkButton 210, 195, 50, 15
+                                  Text 60, 15, 40, 10, "First Name:"
+                                  Text 60, 35, 40, 10, "Last Name:"
+                                  Text 50, 55, 50, 10, "Email Address:"
+                                  Text 10, 75, 90, 10, "Hennepin County ID (WF#):"
+                                  Text 40, 95, 60, 10, "MAXIS X-Number:"
+                                  Text 40, 115, 60, 10, "Supervisor Name:"
+                                  Text 40, 135, 60, 10, "Population/Team:"
+                                  Text 70, 155, 25, 10, "Region:"
+                                  Text 70, 175, 25, 10, "Groups:"
+                                  Text 10, 195, 130, 15, "Please reach out to the BlueZone Script team with any questions."
+                                  If first_name_action = "Incorrect - Change" Then
+                                    new_first_name = tester.tester_first_name
+                                    EditBox 110, 10, 105, 15, new_first_name
+                                  Else
+                                    Text 110, 15, 105, 10, tester.tester_first_name
+                                  End If
+                                  If last_name_action = "Incorrect - Change" Then
+                                    new_last_name = tester.tester_last_name
+                                    EditBox 110, 30, 105, 15, new_last_name
+                                  Else
+                                    Text 110, 35, 105, 10, tester.tester_last_name
+                                  End If
+                                  If email_action = "Incorrect - Change" Then
+                                    new_email = tester.tester_email
+                                    EditBox 110, 50, 140, 15, new_email
+                                  Else
+                                    Text 110, 55, 140, 10, tester.tester_email
+                                  End If
+                                  If id_number_action = "Incorrect - Change" Then
+                                    new_id_number = tester.tester_id_number
+                                    EditBox 110, 70, 60, 15, new_id_number
+                                  Else
+                                    Text 110, 75, 60, 10, tester.tester_id_number
+                                  End If
+                                  If x_number_action = "Incorrect - Change" Then
+                                    new_x_number = tester.tester_x_number
+                                    EditBox 110, 90, 60, 15, new_x_number
+                                  Else
+                                    Text 110, 95, 60, 10, tester.tester_x_number
+                                  End If
+                                  If supervisor_action = "Incorrect - Change" Then
+                                    new_supervisor_name = tester.tester_supervisor_name
+                                    EditBox 110, 110, 150, 15, new_supervisor_name
+                                  Else
+                                    Text 110, 115, 150, 10, tester.tester_supervisor_name
+                                  End If
+                                  If population_action = "Incorrect - Change" Then
+                                    new_population = tester.tester_population
+                                    EditBox 110, 130, 60, 15, new_population
+                                  Else
+                                    Text 110, 135, 60, 10, tester.tester_population
+                                  End If
+                                  If region_action = "Incorrect - Change" Then
+                                    new_region = tester.tester_region
+                                    EditBox 110, 150, 60, 15, new_region
+                                  Else
+                                    Text 110, 155, 60, 10, tester.tester_region
+                                  End If
+                                  If groups_action = "Incorrect - Change" Then
+                                    new_groups = join(tester.tester_groups)
+                                    EditBox 110, 170, 150, 15, new_groups
+                                  Else
+                                    Text 110, 175, 150, 10, Join(tester.tester_groups, ",")
+                                  End If
+                                EndDialog
+
+                                Dialog Dialog1
+                                If ButtonPressed = 0 Then                       'If user presses cancel this will cancel the functionality but not the script run.
+                                    MsgBox "We will cancel your confirmation of information. The script you selected will continue at this time. Please confirm your information at a future time."
+                                    Leave_Confirmation = TRUE
+                                    Exit Do
+                                End If
+
+                                'Mandating these properties to be completed.
+                                If new_first_name = "" AND first_name_action = "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* FIRST NAME is blank, this information is required for testers. Update the detail for First Name."
+                                If new_last_name = "" AND last_name_action = "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* LAST NAME is blank, this information is required for testers. Update the detail for Last Name."
+                                If new_email = "" AND email_action = "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* EMAIL is blank, this information is required for testers. Update the detail for Email."
+                                If new_id_number = "" AND id_number_action = "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* HENNEPIN ID (WF#) is blank, this information is required for testers. Update the detail for WF-Number."
+                                If new_x_number = "" AND x_number_action = "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* MAXIS ID  (X-NUMBER) is blank, this information is required for testers. Update the detail for X-Number."
+                                If new_supervisor_name = "" AND supervisor_action = "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* SUPERVISOR is blank, this information is required for testers. Update the detail for Supervisor."
+                                If new_population = "" AND population_action = "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* POPULATION is blank, this information is required for testers. Update the detail for Population."
+                                ' If new_region = "" AND region_action = "Incorrect - Change" Then err_msg = err_msg & vbNewLine & "* Since  is blank, this information is required for testers. Update the detail for ."
+
+                                If err_msg <> "" Then MsgBox "Please Resolve to Continue:" & vbNewLine &  err_msg
+
+                            End If
+                        Loop until err_msg = ""
+                        If Leave_Confirmation = TRUE Then Exit Do
+                        Call check_for_password(are_we_passworded_out)
+                    Loop until are_we_passworded_out = FALSE
+                    If Leave_Confirmation = TRUE Then Exit For
+
+                    Message_Information = "Testing Confirmation Email"          'Setting the email information/text
+
+                    If update_information = TRUE Then
+                        Message_Information = Message_Information & vbNewLine & "*** Updates to Information made ***" & vbNewLine
+                        If first_name_action = "Incorrect - Change" Then Message_Information = Message_Information & vbNewLine & "New First Name: " & new_first_name & " - Change From: " & tester.tester_first_name
+                        If last_name_action = "Incorrect - Change" Then Message_Information = Message_Information & vbNewLine & "New Last Name: " & new_last_name & " - Change From: " & tester.tester_last_name
+                        If email_action = "Incorrect - Change" Then Message_Information = Message_Information & vbNewLine & "New Email: " & new_email & " - Change From: " & tester.tester_email
+                        If id_number_action = "Incorrect - Change" Then Message_Information = Message_Information & vbNewLine & "New ID Number: " & new_id_number & " - Change From: " & tester.tester_id_number
+                        If x_number_action = "Incorrect - Change" Then Message_Information = Message_Information & vbNewLine & "New X Number: " & new_x_number & " - Change From: " & tester.tester_x_number
+                        If supervisor_action = "Incorrect - Change" Then Message_Information = Message_Information & vbNewLine & "New Supervisor: " & new_supervisor_name & " - Change From: " & tester.tester_supervisor_name
+                        If population_action = "Incorrect - Change" Then Message_Information = Message_Information & vbNewLine & "New Population: " & new_population & " - Change From: " & tester.tester_population
+                        If region_action = "Incorrect - Change" Then Message_Information = Message_Information & vbNewLine & "New Region: " & new_region & " - Change From: " & tester.tester_region
+                        If groups_action = "Incorrect - Change" Then Message_Information = Message_Information & vbNewLine & "New Groups: " & new_groups & " - Change From: " & join(tester.tester_groups, ",")
+                    Else
+                        Message_Information = Message_Information & vbNewLine & "No updates indicated - tester information for " & tester.tester_full_name & " is correct and can be updated as confirmed."
+                    End If
+
+                    Message_Information = Message_Information & vbNewLine & vbNewLine & "Thank you for taking the time to confirm your information. We will update your information in the script records and you will no longer be asked to confirm your information. (We have to do this manually so there may be a delay but we will update as soon as we are able.)" & vbNewLine
+                    tester.send_tester_email FALSE, Message_Information         ''sending the email
+                End If
+            End If
+        End If
+    Next
+end function
+
 function convert_array_to_droplist_items(array_to_convert, output_droplist_box)
 '--- This function converts an array into a droplist to be used within dialog
 '~~~~~ array_to_convert: name of the array
@@ -5574,6 +5895,15 @@ function send_dord_doc(recipient, dord_doc)
 	EMWriteScreen recipient, 11, 51
 	transmit
 end function
+
+' 'use this to email testers from within a script.
+' function send_tester_email(include_supervisor, body_text)
+'     cc_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
+'     If include_supervisor = TRUE Then cc_email = cc_email &"; " & tester.tester_supervisor_email
+'
+'     body_text = "Hello " & tester.tester_first_name & ", " & vbCr & body_text & vbCr & "Thank you for all you do for us!" & vbCr & "BlueZone Script Team"
+'     Call create_outlook_email(tester_email, cc_email, "Testing Response - " & name_of_script, body_text, "", TRUE)
+' end function
 
 function start_a_blank_CASE_NOTE()
 '--- This function navigates user to a blank case note, presses PF9, and checks to make sure you're in edit mode (keeping you from writing all of the case note on an inquiry screen).
