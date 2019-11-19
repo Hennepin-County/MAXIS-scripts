@@ -618,7 +618,8 @@ user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"
 favorites_text_file_location = user_myDocs_folder & "\scripts-favorites.txt"
 hotkeys_text_file_location = user_myDocs_folder & "\scripts-hotkeys.txt"
 
-script_list_URL = script_repository & "COMPLET%20LIST%20OF%20SCRIPTS.vbs"
+' script_list_URL = script_repository & "COMPLET%20LIST%20OF%20SCRIPTS.vbs"
+script_list_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/COMPLETE%20LIST%20OF%20SCRIPTS.vbs"
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
 text_from_the_other_script = fso_command.ReadAll

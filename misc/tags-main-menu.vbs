@@ -71,8 +71,12 @@ END IF
 '
 ' End If
 
+tags_coming_soon = MsgBox("***            Coming soon!            ***" & vbNewLine & vbNewLine & "We are updating how we engage with the script tools. One of these ways is with a new system of tagging." & vbNewLine & "This button will have functionality to preview the new menu using these tags. It is not available just yet as we develop and test the functionality." & vbNewLine & vbNewLine & "Come back later to try this new functionality.", vbOk, "New Tags Menu Coming Soon.")
+script_end_procedure("")
+
+
 ' script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/"
-script_list_URL = script_repository & "COMPLET%20LIST%20OF%20SCRIPTS.vbs"
+script_list_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/COMPLETE%20LIST%20OF%20SCRIPTS.vbs"
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
 text_from_the_other_script = fso_command.ReadAll
@@ -310,8 +314,7 @@ function declare_tabbed_menu(tab_selected)
 
 
 end function
-tags_coming_soon = MsgBox("***            Coming soon!            ***" & vbNewLine & vbNewLine & "We are updating how we engage with the script tools. One of these ways is with a new system of tagging." & vbNewLine & "This button will have functionality to preview the new menu using these tags. It is not available just yet as we develop and test the functionality." & vbNewLine & vbNewLine & "Come back later to try this new functionality.", vbOk, "New Tags Menu Coming Soon.")
-script_end_procedure("")
+
 'Starting these with a very high number, higher than the normal possible amount of buttons.
 '	We're doing this because we want to assign a value to each button pressed, and we want
 '	that value to change with each button. The button_placeholder will be placed in the .button
