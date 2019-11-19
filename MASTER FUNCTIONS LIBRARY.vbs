@@ -3384,7 +3384,7 @@ end function
 function confirm_tester_information()
 '--- Ask a tester to confirm the details we have for them. THIS FUNCTION IS CALLED IN THE FUNCTIONS LIBRARY
 '===== Keywords: Testing, Infrastucture
-    script_list_URL = "T:\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
+    script_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
     Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
     Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
     text_from_the_other_script = fso_command.ReadAll
