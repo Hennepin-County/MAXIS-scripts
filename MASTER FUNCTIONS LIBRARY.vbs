@@ -29,8 +29,8 @@ changelog_display
 name_of_script = actual_script_name
 'END CHANGELOG BLOCK =======================================================================================================
 
-'Global function to actually RUN'
-Call confirm_tester_information
+' 'Global function to actually RUN'
+' Call confirm_tester_information
 
 'GLOBAL CONSTANTS----------------------------------------------------------------------------------------------------
 Dim checked, unchecked, cancel, OK, blank		'Declares this for Option Explicit users
