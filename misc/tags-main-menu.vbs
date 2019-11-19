@@ -71,6 +71,13 @@ END IF
 '
 ' End If
 
+If script_repository = "" Then
+    If run_locally = TRUE Then
+        script_repository = "C:\MAXIS-scripts\"
+    Else
+        script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/"
+    End If
+End If
 script_list_URL = script_repository & "COMPLETE LIST OF SCRIPTS.vbs"
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
