@@ -303,7 +303,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
 	IF TIKL_checkbox = CHECKED THEN
 	Call navigate_to_MAXIS_screen("DAIL", "WRIT")
     	CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-    	CALL write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action." & vbcr & "For all federal matches INFC/HIRE must be cleared please see HSR manual.")
+    	CALL write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.")
     	PF3		'Exits and saves TIKL
     	script_end_procedure_with_error_report("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
 	END IF
