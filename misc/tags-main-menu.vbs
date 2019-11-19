@@ -70,7 +70,8 @@ END IF
 ' Else
 '
 ' End If
-script_repository & "COMPLETE LIST OF SCRIPTS.vbs"
+
+script_list_URL = script_repository & "COMPLETE LIST OF SCRIPTS.vbs"
 Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
 text_from_the_other_script = fso_command.ReadAll
