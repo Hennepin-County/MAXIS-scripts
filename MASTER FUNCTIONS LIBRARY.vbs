@@ -3423,8 +3423,8 @@ function confirm_tester_information()
                                     If tester.tester_population = "" Then population_action = "Incorrect - Change"
                                     If tester.tester_region = "" Then region_action = "Incorrect - Change"
 
-                                    Dialog1 = ""        'reset for safety
-                                    BeginDialog Dialog1, 0, 0, 370, 215, "Detailed Tester Information"      'first dialog just lists the properties we already know
+                                    the_dialog = ""        'reset for safety
+                                    BeginDialog the_dialog, 0, 0, 370, 215, "Detailed Tester Information"      'first dialog just lists the properties we already know
                                       ButtonGroup ButtonPressed
                                         OkButton 310, 195, 50, 15
                                       Text 60, 15, 40, 10, "First Name:"
@@ -3457,7 +3457,7 @@ function confirm_tester_information()
                                       Text 10, 195, 130, 15, "Please reach out to the BlueZone Script team with any questions."
                                     EndDialog
 
-                                    Dialog Dialog1          'showing the dialog
+                                    Dialog the_dialog          'showing the dialog
                                     If ButtonPressed = 0 Then       'cancelling the confirmation functionality without cancelling the script run
                                         MsgBox "We will cancel your confirmation of information. The script you selected will continue at this time. Please confirm your information at a future time."
                                         Leave_Confirmation = TRUE
@@ -3493,9 +3493,9 @@ function confirm_tester_information()
 
                             show_initial_dialog = FALSE             'setting this to false so if we loop we don't see the first dialog again
 
-                            Dialog1 = ""        'resetting for safetly
+                            the_dialog = ""        'resetting for safetly
                             If update_information = TRUE Then                   'If a change was indicated in dialog 1, we show this  new dialog with the update fields
-                                BeginDialog Dialog1, 0, 0, 265, 215, "Detailed Tester Information"
+                                BeginDialog the_dialog, 0, 0, 265, 215, "Detailed Tester Information"
                                   ButtonGroup ButtonPressed
                                     OkButton 210, 195, 50, 15
                                   Text 60, 15, 40, 10, "First Name:"
@@ -3564,7 +3564,7 @@ function confirm_tester_information()
                                   End If
                                 EndDialog
 
-                                Dialog Dialog1
+                                Dialog the_dialog
                                 If ButtonPressed = 0 Then                       'If user presses cancel this will cancel the functionality but not the script run.
                                     MsgBox "We will cancel your confirmation of information. The script you selected will continue at this time. Please confirm your information at a future time."
                                     Leave_Confirmation = TRUE
