@@ -168,52 +168,61 @@ END IF
 ' end function
 
 
-Call MAXIS_case_number_finder(MAXIS_case_number)
+' Call MAXIS_case_number_finder(MAXIS_case_number)
+'
+' BeginDialog Dialog1, 0, 0, 126, 55, "Dialog"
+'   ButtonGroup ButtonPressed
+'     OkButton 70, 30, 50, 15
+'   Text 10, 15, 50, 10, "Case Number"
+'   EditBox 60, 10, 60, 15, MAXIS_case_number
+' EndDialog
+'
+' Do
+'     err_msg = ""
+'
+'     dialog Dialog1
+'     Call validate_MAXIS_case_number(err_msg, "-")
+'     If err_msg <> "" Then MsgBox("Please review the foloowing in order for the script to continue:" & vbNewLine & err_msg)
+'
+' Loop until err_msg = ""
+'
+' Call start_a_blank_CASE_NOTE
+' notes_variable = "03/19 for 01 is BANKED MONTH - Banked Month: 3.; 04/19 for 01 is BANKED MONTH - Banked Month: 4.;"
+' bullet_variable = "This is where the bullet would be all the things."
+' time_variable = "Now is the time and this is the place."
+' order_variable = "Everything in it's place."
+'
+' Call write_variable_in_CASE_NOTE("*** SNAP approved starting in 03/19 ***")
+' Call write_variable_in_CASE_NOTE("* SNAP approved for 03/19")
+' Call write_variable_in_CASE_NOTE("    Eligible Household Members: 01,")
+' Call write_variable_in_CASE_NOTE("    Income: Earned: $522.00 Unearned: $0.00")
+' Call write_variable_in_CASE_NOTE("    Shelter Costs: $0.00")
+' Call write_variable_in_CASE_NOTE("    SNAP BENEFTIT: $115.00 Reporting Status: NON-HRF")
+' Call write_variable_in_CASE_NOTE("* SNAP approved for 04/19")
+' Call write_variable_in_CASE_NOTE("    Eligible Household Members: 01,")
+' Call write_variable_in_CASE_NOTE("    Income: Earned: $522.00 Unearned: $0.00")
+' Call write_variable_in_CASE_NOTE("    Shelter Costs: $0.00")
+' Call write_variable_in_CASE_NOTE("    SNAP BENEFTIT: $115.00 Reporting Status: NON-HRF")
+' Call write_bullet_and_variable_in_CASE_NOTE("Notes", notes_variable)
+' Call write_variable_in_CASE_NOTE("This is a thing")
+' Call write_variable_in_CASE_NOTE("   this is another thing")
+' Call write_variable_in_CASE_NOTE("How now brown cow")
+' Call write_variable_in_CASE_NOTE("the thing and thing and stuff")
+' Call write_variable_in_CASE_NOTE("all the writing")
+' Call write_variable_in_CASE_NOTE("blah blah blah")
+' Call write_bullet_and_variable_in_CASE_NOTE("BULLET", bullet_variable)
+' Call write_bullet_and_variable_in_CASE_NOTE("Time", time_variable)
+' Call write_bullet_and_variable_in_CASE_NOTE("Order", order_variable)
+'
+' Call write_variable_in_CASE_NOTE("H.Lamb/QI")
 
-BeginDialog Dialog1, 0, 0, 126, 55, "Dialog"
-  ButtonGroup ButtonPressed
-    OkButton 70, 30, 50, 15
-  Text 10, 15, 50, 10, "Case Number"
-  EditBox 60, 10, 60, 15, MAXIS_case_number
-EndDialog
+' script_list_URL = "C:\MAXIS-scripts\Test scripts\Casey\User Group\COMPLETE LIST OF TESTERS.vbs"
+' Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+' Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
+' text_from_the_other_script = fso_command.ReadAll
+' fso_command.Close
+' Execute text_from_the_other_script
 
-Do
-    err_msg = ""
-
-    dialog Dialog1
-    Call validate_MAXIS_case_number(err_msg, "-")
-    If err_msg <> "" Then MsgBox("Please review the foloowing in order for the script to continue:" & vbNewLine & err_msg)
-
-Loop until err_msg = ""
-
-Call start_a_blank_CASE_NOTE
-notes_variable = "03/19 for 01 is BANKED MONTH - Banked Month: 3.; 04/19 for 01 is BANKED MONTH - Banked Month: 4.;"
-bullet_variable = "This is where the bullet would be all the things."
-time_variable = "Now is the time and this is the place."
-order_variable = "Everything in it's place."
-
-Call write_variable_in_CASE_NOTE("*** SNAP approved starting in 03/19 ***")
-Call write_variable_in_CASE_NOTE("* SNAP approved for 03/19")
-Call write_variable_in_CASE_NOTE("    Eligible Household Members: 01,")
-Call write_variable_in_CASE_NOTE("    Income: Earned: $522.00 Unearned: $0.00")
-Call write_variable_in_CASE_NOTE("    Shelter Costs: $0.00")
-Call write_variable_in_CASE_NOTE("    SNAP BENEFTIT: $115.00 Reporting Status: NON-HRF")
-Call write_variable_in_CASE_NOTE("* SNAP approved for 04/19")
-Call write_variable_in_CASE_NOTE("    Eligible Household Members: 01,")
-Call write_variable_in_CASE_NOTE("    Income: Earned: $522.00 Unearned: $0.00")
-Call write_variable_in_CASE_NOTE("    Shelter Costs: $0.00")
-Call write_variable_in_CASE_NOTE("    SNAP BENEFTIT: $115.00 Reporting Status: NON-HRF")
-Call write_bullet_and_variable_in_CASE_NOTE("Notes", notes_variable)
-Call write_variable_in_CASE_NOTE("This is a thing")
-Call write_variable_in_CASE_NOTE("   this is another thing")
-Call write_variable_in_CASE_NOTE("How now brown cow")
-Call write_variable_in_CASE_NOTE("the thing and thing and stuff")
-Call write_variable_in_CASE_NOTE("all the writing")
-Call write_variable_in_CASE_NOTE("blah blah blah")
-Call write_bullet_and_variable_in_CASE_NOTE("BULLET", bullet_variable)
-Call write_bullet_and_variable_in_CASE_NOTE("Time", time_variable)
-Call write_bullet_and_variable_in_CASE_NOTE("Order", order_variable)
-
-Call write_variable_in_CASE_NOTE("H.Lamb/QI")
+Call confirm_tester_information
 
 Call script_end_procedure_with_error_report("The End")
