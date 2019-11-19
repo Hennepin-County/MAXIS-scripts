@@ -446,7 +446,8 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
 	start_a_blank_case_note
 	IF Emp_known_droplist = "YES-No Further Action" THEN
-		CALL write_variable_in_case_note("-NDNH " & new_hire_first_line & " INFC cleared reported to agency-")
+		CALL write_variable_in_case_note("-NDNH JOB DETAILS FOR (M" & HH_memb & ") INFC cleared reported to agency-")
+		'CALL write_variable_in_case_note("-NDNH " & new_hire_first_line & " INFC cleared reported to agency-")
 		CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
 		CALL write_variable_in_case_note("EMPLOYER: " & employer)
 		CALL write_variable_in_case_note(new_hire_third_line)
@@ -460,7 +461,8 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 		PF3
 		PF3
 	ELSEIF Emp_known_droplist = "NO-See Next Question" THEN
-		CALL write_variable_in_case_note("-NDNH " & new_hire_first_line & " INFC cleared unreported to agency-")
+		CALL write_variable_in_case_note("-NDNH JOB DETAILS FOR (M" & HH_memb & ") INFC cleared unreported to agency-")
+		'CALL write_variable_in_case_note("-NDNH " & new_hire_first_line & " INFC cleared unreported to agency-")
 		CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
 		CALL write_variable_in_case_note("EMPLOYER: " & employer)
 		CALL write_variable_in_case_note(new_hire_third_line)

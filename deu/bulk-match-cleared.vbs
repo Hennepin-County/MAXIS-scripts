@@ -350,6 +350,6 @@ objExcel.Columns(8).HorizontalAlignment = -4131
 FOR i = 1 to 9
 	objExcel.Columns(i).AutoFit()
 NEXT
-
+'add pf3 at the end of the run and error handling for blank cleared status'
 STATS_counter = STATS_counter - 1		'removes 1 to correct the count
 script_end_procedure_with_error_report("Success! The IEVS match cases have now been updated. Please review the NOTES section to review the cases/follow up work to be completed.")
