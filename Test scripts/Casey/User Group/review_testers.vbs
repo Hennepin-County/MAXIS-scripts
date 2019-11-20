@@ -92,10 +92,11 @@ page = 1
 Do
     dlg_len = 65
     total_testers = 0
+    old_detail = detail_edit
     If testers_options <> "Select One..." Then
         dlg_len = dlg_len + 20
         If testers_options = "All" Then detail_edit = ""
-        If testers_options = "Confirmed Only" Then detail_edit = ""
+        ' If testers_options = "Confirmed Only" Then detail_edit = ""
         If InStr(detail_edit, ",") <> 0 Then
             detail_array = Split(detail_edit, ",")
         Else
@@ -105,6 +106,7 @@ Do
         For each tester in tester_array                         'looping through all of the testers
             show_this_tester = FALSE
             For each detail in detail_array
+                detail = trim(detail)
                 Select Case testers_options
                     Case "All"
                         dlg_len = dlg_len + 15
@@ -127,9 +129,16 @@ Do
                             total_testers = total_testers + 1
                         End If
                     Case "Confirmed Only"
-                        If tester.tester_confirmed = TRUE Then
-                            dlg_len = dlg_len + 15
-                            total_testers = total_testers + 1
+                        If UCase(detail_edit) = "NOT" Then
+                            If tester.tester_confirmed = FALSE Then
+                                dlg_len = dlg_len + 15
+                                total_testers = total_testers + 1
+                            End If
+                        Else
+                            If tester.tester_confirmed = TRUE Then
+                                dlg_len = dlg_len + 15
+                                total_testers = total_testers + 1
+                            End If
                         End If
                     Case "By Supervisor"
                         If UCase(detail) = UCase(tester.tester_supervisor_name) Then
@@ -169,7 +178,7 @@ Do
 
       If testers_options <> "Select One..." Then
           y_pos = 45
-          Text 15, 45, 25, 10, "Name:"
+          Text 5, 45, 25, 10, "Name:"
           Text 120, 45, 40, 10, "Supervisor:"
           Text 215, 45, 40, 10, "Population:"
           Text 295, 45, 30, 10, "Region:"
@@ -183,6 +192,7 @@ Do
           For each tester in tester_array                         'looping through all of the testers
               show_this_tester = FALSE
               For each detail in detail_array
+                  detail = trim(detail)
                   Select Case testers_options
                       Case "All"
                           show_this_tester = TRUE
@@ -205,9 +215,16 @@ Do
                             tester_counter = tester_counter + 1
                           End If
                       Case "Confirmed Only"
-                          If tester.tester_confirmed = TRUE Then
-                            show_this_tester = TRUE
-                            tester_counter = tester_counter + 1
+                          If UCase(detail_edit) = "NOT" Then
+                              If tester.tester_confirmed = FALSE Then
+                                show_this_tester = TRUE
+                                tester_counter = tester_counter + 1
+                              End If
+                          Else
+                              If tester.tester_confirmed = TRUE Then
+                                show_this_tester = TRUE
+                                tester_counter = tester_counter + 1
+                              End If
                           End If
                       Case "By Supervisor"
                           If UCase(detail) = UCase(tester.tester_supervisor_name) Then
@@ -241,7 +258,7 @@ Do
                 If tester_counter > 60 Then show_this_tester = FALSE
               End If
               If show_this_tester = TRUE Then
-                  Text 15, y_pos, 85, 10, tester.tester_full_name
+                  Text 5, y_pos, 95, 10, tester.tester_full_name
                   Text 120, y_pos, 85, 10, tester.tester_supervisor_name
                   Text 215, y_pos, 60, 10, tester.tester_population
                   Text 295, y_pos, 55, 10, tester.tester_region
@@ -316,6 +333,8 @@ Do
 
     If ButtonPressed = 0 Then ButtonPressed = done_btn
     If ButtonPressed = -1 Then ButtonPressed = search_btn
+
+    If old_detail <> detail_edit Then page = 1
 
     If ButtonPressed = export_btn Then
         sheet_title = "Testers sorted " & testers_options
