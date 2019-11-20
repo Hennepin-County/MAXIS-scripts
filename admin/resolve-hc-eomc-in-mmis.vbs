@@ -1497,4 +1497,183 @@ Next
 ObjExcel.ActiveSheet.Range("A2").Select
 objExcel.ActiveWindow.FreezePanes = True
 
+If make_changes = TRUE Then
+    MsgBox "Starting new functionality"
+    'Create Worklist Excel'
+    'Opening the Excel file
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = True
+    Set objWorkbook = objExcel.Workbooks.Add()
+    objExcel.DisplayAlerts = True
+
+    'Name for the current sheet'
+    ObjExcel.ActiveSheet.Name = "MMIS Span is Open"
+    on_loop = 1
+    mmis_last_day_date = DateValue(mmis_last_day_date)
+
+    Do
+        ObjExcel.Cells(1, 1).Value = "Worklist"
+        If on_loop = 1 Then ObjExcel.Cells(1, 3).Value = "MMIS still open"
+        If on_loop = 2 Then ObjExcel.Cells(1, 3).Value = "MMIS Span End Date Error"
+        If on_loop = 3 Then ObjExcel.Cells(1, 3).Value = "MMIS Span Future End Date"
+        If on_loop = 4 Then ObjExcel.Cells(1, 3).Value = "MAXIS Budget Error"
+
+        ObjExcel.Cells(2, 1).Value = "Cases In List"
+        ObjExcel.Cells(2, 3).Value = "COUNTIF(G:G), " & is_not_blank_excel_string & ") - 1"
+
+        ObjExcel.Cells(3, 1).Value = "Date Assigned"
+        ObjExcel.Cells(3, 3).Value = date & ""
+
+        ObjExcel.Cells(4, 1).Value = "Date Completed"
+
+        ObjExcel.Cells(5, 1).Value = "Instructions"
+        If on_loop = 1 Then ObjExcel.Cells(5, 3).Value = "End MMIS Span"
+        If on_loop = 2 Then ObjExcel.Cells(5, 3).Value = "Update MMIS date to match MAXIS closure."
+        If on_loop = 3 Then ObjExcel.Cells(5, 3).Value = "Check case and align dates."
+        If on_loop = 4 Then ObjExcel.Cells(5, 3).Value = "Determine why Budgets are not being approved."
+
+        ObjExcel.Cells(6, 1).Value = "Goal"
+        If on_loop = 1 OR on_loop = 2 OR on_loop = 3 Then ObjExcel.Cells(6, 3).Value = "To reduce discrepancies between MAXIS and MMIS closures."
+        If on_loop = 4 Then ObjExcel.Cells(6, 3).Value = "Discover areas of increased need for direction/work."
+
+        col_to_use = 1
+
+        'Excel headers and formatting the columns
+        If on_loop = 4 Then
+            objExcel.Cells(8, 1).Value  = "WORKER"
+            objExcel.Cells(8, 2).Value  = "CASE NUMBER"
+            objExcel.Cells(8, 3).Value  = "EOMC Status"
+            objExcel.Cells(8, 4).Value  = "REF NO"
+            objExcel.Cells(8, 5).Value  = "NAME"
+            objExcel.Cells(8, 6).Value  = "PMI"
+            objExcel.Cells(8, 7).Value  = "1st Prog"
+            objExcel.Cells(8, 8).Value  = "ELIG TYPE"
+            objExcel.Cells(8, 9).Value  = "2nd PROG"
+            objExcel.Cells(8, 10).Value = "ELIG TYPE - 2"
+            objExcel.Cells(8, 11).Value = "SAVINGS"
+            objExcel.Cells(8, 12).Value = "ERRORS"
+            objExcel.Cells(8, 13).Value = "REASON"
+            objExcel.Cells(8, 14).Value = "MISSING MONTHS"
+
+        Else
+            objExcel.Cells(8, 1).Value  = "WORKER"
+            objExcel.Cells(8, 2).Value  = "CASE NUMBER"
+            objExcel.Cells(8, 3).Value  = "EOMC Status"
+            objExcel.Cells(8, 4).Value  = "REF NO"
+            objExcel.Cells(8, 5).Value  = "NAME"
+            objExcel.Cells(8, 6).Value  = "PMI"
+            objExcel.Cells(8, 7).Value  = "1st Prog"
+            objExcel.Cells(8, 8).Value  = "ELIG TYPE"
+            objExcel.Cells(8, 9).Value  = "MAXIS End Date"
+            objExcel.Cells(8, 10).Value = "CURR MMIS End Date"
+            objExcel.Cells(8, 11).Value = "NEW MMIS End Date"
+            objExcel.Cells(8, 12).Value = "PPH Cap"
+            objExcel.Cells(8, 13).Value = "2nd PROG"
+            objExcel.Cells(8, 14).Value = "ELIG TYPE - 2"
+            objExcel.Cells(8, 15).Value = "MAXIS End Date - 2"
+            objExcel.Cells(8, 16).Value = "CURR MMIS End Date - 2"
+            objExcel.Cells(8, 17).Value = "NEW MMIS End Date - 2"
+            objExcel.Cells(8, 18).Value = "SAVINGS"
+            objExcel.Cells(8, 19).Value = "ERRORS"
+            objExcel.Cells(8, 20).Value = "ACTIONS"
+            objExcel.Cells(8, 21).Value = "NOTES"
+
+        End If
+
+        For i = 1 to col_to_use
+            ObjExcel.Cells(8, i).Font.Bold = TRUE
+        Next
+
+        excel_row = 8
+        'Looping through each of the HC clients while in MMIS
+        For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
+            write_this_entry = FALSE
+            If on_loop = 1 Then
+                If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = "99/99/99" AND trim(EOMC_CLIENT_ARRAY(MMIS_new_end_one, hc_clt)) = "" Then
+                    write_this_entry = TRUE
+                Else
+                    If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" AND trim(EOMC_CLIENT_ARRAY(MMIS_new_end_two, hc_clt)) = "" Then write_this_entry = TRUE
+                End If
+            ElseIf on_loop = 2 Then
+                If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) <> "" AND EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) <> "99/99/99" Then EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = DateValue(EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt))
+                If DateDiff("d", mmis_last_day_date, EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt)) < 0 OR EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = "" Then
+                    write_this_entry = TRUE
+                Else
+                    If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) <> "" AND EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) <> "99/99/99" Then EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = DateValue(EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt))
+                    If DateDiff("d", mmis_last_day_date, EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt)) < 0 OR EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "" Then write_this_entry = TRUE
+                End If
+            ElseIf on_loop = 3 Then
+                If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) <> "" AND EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) <> "99/99/99" Then EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = DateValue(EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt))
+                If DateDiff("d", mmis_last_day_date, EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt)) > 0 Then
+                    write_this_entry = TRUE
+                Else
+                    If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) <> "" AND EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) <> "99/99/99" Then EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = DateValue(EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt))
+                    If DateDiff("d", mmis_last_day_date, EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt)) > 0 OR Then write_this_entry = TRUE
+                End If
+            ElseIf on_loop = 4 Then
+                If InStr(EOMC_CLIENT_ARRAY(err_notes, hc_clt), "Budget Needs Approval") <> 0 Then write_this_entry = TRUE
+            End If
+
+            If write_this_entry = TRUE Then
+                ObjExcel.Cells(excel_row, 1).Value              = EOMC_CLIENT_ARRAY (basket_nbr,   hc_clt)
+                ObjExcel.Cells(excel_row, 2).Value              = EOMC_CLIENT_ARRAY (case_nbr,  hc_clt)
+                ObjExcel.Cells(excel_row, 3).Value              = EOMC_CLIENT_ARRAY (hc_close_stat, hc_clt)
+                ObjExcel.Cells(excel_row, 4).Value              = "Memb " & EOMC_CLIENT_ARRAY(clt_ref_nbr, hc_clt)
+                ObjExcel.Cells(excel_row, 5).Value              = EOMC_CLIENT_ARRAY (clt_name,  hc_clt)
+                ObjExcel.Cells(excel_row, 6).Value              = EOMC_CLIENT_ARRAY (clt_pmi,   hc_clt)
+
+                ObjExcel.Cells(excel_row, 7).Value              = EOMC_CLIENT_ARRAY (hc_prog_one,   hc_clt)
+                ObjExcel.Cells(excel_row, 8).Value              = EOMC_CLIENT_ARRAY (elig_type_one,   hc_clt)
+
+                If on_loop = 4 Then
+                    ObjExcel.Cells(excel_row, 9).Value          = EOMC_CLIENT_ARRAY (hc_prog_two,   hc_clt)
+                    ObjExcel.Cells(excel_row, 10).Value         = EOMC_CLIENT_ARRAY (elig_type_two,   hc_clt)
+                    ObjExcel.Cells(excel_row, 11).Value         = EOMC_CLIENT_ARRAY(clt_savings, hc_clt)
+                    ObjExcel.Cells(excel_row, 11).NumberFormat  = "$#,##0.00"
+
+                    ObjExcel.Cells(excel_row, 12).Value         = EOMC_CLIENT_ARRAY(err_notes, hc_clt)
+                Else
+                    ObjExcel.Cells(excel_row, 9).Value          = EOMC_CLIENT_ARRAY(prog_one_end, hc_clt)
+                    ObjExcel.Cells(excel_row, 10).Value         = EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt)
+                    ObjExcel.Cells(excel_row, 11).Value         = EOMC_CLIENT_ARRAY(MMIS_new_end_one, hc_clt)
+                    ObjExcel.Cells(excel_row, 12).Value         = EOMC_CLIENT_ARRAY(capitation_ended, hc_clt)
+
+                    ObjExcel.Cells(excel_row, 13).Value         = EOMC_CLIENT_ARRAY (hc_prog_two,   hc_clt)
+                    ObjExcel.Cells(excel_row, 14).Value         = EOMC_CLIENT_ARRAY (elig_type_two,   hc_clt)
+                    ObjExcel.Cells(excel_row, 15).Value         = EOMC_CLIENT_ARRAY(prog_two_end, hc_clt)
+                    ObjExcel.Cells(excel_row, 16).Value         = EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt)
+                    ObjExcel.Cells(excel_row, 17).Value         = EOMC_CLIENT_ARRAY(MMIS_new_end_two, hc_clt)
+                    ObjExcel.Cells(excel_row, 18).Value         = EOMC_CLIENT_ARRAY(clt_savings, hc_clt)
+                    ObjExcel.Cells(excel_row, 18).NumberFormat  = "$#,##0.00"
+
+                    ObjExcel.Cells(excel_row, 19).Value         = EOMC_CLIENT_ARRAY(err_notes, hc_clt)
+                End If
+
+            	excel_row = excel_row + 1      'next row
+            End If
+        Next
+
+        For i = 1 to col_to_use
+            ObjExcel.columns(col_to_autofit).AutoFit()
+        Next
+
+        For xl_row = 1 to 5
+            ObjExcel.Range("A" & xl_row & ":B" & xl_row).Merge
+            ObjExcel.Cells(xl_row, 1).HorizontalAlignment = -4152       'Aligns text in Excel Cell to the right
+            ObjExcel.Range("C" & xl_row & ":E" & xl_row).Merge
+            ObjExcel.Cells(xl_row, 3).HorizontalAlignment = -4108       'Aligns text in Excel Cell to the center
+        Next
+        ObjExcel.Range("A6:B6").Merge
+        ObjExcel.Cells(6, 1).HorizontalAlignment = -4152       'Aligns text in Excel Cell to the right
+        ObjExcel.Range("C6:G6").Merge
+        ObjExcel.Cells(6, 3).HorizontalAlignment = -4108       'Aligns text in Excel Cell to the center
+
+        on_loop = on_loop + 1
+        If on_loop = 2 Then ObjExcel.Worksheets.Add().Name = "MMIS Span End Date Error"
+        If on_loop = 3 Then ObjExcel.Worksheets.Add().Name = "MMIS Span Future End Date"
+        If on_loop = 4 Then ObjExcel.Worksheets.Add().Name = "MAXIS Budget Error"
+
+    Loop until on_loop = 5
+End If
+
 script_end_procedure("All Done")
