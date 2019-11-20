@@ -29,8 +29,8 @@ changelog_display
 name_of_script = actual_script_name
 'END CHANGELOG BLOCK =======================================================================================================
 
-'Global function to actually RUN'
-Call confirm_tester_information
+' 'Global function to actually RUN'
+' Call confirm_tester_information
 
 'GLOBAL CONSTANTS----------------------------------------------------------------------------------------------------
 Dim checked, unchecked, cancel, OK, blank		'Declares this for Option Explicit users
@@ -3319,6 +3319,11 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
     user_ID_for_validation = ucase(windows_user_ID)
 
     run_testing_file = FALSE
+    If Instr(the_selection, ",") <> 0 Then
+        selection_array = split(the_selection, ",")
+    Else
+        selection_array = array(the_selection)
+    End If
     selection_type = UCase(selection_type)
     For each tester in tester_array
         If user_ID_for_validation = tester.tester_id_number Then
@@ -3328,14 +3333,23 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
                     run_testing_file = TRUE
                 Case "GROUP" ' ADD OPTION FOR the_selection to be an array'
                     For each group in tester.tester_groups
-                        If UCase(the_selection) = UCase(group) Then run_testing_file = TRUE
-                        selected_group = group
+                        For each selection in selection_array
+                            selection = trim(selection)
+                            If UCase(selection) = UCase(group) Then run_testing_file = TRUE
+                            selected_group = group
+                        Next
                     Next
-                    selected_group = the_selection
+                    selected_group = selection
                 Case "REGION"
-                    If UCase(the_selection) = UCase(tester.tester_region) Then run_testing_file = TRUE
+                    For each selection in selection_array
+                        selection = trim(selection)
+                        If UCase(selection) = UCase(tester.tester_region) Then run_testing_file = TRUE
+                    Next
                 Case "POPULATION"
-                    If UCase(the_selection) = UCase(tester.tester_population) Then run_testing_file = TRUE
+                    For each selection in selection_array
+                        selection = trim(selection)
+                        If UCase(selection) = UCase(tester.tester_population) Then run_testing_file = TRUE
+                    Next
                 Case "SCRIPT"
                     For each each_script in tester.tester_scripts
                         If name_of_script = each_script Then run_testing_file = TRUE
