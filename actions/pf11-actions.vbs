@@ -440,8 +440,8 @@ IF PF11_actions <> "New Spouse Income Determination" and no_pf11_checkbox = UNCH
 	END IF
 END IF
 reminder_date = dateadd("d", 5, date)
-
-IF PF11_actions <> "Case Note Removal Request" or PF11_actions <> "New Spouse Income Determination" THEN
+IF PF11_actions = "PMI Merge Request" or PF11_actions = "Non-Actionable DAIL Removal" or PF11_actions = "MFIP New Spouse Income" or PF11_actions = "New Spouse Income Determination" or PF11_actions = "Other" THEN
+'IF PF11_actions <> "Case Note Removal Request" or PF11_actions <> "New Spouse Income Determination" THEN
 	outlook_reminder = True
 	CALL start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 	IF PF11_actions = "PMI Merge Request"  THEN CALL write_variable_in_case_note("PF11 Requested " & PF11_actions & " for M" & MEMB_number)
