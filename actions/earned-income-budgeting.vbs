@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/22/2019", "BUG FIX - The PIC does not allow for hours to have more than 2 decimal points written into MAXIS. Sometimes check stubs have 3 decimals provided. The script will change to 2 decimal points for the entry of information only, the information entered into the dialog and input on the CASE/NOTE can still be 3 decimal points.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/06/2019", "BUG FIX - The script was hitting an error if a 'known pay date' was entered that is after the intital month to update. Added functionality for the script to recalculate the 'known pay date' back to the beginning of the update period. This way any known pay date will work in the script.##~##", "Casey Love, Hennepin County")
 call changelog_update("08/21/2019", "Handling added to prohibit the attempted update of months prior to the first check entered for a job.", "Casey Love, Hennepin County")
 call changelog_update("08/13/2019", "Bug fix when updating RETRO checks on occasion that causes the script to stop and error.", "Casey Love, Hennepin County")
@@ -3308,13 +3309,13 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                     End If
                                 Next
 
-
                                 EMWriteScreen "1", 5, 64                        'A pay frequency of 1 (monthly) is entered on the PIC
                                 EMWriteScreen MAXIS_footer_month, 9, 13         'a default date of the first of the month is entered on the PIC
                                 EMWriteScreen "01", 9, 16
                                 EMWriteScreen MAXIS_footer_year, 9, 19
                                 appl_month_gross = FormatNumber(appl_month_gross, 2, -1, 0, 0)      'the sum of all the pay check gross amounts (or average) is formated and entered
                                 EMWriteScreen appl_month_gross, list_row, 25
+                                appl_month_hours = FormatNumber(appl_month_hours, 2, -1, 0, 0)
                                 EMWriteScreen appl_month_hours, list_row, 35
 
                                 updates_to_display = updates_to_display & vbNewLine & "Actual Pay: Date - " & MAXIS_footer_month & "/01/" & MAXIS_footer_year & " - $" & appl_month_gross & " - " & appl_month_hours & " hrs." & vbNewLine
@@ -3338,6 +3339,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                 If EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_estimate Then           'if use estimate was selected - then we just plug in the hours/wk and pay/hr
                                     updates_to_display = updates_to_display & vbNewLine & "Estimate: Hourly Wage - $" & EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) & "/hr - " & EARNED_INCOME_PANELS_ARRAY(snap_hrs_per_wk, ei_panel) & " hrs/wk" & vbNewLine
                                     EMWriteScreen EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel), 9, 66
+                                    the_hrs_per_wk = FormatNumber(EARNED_INCOME_PANELS_ARRAY(snap_hrs_per_wk, ei_panel), 2, -1, 0, 0)
                                     EMWriteScreen EARNED_INCOME_PANELS_ARRAY(snap_hrs_per_wk, ei_panel), 8, 64
                                 End If
                                 If EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_actual Then             'if we have to use actual - it is harder - HERE WE GO!
@@ -3353,8 +3355,9 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                                     Call create_MAXIS_friendly_date(LIST_OF_INCOME_ARRAY(view_pay_date, all_income), 0, list_row, 13)           'this is the CIEW date - the one the owrker actually entered
                                                     net_amount = LIST_OF_INCOME_ARRAY(gross_amount, all_income) - LIST_OF_INCOME_ARRAY(exclude_amount, all_income)      'taking out excluded amounts
                                                     net_amount = FormatNumber(net_amount, 2, -1, 0, 0)
+                                                    the_hours = FormatNumber(LIST_OF_INCOME_ARRAY(hours, all_income), 2, -1, 0, 0)
                                                     EMWriteScreen net_amount, list_row, 25      'entering the pay amount to count
-                                                    EMWriteScreen LIST_OF_INCOME_ARRAY(hours, all_income), list_row, 35     'enting the hours
+                                                    EMWriteScreen the_hours, list_row, 35     'enting the hours
 
                                                     updates_to_display = updates_to_display & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & net_amount & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & " hrs." & vbNewLine
 
