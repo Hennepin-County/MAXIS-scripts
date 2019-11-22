@@ -44,6 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+
+Call changelog_update("11/22/2019", "Added handling for ID information and ID requirements for household members and AREP (if interviewed). This information is added to Dialog One.##~##This functionality mandates detail if the ID verification is 'Other' and is required.##~##", "Casey Love, Hennepin County")
 Call changelog_update("11/14/2019", "BUG FIX - Dialog 4 had some fields overlapping each other sometimes, which made it difficult to read/update. Fixed the layout of Dialog  4 (CSES).##~##", "Casey Love, Hennepin County")
 Call changelog_update("11/08/2019", "Added handling for the script to change a 4 digit footer year to a 2 digit footer year (2019 becomes 19) when entering recertification month and year by program. ##~##", "Casey Love, Hennepin County")
 Call changelog_update("11/07/2019", "BUG FIX - Dialog 4 was sometimes too short. If there are a number of people with child support income, not all of the child support detail would be viewable as it would be taller than the computer screen. Updated the script so that Dialog 4 now has tabs if there are more than four members with child support income, so there are multiple pages of Dialog 4 (like Dialog 2 and 3).##~##", "Casey Love, Hennepin County")
@@ -145,6 +147,8 @@ function HH_comp_dialog(HH_member_array)
     		last_name = trim(replace(last_name, "_", ""))
     		first_name = trim(replace(first_name, "_", ""))
     		mid_initial = replace(mid_initial, "_", "")
+            EMReadScreen id_verif_code, 2, 9, 68
+
 
             EMReadScreen rel_to_applcnt, 2, 10, 42              'reading the relationship from MEMB'
             If rel_to_applcnt = "02" Then relationship_detail = relationship_detail & "Memb " & ref_nbr & " is the Spouse of Memb 01.; "
@@ -161,6 +165,18 @@ function HH_comp_dialog(HH_member_array)
         ALL_MEMBERS_ARRAY(memb_numb, member_count) = ref_nbr            'adding client information to the array
         ALL_MEMBERS_ARRAY(clt_name, member_count) = last_name & ", " & first_name & " " & mid_initial
         ALL_MEMBERS_ARRAY(full_clt, member_count) = ref_nbr & " - " & first_name & " " & last_name
+        ALL_MEMBERS_ARRAY(clt_age, member_count) = memb_age
+
+        If id_verif_code = "BC" Then ALL_MEMBERS_ARRAY(clt_id_verif, member_count) = "BC - Birth Certificate"
+        If id_verif_code = "RE" Then ALL_MEMBERS_ARRAY(clt_id_verif, member_count) = "RE - Religious Record"
+        If id_verif_code = "DL" Then ALL_MEMBERS_ARRAY(clt_id_verif, member_count) = "DL - Drivers License/ST ID"
+        If id_verif_code = "DV" Then ALL_MEMBERS_ARRAY(clt_id_verif, member_count) = "DV - Divorce Decree"
+        If id_verif_code = "AL" Then ALL_MEMBERS_ARRAY(clt_id_verif, member_count) = "AL - Alien Card"
+        If id_verif_code = "AD" Then ALL_MEMBERS_ARRAY(clt_id_verif, member_count) = "AD - Arrival//Depart"
+        If id_verif_code = "DR" Then ALL_MEMBERS_ARRAY(clt_id_verif, member_count) = "DR - Doctor Stmt"
+        If id_verif_code = "PV" Then ALL_MEMBERS_ARRAY(clt_id_verif, member_count) = "PV - Passport/Visa"
+        If id_verif_code = "OT" Then ALL_MEMBERS_ARRAY(clt_id_verif, member_count) = "OT - Other Document"
+        If id_verif_code = "NO" Then ALL_MEMBERS_ARRAY(clt_id_verif, member_count) = "NO - No Veer Prvd"
 
         If cash_checkbox = checked Then             'If Cash is selected
             ALL_MEMBERS_ARRAY(include_cash_checkbox, member_count) = checked    'default to having the counted boxes checked for SNAP
@@ -2131,62 +2147,65 @@ const budget_explain        = 35
 const clt_name                  = 1
 const clt_age                   = 2
 const full_clt                  = 3
-const include_cash_checkbox     = 4
-const include_snap_checkbox     = 5
-const include_emer_checkbox     = 6
-const count_cash_checkbox       = 7
-const count_snap_checkbox       = 8
-const count_emer_checkbox       = 9
-const clt_wreg_status           = 10
-const clt_abawd_status          = 11
-const pwe_checkbox              = 12
-const numb_abawd_used           = 13
-const list_abawd_mo             = 14
-const first_second_set          = 15
-const list_second_set           = 16
-const explain_no_second         = 17
-const numb_banked_mo            = 18
-const clt_abawd_notes           = 19
-const shel_exists               = 20
-const shel_subsudized           = 21
-const shel_shared               = 22
-const shel_retro_rent_amt       = 23
-const shel_retro_rent_verif     = 24
-const shel_prosp_rent_amt       = 25
-const shel_prosp_rent_verif     = 26
-const shel_retro_lot_amt        = 27
-const shel_retro_lot_verif      = 28
-const shel_prosp_lot_amt        = 29
-const shel_prosp_lot_verif      = 30
-const shel_retro_mortgage_amt   = 31
-const shel_retro_mortgage_verif = 32
-const shel_prosp_mortgage_amt   = 33
-const shel_prosp_mortgage_verif = 34
-const shel_retro_ins_amt        = 35
-const shel_retro_ins_verif      = 36
-const shel_prosp_ins_amt        = 37
-const shel_prosp_ins_verif      = 38
-const shel_retro_tax_amt        = 39
-const shel_retro_tax_verif      = 40
-const shel_prosp_tax_amt        = 41
-const shel_prosp_tax_verif      = 42
-const shel_retro_room_amt       = 43
-const shel_retro_room_verif     = 44
-const shel_prosp_room_amt       = 45
-const shel_prosp_room_verif     = 46
-const shel_retro_garage_amt     = 47
-const shel_retro_garage_verif   = 48
-const shel_prosp_garage_amt     = 49
-const shel_prosp_garage_verif   = 50
-const shel_retro_subsidy_amt    = 51
-const shel_retro_subsidy_verif  = 52
-const shel_prosp_subsidy_amt    = 53
-const shel_prosp_subsidy_verif  = 54
-const wreg_exists               = 55
-const shel_verif_checkbox       = 56
-const shel_verif_added          = 57
-const gather_detail             = 58
-const clt_notes                 = 59
+const clt_id_verif              = 4
+const include_cash_checkbox     = 5
+const include_snap_checkbox     = 6
+const include_emer_checkbox     = 7
+const count_cash_checkbox       = 8
+const count_snap_checkbox       = 9
+const count_emer_checkbox       = 10
+const clt_wreg_status           = 11
+const clt_abawd_status          = 12
+const pwe_checkbox              = 13
+const numb_abawd_used           = 14
+const list_abawd_mo             = 15
+const first_second_set          = 16
+const list_second_set           = 17
+const explain_no_second         = 18
+const numb_banked_mo            = 19
+const clt_abawd_notes           = 20
+const shel_exists               = 21
+const shel_subsudized           = 22
+const shel_shared               = 23
+const shel_retro_rent_amt       = 24
+const shel_retro_rent_verif     = 25
+const shel_prosp_rent_amt       = 26
+const shel_prosp_rent_verif     = 27
+const shel_retro_lot_amt        = 28
+const shel_retro_lot_verif      = 29
+const shel_prosp_lot_amt        = 30
+const shel_prosp_lot_verif      = 31
+const shel_retro_mortgage_amt   = 32
+const shel_retro_mortgage_verif = 33
+const shel_prosp_mortgage_amt   = 34
+const shel_prosp_mortgage_verif = 35
+const shel_retro_ins_amt        = 36
+const shel_retro_ins_verif      = 37
+const shel_prosp_ins_amt        = 38
+const shel_prosp_ins_verif      = 39
+const shel_retro_tax_amt        = 40
+const shel_retro_tax_verif      = 41
+const shel_prosp_tax_amt        = 42
+const shel_prosp_tax_verif      = 43
+const shel_retro_room_amt       = 44
+const shel_retro_room_verif     = 45
+const shel_prosp_room_amt       = 46
+const shel_prosp_room_verif     = 47
+const shel_retro_garage_amt     = 48
+const shel_retro_garage_verif   = 49
+const shel_prosp_garage_amt     = 50
+const shel_prosp_garage_verif   = 51
+const shel_retro_subsidy_amt    = 52
+const shel_retro_subsidy_verif  = 53
+const shel_prosp_subsidy_amt    = 54
+const shel_prosp_subsidy_verif  = 55
+const wreg_exists               = 56
+const shel_verif_checkbox       = 57
+const shel_verif_added          = 58
+const gather_detail             = 59
+const id_detail                 = 60
+const id_required               = 61
+const clt_notes                 = 62
 
 'FOR CS Array'
 const UNEA_type                 = 2
@@ -2850,6 +2869,7 @@ If version_numb = "1" Then
     interview_memb_list = interview_memb_list+chr(9)+"AREP - " & arep_name
 End If
 
+
 ' call verification_dialog
 prev_err_msg = ""
 notes_on_busi = ""
@@ -2868,14 +2888,21 @@ Do
                                         full_err_msg = ""
                                         err_array = ""
                                         If show_one = true Then
-                                            BeginDialog Dialog1, 0, 0, 465, 275, "CAF Dialog 1 - Personal Information"
+                                            dlg_len = 285
+                                            For the_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+                                              If ALL_MEMBERS_ARRAY(gather_detail, the_member) = TRUE Then
+                                                  If ALL_MEMBERS_ARRAY(clt_age, the_member) > 17 OR ALL_MEMBERS_ARRAY(memb_numb, the_member) = "01" Then dlg_len = dlg_len + 20
+                                              End If
+                                            Next
+
+                                            Dialog1 = ""
+                                            BeginDialog Dialog1, 0, 0, 465, dlg_len, "CAF Dialog 1 - Personal Information"
                                               If interview_required = TRUE Then Text 5, 10, 300, 10,  "* CAF datestamp:                             * Interview type:"
                                               If interview_required = FALSE Then Text 5, 10, 300, 10, "* CAF datestamp:                             Interview type:"
                                               If interview_required = TRUE Then Text 5, 30, 300, 10,  "* Interview date:                               * How was application received?:"
                                               If interview_required = FALSE Then Text 5, 30, 300, 10, "  Interview date:                               * How was application received?:"
-                                              If interview_required = TRUE Then Text 5, 50, 85, 10, "* Interview completed with:"
-                                              If interview_required = FALSE Then Text 5, 50, 85, 10, "Interview completed with:"
-                                              Text 10, 260, 350, 10, "1 - Personal    |                    |                   |                   |                    |                   |                      |"
+                                              If interview_required = TRUE Then Text 5, 50, 400, 10, "* Interview completed with:                                                                                     If AREP Intvw, ID Info:"
+                                              If interview_required = FALSE Then Text 5, 50, 85, 10, "Interview completed with: "
 
                                               EditBox 60, 5, 50, 15, CAF_datestamp
                                               ComboBox 175, 5, 70, 15, "Select or Type"+chr(9)+"phone"+chr(9)+"office"+chr(9)+interview_type, interview_type
@@ -2884,79 +2911,112 @@ Do
                                               ComboBox 230, 25, 95, 15, "Select or Type"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online"+chr(9)+how_app_rcvd, how_app_rcvd
                                               ComboBox 90, 45, 150, 45, interview_memb_list+chr(9)+interview_with, interview_with
                                               ButtonGroup ButtonPressed
-                                                PushButton 250, 45, 15, 15, "!", tips_and_tricks_interview_button
-                                              EditBox 35, 65, 425, 15, cit_id
-                                              EditBox 35, 85, 425, 15, IMIG
-                                              EditBox 60, 105, 120, 15, AREP
-                                              EditBox 270, 105, 190, 15, SCHL
-                                              EditBox 60, 125, 210, 15, DISA
-                                              EditBox 310, 125, 150, 15, FACI
-                                              EditBox 35, 145, 425, 15, PREG
-                                              EditBox 35, 165, 290, 15, ABPS
-                                              EditBox 410, 165, 35, 15, CS_forms_sent_date
+                                                PushButton 240, 45, 15, 15, "!", tips_and_tricks_interview_button
+                                              EditBox 335, 45, 125, 15, arep_id_info
+
+                                              Text 5, 65, 450, 10, "Member Name                         ID Type                              Detail                                                                                   Required"
+                                              y_pos = 80
+                                              For the_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+                                                If ALL_MEMBERS_ARRAY(gather_detail, the_member) = TRUE Then
+                                                    ' MsgBox "Name: " & ALL_MEMBERS_ARRAY(clt_name, the_member) & vbNewLine & "Age: " & ALL_MEMBERS_ARRAY(clt_age, the_member)
+                                                    If ALL_MEMBERS_ARRAY(clt_age, the_member) > 17 OR ALL_MEMBERS_ARRAY(memb_numb, the_member) = "01" Then
+                                                        If ALL_MEMBERS_ARRAY(memb_numb, the_member) = "01" Then ALL_MEMBERS_ARRAY(id_required, the_member) = checked
+                                                        Text 5, y_pos, 85, 10, ALL_MEMBERS_ARRAY(clt_name, the_member)
+                                                        ComboBox 100, y_pos - 5, 80, 15, "Type or Select"+chr(9)+"BC - Birth Certificate"+chr(9)+"RE - Religious Record"+chr(9)+"DL - Drivers License/ST ID"+chr(9)+"DV - Divorce Decree"+chr(9)+"AL - Alien Card"+chr(9)+"AD - Arrival//Depart"+chr(9)+"DR - Doctor Stmt"+chr(9)+"PV - Passport/Visa"+chr(9)+"OT - Other Document"+chr(9)+"NO - No Veer Prvd", ALL_MEMBERS_ARRAY(clt_id_verif, the_member)
+                                                        EditBox 185, y_pos - 5, 180, 15, ALL_MEMBERS_ARRAY(id_detail, the_member)
+                                                        CheckBox 370, y_pos, 90, 10, "ID Verification Required", ALL_MEMBERS_ARRAY(id_required, the_member)
+                                                        y_pos = y_pos + 20
+                                                    End If
+                                                End If
+                                              Next
+                                              Text 5, y_pos, 25, 10, "Citizen:"
+                                              EditBox 35, y_pos -5, 425, 15, cit_id
+                                              y_pos = y_pos + 20
+                                              EditBox 35, y_pos - 5, 425, 15, IMIG
+                                              y_pos = y_pos + 20
+                                              EditBox 60, y_pos - 5, 120, 15, AREP
+                                              EditBox 270, y_pos - 5, 190, 15, SCHL
+                                              y_pos = y_pos + 20
+                                              EditBox 60, y_pos - 5, 210, 15, DISA
+                                              EditBox 310, y_pos - 5, 150, 15, FACI
+                                              y_pos = y_pos + 20
+                                              EditBox 35, y_pos - 5, 425, 15, PREG
+                                              y_pos = y_pos + 20
+                                              EditBox 35, y_pos - 5, 290, 15, ABPS
+                                              If trim(ABPS) <> "" AND the_process_for_cash = "Application" Then
+                                                Text 335, y_pos, 75, 10, "* Date CS Forms Sent:"
+                                              Else
+                                                Text 335, y_pos, 75,10, "Date CS Forms Sent:"
+                                              End If
+                                              EditBox 410, y_pos - 5, 35, 15, CS_forms_sent_date
                                               ButtonGroup ButtonPressed
-                                                PushButton 445, 165, 15, 15, "!", tips_and_tricks_cs_forms_button
-                                              EditBox 40, 185, 420, 15, case_changes
-                                              EditBox 60, 205, 385, 15, verifs_needed
+                                                PushButton 445, y_pos - 5, 15, 15, "!", tips_and_tricks_cs_forms_button
+                                              y_pos = y_pos + 20
+                                              Text 5, y_pos, 30, 10, "Changes:"
+                                              EditBox 40, y_pos - 5, 420, 15, case_changes
+                                              y_pos = y_pos + 20 '210'
+                                              EditBox 60, y_pos - 5, 385, 15, verifs_needed
+                                              Text 10, y_pos + 50, 350, 10, "1 - Personal    |                    |                   |                   |                    |                   |                      |"
                                               ButtonGroup ButtonPressed
-                                              PushButton 445, 205, 15, 15, "!", tips_and_tricks_verifs_button
-                                                PushButton 5, 210, 50, 10, "Verifs needed:", verif_button
-                                                PushButton 60, 260, 35, 10, "2 - JOBS", dlg_two_button
-                                                PushButton 100, 260, 35, 10, "3 - BUSI", dlg_three_button
-                                                PushButton 140, 260, 35, 10, "4 - CSES", dlg_four_button
-                                                PushButton 180, 260, 35, 10, "5 - UNEA", dlg_five_button
-                                                PushButton 220, 260, 35, 10, "6 - Other", dlg_six_button
-                                                PushButton 260, 260, 40, 10, "7 - Assets", dlg_seven_button
-                                                PushButton 305, 260, 50, 10, "8 - Interview", dlg_eight_button
-                                                PushButton 370, 255, 35, 15, "NEXT", go_to_next_page
-                                                CancelButton 410, 255, 50, 15
+                                                PushButton 445, y_pos - 5, 15, 15, "!", tips_and_tricks_verifs_button
+                                                PushButton 5, y_pos, 50, 10, "Verifs needed:", verif_button
+                                                PushButton 60, y_pos + 50, 35, 10, "2 - JOBS", dlg_two_button
+                                                PushButton 100, y_pos + 50, 35, 10, "3 - BUSI", dlg_three_button
+                                                PushButton 140, y_pos + 50, 35, 10, "4 - CSES", dlg_four_button
+                                                PushButton 180, y_pos + 50, 35, 10, "5 - UNEA", dlg_five_button
+                                                PushButton 220, y_pos + 50, 35, 10, "6 - Other", dlg_six_button
+                                                PushButton 260, y_pos + 50, 40, 10, "7 - Assets", dlg_seven_button
+                                                PushButton 305, y_pos + 50, 50, 10, "8 - Interview", dlg_eight_button
+                                                PushButton 370, y_pos + 45, 35, 15, "NEXT", go_to_next_page
+                                                CancelButton 410, y_pos + 45, 50, 15
                                                 PushButton 335, 15, 45, 10, "prev. panel", prev_panel_button
                                                 PushButton 395, 15, 45, 10, "prev. memb", prev_memb_button
                                                 PushButton 335, 25, 45, 10, "next panel", next_panel_button
                                                 PushButton 395, 25, 45, 10, "next memb", next_memb_button
-                                                PushButton 5, 90, 20, 10, "IMIG:", IMIG_button
-                                                PushButton 5, 110, 25, 10, "AREP/", AREP_button
-                                                PushButton 30, 110, 25, 10, "ALTP:", ALTP_button
-                                                PushButton 190, 110, 25, 10, "SCHL/", SCHL_button
-                                                PushButton 215, 110, 25, 10, "STIN/", STIN_button
-                                                PushButton 240, 110, 25, 10, "STEC:", STEC_button
-                                                PushButton 5, 130, 25, 10, "DISA/", DISA_button
-                                                PushButton 30, 130, 25, 10, "PDED:", PDED_button
-                                                PushButton 280, 130, 25, 10, "FACI:", FACI_button
-                                                PushButton 5, 150, 25, 10, "PREG:", PREG_button
-                                                PushButton 5, 170, 25, 10, "ABPS:", ABPS_button
-                                                PushButton 10, 235, 20, 10, "DWP", ELIG_DWP_button
-                                                PushButton 30, 235, 15, 10, "FS", ELIG_FS_button
-                                                PushButton 45, 235, 15, 10, "GA", ELIG_GA_button
-                                                PushButton 60, 235, 15, 10, "HC", ELIG_HC_button
-                                                PushButton 75, 235, 20, 10, "MFIP", ELIG_MFIP_button
-                                                PushButton 95, 235, 20, 10, "MSA", ELIG_MSA_button
-                                                PushButton 130, 235, 25, 10, "ADDR", ADDR_button
-                                                PushButton 155, 235, 25, 10, "MEMB", MEMB_button
-                                                PushButton 180, 235, 25, 10, "MEMI", MEMI_button
-                                                PushButton 205, 235, 25, 10, "PROG", PROG_button
-                                                PushButton 230, 235, 25, 10, "REVW", REVW_button
-                                                PushButton 255, 235, 25, 10, "SANC", SANC_button
-                                                PushButton 280, 235, 25, 10, "TIME", TIME_button
-                                                PushButton 305, 235, 25, 10, "TYPE", TYPE_button
-                                                If prev_err_msg <> "" Then PushButton 360, 235, 100, 15, "Show Dialog Review Message", dlg_revw_button
-                                                OkButton 600, 500, 50, 15
-                                              Text 5, 70, 25, 10, "CIT/ID:"
-                                              If trim(ABPS) <> "" AND the_process_for_cash = "Application" Then
-                                                Text 335, 170, 75, 10, "* Date CS Forms Sent:"
-                                              Else
-                                                Text 335, 170, 75,10, "Date CS Forms Sent:"
-                                              End If
-                                              Text 5, 190, 30, 10, "Changes:"
-                                              GroupBox 5, 225, 115, 25, "ELIG panels:"
-                                              GroupBox 125, 225, 210, 25, "other STAT panels:"
+                                                PushButton 5, y_pos - 120, 20, 10, "IMIG:", IMIG_button
+                                                PushButton 5, y_pos - 100, 25, 10, "AREP/", AREP_button
+                                                PushButton 30, y_pos - 100, 25, 10, "ALTP:", ALTP_button
+                                                PushButton 190, y_pos - 100, 25, 10, "SCHL/", SCHL_button
+                                                PushButton 215, y_pos - 100, 25, 10, "STIN/", STIN_button
+                                                PushButton 240, y_pos - 100, 25, 10, "STEC:", STEC_button
+                                                PushButton 5, y_pos - 80, 25, 10, "DISA/", DISA_button
+                                                PushButton 30, y_pos - 80, 25, 10, "PDED:", PDED_button
+                                                PushButton 280, y_pos - 80, 25, 10, "FACI:", FACI_button
+                                                PushButton 5, y_pos - 60, 25, 10, "PREG:", PREG_button
+                                                PushButton 5, y_pos - 40, 25, 10, "ABPS:", ABPS_button
+                                                PushButton 10, y_pos + 25, 20, 10, "DWP", ELIG_DWP_button
+                                                PushButton 30, y_pos + 25, 15, 10, "FS", ELIG_FS_button
+                                                PushButton 45, y_pos + 25, 15, 10, "GA", ELIG_GA_button
+                                                PushButton 60, y_pos + 25, 15, 10, "HC", ELIG_HC_button
+                                                PushButton 75, y_pos + 25, 20, 10, "MFIP", ELIG_MFIP_button
+                                                PushButton 95, y_pos + 25, 20, 10, "MSA", ELIG_MSA_button
+                                                PushButton 130, y_pos + 25, 25, 10, "ADDR", ADDR_button
+                                                PushButton 155, y_pos + 25, 25, 10, "MEMB", MEMB_button
+                                                PushButton 180, y_pos + 25, 25, 10, "MEMI", MEMI_button
+                                                PushButton 205, y_pos + 25, 25, 10, "PROG", PROG_button
+                                                PushButton 230, y_pos + 25, 25, 10, "REVW", REVW_button
+                                                PushButton 255, y_pos + 25, 25, 10, "SANC", SANC_button
+                                                PushButton 280, y_pos + 25, 25, 10, "TIME", TIME_button
+                                                PushButton 305, y_pos + 25, 25, 10, "TYPE", TYPE_button
+                                                If prev_err_msg <> "" Then PushButton 360, y_pos + 25, 100, 15, "Show Dialog Review Message", dlg_revw_button
+                                                OkButton 600, y_pos + 300, 50, 15
+                                              GroupBox 5, y_pos + 15, 115, 25, "ELIG panels:"
+                                              GroupBox 125, y_pos + 15, 210, 25, "other STAT panels:"
                                               GroupBox 330, 5, 115, 35, "STAT-based navigation"
-                                              GroupBox 5, 250, 355, 25, "Dialog Tabs"
+                                              GroupBox 5, y_pos + 40, 355, 25, "Dialog Tabs"
                                             EndDialog
 
                                             Dialog Dialog1
                                             cancel_confirmation
                                             MAXIS_dialog_navigation
+
+                                            For the_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+                                                If ALL_MEMBERS_ARRAY(id_required, the_member) = checked AND ALL_MEMBERS_ARRAY(clt_id_verif, the_member) = "NO - No Veer Prvd" Then
+                                                    verif_text = "Identity for Memb " & ALL_MEMBERS_ARRAY(memb_numb, the_member)
+                                                    If InStr(verifs_needed, verif_text) = 0 Then verifs_needed = verifs_needed & "Identity for Memb " & ALL_MEMBERS_ARRAY(memb_numb, the_member) & ".; "
+                                                End If
+                                            Next
+
                                             verification_dialog
 
                                             If ButtonPressed = tips_and_tricks_interview_button Then tips_msg = MsgBox("*** Interview Detail ***" & vbNewLine & vbNewLine & "In order to actually process a CAF for all situations except one, an interview mst be completed. The CAF cannot be processed without an interview. This is why interview information is mandatory." & vbNewLine & vbNewLine &_
@@ -4472,7 +4532,11 @@ Do
                   Text 280, 15, 50, 10, "* CAF status:"
                   Text 5, 35, 55, 10, "* Actions taken:"
                   ' GroupBox 5, 50, 490, 70, "SNAP Expedited"
-                  If the_process_for_snap = "Application" AND exp_det_case_note_found = FALSE Then GroupBox 5, 50, 490, 70, "*** SNAP Expedited"
+                  If the_process_for_snap = "Application" AND exp_det_case_note_found = FALSE Then
+                    GroupBox 5, 50, 490, 70, "*** SNAP Expedited"
+                  Else
+                    GroupBox 5, 50, 490, 70, "SNAP Expedited"
+                  End If
                   '     Text 15, 65, 120, 10, "* Is this SNAP Application Expedited?"
                   '     Text 15, 85, 75, 10, "* EXP Approval Date:"
                   '     Text 195, 65, 75, 10, "* App Month - Income:" '135'
@@ -4531,6 +4595,15 @@ Do
                         If IsDate(interview_date) = False Then full_err_msg = full_err_msg & "~!~1^* INTERVIEW DATE ##~##   - This case requires and interview to process the CAF - enter the interview date.##~##"
                         If interview_with = "Select or Type" OR trim(interview_with) = "" Then full_err_msg = full_err_msg & "~!~1^* INTERVIEW COMPLETED WITH ##~##   - This case requires and interview to process the CAF - indicate who the interview was completed with.##~##"
                     End If
+                    For the_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+                      If ALL_MEMBERS_ARRAY(gather_detail, the_member) = TRUE Then
+                          ' MsgBox "Name: " & ALL_MEMBERS_ARRAY(clt_name, the_member) & vbNewLine & "Age: " & ALL_MEMBERS_ARRAY(clt_age, the_member)
+                          If ALL_MEMBERS_ARRAY(clt_age, the_member) > 17 OR ALL_MEMBERS_ARRAY(memb_numb, the_member) = "01" Then
+                              ALL_MEMBERS_ARRAY(id_detail, the_member) = trim(ALL_MEMBERS_ARRAY(id_detail, the_member))
+                              If ALL_MEMBERS_ARRAY(clt_id_verif, the_member) = "OT - Other Document" AND ALL_MEMBERS_ARRAY(id_detail, the_member) = "" Then full_err_msg = full_err_msg & "~!~1^* DETAIL (ID Verif for " & ALL_MEMBERS_ARRAY(clt_name, the_member) & ") ##~##   - Any ID type of OT (Other) needs explanation of what is used for ID verification."
+                          End If
+                      End If
+                    Next
                     If the_process_for_cash = "Application" AND trim(ABPS) <> "" Then
                         If trim(CS_forms_sent_date) <> "N/A" AND IsDate(CS_forms_sent_date) = False AND cash_checkbox = checked Then full_err_msg = full_err_msg & "~!~" & "1^* DATE CS FORMS SENT ##~##   - Enter a valid date for the day that child support forms were sent or given to the client. This is required for Cash cases at application with absent parents.##~##"
                     End If
@@ -5640,6 +5713,8 @@ If interview_required = TRUE Then
     If Used_Interpreter_checkbox = checked Then Call write_variable_with_indent_in_CASE_NOTE("Used interpreter to complete the interview.")
     Call write_variable_with_indent_in_CASE_NOTE("Interview completed on " & interview_date)
 
+    Call write_bullet_and_variable_in_CASE_NOTE("AREP ID Info", arep_id_info)
+
     If confirm_update_prog = 1 Then CALL write_variable_in_CASE_NOTE("* Interview date entered on PROG for " & programs_w_interview)
     If do_not_update_prog = 1 Then CALL write_bullet_and_variable_in_CASE_NOTE("PROG WAS NOT UPDATED WITH INTERVIEW DATE, because", no_update_reason)
 
@@ -5796,6 +5871,20 @@ If interview_note = FALSE Then
     End If
     Call write_bullet_and_variable_in_CASE_NOTE("Relationships", relationship_detail)
 End If
+
+first_member = TRUE
+For the_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
+    If ALL_MEMBERS_ARRAY(gather_detail, the_member) = TRUE Then
+        If ALL_MEMBERS_ARRAY(id_required, the_member) = checked Then
+            If first_member = TRUE Then
+                Call write_variable_in_CASE_NOTE("===== ID REQUIREMENT =====")
+                first_member = FALSE
+            End If
+            Call write_variable_in_CASE_NOTE("* Identity of Memb " & ALL_MEMBERS_ARRAY(memb_numb, the_member) & " verified by: " & right(ALL_MEMBERS_ARRAY(clt_id_verif, the_member), len(ALL_MEMBERS_ARRAY(clt_id_verif, the_member)) - 5) & " and is required.")
+            If trim(ALL_MEMBERS_ARRAY(id_detail, the_member)) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Details: " & trim(ALL_MEMBERS_ARRAY(id_detail, the_member)))
+        End If
+    End If
+Next
 
 'INCOME
 If case_has_income = TRUE Then
