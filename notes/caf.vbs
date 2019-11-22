@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-
+Call changelog_update("11/22/2019", "Added a checkbox on the verifications dialog pop-up. This checkbox will add detail to the verifications case note that there are verifications that have been postponed.##~##", "Casey Love, Hennepin County")
 Call changelog_update("11/22/2019", "Added handling for ID information and ID requirements for household members and AREP (if interviewed). This information is added to Dialog One.##~##This functionality mandates detail if the ID verification is 'Other' and is required.##~##", "Casey Love, Hennepin County")
 Call changelog_update("11/14/2019", "BUG FIX - Dialog 4 had some fields overlapping each other sometimes, which made it difficult to read/update. Fixed the layout of Dialog  4 (CSES).##~##", "Casey Love, Hennepin County")
 Call changelog_update("11/08/2019", "Added handling for the script to change a 4 digit footer year to a 2 digit footer year (2019 becomes 19) when entering recertification month and year by program. ##~##", "Casey Love, Hennepin County")
@@ -1880,6 +1880,7 @@ function verification_dialog()
               Text 5, 305, 20, 10, "Other:"
               EditBox 30, 300, 570, 15, other_verifs
               Checkbox 10, 320, 200, 10, "Check here to have verifs numbered in the CASE/NOTE.", number_verifs_checkbox
+              Checkbox 220, 320, 200, 10, "Check here if there are verifs that have been postponed.", verifs_postponed_checkbox
 
               ButtonGroup ButtonPressed
                 PushButton 485, 10, 50, 15, "FILL", fill_button
@@ -2269,7 +2270,7 @@ manual_amount_used = FALSE
 
 'variables
 Dim EATS, row, col, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three, hest_information, addr_line_one, relationship_detail
-Dim addr_line_two, city, state, zip, address_confirmation_checkbox, addr_county, homeless_yn, addr_verif, reservation_yn, living_situation, number_verifs_checkbox
+Dim addr_line_two, city, state, zip, address_confirmation_checkbox, addr_county, homeless_yn, addr_verif, reservation_yn, living_situation, number_verifs_checkbox, verifs_postponed_checkbox
 Dim notes_on_address, notes_on_wreg, full_abawd_info, notes_on_busi, notes_on_abawd, notes_on_abawd_two, notes_on_abawd_three, verifs_needed, verif_req_form_sent_date
 Dim other_uc_income_notes, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_income, notes_on_other_UNEA, notes_on_cses, verification_memb_list, notes_on_time, notes_on_sanction
 
@@ -5802,6 +5803,10 @@ If trim(verifs_needed) <> "" Then
         Call write_variable_with_indent_in_CASE_NOTE(verif_item)
     Next
 
+    If verifs_postponed_checkbox = checked Then
+        Call write_variable_in_CASE_NOTE("---")
+        Call write_variable_in_CASE_NOTE("There may be verifications that are postponed to allow for the approval of Expedited SNAP.")
+    End If
     Call write_variable_in_CASE_NOTE("---")
     Call write_variable_in_CASE_NOTE(worker_signature)
 
