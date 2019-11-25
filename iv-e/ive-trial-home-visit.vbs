@@ -38,8 +38,26 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog initial_dialog, 0, 0, 181, 75, "Select a trial home visit option"
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/25/2019", "Updated backend functionality, and added changelog.", "Ilse Ferris, Hennepin County")
+call changelog_update("11/25/2019", "Initial version.", "Ilse Ferris, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
+'Running the initial dialog
+BeginDialog dialog1, 0, 0, 181, 75, "Select a trial home visit option"
   EditBox 95, 10, 60, 15, MAXIS_case_number
   DropListBox 95, 30, 60, 10, "Select one.."+chr(9)+"Begins"+chr(9)+"Change"+chr(9)+"Ends", THV_option
   ButtonGroup ButtonPressed
@@ -48,79 +66,10 @@ BeginDialog initial_dialog, 0, 0, 181, 75, "Select a trial home visit option"
   Text 15, 35, 75, 10, "Trail home visit option:"
   Text 45, 15, 45, 10, "Case number:"
 EndDialog
-
-BeginDialog THV_begins_dialog, 0, 0, 291, 160, "Trial home visit begins"
-  EditBox 65, 10, 90, 15, effective_date
-  DropListBox 215, 10, 70, 15, "Select one..."+chr(9)+"Yes "+chr(9)+"No", court_ordered
-  EditBox 65, 30, 220, 15, THV_verif
-  EditBox 65, 50, 220, 15, SSIS
-  DropListBox 65, 70, 90, 15, "Select one..."+chr(9)+"Yes "+chr(9)+"No", basic_IVE
-  EditBox 215, 70, 70, 15, reim_ended
-  EditBox 65, 90, 220, 15, other_notes
-  CheckBox 65, 110, 60, 10, "MEMI updated", MEMI_checkbox
-  CheckBox 135, 110, 135, 10, "Navigate to DAIL/WRIT after case note", dail_checkbox
-  EditBox 65, 130, 110, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 180, 130, 50, 15
-    CancelButton 235, 130, 50, 15
-  Text 5, 135, 60, 10, "Worker signature: "
-  Text 20, 95, 40, 10, "Other notes: "
-  Text 15, 15, 50, 10, "Effective date:"
-  Text 10, 35, 45, 10, "How verified:"
-  Text 160, 15, 50, 10, "Court ordered:"
-  Text 45, 55, 20, 10, "SSIS:"
-  Text 20, 75, 40, 10, "Basic IV-E?:"
-  Text 165, 75, 50, 10, "Reimb. ended:"
-EndDialog
-
-BeginDialog THV_change_dialog, 0, 0, 301, 115, "Trial home visit change"
-  EditBox 75, 10, 220, 15, change_reason
-  EditBox 75, 30, 80, 15, effective_date
-  EditBox 75, 50, 220, 15, actions_taken
-  EditBox 75, 70, 220, 15, other_notes
-  EditBox 75, 90, 110, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 190, 90, 50, 15
-    CancelButton 245, 90, 50, 15
-  Text 20, 35, 50, 10, "Effective date:"
-  Text 20, 55, 50, 10, "Actions taken:"
-  Text 10, 95, 60, 10, "Worker signature: "
-  Text 5, 15, 65, 10, "Reason for change:"
-  Text 30, 75, 40, 10, "Other notes: "
-EndDialog
-
-BeginDialog THV_ends_dialog, 0, 0, 291, 160, "Trial home visit ends"
-  EditBox 65, 10, 220, 15, reason_ending
-  EditBox 65, 30, 90, 15, effective_date
-  DropListBox 215, 30, 70, 15, "Select one..."+chr(9)+"Yes "+chr(9)+"No", court_ordered
-  EditBox 65, 50, 220, 15, THV_verif
-  EditBox 65, 70, 220, 15, SSIS
-  EditBox 65, 90, 70, 15, reim_updated
-  EditBox 65, 110, 220, 15, other_notes
-  EditBox 65, 130, 110, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 180, 130, 50, 15
-    CancelButton 235, 130, 50, 15
-  Text 20, 115, 40, 10, "Other notes: "
-  Text 15, 35, 50, 10, "Effective date:"
-  Text 20, 55, 45, 10, "How verified:"
-  Text 165, 35, 50, 10, "Court ordered:"
-  Text 45, 75, 20, 10, "SSIS:"
-  Text 10, 95, 55, 10, "Reimb. updated:"
-  Text 5, 135, 60, 10, "Worker signature: "
-  Text 10, 15, 55, 10, "Reason ending:"
-EndDialog
-
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
-'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog initial_dialog
+		Dialog dialog1
         cancel_confirmation
 		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF THV_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a trial home visit option."
@@ -129,19 +78,35 @@ DO
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
-back_to_SELF
-EMWriteScreen "________", 18, 43
-EMWriteScreen MAXIS_case_number, 18, 43
-EMWriteScreen CM_mo, 20, 43	'entering current footer month/year
-EMWriteScreen CM_yr, 20, 46
-
-start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-
 If THV_option = "Begins" then 
+    dialog1 = ""
+    BeginDialog dialog1, 0, 0, 291, 160, "Trial home visit begins"
+      EditBox 65, 10, 90, 15, effective_date
+      DropListBox 215, 10, 70, 15, "Select one..."+chr(9)+"Yes "+chr(9)+"No", court_ordered
+      EditBox 65, 30, 220, 15, THV_verif
+      EditBox 65, 50, 220, 15, SSIS
+      DropListBox 65, 70, 90, 15, "Select one..."+chr(9)+"Yes "+chr(9)+"No", basic_IVE
+      EditBox 215, 70, 70, 15, reim_ended
+      EditBox 65, 90, 220, 15, other_notes
+      CheckBox 65, 110, 60, 10, "MEMI updated", MEMI_checkbox
+      CheckBox 135, 110, 145, 10, "Navigate to DAIL/WRIT after case note", dail_checkbox
+      EditBox 65, 130, 110, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 180, 130, 50, 15
+        CancelButton 235, 130, 50, 15
+      Text 5, 135, 60, 10, "Worker signature: "
+      Text 20, 95, 40, 10, "Other notes: "
+      Text 15, 15, 50, 10, "Effective date:"
+      Text 10, 35, 45, 10, "How verified:"
+      Text 160, 15, 50, 10, "Court ordered:"
+      Text 45, 55, 20, 10, "SSIS:"
+      Text 20, 75, 40, 10, "Basic IV-E?:"
+      Text 165, 75, 50, 10, "Reimb. ended:"
+    EndDialog
 	DO
 		DO
 			err_msg = ""
-			Dialog THV_begins_dialog
+			Dialog dialog1
 			cancel_confirmation
 			If isDate(effective_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid effective date."
             IF court_ordered = "Select one..." then err_msg = err_msg & vbNewLine & "* Was the trial home visit court ordered?"
@@ -155,6 +120,7 @@ If THV_option = "Begins" then
  	Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
+    start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("~~Trial home visit begins~~")
     Call write_bullet_and_variable_in_CASE_NOTE("Effective date", effective_date)
     Call write_bullet_and_variable_in_CASE_NOTE("Court ordered", goal_two)
@@ -167,10 +133,26 @@ If THV_option = "Begins" then
 END IF
 
 If THV_option = "Change" then
+    dialog1 = ""
+    BeginDialog dialog1, 0, 0, 301, 115, "Trial home visit change"
+      EditBox 75, 10, 220, 15, change_reason
+      EditBox 75, 30, 80, 15, effective_date
+      EditBox 75, 50, 220, 15, actions_taken
+      EditBox 75, 70, 220, 15, other_notes
+      EditBox 75, 90, 110, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 190, 90, 50, 15
+        CancelButton 245, 90, 50, 15
+      Text 20, 35, 50, 10, "Effective date:"
+      Text 20, 55, 50, 10, "Actions taken:"
+      Text 10, 95, 60, 10, "Worker signature: "
+      Text 5, 15, 65, 10, "Reason for change:"
+      Text 30, 75, 40, 10, "Other notes: "
+    EndDialog
 	DO
 		DO
 			err_msg = ""
-			Dialog THV_change_dialog
+			Dialog dialog1
 			cancel_confirmation
 			IF change_reason = "" then err_msg = err_msg & vbNewLine & "* Enter the trial home visit change reason."
 			If isDate(effective_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid effective date."
@@ -181,6 +163,7 @@ If THV_option = "Change" then
  		Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
+    start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("~~Trial home visit changed~~")
     Call write_bullet_and_variable_in_CASE_NOTE("Reason for change", change_reason)
     Call write_bullet_and_variable_in_CASE_NOTE("Effective date", effective_date)
@@ -188,10 +171,32 @@ If THV_option = "Change" then
 END IF 
 
 If THV_option = "Ends" then
+    dialog1 = ""
+    BeginDialog dialog1, 0, 0, 291, 160, "Trial home visit ends"
+      EditBox 65, 10, 220, 15, reason_ending
+      EditBox 65, 30, 90, 15, effective_date
+      DropListBox 215, 30, 70, 15, "Select one..."+chr(9)+"Yes "+chr(9)+"No", court_ordered
+      EditBox 65, 50, 220, 15, THV_verif
+      EditBox 65, 70, 220, 15, SSIS
+      EditBox 65, 90, 70, 15, reim_updated
+      EditBox 65, 110, 220, 15, other_notes
+      EditBox 65, 130, 110, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 180, 130, 50, 15
+        CancelButton 235, 130, 50, 15
+      Text 20, 115, 40, 10, "Other notes: "
+      Text 15, 35, 50, 10, "Effective date:"
+      Text 20, 55, 45, 10, "How verified:"
+      Text 165, 35, 50, 10, "Court ordered:"
+      Text 45, 75, 20, 10, "SSIS:"
+      Text 10, 95, 55, 10, "Reimb. updated:"
+      Text 5, 135, 60, 10, "Worker signature: "
+      Text 10, 15, 55, 10, "Reason ending:"
+    EndDialog
 	DO
 		DO
 			err_msg = ""
-			Dialog THV_ends_dialog
+			Dialog dialog1
 			cancel_confirmation
 			IF reason_ending = "" then err_msg = err_msg & vbNewLine & "* Enter the ending reason."
 			If isDate(effective_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid effective date."
@@ -205,6 +210,7 @@ If THV_option = "Ends" then
  		Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
     
+    start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("~~Trial home visit ends~~")
     Call write_bullet_and_variable_in_CASE_NOTE("Reason ending", reason_ending)
     Call write_bullet_and_variable_in_CASE_NOTE("Effective date", effective_date)
