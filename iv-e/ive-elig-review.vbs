@@ -38,8 +38,26 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'DIALOG-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog IVE_elig_dialog, 0, 0, 341, 345, "IV-E eligibility review"
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/25/2019", "Updated backend functionality, and added changelog.", "Ilse Ferris, Hennepin County")
+call changelog_update("11/25/2019", "Initial version.", "Ilse Ferris, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, grabbing case number
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
+'Running the initial dialog
+BeginDialog dialog1, 0, 0, 341, 345, "IV-E eligibility review"
   EditBox 70, 10, 55, 15, MAXIS_case_number
   EditBox 70, 30, 55, 15, review_month
   EditBox 275, 10, 55, 15, child_age
@@ -87,17 +105,10 @@ BeginDialog IVE_elig_dialog, 0, 0, 341, 345, "IV-E eligibility review"
   Text 5, 55, 60, 10, "In receipt of AFDC: "
   Text 170, 35, 105, 10, "If 18, list the school verification:"
 EndDialog
-
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-
-'Running the initial dialog
 DO
 	DO
 		err_msg = ""
-		Dialog IVE_elig_dialog
+		Dialog dialog1
         cancel_confirmation
 		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF review_month = "" then err_msg = err_msg & vbNewLine & "* Enter the review month."
@@ -114,12 +125,6 @@ DO
 	LOOP UNTIL err_msg = ""
  Call check_for_password(are_we_passworded_out)
 LOOP UNTIL check_for_password(are_we_passworded_out) = False
-
-back_to_SELF
-EMWriteScreen "________", 18, 43
-EMWriteScreen MAXIS_case_number, 18, 43
-EMWriteScreen CM_mo, 20, 43	'entering current footer month/year
-EMWriteScreen CM_yr, 20, 46
 
 'creating incremental variable for income for the case note
 child_income = ""
