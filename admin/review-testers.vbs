@@ -259,6 +259,7 @@ Do
                 If tester_counter < 41 Then show_this_tester = FALSE
                 If tester_counter > 60 Then show_this_tester = FALSE
               End If
+              If page = 4 Then if tester_counter < 61 Then show_this_tester = FALSE               
               If show_this_tester = TRUE Then
                   Text 5, y_pos, 95, 10, tester.tester_full_name
                   Text 120, y_pos, 85, 10, tester.tester_supervisor_name
