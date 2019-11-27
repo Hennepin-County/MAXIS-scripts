@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("11/27/2019", "Added handling to support 10 or more children on STAT/PARE panels.", "Ilse Ferris, Hennepin County")
 Call changelog_update("11/22/2019", "Added a checkbox on the verifications dialog pop-up. This checkbox will add detail to the verifications case note that there are verifications that have been postponed.##~##", "Casey Love, Hennepin County")
 Call changelog_update("11/22/2019", "Added handling for ID information and ID requirements for household members and AREP (if interviewed). This information is added to Dialog One.##~##This functionality mandates detail if the ID verification is 'Other' and is required.##~##", "Casey Love, Hennepin County")
 Call changelog_update("11/14/2019", "BUG FIX - Dialog 4 had some fields overlapping each other sometimes, which made it difficult to read/update. Fixed the layout of Dialog  4 (CSES).##~##", "Casey Love, Hennepin County")
@@ -225,6 +226,7 @@ function HH_comp_dialog(HH_member_array)
                 EMReadScreen child_ref_nbr, 2, pare_row, 24     'Reading child, relationship and verif
                 EMReadScreen rela_type, 1, pare_row, 53
                 EMReadScreen rela_verif, 2, pare_row, 71
+                If child_ref_nbr = "__" then exit do 
 
                 If rela_type = "1" then relationship_type = "Parent"            'Changing the code for the relationship to the words are used instead of code.
                 If rela_type = "2" then relationship_type = "Stepparent"
@@ -247,7 +249,16 @@ function HH_comp_dialog(HH_member_array)
                 'Here is where the relationship information is added to the field of the dialog
                 If child_ref_nbr <> "__" Then relationship_detail = relationship_detail & "Memb " & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " is the " & relationship_type & " of Memb " & child_ref_nbr & " - Verif: " & relationship_verif & "; "
                 pare_row = pare_row + 1 'going to the next rwo
-            Loop Until child_ref_nbr = "__"     'end of information on PARE
+                If pare_row = 18 then 
+                    PF20 'shift PF8 
+                    EmReadscreen last_screen, 21, 24, 2
+                    If last_screen = "THIS IS THE LAST PAGE" then 
+                        exit do
+                    Else 
+                        pare_row = 8
+                    End if 
+                End if 
+            Loop
         End If
     Next
 
