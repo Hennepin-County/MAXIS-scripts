@@ -490,6 +490,12 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
             If GRH_code = "PEND" Then ALL_HC_REVS_ARRAY (GRH_status, hc_reviews)  = "Pending"
             If ALL_HC_REVS_ARRAY (GRH_status, hc_reviews) = "" Then ALL_HC_REVS_ARRAY (GRH_status, hc_reviews) = "Inactive"
 
+            transmit
+            EMReadScreen check_for_hcre, 4, 2, 50
+            If check_for_hcre = "HCRE" Then
+                PF10
+            End If
+
             Call navigate_to_MAXIS_screen("STAT", "REVW")
 
             EMReadScreen revw_cycle_hc, 2, 9, 79
@@ -599,6 +605,7 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
                     If ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews) <> "__ __ __" AND ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews) <> "" Then snap_sr = ALL_HC_REVS_ARRAY(new_fs_sr, hc_reviews)
 
                     If snap_sr <> ALL_HC_REVS_ARRAY (hc_sr_date, hc_reviews) Then ALL_HC_REVS_ARRAY (new_hc_sr, hc_reviews) = snap_sr
+                'May add an ELSEIF here if there are cases with legitimate NO DATES on STAT/REVW'
                 Else
                     hc_sr_correct = FALSE
                     If DateDiff("m", ALL_HC_REVS_ARRAY (hc_sr_date, hc_reviews), ALL_HC_REVS_ARRAY (hc_er_date, hc_reviews)) <> 6 Then hc_sr_correct = TRUE
@@ -771,12 +778,17 @@ For hc_reviews = 0 to UBound(ALL_HC_REVS_ARRAY, 2)
                 ALL_HC_REVS_ARRAY(revw_updated, hc_reviews) = FALSE
             End IF
 
-            ALL_HC_REVS_ARRAY(memb_on_hc, hc_reviews) = Join(HC_PERS_ARRAY, ", ")
+            If IsArray(HC_PERS_ARRAY) = TRUE Then
+                ALL_HC_REVS_ARRAY(memb_on_hc, hc_reviews) = Join(HC_PERS_ARRAY, ", ")
+            Else
+                ALL_HC_REVS_ARRAY(memb_on_hc, hc_reviews) = HC_PERS_ARRAY
+            End If
             HC_PERS_ARRAY = ""
         Else
             ALL_HC_REVS_ARRAY (revw_type, hc_reviews) = "PRIV"
             ALL_HC_REVS_ARRAY(correct_list, hc_reviews) = "No MEMBS with N REVW"
         End If
+        Call bypass_database_busy_msg
 
         If developer_mode = FALSE Then
             If ALL_HC_REVS_ARRAY(revw_updated, hc_reviews) = TRUE Then

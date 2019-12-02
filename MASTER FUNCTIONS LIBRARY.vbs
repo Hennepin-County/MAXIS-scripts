@@ -2979,6 +2979,13 @@ function back_to_SELF()
   Loop until SELF_check = "SELF"
 end function
 
+function bypass_database_busy_msg()
+'--- This function will transmit past the occasional message that a database record is busy when sending a case through background.
+'===== Keywords: MAXIS, SELF, navigate
+    EMReadScreen database_busy, 31, 4, 44
+    If database_busy = "A MAXIS database record is busy" Then transmit
+end function
+
 function cancel_confirmation()
 '--- This function asks if the user if they want to cancel. If you say yes, the script will end. If no, the dialog will appear for the user again.
 '===== Keywords: MAXIS, PRISM, MMIS, cancel, script_end_procedure
@@ -3390,9 +3397,6 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
         End If
     Next
 
-end function
-
-function add_testing_script_to_menu(selection_type, the_selection, file_path, file_branch, force_error_reporting)
 end function
 
 function confirm_tester_information()
