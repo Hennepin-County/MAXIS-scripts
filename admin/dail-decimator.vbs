@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/02/2019", "Added 07/19 COLA messages to removal list.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/07/2019", "Updated to output 8-digit case numbers and 8-character dates.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/07/2019", "Added auto-save functionality to save to specified QI folders.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/12/2019", "Added COLA messages for 03/19 COLA - SSI and RSDI Updated.", "Ilse Ferris, Hennepin County")
@@ -85,7 +86,7 @@ End Function
 'END CHANGELOG BLOCK =======================================================================================================
 
 BeginDialog dail_dialog, 0, 0, 266, 110, "Dail Decimator dialog"
-  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"ALL"+chr(9)+"CSES"+chr(9)+"ELIG"+chr(9)+"INFO"+chr(9)+"PEPR", dail_to_decimate
+  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"ALL"+chr(9)+"COLA"+chr(9)+"CSES"+chr(9)+"ELIG"+chr(9)+"INFO"+chr(9)+"PEPR", dail_to_decimate
   EditBox 80, 70, 180, 15, worker_number
   CheckBox 15, 95, 135, 10, "Check here to process for all workers.", all_workers_check
   ButtonGroup ButtonPressed
@@ -233,10 +234,8 @@ For each worker in worker_array
 			dail_msg = trim(dail_msg)
 
             EMReadScreen dail_month, 8, dail_row, 11
-            'Reformatting DAIL month
             dail_month = trim(dail_month)
-            'If len(dail_month) = 5 then dail_month = replace(dail_month, " ", "/01/")
-
+    
             stats_counter = stats_counter + 1   'I increment thee
 
             '----------------------------------------------------------------------------------------------------CSES Messages
@@ -347,6 +346,8 @@ For each worker in worker_array
                         add_to_excel = False
                     End if
                 End if
+            Elseif (dail_type = "COLA" and dail_month = "07 19") then 
+                add_to_excel = True     'Will delete any old COLA messages from 07/19
             Else
                 add_to_excel = False
             End if
