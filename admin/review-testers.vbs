@@ -259,7 +259,7 @@ Do
                 If tester_counter < 41 Then show_this_tester = FALSE
                 If tester_counter > 60 Then show_this_tester = FALSE
               End If
-              If page = 4 Then if tester_counter < 61 Then show_this_tester = FALSE               
+              If page = 4 Then if tester_counter < 61 Then show_this_tester = FALSE
               If show_this_tester = TRUE Then
                   Text 5, y_pos, 95, 10, tester.tester_full_name
                   Text 120, y_pos, 85, 10, tester.tester_supervisor_name
@@ -362,6 +362,14 @@ Do
 
         ObjExcel.Rows(1).Font.Bold = TRUE
 
+        If testers_options = "All" Then detail_edit = ""
+        ' If testers_options = "Confirmed Only" Then detail_edit = ""
+        If InStr(detail_edit, ",") <> 0 Then
+            detail_array = Split(detail_edit, ",")
+        Else
+            detail_array = array(detail_edit)
+        End If
+
         row_to_use = 2
         For each tester in tester_array                         'looping through all of the testers
             show_this_tester = FALSE
@@ -428,4 +436,4 @@ Do
 
 Loop until ButtonPressed = done_btn
 
-Call script_end_procedure_with_error_report("The End")
+Call script_end_procedure("")
