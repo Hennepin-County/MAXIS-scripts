@@ -67,6 +67,37 @@ IF PRISM_script <> true then county_name = ""		'VKC NOTE 08/12/2016: ADDED IF...
 
 If ButtonPressed <> "" then ButtonPressed = ""		'Defines ButtonPressed if not previously defined, allowing scripts the benefit of not having to declare ButtonPressed all the time
 
+'All 10-day cutoff dates are provided in POLI/TEMP TE19.132
+IF CM_mo = "01" AND CM_yr = "20" THEN
+    ten_day_cutoff_date = #01/21/2020#
+ELSEIF CM_mo = "02" AND CM_yr = "20" THEN
+    ten_day_cutoff_date = #02/19/2020#
+ELSEIF CM_mo = "03" AND CM_yr = "20" THEN
+    ten_day_cutoff_date = #03/19/2020#
+ELSEIF CM_mo = "04" AND CM_yr = "20" THEN
+    ten_day_cutoff_date = #04/20/2020#
+ELSEIF CM_mo = "05" AND CM_yr = "20" THEN
+    ten_day_cutoff_date = #05/21/2020#
+ELSEIF CM_mo = "06" AND CM_yr = "20" THEN
+    ten_day_cutoff_date = #06/18/2020#
+ELSEIF CM_mo = "07" AND CM_yr = "20" THEN
+    ten_day_cutoff_date = #07/21/2020#
+ELSEIF CM_mo = "08" AND CM_yr = "20" THEN
+    ten_day_cutoff_date = #08/20/2020#
+ELSEIF CM_mo = "09" AND CM_yr = "20" THEN
+    ten_day_cutoff_date = #09/18/2020#
+ELSEIF CM_mo = "10" AND CM_yr = "20" THEN
+    ten_day_cutoff_date = #10/21/2020#
+ELSEIF CM_mo = "11" AND CM_yr = "20" THEN
+    ten_day_cutoff_date = #11/19/2020#
+ELSEIF CM_mo = "12" AND CM_yr = "20" THEN
+    ten_day_cutoff_date = #12/21/2020#    
+ELSEIF CM_mo = "12" AND CM_yr = "19" THEN
+    ten_day_cutoff_date = #12/19/2019#                                'last month of current year
+ELSE
+	MsgBox "You have entered a date (" & CM_mo & "/" & CM_yr & ") not supported by this function. Please contact a scripts administrator to determine if the script requires updating.", vbInformation + vbSystemModal, "NOTICE"
+END IF
+
 'preloading boolean variables for tabbing dialogs
 pass_one = False
 pass_two = False
@@ -300,39 +331,6 @@ FUNCTION income_test_SNAP_net(household_size, income_limit)
 	IF DateDiff("D", date, valid_through_date) <= 0 THEN
 		out_of_date_warning = MsgBox ("This script appears to be using out of date income limits. Please contact a scripts administrator to have this updated." & vbNewLine & vbNewLine & "Press OK to continue the script. Press CANCEL to stop the script.", vbOKCancel + vbCritical + vbSystemModal, "NOTICE!!!")
 		IF out_of_date_warning = vbCancel THEN script_end_procedure("")
-	END IF
-END FUNCTION
-
-FUNCTION ten_day_cutoff_check(MAXIS_footer_month, MAXIS_footer_year, ten_day_cutoff)
-	'All 10-day cutoff dates are provided in POLI/TEMP TE19.132
-	IF MAXIS_footer_month = "01" AND MAXIS_footer_year = "19" THEN
-		ten_day_cutoff = #01/18/2019#
-	ELSEIF MAXIS_footer_month = "02" AND MAXIS_footer_year = "19" THEN
-		ten_day_cutoff = #02/15/2019#
-	ELSEIF MAXIS_footer_month = "03" AND MAXIS_footer_year = "19" THEN
-		ten_day_cutoff = #03/21/2019#
-	ELSEIF MAXIS_footer_month = "04" AND MAXIS_footer_year = "19" THEN
-		ten_day_cutoff = #04/18/2019#
-	ELSEIF MAXIS_footer_month = "05" AND MAXIS_footer_year = "19" THEN
-		ten_day_cutoff = #05/21/2019#
-	ELSEIF MAXIS_footer_month = "06" AND MAXIS_footer_year = "19" THEN
-		ten_day_cutoff = #06/20/2019#
-	ELSEIF MAXIS_footer_month = "07" AND MAXIS_footer_year = "19" THEN
-		ten_day_cutoff = #07/19/2019#
-	ELSEIF MAXIS_footer_month = "08" AND MAXIS_footer_year = "19" THEN
-		ten_day_cutoff = #08/21/2019#
-	ELSEIF MAXIS_footer_month = "09" AND MAXIS_footer_year = "19" THEN
-		ten_day_cutoff = #09/19/2019#
-	ELSEIF MAXIS_footer_month = "10" AND MAXIS_footer_year = "19" THEN
-		ten_day_cutoff = #10/21/2019#
-	ELSEIF MAXIS_footer_month = "11" AND MAXIS_footer_year = "19" THEN
-		ten_day_cutoff = #11/19/2019#
-	ELSEIF MAXIS_footer_month = "12" AND MAXIS_footer_year = "19" THEN
-		ten_day_cutoff = #12/19/2019#
-    ELSEIF MAXIS_footer_month = "12" AND MAXIS_footer_year = "18" THEN
-    	ten_day_cutoff = #12/20/2018#                                      'last month of current year
-	ELSE
-		MsgBox "You have entered a date (" & MAXIS_footer_month & "/" & MAXIS_footer_year & ") not supported by this function. Please contact a scripts administrator to determine if the script requires updating.", vbInformation + vbSystemModal, "NOTICE"
 	END IF
 END FUNCTION
 
