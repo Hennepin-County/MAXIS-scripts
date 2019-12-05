@@ -50,14 +50,6 @@ BeginDialog file_select_dialog, 0, 0, 221, 50, "Select the case list source file
     EditBox 5, 10, 165, 15, file_selection_path
 EndDialog
 
-BeginDialog excel_row_dialog, 0, 0, 126, 50, "Select the excel row to start"
-  EditBox 75, 5, 40, 15, excel_row_to_start
-  ButtonGroup ButtonPressed
-    OkButton 10, 25, 50, 15
-    CancelButton 65, 25, 50, 15
-  Text 10, 10, 60, 10, "Excel row to start:"
-EndDialog
-
 'dialog and dialog DO...Loop
 Do
     'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
@@ -74,53 +66,47 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-do
-    dialog excel_row_dialog
-    If buttonpressed = 0 then stopscript								'loops until all errors are resolved
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-excel_row = excel_row_to_start
+excel_row = 2
 
 back_to_self
 EMwritescreen "________", 18, 43
 EMWriteScreen CM_mo, 20, 43
 EMWriteScreen CM_yr, 20, 46
 
+worker_number_col = 2
+hss_col = 1
 case_num_col = 3
-basket_col = 1
-pop_col = 2
-
 DO
     'Grabs the case number
-	MAXIS_case_number = objExcel.cells(excel_row, case_num_col).value
-    If MAXIS_case_number = "" then exit do
+	worker_number = objExcel.cells(excel_row, worker_number_col).value
+    If worker_number = "" then exit do
 	back_to_self
-	EMWriteScreen "________", 18, 43
-	EMWriteScreen MAXIS_case_number, 18, 43
+    Call navigate_to_MAXIS_screen("REPT", "USER")
+    EMReadScreen CURR_panel_check, 4, 2, 47
+	If CURR_panel_check <> "USER" then ObjExcel.Cells(excel_row, worker_number_col).Value = ""
 
-    Call navigate_to_MAXIS_screen("CASE", "note")
-    EMReadScreen CURR_panel_check, 4, 2, 55
-	If CURR_panel_check <> "NOTE" then ObjExcel.Cells(excel_row, basket_col).Value = ""
-
-    'EMReadScreen basket, 7, 21, 14
-	'ObjExcel.Cells(excel_row, basket_col).Value = basket
-	EMGetCursor 21, 17
-	MsgBox "cursor"
-	PF1
-	MsgBox "where"
-    EMReadScreen HSS, 22, 22, 16
-    HSS = trim(HSS)
-    ObjExcel.Cells(excel_row, pop_col).Value = HSS
-    Transmit
-
-    MAXIS_case_number = ""
-    basket = ""
-    HSS = ""
-    excel_row = excel_row + 1
-    STATS_counter = STATS_counter + 1
-
-LOOP UNTIL objExcel.Cells(excel_row, case_num_col).value = ""	'looping until the list of cases to check for recert is complete
+	EmWriteScreen worker_number, 21, 12
+	TRANSMIT
+	'MsgBox "where 1"
+	EmReadscreen worker_number_check, 7, 7, 5
+	if worker_number = worker_number_check then
+		EmWriteScreen "X", 7, 3
+	    TRANSMIT
+	    'MsgBox "cursor"
+	    EMReadScreen HSS, 7, 14, 61
+	    'MsgBox "where"
+	    ObjExcel.Cells(excel_row, hss_col).Value = HSS
+	    TRANSMIT
+        MAXIS_case_number = ""
+        basket = ""
+        HSS = ""
+        excel_row = excel_row + 1
+        STATS_counter = STATS_counter + 1
+	else
+		MsgBox "error"
+	END IF
+LOOP UNTIL objExcel.Cells(excel_row, worker_number_col).value = ""	'looping until the list of cases to check for recert is complete
 
 STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning (because counting :p)
 script_end_procedure("Success! The Excel file now has been updated. Please review the blank case statuses that remain.")
