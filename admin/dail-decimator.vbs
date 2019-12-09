@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/09/2019", "Added 01/20 COLA messages to removal list.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/02/2019", "Added 07/19 COLA messages to removal list.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/07/2019", "Updated to output 8-digit case numbers and 8-character dates.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/07/2019", "Added auto-save functionality to save to specified QI folders.", "Ilse Ferris, Hennepin County")
@@ -289,7 +290,14 @@ For each worker in worker_array
                 instr(dail_msg, "LAST GRADE COMPLETED") OR _
                 instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") OR _
                 instr(dail_msg, "IF CLIENT HAS NOT COMPLETED RECERT, APPL CAF FOR") OR _
-                instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then
+                instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") OR _ 
+                instr (dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") OR _ 
+                instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO") OR _
+                instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO") or _
+                instr(dail_msg, "MSA RECERT DUE - NOT AUTO") or _
+                instr(dail_msg, "MSA IN PENDING STATUS - NOT AUTO") or _
+                instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO") or _
+                instr(dail_msg, "GRH: STATUS IS REIN, PENDING OR SUSPEND - NOT AUTO") then
     		        add_to_excel = True
                 'instr(dail_msg, "TPQY RESPONSE") OR _  ---removed temporarily
                 '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
