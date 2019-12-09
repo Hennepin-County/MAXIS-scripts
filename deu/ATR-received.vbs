@@ -330,7 +330,7 @@ Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications a
 
 '----------------------------------------------------------------the case note
 CALL start_a_blank_case_note
-IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH (" & first_name & ") ATR RECEIVED-----")
+IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH (" & first_name & ") ATR RECEIVED-----")
 IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") ATR RECEIVED-----")
 IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH (" & first_name & ") " & "(" & match_type_letter & ") ATR RECEIVED-----")
 CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)

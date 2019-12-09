@@ -404,7 +404,7 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
       CheckBox 205, 75, 80, 10, "Other (please specify)", other_checkbox
       DropListBox 70, 45, 115, 15, "Select One:"+chr(9)+"CB-Ovrpmt And Future Save"+chr(9)+"CC-Overpayment Only"+chr(9)+"CF-Future Save"+chr(9)+"CA-Excess Assets"+chr(9)+"CI-Benefit Increase"+chr(9)+"CP-Applicant Only Savings"+chr(9)+"BC-Case Closed"+chr(9)+"BE-Child"+chr(9)+"BE-No Change"+chr(9)+"BE-NC-Non-collectible"+chr(9)+"BE-Overpayment Entered"+chr(9)+"BN-Already Known-No Savings"+chr(9)+"BI-Interface Prob"+chr(9)+"BP-Wrong Person"+chr(9)+"BU-Unable To Verify"+chr(9)+"BO-Other"+chr(9)+"NC-Non Cooperation", resolution_status
       DropListBox 120, 65, 65, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"N/A", change_response
-      DropListBox 120, 85, 65, 15, "Select One:"+chr(9)+"DISQ Deleted"+chr(9)+"Pending Verif"+chr(9)+"No"+chr(9)+"N/A", DISQ_action
+      DropListBox 120, 85, 65, 15, "Select One:"+chr(9)+"DISQ Added"+chr(9)+"DISQ Deleted"+chr(9)+"Pending Verif"+chr(9)+"No"+chr(9)+"N/A", DISQ_action
       EditBox 270, 95, 40, 15, date_received
       EditBox 270, 115, 40, 15, exp_grad_date
       EditBox 55, 135, 255, 15, other_notes
@@ -432,20 +432,14 @@ IF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 		err_msg = ""
 		Dialog cleared_match_dialog
 		cancel_confirmation
-		IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "* Enter a valid numeric resolved time, ie 005."
-		IF resolve_time = "" THEN err_msg = err_msg & vbNewLine & "Please complete resolve time."
-		IF date_received = "" THEN
-			IF resolution_status <> "BN-Already Known-No Savings" THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was recieved in ECF."
-		END IF
-		IF date_received = "" THEN
-			IF resolution_status <> "NC-Non Cooperation" THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was recieved in ECF."
-		END IF
+		IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "Please enter a valid numeric resolved time, ie 005."
+		'IF resolution_status = "CB-Ovrpmt And Future Save" or resolution_status = "CC-Overpayment Only" or resolution_status = "CF-Future Save" or resolution_status = "CA-Excess Assets" or resolution_status = "CI-Benefit Increase" or resolution_status = "CP-Applicant Only Savings" or resolution_status = "BC-Case Closed" or resolution_status = "BE-No Change" or resolution_status = "BE-NC-Non-collectible" or resolution_status = "BN-Already Known-No Savings" or resolution_status ="BP-Wrong Person" or resolution_status = "BO-Other" and date_received = "" THEN err_msg = err_msg & vbNewLine & "Please advise of date verification was recieved in ECF."
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other verification was used to clear the match."
 		IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the client respond to Difference Notice?"
 		IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
 		IF resolution_status = "BE-No Change" AND other_notes = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE other notes must be completed."
 		IF resolution_status = "BE-Child" AND exp_grad_date = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE - Child graduation date and date rcvd must be completed."
-		If resolution_status = "CC-Overpayment Only" AND programs = "Health Care" or programs = "Medical Assistance" THEN err_msg = err_msg & vbNewLine & "* System does not allow HC or MA cases to be cleared with the code 'CC - Claim Entered'."
+		If resolution_status = "CC-Overpayment Only" AND programs = "Health Care" or programs = "Medical Assistance" THEN err_msg = err_msg & vbNewLine & "System does not allow HC or MA cases to be cleared with the code 'CC - Claim Entered'."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)

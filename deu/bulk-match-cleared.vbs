@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/07/2019", "Added handling for coding the Excel spreadsheet. You must use BC, BE, BN, or CC only in the cleared status field.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/14/2017", "Program information will not be input into the Excel spreadsheet. This will not need to be added manually by staff completing the cases.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/05/2017", "Added handling for minor children in school (excluded income) & multiple people per case.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/20/2017", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -62,14 +63,14 @@ Do
 	Do
 		'The dialog is defined in the loop as it can change as buttons are pressed
 			BeginDialog IEVS_match_dialog, 0, 0, 266, 140, "BULK IEVS Match"
-  				DropListBox 200, 50, 50, 15, "Select one..."+chr(9)+"BEER"+chr(9)+"WAGE", IEVS_type
+  				DropListBox 200, 50, 50, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"WAGE", IEVS_type
            		ButtonGroup ButtonPressed
-            	PushButton 200, 70, 50, 15, "Browse...", select_a_file_button
+            	PushButton 200, 70, 50, 15, "Browse:", select_a_file_button
             	OkButton 145, 115, 50, 15
             	CancelButton 200, 115, 50, 15
            		EditBox 15, 70, 180, 15, IEVS_match_path
            		Text 20, 30, 235, 20, "This script should be used when IEVS matches have been researched and ready to be cleared. "
-           		Text 20, 90, 230, 15, "Select the Excel file that contains the case inforamtion by selecting the 'Browse' button, and finding the file."
+           		Text 20, 90, 230, 15, "Select the Excel file that contains the case information by selecting the 'Browse' button, and finding the file."
            		Text 55, 55, 135, 10, "Select the type of IEVS match to process:"
            		GroupBox 10, 10, 250, 100, "Using the IEVS match script"
          	EndDialog
@@ -83,7 +84,7 @@ Do
 				End If
 				call file_selection_system_dialog(IEVS_match_path, ".xlsx") 'allows the user to select the file'
 			End If
-			If IEVS_type = "Select one..." then err_msg = err_msg & vbNewLine & "* Select type of match you are processing."
+			If IEVS_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Select type of match you are processing."
 			If IEVS_match_path = "" then err_msg = err_msg & vbNewLine & "* Use the Browse Button to select the file that has your client data"
 			If err_msg <> "" Then MsgBox err_msg
 		Loop until err_msg = ""
@@ -96,16 +97,17 @@ excel_row = 2			'establishing row to start
 DO
 	MAXIS_case_number 	= objExcel.cells(excel_row, 1).value	'establishes MAXIS case number
 	Client_SSN 			= objExcel.cells(excel_row, 3).value	'establishes client SSN
-	Employer_name		= objExcel.cells(excel_row, 6).value	'establishes employer name
+	income_source		= objExcel.cells(excel_row, 6).value	'establishes employer name
 	Cleared_status	    = objExcel.cells(excel_row, 8).value	'establishes cleared status for the match
 	'cleaned up
 	MAXIS_case_number 	= trim(MAXIS_case_number) 'remove extra spaces'
 	Client_SSN 			= trim(Client_SSN)
 	Client_SSN 			= replace(Client_SSN, "-", "")
-	Employer_name 	   	= trim(Employer_name)
+	income_source 	   	= trim(income_source)
 	Cleared_status 	  	= trim(Cleared_status)
 
-    If MAXIS_case_number = "" then exit do 'goes to actions outside of do loop'
+	IF Cleared_status <> "BC" or Cleared_status <> "BE" or Cleared_status <> "BN" or Cleared_status <> "CC" THEN err_msg = err_msg & vbNewLine & "Please only use BC, BE, BN, or CC when clearing a match."
+    If MAXIS_case_number = "" THEN exit do 'goes to actions outside of do loop'
 	back_to_self
 	'----------------------------------------------------------------------------------------------------DAIL
 	Call navigate_to_MAXIS_screen("DAIL", "DAIL")
@@ -318,14 +320,14 @@ DO
 
 		'Case noting the actions taken
         start_a_blank_CASE_NOTE
-        If IEVS_type = "WAGE" then Call write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE INCOME" & cleared_header_info & "-----")
-		If IEVS_type = "BEER" then Call write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON WAGE INCOME(B)" & cleared_header_info & "-----")
+        If IEVS_type = "WAGE" then Call write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH" & cleared_header_info & "-----")
+		If IEVS_type = "BEER" then Call write_variable_in_CASE_NOTE("-----" & IEVS_year & "  NON-WAGE MATCH (B)" & cleared_header_info & "-----")
 		Call write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
-		Call write_bullet_and_variable_in_CASE_NOTE("Programs open", programs)
-        Call write_bullet_and_variable_in_CASE_NOTE("Employer name", Employer_name)
+		Call write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
+        Call write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
         call write_variable_in_CASE_NOTE("------ ----- -----")
-        If Cleared_status = "BN" or Cleared_status = "BE" then Call write_variable_in_CASE_NOTE("CLIENT REPORTED EARNINGS. INCOME IS IN STAT/JOBS AND BUDGETED.")
-        If Cleared_status <> "CC" then Call write_variable_in_CASE_NOTE("NO OVERPAYMENTS OR SAVINGS RELATED TO THIS MATCH.")
+        If Cleared_status = "BN" or Cleared_status = "BE" then Call write_variable_in_CASE_NOTE("* Client reported income. Correct income is in JOBS/BUSI and budgeted.")
+        If Cleared_status <> "CC" then Call write_variable_in_CASE_NOTE("* No collectible overpayments or savings were found related to this match.")
         call write_variable_in_CASE_NOTE("------ ----- ----- ----- -----")
         Call write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
     End if
