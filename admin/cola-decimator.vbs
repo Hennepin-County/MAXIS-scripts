@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/09/2019", "Updated for 01/20 COLA messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/10/2019", "Updated for 07/19 GRH COLA messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/04/2019", "Updated for 03/19 COLA messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/10/2018", "Updated for 01/19 COLA messages.", "Ilse Ferris, Hennepin County")
@@ -57,8 +58,8 @@ Function dail_selection
 	EMWriteScreen "x", 4, 12		'transmits to the PICK screen
 	transmit
 	EMWriteScreen "_", 7, 39		'clears the all selection
-    'EmWriteScreen "X", 8, 39        'Selects COLA
-    EmWriteScreen "X", 13, 39       'Selects INFO as some COLA messages are there. 
+    EmWriteScreen "X", 8, 39        'Selects COLA
+    'EmWriteScreen "X", 13, 39       'Selects INFO as some COLA messages are there. 
     transmit
 End Function
 
@@ -182,37 +183,17 @@ For each worker in worker_array
 			dail_msg = trim(dail_msg)
 			stats_counter = stats_counter + 1
 	
-			If instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") then
-                'instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") OR _ 
-                'instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") then
-        		add_to_excel = TRUE
-            Else	
-			    add_to_excel = False 
-			End if 
-		    
             '----------------------------------------------------------------------------------------------------January COLA messages 
-            'If instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") then 
-            '	add_to_excel = True
-            'ElseIf instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO") then 
-            '	add_to_excel = True
-            'ElseIf instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO") then 
-            '	add_to_excel = True	
-            'ElseIf instr(dail_msg, "MSA RECERT DUE - NOT AUTO") then 
-            '	add_to_excel = True
-            'ElseIf instr(dail_msg, "MSA HRF DUE - NOT AUTO") then 
-            '	add_to_excel = True
-            'ElseIf instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO") then 
-            '	add_to_excel = True
-            'ElseIf instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE - REVIEW FOR MEDI UPDATES") then 
-            '	add_to_excel = True			
-            'ElseIf instr(dail_msg, "NEW MSA ELIG AUTO") then
-            '	add_to_excel = True
-            'ElseIf instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO") then 
-            '	add_to_excel = True
-            'ElseIf instr(dail_msg, "SNAP: NEW VERSION AUTO") then 
-            '	add_to_excel = True
-            'ElseIf instr(dail_msg, "GRH: NEW VERSION AUTO") then       
-            '	add_to_excel = True
+            If instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO") or _
+                instr(dail_msg, "GRH: NEW VERSION AUTO") or _      
+                instr(dail_msg, "NEW MSA ELIG AUTO") or _
+                instr(dail_msg, "SNAP: NEW VERSION AUTO") or _	
+                instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") then 
+                add_to_excel = True
+            Else 
+                add_to_excel = False
+            End if     
+             
             ''----------------------------------------------------------------------------------------------------March COLA messages
             'ElseIf instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") then       
 			'	add_to_excel = True
