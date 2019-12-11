@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/11/2019", "Updated back-end funcationality. Added error reporting option.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/02/2019", "Updated remedial care amount to $185.00 for January 2020.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/01/2018", "Updated remedial care amount to $196.00 for 2019.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -55,18 +56,21 @@ changelog_display
 '<<<GO THROUGH AND REMOVE REDUNDANT FUNCTIONS
 EMConnect ""
 remedial_care_amt = "185.00"	'Amount that needs to be updated with current remedial care amount.
-target_date = "06/30/2020" 'This sets the date range that should be changed, and will need to be updated in code at each COLA.
+target_date = "01/01/2020" 'This date is the 1st possible date that a span can be set at for current COLA span updates. This needs to be updated in code at each COLA (Dec for Jan & June for July.)
 
-BeginDialog Dialog1, 0, 0, 191, 86, "Dialog"
-  ButtonGroup ButtonPressed
-    OkButton 135, 10, 50, 15
-    CancelButton 135, 30, 50, 15
-  Text 10, 5, 115, 50, "This script will update your STAT/BILS panel's remedial care (27) entries, to the current deduction rate of $" & remedial_care_amt & "."
-  Text 10, 65, 170, 20, "Press OK to start. Remember to case note when you are finished!"
-EndDialog
+Do
+    BeginDialog Dialog1, 0, 0, 256, 65, "LTC Remedial Care BILS Panel Updater"
+    ButtonGroup ButtonPressed
+    OkButton 165, 45, 40, 15
+    CancelButton 210, 45, 40, 15
+    Text 10, 15, 240, 20, "This script will update the STAT/BILS panel(s) if remedial care (27) entries exist The rate will update to the current deduction stanard of $" & remedial_care_amt &"."
+    GroupBox 5, 5, 245, 35, "About the Script:"
+    EndDialog
 
-Dialog dialog1
-If ButtonPressed = 0 then stopscript
+    Dialog dialog1
+    cancel_without_confirmation
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 EMSendKey "s" & "<enter>"
 EMWaitReady 0, 0
@@ -75,180 +79,54 @@ EMWriteScreen "bils", 20, 71
 EMSendKey "<enter>"
 EMWaitReady 0, 0
 
-EMSendKey "<PF9>"
-EMWaitReady 0, 0
+PF9 'into edit mode 
 
 Do
-  EMReadScreen page_number, 2, 3, 72
-  If page_number = " 1" then exit do
-  EMSendKey "<PF19>" 'This is shift-PF7
-  EMWaitReady 0, 0
+    EMReadScreen page_number, 2, 3, 72
+    If page_number = " 1" then exit do
+    PF19
 Loop until page_number = " 1"
 
-updates_made = 0 'Setting the variable for the following do...loop
-
+updates_made = 0 'Setting the variable count 
+bils_row = 6
 Do
+    'msgbox bils_row
+    EMReadScreen BILS_line, 54, bils_row, 26    'Reading BILS line from 'Ref Nbr' through 'Dpd Ind'
+    BILS_line = replace(BILS_line, "$", " ")
+    BILS_line = split(BILS_line, "  ") 'splitting elements into an array
+        'Array positions
+        '0 = Ref Nbr
+        '1 = Date
+        '2 = Serv (code)
+        '3 = Gross ($ amt)
+        '4 = Third Payments 
+        '5 = Ver (code)
+    BILS_line(1) = replace(BILS_line(1), " ", "/") 'changing format to be recongized as a date 
+    If IsDate(BILS_line(1)) = False then exit do 
+    
+    If datediff("d", target_date, BILS_line(1)) => 0 and BILS_line(2) = 27 and BILS_line(5) <> remedial_care_amt then
+        EMWriteScreen remedial_care_amt, bils_row, 48
+        EMWriteScreen "C", bils_row, 24
+        updates_made = updates_made + 1        
+    End if 
 
-  EMReadScreen BILS_line_01, 54, 6, 26
-  BILS_line_01 = replace(BILS_line_01, "$", " ")
-  BILS_line_01 = split(BILS_line_01, "  ")
-  BILS_line_01(1) = replace(BILS_line_01(1), " ", "/")
-  If IsDate(BILS_line_01(1)) = True then
-    If datediff("d", target_date, BILS_line_01(1)) > 0 and BILS_line_01(2) = 27 and BILS_line_01(5) <> remedial_care_amt then
-      EMWriteScreen remedial_care_amt, 6, 48
-      EMWriteScreen "c", 6, 24
-      updates_made = updates_made + 1
+    bils_row = bils_row + 1
+    BILS_line = ""
+    
+    If bils_row = 18 then
+        PF20
+        bils_row = 6
     End If
-  End If
 
-  EMReadScreen BILS_line_02, 54, 7, 26
-  BILS_line_02 = replace(BILS_line_02, "$", " ")
-  BILS_line_02 = split(BILS_line_02, "  ")
-  BILS_line_02(1) = replace(BILS_line_02(1), " ", "/")
-  If IsDate(BILS_line_02(1)) = True then
-    If datediff("d", target_date, BILS_line_02(1)) > 0 and BILS_line_02(2) = 27 and BILS_line_02(5) <> remedial_care_amt then
-    EMWriteScreen remedial_care_amt, 7, 48
-    EMWriteScreen "c", 7, 24
-    updates_made = updates_made + 1
-    End If
-  End If
-
-  EMReadScreen   BILS_line_03, 54, 8, 26
-  BILS_line_03 = replace(BILS_line_03, "$", " ")
-  BILS_line_03 = split(BILS_line_03, "  ")
-  BILS_line_03(1) = replace(BILS_line_03(1), " ", "/")
-  If IsDate(BILS_line_03(1)) = True then
-    If datediff("d", target_date, BILS_line_03(1)) > 0 and BILS_line_03(2) = 27 and BILS_line_03(5) <> remedial_care_amt then
-    EMWriteScreen remedial_care_amt, 8, 48
-    EMWriteScreen "c", 8, 24
-    updates_made = updates_made + 1
-    End If
-  End If
-
-  EMReadScreen   BILS_line_04, 54, 9, 26
-  BILS_line_04 = replace(BILS_line_04, "$", " ")
-  BILS_line_04 = split(BILS_line_04, "  ")
-  BILS_line_04(1) = replace(BILS_line_04(1), " ", "/")
-  If IsDate(BILS_line_04(1)) = True then
-    If datediff("d", target_date, BILS_line_04(1)) > 0 and BILS_line_04(2) = 27 and BILS_line_04(5) <> remedial_care_amt then
-    EMWriteScreen remedial_care_amt, 9, 48
-    EMWriteScreen "c", 9, 24
-    updates_made = updates_made + 1
-    End If
-  End If
-
-  EMReadScreen   BILS_line_05, 54, 10, 26
-  BILS_line_05 = replace(BILS_line_05, "$", " ")
-  BILS_line_05 = split(BILS_line_05, "  ")
-  BILS_line_05(1) = replace(BILS_line_05(1), " ", "/")
-  If IsDate(BILS_line_05(1)) = True then
-    If datediff("d", target_date, BILS_line_05(1)) > 0 and BILS_line_05(2) = 27 and BILS_line_05(5) <> remedial_care_amt then
-    EMWriteScreen remedial_care_amt, 10, 48
-    EMWriteScreen "c", 10, 24
-    updates_made = updates_made + 1
-    End If
-  End If
-
-  EMReadScreen   BILS_line_06, 54, 11, 26
-  BILS_line_06 = replace(BILS_line_06, "$", " ")
-  BILS_line_06 = split(BILS_line_06, "  ")
-  BILS_line_06(1) = replace(BILS_line_06(1), " ", "/")
-  If IsDate(BILS_line_06(1)) = True then
-    If datediff("d", target_date, BILS_line_06(1)) > 0 and BILS_line_06(2) = 27 and BILS_line_06(5) <> remedial_care_amt then
-    EMWriteScreen remedial_care_amt, 11, 48
-    EMWriteScreen "c", 11, 24
-    updates_made = updates_made + 1
-    End If
-  End If
-
-  EMReadScreen   BILS_line_07, 54, 12, 26
-  BILS_line_07 = replace(BILS_line_07, "$", " ")
-  BILS_line_07 = split(BILS_line_07, "  ")
-  BILS_line_07(1) = replace(BILS_line_07(1), " ", "/")
-  If IsDate(BILS_line_07(1)) = True then
-    If datediff("d", target_date, BILS_line_07(1)) > 0 and BILS_line_07(2) = 27 and BILS_line_07(5) <> remedial_care_amt then
-    EMWriteScreen remedial_care_amt, 12, 48
-    EMWriteScreen "c", 12, 24
-    updates_made = updates_made + 1
-    End If
-  End If
-
-  EMReadScreen   BILS_line_08, 54, 13, 26
-  BILS_line_08 = replace(BILS_line_08, "$", " ")
-  BILS_line_08 = split(BILS_line_08, "  ")
-  BILS_line_08(1) = replace(BILS_line_08(1), " ", "/")
-  If IsDate(BILS_line_08(1)) = True then
-    If datediff("d", target_date, BILS_line_08(1)) > 0 and BILS_line_08(2) = 27 and BILS_line_08(5) <> remedial_care_amt then
-    EMWriteScreen remedial_care_amt, 13, 48
-    EMWriteScreen "c", 13, 24
-    updates_made = updates_made + 1
-    End If
-  End If
-
-  EMReadScreen   BILS_line_09, 54, 14, 26
-  BILS_line_09 = replace(BILS_line_09, "$", " ")
-  BILS_line_09 = split(BILS_line_09, "  ")
-  BILS_line_09(1) = replace(BILS_line_09(1), " ", "/")
-  If IsDate(BILS_line_09(1)) = True then
-    If datediff("d", target_date, BILS_line_09(1)) > 0 and BILS_line_09(2) = 27 and BILS_line_09(5) <> remedial_care_amt then
-    EMWriteScreen remedial_care_amt, 14, 48
-    EMWriteScreen "c", 14, 24
-    updates_made = updates_made + 1
-    End If
-  End If
-
-  EMReadScreen   BILS_line_10, 54, 15, 26
-  BILS_line_10 = replace(BILS_line_10, "$", " ")
-  BILS_line_10 = split(BILS_line_10, "  ")
-  BILS_line_10(1) = replace(BILS_line_10(1), " ", "/")
-  If IsDate(BILS_line_10(1)) = True then
-    If datediff("d", target_date, BILS_line_10(1)) > 0 and BILS_line_10(2) = 27 and BILS_line_10(5) <> remedial_care_amt then
-    EMWriteScreen remedial_care_amt, 15, 48
-    EMWriteScreen "c", 15, 24
-    updates_made = updates_made + 1
-    End If
-  End If
-
-  EMReadScreen   BILS_line_11, 54, 16, 26
-  BILS_line_11 = replace(BILS_line_11, "$", " ")
-  BILS_line_11 = split(BILS_line_11, "  ")
-  BILS_line_11(1) = replace(BILS_line_11(1), " ", "/")
-  If IsDate(BILS_line_11(1)) = True then
-    If datediff("d", target_date, BILS_line_11(1)) > 0 and BILS_line_11(2) = 27 and BILS_line_11(5) <> remedial_care_amt then
-    EMWriteScreen remedial_care_amt, 16, 48
-    EMWriteScreen "c", 16, 24
-    updates_made = updates_made + 1
-    End If
-  End If
-
-  EMReadScreen   BILS_line_12, 54, 17, 26
-  BILS_line_12 = replace(BILS_line_12, "$", " ")
-  BILS_line_12 = split(BILS_line_12, "  ")
-  BILS_line_12(1) = replace(BILS_line_12(1), " ", "/")
-  If IsDate(BILS_line_12(1)) = True then
-    If datediff("d", target_date, BILS_line_12(1)) > 0 and BILS_line_12(2) = 27 and BILS_line_12(5) <> remedial_care_amt then
-    EMWriteScreen remedial_care_amt, 17, 48
-    EMWriteScreen "c", 17, 24
-    updates_made = updates_made + 1
-    End If
-  End If
-
-  EMReadScreen current_page, 1, 3, 73
-  EMReadScreen total_pages, 1, 3, 78
-  If cint(current_page) <> cint(total_pages) then
-  EMSendKey "<PF20>"
-  EMWaitReady 0, 0
-  End If
-
+    EMReadScreen current_page, 1, 3, 73
+    EMReadScreen total_pages, 1, 3, 78
 Loop until cint(current_page) = cint(total_pages)
 
-EMSendKey "<PF3>"
-EMWaitReady 0, 0
+PF3
+PF3
 
-EMSendKey "<PF3>"
-EMWaitReady 0, 0
-
-If updates_made <> 0 then MsgBox "Success! Updates made: " & updates_made & "."
-If updates_made = 0 then MsgBox "No remedial care entries found. You may have already updated this case! Otherwise, this client may be at their renewal, or no remedial care deduction was made. If this appears to be an error, contact the BlueZone Scripts Team."
-
-script_end_procedure("")
+If updates_made <> 0 then 
+    script_end_procedure_with_error_report("Success! Updates made: " & updates_made & ".")
+elseif updates_made = 0 then 
+    script_end_procedure_with_error_report("No remedial care entries found to update. You may have already updated this case or need to add new BILS. Use ACTIONS - BILS UPDATER to add new BILS.")
+End if 
