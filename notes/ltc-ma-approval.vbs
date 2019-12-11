@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/11/2019", "Added COLA as an option in the special header droplist", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -248,7 +249,7 @@ BeginDialog Dialog1, 0, 0, 376, 165, "Approval dialog"
   CheckBox 5, 80, 125, 15, "Sent DHS-5181 to Case Manager", sent_5181_check
   EditBox 75, 100, 140, 15, designated_provider
   EditBox 75, 120, 295, 15, other
-  DropListBox 60, 145, 60, 15, "None"+chr(9)+"Paperless IR"+chr(9)+"HRF", special_header_droplist
+  DropListBox 60, 145, 60, 15, "None"+chr(9)+"COLA"+chr(9)+"Paperless IR"+chr(9)+"HRF", special_header_droplist
   EditBox 190, 145, 70, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 265, 145, 50, 15
