@@ -291,6 +291,9 @@ If AVS_option = "Initial Monthly Upload" then
     	objExcel.Columns(i).AutoFit()				'sizing the columns'
     NEXT
     
+    ObjExcel.columns(8).NumberFormat = "mm/dd/yy" 		'formatting waiver start date as a date
+    ObjExcel.columns(9).NumberFormat = "mm/dd/yy" 		'formatting waiver end date as a date
+    
     DIM case_array()
     ReDim case_array(16, 0)
     
@@ -335,7 +338,7 @@ If AVS_option = "Initial Monthly Upload" then
         case_array(clt_PMI_const,               entry_record) = Client_PMI			
         case_array(SMI_num_const,               entry_record) = ""                       
         case_array(waiver_start_const,	        entry_record) = ""
-        case_array(waiver_end _const,	        entry_record) = ""
+        case_array(waiver_end_const,	        entry_record) = ""
         case_array(medicare_info_const,         entry_record) = ""     
         case_array(first_case_number_const,   	entry_record) = ""				
         case_array(first_type_const, 	        entry_record) = ""				
@@ -442,7 +445,7 @@ If AVS_option = "Initial Monthly Upload" then
                         EMReadscreen waiver_start_date, 8, 15, 25
                         EmReadscreen waiver_end_date, 8, 15, 46
                         Case_array(waiver_start_const, item) = waiver_start_date
-                        Case_array(waiver_end_const, item) = waiver_end
+                        Case_array(waiver_end_const, item) = waiver_end_date
                     End if 
                     
                     'Medicare info
@@ -494,8 +497,7 @@ If AVS_option = "Initial Monthly Upload" then
                     
                     'outputting to Excel 
                     objExcel.Cells(excel_row, SMI_col).Value = case_array (SMI_num_const,                  item)
-                    objExcel.Cells(excel_row, wstart_col).Value = case_array (waiver_info_const,	       item)
-                    objExcel.Cells(excel_row, wend_col).Value = case_array (waiver_start_const,	           item)
+                    objExcel.Cells(excel_row, wstart_col).Value = case_array (waiver_start_const,	       item)
                     objExcel.Cells(excel_row, wend_col).Value = case_array (waiver_end_const,	           item)
                     objExcel.Cells(excel_row, medi_col).Value = case_array (medicare_info_const,           item)
                     objExcel.Cells(excel_row, one_case_col).Value = case_array (first_case_number_const,   item)
@@ -734,7 +736,7 @@ If instr(AVS_option, "Memo") then
 '    Loop 
 End if 
     
-FOR i = 1 to 21		'formatting the cells
+FOR i = 1 to 22		'formatting the cells
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
     
