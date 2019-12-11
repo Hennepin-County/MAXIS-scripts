@@ -286,20 +286,20 @@ LOOP until err_msg = ""
 'checking for an active MAXIS session
 Call check_for_MAXIS (FALSE)
 
+'Variables for the case note
+If special_header_droplist = "None" then note_header = " for "
+If special_header_droplist = "COLA" then note_header = " for COLA for "
+If special_header_droplist = "HRF" then note_header = " for HRF "
+If special_header_droplist = "Paperless IR" then note_header = " for paperless IR for "
+
+If budget_type = "L" then SD_type = " LTC SD**"
+If budget_type = "S" then SD_type = " SISEW waiver obl**"
+If budget_type = "B" then SD_type = " recip amt**"
+
+
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 start_a_blank_CASE_NOTE
-'if case is L budget
-If (special_header_droplist = "HRF" AND budget_type = "L") then Call write_variable_in_CASE_NOTE("**Approved " & elig_type & "-" & budget_type & " for HRF " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " LTC SD**")
-If (special_header_droplist = "Paperless IR" AND budget_type = "L") then Call write_variable_in_CASE_NOTE("**Approved " & elig_type & "-" & budget_type & " for paperless IR for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " LTC SD**")
-If (special_header_droplist = "None" AND budget_type = "L") then Call write_variable_in_case_note("**Approved " & elig_type & "-" & budget_type & " for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " LTC SD**")
-'if case is S budget
-If (special_header_droplist = "HRF" AND budget_type = "S") then Call write_variable_in_CASE_NOTE("**Approved HRF " & elig_type & "-" & budget_type & " for HRF " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " SISEW waiver obl**")
-If (special_header_droplist = "Paperless IR" AND budget_type = "S") then Call write_variable_in_CASE_NOTE("**Approved " & elig_type & "-" & budget_type & " for paperless IR for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " SISEW waiver obl**")
-If (special_header_droplist = "None" AND budget_type = "S") then Call write_variable_in_case_note("**Approved " & elig_type & "-" & budget_type & " for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " SISEW waiver obl**")
-'if case is B budget
-If (special_header_droplist = "HRF" AND budget_type = "B") then Call write_variable_in_CASE_NOTE("**Approved HRF " & elig_type & "-" & budget_type & " for HRF " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " recip amt**")
-If (special_header_droplist = "Paperless IR" AND budget_type = "B") then Call write_variable_in_CASE_NOTE("**Approved " & elig_type & "-" & budget_type & " for paperless IR for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " recip amt**")
-If (special_header_droplist = "None" AND budget_type = "B") then Call write_variable_in_case_note("**Approved " & elig_type & "-" & budget_type & " for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & " recip amt**")
+Call write_variable_in_CASE_NOTE("**Approved " & elig_type & "-" & budget_type & note_header & MAXIS_footer_month & "/" & MAXIS_footer_year & ", " & recipient_amt & SD_type)
 call write_bullet_and_variable_in_case_note ("Income", income)
 call write_bullet_and_variable_in_case_note ("Deductions", deductions)
 call write_variable_in_case_note ("")
