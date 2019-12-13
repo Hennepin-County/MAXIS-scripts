@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/12/2019", "Added DAIL type selection to dialog box.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/02/2019", "Updated Adults basket numbers per Faughn's request.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/23/2019", "Added Adults & ADS population option.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/17/2019", "Added ADS as population option.", "Ilse Ferris, Hennepin County")
@@ -56,15 +57,56 @@ changelog_display
 
 'END CHANGELOG BLOCK =======================================================================================================
 
-BeginDialog dail_dialog, 0, 0, 266, 85, "Dail Decimator dialog"
-  DropListBox 75, 50, 80, 15, "Select one..."+chr(9)+"ADS"+chr(9)+"Adults"+chr(9)+"Adults & ADS", dail_to_decimate
-  CheckBox 15, 70, 145, 10, "OR Check here to process for all workers.", all_workers_check
+Function dail_type_selection
+	'selecting the type of DAIl message
+    If all_check = 0 then 
+	    EMWriteScreen "x", 4, 12		'transmits to the PICK screen
+	    transmit
+	    EMWriteScreen "_", 7, 39		'clears the all selection
+        
+	    If cola_check = 1 then EMWriteScreen "x", 8, 39
+	    If clms_check = 1 then EMWriteScreen "x", 9, 39
+	    If cses_check = 1 then EMWriteScreen "x", 10, 39
+	    If elig_check = 1 then EMWriteScreen "x", 11, 39
+	    If ievs_check = 1 then EMWriteScreen "x", 12, 39
+	    If info_check = 1 then EMWriteScreen "x", 13, 39
+	    If iv3_check = 1 then EMWriteScreen "x", 14, 39
+	    If ma_check = 1 then EMWriteScreen "x", 15, 39
+ 	    If mec2_check = 1 then EMWriteScreen "x", 16, 39
+	    If pari_chck = 1 then EMWriteScreen "x", 17, 39
+	    If pepr_check = 1 then EMWriteScreen "x", 18, 39
+	    If tikl_check = 1 then EMWriteScreen "x", 19, 39
+	    If wf1_check = 1 then EMWriteScreen "x", 20, 39
+	    transmit 
+    End if 
+End Function
+
+BeginDialog dialog1, 0, 0, 251, 210, "DAIL Decimation Main Dialog"
+  DropListBox 55, 100, 80, 15, "Select one..."+chr(9)+"ADS"+chr(9)+"Adults"+chr(9)+"Adults & ADS", dail_to_decimate
+  CheckBox 10, 120, 135, 10, "OR check here to process for all workers.", all_workers_check
+  CheckBox 10, 155, 25, 10, "ALL",   All_check
+  CheckBox 40, 155, 30, 10, "COLA",  cola_check
+  CheckBox 75, 155, 30, 10, "CLMS",  clms_check
+  CheckBox 110, 155, 30, 10, "CSES", cses_check
+  CheckBox 145, 155, 30, 10, "ELIG", elig_check
+  CheckBox 180, 155, 30, 10, "IEVS", ievs_check
+  CheckBox 210, 155, 30, 10, "INFO", info_check
+  CheckBox 10, 170, 25, 10, "IV-E",  iv3_check
+  CheckBox 40, 170, 25, 10, "MA",    ma_check
+  CheckBox 75, 170, 30, 10, "MEC2",  mec2_check
+  CheckBox 110, 170, 35, 10, "PARI", pari_chck
+  CheckBox 145, 170, 30, 10, "PEPR", pepr_check
+  CheckBox 180, 170, 30, 10, "TIKL", tikl_check
+  CheckBox 210, 170, 30, 10, "WF1",  wf1_check
   ButtonGroup ButtonPressed
-    OkButton 165, 65, 45, 15
-    CancelButton 215, 65, 45, 15
-  GroupBox 10, 5, 250, 40, "Using the DAIL Decimator script"
-  Text 20, 20, 235, 20, "This script should be used to remove All DAIL messages that have been determined by Quality Improvement staff do not require action."
-  Text 15, 55, 60, 10, "Select population:"
+    OkButton 155, 190, 40, 15
+    CancelButton 200, 190, 40, 15
+  Text 10, 35, 220, 40, "This script will delete DAIL messages from the DAIL type and population selected below, and capture the actionable DAIL messages. The final step once the DAIL messages have been evaluated will be to out put all actionable DAIL messages to a SQL Database which feeds the Big Scoop Report."
+  GroupBox 5, 20, 240, 60, "Using the DAIL Decimator script"
+  GroupBox 5, 140, 240, 45, "Step 2. Select the type(s) of DAIL message to add to the report:"
+  Text 65, 5, 135, 10, "---DAIL Decimator:Task-Based Edition---"
+  Text 10, 105, 40, 10, "Population:"
+  GroupBox 5, 85, 240, 50, "Step 1. Select the population"
 EndDialog
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
@@ -82,7 +124,7 @@ report_date = replace(date, "/", "-")
 Do
 	Do
   		err_msg = ""
-  		dialog dail_dialog
+  		dialog dialog1
   		cancel_without_confirmation
   		If trim(dail_to_decimate) = "Select one..." and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
   		If trim(dail_to_decimate) <> "Select one..." and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
@@ -174,6 +216,7 @@ For each worker in worker_array
 	transmit
 	transmit 'transmit past 'not your dail message'
 
+    Call dail_type_selection
     EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
 
 	DO
@@ -365,6 +408,7 @@ For each worker in worker_array
 				CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 				Call write_value_and_transmit(worker, 21, 6)
 				transmit   'transmit past 'not your dail message'
+                Call dail_type_selection
 				exit do
 			End if
 
