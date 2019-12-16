@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/16/2019", "BUG FIX - There was an error when completing the PIC in the month of application. This should now be resolved and the script will not get stuck on the PIC.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/22/2019", "BUG FIX - The PIC does not allow for hours to have more than 2 decimal points written into MAXIS. Sometimes check stubs have 3 decimals provided. The script will change to 2 decimal points for the entry of information only, the information entered into the dialog and input on the CASE/NOTE can still be 3 decimal points.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/06/2019", "BUG FIX - The script was hitting an error if a 'known pay date' was entered that is after the intital month to update. Added functionality for the script to recalculate the 'known pay date' back to the beginning of the update period. This way any known pay date will work in the script.##~##", "Casey Love, Hennepin County")
 call changelog_update("08/21/2019", "Handling added to prohibit the attempted update of months prior to the first check entered for a job.", "Casey Love, Hennepin County")
@@ -3221,6 +3222,11 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                             transmit
                             PF20
 
+                            EMWriteScreen "      ", 8, 64
+                            EMWriteScreen "        ", 9, 66
+                            EMWriteScreen "        ", 13, 66
+                            EMWriteScreen "  ", 14, 64
+
                             list_row = 9                    'here we clear the PIC of all previous data
                             beg_of_list_check = ""
                             Do
@@ -3232,18 +3238,14 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                 list_row = list_row + 1
 
                                 If list_row = 14 Then
-                                    PF19
+                                    transmit
                                     PF19
 
                                     EMReadScreen beg_of_list_check, 10, 20, 18
+                                    ' MsgBox beg_of_list_check
                                     list_row = 9
                                 End If
                             Loop until beg_of_list_check = "FIRST PAGE"
-
-                            EMWriteScreen "      ", 8, 64
-                            EMWriteScreen "        ", 9, 66
-                            EMWriteScreen "        ", 13, 66
-                            EMWriteScreen "  ", 14, 64
 
                             Call create_MAXIS_friendly_date(date, 0, 5, 34)                     'enter the current date in date of calculation field
                             EMWriteScreen left(EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel), 1), 5, 64        'enter the pay frequency code only in the correct field
@@ -3269,7 +3271,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                 Else
                                     reason_lumped = "month of application and first month of new job"
                                 End If
-
+                                ' MsgBox "Ave inc - " & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) & vbNewLine & "Ave hrs - " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)
                                 For each this_date in this_month_checks_array           'this array was set at the begining of this month's loop - it will get us all our pay dates
                                     If DateDiff("d", this_date, EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)) < 1 Then     'if the pay date we are looking at is on or after the income start date we will add it in to the lump
 
@@ -3314,9 +3316,9 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                 EMWriteScreen "01", 9, 16
                                 EMWriteScreen MAXIS_footer_year, 9, 19
                                 appl_month_gross = FormatNumber(appl_month_gross, 2, -1, 0, 0)      'the sum of all the pay check gross amounts (or average) is formated and entered
-                                EMWriteScreen appl_month_gross, list_row, 25
+                                EMWriteScreen appl_month_gross, 9, 25
                                 appl_month_hours = FormatNumber(appl_month_hours, 2, -1, 0, 0)
-                                EMWriteScreen appl_month_hours, list_row, 35
+                                EMWriteScreen appl_month_hours, 9, 35
 
                                 updates_to_display = updates_to_display & vbNewLine & "Actual Pay: Date - " & MAXIS_footer_month & "/01/" & MAXIS_footer_year & " - $" & appl_month_gross & " - " & appl_month_hours & " hrs." & vbNewLine
 
