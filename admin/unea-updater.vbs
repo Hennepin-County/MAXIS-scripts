@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("12/16/2019", "Updated data columns based on current data pull.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/12/2019", "Updated text for case note re: veterans services.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("01/04/2019", "Updated column numbers. New information is being pulled into the report.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("06/08/2018", "Removed custom function. This is now in the HC Functions Library. Updated back end dialog functionality and updated ", "Ilse Ferris, Hennepin County")
@@ -126,9 +127,10 @@ Do                                                            'Loops until there
     
 	income_type  	= objExcel.cells(excel_row,  9).value	'(col I) establishes income type code 
 	claim_number 	= objExcel.cells(excel_row, 11).value	'(col K) establishes claim number from MAXIS (created by the report) 
-    actual_claim 	= objExcel.cells(excel_row, 12).value	'(col L) establishes the acutal claim number (if another claim number was found by VA staff)
-	unea_amount	 	= objExcel.cells(excel_row, 13).value	'(col M) establishes grant amount for each case
-	cola_amount	 	= objExcel.cells(excel_row, 14).value	'(col N) establishes COLA amount for each case (if applicable)
+    
+    actual_claim 	= objExcel.cells(excel_row, 16).value	'(col P) establishes the acutal claim number (if another claim number was found by VA staff)
+	unea_amount	 	= objExcel.cells(excel_row, 17).value	'(col Q) establishes grant amount for each case
+	cola_amount	 	= objExcel.cells(excel_row, 18).value	'(col R) establishes COLA amount for each case (if applicable)
 	'cleaning up the variables
 	income_type	 	= trim(income_type)
 	claim_number 	= trim(claim_number)
@@ -432,8 +434,8 @@ Next
 'Export data to Excel 
 excel_row = 2
 For i = 0 to Ubound(UNEA_array, 2)
-	ObjExcel.Cells(Excel_row, 15).Value = UNEA_array(act_status, i) '(Col P)
-	ObjExcel.Cells(Excel_row, 16).Value = UNEA_array(act_notes,  i) '(Col Q)
+	ObjExcel.Cells(Excel_row, 19).Value = UNEA_array(act_status, i) '(Col P)
+	ObjExcel.Cells(Excel_row, 20).Value = UNEA_array(act_notes,  i) '(Col Q)
 	Excel_row = Excel_row + 1
 Next
 
