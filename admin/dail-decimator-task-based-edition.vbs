@@ -305,7 +305,18 @@ For each worker in worker_array
                 instr(dail_msg, "LAST GRADE COMPLETED") OR _
                 instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") OR _
                 instr(dail_msg, "IF CLIENT HAS NOT COMPLETED RECERT, APPL CAF FOR") OR _
-                instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") then
+                instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") OR _
+                instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") OR _ 
+                instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE") OR _
+                instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO") OR _
+                instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO") or _
+                instr(dail_msg, "HEALTH CARE IS IN REINSTATE OR PENDING STATUS") OR _
+                instr(dail_msg, "MSA RECERT DUE - NOT AUTO") or _
+                instr(dail_msg, "MSA IN PENDING STATUS - NOT AUTO") or _
+                instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO") or _
+                instr(dail_msg, "GRH: STATUS IS REIN, PENDING OR SUSPEND - NOT AUTO") OR _ 
+                instr(dail_msg, "SNAP: PENDING OR STAT EDITS EXIST") OR _ 
+                instr(dail_msg, "SNAP: REIN STATUS - NOT AUTO-APPROVED") then
     		        add_to_excel = True
                 '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
             Elseif instr(dail_msg, "CORRECT STAT EDITS") then
