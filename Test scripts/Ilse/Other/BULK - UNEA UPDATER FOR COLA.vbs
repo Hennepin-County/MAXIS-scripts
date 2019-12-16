@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "BULK - UNEA UPDATER FOR COLA.vbs"
+name_of_script = "ADMIN - UNEA UPDATER FOR COLA.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 335                      'manual run time in seconds
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/16/2019", "Updated for 2020 COLA to work off of DAIL. BOBI does not provide data elements.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/02/2018", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -80,7 +81,9 @@ CM_minus_1_yr = right(DatePart("yyyy", DateAdd("m", -1, date)), 2)
 current_date = date
 Call ONLY_create_MAXIS_friendly_date(current_date)			'reformatting the dates to be MM/DD/YY format to measure against the panel dates
 
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\COLA\COLA UNEA information 11-26-2018.xlsx"
+first_of_month = CM_mo & "/" & "1" & "/" & CM_yr 
+
+file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\BZ ongoing projects\COLA\COLA Increase Automation\UNEA BOBI Pull.xlsx"
 
 'dialog and dialog DO...Loop	
 Do
@@ -104,13 +107,14 @@ do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-objExcel.Cells(1, 6).Value = "2018 amt."
-objExcel.Cells(1, 7).Value = "COLA amt."
-objExcel.Cells(1, 8).Value = "Disregard"
-objExcel.Cells(1, 9).Value = "Status"
-objExcel.Cells(1, 10).Value = "Case notes"
 
-FOR i = 1 to 10	'formatting the cells'
+objExcel.Cells(1, 10).Value = "2020 Amount"
+objExcel.Cells(1, 11).Value = "COLA Disregard"
+objExcel.Cells(1, 12).Value = "Last Update Date"
+objExcel.Cells(1, 13).Value = "Case Status"
+objExcel.Cells(1, 14).Value = "Case Notes"
+
+FOR i = 1 to 14	'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	'ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -121,10 +125,10 @@ Dim UNEA_array()
 ReDim UNEA_array (8, 0)
 
 'Sets constants for the array to make the script easier to read (and easier to code)'
-Const case_num    	= 0			'Each of the case numbers will be stored at this position'
+Const case_number   = 0			'Each of the case numbers will be stored at this position'
 Const memb_num    	= 1
 Const inc_type		= 2
-Const claim_num   	= 3
+Const update_num   	= 3
 Const unea_amt 	  	= 4
 Const cola_amt    	= 5
 Const cola_dis      = 6
@@ -135,25 +139,26 @@ Const case_notes   	= 8
 excel_row = excel_row_to_start 're-establishing the row to start checking the members for
 entry_record = 0
 Do                                                            'Loops until there are no more cases in the Excel list
-	MAXIS_case_number = objExcel.cells(excel_row, 1).Value          're-establishing the case numbers for functions to use
-	If MAXIS_case_number = "" then exit do
+	MAXIS_case_number = objExcel.cells(excel_row, 2).Value          're-establishing the case numbers for functions to use
 	MAXIS_case_number = trim(MAXIS_case_number)
+    If MAXIS_case_number = "" then exit do
 	    
-	member_number = objExcel.cells(excel_row, 3).value	'establishes client SSN
-    member_number = right(member_number, 2)
-	
-	income_type  	= objExcel.cells(excel_row,  4).value	
-    income_type	 	= trim(income_type)
-	claim_number 	= objExcel.cells(excel_row, 5).value	
-    claim_number 	= trim(claim_number)
+	member_number = objExcel.cells(excel_row, 7).value	'establishes client SSN
+    member_number = "0" & right(member_number, 2)
 
+	income_type = objExcel.cells(excel_row, 8).value	
+    income_type = trim(income_type)
+    
+    current_unea = objExcel.cells(excel_row, 9).value	
+    current_unea = trim(current_unea)
+    
 	'Adding client information to the array'
 	ReDim Preserve UNEA_array(8, entry_record)	'This resizes the array based on the number of rows in the Excel File'
-	UNEA_array (case_num, 	entry_record) = MAXIS_case_number		'The client information is added to the array'
+	UNEA_array (case_number,entry_record) = MAXIS_case_number		'The client information is added to the array'
 	UNEA_array (memb_num,  	entry_record) = member_number
 	UNEA_array (inc_type, 	entry_record) = income_type
-    UNEA_array (claim_num,	entry_record) = claim_number
-	UNEA_array (unea_amt,   entry_record) = ""
+    UNEA_array (update_num,	entry_record) = ""
+	UNEA_array (unea_amt,   entry_record) = current_unea
 	UNEA_array (cola_amt,   entry_record) = ""
     UNEA_array (cola_dis,   entry_record) = ""
 	UNEA_array (case_status, entry_record) = ""
@@ -163,6 +168,8 @@ Do                                                            'Loops until there
 	excel_row = excel_row + 1
 Loop
 
+'msgbox entry_record
+
 excel_row = excel_row_to_start
 back_to_self
 EMWriteScreen MAXIS_footer_month, 20, 43		'Writes in Current month plus one
@@ -170,12 +177,12 @@ EMWriteScreen MAXIS_footer_year, 20, 46		'Writes in Current month plus one's yea
 
 For i = 0 to Ubound(UNEA_array, 2)
 	'Establishing values for each case in the array of cases 
-	MAXIS_case_number	= UNEA_array (case_num, i)
-	client_PMI			= UNEA_array (clt_PMI, i)
+	MAXIS_case_number	= UNEA_array (case_number, i)
 	income_type 		= UNEA_array (inc_type, i)
-    claim_number        = UNEA_array (claim_num, i)
     member_number       = UNEA_array (memb_num, i)
 	
+    'msgbox MAXIS_case_number & vbcr & income_type & vbcr & member_number
+    
     Call navigate_to_MAXIS_screen("CASE", "CURR")
     EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
     If PRIV_check = "PRIV" then
@@ -263,12 +270,18 @@ For i = 0 to Ubound(UNEA_array, 2)
                     
                     EMReadScreen update_date, 8, 21, 55
                     update_date = replace(update_date, " ", "/")
+                    UNEA_array(update_num,  i) = update_date
                     If update_date = current_date then 
                         'msgbox "Case updated today: " & update_date
                         UNEA_array(case_status, i) = "Error"
                         UNEA_array(case_notes, i) = "Case updated today."	'Explanation for the rejected report'              
-                        income_panel_found = false 
-                    else 
+                        income_panel_found = false
+                    Elseif cdate(update_date) > cdate(first_of_month) then 
+                        'msgbox "updated this month"
+                        UNEA_array(case_status, i) = "Error"
+                        UNEA_array(case_notes, i) = "Case updated in 12/2019"	'Explanation for the rejected report'              
+                        income_panel_found = false
+                    Else     
                         EMReadscreen prospective_amt, 8, 13, 68
                         prospective_amt = trim(replace(prospective_amt, "_", ""))
                         'msgbox prospective_amt
@@ -280,18 +293,18 @@ For i = 0 to Ubound(UNEA_array, 2)
                             UNEA_array(case_notes, i) = "VA income is $90. Check manually for A & A."	'Explanation for the rejected report'              
                             income_panel_found = false 
                         elseif prospective_amt = "0.00" THEN
-                            'msgbox "amount is 90. Not processing."
+                            'msgbox "amount is 0. Not processing."
                             UNEA_array(case_status, i) = "Error"
                             UNEA_array(case_notes, i) = "Income is 0. Review case."	'Explanation for the rejected report'              
                             income_panel_found = false 
                         Else 
                             PF9
-                            If income_type = "11" then cola_muliplier = .028     'VA (2.8%)
-                            If income_type = "12" then cola_muliplier = .028     'VA (2.8%)
-                            If income_type = "13" then cola_muliplier = .028     'VA (2.8%)
+                            If income_type = "11" then cola_muliplier = .016     'VA (1.6%)
+                            If income_type = "12" then cola_muliplier = .016     'VA (1.6%)
+                            If income_type = "13" then cola_muliplier = .016     'VA (1.6%)
                             If income_type = "38" then cola_muliplier = 0       'VA A & A - no updates for 2019
-                            If income_type = "16" then cola_muliplier = .028     'Railroad (2.8%)
-                            If income_type = "17" then cola_muliplier = .014       'General PERA (1.4%)
+                            If income_type = "16" then cola_muliplier = .016     'Railroad (1.6%)
+                            'If income_type = "17" then cola_muliplier = .0       'General PERA (1.4%)
                             
                             'Figuring out the calculations
                             increase_amt = prospective_amt * cola_muliplier
@@ -375,7 +388,7 @@ For i = 0 to Ubound(UNEA_array, 2)
                             '----------------------------------------------------------------------------------------------------UNEA panel updates
                             EMWriteScreen "6", 5, 65				'Verification code for 'worker initiated verification'
                             EMWriteScreen "________", 10, 67
-                            EmWriteScreen increase_amt, 10, 67      'Entering the cola disregard
+                            'EmWriteScreen increase_amt, 10, 67      'Entering the cola disregard
                             transmit
                             PF3 'to exit the UNEA panel
 	                        income_panel_found = True
@@ -400,32 +413,14 @@ For i = 0 to Ubound(UNEA_array, 2)
         If income_type = "12" then note_header = "VA Pension"
         If income_type = "13" then note_header = "VA Other"
         If income_type = "16" then note_header = "Railroad"
-        If income_type = "17" then note_header = claim_number
         
-        If income_type = "11" or income_type = "12" or income_type = "13" THEN
-            increase_perc = "2.8%"
-        Elseif income_type = "16" then 
-            increase_perc = "2.8%"
-        Elseif income_type = "17" then 
-            increase_perc = "1.4%"
-        End if 
-    
+        increase_perc = "1.6%"
+         
 	    '----------------------------------------------------------------------------------------------------THE CASE NOTE
 	    Call navigate_to_MAXIS_screen("CASE", "NOTE")
-        'EMReadScreen whoops_check, 17, 5, 6
-        'If whoops_check = "12/03/18  X127GM1" then 
-        '    Call write_value_and_transmit("X", 5, 3)
-        '    PF9
-        '    row = 4
-        '    Do 
-        '        Call clear_line_of_text(row,3)
-        '        row = row + 1
-        '    Loop until row = 10
-        'else
-        '    PF9
-        'End if 
+        'msgbox "Ready to case note"
         PF9
-	    Call write_variable_in_CASE_NOTE("*" & note_header & " income update for 2019 COLA*")
+	    Call write_variable_in_CASE_NOTE("*" & note_header & " income update for 2020 COLA*")
 	    Call write_variable_in_CASE_NOTE("COLA increased by $" & increase_amt & "(" & increase_perc & ")")
 	    Call write_variable_in_CASE_NOTE("New UNEA amount: $" & cola_amount)
         Call write_variable_in_case_note("UNEA panel updated for this income type.")
@@ -444,11 +439,12 @@ For i = 0 to Ubound(UNEA_array, 2)
 		End if 	
 	End if
     
-    ObjExcel.Cells(Excel_row, 6).Value = UNEA_array(unea_amt,    i)
-    ObjExcel.Cells(Excel_row, 7).Value = UNEA_array(cola_amt,    i)
-    ObjExcel.Cells(Excel_row, 8).Value = UNEA_array(cola_dis,    i)
-    ObjExcel.Cells(Excel_row, 9).Value = UNEA_array(case_status, i)
-    ObjExcel.Cells(Excel_row, 10).Value = UNEA_array(case_notes,  i)
+    
+    ObjExcel.Cells(Excel_row, 10).Value = UNEA_array(cola_amt,    i)
+    ObjExcel.Cells(Excel_row, 11).Value = UNEA_array(cola_dis,    i)
+    ObjExcel.Cells(Excel_row, 12).Value = UNEA_array(update_num,  i)
+    ObjExcel.Cells(Excel_row, 13).Value = UNEA_array(case_status, i)
+    ObjExcel.Cells(Excel_row, 14).Value = UNEA_array(case_notes,  i)
     Excel_row = Excel_row + 1   
     
     prospective_amt = ""
@@ -457,7 +453,7 @@ For i = 0 to Ubound(UNEA_array, 2)
     increase_amt = ""
 Next    
 
-FOR i = 1 to 10	'formatting the cells'
+FOR i = 1 to 14	'formatting the cells'
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
