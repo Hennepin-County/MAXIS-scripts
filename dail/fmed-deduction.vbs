@@ -79,7 +79,8 @@ Call write_variable_in_SPEC_MEMO("Please call your worker with questions.")
 Call write_variable_in_SPEC_MEMO("************************************************************")
 PF4
 
-start_a_blank_CASE_NOTE
+Call navigate_to_MAXIS_screen("CASE", "NOTE")
+PF9 'edit mode
 Call write_variable_in_case_note("MEMBER HAS TURNED 60 - NOTIFY ABOUT POSSIBLE FMED DEDUCTION")
 Call write_variable_in_case_note("* Sent MEMO to client about FMED deductions.")
 Call write_variable_in_case_note("---")
