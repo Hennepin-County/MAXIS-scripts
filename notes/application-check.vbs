@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/17/2019", "Enhanced PND2 case pending case search.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/03/2019", "Updated TIKL functionality to suppress when the case is identified to either approve or deny.", "Ilse Ferris")
 call changelog_update("09/06/2019", "Updated TIKL veribage", "Ilse Ferris")
 call changelog_update("08/27/2019", "Updated dialog and case note to address requested enhancements (TIKL & interview still needed).", "MiKayla Handley")
@@ -59,7 +60,7 @@ EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
-BeginDialog initial_dialog, 0, 0, 116, 45, "Application Check"
+BeginDialog dialog1, 0, 0, 116, 45, "Application Check"
   EditBox 65, 5, 45, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 5, 25, 50, 15
@@ -70,7 +71,7 @@ EndDialog
 Do
 	DO
 		err_msg = ""
-	    dialog initial_dialog
+	    dialog dialog1
       	cancel_without_confirmation
       	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
@@ -79,19 +80,7 @@ Do
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 'information gathering to auto-populate the application date
-'pending programs information
-back_to_self
-EMWriteScreen MAXIS_case_number, 18, 43
 Call navigate_to_MAXIS_screen("REPT", "PND2")
-
-limit_reached = FALSE
-row = 1
-col = 1
-EMSearch "The REPT:PND2 Display Limit Has Been Reached.", row, col
-If row <> 0 Then
-    transmit
-    limit_reached = TRUE
-End If
 
 'Ensuring that the user is in REPT/PND2
 Do
@@ -106,19 +95,22 @@ LOOP until PND2_check = "PND2"
 EMReadScreen not_pending_check, 5, 24, 2
 If not_pending_check = "CASE " THEN script_end_procedure_with_error_report("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
 
-If limit_reached = TRUE Then
-    MAXIS_row = 7
-    Do
-        EMReadScreen PND2_case_number, 8, MAXIS_row, 5
-        if trim(PND2_case_number) = MAXIS_case_number Then Exit Do
+'Because inquiry and training region are stupid, when you nav to REPT/PND2 the cursor resets to row 20, col 13 or the REPT field. Just to ruin my life. 
+'Now code will work in all regions - production, inquiry and training. 
+MAXIS_row = 7
+Do 
+    EmReadscreen pending_case_num, 8, MAXIS_row, 6
+    If trim(pending_case_num) = trim(MAXIS_case_number) then 
+        found_case = True 
+        exit do 
+    Else     
         MAXIS_row = MAXIS_row + 1
-    Loop until MAXIS_row = 19
-Else
-    EMGetCursor MAXIS_row, MAXIS_col
-End If
-If MAXIS_row > 18 Then script_end_procedure("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
+        found_case = False
+    End if  
 
-'grabs row and col number that the cursor is at
+LOOP until row = 19
+If found_case = False then script_end_procedure_with_error_report("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
+
 EMReadScreen app_month, 2, MAXIS_row, 38
 EMReadScreen app_day, 2, MAXIS_row, 41
 EMReadScreen app_year, 2, MAXIS_row, 44
@@ -298,11 +290,11 @@ End if
 If emer_status_check = "PEND" then
     If emer_app_date = application_date then
         emer_pends = TRUE
-		EA_CHECKBOX = CHEKED
+		EA_CHECKBOX = CHECKED
         IF emer_prog_check = "EG" THEN programs_applied_for = programs_applied_for & "EGA, "
         IF emer_prog_check = "EA" THEN programs_applied_for = programs_applied_for & "EA, "
     else
-		EA_CHECKBOX = CHEKED
+		EA_CHECKBOX = CHECKED
         IF emer_prog_check = "EG" THEN additional_programs_applied_for = additional_programs_applied_for & "EGA, "
         IF emer_prog_check = "EA" THEN additional_programs_applied_for = additional_programs_applied_for & "EA, "
     End if
@@ -358,7 +350,8 @@ Elseif DateDiff("d", application_date, date) > 60 then
 	reminder_text = "Post day 60"
 END IF
 '----------------------------------------------------------------------------------------------------dialogs
-BeginDialog application_check_dialog, 0, 0, 386, 185, "Application Check: "  & application_check
+dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog dialog1, 0, 0, 386, 185, "Application Check: "  & application_check
   DropListBox 75, 15, 80, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
   EditBox 175, 20, 50, 15, application_date
   DropListBox 75, 45, 155, 15, "Select One:"+chr(9)+"Interview still needed"+chr(9)+"Requested verifications not received"+chr(9)+"Partial verfications received, more are needed"+chr(9)+"Case is ready to approve or deny"+chr(9)+"Other", application_status_droplist
@@ -407,7 +400,7 @@ EndDialog
 Do
 	Do
 		err_msg = ""
-		dialog application_check_dialog
+		dialog dialog1
 		cancel_confirmation
 		MAXIS_dialog_navigation
 		If application_status_droplist = "Select One:" then err_msg = err_msg & vbNewLine & "* You must choose the application status."
@@ -427,7 +420,6 @@ IF application_check = "Day 1" THEN CALL write_bullet_and_variable_in_CASE_NOTE(
 Call write_bullet_and_variable_in_CASE_NOTE("Application Status", application_status_droplist)
 CALL write_bullet_and_variable_in_CASE_NOTE("Program(s) Applied For", programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE("Application Date", application_date)
-'CALL write_bullet_and_variable_in_CASE_NOTE("Pended on", pended_date)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other Pending Programs", additional_programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", active_programs)
 IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* ECF reviewed and verifications have been sent")
@@ -439,8 +431,6 @@ CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE (worker_signature)
 
 If Outlook_reminder_checkbox = CHECKED THEN
-'and application_status_droplist <> "Case is ready to approve or deny" THEN
-	'Outlook appointment is created in prior to the case note being created
 	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
 	CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "Application check: " & reminder_text & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
 End if
@@ -451,23 +441,5 @@ If application_status_droplist <> "Case is ready to approve or deny" then
    CALL write_variable_in_TIKL("Application check: " & reminder_text & ". Review case and ECF including verification requests, and take appropriate action.")
    PF3		'Exits and saves TIKL
 End if 
-
-'message boxes based on the application status chosen instructing workers which scripts to use next
-'If application_status_droplist = "Case is ready to approve or deny" Then
-'	script_end_procedure_with_error_report("Success!  You have identified that the case is either ready to approve or deny." & vbNewLine & vbNewLine & _
-'	"If your case is ready to approve, please use the ""NOTES - APPROVED PROGRAMS"" script." & vbNewLine & vbNewLine & _
-'	"If your case is ready to be denied, please use the ""NOTES - DENIED PROGRAMS"" script.")
-'ELSEIF application_status_droplist = "Requested verifications not received" Then
-'	script_end_procedure_with_error_report("Success!  You have identified that no verifications have been received yet, and a verification request has been sent." & vbNewLine & vbNewLine & _
-'	"Please check to see that there is a verification requested case note, and if not, please use the ""NOTES - VERIFICATIONS REQUESTED"" script.")
-'ELSEIF application_status_droplist = "Partial verfications received, more are needed" Then
-'	script_end_procedure_with_error_report("Success!  You have identified that the your case has received some verifications, but others are needed." & vbNewLine & vbNewLine & _
-'	"Please check to see that the documents received have been case noted, as well as which verifications are still needed, and if a new verification request was sent." & vbNewLine & _
-'	"Please use the ""NOTES - DOCUMENTS RECEIVED"" script and/or the ""NOTES - VERIFICATIONS REQUESTED"" as needed.")
-'ELSEIF application_status_droplist = "Interview still needed" Then
-'	script_end_procedure_with_error_report("Success!  You have identified that the your case has not had an interview completed." & vbNewLine & vbNewLine & _
-'	"Please ensure that all attempts to contact the client have been made." & vbNewLine & _
-'	"When the interview has been completed please remember to update the interview date on STAT/PROG.")
-'END IF
 
 script_end_procedure_with_error_report("Application check completed, a case note made, and a TIKL has been set.")
