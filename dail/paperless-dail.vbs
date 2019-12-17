@@ -244,7 +244,8 @@ If run_from_DAIL = TRUE Then
     EMReadScreen case_note_mode_check, 7, 20, 3
     If case_note_mode_check <> "Mode: A" then script_end_procedure("You are not in a case note on edit mode. You might be in inquiry. Try the script again in production.")
 Else
-    start_a_blank_CASE_NOTE
+    Call navigate_to_MAXIS_screen("CASE", "NOTE")
+    PF9 'edit mode
 End If
 
 'Adding information to case note
