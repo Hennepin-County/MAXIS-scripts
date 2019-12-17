@@ -3229,6 +3229,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 
                             list_row = 9                    'here we clear the PIC of all previous data
                             beg_of_list_check = ""
+                            number_of_loops = 0
                             Do
                                 EMWriteScreen "  ", list_row, 13
                                 EMWriteScreen "  ", list_row, 16
@@ -3236,6 +3237,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                 EMWriteScreen "        ", list_row, 25
                                 EMWriteScreen "      ", list_row, 35
                                 list_row = list_row + 1
+                                number_of_loops = number_of_loops + 1
 
                                 If list_row = 14 Then
                                     transmit
@@ -3245,6 +3247,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                     ' MsgBox beg_of_list_check
                                     list_row = 9
                                 End If
+                                If number_of_loops = 30 Then Exit Do
                             Loop until beg_of_list_check = "FIRST PAGE"
 
                             Call create_MAXIS_friendly_date(date, 0, 5, 34)                     'enter the current date in date of calculation field
@@ -3319,7 +3322,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                 EMWriteScreen appl_month_gross, 9, 25
                                 appl_month_hours = FormatNumber(appl_month_hours, 2, -1, 0, 0)
                                 EMWriteScreen appl_month_hours, 9, 35
-
+                                ' MsgBox "Check PIC"
                                 updates_to_display = updates_to_display & vbNewLine & "Actual Pay: Date - " & MAXIS_footer_month & "/01/" & MAXIS_footer_year & " - $" & appl_month_gross & " - " & appl_month_hours & " hrs." & vbNewLine
 
                                 If checks_lumped <> "" Then     'formatting the lists of the checks that we included for the CNote
