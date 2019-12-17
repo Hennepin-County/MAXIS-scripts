@@ -145,7 +145,7 @@ For Each HH_memb in HH_member_array
 Next
 
 'Dialog to get worker signature----------------------------------------------------------------------------------------------
-BeginDialog workersig_dlg, 0, 0, 201, 50, "Dialog"
+BeginDialog dialog1, 0, 0, 201, 50, "Dialog"
   EditBox 50, 10, 150, 15, worker_signature
   Text 5, 5, 40, 20, "Worker Signature:"
   ButtonGroup ButtonPressed
@@ -153,12 +153,13 @@ BeginDialog workersig_dlg, 0, 0, 201, 50, "Dialog"
     CancelButton 140, 30, 50, 15
 EndDialog
 
-dialog workersig_dlg
+dialog dialog1 
 cancel_confirmation
 STATS_counter = STATS_counter - 1 'Had to -1 at the end of the script because the counter starts at 1 and Veronica has reasons why we should not change it to 0.
 
 'Case note section-----------------------------------------------------------------------------------------------------------
-Call start_a_blank_CASE_NOTE
+Call navigate_to_MAXIS_screen("CASE", "NOTE")
+PF9
 call write_variable_in_CASE_NOTE("***CITIZENSHIP/IDENTITY***")
 Call write_variable_in_CASE_NOTE("Automated script has updated MEMI with OT for clients selected by worker. Information was provided to worker via Citizenship/ID Dail")
 Call write_variable_in_CASE_NOTE("Members updated: " & membs_to_case_note)
