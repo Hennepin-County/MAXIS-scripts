@@ -193,9 +193,8 @@ End if
 transmit
 
 'Navigating to case note and creating a new case note
-start_a_blank_CASE_NOTE
-
-'Sending case note
+Call navigate_to_MAXIS_screen("CASE", "NOTE")
+PF9 'edit mode
 EMSendKey "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: " & HH_memb & " " & employer & "<newline>"
 EMSendKey "---" & "<newline>"
 EMSendKey "* Job unreported to the agency. Sending employment verification. TIKLed for 10-day return." & "<newline>"
