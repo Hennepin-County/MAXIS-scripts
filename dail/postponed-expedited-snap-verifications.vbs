@@ -108,7 +108,8 @@ EMReadScreen mode_check, 1, 20, 09
 If notes_check = "Case Note" AND mode_check = " " Then
 	PF9					'If so, it starts a new case note 'and maintains the tie to the DAIL list
 Else
-	start_a_blank_CASE_NOTE		'If the worker navigated away from NOTES, this will get a new case note started but will not maintain the tie to the DAIL list
+    Call navigate_to_MAXIS_screen("CASE", "NOTE")
+    PF9 'edit mode
 End If
 'This is the CASE NOTE --------------------------------------------------------------------'
 case_note_header = "--- SNAP Closed " & closure_date & " - Expedited Autoclose ---"
