@@ -46,6 +46,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/17/2019", "Updated navigation to case note from DAIL.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/26/2019", "Updated message box regarding children under 19, added policy reference for SNAP/CASH programs.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC and added error reporting..", "MiKayla Handley")
 call changelog_update("01/10/2019", "Added claim referral handling and checks to make sure the case is cleared in INFC.", "MiKayla Handley, Hennepin County")
@@ -62,7 +63,7 @@ changelog_display
 
 'DIALOGS----------------------------------------------------------------------------------------------
 
-BeginDialog NDNH_only_dialog, 0, 0, 236, 70, "National Directory of New Hires"
+BeginDialog dialog1, 0, 0, 236, 70, "National Directory of New Hires"
   DropListBox 150, 5, 80, 15, "Select One:"+chr(9)+"NO-RUN NEW HIRE"+chr(9)+"YES-INFC clear match", match_answer_droplist
   ButtonGroup ButtonPressed
     OkButton 125, 50, 50, 15
@@ -82,7 +83,7 @@ transmit
 Do
 	DO
 		err_msg = ""
-		Dialog NDNH_only_dialog
+		Dialog dialog1
 		cancel_confirmation
 		IF match_answer_droplist = "Select One:" THEN MsgBox("You must select an answer.")
 	LOOP UNTIL match_answer_droplist <> "Select One:"
@@ -90,11 +91,12 @@ Do
 LOOP UNTIL err_msg = ""
 
     'This is a dialog asking if the job is known to the agency.
-BeginDialog new_HIRE_dialog, 0, 0, 281, 205, "New HIRE dialog"
+dialog1 = ""
+BeginDialog dialog1, 0, 0, 281, 205, "New HIRE dialog"
   EditBox 65, 5, 20, 15, HH_memb
   EditBox 65, 25, 95, 15, employer
   CheckBox 15, 45, 190, 10, "Check here to have the script create a new JOBS panel.", create_JOBS_checkbox
-  CheckBox 15, 70, 195, 10, "Sent a request for verifications out of ECF.", TIKL_checkbox
+  CheckBox 15, 70, 195, 10, "Sent a request for verifications out of ECF.", ECF_checkbox
   CheckBox 15, 85, 190, 10, "Sent a Work Number request and submitted to ECF. ", work_number_checkbox
   CheckBox 15, 100, 100, 10, "Requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
   CheckBox 15, 115, 105, 10, "Sent a status update to CCA.", CCA_checkbox
@@ -126,6 +128,11 @@ current_year = CM_yr
 'SELECTS THE DAIL MESSAGE AND READS THE RESPONSE
 EMSendKey "x"
 transmit
+
+EmReadscreen MAXIS_case_number, 8, 6, 57
+MAXIS_case_number = Trim(MAXIS_case_number)
+
+
 row = 1
 col = 1
 EMSearch "JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
@@ -207,14 +214,12 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
 	transmit
 'MFIP cases need to manually add the JOBS panel for ES purposes.
 	If MFIP_case = False then create_JOBS_checkbox = checked
-	'Defaulting the "set TIKL" variable to checked
-	TIKL_checkbox = CHECKED
 	'Setting the variable for the following do...loop
 	HH_memb_row = 5
 'Show dialog
 	DO
 	    DO
-	    	Dialog new_HIRE_dialog
+	    	Dialog dialog1
 	    	cancel_confirmation
 	    	MAXIS_dialog_navigation
 	    LOOP UNTIL ButtonPressed = -1
@@ -279,39 +284,36 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
     'transmit
 
 	'-----------------------------------------------------------------------------------------CASENOTE
-	start_a_blank_case_note	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
+    Call navigate_to_MAXIS_screen("CASE", "NOTE")
+    PF9 ' edit mode
 	CALL write_variable_in_case_note("-NDNH JOB DETAILS FOR (M" & HH_memb & ") unreported to agency-")
     CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
     CALL write_variable_in_case_note("EMPLOYER: " & employer)
     CALL write_variable_in_case_note(new_hire_third_line)
     CALL write_variable_in_case_note(new_hire_fourth_line)
     CALL write_variable_in_case_note("---")
-    IF TIKL_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent employment verification and DHS-2919B (Verif Request Form B) from ECF & TIKLed for 10-day return. ")
-    IF create_JOBS_checkbox = checked THEN CALL write_variable_in_case_note("* STAT/JOBS updated with new hire information from DAIL.")
+    IF ECF_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent employment verification and DHS-2919 (Verif Request Form B) from ECF & TIKLed for 10-day return.")
+    IF create_JOBS_checkbox = CHECKED THEN CALL write_variable_in_case_note("* STAT/JOBS updated with new hire information from DAIL.")
     IF CCA_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to CCA.")
     IF ES_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to ES.")
     IF work_number_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent request for Work Number after confirming client authorization.")
-    IF CEI_checkbox = checked THEN CALL write_variable_in_case_note("* Requested CEI/OHI docs.")
+    IF CEI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Requested CEI/OHI docs.")
     CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
     CALL write_variable_in_case_note("---")
     CALL write_variable_in_case_note(worker_signature)
     PF3
 
-	'If TIKL_checkbox is unchecked, it needs to end here.
-	IF TIKL_checkbox = UNCHECKED THEN script_end_procedure_with_error_report("Success! MAXIS updated for new NDNH HIRE message, and a case note made. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
-    'Navigates to TIKL
-	IF TIKL_checkbox = CHECKED THEN
 	Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-    	CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-    	CALL write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.")
-    	PF3		'Exits and saves TIKL
-    	script_end_procedure_with_error_report("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
-	END IF
+    CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
+    CALL write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.")
+    PF3		'Exits and saves TIKL
+    script_end_procedure_with_error_report("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form should now be sent. The job is at " & employer & ".")
 END IF
 
 IF match_answer_droplist = "YES-INFC clear match" THEN
 'This is a dialog asking if the job is known to the agency.
-    BeginDialog Match_Info_dialog, 0, 0, 281, 190, "NDNH Match Resolution Information"
+    dialog1 = ""
+    BeginDialog dialog1, 0, 0, 281, 190, "NDNH Match Resolution Information"
       CheckBox 10, 15, 265, 10, "Check here to verify that ECF has been reviewed and acted upon appropriately", ECF_checkbox
       DropListBox 170, 35, 95, 15, "Select One:"+chr(9)+"YES-No Further Action"+chr(9)+"NO-See Next Question", Emp_known_droplist
       DropListBox 170, 55, 95, 15, "Select One:"+chr(9)+"NA-No Action Taken"+chr(9)+"BR-Benefits Reduced"+chr(9)+"CC-Case Closed", Action_taken_droplist
@@ -371,7 +373,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	DO
 		DO
 			err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-			Dialog Match_Info_dialog
+			Dialog dialog1
 			cancel_confirmation
 			IF ECF_checkbox = UNCHECKED THEN err_msg = err_msg & vbCr & "* You must check that you reviewed ECF and the HIRE was acted on appropriately."
 			IF Emp_known_droplist = "Select One:" THEN err_msg = err_msg & vbCr & "* You must select yes or no for was this employment known to the agency?"
@@ -434,7 +436,8 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	    EMWriteScreen date, Row, 66
 	    TRANSMIT
 	    'PF3
-	    start_a_blank_CASE_NOTE
+        Call navigate_to_MAXIS_screen("CASE", "NOTE")
+        PF9 ' edit mode
 	    Call write_variable_in_case_note("-----Claim Referral Tracking-----")
 		Call write_variable_in_case_note("* NDNH new hire information received - " & MISC_action_taken )
 	    Call write_bullet_and_variable_in_case_note("Action Date", date)
@@ -444,7 +447,8 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	END IF
 
 	new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
-	start_a_blank_case_note
+    Call navigate_to_MAXIS_screen("CASE", "NOTE")
+    PF9 ' edit mode
 	IF Emp_known_droplist = "YES-No Further Action" THEN
 		CALL write_variable_in_case_note("-NDNH JOB DETAILS FOR (M" & HH_memb & ") INFC cleared reported to agency-")
 		'CALL write_variable_in_case_note("-NDNH " & new_hire_first_line & " INFC cleared reported to agency-")
