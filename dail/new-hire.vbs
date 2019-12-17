@@ -47,6 +47,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/17/2019", "Updated navigation to case note from DAIL.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/26/2019", "Updated message box regarding children under 19, added policy reference for SNAP/CASH programs.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/29/2019", "Added an outlook reminder option.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC and added error reporting.", "MiKayla Handley, Hennepin County")
@@ -80,7 +81,7 @@ BeginDialog new_HIRE_dialog, 0, 0, 281, 195, "NEW HIRE INFORMATION"
   EditBox 65, 25, 95, 15, employer
   CheckBox 15, 45, 190, 10, "Check here to have the script create a new JOBS panel.", create_JOBS_checkbox
   CheckBox 15, 55, 160, 10, "Job is known to the agency (exit the script).", job_known_checkbox
-  CheckBox 15, 80, 195, 10, "Sent a request for verifications out of ECF.", TIKL_checkbox
+  CheckBox 15, 80, 195, 10, "Sent a request for verifications out of ECF.", ECF_checkbox
   CheckBox 15, 90, 190, 10, "Sent a Work Number request and submitted to ECF. ", work_number_checkbox
   CheckBox 15, 100, 100, 10, "Requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
   CheckBox 15, 110, 105, 10, "Sent a status update to CCA.", CCA_checkbox
@@ -112,6 +113,10 @@ current_year = CM_yr
 'SELECTS THE DAIL MESSAGE AND READS THE RESPONSE
 EMSendKey "x"
 transmit
+
+EmReadscreen MAXIS_case_number, 8, 6, 57
+MAXIS_case_number = Trim(MAXIS_case_number)
+
 row = 1
 col = 1
 EMSearch "NEW JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
@@ -198,7 +203,6 @@ transmit
 'MFIP cases need to manually add the JOBS panel for ES purposes.
 If MFIP_case = False then create_JOBS_checkbox = checked
 'Defaulting the "set TIKL" variable to checked
-TIKL_checkbox = CHECKED
 'Setting the variable for the following do...loop
 HH_memb_row = 5
 'Show dialog
@@ -267,15 +271,16 @@ If create_JOBS_checkbox = checked then
 END IF
 
 '-----------------------------------------------------------------------------------------CASENOTE
-start_a_blank_case_note	'Writes that the message is unreported, and that the proofs are being sent/TIKLed for.
+Call navigate_to_MAXIS_screen("CASE", "NOTE")
+PF9 ' edit mode
 CALL write_variable_in_case_note("--NEW JOB DETAILS FOR (M" & HH_memb & ") unreported to agency-")
 CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
 CALL write_variable_in_case_note("EMPLOYER: " & employer)
 CALL write_variable_in_case_note(new_hire_third_line)
 CALL write_variable_in_case_note(new_hire_fourth_line)
 CALL write_variable_in_case_note("---")
-IF TIKL_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent employment verification and DHS-2919B (Verif Request Form B) from ECF & TIKLed for 10-day return. ")
-IF create_JOBS_checkbox = checked THEN CALL write_variable_in_case_note("* STAT/JOBS updated with new hire information from DAIL.")
+If ECF_checkbox = CHECKED then CALL write_variable_in_case_note("* Sent employment verification and DHS-2919 (Verif Request Form) from ECF & TIKLed for 10-day return.")
+IF create_JOBS_checkbox = CHECKED THEN CALL write_variable_in_case_note("* STAT/JOBS updated with new hire information from DAIL.")
 IF CCA_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to CCA.")
 IF ES_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to ES.")
 IF work_number_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent request for Work Number after confirming client authorization.")
@@ -285,7 +290,7 @@ CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 PF3
 
-reminder_date = dateadd("d", 5, date)
+reminder_date = dateadd("d", 10, date)  'Setting out for 10 days reminder
 
 If Outlook_reminder_checkbox = CHECKED THEN
 'and application_status_droplist <> "Case is ready to approve or deny" THEN
@@ -294,13 +299,9 @@ If Outlook_reminder_checkbox = CHECKED THEN
 	CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "New Hire recieved " & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
 End if
 
-'If TIKL_checkbox is unchecked, it needs to end here.
-IF TIKL_checkbox = UNCHECKED THEN script_end_procedure_with_error_report("Success! MAXIS updated for new NDNH HIRE message, and a case note made. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
-'Navigates to TIKL
-IF TIKL_checkbox = CHECKED THEN
-	Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-	CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-	CALL write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action." & vbcr & "For all federal matches INFC/HIRE must be cleared please see HSR manual.")
-	PF3		'Exits and saves TIKL
-	script_end_procedure_with_error_report("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form B should now be sent. The job is at " & employer & ".")
-END IF
+Call navigate_to_MAXIS_screen("DAIL", "WRIT")
+CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
+CALL write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action." & vbcr & "For all federal matches INFC/HIRE must be cleared please see HSR manual.")
+PF3		'Exits and saves TIKL
+
+script_end_procedure_with_error_report("Success! MAXIS updated for new HIRE message, a case note made, and 10 day reminders have been set. An Employment Verification and Verification request form should now be sent. The job is at " & employer & ".")
