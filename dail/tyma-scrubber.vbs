@@ -68,7 +68,8 @@ IF full_message = "~*~CONSIDER SENDING 1ST" THEN     'script finds 1st TIKL mess
 	EMReadScreen TYMA_start_date, 8, 10, 5          'reading TYMA start date to carry it forward
 	TYMA_start_date = cdate(TYMA_start_date)
 	Back_to_self
-	start_a_blank_CASE_NOTE
+    Call navigate_to_MAXIS_screen("CASE", "NOTE")
+    PF9 'edit mode
 	call write_variable_in_CASE_NOTE("***TYMA 1st Quarterly Report Form Sent***")
 	call write_variable_in_CASE_NOTE("TIKL created to send 2nd Quarterly Report Form")
 	call write_variable_in_CASE_NOTE("-Case note and TIKL created by Automated script")
@@ -91,7 +92,8 @@ IF full_message = "~*~CONSIDER SENDING 2ND" THEN     'script finds 2nd TIKL mess
 	EMReadScreen TYMA_start_date, 8, 10, 5          'reading TYMA start date to carry it forward Needs to read 10 digits since after first TIKL the variable gets Cdated/written into a YYYY format
 	TYMA_start_date = cdate(TYMA_start_date)
 	Back_to_self
-	start_a_blank_CASE_NOTE
+    Call navigate_to_MAXIS_screen("CASE", "NOTE")
+    PF9 'edit mode
 	call write_variable_in_CASE_NOTE("***TYMA 2nd Quarterly Report Form Sent***")
 	call write_variable_in_CASE_NOTE("TIKL created for 2nd Quarterly Report Form due date")
 	call write_variable_in_CASE_NOTE("-Case note and TIKL created by Automated script")
@@ -132,7 +134,8 @@ IF full_message = "~*~CONSIDER SENDING 3RD" THEN     'script finds 4th TIKL mess
 	EMReadScreen TYMA_start_date, 8, 10, 5          'reading TYMA start date to carry it forward Needs to read 10 digits since after first TIKL the variable gets Cdated/written into a YYYY format
 	TYMA_start_date = cdate(TYMA_start_date)
 	Back_to_self
-	start_a_blank_CASE_NOTE
+    Call navigate_to_MAXIS_screen("CASE", "NOTE")
+    PF9 'edit mode
 	call write_variable_in_CASE_NOTE("***TYMA 3rd Quarterly Report Form Sent***")
 	call write_variable_in_CASE_NOTE("TIKL created for 3rd Quarterly Report Form due date")
 	call write_variable_in_CASE_NOTE("-Case note and TIKL created by Automated script")
