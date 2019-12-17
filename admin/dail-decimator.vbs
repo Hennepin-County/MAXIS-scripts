@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/17/2019", "Added function to evaluate DAIL messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/09/2019", "Added 01/20 COLA messages to removal list.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/02/2019", "Added 07/19 COLA messages to removal list.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/07/2019", "Updated to output 8-digit case numbers and 8-character dates.", "Ilse Ferris, Hennepin County")
@@ -238,132 +239,8 @@ For each worker in worker_array
             dail_month = trim(dail_month)
     
             stats_counter = stats_counter + 1   'I increment thee
-
-            '----------------------------------------------------------------------------------------------------CSES Messages
-            If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
-                instr(dail_msg, "AP OF CHILD REF NBR:") OR _
-                instr(dail_msg, "ADDRESS DIFFERS W/ CS RECORDS:") OR _
-                instr(dail_msg, "CHILD SUPP PAYMT FREQUENCY IS MONTHLY FOR CHILD REF NBR") OR _
-                instr(dail_msg, "CHILD SUPP PAYMT FREQUENCY IS MONTHLY FOR CHILD REF NBR") OR _
-                instr(dail_msg, "CHILD SUPP PAYMTS PD THRU THE COURT/AGENCY FOR CHILD") OR _
-                instr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR") OR _
-                instr(dail_msg, "IS LIVING W/CAREGIVER") OR _
-                instr(dail_msg, "NAME DIFFERS W/ CS RECORDS:") OR _
-                instr(dail_msg, "PATERNITY ON CHILD REF NBR") OR _
-                instr(dail_msg, "REPORTED NAME CHG TO:") OR _
-                instr(dail_msg, "BENEFITS RETURNED, IF IOC HAS NEW ADDRESS") OR _
-    		    instr(dail_msg, "CASE IS CATEGORICALLY ELIGIBLE") OR _
-                instr(dail_msg, "CASE NOT AUTO-APPROVED - HRF/SR/RECERT DUE") OR _
-                instr(dail_msg, "CHANGE IN BUDGET CYCLE") OR _
-                instr(dail_msg, "COMPLETE ELIG IN FIAT") OR _
-    		    instr(dail_msg, "COUNTED IN LBUD AS UNEARNED INCOME") OR _
-                instr(dail_msg, "COUNTED IN SBUD AS UNEARNED INCOME") OR _
-                instr(dail_msg, "HAS EARNED INCOME IN 6 MONTH BUDGET BUT NO DCEX PANEL") OR _
-                instr(dail_msg, "NEW DENIAL ELIG RESULTS EXIST") OR _
-    		    instr(dail_msg, "NEW ELIG RESULTS EXIST") OR _
-    		    instr(dail_msg, "POTENTIALLY CATEGORICALLY ELIGIBLE") OR _
-                instr(dail_msg, "WARNING MESSAGES EXIST") OR _
-                instr(dail_msg, "ADDR CHG*CHK SHEL") OR _
-                instr(dail_msg, "APPLCT ID CHNGD") OR _
-                instr(dail_msg, "CASE AUTOMATICALLY DENIED") OR _
-			    instr(dail_msg, "CASE FILE INFORMATION WAS SENT ON") OR _
-			    instr(dail_msg, "CASE NOTE ENTERED BY") OR _
-			    instr(dail_msg, "CASE NOTE TRANSFER FROM") OR _
-			    instr(dail_msg, "CASE VOLUNTARY WITHDRAWN") OR _
-			    instr(dail_msg, "CASE XFER") OR _
-                instr(dail_msg, "CHANGE REPORT FORM SENT ON") OR _
-			    instr(dail_msg, "DIRECT DEPOSIT STATUS") OR _
-                instr(dail_msg, "EFUNDS HAS NOTIFIED DHS THAT THIS CLIENT'S EBT CARD") OR _
-			    instr(dail_msg, "MEMB:NEEDS INTERPRETER HAS BEEN CHANGED") OR _
-			    instr(dail_msg, "MEMB:SPOKEN LANGUAGE HAS BEEN CHANGED") OR _
-			    instr(dail_msg, "MEMB:RACE CODE HAS BEEN CHANGED FROM UNABLE") OR _
-			    instr(dail_msg, "MEMB:SSN HAS BEEN CHANGED FROM") OR _
-			    instr(dail_msg, "MEMB:SSN VER HAS BEEN CHANGED FROM") OR _
-			    instr(dail_msg, "MEMB:WRITTEN LANGUAGE HAS BEEN CHANGED FROM") OR _
-                instr(dail_msg, "MEMI: HAS BEEN DELETED BY THE PMI MERGE PROCESS") OR _
-                instr(dail_msg, "NOT ACCESSED FOR 300 DAYS,SPEC NOT") OR _
-			    instr(dail_msg, "PMI MERGED") OR _
-			    instr(dail_msg, "THIS APPLICATION WILL BE AUTOMATICALLY DENIED") OR _
-			    instr(dail_msg, "THIS CASE IS ERROR PRONE") OR _
-                instr(dail_msg, "EMPL SERV REF DATE IS > 60 DAYS; CHECK ES PROVIDER RESPONSE") OR _
-                instr(dail_msg, "MEMBER HAS TURNED 60 - FSET:WORK REG HAS BEEN UPDATED") OR _
-                instr(dail_msg, "LAST GRADE COMPLETED") OR _
-                instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") OR _
-                instr(dail_msg, "IF CLIENT HAS NOT COMPLETED RECERT, APPL CAF FOR") OR _
-                instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") OR _ 
-                instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") OR _ 
-                instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE") OR _
-                instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO") OR _
-                instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO") or _
-                instr(dail_msg, "HEALTH CARE IS IN REINSTATE OR PENDING STATUS") OR _
-                instr(dail_msg, "MSA RECERT DUE - NOT AUTO") or _
-                instr(dail_msg, "MSA IN PENDING STATUS - NOT AUTO") or _
-                instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO") or _
-                instr(dail_msg, "GRH: STATUS IS REIN, PENDING OR SUSPEND - NOT AUTO") OR _ 
-                instr(dail_msg, "SNAP: PENDING OR STAT EDITS EXIST") OR _
-                instr(dail_msg, "SNAP: REIN STATUS - NOT AUTO-APPROVED") then
-    		        add_to_excel = True
-                'instr(dail_msg, "TPQY RESPONSE") OR _  ---removed temporarily
-                '----------------------------------------------------------------------------------------------------CORRECT STAT EDITS over 5 days old
-            Elseif instr(dail_msg, "CORRECT STAT EDITS") then
-                EmReadscreen stat_date, 8, dail_row, 39
-                ten_days_ago = DateAdd("d", -5, date)
-                If cdate(ten_days_ago) => cdate(stat_date) then
-                    add_to_excel = True
-                Else
-                    add_to_excel = False
-                End if
-            '----------------------------------------------------------------------------------------------------REMOVING PEPR messages not CM or CM + 1
-            Elseif dail_type = "PEPR" then
-                if dail_month = this_month or dail_month = next_month then
-                    add_to_excel = False
-                Else
-                    add_to_excel = True ' delete the old messages
-                End if
-            '----------------------------------------------------------------------------------------------------clearing elig messages older than CM
-            Elseif instr(dail_msg, "OVERPAYMENT POSSIBLE") or InStr(dail_msg, "DISBURSE EXPEDITED SERVICE") then
-                if dail_month = this_month or dail_month = next_month then
-                    add_to_excel = False
-                Else
-                    add_to_excel = True ' delete the old messages
-                End if
-            '----------------------------------------------------------------------------------------------------clearing Exempt IR TIKL's over 2 months old.
-            Elseif instr(dail_msg, "%^% SENT THROUGH") then
-                TIKL_date = cdate(TIKL_date)
-                TIKL_date = right("0" & DatePart("m",dail_month), 2)
-                if TIKL_date = CM_minus_2_mo then
-                    add_to_excel = True   ' delete the exempt IR message older than last month.
-                Else
-                    add_to_excel = False
-                End if
-                '----------------------------------------------------------------------------------------------------MEC2
-            Elseif dail_type = "MEC2" then
-                if  instr(dail_msg, "RSDI END DATE") OR _
-                    instr(dail_msg, "SELF EMPLOYMENT REPORTED TO MEC²") OR _
-                    instr(dail_msg, "SSI REPORTED TO MEC²") OR _
-                    instr(dail_msg, "UNEMPLOYMENT INS") then
-                    add_to_excel = FALSE            'Income based MEC2 messages will not be removed
-                Else
-                    add_to_excel =  True    'All other MEC2 messages can be deleted.
-                End if
-                '----------------------------------------------------------------------------------------------------TIKL
-            Elseif dail_type = "TIKL" then
-                if instr(dail_msg, "VENDOR") OR instr(dail_msg, "VND") then
-                    add_to_excel = FALSE        'Will not delete TIKL's with vendor information
-                Else
-                    six_months = DateAdd("M", -6, date)
-                    If cdate(six_months) => cdate(dail_month) then
-                        add_to_excel = True     'Will delete any TIKL over 6 months old
-                    Else
-                        add_to_excel = False
-                    End if
-                End if
-            Elseif (dail_type = "COLA" and dail_month = "07 19") then 
-                add_to_excel = True     'Will delete any old COLA messages from 07/19
-            Else
-                add_to_excel = False
-            End if
-
+            Call non_actionable_dails   'Function to evaluate the DAIL messages 
+            
             IF add_to_excel = True then
 				'--------------------------------------------------------------------...and put that in Excel.
 				objExcel.Cells(excel_row, 1).Value = worker
