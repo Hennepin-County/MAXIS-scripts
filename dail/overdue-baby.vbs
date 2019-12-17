@@ -88,8 +88,8 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Navigates to blank case note
-Call start_a_blank_CASE_NOTE
-'Writes the case note
+Call navigate_to_MAXIS_screen("CASE", "NOTE")
+PF9 'edit mode
 call write_variable_in_CASE_NOTE("=== OVERDUE BABY DAIL PROCESSED ===")
 IF update_preg_CHECKBOX = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Updated PREG panel, child has been added to case. No further action taken.")
 IF spec_memo_CHECKBOX = CHECKED THEN CALL write_variable_in_CASE_NOTE("* SPEC/MEMO sent informing client that they need to report information regarding the birth of their child, and/or pregnancy end date, within 10 days or their case may close.")
