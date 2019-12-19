@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/19/2019", "Added IM 12 as an option for contract codes.", "Casey Love, Hennepin County")
 call changelog_update("05/24/2019", "Added the ability for the script to delete the current enrollment plan if the beginning date for the current plan is the same as the new enrollment date.", "Casey Love, Hennepin County")
 call changelog_update("05/24/2019", "Added the ability for the script to delete the Delayed Decision exclusion if the start date is the same as the enrollment date.", "Casey Love, Hennepin County")
 call changelog_update("05/24/2019", "Changed the script coding on REFM screen to enter 'N' if enrollment information source was NOT the Paper Enrollment Form.", "Casey Love, Hennepin County")
@@ -664,7 +665,7 @@ BeginDialog Dialog1, 0, 0, 750, dlg_len, "Enrollment Information"
   	EditBox 250, (x * 20) + 20, 55, 15, MMIS_clients_array(med_code, person)
   	EditBox 310, (x * 20) + 20, 50, 15, MMIS_clients_array(dent_code, person)
     DropListBox 370, (x * 20) + 20, 60, 15, " "+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare", MMIS_clients_array(new_plan, person)
-  	DropListBox 440, (x * 20) + 20, 50, 15, "MA 12"+chr(9)+"NM 12"+chr(9)+"MA 30"+chr(9)+"MA 35", MMIS_clients_array(contr_code, person)
+  	DropListBox 440, (x * 20) + 20, 50, 15, "MA 12"+chr(9)+"NM 12"+chr(9)+"MA 30"+chr(9)+"MA 35"+chr(9)+"IM 12", MMIS_clients_array(contr_code, person)
 	DropListBox 500, (x * 20) + 20, 60, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn, person)
   	DropListBox 565, (x * 20) + 20, 60, 15, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary", MMIS_clients_array(disenrol_rsn, person)
   	CheckBox 645, (x * 20) + 20, 25, 10, "Yes", MMIS_clients_array(preg_yes, person)
