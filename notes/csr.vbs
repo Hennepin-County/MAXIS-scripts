@@ -38,12 +38,17 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+' test_reason = "Change to the CSR script to match the form and the method of processing the form. We want the script to follow the process and not just take a snapshot of the case details AFTER processing is done."
+' array_of_choices = "adults, families"
+' Call select_testing_file("population", array_of_choices, "notes/csr-testing.vbs", "master", TRUE, TRUE)
+
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/21/2019", "Updated the script to carry the Footer Month and Year to the MA Approval case note when 'Processing Paperless IR' is checked for an LTC case.", "Casey Love, Hennepin County")
 Call changelog_update("03/06/2019", "Added 2 new options to the Notes on Income button to support referencing CASE/NOTE made by Earned Income Budgeting.", "Casey Love, Hennepin County")
 call changelog_update("12/22/2018", "Added closing message reminder about accepting all ECF work items for CSR's at the time of processing.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/07/2018", "Added Paperless (*) IR Option back, with updated functionality.", "Casey Love, Hennepin County")

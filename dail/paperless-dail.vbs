@@ -146,6 +146,7 @@ Do
                 EMReadScreen method_check, 1, 13, 21
                 If method_check = "L" or method_check = "S" Then LTC_case = TRUE
                 If method_check = "B" AND waiver_check <> "_" Then LTC_case = TRUE
+                If method_check = "X" AND waiver_check <> "_" Then LTC_case = TRUE
                 Do
                     transmit
                     EMReadScreen hc_screen_check, 8, 5, 3

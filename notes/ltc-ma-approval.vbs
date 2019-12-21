@@ -59,7 +59,7 @@ EMConnect ""
 
 'Grabbing case number & footer month/year
 Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+If MAXIS_footer_month = "" AND MAXIS_footer_year = "" Then Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 BeginDialog Dialog1, 0, 0, 161, 61, "Case number"
   Text 5, 5, 85, 10, "Enter your case number:"
