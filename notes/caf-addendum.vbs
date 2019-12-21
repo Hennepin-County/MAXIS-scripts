@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("12/21/2019", "Added 'NB' to the list of former states.", "Casey Love, Hennepin County")
 Call changelog_update("09/25/2019", "Bug Fix - Verifs Needed was creating possible multiple case notes and noting when nothing was added. Also a typo in the case note wording.", "Casey Love, Hennepin County")
 call changelog_update("09/12/2019", "Initial version.", "Casey Love, Hennepin County")
 
@@ -140,6 +141,7 @@ end function
 
 
 state_list = "Select One..."
+state_list = state_list+chr(9)+"NB MN Newborn"
 state_list = state_list+chr(9)+"FC Foreign Country"
 state_list = state_list+chr(9)+"UN Unknown"
 state_list = state_list+chr(9)+"AL Alabama"
