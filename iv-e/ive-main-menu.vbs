@@ -126,6 +126,13 @@ script_array_IVE_main(script_num).description			= "Case note template for MA Nee
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_IVE_main(script_num)			'Resets the array to add one more element to it
 Set script_array_IVE_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_IVE_main(script_num).script_name 			= "Permanency Review"																		'Script name
+script_array_IVE_main(script_num).file_name 			= "ive-perm-review.vbs"															'Script URL
+script_array_IVE_main(script_num).description 			= "Case note template for IV-E permanency review cases."
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_IVE_main(script_num)			'Resets the array to add one more element to it
+Set script_array_IVE_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_IVE_main(script_num).script_name			= "Trial Home Visit"													'needs spaces to generate button width properly.
 script_array_IVE_main(script_num).file_name				= "ive-trial-home-visit.vbs"
 script_array_IVE_main(script_num).description			= "Case note template for Trial Home Visit cases."
@@ -147,10 +154,10 @@ Do
 	If ButtonPressed = "" or ButtonPressed = IVE_main_button then declare_IVE_menu_dialog(script_array_IVE_main)
 	dialog IVE_dialog
 	If ButtonPressed = 0 then stopscript
-	
+
     'Opening the SIR Instructions
 	'IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notices%20scripts.aspx")
-Loop until 	ButtonPressed <> IVE_main_button 
+Loop until 	ButtonPressed <> IVE_main_button
 'MsgBox buttonpressed = script_array_IVE_main(0).button
 
 'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
