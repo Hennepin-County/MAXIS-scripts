@@ -168,7 +168,6 @@ Function check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, grh
                 IF grh_pnd2_code = "I" THEN coded_denial = coded_denial & " CASH (GRH) application incomplete, denied on PND2."
             END IF
         END IF
-        MsgBox grh_pnd2_code
 	END IF
 	IF emer_check = checked Then
 		EMReadScreen emer_pnd2_code, 1, row, 68
