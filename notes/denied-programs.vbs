@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("12/21/2019", "Added functionality to allow the script to read GRH PND2 when selecting CASH denial so that GRH denials can be noted with the same functionality as the other programs.", "Casey Love, Hennepin County")
 CALL changelog_update("10/14/2019", "Removed NOMI and TIKL for case transfer checkboxes and associated functionailty.", "Ilse Ferris, Hennepin County")
 Call changelog_update("07/10/2019", "Bug Fix - script would complete if the SPEC/WCOM navigation button was used, preventing the full dialog from being cmompleted.", "Casey Love, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
@@ -116,7 +117,7 @@ End function
 Function check_elig_for_verifs
 End function
 
-Function check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, emer_pnd2_code)
+Function check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, grh_pnd2_code, emer_pnd2_code)
 	Call navigate_to_MAXIS_screen("REPT", "PND2")
 	row = 7
 	col = 5
@@ -154,6 +155,20 @@ Function check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, eme
 				IF cash_pnd2_code = "I" THEN coded_denial = coded_denial & " CASH application incomplete, denied on PND2."
 			END IF
 		END IF
+        EMReadScreen grh_pnd2_code, 1, row, 72
+        IF grh_pnd2_code = "R" THEN coded_denial = coded_denial & " CASH (GRH) withdrawn on PND2."
+        IF grh_pnd2_code = "I" THEN coded_denial = coded_denial & " CASH (GRH) application incomplete, denied on PND2."
+        IF grh_pnd2_code = "_" THEN
+            'If CASH is selected by the user but the CASH column is empty on PND2, the script is going to look on the next row for ADDITIONAL APP...
+            EMReadScreen additional_maxis_application, 20, row + 1, 16
+            additional_maxis_application = trim(additional_maxis_application)
+            IF InStr(additional_maxis_application, "ADDITIONAL") <> 0 THEN
+                EMReadScreen grh_pnd2_code, 1, row + 1, 54
+                IF grh_pnd2_code = "R" THEN coded_denial = coded_denial & " CASH (GRH) withdrawn on PND2."
+                IF grh_pnd2_code = "I" THEN coded_denial = coded_denial & " CASH (GRH) application incomplete, denied on PND2."
+            END IF
+        END IF
+        MsgBox grh_pnd2_code
 	END IF
 	IF emer_check = checked Then
 		EMReadScreen emer_pnd2_code, 1, row, 68
@@ -259,6 +274,7 @@ Do
         SNAP_pnd2_code = ""
         cash_pnd2_code = ""
         emer_pnd2_code = ""
+        grh_pnd2_code = ""
     	Dialog denied_dialog
     	cancel_confirmation
     	If buttonpressed = SPEC_WCOM_button then
@@ -269,7 +285,7 @@ Do
             err_msg = "LOOP" & err_msg
         Else
             coded_denial = "" 			'Reseting this value to make sure we are not duplicating the case note.
-            call check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, emer_pnd2_code)
+            call check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, grh_pnd2_code, emer_pnd2_code)
         End If
     	If MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "Please enter a case number."
     	If application_date = "" THEN err_msg = err_msg & vbCr & "Please enter an application date."
@@ -297,10 +313,10 @@ Do
     	If SNAP_pnd2_code = "I" and denied_pnd2_SNAP_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has SNAP coded as I. Please select deny from PND2 checkbox."
     	If SNAP_pnd2_code <> "R" and withdraw_pnd2_SNAP_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating SNAP was withdraw but your PND2 is not coded as such Please correct your PND2."
     	If SNAP_pnd2_code <> "I" and denied_pnd2_SNAP_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating SNAP was incomplete and denied but your PND2 is not coded as such Please correct your PND2."
-    	If cash_pnd2_code = "R" and withdraw_pnd2_cash_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has CASH coded as R. Please select withdraw checkbox."
-    	If cash_pnd2_code = "I" and denied_pnd2_cash_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has CASH coded as I. Please select deny from PND2 checkbox."
-    	If cash_pnd2_code <> "R" and withdraw_pnd2_cash_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating CASH was withdraw but your PND2 is not coded as such Please correct your PND2."
-    	If cash_pnd2_code <> "I" and denied_pnd2_cash_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating CASH was incomplete and denied but your PND2 is not coded as such Please correct your PND2."
+        If (cash_pnd2_code = "R" OR grh_pnd2_code = "R") and withdraw_pnd2_cash_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has CASH coded as R. Please select withdraw checkbox."
+    	If (cash_pnd2_code = "I" OR grh_pnd2_code = "I") and denied_pnd2_cash_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has CASH coded as I. Please select deny from PND2 checkbox."
+        If (cash_pnd2_code <> "R" AND grh_pnd2_code <> "R") and withdraw_pnd2_cash_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating CASH was withdraw but your PND2 is not coded as such Please correct your PND2."
+    	If (cash_pnd2_code <> "I" AND grh_pnd2_code <> "I") and denied_pnd2_cash_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating CASH was incomplete and denied but your PND2 is not coded as such Please correct your PND2."
     	If emer_pnd2_code = "R" and withdraw_pnd2_emer_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has EMER coded as R. Please select withdraw checkbox."
     	If emer_pnd2_code = "I" and denied_pnd2_emer_checkbox = unchecked THEN err_msg = err_msg & vbCr & "Your PND2 has EMER coded as I. Please select deny from PND2 checkbox."
     	If emer_pnd2_code <> "R" and withdraw_pnd2_emer_checkbox = checked THEN err_msg = err_msg & vbCr & "Your checked the box indicating EMER was withdraw but your PND2 is not coded as such Please correct your PND2."
@@ -309,7 +325,6 @@ Do
     LOOP until err_msg = ""
     Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
-
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)
 
@@ -553,4 +568,4 @@ call write_variable_in_case_note(worker_signature)
 
 'SUCCESS NOTICE
 IF edit_notice_check = checked AND notice_edited = false THEN msgbox "WARNING: You asked the script to edit the eligibilty notices for you, but there were no waiting SNAP/CASH notices showing denied for no proofs.  Please check your denial reasons or edit manually if needed."
-script_end_procedure("Success! Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly.") 
+script_end_procedure("Success! Please remember to check the generated notice to make sure it reads correctly. If not please add WCOMs to make notice read correctly.")
