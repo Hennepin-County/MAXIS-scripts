@@ -76,7 +76,8 @@ If dail_check <> "DAIL" then script_end_procedure("You are not in your DAIL. Thi
 EMSendKey "t"
 transmit
 'This is a dialog asking if the job is known to the agency.
-BeginDialog new_HIRE_dialog, 0, 0, 281, 195, "NEW HIRE INFORMATION"
+dialog1 = ""
+BeginDialog dialog1, 0, 0, 281, 195, "NEW HIRE INFORMATION"
   EditBox 65, 5, 20, 15, HH_memb
   EditBox 65, 25, 95, 15, employer
   CheckBox 15, 45, 190, 10, "Check here to have the script create a new JOBS panel.", create_JOBS_checkbox
@@ -176,6 +177,9 @@ EMSearch "MFIP: ", row, col
 If row <> 0 then MFIP_case = True
 If row = 0 then MFIP_case = False
 PF3
+
+If dail_row <> 6 Then Call write_value_and_transmit("t", dail_row, 3)       'bringing the correct message back to the top'
+
 'GOING TO STAT
 EMSendKey "s"
 transmit
@@ -185,7 +189,6 @@ If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to g
 EMWriteScreen "memb", 20, 71
 transmit
 Do
-	'Msgbox new_HIRE_SSN
 	EMReadScreen MEMB_current, 1, 2, 73
 	EMReadScreen MEMB_total, 1, 2, 78
 	EMReadScreen MEMB_SSN, 11, 7, 42
@@ -202,13 +205,12 @@ EMWriteScreen HH_memb, 20, 76
 transmit
 'MFIP cases need to manually add the JOBS panel for ES purposes.
 If MFIP_case = False then create_JOBS_checkbox = checked
-'Defaulting the "set TIKL" variable to checked
 'Setting the variable for the following do...loop
 HH_memb_row = 5
 'Show dialog
 DO
 	DO
-		Dialog new_HIRE_dialog
+	   	Dialog dialog1
 		cancel_confirmation
 		MAXIS_dialog_navigation
 	LOOP UNTIL ButtonPressed = -1
@@ -269,6 +271,8 @@ If create_JOBS_checkbox = checked then
 	EMReadScreen expired_check, 6, 24, 17 'Checks to see if the jobs panel will carry over by looking for the "This information will expire" at the bottom of the page
 	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
 END IF
+PF3 'back to DAIL
+'transmit
 
 '-----------------------------------------------------------------------------------------CASENOTE
 Call navigate_to_MAXIS_screen("CASE", "NOTE")
@@ -279,12 +283,12 @@ CALL write_variable_in_case_note("EMPLOYER: " & employer)
 CALL write_variable_in_case_note(new_hire_third_line)
 CALL write_variable_in_case_note(new_hire_fourth_line)
 CALL write_variable_in_case_note("---")
-If ECF_checkbox = CHECKED then CALL write_variable_in_case_note("* Sent employment verification and DHS-2919 (Verif Request Form) from ECF & TIKLed for 10-day return.")
+IF ECF_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent employment verification and DHS-2919 (Verif Request Form B) from ECF & TIKLed for 10-day return.")
 IF create_JOBS_checkbox = CHECKED THEN CALL write_variable_in_case_note("* STAT/JOBS updated with new hire information from DAIL.")
 IF CCA_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to CCA.")
 IF ES_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to ES.")
 IF work_number_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent request for Work Number after confirming client authorization.")
-IF CEI_checkbox = checked THEN CALL write_variable_in_case_note("* Requested CEI/OHI docs.")
+    IF CEI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Requested CEI/OHI docs.")
 CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
@@ -301,7 +305,7 @@ End if
 
 Call navigate_to_MAXIS_screen("DAIL", "WRIT")
 CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-CALL write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action." & vbcr & "For all federal matches INFC/HIRE must be cleared please see HSR manual.")
+CALL write_variable_in_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.")
 PF3		'Exits and saves TIKL
 
 script_end_procedure_with_error_report("Success! MAXIS updated for new HIRE message, a case note made, and 10 day reminders have been set. An Employment Verification and Verification request form should now be sent. The job is at " & employer & ".")

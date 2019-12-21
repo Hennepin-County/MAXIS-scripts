@@ -91,33 +91,34 @@ Do
 LOOP UNTIL err_msg = ""
 
     'This is a dialog asking if the job is known to the agency.
-dialog1 = ""
-BeginDialog dialog1, 0, 0, 281, 205, "New HIRE dialog"
-  EditBox 65, 5, 20, 15, HH_memb
-  EditBox 65, 25, 95, 15, employer
-  CheckBox 15, 45, 190, 10, "Check here to have the script create a new JOBS panel.", create_JOBS_checkbox
-  CheckBox 15, 70, 195, 10, "Sent a request for verifications out of ECF.", ECF_checkbox
-  CheckBox 15, 85, 190, 10, "Sent a Work Number request and submitted to ECF. ", work_number_checkbox
-  CheckBox 15, 100, 100, 10, "Requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
-  CheckBox 15, 115, 105, 10, "Sent a status update to CCA.", CCA_checkbox
-  CheckBox 15, 130, 100, 10, "Sent a status update to ES. ", ES_checkbox
-  CheckBox 15, 150, 160, 10, "Job is known to the agency (exit the script).", job_known_checkbox
-  EditBox 65, 165, 210, 15, other_notes
-  EditBox 65, 185, 110, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 190, 185, 40, 15
-    CancelButton 235, 185, 40, 15
-    PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 175, 25, 45, 10, "next panel", next_panel_button
-    PushButton 225, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 225, 25, 45, 10, "next memb", next_memb_button
-  Text 5, 190, 60, 10, "Worker signature:"
-  GroupBox 170, 5, 105, 35, "STAT-based navigation"
-  Text 5, 30, 50, 10, "New HIRE Info:"
-  Text 20, 170, 40, 10, "Other notes:"
-  Text 5, 10, 60, 10, "Member Number:"
-  GroupBox 5, 60, 270, 85, "Verification or updates"
-EndDialog
+	dialog1 = ""
+	BeginDialog dialog1, 0, 0, 281, 195, "NEW HIRE INFORMATION"
+	  EditBox 65, 5, 20, 15, HH_memb
+	  EditBox 65, 25, 95, 15, employer
+	  CheckBox 15, 45, 190, 10, "Check here to have the script create a new JOBS panel.", create_JOBS_checkbox
+	  CheckBox 15, 55, 160, 10, "Job is known to the agency (exit the script).", job_known_checkbox
+	  CheckBox 15, 80, 195, 10, "Sent a request for verifications out of ECF.", ECF_checkbox
+	  CheckBox 15, 90, 190, 10, "Sent a Work Number request and submitted to ECF. ", work_number_checkbox
+	  CheckBox 15, 100, 100, 10, "Requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
+	  CheckBox 15, 110, 105, 10, "Sent a status update to CCA.", CCA_checkbox
+	  CheckBox 15, 120, 100, 10, "Sent a status update to ES. ", ES_checkbox
+	  CheckBox 15, 140, 135, 10, "Check to have an outlook reminder set", Outlook_reminder_checkbox
+	  EditBox 65, 155, 210, 15, other_notes
+	  EditBox 65, 175, 110, 15, worker_signature
+	  ButtonGroup ButtonPressed
+	    OkButton 190, 175, 40, 15
+	    CancelButton 235, 175, 40, 15
+	    PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
+	    PushButton 175, 25, 45, 10, "next panel", next_panel_button
+	    PushButton 225, 15, 45, 10, "prev. memb", prev_memb_button
+	    PushButton 225, 25, 45, 10, "next memb", next_memb_button
+	  Text 5, 180, 60, 10, "Worker signature:"
+	  GroupBox 170, 5, 105, 35, "STAT-based navigation"
+	  Text 5, 30, 50, 10, "New Hire Info:"
+	  Text 20, 160, 40, 10, "Other notes:"
+	  Text 5, 10, 60, 10, "Member Number:"
+	  GroupBox 5, 70, 270, 65, "Verification or updates"
+	EndDialog
 
 'The script needs to determine what the day is in a MAXIS friendly format. The following does that.
 current_month = CM_mo
@@ -302,6 +303,15 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
     CALL write_variable_in_case_note("---")
     CALL write_variable_in_case_note(worker_signature)
     PF3
+
+reminder_date = dateadd("d", 10, date)  'Setting out for 10 days reminder
+
+If Outlook_reminder_checkbox = CHECKED THEN
+'and application_status_droplist <> "Case is ready to approve or deny" THEN
+	'Outlook appointment is created in prior to the case note being created
+	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
+	CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "New Hire recieved " & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
+End if
 
 	Call navigate_to_MAXIS_screen("DAIL", "WRIT")
     CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
