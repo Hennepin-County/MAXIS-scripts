@@ -1355,14 +1355,17 @@ For the_member = 1 to how_many_new_members
     If move_to_MN < 12 AND move_to_MN <> "" Then
         Call write_variable_in_CASE_NOTE("* Q2. Person moved to MN in past 12 Months: Yes")
         Call write_variable_with_indent_in_CASE_NOTE("Member Moved to MN on - " & new_memb_move_to_MN & ".")
-        If trim(city_moved_from) <> "" Then
-            If trim(state_moved_from) <> "Select One..." Then
-                Call write_variable_with_indent_in_CASE_NOTE("Moved from: " & trim(city_moved_from) & ", " & right(state_moved_from, len(state_moved_from) - 3 & "."))
+        If trim(state_moved_from) <> "NB MN Newborn" Then
+            Call write_variable_with_indent_in_CASE_NOTE("Member is Newborn in MN.")
+            If trim(city_moved_from) <> "" Then
+                If trim(state_moved_from) <> "Select One..." Then
+                    Call write_variable_with_indent_in_CASE_NOTE("Moved from: " & trim(city_moved_from) & ", " & right(state_moved_from, len(state_moved_from) - 3 & "."))
+                Else
+                    Call write_variable_with_indent_in_CASE_NOTE("Moved from: " & trim(city_moved_from) & ".")
+                End If
             Else
-                Call write_variable_with_indent_in_CASE_NOTE("Moved from: " & trim(city_moved_from) & ".")
+                If trim(state_moved_from) <> "Select One..." Then Call write_variable_with_indent_in_CASE_NOTE("Moved from: " & right(state_moved_from, len(state_moved_from) - 3 & "."))
             End If
-        Else
-            If trim(state_moved_from) <> "Select One..." Then Call write_variable_with_indent_in_CASE_NOTE("Moved from: " & right(state_moved_from, len(state_moved_from) - 3 & "."))
         End If
         date_lived = ""
         If trim(to_date) <> "" or trim(from_date) <> "" Then dates_lived = "Lived here "
