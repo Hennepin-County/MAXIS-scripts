@@ -338,34 +338,37 @@ BeginDialog appl_detail_dialog, 0, 0, 291, 195, "Application Received for: "  & 
   DropListBox 85, 30, 75, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"N/A", app_type
   EditBox 235, 10, 45, 15, request_date
   EditBox 225, 30, 55, 15, confirmation_number
-  EditBox 95, 60, 55, 15, METS_case_number
+  EditBox 95, 60, 55, 15, request_worker_number
+  EditBox 95, 80, 55, 15, METS_case_number
   EditBox 225, 60, 20, 15, MEMB_number
-  CheckBox 10, 75, 55, 10, "MA Transition", MA_transition_request_checkbox
-  CheckBox 10, 85, 85, 10, "METS Retro Coverage", METS_retro_checkbox
-  CheckBox 20, 95, 105, 10, "Team 603 will be processing", team_603_email_checkbox
+  CheckBox 170, 75, 55, 10, "MA Transition", MA_transition_request_checkbox
+  CheckBox 170, 85, 85, 10, "METS Retro Coverage", METS_retro_checkbox
+  CheckBox 185, 95, 85, 10, "Team 603 will process", team_603_email_checkbox
   CheckBox 10, 120, 155, 10, "Check if the case does not require a transfer ", no_transfer_checkbox
   EditBox 50, 130, 20, 15, transfer_to_worker
   ButtonGroup ButtonPressed
     PushButton 210, 125, 55, 15, "GeoCoder", geocoder_button
   EditBox 55, 155, 230, 15, other_notes
   EditBox 70, 175, 120, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 200, 175, 40, 15
-    CancelButton 245, 175, 40, 15
-  Text 10, 35, 65, 10, "Type of Application:"
+   ButtonGroup ButtonPressed
+     OkButton 200, 175, 40, 15
+     CancelButton 245, 175, 40, 15
   Text 170, 35, 50, 10, "Confirmation #:"
   Text 5, 180, 60, 10, "Worker Signature:"
-  Text 10, 65, 85, 10, "METS Integrated Case #:"
+  Text 10, 85, 85, 10, "METS Integrated Case #:"
   GroupBox 5, 50, 280, 60, "Request Information"
   GroupBox 5, 110, 280, 40, "Transfer Information"
   Text 5, 160, 45, 10, "Other Notes:"
   Text 10, 135, 40, 10, "Transfer to:"
   Text 75, 135, 60, 10, "(last 3 digit of X#)"
   Text 10, 15, 70, 10, "Application Received:"
-  Text 170, 65, 55, 10, "MEMB # for HC:"
+  Text 10, 35, 65, 10, "Type of Application:"
   GroupBox 5, 0, 280, 50, "Application Information"
   Text 170, 10, 60, 20, "Request to APPL Submission Date:"
-EndDialog
+  Text 170, 65, 55, 10, "MEMB # for HC:"
+  Text 30, 65, 60, 10, "Requested By X#:"
+ EndDialog
+
 
 '------------------------------------------------------------------------------------DIALOG APPL
     Do
@@ -407,7 +410,7 @@ IF how_app_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and
 	CALL write_variable_in_CASE_NOTE ("~ Application Received via " & how_app_rcvd & " for " & application_date & " ~")
 	'~ Application Received (METS Retro) via Request to APPL Form form on 7/16/2019 ~'
 	CALL write_variable_in_CASE_NOTE("* Request to APPL Form received on " & request_date & "")
-	CALL write_variable_in_CASE_NOTE("* Emailed worker to let them know the request was processed.")
+	CALL write_variable_in_CASE_NOTE("* Emailed worker " & request_worker_number & " to let them know the request was processed.")
 END IF
 IF METS_retro_checkbox = CHECKED THEN
 	CALL write_variable_in_CASE_NOTE ("~ Application Received(METS Retro)via " & how_app_rcvd & " for " & application_date & " ~")
