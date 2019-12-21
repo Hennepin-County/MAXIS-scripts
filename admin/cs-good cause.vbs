@@ -57,12 +57,12 @@ changelog_display
 
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+Call MAXIS_footer_finder(original_MAXIS_footer_month, MAXIS_footer_year)
 back_to_self 'to ensure we are not in edit mode'
 
 BeginDialog case_number, 0, 0, 116, 65, "Case number"
   EditBox 60, 5, 50, 15, MAXIS_case_number
-  EditBox 65, 25, 20, 15, MAXIS_footer_month
+  EditBox 65, 25, 20, 15, original_MAXIS_footer_month
   EditBox 90, 25, 20, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
     OkButton 5, 45, 50, 15
@@ -77,7 +77,7 @@ DO
 	    Dialog case_number
 	    cancel_confirmation
 	    IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number to continue."
-	    IF MAXIS_footer_month = "" THEN err_msg = "Please enter a footer month to continue."
+	    IF original_MAXIS_footer_month = "" THEN err_msg = "Please enter a footer month to continue."
 	    IF MAXIS_footer_year = "" THEN err_msg = "Please enter a footer year to continue."
 	    IF err_msg <> "" THEN msgbox "*** Error Check ***" & vbNewLine & err_msg
 		LOOP until err_msg = ""
@@ -301,8 +301,7 @@ Do
 		ELSEIF gc_status = "Denied" THEN
 			If denial_reason = "" then err_msg = err_msg & vbnewline & "* You must enter a denial reason."
 		END IF
-
-		If isdate(actual_date) = FALSE and Cdate(actual_date) > cdate(date) = TRUE THEN  err_msg = err_msg & vbnewline & "* You must enter an actual date that is not in the future and is in the footer month that you are working in."
+		If isdate(actual_date) = "" and cdate(actual_date) > cdate(date) = TRUE THEN  err_msg = err_msg & vbnewline & "* You must enter an actual date that is not in the future and is in the footer month that you are working in."
 		IF gc_status <> "Not Claimed" THEN
 			If isdate(claim_date) = False then err_msg = err_msg & vbnewline & "* You must enter a valid good cause claim date."
 		END IF
@@ -332,16 +331,19 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
     IF panel_check = "ABPS" THEN
     	'MsgBox panel_check
         Do
-    		EMReadScreen ABPS_last_name, 24, 10, 30	'reading last name
-    		ABPS_last_name = replace(ABPS_last_name, "_", "")
-    		'MsgBox ABPS_last_name
-    		EMReadScreen ABPS_first_name, 12, 10, 63	'reading first name
-    		ABPS_first_name = replace(ABPS_first_name, "_", "")
+			EMReadScreen initial_parental_status_number, 1, 15, 53
+			IF initial_parental_status_number = "1" THEN
+				EMReadScreen ABPS_last_name, 24, 10, 30	'reading last name
+    			ABPS_last_name = replace(ABPS_last_name, "_", "")
+    			'MsgBox ABPS_last_name
+    			EMReadScreen ABPS_first_name, 12, 10, 63	'reading first name
+    			ABPS_first_name = replace(ABPS_first_name, "_", "")
+			END IF
     		EMReadScreen ABPS_parent_ID, 10, 13, 40	'making sure ABPS is not unknown.
     		ABPS_parent_ID = trim(ABPS_parent_ID)
            	EMReadScreen current_panel_number, 1, 2, 73
     		'MsgBox current_panel_number
-           	ABPS_check = MsgBox("Is this the right ABPS to update?  " & ABPS_first_name & " " & ABPS_last_name & ", " &  ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
+           	ABPS_check = MsgBox("Is this the correct ABPS panel to update?  " & ABPS_first_name & " " & ABPS_last_name & " ID# " &  ABPS_parent_ID, vbYesNo + vbQuestion, "Initial Confirmation")
            	If ABPS_check = vbYes then
     			ABPS_found = TRUE
     			exit do
@@ -388,14 +390,17 @@ DO
 
 	EMReadScreen parental_status, 1, 15, 53	'making sure ABPS is not unknown.
 	EMReadScreen custodial_status, 1, 15, 57
-	EMReadScreen first_name, 12, 10, 63
-	EMReadScreen last_name, 24, 10, 30
-	first_name = trim(first_name)
-	last_name = trim(last_name)
-	first_name = replace(first_name, "_", "")
-	last_name = replace(last_name, "_", "")
-	client_name = first_name & " " & last_name
-	Call fix_case_for_name(client_name)
+	IF parental_status_number = "1" THEN
+		EMReadScreen first_name, 12, 10, 63
+		EMReadScreen last_name, 24, 10, 30
+	    first_name = trim(first_name)
+	    last_name = trim(last_name)
+	    first_name = replace(first_name, "_", "")
+	    last_name = replace(last_name, "_", "")
+	    client_name = first_name & " " & last_name
+	    Call fix_case_for_name(client_name)
+	    'IF client_name = "" THEN client_name = replace(client_name, "", "Unknown")
+	END IF
 	EMReadScreen ABPS_gender, 1, 11, 80	'reading the ssn
 	EMReadScreen ABPS_SSN, 11, 11, 30	'reading the ssn
 	EMReadScreen ABPS_DOB, 10, 11, 60	'reading the DOB
@@ -492,12 +497,13 @@ DO
 					CALL write_value_and_transmit("ABPS", 20, 71)
 					Do
 						DO
-                            'CALL write_value_and_transmit("ABPS", 20, 71)
-					        EMReadScreen ABPS_last_name_check, 24, 10, 30	'reading last name
-					        ABPS_last_name_check = replace(ABPS_last_name_check, "_", "")
-					        'MsgBox ABPS_last_name_check & "second run"
-					        EMReadScreen ABPS_first_name_check, 12, 10, 63	'reading first name
-					        ABPS_first_name_check = replace(ABPS_first_name_check, "_", "")
+                            IF parental_status = "1" THEN
+					            EMReadScreen ABPS_last_name_check, 24, 10, 30	'reading last name
+					            ABPS_last_name_check = replace(ABPS_last_name_check, "_", "")
+					            'MsgBox ABPS_last_name_check & "second run"
+					            EMReadScreen ABPS_first_name_check, 12, 10, 63	'reading first name
+					            ABPS_first_name_check = replace(ABPS_first_name_check, "_", "")
+							END IF
 					        EMReadScreen ABPS_parent_ID, 10, 13, 40	'making sure ABPS is not unknown.
 					        ABPS_parent_ID = trim(ABPS_parent_ID)
 			       	        EMReadScreen current_panel_number, 1, 2, 73
@@ -512,7 +518,7 @@ DO
 								'MsgBox ABPS_found
 							END IF
 							IF ABPS_found = TRUE THEN
-								ABPS_check = MsgBox("Is this the right ABPS to update? Sometimes a new ID is created for the same ABPS.  " & ABPS_first_name_check & " " & ABPS_last_name_check & ", " &  ABPS_parent_ID, vbYesNo + vbQuestion, "Confirmation")
+								ABPS_check = MsgBox("Is this the correct ABPS panel to update? Sometimes a new ID is created for the same ABPS.  " & ABPS_first_name_check & " " & ABPS_last_name_check & " ID# " &  ABPS_parent_ID, vbYesNo + vbQuestion, "BGTX Confirmation")
 								If ABPS_check = vbYes then
 									ABPS_found_question = TRUE
 									exit do
@@ -565,6 +571,10 @@ IF OTHER_CHECKBOX = CHECKED THEN incomplete_form = incomplete_form & " other (se
 incomplete_form  = trim(incomplete_form)
 If right(incomplete_form, 1) = "," THEN incomplete_form  = left(incomplete_form, len(incomplete_form) - 1)
 '-----------------------------------------------------------------------------------------------------Case note & email sending
+MAXIS_footer_month = original_MAXIS_footer_month
+
+'MsgBox original_MAXIS_footer_month
+
 Call MAXIS_footer_month_confirmation    'Footer month & year could get wonky and not go into case note. This prevents that from happening.
 CALL start_a_blank_case_note
 IF good_cause_droplist = "Application Review-Complete" THEN Call write_variable_in_case_note("Good Cause Application Review - Complete")
@@ -583,7 +593,7 @@ If claim_date <> "" THEN Call write_bullet_and_variable_in_case_note("Good cause
 If review_date <> "" THEN Call write_bullet_and_variable_in_case_note("Next review date", review_date)
 Call write_variable_in_case_note("* Child(ren) member number(s): " & child_ref_number)
 Call write_bullet_and_variable_in_case_note("ABPS name", client_name)
-Call write_bullet_and_variable_in_case_note("Parental status", client_name)
+Call write_bullet_and_variable_in_case_note("Parental status", parental_status)
 CALL write_bullet_and_variable_in_case_note("Applicable programs", programs_included)
 IF reason_droplist <> "Select One:" THEN Call write_bullet_and_variable_in_case_note("Reason for claiming good cause", reason_droplist)
 IF incomplete_form <> "Select One" THEN Call write_bullet_and_variable_in_case_note("What is GC form incomplete for", incomplete_form)
