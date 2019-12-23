@@ -1498,7 +1498,7 @@ ObjExcel.ActiveSheet.Range("A2").Select
 objExcel.ActiveWindow.FreezePanes = True
 
 If make_changes = TRUE Then
-    MsgBox "Starting new functionality"
+    ' MsgBox "Starting new functionality"
     'Create Worklist Excel'
     'Opening the Excel file
     Set objExcel = CreateObject("Excel.Application")
@@ -1519,7 +1519,7 @@ If make_changes = TRUE Then
         If on_loop = 4 Then ObjExcel.Cells(1, 3).Value = "MAXIS Budget Error"
 
         ObjExcel.Cells(2, 1).Value = "Cases In List"
-        ObjExcel.Cells(2, 3).Value = "COUNTIF(G:G), " & is_not_blank_excel_string & ") - 1"
+        ObjExcel.Cells(2, 3).Value = "=COUNTIF(G:G, " & is_not_blank_excel_string & ") - 1"
 
         ObjExcel.Cells(3, 1).Value = "Date Assigned"
         ObjExcel.Cells(3, 3).Value = date & ""
@@ -1584,7 +1584,7 @@ If make_changes = TRUE Then
             ObjExcel.Cells(8, i).Font.Bold = TRUE
         Next
 
-        excel_row = 8
+        excel_row = 9
         'Looping through each of the HC clients while in MMIS
         For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
             write_this_entry = FALSE
@@ -1595,20 +1595,26 @@ If make_changes = TRUE Then
                     If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" AND trim(EOMC_CLIENT_ARRAY(MMIS_new_end_two, hc_clt)) = "" Then write_this_entry = TRUE
                 End If
             ElseIf on_loop = 2 Then
-                If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) <> "" AND EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) <> "99/99/99" Then EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = DateValue(EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt))
-                If DateDiff("d", mmis_last_day_date, EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt)) < 0 OR EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = "" Then
-                    write_this_entry = TRUE
-                Else
-                    If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) <> "" AND EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) <> "99/99/99" Then EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = DateValue(EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt))
-                    If DateDiff("d", mmis_last_day_date, EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt)) < 0 OR EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "" Then write_this_entry = TRUE
+                If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) <> "" AND EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) <> "99/99/99" Then
+                    EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = DateValue(EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt))
+                    If DateDiff("d", mmis_last_day_date, EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt)) < 0 OR EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = "" Then write_this_entry = TRUE
+                End If
+                If write_this_entry = FALSE Then
+                    If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) <> "" AND EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) <> "99/99/99" Then
+                        EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = DateValue(EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt))
+                        If DateDiff("d", mmis_last_day_date, EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt)) < 0 OR EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "" Then write_this_entry = TRUE
+                    End If
                 End If
             ElseIf on_loop = 3 Then
-                If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) <> "" AND EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) <> "99/99/99" Then EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = DateValue(EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt))
-                If DateDiff("d", mmis_last_day_date, EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt)) > 0 Then
-                    write_this_entry = TRUE
-                Else
-                    If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) <> "" AND EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) <> "99/99/99" Then EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = DateValue(EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt))
-                    If DateDiff("d", mmis_last_day_date, EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt)) > 0 OR Then write_this_entry = TRUE
+                If EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) <> "" AND EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) <> "99/99/99" Then
+                    EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt) = DateValue(EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt))
+                    If DateDiff("d", mmis_last_day_date, EOMC_CLIENT_ARRAY(MMIS_curr_end_one, hc_clt)) > 0 Then write_this_entry = TRUE
+                End If
+                If write_this_entry = FALSE Then
+                    If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) <> "" AND EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) <> "99/99/99" Then
+                        EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = DateValue(EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt))
+                        If DateDiff("d", mmis_last_day_date, EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt)) > 0 Then write_this_entry = TRUE
+                    End If
                 End If
             ElseIf on_loop = 4 Then
                 If InStr(EOMC_CLIENT_ARRAY(err_notes, hc_clt), "Budget Needs Approval") <> 0 Then write_this_entry = TRUE
