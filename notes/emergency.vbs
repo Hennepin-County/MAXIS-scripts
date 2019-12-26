@@ -60,7 +60,7 @@ changelog_display
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 'creating month variable 13 months prior to current footer month/year to search for EMER programs issued (for EMER SCREENING portion of the script)
-begin_search_month = dateadd("m", -12, date)
+begin_search_month = dateadd("m", -13, date)
 begin_search_year = datepart("yyyy", begin_search_month)
 begin_search_year = right(begin_search_year, 2)
 begin_search_month = datepart("m", begin_search_month)
@@ -323,6 +323,7 @@ If EGA_screening_check = 1 then
         If abs(net_income) > abs(monthly_standard) then screening_determination = screening_determination & vbNewLine & "* Net income exceeds program guidelines."
         IF net_income = "0" then screening_determination = screening_determination & vbNewLine & "* Household does not have current/ongoing income."
         If EMER_last_used_dates <> "n/a" then screening_determination = screening_determination & vbNewLine & "* Emergency funds were used within the last year from the eligibility period."
+		If EMER_last_used_dates <> "n/a" and EMER_available_date = > Cdate then screening_determination = screening_determination & vbNewLine & "* Emergency funds were used within the last year from the eligibility period."
     End if
 
     'Msgbox with screening results. Will give the user the option to cancel the script, case note the results, or use the EMER notes script
