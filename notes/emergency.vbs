@@ -60,7 +60,7 @@ changelog_display
 
 'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
 'creating month variable 13 months prior to current footer month/year to search for EMER programs issued (for EMER SCREENING portion of the script)
-begin_search_month = dateadd("m", -13, date)
+begin_search_month = dateadd("m", -12, date)
 begin_search_year = datepart("yyyy", begin_search_month)
 begin_search_year = right(begin_search_year, 2)
 begin_search_month = datepart("m", begin_search_month)
@@ -174,12 +174,12 @@ DO
         If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     LOOP UNTIL err_msg = ""
-CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in	
+CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'EMER screnning code----------------------------------------------------------------------------------------------------
 If EGA_screening_check = 1 then
-    'EGA screening dialog 
+    'EGA screening dialog
     BeginDialog emergency_screening_dialog, 0, 0, 286, 170, "Emergency Screening dialog"
       ComboBox 255, 5, 25, 15, "1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"13"+chr(9)+"14"+chr(9)+"15"+chr(9)+"16"+chr(9)+"17"+chr(9)+"18"+chr(9)+"19"+chr(9)+"20", HH_members
       CheckBox 15, 45, 40, 10, "Eviction", eviction_check
@@ -213,7 +213,7 @@ If EGA_screening_check = 1 then
       Text 90, 130, 60, 10, "Worker signature:"
       GroupBox 0, 85, 80, 75, "STAT navigation"
     EndDialog
-    
+
     'Running the initial dialog
     DO
     	DO
@@ -308,13 +308,13 @@ If EGA_screening_check = 1 then
     If HH_members = "18" then monthly_standard = "14608"
     If HH_members = "19" then monthly_standard = "15345"
     If HH_members = "20" then monthly_standard = "16082"
-    
-    seventy_percent_income = net_income * .70   'This is to determine if shel costs exceed 70% of the HH's income 
+
+    seventy_percent_income = net_income * .70   'This is to determine if shel costs exceed 70% of the HH's income
 
     'determining if client is potentially elig for EMER or not'
-	If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) < abs(monthly_standard) AND net_income <> "0" AND EMER_last_used_dates = "n/a" AND abs(seventy_percent_income) > abs(shelter_costs) then 
+	If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) < abs(monthly_standard) AND net_income <> "0" AND EMER_last_used_dates = "n/a" AND abs(seventy_percent_income) > abs(shelter_costs) then
         screening_determination = "potentially eligible for EGA."
-	Else 
+	Else
         screening_determination = "NOT eligible for EGA for the following reasons:" & vbcr
         'if client is not elig, reason(s) for not being elig will be listed in the msgbox
         If crisis = "no crisis given" then screening_determination = screening_determination & vbNewLine & "* No crisis meeting program requirements."
@@ -323,7 +323,7 @@ If EGA_screening_check = 1 then
         If abs(net_income) > abs(monthly_standard) then screening_determination = screening_determination & vbNewLine & "* Net income exceeds program guidelines."
         IF net_income = "0" then screening_determination = screening_determination & vbNewLine & "* Household does not have current/ongoing income."
         If EMER_last_used_dates <> "n/a" then screening_determination = screening_determination & vbNewLine & "* Emergency funds were used within the last year from the eligibility period."
-    End if 
+    End if
 
     'Msgbox with screening results. Will give the user the option to cancel the script, case note the results, or use the EMER notes script
     Screening_options = MsgBox ("Based on the information provided, this HH appears to " & screening_determination & vbNewLine & vbNewLine &"The last date emergency funds were used was: " & EMER_last_used_dates & "." & _
@@ -429,4 +429,4 @@ IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent fo
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure("")
+script_end_procedure_with_error_report("")
