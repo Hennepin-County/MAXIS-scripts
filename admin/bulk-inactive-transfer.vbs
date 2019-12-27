@@ -51,90 +51,166 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 '------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-'X127EK3 	 Closed/Inactive maxed out
-'X127EG8 	 Closed/Inactive maxed out
-'X127ER5 	 Closed/Inactive maxed out
-'X127FD8 	 Closed/Inactive maxed out
-'X127EZ8 	 Closed/Inactive maxed out
-'X127ET3 	 Closed/Inactive maxed out
-'X127FH9 	 Closed/Inactive done
-'X127EV5 	 Closed/Inactive maxed out
-'X127EH7	 Closed/Inactive maxed out
-'X127EG7	 Closed/Inactive maxed out
-'X127ES3	 Closed/Inactive maxed out
-'X127FB6	 Closed/Inactive maxed out
-'X127ET8	 Closed/Inactive maxed out
-'X127EU4	 Closed/Inactive maxed out
-'X127FE9 	 DWP  S Closed/Inactive maxed out
-'X127EZ1	 DWP N Closed/Inactive done
-'x127ej6 maxed out
-'x127fd4 done
-'X127FE5 done
-'X127ek1 done
-'X127ek12 done
-
-current_worker = ""
-new_worker = "x127CCL"
-MAXIS_case_number = "2335052"
-
-
-BeginDialog xfer_dialog, 0, 0, 131, 85, "BULK INACTIVE"
-  EditBox 60, 5, 65, 15, MAXIS_case_number
-  EditBox 60, 25, 65, 15, current_worker
-  EditBox 60, 45, 65, 15, new_worker
+BeginDialog dialog1, 0, 0, 316, 65, "Select the source file"
+  EditBox 5, 25, 260, 15, file_selection_path
   ButtonGroup ButtonPressed
-    OkButton 40, 65, 40, 15
-    CancelButton 85, 65, 40, 15
-  Text 5, 10, 50, 10, "Case number:"
-  Text 5, 30, 50, 10, "Current worker:"
-  Text 5, 50, 45, 10, "New worker:"
+  PushButton 270, 25, 40, 15, "Browse...", select_a_file_button
+  OkButton 205, 45, 50, 15
+  CancelButton 260, 45, 50, 15
+  Text 5, 5, 295, 15, "Click the BROWSE button and select the INAC report for today. Once selected, click 'OK'. There will be no additional input needed until the script run is complete."
 EndDialog
+Do
+'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
+    'Show initial dialog
+    Do
+		Dialog dialog1
+		If ButtonPressed = cancel then stopscript
+		If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
+	Loop until ButtonPressed = OK and file_selection_path <> ""
+	If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+ObjExcel.Cells(1, 1).Value = "WORKER"
+ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
+ObjExcel.Cells(1, 3).Value = "CASE NAME"
+ObjExcel.Cells(1, 4).Value = "APPL DATE"
+ObjExcel.Cells(1, 5).Value = "INAC DATE"
+ObjExcel.Cells(1, 6).Value = "TRANSFERED"
+ObjExcel.Cells(1, 7).Value = "CONFRIM"
+
+FOR i = 1 to 8		'formatting the cells'
+	objExcel.Cells(1, i).Font.Bold = True		'bold font'
+	'ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+	objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
+
+'This bit freezes the top row of the Excel sheet for better use ability when there is a lot of information
+ObjExcel.ActiveSheet.Range("A2").Select
+objExcel.ActiveWindow.FreezePanes = True
+
+'Sets up the array to store all the information for each client'
+Dim INAC_array()
+ReDim INAC_array (7, 0)
+
+'Sets constants for the array to make the script easier to read (and easier to code)'
+Const worker_number    		= 1			'Each of the case numbers will be stored at this position'
+Const case_number      		= 2
+Const case_member_name		= 3
+Const appl_date			  	= 4
+Const inac_date				= 5
+Const trans_status	 	  	= 6
+Const trans_conf	    	= 7
+
+'Now the script adds all the clients on the excel list into an array
+excel_row = 2 're-establishing the row to start checking the members for
+'entry_record = 0
+transfer_case_action = TRUE
+
+Do                                                            'Loops until there are no more cases in the Excel list
+	previous_worker_number = objExcel.cells(excel_row, 1).Value          're-establishing the worker number for functions to use
+	If previous_worker_number = "" then exit do
+	previous_worker_number = trim(previous_worker_number)
+
+	IF previous_worker_number = "X1274EC" THEN transfer_case_action = FALSE
+	'msgbox "First: " & previous_worker_number & " " & transfer_case_action
+
+	MAXIS_case_number 	 = objExcel.cells(excel_row, 2).Value          're-establishing the case numbers for functions to use
+	If MAXIS_case_number = "" then exit do
+	MAXIS_case_number	 = trim(MAXIS_case_number)
+
+	case_name  			= objExcel.cells(excel_row,  3).value	'(col I) establishes
+	case_name	 		= trim(case_name)
+
+	application_date 	= objExcel.cells(excel_row, 4).value	'(col K) establishes claim number from MAXIS
+	application_date 	= trim(application_date)
+
+    inactive_date 		= objExcel.cells(excel_row, 5).value	'(col P) establishes
+	inactive_date   	= trim(inactive_date)
+
+	transfer_case 		= objExcel.cells(excel_row, 6).value	'(col Q) establishes grant amount for each case
+	transfer_case		= trim(transfer_case)
+
+	transfer_confirmed 	= objExcel.cells(excel_row, 7).value	'(col R) establishes
+	transfer_confirmed		= trim(transfer_confirmed)
+
+	'Adding client information to the array'
+	'ReDim Preserve INAC_array(7, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+	'INAC_array (worker_number, 	entry_record) = previous_worker_number	'The client information is added to the array'
+	'INAC_array (case_number,  	entry_record) = MAXIS_case_number
+	'INAC_array (case_member_name, 	entry_record) = case_name
+    'INAC_array (appl_date,	entry_record) = application_date
+	'INAC_array (inac_date, 	entry_record) = inactive_date
+	'INAC_array (trans_status,   entry_record) = TRUE
+	'INAC_array (trans_conf,   entry_record) = ""
+	'entry_record = entry_record + 1			'This increments to the next entry in the array'
+''	excel_row = excel_row + 1
+'Loop
 
 
+'For each worker_number in INAC_array
+	'Establishing values for each case in the array of cases
+	'previous_worker_number	= INAC_array(worker_number, item)
+	'MAXIS_case_number		= INAC_array(case_number, item)
+	'case_name				= INAC_array(case_member_name, item)
+	'application_date 		= INAC_array(appl_date, item)
+	'inactive_date       	= INAC_array(inac_date, item)
+	'transfer_case 			= INAC_array(trans_status, item)
+	'transfer_confirmed 		= INAC_array(trans_conf, item)
+	'MsgBox previous_worker_number
 
-DIALOG xfer_dialog
-cancel_confirmation
+	'IF transfer_case_action = FALSE THEN
+	'	INAC_array(transfer_case, i) = "Excluded Worker"
+	'	INAC_array(transfer_confirmed, i) = False
+	'END IF
+'DO
+	IF transfer_case_action = TRUE THEN
+	msgbox  transfer_case_action
+	'Sets variable for all of the Excel stuff
 
-CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
-EMWriteScreen "2335052", 18, 43 'MAXIS_case_number'
-TRANSMIT
-'Dummy case number initially
-EMWriteScreen "X", 11, 16 'Transfer case load same county
-TRANSMIT
-'-----------------------------------------------XCLD
-'msgbox "where am I now"
-EMWriteScreen current_worker, 04, 18
-TRANSMIT
-'IF current_worker = "" then pf3
-EMWriteScreen "X127CCL", 15, 13 'new_worker'
-TRANSMIT
-EMWriteScreen "x", 11, 13 'inactive_case
-'Change the footer month
-TRANSMIT 'REVIEW NEW WORKER NAME AND PRESS ENTER TO VIEW DETAILS
-TRANSMIT
-'msgbox "AM I moving"
-'-------------------------------------------XFER
-row = 7
-DO
-	DO
-		EMReadScreen previous_number, 7, row, 5         'First it reads the case number, name, date they closed, and the APPL date.
-
-		IF previous_number <> "" THEN
-			case_found = TRUE
-			EMWriteScreen "1", row, 3
-			row = row + 1
+		EMWriteScreen MAXIS_case_number, 18, 43
+    	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")
+		'EMWriteScreen maxis_case_number, 18, 43 'MAXIS_case_number'
+		TRANSMIT
+		Call write_value_and_transmit("x", 7, 16) 'This should have us in SPEC/XWKR'
+		EMReadScreen panel_check, 4, 2, 55
+		MsgBox panel_check
+		EMReadScreen prev_worker, 7, 18, 28
+		'MsgBox prev_wor
+		PF9
+		MsgBox "PF9"
+		EMWriteScreen "X127CCL", 18, 61
+		CALL clear_line_of_text(18, 74)
+		MsgBox "writing"
+		TRANSMIT
+		'msgbox "where am I"
+		EMReadScreen worker_check, 9, 24, 2
+		IF worker_check = "SERVICING" or worker_check = "LAST" THEN
+		  	action_completed = False
+		   	PF10
 		END IF
-	Loop until row = 19
-	row = 7 'Setting the variable for when the do...loop restarts
-	PF8
-	IF previous_number = "" THEN case_found = FALSE
-	EMReadScreen last_page_check, 4, 24, 2 'checks for "THIS IS THE LAST PAGE"
-	IF last_page_check = "THIS" or last_page_check = "MAXI" THEN case_found = FALSE
-LOOP UNTIL case_found = FALSE
-	'IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "What does it say?"
-'LOOP UNTIL err_msg = ""
-PF3 'to save
-'MAXIMUM PAGES ALLOWED IS 100
-'THIS IS LAST PAGE- PF3 FOR THE NEXT CASE STATUS OR ENTER START NAME
+	    EMReadScreen transfer_confirmation, 16, 24, 2
+	    IF transfer_confirmation = "CASE XFER'D FROM" then
+	    	action_completed = True
+	    Else
+	    	action_completed = False
+	    End if
+	    PF3
+		excel_row = excel_row + 1	'increments the excel row so we don't overwrite our data
+	ELSE
+		IF transfer_case_action = FLASE THEN
+			msgbox  previous_worker_number & " / " & transfer_case_action
+			Excel_row = Excel_row + 1
+			action_completed = False
+	        End if
+        'End if
+	End if
+	'NEXT
+	'Export data to Excel
+		ObjExcel.Cells(excel_row, 6).Value = trim(transfer_case_action)
+		objExcel.cells(excel_row, 7).Value = trim(action_completed)
+	   '' Excel_row = Excel_row + 1
+LOOP UNTIL previous_worker_number = ""
 
-script_end_procedure("Success!")
+
+script_end_procedure("Success! The list is complete. Please review the cases that appear to be in error.")
