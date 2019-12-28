@@ -46,6 +46,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/28/2019", "Updated EGA screening determination when emer has been used before, but the elig period has expired.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/11/2019", "Updated backend processing.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/08/2019", "Updated 200% FPG for 2019.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/22/2018", "Updated EGA eligibilty period to a year and a day after the start of the eligibilty period, per EGA group.", "Ilse Ferris, Hennepin County")
@@ -272,7 +273,12 @@ If EGA_screening_check = 1 then
     If emer_issued <> "E" then	'creating variables for cases that have not had EMER issued in current 13 months
      	EMER_last_used_dates = "n/a"
     	EMER_available_date = "Currently available"
-    END IF
+        emer_availble = True 
+    Elseif datediff("D", EMER_elig_end_date, date) > 0 then
+        emer_availble = True        'If emer was used but the elig end date has passed 
+    Else 
+        emer_availble = False       'not eligible 
+    End if 
 
 	crisis = ""
     'Logic to enter what the "crisis" variable is from the check boxes indicated
@@ -312,7 +318,7 @@ If EGA_screening_check = 1 then
     seventy_percent_income = net_income * .70   'This is to determine if shel costs exceed 70% of the HH's income
 
     'determining if client is potentially elig for EMER or not'
-	If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) < abs(monthly_standard) AND net_income <> "0" AND EMER_last_used_dates = "n/a" AND abs(seventy_percent_income) > abs(shelter_costs) then
+	If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) < abs(monthly_standard) AND net_income <> "0" AND emer_availble = True AND abs(seventy_percent_income) > abs(shelter_costs) then
         screening_determination = "potentially eligible for EGA."
 	Else
         screening_determination = "NOT eligible for EGA for the following reasons:" & vbcr
@@ -328,7 +334,7 @@ If EGA_screening_check = 1 then
 
     'Msgbox with screening results. Will give the user the option to cancel the script, case note the results, or use the EMER notes script
     Screening_options = MsgBox ("Based on the information provided, this HH appears to " & screening_determination & vbNewLine & vbNewLine &"The last date emergency funds were used was: " & EMER_last_used_dates & "." & _
-    vbNewLine & "Emergency programs will be available to the HH again on: " & EMER_available_date & "." & vbNewLine & vbNewLine & "Would you like to start the NOTES - EMERGENCY script?" , vbYesNoCancel, "Screening results dialog")
+    vbNewLine & "Emergency programs are available to the HH effective: " & EMER_available_date & "." & vbNewLine & vbNewLine & "Would you like to start the NOTES - EMERGENCY script?" , vbYesNoCancel, "Screening results dialog")
 
     IF Screening_options = vbCancel then script_end_procedure("")	'ends the script
     IF Screening_options = vbNO then
