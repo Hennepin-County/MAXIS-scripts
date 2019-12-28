@@ -274,6 +274,10 @@ Do
 
     dail_msg = ObjExcel.Cells(excel_row, 5).Value
     dail_msg = trim(dail_msg)
+    'Cleaning up the DAIL messages for the case note 
+    If right(dail_msg, 9) = "-SEE PF12" THEN dail_msg = left(dail_msg, len(dail_msg) - 9)
+    If right(dail_msg, 1) = "*" THEN dail_msg = left(dail_msg, len(dail_msg) - 1)
+    dail_msg = trim(dail_msg)
     
     Call navigate_to_MAXIS_screen("CASE", "NOTE")
     EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
