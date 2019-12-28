@@ -566,7 +566,7 @@ Function ABAWD_FSET_exemption_finder()
     			 	EMReadScreen jobs_end_dt, 8, 9, 49
     				EMReadScreen cont_end_dt, 8, 9, 73
     				IF jobs_end_dt = "__ __ __" THEN
-    					CALL write_value_and_transmit("X", 19, 38)
+    					CALL write_value_and_transmit("X", 19, 38)     'Entering the PIC 
     					EMReadScreen prosp_monthly, 8, 18, 56
     					prosp_monthly = trim(prosp_monthly)
     					IF prosp_monthly = "" THEN prosp_monthly = 0
@@ -584,12 +584,13 @@ Function ABAWD_FSET_exemption_finder()
     					ELSEIF pay_freq = "4" THEN
     						prosp_hrs = (4.3 * prosp_hrs)
     					END IF
+                        transmit		'to exit PIC
     					prospective_hours = prospective_hours + prosp_hrs
     				ELSE
     					jobs_end_dt = replace(jobs_end_dt, " ", "/")
     					IF DateDiff("D", date, jobs_end_dt) > 0 THEN
     						'Going into the PIC for a job with an end date in the future
-    						CALL write_value_and_transmit("X", 19, 38)
+    						CALL write_value_and_transmit("X", 19, 38)        'Entering the PIC 
     						EMReadScreen prosp_monthly, 8, 18, 56
     						prosp_monthly = trim(prosp_monthly)
     						IF prosp_monthly = "" THEN prosp_monthly = 0
@@ -607,11 +608,12 @@ Function ABAWD_FSET_exemption_finder()
     						ELSEIF pay_freq = "4" THEN
     							prosp_hrs = (4.3 * prosp_hrs)
     						END IF
+                            transmit		'to exit PIC
     						'added seperate incremental variable to account for multiple jobs
     						prospective_hours = prospective_hours + prosp_hrs
     					END IF
     				END IF
-    				transmit		'to exit PIC
+    				
     				EMReadScreen JOBS_panel_current, 1, 2, 73
     				'looping until all the jobs panels are calculated
     				If cint(JOBS_panel_current) < cint(num_of_JOBS) then transmit
