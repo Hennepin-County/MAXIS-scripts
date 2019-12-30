@@ -107,8 +107,15 @@ function get_user_information(maxis_row, excel_row)
     transmit
 end function
 
-'DIALOGS----------------------------------------------------------------------
-BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 240, 135, "Pull REPT data into Excel dialog"
+'THE SCRIPT-------------------------------------------------------------------------
+'Determining specific county for multicounty agencies...
+get_county_code
+
+'Connects to BlueZone
+EMConnect ""
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 240, 135, "Pull REPT data into Excel dialog"
   EditBox 90, 25, 145, 15, supervisor_array
   CheckBox 10, 70, 150, 10, "Check here to run this query county-wide.", all_workers_check
   ButtonGroup ButtonPressed
@@ -120,16 +127,9 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 240, 135, "Pull REPT data in
   Text 10, 90, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
 EndDialog
 
-'THE SCRIPT-------------------------------------------------------------------------
-'Determining specific county for multicounty agencies...
-get_county_code
-
-'Connects to BlueZone
-EMConnect ""
-
 Do
     'Shows dialog
-    Dialog pull_rept_data_into_Excel_dialog
+    Dialog Dialog1 
     cancel_without_confirmation
     Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
@@ -180,17 +180,13 @@ XL_row = 2
 MX_row = 7
 
 If all_workers_check = checked then
-
     'Getting to REPT/USER
     call navigate_to_MAXIS_screen("rept", "user")
-
     'Hitting PF5 to force sorting, which allows directly selecting a county
     PF5
-
     'Inserting county
     EMWriteScreen county_code, 21, 6
     transmit
-
     Do
         EmReadScreen check_for_user, 1, MX_row, 7
 
@@ -212,13 +208,9 @@ If all_workers_check = checked then
         End If
 
     Loop until last_page_check = "More:   -"
-
 Else
-
     'Getting to REPT/USER
     CALL navigate_to_MAXIS_screen("REPT", "USER")
-
-
     'Sorting by supervisor
     PF5
     PF5
@@ -252,15 +244,10 @@ Else
                         MX_row = 7
                     End If
                 End If
-
             Loop until last_page_check = "More:   -"
-
         End If
     NEXT
-
 End If
-
-
 
 'Blanking out array_name in case this has been used already in the script
 array_name = ""
@@ -282,7 +269,6 @@ Do
     End if
 Loop until more_pages_check = "More:  " or more_pages_check = "       "	'The or works because for one-page only counties, this will be blank
 array_name = split(array_name)
-
 
 'Query date/time/runtime info
 objExcel.Cells(1, 16).Font.Bold = TRUE
