@@ -110,7 +110,8 @@ function get_average_pay(job_frequency, job_income)
 
     If hc_inc_est <> anticipated_average Then       'These two should be equal - because HC Inc Estimate is based on the average of pay
     'If they are not equal - script will ask the worker to clarify which is correct.
-        BeginDialog income_mismatch_dlg, 0, 0, 221, 105, "Income Mismatch"
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 221, 105, "Income Mismatch"
           OptionGroup RadioGroup1
             RadioButton 10, 30, 205, 10, "Use the amount from the HC Inc Est Pop-Up of $" & hc_inc_est, use_hc_est_inc_radio
             RadioButton 10, 45, 225, 10, "Use the amount from anticipated income on JOBS of $" & anticipated_average, use_anticipated_inc_radio
@@ -121,7 +122,7 @@ function get_average_pay(job_frequency, job_income)
           Text 5, 65, 190, 10, "These amounts are both average per pay period amounts."
         EndDialog
 
-        Dialog income_mismatch_dlg      'Running the dialog to ask for worker input on the correct income.
+        Dialog Dialog1      'Running the dialog to ask for worker input on the correct income.
         Cancel_confirmation
 
         'This will set the average income for the job based on what the worker indicates
@@ -153,21 +154,7 @@ end function
 ' current_month_and_year = current_month & "/" & current_year
 ' next_month_and_year = MAXIS_footer_month & "/" & MAXIS_footer_year
 
-'DIALOGS--------------------------------
-BeginDialog case_number_dialog, 0, 0, 161, 85, "Case number"
-  EditBox 90, 5, 65, 15, MAXIS_case_number
-  EditBox 90, 25, 30, 15, memb_number
-  DropListBox 90, 45, 65, 45, "Select One..."+chr(9)+"Initial"+chr(9)+"Update", case_status
-  ButtonGroup ButtonPressed
-    OkButton 40, 65, 50, 15
-    CancelButton 100, 65, 50, 15
-  Text 5, 10, 80, 10, "Enter your case number:"
-  Text 20, 30, 65, 10, "HH memb number:"
-  Text 30, 50, 55, 10, "Approval will be "
-EndDialog
-
-'THE SCRIPT
-
+'THE SCRIPT--------------------------------
 EMConnect ""
 
 'Autofilling information
@@ -191,11 +178,23 @@ If MAXIS_case_number <> "" Then
     End If
 End If
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 161, 85, "Case number"
+  EditBox 90, 5, 65, 15, MAXIS_case_number
+  EditBox 90, 25, 30, 15, memb_number
+  DropListBox 90, 45, 65, 45, "Select One..."+chr(9)+"Initial"+chr(9)+"Update", case_status
+  ButtonGroup ButtonPressed
+    OkButton 40, 65, 50, 15
+    CancelButton 100, 65, 50, 15
+  Text 5, 10, 80, 10, "Enter your case number:"
+  Text 20, 30, 65, 10, "HH memb number:"
+  Text 30, 50, 55, 10, "Approval will be "
+EndDialog
 'Running a dialog to get case number, member number and if the case is at Initial or Update.'
 Do
     err_msg = ""
 
-    Dialog case_number_dialog
+    Dialog Dialog1
     Cancel_confirmation
 
     If MAXIS_case_number = "" Then                                             err_msg = err_msg & vbNewLine & "* Enter a case number to continue."
@@ -257,7 +256,8 @@ If case_status = "Update" Then
 
     Call back_to_SELF       'Getting out of STAT so that we can switch months if needed
 
-    BeginDialog month_dlg, 0, 0, 191, 50, "Dialog"
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 191, 50, "Dialog"
       EditBox 140, 5, 15, 15, MAXIS_footer_month
       EditBox 160, 5, 15, 15, MAXIS_footer_year
       ButtonGroup ButtonPressed
@@ -267,7 +267,7 @@ If case_status = "Update" Then
 
     Do
         err_msg = ""
-        Dialog month_dlg
+        Dialog Dialog1
 
         If trim(MAXIS_footer_month) = "" or trim(MAXIS_footer_year) = "" Then err_msg = err_msg & vbNewLine & "* Enter the footer month and year."
         If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
@@ -374,7 +374,8 @@ If case_status = "Initial" Then
 
     Call back_to_SELF       'Going out of STAT to switch months
 
-    BeginDialog month_dlg, 0, 0, 191, 50, "Dialog"
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 191, 50, "Dialog"
       EditBox 140, 5, 15, 15, MAXIS_footer_month
       EditBox 160, 5, 15, 15, MAXIS_footer_year
       ButtonGroup ButtonPressed
@@ -384,7 +385,7 @@ If case_status = "Initial" Then
 
     Do
         err_msg = ""
-        Dialog month_dlg
+        Dialog Dialog1
 
         If trim(MAXIS_footer_month) = "" or trim(MAXIS_footer_year) = "" Then err_msg = err_msg & vbNewLine & "* Enter the footer month and year."
         If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
@@ -482,14 +483,15 @@ If case_status = "Initial" Then
         If day_validation_needed = TRUE Then        'If any of the paychecks listed do not match the first, then worker needs to identify the correct pay day
             selected_weekday = JOBS_ARRAY(pay_weekday, each_job-1)
 
-            BeginDialog weekday_dlg, 0, 0, 161, 80, "Weekday"
+            Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 161, 80, "Weekday"
               DropListBox 15, 55, 60, 45, "Sunday"+chr(9)+"Monday"+chr(9)+"Tuesday"+chr(9)+"Wednesday"+chr(9)+"Thursday"+chr(9)+"Friday"+chr(9)+"Saturday", selected_weekday
               ButtonGroup ButtonPressed
                 OkButton 105, 55, 50, 15
               Text 5, 10, 150, 35, "This job is paid either weekly or biweekly, but has different weekdays indicated for pay dates. Please select the weekday that the client is paid."
             EndDialog
 
-            Dialog weekday_dlg
+            Dialog Dialog1
 
             JOBS_ARRAY(pay_weekday, each_job-1) = selected_weekday
 
@@ -499,7 +501,8 @@ If case_status = "Initial" Then
         JOBS_ARRAY(est_pop_up, each_job-1) = total_pay
 
         'This is commented out but can be used in testing to see all of the information gathered about each job
-        ' BeginDialog JOBS_dlg, 0, 0, 200, 205, "JOBS"
+        ' Dialog1 = ""
+        ' BeginDialog Dialog1, 0, 0, 200, 205, "JOBS"
         '   Text 10, 10, 190, 10, "JOBS for MEMB " & member_number & "- Instance " & JOBS_ARRAY(instance, each_job-1)
         '   Text 15, 30, 150, 10, "Checks - Verif " & JOBS_ARRAY(verif_code, each_job-1)
         '   Text 55, 50, 120, 10, JOBS_ARRAY(check_date_one, each_job-1) & " - $" & JOBS_ARRAY(check_amt_one, each_job-1)
@@ -515,7 +518,7 @@ If case_status = "Initial" Then
         '     OkButton 10, 185, 50, 15
         ' EndDialog
         '
-        ' Dialog JOBS_dlg
+        ' Dialog Dialog1
 
         transmit    'Giong to the next JOBS panel
     Next
@@ -680,8 +683,9 @@ Next
 'MsgBox job_msg
 
 'Dynamic dialog to have the worker confirm the average income
+Dialog1 = ""
 y_pos = 60
-BeginDialog average_income_dlg, 0, 0, 480, 105 + (UBOUND(JOBS_ARRAY, 2) *20), "Average Monthly JOBS Income"
+BeginDialog Dialog1, 0, 0, 480, 105 + (UBOUND(JOBS_ARRAY, 2) *20), "Average Monthly JOBS Income"
   Text 10, 10, 95, 10, "This case is at " & case_status     'identify if at Initial or Update
   If case_status = "Initial" Then Text 10, 25, 210, 10, "The date of application is " & application_date & " and the first month to FIAT is"
   If case_status = "Update" Then Text 10, 25, 210, 10, "The ongoing case is for " & MAXIS_footer_month & "/" & MAXIS_footer_year & " and the first month to FIAT is"
@@ -709,7 +713,7 @@ EndDialog
 Do
     'showing the dialog that workers will indicate the monthly income to be used.
     err_msg = ""
-    Dialog average_income_dlg
+    Dialog Dialog1
     cancel_confirmation
 
     If trim(MAXIS_footer_month) = "" or trim(MAXIS_footer_year) = "" Then
