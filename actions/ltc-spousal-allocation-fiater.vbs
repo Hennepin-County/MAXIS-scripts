@@ -54,11 +54,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-
-
-
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connects to MAXIS, grabs case number and footer month/year
 EMConnect ""
