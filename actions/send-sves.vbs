@@ -51,18 +51,20 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED
-'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connects to BlueZone
 EMConnect ""
 
+'Makes sure we're in MAXIS
+Call check_for_MAXIS(False)
+
 'Grabs case number
 call MAXIS_case_number_finder(MAXIS_case_number)
+member_number = "01"
 
 'Shows and defines the initial dialog
-BeginDialog , 0, 0, 271, 105, "Send SVES Dialog"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 271, 105, "Send SVES Dialog"
   EditBox 90, 5, 60, 15, MAXIS_case_number
   EditBox 125, 25, 25, 15, member_number
   CheckBox 5, 50, 165, 10, "Check here to case note that a QURY was sent.", case_note_checkbox
@@ -81,14 +83,20 @@ BeginDialog , 0, 0, 271, 105, "Send SVES Dialog"
   Text 5, 10, 80, 10, "Enter your case number:"
 EndDialog
 
-Dialog  					'Calling a dialog without a assigned variable will call the most recently defined dialog
-If ButtonPressed = cancel then StopScript
+Do
+    Do
+        err_msg = ""
+        Dialog Dialog1  					'Calling a dialog without a assigned variable will call the most recently defined dialog
+        cancel_without_confirmation
 
-'Defaults member number to 01
-If member_number = "" then member_number = "01"
+        member_number = trim(member_number)
+        call validate_MAXIS_case_number(err_msg, "*")
+        If member_number = "" Then err_msg = err_msg & vbNewLine & "* Enter the member number that needs a SVES sent."
 
-'Makes sure we're in MAXIS
-Call check_for_MAXIS(False)
+        If err_msg <> "" Then MsgBox "*** Please Resolve to Continue: " & vbNewLine & err_msg
+    Loop until err_msg = ""
+    Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 
 'Goes to MEMB to get info
 call navigate_to_MAXIS_screen("stat", "memb")
@@ -108,155 +116,158 @@ EMReadScreen SSN3, 4, 7, 49
 EMReadScreen PMI, 8, 4, 46
 
 If SSN_radiobutton = 1 then
-  call navigate_to_MAXIS_screen("infc", "sves")
-  'checking for IRS non-disclosure agreement.
-  EMReadScreen agreement_check, 9, 2, 24
-  IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the systems and review the agreement.")
-  EMWriteScreen SSN1,  4, 68
-  EMWriteScreen SSN2,  4, 71
-  EMWriteScreen SSN3,  4, 73
-  EMWriteScreen PMI,  5, 68
-  EMWriteScreen "qury",  20, 70
-  transmit 'Now we will enter the QURY screen to type the case number.
+    call navigate_to_MAXIS_screen("infc", "sves")
+    'checking for IRS non-disclosure agreement.
+    EMReadScreen agreement_check, 9, 2, 24
+    IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the systems and review the agreement.")
+    EMWriteScreen SSN1,  4, 68
+    EMWriteScreen SSN2,  4, 71
+    EMWriteScreen SSN3,  4, 73
+    EMWriteScreen PMI,  5, 68
+    EMWriteScreen "qury",  20, 70
+    transmit 'Now we will enter the QURY screen to type the case number.
 ElseIf UNEA_radiobutton = 1 then
-  call navigate_to_MAXIS_screen("stat", "unea")
+    call navigate_to_MAXIS_screen("stat", "unea")
 
-  EMWriteScreen "unea", 20, 71 'It does this to move past error prone cases
-  EMWriteScreen member_number, 20, 76 'It does this to make sure that it navigates to the right HH member.
-  transmit 'This transmits to STAT/UNEA for the client indicated.
+    EMWriteScreen "unea", 20, 71 'It does this to move past error prone cases
+    EMWriteScreen member_number, 20, 76 'It does this to make sure that it navigates to the right HH member.
+    transmit 'This transmits to STAT/UNEA for the client indicated.
 
-  EMReadScreen PMI, 8, 4, 71
-  PMI = trim(PMI)
+    EMReadScreen PMI, 8, 4, 71
+    PMI = trim(PMI)
 
-  'If there is no PMI, then there is no UNEA panel entered for the script to work off of.
-  If PMI = "" then script_end_procedure("This HH member does not exist, or does not have a UNEA panel made.")
+    'If there is no PMI, then there is no UNEA panel entered for the script to work off of.
+    If PMI = "" then script_end_procedure("This HH member does not exist, or does not have a UNEA panel made.")
 
-  EMReadScreen amt_of_unea_panels, 1, 2, 78
-  If amt_of_unea_panels <> "1" then
-    dialog_size_variable = (15 * cint(amt_of_unea_panels)) + 20
-    Do
-      EMReadScreen UNEA_type, 2, 5, 37
-      EMReadScreen UNEA_claim_number, 15, 6, 37
-      UNEA_claim_number = replace(UNEA_claim_number, "_", "")
-      If UNEA_type_01 = "" then
-        UNEA_type_01 = UNEA_type
-        UNEA_claim_number_01 = UNEA_claim_number
-      ElseIf UNEA_type_02 = "" then
-        UNEA_type_02 = UNEA_type
-        UNEA_claim_number_02 = UNEA_claim_number
-      ElseIf UNEA_type_03 = "" then
-        UNEA_type_03 = UNEA_type
-        UNEA_claim_number_03 = UNEA_claim_number
-      ElseIf UNEA_type_04 = "" then
-        UNEA_type_04 = UNEA_type
-        UNEA_claim_number_04 = UNEA_claim_number
-      ElseIf UNEA_type_05 = "" then
-        UNEA_type_05 = UNEA_type
-        UNEA_claim_number_05 = UNEA_claim_number
-      End if
-      EMReadScreen current_unea_panel, 1, 2, 73
-      If current_unea_panel <> amt_of_unea_panels then transmit
-    Loop until current_unea_panel = amt_of_unea_panels
+    EMReadScreen amt_of_unea_panels, 1, 2, 78
+    If amt_of_unea_panels <> "1" then
+        dialog_size_variable = (15 * cint(amt_of_unea_panels)) + 20
+        Do
+            EMReadScreen UNEA_type, 2, 5, 37
+            EMReadScreen UNEA_claim_number, 15, 6, 37
+            UNEA_claim_number = replace(UNEA_claim_number, "_", "")
+            If UNEA_type_01 = "" then
+                UNEA_type_01 = UNEA_type
+                UNEA_claim_number_01 = UNEA_claim_number
+            ElseIf UNEA_type_02 = "" then
+                UNEA_type_02 = UNEA_type
+                UNEA_claim_number_02 = UNEA_claim_number
+            ElseIf UNEA_type_03 = "" then
+                UNEA_type_03 = UNEA_type
+                UNEA_claim_number_03 = UNEA_claim_number
+            ElseIf UNEA_type_04 = "" then
+                UNEA_type_04 = UNEA_type
+                UNEA_claim_number_04 = UNEA_claim_number
+            ElseIf UNEA_type_05 = "" then
+                UNEA_type_05 = UNEA_type
+                UNEA_claim_number_05 = UNEA_claim_number
+            End if
+            EMReadScreen current_unea_panel, 1, 2, 73
+            If current_unea_panel <> amt_of_unea_panels then transmit
+        Loop until current_unea_panel = amt_of_unea_panels
 
-	'The dialog the UNEA Claim option is defined here and then displayed
-    BeginDialog , 0, 0, 240, dialog_size_variable, "UNEA claim dialog"
-      ButtonGroup ButtonPressed
-        OkButton 185, 10, 50, 15
-        CancelButton 185, 30, 50, 15
-      Text 10, 5, 105, 10, "UNEA types to look at:"
-      OptionGroup RadioGroup1
-      If UNEA_type_01 <> "" then RadioButton 10, 20, 160, 10, "Type " & UNEA_type_01 & ", claim number " & UNEA_claim_number_01, UNEA_type_01_radiobutton
-      If UNEA_type_02 <> "" then RadioButton 10, 35, 160, 10, "Type " & UNEA_type_02 & ", claim number " & UNEA_claim_number_02, UNEA_type_02_radiobutton
-      If UNEA_type_03 <> "" then RadioButton 10, 50, 160, 10, "Type " & UNEA_type_03 & ", claim number " & UNEA_claim_number_03, UNEA_type_03_radiobutton
-      If UNEA_type_04 <> "" then RadioButton 10, 65, 160, 10, "Type " & UNEA_type_04 & ", claim number " & UNEA_claim_number_04, UNEA_type_04_radiobutton
-      If UNEA_type_05 <> "" then RadioButton 10, 80, 160, 10, "Type " & UNEA_type_05 & ", claim number " & UNEA_claim_number_05, UNEA_type_05_radiobutton
-    EndDialog
+    	'The dialog the UNEA Claim option is defined here and then displayed
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 240, dialog_size_variable, "UNEA claim dialog"
+          ButtonGroup ButtonPressed
+            OkButton 185, 10, 50, 15
+            CancelButton 185, 30, 50, 15
+          Text 10, 5, 105, 10, "UNEA types to look at:"
+          OptionGroup RadioGroup1
+          If UNEA_type_01 <> "" then RadioButton 10, 20, 160, 10, "Type " & UNEA_type_01 & ", claim number " & UNEA_claim_number_01, UNEA_type_01_radiobutton
+          If UNEA_type_02 <> "" then RadioButton 10, 35, 160, 10, "Type " & UNEA_type_02 & ", claim number " & UNEA_claim_number_02, UNEA_type_02_radiobutton
+          If UNEA_type_03 <> "" then RadioButton 10, 50, 160, 10, "Type " & UNEA_type_03 & ", claim number " & UNEA_claim_number_03, UNEA_type_03_radiobutton
+          If UNEA_type_04 <> "" then RadioButton 10, 65, 160, 10, "Type " & UNEA_type_04 & ", claim number " & UNEA_claim_number_04, UNEA_type_04_radiobutton
+          If UNEA_type_05 <> "" then RadioButton 10, 80, 160, 10, "Type " & UNEA_type_05 & ", claim number " & UNEA_claim_number_05, UNEA_type_05_radiobutton
+        EndDialog
 
-    Dialog  					'Calling a dialog without a assigned variable will call the most recently defined dialog
-    If ButtonPressed = 0 then stopscript
-    If UNEA_type_01_radiobutton = 1 then
-      claim_number = UNEA_claim_number_01
-    ElseIf UNEA_type_02_radiobutton = 1 then
-      claim_number = UNEA_claim_number_02
-    ElseIf UNEA_type_03_radiobutton = 1 then
-      claim_number = UNEA_claim_number_03
-    ElseIf UNEA_type_04_radiobutton = 1 then
-      claim_number = UNEA_claim_number_04
-    ElseIf UNEA_type_05_radiobutton = 1 then
-      claim_number = UNEA_claim_number_05
+        Dialog Dialog1  					'Calling a dialog without a assigned variable will call the most recently defined dialog
+        cancel_without_confirmation
+        If UNEA_type_01_radiobutton = 1 then
+            claim_number = UNEA_claim_number_01
+        ElseIf UNEA_type_02_radiobutton = 1 then
+            claim_number = UNEA_claim_number_02
+        ElseIf UNEA_type_03_radiobutton = 1 then
+            claim_number = UNEA_claim_number_03
+        ElseIf UNEA_type_04_radiobutton = 1 then
+            claim_number = UNEA_claim_number_04
+        ElseIf UNEA_type_05_radiobutton = 1 then
+            claim_number = UNEA_claim_number_05
+        End if
+    Else
+        EMReadScreen claim_number, 15, 6, 37
+        claim_number = replace(claim_number, "_", "")
     End if
-  Else
-    EMReadScreen claim_number, 15, 6, 37
-    claim_number = replace(claim_number, "_", "")
-  End if
-  call navigate_to_MAXIS_screen("infc", "sves")
-  'checking for IRS non-disclosure agreement.
-  EMReadScreen agreement_check, 9, 2, 24
-  IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the systems and review the agreement.")
-  EMWriteScreen PMI,  5, 68
-  EMWriteScreen "qury",  20, 70
-  transmit 'Now we will enter the QURY screen to type the claim number.
 
-  EMWriteScreen claim_number, 7, 38
+    call navigate_to_MAXIS_screen("infc", "sves")
+    'checking for IRS non-disclosure agreement.
+    EMReadScreen agreement_check, 9, 2, 24
+    IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the systems and review the agreement.")
+    EMWriteScreen PMI,  5, 68
+    EMWriteScreen "qury",  20, 70
+    transmit 'Now we will enter the QURY screen to type the claim number.
+
+    EMWriteScreen claim_number, 7, 38
 ElseIf BNDX_radiobutton = 1 then
-  call navigate_to_MAXIS_screen ("infc", "____")
-  EMWriteScreen SSN1,  4, 63
-  EMWriteScreen SSN2,  4, 66
-  EMWriteScreen SSN3,  4, 68
-  EMWriteScreen "bndx", 20, 71
-  transmit
+    call navigate_to_MAXIS_screen ("infc", "____")
+    EMWriteScreen SSN1,  4, 63
+    EMWriteScreen SSN2,  4, 66
+    EMWriteScreen SSN3,  4, 68
+    EMWriteScreen "bndx", 20, 71
+    transmit
 
-  EMReadScreen BNDX_claim_number_01, 13, 5, 12
-  EMReadScreen BNDX_claim_number_02, 13, 5, 38
-  EMReadScreen BNDX_claim_number_03, 13, 5, 64
+    EMReadScreen BNDX_claim_number_01, 13, 5, 12
+    EMReadScreen BNDX_claim_number_02, 13, 5, 38
+    EMReadScreen BNDX_claim_number_03, 13, 5, 64
 
-  If BNDX_claim_number_01 = "             " then script_end_procedure("BNDX claim number is not found. Was there a BNDX message for this client? Try sending using SSN or UNEA claim number.")
+    If BNDX_claim_number_01 = "             " then script_end_procedure("BNDX claim number is not found. Was there a BNDX message for this client? Try sending using SSN or UNEA claim number.")
 
-  If BNDX_claim_number_02 = "             " and BNDX_claim_number_03 = "             " then
-    claim_number = replace(BNDX_claim_number_01, " ", "")
-  Else
+    If BNDX_claim_number_02 = "             " and BNDX_claim_number_03 = "             " then
+        claim_number = replace(BNDX_claim_number_01, " ", "")
+    Else
 
-	'The dialog for the BNDX Claim option is defined here then displayed'
-    BeginDialog , 0, 0, 240, 70, "BNDX claim dialog"
-      ButtonGroup ButtonPressed
-        OkButton 185, 10, 50, 15
-        CancelButton 185, 30, 50, 15
-      Text 10, 5, 105, 10, "BNDX claims to look at:"
-      OptionGroup RadioGroup1
-      If BNDX_claim_number_01 <> "" then RadioButton 10, 20, 160, 10, BNDX_claim_number_01, BNDX_claim_number_01_radiobutton
-      If BNDX_claim_number_02 <> "" then RadioButton 10, 35, 160, 10, BNDX_claim_number_02, BNDX_claim_number_02_radiobutton
-      If BNDX_claim_number_03 <> "" then RadioButton 10, 50, 160, 10, BNDX_claim_number_03, BNDX_claim_number_03_radiobutton
-    EndDialog
+        'The dialog for the BNDX Claim option is defined here then displayed'
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 240, 70, "BNDX claim dialog"
+          ButtonGroup ButtonPressed
+            OkButton 185, 10, 50, 15
+            CancelButton 185, 30, 50, 15
+          Text 10, 5, 105, 10, "BNDX claims to look at:"
+          OptionGroup RadioGroup1
+          If BNDX_claim_number_01 <> "" then RadioButton 10, 20, 160, 10, BNDX_claim_number_01, BNDX_claim_number_01_radiobutton
+          If BNDX_claim_number_02 <> "" then RadioButton 10, 35, 160, 10, BNDX_claim_number_02, BNDX_claim_number_02_radiobutton
+          If BNDX_claim_number_03 <> "" then RadioButton 10, 50, 160, 10, BNDX_claim_number_03, BNDX_claim_number_03_radiobutton
+        EndDialog
 
-    Dialog  					'Calling a dialog without a assigned variable will call the most recently defined dialog
-    If ButtonPressed = 0 then stopscript
-    If BNDX_claim_number_01_radiobutton = 1 then
-      claim_number = replace(BNDX_claim_number_01, " ", "")
-    ElseIf BNDX_claim_number_02_radiobutton = 1 then
-      claim_number = replace(BNDX_claim_number_02, " ", "")
-    ElseIf BNDX_claim_number_03_radiobutton = 1 then
-      claim_number = replace(BNDX_claim_number_03, " ", "")
+        Dialog Dialog1  					'Calling a dialog without a assigned variable will call the most recently defined dialog
+        cancel_without_confirmation
+        If BNDX_claim_number_01_radiobutton = 1 then
+            claim_number = replace(BNDX_claim_number_01, " ", "")
+        ElseIf BNDX_claim_number_02_radiobutton = 1 then
+            claim_number = replace(BNDX_claim_number_02, " ", "")
+        ElseIf BNDX_claim_number_03_radiobutton = 1 then
+            claim_number = replace(BNDX_claim_number_03, " ", "")
+        End if
     End if
-  End if
 
-  PF3
-  EMWriteScreen "sves", 20, 71
-  transmit
-  EMWriteScreen "qury", 20, 70
-  transmit
-  'checking for IRS non-disclosure agreement.
-  EMReadScreen agreement_check, 9, 2, 24
-  IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the systems and review the agreement.")
-  EMWriteScreen "_________", 5, 38
-  EMWriteScreen claim_number, 7, 38
-  EMWriteScreen "________", 9, 38
-  EMWriteScreen PMI, 9, 38
+    PF3
+    EMWriteScreen "sves", 20, 71
+    transmit
+    EMWriteScreen "qury", 20, 70
+    transmit
+    'checking for IRS non-disclosure agreement.
+    EMReadScreen agreement_check, 9, 2, 24
+    IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the systems and review the agreement.")
+    EMWriteScreen "_________", 5, 38
+    EMWriteScreen claim_number, 7, 38
+    EMWriteScreen "________", 9, 38
+    EMWriteScreen PMI, 9, 38
 End if
 
 EMWriteScreen MAXIS_case_number, 11, 38
-If quarters_check = checked then 
+If quarters_check = checked then
     EMWriteScreen "y", 16, 38
-else 
+else
     EMWriteScreen "y", 14, 38
 End if
 
