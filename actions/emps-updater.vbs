@@ -85,7 +85,8 @@ End If
 Do
 	err_msg = ""
 	'Dialog defined here so the dropdown can be changed
-	BeginDialog select_person_dialog, 0, 0, 191, 65, "Select Caregiver"
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 191, 65, "Select Caregiver"
 	  EditBox 55, 5, 50, 15, MAXIS_case_number
 	  ButtonGroup ButtonPressed
 	    PushButton 135, 5, 50, 15, "search", search_button
@@ -96,7 +97,8 @@ Do
 	  Text 5, 10, 45, 10, "Case Number"
 	  Text 5, 30, 70, 10, "Household member"
 	EndDialog
-	Dialog select_person_dialog
+
+	Dialog Dialog1
 	If ButtonPressed = cancel Then StopScript
 	If ButtonPressed = search_button Then
 		If MAXIS_case_number = "" Then
@@ -195,7 +197,8 @@ Do
 	IF Remove_FSS = TRUE Then dialog_length = dialog_length + 20
 
 	y_pos = 25
-	BeginDialog fss_code_detail, 0, 0, 370, dialog_length, "EMPS Update functions available"
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 370, dialog_length, "EMPS Update functions available"
 	  Text 5, 10, 195, 10, "This script can update EMPS for the following proceedures:"
 
 	  IF ES_referral_Missing = TRUE Then
@@ -262,7 +265,7 @@ Do
 	    CancelButton 310, y_pos + 30, 50, 15
 	EndDialog
 
-	Dialog fss_code_detail
+	Dialog Dialog1
 	cancel_confirmation
 	If ButtonPressed = Intake_MFIP_Button Then
 		err_msg = err_msg & "Start Over"
