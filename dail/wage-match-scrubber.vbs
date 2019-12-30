@@ -330,8 +330,9 @@ FUNCTION income_matrix(income_matrix_array, match_name, match_employer, quarter,
 	NEXT
 
 	dlg_height = 150 + (num_of_income_panels * 15)
-
-	BeginDialog dialog1, 0, 0, 510, dlg_height, "Wage Information"
+    
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 510, dlg_height, "Wage Information"
 		ButtonGroup ButtonPressed
 			OkButton 350, (135 + (15 * num_of_income_panels)), 50, 15
 			CancelButton 400, (135 + (15 * num_of_income_panels)), 50, 15
@@ -396,9 +397,8 @@ FUNCTION income_matrix(income_matrix_array, match_name, match_employer, quarter,
 	CALL navigate_to_MAXIS_screen("CASE", "PERS") 'naving to case pers to see what is currently on what programs.
 
 	'Calling the dialog
-	Dialog dialog1
-		If ButtonPressed = 0 THEN script_end_procedure("Script cancelled.")
-
+	Dialog Dialog1
+	Cancel_without_confirmation
 END FUNCTION
 
 '=============================== The script ===================================
