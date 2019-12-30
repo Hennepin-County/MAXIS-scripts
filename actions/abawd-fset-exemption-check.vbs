@@ -55,21 +55,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'THIS SCRIPT IS BEING USED IN A WORKFLOW SO DIALOGS ARE NOT NAMED
-'DIALOGS MAY NOT BE DEFINED AT THE BEGINNING OF THE SCRIPT BUT WITHIN THE SCRIPT FILE
-'This script currently only has one dialog and so it can be defined in the beginning but is unnamed
-BeginDialog , 0, 0, 166, 70, "Case number dialog"
-  EditBox 65, 5, 70, 15, MAXIS_case_number
-  EditBox 65, 25, 30, 15, MAXIS_footer_month
-  EditBox 130, 25, 30, 15, MAXIS_footer_year
-  ButtonGroup ButtonPressed
-    OkButton 35, 50, 50, 15
-    CancelButton 95, 50, 50, 15
-  Text 10, 10, 50, 10, "Case number:"
-  Text 10, 30, 50, 10, "Footer month:"
-  Text 100, 30, 25, 10, "Year:"
-EndDialog
-
 'The script----------------------------------------------------------------------------------------------------
 'Connecting to MAXIS, and grabbing the case number and current footer month/year
 EMConnect ""
@@ -125,10 +110,22 @@ End If
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 If MAXIS_footer_month = "" Then call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 166, 70, "Case number dialog"
+  EditBox 65, 5, 70, 15, MAXIS_case_number
+  EditBox 65, 25, 30, 15, MAXIS_footer_month
+  EditBox 130, 25, 30, 15, MAXIS_footer_year
+  ButtonGroup ButtonPressed
+    OkButton 35, 50, 50, 15
+    CancelButton 95, 50, 50, 15
+  Text 10, 10, 50, 10, "Case number:"
+  Text 10, 30, 50, 10, "Footer month:"
+  Text 100, 30, 25, 10, "Year:"
+EndDialog
 Do
 	DO
 		err_msg = ""
-		DIALOG  					'Calling a dialog without a assigned variable will call the most recently defined dialog
+		dialog Dialog1
 		cancel_confirmation
 		IF MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "* Please enter a case number."
 		IF MAXIS_footer_month = "" THEN err_msg = err_msg & vbCr & "* Please enter a benefit month."
