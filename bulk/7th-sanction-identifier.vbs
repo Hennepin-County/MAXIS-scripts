@@ -50,8 +50,13 @@ call changelog_update("05/25/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------------------------------------------------------------
-BeginDialog sanction_dialog, 0, 0, 218, 120, "7th Sanction Identifier dialog"
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connects to BlueZone
+EMConnect ""
+
+
+Dialog1 = ""
+BeginDialog dialog1, 0, 0, 218, 120, "7th Sanction Identifier dialog"
   EditBox 75, 20, 135, 15, worker_number
   CheckBox 5, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
   ButtonGroup ButtonPressed
@@ -62,16 +67,10 @@ BeginDialog sanction_dialog, 0, 0, 218, 120, "7th Sanction Identifier dialog"
   Text 10, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
   Text 5, 40, 210, 20, "Enter all 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
 EndDialog
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connects to BlueZone
-EMConnect ""
-
-'Shows dialog
 Do
 	Do
-		Dialog sanction_dialog
-		If buttonpressed = cancel then stopscript
+		Dialog dialog1 
+		cancel_without_confirmation
 		If (all_workers_check = 0 AND worker_number = "") then MsgBox "Please enter at least one worker number." 'allows user to select the all workers check, and not have worker number be ""
 	LOOP until all_workers_check = 1 or worker_number <> ""
 	Call check_for_password(are_we_passworded_out)
