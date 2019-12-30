@@ -56,17 +56,11 @@ changelog_display
 FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
 	'Getting to REPT/USER
 	CALL navigate_to_MAXIS_screen("REPT", "USER")
-
-
 	'Sorting by supervisor
 	PF5
 	PF5
-
-
 	'Reseting array_name
 	array_name = ""
-
-
 	'Splitting the list of inputted supervisors...
 	supervisor_array = replace(supervisor_array, " ", "")
 	supervisor_array = split(supervisor_array, ",")
@@ -74,8 +68,6 @@ FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 		IF unit_supervisor <> "" THEN
 			'Entering the supervisor number and sending a transmit
 			CALL write_value_and_transmit(unit_supervisor, 21, 12)
-
-
 			MAXIS_row = 7
 			DO
 				EMReadScreen worker_ID, 8, MAXIS_row, 5
@@ -96,8 +88,17 @@ FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 	array_name = split(array_name)
 END FUNCTION
 
-'DIALOGS-------------------------------------------------------------------------------------------------------------
-BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data into Excel dialog"
+'VARIABLES TO DECLARE------------------------------------------------------------------------------------------------------------------
+all_case_numbers_array = " "					'Creating blank variable for the future array
+get_county_code	'Determines worker county code
+is_not_blank_excel_string = Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34)	'This is the string required to tell excel to ignore blank cells in a COUNTIFS function
+
+'THE SCRIPT-----------------------------------------------------------------------------------------------------------
+'Connects to BlueZone
+EMConnect ""
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 286, 120, "Pull REPT data into Excel dialog"
   EditBox 150, 20, 130, 15, worker_number
   CheckBox 70, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
   CheckBox 10, 35, 40, 10, "SNAP?", SNAP_check
@@ -115,18 +116,9 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data in
   Text 70, 40, 210, 20, "Enter all 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
 EndDialog
 
-'VARIABLES TO DECLARE------------------------------------------------------------------------------------------------------------------
-all_case_numbers_array = " "					'Creating blank variable for the future array
-get_county_code	'Determines worker county code
-is_not_blank_excel_string = Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34)	'This is the string required to tell excel to ignore blank cells in a COUNTIFS function
-
-'THE SCRIPT-----------------------------------------------------------------------------------------------------------
-'Connects to BlueZone
-EMConnect ""
-
 'Shows dialog
-Dialog pull_rept_data_into_Excel_dialog
-If buttonpressed = cancel then stopscript
+Dialog Dialog1 
+cancel_without_confirmation
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
