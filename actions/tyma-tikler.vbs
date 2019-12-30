@@ -51,51 +51,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-	'DIALOGS--------------------------------------------------------------------------------------------------------------------
-	BeginDialog TYMA_tikler, 0, 0, 261, 200, "TYMA/TMA TIKLer"
-	EditBox 65, 5, 65, 15, MAXIS_case_number
-	EditBox 190, 65, 20, 15, start_month
-	EditBox 225, 65, 25, 15, start_year
-	ButtonGroup ButtonPressed
-		PushButton 185, 90, 65, 20, "Calculate Dates", calculate_button
-	EditBox 100, 25, 80, 15, first_quart_send
-	EditBox 100, 45, 80, 15, second_quart_send
-	EditBox 100, 65, 80, 15, second_quart_due
-	EditBox 100, 85, 80, 15, third_quart_send
-	EditBox 100, 105, 80, 15, third_quart_due
-	EditBox 100, 125, 80, 15, TYMA_close
-	EditBox 80, 170, 60, 15, worker_signature
-	ButtonGroup ButtonPressed
-		OkButton 150, 175, 50, 15
-		CancelButton 205, 175, 50, 15
-	Text 190, 35, 55, 20, "TYMA/TMA start month/year"
-	Text 215, 70, 5, 15, "/"
-	Text 5, 30, 90, 10, "1st Quarter form send date"
-	Text 5, 90, 90, 10, "3rd Quarter form send date"
-	Text 5, 50, 90, 10, "2nd Quarter form send date"
-	Text 5, 125, 80, 10, "TYMA closing reminder"
-	Text 5, 70, 90, 10, "2nd Quarter form due date"
-	Text 5, 110, 90, 10, "3rd Quarter form due date"
-	Text 10, 145, 235, 20, "Once you click OK the script will TIKL for the events above on the dates above. Then you can use the DAIL scrubber to resolve the TIKLs."
-	Text 10, 10, 55, 10, "Case Number: "
-	Text 10, 175, 60, 10, "Worker Signature: "
-	EndDialog
-
-	BeginDialog TYMA_tikler_full, 0, 0, 141, 130, "TYMA/TMA TIKLer"
-	EditBox 60, 5, 65, 15, MAXIS_case_number
-	EditBox 5, 55, 20, 15, start_month
-	EditBox 40, 55, 25, 15, start_year
-	EditBox 75, 90, 60, 15, worker_signature
-	ButtonGroup ButtonPressed
-		OkButton 15, 110, 50, 15
-		CancelButton 70, 110, 50, 15
-	Text 5, 30, 55, 20, "TYMA/TMA start month/year"
-	Text 30, 60, 5, 15, "/"
-	Text 5, 10, 55, 10, "Case Number: "
-	Text 5, 95, 60, 10, "Worker Signature: "
-	Text 75, 25, 60, 60, "Script is being run away from DAIL. This will TIKL for 2nd Quarter report form to be sent based on TYMA start month. "
-	EndDialog
-
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------------
 EMConnect""
 
@@ -109,10 +64,40 @@ IF TYMA_TIKL_ALL_AT_ONCE = TRUE THEN    'This section will be dedicated to TIKLi
 	call MAXIS_case_number_finder(MAXIS_case_number)
 	call check_for_MAXIS(false)
 
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 261, 200, "TYMA/TMA TIKLer"
+      EditBox 65, 5, 65, 15, MAXIS_case_number
+      EditBox 190, 65, 20, 15, start_month
+      EditBox 225, 65, 25, 15, start_year
+      ButtonGroup ButtonPressed
+    	PushButton 185, 90, 65, 20, "Calculate Dates", calculate_button
+      EditBox 100, 25, 80, 15, first_quart_send
+      EditBox 100, 45, 80, 15, second_quart_send
+      EditBox 100, 65, 80, 15, second_quart_due
+      EditBox 100, 85, 80, 15, third_quart_send
+      EditBox 100, 105, 80, 15, third_quart_due
+      EditBox 100, 125, 80, 15, TYMA_close
+      EditBox 80, 170, 60, 15, worker_signature
+      ButtonGroup ButtonPressed
+    	OkButton 150, 175, 50, 15
+    	CancelButton 205, 175, 50, 15
+      Text 190, 35, 55, 20, "TYMA/TMA start month/year"
+      Text 215, 70, 5, 15, "/"
+      Text 5, 30, 90, 10, "1st Quarter form send date"
+      Text 5, 90, 90, 10, "3rd Quarter form send date"
+      Text 5, 50, 90, 10, "2nd Quarter form send date"
+      Text 5, 125, 80, 10, "TYMA closing reminder"
+      Text 5, 70, 90, 10, "2nd Quarter form due date"
+      Text 5, 110, 90, 10, "3rd Quarter form due date"
+      Text 10, 145, 235, 20, "Once you click OK the script will TIKL for the events above on the dates above. Then you can use the DAIL scrubber to resolve the TIKLs."
+      Text 10, 10, 55, 10, "Case Number: "
+      Text 10, 175, 60, 10, "Worker Signature: "
+    EndDialog
+
 	Do
 		err_msg = ""
 		Do
-			dialog TYMA_tikler
+			dialog Dialog1
 			cancel_confirmation
 			If buttonpressed = calculate_button Then     'calculate button will calculate the TYMA dates if it is pressed, uses the MM/YY TYMA start date entered by worker.
 				If start_month = "" or start_year = "" THEN    'safeguard in case someone clicks calculate without entering a starter month/year
@@ -208,9 +193,26 @@ END If
 IF TYMA_TIKL_ALL_AT_ONCE = FALSE or TYMA_TIKL_ALL_AT_ONCE = "" THEN  'This portion will just add the first TIKL then the worker can use the DAIL scrubber on future TIKLS.
 	call MAXIS_case_number_finder(MAXIS_case_number)
 	call check_for_MAXIS(false)
+
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 141, 130, "TYMA/TMA TIKLer"
+      EditBox 60, 5, 65, 15, MAXIS_case_number
+      EditBox 5, 55, 20, 15, start_month
+      EditBox 40, 55, 25, 15, start_year
+      EditBox 75, 90, 60, 15, worker_signature
+      ButtonGroup ButtonPressed
+    	OkButton 15, 110, 50, 15
+    	CancelButton 70, 110, 50, 15
+      Text 5, 30, 55, 20, "TYMA/TMA start month/year"
+      Text 30, 60, 5, 15, "/"
+      Text 5, 10, 55, 10, "Case Number: "
+      Text 5, 95, 60, 10, "Worker Signature: "
+      Text 75, 25, 60, 60, "Script is being run away from DAIL. This will TIKL for 2nd Quarter report form to be sent based on TYMA start month. "
+    EndDialog
+
 	Do
 		err_msg = ""
-		dialog TYMA_tikler_full
+		dialog Dialog1
 		cancel_confirmation
 		If MAXIS_case_number = "" THEN err_msg = err_msg & Vbcr & "You must enter a case number."
 		If worker_signature = "" THEN err_msg = err_msg & Vbcr & "You must enter a worker signature."
