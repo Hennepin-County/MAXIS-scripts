@@ -54,17 +54,6 @@ changelog_display
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
-'Dialog
-BeginDialog x_dlg, 0, 0, 176, 140, "x1 Number"
-  EditBox 55, 45, 65, 15, x_number
-  CheckBox 20, 65, 140, 10, "Check here to run for the entire county.", all_workers_check
-  ButtonGroup ButtonPressed
-    OkButton 30, 115, 50, 15
-    CancelButton 85, 115, 50, 15
-  Text 10, 15, 155, 25, "Please enter the x1 number of the caseload you wish to check (NOTE: please enter the entire 7-digit number):"
-  Text 20, 80, 145, 25, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
-EndDialog
-
 'Custom function----------------------------------------------------------------------------------------------------
 FUNCTION find_MAXIS_worker_number(x_number)
 	EMReadScreen SELF_check, 4, 2, 50		'Does this to check to see if we're on SELF screen
@@ -84,11 +73,20 @@ EMConnect ""
 CALL check_for_MAXIS(True)
 Call find_MAXIS_worker_number(x_number)
 
-'Shows dialog
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 176, 140, "x1 Number"
+  EditBox 55, 45, 65, 15, x_number
+  CheckBox 20, 65, 140, 10, "Check here to run for the entire county.", all_workers_check
+  ButtonGroup ButtonPressed
+    OkButton 30, 115, 50, 15
+    CancelButton 85, 115, 50, 15
+  Text 10, 15, 155, 25, "Please enter the x1 number of the caseload you wish to check (NOTE: please enter the entire 7-digit number):"
+  Text 20, 80, 145, 25, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
+EndDialog
 DO
 	Do
-		Dialog x_dlg
-		cancel_confirmation
+		Dialog Dialog1 
+		cancel_without_confirmation
 		'looping logic that makes the worker select either worker # or full agency
 		If x_number = "" and all_workers_check = 0 THEN MsgBox "You need to enter your worker number OR check to run the entire agency."
 	LOOP until x_number <> "" OR all_workers_check = 1

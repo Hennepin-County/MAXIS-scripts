@@ -57,8 +57,8 @@ changelog_display
 EMConnect ""
 all_workers_check = 1        'autochecking as this is the default setting
 
-'DIALOG TO DETERMINE WHERE TO GO IN MAXIS TO GET THE INFO
-BeginDialog GRH_Prof_Need_dialog, 0, 0, 266, 80, "GRH Professional Need Dialog"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 266, 80, "GRH Professional Need Dialog"
   EditBox 70, 25, 190, 15, worker_number
   CheckBox 10, 65, 135, 10, "Click here to run for the entire agency.", all_workers_check
   ButtonGroup ButtonPressed
@@ -73,7 +73,7 @@ EndDialog
 Do 
 	Do 	
 		err_msg = ""
-		Dialog GRH_Prof_Need_dialog
+		Dialog Dialog1
 		cancel_without_confirmation
 		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbnewline & "* Enter at least one worker number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine		

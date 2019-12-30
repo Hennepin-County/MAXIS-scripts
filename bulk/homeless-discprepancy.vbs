@@ -50,8 +50,12 @@ call changelog_update("04/25/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'Dialog----------------------------------------------------------------------------------------------------
-BeginDialog homeless_discrepancy_dialog, 0, 0, 286, 110, "Homeless discrepancy dialog"
+
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+EMConnect ""
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 286, 110, "Homeless discrepancy dialog"
   EditBox 70, 50, 210, 15, worker_number
   CheckBox 5, 90, 155, 10, "Select all active workers in the agency", all_workers_check
   ButtonGroup ButtonPressed
@@ -62,15 +66,11 @@ BeginDialog homeless_discrepancy_dialog, 0, 0, 286, 110, "Homeless discrepancy d
   Text 15, 20, 255, 20, "To find discrepancies for cases that are identified as homeless, but have shelter and/or utility costs or an address that is not general delivery."
   GroupBox 5, 5, 275, 40, "Purpose of the script"
 EndDialog
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-EMConnect ""
-
 DO
 	DO
 		err_msg = ""
-		Dialog homeless_discrepancy_dialog
-		If ButtonPressed = 0 then StopScript
+		Dialog Dialog1 
+		Cancel_without_confirmation
 		If worker_number = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Enter a valid worker number."
 		if worker_number <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Enter a worker number OR select the entire agency, not both." 
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine

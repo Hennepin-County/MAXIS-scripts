@@ -65,8 +65,12 @@ FUNCTION build_hh_array(hh_array)
 	hh_array = split(hh_array, ",")
 END FUNCTION
 
+'>>>>> THE SCRIPT <<<<<
+EMConnect ""
+
 '=====DIALOG=====
-BeginDialog panel_update_check_dlg, 0, 0, 226, 255, "Panels to Check"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 226, 255, "Panels to Check"
   EditBox 75, 10, 145, 15, workers_list
   CheckBox 20, 75, 30, 10, "JOBS", JOBS_checkbox
   CheckBox 60, 75, 35, 10, "UNEA", UNEA_checkbox
@@ -97,15 +101,12 @@ BeginDialog panel_update_check_dlg, 0, 0, 226, 255, "Panels to Check"
   GroupBox 10, 140, 210, 30, "Other panels to check"
 EndDialog
 
-'>>>>> THE SCRIPT <<<<<
-EMConnect ""
-
 '>>>>> LOADING THE DIALOG <<<<<
 DO
 	DO
 		err_msg = ""
-		DIALOG panel_update_check_dlg
-		cancel_confirmation
+		DIALOG Dialog1 
+		Cancel_without_confirmation
 		IF time_period = "Select one..." THEN err_msg = err_msg & vbCr & "* Please select a date range for the script to analyze."
 
 		'Breaking down the workers_list to determine if the user entered multiple workers or if the script is going to be run for just one worker.

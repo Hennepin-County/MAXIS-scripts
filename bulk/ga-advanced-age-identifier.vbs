@@ -50,8 +50,16 @@ call changelog_update("05/25/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------------------------------------------------------------
-BeginDialog ga_dialog, 0, 0, 216, 115, "GA advanced age identifier"
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connects to BlueZone
+EMConnect ""
+
+footer_month = CM_plus_2_mo 
+footer_year  = CM_plus_2_yr
+all_workers_check = checked 
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 216, 115, "GA advanced age identifier"
   EditBox 75, 20, 135, 15, worker_number
   EditBox 170, 60, 20, 15, footer_month
   EditBox 190, 60, 20, 15, footer_year
@@ -64,21 +72,12 @@ BeginDialog ga_dialog, 0, 0, 216, 115, "GA advanced age identifier"
   Text 70, 65, 100, 10, "Upcoming review month/year:"
   Text 10, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
 EndDialog
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connects to BlueZone
-EMConnect ""
-
-footer_month = CM_plus_2_mo 
-footer_year  = CM_plus_2_yr
-all_workers_check = checked 
-
 'Shows dialog
 Do
 	Do
 		err_msg = ""
-		Dialog ga_dialog
-		If buttonpressed = cancel then stopscript
+		Dialog Dialog1
+		Cancel_without_confirmation
 		If (all_workers_check = 0 AND worker_number = "") then err_msg = err_msg & vbNewLine & "* Please enter at least one worker number." 'allows user to select the all workers check, and not have worker number be ""					
 		If IsNumeric(footer_month) = False or len(footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a 2-digit valid footer month."									
 		If IsNumeric(footer_year) = False or len(footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a 2-digit valid footer year."	

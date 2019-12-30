@@ -53,8 +53,14 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+EMConnect ""
 
-BeginDialog bulk_dail_report_dialog, 0, 0, 361, 140, "Bulk DAIL report dialog"
+'defaulting the script to check all DAILS on a DAIL list
+all_check = 1
+all_workers_check = 1
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 361, 140, "Bulk DAIL report dialog"
   CheckBox 40, 85, 25, 10, "ALL", All_check
   CheckBox 80, 85, 30, 10, "COLA", cola_check
   CheckBox 125, 85, 30, 10, "CLMS", clms_check
@@ -79,23 +85,12 @@ BeginDialog bulk_dail_report_dialog, 0, 0, 361, 140, "Bulk DAIL report dialog"
   GroupBox 5, 70, 350, 45, "Select the type(s) of DAIL message to add to the report:"
   Text 145, 5, 90, 10, "---BULK DAIL REPORT---"
 EndDialog
-
-'Connects to MAXIS
-EMConnect ""
-
-'Looks up an existing user for autofilling the next dialog
-'CALL find_variable("User: ", worker_number, 7)
-
-'defaulting the script to check all DAILS on a DAIL list
-all_check = 1
-all_workers_check = 1
-
 'Shows the dialog. Doesn't need to loop since we already looked at MAXIS.
 DO
 	Do
         err_msg = ""
-        dialog bulk_dail_report_dialog
-	    cancel_confirmation
+        dialog Dialog1 
+	    Cancel_without_confirmation
 	    If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
 	    If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine

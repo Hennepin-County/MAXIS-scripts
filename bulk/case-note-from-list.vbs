@@ -50,23 +50,14 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'Dialogs
-'>>>>>Main dlg<<<<<
-BeginDialog main_menu, 0, 0, 201, 65, "Case Note from List"
-  DropListBox 5, 40, 80, 10, "Manual Entry"+chr(9)+"REPT/ACTV"+chr(9)+"Excel File", run_mode
-  ButtonGroup ButtonPressed
-    OkButton 90, 40, 50, 15
-    CancelButton 140, 40, 50, 15
-  Text 10, 10, 185, 25, "Please select a run mode for the script. You can either enter the case numbers manually, from REPT/ACTV, or from an Excel file..."
-EndDialog
-
 '>>>>> Function to build dlg for manual entry <<<<<
 FUNCTION build_manual_entry_dlg(case_number_array, case_note_header, case_note_body, worker_signature)
 	'Array for all case numbers
 	'This was chosen over building a dlg with 50 variables
 	REDim all_cases_array(50, 0)
-
-	BeginDialog man_entry_dlg, 0, 0, 331, 330, "Enter MAXIS case numbers"
+    
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 331, 330, "Enter MAXIS case numbers"
 		Text 10, 15, 140, 10, "Enter MAXIS case numbers below..."
 		dlg_row = 30
 		dlg_col = 10
@@ -94,8 +85,8 @@ FUNCTION build_manual_entry_dlg(case_number_array, case_note_header, case_note_b
 	DO
 		'err_msg handling
 		err_msg = ""
-		DIALOG man_entry_dlg
-			cancel_confirmation
+		DIALOG Dialog1 
+			cancel_without_confirmation
 			FOR i = 1 TO 50
 				all_cases_array(i, 0) = replace(all_cases_array(i, 0), " ", "")
 				IF all_cases_array(i, 0) <> "" THEN
@@ -113,42 +104,6 @@ FUNCTION build_manual_entry_dlg(case_number_array, case_note_header, case_note_b
 	NEXT
 END FUNCTION
 
-'>>>>>DLG for Excel mode<<<<<
-BeginDialog CASE_NOTE_from_excel_dlg, 0, 0, 256, 135, "Case Note Information"
-  EditBox 220, 10, 25, 15, excel_col
-  EditBox 65, 30, 40, 15, excel_row
-  EditBox 190, 30, 40, 15, end_row
-  EditBox 45, 50, 205, 15, case_note_header
-  EditBox 35, 70, 215, 15, case_note_body
-  EditBox 75, 90, 150, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 130, 115, 55, 15
-    CancelButton 190, 115, 60, 15
-  Text 10, 15, 205, 10, "Please enter the column containing the MAXIS case numbers..."
-  Text 10, 35, 50, 10, "Row to start..."
-  Text 135, 35, 50, 10, "Row to end..."
-  Text 10, 55, 25, 10, "Header:"
-  Text 10, 95, 60, 10, "Worker Signature:"
-  Text 10, 75, 20, 10, "Body:"
-EndDialog
-
-BeginDialog worker_number_dlg, 0, 0, 231, 130, "Enter worker number and Case Note text..."
-  EditBox 145, 10, 65, 15, worker_number
-  EditBox 45, 50, 180, 15, case_note_header
-  EditBox 30, 70, 190, 15, case_note_body
-  EditBox 75, 90, 150, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 60, 110, 50, 15
-    CancelButton 115, 110, 50, 15
-  Text 10, 15, 130, 10, "Please enter the 7-digit worker number:"
-  Text 10, 35, 95, 10, "Enter your Case Note text..."
-  Text 10, 55, 25, 10, "Header:"
-  Text 10, 95, 60, 10, "Worker Signature:"
-  Text 10, 75, 20, 10, "Body:"
-EndDialog
-
-'----------FUNCTIONS----------
-'-----This function needs to be added to the FUNCTIONS FILE-----
 '>>>>> This function converts the letter for a number so the script can work with it <<<<<
 FUNCTION convert_excel_letter_to_excel_number(excel_col)
 	IF isnumeric(excel_col) = FALSE THEN
@@ -210,7 +165,16 @@ If use_existing_note = vbYes Then
 End If
 
 '>>>>> loading the main dialog <<<<<
-DIALOG main_menu
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 201, 65, "Case Note from List"
+  DropListBox 5, 40, 80, 10, "Manual Entry"+chr(9)+"REPT/ACTV"+chr(9)+"Excel File", run_mode
+  ButtonGroup ButtonPressed
+    OkButton 90, 40, 50, 15
+    CancelButton 140, 40, 50, 15
+  Text 10, 10, 185, 25, "Please select a run mode for the script. You can either enter the case numbers manually, from REPT/ACTV, or from an Excel file..."
+EndDialog
+
+DIALOG Dialog1
 	IF ButtonPressed = 0 THEN stopscript
 	'>>>>> the script has different ways of building case_number_array
 	IF run_mode = "Manual Entry" THEN
@@ -219,10 +183,25 @@ DIALOG main_menu
 	ELSEIF run_mode = "REPT/ACTV" THEN
 		'script_end_procedure("This mode is not yet supported.")
 		CALL find_variable("User: ", worker_number, 7)
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 231, 130, "Enter worker number and Case Note text..."
+          EditBox 145, 10, 65, 15, worker_number
+          EditBox 45, 50, 180, 15, case_note_header
+          EditBox 30, 70, 190, 15, case_note_body
+          EditBox 75, 90, 150, 15, worker_signature
+          ButtonGroup ButtonPressed
+            OkButton 60, 110, 50, 15
+            CancelButton 115, 110, 50, 15
+          Text 10, 15, 130, 10, "Please enter the 7-digit worker number:"
+          Text 10, 35, 95, 10, "Enter your Case Note text..."
+          Text 10, 55, 25, 10, "Header:"
+          Text 10, 95, 60, 10, "Worker Signature:"
+          Text 10, 75, 20, 10, "Body:"
+        EndDialog
 		DO
 			err_msg = ""
-			DIALOG worker_number_dlg
-				cancel_confirmation
+			DIALOG Dialog1
+				cancel_without_confirmation
 				worker_number = trim(worker_number)
 				IF worker_number = "" THEN err_msg = err_msg & vbCr & "* You must enter a worker number."
 				IF len(worker_number) <> 7 THEN err_msg = err_msg & vbCr & "* Your worker number must be 7 characters long."
@@ -293,10 +272,32 @@ DIALOG main_menu
 			END IF
 		LOOP UNTIL confirm_file = vbYes
 
+        
+        '>>>>>DLG for Excel mode<<<<<
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 256, 135, "Case Note Information"
+          EditBox 220, 10, 25, 15, excel_col
+          EditBox 65, 30, 40, 15, excel_row
+          EditBox 190, 30, 40, 15, end_row
+          EditBox 45, 50, 205, 15, case_note_header
+          EditBox 35, 70, 215, 15, case_note_body
+          EditBox 75, 90, 150, 15, worker_signature
+          ButtonGroup ButtonPressed
+            OkButton 130, 115, 55, 15
+            CancelButton 190, 115, 60, 15
+          Text 10, 15, 205, 10, "Please enter the column containing the MAXIS case numbers..."
+          Text 10, 35, 50, 10, "Row to start..."
+          Text 135, 35, 50, 10, "Row to end..."
+          Text 10, 55, 25, 10, "Header:"
+          Text 10, 95, 60, 10, "Worker Signature:"
+          Text 10, 75, 20, 10, "Body:"
+        EndDialog
+        
 		'Gathering the information from the user about the fields in Excel to look for.
 		DO
 			err_msg = ""
-			DIALOG CASE_NOTE_from_excel_dlg
+            
+			DIALOG Dialog1
 				IF ButtonPressed = 0 THEN stopscript
 				IF isnumeric(excel_col) = FALSE AND len(excel_col) > 2 THEN
 					err_msg = err_msg & vbCr & "* Please do not use such a large column. The script cannot handle it."

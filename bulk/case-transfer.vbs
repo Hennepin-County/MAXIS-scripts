@@ -59,17 +59,11 @@ changelog_display
 FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
 	'Getting to REPT/USER
 	CALL navigate_to_MAXIS_screen("REPT", "USER")
-
-
 	'Sorting by supervisor
 	PF5
 	PF5
-
-
 	'Reseting array_name
 	array_name = ""
-
-
 	'Splitting the list of inputted supervisors...
 	supervisor_array = replace(supervisor_array, " ", "")
 	supervisor_array = split(supervisor_array, ",")
@@ -77,8 +71,6 @@ FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 		IF unit_supervisor <> "" THEN
 			'Entering the supervisor number and sending a transmit
 			CALL write_value_and_transmit(unit_supervisor, 21, 12)
-
-
 			MAXIS_row = 7
 			DO
 				EMReadScreen worker_ID, 8, MAXIS_row, 5
@@ -99,8 +91,16 @@ FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 	array_name = split(array_name)
 END FUNCTION
 
-'DIALOGS----------------------------------------------------------------------
-BeginDialog select_parameters_data_into_excel, 0, 0, 376, 390, "Select Parameters for Cases to Transfer"
+'THE SCRIPT-------------------------------------------------------------------------
+'Determining specific county for multicounty agencies...
+get_county_code
+
+'Connects to BlueZone
+EMConnect ""
+
+'Shows dialogDialog pull_rept_data_into_Excel_dialog
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 376, 390, "Select Parameters for Cases to Transfer"
   EditBox 75, 20, 130, 15, worker_number
   CheckBox 5, 60, 240, 10, "Check here to have the script query all the cases listed on REPT/ACTV.", query_all_check
   CheckBox 5, 110, 170, 10, "Exclude all cases with any Pending Program", exclude_pending_check
@@ -159,21 +159,10 @@ BeginDialog select_parameters_data_into_excel, 0, 0, 376, 390, "Select Parameter
   Text 210, 350, 130, 10, "Limit the number of cases available to:"
   GroupBox 10, 150, 190, 30, "SNAP Details"
 EndDialog
-
-
-'THE SCRIPT-------------------------------------------------------------------------
-
-'Determining specific county for multicounty agencies...
-get_county_code
-
-'Connects to BlueZone
-EMConnect ""
-
-'Shows dialogDialog pull_rept_data_into_Excel_dialog
 Do
 	Do
-		Dialog select_parameters_data_into_excel
-		cancel_confirmation
+		Dialog Dialog1
+		cancel_without_confirmation
 		err_msg = ""
 		IF worker_number = "" then err_msg = err_msg & vbCr & "You must Select an X-Number to pull cases from."
 		IF query_all_check = unchecked AND snap_check = unchecked AND mfip_check = unchecked AND DWP_check = unchecked AND EA_check = unchecked AND HC_check = unchecked AND ga_check = unchecked AND msa_check = unchecked AND GRH_check = unchecked Then err_msg = err_msg & _
@@ -1230,7 +1219,8 @@ IF query_all_check = checked THEN
 End If
 
 'Second DIalog needs to be after the calculations so the variables have value
-BeginDialog case_transfer_dialog, 0, 0, 376, 130, "Select Transfer Options"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 376, 130, "Select Transfer Options"
   CheckBox 5, 30, 130, 10, "Check here to have the script transfer", transfer_check
   EditBox 140, 25, 20, 15, cases_to_xfer_numb
   EditBox 230, 25, 135, 15, worker_receiving_cases
@@ -1255,7 +1245,7 @@ EndDialog
 'Running the dialog to get transfer information
 Do
 	Do
-		Dialog case_transfer_dialog
+		Dialog Dialog1 
 		cancel_confirmation
 		err_msg = ""
 		If cases_to_xfer_numb = "" THEN cases_to_xfer_numb = 0
