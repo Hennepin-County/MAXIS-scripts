@@ -50,16 +50,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-BeginDialog EDRS_dialog, 0, 0, 156, 80, "EDRS dialog"
-  EditBox 60, 10, 80, 15, MAXIS_case_number
-  ButtonGroup ButtonPressed
-    OkButton 15, 55, 50, 15
-    CancelButton 80, 55, 50, 15
-  Text 5, 15, 50, 10, "Case Number:"
-EndDialog
-
-
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""
 'Hunts for Maxis case number to autofill it
@@ -68,8 +58,17 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 'Error proof functions
 Call check_for_MAXIS(true)
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 156, 80, "EDRS dialog"
+  EditBox 60, 10, 80, 15, MAXIS_case_number
+  ButtonGroup ButtonPressed
+    OkButton 15, 55, 50, 15
+    CancelButton 80, 55, 50, 15
+  Text 5, 15, 50, 10, "Case Number:"
+EndDialog
+
 DO
-	dialog EDRS_dialog
+	dialog Dialog1
 	IF buttonpressed = 0 THEN stopscript
 	IF MAXIS_case_number = "" THEN MSGBOX "Please enter a case number"
 
@@ -86,7 +85,7 @@ Call check_for_MAXIS(False)
 
 'changing footer dates to current month to avoid invalid months.
 MAXIS_footer_month = datepart("M", date)
-	IF Len(MAXIS_footer_month) <> 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
+IF Len(MAXIS_footer_month) <> 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
 MAXIS_footer_year = right(datepart("YYYY", date), 2)
 
 Dim Member_Info_Array()
@@ -129,8 +128,6 @@ For i = 0 to Ubound(HH_member_array)
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 
 Next
-
-
 
 'Navigate back to self and to EDRS
 Back_to_self
