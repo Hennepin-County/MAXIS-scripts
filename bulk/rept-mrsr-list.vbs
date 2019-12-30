@@ -56,16 +56,11 @@ changelog_display
 FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
 	'Getting to REPT/USER
 	CALL navigate_to_MAXIS_screen("REPT", "USER")
-
-
 	'Sorting by supervisor
 	PF5
 	PF5
-
-
 	'Reseting array_name
 	array_name = ""
-
 
 	'Splitting the list of inputted supervisors...
 	supervisor_array = replace(supervisor_array, " ", "")
@@ -74,8 +69,6 @@ FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 		IF unit_supervisor <> "" THEN
 			'Entering the supervisor number and sending a transmit
 			CALL write_value_and_transmit(unit_supervisor, 21, 12)
-
-
 			MAXIS_row = 7
 			DO
 				EMReadScreen worker_ID, 8, MAXIS_row, 5
@@ -99,8 +92,12 @@ END FUNCTION
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
-'DIALOGS----------------------------------------------------------------------
-BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data into Excel dialog"
+'THE SCRIPT---------------------------------------------------
+'Connects to BlueZone
+EMConnect ""
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 286, 120, "Pull REPT data into Excel dialog"
   EditBox 135, 20, 145, 15, worker_number
   CheckBox 70, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
   CheckBox 10, 25, 40, 10, "SNAP?", SNAP_check
@@ -115,15 +112,11 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 120, "Pull REPT data in
   Text 70, 40, 210, 20, "Enter the 7-digit worker number(s) (ex: x1#####), separated by a comma."
 EndDialog
 
-'THE SCRIPT---------------------------------------------------
-'Connects to BlueZone
-EMConnect ""
-
 'Shows dialog
 DO
 	DO
-		Dialog pull_rept_data_into_Excel_dialog
-		If buttonpressed = cancel then script_end_procedure("")
+		Dialog Dialog1 
+		Cancel_without_confirmation
 		If SNAP_check = 0 AND cash_check = 0 THEN msgbox "You must select at least one program to add to the Excel list."
 	Loop until SNAP_check = 1 OR cash_check = 1
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
