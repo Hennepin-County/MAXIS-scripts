@@ -89,11 +89,16 @@ FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 	array_name = split(array_name)
 END FUNCTION
 
-'DIALOGS-------------------------------------------------------------------------------------
-BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 301, 120, "Pull REPT data into Excel dialog"
+'THE SCRIPT----------------------------------------------------------------------------------
+'Connects to BlueZone
+EMConnect ""
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 301, 120, "Pull REPT data into Excel dialog"
   EditBox 155, 20, 140, 15, worker_number
-  EditBox 55, 35, 20, 15, inac_month
-  EditBox 55, 55, 20, 15, inac_year
+  EditBox 55, 35, 20, 15, MAXIS_footer_month
+  EditBox 55, 55, 20, 15, MAXIS_footer_year
   CheckBox 85, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
   ButtonGroup ButtonPressed
     OkButton 190, 100, 50, 15
@@ -107,20 +112,9 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 301, 120, "Pull REPT data in
   Text 10, 60, 35, 10, "Year (YY):"
 EndDialog
 
-'THE SCRIPT----------------------------------------------------------------------------------
-'inserting month - 1 into footer month section as this is likely the most commonly needed inac month.
-inac_month = datepart("m", dateadd("m", -1, date))
-inac_year = right(dateadd("m", -1, date), 2)
-If len(inac_month) = 1 then inac_month = "0" & inac_month
-
-'get_county_code
-
-'Connects to BlueZone
-EMConnect ""
-
 'Shows dialog
-Dialog pull_rept_data_into_Excel_dialog
-cancel_confirmation
+Dialog Dialog1
+cancel_without_confirmation
 
 If len(inac_month) = 1 then inac_month = "0" & inac_month
 
