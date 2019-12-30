@@ -52,14 +52,7 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'--- DIALOGS-----------------------------------------------------------------------------------------------------------------------
-
-
-
-'--------------------------------------------------------------------------------------------------------------------------------
-
 '--- The script -----------------------------------------------------------------------------------------------------------------
-
 EMConnect ""
 
 call MAXIS_case_number_finder(MAXIS_case_number)
@@ -169,7 +162,7 @@ EndDialog
 Do
     DO
     	err_msg = ""
-    	dialog WCOM_dlg
+    	dialog Dialog1
     	cancel_confirmation
     	IF HH_member = "" THEN err_msg = err_msg & "Please enter your member number." & vbNewLine
     	IF facility_name = "" THEN err_msg = err_msg & "Please enter your facility name." & vbNewLine
