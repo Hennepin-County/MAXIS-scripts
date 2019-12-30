@@ -72,7 +72,17 @@ function confirm_available_dates
 End function
 
 'DIALOG----------------------------------------------------------------------------------------------------
-BeginDialog referral_dialog, 0, 0, 291, 130, "ES Letter and Referral"
+
+
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connects to BlueZone default screen & 'Searches for a case number
+EMConnect ""
+Call MAXIS_case_number_finder(MAXIS_case_number)
+member_number = "01" 'defaults the member_number to 01
+'random_date = #3/5/19#
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 291, 130, "ES Letter and Referral"
   EditBox 60, 10, 55, 15, MAXIS_case_number
   EditBox 205, 10, 55, 15, member_number
   DropListBox 60, 35, 125, 15, "Select one..."+chr(9)+"Quick Connect: Northwest"+chr(9)+"Quick Connect: South Mpls"+chr(9)+"Avivo: South MPLS (Tues 1PM)"+chr(9)+"Avivo: South MPLS (Wed 9AM)"+chr(9)+"Avivo: South Subs (Tues 9AM)"+chr(9)+"Avivo: South Subs (Wed 1PM)"+chr(9)+"Avivo: North MPLS (Tues 9AM)"+chr(9)+"Avivo: North MPLS (Wed 9AM)"+chr(9)+"Emerge: South MPLS (Tues 9AM)"+chr(9)+"Emerge: South MPLS (Thurs 9AM)"+chr(9)+"Emerge: North MPLS (Tues 1PM)"+chr(9)+"Emerge: North MPLS (Thurs 9AM)"+chr(9)+"Hired: Brooklyn Park (Mon 1PM)"+chr(9)+"Hired: Brooklyn Park (Wed 9AM)", interview_location
@@ -92,19 +102,12 @@ BeginDialog referral_dialog, 0, 0, 291, 130, "ES Letter and Referral"
   Text 165, 60, 40, 10, "Vendor #'s:"
 EndDialog
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connects to BlueZone default screen & 'Searches for a case number
-EMConnect ""
-Call MAXIS_case_number_finder(MAXIS_case_number)
-member_number = "01" 'defaults the member_number to 01
-'random_date = #3/5/19#
-
 'Main dialog
 DO
 	DO
 	    'establishes  that the error message is equal to blank (necessary for the DO LOOP to work)
 	    err_msg = ""
-	    Dialog referral_dialog
+	    Dialog Dialog1
 		cancel_confirmation   'asks if they really want to cancel script
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF trim(member_number) = "" then err_msg = err_msg & vbNewLine & "* Enter a 2 digit member number, or more than one HH members separated by a comma."
