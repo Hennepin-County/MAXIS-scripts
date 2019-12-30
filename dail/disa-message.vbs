@@ -64,7 +64,8 @@ EMSendKey "disa"
 transmit
 
 'HH member dialog to select who's job this is.
-BeginDialog HH_memb_dialog, 0, 0, 191, 52, "HH member"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 191, 52, "HH member"
   EditBox 50, 25, 25, 15, HH_memb
   ButtonGroup ButtonPressed
     OkButton 135, 10, 50, 15
@@ -72,8 +73,9 @@ BeginDialog HH_memb_dialog, 0, 0, 191, 52, "HH member"
   Text 5, 10, 125, 15, "Which HH member is this for? (ex: 01)"
 EndDialog
 HH_memb = "01"
-dialog HH_memb_dialog
-If ButtonPressed = 0 then stopscript
+
+dialog Dialog1
+Cancel_without_confirmation
 
 EMWriteScreen HH_memb, 20, 76
 transmit
@@ -92,7 +94,8 @@ EMSendKey "<home>" + "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS
 If cash_disa_status = 1 then EMSendKey "* Client needs a new Medical Opinion Form. Created using " & EDMS_choice & " and sent to client. TIKLed for 30-day return." & "<newline>"
 EMSendKey "---" + "<newline>"
 
-BeginDialog worker_sig_dialog, 0, 0, 191, 57, "Worker signature"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 191, 57, "Worker signature"
   EditBox 35, 25, 50, 15, worker_sig
   ButtonGroup ButtonPressed_worker_sig_dialog
     OkButton 135, 10, 50, 15
@@ -100,8 +103,8 @@ BeginDialog worker_sig_dialog, 0, 0, 191, 57, "Worker signature"
   Text 25, 10, 75, 10, "Sign your case note."
 EndDialog
 
-dialog worker_sig_dialog
-If ButtonPressed_worker_sig_dialog = 0 then stopscript
+dialog Dialog1
+Cancel_without_confirmation
 
 EMSendKey worker_sig
 PF3
@@ -126,6 +129,4 @@ EMSendKey "Medical Opinion Form sent 30 days ago. If not responded to, send anot
 transmit
 PF3
 
-
-MsgBox "Case note and TIKL made. Send a Medical Opinion Form using " & EDMS_choice & "."
-script_end_procedure("")
+script_end_procedure("Case note and TIKL made. Send a Medical Opinion Form using " & EDMS_choice & ".")
