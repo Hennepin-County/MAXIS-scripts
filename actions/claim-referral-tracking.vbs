@@ -61,8 +61,8 @@ action_date = date & ""
 'verif_requested = "TEST"
 'other_notes = "TEST"
 
-'-----------------------------------------------------------------------------DIALOG
-BeginDialog Claim_Referral_Tracking, 0, 0, 221, 155, "Claim Referral Tracking"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 221, 155, "Claim Referral Tracking"
   EditBox 65, 30, 45, 15, MAXIS_case_number
   EditBox 165, 30, 45, 15, action_date
   DropListBox 65, 50, 145, 15, "Select One:"+chr(9)+"Sent Request for Additional Info"+chr(9)+"Overpayment Exists"+chr(9)+"No Overpayment Exists", action_taken
@@ -82,12 +82,11 @@ BeginDialog Claim_Referral_Tracking, 0, 0, 221, 155, "Claim Referral Tracking"
   Text 65, 115, 40, 10, "Worker Sig:"
 EndDialog
 
-
 Do
 	Do
 		err_msg = ""
 		Do
-            dialog Claim_Referral_Tracking
+            dialog Dialog1
             cancel_confirmation
             If ButtonPressed = claims_procedures then CreateObject("WScript.Shell").Run("https://dept.hennepin.us/hsphd/manuals/hsrm/Pages/Claims_Maxis_Procedures.aspx")
         Loop until ButtonPressed = -1
