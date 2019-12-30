@@ -310,6 +310,7 @@ original_year = MAXIS_footer_year
 future_months_check = checked           'default to having th script update future months
 
 'INITIAL Dialog - case number, footer month, worker signature
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 191, 220, "Case Number"
   EditBox 90, 5, 70, 15, MAXIS_case_number
   EditBox 100, 25, 15, 15, original_month
@@ -439,6 +440,7 @@ For each member in HH_member_array                  'We are going to look at eac
                 'TESTING NEEDED
                 ' If DateDiff("m", end_date, date) > 3 Then
                 '
+                '     Dialog1 = ""
                 '     BeginDialog Dialog1, 0, 0, 186, 140, "Dialog"
                 '       OptionGroup RadioGroup1
                 '         RadioButton 20, 45, 70, 10, "Delete this Panel", delete_panel
@@ -669,6 +671,7 @@ Do
     dlg_len = 15 * UBOUND(EARNED_INCOME_PANELS_ARRAY, 2) + 15 * UBOUND(HH_member_array) + 125       'creating the height of the dialog
 
     'ASK TO ADD NEW PANEL Dailog - lists all current panels, Yes/No question about adding another
+    Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 390, dlg_len, "Do you want to add a new JOBS or BUSI Panel?"
 
       Text 5, 10, 105, 10, "Known JOBS and BUSI panels:"        'This part lists the current panels and will change each time through the loop as new panels are added '
@@ -719,6 +722,7 @@ Do
 
         'TYPE OF PANEL TO ADD Dialog - Select panel type
         'FUTURE FUNCTIONALITY - add BUSI back as an option to select here
+        Dialog1 = ""
         BeginDialog Dialog1, 0, 0, 191, 50, "Panel Type to Add"
           ' DropListBox 30, 30, 60, 45, "Select one..."+chr(9)+"JOBS"+chr(9)+"BUSI", panel_to_add
           DropListBox 30, 30, 60, 45, "Select one..."+chr(9)+"JOBS", panel_to_add
@@ -765,6 +769,7 @@ Do
 
         Case "JOBS"
             'NEW JOB PANEL Dialog'
+            Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 431, 115, "New JOBS Panel"
               EditBox 75, 10, 20, 15, enter_JOBS_clt_ref_nbr
               DropListBox 155, 10, 60, 45, "W - Wages (Incl Tips)"+chr(9)+"J - WIOA"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", enter_JOBS_inc_type_code
@@ -850,6 +855,7 @@ Do
                                                                                 'script will confirm the month and year to add the panel in MAXIS
                     'PROCEDURE CLARIFICATION - allowing workers to adjust the month and year the panel is entered
                     'CONFIRM ADD PANEL MONTH Dialog'
+                    Dialog1 = ""
                     BeginDialog Dialog1, 0, 0, 191, 175, "Confirm Update Month"
                       EditBox 140, 60, 15, 15, beginning_month
                       EditBox 160, 60, 15, 15, beginning_year
@@ -1139,6 +1145,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                     sm_err_msg = ""                 'blanking this out at the beginning of the loop for displaying the dialog
 
                                     'ENTER PAY Dialog - dynamic dialog to enter job checks or anticipated amounts
+                                    Dialog1 = ""
                                     BeginDialog Dialog1, 0, 0, 606, (dlg_factor * 20) + 160, "Enter ALL Paychecks Received"
                                       Text 10, 10, 265, 10, "JOBS " & EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) & " - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)
                                       Text 200, 15, 40, 10, "Start Date:"
@@ -1354,6 +1361,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                         'If BOTH anticipated income AND actual checks are provided, the worker needs to chose which one should be budgeted.
                         If actual_checks_provided = TRUE AND anticipated_income_provided = TRUE Then
                             'CHOOSE CORRECT METHOD Dialog - select which (actual or anticipated) income information to budget and explain
+                            Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 196, 165, "Reasonably Expected to Continue"
                               OptionGroup RadioGroup1
                                 RadioButton 25, 70, 130, 10, "Use the actual check amounts/dates", use_actual_income
@@ -1483,6 +1491,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                         last_day_checkbox = checked
                                         EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = ""
                                     End If
+                                    Dialog1 = ""
                                     BeginDialog Dialog1, 0, 0, 106, 115, "Days of Pay for Bimonthly"
                                       EditBox 55, 35, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel)
                                       EditBox 55, 55, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel)
@@ -1687,6 +1696,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                 last_day_checkbox = checked
                                 EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = ""
                             End If
+                            Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 106, 115, "Days of Pay for Bimonthly"
                               EditBox 55, 35, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel)
                               EditBox 55, 55, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel)
@@ -1804,6 +1814,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                         Next
 
                         If two_paydays = TRUE Then
+                            Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 175, 85, "Weekday of Pay"
                               DropListBox 95, 45, 75, 45, "Sunday"+chr(9)+"Monday"+chr(9)+"Tuesday"+chr(9)+"Wednesday"+chr(9)+"Thursday"+chr(9)+"Friday"+chr(9)+"Saturday", EARNED_INCOME_PANELS_ARRAY(pay_weekday, ei_panel)
                               ButtonGroup ButtonPressed
@@ -1933,6 +1944,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                             Next
 
                             'FREQUENCY ISSUE Dialog - the worker can update the view_pay_date to match if appropriate or they can confirm it is correct as is
+                            Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 251, dlg_len, "Review Pay Dates"
                               Text 10, 10, 240, 10, "It appears one check does not fall in the expected pay schedule dates. "
                               Text 10, 25, 230, 10, "This job is paid - " & EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
@@ -2291,6 +2303,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 
                         y_pos = 35      'incrementer to move things down
                         'CONFIRM BUDGET Dialog - mostly shows the information after being calculated for each program and makes the worker confirm this is correct
+                        Dialog1 = ""
                         BeginDialog Dialog1, 0, 0, 421, dlg_len, "Confirm JOBS Budget"
                           Text 10, 10, 250, 10, "JOBS " & EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) & " - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)
                           Text 10, 20, 150, 10, "Pay Frequency - " & EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
@@ -2685,6 +2698,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                 If EARNED_INCOME_PANELS_ARRAY(self_emp_mthd, ei_panel) = "02 - Tax Forms" Then dlg_len = 125
                             End If
                             'MsgBox "Dialog Length: " & dlg_len
+                            Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 486, dlg_len, "Enter Self Employment Information"
                               Text 10, 10, 180, 10, EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel)  ''"BUSI 01 01 - CLIENT NAME"
                               Text 200, 10, 80, 10, "Self Employment Type:"
