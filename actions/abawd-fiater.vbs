@@ -62,20 +62,6 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 ' TODO add handling for when case cannot be FIATed - https://github.com/MN-Script-Team/DHS-MAXIS-Scripts/issues/2903'
-'Dialogs----------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 251, 165, "ABAWD FIATer"
-  EditBox 120, 10, 60, 15, MAXIS_case_number
-  EditBox 120, 30, 25, 15, initial_month
-  EditBox 155, 30, 25, 15, initial_year
-  ButtonGroup ButtonPressed
-    OkButton 90, 50, 50, 15
-    CancelButton 145, 50, 50, 15
-  Text 65, 15, 50, 10, "Case Number:"
-  Text 20, 35, 100, 10, "Initial month/year of package:"
-  GroupBox 5, 75, 240, 85, "ABAWD FIATer"
-  Text 10, 90, 230, 35, "This FIATer is to be used when a client has ABAWD months in their 36 month lookback period available, but there are extra months coded on the ABAWD tracking record due to banked months or 2nd set eligibilty, and the case is failing the 'ABAWD - 3/36 MONTH' person test. "
-  Text 10, 135, 225, 20, " See POLI/TEMP TE02.06.02 'Known problems affecting SNAP elig' for detailed information."
-EndDialog
 
 '----------------------DEFINING CLASSES WE'LL NEED FOR THIS SCRIPT
 class ABAWD_month_data
@@ -124,10 +110,25 @@ If worker_county_code = "x101" OR _
 	script_end_procedure ("Your agency is exempt from ABAWD work requirements. SNAP banked months are not available to your recipients.")
 END IF
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 251, 165, "ABAWD FIATer"
+  EditBox 120, 10, 60, 15, MAXIS_case_number
+  EditBox 120, 30, 25, 15, initial_month
+  EditBox 155, 30, 25, 15, initial_year
+  ButtonGroup ButtonPressed
+    OkButton 90, 50, 50, 15
+    CancelButton 145, 50, 50, 15
+  Text 65, 15, 50, 10, "Case Number:"
+  Text 20, 35, 100, 10, "Initial month/year of package:"
+  GroupBox 5, 75, 240, 85, "ABAWD FIATer"
+  Text 10, 90, 230, 35, "This FIATer is to be used when a client has ABAWD months in their 36 month lookback period available, but there are extra months coded on the ABAWD tracking record due to banked months or 2nd set eligibilty, and the case is failing the 'ABAWD - 3/36 MONTH' person test. "
+  Text 10, 135, 225, 20, " See POLI/TEMP TE02.06.02 'Known problems affecting SNAP elig' for detailed information."
+EndDialog
+
 DO
 	DO
 		err_msg = ""
-		dialog case_number_dialog
+		dialog Dialog1
 		If buttonpressed = 0 THEN stopscript
 		IF left(MAXIS_case_number, 10) <> "UUDDLRLRBA" AND isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid case number."
 		IF len(initial_month) > 2 or isnumeric(initial_month) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit initial month."
@@ -573,8 +574,9 @@ For i = 0 to ubound(footer_month_array)
 	HEST_elect = trim(HEST_elect)
 	HEST_phone = trim(HEST_phone)
 
- '------INCOME and deductions dialog, created here so that the class/properties carry into the dialog each month.-------- '
-		BeginDialog income_deductions_dialog, 0, 0, 326, 280, "ABAWD minor child income and deductions dialog"
+    '------INCOME and deductions dialog, created here so that the class/properties carry into the dialog each month.-------- '
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 326, 280, "ABAWD minor child income and deductions dialog"
 	  ButtonGroup ButtonPressed
 	    OkButton 260, 155, 50, 15
 	    CancelButton 260, 175, 50, 15
@@ -637,7 +639,7 @@ For i = 0 to ubound(footer_month_array)
 
   'This calls the dialog to allow worke r to confirm
 	DO
-		dialog income_deductions_dialog
+		dialog Dialog1
 		cancel_confirmation
 		MAXIS_dialog_navigation
 	Loop until buttonpressed = ok
@@ -698,11 +700,11 @@ For i = 0 to ubound(footer_month_array)
 		transmit 'Now on FFPR
 		EMWritescreen "PASSED", 9, 12
         EmReadscreen wreg_failure, 6, 17, 46
-        If wreg_failure = "FAILED" then 
+        If wreg_failure = "FAILED" then
             elig_memb = False
-        else 
-            elig_memb = True 
-        End if 
+        else
+            elig_memb = True
+        End if
 		EMReadscreen state_food_check, 1, 7, 58 'We need to enter something here if it is blank'
 		IF state_food_check <> "N" or state_food_check <> "Y" THEN EMwritescreen "N", 7, 58
 		transmit
