@@ -57,17 +57,11 @@ changelog_display
 FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
 	'Getting to REPT/USER
 	CALL navigate_to_MAXIS_screen("REPT", "USER")
-
-
 	'Sorting by supervisor
 	PF5
 	PF5
-
-
 	'Reseting array_name
 	array_name = ""
-
-
 	'Splitting the list of inputted supervisors...
 	supervisor_array = replace(supervisor_array, " ", "")
 	supervisor_array = split(supervisor_array, ",")
@@ -75,8 +69,6 @@ FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 		IF unit_supervisor <> "" THEN
 			'Entering the supervisor number and sending a transmit
 			CALL write_value_and_transmit(unit_supervisor, 21, 12)
-
-
 			MAXIS_row = 7
 			DO
 				EMReadScreen worker_ID, 8, MAXIS_row, 5
@@ -100,8 +92,19 @@ END FUNCTION
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
-'DIALOGS-----------------------------------------------------------
-BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 175, "Pull REPT data into Excel dialog"
+'THE SCRIPT---------------------------------------------------
+'Asks if we want to navigate to current month + 2, which REVS is unique in that it can show this screen
+current_month_plus_2 = MsgBox("Navigate to current month + 2 for REVS?", vbYesNo)
+If current_month_plus_2 = vbCancel then stopscript
+If current_month_plus_2 = vbYes then current_month_plus_2 = True
+If current_month_plus_2 = vbNo then current_month_plus_2 = False
+
+'Connects to BlueZone
+EMConnect ""
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)		'inputs the MAXIS footer/month and year that is on the current MAXIS screen
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 286, 175, "Pull REPT data into Excel dialog"
   EditBox 140, 20, 140, 15, worker_number
   CheckBox 70, 60, 150, 10, "Check here to run this query county-wide.", all_workers_check
   CheckBox 70, 95, 200, 10, "Check here to read info from case notes to help locate", error_check
@@ -121,22 +124,11 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 175, "Pull REPT data in
   Text 80, 130, 175, 10, "autoclose notices."
 EndDialog
 
-'THE SCRIPT---------------------------------------------------
-'Asks if we want to navigate to current month + 2, which REVS is unique in that it can show this screen
-current_month_plus_2 = MsgBox("Navigate to current month + 2 for REVS?", vbYesNo)
-If current_month_plus_2 = vbCancel then stopscript
-If current_month_plus_2 = vbYes then current_month_plus_2 = True
-If current_month_plus_2 = vbNo then current_month_plus_2 = False
-
-'Connects to BlueZone
-EMConnect ""
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)		'inputs the MAXIS footer/month and year that is on the current MAXIS screen
-
 Do
 	Do
 		err_msg = ""
-		Dialog pull_rept_data_into_Excel_dialog
-		If buttonpressed = cancel then stopscript
+		Dialog Dialog1 
+		Cancel_without_confirmation
 		If SNAP_check = 0 and cash_check = 0 and HC_check = 0 then err_msg = err_msg & vbNewLine & "* You must select at least one program."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP until err_msg = ""
