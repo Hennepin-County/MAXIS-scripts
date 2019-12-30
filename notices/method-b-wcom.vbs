@@ -55,8 +55,16 @@
  changelog_display
  'END CHANGELOG BLOCK =======================================================================================================
 
- 'Dialogs----------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connects to BlueZone & grabs the case number
+EMConnect ""
+call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder (MAXIS_footer_month, MAXIS_footer_year)
+
+Call check_for_MAXIS(False)
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 146, 70, "Case number dialog"
   EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 80, 25, 25, 15, MAXIS_footer_month
   EditBox 115, 25, 25, 15, MAXIS_footer_year
@@ -67,62 +75,18 @@ BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
   Text 10, 10, 45, 10, "Case number: "
 EndDialog
 
-BeginDialog MEMOS_LTC_METHOD_B_dialog, 0, 0, 281, 270, "Method B budget deductions for WCOM"
-  EditBox 75, 85, 40, 15, medi_part_a
-  EditBox 195, 85, 40, 15, health_insa
-  EditBox 75, 105, 40, 15, medi_part_b
-  EditBox 195, 110, 40, 15, remedial_care
-  EditBox 75, 130, 40, 15, medi_part_d
-  EditBox 195, 130, 40, 15, other_deductions
-  CheckBox 5, 160, 275, 10, "Check here is client pays for room/ board in addition to spenddown (GRH clients).", GRH_check
-  EditBox 50, 190, 40, 15, recipient_amt
-  ButtonGroup ButtonPressed
-    PushButton 95, 195, 70, 10, "Calculate recip amt", CALC_button
-    OkButton 170, 190, 50, 15
-    CancelButton 225, 190, 50, 15
-    PushButton 130, 20, 35, 10, "ELIG/HC", ELIG_HC_button
-    PushButton 170, 20, 25, 10, "BILS", BILS_button
-    PushButton 195, 20, 25, 10, "FACI", FACI_button
-    PushButton 220, 20, 25, 10, "HCMI", HCMI_button
-    PushButton 245, 20, 25, 10, "UNEA", UNEA_button
-  EditBox 75, 20, 40, 15, income
-  EditBox 75, 45, 40, 15, income_standard
-  EditBox 195, 45, 40, 15, SD
-  Text 5, 25, 60, 10, "Budgeted income:"
-  Text 135, 135, 60, 10, "Other deductions:"
-  Text 30, 135, 40, 10, "Medi part D:"
-  Text 30, 110, 40, 10, "Medi part B:"
-  Text 30, 90, 40, 10, "Medi part A:"
-  GroupBox 125, 10, 150, 25, "STAT based navigation"
-  GroupBox 25, 70, 245, 85, "Deductions"
-  Text 150, 90, 40, 10, "Health insa:"
-  Text 180, 50, 15, 10, "SD:"
-  Text 20, 170, 235, 10, "(This will add text on the notice about the additional cost of room/board.)"
-  Text 5, 50, 70, 10, "MA income standard:"
-  Text 10, 195, 35, 10, "Recip amt:"
-  Text 140, 115, 50, 10, "Remedial care:"
-  Text 20, 230, 245, 35, "The 'Calculate recip amt' will calculate the recipient amount based on the infromation inputted into the deductions edit boxes. If you calculate the recipeint amount, and add another deduction, please hit the calculate button again. Otherwise the cleint's recipient amount will be incorrect."
-  GroupBox 0, 215, 275, 55, "Using the 'Calculate recip amt' button"
-EndDialog
-
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connects to BlueZone & grabs the case number
-EMConnect ""
-call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder (MAXIS_footer_month, MAXIS_footer_year)
-
-Call check_for_MAXIS(False)
-
 Do
-  err_msg = ""
-  Dialog case_number_dialog
-  If ButtonPressed = 0 then stopscript
-  If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-  If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
-  If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
-  IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-LOOP UNTIL err_msg = ""
+    Do
+        err_msg = ""
+        Dialog Dialog1
+        cancel_without_confirmation
+        If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+        If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
+        If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    LOOP UNTIL err_msg = ""
+    Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = False
 
 'ensures user is in correct footer month'
 back_to_SELF
@@ -177,36 +141,78 @@ function truncate_dollar_amount(money_amount)
     recipient_amt = recipient_amt & ".00"
 end function
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 281, 270, "Method B budget deductions for WCOM"
+  EditBox 75, 85, 40, 15, medi_part_a
+  EditBox 195, 85, 40, 15, health_insa
+  EditBox 75, 105, 40, 15, medi_part_b
+  EditBox 195, 110, 40, 15, remedial_care
+  EditBox 75, 130, 40, 15, medi_part_d
+  EditBox 195, 130, 40, 15, other_deductions
+  CheckBox 5, 160, 275, 10, "Check here is client pays for room/ board in addition to spenddown (GRH clients).", GRH_check
+  EditBox 50, 190, 40, 15, recipient_amt
+  ButtonGroup ButtonPressed
+    PushButton 95, 195, 70, 10, "Calculate recip amt", CALC_button
+    OkButton 170, 190, 50, 15
+    CancelButton 225, 190, 50, 15
+    PushButton 130, 20, 35, 10, "ELIG/HC", ELIG_HC_button
+    PushButton 170, 20, 25, 10, "BILS", BILS_button
+    PushButton 195, 20, 25, 10, "FACI", FACI_button
+    PushButton 220, 20, 25, 10, "HCMI", HCMI_button
+    PushButton 245, 20, 25, 10, "UNEA", UNEA_button
+  EditBox 75, 20, 40, 15, income
+  EditBox 75, 45, 40, 15, income_standard
+  EditBox 195, 45, 40, 15, SD
+  Text 5, 25, 60, 10, "Budgeted income:"
+  Text 135, 135, 60, 10, "Other deductions:"
+  Text 30, 135, 40, 10, "Medi part D:"
+  Text 30, 110, 40, 10, "Medi part B:"
+  Text 30, 90, 40, 10, "Medi part A:"
+  GroupBox 125, 10, 150, 25, "STAT based navigation"
+  GroupBox 25, 70, 245, 85, "Deductions"
+  Text 150, 90, 40, 10, "Health insa:"
+  Text 180, 50, 15, 10, "SD:"
+  Text 20, 170, 235, 10, "(This will add text on the notice about the additional cost of room/board.)"
+  Text 5, 50, 70, 10, "MA income standard:"
+  Text 10, 195, 35, 10, "Recip amt:"
+  Text 140, 115, 50, 10, "Remedial care:"
+  Text 20, 230, 245, 35, "The 'Calculate recip amt' will calculate the recipient amount based on the infromation inputted into the deductions edit boxes. If you calculate the recipeint amount, and add another deduction, please hit the calculate button again. Otherwise the cleint's recipient amount will be incorrect."
+  GroupBox 0, 215, 275, 55, "Using the 'Calculate recip amt' button"
+EndDialog
+
 'Shows the dialog
 Do
-    err_msg = ""
     Do
-        Dialog MEMOS_LTC_METHOD_B_dialog
-        cancel_confirmation
-        MAXIS_Dialog_navigation
-        If ButtonPressed = CALC_button THEN
-        	'makes the deduction amounts = 0 so the Abs(number) function work
-        	If medi_part_a = "" THEN medi_part_a = "0"
-        	If medi_part_b = "" THEN medi_part_b = "0"
-        	If medi_part_d = "" THEN medi_part_d = "0"
-        	If health_insa = "" THEN health_insa = "0"
-        	If remedial_care = "" THEN remedial_care = "0"
-        	If other_deductions = "" THEN other_deductions = "0"
-        	recipient_amt = Abs(SD) - Abs(medi_part_a) - Abs(medi_part_b) - Abs(medi_part_d) - Abs(health_insa) - Abs(remedial_care) - Abs(other_deductions) & ""
-            Call truncate_dollar_amount(recipient_amt)
-            If medi_part_a = "0" THEN medi_part_a = ""
-            If medi_part_b = "0" THEN medi_part_b = ""
-            If medi_part_d = "0" THEN medi_part_d = ""
-            If health_insa = "0" THEN health_insa = ""
-            If remedial_care = "0" THEN remedial_care = ""
-            If other_deductions = "0" THEN other_deductions = ""
-        End if
-    Loop until ButtonPressed = -1
-    IF IsNumeric(recipient_amt) = False then err_msg = err_msg & vbNewLine & "* Enter the recipient amount."
-    IF IsNumeric(income_standard) = False then err_msg = err_msg & vbNewLine & "* Enter the MA income standard."
-    IF IsNumeric(income) = False then err_msg = err_msg & vbNewLine & "* Enter the budgeted income."
-    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-Loop until err_msg = ""
+        err_msg = ""
+        Do
+            Dialog Dialog1
+            cancel_confirmation
+            MAXIS_Dialog_navigation
+            If ButtonPressed = CALC_button THEN
+            	'makes the deduction amounts = 0 so the Abs(number) function work
+            	If medi_part_a = "" THEN medi_part_a = "0"
+            	If medi_part_b = "" THEN medi_part_b = "0"
+            	If medi_part_d = "" THEN medi_part_d = "0"
+            	If health_insa = "" THEN health_insa = "0"
+            	If remedial_care = "" THEN remedial_care = "0"
+            	If other_deductions = "" THEN other_deductions = "0"
+            	recipient_amt = Abs(SD) - Abs(medi_part_a) - Abs(medi_part_b) - Abs(medi_part_d) - Abs(health_insa) - Abs(remedial_care) - Abs(other_deductions) & ""
+                Call truncate_dollar_amount(recipient_amt)
+                If medi_part_a = "0" THEN medi_part_a = ""
+                If medi_part_b = "0" THEN medi_part_b = ""
+                If medi_part_d = "0" THEN medi_part_d = ""
+                If health_insa = "0" THEN health_insa = ""
+                If remedial_care = "0" THEN remedial_care = ""
+                If other_deductions = "0" THEN other_deductions = ""
+            End if
+        Loop until ButtonPressed = -1
+        IF IsNumeric(recipient_amt) = False then err_msg = err_msg & vbNewLine & "* Enter the recipient amount."
+        IF IsNumeric(income_standard) = False then err_msg = err_msg & vbNewLine & "* Enter the MA income standard."
+        IF IsNumeric(income) = False then err_msg = err_msg & vbNewLine & "* Enter the budgeted income."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    Loop until err_msg = ""
+    call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 
 If right(recipient_amt, 3) <> ".00" Then Call truncate_dollar_amount(recipient_amt)
 
