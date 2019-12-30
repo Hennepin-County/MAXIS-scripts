@@ -94,16 +94,6 @@ end function
 
 get_county_code     'Checks for county info from global variables, or asks if it is not already defined.
 
-'Dialogs---------------------------------------------------------------------------------------------------------------------------------
-BeginDialog maepd_dlg, 0, 0, 211, 65, "Find MA-EPD Medicare CEI"
-  EditBox 120, 10, 85, 15, x_number
-  ButtonGroup ButtonPressed
-    OkButton 100, 45, 50, 15
-    CancelButton 155, 45, 50, 15
-  Text 5, 15, 115, 10, "X Numbers, seperated by comma:"
-  Text 10, 30, 200, 10, "This script will check REPT/ACTV for the selected X numbers."
-EndDialog
-
 'The script----------------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
 
@@ -112,11 +102,20 @@ back_to_SELF
 CALL find_variable("Environment: ", production_or_inquiry, 10)			'reading if script was started in production of inquiry, this is used later to navigate back from MMIS.
 If production_or_inquiry = "INQUIRY DB" then script_end_procedure("This script must be run in production. Please switch to production, and run the script again.")  'Deletes unapproved HC results from ELIG/HMMM, so must be in production.
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 211, 65, "Find MA-EPD Medicare CEI"
+  EditBox 120, 10, 85, 15, x_number
+  ButtonGroup ButtonPressed
+    OkButton 100, 45, 50, 15
+    CancelButton 155, 45, 50, 15
+  Text 5, 15, 115, 10, "X Numbers, seperated by comma:"
+  Text 10, 30, 200, 10, "This script will check REPT/ACTV for the selected X numbers."
+EndDialog
 Do 
     DO
     	err_msg = ""								'err message handling to loop until the user has entered the proper information
-    	Dialog maepd_dlg
-    	IF ButtonPressed = 0 THEN stopscript
+    	Dialog Dialog1
+    	Cancel_without_confirmation
     	IF trim(x_number) = "" or len(x_number) < 7 then err_msg = err_msg & vbCr & "* The X numbers must be the full 7 digits."
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Resolve for the script to continue."
     LOOP UNTIL err_msg = ""
