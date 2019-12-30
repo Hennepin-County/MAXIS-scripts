@@ -52,9 +52,14 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connects to BlueZone
+EMConnect ""
+'Searches for a case number
+call MAXIS_case_number_finder(MAXIS_case_number)
 
-BeginDialog Potential_Eligibility_MEMO_dialog, 0, 0, 181, 120, "Potential Eligibility MEMO"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 181, 120, "Potential Eligibility MEMO"
   EditBox 75, 5, 50, 15, MAXIS_case_number
   CheckBox 10, 30, 30, 10, "SNAP", SNAP_checkbox
   CheckBox 55, 30, 30, 10, "CASH", CASH_checkbox
@@ -69,19 +74,13 @@ BeginDialog Potential_Eligibility_MEMO_dialog, 0, 0, 181, 120, "Potential Eligib
   Text 20, 80, 65, 10, "Worker signature:"
   Text 10, 50, 85, 20, "If HC was checked please pick system to apply in:"
 EndDialog
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-
-'Connects to BlueZone
-EMConnect ""
-'Searches for a case number
-call MAXIS_case_number_finder(MAXIS_case_number)
 
 'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
 DO
 	Do
 		err_msg = ""
-		Dialog Potential_Eligibility_MEMO_dialog
-		If ButtonPressed = cancel then stopscript
+		Dialog Dialog1
+		cancel_without_confirmation
 		If SNAP_checkbox <> checked AND CASH_checkbox <> checked AND MA_checkbox <> checked AND MSP_checkbox <> checked THEN err_msg = err_msg & "Please select a program." & vbNewLine
 		If MSP_checkbox = checked AND HC_apply_method <> "Apply in MAXIS" THEN err_msg = err_msg & "You selected MSP, at this time you cannot apply in Mnsure if you have Medicare. Please review selections" & vbNewLine
 		If (MSP_checkbox = checked or MA_checkbox = checked) AND HC_apply_method = "" THEN err_msg = err_msg & "You selected a HC program, please select a system to apply in." & vbNewLine
