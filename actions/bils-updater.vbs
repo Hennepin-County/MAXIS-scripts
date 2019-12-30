@@ -52,106 +52,11 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog BILS_case_number_dialog, 0, 0, 161, 60, "BILS case number dialog"
-  EditBox 95, 5, 60, 15, MAXIS_case_number
-  CheckBox 15, 25, 130, 10, "Check here to update existing BILS.", updating_existing_BILS_check
-  ButtonGroup ButtonPressed
-    OkButton 25, 40, 50, 15
-    CancelButton 85, 40, 50, 15
-  Text 5, 10, 85, 10, "Enter your case number:"
-EndDialog
 
-BeginDialog BILS_updater_abbreviated_dialog, 0, 0, 161, 182, "BILS updater (abbreviated)"
-  EditBox 110, 5, 40, 15, budget_begin
-  EditBox 45, 25, 20, 15, ref_nbr_abbreviated
-  EditBox 105, 55, 40, 15, gross_recurring_24
-  EditBox 105, 75, 40, 15, gross_recurring_25
-  EditBox 105, 95, 40, 15, gross_recurring_26
-  EditBox 105, 115, 40, 15, gross_recurring_27
-  EditBox 105, 135, 40, 15, gross_recurring_99
-  ButtonGroup ButtonPressed
-    OkButton 25, 160, 50, 15
-    CancelButton 85, 160, 50, 15
-  Text 10, 5, 95, 15, "Update begin date (MM/YY):"
-  Text 10, 25, 35, 15, "MEMB #:"
-  Text 15, 60, 90, 10, "Waivered Services (24):"
-  Text 15, 80, 90, 10, "Medicare Prem (25):"
-  Text 15, 100, 90, 10, "Dental/Health Prem (26):"
-  Text 15, 120, 90, 10, "Remedial Care (27):"
-  Text 15, 140, 90, 10, "Other/Fake BILS (99):"
-  GroupBox 10, 45, 140, 110, "New gross for service types:"
-EndDialog
 
-BeginDialog BILS_updater_dialog, 0, 0, 416, 271, "BILS updater"
-  Text 5, 10, 80, 10, "Budget period (MM/YY):"
-  EditBox 85, 5, 45, 15, budget_begin
-  Text 135, 10, 10, 10, "to:"
-  EditBox 150, 5, 45, 15, budget_end
-  GroupBox 5, 25, 405, 85, "Actual bills"
-  Text 20, 35, 20, 10, "Ref#"
-  Text 55, 35, 60, 10, "Date (MM/DD/YY)"
-  Text 125, 35, 60, 10, "Service type"
-  Text 245, 35, 25, 10, "Gross"
-  Text 315, 35, 15, 10, "Ver"
-  Text 375, 35, 30, 10, "Exp Type"
-  EditBox 20, 50, 20, 15, ref_nbr_actual_01
-  EditBox 55, 50, 50, 15, date_actual_01
-  DropListBox 120, 50, 105, 15, " "+chr(9)+"01 Health Professional"+chr(9)+"03 Surgery"+chr(9)+"04 Chiropractic"+chr(9)+"05 Maternity/Reproductive"+chr(9)+"07 Hearing"+chr(9)+"08 Vision"+chr(9)+"09 Hospital"+chr(9)+"11 Hospice"+chr(9)+"13 SNF"+chr(9)+"14 Dental"+chr(9)+"15 Rx Drug/Non-Durable Supply"+chr(9)+"16 Home Health"+chr(9)+"17 Diagnostic"+chr(9)+"18 Mental Health"+chr(9)+"19 Rehab"+chr(9)+"21 Durable Med Equip"+chr(9)+"22 Medical Trans"+chr(9)+"24 Waivered Serv"+chr(9)+"25 Medicare Prem"+chr(9)+"26 Dental or Health Prem"+chr(9)+"27 Remedial Care"+chr(9)+"28 Non-FFP MCRE Service"+chr(9)+"30 Alternative Care"+chr(9)+"31 MCSHN"+chr(9)+"32 Ins Ext Prog"+chr(9)+"34 CW-TCM"+chr(9)+"37 Pay-In Spdn"+chr(9)+"42 Access Services"+chr(9)+"43 Chemical Dep"+chr(9)+"44 Nutritional Services"+chr(9)+"45 Organ/Tissue Transplant"+chr(9)+"46 Out-Of-Area Services"+chr(9)+"47 Copayment/Deductible"+chr(9)+"49 Preventative Care"+chr(9)+"99 Other", serv_type_actual_01
-  EditBox 235, 50, 40, 15, gross_actual_01
-  DropListBox 285, 50, 75, 15, " "+chr(9)+"1 Billing Stmt"+chr(9)+"2 Expl of Bnft"+chr(9)+"3 Cl Stmt Med Trans"+chr(9)+"4 Credit/Loan Stmt"+chr(9)+"5 Prov Statement"+chr(9)+"6 Other"+chr(9)+"No ver prvd", ver_actual_01
-  DropListBox 380, 50, 25, 10, " "+chr(9)+"H"+chr(9)+"P"+chr(9)+"M"+chr(9)+"R", bill_type_actual_01
-  EditBox 20, 70, 20, 15, ref_nbr_actual_02
-  EditBox 55, 70, 50, 15, date_actual_02
-  DropListBox 120, 70, 105, 15, " "+chr(9)+"01 Health Professional"+chr(9)+"03 Surgery"+chr(9)+"04 Chiropractic"+chr(9)+"05 Maternity/Reproductive"+chr(9)+"07 Hearing"+chr(9)+"08 Vision"+chr(9)+"09 Hospital"+chr(9)+"11 Hospice"+chr(9)+"13 SNF"+chr(9)+"14 Dental"+chr(9)+"15 Rx Drug/Non-Durable Supply"+chr(9)+"16 Home Health"+chr(9)+"17 Diagnostic"+chr(9)+"18 Mental Health"+chr(9)+"19 Rehab"+chr(9)+"21 Durable Med Equip"+chr(9)+"22 Medical Trans"+chr(9)+"24 Waivered Serv"+chr(9)+"25 Medicare Prem"+chr(9)+"26 Dental or Health Prem"+chr(9)+"27 Remedial Care"+chr(9)+"28 Non-FFP MCRE Service"+chr(9)+"30 Alternative Care"+chr(9)+"31 MCSHN"+chr(9)+"32 Ins Ext Prog"+chr(9)+"34 CW-TCM"+chr(9)+"37 Pay-In Spdn"+chr(9)+"42 Access Services"+chr(9)+"43 Chemical Dep"+chr(9)+"44 Nutritional Services"+chr(9)+"45 Organ/Tissue Transplant"+chr(9)+"46 Out-Of-Area Services"+chr(9)+"47 Copayment/Deductible"+chr(9)+"49 Preventative Care"+chr(9)+"99 Other", serv_type_actual_02
-  EditBox 235, 70, 40, 15, gross_actual_02
-  DropListBox 285, 70, 75, 15, " "+chr(9)+"1 Billing Stmt"+chr(9)+"2 Expl of Bnft"+chr(9)+"3 Cl Stmt Med Trans"+chr(9)+"4 Credit/Loan Stmt"+chr(9)+"5 Prov Statement"+chr(9)+"6 Other"+chr(9)+"No ver prvd", ver_actual_02
-  DropListBox 380, 70, 25, 10, " "+chr(9)+"H"+chr(9)+"P"+chr(9)+"M"+chr(9)+"R", bill_type_actual_02
-  EditBox 20, 90, 20, 15, ref_nbr_actual_03
-  EditBox 55, 90, 50, 15, date_actual_03
-  DropListBox 120, 90, 105, 15, " "+chr(9)+"01 Health Professional"+chr(9)+"03 Surgery"+chr(9)+"04 Chiropractic"+chr(9)+"05 Maternity/Reproductive"+chr(9)+"07 Hearing"+chr(9)+"08 Vision"+chr(9)+"09 Hospital"+chr(9)+"11 Hospice"+chr(9)+"13 SNF"+chr(9)+"14 Dental"+chr(9)+"15 Rx Drug/Non-Durable Supply"+chr(9)+"16 Home Health"+chr(9)+"17 Diagnostic"+chr(9)+"18 Mental Health"+chr(9)+"19 Rehab"+chr(9)+"21 Durable Med Equip"+chr(9)+"22 Medical Trans"+chr(9)+"24 Waivered Serv"+chr(9)+"25 Medicare Prem"+chr(9)+"26 Dental or Health Prem"+chr(9)+"27 Remedial Care"+chr(9)+"28 Non-FFP MCRE Service"+chr(9)+"30 Alternative Care"+chr(9)+"31 MCSHN"+chr(9)+"32 Ins Ext Prog"+chr(9)+"34 CW-TCM"+chr(9)+"37 Pay-In Spdn"+chr(9)+"42 Access Services"+chr(9)+"43 Chemical Dep"+chr(9)+"44 Nutritional Services"+chr(9)+"45 Organ/Tissue Transplant"+chr(9)+"46 Out-Of-Area Services"+chr(9)+"47 Copayment/Deductible"+chr(9)+"49 Preventative Care"+chr(9)+"99 Other", serv_type_actual_03
-  EditBox 235, 90, 40, 15, gross_actual_03
-  DropListBox 285, 90, 75, 15, " "+chr(9)+"1 Billing Stmt"+chr(9)+"2 Expl of Bnft"+chr(9)+"3 Cl Stmt Med Trans"+chr(9)+"4 Credit/Loan Stmt"+chr(9)+"5 Prov Statement"+chr(9)+"6 Other"+chr(9)+"No ver prvd", ver_actual_03
-  DropListBox 380, 90, 25, 10, " "+chr(9)+"H"+chr(9)+"P"+chr(9)+"M"+chr(9)+"R", bill_type_actual_03
-  GroupBox 5, 120, 340, 145, "Recurring monthly bills"
-  Text 20, 130, 20, 10, "Ref#"
-  Text 55, 130, 60, 10, "Service type"
-  Text 175, 130, 25, 10, "Gross"
-  Text 245, 130, 15, 10, "Ver"
-  Text 305, 130, 35, 10, "Exp Type"
-  EditBox 20, 145, 20, 15, ref_nbr_recurring_01
-  DropListBox 55, 145, 105, 15, " "+chr(9)+"01 Health Professional"+chr(9)+"03 Surgery"+chr(9)+"04 Chiropractic"+chr(9)+"05 Maternity/Reproductive"+chr(9)+"07 Hearing"+chr(9)+"08 Vision"+chr(9)+"09 Hospital"+chr(9)+"11 Hospice"+chr(9)+"13 SNF"+chr(9)+"14 Dental"+chr(9)+"15 Rx Drug/Non-Durable Supply"+chr(9)+"16 Home Health"+chr(9)+"17 Diagnostic"+chr(9)+"18 Mental Health"+chr(9)+"19 Rehab"+chr(9)+"21 Durable Med Equip"+chr(9)+"22 Medical Trans"+chr(9)+"24 Waivered Serv"+chr(9)+"25 Medicare Prem"+chr(9)+"26 Dental or Health Prem"+chr(9)+"27 Remedial Care"+chr(9)+"28 Non-FFP MCRE Service"+chr(9)+"30 Alternative Care"+chr(9)+"31 MCSHN"+chr(9)+"32 Ins Ext Prog"+chr(9)+"34 CW-TCM"+chr(9)+"37 Pay-In Spdn"+chr(9)+"42 Access Services"+chr(9)+"43 Chemical Dep"+chr(9)+"44 Nutritional Services"+chr(9)+"45 Organ/Tissue Transplant"+chr(9)+"46 Out-Of-Area Services"+chr(9)+"47 Copayment/Deductible"+chr(9)+"49 Preventative Care"+chr(9)+"99 Other", serv_type_recurring_01
-  EditBox 165, 145, 40, 15, gross_recurring_01
-  DropListBox 215, 145, 75, 15, " "+chr(9)+"1 Billing Stmt"+chr(9)+"2 Expl of Bnft"+chr(9)+"3 Cl Stmt Med Trans"+chr(9)+"4 Credit/Loan Stmt"+chr(9)+"5 Prov Statement"+chr(9)+"6 Other"+chr(9)+"No ver prvd", ver_recurring_01
-  DropListBox 310, 145, 25, 10, " "+chr(9)+"H"+chr(9)+"P"+chr(9)+"M"+chr(9)+"R", bill_type_recurring_01
-  EditBox 20, 165, 20, 15, ref_nbr_recurring_02
-  DropListBox 55, 165, 105, 15, " "+chr(9)+"01 Health Professional"+chr(9)+"03 Surgery"+chr(9)+"04 Chiropractic"+chr(9)+"05 Maternity/Reproductive"+chr(9)+"07 Hearing"+chr(9)+"08 Vision"+chr(9)+"09 Hospital"+chr(9)+"11 Hospice"+chr(9)+"13 SNF"+chr(9)+"14 Dental"+chr(9)+"15 Rx Drug/Non-Durable Supply"+chr(9)+"16 Home Health"+chr(9)+"17 Diagnostic"+chr(9)+"18 Mental Health"+chr(9)+"19 Rehab"+chr(9)+"21 Durable Med Equip"+chr(9)+"22 Medical Trans"+chr(9)+"24 Waivered Serv"+chr(9)+"25 Medicare Prem"+chr(9)+"26 Dental or Health Prem"+chr(9)+"27 Remedial Care"+chr(9)+"28 Non-FFP MCRE Service"+chr(9)+"30 Alternative Care"+chr(9)+"31 MCSHN"+chr(9)+"32 Ins Ext Prog"+chr(9)+"34 CW-TCM"+chr(9)+"37 Pay-In Spdn"+chr(9)+"42 Access Services"+chr(9)+"43 Chemical Dep"+chr(9)+"44 Nutritional Services"+chr(9)+"45 Organ/Tissue Transplant"+chr(9)+"46 Out-Of-Area Services"+chr(9)+"47 Copayment/Deductible"+chr(9)+"49 Preventative Care"+chr(9)+"99 Other", serv_type_recurring_02
-  EditBox 165, 165, 40, 15, gross_recurring_02
-  DropListBox 215, 165, 75, 15, " "+chr(9)+"1 Billing Stmt"+chr(9)+"2 Expl of Bnft"+chr(9)+"3 Cl Stmt Med Trans"+chr(9)+"4 Credit/Loan Stmt"+chr(9)+"5 Prov Statement"+chr(9)+"6 Other"+chr(9)+"No ver prvd", ver_recurring_02
-  DropListBox 310, 165, 25, 10, " "+chr(9)+"H"+chr(9)+"P"+chr(9)+"M"+chr(9)+"R", bill_type_recurring_02
-  EditBox 20, 185, 20, 15, ref_nbr_recurring_03
-  DropListBox 55, 185, 105, 15, " "+chr(9)+"01 Health Professional"+chr(9)+"03 Surgery"+chr(9)+"04 Chiropractic"+chr(9)+"05 Maternity/Reproductive"+chr(9)+"07 Hearing"+chr(9)+"08 Vision"+chr(9)+"09 Hospital"+chr(9)+"11 Hospice"+chr(9)+"13 SNF"+chr(9)+"14 Dental"+chr(9)+"15 Rx Drug/Non-Durable Supply"+chr(9)+"16 Home Health"+chr(9)+"17 Diagnostic"+chr(9)+"18 Mental Health"+chr(9)+"19 Rehab"+chr(9)+"21 Durable Med Equip"+chr(9)+"22 Medical Trans"+chr(9)+"24 Waivered Serv"+chr(9)+"25 Medicare Prem"+chr(9)+"26 Dental or Health Prem"+chr(9)+"27 Remedial Care"+chr(9)+"28 Non-FFP MCRE Service"+chr(9)+"30 Alternative Care"+chr(9)+"31 MCSHN"+chr(9)+"32 Ins Ext Prog"+chr(9)+"34 CW-TCM"+chr(9)+"37 Pay-In Spdn"+chr(9)+"42 Access Services"+chr(9)+"43 Chemical Dep"+chr(9)+"44 Nutritional Services"+chr(9)+"45 Organ/Tissue Transplant"+chr(9)+"46 Out-Of-Area Services"+chr(9)+"47 Copayment/Deductible"+chr(9)+"49 Preventative Care"+chr(9)+"99 Other", serv_type_recurring_03
-  EditBox 165, 185, 40, 15, gross_recurring_03
-  DropListBox 215, 185, 75, 15, " "+chr(9)+"1 Billing Stmt"+chr(9)+"2 Expl of Bnft"+chr(9)+"3 Cl Stmt Med Trans"+chr(9)+"4 Credit/Loan Stmt"+chr(9)+"5 Prov Statement"+chr(9)+"6 Other"+chr(9)+"No ver prvd", ver_recurring_03
-  DropListBox 310, 185, 25, 10, " "+chr(9)+"H"+chr(9)+"P"+chr(9)+"M"+chr(9)+"R", bill_type_recurring_03
-  EditBox 20, 205, 20, 15, ref_nbr_recurring_04
-  DropListBox 55, 205, 105, 15, " "+chr(9)+"01 Health Professional"+chr(9)+"03 Surgery"+chr(9)+"04 Chiropractic"+chr(9)+"05 Maternity/Reproductive"+chr(9)+"07 Hearing"+chr(9)+"08 Vision"+chr(9)+"09 Hospital"+chr(9)+"11 Hospice"+chr(9)+"13 SNF"+chr(9)+"14 Dental"+chr(9)+"15 Rx Drug/Non-Durable Supply"+chr(9)+"16 Home Health"+chr(9)+"17 Diagnostic"+chr(9)+"18 Mental Health"+chr(9)+"19 Rehab"+chr(9)+"21 Durable Med Equip"+chr(9)+"22 Medical Trans"+chr(9)+"24 Waivered Serv"+chr(9)+"25 Medicare Prem"+chr(9)+"26 Dental or Health Prem"+chr(9)+"27 Remedial Care"+chr(9)+"28 Non-FFP MCRE Service"+chr(9)+"30 Alternative Care"+chr(9)+"31 MCSHN"+chr(9)+"32 Ins Ext Prog"+chr(9)+"34 CW-TCM"+chr(9)+"37 Pay-In Spdn"+chr(9)+"42 Access Services"+chr(9)+"43 Chemical Dep"+chr(9)+"44 Nutritional Services"+chr(9)+"45 Organ/Tissue Transplant"+chr(9)+"46 Out-Of-Area Services"+chr(9)+"47 Copayment/Deductible"+chr(9)+"49 Preventative Care"+chr(9)+"99 Other", serv_type_recurring_04
-  EditBox 165, 205, 40, 15, gross_recurring_04
-  DropListBox 215, 205, 75, 15, " "+chr(9)+"1 Billing Stmt"+chr(9)+"2 Expl of Bnft"+chr(9)+"3 Cl Stmt Med Trans"+chr(9)+"4 Credit/Loan Stmt"+chr(9)+"5 Prov Statement"+chr(9)+"6 Other"+chr(9)+"No ver prvd", ver_recurring_04
-  DropListBox 310, 205, 25, 10, " "+chr(9)+"H"+chr(9)+"P"+chr(9)+"M"+chr(9)+"R", bill_type_recurring_04
-  EditBox 20, 225, 20, 15, ref_nbr_recurring_05
-  DropListBox 55, 225, 105, 15, " "+chr(9)+"01 Health Professional"+chr(9)+"03 Surgery"+chr(9)+"04 Chiropractic"+chr(9)+"05 Maternity/Reproductive"+chr(9)+"07 Hearing"+chr(9)+"08 Vision"+chr(9)+"09 Hospital"+chr(9)+"11 Hospice"+chr(9)+"13 SNF"+chr(9)+"14 Dental"+chr(9)+"15 Rx Drug/Non-Durable Supply"+chr(9)+"16 Home Health"+chr(9)+"17 Diagnostic"+chr(9)+"18 Mental Health"+chr(9)+"19 Rehab"+chr(9)+"21 Durable Med Equip"+chr(9)+"22 Medical Trans"+chr(9)+"24 Waivered Serv"+chr(9)+"25 Medicare Prem"+chr(9)+"26 Dental or Health Prem"+chr(9)+"27 Remedial Care"+chr(9)+"28 Non-FFP MCRE Service"+chr(9)+"30 Alternative Care"+chr(9)+"31 MCSHN"+chr(9)+"32 Ins Ext Prog"+chr(9)+"34 CW-TCM"+chr(9)+"37 Pay-In Spdn"+chr(9)+"42 Access Services"+chr(9)+"43 Chemical Dep"+chr(9)+"44 Nutritional Services"+chr(9)+"45 Organ/Tissue Transplant"+chr(9)+"46 Out-Of-Area Services"+chr(9)+"47 Copayment/Deductible"+chr(9)+"49 Preventative Care"+chr(9)+"99 Other", serv_type_recurring_05
-  EditBox 165, 225, 40, 15, gross_recurring_05
-  DropListBox 215, 225, 75, 15, " "+chr(9)+"1 Billing Stmt"+chr(9)+"2 Expl of Bnft"+chr(9)+"3 Cl Stmt Med Trans"+chr(9)+"4 Credit/Loan Stmt"+chr(9)+"5 Prov Statement"+chr(9)+"6 Other"+chr(9)+"No ver prvd", ver_recurring_05
-  DropListBox 310, 225, 25, 10, " "+chr(9)+"H"+chr(9)+"P"+chr(9)+"M"+chr(9)+"R", bill_type_recurring_05
-  EditBox 20, 245, 20, 15, ref_nbr_recurring_06
-  DropListBox 55, 245, 105, 15, " "+chr(9)+"01 Health Professional"+chr(9)+"03 Surgery"+chr(9)+"04 Chiropractic"+chr(9)+"05 Maternity/Reproductive"+chr(9)+"07 Hearing"+chr(9)+"08 Vision"+chr(9)+"09 Hospital"+chr(9)+"11 Hospice"+chr(9)+"13 SNF"+chr(9)+"14 Dental"+chr(9)+"15 Rx Drug/Non-Durable Supply"+chr(9)+"16 Home Health"+chr(9)+"17 Diagnostic"+chr(9)+"18 Mental Health"+chr(9)+"19 Rehab"+chr(9)+"21 Durable Med Equip"+chr(9)+"22 Medical Trans"+chr(9)+"24 Waivered Serv"+chr(9)+"25 Medicare Prem"+chr(9)+"26 Dental or Health Prem"+chr(9)+"27 Remedial Care"+chr(9)+"28 Non-FFP MCRE Service"+chr(9)+"30 Alternative Care"+chr(9)+"31 MCSHN"+chr(9)+"32 Ins Ext Prog"+chr(9)+"34 CW-TCM"+chr(9)+"37 Pay-In Spdn"+chr(9)+"42 Access Services"+chr(9)+"43 Chemical Dep"+chr(9)+"44 Nutritional Services"+chr(9)+"45 Organ/Tissue Transplant"+chr(9)+"46 Out-Of-Area Services"+chr(9)+"47 Copayment/Deductible"+chr(9)+"49 Preventative Care"+chr(9)+"99 Other", serv_type_recurring_06
-  EditBox 165, 245, 40, 15, gross_recurring_06
-  DropListBox 215, 245, 75, 15, " "+chr(9)+"1 Billing Stmt"+chr(9)+"2 Expl of Bnft"+chr(9)+"3 Cl Stmt Med Trans"+chr(9)+"4 Credit/Loan Stmt"+chr(9)+"5 Prov Statement"+chr(9)+"6 Other"+chr(9)+"No ver prvd", ver_recurring_06
-  DropListBox 310, 245, 25, 10, " "+chr(9)+"H"+chr(9)+"P"+chr(9)+"M"+chr(9)+"R", bill_type_recurring_06
-  ButtonGroup ButtonPressed
-    OkButton 360, 130, 50, 15
-    CancelButton 360, 150, 50, 15
-EndDialog
+
+
+
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to MAXIS
@@ -160,10 +65,20 @@ EMConnect ""
 'Finding case number
 call MAXIS_case_number_finder(MAXIS_case_number)
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 161, 60, "BILS case number dialog"
+  EditBox 95, 5, 60, 15, MAXIS_case_number
+  CheckBox 15, 25, 130, 10, "Check here to update existing BILS.", updating_existing_BILS_check
+  ButtonGroup ButtonPressed
+    OkButton 25, 40, 50, 15
+    CancelButton 85, 40, 50, 15
+  Text 5, 10, 85, 10, "Enter your case number:"
+EndDialog
+
 'Ask for case number, validate that it's numeric.
-Do 	
+Do
 	Do
-		Dialog BILS_case_number_dialog	'FYI: Dialog includes checkbox for simply updating existing bills, instead of adding new ones.
+		Dialog Dialog1	'FYI: Dialog includes checkbox for simply updating existing bills, instead of adding new ones.
 		cancel_confirmation
 		Call check_for_MAXIS(True)
 		If isnumeric(MAXIS_case_number) = False then MsgBox "Enter a valid MAXIS case number."
@@ -189,14 +104,35 @@ call navigate_to_MAXIS_screen("STAT", "BILS")
 
 'IF THE WORKER REQUESTED TO UPDATE EXISTING BILS, THE SCRIPT STARTS AN ABBREVIATED IF/THEN STATEMENT----------------------------------------------------------------------------------------------------
 If updating_existing_BILS_check = checked then
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 161, 182, "BILS updater (abbreviated)"
+      EditBox 110, 5, 40, 15, budget_begin
+      EditBox 45, 25, 20, 15, ref_nbr_abbreviated
+      EditBox 105, 55, 40, 15, gross_recurring_24
+      EditBox 105, 75, 40, 15, gross_recurring_25
+      EditBox 105, 95, 40, 15, gross_recurring_26
+      EditBox 105, 115, 40, 15, gross_recurring_27
+      EditBox 105, 135, 40, 15, gross_recurring_99
+      ButtonGroup ButtonPressed
+        OkButton 25, 160, 50, 15
+        CancelButton 85, 160, 50, 15
+      Text 10, 5, 95, 15, "Update begin date (MM/YY):"
+      Text 10, 25, 35, 15, "MEMB #:"
+      Text 15, 60, 90, 10, "Waivered Services (24):"
+      Text 15, 80, 90, 10, "Medicare Prem (25):"
+      Text 15, 100, 90, 10, "Dental/Health Prem (26):"
+      Text 15, 120, 90, 10, "Remedial Care (27):"
+      Text 15, 140, 90, 10, "Other/Fake BILS (99):"
+      GroupBox 10, 45, 140, 110, "New gross for service types:"
+    EndDialog
 
-	Do 
+	Do
 		'DIALOG RUNS, PUTS BILS ON EDIT MODE AND CHECKS FOR PASSWORD PROMPT
-		Dialog BILS_updater_abbreviated_dialog
+		Dialog Dialog1
 		cancel_confirmation
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
-	
+
 	PF9
 	EMReadScreen BILS_check, 4, 2, 54
 	If BILS_check <> "BILS" then script_end_procedure("BILS not found. Did you navigate away from BILS? Did you get passworded out? The script will now close.")
@@ -271,11 +207,83 @@ If updating_existing_BILS_check = checked then
 	script_end_procedure("")
 End if
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 416, 271, "BILS updater"
+  Text 5, 10, 80, 10, "Budget period (MM/YY):"
+  EditBox 85, 5, 45, 15, budget_begin
+  Text 135, 10, 10, 10, "to:"
+  EditBox 150, 5, 45, 15, budget_end
+  GroupBox 5, 25, 405, 85, "Actual bills"
+  Text 20, 35, 20, 10, "Ref#"
+  Text 55, 35, 60, 10, "Date (MM/DD/YY)"
+  Text 125, 35, 60, 10, "Service type"
+  Text 245, 35, 25, 10, "Gross"
+  Text 315, 35, 15, 10, "Ver"
+  Text 375, 35, 30, 10, "Exp Type"
+  EditBox 20, 50, 20, 15, ref_nbr_actual_01
+  EditBox 55, 50, 50, 15, date_actual_01
+  DropListBox 120, 50, 105, 15, " "+chr(9)+"01 Health Professional"+chr(9)+"03 Surgery"+chr(9)+"04 Chiropractic"+chr(9)+"05 Maternity/Reproductive"+chr(9)+"07 Hearing"+chr(9)+"08 Vision"+chr(9)+"09 Hospital"+chr(9)+"11 Hospice"+chr(9)+"13 SNF"+chr(9)+"14 Dental"+chr(9)+"15 Rx Drug/Non-Durable Supply"+chr(9)+"16 Home Health"+chr(9)+"17 Diagnostic"+chr(9)+"18 Mental Health"+chr(9)+"19 Rehab"+chr(9)+"21 Durable Med Equip"+chr(9)+"22 Medical Trans"+chr(9)+"24 Waivered Serv"+chr(9)+"25 Medicare Prem"+chr(9)+"26 Dental or Health Prem"+chr(9)+"27 Remedial Care"+chr(9)+"28 Non-FFP MCRE Service"+chr(9)+"30 Alternative Care"+chr(9)+"31 MCSHN"+chr(9)+"32 Ins Ext Prog"+chr(9)+"34 CW-TCM"+chr(9)+"37 Pay-In Spdn"+chr(9)+"42 Access Services"+chr(9)+"43 Chemical Dep"+chr(9)+"44 Nutritional Services"+chr(9)+"45 Organ/Tissue Transplant"+chr(9)+"46 Out-Of-Area Services"+chr(9)+"47 Copayment/Deductible"+chr(9)+"49 Preventative Care"+chr(9)+"99 Other", serv_type_actual_01
+  EditBox 235, 50, 40, 15, gross_actual_01
+  DropListBox 285, 50, 75, 15, " "+chr(9)+"1 Billing Stmt"+chr(9)+"2 Expl of Bnft"+chr(9)+"3 Cl Stmt Med Trans"+chr(9)+"4 Credit/Loan Stmt"+chr(9)+"5 Prov Statement"+chr(9)+"6 Other"+chr(9)+"No ver prvd", ver_actual_01
+  DropListBox 380, 50, 25, 10, " "+chr(9)+"H"+chr(9)+"P"+chr(9)+"M"+chr(9)+"R", bill_type_actual_01
+  EditBox 20, 70, 20, 15, ref_nbr_actual_02
+  EditBox 55, 70, 50, 15, date_actual_02
+  DropListBox 120, 70, 105, 15, " "+chr(9)+"01 Health Professional"+chr(9)+"03 Surgery"+chr(9)+"04 Chiropractic"+chr(9)+"05 Maternity/Reproductive"+chr(9)+"07 Hearing"+chr(9)+"08 Vision"+chr(9)+"09 Hospital"+chr(9)+"11 Hospice"+chr(9)+"13 SNF"+chr(9)+"14 Dental"+chr(9)+"15 Rx Drug/Non-Durable Supply"+chr(9)+"16 Home Health"+chr(9)+"17 Diagnostic"+chr(9)+"18 Mental Health"+chr(9)+"19 Rehab"+chr(9)+"21 Durable Med Equip"+chr(9)+"22 Medical Trans"+chr(9)+"24 Waivered Serv"+chr(9)+"25 Medicare Prem"+chr(9)+"26 Dental or Health Prem"+chr(9)+"27 Remedial Care"+chr(9)+"28 Non-FFP MCRE Service"+chr(9)+"30 Alternative Care"+chr(9)+"31 MCSHN"+chr(9)+"32 Ins Ext Prog"+chr(9)+"34 CW-TCM"+chr(9)+"37 Pay-In Spdn"+chr(9)+"42 Access Services"+chr(9)+"43 Chemical Dep"+chr(9)+"44 Nutritional Services"+chr(9)+"45 Organ/Tissue Transplant"+chr(9)+"46 Out-Of-Area Services"+chr(9)+"47 Copayment/Deductible"+chr(9)+"49 Preventative Care"+chr(9)+"99 Other", serv_type_actual_02
+  EditBox 235, 70, 40, 15, gross_actual_02
+  DropListBox 285, 70, 75, 15, " "+chr(9)+"1 Billing Stmt"+chr(9)+"2 Expl of Bnft"+chr(9)+"3 Cl Stmt Med Trans"+chr(9)+"4 Credit/Loan Stmt"+chr(9)+"5 Prov Statement"+chr(9)+"6 Other"+chr(9)+"No ver prvd", ver_actual_02
+  DropListBox 380, 70, 25, 10, " "+chr(9)+"H"+chr(9)+"P"+chr(9)+"M"+chr(9)+"R", bill_type_actual_02
+  EditBox 20, 90, 20, 15, ref_nbr_actual_03
+  EditBox 55, 90, 50, 15, date_actual_03
+  DropListBox 120, 90, 105, 15, " "+chr(9)+"01 Health Professional"+chr(9)+"03 Surgery"+chr(9)+"04 Chiropractic"+chr(9)+"05 Maternity/Reproductive"+chr(9)+"07 Hearing"+chr(9)+"08 Vision"+chr(9)+"09 Hospital"+chr(9)+"11 Hospice"+chr(9)+"13 SNF"+chr(9)+"14 Dental"+chr(9)+"15 Rx Drug/Non-Durable Supply"+chr(9)+"16 Home Health"+chr(9)+"17 Diagnostic"+chr(9)+"18 Mental Health"+chr(9)+"19 Rehab"+chr(9)+"21 Durable Med Equip"+chr(9)+"22 Medical Trans"+chr(9)+"24 Waivered Serv"+chr(9)+"25 Medicare Prem"+chr(9)+"26 Dental or Health Prem"+chr(9)+"27 Remedial Care"+chr(9)+"28 Non-FFP MCRE Service"+chr(9)+"30 Alternative Care"+chr(9)+"31 MCSHN"+chr(9)+"32 Ins Ext Prog"+chr(9)+"34 CW-TCM"+chr(9)+"37 Pay-In Spdn"+chr(9)+"42 Access Services"+chr(9)+"43 Chemical Dep"+chr(9)+"44 Nutritional Services"+chr(9)+"45 Organ/Tissue Transplant"+chr(9)+"46 Out-Of-Area Services"+chr(9)+"47 Copayment/Deductible"+chr(9)+"49 Preventative Care"+chr(9)+"99 Other", serv_type_actual_03
+  EditBox 235, 90, 40, 15, gross_actual_03
+  DropListBox 285, 90, 75, 15, " "+chr(9)+"1 Billing Stmt"+chr(9)+"2 Expl of Bnft"+chr(9)+"3 Cl Stmt Med Trans"+chr(9)+"4 Credit/Loan Stmt"+chr(9)+"5 Prov Statement"+chr(9)+"6 Other"+chr(9)+"No ver prvd", ver_actual_03
+  DropListBox 380, 90, 25, 10, " "+chr(9)+"H"+chr(9)+"P"+chr(9)+"M"+chr(9)+"R", bill_type_actual_03
+  GroupBox 5, 120, 340, 145, "Recurring monthly bills"
+  Text 20, 130, 20, 10, "Ref#"
+  Text 55, 130, 60, 10, "Service type"
+  Text 175, 130, 25, 10, "Gross"
+  Text 245, 130, 15, 10, "Ver"
+  Text 305, 130, 35, 10, "Exp Type"
+  EditBox 20, 145, 20, 15, ref_nbr_recurring_01
+  DropListBox 55, 145, 105, 15, " "+chr(9)+"01 Health Professional"+chr(9)+"03 Surgery"+chr(9)+"04 Chiropractic"+chr(9)+"05 Maternity/Reproductive"+chr(9)+"07 Hearing"+chr(9)+"08 Vision"+chr(9)+"09 Hospital"+chr(9)+"11 Hospice"+chr(9)+"13 SNF"+chr(9)+"14 Dental"+chr(9)+"15 Rx Drug/Non-Durable Supply"+chr(9)+"16 Home Health"+chr(9)+"17 Diagnostic"+chr(9)+"18 Mental Health"+chr(9)+"19 Rehab"+chr(9)+"21 Durable Med Equip"+chr(9)+"22 Medical Trans"+chr(9)+"24 Waivered Serv"+chr(9)+"25 Medicare Prem"+chr(9)+"26 Dental or Health Prem"+chr(9)+"27 Remedial Care"+chr(9)+"28 Non-FFP MCRE Service"+chr(9)+"30 Alternative Care"+chr(9)+"31 MCSHN"+chr(9)+"32 Ins Ext Prog"+chr(9)+"34 CW-TCM"+chr(9)+"37 Pay-In Spdn"+chr(9)+"42 Access Services"+chr(9)+"43 Chemical Dep"+chr(9)+"44 Nutritional Services"+chr(9)+"45 Organ/Tissue Transplant"+chr(9)+"46 Out-Of-Area Services"+chr(9)+"47 Copayment/Deductible"+chr(9)+"49 Preventative Care"+chr(9)+"99 Other", serv_type_recurring_01
+  EditBox 165, 145, 40, 15, gross_recurring_01
+  DropListBox 215, 145, 75, 15, " "+chr(9)+"1 Billing Stmt"+chr(9)+"2 Expl of Bnft"+chr(9)+"3 Cl Stmt Med Trans"+chr(9)+"4 Credit/Loan Stmt"+chr(9)+"5 Prov Statement"+chr(9)+"6 Other"+chr(9)+"No ver prvd", ver_recurring_01
+  DropListBox 310, 145, 25, 10, " "+chr(9)+"H"+chr(9)+"P"+chr(9)+"M"+chr(9)+"R", bill_type_recurring_01
+  EditBox 20, 165, 20, 15, ref_nbr_recurring_02
+  DropListBox 55, 165, 105, 15, " "+chr(9)+"01 Health Professional"+chr(9)+"03 Surgery"+chr(9)+"04 Chiropractic"+chr(9)+"05 Maternity/Reproductive"+chr(9)+"07 Hearing"+chr(9)+"08 Vision"+chr(9)+"09 Hospital"+chr(9)+"11 Hospice"+chr(9)+"13 SNF"+chr(9)+"14 Dental"+chr(9)+"15 Rx Drug/Non-Durable Supply"+chr(9)+"16 Home Health"+chr(9)+"17 Diagnostic"+chr(9)+"18 Mental Health"+chr(9)+"19 Rehab"+chr(9)+"21 Durable Med Equip"+chr(9)+"22 Medical Trans"+chr(9)+"24 Waivered Serv"+chr(9)+"25 Medicare Prem"+chr(9)+"26 Dental or Health Prem"+chr(9)+"27 Remedial Care"+chr(9)+"28 Non-FFP MCRE Service"+chr(9)+"30 Alternative Care"+chr(9)+"31 MCSHN"+chr(9)+"32 Ins Ext Prog"+chr(9)+"34 CW-TCM"+chr(9)+"37 Pay-In Spdn"+chr(9)+"42 Access Services"+chr(9)+"43 Chemical Dep"+chr(9)+"44 Nutritional Services"+chr(9)+"45 Organ/Tissue Transplant"+chr(9)+"46 Out-Of-Area Services"+chr(9)+"47 Copayment/Deductible"+chr(9)+"49 Preventative Care"+chr(9)+"99 Other", serv_type_recurring_02
+  EditBox 165, 165, 40, 15, gross_recurring_02
+  DropListBox 215, 165, 75, 15, " "+chr(9)+"1 Billing Stmt"+chr(9)+"2 Expl of Bnft"+chr(9)+"3 Cl Stmt Med Trans"+chr(9)+"4 Credit/Loan Stmt"+chr(9)+"5 Prov Statement"+chr(9)+"6 Other"+chr(9)+"No ver prvd", ver_recurring_02
+  DropListBox 310, 165, 25, 10, " "+chr(9)+"H"+chr(9)+"P"+chr(9)+"M"+chr(9)+"R", bill_type_recurring_02
+  EditBox 20, 185, 20, 15, ref_nbr_recurring_03
+  DropListBox 55, 185, 105, 15, " "+chr(9)+"01 Health Professional"+chr(9)+"03 Surgery"+chr(9)+"04 Chiropractic"+chr(9)+"05 Maternity/Reproductive"+chr(9)+"07 Hearing"+chr(9)+"08 Vision"+chr(9)+"09 Hospital"+chr(9)+"11 Hospice"+chr(9)+"13 SNF"+chr(9)+"14 Dental"+chr(9)+"15 Rx Drug/Non-Durable Supply"+chr(9)+"16 Home Health"+chr(9)+"17 Diagnostic"+chr(9)+"18 Mental Health"+chr(9)+"19 Rehab"+chr(9)+"21 Durable Med Equip"+chr(9)+"22 Medical Trans"+chr(9)+"24 Waivered Serv"+chr(9)+"25 Medicare Prem"+chr(9)+"26 Dental or Health Prem"+chr(9)+"27 Remedial Care"+chr(9)+"28 Non-FFP MCRE Service"+chr(9)+"30 Alternative Care"+chr(9)+"31 MCSHN"+chr(9)+"32 Ins Ext Prog"+chr(9)+"34 CW-TCM"+chr(9)+"37 Pay-In Spdn"+chr(9)+"42 Access Services"+chr(9)+"43 Chemical Dep"+chr(9)+"44 Nutritional Services"+chr(9)+"45 Organ/Tissue Transplant"+chr(9)+"46 Out-Of-Area Services"+chr(9)+"47 Copayment/Deductible"+chr(9)+"49 Preventative Care"+chr(9)+"99 Other", serv_type_recurring_03
+  EditBox 165, 185, 40, 15, gross_recurring_03
+  DropListBox 215, 185, 75, 15, " "+chr(9)+"1 Billing Stmt"+chr(9)+"2 Expl of Bnft"+chr(9)+"3 Cl Stmt Med Trans"+chr(9)+"4 Credit/Loan Stmt"+chr(9)+"5 Prov Statement"+chr(9)+"6 Other"+chr(9)+"No ver prvd", ver_recurring_03
+  DropListBox 310, 185, 25, 10, " "+chr(9)+"H"+chr(9)+"P"+chr(9)+"M"+chr(9)+"R", bill_type_recurring_03
+  EditBox 20, 205, 20, 15, ref_nbr_recurring_04
+  DropListBox 55, 205, 105, 15, " "+chr(9)+"01 Health Professional"+chr(9)+"03 Surgery"+chr(9)+"04 Chiropractic"+chr(9)+"05 Maternity/Reproductive"+chr(9)+"07 Hearing"+chr(9)+"08 Vision"+chr(9)+"09 Hospital"+chr(9)+"11 Hospice"+chr(9)+"13 SNF"+chr(9)+"14 Dental"+chr(9)+"15 Rx Drug/Non-Durable Supply"+chr(9)+"16 Home Health"+chr(9)+"17 Diagnostic"+chr(9)+"18 Mental Health"+chr(9)+"19 Rehab"+chr(9)+"21 Durable Med Equip"+chr(9)+"22 Medical Trans"+chr(9)+"24 Waivered Serv"+chr(9)+"25 Medicare Prem"+chr(9)+"26 Dental or Health Prem"+chr(9)+"27 Remedial Care"+chr(9)+"28 Non-FFP MCRE Service"+chr(9)+"30 Alternative Care"+chr(9)+"31 MCSHN"+chr(9)+"32 Ins Ext Prog"+chr(9)+"34 CW-TCM"+chr(9)+"37 Pay-In Spdn"+chr(9)+"42 Access Services"+chr(9)+"43 Chemical Dep"+chr(9)+"44 Nutritional Services"+chr(9)+"45 Organ/Tissue Transplant"+chr(9)+"46 Out-Of-Area Services"+chr(9)+"47 Copayment/Deductible"+chr(9)+"49 Preventative Care"+chr(9)+"99 Other", serv_type_recurring_04
+  EditBox 165, 205, 40, 15, gross_recurring_04
+  DropListBox 215, 205, 75, 15, " "+chr(9)+"1 Billing Stmt"+chr(9)+"2 Expl of Bnft"+chr(9)+"3 Cl Stmt Med Trans"+chr(9)+"4 Credit/Loan Stmt"+chr(9)+"5 Prov Statement"+chr(9)+"6 Other"+chr(9)+"No ver prvd", ver_recurring_04
+  DropListBox 310, 205, 25, 10, " "+chr(9)+"H"+chr(9)+"P"+chr(9)+"M"+chr(9)+"R", bill_type_recurring_04
+  EditBox 20, 225, 20, 15, ref_nbr_recurring_05
+  DropListBox 55, 225, 105, 15, " "+chr(9)+"01 Health Professional"+chr(9)+"03 Surgery"+chr(9)+"04 Chiropractic"+chr(9)+"05 Maternity/Reproductive"+chr(9)+"07 Hearing"+chr(9)+"08 Vision"+chr(9)+"09 Hospital"+chr(9)+"11 Hospice"+chr(9)+"13 SNF"+chr(9)+"14 Dental"+chr(9)+"15 Rx Drug/Non-Durable Supply"+chr(9)+"16 Home Health"+chr(9)+"17 Diagnostic"+chr(9)+"18 Mental Health"+chr(9)+"19 Rehab"+chr(9)+"21 Durable Med Equip"+chr(9)+"22 Medical Trans"+chr(9)+"24 Waivered Serv"+chr(9)+"25 Medicare Prem"+chr(9)+"26 Dental or Health Prem"+chr(9)+"27 Remedial Care"+chr(9)+"28 Non-FFP MCRE Service"+chr(9)+"30 Alternative Care"+chr(9)+"31 MCSHN"+chr(9)+"32 Ins Ext Prog"+chr(9)+"34 CW-TCM"+chr(9)+"37 Pay-In Spdn"+chr(9)+"42 Access Services"+chr(9)+"43 Chemical Dep"+chr(9)+"44 Nutritional Services"+chr(9)+"45 Organ/Tissue Transplant"+chr(9)+"46 Out-Of-Area Services"+chr(9)+"47 Copayment/Deductible"+chr(9)+"49 Preventative Care"+chr(9)+"99 Other", serv_type_recurring_05
+  EditBox 165, 225, 40, 15, gross_recurring_05
+  DropListBox 215, 225, 75, 15, " "+chr(9)+"1 Billing Stmt"+chr(9)+"2 Expl of Bnft"+chr(9)+"3 Cl Stmt Med Trans"+chr(9)+"4 Credit/Loan Stmt"+chr(9)+"5 Prov Statement"+chr(9)+"6 Other"+chr(9)+"No ver prvd", ver_recurring_05
+  DropListBox 310, 225, 25, 10, " "+chr(9)+"H"+chr(9)+"P"+chr(9)+"M"+chr(9)+"R", bill_type_recurring_05
+  EditBox 20, 245, 20, 15, ref_nbr_recurring_06
+  DropListBox 55, 245, 105, 15, " "+chr(9)+"01 Health Professional"+chr(9)+"03 Surgery"+chr(9)+"04 Chiropractic"+chr(9)+"05 Maternity/Reproductive"+chr(9)+"07 Hearing"+chr(9)+"08 Vision"+chr(9)+"09 Hospital"+chr(9)+"11 Hospice"+chr(9)+"13 SNF"+chr(9)+"14 Dental"+chr(9)+"15 Rx Drug/Non-Durable Supply"+chr(9)+"16 Home Health"+chr(9)+"17 Diagnostic"+chr(9)+"18 Mental Health"+chr(9)+"19 Rehab"+chr(9)+"21 Durable Med Equip"+chr(9)+"22 Medical Trans"+chr(9)+"24 Waivered Serv"+chr(9)+"25 Medicare Prem"+chr(9)+"26 Dental or Health Prem"+chr(9)+"27 Remedial Care"+chr(9)+"28 Non-FFP MCRE Service"+chr(9)+"30 Alternative Care"+chr(9)+"31 MCSHN"+chr(9)+"32 Ins Ext Prog"+chr(9)+"34 CW-TCM"+chr(9)+"37 Pay-In Spdn"+chr(9)+"42 Access Services"+chr(9)+"43 Chemical Dep"+chr(9)+"44 Nutritional Services"+chr(9)+"45 Organ/Tissue Transplant"+chr(9)+"46 Out-Of-Area Services"+chr(9)+"47 Copayment/Deductible"+chr(9)+"49 Preventative Care"+chr(9)+"99 Other", serv_type_recurring_06
+  EditBox 165, 245, 40, 15, gross_recurring_06
+  DropListBox 215, 245, 75, 15, " "+chr(9)+"1 Billing Stmt"+chr(9)+"2 Expl of Bnft"+chr(9)+"3 Cl Stmt Med Trans"+chr(9)+"4 Credit/Loan Stmt"+chr(9)+"5 Prov Statement"+chr(9)+"6 Other"+chr(9)+"No ver prvd", ver_recurring_06
+  DropListBox 310, 245, 25, 10, " "+chr(9)+"H"+chr(9)+"P"+chr(9)+"M"+chr(9)+"R", bill_type_recurring_06
+  ButtonGroup ButtonPressed
+    OkButton 360, 130, 50, 15
+    CancelButton 360, 150, 50, 15
+EndDialog
+
 'IF THE WORKER REQUESTED TO ADD NEW BILS, THE SCRIPT STARTS THE ADVANCED DIALOG----------------------------------------------------------------------------------------------------
-Do 
+Do
     Do
     	DO
-    		Dialog BILS_updater_dialog
+    		Dialog Dialog1
     		cancel_confirmation
     		Call check_for_MAXIS(False)
     		IF isdate(budget_begin) = False OR isdate(budget_end) = False THEN MsgBox "Your budget range includes dates that are not valid. Please double check your budget months and years before continuing to ensure the script works properly."
