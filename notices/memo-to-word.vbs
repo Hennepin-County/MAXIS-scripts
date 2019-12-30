@@ -151,76 +151,80 @@ If at_notices = True then
 End If
 
 Do
-	err_msg = ""
+    Do
+    	err_msg = ""
 
-	dlg_y_pos = 85
-	dlg_length = 145 + (UBound(notices_array, 2) * 20)
+    	dlg_y_pos = 85
+    	dlg_length = 145 + (UBound(notices_array, 2) * 20)
 
-	BeginDialog find_notices_dialog, 0, 0, 205, dlg_length, "Notices to Print"
-	  Text 5, 10, 50, 10, "Case Number"
-	  EditBox 65, 5, 50, 15, MAXIS_case_number
-	  Text 5, 30, 130, 10, "Where is the notice you want to print?"
-	  DropListBox 140, 25, 60, 45, "Select One..."+chr(9)+"WCOM"+chr(9)+"MEMO", notice_panel
-	  Text 5, 50, 120, 10, "In which month was the notice sent?"
-	  EditBox 140, 45, 20, 15, MAXIS_footer_month
-	  EditBox 165, 45, 20, 15, MAXIS_footer_year
-	  ButtonGroup ButtonPressed
-	    PushButton 60, 70, 50, 10, "Find Notices", find_notices_button
-	  If no_notices = FALSE Then
-		  For notices_listed = 0 to UBound(notices_array, 2)
-		  	CheckBox 10, dlg_y_pos, 185, 10, notices_array(information, notices_listed), notices_array(selected, notices_listed)
-			dlg_y_pos = dlg_y_pos + 15
-		  Next
-	  Else
-	  	  Text 10, dlg_y_pos, 185, 10, "**No Notices could be found here.**"
-		  dlg_y_pos = dlg_y_pos + 15
-	  End If
-	  dlg_y_pos = dlg_y_pos + 5
-	  EditBox 75, dlg_y_pos, 125, 15, worker_signature
-	  dlg_y_pos = dlg_y_pos + 5
-	  Text 5, dlg_y_pos, 60, 10, "Worker Signature:"
-	  dlg_y_pos = dlg_y_pos + 15
-	  ButtonGroup ButtonPressed
-	    OkButton 100, dlg_y_pos, 50, 15
-	    CancelButton 150, dlg_y_pos, 50, 15
-	  dlg_y_pos = dlg_y_pos + 5
-	  CheckBox 5, dlg_y_pos, 90, 10, "Check here to case note.", case_note_check
-	EndDialog
+        Dialog1 = ""
+    	BeginDialog Dialog1, 0, 0, 205, dlg_length, "Notices to Print"
+    	  Text 5, 10, 50, 10, "Case Number"
+    	  EditBox 65, 5, 50, 15, MAXIS_case_number
+    	  Text 5, 30, 130, 10, "Where is the notice you want to print?"
+    	  DropListBox 140, 25, 60, 45, "Select One..."+chr(9)+"WCOM"+chr(9)+"MEMO", notice_panel
+    	  Text 5, 50, 120, 10, "In which month was the notice sent?"
+    	  EditBox 140, 45, 20, 15, MAXIS_footer_month
+    	  EditBox 165, 45, 20, 15, MAXIS_footer_year
+    	  ButtonGroup ButtonPressed
+    	    PushButton 60, 70, 50, 10, "Find Notices", find_notices_button
+    	  If no_notices = FALSE Then
+    		  For notices_listed = 0 to UBound(notices_array, 2)
+    		  	CheckBox 10, dlg_y_pos, 185, 10, notices_array(information, notices_listed), notices_array(selected, notices_listed)
+    			dlg_y_pos = dlg_y_pos + 15
+    		  Next
+    	  Else
+    	  	  Text 10, dlg_y_pos, 185, 10, "**No Notices could be found here.**"
+    		  dlg_y_pos = dlg_y_pos + 15
+    	  End If
+    	  dlg_y_pos = dlg_y_pos + 5
+    	  EditBox 75, dlg_y_pos, 125, 15, worker_signature
+    	  dlg_y_pos = dlg_y_pos + 5
+    	  Text 5, dlg_y_pos, 60, 10, "Worker Signature:"
+    	  dlg_y_pos = dlg_y_pos + 15
+    	  ButtonGroup ButtonPressed
+    	    OkButton 100, dlg_y_pos, 50, 15
+    	    CancelButton 150, dlg_y_pos, 50, 15
+    	  dlg_y_pos = dlg_y_pos + 5
+    	  CheckBox 5, dlg_y_pos, 90, 10, "Check here to case note.", case_note_check
+    	EndDialog
 
-	Dialog find_notices_dialog
-	cancel_confirmation
+    	Dialog Dialog1
+    	cancel_confirmation
 
-	notice_selected = FALSE
-	For notice_to_print = 0 to UBound(notices_array, 2)
-		If notices_array(selected, notice_to_print) = checked Then notice_selected = TRUE
-	Next
+    	notice_selected = FALSE
+    	For notice_to_print = 0 to UBound(notices_array, 2)
+    		If notices_array(selected, notice_to_print) = checked Then notice_selected = TRUE
+    	Next
 
-	If MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "- Enter a Case Number."
-	If notice_panel = "Select One..." Then err_msg = err_msg & vbNewLine & "- Select where the notice to print is."
-	If MAXIS_footer_month = "" or MAXIS_footer_year = "" Then err_msg = err_msg & vbNewLine & "- Enter footer month and year."
-	If notice_selected = False Then err_msg = err_msg & vbNewLine & "- Select a notice to be copied to a Word Document."
+    	If MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "- Enter a Case Number."
+    	If notice_panel = "Select One..." Then err_msg = err_msg & vbNewLine & "- Select where the notice to print is."
+    	If MAXIS_footer_month = "" or MAXIS_footer_year = "" Then err_msg = err_msg & vbNewLine & "- Enter footer month and year."
+    	If notice_selected = False Then err_msg = err_msg & vbNewLine & "- Select a notice to be copied to a Word Document."
 
-	If ButtonPressed = find_notices_button then
-		If notice_panel <> "Select One..." AND MAXIS_case_number <> "" AND MAXIS_footer_month <> "" AND MAXIS_footer_year <> "" Then
-			Call navigate_to_MAXIS_screen ("SPEC", notice_panel)
-			If notice_panel = "MEMO" then
-				EMWriteScreen MAXIS_footer_month, 3, 48
-				EMWriteScreen MAXIS_footer_year, 3, 53
-			ElseIf notice_panel = "WCOM" Then
-				EMWriteScreen MAXIS_footer_month, 3, 46
-				EMWriteScreen MAXIS_footer_year, 3, 51
-			End If
-			transmit
-			Create_List_Of_Notices
-			err_msg = "LOOP"
-		Else
-			err_msg = err_msg & vbNewLine & "!!! Cannot read a list of notices without a panel selected, a case number entered, and footer month & year entered !!!"
-		End If
-	End If
+    	If ButtonPressed = find_notices_button then
+    		If notice_panel <> "Select One..." AND MAXIS_case_number <> "" AND MAXIS_footer_month <> "" AND MAXIS_footer_year <> "" Then
+    			Call navigate_to_MAXIS_screen ("SPEC", notice_panel)
+    			If notice_panel = "MEMO" then
+    				EMWriteScreen MAXIS_footer_month, 3, 48
+    				EMWriteScreen MAXIS_footer_year, 3, 53
+    			ElseIf notice_panel = "WCOM" Then
+    				EMWriteScreen MAXIS_footer_month, 3, 46
+    				EMWriteScreen MAXIS_footer_year, 3, 51
+    			End If
+    			transmit
+    			Create_List_Of_Notices
+    			err_msg = "LOOP"
+    		Else
+    			err_msg = err_msg & vbNewLine & "!!! Cannot read a list of notices without a panel selected, a case number entered, and footer month & year entered !!!"
+    		End If
+    	End If
 
-	If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg
+    	If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg
 
-Loop Until err_msg = ""
+    Loop Until err_msg = ""
+    Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 
 Call navigate_to_MAXIS_screen ("SPEC", notice_panel)
 
