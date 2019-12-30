@@ -67,7 +67,8 @@ Do
 	err_msg = ""
 	'intial dialog for user to select a SMRT action
 
-	BeginDialog PF11_actions_dialog, 0, 0, 196, 140, "PF11 Action"
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 196, 140, "PF11 Action"
 	  EditBox 55, 5, 40, 15, maxis_case_number
 	  DropListBox 75, 25, 115, 15, HH_Memb_DropDown, clt_to_update
 	  DropListBox 75, 45, 115, 15, "Select One:"+chr(9)+"PMI Merge Request"+chr(9)+"Non-Actionable DAIL Removal"+chr(9)+"Case Note Removal Request"+chr(9)+"MFIP New Spouse Income"+chr(9)+"New Spouse Income Determination"+chr(9)+"Other", PF11_actions
@@ -84,8 +85,7 @@ Do
 	  CheckBox 15, 105, 155, 10, "Please check here if a PF11 is not required. ", no_pf11_checkbox
 	EndDialog
 
-
-	Dialog PF11_actions_dialog
+	Dialog Dialog1
 	If ButtonPressed = cancel Then StopScript
 	If ButtonPressed = search_button Then
 		If MAXIS_case_number = "" Then
@@ -106,7 +106,8 @@ Loop until err_msg = ""
 
 IF PF11_actions = "Non-Actionable DAIL Removal" THEN
 	Call Navigate_to_MAXIS_screen ("DAIL", "DAIL")
-	BeginDialog non_action_dail_dialog, 0, 0, 316, 85, "Non-Actionable DAIL Removal"
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 316, 85, "Non-Actionable DAIL Removal"
 	  EditBox 45, 5, 35, 15, dail_date
 	  EditBox 110, 5, 200, 15, dail_message
 	  EditBox 110, 25, 200, 15, request_reason
@@ -125,7 +126,7 @@ IF PF11_actions = "Non-Actionable DAIL Removal" THEN
     Do
     	Do
     		err_msg = ""
-    		Dialog non_action_dail_dialog
+    		Dialog Dialog1
     		IF ButtonPressed = 0 then StopScript
     		IF dail_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a dail date."
 			IF dail_message = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a dail. This can be copy and paste."
@@ -139,7 +140,8 @@ END If
 
 IF PF11_actions = "Case Note Removal Request" THEN ' this does not leave a case note'
 	Call Navigate_to_MAXIS_screen ("CASE", "NOTE")
-    BeginDialog casenote_removal_dialog, 0, 0, 316, 85, "Case Note Removal Request"
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 316, 85, "Case Note Removal Request"
       EditBox 45, 5, 35, 15, dail_date
       EditBox 120, 5, 190, 15, dail_message
       EditBox 75, 25, 235, 15, request_reason
@@ -158,7 +160,7 @@ IF PF11_actions = "Case Note Removal Request" THEN ' this does not leave a case 
     Do
     	Do
     		err_msg = ""
-    		Dialog casenote_removal_dialog
+    		Dialog Dialog1
     		IF ButtonPressed = 0 then StopScript
     		IF dail_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a dail date."
 			IF dail_message = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a dail. This can be copy and paste."
@@ -171,7 +173,8 @@ IF PF11_actions = "Case Note Removal Request" THEN ' this does not leave a case 
 END If
 
 IF PF11_actions = "Other" THEN
-    BeginDialog other_dialog, 0, 0, 326, 110, "Other"
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 326, 110, "Other"
       EditBox 70, 10, 240, 15, request_reason
       EditBox 70, 30, 240, 15, other_notes
       EditBox 70, 50, 240, 15, action_taken
@@ -189,7 +192,7 @@ IF PF11_actions = "Other" THEN
     Do
     	Do
     		err_msg = ""
-    		Dialog other_dialog
+    		Dialog Dialog1
     		if ButtonPressed = 0 then StopScript
 			IF request_reason = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a request reason."
     		IF worker_xnumber = "" or len(worker_xnumber) > 3 then err_msg = err_msg & vbNewLine & "* Please enter the worker X127 number. Must be last 3 digits."
@@ -236,7 +239,8 @@ If PF11_actions = "PMI Merge Request" THEN
 	TRANSMIT
 	'msgbox "where are we"
 	'' PMI NBR ASSIGNED THRU SMI OR PMIN - NO MAXIS CASE EXISTS
-	BeginDialog PMI_merge_dialog, 0, 0, 276, 125, "PMI Merge Requested"
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 276, 125, "PMI Merge Requested"
 	  EditBox 80, 5, 50, 15, PMI_number
 	  EditBox 80, 25, 50, 15, PMI_number_two
 	  EditBox 220, 25, 50, 15, second_case_number
@@ -257,7 +261,7 @@ If PF11_actions = "PMI Merge Request" THEN
 	Do
 		Do
 			err_msg = ""
-			Dialog PMI_merge_dialog
+			Dialog Dialog1
 			cancel_confirmation
 			If PMI_number = "" THEN err_msg = err_msg & vbNewLine & "* Enter the PMI on this case."
 			If trim(second_case_number) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the second case number, if none enter N/A."
@@ -269,7 +273,29 @@ If PF11_actions = "PMI Merge Request" THEN
 END IF
 
 IF PF11_actions = "MFIP New Spouse Income" then
-	BeginDialog MFIP_New_Spouse_Income_dialog, 0, 0, 151, 215, "MFIP New Spouse Income"
+
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 346, 140, "Designated Spouse"
+  	  ButtonGroup ButtonPressed
+        OkButton 235, 120, 50, 15
+        CancelButton 290, 120, 50, 15
+  	  Text 5, 5, 335, 20, "The Designated Spouse is the person whose income will not be counted when the policy is applied. Once determined, the Designated Spouse remains the same for the 12 consecutive months."
+  	  Text 5, 30, 340, 15, "If only one newly-married member is in an existing assistance unit, the spouse joining the assistance unit will be the Designated Spouse."
+  	  Text 5, 55, 340, 20, "If both newly-married members are part of the same OR different existing assistance units, they may choose, but are not required to choose, who the Designated Spouse is."
+  	  Text 5, 80, 335, 35, "If the newly-married members do not choose a Designated Spouse, the eligibility worker must select the spouse with the highest combined counted income at the time. If neither spouse has income, the worker will wait to select a Designated Spouse. The worker will select the first spouse to have counted earned or unearned income during the 12 consecutive months as the Designated Spouse."
+	EndDialog
+	Do
+		Do
+			err_msg = ""
+			Dialog Dialog1
+			IF ButtonPressed = 0 then StopScript
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+		Loop until err_msg = ""
+		Call check_for_password(are_we_passworded_out)
+	LOOP UNTIL check_for_password(are_we_passworded_out) = False
+
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 151, 215, "MFIP New Spouse Income"
 	  EditBox 90, 5, 55, 15, new_spouse_income
 	  EditBox 90, 25, 55, 15, marriage_date
 	  EditBox 90, 45, 55, 15, marriage_date_verified
@@ -290,29 +316,10 @@ IF PF11_actions = "MFIP New Spouse Income" then
 	  Text 5, 70, 65, 10, "Verification Used:"
 	EndDialog
 
-	BeginDialog Designated_Spouse_Dialog, 0, 0, 346, 140, "Designated Spouse"
-  	  ButtonGroup ButtonPressed
-        OkButton 235, 120, 50, 15
-        CancelButton 290, 120, 50, 15
-  	  Text 5, 5, 335, 20, "The Designated Spouse is the person whose income will not be counted when the policy is applied. Once determined, the Designated Spouse remains the same for the 12 consecutive months."
-  	  Text 5, 30, 340, 15, "If only one newly-married member is in an existing assistance unit, the spouse joining the assistance unit will be the Designated Spouse."
-  	  Text 5, 55, 340, 20, "If both newly-married members are part of the same OR different existing assistance units, they may choose, but are not required to choose, who the Designated Spouse is."
-  	  Text 5, 80, 335, 35, "If the newly-married members do not choose a Designated Spouse, the eligibility worker must select the spouse with the highest combined counted income at the time. If neither spouse has income, the worker will wait to select a Designated Spouse. The worker will select the first spouse to have counted earned or unearned income during the 12 consecutive months as the Designated Spouse."
-	EndDialog
-	Do
-		Do
-			err_msg = ""
-			Dialog Designated_Spouse_Dialog
-			IF ButtonPressed = 0 then StopScript
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-		Loop until err_msg = ""
-		Call check_for_password(are_we_passworded_out)
-	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-
     Do
     	Do
     		err_msg = ""
-    		Dialog MFIP_New_Spouse_Income_dialog
+    		Dialog Dialog1
     		IF ButtonPressed = 0 then StopScript
 			IF new_spouse_income = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the the new spouse income."
 			IF marriage_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the date of marriage."
@@ -328,7 +335,8 @@ IF PF11_actions = "MFIP New Spouse Income" then
 END If
 
 IF PF11_actions = "New Spouse Income Determination" THEN
-    BeginDialog New_Spouse_Income_dialog, 0, 0, 151, 225, "Determination New Spouse Income"
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 151, 225, "Determination New Spouse Income"
       EditBox 90, 5, 55, 15, new_spouse_income
       EditBox 90, 25, 55, 15, marriage_date
       EditBox 90, 45, 55, 15, marriage_date_verified
@@ -356,7 +364,7 @@ IF PF11_actions = "New Spouse Income Determination" THEN
     Do
     	Do
     		err_msg = ""
-    		Dialog New_Spouse_Income_dialog
+    		Dialog Dialog1
     		if ButtonPressed = 0 then StopScript
             IF new_spouse_income = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the the new spouse income."
             IF marriage_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the date of marriage."
