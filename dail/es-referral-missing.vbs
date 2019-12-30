@@ -51,26 +51,6 @@ changelog_display
 
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
 '------------------As such, it does NOT include protections to be ran independently.
-'DIALOG=====================================================================================================================
-BeginDialog ES_ref_dialog, 0, 0, 301, 100, "ES Referral Date"
-  EditBox 65, 5, 120, 15, client_name
-  EditBox 265, 5, 25, 15, ref_numb
-  EditBox 65, 25, 80, 15, ES_ref_date
-  CheckBox 5, 45, 205, 10, "Check here to have the script fill this referral date on EMPS", update_emps_checkbox
-  EditBox 50, 60, 240, 15, other_notes
-  EditBox 70, 80, 100, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 185, 80, 50, 15
-    CancelButton 240, 80, 50, 15
-  Text 5, 10, 60, 10, "Name from DAIL:"
-  Text 195, 10, 70, 10, "HH member number:"
-  Text 5, 30, 60, 10, "ES Referral Date:"
-  Text 155, 30, 140, 10, "If filled, date was gathered on INFC/WORK"
-  Text 5, 65, 40, 10, "Other notes:"
-  Text 5, 85, 60, 10, "Worker signature:"
-EndDialog
-'===========================================================================================================================
-
 EMConnect ""		'Getting Case number
 
 EMReadScreen name_for_dail, 57, 5, 5			'Reading the name of the client
@@ -152,10 +132,30 @@ End If
 'Defaulting to having the script update EMPS
 update_emps_checkbox = checked
 
+'DIALOG=====================================================================================================================
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 301, 100, "ES Referral Date"
+  EditBox 65, 5, 120, 15, client_name
+  EditBox 265, 5, 25, 15, ref_numb
+  EditBox 65, 25, 80, 15, ES_ref_date
+  CheckBox 5, 45, 205, 10, "Check here to have the script fill this referral date on EMPS", update_emps_checkbox
+  EditBox 50, 60, 240, 15, other_notes
+  EditBox 70, 80, 100, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 185, 80, 50, 15
+    CancelButton 240, 80, 50, 15
+  Text 5, 10, 60, 10, "Name from DAIL:"
+  Text 195, 10, 70, 10, "HH member number:"
+  Text 5, 30, 60, 10, "ES Referral Date:"
+  Text 155, 30, 140, 10, "If filled, date was gathered on INFC/WORK"
+  Text 5, 65, 40, 10, "Other notes:"
+  Text 5, 85, 60, 10, "Worker signature:"
+EndDialog
+
 'Runs the dialog
 Do
 	err_msg = ""
-	Dialog ES_ref_dialog
+	Dialog Dialog1
 	cancel_confirmation
 	If worker_signature = "" Then err_msg = err_msg & vbNewLine & "Sign your case note."
 	If isdate(es_ref_date) = FALSE Then err_msg = err_msg & vbNewLine & "You must enter a valid date for the ES Referral Date."
@@ -207,7 +207,6 @@ If update_emps_checkbox = checked Then
 	end_msg = "Success! EMPS has been updated and Case Note Written"
 Else
 	end_msg = "You have selected to not have the EMPS panel updated by the script." & vbNewLine & "You will need to process this DAIL manually."
-
 End If
 
 script_end_procedure(end_msg)
