@@ -50,8 +50,14 @@ call changelog_update("02/03/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'Dialogs----------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 226, 115, "FIAT GA/RCA into SNAP"
+'The script----------------------------------------------------------------------------------------------------
+'Connecting to BlueZone and finding the MAXIS case number
+EMConnect ""
+call maxis_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(initial_month, initial_year)
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 226, 115, "FIAT GA/RCA into SNAP"
   EditBox 105, 10, 60, 15, MAXIS_case_number
   EditBox 105, 30, 25, 15, initial_month
   EditBox 140, 30, 25, 15, initial_year
@@ -64,16 +70,10 @@ BeginDialog case_number_dialog, 0, 0, 226, 115, "FIAT GA/RCA into SNAP"
   Text 10, 90, 210, 20, "This FIATer is to be used when a case is active on GA or RCA, and the monthly grant needs to be FIATed into the SNAP budget. "
 EndDialog
 
-'The script----------------------------------------------------------------------------------------------------
-'Connecting to BlueZone and finding the MAXIS case number
-EMConnect ""
-call maxis_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(initial_month, initial_year)
-
-DO 
+DO
 	DO
 		err_msg = ""
-		dialog case_number_dialog
+		dialog Dialog1
 		If buttonpressed = 0 THEN stopscript
 		If IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
 		IF len(initial_month) > 2 or isnumeric(initial_month) = FALSE THEN err_msg = err_msg & vbCr & "* You must enter a valid 2 digit initial month."
@@ -107,16 +107,16 @@ EMReadscreen proration_date, 8, 10, 44		'reading the SNAP proration date for ELI
 MAXIS_row = 6
 DO
 	EMReadScreen cash_prog, 2, MAXIS_row, 67
-	If (cash_prog = "GA" or cash_prog = "RC") then 
+	If (cash_prog = "GA" or cash_prog = "RC") then
 		exit do
 	Else
 		MAXIS_row = MAXIS_row + 1
-	End if 
+	End if
 LOOP until MAXIS_row = 8
 
-If (cash_prog = "GA" or cash_prog = "RC") then 
+If (cash_prog = "GA" or cash_prog = "RC") then
 	EMReadScreen cash_status, 4, MAXIS_row, 74
-Else 
+Else
 	script_end_procedure("This case is not active on GA or RCA. Please review case.")
 End if
 
@@ -128,29 +128,29 @@ Call navigate_to_maxis_screen("STAT", "REVW")
 EMReadscreen REVW_date, 8, 9, 57
 If REVW_date = "__ 01 __" then script_end_procedure("A SNAP review date is required. Please update STAT/REVW, then run the script again.")
 
-'Reads the Hennepin Cash out code for x127 users. Elderly/SSI clients have the option to cash out SNAP benefits. 
-If worker_county_code = "x127" then 
+'Reads the Hennepin Cash out code for x127 users. Elderly/SSI clients have the option to cash out SNAP benefits.
+If worker_county_code = "x127" then
 	Call navigate_to_maxis_screen("MONY", "DISB")
 	EMReadscreen cash_out, 1, 14, 53
-END IF 
+END IF
 
 'The following loop will take the script through each month in the package, from appl month. to CM+1
 For i = 0 to ubound(footer_month_array)
 	MAXIS_footer_month = datepart("m", footer_month_array(i)) 'Need to assign footer month / year each time through
 	if len(MAXIS_footer_month) = 1 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
 	MAXIS_footer_year = right(datepart("YYYY", footer_month_array(i)), 2)
-	
+
 	'----------------------------------------------------------------------------------------------------ELIG
 	Call navigate_to_MAXIS_screen("ELIG", cash_prog)
 	transmit
-	
+
 	EMReadScreen no_CASH, 10, 24, 2
 	If no_CASH = "NO VERSION" then script_end_procedure("There are no " & cash_prog & " results for this case. Please review case.")
 	If cash_prog = "GA" then
-		EMWriteScreen "99", 20, 78	
-	Else 
+		EMWriteScreen "99", 20, 78
+	Else
 		EMWriteScreen "99", 19, 78
-	END IF 
+	END IF
 	transmit
 	'This brings up the cash versions of eligibilty results to search for approved versions
 	status_row = 7
@@ -159,16 +159,16 @@ For i = 0 to ubound(footer_month_array)
 		If trim(app_status) = "" then script_end_procedure("No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". Please review case.")
 		If app_status = "UNAPPROV" Then status_row = status_row + 1
 	Loop until  app_status = "APPROVED" or trim(app_status) = ""
-	
+
 	If app_status <> "APPROVED" then
 		script_end_procedure("No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". Please review case.")
 	Elseif app_status = "APPROVED" then
 		EMReadScreen vers_number, 1, status_row, 23
 		EMWriteScreen vers_number, 18, 54
 		transmit
-	END IF 
-	
-	IF cash_prog = "RCA" then 
+	END IF
+
+	IF cash_prog = "RCA" then
 		EMWriteScreen "RCSM", 19, 70
 		transmit
 		EMReadscreen grant_amt, 7, 12, 74
@@ -176,15 +176,15 @@ For i = 0 to ubound(footer_month_array)
 		EMWriteScreen "GASM", 20, 70
 		transmit
 		EMReadscreen issue_header, 21, 12, 45
-		If issue_header = "Amount Already Issued" then 
+		If issue_header = "Amount Already Issued" then
 			EMReadscreen grant_amt, 7, 12, 74
-		Else 
+		Else
 			EMReadscreen grant_amt, 7, 14, 74
 		End if
-	END IF 
-	
+	END IF
+
 	grant_amt = trim(grant_amt)		'cleans up grant amount
-	
+
 	'----------------------------------------------------------------------------------------------------The FIAT
 	back_to_self
 	EMwritescreen "FIAT", 16, 43
@@ -192,11 +192,11 @@ For i = 0 to ubound(footer_month_array)
 	EMwritescreen MAXIS_footer_month, 20, 43
 	EMWritescreen MAXIS_footer_year, 20, 46
 	transmit
-	
+
 	'Checking for cases that are out of county
 	EMReadScreen error_check, 11, 24, 2
 	If error_check = "YOU ARE NOT" then script_end_procedure("You do not have access to update this case. The script will now end.")
-	
+
 	EMReadscreen results_check, 4, 14, 46 'We need to make sure results exist, otherwise stop.
 	'IF results_check = "    " THEN script_end_procedure("The script was unable to find unapproved SNAP results for the benefit month, please check your case and try again.")
 	EMWritescreen "22", 4, 34 'entering the FIAT reason
@@ -205,29 +205,29 @@ For i = 0 to ubound(footer_month_array)
 
 	EMWriteScreen "x", 17, 5	'Going into 'VEIW BUDGET'
 	transmit
-	EMWriteScreen "x", 10, 5	'Going into the PA GRANT 
+	EMWriteScreen "x", 10, 5	'Going into the PA GRANT
 	transmit
 
-	If cash_prog = "GA" then 
+	If cash_prog = "GA" then
 		EMWriteScreen "_________", 9, 23
-		EMWriteScreen grant_amt, 9, 23	
-	Elseif cash_prog = "RCA" then 
+		EMWriteScreen grant_amt, 9, 23
+	Elseif cash_prog = "RCA" then
 		EMWriteScreen "_________", 8, 23
 		EMWriteScreen grant_amt, 8, 23
-	END IF 
+	END IF
 	Transmit 'to get back to FFB1
-	
+
 	grant_amt = ""	'clears out the grant amt
-	
+
 	EMReadScreen warning_check, 4, 18, 9 'We need to check here for a warning on potential expedited cases..
 	IF warning_check = "FIAT" Then 'and enter two extra transmits to bypass.
 		transmit
 		transmit
 	END IF
-	
+
 	EMwritescreen "FFB2", 20, 70 'This is to make sure we end up in the right place'
 	transmit
-	
+
 	'this enters the proration date in the initial month'
 	IF abs(MAXIS_footer_month) = abs(left(proration_date, 2)) THEN
 		EMWriteScreen left(proration_date, 2), 11, 56
@@ -235,7 +235,7 @@ For i = 0 to ubound(footer_month_array)
 		EMWriteScreen right(proration_date, 2), 11, 62
 	END IF
 	transmit
-	
+
 	EMReadScreen warning_check, 4, 18, 9 'We need to check here for a warning on potential expedited cases..
 	IF warning_check = "FIAT" Then 'and enter two extra transmits to bypass.
 		transmit
@@ -246,8 +246,8 @@ For i = 0 to ubound(footer_month_array)
 	transmit
 	'Updates the Hennepin County Cashout (Y/N) field if cash out in MONY/DISB is coded as a Y
 	If cash_out <> "N" then EMwritescreen cash_out, 19, 72
-	
-	'Exiting the FIAT	
+
+	'Exiting the FIAT
 	PF3 'back to FFSL
 	PF3 'This should bring up the "do you want to retain" popup
 
@@ -255,7 +255,7 @@ For i = 0 to ubound(footer_month_array)
 	If income_cap_check = "PROSP GROSS" then script_end_procedure("Prospective gross income is over the income standard. THE FIAT cannot be saved. Please review case and budget for potential errors.")
 	EMWritescreen "Y", 13, 41
 	transmit
-	
+
 	EMReadscreen final_month_check, 4, 10, 53 'This looks for a pop-up that only comes up in the final month, and clears it.
 	IF final_month_check = "ELIG" THEN
 		EMWritescreen "Y", 11, 52
