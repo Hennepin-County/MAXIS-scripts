@@ -55,51 +55,18 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog spousal_maintenance_dialog, 0, 0, 256, 185, "Spousal Maintenance Dialog"
-  EditBox 5, 15, 35, 15, gross_spousal_unearned_income_type_01
-  EditBox 60, 15, 50, 15, gross_spousal_unearned_income_01
-  EditBox 5, 35, 35, 15, gross_spousal_unearned_income_type_02
-  EditBox 60, 35, 50, 15, gross_spousal_unearned_income_02
-  EditBox 5, 55, 35, 15, gross_spousal_unearned_income_type_03
-  EditBox 60, 55, 50, 15, gross_spousal_unearned_income_03
-  EditBox 5, 75, 35, 15, gross_spousal_unearned_income_type_04
-  EditBox 60, 75, 50, 15, gross_spousal_unearned_income_04
-  EditBox 5, 105, 35, 15, gross_spousal_earned_income_type_01
-  EditBox 60, 105, 50, 15, gross_spousal_earned_income_01
-  EditBox 5, 125, 35, 15, gross_spousal_earned_income_type_02
-  EditBox 60, 125, 50, 15, gross_spousal_earned_income_02
-  EditBox 5, 145, 35, 15, gross_spousal_earned_income_type_03
-  EditBox 60, 145, 50, 15, gross_spousal_earned_income_03
-  EditBox 5, 165, 35, 15, gross_spousal_earned_income_type_04
-  EditBox 60, 165, 50, 15, gross_spousal_earned_income_04
-  EditBox 205, 85, 35, 15, mort_rent_payment
-  EditBox 205, 105, 35, 15, taxes_and_insuance
-  EditBox 210, 125, 35, 15, coop_condo_maint_fees
-  EditBox 190, 145, 45, 15, utility_allowance
-  ButtonGroup ButtonPressed
-    OkButton 135, 165, 50, 15
-    CancelButton 190, 165, 50, 15
-    PushButton 125, 15, 45, 10, "prev. panel", prev_panel_button
-    PushButton 125, 25, 45, 10, "next panel", next_panel_button
-    PushButton 185, 15, 45, 10, "prev. memb", prev_memb_button
-    PushButton 185, 25, 45, 10, "next memb", next_memb_button
-    PushButton 125, 60, 25, 10, "HEST", HEST_button
-    PushButton 150, 60, 25, 10, "JOBS", JOBS_button
-    PushButton 175, 60, 25, 10, "SHEL", SHEL_button
-    PushButton 200, 60, 25, 10, "UNEA", UNEA_button
-  Text 10, 5, 25, 10, "UI type"
-  Text 75, 5, 30, 10, "Amount"
-  Text 10, 95, 25, 10, "EI type"
-  Text 75, 95, 30, 10, "Amount"
-  GroupBox 120, 5, 115, 35, "STAT-based navigation"
-  GroupBox 120, 50, 110, 25, "MAXIS panels"
-  Text 130, 90, 65, 10, "Mort-rent payment:"
-  Text 130, 110, 75, 10, "Taxes and insurance:"
-  Text 130, 130, 80, 10, "Coop-condo maint fees:"
-  Text 130, 150, 60, 10, "Utility allowance:"
-EndDialog
 
-BeginDialog case_number_dialog, 0, 0, 201, 115, "Case number Dialog"
+
+
+
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connects to MAXIS, grabs case number and footer month/year
+EMConnect ""
+call MAXIS_case_number_finder(MAXIS_case_number)
+call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 201, 115, "Case number Dialog"
   EditBox 110, 5, 45, 15, MAXIS_case_number
   EditBox 110, 25, 20, 15, MAXIS_footer_month
   EditBox 135, 25, 20, 15, MAXIS_footer_year
@@ -112,17 +79,11 @@ BeginDialog case_number_dialog, 0, 0, 201, 115, "Case number Dialog"
   Text 10, 80, 190, 30, "You will need to process the spousal allocation manually. The script currently does not support budgeting public assistance CASH programs into the spousal allocation."
 EndDialog
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connects to MAXIS, grabs case number and footer month/year
-EMConnect ""
-call MAXIS_case_number_finder(MAXIS_case_number)
-call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
 'Shows case number dialog
-Do 
-    Do 
+Do
+    Do
         err_msg = ""
-        dialog case_number_dialog
+        dialog Dialog1
         cancel_without_confirmation
         IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "Enter a valid case number."		'mandatory field
         If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit footer month."
@@ -131,10 +92,10 @@ Do
     LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
-    
+
 spousal_allocation_footer_month = MAXIS_footer_month
 spousal_allocation_footer_year = MAXIS_footer_year
-   
+
 'Enters into STAT for the client
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
 
@@ -190,9 +151,9 @@ Call navigate_to_MAXIS_screen("STAT", "HEST")
 
 'Reads the info off of STAT/HEST into variables for the utility expenses. This is used to autofill the allocation dialog.
 EMReadScreen heat_air, 6, 13, 75
-IF trim(heat_air) <> "" then 
+IF trim(heat_air) <> "" then
     utility_allowance =  heat_air
-Else 
+Else
     'electric
     EMReadScreen elec_allow, 6, 14, 75
     elec_allow = trim(elec_allow)
@@ -202,7 +163,7 @@ Else
     phone_allow = trim(phone_allow)
     If phone_allow = "" then phone_allow = "0"
     utility_allowance = cint(elec_allow) + cint(phone_allow) & ""
-End if 
+End if
 
 'Navigates to UNEA and grabs info on the spouse's income (if a spouse is found in MEMB).
 If spousal_reference_number <> "" then
@@ -240,8 +201,8 @@ If spousal_reference_number <> "" then
 'changes unearned income coding types as coding from JOBS panel and spousal allocation screen are not the same
   If current_panel_number = "1" then
 	earned_income_number = 1
-	EMReadScreen gross_spousal_earned_income_type_01, 1, 5, 34		
-	
+	EMReadScreen gross_spousal_earned_income_type_01, 1, 5, 34
+
 	If gross_spousal_earned_income_type_01 = "J" THEN gross_spousal_earned_income_type_01 = "01"
 	If gross_spousal_earned_income_type_01 = "W" then gross_spousal_earned_income_type_01 = "02"
 	If gross_spousal_earned_income_type_01 = "E" THEN gross_spousal_earned_income_type_01 = "03"
@@ -262,7 +223,7 @@ If spousal_reference_number <> "" then
   If current_panel_number = "2" then
     earned_income_number = earned_income_number + 1
 	EMReadScreen gross_spousal_earned_income_type_02, 1, 5, 34
-	
+
 	If gross_spousal_earned_income_type_02 = "J" THEN gross_spousal_earned_income_type_02 = "01"
 	If gross_spousal_earned_income_type_02 = "W" then gross_spousal_earned_income_type_02 = "02"
 	If gross_spousal_earned_income_type_02 = "E" THEN gross_spousal_earned_income_type_02 = "03"
@@ -283,7 +244,7 @@ If spousal_reference_number <> "" then
   If current_panel_number = "3" then
     earned_income_number = earned_income_number + 1
     EMReadScreen gross_spousal_earned_income_type_03, 1, 5, 34
-    
+
 	If gross_spousal_earned_income_type_03 = "J" THEN gross_spousal_earned_income_type_03 = "01"
 	If gross_spousal_earned_income_type_03 = "W" then gross_spousal_earned_income_type_03 = "02"
 	If gross_spousal_earned_income_type_03 = "E" THEN gross_spousal_earned_income_type_03 = "03"
@@ -350,13 +311,58 @@ gross_spousal_earned_income_02 = trim(gross_spousal_earned_income_02)
 gross_spousal_earned_income_03 = trim(gross_spousal_earned_income_03)
 gross_spousal_earned_income_04 = trim(gross_spousal_earned_income_04)
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 256, 185, "Spousal Maintenance Dialog"
+  EditBox 5, 15, 35, 15, gross_spousal_unearned_income_type_01
+  EditBox 60, 15, 50, 15, gross_spousal_unearned_income_01
+  EditBox 5, 35, 35, 15, gross_spousal_unearned_income_type_02
+  EditBox 60, 35, 50, 15, gross_spousal_unearned_income_02
+  EditBox 5, 55, 35, 15, gross_spousal_unearned_income_type_03
+  EditBox 60, 55, 50, 15, gross_spousal_unearned_income_03
+  EditBox 5, 75, 35, 15, gross_spousal_unearned_income_type_04
+  EditBox 60, 75, 50, 15, gross_spousal_unearned_income_04
+  EditBox 5, 105, 35, 15, gross_spousal_earned_income_type_01
+  EditBox 60, 105, 50, 15, gross_spousal_earned_income_01
+  EditBox 5, 125, 35, 15, gross_spousal_earned_income_type_02
+  EditBox 60, 125, 50, 15, gross_spousal_earned_income_02
+  EditBox 5, 145, 35, 15, gross_spousal_earned_income_type_03
+  EditBox 60, 145, 50, 15, gross_spousal_earned_income_03
+  EditBox 5, 165, 35, 15, gross_spousal_earned_income_type_04
+  EditBox 60, 165, 50, 15, gross_spousal_earned_income_04
+  EditBox 205, 85, 35, 15, mort_rent_payment
+  EditBox 205, 105, 35, 15, taxes_and_insuance
+  EditBox 210, 125, 35, 15, coop_condo_maint_fees
+  EditBox 190, 145, 45, 15, utility_allowance
+  ButtonGroup ButtonPressed
+    OkButton 135, 165, 50, 15
+    CancelButton 190, 165, 50, 15
+    PushButton 125, 15, 45, 10, "prev. panel", prev_panel_button
+    PushButton 125, 25, 45, 10, "next panel", next_panel_button
+    PushButton 185, 15, 45, 10, "prev. memb", prev_memb_button
+    PushButton 185, 25, 45, 10, "next memb", next_memb_button
+    PushButton 125, 60, 25, 10, "HEST", HEST_button
+    PushButton 150, 60, 25, 10, "JOBS", JOBS_button
+    PushButton 175, 60, 25, 10, "SHEL", SHEL_button
+    PushButton 200, 60, 25, 10, "UNEA", UNEA_button
+  Text 10, 5, 25, 10, "UI type"
+  Text 75, 5, 30, 10, "Amount"
+  Text 10, 95, 25, 10, "EI type"
+  Text 75, 95, 30, 10, "Amount"
+  GroupBox 120, 5, 115, 35, "STAT-based navigation"
+  GroupBox 120, 50, 110, 25, "MAXIS panels"
+  Text 130, 90, 65, 10, "Mort-rent payment:"
+  Text 130, 110, 75, 10, "Taxes and insurance:"
+  Text 130, 130, 80, 10, "Coop-condo maint fees:"
+  Text 130, 150, 60, 10, "Utility allowance:"
+EndDialog
+
 'Defining the HH_memb_row variable for the navigation buttons
 HH_memb_row = 6
 
 Do
-    Do 
+    Do
         'Shows the spousal maintenance dialog
-        dialog spousal_maintenance_dialog
+        dialog Dialog1
         cancel_confirmation
         MAXIS_dialog_navigation
     Loop until ButtonPressed = -1
