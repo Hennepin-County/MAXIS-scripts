@@ -62,61 +62,6 @@ MAXIS_footer_year = "" & MAXIS_footer_year - 2000
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
-'DIALOGS-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 151, 70, "PA Verification Request"
-  ButtonGroup ButtonPressed
-    OkButton 40, 50, 50, 15
-    CancelButton 95, 50, 50, 15
-  EditBox 75, 5, 70, 15, MAXIS_case_number
-  EditBox 75, 25, 30, 15, MAXIS_footer_month
-  EditBox 115, 25, 30, 15, MAXIS_footer_year
-  Text 10, 10, 50, 10, "Case Number"
-  Text 10, 30, 65, 10, "Footer month/year:"
-EndDialog
-
-BeginDialog PA_verif_dialog, 0, 0, 316, 255, "PA Verif Dialog"
-  ButtonGroup ButtonPressed
-    OkButton 200, 230, 50, 15
-    CancelButton 255, 230, 50, 15
-  EditBox 40, 15, 30, 15, snap_grant
-  EditBox 105, 15, 35, 15, MFIP_food
-  EditBox 145, 15, 35, 15, MFIP_cash
-  EditBox 40, 35, 30, 15, MSA_Grant
-  EditBox 145, 35, 35, 15, MFIP_housing
-  EditBox 40, 55, 30, 15, GA_grant
-  EditBox 145, 55, 35, 15, DWP_grant
-  EditBox 285, 15, 20, 15, cash_members
-  CheckBox 285, 40, 25, 10, "Yes", subsidy_check
-  EditBox 285, 55, 20, 15, household_members
-  EditBox 85, 75, 220, 15, other_income
-  EditBox 105, 95, 20, 15, number_of_months
-  CheckBox 15, 155, 280, 10, "Check here to have the income and HH information withheld from the word doc.", no_income_checkbox
-  EditBox 55, 180, 250, 15, other_notes
-  EditBox 55, 205, 90, 15, completed_by
-  EditBox 210, 205, 95, 15, worker_phone
-  EditBox 120, 230, 75, 15, worker_signature
-  CheckBox 10, 100, 95, 10, "Include screenshot of last", inqd_check
-  Text 10, 20, 20, 10, "SNAP:"
-  Text 110, 60, 20, 10, "DWP:"
-  Text 5, 185, 40, 10, "Other notes:"
-  Text 10, 60, 20, 10, "GA:"
-  Text 10, 40, 20, 10, "MSA:"
-  Text 80, 20, 20, 10, "MFIP:"
-  Text 80, 40, 50, 10, "MFIP Housing:"
-  Text 5, 80, 75, 10, "Other income and type:"
-  Text 200, 40, 80, 10, "$50 subsidy deduction?"
-  Text 190, 20, 95, 10, "HH members on cash grant:"
-  Text 215, 60, 65, 10, "Total HH members:"
-  Text 110, 5, 25, 10, "Food:"
-  Text 150, 5, 25, 10, "Cash:"
-  Text 130, 100, 60, 10, "months' benefits"
-  Text 155, 210, 55, 10, "Worker phone #:"
-  Text 5, 210, 50, 10, "Completed by:"
-  Text 5, 235, 110, 10, "Worker Signature (for case note):"
-  Text 15, 130, 280, 20, "Do not share FTI with outside agencies using this form, including information from SSA such as SSI/RSDI amounts."
-  GroupBox 5, 120, 300, 50, "Warning!"
-EndDialog
-
 'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HH_memb_row = 5
 Dim row
@@ -128,11 +73,23 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 151, 70, "PA Verification Request"
+  ButtonGroup ButtonPressed
+    OkButton 40, 50, 50, 15
+    CancelButton 95, 50, 50, 15
+  EditBox 75, 5, 70, 15, MAXIS_case_number
+  EditBox 75, 25, 30, 15, MAXIS_footer_month
+  EditBox 115, 25, 30, 15, MAXIS_footer_year
+  Text 10, 10, 50, 10, "Case Number"
+  Text 10, 30, 65, 10, "Footer month/year:"
+EndDialog
+
 'Showing case number dialog
 Do
 	Do
 		err_msg = ""
-  		Dialog case_number_dialog
+  		Dialog Dialog1
   		cancel_confirmation
   		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine &  "* You need to type a valid case number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -334,10 +291,55 @@ call navigate_to_MAXIS_screen("case", "curr")
 	If cash_check = "PENDIN" then MsgBox "Cash is pending for this household, please explain in additional notes."
 
 'calling the main dialog
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 316, 255, "PA Verif Dialog"
+  ButtonGroup ButtonPressed
+    OkButton 200, 230, 50, 15
+    CancelButton 255, 230, 50, 15
+  EditBox 40, 15, 30, 15, snap_grant
+  EditBox 105, 15, 35, 15, MFIP_food
+  EditBox 145, 15, 35, 15, MFIP_cash
+  EditBox 40, 35, 30, 15, MSA_Grant
+  EditBox 145, 35, 35, 15, MFIP_housing
+  EditBox 40, 55, 30, 15, GA_grant
+  EditBox 145, 55, 35, 15, DWP_grant
+  EditBox 285, 15, 20, 15, cash_members
+  CheckBox 285, 40, 25, 10, "Yes", subsidy_check
+  EditBox 285, 55, 20, 15, household_members
+  EditBox 85, 75, 220, 15, other_income
+  EditBox 105, 95, 20, 15, number_of_months
+  CheckBox 15, 155, 280, 10, "Check here to have the income and HH information withheld from the word doc.", no_income_checkbox
+  EditBox 55, 180, 250, 15, other_notes
+  EditBox 55, 205, 90, 15, completed_by
+  EditBox 210, 205, 95, 15, worker_phone
+  EditBox 120, 230, 75, 15, worker_signature
+  CheckBox 10, 100, 95, 10, "Include screenshot of last", inqd_check
+  Text 10, 20, 20, 10, "SNAP:"
+  Text 110, 60, 20, 10, "DWP:"
+  Text 5, 185, 40, 10, "Other notes:"
+  Text 10, 60, 20, 10, "GA:"
+  Text 10, 40, 20, 10, "MSA:"
+  Text 80, 20, 20, 10, "MFIP:"
+  Text 80, 40, 50, 10, "MFIP Housing:"
+  Text 5, 80, 75, 10, "Other income and type:"
+  Text 200, 40, 80, 10, "$50 subsidy deduction?"
+  Text 190, 20, 95, 10, "HH members on cash grant:"
+  Text 215, 60, 65, 10, "Total HH members:"
+  Text 110, 5, 25, 10, "Food:"
+  Text 150, 5, 25, 10, "Cash:"
+  Text 130, 100, 60, 10, "months' benefits"
+  Text 155, 210, 55, 10, "Worker phone #:"
+  Text 5, 210, 50, 10, "Completed by:"
+  Text 5, 235, 110, 10, "Worker Signature (for case note):"
+  Text 15, 130, 280, 20, "Do not share FTI with outside agencies using this form, including information from SSA such as SSI/RSDI amounts."
+  GroupBox 5, 120, 300, 50, "Warning!"
+EndDialog
+
 Do
 	Do
 		err_msg = ""
-		Dialog PA_verif_dialog
+		Dialog Dialog1
 		cancel_confirmation
 		If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Please sign your case note."
 		If completed_by = "" then err_msg = err_msg & vbNewLine & "* Please fill out the completed by field."
