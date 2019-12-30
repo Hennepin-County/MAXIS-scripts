@@ -52,20 +52,7 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-
-BeginDialog check_snap_dlg, 0, 0, 166, 100, "Check SNAP for GA/RCA"
-  EditBox 100, 10, 55, 15, worker_number
-  CheckBox 10, 35, 145, 10, "Or check here to run this on all workers.", all_worker_check
-  CheckBox 10, 60, 145, 10, "Chere here to add supervisor name to list.", supervisor_check
-  ButtonGroup ButtonPressed
-    OkButton 35, 80, 50, 15
-    CancelButton 85, 80, 50, 15
-  Text 10, 10, 85, 20, "Enter worker X number(s) (7 digit format)"
-EndDialog
-
-
 EMConnect ""
-
 Call check_for_MAXIS(True)
 
 benefit_month = CM_plus_1_mo
@@ -75,10 +62,21 @@ back_to_SELF
 EMWriteScreen benefit_month, 20, 43
 EMWriteScreen benefit_year, 20, 46
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 166, 100, "Check SNAP for GA/RCA"
+  EditBox 100, 10, 55, 15, worker_number
+  CheckBox 10, 35, 145, 10, "Or check here to run this on all workers.", all_worker_check
+  CheckBox 10, 60, 145, 10, "Chere here to add supervisor name to list.", supervisor_check
+  ButtonGroup ButtonPressed
+    OkButton 35, 80, 50, 15
+    CancelButton 85, 80, 50, 15
+  Text 10, 10, 85, 20, "Enter worker X number(s) (7 digit format)"
+EndDialog
+
 DO
 	DO
-		DIALOG check_snap_dlg
-		IF ButtonPressed = 0 THEN stopscript
+		DIALOG Dialog1
+		Cancel_without_confirmation
 	LOOP UNTIL (worker_number = "" AND all_worker_check = 1) OR (all_worker_check = 0 AND worker_number <> "")
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in 
