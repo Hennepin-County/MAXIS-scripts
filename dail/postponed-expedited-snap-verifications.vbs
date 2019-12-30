@@ -50,7 +50,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
 '------------------As such, it does NOT include protections to be ran independently.
 EMReadscreen MAXIS_footer_month, 2, 6, 11               	'Reading the footer month/year
@@ -82,7 +81,8 @@ EMWriteScreen "N", 6, 3
 transmit
 
 'Dialog is defined here so the case number and application date are listed on it
-BeginDialog verifs_dialog, 0, 0, 401, 70, "Verifications Needed"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 401, 70, "Verifications Needed"
   EditBox 90, 5, 305, 15, verifs_needed
   EditBox 305, 30, 90, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -97,10 +97,13 @@ BeginDialog verifs_dialog, 0, 0, 401, 70, "Verifications Needed"
 EndDialog
 
 'Runs the dialog to allow workers to sign and to list verifications needed
-Do
-	Dialog verifs_dialog
-	If ButtonPressed = Cancel Then StopScript
-Loop until ButtonPressed = OK
+Do 
+    Do
+    	Dialog Dialog1
+    	Cancel_without_confirmation
+    Loop until ButtonPressed = OK
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'The script checks to make sure it is on the NOTES main list
 EMReadScreen notes_check, 9, 2, 33
