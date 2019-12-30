@@ -51,7 +51,19 @@ call changelog_update("12/12/2018", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-BeginDialog ABAWD_dialog, 0, 0, 176, 145, "Counted ABAWD months"
+
+
+'The script============================================================================================================================
+'Connects to MAXIS, grabbing the case MAXIS_case_number
+EMConnect ""
+EMReadScreen check_for_tracking_record, 21, 4, 34                       'to ensure users are not in the ABAWD Tracking Record
+If check_for_tracking_record = "ABAWD Tracking Record" Then PF3
+Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+HH_memb = "01"
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 176, 145, "Counted ABAWD months"
   EditBox 85, 65, 50, 15, MAXIS_case_number
   EditBox 85, 85, 20, 15, HH_memb
   EditBox 85, 105, 20, 15, MAXIS_footer_month
@@ -65,21 +77,11 @@ BeginDialog ABAWD_dialog, 0, 0, 176, 145, "Counted ABAWD months"
   Text 15, 110, 65, 10, "Footer month/year:"
   Text 15, 20, 150, 35, "This script will provide information regarding public assistance issuanceson the case, and what is marked on the ABAWD tracking record for each member."
 EndDialog
-
-'The script============================================================================================================================
-'Connects to MAXIS, grabbing the case MAXIS_case_number
-EMConnect ""
-EMReadScreen check_for_tracking_record, 21, 4, 34                       'to ensure users are not in the ABAWD Tracking Record
-If check_for_tracking_record = "ABAWD Tracking Record" Then PF3
-Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-HH_memb = "01"
-
 'Main dialog: user will input case number and initial month/year will default to current month - 1 and member 01 as member number
 DO
 	DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-		dialog ABAWD_dialog				'main dialog
+		dialog Dialog1				'main dialog
 		If buttonpressed = 0 THEN stopscript	'script ends if cancel is selected
 		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "* Enter a valid case number."		'mandatory field
 		IF len(HH_memb) <> 2 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "* Enter a valid 2-digit member number."		'mandatory field
