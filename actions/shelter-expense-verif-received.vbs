@@ -50,8 +50,15 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'THE DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connecting to Bluezone & grabbing case number and footer year/month
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+hh_member = "01"
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 146, 70, "Case number dialog"
   EditBox 80, 5, 60, 15, MAXIS_case_number
   EditBox 80, 25, 25, 15, MAXIS_footer_month
   EditBox 115, 25, 25, 15, MAXIS_footer_year
@@ -62,8 +69,50 @@ BeginDialog case_number_dialog, 0, 0, 146, 70, "Case number dialog"
   Text 10, 10, 45, 10, "Case number: "
 EndDialog
 
+Do
+    DO
+    	DO
+    		Dialog Dialog1																'calls up dialog for worker to enter case number and applicable month and year.	 Script will 'loop'
+    		IF buttonpressed = 0 THEN StopScript						   'and verbally request the worker to enter a case number until the worker enters a case number.
+    		IF MAXIS_case_number = "" THEN MsgBox "You must enter a case number"
+    	LOOP UNTIL MAXIS_case_number <> ""
+
+    	'Getting to the correct benefit month
+    	CALL find_variable("Month: ", benefit_month, 5)
+    	benefit_month = replace(benefit_month, " ", "/")
+    	IF benefit_month <> MAXIS_footer_month & "/" & MAXIS_footer_year THEN
+    		back_to_SELF
+    		EMWriteScreen "STAT", 16, 43
+    		EMWriteScreen "________", 18, 43
+    		EMWriteScreen MAXIS_case_number, 18, 43
+    		EMWriteScreen MAXIS_footer_month, 20, 43
+    		EMWriteScreen MAXIS_footer_year, 20, 46
+    		transmit
+
+    		'Checking to see if the case is stuck in background.
+    		row = 1
+    		col = 1
+    		EMSearch "BACKGROUND", row, col
+    		IF row <> 0 THEN script_end_procedure("The case is stuck in background. Please try again.")
+    		'Checking to see if the case is privileged.
+    		EMReadScreen privileged_check, 60, 24, 2
+    		IF InStr(privileged_check, "PRIVILEGE") <> 0 THEN script_end_procedure("You do not have access to this case. The script will now stop.")
+    	END IF
+    	valid_case_number = True
+    	row = 1
+    	col = 1
+    	EMSearch "INVALID CASE NUMBER", row, col
+    	IF row <> 0 THEN
+    		MsgBox "The case number you entered is not a valid MAXIS case number. Please try again."
+    		valid_case_number = False
+    	END IF
+    LOOP UNTIL valid_case_number = True
+    Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
+
 '>>>>>THE NEW DIALOG<<<<<
-BeginDialog shelter_form_received_dialog, 0, 0, 276, 395, "Shelter Expenses Dialog"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 276, 395, "Shelter Expenses Dialog"
   EditBox 105, 10, 60, 15, agency_received_date
   EditBox 245, 10, 20, 15, hh_member
   EditBox 45, 35, 45, 15, unit_rent
@@ -108,95 +157,35 @@ BeginDialog shelter_form_received_dialog, 0, 0, 276, 395, "Shelter Expenses Dial
   Text 195, 15, 40, 10, "HH Member"
 EndDialog
 
+Do
+    DO
+    	err_msg = ""
+    	DIALOG Dialog1
 
-'>>>>> DLG FOR ADDITIONAL SHEL INFO <<<<<
-BeginDialog shel_dlg, 0, 0, 141, 150, "Additional SHEL Info Required"
-  ButtonGroup ButtonPressed
-    OkButton 35, 125, 50, 15
-    CancelButton 85, 125, 50, 15
-  Text 10, 15, 55, 10, "Landlord Name:"
-  EditBox 70, 10, 65, 15, landlord_name
-  Text 20, 55, 45, 10, "Rent"
-  Text 20, 75, 45, 10, "Garage"
-  Text 20, 95, 45, 10, "Subsidy"
-  EditBox 75, 50, 50, 15, retro_rent
-  EditBox 75, 70, 50, 15, retro_garage
-  EditBox 75, 90, 50, 15, retro_subsidy
-  GroupBox 10, 35, 125, 80, "Retro Information"
-EndDialog
-
-
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connecting to Bluezone & grabbing case number and footer year/month
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-hh_member = "01"
-
-DO
-	DO
-		Dialog case_number_dialog																'calls up dialog for worker to enter case number and applicable month and year.	 Script will 'loop'
-		IF buttonpressed = 0 THEN StopScript						   'and verbally request the worker to enter a case number until the worker enters a case number.
-		IF MAXIS_case_number = "" THEN MsgBox "You must enter a case number"
-	LOOP UNTIL MAXIS_case_number <> ""
-
-	'Getting to the correct benefit month
-	CALL find_variable("Month: ", benefit_month, 5)
-	benefit_month = replace(benefit_month, " ", "/")
-	IF benefit_month <> MAXIS_footer_month & "/" & MAXIS_footer_year THEN
-		back_to_SELF
-		EMWriteScreen "STAT", 16, 43
-		EMWriteScreen "________", 18, 43
-		EMWriteScreen MAXIS_case_number, 18, 43
-		EMWriteScreen MAXIS_footer_month, 20, 43
-		EMWriteScreen MAXIS_footer_year, 20, 46
-		transmit
-
-		'Checking to see if the case is stuck in background.
-		row = 1
-		col = 1
-		EMSearch "BACKGROUND", row, col
-		IF row <> 0 THEN script_end_procedure("The case is stuck in background. Please try again.")
-		'Checking to see if the case is privileged.
-		EMReadScreen privileged_check, 60, 24, 2
-		IF InStr(privileged_check, "PRIVILEGE") <> 0 THEN script_end_procedure("You do not have access to this case. The script will now stop.")
-	END IF
-	valid_case_number = True
-	row = 1
-	col = 1
-	EMSearch "INVALID CASE NUMBER", row, col
-	IF row <> 0 THEN
-		MsgBox "The case number you entered is not a valid MAXIS case number. Please try again."
-		valid_case_number = False
-	END IF
-LOOP UNTIL valid_case_number = True
-
-DO
-	err_msg = ""
-	DIALOG shelter_form_received_dialog
-		cancel_confirmation
-		'Enforcing required fields
-		IF agency_received_date = "" THEN err_msg = err_msg & vbCr & "* Please indicate the date the document was received by the agency."
-		IF agency_received_date <> "" AND IsDate(agency_received_date) = TRUE THEN
-			IF DateDiff("D", agency_received_date, date) < 0 THEN err_msg = err_msg & vbCr & "* You may not enter a future date for the date the form was received by the agency."
-		ELSEIF agency_received_date <> "" AND IsDate(agency_received_date) = FALSE THEN
-			err_msg = err_msg & vbCr & "* Please enter a valid date for the date the form was received by the agency."
-		END IF
-		IF hh_member = "" THEN err_msg = err_msg & vbCr & "* Please indicate the household member."
-		IF unit_rent = "" THEN err_msg = err_msg & vbCr & "* Please indicate the unit rent."
-		IF subsidy_check = 1 AND subsidy_amount = "" THEN err_msg = err_msg & vbCr & "* Please indicate the amount of the client's subisdy."
-		IF subsidy_check = 1 AND subsidy_amount <> "" AND client_share = "" THEN err_msg = err_msg & vbCr & "* Please indicate what the client's share is after the subsidy is applied."
-		IF garage_check = 1 AND garage_amount = "" THEN err_msg = err_msg & vbCr & "* Please indicate the amount for the garage."
-		IF room_and_board_check = 1 AND room_board_notes = "" THEN err_msg = err_msg & vbCr & "* You indicated that the client's rent is room and board. Please provide detailed notes about the room and board situation."
-		IF utilities_paid_listbox = "Select one..." THEN err_msg = err_msg & vbCr & "* Please indicate which, if any, utilities are paid by the client."
-		IF move_in_date <> "" THEN
-			IF IsDate(move_in_date) = False THEN err_msg = err_msg & vbCr & "* Please enter the client move-in date as a valid date."
-		END IF
-		IF actions_taken = "" THEN err_msg = err_msg & vbCr & "* Please indicate the actions you have taken."
-		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-LOOP UNTIL err_msg = ""
+    	cancel_confirmation
+    	'Enforcing required fields
+    	IF agency_received_date = "" THEN err_msg = err_msg & vbCr & "* Please indicate the date the document was received by the agency."
+    	IF agency_received_date <> "" AND IsDate(agency_received_date) = TRUE THEN
+    		IF DateDiff("D", agency_received_date, date) < 0 THEN err_msg = err_msg & vbCr & "* You may not enter a future date for the date the form was received by the agency."
+    	ELSEIF agency_received_date <> "" AND IsDate(agency_received_date) = FALSE THEN
+    		err_msg = err_msg & vbCr & "* Please enter a valid date for the date the form was received by the agency."
+    	END IF
+    	IF hh_member = "" THEN err_msg = err_msg & vbCr & "* Please indicate the household member."
+    	IF unit_rent = "" THEN err_msg = err_msg & vbCr & "* Please indicate the unit rent."
+    	IF subsidy_check = 1 AND subsidy_amount = "" THEN err_msg = err_msg & vbCr & "* Please indicate the amount of the client's subisdy."
+    	IF subsidy_check = 1 AND subsidy_amount <> "" AND client_share = "" THEN err_msg = err_msg & vbCr & "* Please indicate what the client's share is after the subsidy is applied."
+    	IF garage_check = 1 AND garage_amount = "" THEN err_msg = err_msg & vbCr & "* Please indicate the amount for the garage."
+    	IF room_and_board_check = 1 AND room_board_notes = "" THEN err_msg = err_msg & vbCr & "* You indicated that the client's rent is room and board. Please provide detailed notes about the room and board situation."
+    	IF utilities_paid_listbox = "Select one..." THEN err_msg = err_msg & vbCr & "* Please indicate which, if any, utilities are paid by the client."
+    	IF move_in_date <> "" THEN
+    		IF IsDate(move_in_date) = False THEN err_msg = err_msg & vbCr & "* Please enter the client move-in date as a valid date."
+    	END IF
+    	IF actions_taken = "" THEN err_msg = err_msg & vbCr & "* Please indicate the actions you have taken."
+    	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+    LOOP UNTIL err_msg = ""
+    Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)
@@ -264,14 +253,34 @@ ELSE
 		retro_subsidy = replace(retro_subsidy, "_", "")
 		retro_subsidy = trim(retro_subsidy)
 
+    '>>>>> DLG FOR ADDITIONAL SHEL INFO <<<<<
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 141, 150, "Additional SHEL Info Required"
+      ButtonGroup ButtonPressed
+        OkButton 35, 125, 50, 15
+        CancelButton 85, 125, 50, 15
+      Text 10, 15, 55, 10, "Landlord Name:"
+      EditBox 70, 10, 65, 15, landlord_name
+      Text 20, 55, 45, 10, "Rent"
+      Text 20, 75, 45, 10, "Garage"
+      Text 20, 95, 45, 10, "Subsidy"
+      EditBox 75, 50, 50, 15, retro_rent
+      EditBox 75, 70, 50, 15, retro_garage
+      EditBox 75, 90, 50, 15, retro_subsidy
+      GroupBox 10, 35, 125, 80, "Retro Information"
+    EndDialog
+
 	'Running the retro dialog
-	DO
-		err_msg = ""
-		DIALOG shel_dlg
-			cancel_confirmation
-			IF landlord_name = "" THEN err_msg = err_msg & vbCr & "* Please enter a landlord name."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-	LOOP UNTIL err_msg = ""
+    Do
+    	DO
+    		err_msg = ""
+    		DIALOG Dialog1
+    		cancel_confirmation
+    		IF landlord_name = "" THEN err_msg = err_msg & vbCr & "* Please enter a landlord name."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+    	LOOP UNTIL err_msg = ""
+        Call check_for_password(are_we_passworded_out)
+    Loop until are_we_passworded_out = FALSE
 
 	CALL check_for_MAXIS(false)
 
