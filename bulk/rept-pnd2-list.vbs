@@ -57,17 +57,11 @@ changelog_display
 FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
 	'Getting to REPT/USER
 	CALL navigate_to_MAXIS_screen("REPT", "USER")
-
-
 	'Sorting by supervisor
 	PF5
 	PF5
-
-
 	'Reseting array_name
 	array_name = ""
-
-
 	'Splitting the list of inputted supervisors...
 	supervisor_array = replace(supervisor_array, " ", "")
 	supervisor_array = split(supervisor_array, ",")
@@ -75,8 +69,6 @@ FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 		IF unit_supervisor <> "" THEN
 			'Entering the supervisor number and sending a transmit
 			CALL write_value_and_transmit(unit_supervisor, 21, 12)
-
-
 			MAXIS_row = 7
 			DO
 				EMReadScreen worker_ID, 8, MAXIS_row, 5
@@ -97,8 +89,15 @@ FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 	array_name = split(array_name)
 END FUNCTION
 
-'DIALOG-----------------------------------------------------------------------------------------
-BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 135, "Pull REPT data into Excel dialog"
+'THE SCRIPT-------------------------------------------------------------------------
+'Gathering county code for multi-county...
+get_county_code
+
+'Connects to BlueZone
+EMConnect ""
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 286, 135, "Pull REPT data into Excel dialog"
   EditBox 135, 20, 145, 15, worker_number
   CheckBox 70, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
   CheckBox 70, 80, 205, 10, "Check here to add last case note information to spreadsheet.", case_note_check
@@ -119,17 +118,10 @@ BeginDialog pull_REPT_data_into_excel_dialog, 0, 0, 286, 135, "Pull REPT data in
   Text 70, 95, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
 EndDialog
 
-'THE SCRIPT-------------------------------------------------------------------------
-'Gathering county code for multi-county...
-get_county_code
-
-'Connects to BlueZone
-EMConnect ""
-
 'Dialog asks what stats are being pulled
 Do
-	Dialog pull_REPT_data_into_excel_dialog
-	If buttonpressed = cancel then stopscript
+	Dialog Dialog1
+	cancel_without_confirmation
 	Call check_for_password(are_we_passworded_out)
 Loop until check_for_password(are_we_passworded_out) = False		'loops until user is password-ed out
 
