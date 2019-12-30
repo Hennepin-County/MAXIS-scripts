@@ -61,17 +61,6 @@ call changelog_update("09/11/2017", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------
-
-BeginDialog dialog1, 0, 0, 236, 70, "National Directory of New Hires"
-  DropListBox 150, 5, 80, 15, "Select One:"+chr(9)+"NO-RUN NEW HIRE"+chr(9)+"YES-INFC clear match", match_answer_droplist
-  ButtonGroup ButtonPressed
-    OkButton 125, 50, 50, 15
-    CancelButton 180, 50, 50, 15
-  Text 10, 10, 140, 10, "Has this match been acted on previously?"
-  Text 30, 25, 190, 20, "Reminder that client must be provided 10 days to return                             requested verification(s)"
-EndDialog
-
 '----------------------------------------------------------------------------------------------------------Script
 EMConnect ""
 'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
@@ -80,45 +69,28 @@ If dail_check <> "DAIL" then script_end_procedure("You are not in your DAIL. Thi
 'TYPES "T" TO BRING THE SELECTED MESSAGE TO THE TOP
 EMSendKey "t"
 transmit
+
+'DIALOGS----------------------------------------------------------------------------------------------
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 236, 70, "National Directory of New Hires"
+  DropListBox 150, 5, 80, 15, "Select One:"+chr(9)+"NO-RUN NEW HIRE"+chr(9)+"YES-INFC clear match", match_answer_droplist
+  ButtonGroup ButtonPressed
+    OkButton 125, 50, 50, 15
+    CancelButton 180, 50, 50, 15
+  Text 10, 10, 140, 10, "Has this match been acted on previously?"
+  Text 30, 25, 190, 20, "Reminder that client must be provided 10 days to return                             requested verification(s)"
+EndDialog
+
 Do
 	DO
 		err_msg = ""
-		Dialog dialog1
-		cancel_confirmation
-		IF match_answer_droplist = "Select One:" THEN MsgBox("You must select an answer.")
-	LOOP UNTIL match_answer_droplist <> "Select One:"
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-LOOP UNTIL err_msg = ""
-
-    'This is a dialog asking if the job is known to the agency.
-	dialog1 = ""
-	BeginDialog dialog1, 0, 0, 281, 195, "NEW HIRE INFORMATION"
-	  EditBox 65, 5, 20, 15, HH_memb
-	  EditBox 65, 25, 95, 15, employer
-	  CheckBox 15, 45, 190, 10, "Check here to have the script create a new JOBS panel.", create_JOBS_checkbox
-	  CheckBox 15, 55, 160, 10, "Job is known to the agency (exit the script).", job_known_checkbox
-	  CheckBox 15, 80, 195, 10, "Sent a request for verifications out of ECF.", ECF_checkbox
-	  CheckBox 15, 90, 190, 10, "Sent a Work Number request and submitted to ECF. ", work_number_checkbox
-	  CheckBox 15, 100, 100, 10, "Requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
-	  CheckBox 15, 110, 105, 10, "Sent a status update to CCA.", CCA_checkbox
-	  CheckBox 15, 120, 100, 10, "Sent a status update to ES. ", ES_checkbox
-	  CheckBox 15, 140, 135, 10, "Check to have an outlook reminder set", Outlook_reminder_checkbox
-	  EditBox 65, 155, 210, 15, other_notes
-	  EditBox 65, 175, 110, 15, worker_signature
-	  ButtonGroup ButtonPressed
-	    OkButton 190, 175, 40, 15
-	    CancelButton 235, 175, 40, 15
-	    PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
-	    PushButton 175, 25, 45, 10, "next panel", next_panel_button
-	    PushButton 225, 15, 45, 10, "prev. memb", prev_memb_button
-	    PushButton 225, 25, 45, 10, "next memb", next_memb_button
-	  Text 5, 180, 60, 10, "Worker signature:"
-	  GroupBox 170, 5, 105, 35, "STAT-based navigation"
-	  Text 5, 30, 50, 10, "New Hire Info:"
-	  Text 20, 160, 40, 10, "Other notes:"
-	  Text 5, 10, 60, 10, "Member Number:"
-	  GroupBox 5, 70, 270, 65, "Verification or updates"
-	EndDialog
+		Dialog Dialog1
+		Cancel_without_confirmation
+		IF match_answer_droplist = "Select One:" THEN err_msg = error_msg & ("You must select an answer.")
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'The script needs to determine what the day is in a MAXIS friendly format. The following does that.
 current_month = CM_mo
@@ -132,7 +104,6 @@ transmit
 
 EmReadscreen MAXIS_case_number, 8, 6, 57
 MAXIS_case_number = Trim(MAXIS_case_number)
-
 
 row = 1
 col = 1
@@ -217,6 +188,37 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
 	If MFIP_case = False then create_JOBS_checkbox = checked
 	'Setting the variable for the following do...loop
 	HH_memb_row = 5
+    
+    'This is a dialog asking if the job is known to the agency.
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 281, 195, "NEW HIRE INFORMATION"
+      EditBox 65, 5, 20, 15, HH_memb
+      EditBox 65, 25, 95, 15, employer
+      CheckBox 15, 45, 190, 10, "Check here to have the script create a new JOBS panel.", create_JOBS_checkbox
+      CheckBox 15, 55, 160, 10, "Job is known to the agency (exit the script).", job_known_checkbox
+      CheckBox 15, 80, 195, 10, "Sent a request for verifications out of ECF.", ECF_checkbox
+      CheckBox 15, 90, 190, 10, "Sent a Work Number request and submitted to ECF. ", work_number_checkbox
+      CheckBox 15, 100, 100, 10, "Requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
+      CheckBox 15, 110, 105, 10, "Sent a status update to CCA.", CCA_checkbox
+      CheckBox 15, 120, 100, 10, "Sent a status update to ES. ", ES_checkbox
+      CheckBox 15, 140, 135, 10, "Check to have an outlook reminder set", Outlook_reminder_checkbox
+      EditBox 65, 155, 210, 15, other_notes
+      EditBox 65, 175, 110, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 190, 175, 40, 15
+        CancelButton 235, 175, 40, 15
+        PushButton 175, 15, 45, 10, "prev. panel", prev_panel_button
+        PushButton 175, 25, 45, 10, "next panel", next_panel_button
+        PushButton 225, 15, 45, 10, "prev. memb", prev_memb_button
+        PushButton 225, 25, 45, 10, "next memb", next_memb_button
+      Text 5, 180, 60, 10, "Worker signature:"
+      GroupBox 170, 5, 105, 35, "STAT-based navigation"
+      Text 5, 30, 50, 10, "New Hire Info:"
+      Text 20, 160, 40, 10, "Other notes:"
+      Text 5, 10, 60, 10, "Member Number:"
+      GroupBox 5, 70, 270, 65, "Verification or updates"
+    EndDialog
+    
 'Show dialog
 	DO
 	    DO
@@ -304,14 +306,9 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
     CALL write_variable_in_case_note(worker_signature)
     PF3
 
-reminder_date = dateadd("d", 10, date)  'Setting out for 10 days reminder
+    reminder_date = dateadd("d", 10, date)  'Setting out for 10 days reminder
 
-If Outlook_reminder_checkbox = CHECKED THEN
-'and application_status_droplist <> "Case is ready to approve or deny" THEN
-	'Outlook appointment is created in prior to the case note being created
-	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
-	CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "New Hire recieved " & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
-End if
+    If Outlook_reminder_checkbox = CHECKED THEN CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "New Hire recieved " & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
 
 	Call navigate_to_MAXIS_screen("DAIL", "WRIT")
     CALL create_MAXIS_friendly_date(date, 10, 5, 18)   'The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
@@ -321,27 +318,6 @@ End if
 END IF
 
 IF match_answer_droplist = "YES-INFC clear match" THEN
-'This is a dialog asking if the job is known to the agency.
-    dialog1 = ""
-    BeginDialog dialog1, 0, 0, 281, 190, "NDNH Match Resolution Information"
-      CheckBox 10, 15, 265, 10, "Check here to verify that ECF has been reviewed and acted upon appropriately", ECF_checkbox
-      DropListBox 170, 35, 95, 15, "Select One:"+chr(9)+"YES-No Further Action"+chr(9)+"NO-See Next Question", Emp_known_droplist
-      DropListBox 170, 55, 95, 15, "Select One:"+chr(9)+"NA-No Action Taken"+chr(9)+"BR-Benefits Reduced"+chr(9)+"CC-Case Closed", Action_taken_droplist
-      EditBox 220, 75, 45, 15, cost_savings
-      EditBox 55, 95, 210, 15, other_notes
-      CheckBox 10, 125, 260, 10, "Check here if 10 day cutoff has passed - TIKL will be set for following month", tenday_checkbox
-      CheckBox 10, 150, 185, 10, "Check to update claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
-      ButtonGroup ButtonPressed
-        OkButton 170, 170, 50, 15
-        CancelButton 225, 170, 50, 15
-      GroupBox 5, 5, 270, 25, "ECF review"
-      Text 10, 40, 145, 10, "Was this employment known to the agency?"
-      Text 10, 60, 155, 10, "If unknown: what action was taken by agency?"
-      Text 10, 80, 155, 10, "First month cost savings (enter only numbers):"
-      Text 10, 100, 40, 10, "Other notes:"
-      GroupBox 5, 115, 270, 25, "10 day cutoff for closure"
-      GroupBox 5, 140, 270, 25, "Claim Referral Tracking"
-    EndDialog
 	'naviagting into INFC'
 	EMSendKey "I"
 	transmit
@@ -380,10 +356,32 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 		END IF
 	LOOP UNTIL case_number = ""
 	IF hire_match <> TRUE THEN script_end_procedure("No pending HIRE match found. Please review NEW HIRE.")
+    
+    'This is a dialog asking if the job is known to the agency.
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 281, 190, "NDNH Match Resolution Information"
+          CheckBox 10, 15, 265, 10, "Check here to verify that ECF has been reviewed and acted upon appropriately", ECF_checkbox
+          DropListBox 170, 35, 95, 15, "Select One:"+chr(9)+"YES-No Further Action"+chr(9)+"NO-See Next Question", Emp_known_droplist
+          DropListBox 170, 55, 95, 15, "Select One:"+chr(9)+"NA-No Action Taken"+chr(9)+"BR-Benefits Reduced"+chr(9)+"CC-Case Closed", Action_taken_droplist
+          EditBox 220, 75, 45, 15, cost_savings
+          EditBox 55, 95, 210, 15, other_notes
+          CheckBox 10, 125, 260, 10, "Check here if 10 day cutoff has passed - TIKL will be set for following month", tenday_checkbox
+          CheckBox 10, 150, 185, 10, "Check to update claim referral tracking(SNAP and MF)", claim_referral_tracking_checkbox
+          ButtonGroup ButtonPressed
+            OkButton 170, 170, 50, 15
+            CancelButton 225, 170, 50, 15
+          GroupBox 5, 5, 270, 25, "ECF review"
+          Text 10, 40, 145, 10, "Was this employment known to the agency?"
+          Text 10, 60, 155, 10, "If unknown: what action was taken by agency?"
+          Text 10, 80, 155, 10, "First month cost savings (enter only numbers):"
+          Text 10, 100, 40, 10, "Other notes:"
+          GroupBox 5, 115, 270, 25, "10 day cutoff for closure"
+          GroupBox 5, 140, 270, 25, "Claim Referral Tracking"
+        EndDialog
 	DO
 		DO
 			err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-			Dialog dialog1
+			Dialog Dialog1
 			cancel_confirmation
 			IF ECF_checkbox = UNCHECKED THEN err_msg = err_msg & vbCr & "* You must check that you reviewed ECF and the HIRE was acted on appropriately."
 			IF Emp_known_droplist = "Select One:" THEN err_msg = err_msg & vbCr & "* You must select yes or no for was this employment known to the agency?"
