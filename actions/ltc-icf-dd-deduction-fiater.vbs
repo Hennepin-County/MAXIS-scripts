@@ -50,8 +50,14 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'Dialogs____________________________________________________________________________________________________________
-BeginDialog case_number_dialog, 0, 0, 141, 70, "Case number"
+'THE SCRIPT========================================================================================
+'This connects to Bluezone
+EMConnect ""
+call MAXIS_case_number_finder(MAXIS_case_number)
+call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 141, 70, "Case number"
   EditBox 80, 5, 55, 15, MAXIS_case_number
   EditBox 80, 25, 25, 15, MAXIS_footer_month
   EditBox 110, 25, 25, 15, MAXIS_footer_year
@@ -62,57 +68,11 @@ BeginDialog case_number_dialog, 0, 0, 141, 70, "Case number"
   Text 10, 30, 65, 10, "Footer month/year:"
 EndDialog
 
-BeginDialog LTC_ICFDD_Fiater_dialog, 0, 0, 286, 190, "LTC-ICF-DD Fiater"
-  ButtonGroup ButtonPressed
-    OkButton 175, 170, 50, 15
-    CancelButton 230, 170, 50, 15
-  EditBox 90, 65, 40, 15, special_pers_allow
-  EditBox 90, 85, 40, 15, Federal_tax
-  EditBox 90, 105, 40, 15, state_tax
-  EditBox 90, 125, 40, 15, FICA_witheld
-  EditBox 90, 145, 40, 15, transportation_expense
-  EditBox 220, 65, 40, 15, meals_expense
-  EditBox 220, 85, 40, 15, uniform_expense
-  EditBox 220, 105, 40, 15, tools_expense
-  EditBox 220, 125, 40, 15, dues_expense
-  EditBox 220, 145, 40, 15, other_expense
-  ButtonGroup ButtonPressed
-    PushButton 150, 20, 35, 10, "ELIG/HC", ELIG_HC_button
-    PushButton 185, 20, 25, 10, "FACI", FACI_button
-    PushButton 225, 20, 25, 10, "JOBS", JOBS_button
-    PushButton 250, 20, 25, 10, "UNEA", UNEA_button
-    PushButton 150, 35, 25, 10, "BILS", BILS_button
-    PushButton 175, 35, 25, 10, "INSA", INSA_button
-    PushButton 200, 35, 25, 10, "MEDI", MEDI_button
-    PushButton 225, 35, 25, 10, "PDED", PDED_button
-    PushButton 250, 35, 25, 10, "WKEX", WKEX_button
-  Text 10, 90, 45, 10, "Federal Tax:"
-  Text 150, 130, 20, 10, "Dues:"
-  Text 10, 70, 80, 10, "Special Pers Allowance:"
-  Text 150, 150, 30, 10, "Other:"
-  Text 10, 110, 40, 10, "State Tax:"
-  Text 10, 130, 25, 10, "FICA:"
-  Text 150, 90, 35, 10, "Uniforms:"
-  Text 10, 150, 55, 10, "Transportation:"
-  GroupBox 145, 10, 135, 40, "STAT based navigation"
-  Text 150, 110, 25, 10, "Tools:"
-  GroupBox 5, 55, 275, 110, "WKEX deductions"
-  GroupBox 5, 10, 135, 40, "Unsure of what to deduct?"
-  Text 10, 25, 125, 20, "HCPM 23.15.10 covers allowable LTC income deductions."
-  Text 150, 70, 25, 10, "Meals:"
-EndDialog
-
-'THE SCRIPT========================================================================================
-'This connects to Bluezone
-EMConnect ""
-call MAXIS_case_number_finder(MAXIS_case_number)
-call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
 'Shows case number dialog
 DO
-    Do 
+    Do
 	   err_msg = ""
-        dialog case_number_dialog
+        dialog Dialog1
         cancel_without_confirmation
         IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "Enter a valid case number."		'mandatory field
         If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
@@ -223,10 +183,51 @@ ELSE
 	special_pers_allow = "80.00"		'otherwise deduction is $80
 END IF
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 286, 190, "LTC-ICF-DD Fiater"
+  ButtonGroup ButtonPressed
+    OkButton 175, 170, 50, 15
+    CancelButton 230, 170, 50, 15
+  EditBox 90, 65, 40, 15, special_pers_allow
+  EditBox 90, 85, 40, 15, Federal_tax
+  EditBox 90, 105, 40, 15, state_tax
+  EditBox 90, 125, 40, 15, FICA_witheld
+  EditBox 90, 145, 40, 15, transportation_expense
+  EditBox 220, 65, 40, 15, meals_expense
+  EditBox 220, 85, 40, 15, uniform_expense
+  EditBox 220, 105, 40, 15, tools_expense
+  EditBox 220, 125, 40, 15, dues_expense
+  EditBox 220, 145, 40, 15, other_expense
+  ButtonGroup ButtonPressed
+    PushButton 150, 20, 35, 10, "ELIG/HC", ELIG_HC_button
+    PushButton 185, 20, 25, 10, "FACI", FACI_button
+    PushButton 225, 20, 25, 10, "JOBS", JOBS_button
+    PushButton 250, 20, 25, 10, "UNEA", UNEA_button
+    PushButton 150, 35, 25, 10, "BILS", BILS_button
+    PushButton 175, 35, 25, 10, "INSA", INSA_button
+    PushButton 200, 35, 25, 10, "MEDI", MEDI_button
+    PushButton 225, 35, 25, 10, "PDED", PDED_button
+    PushButton 250, 35, 25, 10, "WKEX", WKEX_button
+  Text 10, 90, 45, 10, "Federal Tax:"
+  Text 150, 130, 20, 10, "Dues:"
+  Text 10, 70, 80, 10, "Special Pers Allowance:"
+  Text 150, 150, 30, 10, "Other:"
+  Text 10, 110, 40, 10, "State Tax:"
+  Text 10, 130, 25, 10, "FICA:"
+  Text 150, 90, 35, 10, "Uniforms:"
+  Text 10, 150, 55, 10, "Transportation:"
+  GroupBox 145, 10, 135, 40, "STAT based navigation"
+  Text 150, 110, 25, 10, "Tools:"
+  GroupBox 5, 55, 275, 110, "WKEX deductions"
+  GroupBox 5, 10, 135, 40, "Unsure of what to deduct?"
+  Text 10, 25, 125, 20, "HCPM 23.15.10 covers allowable LTC income deductions."
+  Text 150, 70, 25, 10, "Meals:"
+EndDialog
+
 'Shows the LTC_ICFDD_Fiater_dialog
 DO
 	DO
-		dialog LTC_ICFDD_Fiater_dialog
+		dialog Dialog1
 		cancel_confirmation
 		MAXIS_Dialog_navigation
 	Loop until ButtonPressed = -1 							' - 1 is OK button
