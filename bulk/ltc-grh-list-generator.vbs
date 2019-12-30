@@ -58,7 +58,8 @@ EMConnect ""
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'DIALOG TO DETERMINE WHERE TO GO IN MAXIS TO GET THE INFO
-BeginDialog LTC_GRH_list_generator_dialog, 0, 0, 266, 130, "LTC-GRH list generator dialog"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 266, 130, "LTC-GRH list generator dialog"
   DropListBox 70, 10, 60, 15, "REPT/ACTV"+chr(9)+"REPT/REVS"+chr(9)+"REPT/REVW", REPT_panel
   EditBox 215, 10, 20, 15, MAXIS_footer_month
   EditBox 240, 10, 20, 15, MAXIS_footer_year
@@ -82,8 +83,8 @@ EndDialog
 Do 
 	Do 	
 		err_msg = ""
-		Dialog LTC_GRH_list_generator_dialog
-		If buttonpressed = cancel then stopscript
+		Dialog Dialog1 
+		Cancel_without_confirmation
 		If worker_number = "" then err_msg = err_msg & vbnewline & "* Enter at least one worker number."
 		If isnumeric(MAXIS_footer_month) = false then err_msg = err_msg & vbnewline & "* Enter the footer month."
 		If isnumeric(MAXIS_footer_year) = false then err_msg = err_msg & vbnewline & "* Enter the footer year."
