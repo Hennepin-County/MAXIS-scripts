@@ -53,21 +53,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS-------------------------------------------------------------------------------------------------------------
-BeginDialog EXP_SNAP_review_dialog, 0, 0, 286, 185, "EXP SNAP review "
-  EditBox 75, 10, 205, 15, worker_number
-  CheckBox 25, 50, 140, 10, "Check here to run this query county-wide ", all_workers_check
-  ButtonGroup ButtonPressed
-    OkButton 175, 45, 50, 15
-    CancelButton 230, 45, 50, 15
-  Text 5, 15, 65, 10, "Worker(s) to check:"
-  Text 10, 90, 270, 20, "This script will create a list of cases that should be reviewed for expedited SNAP eligibilty from REPT/PND1 and REPT/PND2."
-  Text 5, 30, 275, 10, "Enter all 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
-  GroupBox 5, 75, 280, 105, "BULK - Expedited SNAP review"
-  Text 10, 115, 270, 30, "* The REPT/PND1 list of cases will include ALL cases that do not have a case note that identifies the case as not expedited. This includes cases that are not pending for SNAP since REPT/PND1 does not make the distinction."
-  Text 10, 145, 270, 25, "*The REPT/PND2 list of cases will identify ALL cases that are pending for SNAP (or MFIP if SNAP isn't active) that do not have a case note that identifies the case as not expedited."
-EndDialog
-
 'Custom function for this script only: navigates to and checks case note for EXP screening case note--appears_exp will be input into the pending array, pending_array will
 FUNCTION EXP_case_note_determination(appears_exp, pending_array)
 	Call navigate_to_MAXIS_screen("CASE", "NOTE")
@@ -111,12 +96,26 @@ END FUNCTION
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------
 EMConnect ""
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 286, 185, "EXP SNAP review "
+  EditBox 75, 10, 205, 15, worker_number
+  CheckBox 25, 50, 140, 10, "Check here to run this query county-wide ", all_workers_check
+  ButtonGroup ButtonPressed
+    OkButton 175, 45, 50, 15
+    CancelButton 230, 45, 50, 15
+  Text 5, 15, 65, 10, "Worker(s) to check:"
+  Text 10, 90, 270, 20, "This script will create a list of cases that should be reviewed for expedited SNAP eligibilty from REPT/PND1 and REPT/PND2."
+  Text 5, 30, 275, 10, "Enter all 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
+  GroupBox 5, 75, 280, 105, "BULK - Expedited SNAP review"
+  Text 10, 115, 270, 30, "* The REPT/PND1 list of cases will include ALL cases that do not have a case note that identifies the case as not expedited. This includes cases that are not pending for SNAP since REPT/PND1 does not make the distinction."
+  Text 10, 145, 270, 25, "*The REPT/PND2 list of cases will identify ALL cases that are pending for SNAP (or MFIP if SNAP isn't active) that do not have a case note that identifies the case as not expedited."
+EndDialog
 'Shows dialog
 DO
 	Do
 		err_msg = ""
-    	Dialog EXP_SNAP_review_dialog
-    	If buttonpressed = cancel then cancel_without_confirmation
+    	Dialog Dialog1
+        cancel_without_confirmation
         If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
         If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
