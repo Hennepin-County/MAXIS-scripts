@@ -57,8 +57,13 @@ SPEC_MEMO_check = checked		'Should default to checked, as we usually want to sen
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
-'----------DIALOGS----------
-BeginDialog xfer_menu_dialog, 0, 0, 156, 80, "Case XFER"
+'----------THE SCRIPT----------
+EMConnect ""
+
+check_for_MAXIS(True)
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 156, 80, "Case XFER"
   OptionGroup XFERRadioGroup
     RadioButton 30, 25, 115, 10, "Within the County/Agency", within_agency_check
     RadioButton 30, 40, 120, 10, "Out-of-County/Agency", out_of_agency_check
@@ -68,103 +73,58 @@ BeginDialog xfer_menu_dialog, 0, 0, 156, 80, "Case XFER"
   Text 10, 10, 125, 10, "Please select transfer type..."
 EndDialog
 
-BeginDialog out_of_county_dlg, 0, 0, 236, 385, "Case Transfer"
-  EditBox 60, 5, 50, 15, MAXIS_case_number
-  EditBox 115, 30, 65, 15, transfer_to
-  CheckBox 5, 55, 190, 10, "Check here if the client is active on HC through MNSure.", mnsure_active_check
-  CheckBox 5, 70, 190, 10, "Check here if the client is active on Minnesota Care.", mcre_active_check
-  CheckBox 5, 85, 200, 10, "Check here if the client has a pending MNSure application.", mnsure_pend_check
-  CheckBox 5, 100, 200, 10, "Check here if you have sent the DHS 3195 transfer form.", transfer_form_check
-  CheckBox 5, 115, 175, 10, "Check here if you sent the Change Report Form.", crf_sent_check
-  CheckBox 5, 130, 230, 10, "Check here to send a SPEC/MEMO to the client with new worker info.", SPEC_MEMO_check
-  CheckBox 5, 145, 195, 10, "Check here to add a programs closure date to the MEMO.", closure_date_check
-  EditBox 80, 160, 45, 15, cl_move_date
-  DropListBox 65, 180, 40, 15, "No"+chr(9)+"Yes", excluded_time
-  EditBox 155, 180, 45, 15, excl_date
-  CheckBox 5, 200, 220, 10, "Check here to manually set the CFR and change date for CASH.", manual_cfr_cash_check
-  CheckBox 5, 215, 215, 10, "Check here if CASH CFR is not changing.", cash_cfr_no_change_check
-  EditBox 60, 230, 20, 15, cash_cfr
-  EditBox 165, 230, 20, 15, cash_cfr_month
-  EditBox 190, 230, 20, 15, cash_cfr_year
-  CheckBox 5, 250, 220, 10, "Check here to manually set the CFR and change date for HC.", manual_cfr_hc_check
-  CheckBox 5, 265, 225, 10, "Check here if the HC CFR is not changing.", hc_cfr_no_change_check
-  EditBox 60, 280, 20, 15, hc_cfr
-  EditBox 165, 280, 20, 15, hc_cfr_month
-  EditBox 190, 280, 20, 15, hc_cfr_year
-  EditBox 75, 300, 155, 15, Transfer_reason
-  EditBox 70, 320, 160, 15, Action_to_be_taken
-  EditBox 70, 340, 125, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 65, 360, 50, 15
-    CancelButton 120, 360, 50, 15
-    PushButton 155, 5, 70, 15, "NAV to SPEC/XFER", nav_to_xfer_button
-  Text 5, 10, 50, 10, "Case Number:"
-  Text 5, 30, 110, 20, "Worker number/Agency you're transferring to  (x###### format)"
-  Text 5, 165, 60, 10, "Client Move Date"
-  Text 5, 185, 55, 10, "Excluded time?"
-  Text 115, 185, 40, 10, "Begin Date"
-  Text 10, 235, 45, 10, "Current CFR:"
-  Text 85, 235, 75, 10, "Change Date (MM YY)"
-  Text 10, 285, 45, 10, "Current CFR:"
-  Text 85, 285, 75, 10, "Change Date (MM YY)"
-  Text 5, 305, 70, 10, "Reason for Transfer:"
-  Text 5, 325, 65, 10, "Actions to be taken:"
-  Text 5, 345, 60, 10, "Worker Signature:"
-EndDialog
+Do
+    DIALOG Dialog1
+    cancel_confirmation
 
-
-BeginDialog within_county_dlg, 0, 0, 211, 270, "Case Transfer"
-  EditBox 70, 10, 50, 15, MAXIS_case_number
-  ComboBox 80, 30, 75, 15, "Select one..."+chr(9)+"N/A"+chr(9)+"Adult"+chr(9)+"Family"+chr(9)+"Cash"+chr(9)+"GRH"+chr(9)+"LTC"+chr(9)+"HC", unit_drop_down
-  EditBox 130, 50, 65, 15, worker_to_transfer_to
-  CheckBox 20, 90, 30, 10, "Cash", cash_active_check
-  CheckBox 55, 90, 30, 10, "SNAP", SNAP_active_check
-  CheckBox 95, 90, 20, 10, "HC", HC_active_check
-  CheckBox 125, 90, 35, 10, "MNsure", mnsure_active_check
-  CheckBox 170, 90, 35, 10, "EMER", EMER_active_check
-  CheckBox 20, 125, 30, 10, "Cash", Cash_pend_check
-  CheckBox 55, 125, 30, 10, "SNAP", SNAP_pend_check
-  CheckBox 95, 125, 20, 10, "HC", HC_pend_check
-  CheckBox 125, 125, 35, 10, "MNsure", mnsure_pend_check
-  CheckBox 170, 125, 40, 10, "EMER", EMER_pend_check
-  DropListBox 100, 140, 65, 10, "Select one..."+chr(9)+"N/A"+chr(9)+"Yes"+chr(9)+"No", preg_y_n
-  EditBox 85, 160, 120, 15, Transfer_reason
-  EditBox 85, 180, 120, 15, Action_to_be_taken
-  CheckBox 10, 200, 195, 10, "Check to send out a SPEC/MEMO to client of new worker.", spec_memo_withincty_check 'add this as option for worker to use for w/in county xfer.
-  EditBox 80, 230, 125, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 100, 250, 50, 15
-    CancelButton 155, 250, 50, 15
-  Text 15, 35, 60, 10, "Unit to transfer to: "
-  Text 15, 165, 70, 10, "Reason for Transfer:"
-  Text 15, 145, 85, 10, "Pregnancy verif received:"
-  Text 15, 15, 50, 10, "Case Number:"
-  Text 15, 75, 80, 10, "Active On:"
-  Text 15, 110, 60, 10, "Pending On:"
-  Text 15, 235, 60, 10, "Worker Signature:"
-  Text 15, 50, 110, 20, "Worker number you're transferring to  (x102XXX format)"
-  Text 15, 185, 70, 10, "Actions (to be) taken:"  'put ( ) around "to be" as it is option for if there are actions that new worker need to handle or actions already been done by xfer worker.
-  Text 20, 210, 140, 10, "(This is for only within the county transfer.)"
-EndDialog
-
-'----------THE SCRIPT----------
-EMConnect ""
-
-check_for_MAXIS(True)
-	
-DIALOG xfer_menu_dialog
-cancel_confirmation
+    call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 
 call MAXIS_case_number_finder(MAXIS_case_number)
 
 IF XFERRadioGroup = 0 THEN
 	'BEGINNING OF IN COUNTY TRANSFER-------------------------------------------------------------------------------------------------------------------------------------
 	'Displays the dialog and navigates to case note
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 211, 270, "Case Transfer"
+      EditBox 70, 10, 50, 15, MAXIS_case_number
+      ComboBox 80, 30, 75, 15, "Select one..."+chr(9)+"N/A"+chr(9)+"Adult"+chr(9)+"Family"+chr(9)+"Cash"+chr(9)+"GRH"+chr(9)+"LTC"+chr(9)+"HC", unit_drop_down
+      EditBox 130, 50, 65, 15, worker_to_transfer_to
+      CheckBox 20, 90, 30, 10, "Cash", cash_active_check
+      CheckBox 55, 90, 30, 10, "SNAP", SNAP_active_check
+      CheckBox 95, 90, 20, 10, "HC", HC_active_check
+      CheckBox 125, 90, 35, 10, "MNsure", mnsure_active_check
+      CheckBox 170, 90, 35, 10, "EMER", EMER_active_check
+      CheckBox 20, 125, 30, 10, "Cash", Cash_pend_check
+      CheckBox 55, 125, 30, 10, "SNAP", SNAP_pend_check
+      CheckBox 95, 125, 20, 10, "HC", HC_pend_check
+      CheckBox 125, 125, 35, 10, "MNsure", mnsure_pend_check
+      CheckBox 170, 125, 40, 10, "EMER", EMER_pend_check
+      DropListBox 100, 140, 65, 10, "Select one..."+chr(9)+"N/A"+chr(9)+"Yes"+chr(9)+"No", preg_y_n
+      EditBox 85, 160, 120, 15, Transfer_reason
+      EditBox 85, 180, 120, 15, Action_to_be_taken
+      CheckBox 10, 200, 195, 10, "Check to send out a SPEC/MEMO to client of new worker.", spec_memo_withincty_check 'add this as option for worker to use for w/in county xfer.
+      EditBox 80, 230, 125, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 100, 250, 50, 15
+        CancelButton 155, 250, 50, 15
+      Text 15, 35, 60, 10, "Unit to transfer to: "
+      Text 15, 165, 70, 10, "Reason for Transfer:"
+      Text 15, 145, 85, 10, "Pregnancy verif received:"
+      Text 15, 15, 50, 10, "Case Number:"
+      Text 15, 75, 80, 10, "Active On:"
+      Text 15, 110, 60, 10, "Pending On:"
+      Text 15, 235, 60, 10, "Worker Signature:"
+      Text 15, 50, 110, 20, "Worker number you're transferring to  (x102XXX format)"
+      Text 15, 185, 70, 10, "Actions (to be) taken:"  'put ( ) around "to be" as it is option for if there are actions that new worker need to handle or actions already been done by xfer worker.
+      Text 20, 210, 140, 10, "(This is for only within the county transfer.)"
+    EndDialog
+
 	DO
 		Do
 			Do
 			err_msg = ""
-			Dialog within_county_dlg
+			Dialog Dialog1
 			cancel_confirmation
 			If MAXIS_case_number = "" then err_msg = err_msg & vbCr & "You must have a case number to continue."
 			IF len(worker_to_transfer_to) <> 7 then err_msg = err_msg & vbCr & "Please include X1## in the worker number"
@@ -213,7 +173,7 @@ IF XFERRadioGroup = 0 THEN
 
 	'goes to MEMO and create a new memo to be send out
 	If spec_memo_withincty_check = checked THEN
-		call start_a_new_spec_memo	'function to start a new memo with arep and swkr checks 
+		call start_a_new_spec_memo	'function to start a new memo with arep and swkr checks
 
 		EMWriteScreen "Your case has been transferred. Your new worker/agency is:", 3, 15
 		memo_line = 5
@@ -300,38 +260,82 @@ IF XFERRadioGroup = 0 THEN
 	'END OF IN COUNTY TRANSFER-------------------------------------------------------------------------------------------------------------------------------------
 	ELSEIF XFERRadioGroup = 1 THEN
 	'BEGINNING OF OUT OF COUNTY TRANSFER----------------------------------------------------------------------------------------------------
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 236, 385, "Case Transfer"
+      EditBox 60, 5, 50, 15, MAXIS_case_number
+      EditBox 115, 30, 65, 15, transfer_to
+      CheckBox 5, 55, 190, 10, "Check here if the client is active on HC through MNSure.", mnsure_active_check
+      CheckBox 5, 70, 190, 10, "Check here if the client is active on Minnesota Care.", mcre_active_check
+      CheckBox 5, 85, 200, 10, "Check here if the client has a pending MNSure application.", mnsure_pend_check
+      CheckBox 5, 100, 200, 10, "Check here if you have sent the DHS 3195 transfer form.", transfer_form_check
+      CheckBox 5, 115, 175, 10, "Check here if you sent the Change Report Form.", crf_sent_check
+      CheckBox 5, 130, 230, 10, "Check here to send a SPEC/MEMO to the client with new worker info.", SPEC_MEMO_check
+      CheckBox 5, 145, 195, 10, "Check here to add a programs closure date to the MEMO.", closure_date_check
+      EditBox 80, 160, 45, 15, cl_move_date
+      DropListBox 65, 180, 40, 15, "No"+chr(9)+"Yes", excluded_time
+      EditBox 155, 180, 45, 15, excl_date
+      CheckBox 5, 200, 220, 10, "Check here to manually set the CFR and change date for CASH.", manual_cfr_cash_check
+      CheckBox 5, 215, 215, 10, "Check here if CASH CFR is not changing.", cash_cfr_no_change_check
+      EditBox 60, 230, 20, 15, cash_cfr
+      EditBox 165, 230, 20, 15, cash_cfr_month
+      EditBox 190, 230, 20, 15, cash_cfr_year
+      CheckBox 5, 250, 220, 10, "Check here to manually set the CFR and change date for HC.", manual_cfr_hc_check
+      CheckBox 5, 265, 225, 10, "Check here if the HC CFR is not changing.", hc_cfr_no_change_check
+      EditBox 60, 280, 20, 15, hc_cfr
+      EditBox 165, 280, 20, 15, hc_cfr_month
+      EditBox 190, 280, 20, 15, hc_cfr_year
+      EditBox 75, 300, 155, 15, Transfer_reason
+      EditBox 70, 320, 160, 15, Action_to_be_taken
+      EditBox 70, 340, 125, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 65, 360, 50, 15
+        CancelButton 120, 360, 50, 15
+        PushButton 155, 5, 70, 15, "NAV to SPEC/XFER", nav_to_xfer_button
+      Text 5, 10, 50, 10, "Case Number:"
+      Text 5, 30, 110, 20, "Worker number/Agency you're transferring to  (x###### format)"
+      Text 5, 165, 60, 10, "Client Move Date"
+      Text 5, 185, 55, 10, "Excluded time?"
+      Text 115, 185, 40, 10, "Begin Date"
+      Text 10, 235, 45, 10, "Current CFR:"
+      Text 85, 235, 75, 10, "Change Date (MM YY)"
+      Text 10, 285, 45, 10, "Current CFR:"
+      Text 85, 285, 75, 10, "Change Date (MM YY)"
+      Text 5, 305, 70, 10, "Reason for Transfer:"
+      Text 5, 325, 65, 10, "Actions to be taken:"
+      Text 5, 345, 60, 10, "Worker Signature:"
+    EndDialog
 	DO
 		DO
 			DO
 				DO
 					DO
-						DIALOG out_of_county_dlg
-							cancel_confirmation
-							IF ButtonPressed = nav_to_xfer_button THEN
-								CALL navigate_to_MAXIS_screen("SPEC", "XFER")
-								EMWriteScreen "X", 9, 16
-								transmit
-							END IF
+						DIALOG Dialog1
+						cancel_confirmation
+						IF ButtonPressed = nav_to_xfer_button THEN
+							CALL navigate_to_MAXIS_screen("SPEC", "XFER")
+							EMWriteScreen "X", 9, 16
+							transmit
+						END IF
 					LOOP UNTIL ButtonPressed = -1
-						last_chance = MsgBox("Do you want to continue? NOTE: You will get a chance to review SPEC/XFER before transmitting to transfer.", vbYesNo)
+					last_chance = MsgBox("Do you want to continue? NOTE: You will get a chance to review SPEC/XFER before transmitting to transfer.", vbYesNo)
 				LOOP UNTIL last_chance = vbYes
 
 				'----------Goes to STAT/PROG to pull active/pending case information----------
 				call navigate_to_MAXIS_screen("STAT", "PROG")
-					EMReadScreen cash_one_status, 4, 6, 74
-					EMReadScreen cash_two_status, 4, 7, 74
-					EMReadScreen snap_status, 4, 10, 74
-					EMReadScreen hc_status, 4, 12, 74
+				EMReadScreen cash_one_status, 4, 6, 74
+				EMReadScreen cash_two_status, 4, 7, 74
+				EMReadScreen snap_status, 4, 10, 74
+				EMReadScreen hc_status, 4, 12, 74
 
-					IF excluded_time = "Yes" AND isdate(excl_date) = FALSE THEN MsgBox "Please enter a valid date for the start of excluded time or double check that the client's absense is due to excluded time."
-					IF isdate(cl_move_date) = FALSE THEN MsgBox "Please enter a valid date for client move."
-					IF ucase(left(transfer_to, 4)) = ucase(worker_county_code) THEN MsgBox "You must use the ''Within the Agency'' script to transfer the case within the agency. The Worker/Agency you have selected indicates you are trying to transfer within your agency."
-					IF (hc_status = "ACTV" AND excluded_time = "") THEN MsgBox "Please select whether the client is on excluded time."
-					IF len(transfer_to) <> 7 THEN MsgBox "Please select a valid worker or agency to receive the case (proper format = x######)."
-					IF manual_cfr_hc_check = 1 AND (hc_cfr = "" OR len(hc_cfr) <> 2 OR hc_cfr_month = "" OR hc_cfr_year = "" OR len(hc_cfr_month) <> 2 OR len(hc_cfr_year) <> 2) THEN MsgBox ("You indicated you wish to manually determine the Health Care County of Financial Responsibility and CFR Change Date. There is an error because you either:" & vbCr & vbCr & "1. Did not enter a County of Financial Responsibility, and/or" & vbCr & "2. Your County of Financial Responsibility is not in the correct 2-digit format, and/or" & vbCr & "3. You did not enter a date for the CFR to change, and/or" & vbCr & "4. You did not correctly format the month and/or year for the change." & vbCr & vbCr & "Please review your input and try again.")
-					IF manual_cfr_cash_check = 1 AND cash_cfr_no_change_check = 1 THEN MsgBox ("Please select whether the CFR for CASH is changing or not. Review input.")
-					IF manual_cfr_cash_check = 1 AND (cash_cfr = "" OR len(cash_cfr) <> 2 OR cash_cfr_month = "" OR cash_cfr_year = "" OR len(cash_cfr_month) <> 2 OR len(cash_cfr_year) <> 2) THEN MsgBox ("You indicated you wish to manually determine the CASH County of Financial Responsibility and CFR Change Date. There is an error because you either:" & vbCr & vbCr & "1. Did not enter a County of Financial Responsibility, and/or" & vbCr & "2. Your County of Financial Responsibility is not in the correct 2-digit format, and/or" & vbCr & "3. You did not enter a date for the CFR to change, and/or" & vbCr & "4. You did not correctly format the month and/or year for the change." & vbCr & vbCr & "Please review your input and try again.")
-					IF manual_cfr_hc_check = 1 AND hc_cfr_no_change_check = 1 THEN MsgBOx ("Please select whether the CFR for HC is changing or not. Review input.")
+				IF excluded_time = "Yes" AND isdate(excl_date) = FALSE THEN MsgBox "Please enter a valid date for the start of excluded time or double check that the client's absense is due to excluded time."
+				IF isdate(cl_move_date) = FALSE THEN MsgBox "Please enter a valid date for client move."
+				IF ucase(left(transfer_to, 4)) = ucase(worker_county_code) THEN MsgBox "You must use the ''Within the Agency'' script to transfer the case within the agency. The Worker/Agency you have selected indicates you are trying to transfer within your agency."
+				IF (hc_status = "ACTV" AND excluded_time = "") THEN MsgBox "Please select whether the client is on excluded time."
+				IF len(transfer_to) <> 7 THEN MsgBox "Please select a valid worker or agency to receive the case (proper format = x######)."
+				IF manual_cfr_hc_check = 1 AND (hc_cfr = "" OR len(hc_cfr) <> 2 OR hc_cfr_month = "" OR hc_cfr_year = "" OR len(hc_cfr_month) <> 2 OR len(hc_cfr_year) <> 2) THEN MsgBox ("You indicated you wish to manually determine the Health Care County of Financial Responsibility and CFR Change Date. There is an error because you either:" & vbCr & vbCr & "1. Did not enter a County of Financial Responsibility, and/or" & vbCr & "2. Your County of Financial Responsibility is not in the correct 2-digit format, and/or" & vbCr & "3. You did not enter a date for the CFR to change, and/or" & vbCr & "4. You did not correctly format the month and/or year for the change." & vbCr & vbCr & "Please review your input and try again.")
+				IF manual_cfr_cash_check = 1 AND cash_cfr_no_change_check = 1 THEN MsgBox ("Please select whether the CFR for CASH is changing or not. Review input.")
+				IF manual_cfr_cash_check = 1 AND (cash_cfr = "" OR len(cash_cfr) <> 2 OR cash_cfr_month = "" OR cash_cfr_year = "" OR len(cash_cfr_month) <> 2 OR len(cash_cfr_year) <> 2) THEN MsgBox ("You indicated you wish to manually determine the CASH County of Financial Responsibility and CFR Change Date. There is an error because you either:" & vbCr & vbCr & "1. Did not enter a County of Financial Responsibility, and/or" & vbCr & "2. Your County of Financial Responsibility is not in the correct 2-digit format, and/or" & vbCr & "3. You did not enter a date for the CFR to change, and/or" & vbCr & "4. You did not correctly format the month and/or year for the change." & vbCr & vbCr & "Please review your input and try again.")
+				IF manual_cfr_hc_check = 1 AND hc_cfr_no_change_check = 1 THEN MsgBOx ("Please select whether the CFR for HC is changing or not. Review input.")
 
 			LOOP UNTIL (((HC_status <> "ACTV") OR (hc_status = "ACTV" AND excluded_time = "No") OR (HC_status = "ACTV" AND excluded_time = "Yes" AND isdate(excl_date) = TRUE))) AND _
 			(isdate(cl_move_date) = TRUE) AND _
@@ -348,8 +352,8 @@ IF XFERRadioGroup = 0 THEN
 			transmit
 			EMReadScreen worker_found, 15, 24, 2
 			EMReadScreen inactive_worker, 8, 7, 38
-				IF inactive_worker = "INACTIVE" THEN MsgBox "The worker or agency selected is not active. Please try again."
-				IF worker_found = "NO WORKER FOUND" THEN MsgBox "The worker or agency selected does not exist. Please try again."
+			IF inactive_worker = "INACTIVE" THEN MsgBox "The worker or agency selected is not active. Please try again."
+			IF worker_found = "NO WORKER FOUND" THEN MsgBox "The worker or agency selected does not exist. Please try again."
 		LOOP UNTIL inactive_worker <> "INACTIVE" AND worker_found <> "NO WORKER FOUND"
 
 		IF closure_date_check = checked THEN
