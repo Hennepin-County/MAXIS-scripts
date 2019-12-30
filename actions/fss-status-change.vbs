@@ -53,66 +53,10 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'DIALOGS ===================================================================================================================
-BeginDialog fss_status_dialog, 0, 0, 221, 265, "FSS Status Update"
-  EditBox 60, 5, 65, 15, MAXIS_case_number
-  ButtonGroup ButtonPressed
-    PushButton 135, 10, 75, 10, "Reload Client Name", get_client_name_button
-  EditBox 30, 25, 25, 15, ref_number
-  EditBox 60, 25, 155, 15, client_name
-  Text 5, 45, 185, 10, "Select all the ES Status Codes that applies to this client."
-  CheckBox 5, 60, 155, 10, "Ill/Incapacitated for more than 60 Days - 23", ill_incap_checkbox
-  CheckBox 5, 75, 155, 10, "Care of Ill/Incap Family Member - 24", care_of_ill_Incap_checkbox
-  CheckBox 5, 90, 155, 10, "Care of Child Under 12 Months - 25", child_under_one_checkbox
-  CheckBox 5, 105, 155, 10, "Family Violence Waiver - 26", fam_violence_checkbox
-  CheckBox 5, 120, 155, 10, "Special Medical Criteria - 27", Special_medical_checkbox
-  CheckBox 5, 135, 155, 10, "IQ Tested - 28", iq_test_checkbox
-  CheckBox 5, 150, 155, 10, "Learning Disabled - 29", learning_disabled_checkbox
-  CheckBox 5, 165, 155, 10, "Mentally Ill - 30", mentally_ill_checkbox
-  CheckBox 5, 180, 155, 10, "Developmentally Delayed - 31", dev_delayed_checkbox
-  CheckBox 5, 195, 155, 10, "Unemployable - 32", unemployable_checkbox
-  CheckBox 5, 210, 155, 10, "SSI/RSDI Pending - 33", ssi_pending_checkbox
-  CheckBox 5, 225, 155, 10, "Newly Arrived Immigrant - 34", new_imig_checkbox
-  ButtonGroup ButtonPressed
-    OkButton 110, 245, 50, 15
-    CancelButton 165, 245, 50, 15
-  Text 5, 30, 25, 10, "Client"
-  Text 5, 10, 45, 10, "Case Number"
-EndDialog
 
 
-BeginDialog FSS_final_dialog, 0, 0, 421, 180, "FSS Case Note Information"
-  EditBox 65, 5, 350, 15, fss_category_list
-  CheckBox 10, 25, 135, 10, "Check here if MFIP Results approved", results_approved_checkbox
-  CheckBox 10, 35, 150, 10, "Check here if MFIP Results NOT approved", not_approved_checkbox
-  EditBox 90, 50, 325, 15, notes_not_approved
-  EditBox 65, 70, 350, 15, other_notes
-  EditBox 10, 100, 395, 15, MFIP_results
-  ButtonGroup ButtonPressed
-    PushButton 10, 120, 75, 15, "Send case to BGTX", CASE_BGTX_button
-    PushButton 185, 35, 25, 10, "MEMB", MEMB_button
-    PushButton 210, 35, 25, 10, "MEMI", MEMI_button
-    PushButton 235, 35, 25, 10, "EMPS", EMPS_button
-    PushButton 260, 35, 25, 10, "REVW", REVW_button
-    PushButton 285, 35, 25, 10, "MONT", MONT_button
-    PushButton 310, 35, 25, 10, "PBEN", PBEN_button
-    PushButton 335, 35, 25, 10, "DISA", DISA_button
-    PushButton 360, 35, 25, 10, "IMIG", IMIG_button
-    PushButton 385, 35, 25, 10, "TIME", TIME_button
-  EditBox 230, 160, 70, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 310, 160, 50, 15
-    CancelButton 365, 160, 50, 15
-  Text 10, 140, 295, 10, "If the case is ready for approval with these results. APP the results before pressing 'OK'."
-  Text 10, 75, 45, 10, "Other Notes:"
-  GroupBox 5, 90, 410, 65, "MFIP Results"
-  Text 165, 165, 60, 10, "Worker Signature:"
-  Text 10, 10, 50, 10, "FSS Category:"
-  Text 10, 55, 75, 10, "Reason not approved:"
-  GroupBox 180, 25, 235, 25, "STAT Navigation:"
-  Text 185, 125, 175, 10, "Initial Footer Month/Year of MFIP package to approve"
-  EditBox 360, 120, 20, 15, month_to_start
-  EditBox 385, 120, 20, 15, year_to_start
-EndDialog
+
+
 
 '===========================================================================================================================
 
@@ -457,10 +401,37 @@ End IF
 
 If client_name = "" then client_name = "Enter Ref Numb and press 'Reload Client Name'"	'Loads instructions into the edit box
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 221, 265, "FSS Status Update"
+  EditBox 60, 5, 65, 15, MAXIS_case_number
+  ButtonGroup ButtonPressed
+    PushButton 135, 10, 75, 10, "Reload Client Name", get_client_name_button
+  EditBox 30, 25, 25, 15, ref_number
+  EditBox 60, 25, 155, 15, client_name
+  Text 5, 45, 185, 10, "Select all the ES Status Codes that applies to this client."
+  CheckBox 5, 60, 155, 10, "Ill/Incapacitated for more than 60 Days - 23", ill_incap_checkbox
+  CheckBox 5, 75, 155, 10, "Care of Ill/Incap Family Member - 24", care_of_ill_Incap_checkbox
+  CheckBox 5, 90, 155, 10, "Care of Child Under 12 Months - 25", child_under_one_checkbox
+  CheckBox 5, 105, 155, 10, "Family Violence Waiver - 26", fam_violence_checkbox
+  CheckBox 5, 120, 155, 10, "Special Medical Criteria - 27", Special_medical_checkbox
+  CheckBox 5, 135, 155, 10, "IQ Tested - 28", iq_test_checkbox
+  CheckBox 5, 150, 155, 10, "Learning Disabled - 29", learning_disabled_checkbox
+  CheckBox 5, 165, 155, 10, "Mentally Ill - 30", mentally_ill_checkbox
+  CheckBox 5, 180, 155, 10, "Developmentally Delayed - 31", dev_delayed_checkbox
+  CheckBox 5, 195, 155, 10, "Unemployable - 32", unemployable_checkbox
+  CheckBox 5, 210, 155, 10, "SSI/RSDI Pending - 33", ssi_pending_checkbox
+  CheckBox 5, 225, 155, 10, "Newly Arrived Immigrant - 34", new_imig_checkbox
+  ButtonGroup ButtonPressed
+    OkButton 110, 245, 50, 15
+    CancelButton 165, 245, 50, 15
+  Text 5, 30, 25, 10, "Client"
+  Text 5, 10, 45, 10, "Case Number"
+EndDialog
+
 'Running the first dialog
 Do
 	err_msg = ""
-	Dialog fss_status_dialog
+	Dialog Dialog1
 	Cancel_confirmation
 	If ButtonPressed = get_client_name_button Then CALL get_MFIP_case_info (ref_number, client_name)
 	If universal_partipant_checkbox = unchecked AND new_imig_checkbox = unchecked AND age_sixty_checkbox = unchecked AND preg_checkbox = unchecked AND ill_incap_checkbox = unchecked AND care_of_ill_Incap_checkbox = unchecked AND child_under_one_checkbox = unchecked AND fam_violence_checkbox = unchecked AND Special_medical_checkbox = unchecked AND iq_test_checkbox = unchecked AND learning_disabled_checkbox = unchecked AND mentally_ill_checkbox = unchecked AND ssi_pending_checkbox = unchecked AND unemployable_checkbox = unchecked AND dev_delayed_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "You must select a code to update."
@@ -574,7 +545,8 @@ If Special_medical_checkbox = checked Then detail_dialog_length = detail_dialog_
 y_pos_counter = 25
 
 'This is the second Dialog - which is defined here because it is dynamic.
-BeginDialog fss_code_detail, 0, 0, 440, detail_dialog_length, "Update FSS Information from the Status Update"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 440, detail_dialog_length, "Update FSS Information from the Status Update"
   Text 5, 10, 40, 10, "Date of SU"
   EditBox 50, 5, 50, 15, SU_date
   Text 120, 10, 40, 10, "ES Agency"
@@ -696,7 +668,7 @@ EndDialog
 Do
 	Do
 		err_msg = ""
-		dialog fss_code_detail
+		dialog Dialog1
 		cancel_confirmation
 		If ButtonPressed = child_under_1_months_calculate Then
 			If IsDate(child_under_1_request_date) = TRUE Then 	'This creates a list of the future months to be coded as exempt on EMPS.
@@ -1252,11 +1224,46 @@ If other_notes <> "" THEN other_notes = left(other_notes, len(other_notes)-1) & 
 If notes_not_approved <> "" Then notes_not_approved = left (notes_not_approved, len(notes_not_approved)-2)
 Call Read_MFIP_Results(month_to_start, year_to_start, MFIP_results)		'Getting the detail about MFIP results
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 421, 180, "FSS Case Note Information"
+  EditBox 65, 5, 350, 15, fss_category_list
+  CheckBox 10, 25, 135, 10, "Check here if MFIP Results approved", results_approved_checkbox
+  CheckBox 10, 35, 150, 10, "Check here if MFIP Results NOT approved", not_approved_checkbox
+  EditBox 90, 50, 325, 15, notes_not_approved
+  EditBox 65, 70, 350, 15, other_notes
+  EditBox 10, 100, 395, 15, MFIP_results
+  ButtonGroup ButtonPressed
+    PushButton 10, 120, 75, 15, "Send case to BGTX", CASE_BGTX_button
+    PushButton 185, 35, 25, 10, "MEMB", MEMB_button
+    PushButton 210, 35, 25, 10, "MEMI", MEMI_button
+    PushButton 235, 35, 25, 10, "EMPS", EMPS_button
+    PushButton 260, 35, 25, 10, "REVW", REVW_button
+    PushButton 285, 35, 25, 10, "MONT", MONT_button
+    PushButton 310, 35, 25, 10, "PBEN", PBEN_button
+    PushButton 335, 35, 25, 10, "DISA", DISA_button
+    PushButton 360, 35, 25, 10, "IMIG", IMIG_button
+    PushButton 385, 35, 25, 10, "TIME", TIME_button
+  EditBox 230, 160, 70, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 310, 160, 50, 15
+    CancelButton 365, 160, 50, 15
+  Text 10, 140, 295, 10, "If the case is ready for approval with these results. APP the results before pressing 'OK'."
+  Text 10, 75, 45, 10, "Other Notes:"
+  GroupBox 5, 90, 410, 65, "MFIP Results"
+  Text 165, 165, 60, 10, "Worker Signature:"
+  Text 10, 10, 50, 10, "FSS Category:"
+  Text 10, 55, 75, 10, "Reason not approved:"
+  GroupBox 180, 25, 235, 25, "STAT Navigation:"
+  Text 185, 125, 175, 10, "Initial Footer Month/Year of MFIP package to approve"
+  EditBox 360, 120, 20, 15, month_to_start
+  EditBox 385, 120, 20, 15, year_to_start
+EndDialog
+
 'Runs the final dialog
 Do
 	Do
 		err_msg = ""
-		Dialog FSS_final_dialog
+		Dialog Dialog1
 		Cancel_confirmation
 		MAXIS_dialog_navigation
 		If worker_signature = "" Then err_msg = err_msg & vbNewLine & "Sign your case note!"
