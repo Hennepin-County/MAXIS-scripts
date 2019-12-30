@@ -51,34 +51,8 @@ call changelog_update("05/19/2018", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOG
-BeginDialog delete_message_dialog, 0, 0, 126, 45, "Double-Check the Computer's Work..."
-  ButtonGroup ButtonPressed
-    PushButton 10, 25, 50, 15, "YES", delete_button
-    PushButton 60, 25, 50, 15, "NO", do_not_delete
-  Text 30, 10, 65, 10, "Delete the DAIL??"
-EndDialog
-
 'CONNECTS TO DEFAULT SCREEN
 EMConnect ""
-
-''CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
-'EMReadscreen dail_check, 4, 2, 48
-'If dail_check <> "DAIL" then script_end_procedure("You are not in your dail. This script will stop.")
-'
-''TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
-'EMSendKey "t"
-'transmit
-'
-''The following reads the message in full for the end part (which tells the worker which message was selected)
-'EMReadScreen full_message, 58, 6, 20
-'
-''FS Eligibility Ending for ABAWD
-'EMReadScreen Paperless_tikl_check, 49, 6, 20
-'IF Paperless_tikl_check <> "%^% SENT THROUGH BACKGROUND USING BULK SCRIPT %^%" THEN script_end_procedure("This is not the correct kind of DAIL for this script. Run the main DAIL Scrubber for the full supported scripts.")
-'
-'=========================================================================================
-'Everything above this line is a part of the DAIL Scrubber Script if this becomes state supported. Just change the last line to the correct call from github
 
 If run_from_DAIL = TRUE Then
     EMReadScreen Paperless_tikl_check, 49, 6, 20
@@ -107,7 +81,6 @@ EMWriteScreen approval_month, 20, 56            'Goes to the next month and chec
 EMWriteScreen approval_year,  20, 59
 transmit
 If hc_elig_check <> "HHMM" Then script_end_procedure("No HC ELIG results exist, resolve edits and approve new version and run the script again.")
-
 
 row = 8                                          'Reads each line of Elig HC to find all the approved programs in a case
 Do
@@ -186,10 +159,7 @@ If run_LTC_Approval = vbYes Then                'Defining more variables for the
     call run_from_GitHub( script_repository & "notes/ltc-ma-approval.vbs")
 End If
 
-If run_from_DAIL = TRUE Then
-    PF3             'Back to DAIL
-End If
-
+If run_from_DAIL = TRUE Then PF3             'Back to DAIL
 If error_processing_msg <> "" Then script_end_procedure(error_processing_msg)
 
 'Creates an array of all the HC approvals
@@ -208,7 +178,8 @@ For i = 0 to UBound(Elig_Info_array)
 Next
 
 'Dialog is defined here as it is dynamic
-BeginDialog approval_dialog, 0, 0, 286, 115 + (15 * UBound(Elig_Info_array)), "Approval dialog"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 286, 115 + (15 * UBound(Elig_Info_array)), "Approval dialog"
   For each elig_approval in Elig_Info_array
     CheckBox 10, 40 + (15 * array_counter), 265, 10, elig_approval, elig_checkbox_array(array_counter)
 	array_counter = array_counter + 1
@@ -228,13 +199,16 @@ BeginDialog approval_dialog, 0, 0, 286, 115 + (15 * UBound(Elig_Info_array)), "A
   Text 5, 100 + (15 * UBound(Elig_Info_array)), 60, 10, "Worker signature:"
 EndDialog
 
-Do
-    err_msg = ""
-    Dialog approval_dialog
-    cancel_confirmation
-    If worker_signature = "" then err_msg = err_msg & vbNewLine & "Please sign your case note"
-    if err_msg <> "" Then MsgBox err_msg
-Loop until err_msg = ""
+Do 
+    Do
+        err_msg = ""
+        Dialog Dialog1
+        cancel_confirmation
+        If worker_signature = "" then err_msg = err_msg & vbNewLine & "Please sign your case note"
+        if err_msg <> "" Then MsgBox err_msg
+    Loop until err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 If run_from_DAIL = TRUE Then
     EMWriteScreen "N", 6, 3         'Goes to Case Note - maintains tie with DAIL
@@ -260,8 +234,17 @@ call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
 MAXIS_case_number = trim(MAXIS_case_number)
+
+''DIALOG
+'Dialog1 = ""
+'BeginDialog Dialog1, 0, 0, 126, 45, "Double-Check the Computer's Work..."
+'  ButtonGroup ButtonPressed
+'    PushButton 10, 25, 50, 15, "YES", delete_button
+'    PushButton 60, 25, 50, 15, "NO", do_not_delete
+'  Text 30, 10, 65, 10, "Delete the DAIL??"
+'EndDialog
 ' If run_from_DAIL = TRUE Then
-'     DIALOG delete_message_dialog
+'     DIALOG Dialog1
 '     IF ButtonPressed = delete_button THEN
 '     	PF3
 '     	PF3
