@@ -50,8 +50,11 @@ call changelog_update("07/27/2017", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'----------------------------------------------------------------------Dialog
-BeginDialog REPT_EMPS_dialog, 0, 0, 251, 120, "Pull EMPS data into Excel"
+'----------------------------------------------------------------------------------------------------The script
+EMConnect ""		'connecting to MAXIS
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 251, 120, "Pull EMPS data into Excel"
   	EditBox 75, 40, 160, 15, worker_number
   	CheckBox 10, 70, 150, 10, "Check here to run this query county-wide.", all_workers_check
   		ButtonGroup ButtonPressed
@@ -63,16 +66,12 @@ BeginDialog REPT_EMPS_dialog, 0, 0, 251, 120, "Pull EMPS data into Excel"
   	Text 10, 25, 100, 10, "EX: X_ _ _ _ _ _, X_ _ _ _ _ _"
   	GroupBox 5, 0, 235, 60, ""
 EndDialog
-
-'----------------------------------------------------------------------------------------------------The script
-EMConnect ""		'connecting to MAXIS
-
 'Shows dialog
 Do
 	Do
 		err_msg = ""
-		Dialog REPT_EMPS_dialog
-		If buttonpressed = cancel then stopscript
+		Dialog Dialog1 
+		Cancel_without_confirmation
 		If (all_workers_check = 0 AND worker_number = "") then err_msg = err_msg & vbNewLine & "* Please enter at least one worker number." 'allows user to select the all workers check, and not have worker number be ""					
 		If (all_workers_check = 1 AND trim(worker_number) <> "") then err_msg = err_msg & vbNewLine & "* Please enter x numbers OR the county-wide query." 			
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine										
