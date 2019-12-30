@@ -51,8 +51,15 @@ call changelog_update("12/18/2018", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog Resources_MEMO_dialog, 0, 0, 206, 240, "Resources MEMO"
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+
+'Connects to BlueZone
+EMConnect ""
+'Searches for a case number
+call MAXIS_case_number_finder(MAXIS_case_number)
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 206, 240, "Resources MEMO"
   EditBox 60, 5, 50, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     PushButton 150, 5, 50, 10, "Check All", check_all_button
@@ -73,19 +80,11 @@ BeginDialog Resources_MEMO_dialog, 0, 0, 206, 240, "Resources MEMO"
   Text 10, 205, 65, 10, "Worker signature:"
   Text 10, 10, 50, 10, "Case number:"
 EndDialog
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-
-'Connects to BlueZone
-EMConnect ""
-'Searches for a case number
-call MAXIS_case_number_finder(MAXIS_case_number)
-
 'This Do...loop shows the appointment letter dialog, and contains logic to require most fields.
 DO
 	Do
 		err_msg = ""
-		Dialog Resources_MEMO_dialog
+		Dialog Dialog1
 		If ButtonPressed = cancel then stopscript
         If cap_checkbox = unchecked AND emer_mental_health_checkbox = unchecked AND MMIS_helpdesk_checkbox = unchecked AND MNSURE_helpdesk_checkbox = unchecked AND disability_hub_checkbox = unchecked AND emer_food_network_checkbox = unchecked AND front_door_checkbox = unchecked AND sr_linkage_line_checkbox = unchecked AND united_way_checkbox = unchecked AND xcel_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "You must select at least one resource."
 		If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & "You must fill in a valid case number." & vbNewLine
@@ -172,14 +171,18 @@ script_to_say = script_to_say & vbNewLine & "Relay any of the above information 
 
 MsgBox script_to_say
 
-BeginDialog Resources_MEMO_dialog, 0, 0, 106, 80, "Dialog"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 106, 80, "Dialog"
   DropListBox 15, 40, 80, 45, "SPEC/MEMO"+chr(9)+"Word Document", resource_method
   ButtonGroup ButtonPressed
     OkButton 45, 60, 50, 15
   Text 5, 10, 90, 20, "What is the best format for the Resource information?"
 EndDialog
+Do
+    dialog Dialog1
 
-dialog Resources_MEMO_dialog
+    Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 
 'Create a question - MEMO or Word Doc'
 If resource_method = "SPEC/MEMO" Then
@@ -199,7 +202,7 @@ If resource_method = "SPEC/MEMO" Then
         need_divider = FALSE
         'call write_variable_in_SPEC_MEMO("--   --   --   --   --   --   --   --   --   --   --")
     End If
-    
+
     If MMIS_helpdesk_checkbox = checked Then
         If need_divider = TRUE Then call write_variable_in_SPEC_MEMO("     --   --   --   --   --   --   --   --   --   --")
         call write_variable_in_SPEC_MEMO("* MN Health Care Recipient Help Desk - 651-431-2670")
