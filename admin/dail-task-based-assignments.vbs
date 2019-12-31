@@ -59,20 +59,12 @@ Function task_dail_selection
     EMWriteScreen "X",  8, 39 'COLA
     EMWriteScreen "X", 10, 39 'CSES
     EMWriteScreen "X", 13, 39 'INFO
-    EMWriteScreen "X", 18, 39 'PEPR  
-    EMWriteScreen "X", 19, 39 'TIKL 
-    Transmit 
+    EMWriteScreen "X", 18, 39 'PEPR
+    EMWriteScreen "X", 19, 39 'TIKL
+    Transmit
 End Function
 
 'END CHANGELOG BLOCK =======================================================================================================
-BeginDialog dail_dialog, 0, 0, 266, 110, "DAIL Task-Based Processing"
-  ButtonGroup ButtonPressed
-    OkButton 155, 90, 50, 15
-    CancelButton 210, 90, 50, 15
-  GroupBox 5, 5, 255, 80, "How the script works:"
-  Text 20, 20, 210, 25, "This script will queue specific family baskets identified for DAIL task-based processing. The script will use the DAIL DECIMATOR functionality to evaluate DAIL and delete non-actionable DAILS."
-  Text 15, 55, 235, 30, "The deleted and remaining DAIL messages are then automatically saved in the QI folders. Lastly, the remaining DAIL messages are saved in a designated file for task-based assignments."
-EndDialog
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
@@ -82,14 +74,23 @@ this_month = CM_mo & " " & CM_yr
 next_month = CM_plus_1_mo & " " & CM_plus_1_yr
 CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
 
-'Finding the right folder to automatically save the file for the main DAIL Decimator 
+'Finding the right folder to automatically save the file for the main DAIL Decimator
 month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
 decimator_folder = replace(this_month, " ", "-") & " DAIL Decimator"
 report_date = replace(date, "/", "-")
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 266, 110, "DAIL Task-Based Processing"
+  ButtonGroup ButtonPressed
+    OkButton 155, 90, 50, 15
+    CancelButton 210, 90, 50, 15
+  GroupBox 5, 5, 255, 80, "How the script works:"
+  Text 20, 20, 210, 25, "This script will queue specific family baskets identified for DAIL task-based processing. The script will use the DAIL DECIMATOR functionality to evaluate DAIL and delete non-actionable DAILS."
+  Text 15, 55, 235, 30, "The deleted and remaining DAIL messages are then automatically saved in the QI folders. Lastly, the remaining DAIL messages are saved in a designated file for task-based assignments."
+EndDialog
 Do
 	Do
-  		dialog dail_dialog
+  		dialog Dialog1
         cancel_without_confirmation
     Loop until ButtonPressed = -1
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -202,8 +203,8 @@ For each worker in worker_array
 			EMReadScreen dail_msg, 61, dail_row, 20
 			dail_msg = trim(dail_msg)
             EMReadScreen dail_month, 8, dail_row, 11
-            dail_month = trim(dail_month)        
-            
+            dail_month = trim(dail_month)
+
             'This bit of code grabs the client name. The do/loop expands the search area until the value for
     		'next_two equals "--" ... at which time the script determines that the cl name has ended
     		dail_col = 6
@@ -215,11 +216,11 @@ For each worker in worker_array
     				name_len = name_len + 1
     				dail_col = dail_col + 1
     			END IF
-    		LOOP UNTIL next_two = "--"    
-            
+    		LOOP UNTIL next_two = "--"
+
 			stats_counter = stats_counter + 1
-            Call non_actionable_dails   'Function to evaluate the DAIL messages 
-        
+            Call non_actionable_dails   'Function to evaluate the DAIL messages
+
             IF add_to_excel = True then
 				'--------------------------------------------------------------------...and put that in Excel.
 				objExcel.Cells(excel_row, 1).Value = worker
@@ -319,8 +320,8 @@ For item = 0 to UBound(DAIL_array, 2)
 	objExcel.Cells(excel_row, 4).Value = DAIL_array(dail_month_const, item)
     objExcel.Cells(excel_row, 5).Value = DAIL_array(dail_msg_const, item)
 	excel_row = excel_row + 1
-Next 
-    
+Next
+
 objExcel.Cells(1, 7).Value = "Remaning DAIL messages:"
 objExcel.Columns(7).Font.Bold = true
 objExcel.Cells(1, 8).Value = DAIL_count
@@ -330,16 +331,16 @@ FOR i = 1 to 8
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
 
-'saving the Excel file 
+'saving the Excel file
 file_info = month_folder & "\" & decimator_folder & "\" & report_date & " " & dail_to_decimate & " " & deleted_dails
 
-'Saves and closes the most recent Excel workbook with the Task based cases to process. 
+'Saves and closes the most recent Excel workbook with the Task based cases to process.
 objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
 objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
 objExcel.Quit
-    
-'----------------------------------------------------------------------------------------------------Task-based assignment output 
+
+'----------------------------------------------------------------------------------------------------Task-based assignment output
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
@@ -373,14 +374,14 @@ For item = 0 to UBound(DAIL_array, 2)
     objExcel.Cells(excel_row, 5).Value = DAIL_array(dail_msg_const, item)
     objExcel.Cells(excel_row, 6).Value = DAIL_array(client_name_const, item)
 	excel_row = excel_row + 1
-Next 
+Next
 
 'formatting the cells
 FOR i = 1 to 6
 	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
 
-'Saves and closes the most recent Excel workbook with the Task based cases to process. 
+'Saves and closes the most recent Excel workbook with the Task based cases to process.
 objExcel.ActiveWorkbook.SaveAs "T:\HSPH Restricted Access Workspace\EWS Work Structure\WS Data and Reports\Daily Form Reports\DAIL\" & report_date &".xlsx"
 objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
