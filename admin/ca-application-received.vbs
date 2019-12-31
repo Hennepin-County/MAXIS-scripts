@@ -75,7 +75,8 @@ EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
-BeginDialog initial_dialog, 0, 0, 116, 45, "Application Received"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 116, 45, "Application Received"
   EditBox 65, 5, 45, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 5, 25, 50, 15
@@ -87,7 +88,7 @@ EndDialog
 Do
 	Do
 		err_msg = ""
-		Dialog initial_dialog
+		Dialog Dialog1
 		cancel_confirmation
 		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -301,7 +302,8 @@ additional_programs_applied_for = trim(additional_programs_applied_for)       't
 If right(additional_programs_applied_for, 1) = "," THEN additional_programs_applied_for = left(additional_programs_applied_for, len(additional_programs_applied_for) - 1)
 
 '----------------------------------------------------------------------------------------------------dialogs
-BeginDialog appl_detail_dialog, 0, 0, 291, 195, "Application Received for: "  & programs_applied_for &  " on "  & application_date
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 291, 195, "Application Received for: "  & programs_applied_for &  " on "  & application_date
   DropListBox 85, 10, 75, 15, "Select One:"+chr(9)+"MDQ"+chr(9)+"Office"+chr(9)+"Online"+chr(9)+"Request to APPL Form", how_app_rcvd
   DropListBox 85, 30, 75, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"N/A", app_type
   EditBox 235, 10, 45, 15, request_date
@@ -336,30 +338,30 @@ BeginDialog appl_detail_dialog, 0, 0, 291, 195, "Application Received for: "  & 
 EndDialog
 
 '------------------------------------------------------------------------------------DIALOG APPL
-    Do
+Do
+	Do
+		err_msg = ""
     	Do
-			err_msg = ""
-		Do
-    		Dialog appl_detail_dialog
+    		Dialog Dialog1
     		cancel_confirmation
-			If ButtonPressed = geocoder_button then CreateObject("WScript.Shell").Run("https://hcgis.hennepin.us/agsinteractivegeocoder/default.aspx")
-		Loop until ButtonPressed = -1
+    		If ButtonPressed = geocoder_button then CreateObject("WScript.Shell").Run("https://hcgis.hennepin.us/agsinteractivegeocoder/default.aspx")
+    	Loop until ButtonPressed = -1
     	IF how_app_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
-		IF how_app_rcvd <> "Request to APPL Form" and request_date <> "" THEN err_msg = err_msg & vbNewLine & "* The APPL form request date does not need to be completed if this is not a request to APPL form."
-		IF how_app_rcvd = "Online" and app_type <> "ApplyMN" then err_msg = err_msg & vbNewLine & "* You selected that the application was received online please select ApplyMN from the drop down."
-		IF app_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
-		IF request_date = "" AND how_app_rcvd = "Request to APPL Form"  THEN err_msg = err_msg & vbNewLine & "* If a request to APPL was received, you must enter the date the form was submitted."
-		IF no_transfer_checkbox = UNCHECKED AND transfer_to_worker = "" then err_msg = err_msg & vbNewLine & "* You must enter the basket number the case to be transfered by the script or check that no transfer is needed."
-		IF no_transfer_checkbox = CHECKED and transfer_to_worker <> "" then err_msg = err_msg & vbNewLine & "* You have checked that no transfer is needed, please remove basket number from transfer field."
-		IF no_transfer_checkbox = UNCHECKED AND len(transfer_to_worker) > 3 AND isnumeric(transfer_to_worker) = FALSE then err_msg = err_msg & vbNewLine & "* Please enter the last 3 digits of the worker number for transfer."
-		IF METS_retro_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg & vbNewLine & "* You have checked that this is a METS Retro Request, please enter a METS IC #."
-		IF MA_transition_request_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg & vbNewLine & "* You have checked that this is a METS Transition Request, please enter a METS IC #."
-		IF app_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "* If an ApplyMN was received, you must enter the confirmation number and time received"
-		IF programs_applied_for = "HC" and MEMB_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the member number(s) applying for HC."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP UNTIL err_msg = ""
-		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-	LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
+    	IF how_app_rcvd <> "Request to APPL Form" and request_date <> "" THEN err_msg = err_msg & vbNewLine & "* The APPL form request date does not need to be completed if this is not a request to APPL form."
+    	IF how_app_rcvd = "Online" and app_type <> "ApplyMN" then err_msg = err_msg & vbNewLine & "* You selected that the application was received online please select ApplyMN from the drop down."
+    	IF app_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
+    	IF request_date = "" AND how_app_rcvd = "Request to APPL Form"  THEN err_msg = err_msg & vbNewLine & "* If a request to APPL was received, you must enter the date the form was submitted."
+    	IF no_transfer_checkbox = UNCHECKED AND transfer_to_worker = "" then err_msg = err_msg & vbNewLine & "* You must enter the basket number the case to be transfered by the script or check that no transfer is needed."
+    	IF no_transfer_checkbox = CHECKED and transfer_to_worker <> "" then err_msg = err_msg & vbNewLine & "* You have checked that no transfer is needed, please remove basket number from transfer field."
+    	IF no_transfer_checkbox = UNCHECKED AND len(transfer_to_worker) > 3 AND isnumeric(transfer_to_worker) = FALSE then err_msg = err_msg & vbNewLine & "* Please enter the last 3 digits of the worker number for transfer."
+    	IF METS_retro_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg & vbNewLine & "* You have checked that this is a METS Retro Request, please enter a METS IC #."
+    	IF MA_transition_request_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg & vbNewLine & "* You have checked that this is a METS Transition Request, please enter a METS IC #."
+    	IF app_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "* If an ApplyMN was received, you must enter the confirmation number and time received"
+    	IF programs_applied_for = "HC" and MEMB_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the member number(s) applying for HC."
+    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP UNTIL err_msg = ""
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
 
 HC_applied_for = FALSE
 IF app_type = "6696" or app_type = "HCAPP" or app_type = "HC-Certain Pop" or app_type = "LTC" or app_type = "MHCP B/C Cancer" or app_type = "N/A" THEN HC_applied_for = TRUE
@@ -412,7 +414,8 @@ PF3 ' to save Case note
 
 '----------------------------------------------------------------------------------------------------EXPEDITED SCREENING!
 IF snap_pends = TRUE THEN
-    BeginDialog exp_screening_dialog, 0, 0, 181, 165, "Expedited Screening"
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 181, 165, "Expedited Screening"
      	EditBox 100, 5, 50, 15, MAXIS_case_number
      	EditBox 100, 25, 50, 15, income
      	EditBox 100, 45, 50, 15, assets
@@ -448,7 +451,7 @@ IF snap_pends = TRUE THEN
     Do
     	Do
     		err_msg = ""
-    		Dialog exp_screening_dialog
+    		Dialog Dialog1
     		cancel_confirmation
     		If isnumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbnewline & "* You must enter a valid case number."
     		If (income <> "" and isnumeric(income) = false) or (assets <> "" and isnumeric(assets) = false) or (rent <> "" and isnumeric(rent) = false) THEN err_msg = err_msg & vbnewline & "* The income/assets/rent fields must be numeric only. Do not put letters or symbols in these sections."
@@ -585,17 +588,19 @@ IF MA_transition_request_checkbox = CHECKED THEN CALL create_outlook_email("", "
 IF cash_pends = TRUE or cash2_pends = TRUE or SNAP_pends = TRUE or instr(programs_applied_for, "EGA") THEN send_appt_ltr = TRUE
 if interview_completed = TRUE Then send_appt_ltr = FALSE
 IF send_appt_ltr = TRUE THEN
-	BeginDialog Hennepin_appt_dialog, 0, 0, 266, 80, "APPOINTMENT LETTER"
-    EditBox 185, 20, 55, 15, interview_date
-    ButtonGroup ButtonPressed
+
+	Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 266, 80, "APPOINTMENT LETTER"
+      EditBox 185, 20, 55, 15, interview_date
+      ButtonGroup ButtonPressed
     	OkButton 155, 60, 50, 15
     	CancelButton 210, 60, 50, 15
-    EditBox 50, 20, 55, 15, application_date
-    Text 120, 25, 60, 10, "Appointment date:"
-    GroupBox 5, 5, 255, 35, "Enter a new appointment date only if it's a date county offices are not open."
-    Text 15, 25, 35, 10, "CAF date:"
-    Text 25, 45, 205, 10, "If same-day interview is being offered please use today's date"
-  EndDialog
+      EditBox 50, 20, 55, 15, application_date
+      Text 120, 25, 60, 10, "Appointment date:"
+      GroupBox 5, 5, 255, 35, "Enter a new appointment date only if it's a date county offices are not open."
+      Text 15, 25, 35, 10, "CAF date:"
+      Text 25, 45, 205, 10, "If same-day interview is being offered please use today's date"
+    EndDialog
 
     IF expedited_status = "Client Appears Expedited" THEN
         'creates interview date for 7 calendar days from the CAF date
@@ -616,7 +621,7 @@ IF send_appt_ltr = TRUE THEN
 	Do
 		Do
     		err_msg = ""
-    		dialog Hennepin_appt_dialog
+    		dialog Dialog1
     		cancel_confirmation
 			If isdate(application_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid application date."
     		If isdate(interview_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid interview date."
