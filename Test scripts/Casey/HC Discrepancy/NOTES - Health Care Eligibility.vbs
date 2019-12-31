@@ -95,7 +95,8 @@ EMConnect ""
 'Finds the case number
 call MAXIS_case_number_finder(MAXIS_case_number)
 
-BeginDialog elig_dlg, 0, 0, 121, 70, "Case Information"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 121, 70, "Case Information"
   EditBox 60, 10, 55, 15, MAXIS_case_number
   EditBox 80, 30, 15, 15, start_mo
   EditBox 100, 30, 15, 15, start_yr
@@ -111,7 +112,7 @@ Do
 		'Adding err_msg handling
 		err_msg = ""
 
-        Dialog elig_dlg
+        Dialog Dialog1
 
         If len(MAXIS_case_number) > 7 Then err_msg = err_msg & vbNewLine & "* Review the case number, it appears to be too long."
         If trim(MAXIS_case_number) = "" Then err_msg = err_msg & vbNewLine & "* Enter a case number."
