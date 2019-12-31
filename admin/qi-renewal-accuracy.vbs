@@ -99,8 +99,16 @@ Function updated_panel_member_array(stat_panel, output_variable)
 	call autofill_editbox_from_MAXIS(HH_member_array, stat_panel, output_variable)
 End Function
 
-'----------------------------------------------------------------------------------------------------DIALOGS
-BeginDialog case_number_dialog, 0, 0, 141, 70, "Case number dialog"
+'-------------------------------------------------------------------------------------------------------------------------THE SCRIPT
+EMConnect ""		'Connects to BlueZone
+call maxis_case_number_finder(MAXIS_case_number)
+MAXIS_footer_month = CM_plus_1_mo
+MAXIS_footer_year = CM_plus_1_yr
+panels_updated = ""
+
+'the dialog
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 141, 70, "Case number dialog"
   EditBox 75, 5, 55, 15, MAXIS_case_number
   EditBox 85, 25, 20, 15, MAXIS_footer_month
   EditBox 110, 25, 20, 15, MAXIS_footer_year
@@ -110,20 +118,11 @@ BeginDialog case_number_dialog, 0, 0, 141, 70, "Case number dialog"
   Text 20, 10, 55, 10, "Case Number:"
   Text 20, 30, 65, 10, "Footer month/year:"
 EndDialog
-
-'-------------------------------------------------------------------------------------------------------------------------THE SCRIPT
-EMConnect ""		'Connects to BlueZone
-call maxis_case_number_finder(MAXIS_case_number)
-MAXIS_footer_month = CM_plus_1_mo
-MAXIS_footer_year = CM_plus_1_yr
-panels_updated = ""
-
-'the dialog
 Do
 	Do
   		err_msg = ""
-  		Dialog case_number_dialog
-  		If ButtonPressed = 0 then stopscript
+  		Dialog Dialog1
+  		cancel_without_confirmation
   		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
   		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
   		If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
@@ -167,7 +166,8 @@ Call updated_panel_member_array("PBEN", DISA_PBEN)
 Call updated_panel_member_array("IMIG", imig_info)
 Call updated_panel_member_array("WREG", WREG_info)
 
-BeginDialog change_dialog, 0, 0, 321, 235, "Information updated in MAXIS by QI for Case #: " & MAXIS_case_number
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 321, 235, "Information updated in MAXIS by QI for Case #: " & MAXIS_case_number
   EditBox 70, 195, 245, 15, other_notes
   EditBox 70, 215, 145, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -198,7 +198,7 @@ EndDialog
 Do
 	Do
   		err_msg = ""
-  		Dialog change_dialog
+  		Dialog Dialog1
   		cancel_confirmation
   		If worker_signature = "" then err_msg = err_msg & vbnewline & "* Enter your worker signature."
   		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
