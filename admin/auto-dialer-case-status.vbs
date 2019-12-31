@@ -38,14 +38,14 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'Custom function for this script----------------------------------------------------------------------------------------------------
-FUNCTION get_case_status	
+FUNCTION get_case_status
 	back_to_self
 	EMWriteScreen MAXIS_case_number, 18, 43
-	
+
 	Call navigate_to_MAXIS_screen("CASE", "CURR")
 	EMReadScreen CURR_panel_check, 4, 2, 55
 	If CURR_panel_check <> "CURR" then ObjExcel.Cells(excel_row, 2).Value = ""
-	
+
 	EMReadScreen case_status, 8, 8, 9
 	case_status = trim(case_status)
 	ObjExcel.Cells(excel_row, 2).Value = case_status
@@ -54,13 +54,13 @@ FUNCTION get_case_status
 	'using new variable count to calculate percentages
 	IF case_status = "ACTIVE" then active_status = active_status + 1
 	IF case_status = "APP OPEN" then active_status = active_status + 1
-	
+
 	IF case_status = "APP CLOS" then inactive_status = inactive_status + 1
 	IF case_status = "INACTIVE" then inactive_status = inactive_status + 1
-	
+
 	If case_status = "CAF2 PEN" then pending_status = pending_status + 1
 	If case_status = "CAF1 PEN" then pending_status = pending_status + 1
-	
+
 	IF case_status = "REIN" then rein_status = rein_status + 1
 	STATS_counter = STATS_counter + 1
 END FUNCTION
@@ -69,20 +69,24 @@ END FUNCTION
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""		'Connects to BlueZone
 
-'dialog and dialog DO...Loop	
+'dialog and dialog DO...Loop
 Do
 	Do
-			'The dialog is defined in the loop as it can change as buttons are pressed 
-			BeginDialog file_select_dialog, 0, 0, 226, 50, "Select the file with the auto dialer calls."
+			'The dialog is defined in the loop as it can change as buttons are pressed
+			Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 226, 50, "Select the file with the auto dialer calls."
 			  ButtonGroup ButtonPressed
 			    PushButton 175, 10, 40, 15, "Browse...", select_a_file_button
 			    OkButton 110, 30, 50, 15
 			    CancelButton 165, 30, 50, 15
 			  EditBox 5, 10, 165, 15, file_selection_path
 			EndDialog
+
 			err_msg = ""
-			Dialog file_select_dialog
-			If ButtonPressed = 0 then stopscript
+
+			Dialog Dialog1
+
+			cancel_without_confirmation
 			If ButtonPressed = select_a_file_button then
 				If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
 					objExcel.Quit 'Closing the Excel file that was opened on the first push'
@@ -112,11 +116,11 @@ STATS_counter = 1
 'Zeroing out variables
 active_status = 0
 pending_status = 0
-inactive_status = 0 
-rein_status = 0  
+inactive_status = 0
+rein_status = 0
 
 excel_row = 2
-Do 
+Do
 	'Grabs the case number
 	MAXIS_case_number = objExcel.cells(excel_row, 1).value
 	If MAXIS_case_number = "" then exit do
@@ -137,11 +141,11 @@ STATS_counter = 1
 'Zeroing out variables
 active_status = 0
 pending_status = 0
-inactive_status = 0 
-rein_status = 0 
+inactive_status = 0
+rein_status = 0
 
 excel_row = 2
-Do 
+Do
 	'Grabs the case number
 	MAXIS_case_number = objExcel.cells(excel_row, 1).value
 	If MAXIS_case_number = "" then exit do
@@ -149,7 +153,7 @@ Do
 LOOP UNTIL objExcel.Cells(excel_row, 1).value = ""	'looping until the list of cases to check for recert is complete
 STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning (because counting :p)
 
-'Updating the stat inforamtion for the 'NO ANSWER' calls 
+'Updating the stat inforamtion for the 'NO ANSWER' calls
 objExcel.worksheets("Answer").Activate
 
 ObjExcel.Cells(2, 7).Value = STATS_counter
