@@ -51,8 +51,15 @@ call changelog_update("11/17/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------------------------------------------------------------------------------------------
-BeginDialog case_number_dialog, 0, 0, 141, 95, "Enter the case number & footer month/year"
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connecting to MAXIS & case number
+EMConnect ""
+call maxis_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+member_number = "01"
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 141, 95, "Enter the case number & footer month/year"
   EditBox 75, 5, 45, 15, MAXIS_case_number
   EditBox 75, 25, 20, 15, MAXIS_footer_month
   EditBox 100, 25, 20, 15, MAXIS_footer_year
@@ -65,7 +72,25 @@ BeginDialog case_number_dialog, 0, 0, 141, 95, "Enter the case number & footer m
   Text 35, 50, 40, 10, "Member #:"
 EndDialog
 
-BeginDialog banked_months_dialog, 0, 0, 241, 205, "Banked Months Closure Dialog"
+'the dialog
+Do
+	Do
+  		err_msg = ""
+  		Dialog Dialog1
+  		If ButtonPressed = 0 then stopscript
+  		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+  		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
+  		If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid two-digit footer year."
+		If IsNumeric(member_number) = False or len(member_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid two-digit footer year."
+  		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP UNTIL err_msg = ""
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+add_WCOM_check = 1		'defaulting the send WCOM to be checked since all cases should have a WCOM sent.
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 241, 205, "Banked Months Closure Dialog"
   DropListBox 105, 5, 70, 15, "Select one..."+chr(9)+"Non-Cooperation"+chr(9)+"All months used"+chr(9)+"Other closure", closure_reason
   EditBox 105, 25, 130, 15, closure_info
   EditBox 105, 45, 70, 15, counted_banked_months
@@ -87,36 +112,11 @@ BeginDialog banked_months_dialog, 0, 0, 241, 205, "Banked Months Closure Dialog"
   Text 5, 50, 100, 10, "Counted Banked Months here:"
   Text 5, 30, 100, 10, "If 'Other closure', explain here:"
 EndDialog
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connecting to MAXIS & case number
-EMConnect ""
-call maxis_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-member_number = "01"
-
 'the dialog
 Do
 	Do
   		err_msg = ""
-  		Dialog case_number_dialog
-  		If ButtonPressed = 0 then stopscript
-  		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-  		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
-  		If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid two-digit footer year."
-		If IsNumeric(member_number) = False or len(member_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid two-digit footer year."
-  		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	LOOP UNTIL err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in		
-
-add_WCOM_check = 1		'defaulting the send WCOM to be checked since all cases should have a WCOM sent.
- 
-'the dialog
-Do
-	Do
-  		err_msg = ""
-  		Dialog banked_months_dialog
+  		Dialog Dialog1
   		cancel_confirmation
 		If closure_reason = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a banked months closure type."
 		If closure_reason = "Other closure" and trim(closure_info) = "" then err_msg = err_msg & vbNewLine & "* Enter the other closure reason(s)."
@@ -124,8 +124,8 @@ Do
 		If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
   		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in		
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 check_for_MAXIS(False) 'in case users are in the ABAWD tracking record.
 MAXIS_background_check	'Ensuring case is out of background
@@ -199,28 +199,28 @@ LOOP until prog_type = "  "
 
 '----------------------------------------------------------------------------------------------------All for the case note
 'Informatoin to be added to the case note based on the option selected
-If closure_reason = "All months used" then 
+If closure_reason = "All months used" then
 	header = "Closed"
 	closure_reason = "All available banked months used."
 	wcom_info = "all eligible banked months have been used."
-End if 
-If closure_reason = "Non-Cooperation" then 
+End if
+If closure_reason = "Non-Cooperation" then
 	header = "FORFEITED!"
 	closure_reason = "Non-cooperation with E & T. Client cannot use banked months any longer even if all months have not been used."
 	wcom_info = "banked months ending for SNAP E & T non-coop."
-End if 
+End if
 
-If closure_reason = "Other closure" then 
+If closure_reason = "Other closure" then
 	header = "Closed"
 	closure_reason = closure_info
 	wcom_info = "banked months may be available."
-End if 
+End if
 
-If next_month_checkbox = 1 then 
+If next_month_checkbox = 1 then
 	end_header = ", new SNAP elig app'd"
-Else 
+Else
 	end_header = ""
-End if 
+End if
 '----------------------------------------------------------------------------------------------------The case note
 start_a_blank_CASE_NOTE
 call write_variable_in_CASE_NOTE(header & " Banked Months eff. " & MAXIS_footer_month & "/" & MAXIS_footer_year & " MEMB " & member_number & end_header)
@@ -229,14 +229,14 @@ call write_variable_in_CASE_NOTE("---Counted banked months: " & counted_banked_m
 call write_variable_in_CASE_NOTE("---")
 If exemption_check = 1 then call write_variable_in_CASE_NOTE("* Client does not meet an ABAWD exemption.")
 If second_set_check = 1 then call write_variable_in_CASE_NOTE("* Client does not meet ABAWD 2nd set criteria.")
-IF next_ABAWD_month <> "" then 
-	If second_set_check = 1 then 
+IF next_ABAWD_month <> "" then
+	If second_set_check = 1 then
 		call write_variable_in_CASE_NOTE("* Client will not be eligble for SNAP again until " & ABAWD_months & "unless the meets an exemption.")
-	Else 
+	Else
 		call write_variable_in_CASE_NOTE("* Client will not be eligble for SNAP again until " & ABAWD_months & "unless the meets an exemption, or qualifies for ABAWD 2nd set.")
 	End if
-End if 
-If next_month_checkbox = 1 then 
+End if
+If next_month_checkbox = 1 then
 	call write_variable_in_CASE_NOTE("---")
 	call write_variable_in_CASE_NOTE("* SNAP has been approved to continue for the next month.")
 End if
