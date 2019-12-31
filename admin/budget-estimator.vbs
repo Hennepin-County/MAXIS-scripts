@@ -147,7 +147,8 @@ function MEMB_function
 	Do
 		err_msg = ""
 
-		BeginDialog budg_est_dlg, 0,  0, 355, (40 + (UBound(CASE_INFO_ARRAY, 2) + 1) * 15), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+        Dialog1 = ""
+		BeginDialog Dialog1, 0,  0, 355, (40 + (UBound(CASE_INFO_ARRAY, 2) + 1) * 15), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
 		  Text 10, 5, 145, 10, "Who is applying?:"
 		  FOR all_clts = 0 to UBound(CASE_INFO_ARRAY, 2)									'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
 		  	  Text 10, (20 + (all_clts * 15)), 150, 10, CASE_INFO_ARRAY(clt_ref, all_clts) & " - " &  CASE_INFO_ARRAY(clt_name, all_clts) & "  " & CASE_INFO_ARRAY(clt_a_c, all_clts)   'Ignores and blank scanned in persons/strings to avoid a blank checkbox
@@ -160,7 +161,7 @@ function MEMB_function
 		  OkButton 300, 20 + ((UBound(CASE_INFO_ARRAY, 2) + 1) * 15), 50, 15
 		EndDialog
 
-		Dialog budg_est_dlg
+		Dialog Dialog1
 
 		cash_hh_size = 0
 		FOR all_clts = 0 to UBound(CASE_INFO_ARRAY, 2)
@@ -187,7 +188,8 @@ function NEW_CASE_MEMB_FUNCTION
 	family_cash_hh_size = family_cash_hh_size & ""
 	adult_cash_hh_size = adult_cash_hh_size & ""
 
-	BeginDialog budg_est_dlg, 0, 0, 116, 125, "Case Composition"
+	Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 116, 125, "Case Composition"
 	  EditBox 10, 25, 15, 15, number_of_adults
 	  EditBox 60, 25, 15, 15, number_of_children
 	  DropListBox 70, 45, 30, 45, "0"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"13"+chr(9)+"14"+chr(9)+"15"+chr(9)+"16"+chr(9)+"17"+chr(9)+"18"+chr(9)+"19"+chr(9)+"20", snap_hh_size
@@ -205,7 +207,7 @@ function NEW_CASE_MEMB_FUNCTION
 	Do
 		hh_comp_err_msg = ""
 
-		Dialog budg_est_dlg
+		Dialog Dialog1
 
 		If IsNumeric(number_of_adults) <> TRUE Then
 			hh_comp_err_msg = hh_comp_err_msg & vbnewLine & "The number of adults must be entered as a number."
@@ -265,7 +267,8 @@ function EARNED_INCOME_BUTTON_PRESSED
 			If EI_ARRAY(how_many_chck, every_one) <> " " then add_to_len = add_to_len + (20 * EI_ARRAY(how_many_chck, every_one))
 		Next
 
-		BeginDialog budg_est_dlg, 0, 0, 340, 60 + add_to_len, "Earned Income"
+		Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 340, 60 + add_to_len, "Earned Income"
 			y_pos = 0
 			For job_in_case = 0 to UBound(EI_ARRAY, 2)
 				If no_case_number_checkbox = unchecked Then DropListBox 5, 20 + y_pos, 105, 45, HH_Memb_DropDown, EI_ARRAY(employee, job_in_case)
@@ -320,8 +323,10 @@ function EARNED_INCOME_BUTTON_PRESSED
 			Text 120, 5, 40, 10, "Employer"
 			Text 260, 5, 40, 10, "# of Checks"
 		EndDialog
-		Dialog budg_est_dlg
-		If ButtonPressed = plus_button Then
+
+		Dialog Dialog1
+
+        If ButtonPressed = plus_button Then
 		 	add_another = Ubound(EI_ARRAY, 2) + 1
 			ReDim Preserve EI_ARRAY (18, add_another)
 		End If
@@ -505,7 +510,8 @@ function UNEA_BUTTON_PRESSED
 			CASE_INFO_ARRAY(clt_other_unea_2_amt, all_clts) = CASE_INFO_ARRAY(clt_other_unea_2_amt, all_clts) & ""
 		Next
 		total_case_unea = total_case_unea & ""
-		BeginDialog budg_est_dlg, 0, 0, 556, 60 + (20 * UBOUND(CASE_INFO_ARRAY, 2)), "Unearned Income"
+		Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 556, 60 + (20 * UBOUND(CASE_INFO_ARRAY, 2)), "Unearned Income"
 		  Text 5, 5, 50, 10, "Person"
 		  Text 170, 5, 35, 10, "RSDI"
 		  Text 205, 5, 30, 10, "SSI"
@@ -524,7 +530,7 @@ function UNEA_BUTTON_PRESSED
 		    OkButton 500, 40 + (20 * UBOUND(CASE_INFO_ARRAY, 2)), 50, 15
 		EndDialog
 
-		Dialog budg_est_dlg
+		Dialog Dialog1
 
 		total_case_unea = 0
 		For all_clts = 0 to UBOUND(CASE_INFO_ARRAY, 2)
@@ -550,7 +556,8 @@ function UNEA_BUTTON_PRESSED
 		Next
 
 		Do
-			BeginDialog budg_est_dlg, 0, 0, 555, 60 + (20 * UBOUND(CASE_UNEA_ARRAY, 2)), "Unearned Income"
+			Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 555, 60 + (20 * UBOUND(CASE_UNEA_ARRAY, 2)), "Unearned Income"
 			  Text 5, 5, 50, 10, "Person"
 			  Text 170, 5, 35, 10, "RSDI"
 			  Text 220, 5, 30, 10, "SSI"
@@ -571,7 +578,7 @@ function UNEA_BUTTON_PRESSED
 				OkButton 500, 40 + (20 * UBOUND(CASE_UNEA_ARRAY, 2)), 50, 15
 			EndDialog
 
-			Dialog budg_est_dlg
+			Dialog Dialog1
 
 			If ButtonPressed = plus_button Then
 				add_another = Ubound(CASE_UNEA_ARRAY, 2) + 1
@@ -614,7 +621,8 @@ function ASSETS_BUTTON_PRESSED
 
 		total_liquid_assets = total_liquid_assets & ""
 
-		BeginDialog budg_est_dlg, 0, 0, 400, 60 + (20 * UBOUND(CASE_INFO_ARRAY, 2)), "Assets"
+		Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 400, 60 + (20 * UBOUND(CASE_INFO_ARRAY, 2)), "Assets"
 		  Text 5, 5, 50, 10, "Person"
 		  Text 190, 5, 35, 10, "Checking"
 		  Text 245, 5, 30, 10, "Savings"
@@ -630,7 +638,7 @@ function ASSETS_BUTTON_PRESSED
 		    OkButton 345, 40 + (20 * UBOUND(CASE_INFO_ARRAY, 2)), 50, 15
 		EndDialog
 
-		Dialog budg_est_dlg
+		Dialog Dialog1
 
 		total_liquid_assets = 0
 		For all_clts = 0 to UBOUND(CASE_INFO_ARRAY, 2)
@@ -653,7 +661,8 @@ function ASSETS_BUTTON_PRESSED
 		Next
 
 		Do
-			BeginDialog budg_est_dlg, 0, 0, 315, 60 + (20 * UBOUND(CASE_ACCOUNTS_ARRAY, 2)), "Assets"
+			Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 315, 60 + (20 * UBOUND(CASE_ACCOUNTS_ARRAY, 2)), "Assets"
 			  Text 5, 5, 50, 10, "Person"
 			  Text 190, 5, 35, 10, "Type"
 			  Text 265, 5, 30, 10, "Amount"
@@ -668,7 +677,7 @@ function ASSETS_BUTTON_PRESSED
 				OkButton 260, 40 + (20 * UBOUND(CASE_ACCOUNTS_ARRAY, 2)), 50, 15
 			EndDialog
 
-			Dialog budg_est_dlg
+			Dialog Dialog1
 
 			If ButtonPressed = plus_button Then
 				add_another = Ubound(CASE_ACCOUNTS_ARRAY, 2) + 1
@@ -701,7 +710,8 @@ function OTHER_ASSETS_BUTTON_PRESSED
 		security_extend = 20 * UBOUND(SECURITIES_ARRAY, 2)
 		dlg_len = 145 + vehicle_extend + security_extend
 
-		BeginDialog budg_est_dlg, 0, 0, 290, dlg_len, "Dialog"
+		Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 290, dlg_len, "Dialog"
 		  GroupBox 5, 5, 260, 50 + vehicle_extend, "Vehicles"
 		  ButtonGroup ButtonPressed
 		    PushButton 270, 10, 15, 15, "+", add_vehicle_button
@@ -739,7 +749,7 @@ function OTHER_ASSETS_BUTTON_PRESSED
 		    OkButton 235, 125 + vehicle_extend + security_extend, 50, 15
 		EndDialog
 
-		Dialog budg_est_dlg
+		Dialog Dialog1
 		If ButtonPressed = add_vehicle_button Then
 			one_more_vehicle = UBOUND(VEHICLE_ARRAY, 2) + 1
 			ReDim Preserve VEHICLE_ARRAY(4, one_more_vehicle)
@@ -773,7 +783,8 @@ function SHELTER_BUTTON_PRESSED
 	actual_utility_expense = actual_utility_expense & ""
 	If subsidized_rent = TRUE Then subsidy_checkbox = checked
 
-	BeginDialog budg_est_dlg, 0, 0, 281, 85, "Shelter and Utilities Expense"
+	Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 281, 85, "Shelter and Utilities Expense"
 	  EditBox 75, 5, 50, 15, rent_expense
 	  EditBox 75, 25, 50, 15, prop_tax_expense
 	  EditBox 75, 45, 50, 15, home_ins_expense
@@ -792,7 +803,7 @@ function SHELTER_BUTTON_PRESSED
 	  Text 140, 10, 75, 10, "Actual Utilities (DWP):"
 	EndDialog
 
-	Dialog budg_est_dlg
+	Dialog Dialog1
 
 	if rent_expense = "" then rent_expense = 0
 	if prop_tax_expense = "" then prop_tax_expense = 0
@@ -818,7 +829,8 @@ function DCEX_COEX_FMED_BUTTON_PRESSED
 	alimony_exp = alimony_exp & ""
 	monthly_fmed_exp = monthly_fmed_exp & ""
 
-	BeginDialog budg_est_dlg, 0, 0, 211, 185, "Monthly Expenses Dialog"
+	Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 211, 185, "Monthly Expenses Dialog"
 	  GroupBox 5, 5, 200, 50, "Dependent Care Expenses"
 	  Text 20, 20, 115, 10, "Total Monthly Child Care Expense"
 	  EditBox 140, 15, 50, 15, monthly_childcare_exp
@@ -836,7 +848,7 @@ function DCEX_COEX_FMED_BUTTON_PRESSED
 	    OkButton 155, 165, 50, 15
 	EndDialog
 
-	Dialog budg_est_dlg
+	Dialog Dialog1
 
 	If monthly_childcare_exp = "" Then monthly_childcare_exp = 0
 	If monthly_adultcare_exp = "" Then monthly_adultcare_exp = 0
@@ -857,7 +869,8 @@ end function
 function PROGRAM_SPECIFIC_BUTTON_PRESSED
 	fmed_expenses = fmed_expenses & ""
 
-	BeginDialog budg_est_dlg, 0, 0, 155, 180, "Program Information"
+	Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 155, 180, "Program Information"
 	  GroupBox 5, 5, 145, 35, "SNAP"
 	  CheckBox 15, 20, 90, 10, "Elderly/Disabled Case", elderly_disabled_checkbox
 	  'Text 25, 40, 85, 10, "FMED Expenses/month"
@@ -874,7 +887,7 @@ function PROGRAM_SPECIFIC_BUTTON_PRESSED
 	    OkButton 100, 160, 50, 15
 	EndDialog
 
-	Dialog budg_est_dlg
+	Dialog Dialog1
 
 	If elderly_disabled_checkbox = checked Then elderly_disa_case = True
 	If elderly_disabled_checkbox = unchecked Then elderly_disa_case = False
@@ -886,7 +899,8 @@ end function
 
 function MSA_SPECIAL_NEEDS
 
-	BeginDialog budg_est_dlg, 0, 0, 311, 160, "MSA Special Needs"
+	Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 311, 160, "MSA Special Needs"
 	  CheckBox 10, 5, 70, 10, "Rep Payee ($25)", sn_rep_payee_checkbox
 	  CheckBox 10, 20, 105, 10, "Guardian/Conservator ($100)", sn_guardian_checkbox
 	  CheckBox 150, 5, 90, 10, "Restaraunt Meals ($68)", sn_restaraunt_meals_checkbox
@@ -907,7 +921,7 @@ function MSA_SPECIAL_NEEDS
 	  GroupBox 5, 35, 300, 95, "Special Diets"
 	EndDialog
 
-	dialog budg_est_dlg
+	dialog Dialog1
 
 end function
 'Income Limits and Assistance Standards
@@ -1657,7 +1671,8 @@ If MAXIS_footer_month = "" Then MAXIS_footer_month = Right("00" & DatePart("m", 
 If MAXIS_footer_year = "" Then MAXIS_footer_year = Right("00" & DatePart("yyyy", date), 2)
 
 'Defining case number dialog'
-BeginDialog budg_est_dlg, 0, 0, 256, 80, "Budget Estimator"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 256, 80, "Budget Estimator"
   EditBox 65, 5, 80, 15, MAXIS_case_number
   EditBox 205, 5, 20, 15, MAXIS_footer_month
   EditBox 230, 5, 20, 15, MAXIS_footer_year
@@ -1673,7 +1688,7 @@ EndDialog
 
 Do
 	err_msg = ""
-	dialog budg_est_dlg
+	dialog Dialog1
 	If ButtonPressed = 0 Then script_end_procedure("")
 	If MAXIS_case_number = "" AND no_case_number_checkbox = unchecked Then err_msg = err_msg & vbnewLine & "- Enter a case number. To run on a situation with no case number, check the box for a new case."
 	If MAXIS_footer_month = "" OR MAXIS_footer_year = "" Then err_msg = err_msg & vbnewLine & "- Enter footer month and year."
@@ -2991,7 +3006,8 @@ Do
 
 	total_earned_income = case_ei_gross
 ''	MsgBox FPG_165_Amt
-	BeginDialog budg_est_dlg, 0, 0, 400, 335, "Budget Estimator"
+	Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 400, 335, "Budget Estimator"
 
 	  GroupBox 5, 5, 195, 60, "Household Composition"
 	  Text 15, 20, 50, 10, "SNAP HH Size"
@@ -3056,7 +3072,7 @@ Do
 
 	EndDialog
 
-	Dialog budg_est_dlg
+	Dialog Dialog1
 
 	cancel_confirmation
 
@@ -3324,9 +3340,9 @@ End if
 If case_note_checkbox = checked Then
 
 
-
-If SNAP_active = FALSE Then BeginDialog budg_est_dlg, 0, 0, 221, 250, "Case Note Budget Discussion"
-If SNAP_active = TRUE Then BeginDialog budg_est_dlg, 0, 0, 221, 145, "Case Note Budget Discussion"
+Dialog1 = ""
+If SNAP_active = FALSE Then BeginDialog Dialog1, 0, 0, 221, 250, "Case Note Budget Discussion"
+If SNAP_active = TRUE Then BeginDialog Dialog1, 0, 0, 221, 145, "Case Note Budget Discussion"
   Text 10, 10, 205, 40, "This case note will indicate that a discussion happened with the client about potential changes to benefit. The case note will not list an estimated benefit as this estimate is not a promise to the client. Client will need to provide verifications/application and STAT updated for the benefit to change. "
   Text 10, 65, 120, 10, "How did this discussion take place?"
   ComboBox 135, 60, 80, 45, " "+chr(9)+"In Person"+chr(9)+"On Phone", contact_type
@@ -3357,7 +3373,7 @@ EndDialog
 
 Do
 	err_msg = ""
-	Dialog budg_est_dlg
+	Dialog Dialog1
 	cancel_confirmation
 
 	If contact_type = " " Then err_msg = err_msg & vbnewLine & "Indicate how contact wsa made with client (phone, in person, etc)."
