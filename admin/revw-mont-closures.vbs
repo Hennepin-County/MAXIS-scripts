@@ -58,18 +58,18 @@ changelog_display
 Set objNet = CreateObject("WScript.NetWork")
 
 'Determines user to enable debugging features. Add individuals to this if...then to include them with developer mode.
-If ucase(objNet.UserName) = "ILFE001" then 
+If ucase(objNet.UserName) = "ILFE001" then
     user_name = "Ilse"
-    user_found = true 
-Elseif ucase(objNet.UserName) = "CALO001" then 
+    user_found = true
+Elseif ucase(objNet.UserName) = "CALO001" then
     user_name = "Casey"
-    user_found = true 
+    user_found = true
 Elseif ucase(objNet.UserName) = "WFS395" then
     user_name = "MiKayla"
-    user_found = true 
-Else 
-    user_found = false 
-End if 
+    user_found = true
+Else
+    user_found = false
+End if
 
 inquiry_testing = MsgBox("Master Developer detected. Hello, " & user_name & "." & vbcr & "Would you like to enable inquiry testing and bypass date restrictions?", vbYesNoCancel)
 If inquiry_testing = vbCancel then cancel_without_confirmation   'If cancelled...
@@ -78,19 +78,6 @@ If inquiry_testing = vbCancel then cancel_without_confirmation   'If cancelled..
 'If inquiry_testing = vbYes, it should bypass this restriction. Otherwise, it should filter through.
 'Because of that, I've included "if inquiry_testing <> vbYes" at the beginning of my date restriction.
 If inquiry_testing <> vbYes and datepart("m", dateadd("d", 8, date)) = datepart("m", date) then script_end_procedure("This script cannot be run until the last week of the month.")
-
-'----------------------THIS IS THE DIALOG FOR THE SCRIPT
-BeginDialog REVW_MONT_closures_dialog, 0, 0, 206, 90, "REVW/MONT closures"
-  EditBox 160, 5, 40, 15, worker_number
-  CheckBox 5, 25, 150, 10, "Check here to run this query agency-wide.", all_workers_check
-  CheckBox 15, 55, 120, 10, "REPT/MONT? (HRFs)", MONT_check
-  CheckBox 15, 70, 120, 10, "REPT/REVW? (CSRs and ARs)", REVW_check
-  ButtonGroup ButtonPressed
-    OkButton 160, 50, 40, 15
-    CancelButton 160, 70, 40, 15
-  GroupBox 5, 40, 145, 45, "Case note closing/incomplete cases from:"
-  Text 5, 10, 145, 10, "Enter 7-digit x number(s), comma seperated:"
-EndDialog
 
 '----------------------CONNECTING TO BLUEZONE, RUNNING THE DIALOG, AND NAVIGATING TO REPT/REVW
 EMConnect ""
@@ -104,10 +91,22 @@ all_workers_check = 1
 MONT_check = 1
 REVW_check = 1
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 206, 90, "REVW/MONT closures"
+  EditBox 160, 5, 40, 15, worker_number
+  CheckBox 5, 25, 150, 10, "Check here to run this query agency-wide.", all_workers_check
+  CheckBox 15, 55, 120, 10, "REPT/MONT? (HRFs)", MONT_check
+  CheckBox 15, 70, 120, 10, "REPT/REVW? (CSRs and ARs)", REVW_check
+  ButtonGroup ButtonPressed
+    OkButton 160, 50, 40, 15
+    CancelButton 160, 70, 40, 15
+  GroupBox 5, 40, 145, 45, "Case note closing/incomplete cases from:"
+  Text 5, 10, 145, 10, "Enter 7-digit x number(s), comma seperated:"
+EndDialog
 Do
 	Do
         err_msg = ""
-		Dialog REVW_MONT_closures_dialog
+		Dialog Dialog1
 		cancel_without_confirmation
         If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
   		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
@@ -130,7 +129,7 @@ Else
 			worker_array = worker_array & "," & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
 		End if
 	Next
-    
+
 	worker_array = split(worker_array, ",")
 End if
 
@@ -143,7 +142,7 @@ If REVW_check = 1 then
         'msgbox worker
 	    Call navigate_to_MAXIS_screen("rept", "revw")
         Call write_value_and_transmit(worker, 21, 6)
-	    
+
 	    row = 7
 	    Do
 	    	EMReadScreen MAXIS_case_number, 8, row, 6																'Gets case number
@@ -156,11 +155,11 @@ If REVW_check = 1 then
 	    		EMReadScreen exempt_IR_check, 1, row, 51													'Checks for exempt IRs (starred IRs)
 	    		If exempt_IR_check <> "*" then are_programs_closing = True									'Only adds cases to array if they are not exempt from an IR
 	    	End if
-    
+
 	    	'If the above found the case is closing, it adds to the array.
 	    	If are_programs_closing = True then case_number_list = trim(case_number_list & " " & trim(MAXIS_case_number))
 	    	are_programs_closing = ""		'Clears out variable
-    
+
 	    	row = row + 1
 	    	If row = 19 then
 	    		PF8
@@ -168,7 +167,7 @@ If REVW_check = 1 then
 	    		row = 7
 	    	End if
 	    Loop until trim(MAXIS_case_number) = "" or last_check = "LAST"
-    
+
 	    case_number_array = split(case_number_list)
 	      '-----------------------NAVIGATING TO EACH CASE AND CASE NOTING THE ONES THAT ARE CLOSING
 	    For each MAXIS_case_number in case_number_array
@@ -210,14 +209,14 @@ If REVW_check = 1 then
 	    			transmit
 	    		End if
 	    		If HC_review_code = "I" then HC_review_status = "closing for incomplete review. See previous case notes for details on what's needed."
-    
+
 	    		'Checking for the active CASH program. If the case is GRH, MSA, GA, MFIP, or DWP, the client is eligible for an additional 30 day reinstatement period.
 	    		'If the case is RCA, the client is not eligible for an additional 30 day reinstatement period for no-or-incomplete review.
 	    		'For policy on the matter, see Bulletin #14-69-05 (http://www.dhs.state.mn.us/main/groups/publications/documents/pub/dhs16_185044.pdf)
 	    		IF cash_review_code = "N" OR cash_review_code = "I" THEN
 	    			EMWriteScreen "PROG", 20, 71
 	    			transmit
-    
+
 	    			EMReadScreen cash_status, 4, 9, 74
 	    			IF cash_status = "ACTV" THEN
 	    				cash_prog = "GR"
@@ -230,7 +229,7 @@ If REVW_check = 1 then
 	    					EMReadScreen cash_prog, 2, 7, 67
 	    				END IF
 	    			END IF
-    
+
 	    			IF cash_prog = "GR" OR cash_prog = "GA" OR cash_prog = "MS" OR cash_prog = "DW" OR cash_prog = "MF" THEN
 	    				elig_for_cash_rein = True
 	    			ELSEIF cash_prog = "RC" THEN
@@ -238,16 +237,16 @@ If REVW_check = 1 then
 	    			END IF
 	    			EMWriteScreen "REVW", 20, 71
 	    		END IF
-                
+
 	    		'---------------THIS SECTION FIGURES OUT WHEN PROGRAMS CAN TURN IN NEW RENEWALS AND WHEN THEY BECOME INTAKES AGAIN
 	    		EMReadScreen first_of_working_month, 5, 20, 55		'Used by the following logic to determine the first date
 	    		first_of_working_month = cdate(replace(first_of_working_month, " ", "/01/"))	'Added "/01/" to make it a date
-    
+
 	    		If HC_review_status <> "" then	'Added additional logic as currently MAGI clients get an additonal 4 months to turn in renewal paperwork.
 	    			last_day_to_turn_in_HC_docs = dateadd("d", -1, (dateadd("m", 4, first_of_working_month)))
 	    			HC_intake_date = dateadd("d", 1, last_day_to_turn_in_HC_docs)
 	    		End If
-                
+
 	    		If FS_review_status <> "" then
 	    			If FS_review_code = "I" or FS_review_document = "CSR" then
 	    				last_day_to_turn_in_SNAP_docs = dateadd("d", -1, (dateadd("m", 1, first_of_working_month)))
@@ -257,7 +256,7 @@ If REVW_check = 1 then
 	    				SNAP_intake_date = first_of_working_month
 	    			End if
 	    		End if
-                
+
 	    		If cash_review_status <> "" then
 	    			IF elig_for_cash_rein = True THEN
 	    				last_day_to_turn_in_cash_docs = dateadd("d", -1, dateadd("M", 1, first_of_working_month))
@@ -267,7 +266,7 @@ If REVW_check = 1 then
 	    				cash_intake_date = first_of_working_month
 	    			END IF
 	    		End if
-    
+
 	    		'---------------NOW IT CASE NOTES
 	    		If inquiry_testing <> vbYes then
 	    			Call start_a_blank_CASE_NOTE
@@ -279,16 +278,16 @@ If REVW_check = 1 then
 	    			call write_bullet_and_variable_in_case_note("Cash", cash_review_status)
 	    			call write_bullet_and_variable_in_case_note("SNAP", FS_review_status)
 	    			call write_bullet_and_variable_in_case_note("HC", HC_review_status)
-	    			
+
 	    			'last_day_to_turn_in_cash_docs = trim(last_day_to_turn_in_cash_docs)
 	    			'IF last_day_to_turn_in_cash_docs <> "" THEN call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_cash_docs & " to turn in CAF/CSR and/or proofs for cash.")
 	    			'
                     'last_day_to_turn_in_SNAP_docs = trim(last_day_to_turn_in_SNAP_docs)
 	    			'IF last_day_to_turn_in_SNAP_docs <> "" THEN call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_SNAP_docs & " to turn in CAF/CSR and/or proofs for SNAP.")
-	    			
+
                     last_day_to_turn_in_HC_docs = trim(last_day_to_turn_in_HC_docs)
 	    			IF last_day_to_turn_in_HC_docs <> "" THEN call write_variable_in_case_note("* Client has until " & last_day_to_turn_in_HC_docs & " to turn in HC review doc and/or proofs.")
-	    			
+
                     If cash_review_status <> "" and cash_intake_date <> "" then call write_variable_in_case_note("* Client needs to turn in new application for cash on " & cash_intake_date & ".")
 	    			If FS_review_status <> "" and SNAP_intake_date <> "" then call write_variable_in_case_note("* Client needs to turn in new application for SNAP on " & SNAP_intake_date & ".")
 	    		Else	'special handling for inquiry_testing (developers testing scenarios)
@@ -324,10 +323,10 @@ If REVW_check = 1 then
 	    	cash_prog = ""
 	    	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 	    Next
-    
+
 	    'Call navigate_to_MAXIS_screen("rept", "revw")
 	    'Call write_value_and_transmit(worker_number, 21, 6)
-    next    
+    next
 End If
 
 'Resetting the case number array
@@ -353,10 +352,10 @@ If MONT_check = 1 then
                 row = 7
             End if
         Loop until trim(MAXIS_case_number) = "" or last_check = "LAST"
-        
+
         'Creating an array out of the case number array
         case_number_array = split(case_number_list)
-        
+
         'Navigating to each case, and case noting the ones that are closing.
         For each MAXIS_case_number in case_number_array
             'Going to the case, checking for error prone
@@ -364,21 +363,21 @@ If MONT_check = 1 then
         	EMReadScreen priv_check, 4, 24, 14 'Checking if we can get into stat (need to bypass Privileged cases)
         	IF priv_check <> "PRIV" THEN 'Not privileged, we can go ahead and do everything
         		call navigate_to_MAXIS_screen("stat", "mont") 'In case of error prone cases
-        
+
         		'Reading the review codes, converting them to a status update for the case note
         		EMReadScreen cash_review_code, 1, 11, 43
         		EMReadScreen FS_review_code, 1, 11, 53
         	  '---------------NOW IT CASE NOTES
         		PF4
         		PF9
-        
+
         		If inquiry_testing <> vbYes then
-                    If FS_review_code = "I" and cash_review_code = "I" then 
-                    elseif FS_review_code = "I" then 
+                    If FS_review_code = "I" and cash_review_code = "I" then
+                    elseif FS_review_code = "I" then
                         header = "--SNAP Closing for " & next_month
-                    elseif cash_review_code = "I" then 
+                    elseif cash_review_code = "I" then
                         header = "--Cash Closing for " & next_month
-                    End if 
+                    End if
                     If FS_review_code = "I" or cash_review_code = "I" then
         		      call write_variable_in_CASE_NOTE("-" & header & ": Incomplete HRF--")
         		    Else
@@ -393,11 +392,11 @@ If MONT_check = 1 then
 	    									"New SNAP application would be needed on or after this date: : " & SNAP_intake_date & chr(10) & _
 	    			debugging_MsgBox = MsgBox(string_for_msgbox, vbOKCancel)
 	    			If debugging_MsgBox = vbCancel then cancel_without_confirmation
-                End if     
+                End if
         	ELSE 'Prived case, add the case number to the list
         		priv_case_list = priv_case_list & " " & MAXIS_case_number
         	END IF
-        
+
           '----------------NOW IT RESETS THE VARIABLES FOR THE REVIEW CODES, STATUS, AND DATES
             cash_review_code = ""
             GRH_review_code = ""
@@ -412,10 +411,10 @@ If MONT_check = 1 then
             intake_date = ""
         	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
         Next
-        
+
         'Call navigate_to_MAXIS_screen("rept", "mont")
         'Call write_value_and_transmit(worker_number, 21, 6)
-    Next 
+    Next
 End If
 
 MsgBox "Success! All cases that are coded in REPT/REVW and/or REPT/MONT as either an ''N'' or an ''I'' have been case noted for why they're closing, and what documents need to get turned in."
