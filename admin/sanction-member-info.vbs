@@ -50,8 +50,12 @@ call changelog_update("05/25/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS----------------------------------------------------------------------
-BeginDialog sanction_dialog, 0, 0, 218, 120, "7th Sanction Identifier dialog"
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+'Connects to BlueZone
+EMConnect ""
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 218, 120, "7th Sanction Identifier dialog"
   EditBox 75, 20, 135, 15, worker_number
   CheckBox 5, 65, 150, 10, "Check here to run this query county-wide.", all_workers_check
   ButtonGroup ButtonPressed
@@ -63,15 +67,11 @@ BeginDialog sanction_dialog, 0, 0, 218, 120, "7th Sanction Identifier dialog"
   Text 5, 40, 210, 20, "Enter all 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
 EndDialog
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connects to BlueZone
-EMConnect ""
-
 'Shows dialog
 Do
 	Do
-		Dialog sanction_dialog
-		If buttonpressed = cancel then stopscript
+		Dialog Dialog1
+		cancel_without_confirmation
 		If (all_workers_check = 0 AND worker_number = "") then MsgBox "Please enter at least one worker number." 'allows user to select the all workers check, and not have worker number be ""
 	LOOP until all_workers_check = 1 or worker_number <> ""
 	Call check_for_password(are_we_passworded_out)
@@ -136,23 +136,23 @@ For each worker in worker_array
 		Do
 			MAXIS_row = 7	'Sets the row to start searching in MAXIS for
 			Do
-				
+
 				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 6  	'Reading case number
 				EMReadScreen client_name, 18, MAXIS_row, 16
-				
+
                 'if more than one HH member is on the list then non-MEMB 01's don't have a case number listed, this fixes that
 				If trim(MAXIS_case_number) = "" AND trim(client_name) <> "" then 			'if there's a name and no case number
 					EMReadScreen alt_case_number, 8, MAXIS_row - 1, 6				'then it reads the row above
-                    MAXIS_case_number = alt_case_number									'restablishes that in this instance, alt case number = case number'    
+                    MAXIS_case_number = alt_case_number									'restablishes that in this instance, alt case number = case number'
                 END IF
-                
+
                 If trim(MAXIS_case_number) = "" and trim(client_name) = "" then exit do			'Exits do if we reach the end
-				
+
 				'add case/case information to Excel
         		ObjExcel.Cells(excel_row, 1).Value = worker
         		ObjExcel.Cells(excel_row, 2).Value = trim(MAXIS_case_number)
-                ObjExcel.Cells(excel_row, 3).Value = trim(client_name)			
-                
+                ObjExcel.Cells(excel_row, 3).Value = trim(client_name)
+
 				excel_row = excel_row + 1	'moving excel row to next row'
 				MAXIS_case_number = ""          'Blanking out variable
 				MAXIS_row = MAXIS_row + 1	'adding one row to search for in MAXIS
@@ -170,15 +170,15 @@ Do
     client_name        = objExcel.cells(excel_row, 3).Value	're-establishing the client name to use for the case
     If MAXIS_case_number = "" then exit do						'exits do if the case number is ""
 	Call navigate_to_MAXIS_screen("REPT", "MFCM")
-	
+
 	EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
 	If PRIV_check = "PRIV" then
 		priv_case_list = priv_case_list & "|" & MAXIS_case_number
 		SET objRange = objExcel.Cells(excel_row, 1).EntireRow
-		objRange.Delete				'row gets deleted since it will get added to the priv case list at end of script 
-		IF excel_row = 2 then 
+		objRange.Delete				'row gets deleted since it will get added to the priv case list at end of script
+		IF excel_row = 2 then
 			excel_row = excel_row
-		Else 
+		Else
 			excel_row = excel_row - 1
 		End if
 		'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
@@ -189,57 +189,57 @@ Do
 		LOOP until SELF_screen_check = "SELF"
 		EMWriteScreen "________", 18, 43		'clears the case number
 		transmit
-	Else 
+	Else
         EMReadScreen case_content, 7, 8, 7
-	    If trim(case_content) = "" then 
-	    	'making sure we are getting the right person for cases where there are more than one case. 
+	    If trim(case_content) = "" then
+	    	'making sure we are getting the right person for cases where there are more than one case.
         	row = 7
-        	Do 
+        	Do
             	EMReadScreen case_name, 18, row, 16
 	    		case_name = trim(case_name)
             	If case_name <> client_name then row = row + 1
-        	LOOP until case_name = client_name  
+        	LOOP until case_name = client_name
 	    	EMWriteScreen "x", row, 36		'going into the SANC panel to get case info
-			'msgbox row & " for content for member"     
-	    Else 
+			'msgbox row & " for content for member"
+	    Else
 	    	EMWriteScreen "x", 7, 36		'going into the SANC panel to get case info
-	    End if 
-	
+	    End if
+
 		transmit
 	    'For all of the cases that aren't privileged...
         EMReadScreen ERRR_panel_check, 4, 2, 52         'Ensuring that there are no errors on the case. If they are the client inforamiton will not input.
         If ERRR_panel_check = "ERRR" then transmit
-	    
+
 	    'Reading and inputing information from the SANC panel
 	    EMReadScreen memb_number, 2, 4, 12		'reading member number
-	   	ObjExcel.Cells(excel_row, 4).Value = memb_number	
-		
+	   	ObjExcel.Cells(excel_row, 4).Value = memb_number
+
 		Call navigate_to_MAXIS_screen("STAT", "MEMB")
 		Call write_value_and_transmit(memb_number, 20, 76)
-		
+
 		EMReadScreen memb_PMI, 10, 4, 46
 		EMReadScreen memb_SMI, 10, 5, 46
-	        	
-        ObjExcel.Cells(excel_row, 5).Value = trim(memb_PMI)		
+
+        ObjExcel.Cells(excel_row, 5).Value = trim(memb_PMI)
 	    ObjExcel.Cells(excel_row, 6).Value = trim(memb_SMI)
-	       
+
         excel_row = excel_row + 1
 	    STATS_counter = STATS_counter + 1
-	End if 
+	End if
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'Loops until there are no more cases in the Excel list
 
-IF priv_case_list <> "" then 
+IF priv_case_list <> "" then
 	'Creating the list of privileged cases and adding to the spreadsheet
 	excel_row = 2				'establishes the row to start writing the PRIV cases to
 	objExcel.cells(1, 8).Value = "PRIV cases"
-	
+
 	prived_case_array = split(priv_case_list, "|")
-	
+
 	FOR EACH MAXIS_case_number in prived_case_array
-		If trim(MAXIS_case_number) <> "" then 
+		If trim(MAXIS_case_number) <> "" then
 			objExcel.cells(excel_row, 8).value = MAXIS_case_number		'inputs cases into Excel
 			excel_row = excel_row + 1								'increases the row
-		End if 
+		End if
 	NEXT
 End if
 
