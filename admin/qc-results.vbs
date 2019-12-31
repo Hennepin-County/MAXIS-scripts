@@ -51,33 +51,6 @@ call changelog_update("06/21/2019", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DIALOGS FOR THE SCRIPT======================================================================================================
-BeginDialog case_number_dialog, 0, 0, 236, 70, "Enter the initial case information"
-  EditBox 70, 5, 45, 15, MAXIS_case_number
-  DropListBox 175, 5, 55, 15, "Select One..."+chr(9)+"MF - FS"+chr(9)+"SNAP "+chr(9)+"UHFS", program_droplist
-  EditBox 70, 25, 20, 15, MAXIS_footer_month
-  EditBox 95, 25, 20, 15, MAXIS_footer_year
-  DropListBox 175, 25, 55, 15, "Select One..."+chr(9)+"CAPER"+chr(9)+"QC"+chr(9)+"QC < $38"+chr(9)+"WCOM only", error_selection
-  EditBox 70, 50, 75, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 150, 50, 40, 15
-    CancelButton 190, 50, 40, 15
-  Text 130, 30, 40, 10, "Error Type:"
-  Text 20, 10, 50, 10, "Case Number: "
-  Text 5, 55, 60, 10, "Worker Signature:"
-  Text 5, 30, 65, 10, "Footer month/year:"
-  Text 135, 10, 35, 10, "Program:"
-EndDialog
-
-BeginDialog WCOM_dialog, 0, 0, 186, 50, "Select the DHS QC Contact"
-  ButtonGroup ButtonPressed
-    OkButton 100, 30, 40, 15
-    CancelButton 140, 30, 40, 15
-  DropListBox 100, 10, 80, 15, "Select one..."+chr(9)+"Abdi Ugas"+chr(9)+"Chi Yang"+chr(9)+"Erin Good"+chr(9)+"Gary Lesney"+chr(9)+"Khin Win"+chr(9)+"Lisa Enstad"+chr(9)+"Lor Yang"+chr(9)+"Lori Bona"+chr(9)+"Yer Yang", QC_contact
-  Text 5, 15, 90, 10, "Select the DHS QC contact:"
-EndDialog
-'END DIALOGS=================================================================================================================
-
 'Name 	     Phone
 'Abdi Ugas	 651-431-4026
 'Chi Yang	 651-431-3964
@@ -94,11 +67,28 @@ EMConnect ""    'Connects to BlueZone
 CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabs the MAXIS case number automatically
 CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 236, 70, "Enter the initial case information"
+  EditBox 70, 5, 45, 15, MAXIS_case_number
+  DropListBox 175, 5, 55, 15, "Select One..."+chr(9)+"MF - FS"+chr(9)+"SNAP "+chr(9)+"UHFS", program_droplist
+  EditBox 70, 25, 20, 15, MAXIS_footer_month
+  EditBox 95, 25, 20, 15, MAXIS_footer_year
+  DropListBox 175, 25, 55, 15, "Select One..."+chr(9)+"CAPER"+chr(9)+"QC"+chr(9)+"QC < $38"+chr(9)+"WCOM only", error_selection
+  EditBox 70, 50, 75, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 150, 50, 40, 15
+    CancelButton 190, 50, 40, 15
+  Text 130, 30, 40, 10, "Error Type:"
+  Text 20, 10, 50, 10, "Case Number: "
+  Text 5, 55, 60, 10, "Worker Signature:"
+  Text 5, 30, 65, 10, "Footer month/year:"
+  Text 135, 10, 35, 10, "Program:"
+EndDialog
 'the dialog
 Do
 	Do
   		err_msg = ""
-  		Dialog case_number_dialog
+  		Dialog Dialog1
         cancel_without_confirmation
         Call validate_MAXIS_case_number(err_msg, "*")
   		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
@@ -108,22 +98,30 @@ Do
         If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in		
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-If error_selection = "WCOM only" then 
+If error_selection = "WCOM only" then
     STATS_manualtime = 90
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 186, 50, "Select the DHS QC Contact"
+      ButtonGroup ButtonPressed
+        OkButton 100, 30, 40, 15
+        CancelButton 140, 30, 40, 15
+      DropListBox 100, 10, 80, 15, "Select one..."+chr(9)+"Abdi Ugas"+chr(9)+"Chi Yang"+chr(9)+"Erin Good"+chr(9)+"Gary Lesney"+chr(9)+"Khin Win"+chr(9)+"Lisa Enstad"+chr(9)+"Lor Yang"+chr(9)+"Lori Bona"+chr(9)+"Yer Yang", QC_contact
+      Text 5, 15, 90, 10, "Select the DHS QC contact:"
+    EndDialog
     Do
         Do
             err_msg = ""
-            Dialog WCOM_dialog
+            Dialog Dialog1
             cancel_without_confirmation
             If QC_contact = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the applicable QC contact."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
         LOOP UNTIL err_msg = ""
-        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-    Loop until are_we_passworded_out = false					'loops until user passwords back in	 
-    
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+
     If QC_contact = "Abdi Ugas"   then phone_number = "651-431-4026"
     If QC_contact = "Chi Yang"    then phone_number = "651-431-3964"
     If QC_contact = "Erin Good"   then phone_number = "651-431-3984"
@@ -133,30 +131,30 @@ If error_selection = "WCOM only" then
     If QC_contact = "Lor Yang"    then phone_number = "651-431-6304"
     If QC_contact = "Lori Bona"   then phone_number = "651-431-3950"
     If QC_contact = "Yer Yang"    then phone_number = "651-431-3965"
-    
+
     'Navigating to the spec wcom screen
     MAXIS_background_check
     CALL Check_for_MAXIS(false)
     CALL navigate_to_MAXIS_screen("SPEC", "WCOM")
-    
+
     Emwritescreen MAXIS_footer_month, 19, 54
     Emwritescreen MAXIS_footer_year, 19, 57
     transmit
-    
+
     'prog_type based on program selected in initial dialog
-    If program_droplist = "MF - FS" then 
+    If program_droplist = "MF - FS" then
         prog_type = "MF"
-    else 
+    else
         prog_type = "FS"
-    End if 
-    
+    End if
+
     'Searching for waiting SNAP notice
     wcom_row = 6
     Do
     	wcom_row = wcom_row + 1
     	Emreadscreen program_type, 2, wcom_row, 26
     	Emreadscreen print_status, 7, wcom_row, 71
-    	If program_type = prog_type then 
+    	If program_type = prog_type then
     		If print_status = "Waiting" then
     			Emwritescreen "x", wcom_row, 13
     			Transmit
@@ -181,94 +179,95 @@ If error_selection = "WCOM only" then
     	end if
     	If spec_edit_check = "NOTICE" THEN no_fs_waiting = true
     Loop until spec_edit_check = "NOTICE"
-    
+
     If no_fs_waiting = true then script_end_procedure("No waiting FS notice was found for the requested month. The script will now end.")
-    
+
     script_end_procedure("WCOM has been added to the first found waiting SNAP notice for the month and case selected. Please review the notice.")
-Else 
+Else
     STATS_manualtime = 180
     contact_date = date & ""
-    reminder_checkbox = 1 'checked 
+    reminder_checkbox = 1 'checked
 
-    If error_selection = "CAPER" then height = 90    
+    If error_selection = "CAPER" then height = 90
     If error_selection = "QC < $38" then height = 135
     If error_selection = "QC" then height = 160
-    
-    BeginDialog QC_dialog, 0, 0, 371, height, error_selection & " Information for case #" & MAXIS_case_number
-    ButtonGroup ButtonPressed
-    text 15, 15, 50, 10, "CM Reference:"
-    EditBox 70, 10, 295, 15, CM_reference
-    Text 5, 40, 60, 10, "HSR error sent to:"
-    EditBox 70, 35, 90, 15, HSR_name
-    Text 165, 40, 10, 10, "on"
-    EditBox 180, 35, 50, 15, contact_date
-    CheckBox 25, 55, 205, 10, "Check here add a 20 day reminder to your Outlook calendar.", reminder_checkbox
-    Text 10, 75, 60, 10, "Other error notes:"
-    EditBox 70, 70, 245, 15, other_notes
 
-    If error_selection <> "CAPER" then 
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 371, height, error_selection & " Information for case #" & MAXIS_case_number
+      ButtonGroup ButtonPressed
+      text 15, 15, 50, 10, "CM Reference:"
+      EditBox 70, 10, 295, 15, CM_reference
+      Text 5, 40, 60, 10, "HSR error sent to:"
+      EditBox 70, 35, 90, 15, HSR_name
+      Text 165, 40, 10, 10, "on"
+      EditBox 180, 35, 50, 15, contact_date
+      CheckBox 25, 55, 205, 10, "Check here add a 20 day reminder to your Outlook calendar.", reminder_checkbox
+      Text 10, 75, 60, 10, "Other error notes:"
+      EditBox 70, 70, 245, 15, other_notes
+
+      If error_selection <> "CAPER" then
         Text 10, 100, 60, 10, "Error Description:"
         EditBox 70, 95, 245, 15, error_description
         Text 5, 120, 60, 10, "Agency or Client?:"
         DropListBox 70, 115, 50, 15, "Select one..."+chr(9)+"Agency"+chr(9)+"Client", agency_or_client
         Text 130, 120, 65, 10, "Payment error type:"
         DropListBox 200, 115, 65, 15, "Select one..."+chr(9)+"Overpayment"+chr(9)+"Underpayment", payment_type
-    End if 
-    If error_selection = "QC" then 
+      End if
+      If error_selection = "QC" then
         Text 30, 145, 35, 10, "Error type:"
         EditBox 70, 140, 245, 15, error_type
-    End if 
-    ButtonGroup ButtonPressed
-      OkButton 315, 30, 50, 15
-      CancelButton 315, 50, 50, 15
+      End if
+      ButtonGroup ButtonPressed
+        OkButton 315, 30, 50, 15
+        CancelButton 315, 50, 50, 15
     EndDialog
-    
-    Do 
+
+    Do
         If error_selection = "CAPER" then
-            Do 
+            Do
                 err_msg = ""
-                Dialog QC_dialog
+                Dialog Dialog1
                 cancel_confirmation
                 If trim(CM_reference) = "" then err_msg = err_msg & vbNewLine & "* Enter the CM references."
                 If trim(HSR_name) = "" then err_msg = err_msg & vbNewLine & "* Enter a HSR's name."
                 If isdate(contact_date) = False or trim(contact_date) = "" then err_msg = err_msg & vbNewLine & "* Enter the date of contact with the HSR."
                 IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-            LOOP UNTIL err_msg = ""        
+            LOOP UNTIL err_msg = ""
         ElseIf error_selection = "QC" then
-            Do 
+            Do
                 err_msg = ""
                 Dialog QC_dialog
                 cancel_confirmation
                 If trim(CM_reference) = "" then err_msg = err_msg & vbNewLine & "* Enter the CM references."
                 If trim(HSR_name) = "" then err_msg = err_msg & vbNewLine & "* Enter a HSR's name."
                 If isdate(contact_date) = False or trim(contact_date) = "" then err_msg = err_msg & vbNewLine & "* Enter the date of contact with the HSR."
-                If trim(error_description) = "" then err_msg = err_msg & vbNewLine & "* Enter a description of the error." 
+                If trim(error_description) = "" then err_msg = err_msg & vbNewLine & "* Enter a description of the error."
                 If agency_or_client = "Select one..." then err_msg = err_msg & vbNewLine & "* Is error an agency or client error?"
                 If payment_type = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the payment error type?"
-                If trim(error_type) = "" then err_msg = err_msg & vbNewLine & "* Enter the error type from the form." 
+                If trim(error_type) = "" then err_msg = err_msg & vbNewLine & "* Enter the error type from the form."
                 IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-            LOOP UNTIL err_msg = ""    
-        Elseif error_selection = "QC < $38" then 
-            Do 
+            LOOP UNTIL err_msg = ""
+        Elseif error_selection = "QC < $38" then
+            Do
                 err_msg = ""
                 Dialog QC_dialog
                 cancel_confirmation
                 If trim(CM_reference) = "" then err_msg = err_msg & vbNewLine & "* Enter the CM references."
                 If trim(HSR_name) = "" then err_msg = err_msg & vbNewLine & "* Enter a HSR's name."
                 If isdate(contact_date) = False or trim(contact_date) = "" then err_msg = err_msg & vbNewLine & "* Enter the date of contact with the HSR."
-                If trim(error_description) = "" then err_msg = err_msg & vbNewLine & "* Enter a description of the error." 
+                If trim(error_description) = "" then err_msg = err_msg & vbNewLine & "* Enter a description of the error."
                 If agency_or_client = "Select one..." then err_msg = err_msg & vbNewLine & "* Is error an agency or client error?"
                 If payment_type = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the payment error type?"
                 IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
             LOOP UNTIL err_msg = ""
-        End if 
-        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-    Loop until are_we_passworded_out = false					'loops until user passwords back in		
-    
+        End if
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+
     reminder_date = dateadd("d", 20, contact_date)  'Setting the reminder date & Outlook appointment is created in prior to the case note
 	'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, appt_category)
 	Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "QC case due for " & MAXIS_case_number, "Has " & HSR_name & " returned this case?", "", TRUE, 5, "")
-    
+
     Call start_a_blank_case_note
     Call write_variable_in_case_note("***State Quality Control " & error_selection & " Error for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "***")
     CALL write_bullet_and_variable_in_case_note("Progam", program_droplist)
@@ -283,6 +282,6 @@ Else
     CALL write_bullet_and_variable_in_case_note("Other error notes", other_notes)
     CALL write_variable_in_case_note("---")
     CALL write_variable_in_case_note(worker_signature)
-    
+
     script_end_procedure("")
-End if         
+End if
