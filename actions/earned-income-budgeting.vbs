@@ -2056,7 +2056,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                         EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) = total_of_gross_income / cash_checks             'average $ per pay check for non-SNAP
                         EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel),2,,0)
 
-                        EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) = total_of_included_pay_checks / total_of_hours           'the $/hr
+                        If total_of_hours <> 0 Then EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) = total_of_included_pay_checks / total_of_hours           'the $/hr
+                        If total_of_hours = 0 Then EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) = 0
                         EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel),2,,0)
 
                         'determining the number of hours per week for SNAP
