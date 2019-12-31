@@ -343,7 +343,8 @@ FUNCTION favorite_menu(user_scripts_array, mandatory_array, new_array, script_lo
 	END IF
 
 	'>>> The dialog
-	BeginDialog favorites_dlg, 0, 0, 411, dlg_height, dlg_name & " "
+	Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 411, dlg_height, dlg_name & " "
   	  ButtonGroup ButtonPressed
 		'>>> User's favorites
 		'>>> Here, we are using the value for the script type start_row to determine the vertical position of each pushbutton.
@@ -389,7 +390,7 @@ FUNCTION favorite_menu(user_scripts_array, mandatory_array, new_array, script_lo
 	EndDialog
 
 	'>>> Loading the favorites dialog
-	DIALOG favorites_dlg
+	DIALOG Dialog1
 		'>>> Cancelling the script if ButtonPressed = 0
 		IF ButtonPressed = 0 THEN stopscript
 		'>>> Giving user has the option of updating their favorites menu.
