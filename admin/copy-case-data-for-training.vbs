@@ -185,6 +185,7 @@ END FUNCTION
 'This is the dialog that allows the user to open the existing spreadsheet
 DO
     DO
+        Dialog1 = ""
         BeginDialog Dialog1, 0, 0, 381, 320, "MAXIS Case Replicator 9000, Version 1.0"
           Text 10, 10, 200, 10, "Hello, human. Welcome to the MAXIS Case Replicator 9000."
           Text 10, 25, 365, 20, "This script works in conjunction with the training case generator, to grab case information out of MAXIS and insert it into a new scenario in scenario spreadsheet."
@@ -205,8 +206,8 @@ DO
             CancelButton 325, 300, 50, 15
         EndDialog
 
-    	Dialog
-    	If ButtonPressed = cancel then stopscript
+    	Dialog Dialog1
+    	cancel_without_confirmation
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(training_case_creator_excel_file_path, ".xlsx")
     Loop until ButtonPressed = OK and training_case_creator_excel_file_path <> ""
 
@@ -232,6 +233,7 @@ LOOP UNTIL confirm_spreadsheet = vbYes
 DO
 	err_msg = ""
 
+    Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 216, 60, "Scenario Creator"
 	EditBox 105, 10, 105, 15, scenario_name
 	ButtonGroup ButtonPressed
@@ -240,7 +242,7 @@ DO
 	Text 10, 15, 90, 10, "Name your new scenario:"
 	EndDialog
 
-	DIALOG
+	DIALOG Dialog1
 	cancel_confirmation
 	IF scenario_name = "" THEN err_msg = err_msg & vbCr & "* You must give the scenario a name."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
@@ -273,6 +275,7 @@ EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 DO
+    Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 211, 60, "Confirm MAXIS Case Number"
       EditBox 140, 10, 65, 15, MAXIS_case_number
       ButtonGroup ButtonPressed
@@ -281,7 +284,7 @@ DO
       Text 10, 15, 125, 10, "Please enter a case number to copy:"
     EndDialog
 
-    DIALOG
+    DIALOG Dialog1
     cancel_confirmation
 	IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "Please enter a valid MAXIS case number."
 LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE
@@ -379,7 +382,8 @@ DO
 	'resizing this dialog depending on the number of peeps
 	dlg_height = 100 + (ubound(client_array) * 20)
 
-	BeginDialog Dialog1, 0, 0, 246, dlg_height, "Name and APPL Info"
+	Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 246, dlg_height, "Name and APPL Info"
       DropListBox 60, 35, 65, 15, "Select one:"+chr(9)+"CM"+chr(9)+"CM -1"+chr(9)+"CM -2"+chr(9)+"CM -3"+chr(9)+"CM -4"+chr(9)+"CM -5", appl_month
 	  EditBox 185, 30, 30, 15, appl_day
 	  Text 10, 35, 45, 10, "APPL Month:"
@@ -402,7 +406,7 @@ DO
 	EndDialog
 
 	'calling the dialog
-	DIALOG
+	DIALOG Dialog1
 	cancel_confirmation
 	'validating the data
 	IF appl_month = "Select one:" THEN err_msg = err_msg & vbCr & "* Please select an APPL month."
