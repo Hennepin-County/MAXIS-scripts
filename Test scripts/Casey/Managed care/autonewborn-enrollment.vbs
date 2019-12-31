@@ -408,15 +408,6 @@ function navigate_to_MMIS_region(group_security_selection)
 end function
 'END FUNCTIONS=========================================================================================================
 
-'DIALOGS===============================================================================================================
-BeginDialog case_number_dialog, 0, 0, 136, 50, "Dialog"
-  EditBox 60, 5, 70, 15, MAXIS_case_number
-  ButtonGroup ButtonPressed
-    OkButton 25, 30, 50, 15
-    CancelButton 80, 30, 50, 15
-  Text 10, 10, 50, 10, "Case Number:"
-EndDialog
-
 'END DIALOGS===========================================================================================================
 EMConnect ""
 
@@ -425,10 +416,19 @@ check_for_MAXIS(True)
 
 call MAXIS_case_number_finder(MAXIS_case_number)
 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 136, 50, "Dialog"
+  EditBox 60, 5, 70, 15, MAXIS_case_number
+  ButtonGroup ButtonPressed
+    OkButton 25, 30, 50, 15
+    CancelButton 80, 30, 50, 15
+  Text 10, 10, 50, 10, "Case Number:"
+EndDialog
+
 Do
     err_msg = ""
 
-    Dialog case_number_dialog
+    Dialog Dialog1
     If buttonpressed = cancel then stopscript
 
     If trim(MAXIS_case_number) = "" Then err_msg = err_msg & vbNewLine * "* Enter a case number."
