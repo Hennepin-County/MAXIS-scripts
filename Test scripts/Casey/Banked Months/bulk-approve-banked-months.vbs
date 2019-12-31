@@ -576,7 +576,7 @@ MX_region = trim(MX_region)
     'HAVE DEVELOPER MODE
 
 'IF NOT in Developer Mode, check to be sure we are in production
-
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 181, 80, "Dialog"
   DropListBox 15, 35, 160, 45, "Find ABAWD Months", process_option
   'DropListBox 15, 35, 160, 45, "Ongoing Banked Months Cases"+chr(9)+"Find ABAWD Months", process_option
@@ -613,7 +613,7 @@ End If
 
 excel_row_to_start = "2"
 'stop_time = "1"
-
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 176, 140, "Dialog"
   EditBox 25, 55, 30, 15, stop_time
   EditBox 65, 100, 30, 15, excel_row_to_start
@@ -979,6 +979,7 @@ If process_option = "Find ABAWD Months" Then
             	objABAWDExcel.Columns(i).AutoFit()				'sizing the columns
             NEXT
 
+            Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 141, 90, "Confirm Counted ABAWD Months"
               EditBox 30, 30, 30, 15, counted_month_one
               EditBox 30, 50, 30, 15, counted_month_two
@@ -1191,6 +1192,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                             y_pos = 75
 
                             'This dialog will list all of the exemptions the function found
+                            Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 346, dlg_len, "Possible ABAWD/FSET Exemption"
                             'BeginDialog Dialog1, 0, 0, 346, 135, "Possible ABAWD/FSET Exemption"
                               GroupBox 15, 10, 325, 55, "Case Review"
@@ -1269,6 +1271,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                             transmit
 
                             'This dialog is to assist in the noting of the approval
+                            Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 236, 110, "Dialog"
                               EditBox 95, 30, 15, 15, start_month
                               EditBox 115, 30, 15, 15, start_year
@@ -1410,6 +1413,7 @@ If process_option = "Ongoing Banked Months Cases" Then
                 If month_tracked = TRUE Then
 
                     'This dialog will allow the worker to determine if this should not be tracked as a banked month '
+                    Dialog1 = ""
                     BeginDialog Dialog1, 0, 0, 191, 110, "Dialog"
                       ButtonGroup ButtonPressed
                         PushButton 15, 75, 160, 15, "Yes - remove the month from the Master List", yes_remove_month_btn
