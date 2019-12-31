@@ -85,6 +85,7 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 'Finds MAXIS footer month
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
+Dialog1 = ""
 BeginDialog dialog1, 0, 0, 161, 65, "Case number and footer month"
   Text 5, 10, 85, 10, "Enter your case number:"
   EditBox 95, 5, 60, 15, MAXIS_case_number
@@ -99,8 +100,8 @@ EndDialog
 
 'Shows case number dialog
 Do
-	Dialog
-	If buttonpressed = 0 then stopscript
+	Dialog Dialog1
+	cancel_without_confirmation
 	If isnumeric(MAXIS_case_number) = False then MsgBox "You must type a valid case number."
 Loop until isnumeric(MAXIS_case_number) = True
 
@@ -108,7 +109,8 @@ Loop until isnumeric(MAXIS_case_number) = True
 back_to_SELF
 
 'DIALOG IS TOO LARGE FOR DIALOG EDITOR, CREATED MANUALLY
-BeginDialog dialog1, 0, 0, 371, 190, "All MAXIS panels dialog"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 371, 190, "All MAXIS panels dialog"
   Checkbox 10, 10, 35, 10, "MEMB", MEMB_check
   Checkbox 60, 10, 35, 10, "MEMI", MEMI_check
   Checkbox 110, 10, 35, 10, "ADDR", ADDR_check
@@ -188,7 +190,7 @@ BeginDialog dialog1, 0, 0, 371, 190, "All MAXIS panels dialog"
     CancelButton 310, 25, 50, 15
 EndDialog
 
-Dialog
+Dialog Dialog1
 
 Cancel_confirmation
 
