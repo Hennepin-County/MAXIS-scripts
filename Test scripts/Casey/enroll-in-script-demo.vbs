@@ -168,6 +168,7 @@ Next
 dlg_len = 160 + (unique_scripts * 20) + (total_dates * 20)
 y_pos = 165
 
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 391, dlg_len, "Select DEMOs to Enroll"
   Text 95, 10, 145, 10, "Welcome to the BlueZone Script Roadshow!"
   GroupBox 5, 25, 380, 90, "About Script Demos"
